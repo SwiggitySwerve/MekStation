@@ -30,11 +30,11 @@ reconciliation merge `7f22e4f22` · audited main `442f90855`.
 
 ## W1 — Projection/engine to-hit unification (cluster B)
 
-| Task | Finding       | Scope                                                                                                                 | Status  |
-| ---- | ------------- | --------------------------------------------------------------------------------------------------------------------- | ------- |
-| W1.1 | B-1           | Stop commit path overwriting engine's hydrated to-hit; hydrate projection via `buildWeaponAttack*ToHitState`          | done    |
-| W1.2 | B-2, B-5, B-6 | Evade/sprint attacker gates in projection; positional-arg bug; min-range `>=` + drift                                 | done    |
-| W1.3 | B-3, B-4      | `calculateMovementHeat` options-object refactor (4 call sites); movement validator agreement (no permissive fallback) | pending |
+| Task | Finding       | Scope                                                                                                                                                                                                                                                                                                                                                                                                                                             | Status |
+| ---- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| W1.1 | B-1           | Stop commit path overwriting engine's hydrated to-hit; hydrate projection via `buildWeaponAttack*ToHitState`                                                                                                                                                                                                                                                                                                                                      | done   |
+| W1.2 | B-2, B-5, B-6 | Evade/sprint attacker gates in projection; positional-arg bug; min-range `>=` + drift                                                                                                                                                                                                                                                                                                                                                             | done   |
+| W1.3 | B-3, B-4      | `calculateMovementHeat` options-object refactor (6 call sites incl. `InteractiveSession.actions` ×2); `validateMovement` paths via `movementModeForPath`; commit fallback surfaces `validatorDisagreement` diagnostic (projection stays authoritative). Deferred: turning-MP divergence (validateMovement charges `calculateGroundPathTurningMpCost`, projection models no facing) — surfaced via diagnostic, full unification out of slice scope | done   |
 
 ## W2 — MegaMek rules fixes (cluster C; 3 MODIFIED deltas)
 

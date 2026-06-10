@@ -48,27 +48,45 @@ function calculateAirMekMovementHeat(
 }
 
 /**
+ * Options for `calculateMovementHeat`.
+ *
+ * Audit 2026-06-09 B-3: the previous 3rd parameter was a
+ * `MovementMotiveMode | number` union, which forced every caller to choose
+ * between the motive-mode gate and the Partial Wing jump bonus — the
+ * projection dropped the wing bonus while validateMovement/MoveAI dropped
+ * the motive-mode gate. A single options object lets every caller pass the
+ * full capability state so projection and engine compute identical heat.
+ */
+export interface IMovementHeatOptions {
+  /** Chassis/squad motive mode; non-Mek modes generate no engine heat. */
+  readonly movementMode?: MovementMotiveMode;
+  /** Rules-level movement heat source (mek / airmek / none). */
+  readonly movementHeatProfile?: MovementHeatProfile;
+  /** Partial Wing jump-heat reduction, subtracted before the 3-heat floor. */
+  readonly partialWingJumpBonus?: number;
+}
+
+/**
  * Calculate heat generated from movement.
  *
  * MegaMek's base Entity movement heat is 0; Mek overrides that to engine
- * walk/run/jump heat. MekStation represents non-Mek motive systems through
+ * walk/run/jump heat (and `Mek#getJumpHeat` subtracts the Partial Wing
+ * bonus). MekStation represents non-Mek motive systems through
  * `movementMode`, so only default/Mek-style movement generates this heat.
  */
 export function calculateMovementHeat(
   movementType: MovementType,
   hexesMoved: number,
-  movementModeOrPartialWingBonus?: MovementMotiveMode | number,
-  movementHeatProfile?: MovementHeatProfile,
+  options: IMovementHeatOptions = {},
 ): number {
+  const { movementMode, movementHeatProfile } = options;
+  // Normalize the wing bonus defensively: hydration can leave it undefined
+  // and synthetic fixtures may carry non-finite values.
   const partialWingJumpBonus =
-    typeof movementModeOrPartialWingBonus === 'number' &&
-    Number.isFinite(movementModeOrPartialWingBonus)
-      ? Math.max(0, Math.floor(movementModeOrPartialWingBonus))
+    typeof options.partialWingJumpBonus === 'number' &&
+    Number.isFinite(options.partialWingJumpBonus)
+      ? Math.max(0, Math.floor(options.partialWingJumpBonus))
       : 0;
-  const movementMode =
-    typeof movementModeOrPartialWingBonus === 'number'
-      ? undefined
-      : movementModeOrPartialWingBonus;
 
   if (movementHeatProfile === 'airmek') {
     const airMekHeat = calculateAirMekMovementHeat(movementType, hexesMoved);

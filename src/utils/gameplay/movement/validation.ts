@@ -29,6 +29,7 @@ import {
   type IMovementCostContext,
 } from './calculations';
 import { calculateGroundPathTurningMpCost } from './eventPath';
+import { movementModeForPath } from './mode';
 import { calculateMovementHeat } from './modifiers';
 import { findPath } from './pathfinding';
 
@@ -105,7 +106,14 @@ export function validateMovement(
 
   let mpCost = distance === 0 ? facingChangeCost : distance;
   if (movementType !== MovementType.Jump && distance > 0) {
-    const unitMovementType = toUnitMovementType(movementType);
+    // Audit 2026-06-09 B-4: path with the capability's motive mode (hover,
+    // tracked, wige, …) exactly like the reachability projection does, so
+    // both validators charge the same terrain costs. The plain walk/run
+    // mapping is only the fallback for capabilities without a motive mode.
+    const unitMovementType: UnitMovementType = movementModeForPath(
+      movementType,
+      capability,
+    );
     const path = findPath(
       grid,
       position.coord,
@@ -159,32 +167,20 @@ export function validateMovement(
     };
   }
 
-  const heatGenerated = calculateMovementHeat(
-    movementType,
-    distance,
-    capability.partialWingJumpBonus,
-  );
+  // Audit 2026-06-09 B-3: pass the full capability heat state — previously
+  // only the Partial Wing bonus was forwarded, so non-Mek units (hover,
+  // tracked, …) were charged Mek movement heat here.
+  const heatGenerated = calculateMovementHeat(movementType, distance, {
+    movementMode: capability.movementMode,
+    movementHeatProfile: capability.movementHeatProfile,
+    partialWingJumpBonus: capability.partialWingJumpBonus,
+  });
 
   return {
     valid: true,
     mpCost,
     heatGenerated,
   };
-}
-
-function toUnitMovementType(movementType: MovementType): UnitMovementType {
-  switch (movementType) {
-    case MovementType.Run:
-    case MovementType.Evade:
-    case MovementType.Sprint:
-      return 'run';
-    case MovementType.Jump:
-      return 'jump';
-    case MovementType.Walk:
-    case MovementType.Stationary:
-    default:
-      return 'walk';
-  }
 }
 
 export function getFacingChangeCost(from: Facing, to: Facing): number {

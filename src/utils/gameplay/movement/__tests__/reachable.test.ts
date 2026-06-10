@@ -34,6 +34,7 @@ import {
   AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON,
   AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON,
 } from '@/utils/gameplay/movement/runtimeCapability';
+import { validateMovement } from '@/utils/gameplay/movement/validation';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 import { createVehicleCombatState } from '@/utils/gameplay/vehicleDamage';
 
@@ -3299,5 +3300,149 @@ describe('deriveMovementRangeHexForDestination', () => {
       elevationCost: 2,
       movementInvalidReason: 'InsufficientMP',
     });
+  });
+});
+
+// Audit 2026-06-09 findings B-3 / B-4: the reachability projection is the
+// canonical movement authority. These tests pin (1) the Partial Wing
+// jump-heat bonus flowing through projection AND commit, (2) validateMovement
+// agreeing with the projection on motive-mode costs, and (3) the commit path
+// surfacing validator disagreement instead of silently resolving to the more
+// permissive side.
+describe('movement heat and validator agreement (audit B-3/B-4)', () => {
+  it('includes the Partial Wing bonus in projection and commit jump heat', () => {
+    const grid = createHexGrid({ radius: 7 });
+    const unit = makeUnitAtOrigin();
+    const capability: IMovementCapability = {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 6,
+      partialWingJumpBonus: 2,
+    };
+
+    // 6 jump hexes − wing bonus 2 → 4 heat (MegaMek Mek#getJumpHeat).
+    const projection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Jump,
+      grid,
+      capability,
+      { q: 0, r: -6 },
+    );
+    expect(projection).toMatchObject({
+      reachable: true,
+      heatGenerated: 4,
+    });
+
+    const commit = validateCommittedMovement({
+      grid,
+      unit,
+      to: { q: 0, r: -6 },
+      facing: Facing.North,
+      movementType: MovementType.Jump,
+      capability,
+    });
+    expect(commit).toMatchObject({
+      valid: true,
+      heatGenerated: 4,
+    });
+  });
+
+  it('keeps validateMovement in agreement with the projection for motive-mode capabilities', () => {
+    let grid = createHexGrid({ radius: 3 });
+    grid = setHex(grid, { q: 0, r: -1 }, TerrainType.Water);
+    const unit = makeUnitAtOrigin();
+    const capability: IMovementCapability = {
+      walkMP: 1,
+      runMP: 2,
+      jumpMP: 0,
+      movementMode: 'hover',
+    };
+
+    // Hover pays no water-depth surcharge: the projection reaches the
+    // depth-1 water hex for 1 MP with no movement heat.
+    const projection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      capability,
+      { q: 0, r: -1 },
+    );
+    expect(projection).toMatchObject({
+      reachable: true,
+      mpCost: 1,
+      heatGenerated: 0,
+    });
+
+    // validateMovement must path with the same motive mode and land on the
+    // same MP cost + heat instead of charging Mek ground costs.
+    const validation = validateMovement(
+      grid,
+      {
+        unitId: unit.id,
+        coord: unit.position,
+        facing: unit.facing,
+        prone: false,
+      },
+      { q: 0, r: -1 },
+      Facing.North,
+      MovementType.Walk,
+      capability,
+    );
+    expect(validation.valid).toBe(true);
+    expect(validation.mpCost).toBe(projection?.mpCost);
+    expect(validation.heatGenerated).toBe(projection?.heatGenerated);
+  });
+
+  it('surfaces validateMovement disagreement instead of silently committing the permissive side', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const unit = makeUnitAtOrigin(); // facing North
+    const capability: IMovementCapability = { walkMP: 1, runMP: 2, jumpMP: 0 };
+
+    // The projection (canonical) reaches the adjacent hex for 1 MP; it does
+    // not model facing. validateMovement additionally charges 3 turning MP
+    // for the 180° facing change and rejects. The commit must stay
+    // projection-authoritative but cannot stay silent about the split.
+    const projection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      capability,
+      { q: 0, r: -1 },
+    );
+    expect(projection).toMatchObject({ reachable: true, mpCost: 1 });
+
+    const commit = validateCommittedMovement({
+      grid,
+      unit,
+      to: { q: 0, r: -1 },
+      facing: Facing.South,
+      movementType: MovementType.Walk,
+      capability,
+    });
+    if (!commit.valid) {
+      throw new Error('expected projection-backed commit to stay valid');
+    }
+    expect(commit.mpCost).toBe(1);
+    expect(commit.validatorDisagreement).toBeDefined();
+    expect(commit.validatorDisagreement).toContain('max range');
+  });
+
+  it('reports no validator disagreement when both validators accept', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const unit = makeUnitAtOrigin();
+    const capability: IMovementCapability = { walkMP: 1, runMP: 2, jumpMP: 0 };
+
+    const commit = validateCommittedMovement({
+      grid,
+      unit,
+      to: { q: 0, r: -1 },
+      facing: Facing.North,
+      movementType: MovementType.Walk,
+      capability,
+    });
+    if (!commit.valid) {
+      throw new Error('expected commit to be valid');
+    }
+    expect(commit.validatorDisagreement).toBeUndefined();
   });
 });

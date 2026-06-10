@@ -254,12 +254,11 @@ export function applyInteractiveSessionMovement(
       unit.facing,
       MovementType.Walk,
       hullDownEntryCost,
-      calculateMovementHeat(
-        MovementType.Walk,
-        0,
-        movementCapability?.movementMode,
-        movementCapability?.movementHeatProfile,
-      ),
+      calculateMovementHeat(MovementType.Walk, 0, {
+        movementMode: movementCapability?.movementMode,
+        movementHeatProfile: movementCapability?.movementHeatProfile,
+        partialWingJumpBonus: movementCapability?.partialWingJumpBonus,
+      }),
       [from],
       { hullDownEntryAttempt: true },
     );
@@ -342,12 +341,11 @@ export function applyInteractiveSessionMovement(
         unit.facing,
         input.movementType,
         getStandingCost(movementCapability, standUpMode),
-        calculateMovementHeat(
-          MovementType.Walk,
-          0,
-          movementCapability.movementMode,
-          movementCapability.movementHeatProfile,
-        ),
+        calculateMovementHeat(MovementType.Walk, 0, {
+          movementMode: movementCapability.movementMode,
+          movementHeatProfile: movementCapability.movementHeatProfile,
+          partialWingJumpBonus: movementCapability.partialWingJumpBonus,
+        }),
         [from],
         {
           standUpAttempt: true,

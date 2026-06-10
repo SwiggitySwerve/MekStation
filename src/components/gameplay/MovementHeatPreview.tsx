@@ -59,12 +59,7 @@ export function MovementHeatPreview({
 }: MovementHeatPreviewProps): React.ReactElement {
   const heat =
     heatGenerated ??
-    calculateMovementHeat(
-      movementType,
-      jumpHexes,
-      undefined,
-      movementHeatProfile,
-    );
+    calculateMovementHeat(movementType, jumpHexes, { movementHeatProfile });
   const label = MOVEMENT_TYPE_LABEL[movementType] ?? 'Move';
 
   return (

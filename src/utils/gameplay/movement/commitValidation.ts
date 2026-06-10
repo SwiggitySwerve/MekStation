@@ -58,6 +58,15 @@ export type CommittedMovementValidationResult =
       readonly mpCost: number;
       readonly heatGenerated: number;
       readonly path: readonly IHexCoordinate[];
+      /**
+       * Audit 2026-06-09 B-4: present when the legacy `validateMovement`
+       * pass rejected a destination the canonical reachability projection
+       * accepts (e.g. turning MP, which the projection does not model). The
+       * commit stays projection-authoritative; this diagnostic keeps the
+       * validator split observable instead of silently resolving to the
+       * more permissive side.
+       */
+      readonly validatorDisagreement?: string;
     }
   | {
       readonly valid: false;
@@ -188,6 +197,15 @@ export function validateCommittedMovement(
   );
 
   if (!validation.valid) {
+    // Audit 2026-06-09 B-4: the projection is the canonical movement
+    // authority, so a projection-accepted destination still commits — but
+    // the validator split must surface as a returned diagnostic instead of
+    // silently resolving to the more permissive side. Known remaining
+    // divergence: validateMovement charges turning MP for facing changes,
+    // which the projection does not model.
+    const validatorDisagreement = `Reachability projection accepted movement that validateMovement rejected: ${
+      validation.error ?? 'unknown reason'
+    }`;
     if (input.path !== undefined) {
       const pathValidation = validateSuppliedMovementPath({
         grid: input.grid,
@@ -216,6 +234,7 @@ export function validateCommittedMovement(
           mpCost: pathValidation.mpCost ?? projection.mpCost,
           heatGenerated: projection.heatGenerated ?? 0,
           path: input.path,
+          validatorDisagreement,
         };
       }
     } else if (projection?.reachable) {
@@ -224,6 +243,7 @@ export function validateCommittedMovement(
         mpCost: projection.mpCost,
         heatGenerated: projection.heatGenerated ?? 0,
         path: projection.path ?? [from, input.to],
+        validatorDisagreement,
       };
     }
 
