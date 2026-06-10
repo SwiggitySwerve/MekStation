@@ -24,7 +24,7 @@ reconciliation merge `7f22e4f22` · audited main `442f90855`.
 | W0.4 | A-13, A-8            | MegaMek `hexAngle` restored + private copy removed; ECM helper deletion re-applied                                           | done    |
 | W0.5 | A-9, A-3, A-7p       | `toAIUnitState` fields; Sprint/Evade/MASC/Supercharger commands + catalog rows; `weaponAttackBuilder`/`indirectFire` tests   | done    |
 | W0.6 | A-4, A-12, A-15      | Boxcars PSR hack removed; request-spot guard chain; heat.continue fallback                                                   | done    |
-| W0.7 | A-11                 | `REASON_COPY` ~85 codes + exhaustiveness check                                                                               | pending |
+| W0.7 | A-11                 | `REASON_COPY` ~85 codes + exhaustiveness check                                                                               | done    |
 | W0.8 | A-1                  | CompendiumAdapter motive/MP/water pipeline + tests                                                                           | pending |
 | W0.9 | C-12                 | Wreck-LOS dead path removed; transparency tests per `align-wreck-los-with-megamek`                                           | pending |
 
