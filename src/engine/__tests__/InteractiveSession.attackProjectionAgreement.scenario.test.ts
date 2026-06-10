@@ -2962,6 +2962,231 @@ describe('interactive attack projection agreement', () => {
     expect(payload.toHitNumber).toBe(projection!.toHitNumber);
   });
 
+  it('applies the +1 minimum-range penalty at exactly minimum range in both preview and committed attacks', () => {
+    // Audit B-6 (W1.2): MegaMek Compute.java#L1714-L1716 applies the penalty
+    // when `distance <= minRange` — +1 AT exactly minimum range. The
+    // projection previously used a strict `minimum > distance` comparison,
+    // so the previewed (and stamped) to-hit silently dropped the +1 the
+    // engine's own calculator produces.
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.t1 = {
+      ...session.currentState.units.t1,
+      position: { q: 6, r: 0 },
+    };
+    const grid = makeClearGrid(8);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 6, r: 0 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [
+        makeWeaponStatus({
+          id: 'lrm-15-1',
+          name: 'LRM-15',
+          heat: 5,
+          damage: 9,
+          ranges: { short: 7, medium: 14, long: 21, minimum: 6 },
+        }),
+      ],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 6 && hex.hex.r === 0);
+
+    expect(projection).toBeDefined();
+    expect(projection).toMatchObject({
+      attackable: true,
+      rangeBracket: RangeBracket.Short,
+      minimumRangePenalty: 1,
+      minimumRangeWeaponIds: ['lrm-15-1'],
+      minimumRangeReason: 'Minimum range penalty +1 (lrm-15-1)',
+      toHitNumber: 5,
+    });
+    expect(projection?.toHitModifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Minimum Range',
+          value: 1,
+          source: 'range',
+        }),
+      ]),
+    );
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildMinimumRangeWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['lrm-15-1'],
+      grid,
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Minimum Range',
+          value: 1,
+          source: 'range',
+        }),
+      ]),
+    );
+    expect(payload.toHitNumber).toBe(projection!.toHitNumber);
+  });
+
+  it('keeps evading attackers blocked in both preview and committed attacks', () => {
+    // Audit B-2 (W1.2): the engine commit path rejects evading attackers
+    // (declareAttack -> invalidateEvadingAttackerAttack). The projection must
+    // refuse the same hexes with the same reason/details instead of
+    // previewing an attack the engine will refuse.
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      isEvading: true,
+    };
+    const grid = makeClearGrid(3);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [makeWeaponStatus()],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(projection).toBeDefined();
+    expect(projection).toMatchObject({
+      attackable: false,
+      attackInvalidReason: 'AttackerEvading',
+      attackInvalidDetails:
+        "Attacker 'a1' is evading and cannot fire ranged weapons",
+      blockedReason: "Attacker 'a1' is evading and cannot fire ranged weapons",
+      validTargetUnitIds: [],
+    });
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['medium-laser'],
+      grid,
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponId: 'medium-laser',
+      reason: projection!.attackInvalidReason,
+      details: projection!.attackInvalidDetails,
+    });
+  });
+
+  it('keeps sprinting attackers blocked in both preview and committed attacks', () => {
+    // Audit B-2 (W1.2): same agreement contract as the evading gate —
+    // declareAttack -> invalidateSprintingAttackerAttack on the engine side.
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      sprintedThisTurn: true,
+    };
+    const grid = makeClearGrid(3);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [makeWeaponStatus()],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(projection).toBeDefined();
+    expect(projection).toMatchObject({
+      attackable: false,
+      attackInvalidReason: 'AttackerSprinted',
+      attackInvalidDetails:
+        "Attacker 'a1' sprinted and cannot fire ranged weapons",
+      blockedReason: "Attacker 'a1' sprinted and cannot fire ranged weapons",
+      validTargetUnitIds: [],
+    });
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['medium-laser'],
+      grid,
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponId: 'medium-laser',
+      reason: projection!.attackInvalidReason,
+      details: projection!.attackInvalidDetails,
+    });
+  });
+
   it('keeps extreme-range preview brackets aligned with committed attacks', () => {
     const session = setupSessionAtWeaponAttack();
     session.currentState.units.t1 = {

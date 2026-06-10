@@ -82,10 +82,12 @@ import {
 import { appendAttackRevealIfReady } from './gameSessionAttackReveal';
 import { appendEvent } from './gameSessionEvents';
 import { allUnitsLocked, deriveState } from './gameState';
+import { isGroundToGroundGameAttack } from './groundToGround';
 import {
   calculateSideInitiativeModifier,
   hasSideTacticalGeniusInitiativeReroll,
 } from './initiativeModifiers';
+import { strictestApplicableMinimumRange } from './range';
 import { isSemiGuidedLRM } from './specialWeaponMechanics';
 import {
   buildWeaponAttackAttackerToHitState,
@@ -559,6 +561,17 @@ export function declareAttack(
       }
     : undefined;
 
+  // Audit B-6 (W1.2): route the volley minimum range through the SAME shared
+  // helper the projection uses (strictest in-effect minimum across declared
+  // weapons, inclusive at exactly minimum range, ground-to-ground gated per
+  // MegaMek Compute.java#L1714-L1716) instead of the primary weapon's
+  // minimum alone — preview and commit must produce equal to-hit numbers.
+  const volleyMinimumRange = strictestApplicableMinimumRange(
+    weapons.map((weapon) => weapon.minRange),
+    range,
+    isGroundToGroundGameAttack(attackerUnit, targetUnit),
+  );
+
   const toHitCalc = calculateToHit(
     buildWeaponAttackAttackerToHitState(
       attackerUnit,
@@ -572,14 +585,21 @@ export function declareAttack(
         : undefined,
       targetId,
       undefined,
-      weapons.some((weapon) => weapon.calledShot === true),
-      weapons.some((weapon) => weapon.teammateCalledShot === true),
-      targetPartialCover,
+      // Audit B-5 (W1.2): named options — `targetPartialCover` was previously
+      // passed positionally into the applyLocalCalledShotAbilityReduction
+      // slot, silently disabling the Marksman/Sharpshooter reduction whenever
+      // the target lacked partial cover. Cover belongs to target state only.
+      {
+        calledShot: weapons.some((weapon) => weapon.calledShot === true),
+        teammateCalledShot: weapons.some(
+          (weapon) => weapon.teammateCalledShot === true,
+        ),
+      },
     ),
     buildWeaponAttackTargetToHitState(targetUnit, targetPartialCover),
     rangeBracket,
     range,
-    primaryWeapon?.minRange,
+    volleyMinimumRange,
     primaryWeapon?.weaponId,
     semiGuidedTagContext,
   );

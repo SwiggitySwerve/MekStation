@@ -150,6 +150,33 @@ export function getMinimumRangePenalty(
 }
 
 /**
+ * Strictest minimum range in effect across a declared volley.
+ *
+ * Audit B-6 (W1.2): single source of truth shared by the tactical-map
+ * projection (`minimumRangeForWeapons`) and the engine commit path
+ * (`declareAttack`) so both sides feed `calculateToHit` the same minimum.
+ * Per MegaMek Compute.java#L1714-L1716 a weapon's minimum is in effect when
+ * `minRange > 0 && distance <= minRange` (the +1 applies AT exactly minimum
+ * range) and only for ground-to-ground attacks — callers pass that gate via
+ * `minimumRangeApplies`. Across a volley the strictest in-effect minimum
+ * wins, matching the projection's hex-level `minimumRangePenalty` display.
+ */
+export function strictestApplicableMinimumRange(
+  minimumRanges: readonly (number | undefined)[],
+  distance: number,
+  minimumRangeApplies = true,
+): number {
+  if (!minimumRangeApplies) return 0;
+  return minimumRanges.reduce<number>((strictest, minimum) => {
+    const value = minimum ?? 0;
+    // Inclusive comparison: at exactly minimum range the penalty is +1.
+    return value > 0 && distance <= value
+      ? Math.max(strictest, value)
+      : strictest;
+  }, 0);
+}
+
+/**
  * Calculate complete range information for a weapon.
  */
 export function calculateWeaponRange(

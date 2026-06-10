@@ -11,9 +11,17 @@ import type { classifyLOS } from '@/utils/overlays/losClassifier';
 import { RangeBracket } from '@/types/gameplay';
 
 import { determineArc } from './firingArcs';
+import {
+  evadingAttackerAttackDetails,
+  sprintingAttackerAttackDetails,
+} from './gameSessionAttackResolutionValidation';
 import { coordToKey } from './hexMath';
 import { formatLOSBlockedDetails } from './lineOfSight';
-import { getMinimumRangePenalty, getWeaponRangeBracket } from './range';
+import {
+  getMinimumRangePenalty,
+  getWeaponRangeBracket,
+  strictestApplicableMinimumRange,
+} from './range';
 import { weaponMountCoversTargetArc } from './weaponMountArcs';
 
 const RANGE_BRACKET_RANK: Readonly<Record<RangeBracket, number>> = {
@@ -126,18 +134,21 @@ export function formatMinimumRangeReason(
   return `Minimum range penalty +${penalty} (${weaponIds.join(', ')})`;
 }
 
+// Audit B-6 (W1.2): delegates to the shared volley helper so the projection
+// and the engine commit path (declareAttack) compute the identical minimum —
+// inclusive at exactly minimum range per MegaMek Compute.java#L1714-L1716.
+// The previous local strict `minimum > distance` comparison dropped the +1
+// at exactly minimum range while the committed path applied it.
 export function minimumRangeForWeapons(
   weapons: readonly IWeaponStatus[],
   distance: number,
   minimumRangeApplies = true,
 ): number {
-  if (!minimumRangeApplies) return 0;
-  return weapons.reduce((strictestMinimum, weapon) => {
-    const minimum = weapon.ranges.minimum ?? 0;
-    return minimum > distance
-      ? Math.max(strictestMinimum, minimum)
-      : strictestMinimum;
-  }, 0);
+  return strictestApplicableMinimumRange(
+    weapons.map((weapon) => weapon.ranges.minimum),
+    distance,
+    minimumRangeApplies,
+  );
 }
 
 export function targetIdsAtHex(
@@ -237,6 +248,9 @@ export function deriveAttackInvalidState({
   weaponEnvironmentInvalidState,
   indirectFirePermitted,
   indirectFireUnavailableReason,
+  attackerId,
+  attackerIsEvading,
+  attackerSprintedThisTurn,
 }: {
   readonly hasTarget: boolean;
   readonly distance: number;
@@ -256,6 +270,16 @@ export function deriveAttackInvalidState({
   };
   readonly indirectFirePermitted: boolean;
   readonly indirectFireUnavailableReason?: string;
+  /** Attacker unit id, echoed into attacker-state rejection details. */
+  readonly attackerId: string;
+  /**
+   * Audit B-2 (W1.2): attacker-state gates mirroring the engine commit path
+   * (declareAttack -> invalidateEvadingAttackerAttack /
+   * invalidateSprintingAttackerAttack). Sourced from combat state by the
+   * caller; false when no combat state is supplied.
+   */
+  readonly attackerIsEvading: boolean;
+  readonly attackerSprintedThisTurn: boolean;
 }): {
   readonly reason?: IAttackInvalidPayload['reason'];
   readonly details?: string;
@@ -303,6 +327,23 @@ export function deriveAttackInvalidState({
         : losDetails,
     };
   }
+  // Audit B-2 (W1.2): attacker-state gates run LAST so reason precedence
+  // matches the interactive commit path — applyInteractiveSessionAttack
+  // performs visibility/same-hex/range/arc/LOS rejection before declareAttack
+  // reaches invalidateEvadingAttackerAttack / invalidateSprintingAttackerAttack.
+  // Evading is checked before sprinting, mirroring declareAttack's order.
+  if (attackerIsEvading) {
+    return {
+      reason: 'AttackerEvading',
+      details: evadingAttackerAttackDetails(attackerId),
+    };
+  }
+  if (attackerSprintedThisTurn) {
+    return {
+      reason: 'AttackerSprinted',
+      details: sprintingAttackerAttackDetails(attackerId),
+    };
+  }
   return {};
 }
 
@@ -316,6 +357,10 @@ export function blockedReasonForHex(
     case 'InvalidTarget':
     case 'SameHex':
     case 'OutOfAmmo':
+    // Audit B-2 (W1.2): attacker-state rejections surface their engine
+    // details verbatim so the map legend matches the AttackInvalid event.
+    case 'AttackerEvading':
+    case 'AttackerSprinted':
       return invalidState.details;
     case 'OutOfRange':
       return 'Out of weapon range';

@@ -393,6 +393,14 @@ export function deriveCombatRangeHexes({
         groundToAirIndirectInvalidState,
       indirectFirePermitted: indirectFire?.available === true,
       indirectFireUnavailableReason,
+      // Audit B-2 (W1.2): attacker evade/sprint state comes from the hydrated
+      // combat state so the preview refuses exactly what declareAttack's
+      // invalidateEvadingAttackerAttack / invalidateSprintingAttackerAttack
+      // reject. Without combat state (pure-token previews) both gates stay
+      // open, matching the engine's inability to check them there.
+      attackerId: attacker.unitId,
+      attackerIsEvading: attackerUnit?.isEvading === true,
+      attackerSprintedThisTurn: attackerUnit?.sprintedThisTurn === true,
     });
     const attackable =
       projectedTargetUnitId !== undefined &&

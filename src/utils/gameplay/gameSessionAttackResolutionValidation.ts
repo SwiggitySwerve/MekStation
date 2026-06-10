@@ -84,6 +84,20 @@ export function invalidateInvalidTargetAttack(
   );
 }
 
+/**
+ * Audit B-2 (W1.2): canonical details strings for attacker-state attack
+ * rejections. Exported so the tactical-map projection
+ * (`deriveAttackInvalidState`) surfaces byte-identical reason details to the
+ * engine's AttackInvalid events — the agreement tests compare them directly.
+ */
+export function evadingAttackerAttackDetails(attackerId: string): string {
+  return `Attacker '${attackerId}' is evading and cannot fire ranged weapons`;
+}
+
+export function sprintingAttackerAttackDetails(attackerId: string): string {
+  return `Attacker '${attackerId}' sprinted and cannot fire ranged weapons`;
+}
+
 export function invalidateEvadingAttackerAttack(
   session: IGameSession,
   attackerId: string,
@@ -93,7 +107,7 @@ export function invalidateEvadingAttackerAttack(
   const attacker = session.currentState.units[attackerId];
   if (!attacker?.isEvading) return null;
 
-  const details = `Attacker '${attackerId}' is evading and cannot fire ranged weapons`;
+  const details = evadingAttackerAttackDetails(attackerId);
   const eventWeaponIds = weaponIds.length > 0 ? weaponIds : [undefined];
   return eventWeaponIds.reduce(
     (currentSession, weaponId) =>
@@ -123,7 +137,7 @@ export function invalidateSprintingAttackerAttack(
   const attacker = session.currentState.units[attackerId];
   if (attacker?.sprintedThisTurn !== true) return null;
 
-  const details = `Attacker '${attackerId}' sprinted and cannot fire ranged weapons`;
+  const details = sprintingAttackerAttackDetails(attackerId);
   const eventWeaponIds = weaponIds.length > 0 ? weaponIds : [undefined];
   return eventWeaponIds.reduce(
     (currentSession, weaponId) =>

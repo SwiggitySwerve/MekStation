@@ -293,7 +293,14 @@ describe('declareAttack to-hit state hydration', () => {
     );
   });
 
-  it('does not apply local called-shot SPA reductions in declared combat to-hit', () => {
+  it('applies the local called-shot SPA reduction in declared combat to-hit', () => {
+    // Audit B-5 (W1.2): the previous version of this test pinned the
+    // accidental behavior created by `targetPartialCover` landing in the
+    // `applyLocalCalledShotAbilityReduction` slot — the reduction toggled
+    // with target cover instead of applying consistently. The interactive
+    // engine path now matches the projection (builder default: reduction
+    // applied); only the source-backed simulation runner opts out, because
+    // TacOps called shots carry the full +3 without the local helper SPA.
     const session = setupWeaponAttackSession();
     const hydratedSession: IGameSession = {
       ...session,
@@ -323,9 +330,9 @@ describe('declareAttack to-hit state hydration', () => {
       (modifier) => modifier.name === 'Called Shot',
     );
 
-    expect(payload.toHitNumber).toBe(7);
+    expect(payload.toHitNumber).toBe(6);
     expect(calledShotModifier).toMatchObject({
-      value: 3,
+      value: 2,
       source: 'other',
     });
   });

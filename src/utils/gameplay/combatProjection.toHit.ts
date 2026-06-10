@@ -169,11 +169,14 @@ export function deriveToHitProjection({
         : undefined,
       targetUnitId,
       undefined,
-      weapons.some((weapon) => weapon.calledShot === true),
-      weapons.some((weapon) => weapon.teammateCalledShot === true),
-      // NOTE: declareAttack currently passes `targetPartialCover` into this
-      // slot (audit B-5, tracked as W1.2); the projection keeps the builder
-      // default until that fix lands so the correct value lives in one place.
+      // Audit B-5 (W1.2): named called-shot options shared with declareAttack;
+      // the local ability reduction stays on its default (true) on BOTH paths.
+      {
+        calledShot: weapons.some((weapon) => weapon.calledShot === true),
+        teammateCalledShot: weapons.some(
+          (weapon) => weapon.teammateCalledShot === true,
+        ),
+      },
     ),
     damageModifiers: attackContextModifiers,
     ...deriveVehicleToHitContext(attackerUnit, weapons),

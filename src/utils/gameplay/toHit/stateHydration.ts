@@ -18,6 +18,26 @@ interface IWeaponToHitDescriptor {
   readonly category?: string;
 }
 
+/**
+ * Audit B-5 (W1.2): the called-shot inputs were three adjacent positional
+ * booleans, which let `declareAttack` pass `targetPartialCover` into the
+ * `applyLocalCalledShotAbilityReduction` slot unnoticed (the call still
+ * type-checked). A named options object makes that bug class impossible.
+ */
+export interface ICalledShotHydrationOptions {
+  /** True when any weapon in the declared volley elected a called shot. */
+  readonly calledShot?: boolean;
+  /** True when the called shot is spotted by a teammate (+0 variant). */
+  readonly teammateCalledShot?: boolean;
+  /**
+   * Whether the local Marksman/Sharpshooter called-shot reduction applies.
+   * Defaults to true (interactive/local-campaign paths); the source-backed
+   * simulation runner opts out explicitly because TacOps called shots carry
+   * the full +3 without the local helper SPA.
+   */
+  readonly applyLocalCalledShotAbilityReduction?: boolean;
+}
+
 export function buildWeaponAttackActuatorDamage(
   componentDamage: IComponentDamageState | undefined,
 ): IActuatorDamage | undefined {
@@ -43,9 +63,7 @@ export function buildWeaponAttackAttackerToHitState(
   weapon?: IWeaponToHitDescriptor,
   targetId?: string,
   secondaryTarget?: ISecondaryTarget,
-  calledShot?: boolean,
-  teammateCalledShot?: boolean,
-  applyLocalCalledShotAbilityReduction: boolean = true,
+  calledShotOptions: ICalledShotHydrationOptions = {},
 ): IAttackerState {
   return {
     gunnery,
@@ -65,9 +83,10 @@ export function buildWeaponAttackAttackerToHitState(
     designatedWeaponCategory: unit.designatedWeaponCategory,
     targetId,
     secondaryTarget,
-    calledShot,
-    teammateCalledShot,
-    applyLocalCalledShotAbilityReduction,
+    calledShot: calledShotOptions.calledShot,
+    teammateCalledShot: calledShotOptions.teammateCalledShot,
+    applyLocalCalledShotAbilityReduction:
+      calledShotOptions.applyLocalCalledShotAbilityReduction ?? true,
     designatedTargetId: unit.designatedTargetId,
     designatedRangeBracket: unit.designatedRangeBracket,
     unitQuirks: unit.unitQuirks,
