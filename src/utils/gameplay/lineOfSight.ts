@@ -5,8 +5,6 @@
  * @spec openspec/specs/terrain-system/spec.md
  */
 
-import type { IUnitToken } from '@/types/gameplay';
-
 import { IHexCoordinate, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 import {
   TerrainType,
@@ -32,8 +30,6 @@ export interface ILOSResult {
   readonly blockedBy?: IHexCoordinate;
   /** Terrain type that blocks (if blocked) */
   readonly blockingTerrain?: TerrainType;
-  /** Destroyed unit token that blocks LOS as a wreck (if blocked) */
-  readonly blockingUnit?: IUnitToken;
   /** Pure terrain elevation that blocks LOS without a blocking terrain feature */
   readonly blockingElevation?: number;
   /** All intervening hexes (excluding endpoints) */
@@ -196,7 +192,6 @@ export function calculateLOS(
   grid: IHexGrid,
   fromElevation?: number,
   toElevation?: number,
-  tokens: readonly IUnitToken[] = [],
 ): ILOSResult {
   // Get all hexes on the line (includes endpoints)
   const lineHexes = hexLine(from, to);
@@ -250,17 +245,6 @@ export function calculateLOS(
   // Check each intervening hex for blocking terrain
   for (let i = 0; i < interveningHexes.length; i++) {
     const hex = interveningHexes[i];
-    const blockingUnit = findBlockingWreck(hex, tokens);
-    if (blockingUnit) {
-      return {
-        hasLOS: false,
-        blockedBy: hex,
-        blockingUnit,
-        interveningHexes,
-        interveningTerrainEffects,
-      };
-    }
-
     const hexData = grid.hexes.get(coordToKey(hex));
 
     if (!hexData) {
@@ -364,17 +348,6 @@ export function calculateLOS(
   };
 }
 
-function findBlockingWreck(
-  hex: IHexCoordinate,
-  tokens: readonly IUnitToken[],
-): IUnitToken | null {
-  return (
-    tokens.find(
-      (token) => token.isDestroyed && hexEquals(token.position, hex),
-    ) ?? null
-  );
-}
-
 function formatTerrainLabel(terrain: TerrainType): string {
   return terrain.replace(/_/g, ' ');
 }
@@ -415,9 +388,6 @@ export function formatLOSBlockedDetails(result: ILOSResult): string {
   if (!blockedBy) return 'Line of sight blocked';
 
   const hexLabel = `(${blockedBy.q}, ${blockedBy.r})`;
-  if (result.blockingUnit) {
-    return `Blocked by wreck ${result.blockingUnit.name} at ${hexLabel}`;
-  }
   if (result.blockingTerrain) {
     return `Blocked by ${
       stackedBlockingTerrainLabel(result) ??

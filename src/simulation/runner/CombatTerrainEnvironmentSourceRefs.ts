@@ -161,9 +161,9 @@ const MEKSTATION_LOS_FEATURE_PARSE_SOURCE_REF = mekstationDeviationSourceRef(
 );
 
 const MEKSTATION_LOS_BLOCKING_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation calculateLOS gates land-to-depth-2+ water endpoint sightlines, then checks intervening hexes for direct blocks, blocking wrecks, and cumulative woods or smoke density.',
+  'MekStation calculateLOS gates land-to-depth-2+ water endpoint sightlines, then checks intervening hexes for direct blocks and cumulative woods or smoke density; destroyed-unit markers never block LOS per align-wreck-los-with-megamek.',
   'src/utils/gameplay/lineOfSight.ts',
-  'L193-L334',
+  'L189-L349',
 );
 
 const MEKSTATION_ATTACK_LOS_PHASE_SOURCE_REF = mekstationDeviationSourceRef(
