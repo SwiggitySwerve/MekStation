@@ -1288,3 +1288,243 @@ For misses (`hit: false`), the runner SHALL emit `attack_resolved` and SHALL NOT
 - **WHEN** the runner resolves the attack
 - **THEN** the event log SHALL contain exactly one `attack_resolved` event with `hit: false`
 - **AND** the event log SHALL NOT contain any of `damage_applied`, `location_destroyed`, `transfer_damage`, `critical_hit`, `critical_hit_resolved`, `component_destroyed`, `unit_destroyed` causally attributable to this attack
+
+### Requirement: Air-to-Air Dispatch
+
+When both the attacker and the target are airborne aerospace units (`airborneState === 'airborne'` or `'taking-off'` or `'landing'`), the combat resolver SHALL route the attack to the air-to-air resolver in `aerospace-deployment`. The air-to-air resolver SHALL handle to-hit modifier calculation and delegate damage application to the existing `aerospaceResolveDamage` per the existing `Aerospace Damage Chain` requirement.
+
+#### Scenario: Two airborne aero — air-to-air dispatch
+
+- **GIVEN** attacker A and target T both in `airborneState: 'airborne'`
+- **WHEN** A declares an attack against T
+- **THEN** the resolver SHALL invoke the air-to-air resolver
+- **AND** the existing `aerospaceResolveDamage` SHALL be invoked for damage application
+
+#### Scenario: Grounded aero attacker bypasses air-to-air
+
+- **GIVEN** A is a grounded aero (`airborneState: 'grounded'`), T is airborne
+- **WHEN** A declares an attack at T
+- **THEN** the resolver SHALL route through Ground-to-Air Dispatch (A is treated as a ground unit)
+
+### Requirement: Air-to-Ground Dispatch
+
+When the attacker is an airborne aerospace unit and the target is a ground unit (BattleMech, Vehicle, Infantry, Battle Armor, ProtoMek, grounded Aero), the combat resolver SHALL route the attack to the air-to-ground resolver in `aerospace-deployment`. The resolver SHALL apply the +2 base strafe penalty + altitude-tier modifier per `aerospace-deployment → Air-to-Ground Combat`.
+
+#### Scenario: Airborne ASF fires at ground mech — air-to-ground
+
+- **GIVEN** A is `airborneState: 'airborne'` at altitude 5, T is a ground mech
+- **WHEN** A declares a forward-arc weapon attack at T's hex during movement
+- **THEN** the resolver SHALL invoke the air-to-ground resolver
+- **AND** the to-hit penalty SHALL include +2 (strafe) + 1 (medium altitude) = +3
+
+### Requirement: Ground-to-Air Dispatch
+
+When the attacker is a ground unit and the target is an airborne aerospace unit, the combat resolver SHALL route the attack to the ground-to-air resolver in `aerospace-deployment`. The resolver SHALL apply the altitude-tier penalty (low +1, med +2, high +3) and SHALL reject indirect-fire weapons with a warning event.
+
+#### Scenario: Ground mech fires at airborne aero — ground-to-air
+
+- **GIVEN** A is a mech with PPC, T is airborne aero at altitude 8 (high tier)
+- **WHEN** A declares the attack
+- **THEN** the resolver SHALL invoke the ground-to-air resolver
+- **AND** the to-hit penalty SHALL include +3 (high altitude)
+
+#### Scenario: Ground-to-air preview suppresses ground-only minimum range
+
+- **GIVEN** A is a ground unit with a direct-fire weapon that has minimum range
+- **AND** T is an airborne aerospace unit at altitude 3 within that weapon's nominal minimum range
+- **WHEN** the tactical map projects the target and A declares the attack
+- **THEN** the preview and committed to-hit modifiers SHALL NOT include `Minimum Range`
+- **AND** the preview and committed to-hit modifiers SHALL include the ground-to-air altitude-tier penalty
+- **AND** the tactical map SHALL NOT render a minimum-range badge for T's hex
+- **AND** T's altitude and velocity metadata SHALL remain visible in top-down and isometric map projections
+
+#### Scenario: Indirect-fire weapon rejected against airborne target
+
+- **GIVEN** A is a mech with LRM-15 in `weapon.mode: 'Indirect'`, T is airborne aero
+- **WHEN** A attempts the attack
+- **THEN** the resolver SHALL reject the attack
+- **AND** a warning event SHALL be emitted: `'Indirect-fire weapons cannot engage airborne targets'`
+- **AND** no ammo or heat SHALL be consumed (attack fully rejected, not auto-miss)
+
+### Requirement: Aerospace Dispatch Matrix Completeness
+
+The combat resolver's aerospace dispatch SHALL cover all combinations of (attacker airborne-state × target airborne-state) for aerospace units per the following matrix:
+
+| Attacker | Target | Dispatch |
+|---|---|---|
+| Airborne aero | Airborne aero | Air-to-Air |
+| Airborne aero | Ground unit | Air-to-Ground |
+| Airborne aero | Grounded aero | Air-to-Ground (grounded aero treated as ground unit) |
+| Grounded aero | Airborne aero | Ground-to-Air |
+| Grounded aero | Ground unit | Standard ground-combat dispatch (per existing `combat-resolution`) |
+| Ground unit | Airborne aero | Ground-to-Air |
+| Ground unit | Grounded aero | Standard ground-combat dispatch with `aerospaceResolveDamage` for hit-location |
+
+#### Scenario: Grounded aero vs airborne aero — ground-to-air
+
+- **GIVEN** A is a grounded aero, T is airborne
+- **WHEN** A declares an attack at T
+- **THEN** the resolver SHALL invoke the ground-to-air resolver (A treated as ground)
+
+#### Scenario: Airborne aero vs grounded aero — air-to-ground
+
+- **GIVEN** A is airborne, T is grounded aero
+- **WHEN** A declares an attack at T
+- **THEN** the resolver SHALL invoke the air-to-ground resolver (T treated as ground unit)
+
+### Requirement: Battle Armor Combat Dispatch
+
+The combat resolver SHALL route attacks involving Battle Armor units to BA-specific handlers per the following dispatch table:
+
+| Attacker | Target | Weapon kind | Handler |
+|---|---|---|---|
+| BA | Mek | `SwarmAttack` | `swarmAttachResolver` |
+| BA (swarmed) | Mek host | `SwarmWeaponAttack` | `swarmFireResolver` |
+| BA | Mek | `LegAttack` | `legAttackResolver` |
+| BA | Any adjacent | `BAVibroClawAttack` | `vibroclawResolver` |
+| Mek | (swarmed by BA) | (brush-off declared) | `brushOffResolver` |
+| Non-BA | BA squad | (any weapon) | apply `allocateSquadDamage` instead of mech hit-location |
+| Non-BA | Mek with mounted BA | (hits to CT/LT/RT) | route via `getTrooperAtLocation` adapter |
+
+#### Scenario: BA-attacker SwarmAttack routes correctly
+
+- **GIVEN** attacker A has `unitType === BATTLE_ARMOR` and weapon kind is `SwarmAttack`
+- **WHEN** the resolver processes the attack
+- **THEN** the `swarmAttachResolver` SHALL be invoked (not the mech weapon handler)
+
+#### Scenario: Non-BA attacker fires at BA target — squad damage allocation
+
+- **GIVEN** attacker A is a mech, target T has `unitType === BATTLE_ARMOR`
+- **WHEN** A's weapon hits T
+- **THEN** the resolver SHALL invoke `allocateSquadDamage(T.combatState.squad, damage, rng)` instead of mech hit-location
+- **AND** emitted events SHALL include per-trooper damage allocations + any `BATrooperKilled` events
+
+#### Scenario: Non-BA attacker hits host mech with mounted-trooper at location
+
+- **GIVEN** host mech L has swarmer B attached, A fires a hit landing on L's CT-rear
+- **WHEN** damage is applied
+- **THEN** the resolver SHALL consult `getTrooperAtLocation(CT_rear, ...)` → trooper 5
+- **AND** if trooper 5 is alive, damage SHALL be routed to that trooper (per `Anti-Personnel Fire on Mounted Troopers` in `battle-armor-combat`)
+- **AND** if trooper 5 is dead, damage SHALL be applied to L's CT-rear armor normally
+
+#### Scenario: Mek brush-off declaration consumes weapon slot
+
+- **GIVEN** mek L with attached swarmer B declares Brush-Off
+- **WHEN** the resolver processes the declaration
+- **THEN** one of L's weapon-attack slots for the turn SHALL be marked consumed
+- **AND** the `brushOffResolver` SHALL be invoked
+
+### Requirement: Battle Armor Combat Event Coverage
+
+The typed combat event log SHALL emit one or more of seven BA-specific event variants whenever a BA-related attack resolves: `BASwarmAttached`, `BASwarmDetached`, `BASwarmDamageApplied`, `BALegAttackResolved`, `BAVibroclawAttackResolved`, `BATrooperKilled`, `BABrushOffAttempted`. Each event SHALL carry stable fields per the discriminated-union definition in `battle-armor-combat`.
+
+#### Scenario: Swarm-attached emits BASwarmAttached
+
+- **GIVEN** B's `SwarmAttack` against L succeeds
+- **WHEN** the resolver records the result
+- **THEN** a `BASwarmAttached { attackerId: B.id, hostId: L.id }` event SHALL be emitted
+
+#### Scenario: Squad destroyed mid-swarm emits both BATrooperKilled and BASwarmDetached
+
+- **GIVEN** swarmer B attached to L, last surviving trooper killed by enemy fire
+- **WHEN** the trooper-killing damage is applied
+- **THEN** a `BATrooperKilled` event SHALL be emitted for that trooper
+- **AND** at end-of-turn cleanup, a `BASwarmDetached { reason: 'SquadDestroyed' }` event SHALL be emitted
+- **AND** the two events SHALL be ordered: trooper kill first, detach second
+
+#### Scenario: Brush-off attempt emits BABrushOffAttempted regardless of outcome
+
+- **GIVEN** L declares Brush-Off against B
+- **WHEN** the resolver processes the attempt
+- **THEN** a `BABrushOffAttempted` event SHALL be emitted with `outcome: 'hit' | 'miss'`
+- **AND** on hit, an additional `BASwarmDetached { reason: 'BrushedOff' }` SHALL be emitted
+
+#### Scenario: Event log replay round-trips BA events
+
+- **GIVEN** a JSONL event log containing all 7 BA event variants
+- **WHEN** the replay loader replays the log
+- **THEN** all 7 event types SHALL be parsed without loss
+- **AND** the columnar formatter SHALL render each with its stable fields per the line-format suite (pairs with `project_event_log_line_format_suite`)
+
+### Requirement: Indirect-Fire Dispatch
+
+The combat resolver SHALL invoke `InteractiveSession.computeIndirectFireContext` before `computeToHit` whenever an attack's weapon mode is `'Indirect'` OR the attacker has no line of sight to the target. The returned `IIndirectFireResolution` SHALL be folded into the attack record and the `toHitPenalty` SHALL be added to the running to-hit number.
+
+#### Scenario: Indirect mode triggers dispatch
+
+- **GIVEN** attacker A has weapon W toggled to `mode: 'Indirect'`
+- **WHEN** A declares an attack against hex H
+- **THEN** the resolver SHALL call `computeIndirectFireContext(A.id, W.id, H)` before `computeToHit`
+- **AND** the resolution SHALL be attached to the attack record as `attackRecord.indirectFire = IIndirectFireResolution`
+
+#### Scenario: No LOS triggers dispatch even when mode is Direct
+
+- **GIVEN** attacker A has weapon W in `mode: 'Direct'`
+- **AND** A has no line of sight to target hex H
+- **WHEN** A declares an attack against H
+- **THEN** the resolver SHALL call `computeIndirectFireContext` to check whether indirect resolution is available
+- **AND** if the resolution is `{ permitted: true, isIndirect: true }`, the attack SHALL proceed as indirect
+- **AND** if the resolution is `{ permitted: false }`, the attack SHALL be rejected with the resolution's `reason` field
+
+#### Scenario: LOS + Direct mode bypasses dispatch
+
+- **GIVEN** attacker A has line of sight to target T
+- **AND** weapon W is in `mode: 'Direct'`
+- **WHEN** A declares an attack against T
+- **THEN** the resolver SHALL NOT call `computeIndirectFireContext`
+- **AND** the attack SHALL resolve via the existing direct-fire pipeline
+
+### Requirement: Indirect-Fire Event Coverage
+
+The typed combat event log SHALL emit one of four event variants whenever an indirect-fire resolution is computed: `IndirectFireSpotterSelected` (basis='los'), `IndirectFireNarcOverride` (basis='narc' or 'inarc'), `IndirectFireForwardObserver` (FO SPA cancelled the spotter-walked penalty), or `IndirectFireSpotterLost` (spotter destroyed before damage resolution).
+
+#### Scenario: LOS spotter selected — emits IndirectFireSpotterSelected
+
+- **GIVEN** an indirect attack resolves with a friendly LOS spotter elected
+- **WHEN** `computeIndirectFireContext` completes
+- **THEN** an `IndirectFireSpotterSelected` event SHALL be emitted with fields `{ attackerId, spotterId, weaponId, ammoId, targetHex, toHitPenalty, basis: 'los' }`
+
+#### Scenario: NARC override — emits IndirectFireNarcOverride
+
+- **GIVEN** an indirect attack resolves via NARC override (no LOS spotter, target NARC-marked by friendly team)
+- **WHEN** `computeIndirectFireContext` completes
+- **THEN** an `IndirectFireNarcOverride` event SHALL be emitted with fields `{ attackerId, spotterId: null, weaponId, ammoId, targetHex, toHitPenalty, basis: 'narc' | 'inarc' }`
+
+#### Scenario: Forward Observer SPA active — emits IndirectFireForwardObserver
+
+- **GIVEN** an indirect attack with a walking spotter whose pilot has the `FORWARD_OBSERVER` SPA
+- **WHEN** the resolver cancels the +1 spotter-walked penalty
+- **THEN** an `IndirectFireForwardObserver` event SHALL be emitted with fields `{ attackerId, spotterId, weaponId, basis: 'los', penaltyCancelled: 1 }`
+- **AND** this event SHALL be emitted in addition to (not instead of) the `IndirectFireSpotterSelected` event
+
+#### Scenario: Spotter destroyed mid-attack — emits IndirectFireSpotterLost
+
+- **GIVEN** a spotter elected at to-hit time
+- **WHEN** the spotter is destroyed by an intervening attack before damage resolution
+- **THEN** an `IndirectFireSpotterLost` event SHALL be emitted with fields `{ attackerId, spotterId, weaponId, ammoId, targetHex, reason: 'Spotter destroyed before resolution' }`
+- **AND** the attack outcome SHALL be `'auto-miss'` with ammo + heat still consumed
+
+#### Scenario: Event log replay round-trips indirect events
+
+- **GIVEN** an indirect-fire attack with all four event types in the JSONL event log
+- **WHEN** the replay loader replays the log
+- **THEN** the four event types SHALL be parsed without loss
+- **AND** the columnar formatter SHALL render each with its stable fields per the line-format suite
+
+### Requirement: Spotter-Fire Penalty on Elected Spotter
+
+The spotter unit elected for an indirect-fire attack SHALL receive a +1 to-hit modifier on any of its OWN direct-fire attacks during the same turn, mirroring MegaMek's `ComputeAttackerToHitMods.java:172-177` rule. This penalty SHALL apply for the entire turn once the spotter has been elected, even if a subsequent indirect attack invalidates the spotter via liveness check.
+
+#### Scenario: Spotter takes its own attack — +1 penalty
+
+- **GIVEN** spotter S was elected for attacker A's indirect attack
+- **WHEN** S subsequently fires its own direct attack on a different target
+- **THEN** S's to-hit calculation SHALL include `+1 spotting-fire` modifier
+- **AND** the modifier SHALL be tagged in the to-hit breakdown as `'Spotting for indirect fire'`
+
+#### Scenario: Penalty persists after spotter-lost auto-miss
+
+- **GIVEN** S was elected as spotter and S was subsequently destroyed before A's damage step
+- **WHEN** S's earlier own-attacks are replayed
+- **THEN** the +1 spotting-fire penalty SHALL still apply (the penalty is fixed at election time, not retroactively cancelled)
+
