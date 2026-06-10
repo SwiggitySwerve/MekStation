@@ -15,7 +15,21 @@ export interface ServiceWorkerReturn extends ServiceWorkerState {
   cacheUrls: (urls: string[]) => void;
 }
 
-export function useServiceWorker(): ServiceWorkerReturn {
+/**
+ * Default page-reload action — module-level constant so the effect
+ * dependency stays referentially stable when no override is injected.
+ */
+const defaultReloadPage = (): void => {
+  window.location.reload();
+};
+
+export function useServiceWorker(
+  /**
+   * Injectable reload action (tests pass a spy; production uses the
+   * default `window.location.reload`).
+   */
+  reloadPage: () => void = defaultReloadPage,
+): ServiceWorkerReturn {
   const [state, setState] = useState<ServiceWorkerState>({
     isSupported: typeof window !== 'undefined' && 'serviceWorker' in navigator,
     isInstalled: false,
@@ -29,10 +43,22 @@ export function useServiceWorker(): ServiceWorkerReturn {
       return;
     }
 
-    // Listen for service worker controller change
-    // This fires when a new service worker becomes active
+    // Reload ONLY when an EXISTING controller is replaced — i.e. a new
+    // service worker took over after an update. On the very first install
+    // there is no previous controller, but the SW's `clients.claim()`
+    // (service-worker.js:39) still fires `controllerchange`; the old
+    // unconditional reload threw away every fresh visitor's first
+    // interaction seconds after first paint — and poisoned e2e runs,
+    // where every Playwright test opens a fresh browser context and the
+    // first-install reload landed mid-test (e2e triage RC9/RC14).
+    let hadController = Boolean(navigator.serviceWorker.controller);
     const handleControllerChange = () => {
-      window.location.reload();
+      if (!hadController) {
+        // First install just claimed the page — keep it, no reload.
+        hadController = true;
+        return;
+      }
+      reloadPage();
     };
 
     navigator.serviceWorker.addEventListener(
@@ -95,7 +121,7 @@ export function useServiceWorker(): ServiceWorkerReturn {
         handleControllerChange,
       );
     };
-  }, [state.isSupported]);
+  }, [state.isSupported, reloadPage]);
 
   /**
    * Skip waiting and activate the new service worker immediately

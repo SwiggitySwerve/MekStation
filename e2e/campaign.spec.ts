@@ -9,16 +9,8 @@
 
 import { test, expect, type Page } from '@playwright/test';
 
-import {
-  createTestCampaign,
-  getCampaign,
-  deleteCampaign,
-} from './fixtures/campaign';
-import {
-  CampaignListPage,
-  CampaignDetailPage,
-  CampaignCreatePage,
-} from './pages/campaign.page';
+import { createTestCampaign, deleteCampaign } from './fixtures/campaign';
+import { CampaignListPage, CampaignCreatePage } from './pages/campaign.page';
 
 // =============================================================================
 // Test Configuration
@@ -193,12 +185,10 @@ test.describe('Campaign Creation @smoke @campaign', () => {
 // =============================================================================
 
 test.describe('Campaign Detail Page @campaign', () => {
-  let detailPage: CampaignDetailPage;
   let listPage: CampaignListPage;
   let campaignId: string;
 
   test.beforeEach(async ({ page }) => {
-    detailPage = new CampaignDetailPage(page);
     listPage = new CampaignListPage(page);
     // Navigate to list first to ensure store is initialized
     await listPage.navigate();
@@ -239,36 +229,38 @@ test.describe('Campaign Detail Page @campaign', () => {
     }
   });
 
-  test('displays campaign details via list click', async ({ page }) => {
+  // The campaign detail route now mounts CampaignDashboardPage
+  // (src/pages/gameplay/campaigns/[id]/index.tsx) — the old tabbed
+  // CampaignOverviewTab surface (tab-overview/tab-audit, resources-card,
+  // campaign-status) is no longer mounted anywhere. These tests pin the
+  // CURRENT dashboard contract.
+  test('displays campaign dashboard via list click', async ({ page }) => {
     // Navigate to detail by clicking on campaign card in list
     await listPage.clickCampaignCard(campaignId);
     await page.waitForLoadState('networkidle');
 
-    // Should show campaign name
-    const name = await detailPage.getName();
-    expect(name).toBe('Detail Test Campaign');
+    // PageLayout title carries the campaign name
+    // (CampaignDashboardPage.tsx: title={campaign.name})
+    await expect(page.getByTestId('page-title')).toHaveText(
+      'Detail Test Campaign',
+    );
 
-    // Should show status
-    const status = await detailPage.getStatus();
-    expect(status).toBeTruthy();
+    // The dashboard card grid mounts (CampaignDashboard.tsx)
+    await expect(page.getByTestId('campaign-dashboard')).toBeVisible();
   });
 
-  test('displays campaign resources via list click', async ({ page }) => {
+  test('displays campaign finances via list click', async ({ page }) => {
     // Navigate via list click
     await listPage.clickCampaignCard(campaignId);
     await page.waitForLoadState('networkidle');
 
-    // Resources section should be visible
-    await expect(page.getByTestId('resources-card')).toBeVisible();
-
-    // Should show C-Bills
-    await expect(page.getByTestId('resource-cbills')).toContainText('5.00M');
-
-    // Should show supplies
-    await expect(page.getByTestId('resource-supplies')).toContainText('150');
-
-    // Should show morale
-    await expect(page.getByTestId('resource-morale')).toContainText('80%');
+    // Finances card replaces the old resources-card surface; the balance
+    // renders Money.format() of the fixture's startingFunds
+    // (Money.ts format(): "<amount> C-bills").
+    await expect(page.getByTestId('dashboard-card-finances')).toBeVisible();
+    await expect(page.getByTestId('finances-balance')).toHaveText(
+      '5,000,000.00 C-bills',
+    );
   });
 
   // Skip: Campaign created via store doesn't include missions
@@ -281,116 +273,35 @@ test.describe('Campaign Detail Page @campaign', () => {
     await expect(page.getByTestId('mission-tree')).toBeVisible();
   });
 
-  test('switches to audit timeline tab', async ({ page }) => {
+  test('audit feed stays unmounted for a fresh campaign', async ({ page }) => {
     // Navigate via list click first
     await listPage.clickCampaignCard(campaignId);
     await page.waitForLoadState('networkidle');
 
-    // Click audit tab
-    await detailPage.clickAuditTab();
-
-    // URL should update
-    await expect(page).toHaveURL(/tab=audit/);
-
-    // Timeline content should be visible
-    await expect(page.getByText(/Campaign Timeline/i)).toBeVisible();
-  });
-
-  test('switches back to overview tab', async ({ page }) => {
-    // Navigate via list click first
-    await listPage.clickCampaignCard(campaignId);
-    await page.waitForLoadState('networkidle');
-
-    // Switch to audit tab
-    await detailPage.clickAuditTab();
-    await expect(page).toHaveURL(/tab=audit/);
-
-    // Click overview tab
-    await detailPage.clickOverviewTab();
-
-    // Resources should be visible
-    await expect(page.getByTestId('resources-card')).toBeVisible();
+    // The tabbed audit-timeline surface was replaced by the
+    // DailyBattleAuditFeed on the dashboard (CampaignDashboardPage.tsx:228),
+    // which "returns null when the ledger is empty so the dashboard layout
+    // doesn't show an empty card" (DailyBattleAuditFeed.tsx:26-33). A fresh
+    // campaign has no audit entries, so the contract here is ABSENCE; the
+    // populated-feed path is covered store-side by campaign-round-trip's
+    // dailyBattleAudit assertions.
+    await expect(page.getByTestId('campaign-dashboard')).toBeVisible();
+    await expect(page.getByTestId('daily-battle-audit-feed')).toHaveCount(0);
   });
 });
 
 // =============================================================================
-// Campaign Deletion Tests
+// Campaign Deletion Tests — RETIRED (obsolete surface)
+//
+// The UI deletion flow (delete-campaign-btn + delete-confirm-dialog) lived
+// on CampaignOverviewTab, which is no longer mounted anywhere — the
+// campaign detail route renders CampaignDashboardPage, which has NO
+// delete affordance. There is currently no UI surface for deleting a
+// campaign at all; that product gap is tracked as T2-F3 in
+// docs/audits/2026-06-09-remediation-tracker.md. Store-level deletion
+// behavior stays covered by playtest-campaign-smoke.spec.ts
+// ("deletes a campaign cleanly and leaves the campaign store empty").
 // =============================================================================
-
-test.describe('Campaign Deletion @campaign', () => {
-  let detailPage: CampaignDetailPage;
-  let listPage: CampaignListPage;
-
-  test.beforeEach(async ({ page }) => {
-    detailPage = new CampaignDetailPage(page);
-    listPage = new CampaignListPage(page);
-    await listPage.navigate();
-    await waitForStoreReady(page);
-  });
-
-  test('deletes campaign with confirmation', async ({ page }) => {
-    // Create campaign to delete
-    const campaignId = await createTestCampaign(page, {
-      name: 'Campaign to Delete',
-    });
-
-    // Wait for any campaign card to appear
-    await page
-      .locator('[data-testid^="campaign-card-"]')
-      .first()
-      .waitFor({ state: 'visible', timeout: 10000 });
-    await listPage.clickCampaignCard(campaignId);
-    await page.waitForLoadState('networkidle');
-
-    // Click delete button
-    await detailPage.clickDelete();
-
-    // Confirmation dialog should appear
-    await expect(page.getByTestId('delete-confirm-dialog')).toBeVisible();
-    await expect(page.getByText(/permanently delete/i)).toBeVisible();
-
-    // Confirm delete
-    await detailPage.confirmDelete();
-
-    // Should redirect to list
-    await expect(page).toHaveURL(/\/gameplay\/campaigns$/);
-
-    // Campaign should no longer exist
-    const campaign = await getCampaign(page, campaignId);
-    expect(campaign).toBeNull();
-  });
-
-  test('can cancel deletion', async ({ page }) => {
-    // Create campaign
-    const campaignId = await createTestCampaign(page, {
-      name: 'Campaign Keep',
-    });
-
-    // Wait for any campaign card to appear
-    await page
-      .locator('[data-testid^="campaign-card-"]')
-      .first()
-      .waitFor({ state: 'visible', timeout: 10000 });
-    await listPage.clickCampaignCard(campaignId);
-    await page.waitForLoadState('networkidle');
-
-    // Click delete button
-    await detailPage.clickDelete();
-
-    // Cancel
-    await detailPage.cancelDelete();
-
-    // Dialog should close
-    await expect(page.getByTestId('delete-confirm-dialog')).not.toBeVisible();
-
-    // Campaign should still exist
-    const campaign = await getCampaign(page, campaignId);
-    expect(campaign).not.toBeNull();
-
-    // Cleanup
-    await deleteCampaign(page, campaignId);
-  });
-});
 
 // =============================================================================
 // Campaign Mission Tests
@@ -460,85 +371,15 @@ test.describe('Campaign Missions @campaign', () => {
 });
 
 // =============================================================================
-// Campaign Audit Timeline Tests
+// Campaign Audit Timeline Tests — RETIRED (obsolete surface)
+//
+// These tests drove the old in-detail "audit tab" (tab-audit on
+// CampaignOverviewTab), which is no longer mounted anywhere — the
+// campaign detail route renders CampaignDashboardPage, where the
+// always-on DailyBattleAuditFeed replaces the tabbed timeline (asserted
+// in "shows the daily battle audit feed on the dashboard" above). The
+// timeline refresh/filter controls live on the standalone
+// /audit/timeline page, covered by replay-player.spec.ts's
+// "Audit Timeline Page" suite (search, category filters, advanced
+// query builder).
 // =============================================================================
-
-test.describe('Campaign Audit Timeline @campaign', () => {
-  let campaignId: string;
-  let listPage: CampaignListPage;
-  let detailPage: CampaignDetailPage;
-
-  test.beforeEach(async ({ page }) => {
-    listPage = new CampaignListPage(page);
-    detailPage = new CampaignDetailPage(page);
-    await listPage.navigate();
-    await waitForStoreReady(page);
-
-    campaignId = await createTestCampaign(page, {
-      name: 'Audit Timeline Test Campaign',
-    });
-
-    // Wait for any campaign card to appear
-    await page
-      .locator('[data-testid^="campaign-card-"]')
-      .first()
-      .waitFor({ state: 'visible', timeout: 10000 });
-  });
-
-  test.afterEach(async ({ page }) => {
-    try {
-      await deleteCampaign(page, campaignId);
-    } catch {
-      // Ignore
-    }
-  });
-
-  test('audit tab shows timeline container', async ({ page }) => {
-    // Navigate via list click first
-    await listPage.clickCampaignCard(campaignId);
-    await page.waitForLoadState('networkidle');
-
-    // Switch to audit tab
-    await detailPage.clickAuditTab();
-
-    // Timeline section should exist
-    await expect(page.getByText(/Campaign Timeline/i)).toBeVisible();
-  });
-
-  // Skip: Empty state message text varies
-  test.skip('empty campaign shows no events message', async ({ page }) => {
-    // Navigate via list click first
-    await listPage.clickCampaignCard(campaignId);
-    await page.waitForLoadState('networkidle');
-
-    // Switch to audit tab
-    await detailPage.clickAuditTab();
-
-    // Should show empty state or "no events" message
-    await expect(page.getByText(/No Events|no recorded events/i)).toBeVisible();
-  });
-
-  test('timeline has refresh button', async ({ page }) => {
-    // Navigate via list click first
-    await listPage.clickCampaignCard(campaignId);
-    await page.waitForLoadState('networkidle');
-
-    // Switch to audit tab
-    await detailPage.clickAuditTab();
-
-    // Refresh button should be visible
-    await expect(page.getByRole('button', { name: /refresh/i })).toBeVisible();
-  });
-
-  test('timeline has filter controls', async ({ page }) => {
-    // Navigate via list click first
-    await listPage.clickCampaignCard(campaignId);
-    await page.waitForLoadState('networkidle');
-
-    // Switch to audit tab
-    await detailPage.clickAuditTab();
-
-    // Filter section should be visible
-    await expect(page.getByTestId('timeline-filters')).toBeVisible();
-  });
-});

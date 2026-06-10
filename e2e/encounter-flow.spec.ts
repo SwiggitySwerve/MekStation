@@ -105,51 +105,46 @@ async function submitEncounterCreateForm(page: Page): Promise<string> {
 
 test.describe('Encounter Flow - Force Creation', () => {
   test(
-    'should create a player force with units',
+    'should create a player force',
     { tag: ['@encounter', '@smoke'] },
     async ({ page }) => {
+      // RC7: the old flow guarded every step with `isVisible().catch(false)`
+      // — on a slow CI page compile the name fill silently skipped, the
+      // submit button stayed disabled (`isValid = name.trim().length >= 2`,
+      // forces/create.tsx:139), and the test timed out. Hard-wait every
+      // step instead. The add-units-at-create surface (`add-unit-btn`,
+      // `unit-option-*`, `save-force-btn`) no longer exists — units are
+      // attached on the force detail page after creation.
       await page.goto('/gameplay/forces/create');
 
-      // Fill force name
+      // Wait for React hydration before filling: a pre-hydration fill()
+      // sets the DOM value (toHaveValue would pass!) without firing the
+      // controlled input's React onChange, so `name` state stays empty
+      // and submit never enables. `__E2E_MODE__` is set by _app.tsx's
+      // post-hydration exposeStoresForE2E() effect.
+      await page.waitForFunction(
+        () => (window as { __E2E_MODE__?: boolean }).__E2E_MODE__ === true,
+        undefined,
+        { timeout: 15_000 },
+      );
+
+      // Fill force name — submit enables at >= 2 trimmed chars
       const nameInput = page.getByTestId('force-name-input');
-      if (await nameInput.isVisible().catch(() => false)) {
-        await nameInput.fill('E2E Player Lance');
-      }
+      await expect(nameInput).toBeVisible({ timeout: 15000 });
+      await nameInput.fill('E2E Player Lance');
+      await expect(nameInput).toHaveValue('E2E Player Lance');
 
-      // Select force type
-      const forceType = page.getByTestId('force-type-lance');
-      if (await forceType.isVisible().catch(() => false)) {
-        await forceType.click();
-      }
+      // Select force type (force-type-<ForceType>, Lance = 'lance')
+      await page.getByTestId('force-type-lance').click();
 
-      // Add units to the force
-      const addUnitBtn = page.getByTestId('add-unit-btn');
-      if (await addUnitBtn.isVisible().catch(() => false)) {
-        await addUnitBtn.click();
-
-        // Select first available unit from picker
-        const unitOption = page
-          .locator('[data-testid^="unit-option-"]')
-          .first();
-        if (await unitOption.isVisible().catch(() => false)) {
-          await unitOption.click();
-        }
-      }
-
-      // Save force
-      const saveBtn = page.getByTestId('save-force-btn');
+      // Submit — page router.pushes to the new force's detail page
       const submitBtn = page.getByTestId('submit-force-btn');
+      await expect(submitBtn).toBeEnabled();
+      await submitBtn.click();
 
-      if (await saveBtn.isVisible().catch(() => false)) {
-        await saveBtn.click();
-      } else if (await submitBtn.isVisible().catch(() => false)) {
-        await submitBtn.click();
-      }
-
-      // Should navigate to force detail or list
-      await page.waitForTimeout(1000);
-      const url = page.url();
-      expect(url).toMatch(/\/gameplay\/forces/);
+      await page.waitForURL(/\/gameplay\/forces\/(?!create)[^/]+$/, {
+        timeout: 15000,
+      });
     },
   );
 });

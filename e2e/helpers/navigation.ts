@@ -25,6 +25,29 @@ export async function navigateTo(page: Page, path: string): Promise<void> {
 }
 
 /**
+ * Navigate with a bounded retry. Next's dev server occasionally aborts an
+ * in-flight navigation (`net::ERR_ABORTED`) while it on-demand-compiles the
+ * target route — a transient race, not a page defect. Mirrors the proven
+ * `gotoQuickGame` retry pattern in quick-play.spec.ts (3 attempts, backoff).
+ *
+ * @param page - Playwright Page object
+ * @param path - The path to navigate to
+ */
+export async function gotoWithRetry(page: Page, path: string): Promise<void> {
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      await page.goto(path, { waitUntil: 'domcontentloaded' });
+      return;
+    } catch (error) {
+      if (attempt === 3) {
+        throw error;
+      }
+      await page.waitForTimeout(500 * attempt);
+    }
+  }
+}
+
+/**
  * Navigate to the Campaigns page.
  *
  * @param page - Playwright Page object

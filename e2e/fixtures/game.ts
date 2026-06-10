@@ -432,16 +432,26 @@ export const DEMO_INITIAL_STATE = {
 } as const;
 
 /**
- * Available actions per phase for testing.
- * Based on getPhaseActions() in GameplayUIInterfaces.ts
+ * Core tactical-action-dock command IDs expected per phase.
+ *
+ * The dock renders registry commands whose `phaseConstraints` include the
+ * current phase (TacticalActionDock/commands/*; Wave 7.2 replaced the flat
+ * legacy ActionBar action ids). Listed here are the stable, unit-agnostic
+ * commands per phase — unit-conditional commands (stand, MASC, physical
+ * weapon attacks, ...) are deliberately omitted.
  */
 export const PHASE_ACTIONS = {
-  movement: ['lock', 'undo', 'skip'],
-  weapon_attack: ['lock', 'clear', 'skip'],
-  heat: ['continue'],
-  end: ['next-turn', 'concede'],
+  movement: ['movement.walk', 'heat-end.end-phase'],
+  weapon_attack: [
+    'weapon.declare-attack',
+    'weapon.fire-volley',
+    'weapon.clear-attacks',
+    'heat-end.end-phase',
+  ],
+  heat: ['heat.continue'],
+  end: ['heat-end.next-turn'],
   initiative: [],
-  physical_attack: [],
+  physical_attack: ['heat-end.end-phase'],
 } as const;
 
 // =============================================================================

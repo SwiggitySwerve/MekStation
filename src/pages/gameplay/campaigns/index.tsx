@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
  * @spec openspec/changes/wire-coop-campaign-route/specs/coop-campaign-sync/spec.md
  */
 import { useState, useCallback, useEffect } from 'react';
+import { useStore } from 'zustand';
 
 import { PageLayout, Card, Button, EmptyState } from '@/components/ui';
 import { generateRoomCode, parseRoomCode } from '@/lib/p2p/roomCodes';
@@ -105,7 +106,12 @@ async function resolveInviteCode(
 export default function CampaignsListPage(): React.ReactElement {
   const router = useRouter();
   const store = useCampaignStore();
-  const campaign = store.getState().getCampaign();
+  // Reactive subscription (mirrors RosterStateCards.tsx). The previous
+  // render-time `store.getState().getCampaign()` read never re-rendered
+  // when the store mutated after mount, so a campaign created via store
+  // action (create flow, e2e fixture) never surfaced a campaign-card
+  // until a full reload (e2e triage RC4).
+  const campaign = useStore(store, (s) => s.campaign);
   const campaigns = campaign ? [campaign] : [];
   const [isClient, setIsClient] = useState(false);
 

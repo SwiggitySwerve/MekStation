@@ -301,7 +301,10 @@ test.describe('Aerospace Unit Creation @customizer', () => {
     const state = await getAerospaceState(page, unitId);
     expect(state).not.toBeNull();
     expect(state?.safeThrust).toBeGreaterThan(0);
-    expect(state?.fuel).toBeGreaterThan(0);
+    // add-aerospace-construction replaced `fuel` with `fuelTons` (allocated
+    // tonnage) + computed `fuelPoints` (aerospaceState.ts:187,193).
+    expect(state?.fuelTons).toBeGreaterThan(0);
+    expect(state?.fuelPoints).toBeGreaterThan(0);
     expect(state?.heatSinks).toBeGreaterThan(0);
 
     await closeTab(page, unitId);

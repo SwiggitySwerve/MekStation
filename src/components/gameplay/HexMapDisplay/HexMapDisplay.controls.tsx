@@ -95,7 +95,13 @@ export function MapControls({
 
   return (
     <div
-      className="absolute right-4 bottom-4 flex gap-2"
+      // z-10: the minimap overlay (200x200, top-right) renders AFTER this
+      // cluster in the DOM (HexMapDisplay renders overlayChildren last), so
+      // in short map panels (e.g. 1280x720) its translucent container used
+      // to paint over — and intercept pointer events for — the top of this
+      // column, making zoom-in unclickable (e2e triage RC12). Interactive
+      // buttons must stack above the glanceable overlay where they collide.
+      className="absolute right-4 bottom-4 z-10 flex gap-2"
       data-testid="zoom-controls"
     >
       <div className="flex flex-col gap-1" data-testid="overlay-toggles">

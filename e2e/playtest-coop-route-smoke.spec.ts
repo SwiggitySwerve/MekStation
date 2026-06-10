@@ -78,10 +78,13 @@ function newErrorCapture(): IErrorCapture {
       });
     },
     critical(): string[] {
+      // legacyBehavior/codemod: Next's <Link legacyBehavior> deprecation
+      // warning logs as console.error — benign framework noise, filtered
+      // the same way playtest-campaign-smoke.spec.ts does.
       const all = [...consoleErrors, ...pageErrors];
       return all.filter(
         (line) =>
-          !/Hydration|HMR|Fast Refresh|favicon|^net::|ResizeObserver loop/i.test(
+          !/Hydration|HMR|Fast Refresh|favicon|^net::|ResizeObserver loop|legacyBehavior|codemod/i.test(
             line,
           ),
       );
@@ -111,20 +114,26 @@ async function stampHostCoopSession(
         }
       ).__ZUSTAND_STORES__;
       const raw = stores?.campaign as unknown;
+      // The exposed campaign store is a zustand bound hook — a FUNCTION with
+      // `getState` statics (`useCampaignStore()` returns `create()`'s
+      // result). Calling it is an invalid React hook call, so detect the
+      // StoreApi shape FIRST (mirrors fixtures/campaign.ts + campaignSeeders).
       const storeApi =
-        typeof raw === 'function'
-          ? (
+        raw !== null &&
+        (typeof raw === 'object' || typeof raw === 'function') &&
+        'getState' in (raw as object)
+          ? (raw as {
+              getState: () => {
+                updateCampaign: (u: Record<string, unknown>) => void;
+              };
+            })
+          : (
               raw as () => {
                 getState: () => {
                   updateCampaign: (u: Record<string, unknown>) => void;
                 };
               }
-            )()
-          : (raw as {
-              getState: () => {
-                updateCampaign: (u: Record<string, unknown>) => void;
-              };
-            });
+            )();
       storeApi.getState().updateCampaign({
         coopSession: {
           mode: 'host',

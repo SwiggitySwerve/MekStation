@@ -18,6 +18,7 @@ import { test, expect } from '@playwright/test';
 
 import { createTestCampaign, deleteCampaign } from './fixtures/campaign';
 import { seedHiringHall } from './helpers/campaignSeeders';
+import { gotoWithRetry } from './helpers/navigation';
 
 test.setTimeout(120_000);
 
@@ -31,8 +32,7 @@ test.describe('Wave 6.1.C — Hiring Hall subsystem', () => {
     });
 
     try {
-      await page.goto(`/gameplay/campaigns/${campaignId}/hiring`);
-      await page.waitForLoadState('domcontentloaded');
+      await gotoWithRetry(page, `/gameplay/campaigns/${campaignId}/hiring`);
 
       // Seed the market in case the page didn't auto-seed
       // (depends on `generatePersonnelForDay`'s rng output).
@@ -46,8 +46,7 @@ test.describe('Wave 6.1.C — Hiring Hall subsystem', () => {
 
       // The page bumps its action-tick state after a hire — re-navigate
       // so the seeded market is read on first paint.
-      await page.goto(`/gameplay/campaigns/${campaignId}/hiring`);
-      await page.waitForLoadState('domcontentloaded');
+      await gotoWithRetry(page, `/gameplay/campaigns/${campaignId}/hiring`);
 
       // The primary output element is the candidate grid.
       // The grid testid pattern is per the audit: `hiring-panel-grid`.

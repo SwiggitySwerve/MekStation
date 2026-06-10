@@ -118,11 +118,13 @@ test.describe('Demo Game Session @smoke @game', () => {
     await expect(page.getByTestId('gameplay-main-content')).toBeVisible();
   });
 
-  test('displays phase banner with current phase', async ({ page }) => {
+  test('displays turn rail with current phase', async ({ page }) => {
     await sessionPage.waitForGameLoaded();
 
-    // Phase banner should be visible
-    await expect(page.getByTestId('phase-banner')).toBeVisible();
+    // Wave 7.2 PR-E: TacticalTurnRail replaced PhaseBanner as the top-band
+    // owner (GameplayLayout.tsx); the `phase-name` testid is preserved
+    // inside the rail.
+    await expect(page.getByTestId('tactical-turn-rail')).toBeVisible();
 
     // Demo starts at weapon attack phase
     const phaseName = await sessionPage.getPhaseName();
@@ -149,10 +151,10 @@ test.describe('Demo Game Session @smoke @game', () => {
     await expect(page.getByTestId('map-panel')).toBeVisible();
   });
 
-  test('displays action bar', async () => {
+  test('displays action dock', async () => {
     await sessionPage.waitForGameLoaded();
 
-    // Action bar should be visible
+    // The tactical action dock (Wave 7.2 command surface) should be visible
     const actionBarVisible = await sessionPage.isActionBarVisible();
     expect(actionBarVisible).toBe(true);
   });
@@ -207,15 +209,20 @@ test.describe('Unit Selection @game', () => {
   });
 
   test('clicking unit token selects it', async ({ page }) => {
-    // Click on player unit token
-    await sessionPage.clickUnitToken(DEMO_UNITS.PLAYER.id);
-
-    // Give UI time to update
-    await page.waitForTimeout(100);
-
-    // Verify selection
-    const state = await getGameplayState(page);
-    expect(state?.ui.selectedUnitId).toBe(DEMO_UNITS.PLAYER.id);
+    // RC14 (CI-only flake): a click landing while the SVG token strip is
+    // mid-re-render can fail to register the selection. Poll on the real
+    // condition — the store's selectedUnitId — re-clicking the token on
+    // each bounded retry instead of trusting one click + fixed sleep.
+    await expect
+      .poll(
+        async () => {
+          await sessionPage.clickUnitToken(DEMO_UNITS.PLAYER.id);
+          const state = await getGameplayState(page);
+          return state?.ui.selectedUnitId ?? null;
+        },
+        { timeout: 5000 },
+      )
+      .toBe(DEMO_UNITS.PLAYER.id);
   });
 
   test('record sheet panel shows no unit selected initially', async () => {
@@ -277,19 +284,24 @@ test.describe('Action Bar @game', () => {
     await sessionPage.waitForGameLoaded();
   });
 
-  test('action bar is visible', async ({ page }) => {
-    await expect(page.getByTestId('action-bar')).toBeVisible();
+  test('action dock is visible', async ({ page }) => {
+    // Wave 7.2: TacticalActionDock is the live command surface; the legacy
+    // `action-bar` only exists inside GameplayLayout's hidden
+    // legacy-action-bar-mount.
+    await expect(page.getByTestId('tactical-action-dock')).toBeVisible();
   });
 
-  test('skip action is available', async () => {
-    const isVisible = await sessionPage.isActionVisible('skip');
+  test('end-phase command is available', async () => {
+    // The legacy 'skip' action maps to the dock's End Phase command
+    // (heatEndCommands.ts: phaseConstraints include WeaponAttack).
+    const isVisible = await sessionPage.isActionVisible('heat-end.end-phase');
     expect(isVisible).toBe(true);
   });
 
-  test('clear action is available in weapon attack phase', async () => {
-    // Demo starts at weapon_attack phase, where 'clear' is available (not 'concede')
-    // 'concede' is only available in 'end' phase
-    const isVisible = await sessionPage.isActionVisible('clear');
+  test('clear-attacks command is available in weapon attack phase', async () => {
+    // Demo starts at weapon_attack phase; the dock surfaces the weapon
+    // family there (weaponAttackCommands.ts).
+    const isVisible = await sessionPage.isActionVisible('weapon.clear-attacks');
     expect(isVisible).toBe(true);
   });
 

@@ -1,6 +1,30 @@
 import { Page } from '@playwright/test';
 
 /**
+ * Waits for the campaign store to be exposed on `window.__ZUSTAND_STORES__`.
+ *
+ * Store exposure runs in a post-hydration `useEffect` (`_app.tsx` →
+ * `exposeStoresForE2E()`), so a fixture call landing right after
+ * `domcontentloaded` can race it — especially on slow CI machines where
+ * hydration trails the navigation event by seconds. Poll on the real
+ * condition (the store handle existing) instead of throwing immediately.
+ */
+async function waitForCampaignStoreExposure(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () =>
+      Boolean(
+        (
+          window as unknown as {
+            __ZUSTAND_STORES__?: { campaign?: unknown };
+          }
+        ).__ZUSTAND_STORES__?.campaign,
+      ),
+    undefined,
+    { timeout: 15_000 },
+  );
+}
+
+/**
  * Options for creating a test campaign
  */
 export interface TestCampaignOptions {
@@ -43,6 +67,9 @@ export async function createTestCampaign(
   page: Page,
   options: TestCampaignOptions = {},
 ): Promise<string> {
+  // Exposure is post-hydration — poll before evaluating (CI race fix).
+  await waitForCampaignStoreExposure(page);
+
   const campaignId = await page.evaluate((opts) => {
     type CampaignStoreApi = {
       getState: () => {
@@ -148,6 +175,9 @@ export async function getCampaign(
   status: string;
   description?: string;
 } | null> {
+  // Exposure is post-hydration — poll before evaluating (CI race fix).
+  await waitForCampaignStoreExposure(page);
+
   return page.evaluate((id) => {
     type CampaignStoreApi = {
       getState: () => {
@@ -201,43 +231,67 @@ export async function deleteCampaign(
   page: Page,
   campaignId: string,
 ): Promise<void> {
-  await page.evaluate((id) => {
-    type CampaignStoreApi = {
-      getState: () => {
-        getCampaign: () => { id: string } | null;
-      };
-      setState: (state: Record<string, unknown>) => void;
-    };
-    type ExposedCampaignStore = CampaignStoreApi | (() => CampaignStoreApi);
-
-    const stores = (
-      window as unknown as {
-        __ZUSTAND_STORES__?: {
-          campaign?: ExposedCampaignStore;
+  // Body extracted so the context-destroyed retry below can reuse it.
+  const evaluateDelete = async (): Promise<void> => {
+    await page.evaluate((id) => {
+      type CampaignStoreApi = {
+        getState: () => {
+          getCampaign: () => { id: string } | null;
         };
+        setState: (state: Record<string, unknown>) => void;
+      };
+      type ExposedCampaignStore = CampaignStoreApi | (() => CampaignStoreApi);
+
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            campaign?: ExposedCampaignStore;
+          };
+        }
+      ).__ZUSTAND_STORES__;
+
+      if (!stores?.campaign) {
+        throw new Error('Campaign store not exposed');
       }
-    ).__ZUSTAND_STORES__;
 
-    if (!stores?.campaign) {
-      throw new Error('Campaign store not exposed');
+      const exposed = stores.campaign;
+      const store = 'getState' in exposed ? exposed : exposed();
+      const campaign = store.getState().getCampaign();
+
+      if (!campaign || campaign.id !== id) {
+        return;
+      }
+
+      store.setState({
+        campaign: null,
+        forcesStore: null,
+        missionsStore: null,
+        pendingBattleOutcomes: [],
+        processedBattleIds: [],
+        reviewedBattleIds: {},
+        outcomeApplyErrors: {},
+      });
+    }, campaignId);
+  };
+
+  // Teardown often runs while a client navigation is still in flight; a bare
+  // evaluate then dies with "Execution context was destroyed". Settle the
+  // document and poll for store exposure first (bounded, real conditions).
+  await page.waitForLoadState('domcontentloaded');
+  await waitForCampaignStoreExposure(page);
+
+  try {
+    await evaluateDelete();
+  } catch (error) {
+    // A navigation that starts BETWEEN the settle-wait and the evaluate can
+    // still destroy the context mid-call. The delete is idempotent (no-op if
+    // the campaign is already gone), so re-settle and retry exactly once.
+    const message = error instanceof Error ? error.message : String(error);
+    if (!message.includes('Execution context was destroyed')) {
+      throw error;
     }
-
-    const exposed = stores.campaign;
-    const store = 'getState' in exposed ? exposed : exposed();
-    const campaign = store.getState().getCampaign();
-
-    if (!campaign || campaign.id !== id) {
-      return;
-    }
-
-    store.setState({
-      campaign: null,
-      forcesStore: null,
-      missionsStore: null,
-      pendingBattleOutcomes: [],
-      processedBattleIds: [],
-      reviewedBattleIds: {},
-      outcomeApplyErrors: {},
-    });
-  }, campaignId);
+    await page.waitForLoadState('domcontentloaded');
+    await waitForCampaignStoreExposure(page);
+    await evaluateDelete();
+  }
 }

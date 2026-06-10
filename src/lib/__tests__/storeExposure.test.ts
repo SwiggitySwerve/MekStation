@@ -69,6 +69,7 @@ describe('exposeStoresForE2E (PT-004)', () => {
     // attached). This test guards against a future refactor accidentally
     // breaking them the same way the campaign store was broken.
     for (const key of [
+      'campaignRoster',
       'force',
       'pilot',
       'encounter',

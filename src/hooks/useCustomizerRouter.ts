@@ -66,6 +66,14 @@ export interface CustomizerRouteParams {
   isValid: boolean;
   /** Whether we're on the index page (no unit specified) */
   isIndex: boolean;
+  /**
+   * Whether the Next router has parsed the URL (`router.isReady`).
+   * Until this is true, `router.query` is empty on a full-page load, so
+   * `unitId` reads null even for a deep link like `/customizer/<id>/armor`.
+   * Consumers MUST NOT run URL<->state sync while this is false — doing so
+   * rewrote deep links to the stored active tab (e2e triage RC15).
+   */
+  isReady: boolean;
 }
 
 /**
@@ -175,14 +183,17 @@ export function useCustomizerRouter(
   const params = useMemo((): CustomizerRouteParams => {
     // Handle catch-all route: /customizer/[[...slug]]
     const { slug } = router.query;
+    const isReady = router.isReady;
 
     if (!slug || !Array.isArray(slug) || slug.length === 0) {
-      // /customizer - index page
+      // /customizer - index page (or a not-yet-parsed deep link when
+      // `isReady` is false — consumers gate on `isReady` to tell apart).
       return {
         unitId: null,
         tabId: DEFAULT_TAB,
         isValid: true,
         isIndex: true,
+        isReady,
       };
     }
 
@@ -200,6 +211,7 @@ export function useCustomizerRouter(
         tabId: DEFAULT_TAB,
         isValid: false,
         isIndex: false,
+        isReady,
       };
     }
 
@@ -208,8 +220,9 @@ export function useCustomizerRouter(
       tabId,
       isValid: true,
       isIndex: false,
+      isReady,
     };
-  }, [router.query]);
+  }, [router.query, router.isReady]);
 
   // ==========================================================================
   // Navigation Actions
