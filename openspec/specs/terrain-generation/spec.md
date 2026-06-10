@@ -496,27 +496,21 @@ The feature-application pass SHALL run after base biome generation and overlay d
 
 ### Requirement: Structure Placement
 
-The feature-application pass SHALL place structural terrain so that generated maps contain coherent built environments. `Building` directives SHALL stamp rectangular footprints of 1–4 hexes. `Road` directives SHALL trace a connected path of `Road` hexes between two map edges. `Pavement` SHALL auto-fill natural hexes orthogonally adjacent to `Building` hexes. On a grid too small to trace a road, the `Road` directive SHALL be skipped without error.
+The terrain generator SHALL place represented structure features
+deterministically from seeded preset feature directives.
 
-#### Scenario: Industrial preset produces buildings and roads
+#### Scenario: Generated building components expose stable identity
 
-- **GIVEN** a generation config using the `INDUSTRIAL_COMPLEX` preset's directives
-- **WHEN** `generateTerrain` runs
-- **THEN** the grid SHALL contain `Building` hexes grouped as footprints
-- **AND** the grid SHALL contain a connected run of `Road` hexes reaching two map edges
-
-#### Scenario: Pavement surrounds buildings
-
-- **GIVEN** a generated grid containing `Building` hexes
-- **WHEN** structure placement completes
-- **THEN** natural hexes orthogonally adjacent to a `Building` hex SHALL be `Pavement`
-
-#### Scenario: Road tracing skipped on a tiny grid
-
-- **GIVEN** a 2×2 generation grid with a `Road` directive
-- **WHEN** `generateTerrain` runs
-- **THEN** generation SHALL complete without error
-- **AND** the `Road` directive SHALL be skipped
+**GIVEN** preset feature directives generate building terrain
+**WHEN** the terrain feature overlay finishes applying buildings and road
+carving
+**THEN** every remaining generated building hex SHALL have a positive building
+level
+**AND** every remaining generated building hex SHALL expose a stable
+`buildingId`
+**AND** orthogonally connected building hexes SHALL share the same `buildingId`
+**AND** separate connected building components SHALL use distinct `buildingId`
+values
 
 ### Requirement: Preset Map Distinctness
 
