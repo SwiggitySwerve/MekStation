@@ -8,9 +8,6 @@ import type { IAnomaly } from '@/types/simulation-viewer/IAnomaly';
 import {
   GameEventType,
   type IGameEvent,
-  type IDamageAppliedPayload,
-  type IHeatPayload,
-  type IMovementDeclaredPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import type { BattleState } from './types';
@@ -153,7 +150,7 @@ export class NoProgressDetectionEngine {
     // MovementLocked branch carries only the unitId; position only updates
     // from MovementDeclared payloads (which carry `to`).
     if (event.type === GameEventType.MovementDeclared) {
-      const payload = getPayload<IMovementDeclaredPayload>(event);
+      const payload = getPayload(event, GameEventType.MovementDeclared);
       if (payload && payload.to) {
         state.unitPosition.set(payload.unitId, {
           q: payload.to.q,
@@ -164,7 +161,7 @@ export class NoProgressDetectionEngine {
   }
 
   private processDamage(event: IGameEvent, state: DetectorTrackingState): void {
-    const payload = getPayload<IDamageAppliedPayload>(event);
+    const payload = getPayload(event, GameEventType.DamageApplied);
     const { unitId, location, armorRemaining, structureRemaining } = payload;
 
     if (!state.unitArmor.has(event.turn)) {
@@ -192,7 +189,7 @@ export class NoProgressDetectionEngine {
   }
 
   private processHeat(event: IGameEvent, state: DetectorTrackingState): void {
-    const payload = getPayload<IHeatPayload>(event);
+    const payload = getPayload(event, GameEventType.HeatGenerated);
     const { unitId, newTotal } = payload;
 
     if (!state.unitHeat.has(event.turn)) {
@@ -207,7 +204,7 @@ export class NoProgressDetectionEngine {
     event: IGameEvent,
     state: DetectorTrackingState,
   ): void {
-    const payload = getPayload<{ readonly unitId: string }>(event);
+    const payload = getPayload(event, GameEventType.UnitDestroyed);
     state.destroyedUnits.add(payload.unitId);
   }
 

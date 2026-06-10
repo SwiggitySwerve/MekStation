@@ -6,9 +6,9 @@
 import type { IKeyMoment } from '@/types/simulation-viewer/IKeyMoment';
 
 import {
+  GameEventType,
   GameSide,
   type IGameEvent,
-  type IUnitDestroyedPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import { getPayload } from '../utils/getPayload';
@@ -47,7 +47,7 @@ export function processUnitDestroyed(
     metadata?: Record<string, unknown>,
   ) => IKeyMoment,
 ): IKeyMoment[] {
-  const payload = getPayload<IUnitDestroyedPayload>(event);
+  const payload = getPayload(event, GameEventType.UnitDestroyed);
   const moments: IKeyMoment[] = [];
 
   // Track the destruction

@@ -6,18 +6,14 @@
 import type { IKeyMoment } from '@/types/simulation-viewer/IKeyMoment';
 
 import {
+  GameEventType,
   type IGameEvent,
-  type IDamageAppliedPayload,
-  type IPilotHitPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import { getPayload } from '../utils/getPayload';
 import {
   type BattleState,
   type DetectorTrackingState,
-  type ICriticalHitPayload,
-  type IAmmoExplosionPayload,
-  type IAttackResolvedExtended,
   FOCUS_FIRE_THRESHOLD,
   getUnitName,
 } from './types';
@@ -35,7 +31,7 @@ export function processAttackResolved(
     metadata?: Record<string, unknown>,
   ) => IKeyMoment,
 ): IKeyMoment[] {
-  const payload = getPayload<IAttackResolvedExtended>(event);
+  const payload = getPayload(event, GameEventType.AttackResolved);
   const moments: IKeyMoment[] = [];
 
   if (!payload.hit) return moments;
@@ -117,7 +113,11 @@ export function processAttackResolved(
   }
 
   // 17. Rear arc hit
-  if (payload.attackerFacing === 'rear') {
+  // Audit 2026-06-09 G (W5.1b): emitters populate `attackerArc` on the
+  // canonical IAttackResolvedPayload (per wire-firing-arc-resolution); the
+  // old detector-local `attackerFacing` field never existed at runtime, so
+  // this moment could never fire.
+  if (payload.attackerArc === 'rear') {
     const attackerName = getUnitName(battleState.units, payload.attackerId);
     const targetName = getUnitName(battleState.units, payload.targetId);
 
@@ -149,7 +149,7 @@ export function processDamageApplied(
     metadata?: Record<string, unknown>,
   ) => IKeyMoment,
 ): IKeyMoment[] {
-  const payload = getPayload<IDamageAppliedPayload>(event);
+  const payload = getPayload(event, GameEventType.DamageApplied);
   const moments: IKeyMoment[] = [];
 
   // Get pre-damage structure for overkill detection
@@ -233,7 +233,7 @@ export function processCriticalHit(
     metadata?: Record<string, unknown>,
   ) => IKeyMoment,
 ): IKeyMoment[] {
-  const payload = getPayload<ICriticalHitPayload>(event);
+  const payload = getPayload(event, GameEventType.CriticalHit);
   const moments: IKeyMoment[] = [];
   const targetName = getUnitName(battleState.units, payload.unitId);
   const relatedUnits = payload.sourceUnitId
@@ -282,7 +282,7 @@ export function processAmmoExplosion(
     metadata?: Record<string, unknown>,
   ) => IKeyMoment,
 ): IKeyMoment[] {
-  const payload = getPayload<IAmmoExplosionPayload>(event);
+  const payload = getPayload(event, GameEventType.AmmoExplosion);
   const unitName = getUnitName(battleState.units, payload.unitId);
 
   return [
@@ -310,7 +310,7 @@ export function processPilotHit(
     metadata?: Record<string, unknown>,
   ) => IKeyMoment,
 ): IKeyMoment[] {
-  const payload = getPayload<IPilotHitPayload>(event);
+  const payload = getPayload(event, GameEventType.PilotHit);
 
   if (payload.consciousnessCheckPassed !== false) return [];
 
