@@ -5,6 +5,7 @@ import {
 } from '@/utils/gameplay/firingArc';
 import { determineArc } from '@/utils/gameplay/firingArcs';
 import { hexDistance } from '@/utils/gameplay/hexMath';
+import { weaponMountCoversTargetArc } from '@/utils/gameplay/weaponMountArcs';
 
 import type { SeededRandom } from '../core/SeededRandom';
 import type { IAIStructureState, IAIUnitState, IWeapon } from './types';
@@ -194,24 +195,20 @@ function targetArcFromAttacker(
 
 /**
  * Per `improve-bot-basic-combat-competence` task 3.2: true when a
- * weapon mounted in `weaponArc` can fire at a target whose relative
- * arc from the attacker is `targetArc`.
+ * weapon's mounted arc coverage includes the target's relative arc
+ * from the attacker.
  *
- * When a weapon has NO explicit `mountingArc`, it is treated as
- * OMNIDIRECTIONAL — the arc filter does not exclude it. This
- * preserves legacy behavior for test fixtures and pre-existing
- * callers that don't yet populate arc metadata. Production callers
- * (real BotPlayer wiring) SHOULD set `mountingArc` based on the
- * weapon's MML location so the arc filter actually applies.
+ * Audit C-8 (2026-06-09): routed through the shared
+ * `weaponMountCoversTargetArc` helper so multi-arc mounts (arm-mounted
+ * mech weapons hydrate `mountingArcs` [Front, Left/Right] per MegaMek
+ * `Mek.getWeaponArc`; vehicle sponsons/turrets do the same) union their
+ * arcs instead of being read as singular-only. Semantics for legacy
+ * shapes are unchanged: a weapon with NO arc metadata is treated as
+ * OMNIDIRECTIONAL (the filter does not exclude it), and singular
+ * `mountingArc` weapons cover exactly that one arc.
  */
 function weaponCanCoverArc(weapon: IWeapon, targetArc: FiringArc): boolean {
-  if (weapon.mountingArc === undefined) return true;
-  const weaponArc = weapon.mountingArc;
-  if (weaponArc === FiringArc.Front) return targetArc === FiringArc.Front;
-  if (weaponArc === FiringArc.Rear) return targetArc === FiringArc.Rear;
-  if (weaponArc === FiringArc.Left) return targetArc === FiringArc.Left;
-  if (weaponArc === FiringArc.Right) return targetArc === FiringArc.Right;
-  return false;
+  return weaponMountCoversTargetArc(weapon, targetArc);
 }
 
 /**

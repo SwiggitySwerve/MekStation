@@ -179,11 +179,24 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     };
 
     const weapons = hydrateAIWeaponsFromFullUnit(fullUnit, weaponLookup);
+    // Audit C-8: arm mounts hydrate MegaMek ARC_LEFTARM front+left-side
+    // coverage (Mek.getWeaponArc) — the old pin of Front-only LEFT_ARM
+    // weapons diverged from MegaMek and blocked side-arc fire.
     expect(
-      weapons.map((weapon) => [weapon.id, weapon.location, weapon.mountingArc]),
+      weapons.map((weapon) => [
+        weapon.id,
+        weapon.location,
+        weapon.mountingArc,
+        weapon.mountingArcs,
+      ]),
     ).toEqual([
-      ['medium-laser-0', 'LEFT_ARM', FiringArc.Front],
-      ['ac-20-1', 'RIGHT_TORSO', FiringArc.Rear],
+      [
+        'medium-laser-0',
+        'LEFT_ARM',
+        undefined,
+        [FiringArc.Front, FiringArc.Left],
+      ],
+      ['ac-20-1', 'RIGHT_TORSO', FiringArc.Rear, [FiringArc.Rear]],
     ]);
 
     const state = createHydratedUnitState({
@@ -236,6 +249,92 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     );
 
     expect(chosen.map((weapon) => weapon.id)).toEqual(['ac-20-1']);
+  });
+
+  // Audit C-8: MegaMek Mek.getWeaponArc gives biped arm mounts a 180-degree
+  // front+side sweep (ARC_LEFTARM/ARC_RIGHTARM = ARC_FORWARD plus the
+  // matching side arc per FacingArc), while QuadMek.getWeaponArc keeps every
+  // quad location (including FRONT_*_LEG, which the runner maps onto the arm
+  // slots) at ARC_FORWARD.
+  it('hydrates biped arm mounts with front+side arcs and keeps torso/quad-leg mounts front-only (audit C-8)', () => {
+    const fullUnit: IFullUnit = {
+      id: 'synthetic-arm-arc-hydration',
+      chassis: 'Synthetic',
+      variant: 'Arm Arc Hydration',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3025',
+      unitType: 'BattleMech',
+      equipment: [
+        { id: 'medium-laser', location: 'LEFT_ARM' },
+        { id: 'medium-laser', location: 'RIGHT_ARM' },
+        { id: 'medium-laser', location: 'LEFT_ARM', isRearMounted: true },
+        { id: 'medium-laser', location: 'CENTER_TORSO' },
+        { id: 'medium-laser', location: 'FRONT_LEFT_LEG' },
+      ],
+    };
+
+    const weapons = hydrateAIWeaponsFromFullUnit(fullUnit, weaponLookup);
+    expect(
+      weapons.map((weapon) => [
+        weapon.location,
+        weapon.mountingArc,
+        weapon.mountingArcs,
+      ]),
+    ).toEqual([
+      ['LEFT_ARM', undefined, [FiringArc.Front, FiringArc.Left]],
+      ['RIGHT_ARM', undefined, [FiringArc.Front, FiringArc.Right]],
+      // Rear-mounted arm weapons stay Rear (MegaMek checks isRearMounted
+      // BEFORE the location switch).
+      ['LEFT_ARM', FiringArc.Rear, [FiringArc.Rear]],
+      ['CENTER_TORSO', FiringArc.Front, [FiringArc.Front]],
+      // Quad front legs hydrate Front-only per QuadMek.getWeaponArc.
+      ['FRONT_LEFT_LEG', FiringArc.Front, [FiringArc.Front]],
+    ]);
+  });
+
+  it('selects hydrated arm weapons for side-arc targets while torso mounts stay excluded (audit C-8)', () => {
+    const fullUnit: IFullUnit = {
+      id: 'synthetic-arm-side-arc-selection',
+      chassis: 'Synthetic',
+      variant: 'Arm Side Arc Selection',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3025',
+      unitType: 'BattleMech',
+      equipment: [
+        { id: 'medium-laser', location: 'RIGHT_ARM' },
+        { id: 'ac-20', location: 'RIGHT_TORSO' },
+      ],
+    };
+    const weapons = hydrateAIWeaponsFromFullUnit(fullUnit, weaponLookup);
+    const attackerState = {
+      ...createHydratedUnitState({
+        runnerUnitId: 'attacker-1',
+        side: GameSide.Player,
+        position: { q: 0, r: 0 },
+        fullUnit,
+        aiWeapons: weapons,
+      }),
+      facing: Facing.North,
+      secondaryFacing: Facing.North,
+    };
+    // Attacker at (0,0) facing North; target at (2,0) sits in the Right
+    // side arc (~108 degrees off facing — see the torso-twist test in
+    // improveBotBasicCombatCompetence.behavior.test.ts for the geometry).
+    const targetState = createMinimalUnitState('target-1', GameSide.Opponent, {
+      q: 2,
+      r: 0,
+    });
+
+    const chosen = new AttackAI().selectWeapons(
+      toCatalogAIUnitState(attackerState, weapons),
+      toCatalogAIUnitState(targetState, [weapons[0]]),
+    );
+
+    // RIGHT_ARM laser covers Front+Right and bears on the side-arc target;
+    // the front-only RIGHT_TORSO AC/20 cannot.
+    expect(chosen.map((weapon) => weapon.id)).toEqual(['medium-laser-0']);
   });
 
   it('hydrates Artemis IV guidance only when a compatible launcher has linked FCS and Artemis-capable ammo', async () => {

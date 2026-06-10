@@ -532,7 +532,7 @@ export function toAIWeapon(
   catalogWeapon: ICatalogWeaponStats,
   mountIndex: number,
   location?: string,
-  mountingArc?: FiringArc,
+  mountingArcs?: readonly FiringArc[],
 ): IWeapon {
   const damage = resolveCatalogDamage(catalogWeapon.damage, catalogWeapon.id);
   const firingModes = buildCatalogFiringModes(catalogWeapon, damage);
@@ -550,14 +550,50 @@ export function toAIWeapon(
     minRange: catalogWeapon.ranges.minimum,
     ammoPerTon: catalogWeapon.ammoPerTon ?? -1,
     ...(location ? { location } : {}),
-    ...(mountingArc ? { mountingArc } : {}),
+    // Mirror the CompendiumAdapter multi-arc representation: a single-arc
+    // mount stamps both the legacy singular `mountingArc` and the plural
+    // `mountingArcs`; a multi-arc mount stamps the plural only so consumers
+    // route through `weaponMountCoversTargetArc`'s arc union.
+    ...(mountingArcs && mountingArcs.length === 1
+      ? { mountingArc: mountingArcs[0] }
+      : {}),
+    ...(mountingArcs && mountingArcs.length > 0 ? { mountingArcs } : {}),
     destroyed: false,
     ...(firingModes ? { firingModes } : {}),
   };
 }
 
-function mountingArcFromEquipment(entry: IUnitEquipmentEntry): FiringArc {
-  return entry.isRearMounted === true ? FiringArc.Rear : FiringArc.Front;
+/**
+ * Resolve the firing-arc coverage of one mounted weapon.
+ *
+ * Audit C-8 (2026-06-09): MegaMek `Mek.getWeaponArc`
+ * (megamek/common/units/Mek.java) gives biped arm mounts a 180-degree
+ * front+side sweep — LOC_LEFT_ARM → ARC_LEFTARM (240°–60° = forward + left
+ * side per FacingArc), LOC_RIGHT_ARM → ARC_RIGHTARM (300°–120°) — while
+ * head/torso/leg mounts stay ARC_FORWARD and rear mounts ARC_REAR. Quad
+ * front legs are NOT arms for arc purposes: `QuadMek.getWeaponArc` keeps
+ * every quad location at ARC_FORWARD, so the FRONT_*_LEG catalog locations
+ * deliberately fall through to the Front-only branch here.
+ */
+function mountingArcsFromEquipment(
+  entry: IUnitEquipmentEntry,
+): readonly FiringArc[] {
+  // MegaMek checks isRearMounted BEFORE the location switch — a rear-mounted
+  // arm weapon fires into the rear arc only.
+  if (entry.isRearMounted === true) return [FiringArc.Rear];
+
+  // Normalize the catalog location the same way the armor mapper does
+  // (uppercase + spaces/hyphens to underscores) so "Left Arm" variants
+  // match alongside the canonical SCREAMING_SNAKE form.
+  const location =
+    typeof entry.location === 'string'
+      ? normalizeEquipmentLocation(entry.location)
+          .toUpperCase()
+          .replace(/[\s-]+/g, '_')
+      : '';
+  if (location === 'LEFT_ARM') return [FiringArc.Front, FiringArc.Left];
+  if (location === 'RIGHT_ARM') return [FiringArc.Front, FiringArc.Right];
+  return [FiringArc.Front];
 }
 
 function catalogText(catalogWeapon: ICatalogWeaponStats): string {
@@ -1512,7 +1548,7 @@ export function hydrateAIWeaponsFromFullUnitWithReport(
       stats,
       mountIndex,
       location,
-      mountingArcFromEquipment(entry),
+      mountingArcsFromEquipment(entry),
     );
     out.push(
       applyArtemisGuidanceFlags(

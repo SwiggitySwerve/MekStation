@@ -170,7 +170,12 @@ describe('Scenario: Atlas-vs-Atlas mirror (P6b — task 6.6)', () => {
   });
 
   it('both units take damage (mirror match: each side hits the other)', async () => {
-    const result = await runAtlasMirror(5);
+    // Audit C-8: arm-mounted weapons now hydrate MegaMek front+side arcs,
+    // which legitimately shifts the seeded fire lists and downstream RNG
+    // stream. At the old seed 5 the opponent's 8 declared shots all missed;
+    // seed 7 restores the both-sides-hit contract per the re-tuning
+    // guidance below (re-tune the seed, never weaken the assertion).
+    const result = await runAtlasMirror(7);
 
     let playerDamageDealt = 0;
     let opponentDamageDealt = 0;

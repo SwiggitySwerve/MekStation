@@ -1,3 +1,4 @@
+import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 import type { IWeapon } from '@/simulation/ai/types';
 import type {
   IGameSession,
@@ -8,6 +9,10 @@ import type {
   IWeaponStatus,
 } from '@/types/gameplay';
 
+import {
+  buildWeaponLookupFromCatalogFiles,
+  hydrateAIWeaponsFromFullUnit,
+} from '@/simulation/runner/UnitHydration';
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import {
@@ -25,6 +30,7 @@ import {
 } from '@/types/gameplay';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { WEAPON_CATALOG_FILES } from '@/utils/construction/equipmentBVCatalogData';
 import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 import {
   addC3Network,
@@ -2622,6 +2628,102 @@ describe('interactive attack projection agreement', () => {
       attackerId: 'a1',
       targetId: 't1',
       weaponIds: ['left-sponson-laser'],
+      grid,
+    });
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.weapons).toEqual(projection!.weaponIdsAvailable);
+    expect(payload.range).toBe(projection!.rangeBracket);
+    expect(payload.toHitNumber).toBe(projection!.toHitNumber);
+  });
+
+  // Audit C-8: arm-mounted mech weapons hydrate with MegaMek front+side
+  // arcs (Mek.getWeaponArc ARC_LEFTARM/ARC_RIGHTARM). This agreement check
+  // feeds the REAL UnitHydration output (not a hand-written fixture) into
+  // both the tactical-map projection and the committed attack path so the
+  // two stay aligned for an arm weapon firing at a side-arc target.
+  it('keeps hydrated arm-mounted weapon side-arc coverage aligned between preview and committed attacks (audit C-8)', () => {
+    const weaponLookup = buildWeaponLookupFromCatalogFiles(
+      WEAPON_CATALOG_FILES as readonly { items?: readonly unknown[] }[],
+    );
+    const fullUnit: IFullUnit = {
+      id: 'synthetic-arm-arc-agreement',
+      chassis: 'Synthetic',
+      variant: 'Arm Arc Agreement',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3025',
+      unitType: 'BattleMech',
+      equipment: [{ id: 'medium-laser', location: 'LEFT_ARM' }],
+    };
+    const hydrated = hydrateAIWeaponsFromFullUnit(fullUnit, weaponLookup);
+    expect(hydrated).toHaveLength(1);
+    const [armLaser] = hydrated;
+
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      facing: Facing.North,
+    };
+    session.currentState.units.t1 = {
+      ...session.currentState.units.t1,
+      position: { q: -1, r: 1 },
+    };
+    const grid = makeClearGrid(3);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.North,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: -1, r: 1 },
+      facing: Facing.North,
+    });
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [
+        makeWeaponStatus({
+          id: armLaser.id,
+          ranges: {
+            short: armLaser.shortRange,
+            medium: armLaser.mediumRange,
+            long: armLaser.longRange,
+          },
+          mountingArc: armLaser.mountingArc,
+          mountingArcs: armLaser.mountingArcs,
+        }),
+      ],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === -1 && hex.hex.r === 1);
+
+    expect(projection).toBeDefined();
+    expect(projection).toMatchObject({
+      attackable: true,
+      firingArc: 'left-side',
+      weaponIdsInArc: [armLaser.id],
+      weaponIdsAvailable: [armLaser.id],
+    });
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: new Map([['a1', hydrated]]),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: [armLaser.id],
       grid,
     });
 

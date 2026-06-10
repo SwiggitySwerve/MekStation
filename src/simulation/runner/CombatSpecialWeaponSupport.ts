@@ -176,12 +176,12 @@ export const SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT = {
   ),
   'ams-mounted-arc-enforcement': integrated(
     'ams-mounted-arc-enforcement',
-    'resolveAMSInterception and resolveSingleMissileAMSInterception filter target-mounted AMS by incoming attack arc when mountingArc state is available',
+    'resolveAMSInterception and resolveSingleMissileAMSInterception filter target-mounted AMS by incoming attack arc when mountingArc or multi-arc mountingArcs state is available, unioning multi-arc coverage via weaponMountCoversTargetArc',
     MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
   ),
   'ams-mounted-arc-hydration': integrated(
     'ams-mounted-arc-hydration',
-    'UnitHydration maps canonical mounted equipment isRearMounted metadata into explicit Front/Rear mountingArc state for runner and AI combat snapshots',
+    'UnitHydration maps canonical mounted equipment isRearMounted metadata into explicit Front/Rear mountingArc state and biped arm mount locations into MegaMek Mek.getWeaponArc front+side mountingArcs coverage for runner and AI combat snapshots',
     MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
   ),
   'ams-streak-cluster-parity': integrated(
