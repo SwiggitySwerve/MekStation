@@ -61,7 +61,7 @@ reconciliation merge `7f22e4f22` · audited main `442f90855`.
 
 | Task | Finding             | Scope                                                                                                                                                              | Status  |
 | ---- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
-| W4.1 | E-1                 | Playwright smoke lane in pr-checks.yml + fix 2 stale assertions                                                                                                    | pending |
+| W4.1 | E-1                 | Playwright smoke lane in pr-checks.yml + fix 2 stale assertions                                                                                                    | done    |
 | W4.2 | E-7, E-8            | Invariant runner wired into swarm/preset CLI; phantom-participant fix                                                                                              | pending |
 | W4.3 | E-2..E-6, E-9, E-10 | Perf assertions lane; un-skip determinism test; vacuous existence assertions; scheduled full-size proofs; coverage decision; retire stale known-limitations ledger | pending |
 

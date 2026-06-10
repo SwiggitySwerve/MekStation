@@ -1177,7 +1177,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       );
       await expect(hexGrid).toHaveAttribute(
         'data-isometric-pointer-camera-controls',
-        'mouse-pan|touch-pan|pinch-zoom|touch-rotate-buttons',
+        'mouse-pan|touch-pan|pinch-zoom|touch-rotate|touch-rotate-buttons',
       );
 
       const initialViewBox = await hexGrid.getAttribute('viewBox');
@@ -3320,7 +3320,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
     await expect(environmentContext).toHaveAttribute(
       'data-combat-environment-rule-refs',
-      /combat:mekstation:MekStation represented water attack helper/,
+      /combat:megamek:MegaMek common\/actions\/compute\/ComputeTerrainMods\.java:167-188 target water and partial-underwater handling/,
     );
   });
 
