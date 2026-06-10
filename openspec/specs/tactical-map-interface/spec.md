@@ -2459,15 +2459,13 @@ tall stacks.
 
 The tactical map interface SHALL compose terrain, elevation, movement, combat, path, selected, and hover state into a single per-hex projection before rendering hex cells or hover explanations.
 
-#### Scenario: QuadVee vehicle conversion changes movement projection and commit legality
+#### Scenario: Movement option rows expose rule-reference evidence
 
-**GIVEN** a tactical-map browser harness renders a QuadVee with a runtime conversion profile
-**WHEN** the QuadVee remains in Mek mode and previews a walking move up a 2-level elevation climb
-**THEN** the map SHALL render the destination as reachable using Mek-style ground movement, elevation cost, and movement heat metadata
-**WHEN** the same represented QuadVee is in tracked vehicle mode and previews the same elevation climb
-**THEN** the map SHALL render the destination as blocked with tracked movement motive metadata
-**AND** the MP legend SHALL show jump movement disabled from the same runtime conversion state
-**AND** committed movement validation SHALL accept or reject each case with the same MP, heat, path, invalid reason, and details as the rendered projection
+**GIVEN** a tactical movement projection renders multiple movement options for the same destination hex
+**WHEN** the player hovers that destination and the Walk, Run, and Jump option rows are shown
+**THEN** the option-row group SHALL expose the movement-channel source references and rule references from the shared per-hex tactical projection
+**AND** each individual movement option row SHALL expose the same movement-channel rule references
+**AND** movement cost, heat, terrain, elevation, blocked-reason, and command validation behavior SHALL remain unchanged
 
 ### Requirement: Projection Status Badges
 
@@ -2575,16 +2573,25 @@ The tactical map interface SHALL expose movement-mode legend state in accessible
 
 ### Requirement: Combat Projection Explanation Details
 
-The tactical map interface SHALL expose rules-backed combat projection details for range, target legality, LOS, firing arc, visibility, cover, and weapon availability without recalculating combat legality in the renderer.
+The tactical map interface SHALL include rules-backed combat details in the
+shared per-hex tactical projection explanation.
 
-#### Scenario: Fire volley command is gated by selected target projection
+#### Scenario: Combat environment context rows expose rule-reference evidence
 
-- **GIVEN** the tactical map has derived a combat projection for the selected attack target
-- **AND** the projection says the target is blocked by range, arc, LOS, visibility, weapon readiness, or represented environment rules
-- **WHEN** the player views the `Fire Volley` command in the dock or enemy token context menu
-- **THEN** the command SHALL be disabled before confirmation or commit
-- **AND** the disabled reason SHALL match the player-facing blocked detail from the combat projection
-- **AND** the command surface SHALL consume the shared projection data rather than recalculating attack legality in the command renderer.
+- **GIVEN** a combat projection includes weapon options blocked by represented
+  environment rules
+- **WHEN** the player hovers that combat hex and the environment context row is
+  shown
+- **THEN** the environment context row SHALL expose environment-specific source
+  references and rule references from the shared per-hex tactical projection
+- **AND** the row SHALL preserve blocked weapon ids and blocked environment
+  reasons from `ICombatRangeHex.weaponRangeOptions`
+- **AND** represented MekStation helper provenance SHALL be labeled as
+  represented behavior and SHALL NOT imply a narrower MegaMek or official
+  source pin before that source is explicitly linked
+- **AND** underwater legality, torpedo path legality, target legality,
+  attack-command behavior, and committed attack resolution SHALL remain
+  unchanged
 
 ### Requirement: Movement Projection Explanation Details
 
@@ -2671,22 +2678,20 @@ The tactical map interface SHALL preserve stand-up movement details when renderi
 
 ### Requirement: Isometric Rotation Heading Metadata
 
-The tactical map interface SHALL expose the current isometric camera heading whenever isometric rotation controls are visible.
+The tactical map interface SHALL expose the current isometric camera heading
+whenever isometric rotation controls are visible. The map SHALL provide a reset
+control that restores pan, zoom, and the isometric camera heading to their
+canonical defaults without changing axial hex click coordinates.
 
-#### Scenario: Isometric controls show current heading
-
-**GIVEN** the tactical map is in top-down mode
-**WHEN** the player switches to isometric mode
-**THEN** the rotation controls SHALL show the current camera heading
-**AND** the heading SHALL expose the current rotation step
-**AND** the heading SHALL expose the equivalent degree value.
-
-#### Scenario: Heading updates when the camera rotates
+#### Scenario: Reset view restores canonical isometric heading
 
 **GIVEN** the tactical map is in isometric mode
-**WHEN** the player rotates the camera left or right
-**THEN** the current heading label SHALL update to the new rotation step and degree value
-**AND** the map SHALL preserve render-only rotation without changing axial hex click coordinates.
+**AND** the player has rotated the isometric camera away from heading 0
+**WHEN** the player activates reset view
+**THEN** the projection layer SHALL expose rotation step 0
+**AND** the heading metadata SHALL expose 0 degrees
+**AND** the projection transform SHALL use the canonical heading
+**AND** axial hex clicks SHALL still target the same battlefield coordinates
 
 ### Requirement: Movement Tooltip Path Summary
 
@@ -2787,64 +2792,36 @@ The tactical map interface SHALL expose projected weapon damage envelope metadat
 
 The tactical map interface SHALL identify tall isometric terrain that may obscure units behind it.
 
-**Priority**: High
+#### Scenario: Scene token summarizes multiple active occluders
 
-#### Scenario: Occluding terrain exposes hidden-unit metadata
-
-**GIVEN** a unit may be hidden behind elevated terrain in isometric mode
-**WHEN** the map derives terrain occlusion information
-**THEN** the occluding terrain hex SHALL expose the unit ids it may hide
-**AND** the occluding terrain hex SHALL expose the reason for the occlusion
-**AND** represented building levels SHALL contribute to the occluder's vertical
-height for this readability projection
-
-#### Scenario: Occluding terrain is visually highlighted
-
-**GIVEN** elevated terrain may hide one or more units from the current isometric camera angle
-**WHEN** the map is rendered in isometric mode
-**THEN** the occluding terrain hex SHALL render an isometric-only highlight
-**AND** its elevation stack SHALL indicate that it is the source of occlusion
-**AND** the highlight's accessible label SHALL report the effective occluder
-height, including represented building levels
-**AND** represented building levels SHALL contribute to visible isometric stack
-layers even when the base terrain elevation is flat
-
-#### Scenario: Multiple occluding layers remain visible
-
-**GIVEN** more than one elevated terrain hex may hide the same unit from the
-current isometric camera angle
-**WHEN** the map derives and renders isometric terrain occlusion information
-**THEN** every occluding terrain hex SHALL expose the hidden unit id
-**AND** every occluding terrain hex SHALL render its isometric occluder
-highlight and stack metadata
-**AND** the unit token MAY keep one representative occluder reason for compact
-foreground readability labeling
-
-#### Scenario: Camera rotation clears stale occluder highlights
-
-**GIVEN** a tall terrain hex only occludes a unit from some camera angles
-**WHEN** the isometric camera rotates to an angle where the terrain is no longer in front of the unit
-**THEN** the prior occluder hex highlight SHALL be removed
+- **GIVEN** more than one elevated terrain hex may hide the same unit from the current isometric camera heading
+- **WHEN** the unit token is rendered inside the depth-sorted isometric scene
+- **THEN** the token wrapper SHALL preserve a representative first occluder hex and elevation for compact compatibility
+- **AND** the token wrapper SHALL expose the complete active occluder hex list
+- **AND** the token wrapper SHALL expose the complete active occluder effective-elevation list
+- **AND** the token wrapper SHALL expose every active terrain-occlusion reason
+- **AND** the nested token visibility context SHALL use those same existing terrain-occlusion reasons without recalculating movement, combat, LOS, fog, or visibility legality
 
 ### Requirement: Movement Projection Detail Surface
 
-For each projected movement hex, the map SHALL expose at least movement mode,
-cumulative MP cost, terrain cost, elevation delta/cost, heat impact where
-applicable, path/facing preview where applicable, and invalid reason when
-blocked.
+The tactical map SHALL expose movement projection details from the same
+rules-backed movement capability and commit-validation path used by the engine.
+Runtime state changes that alter movement capability, unit height, movement
+mode, movement points, heat profile, stand-up cost, or failed stand-up fallback
+events SHALL be reflected before the player commits movement.
 
-#### Scenario: Movement commands consume the selected destination projection
+#### Scenario: Runtime movement commit side effects match projection capability
 
-- **GIVEN** a map or context menu has a movement projection for the selected
-  destination hex
-- **AND** that projection marks one or more walk, run, or jump options as
-  blocked
-- **WHEN** the tactical action dock or hex context menu renders matching
-  movement commands
-- **THEN** the blocked movement command SHALL be disabled with the same
-  player-facing reason exposed by the movement projection
-- **AND** legal same-hex movement options SHALL remain available without
-  recalculating movement legality in the command surface.
+- **GIVEN** a represented unit's runtime state changes after import in a way
+  that changes its effective movement capability
+- **WHEN** the movement projection previews a stand-up cost, movement mode, heat
+  profile, reachable destination, blocked destination, or failed stand-up
+  fallback declaration
+- **THEN** the interactive movement commit path SHALL use the same runtime
+  movement capability for validation, stand-up PSR projection, heat, MP cost,
+  and emitted movement events
+- **AND** the movement declaration SHALL NOT fall back to stale import-time MP or
+  movement-mode data.
 
 ### Requirement: Isometric Occluder Hover Explanations
 
@@ -2915,29 +2892,20 @@ Rendered tactical map unit token wrappers SHALL expose inspectable state metadat
 
 ### Requirement: Combat Projection Detail Surface
 
-For each projected combat hex, the map SHALL expose weapon range band, firing
-arc, line of sight, valid target state, blocked target state, cover/visibility
-implications, available weapons, and invalid reasons from the shared combat
-projection.
+The tactical map SHALL expose combat projection details from the same
+rules-backed combat validation path used by the engine. Projection source
+metadata for weapon environment restrictions SHALL identify the rule surface
+that justifies underwater target restrictions, torpedo-only water legality, and
+torpedo path water-line failures.
 
-#### Scenario: Combat cover badges identify cover level and modifier
+#### Scenario: Underwater weapon environment restrictions expose source-backed context
 
-- **GIVEN** a combat projection target has a positive cover modifier
-- **WHEN** the target combat cover badge is rendered
-- **THEN** the visible badge label SHALL include both the projected cover level
-  shorthand and the projected to-hit modifier
-- **AND** the badge metadata SHALL expose the rendered cover label, cover level,
-  modifier, and reason without recalculating combat legality outside the shared
-  combat projection.
-
-#### Scenario: Elevation partial cover remains attackable
-
-- **GIVEN** one target is blocked by an intervening elevation hex and another
-  target is only partially covered by lower adjacent elevation
-- **WHEN** the tactical map renders combat projection metadata
-- **THEN** the blocked target SHALL expose `NoLineOfSight` rejection metadata
-- **AND** the partially covered target SHALL remain attackable while exposing
-  the projected partial-cover level, modifier, reason, and to-hit modifier
+- **GIVEN** a selected unit previews attacks against a water or underwater target
+- **WHEN** a non-underwater weapon is blocked by the target's water state or a
+  torpedo path leaves water
+- **THEN** the combat projection SHALL expose the blocked weapon id, blocked
+  reason, projection channel, source reference, and rule reference
+- **AND** the source and rule references SHALL point at the MegaMek-backed underwater weapon environment source instead of a pending MekStation-only helper.
 
 ### Requirement: Physical Attack Projection Detail Surface
 
