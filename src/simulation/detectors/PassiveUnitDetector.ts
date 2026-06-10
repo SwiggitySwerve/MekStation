@@ -259,7 +259,7 @@ export class PassiveUnitDetector {
     event: IGameEvent,
     state: DetectorTrackingState,
   ): void {
-    const payload = getPayload<{ readonly unitId: string }>(event);
+    const payload = getPayload(event, GameEventType.UnitDestroyed);
     state.destroyedUnits.add(payload.unitId);
   }
 

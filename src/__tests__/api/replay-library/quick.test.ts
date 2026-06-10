@@ -69,7 +69,9 @@ jest.mock('@/components/quickgame/persistQuickGame', () => {
 // eslint-disable-next-line import/first
 import { persistQuickGame } from '@/components/quickgame/persistQuickGame';
 // eslint-disable-next-line import/first
-import handler from '@/pages/api/replay-library/quick';
+import handler, {
+  config as routeConfig,
+} from '@/pages/api/replay-library/quick';
 
 const mockedPersistQuickGame = persistQuickGame as jest.MockedFunction<
   typeof persistQuickGame
@@ -374,6 +376,68 @@ describe('POST /api/replay-library/quick', () => {
       error: 'events must be an array',
       code: 'BAD_EVENTS',
     });
+  });
+
+  // ===========================================================================
+  // Audit W5.2 (H cluster): events element validation + body-size ceiling.
+  // Mirrors the encounter route tests — same defects, sibling route.
+  // ===========================================================================
+
+  it('returns 400 BAD_EVENTS when an event is missing its payload (no persist call)', async () => {
+    const [gameCreated, turnStarted] = makeEvents('quick-bad-evt-1');
+    const payloadless = { ...gameCreated } as Record<string, unknown>;
+    delete payloadless.payload;
+
+    const req = createMockRequest({
+      body: {
+        ...validBody('quick-bad-evt-1'),
+        events: [payloadless, turnStarted],
+      },
+    });
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'BAD_EVENTS' }),
+    );
+    expect(mockedPersistQuickGame).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 BAD_EVENTS when an event is not an object (no persist call)', async () => {
+    const req = createMockRequest({
+      body: { ...validBody('quick-bad-evt-2'), events: ['not-an-event'] },
+    });
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'BAD_EVENTS' }),
+    );
+    expect(mockedPersistQuickGame).not.toHaveBeenCalled();
+  });
+
+  it('exports a Next bodyParser sizeLimit of 16mb (real logs already exceed the 1mb default)', () => {
+    expect(routeConfig?.api?.bodyParser?.sizeLimit).toBe('16mb');
+  });
+
+  it('returns 413 PAYLOAD_TOO_LARGE when Content-Length exceeds the ceiling', async () => {
+    const req = createMockRequest({
+      body: validBody('quick-huge-1'),
+      headers: { 'content-length': String(17 * 1024 * 1024) },
+    });
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(413);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'PAYLOAD_TOO_LARGE' }),
+    );
+    expect(mockedPersistQuickGame).not.toHaveBeenCalled();
   });
 
   it('returns 400 BAD_WINNER when winner is an unknown string', async () => {

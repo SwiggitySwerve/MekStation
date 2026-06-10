@@ -14,15 +14,15 @@ import {
   type IDamageAppliedPayload,
   type IAttackResolvedPayload,
   type IPilotHitPayload,
+  type ICriticalHitPayload,
+  type IAmmoExplosionPayload,
+  type IHeatEffectAppliedPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
   KeyMomentDetector,
   type BattleState,
   type BattleUnit,
-  type ICriticalHitPayload,
-  type IAmmoExplosionPayload,
-  type IHeatEffectAppliedPayload,
 } from '../KeyMomentDetector';
 
 // =============================================================================
@@ -216,20 +216,30 @@ function ammoExplosionEvent(
 ): IGameEvent {
   return createEvent(
     GameEventType.AmmoExplosion,
-    { unitId, location, damage } satisfies IAmmoExplosionPayload,
+    {
+      unitId,
+      location,
+      damage,
+      source: 'CritInduced',
+    } satisfies IAmmoExplosionPayload,
     overrides,
   );
 }
 
 function heatEffectEvent(
   unitId: string,
-  effect: 'shutdown' | 'ammo-explosion' | 'modifier',
-  heat: number,
+  effect: IHeatEffectAppliedPayload['effect'],
+  heatLevel: number,
   overrides?: Partial<IGameEvent>,
 ): IGameEvent {
   return createEvent(
     GameEventType.HeatEffectApplied,
-    { unitId, effect, heat } satisfies IHeatEffectAppliedPayload,
+    {
+      unitId,
+      threshold: 30,
+      effect,
+      heatLevel,
+    } satisfies IHeatEffectAppliedPayload,
     { phase: GamePhase.Heat, ...overrides },
   );
 }
@@ -925,7 +935,7 @@ describe('KeyMomentDetector', () => {
 
       it('ignores non-shutdown heat effects', () => {
         const state = createStandardBattleState();
-        const events = [heatEffectEvent('atlas', 'modifier', 20)];
+        const events = [heatEffectEvent('atlas', 'attack_penalty', 20)];
 
         const moments = detector.detect(events, state);
 
@@ -1071,8 +1081,10 @@ describe('KeyMomentDetector', () => {
       it('detects attack from rear arc', () => {
         const state = createStandardBattleState();
         const events = [
+          // Real emitters set `attackerArc` (see IAttackResolvedPayload /
+          // wire-firing-arc-resolution); the detector must read that field.
           attackResolvedEvent('atlas', 'timberwolf', 'ac20', true, undefined, {
-            attackerFacing: 'rear',
+            attackerArc: 'rear',
           }),
         ];
 
@@ -1087,7 +1099,7 @@ describe('KeyMomentDetector', () => {
         const state = createStandardBattleState();
         const events = [
           attackResolvedEvent('atlas', 'timberwolf', 'ac20', true, undefined, {
-            attackerFacing: 'front',
+            attackerArc: 'front',
           }),
         ];
 

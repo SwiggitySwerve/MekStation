@@ -47,7 +47,12 @@ import type {
   IUnitToken,
 } from '@/types/gameplay';
 
-import { GameEventType, GameSide, TokenUnitType } from '@/types/gameplay';
+import {
+  GameEventType,
+  GameSide,
+  MovementType,
+  TokenUnitType,
+} from '@/types/gameplay';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { terrainFeaturesFromString } from '@/utils/gameplay/terrainEncoding';
 import { logger } from '@/utils/logger';
@@ -73,6 +78,44 @@ export interface ReplayHexMapState {
   readonly tokens: readonly IUnitToken[];
   readonly hexTerrain: readonly IHexTerrain[];
   readonly mapRadius: number;
+}
+
+// =============================================================================
+// Posture helpers
+// =============================================================================
+
+/**
+ * Derive a unit's prone state after a `MovementDeclared` event.
+ *
+ * Audit 2026-06-09 G (W5.1b): live play commits voluntary posture changes
+ * as movement declarations (`goProneActiveUnitLogic` /
+ * `standActiveUnitLogic` / `enterHullDownActiveUnitLogic` in
+ * `useGameplayStore.combatFlows.ts`), and the authoritative state reducer
+ * derives prone in `applyMovementDeclared`
+ * (`src/utils/gameplay/gameState/actionLocking.ts`). This mirrors that
+ * derivation so replay tokens go prone (and stand again) at the same
+ * cursor positions live play would:
+ *
+ *   1. hull-down entry → standing (hull-down is not prone);
+ *   2. go-prone flag OR a `goProne` step in the chain → prone;
+ *   3. stand-up attempt → prone iff the attempt did NOT succeed;
+ *   4. legacy fallback — a prone unit committing a non-stationary move
+ *      without posture flags is treated as standing (event streams that
+ *      predate the posture flags).
+ */
+function proneAfterMovementDeclared(
+  currentProne: boolean,
+  payload: IMovementDeclaredPayload,
+): boolean {
+  const wentProne =
+    payload.steps?.some((step) => step.kind === 'goProne') ?? false;
+  if (payload.hullDownEntryAttempt === true) return false;
+  if (payload.goProneAttempt === true || wentProne) return true;
+  if (payload.standUpAttempt === true) return payload.standUpSucceeded !== true;
+  if (currentProne && payload.movementType !== MovementType.Stationary) {
+    return false;
+  }
+  return currentProne;
 }
 
 // =============================================================================
@@ -207,6 +250,11 @@ export function deriveHexMapStateFromEvents(
         if (acc !== undefined) {
           acc.position = payload.to;
           acc.facing = payload.facing;
+          // Audit 2026-06-09 G (W5.1b): posture-as-movement events
+          // (voluntary go-prone / stand-up / hull-down committed as
+          // MovementDeclared by the live posture flows) must reach the
+          // replay token projection too.
+          acc.prone = proneAfterMovementDeclared(acc.prone, payload);
         }
         break;
       }

@@ -335,4 +335,42 @@ describe('persistQuickGame (Node env)', () => {
     );
     expect(files).toContain(`${FIXTURE_GAME_ID}.jsonl`);
   });
+
+  it('audit W5.2: a payload-less game_created throws BEFORE any write — no orphan JSONL, no manifest', async () => {
+    // Mirror of the encounter pipeline defect: the old ordering wrote
+    // the JSONL first, then threw building the manifest entry off
+    // `payload.units` — leaving an orphan file the manifest never saw.
+    const malformed = { ...gameCreatedEvent([]) } as unknown as Record<
+      string,
+      unknown
+    >;
+    delete malformed.payload;
+
+    await expect(
+      persistQuickGame({
+        gameId: FIXTURE_GAME_ID,
+        events: [malformed as unknown as IGameEvent],
+        winner: 'player',
+        aiVariant: 'aggressive-v2',
+        cwd,
+      }),
+    ).rejects.toThrow();
+
+    let partitionFiles: string[] = [];
+    try {
+      partitionFiles = await readdir(
+        path.resolve(cwd, 'simulation-reports', 'quick'),
+      );
+    } catch {
+      // ENOENT — directory never created. Expected.
+    }
+    expect(partitionFiles).toHaveLength(0);
+
+    await expect(
+      readFile(
+        path.resolve(cwd, 'simulation-reports', 'replay-index.json'),
+        'utf-8',
+      ),
+    ).rejects.toThrow();
+  });
 });

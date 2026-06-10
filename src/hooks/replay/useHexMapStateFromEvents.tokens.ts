@@ -139,6 +139,11 @@ export function accumulatorToToken(acc: UnitAccumulator): IUnitToken {
     isValidTarget: false,
     isActiveTarget: false,
     isDestroyed: acc.isDestroyed,
+    // Audit 2026-06-09 G (W5.1b): the accumulator's prone state was
+    // write-only — UnitFell/UnitStood and posture-as-movement events
+    // mutated it but the token never carried the result. Project it so
+    // the replay viewer can render prone tokens.
+    isProne: acc.prone,
     designation,
   } as const;
 

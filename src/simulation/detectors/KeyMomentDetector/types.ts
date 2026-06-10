@@ -35,50 +35,14 @@ export interface BattleState {
 // =============================================================================
 // Event Payload Types
 // =============================================================================
-
-/**
- * Payload for CriticalHit events.
- * Defined locally until added to GameSessionInterfaces.
- */
-export interface ICriticalHitPayload {
-  readonly unitId: string;
-  readonly location: string;
-  readonly component: string;
-  readonly sourceUnitId?: string;
-}
-
-/**
- * Payload for AmmoExplosion events.
- * Defined locally until added to GameSessionInterfaces.
- */
-export interface IAmmoExplosionPayload {
-  readonly unitId: string;
-  readonly location: string;
-  readonly damage: number;
-}
-
-/**
- * Payload for HeatEffectApplied events.
- * Defined locally until added to GameSessionInterfaces.
- */
-export interface IHeatEffectAppliedPayload {
-  readonly unitId: string;
-  readonly effect: 'shutdown' | 'ammo-explosion' | 'modifier';
-  readonly heat: number;
-}
-
-/**
- * Extended AttackResolved payload with rear arc information
- */
-export interface IAttackResolvedExtended {
-  readonly attackerId: string;
-  readonly targetId: string;
-  readonly weaponId: string;
-  readonly hit: boolean;
-  readonly location?: string;
-  readonly damage?: number;
-  readonly attackerFacing?: 'front' | 'left' | 'right' | 'rear';
-}
+// Audit 2026-06-09 G (W5.1b): the detector-local payload duplicates
+// (ICriticalHitPayload / IAmmoExplosionPayload / IHeatEffectAppliedPayload /
+// IAttackResolvedExtended) that lived here "until added to
+// GameSessionInterfaces" diverged from the canonical shapes the emitters
+// actually produce (`attackerFacing` vs `attackerArc`, `heat` vs
+// `heatLevel`). The canonical types now exist in
+// `@/types/gameplay/GameSessionInterfaces` and are consumed directly via
+// the typed `getPayload(event, GameEventType.X)` lookup — no local copies.
 
 // =============================================================================
 // Internal Tracking State

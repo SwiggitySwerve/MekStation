@@ -95,14 +95,17 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
         ref={interaction.svgRef}
         viewBox={interaction.transformedViewBox}
         className="h-full w-full touch-manipulation"
-        onWheel={interaction.handleWheel}
+        // Wheel + touchmove are intentionally NOT bound as React props:
+        // React attaches those listeners passively at the root, so
+        // `preventDefault()` could never cancel page scrolling. The
+        // hook binds non-passive native listeners on this SVG instead
+        // (audit 2026-06-09 G, W5.1a — see useMapInteraction).
         onMouseDown={interaction.handleMouseDown}
         onMouseMove={interaction.handleMouseMove}
         onMouseUp={interaction.handleMouseUp}
         onMouseLeave={interaction.handleMouseUp}
         onKeyDown={interaction.handleKeyDown}
         onTouchStart={interaction.handleTouchStart}
-        onTouchMove={interaction.handleTouchMove}
         onTouchEnd={interaction.handleTouchEnd}
         tabIndex={0}
         aria-label="Tactical map battlefield"

@@ -5,14 +5,15 @@
 
 import type { IKeyMoment } from '@/types/simulation-viewer/IKeyMoment';
 
-import { type IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import {
+  GameEventType,
+  type IGameEvent,
+} from '@/types/gameplay/GameSessionInterfaces';
 
 import { getPayload } from '../utils/getPayload';
 import {
   type BattleState,
   type DetectorTrackingState,
-  type ICriticalHitPayload,
-  type IHeatEffectAppliedPayload,
   LEG_ACTUATOR_COMPONENTS,
   getUnitName,
 } from './types';
@@ -30,15 +31,20 @@ export function processCriticalHitTier3(
     metadata?: Record<string, unknown>,
   ) => IKeyMoment,
 ): IKeyMoment[] {
-  const payload = getPayload<ICriticalHitPayload>(event);
+  const payload = getPayload(event, GameEventType.CriticalHit);
   const moments: IKeyMoment[] = [];
   const targetName = getUnitName(battleState.units, payload.unitId);
   const relatedUnits = payload.sourceUnitId
     ? [payload.sourceUnitId, payload.unitId]
     : [payload.unitId];
 
+  // Canonical ICriticalHitPayload.component is optional (legacy emitters may
+  // omit it); both tier-3 detections require a named component.
+  const component = payload.component;
+  if (component === undefined) return moments;
+
   // 15. Mobility kill - leg actuator critical hit
-  if (LEG_ACTUATOR_COMPONENTS.has(payload.component)) {
+  if (LEG_ACTUATOR_COMPONENTS.has(component)) {
     if (!state.mobilityKillDetected.has(payload.unitId)) {
       state.mobilityKillDetected.add(payload.unitId);
 
@@ -46,10 +52,10 @@ export function processCriticalHitTier3(
         createMoment(
           'mobility-kill',
           event,
-          `Mobility kill on ${targetName}: ${payload.component} destroyed`,
+          `Mobility kill on ${targetName}: ${component} destroyed`,
           relatedUnits,
           state,
-          { component: payload.component, location: payload.location },
+          { component, location: payload.location },
         ),
       );
     }
@@ -57,12 +63,12 @@ export function processCriticalHitTier3(
 
   // 16. Weapons kill - track destroyed weapons
   const unit = battleState.units.find((u) => u.id === payload.unitId);
-  if (unit && unit.weaponIds.includes(payload.component)) {
+  if (unit && unit.weaponIds.includes(component)) {
     if (!state.destroyedWeaponsPerUnit.has(payload.unitId)) {
       state.destroyedWeaponsPerUnit.set(payload.unitId, new Set());
     }
     const destroyed = state.destroyedWeaponsPerUnit.get(payload.unitId)!;
-    destroyed.add(payload.component);
+    destroyed.add(component);
 
     if (
       destroyed.size >= unit.weaponIds.length &&
@@ -99,7 +105,10 @@ export function processHeatEffectApplied(
     metadata?: Record<string, unknown>,
   ) => IKeyMoment,
 ): IKeyMoment[] {
-  const payload = getPayload<IHeatEffectAppliedPayload>(event);
+  // Audit 2026-06-09 G (W5.1b): the stale detector-local payload read
+  // `payload.heat`, a field the runner's heatThresholdEvents emitter never
+  // sets — the canonical IHeatEffectAppliedPayload carries `heatLevel`.
+  const payload = getPayload(event, GameEventType.HeatEffectApplied);
 
   if (payload.effect !== 'shutdown') return [];
 
@@ -109,10 +118,10 @@ export function processHeatEffectApplied(
     createMoment(
       'heat-crisis',
       event,
-      `Heat shutdown: ${unitName} shut down (${payload.heat} heat)`,
+      `Heat shutdown: ${unitName} shut down (${payload.heatLevel} heat)`,
       [payload.unitId],
       state,
-      { heat: payload.heat },
+      { heat: payload.heatLevel },
     ),
   ];
 }

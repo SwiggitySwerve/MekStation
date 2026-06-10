@@ -31,6 +31,7 @@ import {
   DEFAULT_LAYOUT_CONFIG,
   getLayoutForPhase,
   MovementType,
+  type IHexCoordinate,
   type IMovementRangeHex,
 } from '@/types/gameplay';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
@@ -243,14 +244,23 @@ export function GameplayLayout({
   }, [mapInteraction]);
 
   // Lens state — tracks active lens preset + intensity. The applyLensLayers
-  // side-effect runs via useEffect whenever activeLens or mapInteraction changes.
+  // side-effect re-runs ONLY when the lens changes (applyLensLayers is keyed
+  // on activeLens) or when the map publishes its layer-state setter.
+  //
+  // Audit 2026-06-09 G (W5.1a): the dep array previously listed the whole
+  // `lensState` object (fresh identity every render — the hook returns a new
+  // literal) and the churning `mapInteraction` object, so the effect re-ran
+  // on EVERY layout render and reset all unlocked layers to lens defaults —
+  // reverting manual A/L overlay toggles within the same commit. Keying on
+  // the two stable function identities preserves manual toggles until the
+  // player actually switches lenses.
   const lensState = useTacticalLensState();
+  const { applyLensLayers } = lensState;
+  const setMapLayerVisibility = mapInteraction?.setLayerVisibility;
   useEffect(() => {
-    if (!mapInteraction) return;
-    lensState.applyLensLayers((id, visible) =>
-      mapInteraction.setLayerVisibility(id, visible),
-    );
-  }, [lensState.activeLens, mapInteraction, lensState]);
+    if (!setMapLayerVisibility) return;
+    applyLensLayers(setMapLayerVisibility);
+  }, [applyLensLayers, setMapLayerVisibility]);
 
   // Hotkey help overlay (? hotkey).
   const [helpOpen, setHelpOpen] = useState<boolean>(false);
@@ -308,6 +318,22 @@ export function GameplayLayout({
   );
   const localFogPlayerId =
     session.sideOwners?.[playerSide] ?? playerSide.toString();
+
+  // Fog contact memory (audit 2026-06-09 G, W5.1a): remembers the last
+  // OBSERVED hex of every fogged enemy so its ghost token freezes there
+  // when the contact drops out of sensor/visual range, instead of
+  // tracking the live position every render. Held in a ref (not state)
+  // because it is a render-derived cache written idempotently by
+  // buildGameplayTokens — it must never itself trigger re-renders.
+  // Reset when the session changes so stale intel never crosses games.
+  const fogContactMemoryRef = useRef<{
+    sessionId: string;
+    memory: Map<string, IHexCoordinate>;
+  } | null>(null);
+  if (fogContactMemoryRef.current?.sessionId !== session.id) {
+    fogContactMemoryRef.current = { sessionId: session.id, memory: new Map() };
+  }
+  const fogContactMemory = fogContactMemoryRef.current.memory;
 
   const physicalAttackOptionsByTargetId = useMemo<
     Readonly<Record<string, readonly IPhysicalAttackOption[]>>
@@ -398,11 +424,13 @@ export function GameplayLayout({
         playerSide,
         localFogPlayerId,
         visibilityState,
+        fogContactMemory,
       }),
     [
       activeTargetId,
       config,
       currentState,
+      fogContactMemory,
       localFogPlayerId,
       playerSide,
       selectedUnitId,
@@ -457,12 +485,14 @@ export function GameplayLayout({
         playerSide,
         localFogPlayerId,
         visibilityState,
+        fogContactMemory,
       }),
     [
       activeTargetId,
       config,
       currentState,
       effectiveValidTargetIds,
+      fogContactMemory,
       localFogPlayerId,
       playerSide,
       selectedUnitId,

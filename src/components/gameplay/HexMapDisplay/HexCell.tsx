@@ -256,8 +256,16 @@ export interface HexCellProps {
    * `data-unreachable` so the tooltip layer can key off it.
    */
   isUnreachableHover?: boolean;
-  onClick: () => void;
-  onMouseEnter: () => void;
+  /**
+   * Audit 2026-06-09 G (W5.1a): the click/hover callbacks receive the
+   * cell's own `hex` so the parent can pass ONE referentially stable
+   * handler to every cell. The previous `() => void` contract forced
+   * `renderHexCell` to allocate fresh per-hex arrow closures each
+   * render, which defeated this component's `React.memo` on every
+   * camera pan/zoom event.
+   */
+  onClick: (hex: IHexCoordinate) => void;
+  onMouseEnter: (hex: IHexCoordinate) => void;
   onMouseLeave: () => void;
 }
 
@@ -502,8 +510,11 @@ export const HexCell = React.memo(function HexCell({
 
   return (
     <g
-      onClick={onClick}
-      onMouseEnter={onMouseEnter}
+      // Arrow wrappers here are BELOW the memo boundary, so they are
+      // re-created only when this cell genuinely re-renders — the
+      // parent's handler props stay referentially stable (W5.1a).
+      onClick={() => onClick(hex)}
+      onMouseEnter={() => onMouseEnter(hex)}
       onMouseLeave={onMouseLeave}
       style={{ cursor: 'pointer' }}
       data-testid={`hex-${hex.q}-${hex.r}`}

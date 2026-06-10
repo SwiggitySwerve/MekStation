@@ -33,6 +33,30 @@ export function isIsometricProjection(mode: MapProjectionMode): boolean {
   return mode === 'isometric2d' || mode === 'isometricPreview';
 }
 
+/**
+ * Project a top-down pixel point through the SAME transform the render
+ * layer applies via `getMapProjectionTransform` (audit 2026-06-09 G:
+ * camera centering must share the layer's projection math).
+ *
+ * SVG applies the RIGHTMOST transform-list entry first, so
+ * `matrix(1 0 0.28 0.72 0 0) rotate(θ)` rotates the point by θ and
+ * THEN shears it: x' = xr + 0.28·yr, y' = 0.72·yr. Top-down mode is
+ * the identity. Keep this in lockstep with `getMapProjectionTransform`
+ * above — they are two views of one projection.
+ */
+export function projectMapPoint(
+  point: { readonly x: number; readonly y: number },
+  mode: MapProjectionMode,
+  rotationStep: MapIsometricRotationStep = 0,
+): { x: number; y: number } {
+  if (mode === 'topDown') return { x: point.x, y: point.y };
+  // SVG rotate(θ) maps (x, y) → (x·cosθ − y·sinθ, x·sinθ + y·cosθ).
+  const theta = (rotationStep * 60 * Math.PI) / 180;
+  const rotatedX = point.x * Math.cos(theta) - point.y * Math.sin(theta);
+  const rotatedY = point.x * Math.sin(theta) + point.y * Math.cos(theta);
+  return { x: rotatedX + 0.28 * rotatedY, y: 0.72 * rotatedY };
+}
+
 export function rotateAxialCamera(
   hex: IHexCoordinate,
   rotationStep: number,

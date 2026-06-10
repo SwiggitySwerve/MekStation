@@ -249,31 +249,30 @@ export function useCombatProjectionValidTargetUnitIds({
   }, [combatRangeLookup, enabled]);
 }
 
+/**
+ * First-occlusion-per-unit lookup. Audit 2026-06-09 G (W5.1a): this
+ * used to run its own `deriveIsometricTerrainOcclusionInfo` sweep with
+ * inputs identical to `useIsometricOcclusionInfos` — two full-grid
+ * occlusion passes per render. It now derives from that single sweep's
+ * output instead.
+ */
 export function useIsometricOcclusionInfo({
   isIsometricView,
-  tokens,
-  terrainLookup,
-  rotationStep,
+  isometricTerrainOcclusionInfos,
 }: {
   readonly isIsometricView: boolean;
-  readonly tokens: readonly IUnitToken[];
-  readonly terrainLookup: ReadonlyMap<string, IHexTerrain>;
-  readonly rotationStep: number;
+  readonly isometricTerrainOcclusionInfos: readonly IsometricTerrainOcclusionInfo[];
 }): ReadonlyMap<string, IsometricTerrainOcclusionInfo> {
   return useMemo(() => {
     const lookup = new Map<string, IsometricTerrainOcclusionInfo>();
     if (!isIsometricView) return lookup;
-    for (const info of deriveIsometricTerrainOcclusionInfo({
-      tokens,
-      terrainLookup,
-      rotationStep,
-    })) {
+    for (const info of isometricTerrainOcclusionInfos) {
       if (!lookup.has(info.unitId)) {
         lookup.set(info.unitId, info);
       }
     }
     return lookup;
-  }, [isIsometricView, rotationStep, terrainLookup, tokens]);
+  }, [isIsometricView, isometricTerrainOcclusionInfos]);
 }
 
 export function useIsometricOcclusionInfos({

@@ -262,6 +262,14 @@ export interface IUnitTokenBase {
   readonly isActiveTarget?: boolean;
   /** Is this unit destroyed? */
   readonly isDestroyed: boolean;
+  /**
+   * Is this unit prone? Optional and currently projected by the replay
+   * reducer (`useHexMapStateFromEvents`) from `UnitFell` / `UnitStood` and
+   * posture-as-movement `MovementDeclared` events (audit 2026-06-09 G,
+   * W5.1b). Live-play projections may leave it unset; renderers treat
+   * `undefined` as standing.
+   */
+  readonly isProne?: boolean;
   /** Short designation (e.g., "ATL-1") */
   readonly designation: string;
 }

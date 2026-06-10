@@ -11,6 +11,7 @@ import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { PhysicalAttackIntent } from '@/components/gameplay';
+import type { IGameplayActionPayload } from '@/stores/useGameplayStore.helpers';
 import type { TacticalActionPayload } from '@/types/gameplay';
 import type { IRuntimeMovementStateChangedPayload } from '@/types/gameplay/GameSessionMovementEvents';
 
@@ -159,8 +160,16 @@ export default function GameSessionPage(): React.ReactElement {
 
   const handleInteractiveAction = useCallback(
     (actionId: string, payload?: TacticalActionPayload) => {
+      // Audit 2026-06-09 G (W5.1a): the structured TacticalActionPayload
+      // must survive EVERY dispatch path — the non-interactive and
+      // default branches used to drop it, so payload-carrying commands
+      // (e.g. torso-twist with a direction) silently lost their data.
+      // TacticalActionPayload is the wide Record contract; the store
+      // reads only its known optional fields, so the narrowing cast is
+      // the documented hand-off between the two payload vocabularies.
+      const storePayload = payload as IGameplayActionPayload | undefined;
       if (!isInteractive) {
-        handleAction(actionId);
+        handleAction(actionId, storePayload);
         return;
       }
 
@@ -213,10 +222,12 @@ export default function GameSessionPage(): React.ReactElement {
           advanceInteractivePhase();
           break;
         case 'concede':
-          handleAction(actionId);
+          handleAction(actionId, storePayload);
           break;
         default:
-          handleAction(actionId);
+          // Non-special-cased commands forward BOTH the action id AND
+          // the structured payload to the store (W5.1a).
+          handleAction(actionId, storePayload);
       }
 
       checkGameOver();

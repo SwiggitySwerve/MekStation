@@ -17,7 +17,6 @@ import {
   GameEventType,
   GameSide,
   type IGameEvent,
-  type IHeatPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import { getPayload } from './utils/getPayload';
@@ -214,7 +213,7 @@ export class HeatSuicideDetector {
     state: DetectorTrackingState,
     threshold: number,
   ): void {
-    const payload = getPayload<IHeatPayload>(event);
+    const payload = getPayload(event, GameEventType.HeatGenerated);
     const { unitId, newTotal } = payload;
 
     // Track heat per unit per turn
@@ -251,7 +250,7 @@ export class HeatSuicideDetector {
     event: IGameEvent,
     state: DetectorTrackingState,
   ): void {
-    const payload = getPayload<{ readonly unitId: string }>(event);
+    const payload = getPayload(event, GameEventType.UnitDestroyed);
     state.destroyedUnits.add(payload.unitId);
   }
 

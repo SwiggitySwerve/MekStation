@@ -14,6 +14,19 @@
  *   - The minimap consumes the same `useCameraControls` facade the
  *     keyboard layer uses (see `src/hooks/useCameraControls.ts`), so
  *     tests and components share a single contract.
+ *
+ * Audit 2026-06-09 G (remediation W5.1a) hardening:
+ *   - Every action/handler reads volatile camera state through
+ *     latest-value refs, so the function identities are stable across
+ *     pan/zoom events. Identity churn used to re-fire downstream
+ *     effects (lens applicator, hotkey re-attach) on every camera
+ *     event and defeated the HexCell memo chain.
+ *   - `centerOn` projects the target hex through the SAME transform
+ *     the render layer applies (`projectMapPoint`), so isometric
+ *     centering lands the viewport on the hex's projected position.
+ *   - Wheel/touchmove are bound as non-passive NATIVE listeners on
+ *     the SVG — React attaches its synthetic wheel/touch listeners
+ *     passively at the root, which made `e.preventDefault()` a no-op.
  */
 
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
@@ -36,6 +49,7 @@ import {
   touchAngleDegrees,
   touchDistance,
 } from './mapTouchGestures';
+import { projectMapPoint } from './projection';
 import {
   useMapLayerState,
   type IMapLayerInteractionState,
@@ -46,6 +60,31 @@ interface ViewBox {
   y: number;
   width: number;
   height: number;
+}
+
+/**
+ * Structural subset shared by React synthetic and native wheel events.
+ * The handlers only touch these members, so accepting the subset lets
+ * the same callback serve the JSX prop AND the non-passive native
+ * listener without unsafe casts.
+ */
+export interface IWheelEventLike {
+  preventDefault(): void;
+  readonly deltaY: number;
+  readonly clientX: number;
+  readonly clientY: number;
+}
+
+/** Structural touch point — see `IWheelEventLike` for the rationale. */
+export interface ITouchPointLike {
+  readonly clientX: number;
+  readonly clientY: number;
+}
+
+/** Structural subset shared by React synthetic and native touch events. */
+export interface ITouchEventLike {
+  preventDefault(): void;
+  readonly touches: ArrayLike<ITouchPointLike>;
 }
 
 /**
@@ -153,13 +192,13 @@ export interface MapInteractionState extends IMapLayerInteractionState {
     hex: IHexCoordinate,
     opts?: { animate?: boolean; bumpLowZoom?: boolean },
   ) => void;
-  handleWheel: (e: React.WheelEvent) => void;
+  handleWheel: (e: IWheelEventLike) => void;
   handleMouseDown: (e: React.MouseEvent) => void;
   handleMouseMove: (e: React.MouseEvent) => void;
   handleMouseUp: () => void;
   handleKeyDown: (e: React.KeyboardEvent) => void;
-  handleTouchStart: (e: React.TouchEvent) => void;
-  handleTouchMove: (e: React.TouchEvent) => void;
+  handleTouchStart: (e: ITouchEventLike) => void;
+  handleTouchMove: (e: ITouchEventLike) => void;
   handleTouchEnd: () => void;
 }
 
@@ -179,16 +218,36 @@ export function useMapInteraction(
   });
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [isPanning, setIsPanning] = useState(false);
-  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
-  const [touchStart, setTouchStart] = useState<{
+  const svgRef = useRef<SVGSVGElement>(null);
+  const layerInteraction = useMapLayerState(initialProjectionMode);
+
+  // ---------------------------------------------------------------
+  // Latest-value refs (audit 2026-06-09 G, W5.1a). Handlers read the
+  // camera through these instead of closing over render-scoped state,
+  // which keeps every returned function identity-stable across
+  // pan/zoom events. The refs are re-synced on every render so an
+  // external `setZoom`/`setPan` (both exposed below) stays visible to
+  // the handlers too.
+  // ---------------------------------------------------------------
+  const viewBoxRef = useRef(viewBox);
+  viewBoxRef.current = viewBox;
+  const panRef = useRef(pan);
+  panRef.current = pan;
+  const zoomRef = useRef(zoom);
+  zoomRef.current = zoom;
+  const layerInteractionRef = useRef(layerInteraction);
+  layerInteractionRef.current = layerInteraction;
+
+  // Drag/gesture bookkeeping is handler-internal and never rendered,
+  // so plain refs (not state) avoid re-render churn during drags.
+  const isPanningRef = useRef(false);
+  const panStartRef = useRef({ x: 0, y: 0 });
+  const touchStartRef = useRef<{
     dist: number;
     zoom: number;
     angle: number;
     rotationStep: MapIsometricRotationStep;
   } | null>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
-  const layerInteraction = useMapLayerState(initialProjectionMode);
 
   // Track mid-flight ease animations so a new centerOn call can
   // cancel the previous one cleanly.
@@ -221,14 +280,14 @@ export function useMapInteraction(
     ): { x: number; y: number } => {
       // Half-extent of the map in screen pixels at the current zoom.
       // Any pan beyond this would scroll empty space into view.
-      const halfWidth = (viewBox.width * currentZoom) / 2;
-      const halfHeight = (viewBox.height * currentZoom) / 2;
+      const halfWidth = (viewBoxRef.current.width * currentZoom) / 2;
+      const halfHeight = (viewBoxRef.current.height * currentZoom) / 2;
       return {
         x: clamp(next.x, -halfWidth, halfWidth),
         y: clamp(next.y, -halfHeight, halfHeight),
       };
     },
-    [viewBox.width, viewBox.height],
+    [],
   );
 
   /**
@@ -238,9 +297,11 @@ export function useMapInteraction(
    */
   const panBy = useCallback(
     (dx: number, dy: number) => {
-      setPan((prev) => clampPan({ x: prev.x + dx, y: prev.y + dy }, zoom));
+      setPan((prev) =>
+        clampPan({ x: prev.x + dx, y: prev.y + dy }, zoomRef.current),
+      );
     },
-    [clampPan, zoom],
+    [clampPan],
   );
 
   /**
@@ -288,24 +349,26 @@ export function useMapInteraction(
       //   p1 = z1*p0/z0 + vb.w*(z1/z0 - 1)*(1/2 - cf)
       // See the test suite for `addMinimapAndCameraControls` for the
       // full derivation.
+      const z0 = zoomRef.current;
+      const viewBoxNow = viewBoxRef.current;
       setPan((prev) => {
-        const z0 = zoom;
         const z1 = clamped;
         const ratio = z1 / z0;
         const nextX =
-          ratio * prev.x + viewBox.width * (ratio - 1) * (0.5 - cfx);
+          ratio * prev.x + viewBoxNow.width * (ratio - 1) * (0.5 - cfx);
         const nextY =
-          ratio * prev.y + viewBox.height * (ratio - 1) * (0.5 - cfy);
+          ratio * prev.y + viewBoxNow.height * (ratio - 1) * (0.5 - cfy);
         return clampPan({ x: nextX, y: nextY }, clamped);
       });
       setZoom(clamped);
     },
-    [zoom, clampPan, viewBox.width, viewBox.height],
+    [clampPan],
   );
 
   /**
-   * Center the camera on a hex. Converts to world-space, then to
-   * pan. If animated (default), eases linearly over CENTER_EASE_MS.
+   * Center the camera on a hex. Converts to world-space, projects
+   * through the active map projection, then converts to pan. If
+   * animated (default), eases over CENTER_EASE_MS.
    *
    * Reduced-motion handling: honored in `useCameraControls`, which
    * is the public facade — this low-level primitive accepts the
@@ -327,14 +390,28 @@ export function useMapInteraction(
 
       // Per task 7.2: if the zoom is too far out to see the unit
       // after centering, bump to FOCUS_BUMP_ZOOM first.
+      const currentZoom = zoomRef.current;
       const targetZoom =
-        bumpLowZoom && zoom < FOCUS_MIN_ZOOM ? FOCUS_BUMP_ZOOM : zoom;
-      if (targetZoom !== zoom) setZoom(targetZoom);
+        bumpLowZoom && currentZoom < FOCUS_MIN_ZOOM
+          ? FOCUS_BUMP_ZOOM
+          : currentZoom;
+      if (targetZoom !== currentZoom) setZoom(targetZoom);
 
-      // Target pan: move the hex's world-space position to viewport
-      // center. With this hook's rendering model the viewport center
-      // corresponds to `pan = -worldPos * targetZoom`.
-      const world = hexToPixel(hex.q, hex.r);
+      // Target pan: move the hex's PROJECTED world-space position to
+      // viewport center. Audit 2026-06-09 G (W5.1a): the render layer
+      // draws everything through `getMapProjectionTransform`
+      // (rotate-before-shear in isometric mode), so the camera must
+      // route the target through the same projection or it lands on
+      // the unprojected top-down point. `projectMapPoint` is the
+      // identity in top-down mode, so this is a no-op there. With
+      // this hook's rendering model the viewport center corresponds
+      // to `pan = -projectedPos * targetZoom`.
+      const layers = layerInteractionRef.current;
+      const world = projectMapPoint(
+        hexToPixel(hex.q, hex.r),
+        layers.projectionMode,
+        layers.isometricRotationStep,
+      );
       const targetPan = clampPan(
         { x: -world.x * targetZoom, y: -world.y * targetZoom },
         targetZoom,
@@ -347,11 +424,7 @@ export function useMapInteraction(
 
       const start = performance.now();
       // Snapshot the starting pan to interpolate from.
-      let startPan = { x: 0, y: 0 };
-      setPan((prev) => {
-        startPan = prev;
-        return prev;
-      });
+      const startPan = panRef.current;
 
       const step = (now: number): void => {
         const t = clamp((now - start) / CENTER_EASE_MS, 0, 1);
@@ -369,16 +442,17 @@ export function useMapInteraction(
       };
       easeRafRef.current = requestAnimationFrame(step);
     },
-    [zoom, clampPan],
+    [clampPan],
   );
 
   /**
    * Wheel handler — zoom-to-cursor. The cursor position is extracted
-   * from the React event and passed to `zoomTo`, which does the
-   * anchoring math.
+   * from the event and passed to `zoomTo`, which does the anchoring
+   * math. Accepts the structural `IWheelEventLike` so the SAME
+   * function serves the non-passive native listener below.
    */
   const handleWheel = useCallback(
-    (e: React.WheelEvent) => {
+    (e: IWheelEventLike) => {
       e.preventDefault();
       const svg = svgRef.current;
       if (!svg) {
@@ -393,9 +467,9 @@ export function useMapInteraction(
         y: e.clientY - rect.top,
       };
       const delta = e.deltaY > 0 ? 0.9 : 1.1;
-      zoomTo(zoom * delta, cursor);
+      zoomTo(zoomRef.current * delta, cursor);
     },
-    [zoom, zoomTo],
+    [zoomTo],
   );
 
   /**
@@ -406,85 +480,82 @@ export function useMapInteraction(
    *     catches the event when the click wasn't handled by a hex or
    *     token child (those call `stopPropagation`).
    */
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      if (e.button === 1 || (e.button === 0 && e.altKey) || e.button === 0) {
-        setIsPanning(true);
-        setPanStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
-      }
-    },
-    [pan],
-  );
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button === 1 || (e.button === 0 && e.altKey) || e.button === 0) {
+      isPanningRef.current = true;
+      panStartRef.current = {
+        x: e.clientX - panRef.current.x,
+        y: e.clientY - panRef.current.y,
+      };
+    }
+  }, []);
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
-      if (isPanning) {
+      if (isPanningRef.current) {
         const next = {
-          x: e.clientX - panStart.x,
-          y: e.clientY - panStart.y,
+          x: e.clientX - panStartRef.current.x,
+          y: e.clientY - panStartRef.current.y,
         };
-        setPan(clampPan(next, zoom));
+        setPan(clampPan(next, zoomRef.current));
       }
     },
-    [isPanning, panStart, clampPan, zoom],
+    [clampPan],
   );
 
   const handleMouseUp = useCallback(() => {
-    setIsPanning(false);
+    isPanningRef.current = false;
   }, []);
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (layerInteraction.projectionMode !== 'isometric2d') return;
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const layers = layerInteractionRef.current;
+    if (layers.projectionMode !== 'isometric2d') return;
 
-      if (e.key === 'q' || e.key === 'Q') {
-        e.preventDefault();
-        e.stopPropagation();
-        layerInteraction.rotateIsometricLeft();
-      } else if (e.key === 'e' || e.key === 'E') {
-        e.preventDefault();
-        e.stopPropagation();
-        layerInteraction.rotateIsometricRight();
-      }
-    },
-    [layerInteraction],
-  );
+    if (e.key === 'q' || e.key === 'Q') {
+      e.preventDefault();
+      e.stopPropagation();
+      layers.rotateIsometricLeft();
+    } else if (e.key === 'e' || e.key === 'E') {
+      e.preventDefault();
+      e.stopPropagation();
+      layers.rotateIsometricRight();
+    }
+  }, []);
 
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      if (e.touches.length === 2) {
-        const dist = touchDistance(e.touches[0], e.touches[1]);
-        const angle = touchAngleDegrees(e.touches[0], e.touches[1]);
-        setTouchStart({
-          dist,
-          zoom,
-          angle,
-          rotationStep: layerInteraction.isometricRotationStep,
-        });
-        setIsPanning(false);
-      } else if (e.touches.length === 1) {
-        setIsPanning(true);
-        setPanStart({
-          x: e.touches[0].clientX - pan.x,
-          y: e.touches[0].clientY - pan.y,
-        });
-        setTouchStart(null);
-      }
-    },
-    [layerInteraction.isometricRotationStep, zoom, pan],
-  );
+  const handleTouchStart = useCallback((e: ITouchEventLike) => {
+    if (e.touches.length === 2) {
+      const dist = touchDistance(e.touches[0], e.touches[1]);
+      const angle = touchAngleDegrees(e.touches[0], e.touches[1]);
+      touchStartRef.current = {
+        dist,
+        zoom: zoomRef.current,
+        angle,
+        rotationStep: layerInteractionRef.current.isometricRotationStep,
+      };
+      isPanningRef.current = false;
+    } else if (e.touches.length === 1) {
+      isPanningRef.current = true;
+      panStartRef.current = {
+        x: e.touches[0].clientX - panRef.current.x,
+        y: e.touches[0].clientY - panRef.current.y,
+      };
+      touchStartRef.current = null;
+    }
+  }, []);
 
   const handleTouchMove = useCallback(
-    (e: React.TouchEvent) => {
+    (e: ITouchEventLike) => {
       e.preventDefault();
 
+      const touchStart = touchStartRef.current;
       if (e.touches.length === 2 && touchStart) {
         const dist = touchDistance(e.touches[0], e.touches[1]);
         const scale = dist / touchStart.dist;
         setZoom(clamp(touchStart.zoom * scale, ZOOM_MIN, ZOOM_MAX));
 
-        if (layerInteraction.projectionMode === 'isometric2d') {
-          layerInteraction.setIsometricRotationStep(
+        const layers = layerInteractionRef.current;
+        if (layers.projectionMode === 'isometric2d') {
+          layers.setIsometricRotationStep(
             isometricRotationStepForTouchGesture(
               touchStart.rotationStep,
               touchStart.angle,
@@ -492,21 +563,41 @@ export function useMapInteraction(
             ),
           );
         }
-      } else if (e.touches.length === 1 && isPanning) {
+      } else if (e.touches.length === 1 && isPanningRef.current) {
         const next = {
-          x: e.touches[0].clientX - panStart.x,
-          y: e.touches[0].clientY - panStart.y,
+          x: e.touches[0].clientX - panStartRef.current.x,
+          y: e.touches[0].clientY - panStartRef.current.y,
         };
-        setPan(clampPan(next, zoom));
+        setPan(clampPan(next, zoomRef.current));
       }
     },
-    [touchStart, isPanning, panStart, clampPan, zoom, layerInteraction],
+    [clampPan],
   );
 
   const handleTouchEnd = useCallback(() => {
-    setTouchStart(null);
-    setIsPanning(false);
+    touchStartRef.current = null;
+    isPanningRef.current = false;
   }, []);
+
+  // Audit 2026-06-09 G (W5.1a): React 17+ registers its synthetic
+  // wheel/touch listeners as PASSIVE at the root, so calling
+  // `preventDefault()` inside an `onWheel`/`onTouchMove` JSX prop is
+  // a no-op — the page scrolled along with every map zoom / touch
+  // pan. Bind non-passive NATIVE listeners on the SVG instead (the
+  // JSX props for these two events were removed from HexMapDisplay).
+  // Handlers are identity-stable, so this binds once per mount.
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const wheelListener = (e: WheelEvent): void => handleWheel(e);
+    const touchMoveListener = (e: TouchEvent): void => handleTouchMove(e);
+    svg.addEventListener('wheel', wheelListener, { passive: false });
+    svg.addEventListener('touchmove', touchMoveListener, { passive: false });
+    return () => {
+      svg.removeEventListener('wheel', wheelListener);
+      svg.removeEventListener('touchmove', touchMoveListener);
+    };
+  }, [handleWheel, handleTouchMove]);
 
   // Clean up any pending ease animation on unmount so we don't leak
   // a RAF callback into a stale component.
@@ -534,6 +625,9 @@ export function useMapInteraction(
   // fresh object, which caused the parent's `setMapInteraction` effect
   // to fire on every render — an infinite loop that hung the
   // gameplay smoke test and cancelled CI at the 20-min ceiling.
+  // The action/handler entries are individually identity-stable (see
+  // the latest-value refs above), so downstream effects can key on
+  // them without churning per camera event.
   return useMemo(
     () => ({
       svgRef,

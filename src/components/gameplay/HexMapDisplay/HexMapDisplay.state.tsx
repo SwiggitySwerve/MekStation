@@ -40,21 +40,39 @@ import {
 import { generateHexesInRadius } from './renderHelpers';
 import { useMapInteraction } from './useMapInteraction';
 
+// Stable empty defaults (audit 2026-06-09 G, W5.1a): inline `= []` /
+// `= {}` default parameters mint a FRESH identity on every render when
+// the prop is omitted, which invalidates every downstream useMemo
+// (terrainLookup, occlusion sweep, projection lookup) and defeats the
+// HexCell memo chain on every camera pan/zoom event. Module-level
+// constants keep omitted props referentially stable forever.
+const EMPTY_EVENTS: NonNullable<HexMapDisplayProps['events']> = [];
+const EMPTY_HEX_TERRAIN: NonNullable<HexMapDisplayProps['hexTerrain']> = [];
+const EMPTY_MOVEMENT_RANGE: NonNullable<HexMapDisplayProps['movementRange']> =
+  [];
+const EMPTY_ATTACK_RANGE: NonNullable<HexMapDisplayProps['attackRange']> = [];
+const EMPTY_UNIT_WEAPONS: NonNullable<HexMapDisplayProps['unitWeapons']> = {};
+const EMPTY_SELECTED_WEAPON_IDS: NonNullable<
+  HexMapDisplayProps['selectedWeaponIds']
+> = [];
+const EMPTY_HIGHLIGHT_PATH: NonNullable<HexMapDisplayProps['highlightPath']> =
+  [];
+
 export function useHexMapDisplayState({
   mapId = 'default-map',
   radius,
   tokens,
-  events = [],
+  events = EMPTY_EVENTS,
   selectedHex,
-  hexTerrain = [],
-  movementRange = [],
-  attackRange = [],
+  hexTerrain = EMPTY_HEX_TERRAIN,
+  movementRange = EMPTY_MOVEMENT_RANGE,
+  attackRange = EMPTY_ATTACK_RANGE,
   targetUnitId = null,
-  unitWeapons = {},
-  selectedWeaponIds = [],
+  unitWeapons = EMPTY_UNIT_WEAPONS,
+  selectedWeaponIds = EMPTY_SELECTED_WEAPON_IDS,
   combatState = null,
   friendlySide = GameSide.Player,
-  highlightPath = [],
+  highlightPath = EMPTY_HIGHLIGHT_PATH,
   hoverMpCost,
   hoverUnreachable = false,
   onHexClick,
@@ -185,17 +203,19 @@ export function useHexMapDisplayState({
       terrainLookup,
     ],
   );
-  const isometricTerrainOcclusionInfoByUnit = useIsometricOcclusionInfo({
-    isIsometricView,
-    tokens,
-    terrainLookup,
-    rotationStep: interaction.isometricRotationStep,
-  });
+  // Audit 2026-06-09 G (W5.1a): ONE occlusion sweep per render pass.
+  // The list is derived first; the by-unit "first hit" map below is
+  // derived FROM that list instead of running a second identical
+  // `deriveIsometricTerrainOcclusionInfo` sweep with the same inputs.
   const isometricTerrainOcclusionInfos = useIsometricOcclusionInfos({
     isIsometricView,
     tokens,
     terrainLookup,
     rotationStep: interaction.isometricRotationStep,
+  });
+  const isometricTerrainOcclusionInfoByUnit = useIsometricOcclusionInfo({
+    isIsometricView,
+    isometricTerrainOcclusionInfos,
   });
   const isometricTerrainOcclusionInfosByUnit = useIsometricOcclusionInfosByUnit(
     {
@@ -265,6 +285,12 @@ export function useHexMapDisplayState({
     },
     [onHexHover],
   );
+  // Stable leave handler so HexCell's `onMouseLeave` prop never
+  // churns — pairs with the hex-passing onClick/onMouseEnter contract
+  // (audit 2026-06-09 G, W5.1a).
+  const handleHexLeave = useCallback(() => {
+    handleHexHover(null);
+  }, [handleHexHover]);
   const handleTokenClick = useCallback(
     (unitId: string) => onTokenClick?.(unitId),
     [onTokenClick],
@@ -338,15 +364,19 @@ export function useHexMapDisplayState({
             hoverUnreachable &&
             !movementInfo?.reachable
           }
-          onClick={() => handleHexClick(hex)}
-          onMouseEnter={() => handleHexHover(hex)}
-          onMouseLeave={() => handleHexHover(null)}
+          // Referentially stable handlers — HexCell calls them with its
+          // own hex. Inline arrows here defeated HexCell's React.memo on
+          // every camera pan/zoom event (audit 2026-06-09 G, W5.1a).
+          onClick={handleHexClick}
+          onMouseEnter={handleHexHover}
+          onMouseLeave={handleHexLeave}
         />
       );
     },
     [
       handleHexClick,
       handleHexHover,
+      handleHexLeave,
       hoverMpCost,
       hoverUnreachable,
       interaction.projectionMode,
