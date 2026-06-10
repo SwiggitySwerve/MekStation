@@ -1,25 +1,46 @@
-# Known Limitations
+# Known Limitations — Legacy Detector Filter Ledger
 
-This document lists features that are not fully implemented in the MekStation game engine. The simulation system should **NOT** report violations related to these limitations as bugs.
+This document describes the **legacy generic-detector exclusion buckets** used
+by `isKnownLimitation()` in `src/simulation/core/knownLimitations.ts`. Each
+bucket suppresses violation messages from older generic simulation detectors
+whose wording cannot distinguish real bugs from historic engine gaps.
 
-These are documented gaps in functionality, not defects. They represent future work or design decisions to simplify the initial implementation.
+**This file is NOT the feature-status source of truth.** Per the 2026-06-09
+audit (finding E-10) this ledger had drifted badly: it still claimed line of
+sight, heat shutdown, critical-hit effects, pilot skill checks, ammo
+consumption, and terrain costs were unimplemented while the combat validation
+catalog marks them integrated. Feature status lives in the honest ledgers:
+
+- `src/simulation/runner/CombatValidationCatalog.ts` — per-feature support
+  levels (`integrated` / `helper-only` / `unsupported` / `out-of-scope`) with
+  MegaMek source references
+- `src/simulation/runner/CombatValidationGapInventory.ts` — machine-readable
+  inventory of every unresolved (non-integrated, non-out-of-scope) row;
+  printable via `npx tsx scripts/print-combat-validation-gaps.ts`
+
+**Why the buckets survive after the features shipped:** the regex buckets only
+filter messages from _legacy generic detectors_. The BattleMech combat
+validation lane bypasses this filter entirely (the
+`battlemech-combat-validation` invariant is an explicit bypass in
+`knownLimitations.ts`, proven by `combatValidationScope.contract.test.ts`), so
+real validation evidence is never suppressed. Removing a bucket is safe only
+after auditing that no legacy detector still emits matching messages.
 
 ---
 
 ## Physical Attacks
 
-**Status**: Partially Implemented; broad legacy filter retained for generic simulation detectors
+**Status**: Implemented for BattleMechs; broad legacy filter retained for generic simulation detectors
 
 **Why**: The current BattleMech combat stack has runtime support for punch, kick, push, charge, death-from-above, and the supported melee weapon attack types (hatchet, sword, mace, lance, retractable blade, flail, wrecking ball). The broad `physicalAttacks` known-limitation bucket is retained only for older generic invariant reports whose messages do not distinguish implemented BattleMech mechanics from missing physical-combat families.
 
 **Catalog validation rule**: BattleMech combat validation invariants must not be filtered through this broad bucket. They bypass known-limitation filtering via `battlemech-combat-validation` and use the explicit support maps under `src/simulation/runner/` to classify integrated, helper-only, and unsupported physical behavior.
 
-**Current explicit gaps**:
+**Current explicit gaps** (see the gap inventory for the authoritative list):
 
-- Claws and talons intentionally remain modifiers on punch/kick/DFA rather than standalone attacks; destroyed arm/leg location replay clears represented modifier state, including quad/non-biped arm-location talons, but automatic missing/breached event production from mounted-equipment state remains a gap.
-- Full physical-weapon mount location, mode, and damaged-equipment lifecycle parity remains partial.
-- Non-BattleMech physical combat families require separate validation matrices.
-- Generic invariants that only say "physical attack unavailable" may still be filtered as legacy limitations unless they are part of the BattleMech catalog validation lane.
+- Claws and talons intentionally remain modifiers on punch/kick/DFA rather than standalone attacks; automatic missing/breached event production from mounted-equipment state remains a gap (`ruleSupport.physicalDamageModifiers.claw-equipment-lifecycle` / `talon-equipment-lifecycle`).
+- Displacement domino chains are partial (`ruleSupport.physicalLegalityGates.shared.displacement-domino-chain`).
+- Non-BattleMech physical combat families require separate validation matrices (out-of-scope split).
 
 **Code Reference**:
 
@@ -27,7 +48,7 @@ These are documented gaps in functionality, not defects. They represent future w
 - `src/simulation/runner/CombatFeatureSupport.ts` - official physical weapon support map
 - `src/simulation/runner/CombatPhysicalActionSupport.ts` - physical action support map
 
-**Example Violations to Exclude**:
+**Example Violations to Exclude** (legacy generic detectors only):
 
 - "Generic physical attack option unavailable in non-catalog detector"
 - "Vehicle melee combat not resolved"
@@ -37,143 +58,118 @@ These are documented gaps in functionality, not defects. They represent future w
 
 ## Ammo Consumption Tracking
 
-**Status**: Not Tracked (partial implementation)
+**Status**: Implemented; legacy filter bucket retained
 
-**Why**: While ammo types are defined in the type system (`IUnitGameState.ammo: Record<string, number>`), actual consumption during weapon firing is not enforced. Units can fire weapons indefinitely without depleting ammunition. Reload mechanics and ammo bin management are not implemented.
+**Why the bucket exists**: this section previously claimed ammo consumption
+was not enforced. That is no longer true: `consumeAmmo`
+(`src/utils/gameplay/ammoTracking.ts`) is wired into the weapon-attack phase
+(`src/simulation/runner/phases/weaponAttack.ts`,
+`weaponAttackHitResolution.helpers.ts`), `AmmoConsumed` events are emitted
+with `roundsRemaining`, and heat-induced ammo explosions plus
+ammunition-explosion pilot damage are resolved
+(`phases/heatAmmoExplosions.ts`, `phases/ammoExplosionPilotDamage.ts`). The
+bucket survives only to mute legacy generic detectors with ammo-themed
+messages.
 
-**When**: Part of resource management milestone, requires persistent unit state and reload actions.
+**Remaining gaps** (gap inventory): ammo _compatibility metadata_ rows —
+`featureSupport.ammunitionCompatibility.battlemech-ammo-missing-compatible-weapon-refs`
+and `nonstandard-empty-compatible-row`.
 
-**Code Reference**:
-
-- `src/types/gameplay/GameSessionInterfaces.ts:451` - `ammo` field exists but not enforced
-- `src/types/gameplay/CombatInterfaces.ts` - `ammoConsumed` field in interfaces but not validated
-
-**Example Violations to Exclude**:
-
-- "Unit fired weapon with 0 ammo remaining"
-- "Ammo not decremented after firing"
-- "Reload action not available"
-- "Ammo bin empty but weapon still fires"
+**Hazard note**: a real ammo-tracking regression reported by a legacy generic
+detector would be filtered by this bucket. Catalog-lane invariants bypass the
+filter and are the enforcement surface for ammo behavior.
 
 ---
 
 ## Heat Shutdown Mechanics
 
-**Status**: Partially Implemented (thresholds defined, enforcement incomplete)
+**Status**: Implemented; legacy filter bucket retained
 
-**Why**: Heat thresholds are defined (`HEAT_THRESHOLDS.SHUTDOWN = 30` in `src/constants/heat.ts`), and heat accumulation is tracked, but automatic shutdown enforcement, shutdown recovery rolls, and heat-induced ammo explosions are not fully implemented in the game loop.
+**Why the bucket exists**: this section previously claimed shutdown
+enforcement was incomplete. The catalog now marks the full chain integrated
+(`CombatRuleSupport.ts`): `runHeatPhase` emits avoidable `ShutdownCheck`
+events at heat 14–29, automatic shutdown persists at heat 30+, `StartupAttempt`
+restarts shutdown units after dissipation, and heat-induced ammo explosions
+fire (`phases/heatThresholdEvents.ts`, `phases/heatAmmoExplosions.ts`,
+`phases/heatCriticalDamage.ts`). The bucket survives only for legacy generic
+detectors with shutdown-themed messages.
 
-**When**: Part of heat management milestone, requires state machine for shutdown/restart cycles.
-
-**Code Reference**:
-
-- `src/constants/heat.ts:32` - `SHUTDOWN: 30` threshold defined
-- `src/types/validation/HeatManagement.ts` - Shutdown risk checks exist but not enforced
-- `src/utils/gameplay/__tests__/resolveHeatPhase.test.ts` - Tests for shutdown checks exist but implementation incomplete
-
-**Example Violations to Exclude**:
-
-- "Unit should shut down at 30 heat"
-- "Shutdown recovery roll not performed"
-- "Heat-induced ammo explosion not triggered at 24+ heat"
-- "Unit moved after shutdown"
+**Hazard note**: same as ammo — catalog-lane invariants bypass this filter and
+are the enforcement surface for heat behavior.
 
 ---
 
 ## Terrain Movement Cost Validation
 
-**Status**: Partial Implementation (simplified costs)
+**Status**: Implemented; legacy filter bucket retained
 
-**Why**: Basic terrain movement costs are implemented (`getHexMovementCost` in `src/utils/gameplay/movement.ts`), but some terrain types (water depth, rubble levels, building entry/exit) use simplified or placeholder costs. Detailed terrain rules from TechManual are not fully enforced.
+**Why the bucket exists**: this section previously claimed terrain costs were
+simplified placeholders. The 2026-06-09 audit wave W2 (PR #802) landed the
+terrain entry-cost table per motive type/level and multi-feature hex cost
+summing aligned with MegaMek. The bucket survives only for legacy generic
+detectors with terrain-cost-themed messages.
 
-**When**: Refinement in terrain milestone, requires expanded terrain type definitions.
-
-**Code Reference**:
-
-- `src/utils/gameplay/movement.ts:92-139` - `getHexMovementCost` function with basic terrain handling
-- `src/types/gameplay/TerrainTypes.ts` - `TERRAIN_PROPERTIES` with simplified modifiers
-
-**Example Violations to Exclude**:
-
-- "Movement cost incorrect for water hexes" (unless clearly broken)
-- "Rubble terrain cost should vary by level"
-- "Building entry/exit cost not applied"
-- "Terrain modifier mismatch with TechManual" (for unimplemented terrain types)
+**Remaining gaps** (gap inventory): `ruleSupport.terrainEnvironment.mines`
+(helper-only) and `ruleSupport.terrainEnvironment.terrain-los-side-paths`.
 
 ---
 
 ## Pilot Skill Checks
 
-**Status**: Partially Implemented (piloting checks incomplete)
+**Status**: Implemented; legacy filter bucket retained
 
-**Why**: Pilot skill values (`gunnery`, `piloting`) are tracked in `IGameUnit`, but many piloting skill checks are not enforced:
+**Why the bucket exists**: this section previously claimed fall checks and
+consciousness checks were unenforced. The runner resolves PSRs each turn
+(`runPSRPhase` emits `PSRResolved` and `UnitFell` with pilot damage — proven
+with existence teeth in `simulation-combat-integration.test.ts`), and
+consciousness checks are integrated (`resolvePilotConsciousnessCheck`,
+pilot-death destruction cause `pilot_death`; see `CombatFeatureSupport.ts`
+consciousness entries). The bucket survives only for legacy generic detectors
+with piloting-check-themed messages.
 
-- Fall checks after taking leg damage
-- Skid checks after running on pavement
-- Consciousness checks after head hits (defined but not enforced)
-
-**When**: Part of pilot mechanics milestone.
-
-**Code Reference**:
-
-- `src/types/gameplay/GameSessionInterfaces.ts:416-417` - Pilot skills defined
-- `src/types/gameplay/GameSessionInterfaces.ts:327-330` - Consciousness check fields exist but not enforced
-
-**Example Violations to Exclude**:
-
-- "Piloting check not performed after leg damage"
-- "Unit should fall after failed piloting check"
-- "Consciousness check not triggered"
+**Remaining gaps** (gap inventory): SPA/modifier _application_ rows under
+`pilotSkills.pilotModifierResolvers.*` (e.g. `consciousness-application`,
+`psr-spa-application`) — the checks run; some pilot-ability modifiers do not
+yet feed them.
 
 ---
 
 ## Critical Hit Effects
 
-**Status**: Partially Implemented (damage tracking only)
+**Status**: Implemented for system slots; generic equipment cascade partial; legacy filter bucket retained
 
-**Why**: Critical hits are tracked (`IDamageAppliedPayload.criticals`), but many critical hit effects are not enforced:
+**Why the bucket exists**: this section previously claimed critical effects
+were "damage tracking only". `CombatCriticalSlotEffectSupport.ts` now marks
+integrated effects for actuator (with PSR queueing), ammo (explosions),
+cockpit (pilot death), engine (3-hit destruction), gyro (PSRs), heat sink,
+jump jet, life support, sensor (to-hit penalties), and weapon destruction.
+The bucket survives only for legacy generic detectors with
+critical-effect-themed messages.
 
-- Weapon destruction (tracked but not enforced in firing)
-- Actuator damage affecting movement/attacks
-- Sensor hits affecting targeting
-- Gyro hits affecting piloting
-- Engine hits affecting movement and heat
-
-**When**: Part of critical effects milestone.
-
-**Code Reference**:
-
-- `src/types/gameplay/GameSessionInterfaces.ts:297` - `criticals` field exists
-- `src/types/gameplay/GameSessionInterfaces.ts:449` - `destroyedEquipment` tracked but not enforced
-
-**Example Violations to Exclude**:
-
-- "Destroyed weapon still fires"
-- "Actuator damage not affecting movement"
-- "Sensor critical not affecting to-hit"
-- "Gyro hit not affecting piloting checks"
-- "Engine hit not affecting heat dissipation"
+**Remaining gaps** (gap inventory): generic `equipment` slot cascades are
+helper-only (`damageAndDeath.criticalComponents.equipment`,
+`damageAndDeath.criticalSlotEffects.equipment`) — MegaMek's
+equipment-specific branches (shields, SCM, emergency coolant, HarJel, etc.)
+do not all cascade through MekStation state yet.
 
 ---
 
 ## Line of Sight (LOS) Validation
 
-**Status**: Not Implemented (placeholder logic)
+**Status**: Implemented; legacy filter bucket retained
 
-**Why**: True line-of-sight calculations considering terrain elevation, building heights, and intervening obstacles are not implemented. Current implementation may use simplified range checks.
+**Why the bucket exists**: this section previously claimed LOS was placeholder
+logic. `calculateLOS` now blocks LOS via terrain `blocksLOS` /
+`losBlockHeight` rules, accumulates woods/smoke density through intervening
+hexes (blocking once cumulative density exceeds 2), feeds intervening-terrain
+to-hit modifiers into `runAttackPhase`, and partial cover is computed
+(`phases/__tests__/weaponAttackPartialCover.test.ts`). See
+`CombatTerrainEnvironmentSupport.ts`. The bucket survives only for legacy
+generic detectors with LOS-themed messages.
 
-**When**: Part of advanced combat milestone, requires 3D terrain model.
-
-**Code Reference**:
-
-- Movement validation exists but LOS validation is incomplete
-
-**Example Violations to Exclude**:
-
-- "LOS blocked by intervening terrain"
-- "Elevation difference not considered for LOS"
-- "Building blocks LOS but attack allowed"
-- "Partial cover not calculated"
+**Remaining gaps** (gap inventory):
+`ruleSupport.terrainEnvironment.terrain-los-side-paths` — richer MegaMek
+building-level LOS handling is not fully mirrored.
 
 ---
 
@@ -201,16 +197,14 @@ These are documented gaps in functionality, not defects. They represent future w
 
 ## Vehicle and Aerospace Rules
 
-**Status**: Not Implemented (BattleMech-only)
+**Status**: Out of scope for the BattleMech combat validation lane
 
-**Why**: The game engine currently focuses on BattleMech combat. Vehicle movement rules (wheeled, tracked, hover, VTOL), vehicle damage tables, and aerospace unit rules are not implemented.
-
-**When**: Future expansion after core BattleMech gameplay is complete.
+**Why**: The game engine's combat validation lane focuses on BattleMech combat. Vehicle movement rules (wheeled, tracked, hover, VTOL), vehicle damage tables, and aerospace unit rules are explicitly partitioned out of the BattleMech support matrices (`non-battlemech-combat-system-split` in `CombatValidationScopeSupport.ts`) and need their own validation matrices.
 
 **Code Reference**:
 
 - `src/services/units/handlers/` - Multiple vehicle handlers marked "not implemented"
-- `src/services/units/handlers/__tests__/VTOLUnitHandler.test.ts` - Tests expect "not implemented" errors
+- `src/simulation/runner/CombatValidationScopeSupport.ts` - out-of-scope split entries
 
 **Example Violations to Exclude**:
 
@@ -223,18 +217,15 @@ These are documented gaps in functionality, not defects. They represent future w
 
 ## Campaign Progression Systems
 
-**Status**: Not Implemented (stubs exist)
+**Status**: Partially Implemented
 
-**Why**: Campaign-level systems like XP awards, skill progression, unit repair, and force management are stubbed out but not functional.
+**Why**: Core post-battle progression is wired (post-battle XP awards with a
+double-apply guard, kill/mission counters, processor registration — 2026-06-09
+audit wave W3, PR #803). Academy/education XP and the coming-of-age SPA
+subsystem remain stubbed (`@stub` markers in
+`src/lib/campaign/progression/xpAwards.ts` and `spaAcquisition.ts`).
 
-**When**: Part of campaign milestone.
-
-**Code Reference**:
-
-- `src/lib/campaign/progression/xpAwards.ts` - Marked `@stub - Not implemented`
-- `src/lib/campaign/progression/spaAcquisition.ts` - Marked `@stub - Not implemented`
-
-**Example Violations to Exclude**:
+**Example Violations to Exclude** (legacy generic detectors only):
 
 - "XP not awarded after battle"
 - "Pilot skill not improving"
@@ -266,29 +257,38 @@ These are documented gaps in functionality, not defects. They represent future w
 
 ### For Simulation Developers
 
-When implementing invariant checks, consult this document to avoid reporting known limitations as violations. Use the programmatic exclusion function `isKnownLimitation()` in `src/simulation/core/knownLimitations.ts`.
+The exclusion buckets apply ONLY to legacy generic detectors. New invariants
+that produce validation evidence must register under (or alongside) the
+`battlemech-combat-validation` bypass so they are never filtered. Do not add
+new broad buckets for shipped features.
 
 ### For Game Engine Developers
 
-When implementing a feature listed here:
+When a feature listed here changes status:
 
-1. Remove the corresponding section from this document
-2. Update the exclusion patterns in `knownLimitations.ts`
-3. Add tests to verify the feature works correctly
-4. Update the simulation invariants to check the new feature
+1. Update the section here to match the catalog/gap-inventory reality
+2. Audit whether any legacy detector still emits messages matching the bucket;
+   if none do, retire the bucket (this requires updating the validation traps
+   in `CombatValidationScopeSupport.ts` and the contract tests in lockstep)
+3. Never report feature status from this file — cite the catalog
 
 ### For Simulation Report Reviewers
 
-If a violation appears in simulation output, check this document first. If it matches a known limitation, the violation should have been filtered out - this indicates a bug in the exclusion logic, not the game engine.
+If a violation was filtered as a known limitation but the section above says
+the feature is implemented, treat it as a potential masked bug: re-run the
+catalog validation lane (which bypasses the filter) before dismissing it.
 
 ---
 
 ## Maintenance
 
-**Last Updated**: 2026-02-01
+**Last Updated**: 2026-06-10 (2026-06-09 audit finding E-10 — stale
+unimplemented claims for LOS / heat shutdown / critical effects / pilot
+checks / ammo consumption / terrain costs corrected against
+`CombatValidationCatalog` + `CombatValidationGapInventory`)
 
 **Review Frequency**: Update this document whenever:
 
-- A new limitation is discovered during simulation runs
-- A previously limited feature is implemented
+- A feature covered by a bucket changes support level in the catalog
+- A legacy generic detector is added or retired
 - Simulation invariants are added that might trigger false positives

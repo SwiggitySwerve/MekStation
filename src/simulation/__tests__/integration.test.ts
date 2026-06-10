@@ -8,6 +8,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { GameEventType } from '@/types/gameplay';
+
 import type { ISimulationRunResult } from '../runner/types';
 
 import { SeededRandom } from '../core/SeededRandom';
@@ -41,9 +43,16 @@ const PROFILE_GAME_COUNT = readPositiveIntEnv(
   'SIMULATION_PROFILE_GAME_COUNT',
   100,
 );
+// Default widened 750 → 2250 (3× per the repo perf-budget convention; see
+// the dominance-ceiling widening in swarm-pilot-skills-batch.test.ts).
+// Reason: a single STANDARD_LANCE run measures a consistent ~930-950 ms
+// under Jest on a current dev box (3 consecutive runs, 2026-06-10) — the
+// 750 ms default predates the audit-wave W0-W3 restorations of full combat
+// fidelity (crit cascades, PSR chains, consciousness checks). The CI
+// perf-smoke lane pins its own budget via env (4000 ms) and is unaffected.
 const PROFILE_RUNNER_BUDGET_MS = readPositiveIntEnv(
   'SIMULATION_PROFILE_RUNNER_BUDGET_MS',
-  750,
+  2250,
 );
 const PROFILE_AVG_GAME_BUDGET_MS = readPositiveIntEnv(
   'SIMULATION_PROFILE_AVG_GAME_BUDGET_MS',
@@ -53,6 +62,18 @@ const PROFILE_TIME_BUDGET_MS = readPositiveIntEnv(
   'SIMULATION_PROFILE_TIME_BUDGET_MS',
   120000,
 );
+
+// Statistical proofs are only meaningful at the full batch size: at the CI
+// smoke count (SIMULATION_COUNT=5) batch-wide existence assertions can
+// legitimately observe zero occurrences. Smoke runs keep structure-only
+// checks; the full default (local runs + the nightly full-size lane, tracker
+// W4.4) gets real existence teeth. Pattern follows the statisticalIt gate in
+// swarm-pilot-skills-batch.test.ts (2026-06-09 audit finding E-5 fix);
+// applied here for finding E-4.
+const STATISTICAL_PROOF_GAME_MIN = 100;
+const statisticalIt =
+  STATISTICAL_GAME_COUNT >= STATISTICAL_PROOF_GAME_MIN ? it : it.skip;
+
 const TEST_REPORT_DIR = 'simulation-reports/test';
 const TEST_SNAPSHOT_DIR = 'src/simulation/__snapshots__/test-failed';
 
@@ -231,18 +252,55 @@ describe('Simulation System Integration', () => {
       expect(batchResults).toHaveLength(STATISTICAL_GAME_COUNT);
     });
 
-    it('should have balanced win rates (40-60% range for MVP)', () => {
-      const completedGames = aggregate.totalGames - aggregate.incompleteGames;
-      const hasCompletedOrIncomplete = aggregate.totalGames > 0;
-
-      expect(hasCompletedOrIncomplete).toBe(true);
-
-      if (completedGames > 0) {
-        const hasWinners =
-          aggregate.playerWins > 0 || aggregate.opponentWins > 0;
-        expect(hasWinners).toBe(true);
-      }
+    it('should keep win/loss accounting consistent at any batch size', () => {
+      // Honest replacement for the pre-audit "balanced win rates (40-60%
+      // range for MVP)" test (2026-06-09 audit finding E-4): that test's
+      // only live assertion was totalGames > 0 — its win-rate branch was
+      // dead code because completedGames is 0 at EVERY batch size for this
+      // config (verified by direct measurement 2026-06-10: 0 of 100
+      // STANDARD_LANCE games finish inside turnLimit 20; minimal units
+      // carry too much HP to be destroyed that fast). Win-rate balance is
+      // proven with real teeth in swarm-pilot-skills-batch.test.ts (E-5
+      // fix), which uses a 100-turn cap so games actually complete.
+      expect(aggregate.totalGames).toBe(STATISTICAL_GAME_COUNT);
+      expect(
+        aggregate.playerWins +
+          aggregate.opponentWins +
+          aggregate.draws +
+          aggregate.incompleteGames,
+      ).toBe(aggregate.totalGames);
     });
+
+    statisticalIt(
+      'should produce real combat activity in nearly every statistical-batch game',
+      () => {
+        // Existence teeth for the statistical batch (audit E-4): a
+        // regression that silences the combat pipeline (no attacks, no
+        // damage, no falls) must fail loudly at the full batch size instead
+        // of sliding through structure-only checks. Thresholds calibrated
+        // by direct measurement 2026-06-10 at N=100, seed 50000: 100/100
+        // games with AttackResolved, 100/100 with DamageApplied, 96/100
+        // with UnitFell. Margins leave room for seeded drift when
+        // unrelated rules change.
+        const gamesWithAttacks = batchResults.filter((r) =>
+          r.events.some((e) => e.type === GameEventType.AttackResolved),
+        ).length;
+        const gamesWithDamage = batchResults.filter((r) =>
+          r.events.some((e) => e.type === GameEventType.DamageApplied),
+        ).length;
+        const gamesWithFalls = batchResults.filter((r) =>
+          r.events.some((e) => e.type === GameEventType.UnitFell),
+        ).length;
+
+        expect(gamesWithAttacks).toBeGreaterThanOrEqual(
+          STATISTICAL_GAME_COUNT * 0.9,
+        );
+        expect(gamesWithDamage).toBeGreaterThanOrEqual(
+          STATISTICAL_GAME_COUNT * 0.9,
+        );
+        expect(gamesWithFalls).toBeGreaterThan(STATISTICAL_GAME_COUNT * 0.5);
+      },
+    );
 
     it('should have less than 5% games with violations', () => {
       const isInvariantViolation = (v: { invariant: string }) =>
@@ -291,14 +349,14 @@ describe('Simulation System Integration', () => {
   });
 
   describe('Reproducibility', () => {
-    // Skipped: pre-existing determinism gap in the simulation engine,
-    // exposed when MAX_TURNS was raised from 10 → 100 to unblock the swarm
-    // CLI runner. With STANDARD_LANCE (turnLimit: 20), two runs of the same
-    // seed diverge by ~1 event over 300 — likely Set/Map iteration order or
-    // a Date.now / object-identity comparison inside one of the AI / metric
-    // hooks. The shorter MAX_TURNS=10 ceiling masked it. Tracking under
-    // follow-up: simulation engine determinism audit.
-    it.skip('should produce identical results for same seed', () => {
+    // Re-enabled (2026-06-09 audit finding E-3): this was skipped against a
+    // determinism gap exposed when MAX_TURNS was raised 10 → 100, with the
+    // skip pointing at a "simulation engine determinism audit" follow-up.
+    // That follow-up landed (the determinism-audit CI lane bans unseeded
+    // Math.random() in the combat pipeline, and the W0 audit wave restored
+    // the seeded-dice reverts); the skip itself was untracked and stale.
+    // Verified green at STANDARD_LANCE seed 99999 on re-enable.
+    it('should produce identical results for same seed', () => {
       const seed = 99999;
       const config: ISimulationConfig = { ...STANDARD_LANCE, seed };
 
