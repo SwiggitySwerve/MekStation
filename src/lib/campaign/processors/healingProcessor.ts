@@ -25,6 +25,7 @@ import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry'
 import type { IInjury } from '@/types/campaign/Person';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
+import { createDailyRandom } from '@/lib/campaign/utils/campaignRng';
 import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
@@ -71,6 +72,7 @@ function processEntryHealing(
   pilotsByPilotId: ReadonlyMap<string, IPilot>,
   system: MedicalSystem,
   campaign: ICampaign,
+  random: () => number,
 ): {
   updatedInjuries: IInjury[];
   healedInjuryIds: string[];
@@ -106,7 +108,9 @@ function processEntryHealing(
       doctorEntry,
       doctorPilot,
       campaign.options,
-      Math.random,
+      // D-10 (2026-06-09 audit, W3.4): the 2d6 medical check draws from
+      // the campaign's seeded daily stream so days are replayable.
+      random,
     );
 
     const daysReduced = medResult.healingDaysReduced;
@@ -143,7 +147,7 @@ export const healingProcessor: IDayProcessor = {
   phase: DayPhase.PERSONNEL,
   displayName: 'Personnel Healing',
 
-  process(campaign: ICampaign): IDayProcessorResult {
+  process(campaign: ICampaign, date: Date): IDayProcessorResult {
     // Pre-join vault once per run (O(N) build, O(1) lookups).
     // Per PR4: roster store is the canonical entry source.
     const rosterEntries = useCampaignRosterStore.getState().pilots;
@@ -151,6 +155,10 @@ export const healingProcessor: IDayProcessor = {
     const pilotsByPilotId = buildPilotLookup(vault);
 
     const system = campaign.options.medicalSystem ?? MedicalSystem.STANDARD;
+    // D-10 (2026-06-09 audit, W3.4): one seeded stream per (campaign,
+    // day, processor) replaces raw Math.random — identical campaign
+    // state replays to identical healing outcomes.
+    const random = createDailyRandom(campaign, date, 'healing');
 
     const events: IDayEvent[] = [];
     // Per PR4: collect roster patches and commit once via applyPilotPatches.
@@ -173,6 +181,7 @@ export const healingProcessor: IDayProcessor = {
         pilotsByPilotId,
         system,
         campaign,
+        random,
       );
 
       // Commit when ANY field changes — recoveryTime decrements even

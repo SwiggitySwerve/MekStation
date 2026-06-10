@@ -23,7 +23,10 @@
 
 import type { ICampaign } from './Campaign';
 import type { ICampaignLoan } from './CampaignLoan';
-import type { IPersonnelMarketOffer } from './markets/marketTypes';
+import type {
+  IPersonnelMarketOffer,
+  IUnitMarketOffer,
+} from './markets/marketTypes';
 import type { IContract } from './Mission';
 
 /**
@@ -54,6 +57,16 @@ export interface ICampaignCommandExtensions {
 
   /** Current contract-market state (design D5). */
   readonly contractMarket?: ICampaignContractMarket;
+
+  /**
+   * Current unit-market offers (audit D-7, 2026-06-09 remediation W3.4).
+   *
+   * Written by `unitMarketProcessor` on its monthly refresh so the
+   * generated offers are no longer discarded. No command-UI page reads
+   * this yet — the field exists so the refresh the day report announces
+   * is real, persisted state a future Unit Market page can render.
+   */
+  readonly unitMarket?: readonly IUnitMarketOffer[];
 }
 
 /** `ICampaign` widened with the optional command-tier extension fields. */

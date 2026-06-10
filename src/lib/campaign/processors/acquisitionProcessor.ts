@@ -4,6 +4,8 @@ import type {
 } from '@/types/campaign/acquisition/acquisitionTypes';
 import type { ICampaign } from '@/types/campaign/Campaign';
 
+import { createDailyRandom } from '@/lib/campaign/utils/campaignRng';
+
 import {
   performAcquisitionRoll,
   type RandomFn,
@@ -161,11 +163,15 @@ export const acquisitionProcessor: IDayProcessor & {
   process(
     campaign: ICampaign,
     date: Date,
-    random: RandomFn = Math.random,
+    // D-10 (2026-06-09 audit, W3.4): the production default is the
+    // campaign's seeded daily stream; tests can still inject their own.
+    random?: RandomFn,
   ): IDayProcessorResult {
     if (!campaign.options.useAcquisitionSystem) {
       return { events: [], campaign };
     }
+    const rolls: RandomFn =
+      random ?? createDailyRandom(campaign, date, processorId);
 
     const shoppingList = campaign.shoppingList;
     // oxlint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -181,7 +187,7 @@ export const acquisitionProcessor: IDayProcessor & {
     // oxlint-disable-next-line @typescript-eslint/no-unsafe-assignment
     let updatedList = shoppingList;
 
-    const pendingResult = processPendingAcquisitions(updatedList, date, random);
+    const pendingResult = processPendingAcquisitions(updatedList, date, rolls);
     updatedList = pendingResult.updatedList;
     allEvents.push(...pendingResult.events);
 

@@ -18,6 +18,7 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
+import { createDailyRandom } from '@/lib/campaign/utils/campaignRng';
 import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
@@ -225,10 +226,12 @@ export const vocationalTrainingProcessor: IDayProcessor = {
   phase: DayPhase.EVENTS,
   displayName: 'Vocational Training',
 
-  process(campaign: ICampaign): IDayProcessorResult {
+  process(campaign: ICampaign, date: Date): IDayProcessorResult {
     const { updatedCampaign, events } = processVocationalTraining(
       campaign,
-      Math.random,
+      // D-10 (2026-06-09 audit, W3.4): vocational XP rolls draw from the
+      // campaign's seeded daily stream so days are replayable.
+      createDailyRandom(campaign, date, 'vocational-training'),
     );
     return { events, campaign: updatedCampaign };
   },

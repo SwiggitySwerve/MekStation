@@ -15,7 +15,10 @@ import type { IFactionStanding } from '@/types/campaign/factionStanding/IFaction
 import type { IForce } from '@/types/campaign/Force';
 import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
 import type { ILoan } from '@/types/campaign/Loan';
-import type { IPersonnelMarketOffer } from '@/types/campaign/markets/marketTypes';
+import type {
+  IPersonnelMarketOffer,
+  IUnitMarketOffer,
+} from '@/types/campaign/markets/marketTypes';
 import type {
   IMoraleTransition,
   IUnitPrestige,
@@ -109,6 +112,14 @@ export interface SerializedCampaignState {
   personnelMarket?: readonly IPersonnelMarketOffer[];
   /** Contract-market offers + declined ids (CP2b design D5; D-1 sweep). */
   contractMarket?: ICampaignContractMarket;
+  /** Unit-market offers stored by unitMarketProcessor (audit D-7, W3.4). */
+  unitMarket?: readonly IUnitMarketOffer[];
+  /**
+   * Campaign RNG seed for replayable daily rolls (audit D-10, W3.4).
+   * Absent on pre-fix snapshots — consumers fall back to an id-derived
+   * seed via `resolveCampaignSeed`.
+   */
+  rngSeed?: number;
   /** Combat teams for AtB scenario generation (D-1 sweep). */
   combatTeams?: readonly ICombatTeam[];
   /** Refit orders (`add-campaign-refit-and-prestige` D2; D-1 sweep). */
@@ -223,6 +234,7 @@ export function serializeCampaign(
     // pre-fix serializer silently dropped. All JSON-safe shapes.
     personnelMarket: extended.personnelMarket,
     contractMarket: extended.contractMarket,
+    unitMarket: extended.unitMarket,
     combatTeams: campaign.combatTeams,
     refitOrders: campaign.refitOrders,
     unitConfigurations: campaign.unitConfigurations,
@@ -230,6 +242,8 @@ export function serializeCampaign(
     moraleState: campaign.moraleState,
     moraleTransitions: campaign.moraleTransitions,
     currentSystemId: campaign.currentSystemId,
+    // Audit D-10 (W3.4): the replayability seed travels with the campaign.
+    rngSeed: campaign.rngSeed,
     // Per `wire-coop-campaign-route` Wave 6.1: the coopSession bit is
     // per-campaign identity (host vs guest vs single-player). Persisting it
     // here means a reload of a host or guest campaign still mounts the
@@ -304,6 +318,7 @@ export function deserializeCampaign(
     loans: serialized.loans,
     personnelMarket: serialized.personnelMarket,
     contractMarket: serialized.contractMarket,
+    unitMarket: serialized.unitMarket,
     combatTeams: serialized.combatTeams,
     refitOrders: serialized.refitOrders,
     unitConfigurations: serialized.unitConfigurations,
@@ -311,6 +326,9 @@ export function deserializeCampaign(
     moraleState: serialized.moraleState,
     moraleTransitions: serialized.moraleTransitions,
     currentSystemId: serialized.currentSystemId,
+    // Audit D-10 (W3.4): rehydrate the replayability seed. Absent on
+    // pre-fix snapshots — daily RNG falls back to an id-derived seed.
+    rngSeed: serialized.rngSeed,
     dailyBattleAudit: serialized.dailyBattleAudit,
     // Per `wire-coop-campaign-route` Wave 6.1: the coopSession field
     // survives reload so every co-op surface remounts on the same campaign.

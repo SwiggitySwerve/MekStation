@@ -2,6 +2,7 @@ import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { Transaction } from '@/types/campaign/Transaction';
 
+import { createDailyRandom } from '@/lib/campaign/utils/campaignRng';
 import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
@@ -151,7 +152,9 @@ export const turnoverProcessor: IDayProcessor = {
       entries,
       pilotsByPilotId,
       campaign,
-      Math.random,
+      // D-10 (2026-06-09 audit, W3.4): turnover target rolls draw from
+      // the campaign's seeded daily stream so days are replayable.
+      createDailyRandom(campaign, date, 'turnover'),
     );
     const updatedCampaign = applyTurnoverResults(campaign, report, date);
     const events = departuresToEvents(report);

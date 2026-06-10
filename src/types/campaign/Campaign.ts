@@ -196,6 +196,17 @@ export interface ICampaign {
   readonly coopSession?: ICoopSession;
 
   /**
+   * Campaign RNG seed (audit D-10, 2026-06-09 remediation W3.4).
+   *
+   * Stamped once at campaign creation and persisted with the campaign.
+   * Daily processors derive their outcome rolls from per-(seed, day,
+   * processor) streams via `lib/campaign/utils/campaignRng` so campaign
+   * days are replayable. OPTIONAL for backward compatibility — legacy
+   * campaigns without the field fall back to an id-derived seed.
+   */
+  readonly rngSeed?: number;
+
+  /**
    * Current star-system location (`wire-starmap-into-campaign`, Wave 6.4).
    *
    * The player's "you are here" pin on the starmap. The field is OPTIONAL
@@ -585,6 +596,10 @@ export function createCampaign(
     // canonical post-deploy combat-state map. Fresh campaigns start
     // empty; createInitialCombatState writes entries on first deploy.
     unitCombatStates: {},
+    // Audit D-10 (2026-06-09, W3.4): the only intentionally random step —
+    // every daily outcome roll after creation derives deterministically
+    // from this persisted seed (see lib/campaign/utils/campaignRng).
+    rngSeed: Math.floor(Math.random() * 0x100000000) >>> 0,
   };
 }
 

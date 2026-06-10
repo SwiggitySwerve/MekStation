@@ -110,6 +110,8 @@ export function serializeCampaign(campaign: ICampaign): SerializedCampaignBody {
     // a campaign-extension field; every `ICampaignLoan` field is already
     // a JSON-safe scalar so it serializes directly. Omitted when absent.
     loans: (campaign as ICampaignWithCommand).loans,
+    // Audit D-10 (W3.4): the replayability seed travels with the body.
+    rngSeed: campaign.rngSeed,
   };
 }
 
@@ -148,5 +150,8 @@ export function deserializeCampaignBody(
     // Restore the loan ledger (design D4). Absent on pre-CP2b snapshots,
     // in which case the campaign simply carries no `loans` field.
     ...(body.loans !== undefined ? { loans: body.loans } : {}),
+    // Audit D-10 (W3.4): restore the replayability seed. Absent on
+    // pre-fix snapshots — daily RNG falls back to an id-derived seed.
+    ...(body.rngSeed !== undefined ? { rngSeed: body.rngSeed } : {}),
   } as ICampaign;
 }

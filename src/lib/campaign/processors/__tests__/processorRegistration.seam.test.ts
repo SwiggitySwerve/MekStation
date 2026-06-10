@@ -40,6 +40,20 @@ import {
   _resetBuiltinRegistration,
 } from '../processorRegistration';
 
+// D-10 (W3.4) made daily processor rolls come from the campaign's seeded
+// streams instead of Math.random. This suite steers roll OUTCOMES
+// (departure vs stay, vocational XP success) via jest.spyOn(Math,
+// 'random') — keep that lever by routing the seeded stream back through
+// Math.random here. RNG provenance/determinism has its own seam suite
+// (dailyRngDeterminism.test.ts); THIS suite only proves registration.
+jest.mock('@/lib/campaign/utils/campaignRng', () => {
+  const actual = jest.requireActual('@/lib/campaign/utils/campaignRng');
+  return {
+    ...actual,
+    createDailyRandom: () => () => Math.random(),
+  };
+});
+
 // ---------------------------------------------------------------------------
 // Fixtures
 // ---------------------------------------------------------------------------

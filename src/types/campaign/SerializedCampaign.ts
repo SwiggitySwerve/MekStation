@@ -90,6 +90,12 @@ export interface SerializedCampaignBody {
    * serializes directly with no flattening.
    */
   readonly loans?: readonly ICampaignLoan[];
+  /**
+   * Campaign RNG seed for replayable daily rolls (audit D-10, 2026-06-09
+   * remediation W3.4). Optional and absent on pre-fix snapshots —
+   * consumers fall back to an id-derived seed.
+   */
+  readonly rngSeed?: number;
 }
 
 // =============================================================================
