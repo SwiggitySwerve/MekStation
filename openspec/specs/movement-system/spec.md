@@ -100,23 +100,36 @@ The system SHALL provide calculation context for variable equipment.
 
 ### Requirement: Heat MP Reduction
 
-Heat SHALL reduce available movement points using the formula `floor(heat / 5)`.
+Heat SHALL reduce available walking movement points using the formula `floor(heat / 5)`. Available running and sprinting MP SHALL be re-derived from the heat-adjusted walk MP (`run = ceil(adjustedWalk * 1.5)`; `sprint = adjustedWalk * 2` without active MP boosters), never by subtracting the penalty from the pre-derived run or sprint values. Jump MP SHALL NOT be reduced by heat.
 
 #### Scenario: Heat 9 reduces MP by 1
 
 - **WHEN** a unit has heat level 9
-- **THEN** available walking and running MP SHALL be reduced by `floor(9 / 5) = 1`
+- **THEN** available walking MP SHALL be reduced by `floor(9 / 5) = 1`
+- **AND** available running MP SHALL be re-derived from the reduced walk MP
 
 #### Scenario: Heat 15 reduces MP by 3
 
 - **WHEN** a unit has heat level 15
-- **THEN** available walking and running MP SHALL be reduced by `floor(15 / 5) = 3`
+- **THEN** available walking MP SHALL be reduced by `floor(15 / 5) = 3`
+- **AND** available running MP SHALL be re-derived from the reduced walk MP
 
 #### Scenario: Heat does not reduce MP below 0
 
 - **WHEN** a unit with Walk 2 has heat level 15 (reduction of 3)
 - **THEN** available Walk MP SHALL be 0 (not negative)
 - **AND** the unit SHALL be unable to walk or run
+
+#### Scenario: Run MP derives from heat-adjusted walk, not raw subtraction
+
+- **WHEN** a unit with walk 5 and run 8 has heat level 10 (penalty 2)
+- **THEN** available walk MP SHALL be 3
+- **AND** available run MP SHALL be `ceil(3 * 1.5) = 5` (not `8 - 2 = 6`)
+
+#### Scenario: Jump MP is heat-immune
+
+- **WHEN** a unit with jump 4 has heat level 15 (penalty 3)
+- **THEN** available jump MP SHALL remain 4
 
 ### Requirement: Movement Generates Heat
 
@@ -154,14 +167,14 @@ Movement SHALL generate heat per the canonical rules and add it to the unit's he
 
 ### Requirement: Heat Reduces Effective Movement
 
-Effective walk and run MP SHALL be reduced by `floor(heat / 5)` each turn the unit has heat.
+Effective walk MP SHALL be reduced by `floor(heat / 5)` each turn the unit has heat. Effective run and sprint MP SHALL be re-derived from the heat-adjusted walk MP (`run = ceil(adjustedWalk * 1.5)`; `sprint = adjustedWalk * 2` without active MP boosters). Effective jump MP SHALL NOT be reduced by heat.
 
 #### Scenario: Heat 9 reduces effective MP by 1
 
 - **GIVEN** a unit with walk 5, run 8, heat 9
 - **WHEN** effective MP is computed
 - **THEN** effective walk SHALL be 4
-- **AND** effective run SHALL be 7
+- **AND** effective run SHALL be `ceil(4 * 1.5) = 6`
 
 #### Scenario: Heat 15 reduces effective MP by 3
 
@@ -174,6 +187,19 @@ Effective walk and run MP SHALL be reduced by `floor(heat / 5)` each turn the un
 - **GIVEN** a unit with walk 5 and TSM active at heat 9
 - **WHEN** effective MP is computed
 - **THEN** effective walk SHALL be 6 (5 base + 2 TSM - 1 heat)
+
+#### Scenario: Run derives from heat-adjusted walk at heat 10
+
+- **GIVEN** a unit with walk 5, run 8, heat 10
+- **WHEN** effective MP is computed
+- **THEN** effective walk SHALL be 3
+- **AND** effective run SHALL be `ceil(3 * 1.5) = 5` (not `8 - 2 = 6`)
+
+#### Scenario: Jump MP unaffected by heat
+
+- **GIVEN** a unit with walk 5, jump 5, heat 10
+- **WHEN** effective MP is computed
+- **THEN** effective jump SHALL remain 5
 
 ### Requirement: Terrain PSR Triggers
 
@@ -764,6 +790,67 @@ entry from represented per-location leg/support damage.
 - **THEN** no movement declaration SHALL be emitted
 - **AND** movement invalid metadata SHALL report an impossible-cost 99 MP
   support-location blocker.
+
+### Requirement: Automatic WiGE Landing
+
+Represented positive-altitude WiGE movement SHALL apply MegaMek's automatic
+landing rule when a WiGE vehicle, Glider ProtoMek, or LAM AirMek moves below
+its source-backed minimum airborne distance.
+
+#### Scenario: Prior movement distance contributes to automatic WiGE landing
+
+- **GIVEN** a represented positive-altitude WiGE unit has already moved hexes
+  this turn
+- **WHEN** the player previews or commits another legal WiGE movement segment
+- **THEN** the automatic landing minimum-distance check SHALL count both the
+  represented hexes already moved this turn and the currently projected path
+- **AND** a unit whose accumulated distance reaches the source-backed minimum
+  SHALL remain airborne
+- **AND** a unit whose accumulated distance stays below the source-backed
+  minimum SHALL receive the same automatic landing projection and runtime state
+  patch as a one-segment short move.
+
+#### Scenario: Hover-style represented movement stays airborne
+
+- **GIVEN** a represented positive-altitude WiGE unit can use a hover-style
+  movement mode
+- **WHEN** the player previews or commits a legal hover-style movement segment
+- **THEN** the automatic WiGE landing helper SHALL NOT require a landing
+- **AND** the runtime movement command SHALL NOT append an automatic WiGE
+  landing state patch for that hover-style movement.
+
+### Requirement: Movement Terrain And Elevation Costs
+
+Movement cost calculation SHALL apply source-backed terrain and elevation MP
+costs for represented unit movement modes while preserving preview and commit
+validation agreement.
+
+#### Scenario: Parsed board cliff metadata drives movement projection
+
+- **GIVEN** a MegaMek `.board` file imports a valid `cliff_top` exit on the high
+  side of a 1- or 2-level drop
+- **WHEN** the tactical movement projection evaluates movement across that edge
+- **THEN** the projection SHALL use the imported `cliffTopExits` metadata for
+  the same WiGE cliff-ascent cost and vehicle cliff-ascent blocking rules as
+  hand-authored terrain metadata.
+
+### Requirement: Integrated Movement Projection Agreement
+
+Movement projection SHALL represent the same destination legality, MP cost,
+terrain cost, elevation cost, heat impact, stand-up state, and blocked reason
+that committed movement validation and resolution will enforce for represented
+unit movement modes.
+
+#### Scenario: Represented movement modes stay preview/commit aligned
+
+- **GIVEN** a represented unit previews walk, run, jump, vehicle-style, VTOL,
+  WiGE, naval, hover, tracked, UMU, infantry, prone, or stand-up movement
+- **WHEN** the projection marks a destination legal, costly, blocked, or
+  unreachable
+- **THEN** the committed movement path for the unchanged destination SHALL spend
+  the same MP and heat or reject with the same reason
+- **AND** terrain and elevation contributors SHALL remain inspectable by the
+  player before commit.
 
 ## Data Model Requirements
 
