@@ -16,6 +16,7 @@ import { TerrainType } from '@/types/gameplay';
 import {
   getHexMovementCostFromTerrainTag,
   getPrimaryTerrainFeature,
+  getTerrainFeatureMovementCostModifier,
   getTerrainMovementCost,
 } from '@/utils/gameplay/terrainMovementCost';
 
@@ -148,5 +149,71 @@ describe('getHexMovementCostFromTerrainTag', () => {
       const featureCost = getTerrainMovementCost(terrain([feature(type)]));
       expect(tagCost).toBe(featureCost);
     }
+  });
+});
+
+describe('getTerrainFeatureMovementCostModifier (audit 2026-06-09 C-3)', () => {
+  // Mirrors MegaMek Terrain.movementCost per-motive and per-level branches.
+  it('applies per-motive swamp, sand, mud, and ice costs', () => {
+    const swamp = feature(TerrainType.Swamp);
+    expect(getTerrainFeatureMovementCostModifier(swamp, 'walk')).toBe(1);
+    expect(getTerrainFeatureMovementCostModifier(swamp, 'tracked')).toBe(2);
+    expect(getTerrainFeatureMovementCostModifier(swamp, 'hover')).toBe(0);
+
+    const sand = feature(TerrainType.Sand);
+    expect(getTerrainFeatureMovementCostModifier(sand, 'walk')).toBe(0);
+    expect(getTerrainFeatureMovementCostModifier(sand, 'wheeled')).toBe(1);
+    expect(getTerrainFeatureMovementCostModifier(sand, 'hover')).toBe(0);
+
+    const mud = feature(TerrainType.Mud);
+    expect(getTerrainFeatureMovementCostModifier(mud, 'walk')).toBe(1);
+    expect(getTerrainFeatureMovementCostModifier(mud, 'hover')).toBe(0);
+
+    const ice = feature(TerrainType.Ice);
+    expect(getTerrainFeatureMovementCostModifier(ice, 'walk')).toBe(1);
+    expect(getTerrainFeatureMovementCostModifier(ice, 'hover')).toBe(0);
+  });
+
+  it('applies level-dependent snow, ultra rough, and ultra rubble costs', () => {
+    expect(
+      getTerrainFeatureMovementCostModifier(feature(TerrainType.Snow), 'walk'),
+    ).toBe(0);
+    expect(
+      getTerrainFeatureMovementCostModifier(
+        feature(TerrainType.Snow),
+        'wheeled',
+      ),
+    ).toBe(1);
+    expect(
+      getTerrainFeatureMovementCostModifier(
+        feature(TerrainType.Snow, 2),
+        'walk',
+      ),
+    ).toBe(1);
+    expect(
+      getTerrainFeatureMovementCostModifier(
+        feature(TerrainType.Snow, 2),
+        'hover',
+      ),
+    ).toBe(0);
+    expect(
+      getTerrainFeatureMovementCostModifier(
+        feature(TerrainType.Rough, 2),
+        'walk',
+      ),
+    ).toBe(2);
+    expect(
+      getTerrainFeatureMovementCostModifier(
+        feature(TerrainType.Rubble, 6),
+        'walk',
+      ),
+    ).toBe(2);
+    // Airborne motives never pay ground terrain even at ultra levels.
+    expect(
+      getTerrainFeatureMovementCostModifier(
+        feature(TerrainType.Rough, 2),
+        'vtol',
+      ),
+    ).toBe(0);
   });
 });

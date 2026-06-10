@@ -975,16 +975,19 @@ describe('deriveReachableHexes', () => {
       0,
     );
     const unit = makeUnitAtOrigin();
-    const cap: IMovementCapability = { walkMP: 3, runMP: 5, jumpMP: 0 };
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
 
     const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
 
     const encodedHeavyWoods = result.find(
       (r) => r.hex.q === 1 && r.hex.r === 0,
     );
+    // Audit 2026-06-09 C-4: MegaMek Hex.movementCost sums every terrain
+    // feature in the hex, so rough + heavy woods now charges 1 + 1 + 2 = 4
+    // (the old primary-feature lookup charged only the woods).
     expect(encodedHeavyWoods).toMatchObject({
-      mpCost: 3,
-      terrainCost: 2,
+      mpCost: 4,
+      terrainCost: 3,
       elevationDelta: 0,
       elevationCost: 0,
       reachable: true,
@@ -1506,9 +1509,12 @@ describe('deriveReachableHexes', () => {
       movementMode: 'tracked',
     }).find((r) => r.hex.q === 1 && r.hex.r === 0);
 
+    // Audit 2026-06-09 C-3: ice charges +1 to tracked (only hover/WiGE are
+    // exempt per MegaMek Terrain.movementCost) — the surface crossing stays
+    // legal but is no longer free.
     expect(tracked).toMatchObject({
-      mpCost: 1,
-      terrainCost: 0,
+      mpCost: 2,
+      terrainCost: 1,
       heatGenerated: 0,
       movementMode: 'tracked',
       reachable: true,

@@ -8,14 +8,14 @@ import {
   IMovementCapability,
   MovementType,
 } from '@/types/gameplay';
-import { TERRAIN_PROPERTIES, TerrainType } from '@/types/gameplay/TerrainTypes';
+import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import {
   getHeatMovementPenalty,
   isTSMActive,
 } from '@/types/validation/HeatManagement';
 import { hasSPA } from '@/utils/gameplay/spaModifiers/canonicalize';
 import { terrainFeaturesFromString } from '@/utils/gameplay/terrainEncoding';
-import { getPrimaryTerrainFeatureFromTerrainTag } from '@/utils/gameplay/terrainMovementCost';
+import { getTerrainFeatureMovementCostModifier } from '@/utils/gameplay/terrainMovementCost';
 
 import type { UnitMovementType } from './types';
 
@@ -463,46 +463,53 @@ export function getMovementStepCostBreakdown(
     };
   }
 
-  const primaryTerrainFeature = getPrimaryTerrainFeatureFromTerrainTag(
-    hex.terrain,
-  );
-  if (primaryTerrainFeature) {
-    const terrainType = primaryTerrainFeature.type;
-    const terrainProps = TERRAIN_PROPERTIES[terrainType];
-
-    if (terrainProps) {
-      terrainCost =
-        terrainType === TerrainType.Water
-          ? 0
-          : (terrainProps.movementCostModifier[movementType] ?? 0);
+  // Audit 2026-06-09 C-3/C-4: MegaMek Hex.movementCost sums Terrain.movementCost
+  // over every terrain in the hex, so multi-feature hexes (e.g. rough under
+  // light woods) charge each feature — not just the primary one — with
+  // per-motive, per-level costs. Water is excluded because its depth-based
+  // surcharge is applied separately below, and a pavement/road/bridge surface
+  // bypasses the terrain sum entirely (MegaMek MoveStep: "Account for
+  // terrain, unless we're moving along a road").
+  if (!hasPavementSurfaceFeature) {
+    for (const feature of terrainFeatures) {
+      if (feature.type === TerrainType.Water) continue;
+      let featureCost = getTerrainFeatureMovementCostModifier(
+        feature,
+        movementType,
+      );
+      // Terrain Master: Mountaineer relieves 1 MP per rough/rubble feature
+      // (MegaMek Terrain.movementCost applies the SPA inside each terrain
+      // case, so the relief is per-feature, not per-hex).
       if (
+        featureCost > 0 &&
         hasMountaineerMovementRelief(context) &&
         isBattleMechGroundMovement(movementType) &&
-        (terrainType === TerrainType.Rough ||
-          terrainType === TerrainType.Rubble)
+        (feature.type === TerrainType.Rough ||
+          feature.type === TerrainType.Rubble)
       ) {
-        terrainCost = Math.max(0, terrainCost - 1);
+        featureCost -= 1;
       }
-
-      if (
-        hasWaterFeature &&
-        !hasPavementSurfaceFeature &&
-        !hasSurfaceIce &&
-        waterLevel > 0 &&
-        blocksWaterMovement(movementType, context) &&
-        !context.waterCapability?.fullyAmphibious &&
-        !hasFrogmanWaterMovement(context)
-      ) {
-        return {
-          mpCost: Infinity,
-          baseCost,
-          terrainCost,
-          elevationCost: 0,
-          elevationDelta: 0,
-          blockedReason: 'Water blocks ground movement',
-        };
-      }
+      terrainCost += featureCost;
     }
+  }
+
+  if (
+    hasWaterFeature &&
+    !hasPavementSurfaceFeature &&
+    !hasSurfaceIce &&
+    waterLevel > 0 &&
+    blocksWaterMovement(movementType, context) &&
+    !context.waterCapability?.fullyAmphibious &&
+    !hasFrogmanWaterMovement(context)
+  ) {
+    return {
+      mpCost: Infinity,
+      baseCost,
+      terrainCost,
+      elevationCost: 0,
+      elevationDelta: 0,
+      blockedReason: 'Water blocks ground movement',
+    };
   }
 
   if (hasWaterFeature && !hasPavementSurfaceFeature && !hasSurfaceIce) {

@@ -832,11 +832,14 @@ describe('applyInteractiveSessionMovement', () => {
       movementByUnit.get('m1')!,
     ).find((entry) => entry.hex.q === 1 && entry.hex.r === 0);
 
+    // Audit 2026-06-09 C-3: ice charges +1 to tracked (only hover/WiGE are
+    // exempt per MegaMek Terrain.movementCost) — the crossing stays legal but
+    // is no longer free.
     expect(preview).toMatchObject({
       reachable: true,
       movementMode: 'tracked',
-      mpCost: 1,
-      terrainCost: 0,
+      mpCost: 2,
+      terrainCost: 1,
       elevationCost: 0,
       heatGenerated: 0,
       movementType: MovementType.Walk,

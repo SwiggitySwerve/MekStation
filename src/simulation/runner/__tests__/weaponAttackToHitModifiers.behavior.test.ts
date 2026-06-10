@@ -1246,6 +1246,29 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
   });
 
+  it('grants no partial cover for a swamp target hex (audit 2026-06-09 C-7)', () => {
+    // MegaMek grants no swamp partial cover: LosEffects has no swamp cover
+    // source, so a swamp target hex must not produce the +1 Partial Cover
+    // modifier (nor the downstream leg-hit conversion gated on it). The local
+    // target-in swamp +1 Target Terrain modifier is a separate, documented
+    // MekStation deviation and stays.
+    const swampEvents = runModifierScenario({
+      grid: createGrid(TerrainType.Swamp),
+    });
+
+    const swampPayload = attackDeclaredPayload(swampEvents);
+
+    expect(swampPayload.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: 'Partial Cover' }),
+    );
+    expectModifier(swampPayload, {
+      name: 'Target Terrain',
+      value: 1,
+      source: 'terrain',
+    });
+    expect(swampPayload.toHitNumber).toBe(5);
+  });
+
   it('threads environmental light, weather, fog, and missile wind into AttackDeclared', () => {
     const environmentalConditions = createEnvironmentalConditions({
       light: 'night',

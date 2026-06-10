@@ -990,7 +990,7 @@ export const MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT = {
 export const TERRAIN_ENVIRONMENT_COMBAT_SUPPORT = {
   'terrain-movement-costs': integrated(
     'terrain-movement-costs',
-    'validateMovement consumes TERRAIN_PROPERTIES movementCostModifier for every TerrainType',
+    'validateMovement consumes per-motive, per-level TERRAIN_PROPERTIES entry costs summed across every terrain feature in the hex (audit 2026-06-09 C-3/C-4)',
     [MEGAMEK_TERRAIN_TYPE_SOURCE_REF, MEGAMEK_TERRAIN_MOVEMENT_COST_SOURCE_REF],
   ),
   'terrain-los-blocking': integrated(

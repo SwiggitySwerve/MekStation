@@ -16,7 +16,7 @@
  *   Requirement: Shared Terrain Movement-Cost Utility
  */
 
-import type { IHex, IHexTerrain } from '@/types/gameplay';
+import type { IHex, IHexTerrain, MovementTravelMode } from '@/types/gameplay';
 
 import { TERRAIN_LAYER_ORDER } from '@/constants/terrain';
 import { TerrainType } from '@/types/gameplay';
@@ -62,20 +62,61 @@ export function getPrimaryTerrainFeatureFromTerrainTag(
 }
 
 /**
+ * Per-motive, per-level MP cost modifier for entering a single terrain
+ * feature.
+ *
+ * Mirrors MegaMek `Terrain.movementCost` (audit 2026-06-09 C-3): the static
+ * `TERRAIN_PROPERTIES` table carries the base per-motive cells, and the
+ * level-dependent branches MegaMek encodes in code are applied here — ultra
+ * rough (level 2) and ultra rubble (level 6) cost 2 instead of 1 for every
+ * motive that pays at all, and level-2 deep snow charges every motive 1
+ * except hover/WiGE (airborne VTOL never pays ground terrain). Motives not
+ * listed in a table row default to 0.
+ */
+export function getTerrainFeatureMovementCostModifier(
+  feature: { type: TerrainType; level: number },
+  movementType: MovementTravelMode,
+): number {
+  const base =
+    TERRAIN_PROPERTIES[feature.type]?.movementCostModifier[movementType] ?? 0;
+  switch (feature.type) {
+    case TerrainType.Rough:
+      // MegaMek Terrain.movementCost ROUGH: level 2 ("ultra rough") costs 2.
+      return feature.level >= 2 && base > 0 ? base + 1 : base;
+    case TerrainType.Rubble:
+      // MegaMek Terrain.movementCost RUBBLE: level 6 ("ultra rubble") costs 2.
+      return feature.level >= 6 && base > 0 ? base + 1 : base;
+    case TerrainType.Snow:
+      // MegaMek Terrain.movementCost SNOW: level 2 (deep snow) charges every
+      // motive 1 except hover/WiGE; level 1 falls through to the table.
+      if (feature.level >= 2) {
+        return movementType === 'hover' ||
+          movementType === 'wige' ||
+          movementType === 'vtol'
+          ? 0
+          : 1;
+      }
+      return base;
+    default:
+      return base;
+  }
+}
+
+/**
  * Movement-point cost to enter a hex given its terrain features.
  *
  * Moved verbatim from `renderHelpers.ts` per design D1. Open ground (no
- * features) costs `1`; each terrain type adds its `movementCostModifier.walk`
- * on top of the base `1` (e.g. heavy woods adds `2`, total `3`). Used as the
- * edge weight for the AI terrain-cost pathfinder.
+ * features) costs `1`; the primary terrain feature adds its level-aware walk
+ * modifier on top of the base `1` (e.g. heavy woods adds `2`, total `3`).
+ * Used as the edge weight for the AI terrain-cost pathfinder — a documented
+ * primary-feature simplification of the rules engine's full per-feature sum.
  */
 export function getTerrainMovementCost(
   terrain: IHexTerrain | undefined,
 ): number {
   const feature = getPrimaryTerrainFeature(terrain);
   if (!feature) return 1;
-  const props = TERRAIN_PROPERTIES[feature.type];
-  return 1 + (props?.movementCostModifier.walk ?? 0);
+  return 1 + getTerrainFeatureMovementCostModifier(feature, 'walk');
 }
 
 /**
@@ -104,6 +145,5 @@ export function getHexMovementCostFromTerrainTag(
   const feature = getPrimaryTerrainFeatureFromTerrainTag(hex.terrain);
   if (!feature || !TERRAIN_TYPE_VALUES.has(feature.type)) return 1;
 
-  const props = TERRAIN_PROPERTIES[feature.type];
-  return 1 + (props?.movementCostModifier.walk ?? 0);
+  return 1 + getTerrainFeatureMovementCostModifier(feature, 'walk');
 }
