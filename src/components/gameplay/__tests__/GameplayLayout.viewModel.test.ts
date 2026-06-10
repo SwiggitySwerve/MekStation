@@ -128,6 +128,119 @@ function makeSession(
   };
 }
 
+describe('buildGameplayTokens fog contact memory (audit 2026-06-09 W5.1a)', () => {
+  /**
+   * Build a grid whose woods corridor blocks LOS along the +q axis:
+   * heavy woods at (1,0) + light woods at (2,0) push the cumulative
+   * intervening cover past the LOS threshold, so anything at (3..4, 0)
+   * is hidden from an observer at (0,0) while hexes on clear lines
+   * (e.g. (0,1), (0,2)) stay visible.
+   */
+  function makeWoodsGrid(): IHexGrid {
+    let grid = createMinimalGrid(4);
+    grid = setHexTerrain(grid, { q: 1, r: 0 }, TerrainType.HeavyWoods);
+    grid = setHexTerrain(grid, { q: 2, r: 0 }, TerrainType.LightWoods);
+    return grid;
+  }
+
+  /**
+   * Run one buildGameplayTokens pass with the target at `targetPos`,
+   * threading the SAME `fogContactMemory` map between calls — the
+   * way GameplayLayout threads its per-session memory ref.
+   */
+  function buildTargetToken(
+    targetPos: IHexCoordinate,
+    fogContactMemory: Map<string, IHexCoordinate>,
+    grid: IHexGrid,
+  ) {
+    const currentState = makeState();
+    currentState.units.target = makeUnitState({
+      id: 'target',
+      side: GameSide.Opponent,
+      position: targetPos,
+    });
+    const { session, visibilityState } = makeSession(currentState, grid);
+    const tokens = buildGameplayTokens({
+      currentState,
+      config: session.config,
+      session,
+      unitInfoLookup: {
+        attacker: { name: 'Attacker', side: GameSide.Player },
+        target: { name: 'Target', side: GameSide.Opponent },
+      },
+      selectedUnitId: null,
+      validTargetIds: [],
+      activeTargetId: null,
+      playerSide: GameSide.Player,
+      localFogPlayerId: 'player-1',
+      visibilityState,
+      fogContactMemory,
+    });
+    return tokens.find((token) => token.unitId === 'target');
+  }
+
+  it('freezes the ghost at the last observed hex while the contact moves unseen', () => {
+    const grid = makeWoodsGrid();
+    const fogContactMemory = new Map<string, IHexCoordinate>();
+
+    // 1) Contact observed in the open at (0,1).
+    const seen = buildTargetToken({ q: 0, r: 1 }, fogContactMemory, grid);
+    expect(seen?.fogStatus).toBeUndefined();
+
+    // 2) Contact slips behind the woods to (3,0) — ghost must freeze
+    //    at the last OBSERVED hex (0,1), not the live position.
+    const hidden = buildTargetToken({ q: 3, r: 0 }, fogContactMemory, grid);
+    expect(hidden).toMatchObject({
+      fogStatus: 'lastKnown',
+      lastKnownPosition: { q: 0, r: 1 },
+    });
+
+    // 3) Contact keeps moving while hidden — the ghost must NOT follow.
+    const stillHidden = buildTargetToken(
+      { q: 4, r: 0 },
+      fogContactMemory,
+      grid,
+    );
+    expect(stillHidden).toMatchObject({
+      fogStatus: 'lastKnown',
+      lastKnownPosition: { q: 0, r: 1 },
+    });
+  });
+
+  it('re-arms the ghost position after the contact is re-acquired', () => {
+    const grid = makeWoodsGrid();
+    const fogContactMemory = new Map<string, IHexCoordinate>();
+
+    buildTargetToken({ q: 0, r: 1 }, fogContactMemory, grid); // observed
+    buildTargetToken({ q: 3, r: 0 }, fogContactMemory, grid); // lost
+
+    // Re-acquired on a clear line at (0,2)…
+    const reacquired = buildTargetToken({ q: 0, r: 2 }, fogContactMemory, grid);
+    expect(reacquired?.fogStatus).toBeUndefined();
+
+    // …then lost again: the ghost now freezes at the NEW last-seen hex.
+    const lostAgain = buildTargetToken({ q: 4, r: 0 }, fogContactMemory, grid);
+    expect(lostAgain).toMatchObject({
+      fogStatus: 'lastKnown',
+      lastKnownPosition: { q: 0, r: 2 },
+    });
+  });
+
+  it('falls back to the live position for a never-observed contact', () => {
+    const grid = makeWoodsGrid();
+    const fogContactMemory = new Map<string, IHexCoordinate>();
+
+    // Contact starts hidden and was never observed — the only known
+    // intel is the deployment-time position, which is what legacy
+    // callers (no memory map) also surface.
+    const neverSeen = buildTargetToken({ q: 3, r: 0 }, fogContactMemory, grid);
+    expect(neverSeen).toMatchObject({
+      fogStatus: 'lastKnown',
+      lastKnownPosition: { q: 3, r: 0 },
+    });
+  });
+});
+
 describe('buildGameplayTokens', () => {
   it('uses the battle grid for fog visibility so LOS blockers hide target tokens', () => {
     const currentState = makeState();

@@ -68,10 +68,10 @@ reconciliation merge `7f22e4f22` · audited main `442f90855`.
 
 ## W5 — UI state + persistence (clusters G/H)
 
-| Task | Finding | Scope                                                                                                                                                                                   | Status  |
-| ---- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| W5.1 | G       | Fog last-known staleness; centerOn isometric transform; lens effect dep churn; replay prone; rear-arc detector + getPayload constraint; memo/passive-listener fixes; dispatcher payload | pending |
-| W5.2 | H       | Replay POST body-size; events validation; index race note; campaign JSON.parse guard; CURRENT_DATE column rename; migration idempotency; vault SyncEngine conflict lookup               | pending |
+| Task | Finding | Scope                                                                                                                                                                                   | Status                                                                                                                                                                                                                                        |
+| ---- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| W5.1 | G       | Fog last-known staleness; centerOn isometric transform; lens effect dep churn; replay prone; rear-arc detector + getPayload constraint; memo/passive-listener fixes; dispatcher payload | partial — W5.1a done (fog ghost freeze, isometric centerOn, lens toggle survival, dispatcher payload, HexCell memo + handler identity + single occlusion sweep, non-passive wheel/touch); W5.1b pending (replay prone, rear-arc + getPayload) |
+| W5.2 | H       | Replay POST body-size; events validation; index race note; campaign JSON.parse guard; CURRENT_DATE column rename; migration idempotency; vault SyncEngine conflict lookup               | pending                                                                                                                                                                                                                                       |
 
 ## W6 — OpenSpec archive remediation (cluster F) — separate project, LAST
 

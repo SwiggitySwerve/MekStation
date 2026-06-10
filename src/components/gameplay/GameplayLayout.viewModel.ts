@@ -1,5 +1,6 @@
 import type {
   IGameSession,
+  IHexCoordinate,
   IHexGrid,
   IUnitToken,
   IWeaponStatus,
@@ -59,6 +60,16 @@ export function buildGameplayTokens(params: {
     readonly sideOwners: IGameSession['sideOwners'] | null;
     readonly grid?: IHexGrid;
   };
+  /**
+   * Audit 2026-06-09 G (W5.1a): per-session fog contact memory,
+   * threaded in by the host component (GameplayLayout keeps it in a
+   * ref keyed by session id). While a fogged enemy is VISIBLE its
+   * position is recorded here; once it drops out of sensor/visual
+   * range the ghost token freezes at that last OBSERVED hex instead
+   * of leaking the live position every render. Optional so legacy
+   * callers without a memory map keep the old live-position fallback.
+   */
+  readonly fogContactMemory?: Map<string, IHexCoordinate>;
 }): IUnitToken[] {
   return Object.entries(params.currentState.units).map(([unitId, state]) => {
     const unitInfo = params.unitInfoLookup[unitId] || {
@@ -87,6 +98,15 @@ export function buildGameplayTokens(params: {
         (params.currentState.phase === GamePhase.PhysicalAttack &&
           params.activePhysicalTargetId !== null &&
           unitId === params.activePhysicalTargetId));
+    // Fog contact memory (audit 2026-06-09 G, W5.1a): record the
+    // position of every currently-visible fogged enemy; when the
+    // contact is later hidden, freeze the ghost at the last OBSERVED
+    // hex. A never-observed contact has no memory entry and falls
+    // back to its live position (matches the legacy deployment-intel
+    // behavior and callers that pass no memory map).
+    if (isFogActive && !isOwnedSide && isVisibleEnemy) {
+      params.fogContactMemory?.set(unitId, state.position);
+    }
     const fogProjection = isFogActive
       ? isOwnedSide
         ? { sensorRange: DEFAULT_FOG_SENSOR_RANGE }
@@ -94,7 +114,8 @@ export function buildGameplayTokens(params: {
           ? {}
           : {
               fogStatus: 'lastKnown' as const,
-              lastKnownPosition: state.position,
+              lastKnownPosition:
+                params.fogContactMemory?.get(unitId) ?? state.position,
             }
       : {};
 
