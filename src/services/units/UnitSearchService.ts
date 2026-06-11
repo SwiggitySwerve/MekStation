@@ -30,15 +30,38 @@ export class UnitSearchService implements IUnitSearchService {
   private searchIndex: MiniSearch<IUnitIndexEntry> | null = null;
   private allUnits: Map<string, IUnitIndexEntry> = new Map();
   private initialized = false;
+  private initPromise: Promise<void> | null = null;
 
   /**
-   * Initialize the search index
+   * Initialize the search index.
+   *
+   * Concurrent callers share ONE in-flight initialization. Without this
+   * guard, two overlapping calls (e.g. React StrictMode running a mount
+   * effect twice) each created a MiniSearch instance and both `addAll`'d
+   * the full unit list onto whichever instance won the `this.searchIndex`
+   * assignment — MiniSearch then threw "duplicate ID <first-unit>"
+   * (e2e triage RC16, force.spec dev-overlay interception).
    */
   async initialize(): Promise<void> {
     if (this.initialized) {
       return;
     }
+    if (this.initPromise) {
+      return this.initPromise;
+    }
+    this.initPromise = this.doInitialize();
+    try {
+      await this.initPromise;
+    } finally {
+      // Clear the latch so a future rebuildIndex() can re-run init.
+      this.initPromise = null;
+    }
+  }
 
+  /**
+   * The actual index build — only ever one in flight (see initialize()).
+   */
+  private async doInitialize(): Promise<void> {
     // Create MiniSearch instance
     this.searchIndex = new MiniSearch<IUnitIndexEntry>({
       fields: ['name', 'chassis', 'variant'],

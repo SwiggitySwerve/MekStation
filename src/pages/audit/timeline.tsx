@@ -62,16 +62,17 @@ export default function AuditTimelinePage(): React.ReactElement {
     [filters, setFilters],
   );
 
-  const handleCategoryChange = useCallback(
-    (category: EventCategory | undefined) => {
-      setFilters({ ...filters, category });
-    },
-    [filters, setFilters],
-  );
-
-  const handleRootEventsToggle = useCallback(
-    (rootEventsOnly: boolean) => {
-      setFilters({ ...filters, rootEventsOnly: rootEventsOnly || undefined });
+  const handleTimelineFiltersChange = useCallback(
+    (f: { category?: EventCategory; rootEventsOnly?: boolean }) => {
+      // Single merged update. This used to be two sequential setFilters
+      // calls (category, then rootEventsOnly) that each spread the same
+      // stale `filters` closure — the second call reverted the first, so
+      // a category filter could never stick (e2e triage RC18).
+      setFilters({
+        ...filters,
+        category: f.category,
+        rootEventsOnly: f.rootEventsOnly || undefined,
+      });
     },
     [filters, setFilters],
   );
@@ -156,10 +157,7 @@ export default function AuditTimelinePage(): React.ReactElement {
               category: filters.category,
               rootEventsOnly: filters.rootEventsOnly,
             }}
-            onChange={(f) => {
-              handleCategoryChange(f.category);
-              handleRootEventsToggle(f.rootEventsOnly || false);
-            }}
+            onChange={handleTimelineFiltersChange}
           />
 
           {/* Advanced Query Builder */}

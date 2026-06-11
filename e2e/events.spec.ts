@@ -40,16 +40,18 @@ test.describe('Event Timeline UI @events @audit', () => {
     await page.goto('/');
     await waitForHydration(page);
 
-    // Look for audit/timeline link in nav or menu
-    const auditLink = page
-      .locator('a[href*="audit"], a[href*="timeline"]')
-      .first();
-    const count = await auditLink.count();
-
-    // If link exists, it should be clickable
-    if (count > 0) {
-      await expect(auditLink).toBeVisible();
-    }
+    // Navigation moved into TopBar dropdowns: /audit/timeline is a History
+    // menuitem (TopBar.tsx historyItems) that stays hidden until the
+    // dropdown opens (TopBarMenu.tsx role="menu" visibility toggle). Scope
+    // to the desktop nav — the tablet icon-only nav duplicates the same
+    // menuitems in the DOM.
+    const desktopNav = page.locator('header nav').first();
+    await desktopNav.getByRole('button', { name: 'History' }).click();
+    const timelineLink = desktopNav.getByRole('menuitem', {
+      name: 'Timeline',
+    });
+    await expect(timelineLink).toBeVisible();
+    await expect(timelineLink).toHaveAttribute('href', '/audit/timeline');
   });
 });
 

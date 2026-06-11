@@ -127,6 +127,19 @@ describe('UnitSearchService', () => {
 
       expect(MiniSearch).toHaveBeenCalledTimes(1);
     });
+
+    it('should share a single in-flight init across concurrent callers', async () => {
+      // Regression (e2e triage RC16): ForceDetailPage's mount effect can run
+      // twice concurrently (React StrictMode dev double-effect). Without an
+      // in-flight guard the second entrant re-created the index and both
+      // callers addAll'd the same units onto it — MiniSearch threw
+      // "duplicate ID battle-tripod-r-h3l-2x" (the first index entry) into
+      // the Next dev overlay, which then intercepted all pointer events.
+      await Promise.all([service.initialize(), service.initialize()]);
+
+      expect(MiniSearch).toHaveBeenCalledTimes(1);
+      expect(mockSearchIndex.addAll).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('search()', () => {

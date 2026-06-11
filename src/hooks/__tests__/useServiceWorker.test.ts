@@ -120,6 +120,45 @@ describe('useServiceWorker', () => {
     });
   });
 
+  describe('Controller-change reload policy (e2e triage RC9/RC14)', () => {
+    /** Grab the controllerchange handler the hook registered. */
+    function registeredControllerChangeHandler(): () => void {
+      const call = mockNavigator.serviceWorker.addEventListener.mock.calls.find(
+        (c: unknown[]) => c[0] === 'controllerchange',
+      );
+      expect(call).toBeDefined();
+      return call![1] as () => void;
+    }
+
+    it('does NOT reload on the first install (no pre-existing controller)', () => {
+      // First visit: no controller yet. The SW's clients.claim() still
+      // fires controllerchange — reloading here dumps every fresh
+      // visitor's first interaction seconds after first paint (and made
+      // every fresh-context Playwright test reload mid-test).
+      mockNavigator.serviceWorker.controller = null;
+      const reloadPage = jest.fn();
+
+      renderHook(() => useServiceWorker(reloadPage));
+      act(() => {
+        registeredControllerChangeHandler()();
+      });
+
+      expect(reloadPage).not.toHaveBeenCalled();
+    });
+
+    it('reloads when an existing controller is replaced (SW update)', () => {
+      mockNavigator.serviceWorker.controller = {} as ServiceWorker;
+      const reloadPage = jest.fn();
+
+      renderHook(() => useServiceWorker(reloadPage));
+      act(() => {
+        registeredControllerChangeHandler()();
+      });
+
+      expect(reloadPage).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('Edge Cases', () => {
     it('should handle unmount gracefully', () => {
       const { unmount } = renderHook(() => useServiceWorker());

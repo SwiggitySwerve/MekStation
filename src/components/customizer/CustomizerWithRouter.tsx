@@ -67,6 +67,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
   const routerTabId = router.tabId;
   const routerIsValid = router.isValid;
   const routerIsIndex = router.isIndex;
+  const routerIsReady = router.isReady;
   const routerSyncUrl = router.syncUrl;
   const routerNavigateToIndex = router.navigateToIndex;
 
@@ -86,8 +87,14 @@ export default function CustomizerWithRouter(): React.ReactElement {
   useAutoSaveIndicator();
 
   useEffect(() => {
-    useTabManagerStore.persist.rehydrate();
-    setIsHydrated(true);
+    // `persist.rehydrate()` is async — only flip `isHydrated` once the
+    // persisted tab state is actually restored. Flipping synchronously
+    // (the old behavior) let the URL<->state sync effects below run against
+    // the pre-rehydration store, which redirected valid full-page deep
+    // links to the index or another unit (e2e triage RC15).
+    void Promise.resolve(useTabManagerStore.persist.rehydrate()).then(() => {
+      setIsHydrated(true);
+    });
   }, []);
 
   // ==========================================================================
@@ -95,7 +102,9 @@ export default function CustomizerWithRouter(): React.ReactElement {
   // ==========================================================================
 
   useEffect(() => {
-    if (!isHydrated || isLoading) return;
+    // Wait for the Next router to parse the URL — before `isReady`,
+    // `routerUnitId` is null even for a deep link (e2e triage RC15).
+    if (!routerIsReady || !isHydrated || isLoading) return;
     if (isSyncingRef.current) return;
 
     // Skip if we just synced this combination
@@ -133,6 +142,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
       }
     }
   }, [
+    routerIsReady,
     isHydrated,
     isLoading,
     routerUnitId,
@@ -148,7 +158,13 @@ export default function CustomizerWithRouter(): React.ReactElement {
   // ==========================================================================
 
   useEffect(() => {
-    if (!isHydrated || isLoading) return;
+    // NEVER State->URL sync before the router has parsed the URL: with an
+    // empty `router.query` the deep-linked unit reads as null, and this
+    // effect would `router.replace` the URL over to the stored active tab —
+    // clobbering `/customizer/<id>[/<tab>]` deep links (e2e triage RC15).
+    // Deep links must win; the URL->State effect above handles them once
+    // `routerIsReady` flips.
+    if (!routerIsReady || !isHydrated || isLoading) return;
     if (isSyncingRef.current) return;
     if (!activeTabId) return;
 
@@ -175,6 +191,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
       }, 0);
     }
   }, [
+    routerIsReady,
     isHydrated,
     isLoading,
     activeTabId,
@@ -195,8 +212,10 @@ export default function CustomizerWithRouter(): React.ReactElement {
   // Render
   // ==========================================================================
 
-  // Show loading during initial hydration
-  if (!isHydrated || isLoading) {
+  // Show loading during initial hydration. Also hold while the router
+  // hasn't parsed the URL yet — rendering the stored active unit during
+  // that window flashes the WRONG unit on a deep link (e2e triage RC15).
+  if (!routerIsReady || !isHydrated || isLoading) {
     return (
       <div className="bg-surface-deep flex min-h-screen items-center justify-center">
         <div className="text-text-theme-secondary">Loading customizer...</div>

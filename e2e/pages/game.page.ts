@@ -151,26 +151,32 @@ export class GameSessionPage extends BasePage {
   }
 
   /**
-   * Check if action bar is visible.
+   * Check if the tactical action dock (the primary command surface) is
+   * visible. The legacy `action-bar` only exists inside a `hidden` mount
+   * (GameplayLayout's legacy-action-bar-mount) — `tactical-action-dock`
+   * is the live surface (Wave 7.2).
    */
   async isActionBarVisible(): Promise<boolean> {
-    return this.isVisibleByTestId('action-bar');
+    return this.isVisibleByTestId('tactical-action-dock');
   }
 
   /**
-   * Click an action button.
-   * @param actionId - Action ID (lock, undo, skip, next-turn, concede, clear)
+   * Click a command button in the tactical action dock.
+   * @param commandId - Registry command ID (e.g. 'weapon.clear-attacks',
+   *   'heat-end.end-phase', 'heat.continue', 'heat-end.next-turn')
    */
-  async clickAction(actionId: string): Promise<void> {
-    await this.clickByTestId(`action-btn-${actionId}`);
+  async clickAction(commandId: string): Promise<void> {
+    await this.clickByTestId(`command-btn-${commandId}`);
   }
 
   /**
-   * Check if a specific action button is visible.
-   * @param actionId - Action ID
+   * Check if a specific dock command button is visible. Disabled commands
+   * stay rendered with a reason tooltip, so visibility asserts the command
+   * is REGISTERED for the current phase, not that it is currently enabled.
+   * @param commandId - Registry command ID
    */
-  async isActionVisible(actionId: string): Promise<boolean> {
-    return this.isVisibleByTestId(`action-btn-${actionId}`);
+  async isActionVisible(commandId: string): Promise<boolean> {
+    return this.isVisibleByTestId(`command-btn-${commandId}`);
   }
 
   /**

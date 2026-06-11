@@ -1,4 +1,21 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+import { gotoWithRetry } from './helpers/navigation';
+
+/**
+ * Waits for React hydration. The hamburger's onClick is a React handler —
+ * clicking before hydration is a silent no-op and the overlay menu (which
+ * renders only while open) never mounts (e2e triage RC9). `__E2E_MODE__`
+ * is set by `_app.tsx`'s post-hydration `exposeStoresForE2E()` effect, so
+ * it is a true hydration-complete signal under NEXT_PUBLIC_E2E_MODE.
+ */
+async function waitForHydration(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () => (window as { __E2E_MODE__?: boolean }).__E2E_MODE__ === true,
+    undefined,
+    { timeout: 15_000 },
+  );
+}
 
 // =============================================================================
 // Mobile Navigation Header Tests
@@ -9,6 +26,7 @@ test.describe('Mobile Navigation Header', () => {
 
   test('should display mobile header on settings page', async ({ page }) => {
     await page.goto('/settings');
+    await waitForHydration(page);
 
     // Mobile header should be visible (may show "MekStation" or page title)
     const header = page.locator('header');
@@ -23,6 +41,11 @@ test.describe('Mobile Navigation Header', () => {
 
   test('should display mobile header on units page', async ({ page }) => {
     await page.goto('/units');
+    // NO hydration wait here: this test's contract is header PRESENCE
+    // (server-rendered), and /units currently never finishes hydrating —
+    // a client-bundled better-sqlite3 module crashes at module eval
+    // (`promisify(fs.access)` against the emptyModule fs stub). Tracked
+    // as T2-F2 in docs/audits/2026-06-09-remediation-tracker.md.
 
     // Should have hamburger menu button
     const menuButton = page.getByRole('button', {
@@ -33,6 +56,7 @@ test.describe('Mobile Navigation Header', () => {
 
   test('should display mobile header on compendium page', async ({ page }) => {
     await page.goto('/compendium');
+    await waitForHydration(page);
 
     // Should have hamburger menu button
     const menuButton = page.getByRole('button', {
@@ -45,6 +69,7 @@ test.describe('Mobile Navigation Header', () => {
     page,
   }) => {
     await page.goto('/customizer');
+    await waitForHydration(page);
 
     // Wait for page to load
     await page.waitForLoadState('networkidle');
@@ -60,6 +85,7 @@ test.describe('Mobile Navigation Header', () => {
     // Use desktop viewport
     await page.setViewportSize({ width: 1200, height: 800 });
     await page.goto('/settings');
+    await waitForHydration(page);
 
     // Mobile header should be hidden (lg:hidden class)
     const mobileHeader = page.locator('header.lg\\:hidden');
@@ -78,6 +104,7 @@ test.describe('Mobile Sidebar', () => {
     page,
   }) => {
     await page.goto('/settings');
+    await waitForHydration(page);
 
     // Click hamburger menu
     const menuButton = page.getByRole('button', {
@@ -100,6 +127,7 @@ test.describe('Mobile Sidebar', () => {
     page,
   }) => {
     await page.goto('/settings');
+    await waitForHydration(page); // RC9
 
     // Open sidebar
     const menuButton = page.getByRole('button', {
@@ -111,8 +139,10 @@ test.describe('Mobile Sidebar', () => {
     const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
 
-    // Should show full labels, not just icons (brand and subtitle in sidebar)
-    await expect(sidebar.getByText('BattleTech Lab')).toBeVisible();
+    // Should show full labels, not just icons. Brand is "MekStation"
+    // (TopBarMobileMenu.tsx menu header) — the old "BattleTech Lab" brand
+    // predates the TopBar navigation redesign.
+    await expect(sidebar.getByText('MekStation')).toBeVisible();
     await expect(sidebar.getByText('Dashboard')).toBeVisible();
   });
 
@@ -120,6 +150,7 @@ test.describe('Mobile Sidebar', () => {
     page,
   }) => {
     await page.goto('/settings');
+    await waitForHydration(page);
 
     // Open sidebar
     const menuButton = page.getByRole('button', {
@@ -145,12 +176,20 @@ test.describe('Mobile Sidebar', () => {
     // Wait a moment for sidebar animation to complete
     await page.waitForTimeout(350);
 
-    // Sidebar subtitle should not be visible (sidebar closed/translated off-screen)
-    await expect(sidebar.getByText('BattleTech Lab')).not.toBeVisible();
+    // The overlay menu unmounts entirely when closed (TopBarMobileMenu.tsx
+    // returns null while !isOpen) — assert the menu itself is gone instead
+    // of probing for the long-removed "BattleTech Lab" subtitle.
+    await expect(sidebar).not.toBeVisible();
   });
 
-  test('should close sidebar when backdrop is clicked', async ({ page }) => {
+  test('should close sidebar via the close button', async ({ page }) => {
+    // The menu is a fullscreen overlay (TopBarMobileMenu.tsx: fixed inset-0
+    // z-50), so the z-40 backdrop behind it is unreachable on mobile — the
+    // explicit close affordance is the "Close menu" button. The old
+    // backdrop-click flow only "passed" because its final assertion probed
+    // for the long-removed "BattleTech Lab" text (vacuously true).
     await page.goto('/settings');
+    await waitForHydration(page); // RC9
 
     // Open sidebar
     const menuButton = page.getByRole('button', {
@@ -163,16 +202,16 @@ test.describe('Mobile Sidebar', () => {
     await expect(sidebar).toBeVisible();
     await expect(sidebar.getByText('Dashboard')).toBeVisible();
 
-    // Click the backdrop (area outside sidebar)
-    // The backdrop is a fixed overlay, click on the right side of the screen
-    await page.mouse.click(350, 300);
+    // Close via the explicit close button
+    await sidebar.getByRole('button', { name: /close menu/i }).click();
 
-    // Sidebar should close - subtitle should not be visible
-    await expect(sidebar.getByText('BattleTech Lab')).not.toBeVisible();
+    // Sidebar should close — the menu unmounts entirely (returns null)
+    await expect(sidebar).not.toBeVisible();
   });
 
   test('should hide collapse toggle button on mobile', async ({ page }) => {
     await page.goto('/settings');
+    await waitForHydration(page);
 
     // Open sidebar
     const menuButton = page.getByRole('button', {
@@ -199,6 +238,7 @@ test.describe('Hamburger Menu Button Position (Right-Hand Ergonomics)', () => {
     page,
   }) => {
     await page.goto('/settings');
+    await waitForHydration(page);
 
     const menuButton = page.getByRole('button', {
       name: /open menu/i,
@@ -216,6 +256,7 @@ test.describe('Hamburger Menu Button Position (Right-Hand Ergonomics)', () => {
     page,
   }) => {
     await page.goto('/settings');
+    await waitForHydration(page);
 
     const menuButton = page.getByRole('button', {
       name: /open menu/i,
@@ -240,6 +281,7 @@ test.describe('Customizer Page', () => {
 
   test('should display bottom tray on customizer', async ({ page }) => {
     await page.goto('/customizer');
+    await waitForHydration(page);
 
     // Wait for page to fully load
     await page.waitForLoadState('networkidle');
@@ -252,6 +294,7 @@ test.describe('Customizer Page', () => {
     page,
   }) => {
     await page.goto('/customizer');
+    await waitForHydration(page);
     await page.waitForLoadState('networkidle');
 
     // Menu button should be in the mobile header (top), not in bottom tray
@@ -275,6 +318,7 @@ test.describe('Customizer Page', () => {
     page,
   }) => {
     await page.goto('/customizer');
+    await waitForHydration(page);
     await page.waitForLoadState('networkidle');
 
     // Click the menu button in the mobile header
@@ -295,52 +339,56 @@ test.describe('Customizer Page', () => {
 // Desktop Sidebar Tests
 // =============================================================================
 
-test.describe('Desktop Sidebar', () => {
+// PT-008: the desktop secondary sidebar (and its collapse/expand toggle)
+// was removed in the TopBar navigation redesign. Desktop navigation lives
+// in the TopBar as labeled dropdown menus (TopBar.tsx); the mobile overlay
+// menu renders only while open and only below the md breakpoint
+// (TopBarMobileMenu.tsx). These tests pin the TopBar desktop contract.
+test.describe('Desktop Navigation (TopBar)', () => {
   test.use({ viewport: { width: 1200, height: 800 } }); // Desktop viewport
 
-  test('should display sidebar on desktop without hamburger menu', async ({
+  test('should display top-bar navigation on desktop without hamburger menu', async ({
     page,
   }) => {
     await page.goto('/settings');
+    await waitForHydration(page); // RC9
 
-    // Sidebar (aside) should be visible with nav items
-    const sidebar = page.getByTestId('mobile-menu');
-    await expect(sidebar).toBeVisible();
-    await expect(sidebar.getByText('Dashboard')).toBeVisible();
+    // Desktop labeled nav (first <nav> in the header; the tablet icon-only
+    // nav duplicates the structure but is display-hidden at >=lg).
+    const desktopNav = page.locator('header nav').first();
+    await expect(desktopNav).toBeVisible();
+    await expect(
+      desktopNav.getByRole('link', { name: 'Dashboard' }),
+    ).toBeVisible();
 
-    // Mobile hamburger should NOT be visible (hidden on desktop via lg:hidden)
-    const mobileHeader = page.locator('header.lg\\:hidden');
-    await expect(mobileHeader).toBeHidden();
+    // The mobile overlay menu is unmounted (renders only while open).
+    await expect(page.getByTestId('mobile-menu')).toHaveCount(0);
+
+    // Mobile hamburger is hidden at >=md (TopBar.tsx md:hidden).
+    await expect(page.getByRole('button', { name: /open menu/i })).toBeHidden();
   });
 
-  test('should toggle between collapsed and expanded on desktop', async ({
+  test('should expose section navigation through top-bar dropdowns', async ({
     page,
   }) => {
     await page.goto('/settings');
+    await waitForHydration(page); // RC9
 
-    // Sidebar should be visible
-    const sidebar = page.getByTestId('mobile-menu');
-    await expect(sidebar).toBeVisible();
+    const desktopNav = page.locator('header nav').first();
 
-    // Brand subtitle should be visible when expanded
-    await expect(sidebar.getByText('BattleTech Lab')).toBeVisible();
+    // Dropdown items render with role="menuitem" and stay hidden until the
+    // section button opens its menu (TopBarMenu.tsx).
+    const browseButton = desktopNav.getByRole('button', { name: 'Browse' });
+    const myUnitsItem = desktopNav.getByRole('menuitem', { name: 'My Units' });
+    await expect(myUnitsItem).toBeHidden();
 
-    // Find and click the collapse button
-    const collapseButton = page.getByRole('button', {
-      name: /collapse sidebar/i,
-    });
-    await expect(collapseButton).toBeVisible();
-    await collapseButton.click();
+    await browseButton.click();
+    await expect(myUnitsItem).toBeVisible();
+    await expect(myUnitsItem).toHaveAttribute('href', '/units');
 
-    // Brand subtitle should be hidden when collapsed
-    await expect(sidebar.getByText('BattleTech Lab')).not.toBeVisible();
-
-    // Click expand button
-    const expandButton = page.getByRole('button', { name: /expand sidebar/i });
-    await expandButton.click();
-
-    // Brand subtitle should be visible again
-    await expect(sidebar.getByText('BattleTech Lab')).toBeVisible();
+    // Escape closes the open dropdown again.
+    await page.keyboard.press('Escape');
+    await expect(myUnitsItem).toBeHidden();
   });
 });
 
@@ -356,10 +404,17 @@ test.describe('Navigation Flows', () => {
   }) => {
     // Start on settings
     await page.goto('/settings');
+    await waitForHydration(page);
     const sidebar = page.getByTestId('mobile-menu');
 
     // Helper function to open sidebar and navigate
     async function navigateVia(href: string) {
+      // RC9: a hamburger click landing before React hydration is a silent
+      // no-op and the menu never mounts. Wait on the real condition (the
+      // post-hydration __E2E_MODE__ flag) before every open attempt —
+      // instant for client-side route changes, load-bearing after a
+      // full-page load.
+      await waitForHydration(page);
       await page.getByRole('button', { name: /open menu/i }).click();
       await page.waitForTimeout(350); // Wait for animation
       await expect(sidebar).toBeVisible();
@@ -368,13 +423,16 @@ test.describe('Navigation Flows', () => {
       await link.evaluate((el: HTMLElement) => el.click());
     }
 
-    // Navigate to Units
-    await navigateVia('/units');
-    await expect(page).toHaveURL('/units');
-
-    // Navigate to Compendium
+    // Navigate to Compendium. (/units is deliberately NOT a hop here:
+    // its client bundle currently crashes at module eval — better-sqlite3
+    // pulled client-side — so the menu can never be re-opened FROM /units.
+    // Tracked as T2-F2 in docs/audits/2026-06-09-remediation-tracker.md.)
     await navigateVia('/compendium');
     await expect(page).toHaveURL('/compendium');
+
+    // Navigate to Pilots
+    await navigateVia('/gameplay/pilots');
+    await expect(page).toHaveURL('/gameplay/pilots');
 
     // Navigate to Customizer
     await navigateVia('/customizer');
@@ -385,12 +443,13 @@ test.describe('Navigation Flows', () => {
     page,
   }) => {
     await page.goto('/settings');
+    await waitForHydration(page); // RC9
     const sidebar = page.getByTestId('mobile-menu');
 
-    // Open sidebar
+    // Open sidebar — brand is "MekStation" (TopBarMobileMenu.tsx header)
     await page.getByRole('button', { name: /open menu/i }).click();
     await page.waitForTimeout(350); // Wait for animation
-    await expect(sidebar.getByText('BattleTech Lab')).toBeVisible();
+    await expect(sidebar.getByText('MekStation')).toBeVisible();
 
     // Navigate using link via JS click
     const unitsLink = sidebar.locator('a[href="/units"]');
@@ -403,8 +462,9 @@ test.describe('Navigation Flows', () => {
     // Wait for animation
     await page.waitForTimeout(350);
 
-    // Sidebar should be closed
-    await expect(sidebar.getByText('BattleTech Lab')).not.toBeVisible();
+    // Sidebar should be closed — the overlay unmounts on
+    // routeChangeComplete (TopBarMobileMenu.tsx effect)
+    await expect(sidebar).not.toBeVisible();
   });
 });
 
@@ -420,6 +480,7 @@ test.describe('Touch Interactions', () => {
 
   test('should respond to tap on hamburger menu', async ({ page }) => {
     await page.goto('/settings');
+    await waitForHydration(page);
 
     // Tap the hamburger menu
     const menuButton = page.getByRole('button', {
@@ -435,6 +496,7 @@ test.describe('Touch Interactions', () => {
 
   test('should respond to tap on navigation items', async ({ page }) => {
     await page.goto('/settings');
+    await waitForHydration(page);
 
     // Open sidebar via tap
     const menuButton = page.getByRole('button', {
@@ -464,10 +526,11 @@ test.describe('Touch Interactions', () => {
 test.describe('Gameplay Navigation', () => {
   test.use({ viewport: { width: 375, height: 667 } }); // iPhone SE viewport
 
-  test('should show expandable gameplay section with all items in mobile sidebar', async ({
+  test('should show gameplay section with all items in mobile sidebar', async ({
     page,
   }) => {
     await page.goto('/');
+    await waitForHydration(page); // RC9
 
     // Open sidebar
     await page.getByRole('button', { name: /open menu/i }).click();
@@ -476,15 +539,14 @@ test.describe('Gameplay Navigation', () => {
     const sidebar = page.getByTestId('mobile-menu');
     await expect(sidebar).toBeVisible();
 
-    // Look for Gameplay section - expandable button
-    const gameplayButton = sidebar.getByRole('button', { name: /gameplay/i });
-    await expect(gameplayButton).toBeVisible();
+    // Sections are flat headers in the overlay menu — a <span> title with
+    // the items always rendered beneath it (TopBarMobileMenu.tsx
+    // renderSection). The old expandable-button section predates the
+    // TopBar navigation redesign.
+    const gameplayHeader = sidebar.getByText('Gameplay', { exact: true });
+    await expect(gameplayHeader).toBeVisible();
 
-    // Click to expand
-    await gameplayButton.click();
-    await page.waitForTimeout(200);
-
-    // Should show all gameplay items with correct hrefs
+    // All gameplay items render immediately (no expand step) with correct hrefs
     const pilotsLink = sidebar.locator('a[href="/gameplay/pilots"]');
     const forcesLink = sidebar.locator('a[href="/gameplay/forces"]');
     const campaignsLink = sidebar.locator('a[href="/gameplay/campaigns"]');
@@ -520,7 +582,9 @@ test.describe('Gameplay Navigation', () => {
     ];
 
     for (const route of routes) {
-      await page.goto(route);
+      // gotoWithRetry: Next dev aborts in-flight navigations while it
+      // on-demand-compiles a cold route (net::ERR_ABORTED) — transient.
+      await gotoWithRetry(page, route);
       await expect(page).toHaveURL(route);
     }
   });
@@ -535,6 +599,7 @@ test.describe('History Navigation', () => {
 
   test('should navigate to timeline via mobile sidebar', async ({ page }) => {
     await page.goto('/');
+    await waitForHydration(page); // RC9
 
     // Open sidebar
     await page.getByRole('button', { name: /open menu/i }).click();
@@ -563,6 +628,10 @@ test.describe('History Navigation', () => {
     page,
   }) => {
     await page.goto('/');
+    await waitForHydration(page);
+    // RC9: clicking the hamburger before React hydration is a silent no-op
+    // and the overlay menu (rendered only while open) never mounts.
+    await waitForHydration(page);
 
     // Open sidebar
     await page.getByRole('button', { name: /open menu/i }).click();
@@ -585,6 +654,7 @@ test.describe('Responsive Layout', () => {
     // Start with mobile
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/settings');
+    await waitForHydration(page);
 
     // Mobile header should be visible
     const menuButton = page.getByRole('button', {
@@ -595,17 +665,24 @@ test.describe('Responsive Layout', () => {
     // Switch to desktop
     await page.setViewportSize({ width: 1200, height: 800 });
 
-    // Mobile header should be hidden
+    // Mobile hamburger should be hidden (TopBar.tsx md:hidden)
     await expect(menuButton).not.toBeVisible();
 
-    // Desktop sidebar should be visible
-    const sidebar = page.getByTestId('mobile-menu');
-    await expect(sidebar).toBeVisible();
+    // PT-008: there is no desktop sidebar — the TopBar's labeled nav takes
+    // over at >=lg and the mobile overlay menu stays unmounted (it renders
+    // only while open, TopBarMobileMenu.tsx).
+    await expect(page.getByTestId('mobile-menu')).toHaveCount(0);
+    const desktopNav = page.locator('header nav').first();
+    await expect(desktopNav).toBeVisible();
+    await expect(
+      desktopNav.getByRole('link', { name: 'Dashboard' }),
+    ).toBeVisible();
   });
 
   test('should not have horizontal overflow on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/settings');
+    await waitForHydration(page);
 
     // Check that the page doesn't have horizontal overflow
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth);

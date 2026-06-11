@@ -226,9 +226,13 @@ test.describe('Game Replay Page', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(500);
 
-    // Look for any completed game with replay button
+    // Look for any completed game with replay button. Scope to <main> —
+    // the TopBar's History dropdown carries a hidden /replay-library
+    // menuitem (TopBar.tsx historyItems) that `a[href*="/replay"]` would
+    // first-match otherwise (deterministic failure since the Replay
+    // Library nav entry landed).
     const replayButtons = page.locator(
-      'a[href*="/replay"], button:has-text("Replay")',
+      'main a[href*="/replay"], main button:has-text("Replay")',
     );
     const replayCount = await replayButtons.count();
 

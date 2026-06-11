@@ -83,22 +83,23 @@ test.describe('Campaign Round-Trip — single contract play loop', () => {
                 createCampaign: (name: string, factionId: string) => string;
                 getCampaign: () => unknown;
                 updateCampaign: (updates: Record<string, unknown>) => void;
-                getPersonnelStore: () => {
-                  getState: () => {
-                    addPerson: (person: Record<string, unknown>) => void;
-                  };
-                } | null;
                 enqueueOutcome: (outcome: Record<string, unknown>) => void;
                 getPendingOutcomeCount: () => number;
                 advanceDay: () => unknown;
                 getProcessedBattleIds: () => readonly string[];
               };
             };
+            campaignRoster: {
+              setState: (state: Record<string, unknown>) => void;
+            };
           };
         };
         const stores = win.__ZUSTAND_STORES__;
         if (!stores?.campaign) {
           throw new Error('Campaign store not exposed on window');
+        }
+        if (!stores.campaignRoster) {
+          throw new Error('Campaign roster store not exposed on window');
         }
         const state = stores.campaign.getState();
 
@@ -149,56 +150,56 @@ test.describe('Campaign Round-Trip — single contract play loop', () => {
           capturedAt: new Date().toISOString(),
         };
 
-        // 2c. Seed personnel + missions + unitMaxStates so the
-        //     pipeline has data to mutate.
-        const personnel = state.getPersonnelStore();
-        if (personnel) {
-          personnel.getState().addPerson({
-            id: 'e2e-unit-A',
-            name: 'E2E Test Pilot',
-            status: 'active',
-            primaryRole: 'pilot',
-            rank: 'MechWarrior',
-            recruitmentDate: new Date('3024-01-01'),
-            missionsCompleted: 0,
-            totalKills: 0,
-            xp: 0,
-            totalXpEarned: 0,
-            xpSpent: 0,
-            hits: 0,
-            injuries: [],
-            daysToWaitForHealing: 0,
-            skills: {},
-            attributes: {
-              STR: 5,
-              BOD: 5,
-              REF: 5,
-              DEX: 5,
-              INT: 5,
-              WIL: 5,
-              CHA: 5,
-              Edge: 0,
+        // 2c. Seed the roster + missions + unitMaxStates so the pipeline
+        //     has data to mutate. Per PR4 of `wire-iperson-hard-cutover`:
+        //     `useCampaignRosterStore` is the canonical personnel source —
+        //     `getPersonnelStore()` / the legacy personnel field were
+        //     deleted from the campaign store. Mirrors the Jest twin
+        //     (phase4CampaignRoundTrip.test.ts) roster seed; enum literals
+        //     inlined because the evaluate sandbox can't import them
+        //     (CampaignPilotStatus.Active = 'active',
+        //     CampaignPersonnelRole.PILOT = 'Pilot').
+        stores.campaignRoster.setState({
+          campaignId: 'campaign-001',
+          units: [],
+          pilots: [
+            {
+              pilotId: 'e2e-unit-A',
+              pilotName: 'E2E Test Pilot',
+              status: 'active',
+              wounds: 0,
+              recoveryTime: 0,
+              xp: 0,
+              campaignXpEarned: 0,
+              campaignKills: 0,
+              campaignMissions: 0,
+              primaryRole: 'Pilot',
+              rankIndex: 0,
+              hireDate: new Date('3024-01-01'),
             },
-            pilotSkills: { gunnery: 4, piloting: 5 },
-            createdAt: '3024-01-01T00:00:00Z',
-            updatedAt: '3025-01-01T00:00:00Z',
-            awards: [],
-          });
-        }
+          ],
+          missions: [],
+          activeMissionId: null,
+          missionCount: 0,
+        });
 
-        // The contract object shape mirrors what `createContract` would
-        // produce — we keep it inline to avoid pulling deeper imports
-        // into the page-evaluate sandbox.
+        // The contract object mirrors what `createContract` (Mission.ts)
+        // produces — kept inline to avoid pulling imports into the
+        // page-evaluate sandbox. Shape requirements come from the
+        // `isContract` guard the post-battle processor applies
+        // (Mission.ts isMission + isContract): `type: 'contract'`,
+        // `systemId`, `scenarioIds`, and TOP-LEVEL string
+        // `salvageRights`/`commandRights`. MissionStatus values are
+        // capitalized ('Active'/'Success').
         const contract = {
           id: 'e2e-contract-rt-1',
           name: 'E2E Garrison Contract',
+          status: 'Active',
+          type: 'contract',
+          systemId: 'Unknown System',
+          scenarioIds: [],
           employerId: 'lyran-commonwealth',
           targetId: 'capellan-confederation',
-          status: 'active',
-          missionType: 'contract',
-          encounterIds: [],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
           paymentTerms: {
             baseMultiplier: 1,
             commandRights: 'integrated',
@@ -208,6 +209,10 @@ test.describe('Campaign Round-Trip — single contract play loop', () => {
             overheadComp: 'overhead',
             duration: 6,
           },
+          salvageRights: 'None',
+          commandRights: 'House',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         };
 
         state.updateCampaign({
@@ -272,7 +277,8 @@ test.describe('Campaign Round-Trip — single contract play loop', () => {
       expect(result.processedIds).toContain('e2e-match-rt-1');
 
       // Contract flipped to a terminal status because winner='player'.
-      expect(result.contractStatus).toBe('success');
+      // MissionStatus.SUCCESS = 'Success' (enums/MissionStatus.ts).
+      expect(result.contractStatus).toBe('Success');
 
       // Audit ledger has a single entry covering the match.
       expect(result.auditLedgerLength).toBe(1);

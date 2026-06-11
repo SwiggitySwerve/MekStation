@@ -6,6 +6,7 @@
  */
 
 import * as aerospaceRegistry from '@/stores/aerospaceStoreRegistry';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import * as unitRegistry from '@/stores/unitStoreRegistry';
 import { useAwardStore } from '@/stores/useAwardStore';
@@ -31,6 +32,10 @@ declare global {
       // `StoreApi` here so E2E specs can do `stores.campaign.getState()` the
       // same way they do for every other store. PT-004.
       campaign: ReturnType<typeof useCampaignStore>;
+      // Canonical personnel source since the personnel→roster-employment
+      // migration (PR #473) — e2e round-trip specs seed pilots here, the
+      // same way the Jest twin (phase4CampaignRoundTrip.test.ts) does.
+      campaignRoster: typeof useCampaignRosterStore;
       force: typeof useForceStore;
       pilot: typeof usePilotStore;
       encounter: typeof useEncounterStore;
@@ -64,6 +69,7 @@ export function exposeStoresForE2E(): void {
     // call outside a component body.
     // oxlint-disable-next-line react-hooks/rules-of-hooks
     campaign: useCampaignStore(),
+    campaignRoster: useCampaignRosterStore,
     force: useForceStore,
     pilot: usePilotStore,
     encounter: useEncounterStore,

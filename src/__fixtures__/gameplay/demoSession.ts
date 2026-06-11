@@ -10,6 +10,9 @@ import {
   IGameSession,
   IGameState,
   IGameEvent,
+  IGameConfig,
+  IGameCreatedPayload,
+  IGameStartedPayload,
   GamePhase,
   GameStatus,
   GameSide,
@@ -159,12 +162,49 @@ export function createDemoSession(): IGameSession {
     turnEvents: [],
   };
 
-  // Create demo events
+  const config: IGameConfig = {
+    mapRadius: 5,
+    turnLimit: 0,
+    victoryConditions: ['destroy_all'],
+    optionalRules: [],
+  };
+
+  // Create demo events.
+  //
+  // The log MUST open with the GameCreated + GameStarted genesis pair: the
+  // store's `undo` action pops the last event and re-derives state from the
+  // remaining prefix via `replayToSequence` (`useGameplayStore.helpers.ts`).
+  // Without genesis events the replayed prefix never passes through
+  // `applyGameStarted`, so an undo collapsed the session status from
+  // Active back to Setup and broke the session (e2e triage RC13).
   const events: IGameEvent[] = [
+    {
+      id: 'evt-0',
+      gameId,
+      sequence: 0,
+      timestamp: now,
+      type: GameEventType.GameCreated,
+      turn: 0,
+      phase: GamePhase.Initiative,
+      payload: {
+        config,
+        units: [playerUnit, opponentUnit],
+      } as IGameCreatedPayload,
+    },
     {
       id: 'evt-1',
       gameId,
       sequence: 1,
+      timestamp: now,
+      type: GameEventType.GameStarted,
+      turn: 1,
+      phase: GamePhase.Initiative,
+      payload: { firstSide: GameSide.Player } as IGameStartedPayload,
+    },
+    {
+      id: 'evt-2',
+      gameId,
+      sequence: 2,
       timestamp: now,
       type: GameEventType.TurnStarted,
       turn: 3,
@@ -172,9 +212,9 @@ export function createDemoSession(): IGameSession {
       payload: {} as ITurnStartedPayload,
     },
     {
-      id: 'evt-2',
+      id: 'evt-3',
       gameId,
-      sequence: 2,
+      sequence: 3,
       timestamp: now,
       type: GameEventType.PhaseChanged,
       turn: 3,
@@ -190,12 +230,7 @@ export function createDemoSession(): IGameSession {
     id: gameId,
     createdAt: now,
     updatedAt: now,
-    config: {
-      mapRadius: 5,
-      turnLimit: 0,
-      victoryConditions: ['destroy_all'],
-      optionalRules: [],
-    },
+    config,
     units: [playerUnit, opponentUnit],
     events,
     currentState: gameState,

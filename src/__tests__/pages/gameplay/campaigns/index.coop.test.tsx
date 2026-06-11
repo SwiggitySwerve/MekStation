@@ -70,14 +70,26 @@ const mockCreateCampaign = jest.fn(() => 'campaign-host-1');
 const mockCreateGuestMirrorCampaign = jest.fn(() => 'campaign-guest-1');
 const mockGetCampaign = jest.fn(() => null);
 
+// The page subscribes reactively via zustand's `useStore(store, selector)`
+// (e2e triage RC4 production fix), so the mocked handle must satisfy the
+// full `StoreApi` contract zustand v5 feeds to `useSyncExternalStore`:
+// `subscribe` + `getState` + `getInitialState` — not just `getState`.
+// One stable state object keeps snapshot identity stable across renders,
+// mirroring a real vanilla store.
+const mockCampaignStoreState = {
+  campaign: null,
+  getCampaign: mockGetCampaign,
+  createCampaign: mockCreateCampaign,
+  createGuestMirrorCampaign: mockCreateGuestMirrorCampaign,
+};
+const mockCampaignStoreApi = {
+  getState: () => mockCampaignStoreState,
+  getInitialState: () => mockCampaignStoreState,
+  subscribe: () => () => undefined,
+};
+
 jest.mock('@/stores/campaign/useCampaignStore', () => ({
-  useCampaignStore: () => ({
-    getState: () => ({
-      getCampaign: mockGetCampaign,
-      createCampaign: mockCreateCampaign,
-      createGuestMirrorCampaign: mockCreateGuestMirrorCampaign,
-    }),
-  }),
+  useCampaignStore: () => mockCampaignStoreApi,
 }));
 
 // Import the page AFTER the mocks so they take effect.

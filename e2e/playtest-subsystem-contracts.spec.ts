@@ -12,12 +12,14 @@
 import { test, expect } from '@playwright/test';
 
 import { createTestCampaign, deleteCampaign } from './fixtures/campaign';
-import { seedContractMarket } from './helpers/campaignSeeders';
+import { gotoWithRetry } from './helpers/navigation';
 
 test.setTimeout(120_000);
 
 test.describe('Wave 6.1.C — Contract Market subsystem', () => {
-  test('contract market grid renders with seeded offers', async ({ page }) => {
+  test('contract market grid renders with auto-seeded offers', async ({
+    page,
+  }) => {
     await page.goto('/gameplay/campaigns');
     await page.waitForLoadState('domcontentloaded');
 
@@ -26,23 +28,28 @@ test.describe('Wave 6.1.C — Contract Market subsystem', () => {
     });
 
     try {
-      await seedContractMarket(page, [
-        {
-          offerId: 'cm-test-1',
-          name: 'Defend Carlisle',
-          employerFactionId: 'lyran-commonwealth',
-          basePayout: 350000,
-        },
-      ]);
-
-      await page.goto(`/gameplay/campaigns/${campaignId}/contract-market`);
-      await page.waitForLoadState('domcontentloaded');
+      // The page auto-seeds a deterministic 5-offer market on first open
+      // when `contractMarket === undefined` (`generateAtBContracts` with
+      // fixed count, contract-market.tsx:63-72). Manual seeding via
+      // page-evaluate is NOT possible for this surface: offers are full
+      // IContract records whose `paymentTerms.basePayment` must be a
+      // live Money instance (`OfferCard` calls `.format()` on it).
+      await gotoWithRetry(
+        page,
+        `/gameplay/campaigns/${campaignId}/contract-market`,
+      );
 
       const grid = page.getByTestId('contract-market-grid');
       await expect(
         grid,
-        'contract market grid SHALL render with seeded offers',
+        'contract market grid SHALL render with auto-seeded offers',
       ).toBeVisible({ timeout: 10_000 });
+
+      // The auto-seed mints exactly 5 offers — assert at least one card
+      // actually rendered (the grid alone could be an empty container).
+      await expect(
+        page.locator('[data-testid^="offer-card-"]').first(),
+      ).toBeVisible();
     } finally {
       await deleteCampaign(page, campaignId);
     }

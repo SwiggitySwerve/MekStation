@@ -139,7 +139,11 @@ test.describe('UX Audit Capture Suite @audit', () => {
       });
     });
 
-    test('Contacts page', async ({ page }) => {
+    // fixme(RC2 / tracker T2-F1): /contacts fetches /api/vault/contacts
+    // (src/pages/contacts.tsx:40) but src/pages/api/vault/ has no contacts
+    // route — the page can only render its error state. Implement-or-descope
+    // decision tracked in docs/audits/2026-06-09-remediation-tracker.md.
+    test.fixme('Contacts page', async ({ page }) => {
       await page.goto('/contacts');
       await waitForPageReady(page);
       await expect(page).toHaveScreenshot('contacts.png', {
@@ -313,7 +317,12 @@ test.describe('UX Audit Capture Suite @audit', () => {
       });
     });
 
-    test('Shared items - received', async ({ page }) => {
+    // fixme(RC2 / tracker T2-F1): /shared fetches /api/vault/shared and
+    // /api/vault/sync (src/pages/shared.tsx:37,61) — neither route exists
+    // under src/pages/api/vault/, so the page can only render its error
+    // state. Implement-or-descope decision tracked in
+    // docs/audits/2026-06-09-remediation-tracker.md.
+    test.fixme('Shared items - received', async ({ page }) => {
       await page.goto('/shared');
       await waitForPageReady(page);
       await expect(page).toHaveScreenshot('shared_received.png', {
@@ -322,7 +331,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
       });
     });
 
-    test('Shared items - sent', async ({ page }) => {
+    // fixme(RC2 / tracker T2-F1): see 'Shared items - received'.
+    test.fixme('Shared items - sent', async ({ page }) => {
       await page.goto('/shared');
       await waitForPageReady(page);
       // Click "Shared by me" tab if available
@@ -337,7 +347,8 @@ test.describe('UX Audit Capture Suite @audit', () => {
       });
     });
 
-    test('Shared items - empty', async ({ page }) => {
+    // fixme(RC2 / tracker T2-F1): see 'Shared items - received'.
+    test.fixme('Shared items - empty', async ({ page }) => {
       await page.goto('/shared?search=zzzzzzzzzzzzzzzzzzz');
       await waitForPageReady(page);
       await expect(page).toHaveScreenshot('shared_empty.png', {

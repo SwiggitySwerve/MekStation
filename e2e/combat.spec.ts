@@ -132,17 +132,23 @@ test.describe('Record Sheet Display @smoke @combat', () => {
     expect(filledWounds).toBe(0);
   });
 
-  test('displays pilot wounds correctly for opponent unit (1 wound)', async ({
+  test('opponent unit renders intel-gated inspector without wound pips', async ({
     page,
   }) => {
     await selectUnit(page, DEMO_UNITS.OPPONENT.id);
     await page.waitForTimeout(200);
 
-    // Opponent has 1 wound
-    const filledWounds = await page
-      .locator('[data-testid^="pilot-wound-"][data-filled="true"]')
-      .count();
-    expect(filledWounds).toBe(1);
+    // Wave 7.3 opponent intel: selecting an opponent renders the
+    // redaction-aware TacticalUnitInspector, NOT the friendly record sheet
+    // (GameplayLayout DesktopRightTray isFriendly gate). The friendly-only
+    // `pilot-wound-*` pips (RecordSheetPanels) must not render at all.
+    await expect(page.getByTestId('tactical-unit-inspector')).toBeVisible();
+    await expect(page.locator('[data-testid^="pilot-wound-"]')).toHaveCount(0);
+
+    // The redaction is UI-level only — the underlying state still carries
+    // the opponent's 1 pilot wound from the demo fixture.
+    const state = await getUnitState(page, DEMO_UNITS.OPPONENT.id);
+    expect(state?.pilotWounds).toBe(DEMO_UNITS.OPPONENT.pilotWounds);
   });
 });
 
@@ -254,13 +260,21 @@ test.describe('Heat Display @combat', () => {
     expect(heatValue).toBe(String(DEMO_UNITS.PLAYER.initialHeat));
   });
 
-  test('displays current heat value for opponent unit', async ({ page }) => {
+  test('opponent unit renders intel-gated inspector without exact heat', async ({
+    page,
+  }) => {
     await selectUnit(page, DEMO_UNITS.OPPONENT.id);
     await page.waitForTimeout(200);
 
-    // Opponent unit has heat = 8
-    const heatValue = await page.getByTestId('heat-value').textContent();
-    expect(heatValue).toBe(String(DEMO_UNITS.OPPONENT.initialHeat));
+    // Wave 7.3 opponent intel: the friendly-only `heat-value` readout
+    // (RecordSheetPanels) never renders for opponent units — the
+    // intel-gated TacticalUnitInspector takes over instead.
+    await expect(page.getByTestId('tactical-unit-inspector')).toBeVisible();
+    await expect(page.getByTestId('heat-value')).toHaveCount(0);
+
+    // Redaction is UI-level only — the store still carries heat = 8.
+    const state = await getUnitState(page, DEMO_UNITS.OPPONENT.id);
+    expect(state?.heat).toBe(DEMO_UNITS.OPPONENT.initialHeat);
   });
 
   test('displays heat bar', async ({ page }) => {

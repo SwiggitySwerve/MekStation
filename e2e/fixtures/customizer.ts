@@ -541,7 +541,11 @@ export async function getVehicleState(
 }
 
 /**
- * Gets aerospace unit state by ID
+ * Gets aerospace unit state by ID.
+ *
+ * Fuel contract: add-aerospace-construction replaced the old `fuel` field
+ * with `fuelTons` (allocated tonnage) + computed `fuelPoints`
+ * (src/stores/aerospaceState.ts:187,193).
  */
 export async function getAerospaceState(
   page: Page,
@@ -551,7 +555,8 @@ export async function getAerospaceState(
   name: string;
   tonnage: number;
   safeThrust: number;
-  fuel: number;
+  fuelTons: number;
+  fuelPoints: number;
   armorTonnage: number;
   heatSinks: number;
 } | null> {
@@ -566,7 +571,8 @@ export async function getAerospaceState(
                   name: string;
                   tonnage: number;
                   safeThrust: number;
-                  fuel: number;
+                  fuelTons: number;
+                  fuelPoints: number;
                   armorTonnage: number;
                   heatSinks: number;
                 };
@@ -591,7 +597,8 @@ export async function getAerospaceState(
       name: state.name,
       tonnage: state.tonnage,
       safeThrust: state.safeThrust,
-      fuel: state.fuel,
+      fuelTons: state.fuelTons,
+      fuelPoints: state.fuelPoints,
       armorTonnage: state.armorTonnage,
       heatSinks: state.heatSinks,
     };
