@@ -63,7 +63,7 @@
 - [x] 2.29 Integrate charge/DFA displacement-state rejection for helper, eligibility, event-sourced declaration/resolution, and runner resolution through optional combat displacement lifecycle state.
 - [x] 2.30 Integrate push displacement-state and counter-push rejection for helper, eligibility, event-sourced declaration/resolution, and runner resolution through optional combat displacement lifecycle ownership state.
 - [x] 2.31 Integrate DFA target movement-complete/immobile gate for helper, eligibility, and event-sourced declaration/resolution while preserving runner physical resolution as post-movement complete.
-- [ ] 2.32 Implement remaining physical unsupported gaps: remaining target class restrictions, full displacement-chain consequences, forbidden terrain displacement, and pilot skill roll fallout.
+- [ ] 2.32 BOUNDED GATE (rescoped 2026-06-12 per council decision): physical-attack coverage is complete when the machine-readable unresolved-row export (`getCombatValidationUnresolvedRows`) contains no physical-family rows other than explicitly source-pinned unsupported/out-of-scope blockers — every remaining target-class restriction, displacement-chain consequence, forbidden-terrain displacement, and PSR-fallout row is either integrated or pinned as an explicit blocker with row-level source refs. Verified by `npm run validate:combat` + the gap export; no open-ended implementation obligation remains in this change.
 - [x] 2.32.1 Add explicit target-object gates for invalid physical hex targets and push building/fuel-tank rejection across helper, event-sourced declaration, stale declared resolution, catalog, spec, and audit coverage while leaving non-unit damage resolution explicit out of scope.
 - [x] 2.32.2 Add helper-level DFA VTOL/WIGE elevation-reach gate while leaving runtime VTOL/WIGE motion-state hydration explicit out of scope.
 - [x] 2.32.3 Add the initial DFA mechanical jump booster rejection as an intermediate source-backed gate.
@@ -99,7 +99,7 @@
 
 ## 3. Full combat validation catalog
 
-- [ ] 3.1 Expand weapon attack action coverage across every weapon family and ammo family.
+- [ ] 3.1 BOUNDED GATE (rescoped 2026-06-12): weapon/ammo coverage is complete when every official BattleMech ranged-weapon and ammo id is classified in the catalog (integrated, helper-only, consumable-bin, explicit blocker, or out-of-scope split) with row-level source refs, exact-id pinning holds (3.1.15–3.1.24), the fallback bans stay enforced (static WEAPON_DATABASE subset + synthetic-medium-laser-fallback-ban traps), and the unresolved export contains no unclassified weapon/ammo rows. Verified by the catalog contract suite + gap export.
 - [x] 3.1.1 Cross-link every ammunition compatibility support row into the official-ammo requirement checklist.
 - [x] 3.1.2 Integrate TAG and standard NARC `DesignatorMarkerApplied` replay state through reducer tests, validation catalog rows, and OpenSpec coverage while leaving iNARC pod variants helper-only.
 - [x] 3.1.3 Integrate source-backed iNARC Homing marker state, direct NARC-compatible missile cluster modifier consumption, runner to-hit modifier consumption, and replay coverage while leaving ECM/Haywire/Nemesis pod effects helper-only.
@@ -127,7 +127,7 @@
 - [x] 3.1.22 Split damage-capable official Streak SRM ids from zero-damage Streak LRM/OS/prototype catalog rows so Streak runner support cannot hide data gaps.
 - [x] 3.1.23 Source-pin the official zero-damage Clan Plasma Cannon as a target-heat weapon family so zero damage cannot be treated as generic coverage.
 - [x] 3.1.24 Source-pin ammunition compatibility support rows to MekStation official ammo import, ammo hydration/tracking, and exact-id classification contract refs so official ammo coverage does not rely on prose-only catalog evidence.
-- [ ] 3.2 Expand movement validation coverage for terrain costs, disallowed terrain, facing changes, prone/stand-up, jumping, and movement damage.
+- [ ] 3.2 BOUNDED GATE (rescoped 2026-06-12): movement coverage is complete when every core movement rule row, per-TerrainType row family (movement/heat/attack-modifier/LOS/PSR), and movement action row carries row-level source refs (3.2.15–3.2.21 pattern), absent-action rows are either integrated or source-backed explicit blockers, and the unresolved export contains no movement-family rows without explicit blocker status. Turning-MP preview/commit unification is owned by the separate `fix-tactical-projection-agreement-gaps` change, not this gate.
 - [x] 3.2.1 Cross-link movement, terrain, LOS, attack-modifier, heat, and PSR support rows into movement/terrain requirement checklists.
 - [x] 3.2.2 Integrate source-backed active TSM movement speed into runner movement validation while leaving MASC, supercharger, and then-unsupported partial-wing movement behavior explicit.
 - [x] 3.2.3 Integrate source-backed Partial Wing jump MP and jump-heat behavior through explicit runner movement capability state while leaving atmosphere and damaged critical-slot refinements explicit.
@@ -157,7 +157,7 @@
 - [x] 3.2.25 Charge path-alignment turns as movement MP during ground movement validation so bent paths and final movement event decomposition conserve MP instead of granting free facing changes between path segments.
 - [x] 3.2.26 Integrate source-backed swamp bog-down through movement terrain PSR queueing, Swamp Beast PSR relief, failed-PSR `UnitStuck`/`isStuck` resolution, immediate jump-entry stuck handling, and stuck-state movement/go-prone/charge/DFA legality gates while leaving building collapse for a separate explicit-load slice.
 - [x] 3.2.27 Integrate source-backed explicit-load building collapse through movement terrain PSR queueing when BattleMech tonnage exceeds Building constructionFactor, while leaving damage-triggered, basement, top-floor, and WiGE flyover collapse side paths explicit.
-- [ ] 3.3 Expand heat validation coverage for buildup, dissipation, shutdown, ammo explosions, pilot damage, and heat-driven modifiers.
+- [ ] 3.3 BOUNDED GATE (rescoped 2026-06-12): heat coverage is complete when every heat rule row (weapon/movement/engine-crit heat, dissipation, thresholds, environment, shutdown/startup, ammo explosion, pilot heat damage, optional MaxTech boundaries, heat-driven modifiers) carries row-level source refs (3.3.9–3.3.10 pattern) and the unresolved export contains no heat-family rows without explicit blocker status. Verified by the heat contract suites + gap export.
 - [x] 3.3.1 Cross-link every heat rule support row into heat generation, dissipation, and lifecycle requirement checklists.
 - [x] 3.3.2 Add structured MegaMek source anchors for heat startup, avoidable/automatic shutdown, ammo-explosion risk, and pilot heat damage support rows.
 - [x] 3.3.3 Split heat-driven SPA catalog coverage by source truth: Some Like It Hot is source-backed, Hot Dog is anchored to MegaMek's hotDogMod target-number modifier, and Cool Under Fire remains local until an authority is identified.
@@ -169,7 +169,7 @@
 - [x] 3.3.9 Source-pin every heat rule row for weapon heat, movement/jump heat, engine crit heat, dissipation, heat-sink damage, threshold effects, water/fire/environment heat, shutdown/startup, ammo explosion, pilot heat damage, and optional MaxTech heat-damage boundaries; promote heat rule triad enforcement to row-level source refs while marking atmosphere heat as a MekStation deviation.
 - [x] 3.3.10 Add a first-class heat-driven-modifiers requirement so Hot Dog, Some Like It Hot, weapon cooling quirks, and local-only Cool Under Fire cannot be hidden inside integrated core heat lifecycle coverage.
 - [x] 3.3.11 Integrate explicit optional TacOps sprint/evade state into runner movement heat generation with source-backed normal-engine sprint heat and evasion heat surcharge while keeping movement-step declaration, authoritative state creation, and engine-variant/coolant refinements explicit gaps.
-- [ ] 3.4 Expand to-hit validation coverage for range, movement, terrain, pilot skills, special abilities, quirks, sensors, prone state, and indirect fire.
+- [ ] 3.4 BOUNDED GATE (rescoped 2026-06-12): to-hit coverage is complete when every range-bracket, to-hit modifier, invalid-target-state, AttackInvalid-reason, no-side-effect guard, SPA, and quirk row carries row-level source refs (3.4.30–3.4.36, 3.4.42 pattern), local-only SPAs/quirks are split into deviation or out-of-scope inventories, and the unresolved export contains no to-hit-family rows without explicit blocker status. Verified by the to-hit contract suites + gap export.
 - [x] 3.4.1 Add support-matrix tests that separate runner-integrated to-hit modifiers from helper-only modifier math.
 - [x] 3.4.2 Cross-link pilot skill, SPA, canonical SPA, quirk, and pilot modifier resolver support rows into pilot/SPAs/quirks requirement checklists.
 - [x] 3.4.3 Cross-link range bracket, attack invalidation, invalid target state, invalid side-effect, and to-hit modifier support rows into range/invalidation/to-hit requirement checklists.
@@ -268,7 +268,7 @@
 
 - [x] 4.1 Cross-check current physical legality gates against MegaMek behavior notes.
 - [x] 4.2 Add source anchors for remaining physical gaps before marking them integrated.
-- [ ] 4.3 Cross-check weapon, heat, movement, SPA, quirk, and lifecycle rows against rulebook/MegaMek/MekHQ references before implementation claims.
+- [ ] 4.3 BOUNDED GATE (rescoped 2026-06-12): source-truth cross-checking is complete when the row-level source-reference contract (4.3.102) passes for every indexed support row — no row claims integration without a rulebook/MegaMek/MekHQ anchor, and the aggregate unresolved-row inventory checks (4.3.103) plus the `validate:combat:gaps` wiring (4.3.124) stay green. Verified by the contract suite; no open-ended cross-check obligation remains in this change.
 - [x] 4.3.1 Add structured MegaMek source anchors for heat-induced ammo explosion threshold and ammo-bin selection behavior.
 - [x] 4.3.2 Add structured MegaMek source anchors for ejection original-unit removal and post-battle ejected-count behavior.
 - [x] 4.3.3 Add structured MegaMek source anchors for TAG and NARC marker application, TAG turn clearing, and iNARC variant scope.
@@ -478,3 +478,9 @@
 - [x] 4.3.200 Align indirect-fire projection and commit paths so spotter SPA hydration accepts current `pilotSpas` state, legacy `abilities` remains supported, and no-spotter blocked-LOS attempts reject without locking an attack.
 - [x] 4.3.201 Align vehicle critical location replay with runtime vehicle combat state so location-sensitive criticals update armor/structure, availability, motive, turret, rotor, and destruction-cause state through reducer replay.
 - [x] 4.3.202 Preserve merged tactical-map behavior while closing terrain identity gaps by keeping generated buildings component-stable, water/building levels positive, wreck terrain replayable, and LOS/cover metadata intact.
+
+## 5. Change closure (added 2026-06-12 per council decision)
+
+- [ ] 5.1 Run the six bounded gates (2.32, 3.1-3.4, 4.3): execute `node scripts/validate-combat-suite.mjs` and the unresolved-row export; confirm every remaining row is an explicit source-pinned blocker, deviation, or out-of-scope split - then check the gate boxes with the export snapshot linked in the PR.
+- [ ] 5.2 Resolve the proposal's open questions in the proposal document (promotion order for remaining physical blockers; source-anchor exactness policy; OpenSpec validation as CI gate decision) so the change carries no open questions into archive.
+- [ ] 5.3 Final strict validation (`npx openspec validate add-battlemech-combat-validation-suite --strict`) and archive the change (sync the combat-resolution delta into the source-of-truth spec), restoring the zero-in-flight-changes baseline held since audit W6.A.
