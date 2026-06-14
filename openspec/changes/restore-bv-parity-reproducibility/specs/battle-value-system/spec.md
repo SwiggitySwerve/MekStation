@@ -9,7 +9,7 @@ committed MegaMek reference data, and that parity rate SHALL be reproducible fro
 a clean checkout via the BV validation tooling. The documented target is at least
 95% of represented mech units within 1% of reference and at least 99.5% within
 3% of reference; the recorded parity figure (e.g. "99.8% within 1%,
-4187-of-4196") SHALL trace to a reproducible validation run rather than to
+4188-of-4196") SHALL trace to a reproducible validation run rather than to
 narrative alone, and the engine SHALL NOT be permitted to silently regress below
 the documented gate.
 

@@ -63,7 +63,7 @@ BV-adjacent change ships on top of a hollow signal.
   counted, fail-loud condition rather than an `undefined` that silently excludes
   the unit.
 - Pin the parity target as a behavioral guarantee of the BV engine so the
-  documented "99.8% within 1% (4187/4196)" claim has an owning requirement that
+  reproduced "99.8% within 1% (4188/4196)" claim has an owning requirement that
   the tooling enforces, rather than living only in narrative.
 
 ## Capabilities

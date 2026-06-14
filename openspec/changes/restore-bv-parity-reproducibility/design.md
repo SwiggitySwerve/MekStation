@@ -38,7 +38,7 @@ schema-fidelity correction so the harness can never again silently treat
 The harness already reads `megamek-bv-cache.json` (authoritative, supersedes
 MUL) and `mul-bv-cache.json` (fallback). **Decision:** restore and commit at
 least one reference dataset that covers the represented mech catalog so a clean
-clone reproduces the documented "99.8% within 1% (4187/4196)" number. Preferred
+clone reproduces the documented "99.8% within 1% (4188/4196)" number. Preferred
 artifact is the full MegaMek BV cache (it is what produces the headline figure).
 If the full cache cannot be committed (size / provenance), the accepted fallback
 is a committed **fixture subset** under version control — anchored by units the
@@ -85,7 +85,7 @@ the precise mechanism of D-1; typing the interface honestly and routing
 
 ### D4. Own the parity target in `battle-value-system`, enforce it in `bv-validation-tooling`
 
-The documented "99.8% within 1% (4187/4196)" parity claim currently lives only
+The documented "99.8% within 1% (4188/4196)" parity claim currently lives only
 in narrative (`MEMORY.md`) and as an aside in a tooling requirement. **Decision:**
 add an ADDED requirement to `battle-value-system` that states the engine SHALL
 hold a documented mech-BV parity rate against committed MegaMek reference data,

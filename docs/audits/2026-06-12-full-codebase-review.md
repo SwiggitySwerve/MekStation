@@ -9,12 +9,12 @@ Fresh, multi-agent, adversarially-verified review judging the whole repository a
 - **Java sources of truth:** `E:/Projects/megamek`, `E:/Projects/mekhq`. Every parity finding cites the Java file it diverges from.
 - **Local toolchain on `669905353`** (run, not taken on faith):
 
-| Gate | Result |
-| --- | --- |
-| `tsc --noEmit --skipLibCheck` | PASS |
-| `oxlint` | PASS — 0 errors, 62 pre-existing `max-lines` warnings |
-| `oxfmt --check` | PASS on repo content (one untracked `src/simulation/__snapshots__/test-failed/` artifact a sim test dumps to a dir `.gitignore` does not cover — removed; see M-CI cluster) |
-| Unit suite (`jest`) | PASS — exit 0 |
+| Gate                          | Result                                                                                                                                                                      |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tsc --noEmit --skipLibCheck` | PASS                                                                                                                                                                        |
+| `oxlint`                      | PASS — 0 errors, 62 pre-existing `max-lines` warnings                                                                                                                       |
+| `oxfmt --check`               | PASS on repo content (one untracked `src/simulation/__snapshots__/test-failed/` artifact a sim test dumps to a dir `.gitignore` does not cover — removed; see M-CI cluster) |
+| Unit suite (`jest`)           | PASS — exit 0                                                                                                                                                               |
 
 CI being green is consistent with all of the above **and** with most of the findings below — that is itself one of the headline results.
 
@@ -22,7 +22,7 @@ CI being green is consistent with all of the above **and** with most of the find
 
 ## Headline: an excellent rules library wearing the costume of a finished game
 
-The original mission — BV 2.0 calculation, hit-location/damage-transfer math, the PSR catalog, event-sourced replay, the equipment catalog + cross-language schema bridge — is **real, clean, and tested against MegaMek Java oracles**. The server-authoritative multiplayer *core* and the campaign day-pipeline are well-engineered in isolation.
+The original mission — BV 2.0 calculation, hit-location/damage-transfer math, the PSR catalog, event-sourced replay, the equipment catalog + cross-language schema bridge — is **real, clean, and tested against MegaMek Java oracles**. The server-authoritative multiplayer _core_ and the campaign day-pipeline are well-engineered in isolation.
 
 But nearly every feature added in the Wave 5+ expansion is **connected on paper and disconnected in practice**: the integration wire is a stub, the data is absent, the navigation entry is missing, or the persistence is dropped. A new player following the advertised path:
 
@@ -36,34 +36,34 @@ But nearly every feature added in the Wave 5+ expansion is **connected on paper 
 
 Underneath, the **verification and metrics layer actively conceals this drift**: the "99.8% BV parity" headline no longer reproduces (reference caches deleted, harness exits green on zero coverage), statistical combat proofs are `it.skip`'d on PR CI, an invariant suppression net downgrades whole rule categories to non-failures, the desktop Jest suite never runs in CI, and 125 of 199 capability specs still carry `TBD — Update Purpose after archive`.
 
-**The central risk is roadmap honesty, not any single bug.** The path forward is *integration and truth-in-reporting* — wire the existing cores to live transports/persistence/data/navigation, move the real correctness teeth back into the blocking CI lane, and reconcile spec/metric claims with shipped reality — **before adding more feature breadth**.
+**The central risk is roadmap honesty, not any single bug.** The path forward is _integration and truth-in-reporting_ — wire the existing cores to live transports/persistence/data/navigation, move the real correctness teeth back into the blocking CI lane, and reconcile spec/metric claims with shipped reality — **before adding more feature breadth**.
 
 ### Per-dimension verdicts
 
-| Dimension | Verdict |
-| --- | --- |
-| multiplayer / co-op | **failing** |
-| to-hit / projection | concerning |
-| damage / crits | concerning |
-| movement rules | concerning |
-| engine / state | concerning |
-| campaign engine | concerning |
-| UX / playability | concerning |
-| tactical-map UI | adequate |
-| construction / BV / data | adequate |
-| test quality | adequate |
-| architecture health | adequate |
-| spec / roadmap integrity | adequate |
+| Dimension                | Verdict     |
+| ------------------------ | ----------- |
+| multiplayer / co-op      | **failing** |
+| to-hit / projection      | concerning  |
+| damage / crits           | concerning  |
+| movement rules           | concerning  |
+| engine / state           | concerning  |
+| campaign engine          | concerning  |
+| UX / playability         | concerning  |
+| tactical-map UI          | adequate    |
+| construction / BV / data | adequate    |
+| test quality             | adequate    |
+| architecture health      | adequate    |
+| spec / roadmap integrity | adequate    |
 
 ### Severity counts by lens
 
-| Lens | Critical | High | Medium | Low | Total |
-| --- | --- | --- | --- | --- | --- |
-| parity | 1 | 8 | 6 | 4 | 19 |
-| product | 6 | 11 | 8 | 0 | 25 |
-| health | 1 | 6 | 17 | 3 | 27 |
-| roadmap | 1 | 3 | 4 | 1 | 9 |
-| **Total** | **9** | **28** | **35** | **8** | **80** |
+| Lens      | Critical | High   | Medium | Low   | Total  |
+| --------- | -------- | ------ | ------ | ----- | ------ |
+| parity    | 1        | 8      | 6      | 4     | 19     |
+| product   | 6        | 11     | 8      | 0     | 25     |
+| health    | 1        | 6      | 17     | 3     | 27     |
+| roadmap   | 1        | 3      | 4      | 1     | 9      |
+| **Total** | **9**    | **28** | **35** | **8** | **80** |
 
 ---
 
@@ -71,17 +71,17 @@ Underneath, the **verification and metrics layer actively conceals this drift**:
 
 Each line: severity/lens · finding · `file` · MegaMek/MekHQ ref where applicable.
 
-| # | Lens | Finding | Location |
-| --- | --- | --- | --- |
-| C-1 | parity | **Head damage capped at 3 pts per hit** — overflow discarded at *four* sites (`resolve.ts:205`, `weaponAttackHitResolution.ts:373`, `physicalAttackDamage.ts:26`, `gameSessionAttackResolution.ts:229`). A 15-pt Gauss to the head strips 3 armor and the head survives; cockpit kills are **impossible** in both combat paths. The "Total Warfare p.41" justification is fabricated — `3` is the head's IS value, not a damage cap. | `src/utils/gameplay/damage/resolve.ts:34` · `TWDamageManager.java` (isHeadHit → 1 crew wound only, full damage to armor/IS) |
-| C-2 | health | **Physical-attack UI commit desyncs engine from store** — `commitPhysicalAttack` calls the *pure* `declarePhysicalAttack` and `setSession(next)` updates only the store snapshot; the engine's `this.session` is never updated and `applyPhysicalAttack` is bypassed. On `advancePhase`, resolution runs against the engine session, which lacks the declaration — every kick/punch/charge/DFA **silently no-ops** while the panel shows a false "Declared" summary. The lone outlier among all interactive actions. | `src/stores/useGameplayStore.combatFlows.ts:561` |
-| C-3 | product | **Interactive + spectator turn loops stall in PhysicalAttack** — `runOneFullTurn` advances Movement→WeaponAttack→(now PhysicalAttack) then only tests Heat/End, so no branch fires, the AI physical phase never runs, `isGameOver` stays false, and the timer-paced loop livelocks forever — Heat/End/victory never resolve. Both interactive drivers affected; headless `runToCompletion` is fine. | `src/components/gameplay/SpectatorView.tsx:65` + `src/stores/useGameplayStore.helpers.ts:362` |
-| C-4 | product | **Repair tickets are never worked to completion** — `repairQueueBuilderProcessor` only *appends* tickets; no registered processor ever advances ticket status or restores armor/structure/`combatReady`. The parallel `useRepairStore.advanceRepairs` that *would* work them has zero production callers. Damaged units stay damaged forever. | `src/lib/campaign/processors/repairQueueBuilderProcessor.ts:209` · `mekhq Part.succeed/Campaign.fixPart` |
-| C-5 | product | **WebSocket transport is a permanent stub** — the `connection` handler sends a `Close{INTERNAL_ERROR, "Wave 2 stub"}` then `ws.close(1011)` for *every* socket; `loadRegistry()` returns null. The fully-built `ServerMatchHost`/`MatchHostRegistry` are never wired to a live socket. No networked match can run. | `server.js:242` · multiplayer-server spec SHALLs |
-| C-6 | product | **No WebSocket server in production** — only `npm run dev` boots the custom `server.js`; the packaged Docker/Electron builds run Next's `output:'standalone'` auto-generated server (`Dockerfile:85`, `main.window.ts:162`), which *shadows* the repo-root server and has no upgrade handler. Multiplayer is dev-only by construction. | `package.json:12` + `next.config.ts:89` |
-| C-7 | product | **Co-op create never registers a match server-side** — `handleCreateCoopCampaign` mints a room code in the browser and only writes local state; nothing calls `POST /api/multiplayer/matches`, so the guest's `/invites/:roomCode` lookup always 404s. `coopHostRegistry.ts` confirms the live host transport "never landed". | `src/pages/gameplay/campaigns/index.tsx:150` |
-| C-8 | product | **Co-op guest proposals never reach the host** — `CampaignCoopRouteSurface` mounts at all 6 sites with no transport props, so every action hits `defaultPendingTransport` returning `{status:'pending'}` forever. `CampaignGmArbiter`/`CampaignSyncSession` are instantiated only in tests. Co-op is non-functional end-to-end. | `src/components/campaign/coop/CampaignCoopRouteSurface.tsx:216` |
-| C-9 | product | **In-progress battle lost on refresh/deep-link** — `loadSessionLogic` throws "Session not found" for any non-`demo` id unless the session is already in memory; the gameplay store has no `persist` middleware and launch only sets it in memory. A refresh, deep-link, or back/forward destroys a 30+ min match with a "Failed to Load Game" screen and no warning. `MatchRecovery.rebuildSessionFromEvents` exists but is server-only and unwired. | `src/stores/useGameplayStore.session.ts:113` |
+| #   | Lens    | Finding                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Location                                                                                                                    |
+| --- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| C-1 | parity  | **Head damage capped at 3 pts per hit** — overflow discarded at _four_ sites (`resolve.ts:205`, `weaponAttackHitResolution.ts:373`, `physicalAttackDamage.ts:26`, `gameSessionAttackResolution.ts:229`). A 15-pt Gauss to the head strips 3 armor and the head survives; cockpit kills are **impossible** in both combat paths. The "Total Warfare p.41" justification is fabricated — `3` is the head's IS value, not a damage cap.                                                                                 | `src/utils/gameplay/damage/resolve.ts:34` · `TWDamageManager.java` (isHeadHit → 1 crew wound only, full damage to armor/IS) |
+| C-2 | health  | **Physical-attack UI commit desyncs engine from store** — `commitPhysicalAttack` calls the _pure_ `declarePhysicalAttack` and `setSession(next)` updates only the store snapshot; the engine's `this.session` is never updated and `applyPhysicalAttack` is bypassed. On `advancePhase`, resolution runs against the engine session, which lacks the declaration — every kick/punch/charge/DFA **silently no-ops** while the panel shows a false "Declared" summary. The lone outlier among all interactive actions. | `src/stores/useGameplayStore.combatFlows.ts:561`                                                                            |
+| C-3 | product | **Interactive + spectator turn loops stall in PhysicalAttack** — `runOneFullTurn` advances Movement→WeaponAttack→(now PhysicalAttack) then only tests Heat/End, so no branch fires, the AI physical phase never runs, `isGameOver` stays false, and the timer-paced loop livelocks forever — Heat/End/victory never resolve. Both interactive drivers affected; headless `runToCompletion` is fine.                                                                                                                  | `src/components/gameplay/SpectatorView.tsx:65` + `src/stores/useGameplayStore.helpers.ts:362`                               |
+| C-4 | product | **Repair tickets are never worked to completion** — `repairQueueBuilderProcessor` only _appends_ tickets; no registered processor ever advances ticket status or restores armor/structure/`combatReady`. The parallel `useRepairStore.advanceRepairs` that _would_ work them has zero production callers. Damaged units stay damaged forever.                                                                                                                                                                        | `src/lib/campaign/processors/repairQueueBuilderProcessor.ts:209` · `mekhq Part.succeed/Campaign.fixPart`                    |
+| C-5 | product | **WebSocket transport is a permanent stub** — the `connection` handler sends a `Close{INTERNAL_ERROR, "Wave 2 stub"}` then `ws.close(1011)` for _every_ socket; `loadRegistry()` returns null. The fully-built `ServerMatchHost`/`MatchHostRegistry` are never wired to a live socket. No networked match can run.                                                                                                                                                                                                   | `server.js:242` · multiplayer-server spec SHALLs                                                                            |
+| C-6 | product | **No WebSocket server in production** — only `npm run dev` boots the custom `server.js`; the packaged Docker/Electron builds run Next's `output:'standalone'` auto-generated server (`Dockerfile:85`, `main.window.ts:162`), which _shadows_ the repo-root server and has no upgrade handler. Multiplayer is dev-only by construction.                                                                                                                                                                               | `package.json:12` + `next.config.ts:89`                                                                                     |
+| C-7 | product | **Co-op create never registers a match server-side** — `handleCreateCoopCampaign` mints a room code in the browser and only writes local state; nothing calls `POST /api/multiplayer/matches`, so the guest's `/invites/:roomCode` lookup always 404s. `coopHostRegistry.ts` confirms the live host transport "never landed".                                                                                                                                                                                        | `src/pages/gameplay/campaigns/index.tsx:150`                                                                                |
+| C-8 | product | **Co-op guest proposals never reach the host** — `CampaignCoopRouteSurface` mounts at all 6 sites with no transport props, so every action hits `defaultPendingTransport` returning `{status:'pending'}` forever. `CampaignGmArbiter`/`CampaignSyncSession` are instantiated only in tests. Co-op is non-functional end-to-end.                                                                                                                                                                                      | `src/components/campaign/coop/CampaignCoopRouteSurface.tsx:216`                                                             |
+| C-9 | product | **In-progress battle lost on refresh/deep-link** — `loadSessionLogic` throws "Session not found" for any non-`demo` id unless the session is already in memory; the gameplay store has no `persist` middleware and launch only sets it in memory. A refresh, deep-link, or back/forward destroys a 30+ min match with a "Failed to Load Game" screen and no warning. `MatchRecovery.rebuildSessionFromEvents` exists but is server-only and unwired.                                                                 | `src/stores/useGameplayStore.session.ts:113`                                                                                |
 
 **Critic-elevated critical-class (unowned by the 12 reviewers, see Gaps):** renderer-reachable **arbitrary file read/write** via Electron IPC (`desktop/electron/main.ipc.ts:158/170/241`) with **no CSP, no `will-navigate` guard, and unguarded `shell.openExternal`** in a signed, auto-updating, end-user binary. Treated as critical in the remediation plan (cluster **S**).
 
@@ -101,12 +101,12 @@ Each line: severity/lens · finding · `file` · MegaMek/MekHQ ref where applica
 - **B-1 (high)** Projection drops **semi-guided TAG** context that `declareAttack` passes, and `enrichAttackDeclaredEventFromProjection` stamps the projection number onto the resolved attack — so a moving TAG-spotted target resolves at a too-high TN. `ToHitForecastModal` feeds a thin hand-built state (immobile/partialCover hardcoded false; wounds/sensor/actuator/SPAs/quirks dropped). The agreement suite's `toHitNumber===projection.toHitNumber` assertion is **tautological**. All out of scope of the active projection change. `combatProjection.toHit.ts:242` · `ComputeTargetToHitMods.java:203`.
 - **B-2 (high)** **Turning MP omitted from the reachability projection** (the human commit-authoritative path) while `validateMovement` (bot path) charges it — humans and bots diverge and both differ from MegaMek on bent paths; `commitValidation` swallows the split as advisory `validatorDisagreement`. `movement/reachable.ts:778` · `MoveStep.java`/`TurnStep.java:76`.
 - **B-3 (high)** Human (`validateCommittedMovement`) and bot (`validateMovement`) movement legality + `mpUsed` **diverge** for the same move. `simulation/runner/phases/movement.ts:208`.
-- **B-4 (high, dup of B-2 from the map lens)** Reachable-hex overlay can show a hex reachable / under-cost a move once facing changes are required. `movement/commitValidation.ts:204`. *Correctly scoped by the active `fix-tactical-projection-agreement-gaps` change.*
+- **B-4 (high, dup of B-2 from the map lens)** Reachable-hex overlay can show a hex reachable / under-cost a move once facing changes are required. `movement/commitValidation.ts:204`. _Correctly scoped by the active `fix-tactical-projection-agreement-gaps` change._
 
 ### Cluster T — Tactical-map perf & legibility (`product`)
 
 - **T-1 (high)** **Every hover rebuilds the entire per-hex projection map** — `tacticalMapProjectionLookup` depends on `hoveredHex`; `buildTacticalMapHexProjectionLookup` mints fresh per-hex objects (incl. freshly-allocated arrays) for ~1000 hexes, defeating `HexCell`'s `React.memo`, so the whole board re-renders on every mouse-move. Uncovered by any active change. `HexMapDisplay/HexMapDisplay.state.tsx:183`.
-- **T-2 (high)** **`ElevationBadge` renders on every hex unconditionally** including elevation-0 (white "0" on every flat tile), no zoom gate, no toggle, center-top anchor overlapping unit tokens. *The active `add-topdown-tactical-legibility` proposal's "Why" is factually wrong at HEAD* — the badge exists; the work is to gate/anchor it, not add it. `HexCell.labels.tsx:359`.
+- **T-2 (high)** **`ElevationBadge` renders on every hex unconditionally** including elevation-0 (white "0" on every flat tile), no zoom gate, no toggle, center-top anchor overlapping unit tokens. _The active `add-topdown-tactical-legibility` proposal's "Why" is factually wrong at HEAD_ — the badge exists; the work is to gate/anchor it, not add it. `HexCell.labels.tsx:359`.
 - **T-3 (high)** **`FiringArcOverlay` stamps a fill + shape + text badge ("FRONT"/"L ARC") on every in-arc hex** out to weapon max range — a wall of labels (a 120° arc at range 18-23 covers 340-550 hexes). No active change touches it. `overlays/FiringArcOverlay.tsx:276`.
 
 ### Cluster E — Interactive engine wiring & state integrity (`health`)
@@ -136,8 +136,8 @@ Each line: severity/lens · finding · `file` · MegaMek/MekHQ ref where applica
 
 ### Cluster D — Construction / BV / data integrity (`health`/`roadmap`)
 
-- **D-1 (high)** **BV parity claim not reproducible** — `scripts/data-migration/` (both reference caches) is absent; `index.json` dropped its `bv` field; `validate-bv.ts` excludes every unit as "No reference BV available" and **exits green on zero coverage** (a full run validates only 389 hardcoded overrides at 85.9%, prints FAIL, exits 0). The "99.8% / 4187-of-4196" headline cannot be verified. `scripts/validate-bv.ts:5220` · `Mek.java calculateBattleValue`.
-- **D-2 (high)** **Non-mech BV calculators shipped with no data and no validation** — full vehicle/aerospace/protomech/BA/infantry calculators + archived spec deltas exist, but `public/data/units/` has *no* vehicle/aerospace/protomech dir; aerospace report is `deferred`, infantry fixtures are `computedBV:0`. Mech BV is 99.8%; everything else is ~0% parity-validated yet archived-complete. `validation-output/aerospace-bv-validation-report.json`.
+- **D-1 (high)** **BV parity claim not reproducible** — pre-remediation, `scripts/data-migration/` (both reference caches) was absent; `index.json` dropped its `bv` field; `validate-bv.ts` excluded every unit as "No reference BV available" and **exited green on hollow coverage** (a full run validated only 389 hardcoded overrides at 85.9%, printed FAIL, exited 0). Remediation evidence from `restore-bv-parity-reproducibility`: the committed MegaMek cache restores `Calculated: 4196`, `Within 1%: 4188 (99.8%)`, `Within 3%: 4196 (100.0%)`, and a `4196/4196` coverage floor; missing reference data, below-floor coverage, and accuracy-gate failure now exit non-zero. `scripts/validate-bv.ts` · `Mek.java calculateBattleValue`.
+- **D-2 (high)** **Non-mech BV calculators shipped with no data and no validation** — full vehicle/aerospace/protomech/BA/infantry calculators + archived spec deltas exist, but `public/data/units/` has _no_ vehicle/aerospace/protomech dir; aerospace report is `deferred`, infantry fixtures are `computedBV:0`. Mech BV is 99.8%; everything else is ~0% parity-validated yet archived-complete. `validation-output/aerospace-bv-validation-report.json`.
 
 ### Cluster H-ARCH — Load-bearing duplication (`health`)
 
@@ -150,39 +150,45 @@ Each line: severity/lens · finding · `file` · MegaMek/MekHQ ref where applica
 The full set is below, grouped by cluster (severity in brackets; `CONTESTED` = one verifier dissented). These remediate alongside their cluster's highs.
 
 ### Combat parity (cluster A)
+
 - [med] Through-armor-critical (location roll of 2) not applied in the simulation runner — interactive engine and sim diverge on every roll-of-2. `weaponAttackHitResolution.ts:372`.
 - [med] Motive-damage motion-type modeled as heavy→immobilize escalation, not MegaMek's flat 2d6 roll modifiers (Hover +3, Wheeled +2, WiGE +4…). `motiveDamage.ts:115`.
 - [med] `explosions.ts` encodes non-CASE pilot damage = 1, contradicting the canonical 2-wound rule (dead field, wrong value any future consumer inherits). `ammoTracking/explosions.ts:25`.
-- [low/CONTESTED] Vehicle driver/commander crits modeled as 2-hit kill counters — *the production table layer already escalates faithfully; the buggy branch is reachable only via the BA leg-attack helper.* `vehicleCriticalHitResolution.ts:288`.
+- [low/CONTESTED] Vehicle driver/commander crits modeled as 2-hit kill counters — _the production table layer already escalates faithfully; the buggy branch is reachable only via the BA leg-attack helper._ `vehicleCriticalHitResolution.ts:288`.
 - [low] Vehicle crew-stunned tracked in "phases" (+2) vs MegaMek's turns. · [low] (passthrough)
 
 ### Movement (cluster B)
+
 - [med] Per-hex MP cost understates bent-path cost to the player (turning omitted from displayed `mpCost`). `movement/reachable.ts:784`.
 - [med] Skid/sideslip resolution unimplemented (PSR queued, displacement never resolved). `movement/calculations.ts:349` · `TWGameManager.processSkid`.
 - [low] Sprint lacks gyro/hip/MASC-conflict gates (mostly mischaracterized vs MegaMek — only hip-crit cap-to-run is a genuine niche gap). `movementCommands.ts:156`.
 - [low] TacOps leaping unimplemented; downhill >2 levels always illegal. (passthrough)
 
 ### Engine / state (cluster E)
+
 - [med] Match-log event persistence is fire-and-forget; a failed append silently desyncs the recoverable log (detected, never repaired). `InteractiveSession.ts:671`.
 - [med] Inconsistent `GameStatus.Active` guards across action methods — `applyMovement/applyAttack/applyPhysicalAttack/declareWithdrawal/applyRuntimeMovementState` can mutate a Completed session. `InteractiveSession.ts:398`.
 - [low] P2P roll-capture / `ReplayDiceRoller` determinism machinery built, tested, unused by any live mirror. (passthrough)
 - [low] Construction-editor autosave timers capture a stale save closure. (passthrough)
 
 ### Campaign (cluster M-CAMP)
+
 - [med] Salary calculation omits the rank pay multiplier (the largest MekHQ salary driver) and secondary-role base — under-bills senior personnel. `lib/finances/salaryService.ts:158` · `Person.java:4733`.
 - [med] Kill XP ignores actual kill count — flat 1 kill assumed; a 5-kill ace and a 0-kill survivor get identical XP (one-token fix: `1`→`killCount`). `postBattleProcessor.helpers.ts:113`.
 - [med] Activity-log per-day entry IDs collide — `campaignDay` is always 0, so each day's daily-cost entry overwrites the prior; the log only ever shows the latest day. `useCampaignStore.ts:303`.
 - [med] Unit market exists but buy/sell is an unimplemented stub — `purchaseUnit` validates then returns `{success:true}`, debiting nothing and adding no unit. `lib/campaign/markets/unitMarket.ts:203` · `mekhq AbstractUnitMarket`.
-- [low/CONTESTED] `processedBattleIds` dedup guard not persisted on the server path — *refuted on the dominant localStorage path which persists it; server-fetch-path only.* `postBattleProcessor.ts:47`.
+- [low/CONTESTED] `processedBattleIds` dedup guard not persisted on the server path — _refuted on the dominant localStorage path which persists it; server-fetch-path only._ `postBattleProcessor.ts:47`.
 - [low] Standard medical heal is binary all-or-nothing vs MekHQ daily heal-rate. · [low] Captured (POW) pilots collapse to MIA — no prisoner lifecycle. · [low] Daily maintenance is a flat per-unit constant, not tonnage/quality-based. (passthrough)
 
 ### Multiplayer / co-op (cluster MP)
+
 - [med] Composed co-op encounter logic orphaned — launch routes to single-player encounter, never `launchCoopMission`. `…/launch.tsx:62`.
 - [med] Match-store in-memory in dev with no per-host cap / rate limit / TTL — unbounded match creation; `POST /auth/token` runs PBKDF2-100k with no throttle (KDF-cost DoS vector). `api/multiplayer/matches/index.ts:248`.
 - [med] API-boundary validation is hand-rolled `typeof` checks — **zero** Zod usage across the 72 `src/pages/api` route files (one `safeParse` total, inside a hand-rolled guard). `api/multiplayer/matches/index.ts:84`.
 - [med] Lobby reconnect loop hammers the stub WS server (30s-throttled) with no terminal "multiplayer unavailable" state surfaced. `multiplayer/lobby/[roomCode].tsx:11`.
 
 ### UX / playability (cluster U)
+
 - [med] Campaign store holds only ONE campaign — the list can never show >1 and "New Campaign" swaps the active one (a backend multi-campaign layer exists, unused by the list UI). `stores/campaign/useCampaignStore.ts:95`.
 - [med] Campaign dashboard reads stores via `getState()` at render time — non-reactive; the list page already fixed this exact bug. `…/dashboard/CampaignDashboardPage.tsx:54`.
 - [med] Multiplayer entry blocked behind an unexplained "Vault password" with no setup path / guest option from that page. `multiplayer/index.tsx:216`.
@@ -191,17 +197,20 @@ The full set is below, grouped by cluster (severity in brackets; `CONTESTED` = o
 - [low] Home dashboard cards omit the entire gameplay/campaign/multiplayer surface. (passthrough)
 
 ### Construction / BV / data (cluster D)
+
 - [med] `techBaseValidation.ts` (309 lines) is dead code — referenced nowhere in app code, and it contains the inverted IS-on-Clan parity bug a future wire-up would import. `utils/construction/techBaseValidation.ts:84`.
 - [low] Tech-mixing rule allows IS components on Clan units without mixed tech — inverted vs `TechConstants.isLegal` (latent; only in the dead module). `…/techBaseValidation.ts:99`.
 - [low] `validateConstruction` consumed only by the refit pipeline, not the main build/customizer flow; vehicle validation omits weight reconciliation + superheavy tiers. (passthrough)
 
 ### Architecture health (cluster H-ARCH)
-- [med] Dead cube-rounding picker `_pixelToHex`/`_roundHex` — correct math, zero importers; the *naive* `pixelToHex` is the live picker. `HexMapDisplay/renderHelpers.ts:39`.
+
+- [med] Dead cube-rounding picker `_pixelToHex`/`_roundHex` — correct math, zero importers; the _naive_ `pixelToHex` is the live picker. `HexMapDisplay/renderHelpers.ts:39`.
 - [med] Runtime cross-layer violation: `types/equipment/weapons` barrel re-exports a runtime equipment service back into the type layer (half-done migration). `types/equipment/weapons/index.ts:25`.
 - [med] Zustand store proliferation (~55 stores) with `useForceStore` vs `useForcesStore` name collision + 3-way roster/forces ownership overlap. `stores/useForceStore.ts:31`.
 - [low] Three `hexToPixel` + three `hexDistance` copies. · [low] Accumulating backward-compat re-export shims. · [low] Runtime circular dep `brushOffEligibility ↔ damage` (textbook-safe function cycle). · [low] `GameplayLayout` 1068-line orchestrator, 45 hook calls. (passthrough)
 
 ### Test / CI integrity (cluster CI)
+
 - [med] Statistical combat proofs `it.skip`'d on PR CI (`SIMULATION_COUNT=5` < `STATISTICAL_PROOF_GAME_MIN=100`) — real teeth run only in the non-gating nightly. A PR merges green without exercising combat statistics. `.github/workflows/pr-checks.yml:174`.
 - [med] Networked-multiplayer player journey has zero e2e coverage (3 empty `test.skip` bodies). `e2e/p2p-sync.spec.ts:264`.
 - [med] Conditional `test.skip`-on-missing-data without seeding makes core navigation e2e vacuously pass in clean CI. `e2e/replay-player.spec.ts:137`.
@@ -212,6 +221,7 @@ The full set is below, grouped by cluster (severity in brackets; `CONTESTED` = o
 - [low] Coverage thresholds never gated on PRs (nightly-only, below baseline). · [low] `balance.test.ts` seeding is **resolved** — the MEMORY "deferred" note is stale. (passthrough)
 
 ### Spec / SoT integrity (cluster SoT)
+
 - [med] **125 of 199 capabilities (63%) carry `TBD — Update Purpose after archive`**, including combat-resolution, movement-system, campaign-system, replay-library, multiplayer-server; combat-resolution's placeholder cites the wrong originating change. `openspec/specs/combat-resolution/spec.md:5`.
 - [med] ACAR victory-probability spec scenario contradicts code + its own test (spec says >0.7 for 2:1 BV; code/test produce exactly 2/3). `openspec/specs/combat-resolution/spec.md:27`.
 - [med] Two capabilities (`critical-hit-resolution` + `critical-hit-system`) own the same code home, and disagree (7 vs 8 actuator types) — concrete drift. `openspec/specs/critical-hit-system/spec.md:60`.
@@ -229,13 +239,13 @@ The 12 reviewers covered web/game-logic thoroughly but left whole **platform sur
 3. **Non-mech unit data is entirely absent** — no `vehicles/`, `aerospace/`, or `protomechs/` dir under `public/data/units/`. Three full unit-type verticals are scaffolding with no payload (converters, calculators, validators, specs all exist).
 4. **The 72-route HTTP API has no unified security posture** — zero Zod in the api tree, no rate limiting, no security headers, no CORS. This same server is the desktop renderer's backend.
 5. **Headline metrics no longer reproduce** — the BV cache deletion + green-on-zero harness (D-1) is a measurement-integrity problem; the silent-degrade-to-empty pattern recurs in aerospace/infantry reports.
-6. **A third combat engine.** The ~44.5k-LOC `simulation/` runner is a parallel combat implementation alongside the interactive + headless engines — combat rules now live in *three* places. The `knownLimitations.ts` suppression net filters violations by broad regex (`/punch|kick|charge|push/i` also matches "discharge"; `/los/i` matches "loss") and only the invariant named exactly `battlemech-combat-validation` bypasses it — newly-added detectors whose message contains common combat words are silently swallowed.
+6. **A third combat engine.** The ~44.5k-LOC `simulation/` runner is a parallel combat implementation alongside the interactive + headless engines — combat rules now live in _three_ places. The `knownLimitations.ts` suppression net filters violations by broad regex (`/punch|kick|charge|push/i` also matches "discharge"; `/los/i` matches "loss") and only the invariant named exactly `battlemech-combat-validation` bypasses it — newly-added detectors whose message contains common combat words are silently swallowed.
 
 ### Systemic themes
 
 1. **Subsystem-ownership gaps, not lens gaps, are the blind spot** — the most severe new finding (desktop arbitrary file I/O) lives precisely in the boundary excluded from typecheck and untested in CI.
 2. **Scaffolding-without-payload is the defining product pattern** — well-engineered core + missing single integration wire, repeated across multiplayer, campaign economy, navigation, and non-mech construction.
-3. **Green is systematically hollow** — the most load-bearing correctness signals (statistical proofs, invariant runner, MP e2e, desktop tests, BV harness) have all migrated *out of* the blocking path.
+3. **Green is systematically hollow** — the most load-bearing correctness signals (statistical proofs, invariant runner, MP e2e, desktop tests, BV harness) have all migrated _out of_ the blocking path.
 4. **Self-reported metrics have rotted** — 99.8% BV no longer reproduces; specs/`@spec` annotations describe systems the code can't run; 63% of capabilities carry placeholder Purposes.
 5. **Load-bearing duplication now spans entire engines** — 4× `normalizeEquipmentId` / 3× `hexToPixel` is the small end; three parallel combat implementations is the large end, and the mechanical cause of most parity findings.
 
@@ -246,40 +256,42 @@ The 12 reviewers covered web/game-logic thoroughly but left whole **platform sur
 Thirteen OpenSpec changes authored under `openspec/changes/` (this PR) cover all 9 criticals + every high + their clustered mediums. Three **active** changes (`fix-tactical-projection-agreement-gaps`, `add-topdown-tactical-legibility`, `add-isometric-elevation-extrusion`) already exist; this plan extends/re-baselines them rather than duplicating.
 
 ### Wave 0 — Truth-in-reporting first (do before any feature work)
+
 The metrics that would tell you whether later waves regressed are themselves broken. Fix them first.
 
-| Change | Covers | Why first |
-| --- | --- | --- |
-| `restore-bv-parity-reproducibility` | D-1, BV harness green-on-zero | The 99.8% gate must fail loudly before any BV-adjacent change ships. |
-| `restore-ci-correctness-teeth` | CI cluster (statistical proofs, knownLimitations net, desktop tests, perf budgets, coverage gates) | Move the real teeth back into the blocking lane so Waves 1-3 are actually verified. |
-| `reconcile-spec-source-of-truth` | SoT cluster (125 TBD purposes, ACAR contradiction, duplicate capabilities, roadmap misfile) + openspec-lint guard | Stop the SoT from ratifying fiction; add the guard that prevents recurrence. |
+| Change                              | Covers                                                                                                            | Why first                                                                           |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `restore-bv-parity-reproducibility` | D-1, BV harness green-on-zero                                                                                     | The 99.8% gate must fail loudly before any BV-adjacent change ships.                |
+| `restore-ci-correctness-teeth`      | CI cluster (statistical proofs, knownLimitations net, desktop tests, perf budgets, coverage gates)                | Move the real teeth back into the blocking lane so Waves 1-3 are actually verified. |
+| `reconcile-spec-source-of-truth`    | SoT cluster (125 TBD purposes, ACAR contradiction, duplicate capabilities, roadmap misfile) + openspec-lint guard | Stop the SoT from ratifying fiction; add the guard that prevents recurrence.        |
 
 ### Wave 1 — Stop active correctness damage (criticals + parity highs)
 
-| Change | Covers |
-| --- | --- |
-| `fix-combat-damage-crit-parity` | C-1 head cap, A-1 crit-slot modulo, A-2 CASE cap, A-3 vehicle engine crit, A-4 ammo-explosion resolver, + meds (TAC sim, motive, explosion pilot constant, driver/commander) |
-| `wire-interactive-turn-engine` | C-2 physical-attack desync, C-3 PhysicalAttack stall, E-1 outcome-bus swallow, + meds (match-log persistence, status guards) |
-| `persist-and-recover-interactive-battles` | C-9 session-lost-on-refresh |
-| `extend-projection-agreement-tohit` | B-1 semi-guided TAG + ToHitForecastModal + tautological test (extends the active movement-side change to the to-hit side) |
+| Change                                    | Covers                                                                                                                                                                       |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fix-combat-damage-crit-parity`           | C-1 head cap, A-1 crit-slot modulo, A-2 CASE cap, A-3 vehicle engine crit, A-4 ammo-explosion resolver, + meds (TAC sim, motive, explosion pilot constant, driver/commander) |
+| `wire-interactive-turn-engine`            | C-2 physical-attack desync, C-3 PhysicalAttack stall, E-1 outcome-bus swallow, + meds (match-log persistence, status guards)                                                 |
+| `persist-and-recover-interactive-battles` | C-9 session-lost-on-refresh                                                                                                                                                  |
+| `extend-projection-agreement-tohit`       | B-1 semi-guided TAG + ToHitForecastModal + tautological test (extends the active movement-side change to the to-hit side)                                                    |
 
 ### Wave 2 — Close the loops the specs claim are closed (product/roadmap)
 
-| Change | Covers |
-| --- | --- |
-| `reconcile-multiplayer-coop-reality` | C-5, C-6, C-7, C-8, MP-1, MP-2, + meds (orphaned compose, match-store cap, API Zod, reconnect UX). **Decision change:** wire the live transport **or** downgrade the specs/roadmap/`@spec` annotations to an honest "not yet wired" state. |
-| `close-campaign-economic-loop` | C-4 repair completion, M-1 salvage convert, M-2 parts inventory, M-3 morale window, M-4 aftermath persistence, M-5 doctor skill, + meds (salary rank, kill XP, activity-log id, unit-market buy) |
-| `fix-navigation-and-playability-deadends` | U-1 /gameplay 404, U-2 MP hub orphaned, U-3 games-list stub, U-4 quick-game interactive, + meds (single-campaign clobber, dashboard reactivity, onboarding, vault friction) |
+| Change                                    | Covers                                                                                                                                                                                                                                     |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `reconcile-multiplayer-coop-reality`      | C-5, C-6, C-7, C-8, MP-1, MP-2, + meds (orphaned compose, match-store cap, API Zod, reconnect UX). **Decision change:** wire the live transport **or** downgrade the specs/roadmap/`@spec` annotations to an honest "not yet wired" state. |
+| `close-campaign-economic-loop`            | C-4 repair completion, M-1 salvage convert, M-2 parts inventory, M-3 morale window, M-4 aftermath persistence, M-5 doctor skill, + meds (salary rank, kill XP, activity-log id, unit-market buy)                                           |
+| `fix-navigation-and-playability-deadends` | U-1 /gameplay 404, U-2 MP hub orphaned, U-3 games-list stub, U-4 quick-game interactive, + meds (single-campaign clobber, dashboard reactivity, onboarding, vault friction)                                                                |
 
 ### Wave 3 — Security + structural debt
 
-| Change | Covers |
-| --- | --- |
-| `harden-desktop-and-api-security` | Critic gap 1 (Electron arbitrary IPC, CSP, openExternal) + gap 2 (desktop in CI) + gap 4 (API rate-limit/headers) |
-| `fix-tactical-map-perf-and-legibility` | T-1 hover re-render, T-3 firing-arc clutter (T-2 ElevationBadge is re-baselined into the active `add-topdown-tactical-legibility` change) |
-| `consolidate-equipment-and-hex-duplication` | H-1 4× normalizeEquipmentId, + meds (dead pixelToHex, types-barrel runtime leak, store collisions, hex dupes) |
+| Change                                      | Covers                                                                                                                                    |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `harden-desktop-and-api-security`           | Critic gap 1 (Electron arbitrary IPC, CSP, openExternal) + gap 2 (desktop in CI) + gap 4 (API rate-limit/headers)                         |
+| `fix-tactical-map-perf-and-legibility`      | T-1 hover re-render, T-3 firing-arc clutter (T-2 ElevationBadge is re-baselined into the active `add-topdown-tactical-legibility` change) |
+| `consolidate-equipment-and-hex-duplication` | H-1 4× normalizeEquipmentId, + meds (dead pixelToHex, types-barrel runtime leak, store collisions, hex dupes)                             |
 
 ### Re-baseline notes for the 3 active changes
+
 - **`add-topdown-tactical-legibility`** — proposal "Why" is false at HEAD (the badge already renders persistently). Reframe from "add a badge" to "gate/anchor/zoom-aware the existing always-on badge" (its own design D1/D2/D3 already specify this). Absorbs T-2.
 - **`add-isometric-elevation-extrusion`** — `IsometricElevationStack` + a rotation control already ship; the "elevated hexes render flat" premise and D4 ("does a rotation control exist") are already false/resolved. Narrow scope to skirt rendering + the `camera-controls` retro-spec.
 - **`fix-tactical-projection-agreement-gaps`** — correctly scoped for the movement side (B-2/B-4); does **not** cover the to-hit side (B-1) — handled by the new `extend-projection-agreement-tohit`.
@@ -293,5 +305,5 @@ The metrics that would tell you whether later waves regressed are themselves bro
 - The PSR trigger catalog + resolution, pilot consciousness/death math, gyro/engine hit accumulation, structure-penetration crit ladder — all match MegaMek.
 - The safety-critical unit-test floor (hit location, damage transfer, GATOR to-hit, finances) genuinely exercises production code against MegaMek Java oracles; the 2026-06-09 restored suites came back with real depth (`reachable.test.ts` 3451 lines).
 - Production code has **zero** `@ts-ignore`/`@ts-expect-error`/`as any` outside tests; only 3 circular deps in a 4157-file graph.
-- The server-authoritative multiplayer *core* and the GM-arbiter proposal pipeline are well-engineered — they just aren't wired to a transport.
+- The server-authoritative multiplayer _core_ and the GM-arbiter proposal pipeline are well-engineered — they just aren't wired to a transport.
 - The 4 active OpenSpec changes are coherent, well-formed, and target verified-live gaps.
