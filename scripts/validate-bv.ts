@@ -36,8 +36,8 @@ interface IndexUnit {
   role: string;
   path: string;
   rulesLevel: string;
-  cost: number;
-  bv: number;
+  cost?: number;
+  bv?: number;
 }
 interface IndexFile {
   version: string;
@@ -161,6 +161,15 @@ interface ValidationReport {
   topDiscrepancies: ValidationResult[];
   allResults: ValidationResult[];
 }
+
+const DEFAULT_REFERENCE_DIR = 'scripts/data-migration';
+const MINIMUM_BV_COVERAGE_FLOOR = 4196;
+
+const VALIDATE_BV_EXIT_CODES = {
+  missingReferenceData: 2,
+  belowCoverageFloor: 3,
+  accuracyGateFailure: 4,
+} as const;
 
 // === ALLOWLIST ===
 const UNSUPPORTED_CONFIGURATIONS = new Set(['LAM']);
@@ -4610,6 +4619,20 @@ function buildPareto(results: ValidationResult[]): ParetoAnalysis {
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   let outputPath = path.resolve(process.cwd(), './validation-output');
+  let referenceDir = path.resolve(
+    process.cwd(),
+    process.env.MEKSTATION_BV_REFERENCE_DIR || DEFAULT_REFERENCE_DIR,
+  );
+  let minimumCoverageFloor = Number.parseInt(
+    process.env.MEKSTATION_BV_MIN_COVERAGE || '',
+    10,
+  );
+  let minimumCoverageFloorWasExplicit = Boolean(
+    process.env.MEKSTATION_BV_MIN_COVERAGE,
+  );
+  if (!Number.isFinite(minimumCoverageFloor) || minimumCoverageFloor <= 0) {
+    minimumCoverageFloor = MINIMUM_BV_COVERAGE_FLOOR;
+  }
   let filter: string | undefined,
     limit: number | undefined,
     verbose = false;
@@ -4624,6 +4647,13 @@ async function main(): Promise<void> {
       case '--limit':
         limit = parseInt(args[++i] || '0', 10);
         break;
+      case '--reference-dir':
+        referenceDir = path.resolve(args[++i] || DEFAULT_REFERENCE_DIR);
+        break;
+      case '--min-coverage':
+        minimumCoverageFloor = Number.parseInt(args[++i] || '0', 10);
+        minimumCoverageFloorWasExplicit = true;
+        break;
       case '--verbose':
       case '-v':
         verbose = true;
@@ -4631,10 +4661,17 @@ async function main(): Promise<void> {
       case '--help':
       case '-h':
         console.log(
-          'Usage: npx tsx scripts/validate-bv.ts [--output path] [--filter pat] [--limit n] [--verbose]',
+          'Usage: npx tsx scripts/validate-bv.ts [--output path] [--filter pat] [--limit n] [--reference-dir path] [--min-coverage n] [--verbose]',
         );
         process.exit(0);
     }
+  }
+
+  if (!Number.isFinite(minimumCoverageFloor) || minimumCoverageFloor <= 0) {
+    console.error(
+      `Invalid BV minimum coverage floor: ${minimumCoverageFloor}. Expected a positive integer.`,
+    );
+    process.exit(VALIDATE_BV_EXIT_CODES.belowCoverageFloor);
   }
 
   console.log(
@@ -4670,10 +4707,7 @@ async function main(): Promise<void> {
   // runtime engine. Supersedes MUL data and eliminates need for BV overrides.
   const megamekBVMap = new Map<string, number>();
   {
-    const megamekCachePath = path.resolve(
-      process.cwd(),
-      'scripts/data-migration/megamek-bv-cache.json',
-    );
+    const megamekCachePath = path.join(referenceDir, 'megamek-bv-cache.json');
     if (fs.existsSync(megamekCachePath)) {
       const cache = JSON.parse(fs.readFileSync(megamekCachePath, 'utf-8'));
       for (const [id, entry] of Object.entries(
@@ -4693,10 +4727,7 @@ async function main(): Promise<void> {
   const mulBVMap = new Map<string, number>();
   const mulMatchTypes = new Map<string, string>();
   {
-    const cachePath = path.resolve(
-      process.cwd(),
-      'scripts/data-migration/mul-bv-cache.json',
-    );
+    const cachePath = path.join(referenceDir, 'mul-bv-cache.json');
     if (fs.existsSync(cachePath)) {
       const cache = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
       for (const u of indexData.units) {
@@ -4727,6 +4758,13 @@ async function main(): Promise<void> {
         `  MUL BV fallback available for: ${mulBVMap.size} units (${mulBVMap.size - megamekBVMap.size > 0 ? mulBVMap.size - megamekBVMap.size + ' additional' : 'all superseded by MegaMek'})`,
       );
     }
+  }
+
+  if (megamekBVMap.size === 0 && mulBVMap.size === 0) {
+    console.error(
+      `BV reference dataset is missing or empty. Expected megamek-bv-cache.json or mul-bv-cache.json under ${referenceDir}.`,
+    );
+    process.exit(VALIDATE_BV_EXIT_CODES.missingReferenceData);
   }
 
   // MUL BV overrides: LEGACY - Previously used to override stale MUL BV values
@@ -5197,7 +5235,7 @@ async function main(): Promise<void> {
         chassis: iu.chassis,
         model: iu.model,
         tonnage: iu.tonnage,
-        indexBV: iu.bv,
+        indexBV: iu.bv ?? 0,
         calculatedBV: null,
         difference: null,
         percentDiff: null,
@@ -5217,9 +5255,21 @@ async function main(): Promise<void> {
     // Determine reference BV: prefer MegaMek BV (authoritative), then MUL, then index
     const megamekBV = megamekBVMap.get(iu.id);
     const mulBV = mulBVMap.get(iu.id);
-    const referenceBV = megamekBV ?? mulBV ?? iu.bv;
+    const indexBV = typeof iu.bv === 'number' && iu.bv > 0 ? iu.bv : undefined;
+    const referenceBV = megamekBV ?? mulBV ?? indexBV;
 
-    // With MegaMek BV available, most exclusions for missing reference data go away
+    // With MegaMek BV available, most exclusions for missing reference data go away.
+    // If no index fallback exists either, route the unit into an explicit
+    // reference-missing tally that feeds the coverage floor instead of silently
+    // treating an absent index field as a usable source.
+    if (!referenceBV || referenceBV === 0) {
+      excluded.push({
+        unit: `${iu.chassis} ${iu.model}`,
+        reason:
+          referenceBV === 0 ? 'Zero reference BV' : 'No reference BV available',
+      });
+      continue;
+    }
     if (!megamekBV && !mulBV) {
       // No authoritative reference from either source
       if (suspectBVIds.has(iu.id)) {
@@ -5247,14 +5297,6 @@ async function main(): Promise<void> {
         });
         continue;
       }
-    }
-    if (!referenceBV || referenceBV === 0) {
-      excluded.push({
-        unit: `${iu.chassis} ${iu.model}`,
-        reason:
-          referenceBV === 0 ? 'Zero reference BV' : 'No reference BV available',
-      });
-      continue;
     }
 
     try {
@@ -5326,6 +5368,11 @@ async function main(): Promise<void> {
   const g1 = w1p >= 95.0,
     g2 = w2p >= 99.0,
     g3 = w3p >= 99.5;
+  const effectiveCoverageFloor =
+    !minimumCoverageFloorWasExplicit && (filter || (limit && limit > 0))
+      ? 1
+      : minimumCoverageFloor;
+  const coverageFloorPassed = calc >= effectiveCoverageFloor;
 
   console.log(
     `\n=== SUMMARY ===\nTotal: ${units.length}  Excluded: ${excluded.length}  Validated: ${calc + fail}  Calculated: ${calc}  Failed: ${fail}`,
@@ -5335,6 +5382,9 @@ async function main(): Promise<void> {
   );
   console.log(
     `\n=== ACCURACY GATES ===\nWithin 1%:  ${w1p.toFixed(1)}% (target: 95.0%) ${g1 ? '✅ PASS' : '❌ FAIL'}\nWithin 2%:  ${w2p.toFixed(1)}% (target: 99.0%) ${g2 ? '✅ PASS' : '❌ FAIL'}\nWithin 3%:  ${w3p.toFixed(1)}% (target: 99.5%) ${g3 ? '✅ PASS' : '❌ FAIL'}`,
+  );
+  console.log(
+    `\nCoverage floor: ${calc}/${effectiveCoverageFloor} ${coverageFloorPassed ? '✅ PASS' : '❌ FAIL'}`,
   );
 
   if (excluded.length > 0) {
@@ -5441,7 +5491,17 @@ async function main(): Promise<void> {
     JSON.stringify(pareto, null, 2),
   );
   console.log(`\nReports: ${outputPath}/`);
-  if (g1 && g2 && g3) console.log('\n🎉 ALL ACCURACY GATES PASSED!');
+  if (!coverageFloorPassed) {
+    console.error(
+      `\nBV validation coverage below minimum floor: calculated ${calc}, required ${effectiveCoverageFloor}.`,
+    );
+    process.exit(VALIDATE_BV_EXIT_CODES.belowCoverageFloor);
+  }
+  if (!g1 || !g2 || !g3) {
+    console.error('\nBV validation accuracy gate failed.');
+    process.exit(VALIDATE_BV_EXIT_CODES.accuracyGateFailure);
+  }
+  console.log('\n🎉 ALL ACCURACY GATES PASSED!');
 }
 
 main().catch((e) => {
