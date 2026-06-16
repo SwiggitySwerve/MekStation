@@ -20,6 +20,8 @@ export enum TerrainType {
   Road = 'road',
   LightWoods = 'light_woods',
   HeavyWoods = 'heavy_woods',
+  HeavyIndustrial = 'heavy_industrial',
+  PlantedField = 'planted_field',
   Rough = 'rough',
   Rubble = 'rubble',
   Water = 'water',
@@ -30,6 +32,7 @@ export enum TerrainType {
   Swamp = 'swamp',
   Building = 'building',
   Bridge = 'bridge',
+  Mines = 'mines',
   Fire = 'fire',
   Smoke = 'smoke',
 }
@@ -62,6 +65,12 @@ export interface ITerrainFeature {
 
   /** For buildings: stable footprint identity shared by connected hexes */
   readonly buildingId?: string;
+
+  /** For fuel tanks: MegaMek FUEL_TANK_ELEV-derived LOS height */
+  readonly fuelTankElevation?: number;
+
+  /** For fuel tanks: stable object identity for future damageable cover routing */
+  readonly fuelTankId?: string;
 
   /** Whether this terrain is currently on fire */
   readonly isOnFire?: boolean;
@@ -255,6 +264,47 @@ export const TERRAIN_PROPERTIES: Readonly<
     losBlockHeight: 2,
     requiresPSR: false,
     specialRules: [],
+  },
+
+  [TerrainType.HeavyIndustrial]: {
+    // MegaMek industrial terrain costs +1 MP for biped/quad units only.
+    movementCostModifier: {
+      walk: 1,
+      run: 1,
+      jump: 1,
+      tracked: 0,
+      wheeled: 0,
+      hover: 0,
+      vtol: 0,
+    },
+    toHitInterveningModifier: 1,
+    toHitTargetInModifier: 1,
+    heatEffect: 0,
+    coverLevel: CoverLevel.None,
+    blocksLOS: false,
+    losBlockHeight: 1,
+    requiresPSR: false,
+    specialRules: ['tacops-los-density'],
+  },
+
+  [TerrainType.PlantedField]: {
+    movementCostModifier: {
+      walk: 0,
+      run: 0,
+      jump: 0,
+      tracked: 0,
+      wheeled: 0,
+      hover: 0,
+      vtol: 0,
+    },
+    toHitInterveningModifier: 0,
+    toHitTargetInModifier: 1,
+    heatEffect: 0,
+    coverLevel: CoverLevel.None,
+    blocksLOS: false,
+    losBlockHeight: 1,
+    requiresPSR: false,
+    specialRules: ['tacops-los-density'],
   },
 
   [TerrainType.Rough]: {
@@ -471,6 +521,26 @@ export const TERRAIN_PROPERTIES: Readonly<
     losBlockHeight: 0,
     requiresPSR: false,
     specialRules: [],
+  },
+
+  [TerrainType.Mines]: {
+    movementCostModifier: {
+      walk: 0,
+      run: 0,
+      jump: 0,
+      tracked: 0,
+      wheeled: 0,
+      hover: 0,
+      vtol: 0,
+    },
+    toHitInterveningModifier: 0,
+    toHitTargetInModifier: 0,
+    heatEffect: 0,
+    coverLevel: CoverLevel.None,
+    blocksLOS: false,
+    losBlockHeight: 0,
+    requiresPSR: false,
+    specialRules: ['represented-minefield-entry-damage'],
   },
 
   [TerrainType.Fire]: {

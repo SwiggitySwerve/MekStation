@@ -10,6 +10,19 @@ export {
 
 const MEGAMEK_DESIGNATOR_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+const MEKSTATION_SPECIAL_WEAPON_SOURCE_VERSION = 'MekStation working-tree';
+
+function mekstationRef(
+  citation: string,
+  pathWithLines: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'mekstation-deviation',
+    citation,
+    url: pathWithLines,
+    sourceVersion: MEKSTATION_SPECIAL_WEAPON_SOURCE_VERSION,
+  };
+}
 
 export const MEGAMEK_NARC_MARKER_SOURCE_REFS = [
   {
@@ -55,6 +68,84 @@ export const MEGAMEK_INARC_POD_TYPE_SOURCE_REFS = [
     citation:
       'INarcPod defines Homing, ECM, Haywire, and Nemesis pod type constants.',
     url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/INarcPod.java#L53-L59',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_INARC_POD_OBJECT_SOURCE_REFS = [
+  ...MEGAMEK_INARC_POD_TYPE_SOURCE_REFS,
+  {
+    kind: 'megamek-source',
+    citation:
+      'INarcPod equality and target ids treat same-team same-type pods as interchangeable targets while preserving location on the pod object.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/INarcPod.java#L73-L149',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'Entity attaches pending iNarc pods, exposes attached iNarc pods, and removes targeted iNarc pods.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L7317-L7387',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const INARC_POD_BRUSH_OFF_REMOVAL_SOURCE_REFS = [
+  ...MEGAMEK_INARC_POD_OBJECT_SOURCE_REFS,
+  mekstationRef(
+    'MekStation runner physical Brush-Off removes the selected same-team same-type iNarc pod, preserving legacy first-pod removal when no selector is present.',
+    'src/simulation/runner/phases/physicalAttack.ts#L216-L240',
+  ),
+  mekstationRef(
+    'MekStation interactive physical declarations and resolutions carry Brush-Off selectedINarcPod state from the context or first attached pod.',
+    'src/utils/gameplay/gameSessionPhysical.ts#L543-L549',
+  ),
+  mekstationRef(
+    'MekStation physical attack events persist selectedINarcPod identity on declared and resolved Brush-Off payloads.',
+    'src/types/gameplay/GameSessionAttackEvents.ts#L667-L715',
+  ),
+  mekstationRef(
+    'MekStation runner tests prove selected Brush-Off declaration and resolution remove the matching iNarc pod while preserving nonmatching pods.',
+    'src/simulation/runner/__tests__/physicalAttackRunner.behavior.test.ts#L901-L1039',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const INARC_POD_BRUSH_OFF_TARGET_SELECTION_SOURCE_REFS = [
+  ...MEGAMEK_INARC_POD_OBJECT_SOURCE_REFS,
+  mekstationRef(
+    'MekStation special-weapon helpers build carrier-scoped Brush-Off target rows for deduped attached iNarc pods while preserving the selected pod object identity.',
+    'src/utils/gameplay/specialWeaponMechanics/iNarcPodLifecycle.ts#L8-L53',
+  ),
+  mekstationRef(
+    'MekStation physical attack panel maps a selected pod target row back to the carrier target id plus selectedINarcPod for the existing declaration path.',
+    'src/components/gameplay/PhysicalAttackPanel.tsx#L150-L262',
+  ),
+  mekstationRef(
+    'MekStation helper tests prove same-team same-type pod target dedupe and stable carrier-scoped Brush-Off target option ids.',
+    'src/utils/gameplay/__tests__/specialWeaponMechanics.test.ts#L908-L986',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_INARC_EXPLOSIVE_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'AmmoType defines iNarc Explosive Pods as INARC explosive ammo with 6 damage and rack size 1.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/AmmoType.java#L9997-L10006',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'NarcWeapon routes NARC/iNARC explosive munition attacks through NarcExplosiveHandler instead of the marker-attachment handler.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/other/NarcWeapon.java#L89-L95',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'NarcExplosiveHandler resolves iNarc explosive pod hits as one pod and 6 damage per hit.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/NarcExplosiveHandler.java#L71-L146',
     sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
@@ -130,6 +221,24 @@ export const MEGAMEK_INARC_ECM_SOURCE_REFS = [
     citation:
       'MissileWeaponHandler suppresses Artemis, prototype Artemis, and Artemis V cluster guidance when the attacker-to-target missile path is ECM affected.',
     url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/MissileWeaponHandler.java#L137-L200',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_INARC_ECM_SENSOR_EFFECT_SOURCE_REFS = [
+  ...MEGAMEK_INARC_ECM_SOURCE_REFS,
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek sensor range-bracket checks add active sensor ECM modifiers for the detecting unit and target ECM modifiers for the detected entity.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/Compute.java#L4931-L4970',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Sensor.getModForECM and getModForTargetECM route sensor-check ECM penalties through ComputeECM effects.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/Sensor.java#L430-L455',
     sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
@@ -237,7 +346,7 @@ export const MEGAMEK_TAG_FAMILY_SOURCE_REFS = [
   ...MEGAMEK_TAG_SEMI_GUIDED_SOURCE_REFS,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
-export const MEGAMEK_PLASMA_CANNON_SOURCE_REFS = [
+export const MEGAMEK_PLASMA_CANNON_BATTLEMECH_TARGET_HEAT_SOURCE_REFS = [
   {
     kind: 'megamek-source',
     citation:
@@ -262,10 +371,25 @@ export const MEGAMEK_PLASMA_CANNON_SOURCE_REFS = [
   {
     kind: 'megamek-source',
     citation:
+      'MegaMek HeatResolver caps external heat at the configured/default 15 points before adding heat buildup.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/HeatResolver.java#L347-L357',
+    sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_PLASMA_CANNON_RESIDUAL_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
       'PlasmaCannonHandler keeps plasma-cannon BattleMech damage at zero while applying non-Mek/terrain/building special damage paths.',
     url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/plasma/PlasmaCannonHandler.java#L276-L382',
     sourceVersion: MEGAMEK_DESIGNATOR_SOURCE_VERSION,
   },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_PLASMA_CANNON_SOURCE_REFS = [
+  ...MEGAMEK_PLASMA_CANNON_BATTLEMECH_TARGET_HEAT_SOURCE_REFS,
+  ...MEGAMEK_PLASMA_CANNON_RESIDUAL_SOURCE_REFS,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEGAMEK_AMS_SOURCE_VERSION = '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
@@ -376,8 +500,33 @@ export const MEGAMEK_ACTIVE_PROBE_SOURCE_REFS = [
   {
     kind: 'megamek-source',
     citation:
-      'Entity.getBAPRange gives Clan Active Probe, Watchdog, and Nova CEWS a 5-hex BAP range.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L6011-L6056',
+      'Entity.getBAPRange gives Clan Active Probe, Watchdog, and Nova CEWS a 5-hex BAP range and adds +1 range for Eagle Eyes.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L6011-L6063',
+    sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_NOVA_CEWS_NETWORK_SOURCE_REFS = [
+  MEGAMEK_ECM_SUITE_SOURCE_REFS[1],
+  {
+    kind: 'megamek-source',
+    citation:
+      'MiscType defines Nova CEWS with F_NOVA and ANY_C3 in addition to ECM and BAP flags.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/MiscType.java#L5912-L5924',
+    sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'ComputeC3Spotter treats Nova as a C3-type network for range calculation when the attacker has active Nova CEWS.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/compute/ComputeC3Spotter.java#L53-L65',
+    sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'Entity places active Nova CEWS units on C3Nova network ids and matches Nova network membership through C3 network state.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L6479-L6482',
     sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
@@ -399,6 +548,30 @@ export const MEGAMEK_ARTEMIS_CLUSTER_SOURCE_REFS = [
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEGAMEK_ARTEMIS_FCS_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MiscType.createISArtemisIV defines Artemis IV FCS with F_ARTEMIS.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/MiscType.java#L6248-L6274',
+    sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MiscType.createISProtoArtemis defines Prototype Artemis IV FCS with F_ARTEMIS_PROTO.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/MiscType.java#L6276-L6295',
+    sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
+  },
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MiscType.createISArtemisV defines Artemis V FCS with F_ARTEMIS_V.',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/MiscType.java#L6297-L6326',
+    sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEGAMEK_STEALTH_ACTIVE_SOURCE_REFS = [
   {
     kind: 'megamek-source',
@@ -407,4 +580,25 @@ export const MEGAMEK_STEALTH_ACTIVE_SOURCE_REFS = [
     url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Mek.java#L3442-L3457',
     sourceVersion: MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION,
   },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEKSTATION_ARTEMIS_STEALTH_LIFECYCLE_SOURCE_REFS = [
+  ...MEGAMEK_STEALTH_ACTIVE_SOURCE_REFS,
+  ...MEGAMEK_ARTEMIS_CLUSTER_SOURCE_REFS,
+  mekstationRef(
+    'MekStation UnitHydration hydrates BattleMech stealth armor and ECM suite currentMode/mode/activeMode/modeName into runner state.',
+    'src/simulation/runner/UnitHydration.ts#L458-L480',
+  ),
+  mekstationRef(
+    'MekStation createInitialState preserves hydrated ECM modes as operational electronic-warfare suites.',
+    'src/simulation/runner/SimulationRunnerState.ts#L100-L142',
+  ),
+  mekstationRef(
+    'MekStation runner tests prove active attacker stealth suppresses Artemis cluster bonuses only when stealth armor has operational own ECM.',
+    'src/simulation/runner/__tests__/weaponAttackIndirectFire.test.ts#L813-L891',
+  ),
+  mekstationRef(
+    'MekStation critical-hit replay tests prove represented ECM equipment destruction disables the own ECM state required by BattleMech stealth armor.',
+    'src/simulation/runner/__tests__/criticalHitEvents.test.ts#L2851-L2934',
+  ),
 ] satisfies readonly ICombatFeatureSourceReference[];

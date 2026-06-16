@@ -4,6 +4,7 @@ export * from './turnPhase';
 export * from './initiative';
 export * from './movement';
 export * from './combat';
+export * from './groundObjects';
 export * from './attackReveal';
 export * from './status';
 export * from './statusChecks';

@@ -78,12 +78,19 @@ export interface IIndirectFireResolution {
    */
   readonly obliqueAttackerApplied?: boolean;
   /**
+   * True when the elected LOS spotter's Comm Implant or Boosted Comm Implant
+   * reduced the source-backed indirect LRM spotter target number by 1.
+   */
+  readonly commImplantApplied?: boolean;
+  /**
    * Elected LOS spotter attacked this turn, adding +1 to the penalty
    * (MegaMek ComputeToHit.java L1540-1544 — audit C-5).
    */
   readonly spotterAttackedThisTurn?: boolean;
   /** Penalty points cancelled by Forward Observer, when represented. */
   readonly spotterMovementPenaltyCancelled?: number;
+  /** Penalty points cancelled by Comm Implant / Boosted Comm Implant. */
+  readonly commImplantPenaltyRelief?: number;
   /** Human-readable reason when permitted=false. */
   readonly reason?: string;
 }

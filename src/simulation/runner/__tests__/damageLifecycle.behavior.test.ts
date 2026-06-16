@@ -289,6 +289,20 @@ describe('BattleMech damage lifecycle validation anchors', () => {
     expect(jumpJet.effect.type).toBe(CriticalEffectType.JumpJetDestroyed);
     expect(jumpJet.updatedComponentDamage.jumpJetsDestroyed).toBe(1);
     expect(ammo.effect.type).toBe(CriticalEffectType.AmmoExplosion);
-    expect(equipment.effect.type).toBe(CriticalEffectType.EquipmentDestroyed);
+    expect(equipment.effect).toEqual({
+      type: CriticalEffectType.EquipmentDestroyed,
+      equipmentDestroyed: 'CASE',
+    });
+    expect(equipment.updatedComponentDamage).toEqual(freshComponentDamage());
+    expect(equipment.events).toContainEqual(
+      expect.objectContaining({
+        type: 'critical_hit_resolved',
+        payload: expect.objectContaining({
+          componentType: 'equipment',
+          componentName: 'CASE',
+          effect: 'Equipment destroyed: CASE',
+        }),
+      }),
+    );
   });
 });

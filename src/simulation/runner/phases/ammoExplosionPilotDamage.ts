@@ -67,6 +67,8 @@ export function applyAmmoExplosionPilotDamage(
         ...target,
         pilotWounds: pilotDamage.state.pilotWounds,
         pilotConscious: pilotDamage.state.pilotConscious,
+        edgePointsRemaining:
+          pilotDamage.state.edgePointsRemaining ?? target.edgePointsRemaining,
         destroyed: pilotDamage.state.destroyed,
         destructionCause: pilotDamage.state.destructionCause,
       },
@@ -88,6 +90,10 @@ export function applyAmmoExplosionPilotDamage(
         consciousnessCheckRequired:
           pilotDamage.result.consciousnessCheckRequired,
         consciousnessCheckPassed: pilotDamage.result.conscious,
+        edgeReroll: pilotDamage.result.edgeReroll,
+        edgeSuperseded: pilotDamage.result.edgeSuperseded,
+        edgeTrigger: pilotDamage.result.edgeTrigger,
+        edgePointsRemaining: pilotDamage.result.edgePointsRemaining,
       },
       sourceUnitId,
     ),

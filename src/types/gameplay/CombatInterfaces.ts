@@ -310,6 +310,18 @@ export interface IHitLocationResult {
   readonly location: CombatLocation;
   /** Was this a critical location? */
   readonly isCritical: boolean;
+  /** True when a legal Edge trigger replaced the original hit-location roll. */
+  readonly edgeReroll?: boolean;
+  /** True when the original hit-location roll was superseded by Edge. */
+  readonly edgeSuperseded?: boolean;
+  /** Trigger-specific Edge ability that was spent for the replacement roll. */
+  readonly edgeTrigger?: string;
+  /** Remaining Edge points after the hit-location reroll. */
+  readonly edgePointsRemaining?: number;
+  /** Original roll replaced by the Edge reroll. */
+  readonly supersededRoll?: IDiceRoll;
+  /** Original location replaced by the Edge reroll. */
+  readonly supersededLocation?: CombatLocation;
 }
 
 // =============================================================================
@@ -427,6 +439,8 @@ export interface ICriticalEffect {
   readonly type: CriticalEffectType;
   /** Equipment destroyed */
   readonly equipmentDestroyed?: string;
+  /** Equipment hit without being destroyed or disabled */
+  readonly equipmentHit?: string;
   /** Additional damage caused */
   readonly additionalDamage?: number;
   /** Heat added */
@@ -462,6 +476,7 @@ export enum CriticalEffectType {
   HeatSinkDestroyed = 'heat_sink_destroyed',
   JumpJetDestroyed = 'jump_jet_destroyed',
   EquipmentDestroyed = 'equipment_destroyed',
+  EquipmentHit = 'equipment_hit',
 }
 
 /**
@@ -493,7 +508,8 @@ export type PilotDamageSource =
   | 'mech_destruction'
   | 'fall'
   | 'physical_attack'
-  | 'heat';
+  | 'heat'
+  | 'neural_feedback';
 
 /**
  * Pilot damage result.
@@ -513,6 +529,16 @@ export interface IPilotDamageResult {
   readonly consciousnessTarget?: number;
   /** Did pilot remain conscious? */
   readonly conscious?: boolean;
+  /**
+   * Optional trigger-specific Edge metadata. `edgeSuperseded` marks an
+   * original failed roll that was replaced by a legal Edge reroll, while
+   * `edgeReroll` marks the final replacement roll.
+   */
+  readonly edgeReroll?: boolean;
+  readonly edgeSuperseded?: boolean;
+  readonly edgeTrigger?: string;
+  readonly edgePointsRemaining?: number;
+  readonly supersededConsciousnessRoll?: IDiceRoll;
   /** Is pilot dead? (6+ wounds) */
   readonly dead: boolean;
 }
@@ -672,6 +698,12 @@ export interface IAttackerState {
   /** Set false for source-backed BattleMech combat paths that must not apply local called-shot SPA helper reductions. */
   readonly applyLocalCalledShotAbilityReduction?: boolean;
   readonly abilities?: readonly string[];
+  /**
+   * Explicit represented neural-interface state for VDNI/BVDNI/TCP effects.
+   * Undefined preserves legacy implicit-active fixtures; false means installed
+   * neural hardware is not connected for this attack state.
+   */
+  readonly neuralInterfaceActive?: boolean;
   readonly weaponType?: string;
   readonly designatedWeaponType?: string;
   readonly weaponCategory?: string;
@@ -679,6 +711,7 @@ export interface IAttackerState {
   readonly targetId?: string;
   readonly designatedTargetId?: string;
   readonly designatedRangeBracket?: RangeBracket;
+  readonly designatedEnvironment?: string;
   readonly unitQuirks?: readonly string[];
   readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
   /**

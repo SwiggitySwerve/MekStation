@@ -125,6 +125,7 @@ export function useGameMovementPlanning({
   const movementType =
     plannedMovementForSelected?.movementType ?? MovementType.Walk;
   const optionalRules = session?.config.optionalRules ?? EMPTY_OPTIONAL_RULES;
+  const environmentalConditions = session?.config.environmentalConditions;
   const effectiveMovementMps = useMemo((): IEffectiveMovementMps | null => {
     if (!capability || !selectedUnitState) return null;
     return getEffectiveMovementMps(capability, selectedUnitState.heat);
@@ -155,7 +156,7 @@ export function useGameMovementPlanning({
       movementGrid,
       capability,
       'normal',
-      { optionalRules },
+      { environmentalConditions, optionalRules },
     );
     if (movementType === MovementType.Jump) {
       const run = deriveReachableHexes(
@@ -164,7 +165,7 @@ export function useGameMovementPlanning({
         movementGrid,
         capability,
         'normal',
-        { optionalRules },
+        { environmentalConditions, optionalRules },
       );
       const walk = deriveReachableHexes(
         selectedUnitState,
@@ -172,7 +173,7 @@ export function useGameMovementPlanning({
         movementGrid,
         capability,
         'normal',
-        { optionalRules },
+        { environmentalConditions, optionalRules },
       );
       return mergeJumpMovementRangeHexes(primary, run, walk);
     }
@@ -185,7 +186,7 @@ export function useGameMovementPlanning({
       movementGrid,
       capability,
       'normal',
-      { optionalRules },
+      { environmentalConditions, optionalRules },
     );
     return mergeRunMovementRangeHexes(primary, walk);
   }, [
@@ -196,6 +197,7 @@ export function useGameMovementPlanning({
     canProjectMovement,
     movementType,
     optionalRules,
+    environmentalConditions,
   ]);
 
   const baseMovementRangeLookup = useMemo(() => {

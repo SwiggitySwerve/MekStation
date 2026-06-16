@@ -1,9 +1,14 @@
 import type {
   GameEventType,
+  IPhysicalDominoStepOutDecisionPayload,
   IMovementStep,
   MovementType,
 } from '@/types/gameplay';
-import type { PhysicalAttackType } from '@/utils/gameplay/physicalAttacks';
+import type {
+  PhysicalAttackINarcPodSelection,
+  PhysicalAttackLimb,
+  PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks';
 
 export interface IMovementEvent {
   type: GameEventType.MovementDeclared;
@@ -40,6 +45,11 @@ export interface IAttackEvent {
      * fire lists — byte-identical to pre-A2 behavior.
      */
     weaponModes?: Readonly<Record<string, string>>;
+    /**
+     * Optional defender-selected AMS mount id keyed by incoming weapon id.
+     * When absent, the runner keeps automatic target-side AMS assignment.
+     */
+    selectedAMSWeaponIds?: Readonly<Record<string, string>>;
     /** Optional per-weapon called-shot declarations keyed by weapon id. */
     calledShots?: Readonly<Record<string, boolean>>;
     /** Optional per-weapon teammate-assisted called shots keyed by weapon id. */
@@ -62,6 +72,10 @@ export interface IPhysicalAttackEvent {
     attackerId: string;
     targetId: string;
     attackType: PhysicalAttackType;
+    limb?: PhysicalAttackLimb;
+    twoHandedZweihander?: boolean;
+    selectedINarcPod?: PhysicalAttackINarcPodSelection;
+    blockerStepOutDecision?: IPhysicalDominoStepOutDecisionPayload;
   };
 }
 

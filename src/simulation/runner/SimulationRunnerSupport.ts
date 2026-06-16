@@ -153,6 +153,80 @@ export function applyDestroyedWeaponCriticalsToWeapons(
   );
 }
 
+function normalizeMountedLocation(value: string | undefined): string {
+  return value?.toLowerCase().replace(/[^a-z0-9]+/g, '') ?? '';
+}
+
+function stripDestroyedArtemisGuidance(
+  weapon: IWeapon,
+  destroyedKinds: ReadonlySet<string>,
+): IWeapon {
+  let next = weapon;
+
+  if (destroyedKinds.has('artemis_iv') && next.hasArtemisIV !== undefined) {
+    const { hasArtemisIV: _removed, ...rest } = next;
+    next = rest;
+  }
+  if (
+    destroyedKinds.has('prototype_artemis_iv') &&
+    next.hasPrototypeArtemisIV !== undefined
+  ) {
+    const { hasPrototypeArtemisIV: _removed, ...rest } = next;
+    next = rest;
+  }
+  if (destroyedKinds.has('artemis_v') && next.hasArtemisV !== undefined) {
+    const { hasArtemisV: _removed, ...rest } = next;
+    next = rest;
+  }
+
+  return next;
+}
+
+export function applyDestroyedArtemisFcsToWeapons(
+  unit: IUnitGameState,
+  weapons: readonly IWeapon[],
+): readonly IWeapon[] {
+  const destroyedFcs = unit.destroyedArtemisFcs ?? [];
+  if (destroyedFcs.length === 0) {
+    return weapons;
+  }
+
+  return weapons.map((weapon) => {
+    const linkedDestroyedKinds = new Set(
+      destroyedFcs
+        .filter(
+          (entry) =>
+            entry.linkedWeaponId !== undefined &&
+            (entry.linkedWeaponId === weapon.id ||
+              entry.linkedWeaponId === weapon.name),
+        )
+        .map((entry) => entry.kind),
+    );
+    if (linkedDestroyedKinds.size > 0) {
+      return stripDestroyedArtemisGuidance(weapon, linkedDestroyedKinds);
+    }
+
+    const weaponLocation = normalizeMountedLocation(weapon.location);
+    if (!weaponLocation) {
+      return weapon;
+    }
+
+    const destroyedKinds = new Set(
+      destroyedFcs
+        .filter(
+          (entry) =>
+            entry.linkedWeaponId === undefined &&
+            normalizeMountedLocation(entry.location) === weaponLocation,
+        )
+        .map((entry) => entry.kind),
+    );
+
+    return destroyedKinds.size > 0
+      ? stripDestroyedArtemisGuidance(weapon, destroyedKinds)
+      : weapon;
+  });
+}
+
 /**
  * Convert an `IUnitGameState` into the AI snapshot. When `hydratedWeapons`
  * is provided (Phase 1 of `add-combat-fidelity-suite` — catalog hydration),
@@ -183,7 +257,10 @@ export function toAIUnitState(
     facing: unit.facing,
     ...(torsoTwist !== undefined ? { torsoTwist } : {}),
     heat: unit.heat,
-    weapons: applyDestroyedWeaponCriticalsToWeapons(unit, weapons),
+    weapons: applyDestroyedArtemisFcsToWeapons(
+      unit,
+      applyDestroyedWeaponCriticalsToWeapons(unit, weapons),
+    ),
     ammo: {},
     destroyed:
       unit.destroyed || unit.hasRetreated === true || unit.hasEjected === true,

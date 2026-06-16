@@ -215,6 +215,37 @@ export function calculateShakyStickModifier(
 }
 
 /**
+ * Neural interfaces grant ranged attack target-number modifiers while active.
+ */
+export function calculateVdniRangedToHitModifier(
+  abilities: readonly string[],
+  neuralInterfaceActive = true,
+): IToHitModifierDetail | null {
+  if (!neuralInterfaceActive) return null;
+  if (hasSPA(abilities, 'proto_dni')) {
+    return {
+      name: 'Prototype DNI',
+      value: -2,
+      source: 'spa',
+      description: 'Prototype DNI: -2 ranged attack to-hit',
+    };
+  }
+  if (!hasSPA(abilities, 'vdni') && !hasSPA(abilities, 'bvdni')) return null;
+
+  return {
+    name: 'VDNI',
+    value: -1,
+    source: 'spa',
+    description: 'VDNI/BVDNI: -1 ranged attack to-hit',
+  };
+}
+
+export interface INeuralInterfacePilotingModifier {
+  readonly name: 'Prototype DNI' | 'VDNI';
+  readonly value: number;
+}
+
+/**
  * Melee Specialist: -1 to-hit for physical attacks.
  */
 export function calculateMeleeSpecialistModifier(
@@ -310,6 +341,17 @@ export interface IHeavyLifterGroundObjectCapacityInput {
   readonly tsmPickupModifier?: number;
 }
 
+export interface IHeavyLifterGroundObjectCapacityCheckInput extends IHeavyLifterGroundObjectCapacityInput {
+  readonly objectTonnage: number;
+}
+
+export interface IHeavyLifterGroundObjectCapacityCheckResult {
+  readonly allowed: boolean;
+  readonly objectTonnage: number;
+  readonly capacityTonnage: number;
+  readonly capacityMarginTonnage: number;
+}
+
 /**
  * Heavy Lifter multiplies ground-object lift capacity by 1.5.
  */
@@ -344,9 +386,49 @@ export function calculateGroundObjectLiftCapacity({
 }
 
 /**
+ * Represented carry/throw object capacity gate. This only checks whether a
+ * ground-object payload is within lift capacity; it does not model action
+ * declaration, carried-object state, throw range, or thrown-object damage.
+ */
+export function checkGroundObjectLiftCapacity({
+  objectTonnage,
+  ...capacityInput
+}: IHeavyLifterGroundObjectCapacityCheckInput): IHeavyLifterGroundObjectCapacityCheckResult {
+  const normalizedObjectTonnage =
+    Number.isFinite(objectTonnage) && objectTonnage > 0 ? objectTonnage : 0;
+  const capacityTonnage = calculateGroundObjectLiftCapacity(capacityInput);
+
+  return {
+    allowed:
+      normalizedObjectTonnage > 0 && normalizedObjectTonnage <= capacityTonnage,
+    objectTonnage: normalizedObjectTonnage,
+    capacityTonnage,
+    capacityMarginTonnage: capacityTonnage - normalizedObjectTonnage,
+  };
+}
+
+/**
  * Maneuvering Ace: -1 to the movement-before-skid PSR modifier.
  */
 export function getManeuveringAceSkidModifier(
+  abilities: readonly string[],
+): number {
+  return hasSPA(abilities, 'maneuvering_ace') ? -1 : 0;
+}
+
+/**
+ * Maneuvering Ace: -1 to represented out-of-control control rolls.
+ */
+export function getManeuveringAceOutOfControlModifier(
+  abilities: readonly string[],
+): number {
+  return hasSPA(abilities, 'maneuvering_ace') ? -1 : 0;
+}
+
+/**
+ * Maneuvering Ace: -1 to flanking-and-turning side-slip checks.
+ */
+export function getManeuveringAceFlankingTurningModifier(
   abilities: readonly string[],
 ): number {
   return hasSPA(abilities, 'maneuvering_ace') ? -1 : 0;
@@ -360,6 +442,41 @@ export function getAnimalMimicryPSRModifier(
   isQuadMek: boolean,
 ): number {
   return isQuadMek && hasSPA(abilities, 'animal_mimic') ? -1 : 0;
+}
+
+/**
+ * Active neural interfaces grant BattleMech piloting-roll modifiers.
+ */
+export function calculateNeuralInterfacePilotingModifier(
+  abilities: readonly string[],
+  unitType?: string,
+  neuralInterfaceActive = true,
+): INeuralInterfacePilotingModifier | null {
+  if (!neuralInterfaceActive) return null;
+  if (!isMekTargetUnitType(unitType)) return null;
+  if (hasSPA(abilities, 'proto_dni')) {
+    return { name: 'Prototype DNI', value: -3 };
+  }
+  if (hasSPA(abilities, 'bvdni')) return null;
+
+  return hasSPA(abilities, 'vdni') ? { name: 'VDNI', value: -1 } : null;
+}
+
+/**
+ * Legacy numeric wrapper for callers that only need the PSR modifier value.
+ */
+export function getVdniPilotingModifier(
+  abilities: readonly string[],
+  unitType?: string,
+  neuralInterfaceActive = true,
+): number {
+  return (
+    calculateNeuralInterfacePilotingModifier(
+      abilities,
+      unitType,
+      neuralInterfaceActive,
+    )?.value ?? 0
+  );
 }
 
 /**

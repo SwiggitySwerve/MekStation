@@ -20,9 +20,12 @@ import {
   type IMovementCapability,
   type IHexCoordinate,
   type IHexGrid,
+  type LightCondition,
   type IUnitGameState,
 } from '@/types/gameplay';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
+import { createEnvironmentalConditions } from '@/utils/gameplay/environmentalModifiers';
 import { createHexGrid } from '@/utils/gameplay/hexGrid';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { validateCommittedMovement } from '@/utils/gameplay/movement/commitValidation';
@@ -31,6 +34,7 @@ import {
   deriveReachableHexes,
 } from '@/utils/gameplay/movement/reachable';
 import {
+  AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
   AIRBORNE_VTOL_GROUND_MOVEMENT_BLOCKED_REASON,
   AIRBORNE_WIGE_GROUND_MOVEMENT_BLOCKED_REASON,
 } from '@/utils/gameplay/movement/runtimeCapability';
@@ -2894,6 +2898,27 @@ end`);
     });
   });
 
+  it('marks follow-up movement from another unit occupied start hex blocked', () => {
+    let grid = createHexGrid({ radius: 4 });
+    grid = setOccupant(grid, { q: 0, r: 0 }, 'enemy-1');
+    const unit = makeUnitAtOrigin();
+    const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 3 };
+
+    const walk = deriveReachableHexes(unit, MovementType.Walk, grid, cap).find(
+      (r) => r.hex.q === 1 && r.hex.r === 0,
+    );
+
+    expect(walk).toMatchObject({
+      reachable: false,
+      heatGenerated: 0,
+      blockedReason:
+        'Unit cannot make follow-up movement from a start hex occupied by another unit',
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails:
+        'Unit cannot make follow-up movement from a start hex occupied by another unit',
+    });
+  });
+
   it('marks shutdown units immobile in movement projection', () => {
     const grid = createHexGrid({ radius: 4 });
     const unit = { ...makeUnitAtOrigin(), shutdown: true };
@@ -3394,6 +3419,210 @@ describe('movement heat and validator agreement (audit B-3/B-4)', () => {
     expect(validation.valid).toBe(true);
     expect(validation.mpCost).toBe(projection?.mpCost);
     expect(validation.heatGenerated).toBe(projection?.heatGenerated);
+  });
+
+  it('projects represented low-light Nightwalker movement relief and run prohibition', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const target = { q: 0, r: -1 };
+    const night = createEnvironmentalConditions({ light: 'night' });
+    const unit = makeUnitAtOrigin();
+    const nightwalker = { ...unit, abilities: ['tm_nightwalker'] };
+    const capability: IMovementCapability = { walkMP: 1, runMP: 2, jumpMP: 0 };
+
+    const blockedWalk = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      capability,
+      target,
+      'normal',
+      { environmentalConditions: night },
+    );
+    const allowedNightwalkerWalk = deriveMovementRangeHexForDestination(
+      nightwalker,
+      MovementType.Walk,
+      grid,
+      capability,
+      target,
+      'normal',
+      { environmentalConditions: night },
+    );
+    const blockedNightwalkerRun = deriveMovementRangeHexForDestination(
+      nightwalker,
+      MovementType.Run,
+      grid,
+      capability,
+      target,
+      'normal',
+      { environmentalConditions: night },
+    );
+
+    expect(blockedWalk).toMatchObject({
+      reachable: false,
+      mpCost: 3,
+      movementInvalidReason: 'InsufficientMP',
+    });
+    expect(allowedNightwalkerWalk).toMatchObject({
+      reachable: true,
+      mpCost: 1,
+      movementType: MovementType.Walk,
+    });
+    expect(blockedNightwalkerRun).toMatchObject({
+      reachable: false,
+      movementInvalidReason: 'TerrainBlocked',
+      movementInvalidDetails: expect.stringContaining(
+        'Nightwalker prohibits running',
+      ),
+    });
+
+    const commit = validateCommittedMovement({
+      grid,
+      unit: nightwalker,
+      to: target,
+      facing: Facing.North,
+      movementType: MovementType.Run,
+      capability,
+      environmentalConditions: night,
+    });
+    expect(commit).toMatchObject({
+      valid: false,
+      reason: 'TerrainBlocked',
+      details: expect.stringContaining('Nightwalker prohibits running'),
+    });
+  });
+
+  it.each<{ readonly light: LightCondition; readonly blockedCost: number }>([
+    { light: 'full_moon', blockedCost: 2 },
+    { light: 'glare', blockedCost: 2 },
+    { light: 'moonless', blockedCost: 3 },
+    { light: 'solar_flare', blockedCost: 3 },
+    { light: 'pitch_black', blockedCost: 4 },
+  ])(
+    'projects MegaMek $light Nightwalker movement relief and run prohibition',
+    ({ light, blockedCost }) => {
+      const grid = createHexGrid({ radius: 3 });
+      const target = { q: 0, r: -1 };
+      const conditions = createEnvironmentalConditions({ light });
+      const unit = makeUnitAtOrigin();
+      const nightwalker = { ...unit, abilities: ['tm_nightwalker'] };
+      const capability: IMovementCapability = {
+        walkMP: 1,
+        runMP: 2,
+        jumpMP: 0,
+      };
+
+      const blockedWalk = deriveMovementRangeHexForDestination(
+        unit,
+        MovementType.Walk,
+        grid,
+        capability,
+        target,
+        'normal',
+        { environmentalConditions: conditions },
+      );
+      const allowedNightwalkerWalk = deriveMovementRangeHexForDestination(
+        nightwalker,
+        MovementType.Walk,
+        grid,
+        capability,
+        target,
+        'normal',
+        { environmentalConditions: conditions },
+      );
+      const blockedNightwalkerRun = deriveMovementRangeHexForDestination(
+        nightwalker,
+        MovementType.Run,
+        grid,
+        capability,
+        target,
+        'normal',
+        { environmentalConditions: conditions },
+      );
+
+      expect(blockedWalk).toMatchObject({
+        reachable: false,
+        mpCost: blockedCost,
+        movementInvalidReason: 'InsufficientMP',
+      });
+      expect(allowedNightwalkerWalk).toMatchObject({
+        reachable: true,
+        mpCost: 1,
+        movementType: MovementType.Walk,
+      });
+      expect(blockedNightwalkerRun).toMatchObject({
+        reachable: false,
+        movementInvalidReason: 'TerrainBlocked',
+        movementInvalidDetails: expect.stringContaining(
+          'Nightwalker prohibits running',
+        ),
+      });
+    },
+  );
+
+  it('keeps airborne LAM AirMek Nightwalker out of low-light ground projection', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const target = { q: 0, r: -1 };
+    const night = createEnvironmentalConditions({ light: 'night' });
+    const airborneNightwalker = {
+      ...makeUnitAtOrigin(),
+      abilities: ['tm_nightwalker'],
+      conversionMode: 'airmek' as const,
+      combatState: {
+        kind: 'aero' as const,
+        state: createAerospaceCombatState({
+          maxSI: 3,
+          armorByArc: { nose: 1, leftWing: 1, rightWing: 1, aft: 1 },
+          heatSinks: 10,
+          fuelPoints: 20,
+          safeThrust: 5,
+          maxThrust: 8,
+          altitude: 1,
+          currentVelocity: 2,
+          nextVelocity: 2,
+          airborneState: 'airborne',
+        }),
+      },
+    };
+    const capability: IMovementCapability = {
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 2,
+      movementMode: 'walk',
+      unitHeight: 1,
+      unitHeightProfile: { kind: 'lam', standingHeight: 1 },
+    };
+
+    const projection = deriveMovementRangeHexForDestination(
+      airborneNightwalker,
+      MovementType.Walk,
+      grid,
+      capability,
+      target,
+      'normal',
+      { environmentalConditions: night },
+    );
+
+    expect(projection).toMatchObject({
+      reachable: false,
+      blockedReason: AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
+      movementInvalidDetails:
+        AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
+    });
+
+    const commit = validateCommittedMovement({
+      grid,
+      unit: airborneNightwalker,
+      to: target,
+      facing: Facing.North,
+      movementType: MovementType.Walk,
+      capability,
+      environmentalConditions: night,
+    });
+    expect(commit).toMatchObject({
+      valid: false,
+      reason: 'InvalidDestination',
+      details: AIRBORNE_LAM_AIRMEK_GROUND_MOVEMENT_BLOCKED_REASON,
+    });
   });
 
   it('surfaces validateMovement disagreement instead of silently committing the permissive side', () => {

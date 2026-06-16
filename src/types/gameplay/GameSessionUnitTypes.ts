@@ -3,6 +3,8 @@
  * Extracted from GameSessionInterfaces.ts to keep focused type modules under the lint line cap.
  */
 
+import type { IC3EquipmentMountState } from '@/utils/gameplay/c3Network';
+
 import type { EngineType } from '../construction/EngineType';
 import type {
   VehicleLocation,
@@ -96,6 +98,32 @@ export interface IVehicleCriticalAvailabilityProfile {
   readonly stabilizerHitLocations?: readonly (VehicleLocation | VTOLLocation)[];
 }
 
+export interface IInitiativeEquipmentProfile {
+  /**
+   * Tons of working communications equipment in Default mode. This must be
+   * represented explicitly so command-looking names do not imply HQ initiative.
+   */
+  readonly workingCommunicationsTonnage?: number;
+  /** Communications mode for the represented working gear. */
+  readonly communicationsMode?: string;
+  /** Command-console cockpit label from construction data. */
+  readonly cockpitType?: string;
+  /**
+   * Exact official command-console producer equipment IDs represented on the
+   * unit. These are evidence for catalog hydration only; command initiative
+   * eligibility still comes from cockpitType plus crew/weight gates.
+   */
+  readonly commandConsoleProducerEquipmentIds?: readonly string[];
+  /** True when the command-console crew slot is active and eligible. */
+  readonly commandConsoleCrewActive?: boolean;
+  /** Chassis mass/class evidence for heavy-or-larger command console gating. */
+  readonly tonnage?: number;
+  readonly weightClass?: string;
+  /** Construction unit type and fire-control gate for IndustrialMek handling. */
+  readonly unitType?: string;
+  readonly hasAdvancedFireControl?: boolean;
+}
+
 /**
  * Unit participating in a game.
  */
@@ -152,6 +180,13 @@ export interface IGameUnit {
   readonly hasMASC?: boolean;
   /** Supercharger construction flag; active use is represented separately. */
   readonly hasSupercharger?: boolean;
+  /** Drone operating system installed; EMP effects apply a source-backed +2 roll modifier. */
+  readonly hasDroneOS?: boolean;
+  /**
+   * Mounted Targeting Computer projected from catalog/full-unit equipment.
+   * Kept separate from pilot SPA state such as Triple-Core Processor.
+   */
+  readonly targetingComputerEquipment?: boolean;
   /** MASC active for the current movement declaration. */
   readonly activeMASC?: boolean;
   /** Supercharger active for the current movement declaration. */
@@ -167,6 +202,14 @@ export interface IGameUnit {
   /** Pilot SPA ids copied into combat state for modifier resolution. */
   readonly abilities?: readonly string[];
   /**
+   * Explicit represented neural-interface state for VDNI/BVDNI/TCP effects.
+   * Undefined preserves legacy implicit-active fixtures; false models a pilot
+   * whose implant exists but is not jacked into the unit for this combat state.
+   */
+  readonly neuralInterfaceActive?: boolean;
+  /** Source-backed Edge points copied into combat state for SPA triggers. */
+  readonly edgePointsRemaining?: number;
+  /**
    * Source-backed RPG Toughness numeric crew value copied into combat state
    * for consciousness checks. Ability aliases named "toughness" do not imply
    * this value.
@@ -177,6 +220,7 @@ export interface IGameUnit {
   readonly designatedWeaponCategory?: string;
   readonly designatedTargetId?: string;
   readonly designatedRangeBracket?: RangeBracket;
+  readonly designatedEnvironment?: string;
   /** Unit and weapon quirk ids copied into combat state for modifier resolution. */
   readonly unitQuirks?: readonly string[];
   readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
@@ -191,6 +235,18 @@ export interface IGameUnit {
    * best HQ/quirk force bonus.
    */
   readonly initiativeCommandBonus?: number;
+  /**
+   * Represented source-backed equipment context used to derive HQ and command
+   * initiative bonuses. Unlike `initiativeHQBonus`/`initiativeCommandBonus`,
+   * this proves the eligibility gates instead of passing a precomputed value.
+   */
+  readonly initiativeEquipment?: IInitiativeEquipmentProfile;
+  /**
+   * Mounted C3 equipment projected from catalog/full-unit data. Session
+   * creation may form only conservative unambiguous C3/C3i networks from this
+   * state; ambiguous or oversized groups require explicit session authoring.
+   */
+  readonly c3Equipment?: readonly IC3EquipmentMountState[];
   /**
    * Mounted weapon location by runtime weapon id. Optional so legacy setup
    * paths keep working; hydrated runners and adapters populate it for physical
@@ -316,6 +372,14 @@ export interface IGameUnit {
    * unit while it is loading or unloading cargo.
    */
   readonly isLoadingOrUnloadingCargo?: boolean;
+  /**
+   * Optional represented carried-cargo state copied into combat state.
+   * MegaMek blocks arm-dependent physical attacks when cargo occupies the
+   * required hand/arm; undefined preserves fixtures without object-carry
+   * lifecycle state.
+   */
+  readonly leftArmCarryingCargo?: boolean;
+  readonly rightArmCarryingCargo?: boolean;
   /**
    * Optional board identity copied into combat state. When both attacker and
    * target provide explicit ids, source-backed physical declarations require

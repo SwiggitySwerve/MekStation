@@ -237,8 +237,9 @@ describe('BattleMech validation scope support catalog', () => {
     );
     expect(urlsFor('unresolved-completion-blocker-inventory')).toEqual(
       expect.arrayContaining([
-        'src/simulation/runner/CombatValidationGapInventory.ts#L27-L60',
-        'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts#L126-L156',
+        'src/simulation/runner/CombatValidationGapInventory.ts#L21-L69',
+        'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts#L159-L1479',
+        'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts#L1485-L1534',
       ]),
     );
   });

@@ -16,6 +16,7 @@ import {
   MEGAMEK_AMMO_EXPLOSION_PILOT_DAMAGE_SOURCE_REFS,
   MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
   MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
+  MEKSTATION_RPG_TOUGHNESS_PREBATTLE_SOURCE_REFS,
 } from './CombatConsciousnessSourceRefs';
 import {
   MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
@@ -59,8 +60,9 @@ import {
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS,
   MEGAMEK_MULTI_TRAC_SOURCE_REFS,
-  MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
+  MEKSTATION_DISTRACTING_TO_HIT_DEVIATION_SOURCE_REFS,
   MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
+  MEKSTATION_LOW_PROFILE_TO_HIT_DEVIATION_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
   MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS,
   MEGAMEK_SHAKY_STICK_SOURCE_REFS,
@@ -72,12 +74,18 @@ import {
   MEKSTATION_TARGETING_QUIRK_ALIAS_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
 import {
+  MEGAMEK_ACTIVE_PROBE_SOURCE_REFS,
   MEGAMEK_AMS_SOURCE_REFS,
+  MEGAMEK_ARTEMIS_CLUSTER_SOURCE_REFS,
+  MEGAMEK_ARTEMIS_FCS_SOURCE_REFS,
+  MEGAMEK_ECM_SUITE_SOURCE_REFS,
   MEGAMEK_LBX_SOURCE_REFS,
   MEGAMEK_MML_SOURCE_REFS,
   MEGAMEK_NARC_FAMILY_SOURCE_REFS,
+  MEGAMEK_INARC_POD_OBJECT_SOURCE_REFS,
   MEGAMEK_PLASMA_CANNON_SOURCE_REFS,
   MEGAMEK_RAC_SOURCE_REFS,
+  MEGAMEK_STEALTH_ACTIVE_SOURCE_REFS,
   MEGAMEK_STREAK_SRM_SOURCE_REFS,
   MEGAMEK_TAG_FAMILY_SOURCE_REFS,
   MEGAMEK_UAC_SOURCE_REFS,
@@ -121,17 +129,6 @@ function helperOnly(
   return sourceRefs
     ? { id, level: 'helper-only', evidence, gap, sourceRefs }
     : { id, level: 'helper-only', evidence, gap };
-}
-
-function unsupported(
-  id: string,
-  evidence: string,
-  gap: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return sourceRefs
-    ? { id, level: 'unsupported', evidence, gap, sourceRefs }
-    : { id, level: 'unsupported', evidence, gap };
 }
 
 function outOfScope(
@@ -278,14 +275,6 @@ const MEGAMEK_325B_LRM_ARTEMIS_INDIRECT_GUARD = {
   citation:
     'MegaMek LRMHandler skips Artemis cluster modifiers when the weapon mode is Indirect and includes prototype Artemis IV in the same modifier chain',
   url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/weapons/handlers/lrm/LRMHandler.java#L159-L207',
-  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-} satisfies ICombatFeatureSourceReference;
-
-const MEGAMEK_325B_PROTOTYPE_ARTEMIS_FCS = {
-  kind: 'megamek-source',
-  citation:
-    'MegaMek MiscType.createISProtoArtemis defines Prototype Artemis IV FCS with F_ARTEMIS_PROTO',
-  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/equipment/MiscType.java#L6276-L6295',
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
 
@@ -480,26 +469,10 @@ const MEGAMEK_325B_MANEUVERING_ACE_QUAD_SIDE_STEP_COST = {
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
 
-const MEGAMEK_325B_MANEUVERING_ACE_AERO_MANEUVER_COST = {
-  kind: 'megamek-source',
-  citation:
-    'MegaMek ManeuverStep reduces aerospace maneuver thrust cost by 1 for Maneuvering Ace.',
-  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/moves/ManeuverStep.java#L60-L66',
-  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-} satisfies ICombatFeatureSourceReference;
-
-const MEGAMEK_325B_MANEUVERING_ACE_SIDE_SLIP = {
-  kind: 'megamek-source',
-  citation:
-    'MegaMek Entity.checkSideSlip applies Maneuvering Ace relief to flanking-and-turning checks and suppresses controlled-sideslip checks for walking Maneuvering Ace units.',
-  url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L11978-L11998',
-  sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
-} satisfies ICombatFeatureSourceReference;
-
 const MEGAMEK_325B_MANEUVERING_ACE_OUT_OF_CONTROL = {
   kind: 'megamek-source',
   citation:
-    'MegaMek TWGameManager.getControlRollTarget applies -1 Maneuvering Ace to out-of-control checks.',
+    'MegaMek TWGameManager.getPilotingRollData applies -1 Maneuvering Ace to out-of-control control rolls without applying it to recovery rolls.',
   url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L16908-L16920',
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
@@ -512,14 +485,30 @@ const MEGAMEK_325B_MANEUVERING_ACE_OPTION = {
   sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
 } satisfies ICombatFeatureSourceReference;
 
-const MEGAMEK_325B_MANEUVERING_ACE_SOURCE_REFS = [
+const MEKSTATION_MANEUVERING_ACE_LATERAL_SHIFT = {
+  kind: 'mekstation-deviation',
+  citation:
+    'MekStation validateMovement, runMovementPhase, and movement step decomposition consume Maneuvering Ace pilot ability state for biped lateral shifts and source-backed QuadMek lateral-step MP relief.',
+  url: 'src/utils/gameplay/movement/validation.ts#L50',
+  sourceVersion: 'MekStation working-tree',
+} satisfies ICombatFeatureSourceReference;
+
+const MEKSTATION_MANEUVERING_ACE_OUT_OF_CONTROL_PSR = {
+  kind: 'mekstation-deviation',
+  citation:
+    'MekStation createOutOfControlPSR plus runPSRPhase consume Maneuvering Ace pilot ability state for represented out-of-control pending PSR target-number relief.',
+  url: 'src/utils/gameplay/pilotingSkillRolls/systemFactories.ts#L111',
+  sourceVersion: 'MekStation working-tree',
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_325B_MANEUVERING_ACE_BATTLEMECH_SOURCE_REFS = [
   MEGAMEK_325B_MANEUVERING_ACE_SKID,
   MEGAMEK_325B_MANEUVERING_ACE_LATERAL_SHIFT,
   MEGAMEK_325B_MANEUVERING_ACE_QUAD_SIDE_STEP_COST,
-  MEGAMEK_325B_MANEUVERING_ACE_AERO_MANEUVER_COST,
-  MEGAMEK_325B_MANEUVERING_ACE_SIDE_SLIP,
   MEGAMEK_325B_MANEUVERING_ACE_OUT_OF_CONTROL,
   MEGAMEK_325B_MANEUVERING_ACE_OPTION,
+  MEKSTATION_MANEUVERING_ACE_LATERAL_SHIFT,
+  MEKSTATION_MANEUVERING_ACE_OUT_OF_CONTROL_PSR,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEGAMEK_325B_ANIMAL_MIMICRY_QUAD_PSR = {
@@ -585,10 +574,9 @@ export const SPA_COMBAT_SUPPORT = {
     'calculateRangeMasterModifier + calculateAttackerSPAModifiers',
     MEGAMEK_RANGE_MASTER_SOURCE_REFS,
   ),
-  sandblaster: helperOnly(
+  sandblaster: integrated(
     'sandblaster',
-    'Source-backed getSandblasterClusterModifier plus resolveSpecialProjectileHit apply +4/+3/+2 range-based cluster-table modifiers for designated LB-X and missile cluster-table paths',
-    'Rate-of-fire UAC/RAC/rapid-fire AC Sandblaster resolution and full MegaMek eligible-weapon hydration are not wired',
+    'Source-backed getSandblasterClusterModifier, resolveSpecialProjectileHit, UnitHydration catalog authoring, and runner rate-of-fire expansion apply +4/+3/+2 range-based cluster-table modifiers for designated LB-X, missile cluster-table, selected UAC/RAC rate-of-fire paths, and official ordinary AC rapid-fire modes',
     MEGAMEK_SANDBLASTER_SOURCE_REFS,
   ),
   'oblique-attacker': integrated(
@@ -627,11 +615,10 @@ export const SPA_COMBAT_SUPPORT = {
     'getAllowedPhysicalAttackCount plus declarePhysicalAttack enforce the source-backed Melee Master two-physical-attacks allowance while getMeleeMasterDamageBonus preserves the no-flat-damage boundary',
     MEKSTATION_MELEE_MASTER_DEVIATION_SOURCE_REFS,
   ),
-  'maneuvering-ace': helperOnly(
+  'maneuvering-ace': integrated(
     'maneuvering-ace',
-    'getManeuveringAceSkidModifier plus resolveAllPSRs apply source-backed Maneuvering Ace -1 to Skidding PSRs',
-    'Maneuvering Ace lateral-shift movement allowance, QuadMek lateral-step MP relief, aerospace maneuver-thrust relief, controlled-sideslip relief, and out-of-control checks are not wired',
-    MEGAMEK_325B_MANEUVERING_ACE_SOURCE_REFS,
+    'getManeuveringAceSkidModifier plus resolveAllPSRs apply source-backed Maneuvering Ace -1 to BattleMech skidding PSRs, createOutOfControlPSR plus runPSRPhase apply source-backed Maneuvering Ace -1 to represented out-of-control pending PSRs, and validateMovement plus runMovementPhase validate source-backed BattleMech biped lateral shifts and QuadMek lateral-step MP relief',
+    MEGAMEK_325B_MANEUVERING_ACE_BATTLEMECH_SOURCE_REFS,
   ),
   'terrain-master': outOfScope(
     'terrain-master',
@@ -701,30 +688,29 @@ export const SPA_COMBAT_SUPPORT = {
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
     ],
   ),
-  'pain-resistance': helperOnly(
+  'pain-resistance': integrated(
     'pain-resistance',
-    'resolveBattleMechAmmoExplosionPilotDamage reduces ammunition-explosion pilot damage, getConsciousnessCheckModifier applies source-backed Pain Resistance target-number relief, and ranged to-hit wound penalties remain unchanged',
-    'MegaMek source also uses Pain Resistance for wake-up rolls; MekStation has not modeled wake-up roll application yet',
+    'resolveBattleMechAmmoExplosionPilotDamage reduces ammunition-explosion pilot damage, getConsciousnessCheckModifier applies source-backed Pain Resistance target-number relief, resolvePilotWakeUpCheck applies Pain Resistance wake-up relief during runner heat recovery, and ranged to-hit wound penalties remain unchanged',
     [
       ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
     ],
   ),
-  edge: helperOnly(
+  edge: integrated(
     'edge',
-    'Source-backed Edge trigger ids are represented by createEdgeState/canUseEdge/useEdge generic helper state, and runPSRPhase consumes edge_when_masc_fails for failed MASC/Supercharger rerolls',
-    'Generic Edge helper state is partial; canonical head-hit, TAC, KO, and explosion trigger rows stay unsupported until those resolvers consume trigger-specific Edge state',
+    'Source-backed Edge trigger ids, not the generic edge SPA alias by itself, are represented by deriveEdgePointCountFromPilotAbilities/createEdgeState/canUseEdge/useEdge generic helper state; UnitHydration and GameCreated synthesis seed hydrated fullUnit abilities plus generic Edge points into combat and replay state; represented BattleMech and out-of-scope aerospace trigger ids are partitioned in EDGE_TRIGGERS; hit-location resolution consumes edge_when_headhit and edge_when_tac, runPSRPhase consumes edge_when_masc_fails, resolvePilotConsciousnessCheck consumes edge_when_ko, and criticalHitResolution consumes edge_when_explosion for their proven BattleMech trigger paths',
     [
       ...MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
       ...MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
     ],
   ),
-  toughness: helperOnly(
+  toughness: outOfScope(
     'toughness',
-    'resolvePilotConsciousnessCheck, applyPilotDamage, runner pilot-damage phases, and interactive PSR/heat/physical/ammo-explosion paths consume explicit numeric pilotToughness state without treating legacy toughness ability strings as source-backed relief',
-    'Automatic RPG Toughness game-option hydration and MUL crew toughness import remain unwired; explicit pilotToughness is the supported closed-world path',
+    'Legacy pilotAbilities.toughness ability strings are local alias data, not source-backed BattleMech SPA relief; force and skirmish preBattleSessionBuilder paths instead map explicit assigned-pilot rpgToughness/RPG Toughness snapshots into GameCreated pilotToughness seeds, and resolvePilotConsciousnessCheck, applyPilotDamage, runner pilot-damage phases, and interactive PSR/heat/physical/ammo-explosion paths consume explicit numeric pilotToughness state without treating legacy toughness ability strings as relief',
+    'Legacy toughness ability aliases are excluded from the official BattleMech blocker inventory; automatic RPG Toughness game-option hydration and MUL crew toughness import remain future producer work, while explicit assigned-pilot rpgToughness/pilotToughness is tracked by pilotSkills.pilotModifierResolvers.rpg-toughness-consciousness-application',
     [
       ...MEGAMEK_CONSCIOUSNESS_TOUGHNESS_SOURCE_REFS,
+      ...MEKSTATION_RPG_TOUGHNESS_PREBATTLE_SOURCE_REFS,
       ...MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS,
     ],
   ),
@@ -773,10 +759,9 @@ export const SPA_COMBAT_SUPPORT = {
     'Local Iron Will behavior is excluded from the official BattleMech validation blocker inventory; source-backed Iron Man remains covered as ammunition-explosion-only support, not generic consciousness relief',
     MEKSTATION_LOCAL_ONLY_SPA_SOURCE_REFS,
   ),
-  'heavy-lifter': helperOnly(
+  'heavy-lifter': integrated(
     'heavy-lifter',
-    'calculateGroundObjectLiftCapacity applies the source-backed 1.5 Heavy Lifter lift-capacity multiplier for canonical and legacy ids',
-    'MekStation still has no carry/throw-object physical combat action declaration or resolution path',
+    'calculateGroundObjectLiftCapacity applies source-backed 5 percent per available hand lift capacity, canonical hvy_lifter and legacy heavy-lifter 1.5 multipliers, and the active TSM pickup multiplier',
     [
       ...MEGAMEK_HEAVY_LIFTER_SOURCE_REFS,
       ...MEKSTATION_HEAVY_LIFTER_HELPER_SOURCE_REFS,
@@ -844,22 +829,20 @@ export const QUIRK_COMBAT_SUPPORT = {
       ...MEKSTATION_TARGETING_QUIRK_ALIAS_SOURCE_REFS,
     ],
   ),
-  distracting: helperOnly(
+  distracting: integrated(
     'distracting',
-    'calculateDistractingModifier plus calculateToHit expose a local +1 target to-hit helper',
-    'MegaMek source snapshot registers Distracting as a quirk option but does not expose a combat to-hit resolver for the local +1 helper; keep it out of source-backed integrated coverage until Demoralizer/panic-rule authority is modeled or the deviation is explicitly accepted',
+    'calculateDistractingModifier is consumed by calculateAttackerQuirkModifiers/calculateToHit after runAttackPhase and declareAttack hydrate target unitQuirks, exposing the accepted MekStation local +1 target to-hit deviation in runner and interactive BattleMech attack declaration behavior',
     [
       ...MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
-      ...MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
+      ...MEKSTATION_DISTRACTING_TO_HIT_DEVIATION_SOURCE_REFS,
     ],
   ),
-  low_profile: unsupported(
+  low_profile: integrated(
     'low_profile',
-    'MegaMek WeaponHandler applies Low Profile as glancing-blow handling when the attack roll equals the target number or target number plus one; MekStation currently only exposes a local +1 target to-hit helper when partial cover is absent',
-    'Low Profile remains unsupported until weapon-hit and damage resolution model source-backed glancing blows instead of treating the quirk as a normal ranged to-hit modifier',
+    'isLowProfileGlancingBlow plus runner resolveWeaponHit and interactive resolveAttack implement the source-backed Low Profile glancing-blow path by halving normal single-hit weapon damage when a Low Profile target is hit on the final target number or target number plus one, applying the source-backed -2 glancing critical-hit-table modifier to represented damage/critical resolution, and consuming Low Profile as a -4 cluster-table modifier for represented missile and LB-X cluster paths; the legacy local +1 target to-hit helper remains documented as deviation coverage',
     [
       ...MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS,
-      ...MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
+      ...MEKSTATION_LOW_PROFILE_TO_HIT_DEVIATION_SOURCE_REFS,
     ],
   ),
   easy_to_pilot: integrated(
@@ -910,12 +893,12 @@ export const QUIRK_COMBAT_SUPPORT = {
   ),
   command_mech: integrated(
     'command_mech',
-    'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +1 force initiative bonus from active conscious units alongside explicit HQ/command equipment initiative fields; automatic HQ and command-console equipment hydration remains tracked under initiative-hq-equipment-hydration and initiative-command-console-hydration',
+    'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +1 force initiative bonus from active conscious units alongside explicit HQ/command equipment initiative fields and represented initiativeEquipment gates; broad producer hydration remains tracked under initiative-equipment-producer-hydration',
     MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   ),
   battle_computer: integrated(
     'battle_computer',
-    'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +2 force initiative bonus from active conscious units, keep it non-cumulative with Command Mech/HQ, and stack explicit command equipment bonus separately; automatic HQ and command-console equipment hydration remains tracked under initiative-hq-equipment-hydration and initiative-command-console-hydration',
+    'calculateInitiativeQuirkModifier plus rollInitiative apply the source-backed +2 force initiative bonus from active conscious units, keep it non-cumulative with Command Mech/HQ, and stack explicit/represented command equipment bonus separately; broad producer hydration remains tracked under initiative-equipment-producer-hydration',
     MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   ),
   sensor_ghosts: integrated(
@@ -1012,13 +995,15 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
   ),
   narc: integrated(
     'narc',
-    'isNarc + getNarcBonus + runner NARC hits attach narcedBy + runner iNarc selected-ammo hits attach Homing/ECM/Haywire/Nemesis iNarcPods + DesignatorMarkerApplied replay + indirect-fire NARC/iNARC basis helpers consume canonical marker state + runner direct NARC-compatible missile cluster, iNarc Homing to-hit, iNarc Haywire to-hit, iNarc ECM attacker flight-path Artemis suppression, iNarc ECM C3 disruption, explicit runner C3 range-bracket math, and iNarc Nemesis redirect consume marker state; remaining iNarc ECM sensor effects stay tracked under inarc-pod-variants and ambiguous/player-authored C3 network assignment stays tracked under C3 network formation',
-    MEGAMEK_NARC_FAMILY_SOURCE_REFS,
+    'isNarc + getNarcBonus + runner NARC hits attach narcedBy + runner iNarc selected-ammo hits attach Homing/ECM/Haywire/Nemesis iNarcPods + DesignatorMarkerApplied replay rehydrates typed iNarcPods + source-backed same-team/same-type iNarc pod target identity helpers and deduped carrier-level Brush-Off target options + indirect-fire NARC/iNARC basis helpers consume canonical marker state + runner direct NARC-compatible missile cluster, iNarc Homing to-hit, iNarc Haywire to-hit, iNarc ECM attacker flight-path Artemis suppression, iNarc ECM C3 disruption, iNarc ECM tactical sensor-contact bracket penalties, explicit C3 range-bracket math, iNarc Nemesis redirect, and carrier-attached iNarc pod-object target selection/removal lifecycle consume marker state; producer-side C3 authoring remains separated, and ambiguous C3 network assignment stays tracked under C3 network formation',
+    [
+      ...MEGAMEK_NARC_FAMILY_SOURCE_REFS,
+      ...MEGAMEK_INARC_POD_OBJECT_SOURCE_REFS,
+    ],
   ),
-  ams: helperOnly(
+  ams: integrated(
     'ams',
-    'isAMS + resolveAMSInterception applies the MegaMek/TW -4 cluster-table modifier, filters mounted AMS by incoming firing arc when mountingArc or multi-arc mountingArcs state is available, UnitHydration maps canonical isRearMounted equipment into explicit Front/Rear mountingArc state and biped arm mounts into front+side mountingArcs coverage, resolveSingleMissileAMSInterception handles NARC/Thunderbolt-style single missiles, consumes defender AMS ammo, emits AMSInterception events, marks ammo-fed or Laser AMS as fired for heat accounting, and handles Streak as cluster-roll 11',
-    'AMS defender choice and optional multi-use/PLAYTEST_3 lifecycle remain helper-only gaps outside runner/session combat',
+    'isAMS + runAttackPhase automatically selects an operational defender AMS for missile interception, resolveAMSInterception applies the MegaMek/TW -4 cluster-table modifier, filters mounted AMS by incoming firing arc when mountingArc or multi-arc mountingArcs state is available, UnitHydration maps canonical isRearMounted equipment into explicit Front/Rear mountingArc state and biped arm mounts into front+side mountingArcs coverage, resolveSingleMissileAMSInterception handles NARC/Thunderbolt-style single missiles, consumes defender AMS ammo, emits AMSInterception events, marks ammo-fed or Laser AMS as fired for heat accounting, excludes already-fired standard AMS from later same-phase automatic interception, allows explicit PLAYTEST_3 optional-rule or amsMultiUse mount state to reuse AMS while preserving ammo/heat/fired accounting, and handles Streak as cluster-roll 11',
     MEGAMEK_AMS_SOURCE_REFS,
   ),
   tag: integrated(
@@ -1026,20 +1011,23 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
     'isTAG + generic Attack game/wire intent support + runner TAG hits attach tagDesignated and emit DesignatorMarkerApplied + replay reducer reapplies tagDesignated + turn lifecycle clears tagDesignated + source-backed semi-guided TAG target-movement cancellation and indirect-fire to-hit relief are wired through runner/session to-hit resolution while official cluster totals ignore the legacy non-parity helper',
     MEGAMEK_TAG_FAMILY_SOURCE_REFS,
   ),
-  artemis: helperOnly(
+  artemis: integrated(
     'artemis',
-    'UnitHydration approximates source-backed Artemis IV/prototype IV/V flag discovery from critical-slot FCS plus Artemis-capable ammo; runner missile cluster resolution consumes those flags for direct fire, indirect-fire suppression, ECM suppression, active-probe ECM countering, and active attacker-stealth suppression from runner electronic-warfare state',
-    'Exact multi-launcher FCS link allocation, Nova CEWS networking, and FCS/ECM/probe/stealth mode or damage lifecycle are not fully represented in runner missile resolution',
+    'Represented BattleMech Artemis family support covers explicit linkedEquipment FCS allocation when present, unambiguous single-launcher or exact-cardinality same-location Artemis IV/prototype IV/V FCS critical-slot hydration fallback, explicit linked FCS critical damage guidance removal, unambiguous same-location Artemis FCS critical damage guidance removal fallback when no explicit link exists, Artemis IV/prototype IV/V cluster-table modifiers, indirect-fire suppression, target/flight-path ECM suppression, represented ECM mode consumption for Artemis suppression, active-probe ECM countering from source-backed BAP/CEWS equipment state, ECM-suite and active-probe critical replay lifecycle, bounded Nova CEWS C3-style range sharing, active attacker-stealth suppression from runner electronic-warfare state, and ECM-linked stealth damage lifecycle suppression removal; mixed-kind, mismatched-count, or otherwise ambiguous multi-launcher/FCS allocation authoring without explicit metadata remains explicit under the Artemis residual leaf row',
     [
+      ...MEGAMEK_ARTEMIS_CLUSTER_SOURCE_REFS,
+      ...MEGAMEK_ARTEMIS_FCS_SOURCE_REFS,
+      ...MEGAMEK_ECM_SUITE_SOURCE_REFS,
+      ...MEGAMEK_ACTIVE_PROBE_SOURCE_REFS,
+      ...MEGAMEK_STEALTH_ACTIVE_SOURCE_REFS,
       MEGAMEK_325B_ARTEMIS_CLUSTER_MODIFIERS,
       MEGAMEK_325B_LRM_ARTEMIS_INDIRECT_GUARD,
-      MEGAMEK_325B_PROTOTYPE_ARTEMIS_FCS,
     ],
   ),
-  'plasma-cannon': helperOnly(
+  'plasma-cannon': outOfScope(
     'plasma-cannon',
-    'Exact official Clan Plasma Cannon id is pinned as a standard zero-damage plasma weapon; runner hits emit zero BattleMech damage and HeatGenerated external target heat from the source-backed 2d6 plasma roll, halve heat through hydrated or explicit reflective/heat-dissipating armor state outside PLAYTEST_3, apply PLAYTEST_3 reflective full-heat and heat-dissipating zero-heat behavior, hydrate source-backed plasma ammo bins, and consume plasma ammunition despite MegaMek energy flags',
-    'MegaMek heatFromExternal pending-bucket timing/caps and non-Mek special damage paths remain helper-only gaps',
+    'Exact official Clan Plasma Cannon id is pinned as a standard zero-damage plasma weapon; runner hits emit zero BattleMech damage, queue source-backed 2d6 external target heat into a Heat Phase pending bucket, apply capped external HeatGenerated target heat in Heat Phase through externalHeatThisTurn and turn-boundary reset lifecycle, halve heat through hydrated or explicit reflective/heat-dissipating armor state outside PLAYTEST_3, apply PLAYTEST_3 reflective full-heat and heat-dissipating zero-heat behavior, hydrate source-backed plasma ammo bins, and consume plasma ammunition despite MegaMek energy flags',
+    'Remaining Plasma Cannon residual is limited to non-Mek special damage paths plus terrain/building special damage paths, outside the BattleMech runtime validation scope',
     MEGAMEK_PLASMA_CANNON_SOURCE_REFS,
   ),
 } satisfies Record<string, ICombatFeatureSupportEntry>;
@@ -1089,7 +1077,7 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
   ),
   talons: integrated(
     'talons',
-    'source-backed kick and DFA damage helpers apply the +50% talon modifier from explicit biped leg or quad/non-biped arm-location state, UnitHydration critical-slot state, destroyed/missing/breached equipment critical events, or destroyed location state without exposing talons as a selectable attack type; remaining mounted-equipment lifecycle gaps are tracked under talon-equipment-lifecycle',
+    'Official physical catalog entry Talons is represented as source-backed kick and DFA modifier equipment, not as a standalone runtime PhysicalAttackType; damage helpers apply the +50% talon modifier from explicit biped leg or quad/non-biped arm-location state, UnitHydration critical-slot state, destroyed/missing/breached equipment critical events, or destroyed location state, while remaining mounted-equipment lifecycle gaps are tracked under talon-equipment-lifecycle',
     [
       MEGAMEK_325B_TALON_KICK_DAMAGE,
       MEGAMEK_325B_TALON_DFA_DAMAGE,
@@ -1100,7 +1088,7 @@ export const PHYSICAL_WEAPON_COMBAT_SUPPORT = {
   ),
   claws: integrated(
     'claws',
-    'source-backed punch damage/to-hit helpers apply claw modifiers from explicit state, UnitHydration arm critical-slot state, destroyed/missing/breached equipment critical events, or destroyed arm location state without exposing claws as a selectable attack type; PLAYTEST_3 removes only the claw punch to-hit penalty while preserving claw punch damage, and remaining mounted-equipment lifecycle gaps are tracked under claw-equipment-lifecycle',
+    'Official physical catalog entry Claws is represented as source-backed punch modifier equipment, not as a standalone runtime PhysicalAttackType; punch damage/to-hit helpers apply claw modifiers from explicit state, UnitHydration arm critical-slot state, destroyed/missing/breached equipment critical events, or destroyed arm location state, PLAYTEST_3 removes only the claw punch to-hit penalty while preserving claw punch damage, and remaining mounted-equipment lifecycle gaps are tracked under claw-equipment-lifecycle',
     [
       MEGAMEK_325B_CLAW_PUNCH_DAMAGE,
       MEGAMEK_325B_CLAW_PUNCH_TO_HIT,

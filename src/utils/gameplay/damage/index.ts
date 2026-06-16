@@ -5,7 +5,11 @@ export {
   applyInternalDamageWithTransfer,
 } from './location';
 export { checkCriticalHitTrigger, getCriticalHitCount } from './critical';
-export { applyPilotDamage, resolvePilotConsciousnessCheck } from './pilot';
+export {
+  applyPilotDamage,
+  resolvePilotConsciousnessCheck,
+  resolvePilotWakeUpCheck,
+} from './pilot';
 export { checkUnitDestruction } from './destruction';
 export {
   resolveDamage,

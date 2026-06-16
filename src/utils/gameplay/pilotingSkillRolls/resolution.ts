@@ -15,8 +15,11 @@ import {
 import { D6Roller, roll2d6 } from '../hitLocation';
 import { calculatePilotingQuirkPSRModifier } from '../quirkModifiers';
 import {
+  calculateNeuralInterfacePilotingModifier,
   getAnimalMimicryPSRModifier,
   getFrogmanWaterPSRModifier,
+  getManeuveringAceFlankingTurningModifier,
+  getManeuveringAceOutOfControlModifier,
   getManeuveringAceSkidModifier,
   getMountaineerRubblePSRModifier,
   getSwampBeastBogDownPSRModifier,
@@ -28,6 +31,7 @@ export interface IPSRResolutionOptions {
   readonly optionalRules?: readonly string[];
   readonly unitQuirks?: readonly string[];
   readonly pilotAbilities?: readonly string[];
+  readonly neuralInterfaceActive?: boolean;
   readonly isQuadMek?: boolean;
   readonly unitType?: string;
   readonly pilotingSkill?: number;
@@ -336,6 +340,32 @@ export function calculatePSRModifiers(
     }
   }
 
+  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.OutOfControl) {
+    const maneuveringAceModifier = getManeuveringAceOutOfControlModifier(
+      normalizedPilotAbilities,
+    );
+    if (maneuveringAceModifier !== 0) {
+      modifiers.push({
+        name: 'Maneuvering Ace',
+        value: maneuveringAceModifier,
+        source: 'spa',
+      });
+    }
+  }
+
+  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.FlankingAndTurning) {
+    const maneuveringAceModifier = getManeuveringAceFlankingTurningModifier(
+      normalizedPilotAbilities,
+    );
+    if (maneuveringAceModifier !== 0) {
+      modifiers.push({
+        name: 'Maneuvering Ace',
+        value: maneuveringAceModifier,
+        source: 'spa',
+      });
+    }
+  }
+
   if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.EnteringWater) {
     const frogmanModifier = getFrogmanWaterPSRModifier(
       normalizedPilotAbilities,
@@ -385,6 +415,20 @@ export function calculatePSRModifiers(
     modifiers.push({
       name: 'Animal Mimicry',
       value: animalMimicryModifier,
+      source: 'spa',
+    });
+  }
+
+  const neuralInterfacePilotingModifier =
+    calculateNeuralInterfacePilotingModifier(
+      normalizedPilotAbilities,
+      normalizedUnitType,
+      options.neuralInterfaceActive ?? true,
+    );
+  if (neuralInterfacePilotingModifier) {
+    modifiers.push({
+      name: neuralInterfacePilotingModifier.name,
+      value: neuralInterfacePilotingModifier.value,
       source: 'spa',
     });
   }

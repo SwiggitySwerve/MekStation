@@ -178,6 +178,28 @@ describe('goProne', () => {
     expect(next.currentState.units['player-1'].hullDown).toBe(false);
   });
 
+  it('clears explicit inferno burning state when going prone', () => {
+    const base = makeMovementSession();
+    const session = {
+      ...base,
+      currentState: {
+        ...base.currentState,
+        units: {
+          ...base.currentState.units,
+          'player-1': {
+            ...base.currentState.units['player-1'],
+            infernoBurning: true,
+          },
+        },
+      },
+    };
+
+    const next = goProne(session, 'player-1');
+
+    expect(next.currentState.units['player-1'].prone).toBe(true);
+    expect(next.currentState.units['player-1'].infernoBurning).toBe(false);
+  });
+
   it('rejects explicit non-Mek go-prone units', () => {
     const base = makeMovementSession();
     const session = {

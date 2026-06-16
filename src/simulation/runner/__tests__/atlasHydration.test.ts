@@ -28,10 +28,18 @@ import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 
 import { getNodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
 import { AttackAI } from '@/simulation/ai/AttackAI';
-import { Facing, FiringArc, GameSide } from '@/types/gameplay';
+import {
+  CriticalEffectType,
+  Facing,
+  FiringArc,
+  GameSide,
+} from '@/types/gameplay';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { WEAPON_CATALOG_FILES } from '@/utils/construction/equipmentBVCatalogData';
+import { resolveCriticalHits } from '@/utils/gameplay/criticalHitResolution';
+import { calculateCommandConsoleInitiativeBonus } from '@/utils/gameplay/initiativeModifiers';
 
+import { DEFAULT_COMPONENT_DAMAGE } from '../SimulationRunnerConstants';
 import {
   createMinimalUnitState,
   toCatalogAIUnitState,
@@ -46,14 +54,19 @@ import {
   hydrateActiveProbesFromFullUnit,
   hydrateC3EquipmentFromFullUnit,
   hydrateECMSuitesFromFullUnit,
+  hydrateEdgePointsFromFullUnit,
   hydrateHasMASCFromFullUnit,
   hydrateHasStealthArmorFromFullUnit,
   hydrateHasSuperchargerFromFullUnit,
   hydrateHasTSMFromFullUnit,
   hydrateHeatSinksFromFullUnit,
+  hydrateInitiativeEquipmentFromFullUnit,
   hydrateMovementCapabilityFromFullUnit,
+  hydratePilotAbilitiesFromFullUnit,
   hydratePartialWingJumpBonusFromFullUnit,
+  hydrateTargetingComputerEquipmentFromFullUnit,
   hydrateClawStateFromFullUnit,
+  hydrateCriticalSlotManifestFromFullUnit,
   hydrateStructureFromFullUnit,
   hydrateTalonStateFromFullUnit,
   resolveCatalogDamage,
@@ -373,6 +386,226 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     expect(standardLRM?.hasArtemisV).toBeUndefined();
   });
 
+  it('uses explicit Artemis FCS linked-equipment metadata before same-location guidance fallback', () => {
+    const linkedArtemisUnit: IFullUnit = {
+      id: 'synthetic-linked-artemis-iv',
+      chassis: 'Synthetic',
+      variant: 'Linked Artemis IV',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3050',
+      unitType: 'BattleMech',
+      equipment: [
+        { id: 'lrm-10', location: 'RIGHT_TORSO' },
+        { id: 'srm-6', location: 'RIGHT_TORSO' },
+        {
+          id: 'artemis-iv',
+          location: 'RIGHT_TORSO',
+          linkedEquipment: ['lrm-10'],
+        },
+      ],
+      criticalSlots: {
+        RIGHT_TORSO: [
+          'IS LRM 10',
+          'IS SRM 6',
+          'ISArtemisIV',
+          'IS Ammo LRM-10 Artemis-capable',
+          'IS Ammo SRM-6 Artemis-capable',
+        ],
+      },
+    };
+
+    const weapons = hydrateAIWeaponsFromFullUnit(
+      linkedArtemisUnit,
+      weaponLookup,
+    );
+    const lrm = weapons.find((weapon) => weapon.name === 'LRM 10');
+    const srm = weapons.find((weapon) => weapon.name === 'SRM 6');
+
+    expect(lrm?.hasArtemisIV).toBe(true);
+    expect(srm?.hasArtemisIV).toBeUndefined();
+    expect(srm?.hasPrototypeArtemisIV).toBeUndefined();
+    expect(srm?.hasArtemisV).toBeUndefined();
+  });
+
+  it('does not infer Artemis allocation for multiple unlinked same-location launchers', () => {
+    const ambiguousArtemisUnit: IFullUnit = {
+      id: 'synthetic-ambiguous-artemis-iv',
+      chassis: 'Synthetic',
+      variant: 'Ambiguous Artemis IV',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3050',
+      unitType: 'BattleMech',
+      equipment: [
+        { id: 'lrm-10', location: 'RIGHT_TORSO' },
+        { id: 'srm-6', location: 'RIGHT_TORSO' },
+        { id: 'artemis-iv', location: 'RIGHT_TORSO' },
+      ],
+      criticalSlots: {
+        RIGHT_TORSO: [
+          'IS LRM 10',
+          'IS SRM 6',
+          'ISArtemisIV',
+          'IS Ammo LRM-10 Artemis-capable',
+          'IS Ammo SRM-6 Artemis-capable',
+        ],
+      },
+    };
+
+    const weapons = hydrateAIWeaponsFromFullUnit(
+      ambiguousArtemisUnit,
+      weaponLookup,
+    );
+    const lrm = weapons.find((weapon) => weapon.name === 'LRM 10');
+    const srm = weapons.find((weapon) => weapon.name === 'SRM 6');
+
+    expect(lrm?.hasArtemisIV).toBeUndefined();
+    expect(srm?.hasArtemisIV).toBeUndefined();
+    expect(lrm?.hasPrototypeArtemisIV).toBeUndefined();
+    expect(srm?.hasPrototypeArtemisIV).toBeUndefined();
+    expect(lrm?.hasArtemisV).toBeUndefined();
+    expect(srm?.hasArtemisV).toBeUndefined();
+  });
+
+  it('hydrates unlinked same-location Artemis guidance when FCS cardinality exactly matches compatible launchers', () => {
+    const cardinalityMatchedArtemisUnit: IFullUnit = {
+      id: 'synthetic-cardinality-matched-artemis-iv',
+      chassis: 'Synthetic',
+      variant: 'Cardinality Matched Artemis IV',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3050',
+      unitType: 'BattleMech',
+      equipment: [
+        { id: 'lrm-10', location: 'RIGHT_TORSO' },
+        { id: 'srm-6', location: 'RIGHT_TORSO' },
+        { id: 'artemis-iv', location: 'RIGHT_TORSO' },
+        { id: 'artemis-iv', location: 'RIGHT_TORSO' },
+      ],
+      criticalSlots: {
+        RIGHT_TORSO: [
+          'IS LRM 10',
+          'IS SRM 6',
+          'ISArtemisIV',
+          'ISArtemisIV',
+          'IS Ammo LRM-10 Artemis-capable',
+          'IS Ammo SRM-6 Artemis-capable',
+        ],
+      },
+    };
+
+    const weapons = hydrateAIWeaponsFromFullUnit(
+      cardinalityMatchedArtemisUnit,
+      weaponLookup,
+    );
+    const lrm = weapons.find((weapon) => weapon.name === 'LRM 10');
+    const srm = weapons.find((weapon) => weapon.name === 'SRM 6');
+
+    expect(lrm?.hasArtemisIV).toBe(true);
+    expect(srm?.hasArtemisIV).toBe(true);
+    expect(lrm?.hasPrototypeArtemisIV).toBeUndefined();
+    expect(srm?.hasPrototypeArtemisIV).toBeUndefined();
+    expect(lrm?.hasArtemisV).toBeUndefined();
+    expect(srm?.hasArtemisV).toBeUndefined();
+  });
+
+  it('does not infer Artemis allocation when exact-cardinality FCS kinds conflict', () => {
+    const mixedKindArtemisUnit: IFullUnit = {
+      id: 'synthetic-mixed-kind-cardinality-artemis',
+      chassis: 'Synthetic',
+      variant: 'Mixed Kind Cardinality Artemis',
+      tonnage: 50,
+      techBase: 'Mixed',
+      era: '3070',
+      unitType: 'BattleMech',
+      equipment: [
+        { id: 'lrm-10', location: 'RIGHT_TORSO' },
+        { id: 'srm-6', location: 'RIGHT_TORSO' },
+        { id: 'artemis-iv', location: 'RIGHT_TORSO' },
+        { id: 'artemis-iv', location: 'RIGHT_TORSO' },
+        { id: 'cl-artemis-v', location: 'RIGHT_TORSO' },
+        { id: 'cl-artemis-v', location: 'RIGHT_TORSO' },
+      ],
+      criticalSlots: {
+        RIGHT_TORSO: [
+          'IS LRM 10',
+          'IS SRM 6',
+          'ISArtemisIV',
+          'ISArtemisIV',
+          'CLArtemisV',
+          'CLArtemisV',
+          'IS Ammo LRM-10 Artemis-capable',
+          'IS Ammo SRM-6 Artemis-capable',
+          'CL Ammo LRM-10 Artemis V-capable',
+          'CL Ammo SRM-6 Artemis V-capable',
+        ],
+      },
+    };
+
+    const weapons = hydrateAIWeaponsFromFullUnit(
+      mixedKindArtemisUnit,
+      weaponLookup,
+    );
+    const lrm = weapons.find((weapon) => weapon.name === 'LRM 10');
+    const srm = weapons.find((weapon) => weapon.name === 'SRM 6');
+
+    expect(lrm?.hasArtemisIV).toBeUndefined();
+    expect(srm?.hasArtemisIV).toBeUndefined();
+    expect(lrm?.hasPrototypeArtemisIV).toBeUndefined();
+    expect(srm?.hasPrototypeArtemisIV).toBeUndefined();
+    expect(lrm?.hasArtemisV).toBeUndefined();
+    expect(srm?.hasArtemisV).toBeUndefined();
+  });
+
+  it('carries explicit Artemis FCS linked-equipment metadata into critical slots', () => {
+    const linkedArtemisUnit: IFullUnit = {
+      id: 'synthetic-linked-artemis-iv-critical',
+      chassis: 'Synthetic',
+      variant: 'Linked Artemis IV Critical',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3050',
+      unitType: 'BattleMech',
+      equipment: [
+        { id: 'lrm-10', location: 'RIGHT_TORSO' },
+        { id: 'srm-6', location: 'RIGHT_TORSO' },
+        {
+          id: 'artemis-iv',
+          location: 'RIGHT_TORSO',
+          linkedEquipment: ['lrm-10'],
+        },
+      ],
+      criticalSlots: {
+        RIGHT_TORSO: [
+          'IS LRM 10',
+          'IS SRM 6',
+          'ISArtemisIV',
+          'IS Ammo LRM-10 Artemis-capable',
+          'IS Ammo SRM-6 Artemis-capable',
+        ],
+      },
+    };
+
+    const weapons = hydrateAIWeaponsFromFullUnit(
+      linkedArtemisUnit,
+      weaponLookup,
+    );
+    const manifest = hydrateCriticalSlotManifestFromFullUnit(
+      linkedArtemisUnit,
+      weapons,
+    );
+    const artemisSlot = manifest?.right_torso.find(
+      (slot) => slot.componentName === 'ISArtemisIV',
+    );
+
+    expect(artemisSlot).toMatchObject({
+      componentType: 'equipment',
+      linkedCriticalWeaponId: expect.stringContaining('lrm-10'),
+      linkedCriticalWeaponName: 'LRM 10',
+    });
+  });
+
   it('hydrates prototype Artemis IV guidance from matching FCS and Artemis-capable ammo', () => {
     const prototypeUnit: IFullUnit = {
       id: 'synthetic-prototype-artemis-iv',
@@ -547,6 +780,51 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
       count: 14,
       kind: 'double',
     });
+  });
+
+  it('hydrates source-backed pilot abilities and generic Edge points from full unit state', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('atlas-as7-d');
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+
+    const edgeUnit: IFullUnit = {
+      ...fullUnit,
+      id: 'edge-hydration-test',
+      abilities: ['edge', 'edge_when_headhit'],
+      edgePointsRemaining: 2,
+    };
+    const genericEdgeUnit: IFullUnit = {
+      ...fullUnit,
+      id: 'generic-edge-hydration-test',
+      abilities: ['edge'],
+    };
+    const triggerOnlyEdgeUnit: IFullUnit = {
+      ...fullUnit,
+      id: 'trigger-only-edge-hydration-test',
+      abilities: ['edge_when_headhit'],
+    };
+
+    expect(hydratePilotAbilitiesFromFullUnit(edgeUnit)).toEqual([
+      'edge',
+      'edge_when_headhit',
+    ]);
+    expect(hydrateEdgePointsFromFullUnit(edgeUnit)).toBe(2);
+    expect(hydrateEdgePointsFromFullUnit(genericEdgeUnit)).toBe(1);
+    expect(hydrateEdgePointsFromFullUnit(triggerOnlyEdgeUnit)).toBeUndefined();
+
+    const unitState = createHydratedUnitState({
+      runnerUnitId: 'player-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      fullUnit: genericEdgeUnit,
+      aiWeapons: [],
+      gunnery: 4,
+      piloting: 5,
+    });
+
+    expect(unitState.abilities).toEqual(['edge']);
+    expect(unitState.edgePointsRemaining).toBe(1);
   });
 
   it('hydrates TSM movement enhancements into runner physical damage state', async () => {
@@ -798,6 +1076,677 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     expect(unitState.rightArmHasClaw).toBe(true);
   });
 
+  it('hydrates Prototype Improved Jump Jet critical text as secondary-effect-gated explosive equipment', () => {
+    const fullUnit: IFullUnit = {
+      id: 'synthetic-prototype-improved-jump-jet',
+      chassis: 'Synthetic',
+      variant: 'PIJJ',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3020',
+      unitType: 'BattleMech',
+      criticalSlots: {
+        RIGHT_TORSO: ['ISPrototypeImprovedJumpJet'],
+      },
+    };
+
+    const manifest = hydrateCriticalSlotManifestFromFullUnit(fullUnit);
+
+    expect(manifest?.right_torso).toContainEqual(
+      expect.objectContaining({
+        slotIndex: 0,
+        componentType: 'equipment',
+        componentName: 'ISPrototypeImprovedJumpJet',
+        explosionDamage: 10,
+        explosionRequiresSecondaryEffects: true,
+      }),
+    );
+  });
+
+  it('hydrates Extended Fuel Tank critical text as secondary-effect-gated explosive equipment', () => {
+    const fullUnit: IFullUnit = {
+      id: 'synthetic-extended-fuel-tank',
+      chassis: 'Synthetic',
+      variant: 'Fuel',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3020',
+      unitType: 'BattleMech',
+      criticalSlots: {
+        RIGHT_TORSO: ['Extended Fuel Tank'],
+      },
+    };
+
+    const manifest = hydrateCriticalSlotManifestFromFullUnit(fullUnit);
+
+    expect(manifest?.right_torso).toContainEqual(
+      expect.objectContaining({
+        slotIndex: 0,
+        componentType: 'equipment',
+        componentName: 'Extended Fuel Tank',
+        explosionDamage: 20,
+        explosionRequiresSecondaryEffects: true,
+      }),
+    );
+  });
+
+  it('hydrates official tonnage-suffixed Extended Fuel Tank critical text as represented explosive equipment', async () => {
+    const service = getNodeCanonicalUnitService();
+    const carbine = await service.getById('carbine-con-8h-haulermech');
+    const vampyr = await service.getById('vampyr-sc-v-1-salvagemech');
+    expect(carbine).not.toBeNull();
+    expect(vampyr).not.toBeNull();
+    if (!carbine || !vampyr) return;
+
+    const carbineSlots = Object.values(
+      hydrateCriticalSlotManifestFromFullUnit(carbine) ?? {},
+    ).flat();
+    const vampyrSlots = Object.values(
+      hydrateCriticalSlotManifestFromFullUnit(vampyr) ?? {},
+    ).flat();
+
+    expect(carbineSlots).toContainEqual(
+      expect.objectContaining({
+        componentType: 'equipment',
+        componentName: 'Extended Fuel Tank (1 ton)',
+        explosionDamage: 20,
+        explosionRequiresSecondaryEffects: true,
+      }),
+    );
+    expect(vampyrSlots).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          componentType: 'equipment',
+          componentName: 'Extended Fuel Tank (3 tons)',
+          explosionDamage: 20,
+          explosionRequiresSecondaryEffects: true,
+        }),
+      ]),
+    );
+  });
+
+  it('hydrates official Blue Shield Particle Field Damper critical text as represented explosive equipment', async () => {
+    const service = getNodeCanonicalUnitService();
+    const spatha = await service.getById('spatha-sp2-x-warlord');
+    expect(spatha).not.toBeNull();
+    if (!spatha) return;
+
+    const slots = Object.values(
+      hydrateCriticalSlotManifestFromFullUnit(spatha) ?? {},
+    ).flat();
+
+    expect(slots).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          componentType: 'equipment',
+          componentName: 'Blue Shield Particle Field Damper',
+          explosionDamage: 5,
+          explosionRequiresSecondaryEffects: true,
+        }),
+      ]),
+    );
+  });
+
+  it('keeps represented Blue Shield critical explosion metadata when the source mode is active', () => {
+    const fullUnit: IFullUnit = {
+      id: 'synthetic-blue-shield-active',
+      chassis: 'Synthetic',
+      variant: 'Blue Shield Active',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3090',
+      unitType: 'BattleMech',
+      equipment: [
+        {
+          id: 'Blue Shield Particle Field Damper',
+          location: 'Right Torso',
+          mode: 'On',
+        },
+      ],
+      criticalSlots: {
+        RIGHT_TORSO: ['Blue Shield Particle Field Damper'],
+      },
+    };
+
+    const manifest = hydrateCriticalSlotManifestFromFullUnit(fullUnit);
+
+    expect(manifest?.right_torso).toContainEqual(
+      expect.objectContaining({
+        slotIndex: 0,
+        componentType: 'equipment',
+        componentName: 'Blue Shield Particle Field Damper',
+        explosionDamage: 5,
+        explosionRequiresSecondaryEffects: true,
+      }),
+    );
+  });
+
+  it('omits represented Blue Shield critical explosion metadata when the source mode is Off', () => {
+    const fullUnit: IFullUnit = {
+      id: 'synthetic-blue-shield-off',
+      chassis: 'Synthetic',
+      variant: 'Blue Shield Off',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3090',
+      unitType: 'BattleMech',
+      equipment: [
+        {
+          id: 'Blue Shield Particle Field Damper',
+          location: 'Right Torso',
+          currentMode: 'Off',
+        },
+      ],
+      criticalSlots: {
+        RIGHT_TORSO: ['Blue Shield Particle Field Damper'],
+      },
+    };
+
+    const manifest = hydrateCriticalSlotManifestFromFullUnit(fullUnit);
+    const [slot] = manifest?.right_torso ?? [];
+
+    expect(slot).toMatchObject({
+      slotIndex: 0,
+      componentType: 'equipment',
+      componentName: 'Blue Shield Particle Field Damper',
+    });
+    expect(slot).not.toHaveProperty('explosionDamage');
+    expect(slot).not.toHaveProperty('explosionRequiresSecondaryEffects');
+  });
+
+  it('hydrates HotLoad weapon mode critical state only with explicit explosion damage metadata', () => {
+    const aiWeapons = [
+      {
+        id: 'lrm-20-0',
+        name: 'LRM 20',
+        shortRange: 7,
+        mediumRange: 14,
+        longRange: 21,
+        damage: 20,
+        heat: 6,
+        minRange: 6,
+        ammoPerTon: 6,
+        location: 'RIGHT_TORSO',
+        destroyed: false,
+      },
+    ];
+    const fullUnit: IFullUnit = {
+      id: 'synthetic-hot-load-mode-state',
+      chassis: 'Synthetic',
+      variant: 'HotLoad',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3020',
+      unitType: 'BattleMech',
+      equipment: [
+        {
+          id: 'lrm-20',
+          location: 'RIGHT_TORSO',
+          currentMode: 'HotLoad',
+          explosionDamage: 12,
+        },
+      ],
+      criticalSlots: {
+        RIGHT_TORSO: ['LRM 20'],
+      },
+    };
+
+    const manifest = hydrateCriticalSlotManifestFromFullUnit(
+      fullUnit,
+      aiWeapons,
+    );
+
+    expect(manifest?.right_torso[0]).toMatchObject({
+      slotIndex: 0,
+      componentType: 'weapon',
+      componentName: 'LRM 20',
+      weaponId: 'lrm-20-0',
+      hotLoaded: true,
+      explosionDamage: 12,
+    });
+
+    const modeOnlyManifest = hydrateCriticalSlotManifestFromFullUnit(
+      {
+        ...fullUnit,
+        equipment: [
+          {
+            id: 'lrm-20',
+            location: 'RIGHT_TORSO',
+            currentMode: 'HotLoad',
+          },
+        ],
+      },
+      aiWeapons,
+    );
+
+    expect(modeOnlyManifest?.right_torso[0]).toMatchObject({
+      componentType: 'weapon',
+      componentName: 'LRM 20',
+      weaponId: 'lrm-20-0',
+    });
+    expect(modeOnlyManifest?.right_torso[0]).not.toHaveProperty('hotLoaded');
+    expect(modeOnlyManifest?.right_torso[0]).not.toHaveProperty(
+      'explosionDamage',
+    );
+
+    const linkedAmmoOnlyManifest = hydrateCriticalSlotManifestFromFullUnit(
+      {
+        ...fullUnit,
+        equipment: [
+          {
+            id: 'lrm-20',
+            location: 'RIGHT_TORSO',
+            currentMode: 'HotLoad',
+            linkedEquipment: ['lrm-20-ammo'],
+          },
+          {
+            id: 'lrm-20-ammo',
+            location: 'RIGHT_TORSO',
+            explosionDamage: 120,
+          },
+        ],
+      },
+      aiWeapons,
+    );
+
+    expect(linkedAmmoOnlyManifest?.right_torso[0]).toMatchObject({
+      componentType: 'weapon',
+      componentName: 'LRM 20',
+      weaponId: 'lrm-20-0',
+      hotLoaded: true,
+      explosionDamage: 120,
+    });
+
+    const ambiguousLinkedAmmoManifest = hydrateCriticalSlotManifestFromFullUnit(
+      {
+        ...fullUnit,
+        equipment: [
+          {
+            id: 'lrm-20',
+            location: 'RIGHT_TORSO',
+            currentMode: 'HotLoad',
+            linkedEquipment: ['lrm-20-ammo'],
+          },
+          {
+            id: 'lrm-20-ammo',
+            location: 'RIGHT_TORSO',
+            explosionDamage: 120,
+          },
+          {
+            id: 'lrm-20-ammo',
+            location: 'RIGHT_TORSO',
+            explosionDamage: 120,
+          },
+        ],
+      },
+      aiWeapons,
+    );
+
+    expect(ambiguousLinkedAmmoManifest?.right_torso[0]).toMatchObject({
+      componentType: 'weapon',
+      componentName: 'LRM 20',
+      weaponId: 'lrm-20-0',
+    });
+    expect(ambiguousLinkedAmmoManifest?.right_torso[0]).not.toHaveProperty(
+      'hotLoaded',
+    );
+    expect(ambiguousLinkedAmmoManifest?.right_torso[0]).not.toHaveProperty(
+      'explosionDamage',
+    );
+
+    const ambiguousManifest = hydrateCriticalSlotManifestFromFullUnit(
+      {
+        ...fullUnit,
+        equipment: [
+          {
+            id: 'lrm-20',
+            location: 'RIGHT_TORSO',
+            currentMode: 'HotLoad',
+            explosionDamage: 12,
+          },
+          {
+            id: 'lrm-20',
+            location: 'RIGHT_TORSO',
+            currentMode: 'HotLoad',
+            explosionDamage: 12,
+          },
+        ],
+      },
+      aiWeapons,
+    );
+
+    expect(ambiguousManifest?.right_torso[0]).toMatchObject({
+      componentType: 'weapon',
+      componentName: 'LRM 20',
+      weaponId: 'lrm-20-0',
+    });
+    expect(ambiguousManifest?.right_torso[0]).not.toHaveProperty('hotLoaded');
+    expect(ambiguousManifest?.right_torso[0]).not.toHaveProperty(
+      'explosionDamage',
+    );
+  });
+
+  it('hydrates RISC Emergency Coolant System critical text as secondary-effect-gated explosive equipment', () => {
+    const fullUnit: IFullUnit = {
+      id: 'synthetic-risc-emergency-coolant-system',
+      chassis: 'Synthetic',
+      variant: 'ECS',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3136',
+      unitType: 'BattleMech',
+      criticalSlots: {
+        RIGHT_TORSO: ['RISC Emergency Coolant System'],
+      },
+    };
+
+    const manifest = hydrateCriticalSlotManifestFromFullUnit(fullUnit);
+
+    expect(manifest?.right_torso).toContainEqual(
+      expect.objectContaining({
+        slotIndex: 0,
+        componentType: 'equipment',
+        componentName: 'RISC Emergency Coolant System',
+        explosionDamage: 5,
+        explosionRequiresSecondaryEffects: true,
+      }),
+    );
+  });
+
+  it('hydrates generic equipment explosion damage only from explicit source metadata', () => {
+    const fullUnit: IFullUnit = {
+      id: 'synthetic-explicit-equipment-explosion',
+      chassis: 'Synthetic',
+      variant: 'Explicit Explosion',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3136',
+      unitType: 'BattleMech',
+      equipment: [
+        {
+          id: 'PPC Capacitor',
+          location: 'Right Torso',
+          explosionDamage: 15,
+        },
+      ],
+      criticalSlots: {
+        RIGHT_TORSO: ['PPC Capacitor'],
+      },
+    };
+
+    const manifest = hydrateCriticalSlotManifestFromFullUnit(fullUnit);
+
+    expect(manifest?.right_torso[0]).toMatchObject({
+      slotIndex: 0,
+      componentType: 'equipment',
+      componentName: 'PPC Capacitor',
+      explosionDamage: 15,
+    });
+
+    const nameOnlyManifest = hydrateCriticalSlotManifestFromFullUnit({
+      ...fullUnit,
+      equipment: [
+        {
+          id: 'PPC Capacitor',
+          location: 'Right Torso',
+        },
+      ],
+    });
+    expect(nameOnlyManifest?.right_torso[0]).toMatchObject({
+      componentType: 'equipment',
+      componentName: 'PPC Capacitor',
+    });
+    expect(nameOnlyManifest?.right_torso[0]).not.toHaveProperty(
+      'explosionDamage',
+    );
+
+    const duplicateMetadataManifest = hydrateCriticalSlotManifestFromFullUnit({
+      ...fullUnit,
+      equipment: [
+        {
+          id: 'PPC Capacitor',
+          location: 'Right Torso',
+          explosionDamage: 15,
+        },
+        {
+          id: 'PPC Capacitor',
+          location: 'Right Torso',
+          explosionDamage: 15,
+        },
+      ],
+    });
+    expect(duplicateMetadataManifest?.right_torso[0]).toMatchObject({
+      componentType: 'equipment',
+      componentName: 'PPC Capacitor',
+    });
+    expect(duplicateMetadataManifest?.right_torso[0]).not.toHaveProperty(
+      'explosionDamage',
+    );
+  });
+
+  it('hydrates RISC Laser Pulse Module linked-laser criticals from exact explicit or unambiguous same-location laser state', () => {
+    const fullUnit: IFullUnit = {
+      id: 'synthetic-risc-laser-pulse-module',
+      chassis: 'Synthetic',
+      variant: 'RISC LPM',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3020',
+      unitType: 'BattleMech',
+      equipment: [
+        {
+          id: 'medium-laser',
+          location: 'RIGHT_TORSO',
+        },
+        {
+          id: 'risclaserpulsemodule',
+          location: 'RIGHT_TORSO',
+          linkedEquipment: ['medium-laser'],
+        },
+      ],
+      criticalSlots: {
+        RIGHT_TORSO: ['Medium Laser', 'RISC Laser Pulse Module'],
+      },
+    };
+    const aiWeapons = [
+      {
+        id: 'medium-laser-0',
+        name: 'Medium Laser',
+        shortRange: 3,
+        mediumRange: 6,
+        longRange: 9,
+        damage: 5,
+        heat: 3,
+        minRange: 0,
+        ammoPerTon: -1,
+        location: 'RIGHT_TORSO',
+        destroyed: false,
+      },
+    ];
+
+    const manifest = hydrateCriticalSlotManifestFromFullUnit(
+      fullUnit,
+      aiWeapons,
+    );
+
+    expect(manifest?.right_torso).toContainEqual(
+      expect.objectContaining({
+        slotIndex: 1,
+        componentType: 'equipment',
+        componentName: 'RISC Laser Pulse Module',
+        linkedCriticalWeaponId: 'medium-laser-0',
+        linkedCriticalWeaponName: 'Medium Laser',
+      }),
+    );
+
+    const unambiguousFallbackManifest = hydrateCriticalSlotManifestFromFullUnit(
+      {
+        ...fullUnit,
+        equipment: [
+          {
+            id: 'medium-laser',
+            location: 'RIGHT_TORSO',
+          },
+          {
+            id: 'risclaserpulsemodule',
+            location: 'RIGHT_TORSO',
+          },
+        ],
+      },
+      aiWeapons,
+    );
+
+    expect(unambiguousFallbackManifest?.right_torso[1]).toMatchObject({
+      componentType: 'equipment',
+      componentName: 'RISC Laser Pulse Module',
+      linkedCriticalWeaponId: 'medium-laser-0',
+      linkedCriticalWeaponName: 'Medium Laser',
+    });
+
+    if (!unambiguousFallbackManifest) {
+      throw new Error('expected RISC LPM critical manifest');
+    }
+
+    const result = resolveCriticalHits(
+      'synthetic-risc-laser-pulse-module',
+      'right_torso',
+      unambiguousFallbackManifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      () => 2,
+      1,
+    );
+
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.WeaponDestroyed,
+      equipmentDestroyed: 'Medium Laser',
+      weaponDisabled: 'medium-laser-0',
+    });
+    expect(result.updatedComponentDamage.weaponsDestroyed).toEqual([
+      'medium-laser-0',
+    ]);
+  });
+
+  it('keeps RISC Laser Pulse Module criticals generic when same-location laser fallback is ambiguous or absent', () => {
+    const fullUnit: IFullUnit = {
+      id: 'synthetic-risc-laser-pulse-module-ambiguous',
+      chassis: 'Synthetic',
+      variant: 'RISC LPM',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3020',
+      unitType: 'BattleMech',
+      equipment: [
+        {
+          id: 'medium-laser',
+          location: 'RIGHT_TORSO',
+        },
+        {
+          id: 'risclaserpulsemodule',
+          location: 'RIGHT_TORSO',
+        },
+      ],
+      criticalSlots: {
+        RIGHT_TORSO: ['Medium Laser', 'RISC Laser Pulse Module'],
+      },
+    };
+    const ambiguousLaserWeapons = [
+      {
+        id: 'medium-laser-0',
+        name: 'Medium Laser',
+        shortRange: 3,
+        mediumRange: 6,
+        longRange: 9,
+        damage: 5,
+        heat: 3,
+        minRange: 0,
+        ammoPerTon: -1,
+        location: 'RIGHT_TORSO',
+        destroyed: false,
+      },
+      {
+        id: 'small-laser-1',
+        name: 'Small Laser',
+        shortRange: 1,
+        mediumRange: 2,
+        longRange: 3,
+        damage: 3,
+        heat: 1,
+        minRange: 0,
+        ammoPerTon: -1,
+        location: 'RIGHT_TORSO',
+        destroyed: false,
+      },
+    ];
+    const noSameLocationLaserWeapons = [
+      {
+        id: 'medium-laser-0',
+        name: 'Medium Laser',
+        shortRange: 3,
+        mediumRange: 6,
+        longRange: 9,
+        damage: 5,
+        heat: 3,
+        minRange: 0,
+        ammoPerTon: -1,
+        location: 'LEFT_TORSO',
+        destroyed: false,
+      },
+    ];
+
+    const ambiguousManifest = hydrateCriticalSlotManifestFromFullUnit(
+      fullUnit,
+      ambiguousLaserWeapons,
+    );
+    const noSameLocationManifest = hydrateCriticalSlotManifestFromFullUnit(
+      fullUnit,
+      noSameLocationLaserWeapons,
+    );
+
+    expect(ambiguousManifest?.right_torso[1]).toMatchObject({
+      componentType: 'equipment',
+      componentName: 'RISC Laser Pulse Module',
+    });
+    expect(ambiguousManifest?.right_torso[1]).not.toHaveProperty(
+      'linkedCriticalWeaponId',
+    );
+    expect(noSameLocationManifest?.right_torso[1]).toMatchObject({
+      componentType: 'equipment',
+      componentName: 'RISC Laser Pulse Module',
+    });
+    expect(noSameLocationManifest?.right_torso[1]).not.toHaveProperty(
+      'linkedCriticalWeaponId',
+    );
+
+    const explicitMultiLinkedManifest = hydrateCriticalSlotManifestFromFullUnit(
+      {
+        ...fullUnit,
+        equipment: [
+          {
+            id: 'medium-laser',
+            location: 'RIGHT_TORSO',
+          },
+          {
+            id: 'small-laser',
+            location: 'RIGHT_TORSO',
+          },
+          {
+            id: 'risclaserpulsemodule',
+            location: 'RIGHT_TORSO',
+            linkedEquipment: ['medium-laser', 'small-laser'],
+          },
+        ],
+      },
+      ambiguousLaserWeapons,
+    );
+    expect(explicitMultiLinkedManifest?.right_torso[1]).toMatchObject({
+      componentType: 'equipment',
+      componentName: 'RISC Laser Pulse Module',
+    });
+    expect(explicitMultiLinkedManifest?.right_torso[1]).not.toHaveProperty(
+      'linkedCriticalWeaponId',
+    );
+  });
+
   it('hydrates BattleMech stealth armor and critical-slot ECM from a real unit', async () => {
     const service = getNodeCanonicalUnitService();
     const fullUnit = await service.getById('wasp-wsp-3l');
@@ -836,8 +1785,8 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
       era: '3050',
       unitType: 'BattleMech',
       equipment: [
-        { id: '1-isguardianecm', location: 'HEAD' },
-        { id: '1-isangelecm', location: 'LEFT_TORSO' },
+        { id: '1-isguardianecm', location: 'HEAD', currentMode: 'ECCM' },
+        { id: '1-isangelecm', location: 'LEFT_TORSO', mode: 'Off' },
         { id: '1-clecmsuite', location: 'RIGHT_TORSO,_AMMO:10' },
         { id: '1-clwatchdogcews', location: 'CENTER_TORSO' },
         {
@@ -852,11 +1801,13 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
         type: 'guardian',
         sourceEquipmentId: '1-isguardianecm',
         sourceLocation: 'HEAD',
+        mode: 'eccm',
       },
       {
         type: 'angel',
         sourceEquipmentId: '1-isangelecm',
         sourceLocation: 'LEFT_TORSO',
+        mode: 'off',
       },
       {
         type: 'clan',
@@ -1010,6 +1961,43 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     expect(unitState.c3Equipment).toEqual(c3Equipment);
   });
 
+  it('hydrates Boosted Comm Implant pilot ability as represented BattleMech C3i network-capable state', () => {
+    const c3iImplantUnit: IFullUnit = {
+      id: 'synthetic-boosted-comm-implant-hydration-test',
+      chassis: 'Synthetic',
+      variant: 'Boosted Comm',
+      tonnage: 50,
+      techBase: 'Inner Sphere',
+      era: '3070',
+      unitType: 'BattleMech',
+      abilities: ['boost_comm_implant'],
+    };
+
+    expect(hydrateC3EquipmentFromFullUnit(c3iImplantUnit)).toEqual([
+      {
+        role: 'c3i',
+        sourceEquipmentId: 'boost_comm_implant',
+      },
+    ]);
+
+    const unitState = createHydratedUnitState({
+      runnerUnitId: 'player-1',
+      side: GameSide.Player,
+      position: { q: 0, r: 0 },
+      fullUnit: c3iImplantUnit,
+      aiWeapons: [],
+      gunnery: 4,
+      piloting: 5,
+    });
+
+    expect(unitState.c3Equipment).toEqual([
+      {
+        role: 'c3i',
+        sourceEquipmentId: 'boost_comm_implant',
+      },
+    ]);
+  });
+
   it('does not hydrate Battle Armor C3 entries as BattleMech C3 equipment', () => {
     const battleArmorUnit: IFullUnit = {
       id: 'synthetic-battle-armor-c3-hydration-test',
@@ -1029,6 +2017,206 @@ describe('UnitHydration — Atlas AS7-D anchor (P1, task 1.3 / 1.4)', () => {
     };
 
     expect(hydrateC3EquipmentFromFullUnit(battleArmorUnit)).toEqual([]);
+  });
+
+  it('hydrates represented initiative equipment into hydrated runner state', () => {
+    const commandUnit: IFullUnit = {
+      id: 'synthetic-command-console-hydration-test',
+      chassis: 'Synthetic',
+      variant: 'Command',
+      tonnage: 100,
+      techBase: 'Inner Sphere',
+      era: '3025',
+      unitType: 'BattleMech',
+      cockpit: 'COMMAND_CONSOLE',
+      commandConsoleCrewActive: true,
+      equipment: [{ id: 'medium-laser', location: 'CENTER_TORSO' }],
+      criticalSlots: {
+        LEFT_TORSO: [
+          'Communications Equipment (3 ton)',
+          'Communications Equipment (3 ton)',
+          'Communications Equipment (3 ton)',
+        ],
+      },
+    } as unknown as IFullUnit;
+    const expected = {
+      workingCommunicationsTonnage: 3,
+      communicationsMode: 'Default',
+      cockpitType: 'Command Console',
+      commandConsoleCrewActive: true,
+      tonnage: 100,
+      unitType: 'BattleMech',
+    };
+
+    expect(hydrateInitiativeEquipmentFromFullUnit(commandUnit)).toEqual(
+      expected,
+    );
+    expect(
+      createHydratedUnitState({
+        runnerUnitId: 'player-1',
+        side: GameSide.Player,
+        position: { q: 0, r: 0 },
+        fullUnit: commandUnit,
+        aiWeapons: hydrateAIWeaponsFromFullUnit(commandUnit, weaponLookup),
+      }).initiativeEquipment,
+    ).toEqual(expected);
+  });
+
+  it('hydrates mounted Targeting Computer equipment into combat state', () => {
+    const unit: IFullUnit = {
+      id: 'synthetic-targeting-computer-hydration-test',
+      chassis: 'Synthetic',
+      variant: 'TC',
+      tonnage: 75,
+      techBase: 'Inner Sphere',
+      era: '3060',
+      unitType: 'BattleMech',
+      equipment: [{ id: 'targeting-computer', location: 'RIGHT_TORSO' }],
+      criticalSlots: {
+        RIGHT_TORSO: ['IS Targeting Computer'],
+      },
+    };
+
+    expect(hydrateTargetingComputerEquipmentFromFullUnit(unit)).toBe(true);
+    expect(
+      createHydratedUnitState({
+        runnerUnitId: 'player-1',
+        side: GameSide.Player,
+        position: { q: 0, r: 0 },
+        fullUnit: unit,
+        aiWeapons: [],
+      }).targetingComputerEquipment,
+    ).toBe(true);
+  });
+
+  it('hydrates initiative equipment from official command-console BattleMech critical slots', async () => {
+    const service = getNodeCanonicalUnitService();
+    const fullUnit = await service.getById('kiso-k-3n-krhq-commandmech');
+
+    expect(fullUnit).not.toBeNull();
+    if (!fullUnit) return;
+    expect(fullUnit.id).toBe('kiso-k-3n-krhq-commandmech');
+
+    expect(hydrateInitiativeEquipmentFromFullUnit(fullUnit)).toMatchObject({
+      workingCommunicationsTonnage: 3,
+      communicationsMode: 'Default',
+      cockpitType: 'Command Console',
+      tonnage: 100,
+      unitType: 'BattleMech',
+    });
+  });
+
+  it('hydrates official communications equipment id tonnage shapes without inferring tank command consoles', async () => {
+    const mobileHq: IFullUnit = {
+      id: 'mobile-headquarters',
+      chassis: 'Mobile Headquarters',
+      variant: 'Standard',
+      tonnage: 25,
+      techBase: 'Inner Sphere',
+      era: '3025',
+      unitType: 'Vehicle',
+      equipment: [
+        { id: 'communications-equipment:size:7.0', location: 'BODY' },
+      ],
+    };
+    const packratToc: IFullUnit = {
+      id: 'packrat-lrpv-pkr-t5-toc',
+      chassis: 'Packrat LRPV',
+      variant: 'PKR-T5 (TOC)',
+      tonnage: 20,
+      techBase: 'Inner Sphere',
+      era: '3025',
+      unitType: 'Vehicle',
+      equipment: [
+        { id: 'communications-equipment-2-ton:omni', location: 'BODY' },
+      ],
+    };
+
+    expect(mobileHq.id).toBe('mobile-headquarters');
+    expect(packratToc.id).toBe('packrat-lrpv-pkr-t5-toc');
+    expect(hydrateInitiativeEquipmentFromFullUnit(mobileHq)).toMatchObject({
+      workingCommunicationsTonnage: 7,
+      communicationsMode: 'Default',
+      tonnage: 25,
+      unitType: 'Vehicle',
+    });
+    expect(hydrateInitiativeEquipmentFromFullUnit(packratToc)).toMatchObject({
+      workingCommunicationsTonnage: 2,
+      communicationsMode: 'Default',
+      tonnage: 20,
+      unitType: 'Vehicle',
+    });
+    expect(
+      hydrateInitiativeEquipmentFromFullUnit(packratToc)?.cockpitType,
+    ).toBeUndefined();
+  });
+
+  it('hydrates official command-console producer ids without granting BattleMech cockpit eligibility', async () => {
+    const tankCommandConsole: IFullUnit = {
+      id: 'fury-command-tank-cx-17',
+      chassis: 'Fury Command Tank',
+      variant: 'CX-17',
+      tonnage: 80,
+      techBase: 'Inner Sphere',
+      era: '3025',
+      unitType: 'Vehicle',
+      equipment: [{ id: 'istankcockpitcommandconsole', location: 'BODY' }],
+    };
+    const packratToc: IFullUnit = {
+      id: 'packrat-lrpv-pkr-t5-toc',
+      chassis: 'Packrat LRPV',
+      variant: 'PKR-T5 (TOC)',
+      tonnage: 20,
+      techBase: 'Inner Sphere',
+      era: '3025',
+      unitType: 'Vehicle',
+      equipment: [
+        { id: 'communications-equipment-2-ton:omni', location: 'BODY' },
+        { id: 'istankcockpitcommandconsole', location: 'BODY' },
+      ],
+    };
+    const service = getNodeCanonicalUnitService();
+    const remoteDroneCommandConsole = await service.getById('lament-lmt-2d');
+
+    expect(tankCommandConsole.id).toBe('fury-command-tank-cx-17');
+    expect(packratToc.id).toBe('packrat-lrpv-pkr-t5-toc');
+    expect(remoteDroneCommandConsole).not.toBeNull();
+    if (!remoteDroneCommandConsole) return;
+
+    const furyInitiativeEquipment =
+      hydrateInitiativeEquipmentFromFullUnit(tankCommandConsole);
+    const packratInitiativeEquipment =
+      hydrateInitiativeEquipmentFromFullUnit(packratToc);
+    const remoteDroneInitiativeEquipment =
+      hydrateInitiativeEquipmentFromFullUnit(remoteDroneCommandConsole);
+
+    expect(furyInitiativeEquipment).toEqual({
+      commandConsoleProducerEquipmentIds: ['istankcockpitcommandconsole'],
+      tonnage: 80,
+      unitType: 'Vehicle',
+    });
+    expect(packratInitiativeEquipment).toMatchObject({
+      workingCommunicationsTonnage: 2,
+      communicationsMode: 'Default',
+      commandConsoleProducerEquipmentIds: ['istankcockpitcommandconsole'],
+      tonnage: 20,
+      unitType: 'Vehicle',
+    });
+    expect(remoteDroneInitiativeEquipment).toEqual({
+      cockpitType: 'Standard',
+      commandConsoleProducerEquipmentIds: ['ISRemoteDroneCommandConsole'],
+      tonnage: 65,
+      unitType: 'BattleMech',
+    });
+    expect(
+      calculateCommandConsoleInitiativeBonus(furyInitiativeEquipment),
+    ).toBe(0);
+    expect(
+      calculateCommandConsoleInitiativeBonus(packratInitiativeEquipment),
+    ).toBe(0);
+    expect(
+      calculateCommandConsoleInitiativeBonus(remoteDroneInitiativeEquipment),
+    ).toBe(0);
   });
 
   it('produces a fully-hydrated IUnitGameState with armor / structure / weapons all populated', async () => {

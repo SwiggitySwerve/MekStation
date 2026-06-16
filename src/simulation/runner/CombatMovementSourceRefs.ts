@@ -101,7 +101,7 @@ export const MEGAMEK_GO_PRONE_MOVEMENT_SOURCE_REFS = [
   ),
   megamekMovementRef(
     'MegaMek MoveStep updates GO_PRONE posture by setting prone state and clearing hull-down state.',
-    'megamek/src/megamek/common/moves/MoveStep.java#L2557-L2560',
+    'megamek/src/megamek/common/moves/MoveStep.java#L2541-L2543',
   ),
   megamekMovementRef(
     'MegaMek MovePathHandler resolves GO_PRONE by setting the entity prone, with swarmer dislodge and inferno wash-off side paths.',

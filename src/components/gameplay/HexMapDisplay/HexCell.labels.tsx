@@ -267,8 +267,14 @@ function formatTerrainBadge(terrainType: string | null): string {
       return 'ICE';
     case 'swamp':
       return 'SWP';
+    case 'heavy_industrial':
+      return 'IND';
+    case 'planted_field':
+      return 'PLT';
     case 'bridge':
       return 'BRG';
+    case 'mines':
+      return 'MIN';
     case 'fire':
       return 'FIR';
     case 'smoke':

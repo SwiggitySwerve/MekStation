@@ -11,7 +11,9 @@ import {
 } from '@/services/units/CanonicalUnitService';
 import {
   buildWeaponLookupFromCatalogFiles,
+  hydrateC3EquipmentFromFullUnit,
   hydrateHeatSinksFromFullUnit,
+  hydrateInitiativeEquipmentFromFullUnit,
   resolveCatalogDamage,
 } from '@/simulation/runner/UnitHydration';
 import {
@@ -1592,6 +1594,8 @@ export function adaptUnitFromData(
   const rawEquipment =
     (unitData.equipment as AdaptableEquipmentItem[] | undefined) ?? [];
   const weapons = extractWeapons(rawEquipment, fullUnit.id, unitData);
+  const initiativeEquipment = hydrateInitiativeEquipmentFromFullUnit(fullUnit);
+  const c3Equipment = hydrateC3EquipmentFromFullUnit(fullUnit);
 
   // Movement
   const {
@@ -1662,6 +1666,8 @@ export function adaptUnitFromData(
     ...(waterCapability ? { waterCapability } : {}),
     ...(standUpCapability ? { standUpCapability } : {}),
     ...(gyroType ? { gyroType } : {}),
+    ...(initiativeEquipment ? { initiativeEquipment } : {}),
+    ...(c3Equipment.length > 0 ? { c3Equipment } : {}),
   };
 }
 

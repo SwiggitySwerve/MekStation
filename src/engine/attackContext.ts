@@ -81,6 +81,7 @@ export function prepareAttackContext(
   gameState: IGameState,
   grid: IHexGrid,
   pilotSpasByUnitId?: Readonly<Record<string, readonly string[]>>,
+  optionalRules?: readonly string[],
 ): IAttackPreResolution {
   const targetUnit = gameState.units[targetId];
   if (!targetUnit) {
@@ -97,6 +98,8 @@ export function prepareAttackContext(
       gameState,
       grid,
       pilotSpasByUnitId,
+      targetId,
+      optionalRules,
     );
     if (result.permitted && result.isIndirect) {
       return { kind: 'indirect', resolution: result };

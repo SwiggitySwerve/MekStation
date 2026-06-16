@@ -1,4 +1,4 @@
-import { FiringArc } from '@/types/gameplay';
+import { FiringArc, GameSide } from '@/types/gameplay';
 import { IWeaponAttack, IDiceRoll } from '@/types/gameplay';
 import { WeaponCategory } from '@/types/gameplay';
 
@@ -15,6 +15,7 @@ import {
   getNarcBonus,
   isTargetTAGDesignated,
   getMRMClusterModifier,
+  getLowProfileClusterModifier,
   getSandblasterClusterModifier,
   calculateClusterModifiers,
   verifyStreakBehavior,
@@ -33,6 +34,13 @@ import {
   getDefaultFireMode,
   getLBXClusterToHitModifier,
   getFireModeHeatMultiplier,
+  buildINarcPodBrushOffTargetOptions,
+  iNarcPodDisplayName,
+  iNarcPodBrushOffTargetId,
+  iNarcPodTargetKey,
+  isEquivalentINarcPod,
+  removeEquivalentINarcPod,
+  uniqueINarcPodTargets,
   DiceRoller,
   ITargetStatusFlags,
   IWeaponEquipmentFlags,
@@ -676,6 +684,16 @@ describe('Special Weapon Mechanics', () => {
       expect(mods.total).toBe(4);
     });
 
+    it('should apply Low Profile as a -4 cluster-table penalty', () => {
+      const target: ITargetStatusFlags = { lowProfile: true };
+
+      const mods = calculateClusterModifiers('lrm-10', {}, target);
+
+      expect(getLowProfileClusterModifier(target)).toBe(-4);
+      expect(mods.lowProfilePenalty).toBe(-4);
+      expect(mods.total).toBe(-4);
+    });
+
     it('should apply MRM penalty in combined calculation', () => {
       const equipment: IWeaponEquipmentFlags = {};
       const target: ITargetStatusFlags = {};
@@ -868,6 +886,183 @@ describe('Special Weapon Mechanics', () => {
       expect(isSemiGuidedLRM('sg-lrm-5')).toBe(true);
       expect(isSemiGuidedLRM('SG LRM 5')).toBe(true);
       expect(isSemiGuidedLRM('lrm-10')).toBe(false);
+    });
+  });
+
+  describe('iNARC Pod Lifecycle Helpers', () => {
+    it('treats same-team and same-type iNARC pods as the same target object regardless of hit location', () => {
+      expect(
+        isEquivalentINarcPod(
+          {
+            teamId: GameSide.Player,
+            podType: 'homing',
+            location: 'Center Torso',
+          },
+          {
+            teamId: GameSide.Player,
+            podType: 'homing',
+            location: 'Left Torso',
+          },
+        ),
+      ).toBe(true);
+    });
+
+    it('keeps pod target keys distinct by team and pod type', () => {
+      expect(
+        iNarcPodTargetKey({
+          teamId: GameSide.Player,
+          podType: 'ecm',
+        }),
+      ).toBe('player:ecm');
+      expect(
+        iNarcPodTargetKey({
+          teamId: GameSide.Opponent,
+          podType: 'ecm',
+        }),
+      ).toBe('opponent:ecm');
+      expect(
+        iNarcPodTargetKey({
+          teamId: GameSide.Player,
+          podType: 'haywire',
+        }),
+      ).toBe('player:haywire');
+    });
+
+    it('builds stable carrier-scoped Brush-Off pod object target ids', () => {
+      expect(
+        iNarcPodBrushOffTargetId('carrier-1', {
+          teamId: GameSide.Opponent,
+          podType: 'ecm',
+        }),
+      ).toBe('inarc-pod:carrier-1:opponent:ecm');
+    });
+
+    it('formats source-backed iNARC pod object display names', () => {
+      expect(
+        iNarcPodDisplayName({
+          teamId: GameSide.Player,
+          podType: 'nemesis',
+        }),
+      ).toBe('Nemesis iNarc pod from Team player');
+    });
+
+    it('collapses same-team same-type iNARC pods into one represented target option', () => {
+      const pods = [
+        {
+          teamId: GameSide.Player,
+          podType: 'homing' as const,
+          location: 'Center Torso',
+        },
+        {
+          teamId: GameSide.Player,
+          podType: 'homing' as const,
+          location: 'Left Torso',
+        },
+        {
+          teamId: GameSide.Player,
+          podType: 'ecm' as const,
+          location: 'Right Torso',
+        },
+      ];
+
+      expect(uniqueINarcPodTargets(pods)).toEqual([pods[0], pods[2]]);
+    });
+
+    it('builds independently selectable Brush-Off target options from carrier iNARC pods', () => {
+      const pods = [
+        {
+          teamId: GameSide.Player,
+          podType: 'homing' as const,
+          location: 'Center Torso',
+        },
+        {
+          teamId: GameSide.Player,
+          podType: 'homing' as const,
+          location: 'Left Torso',
+        },
+        {
+          teamId: GameSide.Opponent,
+          podType: 'haywire' as const,
+          location: 'Right Torso',
+        },
+      ];
+
+      expect(
+        buildINarcPodBrushOffTargetOptions({
+          carrierUnitId: 'carrier-1',
+          carrierName: 'Carrier',
+          pods,
+        }),
+      ).toEqual([
+        {
+          id: 'inarc-pod:carrier-1:player:homing',
+          carrierUnitId: 'carrier-1',
+          name: 'Carrier - Homing iNarc pod from Team player',
+          selectedINarcPod: pods[0],
+        },
+        {
+          id: 'inarc-pod:carrier-1:opponent:haywire',
+          carrierUnitId: 'carrier-1',
+          name: 'Carrier - Haywire iNarc pod from Team opponent',
+          selectedINarcPod: pods[2],
+        },
+      ]);
+    });
+
+    it('removes exactly one same-team same-type pod target while preserving other pod objects', () => {
+      const pods = [
+        {
+          teamId: GameSide.Player,
+          podType: 'homing' as const,
+          location: 'Center Torso',
+        },
+        {
+          teamId: GameSide.Player,
+          podType: 'ecm' as const,
+          location: 'Left Torso',
+        },
+        {
+          teamId: GameSide.Opponent,
+          podType: 'homing' as const,
+          location: 'Right Torso',
+        },
+      ];
+
+      expect(
+        removeEquivalentINarcPod(pods, {
+          teamId: GameSide.Player,
+          podType: 'homing',
+          location: 'Head',
+        }),
+      ).toEqual([
+        {
+          teamId: GameSide.Player,
+          podType: 'ecm',
+          location: 'Left Torso',
+        },
+        {
+          teamId: GameSide.Opponent,
+          podType: 'homing',
+          location: 'Right Torso',
+        },
+      ]);
+    });
+
+    it('leaves pod object arrays untouched when no same-team same-type target exists', () => {
+      const pods = [
+        {
+          teamId: GameSide.Player,
+          podType: 'haywire' as const,
+          location: 'Center Torso',
+        },
+      ];
+
+      expect(
+        removeEquivalentINarcPod(pods, {
+          teamId: GameSide.Opponent,
+          podType: 'haywire',
+        }),
+      ).toBe(pods);
     });
   });
 

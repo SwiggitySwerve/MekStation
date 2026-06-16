@@ -13,15 +13,6 @@ function integrated(
   return { id, level: 'integrated', evidence, sourceRefs };
 }
 
-function helperOnly(
-  id: string,
-  evidence: string,
-  gap: string,
-  sourceRefs: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return { id, level: 'helper-only', evidence, gap, sourceRefs };
-}
-
 export const PILOT_SKILL_COMBAT_SUPPORT = {
   'ranged-gunnery-to-hit': integrated(
     'ranged-gunnery-to-hit',
@@ -53,10 +44,9 @@ export const PILOT_SKILL_COMBAT_SUPPORT = {
     'runner movement phase and gameSessionPSR resolve stand-up attempts with unit.piloting plus gyro, wound, and PSR modifiers',
     PILOT_SKILL_SOURCE_REFS['stand-up-piloting'],
   ),
-  'initiative-skill-modifiers': helperOnly(
+  'initiative-skill-modifiers': integrated(
     'initiative-skill-modifiers',
-    'rollInitiative applies source-backed Command Mech/Battle Computer force initiative bonuses, explicit HQ/command equipment initiative bonuses, and Tactical Genius reroll requests from active conscious units',
-    'Automatic command-console/HQ initiative equipment hydration is not wired; name-only command-console or communications-equipment metadata intentionally fails closed without explicit initiative fields',
+    'rollInitiative applies source-backed Command Mech/Battle Computer force initiative bonuses, explicit HQ/command equipment initiative bonuses, represented HQ/command-console initiativeEquipment gates, and Tactical Genius reroll requests from active conscious units',
     PILOT_SKILL_SOURCE_REFS['initiative-skill-modifiers'],
   ),
   'pilot-wound-ranged-penalty': integrated(

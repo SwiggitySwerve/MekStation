@@ -2,7 +2,10 @@ import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
 import type { IIndirectFireResolution } from '@/types/gameplay/IndirectFireInterfaces';
 import type { ILOSResult } from '@/utils/gameplay/lineOfSight';
 
-import { computeIndirectFireContext } from '@/engine/InteractiveSession.indirectFire';
+import {
+  computeIndirectFireContext,
+  lineOfSightOptionsFromGameState,
+} from '@/engine/InteractiveSession.indirectFire';
 import {
   GameEventType,
   GamePhase,
@@ -24,6 +27,7 @@ export function validateLineOfSightForAttack(options: {
   weaponId: string;
   attackerPosition: IHexCoordinate;
   targetPosition: IHexCoordinate;
+  optionalRules?: readonly string[];
 }): {
   permitted: boolean;
   indirectFireResolution: IIndirectFireResolution | null;
@@ -39,13 +43,25 @@ export function validateLineOfSightForAttack(options: {
     targetPosition,
     unitId,
     weaponId,
+    optionalRules,
   } = options;
 
   if (!grid) {
     return { permitted: true, indirectFireResolution: null };
   }
 
-  const losResult = calculateLOS(attackerPosition, targetPosition, grid);
+  const losOptions = lineOfSightOptionsFromGameState(
+    currentState,
+    optionalRules,
+  );
+  const losResult = calculateLOS(
+    attackerPosition,
+    targetPosition,
+    grid,
+    undefined,
+    undefined,
+    losOptions,
+  );
   if (losResult.hasLOS) {
     return { permitted: true, indirectFireResolution: null, losResult };
   }
@@ -58,6 +74,7 @@ export function validateLineOfSightForAttack(options: {
     grid,
     undefined,
     targetId,
+    optionalRules,
   );
   if (indirectFireResolution.permitted && indirectFireResolution.isIndirect) {
     return { permitted: true, indirectFireResolution, losResult };

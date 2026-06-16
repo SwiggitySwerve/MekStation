@@ -27,10 +27,22 @@ const MOVEMENT_RULE_REFERENCES = [
   'MegaMek common/moves/MovePath.java:1214-1218 MP-used accounting',
 ] as const;
 
+const REPRESENTED_MINEFIELD_RULE_REFERENCES = [
+  'MekStation src/simulation/runner/phases/movementMines.ts: represented TerrainType.Mines entry applies BattleMech leg damage and queues PSRs',
+  'MekStation src/simulation/runner/__tests__/movementPhase.behavior.test.ts: represented minefield damage and PSR behavior',
+] as const;
+
 const COMBAT_RULE_REFERENCES = [
   'MegaMek Compute.java:1313-1517 weapon range/to-hit modifiers',
   'MegaMek RangeType.java:95-151 range bracket classification',
   'MegaMek LosEffects.java:797-911 LOS blocking and terrain modifiers',
+] as const;
+
+const WATER_ENVIRONMENT_RULE_REFERENCES = [
+  'MegaMek common/actions/compute/ComputeToHit.java:340-346 torpedoes/SRT/LRT count as underwater attacks',
+  'MegaMek common/actions/compute/ComputeToHitIsImpossible.java:543-555 torpedo LOS must stay in water',
+  'MegaMek common/actions/compute/ComputeTerrainMods.java:167-188 target water and partial-underwater handling',
+  'MegaMek client/ui/clientGUI/boardview/spriteHandler/FiringArcSpriteHandler.java:570-575 water-only ranges display as underwater weapons',
 ] as const;
 
 const LOS_BLOCKER_RULE_REFERENCES = [
@@ -134,6 +146,10 @@ describe('tacticalMapProjection', () => {
       intent: 'movement-combat',
       status: 'legal',
       movementStatus: 'legal',
+      movementCostStatus: 'costly',
+      movementCostReasons: ['terrain +1', 'elevation delta +1 cost +1'],
+      movementHazardStatus: 'none',
+      movementHazardReasons: [],
       combatStatus: 'attackable',
       blockedReasons: [],
     });
@@ -142,6 +158,10 @@ describe('tacticalMapProjection', () => {
     expect(projection.combat?.weaponIdsAvailable).toEqual(['medium-laser']);
     expect(projection.explanation).toContain('terrain rough');
     expect(projection.explanation).toContain('movement status legal');
+    expect(projection.explanation).toContain('movement cost status costly');
+    expect(projection.explanation).toContain(
+      'movement cost consequences terrain +1; elevation delta +1 cost +1',
+    );
     expect(projection.explanation).toContain('combat status attackable');
     expect(projection.explanation).toContain('Walk reachable 2 MP');
     expect(projection.explanation).toContain(
@@ -353,6 +373,169 @@ describe('tacticalMapProjection', () => {
     );
     expect(projection.explanation).toContain('terrain rough');
     expect(projection.explanation).toContain('elevation -1');
+  });
+
+  it('marks reachable movement with cost consequences as costly projection metadata', () => {
+    const projection = buildTacticalMapHexProjection({
+      hex: { q: 1, r: 0 },
+      terrain: terrain(2, TerrainType.Rough),
+      movement: movement({
+        mpCost: 6,
+        terrainCost: 2,
+        elevationDelta: 1,
+        elevationCost: 1,
+        heatGenerated: 2,
+        conversionStepCount: 1,
+        conversionMpCost: 1,
+        altitudeControlRequired: true,
+        altitudeControlStepCount: 1,
+        altitudeControlMpCost: 1,
+        automaticLandingRequired: true,
+        automaticLandingReason: 'WiGE moved below minimum distance',
+        automaticLandingDistance: 2,
+        automaticLandingMinimumDistance: 3,
+      }),
+      combat: undefined,
+      isSelected: false,
+      isHovered: false,
+      pathIndex: undefined,
+      inLegacyAttackRange: false,
+    });
+
+    expect(projection.status).toBe('legal');
+    expect(projection.movementStatus).toBe('legal');
+    expect(projection.movementCostStatus).toBe('costly');
+    expect(projection.movementCostReasons).toEqual([
+      'terrain +2',
+      'elevation delta +1 cost +1',
+      'heat +2',
+      'conversion 1 steps 1 MP',
+      'altitude control 1 steps 1 MP',
+      'automatic landing 2/3 hexes WiGE moved below minimum distance',
+    ]);
+    expect(projection.explanation).toContain('movement cost status costly');
+    expect(projection.explanation).toContain(
+      'movement cost consequences terrain +2; elevation delta +1 cost +1; heat +2; conversion 1 steps 1 MP; altitude control 1 steps 1 MP; automatic landing 2/3 hexes WiGE moved below minimum distance',
+    );
+  });
+
+  it('explains represented hull-down exit MP before movement commitment', () => {
+    const projection = buildTacticalMapHexProjection({
+      hex: { q: 1, r: 0 },
+      terrain: terrain(),
+      movement: movement({
+        mpCost: 3,
+        terrainCost: 1,
+        elevationDelta: 0,
+        elevationCost: 0,
+        heatGenerated: 0,
+        hullDownExitRequired: true,
+        hullDownExitCost: 2,
+      }),
+      combat: undefined,
+      isSelected: false,
+      isHovered: false,
+      pathIndex: undefined,
+      inLegacyAttackRange: false,
+    });
+
+    expect(projection).toMatchObject({
+      status: 'legal',
+      movementStatus: 'legal',
+      movementCostStatus: 'costly',
+      movementCostReasons: ['terrain +1', 'hull-down exit 2 MP'],
+    });
+    expect(projection.explanation).toContain('hull-down exit +2 MP');
+    expect(projection.explanation).toContain(
+      'movement cost consequences terrain +1; hull-down exit 2 MP',
+    );
+    expect(
+      formatTacticalProjectionSourceReferences(projection.sourceReferences),
+    ).toContain('hull-down exit 2 MP');
+  });
+
+  it('keeps reachable clear movement ordinary when no cost consequences apply', () => {
+    const projection = buildTacticalMapHexProjection({
+      hex: { q: 1, r: 0 },
+      terrain: terrain(),
+      movement: movement({
+        mpCost: 1,
+        terrainCost: 0,
+        elevationDelta: 0,
+        elevationCost: 0,
+        heatGenerated: 0,
+      }),
+      combat: undefined,
+      isSelected: false,
+      isHovered: false,
+      pathIndex: undefined,
+      inLegacyAttackRange: false,
+    });
+
+    expect(projection.status).toBe('legal');
+    expect(projection.movementStatus).toBe('legal');
+    expect(projection.movementCostStatus).toBe('ordinary');
+    expect(projection.movementCostReasons).toEqual([]);
+    expect(projection.explanation).toContain('movement cost status ordinary');
+    expect(projection.explanation).not.toContain('movement cost consequences');
+  });
+
+  it('projects represented minefields as movement hazards with source-backed provenance', () => {
+    const projection = buildTacticalMapHexProjection({
+      hex: { q: 1, r: 0 },
+      terrain: terrain(0, TerrainType.Mines),
+      movement: movement({
+        mpCost: 1,
+        terrainCost: 0,
+        elevationDelta: 0,
+        elevationCost: 0,
+        heatGenerated: 0,
+      }),
+      combat: undefined,
+      isSelected: false,
+      isHovered: false,
+      pathIndex: undefined,
+      inLegacyAttackRange: false,
+    });
+
+    expect(projection).toMatchObject({
+      status: 'legal',
+      movementStatus: 'legal',
+      movementCostStatus: 'ordinary',
+      movementCostReasons: [],
+      movementHazardStatus: 'represented-minefield',
+      movementHazardReasons: [
+        'reachable entry through represented mines can apply 10 damage to each leg',
+        'mine leg structure damage can queue a leg-damage PSR',
+        '20+ mine damage in the movement phase can queue a damage-threshold PSR',
+      ],
+      sourceReferences: expect.arrayContaining([
+        expect.objectContaining({
+          channel: 'movement',
+          kind: 'mekstation',
+          label: 'Represented minefield movement hazard projection',
+          detail:
+            'represented mines levels 1; reachable entry can apply 10 damage to each leg and queue PSRs',
+          ruleReferences: REPRESENTED_MINEFIELD_RULE_REFERENCES,
+        }),
+      ]),
+    });
+    expect(projection.explanation).toContain(
+      'movement hazard status represented-minefield',
+    );
+    expect(projection.explanation).toContain(
+      'movement hazards reachable entry through represented mines can apply 10 damage to each leg; mine leg structure damage can queue a leg-damage PSR; 20+ mine damage in the movement phase can queue a damage-threshold PSR',
+    );
+    expect(
+      formatTacticalProjectionSourceReferences(projection.sourceReferences),
+    ).toContain(
+      'movement:mekstation:Represented minefield movement hazard projection:represented mines levels 1; reachable entry can apply 10 damage to each leg and queue PSRs',
+    );
+    expect(
+      formatTacticalProjectionRuleReferences(projection.sourceReferences),
+    ).toContain(
+      'movement:mekstation:MekStation src/simulation/runner/phases/movementMines.ts: represented TerrainType.Mines entry applies BattleMech leg damage and queues PSRs',
+    );
   });
 
   it('includes same-hex movement mode options in the shared projection explanation', () => {
@@ -592,6 +775,100 @@ describe('tacticalMapProjection', () => {
     );
   });
 
+  it('keeps mixed underwater weapon legality attackable while preserving environment source refs', () => {
+    const projection = buildTacticalMapHexProjection({
+      hex: { q: 1, r: 0 },
+      terrain: {
+        coordinate: { q: 1, r: 0 },
+        elevation: 0,
+        features: [{ type: TerrainType.Water, level: 2 }],
+      },
+      movement: undefined,
+      combat: combat({
+        weaponIdsInRange: ['medium-laser', 'lrt-15'],
+        weaponIdsInArc: ['medium-laser', 'lrt-15'],
+        weaponIdsAvailable: ['lrt-15'],
+        weaponRangeOptions: [
+          {
+            weaponId: 'medium-laser',
+            weaponName: 'Medium Laser',
+            heat: 3,
+            damage: 5,
+            ammoConsumed: 0,
+            rangeBracket: RangeBracket.Short,
+            inRange: true,
+            inArc: true,
+            environmentLegal: false,
+            available: false,
+            blockedReason: 'Target underwater, but not weapon.',
+          },
+          {
+            weaponId: 'lrt-15',
+            weaponName: 'LR Torpedo 15',
+            heat: 5,
+            damage: 9,
+            ammoConsumed: 1,
+            rangeBracket: RangeBracket.Short,
+            inRange: true,
+            inArc: true,
+            environmentLegal: true,
+            available: true,
+          },
+        ],
+        availableWeaponImpacts: [
+          {
+            weaponId: 'lrt-15',
+            weaponName: 'LR Torpedo 15',
+            heat: 5,
+            damage: 9,
+            ammoConsumed: 1,
+          },
+        ],
+        availableWeaponHeat: 5,
+        availableWeaponDamage: 9,
+        expectedDamage: 4.2,
+      }),
+      isSelected: false,
+      isHovered: false,
+      pathIndex: undefined,
+      inLegacyAttackRange: false,
+    });
+
+    expect(projection).toMatchObject({
+      status: 'legal',
+      combatStatus: 'attackable',
+      blockedReasons: [],
+      combat: {
+        attackable: true,
+        weaponIdsAvailable: ['lrt-15'],
+      },
+      sourceReferences: expect.arrayContaining([
+        expect.objectContaining({
+          channel: 'combat',
+          kind: 'megamek',
+          label: 'MegaMek water weapon environment projection',
+          detail:
+            'environment restrictions medium-laser: Target underwater, but not weapon.',
+          ruleReferences: WATER_ENVIRONMENT_RULE_REFERENCES,
+        }),
+      ]),
+    });
+    expect(projection.explanation).toContain('weapons lrt-15');
+    expect(projection.explanation).toContain(
+      'medium-laser short range in arc environment blocked blocked: Target underwater, but not weapon.',
+    );
+    expect(
+      formatTacticalProjectionSourceReferences(projection.sourceReferences),
+    ).toContain(
+      'combat:megamek:MegaMek water weapon environment projection:environment restrictions medium-laser: Target underwater, but not weapon.',
+    );
+    expect(
+      formatTacticalProjectionRuleReferences(projection.sourceReferences),
+    ).toContain(
+      'combat:megamek:MegaMek client/ui/clientGUI/boardview/spriteHandler/FiringArcSpriteHandler.java:570-575 water-only ranges display as underwater weapons',
+    );
+  });
+
   it('marks blocked enemy targets without treating empty range hexes as blocked targets', () => {
     const blockedTarget = buildTacticalMapHexProjection({
       hex: { q: 1, r: 0 },
@@ -731,6 +1008,73 @@ describe('tacticalMapProjection', () => {
     );
   });
 
+  it('lets weapon-backed combat projection override stale legacy attack range', () => {
+    const projectionLookup = buildTacticalMapHexProjectionLookup({
+      hexes: [{ q: 1, r: 0 }],
+      terrainLookup: new Map(),
+      movementRangeLookup: new Map(),
+      combatRangeLookup: new Map([
+        [
+          '1,0',
+          combat({
+            hasTarget: false,
+            distance: 8,
+            rangeBracket: RangeBracket.OutOfRange,
+            inRange: false,
+            attackable: false,
+            weaponIdsInRange: [],
+            weaponIdsAvailable: [],
+            targetUnitIds: [],
+            validTargetUnitIds: [],
+            weaponRangeOptions: [
+              {
+                weaponId: 'medium-laser',
+                weaponName: 'Medium Laser',
+                heat: 3,
+                damage: 5,
+                ammoConsumed: 0,
+                rangeBracket: RangeBracket.OutOfRange,
+                inRange: false,
+                inArc: true,
+                environmentLegal: true,
+                available: false,
+                blockedReason: 'out of range',
+              },
+            ],
+            availableWeaponImpacts: [],
+            availableWeaponHeat: 0,
+            availableWeaponDamage: 0,
+          }),
+        ],
+      ]),
+      legacyAttackRangeLookup: new Set(['1,0']),
+    });
+
+    const projection = projectionLookup.get('1,0');
+
+    expect(projection).toMatchObject({
+      intent: 'terrain',
+      status: 'neutral',
+      combatStatus: 'none',
+      inAttackRange: false,
+    });
+    expect(
+      formatTacticalProjectionSourceReferences(
+        projection?.sourceReferences ?? [],
+      ),
+    ).toContain(
+      'combat:megamek:MegaMek weapon range projection:range envelope out_of_range 8 hexes LOS clear',
+    );
+    expect(
+      formatTacticalProjectionSourceReferences(
+        projection?.sourceReferences ?? [],
+      ),
+    ).not.toContain('legacy-attack-range');
+    expect(projection?.explanation).not.toContain(
+      'legacy attackRange fallback only',
+    );
+  });
+
   it('attaches combat LOS blocker references to the intervening blocker hex', () => {
     const projectionLookup = buildTacticalMapHexProjectionLookup({
       hexes: [
@@ -790,7 +1134,7 @@ describe('tacticalMapProjection', () => {
         channel: 'los-blocker',
         kind: 'megamek',
         label: 'MegaMek LOS blocker projection',
-        detail: 'elevation for 2,0',
+        detail: 'elevation for 2,0 Blocked by elevation +2 at (1, 0)',
         ruleReferences: LOS_BLOCKER_RULE_REFERENCES,
       },
     ]);

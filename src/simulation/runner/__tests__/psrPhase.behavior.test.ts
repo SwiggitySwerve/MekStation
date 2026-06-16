@@ -21,6 +21,7 @@ import {
   createKickedPSR,
   createDamagePSR,
   createMASCFailurePSR,
+  createOutOfControlPSR,
   createRubblePSR,
   createSkiddingPSR,
   createSuperchargerFailurePSR,
@@ -368,8 +369,38 @@ describe('runPSRPhase behavior', () => {
       reasonCode: PSRTrigger.Skidding,
     });
     expect(SPA_COMBAT_SUPPORT['maneuvering-ace']).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('Maneuvering Ace'),
+    });
+  });
+
+  it('applies Maneuvering Ace to represented out-of-control PSR target numbers', () => {
+    const unit = makeUnit({
+      abilities: ['maneuvering-ace'],
+      pendingPSRs: [createOutOfControlPSR('player-1')],
+    });
+    const state = makeState(unit);
+    const events: IGameEvent[] = [];
+
+    runPSRPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: fixedRandom(0.5),
+    });
+
+    const resolved = events.find((e) => e.type === GameEventType.PSRResolved)
+      ?.payload as IPSRResolvedPayload | undefined;
+    expect(resolved).toMatchObject({
+      unitId: 'player-1',
+      targetNumber: 4,
+      modifiers: -1,
+      passed: true,
+      reasonCode: PSRTrigger.OutOfControl,
+    });
+    expect(SPA_COMBAT_SUPPORT['maneuvering-ace']).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('out-of-control'),
     });
   });
 
@@ -495,7 +526,7 @@ describe('runPSRPhase behavior', () => {
     expect(
       PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT['psr-spa-application'],
     ).toMatchObject({
-      level: 'helper-only',
+      level: 'integrated',
       evidence: expect.stringContaining('Swamp Beast'),
     });
   });

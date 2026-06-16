@@ -22,6 +22,7 @@ import {
   type IResolvedAMSInterception,
 } from './weaponAttackAMS';
 import {
+  lowProfileClusterModifier,
   missileClusterModifier,
   sandblasterClusterModifier,
   type IMissileClusterModifierContext,
@@ -57,19 +58,24 @@ function applySelectedFiringMode(
 export function expandSelectedModeIntoShots(
   weapon: IWeapon,
   mode: IWeaponFiringMode | undefined,
+  resolvedShotCount?: number,
 ): readonly IWeapon[] {
   if (!mode || weapon.firingModes?.kind !== 'rate-of-fire') {
     return [applySelectedFiringMode(weapon, mode)];
   }
 
   const shotsPerTurn = Math.max(1, mode.shotsPerTurn);
+  const expandedShotCount =
+    resolvedShotCount !== undefined
+      ? Math.max(1, resolvedShotCount)
+      : shotsPerTurn;
   const shotWeapon: IWeapon = {
     ...weapon,
     damage: mode.damage / shotsPerTurn,
     heat: mode.heat / shotsPerTurn,
   };
 
-  return Array.from({ length: shotsPerTurn }, () => shotWeapon);
+  return Array.from({ length: expandedShotCount }, () => shotWeapon);
 }
 
 export function selectedAmmoWeaponType(
@@ -208,6 +214,60 @@ export function shouldJamOnNaturalTwo(
   return mode.shotsPerTurn >= 1;
 }
 
+export interface ISandblasterRateOfFireShotCount {
+  readonly clusterRoll: number;
+  readonly clusterModifier: number;
+  readonly modifiedRoll: number;
+  readonly shotCount: number;
+}
+
+function isAutocannonRateOfFireWeapon(weapon: IWeapon): boolean {
+  const baseId = weaponTypeFromMountId(weapon.id);
+  return (
+    /(?:^|-)uac-\d+/i.test(baseId) ||
+    /(?:^|-)rac-\d+/i.test(baseId) ||
+    /(?:^|-)ac-\d+/i.test(baseId) ||
+    /ultra\s*AC/i.test(weapon.name) ||
+    /rotary\s*AC/i.test(weapon.name) ||
+    /\bAC\s*\/\s*\d+\b/i.test(weapon.name) ||
+    /\bAutocannon\s*\/\s*\d+\b/i.test(weapon.name)
+  );
+}
+
+export function resolveSandblasterAutocannonRateOfFireShotCount(options: {
+  baseWeapon: IWeapon;
+  selectedMode: IWeaponFiringMode | undefined;
+  d6Roller: () => number;
+  clusterContext?: IMissileClusterModifierContext;
+}): ISandblasterRateOfFireShotCount | undefined {
+  const { baseWeapon, clusterContext, d6Roller, selectedMode } = options;
+  if (
+    baseWeapon.firingModes?.kind !== 'rate-of-fire' ||
+    selectedMode === undefined ||
+    !isAutocannonRateOfFireWeapon(baseWeapon)
+  ) {
+    return undefined;
+  }
+
+  const shotsPerTurn = Math.max(1, selectedMode.shotsPerTurn);
+  if (shotsPerTurn <= 1) return undefined;
+
+  const clusterModifier = sandblasterClusterModifier(
+    baseWeapon,
+    clusterContext,
+  );
+  if (clusterModifier <= 0) return undefined;
+
+  const clusterRoll = d6Roller() + d6Roller();
+  const modifiedRoll = clusterRoll + clusterModifier;
+  return {
+    clusterRoll,
+    clusterModifier,
+    modifiedRoll,
+    shotCount: lookupClusterHits(modifiedRoll, shotsPerTurn),
+  };
+}
+
 function clusterSizeForLBX(weapon: IWeapon): number {
   const baseId = weaponTypeFromMountId(weapon.id);
   const match = baseId.match(/lb-(\d+)-x(?:-ac)?/i);
@@ -230,10 +290,9 @@ export function resolveClusterModeHit(options: {
     return { weapon: shotWeapon };
 
   const clusterRoll = d6Roller() + d6Roller();
-  const clusterModifier = sandblasterClusterModifier(
-    baseWeapon,
-    clusterContext,
-  );
+  const clusterModifier =
+    sandblasterClusterModifier(baseWeapon, clusterContext) +
+    lowProfileClusterModifier(clusterContext);
   const projectileCount = lookupClusterHits(
     clusterRoll + clusterModifier,
     clusterSizeForLBX(baseWeapon),
@@ -300,6 +359,9 @@ function resolveMissileClusterHit(options: {
     incomingAttackArc: clusterContext?.incomingAttackArc,
     targetWeapons: clusterContext?.targetWeapons,
     targetAmmoState: clusterContext?.targetAmmoState,
+    unavailableAMSWeaponIds: clusterContext?.unavailableAMSWeaponIds,
+    selectedAMSWeaponId: clusterContext?.selectedAMSWeaponId,
+    optionalRules: clusterContext?.optionalRules,
   });
   const projectileCount = amsInterception?.projectilesRemaining ?? clusterHits;
   const damagePerProjectile = shotWeapon.damage / rackSize;
@@ -336,6 +398,9 @@ function resolveStreakModeHit(options: {
     incomingAttackArc: clusterContext?.incomingAttackArc,
     targetWeapons: clusterContext?.targetWeapons,
     targetAmmoState: clusterContext?.targetAmmoState,
+    unavailableAMSWeaponIds: clusterContext?.unavailableAMSWeaponIds,
+    selectedAMSWeaponId: clusterContext?.selectedAMSWeaponId,
+    optionalRules: clusterContext?.optionalRules,
   });
   const remainingProjectiles =
     amsInterception?.projectilesRemaining ?? projectileCount;
@@ -369,6 +434,9 @@ export function resolveSpecialProjectileHit(options: {
     incomingAttackArc: options.clusterContext?.incomingAttackArc,
     targetWeapons: options.clusterContext?.targetWeapons,
     targetAmmoState: options.clusterContext?.targetAmmoState,
+    unavailableAMSWeaponIds: options.clusterContext?.unavailableAMSWeaponIds,
+    selectedAMSWeaponId: options.clusterContext?.selectedAMSWeaponId,
+    optionalRules: options.clusterContext?.optionalRules,
   });
   if (singleMissileAMSResult.amsInterception !== undefined) {
     return singleMissileAMSResult;

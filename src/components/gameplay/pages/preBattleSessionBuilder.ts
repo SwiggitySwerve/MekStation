@@ -31,6 +31,17 @@ function hasAssignedUnit(
   return typeof assignment.unitId === 'string' && assignment.unitId.length > 0;
 }
 
+function getAssignedPilot(
+  pilotId: string | null,
+  pilots: readonly IPilot[],
+): IPilot | undefined {
+  if (!pilotId) {
+    return undefined;
+  }
+
+  return pilots.find((item) => item.id === pilotId);
+}
+
 function getPilotSkills(
   pilotId: string | null,
   pilots: readonly IPilot[],
@@ -39,7 +50,7 @@ function getPilotSkills(
     return { gunnery: 4, piloting: 5 };
   }
 
-  const pilot = pilots.find((item) => item.id === pilotId);
+  const pilot = getAssignedPilot(pilotId, pilots);
   if (!pilot) {
     return { gunnery: 4, piloting: 5 };
   }
@@ -48,6 +59,17 @@ function getPilotSkills(
     gunnery: pilot.skills.gunnery,
     piloting: pilot.skills.piloting,
   };
+}
+
+function getPilotToughness(
+  pilotId: string | null,
+  pilots: readonly IPilot[],
+): number | undefined {
+  const pilot = getAssignedPilot(pilotId, pilots);
+  const toughness = pilot?.rpgToughness;
+  return typeof toughness === 'number' && Number.isFinite(toughness)
+    ? toughness
+    : undefined;
 }
 
 async function adaptAssignments(
@@ -89,8 +111,11 @@ function buildGameUnits(
       pilotRef: assignment.pilotId ?? 'Unknown',
       gunnery: getPilotSkills(assignment.pilotId, pilots).gunnery,
       piloting: getPilotSkills(assignment.pilotId, pilots).piloting,
+      pilotToughness: getPilotToughness(assignment.pilotId, pilots),
       heatSinks: playerAdapted[index]?.heatSinks,
       heatSinkType: playerAdapted[index]?.heatSinkType,
+      initiativeEquipment: playerAdapted[index]?.initiativeEquipment,
+      c3Equipment: playerAdapted[index]?.c3Equipment,
     })),
     ...opponentAssignments.map((assignment, index) => ({
       id: opponentAdapted[index]?.id ?? assignment.unitId ?? assignment.id,
@@ -100,8 +125,11 @@ function buildGameUnits(
       pilotRef: assignment.pilotId ?? 'Unknown',
       gunnery: getPilotSkills(assignment.pilotId, pilots).gunnery,
       piloting: getPilotSkills(assignment.pilotId, pilots).piloting,
+      pilotToughness: getPilotToughness(assignment.pilotId, pilots),
       heatSinks: opponentAdapted[index]?.heatSinks,
       heatSinkType: opponentAdapted[index]?.heatSinkType,
+      initiativeEquipment: opponentAdapted[index]?.initiativeEquipment,
+      c3Equipment: opponentAdapted[index]?.c3Equipment,
     })),
   ];
 }

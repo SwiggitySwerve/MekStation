@@ -35,12 +35,13 @@ export function applyMovementDeclared(
   }
   const wentProne =
     payload.steps?.some((step) => step.kind === 'goProne') ?? false;
+  const goProneMovement = payload.goProneAttempt === true || wentProne;
   const isEvadeMovement = payload.movementType === MovementType.Evade;
   const isSprintMovement = payload.movementType === MovementType.Sprint;
   const prone =
     payload.hullDownEntryAttempt === true
       ? false
-      : payload.goProneAttempt === true || wentProne
+      : goProneMovement
         ? true
         : payload.standUpAttempt === true
           ? payload.standUpSucceeded !== true
@@ -50,7 +51,7 @@ export function applyMovementDeclared(
   const hullDown =
     payload.hullDownEntryAttempt === true
       ? true
-      : payload.goProneAttempt === true || wentProne
+      : goProneMovement
         ? false
         : payload.hullDownExitAttempt === true
           ? false
@@ -84,6 +85,7 @@ export function applyMovementDeclared(
       prone,
       hullDown,
       hullDownEnteredBackwards,
+      ...(goProneMovement ? { infernoBurning: false } : {}),
       lockState: LockState.Planning,
     }),
   );

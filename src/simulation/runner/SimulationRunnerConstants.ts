@@ -35,4 +35,8 @@ export const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
   weaponsDestroyed: [],
   heatSinksDestroyed: 0,
   jumpJetsDestroyed: 0,
+  superCooledMyomerHits: 0,
+  emergencyCoolantSystemDamaged: false,
+  playtestAutocannonFirstCrits: [],
+  breachedLocations: [],
 };

@@ -6,6 +6,7 @@ import {
   GamePhase,
   IGameEvent,
   IGameState,
+  IAmmoSlotState,
 } from '@/types/gameplay';
 import {
   applyAmmoExplosionRearArmorBlowout,
@@ -39,10 +40,15 @@ type DestructionCause =
   | 'head_destroyed'
   | undefined;
 
-type ResolvedCriticalHitEvent = Extract<
-  CriticalHitEvent,
-  { readonly type: 'critical_hit_resolved' }
->;
+interface ICriticalExplosion {
+  readonly location: string;
+  readonly damage: number;
+  readonly binId?: string;
+  readonly equipmentName?: string;
+  readonly weaponType?: string;
+  readonly roundsDestroyed?: number;
+  readonly updatedAmmoState?: Record<string, IAmmoSlotState>;
+}
 
 export function applyCritAmmoExplosions(options: {
   currentState: IGameState;
@@ -72,33 +78,25 @@ export function applyCritAmmoExplosions(options: {
   } = options;
 
   if (damageResult.criticalEvents) {
-    const attackerWeapons = weaponsByUnit?.get(targetId);
     for (const evt of damageResult.criticalEvents) {
-      if (!isDestroyedAmmoCritical(evt)) {
-        continue;
-      }
       const targetNow = currentState.units[targetId];
       if (targetNow.destroyed) break;
-      const ammoStateOnTarget = targetNow.ammoState ?? {};
-      const bin = findExplodingAmmoBin(
-        ammoStateOnTarget,
-        evt.payload.location,
-        evt.payload.ammoBinId,
+      const explosion = resolveCriticalExplosion(
+        evt,
+        targetNow,
+        weaponsByUnit?.get(targetId),
       );
-      if (!bin) {
-        // Empty ammo bin (or no bin tracked at this location) —
-        // per spec scenario "Empty ammo bin crit produces no
-        // explosion": ComponentDestroyed already emitted; no
+      if (!explosion) {
+        // Empty ammo bin, no tracked bin, or equipment with no represented
+        // explosion damage. ComponentDestroyed already emitted; no
         // AmmoExplosion follows.
         continue;
       }
-      const damagePerRound = damagePerRoundForBin(bin, attackerWeapons);
-      const explosionDamage = bin.remainingRounds * damagePerRound;
       const targetForExplosion = currentState.units[targetId];
       const caseAdjustedDamage = resolveCaseAdjustedAmmoExplosionDamage(
         targetForExplosion,
-        bin.location as CombatLocation,
-        explosionDamage,
+        explosion.location as CombatLocation,
+        explosion.damage,
       );
       events.push(
         createGameEvent(
@@ -109,23 +107,29 @@ export function applyCritAmmoExplosions(options: {
           GamePhase.WeaponAttack,
           {
             unitId: targetId,
-            location: bin.location,
-            binId: bin.binId,
-            weaponType: bin.weaponType,
-            roundsDestroyed: bin.remainingRounds,
-            damage: explosionDamage,
+            location: explosion.location,
+            ...(explosion.binId !== undefined
+              ? { binId: explosion.binId }
+              : {}),
+            ...(explosion.equipmentName !== undefined
+              ? { equipmentName: explosion.equipmentName }
+              : {}),
+            ...(explosion.weaponType !== undefined
+              ? { weaponType: explosion.weaponType }
+              : {}),
+            ...(explosion.roundsDestroyed !== undefined
+              ? { roundsDestroyed: explosion.roundsDestroyed }
+              : {}),
+            damage: explosion.damage,
             caseProtection: caseAdjustedDamage.caseProtection,
             source: 'CritInduced' as const,
           },
           unitId,
         ),
       );
-      // Empty the bin (ammoState mutation) so a subsequent volley
-      // mount in the same turn can't re-trigger the explosion.
-      const emptiedAmmoState = {
-        ...ammoStateOnTarget,
-        [bin.binId]: { ...bin, remainingRounds: 0 },
-      };
+      // Empty tracked ammo bins so a subsequent volley in the same turn
+      // cannot re-trigger the same bin. Represented equipment explosions
+      // have no ammo-state mutation.
       // Apply the explosion damage through the canonical damage pipeline so
       // LocationDestroyed + TransferDamage emit per the unprotected cookoff
       // spec. CASE-protected locations feed a capped local damage amount
@@ -133,17 +137,19 @@ export function applyCritAmmoExplosions(options: {
       const targetForCascade = currentState.units[targetId];
       const cascadeState = buildDamageState({
         ...targetForCascade,
-        ammoState: emptiedAmmoState,
+        ...(explosion.updatedAmmoState !== undefined
+          ? { ammoState: explosion.updatedAmmoState }
+          : {}),
       });
       const blowout = applyAmmoExplosionRearArmorBlowout(
         cascadeState,
-        bin.location as CombatLocation,
+        explosion.location as CombatLocation,
         caseAdjustedDamage.caseProtection,
         caseAdjustedDamage.damageToApply,
       );
       const cascadeResult = resolveInternalDamage(
         blowout.state,
-        bin.location as CombatLocation,
+        explosion.location as CombatLocation,
         caseAdjustedDamage.damageToApply,
         d6Roller,
         { applyHeadPilotDamage: false },
@@ -166,16 +172,18 @@ export function applyCritAmmoExplosions(options: {
       );
       // Ensure the emptied ammoState persists on the unit too —
       // applyDamageResultToState doesn't touch ammoState.
-      currentState = {
-        ...currentState,
-        units: {
-          ...currentState.units,
-          [targetId]: {
-            ...currentState.units[targetId],
-            ammoState: emptiedAmmoState,
+      if (explosion.updatedAmmoState !== undefined) {
+        currentState = {
+          ...currentState,
+          units: {
+            ...currentState.units,
+            [targetId]: {
+              ...currentState.units[targetId],
+              ammoState: explosion.updatedAmmoState,
+            },
           },
-        },
-      };
+        };
+      }
 
       const cascadeChain = cascadeLocationDamages;
       for (let j = 0; j < cascadeChain.length; j++) {
@@ -244,7 +252,7 @@ export function applyCritAmmoExplosions(options: {
         targetId,
         sourceUnitId: unitId,
         phase: GamePhase.WeaponAttack,
-        totalExplosionDamage: explosionDamage,
+        totalExplosionDamage: explosion.damage,
         caseProtection: caseAdjustedDamage.caseProtection,
         d6Roller,
       });
@@ -282,12 +290,52 @@ export function applyCritAmmoExplosions(options: {
   return { currentState, critUnitDestroyed, critDestructionCause };
 }
 
-function isDestroyedAmmoCritical(
+function resolveCriticalExplosion(
   evt: CriticalHitEvent,
-): evt is ResolvedCriticalHitEvent {
-  return (
-    evt.type === 'critical_hit_resolved' &&
-    evt.payload.componentType === 'ammo' &&
-    evt.payload.destroyed
-  );
+  targetNow: IGameState['units'][string],
+  targetWeapons: readonly IWeapon[] | undefined,
+): ICriticalExplosion | null {
+  if (evt.type !== 'critical_hit_resolved') {
+    return null;
+  }
+
+  if (evt.payload.componentType === 'ammo' && evt.payload.destroyed) {
+    const ammoStateOnTarget = targetNow.ammoState ?? {};
+    const bin = findExplodingAmmoBin(
+      ammoStateOnTarget,
+      evt.payload.location,
+      evt.payload.ammoBinId,
+    );
+    if (!bin) return null;
+
+    const damagePerRound = damagePerRoundForBin(bin, targetWeapons);
+    return {
+      location: bin.location,
+      binId: bin.binId,
+      weaponType: bin.weaponType,
+      roundsDestroyed: bin.remainingRounds,
+      damage: bin.remainingRounds * damagePerRound,
+      updatedAmmoState: {
+        ...ammoStateOnTarget,
+        [bin.binId]: { ...bin, remainingRounds: 0 },
+      },
+    };
+  }
+
+  if (
+    (evt.payload.componentType === 'equipment' ||
+      (evt.payload.componentType === 'weapon' &&
+        evt.payload.hotLoaded === true)) &&
+    evt.payload.destroyed &&
+    evt.payload.explosionDamage !== undefined &&
+    evt.payload.explosionDamage > 0
+  ) {
+    return {
+      location: evt.payload.location,
+      equipmentName: evt.payload.componentName,
+      damage: evt.payload.explosionDamage,
+    };
+  }
+
+  return null;
 }

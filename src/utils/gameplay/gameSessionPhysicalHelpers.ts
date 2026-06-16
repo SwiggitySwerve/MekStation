@@ -1,8 +1,13 @@
-import type { IUnitGameState } from '@/types/gameplay';
+import type {
+  IPhysicalDominoStepOutDecisionPayload,
+  IUnitGameState,
+} from '@/types/gameplay';
+import type { LightCondition } from '@/types/gameplay/EnvironmentalConditions';
 
 import type {
   IPhysicalAttackRestriction,
   JumpJetAttackSelectedLeg,
+  PhysicalAttackINarcPodSelection,
   PhysicalAttackLimb,
   PhysicalTargetObjectType,
   ThrashAttackBlockingTerrain,
@@ -23,6 +28,8 @@ export interface IPhysicalAttackContext {
   /** Attacker water depth for source-backed Frogman physical to-hit relief. */
   readonly attackerWaterDepth?: number;
   readonly arm?: 'left' | 'right';
+  /** Explicit declaration that a Zweihander-capable pilot is using both hands. */
+  readonly twoHandedZweihander?: boolean;
   readonly hexesMoved?: number;
   readonly weaponsFiredFromArm?: readonly string[];
   /**
@@ -86,6 +93,8 @@ export interface IPhysicalAttackContext {
    */
   readonly leftArmHasClaw?: boolean;
   readonly rightArmHasClaw?: boolean;
+  readonly leftArmCarryingCargo?: boolean;
+  readonly rightArmCarryingCargo?: boolean;
   /**
    * Per tasks 3.6 / 3.7: DFA requires a jump; charge requires a run.
    */
@@ -117,6 +126,10 @@ export interface IPhysicalAttackContext {
   /** Pilot abilities and unit quirks that modify physical attacks. */
   readonly pilotAbilities?: readonly string[];
   readonly unitQuirks?: readonly string[];
+  /** Optional Environmental Specialist physical to-hit context. */
+  readonly designatedEnvironment?: string;
+  readonly environmentalLight?: LightCondition;
+  readonly targetIlluminated?: boolean;
   /** Target elevation minus attacker elevation. */
   readonly elevationDifference?: number;
   readonly elevationContext?: import('./physicalAttacks').IPhysicalAttackInput['elevationContext'];
@@ -155,6 +168,8 @@ export interface IPhysicalAttackContext {
   readonly targetDirectlyBehindFeet?: boolean;
   readonly targetIsSwarmingInfantryOnAttacker?: boolean;
   readonly targetIsINarcPod?: boolean;
+  readonly selectedINarcPod?: PhysicalAttackINarcPodSelection;
+  readonly blockerStepOutDecision?: IPhysicalDominoStepOutDecisionPayload;
   readonly armAesFunctional?: boolean;
   readonly torsoMountedCockpit?: boolean;
   readonly headSensorHits?: number;

@@ -71,7 +71,7 @@ export const MEGAMEK_DFA_MISS_FALL_SOURCE_REFS = [
 
 export const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
   megaMekSourceRef(
-    'MegaMek MovePathHandler invokes MASC and Supercharger failure checks during movement resolution when a path has active boosters.',
+    'MegaMek MovePathHandler checks active MASC/Supercharger on the first movement step and invokes the failure checks during movement resolution.',
     'megamek/src/megamek/server/totalWarfare/MovePathHandler.java',
     'L1507-L1519',
   ),

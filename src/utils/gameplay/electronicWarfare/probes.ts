@@ -11,22 +11,32 @@ import {
 } from './constants';
 import { IActiveProbe, IElectronicWarfareState, IECMSuite } from './types';
 
+function probeTypeFrom(
+  probe: IActiveProbe | IActiveProbe['type'],
+): IActiveProbe['type'] {
+  return typeof probe === 'string' ? probe : probe.type;
+}
+
 export function getProbeECMCounterRange(
-  probeType: IActiveProbe['type'],
+  probe: IActiveProbe | IActiveProbe['type'],
 ): number {
+  const probeType = probeTypeFrom(probe);
+  const eagleEyesBonus =
+    typeof probe === 'string' || probe.eagleEyesRangeBonus !== true ? 0 : 1;
+
   switch (probeType) {
     case 'beagle':
-      return BAP_ECM_COUNTER_RANGE;
+      return BAP_ECM_COUNTER_RANGE + eagleEyesBonus;
     case 'bloodhound':
-      return BLOODHOUND_ECM_COUNTER_RANGE;
+      return BLOODHOUND_ECM_COUNTER_RANGE + eagleEyesBonus;
     case 'clan-active-probe':
-      return CLAN_PROBE_ECM_COUNTER_RANGE;
+      return CLAN_PROBE_ECM_COUNTER_RANGE + eagleEyesBonus;
     case 'light-active-probe':
-      return LIGHT_PROBE_ECM_COUNTER_RANGE;
+      return LIGHT_PROBE_ECM_COUNTER_RANGE + eagleEyesBonus;
     case 'watchdog-cews':
-      return WATCHDOG_CEWS_ECM_COUNTER_RANGE;
+      return WATCHDOG_CEWS_ECM_COUNTER_RANGE + eagleEyesBonus;
     case 'nova-cews':
-      return NOVA_CEWS_ECM_COUNTER_RANGE;
+      return NOVA_CEWS_ECM_COUNTER_RANGE + eagleEyesBonus;
   }
 }
 
@@ -51,7 +61,7 @@ export function canBAPCounterECM(
     return false;
   }
 
-  const counterRange = getProbeECMCounterRange(probe.type);
+  const counterRange = getProbeECMCounterRange(probe);
   const distance = hexDistance(probe.position, enemyECM.position);
 
   if (enemyECM.type === 'guardian') {

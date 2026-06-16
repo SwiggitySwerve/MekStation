@@ -250,7 +250,7 @@ function makeTerrainLosEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
   if (terrain === TerrainType.Building) {
     return integrated(
       terrain,
-      'MekStation calculateLOS blocks this terrain through local blocksLOS and losBlockHeight rules while leaving richer MegaMek building-level handling visible in aggregate terrain LOS gaps',
+      'MekStation calculateLOS blocks this terrain through represented non-diagram building-height rules plus local blocksLOS and losBlockHeight metadata while leaving entity-aware grounded DropShip, fuel-tank elevation, hard/soft building, and damageable-cover handling visible in exact aggregate terrain LOS gaps',
       terrainLosSourceRefs(terrain),
     );
   }
@@ -267,10 +267,26 @@ function makeTerrainLosEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
     );
   }
 
+  if (terrain === TerrainType.HeavyIndustrial) {
+    return integrated(
+      terrain,
+      'MekStation calculateLOS accumulates represented heavy industrial TacOps LOS density through straight and divided intervening hexes, applies +1 per counted hex, and blocks LOS once the represented count exceeds 2',
+      terrainLosSourceRefs(terrain),
+    );
+  }
+
+  if (terrain === TerrainType.PlantedField) {
+    return integrated(
+      terrain,
+      'MekStation calculateLOS accumulates represented planted-field TacOps LOS density through straight and divided intervening hexes, applies +1 per two counted fields, and blocks LOS once the represented count exceeds 5',
+      terrainLosSourceRefs(terrain),
+    );
+  }
+
   if (terrain === TerrainType.Water) {
     return integrated(
       terrain,
-      'MekStation calculateLOS blocks source-backed land-to-depth-2+ water endpoint sightlines while keeping non-endpoint water non-blocking for local attack modifier and heat rows',
+      'MekStation calculateLOS blocks source-backed land-to-underwater endpoint sightlines, represented underwater clear/non-water depth-0 intervening sightlines, and exposes endpoint-height-aware minimumWaterDepth metadata while keeping non-endpoint water non-blocking for local attack modifier and heat rows',
       terrainLosSourceRefs(terrain),
     );
   }

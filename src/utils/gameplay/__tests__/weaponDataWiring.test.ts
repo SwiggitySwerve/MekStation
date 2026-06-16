@@ -18,6 +18,8 @@ import {
   FiringArc,
   IWeaponAttack,
   GameEventType,
+  IAMSInterceptionPayload,
+  IAmmoConsumedPayload,
   IAttackResolvedPayload,
   IAttackDeclaredPayload,
   IHeatPayload,
@@ -92,6 +94,7 @@ const TEST_AMMO_BINS = [
 function createUnits(options?: {
   playerHeatSinks?: number;
   opponentHeatSinks?: number;
+  opponentAmmoConstruction?: IGameUnit['ammoConstruction'];
 }): readonly IGameUnit[] {
   return [
     {
@@ -114,6 +117,7 @@ function createUnits(options?: {
       gunnery: 4,
       piloting: 5,
       heatSinks: options?.opponentHeatSinks,
+      ammoConstruction: options?.opponentAmmoConstruction,
     },
   ];
 }
@@ -409,6 +413,184 @@ describe('Weapon Data Wiring', () => {
       expect(payload.weaponAttacks![0].damage).toBe(20);
       expect(payload.weaponAttacks![0].heat).toBe(7);
       expect(payload.weaponAttacks![0].weaponName).toBe('AC/20');
+    });
+  });
+
+  describe('selected AMS mount replay data', () => {
+    const lrm10Attack: IWeaponAttack[] = [
+      {
+        weaponId: 'lrm-10-1',
+        weaponName: 'LRM-10',
+        damage: 10,
+        heat: 4,
+        category: 'missile' as never,
+        minRange: 0,
+        shortRange: 7,
+        mediumRange: 14,
+        longRange: 21,
+        isCluster: false,
+      },
+    ];
+
+    function declareSelectedAMSLRMAttack(
+      session: IGameSession,
+      selectedAMSWeaponId: string,
+      includeMountSnapshot: boolean,
+    ): IGameSession {
+      return declareAttack(
+        session,
+        'player-1',
+        'opponent-1',
+        lrm10Attack,
+        3,
+        RangeBracket.Short,
+        undefined,
+        undefined,
+        false,
+        [],
+        null,
+        { 'lrm-10-1': selectedAMSWeaponId },
+        includeMountSnapshot
+          ? {
+              'lrm-10-1': {
+                weaponId: selectedAMSWeaponId,
+                weaponName: 'Anti-Missile System',
+                heat: 1,
+                ammoWeaponType: 'ams',
+              },
+            }
+          : undefined,
+      );
+    }
+
+    it('resolveAttack consumes the replayed selected defender AMS mount', () => {
+      const units = createUnits({
+        opponentAmmoConstruction: [
+          {
+            binId: 'target-ams-bin',
+            weaponType: 'ams',
+            location: 'ct',
+            maxRounds: 2,
+            damagePerRound: 1,
+            isExplosive: true,
+          },
+        ],
+      });
+      let session = createGameSession(createConfig(), units);
+      session = startGame(session, GameSide.Player);
+      session = advanceToWeaponAttack(session);
+
+      session = declareSelectedAMSLRMAttack(session, 'ams-1', true);
+      session = lockAttack(session, 'player-1');
+      session = lockAttack(session, 'opponent-1');
+
+      const rolls = [
+        createDiceRoll(6, 6), // attack hits
+        createDiceRoll(6, 6), // LRM cluster roll before AMS
+        createDiceRoll(4, 3), // hit location
+      ];
+      let rollIndex = 0;
+      session = resolveAllAttacks(session, () => rolls[rollIndex++]);
+
+      const amsInterception = session.events.find(
+        (event) => event.type === GameEventType.AMSInterception,
+      );
+      expect(amsInterception).toBeDefined();
+      expect(amsInterception!.payload as IAMSInterceptionPayload).toMatchObject(
+        {
+          defenderId: 'opponent-1',
+          attackerId: 'player-1',
+          incomingWeaponId: 'lrm-10-1',
+          amsWeaponId: 'ams-1',
+          resolution: 'cluster-table',
+          incomingProjectiles: 10,
+          projectilesIntercepted: 4,
+          projectilesRemaining: 6,
+          ammoConsumed: 1,
+          roll: [6, 6],
+          clusterRoll: 12,
+          clusterModifier: -4,
+          modifiedClusterRoll: 8,
+          ammoBinId: 'target-ams-bin',
+          ammoRemaining: 1,
+        },
+      );
+
+      const defenderAmmoEvents = session.events.filter(
+        (event) =>
+          event.type === GameEventType.AmmoConsumed &&
+          (event.payload as IAmmoConsumedPayload).unitId === 'opponent-1',
+      );
+      expect(defenderAmmoEvents).toHaveLength(1);
+      expect(
+        (defenderAmmoEvents[0].payload as IAmmoConsumedPayload).weaponType,
+      ).toBe('ams');
+      expect(
+        session.currentState.units['opponent-1'].ammoState?.['target-ams-bin']
+          .remainingRounds,
+      ).toBe(1);
+      expect(
+        session.currentState.units['opponent-1'].weaponsFiredThisTurn,
+      ).toEqual(['ams-1']);
+
+      const resolved = session.events.find(
+        (event) => event.type === GameEventType.AttackResolved,
+      );
+      expect((resolved!.payload as IAttackResolvedPayload).damage).toBe(6);
+    });
+
+    it('invalid selected AMS id does not fall back to automatic AMS side effects', () => {
+      const units = createUnits({
+        opponentAmmoConstruction: [
+          {
+            binId: 'target-ams-bin',
+            weaponType: 'ams',
+            location: 'ct',
+            maxRounds: 2,
+            damagePerRound: 1,
+            isExplosive: true,
+          },
+        ],
+      });
+      let session = createGameSession(createConfig(), units);
+      session = startGame(session, GameSide.Player);
+      session = advanceToWeaponAttack(session);
+
+      session = declareSelectedAMSLRMAttack(session, 'missing-ams', false);
+      session = lockAttack(session, 'player-1');
+      session = lockAttack(session, 'opponent-1');
+
+      const rolls = [
+        createDiceRoll(6, 6), // attack hits
+        createDiceRoll(4, 3), // hit location; no AMS cluster roll consumed
+      ];
+      let rollIndex = 0;
+      session = resolveAllAttacks(session, () => rolls[rollIndex++]);
+
+      expect(
+        session.events.some(
+          (event) => event.type === GameEventType.AMSInterception,
+        ),
+      ).toBe(false);
+      expect(
+        session.events.some(
+          (event) =>
+            event.type === GameEventType.AmmoConsumed &&
+            (event.payload as IAmmoConsumedPayload).unitId === 'opponent-1',
+        ),
+      ).toBe(false);
+      expect(
+        session.currentState.units['opponent-1'].ammoState?.['target-ams-bin']
+          .remainingRounds,
+      ).toBe(2);
+      expect(
+        session.currentState.units['opponent-1'].weaponsFiredThisTurn,
+      ).toEqual([]);
+
+      const resolved = session.events.find(
+        (event) => event.type === GameEventType.AttackResolved,
+      );
+      expect((resolved!.payload as IAttackResolvedPayload).damage).toBe(10);
     });
   });
 

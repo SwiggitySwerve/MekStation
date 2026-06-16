@@ -21,16 +21,22 @@ import {
 
 import type { UnitMovementType } from './types';
 
-import { isInBounds, isOccupied } from '../hexGrid';
+import { getOccupant, isInBounds, isOccupied } from '../hexGrid';
 import { hexDistance, hexEquals } from '../hexMath';
 import {
   getHexMovementCost,
   getJumpClearanceBlockedReason,
   getJumpElevationBlockedReason,
   getMaxMP,
+  getMovementStepCostBreakdown,
   type IMovementCostContext,
 } from './calculations';
 import { calculateGroundPathTurningMpCost } from './eventPath';
+import {
+  calculateManeuveringAceBipedLateralShiftCost,
+  calculateManeuveringAceQuadLateralStepCost,
+  canUseManeuveringAceBipedLateralShift,
+} from './lateralShift';
 import { movementModeForPath } from './mode';
 import { calculateMovementHeat } from './modifiers';
 import { findPath } from './pathfinding';
@@ -88,6 +94,16 @@ export function validateMovement(
   }
 
   const distance = hexDistance(position.coord, destination);
+  if (distance > 0 && startHexIsOccupiedByAnotherUnit(grid, position)) {
+    return {
+      valid: false,
+      error:
+        'Unit cannot make follow-up movement from a start hex occupied by another unit',
+      mpCost: 0,
+      heatGenerated: 0,
+    };
+  }
+
   const facingChangeCost = getFacingChangeCost(position.facing, newFacing);
 
   if (movementType === MovementType.Jump && capability.jumpMP === 0) {
@@ -106,6 +122,13 @@ export function validateMovement(
     heatPenalty,
     environmentalConditions,
   );
+  const movementCostContext =
+    environmentalConditions === undefined
+      ? movementContext
+      : {
+          ...movementContext,
+          environmentalConditions,
+        };
 
   let mpCost = distance === 0 ? facingChangeCost : distance;
   if (movementType !== MovementType.Jump && distance > 0) {
@@ -123,21 +146,23 @@ export function validateMovement(
       destination,
       Infinity,
       unitMovementType,
-      movementContext,
+      movementCostContext,
     );
 
     if (!path) {
-      const directCost = getHexMovementCost(
+      const directStep = getMovementStepCostBreakdown(
         grid,
         destination,
         unitMovementType,
         position.coord,
-        movementContext,
+        movementCostContext,
       );
-      if (!Number.isFinite(directCost)) {
+      if (!Number.isFinite(directStep.mpCost)) {
         return {
           valid: false,
-          error: `Path crosses impassable terrain at (${destination.q}, ${destination.r})`,
+          error:
+            directStep.blockedReason ??
+            `Path crosses impassable terrain at (${destination.q}, ${destination.r})`,
           mpCost: 0,
           heatGenerated: 0,
         };
@@ -157,8 +182,36 @@ export function validateMovement(
       unitMovementType,
       position.facing,
       newFacing,
-      movementContext,
+      movementCostContext,
     );
+    const canUseManeuveringAceLateralStep =
+      canUseManeuveringAceBipedLateralShift({
+        from: position.coord,
+        to: destination,
+        fromFacing: position.facing,
+        toFacing: newFacing,
+        movementType,
+        movementContext: movementCostContext,
+      });
+    if (canUseManeuveringAceLateralStep) {
+      const lateralStepCost =
+        capability.mekLegProfile === 'quad'
+          ? calculateManeuveringAceQuadLateralStepCost({
+              grid,
+              from: position.coord,
+              to: destination,
+              movementType: unitMovementType,
+              movementContext: movementCostContext,
+            })
+          : calculateManeuveringAceBipedLateralShiftCost({
+              grid,
+              from: position.coord,
+              to: destination,
+              movementType: unitMovementType,
+              movementContext: movementCostContext,
+            });
+      mpCost = Math.min(mpCost, lateralStepCost);
+    }
   }
 
   if (mpCost > maxMP) {
@@ -205,6 +258,14 @@ export function validateMovement(
     mpCost,
     heatGenerated,
   };
+}
+
+function startHexIsOccupiedByAnotherUnit(
+  grid: IHexGrid,
+  position: IUnitPosition,
+): boolean {
+  const occupantId = getOccupant(grid, position.coord);
+  return occupantId !== null && occupantId !== position.unitId;
 }
 
 export function getFacingChangeCost(from: Facing, to: Facing): number {

@@ -20,6 +20,19 @@ function mekstationDeviationSourceRef(
   };
 }
 
+function megamekTerrainSourceRef(
+  citation: string,
+  path: string,
+  lineRange: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'megamek-source',
+    citation,
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/${path}#${lineRange}`,
+    sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+  };
+}
+
 const MEGAMEK_INTERVENING_TERRAIN_TO_HIT_SOURCE_REF = {
   kind: 'megamek-source',
   citation:
@@ -51,6 +64,42 @@ const MEGAMEK_INTERVENING_LOS_FEATURE_SOURCE_REF = {
   url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/LosEffects.java#L1210-L1455`,
   sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
 } satisfies ICombatFeatureSourceReference;
+
+export const MEGAMEK_TACOPS_DIAGRAM_LOS_SOURCE_REFS = [
+  megamekTerrainSourceRef(
+    'MegaMek LosEffects.calculateLos gates TacOps LOS1 diagram LOS through ADVANCED_COMBAT_TAC_OPS_LOS1 before selecting straight or divided LOS tracing.',
+    'common/LosEffects.java',
+    'L783-L790',
+  ),
+  megamekTerrainSourceRef(
+    'MegaMek LosEffects.losDivided evaluates non-split coordinates and left/right split-side LOS effects separately before choosing defender-favorable cover or blocking.',
+    'common/LosEffects.java',
+    'L993-L1040',
+  ),
+  megamekTerrainSourceRef(
+    'MegaMek LosEffects.losForCoords computes TacOps diagram losElevation and blocks terrain when totalEl >= losElevation instead of using only non-diagram endpoint-height comparisons.',
+    'common/LosEffects.java',
+    'L1310-L1329',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_DROPSHIP_SPECIAL_BUILDING_LOS_SOURCE_REFS = [
+  megamekTerrainSourceRef(
+    'MegaMek LosEffects.losForCoords considers BLDG_ELEV, FUEL_TANK_ELEV, and same-hex grounded Dropship entities as LOS building elevation, treating grounded Dropships as level-10 cover.',
+    'common/LosEffects.java',
+    'L1264-L1293',
+  ),
+  megamekTerrainSourceRef(
+    'MegaMek LosEffects.losForCoords distinguishes hard buildings from soft buildings through BLDG_CF while recording building LOS blockers.',
+    'common/LosEffects.java',
+    'L1331-L1339',
+  ),
+  megamekTerrainSourceRef(
+    'MegaMek LosEffects.losForCoords records damageable cover providers for partial-cover situations, including grounded Dropships and buildings.',
+    'common/LosEffects.java',
+    'L1488-L1502',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEGAMEK_RUBBLE_PSR_SOURCE_REF = {
   kind: 'megamek-source',
@@ -157,13 +206,13 @@ const MEKSTATION_TERRAIN_PSR_SPA_SOURCE_REF = mekstationDeviationSourceRef(
 const MEKSTATION_LOS_FEATURE_PARSE_SOURCE_REF = mekstationDeviationSourceRef(
   'MekStation parseTerrainFeatures turns a terrain string into local TerrainType feature rows before LOS checks.',
   'src/utils/gameplay/lineOfSight.ts',
-  'L50-L70',
+  'L65-L69',
 );
 
 const MEKSTATION_LOS_BLOCKING_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation calculateLOS gates land-to-depth-2+ water endpoint sightlines, then checks intervening hexes for direct blocks and cumulative woods or smoke density; destroyed-unit markers never block LOS per align-wreck-los-with-megamek.',
+  'MekStation calculateLOS gates land-to-underwater endpoint sightlines, exposes minimumWaterDepth, then checks intervening hexes for direct blocks and cumulative woods or smoke density; destroyed-unit markers never block LOS per align-wreck-los-with-megamek.',
   'src/utils/gameplay/lineOfSight.ts',
-  'L189-L349',
+  'L451-L789',
 );
 
 const MEKSTATION_ATTACK_LOS_PHASE_SOURCE_REF = mekstationDeviationSourceRef(
@@ -183,7 +232,7 @@ const MEKSTATION_RUNNER_TERRAIN_TO_HIT_HELPER_SOURCE_REF =
   mekstationDeviationSourceRef(
     'MekStation weapon attack terrain helpers convert LOS and target hex terrain into target and intervening to-hit modifier details.',
     'src/simulation/runner/phases/weaponAttackTerrainModifiers.ts',
-    'L13-L63',
+    'L13-L55',
   );
 
 const MEKSTATION_RUNNER_TERRAIN_TO_HIT_PHASE_SOURCE_REF =
@@ -195,15 +244,19 @@ const MEKSTATION_RUNNER_TERRAIN_TO_HIT_PHASE_SOURCE_REF =
 
 const sourceBackedAttackModifierTerrains = new Set<TerrainType>([
   TerrainType.Building,
+  TerrainType.HeavyIndustrial,
   TerrainType.HeavyWoods,
   TerrainType.LightWoods,
+  TerrainType.PlantedField,
   TerrainType.Smoke,
 ]);
 
 const megaMekComparedLosTerrains = new Set<TerrainType>([
   TerrainType.Building,
+  TerrainType.HeavyIndustrial,
   TerrainType.HeavyWoods,
   TerrainType.LightWoods,
+  TerrainType.PlantedField,
   TerrainType.Smoke,
   TerrainType.Water,
 ]);

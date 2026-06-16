@@ -7,6 +7,8 @@ function hasFeatureMetadata(feature: ITerrainFeature): boolean {
   return (
     feature.constructionFactor !== undefined ||
     feature.buildingId !== undefined ||
+    feature.fuelTankElevation !== undefined ||
+    feature.fuelTankId !== undefined ||
     feature.isOnFire !== undefined ||
     feature.isFrozen !== undefined ||
     feature.cliffTopExits !== undefined

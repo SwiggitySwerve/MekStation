@@ -11,6 +11,7 @@ import type { ITerrainFeature } from '@/types/gameplay/TerrainTypes';
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
 import { isRepresentedTargetImmobile } from '../combatImmobility';
+import { hasSPA } from '../spaModifiers/canonicalize';
 
 interface IWeaponToHitDescriptor {
   readonly id: string;
@@ -36,6 +37,24 @@ export interface ICalledShotHydrationOptions {
    * the full +3 without the local helper SPA.
    */
   readonly applyLocalCalledShotAbilityReduction?: boolean;
+}
+
+function unitAbilityIds(unit: IUnitGameState): readonly string[] {
+  return [...(unit.abilities ?? []), ...(unit.pilotSpas ?? [])];
+}
+
+function hasRepresentedTripleCoreProcessorAimedShotCapability(
+  unit: IUnitGameState,
+  calledShot: boolean | undefined,
+): boolean {
+  if (calledShot !== true) return false;
+  if (unit.neuralInterfaceActive === false) return false;
+
+  const abilities = unitAbilityIds(unit);
+  return (
+    hasSPA(abilities, 'triple_core_processor') &&
+    (hasSPA(abilities, 'vdni') || hasSPA(abilities, 'bvdni'))
+  );
 }
 
 export function buildWeaponAttackActuatorDamage(
@@ -74,9 +93,16 @@ export function buildWeaponAttackAttackerToHitState(
     pilotWounds: unit.pilotWounds,
     sensorHits: unit.componentDamage?.sensorHits,
     actuatorDamage: buildWeaponAttackActuatorDamage(unit.componentDamage),
+    targetingComputer:
+      unit.targetingComputerEquipment === true ||
+      hasRepresentedTripleCoreProcessorAimedShotCapability(
+        unit,
+        calledShotOptions.calledShot,
+      ),
     prone: unit.prone ?? false,
     isSpotting: unit.isSpotting,
     abilities: unit.abilities,
+    neuralInterfaceActive: unit.neuralInterfaceActive,
     weaponType: weapon?.name ?? weapon?.id,
     weaponCategory: weapon?.category,
     designatedWeaponType: unit.designatedWeaponType,
@@ -89,6 +115,7 @@ export function buildWeaponAttackAttackerToHitState(
       calledShotOptions.applyLocalCalledShotAbilityReduction ?? true,
     designatedTargetId: unit.designatedTargetId,
     designatedRangeBracket: unit.designatedRangeBracket,
+    designatedEnvironment: unit.designatedEnvironment,
     unitQuirks: unit.unitQuirks,
     weaponQuirks: unit.weaponQuirks,
   };

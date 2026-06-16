@@ -4,6 +4,7 @@ import type {
   IHexCoordinate,
   IHexGrid,
   IJumpStep,
+  ILateralStep,
   IMovementCapability,
   IMovementStep,
   IStandUpStep,
@@ -23,6 +24,11 @@ import {
   getSprintMPForCapability,
   type IMovementCostContext,
 } from './calculations';
+import {
+  calculateManeuveringAceBipedLateralShiftCost,
+  calculateManeuveringAceQuadLateralStepCost,
+  maneuveringAceLateralShiftDirection,
+} from './lateralShift';
 import { findPath } from './pathfinding';
 
 export function movementAnimationModeForType(
@@ -180,6 +186,7 @@ export interface IDecomposeMovementInput {
   readonly mpUsed: number;
   readonly path?: readonly IHexCoordinate[];
   readonly grid?: IHexGrid;
+  readonly movementCapability?: IMovementCapability;
   /**
    * When `true`, the unit was prone before the move and the
    * decomposition prepends a `'standUp'` step (mpCost 2, psrTriggered
@@ -376,6 +383,51 @@ export function decomposeMovementSteps(
     turningMpCost += 2;
   }
 
+  if (path.length === 2 && fromFacing === toFacing) {
+    const lateralDirection = maneuveringAceLateralShiftDirection({
+      from,
+      to,
+      facing: fromFacing,
+    });
+    const lateralCost =
+      lateralDirection && grid
+        ? input.movementCapability?.mekLegProfile === 'quad'
+          ? calculateManeuveringAceQuadLateralStepCost({
+              grid,
+              from,
+              to,
+              movementType: toUnitMovementType(movementType),
+            })
+          : calculateManeuveringAceBipedLateralShiftCost({
+              grid,
+              from,
+              to,
+              movementType: toUnitMovementType(movementType),
+            })
+        : lateralDirection
+          ? 2
+          : Infinity;
+    if (lateralDirection && lateralCost === mpUsed) {
+      const { terrain } = lookupTerrain(grid, to);
+      const lateralStep: ILateralStep = {
+        kind: 'lateral',
+        index: nextIndex++,
+        direction: lateralDirection,
+        from: copyHex(from),
+        to: copyHex(to),
+        mpCost: lateralCost,
+        terrainEntered: terrain,
+      };
+      return {
+        steps: [lateralStep],
+        hexesMoved: 1,
+        straightHexes: 1,
+        turningMpCost: 0,
+        netDisplacement,
+      };
+    }
+  }
+
   for (let i = 1; i < path.length; i++) {
     const next = path[i];
     if (hexEquals(currentCoord, next)) {
@@ -487,6 +539,13 @@ export function assertMovementStepConservation(
   const jumpMp = decomposition.steps
     .filter((s): s is IJumpStep => s.kind === 'jump')
     .reduce((acc, s) => acc + s.mpCost, 0);
+  const lateralMp = decomposition.steps
+    .filter((s): s is ILateralStep => s.kind === 'lateral')
+    .reduce((acc, s) => acc + s.mpCost, 0);
+  const lateralStepCount = decomposition.steps.filter(
+    (s) => s.kind === 'lateral',
+  ).length;
+  const lateralSurcharge = lateralMp - lateralStepCount;
   const specialMp = decomposition.steps
     .filter(
       (s) =>
@@ -502,6 +561,7 @@ export function assertMovementStepConservation(
     decomposition.straightHexes +
     decomposition.turningMpCost +
     jumpMp +
+    lateralSurcharge +
     // standUp / goProne / shakeOff already roll into turningMpCost in
     // this implementation; subtract `specialMp` only if the future
     // runner double-buckets them. Today this is zero.
@@ -514,7 +574,8 @@ export function assertMovementStepConservation(
       `[movement-step decomposition] conservation violation: ` +
         `straightHexes(${decomposition.straightHexes}) + ` +
         `turningMpCost(${decomposition.turningMpCost}) + ` +
-        `jumpMp(${jumpMp}) = ${total} !== mpUsed(${mpUsed})`,
+        `jumpMp(${jumpMp}) + ` +
+        `lateralSurcharge(${lateralSurcharge}) = ${total} !== mpUsed(${mpUsed})`,
     );
   }
 }

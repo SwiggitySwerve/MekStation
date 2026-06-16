@@ -201,6 +201,47 @@ describe('createGameSession', () => {
 
     expect(session.units).toHaveLength(1);
   });
+
+  it('derives unambiguous Boosted Comm Implant C3i networks from unit abilities', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        abilities: ['boost_comm_implant'],
+      }),
+      createTestUnit({
+        id: 'player-2',
+        side: GameSide.Player,
+        abilities: ['boost_comm_implant'],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+
+    const session = createGameSession(config, units);
+
+    expect(session.currentState.c3Network?.networks).toEqual([
+      {
+        networkId: 'player-c3i-1',
+        type: 'improved',
+        teamId: GameSide.Player,
+        members: [
+          expect.objectContaining({
+            entityId: 'player-1',
+            teamId: GameSide.Player,
+            role: 'c3i',
+            operational: true,
+          }),
+          expect.objectContaining({
+            entityId: 'player-2',
+            teamId: GameSide.Player,
+            role: 'c3i',
+            operational: true,
+          }),
+        ],
+      },
+    ]);
+  });
 });
 
 // =============================================================================
@@ -1017,7 +1058,7 @@ describe('rollInitiative', () => {
     });
   });
 
-  it('applies explicit command initiative bonus with the best HQ or quirk bonus', () => {
+  it('uses the highest positive initiative component instead of stacking command with HQ or quirks', () => {
     const config = createTestConfig();
     const units = [
       createTestUnit({
@@ -1037,13 +1078,13 @@ describe('rollInitiative', () => {
       (entry) => entry.type === GameEventType.InitiativeRolled,
     )!;
 
-    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Player);
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
     expect(event.payload).toMatchObject({
       playerRoll: 2,
       opponentRoll: 5,
-      playerModifier: 4,
-      playerTotal: 6,
-      winner: GameSide.Player,
+      playerModifier: 2,
+      playerTotal: 4,
+      winner: GameSide.Opponent,
     });
   });
 
@@ -1125,6 +1166,374 @@ describe('rollInitiative', () => {
     expect(event.payload).not.toHaveProperty('opponentModifier');
     expect(event.payload).not.toHaveProperty('playerTotal');
     expect(event.payload).not.toHaveProperty('opponentTotal');
+  });
+
+  it('derives HQ initiative from represented working default communications tonnage', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        initiativeEquipment: {
+          communicationsMode: 'Default',
+          workingCommunicationsTonnage: 7,
+        },
+      }),
+      createTestUnit({
+        id: 'opponent-1',
+        side: GameSide.Opponent,
+        initiativeEquipment: {
+          communicationsMode: 'Non-Default',
+          workingCommunicationsTonnage: 7,
+        },
+      }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      playerModifier: 2,
+      opponentModifier: 0,
+      playerTotal: 4,
+      opponentTotal: 5,
+    });
+  });
+
+  it('applies represented Triple-Core Processor initiative for active BattleMech pilots with VDNI or BVDNI', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        abilities: ['triple_core_processor', 'vdni'],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      playerModifier: 2,
+      playerTotal: 4,
+      opponentTotal: 5,
+      winner: GameSide.Opponent,
+    });
+  });
+
+  it('suppresses represented Triple-Core Processor initiative when neural interface is disconnected', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        abilities: ['triple_core_processor', 'vdni'],
+        neuralInterfaceActive: false,
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      winner: GameSide.Opponent,
+    });
+    expect(event.payload).not.toHaveProperty('playerModifier');
+    expect(event.payload).not.toHaveProperty('playerTotal');
+  });
+
+  it('uses the best represented Triple-Core Processor command-equipment uplift and fails closed without VDNI or BVDNI', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        abilities: ['triple_core_processor'],
+        initiativeEquipment: {
+          workingCommunicationsTonnage: 7,
+        },
+      }),
+      createTestUnit({
+        id: 'player-2',
+        side: GameSide.Player,
+        abilities: ['triple_core_processor', 'bvdni'],
+        c3Equipment: [{ role: 'c3i', sourceEquipmentId: 'isc3i' }],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Player);
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      playerModifier: 3,
+      playerTotal: 5,
+      winner: GameSide.Player,
+    });
+  });
+
+  it('reduces represented Triple-Core Processor initiative when the qualifying unit is shutdown', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        abilities: ['triple_core_processor', 'vdni'],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    session = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        units: {
+          ...session.currentState.units,
+          'player-1': {
+            ...session.currentState.units['player-1'],
+            shutdown: true,
+          },
+        },
+      },
+    };
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      playerModifier: 1,
+      playerTotal: 3,
+      winner: GameSide.Opponent,
+    });
+  });
+
+  it('reduces represented Triple-Core Processor initiative under enemy ECM', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        abilities: ['triple_core_processor', 'vdni'],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const playerOnePosition = session.currentState.units['player-1'].position;
+    session = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        electronicWarfare: {
+          ecmSuites: [
+            {
+              type: 'guardian',
+              mode: 'ecm',
+              operational: true,
+              entityId: 'opponent-1:guardian:0',
+              teamId: GameSide.Opponent,
+              position: { ...playerOnePosition },
+            },
+          ],
+          activeProbes: [],
+        },
+      },
+    };
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      playerModifier: 1,
+      playerTotal: 3,
+      winner: GameSide.Opponent,
+    });
+  });
+
+  it('does not apply the represented Triple-Core Processor ECM penalty when the affected unit has own operational ECM', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        abilities: ['triple_core_processor', 'vdni'],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const playerOnePosition = session.currentState.units['player-1'].position;
+    session = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        electronicWarfare: {
+          ecmSuites: [
+            {
+              type: 'guardian',
+              mode: 'ecm',
+              operational: true,
+              entityId: 'opponent-1:guardian:0',
+              teamId: GameSide.Opponent,
+              position: { ...playerOnePosition },
+            },
+            {
+              type: 'guardian',
+              mode: 'ecm',
+              operational: true,
+              entityId: 'player-1:guardian:0',
+              teamId: GameSide.Player,
+              position: { ...playerOnePosition },
+            },
+          ],
+          activeProbes: [],
+        },
+      },
+    };
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      playerModifier: 2,
+      playerTotal: 4,
+      winner: GameSide.Opponent,
+    });
+  });
+
+  it('stacks represented Triple-Core Processor shutdown and EMI initiative penalties', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        abilities: ['triple_core_processor', 'vdni'],
+        c3Equipment: [{ role: 'c3i', sourceEquipmentId: 'isc3i' }],
+      }),
+      createTestUnit({ id: 'opponent-1', side: GameSide.Opponent }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    session = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        electromagneticInterference: true,
+        units: {
+          ...session.currentState.units,
+          'player-1': {
+            ...session.currentState.units['player-1'],
+            shutdown: true,
+          },
+        },
+      },
+    };
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      playerModifier: 1,
+      playerTotal: 3,
+      winner: GameSide.Opponent,
+    });
+  });
+
+  it('derives command-console initiative only when represented gates qualify', () => {
+    const config = createTestConfig();
+    const units = [
+      createTestUnit({
+        id: 'player-1',
+        side: GameSide.Player,
+        initiativeEquipment: {
+          cockpitType: 'Command Console',
+          commandConsoleCrewActive: true,
+          tonnage: 60,
+          unitType: 'BattleMech',
+        },
+      }),
+      createTestUnit({
+        id: 'opponent-1',
+        side: GameSide.Opponent,
+        initiativeEquipment: {
+          cockpitType: 'Command Console',
+          commandConsoleCrewActive: true,
+          tonnage: 65,
+          unitType: 'IndustrialMech',
+        },
+      }),
+    ];
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+    const dice = [1, 1, 2, 3];
+
+    const rolled = rollInitiative(session, undefined, () => dice.shift() ?? 1);
+    const event = rolled.events.find(
+      (entry) => entry.type === GameEventType.InitiativeRolled,
+    )!;
+
+    expect(rolled.currentState.initiativeWinner).toBe(GameSide.Opponent);
+    expect(event.payload).toMatchObject({
+      playerRoll: 2,
+      opponentRoll: 5,
+      playerModifier: 2,
+      opponentModifier: 0,
+      playerTotal: 4,
+      opponentTotal: 5,
+    });
   });
 
   it('replaces the requested side roll when active Tactical Genius is present', () => {

@@ -55,6 +55,12 @@ export {
   calculateAttackerMovementModifier,
 } from './modifiers';
 export { findPath } from './pathfinding';
+export {
+  calculateManeuveringAceBipedLateralShiftCost,
+  calculateManeuveringAceQuadLateralStepCost,
+  canUseManeuveringAceBipedLateralShift,
+  maneuveringAceLateralShiftDirection,
+} from './lateralShift';
 export { deriveReachableHexes } from './reachable';
 export {
   AUTOMATIC_WIGE_LANDING_REASON,

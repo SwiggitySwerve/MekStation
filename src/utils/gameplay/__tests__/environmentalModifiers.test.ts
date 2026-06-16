@@ -1,4 +1,7 @@
-import type { IEnvironmentalConditions } from '../environmentalModifiers';
+import type {
+  IEnvironmentalConditions,
+  LightCondition,
+} from '../environmentalModifiers';
 
 import {
   DEFAULT_ENVIRONMENTAL_CONDITIONS,
@@ -15,6 +18,8 @@ import {
   getTemperatureHeatModifier,
   calculateEnvironmentalModifiers,
   calculateEnvironmentalHeatModifier,
+  calculateEnvironmentalSpecialistPhysicalToHitModifier,
+  calculateEnvironmentalSpecialistRangedToHitModifier,
 } from '../environmentalModifiers';
 
 // =============================================================================
@@ -81,6 +86,22 @@ describe('calculateLightModifier', () => {
     expect(mod!.value).toBe(2);
     expect(mod!.source).toBe('environmental');
   });
+
+  it.each<{ readonly light: LightCondition; readonly expected: number }>([
+    { light: 'full_moon', expected: 2 },
+    { light: 'glare', expected: 2 },
+    { light: 'moonless', expected: 3 },
+    { light: 'solar_flare', expected: 3 },
+    { light: 'pitch_black', expected: 4 },
+  ])(
+    'should return the MegaMek weapon light penalty for $light',
+    ({ light, expected }) => {
+      const mod = calculateLightModifier(light);
+      expect(mod).not.toBeNull();
+      expect(mod!.value).toBe(expected);
+      expect(mod!.source).toBe('environmental');
+    },
+  );
 });
 
 // =============================================================================
@@ -398,6 +419,234 @@ describe('calculateEnvironmentalModifiers', () => {
     expect(mods).toHaveLength(5); // night + snow + fog + sand + wind
     const total = mods.reduce((sum, m) => sum + m.value, 0);
     expect(total).toBe(6); // +2 + +1 + +1 + +1 + +1
+  });
+
+  it('applies Environmental Specialist only for explicit represented ranged selections', () => {
+    const heavyFog = createEnvironmentalConditions({ fog: 'heavy_fog' });
+    const snow = createEnvironmentalConditions({ precipitation: 'snow' });
+    const heavyRain = createEnvironmentalConditions({
+      precipitation: 'heavy_rain',
+    });
+    const moderateWind = createEnvironmentalConditions({ wind: 'moderate' });
+    const moonless = createEnvironmentalConditions({ light: 'moonless' });
+    const pitchBlack = createEnvironmentalConditions({ light: 'pitch_black' });
+
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(heavyFog, {
+        isEnergyWeapon: true,
+        pilotAbilities: ['env_specialist'],
+        designatedEnvironment: 'Fog',
+      }),
+    ).toMatchObject({
+      name: 'Environmental Specialist (Fog)',
+      value: -1,
+      source: 'spa',
+    });
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(snow, {
+        pilotAbilities: ['env_specialist'],
+        designatedEnvironment: 'Snow',
+      }),
+    ).toMatchObject({
+      name: 'Environmental Specialist (Snow)',
+      value: -1,
+      source: 'spa',
+    });
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(heavyRain, {
+        pilotAbilities: ['env_specialist'],
+        designatedEnvironment: 'Rain',
+      }),
+    ).toMatchObject({
+      name: 'Environmental Specialist (Rain)',
+      value: -1,
+      source: 'spa',
+    });
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(moderateWind, {
+        isMissileWeapon: true,
+        pilotAbilities: ['env_specialist'],
+        designatedEnvironment: 'Wind',
+      }),
+    ).toMatchObject({
+      name: 'Environmental Specialist (Wind)',
+      value: -1,
+      source: 'spa',
+    });
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(moonless, {
+        pilotAbilities: ['env_specialist'],
+        designatedEnvironment: 'Light',
+        targetIlluminated: false,
+      }),
+    ).toMatchObject({
+      name: 'Environmental Specialist (Light)',
+      value: -1,
+      source: 'spa',
+    });
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(pitchBlack, {
+        pilotAbilities: ['env_specialist'],
+        designatedEnvironment: 'Light',
+        targetIlluminated: true,
+      }),
+    ).toMatchObject({
+      name: 'Environmental Specialist (Light)',
+      value: -1,
+      source: 'spa',
+    });
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(snow, {
+        pilotAbilities: ['env_specialist'],
+        designatedEnvironment: 'vacuum',
+      }),
+    ).toBeNull();
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(
+        createEnvironmentalConditions({
+          fog: 'heavy_fog',
+          precipitation: 'snow',
+          wind: 'moderate',
+          light: 'pitch_black',
+        }),
+        {
+          isEnergyWeapon: true,
+          isMissileWeapon: true,
+          pilotAbilities: ['env_specialist'],
+          designatedEnvironment: 'hail',
+          targetIlluminated: true,
+        },
+      ),
+    ).toBeNull();
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(snow, {
+        pilotAbilities: [],
+        designatedEnvironment: 'snow',
+      }),
+    ).toBeNull();
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(heavyFog, {
+        isEnergyWeapon: false,
+        pilotAbilities: ['env_specialist'],
+        designatedEnvironment: 'fog',
+      }),
+    ).toBeNull();
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(
+        createEnvironmentalConditions({ fog: 'light_fog' }),
+        {
+          isEnergyWeapon: true,
+          pilotAbilities: ['env_specialist'],
+          designatedEnvironment: 'fog',
+        },
+      ),
+    ).toBeNull();
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(moderateWind, {
+        isMissileWeapon: false,
+        pilotAbilities: ['env_specialist'],
+        designatedEnvironment: 'wind',
+      }),
+    ).toBeNull();
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(
+        createEnvironmentalConditions({ wind: 'strong' }),
+        {
+          isMissileWeapon: true,
+          pilotAbilities: ['env_specialist'],
+          designatedEnvironment: 'wind',
+        },
+      ),
+    ).toBeNull();
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(moonless, {
+        pilotAbilities: ['env_specialist'],
+        designatedEnvironment: 'light',
+      }),
+    ).toBeNull();
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(
+        createEnvironmentalConditions({ light: 'glare' }),
+        {
+          pilotAbilities: ['env_specialist'],
+          designatedEnvironment: 'light',
+          targetIlluminated: true,
+        },
+      ),
+    ).toBeNull();
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(
+        createEnvironmentalConditions({ light: 'daylight' }),
+        {
+          pilotAbilities: ['env_specialist'],
+          designatedEnvironment: 'light',
+          targetIlluminated: false,
+        },
+      ),
+    ).toBeNull();
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(
+        createEnvironmentalConditions({ precipitation: 'heavy_rain' }),
+        {
+          pilotAbilities: ['env_specialist'],
+          designatedEnvironment: 'snow',
+        },
+      ),
+    ).toBeNull();
+    expect(
+      calculateEnvironmentalSpecialistRangedToHitModifier(
+        createEnvironmentalConditions({ precipitation: 'light_rain' }),
+        {
+          pilotAbilities: ['env_specialist'],
+          designatedEnvironment: 'rain',
+        },
+      ),
+    ).toBeNull();
+  });
+
+  it.each<LightCondition>(['moonless', 'solar_flare', 'pitch_black'])(
+    'applies Environmental Specialist Light to physical to-hit in %s',
+    (light) => {
+      expect(
+        calculateEnvironmentalSpecialistPhysicalToHitModifier(light, {
+          pilotAbilities: ['env_specialist'],
+          designatedEnvironment: 'Light',
+          targetIlluminated: false,
+        }),
+      ).toMatchObject({
+        name: 'Environmental Specialist (Light)',
+        value: -1,
+        source: 'spa',
+      });
+    },
+  );
+
+  it('gates Environmental Specialist physical to-hit on Light selection and illumination', () => {
+    expect(
+      calculateEnvironmentalSpecialistPhysicalToHitModifier('moonless', {
+        pilotAbilities: ['env_specialist'],
+        designatedEnvironment: 'snow',
+      }),
+    ).toBeNull();
+    expect(
+      calculateEnvironmentalSpecialistPhysicalToHitModifier('moonless', {
+        pilotAbilities: [],
+        designatedEnvironment: 'light',
+      }),
+    ).toBeNull();
+    expect(
+      calculateEnvironmentalSpecialistPhysicalToHitModifier('night', {
+        pilotAbilities: ['env_specialist'],
+        designatedEnvironment: 'light',
+      }),
+    ).toBeNull();
+    expect(
+      calculateEnvironmentalSpecialistPhysicalToHitModifier('pitch_black', {
+        pilotAbilities: ['env_specialist'],
+        designatedEnvironment: 'light',
+        targetIlluminated: true,
+      }),
+    ).toBeNull();
   });
 });
 

@@ -10,6 +10,7 @@ import {
   type IMovementDeclaredPayload,
   MovementType,
 } from '@/types/gameplay';
+import { createSwarmDismountedEvent } from '@/utils/gameplay/gameEvents/battleArmor';
 import { createMovementInvalidEvent } from '@/utils/gameplay/gameEvents/movement';
 import {
   canUnitGoProne,
@@ -41,8 +42,10 @@ import {
   createMovementCapability,
   toAIUnitState,
 } from '../SimulationRunnerSupport';
+import { queueMovementControlPSRs } from './movementControlPsr';
 import { queueMovementDamagePSRs } from './movementDamagePsr';
 import { queueMovementEnhancementPSRs } from './movementEnhancementPsr';
+import { applyMovementMinefieldEffects } from './movementMines';
 import { resolveRunnerStandUpAttempt } from './movementStandUp';
 import { queueMovementTerrainPSRs } from './movementTerrainPsr';
 import { createD6Roller, createGameEvent } from './utils';
@@ -83,6 +86,69 @@ function createGoPronePayload(
   };
 }
 
+function movementCapabilityWithUnitLegProfile(
+  unit: IGameState['units'][string],
+  capability: IMovementCapability,
+): IMovementCapability {
+  return unit.isQuad === true && capability.mekLegProfile !== 'quad'
+    ? { ...capability, mekLegProfile: 'quad' }
+    : capability;
+}
+
+function clearGoProneSwarmers(options: {
+  currentState: IGameState;
+  events: IGameEvent[];
+  gameId: string;
+  hostId: string;
+}): IGameState {
+  const { currentState, events, gameId, hostId } = options;
+  const host = currentState.units[hostId];
+  if (host?.unitType !== 'BattleMech') return currentState;
+
+  let units = currentState.units;
+  let changed = false;
+
+  for (const [swarmerId, swarmer] of Object.entries(currentState.units)) {
+    if (
+      swarmer.combatState?.kind !== 'squad' ||
+      swarmer.combatState.state.swarmingUnitId !== hostId
+    ) {
+      continue;
+    }
+
+    const { swarmingUnitId: _swarmingUnitId, ...squadState } =
+      swarmer.combatState.state;
+
+    units = {
+      ...units,
+      [swarmerId]: {
+        ...swarmer,
+        isSwarming: false,
+        combatState: {
+          ...swarmer.combatState,
+          state: squadState,
+        },
+      },
+    };
+    changed = true;
+
+    events.push(
+      createSwarmDismountedEvent(
+        gameId,
+        events.length,
+        currentState.turn,
+        GamePhase.Movement,
+        swarmerId,
+        hostId,
+        'go_prone_dislodgement',
+        0,
+      ),
+    );
+  }
+
+  return changed ? { ...currentState, units } : currentState;
+}
+
 export function runMovementPhase(options: {
   state: IGameState;
   botPlayer: IAIPlayer;
@@ -100,6 +166,7 @@ export function runMovementPhase(options: {
   weaponsByUnit?: ReadonlyMap<string, readonly IWeapon[]>;
   movementCapabilitiesByUnit?: ReadonlyMap<string, IMovementCapability>;
   environmentalConditions?: IEnvironmentalConditions;
+  optionalRules?: readonly string[];
   random?: SeededRandom;
 }): IGameState {
   const {
@@ -113,6 +180,7 @@ export function runMovementPhase(options: {
     weaponsByUnit,
     movementCapabilitiesByUnit,
     environmentalConditions,
+    optionalRules,
     random,
   } = options;
   let currentState = { ...state, phase: GamePhase.Movement };
@@ -187,6 +255,12 @@ export function runMovementPhase(options: {
             unitId,
           ),
         );
+        currentState = clearGoProneSwarmers({
+          currentState,
+          events,
+          gameId,
+          hostId: unitId,
+        });
         continue;
       }
 
@@ -205,6 +279,10 @@ export function runMovementPhase(options: {
         moveEvent.payload.movementType === MovementType.Evade
           ? unboostedCapability
           : capability;
+      const validationCapability = movementCapabilityWithUnitLegProfile(
+        unit,
+        movementCapability,
+      );
       const validation = validateMovement(
         grid,
         {
@@ -217,10 +295,10 @@ export function runMovementPhase(options: {
         moveEvent.payload.to,
         moveEvent.payload.facing as Facing,
         moveEvent.payload.movementType,
-        movementCapability,
+        validationCapability,
         validationHeat,
         environmentalConditions,
-        { pilotAbilities: unit.abilities },
+        { environmentalConditions, pilotAbilities: unit.abilities },
       );
 
       if (!validation.valid) {
@@ -283,11 +361,14 @@ export function runMovementPhase(options: {
         maxCost: Math.min(
           validation.mpCost,
           maxMovementCostForCapability(
-            movementCapability,
+            validationCapability,
             committedPayload.movementType,
           ),
         ),
-        movementContext: { pilotAbilities: unit.abilities },
+        movementContext: {
+          environmentalConditions,
+          pilotAbilities: unit.abilities,
+        },
       });
       const decomposition = decomposeMovementSteps({
         from: unit.position,
@@ -298,8 +379,22 @@ export function runMovementPhase(options: {
         mpUsed: committedPayload.mpUsed,
         path,
         grid,
+        movementCapability: validationCapability,
       });
       const mode = movementAnimationModeForType(committedPayload.movementType);
+
+      currentState = queueMovementEnhancementPSRs({
+        currentState,
+        events,
+        gameId,
+        unitId,
+        movementType: committedPayload.movementType,
+        activeMASC: unit.activeMASC,
+        activeSupercharger: unit.activeSupercharger,
+        mascTurnsUsed: unit.mascTurnsUsed,
+        superchargerTurnsUsed: unit.superchargerTurnsUsed,
+        optionalRules,
+      });
 
       currentState = applyMovementEvent(currentState, unitId, {
         ...committedPayload,
@@ -343,6 +438,25 @@ export function runMovementPhase(options: {
         steps: decomposition.steps,
       });
 
+      currentState = queueMovementControlPSRs({
+        currentState,
+        events,
+        gameId,
+        unitId,
+        movementType: committedPayload.movementType,
+        steps: decomposition.steps,
+      });
+
+      currentState = applyMovementMinefieldEffects({
+        currentState,
+        events,
+        gameId,
+        grid,
+        unitId,
+        steps: decomposition.steps,
+        d6Roller,
+      });
+
       currentState = queueMovementTerrainPSRs({
         currentState,
         events,
@@ -351,18 +465,6 @@ export function runMovementPhase(options: {
         unitId,
         movementType: committedPayload.movementType,
         steps: decomposition.steps,
-      });
-
-      currentState = queueMovementEnhancementPSRs({
-        currentState,
-        events,
-        gameId,
-        unitId,
-        movementType: committedPayload.movementType,
-        activeMASC: unit.activeMASC,
-        activeSupercharger: unit.activeSupercharger,
-        mascTurnsUsed: unit.mascTurnsUsed,
-        superchargerTurnsUsed: unit.superchargerTurnsUsed,
       });
     }
   }

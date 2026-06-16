@@ -50,10 +50,13 @@ export function resolveRunnerStandUpAttempt(options: {
     unit.componentDamage ?? DEFAULT_COMPONENT_DAMAGE,
     unit.pilotWounds,
     d6Roller,
-    unit.unitQuirks ?? [],
-    unit.abilities ?? [],
-    unit.isQuad ?? false,
-    unit.unitType,
+    {
+      unitQuirks: unit.unitQuirks ?? [],
+      pilotAbilities: unit.abilities ?? [],
+      neuralInterfaceActive: unit.neuralInterfaceActive,
+      isQuadMek: unit.isQuad ?? false,
+      unitType: unit.unitType,
+    },
   );
   const modifiers = result.modifiers.reduce(
     (total, modifier) => total + modifier.value,

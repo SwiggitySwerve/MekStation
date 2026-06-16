@@ -23,3 +23,4 @@ export * from './specialWeaponMechanics/types';
 export * from './specialWeaponMechanics/autocannonMechanics';
 export * from './specialWeaponMechanics/missileMechanics';
 export * from './specialWeaponMechanics/defensiveSystems';
+export * from './specialWeaponMechanics/iNarcPodLifecycle';

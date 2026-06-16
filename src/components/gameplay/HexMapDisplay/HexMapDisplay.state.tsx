@@ -345,6 +345,16 @@ export function useHexMapDisplayState({
           tacticalProjectionIntent={projection?.intent}
           tacticalProjectionStatus={projection?.status}
           tacticalProjectionMovementStatus={projection?.movementStatus}
+          tacticalProjectionMovementCostStatus={projection?.movementCostStatus}
+          tacticalProjectionMovementCostReasons={
+            projection?.movementCostReasons
+          }
+          tacticalProjectionMovementHazardStatus={
+            projection?.movementHazardStatus
+          }
+          tacticalProjectionMovementHazardReasons={
+            projection?.movementHazardReasons
+          }
           tacticalProjectionCombatStatus={projection?.combatStatus}
           tacticalProjectionBlockedReasons={projection?.blockedReasons}
           tacticalProjectionSourceReferences={projection?.sourceReferences}

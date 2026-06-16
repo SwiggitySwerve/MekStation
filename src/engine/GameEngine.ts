@@ -143,6 +143,7 @@ export class GameEngine {
         weaponsByUnit,
         gunneryByUnit,
         this.grid,
+        this.optionalRules,
       );
       session = resolveAllAttacks(session, diceRoller);
       session = advancePhase(session);

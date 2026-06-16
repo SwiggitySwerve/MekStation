@@ -102,7 +102,7 @@ export const MEGAMEK_INDIRECT_FIRE_TO_HIT_SOURCE_REFS = [
   ),
   megamekToHitRef(
     'MegaMek Entity.canSpot rejects off-board, sprinting, and evading entities before they can spot LRM indirect fire.',
-    'megamek/src/megamek/common/units/Entity.java#L9806-L9818',
+    'megamek/src/megamek/common/units/Entity.java#L9812-L9818',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

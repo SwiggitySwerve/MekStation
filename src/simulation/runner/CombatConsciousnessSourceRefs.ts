@@ -110,3 +110,30 @@ export const MEKSTATION_CONSCIOUSNESS_TOUGHNESS_DEVIATION_SOURCE_REFS = [
     'src/lib/spa/catalog/legacyAliases.ts#L19-L123',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEKSTATION_RPG_TOUGHNESS_PREBATTLE_SOURCE_REFS = [
+  mekstationDeviationRef(
+    'MekStation IPilot.rpgToughness carries explicit assigned-pilot RPG Toughness numeric state without inferring it from legacy ability aliases.',
+    'src/types/pilot/PilotInterfaces.ts#L364-L368',
+  ),
+  mekstationDeviationRef(
+    'MekStation force-assignment preBattleSessionBuilder maps explicit assigned-pilot rpgToughness into GameCreated pilotToughness seeds for combat state initialization.',
+    'src/components/gameplay/pages/preBattleSessionBuilder.ts#L64-L128',
+  ),
+  mekstationDeviationRef(
+    'MekStation skirmish preBattleSessionBuilder maps explicit RPG Toughness snapshots into GameCreated pilotToughness seeds for combat state initialization.',
+    'src/utils/gameplay/preBattleSessionBuilder.ts#L53-L171',
+  ),
+  mekstationDeviationRef(
+    'MekStation pre-battle skirmish launch copies assigned IPilot.rpgToughness into the skirmish pilot snapshot and preserves pilotToughness when creating engine game units.',
+    'src/components/gameplay/pages/preBattle/usePreBattleSkirmish.ts#L77-L216',
+  ),
+  mekstationDeviationRef(
+    'MekStation force-assignment pre-battle session tests prove numeric rpgToughness reaches session unit state and legacy toughness ability aliases do not imply pilotToughness.',
+    'src/components/gameplay/pages/__tests__/preBattleSessionBuilder.test.ts#L289-L368',
+  ),
+  mekstationDeviationRef(
+    'MekStation skirmish pre-battle session tests prove numeric RPG Toughness snapshots reach session unit state and non-finite values remain absent.',
+    'src/utils/gameplay/__tests__/preBattleSessionBuilder.test.ts#L145-L184',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];

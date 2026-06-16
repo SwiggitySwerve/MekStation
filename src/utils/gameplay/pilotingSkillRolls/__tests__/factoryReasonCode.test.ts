@@ -47,6 +47,9 @@ import {
   // system family
   createRunningDamagedHipPSR,
   createRunningDamagedGyroPSR,
+  createControlledSideslipPSR,
+  createFlankingAndTurningPSR,
+  createOutOfControlPSR,
   createMASCFailurePSR,
   createSuperchargerFailurePSR,
   getMASCOrSuperchargerFailureTargetNumber,
@@ -93,6 +96,18 @@ describe('PSR factory reasonCode population (PR E)', () => {
       expect(getMASCOrSuperchargerFailureTargetNumber(2)).toBe(7);
       expect(getMASCOrSuperchargerFailureTargetNumber(3)).toBe(11);
       expect(getMASCOrSuperchargerFailureTargetNumber(99)).toBe(13);
+      expect(
+        getMASCOrSuperchargerFailureTargetNumber(0, ['alternate_masc']),
+      ).toBe(0);
+      expect(
+        getMASCOrSuperchargerFailureTargetNumber(2, ['alternate_masc']),
+      ).toBe(5);
+      expect(
+        getMASCOrSuperchargerFailureTargetNumber(2, [
+          'alternate_masc',
+          'alternate_masc_enhanced',
+        ]),
+      ).toBe(3);
       expect(createMASCFailurePSR(ENTITY, 2)).toMatchObject({
         reasonCode: PSRTrigger.MASCFailure,
         fixedTargetNumber: 7,
@@ -100,6 +115,22 @@ describe('PSR factory reasonCode population (PR E)', () => {
       expect(createSuperchargerFailurePSR(ENTITY, 3)).toMatchObject({
         reasonCode: PSRTrigger.SuperchargerFailure,
         fixedTargetNumber: 11,
+      });
+      expect(
+        createSuperchargerFailurePSR(ENTITY, 2, ['alternate_masc_enhanced']),
+      ).toMatchObject({
+        reasonCode: PSRTrigger.SuperchargerFailure,
+        fixedTargetNumber: 3,
+      });
+      expect(createMASCFailurePSR(ENTITY, 0, undefined, 4)).toMatchObject({
+        reasonCode: PSRTrigger.MASCFailure,
+        triggerSource: 'movement-step:4',
+      });
+      expect(
+        createSuperchargerFailurePSR(ENTITY, 0, undefined, 5),
+      ).toMatchObject({
+        reasonCode: PSRTrigger.SuperchargerFailure,
+        triggerSource: 'movement-step:5',
       });
     });
   });
@@ -206,6 +237,21 @@ describe('PSR factory reasonCode population (PR E)', () => {
         PSRTrigger.RunningDamagedGyro,
       ],
       [
+        'createControlledSideslipPSR',
+        createControlledSideslipPSR(ENTITY),
+        PSRTrigger.ControlledSideslip,
+      ],
+      [
+        'createFlankingAndTurningPSR',
+        createFlankingAndTurningPSR(ENTITY),
+        PSRTrigger.FlankingAndTurning,
+      ],
+      [
+        'createOutOfControlPSR',
+        createOutOfControlPSR(ENTITY),
+        PSRTrigger.OutOfControl,
+      ],
+      [
         'createMASCFailurePSR',
         createMASCFailurePSR(ENTITY),
         PSRTrigger.MASCFailure,
@@ -219,6 +265,14 @@ describe('PSR factory reasonCode population (PR E)', () => {
       expect(psr.reasonCode).toBe(expected);
       expect(typeof psr.reason).toBe('string');
       expect(psr.reason.length).toBeGreaterThan(0);
+    });
+
+    it('createControlledSideslipPSR stamps movement-step source and target modifier', () => {
+      expect(createControlledSideslipPSR(ENTITY, 7)).toMatchObject({
+        reasonCode: PSRTrigger.ControlledSideslip,
+        triggerSource: 'movement-step:7',
+        additionalModifier: -1,
+      });
     });
   });
 

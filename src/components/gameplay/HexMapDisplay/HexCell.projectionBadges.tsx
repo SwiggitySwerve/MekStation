@@ -6,6 +6,8 @@ import type {
   TacticalMapCombatProjectionStatus,
   TacticalMapHexProjectionIntent,
   TacticalMapHexProjectionStatus,
+  TacticalMapMovementHazardProjectionStatus,
+  TacticalMapMovementCostProjectionStatus,
   TacticalMapMovementProjectionStatus,
 } from '@/utils/gameplay/tacticalMapProjection';
 
@@ -18,11 +20,16 @@ import {
 function formatProjectionStatusLabel(
   status: TacticalMapHexProjectionStatus | undefined,
   combatStatus: TacticalMapCombatProjectionStatus | undefined,
+  movementCostStatus: TacticalMapMovementCostProjectionStatus | undefined,
+  movementHazardStatus: TacticalMapMovementHazardProjectionStatus | undefined,
   sourceReferences:
     | readonly ITacticalMapProjectionSourceReference[]
     | undefined,
 ): string | null {
   switch (status) {
+    case 'legal':
+      if (movementHazardStatus === 'represented-minefield') return 'HAZ';
+      return movementCostStatus === 'costly' ? 'CST' : null;
     case 'mixed':
       return 'MIX';
     case 'blocked':
@@ -53,6 +60,10 @@ function formatProjectionStatusTitle({
   status,
   intent,
   movementStatus,
+  movementCostStatus,
+  movementCostReasons,
+  movementHazardStatus,
+  movementHazardReasons,
   combatStatus,
   blockedReasons,
   sourceReferences,
@@ -61,6 +72,14 @@ function formatProjectionStatusTitle({
   readonly status: TacticalMapHexProjectionStatus;
   readonly intent: TacticalMapHexProjectionIntent | undefined;
   readonly movementStatus: TacticalMapMovementProjectionStatus | undefined;
+  readonly movementCostStatus:
+    | TacticalMapMovementCostProjectionStatus
+    | undefined;
+  readonly movementCostReasons: readonly string[] | undefined;
+  readonly movementHazardStatus:
+    | TacticalMapMovementHazardProjectionStatus
+    | undefined;
+  readonly movementHazardReasons: readonly string[] | undefined;
   readonly combatStatus: TacticalMapCombatProjectionStatus | undefined;
   readonly blockedReasons: readonly string[] | undefined;
   readonly sourceReferences:
@@ -73,10 +92,21 @@ function formatProjectionStatusTitle({
       ? 'Mixed tactical projection'
       : status === 'blocked'
         ? 'Blocked tactical projection'
-        : 'Range-only tactical projection';
+        : movementHazardStatus === 'represented-minefield'
+          ? 'Hazard legal movement projection'
+          : movementCostStatus === 'costly'
+            ? 'Costly legal movement projection'
+            : 'Range-only tactical projection';
   const parts = [statusLabel];
   if (intent) parts.push(`intent ${intent}`);
   if (movementStatus) parts.push(`movement ${movementStatus}`);
+  if (movementCostStatus) parts.push(`movement cost ${movementCostStatus}`);
+  if (movementCostReasons?.length)
+    parts.push(`cost ${movementCostReasons.join('; ')}`);
+  if (movementHazardStatus)
+    parts.push(`movement hazard ${movementHazardStatus}`);
+  if (movementHazardReasons?.length)
+    parts.push(`hazard ${movementHazardReasons.join('; ')}`);
   if (combatStatus) parts.push(`combat ${combatStatus}`);
   if (blockedReasons?.length)
     parts.push(`blocked ${blockedReasons.join('; ')}`);
@@ -95,6 +125,10 @@ export function ProjectionStatusBadge({
   status,
   intent,
   movementStatus,
+  movementCostStatus,
+  movementCostReasons,
+  movementHazardStatus,
+  movementHazardReasons,
   combatStatus,
   blockedReasons,
   sourceReferences,
@@ -106,6 +140,10 @@ export function ProjectionStatusBadge({
   readonly status?: TacticalMapHexProjectionStatus;
   readonly intent?: TacticalMapHexProjectionIntent;
   readonly movementStatus?: TacticalMapMovementProjectionStatus;
+  readonly movementCostStatus?: TacticalMapMovementCostProjectionStatus;
+  readonly movementCostReasons?: readonly string[];
+  readonly movementHazardStatus?: TacticalMapMovementHazardProjectionStatus;
+  readonly movementHazardReasons?: readonly string[];
   readonly combatStatus?: TacticalMapCombatProjectionStatus;
   readonly blockedReasons?: readonly string[];
   readonly sourceReferences?: readonly ITacticalMapProjectionSourceReference[];
@@ -114,6 +152,8 @@ export function ProjectionStatusBadge({
   const label = formatProjectionStatusLabel(
     status,
     combatStatus,
+    movementCostStatus,
+    movementHazardStatus,
     sourceReferences,
   );
   if (!label || !status) return null;
@@ -122,6 +162,10 @@ export function ProjectionStatusBadge({
     status,
     intent,
     movementStatus,
+    movementCostStatus,
+    movementCostReasons,
+    movementHazardStatus,
+    movementHazardReasons,
     combatStatus,
     blockedReasons,
     sourceReferences,
@@ -143,6 +187,18 @@ export function ProjectionStatusBadge({
       data-projection-status-badge-status={status}
       data-projection-status-badge-intent={intent}
       data-projection-status-badge-movement-status={movementStatus}
+      data-projection-status-badge-movement-cost-status={movementCostStatus}
+      data-projection-status-badge-movement-cost-reasons={
+        movementCostReasons && movementCostReasons.length > 0
+          ? movementCostReasons.join('|')
+          : undefined
+      }
+      data-projection-status-badge-movement-hazard-status={movementHazardStatus}
+      data-projection-status-badge-movement-hazard-reasons={
+        movementHazardReasons && movementHazardReasons.length > 0
+          ? movementHazardReasons.join('|')
+          : undefined
+      }
       data-projection-status-badge-combat-status={combatStatus}
       data-projection-status-badge-reasons={blockedReasons?.join('|')}
       data-projection-status-badge-sources={

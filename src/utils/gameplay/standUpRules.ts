@@ -79,6 +79,7 @@ export function projectStandUpPsr({
       optionalRules,
       unitQuirks: unitState.unitQuirks,
       pilotAbilities: unitState.abilities,
+      neuralInterfaceActive: unitState.neuralInterfaceActive,
       isQuadMek: unitState.isQuad,
       unitType: unitState.unitType ?? unitType,
       pilotingSkill: unitPiloting,

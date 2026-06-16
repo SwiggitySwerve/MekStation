@@ -71,3 +71,18 @@ export function createGameEvent(
     ...(replaySource !== undefined ? { replaySource } : {}),
   };
 }
+
+export function createRunnerTurnStartedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+): IGameEvent {
+  return createGameEvent(
+    gameId,
+    sequence,
+    GameEventType.TurnStarted,
+    turn,
+    GamePhase.Initiative,
+    { _type: 'turn_started' as const },
+  );
+}

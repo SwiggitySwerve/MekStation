@@ -37,6 +37,17 @@ export { goProne } from './gameSessionProne';
 export { activateMovementEnhancement } from './gameSessionMovementEnhancements';
 
 export {
+  declareGroundObjectDrop,
+  declareGroundObjectPickup,
+  declareGroundObjectThrow,
+  validateGroundObjectDrop,
+  validateGroundObjectPickup,
+  type GroundObjectActionFailureReason,
+  type GroundObjectActionResult,
+  type IGroundObjectPickupOptions,
+} from './groundObjectActions';
+
+export {
   torsoTwist,
   validateTorsoTwist,
   type TorsoTwistLegality,

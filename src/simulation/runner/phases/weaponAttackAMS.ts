@@ -28,6 +28,30 @@ export interface IResolvedAMSInterception {
   readonly modifiedClusterRoll?: number;
 }
 
+const PLAYTEST_3_AMS_OPTIONAL_RULES = new Set([
+  'playtest_3',
+  'playtest-3',
+  'playtest3',
+  'tacops_playtest_3',
+]);
+
+function hasPlaytest3AMSRule(
+  optionalRules: readonly string[] | undefined,
+): boolean {
+  return (
+    optionalRules?.some((rule) =>
+      PLAYTEST_3_AMS_OPTIONAL_RULES.has(rule.toLowerCase()),
+    ) ?? false
+  );
+}
+
+function canAMSReuseWithinWeaponPhase(
+  weapon: IWeapon,
+  optionalRules: readonly string[] | undefined,
+): boolean {
+  return weapon.amsMultiUse === true || hasPlaytest3AMSRule(optionalRules);
+}
+
 function isOperationalAMS(weapon: IWeapon): boolean {
   return (
     !weapon.destroyed &&
@@ -83,13 +107,25 @@ function findOperationalAMS(
   weapons: readonly IWeapon[] | undefined,
   targetAmmoState: Record<string, IAmmoSlotState> | undefined,
   incomingAttackArc: FiringArc | undefined,
+  unavailableWeaponIds: readonly string[] | undefined,
+  optionalRules: readonly string[] | undefined,
+  selectedAMSWeaponId: string | undefined,
 ): IWeapon | undefined {
-  return weapons?.find(
+  const unavailable = new Set(unavailableWeaponIds ?? []);
+  const eligibleAMS = weapons?.filter(
     (weapon) =>
+      (!unavailable.has(weapon.id) ||
+        canAMSReuseWithinWeaponPhase(weapon, optionalRules)) &&
       isOperationalAMS(weapon) &&
       hasAmmoForAMS(weapon, targetAmmoState) &&
       canAMSInterceptFromArc(weapon, incomingAttackArc),
   );
+
+  if (selectedAMSWeaponId !== undefined) {
+    return eligibleAMS?.find((weapon) => weapon.id === selectedAMSWeaponId);
+  }
+
+  return eligibleAMS?.[0];
 }
 
 export function resolveAMSInterception(options: {
@@ -101,6 +137,9 @@ export function resolveAMSInterception(options: {
   readonly incomingAttackArc?: FiringArc;
   readonly targetWeapons?: readonly IWeapon[];
   readonly targetAmmoState?: Record<string, IAmmoSlotState>;
+  readonly unavailableAMSWeaponIds?: readonly string[];
+  readonly optionalRules?: readonly string[];
+  readonly selectedAMSWeaponId?: string;
 }): IResolvedAMSInterception | undefined {
   const {
     clusterDice,
@@ -111,11 +150,17 @@ export function resolveAMSInterception(options: {
     rackSize,
     targetAmmoState,
     targetWeapons,
+    unavailableAMSWeaponIds,
+    optionalRules,
+    selectedAMSWeaponId,
   } = options;
   const amsWeapon = findOperationalAMS(
     targetWeapons,
     targetAmmoState,
     incomingAttackArc,
+    unavailableAMSWeaponIds,
+    optionalRules,
+    selectedAMSWeaponId,
   );
   if (amsWeapon === undefined) {
     return undefined;
@@ -150,11 +195,17 @@ export function resolveSingleMissileAMSInterception(options: {
   readonly incomingAttackArc?: FiringArc;
   readonly targetWeapons?: readonly IWeapon[];
   readonly targetAmmoState?: Record<string, IAmmoSlotState>;
+  readonly unavailableAMSWeaponIds?: readonly string[];
+  readonly optionalRules?: readonly string[];
+  readonly selectedAMSWeaponId?: string;
 }): IResolvedAMSInterception | undefined {
   const amsWeapon = findOperationalAMS(
     options.targetWeapons,
     options.targetAmmoState,
     options.incomingAttackArc,
+    options.unavailableAMSWeaponIds,
+    options.optionalRules,
+    options.selectedAMSWeaponId,
   );
   if (amsWeapon === undefined) {
     return undefined;
@@ -181,6 +232,9 @@ export function resolveSingleMissileAMSWeaponHit(options: {
   readonly incomingAttackArc?: FiringArc;
   readonly targetWeapons?: readonly IWeapon[];
   readonly targetAmmoState?: Record<string, IAmmoSlotState>;
+  readonly unavailableAMSWeaponIds?: readonly string[];
+  readonly optionalRules?: readonly string[];
+  readonly selectedAMSWeaponId?: string;
 }): {
   readonly weapon: IWeapon;
   readonly projectileCount?: number;
@@ -197,6 +251,9 @@ export function resolveSingleMissileAMSWeaponHit(options: {
     incomingAttackArc: options.incomingAttackArc,
     targetWeapons,
     targetAmmoState,
+    unavailableAMSWeaponIds: options.unavailableAMSWeaponIds,
+    optionalRules: options.optionalRules,
+    selectedAMSWeaponId: options.selectedAMSWeaponId,
   });
   if (amsInterception === undefined) {
     return { weapon: shotWeapon };

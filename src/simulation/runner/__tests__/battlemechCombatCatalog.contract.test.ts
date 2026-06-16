@@ -9,6 +9,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import type { IFullUnit } from '@/services/units/CanonicalUnitService';
+
 import { buildUtilityCommands } from '@/components/gameplay/TacticalActionDock/commands/utilityCommands';
 import { getWeaponData } from '@/engine/adapters/CompendiumAdapter';
 import { WEAPON_DATABASE } from '@/engine/adapters/CompendiumWeaponData';
@@ -36,7 +38,10 @@ import {
   MISCELLANEOUS_CATALOG_FILES,
   WEAPON_CATALOG_FILES,
 } from '@/utils/construction/equipmentBVCatalogData';
-import { resolveAmmoBV } from '@/utils/construction/equipmentBVResolver';
+import {
+  resolveAmmoBV,
+  resolveEquipmentBV,
+} from '@/utils/construction/equipmentBVResolver';
 import {
   consumeAmmo,
   getTotalAmmo,
@@ -60,8 +65,13 @@ import {
 
 import officialIndex from '../../../../public/data/equipment/official/index.json';
 import { selectWeaponMode } from '../../ai/AIWeaponModeSelector';
-import { AMMUNITION_COMPATIBILITY_SUPPORT } from '../CombatAmmunitionSupport';
+import {
+  AMMUNITION_COMPATIBILITY_SUPPORT,
+  UNSUPPORTED_ROTARY_AC_10_20_AMMO_IDS,
+  UNSUPPORTED_ROTARY_AC_10_20_WEAPON_PROBE_IDS,
+} from '../CombatAmmunitionSupport';
 import { CANONICAL_SPA_COMBAT_SCOPE_SUPPORT } from '../CombatCanonicalSpaSupport';
+import { UNRESOLVED_EQUIPMENT_CRITICAL_EFFECT_SUPPORT_IDS } from '../CombatCriticalSlotEffectSupport';
 import {
   CRITICAL_COMPONENT_COMBAT_SUPPORT,
   DAMAGE_RESOLUTION_COMBAT_SUPPORT,
@@ -82,17 +92,27 @@ import {
   RUNNER_PSR_TRIGGER_COMBAT_SUPPORT,
 } from '../CombatLifecycleSupport';
 import { RUNNER_INTERACTIVE_PARITY_SUPPORT } from '../CombatParitySupport';
+import { PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT } from '../CombatPilotModifierApplicationSupport';
 import {
   HEAT_RULE_COMBAT_SUPPORT,
+  MINEFIELD_VARIANT_SIDE_PATH_UNSUPPORTED_IDS,
   MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT,
   MOVEMENT_RULE_COMBAT_SUPPORT,
   PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT,
   RUNNER_RANGE_BRACKET_COMBAT_SUPPORT,
   RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT,
+  TERRAIN_LOS_SIDE_PATH_UNSUPPORTED_IDS,
   TERRAIN_ENVIRONMENT_COMBAT_SUPPORT,
   TERRAIN_TYPE_MOVEMENT_COVERAGE,
 } from '../CombatRuleSupport';
-import { SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT } from '../CombatSpecialWeaponSupport';
+import {
+  SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT,
+  UNRESOLVED_ARTEMIS_LINK_NETWORK_LIFECYCLE_SUPPORT_IDS,
+} from '../CombatSpecialWeaponSupport';
+import {
+  getCombatValidationOutOfScopeRefs,
+  getCombatValidationUnresolvedRefs,
+} from '../CombatValidationGapInventory';
 import {
   BATTLEMECH_COMBAT_VALIDATION_INVARIANT,
   KNOWN_LIMITATION_VALIDATION_TRAPS,
@@ -108,6 +128,7 @@ import {
 } from '../SimulationRunnerSupport';
 import {
   buildWeaponLookupFromCatalogFiles,
+  hydrateAmmoStateFromFullUnit,
   resolveCatalogDamage,
   toAIWeapon,
   type ICatalogWeaponStats,
@@ -129,15 +150,30 @@ interface IAmmoCatalogEntry {
   readonly isExplosive: boolean;
 }
 
+interface IBattleMechUnitIndexEntry {
+  readonly path: string;
+}
+
+interface IBattleMechUnitIndexFile {
+  readonly units: readonly IBattleMechUnitIndexEntry[];
+}
+
+interface IUnitEquipmentEntry {
+  readonly id?: unknown;
+  readonly location?: unknown;
+}
+
 type AmmoCompatibilityGapClass =
   | 'battlemech-ammo-missing-compatible-weapon-refs'
   | 'duplicate-runtime-id'
+  | 'experimental-empty-compatible-row'
   | 'non-battlemech-aerospace-capital-ammo'
   | 'non-battlemech-battle-armor'
   | 'non-battlemech-protomech'
-  | 'nonstandard-empty-compatible-row'
   | 'unsupported-aquatic-torpedo-ammo'
-  | 'unsupported-artillery-ammo';
+  | 'unsupported-artillery-ammo'
+  | 'unsupported-rotary-ac-10-20-ammo'
+  | 'unofficial-empty-compatible-row';
 
 type AmmoCompatibilitySupportId =
   | AmmoCompatibilityGapClass
@@ -145,7 +181,8 @@ type AmmoCompatibilitySupportId =
 
 type PinnedBattleMechAmmoGapClass =
   | 'battlemech-ammo-missing-compatible-weapon-refs'
-  | 'duplicate-runtime-id';
+  | 'duplicate-runtime-id'
+  | 'unsupported-rotary-ac-10-20-ammo';
 
 type PinnedScopeSplitAmmoGapClass =
   | 'non-battlemech-aerospace-capital-ammo'
@@ -155,10 +192,8 @@ type PinnedScopeSplitAmmoGapClass =
   | 'unsupported-artillery-ammo';
 
 const EXPECTED_BATTLEMECH_AMMO_GAP_IDS = {
-  'battlemech-ammo-missing-compatible-weapon-refs': [
-    'rotaryac10',
-    'rotaryac20',
-  ],
+  'battlemech-ammo-missing-compatible-weapon-refs': [],
+  'unsupported-rotary-ac-10-20-ammo': UNSUPPORTED_ROTARY_AC_10_20_AMMO_IDS,
   'duplicate-runtime-id': [
     'ams',
     'clan-lb-10-x-ac',
@@ -174,6 +209,21 @@ const EXPECTED_BATTLEMECH_AMMO_GAP_IDS = {
     'mrm-40',
   ],
 } satisfies Record<PinnedBattleMechAmmoGapClass, readonly string[]>;
+
+const UNRESOLVED_ARTEMIS_LINK_NETWORK_LIFECYCLE_REFS =
+  UNRESOLVED_ARTEMIS_LINK_NETWORK_LIFECYCLE_SUPPORT_IDS.map(
+    (supportId) => `featureSupport.specialWeaponMechanics.${supportId}`,
+  ).sort();
+
+const UNSUPPORTED_ROTARY_AC_10_20_AMMO_ID_SET: ReadonlySet<string> = new Set(
+  EXPECTED_BATTLEMECH_AMMO_GAP_IDS['unsupported-rotary-ac-10-20-ammo'],
+);
+
+const PROTOMECH_PROTO_MACHINE_GUN_AMMO_IDS = new Set([
+  'clan-heavy-machine-gun-ammo-proto',
+  'clan-light-machine-gun-ammo-proto',
+  'clan-machine-gun-ammo-proto',
+]);
 
 const EXPECTED_SCOPE_SPLIT_AMMO_GAP_IDS = {
   'non-battlemech-aerospace-capital-ammo': [
@@ -238,6 +288,9 @@ const EXPECTED_SCOPE_SPLIT_AMMO_GAP_IDS = {
     'clan-ammo-protomech-lrtorpedo-7',
     'clan-ammo-protomech-lrtorpedo-8',
     'clan-ammo-protomech-lrtorpedo-9',
+    'clan-heavy-machine-gun-ammo-proto',
+    'clan-light-machine-gun-ammo-proto',
+    'clan-machine-gun-ammo-proto',
     'clan-protomech-ac-2',
     'clan-protomech-ac-4',
     'clan-protomech-ac-8',
@@ -268,16 +321,54 @@ const EXPECTED_SCOPE_SPLIT_AMMO_GAP_IDS = {
   ],
 } satisfies Record<PinnedScopeSplitAmmoGapClass, readonly string[]>;
 
-const EXPECTED_NONSTANDARD_AMMO_GAP_IDS = [
+const EXPECTED_EXPERIMENTAL_EMPTY_COMPATIBLE_AMMO_IDS = [
+  'ammo-extended-lrm-10',
+  'ammo-extended-lrm-15',
+  'ammo-extended-lrm-20',
+  'ammo-extended-lrm-5',
+  'clan-ammo-iatm-12-iiw',
+  'clan-ammo-iatm-12-imp',
+  'clan-ammo-iatm-3-iiw',
+  'clan-ammo-iatm-3-imp',
+  'clan-ammo-iatm-6-iiw',
+  'clan-ammo-iatm-6-imp',
+  'clan-ammo-iatm-9-iiw',
+  'clan-ammo-iatm-9-imp',
+  'clan-lb-5-x-cluster',
+  'clan-streak-lrm-1',
+  'clan-streak-lrm-10',
+  'clan-streak-lrm-11',
+  'clan-streak-lrm-12',
+  'clan-streak-lrm-13',
+  'clan-streak-lrm-14',
+  'clan-streak-lrm-15',
+  'clan-streak-lrm-16',
+  'clan-streak-lrm-17',
+  'clan-streak-lrm-18',
+  'clan-streak-lrm-19',
+  'clan-streak-lrm-2',
+  'clan-streak-lrm-20',
+  'clan-streak-lrm-3',
+  'clan-streak-lrm-4',
+  'clan-streak-lrm-5',
+  'clan-streak-lrm-6',
+  'clan-streak-lrm-7',
+  'clan-streak-lrm-8',
+  'clan-streak-lrm-9',
+  'enhancedlrm10',
+  'enhancedlrm15',
+  'enhancedlrm20',
+  'enhancedlrm5',
+  'improvedheavygauss',
+  'silver-bullet-gauss',
+] satisfies readonly string[];
+
+const EXPECTED_UNOFFICIAL_EMPTY_COMPATIBLE_AMMO_IDS = [
   'ammo-ac-10-primitive',
   'ammo-ac-15',
   'ammo-ac-2-primitive',
   'ammo-ac-20-primitive',
   'ammo-ac-5-primitive',
-  'ammo-extended-lrm-10',
-  'ammo-extended-lrm-15',
-  'ammo-extended-lrm-20',
-  'ammo-extended-lrm-5',
   'ammo-gac-2',
   'ammo-gac-4',
   'ammo-gac-6',
@@ -320,50 +411,18 @@ const EXPECTED_NONSTANDARD_AMMO_GAP_IDS = [
   'clan-ammo-iatm-12',
   'clan-ammo-iatm-12-er',
   'clan-ammo-iatm-12-he',
-  'clan-ammo-iatm-12-iiw',
-  'clan-ammo-iatm-12-imp',
   'clan-ammo-iatm-3',
   'clan-ammo-iatm-3-er',
   'clan-ammo-iatm-3-he',
-  'clan-ammo-iatm-3-iiw',
-  'clan-ammo-iatm-3-imp',
   'clan-ammo-iatm-6',
   'clan-ammo-iatm-6-er',
   'clan-ammo-iatm-6-he',
-  'clan-ammo-iatm-6-iiw',
-  'clan-ammo-iatm-6-imp',
   'clan-ammo-iatm-9',
   'clan-ammo-iatm-9-er',
   'clan-ammo-iatm-9-he',
-  'clan-ammo-iatm-9-iiw',
-  'clan-ammo-iatm-9-imp',
   'clan-ammo-srm-1',
   'clan-ammo-srm-3',
   'clan-ammo-srm-5',
-  'clan-heavy-machine-gun-ammo-proto',
-  'clan-lb-5-x-cluster',
-  'clan-light-machine-gun-ammo-proto',
-  'clan-machine-gun-ammo-proto',
-  'clan-streak-lrm-1',
-  'clan-streak-lrm-10',
-  'clan-streak-lrm-11',
-  'clan-streak-lrm-12',
-  'clan-streak-lrm-13',
-  'clan-streak-lrm-14',
-  'clan-streak-lrm-15',
-  'clan-streak-lrm-16',
-  'clan-streak-lrm-17',
-  'clan-streak-lrm-18',
-  'clan-streak-lrm-19',
-  'clan-streak-lrm-2',
-  'clan-streak-lrm-20',
-  'clan-streak-lrm-3',
-  'clan-streak-lrm-4',
-  'clan-streak-lrm-5',
-  'clan-streak-lrm-6',
-  'clan-streak-lrm-7',
-  'clan-streak-lrm-8',
-  'clan-streak-lrm-9',
   'clan-streak-srm-1',
   'clan-streak-srm-3',
   'clan-streak-srm-5',
@@ -374,17 +433,12 @@ const EXPECTED_NONSTANDARD_AMMO_GAP_IDS = [
   'clanimprovedlrm5ammo',
   'climpammosrm4',
   'compact-narc-ammo',
-  'enhancedlrm10',
-  'enhancedlrm15',
-  'enhancedlrm20',
-  'enhancedlrm5',
   'gauss',
   'heavy-machine-gun-ammo-full',
   'heavy-machine-gun-ammo-half',
   'heavygauss',
   'impammosrm6',
   'impgaussammo',
-  'improvedheavygauss',
   'inarc-ecm-pods',
   'inarc-explosive-pods',
   'inarc-haywire-pods',
@@ -408,7 +462,6 @@ const EXPECTED_NONSTANDARD_AMMO_GAP_IDS = [
   'narc-pods',
   'rotaryac2',
   'rotaryac5',
-  'silver-bullet-gauss',
   'ultra-ac-10-ammo-thb',
   'ultra-ac-2-ammo-thb',
   'ultra-ac-20-ammo-thb',
@@ -729,6 +782,196 @@ function familyItems(pattern: RegExp): readonly Record<string, unknown>[] {
   return rangedWeaponItems.filter((item) => pattern.test(itemText(item)));
 }
 
+function normalizeCriticalSlotTextForCatalogTest(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function normalizeEquipmentLocationForCatalogTest(location: unknown): string {
+  return typeof location === 'string'
+    ? (location.split(',')[0]?.trim() ?? location.trim())
+    : '';
+}
+
+type ArtemisFcsKind = 'artemis_iv' | 'prototype_artemis_iv' | 'artemis_v';
+
+function artemisFcsKindFromCatalogText(
+  text: string,
+): ArtemisFcsKind | undefined {
+  const normalized = normalizeCriticalSlotTextForCatalogTest(text);
+  if (normalized.includes('ammo') || normalized.includes('capable')) {
+    return undefined;
+  }
+  if (
+    normalized.includes('prototypeartemisiv') ||
+    normalized.includes('artemisivproto') ||
+    normalized.includes('protoartemisiv')
+  ) {
+    return 'prototype_artemis_iv';
+  }
+  if (normalized.includes('artemisv')) {
+    return 'artemis_v';
+  }
+  if (normalized.includes('artemisiv')) {
+    return 'artemis_iv';
+  }
+  return undefined;
+}
+
+function artemisFcsSystemCount(
+  slots: readonly string[],
+  kind: ArtemisFcsKind,
+): number {
+  let count = 0;
+  let previousMatched = false;
+  for (const slot of slots) {
+    const matched = artemisFcsKindFromCatalogText(slot) === kind;
+    if (matched && !previousMatched) count++;
+    previousMatched = matched;
+  }
+  return count;
+}
+
+function hasArtemisCapableAmmo(
+  slots: readonly string[],
+  kind: ArtemisFcsKind,
+): boolean {
+  return slots.some((slot) => {
+    const normalized = normalizeCriticalSlotTextForCatalogTest(slot);
+    return kind === 'artemis_v'
+      ? normalized.includes('artemisvcapable')
+      : normalized.includes('artemiscapable') &&
+          !normalized.includes('artemisvcapable');
+  });
+}
+
+function isTorpedoSlotText(slot: string): boolean {
+  return /\b(?:IS|CL|Clan)?\s*(?:LRT|SRT)\b|lrtorpedo|srtorpedo|torpedo/i.test(
+    slot,
+  );
+}
+
+function isArtemisCompatibleWeapon(
+  catalogWeapon: ICatalogWeaponStats,
+): boolean {
+  const text = [
+    catalogWeapon.id,
+    catalogWeapon.name,
+    catalogWeapon.subType ?? '',
+    ...(catalogWeapon.special ?? []),
+  ]
+    .join(' ')
+    .toLowerCase();
+
+  if (/\bstreak\b|narc|tag|anti[-\s]?missile|ams/.test(text)) return false;
+  return (
+    /\blrm\b|lrm[-\s]?\d+/.test(text) ||
+    /\bsrm\b|srm[-\s]?\d+/.test(text) ||
+    /\bmml\b|mml[-\s]?\d+/.test(text)
+  );
+}
+
+function officialUnitArtemisAllocationAudit(): {
+  readonly nonTorpedoFailures: readonly string[];
+  readonly torpedoResiduals: readonly string[];
+} {
+  const unitIndex = JSON.parse(
+    readFileSync(
+      join(
+        process.cwd(),
+        'public',
+        'data',
+        'units',
+        'battlemechs',
+        'index.json',
+      ),
+      'utf8',
+    ),
+  ) as IBattleMechUnitIndexFile;
+  const nonTorpedoFailures: string[] = [];
+  const torpedoResiduals: string[] = [];
+
+  for (const indexEntry of unitIndex.units) {
+    const fullUnit = JSON.parse(
+      readFileSync(
+        join(
+          process.cwd(),
+          'public',
+          'data',
+          'units',
+          'battlemechs',
+          indexEntry.path,
+        ),
+        'utf8',
+      ),
+    ) as IFullUnit;
+    const equipment = Array.isArray(fullUnit.equipment)
+      ? (fullUnit.equipment as readonly IUnitEquipmentEntry[])
+      : [];
+    const criticalSlots =
+      fullUnit.criticalSlots && typeof fullUnit.criticalSlots === 'object'
+        ? (fullUnit.criticalSlots as Record<string, readonly unknown[]>)
+        : {};
+    const locations = new Set([
+      ...equipment
+        .map((entry) =>
+          normalizeEquipmentLocationForCatalogTest(entry.location),
+        )
+        .filter(Boolean),
+      ...Object.keys(criticalSlots),
+    ]);
+
+    for (const location of Array.from(locations)) {
+      const slots = (criticalSlots[location] ?? []).filter(
+        (slot): slot is string => typeof slot === 'string',
+      );
+      const compatibleLauncherCount = equipment.filter((entry) => {
+        if (
+          normalizeEquipmentLocationForCatalogTest(entry.location) !==
+            location ||
+          typeof entry.id !== 'string'
+        ) {
+          return false;
+        }
+        const weapon = weaponLookup(entry.id);
+        return weapon ? isArtemisCompatibleWeapon(weapon) : false;
+      }).length;
+      const torpedoLauncherCount = slots.filter(isTorpedoSlotText).length;
+
+      for (const kind of [
+        'artemis_iv',
+        'prototype_artemis_iv',
+        'artemis_v',
+      ] as const) {
+        const fcsCount =
+          equipment.filter((entry) => {
+            return (
+              normalizeEquipmentLocationForCatalogTest(entry.location) ===
+                location &&
+              typeof entry.id === 'string' &&
+              artemisFcsKindFromCatalogText(entry.id) === kind
+            );
+          }).length || artemisFcsSystemCount(slots, kind);
+        if (fcsCount <= 0 || !hasArtemisCapableAmmo(slots, kind)) continue;
+        if (
+          compatibleLauncherCount === 1 ||
+          (compatibleLauncherCount > 0 && compatibleLauncherCount === fcsCount)
+        ) {
+          continue;
+        }
+
+        const label = `${fullUnit.id} ${location} ${kind}: fcs=${fcsCount} compatible=${compatibleLauncherCount}`;
+        if (compatibleLauncherCount === 0 && torpedoLauncherCount > 0) {
+          torpedoResiduals.push(label);
+        } else {
+          nonTorpedoFailures.push(label);
+        }
+      }
+    }
+  }
+
+  return { nonTorpedoFailures, torpedoResiduals };
+}
+
 function sortedKeys(record: Record<string, unknown>): readonly string[] {
   return Object.keys(record).sort();
 }
@@ -753,7 +996,12 @@ function ammoCompatibilityGapClass(
   if (ammo.id.startsWith('ba-') || /\bbattle armor\b/i.test(text)) {
     return 'non-battlemech-battle-armor';
   }
-  if (/\bprotomech\b/i.test(text)) return 'non-battlemech-protomech';
+  if (
+    /\bprotomech\b/i.test(text) ||
+    PROTOMECH_PROTO_MACHINE_GUN_AMMO_IDS.has(ammo.id)
+  ) {
+    return 'non-battlemech-protomech';
+  }
   if (
     ammo.category === 'Artillery' ||
     /\barrow|long tom|sniper|thumper/i.test(text)
@@ -770,10 +1018,16 @@ function ammoCompatibilityGapClass(
   ) {
     return 'non-battlemech-aerospace-capital-ammo';
   }
+  if (UNSUPPORTED_ROTARY_AC_10_20_AMMO_ID_SET.has(ammo.id)) {
+    return 'unsupported-rotary-ac-10-20-ammo';
+  }
   if (ammo.rulesLevel === 'STANDARD' || ammo.rulesLevel === 'ADVANCED') {
     return 'battlemech-ammo-missing-compatible-weapon-refs';
   }
-  return 'nonstandard-empty-compatible-row';
+  if (ammo.rulesLevel === 'EXPERIMENTAL') {
+    return 'experimental-empty-compatible-row';
+  }
+  return 'unofficial-empty-compatible-row';
 }
 
 function ammoIdsByGapClass(
@@ -813,7 +1067,7 @@ function expectPinnedMegaMekRefs(
 ): void {
   expect(refs.length).toBeGreaterThan(0);
   expect(
-    refs.every(
+    refs.some(
       (sourceRef) =>
         sourceRef.kind === 'megamek-source' &&
         sourceRef.sourceVersion ===
@@ -823,6 +1077,33 @@ function expectPinnedMegaMekRefs(
         sourceRef.url.includes('#L'),
     ),
   ).toBe(true);
+  expect(refs.every((sourceRef) => isPinnedCatalogSourceRef(sourceRef))).toBe(
+    true,
+  );
+}
+
+const PINNED_MEGAMEK_CATALOG_SOURCE_VERSIONS = new Set([
+  '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
+  '55584ec7529b944fca3216965697e9fa1115dced',
+]);
+
+function isPinnedCatalogSourceRef(
+  sourceRef: ICombatFeatureSourceReference,
+): boolean {
+  if (sourceRef.kind === 'mekstation-deviation') {
+    return (
+      sourceRef.sourceVersion === 'MekStation working-tree' &&
+      sourceRef.url.includes('#L')
+    );
+  }
+
+  return (
+    sourceRef.kind === 'megamek-source' &&
+    PINNED_MEGAMEK_CATALOG_SOURCE_VERSIONS.has(sourceRef.sourceVersion) &&
+    sourceRef.url.includes('github.com/MegaMek/megamek/blob/') &&
+    sourceRef.url.includes(sourceRef.sourceVersion) &&
+    sourceRef.url.includes('#L')
+  );
 }
 
 function zeroDamageClassification(
@@ -912,6 +1193,21 @@ describe('BattleMech combat catalog validation lane', () => {
     }
 
     expect(failures).toEqual([]);
+  });
+
+  it('resolves official compact launcher ids before auditing Artemis FCS allocation', () => {
+    expect(weaponLookup('1-islrm15')?.id).toBe('lrm-15');
+    expect(weaponLookup('ISLRM15')?.id).toBe('lrm-15');
+    expect(weaponLookup('1-clsrm6')?.id).toBe('clan-srm-6');
+    expect(weaponLookup('CLLRM15')?.id).toBe('clan-lrm-15');
+    expect(weaponLookup('ISMML7')?.id).toBe('mml-7');
+
+    const audit = officialUnitArtemisAllocationAudit();
+
+    expect(audit.nonTorpedoFailures).toEqual([]);
+    expect(getCombatValidationOutOfScopeRefs()).toContain(
+      'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
+    );
   });
 
   it('keeps the static engine weapon database a legacy subset of the official ranged catalog', () => {
@@ -1157,6 +1453,32 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(failures).toEqual([]);
   });
 
+  it('keeps unsupported RAC/10 and RAC/20 ammo out of runtime ammo bins', () => {
+    const unsupportedFullUnit = {
+      criticalSlots: {
+        RIGHT_TORSO: ['Rotary AC/10 Ammo', 'Rotary AC/20 Ammo'],
+      },
+    } as unknown as IFullUnit;
+    const mixedFullUnit = {
+      criticalSlots: {
+        RIGHT_TORSO: ['Rotary AC/10 Ammo', 'AC/10 Ammo'],
+      },
+    } as unknown as IFullUnit;
+
+    expect(hydrateAmmoStateFromFullUnit(unsupportedFullUnit)).toBeUndefined();
+
+    const mixedAmmoState = hydrateAmmoStateFromFullUnit(mixedFullUnit);
+    expect(Object.values(mixedAmmoState ?? {})).toEqual([
+      expect.objectContaining({
+        binId: 'right_torso-1-ac-10-ammo',
+        weaponType: 'ac-10',
+      }),
+    ]);
+    expect(hasAmmoForWeapon(mixedAmmoState ?? {}, 'rac-10')).toBe(false);
+    expect(hasAmmoForWeapon(mixedAmmoState ?? {}, 'rac-20')).toBe(false);
+    expect(hasAmmoForWeapon(mixedAmmoState ?? {}, 'ac-10')).toBe(true);
+  });
+
   it('classifies official ammo rows without compatible weapon refs as explicit gaps', () => {
     const ammoClasses: AmmoCompatibilitySupportId[] = ammoItems.map(
       (ammo) => ammoCompatibilityGapClass(ammo) ?? 'battlemech-compatible-ammo',
@@ -1183,10 +1505,16 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(
       ammoCompatibilitySupport['battlemech-ammo-missing-compatible-weapon-refs']
         .level,
-    ).toBe('helper-only');
+    ).toBe('integrated');
+    expect(
+      ammoCompatibilitySupport['unsupported-rotary-ac-10-20-ammo'].level,
+    ).toBe('integrated');
     expect({
       'battlemech-ammo-missing-compatible-weapon-refs': ammoIdsByGapClass(
         'battlemech-ammo-missing-compatible-weapon-refs',
+      ),
+      'unsupported-rotary-ac-10-20-ammo': ammoIdsByGapClass(
+        'unsupported-rotary-ac-10-20-ammo',
       ),
       'duplicate-runtime-id': ammoIdsByGapClass('duplicate-runtime-id'),
     }).toEqual(EXPECTED_BATTLEMECH_AMMO_GAP_IDS);
@@ -1205,32 +1533,90 @@ describe('BattleMech combat catalog validation lane', () => {
         'unsupported-artillery-ammo',
       ),
     }).toEqual(EXPECTED_SCOPE_SPLIT_AMMO_GAP_IDS);
-    expect(ammoIdsByGapClass('nonstandard-empty-compatible-row')).toEqual(
-      EXPECTED_NONSTANDARD_AMMO_GAP_IDS,
+    expect(ammoIdsByGapClass('experimental-empty-compatible-row')).toEqual(
+      EXPECTED_EXPERIMENTAL_EMPTY_COMPATIBLE_AMMO_IDS,
     );
+    expect(ammoIdsByGapClass('unofficial-empty-compatible-row')).toEqual(
+      EXPECTED_UNOFFICIAL_EMPTY_COMPATIBLE_AMMO_IDS,
+    );
+    const experimentalEmptyCompatibleAmmo = ammoItems.filter(
+      (ammo) =>
+        ammoCompatibilityGapClass(ammo) === 'experimental-empty-compatible-row',
+    );
+    const unofficialEmptyCompatibleAmmo = ammoItems.filter(
+      (ammo) =>
+        ammoCompatibilityGapClass(ammo) === 'unofficial-empty-compatible-row',
+    );
+    const nonstandardEmptyCompatibleAmmo = [
+      ...experimentalEmptyCompatibleAmmo,
+      ...unofficialEmptyCompatibleAmmo,
+    ];
+
+    expect(experimentalEmptyCompatibleAmmo).toHaveLength(
+      EXPECTED_EXPERIMENTAL_EMPTY_COMPATIBLE_AMMO_IDS.length,
+    );
+    expect(unofficialEmptyCompatibleAmmo).toHaveLength(
+      EXPECTED_UNOFFICIAL_EMPTY_COMPATIBLE_AMMO_IDS.length,
+    );
+    expect(
+      nonstandardEmptyCompatibleAmmo.filter(
+        (ammo) => ammo.compatibleWeaponIds.length > 0,
+      ),
+    ).toEqual([]);
+    expect(
+      experimentalEmptyCompatibleAmmo.every(
+        (ammo) => ammo.rulesLevel === 'EXPERIMENTAL',
+      ),
+    ).toBe(true);
+    expect(
+      unofficialEmptyCompatibleAmmo.every(
+        (ammo) => ammo.rulesLevel === 'UNOFFICIAL',
+      ),
+    ).toBe(true);
+    expect(
+      countBy(nonstandardEmptyCompatibleAmmo.map((ammo) => ammo.rulesLevel)),
+    ).toEqual({
+      EXPERIMENTAL: 39,
+      UNOFFICIAL: 101,
+    });
     expect(countBy(gapClasses)).toEqual({
-      'battlemech-ammo-missing-compatible-weapon-refs': 2,
       'duplicate-runtime-id': 12,
+      'experimental-empty-compatible-row': 39,
       'non-battlemech-aerospace-capital-ammo': 8,
       'non-battlemech-battle-armor': 17,
-      'non-battlemech-protomech': 35,
-      'nonstandard-empty-compatible-row': 143,
+      'non-battlemech-protomech': 38,
       'unsupported-aquatic-torpedo-ammo': 11,
       'unsupported-artillery-ammo': 9,
+      'unsupported-rotary-ac-10-20-ammo': 2,
+      'unofficial-empty-compatible-row': 101,
     });
     expect(supportIdsByLevel(ammoCompatibilitySupport, 'helper-only')).toEqual(
-      [
-        'battlemech-ammo-missing-compatible-weapon-refs',
-        'nonstandard-empty-compatible-row',
-      ].sort(),
+      [],
+    );
+    expect(
+      ammoCompatibilitySupport['experimental-empty-compatible-row'].level,
+    ).toBe('out-of-scope');
+    expect(
+      ammoCompatibilitySupport['unofficial-empty-compatible-row'].level,
+    ).toBe('out-of-scope');
+    expect(
+      ammoCompatibilitySupport['experimental-empty-compatible-row'].gap,
+    ).toContain('Experimental ammo rules need a separate validation matrix');
+    expect(
+      ammoCompatibilitySupport['unofficial-empty-compatible-row'].gap,
+    ).toContain('Unofficial ammo rules need a separate validation matrix');
+    expect(supportIdsByLevel(ammoCompatibilitySupport, 'unsupported')).toEqual(
+      [],
     );
     expect(supportIdsByLevel(ammoCompatibilitySupport, 'out-of-scope')).toEqual(
       [
         'non-battlemech-aerospace-capital-ammo',
         'non-battlemech-battle-armor',
         'non-battlemech-protomech',
+        'experimental-empty-compatible-row',
         'unsupported-aquatic-torpedo-ammo',
         'unsupported-artillery-ammo',
+        'unofficial-empty-compatible-row',
       ].sort(),
     );
     for (const entry of Object.values(ammoCompatibilitySupport)) {
@@ -1238,12 +1624,7 @@ describe('BattleMech combat catalog validation lane', () => {
 
       expect(sourceRefs).not.toHaveLength(0);
       expect(
-        sourceRefs.every(
-          (sourceRef) =>
-            sourceRef.kind === 'mekstation-deviation' &&
-            sourceRef.sourceVersion === 'MekStation working-tree' &&
-            sourceRef.url.includes('#L'),
-        ),
+        sourceRefs.every((sourceRef) => isPinnedCatalogSourceRef(sourceRef)),
       ).toBe(true);
     }
     expect(
@@ -1267,6 +1648,222 @@ describe('BattleMech combat catalog validation lane', () => {
         expect.stringContaining('pins exact BattleMech ammo gap ids'),
         expect.stringContaining('classifies every official ammo row'),
       ]),
+    );
+    expect(
+      ammoCompatibilitySupport[
+        'unsupported-rotary-ac-10-20-ammo'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('pins exact BattleMech ammo gap ids'),
+        expect.stringContaining('classifies every official ammo row'),
+      ]),
+    );
+    const officialRotaryACWeaponIds = ids(familyItems(/\bRotary AC\b/i));
+    const officialRotaryAC10Or20WeaponIds = ids(
+      familyItems(/\bRotary AC\/(?:10|20)\b/i),
+    );
+    const unsupportedRotaryAmmo = ammoItems.filter(
+      (ammo) =>
+        ammoCompatibilityGapClass(ammo) === 'unsupported-rotary-ac-10-20-ammo',
+    );
+
+    expect(officialRotaryACWeaponIds).toEqual([
+      'clan-rac-2',
+      'clan-rac-5',
+      'rac-2',
+      'rac-5',
+    ]);
+    expect(officialRotaryACWeaponIds).not.toEqual(
+      expect.arrayContaining(['rac-10', 'rac-20']),
+    );
+    expect(officialRotaryAC10Or20WeaponIds).toEqual([]);
+    expect(
+      unsupportedRotaryAmmo.map((ammo) => ({
+        id: ammo.id,
+        name: ammo.name,
+        compatibleWeaponIds: ammo.compatibleWeaponIds,
+        rulesLevel: ammo.rulesLevel,
+      })),
+    ).toEqual([
+      {
+        id: 'rotaryac10',
+        name: 'Rotary AC/10 Ammo',
+        compatibleWeaponIds: [],
+        rulesLevel: 'STANDARD',
+      },
+      {
+        id: 'rotaryac20',
+        name: 'Rotary AC/20 Ammo',
+        compatibleWeaponIds: [],
+        rulesLevel: 'STANDARD',
+      },
+    ]);
+  });
+
+  it('keeps non-covered ammo compatibility rows out of covered ammo coverage', () => {
+    const compatibleAmmoIds = new Set(
+      ammoItems
+        .filter((ammo) => ammoCompatibilityGapClass(ammo) === null)
+        .map((ammo) => ammo.id),
+    );
+    const emptyCompatibleClassifications = [
+      {
+        classification: 'experimental-empty-compatible-row',
+        expectedIds: EXPECTED_EXPERIMENTAL_EMPTY_COMPATIBLE_AMMO_IDS,
+        rulesLevel: 'EXPERIMENTAL',
+      },
+      {
+        classification: 'unofficial-empty-compatible-row',
+        expectedIds: EXPECTED_UNOFFICIAL_EMPTY_COMPATIBLE_AMMO_IDS,
+        rulesLevel: 'UNOFFICIAL',
+      },
+    ] satisfies readonly {
+      readonly classification:
+        | 'experimental-empty-compatible-row'
+        | 'unofficial-empty-compatible-row';
+      readonly expectedIds: readonly string[];
+      readonly rulesLevel: string;
+    }[];
+
+    expect(Array.from(compatibleAmmoIds).sort()).toEqual(
+      EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS,
+    );
+
+    for (const {
+      classification,
+      expectedIds,
+      rulesLevel,
+    } of emptyCompatibleClassifications) {
+      const supportEntry = AMMUNITION_COMPATIBILITY_SUPPORT[classification];
+      const rows = ammoItems
+        .filter((ammo) => ammoCompatibilityGapClass(ammo) === classification)
+        .sort((left, right) => left.id.localeCompare(right.id));
+
+      expect(supportEntry).toMatchObject({
+        level: 'out-of-scope',
+        evidence: expect.stringContaining(
+          'official compatible BattleMech ammo',
+        ),
+        gap: expect.stringContaining('separate validation matrix'),
+      });
+      expect(supportEntry.sourceRefs?.map(({ citation }) => citation)).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining('guards empty-compatible non-official rows'),
+        ]),
+      );
+      expect(rows.map((ammo) => ammo.id)).toEqual(expectedIds);
+      expect(
+        rows.map((ammo) => ({
+          id: ammo.id,
+          compatibleWeaponIds: ammo.compatibleWeaponIds,
+          coveredAmmo: compatibleAmmoIds.has(ammo.id),
+          rulesLevel: ammo.rulesLevel,
+        })),
+      ).toEqual(
+        expectedIds.map((id) => ({
+          id,
+          compatibleWeaponIds: [],
+          coveredAmmo: false,
+          rulesLevel,
+        })),
+      );
+    }
+
+    const unsupportedRotaryAmmo = ammoItems
+      .filter(
+        (ammo) =>
+          ammoCompatibilityGapClass(ammo) ===
+          'unsupported-rotary-ac-10-20-ammo',
+      )
+      .sort((left, right) => left.id.localeCompare(right.id));
+    const unsupportedRotaryEntry =
+      AMMUNITION_COMPATIBILITY_SUPPORT['unsupported-rotary-ac-10-20-ammo'];
+    const unsupportedRotarySourceRefs = unsupportedRotaryEntry.sourceRefs ?? [];
+    const unsupportedRotaryMegaMekRefs = unsupportedRotarySourceRefs.filter(
+      (sourceRef) => sourceRef.kind === 'megamek-source',
+    );
+    const unsupportedRotaryDecisionText = [
+      unsupportedRotaryEntry.evidence,
+      unsupportedRotaryEntry.gap,
+      ...unsupportedRotarySourceRefs.map(({ citation }) => citation),
+    ].join('\n');
+
+    expect(unsupportedRotaryEntry).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('empty compatibleWeaponIds'),
+    });
+    expect(unsupportedRotaryEntry.gap).toBeUndefined();
+    expect(unsupportedRotaryEntry.evidence).toEqual(
+      expect.stringContaining('without deriving compatibility'),
+    );
+    expect(unsupportedRotarySourceRefs.map(({ citation }) => citation)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('guards empty-compatible non-official rows'),
+        expect.stringContaining('official autocannon ammo catalog'),
+        expect.stringContaining('official ballistic-autocannon weapon catalog'),
+      ]),
+    );
+    expectPinnedMegaMekRefs(unsupportedRotaryMegaMekRefs);
+    expect(unsupportedRotaryDecisionText).toEqual(
+      expect.stringMatching(/MegaMek/i),
+    );
+    expect(unsupportedRotaryDecisionText).toEqual(
+      expect.stringMatching(/unofficial/i),
+    );
+    expect(unsupportedRotaryDecisionText).toEqual(
+      expect.stringMatching(/RAC\/10/i),
+    );
+    expect(unsupportedRotaryDecisionText).toEqual(
+      expect.stringMatching(/RAC\/20/i),
+    );
+    expect(unsupportedRotaryDecisionText).toEqual(
+      expect.stringMatching(/unofficial clan package|weapon package/i),
+    );
+    expect(unsupportedRotaryDecisionText).toEqual(
+      expect.stringMatching(
+        /(?:class.*register|register.*class|WeaponType registers)/i,
+      ),
+    );
+    expect(
+      EXPECTED_BATTLEMECH_AMMO_GAP_IDS['unsupported-rotary-ac-10-20-ammo'],
+    ).toBe(UNSUPPORTED_ROTARY_AC_10_20_AMMO_IDS);
+    expect(
+      unsupportedRotaryAmmo.map((ammo) => ({
+        id: ammo.id,
+        compatibleWeaponIds: ammo.compatibleWeaponIds,
+        coveredAmmo: compatibleAmmoIds.has(ammo.id),
+        rulesLevel: ammo.rulesLevel,
+        weaponLookup: weaponLookup(ammo.id),
+      })),
+    ).toEqual([
+      {
+        id: 'rotaryac10',
+        compatibleWeaponIds: [],
+        coveredAmmo: false,
+        rulesLevel: 'STANDARD',
+        weaponLookup: null,
+      },
+      {
+        id: 'rotaryac20',
+        compatibleWeaponIds: [],
+        coveredAmmo: false,
+        rulesLevel: 'STANDARD',
+        weaponLookup: null,
+      },
+    ]);
+    expect(
+      UNSUPPORTED_ROTARY_AC_10_20_WEAPON_PROBE_IDS.map((weaponId) => ({
+        weaponId,
+        equipmentBvResolved: resolveEquipmentBV(weaponId).resolved,
+        weaponLookup: weaponLookup(weaponId),
+      })),
+    ).toEqual(
+      UNSUPPORTED_ROTARY_AC_10_20_WEAPON_PROBE_IDS.map((weaponId) => ({
+        weaponId,
+        equipmentBvResolved: false,
+        weaponLookup: null,
+      })),
     );
   });
 
@@ -1352,6 +1949,8 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT, 'integrated'),
     ).toEqual([
+      'ams',
+      'artemis',
       'lb-x-ac',
       'mml',
       'narc',
@@ -1362,31 +1961,61 @@ describe('BattleMech combat catalog validation lane', () => {
     ]);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['ams', 'artemis', 'plasma-cannon']);
+    ).toEqual([]);
+    expect(
+      supportIdsByLevel(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT, 'out-of-scope'),
+    ).toEqual(['plasma-cannon']);
 
     expect(supportGaps(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT, 'integrated'),
     ).toEqual([
       'active-probe-counter-hydration',
+      'active-probe-critical-lifecycle',
       'ams-ammo-consumption',
+      'ams-authored-multi-use-lifecycle',
+      'ams-automatic-interception-assignment',
       'ams-interception-events',
+      'ams-manual-defender-choice',
       'ams-mounted-arc-enforcement',
       'ams-mounted-arc-hydration',
       'ams-projectile-reduction',
+      'ams-runner-selected-defender-choice',
+      'ams-session-selected-defender-choice',
       'ams-single-missile-parity',
       'ams-streak-cluster-parity',
+      'artemis-active-probe-mode-authoring',
+      'artemis-ambiguous-fcs-allocation-authoring',
+      'artemis-cews-ecm-probe-lifecycle',
       'artemis-cluster-modifier',
+      'artemis-ecm-mode-lifecycle',
       'artemis-ecm-suite-hydration',
       'artemis-ecm-suppression',
+      'artemis-ew-mode-authoring',
+      'artemis-explicit-fcs-link-lifecycle',
+      'artemis-fcs-critical-lifecycle',
+      'artemis-fcs-critical-slot-hydration',
+      'artemis-link-network-lifecycle',
+      'artemis-stealth-mode-damage-lifecycle',
       'artemis-stealth-suppression',
       'inarc-ecm-attacker-flight-path-suppression',
       'inarc-ecm-c3-disruption',
+      'inarc-ecm-sensor-effects',
+      'inarc-explosive-ammo-compatibility',
       'inarc-haywire-to-hit-modifier',
       'inarc-homing-cluster-modifier',
       'inarc-homing-marker-attachment',
       'inarc-homing-to-hit-modifier',
       'inarc-nemesis-redirect',
+      'inarc-pod-brush-off-removal-lifecycle',
+      'inarc-pod-brush-off-target-selection',
+      'inarc-pod-event-replay-lifecycle',
+      'inarc-pod-helper-removal-lifecycle',
+      'inarc-pod-object-lifecycle',
+      'inarc-pod-target-identity-lifecycle',
+      'inarc-pod-target-option-deduplication',
+      'inarc-pod-turn-reset-lifecycle',
+      'inarc-pod-variants',
       'inarc-variant-ammo-attachment',
       'lbx-cluster-to-hit',
       'lbx-slug-cluster-modes',
@@ -1396,6 +2025,9 @@ describe('BattleMech combat catalog validation lane', () => {
       'narc-cluster-modifier',
       'narc-marker-attachment',
       'narc-marker-lifecycle-events',
+      'nova-cews-c3-network-lifecycle',
+      'plasma-cannon-battlemech-heat-phase-pending-bucket',
+      'plasma-cannon-battlemech-target-heat',
       'rac-jam-on-natural-two',
       'rac-rate-of-fire',
       'streak-lock-no-spend-on-miss',
@@ -1418,10 +2050,179 @@ describe('BattleMech combat catalog validation lane', () => {
     ).toEqual(expect.stringContaining('indirect-fire state'));
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['inarc-pod-variants']);
+    ).toEqual([]);
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT, 'unsupported'),
-    ).toEqual([]);
+    ).toEqual(
+      [...UNRESOLVED_ARTEMIS_LINK_NETWORK_LIFECYCLE_SUPPORT_IDS].sort(),
+    );
+    expect(
+      supportIdsByLevel(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT, 'out-of-scope'),
+    ).toEqual(
+      expect.arrayContaining([
+        'ams-bay-authoring',
+        'ams-optional-multi-use-authoring',
+        'inarc-producer-c3-authoring',
+      ]),
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-variants'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('Homing, ECM, Haywire, and Nemesis'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-variants'].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-variants'].evidence,
+    ).toContain('source-backed executable rows');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-object-lifecycle'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('carrier iNarcPods state'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-object-lifecycle']
+        .evidence,
+    ).toContain('physical panel/store author selected pod identity');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-object-lifecycle']
+        .evidence,
+    ).toContain('selectedINarcPod');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-object-lifecycle'].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-object-lifecycle']
+        .evidence,
+    ).toContain(
+      'producer-side C3 authoring remains separated under inarc-producer-c3-authoring',
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-pod-brush-off-removal-lifecycle'
+      ].evidence,
+    ).toContain('selectedINarcPod');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-pod-target-identity-lifecycle'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('same-team/same-type'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-pod-target-option-deduplication'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('target-option dedupe'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-pod-brush-off-target-selection'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'carrier-scoped attached iNarc pod rows',
+      ),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-pod-helper-removal-lifecycle'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('removes exactly one matching'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-pod-event-replay-lifecycle'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('rehydrates typed iNarcPods'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-object-lifecycle']
+        .evidence,
+    ).toContain('producer-side C3 authoring remains separated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-variants'].evidence,
+    ).not.toContain('Explosive');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-ecm-sensor-effects'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('tactical sensor contacts'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-ecm-sensor-effects']
+        .evidence,
+    ).toContain('sensorRangeBrackets');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-ecm-sensor-effects']
+        .evidence,
+    ).toContain('Artemis/prototype Artemis/Artemis V suppression');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-ecm-sensor-effects'].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-producer-c3-authoring'],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining('iNarc ECM C3 disruption'),
+      gap: expect.stringContaining('Producer-side C3 membership'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-producer-c3-authoring']
+        .evidence,
+    ).toContain('Residual row only');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-producer-c3-authoring']
+        .evidence,
+    ).toContain('conservative unambiguous C3 equipment seeding');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-producer-c3-authoring'].gap,
+    ).toContain('C3 assignment UI/editor');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-producer-c3-authoring'].gap,
+    ).toContain('equipment seeding');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-producer-c3-authoring'].gap,
+    ).toContain('iNarc ECM disruption alone');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-pod-brush-off-removal-lifecycle'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'carrier-level attached iNarc pod removal',
+      ),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-explosive-ammo-compatibility'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('6-point impact damage'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-explosive-ammo-compatibility'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      supportIdsByLevel(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT, 'unsupported'),
+    ).toEqual(
+      [...UNRESOLVED_ARTEMIS_LINK_NETWORK_LIFECYCLE_SUPPORT_IDS].sort(),
+    );
   });
 
   it('maps every damage-capable official Streak SRM launcher to runner all-or-none semantics', () => {
@@ -1482,8 +2283,14 @@ describe('BattleMech combat catalog validation lane', () => {
     );
   });
 
-  it('maps official UAC, RAC, LB-X, and MML catalog weapons into AI firing modes', () => {
+  it('maps official ordinary AC, UAC, RAC, LB-X, and MML catalog weapons into AI firing modes', () => {
     const multiModeFamilies = [
+      {
+        ids: ['ac-2', 'ac-5', 'ac-10', 'ac-20'],
+        kind: 'rate-of-fire',
+        defaultModeId: 'single',
+        modeIds: ['single', 'rapid-fire'],
+      },
       {
         ids: EXPECTED_MULTI_MODE_SPECIAL_WEAPON_FAMILY_IDS['ultra-ac'],
         kind: 'rate-of-fire',
@@ -1523,6 +2330,34 @@ describe('BattleMech combat catalog validation lane', () => {
           family.modeIds,
         );
       }
+    }
+  });
+
+  it('authors ordinary AC catalog rows with represented TacOps rapid-fire modes', () => {
+    for (const weaponId of ['ac-2', 'ac-5', 'ac-10', 'ac-20']) {
+      const catalogWeapon = weaponLookup(weaponId);
+      expect(catalogWeapon).not.toBeNull();
+      if (!catalogWeapon) continue;
+
+      const aiWeapon = toAIWeapon(catalogWeapon, 0);
+      expect(aiWeapon.firingModes).toMatchObject({
+        kind: 'rate-of-fire',
+        defaultModeId: 'single',
+        modes: [
+          {
+            id: 'single',
+            damage: aiWeapon.damage,
+            heat: aiWeapon.heat,
+            shotsPerTurn: 1,
+          },
+          {
+            id: 'rapid-fire',
+            damage: aiWeapon.damage * 2,
+            heat: aiWeapon.heat * 2,
+            shotsPerTurn: 2,
+          },
+        ],
+      });
     }
   });
 
@@ -1649,11 +2484,11 @@ describe('BattleMech combat catalog validation lane', () => {
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.mml.level).toBe('integrated');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.level).toBe('integrated');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.evidence).toContain(
-      'inarc-pod-variants',
+      'carrier-attached iNarc pod-object target selection/removal lifecycle',
     );
-    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.level).toBe('helper-only');
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.level).toBe('integrated');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].level).toBe(
-      'helper-only',
+      'out-of-scope',
     );
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.level).toBe('integrated');
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.tag.evidence).toContain(
@@ -1666,8 +2501,130 @@ describe('BattleMech combat catalog validation lane', () => {
       'integrated',
     );
     expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.artemis.level).toBe(
-      'helper-only',
+      'integrated',
     );
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.artemis.evidence).toContain(
+      'Represented BattleMech Artemis family support',
+    );
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.artemis.evidence).toContain(
+      'unambiguous single-launcher or exact-cardinality same-location Artemis IV/prototype IV/V FCS critical-slot hydration',
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-fcs-critical-slot-hydration'
+      ].level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-fcs-critical-slot-hydration'
+      ].evidence,
+    ).toContain('explicit linkedEquipment FCS allocation when present');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-explicit-fcs-link-lifecycle'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'strips guidance only from that explicitly linked launcher',
+      ),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-fcs-critical-lifecycle']
+        .level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-fcs-critical-lifecycle']
+        .evidence,
+    ).toContain('unambiguous same-location weapon guidance flags');
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'featureSupport.specialWeaponMechanics.artemis-fcs-critical-slot-hydration',
+    );
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'featureSupport.specialWeaponMechanics.artemis-explicit-fcs-link-lifecycle',
+    );
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'featureSupport.specialWeaponMechanics.artemis-fcs-critical-lifecycle',
+    );
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'featureSupport.specialWeaponFamilies.artemis',
+    );
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'featureSupport.specialWeaponMechanics.artemis-link-network-lifecycle',
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-ambiguous-fcs-allocation-authoring'
+      ].level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-ambiguous-fcs-allocation-authoring'
+      ].evidence,
+    ).toContain('whole-catalog non-torpedo audit coverage');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-ambiguous-fcs-allocation-authoring'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-active-probe-mode-authoring'
+      ].level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-active-probe-mode-authoring'
+      ].evidence,
+    ).toContain(
+      'represented by BAP/CEWS equipment hydration and operational lifecycle rather than a separate probe mode surface',
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-active-probe-mode-authoring'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-ew-mode-authoring'].level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-ew-mode-authoring']
+        .evidence,
+    ).toContain(
+      'imports ECM suite currentMode/mode/activeMode/modeName authoring',
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-ew-mode-authoring'].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-stealth-mode-damage-lifecycle'
+      ].level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-stealth-mode-damage-lifecycle'
+      ].evidence,
+    ).toContain('represented ECM equipment critical replay disables');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-stealth-mode-damage-lifecycle'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-link-network-lifecycle'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining([
+        'ComputeC3Spotter treats Nova as a C3-type network for range calculation when the attacker has active Nova CEWS.',
+        'Entity places active Nova CEWS units on C3Nova network ids and matches Nova network membership through C3 network state.',
+      ]),
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-link-network-lifecycle']
+        .gap,
+    ).toBeUndefined();
     expect(
       SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['mml-variable-damage'].level,
     ).toBe('integrated');
@@ -1689,18 +2646,83 @@ describe('BattleMech combat catalog validation lane', () => {
       SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-interception-events'].level,
     ).toBe('integrated');
     expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'ams-runner-selected-defender-choice'
+      ].level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'ams-session-selected-defender-choice'
+      ].level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-manual-defender-choice']
+        .level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-authored-multi-use-lifecycle']
+        .level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-bay-authoring'].level,
+    ).toBe('out-of-scope');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-optional-multi-use-authoring']
+        .level,
+    ).toBe('out-of-scope');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-link-network-lifecycle']
+        .level,
+    ).toBe('integrated');
+    expect([...UNRESOLVED_ARTEMIS_LINK_NETWORK_LIFECYCLE_SUPPORT_IDS]).toEqual(
+      [],
+    );
+    expect(
       SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-cluster-modifier'].level,
     ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-fcs-critical-slot-hydration'
+      ].level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-fcs-critical-lifecycle']
+        .level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['active-probe-critical-lifecycle']
+        .level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-cews-ecm-probe-lifecycle']
+        .level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-cews-ecm-probe-lifecycle']
+        .evidence,
+    ).toContain(
+      'without promoting Nova CEWS C3-style network behavior into Artemis FCS support',
+    );
     expect(
       supportIdsByLevel(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT, 'unsupported'),
     ).toEqual([]);
     expect(
-      [
-        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap,
-        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.artemis.gap,
-        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap,
-      ].every((gap) => typeof gap === 'string' && gap.length > 0),
+      typeof SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap ===
+        'string' &&
+        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap.length > 0,
     ).toBe(true);
+    expect(
+      SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap,
+    ).not.toContain('heatFromExternal Heat Phase pending-bucket timing');
+    expect(
+      SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap,
+    ).not.toContain('timing/caps/lifecycle');
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap).toContain(
+      'non-Mek special damage paths',
+    );
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap).toContain(
+      'terrain/building special damage paths',
+    );
 
     expect(ids(narcLaunchers)).toContain('narc');
     expect(ids(amsSystems)).toContain('ams');
@@ -1711,6 +2733,426 @@ describe('BattleMech combat catalog validation lane', () => {
       'artemisivproto',
       'artemisv',
     ]);
+  });
+
+  it('keeps target special-weapon unresolved rows precise and authoring scope out-of-scope', () => {
+    const targetUnresolvedRefs = UNRESOLVED_ARTEMIS_LINK_NETWORK_LIFECYCLE_REFS;
+    const unresolvedRefs = getCombatValidationUnresolvedRefs();
+    const specialWeaponUnresolvedRefs = unresolvedRefs.filter(
+      (ref) =>
+        ref.startsWith('featureSupport.specialWeaponFamilies.') ||
+        ref.startsWith('featureSupport.specialWeaponMechanics.'),
+    );
+
+    expect(specialWeaponUnresolvedRefs).toEqual(targetUnresolvedRefs);
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.specialWeaponMechanics.artemis-link-network-lifecycle',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.specialWeaponFamilies.plasma-cannon',
+    );
+    expect(getCombatValidationOutOfScopeRefs()).toContain(
+      'featureSupport.specialWeaponFamilies.plasma-cannon',
+    );
+    expect(getCombatValidationOutOfScopeRefs()).toContain(
+      'featureSupport.specialWeaponMechanics.ams-bay-authoring',
+    );
+    expect(getCombatValidationOutOfScopeRefs()).toContain(
+      'featureSupport.specialWeaponMechanics.ams-optional-multi-use-authoring',
+    );
+    expect(getCombatValidationOutOfScopeRefs()).toContain(
+      'featureSupport.specialWeaponMechanics.inarc-producer-c3-authoring',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.specialWeaponMechanics.inarc-producer-c3-authoring',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.specialWeaponMechanics.ams-manual-defender-choice',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.specialWeaponFamilies.artemis',
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-link-network-lifecycle'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'Split-accounted Artemis lifecycle row',
+      ),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-link-network-lifecycle']
+        .gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-ambiguous-fcs-allocation-authoring'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'whole-catalog non-torpedo audit coverage',
+      ),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-ambiguous-fcs-allocation-authoring'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-active-probe-mode-authoring'
+      ].level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-active-probe-mode-authoring'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-ew-mode-authoring'].level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-ew-mode-authoring']
+        .evidence,
+    ).toContain(
+      'imports ECM suite currentMode/mode/activeMode/modeName authoring',
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-stealth-mode-damage-lifecycle'
+      ].level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-stealth-mode-damage-lifecycle'
+      ].gap,
+    ).toBeUndefined();
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon']).toMatchObject(
+      {
+        level: 'out-of-scope',
+        evidence: expect.stringContaining('zero BattleMech damage'),
+        gap: expect.stringContaining('non-Mek special damage paths'),
+      },
+    );
+    expect(
+      SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].evidence,
+    ).toContain('Heat Phase pending bucket');
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap).toContain(
+      'terrain/building special damage paths',
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-manual-defender-choice'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('selectedAMSWeaponIds'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-manual-defender-choice']
+        .evidence,
+    ).toContain('AttackInvalid before AttackDeclared');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-bay-authoring'],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining('AMS bay-shaped helper metadata'),
+      gap: expect.stringContaining(
+        'outside the current BattleMech blocker matrix',
+      ),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'ams-optional-multi-use-authoring'
+      ],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining(
+        'does not expose a multi-use AMS variant',
+      ),
+      gap: expect.stringContaining(
+        'outside the current BattleMech blocker matrix',
+      ),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-variants'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('selected-ammo attachment'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-variants'].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-object-lifecycle'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('carrier iNarcPods state'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-object-lifecycle']
+        .evidence,
+    ).toContain('physical panel/store author selected pod identity');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-object-lifecycle'].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-pod-event-replay-lifecycle'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'deduplicates repeated team/pod events',
+      ),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-pod-target-identity-lifecycle'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('same-team/same-type'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-pod-target-option-deduplication'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('target-option dedupe'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-pod-brush-off-target-selection'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'carrier-scoped attached iNarc pod rows',
+      ),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-pod-helper-removal-lifecycle'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('leaves the original array untouched'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-object-lifecycle'].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-variants'].evidence,
+    ).toContain('markerless unknown-ammo guard behavior');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-variants'].evidence,
+    ).not.toContain('Explosive');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-ecm-sensor-effects'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('tactical sensor contacts'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-ecm-sensor-effects'].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-ecm-sensor-effects'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('sensor range-bracket checks'),
+        expect.stringContaining('Sensor.getModForECM'),
+      ]),
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-producer-c3-authoring'],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining('explicit C3 range sharing'),
+      gap: expect.stringContaining('Producer-side C3 membership'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-producer-c3-authoring']
+        .evidence,
+    ).toContain('to-hit C3 rows');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-producer-c3-authoring'].gap,
+    ).toContain('explicit or conservative C3 state consumption alone');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-producer-c3-authoring'].gap,
+    ).toContain('equipment seeding');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-producer-c3-authoring'].gap,
+    ).toContain('iNarc ECM disruption alone');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-explosive-ammo-compatibility'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('6-point impact damage'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'inarc-explosive-ammo-compatibility'
+      ].gap,
+    ).toBeUndefined();
+  });
+
+  it('keeps represented Artemis mechanics integrated while residual mechanics stay explicit', () => {
+    const representedArtemisMechanicIds = [
+      'artemis-cluster-modifier',
+      'artemis-cews-ecm-probe-lifecycle',
+      'artemis-link-network-lifecycle',
+      'artemis-explicit-fcs-link-lifecycle',
+      'artemis-fcs-critical-lifecycle',
+      'artemis-fcs-critical-slot-hydration',
+      'artemis-ecm-suppression',
+      'artemis-ecm-suite-hydration',
+      'active-probe-counter-hydration',
+      'active-probe-critical-lifecycle',
+      'artemis-stealth-suppression',
+      'artemis-stealth-mode-damage-lifecycle',
+      'artemis-ambiguous-fcs-allocation-authoring',
+    ] as const satisfies readonly (keyof typeof SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT)[];
+    const unresolvedArtemisMechanicIds =
+      [] as const satisfies readonly (keyof typeof SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT)[];
+    const unresolvedRefs = getCombatValidationUnresolvedRefs();
+
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.specialWeaponFamilies.artemis',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.specialWeaponMechanics.artemis-link-network-lifecycle',
+    );
+    expect([...unresolvedArtemisMechanicIds]).toEqual([]);
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.specialWeaponMechanics.artemis-ambiguous-fcs-allocation-authoring',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.specialWeaponMechanics.artemis-ew-mode-authoring',
+    );
+    expect(unresolvedRefs).not.toContain(
+      'featureSupport.specialWeaponMechanics.artemis-active-probe-mode-authoring',
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-ew-mode-authoring'],
+    ).toMatchObject({
+      level: 'integrated',
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-ew-mode-authoring'].gap,
+    ).toBeUndefined();
+    expect(
+      representedArtemisMechanicIds.map(
+        (id) => SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[id].level,
+      ),
+    ).toEqual(representedArtemisMechanicIds.map(() => 'integrated'));
+    for (const id of representedArtemisMechanicIds) {
+      expect(unresolvedRefs).not.toContain(
+        `featureSupport.specialWeaponMechanics.${id}`,
+      );
+      expect(SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[id].gap).toBeUndefined();
+    }
+
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.artemis).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'Represented BattleMech Artemis family',
+      ),
+    });
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.artemis.gap).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-link-network-lifecycle'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'Split-accounted Artemis lifecycle row',
+      ),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-link-network-lifecycle']
+        .gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-link-network-lifecycle']
+        .evidence,
+    ).toContain(
+      'unambiguous single-launcher and exact-cardinality same-location Artemis IV/prototype IV/V FCS critical-slot hydration',
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-link-network-lifecycle']
+        .evidence,
+    ).toMatch(/same-location .*FCS critical damage guidance removal/);
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-link-network-lifecycle']
+        .evidence,
+    ).toContain('target/flight-path ECM suppression');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-link-network-lifecycle']
+        .evidence,
+    ).toContain('active-probe ECM countering');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-link-network-lifecycle']
+        .evidence,
+    ).toContain('active-probe critical replay lifecycle');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-link-network-lifecycle']
+        .evidence,
+    ).toContain('CEWS as ECM/probe equipment');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-link-network-lifecycle']
+        .evidence,
+    ).toContain('active attacker-stealth suppression');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-ambiguous-fcs-allocation-authoring'
+      ].level,
+    ).toBe('integrated');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-ambiguous-fcs-allocation-authoring'
+      ].evidence,
+    ).toContain('whole-catalog non-torpedo audit coverage');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-ambiguous-fcs-allocation-authoring'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-active-probe-mode-authoring'
+      ].evidence,
+    ).toContain(
+      'operational lifecycle rather than a separate probe mode surface',
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-active-probe-mode-authoring'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-ew-mode-authoring']
+        .evidence,
+    ).toContain(
+      'imports ECM suite currentMode/mode/activeMode/modeName authoring',
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['artemis-ew-mode-authoring'].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-stealth-mode-damage-lifecycle'
+      ].evidence,
+    ).toContain('own ECM state');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'artemis-stealth-mode-damage-lifecycle'
+      ].gap,
+    ).toBeUndefined();
   });
 
   it('pins special weapon family rows to MegaMek source refs', () => {
@@ -1763,17 +3205,26 @@ describe('BattleMech combat catalog validation lane', () => {
       'ComputeTargetToHitMods cancels positive target-movement modifiers for TAG-guided semi-guided LRM/MML/NLRM/mortar ammunition.',
       'ComputeToHit applies a -1 semi-guided indirect-fire modifier when qualifying missile or mortar ammunition attacks a TAG-designated target.',
     ]);
-    expect(sourceRefsFor('artemis').map(({ citation }) => citation)).toEqual([
-      'MegaMek MissileWeaponHandler applies Artemis IV +2, prototype Artemis IV +1, and Artemis V +3 cluster modifiers while suppressing ECM and stealth',
-      'MegaMek LRMHandler skips Artemis cluster modifiers when the weapon mode is Indirect and includes prototype Artemis IV in the same modifier chain',
-      'MegaMek MiscType.createISProtoArtemis defines Prototype Artemis IV FCS with F_ARTEMIS_PROTO',
-    ]);
+    expect(sourceRefsFor('artemis').map(({ citation }) => citation)).toEqual(
+      expect.arrayContaining([
+        'MissileWeaponHandler applies Artemis IV, prototype Artemis IV, and Artemis V cluster modifiers while suppressing ECM and attacker stealth.',
+        'LRMHandler skips Artemis cluster modifiers in indirect mode and applies the same Artemis IV, prototype Artemis IV, Artemis V, ECM, and stealth branches for direct LRM fire.',
+        'MegaMek MiscType.createISArtemisIV defines Artemis IV FCS with F_ARTEMIS.',
+        'MegaMek MiscType.createISProtoArtemis defines Prototype Artemis IV FCS with F_ARTEMIS_PROTO.',
+        'MegaMek MiscType.createISArtemisV defines Artemis V FCS with F_ARTEMIS_V.',
+        'MiscType defines Watchdog and Nova CEWS with both ECM and BAP flags.',
+        'Mek.isStealthActive requires stealth equipment mode On and active ECM support.',
+        'MegaMek MissileWeaponHandler applies Artemis IV +2, prototype Artemis IV +1, and Artemis V +3 cluster modifiers while suppressing ECM and stealth',
+        'MegaMek LRMHandler skips Artemis cluster modifiers when the weapon mode is Indirect and includes prototype Artemis IV in the same modifier chain',
+      ]),
+    );
     expect(
       sourceRefsFor('plasma-cannon').map(({ citation }) => citation),
     ).toEqual([
       'CLPlasmaCannon declares variable damage, heat 7, plasma/energy flags, plasma ammunition, and routes attacks to PlasmaCannonHandler.',
       'MegaMek plasma rifle and Clan plasma cannon ammunition rows use AmmoTypeEnum.PLASMA, ten shots per ton, and non-explosive ammo state.',
       'PlasmaCannonHandler applies external target heat on heat-tracking entities, including reflective, heat-dissipating, and PLAYTEST_3 armor-specific adjustments.',
+      'MegaMek HeatResolver caps external heat at the configured/default 15 points before adding heat buildup.',
       'PlasmaCannonHandler keeps plasma-cannon BattleMech damage at zero while applying non-Mek/terrain/building special damage paths.',
     ]);
 
@@ -1869,6 +3320,95 @@ describe('BattleMech combat catalog validation lane', () => {
       'INarcPod defines Homing, ECM, Haywire, and Nemesis pod type constants.',
     ]);
     expect(
+      sourceRefsFor('inarc-pod-object-lifecycle').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'INarcPod defines Homing, ECM, Haywire, and Nemesis pod type constants.',
+      'INarcPod equality and target ids treat same-team same-type pods as interchangeable targets while preserving location on the pod object.',
+      'Entity attaches pending iNarc pods, exposes attached iNarc pods, and removes targeted iNarc pods.',
+    ]);
+    expect(
+      sourceRefsFor('inarc-pod-target-identity-lifecycle').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'INarcPod defines Homing, ECM, Haywire, and Nemesis pod type constants.',
+      'INarcPod equality and target ids treat same-team same-type pods as interchangeable targets while preserving location on the pod object.',
+      'Entity attaches pending iNarc pods, exposes attached iNarc pods, and removes targeted iNarc pods.',
+    ]);
+    expect(
+      sourceRefsFor('inarc-pod-target-option-deduplication').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'INarcPod defines Homing, ECM, Haywire, and Nemesis pod type constants.',
+      'INarcPod equality and target ids treat same-team same-type pods as interchangeable targets while preserving location on the pod object.',
+      'Entity attaches pending iNarc pods, exposes attached iNarc pods, and removes targeted iNarc pods.',
+    ]);
+    expect(
+      sourceRefsFor('inarc-pod-helper-removal-lifecycle').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'INarcPod defines Homing, ECM, Haywire, and Nemesis pod type constants.',
+      'INarcPod equality and target ids treat same-team same-type pods as interchangeable targets while preserving location on the pod object.',
+      'Entity attaches pending iNarc pods, exposes attached iNarc pods, and removes targeted iNarc pods.',
+    ]);
+    expect(
+      sourceRefsFor('inarc-pod-event-replay-lifecycle').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'INarcPod defines Homing, ECM, Haywire, and Nemesis pod type constants.',
+    ]);
+    expect(
+      sourceRefsFor('inarc-ecm-sensor-effects').map(({ citation }) => citation),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'ComputeECM treats an entity with an iNarc ECM pod as ECM-affected at its own position while evaluating the attacker-to-target path.',
+      'MissileWeaponHandler suppresses Artemis, prototype Artemis, and Artemis V cluster guidance when the attacker-to-target missile path is ECM affected.',
+      'MegaMek sensor range-bracket checks add active sensor ECM modifiers for the detecting unit and target ECM modifiers for the detected entity.',
+      'MegaMek Sensor.getModForECM and getModForTargetECM route sensor-check ECM penalties through ComputeECM effects.',
+    ]);
+    expect(
+      sourceRefsFor('inarc-producer-c3-authoring').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'ComputeECM treats an entity with an iNarc ECM pod as ECM-affected at its own position while evaluating the attacker-to-target path.',
+      'ComputeC3Spotter rejects C3 node paths when ComputeECM reports ECM effects on either leg of the network connection.',
+    ]);
+    expect(
+      sourceRefsFor('inarc-pod-brush-off-removal-lifecycle').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'NarcHandler splits iNarc ECM, Haywire, Nemesis, and Homing pod variants before attaching the iNarc pod.',
+      'INarcPod defines Homing, ECM, Haywire, and Nemesis pod type constants.',
+      'INarcPod equality and target ids treat same-team same-type pods as interchangeable targets while preserving location on the pod object.',
+      'Entity attaches pending iNarc pods, exposes attached iNarc pods, and removes targeted iNarc pods.',
+      'MekStation runner physical Brush-Off removes the selected same-team same-type iNarc pod, preserving legacy first-pod removal when no selector is present.',
+      'MekStation interactive physical declarations and resolutions carry Brush-Off selectedINarcPod state from the context or first attached pod.',
+      'MekStation physical attack events persist selectedINarcPod identity on declared and resolved Brush-Off payloads.',
+      'MekStation runner tests prove selected Brush-Off declaration and resolution remove the matching iNarc pod while preserving nonmatching pods.',
+    ]);
+    expect(
+      sourceRefsFor('inarc-explosive-ammo-compatibility').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'AmmoType defines iNarc Explosive Pods as INARC explosive ammo with 6 damage and rack size 1.',
+      'NarcWeapon routes NARC/iNARC explosive munition attacks through NarcExplosiveHandler instead of the marker-attachment handler.',
+      'NarcExplosiveHandler resolves iNarc explosive pod hits as one pod and 6 damage per hit.',
+    ]);
+    expect(
       sourceRefsFor('inarc-variant-ammo-attachment').map(
         ({ citation }) => citation,
       ),
@@ -1936,6 +3476,9 @@ describe('BattleMech combat catalog validation lane', () => {
     const refs = [
       ...sourceRefsFor('narc-marker-attachment'),
       ...sourceRefsFor('inarc-pod-variants'),
+      ...sourceRefsFor('inarc-pod-event-replay-lifecycle'),
+      ...sourceRefsFor('inarc-pod-target-identity-lifecycle'),
+      ...sourceRefsFor('inarc-pod-target-option-deduplication'),
       ...sourceRefsFor('inarc-variant-ammo-attachment'),
       ...sourceRefsFor('inarc-ecm-attacker-flight-path-suppression'),
       ...sourceRefsFor('inarc-nemesis-redirect'),
@@ -1985,18 +3528,176 @@ describe('BattleMech combat catalog validation lane', () => {
       ...singleMissileCitations,
       'MissileWeaponHandler decrements AMS ammo, adds AMS heat, marks AMS as used, and branches optional multi-use and PLAYTEST_3 AMS lifecycle rules.',
     ]);
-    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).toContain(
-      'defender choice',
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.level).toBe('integrated');
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).toBeUndefined();
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.evidence).toContain(
+      'excludes already-fired standard AMS',
     );
-    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).toContain(
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.evidence).toContain(
       'PLAYTEST_3',
     );
-    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).not.toContain(
-      'automatic firing-arc assignment',
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.evidence).toContain(
+      'amsMultiUse',
     );
-    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).not.toContain(
-      'assignment/enforcement',
+    expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.evidence).toContain(
+      'automatically selects',
     );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'ams-runner-selected-defender-choice'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('selectedAMSWeaponIds'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'ams-session-selected-defender-choice'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('selectedAMSWeaponMounts'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-manual-defender-choice'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('selectedAMSWeaponIds'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'ams-authored-multi-use-lifecycle'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('already-authored'),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-authored-multi-use-lifecycle']
+        .evidence,
+    ).toContain('same-phase AMS reuse');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-authored-multi-use-lifecycle']
+        .evidence,
+    ).toContain(
+      'ammo consumption, heat generation, and fired-state accounting',
+    );
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-authored-multi-use-lifecycle']
+        .gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-bay-authoring'],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining(
+        'does not expose an AMS bay equipment entry',
+      ),
+      gap: expect.stringContaining(
+        'outside the current BattleMech blocker matrix',
+      ),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-bay-authoring'].evidence,
+    ).toContain('AMS bay-shaped helper metadata');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'ams-optional-multi-use-authoring'
+      ],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining(
+        'does not expose a multi-use AMS variant',
+      ),
+      gap: expect.stringContaining(
+        'outside the current BattleMech blocker matrix',
+      ),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-optional-multi-use-authoring']
+        .evidence,
+    ).toContain('ams-authored-multi-use-lifecycle');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-authored-multi-use-lifecycle']
+        .evidence,
+    ).toContain('same-phase AMS reuse');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-manual-defender-choice'].gap,
+    ).toBeUndefined();
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-bay-authoring'].gap,
+    ).not.toContain('Manual AMS defender choice');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-optional-multi-use-authoring']
+        .gap,
+    ).toContain('runtime optionalRules consumption');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-bay-authoring'].gap,
+    ).not.toContain('automatic firing-arc assignment');
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-bay-authoring'].gap,
+    ).not.toContain('assignment/enforcement');
+    expect(
+      sourceRefsFor('ams-manual-defender-choice').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'TWGameManager.assignAMS scopes AMS assignment to missile attacks that hit, then routes target AMS through auto assignment or manual defender choice.',
+      'Entity.assignAMS filters active AMS by firing arc, lets AMS bays or multi-use AMS engage all in-arc attacks, and otherwise assigns one AMS to the highest expected damage salvo.',
+    ]);
+    expect(
+      sourceRefsFor('ams-runner-selected-defender-choice').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'TWGameManager.assignAMS scopes AMS assignment to missile attacks that hit, then routes target AMS through auto assignment or manual defender choice.',
+      'Entity.assignAMS filters active AMS by firing arc, lets AMS bays or multi-use AMS engage all in-arc attacks, and otherwise assigns one AMS to the highest expected damage salvo.',
+    ]);
+    expect(
+      sourceRefsFor('ams-session-selected-defender-choice').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'TWGameManager.assignAMS scopes AMS assignment to missile attacks that hit, then routes target AMS through auto assignment or manual defender choice.',
+      'Entity.assignAMS filters active AMS by firing arc, lets AMS bays or multi-use AMS engage all in-arc attacks, and otherwise assigns one AMS to the highest expected damage salvo.',
+    ]);
+    expect(
+      sourceRefsFor('ams-bay-authoring').map(({ citation }) => citation),
+    ).toEqual([
+      'TWGameManager.assignAMS scopes AMS assignment to missile attacks that hit, then routes target AMS through auto assignment or manual defender choice.',
+      'Entity.assignAMS filters active AMS by firing arc, lets AMS bays or multi-use AMS engage all in-arc attacks, and otherwise assigns one AMS to the highest expected damage salvo.',
+    ]);
+    expect(
+      sourceRefsFor('ams-optional-multi-use-authoring').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'TWGameManager.assignAMS scopes AMS assignment to missile attacks that hit, then routes target AMS through auto assignment or manual defender choice.',
+      'Entity.assignAMS filters active AMS by firing arc, lets AMS bays or multi-use AMS engage all in-arc attacks, and otherwise assigns one AMS to the highest expected damage salvo.',
+      'MissileWeaponHandler decrements AMS ammo, adds AMS heat, marks AMS as used, and branches optional multi-use and PLAYTEST_3 AMS lifecycle rules.',
+    ]);
+    expect(
+      sourceRefsFor('ams-authored-multi-use-lifecycle').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'TWGameManager.assignAMS scopes AMS assignment to missile attacks that hit, then routes target AMS through auto assignment or manual defender choice.',
+      'Entity.assignAMS filters active AMS by firing arc, lets AMS bays or multi-use AMS engage all in-arc attacks, and otherwise assigns one AMS to the highest expected damage salvo.',
+      'MissileWeaponHandler decrements AMS ammo, adds AMS heat, marks AMS as used, and branches optional multi-use and PLAYTEST_3 AMS lifecycle rules.',
+    ]);
+    expect(
+      sourceRefsFor('ams-automatic-interception-assignment').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'TWGameManager.assignAMS scopes AMS assignment to missile attacks that hit, then routes target AMS through auto assignment or manual defender choice.',
+      'Entity.assignAMS filters active AMS by firing arc, lets AMS bays or multi-use AMS engage all in-arc attacks, and otherwise assigns one AMS to the highest expected damage salvo.',
+    ]);
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'ams-automatic-interception-assignment'
+      ].evidence,
+    ).toContain('without requiring manual defender choice');
     expect(
       sourceRefsFor('ams-mounted-arc-enforcement').map(
         ({ citation }) => citation,
@@ -2045,6 +3746,8 @@ describe('BattleMech combat catalog validation lane', () => {
 
     const refs = [
       ...amsFamilyRefs,
+      ...sourceRefsFor('ams-automatic-interception-assignment'),
+      ...sourceRefsFor('ams-authored-multi-use-lifecycle'),
       ...sourceRefsFor('ams-mounted-arc-enforcement'),
       ...sourceRefsFor('ams-mounted-arc-hydration'),
       ...sourceRefsFor('ams-projectile-reduction'),
@@ -2052,6 +3755,11 @@ describe('BattleMech combat catalog validation lane', () => {
       ...sourceRefsFor('ams-single-missile-parity'),
       ...sourceRefsFor('ams-ammo-consumption'),
       ...sourceRefsFor('ams-interception-events'),
+      ...sourceRefsFor('ams-runner-selected-defender-choice'),
+      ...sourceRefsFor('ams-session-selected-defender-choice'),
+      ...sourceRefsFor('ams-manual-defender-choice'),
+      ...sourceRefsFor('ams-bay-authoring'),
+      ...sourceRefsFor('ams-optional-multi-use-authoring'),
     ];
 
     expect(
@@ -2065,6 +3773,67 @@ describe('BattleMech combat catalog validation lane', () => {
           sourceRef.url.includes('#L'),
       ),
     ).toBe(true);
+  });
+
+  it('keeps AMS authoring-only residuals outside the BattleMech matrix when official catalogs do not expose them', () => {
+    const officialEquipmentItems = [
+      ...allWeaponCatalogItems,
+      ...electronicsItems,
+      ...miscellaneousItems,
+    ];
+    const amsBayCatalogItems = officialEquipmentItems.filter((item) =>
+      /\b(?:ams|anti[-\s]?missile)\s*bay\b|amsbay/i.test(itemText(item)),
+    );
+    const multiUseAMSCatalogItems = officialEquipmentItems.filter((item) =>
+      /multi[-\s]?use.*(?:ams|anti[-\s]?missile)|(?:ams|anti[-\s]?missile).*multi[-\s]?use|amsMultiUse/i.test(
+        itemText(item),
+      ),
+    );
+
+    expect(amsBayCatalogItems).toEqual([]);
+    expect(multiUseAMSCatalogItems).toEqual([]);
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-bay-authoring'],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining(
+        'does not expose an AMS bay equipment entry',
+      ),
+      gap: expect.stringContaining(
+        'outside the current BattleMech blocker matrix',
+      ),
+    });
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+        'ams-optional-multi-use-authoring'
+      ],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining(
+        'does not expose a multi-use AMS variant',
+      ),
+      gap: expect.stringContaining(
+        'outside the current BattleMech blocker matrix',
+      ),
+    });
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'featureSupport.specialWeaponMechanics.ams-bay-authoring',
+    );
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'featureSupport.specialWeaponMechanics.ams-optional-multi-use-authoring',
+    );
+    expect(getCombatValidationOutOfScopeRefs()).toContain(
+      'featureSupport.specialWeaponMechanics.ams-bay-authoring',
+    );
+    expect(getCombatValidationOutOfScopeRefs()).toContain(
+      'featureSupport.specialWeaponMechanics.ams-optional-multi-use-authoring',
+    );
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'featureSupport.specialWeaponMechanics.inarc-producer-c3-authoring',
+    );
+    expect(getCombatValidationOutOfScopeRefs()).toContain(
+      'featureSupport.specialWeaponMechanics.inarc-producer-c3-authoring',
+    );
   });
 
   it('pins ECM and active-probe hydration to MegaMek equipment refs', () => {
@@ -2088,12 +3857,25 @@ describe('BattleMech combat catalog validation lane', () => {
       'MiscType defines Beagle, Bloodhound, and Clan active probes with BAP flags.',
       'MiscType defines Light Active Probe with a BAP flag.',
       'MiscType defines Watchdog and Nova CEWS with both ECM and BAP flags.',
-      'Entity.getBAPRange gives Clan Active Probe, Watchdog, and Nova CEWS a 5-hex BAP range.',
+      'Entity.getBAPRange gives Clan Active Probe, Watchdog, and Nova CEWS a 5-hex BAP range and adds +1 range for Eagle Eyes.',
+    ]);
+    expect(
+      sourceRefsFor('artemis-cews-ecm-probe-lifecycle').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      ...sourceRefsFor('artemis-ecm-suite-hydration').map(
+        ({ citation }) => citation,
+      ),
+      ...sourceRefsFor('active-probe-counter-hydration').map(
+        ({ citation }) => citation,
+      ),
     ]);
 
     const refs = [
       ...sourceRefsFor('artemis-ecm-suite-hydration'),
       ...sourceRefsFor('active-probe-counter-hydration'),
+      ...sourceRefsFor('artemis-cews-ecm-probe-lifecycle'),
     ];
 
     expect(
@@ -2121,6 +3903,33 @@ describe('BattleMech combat catalog validation lane', () => {
       'LRMHandler skips Artemis cluster modifiers in indirect mode and applies the same Artemis IV, prototype Artemis IV, Artemis V, ECM, and stealth branches for direct LRM fire.',
     ]);
     expect(
+      sourceRefsFor('artemis-fcs-critical-slot-hydration').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek MiscType.createISArtemisIV defines Artemis IV FCS with F_ARTEMIS.',
+      'MegaMek MiscType.createISProtoArtemis defines Prototype Artemis IV FCS with F_ARTEMIS_PROTO.',
+      'MegaMek MiscType.createISArtemisV defines Artemis V FCS with F_ARTEMIS_V.',
+    ]);
+    expect(
+      sourceRefsFor('artemis-fcs-critical-lifecycle').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      sourceRefsFor('artemis-fcs-critical-slot-hydration').map(
+        ({ citation }) => citation,
+      ),
+    );
+    expect(
+      sourceRefsFor('artemis-explicit-fcs-link-lifecycle').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      sourceRefsFor('artemis-fcs-critical-slot-hydration').map(
+        ({ citation }) => citation,
+      ),
+    );
+    expect(
       sourceRefsFor('artemis-ecm-suppression').map(({ citation }) => citation),
     ).toEqual(
       sourceRefsFor('artemis-cluster-modifier').map(({ citation }) => citation),
@@ -2134,11 +3943,42 @@ describe('BattleMech combat catalog validation lane', () => {
       'LRMHandler skips Artemis cluster modifiers in indirect mode and applies the same Artemis IV, prototype Artemis IV, Artemis V, ECM, and stealth branches for direct LRM fire.',
       'Mek.isStealthActive requires stealth equipment mode On and active ECM support.',
     ]);
+    expect(
+      sourceRefsFor('plasma-cannon-battlemech-target-heat').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'CLPlasmaCannon declares variable damage, heat 7, plasma/energy flags, plasma ammunition, and routes attacks to PlasmaCannonHandler.',
+      'MegaMek plasma rifle and Clan plasma cannon ammunition rows use AmmoTypeEnum.PLASMA, ten shots per ton, and non-explosive ammo state.',
+      'PlasmaCannonHandler applies external target heat on heat-tracking entities, including reflective, heat-dissipating, and PLAYTEST_3 armor-specific adjustments.',
+      'MegaMek HeatResolver caps external heat at the configured/default 15 points before adding heat buildup.',
+    ]);
+    expect(
+      sourceRefsFor('plasma-cannon-battlemech-target-heat').map(
+        ({ citation }) => citation,
+      ),
+    ).not.toContain(
+      'PlasmaCannonHandler keeps plasma-cannon BattleMech damage at zero while applying non-Mek/terrain/building special damage paths.',
+    );
+    expect(
+      sourceRefsFor('plasma-cannon-battlemech-heat-phase-pending-bucket').map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      sourceRefsFor('plasma-cannon-battlemech-target-heat').map(
+        ({ citation }) => citation,
+      ),
+    );
 
     const refs = [
       ...sourceRefsFor('artemis-cluster-modifier'),
+      ...sourceRefsFor('artemis-explicit-fcs-link-lifecycle'),
+      ...sourceRefsFor('artemis-fcs-critical-lifecycle'),
+      ...sourceRefsFor('artemis-fcs-critical-slot-hydration'),
       ...sourceRefsFor('artemis-ecm-suppression'),
       ...sourceRefsFor('artemis-stealth-suppression'),
+      ...sourceRefsFor('plasma-cannon-battlemech-target-heat'),
+      ...sourceRefsFor('plasma-cannon-battlemech-heat-phase-pending-bucket'),
     ];
 
     expect(
@@ -2181,20 +4021,41 @@ describe('BattleMech combat feature-gap tracking', () => {
       ),
     ).toHaveLength(0);
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.tm_nightwalker).toMatchObject({
-      level: 'unsupported',
-      evidence: expect.stringContaining('lighting-condition movement'),
-      gap: expect.stringContaining('Nightwalker movement penalties'),
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'represented environmental light state',
+      ),
     });
     expect(
-      Object.values(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT).filter(
-        (entry) => entry.level === 'unsupported',
-      ).length,
-    ).toBeGreaterThan(0);
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.tm_nightwalker.evidence,
+    ).toContain('prohibits run-derived');
     expect(
-      Object.values(QUIRK_COMBAT_SUPPORT).filter(
-        (entry) => entry.level === 'helper-only',
-      ).length,
-    ).toBeGreaterThan(0);
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.tm_nightwalker.evidence,
+    ).toContain('airborne LAM');
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.tm_nightwalker.gap,
+    ).toBeUndefined();
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.tm_nightwalker.evidence,
+    ).toContain('no Nightwalker to-hit modifier is claimed');
+    expect(
+      supportIdsByLevel(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT, 'unsupported'),
+    ).toEqual([]);
+    expect(supportIdsByLevel(QUIRK_COMBAT_SUPPORT, 'helper-only')).toEqual([]);
+    expect(QUIRK_COMBAT_SUPPORT.distracting).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'accepted MekStation local +1 target to-hit deviation',
+      ),
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'legacy-defensive-quirk-to-hit-application'
+      ],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      gap: expect.stringContaining('deviation-only'),
+    });
   });
 
   it('mirrors the canonical SPA catalog into explicit combat scope support', () => {
@@ -2210,8 +4071,173 @@ describe('BattleMech combat feature-gap tracking', () => {
       'integrated',
     );
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.oblique_artillery.level).toBe(
-      'helper-only',
+      'out-of-scope',
     );
+    expect(
+      Object.fromEntries(
+        [
+          'eagle_eyes',
+          'env_specialist',
+          'golden_goose',
+          'human_tro',
+          'oblique_artillery',
+          'dermal_armor',
+          'vdni',
+          'boost_comm_implant',
+          'tsm_implant',
+          'pl_enhanced',
+          'cyber_imp_laser',
+          'gas_effuser_toxin',
+          'suicide_implants',
+          'zweihander',
+        ].map((spaId) => {
+          const support = CANONICAL_SPA_COMBAT_SCOPE_SUPPORT[spaId];
+          return [
+            spaId,
+            {
+              level: support.level,
+              evidence: support.evidence,
+              gap: support.gap,
+              sourceRefCount: support.sourceRefs?.length ?? 0,
+            },
+          ];
+        }),
+      ),
+    ).toEqual({
+      eagle_eyes: {
+        level: 'integrated',
+        evidence: expect.stringContaining('detonation target-number relief'),
+        gap: undefined,
+        sourceRefCount: expect.any(Number),
+      },
+      env_specialist: {
+        level: 'integrated',
+        evidence: expect.stringContaining('source-backed runtime branches'),
+        gap: undefined,
+        sourceRefCount: expect.any(Number),
+      },
+      golden_goose: {
+        level: 'out-of-scope',
+        evidence: expect.stringContaining('bombing to-hit and scatter'),
+        gap: expect.stringContaining('aerospace/bombing validation matrix'),
+        sourceRefCount: expect.any(Number),
+      },
+      human_tro: {
+        level: 'out-of-scope',
+        evidence: expect.stringContaining('battle armor leg-attack helpers'),
+        gap: expect.stringContaining('BattleMech pilot combat SPA hydration'),
+        sourceRefCount: expect.any(Number),
+      },
+      oblique_artillery: {
+        level: 'out-of-scope',
+        evidence: expect.stringContaining('reduced artillery scatter'),
+        gap: expect.stringContaining('artillery/scatter validation matrix'),
+        sourceRefCount: expect.any(Number),
+      },
+      dermal_armor: {
+        level: 'integrated',
+        evidence: expect.stringContaining('entity fall pilot-damage immunity'),
+        gap: undefined,
+        sourceRefCount: expect.any(Number),
+      },
+      vdni: {
+        level: 'integrated',
+        evidence: expect.stringContaining('NeuralInterfaceStateChanged'),
+        gap: undefined,
+        sourceRefCount: expect.any(Number),
+      },
+      boost_comm_implant: {
+        level: 'integrated',
+        evidence: expect.stringContaining(
+          'represented BattleMech C3i network state',
+        ),
+        gap: undefined,
+        sourceRefCount: expect.any(Number),
+      },
+      tsm_implant: {
+        level: 'integrated',
+        evidence: expect.stringContaining('entity fall pilot-damage immunity'),
+        gap: undefined,
+        sourceRefCount: expect.any(Number),
+      },
+      pl_enhanced: {
+        level: 'out-of-scope',
+        evidence: expect.stringContaining('personnel equipment'),
+        gap: expect.stringContaining('infantry/personnel'),
+        sourceRefCount: expect.any(Number),
+      },
+      cyber_imp_laser: {
+        level: 'out-of-scope',
+        evidence: expect.stringContaining('personnel equipment'),
+        gap: expect.stringContaining('infantry/personnel'),
+        sourceRefCount: expect.any(Number),
+      },
+      gas_effuser_toxin: {
+        level: 'out-of-scope',
+        evidence: expect.stringContaining('personnel equipment'),
+        gap: expect.stringContaining('infantry/personnel'),
+        sourceRefCount: expect.any(Number),
+      },
+      suicide_implants: {
+        level: 'out-of-scope',
+        evidence: expect.stringContaining('personnel equipment'),
+        gap: expect.stringContaining('campaign-capture validation matrix'),
+        sourceRefCount: expect.any(Number),
+      },
+      zweihander: {
+        level: 'integrated',
+        evidence: expect.stringContaining(
+          'every official standalone physical-weapon declaration',
+        ),
+        gap: undefined,
+        sourceRefCount: expect.any(Number),
+      },
+    });
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.zweihander.evidence).toContain(
+      'represented self-critical side effects',
+    );
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.zweihander.gap).toBeUndefined();
+    for (const spaId of [
+      'eagle_eyes',
+      'env_specialist',
+      'golden_goose',
+      'human_tro',
+      'oblique_artillery',
+      'dermal_armor',
+      'vdni',
+      'boost_comm_implant',
+      'tsm_implant',
+      'pl_enhanced',
+      'cyber_imp_laser',
+      'gas_effuser_toxin',
+      'suicide_implants',
+      'zweihander',
+    ]) {
+      const support = CANONICAL_SPA_COMBAT_SCOPE_SUPPORT[spaId];
+      if (support.gap !== undefined) {
+        expect(support.gap).not.toContain(
+          'No combat support entry or resolver consumes this canonical SPA id yet',
+        );
+      }
+      expect(support.sourceRefs?.length ?? 0).toBeGreaterThan(0);
+    }
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'eagle-eyes-active-probe-range-application'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'represented active-probe ECM-counter range slice',
+      ),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          citation: expect.stringContaining(
+            'adds a +1 active-probe range bonus',
+          ),
+        }),
+      ]),
+    });
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.aptitude_gunnery).toMatchObject({
       level: 'out-of-scope',
       gap: expect.stringContaining('ATOW/origin-level'),
@@ -2228,22 +4254,22 @@ describe('BattleMech combat feature-gap tracking', () => {
       'out-of-scope',
     );
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_headhit).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('edge_when_headhit'),
+      level: 'integrated',
+      evidence: expect.stringContaining('hit-location'),
     });
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_tac).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('edge_when_tac'),
+      level: 'integrated',
+      evidence: expect.stringContaining('TAC hit-location'),
     });
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_ko).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('edge_when_ko'),
+      level: 'integrated',
+      evidence: expect.stringContaining('resolvePilotConsciousnessCheck'),
     });
     expect(
       CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_explosion,
     ).toMatchObject({
-      level: 'unsupported',
-      gap: expect.stringContaining('edge_when_explosion'),
+      level: 'integrated',
+      evidence: expect.stringContaining('resolveCriticalHits'),
     });
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_masc_fails.level).toBe(
       'integrated',
@@ -2256,15 +4282,82 @@ describe('BattleMech combat feature-gap tracking', () => {
       evidence: expect.stringContaining('quad Mek PSRs'),
     });
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.sandblaster).toMatchObject({
-      level: 'helper-only',
-      gap: expect.stringContaining('UAC/RAC'),
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'official ordinary AC rapid-fire modes',
+      ),
     });
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.sandblaster.gap).toBeUndefined();
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'pilotSkills.pilotModifierResolvers.sandblaster-tacops-rapid-fire-application',
+    );
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'dermal-armor-head-hit-pilot-damage-suppression'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('dermal_armor'),
+    });
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'pilotSkills.pilotModifierResolvers.dermal-armor-head-hit-pilot-damage-suppression',
+    );
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'dfa-miss-bioware-pilot-damage-avoidance'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('dermal_armor and tsm_implant'),
+    });
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'pilotSkills.pilotModifierResolvers.dfa-miss-bioware-pilot-damage-avoidance',
+    );
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'pilotSkills.pilotModifierResolvers.env-specialist-snow-ranged-to-hit-application',
+    );
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'pilotSkills.pilotModifierResolvers.env-specialist-wind-ranged-to-hit-application',
+    );
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'pilotSkills.pilotModifierResolvers.zweihander-punch-physical-application',
+    );
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.dermal_armor',
+    );
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.tsm_implant',
+    );
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.comm_implant',
+    );
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.boost_comm_implant',
+    );
+    expect(getCombatValidationUnresolvedRefs()).not.toContain(
+      'featureSupport.canonicalPilotAbilityScope.proto_dni',
+    );
+    expect(getCombatValidationOutOfScopeRefs()).not.toEqual(
+      expect.arrayContaining([
+        'featureSupport.canonicalPilotAbilityScope.boost_comm_implant',
+        'featureSupport.canonicalPilotAbilityScope.comm_implant',
+        'featureSupport.canonicalPilotAbilityScope.proto_dni',
+      ]),
+    );
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.cluster_master.level).toBe(
       'out-of-scope',
     );
     expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.shaky_stick).toMatchObject({
       level: 'integrated',
       evidence: expect.stringContaining('ground-to-air'),
+    });
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.artificial_pain_shunt,
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'BattleMech ammunition-explosion pilot damage',
+      ),
     });
     const shakyStickRefs =
       CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.shaky_stick.sourceRefs ?? [];
@@ -2340,7 +4433,60 @@ describe('BattleMech combat feature-gap tracking', () => {
       expect.arrayContaining([
         'MegaMek TWGameManager consumes EDGE_WHEN_MASC_FAILS to reroll failed MASC checks, spends Edge, and suppresses failure processing when the reroll passes.',
         'MekStation psrEdgeRerolls consumes edge_when_masc_fails to reroll failed MASCFailure and SuperchargerFailure PSRs before applying fall or booster-failure aftermath.',
-        'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks non-MASC Mek Edge triggers unsupported, marks MASC/Supercharger reroll consumption integrated, and splits Aero Edge triggers out-of-scope.',
+        'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks proven Mek Edge triggers integrated row-by-row, keeps aggregate Edge helper rows separate, and splits Aero Edge triggers out-of-scope.',
+      ]),
+    );
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.artificial_pain_shunt.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        'MegaMek TWGameManager suppresses BattleMech ammunition-explosion crew hits when the pilot has Artificial Pain Shunt.',
+        'MekStation resolveBattleMechAmmoExplosionPilotDamage returns zero for artificial_pain_shunt before applying Pain Resistance, Iron Man, or CASE relief.',
+        'MekStation applyAmmoExplosionPilotDamage routes heat-induced and critical-induced ammo explosions through the shared pilot-damage resolver and emits no PilotHit when the resolver returns zero wounds.',
+        'MekStation heat event coverage proves artificial_pain_shunt suppresses HeatInduced ammo-explosion PilotHit emission and leaves pilot wounds unchanged.',
+        'MekStation bioware SPA table defines Manei Domini neural, comm, dermal, myomer, sensory, prosthetic, gas-effuser, proto-DNI, and suicide-implant rows; canonicalPilotAbilityScope keeps unresolved BattleMech-relevant source-boundary rows as explicit unsupported gaps and splits infantry/personnel-only implant rows out of the BattleMech matrix.',
+      ]),
+    );
+    for (const spaId of ['dermal_armor', 'tsm_implant'] as const) {
+      expect(
+        CANONICAL_SPA_COMBAT_SCOPE_SUPPORT[spaId].sourceRefs?.map(
+          ({ citation }) => citation,
+        ),
+      ).toEqual(
+        expect.arrayContaining([
+          'MekStation resolveDfaMissFallPilotDamageAvoidance consumes dermal_armor and tsm_implant pilot ability ids as missed-DFA fall pilot-damage immunity only.',
+          'MekStation physical attack helper coverage proves dermal_armor and tsm_implant suppress missed-DFA fall pilot damage without rolling a pilot-damage avoidance check.',
+          'MekStation event-sourced physical combat coverage proves a passed missed-DFA fall pilot-damage avoidance emits UnitFell without PilotHit or pilot wounds.',
+          'MekStation bioware SPA table defines Manei Domini neural, comm, dermal, myomer, sensory, prosthetic, gas-effuser, proto-DNI, and suicide-implant rows; canonicalPilotAbilityScope keeps unresolved BattleMech-relevant source-boundary rows as explicit unsupported gaps and splits infantry/personnel-only implant rows out of the BattleMech matrix.',
+        ]),
+      );
+    }
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_headhit.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        'MegaMek Mek hit-location resolution consumes Edge for TAC and head-hit rerolls when the corresponding trigger option is enabled.',
+        'MekStation hit-location resolution selects edge_when_headhit for BattleMech head hits, spends represented Edge, and returns superseded/final location metadata.',
+        'MekStation resolveWeaponHit passes target Edge state into hit-location resolution, persists remaining Edge points, and emits Edge reroll metadata on AttackResolved.',
+        'MekStation runner weapon-hit tests prove edge_when_headhit replaces a head hit, spends target Edge, preserves the head armor, and damages the replacement location.',
+        'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks proven Mek Edge triggers integrated row-by-row, keeps aggregate Edge helper rows separate, and splits Aero Edge triggers out-of-scope.',
+      ]),
+    );
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_tac.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        'MegaMek Mek hit-location resolution consumes Edge for TAC and head-hit rerolls when the corresponding trigger option is enabled.',
+        'MekStation hit-location resolution selects edge_when_tac for BattleMech natural-2 hit-location rolls, spends represented Edge, and returns superseded/final location metadata.',
+        'MekStation resolveWeaponHit emits Edge reroll metadata before critical-hit processing so edge_when_tac can replace the TAC location before damage resolution.',
+        'MekStation runner weapon-hit tests prove edge_when_tac replaces a TAC hit-location result before damage, spends target Edge, and damages the replacement location.',
+        'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks proven Mek Edge triggers integrated row-by-row, keeps aggregate Edge helper rows separate, and splits Aero Edge triggers out-of-scope.',
       ]),
     );
     expect(
@@ -2350,8 +4496,22 @@ describe('BattleMech combat feature-gap tracking', () => {
     ).toEqual(
       expect.arrayContaining([
         'MegaMek TWGameManager consumes EDGE_WHEN_KO to reroll failed BattleMech crew knockout checks while Edge remains available.',
-        'MekStation EDGE_TRIGGERS mirrors the known Edge trigger ids and createEdgeState/canUseEdge/useEdge model generic trigger point consumption.',
-        'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks non-MASC Mek Edge triggers unsupported, marks MASC/Supercharger reroll consumption integrated, and splits Aero Edge triggers out-of-scope.',
+        'MekStation EDGE_TRIGGERS mirrors the known Edge trigger ids, partitions represented BattleMech triggers from out-of-scope aerospace triggers, deriveEdgePointCountFromPilotAbilities models the generic Edge point producer, and createEdgeState/canUseEdge/useEdge model trigger point consumption.',
+        'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks proven Mek Edge triggers integrated row-by-row, keeps aggregate Edge helper rows separate, and splits Aero Edge triggers out-of-scope.',
+      ]),
+    );
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.edge_when_explosion.sourceRefs?.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        'MegaMek TWGameManager consumes EDGE_WHEN_EXPLOSION to reroll explosive equipment critical slots when another hittable critical slot exists.',
+        'MekStation critical-slot selection consumes edge_when_explosion to spend represented Edge and redirect explosive ammo critical-slot hits when another hittable slot exists.',
+        'MekStation critical-hit resolution carries remaining Edge points through repeated critical-slot selection and returns the final Edge total to callers.',
+        'MekStation critical-hit tests prove edge_when_explosion avoids an ammo critical when another slot is hittable and does not spend Edge without the trigger or alternate slot.',
+        'MekStation runner critical-hit event tests prove edge_when_explosion avoids a crit-induced ammo explosion through resolveWeaponHit.',
+        'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks proven Mek Edge triggers integrated row-by-row, keeps aggregate Edge helper rows separate, and splits Aero Edge triggers out-of-scope.',
       ]),
     );
   });
@@ -2405,8 +4565,11 @@ describe('BattleMech combat feature-gap tracking', () => {
       .map((entry) => entry.id)
       .sort();
 
-    expect(integrated).toEqual(
-      [...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES, 'claws', 'talons'].sort(),
+    expect(integrated).toEqual(ids(physicalWeaponItems));
+    expect([...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES].sort()).toEqual(
+      ids(physicalWeaponItems).filter(
+        (id) => id !== 'claws' && id !== 'talons',
+      ),
     );
     expect(
       Object.values(PHYSICAL_WEAPON_COMBAT_SUPPORT)
@@ -2416,6 +4579,40 @@ describe('BattleMech combat feature-gap tracking', () => {
         ),
     ).toEqual([]);
     expect(helperOnly).toEqual([]);
+    expect(
+      physicalWeaponItems
+        .filter((item) => item.id === 'claws' || item.id === 'talons')
+        .map((item) => ({
+          id: item.id,
+          name: item.name,
+          type: item.type,
+          evidence:
+            PHYSICAL_WEAPON_COMBAT_SUPPORT[item.id as 'claws' | 'talons']
+              .evidence,
+          level:
+            PHYSICAL_WEAPON_COMBAT_SUPPORT[item.id as 'claws' | 'talons'].level,
+        }))
+        .sort((left, right) => String(left.id).localeCompare(String(right.id))),
+    ).toEqual([
+      {
+        id: 'claws',
+        name: 'Claws',
+        type: 'Claws',
+        evidence: expect.stringContaining(
+          'not as a standalone runtime PhysicalAttackType',
+        ),
+        level: 'integrated',
+      },
+      {
+        id: 'talons',
+        name: 'Talons',
+        type: 'Talons',
+        evidence: expect.stringContaining(
+          'not as a standalone runtime PhysicalAttackType',
+        ),
+        level: 'integrated',
+      },
+    ]);
     expect(unsupported).toEqual([]);
   });
 
@@ -2473,6 +4670,10 @@ describe('BattleMech combat feature-gap tracking', () => {
       'attacker-movement',
       'attacker-prone',
       'c3',
+      'c3-equipment-conservative-network-seeding',
+      'c3-equipment-denial-boundaries',
+      'c3-equipment-independent-side-formation',
+      'c3-equipment-unambiguous-network-formation',
       'called-shot',
       'ecm',
       'environmental-conditions',
@@ -2496,7 +4697,11 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['c3-equipment-network-formation']);
+    ).toEqual([]);
+    expect(
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['c3-equipment-network-formation']
+        .level,
+    ).toBe('out-of-scope');
   });
 
   it('pins source-backed to-hit modifiers to MegaMek refs', () => {
@@ -2539,6 +4744,21 @@ describe('BattleMech combat feature-gap tracking', () => {
     const calledShotRefs =
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['called-shot'].sourceRefs ?? [];
     const c3Refs = RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT.c3.sourceRefs ?? [];
+    const c3EquipmentConservativeNetworkSeedingRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT[
+        'c3-equipment-conservative-network-seeding'
+      ].sourceRefs ?? [];
+    const c3EquipmentUnambiguousNetworkFormationRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT[
+        'c3-equipment-unambiguous-network-formation'
+      ].sourceRefs ?? [];
+    const c3EquipmentDenialBoundaryRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['c3-equipment-denial-boundaries']
+        .sourceRefs ?? [];
+    const c3EquipmentIndependentSideFormationRefs =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT[
+        'c3-equipment-independent-side-formation'
+      ].sourceRefs ?? [];
     const c3EquipmentFormationRefs =
       RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['c3-equipment-network-formation']
         .sourceRefs ?? [];
@@ -2605,6 +4825,60 @@ describe('BattleMech combat feature-gap tracking', () => {
       'MegaMek ComputeC3Spotter rejects shutdown/off-board C3 attackers and shutdown/off-board/transported C3 spotters before range sharing.',
       'MegaMek Entity.hasC3M, hasC3S, and hasC3i require mounted C3 equipment to be non-inoperable before C3 can be used.',
     ]);
+    expect(
+      c3EquipmentConservativeNetworkSeedingRefs.map(({ citation }) => citation),
+    ).toEqual([
+      'MegaMek Compute.getRangeMods asks ComputeC3Spotter for a valid spotter and applies the best C3 range bracket when it improves the attack range.',
+      'MegaMek ComputeC3Spotter returns the first ECM-connected C3 spotter without LOS gating under default rules, while PLAYTEST_3 adds spotter LOS gating.',
+      'MegaMek ComputeC3Spotter rejects shutdown/off-board C3 attackers and shutdown/off-board/transported C3 spotters before range sharing.',
+      'MegaMek Entity.hasC3M, hasC3S, and hasC3i require mounted C3 equipment to be non-inoperable before C3 can be used.',
+      'MegaMek Entity.hasC3M detects C3 master and boosted master weapon flags while Entity.hasC3S detects C3 slave and boosted slave misc flags.',
+      'MegaMek Entity.hasC3i detects non-inoperable misc equipment carrying the C3i flag.',
+      'MegaMek C3 Master weapon defines standard master lookup names and the C3 master flag.',
+      'MegaMek boosted C3 Master weapon defines boosted master lookup names and the boosted C3 master flag.',
+      'MegaMek MiscType creates C3 Slave, C3i, Boosted Slave, and Battle Armor C3 variants with distinct Mek versus BA equipment flags.',
+    ]);
+    expect(
+      c3EquipmentUnambiguousNetworkFormationRefs.map(
+        ({ citation }) => citation,
+      ),
+    ).toEqual([
+      'MegaMek Compute.getRangeMods asks ComputeC3Spotter for a valid spotter and applies the best C3 range bracket when it improves the attack range.',
+      'MegaMek ComputeC3Spotter returns the first ECM-connected C3 spotter without LOS gating under default rules, while PLAYTEST_3 adds spotter LOS gating.',
+      'MegaMek ComputeC3Spotter rejects shutdown/off-board C3 attackers and shutdown/off-board/transported C3 spotters before range sharing.',
+      'MegaMek Entity.hasC3M, hasC3S, and hasC3i require mounted C3 equipment to be non-inoperable before C3 can be used.',
+      'MegaMek Entity.hasC3M detects C3 master and boosted master weapon flags while Entity.hasC3S detects C3 slave and boosted slave misc flags.',
+      'MegaMek Entity.hasC3i detects non-inoperable misc equipment carrying the C3i flag.',
+      'MegaMek C3 Master weapon defines standard master lookup names and the C3 master flag.',
+      'MegaMek boosted C3 Master weapon defines boosted master lookup names and the boosted C3 master flag.',
+      'MegaMek MiscType creates C3 Slave, C3i, Boosted Slave, and Battle Armor C3 variants with distinct Mek versus BA equipment flags.',
+    ]);
+    expect(
+      c3EquipmentDenialBoundaryRefs.map(({ citation }) => citation),
+    ).toEqual([
+      'MegaMek Compute.getRangeMods asks ComputeC3Spotter for a valid spotter and applies the best C3 range bracket when it improves the attack range.',
+      'MegaMek ComputeC3Spotter returns the first ECM-connected C3 spotter without LOS gating under default rules, while PLAYTEST_3 adds spotter LOS gating.',
+      'MegaMek ComputeC3Spotter rejects shutdown/off-board C3 attackers and shutdown/off-board/transported C3 spotters before range sharing.',
+      'MegaMek Entity.hasC3M, hasC3S, and hasC3i require mounted C3 equipment to be non-inoperable before C3 can be used.',
+      'MegaMek Entity.hasC3M detects C3 master and boosted master weapon flags while Entity.hasC3S detects C3 slave and boosted slave misc flags.',
+      'MegaMek Entity.hasC3i detects non-inoperable misc equipment carrying the C3i flag.',
+      'MegaMek C3 Master weapon defines standard master lookup names and the C3 master flag.',
+      'MegaMek boosted C3 Master weapon defines boosted master lookup names and the boosted C3 master flag.',
+      'MegaMek MiscType creates C3 Slave, C3i, Boosted Slave, and Battle Armor C3 variants with distinct Mek versus BA equipment flags.',
+    ]);
+    expect(
+      c3EquipmentIndependentSideFormationRefs.map(({ citation }) => citation),
+    ).toEqual([
+      'MegaMek Compute.getRangeMods asks ComputeC3Spotter for a valid spotter and applies the best C3 range bracket when it improves the attack range.',
+      'MegaMek ComputeC3Spotter returns the first ECM-connected C3 spotter without LOS gating under default rules, while PLAYTEST_3 adds spotter LOS gating.',
+      'MegaMek ComputeC3Spotter rejects shutdown/off-board C3 attackers and shutdown/off-board/transported C3 spotters before range sharing.',
+      'MegaMek Entity.hasC3M, hasC3S, and hasC3i require mounted C3 equipment to be non-inoperable before C3 can be used.',
+      'MegaMek Entity.hasC3M detects C3 master and boosted master weapon flags while Entity.hasC3S detects C3 slave and boosted slave misc flags.',
+      'MegaMek Entity.hasC3i detects non-inoperable misc equipment carrying the C3i flag.',
+      'MegaMek C3 Master weapon defines standard master lookup names and the C3 master flag.',
+      'MegaMek boosted C3 Master weapon defines boosted master lookup names and the boosted C3 master flag.',
+      'MegaMek MiscType creates C3 Slave, C3i, Boosted Slave, and Battle Armor C3 variants with distinct Mek versus BA equipment flags.',
+    ]);
     expect(c3EquipmentFormationRefs.map(({ citation }) => citation)).toEqual([
       'MegaMek Compute.getRangeMods asks ComputeC3Spotter for a valid spotter and applies the best C3 range bracket when it improves the attack range.',
       'MegaMek ComputeC3Spotter returns the first ECM-connected C3 spotter without LOS gating under default rules, while PLAYTEST_3 adds spotter LOS gating.',
@@ -2637,15 +4911,58 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(supportGaps(PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT, 'integrated'),
-    ).toEqual(['claws', 'talons', 'tsm', 'underwater']);
+    ).toEqual([
+      'claw-physical-critical-production',
+      'claw-represented-equipment-cleanup',
+      'claw-source-mount-missing-breached-cleanup',
+      'claws',
+      'talon-physical-critical-production',
+      'talon-represented-equipment-cleanup',
+      'talon-source-mount-missing-breached-cleanup',
+      'talons',
+      'tsm',
+      'underwater',
+    ]);
     expect(
       supportIdsByLevel(PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT, 'helper-only'),
+    ).toEqual([]);
+    expect(
+      supportIdsByLevel(
+        PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT,
+        'out-of-scope',
+      ),
     ).toEqual(['claw-equipment-lifecycle', 'talon-equipment-lifecycle']);
+    expect(
+      PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT['claw-equipment-lifecycle'],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining(
+        'Represented runtime claw lifecycle paths are covered',
+      ),
+      gap: expect.stringContaining(
+        'must not be used as evidence that broad automatic lifecycle producer behavior is integrated',
+      ),
+    });
+    expect(
+      PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT['talon-equipment-lifecycle'],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining(
+        'Represented runtime talon lifecycle paths are covered',
+      ),
+      gap: expect.stringContaining(
+        'must not be used as evidence that broad automatic lifecycle producer behavior is integrated',
+      ),
+    });
   });
 
   it('pins physical damage modifier rows to MegaMek source refs', () => {
     Object.values(PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT).forEach((entry) => {
-      expectPinnedMegaMekRefs(entry.sourceRefs ?? []);
+      expectPinnedMegaMekRefs(
+        (entry.sourceRefs ?? []).filter(
+          (sourceRef) => sourceRef.kind === 'megamek-source',
+        ),
+      );
     });
 
     expect(
@@ -2697,6 +5014,10 @@ describe('BattleMech combat feature-gap tracking', () => {
     ).toEqual([
       'elevation',
       'facing',
+      'go-prone-battlemech-swarmer-dislodgement',
+      'go-prone-enemy-occupied-start-follow-up-block',
+      'go-prone-hull-down-zero-mp-transition',
+      'go-prone-side-paths',
       'heat-mp-penalty',
       'jump',
       'occupancy',
@@ -2708,7 +5029,87 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(MOVEMENT_RULE_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['go-prone-side-paths']);
+    ).toEqual([]);
+    expect(
+      MOVEMENT_RULE_COMBAT_SUPPORT['go-prone-battlemech-swarmer-dislodgement'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'emits replayable SwarmDismounted events',
+      ),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          citation: expect.stringContaining('go_prone_dislodgement'),
+        }),
+        expect.objectContaining({
+          citation: expect.stringContaining('clearGoProneSwarmers'),
+        }),
+        expect.objectContaining({
+          citation: expect.stringContaining('applySwarmDismounted'),
+        }),
+      ]),
+    });
+    expect(
+      MOVEMENT_RULE_COMBAT_SUPPORT['go-prone-hull-down-zero-mp-transition'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('clears hull-down posture'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          citation: expect.stringContaining('GoProneStep'),
+        }),
+        expect.objectContaining({
+          citation: expect.stringContaining('getGoProneMpCost'),
+        }),
+        expect.objectContaining({
+          citation: expect.stringContaining('applyMovementEvent'),
+        }),
+      ]),
+    });
+    expect(
+      MOVEMENT_RULE_COMBAT_SUPPORT[
+        'go-prone-enemy-occupied-start-follow-up-block'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'same-hex GO_PRONE posture remains legal',
+      ),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          citation: expect.stringContaining(
+            'restricting follow-up moves after leaving and returning',
+          ),
+        }),
+        expect.objectContaining({
+          citation: expect.stringContaining('validateMovement rejects'),
+        }),
+        expect.objectContaining({
+          citation: expect.stringContaining(
+            'deriveMovementRangeHexForDestination',
+          ),
+        }),
+      ]),
+    });
+    expect(
+      MOVEMENT_RULE_COMBAT_SUPPORT['go-prone-side-paths'].evidence,
+    ).toContain('represented BattleMech swarmer dislodgement is integrated');
+    expect(
+      MOVEMENT_RULE_COMBAT_SUPPORT['go-prone-side-paths'].evidence,
+    ).toContain('hull-down zero-MP posture transition is integrated');
+    expect(
+      MOVEMENT_RULE_COMBAT_SUPPORT['go-prone-side-paths'].evidence,
+    ).toContain('go-prone-enemy-occupied-start-follow-up-block');
+    expect(
+      MOVEMENT_RULE_COMBAT_SUPPORT['go-prone-side-paths'].evidence,
+    ).toContain('infernoBurning state');
+    expect(
+      MOVEMENT_RULE_COMBAT_SUPPORT['go-prone-side-paths'].gap,
+    ).toBeUndefined();
+    for (const sourcePath of ['src/types/gameplay/GameSessionStateTypes.ts']) {
+      const stateText = readFileSync(join(process.cwd(), sourcePath), 'utf8');
+      expect(stateText).toMatch(/\binfernoBurning\b/);
+    }
     expect(
       MOVEMENT_RULE_COMBAT_SUPPORT['torso-twist'].sourceRefs?.map(
         (sourceRef) => sourceRef.citation,
@@ -2732,7 +5133,11 @@ describe('BattleMech combat feature-gap tracking', () => {
     ).toEqual([]);
     Object.values(MOVEMENT_RULE_COMBAT_SUPPORT).forEach((entry) => {
       if (entry.level !== 'unsupported') {
-        expectPinnedMegaMekRefs(entry.sourceRefs ?? []);
+        expectPinnedMegaMekRefs(
+          (entry.sourceRefs ?? []).filter(
+            (sourceRef) => sourceRef.kind === 'megamek-source',
+          ),
+        );
       }
     });
     expect(
@@ -2767,7 +5172,10 @@ describe('BattleMech combat feature-gap tracking', () => {
     expect(sortedKeys(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT)).toEqual(
       [
         ...movementEnhancementDefinitionTypes,
+        'masc-battlemech-represented-side-paths',
         'masc-side-paths',
+        'supercharger-battlemech-represented-side-paths',
+        'supercharger-non-battlemech-side-paths',
         'supercharger-side-paths',
       ].sort(),
     );
@@ -2780,13 +5188,40 @@ describe('BattleMech combat feature-gap tracking', () => {
         MovementEnhancementType.PARTIAL_WING,
         MovementEnhancementType.SUPERCHARGER,
         MovementEnhancementType.TSM,
+        'masc-battlemech-represented-side-paths',
+        'masc-side-paths',
+        'supercharger-battlemech-represented-side-paths',
+        'supercharger-side-paths',
       ].sort(),
     );
     expect(
       supportIdsByLevel(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['masc-side-paths', 'supercharger-side-paths']);
+    ).toEqual([]);
+    expect(
+      supportIdsByLevel(MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT, 'out-of-scope'),
+    ).toEqual(['supercharger-non-battlemech-side-paths']);
+    expect(
+      MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT[
+        'supercharger-non-battlemech-side-paths'
+      ],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining('Tank, SupportTank, SupportVTOL'),
+      gap: expect.stringContaining('outside this BattleMech suite'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          citation: expect.stringContaining('SupportTank'),
+          kind: 'megamek-source',
+        }),
+        expect.objectContaining({
+          citation: expect.stringContaining('non-Mek Supercharger failure'),
+          kind: 'megamek-source',
+        }),
+      ]),
+    });
 
-    expect(TERRAIN_TYPE_MOVEMENT_COVERAGE).toHaveLength(17);
+    expect(TERRAIN_TYPE_MOVEMENT_COVERAGE).toHaveLength(20);
+    expect(TERRAIN_TYPE_MOVEMENT_COVERAGE).toContain('mines');
     expect(supportGaps(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'integrated'),
@@ -2796,9 +5231,52 @@ describe('BattleMech combat feature-gap tracking', () => {
       'extreme-temperature',
       'fire-heat',
       'fog',
+      'minefield-active-non-ground-triggers',
+      'minefield-campaign-placement-authoring',
+      'minefield-clearing-sweeper-collateral-reset',
+      'minefield-emp-effects',
+      'minefield-hidden-reveal-detection',
+      'minefield-inferno-residual-controls',
+      'minefield-non-conventional-type-semantics',
+      'minefield-represented-active-ground-suppression',
+      'minefield-represented-command-detonation',
+      'minefield-represented-conventional-detonated-state',
+      'minefield-represented-coordinate-state-entry-damage',
+      'minefield-represented-coordinate-state-lifecycle',
+      'minefield-represented-density-reduction',
+      'minefield-represented-density-trigger-target',
+      'minefield-represented-encoded-damage-levels',
+      'minefield-represented-entry-side-paths',
+      'minefield-represented-inferno-entry-heat',
+      'minefield-represented-manual-conventional-detonation',
+      'minefield-represented-movement-detonation-event',
+      'minefield-represented-non-conventional-type-guard',
+      'minefield-represented-vibrabomb-effects',
+      'minefield-variant-side-paths',
+      'mines',
       'night',
       'smoke-to-hit',
       'terrain-los-blocking',
+      'terrain-los-building-height-blocking',
+      'terrain-los-damageable-cover-hit-resolution-routing',
+      'terrain-los-divided-elevation-blocking',
+      'terrain-los-divided-side-path-blocking',
+      'terrain-los-fuel-tank-damageable-cover-providers',
+      'terrain-los-fuel-tank-elevation',
+      'terrain-los-grounded-dropship-cover-providers',
+      'terrain-los-hard-soft-building-cover-providers',
+      'terrain-los-intervening-elevation-blocking',
+      'terrain-los-same-building-hex-blocking',
+      'terrain-los-same-building-level-count',
+      'terrain-los-side-paths',
+      'terrain-los-tacops-diagram-combat-caller-option-propagation',
+      'terrain-los-tacops-diagram-industrial-zone-side-paths',
+      'terrain-los-tacops-diagram-planted-field-side-paths',
+      'terrain-los-tacops-diagram-represented-pure-elevation',
+      'terrain-los-tacops-diagram-represented-terrain-effects',
+      'terrain-los-underwater-clear-hex-blocking',
+      'terrain-los-underwater-depth-height-side-paths',
+      'terrain-los-water-endpoint-blocking',
       'terrain-movement-costs',
       'terrain-partial-cover',
       'terrain-to-hit-features',
@@ -2808,7 +5286,18 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['mines', 'terrain-los-side-paths']);
+    ).toEqual([]);
+    expect(
+      supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'unsupported'),
+    ).toEqual(
+      [
+        ...MINEFIELD_VARIANT_SIDE_PATH_UNSUPPORTED_IDS,
+        ...TERRAIN_LOS_SIDE_PATH_UNSUPPORTED_IDS,
+      ].sort(),
+    );
+    expect(
+      supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'out-of-scope'),
+    ).toEqual(['minefield-non-battlemech-sea-variants']);
     expect(
       Object.values(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT)
         .filter((entry) => entry.level !== 'unsupported')
@@ -2875,11 +5364,31 @@ describe('BattleMech combat feature-gap tracking', () => {
       ),
     ).toEqual(
       expect.arrayContaining([
-        expect.stringContaining('Minefield represents minefield state'),
-        expect.stringContaining('enterMinefield resolves minefield'),
-        expect.stringContaining('no Dust or Mines entry'),
+        expect.stringContaining('TerrainType enum carries Mines'),
+        expect.stringContaining('apply represented TerrainType.Mines'),
       ]),
     );
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-variant-side-paths'
+      ].sourceRefs?.map(({ citation }) => citation),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('Minefield represents minefield state'),
+        expect.stringContaining('enterMinefield resolves minefield'),
+        expect.stringContaining('MINEFIELD is scenario-generation modifier'),
+        expect.stringContaining('TerrainType enum carries Mines'),
+      ]),
+    );
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-non-battlemech-sea-variants'
+      ],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining('sea/depth state'),
+      gap: expect.stringContaining('outside this BattleMech suite'),
+    });
   });
 
   it('tracks runner heat rules and separates session/helper-only heat mechanics', () => {
@@ -3099,6 +5608,30 @@ describe('BattleMech combat feature-gap tracking', () => {
       'ammo',
       'cockpit',
       'engine',
+      'equipment',
+      'equipment-ac-playtest',
+      'equipment-active-probe',
+      'equipment-ammo-exhaustion-no-explosion',
+      'equipment-artemis-fcs-critical-lifecycle',
+      'equipment-blue-shield-explosion',
+      'equipment-charged-capacitors',
+      'equipment-emergency-coolant',
+      'equipment-explosive-equipment',
+      'equipment-extended-fuel-tank-explosion',
+      'equipment-generic-destroyed-name-replay',
+      'equipment-harjel',
+      'equipment-hot-load-linked-ammo-inference',
+      'equipment-hot-load-mode-state-inference',
+      'equipment-hot-loaded-weapons',
+      'equipment-partial-wing',
+      'equipment-physical-modifiers',
+      'equipment-prototype-improved-jump-jet-explosion',
+      'equipment-risc-laser-pulse-module-ambiguous-link',
+      'equipment-risc-laser-pulse-module-inoperable-linked-module',
+      'equipment-risc-laser-pulse-module-linked-laser',
+      'equipment-scm',
+      'equipment-shields',
+      'equipment-stealth-linked-ecm',
       'gyro',
       'heat_sink',
       'jump_jet',
@@ -3108,14 +5641,18 @@ describe('BattleMech combat feature-gap tracking', () => {
     ]);
     expect(
       supportIdsByLevel(CRITICAL_COMPONENT_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(['equipment']);
+    ).toEqual([]);
+    expect(
+      supportIdsByLevel(CRITICAL_COMPONENT_COMBAT_SUPPORT, 'unsupported'),
+    ).toEqual([...UNRESOLVED_EQUIPMENT_CRITICAL_EFFECT_SUPPORT_IDS].sort());
     expect(
       Object.values(CRITICAL_COMPONENT_COMBAT_SUPPORT)
         .filter((entry) => (entry.sourceRefs?.length ?? 0) === 0)
         .map((entry) => entry.id),
     ).toEqual([]);
-    expect(CRITICAL_COMPONENT_COMBAT_SUPPORT.equipment.gap).toContain(
-      'equipment-specific',
+    expect(CRITICAL_COMPONENT_COMBAT_SUPPORT.equipment.gap).toBeUndefined();
+    expect(CRITICAL_COMPONENT_COMBAT_SUPPORT.equipment.evidence).toContain(
+      'split-accounted',
     );
 
     expect(
@@ -3395,6 +5932,9 @@ describe('BattleMech combat feature-gap tracking', () => {
         PSRTrigger.BuildingCollapse,
         PSRTrigger.RunningDamagedHip,
         PSRTrigger.RunningDamagedGyro,
+        PSRTrigger.ControlledSideslip,
+        PSRTrigger.FlankingAndTurning,
+        PSRTrigger.OutOfControl,
         PSRTrigger.MASCFailure,
         PSRTrigger.SuperchargerFailure,
       ].sort(),

@@ -321,6 +321,7 @@ export function runAttackPhase(
   // When omitted, the bot's attack-phase loop behaves identically to its
   // pre-K5 contract — no indirect-fire dispatch.
   grid?: IHexGrid,
+  optionalRules?: readonly string[],
 ): IGameSession {
   // Per `wire-bot-ai-helpers-and-capstone`: re-evaluate retreat — a
   // unit might have crossed the threshold from damage taken during
@@ -385,6 +386,8 @@ export function runAttackPhase(
               atkEvt.payload.targetId,
               updatedSession.currentState,
               grid,
+              undefined,
+              optionalRules,
             )
           : undefined;
 
@@ -398,6 +401,10 @@ export function runAttackPhase(
         RangeBracket.Short,
         attackPreResolution,
         targetHex,
+        false,
+        [],
+        null,
+        atkEvt.payload.selectedAMSWeaponIds,
       );
     }
     updatedSession = lockAttack(updatedSession, unitId);

@@ -14,15 +14,19 @@ import {
   calculateDodgeManeuverModifier,
   calculateMeleeSpecialistModifier,
   calculateFrogmanPhysicalToHitModifier,
+  calculateNeuralInterfacePilotingModifier,
   calculateGroundObjectLiftCapacity,
+  calculateVdniRangedToHitModifier,
   calculateTerrainMasterDefensiveToHitModifier,
   calculateShakyStickModifier,
+  checkGroundObjectLiftCapacity,
   getFrogmanWaterPSRModifier,
   getHeavyLifterGroundObjectLiftMultiplier,
   getMeleeMasterDamageBonus,
   getMeleeSpecialistDamageBonus,
   getMountaineerRubblePSRModifier,
   getTacticalGeniusBonus,
+  getVdniPilotingModifier,
   getEffectiveWounds,
   getIronManModifier,
   getHotDogHeatTargetNumberModifier,
@@ -30,10 +34,14 @@ import {
   getSomeLikeItHotHeatPenaltyReduction,
   createEdgeState,
   canUseEdge,
+  deriveEdgePointCountFromPilotAbilities,
   useEdge,
+  resolveEdgeBattleMechTrigger,
   IEdgeState,
   EdgeTriggerType,
   EDGE_TRIGGERS,
+  OUT_OF_SCOPE_AEROSPACE_EDGE_TRIGGERS,
+  REPRESENTED_BATTLEMECH_EDGE_TRIGGERS,
   SPA_CATALOG,
   getSPACatalogSize,
   getSPAsForPipeline,
@@ -356,6 +364,42 @@ describe('spaModifiers', () => {
     });
   });
 
+  describe('Neural interface modifiers', () => {
+    it('applies Prototype DNI ranged relief before VDNI/BVDNI relief', () => {
+      expect(
+        calculateVdniRangedToHitModifier(['proto_dni', 'vdni']),
+      ).toMatchObject({
+        name: 'Prototype DNI',
+        value: -2,
+        source: 'spa',
+      });
+    });
+
+    it('suppresses Prototype DNI ranged relief when disconnected', () => {
+      expect(calculateVdniRangedToHitModifier(['proto_dni'], false)).toBeNull();
+    });
+
+    it('applies Prototype DNI BattleMech piloting relief before Buffered VDNI suppression', () => {
+      expect(
+        calculateNeuralInterfacePilotingModifier(
+          ['proto_dni', 'bvdni'],
+          'battlemech',
+        ),
+      ).toEqual({
+        name: 'Prototype DNI',
+        value: -3,
+      });
+      expect(getVdniPilotingModifier(['proto_dni'], 'battlemech')).toBe(-3);
+    });
+
+    it('keeps Buffered VDNI out of piloting relief', () => {
+      expect(
+        calculateNeuralInterfacePilotingModifier(['bvdni'], 'battlemech'),
+      ).toBeNull();
+      expect(getVdniPilotingModifier(['bvdni'], 'battlemech')).toBe(0);
+    });
+  });
+
   describe('Melee Specialist', () => {
     it('returns -1 modifier', () => {
       const result = calculateMeleeSpecialistModifier(['melee-specialist']);
@@ -518,11 +562,52 @@ describe('spaModifiers', () => {
       }
     });
 
+    it('partitions Edge triggers into represented BattleMech and out-of-scope aerospace lanes', () => {
+      expect(REPRESENTED_BATTLEMECH_EDGE_TRIGGERS).toEqual([
+        'edge_when_headhit',
+        'edge_when_tac',
+        'edge_when_ko',
+        'edge_when_explosion',
+        'edge_when_masc_fails',
+      ]);
+      expect(OUT_OF_SCOPE_AEROSPACE_EDGE_TRIGGERS).toEqual([
+        'edge_when_aero_alt_loss',
+        'edge_when_aero_explosion',
+        'edge_when_aero_ko',
+        'edge_when_aero_lucky_crit',
+        'edge_when_aero_nuke_crit',
+        'edge_when_aero_unit_cargo_lost',
+      ]);
+
+      const partitionedTriggers = [
+        ...REPRESENTED_BATTLEMECH_EDGE_TRIGGERS,
+        ...OUT_OF_SCOPE_AEROSPACE_EDGE_TRIGGERS,
+      ].sort();
+
+      expect(new Set(partitionedTriggers).size).toBe(
+        partitionedTriggers.length,
+      );
+      expect(partitionedTriggers).toEqual(Object.keys(EDGE_TRIGGERS).sort());
+    });
+
     it('creates edge state with correct initial values', () => {
       const state = createEdgeState(2);
       expect(state.maxPoints).toBe(2);
       expect(state.remainingPoints).toBe(2);
       expect(state.usageHistory).toHaveLength(0);
+    });
+
+    it('derives generic Edge point count from explicit points or the generic edge ability only', () => {
+      expect(deriveEdgePointCountFromPilotAbilities(['edge'])).toBe(1);
+      expect(
+        deriveEdgePointCountFromPilotAbilities(
+          ['edge_when_headhit', 'edge_when_tac'],
+          3,
+        ),
+      ).toBe(3);
+      expect(
+        deriveEdgePointCountFromPilotAbilities(['edge_when_headhit']),
+      ).toBeUndefined();
     });
 
     it('allows edge use when points remain', () => {
@@ -574,6 +659,104 @@ describe('spaModifiers', () => {
       expect(() =>
         useEdge(state, 'edge_when_tac', 1, 'unit-1', 'test'),
       ).toThrow('No Edge points remaining');
+    });
+
+    it('spends Edge for a source-backed BattleMech trigger only when the resolver condition is true', () => {
+      const result = resolveEdgeBattleMechTrigger({
+        trigger: 'edge_when_headhit',
+        edgeState: createEdgeState(1),
+        pilotAbilities: ['edge_when_headhit'],
+        shouldTrigger: true,
+        turn: 3,
+        unitId: 'target-1',
+        description: 'Head-hit location reroll',
+      });
+
+      expect(result).toMatchObject({
+        used: true,
+        trigger: 'edge_when_headhit',
+        edgePointsRemaining: 0,
+      });
+      expect(result.edgeState?.usageHistory).toEqual([
+        {
+          trigger: 'edge_when_headhit',
+          turn: 3,
+          unitId: 'target-1',
+          description: 'Head-hit location reroll',
+        },
+      ]);
+    });
+
+    it('does not spend Edge when the runtime resolver has not proved the trigger condition', () => {
+      const edgeState = createEdgeState(1);
+      const result = resolveEdgeBattleMechTrigger({
+        trigger: 'edge_when_tac',
+        edgeState,
+        pilotAbilities: ['edge_when_tac'],
+        shouldTrigger: false,
+        turn: 3,
+        unitId: 'target-1',
+        description: 'TAC location reroll',
+      });
+
+      expect(result).toEqual({
+        used: false,
+        trigger: 'edge_when_tac',
+        edgeState,
+        reason: 'condition-not-met',
+      });
+    });
+
+    it('keeps each BattleMech Edge trigger gated by its matching ability id', () => {
+      const edgeTriggers = [
+        'edge_when_headhit',
+        'edge_when_tac',
+        'edge_when_ko',
+        'edge_when_explosion',
+      ] as const;
+
+      for (const trigger of edgeTriggers) {
+        const result = resolveEdgeBattleMechTrigger({
+          trigger,
+          edgeState: createEdgeState(1),
+          pilotAbilities: edgeTriggers.filter((id) => id !== trigger),
+          shouldTrigger: true,
+          turn: 1,
+          unitId: 'target-1',
+          description: `${trigger} reroll`,
+        });
+
+        expect(result).toEqual({
+          used: false,
+          trigger,
+          edgeState: expect.objectContaining({ remainingPoints: 1 }),
+          reason: 'trigger-not-enabled',
+        });
+      }
+    });
+
+    it('does not spend BattleMech Edge trigger points when none remain', () => {
+      const edgeState: IEdgeState = {
+        maxPoints: 1,
+        remainingPoints: 0,
+        usageHistory: [],
+      };
+      const result = resolveEdgeBattleMechTrigger({
+        trigger: 'edge_when_ko',
+        edgeState,
+        pilotAbilities: ['edge_when_ko'],
+        shouldTrigger: true,
+        turn: 4,
+        unitId: 'target-1',
+        description: 'KO reroll',
+      });
+
+      expect(result).toEqual({
+        used: false,
+        trigger: 'edge_when_ko',
+        edgeState,
+        reason: 'no-edge-available',
+      });
     });
   });
 
@@ -704,6 +887,54 @@ describe('spaModifiers', () => {
         }),
       ).toBe(0);
       expect(calculateGroundObjectLiftCapacity({ unitTonnage: 0 })).toBe(0);
+    });
+
+    it('gates represented ground-object payloads by Heavy Lifter lift capacity only', () => {
+      expect(
+        checkGroundObjectLiftCapacity({
+          unitTonnage: 80,
+          abilities: ['hvy_lifter'],
+          objectTonnage: 12,
+        }),
+      ).toEqual({
+        allowed: true,
+        objectTonnage: 12,
+        capacityTonnage: 12,
+        capacityMarginTonnage: 0,
+      });
+
+      expect(
+        checkGroundObjectLiftCapacity({
+          unitTonnage: 80,
+          abilities: [],
+          objectTonnage: 12,
+        }),
+      ).toEqual({
+        allowed: false,
+        objectTonnage: 12,
+        capacityTonnage: 8,
+        capacityMarginTonnage: -4,
+      });
+
+      expect(
+        checkGroundObjectLiftCapacity({
+          unitTonnage: 80,
+          abilities: ['heavy-lifter'],
+          leftHandAvailable: false,
+          objectTonnage: 7,
+        }),
+      ).toMatchObject({
+        allowed: false,
+        capacityTonnage: 6,
+      });
+
+      expect(
+        checkGroundObjectLiftCapacity({
+          unitTonnage: 80,
+          abilities: ['hvy_lifter'],
+          objectTonnage: 0,
+        }).allowed,
+      ).toBe(false);
     });
   });
 

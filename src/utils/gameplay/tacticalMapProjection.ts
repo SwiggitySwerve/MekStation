@@ -34,6 +34,15 @@ export type TacticalMapMovementProjectionStatus =
   | 'blocked'
   | 'mixed';
 
+export type TacticalMapMovementCostProjectionStatus =
+  | 'none'
+  | 'ordinary'
+  | 'costly';
+
+export type TacticalMapMovementHazardProjectionStatus =
+  | 'none'
+  | 'represented-minefield';
+
 export type TacticalMapCombatProjectionStatus =
   | 'none'
   | 'range-only'
@@ -83,6 +92,10 @@ export interface ITacticalMapHexProjection {
   readonly intent: TacticalMapHexProjectionIntent;
   readonly status: TacticalMapHexProjectionStatus;
   readonly movementStatus: TacticalMapMovementProjectionStatus;
+  readonly movementCostStatus: TacticalMapMovementCostProjectionStatus;
+  readonly movementCostReasons: readonly string[];
+  readonly movementHazardStatus: TacticalMapMovementHazardProjectionStatus;
+  readonly movementHazardReasons: readonly string[];
   readonly combatStatus: TacticalMapCombatProjectionStatus;
   readonly blockedReasons: readonly string[];
   readonly sourceReferences: readonly ITacticalMapProjectionSourceReference[];
@@ -115,6 +128,11 @@ const STAND_UP_MOVEMENT_RULE_REFERENCES = [
   'MegaMek server/totalWarfare/MovePathHandler.java:2027-2058 stand-up PSR resolution',
   'MegaMek QuadMek.java:452-453 intact quads do not roll to stand',
   'MegaMek Entity.java:7824-7828 all-four-legs stand-up automatic success',
+] as const;
+
+const REPRESENTED_MINEFIELD_MOVEMENT_RULE_REFERENCES = [
+  'MekStation src/simulation/runner/phases/movementMines.ts: represented TerrainType.Mines entry applies BattleMech leg damage and queues PSRs',
+  'MekStation src/simulation/runner/__tests__/movementPhase.behavior.test.ts: represented minefield damage and PSR behavior',
 ] as const;
 
 const COMBAT_RULE_REFERENCES = [
@@ -198,13 +216,26 @@ export function buildTacticalMapHexProjection({
   readonly pathIndex?: number;
   readonly inLegacyAttackRange: boolean;
 }): ITacticalMapHexProjection {
-  const inAttackRange = inLegacyAttackRange || Boolean(combat?.inRange);
+  const useLegacyAttackRange = inLegacyAttackRange && !combat;
+  const inAttackRange = useLegacyAttackRange || Boolean(combat?.inRange);
   const blockedReasons = collectBlockedReasons({
     movement,
     combat,
     combatLosBlockerFor,
   });
   const movementStatus = deriveMovementProjectionStatus(movement);
+  const movementCostReasons = deriveMovementCostProjectionReasons(movement);
+  const movementCostStatus = deriveMovementCostProjectionStatus({
+    movement,
+    movementCostReasons,
+  });
+  const movementHazardReasons = deriveMovementHazardProjectionReasons({
+    terrain,
+    movement,
+  });
+  const movementHazardStatus = deriveMovementHazardProjectionStatus(
+    movementHazardReasons,
+  );
   const combatStatus = deriveCombatProjectionStatus({
     combat,
     inAttackRange,
@@ -228,7 +259,7 @@ export function buildTacticalMapHexProjection({
     movement,
     combat,
     combatLosBlockerFor,
-    inLegacyAttackRange,
+    inLegacyAttackRange: useLegacyAttackRange,
   });
 
   return {
@@ -245,6 +276,10 @@ export function buildTacticalMapHexProjection({
     intent,
     status,
     movementStatus,
+    movementCostStatus,
+    movementCostReasons,
+    movementHazardStatus,
+    movementHazardReasons,
     combatStatus,
     blockedReasons,
     sourceReferences,
@@ -257,10 +292,14 @@ export function buildTacticalMapHexProjection({
       intent,
       status,
       movementStatus,
+      movementCostStatus,
+      movementCostReasons,
+      movementHazardStatus,
+      movementHazardReasons,
       combatStatus,
       blockedReasons,
       sourceReferences,
-      legacyAttackRangeOnly: inLegacyAttackRange && !combat,
+      legacyAttackRangeOnly: useLegacyAttackRange,
     }),
   };
 }
@@ -457,6 +496,8 @@ function movementOptionsForProjection(
       automaticLandingMode: movement.automaticLandingMode,
       automaticLandingDistance: movement.automaticLandingDistance,
       automaticLandingMinimumDistance: movement.automaticLandingMinimumDistance,
+      hullDownExitRequired: movement.hullDownExitRequired,
+      hullDownExitCost: movement.hullDownExitCost,
       blockedReason: movement.blockedReason,
       movementInvalidReason: movement.movementInvalidReason,
       movementInvalidDetails: movement.movementInvalidDetails,
@@ -507,6 +548,16 @@ function collectProjectionSourceReferences({
     }
   }
 
+  if (isRepresentedMinefieldTerrain(terrain)) {
+    references.push({
+      channel: 'movement',
+      kind: 'mekstation',
+      label: 'Represented minefield movement hazard projection',
+      detail: formatRepresentedMinefieldSourceDetail({ terrain, movement }),
+      ruleReferences: REPRESENTED_MINEFIELD_MOVEMENT_RULE_REFERENCES,
+    });
+  }
+
   if (combat) {
     references.push({
       channel: 'combat',
@@ -529,12 +580,17 @@ function collectProjectionSourceReferences({
     }
   }
 
-  if (combatLosBlockerFor.length > 0) {
+  const losBlockerReferences = collectCombatLosBlockerReferences({
+    combat,
+    combatLosBlockerFor,
+  });
+
+  if (losBlockerReferences.length > 0) {
     references.push({
       channel: 'los-blocker',
       kind: 'megamek',
       label: 'MegaMek LOS blocker projection',
-      detail: formatLosBlockerSourceDetail(combatLosBlockerFor),
+      detail: formatLosBlockerSourceDetail(losBlockerReferences),
       ruleReferences: LOS_BLOCKER_RULE_REFERENCES,
     });
   }
@@ -550,6 +606,31 @@ function collectProjectionSourceReferences({
   }
 
   return dedupeProjectionSourceReferences(references);
+}
+
+function collectCombatLosBlockerReferences({
+  combat,
+  combatLosBlockerFor,
+}: {
+  readonly combat?: ICombatRangeHex;
+  readonly combatLosBlockerFor: readonly ITacticalMapCombatLosBlockerReference[];
+}): readonly ITacticalMapCombatLosBlockerReference[] {
+  const references = [...combatLosBlockerFor];
+
+  if (
+    combat?.hasTarget &&
+    combat.lineOfSightBlocker &&
+    combat.losState !== 'clear'
+  ) {
+    references.push({
+      targetHex: combat.hex,
+      targetUnitIds: combat.targetUnitIds,
+      losState: combat.losState,
+      blocker: combat.lineOfSightBlocker,
+    });
+  }
+
+  return references;
 }
 
 function dedupeProjectionSourceReferences(
@@ -620,6 +701,24 @@ function formatTerrainFeatureLevelSourceDetail(
   return `level ${feature.level}`;
 }
 
+function formatRepresentedMinefieldSourceDetail({
+  terrain,
+  movement,
+}: {
+  readonly terrain: IHexTerrain;
+  readonly movement?: IMovementRangeHex;
+}): string {
+  const mineLevels = terrain.features
+    .filter(isRepresentedMinefieldFeature)
+    .map((feature) => feature.level);
+  const levelDetail =
+    mineLevels.length > 0 ? ` levels ${mineLevels.join(',')}` : '';
+  const movementDetail = movementHasReachableOption(movement)
+    ? 'reachable entry can apply 10 damage to each leg and queue PSRs'
+    : 'BattleMech entry can apply 10 damage to each leg and queue PSRs';
+  return `represented mines${levelDetail}; ${movementDetail}`;
+}
+
 function formatMovementSourceDetail(movement: IMovementRangeHex): string {
   const options = movementOptionsForProjection(movement);
   const modes = Array.from(
@@ -680,10 +779,10 @@ function formatLosBlockerSourceDetail(
   refs: readonly ITacticalMapCombatLosBlockerReference[],
 ): string {
   const blockerKinds = Array.from(new Set(refs.map((ref) => ref.blocker.kind)));
-  const targetHexes = refs.map(
-    (ref) => `${ref.targetHex.q},${ref.targetHex.r}`,
+  const targetDetails = refs.map(
+    (ref) => `${ref.targetHex.q},${ref.targetHex.r} ${ref.blocker.reason}`,
   );
-  return `${blockerKinds.join(',')} for ${targetHexes.join(',')}`;
+  return `${blockerKinds.join(',')} for ${targetDetails.join('; ')}`;
 }
 
 function movementHasReachableOption(
@@ -713,6 +812,123 @@ function deriveMovementProjectionStatus(
   if (hasReachableOption && hasBlockedOption) return 'mixed';
   if (hasReachableOption) return 'legal';
   return 'blocked';
+}
+
+function deriveMovementCostProjectionStatus({
+  movement,
+  movementCostReasons,
+}: {
+  readonly movement: IMovementRangeHex | undefined;
+  readonly movementCostReasons: readonly string[];
+}): TacticalMapMovementCostProjectionStatus {
+  if (!movementHasReachableOption(movement)) return 'none';
+  return movementCostReasons.length > 0 ? 'costly' : 'ordinary';
+}
+
+function deriveMovementCostProjectionReasons(
+  movement: IMovementRangeHex | undefined,
+): readonly string[] {
+  const reasons = movementOptionsForProjection(movement)
+    .filter((option) => option.reachable)
+    .flatMap(formatReachableMovementCostReasons);
+  return Array.from(new Set(reasons));
+}
+
+function deriveMovementHazardProjectionStatus(
+  movementHazardReasons: readonly string[],
+): TacticalMapMovementHazardProjectionStatus {
+  return movementHazardReasons.length > 0 ? 'represented-minefield' : 'none';
+}
+
+function deriveMovementHazardProjectionReasons({
+  terrain,
+  movement,
+}: {
+  readonly terrain: IHexTerrain;
+  readonly movement?: IMovementRangeHex;
+}): readonly string[] {
+  if (!isRepresentedMinefieldTerrain(terrain)) return [];
+  const entryContext = movementHasReachableOption(movement)
+    ? 'reachable entry'
+    : 'BattleMech entry';
+  return [
+    `${entryContext} through represented mines can apply 10 damage to each leg`,
+    'mine leg structure damage can queue a leg-damage PSR',
+    '20+ mine damage in the movement phase can queue a damage-threshold PSR',
+  ];
+}
+
+function isRepresentedMinefieldTerrain(terrain: IHexTerrain): boolean {
+  return terrain.features.some(isRepresentedMinefieldFeature);
+}
+
+function isRepresentedMinefieldFeature(
+  feature: IHexTerrain['features'][number],
+): boolean {
+  return feature.type === TerrainType.Mines && feature.level > 0;
+}
+
+function formatReachableMovementCostReasons(
+  option: IMovementRangeModeOption,
+): readonly string[] {
+  const reasons: string[] = [];
+  if (hasPositiveCost(option.terrainCost)) {
+    reasons.push(`terrain ${formatSignedCost(option.terrainCost)}`);
+  }
+  if (hasElevationCostConsequence(option)) {
+    reasons.push(`elevation ${formatMovementOptionElevation(option)}`);
+  }
+  if (hasPositiveCost(option.heatGenerated)) {
+    reasons.push(`heat ${formatSignedCost(option.heatGenerated)}`);
+  }
+  if (
+    hasPositiveCost(option.conversionStepCount) ||
+    hasPositiveCost(option.conversionMpCost)
+  ) {
+    reasons.push(
+      `conversion ${option.conversionStepCount ?? 0} steps ${
+        option.conversionMpCost ?? 0
+      } MP`,
+    );
+  }
+  if (
+    option.altitudeControlRequired ||
+    hasPositiveCost(option.altitudeControlStepCount) ||
+    hasPositiveCost(option.altitudeControlMpCost)
+  ) {
+    reasons.push(
+      `altitude control ${option.altitudeControlStepCount ?? 0} steps ${
+        option.altitudeControlMpCost ?? 0
+      } MP`,
+    );
+  }
+  if (option.automaticLandingRequired) {
+    const reason = option.automaticLandingReason
+      ? ` ${option.automaticLandingReason}`
+      : '';
+    reasons.push(
+      `automatic landing ${option.automaticLandingDistance ?? 0}/${
+        option.automaticLandingMinimumDistance ?? 0
+      } hexes${reason}`,
+    );
+  }
+  if (option.hullDownExitRequired || hasPositiveCost(option.hullDownExitCost)) {
+    reasons.push(`hull-down exit ${option.hullDownExitCost ?? 0} MP`);
+  }
+  return reasons;
+}
+
+function hasPositiveCost(value: number | undefined): value is number {
+  return value !== undefined && value > 0;
+}
+
+function hasElevationCostConsequence(
+  option: IMovementRangeModeOption,
+): boolean {
+  return (
+    hasPositiveCost(option.elevationCost) ||
+    (option.elevationDelta !== undefined && option.elevationDelta !== 0)
+  );
 }
 
 function deriveCombatProjectionStatus({
@@ -808,6 +1024,10 @@ function formatProjectionExplanation({
   intent,
   status,
   movementStatus,
+  movementCostStatus,
+  movementCostReasons,
+  movementHazardStatus,
+  movementHazardReasons,
   combatStatus,
   blockedReasons,
   sourceReferences,
@@ -820,6 +1040,10 @@ function formatProjectionExplanation({
   readonly intent: TacticalMapHexProjectionIntent;
   readonly status: TacticalMapHexProjectionStatus;
   readonly movementStatus: TacticalMapMovementProjectionStatus;
+  readonly movementCostStatus: TacticalMapMovementCostProjectionStatus;
+  readonly movementCostReasons: readonly string[];
+  readonly movementHazardStatus: TacticalMapMovementHazardProjectionStatus;
+  readonly movementHazardReasons: readonly string[];
   readonly combatStatus: TacticalMapCombatProjectionStatus;
   readonly blockedReasons: readonly string[];
   readonly combatLosBlockerFor: readonly ITacticalMapCombatLosBlockerReference[];
@@ -835,6 +1059,8 @@ function formatProjectionExplanation({
     `intent ${intent}`,
     `status ${status}`,
     `movement status ${movementStatus}`,
+    `movement cost status ${movementCostStatus}`,
+    `movement hazard status ${movementHazardStatus}`,
     `combat status ${combatStatus}`,
     `terrain ${terrainTypes}`,
     `elevation ${terrain.elevation}`,
@@ -903,6 +1129,11 @@ function formatProjectionExplanation({
         );
       }
     }
+    if (movement.hullDownExitRequired) {
+      parts.push(
+        `hull-down exit ${formatSignedCost(movement.hullDownExitCost ?? 0)} MP`,
+      );
+    }
     if (movement.movementModeOptions?.length) {
       parts.push(
         `movement options ${movement.movementModeOptions
@@ -957,6 +1188,14 @@ function formatProjectionExplanation({
         );
       }
     }
+    if (movementCostReasons.length > 0) {
+      parts.push(
+        `movement cost consequences ${movementCostReasons.join('; ')}`,
+      );
+    }
+  }
+  if (movementHazardReasons.length > 0) {
+    parts.push(`movement hazards ${movementHazardReasons.join('; ')}`);
   }
   if (combat) {
     parts.push(
@@ -1108,11 +1347,15 @@ function formatMovementOption(option: IMovementRangeModeOption): string {
         option.automaticLandingMinimumDistance ?? 0
       } hexes`
     : '';
+  const hullDownExit =
+    option.hullDownExitRequired || hasPositiveCost(option.hullDownExitCost)
+      ? ` hull-down exit ${option.hullDownExitCost ?? 0} MP`
+      : '';
   const blockedDetail = movementOptionBlockedDetail(option);
   const blocked = blockedDetail ? `: ${blockedDetail}` : '';
   return `${option.movementType}${mode} ${
     option.reachable ? 'reachable' : 'blocked'
-  } ${option.mpCost} MP${terrain}${elevation}${heat}${conversion}${altitudeControl}${automaticLanding}${option.reachable ? '' : blocked}`;
+  } ${option.mpCost} MP${terrain}${elevation}${heat}${conversion}${altitudeControl}${automaticLanding}${hullDownExit}${option.reachable ? '' : blocked}`;
 }
 
 function formatMovementOptionElevation(

@@ -340,11 +340,59 @@ export function emitHeadHitPilotEvent(options: {
             consciousnessCheckRequired:
               pilotDamageResult.consciousnessCheckRequired,
             consciousnessCheckPassed: pilotDamageResult.conscious,
+            edgeReroll: pilotDamageResult.edgeReroll,
+            edgeSuperseded: pilotDamageResult.edgeSuperseded,
+            edgeTrigger: pilotDamageResult.edgeTrigger,
+            edgePointsRemaining: pilotDamageResult.edgePointsRemaining,
           },
           attackerId,
         ),
       );
     }
+  }
+}
+
+/**
+ * Emit source-backed VDNI/BVDNI neural-feedback pilot wounds resolved by
+ * `resolveDamage`. Kept separate from head-hit emission because Artificial
+ * Pain Shunt can suppress this feedback without changing normal head-hit
+ * pilot damage semantics.
+ */
+export function emitNeuralFeedbackPilotEvent(options: {
+  events: IGameEvent[];
+  gameId: string;
+  turn: number;
+  attackerId: string;
+  targetId: string;
+  damageResult: DamageResolution;
+}): void {
+  const { events, gameId, turn, attackerId, targetId, damageResult } = options;
+
+  const pilotDamageResult = damageResult.neuralFeedbackPilotDamage;
+  if (pilotDamageResult && pilotDamageResult.woundsInflicted > 0) {
+    events.push(
+      createGameEvent(
+        gameId,
+        events.length,
+        GameEventType.PilotHit,
+        turn,
+        GamePhase.WeaponAttack,
+        {
+          unitId: targetId,
+          wounds: pilotDamageResult.woundsInflicted,
+          totalWounds: pilotDamageResult.totalWounds,
+          source: 'neural_feedback' as const,
+          consciousnessCheckRequired:
+            pilotDamageResult.consciousnessCheckRequired,
+          consciousnessCheckPassed: pilotDamageResult.conscious,
+          edgeReroll: pilotDamageResult.edgeReroll,
+          edgeSuperseded: pilotDamageResult.edgeSuperseded,
+          edgeTrigger: pilotDamageResult.edgeTrigger,
+          edgePointsRemaining: pilotDamageResult.edgePointsRemaining,
+        },
+        attackerId,
+      ),
+    );
   }
 }
 

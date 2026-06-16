@@ -7,6 +7,7 @@ import {
   computeDisplacementWithDominoChain,
   computeMissedChargeDisplacement,
   computePushDisplacementOutcome,
+  type IDisplacementBlockerStepOutDecision,
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks';
 
@@ -84,6 +85,7 @@ export function computePhysicalDisplacements(options: {
   d6Roller: () => number;
   targetFriendlyUnitIds?: readonly string[];
   targetSourceContainsGroundedDropShip?: boolean;
+  blockerStepOutDecision?: IDisplacementBlockerStepOutDecision;
 }): readonly IPhysicalDisplacement[] {
   return computePhysicalDisplacementOutcome(options).displacements;
 }
@@ -97,6 +99,7 @@ export function computePhysicalDisplacementOutcome(options: {
   d6Roller: () => number;
   targetFriendlyUnitIds?: readonly string[];
   targetSourceContainsGroundedDropShip?: boolean;
+  blockerStepOutDecision?: IDisplacementBlockerStepOutDecision;
 }): IPhysicalDisplacementOutcome {
   const {
     attackType,
@@ -129,6 +132,7 @@ export function computePhysicalDisplacementOutcome(options: {
       from: attacker.position,
       to: destination,
       reason: 'charge_miss',
+      blockerStepOutDecision: options.blockerStepOutDecision,
     });
     return {
       displacements: missedChargeDisplacements ?? [],
@@ -147,6 +151,7 @@ export function computePhysicalDisplacementOutcome(options: {
       targetFriendlyUnitIds,
       targetSourceContainsGroundedDropShip:
         options.targetSourceContainsGroundedDropShip,
+      blockerStepOutDecision: options.blockerStepOutDecision,
     });
   }
 
@@ -158,6 +163,7 @@ export function computePhysicalDisplacementOutcome(options: {
       attackerFacing: attacker.facing,
       targetId: target.id,
       targetPosition: target.position,
+      blockerStepOutDecision: options.blockerStepOutDecision,
     });
   }
 
@@ -183,5 +189,6 @@ export function computePhysicalDisplacementOutcome(options: {
     attackerFacing: attacker.facing,
     targetId: target.id,
     targetPosition: target.position,
+    blockerStepOutDecision: options.blockerStepOutDecision,
   });
 }

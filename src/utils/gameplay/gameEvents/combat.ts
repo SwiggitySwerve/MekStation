@@ -98,6 +98,15 @@ export function createAttackResolvedEvent(
   heat?: number,
   attackerArc?: 'front' | 'left' | 'right' | 'rear',
   ammoBinId?: string | null,
+  edge?: Pick<
+    IAttackResolvedPayload,
+    | 'edgeReroll'
+    | 'edgeSuperseded'
+    | 'edgeTrigger'
+    | 'edgePointsRemaining'
+    | 'edgeSupersededLocation'
+    | 'edgeSupersededRoll'
+  >,
 ): IGameEvent {
   const payload: IAttackResolvedPayload = {
     attackerId,
@@ -111,6 +120,22 @@ export function createAttackResolvedEvent(
     heat,
     attackerArc,
     ammoBinId,
+    ...(edge?.edgeReroll !== undefined ? { edgeReroll: edge.edgeReroll } : {}),
+    ...(edge?.edgeSuperseded !== undefined
+      ? { edgeSuperseded: edge.edgeSuperseded }
+      : {}),
+    ...(edge?.edgeTrigger !== undefined
+      ? { edgeTrigger: edge.edgeTrigger }
+      : {}),
+    ...(edge?.edgePointsRemaining !== undefined
+      ? { edgePointsRemaining: edge.edgePointsRemaining }
+      : {}),
+    ...(edge?.edgeSupersededLocation !== undefined
+      ? { edgeSupersededLocation: edge.edgeSupersededLocation }
+      : {}),
+    ...(edge?.edgeSupersededRoll !== undefined
+      ? { edgeSupersededRoll: edge.edgeSupersededRoll }
+      : {}),
   };
 
   return {

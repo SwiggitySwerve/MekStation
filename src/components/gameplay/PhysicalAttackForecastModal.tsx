@@ -45,6 +45,12 @@ export interface PhysicalAttackForecastModalProps {
   onConfirm: () => void;
   /** Callback when Back / backdrop is pressed. */
   onClose: () => void;
+  /** Show the represented two-handed Zweihander declaration toggle. */
+  showZweihanderToggle?: boolean;
+  /** Current two-handed Zweihander declaration state. */
+  zweihanderTwoHanded?: boolean;
+  /** Updates the represented two-handed Zweihander declaration state. */
+  onZweihanderTwoHandedChange?: (enabled: boolean) => void;
 }
 
 /**
@@ -122,6 +128,9 @@ export function PhysicalAttackForecastModal({
   targetName,
   onConfirm,
   onClose,
+  showZweihanderToggle = false,
+  zweihanderTwoHanded = false,
+  onZweihanderTwoHandedChange,
 }: PhysicalAttackForecastModalProps): React.ReactElement | null {
   // Per `add-physical-attack-phase-ui` task 9.3: ESC closes the modal.
   // We install a document-level listener while open so focus inside
@@ -167,6 +176,22 @@ export function PhysicalAttackForecastModal({
             Target: {targetName ?? 'Target'}
           </p>
         </header>
+
+        {showZweihanderToggle && (
+          <label className="bg-surface-base flex items-center gap-2 rounded border border-gray-200 px-2 py-2 text-sm">
+            <input
+              type="checkbox"
+              checked={zweihanderTwoHanded}
+              onChange={(event) =>
+                onZweihanderTwoHandedChange?.(event.currentTarget.checked)
+              }
+              data-testid="physical-forecast-zweihander-toggle"
+            />
+            <span className="text-text-theme-primary">
+              Two-handed Zweihander
+            </span>
+          </label>
+        )}
 
         {!toHit.allowed && (
           <div

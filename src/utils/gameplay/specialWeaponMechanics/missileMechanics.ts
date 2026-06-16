@@ -5,6 +5,7 @@
  * - LB-X: slug (standard) vs cluster (cluster table, -1 to-hit) modes
  * - Artemis IV/prototype IV/V: +2/+1/+3 cluster table roll bonus
  * - Narc/iNarc: +2 cluster table roll bonus for NARC-compatible missiles vs marked target
+ * - Low Profile: -4 cluster table roll penalty against qualifying targets
  * - MRM: -1 cluster column modifier
  * - Streak SRM: All-or-nothing (verification)
  *
@@ -222,6 +223,12 @@ export function getMRMClusterModifier(weaponId: string): number {
   return 0;
 }
 
+export function getLowProfileClusterModifier(
+  targetStatus: ITargetStatusFlags,
+): number {
+  return targetStatus.lowProfile === true ? -4 : 0;
+}
+
 function normalizeWeaponDesignation(value: string): string {
   return value.replace(/[^a-z0-9]/gi, '').toLowerCase();
 }
@@ -315,6 +322,7 @@ export function calculateClusterModifiers(
   const narcBonus = isNarcCompatibleMissileWeapon(weaponId)
     ? getNarcBonus(targetStatus)
     : 0;
+  const lowProfilePenalty = getLowProfileClusterModifier(targetStatus);
   const clusterHitterBonus =
     sandblasterBonus > 0 ? 0 : clusterHitterSPA ? 1 : 0;
   const mrmPenalty = getMRMClusterModifier(weaponId);
@@ -322,12 +330,14 @@ export function calculateClusterModifiers(
   return {
     artemisBonus,
     narcBonus,
+    lowProfilePenalty,
     sandblasterBonus,
     clusterHitterBonus,
     mrmPenalty,
     total:
       artemisBonus +
       narcBonus +
+      lowProfilePenalty +
       sandblasterBonus +
       clusterHitterBonus +
       mrmPenalty,

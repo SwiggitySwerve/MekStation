@@ -13,7 +13,10 @@ import {
   type CriticalHitEvent,
   type CriticalSlotManifest,
 } from '@/utils/gameplay/criticalHitResolution';
-import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
+import {
+  resolvePilotConsciousnessCheck,
+  resolvePilotWakeUpCheck,
+} from '@/utils/gameplay/damage';
 import { calculateEnvironmentalHeatModifier } from '@/utils/gameplay/environmentalModifiers';
 import { getGridTerrainHeatEffect } from '@/utils/gameplay/heat';
 import { getHotDogHeatTargetNumberModifier } from '@/utils/gameplay/spaModifiers';
@@ -44,6 +47,7 @@ import {
 } from './movementEnhancementFailureDamage';
 import { resolveRunnerPSRs } from './psrEdgeRerolls';
 import { createD6Roller, createGameEvent } from './utils';
+import { EXTERNAL_HEAT_CAP_PER_TURN } from './weaponAttackPlasmaCannon';
 import { applyCriticalPSRTriggers } from './weaponAttackPsrTriggers';
 
 export function runPSRPhase(options: {
@@ -210,6 +214,11 @@ export function runPSRPhase(options: {
         currentUnit.abilities ?? [],
         d6Roller,
         currentUnit.pilotToughness,
+        {
+          edgePointsRemaining: currentUnit.edgePointsRemaining,
+          turn: currentState.turn,
+          unitId,
+        },
       );
       const pilotConscious =
         newPilotWounds < LETHAL_PILOT_WOUNDS &&
@@ -225,6 +234,9 @@ export function runPSRPhase(options: {
             prone: true,
             pilotWounds: newPilotWounds,
             pilotConscious,
+            edgePointsRemaining:
+              consciousnessCheck.edgePointsRemaining ??
+              currentUnit.edgePointsRemaining,
             destroyed: !pilotConscious ? true : currentUnit.destroyed,
             pendingPSRs: [],
           },
@@ -274,6 +286,10 @@ export function runPSRPhase(options: {
             source: 'fall' as const,
             consciousnessCheckRequired: true,
             consciousnessCheckPassed: pilotConscious,
+            edgeReroll: consciousnessCheck.edgeReroll,
+            edgeSuperseded: consciousnessCheck.edgeSuperseded,
+            edgeTrigger: consciousnessCheck.edgeTrigger,
+            edgePointsRemaining: consciousnessCheck.edgePointsRemaining,
           },
           unitId,
         ),
@@ -382,6 +398,17 @@ export function runHeatPhase(options: {
     const hotDogTargetNumberModifier = getHotDogHeatTargetNumberModifier(
       unit.abilities ?? [],
     );
+    const pendingExternalHeat = Math.max(0, unit.pendingExternalHeat ?? 0);
+    const previousExternalHeat = Math.max(0, unit.externalHeatThisTurn ?? 0);
+    const remainingExternalHeat = Math.max(
+      0,
+      EXTERNAL_HEAT_CAP_PER_TURN - previousExternalHeat,
+    );
+    const externalHeat = Math.min(pendingExternalHeat, remainingExternalHeat);
+    const externalHeatThisTurn = Math.min(
+      EXTERNAL_HEAT_CAP_PER_TURN,
+      previousExternalHeat + externalHeat,
+    );
 
     const heatSinkCount = unit.heatSinks ?? BASE_HEAT_SINKS;
     const heatSinkRating = unit.heatSinkType === 'double' ? 2 : 1;
@@ -398,9 +425,15 @@ export function runHeatPhase(options: {
         heatGenerationReduction,
     );
 
-    const generated = weaponHeat + movementHeat + engineHeat + environmentHeat;
+    const generated =
+      weaponHeat + movementHeat + engineHeat + environmentHeat + externalHeat;
     const previousHeat = unit.heat;
     const newHeat = Math.max(0, previousHeat + generated - dissipation);
+    const unitAfterHeatAccounting = {
+      ...unit,
+      externalHeatThisTurn,
+      pendingExternalHeat: 0,
+    };
 
     if (canEmit) {
       events.push(
@@ -414,13 +447,16 @@ export function runHeatPhase(options: {
             unitId,
             amount: generated,
             source:
-              engineHeat > 0
-                ? 'engine_hit'
-                : environmentHeat > weaponHeat && environmentHeat > movementHeat
-                  ? 'environment'
-                  : weaponHeat >= movementHeat
-                    ? 'firing'
-                    : 'movement',
+              externalHeat > 0
+                ? 'external'
+                : engineHeat > 0
+                  ? 'engine_hit'
+                  : environmentHeat > weaponHeat &&
+                      environmentHeat > movementHeat
+                    ? 'environment'
+                    : weaponHeat >= movementHeat
+                      ? 'firing'
+                      : 'movement',
             newTotal: newHeat,
             previousTotal: previousHeat,
             ammoExplosionRisk: newHeat >= 19,
@@ -462,8 +498,30 @@ export function runHeatPhase(options: {
       });
     }
 
+    let wakeUpUnit = unitAfterHeatAccounting;
+    if (
+      canEmit &&
+      d6Roller &&
+      !wakeUpUnit.pilotConscious &&
+      !wakeUpUnit.destroyed
+    ) {
+      const wakeUpCheck = resolvePilotWakeUpCheck(
+        wakeUpUnit.pilotWounds,
+        wakeUpUnit.pilotConscious,
+        wakeUpUnit.abilities ?? [],
+        d6Roller,
+        wakeUpUnit.pilotToughness,
+      );
+      if (wakeUpCheck.conscious) {
+        wakeUpUnit = {
+          ...wakeUpUnit,
+          pilotConscious: true,
+        };
+      }
+    }
+
     const startupUnit = applyRunnerStartupAttempt({
-      unit,
+      unit: wakeUpUnit,
       unitId,
       heat: newHeat,
       turn: currentState.turn,

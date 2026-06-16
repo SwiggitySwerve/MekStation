@@ -334,6 +334,11 @@ function appendHeatAmmoExplosionPilotDamage(
     unit.abilities,
     d6Roller,
     unit.pilotToughness,
+    {
+      edgePointsRemaining: unit.edgePointsRemaining,
+      turn: session.currentState.turn,
+      unitId,
+    },
   );
   const consciousnessPassed =
     unit.pilotConscious &&
@@ -352,6 +357,12 @@ function appendHeatAmmoExplosionPilotDamage(
       'ammo_explosion',
       consciousnessCheck.consciousnessCheckRequired,
       consciousnessPassed,
+      {
+        edgeReroll: consciousnessCheck.edgeReroll,
+        edgeSuperseded: consciousnessCheck.edgeSuperseded,
+        edgeTrigger: consciousnessCheck.edgeTrigger,
+        edgePointsRemaining: consciousnessCheck.edgePointsRemaining,
+      },
     ),
   );
 
@@ -1112,6 +1123,11 @@ export function resolveHeatPhase(
         currentUnitState.abilities ?? unit.abilities ?? [],
         d6Roller,
         currentUnitState.pilotToughness,
+        {
+          edgePointsRemaining: currentUnitState.edgePointsRemaining,
+          turn,
+          unitId,
+        },
       );
       const consciousnessPassed =
         currentUnitState.pilotConscious &&
@@ -1131,6 +1147,12 @@ export function resolveHeatPhase(
           'heat',
           true,
           consciousnessPassed,
+          {
+            edgeReroll: consciousnessCheck.edgeReroll,
+            edgeSuperseded: consciousnessCheck.edgeSuperseded,
+            edgeTrigger: consciousnessCheck.edgeTrigger,
+            edgePointsRemaining: consciousnessCheck.edgePointsRemaining,
+          },
         ),
       );
     }

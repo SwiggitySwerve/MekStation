@@ -27,6 +27,7 @@ export interface IActiveProbe {
   readonly entityId: string;
   readonly teamId: string;
   readonly position: IHexCoordinate;
+  readonly eagleEyesRangeBonus?: boolean;
 }
 
 export interface IStealthArmor {

@@ -67,6 +67,8 @@ export function chooseBestPhysicalAttack(
     rightArmFootActuatorPresent: options.rightArmFootActuatorPresent,
     leftArmHasClaw: options.leftArmHasClaw,
     rightArmHasClaw: options.rightArmHasClaw,
+    leftArmCarryingCargo: options.leftArmCarryingCargo,
+    rightArmCarryingCargo: options.rightArmCarryingCargo,
     attackerEvading: options.attackerEvading,
     attackerLoadingOrUnloadingCargo: options.attackerLoadingOrUnloadingCargo,
     attackerTargetedByDisplacementAttackerId:

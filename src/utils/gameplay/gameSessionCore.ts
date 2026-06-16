@@ -7,6 +7,7 @@ import {
   GameSide,
   GameStatus,
   IEncounterMeta,
+  IAttackDeclaredPayload,
   IGameConfig,
   IGameCreatedPayload,
   IGameEvent,
@@ -57,6 +58,10 @@ export function isTurnLimitDraw(
   return delta <= TURN_LIMIT_DRAW_TOLERANCE;
 }
 
+import {
+  hydrateC3NetworkStateFromGameState,
+  type IC3NetworkState,
+} from './c3Network';
 import { type D6Roller, defaultD6Roller } from './diceTypes';
 import {
   createAttackDeclaredEvent,
@@ -87,13 +92,33 @@ import {
   calculateSideInitiativeModifier,
   hasSideTacticalGeniusInitiativeReroll,
 } from './initiativeModifiers';
-import { strictestApplicableMinimumRange } from './range';
+import {
+  strictestApplicableMinimumRange,
+  type IWeaponRangeProfile,
+} from './range';
 import { isSemiGuidedLRM } from './specialWeaponMechanics';
 import {
   buildWeaponAttackAttackerToHitState,
   buildWeaponAttackTargetToHitState,
   calculateToHit,
+  calculateToHitWithC3,
 } from './toHit';
+
+function weaponRangeProfileFromAttack(
+  weapon: IWeaponAttack | undefined,
+): IWeaponRangeProfile | undefined {
+  if (!weapon) return undefined;
+
+  return {
+    short: weapon.shortRange,
+    medium: weapon.mediumRange,
+    long: weapon.longRange,
+    ...(weapon.extremeRange !== undefined
+      ? { extreme: weapon.extremeRange }
+      : {}),
+    ...(weapon.minRange !== undefined ? { minimum: weapon.minRange } : {}),
+  };
+}
 
 export interface ICreateGameSessionOptions {
   readonly id?: string;
@@ -110,6 +135,9 @@ export interface ICreateGameSessionOptions {
    */
   readonly encounterMeta?: IEncounterMeta;
   readonly hexTerrain?: readonly IHexTerrain[];
+  readonly c3Network?: IC3NetworkState;
+  readonly groundObjects?: IGameCreatedPayload['groundObjects'];
+  readonly minefields?: IGameCreatedPayload['minefields'];
 }
 
 export function createGameSession(
@@ -127,6 +155,9 @@ export function createGameSession(
     options.encounterMeta,
     undefined,
     options.hexTerrain,
+    options.c3Network,
+    options.groundObjects,
+    options.minefields,
   );
   const events: IGameEvent[] = [createdEvent];
   const currentState = deriveState(id, events);
@@ -489,6 +520,10 @@ export function declareAttack(
   interveningTerrainEffects: readonly ILOSInterveningTerrainEffect[] = [],
   /** Target-hex woods/smoke terrain modifier, separate from true partial cover. */
   targetTerrainModifier: IToHitModifierDetail | null = null,
+  /** Replayable defender-selected AMS mount ids keyed by incoming weapon id. */
+  selectedAMSWeaponIds?: IAttackDeclaredPayload['selectedAMSWeaponIds'],
+  /** Replayable selected defender AMS mount metadata keyed by incoming weapon id. */
+  selectedAMSWeaponMounts?: IAttackDeclaredPayload['selectedAMSWeaponMounts'],
 ): IGameSession {
   if (session.currentState.phase !== GamePhase.WeaponAttack) {
     throw new Error('Not in weapon attack phase');
@@ -572,37 +607,64 @@ export function declareAttack(
     isGroundToGroundGameAttack(attackerUnit, targetUnit),
   );
 
-  const toHitCalc = calculateToHit(
-    buildWeaponAttackAttackerToHitState(
-      attackerUnit,
-      attacker.gunnery,
-      primaryWeapon
-        ? {
-            id: primaryWeapon.weaponId,
-            name: primaryWeapon.weaponName,
-            category: primaryWeapon.category,
-          }
-        : undefined,
-      targetId,
-      undefined,
-      // Audit B-5 (W1.2): named options — `targetPartialCover` was previously
-      // passed positionally into the applyLocalCalledShotAbilityReduction
-      // slot, silently disabling the Marksman/Sharpshooter reduction whenever
-      // the target lacked partial cover. Cover belongs to target state only.
-      {
-        calledShot: weapons.some((weapon) => weapon.calledShot === true),
-        teammateCalledShot: weapons.some(
-          (weapon) => weapon.teammateCalledShot === true,
-        ),
-      },
-    ),
-    buildWeaponAttackTargetToHitState(targetUnit, targetPartialCover),
-    rangeBracket,
-    range,
-    volleyMinimumRange,
-    primaryWeapon?.weaponId,
-    semiGuidedTagContext,
+  const attackerToHitState = buildWeaponAttackAttackerToHitState(
+    attackerUnit,
+    attacker.gunnery,
+    primaryWeapon
+      ? {
+          id: primaryWeapon.weaponId,
+          name: primaryWeapon.weaponName,
+          category: primaryWeapon.category,
+        }
+      : undefined,
+    targetId,
+    undefined,
+    // Audit B-5 (W1.2): named options — `targetPartialCover` was previously
+    // passed positionally into the applyLocalCalledShotAbilityReduction
+    // slot, silently disabling the Marksman/Sharpshooter reduction whenever
+    // the target lacked partial cover. Cover belongs to target state only.
+    {
+      calledShot: weapons.some((weapon) => weapon.calledShot === true),
+      teammateCalledShot: weapons.some(
+        (weapon) => weapon.teammateCalledShot === true,
+      ),
+    },
   );
+  const targetToHitState = buildWeaponAttackTargetToHitState(
+    targetUnit,
+    targetPartialCover,
+  );
+  const c3State = hydrateC3NetworkStateFromGameState(session.currentState);
+  const c3WeaponRangeProfile = weaponRangeProfileFromAttack(primaryWeapon);
+  const isDirectFire =
+    indirectFireResolution?.permitted !== true ||
+    indirectFireResolution.isIndirect !== true;
+  const toHitCalc =
+    isDirectFire && c3State && c3WeaponRangeProfile && primaryWeapon
+      ? calculateToHitWithC3(
+          attackerToHitState,
+          targetToHitState,
+          rangeBracket,
+          range,
+          {
+            attackerEntityId: attackerId,
+            targetPosition: targetUnit.position,
+            weaponRangeProfile: c3WeaponRangeProfile,
+            c3State,
+          },
+          volleyMinimumRange,
+          primaryWeapon.weaponId,
+          semiGuidedTagContext,
+        )
+      : calculateToHit(
+          attackerToHitState,
+          targetToHitState,
+          rangeBracket,
+          range,
+          volleyMinimumRange,
+          primaryWeapon?.weaponId,
+          semiGuidedTagContext,
+        );
 
   const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({
     name: modifier.name,
@@ -662,7 +724,7 @@ export function declareAttack(
 
   const sequence = session.events.length;
   const { turn } = session.currentState;
-  const event = createAttackDeclaredEvent(
+  const baseEvent = createAttackDeclaredEvent(
     session.id,
     sequence,
     turn,
@@ -673,6 +735,21 @@ export function declareAttack(
     modifiers,
     weaponAttackData,
   );
+  const event =
+    selectedAMSWeaponIds !== undefined || selectedAMSWeaponMounts !== undefined
+      ? {
+          ...baseEvent,
+          payload: {
+            ...(baseEvent.payload as IAttackDeclaredPayload),
+            ...(selectedAMSWeaponIds !== undefined
+              ? { selectedAMSWeaponIds }
+              : {}),
+            ...(selectedAMSWeaponMounts !== undefined
+              ? { selectedAMSWeaponMounts }
+              : {}),
+          },
+        }
+      : baseEvent;
 
   let updatedSession = appendEvent(session, event);
 

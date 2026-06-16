@@ -90,6 +90,7 @@ import {
   PhysicalAttackType,
   type JumpJetAttackSelectedLeg,
   isSupportedPhysicalAttackType,
+  isZweihanderPhysicalAttackType,
   resolveDfaMissFallDamage,
   resolveDfaMissFallPilotDamageAvoidance,
   resolvePhysicalAttack,
@@ -98,6 +99,7 @@ import {
   splitPhysicalDamageIntoClusters,
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
   thrashBlockingTerrainsForHexTerrain,
+  type IDisplacementBlockerStepOutDecision,
 } from './physicalAttacks';
 import { createDominoEffectPSR } from './pilotingSkillRolls';
 import { waterDepthAtPosition } from './waterDepth';
@@ -116,6 +118,7 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
   readonly d6Roller: D6Roller;
   readonly friendlyUnitIds?: readonly string[];
   readonly targetSourceContainsGroundedDropShip?: boolean;
+  readonly blockerStepOutDecision?: IDisplacementBlockerStepOutDecision;
 }): IResolvedPhysicalDisplacementOutcome {
   const { attackType, attacker, d6Roller, friendlyUnitIds, grid, hit, target } =
     options;
@@ -143,6 +146,7 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
       from: attacker.position,
       to: destination,
       reason: 'charge_miss',
+      blockerStepOutDecision: options.blockerStepOutDecision,
     });
     return {
       displacements: displacements ?? [],
@@ -161,6 +165,7 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
       targetFriendlyUnitIds: friendlyUnitIds,
       targetSourceContainsGroundedDropShip:
         options.targetSourceContainsGroundedDropShip,
+      blockerStepOutDecision: options.blockerStepOutDecision,
     });
   }
 
@@ -172,6 +177,7 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
       attackerFacing: attacker.facing,
       targetId: target.id,
       targetPosition: target.position,
+      blockerStepOutDecision: options.blockerStepOutDecision,
     });
   }
 
@@ -197,6 +203,7 @@ function computeResolvedPhysicalDisplacementOutcome(options: {
     attackerFacing: attacker.facing,
     targetId: target.id,
     targetPosition: target.position,
+    blockerStepOutDecision: options.blockerStepOutDecision,
   });
 }
 
@@ -348,6 +355,11 @@ function appendDfaMissFallPilotDamage(
     pilotAbilities,
     d6Roller,
     attacker.pilotToughness,
+    {
+      edgePointsRemaining: attacker.edgePointsRemaining,
+      turn,
+      unitId: attackerId,
+    },
   );
   const consciousnessPassed =
     totalWounds < PILOT_DEATH_WOUND_THRESHOLD &&
@@ -369,6 +381,12 @@ function appendDfaMissFallPilotDamage(
       'fall',
       consciousnessCheck.consciousnessCheckRequired,
       consciousnessPassed,
+      {
+        edgeReroll: consciousnessCheck.edgeReroll,
+        edgeSuperseded: consciousnessCheck.edgeSuperseded,
+        edgeTrigger: consciousnessCheck.edgeTrigger,
+        edgePointsRemaining: consciousnessCheck.edgePointsRemaining,
+      },
     ),
   );
 
@@ -402,6 +420,12 @@ function weaponsFiredFromArmForAttack(
   attackType: PhysicalAttackType,
   context: IPhysicalAttackContext,
 ): readonly string[] | undefined {
+  if (
+    context.twoHandedZweihander === true &&
+    isZweihanderPhysicalAttackType(attackType)
+  ) {
+    return firedWeaponIdsFromMountedArm(attackerState);
+  }
   if (context.weaponsFiredFromArm !== undefined) {
     return context.weaponsFiredFromArm;
   }
@@ -516,6 +540,21 @@ function appendInvalidPhysicalResolution(
   );
 }
 
+function targetHasINarcPods(
+  target: IGameSession['currentState']['units'][string] | undefined,
+): boolean {
+  return (target?.iNarcPods?.length ?? 0) > 0;
+}
+
+function selectedINarcPodForBrushOff(
+  attackType: PhysicalAttackType | string,
+  context: IPhysicalAttackContext,
+  target: IGameSession['currentState']['units'][string] | undefined,
+): IPhysicalAttackDeclaredPayload['selectedINarcPod'] | undefined {
+  if (attackType !== 'brush-off') return undefined;
+  return context.selectedINarcPod ?? target?.iNarcPods?.[0];
+}
+
 export function declarePhysicalAttack(
   session: IGameSession,
   attackerId: string,
@@ -579,6 +618,7 @@ export function declarePhysicalAttack(
     componentDamage,
     attackType,
     arm: context.arm,
+    twoHandedZweihander: context.twoHandedZweihander,
     hexesMoved: context.hexesMoved,
     heat: attackerState.heat,
     hasTSM: context.hasTSM,
@@ -696,6 +736,10 @@ export function declarePhysicalAttack(
     rightArmFootActuatorPresent: context.rightArmFootActuatorPresent,
     leftArmHasClaw: context.leftArmHasClaw ?? attackerState.leftArmHasClaw,
     rightArmHasClaw: context.rightArmHasClaw ?? attackerState.rightArmHasClaw,
+    leftArmCarryingCargo:
+      context.leftArmCarryingCargo ?? attackerState.leftArmCarryingCargo,
+    rightArmCarryingCargo:
+      context.rightArmCarryingCargo ?? attackerState.rightArmCarryingCargo,
     optionalRules: context.optionalRules ?? session.config.optionalRules,
     tacOpsTripAttackEnabled: context.tacOpsTripAttackEnabled,
     tacOpsGrapplingEnabled: context.tacOpsGrapplingEnabled,
@@ -765,7 +809,8 @@ export function declarePhysicalAttack(
     targetIsSwarmingInfantryOnAttacker:
       context.targetIsSwarmingInfantryOnAttacker ??
       targetIsSwarmingInfantryOnAttacker(attackerId, targetState),
-    targetIsINarcPod: context.targetIsINarcPod,
+    targetIsINarcPod:
+      context.targetIsINarcPod ?? targetHasINarcPods(targetState),
     armAesFunctional: context.armAesFunctional,
     torsoMountedCockpit: context.torsoMountedCockpit,
     headSensorHits: context.headSensorHits,
@@ -781,6 +826,12 @@ export function declarePhysicalAttack(
       : undefined,
     pilotAbilities: context.pilotAbilities ?? attackerState.abilities,
     unitQuirks: context.unitQuirks ?? attackerState.unitQuirks,
+    designatedEnvironment:
+      context.designatedEnvironment ?? attackerState.designatedEnvironment,
+    environmentalLight:
+      context.environmentalLight ??
+      session.config.environmentalConditions?.light,
+    targetIlluminated: context.targetIlluminated,
     elevationDifference: context.elevationDifference,
     elevationContext: context.elevationContext,
     terrainContext: context.terrainContext,
@@ -870,6 +921,9 @@ export function declarePhysicalAttack(
       declaredTN,
       declaredLimb,
       hitTable,
+      context.twoHandedZweihander,
+      selectedINarcPodForBrushOff(attackType, context, targetState),
+      context.blockerStepOutDecision,
     ),
   );
 }
@@ -973,6 +1027,8 @@ export function resolveAllPhysicalAttacks(
       componentDamage,
       attackType: payload.attackType,
       arm: context.arm,
+      twoHandedZweihander:
+        payload.twoHandedZweihander ?? context.twoHandedZweihander,
       hexesMoved: context.hexesMoved,
       heat: attackerState.heat,
       hasTSM: context.hasTSM,
@@ -1084,6 +1140,10 @@ export function resolveAllPhysicalAttacks(
       rightArmFootActuatorPresent: context.rightArmFootActuatorPresent,
       leftArmHasClaw: context.leftArmHasClaw ?? attackerState.leftArmHasClaw,
       rightArmHasClaw: context.rightArmHasClaw ?? attackerState.rightArmHasClaw,
+      leftArmCarryingCargo:
+        context.leftArmCarryingCargo ?? attackerState.leftArmCarryingCargo,
+      rightArmCarryingCargo:
+        context.rightArmCarryingCargo ?? attackerState.rightArmCarryingCargo,
       optionalRules:
         context.optionalRules ?? currentSession.config.optionalRules,
       tacOpsTripAttackEnabled: context.tacOpsTripAttackEnabled,
@@ -1155,7 +1215,8 @@ export function resolveAllPhysicalAttacks(
       targetIsSwarmingInfantryOnAttacker:
         context.targetIsSwarmingInfantryOnAttacker ??
         targetIsSwarmingInfantryOnAttacker(payload.attackerId, targetState),
-      targetIsINarcPod: context.targetIsINarcPod,
+      targetIsINarcPod:
+        context.targetIsINarcPod ?? targetHasINarcPods(targetState),
       armAesFunctional: context.armAesFunctional,
       torsoMountedCockpit: context.torsoMountedCockpit,
       headSensorHits: context.headSensorHits,
@@ -1169,6 +1230,12 @@ export function resolveAllPhysicalAttacks(
       ),
       pilotAbilities: context.pilotAbilities ?? attackerState.abilities,
       unitQuirks: context.unitQuirks ?? attackerState.unitQuirks,
+      designatedEnvironment:
+        context.designatedEnvironment ?? attackerState.designatedEnvironment,
+      environmentalLight:
+        context.environmentalLight ??
+        currentSession.config.environmentalConditions?.light,
+      targetIlluminated: context.targetIlluminated,
       elevationDifference: context.elevationDifference,
       elevationContext: context.elevationContext,
       terrainContext: context.terrainContext,
@@ -1198,6 +1265,7 @@ export function resolveAllPhysicalAttacks(
         Object.values(currentSession.currentState.units),
         targetState,
       ),
+      blockerStepOutDecision: payload.blockerStepOutDecision,
     });
     const displacements = displacementOutcome.displacements;
     const impossibleDisplacementDestroyedUnitId =
@@ -1232,6 +1300,7 @@ export function resolveAllPhysicalAttacks(
         displacements.length > 0 ? displacements : undefined,
         result.automaticHit,
         result.automaticHitReason,
+        selectedINarcPodForBrushOff(payload.attackType, context, targetState),
       ),
     );
 

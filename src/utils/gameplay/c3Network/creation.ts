@@ -1,6 +1,7 @@
 import {
   C3_MASTER_SLAVE_MAX_UNITS,
   C3I_MAX_UNITS,
+  C3_NOVA_MAX_UNITS,
   IC3Network,
   IC3NetworkUnit,
 } from './types';
@@ -83,6 +84,41 @@ export function createC3iNetwork(
   return {
     networkId,
     type: 'improved',
+    teamId,
+    members,
+  };
+}
+
+/**
+ * Create a Nova CEWS peer network.
+ *
+ * Validates:
+ * - All units have Nova CEWS role
+ * - Maximum 3 units
+ * - All units on the same team
+ *
+ * Returns null if validation fails.
+ */
+export function createC3NovaNetwork(
+  networkId: string,
+  members: readonly IC3NetworkUnit[],
+): IC3Network | null {
+  if (members.length === 0 || members.length > C3_NOVA_MAX_UNITS) {
+    return null;
+  }
+
+  if (!members.every((m) => m.role === 'nova')) {
+    return null;
+  }
+
+  const teamId = members[0].teamId;
+  if (!members.every((m) => m.teamId === teamId)) {
+    return null;
+  }
+
+  return {
+    networkId,
+    type: 'nova',
     teamId,
     members,
   };

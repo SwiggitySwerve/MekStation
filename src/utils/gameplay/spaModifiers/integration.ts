@@ -16,12 +16,13 @@
  *   - Gunnery Specialist (weapon_category)
  *   - Blood Stalker      (target)
  *   - Range Master       (range_bracket)
+ *   - Environmental Specialist (represented fog/snow/rain/wind terrain/environment slices)
  *
  * TODO (next wave):
  *   - Sandblaster        (weapon_type damage modifier; cluster path consumes
  *                         `designatedWeaponType` outside to-hit aggregation)
  *   - Human TRO          (weapon_type critical hit shift)
- *   - Environmental Specialist / Terrain Master (terrain)
+ *   - Terrain Master and remaining Environmental Specialist variants (terrain)
  *   - Oblique Attacker terrain refinement (currently unconditional)
  */
 
@@ -36,6 +37,7 @@ import {
 import {
   isRangeBracketDesignation,
   isTargetDesignation,
+  isTerrainDesignation,
   isWeaponCategoryDesignation,
   isWeaponTypeDesignation,
 } from '@/types/pilot/SPADesignation';
@@ -46,6 +48,8 @@ import { calculateJumpingJackModifier } from './abilityModifiers';
 import { calculateDodgeManeuverModifier } from './abilityModifiers';
 import { calculateShakyStickModifier } from './abilityModifiers';
 import { calculateTerrainMasterDefensiveToHitModifier } from './abilityModifiers';
+import { calculateVdniRangedToHitModifier } from './abilityModifiers';
+import { hasSPA } from './canonicalize';
 import { calculateWeaponSpecialistModifier } from './weaponSpecialists';
 import { calculateGunnerySpecialistModifier } from './weaponSpecialists';
 import { calculateRangeMasterModifier } from './weaponSpecialists';
@@ -143,6 +147,12 @@ export function calculateAttackerSPAModifiers(
   );
   if (shakyStickMod) modifiers.push(shakyStickMod);
 
+  const vdniMod = calculateVdniRangedToHitModifier(
+    attackerAbilities,
+    attacker.neuralInterfaceActive ?? true,
+  );
+  if (vdniMod) modifiers.push(vdniMod);
+
   return modifiers;
 }
 
@@ -163,9 +173,10 @@ export function calculateAttackerSPAModifiers(
  *   - Gunnery Specialist → `designatedWeaponCategory`
  *   - Blood Stalker      → `designatedTargetId` (skips empty/deferred ids)
  *   - Range Master       → `designatedRangeBracket`
+ *   - Environmental Specialist → `designatedEnvironment`
  *
- * Other designation kinds (terrain, skill) aren't yet consumed by the
- * combat layer; they're intentionally ignored here. Callers that need
+ * Non-env-specialist terrain and skill designation kinds aren't yet consumed
+ * by the combat layer; they're intentionally ignored here. Callers that need
  * them today should reach for `getPilotDesignation()` on `PilotService`.
  */
 export function populateAttackerDesignations(
@@ -176,6 +187,7 @@ export function populateAttackerDesignations(
   let designatedWeaponCategory: string | undefined;
   let designatedTargetId: string | undefined;
   let designatedRangeBracket: RangeBracket | undefined;
+  let designatedEnvironment: string | undefined;
 
   for (const ability of pilot.abilities) {
     const d = ability.designation;
@@ -192,6 +204,11 @@ export function populateAttackerDesignations(
       if (d.targetUnitId) designatedTargetId = d.targetUnitId;
     } else if (isRangeBracketDesignation(d)) {
       designatedRangeBracket = d.bracket as RangeBracket;
+    } else if (
+      isTerrainDesignation(d) &&
+      hasSPA([ability.abilityId], 'env_specialist')
+    ) {
+      designatedEnvironment = d.terrainTypeId;
     }
   }
 
@@ -206,5 +223,6 @@ export function populateAttackerDesignations(
     designatedTargetId: base.designatedTargetId ?? designatedTargetId,
     designatedRangeBracket:
       base.designatedRangeBracket ?? designatedRangeBracket,
+    designatedEnvironment: base.designatedEnvironment ?? designatedEnvironment,
   };
 }

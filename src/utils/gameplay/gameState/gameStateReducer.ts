@@ -2,11 +2,14 @@ import {
   GameEventType,
   GameSide,
   GameStatus,
+  IAMSInterceptionPayload,
   IAmmoConsumedPayload,
   IAttackDeclaredPayload,
+  IAttackResolvedPayload,
   ICriticalHitResolvedPayload,
   IDamageAppliedPayload,
   IDesignatorMarkerAppliedPayload,
+  IEmpMinefieldEffectAppliedPayload,
   IGameConfig,
   IGameCreatedPayload,
   IGameEndedPayload,
@@ -15,8 +18,10 @@ import {
   IAttacksRevealedPayload,
   IFacingChangedPayload,
   IHeatPayload,
+  INeuralInterfaceStateChangedPayload,
   IInitiativeOrderSetPayload,
   IInitiativeRolledPayload,
+  IMinefieldChangedPayload,
   IMoraleShiftedPayload,
   IMovementEnhancementActivatedPayload,
   IMovementDeclaredPayload,
@@ -34,6 +39,7 @@ import {
   IShutdownCheckPayload,
   ISpottingDeclaredPayload,
   IStartupAttemptPayload,
+  ISwarmDismountedPayload,
   ITerrainChangedPayload,
   IUnitEjectedPayload,
   IUnitDestroyedPayload,
@@ -44,6 +50,8 @@ import {
   IUnitGameState,
   IWithdrawalDeclaredPayload,
   IGameStartedPayload,
+  IGroundObjectDroppedPayload,
+  IGroundObjectPickedUpPayload,
   LockState,
 } from '@/types/gameplay';
 import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
@@ -66,9 +74,12 @@ import {
   applyUnitDestroyed,
 } from './damageResolution';
 import {
+  applyAMSInterception,
   applyAmmoConsumed,
   applyDesignatorMarkerApplied,
+  applyEmpMinefieldEffectApplied,
   applyMoraleShifted,
+  applyNeuralInterfaceStateChanged,
   applyPhysicalAttackDeclared,
   applyPhysicalAttackResolved,
   applyPSRResolved,
@@ -84,6 +95,10 @@ import {
   applyUnitStuck,
   applyWithdrawalDeclared,
 } from './extendedCombat';
+import {
+  applyGroundObjectDropped,
+  applyGroundObjectPickedUp,
+} from './groundObjects';
 import {
   createInitialGameState,
   createInitialUnitState,
@@ -104,7 +119,66 @@ import {
   applyPhaseChanged,
   applyTurnStarted,
 } from './phaseManagement';
-import { applyTerrainChanged } from './terrainReducer';
+import { applyMinefieldChanged, applyTerrainChanged } from './terrainReducer';
+
+function applyAttackResolvedEdgeSpend(
+  state: IGameState,
+  payload: IAttackResolvedPayload,
+): IGameState {
+  if (payload.edgePointsRemaining === undefined) {
+    return state;
+  }
+
+  const target = state.units[payload.targetId];
+  if (!target) {
+    return state;
+  }
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.targetId]: {
+        ...target,
+        edgePointsRemaining: payload.edgePointsRemaining,
+      },
+    },
+  };
+}
+
+function applySwarmDismounted(
+  state: IGameState,
+  payload: ISwarmDismountedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+
+  const combatState =
+    unit.combatState?.kind === 'squad'
+      ? (() => {
+          const { swarmingUnitId: _swarmingUnitId, ...squadState } =
+            unit.combatState.state;
+          return {
+            ...unit.combatState,
+            state: squadState,
+          };
+        })()
+      : unit.combatState;
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        isSwarming: false,
+        ...(combatState ? { combatState } : {}),
+      },
+    },
+  };
+}
 
 export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
   switch (event.type) {
@@ -224,6 +298,18 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
         event.payload as IPhysicalAttackResolvedPayload,
       );
 
+    case GameEventType.GroundObjectPickedUp:
+      return applyGroundObjectPickedUp(
+        state,
+        event.payload as IGroundObjectPickedUpPayload,
+      );
+
+    case GameEventType.GroundObjectDropped:
+      return applyGroundObjectDropped(
+        state,
+        event.payload as IGroundObjectDroppedPayload,
+      );
+
     case GameEventType.ShutdownCheck:
       return applyShutdownCheck(state, event.payload as IShutdownCheckPayload);
 
@@ -235,6 +321,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.AmmoConsumed:
       return applyAmmoConsumed(state, event.payload as IAmmoConsumedPayload);
+
+    case GameEventType.AMSInterception:
+      return applyAMSInterception(
+        state,
+        event.payload as IAMSInterceptionPayload,
+      );
 
     case GameEventType.DesignatorMarkerApplied:
       return applyDesignatorMarkerApplied(
@@ -259,6 +351,12 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
 
     case GameEventType.UnitEjected:
       return applyUnitEjected(state, event.payload as IUnitEjectedPayload);
+
+    case GameEventType.NeuralInterfaceStateChanged:
+      return applyNeuralInterfaceStateChanged(
+        state,
+        event.payload as INeuralInterfaceStateChangedPayload,
+      );
 
     case GameEventType.MoraleShifted:
       return applyMoraleShifted(state, event.payload as IMoraleShiftedPayload);
@@ -290,8 +388,31 @@ export function applyEvent(state: IGameState, event: IGameEvent): IGameState {
         event.payload as ITerrainChangedPayload,
       );
 
-    case GameEventType.TurnEnded:
+    case GameEventType.MinefieldChanged:
+      return applyMinefieldChanged(
+        state,
+        event.payload as IMinefieldChangedPayload,
+      );
+
+    case GameEventType.EmpMinefieldEffectApplied:
+      return applyEmpMinefieldEffectApplied(
+        state,
+        event.payload as IEmpMinefieldEffectAppliedPayload,
+      );
+
+    case GameEventType.SwarmDismounted:
+      return applySwarmDismounted(
+        state,
+        event.payload as ISwarmDismountedPayload,
+      );
+
     case GameEventType.AttackResolved:
+      return applyAttackResolvedEdgeSpend(
+        state,
+        event.payload as IAttackResolvedPayload,
+      );
+
+    case GameEventType.TurnEnded:
     case GameEventType.HeatEffectApplied:
     case GameEventType.CriticalHit:
     case GameEventType.AmmoExplosion:

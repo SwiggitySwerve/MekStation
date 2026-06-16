@@ -110,3 +110,35 @@ export function calculateLowProfileModifier(
     description: 'Target has Low Profile quirk (partial cover effect): +1',
   };
 }
+
+/**
+ * Low Profile glancing blows apply when the final attack roll exactly meets
+ * the target number or exceeds it by one. This is separate from MekStation's
+ * legacy local +1 to-hit helper above.
+ */
+export function isLowProfileGlancingBlow(
+  targetQuirks: readonly string[] | undefined,
+  attackRoll: number,
+  toHitNumber: number,
+): boolean {
+  if (!targetQuirks?.includes(UNIT_QUIRK_IDS.LOW_PROFILE)) return false;
+  if (!Number.isFinite(attackRoll) || !Number.isFinite(toHitNumber)) {
+    return false;
+  }
+
+  return attackRoll === toHitNumber || attackRoll === toHitNumber + 1;
+}
+
+export function applyLowProfileGlancingDamage(damage: number): number {
+  return Math.floor(damage / 2);
+}
+
+export function getLowProfileGlancingCriticalHitModifier(
+  targetQuirks: readonly string[] | undefined,
+  attackRoll: number,
+  toHitNumber: number,
+): number {
+  return isLowProfileGlancingBlow(targetQuirks, attackRoll, toHitNumber)
+    ? -2
+    : 0;
+}

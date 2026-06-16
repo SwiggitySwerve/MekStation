@@ -230,29 +230,34 @@ const NON_BATTLEMECH_COMBAT_SYSTEM_SPLIT_SOURCE_REFS = [
 
 const UNRESOLVED_COMPLETION_BLOCKER_INVENTORY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
-    'MekStation CombatValidationGapInventory exports helper-only and unsupported catalog rows as sorted machine-readable completion blockers.',
+    'MekStation CombatValidationGapInventory exports helper-only and unsupported catalog rows as sorted machine-readable completion blockers and classifies validation objective rollups separately from leaf gaps.',
     'src/simulation/runner/CombatValidationGapInventory.ts',
-    'L27-L60',
+    'L21-L69',
   ),
   mekstationDeviationSourceRef(
     'MekStation combatValidationCatalog.contract asserts the exported unresolved inventory shape and sentinel blocker rows.',
     'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts',
-    'L126-L156',
+    'L159-L1479',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation combatValidationCatalog.contract asserts the unresolved inventory leaf/aggregate split so objective rollups stay visible without being mistaken for leaf mechanic gaps.',
+    'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts',
+    'L1485-L1534',
   ),
   mekstationDeviationSourceRef(
     'MekStation combatValidationCatalog.contract asserts the unresolved inventory is exposed through named validation tooling.',
     'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts',
-    'L158-L172',
+    'L1915-L1933',
   ),
   mekstationDeviationSourceRef(
-    'MekStation print-combat-validation-gaps emits JSON, refs, and summary views of the unresolved inventory for review gates.',
+    'MekStation print-combat-validation-gaps emits JSON, Markdown, refs, and summary views of the unresolved inventory, with optional all/leaf/aggregate scope filtering, expected-count assertions, expected-ref assertions, and fail-closed unknown flag handling for review gates.',
     'scripts/print-combat-validation-gaps.ts',
-    'L43-L75',
+    'L1-L216',
   ),
   mekstationDeviationSourceRef(
-    'MekStation validate-combat-suite runs the unresolved gap inventory summary after focused combat catalog and behavior tests.',
+    'MekStation validate-combat-suite asserts the reviewed unresolved gap inventory baseline after focused combat catalog and behavior tests.',
     'scripts/validate-combat-suite.mjs',
-    'L64-L69',
+    'L109-L128',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -294,7 +299,7 @@ export const BATTLEMECH_VALIDATION_SCOPE_SUPPORT = {
   ),
   'unresolved-completion-blocker-inventory': integrated(
     'unresolved-completion-blocker-inventory',
-    'CombatValidationGapInventory exports the aggregate helper-only and unsupported support rows as sorted machine-readable completion blockers for review and PR gating',
+    'CombatValidationGapInventory exports the aggregate helper-only and unsupported support rows as sorted machine-readable completion blockers, print-combat-validation-gaps fails closed on malformed reviewer flags, and validate:combat asserts the reviewed unresolved-count baseline for PR gating',
     UNRESOLVED_COMPLETION_BLOCKER_INVENTORY_SOURCE_REFS,
   ),
   'non-battlemech-ammo-scope': outOfScope(

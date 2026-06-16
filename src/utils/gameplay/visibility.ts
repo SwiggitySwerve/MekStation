@@ -39,6 +39,16 @@ type VisibilityState = IGameState & IVisibilityStateAugments;
 
 type UnitWithSensorRange = IUnitGameState & {
   readonly sensorRange?: number;
+  readonly sensorCheck?: number;
+  readonly sensorRangeBrackets?: Partial<
+    Record<'short' | 'medium' | 'long', number>
+  >;
+  readonly activeSensorEcmProfile?:
+    | 'standard-active-probe'
+    | 'bloodhound'
+    | 'light-active-probe'
+    | 'vehicle-radar'
+    | 'none';
 };
 
 /**
@@ -124,6 +134,9 @@ function getOwnerIdForSide(side: GameSide, state: VisibilityState): string {
 }
 
 function getSensorRange(unit: IUnitGameState): number {
+  const bracketedRange = getBracketedSensorRange(unit);
+  if (bracketedRange !== undefined) return bracketedRange;
+
   const { sensorRange } = unit as UnitWithSensorRange;
 
   if (
@@ -135,4 +148,61 @@ function getSensorRange(unit: IUnitGameState): number {
   }
 
   return DEFAULT_SENSOR_RANGE;
+}
+
+function getBracketedSensorRange(unit: IUnitGameState): number | undefined {
+  const { sensorCheck, sensorRangeBrackets } = unit as UnitWithSensorRange;
+  if (
+    typeof sensorCheck !== 'number' ||
+    !Number.isFinite(sensorCheck) ||
+    sensorRangeBrackets === undefined
+  ) {
+    return undefined;
+  }
+
+  const ecmAdjustedCheck = sensorCheck + getINarcEcmSensorCheckModifier(unit);
+  const bracket = getSensorRangeBracket(ecmAdjustedCheck);
+  if (bracket === 'none') return 0;
+
+  const range = sensorRangeBrackets[bracket];
+  if (typeof range !== 'number' || !Number.isFinite(range) || range < 0) {
+    return undefined;
+  }
+
+  return range;
+}
+
+function getSensorRangeBracket(
+  check: number,
+): 'none' | 'short' | 'medium' | 'long' {
+  if (check === 7 || check === 8) return 'short';
+  if (check === 5 || check === 6) return 'medium';
+  if (check < 5) return 'long';
+  return 'none';
+}
+
+function getINarcEcmSensorCheckModifier(unit: IUnitGameState): number {
+  if (!hasEnemyINarcEcmPod(unit)) return 0;
+
+  switch ((unit as UnitWithSensorRange).activeSensorEcmProfile) {
+    case 'bloodhound':
+      return 2;
+    case 'light-active-probe':
+      return 5;
+    case 'vehicle-radar':
+      return 6;
+    case 'none':
+      return 0;
+    case 'standard-active-probe':
+    case undefined:
+      return 4;
+  }
+}
+
+function hasEnemyINarcEcmPod(unit: IUnitGameState): boolean {
+  return (
+    unit.iNarcPods?.some(
+      (pod) => pod.podType === 'ecm' && pod.teamId !== unit.side,
+    ) === true
+  );
 }

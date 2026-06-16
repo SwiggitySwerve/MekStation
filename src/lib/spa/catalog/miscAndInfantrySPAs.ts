@@ -18,10 +18,10 @@ export const MISC_SPAS: readonly ISPADefinition[] = [
     id: 'env_specialist',
     displayName: 'Environmental Specialist',
     description:
-      'PSR and movement bonuses in a designated environment type (vacuum, deep water, underground, low-g).',
+      'Designate Fog, Light, Rain, Snow, or Wind; represented BattleMech combat applies source-backed weather/light ranged to-hit relief and Light physical to-hit relief.',
     requiresDesignation: true,
     designationType: 'terrain',
-    pipelines: ['psr', 'movement', 'to-hit'],
+    pipelines: ['to-hit'],
   }),
   support({
     id: 'forward_observer',

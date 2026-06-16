@@ -1,5 +1,6 @@
 import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution/types';
 
+import { lineOfSightOptionsFromGameState } from '@/engine/InteractiveSession.indirectFire';
 import {
   FiringArc,
   GameEventType,
@@ -36,12 +37,13 @@ import {
 } from '@/utils/gameplay/firingArc';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
+import { hasLowProfile } from '@/utils/gameplay/quirkModifiers';
 import { getClusterHitterBonus, hasSPA } from '@/utils/gameplay/spaModifiers';
 import {
   isMissileWeapon,
   isNarcCompatibleMissileWeapon,
 } from '@/utils/gameplay/specialWeaponMechanics';
-import { hexProvidesPartialCover } from '@/utils/gameplay/terrainCover';
+import { getTargetCoverInfo } from '@/utils/gameplay/terrainCover';
 import {
   buildWeaponAttackAttackerToHitState,
   buildWeaponAttackTargetToHitState,
@@ -58,6 +60,7 @@ import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
 import { DEFAULT_GUNNERY } from '../SimulationRunnerConstants';
 import {
+  applyDestroyedArtemisFcsToWeapons,
   applyDestroyedWeaponCriticalsToWeapons,
   createMinimalWeapon,
   getRangeBracket,
@@ -77,6 +80,7 @@ import {
   isWeaponJammed,
   markWeaponFiredForHeat,
   markWeaponJammed,
+  resolveSandblasterAutocannonRateOfFireShotCount,
   resolveSpecialProjectileHit,
   selectedAmmoWeaponType,
   selectedModeToHitModifier,
@@ -661,7 +665,10 @@ export function runAttackPhase(options: {
     // populate this unit (legacy preset / non-swarm callers).
     const hydratedWeapons = weaponsByUnit?.get(unitId);
     const effectiveHydratedWeapons = hydratedWeapons
-      ? applyDestroyedWeaponCriticalsToWeapons(unit, hydratedWeapons)
+      ? applyDestroyedArtemisFcsToWeapons(
+          unit,
+          applyDestroyedWeaponCriticalsToWeapons(unit, hydratedWeapons),
+        )
       : undefined;
     const weaponLookup = new Map<string, IWeapon>();
     if (effectiveHydratedWeapons) {
@@ -731,14 +738,16 @@ export function runAttackPhase(options: {
 
       const selectedModeId = attackEvent.payload.weaponModes?.[weaponId];
       const selectedMode = getSelectedFiringMode(baseWeapon, selectedModeId);
-      const selectedShotWeapons = expandSelectedModeIntoShots(
-        baseWeapon,
-        selectedMode,
-      );
       const ammoWeaponType = selectedAmmoWeaponType(baseWeapon, selectedMode);
       const declaredWeaponModes =
         selectedModeId && selectedMode !== undefined
           ? { [weaponId]: selectedModeId }
+          : undefined;
+      const selectedAMSWeaponId =
+        attackEvent.payload.selectedAMSWeaponIds?.[weaponId];
+      const declaredSelectedAMSWeaponIds =
+        selectedAMSWeaponId !== undefined
+          ? { [weaponId]: selectedAMSWeaponId }
           : undefined;
       const nemesisRedirectTargetId = findINarcNemesisRedirectTarget({
         currentState,
@@ -832,6 +841,22 @@ export function runAttackPhase(options: {
         );
         continue;
       }
+      const sandblasterRateOfFireShotCount =
+        resolveSandblasterAutocannonRateOfFireShotCount({
+          baseWeapon,
+          selectedMode,
+          d6Roller,
+          clusterContext: {
+            sandblasterSPA: hasSPA(attackerNow.abilities ?? [], 'sandblaster'),
+            designatedWeaponType: attackerNow.designatedWeaponType,
+            attackRange: distance,
+          },
+        });
+      const selectedShotWeapons = expandSelectedModeIntoShots(
+        baseWeapon,
+        selectedMode,
+        sandblasterRateOfFireShotCount?.shotCount,
+      );
 
       // Per `add-encounter-swarm-harness` Phase 1: use the unit's real
       // gunnery so pilot skills drive hit probability, not just target
@@ -858,13 +883,10 @@ export function runAttackPhase(options: {
           applyLocalCalledShotAbilityReduction: false,
         },
       );
-      // Partial cover is derived from the terrain of the target's own hex
-      // (Total Warfare p. 53). The runner's all-clear grid yields `false`
-      // today; the moment varied terrain lands this lights up automatically.
-      const targetHex = grid?.hexes.get(
-        `${targetNow.position.q},${targetNow.position.r}`,
-      );
-      const targetPartialCover = hexProvidesPartialCover(targetHex);
+      const targetCoverInfo = grid
+        ? getTargetCoverInfo(grid, attackerNow.position, targetNow.position)
+        : null;
+      const targetPartialCover = targetCoverInfo?.partialCover ?? false;
 
       const targetState: ITargetState = buildWeaponAttackTargetToHitState(
         targetNow,
@@ -890,10 +912,16 @@ export function runAttackPhase(options: {
         weaponId,
         attackerPosition: attackerNow.position,
         targetPosition: targetNow.position,
+        optionalRules,
       });
       if (!lineOfSight.permitted) {
         continue;
       }
+      const damageableCoverProvider = targetPartialCover
+        ? lineOfSight.losResult?.damageableCoverProviders.find(
+            (provider) => provider.side === 'target',
+          )
+        : undefined;
       const indirectFireResolution = lineOfSight.indirectFireResolution;
       const isIndirectFire =
         indirectFireResolution?.permitted === true &&
@@ -961,6 +989,12 @@ export function runAttackPhase(options: {
                                 spotter.position,
                                 targetNow.position,
                                 grid,
+                                undefined,
+                                undefined,
+                                lineOfSightOptionsFromGameState(
+                                  currentState,
+                                  optionalRules,
+                                ),
                               ).hasLOS
                             : false,
                       },
@@ -1054,6 +1088,9 @@ export function runAttackPhase(options: {
               isMissileWeapon:
                 isMissileWeapon(baseWeapon.id) ||
                 isMissileWeapon(baseWeapon.name),
+              pilotAbilities: attackerNow.abilities,
+              designatedEnvironment: attackerNow.designatedEnvironment,
+              targetIlluminated: targetNow.isIlluminated,
             })
           : [];
       const environmentalModifierTotal = environmentalModifiers.reduce(
@@ -1146,6 +1183,9 @@ export function runAttackPhase(options: {
               weapons: [weaponId],
               ...(declaredWeaponModes
                 ? { weaponModes: declaredWeaponModes }
+                : {}),
+              ...(declaredSelectedAMSWeaponIds
+                ? { selectedAMSWeaponIds: declaredSelectedAMSWeaponIds }
                 : {}),
               toHitNumber: environmentAdjustedToHit,
               modifiers: attackModifiers,
@@ -1325,6 +1365,7 @@ export function runAttackPhase(options: {
             hasArtemisV: baseWeapon.hasArtemisV,
             attackerStealthActive,
             flightPathEcmAffected,
+            targetLowProfile: hasLowProfile(targetBeforeShot.unitQuirks ?? []),
             isIndirectFire:
               indirectFireResolution?.permitted === true &&
               indirectFireResolution.isIndirect,
@@ -1342,6 +1383,9 @@ export function runAttackPhase(options: {
             incomingAttackArc: firingArc,
             targetWeapons: weaponsByUnit?.get(targetId),
             targetAmmoState: targetBeforeShot.ammoState,
+            unavailableAMSWeaponIds: targetBeforeShot.weaponsFiredThisTurn,
+            selectedAMSWeaponId,
+            optionalRules,
           },
         });
 
@@ -1371,6 +1415,8 @@ export function runAttackPhase(options: {
           toHitNumber: environmentAdjustedToHit,
           firingArc,
           partialCover: targetPartialCover,
+          damageableCoverProvider,
+          grid,
           hullDown: targetBeforeShot.hullDown ?? false,
           d6Roller,
           optionalRules,

@@ -30,9 +30,16 @@ export interface ICriticalSlotEntry {
   readonly componentType: CriticalSlotComponentType;
   readonly componentName: string;
   readonly destroyed: boolean;
+  readonly missing?: boolean;
+  readonly breached?: boolean;
   readonly actuatorType?: ActuatorType;
   readonly weaponId?: string;
   readonly ammoBinId?: string;
+  readonly hotLoaded?: boolean;
+  readonly linkedCriticalWeaponId?: string;
+  readonly linkedCriticalWeaponName?: string;
+  readonly explosionDamage?: number;
+  readonly explosionRequiresSecondaryEffects?: boolean;
 }
 
 export type CriticalSlotManifest = Readonly<
@@ -51,6 +58,23 @@ export interface ICriticalHitApplicationResult {
   readonly effect: ICriticalEffect;
   readonly events: readonly CriticalHitEvent[];
   readonly updatedComponentDamage: IComponentDamageState;
+  readonly slotDestroyed?: boolean;
+  readonly secondaryCriticals?: number;
+}
+
+export interface ICriticalEffectOptions {
+  readonly optionalRules?: readonly string[];
+  readonly secondaryEffects?: boolean;
+}
+
+export interface ICriticalEdgeOptions {
+  readonly pilotAbilities?: readonly string[];
+  readonly edgePointsRemaining?: number;
+  readonly turn?: number;
+  readonly unitId?: string;
+  readonly criticalHitModifier?: number;
+  readonly optionalRules?: readonly string[];
+  readonly secondaryEffects?: boolean;
 }
 
 export interface ICriticalResolutionResult {
@@ -58,6 +82,7 @@ export interface ICriticalResolutionResult {
   readonly events: readonly CriticalHitEvent[];
   readonly updatedManifest: CriticalSlotManifest;
   readonly updatedComponentDamage: IComponentDamageState;
+  readonly edgePointsRemaining?: number;
   readonly locationBlownOff: boolean;
   readonly headDestroyed: boolean;
   readonly unitDestroyed: boolean;

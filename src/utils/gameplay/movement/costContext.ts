@@ -1,5 +1,6 @@
 import type {
   IMovementCapability,
+  IEnvironmentalConditions,
   MovementPavementRoadBonusProfile,
   MovementTerrainProfile,
   IMovementWaterCapability,
@@ -11,6 +12,7 @@ export interface IMovementCostContext {
   readonly declaredMovementType?: MovementType;
   readonly isFirstStep?: boolean;
   readonly movementTerrainProfile?: MovementTerrainProfile;
+  readonly environmentalConditions?: IEnvironmentalConditions;
   readonly pavementRoadBonusProfile?: MovementPavementRoadBonusProfile;
   readonly optionalRules?: readonly string[] | undefined;
   readonly pilotAbilities?: readonly string[] | undefined;
@@ -23,7 +25,10 @@ export function movementCostContextForCapability(
   capability: IMovementCapability,
   stepContext: Pick<
     IMovementCostContext,
-    'isFirstStep' | 'optionalRules' | 'pilotAbilities'
+    | 'environmentalConditions'
+    | 'isFirstStep'
+    | 'optionalRules'
+    | 'pilotAbilities'
   > = {},
 ): IMovementCostContext {
   return {
@@ -36,6 +41,9 @@ export function movementCostContextForCapability(
       : {}),
     ...(capability.pavementRoadBonusProfile
       ? { pavementRoadBonusProfile: capability.pavementRoadBonusProfile }
+      : {}),
+    ...(stepContext.environmentalConditions !== undefined
+      ? { environmentalConditions: stepContext.environmentalConditions }
       : {}),
     ...(stepContext.optionalRules !== undefined
       ? { optionalRules: stepContext.optionalRules }

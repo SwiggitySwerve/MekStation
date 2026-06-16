@@ -200,14 +200,15 @@ describe('Simulation Combat Integration (Phase 17)', () => {
     });
 
     it('should include PhysicalAttackResolved events with resolution data', () => {
-      // Use small map to force adjacency
+      // Use small map to force adjacency. Seed 41000 exercises rolled
+      // physical resolutions even with movement-triggered PSRs in the turn loop.
       const config: ISimulationConfig = {
-        seed: 41002,
+        seed: 41000,
         turnLimit: 10,
         unitCount: { player: 2, opponent: 2 },
         mapRadius: 3,
       };
-      const runner = new SimulationRunner(41002, createInvariantRunner());
+      const runner = new SimulationRunner(41000, createInvariantRunner());
       const result = runner.run(config);
 
       const resolvedEvents = result.events.filter(

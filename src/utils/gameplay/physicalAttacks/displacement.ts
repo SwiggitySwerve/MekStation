@@ -15,6 +15,9 @@ import {
   FiringArc,
   IHexCoordinate,
   IHexGrid,
+  type IPhysicalDominoStepOutContextPayload,
+  type IPhysicalDominoStepOutDecisionPayload,
+  type IPhysicalDominoStepOutOptionPayload,
   IPhysicalDisplacement,
 } from '@/types/gameplay';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -69,6 +72,17 @@ export interface IPreferredDisplacementOptions {
 
 export interface IValidDisplacementSearchOptions {
   readonly sourceContainsGroundedDropShip?: boolean;
+}
+
+export type IDisplacementBlockerStepOutOption =
+  IPhysicalDominoStepOutOptionPayload;
+export type IDisplacementBlockerStepOutContext =
+  IPhysicalDominoStepOutContextPayload;
+export type IDisplacementBlockerStepOutDecision =
+  IPhysicalDominoStepOutDecisionPayload;
+
+export interface IDisplacementDominoResolutionOptions {
+  readonly blockerStepOutDecision?: IDisplacementBlockerStepOutDecision;
 }
 
 interface IDisplacementSourceUnit {
@@ -178,6 +192,14 @@ function sameCoord(a: IHexCoordinate, b: IHexCoordinate): boolean {
   return a.q === b.q && a.r === b.r;
 }
 
+function isAdjacent(a: IHexCoordinate, b: IHexCoordinate): boolean {
+  return directionFromAdjacent(a, b) !== undefined;
+}
+
+function coordMatches(a: IHexCoordinate, b: IHexCoordinate): boolean {
+  return a.q === b.q && a.r === b.r;
+}
+
 function sameBoard(
   a: Pick<IDisplacementSourceUnit, 'boardId'>,
   b: Pick<IDisplacementSourceUnit, 'boardId'>,
@@ -223,6 +245,71 @@ function withVisitedOccupant(
   visitedOccupants.forEach((visitedUnitId) => next.add(visitedUnitId));
   next.add(unitId);
   return next;
+}
+
+function isLegalBlockerStepOutDecision(
+  grid: IHexGrid,
+  occupiedDestination: IHexCoordinate,
+  blockingUnitId: string,
+  decision: IDisplacementBlockerStepOutDecision | undefined,
+): boolean {
+  if (!decision) return false;
+  if (decision.blockerUnitId !== blockingUnitId) return false;
+  if (!sameCoord(decision.from, occupiedDestination)) return false;
+  if (decision.response !== 'move') return false;
+  if (!decision.psrPassed) return false;
+  if (!decision.context.sideEntered) return false;
+  if (decision.context.blockerJumped) return false;
+  if (decision.path.length === 0) return false;
+
+  const finalStep = decision.path[decision.path.length - 1];
+  if (
+    !decision.context.legalStepOptions.some((option) =>
+      coordMatches(option.to, finalStep),
+    )
+  ) {
+    return false;
+  }
+
+  let previous = occupiedDestination;
+  for (const step of decision.path) {
+    if (!isAdjacent(previous, step)) return false;
+    const stepOccupantId = occupantAt(grid, step);
+    if (stepOccupantId && stepOccupantId !== blockingUnitId) return false;
+    if (
+      !isValidDisplacementInternal(
+        grid,
+        step,
+        {
+          excludeUnitId: blockingUnitId,
+          source: previous,
+          maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
+        },
+        new Set([blockingUnitId]),
+      )
+    ) {
+      return false;
+    }
+    previous = step;
+  }
+
+  return !sameCoord(previous, occupiedDestination);
+}
+
+function usesBlockerStepOutDecision(
+  displacements: readonly IPhysicalDisplacement[],
+  decision: IDisplacementBlockerStepOutDecision | undefined,
+): boolean {
+  if (!decision || displacements.length === 0 || decision.path.length === 0) {
+    return false;
+  }
+  const finalStep = decision.path[decision.path.length - 1];
+  return displacements.some(
+    (displacement) =>
+      displacement.unitId === decision.blockerUnitId &&
+      sameCoord(displacement.from, decision.from) &&
+      sameCoord(displacement.to, finalStep),
+  );
 }
 
 /**
@@ -361,11 +448,33 @@ function computeDominoChainFromDestination(
   destination: IHexCoordinate,
   direction: Facing,
   displacedUnitId: string,
+  options: IDisplacementDominoResolutionOptions,
   visitedOccupants: ReadonlySet<string> = new Set(),
 ): readonly IPhysicalDisplacement[] | null {
   const blockingUnitId = occupantAt(grid, destination);
   if (!blockingUnitId || blockingUnitId === displacedUnitId) return [];
   if (visitedOccupants.has(blockingUnitId)) return null;
+
+  const stepOutDecision = options.blockerStepOutDecision;
+  if (
+    stepOutDecision &&
+    isLegalBlockerStepOutDecision(
+      grid,
+      destination,
+      blockingUnitId,
+      stepOutDecision,
+    )
+  ) {
+    const path = stepOutDecision.path;
+    return [
+      {
+        unitId: blockingUnitId,
+        from: destination,
+        to: path[path.length - 1],
+        reason: 'domino_step_out',
+      },
+    ];
+  }
 
   const blockerDestination = translateHex(destination, direction);
   if (
@@ -388,6 +497,7 @@ function computeDominoChainFromDestination(
     blockerDestination,
     direction,
     blockingUnitId,
+    options,
     withVisitedOccupant(visitedOccupants, blockingUnitId),
   );
   if (downstream === null) return null;
@@ -408,6 +518,7 @@ function dominoChainForDisplacement(
   displacedUnitId: string,
   source: IHexCoordinate,
   destination: IHexCoordinate,
+  options: IDisplacementDominoResolutionOptions = {},
 ): readonly IPhysicalDisplacement[] | null {
   const direction = directionFromAdjacent(source, destination);
   if (direction === undefined) {
@@ -418,6 +529,7 @@ function dominoChainForDisplacement(
     destination,
     direction,
     displacedUnitId,
+    options,
   );
 }
 
@@ -426,25 +538,31 @@ export function computeDisplacementWithDominoChain(options: {
   readonly unitId: string;
   readonly from: IHexCoordinate;
   readonly to: IHexCoordinate;
-  readonly reason: Exclude<IPhysicalDisplacement['reason'], 'domino'>;
+  readonly reason: Exclude<
+    IPhysicalDisplacement['reason'],
+    'domino' | 'domino_step_out'
+  >;
+  readonly blockerStepOutDecision?: IDisplacementBlockerStepOutDecision;
 }): readonly IPhysicalDisplacement[] | null {
   const dominoChain = dominoChainForDisplacement(
     options.grid,
     options.unitId,
     options.from,
     options.to,
+    { blockerStepOutDecision: options.blockerStepOutDecision },
   );
   if (dominoChain === null) return null;
 
-  return [
-    {
-      unitId: options.unitId,
-      from: options.from,
-      to: options.to,
-      reason: options.reason,
-    },
-    ...dominoChain,
-  ];
+  const displacedUnit: IPhysicalDisplacement = {
+    unitId: options.unitId,
+    from: options.from,
+    to: options.to,
+    reason: options.reason,
+  };
+
+  return usesBlockerStepOutDecision(dominoChain, options.blockerStepOutDecision)
+    ? [...dominoChain, displacedUnit]
+    : [displacedUnit, ...dominoChain];
 }
 
 export function sourceContainsGroundedDropShip(
@@ -647,6 +765,7 @@ export function computePushDisplacementOutcome(options: {
   readonly attackerFacing: Facing;
   readonly targetId: string;
   readonly targetPosition: IHexCoordinate;
+  readonly blockerStepOutDecision?: IDisplacementBlockerStepOutDecision;
 }): IPushDisplacementOutcome {
   const {
     attackerFacing,
@@ -678,6 +797,7 @@ export function computePushDisplacementOutcome(options: {
     from: targetPosition,
     to: targetDestination,
     reason: 'push',
+    blockerStepOutDecision: options.blockerStepOutDecision,
   });
   if (targetDisplacements === null) return { displacements: [] };
 
@@ -708,6 +828,7 @@ export function computeChargeDisplacementOutcome(options: {
   readonly attackerFacing: Facing;
   readonly targetId: string;
   readonly targetPosition: IHexCoordinate;
+  readonly blockerStepOutDecision?: IDisplacementBlockerStepOutDecision;
 }): IChargeDisplacementOutcome {
   const {
     attackerFacing,
@@ -739,6 +860,7 @@ export function computeChargeDisplacementOutcome(options: {
     from: targetPosition,
     to: targetDestination,
     reason: 'charge',
+    blockerStepOutDecision: options.blockerStepOutDecision,
   });
   if (targetDisplacements === null) return { displacements: [] };
 
@@ -946,6 +1068,7 @@ export function computeDfaDisplacementOutcome(options: {
   readonly hit: boolean;
   readonly targetFriendlyUnitIds?: readonly string[];
   readonly targetSourceContainsGroundedDropShip?: boolean;
+  readonly blockerStepOutDecision?: IDisplacementBlockerStepOutDecision;
 }): IDfaDisplacementOutcome {
   const {
     attackerFacing,
@@ -993,6 +1116,7 @@ export function computeDfaDisplacementOutcome(options: {
     from: targetPosition,
     to: targetDestination,
     reason,
+    blockerStepOutDecision: options.blockerStepOutDecision,
   });
   if (targetDisplacements === null) {
     return { displacements: [] };

@@ -3,6 +3,7 @@
  * the shared physical-attack rules but historically skipped by the runner.
  */
 
+import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
   Facing,
   GameEventType,
@@ -14,6 +15,9 @@ import {
   IHex,
   IHexGrid,
   IDamageAppliedPayload,
+  ICriticalHitResolvedPayload,
+  IMinefieldChangedPayload,
+  IRepresentedMinefieldState,
   IPhysicalAttackDeclaredPayload,
   IMovementCapability,
   IPilotHitPayload,
@@ -29,9 +33,16 @@ import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
+  buildCriticalSlotManifest,
+  type CriticalSlotManifest,
+} from '@/utils/gameplay/criticalHitResolution';
+import {
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
+  type PhysicalAttackINarcPodSelection,
+  type PhysicalAttackLimb,
   type PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks';
+import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import type {
   IAIPlayer,
@@ -45,11 +56,31 @@ import type { IViolation } from '../../invariants/types';
 
 import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
+import {
+  DISPLACEMENT_DOMINO_SECONDARY_FALLOUT_UNSUPPORTED_IDS,
+  PHYSICAL_LEGALITY_GATE_SUPPORT,
+} from '../CombatPhysicalLegalityGateSupport';
 import { runPhysicalAttackPhase } from '../phases/physicalAttack';
 import { DEFAULT_COMPONENT_DAMAGE } from '../SimulationRunnerConstants';
 
+const EXPLICIT_UNSUPPORTED_MINEFIELD_VARIANT_TYPES = [
+  'command-detonated',
+  'vibrabomb',
+  'active',
+  'inferno',
+] satisfies readonly Exclude<
+  NonNullable<IRepresentedMinefieldState['type']>,
+  'conventional'
+>[];
+
 class DeclaresPhysicalAttackAI implements IAIPlayer {
-  constructor(private readonly attackType: PhysicalAttackType) {}
+  constructor(
+    private readonly attackType: PhysicalAttackType,
+    private readonly twoHandedZweihander: boolean = false,
+    private readonly selectedINarcPod?: PhysicalAttackINarcPodSelection,
+    private readonly limb?: PhysicalAttackLimb,
+    private readonly blockerStepOutDecision?: IPhysicalAttackDeclaredPayload['blockerStepOutDecision'],
+  ) {}
 
   evaluateRetreat(): IRetreatEvent | null {
     return null;
@@ -75,6 +106,14 @@ class DeclaresPhysicalAttackAI implements IAIPlayer {
         attackerId: attacker.unitId,
         targetId: 'opponent-1',
         attackType: this.attackType,
+        ...(this.limb !== undefined ? { limb: this.limb } : {}),
+        ...(this.twoHandedZweihander ? { twoHandedZweihander: true } : {}),
+        ...(this.selectedINarcPod !== undefined
+          ? { selectedINarcPod: this.selectedINarcPod }
+          : {}),
+        ...(this.blockerStepOutDecision !== undefined
+          ? { blockerStepOutDecision: this.blockerStepOutDecision }
+          : {}),
       },
     };
   }
@@ -187,6 +226,22 @@ function createState(): IGameState {
     },
     turnEvents: [],
   };
+}
+
+function scriptedD6Random(d6Rolls: readonly number[]): SeededRandom {
+  let index = 0;
+  return {
+    next: () => {
+      const roll = d6Rolls[index] ?? 1;
+      index += 1;
+      return (Math.max(1, Math.min(6, roll)) - 0.5) / 6;
+    },
+    nextInt: () => 0,
+    nextRange: (min: number) => min,
+    reset: () => {
+      index = 0;
+    },
+  } as unknown as SeededRandom;
 }
 
 function createPhysicalGrid(
@@ -368,10 +423,26 @@ function createDominoChargeGrid(): IHexGrid {
   }
   hexes.set('1,2', {
     coord: { q: 1, r: 2 },
+    occupantId: 'domino-tail',
+    terrain: TerrainType.Clear,
+    elevation: 0,
+  });
+  hexes.set('1,3', {
+    coord: { q: 1, r: 3 },
     occupantId: null,
     terrain: TerrainType.Clear,
     elevation: 0,
   });
+  return { ...grid, config: { radius: 3 }, hexes };
+}
+
+function createBlockedDominoChargeGrid(): IHexGrid {
+  const grid = createDominoChargeGrid();
+  const hexes = new Map(grid.hexes);
+  const terminalHex = hexes.get('1,3');
+  if (terminalHex) {
+    hexes.set('1,3', { ...terminalHex, terrain: 'impassable' });
+  }
   return { ...grid, hexes };
 }
 
@@ -405,6 +476,11 @@ function runPhase(
     grid?: IHexGrid;
     movementCapabilitiesByUnit?: ReadonlyMap<string, IMovementCapability>;
     optionalRules?: readonly string[];
+    manifestsByUnit?: Map<string, CriticalSlotManifest>;
+    random?: SeededRandom;
+    twoHandedZweihander?: boolean;
+    selectedINarcPod?: PhysicalAttackINarcPodSelection;
+    limb?: PhysicalAttackLimb;
   } = {},
 ): {
   initialState: IGameState;
@@ -431,7 +507,12 @@ function runPhase(
 
   const result = runPhysicalAttackPhase({
     state,
-    botPlayer: new DeclaresPhysicalAttackAI(attackType),
+    botPlayer: new DeclaresPhysicalAttackAI(
+      attackType,
+      options.twoHandedZweihander,
+      options.selectedINarcPod,
+      options.limb,
+    ),
     invariantRunner: new InvariantRunner(),
     violations,
     events,
@@ -439,7 +520,8 @@ function runPhase(
     grid: options.grid,
     movementCapabilitiesByUnit: options.movementCapabilitiesByUnit,
     optionalRules: options.optionalRules,
-    random: new SeededRandom(11),
+    manifestsByUnit: options.manifestsByUnit,
+    random: options.random ?? new SeededRandom(11),
   });
 
   return { initialState: state, result, events };
@@ -449,6 +531,10 @@ function runPhaseWithState(
   attackType: PhysicalAttackType,
   state: IGameState,
   grid?: IHexGrid,
+  options: {
+    random?: SeededRandom;
+    blockerStepOutDecision?: IPhysicalAttackDeclaredPayload['blockerStepOutDecision'];
+  } = {},
 ): {
   result: IGameState;
   events: IGameEvent[];
@@ -457,13 +543,19 @@ function runPhaseWithState(
   const violations: IViolation[] = [];
   const result = runPhysicalAttackPhase({
     state,
-    botPlayer: new DeclaresPhysicalAttackAI(attackType),
+    botPlayer: new DeclaresPhysicalAttackAI(
+      attackType,
+      false,
+      undefined,
+      undefined,
+      options.blockerStepOutDecision,
+    ),
     invariantRunner: new InvariantRunner(),
     violations,
     events,
     gameId: state.gameId,
     grid,
-    random: new SeededRandom(11),
+    random: options.random ?? new SeededRandom(11),
   });
 
   return { result, events };
@@ -838,6 +930,61 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['opponent-1'].isSwarming).toBe(false);
   });
 
+  it('removes exactly one attached iNARC pod on a successful brush-off', () => {
+    const iNarcPods = [
+      { teamId: GameSide.Player, podType: 'homing' as const },
+      { teamId: GameSide.Player, podType: 'ecm' as const },
+    ];
+    const { events, result } = runPhase('brush-off', {
+      attacker: { piloting: 1 },
+      target: { iNarcPods },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'brush-off',
+      toHitNumber: 5,
+      hit: true,
+    });
+    expect(result.units['opponent-1'].iNarcPods).toEqual([iNarcPods[1]]);
+  });
+
+  it('removes the selected attached iNARC pod on a successful brush-off', () => {
+    const selectedINarcPod = {
+      teamId: GameSide.Player,
+      podType: 'ecm' as const,
+      location: 'left_torso',
+    };
+    const iNarcPods = [
+      { teamId: GameSide.Player, podType: 'homing' as const },
+      selectedINarcPod,
+      { teamId: GameSide.Opponent, podType: 'ecm' as const },
+    ];
+    const { events, result } = runPhase('brush-off', {
+      attacker: { piloting: 1 },
+      target: { iNarcPods },
+      selectedINarcPod,
+    });
+
+    const declared = events.find(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    )?.payload as IPhysicalAttackDeclaredPayload | undefined;
+    expect(declared).toMatchObject({
+      attackType: 'brush-off',
+      selectedINarcPod,
+    });
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'brush-off',
+      hit: true,
+      selectedINarcPod,
+    });
+    expect(result.units['opponent-1'].iNarcPods).toEqual([
+      iNarcPods[0],
+      iNarcPods[2],
+    ]);
+  });
+
   it('honors an injected source-backed brush-off miss as attacker self-damage', () => {
     const { events, result } = runPhase('brush-off', {
       target: {
@@ -869,6 +1016,59 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       }),
     ]);
     expect(result.units['opponent-1'].isSwarming).toBe(true);
+  });
+
+  it('preserves attached iNARC pods on a missed brush-off', () => {
+    const iNarcPods = [
+      { teamId: GameSide.Player, podType: 'haywire' as const },
+      { teamId: GameSide.Player, podType: 'nemesis' as const },
+    ];
+    const { events, result } = runPhase('brush-off', {
+      target: { iNarcPods },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'brush-off',
+      toHitNumber: 9,
+      hit: false,
+    });
+    expect(result.units['opponent-1'].iNarcPods).toEqual(iNarcPods);
+  });
+
+  it('automatically selects brush-off against attached iNARC pods when it is the best legal attack', () => {
+    const iNarcPods = [{ teamId: GameSide.Player, podType: 'homing' as const }];
+    const { events, result } = runAutomaticPhase({
+      attacker: {
+        piloting: 1,
+        componentDamage: {
+          ...DEFAULT_COMPONENT_DAMAGE,
+          actuators: { [ActuatorType.HIP]: true },
+        },
+      },
+      target: { iNarcPods },
+    });
+
+    const declared = events.find(
+      (event) =>
+        event.type === GameEventType.PhysicalAttackDeclared &&
+        (event.payload as IPhysicalAttackDeclaredPayload).attackerId ===
+          'player-1',
+    )?.payload as IPhysicalAttackDeclaredPayload | undefined;
+
+    expect(declared).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'brush-off',
+      selectedINarcPod: iNarcPods[0],
+    });
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'brush-off',
+      hit: true,
+      selectedINarcPod: iNarcPods[0],
+    });
+    expect(result.units['opponent-1'].iNarcPods).toEqual([]);
   });
 
   it('rejects injected jump jet attacks without the TacOps option before side effects', () => {
@@ -1977,6 +2177,35 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['opponent-1'].armor.right_torso).toBeLessThan(22);
   });
 
+  it('honors selected-arm melee weapon declarations in runner legality and events', () => {
+    const { events } = runPhase('sword', {
+      attacker: {
+        componentDamage: {
+          ...DEFAULT_COMPONENT_DAMAGE,
+          actuatorsByLocation: {
+            right_arm: { [ActuatorType.LOWER_ARM]: true },
+          },
+        },
+      },
+      limb: 'leftArm',
+    });
+
+    const declared = events.find(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    )?.payload as IPhysicalAttackDeclaredPayload | undefined;
+    const resolved = resolvedPayload(events);
+
+    expect(declared).toMatchObject({
+      attackType: 'sword',
+      limb: 'leftArm',
+    });
+    expect(resolved).toMatchObject({
+      attackType: 'sword',
+      hit: true,
+      damage: 8,
+    });
+  });
+
   it('threads target movement modifier into physical to-hit resolution', () => {
     const { events } = runPhase('kick', {
       target: {
@@ -2462,6 +2691,522 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     });
   });
 
+  it('threads explicit two-handed Zweihander declaration into runner punch damage', () => {
+    const { events, result } = runPhase('punch', {
+      attacker: {
+        abilities: ['zweihander'],
+      },
+      twoHandedZweihander: true,
+    });
+
+    const declared = events.find(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    )?.payload as IPhysicalAttackDeclaredPayload;
+    expect(declared.twoHandedZweihander).toBe(true);
+    expect(resolvedPayload(events)).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'punch',
+      roll: 8,
+      toHitNumber: 5,
+      hit: true,
+      damage: 13,
+    });
+    expect(result.units['player-1'].pendingPSRs).toHaveLength(0);
+  });
+
+  it('emits represented Zweihander self-critical events for two-handed punch hits', () => {
+    const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+      [
+        'player-1',
+        buildCriticalSlotManifest({
+          right_arm: [
+            {
+              slotIndex: 0,
+              componentType: 'actuator',
+              componentName: ActuatorType.UPPER_ARM,
+              destroyed: false,
+              actuatorType: ActuatorType.UPPER_ARM,
+            },
+          ],
+          left_arm: [
+            {
+              slotIndex: 0,
+              componentType: 'actuator',
+              componentName: ActuatorType.LOWER_ARM,
+              destroyed: false,
+              actuatorType: ActuatorType.LOWER_ARM,
+            },
+          ],
+        }),
+      ],
+    ]);
+
+    const { events, result } = runPhase('punch', {
+      attacker: {
+        abilities: ['zweihander'],
+      },
+      twoHandedZweihander: true,
+      manifestsByUnit,
+      random: scriptedD6Random([6, 6, 5, 1, 1]),
+    });
+
+    const selfCriticals = events.filter(
+      (event) =>
+        event.type === GameEventType.CriticalHitResolved &&
+        (event.payload as ICriticalHitResolvedPayload).unitId === 'player-1',
+    );
+
+    expect(selfCriticals.map((event) => event.phase)).toEqual([
+      GamePhase.PhysicalAttack,
+      GamePhase.PhysicalAttack,
+    ]);
+    expect(selfCriticals.map((event) => event.payload)).toEqual([
+      expect.objectContaining({
+        unitId: 'player-1',
+        location: 'right_arm',
+        componentType: 'actuator',
+        componentName: ActuatorType.UPPER_ARM,
+        destroyed: true,
+      }),
+      expect.objectContaining({
+        unitId: 'player-1',
+        location: 'left_arm',
+        componentType: 'actuator',
+        componentName: ActuatorType.LOWER_ARM,
+        destroyed: true,
+      }),
+    ]);
+    expect(
+      result.units['player-1'].componentDamage?.actuatorsByLocation
+        ?.right_arm?.[ActuatorType.UPPER_ARM],
+    ).toBe(true);
+    expect(
+      result.units['player-1'].componentDamage?.actuatorsByLocation?.left_arm?.[
+        ActuatorType.LOWER_ARM
+      ],
+    ).toBe(true);
+    expect(manifestsByUnit.get('player-1')?.right_arm?.[0].destroyed).toBe(
+      true,
+    );
+    expect(manifestsByUnit.get('player-1')?.left_arm?.[0].destroyed).toBe(true);
+  });
+
+  it('emits represented Zweihander self-critical events alongside the miss PSR', () => {
+    const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+      [
+        'player-1',
+        buildCriticalSlotManifest({
+          right_arm: [
+            {
+              slotIndex: 0,
+              componentType: 'actuator',
+              componentName: ActuatorType.SHOULDER,
+              destroyed: false,
+              actuatorType: ActuatorType.SHOULDER,
+            },
+          ],
+          left_arm: [
+            {
+              slotIndex: 0,
+              componentType: 'actuator',
+              componentName: ActuatorType.HAND,
+              destroyed: false,
+              actuatorType: ActuatorType.HAND,
+            },
+          ],
+        }),
+      ],
+    ]);
+
+    const { events, result } = runPhase('punch', {
+      attacker: {
+        abilities: ['zweihander'],
+      },
+      twoHandedZweihander: true,
+      manifestsByUnit,
+      random: scriptedD6Random([1, 1, 1, 1]),
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'punch',
+      hit: false,
+      damage: 0,
+    });
+    expect(
+      events.filter(
+        (event) =>
+          event.type === GameEventType.CriticalHitResolved &&
+          (event.payload as ICriticalHitResolvedPayload).unitId === 'player-1',
+      ),
+    ).toHaveLength(2);
+    expect(result.units['player-1'].pendingPSRs).toContainEqual(
+      expect.objectContaining({
+        reason: 'punch missed',
+        triggerSource: 'punch_miss',
+      }),
+    );
+  });
+
+  it('rejects invalid runner two-handed Zweihander declarations before damage or miss PSR', () => {
+    const { events, result } = runPhase('punch', {
+      attacker: {
+        abilities: ['zweihander'],
+        destroyedLocations: ['left_arm'],
+      },
+      twoHandedZweihander: true,
+    });
+
+    const declared = events.find(
+      (event) => event.type === GameEventType.PhysicalAttackDeclared,
+    )?.payload as IPhysicalAttackDeclaredPayload;
+    expect(declared).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'punch',
+      twoHandedZweihander: true,
+      toHitNumber: Infinity,
+    });
+    expect(resolvedPayload(events)).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'punch',
+      roll: 0,
+      toHitNumber: Infinity,
+      hit: false,
+      damage: 0,
+      location: 'LimbMissing',
+    });
+    expect(damageEventsFor(events, 'opponent-1')).toHaveLength(0);
+    expect(result.units['player-1'].pendingPSRs).toHaveLength(0);
+    expect(result.units['opponent-1'].damageThisPhase).toBe(0);
+  });
+
+  it('does not consume Zweihander in runner punch damage without explicit declaration state', () => {
+    const { events } = runPhase('punch', {
+      attacker: {
+        abilities: ['zweihander'],
+      },
+    });
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'punch',
+      hit: true,
+      damage: 7,
+    });
+  });
+
+  it('emits physical-phase claw equipment criticals and removes the hit claw modifier', () => {
+    const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+      [
+        'opponent-1',
+        buildCriticalSlotManifest({
+          right_arm: [
+            {
+              slotIndex: 0,
+              componentType: 'equipment',
+              componentName: 'Claw',
+              destroyed: false,
+            },
+          ],
+        }),
+      ],
+    ]);
+    const { events, result } = runPhase('punch', {
+      target: {
+        armor: {
+          ...createState().units['opponent-1'].armor,
+          right_arm: 0,
+        },
+        rightArmHasClaw: true,
+      },
+      manifestsByUnit,
+      // to-hit 6+6, punch location 5 = RA, crit trigger 4+4,
+      // slot selection 1 = the Claw equipment slot.
+      random: scriptedD6Random([6, 6, 5, 4, 4, 1]),
+    });
+
+    const critical = events.find(
+      (event) =>
+        event.type === GameEventType.CriticalHitResolved &&
+        (event.payload as ICriticalHitResolvedPayload).componentName === 'Claw',
+    );
+
+    expect(critical?.phase).toBe(GamePhase.PhysicalAttack);
+    expect(critical?.payload).toMatchObject({
+      unitId: 'opponent-1',
+      location: 'right_arm',
+      componentType: 'equipment',
+      componentName: 'Claw',
+      destroyed: true,
+    });
+    expect(result.units['opponent-1'].rightArmHasClaw).toBe(false);
+  });
+
+  it('emits source-missing claw lifecycle events and removes the represented claw modifier', () => {
+    const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+      [
+        'opponent-1',
+        buildCriticalSlotManifest({
+          right_arm: [
+            {
+              slotIndex: 0,
+              componentType: 'equipment',
+              componentName: 'Claw',
+              destroyed: false,
+              missing: true,
+            },
+          ],
+        }),
+      ],
+    ]);
+    const { events, result } = runPhase('punch', {
+      target: {
+        rightArmHasClaw: true,
+      },
+      manifestsByUnit,
+      random: scriptedD6Random([6, 6, 5]),
+    });
+
+    const critical = events.find(
+      (event) =>
+        event.type === GameEventType.CriticalHitResolved &&
+        (event.payload as ICriticalHitResolvedPayload).componentName === 'Claw',
+    );
+    const componentDestroyed = events.find(
+      (event) =>
+        event.type === GameEventType.ComponentDestroyed &&
+        (event.payload as ICriticalHitResolvedPayload).componentName === 'Claw',
+    );
+
+    expect(critical?.phase).toBe(GamePhase.PhysicalAttack);
+    expect(critical?.payload).toMatchObject({
+      unitId: 'opponent-1',
+      location: 'right_arm',
+      componentType: 'equipment',
+      componentName: 'Claw',
+      destroyed: false,
+      missing: true,
+    });
+    expect(componentDestroyed).toBeUndefined();
+    expect(result.units['opponent-1'].rightArmHasClaw).toBe(false);
+    expect(manifestsByUnit.get('opponent-1')?.right_arm?.[0]).toMatchObject({
+      destroyed: false,
+      missing: true,
+    });
+  });
+
+  it('emits source-breached claw lifecycle events and removes the represented claw modifier', () => {
+    const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+      [
+        'opponent-1',
+        buildCriticalSlotManifest({
+          right_arm: [
+            {
+              slotIndex: 0,
+              componentType: 'equipment',
+              componentName: 'Claw',
+              destroyed: false,
+              breached: true,
+            },
+          ],
+        }),
+      ],
+    ]);
+    const { events, result } = runPhase('punch', {
+      target: {
+        rightArmHasClaw: true,
+      },
+      manifestsByUnit,
+      random: scriptedD6Random([6, 6, 5]),
+    });
+
+    const critical = events.find(
+      (event) =>
+        event.type === GameEventType.CriticalHitResolved &&
+        (event.payload as ICriticalHitResolvedPayload).componentName === 'Claw',
+    );
+    const componentDestroyed = events.find(
+      (event) =>
+        event.type === GameEventType.ComponentDestroyed &&
+        (event.payload as ICriticalHitResolvedPayload).componentName === 'Claw',
+    );
+
+    expect(critical?.phase).toBe(GamePhase.PhysicalAttack);
+    expect(critical?.payload).toMatchObject({
+      unitId: 'opponent-1',
+      location: 'right_arm',
+      componentType: 'equipment',
+      componentName: 'Claw',
+      destroyed: false,
+      breached: true,
+    });
+    expect(componentDestroyed).toBeUndefined();
+    expect(result.units['opponent-1'].rightArmHasClaw).toBe(false);
+    expect(manifestsByUnit.get('opponent-1')?.right_arm?.[0]).toMatchObject({
+      destroyed: false,
+      breached: true,
+    });
+  });
+
+  it('emits physical-phase talon equipment criticals and removes the hit talon modifier', () => {
+    const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+      [
+        'opponent-1',
+        buildCriticalSlotManifest({
+          right_leg: [
+            {
+              slotIndex: 0,
+              componentType: 'equipment',
+              componentName: 'Talons',
+              destroyed: false,
+            },
+          ],
+        }),
+      ],
+    ]);
+    const { events, result } = runPhase('kick', {
+      target: {
+        armor: {
+          ...createState().units['opponent-1'].armor,
+          right_leg: 0,
+        },
+        rightLegHasTalons: true,
+      },
+      manifestsByUnit,
+      // to-hit 6+6, kick location 1 = RL, crit trigger 4+4,
+      // slot selection 1 = the Talons equipment slot.
+      random: scriptedD6Random([6, 6, 1, 4, 4, 1]),
+    });
+
+    const critical = events.find(
+      (event) =>
+        event.type === GameEventType.CriticalHitResolved &&
+        (event.payload as ICriticalHitResolvedPayload).componentName ===
+          'Talons',
+    );
+
+    expect(critical?.phase).toBe(GamePhase.PhysicalAttack);
+    expect(critical?.payload).toMatchObject({
+      unitId: 'opponent-1',
+      location: 'right_leg',
+      componentType: 'equipment',
+      componentName: 'Talons',
+      destroyed: true,
+    });
+    expect(result.units['opponent-1'].rightLegHasTalons).toBe(false);
+  });
+
+  it('emits source-missing talon lifecycle events and removes the represented talon modifier', () => {
+    const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+      [
+        'opponent-1',
+        buildCriticalSlotManifest({
+          right_leg: [
+            {
+              slotIndex: 0,
+              componentType: 'equipment',
+              componentName: 'Talons',
+              destroyed: false,
+              missing: true,
+            },
+          ],
+        }),
+      ],
+    ]);
+    const { events, result } = runPhase('kick', {
+      target: {
+        rightLegHasTalons: true,
+      },
+      manifestsByUnit,
+      random: scriptedD6Random([6, 6, 1]),
+    });
+
+    const critical = events.find(
+      (event) =>
+        event.type === GameEventType.CriticalHitResolved &&
+        (event.payload as ICriticalHitResolvedPayload).componentName ===
+          'Talons',
+    );
+    const componentDestroyed = events.find(
+      (event) =>
+        event.type === GameEventType.ComponentDestroyed &&
+        (event.payload as ICriticalHitResolvedPayload).componentName ===
+          'Talons',
+    );
+
+    expect(critical?.phase).toBe(GamePhase.PhysicalAttack);
+    expect(critical?.payload).toMatchObject({
+      unitId: 'opponent-1',
+      location: 'right_leg',
+      componentType: 'equipment',
+      componentName: 'Talons',
+      destroyed: false,
+      missing: true,
+    });
+    expect(componentDestroyed).toBeUndefined();
+    expect(result.units['opponent-1'].rightLegHasTalons).toBe(false);
+    expect(manifestsByUnit.get('opponent-1')?.right_leg?.[0]).toMatchObject({
+      destroyed: false,
+      missing: true,
+    });
+  });
+
+  it('emits source-breached talon lifecycle events and removes the represented talon modifier', () => {
+    const manifestsByUnit = new Map<string, CriticalSlotManifest>([
+      [
+        'opponent-1',
+        buildCriticalSlotManifest({
+          right_leg: [
+            {
+              slotIndex: 0,
+              componentType: 'equipment',
+              componentName: 'Talons',
+              destroyed: false,
+              breached: true,
+            },
+          ],
+        }),
+      ],
+    ]);
+    const { events, result } = runPhase('kick', {
+      target: {
+        rightLegHasTalons: true,
+      },
+      manifestsByUnit,
+      random: scriptedD6Random([6, 6, 1]),
+    });
+
+    const critical = events.find(
+      (event) =>
+        event.type === GameEventType.CriticalHitResolved &&
+        (event.payload as ICriticalHitResolvedPayload).componentName ===
+          'Talons',
+    );
+    const componentDestroyed = events.find(
+      (event) =>
+        event.type === GameEventType.ComponentDestroyed &&
+        (event.payload as ICriticalHitResolvedPayload).componentName ===
+          'Talons',
+    );
+
+    expect(critical?.phase).toBe(GamePhase.PhysicalAttack);
+    expect(critical?.payload).toMatchObject({
+      unitId: 'opponent-1',
+      location: 'right_leg',
+      componentType: 'equipment',
+      componentName: 'Talons',
+      destroyed: false,
+      breached: true,
+    });
+    expect(componentDestroyed).toBeUndefined();
+    expect(result.units['opponent-1'].rightLegHasTalons).toBe(false);
+    expect(manifestsByUnit.get('opponent-1')?.right_leg?.[0]).toMatchObject({
+      destroyed: false,
+      breached: true,
+    });
+  });
+
   it('applies charge target clusters, attacker self-damage, and both PSRs', () => {
     const { events, result } = runPhase('charge', {
       attacker: {
@@ -2514,7 +3259,70 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
     expect(result.units['player-1'].position).toEqual({ q: 1, r: 0 });
   });
 
-  it('cascades source-backed charge displacement through an occupied destination', () => {
+  it('splits represented domino-chain behavior from secondary fallout accounting', () => {
+    const positionalChain =
+      PHYSICAL_LEGALITY_GATE_SUPPORT[
+        'shared.displacement-domino-positional-chain'
+      ];
+    const representedChain =
+      PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-domino-chain'];
+    const secondaryFallout =
+      PHYSICAL_LEGALITY_GATE_SUPPORT[
+        'shared.displacement-domino-secondary-fallout'
+      ];
+
+    expect(positionalChain).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'represented push/charge/DFA/charge-miss target-displacement helpers',
+      ),
+    });
+    expect(representedChain).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'source-backed recursive occupied-hex domino chain',
+      ),
+    });
+    expect(secondaryFallout).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'Broad domino secondary-fallout accounting is split',
+      ),
+    });
+    expect(secondaryFallout.evidence).toContain(
+      'voluntary blocker step-out branch are integrated sibling rows',
+    );
+    expect(secondaryFallout.gap).toBeUndefined();
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT[
+        'shared.displacement-domino-terrain-building-environment-fallout'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'represented destination terrain/building PSR fallout',
+      ),
+    });
+    expect(DISPLACEMENT_DOMINO_SECONDARY_FALLOUT_UNSUPPORTED_IDS).toEqual([]);
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-domino-step-out-cfr'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('blockerStepOutDecision'),
+      sourceRefs: [
+        expect.objectContaining({
+          citation: expect.stringContaining('CFR_DOMINO_EFFECT'),
+          url: expect.stringContaining('L9190-L9280'),
+        }),
+      ],
+    });
+    expect(
+      PHYSICAL_LEGALITY_GATE_SUPPORT['shared.displacement-domino-step-out-cfr']
+        .gap,
+    ).toBeUndefined();
+  });
+
+  it('cascades source-backed charge displacement through occupied destinations', () => {
     const baseState = createState();
     const state: IGameState = {
       ...baseState,
@@ -2531,6 +3339,12 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
           'domino-blocker',
           GameSide.Opponent,
           { q: 1, r: 1 },
+          { pilotConscious: false },
+        ),
+        'domino-tail': createUnit(
+          'domino-tail',
+          GameSide.Opponent,
+          { q: 1, r: 2 },
           { pilotConscious: false },
         ),
       },
@@ -2555,6 +3369,12 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
         reason: 'domino',
       },
       {
+        unitId: 'domino-tail',
+        from: { q: 1, r: 2 },
+        to: { q: 1, r: 3 },
+        reason: 'domino',
+      },
+      {
         unitId: 'player-1',
         from: { q: 0, r: 0 },
         to: { q: 1, r: 0 },
@@ -2562,12 +3382,825 @@ describe('runPhysicalAttackPhase behavior validation lane', () => {
       },
     ]);
     expect(result.units['domino-blocker'].position).toEqual({ q: 1, r: 2 });
+    expect(result.units['domino-tail'].position).toEqual({ q: 1, r: 3 });
     expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 1 });
     expect(result.units['player-1'].position).toEqual({ q: 1, r: 0 });
     expectPendingPSR(result, 'domino-blocker', PSRTrigger.DominoEffect, {
       reason: 'Domino effect',
       additionalModifier: 0,
     });
+    expectPendingPSR(result, 'domino-tail', PSRTrigger.DominoEffect, {
+      reason: 'Domino effect',
+      additionalModifier: 0,
+    });
+  });
+
+  it('applies represented domino step-out CFR decisions before forced fallback in runner physical displacement', () => {
+    const baseState = createState();
+    const state: IGameState = {
+      ...baseState,
+      units: {
+        ...baseState.units,
+        'player-1': {
+          ...baseState.units['player-1'],
+          facing: Facing.South,
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+          piloting: 0,
+        },
+        'domino-blocker': createUnit(
+          'domino-blocker',
+          GameSide.Opponent,
+          { q: 1, r: 1 },
+          {
+            facing: Facing.Northeast,
+            movementThisTurn: MovementType.Walk,
+            pilotConscious: false,
+          },
+        ),
+        'domino-tail': createUnit(
+          'domino-tail',
+          GameSide.Opponent,
+          { q: 1, r: 2 },
+          { pilotConscious: false },
+        ),
+      },
+    };
+    const { events, result } = runPhaseWithState(
+      'charge',
+      state,
+      createDominoChargeGrid(),
+      {
+        blockerStepOutDecision: {
+          blockerUnitId: 'domino-blocker',
+          from: { q: 1, r: 1 },
+          response: 'move',
+          psrPassed: true,
+          context: {
+            sideEntered: true,
+            blockerJumped: false,
+            legalStepOptions: [
+              { kind: 'forward', to: { q: 2, r: 0 } },
+              { kind: 'backward', to: { q: 0, r: 2 } },
+            ],
+          },
+          path: [{ q: 2, r: 0 }],
+        },
+      },
+    );
+
+    expect(resolvedPayload(events).displacements).toEqual([
+      {
+        unitId: 'domino-blocker',
+        from: { q: 1, r: 1 },
+        to: { q: 2, r: 0 },
+        reason: 'domino_step_out',
+      },
+      {
+        unitId: 'opponent-1',
+        from: { q: 1, r: 0 },
+        to: { q: 1, r: 1 },
+        reason: 'charge',
+      },
+      {
+        unitId: 'player-1',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'charge',
+      },
+    ]);
+    expect(result.units['domino-blocker'].position).toEqual({ q: 2, r: 0 });
+    expect(result.units['domino-tail'].position).toEqual({ q: 1, r: 2 });
+    expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 1 });
+    expect(result.units['player-1'].position).toEqual({ q: 1, r: 0 });
+    expect(result.units['domino-blocker'].pendingPSRs).not.toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.DominoEffect }),
+    );
+    expect(result.units['domino-tail'].pendingPSRs).toEqual([]);
+  });
+
+  it('applies represented minefield fallout when domino displacement enters mined terrain', () => {
+    const baseState = createState();
+    const state: IGameState = {
+      ...baseState,
+      units: {
+        ...baseState.units,
+        'player-1': {
+          ...baseState.units['player-1'],
+          facing: Facing.South,
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+          piloting: 0,
+        },
+        'domino-blocker': createUnit(
+          'domino-blocker',
+          GameSide.Opponent,
+          { q: 1, r: 1 },
+          { pilotConscious: false },
+        ),
+        'domino-tail': createUnit(
+          'domino-tail',
+          GameSide.Opponent,
+          { q: 1, r: 2 },
+          { pilotConscious: false },
+        ),
+      },
+    };
+    const grid = createDominoChargeGrid();
+    const minedHex = grid.hexes.get('1,3');
+    const minedHexes = new Map(grid.hexes);
+    if (minedHex) {
+      minedHexes.set('1,3', { ...minedHex, terrain: TerrainType.Mines });
+    }
+
+    const { events, result } = runPhaseWithState(
+      'charge',
+      state,
+      {
+        ...grid,
+        hexes: minedHexes,
+      },
+      {
+        random: scriptedD6Random(Array.from({ length: 24 }, () => 6)),
+      },
+    );
+    const dominoTailDamageEvents = events.filter(
+      (event) =>
+        event.type === GameEventType.DamageApplied &&
+        (event.payload as IDamageAppliedPayload).unitId === 'domino-tail',
+    );
+    const minePsrEvent = events.find((event) => {
+      const payload = event.payload as {
+        unitId?: string;
+        reasonCode?: PSRTrigger;
+      };
+      return (
+        event.type === GameEventType.PSRTriggered &&
+        payload.unitId === 'domino-tail' &&
+        payload.reasonCode === PSRTrigger.PhaseDamage20Plus
+      );
+    });
+
+    expect(resolvedPayload(events).displacements).toEqual([
+      {
+        unitId: 'opponent-1',
+        from: { q: 1, r: 0 },
+        to: { q: 1, r: 1 },
+        reason: 'charge',
+      },
+      {
+        unitId: 'domino-blocker',
+        from: { q: 1, r: 1 },
+        to: { q: 1, r: 2 },
+        reason: 'domino',
+      },
+      {
+        unitId: 'domino-tail',
+        from: { q: 1, r: 2 },
+        to: { q: 1, r: 3 },
+        reason: 'domino',
+      },
+      {
+        unitId: 'player-1',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'charge',
+      },
+    ]);
+    expect(result.units['domino-tail']).toMatchObject({
+      position: { q: 1, r: 3 },
+      damageThisPhase: 20,
+      armor: {
+        left_leg: 11,
+        right_leg: 11,
+      },
+    });
+    expect(dominoTailDamageEvents.map((event) => event.phase)).toEqual([
+      GamePhase.PhysicalAttack,
+      GamePhase.PhysicalAttack,
+    ]);
+    expect(dominoTailDamageEvents.map((event) => event.payload)).toEqual([
+      expect.objectContaining({
+        unitId: 'domino-tail',
+        location: 'left_leg',
+        damage: 10,
+        armorRemaining: 11,
+        structureRemaining: 14,
+      }),
+      expect.objectContaining({
+        unitId: 'domino-tail',
+        location: 'right_leg',
+        damage: 10,
+        armorRemaining: 11,
+        structureRemaining: 14,
+      }),
+    ]);
+    expectPendingPSR(result, 'domino-tail', PSRTrigger.DominoEffect, {
+      reason: 'Domino effect',
+      additionalModifier: 0,
+    });
+    expectPendingPSR(result, 'domino-tail', PSRTrigger.PhaseDamage20Plus, {
+      triggerSource: PSRTrigger.PhaseDamage20Plus,
+    });
+    expect(minePsrEvent?.phase).toBe(GamePhase.PhysicalAttack);
+  });
+
+  it('queues represented terrain and building PSR fallout for domino displacement destinations', () => {
+    const baseState = createState();
+    const state: IGameState = {
+      ...baseState,
+      units: {
+        ...baseState.units,
+        'player-1': {
+          ...baseState.units['player-1'],
+          facing: Facing.South,
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+          piloting: 0,
+        },
+        'domino-blocker': createUnit(
+          'domino-blocker',
+          GameSide.Opponent,
+          { q: 1, r: 1 },
+          { pilotConscious: false },
+        ),
+        'domino-tail': createUnit(
+          'domino-tail',
+          GameSide.Opponent,
+          { q: 1, r: 2 },
+          { pilotConscious: false, tonnage: 55 },
+        ),
+      },
+    };
+    const grid = createDominoChargeGrid();
+    const hexes = new Map(grid.hexes);
+    const rubbleHex = hexes.get('1,2');
+    const buildingHex = hexes.get('1,3');
+    if (rubbleHex) {
+      hexes.set('1,2', { ...rubbleHex, terrain: TerrainType.Rubble });
+    }
+    if (buildingHex) {
+      hexes.set('1,3', {
+        ...buildingHex,
+        terrain: terrainStringFromFeatures([
+          { type: TerrainType.Building, level: 2, constructionFactor: 40 },
+        ]),
+      });
+    }
+
+    const { events, result } = runPhaseWithState(
+      'charge',
+      state,
+      { ...grid, hexes },
+      {
+        random: scriptedD6Random(Array.from({ length: 24 }, () => 6)),
+      },
+    );
+    const physicalPsrPayloads = events
+      .filter(
+        (event) =>
+          event.type === GameEventType.PSRTriggered &&
+          event.phase === GamePhase.PhysicalAttack,
+      )
+      .map((event) => event.payload);
+
+    expect(resolvedPayload(events).displacements).toEqual([
+      {
+        unitId: 'opponent-1',
+        from: { q: 1, r: 0 },
+        to: { q: 1, r: 1 },
+        reason: 'charge',
+      },
+      {
+        unitId: 'domino-blocker',
+        from: { q: 1, r: 1 },
+        to: { q: 1, r: 2 },
+        reason: 'domino',
+      },
+      {
+        unitId: 'domino-tail',
+        from: { q: 1, r: 2 },
+        to: { q: 1, r: 3 },
+        reason: 'domino',
+      },
+      {
+        unitId: 'player-1',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'charge',
+      },
+    ]);
+    expectPendingPSR(result, 'domino-blocker', PSRTrigger.EnteringRubble, {
+      reason: 'Entering rubble',
+      triggerSource: PSRTrigger.EnteringRubble,
+    });
+    expectPendingPSR(result, 'domino-tail', PSRTrigger.BuildingCollapse, {
+      reason: 'Building collapse',
+      triggerSource: PSRTrigger.BuildingCollapse,
+    });
+    expectPendingPSR(result, 'domino-blocker', PSRTrigger.DominoEffect);
+    expectPendingPSR(result, 'domino-tail', PSRTrigger.DominoEffect);
+    expect(physicalPsrPayloads).toContainEqual(
+      expect.objectContaining({
+        unitId: 'domino-blocker',
+        reasonCode: PSRTrigger.EnteringRubble,
+        triggerSource: PSRTrigger.EnteringRubble,
+      }),
+    );
+    expect(physicalPsrPayloads).toContainEqual(
+      expect.objectContaining({
+        unitId: 'domino-tail',
+        reasonCode: PSRTrigger.BuildingCollapse,
+        triggerSource: PSRTrigger.BuildingCollapse,
+      }),
+    );
+    expect(physicalPsrPayloads).not.toContainEqual(
+      expect.objectContaining({
+        unitId: 'opponent-1',
+        reasonCode: PSRTrigger.EnteringRubble,
+      }),
+    );
+  });
+
+  it('applies represented coordinate minefield fallout when domino displacement enters a state minefield', () => {
+    const baseState = createState();
+    const mineCoord = { q: 1, r: 3 };
+    const state: IGameState = {
+      ...baseState,
+      minefields: {
+        '1,3': {
+          type: 'conventional',
+          damagePerLeg: 5,
+          density: 20,
+          source: 'scenario',
+        },
+      },
+      units: {
+        ...baseState.units,
+        'player-1': {
+          ...baseState.units['player-1'],
+          facing: Facing.South,
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+          piloting: 0,
+        },
+        'domino-blocker': createUnit(
+          'domino-blocker',
+          GameSide.Opponent,
+          { q: 1, r: 1 },
+          { pilotConscious: false },
+        ),
+        'domino-tail': createUnit(
+          'domino-tail',
+          GameSide.Opponent,
+          { q: 1, r: 2 },
+          { pilotConscious: false },
+        ),
+      },
+    };
+    const { events, result } = runPhaseWithState(
+      'charge',
+      state,
+      createDominoChargeGrid(),
+      {
+        random: scriptedD6Random(Array.from({ length: 28 }, () => 6)),
+      },
+    );
+    const minefieldChanged = events.find(
+      (event) => event.type === GameEventType.MinefieldChanged,
+    );
+    const minefieldPayload = minefieldChanged?.payload as
+      | IMinefieldChangedPayload
+      | undefined;
+
+    expect(resolvedPayload(events).displacements).toContainEqual({
+      unitId: 'domino-tail',
+      from: { q: 1, r: 2 },
+      to: mineCoord,
+      reason: 'domino',
+    });
+    expect(result.units['domino-tail']).toMatchObject({
+      position: mineCoord,
+      damageThisPhase: 10,
+      armor: {
+        left_leg: 16,
+        right_leg: 16,
+      },
+    });
+    expect(damageEventsFor(events, 'domino-tail')).toEqual([
+      expect.objectContaining({
+        unitId: 'domino-tail',
+        location: 'left_leg',
+        damage: 5,
+        armorRemaining: 16,
+      }),
+      expect.objectContaining({
+        unitId: 'domino-tail',
+        location: 'right_leg',
+        damage: 5,
+        armorRemaining: 16,
+      }),
+    ]);
+    expect(minefieldChanged?.phase).toBe(GamePhase.PhysicalAttack);
+    expect(minefieldPayload).toMatchObject({
+      operation: 'set',
+      hex: mineCoord,
+      reason: 'movement_detonation',
+      sourceUnitId: 'domino-tail',
+      minefield: {
+        type: 'conventional',
+        damagePerLeg: 5,
+        density: 15,
+        detonated: false,
+        source: 'event',
+      },
+    });
+    expect(result.minefields?.['1,3']).toEqual({
+      type: 'conventional',
+      damagePerLeg: 5,
+      density: 15,
+      detonated: false,
+      source: 'event',
+    });
+    expectPendingPSR(result, 'domino-tail', PSRTrigger.DominoEffect, {
+      reason: 'Domino effect',
+      additionalModifier: 0,
+    });
+  });
+
+  it('queues represented inferno coordinate minefield heat when domino displacement enters it', () => {
+    const baseState = createState();
+    const mineCoord = { q: 1, r: 3 };
+    const state: IGameState = {
+      ...baseState,
+      minefields: {
+        '1,3': {
+          type: 'inferno',
+          damagePerLeg: 10,
+          density: 10,
+          source: 'scenario',
+        },
+      },
+      units: {
+        ...baseState.units,
+        'player-1': {
+          ...baseState.units['player-1'],
+          facing: Facing.South,
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+          piloting: 0,
+        },
+        'domino-blocker': createUnit(
+          'domino-blocker',
+          GameSide.Opponent,
+          { q: 1, r: 1 },
+          { pilotConscious: false },
+        ),
+        'domino-tail': createUnit(
+          'domino-tail',
+          GameSide.Opponent,
+          { q: 1, r: 2 },
+          { pilotConscious: false },
+        ),
+      },
+    };
+    const { events, result } = runPhaseWithState(
+      'charge',
+      state,
+      createDominoChargeGrid(),
+      {
+        random: scriptedD6Random(Array.from({ length: 28 }, () => 6)),
+      },
+    );
+    const minefieldChanged = events.find(
+      (event) => event.type === GameEventType.MinefieldChanged,
+    );
+    const minefieldPayload = minefieldChanged?.payload as
+      | IMinefieldChangedPayload
+      | undefined;
+
+    expect(resolvedPayload(events).displacements).toContainEqual({
+      unitId: 'domino-tail',
+      from: { q: 1, r: 2 },
+      to: mineCoord,
+      reason: 'domino',
+    });
+    expect(result.units['domino-tail']).toMatchObject({
+      position: mineCoord,
+      damageThisPhase: 0,
+      armor: state.units['domino-tail'].armor,
+      pendingExternalHeat: 10,
+      infernoBurning: true,
+    });
+    expect(damageEventsFor(events, 'domino-tail')).toEqual([]);
+    expect(minefieldChanged?.phase).toBe(GamePhase.PhysicalAttack);
+    expect(minefieldPayload).toMatchObject({
+      operation: 'set',
+      hex: mineCoord,
+      reason: 'movement_detonation',
+      sourceUnitId: 'domino-tail',
+      minefield: {
+        type: 'inferno',
+        damagePerLeg: 10,
+        density: 5,
+        detonated: false,
+        source: 'event',
+      },
+    });
+    expectPendingPSR(result, 'domino-tail', PSRTrigger.DominoEffect, {
+      reason: 'Domino effect',
+      additionalModifier: 0,
+    });
+  });
+
+  it('suppresses represented coordinate minefield fallout for detonated state during domino displacement', () => {
+    const baseState = createState();
+    const mineCoord = { q: 1, r: 3 };
+    const state: IGameState = {
+      ...baseState,
+      minefields: {
+        '1,3': {
+          type: 'conventional',
+          damagePerLeg: 5,
+          detonated: true,
+          source: 'event',
+        },
+      },
+      units: {
+        ...baseState.units,
+        'player-1': {
+          ...baseState.units['player-1'],
+          facing: Facing.South,
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+          piloting: 0,
+        },
+        'domino-blocker': createUnit(
+          'domino-blocker',
+          GameSide.Opponent,
+          { q: 1, r: 1 },
+          { pilotConscious: false },
+        ),
+        'domino-tail': createUnit(
+          'domino-tail',
+          GameSide.Opponent,
+          { q: 1, r: 2 },
+          { pilotConscious: false },
+        ),
+      },
+    };
+    const { events, result } = runPhaseWithState(
+      'charge',
+      state,
+      createDominoChargeGrid(),
+      {
+        random: scriptedD6Random(Array.from({ length: 28 }, () => 6)),
+      },
+    );
+
+    expect(resolvedPayload(events).displacements).toContainEqual({
+      unitId: 'domino-tail',
+      from: { q: 1, r: 2 },
+      to: mineCoord,
+      reason: 'domino',
+    });
+    expect(result.units['domino-tail']).toMatchObject({
+      position: mineCoord,
+      damageThisPhase: 0,
+      armor: state.units['domino-tail'].armor,
+    });
+    expect(damageEventsFor(events, 'domino-tail')).toEqual([]);
+    expect(
+      events.filter((event) => event.type === GameEventType.MinefieldChanged),
+    ).toEqual([]);
+    expect(result.minefields?.['1,3']).toEqual({
+      type: 'conventional',
+      damagePerLeg: 5,
+      detonated: true,
+      source: 'event',
+    });
+    expectPendingPSR(result, 'domino-tail', PSRTrigger.DominoEffect, {
+      reason: 'Domino effect',
+      additionalModifier: 0,
+    });
+  });
+
+  it.each(EXPLICIT_UNSUPPORTED_MINEFIELD_VARIANT_TYPES)(
+    'does not treat %s coordinate minefield variants as represented domino fallout',
+    (variantType) => {
+      const baseState = createState();
+      const mineCoord = { q: 1, r: 3 };
+      const nonConventionalMinefield: IRepresentedMinefieldState = {
+        type: variantType,
+        damagePerLeg: 5,
+        source: 'scenario',
+      };
+      const state: IGameState = {
+        ...baseState,
+        minefields: {
+          '1,3': nonConventionalMinefield,
+        },
+        units: {
+          ...baseState.units,
+          'player-1': {
+            ...baseState.units['player-1'],
+            facing: Facing.South,
+            movementThisTurn: MovementType.Run,
+            hexesMovedThisTurn: 5,
+            piloting: 0,
+          },
+          'domino-blocker': createUnit(
+            'domino-blocker',
+            GameSide.Opponent,
+            { q: 1, r: 1 },
+            { pilotConscious: false },
+          ),
+          'domino-tail': createUnit(
+            'domino-tail',
+            GameSide.Opponent,
+            { q: 1, r: 2 },
+            { pilotConscious: false },
+          ),
+        },
+      };
+      const { events, result } = runPhaseWithState(
+        'charge',
+        state,
+        createDominoChargeGrid(),
+        {
+          random: scriptedD6Random(Array.from({ length: 28 }, () => 6)),
+        },
+      );
+
+      expect(resolvedPayload(events).displacements).toContainEqual({
+        unitId: 'domino-tail',
+        from: { q: 1, r: 2 },
+        to: mineCoord,
+        reason: 'domino',
+      });
+      expect(result.units['domino-tail']).toMatchObject({
+        position: mineCoord,
+        damageThisPhase: 0,
+        armor: state.units['domino-tail'].armor,
+      });
+      expect(damageEventsFor(events, 'domino-tail')).toEqual([]);
+      expect(
+        events.filter((event) => event.type === GameEventType.MinefieldChanged),
+      ).toEqual([]);
+      expect(result.minefields?.['1,3']).toEqual(nonConventionalMinefield);
+      expectPendingPSR(result, 'domino-tail', PSRTrigger.DominoEffect, {
+        reason: 'Domino effect',
+        additionalModifier: 0,
+      });
+    },
+  );
+
+  it('applies represented emp coordinate minefield effects during domino fallout without conventional damage', () => {
+    const baseState = createState();
+    const mineCoord = { q: 1, r: 3 };
+    const empMinefield: IRepresentedMinefieldState = {
+      type: 'emp',
+      damagePerLeg: 5,
+      source: 'scenario',
+    };
+    const state: IGameState = {
+      ...baseState,
+      minefields: {
+        '1,3': empMinefield,
+      },
+      units: {
+        ...baseState.units,
+        'player-1': {
+          ...baseState.units['player-1'],
+          facing: Facing.South,
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+          piloting: 0,
+        },
+        'domino-blocker': createUnit(
+          'domino-blocker',
+          GameSide.Opponent,
+          { q: 1, r: 1 },
+          { pilotConscious: false },
+        ),
+        'domino-tail': createUnit(
+          'domino-tail',
+          GameSide.Opponent,
+          { q: 1, r: 2 },
+          { pilotConscious: false },
+        ),
+      },
+    };
+    const { events, result } = runPhaseWithState(
+      'charge',
+      state,
+      createDominoChargeGrid(),
+      {
+        random: scriptedD6Random(Array.from({ length: 28 }, () => 6)),
+      },
+    );
+
+    expect(resolvedPayload(events).displacements).toContainEqual({
+      unitId: 'domino-tail',
+      from: { q: 1, r: 2 },
+      to: mineCoord,
+      reason: 'domino',
+    });
+    expect(result.units['domino-tail']).toMatchObject({
+      position: mineCoord,
+      damageThisPhase: 0,
+      armor: state.units['domino-tail'].armor,
+      shutdown: true,
+      empShutdownTurns: expect.any(Number),
+    });
+    expect(damageEventsFor(events, 'domino-tail')).toEqual([]);
+    expect(
+      events.find(
+        (event) => event.type === GameEventType.EmpMinefieldEffectApplied,
+      )?.payload,
+    ).toMatchObject({
+      unitId: 'domino-tail',
+      hex: mineCoord,
+      effect: 'shutdown',
+      source: 'minefield',
+    });
+    expect(
+      events.find((event) => event.type === GameEventType.MinefieldChanged)
+        ?.payload,
+    ).toMatchObject({
+      hex: mineCoord,
+      minefield: {
+        ...empMinefield,
+        detonated: true,
+      },
+      operation: 'detonate',
+      reason: 'movement_detonation',
+    });
+    expect(result.minefields?.['1,3']).toEqual({
+      ...empMinefield,
+      detonated: true,
+    });
+    expectPendingPSR(result, 'domino-tail', PSRTrigger.DominoEffect, {
+      reason: 'Domino effect',
+      additionalModifier: 0,
+    });
+  });
+
+  it('does not emit partial charge domino displacement when the downstream chain is blocked', () => {
+    const baseState = createState();
+    const state: IGameState = {
+      ...baseState,
+      units: {
+        ...baseState.units,
+        'player-1': {
+          ...baseState.units['player-1'],
+          facing: Facing.South,
+          movementThisTurn: MovementType.Run,
+          hexesMovedThisTurn: 5,
+          piloting: 0,
+        },
+        'domino-blocker': createUnit(
+          'domino-blocker',
+          GameSide.Opponent,
+          { q: 1, r: 1 },
+          { pilotConscious: false },
+        ),
+        'domino-tail': createUnit(
+          'domino-tail',
+          GameSide.Opponent,
+          { q: 1, r: 2 },
+          { pilotConscious: false },
+        ),
+      },
+    };
+    const { events, result } = runPhaseWithState(
+      'charge',
+      state,
+      createBlockedDominoChargeGrid(),
+    );
+
+    expect(resolvedPayload(events)).toMatchObject({
+      attackType: 'charge',
+      hit: true,
+      damage: 28,
+    });
+    expect(resolvedPayload(events).displacements).toBeUndefined();
+    expect(result.units['opponent-1'].position).toEqual({ q: 1, r: 0 });
+    expect(result.units['domino-blocker'].position).toEqual({ q: 1, r: 1 });
+    expect(result.units['domino-tail'].position).toEqual({ q: 1, r: 2 });
+    expect(result.units['player-1'].position).toEqual({ q: 0, r: 0 });
+    expect(result.units['domino-blocker'].pendingPSRs).not.toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.DominoEffect }),
+    );
+    expect(result.units['domino-tail'].pendingPSRs).not.toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.DominoEffect }),
+    );
+    expect(result.units['opponent-1'].pendingPSRs).not.toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.Charged }),
+    );
+    expect(result.units['player-1'].pendingPSRs).not.toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.Charged }),
+    );
   });
 
   it('keeps a successful charge in place when target displacement is blocked', () => {

@@ -1,5 +1,7 @@
 import type {
+  PhysicalAttackINarcPodSelection,
   IPhysicalAttackResult,
+  PhysicalAttackLimb,
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks';
 
@@ -9,6 +11,7 @@ import {
   type IGameEvent,
   type IGameState,
   type IPhysicalDisplacement,
+  type IPhysicalDominoStepOutDecisionPayload,
   type IUnitDestroyedPayload,
 } from '@/types/gameplay';
 
@@ -21,16 +24,24 @@ export function emitPhysicalAttackDeclaredEvent(options: {
   readonly attackerId: string;
   readonly targetId: string;
   readonly attackType: PhysicalAttackType;
+  readonly limb?: PhysicalAttackLimb;
   readonly toHitNumber: number;
+  readonly twoHandedZweihander?: boolean;
+  readonly selectedINarcPod?: PhysicalAttackINarcPodSelection;
+  readonly blockerStepOutDecision?: IPhysicalDominoStepOutDecisionPayload;
 }): void {
   const {
     attackType,
     attackerId,
+    blockerStepOutDecision,
     events,
     gameId,
+    limb,
+    selectedINarcPod,
     targetId,
     toHitNumber,
     turn,
+    twoHandedZweihander,
   } = options;
   events.push(
     createGameEvent(
@@ -39,7 +50,18 @@ export function emitPhysicalAttackDeclaredEvent(options: {
       GameEventType.PhysicalAttackDeclared,
       turn,
       GamePhase.PhysicalAttack,
-      { attackerId, targetId, attackType, toHitNumber },
+      {
+        attackerId,
+        targetId,
+        attackType,
+        ...(limb !== undefined ? { limb } : {}),
+        toHitNumber,
+        ...(twoHandedZweihander === true ? { twoHandedZweihander } : {}),
+        ...(selectedINarcPod !== undefined ? { selectedINarcPod } : {}),
+        ...(blockerStepOutDecision !== undefined
+          ? { blockerStepOutDecision }
+          : {}),
+      },
       attackerId,
     ),
   );
@@ -54,6 +76,7 @@ export function emitPhysicalAttackResolvedEvent(options: {
   readonly attackType: PhysicalAttackType;
   readonly result: IPhysicalAttackResult;
   readonly displacements: readonly IPhysicalDisplacement[];
+  readonly selectedINarcPod?: PhysicalAttackINarcPodSelection;
 }): void {
   const {
     attackType,
@@ -62,6 +85,7 @@ export function emitPhysicalAttackResolvedEvent(options: {
     events,
     gameId,
     result,
+    selectedINarcPod,
     targetId,
     turn,
   } = options;
@@ -86,6 +110,7 @@ export function emitPhysicalAttackResolvedEvent(options: {
         displacements: displacements.length > 0 ? displacements : undefined,
         automaticHit: result.automaticHit,
         automaticHitReason: result.automaticHitReason,
+        ...(selectedINarcPod !== undefined ? { selectedINarcPod } : {}),
       },
       attackerId,
     ),

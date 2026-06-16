@@ -164,4 +164,27 @@ describe('resolveDamage — head damage cap (task 5.1–5.4)', () => {
     expect(after.structure.head).toBe(2);
     expect(result.pilotDamage?.woundsInflicted).toBe(1);
   });
+
+  it('suppresses head-hit pilot damage for Dermal Armor', () => {
+    const state = freshState({
+      armor: { ...freshState().armor, head: 2 },
+      pilotAbilities: ['dermal_armor'],
+    });
+
+    const { state: after, result } = resolveDamage(
+      state,
+      'head' as CombatLocation,
+      20,
+    );
+
+    expect(result.locationDamages[0]).toMatchObject({
+      location: 'head',
+      damage: 3,
+      armorDamage: 2,
+      structureDamage: 1,
+    });
+    expect(after.structure.head).toBe(2);
+    expect(result.pilotDamage).toBeUndefined();
+    expect(after.pilotWounds).toBe(0);
+  });
 });

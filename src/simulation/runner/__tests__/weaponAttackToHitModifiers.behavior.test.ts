@@ -51,6 +51,7 @@ import type { IViolation } from '../../invariants/types';
 
 import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
+import { CANONICAL_SPA_COMBAT_SCOPE_SUPPORT } from '../CombatCanonicalSpaSupport';
 import { SPA_COMBAT_SUPPORT } from '../CombatFeatureSupport';
 import { PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT } from '../CombatPilotModifierApplicationSupport';
 import {
@@ -700,6 +701,79 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
   });
 
+  it('accounts represented C3 state and conservative equipment seeding while splitting broad authoring out of scope', () => {
+    const explicitStateRow = RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT.c3;
+    const conservativeSeedingRow =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT[
+        'c3-equipment-conservative-network-seeding'
+      ];
+    const unambiguousFormationRow =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT[
+        'c3-equipment-unambiguous-network-formation'
+      ];
+    const independentSideFormationRow =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT[
+        'c3-equipment-independent-side-formation'
+      ];
+    const denialBoundaryRow =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['c3-equipment-denial-boundaries'];
+    const broadFormationRow =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['c3-equipment-network-formation'];
+
+    expect(explicitStateRow).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('explicit IGameState.c3Network state'),
+    });
+    expect(conservativeSeedingRow).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'seed unambiguous per-side C3 master/slave and C3i equipment',
+      ),
+    });
+    expect(unambiguousFormationRow).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'forms only unambiguous per-side single C3 master/slave and C3i networks',
+      ),
+    });
+    expect(independentSideFormationRow).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'evaluates mounted C3 equipment independently per side',
+      ),
+    });
+    expect(denialBoundaryRow).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'explicitly denies ambiguous multi-role equipment',
+      ),
+    });
+    expect(broadFormationRow).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining(
+        'represented BattleMech C3 runtime behavior is covered by explicit session-authored IGameState.c3Network consumption, mounted equipment role hydration, conservative single-network seeding, unambiguous per-side C3/C3i formation, independent side-by-side formation/denial evaluation, and fail-closed denial boundaries',
+      ),
+      gap: expect.stringContaining('Manual C3 network authoring UI'),
+    });
+    expect(broadFormationRow.gap).toEqual(
+      expect.stringContaining('manual C3 assignment controls'),
+    );
+    expect(broadFormationRow.gap).toEqual(
+      expect.stringContaining(
+        'automatic same-side multiple-network partitioning',
+      ),
+    );
+    expect(broadFormationRow.gap).toEqual(
+      expect.stringContaining('ambiguous multiple-master partitioning'),
+    );
+    expect(broadFormationRow.gap).toEqual(
+      expect.stringContaining('mixed C3i/master-slave family selection'),
+    );
+    expect(broadFormationRow.gap).toEqual(
+      expect.stringContaining('authoritative oversized network splitting'),
+    );
+  });
+
   it('does not require C3 spotter line of sight for default range sharing', () => {
     const network = createC3MasterSlaveNetwork('runner-c3-no-los', [
       createC3Unit({
@@ -1341,6 +1415,365 @@ describe('runAttackPhase to-hit modifier integration', () => {
     });
   });
 
+  it('applies Environmental Specialist snow relief to represented ranged snow conditions', () => {
+    const environmentalConditions = createEnvironmentalConditions({
+      precipitation: 'snow',
+    });
+    const withoutSpecialist = attackDeclaredPayload(
+      runModifierScenario({ environmentalConditions }),
+    );
+    const withSpecialist = attackDeclaredPayload(
+      runModifierScenario({
+        environmentalConditions,
+        state: createWeaponAttackState({
+          attacker: {
+            abilities: ['env_specialist'],
+            designatedEnvironment: 'snow',
+          },
+        }),
+      }),
+    );
+
+    expect(withoutSpecialist.toHitNumber).toBe(5);
+    expect(withSpecialist.toHitNumber).toBe(4);
+    expectModifier(withSpecialist, {
+      name: 'Environmental Specialist (Snow)',
+      value: -1,
+      source: 'spa',
+    });
+    expect(
+      withSpecialist.modifiers.filter(
+        (modifier) => modifier.name === 'Environmental Specialist (Snow)',
+      ),
+    ).toHaveLength(1);
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'env-specialist-snow-ranged-to-hit-application'
+      ],
+    ).toMatchObject({ level: 'integrated' });
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.env_specialist).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('source-backed runtime branches'),
+    });
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.env_specialist.gap,
+    ).toBeUndefined();
+  });
+
+  it('applies Environmental Specialist rain relief to represented heavy rain ranged conditions', () => {
+    const environmentalConditions = createEnvironmentalConditions({
+      precipitation: 'heavy_rain',
+    });
+    const withoutSpecialist = attackDeclaredPayload(
+      runModifierScenario({ environmentalConditions }),
+    );
+    const withSpecialist = attackDeclaredPayload(
+      runModifierScenario({
+        environmentalConditions,
+        state: createWeaponAttackState({
+          attacker: {
+            abilities: ['env_specialist'],
+            designatedEnvironment: 'rain',
+          },
+        }),
+      }),
+    );
+    const lightRainSpecialist = attackDeclaredPayload(
+      runModifierScenario({
+        environmentalConditions: createEnvironmentalConditions({
+          precipitation: 'light_rain',
+        }),
+        state: createWeaponAttackState({
+          attacker: {
+            abilities: ['env_specialist'],
+            designatedEnvironment: 'rain',
+          },
+        }),
+      }),
+    );
+
+    expect(withoutSpecialist.toHitNumber).toBe(6);
+    expect(withSpecialist.toHitNumber).toBe(5);
+    expect(lightRainSpecialist.toHitNumber).toBe(5);
+    expectModifier(withSpecialist, {
+      name: 'Environmental Specialist (Rain)',
+      value: -1,
+      source: 'spa',
+    });
+    expect(
+      withSpecialist.modifiers.filter(
+        (modifier) => modifier.name === 'Environmental Specialist (Rain)',
+      ),
+    ).toHaveLength(1);
+    expect(
+      lightRainSpecialist.modifiers.some(
+        (modifier) => modifier.name === 'Environmental Specialist (Rain)',
+      ),
+    ).toBe(false);
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'env-specialist-rain-ranged-to-hit-application'
+      ],
+    ).toMatchObject({ level: 'integrated' });
+  });
+
+  it('applies Environmental Specialist fog relief to represented heavy-fog energy ranged conditions', () => {
+    const environmentalConditions = createEnvironmentalConditions({
+      fog: 'heavy_fog',
+    });
+    const withoutSpecialist = attackDeclaredPayload(
+      runModifierScenario({ environmentalConditions }),
+    );
+    const withSpecialist = attackDeclaredPayload(
+      runModifierScenario({
+        environmentalConditions,
+        state: createWeaponAttackState({
+          attacker: {
+            abilities: ['env_specialist'],
+            designatedEnvironment: 'fog',
+          },
+        }),
+      }),
+    );
+    const nonEnergySpecialist = attackDeclaredPayload(
+      runModifierScenario({
+        environmentalConditions,
+        state: createWeaponAttackState({
+          attacker: {
+            abilities: ['env_specialist'],
+            designatedEnvironment: 'fog',
+          },
+        }),
+        weapon: createLrm(),
+      }),
+    );
+    const lightFogSpecialist = attackDeclaredPayload(
+      runModifierScenario({
+        environmentalConditions: createEnvironmentalConditions({
+          fog: 'light_fog',
+        }),
+        state: createWeaponAttackState({
+          attacker: {
+            abilities: ['env_specialist'],
+            designatedEnvironment: 'fog',
+          },
+        }),
+      }),
+    );
+
+    expect(withoutSpecialist.toHitNumber).toBe(6);
+    expect(withSpecialist.toHitNumber).toBe(5);
+    expect(nonEnergySpecialist.toHitNumber).toBe(6);
+    expect(lightFogSpecialist.toHitNumber).toBe(5);
+    expectModifier(withSpecialist, {
+      name: 'Environmental Specialist (Fog)',
+      value: -1,
+      source: 'spa',
+    });
+    expect(
+      withSpecialist.modifiers.filter(
+        (modifier) => modifier.name === 'Environmental Specialist (Fog)',
+      ),
+    ).toHaveLength(1);
+    expect(
+      nonEnergySpecialist.modifiers.some(
+        (modifier) => modifier.name === 'Environmental Specialist (Fog)',
+      ),
+    ).toBe(false);
+    expect(
+      lightFogSpecialist.modifiers.some(
+        (modifier) => modifier.name === 'Environmental Specialist (Fog)',
+      ),
+    ).toBe(false);
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'env-specialist-fog-ranged-to-hit-application'
+      ],
+    ).toMatchObject({ level: 'integrated' });
+  });
+
+  it('applies Environmental Specialist wind relief to represented moderate-wind missile ranged conditions', () => {
+    const environmentalConditions = createEnvironmentalConditions({
+      wind: 'moderate',
+    });
+    const missileWeapon = createLrm();
+    const withoutSpecialist = attackDeclaredPayload(
+      runModifierScenario({
+        environmentalConditions,
+        weapon: missileWeapon,
+      }),
+    );
+    const withSpecialist = attackDeclaredPayload(
+      runModifierScenario({
+        environmentalConditions,
+        state: createWeaponAttackState({
+          attacker: {
+            abilities: ['env_specialist'],
+            designatedEnvironment: 'wind',
+          },
+        }),
+        weapon: missileWeapon,
+      }),
+    );
+    const nonMissileSpecialist = attackDeclaredPayload(
+      runModifierScenario({
+        environmentalConditions,
+        state: createWeaponAttackState({
+          attacker: {
+            abilities: ['env_specialist'],
+            designatedEnvironment: 'wind',
+          },
+        }),
+      }),
+    );
+    const strongWindSpecialist = attackDeclaredPayload(
+      runModifierScenario({
+        environmentalConditions: createEnvironmentalConditions({
+          wind: 'strong',
+        }),
+        state: createWeaponAttackState({
+          attacker: {
+            abilities: ['env_specialist'],
+            designatedEnvironment: 'wind',
+          },
+        }),
+        weapon: missileWeapon,
+      }),
+    );
+
+    expect(withoutSpecialist.toHitNumber).toBe(5);
+    expect(withSpecialist.toHitNumber).toBe(4);
+    expect(nonMissileSpecialist.toHitNumber).toBe(4);
+    expect(strongWindSpecialist.toHitNumber).toBe(6);
+    expectModifier(withSpecialist, {
+      name: 'Environmental Specialist (Wind)',
+      value: -1,
+      source: 'spa',
+    });
+    expect(
+      withSpecialist.modifiers.filter(
+        (modifier) => modifier.name === 'Environmental Specialist (Wind)',
+      ),
+    ).toHaveLength(1);
+    expect(
+      nonMissileSpecialist.modifiers.some(
+        (modifier) => modifier.name === 'Environmental Specialist (Wind)',
+      ),
+    ).toBe(false);
+    expect(
+      strongWindSpecialist.modifiers.some(
+        (modifier) => modifier.name === 'Environmental Specialist (Wind)',
+      ),
+    ).toBe(false);
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'env-specialist-wind-ranged-to-hit-application'
+      ],
+    ).toMatchObject({ level: 'integrated' });
+  });
+
+  it('applies Environmental Specialist light relief to represented ranged light and illumination state', () => {
+    const environmentalConditions = createEnvironmentalConditions({
+      light: 'glare',
+    });
+    const withoutSpecialist = attackDeclaredPayload(
+      runModifierScenario({ environmentalConditions }),
+    );
+    const withUnilluminatedTarget = attackDeclaredPayload(
+      runModifierScenario({
+        environmentalConditions,
+        state: createWeaponAttackState({
+          attacker: {
+            abilities: ['env_specialist'],
+            designatedEnvironment: 'light',
+          },
+          target: {
+            isIlluminated: false,
+          },
+        }),
+      }),
+    );
+    const withoutIlluminationState = attackDeclaredPayload(
+      runModifierScenario({
+        environmentalConditions,
+        state: createWeaponAttackState({
+          attacker: {
+            abilities: ['env_specialist'],
+            designatedEnvironment: 'light',
+          },
+        }),
+      }),
+    );
+    const illuminatedGlareTarget = attackDeclaredPayload(
+      runModifierScenario({
+        environmentalConditions,
+        state: createWeaponAttackState({
+          attacker: {
+            abilities: ['env_specialist'],
+            designatedEnvironment: 'light',
+          },
+          target: {
+            isIlluminated: true,
+          },
+        }),
+      }),
+    );
+    const illuminatedPitchBlackTarget = attackDeclaredPayload(
+      runModifierScenario({
+        environmentalConditions: createEnvironmentalConditions({
+          light: 'pitch_black',
+        }),
+        state: createWeaponAttackState({
+          attacker: {
+            abilities: ['env_specialist'],
+            designatedEnvironment: 'light',
+          },
+          target: {
+            isIlluminated: true,
+          },
+        }),
+      }),
+    );
+
+    expect(withoutSpecialist.toHitNumber).toBe(6);
+    expect(withUnilluminatedTarget.toHitNumber).toBe(5);
+    expect(withoutIlluminationState.toHitNumber).toBe(6);
+    expect(illuminatedGlareTarget.toHitNumber).toBe(6);
+    expect(illuminatedPitchBlackTarget.toHitNumber).toBe(7);
+    expectModifier(withUnilluminatedTarget, {
+      name: 'Environmental Specialist (Light)',
+      value: -1,
+      source: 'spa',
+    });
+    expectModifier(illuminatedPitchBlackTarget, {
+      name: 'Environmental Specialist (Light)',
+      value: -1,
+      source: 'spa',
+    });
+    expect(
+      withoutIlluminationState.modifiers.some(
+        (modifier) => modifier.name === 'Environmental Specialist (Light)',
+      ),
+    ).toBe(false);
+    expect(
+      illuminatedGlareTarget.modifiers.some(
+        (modifier) => modifier.name === 'Environmental Specialist (Light)',
+      ),
+    ).toBe(false);
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'env-specialist-light-ranged-to-hit-application'
+      ],
+    ).toMatchObject({ level: 'integrated' });
+    expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.env_specialist).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('source-backed runtime branches'),
+    });
+    expect(
+      CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.env_specialist.gap,
+    ).toBeUndefined();
+  });
+
   it('threads pilot SPA and quirk to-hit state into AttackDeclared', () => {
     const events = runModifierScenario({
       state: createWeaponAttackState({
@@ -1508,6 +1941,71 @@ describe('runAttackPhase to-hit modifier integration', () => {
       evidence: expect.stringContaining('airborne target'),
     });
   });
+
+  it.each<readonly [string, string, number, number, string]>([
+    ['vdni', 'VDNI', -1, 3, 'vdni-bvdni-ranged-to-hit-application'],
+    ['bvdni', 'VDNI', -1, 3, 'vdni-bvdni-ranged-to-hit-application'],
+    [
+      'proto_dni',
+      'Prototype DNI',
+      -2,
+      2,
+      'proto-dni-ranged-to-hit-application',
+    ],
+  ])(
+    'applies source-backed %s ranged to-hit relief',
+    (abilityId, modifierName, modifierValue, toHitNumber, supportRef) => {
+      const payload = attackDeclaredPayload(
+        runModifierScenario({
+          state: createWeaponAttackState({
+            attacker: {
+              abilities: [abilityId],
+            },
+          }),
+        }),
+      );
+
+      expect(payload.toHitNumber).toBe(toHitNumber);
+      expectModifier(payload, {
+        name: modifierName,
+        value: modifierValue,
+        source: 'spa',
+      });
+      expect(
+        PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+          supportRef as keyof typeof PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT
+        ],
+      ).toMatchObject({
+        level: 'integrated',
+        evidence: expect.stringContaining(abilityId),
+      });
+    },
+  );
+
+  it.each<readonly [string, string]>([
+    ['vdni', 'VDNI'],
+    ['bvdni', 'VDNI'],
+    ['proto_dni', 'Prototype DNI'],
+  ])(
+    'suppresses source-backed %s ranged to-hit relief when neural interface is disconnected',
+    (abilityId, modifierName) => {
+      const payload = attackDeclaredPayload(
+        runModifierScenario({
+          state: createWeaponAttackState({
+            attacker: {
+              abilities: [abilityId],
+              neuralInterfaceActive: false,
+            },
+          }),
+        }),
+      );
+
+      expect(payload.toHitNumber).toBe(4);
+      expect(
+        payload.modifiers.some((modifier) => modifier.name === modifierName),
+      ).toBe(false);
+    },
+  );
 
   it('hydrates target terrain for source-backed Terrain Master defender to-hit variants', () => {
     const forestRangerPayload = attackDeclaredPayload(
@@ -1911,5 +2409,181 @@ describe('runAttackPhase to-hit modifier integration', () => {
     ).toMatchObject({
       level: 'integrated',
     });
+  });
+
+  it('applies represented Triple-Core Processor aimed-shot relief in runner to-hit', () => {
+    const events: IGameEvent[] = [];
+    const violations: IViolation[] = [];
+    const state = createWeaponAttackState({
+      attacker: { abilities: ['triple_core_processor', 'bvdni'] },
+    });
+
+    runAttackPhase({
+      state,
+      botPlayer: new DeclaresWeaponAttackAI(
+        MEDIUM_LASER_ID,
+        'opponent-1',
+        [MEDIUM_LASER_ID],
+        undefined,
+        { [MEDIUM_LASER_ID]: true },
+      ),
+      grid: createGrid(),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: state.gameId,
+      random: new SeededRandom(12345),
+      weaponsByUnit: new Map([
+        ['player-1', [createMediumLaser(MEDIUM_LASER_ID)]],
+        ['opponent-1', []],
+      ]),
+    });
+
+    const payload = attackDeclaredPayload(events);
+
+    expect(payload.toHitNumber).toBe(5);
+    expectModifier(payload, {
+      name: 'VDNI',
+      value: -1,
+      source: 'spa',
+    });
+    expectModifier(payload, {
+      name: 'Called Shot',
+      value: 3,
+      source: 'other',
+    });
+    expectModifier(payload, {
+      name: 'Targeting Computer',
+      value: -1,
+      source: 'equipment',
+    });
+    expect(
+      PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
+        'triple-core-processor-aimed-shot-application'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+    });
+  });
+
+  it('applies actual Targeting Computer equipment in runner to-hit without Triple-Core Processor', () => {
+    const events: IGameEvent[] = [];
+    const violations: IViolation[] = [];
+    const state = createWeaponAttackState({
+      attacker: { targetingComputerEquipment: true },
+    });
+
+    runAttackPhase({
+      state,
+      botPlayer: new DeclaresWeaponAttackAI(MEDIUM_LASER_ID),
+      grid: createGrid(),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: state.gameId,
+      random: new SeededRandom(12345),
+      weaponsByUnit: new Map([
+        ['player-1', [createMediumLaser(MEDIUM_LASER_ID)]],
+        ['opponent-1', []],
+      ]),
+    });
+
+    const payload = attackDeclaredPayload(events);
+
+    expect(payload.toHitNumber).toBe(3);
+    expectModifier(payload, {
+      name: 'Targeting Computer',
+      value: -1,
+      source: 'equipment',
+    });
+  });
+
+  it('does not double-apply actual Targeting Computer equipment with TCP aimed-shot relief', () => {
+    const events: IGameEvent[] = [];
+    const violations: IViolation[] = [];
+    const state = createWeaponAttackState({
+      attacker: {
+        abilities: ['triple_core_processor', 'bvdni'],
+        targetingComputerEquipment: true,
+      },
+    });
+
+    runAttackPhase({
+      state,
+      botPlayer: new DeclaresWeaponAttackAI(
+        MEDIUM_LASER_ID,
+        'opponent-1',
+        [MEDIUM_LASER_ID],
+        undefined,
+        { [MEDIUM_LASER_ID]: true },
+      ),
+      grid: createGrid(),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: state.gameId,
+      random: new SeededRandom(12345),
+      weaponsByUnit: new Map([
+        ['player-1', [createMediumLaser(MEDIUM_LASER_ID)]],
+        ['opponent-1', []],
+      ]),
+    });
+
+    const payload = attackDeclaredPayload(events);
+    const targetingComputerModifiers = payload.modifiers.filter(
+      (modifier) => modifier.name === 'Targeting Computer',
+    );
+
+    expect(payload.toHitNumber).toBe(5);
+    expect(targetingComputerModifiers).toHaveLength(1);
+  });
+
+  it('suppresses represented Triple-Core Processor aimed-shot relief when neural interface is disconnected', () => {
+    const events: IGameEvent[] = [];
+    const violations: IViolation[] = [];
+    const state = createWeaponAttackState({
+      attacker: {
+        abilities: ['triple_core_processor', 'bvdni'],
+        neuralInterfaceActive: false,
+      },
+    });
+
+    runAttackPhase({
+      state,
+      botPlayer: new DeclaresWeaponAttackAI(
+        MEDIUM_LASER_ID,
+        'opponent-1',
+        [MEDIUM_LASER_ID],
+        undefined,
+        { [MEDIUM_LASER_ID]: true },
+      ),
+      grid: createGrid(),
+      invariantRunner: new InvariantRunner(),
+      violations,
+      events,
+      gameId: state.gameId,
+      random: new SeededRandom(12345),
+      weaponsByUnit: new Map([
+        ['player-1', [createMediumLaser(MEDIUM_LASER_ID)]],
+        ['opponent-1', []],
+      ]),
+    });
+
+    const payload = attackDeclaredPayload(events);
+
+    expect(payload.toHitNumber).toBe(7);
+    expect(payload.modifiers.some((modifier) => modifier.name === 'VDNI')).toBe(
+      false,
+    );
+    expectModifier(payload, {
+      name: 'Called Shot',
+      value: 3,
+      source: 'other',
+    });
+    expect(
+      payload.modifiers.some(
+        (modifier) => modifier.name === 'Targeting Computer',
+      ),
+    ).toBe(false);
   });
 });

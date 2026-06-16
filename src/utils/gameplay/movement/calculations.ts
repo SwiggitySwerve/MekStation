@@ -6,6 +6,7 @@ import {
   IHexCoordinate,
   IHexGrid,
   IMovementCapability,
+  LightCondition,
   MovementType,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
@@ -45,6 +46,20 @@ import {
 import { wigeBuildingClimbModeCost } from './wigeClimbModeCost';
 
 export const PAVEMENT_ROAD_BONUS_MP = 1;
+
+const REPRESENTED_LOW_LIGHT_MOVEMENT_PENALTIES: Readonly<
+  Record<LightCondition, number>
+> = {
+  daylight: 0,
+  dawn: 1,
+  dusk: 1,
+  night: 2,
+  full_moon: 1,
+  glare: 1,
+  moonless: 2,
+  solar_flare: 2,
+  pitch_black: 3,
+};
 
 export {
   movementCostContextForCapability,
@@ -411,6 +426,7 @@ export function getMovementStepCostBreakdown(
       feature.type === TerrainType.LightWoods ||
       feature.type === TerrainType.HeavyWoods,
   );
+  const lowLightPenalty = representedLowLightMovementPenalty(context);
 
   if (requiresWaterTerrain(movementType) && !hasWaterFeature) {
     return {
@@ -448,6 +464,30 @@ export function getMovementStepCostBreakdown(
       elevationDelta: 0,
       blockedReason: bridgeClearanceBlocked,
     };
+  }
+
+  if (
+    lowLightPenalty > 0 &&
+    hasNightwalkerMovementRelief(context) &&
+    movementType === 'run'
+  ) {
+    return {
+      mpCost: Infinity,
+      baseCost,
+      terrainCost: 0,
+      elevationCost: 0,
+      elevationDelta: 0,
+      blockedReason:
+        'Terrain Master: Nightwalker prohibits running in represented low-light conditions',
+    };
+  }
+
+  if (
+    lowLightPenalty > 0 &&
+    !hasNightwalkerMovementRelief(context) &&
+    isBattleMechGroundMovement(movementType)
+  ) {
+    terrainCost += lowLightPenalty;
   }
 
   // Rail terrain is not encoded yet; fail closed so rail units do not inherit
@@ -622,6 +662,20 @@ function hasMountaineerMovementRelief(
   context: IMovementCostContext | undefined,
 ): boolean {
   return hasSPA(context?.pilotAbilities ?? [], 'tm_mountaineer');
+}
+
+function hasNightwalkerMovementRelief(
+  context: IMovementCostContext | undefined,
+): boolean {
+  return hasSPA(context?.pilotAbilities ?? [], 'tm_nightwalker');
+}
+
+function representedLowLightMovementPenalty(
+  context: IMovementCostContext | undefined,
+): number {
+  const light = context?.environmentalConditions?.light;
+  if (light === undefined) return 0;
+  return REPRESENTED_LOW_LIGHT_MOVEMENT_PENALTIES[light] ?? 0;
 }
 
 function hasFrogmanWaterMovement(

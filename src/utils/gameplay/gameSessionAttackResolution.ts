@@ -7,11 +7,17 @@ import {
   IAttackDeclaredPayload,
   IGameEvent,
   IGameSession,
+  ISelectedAMSWeaponMountData,
   PSRTrigger,
 } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
 
-import { consumeAmmo, isEnergyWeapon } from './ammoTracking';
+import {
+  consumeAmmo,
+  findAvailableAmmoBin,
+  isEnergyWeapon,
+} from './ammoTracking';
+import { isStreakWeapon, lookupClusterHits } from './clusterWeapons';
 import {
   checkTACTrigger,
   processTAC,
@@ -25,6 +31,7 @@ import {
   createAmmoConsumedEvent,
   createAttackInvalidEvent,
   createAttackResolvedEvent,
+  createAMSInterceptionEvent,
   createDamageAppliedEvent,
   createIndirectFireSpotterLostEvent,
   createLocationDestroyedEvent,
@@ -49,10 +56,219 @@ import {
   roll2d6 as rollDice,
 } from './hitLocation';
 import { isLegLocation } from './pilotingSkillRolls';
+import {
+  applyLowProfileGlancingDamage,
+  getLowProfileGlancingCriticalHitModifier,
+  isLowProfileGlancingBlow,
+} from './quirkModifiers';
+import { isMissileWeapon } from './specialWeaponMechanics';
+import { weaponMountCoversTargetArc } from './weaponMountArcs';
 
 type WeaponAttackDataWithToHit = {
   readonly toHitNumber?: number;
 };
+
+const PLAYTEST_3_AMS_OPTIONAL_RULES = new Set([
+  'playtest_3',
+  'playtest-3',
+  'playtest3',
+  'tacops_playtest_3',
+]);
+
+function hasPlaytest3AMSRule(
+  optionalRules: readonly string[] | undefined,
+): boolean {
+  return (
+    optionalRules?.some((rule) =>
+      PLAYTEST_3_AMS_OPTIONAL_RULES.has(rule.toLowerCase()),
+    ) ?? false
+  );
+}
+
+function canSelectedAMSReuseWithinWeaponPhase(
+  mount: ISelectedAMSWeaponMountData,
+  optionalRules: readonly string[] | undefined,
+): boolean {
+  return mount.amsMultiUse === true || hasPlaytest3AMSRule(optionalRules);
+}
+
+function mountBaseId(weaponId: string): string {
+  const match = weaponId.match(/^(.+)-(\d+)$/);
+  return match ? match[1] : weaponId;
+}
+
+function missileRackSize(weaponId: string, weaponName: string): number | null {
+  const candidates = [mountBaseId(weaponId), weaponId, weaponName];
+  for (const candidate of candidates) {
+    const match = candidate.match(/(?:lrm|srm|mrm|atm|mml)[\s-]?(\d+)/i);
+    if (!match) continue;
+    const rackSize = Number.parseInt(match[1], 10);
+    if (Number.isFinite(rackSize) && rackSize > 0) return rackSize;
+  }
+  return null;
+}
+
+function isMissileClusterAttack(weaponId: string, weaponName: string): boolean {
+  return (
+    isMissileWeapon(mountBaseId(weaponId)) ||
+    isMissileWeapon(weaponName) ||
+    /\bmml[\s-]?\d+/i.test(`${weaponId} ${weaponName}`)
+  );
+}
+
+function canSelectedAMSIntercept(input: {
+  readonly mount: ISelectedAMSWeaponMountData;
+  readonly targetState: IGameSession['currentState']['units'][string];
+  readonly incomingArc: ReturnType<typeof calculateFiringArc>;
+  readonly optionalRules: readonly string[] | undefined;
+}): boolean {
+  const { incomingArc, mount, optionalRules, targetState } = input;
+  const alreadyFired =
+    targetState.weaponsFiredThisTurn?.includes(mount.weaponId) ?? false;
+  if (
+    alreadyFired &&
+    !canSelectedAMSReuseWithinWeaponPhase(mount, optionalRules)
+  ) {
+    return false;
+  }
+
+  if (!weaponMountCoversTargetArc(mount, incomingArc)) {
+    return false;
+  }
+
+  if (isEnergyWeapon(mount.weaponName)) {
+    return true;
+  }
+
+  const ammoWeaponType = mount.ammoWeaponType ?? mountBaseId(mount.weaponId);
+  return (
+    targetState.ammoState !== undefined &&
+    findAvailableAmmoBin(targetState.ammoState, ammoWeaponType) !== null
+  );
+}
+
+function resolveSelectedAMSCluster(input: {
+  readonly session: IGameSession;
+  readonly payload: IAttackDeclaredPayload;
+  readonly weaponId: string;
+  readonly weaponName: string;
+  readonly damage: number;
+  readonly attackerId: string;
+  readonly targetId: string;
+  readonly incomingArc: ReturnType<typeof calculateFiringArc>;
+  readonly diceRoller: DiceRoller;
+}): { readonly session: IGameSession; readonly damage: number } | undefined {
+  const selectedAMSWeaponId =
+    input.payload.selectedAMSWeaponIds?.[input.weaponId];
+  const selectedMount = input.payload.selectedAMSWeaponMounts?.[input.weaponId];
+  if (
+    selectedAMSWeaponId === undefined ||
+    selectedMount === undefined ||
+    selectedMount.weaponId !== selectedAMSWeaponId
+  ) {
+    return undefined;
+  }
+
+  const targetState = input.session.currentState.units[input.targetId];
+  if (
+    !targetState ||
+    !isMissileClusterAttack(input.weaponId, input.weaponName) ||
+    !canSelectedAMSIntercept({
+      mount: selectedMount,
+      targetState,
+      incomingArc: input.incomingArc,
+      optionalRules: input.session.config.optionalRules,
+    })
+  ) {
+    return undefined;
+  }
+
+  const rackSize = missileRackSize(input.weaponId, input.weaponName);
+  if (rackSize === null) return undefined;
+
+  const streakClusterRoll =
+    isStreakWeapon(mountBaseId(input.weaponId)) ||
+    /streak/i.test(input.weaponName);
+  const clusterDice = streakClusterRoll
+    ? ([11] as const)
+    : diceRollToArray(input.diceRoller());
+  const clusterRoll = clusterDice.reduce((sum, die) => sum + die, 0);
+  const incomingProjectiles = streakClusterRoll
+    ? rackSize
+    : lookupClusterHits(clusterRoll, rackSize);
+  const clusterModifier = -4;
+  const modifiedClusterRoll = Math.max(2, clusterRoll + clusterModifier);
+  const projectilesRemaining = lookupClusterHits(modifiedClusterRoll, rackSize);
+  const ammoConsumed = isEnergyWeapon(selectedMount.weaponName) ? 0 : 1;
+  let currentSession = input.session;
+  let ammoBinId: string | undefined;
+  let ammoRemaining: number | undefined;
+  const ammoWeaponType =
+    selectedMount.ammoWeaponType ?? mountBaseId(selectedMount.weaponId);
+
+  if (ammoConsumed > 0) {
+    const ammoResult = targetState.ammoState
+      ? consumeAmmo(targetState.ammoState, input.targetId, ammoWeaponType)
+      : null;
+    if (!ammoResult) return undefined;
+
+    ammoBinId = ammoResult.event.binId;
+    ammoRemaining = ammoResult.event.roundsRemaining;
+    currentSession = appendEvent(
+      currentSession,
+      createAmmoConsumedEvent(
+        currentSession.id,
+        currentSession.events.length,
+        currentSession.currentState.turn,
+        GamePhase.WeaponAttack,
+        input.targetId,
+        ammoResult.event.binId,
+        ammoResult.event.weaponType,
+        ammoResult.event.roundsConsumed,
+        ammoResult.event.roundsRemaining,
+      ),
+    );
+  }
+
+  currentSession = appendEvent(
+    currentSession,
+    createAMSInterceptionEvent(
+      currentSession.id,
+      currentSession.events.length,
+      currentSession.currentState.turn,
+      {
+        defenderId: input.targetId,
+        targetId: input.targetId,
+        attackerId: input.attackerId,
+        incomingWeaponId: input.weaponId,
+        amsWeaponId: selectedMount.weaponId,
+        resolution: 'cluster-table',
+        incomingProjectiles,
+        projectilesIntercepted: Math.max(
+          0,
+          incomingProjectiles - projectilesRemaining,
+        ),
+        projectilesRemaining,
+        ammoConsumed,
+        roll: clusterDice,
+        clusterRoll,
+        clusterModifier,
+        modifiedClusterRoll,
+        ...(ammoBinId !== undefined ? { ammoBinId } : {}),
+        ...(ammoRemaining !== undefined ? { ammoRemaining } : {}),
+      },
+    ),
+  );
+
+  return {
+    session: currentSession,
+    damage: (input.damage / rackSize) * projectilesRemaining,
+  };
+}
+
+function diceRollToArray(roll: ReturnType<DiceRoller>): readonly number[] {
+  return [...roll.dice];
+}
 
 export function resolveAttack(
   session: IGameSession,
@@ -181,7 +397,6 @@ export function resolveAttack(
       break; // most-recent spotter selection found — stop walking
     }
 
-    const sequence = currentSession.events.length;
     const { turn } = currentSession.currentState;
 
     const attackerState = currentSession.currentState.units[attackerId];
@@ -194,12 +409,32 @@ export function resolveAttack(
     const arcString = firingArcToString(firingArc);
 
     if (hit) {
+      let resolvedWeaponData = weaponData;
+      const selectedAMSResult = resolveSelectedAMSCluster({
+        session: currentSession,
+        payload,
+        weaponId,
+        weaponName,
+        damage: weaponData.damage,
+        attackerId,
+        targetId,
+        incomingArc: firingArc,
+        diceRoller,
+      });
+      if (selectedAMSResult) {
+        currentSession = selectedAMSResult.session;
+        resolvedWeaponData = {
+          ...weaponData,
+          damage: selectedAMSResult.damage,
+        };
+      }
+
       const vehicleResolved = tryResolveVehicleAttackHit({
         session: currentSession,
         attackerId,
         targetId,
         weaponId,
-        weaponData,
+        weaponData: resolvedWeaponData,
         attackRollTotal: attackRoll.total,
         toHitNumber: weaponToHitNumber,
         attackDirection: arcString,
@@ -222,17 +457,41 @@ export function resolveAttack(
       const hitLocationResult = determineHitLocationFromRoll(
         firingArc,
         locationRoll,
+        {
+          edge: {
+            edgePointsRemaining: targetState.edgePointsRemaining,
+            pilotAbilities: targetState.abilities ?? [],
+            turn,
+            unitId: targetId,
+            reroll: diceRoller,
+          },
+        },
       );
       const location = hitLocationResult.location;
-      let damage = weaponData.damage;
+      let damage = resolvedWeaponData.damage;
 
       if (isHeadHit(location) && damage > 3) {
         damage = 3;
       }
 
+      const lowProfileGlancingBlow = isLowProfileGlancingBlow(
+        targetState.unitQuirks,
+        attackRoll.total,
+        weaponToHitNumber,
+      );
+      if (lowProfileGlancingBlow) {
+        damage = applyLowProfileGlancingDamage(damage);
+      }
+      const lowProfileCriticalHitModifier =
+        getLowProfileGlancingCriticalHitModifier(
+          targetState.unitQuirks,
+          attackRoll.total,
+          weaponToHitNumber,
+        );
+
       const resolvedEvent = createAttackResolvedEvent(
         currentSession.id,
-        sequence,
+        currentSession.events.length,
         turn,
         attackerId,
         targetId,
@@ -245,6 +504,14 @@ export function resolveAttack(
         weaponData.heat,
         arcString,
         ammoBinIdForResolved,
+        {
+          edgeReroll: hitLocationResult.edgeReroll,
+          edgeSuperseded: hitLocationResult.edgeSuperseded,
+          edgeTrigger: hitLocationResult.edgeTrigger,
+          edgePointsRemaining: hitLocationResult.edgePointsRemaining,
+          edgeSupersededLocation: hitLocationResult.supersededLocation,
+          edgeSupersededRoll: hitLocationResult.supersededRoll?.total,
+        },
       );
       currentSession = appendEvent(currentSession, resolvedEvent);
 
@@ -254,7 +521,24 @@ export function resolveAttack(
       const preAttackDamageThisPhase =
         currentSession.currentState.units[targetId]?.damageThisPhase ?? 0;
 
-      const damageState = buildDamageStateFromUnit(targetState);
+      const targetStateForDamage =
+        currentSession.currentState.units[targetId] ?? targetState;
+      const buildTargetCriticalEdgeOptions = () => {
+        const targetForCritical =
+          currentSession.currentState.units[targetId] ?? targetStateForDamage;
+        return {
+          pilotAbilities: targetForCritical.abilities ?? [],
+          edgePointsRemaining: targetForCritical.edgePointsRemaining,
+          turn,
+          unitId: targetId,
+          criticalHitModifier: lowProfileCriticalHitModifier,
+          optionalRules: currentSession.config.optionalRules,
+        };
+      };
+      const damageState = {
+        ...buildDamageStateFromUnit(targetStateForDamage),
+        turn,
+      };
       const d6Roller = () => {
         const roll = diceRoller();
         return roll.dice[0];
@@ -375,7 +659,8 @@ export function resolveAttack(
 
       const manifest = buildDefaultCriticalSlotManifest();
       const targetComponentDamage =
-        targetState.componentDamage ?? buildDefaultComponentDamageState();
+        targetStateForDamage.componentDamage ??
+        buildDefaultComponentDamageState();
 
       for (const locationDamage of damageResult.result.locationDamages) {
         if (locationDamage.structureDamage > 0 && !locationDamage.destroyed) {
@@ -385,6 +670,9 @@ export function resolveAttack(
             manifest,
             targetComponentDamage,
             d6Roller,
+            undefined,
+            undefined,
+            buildTargetCriticalEdgeOptions(),
           );
           currentSession = emitCriticalEvents(
             currentSession,
@@ -395,7 +683,7 @@ export function resolveAttack(
         }
       }
 
-      if (locationRoll.total === 2) {
+      if (hitLocationResult.roll.total === 2) {
         const tacLocation = checkTACTrigger(2, arcString);
         if (tacLocation) {
           const tacResult = processTAC(
@@ -404,6 +692,8 @@ export function resolveAttack(
             manifest,
             targetComponentDamage,
             d6Roller,
+            undefined,
+            buildTargetCriticalEdgeOptions(),
           );
           currentSession = emitCriticalEvents(
             currentSession,
@@ -490,6 +780,12 @@ export function resolveAttack(
             | 'mech_destruction',
           pilotDamage.consciousnessCheckRequired,
           pilotDamage.conscious,
+          {
+            edgeReroll: pilotDamage.edgeReroll,
+            edgeSuperseded: pilotDamage.edgeSuperseded,
+            edgeTrigger: pilotDamage.edgeTrigger,
+            edgePointsRemaining: pilotDamage.edgePointsRemaining,
+          },
         );
         currentSession = appendEvent(currentSession, pilotEvent);
       }
@@ -516,7 +812,7 @@ export function resolveAttack(
       // shot drew from even on a miss.
       const resolvedEvent = createAttackResolvedEvent(
         currentSession.id,
-        sequence,
+        currentSession.events.length,
         turn,
         attackerId,
         targetId,

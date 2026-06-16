@@ -33,10 +33,12 @@ import {
   IMovementDeclaredPayload,
   MovementAnimationMode,
   MovementType,
+  type PhysicalAttackINarcPodSelection,
   WeaponFireMode,
   type StandUpMode,
 } from '@/types/gameplay';
 import { declarePhysicalAttack } from '@/utils/gameplay/gameSession';
+import { isZweihanderPhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
 
 import { useAnimationQueue } from './useAnimationQueue';
 import { InteractivePhase } from './useGameplayStore.helpers';
@@ -103,6 +105,8 @@ export interface IPhysicalAttackPlan {
   readonly targetUnitId: string | null;
   readonly attackType: PhysicalAttackType | null;
   readonly limb: PhysicalAttackLimb | null;
+  readonly twoHandedZweihander: boolean;
+  readonly selectedINarcPod?: PhysicalAttackINarcPodSelection;
 }
 
 /**
@@ -457,6 +461,12 @@ export interface IPhysicalAttackPlanState {
     attackType: PhysicalAttackType | null,
     limb?: PhysicalAttackLimb | null,
   ) => void;
+  /** Explicit two-handed Zweihander declaration for represented physical attacks. */
+  setPhysicalAttackTwoHandedZweihander: (enabled: boolean) => void;
+  /** Optional Brush-Off iNARC pod identity selected from the target carrier. */
+  setPhysicalAttackINarcPod: (
+    pod: PhysicalAttackINarcPodSelection | undefined,
+  ) => void;
   /** Reset back to `{targetUnitId: null, attackType: null}`. */
   clearPhysicalAttackPlan: () => void;
   /**
@@ -499,6 +509,7 @@ const EMPTY_PHYSICAL_PLAN: IPhysicalAttackPlan = {
   targetUnitId: null,
   attackType: null,
   limb: null,
+  twoHandedZweihander: false,
 };
 
 /**
@@ -514,17 +525,62 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
     physicalAttackPlan: EMPTY_PHYSICAL_PLAN,
 
     setPhysicalAttackTarget: (unitId) =>
+      set((state) => {
+        const { selectedINarcPod: _selectedINarcPod, ...basePlan } =
+          state.physicalAttackPlan;
+        return {
+          physicalAttackPlan: {
+            ...basePlan,
+            targetUnitId: unitId,
+          },
+        };
+      }),
+
+    setPhysicalAttackType: (attackType, limb = null) =>
+      set((state) => {
+        const { selectedINarcPod, ...basePlan } = state.physicalAttackPlan;
+        const nextPlan: IPhysicalAttackPlan = {
+          ...basePlan,
+          attackType,
+          limb,
+          twoHandedZweihander: isZweihanderPhysicalAttackType(attackType)
+            ? state.physicalAttackPlan.twoHandedZweihander
+            : false,
+        };
+        if (attackType === 'brush-off' && selectedINarcPod !== undefined) {
+          return {
+            physicalAttackPlan: {
+              ...nextPlan,
+              selectedINarcPod,
+            },
+          };
+        }
+        return { physicalAttackPlan: nextPlan };
+      }),
+
+    setPhysicalAttackTwoHandedZweihander: (enabled) =>
       set((state) => ({
         physicalAttackPlan: {
           ...state.physicalAttackPlan,
-          targetUnitId: unitId,
+          twoHandedZweihander: isZweihanderPhysicalAttackType(
+            state.physicalAttackPlan.attackType,
+          )
+            ? enabled
+            : false,
         },
       })),
 
-    setPhysicalAttackType: (attackType, limb = null) =>
-      set((state) => ({
-        physicalAttackPlan: { ...state.physicalAttackPlan, attackType, limb },
-      })),
+    setPhysicalAttackINarcPod: (pod) =>
+      set((state) => {
+        const { selectedINarcPod: _selectedINarcPod, ...basePlan } =
+          state.physicalAttackPlan;
+        return {
+          physicalAttackPlan:
+            pod === undefined
+              ? basePlan
+              : { ...basePlan, selectedINarcPod: pod },
+        };
+      }),
 
     clearPhysicalAttackPlan: () =>
       set({ physicalAttackPlan: EMPTY_PHYSICAL_PLAN }),
@@ -574,6 +630,8 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
           targetUnitType: args.targetUnitType,
           limb: plan.limb ?? undefined,
           arm: armForPhysicalLimb(plan.limb),
+          twoHandedZweihander: plan.twoHandedZweihander,
+          selectedINarcPod: plan.selectedINarcPod,
           weaponsFiredFromArm:
             weaponsFiredFromArmForPhysicalLimb(plan.limb, args) ??
             attackerState?.weaponsFiredThisTurn,

@@ -2,6 +2,7 @@ import {
   Facing,
   GameEventType,
   GamePhase,
+  IAMSInterceptionPayload,
   IAmmoConsumedPayload,
   IGameEvent,
   IPSRResolvedPayload,
@@ -275,6 +276,25 @@ export function createAmmoConsumedEvent(
       turn,
       phase,
       unitId,
+    ),
+    payload,
+  };
+}
+
+export function createAMSInterceptionEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  payload: IAMSInterceptionPayload,
+): IGameEvent {
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.AMSInterception,
+      turn,
+      GamePhase.WeaponAttack,
+      payload.defenderId,
     ),
     payload,
   };

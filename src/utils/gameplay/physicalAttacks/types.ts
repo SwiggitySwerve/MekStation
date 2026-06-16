@@ -1,4 +1,10 @@
-import { IComponentDamageState, IUnitGameState } from '@/types/gameplay';
+import type { LightCondition } from '@/types/gameplay/EnvironmentalConditions';
+
+import {
+  IComponentDamageState,
+  type IINarcPodState,
+  IUnitGameState,
+} from '@/types/gameplay';
 import { CombatLocation } from '@/types/gameplay';
 
 import type { GrappleAttackSide } from './grappleEligibility';
@@ -36,6 +42,21 @@ export const SUPPORTED_PHYSICAL_ATTACK_TYPES = [
 
 export type PhysicalAttackType =
   (typeof SUPPORTED_PHYSICAL_ATTACK_TYPES)[number];
+
+const ZWEIHANDER_PHYSICAL_ATTACK_TYPE_SET = new Set<string>([
+  'punch',
+  ...SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
+]);
+
+export function isZweihanderPhysicalAttackType(
+  value: PhysicalAttackType | null | undefined,
+): value is 'punch' | (typeof SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES)[number] {
+  return (
+    value !== null &&
+    value !== undefined &&
+    ZWEIHANDER_PHYSICAL_ATTACK_TYPE_SET.has(value)
+  );
+}
 
 export type PhysicalHitTable = 'punch' | 'kick';
 
@@ -94,6 +115,7 @@ export interface IPhysicalAttackDeclaration {
   readonly targetId: string;
   readonly attackType: PhysicalAttackType;
   readonly limb?: PhysicalAttackLimb;
+  readonly selectedINarcPod?: PhysicalAttackINarcPodSelection;
 }
 
 /**
@@ -106,6 +128,12 @@ export type PhysicalAttackLimb =
   | 'rightArm'
   | 'leftLeg'
   | 'rightLeg';
+
+export type PhysicalAttackINarcPodSelection = Pick<
+  IINarcPodState,
+  'teamId' | 'podType'
+> &
+  Partial<Pick<IINarcPodState, 'location'>>;
 
 /**
  * Per `implement-physical-attack-phase` task 3.8: enumerated rejection
@@ -196,6 +224,7 @@ export type PhysicalAttackInvalidReason =
   | 'UnsupportedAttackType'
   | 'PhysicalAttackLimitReached'
   | 'RetractableBladeNotExtended'
+  | 'RequiredSpaMissing'
   | 'DestinationBlocked';
 
 export interface IPhysicalAttackElevationContext {
@@ -221,6 +250,12 @@ export interface IPhysicalAttackInput {
   readonly componentDamage: IComponentDamageState;
   readonly attackType: PhysicalAttackType;
   readonly arm?: 'left' | 'right';
+  /**
+   * Explicit two-handed Zweihander attack state. This does not imply the
+   * pilot has the canonical `zweihander` SPA; callers must also supply that
+   * ability in `pilotAbilities`.
+   */
+  readonly twoHandedZweihander?: boolean;
   readonly hexesMoved?: number;
   readonly heat?: number;
   readonly hasTSM?: boolean;
@@ -280,6 +315,13 @@ export interface IPhysicalAttackInput {
    * unloading cargo cannot make physical attacks.
    */
   readonly attackerLoadingOrUnloadingCargo?: boolean;
+  /**
+   * Source-backed represented carry-object state: an arm carrying cargo cannot
+   * be used for arm-dependent physical attacks. This is intentionally narrower
+   * than pickup/carry/throw action lifecycle support.
+   */
+  readonly leftArmCarryingCargo?: boolean;
+  readonly rightArmCarryingCargo?: boolean;
   /**
    * Source-backed bog-down legality: stuck Meks cannot charge or execute DFA.
    */
@@ -570,6 +612,14 @@ export interface IPhysicalAttackInput {
   readonly pilotAbilities?: readonly string[];
   readonly unitQuirks?: readonly string[];
   /**
+   * Source-backed Environmental Specialist physical to-hit gate. MegaMek's
+   * physical attack advantage branch uses the Light designation, dark
+   * planetary light, and target illumination state.
+   */
+  readonly designatedEnvironment?: string;
+  readonly environmentalLight?: LightCondition;
+  readonly targetIlluminated?: boolean;
+  /**
    * Target elevation minus attacker elevation. Positive values mean the
    * target is above the attacker. Charge uses this to verify the attacker
    * and target vertical bands overlap. Undefined preserves callers without
@@ -693,6 +743,8 @@ export interface IChooseBestPhysicalAttackOptions {
   rightArmHasClaw?: boolean;
   attackerEvading?: boolean;
   attackerLoadingOrUnloadingCargo?: boolean;
+  leftArmCarryingCargo?: boolean;
+  rightArmCarryingCargo?: boolean;
   attackerTargetedByDisplacementAttackerId?: string;
   attackerBoardId?: string;
   targetBoardId?: string;

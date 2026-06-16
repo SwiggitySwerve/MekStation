@@ -5,7 +5,11 @@ import type {
   ICombatFeatureSupportEntry,
 } from '../CombatFeatureSupport';
 
-import { TERRAIN_ENVIRONMENT_COMBAT_SUPPORT } from '../CombatRuleSupport';
+import {
+  MINEFIELD_VARIANT_SIDE_PATH_UNSUPPORTED_IDS,
+  TERRAIN_LOS_SIDE_PATH_UNSUPPORTED_IDS,
+  TERRAIN_ENVIRONMENT_COMBAT_SUPPORT,
+} from '../CombatRuleSupport';
 import {
   TERRAIN_TYPE_ATTACK_MODIFIER_COMBAT_SUPPORT,
   TERRAIN_TYPE_COMBAT_COVERAGE,
@@ -15,6 +19,10 @@ import {
   TERRAIN_TYPE_PSR_COMBAT_SUPPORT,
   TERRAIN_TYPES_WITH_PSR_GAPS,
 } from '../CombatTerrainEnvironmentSupport';
+import {
+  getCombatValidationOutOfScopeRefs,
+  getCombatValidationUnresolvedRefs,
+} from '../CombatValidationGapInventory';
 
 function sortedKeys(record: Record<string, unknown>): readonly string[] {
   return Object.keys(record).sort();
@@ -42,6 +50,16 @@ function supportIdsByLevel(
     .filter((entry) => entry.level === level)
     .map((entry) => entry.id)
     .sort();
+}
+
+function expectHelperOnlyRowPinsNamedGaps(
+  entry: ICombatFeatureSupportEntry,
+  namedGaps: readonly string[],
+): void {
+  expect(entry.level).toBe('helper-only');
+  namedGaps.forEach((gap) => {
+    expect(entry.gap).toEqual(expect.stringContaining(gap));
+  });
 }
 
 function expectLineAnchoredSourceRef(ref: ICombatFeatureSourceReference): void {
@@ -155,8 +173,10 @@ describe('BattleMech terrain and environment combat support catalog', () => {
   it('source-pins every TerrainType LOS row', () => {
     const megaMekComparedLosTerrains = [
       TerrainType.Building,
+      TerrainType.HeavyIndustrial,
       TerrainType.HeavyWoods,
       TerrainType.LightWoods,
+      TerrainType.PlantedField,
       TerrainType.Smoke,
       TerrainType.Water,
     ];
@@ -173,11 +193,11 @@ describe('BattleMech terrain and environment combat support catalog', () => {
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/utils/gameplay/lineOfSight.ts#L50-L70',
+            url: 'src/utils/gameplay/lineOfSight.ts#L65-L69',
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/utils/gameplay/lineOfSight.ts#L189-L349',
+            url: 'src/utils/gameplay/lineOfSight.ts#L451-L789',
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
@@ -210,7 +230,7 @@ describe('BattleMech terrain and environment combat support catalog', () => {
     ).toEqual([]);
     expect(TERRAIN_TYPE_LOS_COMBAT_SUPPORT[TerrainType.Water]).toMatchObject({
       level: 'integrated',
-      evidence: expect.stringContaining('land-to-depth-2+ water'),
+      evidence: expect.stringContaining('land-to-underwater endpoint'),
       sourceRefs: expect.arrayContaining([
         expect.objectContaining({
           kind: 'megamek-source',
@@ -218,6 +238,14 @@ describe('BattleMech terrain and environment combat support catalog', () => {
         }),
       ]),
     });
+    expect(TERRAIN_TYPE_LOS_COMBAT_SUPPORT[TerrainType.Water].evidence).toEqual(
+      expect.stringContaining(
+        'represented underwater clear/non-water depth-0 intervening sightlines',
+      ),
+    );
+    expect(TERRAIN_TYPE_LOS_COMBAT_SUPPORT[TerrainType.Water].evidence).toEqual(
+      expect.stringContaining('minimumWaterDepth metadata'),
+    );
     expect(
       TERRAIN_TYPE_LOS_COMBAT_SUPPORT[TerrainType.LightWoods],
     ).toMatchObject({
@@ -234,8 +262,10 @@ describe('BattleMech terrain and environment combat support catalog', () => {
     expect(terrainTypesWithAttackModifiers()).toEqual(
       [
         TerrainType.Building,
+        TerrainType.HeavyIndustrial,
         TerrainType.HeavyWoods,
         TerrainType.LightWoods,
+        TerrainType.PlantedField,
         TerrainType.Smoke,
         TerrainType.Swamp,
         TerrainType.Water,
@@ -258,8 +288,10 @@ describe('BattleMech terrain and environment combat support catalog', () => {
   it('source-pins every TerrainType attack modifier row', () => {
     const megaMekBackedModifierTerrains = [
       TerrainType.Building,
+      TerrainType.HeavyIndustrial,
       TerrainType.HeavyWoods,
       TerrainType.LightWoods,
+      TerrainType.PlantedField,
       TerrainType.Smoke,
     ];
     const localOnlyModifierTerrains = [TerrainType.Swamp, TerrainType.Water];
@@ -282,7 +314,7 @@ describe('BattleMech terrain and environment combat support catalog', () => {
             }),
             expect.objectContaining({
               kind: 'mekstation-deviation',
-              url: 'src/simulation/runner/phases/weaponAttackTerrainModifiers.ts#L13-L63',
+              url: 'src/simulation/runner/phases/weaponAttackTerrainModifiers.ts#L13-L55',
             }),
             expect.objectContaining({
               kind: 'mekstation-deviation',
@@ -508,7 +540,1015 @@ describe('BattleMech terrain and environment combat support catalog', () => {
     expect(supportGaps(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT)).toEqual([]);
     expect(
       supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'helper-only'),
-    ).toEqual(expect.arrayContaining(['mines', 'terrain-los-side-paths']));
+    ).toEqual([]);
+    expect(
+      supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'unsupported'),
+    ).toEqual(
+      [
+        ...MINEFIELD_VARIANT_SIDE_PATH_UNSUPPORTED_IDS,
+        ...TERRAIN_LOS_SIDE_PATH_UNSUPPORTED_IDS,
+      ].sort(),
+    );
+    expect(
+      supportIdsByLevel(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT, 'out-of-scope'),
+    ).toEqual(['minefield-non-battlemech-sea-variants']);
+    const terrainLosSidePaths =
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['terrain-los-side-paths'];
+    expect(terrainLosSidePaths).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('Split-accounting row'),
+    });
+    expect(terrainLosSidePaths.gap).toBeUndefined();
+    expect(terrainLosSidePaths.evidence).toEqual(
+      expect.stringContaining('terrain-los-same-building-hex-blocking'),
+    );
+    expect(terrainLosSidePaths.evidence).toEqual(
+      expect.stringContaining('terrain-los-same-building-level-count'),
+    );
+    expect(terrainLosSidePaths.evidence).toEqual(
+      expect.stringContaining('terrain-los-building-height-blocking'),
+    );
+    expect(terrainLosSidePaths.evidence).toEqual(
+      expect.stringContaining('terrain-los-water-endpoint-blocking'),
+    );
+    expect(terrainLosSidePaths.evidence).toEqual(
+      expect.stringContaining('terrain-los-underwater-clear-hex-blocking'),
+    );
+    expect(terrainLosSidePaths.evidence).toEqual(
+      expect.stringContaining('terrain-los-underwater-depth-height-side-paths'),
+    );
+    expect(terrainLosSidePaths.evidence).toEqual(
+      expect.stringContaining('terrain-los-intervening-elevation-blocking'),
+    );
+    expect(terrainLosSidePaths.evidence).toEqual(
+      expect.stringContaining('terrain-los-divided-elevation-blocking'),
+    );
+    expect(terrainLosSidePaths.evidence).toEqual(
+      expect.stringContaining(
+        'terrain-los-tacops-diagram-represented-pure-elevation',
+      ),
+    );
+    expect(terrainLosSidePaths.evidence).toEqual(
+      expect.stringContaining(
+        'terrain-los-tacops-diagram-represented-terrain-effects',
+      ),
+    );
+    const terrainEnvironmentSupportById =
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT as Record<
+        string,
+        ICombatFeatureSupportEntry
+      >;
+    const terrainLosResiduals = TERRAIN_LOS_SIDE_PATH_UNSUPPORTED_IDS.map(
+      (supportId) => terrainEnvironmentSupportById[supportId],
+    );
+    expect(terrainLosResiduals.map((entry) => entry.level)).toEqual(
+      TERRAIN_LOS_SIDE_PATH_UNSUPPORTED_IDS.map(() => 'unsupported'),
+    );
+    const terrainLosGapText = terrainLosResiduals
+      .map((entry) => entry.gap)
+      .join('\n');
+    expect(terrainLosGapText).not.toEqual(
+      expect.stringContaining(
+        'industrial-zone side-path terrain density/elevation',
+      ),
+    );
+    expect(terrainLosGapText).not.toEqual(
+      expect.stringContaining(
+        'planted-field side-path terrain density/elevation',
+      ),
+    );
+    expect(terrainLosGapText).not.toEqual(
+      expect.stringContaining('grounded DropShip level-10 cover'),
+    );
+    expect(
+      (TERRAIN_ENVIRONMENT_COMBAT_SUPPORT as Record<string, unknown>)[
+        'terrain-los-tacops-diagram-elevation-side-paths'
+      ],
+    ).toBeUndefined();
+    const localTerrainTypes = new Set(Object.values(TerrainType));
+    expect(localTerrainTypes.has(TerrainType.HeavyIndustrial)).toBe(true);
+    expect(localTerrainTypes.has(TerrainType.PlantedField)).toBe(true);
+    for (const [supportId, expectedEvidence] of [
+      [
+        'terrain-los-tacops-diagram-industrial-zone-side-paths',
+        'HeavyIndustrial terrain',
+      ],
+      [
+        'terrain-los-tacops-diagram-planted-field-side-paths',
+        'PlantedField terrain',
+      ],
+    ] as const) {
+      expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[supportId]).toMatchObject({
+        level: 'integrated',
+        evidence: expect.stringContaining(expectedEvidence),
+        sourceRefs: expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'megamek-source',
+            citation: expect.stringContaining('ADVANCED_COMBAT_TAC_OPS_LOS1'),
+            url: expect.stringContaining('LosEffects.java#L783-L790'),
+          }),
+          expect.objectContaining({
+            kind: 'megamek-source',
+            citation: expect.stringContaining('totalEl >= losElevation'),
+            url: expect.stringContaining('LosEffects.java#L1310-L1329'),
+          }),
+          expect.objectContaining({
+            kind: 'mekstation-deviation',
+            citation: expect.stringContaining('calculateLOS owns'),
+          }),
+        ]),
+      });
+      expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[supportId].gap).toBeUndefined();
+    }
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-tacops-diagram-combat-caller-option-propagation'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('thread explicit optionalRules'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('ADVANCED_COMBAT_TAC_OPS_LOS1'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('runner weapon attack LOS'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('interactive attack declarations'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-tacops-diagram-combat-caller-option-propagation'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-tacops-diagram-represented-pure-elevation'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('clear-hex pure elevation'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('LosEffects.java#L783-L790'),
+        }),
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('TacOps diagram elevation'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-tacops-diagram-represented-terrain-effects'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('represented woods and smoke'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('ADVANCED_COMBAT_TAC_OPS_LOS1'),
+        }),
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('totalEl >= losElevation'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/utils/gameplay/lineOfSight.ts#L1-L825',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-grounded-dropship-cover-providers'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('grounded DropShip occupants'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('grounded Dropship'),
+          url: expect.stringContaining('LosEffects.java#L1264-L1293'),
+        }),
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('damageable cover'),
+          url: expect.stringContaining('LosEffects.java#L1488-L1502'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('calculateLOS gates'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-grounded-dropship-cover-providers'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['terrain-los-fuel-tank-elevation'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('fuelTankElevation'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('FUEL_TANK_ELEV'),
+          url: expect.stringContaining('LosEffects.java#L1264-L1293'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('calculateLOS gates'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-fuel-tank-damageable-cover-providers'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('fuelTankElevation/fuelTankId'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('damageable cover'),
+          url: expect.stringContaining('LosEffects.java#L1488-L1502'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('calculateLOS gates'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-fuel-tank-damageable-cover-providers'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-hard-soft-building-cover-providers'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('constructionFactor metadata'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('BLDG_CF'),
+          url: expect.stringContaining('LosEffects.java#L1331-L1339'),
+        }),
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('damageable cover'),
+          url: expect.stringContaining('LosEffects.java#L1488-L1502'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('calculateLOS gates'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-hard-soft-building-cover-providers'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-damageable-cover-hit-resolution-routing'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('TerrainChanged'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('damageable cover'),
+          url: expect.stringContaining('LosEffects.java#L1488-L1502'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('calculateLOS gates'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-damageable-cover-hit-resolution-routing'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-underwater-depth-height-side-paths'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('minimumWaterDepth'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('LosEffects.java#L1252-L1348'),
+        }),
+      ]),
+    });
+    expect(terrainLosGapText).not.toEqual(
+      expect.stringContaining('local TerrainType LOS helper'),
+    );
+    expect(terrainLosGapText).not.toEqual(
+      expect.stringContaining('degree % 60 == 30 divided LOS'),
+    );
+    expect(terrainLosGapText).not.toEqual(
+      expect.stringContaining('left/right side-path resolution'),
+    );
+    expect(terrainLosSidePaths.gap).not.toEqual(
+      expect.stringContaining('land-to-depth-2+ water endpoint'),
+    );
+    expect(terrainLosSidePaths.sourceRefs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('LosEffects.java#L783-L790'),
+        }),
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('LosEffects.java#L993-L1040'),
+        }),
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('underwater minimum-water depth'),
+          url: expect.stringContaining('LosEffects.java#L1252-L1348'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('calculateLOS gates'),
+        }),
+      ]),
+    );
+    expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.mines).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('represented TerrainType.Mines'),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-same-building-hex-blocking'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'represented same-building building hexes exceed two',
+      ),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('LosEffects.java#L1210-L1455'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('calculateLOS gates'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-building-height-blocking'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('Building terrain feature level'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('LosEffects.java#L1210-L1455'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('calculateLOS gates'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['terrain-los-building-height-blocking']
+        .evidence,
+    ).toEqual(expect.stringContaining('taller endpoint'));
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['terrain-los-building-height-blocking']
+        .evidence,
+    ).toEqual(expect.stringContaining('adjacent endpoint'));
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-same-building-level-count'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('explicit endpoint LOS-height'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('building hexes passed through'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('calculateLOS gates'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-divided-side-path-blocking'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'defender-favorable blocker or intervening terrain modifier',
+      ),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('LosEffects.java#L783-L790'),
+        }),
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('LosEffects.java#L993-L1040'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-divided-elevation-blocking'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('blockingElevation'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('LosEffects.java#L783-L790'),
+        }),
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('TacOps diagram elevation'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-intervening-elevation-blocking'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('blockingElevation'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('TacOps diagram elevation'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-intervening-elevation-blocking'
+      ].evidence,
+    ).toEqual(expect.stringContaining('no-side-effect AttackInvalid events'));
+    expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.mines.evidence).toEqual(
+      expect.stringContaining('represented TerrainType.Mines hex entry'),
+    );
+    expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.mines.evidence).toEqual(
+      expect.stringContaining('encoded feature-level BattleMech leg damage'),
+    );
+    expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.mines.gap).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-entry-side-paths'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('same-hex non-entry suppression'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/simulation/runner/phases/movementMines.ts#L1-L1090',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-entry-side-paths'
+      ].evidence,
+    ).toEqual(
+      expect.stringContaining(
+        'per-declaration duplicate-coordinate suppression',
+      ),
+    );
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-entry-side-paths'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-encoded-damage-levels'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('encoded level 6'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/simulation/runner/phases/movementMines.ts#L1-L1090',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-encoded-damage-levels'
+      ].evidence,
+    ).toEqual(
+      expect.stringContaining('without treating that marker as full MegaMek'),
+    );
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-encoded-damage-levels'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-coordinate-state-entry-damage'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('IGameState.minefields'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/types/gameplay/GameSessionStateTypes.ts#L720-L748',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-coordinate-state-entry-damage'
+      ].evidence,
+    ).toEqual(expect.stringContaining('canonical coordToKey q,r lookup'));
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-coordinate-state-entry-damage'
+      ].evidence,
+    ).toEqual(expect.stringContaining('explicit per-leg damage'));
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-coordinate-state-entry-damage'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-conventional-detonated-state'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('conventional minefield state'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('Minefield.java#L47-L125'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/types/gameplay/GameSessionStateTypes.ts#L720-L748',
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/simulation/runner/phases/movementMines.ts#L1-L1090',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-conventional-detonated-state'
+      ].evidence,
+    ).toEqual(expect.stringContaining('already-detonated suppression'));
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-conventional-detonated-state'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-coordinate-state-lifecycle'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('event-sourced add'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/utils/gameplay/gameState/terrainReducer.ts#L35-L109',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-coordinate-state-lifecycle'
+      ].evidence,
+    ).toEqual(expect.stringContaining('clear, reset, and detonate'));
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-coordinate-state-lifecycle'
+      ].evidence,
+    ).toEqual(expect.stringContaining('density preservation'));
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-coordinate-state-lifecycle'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-manual-conventional-detonation'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('manual_adjustment'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/simulation/runner/phases/minefieldActions.ts#L1-L234',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-manual-conventional-detonation'
+      ].evidence,
+    ).toEqual(
+      expect.stringContaining('no damage or PSR side effects at command time'),
+    );
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-manual-conventional-detonation'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-movement-detonation-event'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('movement_detonation'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('enterMinefield resolves'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/simulation/runner/phases/movementMines.ts#L1-L1090',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-movement-detonation-event'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-density-trigger-target'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('density 20 uses target 8'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('Minefield.java#L47-L125'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/simulation/runner/phases/movementMines.ts#L1-L1090',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-density-trigger-target'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-density-reduction'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining(
+        'reduces represented conventional and inferno density',
+      ),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('Minefield.java#L47-L125'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/simulation/runner/phases/movementMines.ts#L1-L1090',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-density-reduction'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-non-conventional-type-guard'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('fail-closed'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('Minefield.java#L47-L125'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/simulation/runner/phases/movementMines.ts#L1-L1090',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-non-conventional-type-guard'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-active-ground-suppression'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('active minefield'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('TWGameManager.java#L7348-L7590'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/simulation/runner/phases/movementMines.ts#L1-L1090',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-active-ground-suppression'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['minefield-variant-side-paths']
+        .evidence,
+    ).toEqual(expect.stringContaining('Split-accounting row'));
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['minefield-variant-side-paths']
+        .evidence,
+    ).toEqual(expect.stringContaining('MINEFIELD modifier'));
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['minefield-variant-side-paths']
+        .evidence,
+    ).toEqual(expect.stringContaining('source-pinned'));
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['minefield-variant-side-paths']
+        .evidence,
+    ).toEqual(expect.stringContaining('movement detonation event emission'));
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['minefield-variant-side-paths']
+        .evidence,
+    ).toEqual(expect.stringContaining('coordinate minefield authoring'));
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['minefield-variant-side-paths'].gap,
+    ).toBeUndefined();
+    for (const supportId of MINEFIELD_VARIANT_SIDE_PATH_UNSUPPORTED_IDS) {
+      const branch = TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[supportId];
+      expect(branch).toMatchObject({
+        level: 'unsupported',
+        gap: expect.stringContaining('Unsupported feature gap'),
+        sourceRefs: expect.arrayContaining([
+          expect.objectContaining({
+            kind: 'megamek-source',
+            url: expect.stringContaining('Minefield.java#L47-L125'),
+          }),
+        ]),
+      });
+    }
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['minefield-hidden-reveal-detection'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('detectedBySides'),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['minefield-hidden-reveal-detection']
+        .gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-campaign-placement-authoring'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('explicit coordinate-authored'),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-campaign-placement-authoring'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-campaign-placement-authoring'
+      ].sourceRefs,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('GameCreated payloads seed'),
+        }),
+      ]),
+    );
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-clearing-sweeper-collateral-reset'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('mine-sweeper events'),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-clearing-sweeper-collateral-reset'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-non-conventional-type-semantics'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['minefield-inferno-residual-controls'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('GO_PRONE movement'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('inferno wash-off'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('clears infernoBurning'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['minefield-inferno-residual-controls']
+        .gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-vibrabomb-effects'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('BattleMech tonnage versus setting'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('checkVibraBombs'),
+        }),
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('explodeVibrabomb'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/simulation/runner/phases/movementMines.ts#L1-L1090',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-vibrabomb-effects'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-command-detonation'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('command-detonated'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining(
+            'command-detonated mines as a TODO',
+          ),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/simulation/runner/phases/minefieldActions.ts#L1-L234',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-represented-command-detonation'
+      ].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['minefield-emp-effects'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('EmpMinefieldEffectApplied'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('BattleMek EMP thresholds'),
+        }),
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('+2 drone OS modifier'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/simulation/runner/phases/movementMines.ts#L1-L1090',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['minefield-emp-effects'].gap,
+    ).toBeUndefined();
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'minefield-non-battlemech-sea-variants'
+      ],
+    ).toMatchObject({
+      level: 'out-of-scope',
+      evidence: expect.stringContaining('sea/depth state'),
+      gap: expect.stringContaining(
+        'outside this BattleMech suite instead of being counted',
+      ),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('Minefield.java#L47-L125'),
+        }),
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('enterMinefield resolves'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/simulation/runner/phases/movementMines.ts#L1-L1090',
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['minefield-variant-side-paths']
+        .sourceRefs,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('Minefield.java#L47-L125'),
+        }),
+        expect.objectContaining({
+          kind: 'megamek-source',
+          citation: expect.stringContaining('stores minefields by coordinate'),
+          url: expect.stringContaining('Game.java#L178-L343'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/constants/scenario/modifiers/equipmentModifiers.ts#L5-L27',
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: 'src/simulation/runner/phases/movementMines.ts#L1-L1090',
+        }),
+      ]),
+    );
     expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.dust).toMatchObject({
       level: 'integrated',
       evidence: expect.stringContaining('blowingSand'),
@@ -519,8 +1559,101 @@ describe('BattleMech terrain and environment combat support catalog', () => {
       level: 'integrated',
       evidence: expect.stringContaining('cumulative woods/smoke density'),
     });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT['terrain-los-water-endpoint-blocking'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('land-to-depth-2+ water endpoint'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('LosEffects.java#L763-L768'),
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('calculateLOS gates'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-underwater-clear-hex-blocking'
+      ],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('underwater-to-underwater sightlines'),
+      sourceRefs: expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'megamek-source',
+          url: expect.stringContaining('LosEffects.java#L763-L768'),
+        }),
+      ]),
+    });
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-underwater-clear-hex-blocking'
+      ].evidence,
+    ).toEqual(expect.stringContaining('clear/non-water depth-0'));
+    expect(
+      TERRAIN_ENVIRONMENT_COMBAT_SUPPORT[
+        'terrain-los-underwater-clear-hex-blocking'
+      ].evidence,
+    ).not.toEqual(expect.stringContaining('minimumWaterDepth'));
     expect(TERRAIN_ENVIRONMENT_COMBAT_SUPPORT.wind).toMatchObject({
       level: 'integrated',
     });
+  });
+
+  it('keeps represented terrain environment rows out of the residual export', () => {
+    const unresolvedRefs = getCombatValidationUnresolvedRefs();
+    const outOfScopeRefs = getCombatValidationOutOfScopeRefs();
+
+    expect(
+      unresolvedRefs.filter((ref) =>
+        ref.startsWith('ruleSupport.terrainEnvironment.'),
+      ),
+    ).toEqual([
+      ...MINEFIELD_VARIANT_SIDE_PATH_UNSUPPORTED_IDS.map(
+        (supportId) => `ruleSupport.terrainEnvironment.${supportId}`,
+      ).sort(),
+      ...TERRAIN_LOS_SIDE_PATH_UNSUPPORTED_IDS.map(
+        (supportId) => `ruleSupport.terrainEnvironment.${supportId}`,
+      ).sort(),
+    ]);
+    expect(outOfScopeRefs).toContain(
+      'ruleSupport.terrainEnvironment.minefield-non-battlemech-sea-variants',
+    );
+    expect(unresolvedRefs).not.toEqual(
+      expect.arrayContaining([
+        'ruleSupport.terrainEnvironment.mines',
+        'ruleSupport.terrainEnvironment.minefield-represented-entry-side-paths',
+        'ruleSupport.terrainEnvironment.minefield-represented-encoded-damage-levels',
+        'ruleSupport.terrainEnvironment.minefield-represented-coordinate-state-entry-damage',
+        'ruleSupport.terrainEnvironment.minefield-represented-conventional-detonated-state',
+        'ruleSupport.terrainEnvironment.minefield-represented-coordinate-state-lifecycle',
+        'ruleSupport.terrainEnvironment.minefield-represented-manual-conventional-detonation',
+        'ruleSupport.terrainEnvironment.minefield-represented-movement-detonation-event',
+        'ruleSupport.terrainEnvironment.minefield-represented-density-trigger-target',
+        'ruleSupport.terrainEnvironment.minefield-represented-density-reduction',
+        'ruleSupport.terrainEnvironment.minefield-represented-active-ground-suppression',
+        'ruleSupport.terrainEnvironment.minefield-represented-inferno-entry-heat',
+        'ruleSupport.terrainEnvironment.minefield-represented-non-conventional-type-guard',
+        'ruleSupport.terrainEnvironment.minefield-represented-vibrabomb-effects',
+        'ruleSupport.terrainEnvironment.minefield-non-conventional-type-semantics',
+        'ruleSupport.terrainEnvironment.minefield-variant-side-paths',
+        'ruleSupport.terrainEnvironment.terrain-los-blocking',
+        'ruleSupport.terrainEnvironment.terrain-los-building-height-blocking',
+        'ruleSupport.terrainEnvironment.terrain-los-same-building-level-count',
+        'ruleSupport.terrainEnvironment.terrain-los-divided-elevation-blocking',
+        'ruleSupport.terrainEnvironment.terrain-los-divided-side-path-blocking',
+        'ruleSupport.terrainEnvironment.terrain-los-intervening-elevation-blocking',
+        'ruleSupport.terrainEnvironment.terrain-los-tacops-diagram-represented-pure-elevation',
+        'ruleSupport.terrainEnvironment.terrain-los-tacops-diagram-represented-terrain-effects',
+        'ruleSupport.terrainEnvironment.terrain-los-same-building-hex-blocking',
+        'ruleSupport.terrainEnvironment.terrain-los-underwater-clear-hex-blocking',
+        'ruleSupport.terrainEnvironment.terrain-los-water-endpoint-blocking',
+        'ruleSupport.terrainEnvironment.minefield-non-battlemech-sea-variants',
+      ]),
+    );
   });
 });

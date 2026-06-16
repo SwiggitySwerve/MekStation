@@ -15,7 +15,11 @@ import { MovementType, type IndirectFireBasis } from '@/types/gameplay';
 import { IHexCoordinate, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 
 import { hexDistance } from './hexMath';
-import { calculateLOS, ILOSResult } from './lineOfSight';
+import {
+  calculateLOS,
+  type ILOSCalculationOptions,
+  type ILOSResult,
+} from './lineOfSight';
 import { getObliqueAttackerBonus, hasSPA } from './spaModifiers';
 import {
   isSemiGuidedLRM,
@@ -114,6 +118,8 @@ export interface IIndirectFireRequest {
   readonly spotterCandidates: readonly ISpotterCandidate[];
   /** The hex grid (for LOS checks) */
   readonly grid: IHexGrid;
+  /** Optional LOS rule switches threaded from combat/session optional rules. */
+  readonly losOptions?: ILOSCalculationOptions;
   /**
    * Whether the target has been NARC-marked by the attacker's team.
    * Optional for backward compatibility — existing call sites without NARC
@@ -155,8 +161,12 @@ export interface IIndirectFireResult {
   readonly forwardObserverApplied?: boolean;
   /** Oblique Attacker SPA reduced the final indirect-fire penalty. */
   readonly obliqueAttackerApplied?: boolean;
+  /** Comm Implant or Boosted Comm Implant reduced the LOS spotter penalty. */
+  readonly commImplantApplied?: boolean;
   /** Penalty points cancelled by Forward Observer, when represented. */
   readonly spotterMovementPenaltyCancelled?: number;
+  /** Penalty points cancelled by Comm Implant / Boosted Comm Implant. */
+  readonly commImplantPenaltyRelief?: number;
   /** LOS result from spotter to target */
   readonly spotterLOS?: ILOSResult;
   /**
@@ -274,6 +284,13 @@ export function calculateSpotterMovementPenalty(
   }
 }
 
+function hasCommImplantSpotterRelief(candidate: ISpotterCandidate): boolean {
+  const pilotSpas = candidate.pilotSpas ?? [];
+  return (
+    hasSPA(pilotSpas, 'comm_implant') || hasSPA(pilotSpas, 'boost_comm_implant')
+  );
+}
+
 /**
  * Check if a spotter has line of sight to the target.
  */
@@ -281,8 +298,16 @@ export function spotterHasLOS(
   spotter: ISpotterCandidate,
   targetPosition: IHexCoordinate,
   grid: IHexGrid,
+  losOptions?: ILOSCalculationOptions,
 ): ILOSResult {
-  return calculateLOS(spotter.position, targetPosition, grid);
+  return calculateLOS(
+    spotter.position,
+    targetPosition,
+    grid,
+    undefined,
+    undefined,
+    losOptions,
+  );
 }
 
 /**
@@ -298,6 +323,7 @@ export function findBestSpotter(
   attackerTeamId: string,
   targetPosition: IHexCoordinate,
   grid: IHexGrid,
+  losOptions?: ILOSCalculationOptions,
 ): { spotter: ISpotterCandidate; losResult: ILOSResult } | null {
   // Filter to eligible spotters
   const eligible = candidates.filter((c) =>
@@ -315,7 +341,12 @@ export function findBestSpotter(
   } | null = null;
 
   for (const candidate of eligible) {
-    const losResult = spotterHasLOS(candidate, targetPosition, grid);
+    const losResult = spotterHasLOS(
+      candidate,
+      targetPosition,
+      grid,
+      losOptions,
+    );
     if (!losResult.hasLOS) continue;
 
     const contender = {
@@ -468,6 +499,7 @@ export function resolveIndirectFire(
     request.attackerTeamId,
     request.targetPosition,
     request.grid,
+    request.losOptions,
   );
 
   if (spotterResult) {
@@ -492,11 +524,18 @@ export function resolveIndirectFire(
     // and +1 when the spotter is attacking this turn (L1540-1544).
     const spotterAttackedThisTurn = spotter.attackedThisTurn === true;
     const spotterAttackPenalty = spotterAttackedThisTurn ? 1 : 0;
+    const commImplantApplied = hasCommImplantSpotterRelief(spotter);
+    const commImplantPenaltyRelief = commImplantApplied ? 1 : 0;
 
-    // Base +1 indirect-fire penalty + movement penalty + spotter-attacked +1.
+    // Base +1 indirect-fire penalty + movement penalty + spotter-attacked +1,
+    // minus the source-backed Comm Implant / Boosted Comm Implant relief.
     const toHitPenalty = Math.max(
       0,
-      1 + movementPenalty + spotterAttackPenalty + obliqueAttackerModifier,
+      1 +
+        movementPenalty +
+        spotterAttackPenalty -
+        commImplantPenaltyRelief +
+        obliqueAttackerModifier,
     );
 
     return {
@@ -509,7 +548,9 @@ export function resolveIndirectFire(
       spotterAttackedThisTurn,
       forwardObserverApplied,
       obliqueAttackerApplied,
+      commImplantApplied,
       spotterMovementPenaltyCancelled: forwardObserverApplied ? 1 : 0,
+      commImplantPenaltyRelief,
       spotterLOS: losResult,
     };
   }

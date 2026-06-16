@@ -142,6 +142,12 @@ export type MovementStandUpArmActuator =
 
 export type MovementStandUpLegProfile = 'biped' | 'quad';
 
+/**
+ * BattleMech leg profile used by movement rules that distinguish ordinary
+ * biped Meks from QuadMeks without widening validation to the whole unit.
+ */
+export type MovementMekLegProfile = 'biped' | 'quad';
+
 export interface IMovementStandUpArmActuators {
   /** First missing/destroyed left-arm actuator, in MegaMek stand-up priority. */
   readonly left?: MovementStandUpArmActuator;
@@ -329,6 +335,8 @@ export interface IMovementCapability {
   readonly waterCapability?: IMovementWaterCapability;
   /** Optional stand-up rules that affect prone movement projection. */
   readonly standUpCapability?: IMovementStandUpCapability;
+  /** Source-backed BattleMech leg profile for chassis-specific movement rules. */
+  readonly mekLegProfile?: MovementMekLegProfile;
   /**
    * Effective Partial Wing jump bonus already adjusted for source-backed
    * equipment state. Used to subtract the wing bonus from jump heat.

@@ -541,13 +541,16 @@ The Iron Will SPA SHALL remain a local legacy alias boundary for BattleMech comb
 
 ### Requirement: Piloting SPA — Heavy Lifter
 
-The Heavy Lifter SPA SHALL remain an explicit carry/throw-object action gap in the BattleMech combat matrix until object manipulation actions exist. Source-backed MegaMek behavior SHALL be recorded as a `1.5x` ground-object lift-capacity multiplier for BattleMechs with arms, not as a generic physical attack damage or to-hit modifier.
+The Heavy Lifter SPA SHALL represent pickup/drop carried-object lifecycle separately from unresolved throw-object action resolution in the BattleMech combat matrix. Source-backed MegaMek behavior SHALL be recorded as a represented carry-object capacity-check helper, `1.5x` ground-object lift-capacity multiplier for BattleMechs with arms, represented pickup/drop carried-object state lifecycle, and per-arm carried-cargo physical legality lockout for the occupied arm, not as a generic physical attack damage or to-hit modifier.
 
 #### Scenario: Heavy Lifter lift capacity remains action-gated
 
 - **WHEN** the BattleMech combat validation catalog is generated
-- **THEN** Heavy Lifter SHALL be marked unsupported with MegaMek source references to `1.5x` ground-object lift capacity
-- **AND** the catalog SHALL state that carry/throw-object physical combat actions are not implemented
+- **THEN** Heavy Lifter lift-capacity helper support SHALL be marked integrated with MegaMek source references to `1.5x` ground-object lift capacity
+- **AND** Heavy Lifter carry-object capacity-check support SHALL be marked integrated only for the represented helper calculation
+- **AND** represented pickup/drop carried-object events SHALL author object payload state, carried-by state, arm occupancy, and overweight no-side-effect rejection
+- **AND** represented per-arm carried-cargo state SHALL lock out physical attacks for the occupied arm
+- **AND** the catalog SHALL keep throw-object physical combat actions/resolution as a separate helper-only gap
 
 ### Requirement: Piloting SPA - Shaky Stick
 

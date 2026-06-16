@@ -1,6 +1,6 @@
 /**
  * Tests for `getPSRReasonCategory` — the bucket helper that partitions
- * the 31-code `PSRTrigger` taxonomy into the four `PSRReasonCategory`
+ * the 34-code `PSRTrigger` taxonomy into the four `PSRReasonCategory`
  * buckets (movement / damage / heat / recovery).
  *
  * @spec openspec/changes/structure-psr-reason-as-discriminated-code/specs/piloting-skill-rolls/spec.md
@@ -27,19 +27,22 @@ describe('getPSRReasonCategory', () => {
     });
   });
 
-  describe('exhaustive partitioning over all 31 codes', () => {
+  describe('exhaustive partitioning over all 34 codes', () => {
     const allTriggers = Object.values(PSRTrigger) as readonly PSRTrigger[];
 
     it('enumerates the canonical PSRTrigger codes', () => {
       // Sanity check on the enum size — if a code is added in a follow-on
       // change, this assertion fails first and forces a category decision.
-      // The spec proposal calls out "27 canonical snake_case codes"; the
+      // The original spec proposal called out a smaller canonical set; the
       // enum carries one extra (`Pushed` in the physical-attack target
       // family) and a source-backed domino-effect physical displacement
-      // PSR, plus AirMek landing and swamp bog-down movement checks, for
-      // a total of 31. These counts are stable; if either changes the
+      // PSR, plus AirMek landing, swamp bog-down, represented
+      // controlled-sideslip checks, represented flanking-and-turning
+      // pending checks, and represented out-of-control movement checks,
+      // for a total of 34. These counts
+      // are stable; if either changes the
       // test fails and forces a spec / enum reconciliation.
-      expect(allTriggers).toHaveLength(31);
+      expect(allTriggers).toHaveLength(34);
     });
 
     it('every PSRTrigger value maps to exactly one of the four buckets', () => {
@@ -72,9 +75,9 @@ describe('getPSRReasonCategory', () => {
     });
 
     it('matches the canonical partition documented in the spec', () => {
-      // 21 movement + 8 damage + 1 heat + 1 recovery = 31
+      // 24 movement + 8 damage + 1 heat + 1 recovery = 34
       // (8 + 21 + 1 + 1; the spec text mentions 27 but the enum carries
-      // 31 — the bucket helper treats every enum member, regardless).
+      // 32 — the bucket helper treats every enum member, regardless).
       const buckets: Record<PSRReasonCategory, number> = {
         movement: 0,
         damage: 0,
@@ -85,7 +88,7 @@ describe('getPSRReasonCategory', () => {
         buckets[getPSRReasonCategory(trigger)] += 1;
       }
       expect(buckets.damage).toBe(8);
-      expect(buckets.movement).toBe(21);
+      expect(buckets.movement).toBe(24);
       expect(buckets.heat).toBe(1);
       expect(buckets.recovery).toBe(1);
     });
@@ -121,6 +124,9 @@ describe('getPSRReasonCategory', () => {
       PSRTrigger.AirMekLanding,
       PSRTrigger.RunningDamagedHip,
       PSRTrigger.RunningDamagedGyro,
+      PSRTrigger.ControlledSideslip,
+      PSRTrigger.FlankingAndTurning,
+      PSRTrigger.OutOfControl,
       PSRTrigger.BuildingCollapse,
       PSRTrigger.MASCFailure,
       PSRTrigger.SuperchargerFailure,

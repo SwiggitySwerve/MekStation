@@ -40,6 +40,33 @@ export interface ICombatValidationOutOfScopeRow {
   readonly sourceRefs: readonly ICombatFeatureSourceReference[];
 }
 
+export type CombatValidationGapInventoryRow =
+  | ICombatValidationUnresolvedRow
+  | ICombatValidationOutOfScopeRow;
+
+export type CombatValidationGapScope = 'all' | 'leaf' | 'aggregate';
+
+export function isCombatValidationAggregateGapRow(row: {
+  readonly sectionId: string;
+  readonly mapId: string;
+}): boolean {
+  return (
+    row.sectionId === 'validationScope' && row.mapId === 'objectiveRequirements'
+  );
+}
+
+export function filterCombatValidationGapRowsByScope<
+  TRow extends CombatValidationGapInventoryRow,
+>(rows: readonly TRow[], scope: CombatValidationGapScope): readonly TRow[] {
+  if (scope === 'all') return rows;
+
+  return rows.filter((row) =>
+    scope === 'aggregate'
+      ? isCombatValidationAggregateGapRow(row)
+      : !isCombatValidationAggregateGapRow(row),
+  );
+}
+
 export function getCombatValidationUnresolvedRows(
   catalog: Readonly<
     Record<string, CombatValidationCatalogSection>

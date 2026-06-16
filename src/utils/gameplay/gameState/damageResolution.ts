@@ -1,10 +1,13 @@
 import type { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+import type { IElectronicWarfareState } from '@/utils/gameplay/electronicWarfare';
 
 import {
   ICriticalHitResolvedPayload,
+  IComponentDamageState,
   IDamageAppliedPayload,
   IGameState,
   IHeatPayload,
+  IArtemisFcsKind,
   IPilotHitPayload,
   IUnitDestroyedPayload,
   IUnitGameState,
@@ -19,6 +22,8 @@ import {
 
 import { DEFAULT_COMPONENT_DAMAGE } from './initialization';
 import { applyVehicleCriticalLocationDamage } from './vehicleCriticalLocationDamage';
+
+const SCM_CRITICAL_DISABLE_THRESHOLD = 6;
 
 function getArmForSideTorso(location: string): string | null {
   if (location === 'left_torso' || location === 'left_torso_rear') {
@@ -177,6 +182,8 @@ export function applyPilotHit(
         ...unit,
         pilotWounds: payload.totalWounds,
         pilotConscious: pilotDead ? false : conscious,
+        edgePointsRemaining:
+          payload.edgePointsRemaining ?? unit.edgePointsRemaining,
         ...(pilotDead
           ? {
               destroyed: true as const,
@@ -255,13 +262,23 @@ export function applyCriticalHitResolved(
       updatedDamage = { ...updatedDamage, cockpitHit: true };
       break;
     case 'weapon':
-      updatedDamage = {
-        ...updatedDamage,
-        weaponsDestroyed: [
-          ...updatedDamage.weaponsDestroyed,
-          payload.componentName,
-        ],
-      };
+      if (
+        payload.destroyed === false &&
+        isAutocannonCriticalComponent(payload)
+      ) {
+        updatedDamage = applyPlaytestAutocannonFirstCritical(
+          updatedDamage,
+          payload,
+        );
+      } else {
+        updatedDamage = {
+          ...updatedDamage,
+          weaponsDestroyed: [
+            ...updatedDamage.weaponsDestroyed,
+            payload.weaponId ?? payload.componentName,
+          ],
+        };
+      }
       break;
     case 'heat_sink':
       updatedDamage = {
@@ -304,21 +321,366 @@ export function applyCriticalHitResolved(
       };
       break;
     }
+    case 'equipment':
+      if (isSuperCooledMyomerCriticalComponent(payload.componentName)) {
+        updatedDamage = {
+          ...updatedDamage,
+          superCooledMyomerHits: Math.min(
+            (updatedDamage.superCooledMyomerHits ?? 0) + 1,
+            SCM_CRITICAL_DISABLE_THRESHOLD,
+          ),
+        };
+      } else if (
+        isEmergencyCoolantSystemCriticalComponent(payload.componentName)
+      ) {
+        updatedDamage = {
+          ...updatedDamage,
+          emergencyCoolantSystemDamaged: true,
+        };
+      } else if (
+        payload.destroyed === false &&
+        isAutocannonCriticalComponent(payload)
+      ) {
+        updatedDamage = applyPlaytestAutocannonFirstCritical(
+          updatedDamage,
+          payload,
+        );
+      } else if (isHarJelCriticalComponent(payload)) {
+        updatedDamage = applyHarJelBreachCritical(updatedDamage, payload);
+      } else if (isRiscLaserPulseModuleLinkedCritical(payload)) {
+        updatedDamage = {
+          ...updatedDamage,
+          weaponsDestroyed: [
+            ...updatedDamage.weaponsDestroyed,
+            payload.linkedCriticalWeaponId,
+          ],
+        };
+      }
+      break;
   }
   updatedDamage = applyVehicleCriticalLocationDamage(updatedDamage, payload);
 
-  const updatedUnit = applyDamagedPhysicalEquipmentCritical(unit, payload);
+  const updatedUnit = applyDestroyedArtemisFcsState(
+    applyGenericEquipmentDestroyedState(
+      applyDamagedPhysicalEquipmentCritical(unit, payload),
+      payload,
+    ),
+    payload,
+  );
+  const electronicWarfare = applyElectronicWarfareEquipmentCritical(
+    state.electronicWarfare,
+    payload,
+  );
 
   return {
     ...state,
+    ...(electronicWarfare ? { electronicWarfare } : {}),
     units: {
       ...state.units,
       [payload.unitId]: {
         ...updatedUnit,
         componentDamage: updatedDamage,
+        edgePointsRemaining:
+          payload.edgePointsRemaining ?? updatedUnit.edgePointsRemaining,
         combatState: applyVehicleCriticalToCombatState(updatedUnit, payload),
       },
     },
+  };
+}
+
+function normalizeEquipmentText(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function isECMCriticalComponent(componentName: string): boolean {
+  const normalized = normalizeEquipmentText(componentName);
+  return normalized.includes('ecm') || normalized.includes('cews');
+}
+
+function isGenericECMCriticalComponent(component: string): boolean {
+  return (
+    component === 'ecm' ||
+    component === 'ecmsuite' ||
+    component === 'cews' ||
+    component === 'cewssuite'
+  );
+}
+
+function isRiscLaserPulseModuleLinkedCritical(
+  payload: ICriticalHitResolvedPayload,
+): payload is ICriticalHitResolvedPayload & {
+  readonly linkedCriticalWeaponId: string;
+} {
+  return (
+    payload.destroyed === true &&
+    normalizeEquipmentText(payload.componentName) === 'risclaserpulsemodule' &&
+    typeof payload.linkedCriticalWeaponId === 'string' &&
+    payload.linkedCriticalWeaponId.length > 0
+  );
+}
+
+function isActiveProbeCriticalComponent(componentName: string): boolean {
+  const normalized = normalizeEquipmentText(componentName);
+  return (
+    normalized.includes('activeprobe') ||
+    normalized.includes('beagle') ||
+    normalized.includes('bloodhound') ||
+    normalized.includes('bap') ||
+    normalized.includes('cews')
+  );
+}
+
+function isGenericActiveProbeCriticalComponent(component: string): boolean {
+  return (
+    component === 'probe' ||
+    component === 'activeprobe' ||
+    component === 'bap' ||
+    component === 'cews' ||
+    component === 'cewssuite'
+  );
+}
+
+function artemisFcsKindForComponent(
+  componentName: string,
+): IArtemisFcsKind | undefined {
+  const normalized = normalizeEquipmentText(componentName);
+  if (normalized.includes('ammo') || normalized.includes('capable')) {
+    return undefined;
+  }
+
+  if (normalized.includes('prototypeartemisiv')) {
+    return 'prototype_artemis_iv';
+  }
+  if (
+    normalized.includes('artemisivproto') ||
+    normalized.includes('protoartemisiv')
+  ) {
+    return 'prototype_artemis_iv';
+  }
+  if (normalized.includes('artemisv')) {
+    return 'artemis_v';
+  }
+  if (normalized.includes('artemisiv')) {
+    return 'artemis_iv';
+  }
+
+  return undefined;
+}
+
+function isSuperCooledMyomerCriticalComponent(componentName: string): boolean {
+  const normalized = normalizeEquipmentText(componentName);
+  return (
+    normalized === 'scm' ||
+    normalized === 'supercooledmyomer' ||
+    normalized.includes('supercooledmyomer')
+  );
+}
+
+function isEmergencyCoolantSystemCriticalComponent(
+  componentName: string,
+): boolean {
+  const normalized = normalizeEquipmentText(componentName);
+  return (
+    normalized === 'emergencycoolantsystem' ||
+    normalized.includes('emergencycoolant')
+  );
+}
+
+function isHarJelCriticalComponent(
+  payload: ICriticalHitResolvedPayload,
+): boolean {
+  return (
+    payload.componentType === 'equipment' &&
+    payload.breached === true &&
+    normalizeEquipmentText(payload.componentName) === 'harjel'
+  );
+}
+
+function applyHarJelBreachCritical(
+  componentDamage: IComponentDamageState,
+  payload: ICriticalHitResolvedPayload,
+): IComponentDamageState {
+  return {
+    ...componentDamage,
+    breachedLocations: addUniqueString(
+      componentDamage.breachedLocations,
+      payload.location,
+    ),
+  };
+}
+
+function autocannonCriticalKey(payload: ICriticalHitResolvedPayload): string {
+  return payload.weaponId ?? payload.componentName;
+}
+
+function isAutocannonCriticalComponent(
+  payload: ICriticalHitResolvedPayload,
+): boolean {
+  const text =
+    `${payload.weaponId ?? ''} ${payload.componentName}`.toLowerCase();
+  return (
+    /\b(?:uac|rac|ac)\s*\/?\s*\d+\b/.test(text) ||
+    /\b(?:ultra|rotary)\s+ac\s*\/?\s*\d+\b/.test(text) ||
+    /\blb[\s-]?\d+[\s-]?x\s*ac\b/.test(text) ||
+    /\blb[\s-]?x\s*ac\s*\/?\s*\d+\b/.test(text) ||
+    /\bauto\s*cannon\s*\/?\s*\d+\b/.test(text) ||
+    /\bautocannon\s*\/?\s*\d+\b/.test(text)
+  );
+}
+
+function applyPlaytestAutocannonFirstCritical(
+  componentDamage: IComponentDamageState,
+  payload: ICriticalHitResolvedPayload,
+): IComponentDamageState {
+  const key = autocannonCriticalKey(payload);
+  const previous = componentDamage.playtestAutocannonFirstCrits ?? [];
+  return {
+    ...componentDamage,
+    playtestAutocannonFirstCrits: previous.includes(key)
+      ? previous
+      : [...previous, key],
+  };
+}
+
+function addUniqueString(
+  values: readonly string[] | undefined,
+  value: string,
+): readonly string[] {
+  return values?.includes(value) ? values : [...(values ?? []), value];
+}
+
+function ecmSuiteMatchesCritical(
+  suite: IElectronicWarfareState['ecmSuites'][number],
+  unitId: string,
+  componentName: string,
+): boolean {
+  if (!suite.entityId.startsWith(`${unitId}:`)) return false;
+
+  const component = normalizeEquipmentText(componentName);
+  const suiteId = normalizeEquipmentText(suite.entityId);
+  return (
+    suiteId.includes(component) ||
+    component.includes(suite.type) ||
+    isGenericECMCriticalComponent(component)
+  );
+}
+
+function activeProbeMatchesCritical(
+  probe: IElectronicWarfareState['activeProbes'][number],
+  unitId: string,
+  componentName: string,
+): boolean {
+  if (!probe.entityId.startsWith(`${unitId}:`)) return false;
+
+  const component = normalizeEquipmentText(componentName);
+  const probeId = normalizeEquipmentText(probe.entityId);
+  const probeType = normalizeEquipmentText(probe.type);
+  return (
+    probeId.includes(component) ||
+    component.includes(probeType) ||
+    isGenericActiveProbeCriticalComponent(component)
+  );
+}
+
+function applyElectronicWarfareEquipmentCritical(
+  electronicWarfare: IElectronicWarfareState | undefined,
+  payload: ICriticalHitResolvedPayload,
+): IElectronicWarfareState | undefined {
+  if (
+    !electronicWarfare ||
+    payload.componentType !== 'equipment' ||
+    payload.destroyed !== true
+  ) {
+    return electronicWarfare;
+  }
+
+  const isECMCritical = isECMCriticalComponent(payload.componentName);
+  const isProbeCritical = isActiveProbeCriticalComponent(payload.componentName);
+  if (!isECMCritical && !isProbeCritical) {
+    return electronicWarfare;
+  }
+
+  return {
+    ...electronicWarfare,
+    ecmSuites: isECMCritical
+      ? electronicWarfare.ecmSuites.map((suite) =>
+          ecmSuiteMatchesCritical(suite, payload.unitId, payload.componentName)
+            ? { ...suite, operational: false }
+            : suite,
+        )
+      : electronicWarfare.ecmSuites,
+    activeProbes: isProbeCritical
+      ? electronicWarfare.activeProbes.map((probe) =>
+          activeProbeMatchesCritical(
+            probe,
+            payload.unitId,
+            payload.componentName,
+          )
+            ? { ...probe, operational: false }
+            : probe,
+        )
+      : electronicWarfare.activeProbes,
+  };
+}
+
+function applyGenericEquipmentDestroyedState(
+  unit: IUnitGameState,
+  payload: ICriticalHitResolvedPayload,
+): IUnitGameState {
+  if (payload.componentType !== 'equipment' || payload.destroyed !== true) {
+    return unit;
+  }
+  if (isRiscLaserPulseModuleLinkedCritical(payload)) {
+    return unit;
+  }
+
+  if (unit.destroyedEquipment.includes(payload.componentName)) {
+    return unit;
+  }
+
+  return {
+    ...unit,
+    destroyedEquipment: [...unit.destroyedEquipment, payload.componentName],
+  };
+}
+
+function applyDestroyedArtemisFcsState(
+  unit: IUnitGameState,
+  payload: ICriticalHitResolvedPayload,
+): IUnitGameState {
+  if (payload.componentType !== 'equipment' || payload.destroyed !== true) {
+    return unit;
+  }
+
+  const kind = artemisFcsKindForComponent(payload.componentName);
+  if (kind === undefined) {
+    return unit;
+  }
+
+  const previous = unit.destroyedArtemisFcs ?? [];
+  const alreadyRecorded = previous.some(
+    (entry) =>
+      entry.kind === kind &&
+      entry.location === payload.location &&
+      entry.linkedWeaponId === payload.linkedCriticalWeaponId,
+  );
+  if (alreadyRecorded) {
+    return unit;
+  }
+
+  return {
+    ...unit,
+    destroyedArtemisFcs: [
+      ...previous,
+      {
+        kind,
+        location: payload.location,
+        ...(payload.linkedCriticalWeaponId !== undefined
+          ? { linkedWeaponId: payload.linkedCriticalWeaponId }
+          : {}),
+        componentName: payload.componentName,
+      },
+    ],
   };
 }
 

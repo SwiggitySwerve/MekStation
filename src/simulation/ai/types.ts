@@ -206,6 +206,12 @@ export interface IWeapon {
    */
   readonly mountingArcs?: readonly FiringArc[];
 
+  /**
+   * Explicit AMS lifecycle override for represented multi-use AMS behavior.
+   * Standard AMS omits this and stays unavailable after one same-phase use.
+   */
+  readonly amsMultiUse?: boolean;
+
   /** Vehicle mount location, when this weapon belongs to a vehicle. */
   readonly vehicleMountLocation?: VehicleLocation | VTOLLocation;
 

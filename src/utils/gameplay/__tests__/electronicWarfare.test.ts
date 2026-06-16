@@ -490,6 +490,18 @@ describe('BAP / Active Probe Counter', () => {
     expect(getProbeECMCounterRange('nova-cews')).toBe(5);
   });
 
+  it('adds the source-backed Eagle Eyes active-probe range bonus without changing base ranges', () => {
+    const eagleEyesProbe = makeProbe({
+      entityId: 'p1',
+      teamId: 'A',
+      type: 'beagle',
+      eagleEyesRangeBonus: true,
+    });
+
+    expect(getProbeECMCounterRange('beagle')).toBe(4);
+    expect(getProbeECMCounterRange(eagleEyesProbe)).toBe(5);
+  });
+
   it('BAP should counter Guardian ECM within range', () => {
     const probe = makeProbe({
       entityId: 'p1',
@@ -518,6 +530,23 @@ describe('BAP / Active Probe Counter', () => {
       position: { q: 5, r: 0 },
     });
     expect(canBAPCounterECM(probe, ecm)).toBe(false);
+  });
+
+  it('Eagle Eyes extends represented active-probe Guardian ECM countering by one hex', () => {
+    const probe = makeProbe({
+      entityId: 'p1',
+      teamId: 'A',
+      position: { q: 0, r: 0 },
+      eagleEyesRangeBonus: true,
+    });
+    const ecm = makeECM({
+      entityId: 'e1',
+      teamId: 'B',
+      type: 'guardian',
+      position: { q: 5, r: 0 },
+    });
+
+    expect(canBAPCounterECM(probe, ecm)).toBe(true);
   });
 
   it('BAP should NOT counter Angel ECM', () => {

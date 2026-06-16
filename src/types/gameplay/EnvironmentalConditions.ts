@@ -1,4 +1,13 @@
-export type LightCondition = 'daylight' | 'dusk' | 'dawn' | 'night';
+export type LightCondition =
+  | 'daylight'
+  | 'dawn'
+  | 'dusk'
+  | 'night'
+  | 'full_moon'
+  | 'glare'
+  | 'moonless'
+  | 'solar_flare'
+  | 'pitch_black';
 
 export type PrecipitationCondition =
   | 'none'
