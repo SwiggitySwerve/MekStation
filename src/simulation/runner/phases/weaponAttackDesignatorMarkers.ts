@@ -6,7 +6,11 @@ import {
   type IINarcPodState,
 } from '@/types/gameplay';
 import { hexLine } from '@/utils/gameplay/hexMath';
-import { isNarc, isTAG } from '@/utils/gameplay/specialWeaponMechanics';
+import {
+  isEquivalentINarcPod,
+  isNarc,
+  isTAG,
+} from '@/utils/gameplay/specialWeaponMechanics';
 
 import type { IWeapon, IWeaponFiringMode } from '../../ai/types';
 
@@ -14,6 +18,11 @@ import { createGameEvent } from './utils';
 import { weaponTypeFromMountId } from './weaponAttackHelpers';
 
 export function isNarcBeaconWeapon(weapon: IWeapon): boolean {
+  const text =
+    `${weaponTypeFromMountId(weapon.id)} ${weapon.name}`.toLowerCase();
+  if (/\bi[-\s]?narc\b/.test(text) || text.includes('inarc')) {
+    return false;
+  }
   return isNarc(weaponTypeFromMountId(weapon.id)) || isNarc(weapon.name);
 }
 
@@ -25,7 +34,7 @@ export function isINarcBeaconWeapon(weapon: IWeapon): boolean {
 
 export function iNarcPodTypeFromAmmoWeaponType(
   ammoWeaponType: string | undefined,
-): IINarcPodState['podType'] {
+): IINarcPodState['podType'] | undefined {
   const normalized = (ammoWeaponType ?? '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-');
@@ -33,7 +42,27 @@ export function iNarcPodTypeFromAmmoWeaponType(
   if (/(?:^|-)ecm(?:-|$)/.test(normalized)) return 'ecm';
   if (/(?:^|-)haywire(?:-|$)/.test(normalized)) return 'haywire';
   if (/(?:^|-)nemesis(?:-|$)/.test(normalized)) return 'nemesis';
-  return 'homing';
+  if (/(?:^|-)explosive(?:-|$)/.test(normalized)) return undefined;
+  if (
+    /(?:^|-)homing(?:-|$)/.test(normalized) ||
+    /(?:^|-)i?narc(?:-|$)/.test(normalized)
+  ) {
+    return 'homing';
+  }
+  return undefined;
+}
+
+export function isINarcExplosiveAmmoWeaponType(
+  ammoWeaponType: string | undefined,
+): boolean {
+  const normalized = (ammoWeaponType ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-');
+
+  return (
+    /(?:^|-)i?narc(?:-|$)/.test(normalized) &&
+    /(?:^|-)explosive(?:-|$)/.test(normalized)
+  );
 }
 
 export function isTagDesignatorWeapon(weapon: IWeapon): boolean {
@@ -193,8 +222,9 @@ export function markTargetINarcPod(options: {
   if (!target || !attackerTeamId) return options.currentState;
 
   const iNarcPods = target.iNarcPods ?? [];
-  const alreadyAttached = iNarcPods.some(
-    (pod) => pod.teamId === attackerTeamId && pod.podType === podType,
+  const incomingPod = { teamId: attackerTeamId, podType };
+  const alreadyAttached = iNarcPods.some((pod) =>
+    isEquivalentINarcPod(pod, incomingPod),
   );
   if (alreadyAttached) return options.currentState;
 

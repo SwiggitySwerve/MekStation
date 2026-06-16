@@ -76,6 +76,8 @@ export interface ISPAContext {
   readonly targetId?: string;
   /** Designated range bracket for Range Master */
   readonly designatedRangeBracket?: RangeBracket;
+  /** Designated environment for Environmental Specialist */
+  readonly designatedEnvironment?: string;
   /** Current range bracket of the attack */
   readonly rangeBracket?: RangeBracket;
   /** Whether pilot declared a dodge action this turn */

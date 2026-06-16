@@ -1378,7 +1378,7 @@ describe('tactical map combat scenarios', () => {
 
   it('keeps elevation partial-cover browser projection aligned with committed attacks', () => {
     expect(tacticalMapElevationCoverCombatProjection).toMatchObject({
-      hex: { q: 2, r: -1 },
+      hex: { q: 2, r: -2 },
       distance: 2,
       rangeBracket: 'short',
       inRange: true,
@@ -1780,8 +1780,8 @@ describe('tactical map combat scenarios', () => {
 
   it('keeps right vehicle sponson projection aligned with attack commit validation', () => {
     expect(tacticalMapRightSponsonArcCombatProjection).toMatchObject({
-      hex: { q: 2, r: -1 },
-      distance: 2,
+      hex: { q: 3, r: -2 },
+      distance: 3,
       rangeBracket: 'short',
       firingArc: 'right-side',
       inRange: true,

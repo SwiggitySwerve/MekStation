@@ -33,6 +33,10 @@ export const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
   weaponsDestroyed: [],
   heatSinksDestroyed: 0,
   jumpJetsDestroyed: 0,
+  superCooledMyomerHits: 0,
+  emergencyCoolantSystemDamaged: false,
+  playtestAutocannonFirstCrits: [],
+  breachedLocations: [],
 };
 
 /**
@@ -314,6 +318,7 @@ export function createInitialUnitState(
     hasTSM: unit.hasTSM ?? false,
     hasMASC: unit.hasMASC ?? false,
     hasSupercharger: unit.hasSupercharger ?? false,
+    hasDroneOS: unit.hasDroneOS ?? false,
     activeMASC: unit.activeMASC ?? false,
     activeSupercharger: unit.activeSupercharger ?? false,
     mascTurnsUsed: unit.mascTurnsUsed,
@@ -322,14 +327,21 @@ export function createInitialUnitState(
     superchargerFailureLevelIncreasedLastTurn:
       unit.superchargerFailureLevelIncreasedLastTurn,
     abilities: unit.abilities,
+    neuralInterfaceActive: unit.neuralInterfaceActive,
+    edgePointsRemaining: unit.edgePointsRemaining,
     designatedWeaponType: unit.designatedWeaponType,
     designatedWeaponCategory: unit.designatedWeaponCategory,
     designatedTargetId: unit.designatedTargetId,
     designatedRangeBracket: unit.designatedRangeBracket,
+    designatedEnvironment: unit.designatedEnvironment,
     unitQuirks: unit.unitQuirks,
     weaponQuirks: unit.weaponQuirks,
+    leftArmCarryingCargo: unit.leftArmCarryingCargo,
+    rightArmCarryingCargo: unit.rightArmCarryingCargo,
     initiativeHQBonus: unit.initiativeHQBonus,
     initiativeCommandBonus: unit.initiativeCommandBonus,
+    initiativeEquipment: unit.initiativeEquipment,
+    c3Equipment: unit.c3Equipment,
     weaponLocationById: unit.weaponLocationById,
     armor: {},
     structure: {},
@@ -354,6 +366,8 @@ export function createInitialUnitState(
     prone: false,
     isStuck: false,
     shutdown: false,
+    empInterferenceTurns: 0,
+    empShutdownTurns: 0,
     ammoState,
     ...(unit.armorTypeByLocation !== undefined
       ? { armorTypeByLocation: unit.armorTypeByLocation }
@@ -367,6 +381,7 @@ export function createInitialUnitState(
     narcedBy: [],
     iNarcPods: [],
     tagDesignated: false,
+    infernoBurning: false,
     // Retreat fields (per `add-bot-retreat-behavior` § 1.2): explicit
     // defaults so replayed states always observe the same shape as
     // freshly constructed ones. `isRetreating`/`hasRetreated` latches

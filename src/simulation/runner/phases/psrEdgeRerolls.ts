@@ -117,10 +117,13 @@ export function resolveRunnerPSRs(options: {
       options.componentDamage,
       currentUnit.pilotWounds,
       options.d6Roller,
-      currentUnit.unitQuirks ?? [],
-      currentUnit.abilities ?? [],
-      currentUnit.isQuad ?? false,
-      currentUnit.unitType,
+      {
+        unitQuirks: currentUnit.unitQuirks ?? [],
+        pilotAbilities: currentUnit.abilities ?? [],
+        neuralInterfaceActive: currentUnit.neuralInterfaceActive,
+        isQuadMek: currentUnit.isQuad ?? false,
+        unitType: currentUnit.unitType,
+      },
     );
     results.push(result);
 
@@ -149,10 +152,13 @@ export function resolveRunnerPSRs(options: {
           options.componentDamage,
           currentUnit.pilotWounds,
           options.d6Roller,
-          currentUnit.unitQuirks ?? [],
-          currentUnit.abilities ?? [],
-          currentUnit.isQuad ?? false,
-          currentUnit.unitType,
+          {
+            unitQuirks: currentUnit.unitQuirks ?? [],
+            pilotAbilities: currentUnit.abilities ?? [],
+            neuralInterfaceActive: currentUnit.neuralInterfaceActive,
+            isQuadMek: currentUnit.isQuad ?? false,
+            unitType: currentUnit.unitType,
+          },
         ),
         edgeReroll: true,
         edgeTrigger: MASC_SUPERCHARGER_EDGE_TRIGGER,

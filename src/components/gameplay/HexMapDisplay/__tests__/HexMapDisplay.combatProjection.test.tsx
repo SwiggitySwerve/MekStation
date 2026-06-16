@@ -1563,6 +1563,14 @@ describe('HexMapDisplay combat projection', () => {
 
     const targetHex = screen.getByTestId('hex-2-0');
     expect(targetHex).toHaveAttribute('data-combat-valid-target', 'true');
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-status',
+      'legal',
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-combat-status',
+      'attackable',
+    );
     expect(targetHex).toHaveAttribute('data-weapons-available', 'lrt-15');
     expect(targetHex).toHaveAttribute(
       'data-combat-weapon-option-environment-states',
@@ -1577,6 +1585,43 @@ describe('HexMapDisplay combat projection', () => {
       expect.stringContaining(
         'medium-laser short range in arc environment blocked blocked: Target underwater, but not weapon.',
       ),
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-sources',
+      expect.stringContaining(
+        'combat:megamek:MegaMek water weapon environment projection',
+      ),
+    );
+    expect(targetHex).toHaveAttribute(
+      'data-tactical-projection-rule-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek client/ui/clientGUI/boardview/spriteHandler/FiringArcSpriteHandler.java:570-575 water-only ranges display as underwater weapons',
+      ),
+    );
+    const combatBadge = screen.getByTestId('hex-combat-badge-2-0');
+    expect(combatBadge).toHaveAttribute('data-combat-badge-attackable', 'true');
+    expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapons-available',
+      'lrt-15',
+    );
+    expect(combatBadge).toHaveAttribute(
+      'data-combat-badge-weapon-option-environment-states',
+      'medium-laser:blocked|lrt-15:legal',
+    );
+    const weaponCountBadge = screen.getByTestId(
+      'hex-combat-weapon-count-badge-2-0',
+    );
+    expect(weaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-available',
+      '1',
+    );
+    expect(weaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-total',
+      '2',
+    );
+    expect(weaponCountBadge).toHaveAttribute(
+      'data-combat-weapon-count-badge-blocked',
+      '1',
     );
 
     fireEvent.mouseEnter(targetHex);
@@ -2805,6 +2850,34 @@ describe('HexMapDisplay combat projection', () => {
       'data-invalid-badge-reason',
       'Blocked by building at (1, 0)',
     );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-source-refs',
+      expect.stringContaining(
+        'los-blocker:megamek:MegaMek LOS blocker projection',
+      ),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-rule-refs',
+      expect.stringContaining('los-blocker:megamek:MegaMek LosEffects.java'),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-projection-explanation',
+      expect.stringContaining('combat status blocked'),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-projection-explanation',
+      expect.stringContaining('Blocked by building at (1, 0)'),
+    );
     const invalidBadgeRect = invalidBadge.querySelector('rect');
     const losBadgeRect = screen
       .getByTestId('hex-combat-los-badge-2-0')
@@ -2993,7 +3066,7 @@ describe('HexMapDisplay combat projection', () => {
     );
     expect(losContext).toHaveAttribute(
       'data-tactical-projection-channel',
-      'combat',
+      'combat|los-blocker',
     );
     expect(losContext).toHaveAttribute(
       'data-tactical-rules-surface',
@@ -3006,8 +3079,18 @@ describe('HexMapDisplay combat projection', () => {
       ),
     );
     expect(losContext).toHaveAttribute(
+      'data-combat-los-context-source-refs',
+      expect.stringContaining(
+        'los-blocker:megamek:MegaMek LOS blocker projection',
+      ),
+    );
+    expect(losContext).toHaveAttribute(
       'data-combat-los-context-rule-refs',
       expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
+    );
+    expect(losContext).toHaveAttribute(
+      'data-combat-los-context-rule-refs',
+      expect.stringContaining('los-blocker:megamek:MegaMek LosEffects.java'),
     );
     const losBlockedReason = screen.getByTestId('hex-combat-tooltip-reason');
     expect(losBlockedReason).toHaveTextContent('Blocked by building');
@@ -3118,7 +3201,7 @@ describe('HexMapDisplay combat projection', () => {
     );
     expect(losContext).toHaveAttribute(
       'data-tactical-projection-channel',
-      'combat',
+      'combat|los-blocker',
     );
     expect(losContext).toHaveAttribute(
       'data-tactical-rules-surface',
@@ -3131,8 +3214,18 @@ describe('HexMapDisplay combat projection', () => {
       ),
     );
     expect(losContext).toHaveAttribute(
+      'data-combat-los-context-source-refs',
+      expect.stringContaining(
+        'los-blocker:megamek:MegaMek LOS blocker projection',
+      ),
+    );
+    expect(losContext).toHaveAttribute(
       'data-combat-los-context-rule-refs',
       expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
+    );
+    expect(losContext).toHaveAttribute(
+      'data-combat-los-context-rule-refs',
+      expect.stringContaining('los-blocker:megamek:MegaMek LosEffects.java'),
     );
     const tacticalLosReason = screen.getByTestId(
       'hex-tactical-tooltip-combat-reason',
@@ -3258,6 +3351,38 @@ describe('HexMapDisplay combat projection', () => {
     expect(invalidBadge).toHaveAttribute(
       'data-invalid-badge-reason',
       'Blocked by elevation +2 at (1, 0)',
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-source-refs',
+      expect.stringContaining(
+        'los-blocker:megamek:MegaMek LOS blocker projection',
+      ),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-source-refs',
+      expect.stringContaining('Blocked by elevation +2 at (1, 0)'),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-rule-refs',
+      expect.stringContaining('los-blocker:megamek:MegaMek LosEffects.java'),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-rule-refs',
+      expect.stringContaining('combat:megamek:MegaMek LosEffects.java'),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-projection-explanation',
+      expect.stringContaining('combat status blocked'),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-projection-explanation',
+      expect.stringContaining('Blocked by elevation +2 at (1, 0)'),
     );
     const blockerBadge = screen.getByTestId('hex-combat-los-blocker-badge-1-0');
     expect(blockerBadge).toHaveTextContent('LOS ELEV');
@@ -5115,9 +5240,32 @@ describe('HexMapDisplay combat projection', () => {
       'data-combat-weapon-option-blocked-reasons',
       'dry-ac-5:No matching non-empty ammo bin for "AC/5"',
     );
-    expect(
-      screen.getByTestId('hex-combat-invalid-badge-2-0'),
-    ).toHaveTextContent('AMMO');
+    const invalidBadge = screen.getByTestId('hex-combat-invalid-badge-2-0');
+    expect(invalidBadge).toHaveTextContent('AMMO');
+    expect(invalidBadge).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'combat',
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-source-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek combat target projection',
+      ),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-rule-refs',
+      expect.stringContaining(
+        'combat:megamek:MegaMek Compute.java:1313-1517 weapon range/to-hit modifiers',
+      ),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-projection-explanation',
+      expect.stringContaining('combat status blocked'),
+    );
 
     fireEvent.mouseEnter(targetHex);
     expect(screen.getByTestId('hex-combat-tooltip-weapons')).toHaveTextContent(

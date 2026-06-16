@@ -12,6 +12,9 @@ export {
   calculateDistractingModifier,
   hasLowProfile,
   calculateLowProfileModifier,
+  isLowProfileGlancingBlow,
+  applyLowProfileGlancingDamage,
+  getLowProfileGlancingCriticalHitModifier,
 } from './targetingQuirks';
 export { calculatePilotingQuirkPSRModifier } from './pilotingQuirks';
 export {

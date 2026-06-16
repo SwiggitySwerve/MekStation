@@ -36,10 +36,25 @@ after auditing that no legacy detector still emits matching messages.
 
 **Catalog validation rule**: BattleMech combat validation invariants must not be filtered through this broad bucket. They bypass known-limitation filtering via `battlemech-combat-validation` and use the explicit support maps under `src/simulation/runner/` to classify integrated, helper-only, and unsupported physical behavior.
 
-**Current explicit gaps** (see the gap inventory for the authoritative list):
+**Current explicit boundaries** (see the gap inventory for the authoritative
+list):
 
-- Claws and talons intentionally remain modifiers on punch/kick/DFA rather than standalone attacks; automatic missing/breached event production from mounted-equipment state remains a gap (`ruleSupport.physicalDamageModifiers.claw-equipment-lifecycle` / `talon-equipment-lifecycle`).
-- Displacement domino chains are partial (`ruleSupport.physicalLegalityGates.shared.displacement-domino-chain`).
+- Claws and Talons are represented physical-weapon catalog entries: represented punch/kick/DFA modifiers are integrated in the physical-weapon feature catalog and under `ruleSupport.physicalDamageModifiers.claws` / `ruleSupport.physicalDamageModifiers.talons`, but they are not runtime `PhysicalAttackType` standalone attacks.
+- Automatic missing/breached lifecycle event production from source mounted-equipment state remains split to source-construction/editor parity (`ruleSupport.physicalDamageModifiers.claw-equipment-lifecycle` / `ruleSupport.physicalDamageModifiers.talon-equipment-lifecycle`) rather than the unresolved BattleMech blocker inventory.
+- Displacement domino-chain secondary fallout
+  (`ruleSupport.physicalLegalityGates.shared.displacement-domino-secondary-fallout`)
+  is now a split-accounting row, not an unsupported leaf. Represented
+  destination terrain/building/environment fallout is integrated under
+  `ruleSupport.physicalLegalityGates.shared.displacement-domino-terrain-building-environment-fallout`.
+  `ruleSupport.physicalLegalityGates.shared.displacement-domino-step-out-cfr`
+  is represented through replayable `blockerStepOutDecision` payloads:
+  successful `CFR_DOMINO_EFFECT` decisions apply `domino_step_out`
+  displacement without forced DominoEffect PSRs, while failed, declined,
+  invalid, or no-response decisions preserve forced domino fallback.
+  `ruleSupport.physicalLegalityGates.shared.displacement-domino-dropship-secondary-hex`
+  is tracked as out-of-scope for this BattleMech validation matrix because full
+  DropShip footprint/secondary-hex consequences require separate large-unit
+  validation.
 - Non-BattleMech physical combat families require separate validation matrices (out-of-scope split).
 
 **Code Reference**:
@@ -71,9 +86,20 @@ ammunition-explosion pilot damage are resolved
 bucket survives only to mute legacy generic detectors with ammo-themed
 messages.
 
-**Remaining gaps** (gap inventory): ammo _compatibility metadata_ rows —
-`featureSupport.ammunitionCompatibility.battlemech-ammo-missing-compatible-weapon-refs`
-and `nonstandard-empty-compatible-row`.
+**Remaining gaps** (gap inventory): no ammo-compatibility rows remain in the
+unresolved BattleMech blocker inventory. The former
+`featureSupport.ammunitionCompatibility.unsupported-rotary-ac-10-20-ammo` row is
+kept here only as historical context for this broad legacy bucket. The generic
+missing-compatible bucket is integrated as empty, while experimental and
+unofficial empty-compatible rows are scoped out of the official BattleMech
+completion lane.
+
+Catalog evidence: the official autocannon ammo catalog carries `rotaryac10` and
+`rotaryac20` with empty `compatibleWeaponIds`, while the official
+ballistic-autocannon weapon catalog currently exposes only Rotary AC/2 and
+Rotary AC/5 weapon rows. Keep RAC/10 and RAC/20 compatibility from silently
+falling back to arbitrary Rotary AC rows unless matching official BattleMech
+weapon rows exist in the imported catalog.
 
 **Hazard note**: a real ammo-tracking regression reported by a legacy generic
 detector would be filtered by this bucket. Catalog-lane invariants bypass the
@@ -109,8 +135,32 @@ terrain entry-cost table per motive type/level and multi-feature hex cost
 summing aligned with MegaMek. The bucket survives only for legacy generic
 detectors with terrain-cost-themed messages.
 
-**Remaining gaps** (gap inventory): `ruleSupport.terrainEnvironment.mines`
-(helper-only) and `ruleSupport.terrainEnvironment.terrain-los-side-paths`.
+**Remaining gaps** (gap inventory): the broad minefield variant rows no longer
+remain in the unresolved BattleMech blocker inventory:
+`ruleSupport.terrainEnvironment.minefield-variant-side-paths` and
+`ruleSupport.terrainEnvironment.minefield-non-conventional-type-semantics` are
+split-accounting rows. No represented BattleMech minefield variant leaf remains
+unsupported: represented EMP movement entry now applies source-backed
+no-effect/interference/shutdown outcomes, explicit drone-OS modifier state,
+duration state, and replayable `EmpMinefieldEffectApplied` events. Represented
+command-detonated detonation, vibrabomb density/setting movement triggers,
+active BattleMech ground-entry suppression, and jump-entry triggering are
+represented separately in the catalog inventory.
+The terrain LOS residual no longer has a represented grounded DropShip gap:
+`ruleSupport.terrainEnvironment.terrain-los-grounded-dropship-cover-providers`
+now covers entity-aware level-10 grounded DropShip LOS cover-provider state,
+including runner weapon LOS and C3 spotter LOS option propagation.
+Represented HeavyIndustrial and PlantedField TacOps LOS1 diagram elevation comparisons are integrated by
+`calculateLOS`, including straight/divided side-path elevation gating, heavy
+industrial blocking after more than two represented hexes, and planted-field
+blocking after more than five represented fields. Fuel-tank elevation,
+represented fuel-tank damageable cover-provider metadata, represented hard/soft
+building cover-provider metadata, and damageable-cover hit-resolution routing
+into represented `constructionFactor` terrain state are integrated separately
+by explicit terrain feature metadata, including hard building classification
+through `constructionFactor > 90`.
+`ruleSupport.terrainEnvironment.terrain-los-side-paths` is now a split-accounting
+row, not an unsupported leaf.
 
 ---
 
@@ -127,10 +177,18 @@ pilot-death destruction cause `pilot_death`; see `CombatFeatureSupport.ts`
 consciousness entries). The bucket survives only for legacy generic detectors
 with piloting-check-themed messages.
 
-**Remaining gaps** (gap inventory): SPA/modifier _application_ rows under
-`pilotSkills.pilotModifierResolvers.*` (e.g. `consciousness-application`,
-`psr-spa-application`) — the checks run; some pilot-ability modifiers do not
-yet feed them.
+**Remaining gaps** (gap inventory): no SPA/modifier application rows remain in
+the unresolved BattleMech blocker inventory. Heavy Lifter lift capacity,
+carry-object capacity checks, represented pickup/drop lifecycle, represented
+throw-release lifecycle, event-sourced carried-object state, overweight
+no-side-effect rejection, and represented per-arm carried-cargo physical
+legality are integrated for the represented BattleMech matrix. Throw-object
+damage/displacement remains outside that represented release-lifecycle slice
+instead of an unresolved BattleMech catalog blocker.
+Maneuvering Ace controlled sideslip and flanking/turning producers are
+integrated for represented BattleMech movement; out-of-control control-roll
+production is split to aerospace/LAM scope, while represented pending
+out-of-control PSR target-number relief remains integrated.
 
 ---
 
@@ -146,11 +204,63 @@ jump jet, life support, sensor (to-hit penalties), and weapon destruction.
 The bucket survives only for legacy generic detectors with
 critical-effect-themed messages.
 
-**Remaining gaps** (gap inventory): generic `equipment` slot cascades are
-helper-only (`damageAndDeath.criticalComponents.equipment`,
-`damageAndDeath.criticalSlotEffects.equipment`) — MegaMek's
-equipment-specific branches (shields, SCM, emergency coolant, HarJel, etc.)
-do not all cascade through MekStation state yet.
+**Remaining gaps** (gap inventory): aggregate `equipment` critical rows
+(`damageAndDeath.criticalComponents.equipment` and
+`damageAndDeath.criticalSlotEffects.equipment`) are split-accounting rows.
+Represented `Extended Fuel Tank` criticals cover the ground BattleMech fuel
+explosion slice; generic `Fuel Tank` catalog aliases, LAM fuel equipment, and
+incendiary/inferno ammunition lifecycle branches are explicit out-of-scope
+lanes rather than unsupported BattleMech equipment-critical blockers. Ambiguous
+or absent RISC Laser Pulse Module linked-laser evidence now stays generic and
+fails closed without destroying a random same-location laser. Plain HarJel criticals now replay
+breached-location state, and HarJel II/III now replay one secondary
+same-location critical; broader HarJel breach prevention, breach-check bonuses,
+armor repair, and environmental/exposure consequences remain explicit gaps.
+Blue Shield special rules beyond represented shield preservation and
+mode-gated official 5-point explosion payloads are pinned out of BattleMech
+combat-state scope instead of counted as runtime coverage.
+Represented hot-loaded weapon criticals cascade when the critical slot/event
+explicitly carries `hotLoaded=true` plus positive `explosionDamage`; linked ammo
+and unambiguous source HotLoad mode-state hydration are covered only when they
+resolve to positive `explosionDamage`. Empty tracked
+ammo-bin no-explosion handling, generic EquipmentDestroyed
+name replay, Claw/Talons cleanup, Partial Wing runtime mutation, shield
+preserved-function replay, SCM six-slot critical lifecycle replay, Emergency
+Coolant System damaged-state replay, PLAYTEST_3 first-autocannon critical
+replay, represented explicit explosion-damage equipment replay, represented PPC Capacitor charged-critical explosion replay, represented official Blue Shield
+mode-gated 5-point equipment explosion replay, represented
+Prototype Improved Jump Jet 10-point explosion replay, represented RISC Laser
+Pulse Module explicit or unambiguous same-location linked-laser critical replay,
+and stealth-linked ECM
+replay are represented by narrower integrated sibling rows,
+not by the aggregate equipment gap. The represented explosive-equipment slice
+only claims critical slots that already carry an equipment identity plus
+positive `explosionDamage`; it does not synthesize damage from static aliases,
+fallback names, or generic explosive-equipment labels. The charged-capacitor slice only claims
+PPC Capacitor critical slots already carrying represented explosion damage;
+linked, cross-linked, double-capacitor, fired-PPC, and charge-mode lifecycle
+parity remains outside that narrow row. The Prototype Improved Jump Jet slice
+only claims the official `prototype-improved-jump-jet` misc catalog row and
+MegaMek's 10-point explosive-equipment construction. The RISC Laser Pulse
+Module slice claims explicit `linkedEquipment` state or exactly one
+same-location working laser weapon that identifies the linked working laser
+critical; ambiguous or absent same-location laser evidence remains generic
+EquipmentDestroyed behavior. The Blue Shield explosion slice only claims
+active/default source-mode 5-point `explosionDamage` plus explicit Off-mode
+non-explosion, not broader activation, ARAD, hit-location, or defensive
+special-rule lifecycle. Ambiguous RISC LPM linkage is represented by generic
+no-fallback module destruction, while LAM/non-BattleMech fuel equipment,
+bomb bays, incendiary ammo lifecycle, and unrepresented generic
+explosive-equipment parity remain outside the represented ground BattleMech
+equipment-critical replay slice.
+The AC PLAYTEST_3 slice only claims the
+first autocannon equipment/weapon critical recording autocannon-hit state with
+`destroyed=false` and a later critical against the same mounted AC resolving
+normally; broader AC rate-of-fire, jam, or explosion behavior is not claimed
+here. SCM heat-benefit and heat-capacity mechanics plus broader coolant use,
+coolant failure, and heat-phase behavior are not claimed by the narrow
+critical-slot lifecycle rows. Bomb-bay equipment critical behavior is tracked as
+an out-of-scope aerospace/small-craft row, not a BattleMech blocker.
 
 ---
 
@@ -167,9 +277,19 @@ to-hit modifiers into `runAttackPhase`, and partial cover is computed
 `CombatTerrainEnvironmentSupport.ts`. The bucket survives only for legacy
 generic detectors with LOS-themed messages.
 
-**Remaining gaps** (gap inventory):
-`ruleSupport.terrainEnvironment.terrain-los-side-paths` — richer MegaMek
-building-level LOS handling is not fully mirrored.
+**Remaining gaps** (gap inventory): represented grounded DropShip level-10
+cover-provider output is integrated under
+`ruleSupport.terrainEnvironment.terrain-los-grounded-dropship-cover-providers`.
+Represented HeavyIndustrial and PlantedField TacOps LOS1 diagram
+elevation/density comparisons are now integrated by `calculateLOS`. Fuel-tank
+elevation, represented fuel-tank damageable cover-provider metadata,
+represented hard/soft building cover-provider metadata, and damageable-cover
+hit-resolution routing into represented `constructionFactor` terrain state are
+integrated separately.
+Represented single-path and divided-path
+pure elevation blockers are accounted as integrated sibling rows, and
+`ruleSupport.terrainEnvironment.terrain-los-side-paths` is now a split-accounting
+row rather than an unsupported leaf.
 
 ---
 

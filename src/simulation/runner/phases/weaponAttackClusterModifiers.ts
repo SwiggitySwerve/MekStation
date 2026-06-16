@@ -21,6 +21,7 @@ export interface IMissileClusterModifierContext {
   readonly hasArtemisV?: boolean;
   readonly isIndirectFire?: boolean;
   readonly attackerStealthActive?: boolean;
+  readonly targetLowProfile?: boolean;
   readonly clusterHitterSPA?: boolean;
   readonly sandblasterSPA?: boolean;
   readonly designatedWeaponType?: string;
@@ -28,6 +29,9 @@ export interface IMissileClusterModifierContext {
   readonly incomingAttackArc?: FiringArc;
   readonly targetWeapons?: readonly IWeapon[];
   readonly targetAmmoState?: Record<string, IAmmoSlotState>;
+  readonly unavailableAMSWeaponIds?: readonly string[];
+  readonly selectedAMSWeaponId?: string;
+  readonly optionalRules?: readonly string[];
 }
 
 export function sandblasterClusterModifier(
@@ -43,6 +47,12 @@ export function sandblasterClusterModifier(
     shortRange: weapon.shortRange,
     mediumRange: weapon.mediumRange,
   });
+}
+
+export function lowProfileClusterModifier(
+  context: IMissileClusterModifierContext | undefined,
+): number {
+  return context?.targetLowProfile === true ? -4 : 0;
 }
 
 export function missileClusterModifier(options: {
@@ -72,6 +82,7 @@ export function missileClusterModifier(options: {
       flightPathEcmAffected: context?.flightPathEcmAffected,
       isIndirectFire: context?.isIndirectFire,
       attackerStealthActive: context?.attackerStealthActive,
+      lowProfile: context?.targetLowProfile,
     },
     context?.clusterHitterSPA ?? false,
     sandblasterClusterModifier(weapon, context),

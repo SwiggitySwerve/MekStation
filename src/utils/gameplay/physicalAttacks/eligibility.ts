@@ -129,6 +129,8 @@ export interface IEligibilityContext {
   /** Per-arm claw state used by punch damage/to-hit projections. */
   readonly leftArmHasClaw?: boolean;
   readonly rightArmHasClaw?: boolean;
+  readonly leftArmCarryingCargo?: boolean;
+  readonly rightArmCarryingCargo?: boolean;
   /** Optional physical-combat rule branches, such as PLAYTEST_3. */
   readonly optionalRules?: readonly string[];
   readonly tacOpsTripAttackEnabled?: boolean;
@@ -305,6 +307,16 @@ function isRuntimeMeleeWeaponAttackType(
   return SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPE_SET.has(weaponType);
 }
 
+function meleeWeaponArmOptions(
+  weaponType: PhysicalAttackType,
+): readonly PhysicalAttackLimb[] {
+  return weaponType === 'wrecking-ball' ? [] : ['leftArm', 'rightArm'];
+}
+
+function meleeWeaponArm(limb: PhysicalAttackLimb): IPhysicalAttackInput['arm'] {
+  return limb === 'leftArm' ? 'left' : 'right';
+}
+
 function jumpJetAttackOptionEnabled(context: IEligibilityContext): boolean {
   if (context.tacOpsJumpJetAttackEnabled === true) return true;
   return (
@@ -477,6 +489,10 @@ export function getEligiblePhysicalAttacks(
     rightArmFootActuatorPresent: context.rightArmFootActuatorPresent,
     leftArmHasClaw: context.leftArmHasClaw ?? attacker.leftArmHasClaw,
     rightArmHasClaw: context.rightArmHasClaw ?? attacker.rightArmHasClaw,
+    leftArmCarryingCargo:
+      context.leftArmCarryingCargo ?? attacker.leftArmCarryingCargo,
+    rightArmCarryingCargo:
+      context.rightArmCarryingCargo ?? attacker.rightArmCarryingCargo,
     optionalRules: context.optionalRules,
     tacOpsTripAttackEnabled: context.tacOpsTripAttackEnabled,
     tacOpsGrapplingEnabled: context.tacOpsGrapplingEnabled,
@@ -735,12 +751,28 @@ export function getEligiblePhysicalAttacks(
       continue;
     }
 
+    const armOptions = meleeWeaponArmOptions(weaponType);
+    if (armOptions.length > 0) {
+      for (const limb of armOptions) {
+        const meleeInput: IPhysicalAttackInput = {
+          ...baseInput,
+          attackType: weaponType,
+          arm: meleeWeaponArm(limb),
+          limb,
+          weaponsFiredFromArm:
+            limb === 'leftArm'
+              ? context.weaponsFiredFromLeftArm
+              : context.weaponsFiredFromRightArm,
+        };
+        const restriction = canMeleeWeapon(meleeInput);
+        options.push(buildOption(weaponType, meleeInput, restriction, limb));
+      }
+      continue;
+    }
+
     const meleeInput: IPhysicalAttackInput = {
       ...baseInput,
       attackType: weaponType,
-      // Default to right-arm for the restriction lookup; the sub-panel
-      // can swap arms once limb selection is wired to melee weapons.
-      weaponsFiredFromArm: context.weaponsFiredFromRightArm,
     };
     const restriction = canMeleeWeapon(meleeInput);
     options.push(buildOption(weaponType, meleeInput, restriction));

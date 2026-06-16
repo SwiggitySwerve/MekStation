@@ -11,6 +11,8 @@ import {
   type IUnitGameState,
 } from '@/types/gameplay';
 
+import { SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT } from '../CombatSpecialWeaponSupport';
+import { markTargetINarcPod } from '../phases/weaponAttackDesignatorMarkers';
 import { resetTurnState } from '../SimulationRunnerState';
 
 function createUnit(overrides: Partial<IUnitGameState> = {}): IUnitGameState {
@@ -51,12 +53,20 @@ function createState(unit: IUnitGameState): IGameState {
 }
 
 describe('runner designator marker lifecycle', () => {
-  it('clears transient TAG designations at the turn reset while preserving NARC beacons', () => {
+  it('clears transient turn state while preserving persistent NARC and iNARC carrier markers', () => {
     const state = createState(
       createUnit({
         tagDesignated: true,
         sprintedThisTurn: true,
+        externalHeatThisTurn: 15,
         narcedBy: [GameSide.Player],
+        iNarcPods: [
+          {
+            teamId: GameSide.Player,
+            podType: 'homing',
+            location: 'Center Torso',
+          },
+        ],
       }),
     );
 
@@ -64,8 +74,52 @@ describe('runner designator marker lifecycle', () => {
 
     expect(result.units['opponent-1'].tagDesignated).toBe(false);
     expect(result.units['opponent-1'].sprintedThisTurn).toBe(false);
+    expect(result.units['opponent-1'].externalHeatThisTurn).toBe(0);
     expect(result.units['opponent-1'].narcedBy).toEqual([GameSide.Player]);
+    expect(result.units['opponent-1'].iNarcPods).toEqual([
+      {
+        teamId: GameSide.Player,
+        podType: 'homing',
+        location: 'Center Torso',
+      },
+    ]);
     expect(result.units['opponent-1'].damageThisPhase).toBe(0);
     expect(result.units['opponent-1'].weaponsFiredThisTurn).toEqual([]);
+    expect(
+      SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-turn-reset-lifecycle'],
+    ).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('turn-boundary cleanup'),
+    });
+  });
+
+  it('deduplicates same-team same-type iNARC pods while preserving original hit location', () => {
+    const state = createState(
+      createUnit({
+        iNarcPods: [
+          {
+            teamId: GameSide.Player,
+            podType: 'homing',
+            location: 'Center Torso',
+          },
+        ],
+      }),
+    );
+
+    const result = markTargetINarcPod({
+      currentState: state,
+      targetId: 'opponent-1',
+      attackerTeamId: GameSide.Player,
+      podType: 'homing',
+      location: 'Left Torso',
+    });
+
+    expect(result.units['opponent-1'].iNarcPods).toEqual([
+      {
+        teamId: GameSide.Player,
+        podType: 'homing',
+        location: 'Center Torso',
+      },
+    ]);
   });
 });

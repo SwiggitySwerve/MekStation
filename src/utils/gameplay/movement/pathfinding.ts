@@ -112,6 +112,7 @@ export function findPath(
         current.coord,
         movementCostContextForStep(context, current.parent === null),
       );
+      if (!Number.isFinite(moveCost)) continue;
       const tentativeG = current.g + moveCost;
 
       if (tentativeG > maxCost) continue;

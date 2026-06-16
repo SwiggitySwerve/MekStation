@@ -15,6 +15,7 @@ import {
   type IGameConfig,
   type IGameSession,
   type IGameUnit,
+  type IRepresentedMinefieldState,
 } from '@/types/gameplay';
 import { createGameSession } from '@/utils/gameplay/gameSession';
 
@@ -55,6 +56,11 @@ export interface ISkirmishPilotSelection {
   readonly callsign: string;
   readonly gunnery: number;
   readonly piloting: number;
+  /**
+   * Explicit RPG Toughness numeric crew value. Legacy ability aliases named
+   * "toughness" do not imply this value.
+   */
+  readonly rpgToughness?: number;
 }
 
 /** Per-side roster collected by the UI. */
@@ -76,6 +82,11 @@ export interface ISkirmishLaunchConfig {
   readonly opponent: ISkirmishSideConfig;
   /** Turn limit (engine default 30 if omitted). */
   readonly turnLimit?: number;
+  /**
+   * Explicit coordinate-authored represented minefields to seed into combat.
+   * Abstract scenario modifiers must resolve to coordinates before launch.
+   */
+  readonly minefields?: Readonly<Record<string, IRepresentedMinefieldState>>;
 }
 
 // =============================================================================
@@ -150,6 +161,11 @@ function toGameUnit(
   index: number,
 ): IGameUnit {
   const pilot = selection.pilot;
+  const pilotToughness =
+    typeof pilot?.rpgToughness === 'number' &&
+    Number.isFinite(pilot.rpgToughness)
+      ? pilot.rpgToughness
+      : undefined;
   return {
     id: `${side}-${index}-${selection.unitId}`,
     name: selection.designation,
@@ -158,6 +174,7 @@ function toGameUnit(
     pilotRef: pilot?.pilotId ?? 'unknown-pilot',
     gunnery: pilot?.gunnery ?? 4,
     piloting: pilot?.piloting ?? 5,
+    ...(pilotToughness !== undefined ? { pilotToughness } : {}),
   };
 }
 
@@ -196,7 +213,9 @@ export function buildFromSkirmishConfig(
     optionalRules: [],
   };
 
-  return createGameSession(gameConfig, [...playerUnits, ...opponentUnits]);
+  return createGameSession(gameConfig, [...playerUnits, ...opponentUnits], {
+    minefields: config.minefields,
+  });
 }
 
 // =============================================================================

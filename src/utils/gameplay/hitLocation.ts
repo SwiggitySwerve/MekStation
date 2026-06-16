@@ -13,6 +13,11 @@ import {
 } from '@/types/gameplay';
 export { type D6Roller, defaultD6Roller, rollD6, roll2d6 } from './diceTypes';
 import { type D6Roller, defaultD6Roller, rollD6, roll2d6 } from './diceTypes';
+import {
+  createEdgeState,
+  resolveEdgeBattleMechTrigger,
+  type EdgeBattleMechTriggerType,
+} from './spaModifiers/edgeTriggers';
 
 // =============================================================================
 // Hit Location Tables
@@ -145,7 +150,17 @@ export function determineHitLocation(
   options: IHitLocationOptions = {},
 ): IHitLocationResult {
   const roll = roll2d6(diceRoller);
-  return determineHitLocationFromRoll(arc, roll, options);
+  const optionsWithReroll =
+    options.edge && !options.edge.reroll
+      ? {
+          ...options,
+          edge: {
+            ...options.edge,
+            reroll: () => roll2d6(diceRoller),
+          },
+        }
+      : options;
+  return determineHitLocationFromRoll(arc, roll, optionsWithReroll);
 }
 
 /**
@@ -153,6 +168,15 @@ export function determineHitLocation(
  */
 export interface IHitLocationOptions {
   readonly hullDown?: boolean;
+  readonly edge?: IHitLocationEdgeOptions;
+}
+
+export interface IHitLocationEdgeOptions {
+  readonly edgePointsRemaining?: number;
+  readonly pilotAbilities?: readonly string[];
+  readonly turn?: number;
+  readonly unitId?: string;
+  readonly reroll?: () => IDiceRoll;
 }
 
 /**
@@ -163,6 +187,15 @@ export function determineHitLocationFromRoll(
   arc: FiringArc,
   roll: IDiceRoll,
   options: IHitLocationOptions = {},
+): IHitLocationResult {
+  const result = buildHitLocationResult(arc, roll, options);
+  return applyHitLocationEdgeReroll(result, options);
+}
+
+function buildHitLocationResult(
+  arc: FiringArc,
+  roll: IDiceRoll,
+  options: IHitLocationOptions,
 ): IHitLocationResult {
   const table = getHitLocationTable(arc);
   let location = table[roll.total];
@@ -176,6 +209,62 @@ export function determineHitLocationFromRoll(
     arc,
     location,
     isCritical: isCriticalLocation(location) || roll.total === 2,
+  };
+}
+
+function edgeTriggerForHitLocation(
+  result: IHitLocationResult,
+): EdgeBattleMechTriggerType | undefined {
+  if (result.location === 'head') {
+    return 'edge_when_headhit';
+  }
+  if (result.roll.total === 2) {
+    return 'edge_when_tac';
+  }
+  return undefined;
+}
+
+function applyHitLocationEdgeReroll(
+  result: IHitLocationResult,
+  options: IHitLocationOptions,
+): IHitLocationResult {
+  const trigger = edgeTriggerForHitLocation(result);
+  const edge = options.edge;
+  if (!trigger || !edge?.reroll) {
+    return result;
+  }
+
+  const edgePointsRemaining = edge.edgePointsRemaining ?? 0;
+  const edgeResolution = resolveEdgeBattleMechTrigger({
+    trigger,
+    edgeState:
+      edgePointsRemaining > 0
+        ? createEdgeState(edgePointsRemaining)
+        : undefined,
+    pilotAbilities: edge.pilotAbilities ?? [],
+    shouldTrigger: true,
+    turn: edge.turn ?? 0,
+    unitId: edge.unitId ?? 'unknown-unit',
+    description:
+      trigger === 'edge_when_headhit'
+        ? 'BattleMech head-hit location reroll'
+        : 'BattleMech TAC hit-location reroll',
+  });
+
+  if (!edgeResolution.used) {
+    return result;
+  }
+
+  const reroll = edge.reroll();
+  const replacement = buildHitLocationResult(result.arc, reroll, options);
+  return {
+    ...replacement,
+    edgeReroll: true,
+    edgeSuperseded: true,
+    edgeTrigger: trigger,
+    edgePointsRemaining: edgeResolution.edgePointsRemaining,
+    supersededRoll: result.roll,
+    supersededLocation: result.location,
   };
 }
 

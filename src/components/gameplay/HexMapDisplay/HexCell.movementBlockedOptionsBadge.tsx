@@ -5,6 +5,12 @@ import type {
   IMovementRangeHex,
   IMovementRangeModeOption,
 } from '@/types/gameplay';
+import type { ITacticalMapProjectionSourceReference } from '@/utils/gameplay/tacticalMapProjection';
+
+import {
+  formatTacticalProjectionRuleReferences,
+  formatTacticalProjectionSourceReferences,
+} from '@/utils/gameplay/tacticalMapProjection';
 
 import {
   formatMovementOptionTitle,
@@ -47,16 +53,30 @@ function formatBlockedMovementOptionsTitle(
   return `Blocked movement options: ${options.map(formatMovementOptionTitle).join('; ')}`;
 }
 
+function movementSourceReferencesFor(
+  sourceReferences:
+    | readonly ITacticalMapProjectionSourceReference[]
+    | undefined,
+): readonly ITacticalMapProjectionSourceReference[] {
+  return (
+    sourceReferences?.filter((source) => source.channel === 'movement') ?? []
+  );
+}
+
 export function MovementBlockedOptionsBadge({
   x,
   y,
   hex,
   movementInfo,
+  projectionExplanation,
+  sourceReferences,
 }: {
   readonly x: number;
   readonly y: number;
   readonly hex: IHexCoordinate;
   readonly movementInfo?: IMovementRangeHex;
+  readonly projectionExplanation?: string;
+  readonly sourceReferences?: readonly ITacticalMapProjectionSourceReference[];
 }): React.ReactElement | null {
   if (!movementInfo?.reachable) return null;
 
@@ -66,12 +86,27 @@ export function MovementBlockedOptionsBadge({
   const label = formatBlockedMovementOptionsLabel(blockedOptions);
   const width = Math.max(32, label.length * 5.6 + 10);
   const left = x - width - 36;
+  const movementSourceReferences =
+    movementSourceReferencesFor(sourceReferences);
+  const movementSourceRefsAttribute =
+    formatTacticalProjectionSourceReferences(movementSourceReferences) ||
+    undefined;
+  const movementRuleRefsAttribute =
+    formatTacticalProjectionRuleReferences(movementSourceReferences) ||
+    undefined;
+  const movementProjectionChannel =
+    movementSourceReferences.length > 0 ? 'movement' : undefined;
 
   return (
     <g
       pointerEvents="none"
       data-testid={`hex-movement-blocked-options-badge-${hex.q}-${hex.r}`}
       aria-label={formatBlockedMovementOptionsTitle(blockedOptions)}
+      data-tactical-projection-source={
+        movementProjectionChannel ? 'shared-tactical-map-projection' : undefined
+      }
+      data-tactical-projection-channel={movementProjectionChannel}
+      data-tactical-rules-surface={movementProjectionChannel}
       data-movement-blocked-options-badge-count={blockedOptions.length}
       data-movement-blocked-options-badge-types={movementOptionBlockedTypesAttribute(
         blockedOptions,
@@ -88,6 +123,13 @@ export function MovementBlockedOptionsBadge({
       data-movement-blocked-options-badge-altitude-controls={movementOptionAltitudeControlsAttribute(
         blockedOptions,
       )}
+      data-movement-blocked-options-badge-source-refs={
+        movementSourceRefsAttribute
+      }
+      data-movement-blocked-options-badge-rule-refs={movementRuleRefsAttribute}
+      data-movement-blocked-options-badge-projection-explanation={
+        projectionExplanation
+      }
     >
       <title>{formatBlockedMovementOptionsTitle(blockedOptions)}</title>
       <rect

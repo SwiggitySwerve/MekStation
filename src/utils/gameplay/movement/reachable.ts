@@ -27,6 +27,7 @@
 
 import type {
   IHexCoordinate,
+  IEnvironmentalConditions,
   IHexGrid,
   IMovementCapability,
   IMovementRangeHex,
@@ -37,7 +38,7 @@ import type { IStandUpRuleOptions } from '@/utils/gameplay/standUpRules';
 
 import { getHeatMovementPenalty } from '@/constants/heat';
 import { MovementType } from '@/types/gameplay';
-import { isInBounds, isOccupied } from '@/utils/gameplay/hexGrid';
+import { getOccupant, isInBounds, isOccupied } from '@/utils/gameplay/hexGrid';
 import { hexDistance, hexEquals, hexesInRange } from '@/utils/gameplay/hexMath';
 import { representedUnitImmobileReason } from '@/utils/gameplay/unitImmobility';
 
@@ -88,6 +89,10 @@ import {
 } from './standUpProjection';
 import { getStandingCost } from './validation';
 
+interface IMovementProjectionRuleOptions extends IStandUpRuleOptions {
+  readonly environmentalConditions?: IEnvironmentalConditions;
+}
+
 /**
  * Derive every hex reachable from `unit.position` for the given
  * movement type. Returns a flat list suitable for direct use as the
@@ -111,7 +116,7 @@ export function deriveReachableHexes(
   grid: IHexGrid,
   capability: IMovementCapability,
   standUpMode: StandUpMode = 'normal',
-  ruleOptions: IStandUpRuleOptions = {},
+  ruleOptions: IMovementProjectionRuleOptions = {},
 ): readonly IMovementRangeHex[] {
   const resolvedCapability =
     resolveRuntimeMovementCapability(unit, capability) ?? capability;
@@ -132,6 +137,7 @@ export function deriveReachableHexes(
     mpType,
     capability,
     {
+      environmentalConditions: ruleOptions.environmentalConditions,
       optionalRules: ruleOptions.optionalRules,
       pilotAbilities: unit.abilities,
     },
@@ -318,7 +324,7 @@ export function deriveMovementRangeHexForDestination(
   capability: IMovementCapability,
   hex: IHexCoordinate,
   standUpMode: StandUpMode = 'normal',
-  ruleOptions: IStandUpRuleOptions = {},
+  ruleOptions: IMovementProjectionRuleOptions = {},
 ): IMovementRangeHex | null {
   const resolvedCapability =
     resolveRuntimeMovementCapability(unit, capability) ?? capability;
@@ -348,6 +354,7 @@ export function deriveMovementRangeHexForDestination(
       ? movementModeForRange(mpType, capability)
       : movementModeForPath(mpType, capability);
   const costContext = movementCostContextForCapability(mpType, capability, {
+    environmentalConditions: ruleOptions.environmentalConditions,
     optionalRules: ruleOptions.optionalRules,
     pilotAbilities: unit.abilities,
   });
@@ -477,6 +484,33 @@ export function deriveMovementRangeHexForDestination(
         hullDownExitProjection,
       ),
     );
+  }
+
+  const startOccupantId = getOccupant(grid, origin);
+  if (
+    !hexEquals(origin, hex) &&
+    startOccupantId !== null &&
+    startOccupantId !== unit.id
+  ) {
+    const details =
+      'Unit cannot make follow-up movement from a start hex occupied by another unit';
+    return withReservedProjection({
+      hex,
+      mpCost: reservedCost,
+      terrainCost: undefined,
+      elevationDelta: undefined,
+      elevationCost: undefined,
+      path: [origin],
+      heatGenerated: 0,
+      movementMode,
+      reachable: false,
+      movementType: mpType,
+      blockedReason: details,
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails: details,
+      ...standUpProjection,
+      ...hullDownExitProjection,
+    });
   }
 
   if (mpType === MovementType.Jump && capability.jumpMP <= 0) {

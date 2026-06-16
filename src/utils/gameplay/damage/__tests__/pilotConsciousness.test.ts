@@ -1,4 +1,8 @@
-import { applyPilotDamage, type IUnitDamageState } from '../index';
+import {
+  applyPilotDamage,
+  resolvePilotWakeUpCheck,
+  type IUnitDamageState,
+} from '../index';
 
 const LOCATION_VALUES = {
   head: 0,
@@ -109,5 +113,136 @@ describe('pilot consciousness SPA modifiers', () => {
       conscious: true,
     });
     expect(withNumericToughness.state.pilotConscious).toBe(true);
+  });
+
+  it('spends edge_when_ko to reroll a failed consciousness check', () => {
+    const withEdge = applyPilotDamage(
+      {
+        ...BASE_STATE,
+        edgePointsRemaining: 1,
+        pilotAbilities: ['edge_when_ko'],
+        turn: 7,
+        unitId: 'atlas-1',
+      },
+      1,
+      'head_hit',
+      scriptedD6([1, 1, 6, 6]),
+    );
+
+    expect(withEdge.result).toMatchObject({
+      totalWounds: 2,
+      consciousnessTarget: 5,
+      conscious: true,
+      edgeReroll: true,
+      edgeSuperseded: true,
+      edgeTrigger: 'edge_when_ko',
+      edgePointsRemaining: 0,
+    });
+    expect(withEdge.result.supersededConsciousnessRoll?.total).toBe(2);
+    expect(withEdge.result.consciousnessRoll?.total).toBe(12);
+    expect(withEdge.state).toMatchObject({
+      pilotConscious: true,
+      edgePointsRemaining: 0,
+    });
+  });
+
+  it('does not spend generic Edge without the KO trigger-specific ability', () => {
+    const withGenericEdgeOnly = applyPilotDamage(
+      {
+        ...BASE_STATE,
+        edgePointsRemaining: 1,
+        pilotAbilities: ['edge'],
+        turn: 7,
+        unitId: 'atlas-1',
+      },
+      1,
+      'head_hit',
+      scriptedD6([1, 1, 6, 6]),
+    );
+
+    expect(withGenericEdgeOnly.result).toMatchObject({
+      totalWounds: 2,
+      consciousnessTarget: 5,
+      conscious: false,
+    });
+    expect(withGenericEdgeOnly.result.edgeReroll).toBeUndefined();
+    expect(
+      withGenericEdgeOnly.result.supersededConsciousnessRoll,
+    ).toBeUndefined();
+    expect(withGenericEdgeOnly.state).toMatchObject({
+      pilotConscious: false,
+      edgePointsRemaining: 1,
+    });
+  });
+
+  it('does not spend edge_when_ko when the first consciousness roll passes', () => {
+    const withUnusedEdge = applyPilotDamage(
+      {
+        ...BASE_STATE,
+        edgePointsRemaining: 1,
+        pilotAbilities: ['edge_when_ko'],
+        turn: 7,
+        unitId: 'atlas-1',
+      },
+      1,
+      'head_hit',
+      scriptedD6([6, 6]),
+    );
+
+    expect(withUnusedEdge.result).toMatchObject({
+      totalWounds: 2,
+      consciousnessTarget: 5,
+      conscious: true,
+    });
+    expect(withUnusedEdge.result.edgeReroll).toBeUndefined();
+    expect(withUnusedEdge.state.edgePointsRemaining).toBe(1);
+  });
+
+  it('applies source-backed Pain Resistance to unconscious pilot wake-up rolls', () => {
+    const withoutAbility = resolvePilotWakeUpCheck(
+      2,
+      false,
+      [],
+      scriptedD6([2, 2]),
+    );
+    const withPainResistance = resolvePilotWakeUpCheck(
+      2,
+      false,
+      ['pain-resistance'],
+      scriptedD6([2, 2]),
+    );
+
+    expect(withoutAbility).toMatchObject({
+      wakeUpCheckRequired: true,
+      wakeUpTarget: 5,
+      conscious: false,
+    });
+    expect(withPainResistance).toMatchObject({
+      wakeUpCheckRequired: true,
+      wakeUpTarget: 4,
+      conscious: true,
+    });
+  });
+
+  it('leaves non-Pain-Resistance wake-up target behavior unchanged', () => {
+    const withIronMan = resolvePilotWakeUpCheck(
+      2,
+      false,
+      ['iron-man'],
+      scriptedD6([2, 2]),
+    );
+    const alreadyConscious = resolvePilotWakeUpCheck(
+      2,
+      true,
+      ['pain-resistance'],
+      scriptedD6([6, 6]),
+    );
+
+    expect(withIronMan).toMatchObject({
+      wakeUpCheckRequired: true,
+      wakeUpTarget: 5,
+      conscious: false,
+    });
+    expect(alreadyConscious).toEqual({ wakeUpCheckRequired: false });
   });
 });

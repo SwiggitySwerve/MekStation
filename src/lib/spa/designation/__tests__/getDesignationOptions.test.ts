@@ -49,10 +49,10 @@ describe('getOptionsForKind', () => {
     ]);
   });
 
-  it('returns terrain options including the environmental specialist set', () => {
+  it('returns the generic terrain option list for terrain-designated SPAs', () => {
     const set = getOptionsForKind('terrain');
     const slugs = set.options.map((o) => o.value);
-    // Spot-check both terrain-master (woods) + env_specialist (vacuum) coverage.
+    // Spot-check terrain-oriented SPAs; Environmental Specialist is source-aligned separately.
     expect(slugs).toContain('woods');
     expect(slugs).toContain('vacuum');
     expect(slugs).toContain('low_gravity');
@@ -111,12 +111,29 @@ describe('getDesignationOptions(spa)', () => {
     expect(set.options.length).toBe(4);
   });
 
-  it('returns the terrain list for Environmental Specialist', () => {
+  it('returns MegaMek runtime-consumed environment choices for Environmental Specialist', () => {
     const env = getSPADefinition('env_specialist');
     expect(env).toBeDefined();
     const set = getDesignationOptions(env as ISPADefinition);
     expect(set.kind).toBe('terrain');
-    expect(set.options.length).toBeGreaterThan(0);
+    expect(set.deferred).toBe(false);
+    expect(set.options.map((o) => o.value)).toEqual([
+      'fog',
+      'light',
+      'rain',
+      'snow',
+      'wind',
+    ]);
+    expect(set.options.map((o) => o.label)).toEqual([
+      'Fog',
+      'Light',
+      'Rain',
+      'Snow',
+      'Wind',
+    ]);
+    expect(set.options.map((o) => o.value)).not.toEqual(
+      expect.arrayContaining(['vacuum', 'underground', 'low_gravity']),
+    );
   });
 });
 

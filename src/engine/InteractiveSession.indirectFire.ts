@@ -27,11 +27,36 @@ import {
   isIndirectFireCapable,
   type ISpotterCandidate,
 } from '@/utils/gameplay/indirectFire';
-import { calculateLOS } from '@/utils/gameplay/lineOfSight';
+import {
+  calculateLOS,
+  type ILOSCalculationOptions,
+  type ILOSUnitOccupantState,
+  lineOfSightOptionsFromOptionalRules,
+} from '@/utils/gameplay/lineOfSight';
 
 interface ILegacyIndirectMarkerState {
   readonly narcMarkedByTeams?: readonly string[];
   readonly iNarcMarkedByTeams?: readonly string[];
+}
+
+export function lineOfSightOptionsFromGameState(
+  gameState: IGameState,
+  optionalRules?: readonly string[],
+): ILOSCalculationOptions {
+  const occupants: Record<string, ILOSUnitOccupantState> = {};
+  for (const unit of Object.values(gameState.units)) {
+    occupants[unit.id] = {
+      id: unit.id,
+      unitType: unit.unitType,
+      destroyed: unit.destroyed,
+      airborne: unit.isAirborne,
+    };
+  }
+
+  return {
+    ...lineOfSightOptionsFromOptionalRules(optionalRules),
+    occupants,
+  };
 }
 
 /**
@@ -71,6 +96,7 @@ export function computeIndirectFireContext(
   grid: IHexGrid,
   pilotSpasByUnitId?: Readonly<Record<string, readonly string[]>>,
   targetEntityId?: string,
+  optionalRules?: readonly string[],
 ): IIndirectFireResolution {
   const attackerUnit = gameState.units[attackerId];
   if (!attackerUnit) {
@@ -95,7 +121,15 @@ export function computeIndirectFireContext(
   }
 
   // Compute attacker→target LOS to determine whether indirect is needed.
-  const attackerLOS = calculateLOS(attackerUnit.position, targetHex, grid);
+  const losOptions = lineOfSightOptionsFromGameState(gameState, optionalRules);
+  const attackerLOS = calculateLOS(
+    attackerUnit.position,
+    targetHex,
+    grid,
+    undefined,
+    undefined,
+    losOptions,
+  );
   if (attackerLOS.hasLOS) {
     // Direct fire is available; indirect context is a pass-through.
     return {
@@ -175,6 +209,7 @@ export function computeIndirectFireContext(
       pilotSpasByUnitId?.[attackerId] ?? attackerUnit.abilities,
     spotterCandidates,
     grid,
+    losOptions,
     targetNarcMarkedByTeam,
     targetINarcMarkedByTeam,
   });
@@ -198,7 +233,9 @@ export function computeIndirectFireContext(
     toHitPenalty: result.toHitPenalty,
     forwardObserverApplied: result.forwardObserverApplied,
     obliqueAttackerApplied: result.obliqueAttackerApplied,
+    commImplantApplied: result.commImplantApplied,
     spotterAttackedThisTurn: result.spotterAttackedThisTurn,
     spotterMovementPenaltyCancelled: result.spotterMovementPenaltyCancelled,
+    commImplantPenaltyRelief: result.commImplantPenaltyRelief,
   };
 }

@@ -82,6 +82,7 @@ export function usePreBattleSkirmish({
                       callsign: pilot.callsign ?? pilot.name,
                       gunnery: pilot.skills.gunnery,
                       piloting: pilot.skills.piloting,
+                      rpgToughness: pilot.rpgToughness,
                     }
                   : null,
               }
@@ -209,6 +210,7 @@ export function usePreBattleSkirmish({
           pilotRef: unit.pilotRef,
           gunnery: unit.gunnery,
           piloting: unit.piloting,
+          pilotToughness: unit.pilotToughness,
         }));
 
         const engine = new GameEngine({

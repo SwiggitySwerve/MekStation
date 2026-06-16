@@ -17,6 +17,8 @@ import type {
   WindCondition,
 } from '@/types/gameplay/EnvironmentalConditions';
 
+import { hasSPA } from './spaModifiers/canonicalize';
+
 export type {
   AtmosphereCondition,
   FogCondition,
@@ -79,11 +81,18 @@ const LIGHT_MODIFIERS: Readonly<Record<LightCondition, number>> = {
   dawn: 1,
   dusk: 1,
   night: 2,
+  full_moon: 2,
+  glare: 2,
+  moonless: 3,
+  solar_flare: 3,
+  pitch_black: 4,
 };
 
 /**
  * Calculate to-hit modifier from light conditions.
- * Night: +2, Dawn/Dusk: +1, Daylight: 0.
+ * MegaMek weapon light penalties: Dusk +1, Full Moon/Glare +2,
+ * Moonless/Solar Flare +3, Pitch Black +4. Dawn/Night are legacy
+ * MekStation states retained for existing scenarios.
  */
 export function calculateLightModifier(
   light: LightCondition,
@@ -329,6 +338,143 @@ export interface IEnvironmentalModifierOptions {
   readonly isEnergyWeapon?: boolean;
   /** Whether the weapon is a missile weapon (for wind effects) */
   readonly isMissileWeapon?: boolean;
+  /** Pilot SPA ids available to environmental combat modifiers. */
+  readonly pilotAbilities?: readonly string[];
+  /** Explicit Environmental Specialist selection copied from SPA designation state. */
+  readonly designatedEnvironment?: string;
+  /**
+   * Explicit target illumination state for Environmental Specialist (Light).
+   * Undefined means no represented illumination state was hydrated.
+   */
+  readonly targetIlluminated?: boolean;
+}
+
+function normalizedDesignation(value: string | undefined): string | undefined {
+  return value
+    ?.trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
+}
+
+export function calculateEnvironmentalSpecialistRangedToHitModifier(
+  conditions: IEnvironmentalConditions,
+  options: Pick<
+    IEnvironmentalModifierOptions,
+    | 'designatedEnvironment'
+    | 'isEnergyWeapon'
+    | 'isMissileWeapon'
+    | 'pilotAbilities'
+    | 'targetIlluminated'
+  > = {},
+): IToHitModifierDetail | null {
+  if (!hasSPA(options.pilotAbilities ?? [], 'env_specialist')) return null;
+  const designation = normalizedDesignation(options.designatedEnvironment);
+
+  if (designation === 'light') {
+    const targetIlluminated = options.targetIlluminated;
+    if (targetIlluminated === undefined) return null;
+    const appliesToUnilluminated =
+      !targetIlluminated &&
+      RANGED_LIGHT_SPECIALIST_UNILLUMINATED_CONDITIONS.has(conditions.light);
+    const appliesToIlluminatedPitchBlack =
+      targetIlluminated && conditions.light === 'pitch_black';
+
+    if (appliesToUnilluminated || appliesToIlluminatedPitchBlack) {
+      return {
+        name: 'Environmental Specialist (Light)',
+        value: -1,
+        source: 'spa',
+        description:
+          'Environmental Specialist (Light): -1 with represented target illumination state',
+      };
+    }
+  }
+
+  if (
+    designation === 'fog' &&
+    conditions.fog === 'heavy_fog' &&
+    options.isEnergyWeapon === true
+  ) {
+    return {
+      name: 'Environmental Specialist (Fog)',
+      value: -1,
+      source: 'spa',
+      description:
+        'Environmental Specialist (Fog): -1 with energy weapons in heavy fog',
+    };
+  }
+
+  if (designation === 'snow' && conditions.precipitation === 'snow') {
+    return {
+      name: 'Environmental Specialist (Snow)',
+      value: -1,
+      source: 'spa',
+      description: 'Environmental Specialist (Snow): -1 in snow',
+    };
+  }
+
+  if (designation === 'rain' && conditions.precipitation === 'heavy_rain') {
+    return {
+      name: 'Environmental Specialist (Rain)',
+      value: -1,
+      source: 'spa',
+      description: 'Environmental Specialist (Rain): -1 in heavy rain',
+    };
+  }
+
+  if (
+    designation === 'wind' &&
+    conditions.wind === 'moderate' &&
+    options.isMissileWeapon === true
+  ) {
+    return {
+      name: 'Environmental Specialist (Wind)',
+      value: -1,
+      source: 'spa',
+      description:
+        'Environmental Specialist (Wind): -1 for missiles in moderate wind',
+    };
+  }
+
+  return null;
+}
+
+const RANGED_LIGHT_SPECIALIST_UNILLUMINATED_CONDITIONS: ReadonlySet<LightCondition> =
+  new Set<LightCondition>([
+    'dusk',
+    'full_moon',
+    'glare',
+    'moonless',
+    'solar_flare',
+    'pitch_black',
+  ]);
+
+const PHYSICAL_LIGHT_SPECIALIST_CONDITIONS: ReadonlySet<LightCondition> =
+  new Set<LightCondition>(['moonless', 'solar_flare', 'pitch_black']);
+
+export function calculateEnvironmentalSpecialistPhysicalToHitModifier(
+  light: LightCondition | undefined,
+  options: Pick<
+    IEnvironmentalModifierOptions,
+    'designatedEnvironment' | 'pilotAbilities'
+  > & { readonly targetIlluminated?: boolean } = {},
+): IToHitModifierDetail | null {
+  if (!hasSPA(options.pilotAbilities ?? [], 'env_specialist')) return null;
+  if (normalizedDesignation(options.designatedEnvironment) !== 'light') {
+    return null;
+  }
+  if (light === undefined || !PHYSICAL_LIGHT_SPECIALIST_CONDITIONS.has(light)) {
+    return null;
+  }
+  if (options.targetIlluminated === true) return null;
+
+  return {
+    name: 'Environmental Specialist (Light)',
+    value: -1,
+    source: 'spa',
+    description:
+      'Environmental Specialist (Light): -1 against unilluminated targets',
+  };
 }
 
 /**
@@ -352,6 +498,12 @@ export function calculateEnvironmentalModifiers(
   // Precipitation
   const precipMod = calculatePrecipitationModifier(conditions.precipitation);
   if (precipMod) modifiers.push(precipMod);
+
+  const envSpecialistMod = calculateEnvironmentalSpecialistRangedToHitModifier(
+    conditions,
+    options,
+  );
+  if (envSpecialistMod) modifiers.push(envSpecialistMod);
 
   // Fog
   const fogMod = calculateFogModifier(conditions.fog);

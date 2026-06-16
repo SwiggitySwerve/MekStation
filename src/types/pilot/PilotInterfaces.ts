@@ -361,6 +361,11 @@ export interface IPilot extends IEntity, IPilotIdentity {
   readonly status: PilotStatus;
   /** Combat skills */
   readonly skills: IPilotSkills;
+  /**
+   * Explicit RPG Toughness numeric crew value for consciousness checks.
+   * Legacy ability aliases named "toughness" do not imply this value.
+   */
+  readonly rpgToughness?: number;
   /** Current wounds (0-6, 6 = death) */
   readonly wounds: number;
   /** Career statistics (only for persistent pilots) */

@@ -392,6 +392,9 @@ export class InteractiveSession {
       targetHex,
       this.session.currentState,
       this.grid,
+      undefined,
+      undefined,
+      this.session.config.optionalRules,
     );
   }
 
@@ -479,6 +482,7 @@ export class InteractiveSession {
     targetId: string,
     weaponIds: readonly string[],
     weaponModesByWeaponId?: Readonly<Record<string, WeaponFireMode>>,
+    selectedAMSWeaponIds?: Readonly<Record<string, string>>,
   ): void {
     // Declare-then-lock logic lives in `InteractiveSession.actions`.
     // Wave 8 PR-K5: pass the grid + target hex so the action layer can
@@ -492,6 +496,7 @@ export class InteractiveSession {
       targetId,
       weaponIds,
       weaponModesByWeaponId,
+      selectedAMSWeaponIds,
       grid: this.grid,
       targetHex: targetUnit?.position,
     });

@@ -26,6 +26,10 @@ import { PHYSICAL_WEAPON_COMBAT_SUPPORT } from '../CombatFeatureSupport';
 type PhysicalWeaponSupportId = keyof typeof PHYSICAL_WEAPON_COMBAT_SUPPORT;
 
 const MODIFIER_ONLY_PHYSICAL_WEAPON_IDS = ['claws', 'talons'] as const;
+const EXPECTED_MODIFIER_ONLY_PHYSICAL_WEAPONS = [
+  { id: 'claws', name: 'Claws', type: 'Claws' },
+  { id: 'talons', name: 'Talons', type: 'Talons' },
+] as const;
 
 function sorted(values: readonly string[]): readonly string[] {
   return [...values].sort();
@@ -47,6 +51,20 @@ function unsupportedPhysicalWeaponIds(): readonly string[] {
   return Object.values(PHYSICAL_WEAPON_COMBAT_SUPPORT)
     .filter((entry) => entry.level === 'unsupported')
     .map((entry) => entry.id);
+}
+
+function nonIntegratedPhysicalWeaponIds(): readonly string[] {
+  return Object.values(PHYSICAL_WEAPON_COMBAT_SUPPORT)
+    .filter((entry) => entry.level !== 'integrated')
+    .map((entry) => entry.id);
+}
+
+function officialPhysicalWeaponRows(ids: readonly string[]) {
+  const idSet = new Set(ids);
+  return officialPhysicalWeaponCatalog.items
+    .filter((item) => idSet.has(item.id))
+    .map(({ id, name, type }) => ({ id, name, type }))
+    .sort((left, right) => left.id.localeCompare(right.id));
 }
 
 function makeUnit(
@@ -79,7 +97,7 @@ function makeUnit(
 }
 
 describe('physical weapon catalog runtime boundary', () => {
-  it('partitions every official physical weapon into a runtime attack or modifier helper', () => {
+  it('partitions every official physical weapon into a runtime attack or explicit modifier-only entry', () => {
     const officialIds = officialPhysicalWeaponIds();
     const modifierOnlyIds = sorted([...MODIFIER_ONLY_PHYSICAL_WEAPON_IDS]);
     const modifierOnlyIdSet = new Set<string>(modifierOnlyIds);
@@ -99,19 +117,27 @@ describe('physical weapon catalog runtime boundary', () => {
     );
     expect(
       Object.values(PHYSICAL_WEAPON_COMBAT_SUPPORT)
-        .filter((entry) => entry.level !== 'integrated')
+        .filter(
+          (entry) =>
+            entry.level !== 'integrated' && entry.level !== 'helper-only',
+        )
         .map((entry) => entry.id),
     ).toEqual([]);
+    expect(nonIntegratedPhysicalWeaponIds()).toEqual([]);
     expect(unsupportedPhysicalWeaponIds()).toEqual([]);
+    expect(officialPhysicalWeaponRows(modifierOnlyIds)).toEqual(
+      EXPECTED_MODIFIER_ONLY_PHYSICAL_WEAPONS,
+    );
   });
 
-  it('projects all standalone official physical weapons but not modifier-only equipment', () => {
+  it('projects all standalone official physical weapons but not modifier-only gap entries', () => {
     const unsupportedPhysicalWeapons = unsupportedPhysicalWeaponIds();
     const modifierOnlyPhysicalWeapons = sorted([
       ...MODIFIER_ONLY_PHYSICAL_WEAPON_IDS,
     ]);
 
     expect(unsupportedPhysicalWeapons).toEqual([]);
+    expect(nonIntegratedPhysicalWeaponIds()).toEqual([]);
     for (const weaponId of SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES) {
       const supportId = weaponId as PhysicalWeaponSupportId;
       expect(SUPPORTED_PHYSICAL_ATTACK_TYPES).toContain(weaponId);
@@ -124,10 +150,18 @@ describe('physical weapon catalog runtime boundary', () => {
       level: 'integrated',
       evidence: expect.stringContaining('claw-equipment-lifecycle'),
     });
+    expect(PHYSICAL_WEAPON_COMBAT_SUPPORT.claws.gap).toBeUndefined();
+    expect(PHYSICAL_WEAPON_COMBAT_SUPPORT.claws.evidence).toContain(
+      'not as a standalone runtime PhysicalAttackType',
+    );
     expect(PHYSICAL_WEAPON_COMBAT_SUPPORT.talons).toMatchObject({
       level: 'integrated',
       evidence: expect.stringContaining('talon-equipment-lifecycle'),
     });
+    expect(PHYSICAL_WEAPON_COMBAT_SUPPORT.talons.gap).toBeUndefined();
+    expect(PHYSICAL_WEAPON_COMBAT_SUPPORT.talons.evidence).toContain(
+      'not as a standalone runtime PhysicalAttackType',
+    );
 
     const options = getEligiblePhysicalAttacks(
       makeUnit('attacker', GameSide.Player),

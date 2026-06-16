@@ -1,5 +1,13 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
-import { Facing, IComponentDamageState, IHexGrid } from '@/types/gameplay';
+import {
+  Facing,
+  GameSide,
+  IComponentDamageState,
+  IHexGrid,
+  IUnitGameState,
+  LockState,
+  MovementType,
+} from '@/types/gameplay';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
@@ -38,6 +46,7 @@ import {
   canDFA,
   canMeleeWeapon,
   canPush,
+  canBrushOffPhysical,
   canTripPhysical,
   canThrashPhysical,
   canGrapplePhysical,
@@ -45,6 +54,7 @@ import {
   canJumpJetAttackPhysical,
   canThrash,
   canTrip,
+  computeDisplacementWithDominoChain,
   computeChargeDisplacementOutcome,
   computeBreakGrappleDisplacementOutcome,
   computeDfaDisplacementOutcome,
@@ -77,6 +87,8 @@ import {
   getJumpJetAttackToHitModifiers,
   getThrashAttackDamageForWeight,
   getTripAttackBaseToHitAdjustment,
+  getEligiblePhysicalAttacks,
+  SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
 } from '../physicalAttacks';
 
 const DEFAULT_COMPONENT_DAMAGE: IComponentDamageState = {
@@ -99,6 +111,35 @@ function makeInput(
     pilotingSkill: 5,
     componentDamage: DEFAULT_COMPONENT_DAMAGE,
     attackType: 'punch',
+    ...overrides,
+  };
+}
+
+function makePhysicalProjectionUnit(
+  id: string,
+  side: GameSide,
+  position: { q: number; r: number },
+  overrides: Partial<IUnitGameState> = {},
+): IUnitGameState {
+  return {
+    id,
+    side,
+    position,
+    facing: Facing.South,
+    heat: 0,
+    movementThisTurn: MovementType.Stationary,
+    hexesMovedThisTurn: 0,
+    armor: {},
+    structure: {},
+    destroyedLocations: [],
+    destroyedEquipment: [],
+    ammo: {},
+    pilotWounds: 0,
+    pilotConscious: true,
+    destroyed: false,
+    lockState: LockState.Pending,
+    componentDamage: DEFAULT_COMPONENT_DAMAGE,
+    prone: false,
     ...overrides,
   };
 }
@@ -553,6 +594,117 @@ describe('physicalAttacks', () => {
       ]);
     });
 
+    it('keeps domino displacement as forced fallback without a represented step-out CFR decision', () => {
+      const grid = makeDominoDisplacementGrid();
+
+      expect(
+        computeDisplacementWithDominoChain({
+          grid,
+          unitId: 'target',
+          from: { q: 1, r: 0 },
+          to: { q: 1, r: 1 },
+          reason: 'charge',
+        }),
+      ).toEqual([
+        {
+          unitId: 'target',
+          from: { q: 1, r: 0 },
+          to: { q: 1, r: 1 },
+          reason: 'charge',
+        },
+        {
+          unitId: 'domino-blocker',
+          from: { q: 1, r: 1 },
+          to: { q: 1, r: 2 },
+          reason: 'domino',
+        },
+      ]);
+    });
+
+    it('accepts a blocker voluntary step-out path for side-entered occupied displacement', () => {
+      const grid = makeDominoDisplacementGrid();
+
+      expect(
+        computeDisplacementWithDominoChain({
+          grid,
+          unitId: 'target',
+          from: { q: 1, r: 0 },
+          to: { q: 1, r: 1 },
+          reason: 'charge',
+          blockerStepOutDecision: {
+            blockerUnitId: 'domino-blocker',
+            from: { q: 1, r: 1 },
+            response: 'move',
+            psrPassed: true,
+            context: {
+              sideEntered: true,
+              blockerJumped: false,
+              legalStepOptions: [
+                { kind: 'forward', to: { q: 2, r: 0 } },
+                { kind: 'backward', to: { q: 0, r: 2 } },
+              ],
+            },
+            path: [{ q: 2, r: 0 }],
+          },
+        }),
+      ).toEqual([
+        {
+          unitId: 'domino-blocker',
+          from: { q: 1, r: 1 },
+          to: { q: 2, r: 0 },
+          reason: 'domino_step_out',
+        },
+        {
+          unitId: 'target',
+          from: { q: 1, r: 0 },
+          to: { q: 1, r: 1 },
+          reason: 'charge',
+        },
+      ]);
+    });
+
+    it('falls back to forced domino when blocker step-out decision is invalid', () => {
+      const grid = makeDominoDisplacementGrid();
+
+      expect(
+        computeDisplacementWithDominoChain({
+          grid,
+          unitId: 'target',
+          from: { q: 1, r: 0 },
+          to: { q: 1, r: 1 },
+          reason: 'charge',
+          blockerStepOutDecision: {
+            blockerUnitId: 'other-blocker',
+            from: { q: 1, r: 1 },
+            response: 'move',
+            psrPassed: true,
+            context: {
+              sideEntered: true,
+              blockerJumped: false,
+              legalStepOptions: [
+                { kind: 'forward', to: { q: 2, r: 0 } },
+                { kind: 'backward', to: { q: 0, r: 2 } },
+              ],
+            },
+            path: [{ q: 2, r: 0 }],
+          },
+        }),
+      ).toEqual([
+        {
+          unitId: 'target',
+          from: { q: 1, r: 0 },
+          to: { q: 1, r: 1 },
+          reason: 'charge',
+        },
+        {
+          unitId: 'domino-blocker',
+          from: { q: 1, r: 1 },
+          to: { q: 1, r: 2 },
+          reason: 'domino',
+        },
+      ]);
+    });
+
     it('models source-backed DFA hit and miss displacement order', () => {
       const grid = makeDisplacementGrid();
 
@@ -807,6 +959,49 @@ describe('physicalAttacks', () => {
       );
 
       expect(damage).toBe(8);
+    });
+
+    it('applies Zweihander punch damage only for explicit two-handed declarations', () => {
+      const base = {
+        attackerTonnage: 80,
+        arm: 'right' as const,
+        pilotAbilities: ['zweihander'],
+      };
+
+      expect(
+        calculatePunchDamage(makeInput({ ...base, twoHandedZweihander: true })),
+      ).toBe(16);
+      expect(calculatePunchDamage(makeInput(base))).toBe(8);
+    });
+
+    it('does not apply explicit two-handed punch damage without Zweihander', () => {
+      expect(
+        calculatePunchDamage(
+          makeInput({
+            attackerTonnage: 80,
+            arm: 'right',
+            twoHandedZweihander: true,
+          }),
+        ),
+      ).toBe(8);
+    });
+
+    it('applies Zweihander bonus damage to supported physical-weapon declarations', () => {
+      for (const attackType of SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES) {
+        const baseline = calculatePhysicalDamage(
+          makeInput({ attackType, attackerTonnage: 80 }),
+        );
+        const twoHanded = calculatePhysicalDamage(
+          makeInput({
+            attackType,
+            attackerTonnage: 80,
+            pilotAbilities: ['zweihander'],
+            twoHandedZweihander: true,
+          }),
+        );
+
+        expect(twoHanded.targetDamage).toBe(baseline.targetDamage + 8);
+      }
     });
   });
 
@@ -1064,18 +1259,21 @@ describe('physicalAttacks', () => {
       });
     });
 
-    it('honors source-backed Manei Domini fall-pilot-damage immunity', () => {
-      const result = resolveDfaMissFallPilotDamageAvoidance(5, 2, () => 1, [
-        'dermal_armor',
-      ]);
+    it.each(['dermal_armor', 'tsm_implant'] as const)(
+      'honors source-backed Manei Domini fall-pilot-damage immunity for %s',
+      (abilityId) => {
+        const result = resolveDfaMissFallPilotDamageAvoidance(5, 2, () => 1, [
+          abilityId,
+        ]);
 
-      expect(result).toMatchObject({
-        targetNumber: 6,
-        dice: [],
-        passed: true,
-        pilotDamage: 0,
-      });
-    });
+        expect(result).toMatchObject({
+          targetNumber: 6,
+          dice: [],
+          passed: true,
+          pilotDamage: 0,
+        });
+      },
+    );
   });
 
   // =============================================================================
@@ -2909,6 +3107,61 @@ describe('physicalAttacks', () => {
       expect(result.allowed).toBe(true);
     });
 
+    it('gates arm-mounted melee weapons against the selected arm location', () => {
+      const rightLowerArmDestroyed: IComponentDamageState = {
+        ...DEFAULT_COMPONENT_DAMAGE,
+        actuatorsByLocation: {
+          right_arm: { [ActuatorType.LOWER_ARM]: true },
+        },
+      };
+
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            limb: 'leftArm',
+            componentDamage: rightLowerArmDestroyed,
+          }),
+        ).allowed,
+      ).toBe(true);
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            limb: 'rightArm',
+            componentDamage: rightLowerArmDestroyed,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'MissingActuator',
+      });
+    });
+
+    it('gates arm-mounted melee weapons against the selected missing arm', () => {
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'hatchet',
+            limb: 'rightArm',
+            attackerDestroyedLocations: ['left_arm'],
+          }),
+        ).allowed,
+      ).toBe(true);
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'hatchet',
+            limb: 'leftArm',
+            attackerDestroyedLocations: ['left_arm'],
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'LimbMissing',
+      });
+    });
+
     it('disallows flails but allows wrecking balls on quad BattleMechs', () => {
       expect(
         canMeleeWeapon(
@@ -4099,6 +4352,190 @@ describe('physicalAttacks', () => {
       });
     });
 
+    it('disallows selected-arm physical attacks when that arm carries cargo', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            arm: 'right',
+            rightArmCarryingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            arm: 'left',
+            rightArmCarryingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({ allowed: true });
+      expect(
+        canMeleeWeapon(
+          makeInput({
+            attackType: 'sword',
+            rightArmCarryingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+      expect(
+        canBrushOffPhysical(
+          makeInput({
+            attackType: 'brush-off',
+            limb: 'rightArm',
+            targetIsINarcPod: true,
+            rightArmCarryingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+    });
+
+    it('preserves push when one cargo arm is free and blocks it when both arms carry cargo', () => {
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            leftArmCarryingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({ allowed: true });
+      expect(
+        canPush(
+          makeInput({
+            attackType: 'push',
+            leftArmCarryingCargo: true,
+            rightArmCarryingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+    });
+
+    it('blocks two-handed Zweihander declarations when either arm carries cargo', () => {
+      expect(
+        canPunch(
+          makeInput({
+            attackType: 'punch',
+            arm: 'right',
+            twoHandedZweihander: true,
+            pilotAbilities: ['zweihander'],
+            leftArmCarryingCargo: true,
+            targetDistance: 1,
+          }),
+        ),
+      ).toMatchObject({
+        allowed: false,
+        reasonCode: 'AttackerCargoInteraction',
+      });
+    });
+
+    it('projects per-arm carried-cargo restrictions in eligible physical options', () => {
+      const attacker = makePhysicalProjectionUnit(
+        'attacker',
+        GameSide.Player,
+        { q: 0, r: 0 },
+        {
+          rightArmCarryingCargo: true,
+        },
+      );
+      const target = makePhysicalProjectionUnit(
+        'target',
+        GameSide.Opponent,
+        { q: 1, r: 0 },
+        {
+          iNarcPods: [
+            {
+              teamId: 'opponent',
+              podType: 'homing',
+            },
+          ],
+        },
+      );
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 80,
+        attackerPilotingSkill: 5,
+        targetIsINarcPod: true,
+      });
+
+      expect(
+        options.find(
+          (option) =>
+            option.attackType === 'punch' && option.limb === 'rightArm',
+        )?.restrictionsFailed,
+      ).toContain('AttackerCargoInteraction');
+      expect(
+        options.find(
+          (option) =>
+            option.attackType === 'punch' && option.limb === 'leftArm',
+        )?.restrictionsFailed,
+      ).not.toContain('AttackerCargoInteraction');
+      expect(
+        options.find((option) => option.attackType === 'brush-off')
+          ?.restrictionsFailed,
+      ).toContain('AttackerCargoInteraction');
+    });
+
+    it('projects arm-mounted melee weapons as selected-arm option rows', () => {
+      const attacker = makePhysicalProjectionUnit(
+        'attacker',
+        GameSide.Player,
+        { q: 0, r: 0 },
+        {
+          componentDamage: {
+            ...DEFAULT_COMPONENT_DAMAGE,
+            actuatorsByLocation: {
+              right_arm: { [ActuatorType.LOWER_ARM]: true },
+            },
+          },
+        },
+      );
+      const target = makePhysicalProjectionUnit('target', GameSide.Opponent, {
+        q: 1,
+        r: 0,
+      });
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 80,
+        attackerPilotingSkill: 5,
+        meleeWeaponsEquipped: ['sword', 'wrecking-ball'],
+      });
+
+      expect(
+        options.find(
+          (option) =>
+            option.attackType === 'sword' && option.limb === 'leftArm',
+        )?.restrictionsFailed,
+      ).toEqual([]);
+      expect(
+        options.find(
+          (option) =>
+            option.attackType === 'sword' && option.limb === 'rightArm',
+        )?.restrictionsFailed,
+      ).toContain('MissingActuator');
+      expect(
+        options.find((option) => option.attackType === 'wrecking-ball')?.limb,
+      ).toBeUndefined();
+    });
+
     it('disallows different-board targets across supported physical attack families', () => {
       const boardMismatch = {
         attackerBoardId: 'board-alpha',
@@ -5110,6 +5547,192 @@ describe('physicalAttacks', () => {
       expect(result.baseToHit).toBe(5);
     });
 
+    it('rejects explicit two-handed Zweihander punch declarations without represented prerequisites', () => {
+      const valid = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'punch',
+          pilotAbilities: ['zweihander'],
+          twoHandedZweihander: true,
+        }),
+      );
+      expect(valid.allowed).toBe(true);
+
+      const cases: readonly [string, Partial<IPhysicalAttackInput>, string][] =
+        [
+          ['missing SPA', {}, 'RequiredSpaMissing'],
+          [
+            'prone attacker',
+            { pilotAbilities: ['zweihander'], attackerProne: true },
+            'AttackerProne',
+          ],
+          [
+            'missing off arm',
+            {
+              pilotAbilities: ['zweihander'],
+              attackerDestroyedLocations: ['left_arm'],
+            },
+            'LimbMissing',
+          ],
+          [
+            'destroyed represented hand actuator',
+            {
+              pilotAbilities: ['zweihander'],
+              componentDamage: {
+                ...DEFAULT_COMPONENT_DAMAGE,
+                actuators: { [ActuatorType.HAND]: true },
+              },
+            },
+            'MissingActuator',
+          ],
+          [
+            'missing represented hand actuator',
+            { pilotAbilities: ['zweihander'], handActuatorPresent: false },
+            'MissingActuator',
+          ],
+          [
+            'arm weapon already fired',
+            {
+              pilotAbilities: ['zweihander'],
+              weaponsFiredFromArm: ['medium-laser'],
+            },
+            'WeaponFiredThisTurn',
+          ],
+        ];
+
+      for (const [name, overrides, reasonCode] of cases) {
+        const result = calculatePhysicalToHit(
+          makeInput({
+            attackType: 'punch',
+            twoHandedZweihander: true,
+            ...overrides,
+          }),
+        );
+
+        expect(result.allowed).toBe(false);
+        expect(result.restrictionReasonCode).toBe(reasonCode);
+        expect(result.finalToHit).toBe(Infinity);
+      }
+    });
+
+    it('applies represented off-arm actuator penalties to two-handed Zweihander punches', () => {
+      const result = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'punch',
+          pilotAbilities: ['zweihander'],
+          twoHandedZweihander: true,
+          componentDamage: {
+            ...DEFAULT_COMPONENT_DAMAGE,
+            actuatorsByLocation: {
+              left_arm: {
+                [ActuatorType.UPPER_ARM]: true,
+                [ActuatorType.LOWER_ARM]: true,
+              },
+            },
+          },
+        }),
+      );
+
+      expect(result.allowed).toBe(true);
+      expect(result.finalToHit).toBe(9);
+      expect(result.modifiers).toEqual(
+        expect.arrayContaining([
+          {
+            name: 'Off-arm upper arm actuator destroyed',
+            value: 2,
+            source: 'actuator',
+          },
+          {
+            name: 'Off-arm lower arm actuator destroyed',
+            value: 2,
+            source: 'actuator',
+          },
+        ]),
+      );
+    });
+
+    it('rejects represented two-handed Zweihander punches when either hand actuator is destroyed', () => {
+      for (const location of ['left_arm', 'right_arm'] as const) {
+        const result = calculatePhysicalToHit(
+          makeInput({
+            attackType: 'punch',
+            pilotAbilities: ['zweihander'],
+            twoHandedZweihander: true,
+            componentDamage: {
+              ...DEFAULT_COMPONENT_DAMAGE,
+              actuatorsByLocation: {
+                [location]: { [ActuatorType.HAND]: true },
+              },
+            },
+          }),
+        );
+
+        expect(result.allowed).toBe(false);
+        expect(result.restrictionReasonCode).toBe('MissingActuator');
+        expect(result.finalToHit).toBe(Infinity);
+      }
+    });
+
+    it('applies represented two-handed Zweihander physical-weapon gates and off-arm penalties', () => {
+      const result = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'hatchet',
+          pilotAbilities: ['zweihander'],
+          twoHandedZweihander: true,
+          componentDamage: {
+            ...DEFAULT_COMPONENT_DAMAGE,
+            actuatorsByLocation: {
+              left_arm: {
+                [ActuatorType.UPPER_ARM]: true,
+                [ActuatorType.LOWER_ARM]: true,
+              },
+            },
+          },
+        }),
+      );
+
+      expect(result.allowed).toBe(true);
+      expect(result.finalToHit).toBe(8);
+      expect(result.modifiers).toEqual(
+        expect.arrayContaining([
+          {
+            name: 'hatchet modifier',
+            value: -1,
+            source: 'weapon',
+          },
+          {
+            name: 'Off-arm upper arm actuator destroyed',
+            value: 2,
+            source: 'actuator',
+          },
+          {
+            name: 'Off-arm lower arm actuator destroyed',
+            value: 2,
+            source: 'actuator',
+          },
+        ]),
+      );
+
+      const missingSpa = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'hatchet',
+          twoHandedZweihander: true,
+        }),
+      );
+      expect(missingSpa.allowed).toBe(false);
+      expect(missingSpa.restrictionReasonCode).toBe('RequiredSpaMissing');
+
+      const firedArm = calculatePhysicalToHit(
+        makeInput({
+          attackType: 'hatchet',
+          pilotAbilities: ['zweihander'],
+          twoHandedZweihander: true,
+          weaponsFiredFromArm: ['left-medium-laser'],
+        }),
+      );
+      expect(firedArm.allowed).toBe(false);
+      expect(firedArm.restrictionReasonCode).toBe('WeaponFiredThisTurn');
+    });
+
     it('should dispatch kick', () => {
       const result = calculatePhysicalToHit(
         makeInput({ attackType: 'kick', pilotingSkill: 5 }),
@@ -5160,6 +5783,79 @@ describe('physicalAttacks', () => {
           }),
         );
       }
+    });
+
+    it('applies source-backed Environmental Specialist Light to represented physical to-hit paths', () => {
+      const attackTypes = [
+        'punch',
+        'kick',
+        'charge',
+        'dfa',
+        'push',
+        'hatchet',
+        'sword',
+        'mace',
+        'lance',
+        'retractable-blade',
+        'flail',
+        'wrecking-ball',
+      ] as const satisfies readonly IPhysicalAttackInput['attackType'][];
+
+      for (const attackType of attackTypes) {
+        const result = calculatePhysicalToHit(
+          makeInput({
+            attackType,
+            pilotingSkill: 5,
+            pilotAbilities: ['env_specialist'],
+            designatedEnvironment: 'light',
+            environmentalLight: 'moonless',
+            targetIlluminated: false,
+          }),
+        );
+
+        expect(result.allowed).toBe(true);
+        expect(result.modifiers).toContainEqual(
+          expect.objectContaining({
+            name: 'Environmental Specialist (Light)',
+            value: -1,
+            source: 'spa',
+          }),
+        );
+      }
+    });
+
+    it('gates Environmental Specialist physical to-hit on Light selection, dark light, and unilluminated target', () => {
+      const base = {
+        attackType: 'kick',
+        pilotAbilities: ['env_specialist'],
+        designatedEnvironment: 'light',
+        environmentalLight: 'moonless',
+        targetIlluminated: false,
+      } as const;
+
+      expect(calculatePhysicalToHit(makeInput(base)).modifiers).toContainEqual(
+        expect.objectContaining({ name: 'Environmental Specialist (Light)' }),
+      );
+      expect(
+        calculatePhysicalToHit(
+          makeInput({ ...base, designatedEnvironment: 'snow' }),
+        ).modifiers,
+      ).not.toContainEqual(
+        expect.objectContaining({ name: 'Environmental Specialist (Light)' }),
+      );
+      expect(
+        calculatePhysicalToHit(
+          makeInput({ ...base, environmentalLight: 'night' }),
+        ).modifiers,
+      ).not.toContainEqual(
+        expect.objectContaining({ name: 'Environmental Specialist (Light)' }),
+      );
+      expect(
+        calculatePhysicalToHit(makeInput({ ...base, targetIlluminated: true }))
+          .modifiers,
+      ).not.toContainEqual(
+        expect.objectContaining({ name: 'Environmental Specialist (Light)' }),
+      );
     });
 
     it('applies source-backed target evasion to every physical to-hit path', () => {
@@ -5425,6 +6121,56 @@ describe('physicalAttacks', () => {
       expect(result.attackerDamage).toBe(8);
       expect(result.hitTable).toBe('punch');
     });
+
+    it('Zweihander punch miss triggers attacker PSR only when explicitly two-handed', () => {
+      const base = {
+        attackType: 'punch' as const,
+        pilotAbilities: ['zweihander'],
+      };
+
+      expect(
+        getPhysicalMissConsequences(
+          'punch',
+          makeInput({ ...base, twoHandedZweihander: true }),
+        ),
+      ).toMatchObject({
+        attackerPSR: true,
+        attackerPSRModifier: 0,
+        attackerDamage: 0,
+      });
+      expect(
+        getPhysicalMissConsequences('punch', makeInput(base)).attackerPSR,
+      ).toBe(false);
+    });
+
+    it('Zweihander physical-weapon misses trigger attacker PSR only when explicitly two-handed', () => {
+      for (const attackType of SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES) {
+        expect(
+          getPhysicalMissConsequences(
+            attackType,
+            makeInput({
+              attackType,
+              pilotAbilities: ['zweihander'],
+              twoHandedZweihander: true,
+            }),
+          ),
+        ).toMatchObject({
+          attackerPSR: true,
+          attackerPSRModifier: 0,
+          attackerDamage: 0,
+        });
+
+        expect(
+          getPhysicalMissConsequences(
+            attackType,
+            makeInput({
+              attackType,
+              pilotAbilities: ['zweihander'],
+            }),
+          ).attackerPSR,
+        ).toBe(false);
+      }
+    });
   });
 
   // =============================================================================
@@ -5521,6 +6267,58 @@ describe('physicalAttacks', () => {
       expect(result.targetDamage).toBe(0);
       expect(result.hitLocation).toBeUndefined();
       expect(result.attackerPSR).toBe(false);
+    });
+
+    it('resolves explicit Zweihander punch damage and miss self-risk', () => {
+      const hit = resolvePhysicalAttack(
+        makeInput({
+          attackerTonnage: 80,
+          pilotAbilities: ['zweihander'],
+          twoHandedZweihander: true,
+        }),
+        makeDiceSequence([4, 3, 3]),
+      );
+      expect(hit).toMatchObject({
+        hit: true,
+        targetDamage: 16,
+        attackerPSR: false,
+      });
+
+      const miss = resolvePhysicalAttack(
+        makeInput({
+          pilotingSkill: 5,
+          pilotAbilities: ['zweihander'],
+          twoHandedZweihander: true,
+        }),
+        makeDiceSequence([1, 2]),
+      );
+      expect(miss).toMatchObject({
+        hit: false,
+        targetDamage: 0,
+        attackerPSR: true,
+        attackerPSRModifier: 0,
+      });
+    });
+
+    it('rejects invalid explicit Zweihander punch declarations before damage or miss self-risk', () => {
+      const result = resolvePhysicalAttack(
+        makeInput({
+          attackerTonnage: 80,
+          pilotAbilities: ['zweihander'],
+          twoHandedZweihander: true,
+          attackerProne: true,
+        }),
+        makeDiceSequence([6, 6, 6]),
+      );
+
+      expect(result).toMatchObject({
+        hit: false,
+        toHitNumber: Infinity,
+        targetDamage: 0,
+        attackerPSR: false,
+      });
+      expect(result.roll).toBe(0);
+      expect(result.hitLocation).toBeUndefined();
     });
 
     it('should trigger attacker PSR on kick miss', () => {
@@ -5765,6 +6563,79 @@ describe('physicalAttacks', () => {
         hasMeleeWeapon: 'mace',
       });
       expect(result).toBeNull();
+    });
+  });
+
+  describe('getEligiblePhysicalAttacks self-risk projection', () => {
+    function optionFor(
+      attackType: string,
+      options: ReturnType<typeof getEligiblePhysicalAttacks>,
+    ) {
+      return options.find((option) => option.attackType === attackType);
+    }
+
+    it('projects runtime physical self-risk for charge, DFA, kick, and brush-off rows', () => {
+      const attacker = makePhysicalProjectionUnit(
+        'attacker',
+        GameSide.Player,
+        { q: 0, r: 0 },
+        {
+          hexesMovedThisTurn: 5,
+          movementThisTurn: MovementType.Run,
+        },
+      );
+      const target = makePhysicalProjectionUnit(
+        'target',
+        GameSide.Opponent,
+        { q: 1, r: 0 },
+        {
+          isSwarming: true,
+          unitType: UnitType.INFANTRY,
+        },
+      );
+
+      const options = getEligiblePhysicalAttacks(attacker, target, {
+        attackerTonnage: 80,
+        attackerPilotingSkill: 5,
+        targetTonnage: 75,
+        attackerRanThisTurn: true,
+        attackerJumpedThisTurn: true,
+        targetIsSwarmingInfantryOnAttacker: true,
+      });
+
+      expect(optionFor('charge', options)?.selfRisk).toEqual({
+        damageToAttacker: 8,
+        legDamagePerLeg: 0,
+        pilotingSkillRoll: {
+          trigger: 'ChargeCompleted',
+          required: true,
+        },
+        onMiss: 'None',
+      });
+      expect(optionFor('dfa', options)?.selfRisk).toEqual({
+        damageToAttacker: 0,
+        legDamagePerLeg: 8,
+        pilotingSkillRoll: {
+          trigger: 'DFACompleted',
+          required: true,
+        },
+        onMiss: 'AttackerFalls',
+      });
+      expect(optionFor('kick', options)?.selfRisk).toEqual({
+        damageToAttacker: 0,
+        legDamagePerLeg: 0,
+        pilotingSkillRoll: {
+          trigger: 'KickMiss',
+          required: false,
+        },
+        onMiss: 'AttackerFalls',
+      });
+      expect(optionFor('brush-off', options)?.selfRisk).toEqual({
+        damageToAttacker: 8,
+        legDamagePerLeg: 0,
+        pilotingSkillRoll: null,
+        onMiss: 'None',
+      });
     });
   });
 

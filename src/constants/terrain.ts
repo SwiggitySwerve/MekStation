@@ -24,6 +24,8 @@ export const TERRAIN_COLORS: Record<TerrainType, string> = {
   [TerrainType.Road]: '#6b7280', // gray-500
   [TerrainType.LightWoods]: '#86efac', // green-300
   [TerrainType.HeavyWoods]: '#22c55e', // green-500
+  [TerrainType.HeavyIndustrial]: '#64748b', // slate-500
+  [TerrainType.PlantedField]: '#a3e635', // lime-400
   [TerrainType.Rough]: '#d6d3d1', // stone-300
   [TerrainType.Rubble]: '#a8a29e', // stone-400
   [TerrainType.Water]: '#60a5fa', // blue-400
@@ -34,6 +36,7 @@ export const TERRAIN_COLORS: Record<TerrainType, string> = {
   [TerrainType.Swamp]: '#65a30d', // lime-600
   [TerrainType.Building]: '#78716c', // stone-500
   [TerrainType.Bridge]: '#a1a1aa', // zinc-400
+  [TerrainType.Mines]: '#525252', // neutral-600
   [TerrainType.Fire]: '#f97316', // orange-500
   [TerrainType.Smoke]: '#737373', // neutral-500
 };
@@ -88,9 +91,12 @@ export const TERRAIN_LAYER_ORDER: Record<TerrainType, number> = {
   [TerrainType.Rubble]: 6,
   [TerrainType.LightWoods]: 7,
   [TerrainType.HeavyWoods]: 8,
-  [TerrainType.Building]: 9,
-  [TerrainType.Smoke]: 10,
-  [TerrainType.Fire]: 11,
+  [TerrainType.PlantedField]: 8,
+  [TerrainType.HeavyIndustrial]: 9,
+  [TerrainType.Building]: 10,
+  [TerrainType.Mines]: 11,
+  [TerrainType.Smoke]: 12,
+  [TerrainType.Fire]: 13,
 };
 
 // =============================================================================
@@ -112,6 +118,7 @@ export const TERRAIN_LAYER_ORDER: Record<TerrainType, number> = {
 export const TERRAIN_PATTERNS: Partial<Record<TerrainType, string>> = {
   [TerrainType.LightWoods]: 'pattern-light-woods',
   [TerrainType.HeavyWoods]: 'pattern-heavy-woods',
+  [TerrainType.HeavyIndustrial]: 'pattern-building',
   [TerrainType.Rough]: 'pattern-rough',
   [TerrainType.Rubble]: 'pattern-rubble',
   [TerrainType.Building]: 'pattern-building',

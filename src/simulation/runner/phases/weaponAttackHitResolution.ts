@@ -1,19 +1,34 @@
 import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution/types';
+import type { ILOSDamageableCoverProvider } from '@/utils/gameplay/lineOfSight';
 
 import {
   GameEventType,
   GamePhase,
   IGameEvent,
   IGameState,
+  IHexGrid,
+  ITerrainChangedPayload,
+  TerrainType,
 } from '@/types/gameplay';
 import { resolveDamage } from '@/utils/gameplay/damage';
 import { buildDefaultComponentDamageState } from '@/utils/gameplay/gameSessionAttackResolutionHelpers';
+import { applyTerrainChanged } from '@/utils/gameplay/gameState/terrainReducer';
+import { coordToKey } from '@/utils/gameplay/hexMath';
 import {
   determineHitLocation,
   isHeadHit,
   isLegLocation,
 } from '@/utils/gameplay/hitLocation';
 import { applyPhysicalEquipmentCriticalEvents } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
+import {
+  applyLowProfileGlancingDamage,
+  getLowProfileGlancingCriticalHitModifier,
+  isLowProfileGlancingBlow,
+} from '@/utils/gameplay/quirkModifiers';
+import {
+  terrainFeaturesFromString,
+  terrainStringFromFeatures,
+} from '@/utils/gameplay/terrainEncoding';
 
 import type { IWeapon } from '../../ai/types';
 
@@ -29,6 +44,7 @@ import {
   iNarcPodTypeFromAmmoWeaponType,
   emitZeroDamageDesignatorHit,
   isINarcBeaconWeapon,
+  isINarcExplosiveAmmoWeaponType,
   isNarcBeaconWeapon,
   isTagDesignatorWeapon,
   markTargetINarcPod,
@@ -43,6 +59,7 @@ import {
   emitCoveredLegMiss,
   emitDamageChainEvents,
   emitHeadHitPilotEvent,
+  emitNeuralFeedbackPilotEvent,
   emitUnitDestroyedEvent,
 } from './weaponAttackHitResolution.helpers';
 import {
@@ -53,6 +70,93 @@ import {
   applyCriticalPSRTriggers,
   applyLegDamagePSR,
 } from './weaponAttackPsrTriggers';
+
+function coverProviderMatchesFeature(
+  provider: ILOSDamageableCoverProvider,
+  feature: {
+    readonly type: TerrainType;
+    readonly buildingId?: string;
+    readonly fuelTankId?: string;
+    readonly fuelTankElevation?: number;
+  },
+): boolean {
+  if (provider.kind === 'grounded-dropship') return false;
+  if (feature.type !== TerrainType.Building) return false;
+  if (provider.kind === 'fuel-tank') {
+    if (provider.fuelTankId !== undefined || feature.fuelTankId !== undefined) {
+      return provider.fuelTankId === feature.fuelTankId;
+    }
+    return feature.fuelTankElevation !== undefined;
+  }
+
+  if (provider.buildingId !== undefined || feature.buildingId !== undefined) {
+    return provider.buildingId === feature.buildingId;
+  }
+  return (
+    feature.fuelTankId === undefined && feature.fuelTankElevation === undefined
+  );
+}
+
+function applyDamageableCoverProviderHit(options: {
+  currentState: IGameState;
+  events: IGameEvent[];
+  gameId: string;
+  attackerId: string;
+  provider: ILOSDamageableCoverProvider | undefined;
+  grid: IHexGrid | undefined;
+  damage: number;
+}): IGameState {
+  const { attackerId, damage, events, gameId, grid, provider } = options;
+  if (!provider || !grid || damage <= 0) return options.currentState;
+
+  const key = coordToKey(provider.coord);
+  const hex = grid.hexes.get(key);
+  if (!hex) return options.currentState;
+
+  let changed = false;
+  const nextFeatures = terrainFeaturesFromString(hex.terrain).flatMap(
+    (feature) => {
+      if (changed || !coverProviderMatchesFeature(provider, feature)) {
+        return [feature];
+      }
+
+      changed = true;
+      const constructionFactor = Math.max(
+        0,
+        (feature.constructionFactor ?? provider.constructionFactor ?? 0) -
+          damage,
+      );
+      if (constructionFactor === 0) return [];
+      return [{ ...feature, constructionFactor }];
+    },
+  );
+
+  if (!changed) return options.currentState;
+
+  const nextTerrain = terrainStringFromFeatures(nextFeatures);
+  const payload: ITerrainChangedPayload = {
+    hex: provider.coord,
+    terrain: nextTerrain,
+    elevation: hex.elevation,
+    previousTerrain: hex.terrain,
+    previousElevation: hex.elevation,
+    reason: 'damageable_cover_hit',
+    sourceUnitId: attackerId,
+  };
+  events.push(
+    createGameEvent(
+      gameId,
+      events.length,
+      GameEventType.TerrainChanged,
+      options.currentState.turn,
+      GamePhase.WeaponAttack,
+      payload,
+      attackerId,
+    ),
+  );
+  grid.hexes.set(key, { ...hex, terrain: nextTerrain });
+  return applyTerrainChanged(options.currentState, payload);
+}
 
 /**
  * Resolve a single confirmed weapon hit against a target unit: roll the
@@ -83,6 +187,8 @@ export function resolveWeaponHit(options: {
    * p. 53) — the cover absorbs the shot.
    */
   partialCover: boolean;
+  damageableCoverProvider?: ILOSDamageableCoverProvider;
+  grid?: IHexGrid;
   /**
    * Whether the target is hull-down. Front-arc leg hit-location rolls are
    * redirected before the partial-cover leg-miss conversion.
@@ -101,9 +207,11 @@ export function resolveWeaponHit(options: {
     events,
     firingArc,
     gameId,
+    grid,
     getOrSeedManifest,
     manifestsByUnit,
     partialCover,
+    damageableCoverProvider,
     hullDown,
     optionalRules,
     ammoWeaponType,
@@ -153,9 +261,30 @@ export function resolveWeaponHit(options: {
   const hitLocationResult = determineHitLocation(
     toFiringArc(firingArc),
     d6Roller,
-    { hullDown: hullDown ?? false },
+    {
+      hullDown: hullDown ?? false,
+      edge: {
+        edgePointsRemaining: currentState.units[targetId]?.edgePointsRemaining,
+        pilotAbilities: currentState.units[targetId]?.abilities ?? [],
+        turn: currentState.turn,
+        unitId: targetId,
+      },
+    },
   );
   const location = hitLocationResult.location;
+  if (hitLocationResult.edgePointsRemaining !== undefined) {
+    const target = currentState.units[targetId];
+    currentState = {
+      ...currentState,
+      units: {
+        ...currentState.units,
+        [targetId]: {
+          ...target,
+          edgePointsRemaining: hitLocationResult.edgePointsRemaining,
+        },
+      },
+    };
+  }
 
   // Partial Cover Leg-Hit Conversion (Total Warfare p. 53): when the target
   // is in partial cover, a hit that rolls a leg location is absorbed by the
@@ -175,6 +304,15 @@ export function resolveWeaponHit(options: {
       toHitNumber,
       firingArc,
     });
+    currentState = applyDamageableCoverProviderHit({
+      currentState,
+      events,
+      gameId,
+      attackerId: unitId,
+      provider: damageableCoverProvider,
+      grid,
+      damage: weapon.damage,
+    });
     return consumeWeaponAmmo({
       currentState,
       events,
@@ -185,7 +323,10 @@ export function resolveWeaponHit(options: {
     });
   }
 
-  if (isINarcBeaconWeapon(weapon)) {
+  const isINarcBeacon = isINarcBeaconWeapon(weapon);
+  const isINarcExplosiveAmmo = isINarcExplosiveAmmoWeaponType(ammoWeaponType);
+
+  if (isINarcBeacon && !isINarcExplosiveAmmo) {
     const attackerTeamId = currentState.units[unitId]?.side as
       | string
       | undefined;
@@ -195,13 +336,15 @@ export function resolveWeaponHit(options: {
       (currentState.units[targetId].iNarcPods ?? []).some(
         (pod) => pod.teamId === attackerTeamId && pod.podType === podType,
       );
-    currentState = markTargetINarcPod({
-      currentState,
-      targetId,
-      attackerTeamId,
-      location,
-      podType,
-    });
+    if (podType !== undefined) {
+      currentState = markTargetINarcPod({
+        currentState,
+        targetId,
+        attackerTeamId,
+        location,
+        podType,
+      });
+    }
 
     emitZeroDamageDesignatorHit({
       events,
@@ -218,7 +361,11 @@ export function resolveWeaponHit(options: {
       firingArc,
     });
 
-    if (!wasAlreadyINarced && attackerTeamId !== undefined) {
+    if (
+      podType !== undefined &&
+      !wasAlreadyINarced &&
+      attackerTeamId !== undefined
+    ) {
       emitDesignatorMarkerApplied({
         events,
         gameId,
@@ -369,10 +516,25 @@ export function resolveWeaponHit(options: {
     });
   }
 
-  let damage = weapon.damage;
+  let damage = isINarcExplosiveAmmo ? 6 : weapon.damage;
   if (isHeadHit(location) && damage > HEAD_HIT_DAMAGE_CAP) {
     damage = HEAD_HIT_DAMAGE_CAP;
   }
+
+  const lowProfileGlancingBlow = isLowProfileGlancingBlow(
+    currentState.units[targetId]?.unitQuirks,
+    attackRoll,
+    toHitNumber,
+  );
+  if (projectileCount === undefined && lowProfileGlancingBlow) {
+    damage = applyLowProfileGlancingDamage(damage);
+  }
+  const lowProfileCriticalHitModifier =
+    getLowProfileGlancingCriticalHitModifier(
+      currentState.units[targetId]?.unitQuirks,
+      attackRoll,
+      toHitNumber,
+    );
 
   const targetBefore = currentState.units[targetId];
   const damageState = buildDamageState(targetBefore);
@@ -392,10 +554,13 @@ export function resolveWeaponHit(options: {
     targetBefore.componentDamage ?? buildDefaultComponentDamageState();
   const damageStateWithCtx = {
     ...damageState,
+    turn: currentState.turn,
     criticalContext: {
       unitId: targetId,
       manifest: targetManifest,
       componentDamage: targetComponentDamage,
+      criticalHitModifier: lowProfileCriticalHitModifier,
+      optionalRules,
     },
   };
   const damageResult = resolveDamage(
@@ -468,6 +633,24 @@ export function resolveWeaponHit(options: {
         heat: weapon.heat,
         ...(projectileCount !== undefined ? { projectileCount } : {}),
         attackerArc: firingArc,
+        ...(hitLocationResult.edgeReroll !== undefined
+          ? { edgeReroll: hitLocationResult.edgeReroll }
+          : {}),
+        ...(hitLocationResult.edgeSuperseded !== undefined
+          ? { edgeSuperseded: hitLocationResult.edgeSuperseded }
+          : {}),
+        ...(hitLocationResult.edgeTrigger !== undefined
+          ? { edgeTrigger: hitLocationResult.edgeTrigger }
+          : {}),
+        ...(hitLocationResult.edgePointsRemaining !== undefined
+          ? { edgePointsRemaining: hitLocationResult.edgePointsRemaining }
+          : {}),
+        ...(hitLocationResult.supersededLocation !== undefined
+          ? { edgeSupersededLocation: hitLocationResult.supersededLocation }
+          : {}),
+        ...(hitLocationResult.supersededRoll !== undefined
+          ? { edgeSupersededRoll: hitLocationResult.supersededRoll.total }
+          : {}),
       },
       unitId,
     ),
@@ -558,6 +741,15 @@ export function resolveWeaponHit(options: {
   // Emit `PilotHit` for raw head-hit wounds (suppressed when a
   // cockpit-crit already emitted one).
   emitHeadHitPilotEvent({
+    events,
+    gameId,
+    turn: currentState.turn,
+    attackerId: unitId,
+    targetId,
+    damageResult,
+  });
+
+  emitNeuralFeedbackPilotEvent({
     events,
     gameId,
     turn: currentState.turn,

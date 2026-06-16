@@ -32,7 +32,11 @@ import type {
   CriticalSlotManifest,
   ICriticalSlotEntry,
 } from '@/utils/gameplay/criticalHitResolution';
-import type { ECMType, IActiveProbe } from '@/utils/gameplay/electronicWarfare';
+import type {
+  ECMMode,
+  ECMType,
+  IActiveProbe,
+} from '@/utils/gameplay/electronicWarfare';
 
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
@@ -40,6 +44,7 @@ import {
   FiringArc,
   GameSide,
   IAmmoSlotState,
+  type IInitiativeEquipmentProfile,
   IMovementCapability,
   IUnitGameState,
   IHexCoordinate,
@@ -52,6 +57,10 @@ import {
 } from '@/utils/construction/equipmentBVCatalogData';
 import { buildCriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 import { STANDARD_STRUCTURE_TABLE } from '@/utils/gameplay/damage/constants';
+import {
+  deriveEdgePointCountFromPilotAbilities,
+  hasSPA,
+} from '@/utils/gameplay/spaModifiers';
 
 import type { IWeapon, IWeaponFiringModes } from '../ai/types';
 
@@ -102,6 +111,8 @@ export interface ICatalogAmmoStats {
 
 export type AmmoLookup = (idOrName: string) => ICatalogAmmoStats | null;
 
+const UNSUPPORTED_AMMO_RUNTIME_IDS = new Set(['rotaryac10', 'rotaryac20']);
+
 const SOURCE_BACKED_WEAPON_LOOKUP_ALIASES = {
   'plasma-cannon': 'clan-plasma-cannon',
   plasmacannon: 'clan-plasma-cannon',
@@ -121,6 +132,7 @@ export interface IHydratedECMSuiteData {
   readonly type: ECMType;
   readonly sourceEquipmentId: string;
   readonly sourceLocation?: string;
+  readonly mode?: ECMMode;
 }
 
 export interface IHydratedActiveProbeData {
@@ -146,11 +158,16 @@ interface IUnitEquipmentEntry {
   readonly id: string;
   readonly location: string;
   readonly isRearMounted?: boolean;
+  readonly linkedEquipment?: readonly string[];
+  readonly mode?: string;
+  readonly currentMode?: string;
+  readonly explosionDamage?: number;
 }
 
 interface IHydratableEquipmentSignal {
   readonly id: string;
   readonly sourceLocation?: string;
+  readonly currentMode?: string;
 }
 
 type CriticalSlotMap = Readonly<Record<string, readonly (string | null)[]>>;
@@ -202,6 +219,40 @@ export function hydrateHeatSinksFromFullUnit(fullUnit: IFullUnit): {
     count,
     kind: toHeatSinkKind(heatSinks?.type),
   };
+}
+
+export function hydratePilotAbilitiesFromFullUnit(
+  fullUnit: IFullUnit,
+): readonly string[] | undefined {
+  const abilities = (fullUnit as { readonly abilities?: unknown }).abilities;
+  if (!Array.isArray(abilities)) return undefined;
+
+  const normalized = abilities.filter((ability): ability is string => {
+    return typeof ability === 'string';
+  });
+  return normalized.length > 0 ? normalized : undefined;
+}
+
+function numericEdgePointValue(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value)
+    ? value
+    : undefined;
+}
+
+export function hydrateEdgePointsFromFullUnit(
+  fullUnit: IFullUnit,
+): number | undefined {
+  const abilities = hydratePilotAbilitiesFromFullUnit(fullUnit) ?? [];
+  const explicitEdgePoints =
+    numericEdgePointValue(
+      (fullUnit as { readonly edgePointsRemaining?: unknown })
+        .edgePointsRemaining,
+    ) ??
+    numericEdgePointValue(
+      (fullUnit as { readonly edgePoints?: unknown }).edgePoints,
+    );
+
+  return deriveEdgePointCountFromPilotAbilities(abilities, explicitEdgePoints);
 }
 
 export function hydrateHasTSMFromFullUnit(fullUnit: IFullUnit): boolean {
@@ -278,6 +329,25 @@ export function hydrateHasSuperchargerFromFullUnit(
     equipmentSignalsFromFullUnit(fullUnit).some((signal) =>
       isSuperchargerSignal(signal.id),
     )
+  );
+}
+
+function isTargetingComputerSignal(id: string): boolean {
+  const normalized = normalizeEquipmentId(id);
+  const withoutTechPrefix = normalizedWithoutTechPrefix(normalized);
+  return (
+    normalized === 'targetingcomputer' ||
+    normalized === 'targetingcomputeris' ||
+    normalized === 'targetingcomputerclan' ||
+    withoutTechPrefix === 'targetingcomputer'
+  );
+}
+
+export function hydrateTargetingComputerEquipmentFromFullUnit(
+  fullUnit: IFullUnit,
+): boolean {
+  return equipmentSignalsFromFullUnit(fullUnit).some((signal) =>
+    isTargetingComputerSignal(signal.id),
   );
 }
 
@@ -474,6 +544,283 @@ export function hydrateUnitQuirksFromFullUnit(
   );
 }
 
+function initiativeStringField(
+  source: Record<string, unknown> | undefined,
+  ...fieldNames: readonly string[]
+): string | undefined {
+  for (const fieldName of fieldNames) {
+    const value = source?.[fieldName];
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+function initiativeNumberField(
+  source: Record<string, unknown> | undefined,
+  ...fieldNames: readonly string[]
+): number | undefined {
+  for (const fieldName of fieldNames) {
+    const value = source?.[fieldName];
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+function initiativeBooleanField(
+  source: Record<string, unknown> | undefined,
+  ...fieldNames: readonly string[]
+): boolean | undefined {
+  for (const fieldName of fieldNames) {
+    const value = source?.[fieldName];
+    if (typeof value === 'boolean') {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+function rawUnitRecord(fullUnit: IFullUnit): Record<string, unknown> {
+  return fullUnit as unknown as Record<string, unknown>;
+}
+
+function normalizeCockpitType(raw: string | undefined): string | undefined {
+  switch (normalizeCriticalSlotText(raw ?? '')) {
+    case 'commandconsole':
+      return 'Command Console';
+    case 'standard':
+      return 'Standard';
+    case 'small':
+      return 'Small';
+    case 'torsomounted':
+    case 'torsomountedcockpit':
+      return 'Torso-Mounted';
+    case 'primitive':
+      return 'Primitive';
+    case 'industrial':
+      return 'Industrial';
+    case 'superheavy':
+    case 'superheavycockpit':
+      return 'Superheavy';
+    default:
+      return raw;
+  }
+}
+
+function cockpitTypeFromFullUnit(fullUnit: IFullUnit): string | undefined {
+  const unit = rawUnitRecord(fullUnit);
+  const components = unit.components;
+  const componentRecord =
+    typeof components === 'object' && components !== null
+      ? (components as Record<string, unknown>)
+      : undefined;
+  const cockpit = unit.cockpit;
+  const cockpitRecord =
+    typeof cockpit === 'object' && cockpit !== null
+      ? (cockpit as Record<string, unknown>)
+      : undefined;
+
+  return normalizeCockpitType(
+    initiativeStringField(unit, 'cockpitType', 'cockpit_type', 'cockpit') ??
+      initiativeStringField(componentRecord, 'cockpitType', 'cockpit') ??
+      initiativeStringField(cockpitRecord, 'type', 'cockpitType'),
+  );
+}
+
+function communicationsTonnageFromEquipmentDescriptor(
+  descriptor: string,
+): number | undefined {
+  const normalized = descriptor.trim().toLowerCase();
+  if (!normalized.includes('communications-equipment')) return undefined;
+
+  const explicitSizeMatch = normalized.match(
+    /\bcommunications-equipment:size:(\d+(?:\.\d+)?)/,
+  );
+  const tonSuffixMatch = normalized.match(
+    /\bcommunications-equipment-(\d+(?:\.\d+)?)-ton\b/,
+  );
+  const parentheticalTonnageMatch = normalized.match(
+    /\bcommunications equipment\s*\((\d+(?:\.\d+)?)\s*tons?\)/,
+  );
+  const match =
+    explicitSizeMatch ?? tonSuffixMatch ?? parentheticalTonnageMatch;
+  if (!match) return undefined;
+
+  const tonnage = Number.parseFloat(match[1]);
+  return Number.isFinite(tonnage) && tonnage > 0 ? tonnage : undefined;
+}
+
+function communicationsTonnageFromEquipmentEntries(
+  fullUnit: IFullUnit,
+): number | undefined {
+  const equipment =
+    (fullUnit.equipment as readonly unknown[] | undefined) ?? [];
+  let total = 0;
+
+  for (const raw of equipment) {
+    if (!raw || typeof raw !== 'object') continue;
+    const entry = raw as Record<string, unknown>;
+    const id = initiativeStringField(entry, 'id', 'equipmentId', 'name');
+    if (!id) continue;
+
+    const descriptorTonnage = communicationsTonnageFromEquipmentDescriptor(id);
+    if (descriptorTonnage !== undefined) {
+      total += descriptorTonnage;
+      continue;
+    }
+
+    if (normalizeEquipmentId(id) !== 'communicationsequipment') continue;
+
+    const tonnage = initiativeNumberField(
+      entry,
+      'workingCommunicationsTonnage',
+      'communicationsTonnage',
+      'tonnage',
+      'tons',
+      'weight',
+    );
+    if (tonnage !== undefined && tonnage > 0) {
+      total += tonnage;
+    }
+  }
+
+  return total > 0 ? total : undefined;
+}
+
+function communicationsTonnageFromCriticalSlots(
+  fullUnit: IFullUnit,
+): number | undefined {
+  const uniqueTonnages = new Set<number>();
+
+  for (const slots of Object.values(criticalSlotsFromFullUnit(fullUnit))) {
+    for (const slot of slots) {
+      if (typeof slot !== 'string') continue;
+      if (!normalizeEquipmentId(slot).startsWith('communicationsequipment')) {
+        continue;
+      }
+
+      const match = slot.match(/\((\d+(?:\.\d+)?)\s*tons?\)/i);
+      if (!match) continue;
+      const tonnage = Number.parseFloat(match[1]);
+      if (Number.isFinite(tonnage) && tonnage > 0) {
+        uniqueTonnages.add(tonnage);
+      }
+    }
+  }
+
+  if (uniqueTonnages.size === 0) return undefined;
+  return Math.max(...Array.from(uniqueTonnages));
+}
+
+function communicationsModeFromFullUnit(
+  fullUnit: IFullUnit,
+): string | undefined {
+  const unit = rawUnitRecord(fullUnit);
+  const communications = unit.communications;
+  const communicationsRecord =
+    typeof communications === 'object' && communications !== null
+      ? (communications as Record<string, unknown>)
+      : undefined;
+
+  return (
+    initiativeStringField(
+      unit,
+      'communicationsMode',
+      'communicationMode',
+      'communications_mode',
+    ) ??
+    initiativeStringField(
+      communicationsRecord,
+      'mode',
+      'communicationsMode',
+      'communicationMode',
+    )
+  );
+}
+
+const INITIATIVE_COMMAND_CONSOLE_PRODUCER_IDS = new Set([
+  'istankcockpitcommandconsole',
+  'tankcockpitcommandconsole',
+  'isremotedronecommandconsole',
+  'remotedronecommandconsole',
+]);
+
+function commandConsoleProducerEquipmentIdsFromFullUnit(
+  fullUnit: IFullUnit,
+): readonly string[] {
+  const ids = new Set<string>();
+  for (const signal of equipmentSignalsFromFullUnit(fullUnit)) {
+    if (
+      INITIATIVE_COMMAND_CONSOLE_PRODUCER_IDS.has(
+        normalizeEquipmentId(signal.id),
+      )
+    ) {
+      ids.add(signal.id);
+    }
+  }
+  return Array.from(ids);
+}
+
+export function hydrateInitiativeEquipmentFromFullUnit(
+  fullUnit: IFullUnit,
+): IInitiativeEquipmentProfile | undefined {
+  const unit = rawUnitRecord(fullUnit);
+  const cockpitType = cockpitTypeFromFullUnit(fullUnit);
+  const workingCommunicationsTonnage =
+    communicationsTonnageFromEquipmentEntries(fullUnit) ??
+    communicationsTonnageFromCriticalSlots(fullUnit) ??
+    initiativeNumberField(
+      unit,
+      'workingCommunicationsTonnage',
+      'communicationsTonnage',
+    );
+  const communicationsMode =
+    communicationsModeFromFullUnit(fullUnit) ??
+    (workingCommunicationsTonnage !== undefined ? 'Default' : undefined);
+  const commandConsoleCrewActive = initiativeBooleanField(
+    unit,
+    'commandConsoleCrewActive',
+    'commandConsoleCrewed',
+    'hasCommandConsoleCrew',
+  );
+  const tonnage = initiativeNumberField(unit, 'tonnage');
+  const unitType = initiativeStringField(unit, 'unitType', 'type');
+  const hasAdvancedFireControl = initiativeBooleanField(
+    unit,
+    'hasAdvancedFireControl',
+    'advancedFireControl',
+  );
+  const commandConsoleProducerEquipmentIds =
+    commandConsoleProducerEquipmentIdsFromFullUnit(fullUnit);
+  const hasInitiativeEquipmentEvidence =
+    workingCommunicationsTonnage !== undefined ||
+    normalizeCriticalSlotText(cockpitType ?? '') === 'commandconsole' ||
+    commandConsoleProducerEquipmentIds.length > 0;
+  if (!hasInitiativeEquipmentEvidence) return undefined;
+
+  const profile: IInitiativeEquipmentProfile = {
+    ...(workingCommunicationsTonnage !== undefined
+      ? { workingCommunicationsTonnage }
+      : {}),
+    ...(communicationsMode !== undefined ? { communicationsMode } : {}),
+    ...(cockpitType !== undefined ? { cockpitType } : {}),
+    ...(commandConsoleProducerEquipmentIds.length > 0
+      ? { commandConsoleProducerEquipmentIds }
+      : {}),
+    ...(commandConsoleCrewActive !== undefined
+      ? { commandConsoleCrewActive }
+      : {}),
+    ...(tonnage !== undefined ? { tonnage } : {}),
+    ...(unitType !== undefined ? { unitType } : {}),
+    ...(hasAdvancedFireControl !== undefined ? { hasAdvancedFireControl } : {}),
+  };
+
+  return Object.keys(profile).length > 0 ? profile : undefined;
+}
+
 // =============================================================================
 // Damage resolution for missile-style strings
 // =============================================================================
@@ -612,6 +959,30 @@ function buildCatalogFiringModes(
   damage: number,
 ): IWeaponFiringModes | undefined {
   const text = catalogText(catalogWeapon);
+  if (
+    catalogWeapon.subType === 'Autocannon' &&
+    /^ac-\d+$/.test(catalogWeapon.id)
+  ) {
+    return {
+      kind: 'rate-of-fire',
+      defaultModeId: 'single',
+      modes: [
+        {
+          id: 'single',
+          damage,
+          heat: catalogWeapon.heat,
+          shotsPerTurn: 1,
+        },
+        {
+          id: 'rapid-fire',
+          damage: damage * 2,
+          heat: catalogWeapon.heat * 2,
+          shotsPerTurn: 2,
+        },
+      ],
+    };
+  }
+
   if (text.includes('ultra ac') || /^clan-uac-\d+/.test(catalogWeapon.id)) {
     return {
       kind: 'rate-of-fire',
@@ -769,10 +1140,11 @@ function weaponTypeFromAmmoId(ammoId: string): string {
   return ammoId;
 }
 
-function weaponTypeFromAmmoStats(ammo: ICatalogAmmoStats): string {
+function weaponTypeFromAmmoStats(ammo: ICatalogAmmoStats): string | undefined {
   if (ammo.compatibleWeaponIds.length === 1) {
     return ammo.compatibleWeaponIds[0];
   }
+  if (UNSUPPORTED_AMMO_RUNTIME_IDS.has(ammo.id)) return undefined;
   return weaponTypeFromAmmoId(ammo.id);
 }
 
@@ -824,9 +1196,11 @@ function equipmentSignalsFromFullUnit(
       typeof entry.location === 'string'
         ? normalizeEquipmentLocation(entry.location)
         : undefined;
+    const currentMode = equipmentModeFromRawEntry(raw);
     signals.push({
       id: entry.id,
       ...(sourceLocation ? { sourceLocation } : {}),
+      ...(currentMode !== undefined ? { currentMode } : {}),
     });
   }
 
@@ -843,6 +1217,66 @@ function equipmentSignalsFromFullUnit(
   }
 
   return signals;
+}
+
+function equipmentEntriesFromFullUnit(
+  fullUnit: IFullUnit,
+): readonly IUnitEquipmentEntry[] {
+  const equipment =
+    (fullUnit.equipment as readonly unknown[] | undefined) ?? [];
+
+  return equipment.flatMap((raw) => {
+    if (!raw || typeof raw !== 'object') return [];
+    const entry = raw as Partial<IUnitEquipmentEntry>;
+    if (typeof entry.id !== 'string' || typeof entry.location !== 'string') {
+      return [];
+    }
+    const mode = equipmentModeFromRawEntry(raw);
+    const explosionDamage = equipmentExplosionDamageFromRawEntry(raw);
+    return [
+      {
+        id: entry.id,
+        location: entry.location,
+        ...(entry.isRearMounted !== undefined
+          ? { isRearMounted: entry.isRearMounted }
+          : {}),
+        ...(Array.isArray(entry.linkedEquipment)
+          ? { linkedEquipment: entry.linkedEquipment }
+          : {}),
+        ...(mode !== undefined ? { currentMode: mode } : {}),
+        ...(explosionDamage !== undefined ? { explosionDamage } : {}),
+      },
+    ];
+  });
+}
+
+function equipmentExplosionDamageFromRawEntry(raw: object): number | undefined {
+  const value = (raw as Record<string, unknown>).explosionDamage;
+  return typeof value === 'number' && Number.isFinite(value) && value > 0
+    ? value
+    : undefined;
+}
+
+function equipmentModeFromRawEntry(raw: object): string | undefined {
+  const fields = raw as Record<string, unknown>;
+  for (const key of ['currentMode', 'mode', 'activeMode', 'modeName']) {
+    const value = fields[key];
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+function normalizeECMMode(mode: string | undefined): ECMMode | undefined {
+  if (mode === undefined) return undefined;
+
+  const normalized = normalizeCriticalSlotText(mode);
+  if (normalized === 'ecm') return 'ecm';
+  if (normalized === 'eccm') return 'eccm';
+  if (normalized === 'off') return 'off';
+  if (normalized === 'on') return 'ecm';
+  return undefined;
 }
 
 const ECM_TYPE_BY_EQUIPMENT_ID: Readonly<Record<string, ECMType>> = {
@@ -946,6 +1380,10 @@ const C3_EQUIPMENT_BY_ID: Readonly<Record<string, IC3EquipmentClassification>> =
     improvedc3: { role: 'c3i' },
     improvedc3computer: { role: 'c3i' },
     improvedc3computerc3i: { role: 'c3i' },
+    clncews: { role: 'nova' },
+    clnovacews: { role: 'nova' },
+    novacews: { role: 'nova' },
+    novacombinedelectronicwarfaresystemcews: { role: 'nova' },
   };
 
 function isBattleArmorC3Equipment(id: string): boolean {
@@ -980,6 +1418,9 @@ function classifyC3Equipment(id: string): IC3EquipmentClassification | null {
 
   if (normalized.includes('c3i') || normalized.includes('improvedc3')) {
     return { role: 'c3i' };
+  }
+  if (normalized.includes('nova') || normalized.includes('ncews')) {
+    return { role: 'nova' };
   }
   if (normalized.includes('boosted') && normalized.includes('master')) {
     return { role: 'master', boosted: true };
@@ -1051,12 +1492,14 @@ export function hydrateECMSuitesFromFullUnit(
     if (seen.has(key)) continue;
     seen.add(key);
 
+    const mode = normalizeECMMode(signal.currentMode);
     suites.push({
       type,
       sourceEquipmentId: signal.id,
       ...(signal.sourceLocation
         ? { sourceLocation: signal.sourceLocation }
         : {}),
+      ...(mode !== undefined ? { mode } : {}),
     });
   }
 
@@ -1113,6 +1556,18 @@ export function hydrateC3EquipmentFromFullUnit(
         : {}),
       ...(classification.boosted ? { boosted: true } : {}),
     });
+  }
+
+  const abilities = hydratePilotAbilitiesFromFullUnit(fullUnit) ?? [];
+  if (hasSPA(abilities, 'boost_comm_implant')) {
+    const key = 'c3i:false:boost_comm_implant:pilot-ability';
+    if (!seen.has(key)) {
+      seen.add(key);
+      equipment.push({
+        role: 'c3i',
+        sourceEquipmentId: 'boost_comm_implant',
+      });
+    }
   }
 
   return equipment;
@@ -1190,14 +1645,14 @@ function criticalSlotMatchesWeapon(
   );
 }
 
-function weaponIdForCriticalSlot(
+function weaponForCriticalSlot(
   slotText: string,
   sourceLocation: string,
   aiWeapons: readonly IWeapon[],
-): string | undefined {
+): IWeapon | undefined {
   return aiWeapons.find((weapon) =>
     criticalSlotMatchesWeapon(slotText, weapon, sourceLocation),
-  )?.id;
+  );
 }
 
 function runnerCriticalLocationFromCatalogLocation(
@@ -1263,10 +1718,16 @@ function classifyCriticalSlotComponent(
   slotText: string,
   sourceLocation: string,
   aiWeapons: readonly IWeapon[],
+  equipmentEntries: readonly IUnitEquipmentEntry[] = [],
 ): {
   readonly componentType: CriticalSlotComponentType;
   readonly actuatorType?: ActuatorType;
   readonly weaponId?: string;
+  readonly linkedCriticalWeaponId?: string;
+  readonly linkedCriticalWeaponName?: string;
+  readonly hotLoaded?: boolean;
+  readonly explosionDamage?: number;
+  readonly explosionRequiresSecondaryEffects?: boolean;
 } {
   const normalized = normalizeCriticalSlotText(
     stripCriticalSlotRearMarker(slotText),
@@ -1293,16 +1754,112 @@ function classifyCriticalSlotComponent(
   if (normalized.includes('heatsink')) {
     return { componentType: 'heat_sink' };
   }
+  if (isPrototypeImprovedJumpJetCriticalSlot(normalized)) {
+    return {
+      componentType: 'equipment',
+      explosionDamage: 10,
+      explosionRequiresSecondaryEffects: true,
+    };
+  }
+  if (isExtendedFuelTankCriticalSlot(normalized)) {
+    return {
+      componentType: 'equipment',
+      explosionDamage: 20,
+      explosionRequiresSecondaryEffects: true,
+    };
+  }
+  if (isEmergencyCoolantSystemCriticalSlot(normalized)) {
+    return {
+      componentType: 'equipment',
+      explosionDamage: 5,
+      explosionRequiresSecondaryEffects: true,
+    };
+  }
+  if (isBlueShieldParticleFieldDamperCriticalSlot(normalized)) {
+    const explosionDamage = blueShieldExplosionDamageForCriticalSlot(
+      sourceLocation,
+      equipmentEntries,
+    );
+    return {
+      componentType: 'equipment',
+      ...(explosionDamage !== undefined
+        ? {
+            explosionDamage,
+            explosionRequiresSecondaryEffects: true,
+          }
+        : {}),
+    };
+  }
+  if (isRiscLaserPulseModuleCriticalSlot(normalized)) {
+    const linkedWeapon = linkedWeaponForRiscLaserPulseModule(
+      sourceLocation,
+      equipmentEntries,
+      aiWeapons,
+    );
+    return {
+      componentType: 'equipment',
+      ...(linkedWeapon !== undefined
+        ? {
+            linkedCriticalWeaponId: linkedWeapon.id,
+            linkedCriticalWeaponName: linkedWeapon.name,
+          }
+        : {}),
+    };
+  }
+  if (artemisFcsKindFromNormalizedId(normalized) !== undefined) {
+    const linkedWeapon = linkedWeaponForArtemisFcs(
+      normalized,
+      sourceLocation,
+      equipmentEntries,
+      aiWeapons,
+    );
+    return {
+      componentType: 'equipment',
+      ...(linkedWeapon !== undefined
+        ? {
+            linkedCriticalWeaponId: linkedWeapon.id,
+            linkedCriticalWeaponName: linkedWeapon.name,
+          }
+        : {}),
+    };
+  }
+  const weapon = weaponForCriticalSlot(slotText, sourceLocation, aiWeapons);
+  if (weapon !== undefined) {
+    const sourceEquipment = equipmentEntryForCriticalSlotWeapon(
+      slotText,
+      sourceLocation,
+      weapon,
+      equipmentEntries,
+    );
+    const hotLoadedMetadata = hotLoadedCriticalMetadataFromEquipmentEntry(
+      sourceEquipment,
+      equipmentEntries,
+    );
+    return {
+      componentType: 'weapon',
+      weaponId: weapon.id,
+      ...(hotLoadedMetadata ?? {}),
+    };
+  }
+
+  const sourceEquipmentExplosionMetadata =
+    equipmentExplosionMetadataForCriticalSlot(
+      normalized,
+      sourceLocation,
+      equipmentEntries,
+    );
+  if (sourceEquipmentExplosionMetadata !== undefined) {
+    return {
+      componentType: 'equipment',
+      ...sourceEquipmentExplosionMetadata,
+    };
+  }
+
   if (normalized.includes('jumpjet')) {
     return { componentType: 'jump_jet' };
   }
   if (normalized.includes('ammo')) {
     return { componentType: 'ammo' };
-  }
-
-  const weaponId = weaponIdForCriticalSlot(slotText, sourceLocation, aiWeapons);
-  if (weaponId !== undefined) {
-    return { componentType: 'weapon', weaponId };
   }
 
   return { componentType: 'equipment' };
@@ -1314,11 +1871,13 @@ function criticalSlotEntryFromText(
   sourceLocation: string,
   aiWeapons: readonly IWeapon[],
   ammoLookup: AmmoLookup,
+  equipmentEntries: readonly IUnitEquipmentEntry[] = [],
 ): ICriticalSlotEntry {
   const classification = classifyCriticalSlotComponent(
     slotText,
     sourceLocation,
     aiWeapons,
+    equipmentEntries,
   );
   const ammo =
     classification.componentType === 'ammo'
@@ -1340,8 +1899,303 @@ function criticalSlotEntryFromText(
     ...(classification.weaponId !== undefined
       ? { weaponId: classification.weaponId }
       : {}),
+    ...(classification.linkedCriticalWeaponId !== undefined
+      ? { linkedCriticalWeaponId: classification.linkedCriticalWeaponId }
+      : {}),
+    ...(classification.linkedCriticalWeaponName !== undefined
+      ? { linkedCriticalWeaponName: classification.linkedCriticalWeaponName }
+      : {}),
+    ...(classification.hotLoaded !== undefined
+      ? { hotLoaded: classification.hotLoaded }
+      : {}),
     ...(ammoBinId !== undefined ? { ammoBinId } : {}),
+    ...(classification.explosionDamage !== undefined
+      ? { explosionDamage: classification.explosionDamage }
+      : {}),
+    ...(classification.explosionRequiresSecondaryEffects !== undefined
+      ? {
+          explosionRequiresSecondaryEffects:
+            classification.explosionRequiresSecondaryEffects,
+        }
+      : {}),
   };
+}
+
+function isPrototypeImprovedJumpJetCriticalSlot(normalized: string): boolean {
+  return normalizedWithoutTechPrefix(normalized) === 'prototypeimprovedjumpjet';
+}
+
+function isExtendedFuelTankCriticalSlot(normalized: string): boolean {
+  return /^extendedfueltank(?:\d+tons?)?$/.test(
+    normalizedWithoutTechPrefix(normalized),
+  );
+}
+
+function isEmergencyCoolantSystemCriticalSlot(normalized: string): boolean {
+  const withoutTechPrefix = normalizedWithoutTechPrefix(normalized);
+  return (
+    withoutTechPrefix === 'riscemergencycoolantsystem' ||
+    withoutTechPrefix === 'emergencycoolantsystem'
+  );
+}
+
+function isBlueShieldParticleFieldDamperCriticalSlot(
+  normalized: string,
+): boolean {
+  return (
+    normalizedWithoutTechPrefix(normalized) === 'blueshieldparticlefielddamper'
+  );
+}
+
+function isBlueShieldEquipmentEntry(entry: IUnitEquipmentEntry): boolean {
+  return (
+    normalizedWithoutTechPrefix(normalizeEquipmentId(entry.id)) ===
+    'blueshieldparticlefielddamper'
+  );
+}
+
+function normalizedEquipmentLocationKey(location: string): string {
+  return normalizeCriticalSlotText(normalizeEquipmentLocation(location));
+}
+
+function blueShieldModeForCriticalSlot(
+  sourceLocation: string,
+  equipmentEntries: readonly IUnitEquipmentEntry[],
+): string | undefined {
+  const source = normalizedEquipmentLocationKey(sourceLocation);
+  return equipmentEntries.find(
+    (entry) =>
+      isBlueShieldEquipmentEntry(entry) &&
+      normalizedEquipmentLocationKey(entry.location) === source,
+  )?.currentMode;
+}
+
+function blueShieldExplosionDamageForCriticalSlot(
+  sourceLocation: string,
+  equipmentEntries: readonly IUnitEquipmentEntry[],
+): number | undefined {
+  const mode = blueShieldModeForCriticalSlot(sourceLocation, equipmentEntries);
+  return mode !== undefined && normalizeCriticalSlotText(mode) === 'off'
+    ? undefined
+    : 5;
+}
+
+function equipmentEntryForCriticalSlotWeapon(
+  slotText: string,
+  sourceLocation: string,
+  weapon: IWeapon,
+  equipmentEntries: readonly IUnitEquipmentEntry[],
+): IUnitEquipmentEntry | undefined {
+  const source = normalizeEquipmentLocation(sourceLocation);
+  const aliases = new Set(weaponAliases(weapon));
+  const normalizedSlot = normalizeCriticalSlotText(
+    stripCriticalSlotRearMarker(slotText),
+  );
+  const normalizedSlotWithoutPrefix =
+    normalizedWithoutTechPrefix(normalizedSlot);
+
+  const matches = equipmentEntries.filter((entry) => {
+    if (normalizeEquipmentLocation(entry.location) !== source) return false;
+
+    const normalizedEntryId = normalizeEquipmentId(entry.id);
+    const normalizedEntryIdWithoutPrefix =
+      normalizedWithoutTechPrefix(normalizedEntryId);
+    return (
+      aliases.has(normalizedEntryId) ||
+      aliases.has(normalizedEntryIdWithoutPrefix) ||
+      normalizedEntryId === normalizedSlot ||
+      normalizedEntryIdWithoutPrefix === normalizedSlotWithoutPrefix
+    );
+  });
+
+  return matches.length === 1 ? matches[0] : undefined;
+}
+
+function hotLoadedCriticalMetadataFromEquipmentEntry(
+  entry: IUnitEquipmentEntry | undefined,
+  equipmentEntries: readonly IUnitEquipmentEntry[],
+): { readonly hotLoaded: true; readonly explosionDamage: number } | undefined {
+  if (entry === undefined) return undefined;
+  if (!isHotLoadMode(entry.currentMode)) return undefined;
+
+  const explosionDamage =
+    entry.explosionDamage ??
+    linkedAmmoExplosionDamageFromEquipmentEntry(entry, equipmentEntries);
+  if (explosionDamage === undefined) return undefined;
+
+  return {
+    hotLoaded: true,
+    explosionDamage,
+  };
+}
+
+function linkedAmmoExplosionDamageFromEquipmentEntry(
+  entry: IUnitEquipmentEntry,
+  equipmentEntries: readonly IUnitEquipmentEntry[],
+): number | undefined {
+  if (
+    !Array.isArray(entry.linkedEquipment) ||
+    entry.linkedEquipment.length === 0
+  ) {
+    return undefined;
+  }
+
+  const sourceLocation = normalizeEquipmentLocation(entry.location);
+  const linkedIds = new Set(
+    entry.linkedEquipment.map((id) => normalizeEquipmentId(id)),
+  );
+  const matches = equipmentEntries.filter((candidate) => {
+    if (candidate.explosionDamage === undefined) return false;
+    if (normalizeEquipmentLocation(candidate.location) !== sourceLocation) {
+      return false;
+    }
+    const normalizedId = normalizeEquipmentId(candidate.id);
+    return linkedIds.has(normalizedId) && isLinkedAmmoEquipmentId(normalizedId);
+  });
+
+  if (matches.length !== 1) return undefined;
+  const [match] = matches;
+  return match.explosionDamage;
+}
+
+function isLinkedAmmoEquipmentId(normalizedId: string): boolean {
+  return normalizedId.includes('ammo');
+}
+
+function isHotLoadMode(mode: string | undefined): boolean {
+  if (mode === undefined) return false;
+  const normalized = normalizeCriticalSlotText(mode);
+  return normalized === 'hotload' || normalized === 'hotloaded';
+}
+
+function equipmentExplosionMetadataForCriticalSlot(
+  normalizedSlot: string,
+  sourceLocation: string,
+  equipmentEntries: readonly IUnitEquipmentEntry[],
+): { readonly explosionDamage: number } | undefined {
+  const source = normalizedEquipmentLocationKey(sourceLocation);
+  const normalizedSlotWithoutPrefix =
+    normalizedWithoutTechPrefix(normalizedSlot);
+  const matches = equipmentEntries.filter((entry) => {
+    if (entry.explosionDamage === undefined) return false;
+    if (normalizedEquipmentLocationKey(entry.location) !== source) return false;
+
+    const normalizedEntryId = normalizeEquipmentId(entry.id);
+    const normalizedEntryIdWithoutPrefix =
+      normalizedWithoutTechPrefix(normalizedEntryId);
+    return (
+      normalizedEntryId === normalizedSlot ||
+      normalizedEntryIdWithoutPrefix === normalizedSlotWithoutPrefix
+    );
+  });
+
+  if (matches.length !== 1) return undefined;
+  const [match] = matches;
+  return match.explosionDamage === undefined
+    ? undefined
+    : { explosionDamage: match.explosionDamage };
+}
+
+function isRiscLaserPulseModuleCriticalSlot(normalized: string): boolean {
+  return normalizedWithoutTechPrefix(normalized) === 'risclaserpulsemodule';
+}
+
+function linkedWeaponForRiscLaserPulseModule(
+  sourceLocation: string,
+  equipmentEntries: readonly IUnitEquipmentEntry[],
+  aiWeapons: readonly IWeapon[],
+): IWeapon | undefined {
+  const normalizedSourceLocation = normalizeEquipmentLocation(sourceLocation);
+  const moduleEntry = equipmentEntries.find((entry) => {
+    return (
+      normalizeEquipmentId(entry.id) === 'risclaserpulsemodule' &&
+      normalizeEquipmentLocation(entry.location) === normalizedSourceLocation &&
+      Array.isArray(entry.linkedEquipment) &&
+      entry.linkedEquipment.length > 0
+    );
+  });
+  if (!moduleEntry) {
+    return unambiguousSameLocationLaserWeapon(sourceLocation, aiWeapons);
+  }
+
+  const linkedIds = new Set(
+    moduleEntry.linkedEquipment?.map((id) => normalizeEquipmentId(id)) ?? [],
+  );
+  const candidates = aiWeapons.filter((weapon) => {
+    if (weapon.destroyed === true) return false;
+    if (
+      typeof weapon.location !== 'string' ||
+      normalizeEquipmentLocation(weapon.location) !== normalizedSourceLocation
+    ) {
+      return false;
+    }
+    if (!isLaserWeapon(weapon)) return false;
+
+    return (
+      linkedIds.has(normalizeEquipmentId(weapon.name)) ||
+      linkedIds.has(normalizeEquipmentId(weapon.id)) ||
+      linkedIds.has(normalizeEquipmentId(runtimeWeaponCatalogId(weapon.id)))
+    );
+  });
+  return candidates.length === 1 ? candidates[0] : undefined;
+}
+
+function unambiguousSameLocationLaserWeapon(
+  sourceLocation: string,
+  aiWeapons: readonly IWeapon[],
+): IWeapon | undefined {
+  const source = normalizeEquipmentLocation(sourceLocation);
+  const candidates = aiWeapons.filter((weapon) => {
+    if (weapon.destroyed === true) return false;
+    if (
+      typeof weapon.location !== 'string' ||
+      normalizeEquipmentLocation(weapon.location) !== source
+    ) {
+      return false;
+    }
+    return isLaserWeapon(weapon);
+  });
+
+  return candidates.length === 1 ? candidates[0] : undefined;
+}
+
+function isLaserWeapon(weapon: IWeapon): boolean {
+  const normalizedName = normalizeEquipmentId(weapon.name);
+  const normalizedId = normalizeEquipmentId(runtimeWeaponCatalogId(weapon.id));
+  return normalizedName.includes('laser') || normalizedId.includes('laser');
+}
+
+function linkedWeaponForArtemisFcs(
+  normalizedCriticalSlotText: string,
+  sourceLocation: string,
+  equipmentEntries: readonly IUnitEquipmentEntry[],
+  aiWeapons: readonly IWeapon[],
+): IWeapon | undefined {
+  const fcsKind = artemisFcsKindFromNormalizedId(normalizedCriticalSlotText);
+  if (fcsKind === undefined) return undefined;
+
+  const moduleEntry = equipmentEntries.find((entry) => {
+    return (
+      artemisFcsKindFromNormalizedId(normalizeEquipmentId(entry.id)) ===
+        fcsKind &&
+      normalizeEquipmentLocation(entry.location) ===
+        normalizeEquipmentLocation(sourceLocation) &&
+      Array.isArray(entry.linkedEquipment) &&
+      entry.linkedEquipment.length > 0
+    );
+  });
+  if (!moduleEntry) return undefined;
+
+  const linkedIds = new Set(
+    moduleEntry.linkedEquipment?.map((id) => normalizeEquipmentId(id)) ?? [],
+  );
+  return aiWeapons.find((weapon) => {
+    return (
+      weapon.location === normalizeEquipmentLocation(sourceLocation) &&
+      (linkedIds.has(normalizeEquipmentId(weapon.name)) ||
+        linkedIds.has(normalizeEquipmentId(weapon.id)))
+    );
+  });
 }
 
 function mergeCriticalSlotEntries(
@@ -1366,6 +2220,7 @@ export function hydrateCriticalSlotManifestFromFullUnit(
   ammoLookup: AmmoLookup = defaultCatalogAmmoLookup(),
 ): CriticalSlotManifest | undefined {
   const criticalSlots = criticalSlotsFromFullUnit(fullUnit);
+  const equipmentEntries = equipmentEntriesFromFullUnit(fullUnit);
   const baseManifest = buildCriticalSlotManifest();
   const customSlots: Record<string, readonly ICriticalSlotEntry[]> = {};
 
@@ -1383,6 +2238,7 @@ export function hydrateCriticalSlotManifestFromFullUnit(
               sourceLocation,
               aiWeapons,
               ammoLookup,
+              equipmentEntries,
             )
           : null,
       )
@@ -1414,41 +2270,68 @@ function locationSlotTexts(
   );
 }
 
-function hasArtemisIVFCS(slots: readonly string[]): boolean {
-  return slots.some((slot) => {
-    const normalized = normalizeCriticalSlotText(slot);
-    return (
-      normalized.includes('artemisiv') &&
-      !normalized.includes('ammo') &&
-      !normalized.includes('capable') &&
-      !normalized.includes('artemisv') &&
-      !normalized.includes('prototypeartemisiv') &&
-      !normalized.includes('artemisivproto')
-    );
-  });
+type ArtemisFcsKind = 'artemis_iv' | 'prototype_artemis_iv' | 'artemis_v';
+
+function artemisFcsKindFromNormalizedId(
+  normalized: string,
+): ArtemisFcsKind | undefined {
+  if (normalized.includes('ammo') || normalized.includes('capable')) {
+    return undefined;
+  }
+  if (normalized.includes('prototypeartemisiv')) {
+    return 'prototype_artemis_iv';
+  }
+  if (
+    normalized.includes('artemisivproto') ||
+    normalized.includes('protoartemisiv')
+  ) {
+    return 'prototype_artemis_iv';
+  }
+  if (normalized.includes('artemisv')) {
+    return 'artemis_v';
+  }
+  if (normalized.includes('artemisiv')) {
+    return 'artemis_iv';
+  }
+  return undefined;
 }
 
-function hasPrototypeArtemisIVFCS(slots: readonly string[]): boolean {
-  return slots.some((slot) => {
-    const normalized = normalizeCriticalSlotText(slot);
-    return (
-      (normalized.includes('prototypeartemisiv') ||
-        normalized.includes('artemisivproto')) &&
-      !normalized.includes('ammo') &&
-      !normalized.includes('capable')
-    );
-  });
+function artemisFcsKindSystemCountFromSlots(
+  slots: readonly string[],
+  kind: ArtemisFcsKind,
+): number {
+  let count = 0;
+  let previousMatched = false;
+  for (const slot of slots) {
+    const matched =
+      artemisFcsKindFromNormalizedId(normalizeCriticalSlotText(slot)) === kind;
+    if (matched && !previousMatched) {
+      count++;
+    }
+    previousMatched = matched;
+  }
+  return count;
 }
 
-function hasArtemisVFCS(slots: readonly string[]): boolean {
-  return slots.some((slot) => {
-    const normalized = normalizeCriticalSlotText(slot);
+function artemisFcsKindSystemCountForLocation(
+  options: {
+    readonly equipmentEntries: readonly IUnitEquipmentEntry[];
+    readonly location: string;
+  },
+  locationSlots: readonly string[],
+  kind: ArtemisFcsKind,
+): number {
+  const equipmentEntryCount = options.equipmentEntries.filter((entry) => {
     return (
-      normalized.includes('artemisv') &&
-      !normalized.includes('ammo') &&
-      !normalized.includes('capable')
+      normalizeEquipmentLocation(entry.location) ===
+        normalizeEquipmentLocation(options.location) &&
+      artemisFcsKindFromNormalizedId(normalizeEquipmentId(entry.id)) === kind
     );
-  });
+  }).length;
+
+  return equipmentEntryCount > 0
+    ? equipmentEntryCount
+    : artemisFcsKindSystemCountFromSlots(locationSlots, kind);
 }
 
 function hasArtemisIVCapableAmmo(slots: readonly string[]): boolean {
@@ -1479,26 +2362,195 @@ function isArtemisCompatibleCatalogWeapon(
   );
 }
 
+function catalogWeaponStatsForEquipmentEntry(
+  entry: IUnitEquipmentEntry,
+  weaponLookup: WeaponLookup,
+): ICatalogWeaponStats | null {
+  const normalizedEntryId = normalizeEquipmentId(entry.id);
+  return (
+    weaponLookup(entry.id) ??
+    weaponLookup(normalizedEntryId) ??
+    weaponLookup(normalizedWithoutTechPrefix(normalizedEntryId))
+  );
+}
+
+function artemisCompatibleWeaponCountByLocation(
+  equipment: readonly unknown[],
+  weaponLookup: WeaponLookup,
+): ReadonlyMap<string, number> {
+  const counts = new Map<string, number>();
+  for (const raw of equipment) {
+    if (!raw || typeof raw !== 'object') continue;
+    const entry = raw as IUnitEquipmentEntry;
+    if (typeof entry.id !== 'string' || typeof entry.location !== 'string') {
+      continue;
+    }
+
+    const stats = catalogWeaponStatsForEquipmentEntry(entry, weaponLookup);
+    if (!stats || !isArtemisCompatibleCatalogWeapon(stats)) continue;
+
+    const location = normalizeEquipmentLocation(entry.location);
+    counts.set(location, (counts.get(location) ?? 0) + 1);
+  }
+
+  return counts;
+}
+
+function artemisLinkedFcsKindsForWeapon(options: {
+  readonly equipmentEntries: readonly IUnitEquipmentEntry[];
+  readonly weaponEntry: IUnitEquipmentEntry;
+  readonly aiWeapon: IWeapon;
+  readonly catalogWeapon: ICatalogWeaponStats;
+  readonly location: string;
+}): readonly ArtemisFcsKind[] {
+  const { aiWeapon, catalogWeapon, equipmentEntries, location, weaponEntry } =
+    options;
+  const linkedCandidates = new Set(
+    [
+      weaponEntry.id,
+      aiWeapon.id,
+      aiWeapon.name,
+      catalogWeapon.id,
+      catalogWeapon.name,
+    ]
+      .filter((value): value is string => typeof value === 'string')
+      .map((value) => normalizeEquipmentId(value)),
+  );
+
+  return equipmentEntries.flatMap((entry) => {
+    if (
+      normalizeEquipmentLocation(entry.location) !==
+      normalizeEquipmentLocation(location)
+    ) {
+      return [];
+    }
+    if (
+      !Array.isArray(entry.linkedEquipment) ||
+      entry.linkedEquipment.length === 0
+    ) {
+      return [];
+    }
+
+    const kind = artemisFcsKindFromNormalizedId(normalizeEquipmentId(entry.id));
+    if (kind === undefined) return [];
+
+    const linkedIds = new Set(
+      entry.linkedEquipment.map((id) => normalizeEquipmentId(id)),
+    );
+    return Array.from(linkedCandidates).some((id) => linkedIds.has(id))
+      ? [kind]
+      : [];
+  });
+}
+
+function hasExplicitLinkedArtemisFcsInLocation(options: {
+  readonly equipmentEntries: readonly IUnitEquipmentEntry[];
+  readonly location: string;
+}): boolean {
+  const { equipmentEntries, location } = options;
+  return equipmentEntries.some((entry) => {
+    return (
+      normalizeEquipmentLocation(entry.location) ===
+        normalizeEquipmentLocation(location) &&
+      Array.isArray(entry.linkedEquipment) &&
+      entry.linkedEquipment.length > 0 &&
+      artemisFcsKindFromNormalizedId(normalizeEquipmentId(entry.id)) !==
+        undefined
+    );
+  });
+}
+
 function applyArtemisGuidanceFlags(
   weapon: IWeapon,
   catalogWeapon: ICatalogWeaponStats,
   locationSlots: readonly string[],
+  options?: {
+    readonly equipmentEntries: readonly IUnitEquipmentEntry[];
+    readonly weaponEntry: IUnitEquipmentEntry;
+    readonly location: string;
+    readonly sameLocationArtemisCompatibleWeaponCount: number;
+  },
 ): IWeapon {
   if (!isArtemisCompatibleCatalogWeapon(catalogWeapon)) return weapon;
+  const hasExplicitFcsLink =
+    options !== undefined &&
+    hasExplicitLinkedArtemisFcsInLocation({
+      equipmentEntries: options.equipmentEntries,
+      location: options.location,
+    });
+  const linkedFcsKinds =
+    options !== undefined
+      ? artemisLinkedFcsKindsForWeapon({
+          equipmentEntries: options.equipmentEntries,
+          weaponEntry: options.weaponEntry,
+          aiWeapon: weapon,
+          catalogWeapon,
+          location: options.location,
+        })
+      : [];
+  if (hasExplicitFcsLink) {
+    if (
+      linkedFcsKinds.includes('artemis_v') &&
+      hasArtemisVCapableAmmo(locationSlots)
+    ) {
+      return { ...weapon, hasArtemisV: true };
+    }
 
-  if (hasArtemisVFCS(locationSlots) && hasArtemisVCapableAmmo(locationSlots)) {
+    if (
+      linkedFcsKinds.includes('artemis_iv') &&
+      hasArtemisIVCapableAmmo(locationSlots)
+    ) {
+      return { ...weapon, hasArtemisIV: true };
+    }
+
+    if (
+      linkedFcsKinds.includes('prototype_artemis_iv') &&
+      hasArtemisIVCapableAmmo(locationSlots)
+    ) {
+      return { ...weapon, hasPrototypeArtemisIV: true };
+    }
+
+    return weapon;
+  }
+
+  const sameLocationArtemisCompatibleWeaponCount =
+    options?.sameLocationArtemisCompatibleWeaponCount ?? 0;
+
+  if (sameLocationArtemisCompatibleWeaponCount < 1) {
+    return weapon;
+  }
+
+  const exactCardinalityFcsKinds =
+    options === undefined
+      ? []
+      : (['artemis_v', 'artemis_iv', 'prototype_artemis_iv'] as const).filter(
+          (kind) =>
+            artemisFcsKindSystemCountForLocation(
+              options,
+              locationSlots,
+              kind,
+            ) === sameLocationArtemisCompatibleWeaponCount,
+        );
+  const hasExactCardinalityFor = (kind: ArtemisFcsKind): boolean =>
+    exactCardinalityFcsKinds.length === 1 &&
+    exactCardinalityFcsKinds[0] === kind;
+
+  if (
+    hasExactCardinalityFor('artemis_v') &&
+    hasArtemisVCapableAmmo(locationSlots)
+  ) {
     return { ...weapon, hasArtemisV: true };
   }
 
   if (
-    hasArtemisIVFCS(locationSlots) &&
+    hasExactCardinalityFor('artemis_iv') &&
     hasArtemisIVCapableAmmo(locationSlots)
   ) {
     return { ...weapon, hasArtemisIV: true };
   }
 
   if (
-    hasPrototypeArtemisIVFCS(locationSlots) &&
+    hasExactCardinalityFor('prototype_artemis_iv') &&
     hasArtemisIVCapableAmmo(locationSlots)
   ) {
     return { ...weapon, hasPrototypeArtemisIV: true };
@@ -1522,7 +2574,10 @@ export function hydrateAIWeaponsFromFullUnitWithReport(
 ): IHydratedAIWeaponsReport {
   const equipment =
     (fullUnit.equipment as readonly unknown[] | undefined) ?? [];
+  const equipmentEntries = equipmentEntriesFromFullUnit(fullUnit);
   const criticalSlots = criticalSlotsFromFullUnit(fullUnit);
+  const artemisCompatibleWeaponCountsByLocation =
+    artemisCompatibleWeaponCountByLocation(equipment, weaponLookup);
   const out: IWeapon[] = [];
   const resolvedEquipmentIds: string[] = [];
   const unresolvedEquipmentIds: string[] = [];
@@ -1531,11 +2586,7 @@ export function hydrateAIWeaponsFromFullUnitWithReport(
     if (!raw || typeof raw !== 'object') continue;
     const entry = raw as IUnitEquipmentEntry;
     if (typeof entry.id !== 'string') continue;
-    const normalizedEntryId = normalizeEquipmentId(entry.id);
-    const stats =
-      weaponLookup(entry.id) ??
-      weaponLookup(normalizedEntryId) ??
-      weaponLookup(normalizedWithoutTechPrefix(normalizedEntryId));
+    const stats = catalogWeaponStatsForEquipmentEntry(entry, weaponLookup);
     if (!stats) {
       unresolvedEquipmentIds.push(entry.id);
       continue;
@@ -1555,6 +2606,13 @@ export function hydrateAIWeaponsFromFullUnitWithReport(
         aiWeapon,
         stats,
         locationSlotTexts(criticalSlots, location),
+        {
+          equipmentEntries,
+          weaponEntry: entry,
+          location,
+          sameLocationArtemisCompatibleWeaponCount:
+            artemisCompatibleWeaponCountsByLocation.get(location) ?? 0,
+        },
       ),
     );
     resolvedEquipmentIds.push(entry.id);
@@ -1620,10 +2678,12 @@ export function hydrateAmmoStateFromFullUnit(
         ammo.id,
       );
       if (binId === undefined) continue;
+      const weaponType = weaponTypeFromAmmoStats(ammo);
+      if (weaponType === undefined) continue;
 
       ammoState[binId] = {
         binId,
-        weaponType: weaponTypeFromAmmoStats(ammo),
+        weaponType,
         location: runnerLocation,
         remainingRounds: ammo.shotsPerTon,
         maxRounds: ammo.shotsPerTon,
@@ -1815,8 +2875,13 @@ export function createHydratedUnitState(
   const talons = hydrateTalonStateFromFullUnit(fullUnit);
   const claws = hydrateClawStateFromFullUnit(fullUnit);
   const c3Equipment = hydrateC3EquipmentFromFullUnit(fullUnit);
+  const initiativeEquipment = hydrateInitiativeEquipmentFromFullUnit(fullUnit);
+  const targetingComputerEquipment =
+    hydrateTargetingComputerEquipmentFromFullUnit(fullUnit);
   const ammoState = hydrateAmmoStateFromFullUnit(fullUnit);
   const caseProtection = hydrateCASEProtectionFromFullUnit(fullUnit);
+  const abilities = hydratePilotAbilitiesFromFullUnit(fullUnit);
+  const edgePointsRemaining = hydrateEdgePointsFromFullUnit(fullUnit);
 
   return {
     id: runnerUnitId,
@@ -1830,12 +2895,15 @@ export function createHydratedUnitState(
     hexesMovedThisTurn: 0,
     gunnery,
     piloting,
+    ...(abilities !== undefined ? { abilities } : {}),
+    ...(edgePointsRemaining !== undefined ? { edgePointsRemaining } : {}),
     heatSinks: heatSinks.count,
     heatSinkType: heatSinks.kind,
     hasTSM: hydrateHasTSMFromFullUnit(fullUnit),
     hasMASC: hydrateHasMASCFromFullUnit(fullUnit),
     hasSupercharger: hydrateHasSuperchargerFromFullUnit(fullUnit),
     ...(c3Equipment.length > 0 ? { c3Equipment } : {}),
+    ...(targetingComputerEquipment ? { targetingComputerEquipment } : {}),
     partialWingJumpBonus: hydratePartialWingJumpBonusFromFullUnit(fullUnit),
     leftLegHasTalons: talons.leftLegHasTalons,
     rightLegHasTalons: talons.rightLegHasTalons,
@@ -1845,6 +2913,7 @@ export function createHydratedUnitState(
     rightArmHasClaw: claws.rightArmHasClaw,
     hasStealthArmor: hydrateHasStealthArmorFromFullUnit(fullUnit),
     unitQuirks: hydrateUnitQuirksFromFullUnit(fullUnit),
+    ...(initiativeEquipment !== undefined ? { initiativeEquipment } : {}),
     weaponLocationById: weaponLocationByIdFromWeapons(hydrated.aiWeapons),
     armor,
     ...(armorTypeByLocation !== undefined ? { armorTypeByLocation } : {}),
@@ -1905,6 +2974,17 @@ export function buildWeaponLookupFromCatalogFiles(
   files: readonly { items?: readonly unknown[] }[],
 ): WeaponLookup {
   const map = new Map<string, ICatalogWeaponStats>();
+  const addAlias = (alias: string, weapon: ICatalogWeaponStats): void => {
+    if (alias.length === 0) return;
+    if (!map.has(alias)) {
+      map.set(alias, weapon);
+    }
+    const normalizedAlias = normalizeCriticalSlotText(alias);
+    if (!map.has(normalizedAlias)) {
+      map.set(normalizedAlias, weapon);
+    }
+  };
+
   for (const file of files) {
     const items = file.items ?? [];
     for (const raw of items) {
@@ -1916,6 +2996,7 @@ export function buildWeaponLookupFromCatalogFiles(
       const name = item.name;
       const subType = item.subType;
       const ranges = item.ranges;
+      const techBase = item.techBase;
       if (
         typeof id !== 'string' ||
         (typeof damage !== 'number' && typeof damage !== 'string') ||
@@ -1938,7 +3019,7 @@ export function buildWeaponLookupFromCatalogFiles(
             (entry): entry is string => typeof entry === 'string',
           )
         : [];
-      map.set(id, {
+      const weapon = {
         id,
         name,
         ...(typeof subType === 'string' ? { subType } : {}),
@@ -1947,7 +3028,18 @@ export function buildWeaponLookupFromCatalogFiles(
         ranges: { minimum, short, medium, long },
         ammoPerTon,
         special,
-      });
+      };
+      map.set(id, weapon);
+      addAlias(id, weapon);
+      addAlias(name, weapon);
+      const compactId = normalizeCriticalSlotText(id);
+      const unprefixedCompactId = normalizedWithoutTechPrefix(compactId);
+      if (techBase === 'CLAN') {
+        addAlias(`cl${unprefixedCompactId}`, weapon);
+        addAlias(`clan${unprefixedCompactId}`, weapon);
+      } else if (techBase === 'INNER_SPHERE') {
+        addAlias(`is${compactId}`, weapon);
+      }
     }
   }
 
@@ -1956,11 +3048,19 @@ export function buildWeaponLookupFromCatalogFiles(
   )) {
     const stats = map.get(canonicalId);
     if (!stats) continue;
-    map.set(alias, stats);
-    map.set(normalizeCriticalSlotText(alias), stats);
+    addAlias(alias, stats);
   }
 
-  return (id: string) => map.get(id) ?? null;
+  return (id: string) => {
+    const normalized = normalizeEquipmentId(id);
+    return (
+      map.get(id) ??
+      map.get(normalizeCriticalSlotText(id)) ??
+      map.get(normalized) ??
+      map.get(normalizedWithoutTechPrefix(normalized)) ??
+      null
+    );
+  };
 }
 
 export function buildAmmoLookupFromCatalogFiles(

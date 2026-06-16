@@ -41,6 +41,10 @@ import type {
   MoraleLevel,
 } from './GameSessionCoreTypes';
 import type {
+  IGroundObjectDroppedPayload,
+  IGroundObjectPickedUpPayload,
+} from './GameSessionGroundObjectEvents';
+import type {
   IGameCreatedPayload,
   IGameEndedPayload,
   IGameStartedPayload,
@@ -63,6 +67,7 @@ import type {
   IObjectiveLostPayload,
   IObjectiveProgressPayload,
 } from './GameSessionObjectiveEvents';
+import type { IRepresentedMinefieldState } from './GameSessionStateTypes';
 import type { IHexCoordinate } from './HexGridInterfaces';
 // Wave 8 PR-K4: indirect-fire dispatch events. Payloads extracted to
 // IndirectFireInterfaces.ts (PR-types-split G9).
@@ -336,6 +341,19 @@ export interface IUnitEjectedPayload {
   readonly reason: 'player_declared' | 'forced' | 'pilot_survival';
 }
 
+export interface INeuralInterfaceStateChangedPayload {
+  readonly unitId: string;
+  readonly active: boolean;
+  readonly turn: number;
+  readonly reason:
+    | 'scenario_setup'
+    | 'pilot_jacked_in'
+    | 'pilot_jacked_out'
+    | 'shutdown'
+    | 'manual_adjustment'
+    | 'test_fixture';
+}
+
 /**
  * Per `add-vehicle-combat-behavior` §4: emitted when a vehicle hit
  * triggers a motive-damage roll. Carries the consumed 2d6, the severity
@@ -462,10 +480,48 @@ export interface ITerrainChangedPayload {
   readonly elevation?: number;
   readonly previousTerrain?: string;
   readonly previousElevation?: number;
-  readonly reason: 'battlefield_wreckage';
+  readonly reason: 'battlefield_wreckage' | 'damageable_cover_hit';
   readonly sourceEventId?: string;
   readonly sourceUnitId?: string;
   readonly optionalRule?: string;
+}
+
+export interface IMinefieldChangedPayload {
+  readonly operation:
+    | 'add'
+    | 'set'
+    | 'remove'
+    | 'clear'
+    | 'reset'
+    | 'detonate'
+    | 'detect'
+    | 'reveal';
+  readonly hex?: IHexCoordinate;
+  readonly minefield?: IRepresentedMinefieldState;
+  readonly minefields?: Readonly<Record<string, IRepresentedMinefieldState>>;
+  readonly detectingSide?: GameSide;
+  readonly reason?:
+    | 'scenario_setup'
+    | 'movement_detonation'
+    | 'detection'
+    | 'clearing'
+    | 'mine_sweeper'
+    | 'collateral_reset'
+    | 'manual_adjustment'
+    | 'test_fixture';
+  readonly sourceEventId?: string;
+  readonly sourceUnitId?: string;
+}
+
+export interface IEmpMinefieldEffectAppliedPayload {
+  readonly unitId: string;
+  readonly hex: IHexCoordinate;
+  readonly roll: number;
+  readonly modifier: number;
+  readonly modifiedRoll: number;
+  readonly effect: 'none' | 'interference' | 'shutdown';
+  readonly durationTurns?: number;
+  readonly source: 'minefield';
 }
 
 /**
@@ -497,6 +553,8 @@ export type GameEventPayload =
   | IUnitDestroyedPayload
   | IRedactedUnitDestroyedPayload
   | ITerrainChangedPayload
+  | IMinefieldChangedPayload
+  | IEmpMinefieldEffectAppliedPayload
   | ICriticalHitResolvedPayload
   | IPSRTriggeredPayload
   | IPSRResolvedPayload
@@ -505,6 +563,8 @@ export type GameEventPayload =
   | IUnitStoodPayload
   | IPhysicalAttackDeclaredPayload
   | IPhysicalAttackResolvedPayload
+  | IGroundObjectPickedUpPayload
+  | IGroundObjectDroppedPayload
   | IShutdownCheckPayload
   | IHeatEffectAppliedPayload
   | IStartupAttemptPayload
@@ -520,6 +580,7 @@ export type GameEventPayload =
   | IRetreatTriggeredPayload
   | IUnitRetreatedPayload
   | IUnitEjectedPayload
+  | INeuralInterfaceStateChangedPayload
   | IMotiveDamagedPayload
   | IMotivePenaltyAppliedPayload
   | IVehicleImmobilizedPayload

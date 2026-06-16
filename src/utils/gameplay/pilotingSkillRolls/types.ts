@@ -113,6 +113,9 @@ export function getPSRReasonCategory(code: PSRTrigger): PSRReasonCategory {
     case PSRTrigger.AirMekLanding:
     case PSRTrigger.RunningDamagedHip:
     case PSRTrigger.RunningDamagedGyro:
+    case PSRTrigger.ControlledSideslip:
+    case PSRTrigger.FlankingAndTurning:
+    case PSRTrigger.OutOfControl:
     case PSRTrigger.BuildingCollapse:
     case PSRTrigger.MASCFailure:
     case PSRTrigger.SuperchargerFailure:

@@ -61,11 +61,24 @@ export function applyTurnStarted(
     // if a caller advanced past End without resolving, a stale queue
     // would carry into a fresh turn). TW p.52: PSRs do not persist
     // across turn boundaries.
+    const empInterferenceTurns = Math.max(
+      0,
+      Math.trunc(units[unitId].empInterferenceTurns ?? 0) - 1,
+    );
+    const empShutdownTurns = Math.max(
+      0,
+      Math.trunc(units[unitId].empShutdownTurns ?? 0) - 1,
+    );
     units[unitId] = {
       ...units[unitId],
       weaponsFiredThisTurn: [],
       pendingPSRs: [],
+      isLoadingOrUnloadingCargo: false,
       tagDesignated: false,
+      externalHeatThisTurn: 0,
+      pendingExternalHeat: 0,
+      empInterferenceTurns,
+      empShutdownTurns,
       isSpotting: false,
       spotTargetId: undefined,
     };

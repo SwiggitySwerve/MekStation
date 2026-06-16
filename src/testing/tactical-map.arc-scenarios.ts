@@ -26,7 +26,7 @@ export const tacticalMapSponsonArcTargetId = 'left-arc-target';
 export const tacticalMapSponsonArcTargetHex = { q: -2, r: 2 } as const;
 export const tacticalMapSponsonArcSelectedWeaponIds = ['left-sponson-laser'];
 export const tacticalMapRightSponsonArcTargetId = 'right-arc-target';
-export const tacticalMapRightSponsonArcTargetHex = { q: 2, r: -1 } as const;
+export const tacticalMapRightSponsonArcTargetHex = { q: 3, r: -2 } as const;
 export const tacticalMapRightSponsonArcSelectedWeaponIds = [
   'right-sponson-laser',
 ];

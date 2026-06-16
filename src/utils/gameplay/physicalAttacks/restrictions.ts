@@ -1,5 +1,6 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { hasNoArms } from '@/utils/gameplay/quirkModifiers';
+import { hasSPA } from '@/utils/gameplay/spaModifiers/canonicalize';
 
 import { HULL_DOWN_KICK_BLOCKED_REASON } from '../hullDownRestrictions';
 import {
@@ -30,6 +31,7 @@ import {
   PhysicalAttackLimb,
   PhysicalAttackType,
   PhysicalTargetObjectType,
+  isZweihanderPhysicalAttackType,
 } from './types';
 import { normalizedLamConversionMode } from './unitState';
 
@@ -623,10 +625,133 @@ function mapBreakGrappleInvalidReason(
 }
 
 function selectedPunchArmDestroyed(input: IPhysicalAttackInput): boolean {
+  return attackerLocationDestroyed(input, selectedArmLocation(input));
+}
+
+function selectedArmCarryingCargo(input: IPhysicalAttackInput): boolean {
   if (input.limb === 'leftArm' || input.arm === 'left') {
-    return attackerLocationDestroyed(input, 'left_arm');
+    return input.leftArmCarryingCargo === true;
   }
-  return attackerLocationDestroyed(input, 'right_arm');
+  return input.rightArmCarryingCargo === true;
+}
+
+function eitherArmCarryingCargo(input: IPhysicalAttackInput): boolean {
+  return (
+    input.leftArmCarryingCargo === true || input.rightArmCarryingCargo === true
+  );
+}
+
+function bothArmsCarryingCargo(input: IPhysicalAttackInput): boolean {
+  return (
+    input.leftArmCarryingCargo === true && input.rightArmCarryingCargo === true
+  );
+}
+
+function anyPunchArmDestroyed(input: IPhysicalAttackInput): boolean {
+  return (
+    attackerLocationDestroyed(input, 'left_arm') ||
+    attackerLocationDestroyed(input, 'right_arm')
+  );
+}
+
+function selectedArmLocation(
+  input: IPhysicalAttackInput,
+): 'left_arm' | 'right_arm' {
+  if (input.limb === 'leftArm' || input.arm === 'left') return 'left_arm';
+  return 'right_arm';
+}
+
+function actuatorDestroyedAt(
+  input: IPhysicalAttackInput,
+  location: 'left_arm' | 'right_arm',
+  actuator: ActuatorType,
+): boolean {
+  return (
+    input.componentDamage.actuatorsByLocation?.[location]?.[actuator] === true
+  );
+}
+
+function selectedArmActuatorDestroyed(
+  input: IPhysicalAttackInput,
+  actuator: ActuatorType,
+): boolean {
+  const location = selectedArmLocation(input);
+  const locationActuators = input.componentDamage.actuatorsByLocation;
+  if (locationActuators !== undefined) {
+    return locationActuators[location]?.[actuator] === true;
+  }
+
+  return input.componentDamage.actuators[actuator] === true;
+}
+
+function eitherZweihanderHandActuatorDestroyed(
+  input: IPhysicalAttackInput,
+): boolean {
+  return (
+    input.componentDamage.actuators[ActuatorType.HAND] === true ||
+    actuatorDestroyedAt(input, 'left_arm', ActuatorType.HAND) ||
+    actuatorDestroyedAt(input, 'right_arm', ActuatorType.HAND)
+  );
+}
+
+function zweihanderDeclarationRestriction(
+  input: IPhysicalAttackInput,
+): IPhysicalAttackRestriction {
+  if (input.twoHandedZweihander !== true) return { allowed: true };
+
+  if (!isZweihanderPhysicalAttackType(input.attackType)) {
+    return blocked(
+      'Two-handed Zweihander declaration requires punch or a supported physical weapon',
+      'UnsupportedAttackType',
+    );
+  }
+
+  if (!hasSPA(input.pilotAbilities ?? [], 'zweihander')) {
+    return blocked(
+      'Two-handed Zweihander declaration requires the Zweihander SPA',
+      'RequiredSpaMissing',
+    );
+  }
+
+  if (input.attackerProne) {
+    return blocked(
+      'Two-handed Zweihander declaration cannot be made while prone',
+      'AttackerProne',
+    );
+  }
+
+  if (anyPunchArmDestroyed(input)) {
+    return blocked(
+      'Two-handed Zweihander declaration requires both arms present',
+      'LimbMissing',
+    );
+  }
+
+  if (
+    input.handActuatorPresent === false ||
+    eitherZweihanderHandActuatorDestroyed(input)
+  ) {
+    return blocked(
+      'Two-handed Zweihander declaration requires represented hand actuators',
+      'MissingActuator',
+    );
+  }
+
+  if (input.weaponsFiredFromArm && input.weaponsFiredFromArm.length > 0) {
+    return blocked(
+      'Two-handed Zweihander declaration requires both arms to be unfired',
+      'WeaponFiredThisTurn',
+    );
+  }
+
+  if (eitherArmCarryingCargo(input)) {
+    return blocked(
+      'Two-handed Zweihander declaration requires both arms free of carried cargo',
+      'AttackerCargoInteraction',
+    );
+  }
+
+  return { allowed: true };
 }
 
 function anyKickLegDestroyed(input: IPhysicalAttackInput): boolean {
@@ -706,6 +831,17 @@ export function canPunch(
       reasonCode: 'WeaponFiredThisTurn',
     };
   }
+
+  if (selectedArmCarryingCargo(input)) {
+    return {
+      allowed: false,
+      reason: 'Arm is carrying cargo',
+      reasonCode: 'AttackerCargoInteraction',
+    };
+  }
+
+  const zweihanderRestriction = zweihanderDeclarationRestriction(input);
+  if (!zweihanderRestriction.allowed) return zweihanderRestriction;
 
   // Per task 3.3: punch requires lower arm OR hand actuator present.
   // `undefined` means "caller didn't supply presence info" → fall back
@@ -846,6 +982,8 @@ export function canMeleeWeapon(
   const unitQuirks = input.unitQuirks ?? [];
   const armMounted = meleeWeaponIsArmMounted(input.attackType);
   const needsHand = meleeWeaponNeedsHand(input.attackType);
+  const zweihanderRestriction = zweihanderDeclarationRestriction(input);
+  if (!zweihanderRestriction.allowed) return zweihanderRestriction;
 
   if (input.attackerIsQuad && input.attackType !== 'wrecking-ball') {
     return {
@@ -877,7 +1015,26 @@ export function canMeleeWeapon(
     };
   }
 
-  if (armMounted && actuators[ActuatorType.SHOULDER]) {
+  if (armMounted && selectedArmCarryingCargo(input)) {
+    return {
+      allowed: false,
+      reason: 'Arm is carrying cargo',
+      reasonCode: 'AttackerCargoInteraction',
+    };
+  }
+
+  if (armMounted && selectedPunchArmDestroyed(input)) {
+    return {
+      allowed: false,
+      reason: 'Melee weapon arm missing',
+      reasonCode: 'LimbMissing',
+    };
+  }
+
+  if (
+    armMounted &&
+    selectedArmActuatorDestroyed(input, ActuatorType.SHOULDER)
+  ) {
     return {
       allowed: false,
       reason: 'Shoulder actuator destroyed',
@@ -887,7 +1044,10 @@ export function canMeleeWeapon(
 
   // Per `physical-weapons-system` delta "Missing hand/lower-arm blocks
   // club attack": destruction of either actuator blocks the attack.
-  if (armMounted && actuators[ActuatorType.LOWER_ARM]) {
+  if (
+    armMounted &&
+    selectedArmActuatorDestroyed(input, ActuatorType.LOWER_ARM)
+  ) {
     return {
       allowed: false,
       reason: 'Lower arm actuator destroyed',
@@ -895,7 +1055,11 @@ export function canMeleeWeapon(
     };
   }
 
-  if (armMounted && needsHand && actuators[ActuatorType.HAND]) {
+  if (
+    armMounted &&
+    needsHand &&
+    selectedArmActuatorDestroyed(input, ActuatorType.HAND)
+  ) {
     return {
       allowed: false,
       reason: 'Hand actuator destroyed',
@@ -1268,6 +1432,14 @@ export function canPush(
     };
   }
 
+  if (bothArmsCarryingCargo(input)) {
+    return {
+      allowed: false,
+      reason: 'Both arms are carrying cargo',
+      reasonCode: 'AttackerCargoInteraction',
+    };
+  }
+
   if (input.pushDestinationValid === false) {
     return {
       allowed: false,
@@ -1290,6 +1462,14 @@ export function canBrushOffPhysical(
 ): IPhysicalAttackRestriction {
   const sharedRestriction = sharedPhysicalTargetRestriction(input);
   if (!sharedRestriction.allowed) return sharedRestriction;
+
+  if (selectedArmCarryingCargo(input)) {
+    return {
+      allowed: false,
+      reason: 'Arm is carrying cargo',
+      reasonCode: 'AttackerCargoInteraction',
+    };
+  }
 
   const brushOffRestriction = canBrushOff({
     attackerIsMek: !explicitNonMekUnitType(input.attackerUnitType),

@@ -1,8 +1,11 @@
 import {
   GameSide,
+  IAMSInterceptionPayload,
   IAmmoConsumedPayload,
   IDesignatorMarkerAppliedPayload,
+  IEmpMinefieldEffectAppliedPayload,
   IGameState,
+  INeuralInterfaceStateChangedPayload,
   IMoraleShiftedPayload,
   IPhysicalAttackDeclaredPayload,
   IPhysicalAttackResolvedPayload,
@@ -21,6 +24,7 @@ import {
   LockState,
   type MoraleLevel,
 } from '@/types/gameplay';
+import { removeEquivalentINarcPod } from '@/utils/gameplay/specialWeaponMechanics';
 
 import { hexNeighbor } from '../hexMath';
 
@@ -205,6 +209,15 @@ export function applyPhysicalAttackResolved(
     const target = state.units[payload.targetId];
     if (target) {
       const currentDamageThisPhase = target.damageThisPhase ?? 0;
+      const brushOffINarcPods =
+        payload.attackType === 'brush-off' && target.iNarcPods
+          ? payload.selectedINarcPod
+            ? removeEquivalentINarcPod(
+                target.iNarcPods,
+                payload.selectedINarcPod,
+              )
+            : target.iNarcPods.slice(1)
+          : undefined;
       const brushOffState =
         payload.attackType === 'brush-off'
           ? (() => {
@@ -219,6 +232,9 @@ export function applyPhysicalAttackResolved(
 
               return {
                 isSwarming: false,
+                ...(brushOffINarcPods !== undefined
+                  ? { iNarcPods: brushOffINarcPods }
+                  : {}),
                 ...(combatState ? { combatState } : {}),
               };
             })()
@@ -362,6 +378,35 @@ export function applyStartupAttempt(
   };
 }
 
+export function applyEmpMinefieldEffectApplied(
+  state: IGameState,
+  payload: IEmpMinefieldEffectAppliedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit || payload.effect === 'none') {
+    return state;
+  }
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        ...(payload.effect === 'interference'
+          ? { empInterferenceTurns: payload.durationTurns ?? 0 }
+          : {}),
+        ...(payload.effect === 'shutdown'
+          ? {
+              shutdown: true,
+              empShutdownTurns: payload.durationTurns ?? 0,
+            }
+          : {}),
+      },
+    },
+  };
+}
+
 export function applyAmmoConsumed(
   state: IGameState,
   payload: IAmmoConsumedPayload,
@@ -390,6 +435,30 @@ export function applyAmmoConsumed(
             remainingRounds: payload.roundsRemaining,
           },
         },
+      },
+    },
+  };
+}
+
+export function applyAMSInterception(
+  state: IGameState,
+  payload: IAMSInterceptionPayload,
+): IGameState {
+  const defender = state.units[payload.defenderId];
+  if (!defender) {
+    return state;
+  }
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.defenderId]: {
+        ...defender,
+        weaponsFiredThisTurn: [
+          ...(defender.weaponsFiredThisTurn ?? []),
+          payload.amsWeaponId,
+        ],
       },
     },
   };
@@ -593,6 +662,29 @@ export function applyUnitEjected(
  * Default in-battle morale — every side starts a battle at `STEADY`
  * (per `add-combat-morale-and-withdrawal` D1).
  */
+export function applyNeuralInterfaceStateChanged(
+  state: IGameState,
+  payload: INeuralInterfaceStateChangedPayload,
+): IGameState {
+  const unit = state.units[payload.unitId];
+  if (!unit) {
+    return state;
+  }
+  if (unit.neuralInterfaceActive === payload.active) {
+    return state;
+  }
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [payload.unitId]: {
+        ...unit,
+        neuralInterfaceActive: payload.active,
+      },
+    },
+  };
+}
+
 const DEFAULT_BATTLE_MORALE: Readonly<Record<GameSide, MoraleLevel>> = {
   [GameSide.Player]: 'STEADY',
   [GameSide.Opponent]: 'STEADY',

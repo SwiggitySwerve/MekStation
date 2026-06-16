@@ -1,6 +1,7 @@
 import type {
   Facing,
   IHexCoordinate,
+  IEnvironmentalConditions,
   IHexGrid,
   IMovementCapability,
   IUnitGameState,
@@ -49,6 +50,7 @@ export interface ICommittedMovementValidationInput {
   readonly capability?: IMovementCapability | null;
   readonly path?: readonly IHexCoordinate[];
   readonly standUpMode?: StandUpMode;
+  readonly environmentalConditions?: IEnvironmentalConditions;
   readonly optionalRules?: readonly string[] | undefined;
 }
 
@@ -119,16 +121,20 @@ export function validateCommittedMovement(
   const capability =
     resolveRuntimeMovementCapability(input.unit, input.capability) ??
     input.capability;
+  const movementCapability =
+    input.unit.isQuad === true && capability.mekLegProfile !== 'quad'
+      ? { ...capability, mekLegProfile: 'quad' as const }
+      : capability;
 
   const maxCost = getMaxMP(
-    capability,
+    movementCapability,
     input.movementType,
     getHeatMovementPenalty(input.unit.heat),
   );
   const standUpMode = input.standUpMode ?? 'normal';
   const standingCost = input.unit.prone
-    ? getStandingCost(capability, standUpMode)
-    : getHullDownExitCost(input.unit, capability, input.movementType);
+    ? getStandingCost(movementCapability, standUpMode)
+    : getHullDownExitCost(input.unit, movementCapability, input.movementType);
   const pendingConversion = pendingConversionMovementCost(input.unit);
   const pendingAltitudeControl = pendingAltitudeControlMovementCost(input.unit);
   const reservedCost =
@@ -155,10 +161,13 @@ export function validateCommittedMovement(
     input.unit,
     input.movementType,
     input.grid,
-    capability,
+    movementCapability,
     input.to,
     standUpMode,
-    { optionalRules: input.optionalRules },
+    {
+      environmentalConditions: input.environmentalConditions,
+      optionalRules: input.optionalRules,
+    },
   );
   const shouldDeferImpossibleStandUpResolution =
     input.unit.prone === true &&
@@ -192,8 +201,13 @@ export function validateCommittedMovement(
     input.to,
     input.facing,
     input.movementType,
-    capability,
+    movementCapability,
     input.unit.heat,
+    input.environmentalConditions,
+    {
+      environmentalConditions: input.environmentalConditions,
+      pilotAbilities: input.unit.abilities,
+    },
   );
 
   if (!validation.valid) {
@@ -213,10 +227,11 @@ export function validateCommittedMovement(
         to: input.to,
         path: input.path,
         movementType: input.movementType,
-        capability,
+        capability: movementCapability,
         maxCost,
         standingCost: reservedCost,
         reservedCostLabel,
+        environmentalConditions: input.environmentalConditions,
         optionalRules: input.optionalRules,
       });
       if (!pathValidation.valid) {
@@ -252,10 +267,11 @@ export function validateCommittedMovement(
       from,
       to: input.to,
       movementType: input.movementType,
-      capability,
+      capability: movementCapability,
       standingCost,
       pendingConversionCost: pendingConversion.mpCost,
       pendingAltitudeControlCost: pendingAltitudeControl.mpCost,
+      environmentalConditions: input.environmentalConditions,
       optionalRules: input.optionalRules,
     });
     if (directBlockedStep) {
@@ -298,10 +314,11 @@ export function validateCommittedMovement(
       to: input.to,
       path: input.path,
       movementType: input.movementType,
-      capability,
+      capability: movementCapability,
       maxCost,
       standingCost: reservedCost,
       reservedCostLabel,
+      environmentalConditions: input.environmentalConditions,
       optionalRules: input.optionalRules,
     });
     if (!pathValidation.valid) {
@@ -329,6 +346,10 @@ export function validateCommittedMovement(
         to: input.to,
         movementType: input.movementType,
         maxCost: mpCost,
+        movementContext: {
+          environmentalConditions: input.environmentalConditions,
+          pilotAbilities: input.unit.abilities,
+        },
       }),
   };
 }
@@ -342,6 +363,7 @@ function directTerrainBlockedStep(input: {
   readonly standingCost?: number;
   readonly pendingConversionCost?: number;
   readonly pendingAltitudeControlCost?: number;
+  readonly environmentalConditions?: IEnvironmentalConditions;
   readonly optionalRules?: readonly string[] | undefined;
 }): { readonly blockedReason: string; readonly mpCost: number } | null {
   if (input.movementType === MovementType.Jump) return null;
@@ -354,7 +376,10 @@ function directTerrainBlockedStep(input: {
   const costContext = movementCostContextForCapability(
     input.movementType,
     input.capability,
-    { optionalRules: input.optionalRules },
+    {
+      environmentalConditions: input.environmentalConditions,
+      optionalRules: input.optionalRules,
+    },
   );
   const step = getMovementStepCostBreakdown(
     input.grid,
@@ -396,6 +421,7 @@ export function movementInvalidReasonFromValidation(
 ): IMovementInvalidPayload['reason'] {
   if (!error) return 'InvalidDestination';
   if (error.includes('outside map bounds')) return 'DestinationOutOfBounds';
+  if (error.includes('follow-up movement')) return 'InvalidDestination';
   if (error.includes('occupied')) return 'DestinationOccupied';
   if (error.includes('cannot jump')) return 'JumpUnavailable';
   if (error.includes('max range') || error.includes('Path costs')) {
@@ -408,6 +434,7 @@ export function movementInvalidReasonFromValidation(
     error.includes('requires open water terrain') ||
     error.includes('requires rail terrain') ||
     error.includes('impassable terrain') ||
+    error.includes('Nightwalker prohibits running') ||
     error.includes('Elevation change') ||
     error.includes('Jump elevation rise')
   ) {
@@ -433,6 +460,7 @@ function validateSuppliedMovementPath(input: {
   readonly maxCost: number;
   readonly standingCost: number;
   readonly reservedCostLabel: string;
+  readonly environmentalConditions?: IEnvironmentalConditions;
   readonly optionalRules?: readonly string[];
 }): ISuppliedMovementPathValidation {
   if (input.path.length === 0) {
@@ -472,7 +500,10 @@ function validateSuppliedMovementPath(input: {
   const costContext = movementCostContextForCapability(
     input.movementType,
     input.capability,
-    { optionalRules: input.optionalRules },
+    {
+      environmentalConditions: input.environmentalConditions,
+      optionalRules: input.optionalRules,
+    },
   );
   const pavementRoadBonusMP = getPavementRoadBonusMP(movementMode, costContext);
   let isPavementRoadBonusPath = pavementRoadBonusMP > 0;

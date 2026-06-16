@@ -900,6 +900,48 @@ describe('LOS Spotter Modifier Parity (C-5)', () => {
     expect(result.toHitPenalty).toBe(2);
   });
 
+  it.each([
+    ['comm_implant', 0],
+    ['boost_comm_implant', 0],
+  ] as const)(
+    '%s spotter reduces the base indirect LRM spotter penalty by 1',
+    (pilotSpa, expectedPenalty) => {
+      const result = resolveIndirectFire(
+        makeRequest({
+          spotterCandidates: [
+            makeSpotter({
+              movementType: MovementType.Stationary,
+              pilotSpas: [pilotSpa],
+            }),
+          ],
+        }),
+      );
+      expect(result.permitted).toBe(true);
+      expect(result.toHitPenalty).toBe(expectedPenalty);
+      expect(result.commImplantApplied).toBe(true);
+      expect(result.commImplantPenaltyRelief).toBe(1);
+    },
+  );
+
+  it('comm implant relief stacks with movement and attack penalties without cancelling them', () => {
+    const result = resolveIndirectFire(
+      makeRequest({
+        spotterCandidates: [
+          makeSpotter({
+            movementType: MovementType.Walk,
+            attackedThisTurn: true,
+            pilotSpas: ['boost_comm_implant'],
+          }),
+        ],
+      }),
+    );
+    expect(result.permitted).toBe(true);
+    expect(result.spotterWalked).toBe(true);
+    expect(result.spotterAttackedThisTurn).toBe(true);
+    expect(result.commImplantApplied).toBe(true);
+    expect(result.toHitPenalty).toBe(2);
+  });
+
   it('NARC-only path: no LOS spotter elected -> base penalty only', () => {
     const result = resolveIndirectFire(
       makeRequest({

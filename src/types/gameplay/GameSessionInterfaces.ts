@@ -10,6 +10,7 @@ export * from './GameSessionUnitTypes';
 export * from './GameSessionLifecycleEvents';
 export * from './GameSessionMovementEvents';
 export * from './GameSessionAttackEvents';
+export * from './GameSessionGroundObjectEvents';
 export * from './GameSessionObjectiveEvents';
 export * from './GameSessionStatusEvents';
 export * from './GameSessionStateTypes';

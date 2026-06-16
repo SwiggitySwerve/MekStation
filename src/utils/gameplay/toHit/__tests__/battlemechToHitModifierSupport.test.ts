@@ -29,6 +29,8 @@ const INTEGRATED_TO_HIT_MODIFIERS = [
   'actuator-damage',
   'attacker-prone',
   'c3',
+  'c3-equipment-conservative-network-seeding',
+  'c3-equipment-independent-side-formation',
   'called-shot',
   'ecm',
   'hull-down',
@@ -39,14 +41,14 @@ const INTEGRATED_TO_HIT_MODIFIERS = [
   'terrain-features',
 ] as const;
 
-const HELPER_ONLY_TO_HIT_MODIFIERS = [
+const OUT_OF_SCOPE_TO_HIT_MODIFIERS = [
   'c3-equipment-network-formation',
 ] as const;
 
-type HelperOnlyToHitModifierId = (typeof HELPER_ONLY_TO_HIT_MODIFIERS)[number];
+type OutOfScopeToHitModifierId = (typeof OUT_OF_SCOPE_TO_HIT_MODIFIERS)[number];
 type IntegratedToHitModifierId = (typeof INTEGRATED_TO_HIT_MODIFIERS)[number];
 type AdvancedToHitModifierId =
-  | HelperOnlyToHitModifierId
+  | OutOfScopeToHitModifierId
   | IntegratedToHitModifierId;
 
 function makeAttacker(overrides: Partial<IAttackerState> = {}): IAttackerState {
@@ -90,12 +92,12 @@ describe('BattleMech to-hit support matrix modifiers', () => {
     },
   );
 
-  it.each(HELPER_ONLY_TO_HIT_MODIFIERS)(
-    '%s is explicitly tracked as helper-only instead of runner-integrated',
+  it.each(OUT_OF_SCOPE_TO_HIT_MODIFIERS)(
+    '%s is explicitly tracked outside BattleMech runtime completion blockers',
     (id) => {
       const support = RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT[id];
 
-      expect(support.level).toBe('helper-only');
+      expect(support.level).toBe('out-of-scope');
       expect(support.evidence).toEqual(expect.any(String));
       expect(support.gap).toEqual(expect.any(String));
     },
@@ -291,10 +293,59 @@ describe('BattleMech to-hit support matrix modifiers', () => {
   });
 
   it('keeps ambiguous C3 network assignment edges as explicit gaps', () => {
-    expect(
-      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['c3-equipment-network-formation']
-        .gap,
-    ).toContain('multiple same-side C3 networks');
+    const conservativeEquipmentSeedingSupport =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT[
+        'c3-equipment-conservative-network-seeding'
+      ];
+    const denialBoundarySupport =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['c3-equipment-denial-boundaries'];
+    const independentSideFormationSupport =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT[
+        'c3-equipment-independent-side-formation'
+      ];
+    const c3NetworkFormationSupport =
+      RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT['c3-equipment-network-formation'];
+
+    expect(conservativeEquipmentSeedingSupport.level).toBe('integrated');
+    expect(conservativeEquipmentSeedingSupport.evidence).toContain(
+      'conservative single-network groups',
+    );
+    expect('gap' in conservativeEquipmentSeedingSupport).toBe(false);
+    expect(denialBoundarySupport.level).toBe('integrated');
+    expect(denialBoundarySupport.evidence).toContain(
+      'explicitly denies ambiguous multi-role equipment',
+    );
+    expect('gap' in denialBoundarySupport).toBe(false);
+    expect(independentSideFormationSupport.level).toBe('integrated');
+    expect(independentSideFormationSupport.evidence).toContain(
+      'evaluates mounted C3 equipment independently per side',
+    );
+    expect('gap' in independentSideFormationSupport).toBe(false);
+    expect(c3NetworkFormationSupport.level).toBe('out-of-scope');
+    expect(c3NetworkFormationSupport.gap).toContain(
+      'Manual C3 network authoring UI',
+    );
+    expect(c3NetworkFormationSupport.gap).toContain(
+      'manual C3 assignment controls',
+    );
+    expect(c3NetworkFormationSupport.gap).toContain(
+      'automatic same-side multiple-network partitioning',
+    );
+    expect(c3NetworkFormationSupport.gap).toContain(
+      'ambiguous multiple-master partitioning',
+    );
+    expect(c3NetworkFormationSupport.gap).toContain(
+      'mixed C3i/master-slave family selection',
+    );
+    expect(c3NetworkFormationSupport.gap).toContain(
+      'oversized network splitting',
+    );
+    expect(c3NetworkFormationSupport.evidence).toContain(
+      'represented BattleMech C3 runtime behavior is covered by explicit session-authored IGameState.c3Network consumption',
+    );
+    expect(c3NetworkFormationSupport.evidence).toContain(
+      'this broad row intentionally does not claim authored network assignment or partitioning support',
+    );
     expect(Object.keys(RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT)).not.toContain(
       'c3-spotter-los-hydration',
     );

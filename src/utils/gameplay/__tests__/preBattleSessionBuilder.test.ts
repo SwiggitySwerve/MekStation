@@ -150,6 +150,50 @@ describe('buildFromSkirmishConfig', () => {
     expect(playerUnits[1]?.piloting).toBe(4);
   });
 
+  it('hydrates explicit RPG Toughness from the skirmish pilot snapshot', () => {
+    const session = buildFromSkirmishConfig(
+      makeConfig({
+        player: {
+          units: [
+            makeUnit({
+              pilot: makePilot({
+                pilotId: 'p-tough',
+                rpgToughness: 2,
+              }),
+            }),
+            makeUnit({
+              unitId: 'phx-1',
+              designation: 'Phoenix Hawk PXH-1',
+              pilot: makePilot({
+                pilotId: 'p-zero',
+                rpgToughness: 0,
+              }),
+            }),
+          ],
+        },
+        opponent: {
+          units: [
+            makeUnit({
+              unitId: 'cda-2a',
+              designation: 'Cicada CDA-2A',
+              pilot: makePilot({
+                pilotId: 'p-invalid',
+                rpgToughness: Number.NaN,
+              }),
+            }),
+          ],
+        },
+      }),
+    );
+
+    const playerUnits = session.units.filter((u) => u.side === 'player');
+    const opponentUnits = session.units.filter((u) => u.side === 'opponent');
+
+    expect(playerUnits[0]?.pilotToughness).toBe(2);
+    expect(playerUnits[1]?.pilotToughness).toBe(0);
+    expect(opponentUnits[0]?.pilotToughness).toBeUndefined();
+  });
+
   it('propagates map radius into the session config', () => {
     const session = buildFromSkirmishConfig(makeConfig({ mapRadius: 12 }));
     expect(session.config.mapRadius).toBe(12);

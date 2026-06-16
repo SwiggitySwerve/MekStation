@@ -270,6 +270,72 @@ describe('determineHitLocationFromRoll', () => {
     expect(result.isCritical).toBe(true);
   });
 
+  it('spends Edge and replaces a head-hit location result', () => {
+    const roll = createDiceRoll(6, 6); // total 12 = head
+    const result = determineHitLocationFromRoll(FiringArc.Front, roll, {
+      edge: {
+        edgePointsRemaining: 1,
+        pilotAbilities: ['edge_when_headhit'],
+        turn: 3,
+        unitId: 'target-1',
+        reroll: () => createDiceRoll(3, 4),
+      },
+    });
+
+    expect(result.location).toBe('center_torso');
+    expect(result.roll.total).toBe(7);
+    expect(result).toMatchObject({
+      edgeReroll: true,
+      edgeSuperseded: true,
+      edgeTrigger: 'edge_when_headhit',
+      edgePointsRemaining: 0,
+      supersededLocation: 'head',
+    });
+    expect(result.supersededRoll).toBe(roll);
+  });
+
+  it('spends Edge and replaces a TAC hit-location result', () => {
+    const roll = createDiceRoll(1, 1); // total 2 = TAC trigger
+    const result = determineHitLocationFromRoll(FiringArc.Front, roll, {
+      edge: {
+        edgePointsRemaining: 1,
+        pilotAbilities: ['edge_when_tac'],
+        turn: 3,
+        unitId: 'target-1',
+        reroll: () => createDiceRoll(3, 3),
+      },
+    });
+
+    expect(result.location).toBe('right_torso');
+    expect(result.roll.total).toBe(6);
+    expect(result.isCritical).toBe(false);
+    expect(result).toMatchObject({
+      edgeReroll: true,
+      edgeSuperseded: true,
+      edgeTrigger: 'edge_when_tac',
+      edgePointsRemaining: 0,
+      supersededLocation: 'center_torso',
+    });
+    expect(result.supersededRoll).toBe(roll);
+  });
+
+  it('does not reroll hit location when the matching Edge ability is absent', () => {
+    const roll = createDiceRoll(6, 6);
+    const result = determineHitLocationFromRoll(FiringArc.Front, roll, {
+      edge: {
+        edgePointsRemaining: 1,
+        pilotAbilities: [],
+        reroll: () => {
+          throw new Error('unexpected reroll');
+        },
+      },
+    });
+
+    expect(result.location).toBe('head');
+    expect(result.edgeReroll).toBeUndefined();
+    expect(result.edgePointsRemaining).toBeUndefined();
+  });
+
   it('should use correct table for each arc', () => {
     const roll = createDiceRoll(3, 4); // total 7
 

@@ -291,18 +291,33 @@ export function emitCritEvents(options: {
             slotIndex: p.slotIndex,
             componentType: p.componentType,
             componentName: p.componentName,
+            ...(p.weaponId !== undefined ? { weaponId: p.weaponId } : {}),
             ...(p.ammoBinId !== undefined ? { ammoBinId: p.ammoBinId } : {}),
+            ...(p.hotLoaded !== undefined ? { hotLoaded: p.hotLoaded } : {}),
+            ...(p.linkedCriticalWeaponId !== undefined
+              ? { linkedCriticalWeaponId: p.linkedCriticalWeaponId }
+              : {}),
+            ...(p.linkedCriticalWeaponName !== undefined
+              ? { linkedCriticalWeaponName: p.linkedCriticalWeaponName }
+              : {}),
+            ...(p.explosionDamage !== undefined
+              ? { explosionDamage: p.explosionDamage }
+              : {}),
             effect: p.effect,
             destroyed: p.destroyed,
+            ...(p.missing !== undefined ? { missing: p.missing } : {}),
+            ...(p.breached !== undefined ? { breached: p.breached } : {}),
+            ...(p.edgePointsRemaining !== undefined
+              ? { edgePointsRemaining: p.edgePointsRemaining }
+              : {}),
           },
           attackerId,
         ),
       );
 
-      // `ComponentDestroyed` when the slot is fully destroyed (always
-      // true today — the resolver only emits `critical_hit_resolved`
-      // when a slot was actually struck). Carries the `componentType`
-      // enum + `slotIndex` for UI dedupe.
+      // `ComponentDestroyed` only when the hit disables the mounted
+      // component. Some source-backed equipment branches, such as shields,
+      // record a critical slot hit while preserving equipment function.
       if (p.destroyed) {
         events.push(
           createGameEvent(

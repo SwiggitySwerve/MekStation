@@ -291,12 +291,16 @@ export interface ISwarmDamagePayload {
 
 /**
  * Per `add-battlearmor-combat-behavior`: swarming BA detached from its host
- * (via successful dismount roll or destruction).
+ * (via successful dismount roll, go-prone dislodgement, or destruction).
  */
 export interface ISwarmDismountedPayload {
   readonly unitId: string;
   readonly targetUnitId: string;
-  readonly cause: 'dismount_roll' | 'squad_destroyed' | 'target_destroyed';
+  readonly cause:
+    | 'dismount_roll'
+    | 'go_prone_dislodgement'
+    | 'squad_destroyed'
+    | 'target_destroyed';
   readonly dismountDamage: number;
 }
 

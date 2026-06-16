@@ -23,6 +23,8 @@ import {
   IGameState,
   IUnitGameState,
   IAttackDeclaredPayload,
+  IAttackResolvedPayload,
+  ICriticalHitResolvedPayload,
   IDamageAppliedPayload,
   IWeaponAttack,
 } from '@/types/gameplay';
@@ -45,6 +47,7 @@ import {
   DiceRoller,
 } from '../gameSession';
 import { rollInitiative, advancePhase } from '../gameSession';
+import { emitCriticalEvents } from '../gameSessionAttackResolutionHelpers';
 import { applyEvent, createInitialUnitState } from '../gameState';
 
 // =============================================================================
@@ -129,6 +132,48 @@ function createTestDamageState(
     ...overrides,
   };
 }
+
+describe('emitCriticalEvents - linked critical metadata', () => {
+  it('preserves represented linked-equipment critical weapon ids through session emission', () => {
+    const session = createGameSession(createTestConfig(), [
+      createTestUnit({ id: 'target' }),
+    ]);
+
+    const next = emitCriticalEvents(
+      session,
+      [
+        {
+          type: 'critical_hit_resolved',
+          payload: {
+            unitId: 'target',
+            location: 'right_torso',
+            slotIndex: 2,
+            componentType: 'equipment',
+            componentName: 'RISC Laser Pulse Module',
+            effect: 'Weapon destroyed: Medium Laser',
+            destroyed: true,
+            linkedCriticalWeaponId: 'medium-laser-0',
+            linkedCriticalWeaponName: 'Medium Laser',
+          },
+        },
+      ],
+      1,
+      'target',
+    );
+
+    const resolved = next.events.find(
+      (event) => event.type === GameEventType.CriticalHitResolved,
+    );
+
+    expect(resolved?.payload as ICriticalHitResolvedPayload).toMatchObject({
+      componentName: 'RISC Laser Pulse Module',
+      linkedCriticalWeaponId: 'medium-laser-0',
+      linkedCriticalWeaponName: 'Medium Laser',
+      effect: 'Weapon destroyed: Medium Laser',
+      destroyed: true,
+    });
+  });
+});
 
 // =============================================================================
 // Armor Absorption Tests
@@ -671,6 +716,8 @@ describe('Damage Pipeline - Full Integration', () => {
         id: 'target',
         name: 'Target',
         side: GameSide.Opponent,
+        abilities: ['edge_when_headhit'],
+        edgePointsRemaining: 1,
       }),
     ];
     const config = createTestConfig();
@@ -704,7 +751,6 @@ describe('Damage Pipeline - Full Integration', () => {
       3,
       RangeBracket.Short,
     );
-
     let rollCount = 0;
     const deterministicRoller: DiceRoller = () => {
       rollCount++;
@@ -734,6 +780,260 @@ describe('Damage Pipeline - Full Integration', () => {
     expect(damagePayload.unitId).toBe('target');
     expect(damagePayload.damage).toBeGreaterThanOrEqual(0);
     expect(typeof damagePayload.locationDestroyed).toBe('boolean');
+  });
+
+  it('spends target Edge to replace a head-hit location in resolveAttack()', () => {
+    const units = [
+      createTestUnit({
+        id: 'attacker',
+        name: 'Attacker',
+        side: GameSide.Player,
+      }),
+      createTestUnit({
+        id: 'target',
+        name: 'Target',
+        side: GameSide.Opponent,
+        abilities: ['edge_when_headhit'],
+        edgePointsRemaining: 1,
+      }),
+    ];
+    const config = createTestConfig();
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+
+    session = rollInitiative(session);
+    session = advancePhase(session);
+    session = advancePhase(session);
+    session = declareAttack(
+      session,
+      'attacker',
+      'target',
+      [
+        {
+          weaponId: 'wpn-1',
+          weaponName: 'Medium Laser',
+          damage: 5,
+          heat: 3,
+          category: WeaponCategory.ENERGY,
+          minRange: 0,
+          shortRange: 3,
+          mediumRange: 6,
+          longRange: 9,
+          isCluster: false,
+        },
+      ],
+      3,
+      RangeBracket.Short,
+    );
+
+    let rollCount = 0;
+    const deterministicRoller: DiceRoller = () => {
+      rollCount++;
+      if (rollCount === 1 || rollCount === 2) {
+        return { dice: [6, 6], total: 12, isSnakeEyes: false, isBoxcars: true };
+      }
+      return { dice: [3, 4], total: 7, isSnakeEyes: false, isBoxcars: false };
+    };
+
+    const attackEvent = session.events.find(
+      (e) => e.type === GameEventType.AttackDeclared,
+    )!;
+
+    session = resolveAttack(session, attackEvent, deterministicRoller);
+
+    const resolved = session.events.find(
+      (e) => e.type === GameEventType.AttackResolved,
+    )?.payload as IAttackResolvedPayload;
+
+    expect(resolved).toMatchObject({
+      hit: true,
+      location: 'center_torso',
+      edgeReroll: true,
+      edgeSuperseded: true,
+      edgeTrigger: 'edge_when_headhit',
+      edgePointsRemaining: 0,
+      edgeSupersededLocation: 'head',
+      edgeSupersededRoll: 12,
+    });
+    expect(session.currentState.units.target.edgePointsRemaining).toBe(0);
+    const appliedLocations = session.events
+      .filter((e) => e.type === GameEventType.DamageApplied)
+      .map((e) => (e.payload as IDamageAppliedPayload).location);
+    expect(appliedLocations).not.toContain('head');
+    expect(appliedLocations).toContain('center_torso');
+  });
+
+  it('spends target Edge to replace a TAC location in resolveAttack without stale TAC critical effects', () => {
+    const units = [
+      createTestUnit({
+        id: 'attacker',
+        name: 'Attacker',
+        side: GameSide.Player,
+      }),
+      createTestUnit({
+        id: 'target',
+        name: 'Target',
+        side: GameSide.Opponent,
+        abilities: ['edge_when_tac'],
+        edgePointsRemaining: 1,
+      }),
+    ];
+    const config = createTestConfig();
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+
+    session = rollInitiative(session);
+    session = advancePhase(session);
+    session = advancePhase(session);
+
+    session = declareAttack(
+      session,
+      'attacker',
+      'target',
+      [
+        {
+          weaponId: 'wpn-1',
+          weaponName: 'Medium Laser',
+          damage: 5,
+          heat: 3,
+          category: WeaponCategory.ENERGY,
+          minRange: 0,
+          shortRange: 3,
+          mediumRange: 6,
+          longRange: 9,
+          isCluster: false,
+        },
+      ],
+      3,
+      RangeBracket.Short,
+    );
+
+    let rollCount = 0;
+    const deterministicRoller: DiceRoller = () => {
+      rollCount++;
+      if (rollCount === 1) {
+        return { dice: [6, 6], total: 12, isSnakeEyes: false, isBoxcars: true };
+      }
+      if (rollCount === 2) {
+        return { dice: [1, 1], total: 2, isSnakeEyes: true, isBoxcars: false };
+      }
+      return { dice: [4, 4], total: 8, isSnakeEyes: false, isBoxcars: false };
+    };
+
+    const attackEvent = session.events.find(
+      (e) => e.type === GameEventType.AttackDeclared,
+    )!;
+
+    session = resolveAttack(session, attackEvent, deterministicRoller);
+
+    const resolved = session.events.find(
+      (e) => e.type === GameEventType.AttackResolved,
+    )?.payload as IAttackResolvedPayload;
+
+    expect(resolved).toMatchObject({
+      hit: true,
+      location: 'left_torso',
+      edgeReroll: true,
+      edgeSuperseded: true,
+      edgeTrigger: 'edge_when_tac',
+      edgePointsRemaining: 0,
+      edgeSupersededLocation: 'center_torso',
+      edgeSupersededRoll: 2,
+    });
+    expect(session.currentState.units.target.edgePointsRemaining).toBe(0);
+    expect(
+      session.events.some((e) => e.type === GameEventType.CriticalHitResolved),
+    ).toBe(false);
+    expect(
+      session.events.some((e) => e.type === GameEventType.ComponentDestroyed),
+    ).toBe(false);
+  });
+
+  it('halves resolveAttack damage on Low Profile glancing blows', () => {
+    const units = [
+      createTestUnit({
+        id: 'attacker',
+        name: 'Attacker',
+        side: GameSide.Player,
+      }),
+      createTestUnit({
+        id: 'target',
+        name: 'Target',
+        side: GameSide.Opponent,
+        unitQuirks: ['low_profile'],
+      }),
+    ];
+    const config = createTestConfig();
+    let session = createGameSession(config, units);
+    session = startGame(session, GameSide.Player);
+
+    session = rollInitiative(session);
+    session = advancePhase(session);
+    session = advancePhase(session);
+
+    session = declareAttack(
+      session,
+      'attacker',
+      'target',
+      [
+        {
+          weaponId: 'wpn-1',
+          weaponName: 'Medium Laser',
+          damage: 5,
+          heat: 3,
+          category: WeaponCategory.ENERGY,
+          minRange: 0,
+          shortRange: 3,
+          mediumRange: 6,
+          longRange: 9,
+          isCluster: false,
+        },
+      ],
+      3,
+      RangeBracket.Short,
+    );
+
+    const attackEvent = session.events.find(
+      (e) => e.type === GameEventType.AttackDeclared,
+    )!;
+    const toHitNumber = (attackEvent.payload as IAttackDeclaredPayload)
+      .toHitNumber;
+
+    let rollCount = 0;
+    const deterministicRoller: DiceRoller = () => {
+      rollCount++;
+      if (rollCount === 1) {
+        return {
+          dice: [3, toHitNumber - 2],
+          total: toHitNumber + 1,
+          isSnakeEyes: false,
+          isBoxcars: false,
+        };
+      }
+      return { dice: [3, 4], total: 7, isSnakeEyes: false, isBoxcars: false };
+    };
+
+    session = resolveAttack(session, attackEvent, deterministicRoller);
+
+    const resolved = session.events.find(
+      (e) => e.type === GameEventType.AttackResolved,
+    )?.payload as IAttackResolvedPayload;
+    const damage = session.events.find(
+      (e) => e.type === GameEventType.DamageApplied,
+    )?.payload as IDamageAppliedPayload;
+
+    expect(resolved).toMatchObject({
+      hit: true,
+      roll: toHitNumber + 1,
+      toHitNumber,
+      damage: 2,
+      location: 'center_torso',
+    });
+    expect(damage).toMatchObject({
+      unitId: 'target',
+      location: 'center_torso',
+      damage: 2,
+    });
   });
 
   it('should emit UnitDestroyed when CT structure reaches 0', () => {

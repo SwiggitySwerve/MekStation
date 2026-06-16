@@ -59,7 +59,13 @@ import {
   groundToAirIndirectWeaponBlockedReason,
 } from '@/utils/gameplay/aerospace/groundToAir';
 import { applyAirMekLandingControlPSR } from '@/utils/gameplay/airMekLandingPsr';
+import {
+  findAvailableAmmoBin,
+  isEnergyWeapon,
+  normalizeAmmoWeaponType,
+} from '@/utils/gameplay/ammoTracking';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
+import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import {
   determineArc,
   firingArcProjectionLabel,
@@ -93,6 +99,7 @@ import { semiGuidedTagIndirectFireBlockedReason } from '@/utils/gameplay/indirec
 import {
   calculateLOS,
   formatLOSBlockedDetails,
+  lineOfSightOptionsFromOptionalRules,
 } from '@/utils/gameplay/lineOfSight';
 import {
   calculateMovementHeat,
@@ -110,6 +117,10 @@ import { pendingAltitudeControlMovementCost } from '@/utils/gameplay/movement/al
 import { automaticWigeLandingRuntimePatch } from '@/utils/gameplay/movement/automaticWigeLanding';
 import { pendingConversionMovementCost } from '@/utils/gameplay/movement/conversionAccounting';
 import { getWeaponRangeBracket } from '@/utils/gameplay/range';
+import {
+  isAMS,
+  isMissileWeapon,
+} from '@/utils/gameplay/specialWeaponMechanics';
 import {
   gameUnitUsesMekHorizontalCover,
   gameUnitUsesMekWaterCover,
@@ -581,6 +592,8 @@ export interface IApplyAttackInput {
   readonly weaponIds: readonly string[];
   /** Optional requested per-weapon fire modes; invalid Indirect modes resolve to Direct. */
   readonly weaponModesByWeaponId?: Readonly<Record<string, WeaponFireMode>>;
+  /** Optional defender-selected AMS mount id keyed by incoming weapon id. */
+  readonly selectedAMSWeaponIds?: IAttackDeclaredPayload['selectedAMSWeaponIds'];
   /** Optional called-shot intent keyed by weapon id. */
   readonly calledShots?: Readonly<Record<string, boolean>>;
   /** Optional teammate-assisted called-shot intent keyed by weapon id. */
@@ -632,6 +645,181 @@ function weaponCoversTargetArc(
   return weaponMountCoversTargetArc(weapon, targetArc);
 }
 
+function mountBaseId(weaponId: string): string {
+  const match = weaponId.match(/^(.+)-(\d+)$/);
+  return match ? match[1] : weaponId;
+}
+
+function isMissileAttackWeapon(weapon: IWeaponAttack): boolean {
+  return (
+    isMissileWeapon(mountBaseId(weapon.weaponId)) ||
+    isMissileWeapon(weapon.weaponName) ||
+    /\bmml[\s-]?\d+/i.test(`${weapon.weaponId} ${weapon.weaponName}`)
+  );
+}
+
+const PLAYTEST_3_AMS_OPTIONAL_RULES = new Set([
+  'playtest_3',
+  'playtest-3',
+  'playtest3',
+  'tacops_playtest_3',
+]);
+
+function hasPlaytest3AMSRule(
+  optionalRules: readonly string[] | undefined,
+): boolean {
+  return (
+    optionalRules?.some((rule) =>
+      PLAYTEST_3_AMS_OPTIONAL_RULES.has(rule.toLowerCase()),
+    ) ?? false
+  );
+}
+
+function canSelectedAMSReuseWithinWeaponPhase(
+  weapon: IWeapon,
+  optionalRules: readonly string[] | undefined,
+): boolean {
+  return weapon.amsMultiUse === true || hasPlaytest3AMSRule(optionalRules);
+}
+
+function amsAmmoWeaponType(
+  weapon: IWeapon,
+  targetAmmoState: IGameSession['currentState']['units'][string]['ammoState'],
+): string {
+  const mountType = normalizeAmmoWeaponType(mountBaseId(weapon.id));
+  if (
+    targetAmmoState &&
+    findAvailableAmmoBin(targetAmmoState, mountType) !== null
+  ) {
+    return mountType;
+  }
+
+  return normalizeAmmoWeaponType(weapon.name);
+}
+
+function buildSelectedAMSWeaponMounts(input: {
+  readonly selectedAMSWeaponIds?: IAttackDeclaredPayload['selectedAMSWeaponIds'];
+  readonly incomingWeapons: readonly IWeaponAttack[];
+  readonly targetWeapons: readonly IWeapon[];
+  readonly targetState: IGameSession['currentState']['units'][string];
+  readonly incomingAttackArc: ReturnType<typeof calculateFiringArc>;
+  readonly optionalRules: readonly string[] | undefined;
+}): {
+  readonly mounts?: IAttackDeclaredPayload['selectedAMSWeaponMounts'];
+  readonly invalid?: {
+    readonly incomingWeaponId: string;
+    readonly details: string;
+  };
+} {
+  if (!input.selectedAMSWeaponIds) return {};
+
+  type SelectedAMSMountSnapshot = NonNullable<
+    IAttackDeclaredPayload['selectedAMSWeaponMounts']
+  >[string];
+  const snapshots: Record<string, SelectedAMSMountSnapshot> = {};
+
+  for (const [incomingWeaponId, selectedAMSWeaponId] of Object.entries(
+    input.selectedAMSWeaponIds,
+  )) {
+    const incomingWeapon = input.incomingWeapons.find(
+      (weapon) => weapon.weaponId === incomingWeaponId,
+    );
+    if (!incomingWeapon || !isMissileAttackWeapon(incomingWeapon)) {
+      return {
+        invalid: {
+          incomingWeaponId,
+          details: `Selected AMS '${selectedAMSWeaponId}' is not legal for incoming weapon '${incomingWeaponId}': incoming weapon is not a committed missile attack`,
+        },
+      };
+    }
+
+    const selectedWeapon = input.targetWeapons.find(
+      (weapon) => weapon.id === selectedAMSWeaponId,
+    );
+    if (!selectedWeapon) {
+      return {
+        invalid: {
+          incomingWeaponId,
+          details: `Selected AMS '${selectedAMSWeaponId}' is not mounted on defender '${input.targetState.id}'`,
+        },
+      };
+    }
+    if (selectedWeapon.destroyed) {
+      return {
+        invalid: {
+          incomingWeaponId,
+          details: `Selected AMS '${selectedAMSWeaponId}' is destroyed`,
+        },
+      };
+    }
+    if (!isAMS(mountBaseId(selectedWeapon.id)) && !isAMS(selectedWeapon.name)) {
+      return {
+        invalid: {
+          incomingWeaponId,
+          details: `Selected AMS '${selectedAMSWeaponId}' is not an AMS weapon`,
+        },
+      };
+    }
+    if (
+      input.targetState.weaponsFiredThisTurn?.includes(selectedWeapon.id) &&
+      !canSelectedAMSReuseWithinWeaponPhase(selectedWeapon, input.optionalRules)
+    ) {
+      return {
+        invalid: {
+          incomingWeaponId,
+          details: `Selected AMS '${selectedAMSWeaponId}' has already fired this weapon phase`,
+        },
+      };
+    }
+    if (!weaponMountCoversTargetArc(selectedWeapon, input.incomingAttackArc)) {
+      return {
+        invalid: {
+          incomingWeaponId,
+          details: `Selected AMS '${selectedAMSWeaponId}' does not cover the incoming ${input.incomingAttackArc} arc`,
+        },
+      };
+    }
+
+    const ammoWeaponType = amsAmmoWeaponType(
+      selectedWeapon,
+      input.targetState.ammoState,
+    );
+    if (
+      !isEnergyWeapon(selectedWeapon.name) &&
+      (!input.targetState.ammoState ||
+        findAvailableAmmoBin(input.targetState.ammoState, ammoWeaponType) ===
+          null)
+    ) {
+      return {
+        invalid: {
+          incomingWeaponId,
+          details: `Selected AMS '${selectedAMSWeaponId}' has no available AMS ammo`,
+        },
+      };
+    }
+
+    snapshots[incomingWeaponId] = {
+      weaponId: selectedWeapon.id,
+      weaponName: selectedWeapon.name,
+      heat: selectedWeapon.heat,
+      ammoWeaponType,
+      ...(selectedWeapon.mountingArc !== undefined
+        ? { mountingArc: selectedWeapon.mountingArc }
+        : {}),
+      ...(selectedWeapon.mountingArcs !== undefined
+        ? { mountingArcs: selectedWeapon.mountingArcs }
+        : {}),
+      ...(selectedWeapon.amsMultiUse !== undefined
+        ? { amsMultiUse: selectedWeapon.amsMultiUse }
+        : {}),
+    };
+  }
+
+  return {
+    mounts: Object.keys(snapshots).length > 0 ? snapshots : undefined,
+  };
+}
+
 function indirectInterveningTerrainEffects({
   session,
   grid,
@@ -653,8 +841,14 @@ function indirectInterveningTerrainEffects({
 
   const spotter = session.currentState.units[indirectFireResolution.spotterId];
   if (!spotter) return [];
-  return calculateLOS(spotter.position, targetHex, grid)
-    .interveningTerrainEffects;
+  return calculateLOS(
+    spotter.position,
+    targetHex,
+    grid,
+    undefined,
+    undefined,
+    lineOfSightOptionsFromOptionalRules(session.config.optionalRules),
+  ).interveningTerrainEffects;
 }
 
 function appendInteractiveAttackInvalid(
@@ -1168,6 +1362,7 @@ export function applyInteractiveSessionAttack(
           input.session.currentState,
           input.grid,
           pilotSpasByUnitId,
+          input.session.config.optionalRules,
         )
       : undefined);
   const indirectFireResolution: IIndirectFireResolution | undefined =
@@ -1253,6 +1448,9 @@ export function applyInteractiveSessionAttack(
       attackerUnit.position,
       resolvedTargetHex,
       input.grid,
+      undefined,
+      undefined,
+      lineOfSightOptionsFromOptionalRules(input.session.config.optionalRules),
     );
     const indirectAllowed =
       indirectFireResolution?.permitted === true &&
@@ -1296,6 +1494,29 @@ export function applyInteractiveSessionAttack(
           input.grid.hexes.get(coordToKey(resolvedTargetHex)),
         )
       : null;
+  const selectedAMSValidation = buildSelectedAMSWeaponMounts({
+    selectedAMSWeaponIds: input.selectedAMSWeaponIds,
+    incomingWeapons: usableWeaponAttacks,
+    targetWeapons: input.weaponsByUnit.get(input.targetId) ?? [],
+    targetState: targetUnit,
+    incomingAttackArc: calculateFiringArc(
+      attackerUnit.position,
+      targetUnit.position,
+      targetUnit.facing,
+    ),
+    optionalRules: input.session.config.optionalRules,
+  });
+  if (selectedAMSValidation.invalid) {
+    return appendInteractiveAttackInvalid(
+      input.session,
+      input.attackerId,
+      input.targetId,
+      'InvalidTarget',
+      selectedAMSValidation.invalid.details,
+      selectedAMSValidation.invalid.incomingWeaponId,
+    );
+  }
+  const selectedAMSWeaponMounts = selectedAMSValidation.mounts;
 
   let session = declareAttack(
     input.session,
@@ -1318,6 +1539,8 @@ export function applyInteractiveSessionAttack(
           })
         : [],
     targetTerrainModifier,
+    input.selectedAMSWeaponIds,
+    selectedAMSWeaponMounts,
   );
   session = enrichAttackDeclaredEventFromProjection({
     session,

@@ -894,6 +894,46 @@ function buildIndirectWeaponsByUnit(): Map<string, readonly IWeapon[]> {
   ]);
 }
 
+function buildSelectedAMSWeaponsByUnit(): Map<string, readonly IWeapon[]> {
+  return new Map([
+    [
+      'a1',
+      [
+        {
+          id: 'lrm-10-0',
+          name: 'LRM-10',
+          shortRange: 7,
+          mediumRange: 14,
+          longRange: 21,
+          damage: 10,
+          heat: 4,
+          minRange: 0,
+          ammoPerTon: 12,
+          destroyed: false,
+        },
+      ],
+    ],
+    [
+      't1',
+      [
+        {
+          id: 'laser-ams-0',
+          name: 'Laser Anti-Missile System',
+          shortRange: 1,
+          mediumRange: 1,
+          longRange: 1,
+          damage: 0,
+          heat: 5,
+          minRange: 0,
+          ammoPerTon: -1,
+          destroyed: false,
+          mountingArc: FiringArc.Front,
+        },
+      ],
+    ],
+  ]);
+}
+
 function buildSemiGuidedWeaponsByUnit(): Map<string, readonly IWeapon[]> {
   return new Map([
     [
@@ -1659,6 +1699,167 @@ describe('interactive attack projection agreement', () => {
         mode: 'Indirect',
       }),
     ]);
+  });
+
+  it('stamps selected defender AMS mount metadata onto AttackDeclared for replay', () => {
+    const session = setupSessionAtWeaponAttack();
+    const grid = makeClearGrid(3);
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildSelectedAMSWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['lrm-10-0'],
+      selectedAMSWeaponIds: { 'lrm-10-0': 'laser-ams-0' },
+      grid,
+    });
+
+    expect(
+      result.events.some((event) => event.type === GameEventType.AttackInvalid),
+    ).toBe(false);
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.selectedAMSWeaponIds).toEqual({
+      'lrm-10-0': 'laser-ams-0',
+    });
+    expect(payload.selectedAMSWeaponMounts).toEqual({
+      'lrm-10-0': expect.objectContaining({
+        weaponId: 'laser-ams-0',
+        weaponName: 'Laser Anti-Missile System',
+        heat: 5,
+        mountingArc: FiringArc.Front,
+      }),
+    });
+  });
+
+  it('rejects non-AMS defender selections before committing AttackDeclared', () => {
+    const session = setupSessionAtWeaponAttack();
+    const grid = makeClearGrid(3);
+    const weaponsByUnit = buildSelectedAMSWeaponsByUnit();
+    weaponsByUnit.set('t1', [
+      {
+        id: 'medium-laser-0',
+        name: 'Medium Laser',
+        shortRange: 3,
+        mediumRange: 6,
+        longRange: 9,
+        damage: 5,
+        heat: 3,
+        minRange: 0,
+        ammoPerTon: -1,
+        destroyed: false,
+        mountingArc: FiringArc.Front,
+      },
+    ]);
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit,
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['lrm-10-0'],
+      selectedAMSWeaponIds: { 'lrm-10-0': 'medium-laser-0' },
+      grid,
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponId: 'lrm-10-0',
+      reason: 'InvalidTarget',
+      details: "Selected AMS 'medium-laser-0' is not an AMS weapon",
+    });
+  });
+
+  it('rejects defender AMS selections outside the incoming attack arc before commit', () => {
+    const session = setupSessionAtWeaponAttack();
+    const grid = makeClearGrid(3);
+    const weaponsByUnit = buildSelectedAMSWeaponsByUnit();
+    const frontAms = weaponsByUnit.get('t1')![0];
+    weaponsByUnit.set('t1', [
+      {
+        ...frontAms,
+        id: 'rear-laser-ams-0',
+        mountingArc: FiringArc.Rear,
+      } as IWeapon,
+    ]);
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit,
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['lrm-10-0'],
+      selectedAMSWeaponIds: { 'lrm-10-0': 'rear-laser-ams-0' },
+      grid,
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponId: 'lrm-10-0',
+      reason: 'InvalidTarget',
+      details:
+        "Selected AMS 'rear-laser-ams-0' does not cover the incoming front arc",
+    });
+  });
+
+  it('rejects already-fired standard AMS defender selections before commit', () => {
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.t1 = {
+      ...session.currentState.units.t1,
+      weaponsFiredThisTurn: ['laser-ams-0'],
+    };
+    const grid = makeClearGrid(3);
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit: buildSelectedAMSWeaponsByUnit(),
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['lrm-10-0'],
+      selectedAMSWeaponIds: { 'lrm-10-0': 'laser-ams-0' },
+      grid,
+    });
+
+    expect(
+      result.events.some(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ),
+    ).toBe(false);
+    const invalid = result.events.find(
+      (event) => event.type === GameEventType.AttackInvalid,
+    );
+    expect(invalid).toBeDefined();
+    expect(invalid!.payload as IAttackInvalidPayload).toMatchObject({
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponId: 'lrm-10-0',
+      reason: 'InvalidTarget',
+      details: "Selected AMS 'laser-ams-0' has already fired this weapon phase",
+    });
   });
 
   it('keeps target-adjacent elevation partial cover aligned between preview and committed attacks', () => {

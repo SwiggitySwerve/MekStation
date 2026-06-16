@@ -4,8 +4,11 @@
  */
 
 import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
+import type { IC3NetworkState } from '@/utils/gameplay/c3Network';
 
 import type { GamePhase, GameSide } from './GameSessionCoreTypes';
+import type { IRepresentedGroundObjectState } from './GameSessionGroundObjectEvents';
+import type { IRepresentedMinefieldState } from './GameSessionStateTypes';
 import type { IGameConfig, IGameUnit } from './GameSessionUnitTypes';
 import type { IHexTerrain } from './TerrainTypes';
 
@@ -61,6 +64,12 @@ export interface IGameCreatedPayload {
    */
   readonly hexTerrain?: readonly IHexTerrain[];
   /**
+   * Explicit session-authored C3/C3i network snapshot. Carried on the seed
+   * event so replay/deriveState can reconstruct authored network formation
+   * without re-running producer-side assignment logic.
+   */
+  readonly c3Network?: IC3NetworkState;
+  /**
    * Per `link-encounters-to-replays` PR 3: encounter snapshot stamped at
    * session creation when the session originated from
    * `EncounterService.launchEncounter` (or a pre-battle launch handler
@@ -79,6 +88,16 @@ export interface IGameCreatedPayload {
    * only scenarios — an absent map behaves identically to today.
    */
   readonly objectives?: Record<string, IObjectiveMarker>;
+  /**
+   * Represented carryable ground objects present at scenario/session start.
+   * Omitted for scenarios without object-carry state.
+   */
+  readonly groundObjects?: Record<string, IRepresentedGroundObjectState>;
+  /**
+   * Explicit represented minefield coordinate state present at scenario/session
+   * start. Omitted for scenarios without authored minefield coordinates.
+   */
+  readonly minefields?: Readonly<Record<string, IRepresentedMinefieldState>>;
 }
 
 /**

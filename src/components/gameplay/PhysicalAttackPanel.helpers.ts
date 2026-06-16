@@ -113,6 +113,7 @@ export const REASON_COPY: Record<PhysicalAttackInvalidReason, string> = {
   UnsupportedAttackType: 'Attack type is unsupported',
   PhysicalAttackLimitReached: 'Physical attack allowance used this turn',
   RetractableBladeNotExtended: 'Retractable blade is not extended',
+  RequiredSpaMissing: 'Required pilot ability is missing',
   DestinationBlocked: 'Push destination is blocked',
 };
 

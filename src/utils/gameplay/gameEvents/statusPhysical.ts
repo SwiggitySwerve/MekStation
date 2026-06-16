@@ -4,6 +4,7 @@ import {
   IGameEvent,
   IPhysicalAttackDeclaredPayload,
   IPhysicalAttackResolvedPayload,
+  INeuralInterfaceStateChangedPayload,
   IRetreatTriggeredPayload,
   IUnitEjectedPayload,
   IUnitRetreatedPayload,
@@ -26,6 +27,9 @@ export function createPhysicalAttackDeclaredEvent(
   toHitNumber: number,
   limb?: IPhysicalAttackDeclaredPayload['limb'],
   hitTable?: IPhysicalAttackDeclaredPayload['hitTable'],
+  twoHandedZweihander?: boolean,
+  selectedINarcPod?: IPhysicalAttackDeclaredPayload['selectedINarcPod'],
+  blockerStepOutDecision?: IPhysicalAttackDeclaredPayload['blockerStepOutDecision'],
 ): IGameEvent {
   const payload: IPhysicalAttackDeclaredPayload = {
     attackerId,
@@ -34,6 +38,9 @@ export function createPhysicalAttackDeclaredEvent(
     toHitNumber,
     limb,
     ...(hitTable ? { hitTable } : {}),
+    ...(twoHandedZweihander === true ? { twoHandedZweihander } : {}),
+    ...(selectedINarcPod !== undefined ? { selectedINarcPod } : {}),
+    ...(blockerStepOutDecision !== undefined ? { blockerStepOutDecision } : {}),
   };
   return {
     ...createEventBase(
@@ -69,6 +76,7 @@ export function createPhysicalAttackResolvedEvent(
   displacements?: IPhysicalAttackResolvedPayload['displacements'],
   automaticHit?: boolean,
   automaticHitReason?: string,
+  selectedINarcPod?: IPhysicalAttackResolvedPayload['selectedINarcPod'],
 ): IGameEvent {
   const payload: IPhysicalAttackResolvedPayload = {
     attackerId,
@@ -83,6 +91,7 @@ export function createPhysicalAttackResolvedEvent(
     displacements,
     automaticHit,
     automaticHitReason,
+    selectedINarcPod,
   };
   return {
     ...createEventBase(
@@ -171,6 +180,34 @@ export function createUnitEjectedEvent(
       gameId,
       sequence,
       GameEventType.UnitEjected,
+      turn,
+      phase,
+      unitId,
+    ),
+    payload,
+  };
+}
+
+export function createNeuralInterfaceStateChangedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  phase: GamePhase,
+  unitId: string,
+  active: boolean,
+  reason: INeuralInterfaceStateChangedPayload['reason'],
+): IGameEvent {
+  const payload: INeuralInterfaceStateChangedPayload = {
+    unitId,
+    active,
+    turn,
+    reason,
+  };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.NeuralInterfaceStateChanged,
       turn,
       phase,
       unitId,

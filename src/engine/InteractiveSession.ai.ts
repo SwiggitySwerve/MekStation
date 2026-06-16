@@ -176,6 +176,12 @@ export function runInteractiveSessionAITurn(
             weaponAttacks,
             3,
             RangeBracket.Short,
+            undefined,
+            undefined,
+            false,
+            [],
+            null,
+            atkEvt.payload.selectedAMSWeaponIds,
           ),
         );
       }

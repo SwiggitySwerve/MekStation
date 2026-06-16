@@ -1,19 +1,31 @@
+import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
+
 import {
+  CombatLocation,
   GameEventType,
   GamePhase,
   IGameEvent,
   IGameState,
+  IHexCoordinate,
   IHexGrid,
   IMovementCapability,
+  IPendingPSR,
+  type IPhysicalDominoStepOutDecisionPayload,
   MovementType,
   PSRTrigger,
 } from '@/types/gameplay';
+import {
+  TerrainType,
+  type ITerrainFeature,
+} from '@/types/gameplay/TerrainTypes';
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
+import { createPSRTriggeredEvent } from '@/utils/gameplay/gameEvents/statusChecks';
 import {
   firedWeaponIdsFromMountedArm,
   firedWeaponIdsFromMountedLeg,
 } from '@/utils/gameplay/gameSessionPhysicalHelpers';
 import { hexDistance } from '@/utils/gameplay/hexMath';
+import { parseTerrainFeatures } from '@/utils/gameplay/lineOfSight';
 import {
   applyJumpJetCriticalDamage,
   applyPartialWingJumpBonus,
@@ -23,10 +35,13 @@ import {
   computePushDisplacement,
   BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
   IPhysicalAttackInput,
+  type PhysicalAttackINarcPodSelection,
+  type PhysicalAttackLimb,
   isPhysicalAirborneVtolOrWigeTarget,
   isTargetDirectlyAhead,
   isTargetInFrontArc,
   isValidDisplacement,
+  isZweihanderPhysicalAttackType,
   physicalTargetObjectTypeForUnitType,
   PhysicalAttackType,
   resolveDfaMissFallDamage,
@@ -37,6 +52,15 @@ import {
   thrashBlockingTerrainsForHexTerrain,
   translateHex,
 } from '@/utils/gameplay/physicalAttacks';
+import {
+  createBuildingCollapsePSR,
+  createEnteringWaterPSR,
+  createExitingWaterPSR,
+  createIcePSR,
+  createRubblePSR,
+  createSwampBogDownPSR,
+} from '@/utils/gameplay/pilotingSkillRolls';
+import { removeEquivalentINarcPod } from '@/utils/gameplay/specialWeaponMechanics';
 import {
   calculateAttackerMovementModifier,
   calculateTMM,
@@ -55,9 +79,11 @@ import {
   DEFAULT_TONNAGE,
 } from '../SimulationRunnerConstants';
 import { toAIUnitState } from '../SimulationRunnerSupport';
+import { applyRepresentedMinefieldEntryDamage } from './movementMines';
 import {
   applyPhysicalDamageClusterLocations,
   applyDfaAttackerLegDamage,
+  applyPhysicalCriticalHits,
   applyPhysicalDamageClusters,
 } from './physicalAttackDamage';
 import {
@@ -102,6 +128,183 @@ function dominoEffectDisplacedUnitIds(
   return displacements
     .filter((displacement) => displacement.reason === 'domino')
     .map((displacement) => displacement.unitId);
+}
+
+function isBattleMechLikeUnitType(unitType: string | undefined): boolean {
+  if (unitType === undefined) return true;
+  const canonical = unitType.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return (
+    canonical === 'battlemech' ||
+    canonical === 'omnimech' ||
+    canonical === 'industrialmech'
+  );
+}
+
+function terrainFeaturesAt(
+  grid: IHexGrid,
+  coord: IHexCoordinate,
+): readonly ITerrainFeature[] {
+  return parseTerrainFeatures(
+    grid.hexes.get(`${coord.q},${coord.r}`)?.terrain ?? TerrainType.Clear,
+  );
+}
+
+function hasTerrainFeature(
+  features: readonly ITerrainFeature[],
+  terrainType: TerrainType,
+): boolean {
+  return features.some(
+    (feature) => feature.type === terrainType && feature.level > 0,
+  );
+}
+
+function terrainLevelFromFeatures(
+  features: readonly ITerrainFeature[],
+  terrainType: TerrainType,
+): number | undefined {
+  const feature = features.find((entry) => entry.type === terrainType);
+  if (!feature) return undefined;
+  return Math.max(1, feature.level);
+}
+
+function hasOverloadedBuildingFeature(
+  features: readonly ITerrainFeature[],
+  unitTonnage: number | undefined,
+): boolean {
+  if (unitTonnage === undefined || !Number.isFinite(unitTonnage)) return false;
+
+  const building = features.find(
+    (feature) =>
+      feature.type === TerrainType.Building &&
+      feature.level > 0 &&
+      feature.constructionFactor !== undefined &&
+      Number.isFinite(feature.constructionFactor),
+  );
+  if (!building || building.constructionFactor === undefined) return false;
+
+  return unitTonnage > building.constructionFactor;
+}
+
+function representedDominoTerrainPSRsForDisplacement(options: {
+  readonly state: IGameState;
+  readonly grid: IHexGrid;
+  readonly unitId: string;
+  readonly from: IHexCoordinate;
+  readonly to: IHexCoordinate;
+  readonly reason: string;
+}): readonly IPendingPSR[] {
+  if (options.reason !== 'domino') return [];
+
+  const unit = options.state.units[options.unitId];
+  if (!unit) return [];
+
+  const fromFeatures = terrainFeaturesAt(options.grid, options.from);
+  const enteredFeatures = terrainFeaturesAt(options.grid, options.to);
+  const psrs: IPendingPSR[] = [];
+
+  if (
+    hasTerrainFeature(fromFeatures, TerrainType.Water) &&
+    !hasTerrainFeature(enteredFeatures, TerrainType.Water)
+  ) {
+    psrs.push(createExitingWaterPSR(options.unitId));
+  }
+
+  if (
+    hasTerrainFeature(enteredFeatures, TerrainType.Water) &&
+    !hasTerrainFeature(fromFeatures, TerrainType.Water)
+  ) {
+    psrs.push(
+      createEnteringWaterPSR(options.unitId, undefined, {
+        waterDepth: terrainLevelFromFeatures(
+          enteredFeatures,
+          TerrainType.Water,
+        ),
+      }),
+    );
+  }
+
+  if (hasTerrainFeature(enteredFeatures, TerrainType.Rubble)) {
+    psrs.push(createRubblePSR(options.unitId));
+  }
+
+  if (hasTerrainFeature(enteredFeatures, TerrainType.Ice)) {
+    psrs.push(createIcePSR(options.unitId));
+  }
+
+  if (
+    isBattleMechLikeUnitType(unit.unitType) &&
+    hasTerrainFeature(enteredFeatures, TerrainType.Swamp) &&
+    !hasTerrainFeature(fromFeatures, TerrainType.Swamp) &&
+    !hasTerrainFeature(enteredFeatures, TerrainType.Pavement)
+  ) {
+    psrs.push(
+      createSwampBogDownPSR(options.unitId, undefined, {
+        swampDepth: terrainLevelFromFeatures(
+          enteredFeatures,
+          TerrainType.Swamp,
+        ),
+      }),
+    );
+  }
+
+  if (
+    isBattleMechLikeUnitType(unit.unitType) &&
+    hasOverloadedBuildingFeature(enteredFeatures, unit.tonnage)
+  ) {
+    psrs.push(createBuildingCollapsePSR(options.unitId));
+  }
+
+  return psrs;
+}
+
+function zweihanderSelfCriticalLocations(
+  attackType: IPhysicalAttackInput['attackType'],
+  limb?: PhysicalAttackLimb,
+): readonly CombatLocation[] {
+  if (attackType === 'punch') return ['right_arm', 'left_arm'];
+  return limb === 'leftArm' ? ['left_arm'] : ['right_arm'];
+}
+
+function armForPhysicalLimb(
+  limb: PhysicalAttackLimb | undefined,
+): IPhysicalAttackInput['arm'] {
+  return limb === 'leftArm' ? 'left' : 'right';
+}
+
+function armWeaponsForPhysicalLimb(options: {
+  readonly limb: PhysicalAttackLimb | undefined;
+  readonly weaponsFiredFromLeftArm: readonly string[];
+  readonly weaponsFiredFromRightArm: readonly string[];
+}): readonly string[] {
+  return options.limb === 'leftArm'
+    ? options.weaponsFiredFromLeftArm
+    : options.weaponsFiredFromRightArm;
+}
+
+function armMountedPhysicalWeaponAttack(
+  attackType: PhysicalAttackType,
+): boolean {
+  return (
+    attackType === 'hatchet' ||
+    attackType === 'sword' ||
+    attackType === 'mace' ||
+    attackType === 'lance' ||
+    attackType === 'retractable-blade' ||
+    attackType === 'flail'
+  );
+}
+
+function defaultPhysicalAttackLimb(
+  attackType: PhysicalAttackType,
+): PhysicalAttackLimb | undefined {
+  if (
+    attackType === 'punch' ||
+    attackType === 'brush-off' ||
+    armMountedPhysicalWeaponAttack(attackType)
+  ) {
+    return 'rightArm';
+  }
+  return undefined;
 }
 
 function friendlyUnitIdsForDisplacement(
@@ -161,6 +364,12 @@ function targetIsSwarmingInfantryOnAttacker(
   return hostId === undefined || hostId === attackerId;
 }
 
+function targetHasBrushOffINarcPods(
+  target: IGameState['units'][string],
+): boolean {
+  return (target.iNarcPods?.length ?? 0) > 0;
+}
+
 function clearBrushOffSwarmingState(
   state: IGameState,
   unitId: string,
@@ -191,6 +400,39 @@ function clearBrushOffSwarmingState(
       },
     },
   };
+}
+
+function removeOneBrushOffINarcPod(
+  state: IGameState,
+  unitId: string,
+  selectedINarcPod?: PhysicalAttackINarcPodSelection,
+): IGameState {
+  const unit = state.units[unitId];
+  const iNarcPods = unit?.iNarcPods;
+  if (!unit || !iNarcPods || iNarcPods.length === 0) return state;
+
+  const remainingPods =
+    selectedINarcPod === undefined
+      ? iNarcPods.slice(1)
+      : removeEquivalentINarcPod(iNarcPods, selectedINarcPod);
+  if (remainingPods === iNarcPods) return state;
+
+  return {
+    ...state,
+    units: {
+      ...state.units,
+      [unitId]: {
+        ...unit,
+        iNarcPods: remainingPods,
+      },
+    },
+  };
+}
+
+function physicalDeclarationSelectedINarcPod(payload: {
+  readonly selectedINarcPod?: PhysicalAttackINarcPodSelection;
+}): PhysicalAttackINarcPodSelection | undefined {
+  return payload.selectedINarcPod;
 }
 
 function applyGrappleState(
@@ -342,6 +584,11 @@ function applyDfaMissFallPilotDamage(options: {
     unit.abilities ?? [],
     d6Roller,
     unit.pilotToughness,
+    {
+      edgePointsRemaining: unit.edgePointsRemaining,
+      turn: state.turn,
+      unitId,
+    },
   );
   const pilotConscious =
     totalWounds < LETHAL_PILOT_WOUNDS &&
@@ -364,6 +611,10 @@ function applyDfaMissFallPilotDamage(options: {
         consciousnessCheckRequired:
           consciousnessCheck.consciousnessCheckRequired,
         consciousnessCheckPassed: pilotConscious,
+        edgeReroll: consciousnessCheck.edgeReroll,
+        edgeSuperseded: consciousnessCheck.edgeSuperseded,
+        edgeTrigger: consciousnessCheck.edgeTrigger,
+        edgePointsRemaining: consciousnessCheck.edgePointsRemaining,
       },
       unitId,
     ),
@@ -394,6 +645,8 @@ function applyDfaMissFallPilotDamage(options: {
         ...unit,
         pilotWounds: totalWounds,
         pilotConscious,
+        edgePointsRemaining:
+          consciousnessCheck.edgePointsRemaining ?? unit.edgePointsRemaining,
         destroyed: pilotKilled ? true : unit.destroyed,
       },
     },
@@ -411,6 +664,7 @@ export function runPhysicalAttackPhase(options: {
   grid?: IHexGrid;
   movementCapabilitiesByUnit?: ReadonlyMap<string, IMovementCapability>;
   optionalRules?: readonly string[];
+  manifestsByUnit?: Map<string, CriticalSlotManifest>;
 }): IGameState {
   const {
     botPlayer,
@@ -418,6 +672,7 @@ export function runPhysicalAttackPhase(options: {
     gameId,
     grid,
     invariantRunner,
+    manifestsByUnit,
     movementCapabilitiesByUnit,
     optionalRules,
     random,
@@ -487,6 +742,12 @@ export function runPhysicalAttackPhase(options: {
     const attackerJumpMP = physicalMovementCapability?.jumpMP;
     let bestAttack: PhysicalAttackType | null = null;
     let target = enemies[0];
+    let declaredLimb: PhysicalAttackLimb | undefined;
+    let declaredTwoHandedZweihander = false;
+    let selectedINarcPod: PhysicalAttackINarcPodSelection | undefined;
+    let blockerStepOutDecision:
+      | IPhysicalDominoStepOutDecisionPayload
+      | undefined;
 
     if (botPlayer) {
       const declaration = botPlayer.playPhysicalAttackPhase(
@@ -504,6 +765,13 @@ export function runPhysicalAttackPhase(options: {
       if (!declaredTarget) continue;
       bestAttack = declaration.payload.attackType;
       target = declaredTarget;
+      declaredLimb = declaration.payload.limb;
+      declaredTwoHandedZweihander =
+        declaration.payload.twoHandedZweihander === true;
+      selectedINarcPod = physicalDeclarationSelectedINarcPod(
+        declaration.payload,
+      );
+      blockerStepOutDecision = declaration.payload.blockerStepOutDecision;
     } else {
       target = enemies[random.nextInt(enemies.length)];
       const elevationDifference = elevationDifferenceBetween(
@@ -534,6 +802,8 @@ export function runPhysicalAttackPhase(options: {
           rightArmHasTalons: unit.rightArmHasTalons,
           leftArmHasClaw: unit.leftArmHasClaw,
           rightArmHasClaw: unit.rightArmHasClaw,
+          leftArmCarryingCargo: unit.leftArmCarryingCargo,
+          rightArmCarryingCargo: unit.rightArmCarryingCargo,
           canReachForCharge: attackerRanThisTurn && hexesMoved > 1,
           hexesMoved,
           attackerMovedBackwardThisTurn: unit.movedBackwardThisTurn,
@@ -561,6 +831,7 @@ export function runPhysicalAttackPhase(options: {
           targetIsSwarming: target.isSwarming,
           targetIsSwarmingInfantryOnAttacker:
             targetIsSwarmingInfantryOnAttacker(unit.id, target),
+          targetIsINarcPod: targetHasBrushOffINarcPods(target),
           targetObjectType: physicalTargetObjectTypeForUnitType(
             target.unitType,
           ),
@@ -636,6 +907,7 @@ export function runPhysicalAttackPhase(options: {
       target.motionType,
       target.isAirborne,
     );
+    const targetHasINarcPods = targetHasBrushOffINarcPods(target);
     const pushDestinationValid =
       bestAttack !== 'push' || !physicalGrid
         ? true
@@ -648,6 +920,12 @@ export function runPhysicalAttackPhase(options: {
               maxElevationChange: BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
             },
           );
+    const effectiveLimb = declaredLimb ?? defaultPhysicalAttackLimb(bestAttack);
+    const selectedArmWeapons = armWeaponsForPhysicalLimb({
+      limb: effectiveLimb,
+      weaponsFiredFromLeftArm,
+      weaponsFiredFromRightArm,
+    });
 
     const attackInput: IPhysicalAttackInput = {
       attackerId: unit.id,
@@ -656,20 +934,27 @@ export function runPhysicalAttackPhase(options: {
       pilotingSkill: unit.piloting ?? DEFAULT_PILOTING,
       componentDamage,
       attackType: bestAttack,
-      arm: 'right',
+      arm: armForPhysicalLimb(effectiveLimb),
+      limb: effectiveLimb,
+      twoHandedZweihander: declaredTwoHandedZweihander,
       hexesMoved,
       attackerProne: unit.prone ?? false,
       attackerStuck: unit.isStuck ?? false,
       weaponsFiredFromArm:
-        bestAttack === 'thrash'
-          ? weaponsFiredThisTurn
-          : bestAttack === 'grapple'
+        declaredTwoHandedZweihander &&
+        isZweihanderPhysicalAttackType(bestAttack)
+          ? weaponsFiredFromEitherArm
+          : bestAttack === 'thrash'
             ? weaponsFiredThisTurn
-            : bestAttack === 'push'
-              ? weaponsFiredFromEitherArm
-              : bestAttack === 'punch' || bestAttack === 'brush-off'
-                ? weaponsFiredFromRightArm
-                : undefined,
+            : bestAttack === 'grapple'
+              ? weaponsFiredThisTurn
+              : bestAttack === 'push'
+                ? weaponsFiredFromEitherArm
+                : bestAttack === 'punch' || bestAttack === 'brush-off'
+                  ? selectedArmWeapons
+                  : armMountedPhysicalWeaponAttack(bestAttack)
+                    ? selectedArmWeapons
+                    : undefined,
       attackerDestroyedLocations: unit.destroyedLocations,
       attackerUnitType: unit.unitType,
       attackerIsQuad: unit.isQuad,
@@ -689,6 +974,8 @@ export function runPhysicalAttackPhase(options: {
       rightArmHasTalons: unit.rightArmHasTalons,
       leftArmHasClaw: unit.leftArmHasClaw,
       rightArmHasClaw: unit.rightArmHasClaw,
+      leftArmCarryingCargo: unit.leftArmCarryingCargo,
+      rightArmCarryingCargo: unit.rightArmCarryingCargo,
       optionalRules,
       tacOpsGrapplingEnabled: optionalRules?.includes('tacops_grappling'),
       attackerGrappledTargetId: unit.grappledUnitId,
@@ -744,6 +1031,7 @@ export function runPhysicalAttackPhase(options: {
         unit.id,
         target,
       ),
+      targetIsINarcPod: targetHasINarcPods,
       targetIsMakingDFA: target.isMakingDFA,
       targetIsMakingDisplacementAttack: target.isMakingDisplacementAttack,
       targetIsPushing: target.isPushing,
@@ -793,6 +1081,7 @@ export function runPhysicalAttackPhase(options: {
                 Object.values(currentState.units),
                 target,
               ),
+            blockerStepOutDecision,
           })
         : { displacements: [] };
     const displacements = displacementOutcome.displacements;
@@ -810,6 +1099,10 @@ export function runPhysicalAttackPhase(options: {
       dfaMissDropsAttacker(displacements, unitId)
         ? resolveDfaMissFallDamage(DEFAULT_TONNAGE, unit.facing, d6Roller)
         : undefined;
+    const brushOffSelectedINarcPod =
+      bestAttack === 'brush-off'
+        ? (selectedINarcPod ?? target.iNarcPods?.[0])
+        : undefined;
 
     emitPhysicalAttackDeclaredEvent({
       events,
@@ -818,7 +1111,11 @@ export function runPhysicalAttackPhase(options: {
       attackerId: unitId,
       targetId: target.id,
       attackType: bestAttack,
+      limb: effectiveLimb,
       toHitNumber: result.toHitNumber,
+      twoHandedZweihander: declaredTwoHandedZweihander,
+      selectedINarcPod: brushOffSelectedINarcPod,
+      blockerStepOutDecision,
     });
 
     if (result.hit && result.targetDamage > 0 && result.hitLocation) {
@@ -834,17 +1131,46 @@ export function runPhysicalAttackPhase(options: {
         clusters: targetClusters,
         hitTable: bestAttack === 'kick' ? 'kick' : 'punch',
         d6Roller,
+        optionalRules,
         sourceUnitId: unitId,
         firstHitLocation: result.hitLocation,
+        manifestsByUnit,
       });
     }
 
     if (result.hit && bestAttack === 'brush-off') {
-      currentState = clearBrushOffSwarmingState(currentState, target.id);
+      if (attackInput.targetIsSwarmingInfantryOnAttacker === true) {
+        currentState = clearBrushOffSwarmingState(currentState, target.id);
+      }
+      if (targetHasINarcPods) {
+        currentState = removeOneBrushOffINarcPod(
+          currentState,
+          target.id,
+          brushOffSelectedINarcPod,
+        );
+      }
     }
 
     if (result.hit && bestAttack === 'grapple') {
       currentState = applyGrappleState(currentState, unitId, target.id);
+    }
+
+    if (
+      declaredTwoHandedZweihander &&
+      result.restrictionReasonCode === undefined &&
+      isZweihanderPhysicalAttackType(bestAttack)
+    ) {
+      currentState = applyPhysicalCriticalHits({
+        state: currentState,
+        events,
+        gameId,
+        unitId,
+        locations: zweihanderSelfCriticalLocations(bestAttack, effectiveLimb),
+        d6Roller,
+        optionalRules,
+        sourceUnitId: unitId,
+        manifestsByUnit,
+      });
     }
 
     if (
@@ -861,8 +1187,10 @@ export function runPhysicalAttackPhase(options: {
         clusters: [result.attackerDamage],
         hitTable: 'punch',
         d6Roller,
+        optionalRules,
         sourceUnitId: unitId,
         firstHitLocation: result.hitLocation,
+        manifestsByUnit,
       });
     }
 
@@ -875,6 +1203,8 @@ export function runPhysicalAttackPhase(options: {
         clusters: splitPhysicalDamageIntoClusters(result.attackerDamage),
         hitTable: 'punch',
         d6Roller,
+        optionalRules,
+        manifestsByUnit,
       });
     }
 
@@ -893,6 +1223,8 @@ export function runPhysicalAttackPhase(options: {
         unitId,
         clusters: legClusters,
         d6Roller,
+        optionalRules,
+        manifestsByUnit,
       });
     }
 
@@ -938,6 +1270,47 @@ export function runPhysicalAttackPhase(options: {
         displacement.unitId,
         displacement.to,
       );
+      if (physicalGrid) {
+        currentState = applyRepresentedMinefieldEntryDamage({
+          currentState,
+          events,
+          gameId,
+          grid: physicalGrid,
+          unitId: displacement.unitId,
+          to: displacement.to,
+          phase: GamePhase.PhysicalAttack,
+          d6Roller,
+        });
+        for (const psr of representedDominoTerrainPSRsForDisplacement({
+          state: currentState,
+          grid: physicalGrid,
+          unitId: displacement.unitId,
+          from: displacement.from,
+          to: displacement.to,
+          reason: displacement.reason,
+        })) {
+          currentState = queuePendingPSR(
+            currentState,
+            displacement.unitId,
+            psr,
+          );
+          events.push(
+            createPSRTriggeredEvent(
+              gameId,
+              events.length,
+              currentState.turn,
+              GamePhase.PhysicalAttack,
+              displacement.unitId,
+              psr.reason,
+              psr.additionalModifier,
+              psr.triggerSource,
+              currentState.units[displacement.unitId]?.piloting,
+              psr.reasonCode,
+              psr.fixedTargetNumber,
+            ),
+          );
+        }
+      }
     }
     if (result.hit && bestAttack === 'break-grapple') {
       currentState = applyBreakGrappleState({
@@ -960,6 +1333,8 @@ export function runPhysicalAttackPhase(options: {
         unitId,
         clusters: dfaMissFall.clusters,
         d6Roller,
+        optionalRules,
+        manifestsByUnit,
       });
       const pilotDamageAvoidance = resolveDfaMissFallPilotDamageAvoidance(
         unit.piloting ?? DEFAULT_PILOTING,
@@ -1020,6 +1395,7 @@ export function runPhysicalAttackPhase(options: {
       attackType: bestAttack,
       result,
       displacements,
+      selectedINarcPod: brushOffSelectedINarcPod,
     });
   }
 

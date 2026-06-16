@@ -22,6 +22,8 @@ const PLAYTEST_3_OPTIONAL_RULES = new Set([
   'playtest3',
 ]);
 
+export const EXTERNAL_HEAT_CAP_PER_TURN = 15;
+
 function hasPlaytest3Rule(
   optionalRules: readonly string[] | undefined,
 ): boolean {
@@ -139,36 +141,17 @@ export function applyPlasmaCannonTargetHeat(options: {
     location,
     optionalRules,
   });
-  const previousTotal = target.heat;
-  const newTotal = previousTotal + amount;
+  const pendingExternalHeat = Math.max(0, target.pendingExternalHeat ?? 0);
   currentState = {
     ...currentState,
     units: {
       ...currentState.units,
       [targetId]: {
         ...target,
-        heat: newTotal,
+        pendingExternalHeat: pendingExternalHeat + amount,
       },
     },
   };
-
-  events.push(
-    createGameEvent(
-      gameId,
-      events.length,
-      GameEventType.HeatGenerated,
-      currentState.turn,
-      GamePhase.WeaponAttack,
-      {
-        unitId: targetId,
-        amount,
-        source: 'external',
-        previousTotal,
-        newTotal,
-      },
-      targetId,
-    ),
-  );
 
   return currentState;
 }

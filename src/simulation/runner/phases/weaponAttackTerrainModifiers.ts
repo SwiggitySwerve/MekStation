@@ -8,7 +8,10 @@ import type { ILOSResult } from '@/utils/gameplay/lineOfSight';
 
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { parseTerrainFeatures } from '@/utils/gameplay/lineOfSight';
-import { getTerrainToHitModifier } from '@/utils/gameplay/toHit';
+import {
+  calculateInterveningTerrainModifier,
+  getTerrainToHitModifier,
+} from '@/utils/gameplay/toHit';
 
 export function calculateInterveningTerrainToHitModifier(
   grid: IHexGrid | undefined,
@@ -16,20 +19,9 @@ export function calculateInterveningTerrainToHitModifier(
 ): IToHitModifierDetail | null {
   if (!grid || !losResult?.hasLOS) return null;
 
-  const interveningTerrain = losResult.interveningHexes.map((coord) => {
-    const hex = grid.hexes.get(coordToKey(coord));
-    return hex ? parseTerrainFeatures(hex.terrain) : [];
-  });
-  const value = getTerrainToHitModifier([], interveningTerrain);
-
-  if (value === 0) return null;
-
-  return {
-    name: 'Intervening Terrain',
-    value,
-    source: 'terrain',
-    description: `Intervening terrain features: ${value > 0 ? '+' : ''}${value}`,
-  };
+  return calculateInterveningTerrainModifier(
+    losResult.interveningTerrainEffects,
+  );
 }
 
 export function calculateTargetTerrainToHitModifier(

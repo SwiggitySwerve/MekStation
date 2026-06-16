@@ -54,12 +54,14 @@ function formatIndirectFireReason({
   toHitPenalty,
   spotterAttackedThisTurn,
   forwardObserverApplied,
+  commImplantApplied,
 }: {
   readonly basis: IndirectFireBasis;
   readonly spotterId?: string | null;
   readonly toHitPenalty: number;
   readonly spotterAttackedThisTurn?: boolean;
   readonly forwardObserverApplied?: boolean;
+  readonly commImplantApplied?: boolean;
 }): string {
   if (basis === 'los') {
     const details = [
@@ -71,6 +73,9 @@ function formatIndirectFireReason({
         : undefined,
       forwardObserverApplied
         ? 'Forward Observer cancels walked spotter penalty'
+        : undefined,
+      commImplantApplied
+        ? 'Comm Implant reduces indirect spotter penalty by 1'
         : undefined,
     ].filter((detail): detail is string => detail !== undefined);
     const reason = `Indirect fire via spotter ${spotterId ?? 'unknown'} (+${toHitPenalty})`;
@@ -357,6 +362,7 @@ export function deriveIndirectFireProjection({
       readonly toHitPenalty: number;
       readonly spotterAttackedThisTurn?: boolean;
       readonly forwardObserverApplied?: boolean;
+      readonly commImplantApplied?: boolean;
       readonly penaltyCancelled?: number;
       readonly reason: string;
       readonly interveningTerrainEffects: readonly ILOSInterveningTerrainEffect[];
@@ -415,6 +421,7 @@ export function deriveIndirectFireProjection({
     toHitPenalty: result.toHitPenalty,
     spotterAttackedThisTurn: result.spotterAttackedThisTurn,
     forwardObserverApplied: result.forwardObserverApplied,
+    commImplantApplied: result.commImplantApplied,
     penaltyCancelled: result.spotterMovementPenaltyCancelled,
     interveningTerrainEffects:
       result.spotterLOS?.interveningTerrainEffects ?? [],
@@ -424,6 +431,7 @@ export function deriveIndirectFireProjection({
       toHitPenalty: result.toHitPenalty,
       spotterAttackedThisTurn: result.spotterAttackedThisTurn,
       forwardObserverApplied: result.forwardObserverApplied,
+      commImplantApplied: result.commImplantApplied,
     }),
   };
 }

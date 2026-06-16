@@ -104,6 +104,8 @@ export enum GameEventType {
   PilotHit = 'pilot_hit',
   UnitDestroyed = 'unit_destroyed',
   TerrainChanged = 'terrain_changed',
+  MinefieldChanged = 'minefield_changed',
+  EmpMinefieldEffectApplied = 'emp_minefield_effect_applied',
   AmmoExplosion = 'ammo_explosion',
   CriticalHit = 'critical_hit',
 
@@ -123,6 +125,8 @@ export enum GameEventType {
   UnitStood = 'unit_stood',
   PhysicalAttackDeclared = 'physical_attack_declared',
   PhysicalAttackResolved = 'physical_attack_resolved',
+  GroundObjectPickedUp = 'ground_object_picked_up',
+  GroundObjectDropped = 'ground_object_dropped',
   ShutdownCheck = 'shutdown_check',
   StartupAttempt = 'startup_attempt',
   AmmoConsumed = 'ammo_consumed',
@@ -184,6 +188,12 @@ export enum GameEventType {
    * armor/structure.
    */
   UnitEjected = 'unit_ejected',
+  /**
+   * A represented neural-interface jack-in/jack-out state changed for a unit.
+   * VDNI, Buffered VDNI, and Triple-Core Processor combat effects read this
+   * replayable unit state instead of assuming implants are always connected.
+   */
+  NeuralInterfaceStateChanged = 'neural_interface_state_changed',
   /**
    * Per `add-vehicle-combat-behavior`: fired when a vehicle takes a
    * structure-exposing hit (or an any-hit for Hover/Naval/Hydrofoil/Submarine/WiGE

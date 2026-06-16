@@ -32,7 +32,7 @@ function integrated(
   };
 }
 
-function helperOnly(
+function outOfScope(
   id: string,
   attackFamily: PhysicalLegalityAttackFamily,
   evidence: string,
@@ -43,7 +43,7 @@ function helperOnly(
     id,
     attackFamily,
     authority,
-    level: 'helper-only',
+    level: 'out-of-scope',
     evidence,
     gap,
     sourceRefs: sourceRefsForAuthority(authority),
@@ -94,10 +94,21 @@ const DISPLACEMENT_OVERGROWN_TERRAIN_LINES =
   'MegaMek Compute.isValidDisplacement rejects entity.isLocationProhibited destinations; Mek.isLocationProhibited rejects WOODS and JUNGLE terrain levels above 2 for normal BattleMechs';
 const DISPLACEMENT_DOMINO_CHAIN_LINES =
   'MegaMek Compute.isValidDisplacement recursively validates stacking-violation displacement chains, and TWGameManager.doEntityDisplacement applies domino-effect displacement plus PSRs';
+const DISPLACEMENT_DOMINO_STEP_OUT_CFR_LINES =
+  'MegaMek TWGameManager.doEntityDisplacement lets a side-entered, non-jumping blocking unit with a legal forward/backward move roll to step out, sends CFR_DOMINO_EFFECT after a successful roll, applies the returned MovePath, and recursively falls back to forced domino displacement on a failed roll, null action, or no response';
 const DISPLACEMENT_FRIENDLY_AVOIDANCE_LINES =
   'MegaMek Compute.getPreferredDisplacement first searches valid displacement destinations that do not contain friendly units before falling back to occupied/friendly hexes';
 const DISPLACEMENT_DROPSHIP_RADIUS_LINES =
   'MegaMek Compute.getValidDisplacement expands displacement search to radius two when the source hex contains a grounded DropShip';
+const CARRIED_CARGO_ARM_LOCKOUT_LINES =
+  'MegaMek punch, push, and club physical action legality rejects carried-cargo arm use through Entity.canFireWeapon arm checks';
+
+export const DISPLACEMENT_DOMINO_SECONDARY_FALLOUT_UNSUPPORTED_IDS =
+  [] as const;
+
+export const DISPLACEMENT_DOMINO_SECONDARY_FALLOUT_OUT_OF_SCOPE_IDS = [
+  'shared.displacement-domino-dropship-secondary-hex',
+] as const;
 
 const PHYSICAL_ATTACK_ACTION_SOURCE_REF = megamekPhysicalSourceRef(
   'MegaMek PhysicalAttackAction.toHitIsImpossible applies shared physical attack impossibility gates',
@@ -227,6 +238,13 @@ const TWGAME_DISPLACEMENT_DOMINO_EFFECT_SOURCE_REF = megamekPhysicalSourceRef(
   'L9013-L9294',
 );
 
+const TWGAME_DISPLACEMENT_DOMINO_STEP_OUT_CFR_SOURCE_REF =
+  megamekPhysicalSourceRef(
+    'MegaMek TWGameManager.doEntityDisplacement checks side-entry, jumping, and forward/backward MovePath legality before a blocker step-out PSR; a success sends CFR_DOMINO_EFFECT and applies the returned MovePath, while failed rolls, null action, or no response recurse into forced displacement',
+    'server/totalWarfare/TWGameManager.java',
+    'L9190-L9280',
+  );
+
 const COMPUTE_DISPLACEMENT_FRIENDLY_AVOIDANCE_SOURCE_REF =
   megamekPhysicalSourceRef(
     'MegaMek Compute.getPreferredDisplacement first skips destinations containing friendly units before falling back to any valid destination',
@@ -240,6 +258,24 @@ const COMPUTE_DISPLACEMENT_DROPSHIP_RADIUS_SOURCE_REF =
     'common/compute/Compute.java',
     'L1019-L1046',
   );
+
+const PUNCH_CARRIED_CARGO_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek PunchAttackAction rejects punching with an arm that cannot fire because it is carrying cargo',
+  'common/actions/PunchAttackAction.java',
+  'L200-L209',
+);
+
+const PUSH_CARRIED_CARGO_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek PushAttackAction rejects pushing when neither BattleMech arm can fire because both are carrying cargo',
+  'common/actions/PushAttackAction.java',
+  'L93-L101',
+);
+
+const CLUB_CARRIED_CARGO_SOURCE_REF = megamekPhysicalSourceRef(
+  'MegaMek ClubAttackAction rejects club attacks when cargo occupies the required arm-use path',
+  'common/actions/ClubAttackAction.java',
+  'L312-L320',
+);
 
 function sourceRefsForAuthority(
   authority: string,
@@ -288,10 +324,18 @@ function sourceRefsForAuthority(
         COMPUTE_DISPLACEMENT_DOMINO_VALIDITY_SOURCE_REF,
         TWGAME_DISPLACEMENT_DOMINO_EFFECT_SOURCE_REF,
       ];
+    case DISPLACEMENT_DOMINO_STEP_OUT_CFR_LINES:
+      return [TWGAME_DISPLACEMENT_DOMINO_STEP_OUT_CFR_SOURCE_REF];
     case DISPLACEMENT_FRIENDLY_AVOIDANCE_LINES:
       return [COMPUTE_DISPLACEMENT_FRIENDLY_AVOIDANCE_SOURCE_REF];
     case DISPLACEMENT_DROPSHIP_RADIUS_LINES:
       return [COMPUTE_DISPLACEMENT_DROPSHIP_RADIUS_SOURCE_REF];
+    case CARRIED_CARGO_ARM_LOCKOUT_LINES:
+      return [
+        PUNCH_CARRIED_CARGO_SOURCE_REF,
+        PUSH_CARRIED_CARGO_SOURCE_REF,
+        CLUB_CARRIED_CARGO_SOURCE_REF,
+      ];
     case PHYSICAL_ATTACK_ACTION_LINES:
     default:
       return [PHYSICAL_ATTACK_ACTION_SOURCE_REF];
@@ -340,6 +384,12 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'shared',
     'IUnitGameState exposes optional isLoadingOrUnloadingCargo, shared restriction helpers reject attackerLoadingOrUnloadingCargo, and eligibility/session/runner inputs thread cargo interaction state into physical validation',
     PHYSICAL_ATTACK_ACTION_LINES,
+  ),
+  'shared.carried-cargo-arm-lockout': integrated(
+    'shared.carried-cargo-arm-lockout',
+    'shared',
+    'IUnitGameState exposes optional per-arm carried-cargo state, and eligibility/session/runner physical inputs reject selected-arm punch, selected-arm brush-off, arm-mounted melee weapon, two-handed Zweihander, and both-arms-carrying push declarations with AttackerCargoInteraction while preserving one-free-arm push legality',
+    CARRIED_CARGO_ARM_LOCKOUT_LINES,
   ),
   'shared.target-not-passenger': integrated(
     'shared.target-not-passenger',
@@ -407,12 +457,48 @@ export const PHYSICAL_LEGALITY_GATE_SUPPORT = {
     'isValidDisplacement now rejects represented woods/jungle terrain levels above two before push/charge/DFA position changes; helper, event-sourced, and runner charge coverage keep successful charge damage while suppressing displacement and charge PSRs',
     DISPLACEMENT_OVERGROWN_TERRAIN_LINES,
   ),
-  'shared.displacement-domino-chain': helperOnly(
+  'shared.displacement-domino-positional-chain': integrated(
+    'shared.displacement-domino-positional-chain',
+    'shared',
+    'isValidDisplacement recursively validates occupied destination blockers, and represented push/charge/DFA/charge-miss target-displacement helpers emit positional domino payload chains; runner charge coverage proves multi-blocker chain application to unit positions while queuing source-backed DominoEffect PSRs for each forced blocker',
+    DISPLACEMENT_DOMINO_CHAIN_LINES,
+  ),
+  'shared.displacement-domino-minefield-fallout': integrated(
+    'shared.displacement-domino-minefield-fallout',
+    'shared',
+    'Runner physical attack displacement applies represented TerrainType.Mines BattleMech leg damage plus resulting damage PSR side effects, represented conventional coordinate-state minefield damage plus density reduction/MinefieldChanged fallout, represented inferno coordinate-state pendingExternalHeat and infernoBurning fallout, already-detonated coordinate suppression, and non-conventional coordinate-state no-fallback guards, with GamePhase.PhysicalAttack when a push/charge/DFA/charge-miss domino displacement lands in an existing represented mine destination',
+    DISPLACEMENT_DOMINO_CHAIN_LINES,
+  ),
+  'shared.displacement-domino-chain': integrated(
     'shared.displacement-domino-chain',
     'shared',
-    'isValidDisplacement recursively validates occupied destination blockers, and push/charge/DFA/charge-miss displacement helpers emit positional domino payload chains that event-sourced resolution and runner phases apply to unit positions while queuing source-backed DominoEffect PSRs for forced blockers',
-    'Voluntary step-out/CFR handling and the broader TWGameManager.doEntityDisplacement terrain/building/environment fallout remain unsupported for stacking-violation displacement chains',
+    'Represented push/charge/DFA/charge-miss displacement now covers the source-backed recursive occupied-hex domino chain: helper legality accepts recursively displaceable occupied destinations, target-displacement helpers emit ordered domino payloads, the runner applies the chain to unit positions, refreshes same-phase occupancy, queues DominoEffect PSRs for forced blockers, and applies represented mine destination fallout through shared.displacement-domino-minefield-fallout',
     DISPLACEMENT_DOMINO_CHAIN_LINES,
+  ),
+  'shared.displacement-domino-secondary-fallout': integrated(
+    'shared.displacement-domino-secondary-fallout',
+    'shared',
+    'Broad domino secondary-fallout accounting is split: represented positional chains, forced-blocker DominoEffect PSRs, mine destination fallout, represented terrain/building destination PSR fallout, friendly avoidance, grounded-DropShip radius search, and the BattleMech-relevant TWGameManager.doEntityDisplacement voluntary blocker step-out branch are integrated sibling rows; full DropShip footprint/secondary-hex handling is tracked outside the BattleMech validation matrix',
+    DISPLACEMENT_DOMINO_CHAIN_LINES,
+  ),
+  'shared.displacement-domino-step-out-cfr': integrated(
+    'shared.displacement-domino-step-out-cfr',
+    'shared',
+    'Represented domino displacement now carries a replayable blockerStepOutDecision on PhysicalAttackDeclared payloads: helper, event-sourced session, and runner coverage accept successful side-entered/non-jumping/legal-forward-or-backward step-out decisions as domino_step_out displacements without forced DominoEffect PSRs, while invalid, declined, failed, or no-response decisions fall back to the source-backed forced domino chain',
+    DISPLACEMENT_DOMINO_STEP_OUT_CFR_LINES,
+  ),
+  'shared.displacement-domino-terrain-building-environment-fallout': integrated(
+    'shared.displacement-domino-terrain-building-environment-fallout',
+    'shared',
+    'Runner physical attack displacement now applies represented destination terrain/building PSR fallout for forced domino blockers in addition to represented mine fallout: water entry/exit, entering rubble, moving on ice, swamp bog-down, and overloaded explicit building constructionFactor PSRs are queued and emitted in GamePhase.PhysicalAttack. Broader non-PSR terrain mutation, building CF/collapse damage mutation, fire/smoke/environment side effects, and full MegaMek parity remain outside this bounded represented slice.',
+    DISPLACEMENT_DOMINO_CHAIN_LINES,
+  ),
+  'shared.displacement-domino-dropship-secondary-hex': outOfScope(
+    'shared.displacement-domino-dropship-secondary-hex',
+    'shared',
+    'The BattleMech runner hydrates grounded DropShip source context for represented DFA hit radius-two target displacement search; broader DropShip footprint and secondary-hex consequences after domino displacement require a separate non-BattleMech/large-unit validation matrix',
+    'Out-of-scope for this BattleMech validation suite: full DropShip footprint and secondary-hex consequences after TWGameManager.doEntityDisplacement domino chains are not modeled by the BattleMech physical displacement helper',
+    DISPLACEMENT_DROPSHIP_RADIUS_LINES,
   ),
   'shared.displacement-friendly-avoidance': integrated(
     'shared.displacement-friendly-avoidance',

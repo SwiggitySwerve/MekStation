@@ -399,12 +399,18 @@ describe('BattleMech physical combat behavior validation lane', () => {
       'push:-',
       'grapple:-',
       'trip:-',
-      'hatchet:-',
-      'sword:-',
-      'mace:-',
-      'lance:-',
-      'retractable-blade:-',
-      'flail:-',
+      'hatchet:leftArm',
+      'hatchet:rightArm',
+      'sword:leftArm',
+      'sword:rightArm',
+      'mace:leftArm',
+      'mace:rightArm',
+      'lance:leftArm',
+      'lance:rightArm',
+      'retractable-blade:leftArm',
+      'retractable-blade:rightArm',
+      'flail:leftArm',
+      'flail:rightArm',
       'wrecking-ball:-',
     ]);
     expect(
@@ -1292,7 +1298,8 @@ describe('BattleMech physical combat behavior validation lane', () => {
     expect(reasonByRow.get('charge:-')).toEqual(['NoRunThisTurn']);
     expect(reasonByRow.get('dfa:-')).toEqual(['NoJumpThisTurn']);
     expect(reasonByRow.get('push:-')).toEqual(['WeaponFiredThisTurn']);
-    expect(reasonByRow.get('hatchet:-')).toEqual([]);
+    expect(reasonByRow.get('hatchet:leftArm')).toEqual(['WeaponFiredThisTurn']);
+    expect(reasonByRow.get('hatchet:rightArm')).toEqual([]);
   });
 
   it('surfaces backward charge movement as an eligibility restriction', () => {
@@ -4825,6 +4832,121 @@ describe('BattleMech physical combat behavior validation lane', () => {
     );
   });
 
+  it('applies event-sourced domino step-out CFR decisions without forced DominoEffect PSRs', () => {
+    const context = physicalContext({
+      hexesMoved: 5,
+      attackerRanThisTurn: true,
+      blockerStepOutDecision: {
+        blockerUnitId: 'domino-blocker',
+        from: { q: 1, r: 1 },
+        response: 'move',
+        psrPassed: true,
+        context: {
+          sideEntered: true,
+          blockerJumped: false,
+          legalStepOptions: [
+            { kind: 'forward', to: { q: 2, r: 0 } },
+            { kind: 'backward', to: { q: 0, r: 2 } },
+          ],
+        },
+        path: [{ q: 2, r: 0 }],
+      },
+    });
+    const positioned = withPhysicalPositions(
+      physicalPhaseSession([
+        {
+          id: 'domino-blocker',
+          name: 'Domino Blocker',
+          side: GameSide.Opponent,
+          unitRef: 'domino-blocker-ref',
+          pilotRef: 'domino-blocker-pilot',
+          gunnery: 4,
+          piloting: 5,
+        },
+      ]),
+      {
+        facing: Facing.South,
+      },
+    );
+    let declared = declarePhysicalAttack(
+      positioned,
+      'attacker',
+      'target',
+      'charge',
+      context,
+    );
+    declared = withUnitState(declared, 'attacker', {
+      position: { q: 0, r: 0 },
+      facing: Facing.South,
+    });
+    declared = withUnitState(declared, 'target', {
+      position: { q: 1, r: 0 },
+    });
+    declared = withUnitState(declared, 'domino-blocker', {
+      position: { q: 1, r: 1 },
+      facing: Facing.Northeast,
+      movementThisTurn: MovementType.Walk,
+    });
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6, 3, 3, 3, 3, 3, 3]),
+      dominoChargeDisplacementGrid(),
+    );
+    const event = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    );
+    const payload = event?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload.displacements).toEqual([
+      {
+        unitId: 'domino-blocker',
+        from: { q: 1, r: 1 },
+        to: { q: 2, r: 0 },
+        reason: 'domino_step_out',
+      },
+      {
+        unitId: 'target',
+        from: { q: 1, r: 0 },
+        to: { q: 1, r: 1 },
+        reason: 'charge',
+      },
+      {
+        unitId: 'attacker',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        reason: 'charge',
+      },
+    ]);
+    expect(resolved.currentState.units['domino-blocker'].position).toEqual({
+      q: 2,
+      r: 0,
+    });
+    expect(resolved.currentState.units.target.position).toEqual({
+      q: 1,
+      r: 1,
+    });
+    expect(resolved.currentState.units.attacker.position).toEqual({
+      q: 1,
+      r: 0,
+    });
+    expect(
+      resolved.currentState.units['domino-blocker'].pendingPSRs,
+    ).not.toContainEqual(
+      expect.objectContaining({ reasonCode: PSRTrigger.DominoEffect }),
+    );
+    expect(
+      resolved.events.some(
+        (entry) =>
+          entry.type === GameEventType.PSRTriggered &&
+          (entry.payload as IPSRTriggeredPayload).unitId === 'domino-blocker' &&
+          (entry.payload as IPSRTriggeredPayload).reasonCode ===
+            PSRTrigger.DominoEffect,
+      ),
+    ).toBe(false);
+  });
+
   it('emits event-sourced charge damage without displacement when blocked', () => {
     const context = physicalContext({
       hexesMoved: 5,
@@ -5389,6 +5511,48 @@ describe('BattleMech physical combat behavior validation lane', () => {
     });
   });
 
+  it.each(['dermal_armor', 'tsm_implant'] as const)(
+    'applies %s missed-DFA fall pilot-damage immunity without rolling avoidance',
+    (abilityId) => {
+      const context = physicalContext({
+        hexesMoved: 4,
+        attackerJumpedThisTurn: true,
+        pilotAbilities: [abilityId],
+      });
+      const declared = declareAdjacentPhysicalAttack('dfa', context, {
+        facing: Facing.South,
+        armor: STANDARD_ARMOR,
+        structure: STANDARD_STRUCTURE,
+      });
+
+      const resolved = resolveAllPhysicalAttacks(
+        declared,
+        new Map([['attacker', context]]),
+        scriptedDice([1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]),
+        adjacentPhysicalGrid(),
+      );
+      const fell = resolved.events.find(
+        (entry) => entry.type === GameEventType.UnitFell,
+      );
+      const pilotHit = resolved.events.find(
+        (entry) => entry.type === GameEventType.PilotHit,
+      );
+      const fallPayload = fell?.payload as IUnitFellPayload | undefined;
+
+      expect(fallPayload).toMatchObject({
+        unitId: 'attacker',
+        pilotDamage: 0,
+        location: 'dfa_miss',
+        reasonCode: PSRTrigger.DFAMiss,
+      });
+      expect(pilotHit).toBeUndefined();
+      expect(resolved.currentState.units.attacker).toMatchObject({
+        pilotWounds: 0,
+        pilotConscious: true,
+      });
+    },
+  );
+
   it('emits event-sourced DFA target destruction on impossible hit displacement', () => {
     const context = physicalContext({
       hexesMoved: 4,
@@ -5535,6 +5699,34 @@ describe('BattleMech physical combat behavior validation lane', () => {
       roll: 12,
       toHitNumber: 2,
       hit: true,
+    });
+  });
+
+  it('threads explicit two-handed Zweihander declaration through session punch resolution', () => {
+    const context = physicalContext({
+      pilotAbilities: ['zweihander'],
+      twoHandedZweihander: true,
+    });
+    const declared = declareAdjacentPhysicalAttack('punch', context);
+    const declaredPayload = declared.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackDeclared,
+    )?.payload as IPhysicalAttackDeclaredPayload;
+
+    expect(declaredPayload.twoHandedZweihander).toBe(true);
+
+    const resolved = resolveAllPhysicalAttacks(
+      declared,
+      new Map([['attacker', context]]),
+      scriptedDice([6, 6, 3]),
+    );
+    const payload = resolved.events.find(
+      (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+    )?.payload as IPhysicalAttackResolvedPayload;
+
+    expect(payload).toMatchObject({
+      attackType: 'punch',
+      hit: true,
+      damage: 16,
     });
   });
 

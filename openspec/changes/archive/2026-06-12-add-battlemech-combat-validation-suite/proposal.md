@@ -32,8 +32,8 @@ The current implementation has already started this pattern with `CombatValidati
 - This change does not move construction-system validation into combat-resolution.
 - This change does not treat MegaMek/MekHQ as a licensing source for copied code; it is used as a behavior reference and cross-check target.
 
-## Open Questions
+## Resolved Decisions
 
-- Which remaining unsupported physical gates should be promoted first: displacement-chain destruction, forbidden terrain, or pilot skill roll consequences?
-- Should catalog evidence require exact source line anchors for every rule once the initial suite stabilizes?
-- Should OpenSpec validation become a required CI check for every combat feature PR?
+- Remaining physical gates are promoted only when a bounded source-backed runtime slice exists; otherwise they stay as explicit unresolved rows in the machine-readable gap export. The old displacement/terrain/PSR promotion-order question is closed in favor of row-level blocker accounting.
+- Catalog evidence requires row-level source references for every unresolved or integrated claim. Exact file/method/source anchors are required for new integrated behavior and blockers when available; existing rows may use stable source-family anchors until later tightening work needs line-level precision.
+- Combat feature PRs SHALL run `npm run validate:combat`, which already includes the gap export and strict OpenSpec validation for this change. Broader CI adoption for every OpenSpec delta remains a repository policy decision outside this combat-validation archive.

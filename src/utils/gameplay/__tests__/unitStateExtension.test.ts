@@ -16,6 +16,7 @@ import {
   IPSRResolvedPayload,
   IUnitFellPayload,
   IUnitStuckPayload,
+  INeuralInterfaceStateChangedPayload,
   IShutdownCheckPayload,
   IStartupAttemptPayload,
   IAmmoConsumedPayload,
@@ -98,6 +99,7 @@ describe('Phase 4: IUnitGameState Extension', () => {
 
       expect(state.prone).toBe(false);
       expect(state.shutdown).toBe(false);
+      expect(state.infernoBurning).toBe(false);
       expect(state.ammoState).toEqual({});
       expect(state.pendingPSRs).toEqual([]);
       expect(state.weaponsFiredThisTurn).toEqual([]);
@@ -127,6 +129,7 @@ describe('Phase 4: IUnitGameState Extension', () => {
       expect(legacyUnitState.componentDamage ?? null).toBeNull();
       expect(legacyUnitState.prone ?? false).toBe(false);
       expect(legacyUnitState.shutdown ?? false).toBe(false);
+      expect(legacyUnitState.infernoBurning ?? false).toBe(false);
       expect(legacyUnitState.ammoState ?? {}).toEqual({});
       expect(legacyUnitState.pendingPSRs ?? []).toEqual([]);
       expect(legacyUnitState.weaponsFiredThisTurn ?? []).toEqual([]);
@@ -882,6 +885,73 @@ describe('Phase 4: IUnitGameState Extension', () => {
       });
 
       const result = applyEvent(state, event);
+      expect(result).toBe(state);
+    });
+  });
+
+  describe('NeuralInterfaceStateChanged reducer', () => {
+    it('records represented jack-out state for VDNI/BVDNI combat gates', () => {
+      const state = createStateWithUnit({
+        abilities: ['vdni'],
+        neuralInterfaceActive: true,
+      });
+      const event = makeEvent(GameEventType.NeuralInterfaceStateChanged, {
+        unitId: 'unit-1',
+        active: false,
+        turn: 1,
+        reason: 'pilot_jacked_out',
+      } satisfies INeuralInterfaceStateChangedPayload);
+
+      const result = applyEvent(state, event);
+
+      expect(result.units['unit-1'].neuralInterfaceActive).toBe(false);
+    });
+
+    it('records represented jack-in state after a disconnected seed', () => {
+      const state = createStateWithUnit({
+        abilities: ['bvdni'],
+        neuralInterfaceActive: false,
+      });
+      const event = makeEvent(GameEventType.NeuralInterfaceStateChanged, {
+        unitId: 'unit-1',
+        active: true,
+        turn: 1,
+        reason: 'pilot_jacked_in',
+      } satisfies INeuralInterfaceStateChangedPayload);
+
+      const result = applyEvent(state, event);
+
+      expect(result.units['unit-1'].neuralInterfaceActive).toBe(true);
+    });
+
+    it('records represented Prototype DNI jack-out state through the same active-DNI gate', () => {
+      const state = createStateWithUnit({
+        abilities: ['proto_dni'],
+        neuralInterfaceActive: true,
+      });
+      const event = makeEvent(GameEventType.NeuralInterfaceStateChanged, {
+        unitId: 'unit-1',
+        active: false,
+        turn: 1,
+        reason: 'pilot_jacked_out',
+      } satisfies INeuralInterfaceStateChangedPayload);
+
+      const result = applyEvent(state, event);
+
+      expect(result.units['unit-1'].neuralInterfaceActive).toBe(false);
+    });
+
+    it('ignores neural-interface state changes for unknown units', () => {
+      const state = createStateWithUnit({ neuralInterfaceActive: true });
+      const event = makeEvent(GameEventType.NeuralInterfaceStateChanged, {
+        unitId: 'missing-unit',
+        active: false,
+        turn: 1,
+        reason: 'test_fixture',
+      } satisfies INeuralInterfaceStateChangedPayload);
+
+      const result = applyEvent(state, event);
+
       expect(result).toBe(state);
     });
   });

@@ -22,11 +22,15 @@ import {
   MovementType,
   type IGameEvent,
   type IGameState,
+  type IHex,
   type IMovementCapability,
   type IHexGrid,
   type IUnitGameState,
 } from '@/types/gameplay';
-import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import {
+  TerrainType,
+  type ITerrainFeature,
+} from '@/types/gameplay/TerrainTypes';
 import { calculateLOS } from '@/utils/gameplay/lineOfSight';
 
 import type {
@@ -181,8 +185,13 @@ function createUnit(
   };
 }
 
-function createHex(q: number, r: number, terrain: string = TerrainType.Clear) {
-  return { coord: { q, r }, occupantId: null, terrain, elevation: 0 };
+function createHex(
+  q: number,
+  r: number,
+  terrain: string = TerrainType.Clear,
+  elevation = 0,
+): IHex {
+  return { coord: { q, r }, occupantId: null, terrain, elevation };
 }
 
 function createBlockedGrid(): IHexGrid {
@@ -198,6 +207,21 @@ function createBlockedGrid(): IHexGrid {
   return { config: { radius: 8 }, hexes };
 }
 
+function createGroundedDropShipBlockedGrid(): IHexGrid {
+  const hexes = new Map<string, ReturnType<typeof createHex>>();
+  for (let q = -2; q <= 8; q++) {
+    for (let r = -2; r <= 2; r++) {
+      hexes.set(`${q},${r}`, createHex(q, r));
+    }
+  }
+
+  hexes.set('2,0', {
+    ...createHex(2, 0),
+    occupantId: 'dropship-1',
+  });
+  return { config: { radius: 8 }, hexes };
+}
+
 function createLandToUnderwaterGrid(targetPosition: { q: number; r: number }) {
   const hexes = new Map();
   for (let q = -2; q <= 8; q++) {
@@ -210,6 +234,140 @@ function createLandToUnderwaterGrid(targetPosition: { q: number; r: number }) {
     `${targetPosition.q},${targetPosition.r}`,
     createHex(targetPosition.q, targetPosition.r, 'water:2'),
   );
+  return { config: { radius: 8 }, hexes };
+}
+
+function createUnderwaterSeparatedByClearGrid(targetPosition: {
+  q: number;
+  r: number;
+}): IHexGrid {
+  const hexes = new Map<string, ReturnType<typeof createHex>>();
+  for (let q = -2; q <= 8; q++) {
+    for (let r = -2; r <= 2; r++) {
+      hexes.set(`${q},${r}`, createHex(q, r));
+    }
+  }
+
+  for (let q = 0; q <= targetPosition.q; q++) {
+    hexes.set(
+      `${q},${targetPosition.r}`,
+      createHex(q, targetPosition.r, 'water:2'),
+    );
+  }
+  hexes.set('2,0', createHex(2, 0, TerrainType.Clear, 2));
+
+  return { config: { radius: 8 }, hexes };
+}
+
+function createSameBuildingBlockedGrid(): IHexGrid {
+  const hexes = new Map<string, ReturnType<typeof createHex>>();
+  for (let q = -2; q <= 8; q++) {
+    for (let r = -2; r <= 2; r++) {
+      hexes.set(`${q},${r}`, createHex(q, r));
+    }
+  }
+
+  const sameBuilding: ITerrainFeature[] = [
+    { type: TerrainType.Building, level: 1, buildingId: 'warehouse-a' },
+  ];
+  const terrain = JSON.stringify(sameBuilding);
+  for (let q = 0; q <= 4; q++) {
+    hexes.set(`${q},0`, createHex(q, 0, terrain));
+  }
+
+  return { config: { radius: 8 }, hexes };
+}
+
+function createSameBuildingLevelBlockedGrid(): IHexGrid {
+  const hexes = new Map<string, ReturnType<typeof createHex>>();
+  for (let q = -2; q <= 8; q++) {
+    for (let r = -2; r <= 2; r++) {
+      hexes.set(`${q},${r}`, createHex(q, r));
+    }
+  }
+
+  const sameBuilding: ITerrainFeature[] = [
+    { type: TerrainType.Building, level: 1, buildingId: 'warehouse-a' },
+  ];
+  const terrain = JSON.stringify(sameBuilding);
+  hexes.set('0,0', createHex(0, 0, terrain, 0));
+  hexes.set('1,0', createHex(1, 0, terrain, 0));
+  hexes.set('2,0', createHex(2, 0, terrain, 0));
+  hexes.set('3,0', createHex(3, 0, terrain, 1));
+
+  return { config: { radius: 8 }, hexes };
+}
+
+function createBuildingHeightBlockedGrid(): IHexGrid {
+  const hexes = new Map<string, ReturnType<typeof createHex>>();
+  for (let q = -2; q <= 4; q++) {
+    for (let r = -2; r <= 2; r++) {
+      hexes.set(`${q},${r}`, createHex(q, r));
+    }
+  }
+
+  const elevatedBuilding: ITerrainFeature[] = [
+    { type: TerrainType.Building, level: 3, constructionFactor: 40 },
+  ];
+  hexes.set('1,0', createHex(1, 0, JSON.stringify(elevatedBuilding)));
+
+  return { config: { radius: 8 }, hexes };
+}
+
+function createSinglePathElevationBlockedGrid(): IHexGrid {
+  const hexes = new Map<string, ReturnType<typeof createHex>>();
+  for (let q = -2; q <= 4; q++) {
+    for (let r = -2; r <= 2; r++) {
+      hexes.set(`${q},${r}`, createHex(q, r));
+    }
+  }
+
+  hexes.set('1,0', createHex(1, 0, TerrainType.Clear, 2));
+
+  return { config: { radius: 8 }, hexes };
+}
+
+function createDividedLosBlockedGrid(): IHexGrid {
+  const hexes = new Map<string, ReturnType<typeof createHex>>();
+  for (let q = -2; q <= 4; q++) {
+    for (let r = -5; r <= 1; r++) {
+      hexes.set(`${q},${r}`, createHex(q, r));
+    }
+  }
+
+  const elevatedBuilding: ITerrainFeature[] = [
+    { type: TerrainType.Building, level: 3, constructionFactor: 40 },
+  ];
+  hexes.set('0,-1', createHex(0, -1, JSON.stringify(elevatedBuilding)));
+
+  return { config: { radius: 8 }, hexes };
+}
+
+function createDividedElevationBlockedGrid(): IHexGrid {
+  const hexes = new Map<string, ReturnType<typeof createHex>>();
+  for (let q = -2; q <= 4; q++) {
+    for (let r = -5; r <= 1; r++) {
+      hexes.set(`${q},${r}`, createHex(q, r));
+    }
+  }
+
+  hexes.set('0,-1', createHex(0, -1, TerrainType.Clear, 2));
+
+  return { config: { radius: 8 }, hexes };
+}
+
+function createDiagramOnlyHeavyWoodsGrid(): IHexGrid {
+  const hexes = new Map<string, ReturnType<typeof createHex>>();
+  for (let q = -2; q <= 4; q++) {
+    for (let r = -2; r <= 2; r++) {
+      hexes.set(`${q},${r}`, createHex(q, r));
+    }
+  }
+
+  hexes.set('0,0', createHex(0, 0, TerrainType.Clear, 3));
+  hexes.set('1,0', createHex(1, 0, TerrainType.HeavyWoods, 1));
+  hexes.set('2,0', createHex(2, 0));
+
   return { config: { radius: 8 }, hexes };
 }
 
@@ -237,6 +395,7 @@ function runInvalidationScenario(options: {
   grid?: IHexGrid;
   targetId?: string;
   declaredWeaponId?: string;
+  optionalRules?: readonly string[];
 }): { result: IGameState; events: IGameEvent[] } {
   const events: IGameEvent[] = [];
   const violations: IViolation[] = [];
@@ -257,6 +416,7 @@ function runInvalidationScenario(options: {
       ['player-1', [options.weapon]],
       ['opponent-1', []],
     ]),
+    optionalRules: options.optionalRules,
   });
 
   return { result, events };
@@ -370,6 +530,44 @@ describe('runAttackPhase invalid attacks', () => {
         }),
       );
     }
+  });
+
+  it('threads TacOps LOS1 optional rules into represented diagram terrain modifiers', () => {
+    const grid = createDiagramOnlyHeavyWoodsGrid();
+    const state = createWeaponAttackState({ q: 3, r: 0 });
+
+    const withoutTacOps = attackDeclaredPayload(
+      runInvalidationScenario({
+        state,
+        weapon: createAC20(),
+        grid,
+        optionalRules: [],
+      }).events,
+    );
+    const withTacOps = attackDeclaredPayload(
+      runInvalidationScenario({
+        state,
+        weapon: createAC20(),
+        grid,
+        optionalRules: ['ADVANCED_COMBAT_TAC_OPS_LOS1'],
+      }).events,
+    );
+
+    expect(withoutTacOps.toHitNumber).toBe(4);
+    expect(withoutTacOps.modifiers).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Intervening terrain' }),
+      ]),
+    );
+    expect(withTacOps.toHitNumber).toBe(6);
+    expect(withTacOps.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Intervening Terrain',
+          value: 2,
+        }),
+      ]),
+    );
   });
 
   it('keeps minimum-range attacks valid while surfacing the to-hit penalty', () => {
@@ -723,6 +921,67 @@ describe('runAttackPhase invalid attacks', () => {
     assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
   });
 
+  it('emits AttackInvalid when a represented grounded DropShip blocks direct LOS', () => {
+    const ammoBin = createAmmoBin({
+      weaponType: AC20_WEAPON_ID,
+      remainingRounds: 4,
+    });
+    const initialState = createWeaponAttackState({ q: 4, r: 0 });
+    const stateWithDropShip: IGameState = {
+      ...initialState,
+      units: {
+        ...initialState.units,
+        'dropship-1': {
+          ...createUnit('dropship-1', GameSide.Opponent, { q: 2, r: 0 }),
+          unitType: 'DropShip',
+          isAirborne: false,
+        },
+      },
+    };
+    const stateWithAmmo = withAttackerAmmo(stateWithDropShip, ammoBin);
+    const grid = createGroundedDropShipBlockedGrid();
+
+    expect(
+      calculateLOS(
+        stateWithAmmo.units['player-1'].position,
+        stateWithAmmo.units['opponent-1'].position,
+        grid,
+        undefined,
+        undefined,
+        {
+          occupants: {
+            'dropship-1': {
+              id: 'dropship-1',
+              unitType: 'DropShip',
+              airborne: false,
+            },
+          },
+        },
+      ),
+    ).toMatchObject({
+      hasLOS: false,
+      blockedBy: { q: 2, r: 0 },
+    });
+
+    const { events, result } = runInvalidationScenario({
+      state: stateWithAmmo,
+      weapon: createAC20(),
+      grid,
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: AC20_WEAPON_ID,
+      reason: 'NoLineOfSight',
+    });
+
+    assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
+  });
+
   it('emits AttackInvalid for source-backed land-to-underwater no-LOS declarations without combat side effects', () => {
     const targetPosition = { q: 3, r: 0 };
     const ammoBin = createAmmoBin({
@@ -743,6 +1002,294 @@ describe('runAttackPhase invalid attacks', () => {
       hasLOS: false,
       blockedBy: targetPosition,
       blockingTerrain: TerrainType.Water,
+    });
+
+    const { events, result } = runInvalidationScenario({
+      state: stateWithAmmo,
+      weapon: createAC20(),
+      grid,
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: AC20_WEAPON_ID,
+      reason: 'NoLineOfSight',
+    });
+
+    assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
+  });
+
+  it('emits AttackInvalid for underwater sightlines broken by an elevated intervening clear hex without combat side effects', () => {
+    const targetPosition = { q: 4, r: 0 };
+    const blockerPosition = { q: 2, r: 0 };
+    const ammoBin = createAmmoBin({
+      weaponType: AC20_WEAPON_ID,
+      remainingRounds: 4,
+    });
+    const initialState = createWeaponAttackState(targetPosition);
+    const stateWithAmmo = withAttackerAmmo(initialState, ammoBin);
+    const grid = createUnderwaterSeparatedByClearGrid(targetPosition);
+
+    expect(
+      calculateLOS(
+        stateWithAmmo.units['player-1'].position,
+        stateWithAmmo.units['opponent-1'].position,
+        grid,
+      ),
+    ).toMatchObject({
+      hasLOS: false,
+      blockedBy: blockerPosition,
+      blockingTerrain: TerrainType.Water,
+    });
+
+    const { events, result } = runInvalidationScenario({
+      state: stateWithAmmo,
+      weapon: createAC20(),
+      grid,
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: AC20_WEAPON_ID,
+      reason: 'NoLineOfSight',
+    });
+
+    assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
+  });
+
+  it('emits AttackInvalid for represented same-building no-LOS declarations without combat side effects', () => {
+    const targetPosition = { q: 4, r: 0 };
+    const ammoBin = createAmmoBin({
+      weaponType: AC20_WEAPON_ID,
+      remainingRounds: 4,
+    });
+    const initialState = createWeaponAttackState(targetPosition);
+    const stateWithAmmo = withAttackerAmmo(initialState, ammoBin);
+    const grid = createSameBuildingBlockedGrid();
+
+    expect(
+      calculateLOS(
+        stateWithAmmo.units['player-1'].position,
+        stateWithAmmo.units['opponent-1'].position,
+        grid,
+      ),
+    ).toMatchObject({
+      hasLOS: false,
+      blockedBy: { q: 3, r: 0 },
+      blockingTerrain: TerrainType.Building,
+    });
+
+    const { events, result } = runInvalidationScenario({
+      state: stateWithAmmo,
+      weapon: createAC20(),
+      grid,
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: AC20_WEAPON_ID,
+      reason: 'NoLineOfSight',
+    });
+
+    assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
+  });
+
+  it('emits AttackInvalid for represented same-building endpoint elevation LOS blockers without combat side effects', () => {
+    const targetPosition = { q: 3, r: 0 };
+    const ammoBin = createAmmoBin({
+      weaponType: AC20_WEAPON_ID,
+      remainingRounds: 4,
+    });
+    const initialState = createWeaponAttackState(targetPosition);
+    const stateWithAmmo = withAttackerAmmo(initialState, ammoBin);
+    const grid = createSameBuildingLevelBlockedGrid();
+
+    expect(
+      calculateLOS(
+        stateWithAmmo.units['player-1'].position,
+        stateWithAmmo.units['opponent-1'].position,
+        grid,
+      ),
+    ).toMatchObject({
+      hasLOS: false,
+      blockedBy: { q: 2, r: 0 },
+      blockingTerrain: TerrainType.Building,
+    });
+
+    const { events, result } = runInvalidationScenario({
+      state: stateWithAmmo,
+      weapon: createAC20(),
+      grid,
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: AC20_WEAPON_ID,
+      reason: 'NoLineOfSight',
+    });
+
+    assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
+  });
+
+  it('emits AttackInvalid for represented building-height LOS blockers without combat side effects', () => {
+    const targetPosition = { q: 2, r: 0 };
+    const ammoBin = createAmmoBin({
+      weaponType: AC20_WEAPON_ID,
+      remainingRounds: 4,
+    });
+    const initialState = createWeaponAttackState(targetPosition);
+    const stateWithAmmo = withAttackerAmmo(initialState, ammoBin);
+    const grid = createBuildingHeightBlockedGrid();
+
+    expect(
+      calculateLOS(
+        stateWithAmmo.units['player-1'].position,
+        stateWithAmmo.units['opponent-1'].position,
+        grid,
+      ),
+    ).toMatchObject({
+      hasLOS: false,
+      blockedBy: { q: 1, r: 0 },
+      blockingTerrain: TerrainType.Building,
+    });
+
+    const { events, result } = runInvalidationScenario({
+      state: stateWithAmmo,
+      weapon: createAC20(),
+      grid,
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: AC20_WEAPON_ID,
+      reason: 'NoLineOfSight',
+    });
+
+    assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
+  });
+
+  it('emits AttackInvalid for represented single-path elevation blockers without combat side effects', () => {
+    const targetPosition = { q: 2, r: 0 };
+    const ammoBin = createAmmoBin({
+      weaponType: AC20_WEAPON_ID,
+      remainingRounds: 4,
+    });
+    const initialState = createWeaponAttackState(targetPosition);
+    const stateWithAmmo = withAttackerAmmo(initialState, ammoBin);
+    const grid = createSinglePathElevationBlockedGrid();
+
+    expect(
+      calculateLOS(
+        stateWithAmmo.units['player-1'].position,
+        stateWithAmmo.units['opponent-1'].position,
+        grid,
+      ),
+    ).toMatchObject({
+      hasLOS: false,
+      blockedBy: { q: 1, r: 0 },
+      blockingElevation: 2,
+    });
+
+    const { events, result } = runInvalidationScenario({
+      state: stateWithAmmo,
+      weapon: createAC20(),
+      grid,
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: AC20_WEAPON_ID,
+      reason: 'NoLineOfSight',
+    });
+
+    assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
+  });
+
+  it('emits AttackInvalid for represented divided-LOS blockers without combat side effects', () => {
+    const targetPosition = { q: 2, r: -4 };
+    const ammoBin = createAmmoBin({
+      weaponType: AC20_WEAPON_ID,
+      remainingRounds: 4,
+    });
+    const initialState = createWeaponAttackState(targetPosition);
+    const stateWithAmmo = withAttackerAmmo(initialState, ammoBin);
+    const grid = createDividedLosBlockedGrid();
+
+    expect(
+      calculateLOS(
+        stateWithAmmo.units['player-1'].position,
+        stateWithAmmo.units['opponent-1'].position,
+        grid,
+      ),
+    ).toMatchObject({
+      hasLOS: false,
+      blockedBy: { q: 0, r: -1 },
+      blockingTerrain: TerrainType.Building,
+    });
+
+    const { events, result } = runInvalidationScenario({
+      state: stateWithAmmo,
+      weapon: createAC20(),
+      grid,
+    });
+
+    expect(events.map((event) => event.type)).toEqual([
+      GameEventType.AttackInvalid,
+    ]);
+    expect(events[0].payload).toMatchObject({
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      weaponId: AC20_WEAPON_ID,
+      reason: 'NoLineOfSight',
+    });
+
+    assertNoCombatSideEffects(result, stateWithAmmo, ammoBin);
+  });
+
+  it('emits AttackInvalid for represented divided-LOS elevation blockers without combat side effects', () => {
+    const targetPosition = { q: 2, r: -4 };
+    const ammoBin = createAmmoBin({
+      weaponType: AC20_WEAPON_ID,
+      remainingRounds: 4,
+    });
+    const initialState = createWeaponAttackState(targetPosition);
+    const stateWithAmmo = withAttackerAmmo(initialState, ammoBin);
+    const grid = createDividedElevationBlockedGrid();
+
+    expect(
+      calculateLOS(
+        stateWithAmmo.units['player-1'].position,
+        stateWithAmmo.units['opponent-1'].position,
+        grid,
+      ),
+    ).toMatchObject({
+      hasLOS: false,
+      blockedBy: { q: 0, r: -1 },
+      blockingElevation: 2,
     });
 
     const { events, result } = runInvalidationScenario({

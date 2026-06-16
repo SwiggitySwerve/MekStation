@@ -50,7 +50,7 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
   ),
   [GameEventType.TurnStarted]: integrated(
     GameEventType.TurnStarted,
-    'applyTurnStarted and replay/session tests cover turn-start state restoration',
+    'SimulationRunner.run emits TurnStarted through a runner turn-boundary factory at the start of every turn before phase execution',
   ),
   [GameEventType.TurnEnded]: integrated(
     GameEventType.TurnEnded,
@@ -135,6 +135,22 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
   [GameEventType.TerrainChanged]: integrated(
     GameEventType.TerrainChanged,
     'terrain mutation events preserve replayable battlefield changes that affect movement, LOS, and combat resolution',
+  ),
+  [GameEventType.MinefieldChanged]: integrated(
+    GameEventType.MinefieldChanged,
+    'minefield mutation events preserve replayable represented coordinate minefield add, set, remove, clear, reset, and detonate state changes',
+  ),
+  [GameEventType.EmpMinefieldEffectApplied]: integrated(
+    GameEventType.EmpMinefieldEffectApplied,
+    'represented EMP minefield movement entry emits EmpMinefieldEffectApplied with roll, modifier, effect, and duration payloads before replay mutates interference or shutdown state',
+  ),
+  [GameEventType.GroundObjectPickedUp]: integrated(
+    GameEventType.GroundObjectPickedUp,
+    'interactive and runner ground-object action helpers emit GroundObjectPickedUp when represented carry-object pickup succeeds',
+  ),
+  [GameEventType.GroundObjectDropped]: integrated(
+    GameEventType.GroundObjectDropped,
+    'interactive and runner ground-object action helpers emit GroundObjectDropped when represented carried objects are placed back on the map',
   ),
   [GameEventType.HeatGenerated]: integrated(
     GameEventType.HeatGenerated,
@@ -243,6 +259,10 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
   [GameEventType.UnitEjected]: integrated(
     GameEventType.UnitEjected,
     'InteractiveSession.ejectUnit emits UnitEjected and applyUnitEjected removes targetability without damage mutation',
+  ),
+  [GameEventType.NeuralInterfaceStateChanged]: integrated(
+    GameEventType.NeuralInterfaceStateChanged,
+    'statusPhysical emits NeuralInterfaceStateChanged and the reducer replays represented active-DNI jack-in and jack-out neuralInterfaceActive state for VDNI/BVDNI/Prototype DNI',
   ),
   [GameEventType.ObjectiveCaptured]: integrated(
     GameEventType.ObjectiveCaptured,

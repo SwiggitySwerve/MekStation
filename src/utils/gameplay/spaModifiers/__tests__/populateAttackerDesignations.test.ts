@@ -102,6 +102,42 @@ describe('populateAttackerDesignations', () => {
     expect(out.designatedRangeBracket).toBe(RangeBracket.Medium);
   });
 
+  it('maps env_specialist terrain designation onto designatedEnvironment', () => {
+    const pilot = {
+      abilities: [
+        {
+          abilityId: 'env_specialist',
+          acquiredDate: '2026-01-01T00:00:00.000Z',
+          designation: {
+            kind: 'terrain',
+            terrainTypeId: 'snow',
+            displayLabel: 'Snow',
+          },
+        },
+      ],
+    } satisfies Pick<IPilot, 'abilities'>;
+    const out = populateAttackerDesignations(pilot, baseAttacker);
+    expect(out.designatedEnvironment).toBe('snow');
+  });
+
+  it('does not map non-env terrain designations onto designatedEnvironment', () => {
+    const pilot = {
+      abilities: [
+        {
+          abilityId: 'tm_nightwalker',
+          acquiredDate: '2026-01-01T00:00:00.000Z',
+          designation: {
+            kind: 'terrain',
+            terrainTypeId: 'snow',
+            displayLabel: 'Snow',
+          },
+        },
+      ],
+    } satisfies Pick<IPilot, 'abilities'>;
+    const out = populateAttackerDesignations(pilot, baseAttacker);
+    expect(out.designatedEnvironment).toBeUndefined();
+  });
+
   it('preserves caller-supplied overrides', () => {
     const pilot = buildPilot([
       {

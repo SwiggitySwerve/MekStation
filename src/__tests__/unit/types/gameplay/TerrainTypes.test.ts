@@ -19,6 +19,8 @@ describe('TerrainTypes', () => {
       expect(TerrainType.Road).toBe('road');
       expect(TerrainType.LightWoods).toBe('light_woods');
       expect(TerrainType.HeavyWoods).toBe('heavy_woods');
+      expect(TerrainType.HeavyIndustrial).toBe('heavy_industrial');
+      expect(TerrainType.PlantedField).toBe('planted_field');
       expect(TerrainType.Rough).toBe('rough');
       expect(TerrainType.Rubble).toBe('rubble');
       expect(TerrainType.Water).toBe('water');
@@ -29,13 +31,14 @@ describe('TerrainTypes', () => {
       expect(TerrainType.Swamp).toBe('swamp');
       expect(TerrainType.Building).toBe('building');
       expect(TerrainType.Bridge).toBe('bridge');
+      expect(TerrainType.Mines).toBe('mines');
       expect(TerrainType.Fire).toBe('fire');
       expect(TerrainType.Smoke).toBe('smoke');
     });
 
-    it('should have exactly 17 terrain types', () => {
+    it('should have exactly 20 terrain types', () => {
       const types = Object.values(TerrainType);
-      expect(types).toHaveLength(17);
+      expect(types).toHaveLength(20);
     });
   });
 
@@ -60,9 +63,9 @@ describe('TerrainTypes', () => {
       });
     });
 
-    it('should have exactly 17 terrain property entries', () => {
+    it('should have exactly 20 terrain property entries', () => {
       const entries = Object.keys(TERRAIN_PROPERTIES);
-      expect(entries).toHaveLength(17);
+      expect(entries).toHaveLength(20);
     });
   });
 
@@ -159,6 +162,50 @@ describe('TerrainTypes', () => {
     it('should contribute to LOS blocking at the woods height', () => {
       expect(props.blocksLOS).toBe(true);
       expect(props.losBlockHeight).toBe(2);
+    });
+  });
+
+  describe('Heavy Industrial terrain', () => {
+    const props = TERRAIN_PROPERTIES[TerrainType.HeavyIndustrial];
+
+    it('should charge biped/quad movement but not vehicles', () => {
+      expect(props.movementCostModifier.walk).toBe(1);
+      expect(props.movementCostModifier.run).toBe(1);
+      expect(props.movementCostModifier.jump).toBe(1);
+      expect(props.movementCostModifier.tracked).toBe(0);
+      expect(props.movementCostModifier.wheeled).toBe(0);
+      expect(props.movementCostModifier.hover).toBe(0);
+      expect(props.movementCostModifier.vtol).toBe(0);
+    });
+
+    it('should be a TacOps LOS-density terrain effect', () => {
+      expect(props.toHitInterveningModifier).toBe(1);
+      expect(props.toHitTargetInModifier).toBe(1);
+      expect(props.blocksLOS).toBe(false);
+      expect(props.losBlockHeight).toBe(1);
+      expect(props.specialRules).toContain('tacops-los-density');
+    });
+  });
+
+  describe('Planted Field terrain', () => {
+    const props = TERRAIN_PROPERTIES[TerrainType.PlantedField];
+
+    it('should not alter movement cost', () => {
+      expect(props.movementCostModifier.walk).toBe(0);
+      expect(props.movementCostModifier.run).toBe(0);
+      expect(props.movementCostModifier.jump).toBe(0);
+      expect(props.movementCostModifier.tracked).toBe(0);
+      expect(props.movementCostModifier.wheeled).toBe(0);
+      expect(props.movementCostModifier.hover).toBe(0);
+      expect(props.movementCostModifier.vtol).toBe(0);
+    });
+
+    it('should be a TacOps LOS-density target terrain effect', () => {
+      expect(props.toHitInterveningModifier).toBe(0);
+      expect(props.toHitTargetInModifier).toBe(1);
+      expect(props.blocksLOS).toBe(false);
+      expect(props.losBlockHeight).toBe(1);
+      expect(props.specialRules).toContain('tacops-los-density');
     });
   });
 
@@ -524,7 +571,8 @@ describe('TerrainTypes', () => {
           expect(
             props.blocksLOS ||
               type === TerrainType.LightWoods ||
-              type === TerrainType.HeavyWoods,
+              type === TerrainType.HeavyWoods ||
+              props.specialRules.includes('tacops-los-density'),
           ).toBe(true);
         }
       });

@@ -59,9 +59,9 @@ const BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS = [
     'L99-L253',
   ),
   mekstationDeviationSourceRef(
-    'MekStation SimulationRunner emits TurnEnded at the End phase after objective control resolution.',
+    'MekStation SimulationRunner emits TurnStarted through the runner turn-boundary factory and TurnEnded at the End phase after objective control resolution.',
     'src/simulation/runner/SimulationRunner.ts',
-    'L321-L345',
+    'L257-L369',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -113,6 +113,62 @@ const BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS = [
     'MekStation torso-twist session helper appends FacingChanged events for replayable secondary facing.',
     'src/utils/gameplay/gameSessionTorsoTwist.ts',
     'L1-L55',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const BATTLEMECH_MINEFIELD_EVENT_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation status event factories create MinefieldChanged payloads for represented coordinate minefield state changes.',
+    'src/utils/gameplay/gameEvents/status.ts',
+    'L178-L215',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation movement minefield resolver emits EmpMinefieldEffectApplied payloads for represented EMP minefield movement entry.',
+    'src/simulation/runner/phases/movementMines.ts',
+    'L1019-L1076',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation minefield reducer replays add, set, remove, clear, reset, and detonate operations onto IGameState.minefields.',
+    'src/utils/gameplay/gameState/terrainReducer.ts',
+    'L35-L109',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation main game-state reducer routes MinefieldChanged and EmpMinefieldEffectApplied events into replay reducers.',
+    'src/utils/gameplay/gameState/gameStateReducer.ts',
+    'L391-L401',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation extended combat reducer replays EmpMinefieldEffectApplied into EMP interference or shutdown unit state.',
+    'src/utils/gameplay/gameState/extendedCombat.ts',
+    'L381-L409',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const BATTLEMECH_GROUND_OBJECT_EVENT_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation ground-object event factories create GroundObjectPickedUp and GroundObjectDropped payloads for represented carry-object lifecycle state.',
+    'src/utils/gameplay/gameEvents/groundObjects.ts',
+    'L14-L75',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation interactive ground-object actions validate pickup/drop legality and append replayable ground-object events.',
+    'src/utils/gameplay/groundObjectActions.ts',
+    'L193-L274',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation ground-object reducer replays pickup/drop events into carried object state, arm occupancy, and loading flags.',
+    'src/utils/gameplay/gameState/groundObjects.ts',
+    'L54-L123',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation runner ground-object phase helpers emit GroundObjectPickedUp and GroundObjectDropped events before applying reducer state.',
+    'src/simulation/runner/phases/groundObjectActions.ts',
+    'L39-L124',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation interactive and runner ground-object tests cover pickup/drop event emission, replay, and invalid no-side-effect paths.',
+    'src/simulation/runner/__tests__/groundObjectActions.behavior.test.ts',
+    'L83-L194',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -308,6 +364,29 @@ const BATTLEMECH_RETREAT_EJECTION_EVENT_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+const BATTLEMECH_NEURAL_INTERFACE_EVENT_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation physical/status event factories create NeuralInterfaceStateChanged payloads for represented active-DNI jack-in and jack-out state.',
+    'src/utils/gameplay/gameEvents/statusPhysical.ts',
+    'L189-L212',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation extended combat reducer replays NeuralInterfaceStateChanged by updating only the target unit neuralInterfaceActive flag.',
+    'src/utils/gameplay/gameState/extendedCombat.ts',
+    'L635-L656',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation main game-state reducer routes NeuralInterfaceStateChanged events into the neural-interface replay helper.',
+    'src/utils/gameplay/gameState/gameStateReducer.ts',
+    'L335-L340',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation unit-state extension coverage proves VDNI, Buffered VDNI, Prototype DNI, and unknown-unit NeuralInterfaceStateChanged replay behavior.',
+    'src/utils/gameplay/__tests__/unitStateExtension.test.ts',
+    'L892-L956',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 const BATTLEMECH_OBJECTIVE_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation objective event factories create ObjectiveCaptured, ObjectiveLost, and ObjectiveProgress payloads.',
@@ -363,6 +442,13 @@ export const BATTLEMECH_EVENT_SOURCE_REFS: Readonly<
   [GameEventType.RuntimeMovementStateChanged]:
     BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
   [GameEventType.FacingChanged]: BATTLEMECH_MOVEMENT_EVENT_SOURCE_REFS,
+  [GameEventType.MinefieldChanged]: BATTLEMECH_MINEFIELD_EVENT_SOURCE_REFS,
+  [GameEventType.EmpMinefieldEffectApplied]:
+    BATTLEMECH_MINEFIELD_EVENT_SOURCE_REFS,
+  [GameEventType.GroundObjectPickedUp]:
+    BATTLEMECH_GROUND_OBJECT_EVENT_SOURCE_REFS,
+  [GameEventType.GroundObjectDropped]:
+    BATTLEMECH_GROUND_OBJECT_EVENT_SOURCE_REFS,
   [GameEventType.AttackDeclared]: BATTLEMECH_RANGED_ATTACK_EVENT_SOURCE_REFS,
   [GameEventType.AttackLocked]: BATTLEMECH_RANGED_ATTACK_EVENT_SOURCE_REFS,
   [GameEventType.AttacksRevealed]: BATTLEMECH_ATTACK_REVEAL_EVENT_SOURCE_REFS,
@@ -408,6 +494,8 @@ export const BATTLEMECH_EVENT_SOURCE_REFS: Readonly<
     BATTLEMECH_RETREAT_EJECTION_EVENT_SOURCE_REFS,
   [GameEventType.UnitRetreated]: BATTLEMECH_RETREAT_EJECTION_EVENT_SOURCE_REFS,
   [GameEventType.UnitEjected]: BATTLEMECH_RETREAT_EJECTION_EVENT_SOURCE_REFS,
+  [GameEventType.NeuralInterfaceStateChanged]:
+    BATTLEMECH_NEURAL_INTERFACE_EVENT_SOURCE_REFS,
   [GameEventType.ObjectiveCaptured]: BATTLEMECH_OBJECTIVE_EVENT_SOURCE_REFS,
   [GameEventType.ObjectiveLost]: BATTLEMECH_OBJECTIVE_EVENT_SOURCE_REFS,
   [GameEventType.ObjectiveProgress]: BATTLEMECH_OBJECTIVE_EVENT_SOURCE_REFS,

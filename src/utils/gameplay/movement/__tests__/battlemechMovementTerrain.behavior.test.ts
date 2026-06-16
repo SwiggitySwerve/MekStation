@@ -19,6 +19,8 @@ import { coordToKey } from '@/utils/gameplay/hexMath';
 import {
   canStand,
   calculateAttackerMovementModifier,
+  calculateManeuveringAceBipedLateralShiftCost,
+  calculateManeuveringAceQuadLateralStepCost,
   calculateMovementHeat,
   calculateTMM,
   deriveReachableHexes,
@@ -26,12 +28,14 @@ import {
   getHexMovementCost,
   getStandingCost,
   getValidDestinations,
+  maneuveringAceLateralShiftDirection,
   validateMovement,
 } from '@/utils/gameplay/movement';
 import {
   assertMovementStepConservation,
   decomposeMovementSteps,
 } from '@/utils/gameplay/movement/eventPath';
+import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 function setHex(
@@ -325,6 +329,226 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
     ).not.toThrow();
   });
 
+  it('applies source-backed Maneuvering Ace biped lateral-shift MP while preserving facing', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const lateralRight = { q: 1, r: -1 };
+    const maneuveringAce = { pilotAbilities: ['maneuvering_ace'] };
+
+    const withoutAbility = validateMovement(
+      grid,
+      positionAtOrigin(),
+      lateralRight,
+      Facing.North,
+      MovementType.Walk,
+      { walkMP: 2, runMP: 3, jumpMP: 0 },
+    );
+    const withAbility = validateMovement(
+      grid,
+      positionAtOrigin(),
+      lateralRight,
+      Facing.North,
+      MovementType.Walk,
+      { walkMP: 2, runMP: 3, jumpMP: 0 },
+      0,
+      undefined,
+      maneuveringAce,
+    );
+    const decomposition = decomposeMovementSteps({
+      from: { q: 0, r: 0 },
+      to: lateralRight,
+      fromFacing: Facing.North,
+      toFacing: Facing.North,
+      movementType: MovementType.Walk,
+      mpUsed: 2,
+      path: [{ q: 0, r: 0 }, lateralRight],
+      grid,
+    });
+
+    expect(
+      maneuveringAceLateralShiftDirection({
+        from: { q: 0, r: 0 },
+        to: lateralRight,
+        facing: Facing.North,
+      }),
+    ).toBe('right');
+    expect(
+      calculateManeuveringAceBipedLateralShiftCost({
+        grid,
+        from: { q: 0, r: 0 },
+        to: lateralRight,
+        movementType: 'walk',
+      }),
+    ).toBe(2);
+    expect(withoutAbility.valid).toBe(false);
+    expect(withoutAbility.error).toContain('costs 3 MP');
+    expect(withAbility).toMatchObject({
+      valid: true,
+      mpCost: 2,
+      heatGenerated: 1,
+    });
+    expect(decomposition).toMatchObject({
+      hexesMoved: 1,
+      straightHexes: 1,
+      turningMpCost: 0,
+      netDisplacement: 1,
+    });
+    expect(decomposition.steps).toEqual([
+      expect.objectContaining({
+        kind: 'lateral',
+        direction: 'right',
+        from: { q: 0, r: 0 },
+        to: lateralRight,
+        mpCost: 2,
+      }),
+    ]);
+    expect(() =>
+      assertMovementStepConservation(decomposition, 2),
+    ).not.toThrow();
+  });
+
+  it('validates QuadMek Maneuvering Ace lateral steps at entry cost while biped shifts keep the surcharge', () => {
+    let grid = createHexGrid({ radius: 3 });
+    const lateralRight = { q: 1, r: -1 };
+    const maneuveringAce = { pilotAbilities: ['maneuvering_ace'] };
+
+    grid = setHex(grid, lateralRight, { terrain: TerrainType.LightWoods });
+
+    expect(
+      calculateManeuveringAceBipedLateralShiftCost({
+        grid,
+        from: { q: 0, r: 0 },
+        to: lateralRight,
+        movementType: 'walk',
+        movementContext: maneuveringAce,
+      }),
+    ).toBe(3);
+    expect(
+      calculateManeuveringAceQuadLateralStepCost({
+        grid,
+        from: { q: 0, r: 0 },
+        to: lateralRight,
+        movementType: 'walk',
+        movementContext: maneuveringAce,
+      }),
+    ).toBe(2);
+
+    const bipedValidation = validateMovement(
+      grid,
+      positionAtOrigin(),
+      lateralRight,
+      Facing.North,
+      MovementType.Walk,
+      { walkMP: 2, runMP: 3, jumpMP: 0 },
+      0,
+      undefined,
+      maneuveringAce,
+    );
+    expect(bipedValidation).toMatchObject({
+      valid: false,
+      mpCost: 3,
+    });
+    expect(bipedValidation.error).toContain('costs 3 MP');
+
+    const quadValidation = validateMovement(
+      grid,
+      positionAtOrigin(),
+      lateralRight,
+      Facing.North,
+      MovementType.Walk,
+      { walkMP: 2, runMP: 3, jumpMP: 0, mekLegProfile: 'quad' },
+      0,
+      undefined,
+      maneuveringAce,
+    );
+    const quadDecomposition = decomposeMovementSteps({
+      from: { q: 0, r: 0 },
+      to: lateralRight,
+      fromFacing: Facing.North,
+      toFacing: Facing.North,
+      movementType: MovementType.Walk,
+      mpUsed: 2,
+      path: [{ q: 0, r: 0 }, lateralRight],
+      grid,
+      movementCapability: {
+        walkMP: 2,
+        runMP: 3,
+        jumpMP: 0,
+        mekLegProfile: 'quad',
+      },
+    });
+    expect(quadValidation).toMatchObject({
+      valid: true,
+      mpCost: 2,
+      heatGenerated: 1,
+    });
+    expect(quadDecomposition.steps).toEqual([
+      expect.objectContaining({
+        kind: 'lateral',
+        direction: 'right',
+        from: { q: 0, r: 0 },
+        to: lateralRight,
+        mpCost: 2,
+      }),
+    ]);
+    expect(() =>
+      assertMovementStepConservation(quadDecomposition, 2),
+    ).not.toThrow();
+
+    grid = setHex(grid, lateralRight, { terrain: TerrainType.HeavyWoods });
+    expect(
+      calculateManeuveringAceQuadLateralStepCost({
+        grid,
+        from: { q: 0, r: 0 },
+        to: lateralRight,
+        movementType: 'walk',
+        movementContext: maneuveringAce,
+      }),
+    ).toBe(3);
+
+    grid = setHex(grid, lateralRight, { elevation: 3 });
+    expect(
+      calculateManeuveringAceQuadLateralStepCost({
+        grid,
+        from: { q: 0, r: 0 },
+        to: lateralRight,
+        movementType: 'walk',
+        movementContext: maneuveringAce,
+      }),
+    ).toBe(Infinity);
+
+    grid = setHex(grid, lateralRight, {
+      terrain: TerrainType.Clear,
+      elevation: 0,
+      occupantId: 'enemy-1',
+    });
+    expect(
+      calculateManeuveringAceQuadLateralStepCost({
+        grid,
+        from: { q: 0, r: 0 },
+        to: lateralRight,
+        movementType: 'walk',
+        movementContext: maneuveringAce,
+      }),
+    ).toBe(1);
+    expect(
+      validateMovement(
+        grid,
+        positionAtOrigin(),
+        lateralRight,
+        Facing.North,
+        MovementType.Walk,
+        { walkMP: 2, runMP: 3, jumpMP: 0 },
+        0,
+        undefined,
+        maneuveringAce,
+      ),
+    ).toMatchObject({
+      valid: false,
+      error: 'Destination hex is occupied',
+      mpCost: 0,
+    });
+  });
+
   it('charges path-alignment turns before entering a bent ground path segment', () => {
     const grid = createHexGrid({ radius: 3 });
     const result = validateMovement(
@@ -533,7 +757,9 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
       mountaineer,
     );
     expect(stillTooSteep.valid).toBe(false);
-    expect(stillTooSteep.error).toContain('impassable terrain');
+    expect(stillTooSteep.error).toContain(
+      'Elevation change of 3 exceeds ground movement limit',
+    );
   });
 
   it('rejects impassable elevation while preserving jump landings', () => {
@@ -567,7 +793,9 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
       standardMove,
     );
     expect(climb.valid).toBe(false);
-    expect(climb.error).toContain('impassable terrain');
+    expect(climb.error).toContain(
+      'Elevation change of 3 exceeds ground movement limit',
+    );
 
     const jumpOntoCliff = validateMovement(
       cliffGrid,
@@ -651,6 +879,59 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
     expect(result.error).toContain('occupied');
     expect(result.mpCost).toBe(0);
     expect(result.heatGenerated).toBe(0);
+  });
+
+  it('rejects follow-up movement from a start hex occupied by another unit', () => {
+    const grid = setHex(
+      createHexGrid({ radius: 3 }),
+      { q: 0, r: 0 },
+      {
+        occupantId: 'enemy-1',
+      },
+    );
+    const target = { q: 1, r: 0 };
+
+    const result = validateMovement(
+      grid,
+      positionAtOrigin(),
+      target,
+      Facing.North,
+      MovementType.Walk,
+      standardMove,
+    );
+    const projection = deriveMovementRangeHexForDestination(
+      unitAtOrigin(),
+      MovementType.Walk,
+      grid,
+      standardMove,
+      target,
+    );
+    const sameHex = validateMovement(
+      grid,
+      positionAtOrigin(),
+      { q: 0, r: 0 },
+      Facing.North,
+      MovementType.Stationary,
+      standardMove,
+    );
+
+    expect(result).toEqual({
+      valid: false,
+      error:
+        'Unit cannot make follow-up movement from a start hex occupied by another unit',
+      mpCost: 0,
+      heatGenerated: 0,
+    });
+    expect(projection).toMatchObject({
+      reachable: false,
+      movementInvalidReason: 'InvalidDestination',
+      movementInvalidDetails:
+        'Unit cannot make follow-up movement from a start hex occupied by another unit',
+      blockedReason:
+        'Unit cannot make follow-up movement from a start hex occupied by another unit',
+      path: [{ q: 0, r: 0 }],
+    });
+    expect(sameHex.valid).toBe(true);
   });
 
   it('validates against a legal path instead of failing on an impassable straight-line hex', () => {

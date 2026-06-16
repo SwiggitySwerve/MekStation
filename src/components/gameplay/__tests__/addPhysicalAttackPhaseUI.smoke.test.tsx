@@ -39,6 +39,7 @@ import {
   MovementType,
   type IComponentDamageState,
   type IGameSession,
+  type IINarcPodState,
   type IPhysicalAttackDeclaredPayload,
 } from '@/types/gameplay';
 
@@ -357,6 +358,41 @@ describe('PhysicalAttackForecastModal', () => {
     fireEvent.click(screen.getByTestId('physical-forecast-back-button'));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it('hides the Zweihander declaration toggle by default', () => {
+    render(
+      <PhysicalAttackForecastModal
+        open={true}
+        attackInput={buildAttackInput('punch')}
+        onConfirm={jest.fn()}
+        onClose={jest.fn()}
+      />,
+    );
+    expect(
+      screen.queryByTestId('physical-forecast-zweihander-toggle'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('surfaces the two-handed Zweihander declaration toggle when enabled', () => {
+    const onChange = jest.fn();
+    render(
+      <PhysicalAttackForecastModal
+        open={true}
+        attackInput={buildAttackInput('punch')}
+        onConfirm={jest.fn()}
+        onClose={jest.fn()}
+        showZweihanderToggle={true}
+        zweihanderTwoHanded={false}
+        onZweihanderTwoHandedChange={onChange}
+      />,
+    );
+    const toggle = screen.getByTestId('physical-forecast-zweihander-toggle');
+    expect(toggle).not.toBeChecked();
+
+    fireEvent.click(toggle);
+
+    expect(onChange).toHaveBeenCalledWith(true);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -371,7 +407,9 @@ describe('PhysicalAttackForecastModal', () => {
  */
 function buildSession(
   overrides: {
+    readonly attackerAbilities?: readonly string[];
     readonly attackerMovementThisTurn?: MovementType;
+    readonly defenderINarcPods?: readonly IINarcPodState[];
   } = {},
 ): IGameSession {
   return {
@@ -411,6 +449,9 @@ function buildSession(
           pilotConscious: true,
           destroyed: false,
           lockState: 'unlocked',
+          ...(overrides.attackerAbilities !== undefined
+            ? { abilities: overrides.attackerAbilities }
+            : {}),
         },
         defender: {
           id: 'defender',
@@ -429,6 +470,9 @@ function buildSession(
           pilotConscious: true,
           destroyed: false,
           lockState: 'unlocked',
+          ...(overrides.defenderINarcPods !== undefined
+            ? { iNarcPods: overrides.defenderINarcPods }
+            : {}),
         },
       },
       turnEvents: [],
@@ -468,6 +512,7 @@ describe('usePhysicalAttackPlanStore', () => {
       targetUnitId: null,
       attackType: null,
       limb: null,
+      twoHandedZweihander: false,
     });
   });
 
@@ -486,6 +531,7 @@ describe('usePhysicalAttackPlanStore', () => {
       targetUnitId: null,
       attackType: 'kick',
       limb: 'leftLeg',
+      twoHandedZweihander: false,
     });
   });
 
@@ -510,6 +556,7 @@ describe('usePhysicalAttackPlanStore', () => {
       targetUnitId: null,
       attackType: null,
       limb: null,
+      twoHandedZweihander: false,
     });
   });
 
@@ -548,6 +595,67 @@ describe('usePhysicalAttackPlanStore', () => {
     expect(payload.targetId).toBe('defender');
     expect(payload.attackType).toBe('punch');
     expect(payload.limb).toBe('rightArm');
+  });
+
+  it('commitPhysicalAttack emits explicit two-handed Zweihander state', () => {
+    const fakeSession = buildFakeInteractiveSession(
+      buildSession({ attackerAbilities: ['zweihander'] }),
+    );
+    const store = usePhysicalAttackPlanStore.getState();
+    store.setPhysicalAttackTarget('defender');
+    store.setPhysicalAttackType('punch');
+    store.setPhysicalAttackTwoHandedZweihander(true);
+
+    const next = usePhysicalAttackPlanStore.getState().commitPhysicalAttack({
+      interactiveSession: fakeSession,
+      attackerId: 'attacker',
+      attackerPiloting: 4,
+      attackerTonnage: 50,
+      targetTonnage: 50,
+      hexesMoved: 0,
+    });
+
+    expect(next).not.toBeNull();
+    const declared = next!.events.find(
+      (e) => e.type === GameEventType.PhysicalAttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IPhysicalAttackDeclaredPayload;
+    expect(payload.attackType).toBe('punch');
+    expect(payload.twoHandedZweihander).toBe(true);
+  });
+
+  it('commitPhysicalAttack emits selected iNARC pod identity for Brush-Off', () => {
+    const selectedINarcPod = {
+      teamId: GameSide.Player,
+      podType: 'ecm' as const,
+      location: 'left_torso' as const,
+    };
+    const fakeSession = buildFakeInteractiveSession(
+      buildSession({ defenderINarcPods: [selectedINarcPod] }),
+    );
+    const store = usePhysicalAttackPlanStore.getState();
+    store.setPhysicalAttackTarget('defender');
+    store.setPhysicalAttackINarcPod(selectedINarcPod);
+    store.setPhysicalAttackType('brush-off');
+
+    const next = usePhysicalAttackPlanStore.getState().commitPhysicalAttack({
+      interactiveSession: fakeSession,
+      attackerId: 'attacker',
+      attackerPiloting: 4,
+      attackerTonnage: 50,
+      targetTonnage: 50,
+      hexesMoved: 0,
+    });
+
+    expect(next).not.toBeNull();
+    const declared = next!.events.find(
+      (e) => e.type === GameEventType.PhysicalAttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IPhysicalAttackDeclaredPayload;
+    expect(payload.attackType).toBe('brush-off');
+    expect(payload.selectedINarcPod).toEqual(selectedINarcPod);
   });
 
   it('commitPhysicalAttack infers run-gated charge legality from attacker movement state', () => {
@@ -591,6 +699,7 @@ describe('usePhysicalAttackPlanStore', () => {
       targetUnitId: null,
       attackType: null,
       limb: null,
+      twoHandedZweihander: false,
     });
   });
 });

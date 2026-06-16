@@ -13,6 +13,8 @@ import type {
   TacticalMapCombatProjectionStatus,
   TacticalMapHexProjectionIntent,
   TacticalMapHexProjectionStatus,
+  TacticalMapMovementHazardProjectionStatus,
+  TacticalMapMovementCostProjectionStatus,
   TacticalMapMovementProjectionStatus,
 } from '@/utils/gameplay/tacticalMapProjection';
 
@@ -231,6 +233,10 @@ export interface HexCellProps {
   tacticalProjectionIntent?: TacticalMapHexProjectionIntent;
   tacticalProjectionStatus?: TacticalMapHexProjectionStatus;
   tacticalProjectionMovementStatus?: TacticalMapMovementProjectionStatus;
+  tacticalProjectionMovementCostStatus?: TacticalMapMovementCostProjectionStatus;
+  tacticalProjectionMovementCostReasons?: readonly string[];
+  tacticalProjectionMovementHazardStatus?: TacticalMapMovementHazardProjectionStatus;
+  tacticalProjectionMovementHazardReasons?: readonly string[];
   tacticalProjectionCombatStatus?: TacticalMapCombatProjectionStatus;
   tacticalProjectionBlockedReasons?: readonly string[];
   tacticalProjectionSourceReferences?: readonly ITacticalMapProjectionSourceReference[];
@@ -284,6 +290,10 @@ export const HexCell = React.memo(function HexCell({
   tacticalProjectionIntent,
   tacticalProjectionStatus,
   tacticalProjectionMovementStatus,
+  tacticalProjectionMovementCostStatus,
+  tacticalProjectionMovementCostReasons,
+  tacticalProjectionMovementHazardStatus,
+  tacticalProjectionMovementHazardReasons,
   tacticalProjectionCombatStatus,
   tacticalProjectionBlockedReasons,
   tacticalProjectionSourceReferences,
@@ -654,6 +664,24 @@ export const HexCell = React.memo(function HexCell({
       data-tactical-projection-movement-status={
         tacticalProjectionMovementStatus
       }
+      data-tactical-projection-movement-cost-status={
+        tacticalProjectionMovementCostStatus
+      }
+      data-tactical-projection-movement-cost-reasons={
+        tacticalProjectionMovementCostReasons &&
+        tacticalProjectionMovementCostReasons.length > 0
+          ? tacticalProjectionMovementCostReasons.join('|')
+          : undefined
+      }
+      data-tactical-projection-movement-hazard-status={
+        tacticalProjectionMovementHazardStatus
+      }
+      data-tactical-projection-movement-hazard-reasons={
+        tacticalProjectionMovementHazardReasons &&
+        tacticalProjectionMovementHazardReasons.length > 0
+          ? tacticalProjectionMovementHazardReasons.join('|')
+          : undefined
+      }
       data-tactical-projection-combat-status={tacticalProjectionCombatStatus}
       data-tactical-projection-blocked-reasons={
         tacticalProjectionBlockedReasons &&
@@ -854,6 +882,24 @@ export const HexCell = React.memo(function HexCell({
           data-hex-overlay-kind={overlayKind ?? undefined}
           data-hex-overlay-status={tacticalProjectionStatus}
           data-hex-overlay-movement-status={tacticalProjectionMovementStatus}
+          data-hex-overlay-movement-cost-status={
+            tacticalProjectionMovementCostStatus
+          }
+          data-hex-overlay-movement-cost-reasons={
+            tacticalProjectionMovementCostReasons &&
+            tacticalProjectionMovementCostReasons.length > 0
+              ? tacticalProjectionMovementCostReasons.join('|')
+              : undefined
+          }
+          data-hex-overlay-movement-hazard-status={
+            tacticalProjectionMovementHazardStatus
+          }
+          data-hex-overlay-movement-hazard-reasons={
+            tacticalProjectionMovementHazardReasons &&
+            tacticalProjectionMovementHazardReasons.length > 0
+              ? tacticalProjectionMovementHazardReasons.join('|')
+              : undefined
+          }
           data-hex-overlay-combat-status={tacticalProjectionCombatStatus}
           data-hex-overlay-blocked-reasons={overlayBlockedReasons}
           data-hex-overlay-sources={overlaySourceReferences}
@@ -954,6 +1000,10 @@ export const HexCell = React.memo(function HexCell({
         status={tacticalProjectionStatus}
         intent={tacticalProjectionIntent}
         movementStatus={tacticalProjectionMovementStatus}
+        movementCostStatus={tacticalProjectionMovementCostStatus}
+        movementCostReasons={tacticalProjectionMovementCostReasons}
+        movementHazardStatus={tacticalProjectionMovementHazardStatus}
+        movementHazardReasons={tacticalProjectionMovementHazardReasons}
         combatStatus={tacticalProjectionCombatStatus}
         blockedReasons={tacticalProjectionBlockedReasons}
         sourceReferences={tacticalProjectionSourceReferences}
@@ -984,6 +1034,8 @@ export const HexCell = React.memo(function HexCell({
         y={y}
         hex={hex}
         movementInfo={movementInfo}
+        projectionExplanation={tacticalProjectionExplanation}
+        sourceReferences={tacticalProjectionSourceReferences}
       />
       <MovementStepCostBadge
         x={x}
@@ -1010,7 +1062,14 @@ export const HexCell = React.memo(function HexCell({
           movementOptions ?? [],
         )}
       />
-      <MovementInvalidBadge x={x} y={y} hex={hex} movementInfo={movementInfo} />
+      <MovementInvalidBadge
+        x={x}
+        y={y}
+        hex={hex}
+        movementInfo={movementInfo}
+        projectionExplanation={tacticalProjectionExplanation}
+        sourceReferences={tacticalProjectionSourceReferences}
+      />
       <MovementHoverCostBadge
         x={x}
         y={y}
@@ -1028,7 +1087,14 @@ export const HexCell = React.memo(function HexCell({
       />
       <CombatRangeBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
       <CombatImpactBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
-      <CombatInvalidBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
+      <CombatInvalidBadge
+        x={x}
+        y={y}
+        hex={hex}
+        combatInfo={combatInfo}
+        projectionExplanation={tacticalProjectionExplanation}
+        sourceReferences={tacticalProjectionSourceReferences}
+      />
     </g>
   );
 });

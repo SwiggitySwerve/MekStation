@@ -4,6 +4,7 @@ import { MovementType, IAttackerState, ITargetState } from '@/types/gameplay';
 import {
   createC3MasterSlaveNetwork,
   createC3iNetwork,
+  createC3NovaNetwork,
   createEmptyC3State,
   addC3Network,
   removeC3Network,
@@ -17,6 +18,7 @@ import {
   createC3Unit,
   C3_MASTER_SLAVE_MAX_UNITS,
   C3I_MAX_UNITS,
+  C3_NOVA_MAX_UNITS,
   IC3NetworkUnit,
   IC3Network,
 } from '../c3Network';
@@ -173,6 +175,73 @@ describe('C3i Network Formation', () => {
 
   it('should enforce max unit constant', () => {
     expect(C3I_MAX_UNITS).toBe(6);
+  });
+});
+
+describe('Nova CEWS Network Formation', () => {
+  it('should form a valid 3-unit Nova CEWS network', () => {
+    const members = Array.from({ length: 3 }, (_, i) =>
+      createC3Unit({ entityId: `nova${i}`, teamId: 'team1', role: 'nova' }),
+    );
+
+    const network = createC3NovaNetwork('nova-net', members);
+
+    expect(network).not.toBeNull();
+    expect(network!.type).toBe('nova');
+    expect(network!.members).toHaveLength(3);
+    expect(network!.teamId).toBe('team1');
+  });
+
+  it('should reject Nova CEWS networks over the source-backed 3-unit cap', () => {
+    const members = Array.from({ length: 4 }, (_, i) =>
+      createC3Unit({ entityId: `nova${i}`, teamId: 'team1', role: 'nova' }),
+    );
+
+    expect(createC3NovaNetwork('nova-net', members)).toBeNull();
+  });
+
+  it('should reject non-Nova roles in a Nova CEWS network', () => {
+    const members = [
+      createC3Unit({ entityId: 'A', teamId: 'team1', role: 'nova' }),
+      createC3Unit({ entityId: 'B', teamId: 'team1', role: 'c3i' }),
+    ];
+
+    expect(createC3NovaNetwork('nova-net', members)).toBeNull();
+  });
+
+  it('should provide C3-style range sharing for Nova CEWS peers', () => {
+    const network = createC3NovaNetwork('nova-net', [
+      createC3Unit({
+        entityId: 'attacker',
+        teamId: 'team1',
+        role: 'nova',
+        position: { q: 0, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'spotter',
+        teamId: 'team1',
+        role: 'nova',
+        position: { q: 6, r: 0 },
+      }),
+    ]);
+
+    const result = getC3TargetingBenefit(
+      'attacker',
+      { q: 8, r: 0 },
+      MEDIUM_LASER,
+      addC3Network(createEmptyC3State(), network!),
+    );
+
+    expect(result).toMatchObject({
+      benefitApplied: true,
+      bestBracket: RangeBracket.Short,
+      spotterId: 'spotter',
+      spotterRange: 2,
+    });
+  });
+
+  it('should enforce max unit constant', () => {
+    expect(C3_NOVA_MAX_UNITS).toBe(3);
   });
 });
 

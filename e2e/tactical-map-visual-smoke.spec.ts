@@ -761,7 +761,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     );
     await expect(blockedLosContext).toHaveAttribute(
       'data-tactical-projection-channel',
-      'combat',
+      'combat|los-blocker',
     );
     await expect(blockedLosContext).toHaveAttribute(
       'data-tactical-rules-surface',
@@ -1393,7 +1393,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'Blocked by elevation +2 at (1, 0)',
     );
 
-    const coverTargetHex = page.getByTestId('hex-2--1');
+    const coverTargetHex = page.getByTestId('hex-2--2');
     await expect(coverTargetHex).toHaveAttribute(
       'data-combat-target-ids',
       'elevation-cover-target',
@@ -1429,7 +1429,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-combat-to-hit-modifiers',
       /Partial Cover:1/,
     );
-    const elevationCoverBadge = page.getByTestId('hex-cover-badge-2--1');
+    const elevationCoverBadge = page.getByTestId('hex-cover-badge-2--2');
     await expect(elevationCoverBadge.locator('text')).toHaveText('P+1');
     await expect(elevationCoverBadge).toHaveAttribute(
       'data-combat-cover-badge-reason',
@@ -4728,12 +4728,12 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
   }) => {
     await page.goto('/e2e/tactical-map?scenario=vehicle-right-sponson-in-arc');
 
-    const targetHex = page.getByTestId('hex-2--1');
+    const targetHex = page.getByTestId('hex-3--2');
     await expect(targetHex).toHaveAttribute(
       'data-combat-target-ids',
       'right-arc-target',
     );
-    await expect(targetHex).toHaveAttribute('data-combat-distance', '2');
+    await expect(targetHex).toHaveAttribute('data-combat-distance', '3');
     await expect(targetHex).toHaveAttribute(
       'data-combat-range-bracket',
       'short',
@@ -4769,7 +4769,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'right-sponson-laser:available',
     );
 
-    const combatBadge = page.getByTestId('hex-combat-badge-2--1');
+    const combatBadge = page.getByTestId('hex-combat-badge-3--2');
     await expect(combatBadge).toHaveAttribute(
       'data-combat-badge-attackable',
       'true',
@@ -4783,7 +4783,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'right-sponson-laser:available',
     );
 
-    const arcBadge = page.getByTestId('hex-combat-arc-badge-2--1');
+    const arcBadge = page.getByTestId('hex-combat-arc-badge-3--2');
     await expect(arcBadge.locator('text')).toHaveText('R ARC');
     await expect(arcBadge).toHaveAttribute(
       'data-combat-arc-badge-arc',

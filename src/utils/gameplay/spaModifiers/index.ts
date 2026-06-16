@@ -1,8 +1,20 @@
 export {
   EDGE_TRIGGERS,
+  GENERIC_EDGE_POINT_PRODUCER_IDS,
+  OUT_OF_SCOPE_AEROSPACE_EDGE_TRIGGERS,
+  REPRESENTED_BATTLEMECH_EDGE_TRIGGERS,
   canUseEdge,
   createEdgeState,
+  deriveEdgePointCountFromPilotAbilities,
+  resolveEdgeBattleMechTrigger,
   useEdge,
+} from './edgeTriggers';
+export type {
+  EdgeBattleMechTriggerResolution,
+  EdgeBattleMechTriggerType,
+  IResolveEdgeBattleMechTriggerOptions,
+  OutOfScopeAerospaceEdgeTriggerType,
+  RepresentedBattleMechEdgeTriggerType,
 } from './edgeTriggers';
 export {
   calculateBloodStalkerModifier,
@@ -12,8 +24,11 @@ export {
   calculateJumpingJackModifier,
   calculateMeleeSpecialistModifier,
   calculateMultiTaskerModifier,
+  calculateNeuralInterfacePilotingModifier,
   calculateShakyStickModifier,
   calculateTerrainMasterDefensiveToHitModifier,
+  calculateVdniRangedToHitModifier,
+  checkGroundObjectLiftCapacity,
   getAnimalMimicryPSRModifier,
   getClusterHitterBonus,
   getCoolUnderFireHeatReduction,
@@ -22,6 +37,8 @@ export {
   getHeavyLifterGroundObjectLiftMultiplier,
   getHotDogHeatTargetNumberModifier,
   getIronManModifier,
+  getManeuveringAceFlankingTurningModifier,
+  getManeuveringAceOutOfControlModifier,
   getManeuveringAceSkidModifier,
   getMeleeMasterDamageBonus,
   getMeleeSpecialistDamageBonus,
@@ -29,6 +46,7 @@ export {
   getSomeLikeItHotHeatPenaltyReduction,
   getSwampBeastBogDownPSRModifier,
   getTacticalGeniusBonus,
+  getVdniPilotingModifier,
 } from './abilityModifiers';
 export {
   calculateGunnerySpecialistModifier,

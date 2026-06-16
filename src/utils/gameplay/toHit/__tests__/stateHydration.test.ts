@@ -64,6 +64,89 @@ describe('buildWeaponAttackAttackerToHitState', () => {
     expect(state.weaponType).toBe('Medium Laser');
     expect(state.targetId).toBe('t1');
   });
+
+  it('treats Triple-Core Processor plus VDNI as represented targeting-computer eligibility for called shots', () => {
+    const state = buildWeaponAttackAttackerToHitState(
+      makeUnit({
+        abilities: ['triple_core_processor', 'vdni'],
+        neuralInterfaceActive: true,
+      }),
+      4,
+      { id: 'medium-laser', name: 'Medium Laser' },
+      't1',
+      undefined,
+      { calledShot: true },
+    );
+
+    expect(state.targetingComputer).toBe(true);
+  });
+
+  it('hydrates actual targeting-computer equipment independently of Triple-Core Processor called-shot state', () => {
+    const state = buildWeaponAttackAttackerToHitState(
+      makeUnit({
+        targetingComputerEquipment: true,
+      }),
+      4,
+      { id: 'medium-laser', name: 'Medium Laser' },
+      't1',
+    );
+
+    expect(state.targetingComputer).toBe(true);
+  });
+
+  it('does not double-count actual targeting-computer equipment and represented TCP aimed-shot eligibility', () => {
+    const state = buildWeaponAttackAttackerToHitState(
+      makeUnit({
+        abilities: ['triple_core_processor', 'vdni'],
+        neuralInterfaceActive: true,
+        targetingComputerEquipment: true,
+      }),
+      4,
+      { id: 'medium-laser', name: 'Medium Laser' },
+      't1',
+      undefined,
+      { calledShot: true },
+    );
+
+    expect(state.targetingComputer).toBe(true);
+  });
+
+  it.each([
+    ['missing called-shot intent', ['triple_core_processor', 'vdni'], false],
+    ['missing neural interface ability', ['triple_core_processor'], true],
+    ['missing processor', ['vdni'], true],
+  ])(
+    'does not grant TCP aimed-shot targeting-computer eligibility when %s',
+    (_label, abilities, calledShot) => {
+      const state = buildWeaponAttackAttackerToHitState(
+        makeUnit({ abilities }),
+        4,
+        { id: 'medium-laser', name: 'Medium Laser' },
+        't1',
+        undefined,
+        { calledShot },
+      );
+
+      expect(state.targetingComputer).toBe(false);
+    },
+  );
+
+  it('does not grant TCP aimed-shot targeting-computer eligibility when neural interface is disconnected', () => {
+    const state = buildWeaponAttackAttackerToHitState(
+      makeUnit({
+        abilities: ['triple_core_processor', 'vdni'],
+        neuralInterfaceActive: false,
+      }),
+      4,
+      { id: 'medium-laser', name: 'Medium Laser' },
+      't1',
+      undefined,
+      { calledShot: true },
+    );
+
+    expect(state.targetingComputer).toBe(false);
+    expect(state.neuralInterfaceActive).toBe(false);
+  });
 });
 
 describe('buildWeaponAttackTargetToHitState', () => {

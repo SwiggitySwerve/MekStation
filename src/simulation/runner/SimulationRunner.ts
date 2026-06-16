@@ -28,7 +28,7 @@ import {
   runPhysicalAttackPhase,
   runPSRPhase,
 } from './phases';
-import { createGameEvent } from './phases/utils';
+import { createGameEvent, createRunnerTurnStartedEvent } from './phases/utils';
 import { MAX_TURNS } from './SimulationRunnerConstants';
 import {
   buildAnomalyBattleState,
@@ -234,6 +234,10 @@ export class SimulationRunner {
           Object.keys(seededObjectives).length > 0
             ? { objectives: seededObjectives }
             : {}),
+          ...(state.c3Network !== undefined &&
+          state.c3Network.networks.length > 0
+            ? { c3Network: state.c3Network }
+            : {}),
         },
       ),
     );
@@ -257,12 +261,14 @@ export class SimulationRunner {
     while (turn <= turnLimit) {
       currentState = { ...currentState, turn };
       currentState = resetTurnState(currentState);
+      events.push(createRunnerTurnStartedEvent(gameId, events.length, turn));
 
       currentState = runMovementPhase({
         state: currentState,
         botPlayer,
         grid,
         environmentalConditions: config.environmentalConditions,
+        optionalRules: config.optionalRules,
         invariantRunner: this.invariantRunner,
         violations,
         events,
@@ -309,6 +315,7 @@ export class SimulationRunner {
         random: this.random,
         movementCapabilitiesByUnit: this.movementCapabilitiesByUnit,
         optionalRules: config.optionalRules,
+        manifestsByUnit,
       });
 
       currentState = runPSRPhase({

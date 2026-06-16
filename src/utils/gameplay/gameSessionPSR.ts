@@ -153,6 +153,11 @@ export function resolvePendingPSRs(
         currentUnitState.abilities ?? unit.abilities ?? [],
         d6Roller,
         currentUnitState.pilotToughness,
+        {
+          edgePointsRemaining: currentUnitState.edgePointsRemaining,
+          turn,
+          unitId,
+        },
       );
       const consciousnessPassed =
         currentUnitState.pilotConscious &&
@@ -172,6 +177,12 @@ export function resolvePendingPSRs(
           'fall',
           true,
           consciousnessPassed,
+          {
+            edgeReroll: consciousnessCheck.edgeReroll,
+            edgeSuperseded: consciousnessCheck.edgeSuperseded,
+            edgeTrigger: consciousnessCheck.edgeTrigger,
+            edgePointsRemaining: consciousnessCheck.edgePointsRemaining,
+          },
         ),
       );
 
@@ -189,10 +200,13 @@ export function resolvePendingPSRs(
       componentDamage,
       unitState.pilotWounds,
       d6Roller,
-      unitState.unitQuirks ?? unit.unitQuirks ?? [],
-      unitState.abilities ?? unit.abilities ?? [],
-      unitState.isQuad ?? unit.isQuad ?? false,
-      unitState.unitType ?? unit.unitType,
+      {
+        unitQuirks: unitState.unitQuirks ?? unit.unitQuirks ?? [],
+        pilotAbilities: unitState.abilities ?? unit.abilities ?? [],
+        neuralInterfaceActive: unitState.neuralInterfaceActive,
+        isQuadMek: unitState.isQuad ?? unit.isQuad ?? false,
+        unitType: unitState.unitType ?? unit.unitType,
+      },
     );
 
     for (const result of batchResult.results) {
@@ -286,6 +300,11 @@ export function resolvePendingPSRs(
         currentUnitState.abilities ?? unit.abilities ?? [],
         d6Roller,
         currentUnitState.pilotToughness,
+        {
+          edgePointsRemaining: currentUnitState.edgePointsRemaining,
+          turn,
+          unitId,
+        },
       );
       const consciousnessPassed =
         currentUnitState.pilotConscious &&
@@ -305,6 +324,12 @@ export function resolvePendingPSRs(
           'fall',
           true,
           consciousnessPassed,
+          {
+            edgeReroll: consciousnessCheck.edgeReroll,
+            edgeSuperseded: consciousnessCheck.edgeSuperseded,
+            edgeTrigger: consciousnessCheck.edgeTrigger,
+            edgePointsRemaining: consciousnessCheck.edgePointsRemaining,
+          },
         ),
       );
     }

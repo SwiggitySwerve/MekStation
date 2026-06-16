@@ -7,6 +7,7 @@ import {
   type D6Roller,
 } from '@/utils/gameplay/hitLocation';
 import { getMeleeSpecialistDamageBonus } from '@/utils/gameplay/spaModifiers';
+import { hasSPA } from '@/utils/gameplay/spaModifiers/canonicalize';
 
 import { calculateBrushOffAttackDamage } from './brushOffEligibility';
 import {
@@ -45,6 +46,7 @@ import {
   PhysicalHitTable,
   PhysicalAttackType,
   SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
+  isZweihanderPhysicalAttackType,
 } from './types';
 
 export interface IPhysicalDamageCluster {
@@ -95,6 +97,30 @@ function physicalDamageBonus(input: IPhysicalAttackInput): number {
 
 function punchDamageBonus(input: IPhysicalAttackInput): number {
   return physicalDamageBonus(input);
+}
+
+function isTwoHandedZweihanderAttack(input: IPhysicalAttackInput): boolean {
+  return (
+    isZweihanderPhysicalAttackType(input.attackType) &&
+    input.twoHandedZweihander === true &&
+    hasSPA(input.pilotAbilities ?? [], 'zweihander')
+  );
+}
+
+function twoHandedZweihanderDamageBonus(
+  input: IPhysicalAttackInput,
+  tsmApplies: boolean = true,
+): number {
+  if (!isTwoHandedZweihanderAttack(input)) return 0;
+
+  const effectiveWeight = tsmApplies
+    ? getEffectiveWeight(
+        input.attackerTonnage,
+        input.heat ?? 0,
+        input.hasTSM ?? false,
+      )
+    : input.attackerTonnage;
+  return Math.floor(effectiveWeight / PUNCH_DAMAGE_DIVISOR);
 }
 
 function footActuatorWorksForLeg(
@@ -217,6 +243,7 @@ export function calculatePunchDamage(input: IPhysicalAttackInput): number {
     ? CLAW_PUNCH_DAMAGE_DIVISOR
     : PUNCH_DAMAGE_DIVISOR;
   let damage = Math.ceil(effectiveWeight / divisor);
+  damage += twoHandedZweihanderDamageBonus(input);
   const actuators = input.componentDamage.actuators;
 
   if (actuators[ActuatorType.UPPER_ARM]) {
@@ -365,6 +392,7 @@ export function calculateHatchetDamage(input: IPhysicalAttackInput): number {
   );
   const damage =
     Math.floor(effectiveWeight / HATCHET_DAMAGE_DIVISOR) +
+    twoHandedZweihanderDamageBonus(input) +
     physicalDamageBonus(input);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
@@ -378,6 +406,7 @@ export function calculateSwordDamage(input: IPhysicalAttackInput): number {
   const damage =
     Math.ceil(effectiveWeight / SWORD_DAMAGE_DIVISOR) +
     SWORD_DAMAGE_BONUS +
+    twoHandedZweihanderDamageBonus(input) +
     physicalDamageBonus(input);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
@@ -390,6 +419,7 @@ export function calculateMaceDamage(input: IPhysicalAttackInput): number {
   );
   const damage =
     Math.ceil(effectiveWeight / MACE_DAMAGE_DIVISOR) +
+    twoHandedZweihanderDamageBonus(input) +
     physicalDamageBonus(input);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
@@ -404,6 +434,7 @@ export function calculateRetractableBladeDamage(
   );
   const damage =
     Math.ceil(effectiveWeight / RETRACTABLE_BLADE_DAMAGE_DIVISOR) +
+    twoHandedZweihanderDamageBonus(input) +
     physicalDamageBonus(input);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
@@ -428,19 +459,26 @@ export function calculateLanceDamage(
   const base = Math.floor(effectiveWeight / LANCE_DAMAGE_DIVISOR);
   const damage =
     (isCharging ? base * LANCE_CHARGE_DAMAGE_MULTIPLIER : base) +
+    twoHandedZweihanderDamageBonus(input) +
     physicalDamageBonus(input);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
 export function calculateFlailDamage(input: IPhysicalAttackInput): number {
-  const damage = FLAIL_DAMAGE + physicalDamageBonus(input);
+  const damage =
+    FLAIL_DAMAGE +
+    twoHandedZweihanderDamageBonus(input, false) +
+    physicalDamageBonus(input);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
 export function calculateWreckingBallDamage(
   input: IPhysicalAttackInput,
 ): number {
-  const damage = WRECKING_BALL_DAMAGE + physicalDamageBonus(input);
+  const damage =
+    WRECKING_BALL_DAMAGE +
+    twoHandedZweihanderDamageBonus(input, false) +
+    physicalDamageBonus(input);
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
@@ -774,6 +812,13 @@ export function getPhysicalMissConsequences(
         hitTable: 'punch',
       };
     default:
+      if (input && isTwoHandedZweihanderAttack(input)) {
+        return {
+          attackerPSR: true,
+          attackerPSRModifier: 0,
+          attackerDamage: 0,
+        };
+      }
       return { attackerPSR: false, attackerPSRModifier: 0, attackerDamage: 0 };
   }
 }

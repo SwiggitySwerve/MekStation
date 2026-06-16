@@ -104,6 +104,8 @@ export interface IClusterModifiers {
   readonly artemisBonus: number;
   /** Narc beacon bonus (+2) */
   readonly narcBonus: number;
+  /** Low Profile target penalty (-4) */
+  readonly lowProfilePenalty: number;
   /** Sandblaster SPA bonus (+4/+3/+2 by range on designated weapons) */
   readonly sandblasterBonus: number;
   /** Cluster Hitter SPA bonus (+1) */
@@ -128,6 +130,8 @@ export interface ITargetStatusFlags {
   readonly isIndirectFire?: boolean;
   /** Attacking unit has active stealth armor; MegaMek suppresses its Artemis guidance. */
   readonly attackerStealthActive?: boolean;
+  /** Target has the Low Profile unit quirk. */
+  readonly lowProfile?: boolean;
 }
 
 /** Attacker weapon equipment flags */

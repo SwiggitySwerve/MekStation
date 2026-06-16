@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { GameEventType } from '@/types/gameplay';
 
 import type { ICombatFeatureSupportEntry } from '../CombatFeatureSupport';
@@ -70,6 +73,26 @@ describe('BattleMech combat event support catalog', () => {
   it('requires every event support entry to carry evidence and explicit gaps when not integrated', () => {
     expect(supportGaps(BATTLEMECH_COMBAT_EVENT_SUPPORT)).toEqual([]);
     expect(supportGaps(NON_BATTLEMECH_EVENT_SCOPE_SUPPORT)).toEqual([]);
+  });
+
+  it('requires TurnStarted integration to stay backed by runner production emission', () => {
+    const turnStarted =
+      BATTLEMECH_COMBAT_EVENT_SUPPORT[GameEventType.TurnStarted];
+    const runnerText = readFileSync(
+      join(process.cwd(), 'src/simulation/runner/SimulationRunner.ts'),
+      'utf8',
+    );
+    const runnerFactoryText = readFileSync(
+      join(process.cwd(), 'src/simulation/runner/phases/utils.ts'),
+      'utf8',
+    );
+
+    expect(turnStarted).toMatchObject({
+      level: 'integrated',
+      evidence: expect.stringContaining('SimulationRunner.run emits'),
+    });
+    expect(runnerText).toContain('createRunnerTurnStartedEvent');
+    expect(runnerFactoryText).toContain('GameEventType.TurnStarted');
   });
 
   it('source-pins BattleMech event stream rows to anchored MekStation evidence', () => {
@@ -228,6 +251,12 @@ describe('BattleMech combat event support catalog', () => {
     expect(
       supportIdsByLevel(BATTLEMECH_COMBAT_EVENT_SUPPORT, 'helper-only'),
     ).toEqual([]);
+    expect(BATTLEMECH_COMBAT_EVENT_SUPPORT[GameEventType.TurnStarted]).toEqual(
+      expect.objectContaining({
+        level: 'integrated',
+        evidence: expect.stringContaining('SimulationRunner.run emits'),
+      }),
+    );
   });
 
   it('keeps the combat audit trail discoverable for core must-cover mechanics', () => {
@@ -236,6 +265,7 @@ describe('BattleMech combat event support catalog', () => {
     ).toEqual(
       expect.arrayContaining([
         GameEventType.MovementDeclared,
+        GameEventType.TurnStarted,
         GameEventType.MovementEnhancementActivated,
         GameEventType.FacingChanged,
         GameEventType.AttackDeclared,

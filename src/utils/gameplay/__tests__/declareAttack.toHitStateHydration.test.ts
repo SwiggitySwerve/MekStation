@@ -11,6 +11,12 @@ import {
   RangeBracket,
 } from '@/types/gameplay';
 
+import {
+  addC3Network,
+  createC3MasterSlaveNetwork,
+  createC3Unit,
+  createEmptyC3State,
+} from '../c3Network';
 import { buildDefaultComponentDamageState } from '../gameSessionAttackResolutionHelpers';
 import {
   advancePhase,
@@ -102,6 +108,191 @@ function latestAttackDeclaredPayload(
 }
 
 describe('declareAttack to-hit state hydration', () => {
+  it('threads session-authored C3 network formation into declared direct-fire to-hit', () => {
+    const c3Network = createC3MasterSlaveNetwork('session-c3', [
+      createC3Unit({
+        entityId: 'attacker',
+        teamId: GameSide.Player,
+        role: 'master',
+        position: { q: 99, r: 99 },
+      }),
+      createC3Unit({
+        entityId: 'spotter',
+        teamId: GameSide.Player,
+        role: 'slave',
+        position: { q: 99, r: 99 },
+      }),
+    ]);
+
+    expect(c3Network).not.toBeNull();
+
+    let session = createGameSession(
+      buildConfig(),
+      [
+        ...buildUnits(),
+        {
+          id: 'spotter',
+          name: 'C3 Spotter',
+          side: GameSide.Player,
+          unitRef: 'c3-spotter',
+          pilotRef: 'pilot-spotter',
+          gunnery: 4,
+          piloting: 5,
+        } as IGameUnit,
+      ],
+      {
+        c3Network: addC3Network(createEmptyC3State(), c3Network!),
+      },
+    );
+
+    expect(session.currentState.c3Network?.networks).toHaveLength(1);
+    session = startGame(session, GameSide.Player);
+    session = rollInitiative(session);
+    session = advancePhase(session);
+    session = advancePhase(session);
+
+    const positionedSession: IGameSession = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        units: {
+          ...session.currentState.units,
+          attacker: {
+            ...session.currentState.units.attacker,
+            position: { q: 5, r: 0 },
+          },
+          spotter: {
+            ...session.currentState.units.spotter,
+            position: { q: 2, r: 0 },
+          },
+          target: {
+            ...session.currentState.units.target,
+            position: { q: 0, r: 0 },
+          },
+        },
+      },
+    };
+
+    const result = declareAttack(
+      positionedSession,
+      'attacker',
+      'target',
+      buildMediumLaserAttack(),
+      5,
+      RangeBracket.Medium,
+    );
+
+    const payload = latestAttackDeclaredPayload(result);
+    expect(payload.toHitNumber).toBe(4);
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Range (short)',
+          value: 0,
+          source: 'range',
+        }),
+        expect.objectContaining({
+          name: 'C3 Network',
+          value: 0,
+          source: 'equipment',
+        }),
+      ]),
+    );
+    expect(payload.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: 'Range (medium)' }),
+    );
+  });
+
+  it('refreshes session-authored C3 lifecycle state before declared to-hit', () => {
+    const c3Network = createC3MasterSlaveNetwork('session-c3', [
+      createC3Unit({
+        entityId: 'attacker',
+        teamId: GameSide.Player,
+        role: 'master',
+        position: { q: 5, r: 0 },
+      }),
+      createC3Unit({
+        entityId: 'spotter',
+        teamId: GameSide.Player,
+        role: 'slave',
+        position: { q: 2, r: 0 },
+      }),
+    ]);
+
+    expect(c3Network).not.toBeNull();
+
+    let session = createGameSession(
+      buildConfig(),
+      [
+        ...buildUnits(),
+        {
+          id: 'spotter',
+          name: 'C3 Spotter',
+          side: GameSide.Player,
+          unitRef: 'c3-spotter',
+          pilotRef: 'pilot-spotter',
+          gunnery: 4,
+          piloting: 5,
+        } as IGameUnit,
+      ],
+      {
+        c3Network: addC3Network(createEmptyC3State(), c3Network!),
+      },
+    );
+
+    session = startGame(session, GameSide.Player);
+    session = rollInitiative(session);
+    session = advancePhase(session);
+    session = advancePhase(session);
+
+    const positionedSession: IGameSession = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        units: {
+          ...session.currentState.units,
+          attacker: {
+            ...session.currentState.units.attacker,
+            position: { q: 5, r: 0 },
+          },
+          spotter: {
+            ...session.currentState.units.spotter,
+            position: { q: 2, r: 0 },
+            destroyed: true,
+          },
+          target: {
+            ...session.currentState.units.target,
+            position: { q: 0, r: 0 },
+          },
+        },
+      },
+    };
+
+    const result = declareAttack(
+      positionedSession,
+      'attacker',
+      'target',
+      buildMediumLaserAttack(),
+      5,
+      RangeBracket.Medium,
+    );
+
+    const payload = latestAttackDeclaredPayload(result);
+    expect(payload.toHitNumber).toBe(6);
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Range (medium)',
+          value: 2,
+          source: 'range',
+        }),
+      ]),
+    );
+    expect(payload.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: 'C3 Network' }),
+    );
+  });
+
   it('threads pilot wounds, sensor hits, actuator damage, and attacker prone state', () => {
     const session = setupWeaponAttackSession();
     const componentDamage = buildDefaultComponentDamageState();
@@ -288,6 +479,54 @@ describe('declareAttack to-hit state hydration', () => {
           name: 'Called Shot',
           value: 3,
           source: 'other',
+        }),
+      ]),
+    );
+  });
+
+  it('applies represented Triple-Core Processor aimed-shot relief in declared to-hit', () => {
+    const session = setupWeaponAttackSession();
+    const hydratedSession: IGameSession = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        units: {
+          ...session.currentState.units,
+          attacker: {
+            ...session.currentState.units.attacker,
+            abilities: ['triple_core_processor', 'vdni'],
+          },
+        },
+      },
+    };
+    const [calledShotWeapon] = buildMediumLaserAttack();
+    const result = declareAttack(
+      hydratedSession,
+      'attacker',
+      'target',
+      [{ ...calledShotWeapon, calledShot: true }],
+      3,
+      RangeBracket.Short,
+    );
+
+    const payload = latestAttackDeclaredPayload(result);
+    expect(payload.toHitNumber).toBe(5);
+    expect(payload.modifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'VDNI',
+          value: -1,
+          source: 'spa',
+        }),
+        expect.objectContaining({
+          name: 'Called Shot',
+          value: 3,
+          source: 'other',
+        }),
+        expect.objectContaining({
+          name: 'Targeting Computer',
+          value: -1,
+          source: 'equipment',
         }),
       ]),
     );

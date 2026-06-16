@@ -225,6 +225,25 @@ jobs:
       - name: Validate BV parity
         run: npm run validate:bv
 
+  validate-combat:
+    name: Validate Combat Suite
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+          fetch-assets: 'true'
+
+      - name: Validate combat catalog/test/spec consistency
+        run: npm run validate:combat
+
   storybook-build:
     name: Build Storybook
     needs: install-deps
@@ -433,6 +452,7 @@ jobs:
         perf-smoke-tests,
         a11y-tests,
         validate-bv,
+        validate-combat,
         storybook-build,
         schema-bridge,
         determinism-audit,

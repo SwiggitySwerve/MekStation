@@ -88,6 +88,28 @@ export function emitCriticalEvents(
           payload.effect,
           payload.destroyed,
           payload.ammoBinId,
+          payload.edgePointsRemaining,
+          payload.weaponId,
+          {
+            ...(payload.missing !== undefined
+              ? { missing: payload.missing }
+              : {}),
+            ...(payload.breached !== undefined
+              ? { breached: payload.breached }
+              : {}),
+            ...(payload.hotLoaded !== undefined
+              ? { hotLoaded: payload.hotLoaded }
+              : {}),
+            ...(payload.linkedCriticalWeaponId !== undefined
+              ? { linkedCriticalWeaponId: payload.linkedCriticalWeaponId }
+              : {}),
+            ...(payload.linkedCriticalWeaponName !== undefined
+              ? { linkedCriticalWeaponName: payload.linkedCriticalWeaponName }
+              : {}),
+            ...(payload.explosionDamage !== undefined
+              ? { explosionDamage: payload.explosionDamage }
+              : {}),
+          },
         ),
       );
       // Per `integrate-damage-pipeline` task 8 + 0.5.4: when a
@@ -210,6 +232,8 @@ export function buildDamageStateFromUnit(
     pilotToughness: unit.pilotToughness,
     pilotConscious: unit.pilotConscious,
     pilotAbilities: unit.abilities,
+    edgePointsRemaining: unit.edgePointsRemaining,
+    unitId: unit.id,
     destroyed: unit.destroyed,
   };
 }
@@ -225,6 +249,10 @@ export function buildDefaultComponentDamageState(): IComponentDamageState {
     weaponsDestroyed: [],
     heatSinksDestroyed: 0,
     jumpJetsDestroyed: 0,
+    superCooledMyomerHits: 0,
+    emergencyCoolantSystemDamaged: false,
+    playtestAutocannonFirstCrits: [],
+    breachedLocations: [],
   } as const;
 }
 

@@ -170,7 +170,7 @@ const MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS = [
     kind: 'megamek-source',
     citation:
       'MegaMek Entity.canSpot rejects sprinting entities before they can spot LRM indirect fire.',
-    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L9806-L9818',
+    url: 'https://github.com/MegaMek/megamek/blob/325b2504c7b7750ecdcb85468621fb2de2ad8e60/megamek/src/megamek/common/units/Entity.java#L9812-L9818',
     sourceVersion: '325b2504c7b7750ecdcb85468621fb2de2ad8e60',
   },
 ] satisfies readonly ICombatFeatureSourceReference[];

@@ -9,7 +9,7 @@
  * `pilotingSkillRolls/types.ts`; back-compat is preserved via a re-export
  * from that module.
  *
- * The 27 canonical snake_case codes mirror MegaMek's
+ * The canonical snake_case codes mirror MegaMek's
  * `Server.processPilotingRolls` and `MovePathHandler.checkSkid`
  * taxonomy. See the `piloting-skill-rolls` spec
  * (`Requirement: PSR Reason Code Discriminated Field`) for the
@@ -59,6 +59,9 @@ export enum PSRTrigger {
   // Movement with damage triggers
   RunningDamagedHip = 'running_damaged_hip',
   RunningDamagedGyro = 'running_damaged_gyro',
+  ControlledSideslip = 'controlled_sideslip',
+  FlankingAndTurning = 'flanking_and_turning',
+  OutOfControl = 'out_of_control',
 
   // Collapse/failure triggers
   BuildingCollapse = 'building_collapse',

@@ -27,6 +27,16 @@ type VisibilityTestState = IGameState & {
 
 type VisibilityTestUnit = IUnitGameState & {
   readonly sensorRange?: number;
+  readonly sensorCheck?: number;
+  readonly sensorRangeBrackets?: Partial<
+    Record<'short' | 'medium' | 'long', number>
+  >;
+  readonly activeSensorEcmProfile?:
+    | 'standard-active-probe'
+    | 'bloodhound'
+    | 'light-active-probe'
+    | 'vehicle-radar'
+    | 'none';
 };
 
 const PLAYER_ID = 'pid_a';
@@ -161,6 +171,41 @@ describe('fog-of-war unit visibility helpers', () => {
     expect(canPlayerSeeUnit(PLAYER_ID, 'enemy-beyond-boundary', state)).toBe(
       false,
     );
+  });
+
+  it('applies enemy iNarc ECM pods to bracketed sensor contacts', () => {
+    const bracketedScout = {
+      sensorCheck: 6,
+      sensorRangeBrackets: {
+        short: 3,
+        medium: 6,
+        long: 10,
+      },
+      activeSensorEcmProfile: 'standard-active-probe' as const,
+    };
+    const clearState = makeState([
+      makeUnit('player-scout', GameSide.Player, { q: 0, r: 0 }, bracketedScout),
+      makeUnit('enemy-at-medium-sensor', GameSide.Opponent, { q: 6, r: 0 }),
+    ]);
+    const inarcEcmState = makeState([
+      makeUnit(
+        'player-scout',
+        GameSide.Player,
+        { q: 0, r: 0 },
+        {
+          ...bracketedScout,
+          iNarcPods: [{ teamId: GameSide.Opponent, podType: 'ecm' }],
+        },
+      ),
+      makeUnit('enemy-at-medium-sensor', GameSide.Opponent, { q: 6, r: 0 }),
+    ]);
+
+    expect(
+      canPlayerSeeUnit(PLAYER_ID, 'enemy-at-medium-sensor', clearState),
+    ).toBe(true);
+    expect(
+      canPlayerSeeUnit(PLAYER_ID, 'enemy-at-medium-sensor', inarcEcmState),
+    ).toBe(false);
   });
 
   it('always returns true for own units regardless of combat state', () => {

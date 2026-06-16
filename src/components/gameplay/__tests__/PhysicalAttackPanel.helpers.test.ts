@@ -100,6 +100,7 @@ const ALL_REASON_CODES = [
   'UnsupportedAttackType',
   'PhysicalAttackLimitReached',
   'RetractableBladeNotExtended',
+  'RequiredSpaMissing',
   'DestinationBlocked',
 ] as const satisfies readonly PhysicalAttackInvalidReason[];
 

@@ -44,12 +44,25 @@ import {
   useSelectedUnit,
 } from '@/stores/useGameplayStore';
 import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
-import { GamePhase, MovementType, type IHexCoordinate } from '@/types/gameplay';
+import {
+  GamePhase,
+  MovementType,
+  type IHexCoordinate,
+  type IINarcPodState,
+} from '@/types/gameplay';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import { buildPhysicalElevationContext } from '@/utils/gameplay/physicalAttacks/elevation';
 import { getEligiblePhysicalAttacks } from '@/utils/gameplay/physicalAttacks/eligibility';
 import { buildPhysicalTerrainContext } from '@/utils/gameplay/physicalAttacks/terrain';
+import { isZweihanderPhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
 import { isAirborneVTOLOrWiGEForPhysicalAttack } from '@/utils/gameplay/physicalAttacks/unitState';
+import { hasSPA } from '@/utils/gameplay/spaModifiers';
+import {
+  buildINarcPodBrushOffTargetOptions,
+  iNarcPodDisplayName,
+  iNarcPodTargetKey,
+  uniqueINarcPodTargets,
+} from '@/utils/gameplay/specialWeaponMechanics';
 
 import type { PhysicalAttackIntentVariant } from './overlays/PhysicalAttackIntentArrow';
 
@@ -90,8 +103,10 @@ export interface PhysicalAttackPanelProps {
 
 interface MeleeTarget {
   id: string;
+  carrierUnitId: string;
   name: string;
   position: IHexCoordinate;
+  selectedINarcPod?: IINarcPodState;
 }
 
 function armForPhysicalLimb(
@@ -121,6 +136,12 @@ export function PhysicalAttackPanel({
   );
   const setPhysicalAttackType = usePhysicalAttackPlanStore(
     (s) => s.setPhysicalAttackType,
+  );
+  const setPhysicalAttackTwoHandedZweihander = usePhysicalAttackPlanStore(
+    (s) => s.setPhysicalAttackTwoHandedZweihander,
+  );
+  const setPhysicalAttackINarcPod = usePhysicalAttackPlanStore(
+    (s) => s.setPhysicalAttackINarcPod,
   );
   const clearPhysicalAttackPlan = usePhysicalAttackPlanStore(
     (s) => s.clearPhysicalAttackPlan,
@@ -156,14 +177,57 @@ export function PhysicalAttackPanel({
       if (hexDistance(selected.state.position, unitState.position) !== 1)
         continue;
       const unitMeta = session.units.find((u) => u.id === unitId);
+      const carrierName = unitMeta?.name ?? unitId;
       list.push({
         id: unitId,
-        name: unitMeta?.name ?? unitId,
+        carrierUnitId: unitId,
+        name: carrierName,
         position: unitState.position,
       });
+      list.push(
+        ...buildINarcPodBrushOffTargetOptions({
+          carrierUnitId: unitId,
+          carrierName,
+          pods: unitState.iNarcPods,
+        }).map((target) => ({
+          id: target.id,
+          carrierUnitId: target.carrierUnitId,
+          name: target.name,
+          position: unitState.position,
+          selectedINarcPod: target.selectedINarcPod,
+        })),
+      );
     }
     return list;
   }, [selected, session]);
+
+  const selectedMeleeTarget = useMemo(() => {
+    const selectedPodKey =
+      physicalAttackPlan.selectedINarcPod !== undefined
+        ? iNarcPodTargetKey(physicalAttackPlan.selectedINarcPod)
+        : undefined;
+    return (
+      meleeTargets.find((target) => {
+        if (target.carrierUnitId !== physicalAttackPlan.targetUnitId) {
+          return false;
+        }
+        if (target.selectedINarcPod === undefined) {
+          return selectedPodKey === undefined;
+        }
+        return (
+          selectedPodKey !== undefined &&
+          iNarcPodTargetKey(target.selectedINarcPod) === selectedPodKey
+        );
+      }) ?? null
+    );
+  }, [
+    meleeTargets,
+    physicalAttackPlan.selectedINarcPod,
+    physicalAttackPlan.targetUnitId,
+  ]);
+
+  const selectedTargetIsINarcPod =
+    selectedMeleeTarget?.selectedINarcPod !== undefined;
 
   /**
    * Current target `IUnitGameState` picked from the store plan. Memoized
@@ -175,6 +239,14 @@ export function PhysicalAttackPanel({
     return session.currentState.units[physicalAttackPlan.targetUnitId] ?? null;
   }, [physicalAttackPlan.targetUnitId, session]);
   const optionalRules = session?.config.optionalRules;
+  const targetINarcPods = useMemo(
+    () => uniqueINarcPodTargets(targetState?.iNarcPods),
+    [targetState?.iNarcPods],
+  );
+  const selectedINarcPodKey =
+    physicalAttackPlan.selectedINarcPod !== undefined
+      ? iNarcPodTargetKey(physicalAttackPlan.selectedINarcPod)
+      : (targetINarcPods[0] && iNarcPodTargetKey(targetINarcPods[0])) || '';
 
   /**
    * Per task 3.1-3.3: project the engine's `getEligiblePhysicalAttacks`
@@ -187,7 +259,7 @@ export function PhysicalAttackPanel({
     const targetUnit = session?.units.find(
       (unit) => unit.id === physicalAttackPlan.targetUnitId,
     );
-    return getEligiblePhysicalAttacks(selected.state, targetState, {
+    const projected = getEligiblePhysicalAttacks(selected.state, targetState, {
       attackerTonnage,
       attackerPilotingSkill: selected.unit.piloting,
       targetTonnage: attackerTonnage,
@@ -195,6 +267,7 @@ export function PhysicalAttackPanel({
       attackerMovementMode: selected.unit.movementMode,
       optionalRules,
       targetUnitType: targetUnit?.unitType,
+      targetIsINarcPod: selectedTargetIsINarcPod,
       weaponsFiredFromLeftArm: selected.state.weaponsFiredThisTurn,
       weaponsFiredFromRightArm: selected.state.weaponsFiredThisTurn,
       limbsUsedThisTurn: undefined,
@@ -216,6 +289,9 @@ export function PhysicalAttackPanel({
         ? buildPhysicalTerrainContext(selected.state, targetState, physicalGrid)
         : undefined,
     });
+    return selectedTargetIsINarcPod
+      ? projected.filter((option) => option.attackType === 'brush-off')
+      : projected;
   }, [
     selected,
     targetState,
@@ -225,6 +301,7 @@ export function PhysicalAttackPanel({
     meleeWeaponsEquipped,
     physicalGrid,
     optionalRules,
+    selectedTargetIsINarcPod,
   ]);
 
   /**
@@ -245,6 +322,9 @@ export function PhysicalAttackPanel({
       attackType: physicalAttackPlan.attackType,
       limb: physicalAttackPlan.limb ?? undefined,
       arm: armForPhysicalLimb(physicalAttackPlan.limb),
+      twoHandedZweihander:
+        isZweihanderPhysicalAttackType(physicalAttackPlan.attackType) &&
+        physicalAttackPlan.twoHandedZweihander,
       heat: selected.state.heat,
       attackerProne: selected.state.prone,
       attackerUnitType: selected.unit.unitType,
@@ -295,22 +375,43 @@ export function PhysicalAttackPanel({
     physicalAttackPlan.targetUnitId,
     physicalAttackPlan.attackType,
     physicalAttackPlan.limb,
+    physicalAttackPlan.twoHandedZweihander,
     optionalRules,
   ]);
+
+  const showZweihanderToggle =
+    isZweihanderPhysicalAttackType(physicalAttackPlan.attackType) &&
+    hasSPA(selected?.state.abilities ?? [], 'zweihander');
 
   // ---------------------------------------------------------------------------
   // Callbacks
   // ---------------------------------------------------------------------------
 
   const handleSelectTarget = useCallback(
-    (unitId: string) => {
-      setPhysicalAttackTarget(unitId);
+    (target: MeleeTarget) => {
+      setPhysicalAttackTarget(target.carrierUnitId);
       // Clear any previously-selected attack type when the target
       // changes — the restriction set may differ.
       setPhysicalAttackType(null);
+      setPhysicalAttackINarcPod(target.selectedINarcPod);
       onIntentChange?.(null);
     },
-    [setPhysicalAttackTarget, setPhysicalAttackType, onIntentChange],
+    [
+      setPhysicalAttackTarget,
+      setPhysicalAttackType,
+      setPhysicalAttackINarcPod,
+      onIntentChange,
+    ],
+  );
+
+  const handleSelectINarcPod = useCallback(
+    (podKey: string) => {
+      const selectedPod = targetINarcPods.find(
+        (pod) => iNarcPodTargetKey(pod) === podKey,
+      );
+      setPhysicalAttackINarcPod(selectedPod);
+    },
+    [setPhysicalAttackINarcPod, targetINarcPods],
   );
 
   /**
@@ -346,9 +447,22 @@ export function PhysicalAttackPanel({
   const handleDeclare = useCallback(
     (option: IPhysicalAttackOption) => {
       setPhysicalAttackType(option.attackType, option.limb ?? null);
+      setPhysicalAttackTwoHandedZweihander(false);
+      if (
+        option.attackType === 'brush-off' &&
+        physicalAttackPlan.selectedINarcPod === undefined
+      ) {
+        setPhysicalAttackINarcPod(targetINarcPods[0]);
+      }
       setForecastOpen(true);
     },
-    [setPhysicalAttackType],
+    [
+      physicalAttackPlan.selectedINarcPod,
+      setPhysicalAttackType,
+      setPhysicalAttackTwoHandedZweihander,
+      setPhysicalAttackINarcPod,
+      targetINarcPods,
+    ],
   );
 
   const handleConfirm = useCallback(() => {
@@ -391,9 +505,7 @@ export function PhysicalAttackPanel({
     });
     if (next) {
       setSession(next);
-      const target = meleeTargets.find(
-        (t) => t.id === physicalAttackPlan.targetUnitId,
-      );
+      const target = meleeTargets.find((t) => t.id === selectedMeleeTarget?.id);
       setCommittedSummary(
         `Declared ${attackTypeLabel(
           physicalAttackPlan.attackType ?? 'punch',
@@ -414,6 +526,8 @@ export function PhysicalAttackPanel({
     physicalAttackPlan.targetUnitId,
     physicalAttackPlan.attackType,
     physicalAttackPlan.limb,
+    physicalAttackPlan.twoHandedZweihander,
+    selectedMeleeTarget?.id,
     targetState,
     physicalGrid,
     onIntentChange,
@@ -513,14 +627,14 @@ export function PhysicalAttackPanel({
           aria-label="Melee target"
         >
           {meleeTargets.map((target) => {
-            const isSelected = physicalAttackPlan.targetUnitId === target.id;
+            const isSelected = selectedMeleeTarget?.id === target.id;
             return (
               <li key={target.id}>
                 <button
                   type="button"
                   role="radio"
                   aria-checked={isSelected}
-                  onClick={() => handleSelectTarget(target.id)}
+                  onClick={() => handleSelectTarget(target)}
                   className={`min-h-[36px] w-full rounded border px-2 py-1 text-left ${
                     isSelected
                       ? 'border-blue-500 bg-blue-50 text-blue-900'
@@ -534,6 +648,29 @@ export function PhysicalAttackPanel({
             );
           })}
         </ul>
+      )}
+
+      {hasTarget && targetINarcPods.length > 0 && (
+        <label className="flex flex-col gap-1 text-xs">
+          <span className="text-text-theme-muted">Brush-Off pod</span>
+          <select
+            value={selectedINarcPodKey}
+            onChange={(event) =>
+              handleSelectINarcPod(event.currentTarget.value)
+            }
+            className="border-border-theme-subtle bg-surface-base text-text-theme-primary min-h-[32px] rounded border px-2 py-1"
+            data-testid="physical-attack-inarc-pod-select"
+          >
+            {targetINarcPods.map((pod) => {
+              const podKey = iNarcPodTargetKey(pod);
+              return (
+                <option key={podKey} value={podKey}>
+                  {iNarcPodDisplayName(pod)}
+                </option>
+              );
+            })}
+          </select>
+        </label>
       )}
 
       {hasTarget && options.length > 0 && (
@@ -654,6 +791,9 @@ export function PhysicalAttackPanel({
           }
           onConfirm={handleConfirm}
           onClose={() => setForecastOpen(false)}
+          showZweihanderToggle={showZweihanderToggle}
+          zweihanderTwoHanded={physicalAttackPlan.twoHandedZweihander}
+          onZweihanderTwoHandedChange={setPhysicalAttackTwoHandedZweihander}
         />
       )}
     </section>

@@ -5,10 +5,21 @@ import { IHexCoordinate, RangeBracket } from '@/types/gameplay';
 // =============================================================================
 
 /** C3 network type */
-export type C3NetworkType = 'master-slave' | 'improved';
+export type C3NetworkType = 'master-slave' | 'improved' | 'nova';
 
 /** Role of a unit within a C3 network */
-export type C3UnitRole = 'master' | 'slave' | 'c3i';
+export type C3UnitRole = 'master' | 'slave' | 'c3i' | 'nova';
+
+export type C3EquipmentNetworkFormationDenialReason =
+  | 'ambiguous-unit-equipment'
+  | 'mixed-network-families'
+  | 'multiple-master-units'
+  | 'oversized-master-slave-network'
+  | 'incomplete-master-slave-network'
+  | 'oversized-c3i-network'
+  | 'insufficient-c3i-members'
+  | 'oversized-nova-network'
+  | 'insufficient-nova-members';
 
 /** Source-backed mounted C3 equipment projected into combat state. */
 export interface IC3EquipmentMountState {
@@ -20,6 +31,14 @@ export interface IC3EquipmentMountState {
   readonly sourceLocation?: string;
   /** Boosted C3 variants retain their explicit equipment distinction. */
   readonly boosted?: boolean;
+}
+
+export interface IC3EquipmentNetworkFormationDenial {
+  readonly teamId: string;
+  readonly reason: C3EquipmentNetworkFormationDenialReason;
+  readonly unitIds: readonly string[];
+  readonly roles: readonly C3UnitRole[];
+  readonly message: string;
 }
 
 /** A unit participating in a C3 network */
@@ -61,6 +80,11 @@ export interface IC3NetworkState {
   readonly networks: readonly IC3Network[];
 }
 
+export interface IC3EquipmentNetworkFormationResult {
+  readonly state?: IC3NetworkState;
+  readonly denials: readonly IC3EquipmentNetworkFormationDenial[];
+}
+
 /** Result of attempting to get C3 targeting benefit */
 export interface IC3TargetingResult {
   /** Whether C3 benefit applies */
@@ -95,3 +119,6 @@ export const C3_MASTER_SLAVE_MAX_UNITS = 4;
 
 /** Maximum units in a C3i (Improved) network */
 export const C3I_MAX_UNITS = 6;
+
+/** Maximum units in a Nova CEWS network */
+export const C3_NOVA_MAX_UNITS = 3;

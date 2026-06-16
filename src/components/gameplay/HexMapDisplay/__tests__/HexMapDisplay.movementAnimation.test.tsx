@@ -1262,6 +1262,43 @@ describe('HexMapDisplay tactical visual layers', () => {
         'movement options walk via tracked reachable 3 MP terrain +1 elevation delta +1 cost +1 heat +0, run via tracked reachable 3 MP terrain +2 elevation delta +1 cost +1 heat +2, jump reachable 1 MP terrain +0 elevation delta +2 cost +0 heat +1',
       ),
     );
+    expect(hex).toHaveAttribute(
+      'data-tactical-projection-movement-cost-status',
+      'costly',
+    );
+    expect(hex).toHaveAttribute(
+      'data-tactical-projection-movement-cost-reasons',
+      'terrain +1|elevation delta +1 cost +1|terrain +2|heat +2|elevation delta +2 cost +0|heat +1',
+    );
+
+    const projectionBadge = screen.getByTestId(
+      'hex-projection-status-badge-1-0',
+    );
+    expect(projectionBadge).toHaveTextContent('CST');
+    expect(projectionBadge).toHaveAttribute(
+      'data-projection-status-badge-status',
+      'legal',
+    );
+    expect(projectionBadge).toHaveAttribute(
+      'data-projection-status-badge-movement-status',
+      'legal',
+    );
+    expect(projectionBadge).toHaveAttribute(
+      'data-projection-status-badge-movement-cost-status',
+      'costly',
+    );
+    expect(projectionBadge).toHaveAttribute(
+      'data-projection-status-badge-movement-cost-reasons',
+      'terrain +1|elevation delta +1 cost +1|terrain +2|heat +2|elevation delta +2 cost +0|heat +1',
+    );
+    expect(projectionBadge).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('Costly legal movement projection'),
+    );
+    expect(projectionBadge).toHaveAttribute(
+      'aria-label',
+      expect.stringContaining('movement cost costly'),
+    );
 
     const badge = screen.getByTestId('hex-movement-badge-1-0');
     expect(badge).toHaveTextContent('W3/R3/J1 MP');
@@ -1599,6 +1636,34 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(blockedBadge).toHaveAttribute(
       'data-movement-blocked-options-badge-invalid-details',
       `jump:${blockedReason}`,
+    );
+    expect(blockedBadge).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(blockedBadge).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'movement',
+    );
+    expect(blockedBadge).toHaveAttribute(
+      'data-tactical-rules-surface',
+      'movement',
+    );
+    expect(blockedBadge).toHaveAttribute(
+      'data-movement-blocked-options-badge-source-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek movement rules projection',
+      ),
+    );
+    expect(blockedBadge).toHaveAttribute(
+      'data-movement-blocked-options-badge-rule-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/MoveStep.java:2727-2841 movement MP costs',
+      ),
+    );
+    expect(blockedBadge).toHaveAttribute(
+      'data-movement-blocked-options-badge-projection-explanation',
+      expect.stringContaining(`jump blocked 1 MP heat +1: ${blockedReason}`),
     );
 
     fireEvent.mouseEnter(hex);
@@ -2213,6 +2278,34 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(invalidBadge).toHaveAttribute(
       'data-invalid-badge-reason',
       'Water blocks ground movement',
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-tactical-projection-source',
+      'shared-tactical-map-projection',
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-tactical-projection-channel',
+      'movement',
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-tactical-rules-surface',
+      'movement',
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-source-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek movement rules projection',
+      ),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-rule-refs',
+      expect.stringContaining(
+        'movement:megamek:MegaMek common/moves/MoveStep.java:2727-2841 movement MP costs',
+      ),
+    );
+    expect(invalidBadge).toHaveAttribute(
+      'data-invalid-badge-projection-explanation',
+      expect.stringContaining('Water blocks ground movement'),
     );
 
     fireEvent.mouseEnter(blocked);

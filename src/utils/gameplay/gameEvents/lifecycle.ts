@@ -1,4 +1,5 @@
 import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
+import type { IC3NetworkState } from '@/utils/gameplay/c3Network';
 
 import {
   GameEventType,
@@ -12,6 +13,8 @@ import {
   IGameStartedPayload,
   IGameUnit,
   IHexTerrain,
+  type IRepresentedGroundObjectState,
+  type IRepresentedMinefieldState,
 } from '@/types/gameplay';
 
 import { createEventBase } from './base';
@@ -33,6 +36,14 @@ import { createEventBase } from './base';
  * Optional `hexTerrain` carries non-default starting map terrain so
  * replay projection and recovery can reconstruct initial elevation and
  * terrain without depending on a live engine grid.
+ *
+ * Optional `c3Network` carries producer-authored C3/C3i network formation
+ * as an event-sourced seed. Combat consumers refresh member positions and
+ * lifecycle state from live unit state before using it.
+ *
+ * Optional `minefields` carries explicit coordinate-authored represented
+ * minefield state. Abstract/random scenario modifier data must be resolved
+ * by a producer before it reaches this event payload.
  */
 export function createGameCreatedEvent(
   gameId: string,
@@ -41,6 +52,9 @@ export function createGameCreatedEvent(
   encounterMeta?: IEncounterMeta,
   objectives?: Record<string, IObjectiveMarker>,
   hexTerrain?: readonly IHexTerrain[],
+  c3Network?: IC3NetworkState,
+  groundObjects?: Record<string, IRepresentedGroundObjectState>,
+  minefields?: Readonly<Record<string, IRepresentedMinefieldState>>,
 ): IGameEvent {
   const payload: IGameCreatedPayload = {
     config,
@@ -51,6 +65,15 @@ export function createGameCreatedEvent(
       : {}),
     ...(objectives !== undefined && Object.keys(objectives).length > 0
       ? { objectives }
+      : {}),
+    ...(c3Network !== undefined && c3Network.networks.length > 0
+      ? { c3Network }
+      : {}),
+    ...(groundObjects !== undefined && Object.keys(groundObjects).length > 0
+      ? { groundObjects }
+      : {}),
+    ...(minefields !== undefined && Object.keys(minefields).length > 0
+      ? { minefields }
       : {}),
   };
   return {

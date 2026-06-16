@@ -142,16 +142,19 @@ describe('applyTurnStarted — pendingPSRs clear (regression protection)', () =>
     expect(result.units['unit-2'].pendingPSRs).toEqual([]);
   });
 
-  it('also resets per-turn flags (weaponsFiredThisTurn) on the same boundary', () => {
+  it('also resets per-turn flags on the same boundary', () => {
     // The PSR clear is paired with other turn-scoped resets in the same loop.
     // Lock that pairing in to prevent a future refactor from splitting them.
     const initial = makeState({
-      'unit-1': makeUnit('unit-1', [makePSR()], ['weapon-a', 'weapon-b']),
+      'unit-1': makeUnit('unit-1', [makePSR()], ['weapon-a', 'weapon-b'], {
+        externalHeatThisTurn: 15,
+      }),
     });
 
     const result = applyTurnStarted(initial, makeTurnStartedEvent(2));
 
     expect(result.units['unit-1'].weaponsFiredThisTurn).toEqual([]);
+    expect(result.units['unit-1'].externalHeatThisTurn).toBe(0);
     expect(result.units['unit-1'].pendingPSRs).toEqual([]);
   });
 

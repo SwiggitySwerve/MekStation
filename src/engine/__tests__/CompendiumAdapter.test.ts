@@ -278,8 +278,10 @@ describe('CompendiumAdapter', () => {
       it('canonicalizeWeaponId exposes the normalization result directly', () => {
         expect(canonicalizeWeaponId('Medium Laser')).toBe('medium-laser');
         expect(canonicalizeWeaponId('AC/20')).toBe('ac-20');
-        expect(canonicalizeWeaponId('cl-uac-5')).toBe('clan-uac-5');
-        expect(canonicalizeWeaponId('clan-medium-laser')).toBe('medium-laser');
+        expect(canonicalizeWeaponId('cl-uac-5')).toBe('cl-uac-5');
+        expect(canonicalizeWeaponId('clan-medium-laser')).toBe(
+          'clan-medium-laser',
+        );
         expect(canonicalizeWeaponId('unknown-foo')).toBe('unknown-foo');
       });
     });
@@ -1232,6 +1234,71 @@ describe('CompendiumAdapter', () => {
       expect(result.destroyed).toBe(false);
       expect(result.heat).toBe(0);
       expect(result.pilotWounds).toBe(0);
+    });
+
+    it('hydrates initiative equipment from represented construction fields', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        cockpit: 'COMMAND_CONSOLE',
+        commandConsoleCrewActive: true,
+        criticalSlots: {
+          LEFT_TORSO: [
+            'Communications Equipment (3 ton)',
+            'Communications Equipment (3 ton)',
+            'Communications Equipment (3 ton)',
+          ],
+        },
+      } as unknown as IFullUnit);
+
+      expect(result.initiativeEquipment).toEqual({
+        workingCommunicationsTonnage: 3,
+        communicationsMode: 'Default',
+        cockpitType: 'Command Console',
+        commandConsoleCrewActive: true,
+        tonnage: 100,
+        unitType: 'BATTLEMECH',
+      });
+    });
+
+    it('hydrates initiative equipment from official communications equipment ids', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        equipment: [
+          { id: 'communications-equipment:size:7.0', location: 'BODY' },
+          { id: 'communications-equipment-2-ton:omni', location: 'BODY' },
+        ],
+      } as unknown as IFullUnit);
+
+      expect(result.initiativeEquipment).toEqual({
+        workingCommunicationsTonnage: 9,
+        communicationsMode: 'Default',
+        tonnage: 100,
+        unitType: 'BATTLEMECH',
+      });
+    });
+
+    it('hydrates official tank console producer ids without inferring BattleMech cockpit eligibility', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        equipment: [{ id: 'istankcockpitcommandconsole', location: 'BODY' }],
+      } as unknown as IFullUnit);
+
+      expect(result.initiativeEquipment).toEqual({
+        commandConsoleProducerEquipmentIds: ['istankcockpitcommandconsole'],
+        tonnage: 100,
+        unitType: 'BATTLEMECH',
+      });
+    });
+
+    it('does not infer initiative equipment from command-looking prose', () => {
+      const result = adaptUnitFromData({
+        ...createAtlasData(),
+        fluff: {
+          deployment: 'Protected command unit with superior communications.',
+        },
+      } as unknown as IFullUnit);
+
+      expect(result.initiativeEquipment).toBeUndefined();
     });
   });
 

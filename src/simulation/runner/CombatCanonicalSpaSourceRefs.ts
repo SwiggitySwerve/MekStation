@@ -126,7 +126,7 @@ const MEGAMEK_BIOWARE_SPA_SOURCE_REFS = [
     'megamek/src/megamek/common/options/OptionsConstants.java#L252-L279',
   ),
   mekstationDeviationRef(
-    'MekStation bioware SPA table defines Manei Domini and prosthetic rows as canonical catalog-visible entries that are not hydrated into BattleMech combat resolvers.',
+    'MekStation bioware SPA table defines Manei Domini neural, comm, dermal, myomer, sensory, prosthetic, gas-effuser, proto-DNI, and suicide-implant rows; canonicalPilotAbilityScope keeps unresolved BattleMech-relevant source-boundary rows as explicit unsupported gaps and splits infantry/personnel-only implant rows out of the BattleMech matrix.',
     'src/lib/spa/catalog/biowareSPAs.ts#L10-L168',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
@@ -148,7 +148,7 @@ const MEGAMEK_UNOFFICIAL_SPA_SOURCE_REFS = [
 
 const MEKSTATION_EDGE_SPA_SOURCE_REFS = [
   mekstationDeviationRef(
-    'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks non-MASC Mek Edge triggers unsupported, marks MASC/Supercharger reroll consumption integrated, and splits Aero Edge triggers out-of-scope.',
+    'MekStation Edge SPA table defines trigger-specific canonical Edge rows; canonicalPilotAbilityScope marks proven Mek Edge triggers integrated row-by-row, keeps aggregate Edge helper rows separate, and splits Aero Edge triggers out-of-scope.',
     'src/lib/spa/catalog/edgeSPAs.ts#L10-L67',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];

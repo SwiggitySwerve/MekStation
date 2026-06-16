@@ -11,6 +11,7 @@ import {
   IUnitGameState,
 } from '@/types/gameplay';
 
+import { buildConservativeC3NetworkStateFromUnits } from '../c3Network';
 import {
   createInitialUnitState,
   OPPONENT_DEPLOY_ROW,
@@ -36,6 +37,8 @@ export function applyGameCreated(
     units[unit.id] = createInitialUnitState(unit, position, facing);
   }
 
+  const automaticC3Network = buildConservativeC3NetworkStateFromUnits(units);
+
   return {
     ...state,
     status: GameStatus.Setup,
@@ -45,6 +48,15 @@ export function applyGameCreated(
     // from sequence 0. Absent → markerless (destruction-only) scenario.
     ...(payload.objectives !== undefined
       ? { objectives: { ...payload.objectives } }
+      : {}),
+    ...(payload.groundObjects !== undefined
+      ? { groundObjects: { ...payload.groundObjects } }
+      : {}),
+    ...(payload.minefields !== undefined
+      ? { minefields: { ...payload.minefields } }
+      : {}),
+    ...(payload.c3Network !== undefined || automaticC3Network !== undefined
+      ? { c3Network: payload.c3Network ?? automaticC3Network }
       : {}),
   };
 }

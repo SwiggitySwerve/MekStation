@@ -71,6 +71,11 @@ export function applyRunnerHeatPilotDamage(
     unit.abilities ?? [],
     d6Roller,
     unit.pilotToughness,
+    {
+      edgePointsRemaining: unit.edgePointsRemaining,
+      turn,
+      unitId,
+    },
   );
   const pilotConscious =
     pilotWounds < LETHAL_PILOT_WOUNDS &&
@@ -93,6 +98,10 @@ export function applyRunnerHeatPilotDamage(
           source: 'heat' as const,
           consciousnessCheckRequired: true,
           consciousnessCheckPassed: pilotConscious,
+          edgeReroll: consciousnessCheck.edgeReroll,
+          edgeSuperseded: consciousnessCheck.edgeSuperseded,
+          edgeTrigger: consciousnessCheck.edgeTrigger,
+          edgePointsRemaining: consciousnessCheck.edgePointsRemaining,
         },
         unitId,
       ),
@@ -119,6 +128,8 @@ export function applyRunnerHeatPilotDamage(
     ...unit,
     pilotWounds,
     pilotConscious,
+    edgePointsRemaining:
+      consciousnessCheck.edgePointsRemaining ?? unit.edgePointsRemaining,
     destroyed: pilotKilled ? true : unit.destroyed,
   };
 }

@@ -136,6 +136,14 @@ const TERRAINS: readonly IDesignationOption[] = [
   { value: 'low_gravity', label: 'Low Gravity' },
 ];
 
+const ENVIRONMENTAL_SPECIALIST_ENVIRONMENTS: readonly IDesignationOption[] = [
+  { value: 'fog', label: 'Fog' },
+  { value: 'light', label: 'Light' },
+  { value: 'rain', label: 'Rain' },
+  { value: 'snow', label: 'Snow' },
+  { value: 'wind', label: 'Wind' },
+];
+
 const SKILLS: readonly IDesignationOption[] = [
   { value: 'gunnery', label: 'Gunnery' },
   { value: 'piloting', label: 'Piloting' },
@@ -191,6 +199,13 @@ export function getDesignationOptions(
     return { kind: null, options: [], deferred: false };
   }
   const kind = catalogDesignationToKind(spa.designationType);
+  if (spa.id === 'env_specialist' && kind === 'terrain') {
+    return {
+      kind,
+      options: ENVIRONMENTAL_SPECIALIST_ENVIRONMENTS,
+      deferred: false,
+    };
+  }
   return getOptionsForKind(kind);
 }
 

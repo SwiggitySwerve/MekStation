@@ -43,6 +43,8 @@ import {
   createSkiddingPSR,
   createRunningDamagedHipPSR,
   createRunningDamagedGyroPSR,
+  createFlankingAndTurningPSR,
+  createOutOfControlPSR,
   createBuildingCollapsePSR,
   createSwampBogDownPSR,
   getMASCOrSuperchargerFailureTargetNumber,
@@ -693,13 +695,27 @@ describe('Piloting Skill Rolls', () => {
       expect(damageMods).toHaveLength(0);
     });
 
-    it('should apply Maneuvering Ace to skidding PSRs only', () => {
+    it('should apply Maneuvering Ace to skidding, flanking-and-turning, and out-of-control PSRs only', () => {
       const skidMods = calculatePSRModifiers(
         createSkiddingPSR('unit-1'),
         DEFAULT_COMP_DAMAGE,
         0,
         [],
         ['maneuvering-ace'],
+      );
+      const flankingAndTurningMods = calculatePSRModifiers(
+        createFlankingAndTurningPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['maneuvering_ace'],
+      );
+      const outOfControlMods = calculatePSRModifiers(
+        createOutOfControlPSR('unit-1'),
+        DEFAULT_COMP_DAMAGE,
+        0,
+        [],
+        ['maneuvering_ace'],
       );
       const damageMods = calculatePSRModifiers(
         createDamagePSR('unit-1'),
@@ -710,6 +726,20 @@ describe('Piloting Skill Rolls', () => {
       );
 
       expect(skidMods).toEqual([
+        {
+          name: 'Maneuvering Ace',
+          source: 'spa',
+          value: -1,
+        },
+      ]);
+      expect(flankingAndTurningMods).toEqual([
+        {
+          name: 'Maneuvering Ace',
+          source: 'spa',
+          value: -1,
+        },
+      ]);
+      expect(outOfControlMods).toEqual([
         {
           name: 'Maneuvering Ace',
           source: 'spa',
@@ -980,6 +1010,16 @@ describe('Piloting Skill Rolls', () => {
         expectedMod: 0,
       },
       {
+        fn: createFlankingAndTurningPSR,
+        expectedSource: PSRTrigger.FlankingAndTurning,
+        expectedMod: 0,
+      },
+      {
+        fn: createOutOfControlPSR,
+        expectedSource: PSRTrigger.OutOfControl,
+        expectedMod: 0,
+      },
+      {
         fn: createBuildingCollapsePSR,
         expectedSource: PSRTrigger.BuildingCollapse,
         expectedMod: 0,
@@ -1007,8 +1047,8 @@ describe('Piloting Skill Rolls', () => {
       },
     );
 
-    it('should have exactly 29 trigger types (28 catalog entries + standing up)', () => {
-      expect(triggerTests).toHaveLength(29);
+    it('should have exactly 31 trigger types (30 catalog entries + standing up)', () => {
+      expect(triggerTests).toHaveLength(31);
     });
 
     it.each([

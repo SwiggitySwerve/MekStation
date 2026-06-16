@@ -22,6 +22,7 @@ import { roll2d6 } from '../hitLocation';
 export function checkCriticalHitTrigger(
   structureDamage: number,
   roller?: D6Roller,
+  modifier = 0,
 ): {
   triggered: boolean;
   roll: ReturnType<typeof roll2d6>;
@@ -34,8 +35,9 @@ export function checkCriticalHitTrigger(
   }
 
   const roll = roll2d6(roller);
+  const modifiedTotal = roll.total + modifier;
   return {
-    triggered: roll.total >= 8,
+    triggered: modifiedTotal >= 8,
     roll,
   };
 }

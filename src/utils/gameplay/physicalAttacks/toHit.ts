@@ -1,4 +1,5 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
+import { calculateEnvironmentalSpecialistPhysicalToHitModifier } from '@/utils/gameplay/environmentalModifiers';
 import { getBattleFistPunchToHitModifier } from '@/utils/gameplay/quirkModifiers';
 import {
   calculateFrogmanPhysicalToHitModifier,
@@ -172,6 +173,74 @@ function appendFrogmanPhysicalModifier(
     value: modifier.value,
     source: modifier.source,
   });
+}
+
+function appendEnvironmentalSpecialistPhysicalModifier(
+  modifiers: IPhysicalModifier[],
+  input: IPhysicalAttackInput,
+): void {
+  const modifier = calculateEnvironmentalSpecialistPhysicalToHitModifier(
+    input.environmentalLight,
+    {
+      designatedEnvironment: input.designatedEnvironment,
+      pilotAbilities: input.pilotAbilities,
+      targetIlluminated: input.targetIlluminated,
+    },
+  );
+  if (!modifier) return;
+
+  modifiers.push({
+    name: modifier.name,
+    value: modifier.value,
+    source: modifier.source,
+  });
+}
+
+function selectedPunchArmLocation(
+  input: IPhysicalAttackInput,
+): 'left_arm' | 'right_arm' {
+  if (input.arm === 'left' || input.limb === 'leftArm') return 'left_arm';
+  return 'right_arm';
+}
+
+function oppositeArmLocation(
+  location: 'left_arm' | 'right_arm',
+): 'left_arm' | 'right_arm' {
+  return location === 'left_arm' ? 'right_arm' : 'left_arm';
+}
+
+function locationActuatorDestroyed(
+  input: IPhysicalAttackInput,
+  location: 'left_arm' | 'right_arm',
+  actuator: ActuatorType,
+): boolean {
+  return (
+    input.componentDamage.actuatorsByLocation?.[location]?.[actuator] === true
+  );
+}
+
+function appendZweihanderOffArmActuatorModifiers(
+  modifiers: IPhysicalModifier[],
+  input: IPhysicalAttackInput,
+): void {
+  if (input.twoHandedZweihander !== true) return;
+
+  const offArm = oppositeArmLocation(selectedPunchArmLocation(input));
+  if (locationActuatorDestroyed(input, offArm, ActuatorType.UPPER_ARM)) {
+    modifiers.push({
+      name: 'Off-arm upper arm actuator destroyed',
+      value: UPPER_ARM_PUNCH_MODIFIER,
+      source: 'actuator',
+    });
+  }
+
+  if (locationActuatorDestroyed(input, offArm, ActuatorType.LOWER_ARM)) {
+    modifiers.push({
+      name: 'Off-arm lower arm actuator destroyed',
+      value: LOWER_ARM_PUNCH_MODIFIER,
+      source: 'actuator',
+    });
+  }
 }
 
 function normalizedUnitType(unitType: string | undefined): string {
@@ -384,6 +453,7 @@ export function calculatePunchToHit(
       source: 'physical-equipment',
     });
   }
+  appendZweihanderOffArmActuatorModifiers(modifiers, input);
 
   // Per task 4.3: target movement modifier (TMM) applies to punch to-hit.
   appendTMM(modifiers, input.targetMovementModifier);
@@ -391,6 +461,7 @@ export function calculatePunchToHit(
   appendAttackerSpotting(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
   appendBattleFistModifier(modifiers, input);
+  appendEnvironmentalSpecialistPhysicalModifier(modifiers, input);
   appendFrogmanPhysicalModifier(modifiers, input);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
@@ -458,6 +529,7 @@ export function calculateKickToHit(
   appendTargetEvasion(modifiers, input);
   appendAttackerSpotting(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendEnvironmentalSpecialistPhysicalModifier(modifiers, input);
   appendFrogmanPhysicalModifier(modifiers, input);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
@@ -506,6 +578,7 @@ export function calculateChargeToHit(
   appendTargetEvasion(modifiers, input);
   appendAttackerSpotting(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendEnvironmentalSpecialistPhysicalModifier(modifiers, input);
   appendFrogmanPhysicalModifier(modifiers, input);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
@@ -550,6 +623,7 @@ export function calculateDFAToHit(
     input.targetPilotingSkill,
   );
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendEnvironmentalSpecialistPhysicalModifier(modifiers, input);
   appendFrogmanPhysicalModifier(modifiers, input);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
@@ -584,6 +658,7 @@ export function calculatePushToHit(
   appendTargetEvasion(modifiers, input);
   appendAttackerSpotting(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendEnvironmentalSpecialistPhysicalModifier(modifiers, input);
   appendFrogmanPhysicalModifier(modifiers, input);
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
 
@@ -650,6 +725,7 @@ export function calculateTripToHit(
   appendTargetEvasion(modifiers, input);
   appendAttackerSpotting(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendEnvironmentalSpecialistPhysicalModifier(modifiers, input);
   appendFrogmanPhysicalModifier(modifiers, input);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
@@ -741,6 +817,7 @@ export function calculateJumpJetAttackToHit(
   appendTargetEvasion(modifiers, input);
   appendAttackerSpotting(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendEnvironmentalSpecialistPhysicalModifier(modifiers, input);
   appendFrogmanPhysicalModifier(modifiers, input);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
@@ -805,6 +882,7 @@ export function calculateBrushOffToHit(
   }
 
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendEnvironmentalSpecialistPhysicalModifier(modifiers, input);
   appendFrogmanPhysicalModifier(modifiers, input);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
@@ -863,6 +941,7 @@ export function calculateGrappleToHit(
   appendTargetEvasion(modifiers, input);
   appendAttackerSpotting(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendEnvironmentalSpecialistPhysicalModifier(modifiers, input);
   appendFrogmanPhysicalModifier(modifiers, input);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
@@ -934,6 +1013,7 @@ export function calculateBreakGrappleToHit(
   appendTargetEvasion(modifiers, input);
   appendAttackerSpotting(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendEnvironmentalSpecialistPhysicalModifier(modifiers, input);
   appendFrogmanPhysicalModifier(modifiers, input);
 
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
@@ -1001,7 +1081,9 @@ export function calculateMeleeWeaponToHit(
   appendTargetEvasion(modifiers, input);
   appendAttackerSpotting(modifiers, input);
   appendMeleeSpecialist(modifiers, input.pilotAbilities);
+  appendEnvironmentalSpecialistPhysicalModifier(modifiers, input);
   appendFrogmanPhysicalModifier(modifiers, input);
+  appendZweihanderOffArmActuatorModifiers(modifiers, input);
   const totalMod = modifiers.reduce((sum, modifier) => sum + modifier.value, 0);
 
   return {

@@ -48,6 +48,78 @@ const MEGAMEK_COMBAT_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 const MEKSTATION_SOURCE_VERSION = 'MekStation working-tree';
 
+const OUT_OF_CONTROL_PSR_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek TWGameManager.getPilotingRollData applies -1 Maneuvering Ace to out-of-control control rolls without applying it to recovery rolls.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_COMBAT_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L16908-L16920`,
+    sourceVersion: MEGAMEK_COMBAT_SOURCE_VERSION,
+  },
+  {
+    kind: 'mekstation-deviation',
+    citation:
+      'MekStation createOutOfControlPSR stamps represented out_of_control pending PSRs and runPSRPhase resolves them through standard PSR target-number modifiers.',
+    url: 'src/utils/gameplay/pilotingSkillRolls/systemFactories.ts#L111',
+    sourceVersion: MEKSTATION_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const CONTROLLED_SIDESLIP_PSR_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Entity.checkSideSlip queues a controlled-sideslip piloting roll at -1 unless walking Maneuvering Ace suppresses the check.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_COMBAT_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L11988-L11995`,
+    sourceVersion: MEGAMEK_COMBAT_SOURCE_VERSION,
+  },
+  {
+    kind: 'mekstation-deviation',
+    citation:
+      'MekStation queueMovementControlPSRs emits PSRTrigger.ControlledSideslip for represented lateral movement steps and suppresses walking Maneuvering Ace lateral shifts.',
+    url: 'src/simulation/runner/phases/movementControlPsr.ts#L34-L91',
+    sourceVersion: MEKSTATION_SOURCE_VERSION,
+  },
+  {
+    kind: 'mekstation-deviation',
+    citation:
+      'MekStation createControlledSideslipPSR stamps the controlled_sideslip reason code, -1 modifier, and optional movement-step trigger source.',
+    url: 'src/utils/gameplay/pilotingSkillRolls/systemFactories.ts#L111-L127',
+    sourceVersion: MEKSTATION_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const FLANKING_AND_TURNING_PSR_SOURCE_REFS = [
+  {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek Entity.checkSideSlip queues a flanking-and-turning piloting roll when run or sprint movement changes facing after moving more than one hex, with Maneuvering Ace applying -1.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_COMBAT_SOURCE_VERSION}/megamek/src/megamek/common/units/Entity.java#L11968-L11987`,
+    sourceVersion: MEGAMEK_COMBAT_SOURCE_VERSION,
+  },
+  {
+    kind: 'mekstation-deviation',
+    citation:
+      'MekStation createFlankingAndTurningPSR stamps the flanking_and_turning reason code and optional movement-step trigger source for represented pending PSR consumers.',
+    url: 'src/utils/gameplay/pilotingSkillRolls/systemFactories.ts#L133-L143',
+    sourceVersion: MEKSTATION_SOURCE_VERSION,
+  },
+  {
+    kind: 'mekstation-deviation',
+    citation:
+      'MekStation queueMovementControlPSRs emits represented flanking-and-turning movement-step PSRs for BattleMech run/sprint moves that turn after moving more than one hex.',
+    url: 'src/simulation/runner/phases/movementControlPsr.ts#L47-L221',
+    sourceVersion: MEKSTATION_SOURCE_VERSION,
+  },
+  {
+    kind: 'mekstation-deviation',
+    citation:
+      'MekStation calculatePSRModifiers consumes Maneuvering Ace relief for represented flanking_and_turning pending PSRs without claiming movement declaration producer parity.',
+    url: 'src/utils/gameplay/pilotingSkillRolls/resolution.ts#L355-L367',
+    sourceVersion: MEKSTATION_SOURCE_VERSION,
+  },
+] satisfies readonly ICombatFeatureSourceReference[];
+
 function integrated(
   id: string,
   evidence: string,
@@ -406,6 +478,21 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
     PSRTrigger.RunningDamagedGyro,
     'movementDamagePsr queues createRunningDamagedGyroPSR when a unit runs with gyro damage; MegaMek combines hip and gyro into one running-with-damage PSR while MekStation keeps separate reason codes',
     RUNNING_WITH_DAMAGE_PSR_SOURCE_REFS,
+  ),
+  [PSRTrigger.ControlledSideslip]: integrated(
+    PSRTrigger.ControlledSideslip,
+    'movementControlPsr queues createControlledSideslipPSR for represented lateral movement steps and suppresses the check for walking Maneuvering Ace units',
+    CONTROLLED_SIDESLIP_PSR_SOURCE_REFS,
+  ),
+  [PSRTrigger.FlankingAndTurning]: integrated(
+    PSRTrigger.FlankingAndTurning,
+    'movementControlPsr queues represented flanking-and-turning PSRs for BattleMech run/sprint movement that turns after moving more than one hex, createFlankingAndTurningPSR stamps the movement-step trigger source, and calculatePSRModifiers applies Maneuvering Ace target-number relief',
+    FLANKING_AND_TURNING_PSR_SOURCE_REFS,
+  ),
+  [PSRTrigger.OutOfControl]: integrated(
+    PSRTrigger.OutOfControl,
+    'createOutOfControlPSR stamps represented out_of_control pending PSRs and runPSRPhase resolves them through source-backed PSR target-number modifiers; BattleMech out-of-control movement production remains tracked by pilotSkills.pilotModifierResolvers.maneuvering-ace-out-of-control-producer-application',
+    OUT_OF_CONTROL_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.BuildingCollapse]: integrated(
     PSRTrigger.BuildingCollapse,

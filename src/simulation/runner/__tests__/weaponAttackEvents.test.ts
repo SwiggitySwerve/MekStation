@@ -41,6 +41,7 @@ import {
   MovementType,
   GameEventType,
 } from '@/types/gameplay';
+import { WEAPON_CATALOG_FILES } from '@/utils/construction/equipmentBVCatalogData';
 
 import type { IAIPlayer, IAIUnitState, IAttackEvent } from '../../ai/IAIPlayer';
 import type { IBotBehavior, IWeapon } from '../../ai/types';
@@ -56,11 +57,22 @@ import {
 import { SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT } from '../CombatSpecialWeaponSupport';
 import { runHeatPhase } from '../phases/postCombat';
 import { runAttackPhase } from '../phases/weaponAttack';
+import { resolveAMSInterception } from '../phases/weaponAttackAMS';
 import {
   isSemiGuidedAmmoSelectedForWeapon,
+  resolveSandblasterAutocannonRateOfFireShotCount,
   resolveSpecialProjectileHit,
 } from '../phases/weaponAttackFiringModes';
 import { DEFAULT_COMPONENT_DAMAGE } from '../SimulationRunnerConstants';
+import {
+  buildWeaponLookupFromCatalogFiles,
+  toAIWeapon,
+  type ICatalogWeaponStats,
+} from '../UnitHydration';
+
+const weaponLookup = buildWeaponLookupFromCatalogFiles(
+  WEAPON_CATALOG_FILES as readonly { items?: readonly unknown[] }[],
+);
 
 // =============================================================================
 // Test fixture builders
@@ -85,6 +97,20 @@ function createAC20(id = 'ac-20-test'): IWeapon {
     minRange: 0,
     ammoPerTon: 5,
     destroyed: false,
+  };
+}
+
+function createTacOpsRapidFireAC20(id = 'ac-20-rapid-fire-test'): IWeapon {
+  return {
+    ...createAC20(id),
+    firingModes: {
+      kind: 'rate-of-fire',
+      defaultModeId: 'single',
+      modes: [
+        { id: 'single', damage: 20, heat: 7, shotsPerTurn: 1 },
+        { id: 'rapid-fire', damage: 40, heat: 14, shotsPerTurn: 2 },
+      ],
+    },
   };
 }
 
@@ -292,6 +318,20 @@ function createSelectableINarcBeacon(id = 'inarc-0'): IWeapon {
           shotsPerTurn: 1,
           ammoWeaponType: 'inarc-nemesis',
         },
+        {
+          id: 'explosive',
+          damage: 0,
+          heat: 0,
+          shotsPerTurn: 1,
+          ammoWeaponType: 'inarc-explosive-pods',
+        },
+        {
+          id: 'unknown',
+          damage: 0,
+          heat: 0,
+          shotsPerTurn: 1,
+          ammoWeaponType: 'experimental-pods',
+        },
       ],
     },
   };
@@ -467,6 +507,68 @@ class ScriptedAttackAI implements IAIPlayer {
         ...(this.modeId
           ? { weaponModes: { [this.weaponId]: this.modeId } }
           : {}),
+      },
+    };
+  }
+
+  playPhysicalAttackPhase() {
+    return null;
+  }
+}
+
+class ScriptedMultiWeaponAttackAI implements IAIPlayer {
+  constructor(private readonly weaponIds: readonly string[]) {}
+
+  evaluateRetreat() {
+    return null;
+  }
+
+  playMovementPhase() {
+    return null;
+  }
+
+  playAttackPhase(attacker: IAIUnitState): IAttackEvent | null {
+    if (attacker.unitId !== 'player-1') return null;
+    return {
+      type: GameEventType.AttackDeclared,
+      payload: {
+        attackerId: attacker.unitId,
+        targetId: 'opponent-1',
+        weapons: [...this.weaponIds],
+      },
+    };
+  }
+
+  playPhysicalAttackPhase() {
+    return null;
+  }
+}
+
+class ScriptedSelectedAMSAttackAI implements IAIPlayer {
+  constructor(
+    private readonly weaponId: string,
+    private readonly selectedAMSWeaponId: string,
+  ) {}
+
+  evaluateRetreat() {
+    return null;
+  }
+
+  playMovementPhase() {
+    return null;
+  }
+
+  playAttackPhase(attacker: IAIUnitState): IAttackEvent | null {
+    if (attacker.unitId !== 'player-1') return null;
+    return {
+      type: GameEventType.AttackDeclared,
+      payload: {
+        attackerId: attacker.unitId,
+        targetId: 'opponent-1',
+        weapons: [this.weaponId],
+        selectedAMSWeaponIds: {
+          [this.weaponId]: this.selectedAMSWeaponId,
+        },
       },
     };
   }
@@ -1166,7 +1268,7 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         'narcedBy',
       );
       expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.evidence).toContain(
-        'inarc-pod-variants',
+        'carrier-attached iNarc pod-object target selection/removal lifecycle',
       );
     });
 
@@ -1439,6 +1541,115 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       },
     );
 
+    it('iNARC explosive ammo resolves source-backed damage without marker attachment', () => {
+      const weapon = createSelectableINarcBeacon();
+      const ammoBin = createAmmoBin({
+        weaponType: 'inarc-explosive-pods',
+        remainingRounds: 2,
+      });
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [weapon],
+        attackerStateOverride: {
+          gunnery: 2,
+          ammoState: { [ammoBin.binId]: ammoBin },
+        },
+      });
+
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(weapon.id, 'explosive'),
+        random: new SequenceRandom([6, 6, 3, 4]),
+      });
+
+      const resolved = result.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+      const damageApplied = result.events.find(
+        (event) => event.type === GameEventType.DamageApplied,
+      ) as IGameEvent & { payload: IDamageAppliedPayload };
+      const markerApplied = result.events.find(
+        (event) => event.type === GameEventType.DesignatorMarkerApplied,
+      );
+
+      expect(resolved.payload).toMatchObject({
+        hit: true,
+        damage: 6,
+        heat: 0,
+      });
+      expect(damageApplied.payload).toMatchObject({
+        unitId: 'opponent-1',
+        damage: 6,
+        sourceUnitId: 'player-1',
+      });
+      expect(markerApplied).toBeUndefined();
+      expect(result.state.units['opponent-1'].iNarcPods).toBeUndefined();
+      expect(result.state.units['opponent-1'].narcedBy).toBeUndefined();
+      expect(
+        result.state.units['player-1'].ammoState?.[ammoBin.binId]
+          .remainingRounds,
+      ).toBe(1);
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'inarc-explosive-ammo-compatibility'
+        ].level,
+      ).toBe('integrated');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'inarc-explosive-ammo-compatibility'
+        ].evidence,
+      ).toContain('source-backed 6-point impact damage');
+    });
+
+    it('iNARC unknown ammo does not fall back to Homing marker attachment', () => {
+      const weapon = createSelectableINarcBeacon();
+      const ammoBin = createAmmoBin({
+        weaponType: 'experimental-pods',
+        remainingRounds: 2,
+      });
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [weapon],
+        attackerStateOverride: {
+          gunnery: 2,
+          ammoState: { [ammoBin.binId]: ammoBin },
+        },
+      });
+
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(weapon.id, 'unknown'),
+        random: new SequenceRandom([6, 6, 3, 4]),
+      });
+
+      const resolved = result.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+      const markerApplied = result.events.find(
+        (event) => event.type === GameEventType.DesignatorMarkerApplied,
+      );
+
+      expect(resolved.payload).toMatchObject({
+        hit: true,
+        damage: 0,
+        heat: 0,
+      });
+      expect(markerApplied).toBeUndefined();
+      expect(result.state.units['opponent-1'].iNarcPods).toBeUndefined();
+      expect(result.state.units['opponent-1'].narcedBy).toBeUndefined();
+      expect(
+        result.state.units['player-1'].ammoState?.[ammoBin.binId]
+          .remainingRounds,
+      ).toBe(1);
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['inarc-pod-variants'].evidence,
+      ).toContain('markerless unknown-ammo guard behavior');
+    });
+
     it('TAG hits designate the target without applying damage', () => {
       const weapon = createTAGDesignator();
       const { state, weaponsByUnit } = buildScenario({
@@ -1487,12 +1698,12 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       );
     });
 
-    it('plasma cannon hits apply external target heat without BattleMech damage', () => {
+    it('plasma cannon hits queue external target heat for Heat Phase without BattleMech damage', () => {
       const weapon = createPlasmaCannon();
       const { state, weaponsByUnit } = buildScenario({
         attackerWeapons: [weapon],
         attackerStateOverride: { gunnery: 0 },
-        targetStateOverride: { heat: 4 },
+        targetStateOverride: { heat: 4, heatSinks: 0 },
         targetPosition: { q: 5, r: 0 },
       });
 
@@ -1508,7 +1719,23 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           event.type === GameEventType.AttackResolved &&
           (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
       ) as IGameEvent & { payload: IAttackResolvedPayload };
-      const heatGenerated = result.events.find(
+      const immediateHeatGenerated = result.events.find(
+        (event) =>
+          event.type === GameEventType.HeatGenerated &&
+          (event.payload as { unitId?: string }).unitId === 'opponent-1',
+      );
+      const heatEvents: IGameEvent[] = [];
+      const heatPhaseState = runHeatPhase({
+        state: {
+          ...result.state,
+          phase: GamePhase.Heat,
+        },
+        events: heatEvents,
+        gameId: result.state.gameId,
+        random: new SequenceRandom([]),
+        weaponsByUnit,
+      });
+      const heatGenerated = heatEvents.find(
         (event) =>
           event.type === GameEventType.HeatGenerated &&
           (event.payload as { unitId?: string }).unitId === 'opponent-1',
@@ -1529,13 +1756,21 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         heat: 7,
         location: expect.any(String),
       });
+      expect(immediateHeatGenerated).toBeUndefined();
+      expect(result.state.units['opponent-1'].heat).toBe(4);
+      expect(result.state.units['opponent-1'].pendingExternalHeat).toBe(7);
+      expect(result.state.units['opponent-1'].externalHeatThisTurn).toBe(
+        undefined,
+      );
       expect(heatGenerated?.payload).toMatchObject({
         amount: 7,
         source: 'external',
         previousTotal: 4,
         newTotal: 11,
       });
-      expect(result.state.units['opponent-1'].heat).toBe(11);
+      expect(heatPhaseState.units['opponent-1'].heat).toBe(11);
+      expect(heatPhaseState.units['opponent-1'].externalHeatThisTurn).toBe(7);
+      expect(heatPhaseState.units['opponent-1'].pendingExternalHeat).toBe(0);
       expect(
         result.events.some(
           (event) => event.type === GameEventType.DamageApplied,
@@ -1545,8 +1780,167 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].evidence,
       ).toContain('HeatGenerated');
       expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'plasma-cannon-battlemech-target-heat'
+        ].level,
+      ).toBe('integrated');
+      expect(
+        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap,
+      ).not.toContain('heatFromExternal Heat Phase pending-bucket timing');
+      expect(
+        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap,
+      ).not.toContain('timing/caps/lifecycle');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'plasma-cannon-battlemech-heat-phase-pending-bucket'
+        ].level,
+      ).toBe('integrated');
+    });
+
+    it('plasma cannon pending external heat is capped at 15 points in Heat Phase', () => {
+      const plasmaOne = createPlasmaCannon('clan-plasma-cannon-1');
+      const plasmaTwo = createPlasmaCannon('clan-plasma-cannon-2');
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [plasmaOne, plasmaTwo],
+        attackerStateOverride: { gunnery: 0 },
+        targetStateOverride: { heat: 0, heatSinks: 0 },
+        targetPosition: { q: 5, r: 0 },
+      });
+
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedMultiWeaponAttackAI([
+          plasmaOne.id,
+          plasmaTwo.id,
+        ]),
+        random: new SequenceRandom([6, 6, 3, 4, 6, 6, 6, 6, 3, 4, 6, 6]),
+      });
+      const immediateHeatPayloads = result.events
+        .filter(
+          (event) =>
+            event.type === GameEventType.HeatGenerated &&
+            (event.payload as { unitId?: string }).unitId === 'opponent-1',
+        )
+        .map((event) => event.payload as { amount: number; newTotal: number });
+      const heatEvents: IGameEvent[] = [];
+      const heatPhaseState = runHeatPhase({
+        state: {
+          ...result.state,
+          phase: GamePhase.Heat,
+        },
+        events: heatEvents,
+        gameId: result.state.gameId,
+        random: new SequenceRandom([]),
+        weaponsByUnit,
+      });
+      const heatPayloads = heatEvents
+        .filter(
+          (event) =>
+            event.type === GameEventType.HeatGenerated &&
+            (event.payload as { unitId?: string }).unitId === 'opponent-1',
+        )
+        .map((event) => event.payload as { amount: number; newTotal: number });
+
+      expect(immediateHeatPayloads).toEqual([]);
+      expect(result.state.units['opponent-1'].heat).toBe(0);
+      expect(result.state.units['opponent-1'].pendingExternalHeat).toBe(24);
+      expect(heatPayloads).toEqual([
+        expect.objectContaining({ amount: 15, newTotal: 15 }),
+      ]);
+      expect(heatPhaseState.units['opponent-1'].heat).toBe(15);
+      expect(heatPhaseState.units['opponent-1'].externalHeatThisTurn).toBe(15);
+      expect(heatPhaseState.units['opponent-1'].pendingExternalHeat).toBe(0);
+    });
+
+    it('plasma cannon non-Mek hits remain out-of-scope for special damage lifecycle', () => {
+      const weapon = createPlasmaCannon();
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [weapon],
+        attackerStateOverride: { gunnery: 0 },
+        targetStateOverride: { unitType: 'Vehicle', heat: 4 },
+        targetPosition: { q: 5, r: 0 },
+      });
+
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(weapon.id),
+        random: new SequenceRandom([6, 6, 3, 4, 2, 5]),
+      });
+
+      const resolved = result.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+
+      expect(resolved.payload).toMatchObject({
+        hit: true,
+        damage: 0,
+        heat: 7,
+      });
+      expect(
+        result.events.some(
+          (event) =>
+            event.type === GameEventType.HeatGenerated &&
+            (event.payload as { unitId?: string }).unitId === 'opponent-1',
+        ),
+      ).toBe(false);
+      expect(
+        result.events.some(
+          (event) => event.type === GameEventType.DamageApplied,
+        ),
+      ).toBe(false);
+      expect(result.state.units['opponent-1'].heat).toBe(4);
+      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].level).toBe(
+        'out-of-scope',
+      );
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'plasma-cannon-battlemech-target-heat'
+        ].level,
+      ).toBe('integrated');
+      expect(
+        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap,
+      ).toContain('non-Mek special damage paths');
+      expect(
+        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap,
+      ).toContain('terrain/building special damage paths');
+      expect(
+        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].evidence,
+      ).toContain('zero BattleMech damage');
+      expect(
+        SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].evidence,
+      ).toContain('consume plasma ammunition');
+      expect(
         SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT['plasma-cannon'].gap,
       ).not.toContain('external target heat');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'plasma-cannon-battlemech-target-heat'
+        ].evidence,
+      ).toContain('zero BattleMech damage');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'plasma-cannon-battlemech-target-heat'
+        ].evidence,
+      ).toContain('consume source-backed plasma ammo');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'plasma-cannon-battlemech-target-heat'
+        ].evidence,
+      ).toContain('Heat Phase pending bucket');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'plasma-cannon-battlemech-target-heat'
+        ].evidence,
+      ).toContain('reflective or heat-dissipating armor');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'plasma-cannon-battlemech-heat-phase-pending-bucket'
+        ].evidence,
+      ).toContain('15-point external heat per-turn cap');
     });
 
     it('plasma cannon hits consume source-backed plasma ammunition', () => {
@@ -1593,7 +1987,8 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
             event.type === GameEventType.HeatGenerated &&
             (event.payload as { unitId?: string }).unitId === 'opponent-1',
         ),
-      ).toBe(true);
+      ).toBe(false);
+      expect(result.state.units['opponent-1'].pendingExternalHeat).toBe(7);
     });
 
     it.each([
@@ -1608,6 +2003,7 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           attackerStateOverride: { gunnery: 0 },
           targetStateOverride: {
             heat: 4,
+            heatSinks: 0,
             armorTypeByLocation: armorTypeByLocation(armorType),
           },
           targetPosition: { q: 5, r: 0 },
@@ -1619,7 +2015,18 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           botPlayer: new ScriptedAttackAI(weapon.id),
           random: new SequenceRandom([6, 6, 3, 4, 2, 5]),
         });
-        const heatGenerated = result.events.find(
+        const heatEvents: IGameEvent[] = [];
+        const heatPhaseState = runHeatPhase({
+          state: {
+            ...result.state,
+            phase: GamePhase.Heat,
+          },
+          events: heatEvents,
+          gameId: result.state.gameId,
+          random: new SequenceRandom([]),
+          weaponsByUnit,
+        });
+        const heatGenerated = heatEvents.find(
           (event) =>
             event.type === GameEventType.HeatGenerated &&
             (event.payload as { unitId?: string }).unitId === 'opponent-1',
@@ -1634,13 +2041,17 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
             })
           | undefined;
 
+        expect(result.state.units['opponent-1'].heat).toBe(4);
+        expect(result.state.units['opponent-1'].pendingExternalHeat).toBe(
+          expectedHeat,
+        );
         expect(heatGenerated?.payload).toMatchObject({
           amount: expectedHeat,
           source: 'external',
           previousTotal: 4,
           newTotal: 4 + expectedHeat,
         });
-        expect(result.state.units['opponent-1'].heat).toBe(4 + expectedHeat);
+        expect(heatPhaseState.units['opponent-1'].heat).toBe(4 + expectedHeat);
       },
     );
 
@@ -1656,6 +2067,7 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           attackerStateOverride: { gunnery: 0 },
           targetStateOverride: {
             heat: 4,
+            heatSinks: 0,
             armorTypeByLocation: armorTypeByLocation(armorType),
           },
           targetPosition: { q: 5, r: 0 },
@@ -1668,7 +2080,18 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           random: new SequenceRandom([6, 6, 3, 4, 2, 5]),
           optionalRules: ['PLAYTEST_3'],
         });
-        const heatGenerated = result.events.find(
+        const heatEvents: IGameEvent[] = [];
+        const heatPhaseState = runHeatPhase({
+          state: {
+            ...result.state,
+            phase: GamePhase.Heat,
+          },
+          events: heatEvents,
+          gameId: result.state.gameId,
+          random: new SequenceRandom([]),
+          weaponsByUnit,
+        });
+        const heatGenerated = heatEvents.find(
           (event) =>
             event.type === GameEventType.HeatGenerated &&
             (event.payload as { unitId?: string }).unitId === 'opponent-1',
@@ -1683,13 +2106,23 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
             })
           | undefined;
 
-        expect(heatGenerated?.payload).toMatchObject({
-          amount: expectedHeat,
-          source: 'external',
-          previousTotal: 4,
-          newTotal: 4 + expectedHeat,
-        });
-        expect(result.state.units['opponent-1'].heat).toBe(4 + expectedHeat);
+        expect(result.state.units['opponent-1'].heat).toBe(4);
+        expect(result.state.units['opponent-1'].pendingExternalHeat).toBe(
+          expectedHeat,
+        );
+        expect(heatGenerated?.payload).toEqual(
+          expect.objectContaining({
+            amount: expectedHeat,
+            previousTotal: 4,
+            newTotal: 4 + expectedHeat,
+          }),
+        );
+        if (expectedHeat > 0) {
+          expect(heatGenerated?.payload).toMatchObject({
+            source: 'external',
+          });
+        }
+        expect(heatPhaseState.units['opponent-1'].heat).toBe(4 + expectedHeat);
       },
     );
 
@@ -1699,13 +2132,13 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         baseWeapon: lrm,
         shotWeapon: lrm,
         selectedMode: undefined,
-        d6Roller: sequenceD6Roller(3, 4),
+        d6Roller: sequenceD6Roller(4, 4),
       });
       const narced = resolveSpecialProjectileHit({
         baseWeapon: lrm,
         shotWeapon: lrm,
         selectedMode: undefined,
-        d6Roller: sequenceD6Roller(3, 4),
+        d6Roller: sequenceD6Roller(4, 4),
         clusterContext: {
           attackerTeamId: GameSide.Player,
           targetNarcedBy: [GameSide.Player],
@@ -1729,6 +2162,15 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         selectedMode: undefined,
         d6Roller: sequenceD6Roller(4, 5),
       });
+      const lowProfileTarget = resolveSpecialProjectileHit({
+        baseWeapon: lrm,
+        shotWeapon: lrm,
+        selectedMode: undefined,
+        d6Roller: sequenceD6Roller(3, 4),
+        clusterContext: {
+          targetLowProfile: true,
+        },
+      });
 
       expect(unmarked).toMatchObject({
         projectileCount: 6,
@@ -1742,6 +2184,10 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       expect(mrmWithPenalty).toMatchObject({
         projectileCount: 6,
         weapon: { damage: 6 },
+      });
+      expect(lowProfileTarget).toMatchObject({
+        projectileCount: 3,
+        weapon: { damage: 3 },
       });
       expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.narc.evidence).toContain(
         'cluster',
@@ -2009,6 +2455,52 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       );
     });
 
+    it('same-side iNARC haywire pods still penalize the attacker once attached', () => {
+      const laser = createMediumLaser();
+      const baseline = buildScenario({
+        attackerWeapons: [laser],
+      });
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [laser],
+        attackerStateOverride: {
+          iNarcPods: [{ teamId: GameSide.Player, podType: 'haywire' }],
+        },
+      });
+
+      const baselineResult = runPhaseWithResult({
+        state: baseline.state,
+        weaponsByUnit: baseline.weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(laser.id),
+        random: new SequenceRandom([6, 6, 1, 1]),
+      });
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(laser.id),
+        random: new SequenceRandom([6, 6, 1, 1]),
+      });
+
+      const declared = result.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+      const baselineDeclared = baselineResult.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+
+      expect(declared.payload.toHitNumber).toBe(
+        baselineDeclared.payload.toHitNumber + 1,
+      );
+      expect(declared.payload.modifiers).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'iNARC Haywire',
+            value: 1,
+            source: 'equipment',
+          }),
+        ]),
+      );
+    });
+
     it('Artemis IV flags shift missile cluster results in direct and runner resolution', () => {
       const lrm = createLRM10();
       const artemisLRM: IWeapon = { ...lrm, hasArtemisIV: true };
@@ -2072,6 +2564,115 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       ).toBe('integrated');
     });
 
+    it('destroyed Artemis FCS strips same-location guidance without suppressing other launchers', () => {
+      const rightArtemisLRM: IWeapon = {
+        ...createLRM10('right-lrm-10'),
+        location: 'right_torso',
+        hasArtemisIV: true,
+      };
+      const leftArtemisLRM: IWeapon = {
+        ...createLRM10('left-lrm-10'),
+        location: 'left_torso',
+        hasArtemisIV: true,
+      };
+      const scenario = buildScenario({
+        attackerWeapons: [rightArtemisLRM, leftArtemisLRM],
+        attackerStateOverride: {
+          gunnery: 0,
+          destroyedArtemisFcs: [
+            {
+              kind: 'artemis_iv',
+              location: 'right_torso',
+              componentName: 'Artemis IV FCS',
+            },
+          ],
+        },
+        targetPosition: { q: 7, r: 0 },
+      });
+
+      const rightResult = runPhaseWithResult({
+        ...scenario,
+        botPlayer: new ScriptedAttackAI(rightArtemisLRM.id),
+        random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      });
+      const leftResult = runPhaseWithResult({
+        ...scenario,
+        botPlayer: new ScriptedAttackAI(leftArtemisLRM.id),
+        random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      });
+
+      const rightResolved = rightResult.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).weaponId ===
+            rightArtemisLRM.id,
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+      const leftResolved = leftResult.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).weaponId ===
+            leftArtemisLRM.id,
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+
+      expect(rightResolved.payload.projectileCount).toBe(3);
+      expect(leftResolved.payload.projectileCount).toBe(6);
+    });
+
+    it('destroyed linked Artemis FCS strips only the explicitly linked launcher', () => {
+      const linkedArtemisLRM: IWeapon = {
+        ...createLRM10('linked-lrm-10'),
+        location: 'right_torso',
+        hasArtemisIV: true,
+      };
+      const fallbackArtemisLRM: IWeapon = {
+        ...createLRM10('fallback-lrm-10'),
+        location: 'right_torso',
+        hasArtemisIV: true,
+      };
+      const scenario = buildScenario({
+        attackerWeapons: [linkedArtemisLRM, fallbackArtemisLRM],
+        attackerStateOverride: {
+          gunnery: 0,
+          destroyedArtemisFcs: [
+            {
+              kind: 'artemis_iv',
+              location: 'right_torso',
+              linkedWeaponId: linkedArtemisLRM.id,
+              componentName: 'Artemis IV FCS',
+            },
+          ],
+        },
+        targetPosition: { q: 7, r: 0 },
+      });
+
+      const linkedResult = runPhaseWithResult({
+        ...scenario,
+        botPlayer: new ScriptedAttackAI(linkedArtemisLRM.id),
+        random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      });
+      const fallbackResult = runPhaseWithResult({
+        ...scenario,
+        botPlayer: new ScriptedAttackAI(fallbackArtemisLRM.id),
+        random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      });
+
+      const linkedResolved = linkedResult.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).weaponId ===
+            linkedArtemisLRM.id,
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+      const fallbackResolved = fallbackResult.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).weaponId ===
+            fallbackArtemisLRM.id,
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+
+      expect(linkedResolved.payload.projectileCount).toBe(3);
+      expect(fallbackResolved.payload.projectileCount).toBe(6);
+    });
+
     it('iNARC ECM pods on the attacker suppress source-backed Artemis flight-path guidance', () => {
       const lrm = createLRM10();
       const artemisLRM: IWeapon = { ...lrm, hasArtemisIV: true };
@@ -2133,6 +2734,49 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           'inarc-ecm-attacker-flight-path-suppression'
         ].level,
       ).toBe('integrated');
+    });
+
+    it('same-side iNARC ECM pods on the attacker still suppress Artemis guidance once attached', () => {
+      const lrm = createLRM10();
+      const artemisLRM: IWeapon = { ...lrm, hasArtemisIV: true };
+      const baselineScenario = buildScenario({
+        attackerWeapons: [artemisLRM],
+        attackerStateOverride: { gunnery: 0 },
+        targetPosition: { q: 7, r: 0 },
+      });
+      const friendlyPodScenario = buildScenario({
+        attackerWeapons: [artemisLRM],
+        attackerStateOverride: {
+          gunnery: 0,
+          iNarcPods: [{ teamId: GameSide.Player, podType: 'ecm' }],
+        },
+        targetPosition: { q: 7, r: 0 },
+      });
+
+      const baselineResult = runPhaseWithResult({
+        ...baselineScenario,
+        botPlayer: new ScriptedAttackAI(artemisLRM.id),
+        random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      });
+      const friendlyPodResult = runPhaseWithResult({
+        ...friendlyPodScenario,
+        botPlayer: new ScriptedAttackAI(artemisLRM.id),
+        random: new SequenceRandom([6, 6, 1, 2, 1, 1]),
+      });
+
+      const baselineResolved = baselineResult.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+      const friendlyPodResolved = friendlyPodResult.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+
+      expect(baselineResolved.payload.projectileCount).toBe(6);
+      expect(friendlyPodResolved.payload.projectileCount).toBe(3);
     });
 
     it('iNARC Nemesis pods redirect source-backed confusable missiles to friendly intervening units', () => {
@@ -2350,6 +2994,15 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           attackRange: 6,
         },
       });
+      const lowProfileCluster = resolveSpecialProjectileHit({
+        baseWeapon: lbx,
+        shotWeapon: lbx,
+        selectedMode: clusterMode,
+        d6Roller: sequenceD6Roller(4, 4),
+        clusterContext: {
+          targetLowProfile: true,
+        },
+      });
       const baseScenario = buildScenario({
         attackerWeapons: [lbx],
         attackerStateOverride: { gunnery: 0 },
@@ -2364,6 +3017,12 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         },
         targetPosition: { q: 6, r: 0 },
       });
+      const lowProfileScenario = buildScenario({
+        attackerWeapons: [lbx],
+        attackerStateOverride: { gunnery: 0 },
+        targetStateOverride: { unitQuirks: ['low_profile'] },
+        targetPosition: { q: 6, r: 0 },
+      });
       const baseResult = runPhaseWithResult({
         ...baseScenario,
         botPlayer: new ScriptedAttackAI(lbx.id, 'cluster'),
@@ -2371,6 +3030,11 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       });
       const sandblasterResult = runPhaseWithResult({
         ...sandblasterScenario,
+        botPlayer: new ScriptedAttackAI(lbx.id, 'cluster'),
+        random: new SequenceRandom([6, 6, 4, 4, 1, 1]),
+      });
+      const lowProfileResult = runPhaseWithResult({
+        ...lowProfileScenario,
         botPlayer: new ScriptedAttackAI(lbx.id, 'cluster'),
         random: new SequenceRandom([6, 6, 4, 4, 1, 1]),
       });
@@ -2385,6 +3049,11 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
           event.type === GameEventType.AttackResolved &&
           (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
       ) as IGameEvent & { payload: IAttackResolvedPayload };
+      const lowProfileResolved = lowProfileResult.events.find(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
 
       expect(baseCluster).toMatchObject({
         projectileCount: 6,
@@ -2394,12 +3063,233 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         projectileCount: 10,
         weapon: { damage: 10 },
       });
+      expect(lowProfileCluster).toMatchObject({
+        projectileCount: 4,
+        weapon: { damage: 4 },
+      });
       expect(baseResolved.payload.projectileCount).toBe(6);
       expect(sandblasterResolved.payload.projectileCount).toBe(10);
+      expect(lowProfileResolved.payload.projectileCount).toBe(4);
       expect(SPA_COMBAT_SUPPORT.sandblaster).toMatchObject({
-        level: 'helper-only',
-        gap: expect.stringContaining('UAC/RAC'),
+        level: 'integrated',
+        evidence: expect.stringContaining(
+          'official ordinary AC rapid-fire modes',
+        ),
       });
+    });
+
+    it('resolves designated Sandblaster autocannon shot counts with cluster-table range bands', () => {
+      const uac = createUltraAC5();
+      const uacDoubleMode = uac.firingModes?.modes.find(
+        (mode) => mode.id === 'double',
+      );
+      const rac = createRotaryAC2();
+      const racThreeShotMode = rac.firingModes?.modes.find(
+        (mode) => mode.id === 'rof-3',
+      );
+      const racSingleShotMode = rac.firingModes?.modes.find(
+        (mode) => mode.id === 'rof-1',
+      );
+
+      const uacShotCount = resolveSandblasterAutocannonRateOfFireShotCount({
+        baseWeapon: uac,
+        selectedMode: uacDoubleMode,
+        d6Roller: sequenceD6Roller(3, 3),
+        clusterContext: {
+          sandblasterSPA: true,
+          designatedWeaponType: 'Ultra AC/5',
+          attackRange: 6,
+        },
+      });
+      const racShotCount = resolveSandblasterAutocannonRateOfFireShotCount({
+        baseWeapon: rac,
+        selectedMode: racThreeShotMode,
+        d6Roller: sequenceD6Roller(4, 4),
+        clusterContext: {
+          sandblasterSPA: true,
+          designatedWeaponType: 'Rotary AC/2',
+          attackRange: 7,
+        },
+      });
+      const undesignated = resolveSandblasterAutocannonRateOfFireShotCount({
+        baseWeapon: rac,
+        selectedMode: racThreeShotMode,
+        d6Roller: sequenceD6Roller(6, 6),
+        clusterContext: {
+          sandblasterSPA: true,
+          designatedWeaponType: 'LRM 10',
+          attackRange: 7,
+        },
+      });
+      const singleShotMode = resolveSandblasterAutocannonRateOfFireShotCount({
+        baseWeapon: rac,
+        selectedMode: racSingleShotMode,
+        d6Roller: sequenceD6Roller(6, 6),
+        clusterContext: {
+          sandblasterSPA: true,
+          designatedWeaponType: 'Rotary AC/2',
+          attackRange: 7,
+        },
+      });
+      const ordinaryACWithRapidFireShape = createTacOpsRapidFireAC20(
+        'ac-20-rapid-fire-shape-test',
+      );
+      const ordinaryACRapidFireMode =
+        ordinaryACWithRapidFireShape.firingModes?.modes.find(
+          (mode) => mode.id === 'rapid-fire',
+        );
+      const tacOpsRapidFireRuntime =
+        resolveSandblasterAutocannonRateOfFireShotCount({
+          baseWeapon: ordinaryACWithRapidFireShape,
+          selectedMode: ordinaryACRapidFireMode,
+          d6Roller: sequenceD6Roller(1, 1),
+          clusterContext: {
+            sandblasterSPA: true,
+            designatedWeaponType: 'AC/20',
+            attackRange: 3,
+          },
+        });
+
+      expect(uacShotCount).toEqual({
+        clusterRoll: 6,
+        clusterModifier: 4,
+        modifiedRoll: 10,
+        shotCount: 2,
+      });
+      expect(racShotCount).toEqual({
+        clusterRoll: 8,
+        clusterModifier: 3,
+        modifiedRoll: 11,
+        shotCount: 3,
+      });
+      expect(undesignated).toBeUndefined();
+      expect(singleShotMode).toBeUndefined();
+      expect(tacOpsRapidFireRuntime).toEqual({
+        clusterRoll: 2,
+        clusterModifier: 4,
+        modifiedRoll: 6,
+        shotCount: 1,
+      });
+    });
+
+    it('uses Sandblaster UAC/RAC shot-count resolution for runner selected rate-of-fire attacks', () => {
+      const weapon = createRotaryAC2();
+      const ammoBin = createAmmoBin({
+        weaponType: weapon.id,
+        remainingRounds: 10,
+      });
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [weapon],
+        attackerStateOverride: {
+          abilities: ['sandblaster'],
+          designatedWeaponType: 'Rotary AC/2',
+          gunnery: 0,
+          ammoState: { [ammoBin.binId]: ammoBin },
+        },
+      });
+
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(weapon.id, 'rof-3'),
+        random: new SequenceRandom([1, 1, 6, 6, 1, 1, 6, 6, 1, 1]),
+      });
+
+      const playerDeclared = result.events.filter(
+        (event) =>
+          event.type === GameEventType.AttackDeclared &&
+          (event.payload as IAttackDeclaredPayload).attackerId === 'player-1',
+      ) as Array<IGameEvent & { payload: IAttackDeclaredPayload }>;
+      const playerResolved = result.events.filter(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as Array<IGameEvent & { payload: IAttackResolvedPayload }>;
+      const consumed = result.events.filter(
+        (event) => event.type === GameEventType.AmmoConsumed,
+      );
+
+      expect(playerDeclared).toHaveLength(2);
+      expect(playerResolved).toHaveLength(2);
+      expect(consumed).toHaveLength(2);
+      expect(
+        playerDeclared.every(
+          (event) => event.payload.weaponModes?.[weapon.id] === 'rof-3',
+        ),
+      ).toBe(true);
+      expect(playerResolved.map((event) => event.payload.damage)).toEqual([
+        2, 2,
+      ]);
+      expect(playerResolved.map((event) => event.payload.heat)).toEqual([1, 1]);
+      expect(result.state.units['player-1'].weaponsFiredThisTurn).toEqual([
+        weapon.id,
+        weapon.id,
+      ]);
+      expect(
+        result.state.units['player-1'].ammoState?.[ammoBin.binId]
+          .remainingRounds,
+      ).toBe(8);
+    });
+
+    it('uses Sandblaster shot-count resolution for catalog-authored ordinary AC rapid-fire modes', () => {
+      const weapon = toAIWeapon(
+        weaponLookup('ac-20') as ICatalogWeaponStats,
+        0,
+      );
+      expect(weapon.firingModes?.modes.map((mode) => mode.id)).toEqual([
+        'single',
+        'rapid-fire',
+      ]);
+      const ammoBin = createAmmoBin({
+        weaponType: 'ac-20',
+        remainingRounds: 10,
+      });
+      const { state, weaponsByUnit } = buildScenario({
+        attackerWeapons: [weapon],
+        attackerStateOverride: {
+          abilities: ['sandblaster'],
+          designatedWeaponType: 'AC/20',
+          gunnery: 0,
+          ammoState: { [ammoBin.binId]: ammoBin },
+        },
+      });
+
+      const result = runPhaseWithResult({
+        state,
+        weaponsByUnit,
+        botPlayer: new ScriptedAttackAI(weapon.id, 'rapid-fire'),
+        random: new SequenceRandom([1, 1, 6, 6, 1, 1]),
+      });
+
+      const playerDeclared = result.events.filter(
+        (event) =>
+          event.type === GameEventType.AttackDeclared &&
+          (event.payload as IAttackDeclaredPayload).attackerId === 'player-1',
+      ) as Array<IGameEvent & { payload: IAttackDeclaredPayload }>;
+      const playerResolved = result.events.filter(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).attackerId === 'player-1',
+      ) as Array<IGameEvent & { payload: IAttackResolvedPayload }>;
+      const consumed = result.events.filter(
+        (event) => event.type === GameEventType.AmmoConsumed,
+      );
+
+      expect(playerDeclared).toHaveLength(1);
+      expect(playerResolved).toHaveLength(1);
+      expect(consumed).toHaveLength(1);
+      expect(playerDeclared[0].payload.weaponModes?.[weapon.id]).toBe(
+        'rapid-fire',
+      );
+      expect(playerResolved[0].payload.damage).toBe(20);
+      expect(playerResolved[0].payload.heat).toBe(7);
+      expect(result.state.units['player-1'].weaponsFiredThisTurn).toEqual([
+        weapon.id,
+      ]);
+      expect(
+        result.state.units['player-1'].ammoState?.[ammoBin.binId]
+          .remainingRounds,
+      ).toBe(9);
     });
 
     it('target-mounted AMS reduces incoming missile projectile count', () => {
@@ -2584,6 +3474,69 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       expect(rearArcMiss.projectileCount).toBe(6);
     });
 
+    it('honors an explicit defender-selected AMS id when the selected mount is eligible', () => {
+      const firstAms = createAMS('ams-0');
+      const selectedAms = createAMS('ams-1');
+      const amsBin = createAmmoBin({
+        binId: 'ams-bin',
+        weaponType: 'ams',
+        remainingRounds: 2,
+      });
+
+      const interception = resolveAMSInterception({
+        incomingProjectiles: 6,
+        rackSize: 10,
+        clusterRoll: 7,
+        clusterModifier: 0,
+        clusterDice: [3, 4],
+        incomingAttackArc: FiringArc.Front,
+        targetWeapons: [firstAms, selectedAms],
+        targetAmmoState: { [amsBin.binId]: amsBin },
+        selectedAMSWeaponId: selectedAms.id,
+      });
+
+      expect(interception?.amsWeaponId).toBe(selectedAms.id);
+      expect(interception?.projectilesRemaining).toBe(3);
+    });
+
+    it('does not fall back to automatic AMS selection when an explicit choice is ineligible', () => {
+      const eligibleAms = createAMS('ams-0');
+      const rearAms = {
+        ...createAMS('ams-1'),
+        mountingArc: FiringArc.Rear,
+      };
+      const amsBin = createAmmoBin({
+        binId: 'ams-bin',
+        weaponType: 'ams',
+        remainingRounds: 2,
+      });
+
+      const automaticInterception = resolveAMSInterception({
+        incomingProjectiles: 6,
+        rackSize: 10,
+        clusterRoll: 7,
+        clusterModifier: 0,
+        clusterDice: [3, 4],
+        incomingAttackArc: FiringArc.Front,
+        targetWeapons: [eligibleAms, rearAms],
+        targetAmmoState: { [amsBin.binId]: amsBin },
+      });
+      const selectedOutOfArcInterception = resolveAMSInterception({
+        incomingProjectiles: 6,
+        rackSize: 10,
+        clusterRoll: 7,
+        clusterModifier: 0,
+        clusterDice: [3, 4],
+        incomingAttackArc: FiringArc.Front,
+        targetWeapons: [eligibleAms, rearAms],
+        targetAmmoState: { [amsBin.binId]: amsBin },
+        selectedAMSWeaponId: rearAms.id,
+      });
+
+      expect(automaticInterception?.amsWeaponId).toBe(eligibleAms.id);
+      expect(selectedOutOfArcInterception).toBeUndefined();
+    });
+
     it('runner attack resolution passes target AMS mounts into missile interception', () => {
       const lrm = createLRM10();
       const ams = createAMS();
@@ -2728,15 +3681,474 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
         SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-ammo-consumption'].level,
       ).toBe('integrated');
       expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'ams-automatic-interception-assignment'
+        ].level,
+      ).toBe('integrated');
+      expect(
         SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-interception-events'].level,
       ).toBe('integrated');
-      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).toContain(
-        'defender choice',
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'ams-runner-selected-defender-choice'
+        ].level,
+      ).toBe('integrated');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'ams-runner-selected-defender-choice'
+        ].evidence,
+      ).toContain('selectedAMSWeaponIds');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-manual-defender-choice']
+          .level,
+      ).toBe('integrated');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-bay-authoring'].level,
+      ).toBe('out-of-scope');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'ams-optional-multi-use-authoring'
+        ].level,
+      ).toBe('out-of-scope');
+      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).toBeUndefined();
+      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.level).toBe('integrated');
+      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.evidence).toContain(
+        'excludes already-fired standard AMS',
       );
-      expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).not.toContain(
-        'automatic firing-arc assignment',
-      );
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-manual-defender-choice']
+          .gap,
+      ).toBeUndefined();
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-bay-authoring'].gap,
+      ).not.toContain('automatic firing-arc assignment');
     });
+
+    it('runner attack resolution honors replayable defender-selected AMS ids', () => {
+      const lrm = createLRM10();
+      const automaticAms = createAMS('ams-0');
+      const selectedAms = createAMS('ams-1');
+      const amsAmmoBin = createAmmoBin({
+        binId: 'ams-bin',
+        weaponType: 'ams',
+        remainingRounds: 2,
+      });
+      const scenario = buildScenario({
+        attackerWeapons: [lrm],
+        attackerStateOverride: { gunnery: 0 },
+        targetStateOverride: {
+          ammoState: { [amsAmmoBin.binId]: amsAmmoBin },
+        },
+        targetWeapons: [automaticAms, selectedAms],
+        targetPosition: { q: 7, r: 0 },
+      });
+
+      const result = runPhaseWithResult({
+        ...scenario,
+        botPlayer: new ScriptedSelectedAMSAttackAI(lrm.id, selectedAms.id),
+        random: new SequenceRandom([6, 6, 3, 4, 1, 1]),
+      });
+      const declared = result.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+      const amsInterception = result.events.find(
+        (event) => event.type === GameEventType.AMSInterception,
+      );
+
+      expect(declared.payload.selectedAMSWeaponIds).toEqual({
+        [lrm.id]: selectedAms.id,
+      });
+      expect(amsInterception?.payload).toMatchObject({
+        incomingWeaponId: lrm.id,
+        amsWeaponId: selectedAms.id,
+        ammoRemaining: 1,
+      });
+      expect(result.state.units['opponent-1'].weaponsFiredThisTurn).toEqual([
+        selectedAms.id,
+      ]);
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'ams-runner-selected-defender-choice'
+        ].evidence,
+      ).toContain('AttackDeclared.selectedAMSWeaponIds');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'ams-runner-selected-defender-choice'
+        ].gap,
+      ).toBeUndefined();
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'ams-optional-multi-use-authoring'
+        ].evidence,
+      ).toContain('PLAYTEST_3');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'ams-optional-multi-use-authoring'
+        ].gap,
+      ).toContain('outside the current BattleMech blocker matrix');
+    });
+
+    it('runner attack resolution rejects invalid defender-selected AMS ids without automatic fallback or side effects', () => {
+      const lrm = createLRM10();
+      const automaticAms = createAMS('ams-0');
+      const selectedOutOfArcAms = {
+        ...createAMS('ams-1'),
+        mountingArc: FiringArc.Rear,
+      };
+      const amsAmmoBin = createAmmoBin({
+        binId: 'ams-bin',
+        weaponType: 'ams',
+        remainingRounds: 2,
+      });
+      const scenario = buildScenario({
+        attackerWeapons: [lrm],
+        attackerStateOverride: { gunnery: 0 },
+        targetStateOverride: {
+          ammoState: { [amsAmmoBin.binId]: amsAmmoBin },
+        },
+        targetWeapons: [automaticAms, selectedOutOfArcAms],
+        targetPosition: { q: 7, r: 0 },
+      });
+
+      const result = runPhaseWithResult({
+        ...scenario,
+        botPlayer: new ScriptedSelectedAMSAttackAI(
+          lrm.id,
+          selectedOutOfArcAms.id,
+        ),
+        random: new SequenceRandom([6, 6, 3, 4, 1, 1]),
+      });
+      const declared = result.events.find(
+        (event) => event.type === GameEventType.AttackDeclared,
+      ) as IGameEvent & { payload: IAttackDeclaredPayload };
+      const resolved = result.events.find(
+        (event) => event.type === GameEventType.AttackResolved,
+      ) as IGameEvent & { payload: IAttackResolvedPayload };
+      const defenderAmmoConsumed = result.events.find(
+        (event) =>
+          event.type === GameEventType.AmmoConsumed &&
+          (event.payload as { unitId?: string }).unitId === 'opponent-1',
+      );
+      const amsInterception = result.events.find(
+        (event) => event.type === GameEventType.AMSInterception,
+      );
+
+      expect(declared.payload.selectedAMSWeaponIds).toEqual({
+        [lrm.id]: selectedOutOfArcAms.id,
+      });
+      expect(amsInterception).toBeUndefined();
+      expect(defenderAmmoConsumed).toBeUndefined();
+      expect(resolved.payload.projectileCount).toBe(6);
+      expect(
+        result.state.units['opponent-1'].ammoState?.[amsAmmoBin.binId]
+          .remainingRounds,
+      ).toBe(2);
+      expect(result.state.units['opponent-1'].weaponsFiredThisTurn).toEqual([]);
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'ams-runner-selected-defender-choice'
+        ].evidence,
+      ).toContain('rejects ineligible explicit selections');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+          'ams-runner-selected-defender-choice'
+        ].gap,
+      ).toBeUndefined();
+    });
+
+    it('runner attack resolution does not reuse the same standard AMS after it fired this phase', () => {
+      const firstLrm = createLRM10('lrm-10-first');
+      const secondLrm = createLRM10('lrm-10-second');
+      const ams = createAMS();
+      const amsAmmoBin = createAmmoBin({
+        binId: 'ams-bin',
+        weaponType: 'ams',
+        remainingRounds: 2,
+      });
+      const scenario = buildScenario({
+        attackerWeapons: [firstLrm, secondLrm],
+        attackerStateOverride: { gunnery: 0 },
+        targetStateOverride: {
+          ammoState: { [amsAmmoBin.binId]: amsAmmoBin },
+        },
+        targetWeapons: [ams],
+        targetPosition: { q: 7, r: 0 },
+      });
+
+      const result = runPhaseWithResult({
+        ...scenario,
+        botPlayer: new ScriptedMultiWeaponAttackAI([firstLrm.id, secondLrm.id]),
+        random: new SequenceRandom([6, 6, 3, 4, 1, 1, 6, 6, 3, 4, 1, 1]),
+      });
+      const interceptions = result.events.filter(
+        (event) => event.type === GameEventType.AMSInterception,
+      );
+      const resolvedPayloads = result.events
+        .filter((event) => event.type === GameEventType.AttackResolved)
+        .map((event) => event.payload as IAttackResolvedPayload);
+
+      expect(interceptions).toHaveLength(1);
+      expect(interceptions[0]?.payload).toMatchObject({
+        incomingWeaponId: firstLrm.id,
+        amsWeaponId: ams.id,
+        projectilesRemaining: 3,
+        ammoRemaining: 1,
+      });
+      expect(resolvedPayloads).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            weaponId: firstLrm.id,
+            projectileCount: 3,
+          }),
+          expect.objectContaining({
+            weaponId: secondLrm.id,
+            projectileCount: 6,
+          }),
+        ]),
+      );
+      expect(
+        result.state.units['opponent-1'].ammoState?.[amsAmmoBin.binId]
+          .remainingRounds,
+      ).toBe(1);
+      expect(result.state.units['opponent-1'].weaponsFiredThisTurn).toEqual([
+        ams.id,
+      ]);
+    });
+
+    it('does not treat helper-authored AMS bay metadata as supported same-phase reuse', () => {
+      const firstLrm = createLRM10('lrm-10-first');
+      const secondLrm = createLRM10('lrm-10-second');
+      const ams = createAMS();
+      const bayShapedAMS = {
+        ...ams,
+        amsBay: true,
+        mountingArc: FiringArc.Front,
+      } as IWeapon & { readonly amsBay: true };
+      const amsAmmoBin = createAmmoBin({
+        binId: 'ams-bin',
+        weaponType: 'ams',
+        remainingRounds: 2,
+      });
+      const scenario = buildScenario({
+        attackerWeapons: [firstLrm, secondLrm],
+        attackerPosition: { q: 0, r: -7 },
+        attackerStateOverride: { gunnery: 0 },
+        targetPosition: { q: 0, r: 0 },
+        targetStateOverride: {
+          facing: Facing.North,
+          ammoState: { [amsAmmoBin.binId]: amsAmmoBin },
+        },
+        targetWeapons: [bayShapedAMS],
+      });
+
+      const result = runPhaseWithResult({
+        ...scenario,
+        botPlayer: new ScriptedMultiWeaponAttackAI([firstLrm.id, secondLrm.id]),
+        random: new SequenceRandom([6, 6, 3, 4, 1, 1, 6, 6, 3, 4, 1, 1]),
+      });
+      const interceptions = result.events.filter(
+        (event) => event.type === GameEventType.AMSInterception,
+      );
+      const resolvedPayloads = result.events
+        .filter((event) => event.type === GameEventType.AttackResolved)
+        .map((event) => event.payload as IAttackResolvedPayload);
+
+      expect(interceptions).toHaveLength(1);
+      expect(interceptions[0]?.payload).toMatchObject({
+        incomingWeaponId: firstLrm.id,
+        amsWeaponId: ams.id,
+        projectilesRemaining: 3,
+        ammoRemaining: 1,
+      });
+      expect(resolvedPayloads).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            weaponId: firstLrm.id,
+            projectileCount: 3,
+          }),
+          expect.objectContaining({
+            weaponId: secondLrm.id,
+            projectileCount: 6,
+          }),
+        ]),
+      );
+      expect(
+        result.state.units['opponent-1'].ammoState?.[amsAmmoBin.binId]
+          .remainingRounds,
+      ).toBe(1);
+      expect(result.state.units['opponent-1'].weaponsFiredThisTurn).toEqual([
+        ams.id,
+      ]);
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-bay-authoring'].evidence,
+      ).toContain('AMS bay-shaped helper metadata');
+      expect(
+        SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT['ams-bay-authoring'].gap,
+      ).toContain('outside the current BattleMech blocker matrix');
+    });
+
+    it.each([
+      {
+        label: 'PLAYTEST_3 optional rule',
+        optionalRules: ['PLAYTEST_3'] as const,
+        multiUseState: false,
+      },
+      {
+        label: 'explicit multi-use mount state',
+        optionalRules: undefined,
+        multiUseState: true,
+      },
+    ])(
+      'runner attack resolution reuses the same AMS for $label when ammo and arc still permit',
+      ({ multiUseState, optionalRules }) => {
+        const firstLrm = createLRM10('lrm-10-first');
+        const secondLrm = createLRM10('lrm-10-second');
+        const ams = createAMS();
+        const reusableAMS = {
+          ...ams,
+          ...(multiUseState ? { amsMultiUse: true } : {}),
+          mountingArc: FiringArc.Front,
+        };
+        const amsAmmoBin = createAmmoBin({
+          binId: 'ams-bin',
+          weaponType: 'ams',
+          remainingRounds: 2,
+        });
+        const scenario = buildScenario({
+          attackerWeapons: [firstLrm, secondLrm],
+          attackerPosition: { q: 0, r: -7 },
+          attackerStateOverride: { gunnery: 0 },
+          targetPosition: { q: 0, r: 0 },
+          targetStateOverride: {
+            facing: Facing.North,
+            ammoState: { [amsAmmoBin.binId]: amsAmmoBin },
+          },
+          targetWeapons: [reusableAMS],
+        });
+
+        const result = runPhaseWithResult({
+          ...scenario,
+          botPlayer: new ScriptedMultiWeaponAttackAI([
+            firstLrm.id,
+            secondLrm.id,
+          ]),
+          optionalRules,
+          random: new SequenceRandom([6, 6, 3, 4, 1, 1, 6, 6, 3, 4, 1, 1]),
+        });
+        const interceptions = result.events.filter(
+          (event) => event.type === GameEventType.AMSInterception,
+        ) as Array<
+          IGameEvent & {
+            payload: {
+              incomingWeaponId: string;
+              amsWeaponId: string;
+              projectilesRemaining: number;
+              ammoRemaining?: number;
+            };
+          }
+        >;
+        const amsAmmoEvents = result.events.filter(
+          (event) =>
+            event.type === GameEventType.AmmoConsumed &&
+            (event.payload as { unitId?: string }).unitId === 'opponent-1',
+        ) as Array<
+          IGameEvent & {
+            payload: { roundsConsumed: number; roundsRemaining: number };
+          }
+        >;
+        const resolvedPayloads = result.events
+          .filter((event) => event.type === GameEventType.AttackResolved)
+          .map((event) => event.payload as IAttackResolvedPayload);
+
+        expect(interceptions).toHaveLength(2);
+        expect(interceptions.map((event) => event.payload)).toEqual([
+          expect.objectContaining({
+            incomingWeaponId: firstLrm.id,
+            amsWeaponId: ams.id,
+            projectilesRemaining: 3,
+            ammoRemaining: 1,
+          }),
+          expect.objectContaining({
+            incomingWeaponId: secondLrm.id,
+            amsWeaponId: ams.id,
+            projectilesRemaining: 3,
+            ammoRemaining: 0,
+          }),
+        ]);
+        expect(amsAmmoEvents.map((event) => event.payload)).toEqual([
+          expect.objectContaining({
+            roundsConsumed: 1,
+            roundsRemaining: 1,
+          }),
+          expect.objectContaining({
+            roundsConsumed: 1,
+            roundsRemaining: 0,
+          }),
+        ]);
+        expect(resolvedPayloads).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              weaponId: firstLrm.id,
+              projectileCount: 3,
+            }),
+            expect.objectContaining({
+              weaponId: secondLrm.id,
+              projectileCount: 3,
+            }),
+          ]),
+        );
+        expect(
+          result.state.units['opponent-1'].ammoState?.[amsAmmoBin.binId]
+            .remainingRounds,
+        ).toBe(0);
+        expect(result.state.units['opponent-1'].weaponsFiredThisTurn).toEqual([
+          ams.id,
+          ams.id,
+        ]);
+
+        const heatEvents: IGameEvent[] = [];
+        runHeatPhase({
+          state: result.state,
+          events: heatEvents,
+          gameId: scenario.state.gameId,
+          random: new SeededRandom(79),
+          weaponsByUnit: scenario.weaponsByUnit,
+        });
+        const amsHeat = heatEvents.find(
+          (event) =>
+            event.type === GameEventType.HeatGenerated &&
+            (event.payload as { unitId?: string }).unitId === 'opponent-1',
+        ) as
+          | (IGameEvent & {
+              payload: { amount: number; source: string };
+            })
+          | undefined;
+
+        expect(amsHeat?.payload).toMatchObject({
+          amount: ams.heat * 2,
+          source: 'firing',
+        });
+        expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.evidence).toContain(
+          'PLAYTEST_3',
+        );
+        expect(SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT.ams.gap).toBeUndefined();
+        expect(
+          SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+            'ams-runner-selected-defender-choice'
+          ].level,
+        ).toBe('integrated');
+        expect(
+          SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+            'ams-optional-multi-use-authoring'
+          ].evidence,
+        ).toContain('PLAYTEST_3');
+        expect(
+          SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT[
+            'ams-optional-multi-use-authoring'
+          ].gap,
+        ).toContain('outside the current BattleMech blocker matrix');
+      },
+    );
 
     it('runner attack resolution respects target AMS mounted arc when resolving interception', () => {
       const lrm = createLRM10();
@@ -2801,8 +4213,22 @@ describe('runAttackPhase events — Phase 2 (combat-resolution + damage-system d
       expect(rearArcInterception).toBeUndefined();
       expect(frontArcResolved.payload.attackerArc).toBe(FiringArc.Front);
       expect(frontArcResolved.payload.projectileCount).toBe(3);
+      expect(
+        frontArcResult.state.units['opponent-1'].ammoState?.[amsAmmoBin.binId]
+          .remainingRounds,
+      ).toBe(1);
+      expect(
+        frontArcResult.state.units['opponent-1'].weaponsFiredThisTurn,
+      ).toEqual([ams.id]);
       expect(rearArcResolved.payload.attackerArc).toBe(FiringArc.Front);
       expect(rearArcResolved.payload.projectileCount).toBe(6);
+      expect(
+        rearArcResult.state.units['opponent-1'].ammoState?.[amsAmmoBin.binId]
+          .remainingRounds,
+      ).toBe(2);
+      expect(
+        rearArcResult.state.units['opponent-1'].weaponsFiredThisTurn,
+      ).toEqual([]);
     });
 
     it('laser AMS intercepts without ammo consumption and still enters heat accounting', () => {

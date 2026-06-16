@@ -18,6 +18,7 @@ import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import type { IBattleArmorCombatState } from './BattleArmorCombatInterfaces';
 import type { CombatLocation } from './CombatLocationTypes';
 import type { IUnitDestroyedPayload } from './GameSessionAttackEvents';
+import type { IRepresentedGroundObjectState } from './GameSessionGroundObjectEvents';
 import type { IGameEvent } from './GameSessionStatusEvents';
 import type { IGameConfig, IGameUnit } from './GameSessionUnitTypes';
 import type { IVehicleCombatState } from './VehicleCombatInterfaces';
@@ -78,6 +79,26 @@ export interface IComponentDamageState {
   readonly heatSinksDestroyed: number;
   /** Number of jump jets destroyed (reduces max jump MP by 1 each). */
   readonly jumpJetsDestroyed: number;
+  /**
+   * Damaged Super-Cooled Myomer critical slots. The mount remains functional
+   * until the sixth SCM slot is hit; heat effects are modeled separately.
+   */
+  readonly superCooledMyomerHits?: number;
+  /**
+   * RISC Emergency Coolant System has taken an equipment critical. Runtime
+   * coolant-use and coolant-failure rules consume separate heat-phase state.
+   */
+  readonly emergencyCoolantSystemDamaged?: boolean;
+  /**
+   * Mount keys whose first autocannon critical was ignored by PLAYTEST_3.
+   * A later critical against the same mounted AC resolves normally.
+   */
+  readonly playtestAutocannonFirstCrits?: readonly string[];
+  /**
+   * Combat locations breached by represented equipment-critical branches.
+   * Broader exposure, repair, and environment effects are modeled separately.
+   */
+  readonly breachedLocations?: readonly string[];
 }
 
 export interface IVehicleCriticalLocationDamageState {
@@ -118,6 +139,22 @@ export interface IINarcPodState {
   readonly podType: INarcPodType;
   /** Hit location the pod attached to, when known. */
   readonly location?: string;
+}
+
+export type IArtemisFcsKind =
+  | 'artemis_iv'
+  | 'prototype_artemis_iv'
+  | 'artemis_v';
+
+export interface IDestroyedArtemisFcsState {
+  /** Source-backed Artemis FCS family whose critical slot was destroyed. */
+  readonly kind: IArtemisFcsKind;
+  /** Unit location that carried the destroyed FCS. */
+  readonly location: string;
+  /** Explicit linked launcher id when imported FCS metadata identifies one. */
+  readonly linkedWeaponId?: string;
+  /** Original critical component name for audit/event replay diagnostics. */
+  readonly componentName: string;
 }
 
 /**
@@ -309,6 +346,23 @@ export interface IUnitGameState {
   readonly torsoTwist?: 'left' | 'right';
   /** Current heat */
   readonly heat: number;
+  /**
+   * External heat already applied this turn. This enforces the source-backed
+   * per-turn external heat cap.
+   */
+  readonly externalHeatThisTurn?: number;
+  /**
+   * External heat queued by weapon effects for the next Heat Phase. Plasma
+   * Cannon BattleMech target heat uses this pending bucket so it is applied
+   * with normal heat-phase timing and the external heat cap.
+   */
+  readonly pendingExternalHeat?: number;
+  /**
+   * Active BattleMech Inferno/burning marker. Source-backed GO_PRONE
+   * movement clears this effect; undefined preserves legacy fixtures that
+   * predate explicit Inferno state.
+   */
+  readonly infernoBurning?: boolean;
   /** Movement this turn */
   readonly movementThisTurn: MovementType;
   /** Hexes moved this turn */
@@ -359,6 +413,8 @@ export interface IUnitGameState {
   readonly hasMASC?: boolean;
   /** Supercharger installed; activation is explicit per combat state/intent. */
   readonly hasSupercharger?: boolean;
+  /** Drone operating system installed; EMP effects apply a source-backed +2 roll modifier. */
+  readonly hasDroneOS?: boolean;
   /**
    * Mounted C3 equipment projected from catalog/full-unit data. This records
    * source-backed roles for later network assembly without implying the unit
@@ -406,6 +462,14 @@ export interface IUnitGameState {
    */
   readonly leftArmHasClaw?: boolean;
   readonly rightArmHasClaw?: boolean;
+  /**
+   * Represented carried-cargo state for object-carry physical legality. This
+   * does not declare pickup/throw lifecycle support; it only preserves the
+   * source-backed arm lockout once a caller supplies carried-cargo state.
+   */
+  readonly leftArmCarryingCargo?: boolean;
+  readonly rightArmCarryingCargo?: boolean;
+  readonly carriedGroundObjectIds?: readonly string[];
   /** BattleMech stealth armor installed; active effects still require own ECM support. */
   readonly hasStealthArmor?: boolean;
   /** Armor remaining per location */
@@ -427,6 +491,12 @@ export interface IUnitGameState {
   readonly startingInternalStructure?: Record<string, number>;
   /** Destroyed locations */
   readonly destroyedLocations: readonly string[];
+  /**
+   * Represented Artemis FCS equipment critical lifecycle. Entries are
+   * location-scoped so runner snapshots remove guidance from same-location
+   * launchers without inferring exact launcher/FCS allocation authoring.
+   */
+  readonly destroyedArtemisFcs?: readonly IDestroyedArtemisFcsState[];
   /** Destroyed equipment */
   readonly destroyedEquipment: readonly string[];
   /** Ammo remaining per weapon */
@@ -469,6 +539,10 @@ export interface IUnitGameState {
   readonly isBracing?: boolean;
   /** Unit is shut down (reactor offline) */
   readonly shutdown?: boolean;
+  /** Remaining EMP minefield interference duration in turns. */
+  readonly empInterferenceTurns?: number;
+  /** Remaining EMP minefield shutdown duration in turns. */
+  readonly empShutdownTurns?: number;
   /** Ammo bin state tracking */
   readonly ammoState?: Record<string, IAmmoSlotState>;
   /**
@@ -498,11 +572,18 @@ export interface IUnitGameState {
    * legacy underscore spellings themselves.
    */
   readonly abilities?: readonly string[];
+  /**
+   * Explicit represented neural-interface state for VDNI/BVDNI/TCP effects.
+   * Undefined preserves legacy implicit-active fixtures; false models an
+   * installed implant that is not jacked into the unit for this combat state.
+   */
+  readonly neuralInterfaceActive?: boolean;
   /** Flat SPA designation fields consumed by the to-hit modifier pipeline. */
   readonly designatedWeaponType?: string;
   readonly designatedWeaponCategory?: string;
   readonly designatedTargetId?: string;
   readonly designatedRangeBracket?: RangeBracket;
+  readonly designatedEnvironment?: string;
   /** Unit and weapon quirk ids available to attack/to-hit resolvers. */
   readonly unitQuirks?: readonly string[];
   readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
@@ -510,6 +591,14 @@ export interface IUnitGameState {
   readonly initiativeHQBonus?: number;
   /** Explicit source-backed command initiative bonus for force-level initiative. */
   readonly initiativeCommandBonus?: number;
+  /** Source-backed equipment context for deriving force-level initiative. */
+  readonly initiativeEquipment?: IGameUnit['initiativeEquipment'];
+  /**
+   * True when a mounted Targeting Computer is projected into combat state from
+   * catalog/full-unit equipment or critical slots. This is distinct from
+   * Triple-Core Processor's called-shot-only TC-style eligibility.
+   */
+  readonly targetingComputerEquipment?: boolean;
   readonly isDodging?: boolean;
   /** Weapons that are jammed (UAC/RAC jam mechanic) */
   readonly jammedWeapons?: readonly string[];
@@ -519,6 +608,12 @@ export interface IUnitGameState {
   readonly iNarcPods?: readonly IINarcPodState[];
   /** Target is TAG-designated this turn */
   readonly tagDesignated?: boolean;
+  /**
+   * Explicit represented illumination state for this target. Undefined means
+   * no searchlight/flare/fire illumination state has been hydrated into
+   * combat, so Light Specialist ranged relief must fail closed.
+   */
+  readonly isIlluminated?: boolean;
   /**
    * Per `wire-bot-ai-helpers-and-capstone`: bot-controlled unit has
    * committed to retreat. Set true by `RetreatTriggered` reducer; never
@@ -625,10 +720,42 @@ export interface IGameTerrainOverride {
   readonly hex: IHexCoordinate;
   readonly terrain: string;
   readonly elevation: number;
-  readonly reason?: 'battlefield_wreckage';
+  readonly reason?: 'battlefield_wreckage' | 'damageable_cover_hit';
   readonly sourceEventId?: string;
   readonly sourceUnitId?: string;
   readonly optionalRule?: string;
+}
+
+/**
+ * Represented battle-wide minefield state keyed by canonical `"q,r"` hex.
+ * This supports explicit scenario/session minefield tags without claiming
+ * clearing/sweeper or non-conventional type behavior parity.
+ */
+export type RepresentedMinefieldType =
+  | 'conventional'
+  | 'command-detonated'
+  | 'vibrabomb'
+  | 'active'
+  | 'emp'
+  | 'inferno';
+
+export interface IRepresentedMinefieldState {
+  /** Omitted preserves legacy represented conventional mine fixtures. */
+  readonly type?: RepresentedMinefieldType;
+  readonly damagePerLeg: number;
+  /** Optional MegaMek-aligned density for represented detonation target thresholds. */
+  readonly density?: number;
+  /** Optional mine setting/sensitivity in tons for represented vibrabomb/EMP triggers. */
+  readonly setting?: number;
+  /** Explicit already-detonated entries do not trigger represented damage. */
+  readonly detonated?: boolean;
+  /** Hidden minefields remain active but are not revealed to all sides yet. */
+  readonly hidden?: boolean;
+  /** A revealed hidden minefield is public state for later replay/projection. */
+  readonly revealed?: boolean;
+  /** Sides that detected this hidden minefield before public reveal. */
+  readonly detectedBySides?: readonly GameSide[];
+  readonly source?: 'scenario' | 'event' | 'test';
 }
 
 /**
@@ -655,6 +782,12 @@ export interface IGameState {
   readonly c3State?: IC3NetworkState;
   /** Event-sourced terrain mutations keyed by canonical `"q,r"` hex. */
   readonly terrainOverrides?: Record<string, IGameTerrainOverride>;
+  /** Represented battle-wide minefield damage keyed by canonical `"q,r"` hex. */
+  readonly minefields?: Readonly<Record<string, IRepresentedMinefieldState>>;
+  /** Represented carryable ground objects keyed by object id. */
+  readonly groundObjects?: Readonly<
+    Record<string, IRepresentedGroundObjectState>
+  >;
   /** Events this turn for display */
   readonly turnEvents: readonly IGameEvent[];
   /** Game result (if completed) */
@@ -685,6 +818,11 @@ export interface IGameState {
    * scenario/session builders provide it, preserving legacy no-EW behavior.
    */
   readonly electronicWarfare?: IElectronicWarfareState;
+  /**
+   * Optional battle-wide electromagnetic interference condition. Initiative
+   * consumes this only where a source-backed rule names EMI explicitly.
+   */
+  readonly electromagneticInterference?: boolean;
   /**
    * Optional battle-wide C3 network state. Combat phases consume explicit
    * C3/C3i networks when scenario/session builders provide them. Runner

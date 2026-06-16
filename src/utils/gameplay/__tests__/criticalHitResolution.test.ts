@@ -83,6 +83,12 @@ function makeManifestWithWeapons(): CriticalSlotManifest {
         componentName: 'AC/5 Ammo',
         destroyed: false,
       },
+      {
+        slotIndex: 7,
+        componentType: 'equipment',
+        componentName: 'CASE',
+        destroyed: false,
+      },
     ],
   };
 }
@@ -112,6 +118,16 @@ describe('rollCriticalHits', () => {
       const result = rollCriticalHits('center_torso', roller);
       expect(result.criticalHits).toBe(1);
     }
+  });
+
+  it('applies glancing critical-hit-table modifiers before counting crits', () => {
+    const roller = makeDiceRoller([4, 5]);
+    const result = rollCriticalHits('center_torso', roller, -2);
+
+    expect(result.roll.total).toBe(9);
+    expect(result.criticalHits).toBe(0);
+    expect(result.limbBlownOff).toBe(false);
+    expect(result.headDestroyed).toBe(false);
   });
 
   it('returns 2 crits for roll 10-11', () => {
@@ -190,6 +206,41 @@ describe('selectCriticalSlot', () => {
     const roller = makeDiceRoller([1]);
     const slot = selectCriticalSlot(manifest, 'center_torso', roller);
     expect(slot).toBeNull();
+  });
+
+  it('skips source missing and breached slots during critical selection', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_arm: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'Claw',
+          destroyed: false,
+          missing: true,
+        },
+        {
+          slotIndex: 1,
+          componentType: 'equipment',
+          componentName: 'Talons',
+          destroyed: false,
+          breached: true,
+        },
+        {
+          slotIndex: 2,
+          componentType: 'actuator',
+          componentName: ActuatorType.SHOULDER,
+          destroyed: false,
+          actuatorType: ActuatorType.SHOULDER,
+        },
+      ],
+    });
+    const roller = makeDiceRoller([1]);
+    const slot = selectCriticalSlot(manifest, 'right_arm', roller);
+
+    expect(slot).toMatchObject({
+      slotIndex: 2,
+      componentName: ActuatorType.SHOULDER,
+    });
   });
 
   it('returns null for location with no slots', () => {
@@ -636,6 +687,122 @@ describe('weapon critical effects', () => {
     );
 
     expect(result.updatedComponentDamage.weaponsDestroyed).toContain('PPC');
+  });
+
+  const playtest3AutocannonCriticalCases = [
+    { componentName: 'AC/5', weaponId: 'ac-5-0' },
+    { componentName: 'Rotary AC/5', weaponId: 'rotary-ac-5-0' },
+    {
+      componentName: 'Hyper Velocity Auto Cannon/10',
+      weaponId: 'hyper-velocity-auto-cannon-10-0',
+    },
+  ];
+
+  it.each(playtest3AutocannonCriticalCases)(
+    'records the first PLAYTEST_3 $componentName critical without disabling the weapon',
+    ({ componentName, weaponId }) => {
+      const weaponSlot: ICriticalSlotEntry = {
+        slotIndex: 3,
+        componentType: 'weapon',
+        componentName,
+        destroyed: false,
+        weaponId,
+      };
+      const result = applyCriticalHitEffect(
+        weaponSlot,
+        'unit-1',
+        'right_torso',
+        DEFAULT_COMPONENT_DAMAGE,
+        { optionalRules: ['PLAYTEST_3'] },
+      );
+
+      expect(result.effect).toEqual({
+        type: CriticalEffectType.EquipmentHit,
+        equipmentHit: componentName,
+      });
+      expect(result.slotDestroyed).toBe(false);
+      expect(result.updatedComponentDamage.weaponsDestroyed).toEqual([]);
+      expect(
+        result.updatedComponentDamage.playtestAutocannonFirstCrits,
+      ).toEqual([weaponId]);
+      expect(result.events).toEqual([
+        expect.objectContaining({
+          type: 'critical_hit_resolved',
+          payload: expect.objectContaining({
+            componentType: 'weapon',
+            componentName,
+            weaponId,
+            effect: `Equipment hit: ${componentName}`,
+            destroyed: false,
+          }),
+        }),
+      ]);
+    },
+  );
+
+  it.each(playtest3AutocannonCriticalCases)(
+    'destroys a PLAYTEST_3 $componentName after its first critical was already recorded',
+    ({ componentName, weaponId }) => {
+      const weaponSlot: ICriticalSlotEntry = {
+        slotIndex: 3,
+        componentType: 'weapon',
+        componentName,
+        destroyed: false,
+        weaponId,
+      };
+      const result = applyCriticalHitEffect(
+        weaponSlot,
+        'unit-1',
+        'right_torso',
+        {
+          ...DEFAULT_COMPONENT_DAMAGE,
+          playtestAutocannonFirstCrits: [weaponId],
+        },
+        { optionalRules: ['PLAYTEST_3'] },
+      );
+
+      expect(result.effect.type).toBe(CriticalEffectType.WeaponDestroyed);
+      expect(result.slotDestroyed).toBe(true);
+      expect(result.updatedComponentDamage.weaponsDestroyed).toEqual([
+        weaponId,
+      ]);
+    },
+  );
+
+  it('keeps the first PLAYTEST_3 autocannon critical slot available for later crits', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'weapon',
+          componentName: 'AC/5',
+          weaponId: 'ac-5-0',
+          destroyed: false,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+      undefined,
+      { optionalRules: ['PLAYTEST_3'] },
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.updatedManifest.right_torso).toEqual([
+      expect.objectContaining({
+        componentName: 'AC/5',
+        destroyed: false,
+      }),
+    ]);
+    expect(result.updatedComponentDamage).toEqual({
+      ...DEFAULT_COMPONENT_DAMAGE,
+      playtestAutocannonFirstCrits: ['ac-5-0'],
+    });
   });
 });
 
@@ -1153,8 +1320,7 @@ describe('Through-Armor Critical', () => {
   });
 
   describe('processTAC', () => {
-    it('performs normal critical determination on TAC location', () => {
-      // Roll 4+4=8 → 1 crit, select slot 1
+    it('applies one critical on the TAC location', () => {
       const roller = makeDiceRoller([4, 4, 1]);
       const manifest = buildDefaultCriticalSlotManifest();
       const result = processTAC(
@@ -1168,8 +1334,8 @@ describe('Through-Armor Critical', () => {
       expect(result.hits.length).toBe(1);
     });
 
-    it('TAC can result in 0 crits on low determination roll', () => {
-      const roller = makeDiceRoller([1, 3]); // Roll 4 → 0 crits
+    it('forces one TAC crit instead of rolling critical determination', () => {
+      const roller = makeDiceRoller([1, 3]);
       const manifest = buildDefaultCriticalSlotManifest();
       const result = processTAC(
         'unit-1',
@@ -1179,7 +1345,55 @@ describe('Through-Armor Critical', () => {
         roller,
       );
 
-      expect(result.hits.length).toBe(0);
+      expect(result.hits.length).toBe(1);
+    });
+
+    it('passes edge_when_explosion options through forced TAC critical selection', () => {
+      const manifest = buildCriticalSlotManifest({
+        right_torso: [
+          {
+            slotIndex: 0,
+            componentType: 'ammo',
+            componentName: 'AC/20 Ammo',
+            destroyed: false,
+          },
+          {
+            slotIndex: 1,
+            componentType: 'heat_sink',
+            componentName: 'Heat Sink',
+            destroyed: false,
+          },
+        ],
+      });
+      const roller = makeDiceRoller([1, 6]);
+
+      const result = processTAC(
+        'unit-1',
+        'right_torso',
+        manifest,
+        DEFAULT_COMPONENT_DAMAGE,
+        roller,
+        undefined,
+        {
+          pilotAbilities: ['edge_when_explosion'],
+          edgePointsRemaining: 1,
+          turn: 3,
+          unitId: 'unit-1',
+        },
+      );
+
+      expect(result.edgePointsRemaining).toBe(0);
+      expect(result.hits).toHaveLength(1);
+      expect(result.hits[0].slot.componentType).toBe('heat_sink');
+      expect(result.events).toContainEqual(
+        expect.objectContaining({
+          type: 'critical_hit_resolved',
+          payload: expect.objectContaining({
+            componentType: 'heat_sink',
+            edgePointsRemaining: 0,
+          }),
+        }),
+      );
     });
   });
 });
@@ -1348,6 +1562,1168 @@ describe('equipment slots in manifest', () => {
     );
 
     expect(result.hits.length).toBe(1);
+    expect(result.hits[0].slot.componentType).toBe('ammo');
+  });
+
+  it('generic equipment slot resolves only as EquipmentDestroyed', () => {
+    const manifest = makeManifestWithWeapons();
+    const roller = makeDiceRoller([8]);
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      1,
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].slot).toMatchObject({
+      componentType: 'equipment',
+      componentName: 'CASE',
+    });
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.EquipmentDestroyed,
+      equipmentDestroyed: 'CASE',
+    });
+    expect(result.updatedComponentDamage).toEqual(DEFAULT_COMPONENT_DAMAGE);
+  });
+
+  it('shield equipment critical preserves shield function after the slot is hit', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'Medium Shield',
+          destroyed: false,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.EquipmentHit,
+      equipmentHit: 'Medium Shield',
+    });
+    expect(result.updatedManifest.right_torso).toEqual([
+      expect.objectContaining({
+        componentName: 'Medium Shield',
+        destroyed: true,
+      }),
+    ]);
+    expect(result.updatedComponentDamage).toEqual(DEFAULT_COMPONENT_DAMAGE);
+    expect(result.events).toEqual([
+      expect.objectContaining({
+        type: 'critical_hit_resolved',
+        payload: expect.objectContaining({
+          componentType: 'equipment',
+          componentName: 'Medium Shield',
+          effect: 'Equipment hit: Medium Shield',
+          destroyed: false,
+        }),
+      }),
+    ]);
+  });
+
+  it('Blue Shield equipment critical is represented only by generic shield preservation', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'Blue Shield Particle Field Damper',
+          destroyed: false,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.EquipmentHit,
+      equipmentHit: 'Blue Shield Particle Field Damper',
+    });
+    expect(result.updatedManifest.right_torso).toEqual([
+      expect.objectContaining({
+        componentName: 'Blue Shield Particle Field Damper',
+        destroyed: true,
+      }),
+    ]);
+    expect(result.updatedComponentDamage).toEqual(DEFAULT_COMPONENT_DAMAGE);
+    expect(result.events).toEqual([
+      expect.objectContaining({
+        type: 'critical_hit_resolved',
+        payload: expect.objectContaining({
+          componentType: 'equipment',
+          componentName: 'Blue Shield Particle Field Damper',
+          effect: 'Equipment hit: Blue Shield Particle Field Damper',
+          destroyed: false,
+        }),
+      }),
+    ]);
+  });
+
+  it('Blue Shield equipment critical with explicit explosion damage cascades as explosive equipment', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'Blue Shield Particle Field Damper',
+          destroyed: false,
+          explosionDamage: 5,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.AmmoExplosion,
+      equipmentDestroyed: 'Blue Shield Particle Field Damper',
+      additionalDamage: 5,
+    });
+    expect(result.updatedManifest.right_torso).toEqual([
+      expect.objectContaining({
+        componentName: 'Blue Shield Particle Field Damper',
+        destroyed: true,
+      }),
+    ]);
+    expect(result.updatedComponentDamage).toEqual(DEFAULT_COMPONENT_DAMAGE);
+    expect(result.events).toEqual([
+      expect.objectContaining({
+        type: 'critical_hit_resolved',
+        payload: expect.objectContaining({
+          componentType: 'equipment',
+          componentName: 'Blue Shield Particle Field Damper',
+          effect:
+            'Equipment explosion: Blue Shield Particle Field Damper (5 damage)',
+          destroyed: true,
+          explosionDamage: 5,
+        }),
+      }),
+    ]);
+  });
+
+  it('tracks Super-Cooled Myomer equipment criticals without disabling the mount before the sixth hit', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'Super-Cooled Myomer',
+          destroyed: false,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.EquipmentHit,
+      equipmentHit: 'Super-Cooled Myomer',
+    });
+    expect(result.updatedManifest.right_torso).toEqual([
+      expect.objectContaining({
+        componentName: 'Super-Cooled Myomer',
+        destroyed: true,
+      }),
+    ]);
+    expect(result.updatedComponentDamage).toEqual({
+      ...DEFAULT_COMPONENT_DAMAGE,
+      superCooledMyomerHits: 1,
+    });
+    expect(result.events).toEqual([
+      expect.objectContaining({
+        type: 'critical_hit_resolved',
+        payload: expect.objectContaining({
+          componentType: 'equipment',
+          componentName: 'Super-Cooled Myomer',
+          effect: 'Equipment hit: Super-Cooled Myomer',
+          destroyed: false,
+        }),
+      }),
+    ]);
+  });
+
+  it('disables Super-Cooled Myomer equipment on the sixth damaged SCM critical slot', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'SCM',
+          destroyed: false,
+        },
+      ],
+    });
+    const componentDamage = {
+      ...DEFAULT_COMPONENT_DAMAGE,
+      superCooledMyomerHits: 5,
+    };
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      componentDamage,
+      makeDiceRoller([1]),
+      1,
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.EquipmentDestroyed,
+      equipmentDestroyed: 'SCM',
+    });
+    expect(result.updatedComponentDamage).toEqual({
+      ...DEFAULT_COMPONENT_DAMAGE,
+      superCooledMyomerHits: 6,
+    });
+    expect(result.events).toEqual([
+      expect.objectContaining({
+        type: 'critical_hit_resolved',
+        payload: expect.objectContaining({
+          componentType: 'equipment',
+          componentName: 'SCM',
+          effect: 'Equipment destroyed: SCM',
+          destroyed: true,
+        }),
+      }),
+    ]);
+  });
+
+  it('marks Emergency Coolant System state damaged when its equipment critical resolves', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'Emergency Coolant System',
+          destroyed: false,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.EquipmentDestroyed,
+      equipmentDestroyed: 'Emergency Coolant System',
+    });
+    expect(result.updatedComponentDamage).toEqual({
+      ...DEFAULT_COMPONENT_DAMAGE,
+      emergencyCoolantSystemDamaged: true,
+    });
+    expect(result.events).toEqual([
+      expect.objectContaining({
+        type: 'critical_hit_resolved',
+        payload: expect.objectContaining({
+          componentType: 'equipment',
+          componentName: 'Emergency Coolant System',
+          effect: 'Equipment destroyed: Emergency Coolant System',
+          destroyed: true,
+        }),
+      }),
+    ]);
+  });
+
+  it('routes represented Emergency Coolant System criticals through explosion damage while preserving damaged-system state', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'RISC Emergency Coolant System',
+          destroyed: false,
+          explosionDamage: 5,
+          explosionRequiresSecondaryEffects: true,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.AmmoExplosion,
+      equipmentDestroyed: 'RISC Emergency Coolant System',
+      additionalDamage: 5,
+    });
+    expect(result.updatedComponentDamage).toEqual({
+      ...DEFAULT_COMPONENT_DAMAGE,
+      emergencyCoolantSystemDamaged: true,
+    });
+    expect(result.events).toEqual([
+      expect.objectContaining({
+        type: 'critical_hit_resolved',
+        payload: expect.objectContaining({
+          componentType: 'equipment',
+          componentName: 'RISC Emergency Coolant System',
+          effect:
+            'Equipment explosion: RISC Emergency Coolant System (5 damage)',
+          destroyed: true,
+          explosionDamage: 5,
+        }),
+      }),
+    ]);
+  });
+
+  it('suppresses Emergency Coolant System explosion damage when secondary effects are disabled', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'RISC Emergency Coolant System',
+          destroyed: false,
+          explosionDamage: 5,
+          explosionRequiresSecondaryEffects: true,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+      undefined,
+      { secondaryEffects: false },
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.EquipmentDestroyed,
+      equipmentDestroyed: 'RISC Emergency Coolant System',
+    });
+    expect(result.updatedComponentDamage).toEqual({
+      ...DEFAULT_COMPONENT_DAMAGE,
+      emergencyCoolantSystemDamaged: true,
+    });
+    expect(result.events[0].payload).not.toHaveProperty('explosionDamage');
+  });
+
+  it('records plain HarJel equipment criticals as location breaches', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'HarJel',
+          destroyed: false,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.EquipmentDestroyed,
+      equipmentDestroyed: 'HarJel',
+    });
+    expect(result.updatedManifest.right_torso).toEqual([
+      expect.objectContaining({ componentName: 'HarJel', destroyed: true }),
+    ]);
+    expect(result.updatedComponentDamage).toEqual({
+      ...DEFAULT_COMPONENT_DAMAGE,
+      breachedLocations: ['right_torso'],
+    });
+    expect(result.events).toEqual([
+      expect.objectContaining({
+        type: 'critical_hit_resolved',
+        payload: expect.objectContaining({
+          componentType: 'equipment',
+          componentName: 'HarJel',
+          effect: 'Equipment destroyed: HarJel',
+          destroyed: true,
+          breached: true,
+        }),
+      }),
+    ]);
+  });
+
+  it('lets HarJel II and III trigger one same-location secondary critical when newly hit', () => {
+    for (const componentName of ['HarJel II', 'HarJel III']) {
+      const manifest = buildCriticalSlotManifest({
+        right_torso: [
+          {
+            slotIndex: 0,
+            componentType: 'equipment',
+            componentName,
+            destroyed: false,
+          },
+          {
+            slotIndex: 1,
+            componentType: 'heat_sink',
+            componentName: 'Heat Sink',
+            destroyed: false,
+          },
+        ],
+      });
+      const result = resolveCriticalHits(
+        'unit-1',
+        'right_torso',
+        manifest,
+        DEFAULT_COMPONENT_DAMAGE,
+        makeDiceRoller([1, 1]),
+        1,
+      );
+
+      expect(result.hits.map((hit) => hit.slot.componentName)).toEqual([
+        componentName,
+        'Heat Sink',
+      ]);
+      expect(result.updatedManifest.right_torso).toEqual([
+        expect.objectContaining({ componentName, destroyed: true }),
+        expect.objectContaining({
+          componentName: 'Heat Sink',
+          destroyed: true,
+        }),
+      ]);
+      expect(result.updatedComponentDamage).toEqual({
+        ...DEFAULT_COMPONENT_DAMAGE,
+        heatSinksDestroyed: 1,
+      });
+      expect(result.events).toEqual([
+        expect.objectContaining({
+          type: 'critical_hit_resolved',
+          payload: expect.objectContaining({
+            componentName,
+            destroyed: true,
+          }),
+        }),
+        expect.objectContaining({
+          type: 'critical_hit_resolved',
+          payload: expect.objectContaining({
+            componentType: 'heat_sink',
+            componentName: 'Heat Sink',
+            destroyed: true,
+          }),
+        }),
+      ]);
+    }
+  });
+
+  it('does not trigger HarJel II secondary effects when secondary effects are disabled', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'HarJel II',
+          destroyed: false,
+        },
+        {
+          slotIndex: 1,
+          componentType: 'heat_sink',
+          componentName: 'Heat Sink',
+          destroyed: false,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+      undefined,
+      { secondaryEffects: false },
+    );
+
+    expect(result.hits.map((hit) => hit.slot.componentName)).toEqual([
+      'HarJel II',
+    ]);
+    expect(result.updatedManifest.right_torso).toEqual([
+      expect.objectContaining({ componentName: 'HarJel II', destroyed: true }),
+      expect.objectContaining({ componentName: 'Heat Sink', destroyed: false }),
+    ]);
+    expect(result.updatedComponentDamage).toEqual(DEFAULT_COMPONENT_DAMAGE);
+  });
+
+  it.each(['Booby Trap', 'Hot-Loaded AC/20', 'AC/5'])(
+    'keeps unresolved %s equipment branches as generic EquipmentDestroyed',
+    (componentName) => {
+      const manifest = buildCriticalSlotManifest({
+        right_torso: [
+          {
+            slotIndex: 0,
+            componentType: 'equipment',
+            componentName,
+            destroyed: false,
+          },
+        ],
+      });
+      const result = resolveCriticalHits(
+        'unit-1',
+        'right_torso',
+        manifest,
+        DEFAULT_COMPONENT_DAMAGE,
+        makeDiceRoller([1]),
+        1,
+      );
+
+      expect(result.hits).toHaveLength(1);
+      expect(result.hits[0].effect).toEqual({
+        type: CriticalEffectType.EquipmentDestroyed,
+        equipmentDestroyed: componentName,
+      });
+      expect(result.updatedComponentDamage).toEqual(DEFAULT_COMPONENT_DAMAGE);
+      expect(result.events).toEqual([
+        expect.objectContaining({
+          type: 'critical_hit_resolved',
+          payload: expect.objectContaining({
+            componentType: 'equipment',
+            componentName,
+            effect: `Equipment destroyed: ${componentName}`,
+            destroyed: true,
+          }),
+        }),
+      ]);
+    },
+  );
+
+  it('routes represented charged PPC Capacitor equipment criticals through an explosion effect', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'PPC Capacitor',
+          destroyed: false,
+          explosionDamage: 15,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+      undefined,
+      { secondaryEffects: false },
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.AmmoExplosion,
+      equipmentDestroyed: 'PPC Capacitor',
+      additionalDamage: 15,
+    });
+    expect(result.updatedComponentDamage).toEqual(DEFAULT_COMPONENT_DAMAGE);
+    expect(result.events).toEqual([
+      expect.objectContaining({
+        type: 'critical_hit_resolved',
+        payload: expect.objectContaining({
+          componentType: 'equipment',
+          componentName: 'PPC Capacitor',
+          effect: 'Equipment explosion: PPC Capacitor (15 damage)',
+          destroyed: true,
+          explosionDamage: 15,
+        }),
+      }),
+    ]);
+  });
+
+  it('routes represented hot-loaded weapon criticals through explicit explosion damage', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'weapon',
+          componentName: 'LRM 20',
+          weaponId: 'lrm-20',
+          destroyed: false,
+          hotLoaded: true,
+          explosionDamage: 12,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.AmmoExplosion,
+      equipmentDestroyed: 'LRM 20',
+      additionalDamage: 12,
+    });
+    expect(result.updatedComponentDamage).toEqual(DEFAULT_COMPONENT_DAMAGE);
+    expect(result.events).toEqual([
+      expect.objectContaining({
+        type: 'critical_hit_resolved',
+        payload: expect.objectContaining({
+          componentType: 'weapon',
+          componentName: 'LRM 20',
+          weaponId: 'lrm-20',
+          effect: 'Equipment explosion: LRM 20 (12 damage)',
+          destroyed: true,
+          hotLoaded: true,
+          explosionDamage: 12,
+        }),
+      }),
+    ]);
+  });
+
+  it('does not synthesize hot-loaded weapon explosion damage without explicit damage state', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'weapon',
+          componentName: 'Hot-Loaded LRM 20',
+          weaponId: 'lrm-20',
+          destroyed: false,
+          hotLoaded: true,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.WeaponDestroyed,
+      equipmentDestroyed: 'Hot-Loaded LRM 20',
+      weaponDisabled: 'lrm-20',
+    });
+    expect(result.events[0].payload).toMatchObject({
+      componentType: 'weapon',
+      componentName: 'Hot-Loaded LRM 20',
+      effect: 'Weapon destroyed: Hot-Loaded LRM 20',
+      destroyed: true,
+      hotLoaded: true,
+    });
+    expect(result.events[0].payload).not.toHaveProperty('explosionDamage');
+  });
+
+  it('routes represented RISC Laser Pulse Module criticals to the explicitly linked working laser', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'RISC Laser Pulse Module',
+          destroyed: false,
+          linkedCriticalWeaponId: 'medium-laser-0',
+          linkedCriticalWeaponName: 'Medium Laser',
+        },
+        {
+          slotIndex: 1,
+          componentType: 'weapon',
+          componentName: 'Medium Laser',
+          destroyed: false,
+          weaponId: 'medium-laser-0',
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.WeaponDestroyed,
+      equipmentDestroyed: 'Medium Laser',
+      weaponDisabled: 'medium-laser-0',
+    });
+    expect(result.updatedComponentDamage.weaponsDestroyed).toEqual([
+      'medium-laser-0',
+    ]);
+    expect(result.updatedManifest.right_torso).toEqual([
+      expect.objectContaining({
+        slotIndex: 0,
+        componentName: 'RISC Laser Pulse Module',
+        destroyed: true,
+      }),
+      expect.objectContaining({
+        slotIndex: 1,
+        componentName: 'Medium Laser',
+        destroyed: true,
+      }),
+    ]);
+    expect(result.events[0].payload).toMatchObject({
+      componentType: 'equipment',
+      componentName: 'RISC Laser Pulse Module',
+      linkedCriticalWeaponId: 'medium-laser-0',
+      linkedCriticalWeaponName: 'Medium Laser',
+      effect: 'Weapon destroyed: Medium Laser',
+      destroyed: true,
+    });
+    expect(result.events[0].payload).not.toHaveProperty('explosionDamage');
+  });
+
+  it('keeps RISC Laser Pulse Module criticals generic without explicit linked-laser state', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'RISC Laser Pulse Module',
+          destroyed: false,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+    );
+
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.EquipmentDestroyed,
+      equipmentDestroyed: 'RISC Laser Pulse Module',
+    });
+    expect(result.updatedComponentDamage.weaponsDestroyed).toEqual([]);
+    expect(result.events[0].payload).not.toHaveProperty(
+      'linkedCriticalWeaponId',
+    );
+  });
+
+  it('destroys only the RISC Laser Pulse Module when its explicit linked laser is already destroyed', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'RISC Laser Pulse Module',
+          destroyed: false,
+          linkedCriticalWeaponId: 'medium-laser-0',
+          linkedCriticalWeaponName: 'Medium Laser',
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      {
+        ...DEFAULT_COMPONENT_DAMAGE,
+        weaponsDestroyed: ['medium-laser-0'],
+      },
+      makeDiceRoller([1]),
+      1,
+    );
+
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.EquipmentDestroyed,
+      equipmentDestroyed: 'RISC Laser Pulse Module',
+    });
+    expect(result.updatedComponentDamage.weaponsDestroyed).toEqual([
+      'medium-laser-0',
+    ]);
+    expect(result.events[0].payload).toMatchObject({
+      componentType: 'equipment',
+      componentName: 'RISC Laser Pulse Module',
+      effect: 'Equipment destroyed: RISC Laser Pulse Module',
+      destroyed: true,
+    });
+    expect(result.events[0].payload).not.toHaveProperty(
+      'linkedCriticalWeaponId',
+    );
+    expect(result.events[0].payload).not.toHaveProperty('explosionDamage');
+  });
+
+  it('lets secondary-effect-gated explosive equipment fall back when secondary effects are disabled', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'Booby Trap',
+          destroyed: false,
+          explosionDamage: 10,
+          explosionRequiresSecondaryEffects: true,
+        },
+      ],
+    });
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+      undefined,
+      { secondaryEffects: false },
+    );
+
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].effect).toEqual({
+      type: CriticalEffectType.EquipmentDestroyed,
+      equipmentDestroyed: 'Booby Trap',
+    });
+    expect(result.events[0]).toMatchObject({
+      type: 'critical_hit_resolved',
+      payload: {
+        componentType: 'equipment',
+        componentName: 'Booby Trap',
+        effect: 'Equipment destroyed: Booby Trap',
+        destroyed: true,
+      },
+    });
+    expect(result.events[0].payload).not.toHaveProperty('explosionDamage');
+  });
+
+  it('only explodes represented Prototype Improved Jump Jet equipment when secondary effects are enabled', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'ISPrototypeImprovedJumpJet',
+          destroyed: false,
+          explosionDamage: 10,
+          explosionRequiresSecondaryEffects: true,
+        },
+      ],
+    });
+
+    const withoutSecondaryEffects = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+      undefined,
+      { secondaryEffects: false },
+    );
+    const withSecondaryEffects = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+      undefined,
+      { secondaryEffects: true },
+    );
+
+    expect(withoutSecondaryEffects.hits[0].effect).toEqual({
+      type: CriticalEffectType.EquipmentDestroyed,
+      equipmentDestroyed: 'ISPrototypeImprovedJumpJet',
+    });
+    expect(withoutSecondaryEffects.events[0].payload).toMatchObject({
+      componentType: 'equipment',
+      componentName: 'ISPrototypeImprovedJumpJet',
+      effect: 'Equipment destroyed: ISPrototypeImprovedJumpJet',
+      destroyed: true,
+    });
+    expect(withoutSecondaryEffects.events[0].payload).not.toHaveProperty(
+      'explosionDamage',
+    );
+
+    expect(withSecondaryEffects.hits[0].effect).toEqual({
+      type: CriticalEffectType.AmmoExplosion,
+      equipmentDestroyed: 'ISPrototypeImprovedJumpJet',
+      additionalDamage: 10,
+    });
+    expect(withSecondaryEffects.events[0].payload).toMatchObject({
+      componentType: 'equipment',
+      componentName: 'ISPrototypeImprovedJumpJet',
+      effect: 'Equipment explosion: ISPrototypeImprovedJumpJet (10 damage)',
+      destroyed: true,
+      explosionDamage: 10,
+    });
+  });
+
+  it('only explodes represented Extended Fuel Tank equipment when secondary effects are enabled', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'Extended Fuel Tank',
+          destroyed: false,
+          explosionDamage: 20,
+          explosionRequiresSecondaryEffects: true,
+        },
+      ],
+    });
+
+    const withoutSecondaryEffects = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+      undefined,
+      { secondaryEffects: false },
+    );
+    const withSecondaryEffects = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      makeDiceRoller([1]),
+      1,
+      undefined,
+      { secondaryEffects: true },
+    );
+
+    expect(withoutSecondaryEffects.hits[0].effect).toEqual({
+      type: CriticalEffectType.EquipmentDestroyed,
+      equipmentDestroyed: 'Extended Fuel Tank',
+    });
+    expect(withoutSecondaryEffects.events[0].payload).toMatchObject({
+      componentType: 'equipment',
+      componentName: 'Extended Fuel Tank',
+      effect: 'Equipment destroyed: Extended Fuel Tank',
+      destroyed: true,
+    });
+    expect(withoutSecondaryEffects.events[0].payload).not.toHaveProperty(
+      'explosionDamage',
+    );
+
+    expect(withSecondaryEffects.hits[0].effect).toEqual({
+      type: CriticalEffectType.AmmoExplosion,
+      equipmentDestroyed: 'Extended Fuel Tank',
+      additionalDamage: 20,
+    });
+    expect(withSecondaryEffects.events[0].payload).toMatchObject({
+      componentType: 'equipment',
+      componentName: 'Extended Fuel Tank',
+      effect: 'Equipment explosion: Extended Fuel Tank (20 damage)',
+      destroyed: true,
+      explosionDamage: 20,
+    });
+  });
+
+  it('spends edge_when_explosion to avoid an ammo critical when another slot is hittable', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'ammo',
+          componentName: 'AC/20 Ammo',
+          destroyed: false,
+        },
+        {
+          slotIndex: 1,
+          componentType: 'heat_sink',
+          componentName: 'Heat Sink',
+          destroyed: false,
+        },
+      ],
+    });
+    const roller = makeDiceRoller([1, 6]);
+
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      1,
+      undefined,
+      {
+        pilotAbilities: ['edge_when_explosion'],
+        edgePointsRemaining: 1,
+        turn: 3,
+      },
+    );
+
+    expect(result.edgePointsRemaining).toBe(0);
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].slot.componentType).toBe('heat_sink');
+    expect(result.updatedManifest.right_torso).toEqual([
+      expect.objectContaining({ slotIndex: 0, destroyed: false }),
+      expect.objectContaining({ slotIndex: 1, destroyed: true }),
+    ]);
+  });
+
+  it('spends edge_when_explosion to avoid a represented equipment explosion critical', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'equipment',
+          componentName: 'PPC Capacitor',
+          destroyed: false,
+          explosionDamage: 15,
+        },
+        {
+          slotIndex: 1,
+          componentType: 'heat_sink',
+          componentName: 'Heat Sink',
+          destroyed: false,
+        },
+      ],
+    });
+    const roller = makeDiceRoller([1, 6]);
+
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      1,
+      undefined,
+      {
+        pilotAbilities: ['edge_when_explosion'],
+        edgePointsRemaining: 1,
+        turn: 3,
+      },
+    );
+
+    expect(result.edgePointsRemaining).toBe(0);
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].slot.componentType).toBe('heat_sink');
+    expect(result.updatedManifest.right_torso).toEqual([
+      expect.objectContaining({
+        componentName: 'PPC Capacitor',
+        destroyed: false,
+      }),
+      expect.objectContaining({ componentName: 'Heat Sink', destroyed: true }),
+    ]);
+  });
+
+  it('does not spend edge_when_explosion when the pilot lacks the trigger', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'ammo',
+          componentName: 'AC/20 Ammo',
+          destroyed: false,
+        },
+        {
+          slotIndex: 1,
+          componentType: 'heat_sink',
+          componentName: 'Heat Sink',
+          destroyed: false,
+        },
+      ],
+    });
+    const roller = makeDiceRoller([1, 6]);
+
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      1,
+      undefined,
+      {
+        pilotAbilities: [],
+        edgePointsRemaining: 1,
+        turn: 3,
+      },
+    );
+
+    expect(result.edgePointsRemaining).toBe(1);
+    expect(result.hits).toHaveLength(1);
+    expect(result.hits[0].slot.componentType).toBe('ammo');
+  });
+
+  it('does not spend edge_when_explosion when no alternate slot is hittable', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: [
+        {
+          slotIndex: 0,
+          componentType: 'ammo',
+          componentName: 'AC/20 Ammo',
+          destroyed: false,
+        },
+      ],
+    });
+    const roller = makeDiceRoller([1, 6]);
+
+    const result = resolveCriticalHits(
+      'unit-1',
+      'right_torso',
+      manifest,
+      DEFAULT_COMPONENT_DAMAGE,
+      roller,
+      1,
+      undefined,
+      {
+        pilotAbilities: ['edge_when_explosion'],
+        edgePointsRemaining: 1,
+        turn: 3,
+      },
+    );
+
+    expect(result.edgePointsRemaining).toBe(1);
+    expect(result.hits).toHaveLength(1);
     expect(result.hits[0].slot.componentType).toBe('ammo');
   });
 });

@@ -14,7 +14,7 @@ import type {
 import type { D6Roller } from '../diceTypes';
 
 import { resolveCriticalHits } from '../criticalHitResolution';
-import { isHeadHit } from '../hitLocation';
+import { isHeadHit, roll2d6 } from '../hitLocation';
 import { checkCriticalHitTrigger, getCriticalHitCount } from './critical';
 import { checkUnitDestruction } from './destruction';
 import {
@@ -22,7 +22,11 @@ import {
   applyInternalDamageWithTransfer,
 } from './location';
 import { applyPilotDamage } from './pilot';
-import { IResolveDamageResult, IUnitDamageState } from './types';
+import {
+  IPilotDamageResultWithState,
+  IResolveDamageResult,
+  IUnitDamageState,
+} from './types';
 
 /**
  * Per Total Warfare p. 41 ("Head Damage"): any single hit that lands on
@@ -32,6 +36,63 @@ import { IResolveDamageResult, IUnitDamageState } from './types';
  * satisfies the per-cluster-group independent cap.
  */
 export const HEAD_DAMAGE_CAP_PER_HIT = 3;
+const DERMAL_ARMOR_PILOT_ABILITY_ID = 'dermal_armor';
+const VDNI_PILOT_ABILITY_ID = 'vdni';
+const BUFFERED_VDNI_PILOT_ABILITY_ID = 'bvdni';
+const ARTIFICIAL_PAIN_SHUNT_PILOT_ABILITY_ID = 'artificial_pain_shunt';
+const NEURAL_FEEDBACK_TARGET_NUMBER = 8;
+
+function hasDermalArmorHeadHitProtection(state: IUnitDamageState): boolean {
+  return state.pilotAbilities?.includes(DERMAL_ARMOR_PILOT_ABILITY_ID) ?? false;
+}
+
+function hasPilotAbility(state: IUnitDamageState, abilityId: string): boolean {
+  return state.pilotAbilities?.includes(abilityId) ?? false;
+}
+
+function tookInternalStructureDamage(
+  locationDamages: IResolveDamageResult['result']['locationDamages'],
+): boolean {
+  return locationDamages.some((locDamage) => locDamage.structureDamage > 0);
+}
+
+function resolvedCriticalSlotHit(
+  criticalEvents: readonly CriticalHitEvent[],
+): boolean {
+  return criticalEvents.some((event) => event.type === 'critical_hit_resolved');
+}
+
+function resolveNeuralFeedbackPilotDamage(options: {
+  readonly state: IUnitDamageState;
+  readonly locationDamages: IResolveDamageResult['result']['locationDamages'];
+  readonly criticalEvents: readonly CriticalHitEvent[];
+  readonly roller?: D6Roller;
+}): IPilotDamageResultWithState | undefined {
+  const { criticalEvents, locationDamages, roller, state } = options;
+  if (hasPilotAbility(state, ARTIFICIAL_PAIN_SHUNT_PILOT_ABILITY_ID)) {
+    return undefined;
+  }
+
+  const hasVdni = hasPilotAbility(state, VDNI_PILOT_ABILITY_ID);
+  const hasBufferedVdni = hasPilotAbility(
+    state,
+    BUFFERED_VDNI_PILOT_ABILITY_ID,
+  );
+  const shouldRollForVdni =
+    hasVdni && !hasBufferedVdni && tookInternalStructureDamage(locationDamages);
+  const shouldRollForBufferedVdni =
+    hasBufferedVdni && resolvedCriticalSlotHit(criticalEvents);
+  if (!shouldRollForVdni && !shouldRollForBufferedVdni) {
+    return undefined;
+  }
+
+  const feedbackRoll = roll2d6(roller);
+  if (feedbackRoll.total < NEURAL_FEEDBACK_TARGET_NUMBER) {
+    return undefined;
+  }
+
+  return applyPilotDamage(state, 1, 'neural_feedback', roller);
+}
 
 function finalizeDamageResolution(options: {
   readonly initialState: IUnitDamageState;
@@ -58,7 +119,12 @@ function finalizeDamageResolution(options: {
   const criticalHits: ICriticalHitResult[] = [];
   let pilotDamage: IPilotDamageResult | undefined;
 
-  if (applyHeadPilotDamage && isHeadHit(location) && originalDamage > 0) {
+  if (
+    applyHeadPilotDamage &&
+    isHeadHit(location) &&
+    originalDamage > 0 &&
+    !hasDermalArmorHeadHitProtection(initialState)
+  ) {
     const { state: stateAfterPilot, result } = applyPilotDamage(
       currentState,
       1,
@@ -85,12 +151,15 @@ function finalizeDamageResolution(options: {
       const trigger = checkCriticalHitTrigger(
         locDamage.structureDamage,
         roller,
+        ctx?.criticalHitModifier,
       );
       if (!trigger.triggered) {
         continue;
       }
 
-      const count = getCriticalHitCount(trigger.roll.total);
+      const count = getCriticalHitCount(
+        trigger.roll.total + (ctx?.criticalHitModifier ?? 0),
+      );
       criticalTriggers.push({ location: locDamage.location, count });
 
       if (
@@ -107,10 +176,24 @@ function finalizeDamageResolution(options: {
           roller,
           count,
           ctx.armorType,
+          {
+            pilotAbilities: initialState.pilotAbilities ?? [],
+            edgePointsRemaining: currentState.edgePointsRemaining,
+            turn: initialState.turn,
+            unitId: initialState.unitId,
+            criticalHitModifier: ctx.criticalHitModifier,
+            optionalRules: ctx.optionalRules,
+          },
         );
 
         runningManifest = outcome.updatedManifest;
         runningComponentDamage = outcome.updatedComponentDamage;
+        if (outcome.edgePointsRemaining !== undefined) {
+          currentState = {
+            ...currentState,
+            edgePointsRemaining: outcome.edgePointsRemaining,
+          };
+        }
         criticalEvents.push(...outcome.events);
 
         for (const hit of outcome.hits) {
@@ -128,13 +211,23 @@ function finalizeDamageResolution(options: {
             slot: {
               slotIndex: hit.slot.slotIndex,
               equipment: hit.slot.componentName,
-              destroyed: true,
+              destroyed: hit.slotDestroyed !== false,
             },
             effect: hit.effect,
           });
         }
       }
     }
+  }
+
+  const neuralFeedbackPilotDamage = resolveNeuralFeedbackPilotDamage({
+    state: currentState,
+    locationDamages,
+    criticalEvents,
+    roller,
+  });
+  if (neuralFeedbackPilotDamage !== undefined) {
+    currentState = neuralFeedbackPilotDamage.state;
   }
 
   const {
@@ -179,6 +272,7 @@ function finalizeDamageResolution(options: {
       unitDestroyed: resolvedDestroyed,
       destructionCause: resolvedCause,
     },
+    neuralFeedbackPilotDamage: neuralFeedbackPilotDamage?.result,
     componentDamage: runningComponentDamage,
     criticalEvents: criticalEvents.length > 0 ? criticalEvents : undefined,
     criticalTriggers:

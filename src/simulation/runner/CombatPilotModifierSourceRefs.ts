@@ -2,6 +2,8 @@ import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReferen
 
 const MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
+const MEGAMEK_CURRENT_IMPLANT_SOURCE_VERSION =
+  '55584ec7529b944fca3216965697e9fa1115dced';
 
 function megamekRef(
   citation: string,
@@ -12,6 +14,18 @@ function megamekRef(
     citation,
     url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION}/${pathWithLines}`,
     sourceVersion: MEGAMEK_PILOT_MODIFIER_SOURCE_VERSION,
+  };
+}
+
+function currentMegamekImplantRef(
+  citation: string,
+  pathWithLines: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'megamek-source',
+    citation,
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_CURRENT_IMPLANT_SOURCE_VERSION}/${pathWithLines}`,
+    sourceVersion: MEGAMEK_CURRENT_IMPLANT_SOURCE_VERSION,
   };
 }
 
@@ -79,6 +93,128 @@ export const MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS = [
   megamekRef(
     'MegaMek OptionsConstants defines QUIRK_NEG_SENSOR_GHOSTS as sensor_ghosts.',
     'megamek/src/megamek/common/options/OptionsConstants.java#L144-L144',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_VDNI_TARGET_NUMBER_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek ComputeAttackerToHitMods applies -1 ranged attack to-hit for VDNI and Buffered VDNI.',
+    'megamek/src/megamek/common/actions/compute/ComputeAttackerToHitMods.java#L388-L390',
+  ),
+  megamekRef(
+    'MegaMek Mek.addEntityBonuses applies -1 piloting-roll modifier for VDNI only when Buffered VDNI is absent.',
+    'megamek/src/megamek/common/units/Mek.java#L3362-L3365',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines the Manei Domini VDNI and Buffered VDNI ids as vdni and bvdni.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L253-L255',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_PROTO_DNI_TARGET_NUMBER_SOURCE_REFS = [
+  currentMegamekImplantRef(
+    'Current MegaMek ComputeAttackerToHitMods applies Prototype DNI as -2 ranged/gunnery target-number relief when active DNI is available.',
+    'megamek/src/megamek/common/actions/compute/ComputeAttackerToHitMods.java#L453-L466',
+  ),
+  currentMegamekImplantRef(
+    'Current MegaMek Mek.getBasePilotingRoll applies Prototype DNI as -3 BattleMech piloting target-number relief when active DNI is available.',
+    'megamek/src/megamek/common/units/Mek.java#L4125-L4138',
+  ),
+  currentMegamekImplantRef(
+    'Current MegaMek Entity.hasDNIImplant includes proto_dni in the active DNI gate shared by VDNI and Buffered VDNI.',
+    'megamek/src/megamek/common/units/Entity.java#L12320-L12338',
+  ),
+  currentMegamekImplantRef(
+    'Current MegaMek OptionsConstants defines proto_dni as a Manei Domini option id.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L275',
+  ),
+  mekstationDeviationRef(
+    'MekStation calculateVdniRangedToHitModifier consumes canonical proto_dni as represented active-DNI-gated -2 ranged attack to-hit relief.',
+    'src/utils/gameplay/spaModifiers/abilityModifiers.ts#L218-L240',
+  ),
+  mekstationDeviationRef(
+    'MekStation calculateNeuralInterfacePilotingModifier consumes canonical proto_dni as represented active-DNI-gated -3 BattleMech piloting target-number relief.',
+    'src/utils/gameplay/spaModifiers/abilityModifiers.ts#L440-L468',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_PROTO_DNI_RUNTIME_BOUNDARY_SOURCE_REFS = [
+  currentMegamekImplantRef(
+    'Current MegaMek option text describes Prototype Direct Neural Interface as BattleMek-only -2 Gunnery, -3 Piloting, and damage-feedback behavior.',
+    'megamek/resources/megamek/common/options/messages.properties#L773-L774',
+  ),
+  currentMegamekImplantRef(
+    'Current MegaMek TWDamageManager neural-feedback runtime checks active DNI plus MD_VDNI and excludes Buffered VDNI/Pain Shunt; it does not branch on MD_PROTO_DNI.',
+    'megamek/src/megamek/server/totalWarfare/TWDamageManager.java#L406-L412',
+  ),
+  mekstationDeviationRef(
+    'MekStation damage coverage proves Prototype DNI internal damage does not infer VDNI neural-feedback pilot damage.',
+    'src/simulation/runner/__tests__/criticalHitEvents.test.ts#L354-L372',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_COMM_IMPLANT_INDIRECT_FIRE_SOURCE_REFS = [
+  currentMegamekImplantRef(
+    'Current MegaMek ComputeToHit applies comm_implant and boost_comm_implant as -1 indirect LRM spotter target-number relief.',
+    'megamek/src/megamek/common/actions/compute/ComputeToHit.java#L1562-L1567',
+  ),
+  currentMegamekImplantRef(
+    'Current MegaMek OptionsConstants defines comm_implant and boost_comm_implant as Manei Domini option ids.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L265-L266',
+  ),
+  currentMegamekImplantRef(
+    'Current MegaMek TWGameManager applies comm-implant minefield detonation relief only to Infantry units.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java#L7574-L7580',
+  ),
+  currentMegamekImplantRef(
+    'Current MegaMek Entity.hasC3i treats boosted comm implant as C3i access for any crewed unit after mounted C3i equipment checks.',
+    'megamek/src/megamek/common/units/Entity.java#L6727-L6737',
+  ),
+  mekstationDeviationRef(
+    'MekStation resolveIndirectFire consumes comm_implant and boost_comm_implant on elected LOS spotters as represented -1 indirect-fire spotter relief.',
+    'src/utils/gameplay/indirectFire.ts#L481-L520',
+  ),
+  mekstationDeviationRef(
+    'MekStation runner indirect-fire coverage proves comm_implant reduces AttackDeclared indirect-fire modifiers and the selected-spotter event to-hit penalty.',
+    'src/simulation/runner/__tests__/weaponAttackIndirectFire.test.ts#L402-L435',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_VDNI_NEURAL_FEEDBACK_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek TWDamageManager rolls 2d6 after internal damage for unbuffered VDNI, applies one crew damage on 8+, and suppresses the roll for Buffered VDNI or Artificial Pain Shunt.',
+    'megamek/src/megamek/server/totalWarfare/TWDamageManager.java#L1927-L1945',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines Artificial Pain Shunt, VDNI, and Buffered VDNI as artificial_pain_shunt, vdni, and bvdni.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L252-L255',
+  ),
+  mekstationDeviationRef(
+    'MekStation resolveDamage applies represented VDNI internal-damage neural feedback as a separate neural_feedback pilot-damage source.',
+    'src/utils/gameplay/damage/resolve.ts#L36-L132',
+  ),
+  mekstationDeviationRef(
+    'MekStation critical-hit event coverage proves represented VDNI feedback emits PilotHit and persists pilot wounds after internal structure damage.',
+    'src/simulation/runner/__tests__/criticalHitEvents.test.ts#L316-L365',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEGAMEK_BVDNI_NEURAL_FEEDBACK_SOURCE_REFS = [
+  megamekRef(
+    'MegaMek TWGameManager rolls 2d6 after a Buffered VDNI critical hit, applies one crew damage on 8+, and suppresses the roll for Artificial Pain Shunt.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java#L18947-L18961',
+  ),
+  megamekRef(
+    'MegaMek OptionsConstants defines Artificial Pain Shunt, VDNI, and Buffered VDNI as artificial_pain_shunt, vdni, and bvdni.',
+    'megamek/src/megamek/common/options/OptionsConstants.java#L252-L255',
+  ),
+  mekstationDeviationRef(
+    'MekStation resolveDamage applies represented Buffered VDNI critical-hit neural feedback as a separate neural_feedback pilot-damage source.',
+    'src/utils/gameplay/damage/resolve.ts#L36-L132',
+  ),
+  mekstationDeviationRef(
+    'MekStation critical-hit event coverage proves represented Buffered VDNI feedback wounds the pilot after a resolved critical hit.',
+    'src/simulation/runner/__tests__/criticalHitEvents.test.ts#L367-L393',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -151,20 +287,36 @@ export const MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS = [
     'megamek/src/megamek/common/weapons/handlers/WeaponHandler.java#L2245-L2258',
   ),
   megamekRef(
+    'MegaMek HitData.makeGlancingBlow records glancing critical-hit-table modifiers as -2.',
+    'megamek/src/megamek/common/HitData.java#L197-L207',
+  ),
+  megamekRef(
+    'MegaMek TWDamageManager applies hit.glancingMod() to normal critical-hit table rolls.',
+    'megamek/src/megamek/server/totalWarfare/TWDamageManager.java#L1764-L1772',
+  ),
+  megamekRef(
     'MegaMek OptionsConstants defines QUIRK_POS_LOW_PROFILE as low_profile and notes the BMM Low Profile behavior changed.',
     'megamek/src/megamek/common/options/OptionsConstants.java#L72-L77',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
-export const MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS = [
+export const MEKSTATION_DISTRACTING_TO_HIT_DEVIATION_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation calculateDistractingModifier currently applies Distracting as a local +1 target to-hit helper.',
     'src/utils/gameplay/quirkModifiers/targetingQuirks.ts#L63-L77',
   ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEKSTATION_LOW_PROFILE_TO_HIT_DEVIATION_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation calculateLowProfileModifier currently applies Low Profile as a local +1 target to-hit helper when partial cover is absent.',
     'src/utils/gameplay/quirkModifiers/targetingQuirks.ts#L89-L103',
   ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS = [
+  ...MEKSTATION_DISTRACTING_TO_HIT_DEVIATION_SOURCE_REFS,
+  ...MEKSTATION_LOW_PROFILE_TO_HIT_DEVIATION_SOURCE_REFS,
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 export const MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS = [
@@ -390,6 +542,51 @@ export const MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS = [
   megamekRef(
     'MegaMek Mek.hasCommandConsoleBonus requires command-console cockpit, active command console crew, heavy-or-larger chassis, and non-IndustrialMek or advanced fire control.',
     'megamek/src/megamek/common/units/Mek.java#L4919-L4927',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+const MEGAMEK_TCP_SOURCE_VERSION = '55584ec7529b944fca3216965697e9fa1115dced';
+
+function megamekTcpRef(
+  citation: string,
+  pathWithLines: string,
+): ICombatFeatureSourceReference {
+  return {
+    kind: 'megamek-source',
+    citation,
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TCP_SOURCE_VERSION}/${pathWithLines}`,
+    sourceVersion: MEGAMEK_TCP_SOURCE_VERSION,
+  };
+}
+
+export const MEGAMEK_TRIPLE_CORE_PROCESSOR_SOURCE_REFS = [
+  megamekTcpRef(
+    'MegaMek Player.getTCPInitBonus gives a TCP plus VDNI/BVDNI pilot a +2 initiative component, adds +1 for command/C3/communications equipment, and subtracts represented penalties such as shutdown, ECM, and EMI.',
+    'megamek/src/megamek/common/Player.java#L831-L909',
+  ),
+  megamekTcpRef(
+    'MegaMek Team.getInitBonusBreakdown tracks TCP as an initiative component when calculating team initiative.',
+    'megamek/src/megamek/common/Team.java#L247-L286',
+  ),
+  megamekTcpRef(
+    'MegaMek InitiativeBonusBreakdown.total applies the current source rule that positive initiative components use only the highest value, while negative modifiers stack.',
+    'megamek/src/megamek/common/game/InitiativeBonusBreakdown.java#L88-L113',
+  ),
+  megamekTcpRef(
+    'MegaMek Entity.hasTCPAimedShotCapability requires Triple-Core Processor plus VDNI or Buffered VDNI before granting targeting-computer-style aimed-shot capability.',
+    'megamek/src/megamek/common/units/Entity.java#L6449-L6469',
+  ),
+  megamekTcpRef(
+    'MegaMek ComputeAttackerToHitMods applies the TCP plus VDNI aimed-shot path as targeting-computer eligibility, with an extra -1 only when an actual targeting computer is also present.',
+    'megamek/src/megamek/common/actions/compute/ComputeAttackerToHitMods.java#L308-L330',
+  ),
+  mekstationDeviationRef(
+    'MekStation calculateTripleCoreProcessorInitiativeBonus routes represented TCP initiative through existing electronic-warfare state for hostile ECM-without-own-ECM penalties and the explicit battle-wide EMI state.',
+    'src/utils/gameplay/initiativeModifiers.ts#L95-L150',
+  ),
+  mekstationDeviationRef(
+    'MekStation gameSession coverage proves represented TCP initiative applies hostile ECM and EMI reductions while preserving own-ECM protection.',
+    'src/utils/gameplay/__tests__/gameSession.test.ts#L1300-L1429',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

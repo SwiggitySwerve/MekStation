@@ -648,6 +648,53 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
     expect(newState.units['player-1'].shutdown).toBe(false);
   });
 
+  it('wakes an unconscious Pain Resistance pilot on the heat-phase recovery roll', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        pilotWounds: 2,
+        pilotConscious: false,
+        abilities: ['pain-resistance'],
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: createScriptedHeatRandom([2, 2]),
+    });
+
+    expect(newState.units['player-1'].pilotConscious).toBe(true);
+  });
+
+  it('keeps non-Pain-Resistance pilots unconscious on the same wake-up roll', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        pilotWounds: 2,
+        pilotConscious: false,
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: createScriptedHeatRandom([2, 2]),
+    });
+
+    expect(newState.units['player-1'].pilotConscious).toBe(false);
+  });
+
   it('emits HeatInduced AmmoExplosion with weapon-scaled damage at heat 30+', () => {
     // Heat 30+ auto-explodes loaded explosive ammo bins. Start at 40
     // so newHeat = 30 after dissipation.
@@ -754,6 +801,48 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
       source: 'ammo_explosion',
     });
     expect(newState.units['player-1'].pilotWounds).toBe(1);
+  });
+
+  it('suppresses HeatInduced AmmoExplosion pilot damage with artificial pain shunt', () => {
+    const ammoState: Record<string, IAmmoSlotState> = {
+      'ac-20-bin-0': {
+        binId: 'ac-20-bin-0',
+        weaponType: 'ac-20',
+        location: 'right_torso',
+        remainingRounds: 5,
+        maxRounds: 5,
+        isExplosive: true,
+      },
+    };
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        heat: 40,
+        ammoState,
+        abilities: ['artificial_pain_shunt'],
+      },
+    );
+    const state = makeMinimalState({ 'player-1': unit });
+    const events: IGameEvent[] = [];
+
+    const newState = runHeatPhase({
+      state,
+      events,
+      gameId: state.gameId,
+      random: new SeededRandom(42),
+      weaponsByUnit: new Map([['player-1', createAtlasWeapons()]]),
+    });
+
+    expect(
+      events.some(
+        (event) =>
+          event.type === GameEventType.PilotHit &&
+          (event.payload as IPilotHitPayload).source === 'ammo_explosion',
+      ),
+    ).toBe(false);
+    expect(newState.units['player-1'].pilotWounds).toBe(0);
   });
 
   it('routes HeatInduced AmmoExplosion damage through transfer and destruction cascade', () => {

@@ -36,6 +36,8 @@ export interface ICriticalContext {
   readonly manifest: CriticalSlotManifest;
   readonly componentDamage: IComponentDamageState;
   readonly armorType?: ArmorTypeEnum;
+  readonly criticalHitModifier?: number;
+  readonly optionalRules?: readonly string[];
 }
 
 export interface IUnitDamageState {
@@ -52,6 +54,12 @@ export interface IUnitDamageState {
    * hydrated; ability aliases named "toughness" do not imply this value.
    */
   readonly pilotToughness?: number;
+  /** Remaining Edge points available to source-backed trigger consumers. */
+  readonly edgePointsRemaining?: number;
+  /** Unit id used when trigger consumers record Edge usage history. */
+  readonly unitId?: string;
+  /** Current turn used when trigger consumers record Edge usage history. */
+  readonly turn?: number;
   readonly destroyed: boolean;
   readonly destructionCause?:
     | 'damage'
@@ -100,6 +108,12 @@ export interface IDestructionCheckResult {
 export interface IResolveDamageResult {
   state: IUnitDamageState;
   result: IDamageResult;
+  /**
+   * Source-backed VDNI/BVDNI neural-feedback pilot damage resolved during
+   * this damage application. Kept outside `IDamageResult.pilotDamage` so
+   * legacy head-hit consumers do not conflate the two pilot-wound sources.
+   */
+  neuralFeedbackPilotDamage?: IPilotDamageResult;
   /**
    * Per `add-combat-fidelity-suite` Phase 3: when `state.criticalContext`
    * was populated and at least one crit triggered, this carries the
@@ -153,4 +167,5 @@ export type PilotDamageSource =
   | 'mech_destruction'
   | 'fall'
   | 'physical_attack'
-  | 'heat';
+  | 'heat'
+  | 'neural_feedback';
