@@ -15,6 +15,46 @@ const path = require('path');
 const fs = require('fs');
 const { execFileSync } = require('child_process');
 
+const nativeModules = [
+  {
+    name: 'better-sqlite3',
+    buildSources: ['binding.gyp', 'deps', 'src'],
+  },
+];
+
+function hydrateStandaloneBuildSources(rootDir, nextStandaloneDir) {
+  for (const nativeModule of nativeModules) {
+    const rootModuleDir = path.join(rootDir, 'node_modules', nativeModule.name);
+    const standaloneModuleDir = path.join(
+      nextStandaloneDir,
+      'node_modules',
+      nativeModule.name,
+    );
+
+    if (!fs.existsSync(rootModuleDir)) {
+      throw new Error(`Missing root native module: ${rootModuleDir}`);
+    }
+    if (!fs.existsSync(standaloneModuleDir)) {
+      throw new Error(
+        `Missing standalone native module: ${standaloneModuleDir}`,
+      );
+    }
+
+    for (const sourceName of nativeModule.buildSources) {
+      const sourcePath = path.join(rootModuleDir, sourceName);
+      const targetPath = path.join(standaloneModuleDir, sourceName);
+
+      if (!fs.existsSync(sourcePath)) {
+        throw new Error(
+          `Missing ${nativeModule.name} build source: ${sourcePath}`,
+        );
+      }
+
+      fs.cpSync(sourcePath, targetPath, { recursive: true, force: true });
+    }
+  }
+}
+
 async function main() {
   const rootDir = path.join(__dirname, '..', '..');
   const nextStandaloneDir = path.join(rootDir, '.next', 'standalone');
@@ -36,6 +76,8 @@ async function main() {
     `[rebuild-next-standalone] Rebuilding native modules in ${nextStandaloneDir}\n` +
       `  electronVersion=${electronVersion} arch=${process.arch}`,
   );
+
+  hydrateStandaloneBuildSources(rootDir, nextStandaloneDir);
 
   // Rebuild native modules for Electron by running `npm rebuild` with Electron-specific env vars.
   // This ensures `better-sqlite3` is compiled against Electron's NODE_MODULE_VERSION.

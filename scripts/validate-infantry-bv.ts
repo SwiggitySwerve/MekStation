@@ -27,9 +27,16 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import type { IInfantry } from '../src/types/unit/PersonnelInterfaces';
-import { calculateBattleValueForUnit } from '../src/utils/construction/battleValueCalculations';
 import type { IInfantryBVBreakdown } from '../src/utils/construction/infantry/infantryBV';
+
+import { SquadMotionType } from '../src/types/unit/BaseUnitInterfaces';
+import { UnitType } from '../src/types/unit/BattleMechInterfaces';
+import {
+  InfantryArmorKit,
+  type IInfantry,
+  type IInfantryFieldGun,
+} from '../src/types/unit/PersonnelInterfaces';
+import { calculateBattleValueForUnit } from '../src/utils/construction/battleValueCalculations';
 
 // =============================================================================
 // Report types
@@ -92,6 +99,7 @@ function gatherInfantryFixtureFiles(dir: string): string[] {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
     if (entry.name.startsWith('.')) continue;
+    if (entry.name.toLowerCase() === 'units-manifest.json') continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       out.push(...gatherInfantryFixtureFiles(full));
@@ -110,9 +118,159 @@ function gatherInfantryFixtureFiles(dir: string): string[] {
  * the defaults used by `InfantryUnitHandler.combineFields`, ensuring fixtures
  * remain compact. Required fields are validated with a clear error.
  */
-interface InfantryFixtureFile extends Partial<IInfantry> {
+type InfantryFixtureWeaponRef =
+  | string
+  | {
+      readonly id?: string;
+      readonly name?: string;
+      readonly count?: number;
+    };
+
+type InfantryFixtureFieldGunRef = Partial<IInfantryFieldGun> & {
+  readonly id?: string;
+  readonly weaponId?: string;
+  readonly crewCount?: number;
+};
+
+interface InfantryFixtureFile extends Partial<
+  Omit<
+    IInfantry,
+    | 'armorKit'
+    | 'fieldGuns'
+    | 'motionType'
+    | 'primaryWeapon'
+    | 'secondaryWeapon'
+  >
+> {
   /** Reference BV from MegaMek Master Unit List — optional. */
   readonly mulBV?: number | null;
+  readonly chassis?: string;
+  readonly model?: string;
+  readonly armorKit?: InfantryArmorKit | string;
+  readonly motionType?: SquadMotionType | string;
+  readonly platoon?: {
+    readonly squadSize?: number;
+    readonly squadCount?: number;
+    readonly totalTroopers?: number;
+  };
+  readonly primaryWeapon?: InfantryFixtureWeaponRef;
+  readonly secondaryWeapon?: InfantryFixtureWeaponRef;
+  readonly fieldGuns?: readonly InfantryFixtureFieldGunRef[];
+}
+
+function fixtureName(data: InfantryFixtureFile, filePath: string): string {
+  if (typeof data.name === 'string' && data.name.trim()) return data.name;
+
+  const fromChassisModel = [data.chassis, data.model]
+    .filter((part): part is string => typeof part === 'string' && part.trim())
+    .join(' ');
+  return fromChassisModel || path.basename(filePath, '.json');
+}
+
+function weaponName(
+  weapon: InfantryFixtureWeaponRef | undefined,
+): string | undefined {
+  if (typeof weapon === 'string') return weapon;
+  return weapon?.name ?? weapon?.id;
+}
+
+function weaponId(
+  weapon: InfantryFixtureWeaponRef | undefined,
+): string | undefined {
+  if (typeof weapon === 'string') return undefined;
+  return weapon?.id;
+}
+
+function secondaryWeaponCount(
+  data: InfantryFixtureFile,
+  weapon: InfantryFixtureWeaponRef | undefined,
+): number {
+  if (typeof data.secondaryWeaponCount === 'number') {
+    return data.secondaryWeaponCount;
+  }
+  if (typeof weapon === 'object' && typeof weapon.count === 'number') {
+    return weapon.count;
+  }
+  return 0;
+}
+
+function normalizedToken(value: unknown): string {
+  return String(value ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function normalizeArmorKit(value: unknown): InfantryArmorKit {
+  const direct = Object.values(InfantryArmorKit).find((kit) => kit === value);
+  if (direct) return direct;
+
+  const token = normalizedToken(value);
+  if (!token || token === 'none') return InfantryArmorKit.NONE;
+  if (token.includes('flak')) return InfantryArmorKit.FLAK;
+  if (token.includes('ablative')) return InfantryArmorKit.ABLATIVE;
+  if (token.includes('clan')) return InfantryArmorKit.CLAN;
+  if (token.includes('environment')) return InfantryArmorKit.ENVIRONMENTAL;
+  if (
+    token.includes('sneak') &&
+    token.includes('ir') &&
+    token.includes('ecm')
+  ) {
+    return InfantryArmorKit.SNEAK_IR_ECM;
+  }
+  if (
+    token.includes('sneak') &&
+    token.includes('camo') &&
+    token.includes('ir')
+  ) {
+    return InfantryArmorKit.SNEAK_CAMO_IR;
+  }
+  if (token.includes('sneak') && token.includes('ecm')) {
+    return InfantryArmorKit.SNEAK_ECM;
+  }
+  if (token.includes('sneak') && token.includes('ir')) {
+    return InfantryArmorKit.SNEAK_IR;
+  }
+  if (token.includes('sneak')) return InfantryArmorKit.SNEAK_CAMO;
+  return InfantryArmorKit.STANDARD;
+}
+
+function normalizeMotionType(value: unknown): SquadMotionType {
+  const direct = Object.values(SquadMotionType).find(
+    (motion) => motion === value,
+  );
+  if (direct) return direct;
+
+  const token = normalizedToken(value);
+  if (token.includes('jump')) return SquadMotionType.JUMP;
+  if (token.includes('motor')) return SquadMotionType.MOTORIZED;
+  if (token.includes('wheel')) return SquadMotionType.WHEELED;
+  if (token.includes('track')) return SquadMotionType.TRACKED;
+  if (token.includes('hover')) return SquadMotionType.HOVER;
+  if (token.includes('vtol')) return SquadMotionType.VTOL;
+  if (token.includes('umu')) return SquadMotionType.UMU;
+  if (token.includes('beast')) return SquadMotionType.BEAST;
+  if (token.includes('mechan')) return SquadMotionType.MECHANIZED;
+  return SquadMotionType.FOOT;
+}
+
+function normalizeFieldGuns(
+  fieldGuns: readonly InfantryFixtureFieldGunRef[] | undefined,
+  filePath: string,
+): readonly IInfantryFieldGun[] {
+  return (fieldGuns ?? []).map((gun, index) => {
+    const equipmentId = gun.equipmentId ?? gun.weaponId ?? gun.id;
+    if (!equipmentId) {
+      throw new Error(
+        `Fixture ${filePath} fieldGuns[${index}] is missing equipment id`,
+      );
+    }
+
+    return {
+      equipmentId,
+      name: gun.name ?? equipmentId,
+      crew: gun.crew ?? gun.crewCount ?? 0,
+    };
+  });
 }
 
 /**
@@ -126,9 +284,13 @@ function loadFixture(filePath: string): {
 } {
   const raw = fs.readFileSync(filePath, 'utf-8');
   const data = JSON.parse(raw) as InfantryFixtureFile;
+  const name = fixtureName(data, filePath);
+  const primaryWeapon = weaponName(data.primaryWeapon);
 
-  if (!data.id || !data.name) {
-    throw new Error(`Fixture ${filePath} is missing required id/name`);
+  if (!data.id || !name || !primaryWeapon) {
+    throw new Error(
+      `Fixture ${filePath} is missing required id/name/primaryWeapon`,
+    );
   }
 
   // Supply structural defaults for any handler-layer fields the fixture
@@ -136,15 +298,28 @@ function loadFixture(filePath: string): {
   // the adapter must still see every field it touches.
   const unit: IInfantry = {
     ...(data as IInfantry),
-    fieldGuns: data.fieldGuns ?? [],
+    id: data.id,
+    name,
+    unitType: UnitType.INFANTRY,
+    motionType: normalizeMotionType(data.motionType),
+    primaryWeapon,
+    primaryWeaponId: data.primaryWeaponId ?? weaponId(data.primaryWeapon),
+    secondaryWeapon: weaponName(data.secondaryWeapon),
+    secondaryWeaponId: data.secondaryWeaponId ?? weaponId(data.secondaryWeapon),
+    armorKit: normalizeArmorKit(data.armorKit),
+    fieldGuns: normalizeFieldGuns(data.fieldGuns, filePath),
     hasAntiMechTraining: data.hasAntiMechTraining ?? false,
     isAugmented: data.isAugmented ?? false,
     canSwarm: data.canSwarm ?? false,
     canLegAttack: data.canLegAttack ?? false,
-    secondaryWeaponCount: data.secondaryWeaponCount ?? 0,
+    secondaryWeaponCount: secondaryWeaponCount(data, data.secondaryWeapon),
+    squadSize: data.squadSize ?? data.platoon?.squadSize ?? 7,
+    numberOfSquads: data.numberOfSquads ?? data.platoon?.squadCount ?? 4,
     platoonStrength:
       data.platoonStrength ??
-      (data.squadSize ?? 7) * (data.numberOfSquads ?? 4),
+      data.platoon?.totalTroopers ??
+      (data.squadSize ?? data.platoon?.squadSize ?? 7) *
+        (data.numberOfSquads ?? data.platoon?.squadCount ?? 4),
   } as IInfantry;
 
   const mulBV =

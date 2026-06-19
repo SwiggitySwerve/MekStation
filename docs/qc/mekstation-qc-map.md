@@ -6,7 +6,9 @@ This map is the durable review surface for post-merge quality control. It is
 organized by user/risk surface first, then module and submodule, so future QC
 requests can start from a stable lane instead of re-discovering the repo.
 
-The machine-readable source is `docs/qc/mekstation-qc-registry.json`.
+The machine-readable source is `docs/qc/mekstation-qc-registry.json`. The
+repeatable pass/fail scenario layer for the 12 top-level QC surfaces is
+`docs/qc/mekstation-major-capability-scenarios.json`.
 
 ## Commands
 
@@ -21,6 +23,10 @@ npm.cmd run qc:select -- --module=src/components/gameplay
 npm.cmd run qc:select -- --submodule=movement
 npm.cmd run qc:select -- --text=tactical
 npm.cmd run qc:run -- --surface=gameplay-tactical-map-combat --quick
+npm.cmd run qc:scenarios:validate
+npm.cmd run qc:scenarios -- --tier=core
+npm.cmd run qc:scenarios -- --surface=gameplay-tactical-map-combat --tier=standard
+npm.cmd run verify:qc:scenarios
 npm.cmd run verify:qc:partial:quick
 npm.cmd run verify:qc:tactical:quick
 npm.cmd run verify:qc:tactical:visual
@@ -506,6 +512,11 @@ flowchart TD
   and maintenance validations on demand. `verify` runs the stable unit/a11y
   surface, while `verify:full` also runs perf-sensitive simulation proofs
   before rules and build.
+- `qc:scenarios` runs the 12 top-level major-capability scenarios with a
+  consistent pass/fail method and timestamped evidence under
+  `.sisyphus/evidence/qc-scenarios`; use `--tier=core` for quick section checks,
+  `--tier=standard` for focused realistic flows, and `--tier=all` when
+  diagnostic inventory should be captured too.
 - Do not start broad cleanup until scanner findings are grouped.
 
 ## Acceptance Rule
