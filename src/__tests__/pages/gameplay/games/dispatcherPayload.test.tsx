@@ -30,20 +30,22 @@ const mockCapturedLayout: {
   onAction?: (actionId: string, payload?: TacticalActionPayload) => void;
 } = {};
 
-jest.mock('@/components/gameplay', () => {
-  const actual = jest.requireActual('@/components/gameplay');
-  return {
-    ...actual,
-    GameplayLayout: (props: {
-      onAction: (actionId: string, payload?: TacticalActionPayload) => void;
-    }) => {
-      mockCapturedLayout.onAction = props.onAction;
-      return <div data-testid="gameplay-layout-mock" />;
-    },
-    SpectatorView: () => <div data-testid="spectator-view-mock" />,
-    CombatPlanningPanel: () => <div data-testid="planning-panel-mock" />,
-  };
-});
+jest.mock('@/components/gameplay/GameplayLayout', () => ({
+  GameplayLayout: (props: {
+    onAction: (actionId: string, payload?: TacticalActionPayload) => void;
+  }) => {
+    mockCapturedLayout.onAction = props.onAction;
+    return <div data-testid="gameplay-layout-mock" />;
+  },
+}));
+
+jest.mock('@/components/gameplay/SpectatorView', () => ({
+  SpectatorView: () => <div data-testid="spectator-view-mock" />,
+}));
+
+jest.mock('@/components/gameplay/CombatPlanningPanel', () => ({
+  CombatPlanningPanel: () => <div data-testid="planning-panel-mock" />,
+}));
 
 // The lifecycle hook redirects/loads sessions — irrelevant here.
 jest.mock(
