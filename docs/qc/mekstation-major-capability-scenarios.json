@@ -1,0 +1,532 @@
+{
+  "version": 1,
+  "title": "MekStation major capability validation scenarios",
+  "sourceRegistry": "docs/qc/mekstation-qc-registry.json",
+  "scenarioCount": 12,
+  "majorCapabilitySelector": {
+    "level": "top"
+  },
+  "evaluationMethod": {
+    "result": "pass-fail",
+    "sameConditions": [
+      "Run from the repository root on the current checkout.",
+      "Use Windows-safe npm.cmd and npx.cmd entrypoints.",
+      "Use deterministic local fixtures and the Playwright webServer defined in playwright.config.ts.",
+      "Do not update snapshots or regenerate catalog data during scenario validation.",
+      "Record command exit code, duration, selected tier, and bounded stdout/stderr evidence for every selected check."
+    ],
+    "passCriteria": [
+      "The scenario catalog validates against every top-level QC registry surface.",
+      "Every required selected check exits 0.",
+      "Known skips or non-BattleMech exclusions are represented in the scenario notes instead of silently hiding failures.",
+      "After a fix, rerun the failed scenario first, then rerun the complete selected scenario set."
+    ],
+    "defaultTier": "standard",
+    "evidenceDir": ".sisyphus/evidence/qc-scenarios",
+    "rerunPolicy": [
+      "Fix the underlying cause, not the scenario definition, when a required check fails.",
+      "Rerun the affected scenario with the same tier and filters used for the failing run.",
+      "Rerun the complete selected scenario set before claiming the quality bar is met."
+    ]
+  },
+  "tiers": {
+    "core": "Fastest deterministic command(s) that prove the capability contract is still wired.",
+    "standard": "Focused realistic flow proof, including browser coverage where the capability is user-facing.",
+    "extended": "Heavier parity or broad-flow checks that are useful before release but not default for quick section QC.",
+    "diagnostic": "Non-gating inventory or triage output captured for context."
+  },
+  "scenarios": [
+    {
+      "id": "MC-01-app-shell-navigation",
+      "surfaceId": "app-shell-navigation",
+      "title": "App shell navigation and installable routes remain usable",
+      "realisticFlow": "A player opens the app, moves across core routes, uses mobile navigation, and verifies the PWA shell remains reachable without dead ends.",
+      "qualityLenses": ["usability", "ux", "functionality", "accessibility"],
+      "successCriteria": [
+        "Core routes render without unexpected client errors.",
+        "Navigation works in desktop and mobile shell contexts.",
+        "PWA affordances remain detectable and do not block normal app use."
+      ],
+      "checks": [
+        {
+          "id": "app-route-mobile-pwa-browser",
+          "tier": "core",
+          "required": true,
+          "command": "npx.cmd playwright test e2e/app-routes.spec.ts e2e/mobile-navigation.spec.ts e2e/pwa.spec.ts --project=chromium",
+          "evidence": [
+            "e2e/app-routes.spec.ts",
+            "e2e/mobile-navigation.spec.ts",
+            "e2e/pwa.spec.ts"
+          ]
+        }
+      ],
+      "notes": [
+        "Full Chromium E2E remains available through npm.cmd run test:e2e; this scenario uses the focused route, mobile, and PWA shell specs."
+      ]
+    },
+    {
+      "id": "MC-02-compendium-unit-data",
+      "surfaceId": "compendium-unit-data",
+      "title": "Compendium search and official unit data stay catalog-backed",
+      "realisticFlow": "A player browses unit and equipment reference data while validators prove the official asset and generated schema contract is current.",
+      "qualityLenses": ["functionality", "rules-parity", "data-quality"],
+      "successCriteria": [
+        "Strict asset validation passes against the checked-in catalog inputs.",
+        "Generated schema output is current.",
+        "Compendium browser flows can search, filter, and open reference pages."
+      ],
+      "checks": [
+        {
+          "id": "official-assets-strict",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run validate:assets:strict",
+          "evidence": ["scripts/mm-data/validate-assets.ts"]
+        },
+        {
+          "id": "schema-generation-check",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run schema:gen-check",
+          "evidence": ["scripts/generate-zod-schemas.mjs"]
+        },
+        {
+          "id": "compendium-browser-flow",
+          "tier": "standard",
+          "required": true,
+          "command": "npx.cmd playwright test e2e/compendium.spec.ts --project=chromium",
+          "evidence": ["e2e/compendium.spec.ts"]
+        },
+        {
+          "id": "catalog-api-contracts",
+          "tier": "extended",
+          "required": true,
+          "command": "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/__tests__/api/catalog.test.ts src/__tests__/api/units.test.ts --no-coverage",
+          "evidence": [
+            "src/__tests__/api/catalog.test.ts",
+            "src/__tests__/api/units.test.ts"
+          ]
+        }
+      ],
+      "notes": [
+        "Non-BattleMech system parity is intentionally split into separate validator matrices where BattleMech combat validation excludes it."
+      ]
+    },
+    {
+      "id": "MC-03-customizer-construction-bv-export",
+      "surfaceId": "customizer-construction-bv-export",
+      "title": "Customizer construction, BV validation, and export flows agree",
+      "realisticFlow": "A player creates supported units in the customizer while validators prove BV and construction math are sourced from current reference data.",
+      "qualityLenses": ["functionality", "usability", "rules-parity"],
+      "successCriteria": [
+        "BattleMech, vehicle, aerospace, battle armor, ProtoMech, and infantry BV validators pass.",
+        "Customizer UI flows for supported unit types load and allow creation/navigation.",
+        "Exotic unit paths remain represented instead of silently falling back to stale data."
+      ],
+      "checks": [
+        {
+          "id": "battlemech-bv-validator",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run validate:bv",
+          "evidence": ["scripts/validate-bv.ts"]
+        },
+        {
+          "id": "nonmech-bv-validators",
+          "tier": "standard",
+          "required": true,
+          "command": "npm.cmd run validate:vehicle && npm.cmd run validate:aerospace && npm.cmd run validate:ba-bv && npm.cmd run validate:proto && npm.cmd run validate:infantry",
+          "evidence": [
+            "scripts/validate-vehicle-bv.ts",
+            "scripts/validate-aerospace-bv.ts",
+            "scripts/validate-battle-armor-bv.ts",
+            "scripts/validate-proto-bv.ts",
+            "scripts/validate-infantry-bv.ts"
+          ]
+        },
+        {
+          "id": "customizer-browser-flow",
+          "tier": "standard",
+          "required": true,
+          "command": "npx.cmd playwright test e2e/customizer.spec.ts e2e/exotic-mech.spec.ts --project=chromium",
+          "evidence": ["e2e/customizer.spec.ts", "e2e/exotic-mech.spec.ts"]
+        }
+      ],
+      "notes": [
+        "BV reproducibility must remain tied to live reference assets rather than stale cached expectations."
+      ]
+    },
+    {
+      "id": "MC-04-force-pilot-encounter-setup",
+      "surfaceId": "force-pilot-encounter-setup",
+      "title": "Force, pilot, and encounter setup reaches a playable launch",
+      "realisticFlow": "A player creates a force, builds an encounter, launches it, and the service layer converts the setup into a game session.",
+      "qualityLenses": ["functionality", "ux", "rules-parity"],
+      "successCriteria": [
+        "Force and encounter browser flows can create and launch setup data.",
+        "Encounter services persist, hydrate, and convert encounters into sessions.",
+        "Invalid setup references are rejected or surfaced before gameplay commitment."
+      ],
+      "checks": [
+        {
+          "id": "force-encounter-browser-flow",
+          "tier": "standard",
+          "required": true,
+          "command": "npx.cmd playwright test e2e/force.spec.ts e2e/encounter.spec.ts e2e/encounter-flow.spec.ts --project=chromium",
+          "evidence": [
+            "e2e/force.spec.ts",
+            "e2e/encounter.spec.ts",
+            "e2e/encounter-flow.spec.ts"
+          ]
+        },
+        {
+          "id": "force-encounter-service-contracts",
+          "tier": "core",
+          "required": true,
+          "command": "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/services/forces/__tests__/ForceService.test.ts src/services/encounter/__tests__/EncounterService.test.ts src/services/encounter/__tests__/encounterToGameSession.test.ts --no-coverage",
+          "evidence": [
+            "src/services/forces/__tests__/ForceService.test.ts",
+            "src/services/encounter/__tests__/EncounterService.test.ts",
+            "src/services/encounter/__tests__/encounterToGameSession.test.ts"
+          ]
+        }
+      ],
+      "notes": [
+        "The previous single EncounterService command is retained as part of this wider continuity scenario."
+      ]
+    },
+    {
+      "id": "MC-05-gameplay-tactical-map-combat",
+      "surfaceId": "gameplay-tactical-map-combat",
+      "title": "Tactical map previews explain the same actions the engine allows",
+      "realisticFlow": "A player inspects terrain, movement, LOS, and combat previews in top-down and isometric map modes before committing actions.",
+      "qualityLenses": [
+        "usability",
+        "ui",
+        "ux",
+        "functionality",
+        "rules-parity",
+        "accessibility"
+      ],
+      "successCriteria": [
+        "Movement and combat scenario fixtures agree with engine validation.",
+        "Invalid movement or attack options expose reasons before commitment.",
+        "Top-down terrain/elevation labels, overlays, isometric rotation, occlusion, and action menu paths remain visible in browser smoke coverage."
+      ],
+      "checks": [
+        {
+          "id": "tactical-projection-scenario-jest",
+          "tier": "core",
+          "required": true,
+          "command": "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/testing/__tests__/tactical-map.movement-scenarios.test.ts src/testing/__tests__/tactical-map.combat-scenarios.test.ts --no-coverage",
+          "evidence": [
+            "src/testing/__tests__/tactical-map.movement-scenarios.test.ts",
+            "src/testing/__tests__/tactical-map.combat-scenarios.test.ts"
+          ]
+        },
+        {
+          "id": "tactical-map-browser-smoke",
+          "tier": "standard",
+          "required": true,
+          "command": "npx.cmd playwright test e2e/tactical-map-visual-smoke.spec.ts e2e/tactical-action-menu.spec.ts --project=chromium",
+          "evidence": [
+            "e2e/tactical-map-visual-smoke.spec.ts",
+            "e2e/tactical-action-menu.spec.ts"
+          ]
+        }
+      ],
+      "notes": [
+        "Legacy preview fallback paths, physical command availability, and phase-driver agreement remain high-risk checks inside this scenario."
+      ]
+    },
+    {
+      "id": "MC-06-simulation-combat-validation",
+      "surfaceId": "simulation-combat-validation",
+      "title": "Simulation combat validation stays catalog-driven and gap-honest",
+      "realisticFlow": "A combat sequence validates official catalog-backed behavior, gap accounting, and runner/interactive agreement for movement and attacks.",
+      "qualityLenses": ["functionality", "rules-parity", "test-quality"],
+      "successCriteria": [
+        "validate:combat passes without static fallback data hiding catalog failures.",
+        "BattleMech combat gap summary remains explicit and out-of-scope rows stay separated.",
+        "Interactive movement and attack projection agreement scenario tests pass."
+      ],
+      "checks": [
+        {
+          "id": "combat-validation-suite",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run validate:combat",
+          "evidence": ["scripts/validate-combat-suite.mjs"]
+        },
+        {
+          "id": "combat-gap-summary",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run validate:combat:gaps -- --format=summary",
+          "evidence": ["scripts/print-combat-validation-gaps.ts"]
+        },
+        {
+          "id": "interactive-engine-agreement",
+          "tier": "standard",
+          "required": true,
+          "command": "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/engine/__tests__/InteractiveSession.attackProjectionAgreement.scenario.test.ts src/engine/__tests__/InteractiveSession.movement.scenario.test.ts src/engine/__tests__/InteractiveSession.legAttack.scenario.test.ts --no-coverage",
+          "evidence": [
+            "src/engine/__tests__/InteractiveSession.attackProjectionAgreement.scenario.test.ts",
+            "src/engine/__tests__/InteractiveSession.movement.scenario.test.ts",
+            "src/engine/__tests__/InteractiveSession.legAttack.scenario.test.ts"
+          ]
+        }
+      ],
+      "notes": [
+        "Known non-BattleMech scope splits are not scenario failures when the gap summary reports them separately."
+      ]
+    },
+    {
+      "id": "MC-07-campaign-economy-progression",
+      "surfaceId": "campaign-economy-progression",
+      "title": "Campaign economy, repair, salvage, and progression loops survive a battle",
+      "realisticFlow": "A player creates a campaign, carries damage forward, reviews battle outcomes, and uses repair/progression systems.",
+      "qualityLenses": ["functionality", "ux", "rules-parity"],
+      "successCriteria": [
+        "Campaign flow and round-trip browser specs pass.",
+        "Repair bay browser coverage passes for selection, assessment, queue, costs, and errors.",
+        "Campaign outcome queue and repair assessment unit tests preserve post-battle state transitions."
+      ],
+      "checks": [
+        {
+          "id": "campaign-repair-browser-flow",
+          "tier": "standard",
+          "required": true,
+          "command": "npx.cmd playwright test e2e/campaign-flow.spec.ts e2e/campaign-round-trip.spec.ts e2e/repair.spec.ts --project=chromium",
+          "evidence": [
+            "e2e/campaign-flow.spec.ts",
+            "e2e/campaign-round-trip.spec.ts",
+            "e2e/repair.spec.ts"
+          ]
+        },
+        {
+          "id": "campaign-outcome-repair-contracts",
+          "tier": "core",
+          "required": true,
+          "command": "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/stores/campaign/__tests__/useCampaignStore.outcomes.test.ts src/stores/campaign/__tests__/campaignCombatLoopEnqueue.test.ts src/types/repair/__tests__/repairAssessment.test.ts src/types/repair/__tests__/qualityRepairIntegration.test.ts --no-coverage",
+          "evidence": [
+            "src/stores/campaign/__tests__/useCampaignStore.outcomes.test.ts",
+            "src/stores/campaign/__tests__/campaignCombatLoopEnqueue.test.ts",
+            "src/types/repair/__tests__/repairAssessment.test.ts",
+            "src/types/repair/__tests__/qualityRepairIntegration.test.ts"
+          ]
+        }
+      ],
+      "notes": [
+        "The broad npm.cmd test -- --runInBand lane is intentionally replaced here by focused campaign and repair flows."
+      ]
+    },
+    {
+      "id": "MC-08-multiplayer-coop-sync",
+      "surfaceId": "multiplayer-coop-sync",
+      "title": "Multiplayer and co-op sync preserve match visibility and route continuity",
+      "realisticFlow": "A host and players exercise multiplayer route smoke, P2P harness behavior, fog visibility, and reconnection contracts.",
+      "qualityLenses": ["functionality", "ux", "security", "test-quality"],
+      "successCriteria": [
+        "P2P harness and multiplayer playtest route smoke specs pass.",
+        "Fog-of-war match API tests preserve visibility boundaries.",
+        "Server reconnection and fog tests preserve co-op state assumptions."
+      ],
+      "checks": [
+        {
+          "id": "multiplayer-browser-route-flow",
+          "tier": "standard",
+          "required": true,
+          "command": "npx.cmd playwright test e2e/p2p-sync.spec.ts e2e/playtest-mp-smoke.spec.ts e2e/playtest-coop-route-smoke.spec.ts --project=chromium",
+          "evidence": [
+            "e2e/p2p-sync.spec.ts",
+            "e2e/playtest-mp-smoke.spec.ts",
+            "e2e/playtest-coop-route-smoke.spec.ts"
+          ]
+        },
+        {
+          "id": "multiplayer-fog-reconnect-contracts",
+          "tier": "core",
+          "required": true,
+          "command": "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/__tests__/unit/api/multiplayerMatchesFog.test.ts src/lib/multiplayer/server/__tests__/fogOfWar.test.ts src/lib/multiplayer/server/__tests__/reconnectionFlow.test.ts --no-coverage",
+          "evidence": [
+            "src/__tests__/unit/api/multiplayerMatchesFog.test.ts",
+            "src/lib/multiplayer/server/__tests__/fogOfWar.test.ts",
+            "src/lib/multiplayer/server/__tests__/reconnectionFlow.test.ts"
+          ]
+        }
+      ],
+      "notes": [
+        "True multi-peer BroadcastChannel sharing remains skipped in Playwright; this scenario records route, mock harness, fog, and server contract coverage instead."
+      ]
+    },
+    {
+      "id": "MC-09-replay-audit-history",
+      "surfaceId": "replay-audit-history",
+      "title": "Replay and audit history remain deterministic and inspectable",
+      "realisticFlow": "A player opens replay/audit views while simulation replay determinism proves stored events reconstruct the same terminal state.",
+      "qualityLenses": ["functionality", "test-quality", "ux"],
+      "successCriteria": [
+        "Replay player and simulation viewer browser flows pass.",
+        "Event log replay determinism passes.",
+        "Skipped keyboard/export browser cases remain visible in the source instead of being counted as proof."
+      ],
+      "checks": [
+        {
+          "id": "replay-browser-flow",
+          "tier": "standard",
+          "required": true,
+          "command": "npx.cmd playwright test e2e/replay-player.spec.ts e2e/simulation-viewer.spec.ts --project=chromium",
+          "evidence": [
+            "e2e/replay-player.spec.ts",
+            "e2e/simulation-viewer.spec.ts"
+          ]
+        },
+        {
+          "id": "replay-determinism-contract",
+          "tier": "core",
+          "required": true,
+          "command": "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/simulation/__tests__/replay-determinism.integration.test.ts --no-coverage",
+          "evidence": [
+            "src/simulation/__tests__/replay-determinism.integration.test.ts"
+          ]
+        }
+      ],
+      "notes": [
+        "Replay keyboard shortcut, export, and some career/campaign tab browser tests currently contain explicit skips and should be audited before release signoff."
+      ]
+    },
+    {
+      "id": "MC-10-desktop-api-security",
+      "surfaceId": "desktop-api-security",
+      "title": "Desktop packaging, local services, and API security boundaries hold",
+      "realisticFlow": "A desktop build check runs while local desktop services and vault API tests prove persisted settings, recent files, and sensitive API routes behave within their boundaries.",
+      "qualityLenses": ["security", "functionality", "test-quality"],
+      "successCriteria": [
+        "Desktop build test passes for the packaged runtime assumptions.",
+        "Desktop local settings and recent-file services pass focused tests.",
+        "Vault API tests preserve identity, unlock, signing, and sharing boundaries."
+      ],
+      "checks": [
+        {
+          "id": "desktop-build-smoke",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run electron:test:build",
+          "evidence": ["desktop/scripts/test-build.js"]
+        },
+        {
+          "id": "desktop-local-service-contracts",
+          "tier": "standard",
+          "required": true,
+          "command": "cd desktop && npm.cmd test -- --runTestsByPath services/local/__tests__/RecentFilesService.test.ts services/local/__tests__/SettingsService.test.ts",
+          "evidence": [
+            "desktop/services/local/__tests__/RecentFilesService.test.ts",
+            "desktop/services/local/__tests__/SettingsService.test.ts"
+          ]
+        },
+        {
+          "id": "vault-api-security-contracts",
+          "tier": "standard",
+          "required": true,
+          "command": "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/__tests__/api/vault/vault.test.ts src/__tests__/api/vault/unlock.test.ts src/__tests__/api/vault/sign.test.ts src/__tests__/api/vault/share.test.ts src/__tests__/api/vault/identity.test.ts --no-coverage",
+          "evidence": [
+            "src/__tests__/api/vault/vault.test.ts",
+            "src/__tests__/api/vault/unlock.test.ts",
+            "src/__tests__/api/vault/sign.test.ts",
+            "src/__tests__/api/vault/share.test.ts",
+            "src/__tests__/api/vault/identity.test.ts"
+          ]
+        }
+      ],
+      "notes": [
+        "Packaged-runtime security audit remains stronger than dev-only checks; this scenario is the repeatable local gate."
+      ]
+    },
+    {
+      "id": "MC-11-openspec-ci-quality",
+      "surfaceId": "openspec-ci-quality",
+      "title": "OpenSpec, CI, and quality gates keep claims reviewable",
+      "realisticFlow": "A maintainer validates the spec tree, registry references, type contracts, and formatting/lint gates before treating a quality claim as release-ready.",
+      "qualityLenses": ["test-quality", "functionality", "rules-parity"],
+      "successCriteria": [
+        "OpenSpec strict validation passes.",
+        "QC registry validation passes.",
+        "Typecheck, lint, and format checks pass for the current checkout."
+      ],
+      "checks": [
+        {
+          "id": "openspec-strict",
+          "tier": "core",
+          "required": true,
+          "command": "npx.cmd openspec validate --all --strict",
+          "evidence": ["openspec"]
+        },
+        {
+          "id": "qc-registry-contract",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run qc:validate",
+          "evidence": [
+            "docs/qc/mekstation-qc-registry.json",
+            "scripts/qc/validate-qc-registry.mjs"
+          ]
+        },
+        {
+          "id": "repo-static-quality-gates",
+          "tier": "standard",
+          "required": true,
+          "command": "npm.cmd run typecheck -- --pretty false && npm.cmd run lint && npm.cmd run format:check",
+          "evidence": ["package.json"]
+        }
+      ],
+      "notes": [
+        "This is a QC capability scenario, not a user gameplay flow; it proves claims and registry references stay reviewable."
+      ]
+    },
+    {
+      "id": "MC-12-maintenance-code-health",
+      "surfaceId": "maintenance-code-health",
+      "title": "Maintenance code-health gates stay triageable on demand",
+      "realisticFlow": "A maintainer validates that the maintenance scanner has not regressed past baseline and can still list partial QC lanes for the next cleanup wave.",
+      "qualityLenses": ["maintainability", "test-quality", "functionality"],
+      "successCriteria": [
+        "Maintenance scan gate passes against docs/qc/maintenance-baseline.json.",
+        "QC partial-lane selection remains available for planning the next remediation wave.",
+        "Raw maintenance inventory can be captured as diagnostic evidence without being mistaken for a pass/fail release gate."
+      ],
+      "checks": [
+        {
+          "id": "maintenance-baseline-gate",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run maintain:scan:gate",
+          "evidence": [
+            "docs/qc/maintenance-baseline.json",
+            "scripts/maintenance/scan-maintenance.mjs"
+          ]
+        },
+        {
+          "id": "partial-qc-lane-selection",
+          "tier": "standard",
+          "required": true,
+          "command": "npm.cmd run qc:select -- --status=partial",
+          "evidence": [
+            "docs/qc/mekstation-qc-registry.json",
+            "scripts/qc/select-qc-lanes.mjs"
+          ]
+        },
+        {
+          "id": "raw-maintenance-inventory",
+          "tier": "diagnostic",
+          "required": false,
+          "command": "npm.cmd run maintain:scan -- --scope=src --limit=80",
+          "evidence": ["scripts/maintenance/scan-maintenance.mjs"]
+        }
+      ],
+      "notes": [
+        "Passing the baseline gate does not mean every raw scanner warning is gone; use the diagnostic inventory when planning cleanup waves."
+      ]
+    }
+  ]
+}
