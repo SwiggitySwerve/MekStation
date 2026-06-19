@@ -38,7 +38,7 @@ export class FileService implements IFileService {
   /**
    * Export a single unit as JSON file download
    */
-  exportUnit(unit: unknown, filename?: string): void {
+  exportUnit = (unit: unknown, filename?: string): void => {
     const unitObj = unit as {
       chassis?: string;
       variant?: string;
@@ -50,24 +50,24 @@ export class FileService implements IFileService {
     const json = JSON.stringify(unit, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     this.downloadBlob(blob, finalFilename);
-  }
+  };
 
   /**
    * Export multiple units as individual JSON files
    * Note: For ZIP support, jszip library would be needed
    */
-  async exportBatch(units: unknown[], filename?: string): Promise<void> {
+  exportBatch = async (units: unknown[], filename?: string): Promise<void> => {
     // Without jszip, export as a single JSON array file
     const finalFilename = filename || 'units-export.json';
     const json = JSON.stringify(units, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     this.downloadBlob(blob, finalFilename);
-  }
+  };
 
   /**
    * Import a unit from a JSON file
    */
-  async importUnit(file: File): Promise<IImportResult> {
+  importUnit = async (file: File): Promise<IImportResult> => {
     try {
       const text = await this.readFileAsText(file);
       const parsed = this.parseJSON(text, file.name);
@@ -101,19 +101,19 @@ export class FileService implements IFileService {
         errors: [error instanceof Error ? error.message : 'Unknown error'],
       };
     }
-  }
+  };
 
   /**
    * Import multiple units from multiple files
    */
-  async importBatch(files: File[]): Promise<IImportResult[]> {
+  importBatch = async (files: File[]): Promise<IImportResult[]> => {
     return Promise.all(files.map((file) => this.importUnit(file)));
-  }
+  };
 
   /**
    * Validate a file without importing
    */
-  async validateFile(file: File): Promise<IValidationResult> {
+  validateFile = async (file: File): Promise<IValidationResult> => {
     try {
       // Check file extension
       if (!file.name.endsWith('.json')) {
@@ -162,7 +162,7 @@ export class FileService implements IFileService {
         },
       ]);
     }
-  }
+  };
 
   // ============================================================================
   // PRIVATE HELPERS

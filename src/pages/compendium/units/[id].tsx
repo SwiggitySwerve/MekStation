@@ -23,6 +23,249 @@ import {
   calculateTotalArmor,
 } from '@/types/pages';
 
+function unitDisplayName(unit: IUnitDetails): string {
+  return (
+    unit.name ||
+    `${unit.chassis || ''} ${unit.model || unit.variant || ''}`.trim()
+  );
+}
+
+function UnitHeaderCard({
+  unit,
+  displayName,
+}: {
+  readonly unit: IUnitDetails;
+  readonly displayName: string;
+}): React.ReactElement {
+  return (
+    <Card className="mb-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="mb-2 text-3xl font-bold text-white">{displayName}</h1>
+          <div className="flex flex-wrap gap-3 text-sm">
+            <Badge variant="warning">{unit.tonnage} tons</Badge>
+            {unit.techBase && (
+              <Badge variant="info">{unit.techBase.replace(/_/g, ' ')}</Badge>
+            )}
+            {unit.unitType && <Badge variant="muted">{unit.unitType}</Badge>}
+            {unit.configuration && (
+              <Badge variant="muted">{unit.configuration}</Badge>
+            )}
+          </div>
+        </div>
+        <div className="text-text-theme-secondary text-right text-sm">
+          {unit.era && <div>Era: {unit.era.replace(/_/g, ' ')}</div>}
+          {unit.year && <div>Year: {unit.year}</div>}
+          {unit.rulesLevel && (
+            <div>Rules: {unit.rulesLevel.replace(/_/g, ' ')}</div>
+          )}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function MovementCard({
+  unit,
+}: {
+  readonly unit: IUnitDetails;
+}): React.ReactElement {
+  return (
+    <StatCard title="Movement" icon={<MovementIcon />} variant="amber">
+      <StatList>
+        <StatRow label="Walk MP" value={unit.movement?.walk || '—'} />
+        <StatRow
+          label="Run MP"
+          value={
+            unit.movement?.walk ? Math.ceil(unit.movement.walk * 1.5) : '—'
+          }
+        />
+        <StatRow label="Jump MP" value={unit.movement?.jump || 0} />
+        {unit.movement?.jumpJetType && (
+          <StatRow
+            label="Jump Jets"
+            value={unit.movement.jumpJetType}
+            mono={false}
+          />
+        )}
+      </StatList>
+      {unit.movement?.enhancements && unit.movement.enhancements.length > 0 && (
+        <div className="border-border-theme mt-3 border-t pt-3">
+          <span className="text-text-theme-secondary text-sm">
+            Enhancements:
+          </span>
+          <div className="mt-1 flex flex-wrap gap-1">
+            {unit.movement.enhancements.map((enhancement, index) => (
+              <Badge key={index} variant="success" size="sm">
+                {enhancement}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+    </StatCard>
+  );
+}
+
+function CoreSystemsCard({
+  unit,
+}: {
+  readonly unit: IUnitDetails;
+}): React.ReactElement {
+  return (
+    <StatCard title="Core Systems" icon={<GearIcon />} variant="cyan">
+      <StatList>
+        {unit.engine && (
+          <>
+            <StatRow label="Engine" value={unit.engine.type} mono={false} />
+            <StatRow label="Rating" value={unit.engine.rating} />
+          </>
+        )}
+        {unit.gyro && (
+          <StatRow label="Gyro" value={unit.gyro.type} mono={false} />
+        )}
+        {unit.cockpit && (
+          <StatRow label="Cockpit" value={unit.cockpit} mono={false} />
+        )}
+        {unit.structure && (
+          <StatRow label="Structure" value={unit.structure.type} mono={false} />
+        )}
+      </StatList>
+    </StatCard>
+  );
+}
+
+function HeatArmorCard({
+  unit,
+  totalArmor,
+}: {
+  readonly unit: IUnitDetails;
+  readonly totalArmor: number;
+}): React.ReactElement {
+  return (
+    <StatCard title="Heat & Armor" icon={<FlameIcon />} variant="rose">
+      <StatList>
+        {unit.heatSinks && (
+          <>
+            <StatRow label="Heat Sinks" value={unit.heatSinks.count} />
+            <StatRow label="Type" value={unit.heatSinks.type} mono={false} />
+          </>
+        )}
+        {unit.armor && (
+          <>
+            <StatRow label="Armor Type" value={unit.armor.type} mono={false} />
+            <StatRow label="Total Armor" value={`${totalArmor} pts`} />
+          </>
+        )}
+      </StatList>
+    </StatCard>
+  );
+}
+
+function ArmorAllocationCard({
+  unit,
+}: {
+  readonly unit: IUnitDetails;
+}): React.ReactElement | null {
+  if (!unit.armor?.allocation) return null;
+
+  return (
+    <Card variant="dark" className="mb-6">
+      <CardSection title="Armor Allocation" />
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+        {Object.entries(unit.armor.allocation).map(([location, value]) => (
+          <div
+            key={location}
+            className="bg-surface-raised/30 rounded-lg p-3 text-center"
+          >
+            <div className="text-text-theme-secondary mb-1 text-xs uppercase">
+              {location.replace(/_/g, ' ')}
+            </div>
+            <div className="font-mono text-white">
+              {typeof value === 'number' ? (
+                value
+              ) : isArmorFrontRear(value) ? (
+                <>
+                  {value.front}
+                  {value.rear > 0 && (
+                    <span className="text-sm text-slate-500">
+                      {' '}
+                      / {value.rear}
+                    </span>
+                  )}
+                </>
+              ) : null}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+function EquipmentCard({
+  unit,
+}: {
+  readonly unit: IUnitDetails;
+}): React.ReactElement | null {
+  if (!unit.equipment || unit.equipment.length === 0) return null;
+
+  return (
+    <Card variant="dark" className="mb-6 overflow-hidden">
+      <CardSection title="Equipment" />
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-surface-base/50">
+            <tr className="text-text-theme-secondary text-left text-sm uppercase">
+              <th className="px-4 py-3">Equipment</th>
+              <th className="px-4 py-3">Location</th>
+              <th className="px-4 py-3">Notes</th>
+            </tr>
+          </thead>
+          <tbody className="divide-border-theme/50 divide-y">
+            {unit.equipment.map((eq, index) => (
+              <tr key={index} className="hover:bg-surface-raised/20">
+                <td className="px-4 py-3 text-white">{eq.id}</td>
+                <td className="text-text-theme-primary px-4 py-3">
+                  {eq.location}
+                </td>
+                <td className="text-text-theme-secondary px-4 py-3 text-sm">
+                  {eq.isRearMounted && (
+                    <Badge variant="warning" size="sm">
+                      Rear
+                    </Badge>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
+function QuirksCard({
+  quirks,
+}: {
+  readonly quirks?: readonly string[];
+}): React.ReactElement | null {
+  if (!quirks || quirks.length === 0) return null;
+
+  return (
+    <Card variant="dark">
+      <CardSection title="Quirks" />
+      <div className="flex flex-wrap gap-2">
+        {quirks.map((quirk, index) => (
+          <Badge key={index} variant="purple">
+            {quirk}
+          </Badge>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 export default function CanonicalUnitDetailPage(): React.ReactElement {
   const router = useRouter();
   const { id } = router.query;
@@ -75,9 +318,7 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
     );
   }
 
-  const displayName =
-    unit.name ||
-    `${unit.chassis || ''} ${unit.model || unit.variant || ''}`.trim();
+  const displayName = unitDisplayName(unit);
   const totalArmor = calculateTotalArmor(unit.armor);
 
   return (
@@ -89,206 +330,22 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
         { label: displayName },
       ]}
     >
-      {/* Header Card */}
-      <Card className="mb-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="mb-2 text-3xl font-bold text-white">
-              {displayName}
-            </h1>
-            <div className="flex flex-wrap gap-3 text-sm">
-              <Badge variant="warning">{unit.tonnage} tons</Badge>
-              {unit.techBase && (
-                <Badge variant="info">{unit.techBase.replace(/_/g, ' ')}</Badge>
-              )}
-              {unit.unitType && <Badge variant="muted">{unit.unitType}</Badge>}
-              {unit.configuration && (
-                <Badge variant="muted">{unit.configuration}</Badge>
-              )}
-            </div>
-          </div>
-          <div className="text-text-theme-secondary text-right text-sm">
-            {unit.era && <div>Era: {unit.era.replace(/_/g, ' ')}</div>}
-            {unit.year && <div>Year: {unit.year}</div>}
-            {unit.rulesLevel && (
-              <div>Rules: {unit.rulesLevel.replace(/_/g, ' ')}</div>
-            )}
-          </div>
-        </div>
-      </Card>
+      <UnitHeaderCard unit={unit} displayName={displayName} />
 
       {/* Stats Grid */}
       <StatGrid cols={3} className="mb-6">
-        {/* Movement */}
-        <StatCard title="Movement" icon={<MovementIcon />} variant="amber">
-          <StatList>
-            <StatRow label="Walk MP" value={unit.movement?.walk || '—'} />
-            <StatRow
-              label="Run MP"
-              value={
-                unit.movement?.walk ? Math.ceil(unit.movement.walk * 1.5) : '—'
-              }
-            />
-            <StatRow label="Jump MP" value={unit.movement?.jump || 0} />
-            {unit.movement?.jumpJetType && (
-              <StatRow
-                label="Jump Jets"
-                value={unit.movement.jumpJetType}
-                mono={false}
-              />
-            )}
-          </StatList>
-          {unit.movement?.enhancements &&
-            unit.movement.enhancements.length > 0 && (
-              <div className="border-border-theme mt-3 border-t pt-3">
-                <span className="text-text-theme-secondary text-sm">
-                  Enhancements:
-                </span>
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {unit.movement.enhancements.map((e, i) => (
-                    <Badge key={i} variant="success" size="sm">
-                      {e}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-        </StatCard>
+        <MovementCard unit={unit} />
 
-        {/* Engine & Structure */}
-        <StatCard title="Core Systems" icon={<GearIcon />} variant="cyan">
-          <StatList>
-            {unit.engine && (
-              <>
-                <StatRow label="Engine" value={unit.engine.type} mono={false} />
-                <StatRow label="Rating" value={unit.engine.rating} />
-              </>
-            )}
-            {unit.gyro && (
-              <StatRow label="Gyro" value={unit.gyro.type} mono={false} />
-            )}
-            {unit.cockpit && (
-              <StatRow label="Cockpit" value={unit.cockpit} mono={false} />
-            )}
-            {unit.structure && (
-              <StatRow
-                label="Structure"
-                value={unit.structure.type}
-                mono={false}
-              />
-            )}
-          </StatList>
-        </StatCard>
+        <CoreSystemsCard unit={unit} />
 
-        {/* Heat & Armor */}
-        <StatCard title="Heat & Armor" icon={<FlameIcon />} variant="rose">
-          <StatList>
-            {unit.heatSinks && (
-              <>
-                <StatRow label="Heat Sinks" value={unit.heatSinks.count} />
-                <StatRow
-                  label="Type"
-                  value={unit.heatSinks.type}
-                  mono={false}
-                />
-              </>
-            )}
-            {unit.armor && (
-              <>
-                <StatRow
-                  label="Armor Type"
-                  value={unit.armor.type}
-                  mono={false}
-                />
-                <StatRow label="Total Armor" value={`${totalArmor} pts`} />
-              </>
-            )}
-          </StatList>
-        </StatCard>
+        <HeatArmorCard unit={unit} totalArmor={totalArmor} />
       </StatGrid>
 
-      {/* Armor Allocation */}
-      {unit.armor?.allocation && (
-        <Card variant="dark" className="mb-6">
-          <CardSection title="Armor Allocation" />
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {Object.entries(unit.armor.allocation).map(([location, value]) => (
-              <div
-                key={location}
-                className="bg-surface-raised/30 rounded-lg p-3 text-center"
-              >
-                <div className="text-text-theme-secondary mb-1 text-xs uppercase">
-                  {location.replace(/_/g, ' ')}
-                </div>
-                <div className="font-mono text-white">
-                  {typeof value === 'number' ? (
-                    value
-                  ) : isArmorFrontRear(value) ? (
-                    <>
-                      {value.front}
-                      {value.rear > 0 && (
-                        <span className="text-sm text-slate-500">
-                          {' '}
-                          / {value.rear}
-                        </span>
-                      )}
-                    </>
-                  ) : null}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
+      <ArmorAllocationCard unit={unit} />
 
-      {/* Equipment */}
-      {unit.equipment && unit.equipment.length > 0 && (
-        <Card variant="dark" className="mb-6 overflow-hidden">
-          <CardSection title="Equipment" />
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-surface-base/50">
-                <tr className="text-text-theme-secondary text-left text-sm uppercase">
-                  <th className="px-4 py-3">Equipment</th>
-                  <th className="px-4 py-3">Location</th>
-                  <th className="px-4 py-3">Notes</th>
-                </tr>
-              </thead>
-              <tbody className="divide-border-theme/50 divide-y">
-                {unit.equipment.map((eq, index) => (
-                  <tr key={index} className="hover:bg-surface-raised/20">
-                    <td className="px-4 py-3 text-white">{eq.id}</td>
-                    <td className="text-text-theme-primary px-4 py-3">
-                      {eq.location}
-                    </td>
-                    <td className="text-text-theme-secondary px-4 py-3 text-sm">
-                      {eq.isRearMounted && (
-                        <Badge variant="warning" size="sm">
-                          Rear
-                        </Badge>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-      )}
+      <EquipmentCard unit={unit} />
 
-      {/* Quirks */}
-      {unit.quirks && unit.quirks.length > 0 && (
-        <Card variant="dark">
-          <CardSection title="Quirks" />
-          <div className="flex flex-wrap gap-2">
-            {unit.quirks.map((quirk, index) => (
-              <Badge key={index} variant="purple">
-                {quirk}
-              </Badge>
-            ))}
-          </div>
-        </Card>
-      )}
+      <QuirksCard quirks={unit.quirks} />
     </CompendiumLayout>
   );
 }

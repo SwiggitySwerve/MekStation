@@ -80,206 +80,45 @@ export interface ILobbyChannelOptions {
   readonly matchIdFactory?: () => string;
 }
 
+interface ILobbyRuntime {
+  readonly options: ILobbyChannelOptions;
+  readonly rejectionListeners: Set<LobbyRejectionCallback>;
+}
+
 export function createLobbyChannel(
   options: ILobbyChannelOptions = {},
 ): ILobbyChannel {
-  const rejectionListeners = new Set<LobbyRejectionCallback>();
-
-  const currentPeerId = (): string => requireLocalPeerId(options);
-
-  const reject = (
-    intentId: string,
-    reason: LobbyRejectionReason,
-  ): ILobbyChannelResult => {
-    const envelope: IPeerRejectedEnvelope = {
-      kind: 'peer-rejected',
-      intentId,
-      reason,
-    };
-    rejectionListeners.forEach((listener) => listener(envelope));
-    return {
-      ok: false,
-      state: readLobbyState(options),
-      reason,
-    };
-  };
-
-  const write = (state: ILobbyState): ILobbyChannelResult => {
-    const parsed = parseLobbyState(state);
-    if (!parsed) {
-      return reject('lobby:update', 'invalid-state');
-    }
-    requireLobbyMap(options).set(LOBBY_STATE_KEY, parsed);
-    return { ok: true, state: parsed };
+  const runtime: ILobbyRuntime = {
+    options,
+    rejectionListeners: new Set<LobbyRejectionCallback>(),
   };
 
   return {
     getState: () => readLobbyState(options),
 
-    initializeHost: (hostPeerId?: string): ILobbyState => {
-      const state = createInitialLobbyState(hostPeerId ?? currentPeerId());
-      requireLobbyMap(options).set(LOBBY_STATE_KEY, state);
-      return state;
-    },
+    initializeHost: (hostPeerId?: string): ILobbyState =>
+      initializeLobbyHost(runtime, hostPeerId),
 
-    joinGuest: (guestPeerId?: string): ILobbyChannelResult => {
-      const state = readLobbyState(options);
-      if (!state) return reject('lobby:joinGuest', 'invalid-state');
+    joinGuest: (guestPeerId?: string): ILobbyChannelResult =>
+      joinLobbyGuest(runtime, guestPeerId),
 
-      const peerId = guestPeerId ?? currentPeerId();
-      if (state.hostPeerId === peerId) {
-        return { ok: true, state };
-      }
-      if (state.guestPeerId && state.guestPeerId !== peerId) {
-        return reject('lobby:joinGuest', 'lobby-full');
-      }
+    updateLoadout: (side: LobbySide, loadout: ILoadout): ILobbyChannelResult =>
+      updateLobbyLoadout(runtime, side, loadout),
 
-      return write({
-        ...state,
-        guestPeerId: peerId,
-        guestReady: false,
-      });
-    },
+    updateMapConfig: (config: IMapConfig): ILobbyChannelResult =>
+      updateLobbyMapConfig(runtime, config),
 
-    updateLoadout: (
-      side: LobbySide,
-      loadout: ILoadout,
-    ): ILobbyChannelResult => {
-      const state = readLobbyState(options);
-      if (!state) return reject(`lobby:updateLoadout:${side}`, 'invalid-state');
-      if (state.matchId) {
-        return reject(`lobby:updateLoadout:${side}`, 'match-started');
-      }
+    setReady: (peerId: string, ready: boolean): ILobbyChannelResult =>
+      setLobbyReady(runtime, peerId, ready),
 
-      const ownerPeerId = getLobbyOwnerForSide(state, side);
-      if (!ownerPeerId || ownerPeerId !== currentPeerId()) {
-        return reject(`lobby:updateLoadout:${side}`, 'unauthorized-slot');
-      }
+    setHostSide: (hostSide: LobbyHostSide): ILobbyChannelResult =>
+      setLobbyHostSide(runtime, hostSide),
 
-      return write({
-        ...state,
-        hostLoadout: side === 'host' ? loadout : state.hostLoadout,
-        guestLoadout: side === 'guest' ? loadout : state.guestLoadout,
-        hostReady: side === 'host' ? false : state.hostReady,
-        guestReady: side === 'guest' ? false : state.guestReady,
-      });
-    },
+    launch: (matchId?: string): ILobbyChannelResult =>
+      launchLobby(runtime, matchId),
 
-    updateMapConfig: (config: IMapConfig): ILobbyChannelResult => {
-      const state = readLobbyState(options);
-      if (!state) return reject('lobby:updateMapConfig', 'invalid-state');
-      if (state.matchId) {
-        return reject('lobby:updateMapConfig', 'match-started');
-      }
-      if (state.hostPeerId !== currentPeerId()) {
-        return reject('lobby:updateMapConfig', 'host-only');
-      }
-      return write({
-        ...state,
-        mapConfig: config,
-        hostReady: false,
-        guestReady: false,
-      });
-    },
-
-    setReady: (peerId: string, ready: boolean): ILobbyChannelResult => {
-      const state = readLobbyState(options);
-      if (!state) return reject('lobby:setReady', 'invalid-state');
-      if (state.matchId) return reject('lobby:setReady', 'match-started');
-      if (peerId !== currentPeerId()) {
-        return reject('lobby:setReady', 'unauthorized-slot');
-      }
-
-      const side = getLobbySideForPeer(state, peerId);
-      if (!side) return reject('lobby:setReady', 'unknown-peer');
-      if (ready && getLobbyReadyBlockReason(state, side) !== null) {
-        return reject('lobby:setReady', 'invalid-loadout');
-      }
-
-      return write({
-        ...state,
-        hostReady: side === 'host' ? ready : state.hostReady,
-        guestReady: side === 'guest' ? ready : state.guestReady,
-      });
-    },
-
-    setHostSide: (hostSide: LobbyHostSide): ILobbyChannelResult => {
-      const state = readLobbyState(options);
-      if (!state) return reject('lobby:setHostSide', 'invalid-state');
-      if (state.matchId) return reject('lobby:setHostSide', 'match-started');
-      if (state.hostPeerId !== currentPeerId()) {
-        return reject('lobby:setHostSide', 'host-only');
-      }
-      // Picking a side resets ready flags so both peers re-acknowledge
-      // after the assignment changes.
-      return write({
-        ...state,
-        hostSide,
-        hostReady: false,
-        guestReady: false,
-      });
-    },
-
-    launch: (matchId?: string): ILobbyChannelResult => {
-      const state = readLobbyState(options);
-      if (!state) return reject('lobby:launch', 'invalid-state');
-      if (state.matchId) return { ok: true, state };
-      if (state.hostPeerId !== currentPeerId()) {
-        return reject('lobby:launch', 'host-only');
-      }
-      if (!canLaunchLobby(state)) {
-        return reject('lobby:launch', 'not-ready');
-      }
-      return write({
-        ...state,
-        matchId: matchId ?? options.matchIdFactory?.() ?? createMatchId(),
-      });
-    },
-
-    handlePeerDisconnect: (peerId: string): ILobbyChannelResult => {
-      const state = readLobbyState(options);
-      if (!state) return reject('lobby:handlePeerDisconnect', 'invalid-state');
-      // Once the match has launched, in-game reconnect grace owns the
-      // disconnect lifecycle. Pre-launch is the only window where this
-      // helper rewrites lobby state.
-      if (state.matchId) return { ok: true, state };
-
-      const isHost = state.hostPeerId === peerId;
-      const isGuest = state.guestPeerId === peerId;
-      if (!isHost && !isGuest) {
-        // Unknown peer (e.g., a third peer that joined the room but
-        // never claimed a side) — nothing to mutate. Returning ok keeps
-        // the upstream wiring idempotent so the awareness poller can
-        // call this every tick without surfacing a spurious rejection.
-        return { ok: true, state };
-      }
-
-      if (isHost) {
-        // § 9.2: host gone → mark `closed` so the guest's lobby page
-        // navigates back to the landing screen with a toast. We also
-        // reset both ready flags so a residual `closed` state doesn't
-        // appear "ready" if the guest sees it briefly before the route
-        // change fires.
-        return write({
-          ...state,
-          closed: true,
-          hostReady: false,
-          guestReady: false,
-        });
-      }
-
-      // § 9.3 + § 9.1 (guest path): clear the guest assignment and
-      // reset both ready flags. The host UI re-renders "Waiting for
-      // opponent..." because `guestPeerId` is null again, and a future
-      // joiner walks through `joinGuest()` cleanly.
-      return write({
-        ...state,
-        guestPeerId: null,
-        guestLoadout: state.guestLoadout,
-        hostReady: false,
-        guestReady: false,
-      });
-    },
+    handlePeerDisconnect: (peerId: string): ILobbyChannelResult =>
+      handleLobbyPeerDisconnect(runtime, peerId),
 
     onStateChange: (callback: LobbyStateCallback): (() => void) => {
       const lobbyMap = requireLobbyMap(options);
@@ -291,12 +130,238 @@ export function createLobbyChannel(
     },
 
     onPeerRejection: (callback: LobbyRejectionCallback): (() => void) => {
-      rejectionListeners.add(callback);
+      runtime.rejectionListeners.add(callback);
       return () => {
-        rejectionListeners.delete(callback);
+        runtime.rejectionListeners.delete(callback);
       };
     },
   };
+}
+
+function currentPeerId(runtime: ILobbyRuntime): string {
+  return requireLocalPeerId(runtime.options);
+}
+
+function rejectLobbyIntent(
+  runtime: ILobbyRuntime,
+  intentId: string,
+  reason: LobbyRejectionReason,
+): ILobbyChannelResult {
+  const envelope: IPeerRejectedEnvelope = {
+    kind: 'peer-rejected',
+    intentId,
+    reason,
+  };
+  runtime.rejectionListeners.forEach((listener) => listener(envelope));
+  return {
+    ok: false,
+    state: readLobbyState(runtime.options),
+    reason,
+  };
+}
+
+function writeLobbyState(
+  runtime: ILobbyRuntime,
+  state: ILobbyState,
+): ILobbyChannelResult {
+  const parsed = parseLobbyState(state);
+  if (!parsed) {
+    return rejectLobbyIntent(runtime, 'lobby:update', 'invalid-state');
+  }
+  requireLobbyMap(runtime.options).set(LOBBY_STATE_KEY, parsed);
+  return { ok: true, state: parsed };
+}
+
+function initializeLobbyHost(
+  runtime: ILobbyRuntime,
+  hostPeerId?: string,
+): ILobbyState {
+  const state = createInitialLobbyState(hostPeerId ?? currentPeerId(runtime));
+  requireLobbyMap(runtime.options).set(LOBBY_STATE_KEY, state);
+  return state;
+}
+
+function joinLobbyGuest(
+  runtime: ILobbyRuntime,
+  guestPeerId?: string,
+): ILobbyChannelResult {
+  const state = readLobbyState(runtime.options);
+  if (!state)
+    return rejectLobbyIntent(runtime, 'lobby:joinGuest', 'invalid-state');
+
+  const peerId = guestPeerId ?? currentPeerId(runtime);
+  if (state.hostPeerId === peerId) return { ok: true, state };
+  if (state.guestPeerId && state.guestPeerId !== peerId) {
+    return rejectLobbyIntent(runtime, 'lobby:joinGuest', 'lobby-full');
+  }
+
+  return writeLobbyState(runtime, {
+    ...state,
+    guestPeerId: peerId,
+    guestReady: false,
+  });
+}
+
+function updateLobbyLoadout(
+  runtime: ILobbyRuntime,
+  side: LobbySide,
+  loadout: ILoadout,
+): ILobbyChannelResult {
+  const state = readLobbyState(runtime.options);
+  if (!state) {
+    return rejectLobbyIntent(
+      runtime,
+      `lobby:updateLoadout:${side}`,
+      'invalid-state',
+    );
+  }
+  if (state.matchId) {
+    return rejectLobbyIntent(
+      runtime,
+      `lobby:updateLoadout:${side}`,
+      'match-started',
+    );
+  }
+
+  const ownerPeerId = getLobbyOwnerForSide(state, side);
+  if (!ownerPeerId || ownerPeerId !== currentPeerId(runtime)) {
+    return rejectLobbyIntent(
+      runtime,
+      `lobby:updateLoadout:${side}`,
+      'unauthorized-slot',
+    );
+  }
+
+  return writeLobbyState(runtime, {
+    ...state,
+    hostLoadout: side === 'host' ? loadout : state.hostLoadout,
+    guestLoadout: side === 'guest' ? loadout : state.guestLoadout,
+    hostReady: side === 'host' ? false : state.hostReady,
+    guestReady: side === 'guest' ? false : state.guestReady,
+  });
+}
+
+function updateLobbyMapConfig(
+  runtime: ILobbyRuntime,
+  config: IMapConfig,
+): ILobbyChannelResult {
+  const state = readLobbyState(runtime.options);
+  if (!state)
+    return rejectLobbyIntent(runtime, 'lobby:updateMapConfig', 'invalid-state');
+  if (state.matchId) {
+    return rejectLobbyIntent(runtime, 'lobby:updateMapConfig', 'match-started');
+  }
+  if (state.hostPeerId !== currentPeerId(runtime)) {
+    return rejectLobbyIntent(runtime, 'lobby:updateMapConfig', 'host-only');
+  }
+  return writeLobbyState(runtime, {
+    ...state,
+    mapConfig: config,
+    hostReady: false,
+    guestReady: false,
+  });
+}
+
+function setLobbyReady(
+  runtime: ILobbyRuntime,
+  peerId: string,
+  ready: boolean,
+): ILobbyChannelResult {
+  const state = readLobbyState(runtime.options);
+  if (!state)
+    return rejectLobbyIntent(runtime, 'lobby:setReady', 'invalid-state');
+  if (state.matchId)
+    return rejectLobbyIntent(runtime, 'lobby:setReady', 'match-started');
+  if (peerId !== currentPeerId(runtime)) {
+    return rejectLobbyIntent(runtime, 'lobby:setReady', 'unauthorized-slot');
+  }
+
+  const side = getLobbySideForPeer(state, peerId);
+  if (!side)
+    return rejectLobbyIntent(runtime, 'lobby:setReady', 'unknown-peer');
+  if (ready && getLobbyReadyBlockReason(state, side) !== null) {
+    return rejectLobbyIntent(runtime, 'lobby:setReady', 'invalid-loadout');
+  }
+
+  return writeLobbyState(runtime, {
+    ...state,
+    hostReady: side === 'host' ? ready : state.hostReady,
+    guestReady: side === 'guest' ? ready : state.guestReady,
+  });
+}
+
+function setLobbyHostSide(
+  runtime: ILobbyRuntime,
+  hostSide: LobbyHostSide,
+): ILobbyChannelResult {
+  const state = readLobbyState(runtime.options);
+  if (!state)
+    return rejectLobbyIntent(runtime, 'lobby:setHostSide', 'invalid-state');
+  if (state.matchId)
+    return rejectLobbyIntent(runtime, 'lobby:setHostSide', 'match-started');
+  if (state.hostPeerId !== currentPeerId(runtime)) {
+    return rejectLobbyIntent(runtime, 'lobby:setHostSide', 'host-only');
+  }
+  return writeLobbyState(runtime, {
+    ...state,
+    hostSide,
+    hostReady: false,
+    guestReady: false,
+  });
+}
+
+function launchLobby(
+  runtime: ILobbyRuntime,
+  matchId?: string,
+): ILobbyChannelResult {
+  const state = readLobbyState(runtime.options);
+  if (!state)
+    return rejectLobbyIntent(runtime, 'lobby:launch', 'invalid-state');
+  if (state.matchId) return { ok: true, state };
+  if (state.hostPeerId !== currentPeerId(runtime)) {
+    return rejectLobbyIntent(runtime, 'lobby:launch', 'host-only');
+  }
+  if (!canLaunchLobby(state)) {
+    return rejectLobbyIntent(runtime, 'lobby:launch', 'not-ready');
+  }
+  return writeLobbyState(runtime, {
+    ...state,
+    matchId: matchId ?? runtime.options.matchIdFactory?.() ?? createMatchId(),
+  });
+}
+
+function handleLobbyPeerDisconnect(
+  runtime: ILobbyRuntime,
+  peerId: string,
+): ILobbyChannelResult {
+  const state = readLobbyState(runtime.options);
+  if (!state) {
+    return rejectLobbyIntent(
+      runtime,
+      'lobby:handlePeerDisconnect',
+      'invalid-state',
+    );
+  }
+  if (state.matchId) return { ok: true, state };
+
+  const isHost = state.hostPeerId === peerId;
+  const isGuest = state.guestPeerId === peerId;
+  if (!isHost && !isGuest) return { ok: true, state };
+
+  return isHost
+    ? writeLobbyState(runtime, {
+        ...state,
+        closed: true,
+        hostReady: false,
+        guestReady: false,
+      })
+    : writeLobbyState(runtime, {
+        ...state,
+        guestPeerId: null,
+        guestLoadout: state.guestLoadout,
+        hostReady: false,
+        guestReady: false,
+      });
 }
 
 export function readLobbyState(

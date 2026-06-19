@@ -23,8 +23,31 @@ import {
   calculateBvRatio,
   type BattleState,
   type DetectorTrackingState,
+  type KeyMomentHandler,
   TIER_MAP,
 } from './types';
+
+const processCriticalHitMoments: KeyMomentHandler = (
+  event: IGameEvent,
+  battleState: BattleState,
+  state: DetectorTrackingState,
+  createMoment,
+) => {
+  return [
+    ...processCriticalHit(event, battleState, state, createMoment),
+    ...processCriticalHitTier3(event, battleState, state, createMoment),
+  ];
+};
+
+const KEY_MOMENT_HANDLERS: Partial<Record<GameEventType, KeyMomentHandler>> = {
+  [GameEventType.UnitDestroyed]: processUnitDestroyed,
+  [GameEventType.DamageApplied]: processDamageApplied,
+  [GameEventType.AttackResolved]: processAttackResolved,
+  [GameEventType.CriticalHit]: processCriticalHitMoments,
+  [GameEventType.AmmoExplosion]: processAmmoExplosion,
+  [GameEventType.HeatEffectApplied]: processHeatEffectApplied,
+  [GameEventType.PilotHit]: processPilotHit,
+};
 
 export class KeyMomentDetector {
   detect(
@@ -93,75 +116,17 @@ export class KeyMomentDetector {
   private processEvent(
     event: IGameEvent,
     battleState: BattleState,
-    state: DetectorTrackingState,
+    momentState: DetectorTrackingState,
   ): IKeyMoment[] {
-    switch (event.type) {
-      case GameEventType.UnitDestroyed:
-        return processUnitDestroyed(
-          event,
-          battleState,
-          state,
-          this.createMoment.bind(this),
-        );
-
-      case GameEventType.DamageApplied:
-        return processDamageApplied(
-          event,
-          battleState,
-          state,
-          this.createMoment.bind(this),
-        );
-
-      case GameEventType.AttackResolved:
-        return processAttackResolved(
-          event,
-          battleState,
-          state,
-          this.createMoment.bind(this),
-        );
-
-      case GameEventType.CriticalHit:
-        const tier2Moments = processCriticalHit(
-          event,
-          battleState,
-          state,
-          this.createMoment.bind(this),
-        );
-        const tier3Moments = processCriticalHitTier3(
-          event,
-          battleState,
-          state,
-          this.createMoment.bind(this),
-        );
-        return [...tier2Moments, ...tier3Moments];
-
-      case GameEventType.AmmoExplosion:
-        return processAmmoExplosion(
-          event,
-          battleState,
-          state,
-          this.createMoment.bind(this),
-        );
-
-      case GameEventType.HeatEffectApplied:
-        return processHeatEffectApplied(
-          event,
-          battleState,
-          state,
-          this.createMoment.bind(this),
-        );
-
-      case GameEventType.PilotHit:
-        return processPilotHit(
-          event,
-          battleState,
-          state,
-          this.createMoment.bind(this),
-        );
-
-      default:
-        return [];
-    }
+    const handler = KEY_MOMENT_HANDLERS[event.type];
+    return (
+      handler?.(
+        event,
+        battleState,
+        momentState,
+        this.createMoment.bind(this),
+      ) ?? []
+    );
   }
 
   private createMoment(

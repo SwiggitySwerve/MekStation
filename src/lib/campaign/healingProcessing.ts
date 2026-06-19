@@ -84,15 +84,15 @@ export function processHealing(
 
       // Perform medical check using selected system with new two-arg signature
       const medicalResult = campaign
-        ? performMedicalCheck(
-            medicalSystem,
-            entry,
+        ? performMedicalCheck({
+            system: medicalSystem,
+            patientEntry: entry,
             injury,
             doctorEntry,
-            null, // doctorPilot: no vault join in this legacy path
-            campaign.options,
-            Math.random,
-          )
+            doctorPilot: null, // no vault join in this legacy path
+            options: campaign.options,
+            random: Math.random,
+          })
         : null;
 
       const daysReduced = medicalResult?.healingDaysReduced ?? 1;

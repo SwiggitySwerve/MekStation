@@ -36,6 +36,20 @@ import {
   type IVehicleCriticalTableContext,
 } from './vehicleCriticalTables';
 
+const VEHICLE_CRIT_ROLL_TABLE: readonly {
+  readonly maxRoll: number;
+  readonly kind: VehicleCritKind;
+}[] = [
+  { maxRoll: 5, kind: 'none' },
+  { maxRoll: 6, kind: 'crew_stunned' },
+  { maxRoll: 7, kind: 'weapon_destroyed' },
+  { maxRoll: 8, kind: 'cargo_hit' },
+  { maxRoll: 9, kind: 'driver_hit' },
+  { maxRoll: 10, kind: 'fuel_tank' },
+  { maxRoll: 11, kind: 'engine_hit' },
+  { maxRoll: 12, kind: 'ammo_explosion' },
+];
+
 // =============================================================================
 // Crit Table
 // =============================================================================
@@ -56,16 +70,9 @@ export function vehicleCritFromRoll(
 ): IVehicleCritRollResult {
   const [d1, d2] = dice;
   const roll = d1 + d2;
-
-  let kind: VehicleCritKind;
-  if (roll <= 5) kind = 'none';
-  else if (roll === 6) kind = 'crew_stunned';
-  else if (roll === 7) kind = 'weapon_destroyed';
-  else if (roll === 8) kind = 'cargo_hit';
-  else if (roll === 9) kind = 'driver_hit';
-  else if (roll === 10) kind = 'fuel_tank';
-  else if (roll === 11) kind = 'engine_hit';
-  else kind = 'ammo_explosion';
+  const kind =
+    VEHICLE_CRIT_ROLL_TABLE.find((entry) => roll <= entry.maxRoll)?.kind ??
+    'ammo_explosion';
 
   return { dice: [d1, d2], roll, kind };
 }
@@ -125,6 +132,58 @@ export interface IVehicleCritEffectResult {
   readonly ammoExplosion: boolean;
 }
 
+interface IVehicleCritEffectHandlerResult {
+  readonly state: IVehicleCombatState;
+  readonly ammoExplosion?: boolean;
+}
+
+type VehicleCritEffectHandler = (
+  state: IVehicleCombatState,
+  ctx: IVehicleCritEffectContext,
+) => IVehicleCritEffectHandlerResult;
+
+const noStateEffectKinds = new Set<VehicleCritKind>([
+  'weapon_destroyed',
+  'weapon_jammed',
+  'cargo_hit',
+  'stabilizer_hit',
+  'sensor_hit',
+  'turret_jammed',
+  'flight_stabilizer',
+]);
+
+const vehicleCritEffectHandlers: Partial<
+  Record<VehicleCritKind, VehicleCritEffectHandler>
+> = {
+  crew_stunned: (state) => ({ state: applyCrewStunned(state) }),
+  driver_hit: (state) => ({ state: applyDriverHit(state) }),
+  pilot_hit: (state) => ({ state: applyDriverHit(state) }),
+  commander_hit: (state) => ({ state: applyCommanderHit(state) }),
+  copilot_hit: (state) => ({ state: applyCommanderHit(state) }),
+  crew_killed: (state) => ({
+    state: { ...state, destroyed: true, destructionCause: 'crew_killed' },
+  }),
+  engine_hit: (state) => ({ state: applyEngineHit(state) }),
+  turret_locked: (state, ctx) => ({
+    state: applyTurretLocked(state, ctx.secondaryTurret === true),
+  }),
+  turret_destroyed: (state) => ({ state: applyTurretDestroyed(state) }),
+  rotor_damage: (state) => ({ state: applyRotorDamage(state) }),
+  rotor_destroyed: (state) => ({
+    state: {
+      ...state,
+      motive: { ...state.motive, immobilized: true },
+    },
+  }),
+};
+
+function noVehicleCritEffect(
+  state: IVehicleCombatState,
+  applied: IVehicleCritRollResult,
+): IVehicleCritEffectResult {
+  return { state, applied, ammoExplosion: false };
+}
+
 /**
  * Apply a rolled vehicle crit to combat state. Returns the updated state
  * plus flags for callers that need to emit events (ammo explosion, crew
@@ -136,103 +195,54 @@ export function applyVehicleCritEffect(
   ctx: IVehicleCritEffectContext,
 ): IVehicleCritEffectResult {
   if (state.destroyed) {
-    return { state, applied: crit, ammoExplosion: false };
+    return noVehicleCritEffect(state, crit);
   }
 
   const applied = crit;
-  let ammoExplosion = false;
-  let next: IVehicleCombatState = state;
+  if (applied.kind === 'none' || noStateEffectKinds.has(applied.kind)) {
+    return noVehicleCritEffect(state, applied);
+  }
 
-  switch (applied.kind) {
-    case 'none':
-      return { state, applied, ammoExplosion: false };
-
-    case 'crew_stunned':
-      next = applyCrewStunned(state);
-      break;
-
-    case 'driver_hit':
-    case 'pilot_hit':
-      next = applyDriverHit(state);
-      break;
-
-    case 'commander_hit':
-    case 'copilot_hit':
-      next = applyCommanderHit(state);
-      break;
-
-    case 'crew_killed':
-      next = { ...state, destroyed: true, destructionCause: 'crew_killed' };
-      break;
-
-    case 'fuel_tank':
-      if (!engineHasFuelTank(ctx.engineType)) {
-        // Fusion/energy engines → reroll becomes "no effect" in this
-        // simplified implementation (caller may opt to reroll).
-        return {
-          state,
-          applied: { ...applied, kind: 'none' },
-          ammoExplosion: false,
-        };
-      }
-      // Fuel tank hit on a fuel-bearing engine destroys the vehicle outright
-      // per MegaMek `Tank.CRIT_FUEL_TANK` (destroyEntity "fuel explosion").
-      next = {
+  if (applied.kind === 'fuel_tank') {
+    if (!engineHasFuelTank(ctx.engineType)) {
+      return noVehicleCritEffect(state, { ...applied, kind: 'none' });
+    }
+    return {
+      state: {
         ...state,
         destroyed: true,
         destructionCause: 'fuel_tank_explosion',
-      };
-      break;
-
-    case 'engine_hit':
-      next = applyEngineHit(state);
-      break;
-
-    case 'ammo_explosion':
-      if (!ctx.hasAmmoInSlot) {
-        // No ammo in slot → no effect (per spec).
-        return {
-          state,
-          applied: { ...applied, kind: 'none' },
-          ammoExplosion: false,
-        };
-      }
-      ammoExplosion = true;
-      next = { ...state, destroyed: true, destructionCause: 'ammo_explosion' };
-      break;
-
-    case 'turret_locked':
-      next = applyTurretLocked(state, ctx.secondaryTurret === true);
-      break;
-
-    case 'turret_destroyed':
-      next = applyTurretDestroyed(state);
-      break;
-
-    case 'rotor_damage':
-      next = applyRotorDamage(state);
-      break;
-
-    case 'rotor_destroyed':
-      next = {
-        ...state,
-        motive: { ...state.motive, immobilized: true },
-      };
-      break;
-
-    case 'weapon_destroyed':
-    case 'weapon_jammed':
-    case 'cargo_hit':
-    case 'stabilizer_hit':
-    case 'sensor_hit':
-    case 'turret_jammed':
-    case 'flight_stabilizer':
-      // Handled by the equipment/transport/turret subsystems; the combat
-      // state envelope has no representation here. Caller emits the events.
-      return { state, applied, ammoExplosion: false };
+      },
+      applied,
+      ammoExplosion: false,
+    };
   }
 
-  return { state: next, applied, ammoExplosion };
+  if (applied.kind === 'ammo_explosion') {
+    if (!ctx.hasAmmoInSlot) {
+      return noVehicleCritEffect(state, { ...applied, kind: 'none' });
+    }
+    return {
+      state: {
+        ...state,
+        destroyed: true,
+        destructionCause: 'ammo_explosion',
+      },
+      applied,
+      ammoExplosion: true,
+    };
+  }
+
+  const handled = vehicleCritEffectHandlers[applied.kind]?.(state, ctx);
+  if (!handled) {
+    return noVehicleCritEffect(state, applied);
+  }
+
+  return {
+    state: handled.state,
+    applied,
+    ammoExplosion: handled.ammoExplosion === true,
+  };
 }
 
 /**

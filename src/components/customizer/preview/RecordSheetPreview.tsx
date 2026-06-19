@@ -21,6 +21,8 @@ import { useUnitStore } from '@/stores/useUnitStore';
 import { PaperSize, PAPER_DIMENSIONS } from '@/types/printing';
 import { logger } from '@/utils/logger';
 
+import { useMechStructureFields } from '../tabs/useMechStructureFields';
+import { drawRecordSheetRenderError } from './RecordSheetCanvasPreview';
 import {
   buildCriticalSlotsFromEquipment,
   buildPreviewUnitConfig,
@@ -87,11 +89,13 @@ export function RecordSheetPreview({
   const rulesLevel = useUnitStore((s) => s.rulesLevel);
   const year = useUnitStore((s) => s.year);
   const configuration = useUnitStore((s) => s.configuration);
-  const engineType = useUnitStore((s) => s.engineType);
-  const engineRating = useUnitStore((s) => s.engineRating);
-  const gyroType = useUnitStore((s) => s.gyroType);
-  const internalStructureType = useUnitStore((s) => s.internalStructureType);
-  const cockpitType = useUnitStore((s) => s.cockpitType);
+  const {
+    engineType,
+    engineRating,
+    gyroType,
+    internalStructureType,
+    cockpitType,
+  } = useMechStructureFields();
   const armorType = useUnitStore((s) => s.armorType);
   const armorAllocation = useUnitStore((s) => s.armorAllocation);
   const heatSinkType = useUnitStore((s) => s.heatSinkType);
@@ -191,19 +195,7 @@ export function RecordSheetPreview({
       await getRecordSheetService().renderPreview(canvas, data, paperSize);
     } catch (error) {
       logger.error('Error rendering record sheet preview:', error);
-
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        const { width, height } = PAPER_DIMENSIONS[paperSize];
-        canvas.width = width;
-        canvas.height = height;
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(0, 0, width, height);
-        ctx.fillStyle = '#f00';
-        ctx.font = '14px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('Error rendering record sheet', width / 2, height / 2);
-      }
+      drawRecordSheetRenderError(canvas, paperSize);
     }
   }, [
     name,

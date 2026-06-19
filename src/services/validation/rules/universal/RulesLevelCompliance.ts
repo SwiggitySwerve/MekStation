@@ -6,16 +6,22 @@
 
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
+  UnitValidationSeverity,
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
   IUnitValidationRuleResult,
-  UnitValidationSeverity,
-  createUnitValidationError,
-  createUnitValidationRuleResult,
-  createPassingResult,
+  IUnitValidationError,
 } from '@/types/validation/UnitValidationInterfaces';
 
+import {
+  createEmptyRuleResult,
+  addRuleDiagnostic,
+  createRuleResult,
+} from '../ruleResults';
 import { rulesLevelExceedsFilter } from './helpers';
+
+const RULES_LEVEL_COMPLIANCE_CONSTRUCTION_CATEGORY =
+  ValidationCategory.CONSTRUCTION;
 
 /**
  * VAL-UNIV-012: Rules Level Compliance
@@ -24,9 +30,9 @@ export const RulesLevelCompliance: IUnitValidationRuleDefinition = {
   id: 'VAL-UNIV-012',
   name: 'Rules Level Compliance',
   description: 'Unit rules level must not exceed filter',
-  category: ValidationCategory.CONSTRUCTION,
-  priority: 12,
+  category: RULES_LEVEL_COMPLIANCE_CONSTRUCTION_CATEGORY,
   applicableUnitTypes: 'ALL',
+  priority: 12,
 
   canValidate(context: IUnitValidationContext): boolean {
     // Only validate if rules level filter is specified
@@ -35,37 +41,27 @@ export const RulesLevelCompliance: IUnitValidationRuleDefinition = {
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit, rulesLevelFilter } = context;
-    const errors = [];
+    const errors: IUnitValidationError[] = [];
 
     if (rulesLevelFilter === undefined) {
-      return createPassingResult(this.id, this.name);
+      return createEmptyRuleResult(this);
     }
 
     if (rulesLevelExceedsFilter(unit.rulesLevel, rulesLevelFilter)) {
-      errors.push(
-        createUnitValidationError(
-          this.id,
-          this.name,
-          UnitValidationSeverity.ERROR,
-          this.category,
-          `Unit rules level ${unit.rulesLevel} exceeds allowed level ${rulesLevelFilter}`,
-          {
-            field: 'rulesLevel',
-            expected: `<= ${rulesLevelFilter}`,
-            actual: unit.rulesLevel,
-            suggestion: 'Change rules level filter or select a different unit',
-          },
-        ),
+      addRuleDiagnostic(
+        errors,
+        this,
+        UnitValidationSeverity.ERROR,
+        `Unit rules level ${unit.rulesLevel} exceeds allowed level ${rulesLevelFilter}`,
+        {
+          field: 'rulesLevel',
+          expected: `<= ${rulesLevelFilter}`,
+          actual: unit.rulesLevel,
+          suggestion: 'Change rules level filter or select a different unit',
+        },
       );
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors });
   },
 };

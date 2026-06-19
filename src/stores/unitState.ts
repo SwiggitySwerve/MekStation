@@ -83,45 +83,58 @@ export function getTotalAllocatedArmor(
   allocation: IArmorAllocation,
   configuration?: MechConfiguration,
 ): number {
-  // Core torso armor (always included)
-  let total =
-    (allocation[MechLocation.HEAD] || 0) +
-    (allocation[MechLocation.CENTER_TORSO] || 0) +
-    (allocation.centerTorsoRear || 0) +
-    (allocation[MechLocation.LEFT_TORSO] || 0) +
-    (allocation.leftTorsoRear || 0) +
-    (allocation[MechLocation.RIGHT_TORSO] || 0) +
-    (allocation.rightTorsoRear || 0);
+  return armorLocationsForConfiguration(configuration).reduce<number>(
+    (total, location) => total + (allocation[location] || 0),
+    0,
+  );
+}
 
-  // Add limb armor based on configuration
+type ArmorLocation = keyof IArmorAllocation;
+
+const CORE_ARMOR_LOCATIONS: readonly ArmorLocation[] = [
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  'centerTorsoRear',
+  MechLocation.LEFT_TORSO,
+  'leftTorsoRear',
+  MechLocation.RIGHT_TORSO,
+  'rightTorsoRear',
+];
+
+const STANDARD_LIMB_ARMOR_LOCATIONS: readonly ArmorLocation[] = [
+  MechLocation.LEFT_ARM,
+  MechLocation.RIGHT_ARM,
+  MechLocation.LEFT_LEG,
+  MechLocation.RIGHT_LEG,
+];
+
+const QUAD_LIMB_ARMOR_LOCATIONS: readonly ArmorLocation[] = [
+  MechLocation.FRONT_LEFT_LEG,
+  MechLocation.FRONT_RIGHT_LEG,
+  MechLocation.REAR_LEFT_LEG,
+  MechLocation.REAR_RIGHT_LEG,
+];
+
+const TRIPOD_LIMB_ARMOR_LOCATIONS: readonly ArmorLocation[] = [
+  ...STANDARD_LIMB_ARMOR_LOCATIONS,
+  MechLocation.CENTER_LEG,
+];
+
+function armorLocationsForConfiguration(
+  configuration?: MechConfiguration,
+): readonly ArmorLocation[] {
   if (
     configuration === MechConfiguration.QUAD ||
     configuration === MechConfiguration.QUADVEE
   ) {
-    // Quad mechs have 4 legs, no arms
-    total +=
-      (allocation[MechLocation.FRONT_LEFT_LEG] || 0) +
-      (allocation[MechLocation.FRONT_RIGHT_LEG] || 0) +
-      (allocation[MechLocation.REAR_LEFT_LEG] || 0) +
-      (allocation[MechLocation.REAR_RIGHT_LEG] || 0);
-  } else if (configuration === MechConfiguration.TRIPOD) {
-    // Tripod has arms + 3 legs (including center leg)
-    total +=
-      (allocation[MechLocation.LEFT_ARM] || 0) +
-      (allocation[MechLocation.RIGHT_ARM] || 0) +
-      (allocation[MechLocation.LEFT_LEG] || 0) +
-      (allocation[MechLocation.RIGHT_LEG] || 0) +
-      (allocation[MechLocation.CENTER_LEG] || 0);
-  } else {
-    // Biped/LAM/default: standard arms + legs
-    total +=
-      (allocation[MechLocation.LEFT_ARM] || 0) +
-      (allocation[MechLocation.RIGHT_ARM] || 0) +
-      (allocation[MechLocation.LEFT_LEG] || 0) +
-      (allocation[MechLocation.RIGHT_LEG] || 0);
+    return [...CORE_ARMOR_LOCATIONS, ...QUAD_LIMB_ARMOR_LOCATIONS];
   }
 
-  return total;
+  if (configuration === MechConfiguration.TRIPOD) {
+    return [...CORE_ARMOR_LOCATIONS, ...TRIPOD_LIMB_ARMOR_LOCATIONS];
+  }
+
+  return [...CORE_ARMOR_LOCATIONS, ...STANDARD_LIMB_ARMOR_LOCATIONS];
 }
 
 // =============================================================================

@@ -8,7 +8,14 @@
  * @spec openspec/specs/unit-store-architecture/spec.md
  */
 
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MutableRefObject,
+} from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
@@ -28,6 +35,213 @@ import { useTabManagerStore, TabInfo } from '@/stores/useTabManagerStore';
 import { logger } from '@/utils/logger';
 
 import { UnitTypeRouter } from './UnitTypeRouter';
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+type SyncStateRef = MutableRefObject<{
+  unitId: string | null;
+  activeTabId: string | null;
+}>;
+type SyncingRef = MutableRefObject<boolean>;
+type StoredSubTab = string | null | undefined;
+type GetLastSubTab = (unitId: string) => StoredSubTab;
+type SetLastSubTab = (unitId: string, tabId: CustomizerTabId) => void;
+type NavigateToTab = (tabId: CustomizerTabId) => void;
+
+interface UrlToStateSyncArgs {
+  readonly routerIsReady: boolean;
+  readonly isHydrated: boolean;
+  readonly isLoading: boolean;
+  readonly isSyncingRef: SyncingRef;
+  readonly lastSyncedRef: SyncStateRef;
+  readonly routerUnitId: string | null;
+  readonly routerIsValid: boolean;
+  readonly activeTabId: string | null;
+  readonly tabs: readonly TabInfo[];
+  readonly selectTab: (unitId: string) => void;
+  readonly routerNavigateToIndex: () => void;
+}
+
+interface StateToUrlSyncArgs {
+  readonly routerIsReady: boolean;
+  readonly isHydrated: boolean;
+  readonly isLoading: boolean;
+  readonly isSyncingRef: SyncingRef;
+  readonly lastSyncedRef: SyncStateRef;
+  readonly activeTabId: string | null;
+  readonly routerUnitId: string | null;
+  readonly routerSyncUrl: (unitId: string, tabId: CustomizerTabId) => void;
+  readonly getLastSubTab: GetLastSubTab;
+}
+
+function resetSyncFlag(isSyncingRef: SyncingRef): void {
+  setTimeout(() => {
+    isSyncingRef.current = false;
+  }, 0);
+}
+
+function resolveDefaultTab(storedSubTab: StoredSubTab): CustomizerTabId {
+  return storedSubTab && isValidTabId(storedSubTab)
+    ? storedSubTab
+    : 'structure';
+}
+
+function resolveEffectiveTabId(
+  routerTabId: CustomizerTabId,
+  storedSubTab: StoredSubTab,
+): CustomizerTabId {
+  return routerTabId !== 'structure'
+    ? routerTabId
+    : resolveDefaultTab(storedSubTab);
+}
+
+function findActiveTab(
+  tabs: readonly TabInfo[],
+  activeTabId: string | null,
+): TabInfo | null {
+  if (!activeTabId || tabs.length === 0) {
+    return null;
+  }
+  return tabs.find((tab) => tab.id === activeTabId) ?? null;
+}
+
+function shouldSkipUrlToStateSync({
+  routerIsReady,
+  isHydrated,
+  isLoading,
+  isSyncingRef,
+  lastSyncedRef,
+  routerUnitId,
+  activeTabId,
+}: UrlToStateSyncArgs): boolean {
+  if (!routerIsReady || !isHydrated || isLoading) return true;
+  if (isSyncingRef.current) return true;
+  return (
+    lastSyncedRef.current.unitId === routerUnitId &&
+    lastSyncedRef.current.activeTabId === activeTabId
+  );
+}
+
+function syncUrlToState(args: UrlToStateSyncArgs): void {
+  if (shouldSkipUrlToStateSync(args)) return;
+
+  const {
+    activeTabId,
+    isSyncingRef,
+    lastSyncedRef,
+    routerIsValid,
+    routerNavigateToIndex,
+    routerUnitId,
+    selectTab,
+    tabs,
+  } = args;
+
+  if (!routerUnitId || !routerIsValid || routerUnitId === activeTabId) return;
+
+  isSyncingRef.current = true;
+  if (tabs.some((tab) => tab.id === routerUnitId)) {
+    selectTab(routerUnitId);
+    lastSyncedRef.current = {
+      unitId: routerUnitId,
+      activeTabId: routerUnitId,
+    };
+  } else {
+    logger.warn('Unit not found in tabs:', routerUnitId);
+    routerNavigateToIndex();
+  }
+  resetSyncFlag(isSyncingRef);
+}
+
+function shouldSkipStateToUrlSync({
+  routerIsReady,
+  isHydrated,
+  isLoading,
+  isSyncingRef,
+  activeTabId,
+  routerUnitId,
+  lastSyncedRef,
+}: StateToUrlSyncArgs): boolean {
+  if (!routerIsReady || !isHydrated || isLoading) return true;
+  if (isSyncingRef.current) return true;
+  if (!activeTabId || routerUnitId === activeTabId) return true;
+  return (
+    lastSyncedRef.current.unitId === activeTabId &&
+    lastSyncedRef.current.activeTabId === activeTabId
+  );
+}
+
+function syncStateToUrl(args: StateToUrlSyncArgs): void {
+  if (shouldSkipStateToUrlSync(args)) return;
+
+  const {
+    activeTabId,
+    getLastSubTab,
+    isSyncingRef,
+    lastSyncedRef,
+    routerSyncUrl,
+  } = args;
+
+  if (!activeTabId) return;
+
+  isSyncingRef.current = true;
+  routerSyncUrl(activeTabId, resolveDefaultTab(getLastSubTab(activeTabId)));
+  lastSyncedRef.current = { unitId: activeTabId, activeTabId };
+  resetSyncFlag(isSyncingRef);
+}
+
+function useActiveTab(
+  tabs: readonly TabInfo[],
+  activeTabId: string | null,
+): TabInfo | null {
+  return useMemo(() => findActiveTab(tabs, activeTabId), [tabs, activeTabId]);
+}
+
+function useUnitTabNavigation(
+  activeTabId: string | null,
+  setLastSubTab: SetLastSubTab,
+  navigateToTab: NavigateToTab,
+): NavigateToTab {
+  return useCallback(
+    (tabId) => {
+      if (activeTabId) {
+        setLastSubTab(activeTabId, tabId);
+      }
+      navigateToTab(tabId);
+    },
+    [activeTabId, setLastSubTab, navigateToTab],
+  );
+}
+
+function LoadingCustomizerState(): React.ReactElement {
+  return (
+    <div className="bg-surface-deep flex min-h-screen items-center justify-center">
+      <div className="text-text-theme-secondary">Loading customizer...</div>
+    </div>
+  );
+}
+
+function InvalidUnitState({
+  onNavigateToIndex,
+}: {
+  readonly onNavigateToIndex: () => void;
+}): React.ReactElement {
+  return (
+    <div className="bg-surface-deep flex min-h-screen items-center justify-center">
+      <div className="text-text-theme-secondary p-8 text-center">
+        <p className="mb-2 text-lg">Invalid unit ID</p>
+        <p className="mb-4 text-sm">The requested unit could not be found.</p>
+        <button
+          onClick={onNavigateToIndex}
+          className="bg-accent text-surface-deep hover:bg-accent-hover rounded px-4 py-2 transition-colors"
+        >
+          Go to Customizer
+        </button>
+      </div>
+    </div>
+  );
+}
 
 // =============================================================================
 // Main Component
@@ -70,6 +284,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
   const routerIsReady = router.isReady;
   const routerSyncUrl = router.syncUrl;
   const routerNavigateToIndex = router.navigateToIndex;
+  const routerNavigateToTab = router.navigateToTab;
 
   // Get effective tab ID: URL tab takes precedence, then stored lastSubTab, then default
   const effectiveUnitId = routerUnitId || activeTabId;
@@ -77,12 +292,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
     ? getLastSubTab(effectiveUnitId)
     : undefined;
   // Use stored sub-tab only when URL has default 'structure' (meaning no explicit tab in URL)
-  const effectiveTabId: CustomizerTabId =
-    routerTabId !== 'structure'
-      ? routerTabId
-      : storedSubTab && isValidTabId(storedSubTab)
-        ? storedSubTab
-        : routerTabId;
+  const effectiveTabId = resolveEffectiveTabId(routerTabId, storedSubTab);
 
   useAutoSaveIndicator();
 
@@ -104,43 +314,19 @@ export default function CustomizerWithRouter(): React.ReactElement {
   useEffect(() => {
     // Wait for the Next router to parse the URL — before `isReady`,
     // `routerUnitId` is null even for a deep link (e2e triage RC15).
-    if (!routerIsReady || !isHydrated || isLoading) return;
-    if (isSyncingRef.current) return;
-
-    // Skip if we just synced this combination
-    if (
-      lastSyncedRef.current.unitId === routerUnitId &&
-      lastSyncedRef.current.activeTabId === activeTabId
-    ) {
-      return;
-    }
-
-    // If URL has a unit ID that differs from active tab
-    if (routerUnitId && routerIsValid && routerUnitId !== activeTabId) {
-      // Check if this unit exists in our tabs
-      const tabExists = tabs.some((t) => t.id === routerUnitId);
-
-      if (tabExists) {
-        isSyncingRef.current = true;
-        selectTab(routerUnitId);
-        lastSyncedRef.current = {
-          unitId: routerUnitId,
-          activeTabId: routerUnitId,
-        };
-        // Reset sync flag after a tick
-        setTimeout(() => {
-          isSyncingRef.current = false;
-        }, 0);
-      } else {
-        // Unit doesn't exist in tabs - redirect to index
-        logger.warn('Unit not found in tabs:', routerUnitId);
-        isSyncingRef.current = true;
-        routerNavigateToIndex();
-        setTimeout(() => {
-          isSyncingRef.current = false;
-        }, 0);
-      }
-    }
+    syncUrlToState({
+      routerIsReady,
+      isHydrated,
+      isLoading,
+      isSyncingRef,
+      lastSyncedRef,
+      routerUnitId,
+      routerIsValid,
+      activeTabId,
+      tabs,
+      selectTab,
+      routerNavigateToIndex,
+    });
   }, [
     routerIsReady,
     isHydrated,
@@ -164,32 +350,17 @@ export default function CustomizerWithRouter(): React.ReactElement {
     // clobbering `/customizer/<id>[/<tab>]` deep links (e2e triage RC15).
     // Deep links must win; the URL->State effect above handles them once
     // `routerIsReady` flips.
-    if (!routerIsReady || !isHydrated || isLoading) return;
-    if (isSyncingRef.current) return;
-    if (!activeTabId) return;
-
-    // Only sync if the URL doesn't match and we haven't just synced
-    if (routerUnitId !== activeTabId) {
-      // Skip if this is the same sync we just did
-      if (
-        lastSyncedRef.current.unitId === activeTabId &&
-        lastSyncedRef.current.activeTabId === activeTabId
-      ) {
-        return;
-      }
-
-      isSyncingRef.current = true;
-      // When switching units, restore the last active sub-tab for that unit
-      // instead of carrying over the current URL's tab (which was for the old unit)
-      const storedTab = getLastSubTab(activeTabId);
-      const tabToSync: CustomizerTabId =
-        storedTab && isValidTabId(storedTab) ? storedTab : 'structure';
-      routerSyncUrl(activeTabId, tabToSync);
-      lastSyncedRef.current = { unitId: activeTabId, activeTabId };
-      setTimeout(() => {
-        isSyncingRef.current = false;
-      }, 0);
-    }
+    syncStateToUrl({
+      routerIsReady,
+      isHydrated,
+      isLoading,
+      isSyncingRef,
+      lastSyncedRef,
+      activeTabId,
+      routerUnitId,
+      routerSyncUrl,
+      getLastSubTab,
+    });
   }, [
     routerIsReady,
     isHydrated,
@@ -200,13 +371,12 @@ export default function CustomizerWithRouter(): React.ReactElement {
     getLastSubTab,
   ]);
 
-  const activeTab: TabInfo | null = useMemo(() => {
-    if (!activeTabId || tabs.length === 0) {
-      return null;
-    }
-    const tab = tabs.find((t) => t.id === activeTabId);
-    return tab ?? null;
-  }, [tabs, activeTabId]);
+  const activeTab = useActiveTab(tabs, activeTabId);
+  const handleTabChange = useUnitTabNavigation(
+    activeTabId,
+    setLastSubTab,
+    routerNavigateToTab,
+  );
 
   // ==========================================================================
   // Render
@@ -216,29 +386,12 @@ export default function CustomizerWithRouter(): React.ReactElement {
   // hasn't parsed the URL yet — rendering the stored active unit during
   // that window flashes the WRONG unit on a deep link (e2e triage RC15).
   if (!routerIsReady || !isHydrated || isLoading) {
-    return (
-      <div className="bg-surface-deep flex min-h-screen items-center justify-center">
-        <div className="text-text-theme-secondary">Loading customizer...</div>
-      </div>
-    );
+    return <LoadingCustomizerState />;
   }
 
   // Invalid unit ID in URL
   if (!routerIsValid && !routerIsIndex) {
-    return (
-      <div className="bg-surface-deep flex min-h-screen items-center justify-center">
-        <div className="text-text-theme-secondary p-8 text-center">
-          <p className="mb-2 text-lg">Invalid unit ID</p>
-          <p className="mb-4 text-sm">The requested unit could not be found.</p>
-          <button
-            onClick={routerNavigateToIndex}
-            className="bg-accent text-surface-deep hover:bg-accent-hover rounded px-4 py-2 transition-colors"
-          >
-            Go to Customizer
-          </button>
-        </div>
-      </div>
-    );
+    return <InvalidUnitState onNavigateToIndex={routerNavigateToIndex} />;
   }
 
   return (
@@ -250,12 +403,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
               <UnitTypeRouter
                 activeTab={activeTab}
                 activeTabId={effectiveTabId}
-                onTabChange={(tabId) => {
-                  if (activeTabId) {
-                    setLastSubTab(activeTabId, tabId);
-                  }
-                  router.navigateToTab(tabId);
-                }}
+                onTabChange={handleTabChange}
               />
             </ErrorBoundary>
           </MultiUnitTabs>

@@ -14,10 +14,7 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.1
  */
 
-// Type-only import avoids a runtime cycle with the aerospace BV calculator,
-// which imports unit/arc enums from this module to read unit shape during
-// dispatch. Only used as the return type of `IAerospaceUnit.bvBreakdown`.
-import type { IAerospaceBVBreakdown } from '@/utils/construction/aerospace/aerospaceBV';
+import type { IAerospaceBVBreakdown } from './BVBreakdownTypes';
 
 import {
   IEntity,

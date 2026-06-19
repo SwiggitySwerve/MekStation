@@ -15,6 +15,7 @@ import {
   MechLayoutConfig,
   PartDefinition,
 } from '../LayoutTypes';
+import { RECTANGULAR_PART_PATH } from './LayoutPathTemplates';
 
 // ============================================================================
 // Part Definitions
@@ -26,13 +27,7 @@ const HEAD: PartDefinition = {
   baseHeight: 55,
   shape: 'path',
   anchors: [{ id: 'neck', position: 'bottom', offset: { x: 0, y: 0 } }],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 const CENTER_TORSO: PartDefinition = {
@@ -75,13 +70,7 @@ const CENTER_TORSO: PartDefinition = {
       edgePosition: { edge: 'right', at: 0 },
     },
   ],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 const LEFT_TORSO: PartDefinition = {
@@ -97,13 +86,7 @@ const LEFT_TORSO: PartDefinition = {
       edgePosition: { edge: 'left', at: 0.25 },
     },
   ],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 const RIGHT_TORSO: PartDefinition = {
@@ -119,13 +102,7 @@ const RIGHT_TORSO: PartDefinition = {
       edgePosition: { edge: 'right', at: 0.25 },
     },
   ],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 const LEFT_ARM: PartDefinition = {
@@ -134,13 +111,7 @@ const LEFT_ARM: PartDefinition = {
   baseHeight: 150,
   shape: 'path',
   anchors: [{ id: 'shoulder', position: 'top-right', offset: { x: 0, y: 0 } }],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 const RIGHT_ARM: PartDefinition = {
@@ -149,13 +120,7 @@ const RIGHT_ARM: PartDefinition = {
   baseHeight: 150,
   shape: 'path',
   anchors: [{ id: 'shoulder', position: 'top-left', offset: { x: 0, y: 0 } }],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 const LEFT_LEG: PartDefinition = {
@@ -164,13 +129,7 @@ const LEFT_LEG: PartDefinition = {
   baseHeight: 140,
   shape: 'path',
   anchors: [{ id: 'hip', position: 'top-right', offset: { x: 0, y: 0 } }],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 const RIGHT_LEG: PartDefinition = {
@@ -179,13 +138,7 @@ const RIGHT_LEG: PartDefinition = {
   baseHeight: 140,
   shape: 'path',
   anchors: [{ id: 'hip', position: 'top-left', offset: { x: 0, y: 0 } }],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 // Center leg uses CENTER_LEG location if available, or a custom approach
@@ -196,13 +149,7 @@ const CENTER_LEG: PartDefinition = {
   baseHeight: 150,
   shape: 'path',
   anchors: [{ id: 'hip', position: 'top', offset: { x: 0, y: 0 } }],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 // ============================================================================

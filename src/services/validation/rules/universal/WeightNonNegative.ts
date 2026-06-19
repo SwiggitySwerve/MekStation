@@ -6,13 +6,16 @@
 
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
+  UnitValidationSeverity,
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
   IUnitValidationRuleResult,
-  UnitValidationSeverity,
-  createUnitValidationError,
-  createUnitValidationRuleResult,
+  IUnitValidationError,
 } from '@/types/validation/UnitValidationInterfaces';
+
+import { addRuleDiagnostic, createRuleResult } from '../ruleResults';
+
+const WEIGHT_NON_NEGATIVE_WEIGHT_CATEGORY = ValidationCategory.WEIGHT;
 
 /**
  * VAL-UNIV-008: Weight Non-Negative
@@ -21,39 +24,29 @@ export const WeightNonNegative: IUnitValidationRuleDefinition = {
   id: 'VAL-UNIV-008',
   name: 'Weight Non-Negative',
   description: 'Unit weight must be finite and non-negative',
-  category: ValidationCategory.WEIGHT,
-  priority: 8,
+  category: WEIGHT_NON_NEGATIVE_WEIGHT_CATEGORY,
   applicableUnitTypes: 'ALL',
+  priority: 8,
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors = [];
+    const weightNonNegativeDiagnostics: IUnitValidationError[] = [];
 
     if (!Number.isFinite(unit.weight) || unit.weight < 0) {
-      errors.push(
-        createUnitValidationError(
-          this.id,
-          this.name,
-          UnitValidationSeverity.ERROR,
-          this.category,
-          'Unit weight must be a non-negative finite number',
-          {
-            field: 'weight',
-            expected: '>= 0',
-            actual: String(unit.weight),
-            suggestion: 'Correct the weight value to be >= 0 and finite',
-          },
-        ),
+      addRuleDiagnostic(
+        weightNonNegativeDiagnostics,
+        this,
+        UnitValidationSeverity.ERROR,
+        'Unit weight must be a non-negative finite number',
+        {
+          field: 'weight',
+          expected: '>= 0',
+          actual: String(unit.weight),
+          suggestion: 'Correct the weight value to be >= 0 and finite',
+        },
       );
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors: weightNonNegativeDiagnostics });
   },
 };

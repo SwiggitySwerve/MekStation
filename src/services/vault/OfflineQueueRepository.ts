@@ -46,13 +46,13 @@ export class OfflineQueueRepository {
   /**
    * Initialize the repository (ensure tables exist)
    */
-  async initialize(): Promise<void> {
+  readonly initialize = async (): Promise<void> => {
     if (this.initialized) return;
 
-    const db = getSQLiteService();
-    await db.initialize();
+    const database = getSQLiteService();
+    await database.initialize();
 
-    db.getDatabase().exec(`
+    database.getDatabase().exec(`
       CREATE TABLE IF NOT EXISTS offline_queue (
         id TEXT PRIMARY KEY,
         target_peer_id TEXT NOT NULL,
@@ -78,7 +78,7 @@ export class OfflineQueueRepository {
     `);
 
     this.initialized = true;
-  }
+  };
 
   // ===========================================================================
   // Queue Messages
@@ -87,7 +87,7 @@ export class OfflineQueueRepository {
   /**
    * Add a message to the queue
    */
-  async enqueue(
+  readonly enqueue = async (
     targetPeerId: string,
     messageType: P2PMessageType,
     payload: string,
@@ -95,9 +95,9 @@ export class OfflineQueueRepository {
       expiryMs?: number;
       priority?: number;
     },
-  ): Promise<IQueuedMessage> {
+  ): Promise<IQueuedMessage> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
     const id = `msg-${crypto.randomUUID()}`;
     const now = new Date();
@@ -107,24 +107,26 @@ export class OfflineQueueRepository {
     const priority = options?.priority ?? 0;
     const sizeBytes = new TextEncoder().encode(payload).length;
 
-    db.prepare(`
+    database
+      .prepare(`
       INSERT INTO offline_queue (
         id, target_peer_id, message_type, payload, queued_at, expires_at,
         attempts, last_attempt_at, status, priority, size_bytes
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      id,
-      targetPeerId,
-      messageType,
-      payload,
-      queuedAt,
-      expiresAt,
-      0,
-      null,
-      'pending',
-      priority,
-      sizeBytes,
-    );
+    `)
+      .run(
+        id,
+        targetPeerId,
+        messageType,
+        payload,
+        queuedAt,
+        expiresAt,
+        0,
+        null,
+        'pending',
+        priority,
+        sizeBytes,
+      );
 
     return {
       id,
@@ -139,19 +141,19 @@ export class OfflineQueueRepository {
       priority,
       sizeBytes,
     };
-  }
+  };
 
   /**
    * Get pending messages for a peer (oldest first, respecting priority)
    */
-  async getPendingForPeer(
+  readonly getPendingForPeer = async (
     peerId: string,
     limit = 50,
-  ): Promise<IQueuedMessage[]> {
+  ): Promise<IQueuedMessage[]> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const rows = db
+    const rows = database
       .prepare(
         `SELECT * FROM offline_queue 
          WHERE target_peer_id = ? AND status = 'pending'
@@ -161,16 +163,16 @@ export class OfflineQueueRepository {
       .all(peerId, limit) as IStoredQueuedMessage[];
 
     return rows.map((row) => this.rowToMessage(row));
-  }
+  };
 
   /**
    * Get all pending messages
    */
-  async getAllPending(limit = 100): Promise<IQueuedMessage[]> {
+  readonly getAllPending = async (limit = 100): Promise<IQueuedMessage[]> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const rows = db
+    const rows = database
       .prepare(
         `SELECT * FROM offline_queue 
          WHERE status = 'pending'
@@ -180,21 +182,21 @@ export class OfflineQueueRepository {
       .all(limit) as IStoredQueuedMessage[];
 
     return rows.map((row) => this.rowToMessage(row));
-  }
+  };
 
   /**
    * Get a message by ID
    */
-  async getById(id: string): Promise<IQueuedMessage | null> {
+  readonly getById = async (id: string): Promise<IQueuedMessage | null> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const row = db
+    const row = database
       .prepare('SELECT * FROM offline_queue WHERE id = ?')
       .get(id) as IStoredQueuedMessage | undefined;
 
     return row ? this.rowToMessage(row) : null;
-  }
+  };
 
   // ===========================================================================
   // Update Status
@@ -203,12 +205,12 @@ export class OfflineQueueRepository {
   /**
    * Mark a message as sending (in progress)
    */
-  async markSending(id: string): Promise<boolean> {
+  readonly markSending = async (id: string): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
 
-    const result = db
+    const result = database
       .prepare(
         `UPDATE offline_queue 
          SET status = 'sending', attempts = attempts + 1, last_attempt_at = ?
@@ -217,28 +219,28 @@ export class OfflineQueueRepository {
       .run(now, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Mark a message as successfully sent
    */
-  async markSent(id: string): Promise<boolean> {
+  readonly markSent = async (id: string): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = database
       .prepare("UPDATE offline_queue SET status = 'sent' WHERE id = ?")
       .run(id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Mark a message as failed
    */
-  async markFailed(id: string): Promise<boolean> {
+  readonly markFailed = async (id: string): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
     // Check if we've exceeded max attempts
     const message = await this.getById(id);
@@ -246,22 +248,22 @@ export class OfflineQueueRepository {
 
     const newStatus = message.attempts >= MAX_ATTEMPTS ? 'failed' : 'pending';
 
-    const result = db
+    const result = database
       .prepare('UPDATE offline_queue SET status = ? WHERE id = ?')
       .run(newStatus, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Mark expired messages
    */
-  async markExpired(): Promise<number> {
+  readonly markExpired = async (): Promise<number> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
 
-    const result = db
+    const result = database
       .prepare(
         `UPDATE offline_queue 
          SET status = 'expired' 
@@ -270,7 +272,7 @@ export class OfflineQueueRepository {
       .run(now);
 
     return result.changes;
-  }
+  };
 
   // ===========================================================================
   // Delete Messages
@@ -279,70 +281,72 @@ export class OfflineQueueRepository {
   /**
    * Delete a message by ID
    */
-  async delete(id: string): Promise<boolean> {
+  readonly delete = async (id: string): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const result = db.prepare('DELETE FROM offline_queue WHERE id = ?').run(id);
+    const result = database
+      .prepare('DELETE FROM offline_queue WHERE id = ?')
+      .run(id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Delete all sent messages
    */
-  async deleteSent(): Promise<number> {
+  readonly deleteSent = async (): Promise<number> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = database
       .prepare("DELETE FROM offline_queue WHERE status = 'sent'")
       .run();
 
     return result.changes;
-  }
+  };
 
   /**
    * Delete all expired messages
    */
-  async deleteExpired(): Promise<number> {
+  readonly deleteExpired = async (): Promise<number> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = database
       .prepare("DELETE FROM offline_queue WHERE status = 'expired'")
       .run();
 
     return result.changes;
-  }
+  };
 
   /**
    * Delete all messages for a peer
    */
-  async deleteForPeer(peerId: string): Promise<number> {
+  readonly deleteForPeer = async (peerId: string): Promise<number> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = database
       .prepare('DELETE FROM offline_queue WHERE target_peer_id = ?')
       .run(peerId);
 
     return result.changes;
-  }
+  };
 
   /**
    * Delete messages older than a date
    */
-  async deleteOlderThan(date: string): Promise<number> {
+  readonly deleteOlderThan = async (date: string): Promise<number> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = database
       .prepare('DELETE FROM offline_queue WHERE queued_at < ?')
       .run(date);
 
     return result.changes;
-  }
+  };
 
   // ===========================================================================
   // Statistics
@@ -351,11 +355,13 @@ export class OfflineQueueRepository {
   /**
    * Get queue summary for a peer
    */
-  async getPeerSummary(peerId: string): Promise<IPeerQueueSummary> {
+  readonly getPeerSummary = async (
+    peerId: string,
+  ): Promise<IPeerQueueSummary> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const pending = db
+    const pending = database
       .prepare(
         `SELECT COUNT(*) as count, SUM(size_bytes) as size, MIN(queued_at) as oldest
          FROM offline_queue 
@@ -367,7 +373,7 @@ export class OfflineQueueRepository {
       oldest: string | null;
     };
 
-    const failed = db
+    const failed = database
       .prepare(
         `SELECT COUNT(*) as count 
          FROM offline_queue 
@@ -375,7 +381,7 @@ export class OfflineQueueRepository {
       )
       .get(peerId) as { count: number };
 
-    const lastSuccess = db
+    const lastSuccess = database
       .prepare(
         `SELECT MAX(last_attempt_at) as last 
          FROM offline_queue 
@@ -391,22 +397,22 @@ export class OfflineQueueRepository {
       failedCount: failed.count,
       lastSuccessAt: lastSuccess.last,
     };
-  }
+  };
 
   /**
    * Get overall queue statistics
    */
-  async getStats(): Promise<IQueueStats> {
+  readonly getStats = async (): Promise<IQueueStats> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const total = db
+    const total = database
       .prepare(
         'SELECT COUNT(*) as count, SUM(size_bytes) as size FROM offline_queue',
       )
       .get() as { count: number; size: number | null };
 
-    const byStatus = db
+    const byStatus = database
       .prepare(
         `SELECT status, COUNT(*) as count 
          FROM offline_queue 
@@ -414,14 +420,14 @@ export class OfflineQueueRepository {
       )
       .all() as Array<{ status: QueuedMessageStatus; count: number }>;
 
-    const peers = db
+    const peers = database
       .prepare(
         'SELECT COUNT(DISTINCT target_peer_id) as count FROM offline_queue',
       )
       .get() as { count: number };
 
     const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000).toISOString();
-    const expiring = db
+    const expiring = database
       .prepare(
         `SELECT COUNT(*) as count 
          FROM offline_queue 
@@ -448,7 +454,7 @@ export class OfflineQueueRepository {
       targetPeerCount: peers.count,
       expiringSoon: expiring.count,
     };
-  }
+  };
 
   // ===========================================================================
   // Helpers

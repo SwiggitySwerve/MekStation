@@ -1,11 +1,3 @@
-import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
-import type {
-  IIndirectFireForwardObserverPayload,
-  IIndirectFireNarcOverridePayload,
-  IIndirectFireSpotterLostPayload,
-  IIndirectFireSpotterSelectedPayload,
-} from '@/types/gameplay/IndirectFireInterfaces';
-
 import {
   GameEventType,
   GamePhase,
@@ -13,20 +5,31 @@ import {
   IAttackInvalidPayload,
   IAttackLockedPayload,
   IAttackResolvedPayload,
-  IComponentDestroyedPayload,
-  IDamageAppliedPayload,
   IGameEvent,
-  ILocationDestroyedPayload,
   IToHitModifier,
-  ITransferDamagePayload,
   IWeaponAttackData,
   RangeBracket,
 } from '@/types/gameplay';
 
 import { createEventBase } from './base';
 
-export function createAttackDeclaredEvent(
-  gameId: string,
+interface ICombatEventContext {
+  readonly gameId: string;
+  readonly sequence: number;
+  readonly turn: number;
+}
+
+export interface ICreateAttackDeclaredEventInput extends ICombatEventContext {
+  readonly attackerId: string;
+  readonly targetId: string;
+  readonly weapons: readonly string[];
+  readonly toHitNumber: number;
+  readonly modifiers: readonly IToHitModifier[];
+  readonly weaponAttacks?: readonly IWeaponAttackData[];
+  readonly rangeBracket?: RangeBracket;
+}
+
+type AttackDeclaredLegacyArgs = [
   sequence: number,
   turn: number,
   attackerId: string,
@@ -36,7 +39,55 @@ export function createAttackDeclaredEvent(
   modifiers: readonly IToHitModifier[],
   weaponAttacks?: readonly IWeaponAttackData[],
   rangeBracket?: RangeBracket,
+];
+
+function attackDeclaredInput(
+  input: ICreateAttackDeclaredEventInput | string,
+  legacy: [] | AttackDeclaredLegacyArgs,
+): ICreateAttackDeclaredEventInput {
+  if (typeof input !== 'string') return input;
+  const args = legacy as AttackDeclaredLegacyArgs;
+  const [
+    sequence,
+    turn,
+    attackerId,
+    targetId,
+    weapons,
+    toHitNumber,
+    modifiers,
+    weaponAttacks,
+    rangeBracket,
+  ] = args;
+  return {
+    gameId: input,
+    sequence,
+    turn,
+    attackerId,
+    targetId,
+    weapons,
+    toHitNumber,
+    modifiers,
+    weaponAttacks,
+    rangeBracket,
+  };
+}
+
+export function createAttackDeclaredEvent(
+  input: ICreateAttackDeclaredEventInput | string,
+  ...legacy: [] | AttackDeclaredLegacyArgs
 ): IGameEvent {
+  const {
+    attackerId,
+    gameId,
+    modifiers,
+    rangeBracket,
+    sequence,
+    targetId,
+    toHitNumber,
+    turn,
+    weaponAttacks,
+    weapons,
+  } = attackDeclaredInput(input, legacy);
   const payload: IAttackDeclaredPayload = {
     attackerId,
     targetId,
@@ -83,8 +134,30 @@ export function createAttackLockedEvent(
   };
 }
 
-export function createAttackResolvedEvent(
-  gameId: string,
+export interface ICreateAttackResolvedEventInput extends ICombatEventContext {
+  readonly attackerId: string;
+  readonly targetId: string;
+  readonly weaponId: string;
+  readonly roll: number;
+  readonly toHitNumber: number;
+  readonly hit: boolean;
+  readonly location?: string;
+  readonly damage?: number;
+  readonly heat?: number;
+  readonly attackerArc?: 'front' | 'left' | 'right' | 'rear';
+  readonly ammoBinId?: string | null;
+  readonly edge?: Pick<
+    IAttackResolvedPayload,
+    | 'edgeReroll'
+    | 'edgeSuperseded'
+    | 'edgeTrigger'
+    | 'edgePointsRemaining'
+    | 'edgeSupersededLocation'
+    | 'edgeSupersededRoll'
+  >;
+}
+
+type AttackResolvedLegacyArgs = [
   sequence: number,
   turn: number,
   attackerId: string,
@@ -98,16 +171,71 @@ export function createAttackResolvedEvent(
   heat?: number,
   attackerArc?: 'front' | 'left' | 'right' | 'rear',
   ammoBinId?: string | null,
-  edge?: Pick<
-    IAttackResolvedPayload,
-    | 'edgeReroll'
-    | 'edgeSuperseded'
-    | 'edgeTrigger'
-    | 'edgePointsRemaining'
-    | 'edgeSupersededLocation'
-    | 'edgeSupersededRoll'
-  >,
+  edge?: ICreateAttackResolvedEventInput['edge'],
+];
+
+function attackResolvedInput(
+  input: ICreateAttackResolvedEventInput | string,
+  legacy: [] | AttackResolvedLegacyArgs,
+): ICreateAttackResolvedEventInput {
+  if (typeof input !== 'string') return input;
+  const args = legacy as AttackResolvedLegacyArgs;
+  const [
+    sequence,
+    turn,
+    attackerId,
+    targetId,
+    weaponId,
+    roll,
+    toHitNumber,
+    hit,
+    location,
+    damage,
+    heat,
+    attackerArc,
+    ammoBinId,
+    edge,
+  ] = args;
+  return {
+    gameId: input,
+    sequence,
+    turn,
+    attackerId,
+    targetId,
+    weaponId,
+    roll,
+    toHitNumber,
+    hit,
+    location,
+    damage,
+    heat,
+    attackerArc,
+    ammoBinId,
+    edge,
+  };
+}
+
+export function createAttackResolvedEvent(
+  input: ICreateAttackResolvedEventInput | string,
+  ...legacy: [] | AttackResolvedLegacyArgs
 ): IGameEvent {
+  const {
+    ammoBinId,
+    attackerArc,
+    attackerId,
+    damage,
+    edge,
+    gameId,
+    heat,
+    hit,
+    location,
+    roll,
+    sequence,
+    targetId,
+    toHitNumber,
+    turn,
+    weaponId,
+  } = attackResolvedInput(input, legacy);
   const payload: IAttackResolvedPayload = {
     attackerId,
     targetId,
@@ -151,8 +279,15 @@ export function createAttackResolvedEvent(
   };
 }
 
-export function createAttackInvalidEvent(
-  gameId: string,
+export interface ICreateAttackInvalidEventInput extends ICombatEventContext {
+  readonly attackerId: string;
+  readonly targetId: string;
+  readonly reason: IAttackInvalidPayload['reason'];
+  readonly weaponId?: string;
+  readonly details?: string;
+}
+
+type AttackInvalidLegacyArgs = [
   sequence: number,
   turn: number,
   attackerId: string,
@@ -160,7 +295,42 @@ export function createAttackInvalidEvent(
   reason: IAttackInvalidPayload['reason'],
   weaponId?: string,
   details?: string,
+];
+
+function attackInvalidInput(
+  input: ICreateAttackInvalidEventInput | string,
+  legacy: [] | AttackInvalidLegacyArgs,
+): ICreateAttackInvalidEventInput {
+  if (typeof input !== 'string') return input;
+  const args = legacy as AttackInvalidLegacyArgs;
+  const [sequence, turn, attackerId, targetId, reason, weaponId, details] =
+    args;
+  return {
+    gameId: input,
+    sequence,
+    turn,
+    attackerId,
+    targetId,
+    reason,
+    weaponId,
+    details,
+  };
+}
+
+export function createAttackInvalidEvent(
+  input: ICreateAttackInvalidEventInput | string,
+  ...legacy: [] | AttackInvalidLegacyArgs
 ): IGameEvent {
+  const {
+    attackerId,
+    details,
+    gameId,
+    reason,
+    sequence,
+    targetId,
+    turn,
+    weaponId,
+  } = attackInvalidInput(input, legacy);
   const payload: IAttackInvalidPayload = {
     attackerId,
     targetId,
@@ -174,321 +344,6 @@ export function createAttackInvalidEvent(
       gameId,
       sequence,
       GameEventType.AttackInvalid,
-      turn,
-      GamePhase.WeaponAttack,
-      attackerId,
-    ),
-    payload,
-  };
-}
-
-export function createDamageAppliedEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  unitId: string,
-  location: string,
-  damage: number,
-  armorRemaining: number,
-  structureRemaining: number,
-  locationDestroyed: boolean,
-  criticals?: readonly string[],
-  phase: GamePhase = GamePhase.WeaponAttack,
-): IGameEvent {
-  const payload: IDamageAppliedPayload = {
-    unitId,
-    location,
-    damage,
-    armorRemaining,
-    structureRemaining,
-    locationDestroyed,
-    criticals,
-  };
-
-  return {
-    ...createEventBase(
-      gameId,
-      sequence,
-      GameEventType.DamageApplied,
-      turn,
-      phase,
-      unitId,
-    ),
-    payload,
-  };
-}
-
-/**
- * Per `integrate-damage-pipeline`: location's internal structure reached
- * zero. Optionally carries `cascadedTo` when destruction triggered a
- * linked-location destruction (side torso → arm cascade).
- *
- * Per `add-combat-fidelity-suite` Phase 2: `viaTransfer` distinguishes
- * direct destruction (`false`) from cascade destruction (`true` —
- * residual damage flowed in from a previous destroyed location).
- * Optional for backward compatibility with pre-P2 callers.
- */
-export function createLocationDestroyedEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  unitId: string,
-  location: string,
-  cascadedTo?: string,
-  viaTransfer?: boolean,
-  phase: GamePhase = GamePhase.WeaponAttack,
-): IGameEvent {
-  const payload: ILocationDestroyedPayload = {
-    unitId,
-    location,
-    cascadedTo,
-    viaTransfer,
-  };
-
-  return {
-    ...createEventBase(
-      gameId,
-      sequence,
-      GameEventType.LocationDestroyed,
-      turn,
-      phase,
-      unitId,
-    ),
-    payload,
-  };
-}
-
-/**
- * Per `integrate-damage-pipeline`: damage transferred from a destroyed
- * `fromLocation` to its canonical `toLocation`. Multiple events may
- * fire in sequence for a single shot (arm → side torso → center torso).
- */
-export function createTransferDamageEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  unitId: string,
-  fromLocation: string,
-  toLocation: string,
-  damage: number,
-  phase: GamePhase = GamePhase.WeaponAttack,
-): IGameEvent {
-  const payload: ITransferDamagePayload = {
-    unitId,
-    fromLocation,
-    toLocation,
-    damage,
-  };
-
-  return {
-    ...createEventBase(
-      gameId,
-      sequence,
-      GameEventType.TransferDamage,
-      turn,
-      phase,
-      unitId,
-    ),
-    payload,
-  };
-}
-
-/**
- * Per `integrate-damage-pipeline`: a specific component has been
- * destroyed by a critical-hit roll. Provides slot index for UI highlight
- * and `componentType` for icon selection.
- */
-export function createComponentDestroyedEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  unitId: string,
-  location: string,
-  componentType: string,
-  slotIndex: number,
-  componentName?: string,
-  phase: GamePhase = GamePhase.WeaponAttack,
-  ammoBinId?: string,
-): IGameEvent {
-  const payload: IComponentDestroyedPayload = {
-    unitId,
-    location,
-    componentType,
-    slotIndex,
-    componentName,
-    ...(ammoBinId !== undefined ? { ammoBinId } : {}),
-  };
-
-  return {
-    ...createEventBase(
-      gameId,
-      sequence,
-      GameEventType.ComponentDestroyed,
-      turn,
-      phase,
-      unitId,
-    ),
-    payload,
-  };
-}
-
-// =============================================================================
-// Indirect-Fire dispatch events (Wave 8 PR-K4)
-// =============================================================================
-
-/**
- * Emitted when a friendly LOS spotter is elected for an indirect-fire attack.
- * Payload mirrors IIndirectFireSpotterSelectedPayload (basis='los',
- * spotterId always non-null).
- */
-export function createIndirectFireSpotterSelectedEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  attackerId: string,
-  spotterId: string,
-  weaponId: string,
-  targetHex: IHexCoordinate,
-  toHitPenalty: number,
-  ammoId?: string,
-  // Audit C-5: replaces the retired spotterGunnery/spotterSkillModifier
-  // params — the (gunnery-4)/2 term was artillery-only, never LRM indirect.
-  spotterAttackedThisTurn?: boolean,
-): IGameEvent {
-  const payload: IIndirectFireSpotterSelectedPayload = {
-    attackerId,
-    spotterId,
-    weaponId,
-    ammoId,
-    targetHex,
-    toHitPenalty,
-    spotterAttackedThisTurn,
-    basis: 'los',
-  };
-  return {
-    ...createEventBase(
-      gameId,
-      sequence,
-      GameEventType.IndirectFireSpotterSelected,
-      turn,
-      GamePhase.WeaponAttack,
-      attackerId,
-    ),
-    payload,
-  };
-}
-
-/**
- * Emitted when indirect fire is permitted via NARC/iNarc beacon instead of
- * a LOS spotter.
- */
-export function createIndirectFireNarcOverrideEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  attackerId: string,
-  weaponId: string,
-  targetHex: IHexCoordinate,
-  basis: 'narc' | 'inarc',
-  toHitPenalty: number,
-  ammoId?: string,
-): IGameEvent {
-  const payload: IIndirectFireNarcOverridePayload = {
-    attackerId,
-    spotterId: null,
-    weaponId,
-    ammoId,
-    targetHex,
-    toHitPenalty,
-    basis,
-  };
-  return {
-    ...createEventBase(
-      gameId,
-      sequence,
-      GameEventType.IndirectFireNarcOverride,
-      turn,
-      GamePhase.WeaponAttack,
-      attackerId,
-    ),
-    payload,
-  };
-}
-
-/**
- * Emitted in addition to IndirectFireSpotterSelected when the spotter's
- * pilot holds the FORWARD_OBSERVER SPA and the +1 spotter-walked penalty
- * is cancelled.
- */
-export function createIndirectFireForwardObserverEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  attackerId: string,
-  spotterId: string,
-  weaponId: string,
-  targetHex: IHexCoordinate,
-  toHitPenalty: number,
-  ammoId?: string,
-  // Audit C-5: replaces the retired spotterGunnery/spotterSkillModifier
-  // params — the (gunnery-4)/2 term was artillery-only, never LRM indirect.
-  spotterAttackedThisTurn?: boolean,
-): IGameEvent {
-  const payload: IIndirectFireForwardObserverPayload = {
-    attackerId,
-    spotterId,
-    weaponId,
-    ammoId,
-    targetHex,
-    toHitPenalty,
-    spotterAttackedThisTurn,
-    basis: 'los',
-    penaltyCancelled: 1,
-  };
-  return {
-    ...createEventBase(
-      gameId,
-      sequence,
-      GameEventType.IndirectFireForwardObserver,
-      turn,
-      GamePhase.WeaponAttack,
-      attackerId,
-    ),
-    payload,
-  };
-}
-
-/**
- * Emitted when the elected spotter is destroyed between to-hit time and
- * damage resolution, forcing an auto-miss.
- */
-export function createIndirectFireSpotterLostEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  attackerId: string,
-  spotterId: string,
-  weaponId: string,
-  targetHex: IHexCoordinate,
-  basis: 'los' | 'narc' | 'inarc' | 'semi-guided-tag',
-  reason: string,
-  ammoId?: string,
-): IGameEvent {
-  const payload: IIndirectFireSpotterLostPayload = {
-    attackerId,
-    spotterId,
-    weaponId,
-    ammoId,
-    targetHex,
-    toHitPenalty: 0,
-    basis,
-    reason,
-  };
-  return {
-    ...createEventBase(
-      gameId,
-      sequence,
-      GameEventType.IndirectFireSpotterLost,
       turn,
       GamePhase.WeaponAttack,
       attackerId,

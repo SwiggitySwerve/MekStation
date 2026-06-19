@@ -16,6 +16,8 @@ import {
   getAwardById,
 } from '@/types/award';
 
+import { RARITY_SORT_ORDER } from './awardRarityStyles';
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -28,17 +30,6 @@ interface AwardRibbonProps {
   size?: 'sm' | 'md';
   className?: string;
 }
-
-// =============================================================================
-// Rarity Priority (for sorting)
-// =============================================================================
-
-const RARITY_PRIORITY: Record<AwardRarity, number> = {
-  [AwardRarity.Legendary]: 0,
-  [AwardRarity.Rare]: 1,
-  [AwardRarity.Uncommon]: 2,
-  [AwardRarity.Common]: 3,
-};
 
 // =============================================================================
 // Size Configurations
@@ -114,7 +105,9 @@ export function AwardRibbon({
     const fullAwards = pilotAwards
       .map((pa) => getAwardById(pa.awardId))
       .filter((a): a is IAward => a !== undefined)
-      .sort((a, b) => RARITY_PRIORITY[a.rarity] - RARITY_PRIORITY[b.rarity]);
+      .sort(
+        (a, b) => RARITY_SORT_ORDER[a.rarity] - RARITY_SORT_ORDER[b.rarity],
+      );
 
     const display = fullAwards.slice(0, maxDisplay);
     const overflow = Math.max(0, fullAwards.length - maxDisplay);

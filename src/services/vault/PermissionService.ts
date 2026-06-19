@@ -84,9 +84,9 @@ export class PermissionService {
   /**
    * Grant a permission to a grantee
    */
-  async grant(
+  readonly grant = async (
     options: IGrantPermissionOptions,
-  ): Promise<IPermissionOperationResult> {
+  ): Promise<IPermissionOperationResult> => {
     try {
       // Validate inputs
       if (!options.granteeId) {
@@ -140,12 +140,14 @@ export class PermissionService {
         error instanceof Error ? error.message : 'Failed to grant permission';
       return { success: false, error: message };
     }
-  }
+  };
 
   /**
    * Revoke a permission by ID
    */
-  async revoke(permissionId: string): Promise<IPermissionOperationResult> {
+  readonly revoke = async (
+    permissionId: string,
+  ): Promise<IPermissionOperationResult> => {
     try {
       const deleted = await this.repository.delete(permissionId);
       if (!deleted) {
@@ -157,18 +159,18 @@ export class PermissionService {
         error instanceof Error ? error.message : 'Failed to revoke permission';
       return { success: false, error: message };
     }
-  }
+  };
 
   /**
    * Check if a grantee has access to an item
    * Implements permission inheritance: item -> folder -> category -> all -> public
    */
-  async check(
+  readonly check = async (
     granteeId: string,
     scopeType: PermissionScopeType,
     scopeId: string | null,
     category?: ContentCategory,
-  ): Promise<IPermissionCheckResult> {
+  ): Promise<IPermissionCheckResult> => {
     const level = await this.repository.checkPermission(
       granteeId,
       scopeType,
@@ -188,18 +190,18 @@ export class PermissionService {
       hasAccess: false,
       level: null,
     };
-  }
+  };
 
   /**
    * Check if a grantee can perform a specific action
    */
-  async canPerformAction(
+  readonly canPerformAction = async (
     granteeId: string,
     action: 'read' | 'write' | 'admin',
     scopeType: PermissionScopeType,
     scopeId: string | null,
     category?: ContentCategory,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     const result = await this.check(granteeId, scopeType, scopeId, category);
 
     if (!result.hasAccess || !result.level) {
@@ -217,39 +219,41 @@ export class PermissionService {
       default:
         return false;
     }
-  }
+  };
 
   /**
    * Get all permissions granted to a specific grantee
    */
-  async getGrantsForGrantee(granteeId: string): Promise<IPermissionGrant[]> {
+  readonly getGrantsForGrantee = async (
+    granteeId: string,
+  ): Promise<IPermissionGrant[]> => {
     return this.repository.getByGrantee(granteeId);
-  }
+  };
 
   /**
    * Get all permissions for a specific item
    */
-  async getGrantsForItem(
+  readonly getGrantsForItem = async (
     scopeType: PermissionScopeType,
     scopeId: string,
-  ): Promise<IPermissionGrant[]> {
+  ): Promise<IPermissionGrant[]> => {
     return this.repository.getByItem(scopeType, scopeId);
-  }
+  };
 
   /**
    * Get all permissions
    */
-  async getAllGrants(): Promise<IPermissionGrant[]> {
+  readonly getAllGrants = async (): Promise<IPermissionGrant[]> => {
     return this.repository.getAll();
-  }
+  };
 
   /**
    * Update permission level
    */
-  async updateLevel(
+  readonly updateLevel = async (
     permissionId: string,
     level: PermissionLevel,
-  ): Promise<IPermissionOperationResult> {
+  ): Promise<IPermissionOperationResult> => {
     try {
       const updated = await this.repository.updateLevel(permissionId, level);
       if (!updated) {
@@ -262,15 +266,15 @@ export class PermissionService {
         error instanceof Error ? error.message : 'Failed to update permission';
       return { success: false, error: message };
     }
-  }
+  };
 
   /**
    * Update permission expiry
    */
-  async updateExpiry(
+  readonly updateExpiry = async (
     permissionId: string,
     expiresAt: string | null,
-  ): Promise<IPermissionOperationResult> {
+  ): Promise<IPermissionOperationResult> => {
     try {
       const updated = await this.repository.updateExpiry(
         permissionId,
@@ -286,31 +290,31 @@ export class PermissionService {
         error instanceof Error ? error.message : 'Failed to update expiry';
       return { success: false, error: message };
     }
-  }
+  };
 
   /**
    * Revoke all permissions for a grantee
    */
-  async revokeAllForGrantee(granteeId: string): Promise<number> {
+  readonly revokeAllForGrantee = async (granteeId: string): Promise<number> => {
     return this.repository.deleteByGrantee(granteeId);
-  }
+  };
 
   /**
    * Revoke all permissions for an item
    */
-  async revokeAllForItem(
+  readonly revokeAllForItem = async (
     scopeType: PermissionScopeType,
     scopeId: string,
-  ): Promise<number> {
+  ): Promise<number> => {
     return this.repository.deleteByItem(scopeType, scopeId);
-  }
+  };
 
   /**
    * Clean up expired permissions
    */
-  async cleanupExpired(): Promise<number> {
+  readonly cleanupExpired = async (): Promise<number> => {
     return this.repository.cleanupExpired();
-  }
+  };
 }
 
 // =============================================================================

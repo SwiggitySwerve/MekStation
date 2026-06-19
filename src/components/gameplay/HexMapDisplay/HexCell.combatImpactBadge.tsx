@@ -2,6 +2,10 @@ import React from 'react';
 
 import type { ICombatRangeHex, IHexCoordinate } from '@/types/gameplay';
 
+import { formatCombatAmmoImpact } from '@/utils/gameplay/tacticalMapProjection.combatExplanation';
+
+import { HexCellSvgTextBadge } from './HexCell.badgePrimitives';
+
 function formatDamageValue(value: number): string {
   return Number.isInteger(value) ? `${value}` : value.toFixed(1);
 }
@@ -9,13 +13,7 @@ function formatDamageValue(value: number): string {
 function formatAmmoSummary(combatInfo: ICombatRangeHex): string {
   return combatInfo.availableWeaponImpacts
     .filter((impact) => impact.ammoConsumed > 0)
-    .map((impact) => {
-      const remaining =
-        impact.ammoRemaining === undefined
-          ? ''
-          : ` ${Math.max(0, impact.ammoRemaining - impact.ammoConsumed)} left`;
-      return `${impact.weaponName} -${impact.ammoConsumed}${remaining}`;
-    })
+    .map((impact) => formatCombatAmmoImpact(impact))
     .join('; ');
 }
 
@@ -75,36 +73,33 @@ export function CombatImpactBadge({
   const width = Math.max(44, label.length * 5.2 + 10);
 
   return (
-    <g
-      pointerEvents="none"
-      data-testid={`hex-combat-impact-badge-${hex.q}-${hex.r}`}
-      aria-label={title}
-      data-combat-impact-badge-heat={combatInfo.availableWeaponHeat}
-      data-combat-impact-badge-damage={combatInfo.availableWeaponDamage}
-      data-combat-impact-badge-expected-damage={combatInfo.expectedDamage}
-      data-combat-impact-badge-ammo-consumed={ammoConsumed}
-      data-combat-impact-badge-ammo-summary={ammoSummary || undefined}
-    >
-      <title>{title}</title>
-      <rect
-        x={x - width / 2}
-        y={y + 58}
-        width={width}
-        height={12}
-        rx={3}
-        fill="#581c87"
-        opacity={0.92}
-      />
-      <text
-        x={x}
-        y={y + 67}
-        textAnchor="middle"
-        fontSize={8}
-        fontWeight="bold"
-        fill="#faf5ff"
-      >
-        {label}
-      </text>
-    </g>
+    <HexCellSvgTextBadge
+      title={title}
+      label={label}
+      testId={`hex-combat-impact-badge-${hex.q}-${hex.r}`}
+      dataAttributes={{
+        'data-combat-impact-badge-heat': combatInfo.availableWeaponHeat,
+        'data-combat-impact-badge-damage': combatInfo.availableWeaponDamage,
+        'data-combat-impact-badge-expected-damage': combatInfo.expectedDamage,
+        'data-combat-impact-badge-ammo-consumed': ammoConsumed,
+        'data-combat-impact-badge-ammo-summary': ammoSummary || undefined,
+      }}
+      rect={{
+        x: x - width / 2,
+        y: y + 58,
+        width,
+        height: 12,
+        rx: 3,
+        fill: '#581c87',
+        opacity: 0.92,
+      }}
+      text={{
+        x,
+        y: y + 67,
+        fontSize: 8,
+        fontWeight: 'bold',
+        fill: '#faf5ff',
+      }}
+    />
   );
 }

@@ -8,10 +8,20 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  initializeApiDatabase as initTemplateEncounterDb,
+  rejectMissingQueryString as readTemplateEncounterId,
+  rejectUnexpectedMethod as rejectTemplateMethod,
+  sendCaughtApiError as sendTemplateEncounterError,
+  sendOperationFailure as sendTemplateEncounterFailure,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { IEncounterOperationResult } from '@/services/encounter/EncounterRepository';
 import { getEncounterService } from '@/services/encounter/EncounterService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { IEncounter, ScenarioTemplateType } from '@/types/encounter';
+
+const ENCOUNTERS_ID_TEMPLATE_TS_FAILED_TO_APPLY_TEMPLATE_1 =
+  'Failed to apply template';
 
 // =============================================================================
 // Response Types
@@ -21,36 +31,25 @@ type TemplateResponse = IEncounterOperationResult & {
   encounter?: IEncounter;
 };
 
-type ErrorResponse = {
-  error: string;
-};
-
 // =============================================================================
 // Handler
 // =============================================================================
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<TemplateResponse | ErrorResponse>,
+  res: NextApiResponse<TemplateResponse | ApiErrorResponse>,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initTemplateEncounterDb(res)) return;
 
-  if (req.method !== 'PUT') {
-    res.setHeader('Allow', ['PUT']);
-    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-  }
+  if (rejectTemplateMethod(req, res, ['PUT'])) return;
 
-  const { id } = req.query;
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid encounter ID' });
-  }
+  const id = readTemplateEncounterId(
+    req,
+    res,
+    'id',
+    'Missing or invalid encounter ID',
+  );
+  if (!id) return;
 
   const { template } = req.body as { template?: ScenarioTemplateType };
   if (!template) {
@@ -68,15 +67,19 @@ export default async function handler(
         .status(200)
         .json({ ...result, encounter: encounter || undefined });
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to apply template',
-        errorCode: result.errorCode,
-      });
+      sendTemplateEncounterFailure(
+        res,
+        result,
+        ENCOUNTERS_ID_TEMPLATE_TS_FAILED_TO_APPLY_TEMPLATE_1,
+      );
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to apply template';
-    return res.status(500).json({ error: message });
+    sendTemplateEncounterError(
+      res,
+      error,
+      ENCOUNTERS_ID_TEMPLATE_TS_FAILED_TO_APPLY_TEMPLATE_1,
+    );
+    return;
   }
 }

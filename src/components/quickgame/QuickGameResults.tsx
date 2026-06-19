@@ -7,36 +7,27 @@
  */
 
 import { useRouter } from 'next/router';
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 
-import type { IGameOutcome, ICombatStats } from '@/services/game-resolution';
-import type { IDamageAssessment } from '@/services/game-resolution/DamageCalculator';
-import type { BattleState } from '@/types/simulation/BattleState';
-
-import { Button, Card } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { useTabKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { useKeyMoments } from '@/hooks/useKeyMoments';
-import {
-  calculateGameOutcome,
-  calculateCombatStats,
-  assessUnitDamage,
-} from '@/services/game-resolution';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
 import { useQuickGameSelector } from '@/stores/useQuickGameStore';
-import { GameSide } from '@/types/gameplay';
-import { logger } from '@/utils/logger';
 
 import type { ResultsTab } from './quickGameResults.helpers';
 
-import { DamageMatrix } from './DamageMatrix';
-import { QuickGameReplayPanel } from './QuickGameReplayPanel';
+import { deriveQuickGameResults } from './quickGameResults.derived';
 import { RESULTS_TABS } from './quickGameResults.helpers';
 import {
-  ResultBanner,
-  BattleSummary,
-  UnitStatusRow,
-  TimelineEventRow,
-} from './QuickGameResultsSections';
+  NoGameResultsCard,
+  PersistStatusFooter,
+  ResultsActions,
+  ResultsTabList,
+} from './QuickGameResultsLayout';
+import { ResultsTabPanels } from './QuickGameResultsPanels';
+import { ResultBanner } from './QuickGameResultsSections';
+import { useQuickGameReplayPersist } from './useQuickGameReplayPersist';
 
 export function QuickGameResults(): React.ReactElement {
   const router = useRouter();
@@ -46,73 +37,7 @@ export function QuickGameResults(): React.ReactElement {
   const session = useGameplaySelector((state) => state.session);
   const [activeTab, setActiveTab] = useState<ResultsTab>('summary');
   const tabListRef = useRef<HTMLDivElement>(null);
-
-  // Persist-to-Replay-Library status. Drives the footer copy at the
-  // bottom of the results page. `idle` until the POST resolves; flips
-  // to `saved` on success (first persist or already-persisted) or
-  // `failed` on network/server error. Errors do NOT block the rest of
-  // the results UI — replay-library writes are best-effort.
-  const [persistStatus, setPersistStatus] = useState<
-    'idle' | 'saving' | 'saved' | 'failed'
-  >('idle');
-
-  // StrictMode-safe one-shot guard. The effect below runs on every
-  // render where `game.endedAt` flips truthy; without this ref, React
-  // 18 StrictMode would fire it twice in dev and the API would see two
-  // POSTs. The server-side dedup check in `/api/replay-library/quick`
-  // is the durable backstop (handles hard refresh + tab restore from
-  // sessionStorage), but cheap in-memory deduping here saves a round
-  // trip in the common case.
-  const persistFiredRef = useRef(false);
-
-  // Wire-up (Council-approved, replaces the prior deferred follow-on).
-  // POSTs once when `game.endedAt` becomes set. The API route handles:
-  //   - the actual `node:fs` write (browsers cannot write directly)
-  //   - dedup via `replay-index.json` (so a hard refresh of an
-  //     already-persisted game returns 200 alreadyPersisted=true).
-  //
-  // `aiVariant` source is `game.scenarioConfig.enemyFaction` per
-  // Phase 2 Explore-Deep verification — NOT `game.scenario?.template?.…`.
-  useEffect(() => {
-    if (!game || !game.endedAt) return;
-    if (persistFiredRef.current) return;
-    persistFiredRef.current = true;
-    setPersistStatus('saving');
-
-    const body = JSON.stringify({
-      gameId: game.id,
-      events: game.events,
-      winner: game.winner,
-      aiVariant: game.scenarioConfig.enemyFaction ?? '',
-    });
-
-    let cancelled = false;
-    void fetch('/api/replay-library/quick', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body,
-    })
-      .then((res) => {
-        if (cancelled) return;
-        if (!res.ok) {
-          logger.error('[quick-game] replay-library persist failed', {
-            status: res.status,
-          });
-          setPersistStatus('failed');
-          return;
-        }
-        setPersistStatus('saved');
-      })
-      .catch((err) => {
-        if (cancelled) return;
-        logger.error('[quick-game] replay-library persist threw', { err });
-        setPersistStatus('failed');
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [game]);
+  const persistStatus = useQuickGameReplayPersist(game);
 
   const handleTabChange = useCallback((tabId: string) => {
     setActiveTab(tabId as ResultsTab);
@@ -124,121 +49,22 @@ export function QuickGameResults(): React.ReactElement {
     handleTabChange,
   );
 
-  const outcome = useMemo((): IGameOutcome | null => {
-    if (!session || !game) return null;
-    return calculateGameOutcome({
-      state: session.currentState,
-      events: session.events,
-      config: session.config,
-      startedAt: game.startedAt,
-      endedAt: game.endedAt ?? new Date().toISOString(),
-    });
-  }, [session, game]);
-
-  const combatStats = useMemo((): ICombatStats | null => {
-    if (!session) return null;
-    return calculateCombatStats(session.events, session.currentState.units);
-  }, [session]);
-
-  const battleState = useMemo((): BattleState | null => {
-    if (!session || !game) return null;
-    const allQuickUnits = [
-      ...game.playerForce.units,
-      ...(game.opponentForce?.units ?? []),
-    ];
-
-    return {
-      units: allQuickUnits.map((u) => {
-        const unitState = session.currentState.units[u.instanceId];
-        const side = game.playerForce.units.some(
-          (pu) => pu.instanceId === u.instanceId,
-        )
-          ? GameSide.Player
-          : GameSide.Opponent;
-
-        return {
-          id: unitState?.id ?? u.instanceId,
-          name: u.name,
-          side,
-          bv: u.bv,
-          weaponIds: [],
-          initialArmor: u.maxArmor,
-          initialStructure: u.maxStructure,
-        };
-      }),
-    };
-  }, [session, game]);
-
+  const viewModel = useMemo(
+    () => deriveQuickGameResults(session, game),
+    [session, game],
+  );
   const keyMoments = useKeyMoments(
     session?.events ?? [],
-    battleState ?? { units: [] },
+    viewModel.battleState ?? { units: [] },
   );
-
-  const unitDamageMap = useMemo((): Map<string, IDamageAssessment> => {
-    const map = new Map<string, IDamageAssessment>();
-    if (!session || !game) return map;
-
-    const allQuickUnits = [
-      ...game.playerForce.units,
-      ...(game.opponentForce?.units ?? []),
-    ];
-
-    for (const qUnit of allQuickUnits) {
-      const unitState = Object.values(session.currentState.units).find(
-        (u) => u.id === qUnit.instanceId || u.id === qUnit.sourceUnitId,
-      );
-      if (unitState) {
-        const assessment = assessUnitDamage(
-          unitState,
-          qUnit.maxArmor,
-          qUnit.maxStructure,
-        );
-        map.set(qUnit.instanceId, assessment);
-      }
-    }
-    return map;
-  }, [session, game]);
 
   if (!game) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-900">
-        <Card className="p-8 text-center">
-          <p className="text-gray-400">No game results to display.</p>
-          <Button
-            variant="primary"
-            onClick={() => router.push('/gameplay/quick')}
-            className="mt-4"
-          >
-            Start New Game
-          </Button>
-        </Card>
-      </div>
+      <NoGameResultsCard
+        onStartNewGame={() => router.push('/gameplay/quick')}
+      />
     );
   }
-
-  const handlePlayAgainSameUnits = () => {
-    playAgain(false);
-  };
-
-  const handlePlayAgainNewUnits = () => {
-    playAgain(true);
-  };
-
-  const handleExit = () => {
-    clearGame();
-    router.push('/gameplay/games');
-  };
-
-  const allUnits = [
-    ...game.playerForce.units.map((u) => ({
-      unit: u,
-      forceType: 'player' as const,
-    })),
-    ...(game.opponentForce?.units.map((u) => ({
-      unit: u,
-      forceType: 'opponent' as const,
-    })) ?? []),
-  ];
 
   return (
     <div className="mx-auto max-w-2xl p-4 py-8">
@@ -250,188 +76,35 @@ export function QuickGameResults(): React.ReactElement {
       </div>
 
       <Card className="mb-6">
-        <div
-          ref={tabListRef}
-          role="tablist"
-          aria-label="Battle results tabs"
-          className="flex border-b border-gray-700"
+        <ResultsTabList
+          activeTab={activeTab}
+          tabListRef={tabListRef}
           onKeyDown={handleKeyDown}
-        >
-          {RESULTS_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              role="tab"
-              id={`tab-${tab.id}`}
-              aria-selected={activeTab === tab.id}
-              aria-controls={`tabpanel-${tab.id}`}
-              tabIndex={activeTab === tab.id ? 0 : -1}
-              onClick={() => handleTabChange(tab.id)}
-              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none focus:ring-inset ${
-                activeTab === tab.id
-                  ? 'border-b-2 border-blue-500 bg-gray-800/50 text-white'
-                  : 'text-gray-400 hover:bg-gray-800/30 hover:text-white'
-              } `}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <div
-          role="tabpanel"
-          id="tabpanel-summary"
-          aria-labelledby="tab-summary"
-          hidden={activeTab !== 'summary'}
-          className="p-4"
-        >
-          <BattleSummary
-            outcome={outcome}
-            combatStats={combatStats}
-            keyMoments={keyMoments}
-          />
-
-          {game.scenario && (
-            <div className="mt-4 rounded-lg bg-gray-800/50 p-4">
-              <h4 className="mb-2 text-sm font-medium text-gray-300">
-                Scenario
-              </h4>
-              <p className="text-white">{game.scenario.template.name}</p>
-              <p className="mt-1 text-xs text-gray-500">
-                {game.scenario.mapPreset.name} - {game.scenario.mapPreset.biome}
-              </p>
-            </div>
-          )}
-        </div>
-
-        <div
-          role="tabpanel"
-          id="tabpanel-units"
-          aria-labelledby="tab-units"
-          hidden={activeTab !== 'units'}
-        >
-          {allUnits.length === 0 ? (
-            <p className="p-4 text-center text-gray-400">
-              No units in this battle.
-            </p>
-          ) : (
-            <div className="divide-y divide-gray-700/50">
-              {allUnits.map(({ unit, forceType }) => (
-                <UnitStatusRow
-                  key={unit.instanceId}
-                  unit={unit}
-                  forceType={forceType}
-                  events={game.events}
-                  damageAssessment={unitDamageMap.get(unit.instanceId)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div
-          role="tabpanel"
-          id="tabpanel-damage"
-          aria-labelledby="tab-damage"
-          hidden={activeTab !== 'damage'}
-          className="p-4"
-        >
-          <DamageMatrix
-            events={game.events}
-            units={[
-              ...game.playerForce.units,
-              ...(game.opponentForce?.units ?? []),
-            ]}
-          />
-        </div>
-
-        <div
-          role="tabpanel"
-          id="tabpanel-timeline"
-          aria-labelledby="tab-timeline"
-          hidden={activeTab !== 'timeline'}
-        >
-          {game.events.length === 0 ? (
-            <p className="p-4 text-center text-gray-400">No events recorded.</p>
-          ) : (
-            <div className="max-h-96 divide-y divide-gray-700/30 overflow-y-auto">
-              {game.events.map((event, index) => (
-                <TimelineEventRow key={event.id} event={event} index={index} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div
-          role="tabpanel"
-          id="tabpanel-replay"
-          aria-labelledby="tab-replay"
-          hidden={activeTab !== 'replay'}
-        >
-          {/*
-           * Per `add-quickgame-replay-panel/specs/quick-session/spec.md`
-           * scenario 3: the panel is unmounted/remounted between tab
-           * toggles (preserving scrubber position across tab switches
-           * is explicitly out of scope). Conditional render also keeps
-           * the heavy `useSharedReplayPlayer` state-derivation walk off
-           * the critical path for users who never open the Replay tab.
-           */}
-          {activeTab === 'replay' && (
-            <QuickGameReplayPanel events={game.events} gameId={game.id} />
-          )}
-        </div>
+          onTabChange={setActiveTab}
+        />
+        <ResultsTabPanels
+          activeTab={activeTab}
+          gameId={game.id}
+          scenario={game.scenario}
+          events={game.events}
+          viewModel={viewModel}
+          keyMoments={keyMoments}
+        />
       </Card>
 
-      <div className="space-y-3">
-        <Button
-          variant="primary"
-          className="w-full"
-          onClick={handlePlayAgainSameUnits}
-          data-testid="play-again-same-btn"
-        >
-          Play Again (Same Units)
-        </Button>
+      <ResultsActions
+        onPlayAgainSameUnits={() => playAgain(false)}
+        onPlayAgainNewUnits={() => playAgain(true)}
+        onExit={() => {
+          clearGame();
+          router.push('/gameplay/games');
+        }}
+      />
 
-        <Button
-          variant="secondary"
-          className="w-full"
-          onClick={handlePlayAgainNewUnits}
-          data-testid="play-again-new-btn"
-        >
-          Play Again (New Force)
-        </Button>
-
-        <Button
-          variant="secondary"
-          className="w-full"
-          onClick={handleExit}
-          data-testid="exit-btn"
-        >
-          Exit to Games
-        </Button>
-      </div>
-
-      <p
-        className="mt-6 text-center text-xs text-gray-500"
-        data-testid="quick-game-persist-status"
-      >
-        {persistStatus === 'saved' && (
-          <>
-            Saved to{' '}
-            <button
-              type="button"
-              onClick={() => router.push('/replay-library')}
-              className="text-cyan-400 underline-offset-2 hover:underline"
-            >
-              Replay Library
-            </button>
-            .
-          </>
-        )}
-        {persistStatus === 'saving' && 'Saving replay…'}
-        {persistStatus === 'failed' &&
-          'Replay save failed (game state intact).'}
-        {persistStatus === 'idle' && 'This was a quick game session.'}
-      </p>
+      <PersistStatusFooter
+        status={persistStatus}
+        onOpenReplayLibrary={() => router.push('/replay-library')}
+      />
     </div>
   );
 }

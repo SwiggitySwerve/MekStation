@@ -14,34 +14,34 @@ type Value = unknown;
 class MockStore {
   private data: Map<Key, Value> = new Map();
 
-  put(key: Key, value: Value): void {
+  put = (key: Key, value: Value): void => {
     this.data.set(key, structuredClone(value));
-  }
+  };
 
-  get(key: Key): Value | undefined {
+  get = (key: Key): Value | undefined => {
     const value = this.data.get(key);
     return value !== undefined ? structuredClone(value) : undefined;
-  }
+  };
 
-  delete(key: Key): boolean {
+  delete = (key: Key): boolean => {
     return this.data.delete(key);
-  }
+  };
 
-  getAll(): Value[] {
+  getAll = (): Value[] => {
     return Array.from(this.data.values()).map((v) => structuredClone(v));
-  }
+  };
 
-  getAllKeys(): Key[] {
+  getAllKeys = (): Key[] => {
     return Array.from(this.data.keys());
-  }
+  };
 
-  clear(): void {
+  clear = (): void => {
     this.data.clear();
-  }
+  };
 
-  count(): number {
+  count = (): number => {
     return this.data.size;
-  }
+  };
 }
 
 /**
@@ -57,24 +57,24 @@ class MockDatabase {
     this.version = version;
   }
 
-  createObjectStore(name: StoreName): MockStore {
+  createObjectStore = (name: StoreName): MockStore => {
     if (!this.stores.has(name)) {
       this.stores.set(name, new MockStore());
     }
     return this.stores.get(name)!;
-  }
+  };
 
-  getStore(name: StoreName): MockStore | undefined {
+  getStore = (name: StoreName): MockStore | undefined => {
     return this.stores.get(name);
-  }
+  };
 
-  deleteObjectStore(name: StoreName): boolean {
+  deleteObjectStore = (name: StoreName): boolean => {
     return this.stores.delete(name);
-  }
+  };
 
-  close(): void {
+  close = (): void => {
     // No-op for mock
-  }
+  };
 }
 
 /**
@@ -113,13 +113,13 @@ export function clearAllMockDatabases(): void {
  * Mock IDBFactory interface
  */
 export const mockIndexedDB = {
-  open(name: string, version?: number): MockOpenRequest {
+  open: (name: string, version?: number): MockOpenRequest => {
     return new MockOpenRequest(name, version ?? 1);
   },
-  deleteDatabase(name: string): MockDeleteRequest {
+  deleteDatabase: (name: string): MockDeleteRequest => {
     return new MockDeleteRequest(name);
   },
-  databases(): Promise<Array<{ name: string; version: number }>> {
+  databases: (): Promise<Array<{ name: string; version: number }>> => {
     return Promise.resolve(
       Array.from(databases.entries()).map(([name, db]) => ({
         name,

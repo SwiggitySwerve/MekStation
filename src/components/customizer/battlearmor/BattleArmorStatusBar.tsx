@@ -13,6 +13,7 @@ import React, { useMemo, useState } from 'react';
 import { useBattleArmorStore } from '@/stores/useBattleArmorStore';
 import { calculateBattleArmorBVFromState } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
 
+import { StatusItem } from '../tabs/StatusItem';
 import { BattleArmorBVBreakdownDialog } from './BattleArmorBVBreakdownDialog';
 
 // The BA store keeps `bvBreakdown` in sync with every BV input (armor,
@@ -28,38 +29,6 @@ import { BattleArmorBVBreakdownDialog } from './BattleArmorBVBreakdownDialog';
 interface BattleArmorStatusBarProps {
   /** Additional CSS classes */
   className?: string;
-}
-
-interface StatusItemProps {
-  label: string;
-  value: string | number;
-  subValue?: string;
-}
-
-// =============================================================================
-// Status Item
-// =============================================================================
-
-function StatusItem({
-  label,
-  value,
-  subValue,
-}: StatusItemProps): React.ReactElement {
-  return (
-    <div className="flex flex-col items-center px-3 py-1">
-      <span className="text-text-theme-secondary text-[10px] tracking-wide uppercase">
-        {label}
-      </span>
-      <span className="text-sm font-semibold text-white tabular-nums">
-        {value}
-      </span>
-      {subValue && (
-        <span className="text-text-theme-secondary text-[10px]">
-          {subValue}
-        </span>
-      )}
-    </div>
-  );
 }
 
 // =============================================================================

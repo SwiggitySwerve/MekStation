@@ -11,6 +11,105 @@ interface MapMovementPointLegendProps extends MapMovementPointLegendState {
   readonly onMovementModeSelect?: (mode: MapMovementKind) => void;
 }
 
+interface MovementLegendKindConfig {
+  readonly kind: MapMovementKind;
+  readonly label: string;
+  readonly swatchClassName: string;
+}
+
+interface MovementLegendButtonProps {
+  readonly active: MapMovementKind;
+  readonly config: MovementLegendKindConfig;
+  readonly jumpAvailable: boolean;
+  readonly movementModeLabel?: string;
+  readonly mp?: number;
+  readonly onMovementModeSelect?: (mode: MapMovementKind) => void;
+}
+
+const MOVEMENT_LEGEND_KINDS: readonly MovementLegendKindConfig[] = [
+  { kind: 'walk', label: 'Walk', swatchClassName: 'bg-cyan-400' },
+  { kind: 'run', label: 'Run', swatchClassName: 'bg-yellow-500' },
+  { kind: 'jump', label: 'Jump', swatchClassName: 'bg-red-500' },
+];
+
+function movementLegendDisabledReason(
+  kind: MapMovementKind,
+  jumpAvailable: boolean,
+): string | undefined {
+  return kind === 'jump' && !jumpAvailable ? 'No jump capability' : undefined;
+}
+
+function movementLegendStateLabel({
+  disabledReason,
+  isActive,
+  label,
+  movementModeLabel,
+  mp,
+}: {
+  readonly disabledReason?: string;
+  readonly isActive: boolean;
+  readonly label: string;
+  readonly movementModeLabel?: string;
+  readonly mp?: number;
+}): string {
+  const stateParts = [
+    `${label} movement range`,
+    isActive ? 'active' : 'inactive',
+  ];
+  if (mp !== undefined) stateParts.push(`${mp} MP`);
+  if (movementModeLabel) stateParts.push(`motive ${movementModeLabel}`);
+  if (disabledReason) stateParts.push(`disabled: ${disabledReason}`);
+  return stateParts.join('; ');
+}
+
+function MovementLegendButton({
+  active,
+  config,
+  jumpAvailable,
+  movementModeLabel,
+  mp,
+  onMovementModeSelect,
+}: MovementLegendButtonProps): React.ReactElement {
+  const { kind, label, swatchClassName } = config;
+  const isActive = active === kind;
+  const disabledReason = movementLegendDisabledReason(kind, jumpAvailable);
+  const isSelectable =
+    Boolean(onMovementModeSelect) && !isActive && !disabledReason;
+  const stateLabel = movementLegendStateLabel({
+    disabledReason,
+    isActive,
+    label,
+    movementModeLabel,
+    mp,
+  });
+
+  return (
+    <button
+      type="button"
+      className={`pointer-events-auto flex items-center gap-2 rounded px-1 py-0.5 ${
+        isActive ? 'font-semibold ring-1 ring-slate-700' : 'opacity-70'
+      } ${disabledReason ? 'opacity-40' : ''}`}
+      data-testid={`mp-legend-${kind}`}
+      data-active={isActive ? 'true' : undefined}
+      data-disabled={disabledReason ? 'true' : undefined}
+      data-disabled-reason={disabledReason}
+      data-selectable={isSelectable ? 'true' : undefined}
+      data-mp={mp}
+      aria-pressed={isActive}
+      aria-disabled={!isSelectable}
+      aria-label={stateLabel}
+      tabIndex={isSelectable ? 0 : -1}
+      title={disabledReason}
+      onClick={() => {
+        if (isSelectable) onMovementModeSelect?.(kind);
+      }}
+    >
+      <span className={`inline-block h-3 w-3 rounded-sm ${swatchClassName}`} />
+      <span>{mp === undefined ? label : `${label} ${mp}MP`}</span>
+    </button>
+  );
+}
+
 export function MapMovementPointLegend({
   active,
   jumpAvailable,
@@ -27,7 +126,7 @@ export function MapMovementPointLegend({
     walk: walkMP,
     run: runMP,
     jump: jumpMP,
-  } satisfies Record<'walk' | 'run' | 'jump', number | undefined>;
+  } satisfies Record<MapMovementKind, number | undefined>;
 
   return (
     <div
@@ -49,60 +148,17 @@ export function MapMovementPointLegend({
           Motive {movementModeLabel}
         </div>
       )}
-      {(['walk', 'run', 'jump'] as const).map((kind) => {
-        const isActive = active === kind;
-        const isJumpDisabled = kind === 'jump' && !jumpAvailable;
-        const disabledReason = isJumpDisabled
-          ? 'No jump capability'
-          : undefined;
-        const mp = mpByKind[kind];
-        const mpLabel = mp === undefined ? undefined : `${mp} MP`;
-        const swatch =
-          kind === 'walk'
-            ? 'bg-cyan-400'
-            : kind === 'run'
-              ? 'bg-yellow-500'
-              : 'bg-red-500';
-        const label =
-          kind === 'walk' ? 'Walk' : kind === 'run' ? 'Run' : 'Jump';
-        const isSelectable =
-          Boolean(onMovementModeSelect) && !isActive && !isJumpDisabled;
-        const stateParts = [
-          `${label} movement range`,
-          isActive ? 'active' : 'inactive',
-        ];
-        if (mpLabel) stateParts.push(mpLabel);
-        if (movementModeLabel) stateParts.push(`motive ${movementModeLabel}`);
-        if (disabledReason) stateParts.push(`disabled: ${disabledReason}`);
-        const stateLabel = stateParts.join('; ');
-
-        return (
-          <button
-            key={kind}
-            type="button"
-            className={`pointer-events-auto flex items-center gap-2 rounded px-1 py-0.5 ${
-              isActive ? 'font-semibold ring-1 ring-slate-700' : 'opacity-70'
-            } ${isJumpDisabled ? 'opacity-40' : ''}`}
-            data-testid={`mp-legend-${kind}`}
-            data-active={isActive ? 'true' : undefined}
-            data-disabled={isJumpDisabled ? 'true' : undefined}
-            data-disabled-reason={disabledReason}
-            data-selectable={isSelectable ? 'true' : undefined}
-            data-mp={mp}
-            aria-pressed={isActive}
-            aria-disabled={!isSelectable}
-            aria-label={stateLabel}
-            tabIndex={isSelectable ? 0 : -1}
-            title={disabledReason}
-            onClick={() => {
-              if (isSelectable) onMovementModeSelect?.(kind);
-            }}
-          >
-            <span className={`inline-block h-3 w-3 rounded-sm ${swatch}`} />
-            <span>{mp === undefined ? label : `${label} ${mp}MP`}</span>
-          </button>
-        );
-      })}
+      {MOVEMENT_LEGEND_KINDS.map((config) => (
+        <MovementLegendButton
+          key={config.kind}
+          active={active}
+          config={config}
+          jumpAvailable={jumpAvailable}
+          movementModeLabel={movementModeLabel}
+          mp={mpByKind[config.kind]}
+          onMovementModeSelect={onMovementModeSelect}
+        />
+      ))}
     </div>
   );
 }

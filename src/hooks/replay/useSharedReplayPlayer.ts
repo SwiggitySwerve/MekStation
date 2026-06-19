@@ -9,11 +9,19 @@
 
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 
-import { IGameEvent, IGameState, GameEventType } from '@/types/gameplay';
+import type { IGameEvent, IGameState, GameEventType } from '@/types/gameplay';
+
 import {
-  deriveState,
-  createInitialGameState,
-} from '@/utils/gameplay/gameState';
+  advanceReplayIndex,
+  clearReplayInterval,
+  createMarkers,
+  deriveReplayState,
+  findIndexAtSequence,
+  findTurnStartIndex,
+  getEventAtIndex,
+  getReplayProgress,
+  getReplaySequenceBounds,
+} from './useSharedReplayPlayer.helpers';
 
 // =============================================================================
 // Types
@@ -148,86 +156,6 @@ export const PLAYBACK_SPEEDS: readonly PlaybackSpeed[] = [
   0.25, 0.5, 1, 2, 4, 8,
 ];
 
-// =============================================================================
-// Helper Functions
-// =============================================================================
-
-/**
- * Create event markers from game events.
- */
-function createMarkers(
-  events: readonly IGameEvent[],
-  minSeq: number,
-  maxSeq: number,
-): IEventMarker[] {
-  if (events.length === 0) return [];
-
-  const range = maxSeq - minSeq || 1;
-
-  return events.map((event) => ({
-    id: event.id,
-    sequence: event.sequence,
-    position: (event.sequence - minSeq) / range,
-    type: event.type,
-    turn: event.turn,
-    label: formatEventLabel(event),
-  }));
-}
-
-/**
- * Format event for display.
- */
-function formatEventLabel(event: IGameEvent): string {
-  const typeLabel = event.type
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-
-  return `Turn ${event.turn}: ${typeLabel}`;
-}
-
-/**
- * Find index of event at or before a sequence.
- */
-function findIndexAtSequence(
-  events: readonly IGameEvent[],
-  sequence: number,
-): number {
-  if (events.length === 0) return -1;
-
-  // Binary search for efficiency with large event sets
-  let low = 0;
-  let high = events.length - 1;
-
-  while (low <= high) {
-    const mid = Math.floor((low + high) / 2);
-    if (events[mid].sequence === sequence) {
-      return mid;
-    }
-    if (events[mid].sequence < sequence) {
-      low = mid + 1;
-    } else {
-      high = mid - 1;
-    }
-  }
-
-  // Return the index of the event at or before the sequence
-  return Math.max(0, high);
-}
-
-/**
- * Find the index of the first event in a given turn.
- */
-function findTurnStartIndex(
-  events: readonly IGameEvent[],
-  turn: number,
-): number {
-  return events.findIndex((e) => e.turn === turn);
-}
-
-// =============================================================================
-// Hook Implementation
-// =============================================================================
-
 /**
  * Shared replay player hook that works with direct event arrays.
  * Use this for both quick games and campaign games.
@@ -262,15 +190,10 @@ export function useSharedReplayPlayer(
   } = options;
 
   // Calculate min/max sequences
-  const { minSequence, maxSequence } = useMemo(() => {
-    if (events.length === 0) {
-      return { minSequence: 0, maxSequence: 0 };
-    }
-    return {
-      minSequence: events[0].sequence,
-      maxSequence: events[events.length - 1].sequence,
-    };
-  }, [events]);
+  const { minSequence, maxSequence } = useMemo(
+    () => getReplaySequenceBounds(events),
+    [events],
+  );
 
   // Create markers
   const markers = useMemo(
@@ -297,16 +220,10 @@ export function useSharedReplayPlayer(
   }, [onEventReached, onComplete]);
 
   // Current event
-  const currentEvent = useMemo(() => {
-    if (
-      events.length === 0 ||
-      currentIndex < 0 ||
-      currentIndex >= events.length
-    ) {
-      return null;
-    }
-    return events[currentIndex];
-  }, [events, currentIndex]);
+  const currentEvent = useMemo(
+    () => getEventAtIndex(events, currentIndex),
+    [events, currentIndex],
+  );
 
   // Current sequence
   const currentSequence = currentEvent?.sequence ?? minSequence;
@@ -315,22 +232,16 @@ export function useSharedReplayPlayer(
   const currentTurn = currentEvent?.turn ?? 0;
 
   // Current state (derived from events up to current index)
-  const currentState = useMemo((): IGameState => {
-    if (events.length === 0) {
-      // Return empty initial state
-      return createInitialGameState(gameId);
-    }
-
-    // Derive state from events up to current index
-    const eventsUpTo = events.slice(0, currentIndex + 1);
-    return deriveState(gameId, eventsUpTo);
-  }, [events, currentIndex, gameId]);
+  const currentState = useMemo(
+    (): IGameState => deriveReplayState(gameId, events, currentIndex),
+    [events, currentIndex, gameId],
+  );
 
   // Progress (0-1)
-  const progress = useMemo(() => {
-    if (events.length <= 1) return 0;
-    return currentIndex / (events.length - 1);
-  }, [currentIndex, events.length]);
+  const progress = useMemo(
+    () => getReplayProgress(currentIndex, events.length),
+    [currentIndex, events.length],
+  );
 
   // Position flags
   const isAtStart = currentIndex === 0;
@@ -343,29 +254,19 @@ export function useSharedReplayPlayer(
 
       intervalRef.current = setInterval(() => {
         setCurrentIndex((prev) => {
-          const next = prev + 1;
-          if (next >= events.length) {
-            // Reached end
-            setPlaybackState('stopped');
-            onCompleteRef.current?.();
-            return prev;
-          }
-          // Notify event reached
-          if (onEventReachedRef.current && events[next]) {
-            // Derive state at next index
-            const nextState = deriveState(gameId, events.slice(0, next + 1));
-            onEventReachedRef.current(events[next], nextState);
-          }
-          return next;
+          return advanceReplayIndex(prev, {
+            events,
+            gameId,
+            onCompleteRef,
+            onEventReachedRef,
+            setPlaybackState,
+          });
         });
       }, interval);
     }
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+      clearReplayInterval(intervalRef);
     };
   }, [playbackState, speed, baseInterval, events, gameId]);
 

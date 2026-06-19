@@ -8,17 +8,9 @@
  */
 
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
-import { TechBase, Era, WeightClass, RulesLevel } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
-import {
-  IAerospace,
-  IAerospaceMountedEquipment,
-  AerospaceCockpitType,
-} from '@/types/unit/AerospaceInterfaces';
-import {
-  AerospaceMotionType,
-  IAerospaceMovement,
-} from '@/types/unit/BaseUnitInterfaces';
+import { IAerospace } from '@/types/unit/AerospaceInterfaces';
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
@@ -27,6 +19,24 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
+import {
+  hasBombEquipment,
+  parseAerospaceBasics,
+  parseAerospaceCockpitType,
+  parseAerospaceEquipment,
+} from './aerospaceUnitHandlerShared';
+import {
+  UnitFieldParseMessages,
+  UnitValidationMessages,
+  combineCommonUnitFields,
+  createParseMessages,
+  createValidationMessages,
+  getAerospaceWeightClass,
+  getRawTagBoolean,
+  pushSafeThrustAndStructureErrors,
+  pushTonnageRangeErrors,
+  serializeConfigurationWithRulesLevel,
+} from './unitHandlerShared';
 
 // ============================================================================
 // Constants
@@ -37,24 +47,6 @@ import {
  * BLK format: Nose, Left Wing, Right Wing, Aft
  */
 const _AEROSPACE_ARMOR_ARCS = ['nose', 'leftWing', 'rightWing', 'aft'] as const;
-
-/**
- * Map location strings to AerospaceLocation enum
- */
-const LOCATION_MAP: Record<string, AerospaceLocation> = {
-  nose: AerospaceLocation.NOSE,
-  'nose equipment': AerospaceLocation.NOSE,
-  'left wing': AerospaceLocation.LEFT_WING,
-  'left wing equipment': AerospaceLocation.LEFT_WING,
-  'right wing': AerospaceLocation.RIGHT_WING,
-  'right wing equipment': AerospaceLocation.RIGHT_WING,
-  aft: AerospaceLocation.AFT,
-  'aft equipment': AerospaceLocation.AFT,
-  fuselage: AerospaceLocation.FUSELAGE,
-  'fuselage equipment': AerospaceLocation.FUSELAGE,
-  wings: AerospaceLocation.LEFT_WING, // Generic wings maps to left
-  'wings equipment': AerospaceLocation.LEFT_WING,
-};
 
 // ============================================================================
 // Aerospace Unit Handler
@@ -79,76 +71,33 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
    */
   protected parseTypeSpecificFields(
     document: IBlkDocument,
-  ): Partial<IAerospace> & {
-    errors: string[];
-    warnings: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  ): Partial<IAerospace> & UnitFieldParseMessages {
+    const { errors, warnings } = createParseMessages();
 
-    // Movement - thrust values
-    const safeThrust = document.safeThrust || 0;
-    const maxThrust = Math.floor(safeThrust * 1.5);
-    const movement: IAerospaceMovement = { safeThrust, maxThrust };
+    const basics = parseAerospaceBasics(document, 10);
+    const rawTags = document.rawTags || {};
 
-    if (safeThrust < 1) {
+    if (basics.movement.safeThrust < 1) {
       errors.push('Aerospace fighters must have at least 1 safe thrust');
     }
 
-    // Fuel
-    const fuel = document.fuel || 0;
-    if (fuel < 80) {
+    if (basics.fuel < 80) {
       warnings.push('Low fuel capacity may limit operational range');
     }
 
-    // Structural integrity
-    const structuralIntegrity = document.structuralIntegrity || 0;
-
-    // Heat sinks
-    const heatSinks = document.heatsinks || 10;
-    const heatSinkType = document.sinkType || 0;
-
-    // Engine and armor types
-    const engineType = document.engineType || 0;
-    const armorType = document.armorType || 0;
-
-    // Parse armor by arc
-    const armor = document.armor || [];
-    const armorByArc = this.parseArmorByArc(armor);
-    const totalArmorPoints = armor.reduce((sum, val) => sum + val, 0);
-
-    // Cockpit type
-    const cockpitType = this.parseCockpitType(document);
-
-    // Equipment
-    const equipment = this.parseEquipment(document);
-
-    // Bomb bay
-    const hasBombBay = this.checkBombBay(document);
+    const cockpitType = parseAerospaceCockpitType(document);
+    const equipment = parseAerospaceEquipment(document);
+    const hasBombBay =
+      hasBombEquipment(document) || getRawTagBoolean(rawTags, 'bombbay');
     const bombCapacity = hasBombBay ? Math.floor(document.tonnage * 0.1) : 0;
 
-    // Additional features from raw tags
-    const rawTags = document.rawTags || {};
-    const hasReinforcedCockpit = this.getBooleanFromRaw(
-      rawTags,
-      'reinforcedcockpit',
-    );
-    const hasEjectionSeat =
-      this.getBooleanFromRaw(rawTags, 'ejectionseat') ?? true; // Default true
+    const hasReinforcedCockpit = getRawTagBoolean(rawTags, 'reinforcedcockpit');
+    const hasEjectionSeat = getRawTagBoolean(rawTags, 'ejectionseat');
 
     return {
       unitType: UnitType.AEROSPACE,
       motionType: AerospaceMotionType.AERODYNE,
-      movement,
-      fuel,
-      structuralIntegrity,
-      heatSinks,
-      heatSinkType,
-      engineType,
-      armorType,
-      armor,
-      armorByArc,
-      totalArmorPoints,
+      ...basics,
       cockpitType,
       equipment,
       hasBombBay,
@@ -158,108 +107,7 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
       hasEjectionSeat,
       errors,
       warnings,
-    };
-  }
-
-  /**
-   * Parse armor values into arc-keyed object
-   */
-  private parseArmorByArc(armor: readonly number[]): {
-    nose: number;
-    leftWing: number;
-    rightWing: number;
-    aft: number;
-  } {
-    return {
-      nose: armor[0] || 0,
-      leftWing: armor[1] || 0,
-      rightWing: armor[2] || 0,
-      aft: armor[3] || 0,
-    };
-  }
-
-  /**
-   * Parse cockpit type from document
-   */
-  private parseCockpitType(document: IBlkDocument): AerospaceCockpitType {
-    const cockpitCode = document.cockpitType || 0;
-    switch (cockpitCode) {
-      case 1:
-        return AerospaceCockpitType.SMALL;
-      case 2:
-        return AerospaceCockpitType.PRIMITIVE;
-      case 3:
-        return AerospaceCockpitType.COMMAND_CONSOLE;
-      default:
-        return AerospaceCockpitType.STANDARD;
-    }
-  }
-
-  /**
-   * Parse equipment from BLK document
-   */
-  private parseEquipment(
-    document: IBlkDocument,
-  ): readonly IAerospaceMountedEquipment[] {
-    const equipment: IAerospaceMountedEquipment[] = [];
-    let mountId = 0;
-
-    for (const [locationKey, items] of Object.entries(
-      document.equipmentByLocation,
-    )) {
-      const location = this.normalizeLocation(locationKey);
-
-      for (const item of items) {
-        equipment.push({
-          id: `mount-${mountId++}`,
-          equipmentId: item,
-          name: item,
-          location,
-        });
-      }
-    }
-
-    return equipment;
-  }
-
-  /**
-   * Normalize location string to AerospaceLocation enum
-   */
-  private normalizeLocation(locationKey: string): AerospaceLocation {
-    const normalized = locationKey.toLowerCase();
-    return LOCATION_MAP[normalized] || AerospaceLocation.FUSELAGE;
-  }
-
-  /**
-   * Check if aerospace has bomb bay
-   */
-  private checkBombBay(document: IBlkDocument): boolean {
-    // Check equipment for bomb-related items
-    for (const items of Object.values(document.equipmentByLocation)) {
-      for (const item of items) {
-        if (item.toLowerCase().includes('bomb')) {
-          return true;
-        }
-      }
-    }
-
-    // Check raw tags
-    const rawTags = document.rawTags || {};
-    return this.getBooleanFromRaw(rawTags, 'bombbay');
-  }
-
-  /**
-   * Get boolean value from raw tags
-   */
-  private getBooleanFromRaw(
-    rawTags: Record<string, string | string[]>,
-    key: string,
-  ): boolean {
-    const value = rawTags[key];
-    if (Array.isArray(value)) {
-      return value[0]?.toLowerCase() === 'true' || value[0] === '1';
-    }
-    return value?.toLowerCase() === 'true' || value === '1';
+    } satisfies Partial<IAerospace> & UnitFieldParseMessages;
   }
 
   /**
@@ -269,95 +117,15 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<IAerospace>,
   ): IAerospace {
-    // Determine weight class (aerospace use different thresholds)
-    const weightClass = this.getWeightClass(commonFields.tonnage);
+    const weightClass = getAerospaceWeightClass(commonFields.tonnage);
 
-    // Parse tech base from type string
-    const techBase = this.parseTechBase(commonFields.techBase);
-
-    // Parse rules level from type string
-    const rulesLevel = this.parseRulesLevel(commonFields.techBase);
-
-    return {
-      // Identity
-      id: `aerospace-${Date.now()}`,
-      name: `${commonFields.chassis} ${commonFields.model}`.trim(),
-
-      // Classification
+    return combineCommonUnitFields<IAerospace>({
+      commonFields,
+      typeSpecificFields,
+      idPrefix: 'aerospace',
       unitType: UnitType.AEROSPACE,
-      tonnage: commonFields.tonnage,
       weightClass,
-
-      // Tech
-      techBase,
-      era: commonFields.era as Era,
-      rulesLevel,
-
-      // Metadata
-      metadata: {
-        chassis: commonFields.chassis,
-        model: commonFields.model,
-        year: commonFields.year,
-        rulesLevel,
-        techBase,
-        role: commonFields.role,
-      },
-
-      // Optional fields
-      source: commonFields.source,
-      role: commonFields.role,
-
-      // Calculated values (will be recalculated)
-      bv: 0,
-      cost: 0,
-      totalWeight: commonFields.tonnage,
-      remainingTonnage: 0,
-      isValid: true,
-      validationErrors: [],
-
-      // Aerospace-specific fields
-      ...typeSpecificFields,
-    } as IAerospace;
-  }
-
-  /**
-   * Determine weight class from tonnage (aerospace thresholds)
-   */
-  private getWeightClass(tonnage: number): WeightClass {
-    if (tonnage <= 45) return WeightClass.LIGHT;
-    if (tonnage <= 70) return WeightClass.MEDIUM;
-    return WeightClass.HEAVY;
-  }
-
-  /**
-   * Parse tech base from type string
-   */
-  private parseTechBase(typeStr: string): TechBase {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('clan') && !lower.includes('mixed')) {
-      return TechBase.CLAN;
-    }
-    return TechBase.INNER_SPHERE;
-  }
-
-  /**
-   * Parse rules level from type string
-   */
-  private parseRulesLevel(typeStr: string): RulesLevel {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('level 1') || lower.includes('introductory')) {
-      return RulesLevel.INTRODUCTORY;
-    }
-    if (lower.includes('level 2') || lower.includes('standard')) {
-      return RulesLevel.STANDARD;
-    }
-    if (lower.includes('level 3') || lower.includes('advanced')) {
-      return RulesLevel.ADVANCED;
-    }
-    if (lower.includes('level 4') || lower.includes('experimental')) {
-      return RulesLevel.EXPERIMENTAL;
-    }
-    return RulesLevel.STANDARD;
+    });
   }
 
   /**
@@ -366,10 +134,7 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
   protected serializeTypeSpecificFields(
     unit: IAerospace,
   ): Partial<ISerializedUnit> {
-    return {
-      configuration: 'Aerodyne',
-      rulesLevel: String(unit.rulesLevel),
-    };
+    return serializeConfigurationWithRulesLevel('Aerodyne', unit.rulesLevel);
   }
 
   /**
@@ -384,32 +149,23 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
   /**
    * Validate aerospace-specific rules
    */
-  protected validateTypeSpecificRules(unit: IAerospace): {
-    errors: string[];
-    warnings: string[];
-    infos: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-    const infos: string[] = [];
+  protected validateTypeSpecificRules(
+    unit: IAerospace,
+  ): UnitValidationMessages {
+    const { errors, warnings, infos } = createValidationMessages();
 
-    // Tonnage limits for aerospace fighters
-    if (unit.tonnage < 5) {
-      errors.push('Aerospace fighter tonnage must be at least 5 tons');
-    }
-    if (unit.tonnage > 100) {
-      errors.push('Aerospace fighter tonnage cannot exceed 100 tons');
-    }
+    pushTonnageRangeErrors(errors, unit.tonnage, {
+      label: 'Aerospace fighter',
+      min: 5,
+      max: 100,
+    });
 
-    // Thrust validation
-    if (unit.movement.safeThrust < 1) {
-      errors.push('Aerospace fighters must have at least 1 safe thrust');
-    }
-
-    // Structural integrity validation
-    if (unit.structuralIntegrity < 1) {
-      errors.push('Aerospace fighters must have at least 1 SI');
-    }
+    pushSafeThrustAndStructureErrors(
+      errors,
+      unit,
+      'Aerospace fighters must have at least 1 safe thrust',
+      'Aerospace fighters must have at least 1 SI',
+    );
 
     // Fuel validation
     if (unit.fuel < 80) {

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
+import { paddedDarkCampaignStoryParameters } from '../campaignStoryParameters';
 import { SAMPLE_MEDICAL_BAY } from './__fixtures__/bayFixtures';
 import { BayError } from './BayStates';
 import { MedicalBay } from './MedicalBay';
@@ -7,13 +8,7 @@ import { MedicalBay } from './MedicalBay';
 const meta = {
   title: 'Campaign/Bays/MedicalBay',
   component: MedicalBay,
-  parameters: {
-    layout: 'padded',
-    backgrounds: {
-      default: 'dark',
-      values: [{ name: 'dark', value: '#0f172a' }],
-    },
-  },
+  parameters: paddedDarkCampaignStoryParameters,
   tags: ['autodocs'],
 } satisfies Meta<typeof MedicalBay>;
 

@@ -7,12 +7,10 @@
  * @spec openspec/changes/add-protomech-construction/specs/protomech-unit-system/spec.md
  */
 
-// Type-only import avoids a runtime cycle with `protoMechBV.ts`, which imports
-// runtime values (enums) from this file. BV breakdown is erased at runtime.
-import type { IProtoMechBVBreakdown } from '@/utils/construction/protomech/protoMechBV';
-
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+
+import type { IProtoMechBVBreakdown } from './BVBreakdownTypes';
 
 // =============================================================================
 // Enumerations

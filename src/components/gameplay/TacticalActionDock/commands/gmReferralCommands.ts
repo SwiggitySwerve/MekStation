@@ -15,16 +15,13 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.2
  */
 
-import { GamePhase, type ITacticalCommand } from '@/types/gameplay';
+import type { ITacticalCommand } from '@/types/gameplay';
 
-const ALL_PHASES: readonly GamePhase[] = [
-  GamePhase.Initiative,
-  GamePhase.Movement,
-  GamePhase.WeaponAttack,
-  GamePhase.PhysicalAttack,
-  GamePhase.Heat,
-  GamePhase.End,
-];
+import {
+  ALL_GAME_PHASES,
+  alwaysAvailable,
+  commitStaticAction,
+} from './commandDescriptorHelpers';
 
 export function buildGmReferralCommands(): readonly ITacticalCommand[] {
   return [GmAdvancePhaseCommand, GmSetDamageCommand, GmGrantResourceCommand];
@@ -34,22 +31,18 @@ const GmAdvancePhaseCommand: ITacticalCommand = {
   id: 'gm.advance-phase',
   category: 'gm',
   label: 'Advance Phase (GM)',
-  phaseConstraints: ALL_PHASES,
+  phaseConstraints: ALL_GAME_PHASES,
   requiresConfirmation: true, // GM force-advance bypasses validation.
   undoable: false,
-  availability() {
-    return { available: true };
-  },
-  commit() {
-    return { actionId: 'gm-advance-phase', payload: {} };
-  },
+  availability: alwaysAvailable,
+  commit: commitStaticAction('gm-advance-phase'),
 };
 
 const GmSetDamageCommand: ITacticalCommand = {
   id: 'gm.set-damage',
   category: 'gm',
   label: 'Set Damage (GM)',
-  phaseConstraints: ALL_PHASES,
+  phaseConstraints: ALL_GAME_PHASES,
   requiresConfirmation: true,
   undoable: true,
   availability(ctx) {
@@ -62,22 +55,16 @@ const GmSetDamageCommand: ITacticalCommand = {
     }
     return { available: true };
   },
-  commit() {
-    return { actionId: 'gm-set-damage', payload: {} };
-  },
+  commit: commitStaticAction('gm-set-damage'),
 };
 
 const GmGrantResourceCommand: ITacticalCommand = {
   id: 'gm.grant-resource',
   category: 'gm',
   label: 'Grant Resource (GM)',
-  phaseConstraints: ALL_PHASES,
+  phaseConstraints: ALL_GAME_PHASES,
   requiresConfirmation: false,
   undoable: true,
-  availability() {
-    return { available: true };
-  },
-  commit() {
-    return { actionId: 'gm-grant-resource', payload: {} };
-  },
+  availability: alwaysAvailable,
+  commit: commitStaticAction('gm-grant-resource'),
 };

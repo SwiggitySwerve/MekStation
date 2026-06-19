@@ -65,91 +65,91 @@ export class Result {
    * Create a successful result
    * @param data The data to wrap in a success result
    */
-  static success<T>(data: T): ResultType<T, never> {
+  static success = <T>(data: T): ResultType<T, never> => {
     return { success: true, data };
-  }
+  };
 
   /**
    * Create a failed result
    * @param error The error message or object
    */
-  static error<E = string>(error: E): ResultType<never, E> {
+  static error = <E = string>(error: E): ResultType<never, E> => {
     return { success: false, error };
-  }
+  };
 
   /**
    * Check if a result is successful
    * @param result The result to check
    */
-  static isSuccess<T, E>(
+  static isSuccess = <T, E>(
     result: ResultType<T, E>,
-  ): result is { success: true; data: T } {
+  ): result is { success: true; data: T } => {
     return result.success === true;
-  }
+  };
 
   /**
    * Check if a result is an error
    * @param result The result to check
    */
-  static isError<T, E>(
+  static isError = <T, E>(
     result: ResultType<T, E>,
-  ): result is { success: false; error: E } {
+  ): result is { success: false; error: E } => {
     return result.success === false;
-  }
+  };
 
   /**
    * Unwrap a result, throwing if it's an error
    * @param result The result to unwrap
    * @throws Error if the result is an error
    */
-  static unwrap<T, E>(result: ResultType<T, E>): T {
+  static unwrap = <T, E>(result: ResultType<T, E>): T => {
     if (result.success) {
       return result.data;
     }
     throw new Error(String(result.error));
-  }
+  };
 
   /**
    * Get the data from a result, or a default value if it's an error
    * @param result The result to get data from
    * @param defaultValue The default value to return if the result is an error
    */
-  static unwrapOr<T, E>(result: ResultType<T, E>, defaultValue: T): T {
+  static unwrapOr = <T, E>(result: ResultType<T, E>, defaultValue: T): T => {
     if (result.success) {
       return result.data;
     }
     return defaultValue;
-  }
+  };
 
   /**
    * Map a successful result to a new result
    * @param result The result to map
    * @param fn The function to apply to the data
    */
-  static map<T, U, E>(
+  static map = <T, U, E>(
     result: ResultType<T, E>,
     fn: (data: T) => U,
-  ): ResultType<U, E> {
+  ): ResultType<U, E> => {
     if (result.success) {
       return Result.success(fn(result.data));
     }
     return result as ResultType<U, E>;
-  }
+  };
 
   /**
    * Chain result operations (flatMap)
    * @param result The result to chain
    * @param fn The function that returns a new result
    */
-  static flatMap<T, U, E>(
+  static flatMap = <T, U, E>(
     result: ResultType<T, E>,
     fn: (data: T) => ResultType<U, E>,
-  ): ResultType<U, E> {
+  ): ResultType<U, E> => {
     if (result.success) {
       return fn(result.data);
     }
     return result as ResultType<U, E>;
-  }
+  };
 }
 
 // ============================================================================

@@ -6,7 +6,7 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.5
  */
 
-import { TechBase, Era, WeightClass, RulesLevel } from '@/types/enums';
+import { RulesLevel, WeightClass } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   SquadMotionType,
@@ -30,6 +30,17 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
+import {
+  UnitFieldParseMessages,
+  UnitValidationMessages,
+  buildCommonUnitFields,
+  createParseMessages,
+  createValidationMessages,
+  getRawTagBoolean,
+  getRawTagString,
+  parseInnerSphereOrClan,
+  parseRulesLevelThroughAdvancedFromType,
+} from './unitHandlerShared';
 
 // ============================================================================
 // Constants
@@ -87,12 +98,8 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
    */
   protected parseTypeSpecificFields(
     document: IBlkDocument,
-  ): Partial<IInfantry> & {
-    errors: string[];
-    warnings: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  ): Partial<IInfantry> & UnitFieldParseMessages {
+    const { errors, warnings } = createParseMessages();
 
     // Squad configuration
     const squadSize = document.squadSize || 7;
@@ -129,9 +136,9 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
     const fieldGuns = this.parseFieldGuns(document);
 
     // Special features
-    const hasAntiMechTraining = this.getBooleanFromRaw(rawTags, 'antimech');
-    const isAugmented = this.getBooleanFromRaw(rawTags, 'augmented');
-    const augmentationType = this.getStringFromRaw(rawTags, 'augmentationtype');
+    const hasAntiMechTraining = getRawTagBoolean(rawTags, 'antimech');
+    const isAugmented = getRawTagBoolean(rawTags, 'augmented');
+    const augmentationType = getRawTagString(rawTags, 'augmentationtype');
 
     // Capabilities
     const canSwarm = hasAntiMechTraining;
@@ -167,10 +174,7 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
   private parseSpecialization(
     rawTags: Record<string, string | string[]>,
   ): InfantrySpecialization {
-    const spec = this.getStringFromRaw(
-      rawTags,
-      'specialization',
-    )?.toLowerCase();
+    const spec = getRawTagString(rawTags, 'specialization')?.toLowerCase();
     if (!spec) return InfantrySpecialization.NONE;
 
     if (spec.includes('anti-mech') || spec.includes('antimech')) {
@@ -209,106 +213,31 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
   }
 
   /**
-   * Get string value from raw tags
-   */
-  private getStringFromRaw(
-    rawTags: Record<string, string | string[]>,
-    key: string,
-  ): string | undefined {
-    const value = rawTags[key];
-    if (Array.isArray(value)) return value[0];
-    return value;
-  }
-
-  /**
-   * Get boolean value from raw tags
-   */
-  private getBooleanFromRaw(
-    rawTags: Record<string, string | string[]>,
-    key: string,
-  ): boolean {
-    const value = this.getStringFromRaw(rawTags, key);
-    return value?.toLowerCase() === 'true' || value === '1';
-  }
-
-  /**
    * Combine common and Infantry-specific fields into IInfantry
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<IInfantry>,
   ): IInfantry {
-    const techBase = this.parseTechBase(commonFields.techBase);
-    const rulesLevel = this.parseRulesLevel(commonFields.techBase);
+    const techBase = parseInnerSphereOrClan(commonFields.techBase);
+    const rulesLevel = parseRulesLevelThroughAdvancedFromType(
+      commonFields.techBase,
+      RulesLevel.INTRODUCTORY,
+    );
 
     return {
-      // Identity
-      id: `infantry-${Date.now()}`,
-      name: `${commonFields.chassis} ${commonFields.model}`.trim(),
-
-      // Classification
-      unitType: UnitType.INFANTRY,
-      tonnage: commonFields.tonnage || 0.1, // Infantry has very low tonnage
-      weightClass: WeightClass.LIGHT,
-
-      // Tech
-      techBase,
-      era: commonFields.era as Era,
-      rulesLevel,
-
-      // Metadata
-      metadata: {
-        chassis: commonFields.chassis,
-        model: commonFields.model,
-        year: commonFields.year,
-        rulesLevel,
+      ...buildCommonUnitFields({
+        commonFields,
+        idPrefix: 'infantry',
+        unitType: UnitType.INFANTRY,
+        weightClass: WeightClass.LIGHT,
         techBase,
-        role: commonFields.role,
-      },
-
-      // Optional fields
-      source: commonFields.source,
-      role: commonFields.role,
-
-      // Calculated values
-      bv: 0,
-      cost: 0,
-      totalWeight: commonFields.tonnage || 0.1,
-      remainingTonnage: 0,
-      isValid: true,
-      validationErrors: [],
-
-      // Infantry-specific fields
+        rulesLevel,
+        tonnage: commonFields.tonnage || 0.1,
+        totalWeight: commonFields.tonnage || 0.1,
+      }),
       ...typeSpecificFields,
     } as IInfantry;
-  }
-
-  /**
-   * Parse tech base from type string
-   */
-  private parseTechBase(typeStr: string): TechBase {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('clan') && !lower.includes('mixed')) {
-      return TechBase.CLAN;
-    }
-    return TechBase.INNER_SPHERE;
-  }
-
-  /**
-   * Parse rules level from type string
-   */
-  private parseRulesLevel(typeStr: string): RulesLevel {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('level 1') || lower.includes('introductory')) {
-      return RulesLevel.INTRODUCTORY;
-    }
-    if (lower.includes('level 2') || lower.includes('standard')) {
-      return RulesLevel.STANDARD;
-    }
-    if (lower.includes('level 3') || lower.includes('advanced')) {
-      return RulesLevel.ADVANCED;
-    }
-    return RulesLevel.INTRODUCTORY; // Most infantry is introductory
   }
 
   /**
@@ -335,14 +264,8 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
   /**
    * Validate Infantry-specific rules
    */
-  protected validateTypeSpecificRules(unit: IInfantry): {
-    errors: string[];
-    warnings: string[];
-    infos: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-    const infos: string[] = [];
+  protected validateTypeSpecificRules(unit: IInfantry): UnitValidationMessages {
+    const { errors, warnings, infos } = createValidationMessages();
 
     // Squad size validation (typically 7-10)
     if (unit.squadSize < 1 || unit.squadSize > 10) {

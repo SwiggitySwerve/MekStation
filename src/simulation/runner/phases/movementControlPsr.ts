@@ -28,6 +28,12 @@ type MovementControlStep = {
   readonly toFacing?: Facing;
 };
 
+const BATTLEMECH_LIKE_UNIT_TYPES = new Set([
+  'battlemech',
+  'omnimech',
+  'industrialmech',
+]);
+
 function isJumpOrStationaryMovement(movementType: MovementType): boolean {
   return (
     movementType === MovementType.Jump ||
@@ -54,11 +60,7 @@ function isRunOrSprintMovement(movementType: MovementType): boolean {
 function isBattleMechLikeUnitType(unitType: string | undefined): boolean {
   if (!unitType) return true;
   const canonical = unitType.toLowerCase().replace(/[^a-z0-9]/g, '');
-  return (
-    canonical === 'battlemech' ||
-    canonical === 'omnimech' ||
-    canonical === 'industrialmech'
-  );
+  return BATTLEMECH_LIKE_UNIT_TYPES.has(canonical);
 }
 
 function isPositionChangingStep(
@@ -144,6 +146,30 @@ function firstFlankingAndTurningStepIndex(
   return undefined;
 }
 
+function appendMovementControlPSREvent(options: {
+  readonly events: IGameEvent[];
+  readonly gameId: string;
+  readonly turn: number;
+  readonly unitId: string;
+  readonly psr: IPendingPSR;
+  readonly piloting: number | undefined;
+}): void {
+  options.events.push(
+    createPSRTriggeredEvent(
+      options.gameId,
+      options.events.length,
+      options.turn,
+      GamePhase.Movement,
+      options.unitId,
+      options.psr.reason,
+      options.psr.additionalModifier,
+      options.psr.triggerSource,
+      options.piloting,
+      options.psr.reasonCode,
+    ),
+  );
+}
+
 export function queueMovementControlPSRs(options: {
   currentState: IGameState;
   events: IGameEvent[];
@@ -163,20 +189,14 @@ export function queueMovementControlPSRs(options: {
 
   for (const psr of psrs) {
     currentState = queuePendingPSR(currentState, unitId, psr);
-    events.push(
-      createPSRTriggeredEvent(
-        gameId,
-        events.length,
-        currentState.turn,
-        GamePhase.Movement,
-        unitId,
-        psr.reason,
-        psr.additionalModifier,
-        psr.triggerSource,
-        currentState.units[unitId]?.piloting,
-        psr.reasonCode,
-      ),
-    );
+    appendMovementControlPSREvent({
+      events,
+      gameId,
+      turn: currentState.turn,
+      unitId,
+      psr,
+      piloting: currentState.units[unitId]?.piloting,
+    });
   }
 
   return currentState;

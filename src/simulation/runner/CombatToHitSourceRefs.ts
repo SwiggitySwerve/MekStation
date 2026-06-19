@@ -1,19 +1,7 @@
-import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
-
-const MEGAMEK_TO_HIT_SOURCE_VERSION =
-  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
-
-function megamekToHitRef(
-  citation: string,
-  pathWithLines: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'megamek-source',
-    citation,
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TO_HIT_SOURCE_VERSION}/${pathWithLines}`,
-    sourceVersion: MEGAMEK_TO_HIT_SOURCE_VERSION,
-  };
-}
+import {
+  megamekSourceRef as megamekToHitRef,
+  type ICombatFeatureSourceReference,
+} from './CombatFeatureSourceReference';
 
 export const MEGAMEK_GUNNERY_TO_HIT_SOURCE_REFS = [
   megamekToHitRef(

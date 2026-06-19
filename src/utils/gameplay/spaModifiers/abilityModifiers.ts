@@ -10,6 +10,7 @@ import {
   TerrainType,
   type ITerrainFeature,
 } from '@/types/gameplay/TerrainTypes';
+import { movementModeForPath } from '@/utils/gameplay/movement';
 
 import { hasSPA } from './canonicalize';
 
@@ -144,14 +145,6 @@ function hasAnyTerrain(
   return terrainFeatures.some((feature) => types.includes(feature.type));
 }
 
-function isRunBasedMovement(movementType: MovementType): boolean {
-  return (
-    movementType === MovementType.Run ||
-    movementType === MovementType.Evade ||
-    movementType === MovementType.Sprint
-  );
-}
-
 /**
  * Terrain Master defensive gunnery variants.
  */
@@ -179,7 +172,7 @@ export function calculateTerrainMasterDefensiveToHitModifier(
 
   if (
     hasSPA(targetAbilities, 'tm_swamp_beast') &&
-    isRunBasedMovement(targetMovementType) &&
+    movementModeForPath(targetMovementType) === 'run' &&
     hasAnyTerrain(targetTerrainFeatures, [TerrainType.Mud, TerrainType.Swamp])
   ) {
     return {

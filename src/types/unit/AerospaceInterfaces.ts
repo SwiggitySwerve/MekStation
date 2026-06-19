@@ -8,9 +8,13 @@
  * @spec openspec/changes/add-aerospace-construction/specs/aerospace-unit-system/spec.md
  */
 
+import type { IUnitMountedEquipmentIdentity } from './MountedEquipmentInterfaces';
+
 import { AerospaceLocation } from '../construction/UnitLocation';
+import { AerospaceArc } from './AerospaceArcTypes';
 import { IAerospaceUnit, AerospaceMotionType } from './BaseUnitInterfaces';
 import { UnitType } from './BattleMechInterfaces';
+export { AerospaceArc } from './AerospaceArcTypes';
 
 // ============================================================================
 // Aerospace Sub-Type Discriminant
@@ -36,16 +40,6 @@ export enum AerospaceSubType {
  * Small craft replaces LEFT_WING/RIGHT_WING with LEFT_SIDE/RIGHT_SIDE.
  * FUSELAGE is an internal location with no arc-slot cap.
  */
-export enum AerospaceArc {
-  NOSE = 'Nose',
-  LEFT_WING = 'LeftWing',
-  RIGHT_WING = 'RightWing',
-  LEFT_SIDE = 'LeftSide',
-  RIGHT_SIDE = 'RightSide',
-  AFT = 'Aft',
-  FUSELAGE = 'Fuselage',
-}
-
 // ============================================================================
 // Aerospace Engine Type (construction-canonical)
 // ============================================================================
@@ -120,13 +114,7 @@ export interface IAerospaceBreakdown {
 /**
  * Aerospace-mounted equipment item
  */
-export interface IAerospaceMountedEquipment {
-  /** Unique mount ID */
-  readonly id: string;
-  /** Equipment definition ID */
-  readonly equipmentId: string;
-  /** Display name */
-  readonly name: string;
+export interface IAerospaceMountedEquipment extends IUnitMountedEquipmentIdentity {
   /** Firing arc/location */
   readonly location: AerospaceLocation;
   /** Linked ammunition ID */
@@ -245,13 +233,7 @@ export interface IConventionalFighter extends IAerospaceUnit {
 /**
  * Small craft-mounted equipment item
  */
-export interface ISmallCraftMountedEquipment {
-  /** Unique mount ID */
-  readonly id: string;
-  /** Equipment definition ID */
-  readonly equipmentId: string;
-  /** Display name */
-  readonly name: string;
+export interface ISmallCraftMountedEquipment extends IUnitMountedEquipmentIdentity {
   /** Firing arc/location */
   readonly location: string;
   /** Linked ammunition ID */

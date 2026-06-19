@@ -1,13 +1,7 @@
 import type { IApplyAttackInput } from '@/engine/InteractiveSession.actions';
 import type { ICombatRangeHex, IGameState, IUnitToken } from '@/types/gameplay';
 
-import {
-  Facing,
-  GameSide,
-  LockState,
-  MovementType,
-  TokenUnitType,
-} from '@/types/gameplay';
+import { Facing, GameSide } from '@/types/gameplay';
 import {
   addC3Network,
   createC3MasterSlaveNetwork,
@@ -24,6 +18,10 @@ import {
   tacticalMapWeaponsByUnit,
 } from './tactical-map.combat-scenarios';
 import {
+  createTacticalMapMechToken,
+  createTacticalMapUnitState,
+} from './tactical-map.fixture-helpers';
+import {
   tacticalMapCombatState,
   tacticalMapTokens,
 } from './tactical-map.fixtures';
@@ -32,18 +30,15 @@ export const tacticalMapC3RangeBenefitTargetId = 'medium-target';
 const tacticalMapC3RangeBenefitTargetHex = { q: 1, r: 2 } as const;
 export const tacticalMapC3RangeBenefitSelectedWeaponIds = ['medium-laser'];
 
-const tacticalMapC3SpotterToken: IUnitToken = {
+const tacticalMapC3SpotterToken: IUnitToken = createTacticalMapMechToken({
   unitId: 'c3-spotter',
   name: 'Raven RVN-3L',
   designation: 'RVN',
   position: { q: 1, r: 1 },
   facing: Facing.Southwest,
   side: GameSide.Player,
-  isDestroyed: false,
-  isSelected: false,
   isValidTarget: false,
-  unitType: TokenUnitType.Mech,
-};
+});
 
 export const tacticalMapC3RangeBenefitTokens: readonly IUnitToken[] = [
   ...tacticalMapTokens,
@@ -73,28 +68,16 @@ export const tacticalMapC3RangeBenefitCombatState: IGameState = {
   ...tacticalMapCombatState,
   units: {
     ...tacticalMapCombatState.units,
-    [tacticalMapC3SpotterToken.unitId]: {
+    [tacticalMapC3SpotterToken.unitId]: createTacticalMapUnitState({
       id: tacticalMapC3SpotterToken.unitId,
       side: tacticalMapC3SpotterToken.side,
       position: tacticalMapC3SpotterToken.position,
       facing: tacticalMapC3SpotterToken.facing,
-      heat: 0,
-      movementThisTurn: MovementType.Stationary,
-      hexesMovedThisTurn: 0,
-      armor: {},
-      structure: {},
-      destroyedLocations: [],
-      destroyedEquipment: [],
-      ammo: {},
-      pilotWounds: 0,
-      pilotConscious: true,
       prone: false,
-      destroyed: false,
-      lockState: LockState.Pending,
       shutdown: false,
       hasRetreated: false,
       gunnery: 4,
-    },
+    }),
   },
   c3State: addC3Network(createEmptyC3State(), tacticalMapC3Network),
 };

@@ -195,15 +195,23 @@ function buildScenarioId(
  * @param scenarioId - Generated scenario id (Wave 5 §8.1 linkage)
  * @returns Event data object with scenario details
  */
-function createScenarioEventData(
-  scenarioType: string,
-  isAttacker: boolean,
-  opForBV: number,
-  conditions: IScenarioConditions,
-  contract: IContract,
-  team: ICombatTeam,
-  scenarioId: string,
-): Record<string, unknown> {
+function createScenarioEventData({
+  scenarioType,
+  isAttacker,
+  opForBV,
+  conditions,
+  contract,
+  team,
+  scenarioId,
+}: {
+  readonly scenarioType: string;
+  readonly isAttacker: boolean;
+  readonly opForBV: number;
+  readonly conditions: IScenarioConditions;
+  readonly contract: IContract;
+  readonly team: ICombatTeam;
+  readonly scenarioId: string;
+}): Record<string, unknown> {
   return {
     scenarioType,
     isAttacker,
@@ -281,15 +289,15 @@ function runScenarioGeneration(
       // attribution back to the contract.
       const scenarioId = buildScenarioId(contract, team, date);
 
-      const eventData = createScenarioEventData(
-        scenarioResult.scenarioType,
-        scenarioResult.isAttacker,
+      const eventData = createScenarioEventData({
+        scenarioType: scenarioResult.scenarioType,
+        isAttacker: scenarioResult.isAttacker,
         opForBV,
         conditions,
         contract,
         team,
         scenarioId,
-      );
+      });
 
       // Emit event
       events.push({

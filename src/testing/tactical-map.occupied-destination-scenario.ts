@@ -9,42 +9,29 @@ import type {
 } from '@/types/gameplay';
 import type { ICommittedMovementValidationInput } from '@/utils/gameplay/movement/commitValidation';
 
-import {
-  Facing,
-  GameSide,
-  LockState,
-  MovementType,
-  TerrainType,
-  TokenUnitType,
-} from '@/types/gameplay';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
+import { Facing, GameSide, MovementType, TerrainType } from '@/types/gameplay';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
+import {
+  createTacticalMapMechToken,
+  createTacticalMapPlayerMechToken,
+  createTacticalMapTerrainGrid,
+  createTacticalMapUnitState,
+  requireTacticalMapMovementProjection,
+} from './tactical-map.fixture-helpers';
 import { tacticalMapHexTerrain } from './tactical-map.fixtures';
 
 const tacticalMapOccupiedDestinationOrigin = { q: 0, r: 0 } as const;
 const tacticalMapOccupiedDestinationHex = { q: 1, r: 0 } as const;
 
-const tacticalMapOccupiedDestinationUnit: IUnitGameState = {
-  id: 'attacker',
-  side: GameSide.Player,
-  position: tacticalMapOccupiedDestinationOrigin,
-  facing: Facing.Northeast,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  lockState: LockState.Pending,
-};
+const tacticalMapOccupiedDestinationUnit: IUnitGameState =
+  createTacticalMapUnitState({
+    id: 'attacker',
+    side: GameSide.Player,
+    position: tacticalMapOccupiedDestinationOrigin,
+    facing: Facing.Northeast,
+  });
 
 const tacticalMapOccupiedDestinationCapability: IMovementCapability = {
   walkMP: 4,
@@ -81,19 +68,10 @@ export const tacticalMapOccupiedDestinationHexTerrain: readonly IHexTerrain[] =
   ];
 
 function tacticalMapOccupiedDestinationGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
+  const grid = createTacticalMapTerrainGrid(
+    tacticalMapOccupiedDestinationHexTerrain,
+  );
   const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapOccupiedDestinationHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
 
   const originKey = coordToKey(tacticalMapOccupiedDestinationOrigin);
   const originHex = hexes.get(originKey);
@@ -112,48 +90,37 @@ function tacticalMapOccupiedDestinationGrid(): IHexGrid {
   return { ...grid, hexes };
 }
 
-function requireSingleMovementProjection(
+function requireOccupiedDestinationMovementProjection(
   projection: IMovementRangeHex | null,
 ): IMovementRangeHex {
-  if (!projection) {
-    throw new Error('Expected occupied destination movement projection');
-  }
-  return projection;
+  return requireTacticalMapMovementProjection(
+    projection,
+    'occupied destination',
+  );
 }
 
 export const tacticalMapOccupiedDestinationSelectedHex =
   tacticalMapOccupiedDestinationOrigin;
 
 export const tacticalMapOccupiedDestinationTokens: readonly IUnitToken[] = [
-  {
+  createTacticalMapPlayerMechToken({
     unitId: 'attacker',
     name: 'Shadow Hawk SHD-2H',
     designation: 'SHD',
     position: tacticalMapOccupiedDestinationOrigin,
-    facing: Facing.Northeast,
-    side: GameSide.Player,
-    isDestroyed: false,
-    isSelected: true,
-    isValidTarget: false,
-    unitType: TokenUnitType.Mech,
-  },
-  {
+  }),
+  createTacticalMapMechToken({
     unitId: 'blocker',
     name: 'Blocking Hunchback',
     designation: 'BLK',
     position: tacticalMapOccupiedDestinationHex,
-    facing: Facing.Southwest,
-    side: GameSide.Opponent,
-    isDestroyed: false,
-    isSelected: false,
     isValidTarget: false,
-    unitType: TokenUnitType.Mech,
-  },
+  }),
 ];
 
 export const tacticalMapOccupiedDestinationMovementRange: readonly IMovementRangeHex[] =
   [
-    requireSingleMovementProjection(
+    requireOccupiedDestinationMovementProjection(
       deriveMovementRangeHexForDestination(
         tacticalMapOccupiedDestinationUnit,
         MovementType.Walk,

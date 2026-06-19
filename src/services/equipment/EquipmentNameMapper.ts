@@ -242,7 +242,7 @@ export class EquipmentNameMapper {
   /**
    * Map an MTF equipment name to a canonical ID
    */
-  mapName(mtfName: string, techBase?: TechBase): INameMappingResult {
+  mapName = (mtfName: string, techBase?: TechBase): INameMappingResult => {
     // Clean up the name
     const cleanName = this.cleanMtfName(mtfName);
 
@@ -308,7 +308,7 @@ export class EquipmentNameMapper {
       alternates: registryResult.alternateIds,
       warning: `Unknown equipment: ${mtfName}`,
     };
-  }
+  };
 
   /**
    * Clean an MTF equipment name
@@ -335,15 +335,15 @@ export class EquipmentNameMapper {
   /**
    * Add a custom name mapping
    */
-  addMapping(mtfName: string, equipmentId: string): void {
+  addMapping = (mtfName: string, equipmentId: string): void => {
     this.customMappings.set(mtfName.toLowerCase(), equipmentId);
     this.unknownNames.delete(mtfName);
-  }
+  };
 
   /**
    * Load mappings from a JSON file
    */
-  async loadMappings(url: string): Promise<number> {
+  loadMappings = async (url: string): Promise<number> => {
     try {
       const response = await fetch(url);
       if (!response.ok) {
@@ -363,26 +363,26 @@ export class EquipmentNameMapper {
       logger.error('Failed to load name mappings:', e);
       return 0;
     }
-  }
+  };
 
   /**
    * Get list of unknown equipment names
    */
-  getUnknownNames(): string[] {
+  getUnknownNames = (): string[] => {
     return Array.from(this.unknownNames);
-  }
+  };
 
   /**
    * Clear unknown names tracking
    */
-  clearUnknownNames(): void {
+  clearUnknownNames = (): void => {
     this.unknownNames.clear();
-  }
+  };
 
   /**
    * Get mapping statistics
    */
-  getStats(): IMappingStats {
+  getStats = (): IMappingStats => {
     return {
       totalMappings: this.customMappings.size,
       exactMatches: Object.keys(MTF_NAME_MAPPINGS).length,
@@ -390,18 +390,18 @@ export class EquipmentNameMapper {
         this.customMappings.size - Object.keys(MTF_NAME_MAPPINGS).length,
       unknownItems: this.getUnknownNames(),
     };
-  }
+  };
 
   /**
    * Export unknown names to JSON format for manual mapping
    */
-  exportUnknownNames(): string {
+  exportUnknownNames = (): string => {
     const unknowns: Record<string, string> = {};
     this.unknownNames.forEach((name) => {
       unknowns[name] = ''; // Empty value to be filled in manually
     });
     return JSON.stringify(unknowns, null, 2);
-  }
+  };
 }
 
 const equipmentNameMapperFactory: SingletonFactory<EquipmentNameMapper> =

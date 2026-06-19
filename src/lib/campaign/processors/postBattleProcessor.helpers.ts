@@ -81,15 +81,24 @@ function pilotFinalToRosterStatus(
  * Returns `null` when the pilot id can't be resolved to a roster entry â€”
  * non-fatal; the rest of the outcome continues processing.
  */
-export function applyPilotDelta(
-  campaign: ICampaign,
-  pilotId: string,
-  delta: IUnitCombatDelta,
-  outcomeWonByPlayer: boolean,
-  entry: ICampaignRosterEntry | null,
-  pilot: IPilot | null,
-  killCount: number = 0,
-): { patch: Partial<ICampaignRosterEntry>; xpAwarded: number } | null {
+export function applyPilotDelta(context: {
+  readonly campaign: ICampaign;
+  readonly pilotId: string;
+  readonly delta: IUnitCombatDelta;
+  readonly outcomeWonByPlayer: boolean;
+  readonly entry: ICampaignRosterEntry | null;
+  readonly pilot: IPilot | null;
+  readonly killCount?: number;
+}): { patch: Partial<ICampaignRosterEntry>; xpAwarded: number } | null {
+  const {
+    campaign,
+    pilotId,
+    delta,
+    outcomeWonByPlayer,
+    entry,
+    pilot,
+    killCount = 0,
+  } = context;
   if (!entry) {
     logger.warn(
       `[postBattleProcessor] Unknown pilot id "${pilotId}" â€” skipping pilot updates.`,

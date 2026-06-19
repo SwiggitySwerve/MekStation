@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { respondToStaticGetRequest as respondToUnitCategoriesGet } from '@/pages-modules/api/routeHelpers';
+
 /**
  * Unit type categories - canonical list of unit types supported by the system.
  * These match the folder structure in megameklab data files.
@@ -27,14 +29,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<void> {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
-
-  try {
-    res.status(200).json(UNIT_CATEGORIES);
-  } catch (error) {
-    console.error('Error fetching unit categories:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+  respondToUnitCategoriesGet(
+    req,
+    res,
+    UNIT_CATEGORIES,
+    'Error fetching unit categories:',
+  );
 }

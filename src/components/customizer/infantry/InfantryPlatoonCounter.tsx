@@ -30,7 +30,7 @@ import { useInfantryStore } from '@/stores/useInfantryStore';
 interface InfantryPlatoonCounterProps {
   /**
    * Current trooper count (remaining after casualties).
-   * TODO(add-infantry-combat-behavior): wire from combat session state.
+   * Deferred(add-infantry-combat-behavior): wire from combat session state.
    * Defaults to full platoon strength when not supplied.
    */
   currentTroopers?: number;

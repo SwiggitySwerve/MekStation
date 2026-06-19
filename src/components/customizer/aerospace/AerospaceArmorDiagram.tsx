@@ -85,7 +85,7 @@ const ARCS: { arc: AerospaceLocation; label: string }[] = [
  *
  * The SI bar uses a placeholder value (Math.ceil(tonnage / 10)) until the
  * add-aerospace-construction proposal adds SI as a first-class store field.
- * TODO(add-aerospace-construction): replace placeholder SI with store value.
+ * Deferred(add-aerospace-construction): replace placeholder SI with store value.
  */
 export function AerospaceArmorDiagram({
   className = '',
@@ -98,7 +98,7 @@ export function AerospaceArmorDiagram({
   const setArcArmor = useAerospaceStore((s) => s.setArcArmor);
   const autoAllocateArmor = useAerospaceStore((s) => s.autoAllocateArmor);
 
-  // TODO(add-aerospace-construction): read SI from store when available.
+  // Deferred(add-aerospace-construction): read SI from store when available.
   const si = Math.ceil(tonnage / 10);
   const siMax = Math.ceil(tonnage / 10); // structural integrity equals SI rating
 

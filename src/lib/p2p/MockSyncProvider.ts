@@ -42,6 +42,18 @@ interface BroadcastMessage {
   data?: number[];
 }
 
+type MockWebrtcProvider = Pick<
+  ISyncRoom['webrtcProvider'],
+  'connected' | 'disconnect' | 'destroy'
+> & {
+  readonly awareness: {
+    readonly clientID: number;
+    getStates: () => Map<number, Record<string, unknown>>;
+    setLocalStateField: () => void;
+  };
+  on: () => void;
+};
+
 // =============================================================================
 // State
 // =============================================================================
@@ -292,7 +304,7 @@ export function cancelMockReconnect(): void {
  * subset needed for testing. This is intentional for mock implementations.
  */
 function createMockWebrtcProvider(): ISyncRoom['webrtcProvider'] {
-  const mockProvider = {
+  const mockProvider: MockWebrtcProvider = {
     connected: connectionState === ConnectionState.Connected,
     awareness: {
       clientID: parseInt(localPeerId.split('-')[1]) || Date.now(),
@@ -312,7 +324,7 @@ function createMockWebrtcProvider(): ISyncRoom['webrtcProvider'] {
     destroy: () => {},
     on: () => {},
   };
-  return mockProvider as unknown as ISyncRoom['webrtcProvider'];
+  return mockProvider as never as ISyncRoom['webrtcProvider'];
 }
 
 /**
@@ -322,7 +334,7 @@ function createMockPersistence(): ISyncRoom['persistence'] {
   const mockPersistence = {
     destroy: () => {},
   };
-  return mockPersistence as unknown as ISyncRoom['persistence'];
+  return mockPersistence as ISyncRoom['persistence'];
 }
 
 // =============================================================================

@@ -14,14 +14,10 @@ import { create } from 'zustand';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
 
-/**
- * Categories that should be included when "Other" (MISC_EQUIPMENT) is toggled.
- * This makes "Other" a catch-all for anything not in primary weapon/ammo categories.
- */
-const OTHER_COMBINED_CATEGORIES: readonly EquipmentCategory[] = [
-  EquipmentCategory.MISC_EQUIPMENT,
-  EquipmentCategory.ELECTRONICS,
-];
+import {
+  filterEquipment,
+  updateEquipmentCategories,
+} from './useEquipmentStore.filters';
 
 /**
  * Sort direction
@@ -263,52 +259,14 @@ export const useEquipmentStore = create<EquipmentStoreState>((set, get) => ({
 
   selectCategory: (category, isMultiSelect) =>
     set((state) => {
-      let newCategories: Set<EquipmentCategory>;
-
-      if (isMultiSelect) {
-        // Ctrl+click: Toggle mode - add/remove from existing selection
-        newCategories = new Set(state.filters.activeCategories);
-
-        // "Other" (MISC_EQUIPMENT) is a combined category that includes Electronics
-        if (category === EquipmentCategory.MISC_EQUIPMENT) {
-          const isOtherActive = newCategories.has(
-            EquipmentCategory.MISC_EQUIPMENT,
-          );
-
-          if (isOtherActive) {
-            for (const cat of OTHER_COMBINED_CATEGORIES) {
-              newCategories.delete(cat);
-            }
-          } else {
-            for (const cat of OTHER_COMBINED_CATEGORIES) {
-              newCategories.add(cat);
-            }
-          }
-        } else {
-          if (newCategories.has(category)) {
-            newCategories.delete(category);
-          } else {
-            newCategories.add(category);
-          }
-        }
-      } else {
-        // Regular click: Exclusive mode - select only this category
-        newCategories = new Set<EquipmentCategory>();
-
-        if (category === EquipmentCategory.MISC_EQUIPMENT) {
-          // Add all "Other" combined categories
-          for (const cat of OTHER_COMBINED_CATEGORIES) {
-            newCategories.add(cat);
-          }
-        } else {
-          newCategories.add(category);
-        }
-      }
-
       return {
         filters: {
           ...state.filters,
-          activeCategories: newCategories,
+          activeCategories: updateEquipmentCategories(
+            state.filters.activeCategories,
+            category,
+            isMultiSelect,
+          ),
           showAllCategories: false,
         },
         pagination: { ...state.pagination, currentPage: 1 },
@@ -412,162 +370,7 @@ export const useEquipmentStore = create<EquipmentStoreState>((set, get) => ({
   // Computed - get filtered equipment
   getFilteredEquipment: () => {
     const { equipment, filters, sort, unitContext } = get();
-
-    let filtered = [...equipment];
-
-    // Text search
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      filtered = filtered.filter((e) =>
-        e.name.toLowerCase().includes(searchLower),
-      );
-    }
-
-    // Tech base filter (user override)
-    if (filters.techBase) {
-      filtered = filtered.filter((e) => e.techBase === filters.techBase);
-    }
-
-    // Category filter (legacy single category)
-    if (filters.category) {
-      filtered = filtered.filter((e) => e.category === filters.category);
-    }
-
-    // Toggle category filter (multi-select)
-    // Check both primary category and additionalCategories
-    if (!filters.showAllCategories && filters.activeCategories.size > 0) {
-      filtered = filtered.filter((e) => {
-        // Check primary category
-        if (filters.activeCategories.has(e.category)) {
-          return true;
-        }
-        // Check additional categories (for dual-purpose equipment like AMS)
-        if (e.additionalCategories) {
-          return e.additionalCategories.some((cat) =>
-            filters.activeCategories.has(cat),
-          );
-        }
-        return false;
-      });
-    }
-
-    // Hide prototype equipment (check for rulesLevel === 'Experimental' or name contains 'Prototype')
-    if (filters.hidePrototype) {
-      filtered = filtered.filter(
-        (e) =>
-          e.rulesLevel !== 'Experimental' &&
-          !e.name.toLowerCase().includes('prototype'),
-      );
-    }
-
-    // Hide one-shot equipment
-    if (filters.hideOneShot) {
-      filtered = filtered.filter(
-        (e) => !e.name.toLowerCase().includes('one-shot'),
-      );
-    }
-
-    // Hide unavailable equipment - filter by unit's year and tech base
-    if (filters.hideUnavailable) {
-      // Filter by introduction year if unit year is known
-      if (unitContext.unitYear !== null) {
-        filtered = filtered.filter(
-          (e) => e.introductionYear <= unitContext.unitYear!,
-        );
-      }
-
-      // Filter by tech base if unit tech base is known
-      // Note: When hideUnavailable is true, we only show equipment compatible with the unit's tech base
-      if (unitContext.unitTechBase !== null) {
-        filtered = filtered.filter(
-          (e) => e.techBase === unitContext.unitTechBase,
-        );
-      }
-    }
-
-    // Hide ammunition without matching weapon on the unit
-    if (filters.hideAmmoWithoutWeapon && unitContext.unitWeaponIds.length > 0) {
-      filtered = filtered.filter((e) => {
-        // Only filter ammunition
-        if (e.category !== EquipmentCategory.AMMUNITION) {
-          return true;
-        }
-
-        // Check if any mounted weapon matches this ammo type
-        // Match by checking if the ammo name contains a weapon type that's mounted
-        const ammoName = e.name.toLowerCase();
-
-        return unitContext.unitWeaponIds.some((weaponId) => {
-          const weaponIdLower = weaponId.toLowerCase();
-          // Direct ID match (e.g., weapon "ac-10" matches ammo containing "ac/10" or "ac-10")
-          const normalizedWeaponId = weaponIdLower.replace(/-/g, '/');
-          const normalizedAmmoName = ammoName.replace(/-/g, '/');
-
-          // Check common weapon type patterns in ammo names
-          // AC/10 Ammo -> ac/10, LRM 10 Ammo -> lrm, SRM 4 Ammo -> srm, etc.
-          return (
-            normalizedAmmoName.includes(normalizedWeaponId) ||
-            // Handle variants like "armor-piercing ac/10 ammo"
-            normalizedAmmoName.includes(normalizedWeaponId.replace('/', ''))
-          );
-        });
-      });
-    }
-
-    // Weight filter
-    if (filters.maxWeight !== null) {
-      filtered = filtered.filter((e) => e.weight <= filters.maxWeight!);
-    }
-
-    // Critical slots filter
-    if (filters.maxCriticalSlots !== null) {
-      filtered = filtered.filter(
-        (e) => e.criticalSlots <= filters.maxCriticalSlots!,
-      );
-    }
-
-    // Year filter (user override - in addition to hideUnavailable)
-    if (filters.maxYear !== null) {
-      filtered = filtered.filter((e) => e.introductionYear <= filters.maxYear!);
-    }
-
-    // Sorting
-    filtered.sort((a, b) => {
-      let aVal: string | number;
-      let bVal: string | number;
-
-      switch (sort.column) {
-        case 'name':
-          aVal = a.name.toLowerCase();
-          bVal = b.name.toLowerCase();
-          break;
-        case 'category':
-          aVal = a.category;
-          bVal = b.category;
-          break;
-        case 'techBase':
-          aVal = a.techBase;
-          bVal = b.techBase;
-          break;
-        case 'weight':
-          aVal = a.weight;
-          bVal = b.weight;
-          break;
-        case 'criticalSlots':
-          aVal = a.criticalSlots;
-          bVal = b.criticalSlots;
-          break;
-        default:
-          aVal = a.name.toLowerCase();
-          bVal = b.name.toLowerCase();
-      }
-
-      if (aVal < bVal) return sort.direction === 'asc' ? -1 : 1;
-      if (aVal > bVal) return sort.direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    return filtered;
+    return filterEquipment(equipment, filters, unitContext, sort);
   },
 
   // Computed - get paginated equipment

@@ -7,14 +7,10 @@
  */
 
 import { AutoAwardCategory } from '../../campaign/awards/autoAwardTypes';
-import {
-  IAward,
-  AwardRarity,
-  AwardCategory,
-  CriteriaType,
-} from '../AwardInterfaces';
+import { AwardRarity, AwardCategory, CriteriaType } from '../AwardInterfaces';
+import { createAutoAwards } from './AutoAwardBuilders';
 
-export const AUTO_INJURY_AWARDS: readonly IAward[] = [
+export const AUTO_INJURY_AWARDS = createAutoAwards([
   {
     id: 'purple-heart',
     name: 'Purple Heart',
@@ -22,20 +18,14 @@ export const AUTO_INJURY_AWARDS: readonly IAward[] = [
     category: AwardCategory.Survival,
     rarity: AwardRarity.Common,
     icon: 'award-purple-heart',
-    criteria: {
-      type: CriteriaType.SpecificEvent,
-      threshold: 1,
-      conditions: { eventType: 'injury' },
-      description: 'Sustain 1 injury',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.SpecificEvent,
+    criteriaThreshold: 1,
+    criteriaConditions: { eventType: 'injury' },
+    criteriaDescription: 'Sustain 1 injury',
     sortOrder: 360,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.INJURY,
-      threshold: 1,
-      thresholdType: 'injuries',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.INJURY,
+    autoThreshold: 1,
+    autoThresholdType: 'injuries',
   },
   {
     id: 'battle-scarred',
@@ -44,20 +34,14 @@ export const AUTO_INJURY_AWARDS: readonly IAward[] = [
     category: AwardCategory.Survival,
     rarity: AwardRarity.Uncommon,
     icon: 'award-battle-scarred',
-    criteria: {
-      type: CriteriaType.SpecificEvent,
-      threshold: 3,
-      conditions: { eventType: 'injury' },
-      description: 'Sustain 3 injuries',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.SpecificEvent,
+    criteriaThreshold: 3,
+    criteriaConditions: { eventType: 'injury' },
+    criteriaDescription: 'Sustain 3 injuries',
     sortOrder: 370,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.INJURY,
-      threshold: 3,
-      thresholdType: 'injuries',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.INJURY,
+    autoThreshold: 3,
+    autoThresholdType: 'injuries',
   },
   {
     id: 'iron-constitution',
@@ -66,20 +50,14 @@ export const AUTO_INJURY_AWARDS: readonly IAward[] = [
     category: AwardCategory.Survival,
     rarity: AwardRarity.Rare,
     icon: 'award-iron-constitution',
-    criteria: {
-      type: CriteriaType.SpecificEvent,
-      threshold: 5,
-      conditions: { eventType: 'injury' },
-      description: 'Sustain 5 injuries',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.SpecificEvent,
+    criteriaThreshold: 5,
+    criteriaConditions: { eventType: 'injury' },
+    criteriaDescription: 'Sustain 5 injuries',
     sortOrder: 380,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.INJURY,
-      threshold: 5,
-      thresholdType: 'injuries',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.INJURY,
+    autoThreshold: 5,
+    autoThresholdType: 'injuries',
   },
   {
     id: 'unkillable',
@@ -88,19 +66,13 @@ export const AUTO_INJURY_AWARDS: readonly IAward[] = [
     category: AwardCategory.Survival,
     rarity: AwardRarity.Legendary,
     icon: 'award-unkillable',
-    criteria: {
-      type: CriteriaType.SpecificEvent,
-      threshold: 10,
-      conditions: { eventType: 'injury' },
-      description: 'Sustain 10 injuries',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.SpecificEvent,
+    criteriaThreshold: 10,
+    criteriaConditions: { eventType: 'injury' },
+    criteriaDescription: 'Sustain 10 injuries',
     sortOrder: 390,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.INJURY,
-      threshold: 10,
-      thresholdType: 'injuries',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.INJURY,
+    autoThreshold: 10,
+    autoThresholdType: 'injuries',
   },
-];
+]);

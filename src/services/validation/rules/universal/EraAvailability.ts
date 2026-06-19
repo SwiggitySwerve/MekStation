@@ -10,10 +10,16 @@ import {
   IUnitValidationContext,
   IUnitValidationRuleResult,
   UnitValidationSeverity,
-  createUnitValidationError,
-  createUnitValidationRuleResult,
-  createPassingResult,
+  IUnitValidationError,
 } from '@/types/validation/UnitValidationInterfaces';
+
+import {
+  createRuleResult,
+  createEmptyRuleResult,
+  addRuleDiagnostic,
+} from '../ruleResults';
+
+const ERA_AVAILABILITY_ERA_CATEGORY = ValidationCategory.ERA;
 
 /**
  * VAL-UNIV-011: Era Availability
@@ -22,9 +28,9 @@ export const EraAvailability: IUnitValidationRuleDefinition = {
   id: 'VAL-UNIV-011',
   name: 'Era Availability',
   description: 'Unit must be available in campaign year',
-  category: ValidationCategory.ERA,
-  priority: 11,
+  category: ERA_AVAILABILITY_ERA_CATEGORY,
   applicableUnitTypes: 'ALL',
+  priority: 11,
 
   canValidate(context: IUnitValidationContext): boolean {
     // Only validate if campaign year is specified
@@ -33,28 +39,25 @@ export const EraAvailability: IUnitValidationRuleDefinition = {
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit, campaignYear } = context;
-    const errors = [];
+    const errors: IUnitValidationError[] = [];
 
     if (campaignYear === undefined) {
-      return createPassingResult(this.id, this.name);
+      return createEmptyRuleResult(this);
     }
 
     // Check if unit is introduced yet
     if (unit.introductionYear > campaignYear) {
-      errors.push(
-        createUnitValidationError(
-          this.id,
-          this.name,
-          UnitValidationSeverity.ERROR,
-          this.category,
-          `${unit.name} not available in year ${campaignYear} (introduced ${unit.introductionYear})`,
-          {
-            field: 'introductionYear',
-            expected: `<= ${campaignYear}`,
-            actual: String(unit.introductionYear),
-            suggestion: 'Change campaign year or select a different unit',
-          },
-        ),
+      addRuleDiagnostic(
+        errors,
+        this,
+        UnitValidationSeverity.ERROR,
+        `${unit.name} not available in year ${campaignYear} (introduced ${unit.introductionYear})`,
+        {
+          field: 'introductionYear',
+          expected: `<= ${campaignYear}`,
+          actual: String(unit.introductionYear),
+          suggestion: 'Change campaign year or select a different unit',
+        },
       );
     }
 
@@ -63,30 +66,20 @@ export const EraAvailability: IUnitValidationRuleDefinition = {
       unit.extinctionYear !== undefined &&
       campaignYear >= unit.extinctionYear
     ) {
-      errors.push(
-        createUnitValidationError(
-          this.id,
-          this.name,
-          UnitValidationSeverity.ERROR,
-          this.category,
-          `${unit.name} is extinct/unavailable in year ${campaignYear} (extinct ${unit.extinctionYear})`,
-          {
-            field: 'extinctionYear',
-            expected: `> ${campaignYear}`,
-            actual: String(unit.extinctionYear),
-            suggestion: 'Change campaign year or select a different unit',
-          },
-        ),
+      addRuleDiagnostic(
+        errors,
+        this,
+        UnitValidationSeverity.ERROR,
+        `${unit.name} is extinct/unavailable in year ${campaignYear} (extinct ${unit.extinctionYear})`,
+        {
+          field: 'extinctionYear',
+          expected: `> ${campaignYear}`,
+          actual: String(unit.extinctionYear),
+          suggestion: 'Change campaign year or select a different unit',
+        },
       );
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors });
   },
 };

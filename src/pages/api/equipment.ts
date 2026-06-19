@@ -20,18 +20,18 @@
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  rejectNonGetDataRequest as rejectEquipmentNonGet,
+  sendLoggedSuccessApiError,
+  type ApiDataResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { IEquipmentQueryCriteria } from '@/services/common/types';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 
-interface ApiResponse {
-  success: boolean;
-  data?: unknown;
-  error?: string;
-  count?: number;
-}
+type EquipmentApiResponse = ApiDataResponse;
 
 /**
  * Type guard to validate EquipmentCategory enum value
@@ -72,14 +72,9 @@ function parseFloatOrUndefined(value: string): number | undefined {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse>,
+  res: NextApiResponse<EquipmentApiResponse>,
 ): Promise<void> {
-  if (req.method !== 'GET') {
-    return res.status(405).json({
-      success: false,
-      error: 'Method not allowed. Use GET.',
-    });
-  }
+  if (rejectEquipmentNonGet(req, res)) return;
 
   try {
     const {
@@ -137,10 +132,7 @@ export default async function handler(
       count: equipment.length,
     });
   } catch (error) {
-    console.error('Equipment API error:', error);
-    return res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedSuccessApiError(res, 'Equipment API error:', error);
+    return;
   }
 }

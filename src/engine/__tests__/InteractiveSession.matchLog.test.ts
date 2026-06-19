@@ -65,7 +65,7 @@ const MATCH_LOG_DIVERGENCE_MESSAGE =
 
 interface IAppendAndPersistHarness {
   session: IGameSession;
-  appendAndPersistEvent: (event: IGameEvent) => void;
+  appendEvent: (event: IGameEvent) => void;
 }
 
 function installFreshIndexedDB(): void {
@@ -333,7 +333,7 @@ describe('InteractiveSession match log persistence wiring', () => {
     const harness = makeAppendHarness();
 
     for (const event of makeAppendEvents()) {
-      harness.appendAndPersistEvent(event);
+      harness.appendEvent(event);
     }
 
     expect(harness.session.events).toHaveLength(6);
@@ -351,7 +351,7 @@ describe('InteractiveSession match log persistence wiring', () => {
     const harness = makeAppendHarness();
     const [event] = makeAppendEvents();
 
-    harness.appendAndPersistEvent(event);
+    harness.appendEvent(event);
     await settlePersistenceRejection();
 
     expect(harness.session.events).toContain(event);

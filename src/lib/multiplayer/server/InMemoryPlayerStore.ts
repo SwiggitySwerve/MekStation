@@ -31,7 +31,9 @@ export class InMemoryPlayerStore implements IPlayerStore {
     }
   }
 
-  async getOrCreatePlayer(input: ICreatePlayerInput): Promise<IPlayerProfile> {
+  getOrCreatePlayer = async (
+    input: ICreatePlayerInput,
+  ): Promise<IPlayerProfile> => {
     const now = new Date().toISOString();
     const existing = this.profiles.get(input.playerId);
     if (existing) {
@@ -56,12 +58,12 @@ export class InMemoryPlayerStore implements IPlayerStore {
     };
     this.profiles.set(input.playerId, created);
     return created;
-  }
+  };
 
-  async updateProfile(
+  updateProfile = async (
     playerId: string,
     patch: IPlayerProfilePatch,
-  ): Promise<void> {
+  ): Promise<void> => {
     const existing = this.profiles.get(playerId);
     if (!existing) throw new PlayerNotFoundError(playerId);
     const next: IPlayerProfile = {
@@ -69,12 +71,12 @@ export class InMemoryPlayerStore implements IPlayerStore {
       ...patch,
     };
     this.profiles.set(playerId, next);
-  }
+  };
 
-  async recordMatchParticipation(
+  recordMatchParticipation = async (
     playerId: string,
     matchId: string,
-  ): Promise<void> {
+  ): Promise<void> => {
     const existing = this.profiles.get(playerId);
     if (!existing) throw new PlayerNotFoundError(playerId);
     if (existing.matchHistory.includes(matchId)) return; // idempotent
@@ -83,23 +85,23 @@ export class InMemoryPlayerStore implements IPlayerStore {
       matchHistory: [...existing.matchHistory, matchId],
     };
     this.profiles.set(playerId, next);
-  }
+  };
 
-  async getProfile(playerId: string): Promise<IPlayerProfile | null> {
+  getProfile = async (playerId: string): Promise<IPlayerProfile | null> => {
     return this.profiles.get(playerId) ?? null;
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Test/observability helpers — not part of the IPlayerStore contract.
   // ---------------------------------------------------------------------------
 
-  size(): number {
+  size = (): number => {
     return this.profiles.size;
-  }
+  };
 
-  _reset(): void {
+  _reset = (): void => {
     this.profiles.clear();
-  }
+  };
 }
 
 // =============================================================================

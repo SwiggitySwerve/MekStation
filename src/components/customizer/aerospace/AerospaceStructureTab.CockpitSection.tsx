@@ -13,6 +13,7 @@ import { useAerospaceStore } from '@/stores/useAerospaceStore';
 import { AerospaceCockpitType } from '@/types/unit/AerospaceInterfaces';
 
 import { customizerStyles as cs } from '../styles';
+import { SelectOptions } from '../tabs/SelectOptions';
 import { COCKPIT_TYPE_OPTIONS } from './AerospaceStructureTab.constants';
 
 interface CockpitSectionProps {
@@ -85,11 +86,7 @@ export function CockpitSection({
           className={`${cs.select.full} mt-1`}
           data-testid="aerospace-cockpit-type-select"
         >
-          {COCKPIT_TYPE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
+          <SelectOptions options={COCKPIT_TYPE_OPTIONS} />
         </select>
       </div>
 

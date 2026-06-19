@@ -2,28 +2,25 @@ import type { IPilotStats } from '@/types/award';
 
 import { CriteriaType } from '@/types/award';
 
+type CriteriaValueGetter = (stats: IPilotStats) => number;
+
+const criteriaValueGetters: Partial<Record<CriteriaType, CriteriaValueGetter>> =
+  {
+    [CriteriaType.TotalKills]: (stats) => stats.combat.totalKills,
+    [CriteriaType.KillsInMission]: (stats) => stats.combat.maxKillsInMission,
+    [CriteriaType.DamageDealt]: (stats) => stats.combat.totalDamageDealt,
+    [CriteriaType.DamageInMission]: (stats) => stats.combat.maxDamageInMission,
+    [CriteriaType.MissionsCompleted]: (stats) => stats.career.missionsCompleted,
+    [CriteriaType.CampaignsCompleted]: (stats) =>
+      stats.career.campaignsCompleted,
+    [CriteriaType.ConsecutiveSurvival]: (stats) =>
+      stats.career.consecutiveSurvival,
+    [CriteriaType.GamesPlayed]: (stats) => stats.career.gamesPlayed,
+  };
+
 export function getCriteriaValue(
   stats: IPilotStats,
   criteriaType: CriteriaType,
 ): number {
-  switch (criteriaType) {
-    case CriteriaType.TotalKills:
-      return stats.combat.totalKills;
-    case CriteriaType.KillsInMission:
-      return stats.combat.maxKillsInMission;
-    case CriteriaType.DamageDealt:
-      return stats.combat.totalDamageDealt;
-    case CriteriaType.DamageInMission:
-      return stats.combat.maxDamageInMission;
-    case CriteriaType.MissionsCompleted:
-      return stats.career.missionsCompleted;
-    case CriteriaType.CampaignsCompleted:
-      return stats.career.campaignsCompleted;
-    case CriteriaType.ConsecutiveSurvival:
-      return stats.career.consecutiveSurvival;
-    case CriteriaType.GamesPlayed:
-      return stats.career.gamesPlayed;
-    default:
-      return 0;
-  }
+  return criteriaValueGetters[criteriaType]?.(stats) ?? 0;
 }

@@ -28,14 +28,14 @@ export class IdentityRepository {
   /**
    * Initialize the repository (ensure table exists)
    */
-  async initialize(): Promise<void> {
+  readonly initialize = async (): Promise<void> => {
     if (this.initialized) return;
 
-    const db = getSQLiteService();
-    await db.initialize();
+    const database = getSQLiteService();
+    await database.initialize();
 
     // Create identity table if not exists
-    db.getDatabase().exec(`
+    database.getDatabase().exec(`
       CREATE TABLE IF NOT EXISTS vault_identities (
         id TEXT PRIMARY KEY,
         display_name TEXT NOT NULL,
@@ -52,16 +52,16 @@ export class IdentityRepository {
     `);
 
     this.initialized = true;
-  }
+  };
 
   /**
    * Save a new identity
    */
-  async save(identity: IStoredIdentity): Promise<void> {
+  readonly save = async (identity: IStoredIdentity): Promise<void> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const stmt = db.prepare(`
+    const stmt = database.prepare(`
       INSERT INTO vault_identities (
         id, display_name, public_key, encrypted_private_key, 
         friend_code, created_at, avatar, is_active
@@ -78,86 +78,88 @@ export class IdentityRepository {
       identity.avatar || null,
       1, // New identity is active by default
     );
-  }
+  };
 
   /**
    * Get the active identity
    */
-  async getActive(): Promise<IStoredIdentity | null> {
+  readonly getActive = async (): Promise<IStoredIdentity | null> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const row = db
+    const row = database
       .prepare('SELECT * FROM vault_identities WHERE is_active = 1 LIMIT 1')
       .get() as StoredIdentityRow | undefined;
 
     return row ? this.rowToIdentity(row) : null;
-  }
+  };
 
   /**
    * Get identity by ID
    */
-  async getById(id: string): Promise<IStoredIdentity | null> {
+  readonly getById = async (id: string): Promise<IStoredIdentity | null> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const row = db
+    const row = database
       .prepare('SELECT * FROM vault_identities WHERE id = ?')
       .get(id) as StoredIdentityRow | undefined;
 
     return row ? this.rowToIdentity(row) : null;
-  }
+  };
 
   /**
    * Get identity by friend code
    */
-  async getByFriendCode(friendCode: string): Promise<IStoredIdentity | null> {
+  readonly getByFriendCode = async (
+    friendCode: string,
+  ): Promise<IStoredIdentity | null> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const row = db
+    const row = database
       .prepare('SELECT * FROM vault_identities WHERE friend_code = ?')
       .get(friendCode.toUpperCase()) as StoredIdentityRow | undefined;
 
     return row ? this.rowToIdentity(row) : null;
-  }
+  };
 
   /**
    * Get all identities
    */
-  async getAll(): Promise<IStoredIdentity[]> {
+  readonly getAll = async (): Promise<IStoredIdentity[]> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const rows = db
+    const rows = database
       .prepare('SELECT * FROM vault_identities ORDER BY created_at DESC')
       .all() as StoredIdentityRow[];
 
     return rows.map((row) => this.rowToIdentity(row));
-  }
+  };
 
   /**
    * Set an identity as active (deactivates others)
    */
-  async setActive(id: string): Promise<void> {
+  readonly setActive = async (id: string): Promise<void> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    db.exec('UPDATE vault_identities SET is_active = 0');
-    db.prepare('UPDATE vault_identities SET is_active = 1 WHERE id = ?').run(
-      id,
-    );
-  }
+    database.exec('UPDATE vault_identities SET is_active = 0');
+    database
+      .prepare('UPDATE vault_identities SET is_active = 1 WHERE id = ?')
+      .run(id);
+  };
 
   /**
    * Update identity display name or avatar
    */
-  async update(
+  readonly update = async (
     id: string,
     updates: { displayName?: string; avatar?: string },
-  ): Promise<void> {
+  ): Promise<void> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
     const sets: string[] = [];
     const values: (string | null)[] = [];
@@ -175,34 +177,34 @@ export class IdentityRepository {
     if (sets.length === 0) return;
 
     values.push(id);
-    db.prepare(
-      `UPDATE vault_identities SET ${sets.join(', ')} WHERE id = ?`,
-    ).run(...values);
-  }
+    database
+      .prepare(`UPDATE vault_identities SET ${sets.join(', ')} WHERE id = ?`)
+      .run(...values);
+  };
 
   /**
    * Delete an identity
    */
-  async delete(id: string): Promise<void> {
+  readonly delete = async (id: string): Promise<void> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    db.prepare('DELETE FROM vault_identities WHERE id = ?').run(id);
-  }
+    database.prepare('DELETE FROM vault_identities WHERE id = ?').run(id);
+  };
 
   /**
    * Check if any identity exists
    */
-  async hasIdentity(): Promise<boolean> {
+  readonly hasIdentity = async (): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = database
       .prepare('SELECT COUNT(*) as count FROM vault_identities')
       .get() as { count: number };
 
     return result.count > 0;
-  }
+  };
 
   /**
    * Convert database row to IStoredIdentity

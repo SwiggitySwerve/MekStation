@@ -39,6 +39,58 @@ interface ILegacyIndirectMarkerState {
   readonly iNarcMarkedByTeams?: readonly string[];
 }
 
+export interface IComputeIndirectFireContextInput {
+  readonly attackerId: string;
+  readonly weaponId: string;
+  readonly targetHex: IHexCoordinate;
+  readonly gameState: IGameState;
+  readonly grid: IHexGrid;
+  readonly pilotSpasByUnitId?: Readonly<Record<string, readonly string[]>>;
+  readonly targetEntityId?: string;
+  readonly optionalRules?: readonly string[];
+}
+
+type ComputeIndirectFireContextArgs =
+  | [input: IComputeIndirectFireContextInput]
+  | [
+      attackerId: string,
+      weaponId: string,
+      targetHex: IHexCoordinate,
+      gameState: IGameState,
+      grid: IHexGrid,
+      pilotSpasByUnitId?: Readonly<Record<string, readonly string[]>>,
+      targetEntityId?: string,
+      optionalRules?: readonly string[],
+    ];
+
+function normalizeComputeIndirectFireContextInput(
+  args: ComputeIndirectFireContextArgs,
+): IComputeIndirectFireContextInput {
+  if (args.length === 1) {
+    return args[0];
+  }
+  const [
+    attackerId,
+    weaponId,
+    targetHex,
+    gameState,
+    grid,
+    pilotSpasByUnitId,
+    targetEntityId,
+    optionalRules,
+  ] = args;
+  return {
+    attackerId,
+    weaponId,
+    targetHex,
+    gameState,
+    grid,
+    pilotSpasByUnitId,
+    targetEntityId,
+    optionalRules,
+  };
+}
+
 export function lineOfSightOptionsFromGameState(
   gameState: IGameState,
   optionalRules?: readonly string[],
@@ -89,15 +141,18 @@ export function lineOfSightOptionsFromGameState(
  *   NARC/iNarc beacon state is read from the target's unit game state.
  */
 export function computeIndirectFireContext(
-  attackerId: string,
-  weaponId: string,
-  targetHex: IHexCoordinate,
-  gameState: IGameState,
-  grid: IHexGrid,
-  pilotSpasByUnitId?: Readonly<Record<string, readonly string[]>>,
-  targetEntityId?: string,
-  optionalRules?: readonly string[],
+  ...args: ComputeIndirectFireContextArgs
 ): IIndirectFireResolution {
+  const {
+    attackerId,
+    weaponId,
+    targetHex,
+    gameState,
+    grid,
+    pilotSpasByUnitId,
+    targetEntityId,
+    optionalRules,
+  } = normalizeComputeIndirectFireContextInput(args);
   const attackerUnit = gameState.units[attackerId];
   if (!attackerUnit) {
     return {

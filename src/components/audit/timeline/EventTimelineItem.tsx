@@ -7,6 +7,10 @@
 
 import React from 'react';
 
+import {
+  formatAuditEventType,
+  formatAuditTimestamp,
+} from '@/components/audit/auditEventFormatters';
 import { Badge } from '@/components/ui/Badge';
 import { Card, type CardAccentColor } from '@/components/ui/Card';
 import { IBaseEvent, EventCategory, ICausedBy } from '@/types/events';
@@ -172,34 +176,6 @@ const CATEGORY_CONFIG: Record<EventCategory, CategoryConfig> = {
 // =============================================================================
 
 /**
- * Format timestamp to a human-readable format.
- */
-function formatTimestamp(timestamp: string): string {
-  const date = new Date(timestamp);
-  return date.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
-}
-
-/**
- * Format event type to display string (e.g., "pilot.skill_improved" -> "Skill Improved").
- */
-function formatEventType(type: string): string {
-  // Remove category prefix if present
-  const shortType = type.includes('.')
-    ? type.split('.').slice(1).join('.')
-    : type;
-  // Convert snake_case/kebab-case to Title Case
-  return shortType
-    .replace(/[_-]/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-/**
  * Generate a brief payload summary for display.
  */
 function generatePayloadSummary(payload: unknown): string {
@@ -301,13 +277,13 @@ export function EventTimelineItem({
 
           {/* Event Type Badge */}
           <Badge variant={config.badgeVariant} size="sm" pill>
-            {formatEventType(event.type)}
+            {formatAuditEventType(event.type)}
           </Badge>
         </div>
 
         {/* Timestamp */}
         <span className="text-text-theme-muted flex-shrink-0 text-xs whitespace-nowrap">
-          {formatTimestamp(event.timestamp)}
+          {formatAuditTimestamp(event.timestamp, { includeSeconds: true })}
         </span>
       </div>
 

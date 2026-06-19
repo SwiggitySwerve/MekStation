@@ -11,6 +11,8 @@
 
 import React from 'react';
 
+import { PlaceholderTab } from '../tabs/PlaceholderTab';
+
 export interface ProtoMechMainGunTabProps {
   readOnly?: boolean;
   className?: string;
@@ -24,11 +26,11 @@ export function ProtoMechMainGunTab({
   className = '',
 }: ProtoMechMainGunTabProps): React.ReactElement {
   return (
-    <div className={`p-4 ${className}`} data-testid="protomech-main-gun-tab">
-      <p className="text-text-theme-secondary text-sm">
-        Coming soon — this tab will be wired up by add-protomech-construction
-      </p>
-    </div>
+    <PlaceholderTab
+      className={className}
+      testId="protomech-main-gun-tab"
+      wiredBy="add-protomech-construction"
+    />
   );
 }
 

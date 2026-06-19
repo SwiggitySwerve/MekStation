@@ -46,18 +46,42 @@ import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 // Engine Logic
 // =============================================================================
 
-export function applyEngineTypeChange(
-  equipment: readonly IMountedEquipmentInstance[],
-  oldEngineType: EngineType,
-  newEngineType: EngineType,
-  gyroType: GyroType,
-  engineRating: number,
-  heatSinkType: HeatSinkType,
-  heatSinkCount: number,
-  enhancement: MovementEnhancementType | null,
-  tonnage: number,
-  techBase: TechBase,
-): readonly IMountedEquipmentInstance[] {
+interface EngineTypeChangeInput {
+  equipment: readonly IMountedEquipmentInstance[];
+  oldEngineType: EngineType;
+  newEngineType: EngineType;
+  gyroType: GyroType;
+  engineRating: number;
+  heatSinkType: HeatSinkType;
+  heatSinkCount: number;
+  enhancement: MovementEnhancementType | null;
+  tonnage: number;
+  techBase: TechBase;
+}
+
+interface EngineRatingChangeInput {
+  equipment: readonly IMountedEquipmentInstance[];
+  engineRating: number;
+  engineType: EngineType;
+  heatSinkType: HeatSinkType;
+  heatSinkCount: number;
+  enhancement: MovementEnhancementType | null;
+  tonnage: number;
+  techBase: TechBase;
+}
+
+export function applyEngineTypeChange({
+  equipment,
+  oldEngineType,
+  newEngineType,
+  gyroType,
+  engineRating,
+  heatSinkType,
+  heatSinkCount,
+  enhancement,
+  tonnage,
+  techBase,
+}: EngineTypeChangeInput): readonly IMountedEquipmentInstance[] {
   // Equipment displacement from engine slot changes
   const displaced = getEquipmentDisplacedByEngineChange(
     equipment,
@@ -98,16 +122,16 @@ export function applyEngineTypeChange(
   return updatedEquipment;
 }
 
-export function applyEngineRatingChange(
-  equipment: readonly IMountedEquipmentInstance[],
-  engineRating: number,
-  engineType: EngineType,
-  heatSinkType: HeatSinkType,
-  heatSinkCount: number,
-  enhancement: MovementEnhancementType | null,
-  tonnage: number,
-  techBase: TechBase,
-): readonly IMountedEquipmentInstance[] {
+export function applyEngineRatingChange({
+  equipment,
+  engineRating,
+  engineType,
+  heatSinkType,
+  heatSinkCount,
+  enhancement,
+  tonnage,
+  techBase,
+}: EngineRatingChangeInput): readonly IMountedEquipmentInstance[] {
   // Re-sync heat sinks
   const integralHeatSinks = calculateIntegralHeatSinks(
     engineRating,
@@ -321,17 +345,29 @@ export function applyJumpJetTypeChange(
 // Tonnage Logic
 // =============================================================================
 
-export function applyTonnageChange(
-  equipment: readonly IMountedEquipmentInstance[],
-  oldTonnage: number,
-  newTonnage: number,
-  engineRating: number,
-  engineType: EngineType,
-  enhancement: MovementEnhancementType | null,
-  techBase: TechBase,
-  jumpMP: number,
-  jumpJetType: JumpJetType,
-): {
+interface TonnageChangeInput {
+  equipment: readonly IMountedEquipmentInstance[];
+  oldTonnage: number;
+  newTonnage: number;
+  engineRating: number;
+  engineType: EngineType;
+  enhancement: MovementEnhancementType | null;
+  techBase: TechBase;
+  jumpMP: number;
+  jumpJetType: JumpJetType;
+}
+
+export function applyTonnageChange({
+  equipment,
+  oldTonnage,
+  newTonnage,
+  engineRating,
+  engineType,
+  enhancement,
+  techBase,
+  jumpMP,
+  jumpJetType,
+}: TonnageChangeInput): {
   equipment: readonly IMountedEquipmentInstance[];
   engineRating: number;
 } {

@@ -23,6 +23,8 @@ import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 
+import { getUnitIndexWeightClass } from './unitWeightClass';
+
 // =============================================================================
 // Type Definitions
 // =============================================================================
@@ -271,61 +273,58 @@ function parseFromMap<T>(
  * Uses map-based lookups instead of switch statements (OCP compliant)
  */
 class EnumParserRegistryImpl implements IEnumParserRegistry {
-  parseEngineType(value: string): EngineType {
+  parseEngineType = (value: string): EngineType => {
     return parseFromMap(value, ENGINE_TYPE_MAP, EngineType.STANDARD);
-  }
+  };
 
-  parseGyroType(value: string): GyroType {
+  parseGyroType = (value: string): GyroType => {
     return parseFromMap(value, GYRO_TYPE_MAP, GyroType.STANDARD);
-  }
+  };
 
-  parseCockpitType(value: string): CockpitType {
+  parseCockpitType = (value: string): CockpitType => {
     return parseFromMap(value, COCKPIT_TYPE_MAP, CockpitType.STANDARD);
-  }
+  };
 
-  parseStructureType(value: string): InternalStructureType {
+  parseStructureType = (value: string): InternalStructureType => {
     return parseFromMap(
       value,
       STRUCTURE_TYPE_MAP,
       InternalStructureType.STANDARD,
     );
-  }
+  };
 
-  parseArmorType(value: string): ArmorTypeEnum {
+  parseArmorType = (value: string): ArmorTypeEnum => {
     return parseFromMap(value, ARMOR_TYPE_MAP, ArmorTypeEnum.STANDARD);
-  }
+  };
 
-  parseHeatSinkType(value: string): HeatSinkType {
+  parseHeatSinkType = (value: string): HeatSinkType => {
     return parseFromMap(value, HEAT_SINK_TYPE_MAP, HeatSinkType.SINGLE);
-  }
+  };
 
-  parseTechBase(value: string): TechBase {
+  parseTechBase = (value: string): TechBase => {
     return parseFromMap(value, TECH_BASE_MAP, TechBase.INNER_SPHERE);
-  }
+  };
 
-  parseRulesLevel(value: string): RulesLevel {
+  parseRulesLevel = (value: string): RulesLevel => {
     return parseFromMap(value, RULES_LEVEL_MAP, RulesLevel.STANDARD);
-  }
+  };
 
-  parseEra(value: string): Era {
+  parseEra = (value: string): Era => {
     return parseFromMap(value, ERA_MAP, Era.LATE_SUCCESSION_WARS);
-  }
+  };
 
-  parseMechConfiguration(value: string): MechConfiguration {
+  parseMechConfiguration = (value: string): MechConfiguration => {
     // Handle PascalCase input (e.g., "Biped" -> "BIPED")
     return parseFromMap(value, MECH_CONFIGURATION_MAP, MechConfiguration.BIPED);
-  }
+  };
 
-  parseMechLocation(value: string): MechLocation {
+  parseMechLocation = (value: string): MechLocation => {
     return parseFromMap(value, MECH_LOCATION_MAP, MechLocation.CENTER_TORSO);
-  }
+  };
 
-  getWeightClass(tonnage: number): WeightClass {
-    if (tonnage <= 35) return WeightClass.LIGHT;
-    if (tonnage <= 55) return WeightClass.MEDIUM;
-    if (tonnage <= 75) return WeightClass.HEAVY;
-    return WeightClass.ASSAULT;
-  }
+  getWeightClass = (tonnage: number): WeightClass => {
+    return getUnitIndexWeightClass(tonnage);
+  };
 }
 
 // =============================================================================

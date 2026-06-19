@@ -9,6 +9,7 @@ export * from './BattleMechInterfaces';
 
 // Base unit hierarchy
 export * from './BaseUnitInterfaces';
+export * from './MountedEquipmentInterfaces';
 
 // Unit type-specific interfaces
 export * from './VehicleInterfaces';

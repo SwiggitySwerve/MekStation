@@ -40,125 +40,85 @@ export interface INavigationState {
   scrollPositions: Map<string, number>;
 }
 
-/**
- * NavigationManager handles drill-down navigation between tabs.
- * Maintains breadcrumb trail, scroll positions, and filter context.
- */
-class NavigationManager {
-  private state: INavigationState = {
+export interface INavigationManager {
+  navigateTo(context: IDrillDownContext): void;
+  navigateBack(): IBreadcrumb | null;
+  canNavigateBack(): boolean;
+  getBreadcrumbs(): IBreadcrumb[];
+  reset(): void;
+  saveScrollPosition(tab: string, position: number): void;
+  getScrollPosition(tab: string): number;
+}
+
+const TAB_LABELS: Readonly<Record<string, string>> = {
+  'campaign-dashboard': 'Campaign Dashboard',
+  'encounter-history': 'Encounter History',
+  'analysis-bugs': 'Analysis & Bugs',
+};
+
+function getTabLabel(tab: string): string {
+  return TAB_LABELS[tab] ?? tab;
+}
+
+function createNavigationManager(): INavigationManager {
+  const state: INavigationState = {
     breadcrumbs: [],
     scrollPositions: new Map(),
   };
 
-  /**
-   * Navigate to a target tab with drill-down context.
-   * Saves current scroll position, adds breadcrumb, and applies filters.
-   *
-   * @param context - Drill-down navigation context
-   */
-  navigateTo(context: IDrillDownContext): void {
-    // Save current scroll position before navigating
-    if (typeof window !== 'undefined') {
-      this.state.scrollPositions.set(context.sourceTab, window.scrollY);
-    }
+  return {
+    navigateTo(context) {
+      if (typeof window !== 'undefined') {
+        state.scrollPositions.set(context.sourceTab, window.scrollY);
+      }
 
-    // Add breadcrumb for the source tab
-    this.state.breadcrumbs.push({
-      tab: context.sourceTab,
-      label: this.getTabLabel(context.sourceTab),
-      filters: context.filters,
-    });
+      state.breadcrumbs.push({
+        tab: context.sourceTab,
+        label: getTabLabel(context.sourceTab),
+        filters: context.filters,
+      });
+    },
 
-    // Note: Filter application and tab navigation are handled by
-    // the filter store and tab navigation store respectively
-  }
+    navigateBack() {
+      if (state.breadcrumbs.length === 0) {
+        return null;
+      }
 
-  /**
-   * Navigate back to the previous tab in breadcrumb trail.
-   * Restores scroll position and filters from the previous state.
-   *
-   * @returns The breadcrumb of the tab we're navigating back to
-   */
-  navigateBack(): IBreadcrumb | null {
-    if (this.state.breadcrumbs.length === 0) {
-      return null;
-    }
+      const previous = state.breadcrumbs.pop()!;
 
-    const previous = this.state.breadcrumbs.pop()!;
+      if (typeof window !== 'undefined') {
+        const scrollY = state.scrollPositions.get(previous.tab) || 0;
+        window.scrollTo(0, scrollY);
+      }
 
-    // Restore scroll position
-    if (typeof window !== 'undefined') {
-      const scrollY = this.state.scrollPositions.get(previous.tab) || 0;
-      window.scrollTo(0, scrollY);
-    }
+      return previous;
+    },
 
-    return previous;
-  }
+    canNavigateBack() {
+      return state.breadcrumbs.length > 0;
+    },
 
-  /**
-   * Check if navigation back is possible.
-   *
-   * @returns True if there are breadcrumbs to navigate back to
-   */
-  canNavigateBack(): boolean {
-    return this.state.breadcrumbs.length > 0;
-  }
+    getBreadcrumbs() {
+      return [...state.breadcrumbs];
+    },
 
-  /**
-   * Get a copy of the current breadcrumb trail.
-   *
-   * @returns Array of breadcrumbs in navigation history
-   */
-  getBreadcrumbs(): IBreadcrumb[] {
-    return [...this.state.breadcrumbs];
-  }
+    reset() {
+      state.breadcrumbs = [];
+      state.scrollPositions.clear();
+    },
 
-  /**
-   * Clear all navigation history and scroll positions.
-   */
-  reset(): void {
-    this.state.breadcrumbs = [];
-    this.state.scrollPositions.clear();
-  }
+    saveScrollPosition(tab, position) {
+      state.scrollPositions.set(tab, position);
+    },
 
-  /**
-   * Save scroll position for a specific tab.
-   *
-   * @param tab - Tab identifier
-   * @param position - Scroll Y position
-   */
-  saveScrollPosition(tab: string, position: number): void {
-    this.state.scrollPositions.set(tab, position);
-  }
-
-  /**
-   * Get saved scroll position for a tab.
-   *
-   * @param tab - Tab identifier
-   * @returns Scroll Y position, or 0 if not found
-   */
-  getScrollPosition(tab: string): number {
-    return this.state.scrollPositions.get(tab) || 0;
-  }
-
-  /**
-   * Get human-readable label for a tab.
-   *
-   * @param tab - Tab identifier
-   * @returns Display label for the tab
-   */
-  private getTabLabel(tab: string): string {
-    const labels: Record<string, string> = {
-      'campaign-dashboard': 'Campaign Dashboard',
-      'encounter-history': 'Encounter History',
-      'analysis-bugs': 'Analysis & Bugs',
-    };
-    return labels[tab] || tab;
-  }
+    getScrollPosition(tab) {
+      return state.scrollPositions.get(tab) || 0;
+    },
+  };
 }
 
 // Singleton instance for global navigation management
-export const navigationManager = new NavigationManager();
+export const navigationManager = createNavigationManager();
 
 /**
  * Create a drill-down link handler function.

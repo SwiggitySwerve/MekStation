@@ -1,45 +1,12 @@
-import type { KnownLimitationCategory } from '@/simulation/core/knownLimitations';
+import { type KnownLimitationCategory } from '@/simulation/core/knownLimitations';
 
-import type {
-  ICombatFeatureSourceReference,
-  ICombatFeatureSupportEntry,
+import { mekstationDeviationSourceRefWithLineAnchor as mekstationDeviationSourceRef } from './CombatFeatureSourceReference';
+import {
+  integrated,
+  outOfScope,
+  type ICombatFeatureSourceReference,
+  type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
-
-const MEKSTATION_SOURCE_VERSION = 'MekStation working-tree';
-
-function integrated(
-  id: string,
-  evidence: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return sourceRefs
-    ? { id, level: 'integrated', evidence, sourceRefs }
-    : { id, level: 'integrated', evidence };
-}
-
-function outOfScope(
-  id: string,
-  evidence: string,
-  gap: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return sourceRefs
-    ? { id, level: 'out-of-scope', evidence, gap, sourceRefs }
-    : { id, level: 'out-of-scope', evidence, gap };
-}
-
-function mekstationDeviationSourceRef(
-  citation: string,
-  path: string,
-  lineRange: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'mekstation-deviation',
-    citation,
-    url: `${path}#${lineRange}`,
-    sourceVersion: MEKSTATION_SOURCE_VERSION,
-  };
-}
 
 export const BATTLEMECH_COMBAT_VALIDATION_INVARIANT =
   'battlemech-combat-validation';
@@ -119,8 +86,8 @@ const KNOWN_LIMITATION_BYPASS_SOURCE_REFS = [
   ),
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract proves BattleMech validation traps are not filtered as known limitations.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L3532-L3552',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.19.audits-known-limitation-traps-without-filtering-combat.fragment.ts',
+    'L4-L24',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -145,16 +112,16 @@ const CATALOG_FILTER_GATE_SOURCE_REFS = [
   ),
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract self-checks that known-limitation filtering cannot gate the BattleMech catalog validation lane.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L3554-L3574',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.19.audits-known-limitation-traps-without-filtering-combat.fragment.ts',
+    'L26-L46',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const OFFICIAL_CATALOG_SCOPE_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract counts every official ranged weapon, physical weapon, and ammo row visible to the construction catalog.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L849-L862',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.01.covers-every-official-ranged-weapon-physical-weapon-an.fragment.ts',
+    'L4-L16',
   ),
   mekstationDeviationSourceRef(
     'MekStation physicalWeaponCatalogBoundary partitions every official physical weapon into runtime attacks or helper-only modifier equipment.',
@@ -166,8 +133,8 @@ const OFFICIAL_CATALOG_SCOPE_SOURCE_REFS = [
 const STATIC_WEAPON_DATABASE_SCOPE_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract keeps WEAPON_DATABASE a legacy subset and proves official-only weapons resolve through catalog lookup.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L915-L984',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.01.covers-every-official-ranged-weapon-physical-weapon-an.fragment.ts',
+    'L84-L151',
   ),
   mekstationDeviationSourceRef(
     'MekStation CompendiumAdapter canonicalizes and resolves weapons through the official catalog before the legacy static fallback.',
@@ -179,8 +146,8 @@ const STATIC_WEAPON_DATABASE_SCOPE_SOURCE_REFS = [
 const SYNTHETIC_MEDIUM_LASER_FALLBACK_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract proves catalog AI unit conversion rejects synthetic Medium Laser fallback hydration.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L1039-L1064',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.01.covers-every-official-ranged-weapon-physical-weapon-an.fragment.ts',
+    'L201-L226',
   ),
   mekstationDeviationSourceRef(
     'MekStation CompendiumAdapter surfaces missing weapon catalog data instead of silently defaulting to a placeholder weapon.',
@@ -192,8 +159,8 @@ const SYNTHETIC_MEDIUM_LASER_FALLBACK_SOURCE_REFS = [
 const VARIABLE_DAMAGE_STRING_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract pins every official string-damage missile weapon to a nonzero resolved volley damage.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L1020-L1037',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.01.covers-every-official-ranged-weapon-physical-weapon-an.fragment.ts',
+    'L182-L199',
   ),
   mekstationDeviationSourceRef(
     'MekStation UnitHydration resolves MML-style 1-2/missile descriptors to max volley damage instead of zero.',
@@ -210,8 +177,8 @@ const NON_BATTLEMECH_AMMO_SCOPE_SOURCE_REFS = [
   ),
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract classifies every official ammo row and locks non-BattleMech ammo support class counts.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L1158-L1227',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.02.classifies-official-ammo-rows-without-compatible-weapo.fragment.ts',
+    'L4-L224',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -236,18 +203,18 @@ const UNRESOLVED_COMPLETION_BLOCKER_INVENTORY_SOURCE_REFS = [
   ),
   mekstationDeviationSourceRef(
     'MekStation combatValidationCatalog.contract asserts the exported unresolved inventory shape and sentinel blocker rows.',
-    'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts',
-    'L159-L1479',
+    'src/simulation/runner/__tests__/combatValidationCatalog.test-helpers.ts',
+    'L445-L2236',
   ),
   mekstationDeviationSourceRef(
     'MekStation combatValidationCatalog.contract asserts the unresolved inventory leaf/aggregate split so objective rollups stay visible without being mistaken for leaf mechanic gaps.',
-    'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts',
-    'L1485-L1534',
+    'src/simulation/runner/__tests__/combatValidationCatalog.test-helpers.ts',
+    'L445-L2236',
   ),
   mekstationDeviationSourceRef(
     'MekStation combatValidationCatalog.contract asserts the unresolved inventory is exposed through named validation tooling.',
-    'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts',
-    'L1915-L1933',
+    'src/simulation/runner/__tests__/combatValidationCatalog.05.exposes-the-unresolved-inventory-through-combat-valida.fragment.ts',
+    'L4-L61',
   ),
   mekstationDeviationSourceRef(
     'MekStation print-combat-validation-gaps emits JSON, Markdown, refs, and summary views of the unresolved inventory, with optional all/leaf/aggregate scope filtering, expected-count assertions, expected-ref assertions, and fail-closed unknown flag handling for review gates.',

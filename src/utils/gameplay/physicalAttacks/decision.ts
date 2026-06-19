@@ -1,36 +1,8 @@
 import { IComponentDamageState } from '@/types/gameplay';
 
-import {
-  calculateBrushOffDamage,
-  calculateChargeDamageToTarget,
-  calculateDFADamageToTarget,
-  calculateFlailDamage,
-  calculateHatchetDamage,
-  calculateJumpJetAttackDamage,
-  calculateKickDamage,
-  calculateLanceDamage,
-  calculateMaceDamage,
-  calculatePunchDamage,
-  calculateRetractableBladeDamage,
-  calculateSwordDamage,
-  calculateThrashDamage,
-  calculateWreckingBallDamage,
-} from './damage';
-import {
-  canBrushOffPhysical,
-  canBreakGrapplePhysical,
-  canCharge,
-  canDFA,
-  canGrapplePhysical,
-  canKick,
-  canJumpJetAttackPhysical,
-  canMeleeWeapon,
-  canPunch,
-  canThrashPhysical,
-} from './restrictions';
+import { collectPhysicalAttackCandidates } from './decisionCandidates';
 import {
   IChooseBestPhysicalAttackOptions,
-  IPhysicalAttackCandidate,
   IPhysicalAttackInput,
   PhysicalAttackType,
 } from './types';
@@ -41,8 +13,6 @@ export function chooseBestPhysicalAttack(
   componentDamage: IComponentDamageState,
   options: IChooseBestPhysicalAttackOptions = {},
 ): PhysicalAttackType | null {
-  const candidates: IPhysicalAttackCandidate[] = [];
-
   const baseInput: IPhysicalAttackInput = {
     attackerId: options.attackerId,
     targetId: options.targetId,
@@ -120,166 +90,7 @@ export function chooseBestPhysicalAttack(
     hasWorkingThrashArmOrLeg: options.hasWorkingThrashArmOrLeg,
   };
 
-  const thrashInput: IPhysicalAttackInput = {
-    ...baseInput,
-    attackType: 'thrash',
-    weaponsFiredFromArm: options.weaponsFiredThisTurn,
-  };
-  if (canThrashPhysical(thrashInput).allowed) {
-    candidates.push({
-      type: 'thrash',
-      expectedDamage: calculateThrashDamage(thrashInput),
-    });
-  }
-
-  const jumpJetInput: IPhysicalAttackInput = {
-    ...baseInput,
-    attackType: 'jump-jet-attack',
-    limb: options.jumpJetAttackSelectedLeg === 'left' ? 'leftLeg' : 'rightLeg',
-  };
-  if (canJumpJetAttackPhysical(jumpJetInput).allowed) {
-    candidates.push({
-      type: 'jump-jet-attack',
-      expectedDamage: calculateJumpJetAttackDamage(jumpJetInput),
-    });
-  }
-
-  const brushOffInput: IPhysicalAttackInput = {
-    ...baseInput,
-    attackType: 'brush-off',
-    arm: 'right',
-    limb: 'rightArm',
-    weaponsFiredFromArm: options.weaponsFiredFromRightArm,
-  };
-  if (canBrushOffPhysical(brushOffInput).allowed) {
-    candidates.push({
-      type: 'brush-off',
-      expectedDamage: calculateBrushOffDamage(brushOffInput),
-    });
-  }
-
-  const grappleInput: IPhysicalAttackInput = {
-    ...baseInput,
-    attackType: 'grapple',
-    weaponsFiredFromArm: options.weaponsFiredThisTurn,
-  };
-  if (canGrapplePhysical(grappleInput).allowed) {
-    candidates.push({
-      type: 'grapple',
-      expectedDamage: 0,
-    });
-  }
-
-  const breakGrappleInput: IPhysicalAttackInput = {
-    ...baseInput,
-    attackType: 'break-grapple',
-  };
-  if (canBreakGrapplePhysical(breakGrappleInput).allowed) {
-    candidates.push({
-      type: 'break-grapple',
-      expectedDamage: 0,
-    });
-  }
-
-  const kickInput: IPhysicalAttackInput = {
-    ...baseInput,
-    attackType: 'kick',
-  };
-  const kickRestriction = canKick(kickInput);
-  if (kickRestriction.allowed) {
-    const kickDamage = calculateKickDamage(kickInput);
-    candidates.push({ type: 'kick', expectedDamage: kickDamage });
-  }
-
-  const leftPunchInput: IPhysicalAttackInput = {
-    ...baseInput,
-    attackType: 'punch',
-    arm: 'left',
-    weaponsFiredFromArm: options.weaponsFiredFromLeftArm,
-  };
-  const rightPunchInput: IPhysicalAttackInput = {
-    ...baseInput,
-    attackType: 'punch',
-    arm: 'right',
-    weaponsFiredFromArm: options.weaponsFiredFromRightArm,
-  };
-
-  if (canPunch(leftPunchInput).allowed || canPunch(rightPunchInput).allowed) {
-    const punchDamage = Math.max(
-      canPunch(leftPunchInput).allowed
-        ? calculatePunchDamage(leftPunchInput)
-        : 0,
-      canPunch(rightPunchInput).allowed
-        ? calculatePunchDamage(rightPunchInput)
-        : 0,
-    );
-    candidates.push({ type: 'punch', expectedDamage: punchDamage });
-  }
-
-  if (options.isJumping) {
-    const dfaInput: IPhysicalAttackInput = {
-      ...baseInput,
-      attackType: 'dfa',
-      attackerJumpedThisTurn: true,
-    };
-    if (canDFA(dfaInput).allowed) {
-      const dfaDamage = calculateDFADamageToTarget(dfaInput);
-      candidates.push({ type: 'dfa', expectedDamage: dfaDamage });
-    }
-  }
-
-  if (options.canReachForCharge && (options.hexesMoved ?? 0) > 1) {
-    const chargeInput: IPhysicalAttackInput = {
-      ...baseInput,
-      attackType: 'charge',
-      hexesMoved: options.hexesMoved,
-      attackerJumpedThisTurn: options.isJumping,
-      attackerRanThisTurn: true,
-      attackerMovedBackwardThisTurn: options.attackerMovedBackwardThisTurn,
-    };
-    if (canCharge(chargeInput).allowed) {
-      const chargeDamage = calculateChargeDamageToTarget(chargeInput);
-      candidates.push({ type: 'charge', expectedDamage: chargeDamage });
-    }
-  }
-
-  if (options.hasMeleeWeapon) {
-    const meleeInput: IPhysicalAttackInput = {
-      ...baseInput,
-      attackType: options.hasMeleeWeapon,
-    };
-    const meleeRestriction = canMeleeWeapon(meleeInput);
-    if (meleeRestriction.allowed) {
-      let meleeDamage = 0;
-      switch (options.hasMeleeWeapon) {
-        case 'hatchet':
-          meleeDamage = calculateHatchetDamage(meleeInput);
-          break;
-        case 'sword':
-          meleeDamage = calculateSwordDamage(meleeInput);
-          break;
-        case 'mace':
-          meleeDamage = calculateMaceDamage(meleeInput);
-          break;
-        case 'lance':
-          meleeDamage = calculateLanceDamage(meleeInput);
-          break;
-        case 'retractable-blade':
-          meleeDamage = calculateRetractableBladeDamage(meleeInput);
-          break;
-        case 'flail':
-          meleeDamage = calculateFlailDamage(meleeInput);
-          break;
-        case 'wrecking-ball':
-          meleeDamage = calculateWreckingBallDamage(meleeInput);
-          break;
-      }
-      candidates.push({
-        type: options.hasMeleeWeapon,
-        expectedDamage: meleeDamage,
-      });
-    }
-  }
+  const candidates = collectPhysicalAttackCandidates(baseInput, options);
 
   if (candidates.length === 0) {
     return null;

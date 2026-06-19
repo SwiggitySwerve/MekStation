@@ -9,13 +9,12 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.1
  */
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import { StoreApi } from 'zustand';
 
 import { BATTLE_ARMOR_TABS } from '@/components/customizer/shared/tabRegistry';
-import { toCustomizerTabConfigs } from '@/components/customizer/shared/TabSpec';
 import { CustomizerTabs } from '@/components/customizer/tabs/CustomizerTabs';
-import { useCustomizerTabs } from '@/hooks/useCustomizerTabs';
+import { useCustomizerTabShell } from '@/components/customizer/tabs/useCustomizerTabShell';
 import {
   BattleArmorStoreContext,
   BattleArmorStore,
@@ -69,39 +68,18 @@ export function BattleArmorCustomizer({
   readOnly = false,
   className = '',
 }: BattleArmorCustomizerProps): React.ReactElement {
-  const { visibleSpecs, activeTab, setActiveTab, dirtyTabs, errorTabs } =
-    useCustomizerTabs({
-      specs: BATTLE_ARMOR_TABS,
-      state: {},
-      initialTabId: initialTab,
-    });
-
-  const tabConfigs = toCustomizerTabConfigs(visibleSpecs);
-
-  const handleTabChange = useCallback(
-    (tabId: string) => {
-      setActiveTab(tabId);
-      onTabChange?.(tabId as BattleArmorTabId);
-    },
-    [setActiveTab, onTabChange],
-  );
-
-  const activeSpec =
-    visibleSpecs.find((s) => s.id === activeTab) ?? visibleSpecs[0];
-  const TabComponent = activeSpec?.component;
+  const { tabBarProps, activeTab, TabComponent } = useCustomizerTabShell({
+    specs: BATTLE_ARMOR_TABS,
+    state: {},
+    initialTab,
+    onTabChange,
+  });
 
   return (
     <BattleArmorStoreContext.Provider value={store}>
       <div className={`flex h-full flex-col ${className}`}>
         {/* Tab Bar */}
-        <CustomizerTabs
-          tabs={tabConfigs}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          readOnly={readOnly}
-          dirtyTabs={dirtyTabs}
-          errorTabs={errorTabs}
-        />
+        <CustomizerTabs {...tabBarProps} readOnly={readOnly} />
 
         {/* Main Content Area */}
         <div className="flex min-h-0 flex-1 overflow-hidden">

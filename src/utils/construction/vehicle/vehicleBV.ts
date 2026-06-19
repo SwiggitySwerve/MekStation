@@ -428,6 +428,89 @@ export interface VehicleOffensiveBVBreakdown {
   total: number;
 }
 
+type VehicleAmmoBVEntries = NonNullable<OffensiveBVConfig['ammo']>;
+
+function resolveMountBattleValue(mount: {
+  id: string;
+  bvOverride?: number;
+}): number {
+  return mount.bvOverride ?? resolveEquipmentBV(mount.id).battleValue;
+}
+
+function calculateWeaponBVEntry(
+  weapon: VehicleWeaponMount,
+  targetingComputerMounted: boolean,
+  primaryTurretMult: number,
+  secondaryTurretMult: number,
+) {
+  const listedBV = resolveMountBattleValue(weapon);
+  let adjustedBV = listedBV;
+
+  if (weapon.artemisType === 'iv') {
+    adjustedBV *= 1.2;
+  } else if (weapon.artemisType === 'v') {
+    adjustedBV *= 1.3;
+  }
+
+  if (weapon.isRearMounted && !weapon.isTurretMounted) {
+    adjustedBV *= 0.5;
+  }
+
+  if (targetingComputerMounted && isDirectFireWeapon(weapon.id)) {
+    adjustedBV *= 1.25;
+  }
+
+  let locationMult = 1.0;
+  if (weapon.isTurretMounted) {
+    locationMult = primaryTurretMult;
+  } else if (weapon.isSponsonMounted) {
+    locationMult = secondaryTurretMult || 1.025;
+  }
+
+  return {
+    id: weapon.id,
+    listedBV,
+    finalBV: adjustedBV * locationMult,
+  };
+}
+
+function getAmmoWeaponType(ammo: VehicleAmmoMount): string {
+  return (
+    ammo.weaponTypeOverride ??
+    normalizeEquipmentId(ammo.id)
+      .replace(/^is-/, '')
+      .replace(/^cl-/, '')
+      .replace(/-ammo$/, '')
+      .replace(/^ammo-/, '')
+  );
+}
+
+function buildVehicleAmmoEntries(
+  ammo: VehicleAmmoMount[] = [],
+): VehicleAmmoBVEntries {
+  return ammo.map((entry) => ({
+    id: entry.id,
+    bv: resolveMountBattleValue(entry),
+    weaponType: getAmmoWeaponType(entry),
+  }));
+}
+
+function calculateVehicleOffensiveEquipmentBV(
+  equipment: VehicleOffensiveEquipmentMount[] = [],
+): number {
+  let total = 0;
+
+  for (const entry of equipment) {
+    if (entry.isTargetingComputer) {
+      // TC itself is modeled via the +25% weapon multiplier, not a flat BV add.
+      continue;
+    }
+    total += resolveMountBattleValue(entry);
+  }
+
+  return total;
+}
+
 /**
  * Compute offensive BV per vehicle rules.
  *
@@ -440,114 +523,38 @@ export interface VehicleOffensiveBVBreakdown {
 export function calculateVehicleOffensiveBV(
   input: VehicleBVInput,
 ): VehicleOffensiveBVBreakdown {
-  // Detect TC via offensive equipment flag.
-  const hasTC = (input.offensiveEquipment ?? []).some(
-    (e) => e.isTargetingComputer === true,
+  const targetingComputerMounted = (input.offensiveEquipment ?? []).some(
+    (entry) => entry.isTargetingComputer === true,
   );
-
   const primaryTurretMult = turretMultiplier(input.turret);
   const secondaryTurretMult = turretMultiplier(input.secondaryTurret);
-
-  // Build per-weapon BV with modifiers.
-  let rawTurretAdjustedBV = 0;
-  let rawNonTurretBV = 0;
-  let weaponBV = 0;
-
-  const perWeaponBVs: Array<{ id: string; bv: number }> = [];
-
-  for (const weapon of input.weapons) {
-    const resolvedBV =
-      weapon.bvOverride !== undefined
-        ? weapon.bvOverride
-        : resolveEquipmentBV(weapon.id).battleValue;
-
-    let adjustedBV = resolvedBV;
-
-    if (weapon.artemisType === 'iv') {
-      adjustedBV *= 1.2;
-    } else if (weapon.artemisType === 'v') {
-      adjustedBV *= 1.3;
-    }
-
-    // Rear-arc weapon penalty (fixed-arc, not turret-mounted).
-    if (weapon.isRearMounted && !weapon.isTurretMounted) {
-      adjustedBV *= 0.5;
-    }
-
-    // TC direct-fire bonus.
-    if (hasTC && isDirectFireWeapon(weapon.id)) {
-      adjustedBV *= 1.25;
-    }
-
-    // Turret / sponson multipliers.
-    let locationMult = 1.0;
-    if (weapon.isTurretMounted) {
-      locationMult = primaryTurretMult;
-      rawTurretAdjustedBV += adjustedBV * locationMult;
-    } else if (weapon.isSponsonMounted) {
-      locationMult = secondaryTurretMult || 1.025;
-      rawTurretAdjustedBV += adjustedBV * locationMult;
-    } else {
-      rawNonTurretBV += adjustedBV;
-    }
-
-    const finalWeaponBV = adjustedBV * locationMult;
-    weaponBV += finalWeaponBV;
-
-    // Collect for ammo cap — use the pre-multiplier BV so caps reflect listed BV.
-    perWeaponBVs.push({ id: weapon.id, bv: resolvedBV });
-  }
-
-  // Ammo cap uses the mech-side shared helper.
-  const ammoEntries: OffensiveBVConfig['ammo'] = (input.ammo ?? []).map(
-    (a) => ({
-      id: a.id,
-      bv:
-        a.bvOverride !== undefined
-          ? a.bvOverride
-          : resolveEquipmentBV(a.id).battleValue,
-      weaponType:
-        a.weaponTypeOverride ??
-        normalizeEquipmentId(a.id)
-          .replace(/^is-/, '')
-          .replace(/^cl-/, '')
-          .replace(/-ammo$/, '')
-          .replace(/^ammo-/, ''),
-    }),
+  const weaponEntries = input.weapons.map((weapon) =>
+    calculateWeaponBVEntry(
+      weapon,
+      targetingComputerMounted,
+      primaryTurretMult,
+      secondaryTurretMult,
+    ),
   );
-  const ammoBV = calculateAmmoBVWithExcessiveCap(perWeaponBVs, ammoEntries);
 
-  // Offensive equipment BV.
-  let offensiveEquipmentBV = 0;
-  for (const entry of input.offensiveEquipment ?? []) {
-    if (entry.isTargetingComputer) {
-      // TC itself is modeled via the +25% weapon multiplier, not a flat BV add.
-      continue;
-    }
-    if (entry.bvOverride !== undefined) {
-      offensiveEquipmentBV += entry.bvOverride;
-      continue;
-    }
-    offensiveEquipmentBV += resolveEquipmentBV(entry.id).battleValue;
-  }
+  const weaponBV = weaponEntries.reduce((sum, entry) => sum + entry.finalBV, 0);
+  const perWeaponBVs = weaponEntries.map((entry) => ({
+    id: entry.id,
+    bv: entry.listedBV,
+  }));
+  const ammoEntries = buildVehicleAmmoEntries(input.ammo);
+  const ammoBV = calculateAmmoBVWithExcessiveCap(perWeaponBVs, ammoEntries);
+  const offensiveEquipmentBV = calculateVehicleOffensiveEquipmentBV(
+    input.offensiveEquipment,
+  );
 
   const speedFactor = calculateVehicleSpeedFactor(input);
-
   const total = (weaponBV + ammoBV + offensiveEquipmentBV) * speedFactor;
-
-  // Turret modifier for the breakdown — the scalar applied to turret-mounted weapons.
-  // Sponson-only vehicles report 1.025; rotating-turret vehicles report 1.05.
-  // Secondary sponson + primary rotating uses the primary value (display scalar).
   const turretModifier = input.turret
     ? primaryTurretMult
     : input.secondaryTurret
       ? secondaryTurretMult
       : 1.0;
-
-  // rawTurretAdjustedBV / rawNonTurretBV are kept for potential future analytics;
-  // the status bar only needs the display scalar above.
-  void rawTurretAdjustedBV;
-  void rawNonTurretBV;
 
   return {
     weaponBV,

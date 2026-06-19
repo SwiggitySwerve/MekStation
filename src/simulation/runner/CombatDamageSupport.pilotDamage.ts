@@ -1,0 +1,140 @@
+import { MEGAMEK_AMMO_EXPLOSION_PILOT_DAMAGE_SOURCE_REFS } from './CombatConsciousnessSourceRefs';
+import {
+  EQUIPMENT_ARTEMIS_FCS_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_BOMB_BAY_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_BOMB_BAY_CRITICAL_EFFECT_GAP,
+  EQUIPMENT_BLUE_SHIELD_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_BLUE_SHIELD_SPECIAL_RULES_EVIDENCE,
+  EQUIPMENT_BLUE_SHIELD_SPECIAL_RULES_GAP,
+  EQUIPMENT_CHARGED_CAPACITOR_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_EXTENDED_FUEL_TANK_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_FUEL_INCENDIARY_BRANCH_EVIDENCE,
+  EQUIPMENT_FUEL_INCENDIARY_BRANCH_GAP,
+  EQUIPMENT_HOT_LOAD_LINKED_AMMO_INFERENCE_EVIDENCE,
+  EQUIPMENT_HOT_LOAD_MODE_STATE_INFERENCE_EVIDENCE,
+  EQUIPMENT_PROTOTYPE_IMPROVED_JUMP_JET_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_EXPLOSIVE_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_HOT_LOADED_WEAPON_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_RISC_LPM_AMBIGUOUS_LINK_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_RISC_LASER_PULSE_MODULE_INOPERABLE_LINKED_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_RISC_LASER_PULSE_MODULE_CRITICAL_EFFECT_EVIDENCE,
+  UNRESOLVED_EQUIPMENT_CRITICAL_EFFECT_BRANCHES,
+} from './CombatCriticalSlotEffectSupport';
+import {
+  MEKSTATION_AC_PLAYTEST_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_ACTIVE_PROBE_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_ARTEMIS_FCS_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEGAMEK_AMMO_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_BLUE_SHIELD_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_CHARGED_CAPACITOR_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_EMERGENCY_COOLANT_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEGAMEK_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_HARJEL_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_HOT_LOADED_WEAPON_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_EXTENDED_FUEL_TANK_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_FUEL_INCENDIARY_SCOPE_SPLIT_SOURCE_REFS,
+  MEKSTATION_AMMO_EXHAUSTION_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_GENERIC_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEGAMEK_MTF_EQUIPMENT_CRITICAL_SOURCE_REFS,
+  MEGAMEK_MTF_SYSTEM_CRITICAL_SOURCE_REFS,
+  MEGAMEK_PARTIAL_WING_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEGAMEK_PHYSICAL_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_PROTOTYPE_IMPROVED_JUMP_JET_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_REPRESENTED_EXPLOSIVE_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_RISC_LASER_PULSE_MODULE_INOPERABLE_LINKED_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_RISC_LASER_PULSE_MODULE_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_SCM_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_SHIELD_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_STEALTH_LINKED_ECM_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEGAMEK_SYSTEM_CRITICAL_EFFECT_SOURCE_REFS,
+} from './CombatCriticalSlotSourceRefs';
+import {
+  BATTLEMECH_MANUAL_DAMAGE_SOURCE_REFS,
+  MEGAMEK_BATTLEMECH_DAMAGE_SOURCE_REFS,
+  MEKSTATION_COCKPIT_CRIT_PILOT_DEATH_SOURCE_REFS,
+  MEKSTATION_DAMAGE_EVENT_SOURCE_REFS,
+  MEKSTATION_DAMAGE_RESOLUTION_SOURCE_REFS,
+  MEKSTATION_DESTRUCTION_CAUSE_SOURCE_REFS,
+  MEKSTATION_HEAT_AMMO_EXPLOSION_DAMAGE_SOURCE_REFS,
+  MEKSTATION_HEAT_PILOT_DAMAGE_SOURCE_REFS,
+  MEKSTATION_MAXTECH_HEAT_CRITICAL_SOURCE_REFS,
+  MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
+} from './CombatDamageSourceRefs';
+import {
+  MEGAMEK_DFA_IMPOSSIBLE_DISPLACEMENT_SOURCE_REFS,
+  MEGAMEK_FALL_PILOT_DAMAGE_SOURCE_REFS,
+  MEGAMEK_CASE_AMMO_EXPLOSION_SOURCE_REFS,
+  CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
+  DAMAGE_EVENT_SOURCE_REFS,
+  HEAT_AMMO_EXPLOSION_DAMAGE_CASCADE_SOURCE_REFS,
+  DAMAGE_DESTRUCTION_CAUSE_SOURCE_REFS,
+  ENGINE_DESTRUCTION_CAUSE_SOURCE_REFS,
+} from './CombatDamageSupport.sourceRefs';
+import {
+  integrated,
+  outOfScope,
+  type ICombatFeatureSourceReference,
+  type ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
+import { DAMAGE_THRESHOLD_PSR_SOURCE_REFS } from './CombatPsrTriggerSourceRefs';
+
+export const PILOT_DAMAGE_COMBAT_SUPPORT = {
+  'head-hit-wound': integrated(
+    'head-hit-wound',
+    'resolveDamage applies one pilot wound for damaging head hits',
+    MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
+  ),
+  'head-hit-pilot-event': integrated(
+    'head-hit-pilot-event',
+    'weaponAttackHitResolution emits PilotHit source=head_hit unless a cockpit crit already emitted the wound',
+    MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
+  ),
+  'consciousness-check': integrated(
+    'consciousness-check',
+    'applyPilotDamage rolls consciousness checks at 3 + total wounds',
+    MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
+  ),
+  unconsciousness: integrated(
+    'unconsciousness',
+    'applyPilotDamage sets pilotConscious=false and action eligibility removes unconscious actors',
+    MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
+  ),
+  'pilot-death': integrated(
+    'pilot-death',
+    'applyPilotDamage and checkUnitDestruction destroy units at lethal wound threshold',
+    [
+      ...MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
+      ...MEKSTATION_DESTRUCTION_CAUSE_SOURCE_REFS,
+    ],
+  ),
+  'cockpit-crit-pilot-death': integrated(
+    'cockpit-crit-pilot-death',
+    'applyCockpitHit emits PilotHit plus UnitDestroyed cause=pilot_death',
+    MEKSTATION_COCKPIT_CRIT_PILOT_DEATH_SOURCE_REFS,
+  ),
+  'heat-pilot-damage': integrated(
+    'heat-pilot-damage',
+    'runHeatPhase and resolveHeatPhase emit PilotHit source=heat, persist wound totals, and destroy pilots at lethal heat wounds',
+    MEKSTATION_HEAT_PILOT_DAMAGE_SOURCE_REFS,
+  ),
+  'maxtech-heat-pilot-damage': integrated(
+    'maxtech-heat-pilot-damage',
+    'runHeatPhase and resolveHeatPhase emit opt-in MaxTech heat-scale PilotHit source=heat at heat 32+ when the avoid roll fails, including Hot Dog avoid-number relief',
+    MEKSTATION_HEAT_PILOT_DAMAGE_SOURCE_REFS,
+  ),
+  'maxtech-heat-critical-damage': integrated(
+    'maxtech-heat-critical-damage',
+    'runHeatPhase and resolveHeatPhase emit opt-in MaxTech heat-scale CriticalHit, CriticalHitResolved, ComponentDestroyed, PSRTriggered, PilotHit, and UnitDestroyed chains from failed heat 36+ critical damage avoid rolls',
+    MEKSTATION_MAXTECH_HEAT_CRITICAL_SOURCE_REFS,
+  ),
+  'fall-pilot-damage': integrated(
+    'fall-pilot-damage',
+    'runPSRPhase, resolvePendingPSRs, and source-backed missed-DFA fall resolution emit PilotHit source=fall, persist wound totals, and destroy pilots at lethal fall wounds',
+    MEGAMEK_FALL_PILOT_DAMAGE_SOURCE_REFS,
+  ),
+  'ammo-explosion-pilot-damage': integrated(
+    'ammo-explosion-pilot-damage',
+    'resolveBattleMechAmmoExplosionPilotDamage applies source-backed BattleMech ammo-explosion pilot damage, Pain Resistance / Iron Man reduction, and pain-shunt suppression; runner heat, runner critical, and event-sourced heat cookoff paths emit PilotHit source=ammo_explosion and persist wounds/death state',
+    MEGAMEK_AMMO_EXPLOSION_PILOT_DAMAGE_SOURCE_REFS,
+  ),
+} satisfies Record<string, ICombatFeatureSupportEntry>;

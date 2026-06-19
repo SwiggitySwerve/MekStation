@@ -7,14 +7,10 @@
  */
 
 import { AutoAwardCategory } from '../../campaign/awards/autoAwardTypes';
-import {
-  IAward,
-  AwardRarity,
-  AwardCategory,
-  CriteriaType,
-} from '../AwardInterfaces';
+import { AwardRarity, AwardCategory, CriteriaType } from '../AwardInterfaces';
+import { createAutoAwards } from './AutoAwardBuilders';
 
-export const AUTO_SCENARIO_AWARDS: readonly IAward[] = [
+export const AUTO_SCENARIO_AWARDS = createAutoAwards([
   {
     id: 'mission-runner',
     name: 'Mission Runner',
@@ -22,19 +18,13 @@ export const AUTO_SCENARIO_AWARDS: readonly IAward[] = [
     category: AwardCategory.Campaign,
     rarity: AwardRarity.Common,
     icon: 'award-mission-runner',
-    criteria: {
-      type: CriteriaType.MissionsCompleted,
-      threshold: 5,
-      description: 'Complete 5 missions',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.MissionsCompleted,
+    criteriaThreshold: 5,
+    criteriaDescription: 'Complete 5 missions',
     sortOrder: 405,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.SCENARIO,
-      threshold: 5,
-      thresholdType: 'missions',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.SCENARIO,
+    autoThreshold: 5,
+    autoThresholdType: 'missions',
   },
   {
     id: 'campaign-legend',
@@ -43,19 +33,13 @@ export const AUTO_SCENARIO_AWARDS: readonly IAward[] = [
     category: AwardCategory.Campaign,
     rarity: AwardRarity.Legendary,
     icon: 'award-campaign-legend',
-    criteria: {
-      type: CriteriaType.MissionsCompleted,
-      threshold: 50,
-      description: 'Complete 50 missions',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.MissionsCompleted,
+    criteriaThreshold: 50,
+    criteriaDescription: 'Complete 50 missions',
     sortOrder: 460,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.SCENARIO,
-      threshold: 50,
-      thresholdType: 'missions',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.SCENARIO,
+    autoThreshold: 50,
+    autoThresholdType: 'missions',
   },
   {
     id: 'centurion-missions',
@@ -64,18 +48,12 @@ export const AUTO_SCENARIO_AWARDS: readonly IAward[] = [
     category: AwardCategory.Campaign,
     rarity: AwardRarity.Legendary,
     icon: 'award-centurion-missions',
-    criteria: {
-      type: CriteriaType.MissionsCompleted,
-      threshold: 100,
-      description: 'Complete 100 missions',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.MissionsCompleted,
+    criteriaThreshold: 100,
+    criteriaDescription: 'Complete 100 missions',
     sortOrder: 470,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.SCENARIO,
-      threshold: 100,
-      thresholdType: 'missions',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.SCENARIO,
+    autoThreshold: 100,
+    autoThresholdType: 'missions',
   },
-];
+]);

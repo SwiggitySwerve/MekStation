@@ -14,7 +14,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { getDefaultMatchStore } from '@/lib/multiplayer/server/InMemoryMatchStore';
+import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import { isValidRoomCode, normalizeRoomCode } from '@/lib/p2p/roomCodes';
 
 interface IResolveResponse {

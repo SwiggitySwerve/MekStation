@@ -11,13 +11,15 @@ import type {
 import {
   Facing,
   FiringArc,
-  GamePhase,
   GameSide,
-  GameStatus,
   MovementType,
   TerrainType,
-  TokenUnitType,
 } from '@/types/gameplay';
+
+import {
+  createTacticalMapGameStateForTokens,
+  createTacticalMapMechToken,
+} from './tactical-map.fixture-helpers';
 
 const ALL_WEAPON_ARCS: readonly FiringArc[] = [
   FiringArc.Front,
@@ -56,94 +58,58 @@ function weaponFixture({
 }
 
 export const tacticalMapTokens: readonly IUnitToken[] = [
-  {
+  createTacticalMapMechToken({
     unitId: 'attacker',
     name: 'Shadow Hawk SHD-2H',
     designation: 'SHD',
     position: { q: -1, r: 0 },
     facing: Facing.Northeast,
     side: GameSide.Player,
-    isDestroyed: false,
     isSelected: true,
     isValidTarget: false,
-    unitType: TokenUnitType.Mech,
-  },
-  {
+  }),
+  createTacticalMapMechToken({
     unitId: 'occluded',
     name: 'Hunchback HBK-4G',
     designation: 'HBK',
     position: { q: 0, r: 0 },
-    facing: Facing.Southwest,
-    side: GameSide.Opponent,
-    isDestroyed: false,
-    isSelected: false,
-    isValidTarget: true,
     isActiveTarget: true,
-    unitType: TokenUnitType.Mech,
-  },
-  {
+  }),
+  createTacticalMapMechToken({
     unitId: 'blocked-target',
     name: 'Locust LCT-1V',
     designation: 'LCT',
     position: { q: 2, r: 0 },
-    facing: Facing.Southwest,
-    side: GameSide.Opponent,
-    isDestroyed: false,
-    isSelected: false,
-    isValidTarget: true,
-    unitType: TokenUnitType.Mech,
-  },
-  {
+  }),
+  createTacticalMapMechToken({
     unitId: 'medium-target',
     name: 'Wasp WSP-1A',
     designation: 'WSP',
     position: { q: 1, r: 2 },
-    facing: Facing.Southwest,
-    side: GameSide.Opponent,
-    isDestroyed: false,
-    isSelected: false,
-    isValidTarget: true,
-    unitType: TokenUnitType.Mech,
-  },
-  {
+  }),
+  createTacticalMapMechToken({
     unitId: 'water-cover-target',
     name: 'Commando COM-2D',
     designation: 'COM',
     position: { q: 0, r: 2 },
-    facing: Facing.Southwest,
-    side: GameSide.Opponent,
-    isDestroyed: false,
-    isSelected: false,
-    isValidTarget: true,
-    unitType: TokenUnitType.Mech,
-  },
-  {
+  }),
+  createTacticalMapMechToken({
     unitId: 'hidden-contact',
     name: 'Hidden Contact',
     designation: 'UNK',
     position: { q: -2, r: 1 },
-    facing: Facing.Southwest,
-    side: GameSide.Opponent,
-    isDestroyed: false,
-    isSelected: false,
     isValidTarget: false,
     fogStatus: 'hidden',
-    unitType: TokenUnitType.Mech,
-  },
-  {
+  }),
+  createTacticalMapMechToken({
     unitId: 'last-known-contact',
     name: 'Last Known Contact',
     designation: 'LKC',
     position: { q: -3, r: 1 },
     lastKnownPosition: { q: -1, r: 2 },
-    facing: Facing.Southwest,
-    side: GameSide.Opponent,
-    isDestroyed: false,
-    isSelected: false,
     isValidTarget: false,
     fogStatus: 'lastKnown',
-    unitType: TokenUnitType.Mech,
-  },
+  }),
 ];
 
 export const tacticalMapHexTerrain: readonly IHexTerrain[] = [
@@ -225,33 +191,15 @@ export const tacticalMapUnitWeapons: Record<string, readonly IWeaponStatus[]> =
     ],
   };
 
-export const tacticalMapCombatState: IGameState = {
-  gameId: 'tactical-map-e2e',
-  status: GameStatus.Active,
-  turn: 1,
-  phase: GamePhase.WeaponAttack,
-  activationIndex: 0,
-  turnEvents: [],
-  units: Object.fromEntries(
-    tacticalMapTokens.map((token) => [
-      token.unitId,
-      {
-        id: token.unitId,
-        side: token.side,
-        position: token.position,
-        facing: token.facing,
-        heat: 0,
-        movementThisTurn: MovementType.Stationary,
-        hexesMovedThisTurn: 0,
-        prone: false,
-        destroyed: token.isDestroyed,
-        shutdown: false,
-        hasRetreated: false,
-        gunnery: 4,
-      },
-    ]),
-  ) as IGameState['units'],
-};
+export const tacticalMapCombatState: IGameState =
+  createTacticalMapGameStateForTokens(tacticalMapTokens, {
+    unitOverrides: () => ({
+      prone: false,
+      shutdown: false,
+      hasRetreated: false,
+      gunnery: 4,
+    }),
+  });
 
 export const tacticalMapSelectedWeaponIds = [
   'medium-laser',

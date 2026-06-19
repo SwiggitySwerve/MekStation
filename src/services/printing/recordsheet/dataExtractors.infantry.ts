@@ -25,6 +25,8 @@ import {
   INFANTRY_WEAPON_TABLE,
 } from '@/utils/construction/infantry/weaponTable';
 
+import type { IBaseRecordSheetUnitConfig } from './types';
+
 import { extractHeader } from './dataExtractors';
 
 type InfantryWeaponInput =
@@ -47,18 +49,27 @@ type InfantryFieldGunInput =
       })
   | undefined;
 
+type InfantryWeaponObjectInput = Partial<IInfantryWeaponSheet> & {
+  readonly id?: string;
+  readonly weaponId?: string;
+};
+
+type InfantryWeaponCatalogEntry = ReturnType<typeof findWeapon>;
+
+const MOTIVE_TYPE_BY_HINT: ReadonlyMap<string, InfantryRecordSheetMotiveType> =
+  new Map([
+    ['motorized', 'Motorized'],
+    ['jump', 'Jump'],
+    ['beast', 'Beast'],
+    ['mechanized', 'Mechanized'],
+    ['mechanizedtracked', 'Mechanized'],
+    ['mechanizedwheeled', 'Mechanized'],
+    ['mechanizedhover', 'Mechanized'],
+    ['mechanizedvtol', 'Mechanized'],
+  ]);
+
 /** Infantry-specific unit config fields. */
-export interface IInfantryUnitConfig {
-  id: string;
-  name: string;
-  chassis: string;
-  model: string;
-  tonnage: number;
-  techBase: string;
-  rulesLevel: string;
-  era: string;
-  battleValue?: number;
-  cost?: number;
+export interface IInfantryUnitConfig extends IBaseRecordSheetUnitConfig {
   /** Total troopers in the platoon. */
   platoonSize?: number;
   /** Wave 1 construction composition. */
@@ -95,22 +106,9 @@ export interface IInfantryUnitConfig {
 function normalizeMotive(
   raw: string | undefined,
 ): InfantryRecordSheetMotiveType {
-  switch ((raw ?? 'Foot').trim().toLowerCase()) {
-    case 'motorized':
-      return 'Motorized';
-    case 'jump':
-      return 'Jump';
-    case 'beast':
-      return 'Beast';
-    case 'mechanized':
-    case 'mechanizedtracked':
-    case 'mechanizedwheeled':
-    case 'mechanizedhover':
-    case 'mechanizedvtol':
-      return 'Mechanized';
-    default:
-      return 'Foot';
-  }
+  return (
+    MOTIVE_TYPE_BY_HINT.get((raw ?? 'Foot').trim().toLowerCase()) ?? 'Foot'
+  );
 }
 
 function buildComposition(
@@ -154,17 +152,12 @@ function buildWeaponSheet(
   fallbackName: string,
 ): IInfantryWeaponSheet {
   const catalog = findWeapon(raw, id);
-  const objectRaw = typeof raw === 'object' && raw !== null ? raw : undefined;
-  const rawName = typeof raw === 'string' ? raw : undefined;
-  const name = objectRaw?.name ?? catalog?.name ?? rawName ?? fallbackName;
+  const objectRaw = weaponObjectInput(raw);
 
   return {
-    name,
-    damage: objectRaw?.damage ?? (catalog ? `1/${catalog.damageDivisor}` : '-'),
-    // Canonical per-trooper damage, threaded from the construction-domain
-    // weapon entry. Falls back to an explicit payload value, then 0 when
-    // the weapon is absent from the catalog.
-    infantryDamage: objectRaw?.infantryDamage ?? catalog?.infantryDamage ?? 0,
+    name: resolveWeaponName(raw, objectRaw, catalog, fallbackName),
+    damage: resolveWeaponDamage(objectRaw, catalog),
+    infantryDamage: resolveInfantryDamage(objectRaw, catalog),
     minimumRange: objectRaw?.minimumRange ?? 0,
     shortRange: objectRaw?.shortRange ?? catalog?.rangeShort ?? 0,
     mediumRange: objectRaw?.mediumRange ?? catalog?.rangeMedium ?? 0,
@@ -173,6 +166,41 @@ function buildWeaponSheet(
     heat: objectRaw?.heat ?? catalog?.heat,
     special: objectRaw?.special ?? catalog?.special,
   };
+}
+
+function weaponObjectInput(
+  raw: InfantryWeaponInput | undefined,
+): InfantryWeaponObjectInput | undefined {
+  return typeof raw === 'object' && raw !== null ? raw : undefined;
+}
+
+function resolveWeaponName(
+  raw: InfantryWeaponInput | undefined,
+  objectRaw: InfantryWeaponObjectInput | undefined,
+  catalog: InfantryWeaponCatalogEntry,
+  fallbackName: string,
+): string {
+  const rawName = typeof raw === 'string' ? raw : undefined;
+  return objectRaw?.name ?? catalog?.name ?? rawName ?? fallbackName;
+}
+
+function resolveWeaponDamage(
+  objectRaw: InfantryWeaponObjectInput | undefined,
+  catalog: InfantryWeaponCatalogEntry,
+): string {
+  const rawDamage = objectRaw?.damage;
+  return rawDamage !== undefined
+    ? String(rawDamage)
+    : catalog
+      ? `1/${catalog.damageDivisor}`
+      : '-';
+}
+
+function resolveInfantryDamage(
+  objectRaw: InfantryWeaponObjectInput | undefined,
+  catalog: InfantryWeaponCatalogEntry,
+): number {
+  return objectRaw?.infantryDamage ?? catalog?.infantryDamage ?? 0;
 }
 
 function buildSecondaryWeapons(

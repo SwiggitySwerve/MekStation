@@ -17,6 +17,11 @@ import type {
   IPermissionGrant,
 } from '@/types/vault';
 
+import {
+  rejectUnexpectedMethod as rejectPublicVaultMethod,
+  sendLoggedApiError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getVaultService } from '@/services/vault/VaultService';
 
 // =============================================================================
@@ -48,18 +53,21 @@ interface ListResponse {
   total: number;
 }
 
-interface ErrorResponse {
-  error: string;
-}
-
 // =============================================================================
 // Handler
 // =============================================================================
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse | ListResponse | ErrorResponse>,
+  res: NextApiResponse<SuccessResponse | ListResponse | ApiErrorResponse>,
 ): Promise<void> {
+  if (
+    rejectPublicVaultMethod(req, res, ['GET', 'POST', 'DELETE'], () => ({
+      error: 'Method not allowed',
+    }))
+  )
+    return;
+
   try {
     const vaultService = getVaultService();
 
@@ -70,14 +78,10 @@ export default async function handler(
         return handleMakePublic(req, res, vaultService);
       case 'DELETE':
         return handleRemovePublic(req, res, vaultService);
-      default:
-        return res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
-    console.error('Public sharing API error:', error);
-    return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedApiError(res, 'Public sharing API error:', error);
+    return;
   }
 }
 
@@ -86,7 +90,7 @@ export default async function handler(
 // =============================================================================
 
 async function handleList(
-  res: NextApiResponse<ListResponse | ErrorResponse>,
+  res: NextApiResponse<ListResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   const items = await vaultService.getPublicItems();
@@ -99,7 +103,7 @@ async function handleList(
 
 async function handleMakePublic(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse | ErrorResponse>,
+  res: NextApiResponse<SuccessResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   const body = req.body as MakePublicRequest;
@@ -148,7 +152,7 @@ async function handleMakePublic(
 
 async function handleRemovePublic(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse | ErrorResponse>,
+  res: NextApiResponse<SuccessResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   const body = req.body as RemovePublicRequest;

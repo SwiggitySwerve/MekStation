@@ -15,6 +15,11 @@ import type { ITacticalCommandContext } from '@/types/gameplay';
 
 import { GamePhase, type ITacticalCommand } from '@/types/gameplay';
 
+import {
+  activeUnitTurnAvailability,
+  commitStaticAction,
+} from './commandDescriptorHelpers';
+
 export function buildWeaponAttackCommands(): readonly ITacticalCommand[] {
   return [
     WeaponDeclareAttackCommand,
@@ -33,9 +38,8 @@ const WeaponDeclareAttackCommand: ITacticalCommand = {
   undoable: true,
   targetsEnemy: true,
   availability(ctx) {
-    if (!ctx.activeUnitId)
-      return { available: false, reason: 'No unit is active.' };
-    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    const unavailable = activeUnitTurnAvailability(ctx);
+    if (!unavailable.available) return unavailable;
     if (!ctx.targetUnitId) {
       // Disabled-with-reason — the command stays visible so the player
       // learns the gating fact. Spec: `Disabled command explains
@@ -44,9 +48,7 @@ const WeaponDeclareAttackCommand: ITacticalCommand = {
     }
     return { available: true };
   },
-  commit() {
-    return { actionId: 'declare-attack', payload: {} };
-  },
+  commit: commitStaticAction('declare-attack'),
 };
 
 const WeaponFireVolleyCommand: ITacticalCommand = {
@@ -59,9 +61,8 @@ const WeaponFireVolleyCommand: ITacticalCommand = {
   undoable: false,
   targetsEnemy: true,
   availability(ctx) {
-    if (!ctx.activeUnitId)
-      return { available: false, reason: 'No unit is active.' };
-    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    const unavailable = activeUnitTurnAvailability(ctx);
+    if (!unavailable.available) return unavailable;
     if (!ctx.targetUnitId) {
       return { available: false, reason: 'No target selected.' };
     }
@@ -71,9 +72,7 @@ const WeaponFireVolleyCommand: ITacticalCommand = {
     }
     return { available: true };
   },
-  commit() {
-    return { actionId: 'lock', payload: { volley: true } };
-  },
+  commit: commitStaticAction('lock', { volley: true }),
 };
 
 function projectedCombatBlockedReason(
@@ -105,13 +104,6 @@ const WeaponClearAttacksCommand: ITacticalCommand = {
   phaseConstraints: [GamePhase.WeaponAttack],
   requiresConfirmation: false,
   undoable: false,
-  availability(ctx) {
-    if (!ctx.activeUnitId)
-      return { available: false, reason: 'No unit is active.' };
-    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
-    return { available: true };
-  },
-  commit() {
-    return { actionId: 'clear', payload: {} };
-  },
+  availability: activeUnitTurnAvailability,
+  commit: commitStaticAction('clear'),
 };

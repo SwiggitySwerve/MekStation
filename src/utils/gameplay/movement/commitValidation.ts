@@ -9,37 +9,22 @@ import type {
 } from '@/types/gameplay';
 import type { IMovementInvalidPayload } from '@/types/gameplay/GameSessionMovementEvents';
 
-import { getHeatMovementPenalty } from '@/constants/heat';
 import { MovementType } from '@/types/gameplay';
-import { representedUnitImmobileReason } from '@/utils/gameplay/unitImmobility';
 
-import { isOccupied } from '../hexGrid';
-import { hexDistance, hexEquals } from '../hexMath';
+import { hexEquals } from '../hexMath';
 import {
-  hasPendingAltitudeControlMovementCost,
-  pendingAltitudeControlMovementCost,
-  type IPendingAltitudeControlMovementCost,
-} from './altitudeControlAccounting';
+  buildCommittedMovementContext,
+  validateCommitReadiness,
+  type ICommittedMovementContext,
+} from './commitValidationContext';
 import {
-  getMaxMP,
-  getMovementStepCostBreakdown,
-  getPavementRoadBonusMP,
-  movementCostContextForCapability,
-  movementCostContextForStep,
-} from './calculations';
-import {
-  hasPendingConversionMovementCost,
-  pendingConversionMovementCost,
-  type IPendingConversionMovementCost,
-} from './conversionAccounting';
-import { movementDeclarationLockInvalidState } from './declarationEligibility';
+  directTerrainBlockedStep,
+  validateSuppliedMovementPath,
+  type ISuppliedMovementPathValidation,
+} from './commitValidationPath';
 import { buildMovementEventPath } from './eventPath';
-import { getHullDownExitCost } from './hullDownExit';
-import { movementModeForPath } from './mode';
-import { hexHasPavementRoadBonusSurface } from './pathfinding';
 import { deriveMovementRangeHexForDestination } from './reachable';
-import { resolveRuntimeMovementCapability } from './runtimeCapability';
-import { getStandingCost, validateMovement } from './validation';
+import { validateMovement } from './validation';
 
 export interface ICommittedMovementValidationInput {
   readonly grid: IHexGrid;
@@ -87,73 +72,28 @@ export function validateCommittedMovement(
   input: ICommittedMovementValidationInput,
 ): CommittedMovementValidationResult {
   const from = input.unit.position;
-  const alreadyMoved = movementDeclarationLockInvalidState(
-    input.unit.lockState,
-  );
-  if (alreadyMoved) {
-    return {
-      valid: false,
-      reason: alreadyMoved.reason,
-      details: alreadyMoved.details,
-      mpCost: 0,
-      heatGenerated: 0,
-    };
-  }
+  const readinessFailure = validateCommitReadiness(input);
+  if (readinessFailure) return readinessFailure;
 
-  const immobileReason = representedUnitImmobileReason(input.unit);
-  if (immobileReason) {
-    return {
-      valid: false,
-      reason: 'UnitImmobile',
-      details: immobileReason,
-      mpCost: 0,
-      heatGenerated: 0,
-    };
-  }
-
-  if (!input.capability) {
+  const context = buildCommittedMovementContext(input);
+  if (!context) {
     return {
       valid: false,
       reason: 'NoMovementCapability',
       details: `No movement capability found for unit ${input.unit.id}`,
     };
   }
-  const capability =
-    resolveRuntimeMovementCapability(input.unit, input.capability) ??
-    input.capability;
-  const movementCapability =
-    input.unit.isQuad === true && capability.mekLegProfile !== 'quad'
-      ? { ...capability, mekLegProfile: 'quad' as const }
-      : capability;
 
-  const maxCost = getMaxMP(
-    movementCapability,
-    input.movementType,
-    getHeatMovementPenalty(input.unit.heat),
-  );
-  const standUpMode = input.standUpMode ?? 'normal';
-  const standingCost = input.unit.prone
-    ? getStandingCost(movementCapability, standUpMode)
-    : getHullDownExitCost(input.unit, movementCapability, input.movementType);
-  const pendingConversion = pendingConversionMovementCost(input.unit);
-  const pendingAltitudeControl = pendingAltitudeControlMovementCost(input.unit);
-  const reservedCost =
-    standingCost + pendingConversion.mpCost + pendingAltitudeControl.mpCost;
-  const reservedCostLabel = movementReservedCostLabel(
-    standingCost,
-    pendingConversion,
-    pendingAltitudeControl,
-  );
   if (
     input.unit.prone &&
-    standUpMode === 'careful' &&
+    context.standUpMode === 'careful' &&
     !hexEquals(from, input.to)
   ) {
     return {
       valid: false,
       reason: 'InvalidDestination',
       details: 'Careful stand consumes the movement for this turn',
-      mpCost: reservedCost,
+      mpCost: context.reservedCost,
       heatGenerated: 0,
     };
   }
@@ -161,9 +101,9 @@ export function validateCommittedMovement(
     input.unit,
     input.movementType,
     input.grid,
-    movementCapability,
+    context.movementCapability,
     input.to,
-    standUpMode,
+    context.standUpMode,
     {
       environmentalConditions: input.environmentalConditions,
       optionalRules: input.optionalRules,
@@ -201,7 +141,7 @@ export function validateCommittedMovement(
     input.to,
     input.facing,
     input.movementType,
-    movementCapability,
+    context.movementCapability,
     input.unit.heat,
     input.environmentalConditions,
     {
@@ -217,121 +157,58 @@ export function validateCommittedMovement(
     // silently resolving to the more permissive side. Known remaining
     // divergence: validateMovement charges turning MP for facing changes,
     // which the projection does not model.
-    const validatorDisagreement = `Reachability projection accepted movement that validateMovement rejected: ${
-      validation.error ?? 'unknown reason'
-    }`;
-    if (input.path !== undefined) {
-      const pathValidation = validateSuppliedMovementPath({
-        grid: input.grid,
-        from,
-        to: input.to,
-        path: input.path,
-        movementType: input.movementType,
-        capability: movementCapability,
-        maxCost,
-        standingCost: reservedCost,
-        reservedCostLabel,
-        environmentalConditions: input.environmentalConditions,
-        optionalRules: input.optionalRules,
-      });
-      if (!pathValidation.valid) {
-        return {
-          valid: false,
-          reason: pathValidation.reason,
-          details: pathValidation.details,
-          mpCost: pathValidation.mpCost,
-          heatGenerated: validation.heatGenerated,
-        };
-      }
-      if (projection?.reachable) {
-        return {
-          valid: true,
-          mpCost: pathValidation.mpCost ?? projection.mpCost,
-          heatGenerated: projection.heatGenerated ?? 0,
-          path: input.path,
-          validatorDisagreement,
-        };
-      }
-    } else if (projection?.reachable) {
-      return {
-        valid: true,
-        mpCost: projection.mpCost,
-        heatGenerated: projection.heatGenerated ?? 0,
-        path: projection.path ?? [from, input.to],
-        validatorDisagreement,
-      };
-    }
-
-    const directBlockedStep = directTerrainBlockedStep({
-      grid: input.grid,
+    return resolveValidatorRejection({
+      input,
       from,
-      to: input.to,
-      movementType: input.movementType,
-      capability: movementCapability,
-      standingCost,
-      pendingConversionCost: pendingConversion.mpCost,
-      pendingAltitudeControlCost: pendingAltitudeControl.mpCost,
-      environmentalConditions: input.environmentalConditions,
-      optionalRules: input.optionalRules,
+      context,
+      projection,
+      validation,
     });
-    if (directBlockedStep) {
-      return {
-        valid: false,
-        reason: 'TerrainBlocked',
-        details: directBlockedStep.blockedReason,
-        mpCost: directBlockedStep.mpCost,
-        heatGenerated: validation.heatGenerated,
-      };
-    }
-
-    return {
-      valid: false,
-      reason: movementInvalidReasonFromValidation(validation.error),
-      details: validation.error ?? 'Movement is not legal',
-      mpCost: validation.mpCost,
-      heatGenerated: validation.heatGenerated,
-    };
   }
 
-  let mpCost =
-    standingCost > 0 &&
-    input.movementType !== MovementType.Jump &&
-    input.movementType !== MovementType.Stationary &&
-    hexEquals(from, input.to)
-      ? reservedCost
-      : validation.mpCost;
+  return resolveValidatorAcceptedMovement({
+    input,
+    from,
+    context,
+    projection,
+    validation,
+  });
+}
+
+function resolveValidatorAcceptedMovement(input: {
+  readonly input: ICommittedMovementValidationInput;
+  readonly from: IHexCoordinate;
+  readonly context: ICommittedMovementContext;
+  readonly projection: ReturnType<typeof deriveMovementRangeHexForDestination>;
+  readonly validation: ReturnType<typeof validateMovement>;
+}): CommittedMovementValidationResult {
+  const { context, from, projection, validation } = input;
+  const originalInput = input.input;
+  let mpCost = committedMovementBaseMpCost({
+    input: originalInput,
+    from,
+    context,
+    validationMpCost: validation.mpCost,
+  });
   let heatGenerated = validation.heatGenerated;
   let committedPath: readonly IHexCoordinate[] | undefined;
+
   if (projection?.reachable) {
     mpCost = projection.mpCost;
     heatGenerated = projection.heatGenerated ?? 0;
-    committedPath = projection.path ?? [from, input.to];
+    committedPath = projection.path ?? [from, originalInput.to];
   }
-  if (input.path !== undefined) {
-    const pathValidation = validateSuppliedMovementPath({
-      grid: input.grid,
-      from,
-      to: input.to,
-      path: input.path,
-      movementType: input.movementType,
-      capability: movementCapability,
-      maxCost,
-      standingCost: reservedCost,
-      reservedCostLabel,
-      environmentalConditions: input.environmentalConditions,
-      optionalRules: input.optionalRules,
-    });
-    if (!pathValidation.valid) {
-      return {
-        valid: false,
-        reason: pathValidation.reason,
-        details: pathValidation.details,
-        mpCost: pathValidation.mpCost,
-        heatGenerated,
-      };
-    }
+
+  const pathValidation = validateOptionalCommittedPath({
+    input: originalInput,
+    from,
+    context,
+    heatGenerated,
+  });
+  if (pathValidation?.valid === false) return pathValidation;
+  if (pathValidation?.valid === true) {
     mpCost = pathValidation.mpCost ?? mpCost;
-    committedPath = input.path;
+    committedPath = originalInput.path;
   }
 
   return {
@@ -341,79 +218,177 @@ export function validateCommittedMovement(
     path:
       committedPath ??
       buildMovementEventPath({
-        grid: input.grid,
+        grid: originalInput.grid,
         from,
-        to: input.to,
-        movementType: input.movementType,
+        to: originalInput.to,
+        movementType: originalInput.movementType,
         maxCost: mpCost,
         movementContext: {
-          environmentalConditions: input.environmentalConditions,
-          pilotAbilities: input.unit.abilities,
+          environmentalConditions: originalInput.environmentalConditions,
+          pilotAbilities: originalInput.unit.abilities,
         },
       }),
   };
 }
 
-function directTerrainBlockedStep(input: {
-  readonly grid: IHexGrid;
+function committedMovementBaseMpCost(input: {
+  readonly input: ICommittedMovementValidationInput;
   readonly from: IHexCoordinate;
-  readonly to: IHexCoordinate;
-  readonly movementType: MovementType;
-  readonly capability: IMovementCapability;
-  readonly standingCost?: number;
-  readonly pendingConversionCost?: number;
-  readonly pendingAltitudeControlCost?: number;
-  readonly environmentalConditions?: IEnvironmentalConditions;
-  readonly optionalRules?: readonly string[] | undefined;
-}): { readonly blockedReason: string; readonly mpCost: number } | null {
-  if (input.movementType === MovementType.Jump) return null;
-  if (hexDistance(input.from, input.to) !== 1) return null;
+  readonly context: ICommittedMovementContext;
+  readonly validationMpCost: number;
+}): number {
+  if (input.context.standingCost <= 0) return input.validationMpCost;
+  if (input.input.movementType === MovementType.Jump) {
+    return input.validationMpCost;
+  }
+  if (input.input.movementType === MovementType.Stationary) {
+    return input.validationMpCost;
+  }
+  return hexEquals(input.from, input.input.to)
+    ? input.context.reservedCost
+    : input.validationMpCost;
+}
 
-  const movementMode = movementModeForPath(
-    input.movementType,
-    input.capability,
-  );
-  const costContext = movementCostContextForCapability(
-    input.movementType,
-    input.capability,
-    {
-      environmentalConditions: input.environmentalConditions,
-      optionalRules: input.optionalRules,
-    },
-  );
-  const step = getMovementStepCostBreakdown(
-    input.grid,
-    input.to,
-    movementMode,
-    input.from,
-    movementCostContextForStep(costContext, true),
-  );
+function validateOptionalCommittedPath(input: {
+  readonly input: ICommittedMovementValidationInput;
+  readonly from: IHexCoordinate;
+  readonly context: ICommittedMovementContext;
+  readonly heatGenerated: number;
+}): ISuppliedMovementPathValidation | null {
+  const originalInput = input.input;
+  if (originalInput.path === undefined) return null;
 
-  if (!step.blockedReason) return null;
+  const pathValidation = validateSuppliedMovementPath({
+    grid: originalInput.grid,
+    from: input.from,
+    to: originalInput.to,
+    path: originalInput.path,
+    movementType: originalInput.movementType,
+    capability: input.context.movementCapability,
+    maxCost: input.context.maxCost,
+    standingCost: input.context.reservedCost,
+    reservedCostLabel: input.context.reservedCostLabel,
+    environmentalConditions: originalInput.environmentalConditions,
+    optionalRules: originalInput.optionalRules,
+  });
+  if (pathValidation.valid) return pathValidation;
+
   return {
-    blockedReason: step.blockedReason,
-    mpCost:
-      step.mpCost +
-      (input.standingCost ?? 0) +
-      (input.pendingConversionCost ?? 0) +
-      (input.pendingAltitudeControlCost ?? 0),
+    valid: false,
+    reason: pathValidation.reason,
+    details: pathValidation.details,
+    mpCost: pathValidation.mpCost,
+    heatGenerated: input.heatGenerated,
   };
 }
 
-function movementReservedCostLabel(
-  standingCost: number,
-  pendingConversion: IPendingConversionMovementCost,
-  pendingAltitudeControl: IPendingAltitudeControlMovementCost,
-): string {
-  const parts: string[] = [];
-  if (standingCost > 0) parts.push('stand-up');
-  if (hasPendingConversionMovementCost(pendingConversion)) {
-    parts.push('conversion');
+function resolveValidatorRejection(input: {
+  readonly input: ICommittedMovementValidationInput;
+  readonly from: IHexCoordinate;
+  readonly context: ICommittedMovementContext;
+  readonly projection: ReturnType<typeof deriveMovementRangeHexForDestination>;
+  readonly validation: ReturnType<typeof validateMovement>;
+}): CommittedMovementValidationResult {
+  const { context, from, projection, validation } = input;
+  const originalInput = input.input;
+  const validatorDisagreement = `Reachability projection accepted movement that validateMovement rejected: ${
+    validation.error ?? 'unknown reason'
+  }`;
+  const projectionAccepted = commitProjectionAcceptedResult({
+    input: originalInput,
+    from,
+    context,
+    projection,
+    validationHeat: validation.heatGenerated,
+    validatorDisagreement,
+  });
+  if (projectionAccepted) return projectionAccepted;
+
+  const directBlockedStep = directTerrainBlockedStep({
+    grid: originalInput.grid,
+    from,
+    to: originalInput.to,
+    movementType: originalInput.movementType,
+    capability: context.movementCapability,
+    standingCost: context.standingCost,
+    pendingConversionCost: context.pendingConversion.mpCost,
+    pendingAltitudeControlCost: context.pendingAltitudeControl.mpCost,
+    environmentalConditions: originalInput.environmentalConditions,
+    optionalRules: originalInput.optionalRules,
+  });
+  if (directBlockedStep) {
+    return {
+      valid: false,
+      reason: 'TerrainBlocked',
+      details: directBlockedStep.blockedReason,
+      mpCost: directBlockedStep.mpCost,
+      heatGenerated: validation.heatGenerated,
+    };
   }
-  if (hasPendingAltitudeControlMovementCost(pendingAltitudeControl)) {
-    parts.push('altitude control');
+
+  return {
+    valid: false,
+    reason: movementInvalidReasonFromValidation(validation.error),
+    details: validation.error ?? 'Movement is not legal',
+    mpCost: validation.mpCost,
+    heatGenerated: validation.heatGenerated,
+  };
+}
+
+function commitProjectionAcceptedResult(input: {
+  readonly input: ICommittedMovementValidationInput;
+  readonly from: IHexCoordinate;
+  readonly context: ICommittedMovementContext;
+  readonly projection: ReturnType<typeof deriveMovementRangeHexForDestination>;
+  readonly validationHeat: number;
+  readonly validatorDisagreement: string;
+}): CommittedMovementValidationResult | null {
+  const { context, from, projection } = input;
+  const originalInput = input.input;
+
+  if (originalInput.path !== undefined) {
+    const pathValidation = validateSuppliedMovementPath({
+      grid: originalInput.grid,
+      from,
+      to: originalInput.to,
+      path: originalInput.path,
+      movementType: originalInput.movementType,
+      capability: context.movementCapability,
+      maxCost: context.maxCost,
+      standingCost: context.reservedCost,
+      reservedCostLabel: context.reservedCostLabel,
+      environmentalConditions: originalInput.environmentalConditions,
+      optionalRules: originalInput.optionalRules,
+    });
+    if (!pathValidation.valid) {
+      return {
+        valid: false,
+        reason: pathValidation.reason,
+        details: pathValidation.details,
+        mpCost: pathValidation.mpCost,
+        heatGenerated: input.validationHeat,
+      };
+    }
+    if (projection?.reachable) {
+      return {
+        valid: true,
+        mpCost: pathValidation.mpCost ?? projection.mpCost,
+        heatGenerated: projection.heatGenerated ?? 0,
+        path: originalInput.path,
+        validatorDisagreement: input.validatorDisagreement,
+      };
+    }
+    return null;
   }
-  return parts.join(' and ');
+
+  if (!projection?.reachable) return null;
+  return {
+    valid: true,
+    mpCost: projection.mpCost,
+    heatGenerated: projection.heatGenerated ?? 0,
+    path: projection.path ?? [from, originalInput.to],
+    validatorDisagreement: input.validatorDisagreement,
+  };
 }
 
 export function movementInvalidReasonFromValidation(
@@ -441,149 +416,4 @@ export function movementInvalidReasonFromValidation(
     return 'TerrainBlocked';
   }
   return 'InvalidDestination';
-}
-
-interface ISuppliedMovementPathValidation {
-  readonly valid: boolean;
-  readonly reason: IMovementInvalidPayload['reason'];
-  readonly details: string;
-  readonly mpCost?: number;
-}
-
-function validateSuppliedMovementPath(input: {
-  readonly grid: IHexGrid;
-  readonly from: IHexCoordinate;
-  readonly to: IHexCoordinate;
-  readonly path: readonly IHexCoordinate[];
-  readonly movementType: MovementType;
-  readonly capability: IMovementCapability;
-  readonly maxCost: number;
-  readonly standingCost: number;
-  readonly reservedCostLabel: string;
-  readonly environmentalConditions?: IEnvironmentalConditions;
-  readonly optionalRules?: readonly string[];
-}): ISuppliedMovementPathValidation {
-  if (input.path.length === 0) {
-    return {
-      valid: false,
-      reason: 'InvalidPath',
-      details: 'Committed movement path is empty',
-    };
-  }
-
-  const first = input.path[0];
-  const last = input.path[input.path.length - 1];
-  if (!hexEquals(first, input.from) || !hexEquals(last, input.to)) {
-    return {
-      valid: false,
-      reason: 'InvalidPath',
-      details:
-        'Committed movement path must start at the unit and end at the destination',
-    };
-  }
-
-  if (
-    input.movementType === MovementType.Jump ||
-    input.movementType === MovementType.Stationary
-  ) {
-    return {
-      valid: true,
-      reason: 'InvalidDestination',
-      details: 'Movement path accepted',
-    };
-  }
-
-  const movementMode = movementModeForPath(
-    input.movementType,
-    input.capability,
-  );
-  const costContext = movementCostContextForCapability(
-    input.movementType,
-    input.capability,
-    {
-      environmentalConditions: input.environmentalConditions,
-      optionalRules: input.optionalRules,
-    },
-  );
-  const pavementRoadBonusMP = getPavementRoadBonusMP(movementMode, costContext);
-  let isPavementRoadBonusPath = pavementRoadBonusMP > 0;
-  let totalCost = input.standingCost;
-  if (totalCost > input.maxCost) {
-    return {
-      valid: false,
-      reason: 'InsufficientMP',
-      details: `Unit needs ${input.standingCost} MP for ${input.reservedCostLabel}, but only ${input.maxCost} MP is available`,
-      mpCost: totalCost,
-    };
-  }
-
-  for (let i = 1; i < input.path.length; i++) {
-    const previous = input.path[i - 1];
-    const current = input.path[i];
-    if (hexDistance(previous, current) !== 1) {
-      return {
-        valid: false,
-        reason: 'InvalidPath',
-        details: 'Committed ground movement path contains a non-adjacent step',
-        mpCost: totalCost,
-      };
-    }
-
-    if (i < input.path.length - 1 && isOccupied(input.grid, current)) {
-      return {
-        valid: false,
-        reason: 'DestinationOccupied',
-        details: `Committed movement path passes through occupied hex (${current.q}, ${current.r})`,
-        mpCost: totalCost,
-      };
-    }
-
-    if (
-      isPavementRoadBonusPath &&
-      !hexHasPavementRoadBonusSurface(input.grid, current, movementMode)
-    ) {
-      isPavementRoadBonusPath = false;
-    }
-
-    const step = getMovementStepCostBreakdown(
-      input.grid,
-      current,
-      movementMode,
-      previous,
-      movementCostContextForStep(costContext, i === 1),
-    );
-    if (step.blockedReason || !Number.isFinite(step.mpCost)) {
-      return {
-        valid: false,
-        reason: 'TerrainBlocked',
-        details:
-          step.blockedReason ??
-          `Committed movement path cannot enter (${current.q}, ${current.r})`,
-        mpCost: totalCost,
-      };
-    }
-
-    totalCost += step.mpCost;
-    const maxAllowedCost =
-      input.maxCost + (isPavementRoadBonusPath ? pavementRoadBonusMP : 0);
-    if (totalCost > maxAllowedCost) {
-      const details =
-        input.standingCost > 0
-          ? `Committed movement path costs ${totalCost} MP including ${input.reservedCostLabel}, but only ${maxAllowedCost} MP is available`
-          : `Committed movement path costs ${totalCost} MP, but only ${maxAllowedCost} MP is available`;
-      return {
-        valid: false,
-        reason: 'InsufficientMP',
-        details,
-        mpCost: totalCost,
-      };
-    }
-  }
-
-  return {
-    valid: true,
-    reason: 'InvalidDestination',
-    details: 'Movement path accepted',
-    mpCost: totalCost,
-  };
 }

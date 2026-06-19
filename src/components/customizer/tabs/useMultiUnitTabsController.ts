@@ -2,12 +2,7 @@ import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { LoadUnitSource } from '@/components/customizer/dialogs/UnitLoadDialog';
-import type { UnitState } from '@/stores/unitState';
-import type {
-  IExportableUnit,
-  IImportHandlers,
-  IImportSource,
-} from '@/types/vault';
+import type { IExportableUnit, IImportHandlers } from '@/types/vault';
 
 import { useToast } from '@/components/shared/Toast';
 import {
@@ -16,19 +11,9 @@ import {
   type CustomizerTabId,
 } from '@/hooks/useCustomizerRouter';
 import { IUnitIndexEntry } from '@/services/common/types';
-import { unitLoaderService } from '@/services/units/unitLoaderService';
-import {
-  createUnitFromFullState,
-  getUnitStore,
-} from '@/stores/unitStoreRegistry';
-import {
-  UNIT_TEMPLATES,
-  useTabManagerStore,
-} from '@/stores/useTabManagerStore';
+import { useTabManagerStore } from '@/stores/useTabManagerStore';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { logger } from '@/utils/logger';
-import { generateUUID } from '@/utils/uuid';
 
 import { createNewUnitWithRouting } from './MultiUnitTabsCreateUnit';
 import { getTabDisplayState, isTabModified } from './MultiUnitTabsUnitState';
@@ -37,6 +22,11 @@ import {
   type CloseDialogState,
   type SaveDialogState,
 } from './useMultiUnitTabsController.dialogs';
+import {
+  buildActiveUnitExportData,
+  createUnitImportHandlers,
+  loadUnitIntoTab,
+} from './useMultiUnitTabsController.helpers';
 
 export type { CloseDialogState, SaveDialogState };
 
@@ -186,57 +176,15 @@ export function useMultiUnitTabsController(): UseMultiUnitTabsControllerResult {
 
   const handleLoadUnit = useCallback(
     async (unit: IUnitIndexEntry, source: LoadUnitSource) => {
-      setIsLoadingUnit(true);
-
-      try {
-        const result = await unitLoaderService.loadUnit(unit.id, source);
-
-        if (!result.success || !result.state) {
-          logger.error('Failed to load unit:', result.error);
-          const baseTemplate =
-            UNIT_TEMPLATES.find((t) => t.tonnage === unit.tonnage) ||
-            UNIT_TEMPLATES[1];
-          const template = {
-            ...baseTemplate,
-            name: `${unit.chassis} ${unit.variant}`,
-            tonnage: unit.tonnage,
-            techBase: unit.techBase,
-          };
-          const newTabId = createTab(template);
-          navigateToTab(newTabId);
-          setIsLoadDialogOpen(false);
-          setIsLoadingUnit(false);
-          return;
-        }
-
-        const createdStore = createUnitFromFullState(result.state);
-        const newTabId = result.state.id;
-
-        void createdStore;
-
-        useTabManagerStore.getState().addTab({
-          id: newTabId,
-          name: result.state.name,
-          tonnage: result.state.tonnage,
-          techBase: result.state.techBase,
-        });
-
-        showToast({
-          message: `Unit "${result.state.name}" loaded`,
-          variant: 'success',
-        });
-
-        navigateToTab(newTabId);
-        setIsLoadDialogOpen(false);
-      } catch (error) {
-        logger.error('Error loading unit:', error);
-        showToast({
-          message: 'Failed to load unit. Please try again.',
-          variant: 'error',
-        });
-      } finally {
-        setIsLoadingUnit(false);
-      }
+      await loadUnitIntoTab({
+        unit,
+        source,
+        createTab,
+        navigateToTab,
+        setIsLoadDialogOpen,
+        setIsLoadingUnit,
+        showToast,
+      });
     },
     [createTab, navigateToTab, showToast],
   );
@@ -259,55 +207,14 @@ export function useMultiUnitTabsController(): UseMultiUnitTabsControllerResult {
     [createTab, addTab, navigateToTab],
   );
 
-  const activeUnitExportData = useMemo((): IExportableUnit | null => {
-    if (!activeTabId) {
-      return null;
-    }
-
-    const unitStore = getUnitStore(activeTabId);
-    if (!unitStore) {
-      return null;
-    }
-
-    const state = unitStore.getState();
-    return {
-      id: activeTabId,
-      name: state.name,
-      chassis: state.chassis || state.name,
-      model: state.model || '',
-      data: state,
-    };
-  }, [activeTabId]);
+  const activeUnitExportData = useMemo(
+    (): IExportableUnit | null => buildActiveUnitExportData(activeTabId),
+    [activeTabId],
+  );
 
   const unitImportHandlers = useMemo(
-    (): IImportHandlers<IExportableUnit> => ({
-      checkExists: async (id: string) => {
-        return tabs.some((tab) => tab.id === id);
-      },
-      checkNameConflict: async (name: string) => {
-        const existing = tabs.find((tab) => tab.name === name);
-        return existing ? { id: existing.id, name: existing.name } : null;
-      },
-      save: async (item: IExportableUnit, _source: IImportSource) => {
-        const importedState = item.data as UnitState;
-        const newId = generateUUID();
-
-        createUnitFromFullState({
-          ...importedState,
-          id: newId,
-          isModified: false,
-        });
-
-        addTab({
-          id: newId,
-          name: item.name,
-          tonnage: importedState.tonnage,
-          techBase: importedState.techBase,
-        });
-
-        return newId;
-      },
-    }),
+    (): IImportHandlers<IExportableUnit> =>
+      createUnitImportHandlers(tabs, addTab),
     [tabs, addTab],
   );
 

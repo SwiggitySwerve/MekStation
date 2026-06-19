@@ -13,6 +13,12 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { IVaultFolder } from '@/types/vault';
 
 import {
+  rejectMissingQueryString,
+  rejectUnexpectedMethod as rejectFolderMethod,
+  sendLoggedApiError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
+import {
   getVaultService,
   IFolderWithPermissions,
 } from '@/services/vault/VaultService';
@@ -35,23 +41,22 @@ interface DeleteResponse {
   success: boolean;
 }
 
-interface ErrorResponse {
-  error: string;
-}
-
 // =============================================================================
 // Handler
 // =============================================================================
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<FolderResponse | DeleteResponse | ErrorResponse>,
+  res: NextApiResponse<FolderResponse | DeleteResponse | ApiErrorResponse>,
 ): Promise<void> {
-  const { id } = req.query;
-
-  if (typeof id !== 'string') {
-    return res.status(400).json({ error: 'Invalid folder ID' });
-  }
+  const id = rejectMissingQueryString(req, res, 'id', 'Invalid folder ID');
+  if (!id) return;
+  if (
+    rejectFolderMethod(req, res, ['GET', 'PATCH', 'DELETE'], () => ({
+      error: 'Method not allowed',
+    }))
+  )
+    return;
 
   try {
     const vaultService = getVaultService();
@@ -63,14 +68,10 @@ export default async function handler(
         return handleUpdate(id, req, res, vaultService);
       case 'DELETE':
         return handleDelete(id, res, vaultService);
-      default:
-        return res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
-    console.error('Folder API error:', error);
-    return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedApiError(res, 'Folder API error:', error);
+    return;
   }
 }
 
@@ -81,7 +82,7 @@ export default async function handler(
 async function handleGet(
   id: string,
   req: NextApiRequest,
-  res: NextApiResponse<FolderResponse | ErrorResponse>,
+  res: NextApiResponse<FolderResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   const { includePermissions } = req.query;
@@ -104,7 +105,7 @@ async function handleGet(
 async function handleUpdate(
   id: string,
   req: NextApiRequest,
-  res: NextApiResponse<FolderResponse | ErrorResponse>,
+  res: NextApiResponse<FolderResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   const { name, description, parentId } = req.body as UpdateFolderRequest;
@@ -157,7 +158,7 @@ async function handleUpdate(
 
 async function handleDelete(
   id: string,
-  res: NextApiResponse<DeleteResponse | ErrorResponse>,
+  res: NextApiResponse<DeleteResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   const folder = await vaultService.getFolder(id);

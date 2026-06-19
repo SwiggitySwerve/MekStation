@@ -8,7 +8,11 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import {
+  initializeApiDatabase,
+  rejectUnexpectedMethod,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 import {
   ISerializedUnitEnvelope,
@@ -42,28 +46,13 @@ type ImportRequestBody =
  */
 type ImportResponse = IImportResult;
 
-type ErrorResponse = {
-  error: string;
-  code?: string;
-};
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ImportResponse | ErrorResponse>,
+  res: NextApiResponse<ImportResponse | ApiErrorResponse>,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initializeApiDatabase(res)) return;
 
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-  }
+  if (rejectUnexpectedMethod(req, res, ['POST'])) return;
 
   const body = req.body as ImportRequestBody;
 

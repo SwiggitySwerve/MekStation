@@ -13,6 +13,7 @@ import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+import { pickPersistedUnitIdentityWithClanName } from '@/stores/unitStoreIdentityActions';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 
 import {
@@ -26,12 +27,50 @@ import { createEquipmentSlice } from './useUnitEquipmentStore';
 import { createStructureSlice } from './useUnitStructureStore';
 import { createTechBaseSlice } from './useUnitTechBaseStore';
 
-// Re-export UnitStore type for convenience
 export type { UnitStore } from '../unitState';
 
-// =============================================================================
-// Store Factory
-// =============================================================================
+function pickPersistedUnitState(state: UnitStore) {
+  return {
+    ...pickPersistedUnitIdentityWithClanName(state),
+    tonnage: state.tonnage,
+    techBase: state.techBase,
+    unitType: state.unitType,
+    configuration: state.configuration,
+    lamMode: state.lamMode,
+    quadVeeMode: state.quadVeeMode,
+    isOmni: state.isOmni,
+    baseChassisHeatSinks: state.baseChassisHeatSinks,
+    techBaseMode: state.techBaseMode,
+    componentTechBases: state.componentTechBases,
+    selectionMemory: state.selectionMemory,
+    engineType: state.engineType,
+    engineRating: state.engineRating,
+    gyroType: state.gyroType,
+    internalStructureType: state.internalStructureType,
+    cockpitType: state.cockpitType,
+    heatSinkType: state.heatSinkType,
+    heatSinkCount: state.heatSinkCount,
+    armorType: state.armorType,
+    armorTonnage: state.armorTonnage,
+    armorAllocation: state.armorAllocation,
+    enhancement: state.enhancement,
+    jumpMP: state.jumpMP,
+    jumpJetType: state.jumpJetType,
+    equipment: state.equipment,
+    isModified: state.isModified,
+    createdAt: state.createdAt,
+    lastModifiedAt: state.lastModifiedAt,
+  };
+}
+
+function unitStorePersistOptions(initialState: UnitState) {
+  return {
+    name: `megamek-unit-${initialState.id}`,
+    storage: createJSONStorage(() => clientSafeStorage),
+    skipHydration: true,
+    partialize: pickPersistedUnitState,
+  };
+}
 
 /**
  * Create an isolated Zustand store for a single unit.
@@ -55,49 +94,7 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
         ...createStructureSlice(set, get),
         ...createTechBaseSlice(set, get),
       }),
-      {
-        name: `megamek-unit-${initialState.id}`,
-        storage: createJSONStorage(() => clientSafeStorage),
-        skipHydration: true,
-        partialize: (state) => ({
-          id: state.id,
-          name: state.name,
-          chassis: state.chassis,
-          clanName: state.clanName,
-          model: state.model,
-          mulId: state.mulId,
-          year: state.year,
-          rulesLevel: state.rulesLevel,
-          tonnage: state.tonnage,
-          techBase: state.techBase,
-          unitType: state.unitType,
-          configuration: state.configuration,
-          lamMode: state.lamMode,
-          quadVeeMode: state.quadVeeMode,
-          isOmni: state.isOmni,
-          baseChassisHeatSinks: state.baseChassisHeatSinks,
-          techBaseMode: state.techBaseMode,
-          componentTechBases: state.componentTechBases,
-          selectionMemory: state.selectionMemory,
-          engineType: state.engineType,
-          engineRating: state.engineRating,
-          gyroType: state.gyroType,
-          internalStructureType: state.internalStructureType,
-          cockpitType: state.cockpitType,
-          heatSinkType: state.heatSinkType,
-          heatSinkCount: state.heatSinkCount,
-          armorType: state.armorType,
-          armorTonnage: state.armorTonnage,
-          armorAllocation: state.armorAllocation,
-          enhancement: state.enhancement,
-          jumpMP: state.jumpMP,
-          jumpJetType: state.jumpJetType,
-          equipment: state.equipment,
-          isModified: state.isModified,
-          createdAt: state.createdAt,
-          lastModifiedAt: state.lastModifiedAt,
-        }),
-      },
+      unitStorePersistOptions(initialState),
     ),
   );
 }

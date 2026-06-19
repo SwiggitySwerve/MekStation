@@ -18,7 +18,8 @@ import React from 'react';
 
 import type { IPersonnelMarketOffer } from '@/types/campaign/markets/marketTypes';
 
-import { Badge, Card } from '@/components/ui';
+import { CampaignListCard } from '@/components/campaign/CampaignListCard';
+import { Badge } from '@/components/ui';
 import { Money } from '@/types/campaign/Money';
 
 import { CommandEmpty } from './CommandStates';
@@ -74,9 +75,11 @@ export function CandidateCard({
     .join(' / ');
 
   return (
-    <Card className="p-4" data-testid={`candidate-card-${offer.id}`}>
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
+    <CampaignListCard
+      testId={`candidate-card-${offer.id}`}
+      align="start"
+      left={
+        <>
           <h3 className="text-text-theme-primary truncate text-base font-semibold">
             {offer.name}
           </h3>
@@ -93,8 +96,9 @@ export function CandidateCard({
           >
             Hire cost: {new Money(offer.hireCost).format()}
           </p>
-        </div>
-
+        </>
+      }
+      right={
         <div className="flex flex-col items-end gap-3">
           <Badge
             className={experienceClasses(offer.experienceLevel)}
@@ -113,8 +117,8 @@ export function CandidateCard({
             {isHiring ? 'Hiring…' : 'Hire'}
           </button>
         </div>
-      </div>
-    </Card>
+      }
+    />
   );
 }
 

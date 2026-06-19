@@ -84,11 +84,11 @@ export class PendingPeerTracker {
    * `playerId` key — calling twice replaces the prior timer (this lets
    * the host call `markPending` defensively without double-scheduling).
    */
-  markPending(
+  markPending = (
     playerId: string,
     slotId: string,
     onTimeout: IPendingTimeoutHandler,
-  ): IPendingPeerEntry {
+  ): IPendingPeerEntry => {
     const existing = this.entries.get(playerId);
     if (existing) {
       this.cancel(existing.timer);
@@ -122,33 +122,33 @@ export class PendingPeerTracker {
     };
     this.entries.set(playerId, entry);
     return { playerId, slotId, expiresAt };
-  }
+  };
 
   /**
    * Cancel the grace timer for a player. Returns true if a timer was
    * actually cancelled, false if there was none. The host calls this
    * on successful reconnect AND on `MarkSeatAi`.
    */
-  clearPending(playerId: string): boolean {
+  clearPending = (playerId: string): boolean => {
     const entry = this.entries.get(playerId);
     if (!entry) return false;
     this.cancel(entry.timer);
     this.entries.delete(playerId);
     return true;
-  }
+  };
 
   /**
    * True iff this player currently has an active grace timer.
    */
-  isPending(playerId: string): boolean {
+  isPending = (playerId: string): boolean => {
     return this.entries.has(playerId);
-  }
+  };
 
   /**
    * Snapshot the current pending set. Used by `MatchPaused` payload
    * construction and by tests.
    */
-  getAllPending(): readonly IPendingPeerEntry[] {
+  getAllPending = (): readonly IPendingPeerEntry[] => {
     const out: IPendingPeerEntry[] = [];
     // `Array.from(values())` instead of `for..of` so the codebase's
     // pre-ES2015 iteration target stays happy without flipping the
@@ -161,21 +161,21 @@ export class PendingPeerTracker {
       });
     }
     return out;
-  }
+  };
 
   /**
    * Cancel every outstanding timer. The host MUST call this from
    * `closeMatch()` so finished-match resources don't keep Node alive.
    */
-  clearAll(): void {
+  clearAll = (): void => {
     for (const entry of Array.from(this.entries.values())) {
       this.cancel(entry.timer);
     }
     this.entries.clear();
-  }
+  };
 
   /** Test/observability: total number of pending entries. */
-  size(): number {
+  size = (): number => {
     return this.entries.size;
-  }
+  };
 }

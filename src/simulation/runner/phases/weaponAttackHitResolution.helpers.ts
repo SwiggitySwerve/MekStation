@@ -11,7 +11,11 @@ import { createDamagePSR } from '@/utils/gameplay/pilotingSkillRolls';
 import type { IWeapon } from '../../ai/types';
 
 import { DAMAGE_PSR_THRESHOLD } from '../SimulationRunnerConstants';
-import { createGameEvent } from './utils';
+import {
+  appendAttackResolvedEvent,
+  appendUnitDestroyedEvent,
+  createGameEvent,
+} from './utils';
 import { weaponTypeFromMountId } from './weaponAttackHelpers';
 
 /**
@@ -72,27 +76,23 @@ export function emitCoveredLegMiss(options: {
     firingArc,
   } = options;
 
-  events.push(
-    createGameEvent(
-      gameId,
-      events.length,
-      GameEventType.AttackResolved,
-      turn,
-      GamePhase.WeaponAttack,
-      {
-        attackerId,
-        targetId,
-        weaponId,
-        roll: attackRoll,
-        toHitNumber,
-        hit: false,
-        heat: weapon.heat,
-        ...(projectileCount !== undefined ? { projectileCount } : {}),
-        attackerArc: firingArc,
-      },
+  appendAttackResolvedEvent({
+    events,
+    gameId,
+    turn,
+    payload: {
       attackerId,
-    ),
-  );
+      targetId,
+      weaponId,
+      roll: attackRoll,
+      toHitNumber,
+      hit: false,
+      heat: weapon.heat,
+      ...(projectileCount !== undefined ? { projectileCount } : {}),
+      attackerArc: firingArc,
+    },
+    actorId: attackerId,
+  });
 }
 
 /**
@@ -437,20 +437,15 @@ export function emitUnitDestroyedEvent(options: {
       critUnitDestroyed && critDestructionCause
         ? critDestructionCause
         : fallbackCause;
-    events.push(
-      createGameEvent(
-        gameId,
-        events.length,
-        GameEventType.UnitDestroyed,
-        turn,
-        GamePhase.WeaponAttack,
-        {
-          unitId: targetId,
-          cause,
-          killerUnitId: attackerId,
-        },
-      ),
-    );
+    appendUnitDestroyedEvent({
+      events,
+      gameId,
+      turn,
+      phase: GamePhase.WeaponAttack,
+      unitId: targetId,
+      cause,
+      killerUnitId: attackerId,
+    });
   }
 }
 

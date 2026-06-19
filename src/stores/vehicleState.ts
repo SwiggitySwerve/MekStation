@@ -7,6 +7,9 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.1
  */
 
+import type { StoreEquipmentActions } from '@/stores/equipmentStoreActions';
+import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
+
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { EngineType } from '@/types/construction/EngineType';
 import {
@@ -312,15 +315,14 @@ export interface VehicleState {
 /**
  * Actions available on a vehicle store
  */
-export interface VehicleActions {
-  // Identity
-  setName: (name: string) => void;
-  setChassis: (chassis: string) => void;
-  setModel: (model: string) => void;
-  setMulId: (mulId: string) => void;
-  setYear: (year: number) => void;
-  setRulesLevel: (rulesLevel: RulesLevel) => void;
-
+export interface VehicleActions
+  extends
+    UnitIdentityActions<VehicleState>,
+    StoreEquipmentActions<
+      VehicleLocation | VTOLLocation,
+      [isTurretMounted?: boolean],
+      [isTurretMounted?: boolean]
+    > {
   // Chassis
   setTonnage: (tonnage: number) => void;
   setMotionType: (motionType: GroundMotionType) => void;
@@ -371,23 +373,7 @@ export interface VehicleActions {
   setIsTrailer: (value: boolean) => void;
 
   // Equipment
-  addEquipment: (
-    item: IEquipmentItem,
-    location?: VehicleLocation | VTOLLocation,
-    isTurretMounted?: boolean,
-  ) => string;
-  removeEquipment: (instanceId: string) => void;
-  updateEquipmentLocation: (
-    instanceId: string,
-    location: VehicleLocation | VTOLLocation,
-    isTurretMounted?: boolean,
-  ) => void;
   setEquipmentRearMounted: (instanceId: string, isRearMounted: boolean) => void;
-  linkAmmo: (
-    weaponInstanceId: string,
-    ammoInstanceId: string | undefined,
-  ) => void;
-  clearAllEquipment: () => void;
 
   // Metadata
   markModified: (modified?: boolean) => void;

@@ -253,6 +253,72 @@ export function catalogDesignationToKind(
 // Legacy migrator
 // =============================================================================
 
+type LegacyDesignationMigrator = (value: string) => ISPADesignation;
+
+const LEGACY_WEAPON_CATEGORY_BY_VALUE: Readonly<
+  Record<string, SPAWeaponCategory>
+> = {
+  ballistic: 'ballistic',
+  missile: 'missile',
+  physical: 'physical',
+  melee: 'physical',
+};
+
+const LEGACY_RANGE_BRACKET_BY_VALUE: Readonly<Record<string, SPARangeBracket>> =
+  {
+    short: 'short',
+    medium: 'medium',
+    long: 'long',
+    extreme: 'extreme',
+  };
+
+function normalizeLegacyWeaponTypeId(value: string): string {
+  return value.toLowerCase().replace(/\s+/g, '_');
+}
+
+function normalizeLegacyWeaponCategory(value: string): SPAWeaponCategory {
+  return LEGACY_WEAPON_CATEGORY_BY_VALUE[value.toLowerCase()] ?? 'energy';
+}
+
+function normalizeLegacyRangeBracket(value: string): SPARangeBracket {
+  return LEGACY_RANGE_BRACKET_BY_VALUE[value.toLowerCase()] ?? 'short';
+}
+
+const LEGACY_DESIGNATION_MIGRATORS: Readonly<
+  Record<string, LegacyDesignationMigrator>
+> = {
+  weapon_type: (value: string) => ({
+    kind: 'weapon_type',
+    weaponTypeId: normalizeLegacyWeaponTypeId(value),
+    displayLabel: value,
+  }),
+  weapon_category: (value: string) => ({
+    kind: 'weapon_category',
+    category: normalizeLegacyWeaponCategory(value),
+    displayLabel: value,
+  }),
+  range_bracket: (value: string) => ({
+    kind: 'range_bracket',
+    bracket: normalizeLegacyRangeBracket(value),
+    displayLabel: value,
+  }),
+  target: (value: string) => ({
+    kind: 'target',
+    targetUnitId: value,
+    displayLabel: value,
+  }),
+  terrain: (value: string) => ({
+    kind: 'terrain',
+    terrainTypeId: value.toLowerCase(),
+    displayLabel: value,
+  }),
+  skill: (value: string) => ({
+    kind: 'skill',
+    skillId: value.toLowerCase(),
+    displayLabel: value,
+  }),
+};
+
 /**
  * Convert the Wave 1/2a stub `{ kind: string; value: string }` shape into
  * a typed `ISPADesignation`. Returns `null` when the shape is unknown so
@@ -279,58 +345,7 @@ export function legacyDesignationToTyped(
   const value = (legacy.value ?? '').trim();
   if (value.length === 0) return null;
 
-  switch (legacy.kind) {
-    case 'weapon_type':
-      return {
-        kind: 'weapon_type',
-        weaponTypeId: value.toLowerCase().replace(/\s+/g, '_'),
-        displayLabel: value,
-      };
-    case 'weapon_category': {
-      const lower = value.toLowerCase();
-      const category: SPAWeaponCategory =
-        lower === 'ballistic' ||
-        lower === 'missile' ||
-        lower === 'physical' ||
-        lower === 'melee' // legacy alias for 'physical'
-          ? lower === 'melee'
-            ? 'physical'
-            : (lower as SPAWeaponCategory)
-          : 'energy';
-      return { kind: 'weapon_category', category, displayLabel: value };
-    }
-    case 'range_bracket': {
-      const lower = value.toLowerCase();
-      const bracket: SPARangeBracket =
-        lower === 'medium' ||
-        lower === 'long' ||
-        lower === 'extreme' ||
-        lower === 'short'
-          ? (lower as SPARangeBracket)
-          : 'short';
-      return { kind: 'range_bracket', bracket, displayLabel: value };
-    }
-    case 'target':
-      return {
-        kind: 'target',
-        targetUnitId: value,
-        displayLabel: value,
-      };
-    case 'terrain':
-      return {
-        kind: 'terrain',
-        terrainTypeId: value.toLowerCase(),
-        displayLabel: value,
-      };
-    case 'skill':
-      return {
-        kind: 'skill',
-        skillId: value.toLowerCase(),
-        displayLabel: value,
-      };
-    default:
-      return null;
-  }
+  return LEGACY_DESIGNATION_MIGRATORS[legacy.kind]?.(value) ?? null;
 }
 
 /**

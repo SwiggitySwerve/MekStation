@@ -99,7 +99,7 @@ export class EquipmentRegistry {
   /**
    * Initialize the registry with loaded equipment
    */
-  async initialize(): Promise<void> {
+  initialize = async (): Promise<void> => {
     if (this.isInitialized) {
       return;
     }
@@ -113,7 +113,7 @@ export class EquipmentRegistry {
     this.buildNameMappings();
 
     this.isInitialized = true;
-  }
+  };
 
   /**
    * Build name-to-ID mappings for fast lookups
@@ -195,7 +195,7 @@ export class EquipmentRegistry {
   /**
    * Look up equipment by ID or name
    */
-  lookup(idOrName: string): IEquipmentLookupResult {
+  lookup = (idOrName: string): IEquipmentLookupResult => {
     // Try direct ID lookup first
     const byId = this.loader.getById(idOrName);
     if (byId) {
@@ -266,7 +266,7 @@ export class EquipmentRegistry {
       category: null,
       alternateIds: this.findSimilar(idOrName),
     };
-  }
+  };
 
   /**
    * Find similar equipment IDs for a given name
@@ -294,43 +294,43 @@ export class EquipmentRegistry {
   /**
    * Get equipment by ID (type-safe version)
    */
-  getWeapon(id: string): IWeapon | null {
+  getWeapon = (id: string): IWeapon | null => {
     return this.loader.getWeaponById(id);
-  }
+  };
 
   /**
    * Get ammunition by ID
    */
-  getAmmunition(id: string): IAmmunition | null {
+  getAmmunition = (id: string): IAmmunition | null => {
     return this.loader.getAmmunitionById(id);
-  }
+  };
 
   /**
    * Get electronics by ID
    */
-  getElectronics(id: string): IElectronics | null {
+  getElectronics = (id: string): IElectronics | null => {
     return this.loader.getElectronicsById(id);
-  }
+  };
 
   /**
    * Get misc equipment by ID
    */
-  getMiscEquipment(id: string): IMiscEquipment | null {
+  getMiscEquipment = (id: string): IMiscEquipment | null => {
     return this.loader.getMiscEquipmentById(id);
-  }
+  };
 
   /**
    * Resolve an MTF equipment name to a canonical ID
    */
-  resolveEquipmentName(mtfName: string): string | null {
+  resolveEquipmentName = (mtfName: string): string | null => {
     const result = this.lookup(mtfName);
     return result.found && result.equipment ? result.equipment.id : null;
-  }
+  };
 
   /**
    * Get registry statistics
    */
-  getStats(): IRegistryStats {
+  getStats = (): IRegistryStats => {
     const weapons = this.loader.getAllWeapons();
     const ammunition = this.loader.getAllAmmunition();
     const electronics = this.loader.getAllElectronics();
@@ -362,23 +362,23 @@ export class EquipmentRegistry {
       byTechBase,
       byRulesLevel,
     };
-  }
+  };
 
   /**
    * Check if registry is initialized
    */
-  isReady(): boolean {
+  isReady = (): boolean => {
     return this.isInitialized;
-  }
+  };
 
   /**
    * Reset the registry (for testing)
    */
-  reset(): void {
+  reset = (): void => {
     this.nameToIdMap.clear();
     this.idToTypeMap.clear();
     this.isInitialized = false;
-  }
+  };
 }
 
 const equipmentRegistryFactory: SingletonFactory<EquipmentRegistry> =

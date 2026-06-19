@@ -6,13 +6,16 @@
 
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
+  UnitValidationSeverity,
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
   IUnitValidationRuleResult,
-  UnitValidationSeverity,
-  createUnitValidationError,
-  createUnitValidationRuleResult,
+  IUnitValidationError,
 } from '@/types/validation/UnitValidationInterfaces';
+
+import { addRuleDiagnostic, createRuleResult } from '../ruleResults';
+
+const TEMPORAL_CONSISTENCY_ERA_CATEGORY = ValidationCategory.ERA;
 
 /**
  * VAL-UNIV-007: Temporal Consistency
@@ -21,43 +24,33 @@ export const TemporalConsistency: IUnitValidationRuleDefinition = {
   id: 'VAL-UNIV-007',
   name: 'Temporal Consistency',
   description: 'Extinction year must be after introduction year',
-  category: ValidationCategory.ERA,
-  priority: 7,
+  category: TEMPORAL_CONSISTENCY_ERA_CATEGORY,
   applicableUnitTypes: 'ALL',
+  priority: 7,
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors = [];
+    const temporalConsistencyDiagnostics: IUnitValidationError[] = [];
 
     if (
       unit.extinctionYear !== undefined &&
       unit.extinctionYear <= unit.introductionYear
     ) {
-      errors.push(
-        createUnitValidationError(
-          this.id,
-          this.name,
-          UnitValidationSeverity.ERROR,
-          this.category,
-          'Extinction year must be after introduction year',
-          {
-            field: 'extinctionYear',
-            expected: `> ${unit.introductionYear}`,
-            actual: String(unit.extinctionYear),
-            suggestion:
-              'Correct the extinction year to be after the introduction year',
-          },
-        ),
+      addRuleDiagnostic(
+        temporalConsistencyDiagnostics,
+        this,
+        UnitValidationSeverity.ERROR,
+        'Extinction year must be after introduction year',
+        {
+          field: 'extinctionYear',
+          expected: `> ${unit.introductionYear}`,
+          actual: String(unit.extinctionYear),
+          suggestion:
+            'Correct the extinction year to be after the introduction year',
+        },
       );
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors: temporalConsistencyDiagnostics });
   },
 };

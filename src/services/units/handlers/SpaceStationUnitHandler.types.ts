@@ -15,16 +15,17 @@
 
 import {
   AerospaceMotionType,
-  IAerospaceMovement,
   IBaseUnit,
 } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
-  ICapitalMountedEquipment,
-  ITransportBay,
-  ICrewQuarters,
   ICapitalCrewConfiguration,
+  ICapitalMountedEquipment,
+  ICrewQuarters,
+  ITransportBay,
 } from '@/types/unit/CapitalShipInterfaces';
+
+import type { AerospaceUnitCoreFields } from './unitHandlerShared';
 
 /**
  * Space station type
@@ -47,15 +48,10 @@ export enum SpaceStationType {
  * only relocates the handler-local definition to break a circular
  * import — it does not unify the shapes.
  */
-export interface ISpaceStation extends IBaseUnit {
+export interface ISpaceStation extends IBaseUnit, AerospaceUnitCoreFields {
   readonly unitType: UnitType.SPACE_STATION;
   readonly motionType: AerospaceMotionType.SPHEROID;
   readonly stationType: SpaceStationType;
-  readonly movement: IAerospaceMovement;
-  readonly fuel: number;
-  readonly structuralIntegrity: number;
-  readonly heatSinks: number;
-  readonly heatSinkType: number;
   readonly armorType: number;
   readonly armor: readonly number[];
   readonly armorByArc: {

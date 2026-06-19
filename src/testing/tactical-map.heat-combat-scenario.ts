@@ -8,17 +8,8 @@ import type {
   IUnitToken,
 } from '@/types/gameplay';
 
-import {
-  Facing,
-  GameSide,
-  LockState,
-  MovementType,
-  TerrainType,
-} from '@/types/gameplay';
+import { Facing, GameSide, MovementType, TerrainType } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import {
   requireCombatProjection,
@@ -26,6 +17,11 @@ import {
   tacticalMapSelectedWeapons,
   tacticalMapWeaponsByUnit,
 } from './tactical-map.combat-scenarios';
+import {
+  createTacticalMapTerrainGrid,
+  createTacticalMapUnitState,
+  overrideTacticalMapTokens,
+} from './tactical-map.fixture-helpers';
 import {
   tacticalMapCombatState,
   tacticalMapHexTerrain,
@@ -72,98 +68,53 @@ export const tacticalMapHeatCombatHexTerrain: readonly IHexTerrain[] = [
 ];
 
 function tacticalMapHeatCombatGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapHeatCombatHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) {
-      throw new Error(`Missing tactical-map heat-combat fixture hex ${key}`);
-    }
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
+  return createTacticalMapTerrainGrid(tacticalMapHeatCombatHexTerrain, {
+    missingHexLabel: 'tactical-map heat-combat fixture',
+  });
 }
 
-const tacticalMapHeatAttackerState: IUnitGameState = {
-  id: 'attacker',
-  side: GameSide.Player,
-  position: tacticalMapHeatAttackerHex,
-  facing: Facing.Southeast,
-  heat: 13,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  prone: false,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  shutdown: false,
-  lockState: LockState.Pending,
-  gunnery: 4,
-};
+const tacticalMapHeatAttackerState: IUnitGameState = createTacticalMapUnitState(
+  {
+    id: 'attacker',
+    side: GameSide.Player,
+    position: tacticalMapHeatAttackerHex,
+    facing: Facing.Southeast,
+    heat: 13,
+    prone: false,
+    shutdown: false,
+    gunnery: 4,
+  },
+);
 
-const tacticalMapHeatTargetState: IUnitGameState = {
+const tacticalMapHeatTargetState: IUnitGameState = createTacticalMapUnitState({
   id: tacticalMapHeatCombatTargetId,
   side: GameSide.Opponent,
   position: tacticalMapHeatTargetHex,
   facing: Facing.North,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
   prone: false,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
   shutdown: false,
-  lockState: LockState.Pending,
-};
+});
 
 export const tacticalMapHeatCombatTokens: readonly IUnitToken[] =
-  tacticalMapTokens.map((token) => {
-    if (token.unitId === 'attacker') {
-      return {
-        ...token,
-        name: 'Overheated Shadow Hawk SHD-2H',
-        designation: 'HOT',
-        position: tacticalMapHeatAttackerHex,
-        facing: Facing.Southeast,
-      };
-    }
-    if (token.unitId === 'blocked-target') {
-      return {
-        ...token,
-        unitId: tacticalMapHeatCombatTargetId,
-        name: 'Cool Locust LCT-1V',
-        designation: 'COOL',
-        position: tacticalMapHeatTargetHex,
-        isActiveTarget: true,
-      };
-    }
-    if (token.unitId === 'occluded') {
-      return {
-        ...token,
-        position: { q: -3, r: 3 },
-        isActiveTarget: false,
-        isValidTarget: false,
-      };
-    }
-    return token;
+  overrideTacticalMapTokens(tacticalMapTokens, {
+    attacker: {
+      name: 'Overheated Shadow Hawk SHD-2H',
+      designation: 'HOT',
+      position: tacticalMapHeatAttackerHex,
+      facing: Facing.Southeast,
+    },
+    'blocked-target': {
+      unitId: tacticalMapHeatCombatTargetId,
+      name: 'Cool Locust LCT-1V',
+      designation: 'COOL',
+      position: tacticalMapHeatTargetHex,
+      isActiveTarget: true,
+    },
+    occluded: {
+      position: { q: -3, r: 3 },
+      isActiveTarget: false,
+      isValidTarget: false,
+    },
   });
 
 export const tacticalMapHeatCombatState: IGameState = {

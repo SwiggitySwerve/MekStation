@@ -8,6 +8,7 @@
  * @spec openspec/changes/add-infantry-construction/specs/infantry-unit-system/spec.md
  */
 
+import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
 import type { IInfantryBVBreakdown } from '@/utils/construction/infantry/infantryBV';
 
 import { RulesLevel } from '@/types/enums/RulesLevel';
@@ -197,15 +198,7 @@ export interface InfantryState {
 /**
  * Actions available on an Infantry store
  */
-export interface InfantryStoreActions {
-  // Identity Actions
-  setName: (name: string) => void;
-  setChassis: (chassis: string) => void;
-  setModel: (model: string) => void;
-  setMulId: (mulId: string) => void;
-  setYear: (year: number) => void;
-  setRulesLevel: (level: RulesLevel) => void;
-
+export interface InfantryStoreActions extends UnitIdentityActions<InfantryState> {
   // Classification Actions
   setTechBase: (techBase: TechBase) => void;
 
@@ -434,26 +427,12 @@ export function computeInfantryStateBV(
  * Get damage divisor for armor kit
  */
 export function getArmorKitDivisor(kit: InfantryArmorKit): number {
-  switch (kit) {
-    case InfantryArmorKit.NONE:
-      return 1;
-    case InfantryArmorKit.STANDARD:
-    case InfantryArmorKit.FLAK:
-      return 1;
-    case InfantryArmorKit.ABLATIVE:
-      return 1.5;
-    case InfantryArmorKit.SNEAK_CAMO:
-    case InfantryArmorKit.SNEAK_IR:
-    case InfantryArmorKit.SNEAK_ECM:
-    case InfantryArmorKit.SNEAK_CAMO_IR:
-    case InfantryArmorKit.SNEAK_IR_ECM:
-    case InfantryArmorKit.SNEAK_COMPLETE:
-      return 1;
-    case InfantryArmorKit.CLAN:
-      return 2;
-    case InfantryArmorKit.ENVIRONMENTAL:
-      return 1;
-    default:
-      return 1;
-  }
+  return ARMOR_KIT_DAMAGE_DIVISORS[kit] ?? 1;
 }
+
+const ARMOR_KIT_DAMAGE_DIVISORS: Readonly<
+  Partial<Record<InfantryArmorKit, number>>
+> = {
+  [InfantryArmorKit.ABLATIVE]: 1.5,
+  [InfantryArmorKit.CLAN]: 2,
+};

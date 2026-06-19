@@ -8,6 +8,9 @@
  * @spec openspec/changes/add-protomech-construction/tasks.md §1
  */
 
+import type { StoreEquipmentActions } from '@/stores/equipmentStoreActions';
+import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
+
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
@@ -271,15 +274,10 @@ export interface ProtoMechState {
 /**
  * Actions available on a ProtoMech store
  */
-export interface ProtoMechStoreActions {
-  // Identity Actions
-  setName: (name: string) => void;
-  setChassis: (chassis: string) => void;
-  setModel: (model: string) => void;
-  setMulId: (mulId: string) => void;
-  setYear: (year: number) => void;
-  setRulesLevel: (level: RulesLevel) => void;
-
+export interface ProtoMechStoreActions
+  extends
+    UnitIdentityActions<ProtoMechState>,
+    StoreEquipmentActions<ProtoMechLocation> {
   // Classification Actions
   setTonnage: (tonnage: number) => void;
   setPointSize: (size: number) => void;
@@ -331,19 +329,6 @@ export interface ProtoMechStoreActions {
    * the error rather than silently refusing the set.
    */
   setGlidingWings: (enabled: boolean) => void;
-
-  // Equipment Actions
-  addEquipment: (item: IEquipmentItem, location?: ProtoMechLocation) => string;
-  removeEquipment: (instanceId: string) => void;
-  updateEquipmentLocation: (
-    instanceId: string,
-    location: ProtoMechLocation,
-  ) => void;
-  linkAmmo: (
-    weaponInstanceId: string,
-    ammoInstanceId: string | undefined,
-  ) => void;
-  clearAllEquipment: () => void;
 
   // Metadata Actions
   markModified: (modified?: boolean) => void;

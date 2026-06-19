@@ -1,203 +1,24 @@
 import {
   CombatLocation,
-  GameEventType,
-  GamePhase,
   IGameEvent,
   IGameState,
   IUnitGameState,
 } from '@/types/gameplay';
 import {
-  buildDefaultCriticalSlotManifest,
   resolveCriticalHits,
   type CriticalSlotManifest,
 } from '@/utils/gameplay/criticalHitResolution';
-import { resolveDamage } from '@/utils/gameplay/damage';
 import { buildDefaultComponentDamageState } from '@/utils/gameplay/gameSessionAttackResolutionHelpers';
-import { isHeadHit } from '@/utils/gameplay/hitLocation';
 import {
   determinePhysicalHitLocation,
   type IPhysicalDamageCluster,
 } from '@/utils/gameplay/physicalAttacks';
-import {
-  applyPhysicalEquipmentCriticalEvents,
-  physicalEquipmentLifecycleEventsFromManifest,
-} from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
+import { applyPhysicalEquipmentCriticalEvents } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
-import { HEAD_HIT_DAMAGE_CAP } from '../SimulationRunnerConstants';
-import {
-  applyDamageResultToState,
-  buildDamageState,
-} from '../SimulationRunnerState';
 import { emitPhysicalCriticalEvents } from './physicalAttackCriticalEvents';
-import { createGameEvent } from './utils';
+import { applyPhysicalDamage } from './physicalAttackDamageApplication';
+import { getOrSeedPhysicalCriticalManifest } from './physicalAttackDamageApplication';
 import { applyCriticalPSRTriggers } from './weaponAttackPsrTriggers';
-
-function capPhysicalDamageForLocation(
-  hitLocation: CombatLocation,
-  damage: number,
-): number {
-  if (isHeadHit(hitLocation) && damage > HEAD_HIT_DAMAGE_CAP) {
-    return HEAD_HIT_DAMAGE_CAP;
-  }
-  return damage;
-}
-
-function getOrSeedPhysicalCriticalManifest(
-  manifestsByUnit: Map<string, CriticalSlotManifest> | undefined,
-  unitId: string,
-): CriticalSlotManifest | undefined {
-  if (!manifestsByUnit) return undefined;
-
-  const existing = manifestsByUnit.get(unitId);
-  if (existing) return existing;
-
-  const seeded = buildDefaultCriticalSlotManifest();
-  manifestsByUnit.set(unitId, seeded);
-  return seeded;
-}
-
-function applyPhysicalDamage(options: {
-  state: IGameState;
-  events: IGameEvent[];
-  gameId: string;
-  unitId: string;
-  hitLocation: CombatLocation;
-  damage: number;
-  d6Roller: () => number;
-  optionalRules?: readonly string[];
-  sourceUnitId?: string;
-  manifestsByUnit?: Map<string, CriticalSlotManifest>;
-}): IGameState {
-  const {
-    d6Roller,
-    damage,
-    events,
-    gameId,
-    hitLocation,
-    manifestsByUnit,
-    sourceUnitId,
-    state,
-    unitId,
-  } = options;
-  const unitBefore = state.units[unitId];
-  if (!unitBefore || unitBefore.destroyed) return state;
-
-  const cappedDamage = capPhysicalDamageForLocation(hitLocation, damage);
-  const manifest = getOrSeedPhysicalCriticalManifest(manifestsByUnit, unitId);
-  const damageState = buildDamageState(unitBefore);
-  const dmgResult = resolveDamage(
-    manifest === undefined
-      ? damageState
-      : {
-          ...damageState,
-          turn: state.turn,
-          criticalContext: {
-            unitId,
-            manifest,
-            componentDamage:
-              unitBefore.componentDamage ?? buildDefaultComponentDamageState(),
-            optionalRules: options.optionalRules,
-          },
-        },
-    hitLocation,
-    cappedDamage,
-    d6Roller,
-  );
-  if (manifestsByUnit && dmgResult.manifest) {
-    manifestsByUnit.set(unitId, dmgResult.manifest);
-  }
-  const sourceLifecycleEvents = physicalEquipmentLifecycleEventsFromManifest({
-    unit: unitBefore,
-    manifest,
-  });
-  const criticalEvents =
-    sourceLifecycleEvents.length === 0
-      ? dmgResult.criticalEvents
-      : [...sourceLifecycleEvents, ...(dmgResult.criticalEvents ?? [])];
-
-  let nextState = applyDamageResultToState(
-    state,
-    unitId,
-    dmgResult.state,
-    dmgResult.result,
-    dmgResult.componentDamage,
-  );
-  if (criticalEvents && criticalEvents.length > 0) {
-    const unitAfterEquipmentEvents = applyPhysicalEquipmentCriticalEvents(
-      nextState.units[unitId],
-      criticalEvents,
-    );
-    if (unitAfterEquipmentEvents !== nextState.units[unitId]) {
-      nextState = {
-        ...nextState,
-        units: {
-          ...nextState.units,
-          [unitId]: unitAfterEquipmentEvents,
-        },
-      };
-    }
-    if (dmgResult.criticalEvents) {
-      nextState = applyCriticalPSRTriggers(nextState, dmgResult.criticalEvents);
-    }
-  }
-
-  for (const locationDamage of dmgResult.result.locationDamages) {
-    events.push(
-      createGameEvent(
-        gameId,
-        events.length,
-        GameEventType.DamageApplied,
-        nextState.turn,
-        GamePhase.PhysicalAttack,
-        {
-          unitId,
-          location: locationDamage.location,
-          damage: locationDamage.damage,
-          armorRemaining: locationDamage.armorRemaining,
-          structureRemaining: locationDamage.structureRemaining,
-          locationDestroyed: locationDamage.destroyed,
-          ...(sourceUnitId !== undefined ? { sourceUnitId } : {}),
-        },
-        sourceUnitId ?? unitId,
-      ),
-    );
-  }
-
-  if (criticalEvents && criticalEvents.length > 0) {
-    emitPhysicalCriticalEvents({
-      events,
-      gameId,
-      turn: nextState.turn,
-      ...(sourceUnitId !== undefined ? { attackerId: sourceUnitId } : {}),
-      targetId: unitId,
-      critEvents: criticalEvents,
-      targetPilotingSkill: unitBefore.piloting,
-    });
-  }
-
-  const unitAfter = nextState.units[unitId];
-  if (unitAfter.destroyed && !unitBefore.destroyed) {
-    events.push(
-      createGameEvent(
-        gameId,
-        events.length,
-        GameEventType.UnitDestroyed,
-        nextState.turn,
-        GamePhase.PhysicalAttack,
-        {
-          unitId,
-          cause: dmgResult.result.destructionCause ?? 'damage',
-          ...(sourceUnitId !== undefined && sourceUnitId !== unitId
-            ? { killerUnitId: sourceUnitId }
-            : {}),
-        },
-        sourceUnitId ?? unitId,
-      ),
-    );
-  }
-
-  return nextState;
-}
 
 export function applyPhysicalDamageClusters(options: {
   state: IGameState;

@@ -93,63 +93,52 @@ export function categoriseCritRollDeterministic(
 // Apply category to state
 // ============================================================================
 
+const categoryStateAppliers: Partial<
+  Record<
+    AerospaceCritCategory,
+    (state: IAerospaceCombatState) => IAerospaceCombatState
+  >
+> = {
+  crewStunned: (state) => ({ ...state, crewStunned: true }),
+  fuel: (state) => ({
+    ...state,
+    fuelRemaining: Math.max(0, state.fuelRemaining - 5),
+  }),
+  avionics: (state) => ({ ...state, avionicsDamaged: true }),
+  engine: (state) => ({
+    ...state,
+    heat: state.heat + 5,
+  }),
+  controlSurfaces: (state) => ({
+    ...state,
+    thrustPenalty: state.thrustPenalty + 1,
+  }),
+  catastrophic: (state) => ({ ...state, destroyed: true, currentSI: 0 }),
+};
+
 function applyCategory(
   state: IAerospaceCombatState,
   category: AerospaceCritCategory,
 ): IAerospaceCombatState {
-  switch (category) {
-    case 'none':
-      return state;
-    case 'crewStunned':
-      return { ...state, crewStunned: true };
-    case 'cargo':
-      // Cargo damage is cosmetic for this 2D combat model.
-      return state;
-    case 'fuel':
-      return {
-        ...state,
-        fuelRemaining: Math.max(0, state.fuelRemaining - 5),
-      };
-    case 'avionics':
-      return { ...state, avionicsDamaged: true };
-    case 'engine':
-      return {
-        ...state,
-        heat: state.heat + 5,
-      };
-    case 'controlSurfaces':
-      return {
-        ...state,
-        thrustPenalty: state.thrustPenalty + 1,
-      };
-    case 'catastrophic':
-      return { ...state, destroyed: true, currentSI: 0 };
-    default:
-      return state;
-  }
+  return categoryStateAppliers[category]?.(state) ?? state;
 }
+
+const eventComponentsByCategory: Partial<
+  Record<AerospaceCritCategory, IComponentDestroyedEvent['component']>
+> = {
+  crewStunned: 'crewStunned',
+  cargo: 'cargo',
+  fuel: 'fuel',
+  avionics: 'avionics',
+  engine: 'engine',
+  controlSurfaces: 'controlSurfaces',
+  catastrophic: 'catastrophic',
+};
 
 function categoryToEventComponent(
   category: AerospaceCritCategory,
 ): IComponentDestroyedEvent['component'] | undefined {
-  switch (category) {
-    case 'crewStunned':
-      return 'crewStunned';
-    case 'cargo':
-      return 'cargo';
-    case 'fuel':
-      return 'fuel';
-    case 'avionics':
-      return 'avionics';
-    case 'engine':
-      return 'engine';
-    case 'controlSurfaces':
-      return 'controlSurfaces';
-    case 'catastrophic':
-      return 'catastrophic';
-    default:
-      return undefined;
-  }
+  return eventComponentsByCategory[category];
 }
 
 // ============================================================================

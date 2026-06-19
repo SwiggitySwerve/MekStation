@@ -55,7 +55,7 @@ beforeEach(() => {
 // =============================================================================
 
 describe('countPrisoners', () => {
-  // TODO(campaign-pilot-status-pow): CampaignPilotStatus has no POW variant yet.
+  // Deferred(campaign-pilot-status-pow): CampaignPilotStatus has no POW variant yet.
   // countPrisoners always returns 0 until CampaignPilotStatus.POW is added.
   // The per-status tests below document the expected future behavior and assert
   // the current stub return (0) so they continue to pass.

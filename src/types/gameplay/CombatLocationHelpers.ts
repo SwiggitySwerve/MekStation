@@ -6,6 +6,38 @@ import { MechLocation } from '../construction/CriticalSlotAllocation';
 // Type Guards and Location Helpers
 // =============================================================================
 
+const FRONT_COMBAT_LOCATION_BY_REAR: Readonly<
+  Partial<Record<CombatLocation, CombatLocation>>
+> = {
+  center_torso_rear: 'center_torso',
+  left_torso_rear: 'left_torso',
+  right_torso_rear: 'right_torso',
+};
+
+const TRANSFER_LOCATION_BY_DESTROYED_LOCATION: Readonly<
+  Partial<Record<MechLocation, MechLocation>>
+> = {
+  [MechLocation.LEFT_ARM]: MechLocation.LEFT_TORSO,
+  [MechLocation.RIGHT_ARM]: MechLocation.RIGHT_TORSO,
+  [MechLocation.LEFT_LEG]: MechLocation.LEFT_TORSO,
+  [MechLocation.RIGHT_LEG]: MechLocation.RIGHT_TORSO,
+  [MechLocation.LEFT_TORSO]: MechLocation.CENTER_TORSO,
+  [MechLocation.RIGHT_TORSO]: MechLocation.CENTER_TORSO,
+};
+
+const TRANSFER_COMBAT_LOCATION_BY_DESTROYED_LOCATION: Readonly<
+  Partial<Record<CombatLocation, CombatLocation>>
+> = {
+  left_arm: 'left_torso',
+  right_arm: 'right_torso',
+  left_leg: 'left_torso',
+  right_leg: 'right_torso',
+  left_torso: 'center_torso',
+  left_torso_rear: 'center_torso',
+  right_torso: 'center_torso',
+  right_torso_rear: 'center_torso',
+};
+
 /**
  * Check if a combat location is a rear location.
  */
@@ -46,16 +78,7 @@ export function isTorsoLocation(location: MechLocation): boolean {
 export function getFrontCombatLocation(
   location: CombatLocation,
 ): CombatLocation {
-  switch (location) {
-    case 'center_torso_rear':
-      return 'center_torso';
-    case 'left_torso_rear':
-      return 'left_torso';
-    case 'right_torso_rear':
-      return 'right_torso';
-    default:
-      return location;
-  }
+  return FRONT_COMBAT_LOCATION_BY_REAR[location] ?? location;
 }
 
 /**
@@ -64,22 +87,7 @@ export function getFrontCombatLocation(
 export function getTransferLocation(
   location: MechLocation,
 ): MechLocation | null {
-  switch (location) {
-    case MechLocation.LEFT_ARM:
-      return MechLocation.LEFT_TORSO;
-    case MechLocation.RIGHT_ARM:
-      return MechLocation.RIGHT_TORSO;
-    case MechLocation.LEFT_LEG:
-      return MechLocation.LEFT_TORSO;
-    case MechLocation.RIGHT_LEG:
-      return MechLocation.RIGHT_TORSO;
-    case MechLocation.LEFT_TORSO:
-      return MechLocation.CENTER_TORSO;
-    case MechLocation.RIGHT_TORSO:
-      return MechLocation.CENTER_TORSO;
-    default:
-      return null; // Head and CT don't transfer
-  }
+  return TRANSFER_LOCATION_BY_DESTROYED_LOCATION[location] ?? null;
 }
 
 /**
@@ -88,22 +96,5 @@ export function getTransferLocation(
 export function getTransferCombatLocation(
   location: CombatLocation,
 ): CombatLocation | null {
-  switch (location) {
-    case 'left_arm':
-      return 'left_torso';
-    case 'right_arm':
-      return 'right_torso';
-    case 'left_leg':
-      return 'left_torso';
-    case 'right_leg':
-      return 'right_torso';
-    case 'left_torso':
-    case 'left_torso_rear':
-      return 'center_torso';
-    case 'right_torso':
-    case 'right_torso_rear':
-      return 'center_torso';
-    default:
-      return null; // Head and CT don't transfer
-  }
+  return TRANSFER_COMBAT_LOCATION_BY_DESTROYED_LOCATION[location] ?? null;
 }

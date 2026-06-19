@@ -48,7 +48,7 @@ export class FormulaRegistry implements IFormulaRegistry {
   /**
    * Initialize the registry and load custom formulas from storage
    */
-  async initialize(): Promise<void> {
+  initialize = async (): Promise<void> => {
     if (this.initialized) {
       return;
     }
@@ -62,13 +62,13 @@ export class FormulaRegistry implements IFormulaRegistry {
       logger.warn('Failed to load custom formulas:', error);
       this.initialized = true;
     }
-  }
+  };
 
   /**
    * Get formulas for an equipment ID
    * Custom formulas override builtin
    */
-  getFormulas(equipmentId: string): IVariableFormulas | undefined {
+  getFormulas = (equipmentId: string): IVariableFormulas | undefined => {
     // Check custom first (overrides builtin)
     const custom = this.customFormulas.get(equipmentId);
     if (custom) {
@@ -77,41 +77,41 @@ export class FormulaRegistry implements IFormulaRegistry {
 
     // Fall back to standard variable equipment formulas
     return VARIABLE_EQUIPMENT_FORMULAS[equipmentId];
-  }
+  };
 
   /**
    * Check if equipment is variable (has formulas in registry)
    */
-  isVariable(equipmentId: string): boolean {
+  isVariable = (equipmentId: string): boolean => {
     return this.getFormulas(equipmentId) !== undefined;
-  }
+  };
 
   /**
    * Get required context fields for equipment
    */
-  getRequiredContext(equipmentId: string): readonly string[] {
+  getRequiredContext = (equipmentId: string): readonly string[] => {
     const formulas = this.getFormulas(equipmentId);
     return formulas?.requiredContext ?? [];
-  }
+  };
 
   /**
    * Get all variable equipment IDs (standard + custom)
    */
-  getAllVariableEquipmentIds(): string[] {
+  getAllVariableEquipmentIds = (): string[] => {
     const standardIds = Object.keys(VARIABLE_EQUIPMENT_FORMULAS);
     const customIds = Array.from(this.customFormulas.keys());
 
     // Combine and deduplicate
     return Array.from(new Set(standardIds.concat(customIds)));
-  }
+  };
 
   /**
    * Register custom formulas for an equipment ID
    */
-  async registerCustomFormulas(
+  registerCustomFormulas = async (
     equipmentId: string,
     formulas: IVariableFormulas,
-  ): Promise<void> {
+  ): Promise<void> => {
     // Validate formulas
     const errors = validateVariableFormulas(formulas);
     if (errors.length > 0) {
@@ -131,12 +131,12 @@ export class FormulaRegistry implements IFormulaRegistry {
         error: String(error),
       });
     }
-  }
+  };
 
   /**
    * Unregister custom formulas for an equipment ID
    */
-  async unregisterCustomFormulas(equipmentId: string): Promise<void> {
+  unregisterCustomFormulas = async (equipmentId: string): Promise<void> => {
     // Remove from memory
     const existed = this.customFormulas.delete(equipmentId);
 
@@ -153,14 +153,14 @@ export class FormulaRegistry implements IFormulaRegistry {
         error,
       );
     }
-  }
+  };
 
   /**
    * Get all custom formula equipment IDs
    */
-  getCustomFormulaIds(): string[] {
+  getCustomFormulaIds = (): string[] => {
     return Array.from(this.customFormulas.keys());
-  }
+  };
 
   // ============================================================================
   // PERSISTENCE HELPERS

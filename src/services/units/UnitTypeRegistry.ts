@@ -37,26 +37,28 @@ class UnitTypeRegistry implements IUnitTypeRegistry {
   /**
    * Register a handler for a unit type
    */
-  register<T extends IBaseUnit>(handler: IUnitTypeHandler<T>): void {
+  register = <T extends IBaseUnit>(handler: IUnitTypeHandler<T>): void => {
     if (this.handlers.has(handler.unitType)) {
       logger.warn(
         `[UnitTypeRegistry] Replacing existing handler for ${handler.unitType}`,
       );
     }
     this.handlers.set(handler.unitType, handler as IUnitTypeHandler);
-  }
+  };
 
   /**
    * Get handler for a unit type
    */
-  getHandler(unitType: UnitType): IUnitTypeHandler | undefined {
+  getHandler = (unitType: UnitType): IUnitTypeHandler | undefined => {
     return this.handlers.get(unitType);
-  }
+  };
 
   /**
    * Get handler for a BLK document based on unit type tag
    */
-  getHandlerForDocument(document: IBlkDocument): IUnitTypeHandler | undefined {
+  getHandlerForDocument = (
+    document: IBlkDocument,
+  ): IUnitTypeHandler | undefined => {
     // First try the mapped unit type
     const handler = this.handlers.get(document.mappedUnitType);
     if (handler) {
@@ -72,26 +74,28 @@ class UnitTypeRegistry implements IUnitTypeRegistry {
     }
 
     return undefined;
-  }
+  };
 
   /**
    * Check if a unit type is registered
    */
-  isRegistered(unitType: UnitType): boolean {
+  isRegistered = (unitType: UnitType): boolean => {
     return this.handlers.has(unitType);
-  }
+  };
 
   /**
    * Get all registered unit types
    */
-  getRegisteredTypes(): readonly UnitType[] {
+  getRegisteredTypes = (): readonly UnitType[] => {
     return Array.from(this.handlers.keys());
-  }
+  };
 
   /**
    * Get all handlers for a category
    */
-  getHandlersByCategory(category: UnitCategory): readonly IUnitTypeHandler[] {
+  getHandlersByCategory = (
+    category: UnitCategory,
+  ): readonly IUnitTypeHandler[] => {
     const result: IUnitTypeHandler[] = [];
     const handlers = Array.from(this.handlers.values());
     for (const handler of handlers) {
@@ -100,30 +104,30 @@ class UnitTypeRegistry implements IUnitTypeRegistry {
       }
     }
     return result;
-  }
+  };
 
   /**
    * Clear all registered handlers (for testing)
    */
-  clear(): void {
+  clear = (): void => {
     this.handlers.clear();
-  }
+  };
 
   /**
    * Get count of registered handlers
    */
-  getHandlerCount(): number {
+  getHandlerCount = (): number => {
     return this.handlers.size;
-  }
+  };
 
   /**
    * Get handler statistics
    */
-  getStats(): {
+  getStats = (): {
     total: number;
     byCategory: Record<UnitCategory, number>;
     registeredTypes: UnitType[];
-  } {
+  } => {
     const byCategory: Record<UnitCategory, number> = {
       [UnitCategory.MECH]: 0,
       [UnitCategory.VEHICLE]: 0,
@@ -142,7 +146,7 @@ class UnitTypeRegistry implements IUnitTypeRegistry {
       byCategory,
       registeredTypes: Array.from(this.handlers.keys()),
     };
-  }
+  };
 }
 
 const unitTypeRegistryFactory: SingletonFactory<UnitTypeRegistry> =

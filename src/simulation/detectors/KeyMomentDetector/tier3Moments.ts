@@ -14,6 +14,7 @@ import { getPayload } from '../utils/getPayload';
 import {
   type BattleState,
   type DetectorTrackingState,
+  type MomentFactory,
   LEG_ACTUATOR_COMPONENTS,
   getUnitName,
 } from './types';
@@ -22,14 +23,7 @@ export function processCriticalHitTier3(
   event: IGameEvent,
   battleState: BattleState,
   state: DetectorTrackingState,
-  createMoment: (
-    type: string,
-    event: IGameEvent,
-    description: string,
-    relatedUnitIds: string[],
-    state: DetectorTrackingState,
-    metadata?: Record<string, unknown>,
-  ) => IKeyMoment,
+  createMoment: MomentFactory,
 ): IKeyMoment[] {
   const payload = getPayload(event, GameEventType.CriticalHit);
   const moments: IKeyMoment[] = [];
@@ -96,14 +90,7 @@ export function processHeatEffectApplied(
   event: IGameEvent,
   battleState: BattleState,
   state: DetectorTrackingState,
-  createMoment: (
-    type: string,
-    event: IGameEvent,
-    description: string,
-    relatedUnitIds: string[],
-    state: DetectorTrackingState,
-    metadata?: Record<string, unknown>,
-  ) => IKeyMoment,
+  createMoment: MomentFactory,
 ): IKeyMoment[] {
   // Audit 2026-06-09 G (W5.1b): the stale detector-local payload read
   // `payload.heat`, a field the runner's heatThresholdEvents emitter never

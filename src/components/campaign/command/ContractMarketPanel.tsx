@@ -18,7 +18,8 @@ import React from 'react';
 
 import type { IContract } from '@/types/campaign/Mission';
 
-import { Badge, Card } from '@/components/ui';
+import { CampaignListCard } from '@/components/campaign/CampaignListCard';
+import { Badge } from '@/components/ui';
 
 import { CommandEmpty } from './CommandStates';
 
@@ -69,9 +70,11 @@ export function OfferCard({
   isBusy,
 }: OfferCardProps): React.ReactElement {
   return (
-    <Card className="p-4" data-testid={`offer-card-${offer.id}`}>
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
+    <CampaignListCard
+      testId={`offer-card-${offer.id}`}
+      align="start"
+      left={
+        <>
           <h3 className="text-text-theme-primary truncate text-base font-semibold">
             {offer.name}
           </h3>
@@ -93,8 +96,9 @@ export function OfferCard({
           >
             Duration: {formatDuration(offer)}
           </p>
-        </div>
-
+        </>
+      }
+      right={
         <div className="flex flex-col items-end gap-3">
           <Badge
             className="bg-sky-500/20 text-sky-400"
@@ -124,8 +128,8 @@ export function OfferCard({
             </button>
           </div>
         </div>
-      </div>
-    </Card>
+      }
+    />
   );
 }
 

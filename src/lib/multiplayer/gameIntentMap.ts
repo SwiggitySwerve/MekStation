@@ -232,36 +232,31 @@ function sideToWire(side: GameSide): 'player' | 'opponent' {
  * confirming the heat phase advances the match like any other phase.
  */
 export function toServerIntent(intent: IGameIntent): IIntentPayload | null {
-  switch (intent.type as GameIntentType) {
-    case 'declareMovement':
-      return toMoveIntent(intent.payload);
-    case 'stand':
-      return toStandIntent(intent.payload);
-    case 'goProne':
-      return toGoProneIntent(intent.payload);
-    case 'activateMovementEnhancement':
-      return toActivateMovementEnhancementIntent(intent.payload);
-    case 'torsoTwist':
-      return toTorsoTwistIntent(intent.payload);
-    case 'declareAttack':
-      return toAttackIntent(intent.payload);
-    case 'declarePhysical':
-      return toPhysicalIntent(intent.payload);
-    case 'requestSpot':
-      return toRequestSpotIntent(intent.payload);
-    case 'endPhase':
-    case 'confirmHeat':
-      return { kind: 'AdvancePhase' };
-    case 'eject':
-      return toEjectIntent(intent.payload);
-    case 'withdraw':
-      return toWithdrawIntent(intent.payload);
-    case 'concede':
-      return toConcedeIntent(intent.payload);
-    default:
-      return null;
-  }
+  const mapper = SERVER_INTENT_MAPPERS[intent.type as GameIntentType];
+  return mapper ? mapper(intent.payload) : null;
 }
+
+type ServerIntentMapper = (payload: unknown) => IIntentPayload | null;
+
+const advancePhaseIntent = (): IIntentPayload => ({ kind: 'AdvancePhase' });
+
+const SERVER_INTENT_MAPPERS: Partial<
+  Record<GameIntentType, ServerIntentMapper>
+> = {
+  declareMovement: toMoveIntent,
+  stand: toStandIntent,
+  goProne: toGoProneIntent,
+  activateMovementEnhancement: toActivateMovementEnhancementIntent,
+  torsoTwist: toTorsoTwistIntent,
+  declareAttack: toAttackIntent,
+  declarePhysical: toPhysicalIntent,
+  requestSpot: toRequestSpotIntent,
+  endPhase: advancePhaseIntent,
+  confirmHeat: advancePhaseIntent,
+  eject: toEjectIntent,
+  withdraw: toWithdrawIntent,
+  concede: toConcedeIntent,
+};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;

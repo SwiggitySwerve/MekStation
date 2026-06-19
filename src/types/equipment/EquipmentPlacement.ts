@@ -121,6 +121,56 @@ export const PLACEMENT_RULES: readonly EquipmentPlacementRule[] = [
   },
 ] as const;
 
+const ARM_LOCATION_VALUES = [
+  MechLocation.LEFT_ARM,
+  MechLocation.RIGHT_ARM,
+] as const;
+const TORSO_LOCATION_VALUES = [
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+] as const;
+const LEG_LOCATION_VALUES = [
+  MechLocation.LEFT_LEG,
+  MechLocation.RIGHT_LEG,
+] as const;
+const SIDE_TORSO_LOCATION_VALUES = [
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+] as const;
+
+const ARM_LOCATIONS = new Set<MechLocation>(ARM_LOCATION_VALUES);
+const TORSO_LOCATIONS = new Set<MechLocation>(TORSO_LOCATION_VALUES);
+const LEG_LOCATIONS = new Set<MechLocation>(LEG_LOCATION_VALUES);
+const SIDE_TORSO_LOCATIONS = new Set<MechLocation>(SIDE_TORSO_LOCATION_VALUES);
+const TORSO_OR_LEG_LOCATIONS = new Set<MechLocation>([
+  ...TORSO_LOCATION_VALUES,
+  ...LEG_LOCATION_VALUES,
+]);
+
+type LocationRestrictionCheck = (location: MechLocation) => boolean;
+
+const LOCATION_RESTRICTION_CHECKS: Readonly<
+  Record<LocationRestriction, LocationRestrictionCheck>
+> = {
+  [LocationRestriction.NONE]: () => true,
+  [LocationRestriction.ARM_ONLY]: (location) => ARM_LOCATIONS.has(location),
+  [LocationRestriction.TORSO_ONLY]: (location) => TORSO_LOCATIONS.has(location),
+  [LocationRestriction.LEG_ONLY]: (location) => LEG_LOCATIONS.has(location),
+  [LocationRestriction.HEAD_ONLY]: (location) => location === MechLocation.HEAD,
+  [LocationRestriction.NOT_HEAD]: (location) => location !== MechLocation.HEAD,
+  [LocationRestriction.NOT_LEGS]: (location) => !LEG_LOCATIONS.has(location),
+  [LocationRestriction.NOT_ARMS]: (location) => !ARM_LOCATIONS.has(location),
+  [LocationRestriction.CENTER_TORSO]: (location) =>
+    location === MechLocation.CENTER_TORSO,
+  [LocationRestriction.SIDE_TORSO]: (location) =>
+    SIDE_TORSO_LOCATIONS.has(location),
+  [LocationRestriction.TORSO_OR_LEG]: (location) =>
+    TORSO_OR_LEG_LOCATIONS.has(location),
+  [LocationRestriction.FRONT_ONLY]: (location) =>
+    location !== MechLocation.CENTER_TORSO,
+};
+
 /**
  * Get placement rule for equipment
  */
@@ -148,72 +198,7 @@ export function isValidLocationForEquipment(
   const actualRestriction =
     restriction ?? rule?.restriction ?? LocationRestriction.NONE;
 
-  switch (actualRestriction) {
-    case LocationRestriction.NONE:
-      return true;
-
-    case LocationRestriction.ARM_ONLY:
-      return (
-        location === MechLocation.LEFT_ARM ||
-        location === MechLocation.RIGHT_ARM
-      );
-
-    case LocationRestriction.TORSO_ONLY:
-      return [
-        MechLocation.CENTER_TORSO,
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-      ].includes(location);
-
-    case LocationRestriction.LEG_ONLY:
-      return (
-        location === MechLocation.LEFT_LEG ||
-        location === MechLocation.RIGHT_LEG
-      );
-
-    case LocationRestriction.HEAD_ONLY:
-      return location === MechLocation.HEAD;
-
-    case LocationRestriction.NOT_HEAD:
-      return location !== MechLocation.HEAD;
-
-    case LocationRestriction.NOT_LEGS:
-      return (
-        location !== MechLocation.LEFT_LEG &&
-        location !== MechLocation.RIGHT_LEG
-      );
-
-    case LocationRestriction.NOT_ARMS:
-      return (
-        location !== MechLocation.LEFT_ARM &&
-        location !== MechLocation.RIGHT_ARM
-      );
-
-    case LocationRestriction.TORSO_OR_LEG:
-      return [
-        MechLocation.CENTER_TORSO,
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.LEFT_LEG,
-        MechLocation.RIGHT_LEG,
-      ].includes(location);
-
-    case LocationRestriction.CENTER_TORSO:
-      return location === MechLocation.CENTER_TORSO;
-
-    case LocationRestriction.SIDE_TORSO:
-      return (
-        location === MechLocation.LEFT_TORSO ||
-        location === MechLocation.RIGHT_TORSO
-      );
-
-    case LocationRestriction.FRONT_ONLY:
-      // Arms and legs are "front" facing
-      return location !== MechLocation.CENTER_TORSO;
-
-    default:
-      return true;
-  }
+  return LOCATION_RESTRICTION_CHECKS[actualRestriction](location);
 }
 
 /**

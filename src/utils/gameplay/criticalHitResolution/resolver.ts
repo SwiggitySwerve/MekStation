@@ -1,23 +1,31 @@
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { CriticalEffectType } from '@/types/gameplay';
 
 import { D6Roller } from '../hitLocation';
 import { halveCritCount, isFerroLamellorArmor, isHardenedArmor } from './armor';
 import { LETHAL_PILOT_WOUNDS } from './constants';
 import { applyCriticalHitEffect } from './effects';
-import { normalizeLocation } from './manifest';
+import {
+  applyCriticalResultToState,
+  createResolutionResult,
+  createResolutionState,
+  getSlotsForLocation,
+  ICriticalResolutionState,
+  isSlotCriticalEffectCandidate,
+  markLocationSlotsDestroyed,
+  markResolvedSlotDestroyed,
+} from './resolverState';
 import { rollCriticalHits, selectCriticalSlotWithEdge } from './selection';
 import {
-  CriticalSlotManifest,
-  CriticalHitEvent,
   CombatLocation,
+  CriticalSlotManifest,
+  IComponentDamageState,
   ICriticalEdgeOptions,
   ICriticalHitApplicationResult,
   ICriticalResolutionResult,
-  IComponentDamageState,
+  ICriticalSlotEntry,
 } from './types';
 
-export function resolveCriticalHits(
+type ResolveCriticalHitsArgs = [
   unitId: string,
   location: CombatLocation,
   manifest: CriticalSlotManifest,
@@ -25,247 +33,66 @@ export function resolveCriticalHits(
   diceRoller: D6Roller,
   forceCrits?: number,
   armorType?: ArmorTypeEnum,
-  edgeOptions: ICriticalEdgeOptions = {},
+  edgeOptions?: ICriticalEdgeOptions,
+];
+
+type ProcessTacArgs = [
+  unitId: string,
+  tacLocation: CombatLocation,
+  manifest: CriticalSlotManifest,
+  componentDamage: IComponentDamageState,
+  diceRoller: D6Roller,
+  armorType?: ArmorTypeEnum,
+  edgeOptions?: ICriticalEdgeOptions,
+];
+
+interface ICriticalHitsResolutionInput {
+  readonly unitId: string;
+  readonly location: CombatLocation;
+  readonly manifest: CriticalSlotManifest;
+  readonly componentDamage: IComponentDamageState;
+  readonly diceRoller: D6Roller;
+  readonly forceCrits?: number;
+  readonly armorType?: ArmorTypeEnum;
+  readonly edgeOptions: ICriticalEdgeOptions;
+}
+
+interface ITacResolutionInput {
+  readonly unitId: string;
+  readonly tacLocation: CombatLocation;
+  readonly manifest: CriticalSlotManifest;
+  readonly componentDamage: IComponentDamageState;
+  readonly diceRoller: D6Roller;
+  readonly armorType?: ArmorTypeEnum;
+  readonly edgeOptions: ICriticalEdgeOptions;
+}
+
+interface ICriticalHitDetermination {
+  readonly critCount: number;
+  readonly limbBlownOff: boolean;
+  readonly headDestroyed: boolean;
+}
+
+export function resolveCriticalHits(
+  ...args: ResolveCriticalHitsArgs
 ): ICriticalResolutionResult {
-  let critCount: number;
-  let limbBlownOff = false;
-  let headDestroyed = false;
+  const input = createCriticalHitsInput(args);
+  const determination = determineCriticalHits(input);
+  const state = createResolutionState(input);
 
-  if (forceCrits !== undefined) {
-    critCount = forceCrits;
-  } else if (isHardenedArmor(armorType)) {
-    const roll1 = rollCriticalHits(
-      location,
-      diceRoller,
-      edgeOptions.criticalHitModifier,
-    );
-    const roll2 = rollCriticalHits(
-      location,
-      diceRoller,
-      edgeOptions.criticalHitModifier,
-    );
-
-    if (roll1.criticalHits === 0 || roll2.criticalHits === 0) {
-      critCount = 0;
-    } else {
-      critCount = Math.min(roll1.criticalHits, roll2.criticalHits);
-    }
-
-    limbBlownOff = roll1.limbBlownOff && roll2.limbBlownOff;
-    headDestroyed = roll1.headDestroyed && roll2.headDestroyed;
-  } else {
-    const determination = rollCriticalHits(
-      location,
-      diceRoller,
-      edgeOptions.criticalHitModifier,
-    );
-    critCount = determination.criticalHits;
-    limbBlownOff = determination.limbBlownOff;
-    headDestroyed = determination.headDestroyed;
-
-    if (isFerroLamellorArmor(armorType) && critCount > 0) {
-      critCount = halveCritCount(critCount);
-    }
+  if (determination.limbBlownOff) {
+    return resolveBlownOffLocation(input, state);
   }
 
-  const allEvents: CriticalHitEvent[] = [];
-  const hits: ICriticalHitApplicationResult[] = [];
-  let currentDamage = componentDamage;
-  let currentManifest = { ...manifest };
-  let currentEdgePointsRemaining = edgeOptions.edgePointsRemaining;
-  let unitDestroyed = false;
-  let destructionCause: 'engine_destroyed' | 'pilot_death' | undefined;
-
-  if (limbBlownOff) {
-    const normalizedLoc = normalizeLocation(location);
-    const slots = currentManifest[normalizedLoc] ?? [];
-
-    currentManifest = {
-      ...currentManifest,
-      [normalizedLoc]: slots.map((slot) => ({ ...slot, destroyed: true })),
-    };
-
-    for (const slot of slots.filter(
-      (s) => !s.destroyed && s.missing !== true && s.breached !== true,
-    )) {
-      const result = applyCriticalHitEffect(
-        slot,
-        unitId,
-        location,
-        currentDamage,
-      );
-      hits.push(result);
-      allEvents.push(...result.events);
-      currentDamage = result.updatedComponentDamage;
-
-      if (
-        result.events.some(
-          (event) =>
-            event.type === 'unit_destroyed' && event.payload.cause === 'damage',
-        )
-      ) {
-        unitDestroyed = true;
-        destructionCause = 'engine_destroyed';
-      }
-      if (
-        result.events.some(
-          (event) =>
-            event.type === 'unit_destroyed' &&
-            event.payload.cause === 'pilot_death',
-        )
-      ) {
-        unitDestroyed = true;
-        destructionCause = 'pilot_death';
-      }
-    }
-
-    return {
-      hits,
-      events: allEvents,
-      updatedManifest: currentManifest,
-      updatedComponentDamage: currentDamage,
-      edgePointsRemaining: currentEdgePointsRemaining,
-      locationBlownOff: true,
-      headDestroyed: false,
-      unitDestroyed,
-      destructionCause,
-    };
+  if (determination.headDestroyed) {
+    return resolveDestroyedHead(input, state);
   }
 
-  if (headDestroyed) {
-    allEvents.push({
-      type: 'pilot_hit',
-      payload: {
-        unitId,
-        wounds: LETHAL_PILOT_WOUNDS,
-        totalWounds: LETHAL_PILOT_WOUNDS,
-        source: 'head_hit',
-        consciousnessCheckRequired: false,
-      },
-    });
-    allEvents.push({
-      type: 'unit_destroyed',
-      payload: {
-        unitId,
-        cause: 'pilot_death',
-      },
-    });
-
-    const normalizedLoc = normalizeLocation(location);
-    const slots = currentManifest[normalizedLoc] ?? [];
-    currentManifest = {
-      ...currentManifest,
-      [normalizedLoc]: slots.map((slot) => ({ ...slot, destroyed: true })),
-    };
-
-    return {
-      hits: [],
-      events: allEvents,
-      updatedManifest: currentManifest,
-      updatedComponentDamage: currentDamage,
-      edgePointsRemaining: currentEdgePointsRemaining,
-      locationBlownOff: false,
-      headDestroyed: true,
-      unitDestroyed: true,
-      destructionCause: 'pilot_death',
-    };
-  }
-
-  for (let i = 0; i < critCount; i++) {
-    const selection = selectCriticalSlotWithEdge(
-      currentManifest,
-      location,
-      diceRoller,
-      {
-        ...edgeOptions,
-        edgePointsRemaining: currentEdgePointsRemaining,
-        unitId,
-      },
-    );
-    const slot = selection.slot;
-    if (!slot) break;
-    const edgePointsAfterSelection = selection.edgePointsRemaining;
-    if (selection.edgePointsRemaining !== undefined) {
-      currentEdgePointsRemaining = selection.edgePointsRemaining;
-    }
-
-    const normalizedLoc = normalizeLocation(location);
-    const slots = currentManifest[normalizedLoc] ?? [];
-    const result = applyCriticalHitEffect(
-      slot,
-      unitId,
-      location,
-      currentDamage,
-      edgeOptions,
-    );
-    const slotDestroyed = result.slotDestroyed !== false;
-    const linkedCriticalWeaponId =
-      result.effect.type === CriticalEffectType.WeaponDestroyed
-        ? result.events.find((event) => event.type === 'critical_hit_resolved')
-            ?.payload.linkedCriticalWeaponId
-        : undefined;
-    currentManifest = {
-      ...currentManifest,
-      [normalizedLoc]: slots.map((s) =>
-        s.slotIndex === slot.slotIndex ||
-        (linkedCriticalWeaponId !== undefined &&
-          s.weaponId === linkedCriticalWeaponId)
-          ? { ...s, destroyed: slotDestroyed }
-          : s,
-      ),
-    };
-    hits.push(result);
-    allEvents.push(
-      ...result.events.map((event) =>
-        event.type === 'critical_hit_resolved' &&
-        edgePointsAfterSelection !== undefined
-          ? {
-              ...event,
-              payload: {
-                ...event.payload,
-                edgePointsRemaining: edgePointsAfterSelection,
-              },
-            }
-          : event,
-      ),
-    );
-    currentDamage = result.updatedComponentDamage;
-    if (result.secondaryCriticals !== undefined) {
-      critCount += result.secondaryCriticals;
-    }
-
-    if (
-      result.events.some(
-        (event) =>
-          event.type === 'unit_destroyed' && event.payload.cause === 'damage',
-      )
-    ) {
-      unitDestroyed = true;
-      destructionCause = 'engine_destroyed';
-    }
-    if (
-      result.events.some(
-        (event) =>
-          event.type === 'unit_destroyed' &&
-          event.payload.cause === 'pilot_death',
-      )
-    ) {
-      unitDestroyed = true;
-      destructionCause = 'pilot_death';
-    }
-  }
-
-  return {
-    hits,
-    events: allEvents,
-    updatedManifest: currentManifest,
-    updatedComponentDamage: currentDamage,
-    edgePointsRemaining: currentEdgePointsRemaining,
+  resolveSelectedCriticalHits(input, state, determination.critCount);
+  return createResolutionResult(state, {
     locationBlownOff: false,
     headDestroyed: false,
-    unitDestroyed,
-    destructionCause,
-  };
+  });
 }
 
 export function checkTACTrigger(
@@ -285,21 +112,14 @@ export function checkTACTrigger(
   }
 }
 
-export function processTAC(
-  unitId: string,
-  tacLocation: CombatLocation,
-  manifest: CriticalSlotManifest,
-  componentDamage: IComponentDamageState,
-  diceRoller: D6Roller,
-  armorType?: ArmorTypeEnum,
-  edgeOptions: ICriticalEdgeOptions = {},
-): ICriticalResolutionResult {
-  if (isHardenedArmor(armorType)) {
+export function processTAC(...args: ProcessTacArgs): ICriticalResolutionResult {
+  const input = createTacInput(args);
+  if (isHardenedArmor(input.armorType)) {
     return {
       hits: [],
       events: [],
-      updatedManifest: manifest,
-      updatedComponentDamage: componentDamage,
+      updatedManifest: input.manifest,
+      updatedComponentDamage: input.componentDamage,
       locationBlownOff: false,
       headDestroyed: false,
       unitDestroyed: false,
@@ -307,13 +127,234 @@ export function processTAC(
   }
 
   return resolveCriticalHits(
+    input.unitId,
+    input.tacLocation,
+    input.manifest,
+    input.componentDamage,
+    input.diceRoller,
+    1,
+    input.armorType,
+    input.edgeOptions,
+  );
+}
+
+function createCriticalHitsInput(
+  args: ResolveCriticalHitsArgs,
+): ICriticalHitsResolutionInput {
+  const [
+    unitId,
+    location,
+    manifest,
+    componentDamage,
+    diceRoller,
+    forceCrits,
+    armorType,
+    edgeOptions = {},
+  ] = args;
+
+  return {
+    unitId,
+    location,
+    manifest,
+    componentDamage,
+    diceRoller,
+    forceCrits,
+    armorType,
+    edgeOptions,
+  };
+}
+
+function createTacInput(args: ProcessTacArgs): ITacResolutionInput {
+  const [
     unitId,
     tacLocation,
     manifest,
     componentDamage,
     diceRoller,
-    1,
+    armorType,
+    edgeOptions = {},
+  ] = args;
+
+  return {
+    unitId,
+    tacLocation,
+    manifest,
+    componentDamage,
+    diceRoller,
     armorType,
     edgeOptions,
+  };
+}
+
+function determineCriticalHits(
+  input: ICriticalHitsResolutionInput,
+): ICriticalHitDetermination {
+  if (input.forceCrits !== undefined) {
+    return {
+      critCount: input.forceCrits,
+      limbBlownOff: false,
+      headDestroyed: false,
+    };
+  }
+
+  if (isHardenedArmor(input.armorType)) {
+    return determineHardenedArmorCriticalHits(input);
+  }
+
+  const determination = rollCriticalHits(
+    input.location,
+    input.diceRoller,
+    input.edgeOptions.criticalHitModifier,
   );
+  return {
+    ...determination,
+    critCount:
+      isFerroLamellorArmor(input.armorType) && determination.criticalHits > 0
+        ? halveCritCount(determination.criticalHits)
+        : determination.criticalHits,
+  };
+}
+
+function determineHardenedArmorCriticalHits(
+  input: ICriticalHitsResolutionInput,
+): ICriticalHitDetermination {
+  const roll1 = rollCriticalHits(
+    input.location,
+    input.diceRoller,
+    input.edgeOptions.criticalHitModifier,
+  );
+  const roll2 = rollCriticalHits(
+    input.location,
+    input.diceRoller,
+    input.edgeOptions.criticalHitModifier,
+  );
+
+  return {
+    critCount:
+      roll1.criticalHits === 0 || roll2.criticalHits === 0
+        ? 0
+        : Math.min(roll1.criticalHits, roll2.criticalHits),
+    limbBlownOff: roll1.limbBlownOff && roll2.limbBlownOff,
+    headDestroyed: roll1.headDestroyed && roll2.headDestroyed,
+  };
+}
+
+function resolveBlownOffLocation(
+  input: ICriticalHitsResolutionInput,
+  state: ICriticalResolutionState,
+): ICriticalResolutionResult {
+  const slots = getSlotsForLocation(state.currentManifest, input.location);
+  state.currentManifest = markLocationSlotsDestroyed(
+    state.currentManifest,
+    input.location,
+  );
+
+  for (const slot of slots.filter(isSlotCriticalEffectCandidate)) {
+    const result = applyCriticalHitEffect(
+      slot,
+      input.unitId,
+      input.location,
+      state.currentDamage,
+    );
+    applyCriticalResultToState(state, result);
+  }
+
+  return createResolutionResult(state, {
+    locationBlownOff: true,
+    headDestroyed: false,
+  });
+}
+
+function resolveDestroyedHead(
+  input: ICriticalHitsResolutionInput,
+  state: ICriticalResolutionState,
+): ICriticalResolutionResult {
+  state.allEvents.push(
+    {
+      type: 'pilot_hit',
+      payload: {
+        unitId: input.unitId,
+        wounds: LETHAL_PILOT_WOUNDS,
+        totalWounds: LETHAL_PILOT_WOUNDS,
+        source: 'head_hit',
+        consciousnessCheckRequired: false,
+      },
+    },
+    {
+      type: 'unit_destroyed',
+      payload: {
+        unitId: input.unitId,
+        cause: 'pilot_death',
+      },
+    },
+  );
+  state.currentManifest = markLocationSlotsDestroyed(
+    state.currentManifest,
+    input.location,
+  );
+  state.unitDestroyed = true;
+  state.destructionCause = 'pilot_death';
+
+  return createResolutionResult(state, {
+    locationBlownOff: false,
+    headDestroyed: true,
+  });
+}
+
+function resolveSelectedCriticalHits(
+  input: ICriticalHitsResolutionInput,
+  state: ICriticalResolutionState,
+  initialCritCount: number,
+): void {
+  let critCount = initialCritCount;
+  for (let i = 0; i < critCount; i++) {
+    const selection = selectCriticalSlotWithEdge(
+      state.currentManifest,
+      input.location,
+      input.diceRoller,
+      {
+        ...input.edgeOptions,
+        edgePointsRemaining: state.currentEdgePointsRemaining,
+        unitId: input.unitId,
+      },
+    );
+    if (!selection.slot) break;
+
+    const result = resolveSelectedCriticalSlot(
+      input,
+      state,
+      selection.slot,
+      selection.edgePointsRemaining,
+    );
+    if (result.secondaryCriticals !== undefined) {
+      critCount += result.secondaryCriticals;
+    }
+  }
+}
+
+function resolveSelectedCriticalSlot(
+  input: ICriticalHitsResolutionInput,
+  state: ICriticalResolutionState,
+  slot: ICriticalSlotEntry,
+  edgePointsAfterSelection: number | undefined,
+): ICriticalHitApplicationResult {
+  if (edgePointsAfterSelection !== undefined) {
+    state.currentEdgePointsRemaining = edgePointsAfterSelection;
+  }
+
+  const result = applyCriticalHitEffect(
+    slot,
+    input.unitId,
+    input.location,
+    state.currentDamage,
+    input.edgeOptions,
+  );
+  state.currentManifest = markResolvedSlotDestroyed(
+    state.currentManifest,
+    input.location,
+    slot,
+    result,
+  );
+  applyCriticalResultToState(state, result, edgePointsAfterSelection);
+  return result;
 }

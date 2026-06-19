@@ -29,28 +29,25 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import { getSurvivingTroopers as baSurvivingTroopers } from '@/utils/gameplay/battlearmor/state';
 
+const VEHICLE_MOTION_TYPE_BY_GROUND_MOTION: Readonly<
+  Record<GroundMotionType, VehicleMotionType>
+> = {
+  [GroundMotionType.WHEELED]: VehicleMotionType.Wheeled,
+  [GroundMotionType.HOVER]: VehicleMotionType.Hover,
+  [GroundMotionType.VTOL]: VehicleMotionType.VTOL,
+  [GroundMotionType.NAVAL]: VehicleMotionType.Naval,
+  [GroundMotionType.HYDROFOIL]: VehicleMotionType.Naval,
+  [GroundMotionType.SUBMARINE]: VehicleMotionType.Naval,
+  [GroundMotionType.WIGE]: VehicleMotionType.WiGE,
+  [GroundMotionType.TRACKED]: VehicleMotionType.Tracked,
+  [GroundMotionType.RAIL]: VehicleMotionType.Tracked,
+  [GroundMotionType.MAGLEV]: VehicleMotionType.Tracked,
+};
+
 function vehicleMotionTypeFromGroundMotion(
   motionType: GroundMotionType,
 ): VehicleMotionType {
-  switch (motionType) {
-    case GroundMotionType.WHEELED:
-      return VehicleMotionType.Wheeled;
-    case GroundMotionType.HOVER:
-      return VehicleMotionType.Hover;
-    case GroundMotionType.VTOL:
-      return VehicleMotionType.VTOL;
-    case GroundMotionType.NAVAL:
-    case GroundMotionType.HYDROFOIL:
-    case GroundMotionType.SUBMARINE:
-      return VehicleMotionType.Naval;
-    case GroundMotionType.WIGE:
-      return VehicleMotionType.WiGE;
-    case GroundMotionType.TRACKED:
-    case GroundMotionType.RAIL:
-    case GroundMotionType.MAGLEV:
-    default:
-      return VehicleMotionType.Tracked;
-  }
+  return VEHICLE_MOTION_TYPE_BY_GROUND_MOTION[motionType];
 }
 
 function vehicleAltitudeFromState(

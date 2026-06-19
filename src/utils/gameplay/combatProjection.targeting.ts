@@ -352,24 +352,27 @@ export function blockedReasonForHex(
   firingArc: CombatFiringArc,
   los: ReturnType<typeof classifyLOS>,
 ): string | undefined {
-  switch (invalidState.reason) {
-    case 'TargetNotVisible':
-    case 'InvalidTarget':
-    case 'SameHex':
-    case 'OutOfAmmo':
-    // Audit B-2 (W1.2): attacker-state rejections surface their engine
-    // details verbatim so the map legend matches the AttackInvalid event.
-    case 'AttackerEvading':
-    case 'AttackerSprinted':
-      return invalidState.details;
-    case 'OutOfRange':
-      return 'Out of weapon range';
-    case 'OutOfArc':
-      return `No weapons cover ${firingArc} arc`;
-    case 'NoLineOfSight':
-      return invalidState.details ?? los.blockerAnnotations[0]?.title;
-    default:
-      break;
+  const reason = invalidState.reason;
+  const detailsReasons = new Set([
+    'TargetNotVisible',
+    'InvalidTarget',
+    'SameHex',
+    'OutOfAmmo',
+    'AttackerEvading',
+    'AttackerSprinted',
+  ]);
+
+  if (reason && detailsReasons.has(reason)) {
+    return invalidState.details;
+  }
+  if (reason === 'OutOfRange') {
+    return 'Out of weapon range';
+  }
+  if (reason === 'OutOfArc') {
+    return `No weapons cover ${firingArc} arc`;
+  }
+  if (reason === 'NoLineOfSight') {
+    return invalidState.details ?? los.blockerAnnotations[0]?.title;
   }
   if (los.state === 'partial') {
     return los.blockerAnnotations[0]?.title ?? 'Partial cover';

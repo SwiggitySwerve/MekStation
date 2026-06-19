@@ -9,13 +9,12 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4
  */
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import { StoreApi } from 'zustand';
 
 import { AEROSPACE_TABS } from '@/components/customizer/shared/tabRegistry';
-import { toCustomizerTabConfigs } from '@/components/customizer/shared/TabSpec';
 import { CustomizerTabs } from '@/components/customizer/tabs/CustomizerTabs';
-import { useCustomizerTabs } from '@/hooks/useCustomizerTabs';
+import { useCustomizerTabShell } from '@/components/customizer/tabs/useCustomizerTabShell';
 import {
   AerospaceStoreContext,
   AerospaceStore,
@@ -71,26 +70,12 @@ function AerospaceCustomizerInner({
   // Read unitType to drive the Bombs tab visibility predicate
   const unitType = useAerospaceStore((s) => s.unitType);
 
-  const { visibleSpecs, activeTab, setActiveTab, dirtyTabs, errorTabs } =
-    useCustomizerTabs({
-      specs: AEROSPACE_TABS,
-      state: { unitType },
-      initialTabId: initialTab,
-    });
-
-  const tabConfigs = toCustomizerTabConfigs(visibleSpecs);
-
-  const handleTabChange = useCallback(
-    (tabId: string) => {
-      setActiveTab(tabId);
-      onTabChange?.(tabId as AerospaceTabId);
-    },
-    [setActiveTab, onTabChange],
-  );
-
-  const activeSpec =
-    visibleSpecs.find((s) => s.id === activeTab) ?? visibleSpecs[0];
-  const TabComponent = activeSpec?.component;
+  const { tabBarProps, activeTab, TabComponent } = useCustomizerTabShell({
+    specs: AEROSPACE_TABS,
+    state: { unitType },
+    initialTab,
+    onTabChange,
+  });
 
   return (
     <div className="flex h-full flex-col" data-testid="aerospace-customizer">
@@ -99,12 +84,8 @@ function AerospaceCustomizerInner({
 
       {/* Tab Bar */}
       <CustomizerTabs
-        tabs={tabConfigs}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
+        {...tabBarProps}
         readOnly={readOnly}
-        dirtyTabs={dirtyTabs}
-        errorTabs={errorTabs}
         data-testid="aerospace-tab-bar"
       />
 

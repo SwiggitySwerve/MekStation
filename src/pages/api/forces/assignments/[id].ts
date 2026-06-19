@@ -9,21 +9,35 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  initializeApiDatabase as initAssignmentDb,
+  rejectMissingQueryString as readAssignmentId,
+  sendCaughtApiError as sendAssignmentError,
+  sendOperationFailure as sendAssignmentFailure,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { IForceOperationResult } from '@/services/forces/ForceRepository';
 import { getForceService } from '@/services/forces/ForceService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { ForcePosition } from '@/types/force';
+
+const FORCES_ASSIGNMENTS_ID_TS_FAILED_TO_ASSIGN_PILOT_AND_UNIT_1 =
+  'Failed to assign pilot and unit';
+const FORCES_ASSIGNMENTS_ID_TS_FAILED_TO_ASSIGN_PILOT_2 =
+  'Failed to assign pilot';
+const FORCES_ASSIGNMENTS_ID_TS_FAILED_TO_ASSIGN_UNIT_3 =
+  'Failed to assign unit';
+const FORCES_ASSIGNMENTS_ID_TS_FAILED_TO_SET_POSITION_4 =
+  'Failed to set position';
+const FORCES_ASSIGNMENTS_ID_TS_FAILED_TO_UPDATE_ASSIGNMENT_5 =
+  'Failed to update assignment';
+const FORCES_ASSIGNMENTS_ID_TS_FAILED_TO_CLEAR_ASSIGNMENT_6 =
+  'Failed to clear assignment';
 
 // =============================================================================
 // Response Types
 // =============================================================================
 
 type OperationResponse = IForceOperationResult;
-
-type ErrorResponse = {
-  error: string;
-  code?: string;
-};
 
 // =============================================================================
 // Request Types
@@ -41,21 +55,17 @@ interface UpdateAssignmentBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<OperationResponse | ErrorResponse>,
+  res: NextApiResponse<OperationResponse | ApiErrorResponse>,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initAssignmentDb(res)) return;
 
-  const { id } = req.query;
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid assignment ID' });
-  }
+  const id = readAssignmentId(
+    req,
+    res,
+    'id',
+    'Missing or invalid assignment ID',
+  );
+  if (!id) return;
 
   const forceService = getForceService();
 
@@ -79,7 +89,7 @@ function handlePut(
   forceService: ReturnType<typeof getForceService>,
   assignmentId: string,
   req: NextApiRequest,
-  res: NextApiResponse<OperationResponse | ErrorResponse>,
+  res: NextApiResponse<OperationResponse | ApiErrorResponse>,
 ) {
   try {
     const body = req.body as UpdateAssignmentBody;
@@ -94,11 +104,12 @@ function handlePut(
       if (result.success) {
         return res.status(200).json(result);
       } else {
-        return res.status(400).json({
-          success: false,
-          error: result.error || 'Failed to assign pilot and unit',
-          errorCode: result.errorCode,
-        });
+        sendAssignmentFailure(
+          res,
+          result,
+          FORCES_ASSIGNMENTS_ID_TS_FAILED_TO_ASSIGN_PILOT_AND_UNIT_1,
+        );
+        return;
       }
     }
 
@@ -108,11 +119,12 @@ function handlePut(
       if (result.success) {
         return res.status(200).json(result);
       } else {
-        return res.status(400).json({
-          success: false,
-          error: result.error || 'Failed to assign pilot',
-          errorCode: result.errorCode,
-        });
+        sendAssignmentFailure(
+          res,
+          result,
+          FORCES_ASSIGNMENTS_ID_TS_FAILED_TO_ASSIGN_PILOT_2,
+        );
+        return;
       }
     }
 
@@ -122,11 +134,12 @@ function handlePut(
       if (result.success) {
         return res.status(200).json(result);
       } else {
-        return res.status(400).json({
-          success: false,
-          error: result.error || 'Failed to assign unit',
-          errorCode: result.errorCode,
-        });
+        sendAssignmentFailure(
+          res,
+          result,
+          FORCES_ASSIGNMENTS_ID_TS_FAILED_TO_ASSIGN_UNIT_3,
+        );
+        return;
       }
     }
 
@@ -139,11 +152,12 @@ function handlePut(
       if (result.success) {
         return res.status(200).json(result);
       } else {
-        return res.status(400).json({
-          success: false,
-          error: result.error || 'Failed to set position',
-          errorCode: result.errorCode,
-        });
+        sendAssignmentFailure(
+          res,
+          result,
+          FORCES_ASSIGNMENTS_ID_TS_FAILED_TO_SET_POSITION_4,
+        );
+        return;
       }
     }
 
@@ -151,9 +165,12 @@ function handlePut(
       error: 'No update provided. Expected pilotId, unitId, or position',
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to update assignment';
-    return res.status(500).json({ error: message });
+    sendAssignmentError(
+      res,
+      error,
+      FORCES_ASSIGNMENTS_ID_TS_FAILED_TO_UPDATE_ASSIGNMENT_5,
+    );
+    return;
   }
 }
 
@@ -163,7 +180,7 @@ function handlePut(
 function handleDelete(
   forceService: ReturnType<typeof getForceService>,
   assignmentId: string,
-  res: NextApiResponse<OperationResponse | ErrorResponse>,
+  res: NextApiResponse<OperationResponse | ApiErrorResponse>,
 ) {
   try {
     const result = forceService.clearAssignment(assignmentId);
@@ -171,15 +188,19 @@ function handleDelete(
     if (result.success) {
       return res.status(200).json(result);
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to clear assignment',
-        errorCode: result.errorCode,
-      });
+      sendAssignmentFailure(
+        res,
+        result,
+        FORCES_ASSIGNMENTS_ID_TS_FAILED_TO_CLEAR_ASSIGNMENT_6,
+      );
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to clear assignment';
-    return res.status(500).json({ error: message });
+    sendAssignmentError(
+      res,
+      error,
+      FORCES_ASSIGNMENTS_ID_TS_FAILED_TO_CLEAR_ASSIGNMENT_6,
+    );
+    return;
   }
 }

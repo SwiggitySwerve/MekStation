@@ -5,13 +5,19 @@ import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
   IUnitValidationRuleResult,
+  IUnitValidationError,
   UnitValidationSeverity,
-  createUnitValidationError,
-  createUnitValidationRuleResult,
-  createPassingResult,
 } from '@/types/validation/UnitValidationInterfaces';
 
+import {
+  createRuleResult,
+  createEmptyRuleResult,
+  addRuleDiagnostic,
+} from '../ruleResults';
 import { IValidatableEquipmentItem } from './EquipmentUnitTypeRuleTypes';
+
+const EQUIPMENT_UNIT_TYPE_RULE_CONSTRAINT_CHECKS_EQUIPMENT_CATEGORY =
+  ValidationCategory.EQUIPMENT;
 
 interface IEquipmentIncompatibility {
   readonly source: string;
@@ -49,9 +55,9 @@ export const IncompatibleEquipmentCheck: IUnitValidationRuleDefinition = {
   id: 'VAL-EQUIP-UNIT-004',
   name: 'Incompatible Equipment Check',
   description: 'Mutually exclusive equipment cannot be mounted together',
-  category: ValidationCategory.EQUIPMENT,
-  priority: 103,
+  category: EQUIPMENT_UNIT_TYPE_RULE_CONSTRAINT_CHECKS_EQUIPMENT_CATEGORY,
   applicableUnitTypes: 'ALL',
+  priority: 103,
 
   canValidate(context: IUnitValidationContext): boolean {
     const unit = context.unit as {
@@ -64,10 +70,10 @@ export const IncompatibleEquipmentCheck: IUnitValidationRuleDefinition = {
     const unit = context.unit as {
       equipment?: readonly IValidatableEquipmentItem[];
     };
-    const errors: ReturnType<typeof createUnitValidationError>[] = [];
+    const errors: IUnitValidationError[] = [];
 
     if (!unit.equipment || unit.equipment.length < 2) {
-      return createPassingResult(this.id, this.name);
+      return createEmptyRuleResult(this);
     }
 
     const equipmentIds = new Set<string>();
@@ -103,37 +109,27 @@ export const IncompatibleEquipmentCheck: IUnitValidationRuleDefinition = {
           const sourceItem = equipmentByIdOrFlag.get(incompatibility.source);
           const incompatItem = equipmentByIdOrFlag.get(incompatible);
 
-          errors.push(
-            createUnitValidationError(
-              this.id,
-              this.name,
-              UnitValidationSeverity.ERROR,
-              this.category,
-              incompatibility.reason,
-              {
-                field: 'equipment',
-                expected: `Only one of: ${incompatibility.source} or ${incompatible}`,
-                actual: 'Both present',
-                suggestion: `Remove either ${sourceItem?.name || incompatibility.source} or ${incompatItem?.name || incompatible}`,
-                details: {
-                  source: incompatibility.source,
-                  incompatible,
-                },
+          addRuleDiagnostic(
+            errors,
+            this,
+            UnitValidationSeverity.ERROR,
+            incompatibility.reason,
+            {
+              field: 'equipment',
+              expected: `Only one of: ${incompatibility.source} or ${incompatible}`,
+              actual: 'Both present',
+              suggestion: `Remove either ${sourceItem?.name || incompatibility.source} or ${incompatItem?.name || incompatible}`,
+              details: {
+                source: incompatibility.source,
+                incompatible,
               },
-            ),
+            },
           );
         }
       }
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors });
   },
 };
 
@@ -163,16 +159,16 @@ export const RequiredEquipmentCheck: IUnitValidationRuleDefinition = {
   id: 'VAL-EQUIP-UNIT-005',
   name: 'Required Equipment Check',
   description: 'Validates required equipment is present for unit type',
-  category: ValidationCategory.EQUIPMENT,
-  priority: 104,
+  category: EQUIPMENT_UNIT_TYPE_RULE_CONSTRAINT_CHECKS_EQUIPMENT_CATEGORY,
   applicableUnitTypes: 'ALL',
+  priority: 104,
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const unit = context.unit as {
       equipment?: readonly IValidatableEquipmentItem[];
       heatSinkCount?: number;
     };
-    const warnings: ReturnType<typeof createUnitValidationError>[] = [];
+    const warnings: IUnitValidationError[] = [];
 
     const unitType = context.unitType;
 
@@ -185,35 +181,25 @@ export const RequiredEquipmentCheck: IUnitValidationRuleDefinition = {
         const heatSinkCount = unit.heatSinkCount ?? 0;
 
         if (heatSinkCount < requirement.minQuantity) {
-          warnings.push(
-            createUnitValidationError(
-              this.id,
-              this.name,
-              UnitValidationSeverity.WARNING,
-              this.category,
-              `${unitType} requires minimum ${requirement.minQuantity} heat sinks`,
-              {
-                field: 'heatSinkCount',
-                expected: `>= ${requirement.minQuantity}`,
-                actual: String(heatSinkCount),
-                suggestion: requirement.suggestion,
-                details: {
-                  condition: requirement.condition,
-                },
+          addRuleDiagnostic(
+            warnings,
+            this,
+            UnitValidationSeverity.WARNING,
+            `${unitType} requires minimum ${requirement.minQuantity} heat sinks`,
+            {
+              field: 'heatSinkCount',
+              expected: `>= ${requirement.minQuantity}`,
+              actual: String(heatSinkCount),
+              suggestion: requirement.suggestion,
+              details: {
+                condition: requirement.condition,
               },
-            ),
+            },
           );
         }
       }
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      [],
-      warnings,
-      [],
-      0,
-    );
+    return createRuleResult(this, { warnings });
   },
 };

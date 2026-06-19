@@ -10,20 +10,12 @@ import {
   IRecordSheetSPAEntry,
 } from '@/types/printing';
 
+import type { IBaseRecordSheetUnitConfig } from './types';
+
 import { extractHeader } from './dataExtractors';
 
 /** BattleArmor-specific unit config fields. */
-export interface IBattleArmorUnitConfig {
-  id: string;
-  name: string;
-  chassis: string;
-  model: string;
-  tonnage: number;
-  techBase: string;
-  rulesLevel: string;
-  era: string;
-  battleValue?: number;
-  cost?: number;
+export interface IBattleArmorUnitConfig extends IBaseRecordSheetUnitConfig {
   /** Number of troopers in the squad (2–6 IS, 2–5 Clan). */
   squadSize?: number;
   /** Per-trooper armor pip data. Length should equal squadSize. */

@@ -81,45 +81,29 @@ function hitProbability(tn: number): number {
  * `IPhysicalDamageResult.hitTable` we only have two tables today
  * ('punch' / 'kick'); the rest fall back to 'punch'.
  */
+const ATTACK_TYPE_LABELS: Record<PhysicalAttackType, string> = {
+  punch: 'Punch',
+  kick: 'Kick',
+  charge: 'Charge',
+  dfa: 'Death From Above',
+  push: 'Push',
+  trip: 'Trip',
+  thrash: 'Thrash',
+  'jump-jet-attack': 'Jump Jet Attack',
+  'brush-off': 'Brush Off',
+  grapple: 'Grapple',
+  'break-grapple': 'Break Grapple',
+  hatchet: 'Hatchet',
+  sword: 'Sword',
+  mace: 'Mace',
+  lance: 'Lance',
+  'retractable-blade': 'Retractable Blade',
+  flail: 'Flail',
+  'wrecking-ball': 'Wrecking Ball',
+};
+
 function attackTypeLabel(attackType: PhysicalAttackType): string {
-  switch (attackType) {
-    case 'punch':
-      return 'Punch';
-    case 'kick':
-      return 'Kick';
-    case 'charge':
-      return 'Charge';
-    case 'dfa':
-      return 'Death From Above';
-    case 'push':
-      return 'Push';
-    case 'trip':
-      return 'Trip';
-    case 'thrash':
-      return 'Thrash';
-    case 'jump-jet-attack':
-      return 'Jump Jet Attack';
-    case 'brush-off':
-      return 'Brush Off';
-    case 'grapple':
-      return 'Grapple';
-    case 'break-grapple':
-      return 'Break Grapple';
-    case 'hatchet':
-      return 'Hatchet';
-    case 'sword':
-      return 'Sword';
-    case 'mace':
-      return 'Mace';
-    case 'lance':
-      return 'Lance';
-    case 'retractable-blade':
-      return 'Retractable Blade';
-    case 'flail':
-      return 'Flail';
-    case 'wrecking-ball':
-      return 'Wrecking Ball';
-  }
+  return ATTACK_TYPE_LABELS[attackType];
 }
 
 export function PhysicalAttackForecastModal({

@@ -13,6 +13,17 @@ import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
 import { SKILL_CATALOG } from '@/constants/campaign/skillCatalog';
 
+export function getPilotSkillValue(
+  pilot: IPilot,
+  skillId: string,
+): number | undefined {
+  if (skillId === 'gunnery' || skillId === 'piloting') {
+    return pilot.skills[skillId];
+  }
+
+  return undefined;
+}
+
 /**
  * Gets the skill desirability modifier for a roster entry.
  *
@@ -279,9 +290,7 @@ export function getPersonSkillLevel(
   if (pilot === null) return -1;
 
   // Read from IPilotSkills: only gunnery and piloting are available today.
-  const skillValue = (
-    pilot.skills as unknown as Record<string, number | undefined>
-  )[skillId];
+  const skillValue = getPilotSkillValue(pilot, skillId);
   return skillValue !== undefined ? skillValue : -1;
 }
 

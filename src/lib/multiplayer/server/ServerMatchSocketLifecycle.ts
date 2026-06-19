@@ -97,7 +97,7 @@ export class ServerMatchSocketLifecycle {
    * the prior heartbeat entry — callers shouldn't do that, but we
    * defensively `clearInterval` the old timer so we don't leak.
    */
-  attach(socket: IMatchSocket, playerId: string): void {
+  attach = (socket: IMatchSocket, playerId: string): void => {
     const existing = this.sockets.get(socket);
     if (existing) {
       // Defensive: caller re-attached the same socket. Kill the old
@@ -147,7 +147,7 @@ export class ServerMatchSocketLifecycle {
       connectedAt: nowMs,
       heartbeatTimer,
     });
-  }
+  };
 
   /**
    * Tear down per-socket bookkeeping. Safe to call from any disconnect
@@ -164,7 +164,7 @@ export class ServerMatchSocketLifecycle {
    *   5. Close the underlying socket, swallowing errors (it's normal
    *      for `ws` to throw if the peer already FIN'd).
    */
-  detach(socket: IMatchSocket): void {
+  detach = (socket: IMatchSocket): void => {
     const state = this.sockets.get(socket);
     if (!state) return;
     clearInterval(state.heartbeatTimer);
@@ -184,23 +184,23 @@ export class ServerMatchSocketLifecycle {
     } catch {
       // already closed — ignore
     }
-  }
+  };
 
   /**
    * Bookkeeping called by the upgrade handler whenever ANY message
    * comes in for this socket. Resets the dead-connection timer.
    * No-op if the socket isn't tracked (e.g. already detached).
    */
-  noteInbound(socket: IMatchSocket): void {
+  noteInbound = (socket: IMatchSocket): void => {
     const state = this.sockets.get(socket);
     if (!state) return;
     state.lastInboundAt = Date.now();
-  }
+  };
 
   /** Number of currently-attached sockets. */
-  count(): number {
+  count = (): number => {
     return this.sockets.size;
-  }
+  };
 
   /**
    * Snapshot the currently-attached sockets. Returned as an array so
@@ -208,33 +208,33 @@ export class ServerMatchSocketLifecycle {
    * registry (e.g. `closeMatch` walks every socket and detaches each
    * one).
    */
-  snapshot(): readonly IMatchSocket[] {
+  snapshot = (): readonly IMatchSocket[] => {
     return Array.from(this.sockets.keys());
-  }
+  };
 
   /**
    * Snapshot sockets with their authenticated player id. Used by
    * per-recipient delivery paths such as fog-of-war filtering.
    */
-  snapshotRecipients(): readonly {
+  snapshotRecipients = (): readonly {
     readonly socket: IMatchSocket;
     readonly playerId: string;
-  }[] {
+  }[] => {
     return Array.from(this.sockets.values()).map((state) => ({
       socket: state.socket,
       playerId: state.playerId,
     }));
-  }
+  };
 
   /**
    * True iff `playerId` currently has at least one attached socket.
    * Used by host migration (design D4) to decide which seats survive.
    */
-  hasPlayer(playerId: string): boolean {
+  hasPlayer = (playerId: string): boolean => {
     return Array.from(this.sockets.values()).some(
       (s) => s.playerId === playerId,
     );
-  }
+  };
 
   /**
    * Snapshot every connected player id with the wall-clock ms its
@@ -243,7 +243,7 @@ export class ServerMatchSocketLifecycle {
    * the smallest `connectedAt` is the longest-connected player. A
    * player with two tabs is reported once, with the earlier tab's time.
    */
-  snapshotConnectedSince(): ReadonlyMap<string, number> {
+  snapshotConnectedSince = (): ReadonlyMap<string, number> => {
     const earliest = new Map<string, number>();
     for (const state of Array.from(this.sockets.values())) {
       const prior = earliest.get(state.playerId);
@@ -252,5 +252,5 @@ export class ServerMatchSocketLifecycle {
       }
     }
     return earliest;
-  }
+  };
 }

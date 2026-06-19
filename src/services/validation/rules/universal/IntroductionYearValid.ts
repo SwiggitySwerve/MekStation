@@ -10,9 +10,12 @@ import {
   IUnitValidationContext,
   IUnitValidationRuleResult,
   UnitValidationSeverity,
-  createUnitValidationError,
-  createUnitValidationRuleResult,
+  IUnitValidationError,
 } from '@/types/validation/UnitValidationInterfaces';
+
+import { createRuleResult, addRuleDiagnostic } from '../ruleResults';
+
+const INTRODUCTION_YEAR_VALID_ERA_CATEGORY = ValidationCategory.ERA;
 
 /**
  * VAL-UNIV-006: Introduction Year Valid
@@ -22,13 +25,13 @@ export const IntroductionYearValid: IUnitValidationRuleDefinition = {
   name: 'Introduction Year Valid',
   description:
     'Introduction year must be within BattleTech timeline (2005-3250)',
-  category: ValidationCategory.ERA,
-  priority: 6,
+  category: INTRODUCTION_YEAR_VALID_ERA_CATEGORY,
   applicableUnitTypes: 'ALL',
+  priority: 6,
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors = [];
+    const introductionYearValidDiagnostics: IUnitValidationError[] = [];
 
     const MIN_YEAR = 2005;
     const MAX_YEAR = 3250;
@@ -39,31 +42,21 @@ export const IntroductionYearValid: IUnitValidationRuleDefinition = {
       unit.introductionYear < MIN_YEAR ||
       unit.introductionYear > MAX_YEAR
     ) {
-      errors.push(
-        createUnitValidationError(
-          this.id,
-          this.name,
-          UnitValidationSeverity.ERROR,
-          this.category,
-          `Introduction year must be between ${MIN_YEAR} and ${MAX_YEAR}`,
-          {
-            field: 'introductionYear',
-            expected: `${MIN_YEAR}-${MAX_YEAR}`,
-            actual: String(unit.introductionYear),
-            suggestion:
-              'Provide a valid introduction year within the BattleTech timeline',
-          },
-        ),
+      addRuleDiagnostic(
+        introductionYearValidDiagnostics,
+        this,
+        UnitValidationSeverity.ERROR,
+        `Introduction year must be between ${MIN_YEAR} and ${MAX_YEAR}`,
+        {
+          field: 'introductionYear',
+          expected: `${MIN_YEAR}-${MAX_YEAR}`,
+          actual: String(unit.introductionYear),
+          suggestion:
+            'Provide a valid introduction year within the BattleTech timeline',
+        },
       );
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors: introductionYearValidDiagnostics });
   },
 };

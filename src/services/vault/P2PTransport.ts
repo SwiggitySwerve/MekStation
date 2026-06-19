@@ -240,43 +240,51 @@ export class P2PTransport {
   /**
    * Get my peer ID
    */
-  getMyId(): string {
+  readonly getMyId = (): string => {
     return this.myId;
-  }
+  };
 
   /**
    * Set signaling handler for WebRTC signaling
    */
-  setSignalingHandler(handler: SignalingHandler): void {
+  readonly setSignalingHandler = (handler: SignalingHandler): void => {
     this.signalingHandler = handler;
-  }
+  };
 
   /**
    * Set connection state change handler
    */
-  onConnectionStateChange(handler: ConnectionStateHandler): void {
+  readonly onConnectionStateChange = (
+    handler: ConnectionStateHandler,
+  ): void => {
     this.connectionStateHandler = handler;
-  }
+  };
 
   /**
    * Register a message handler for a specific message type
    */
-  onMessage(type: P2PMessageType, handler: MessageHandler): void {
+  readonly onMessage = (
+    type: P2PMessageType,
+    handler: MessageHandler,
+  ): void => {
     const handlers = this.messageHandlers.get(type) || [];
     handlers.push(handler);
     this.messageHandlers.set(type, handlers);
-  }
+  };
 
   /**
    * Remove a message handler
    */
-  offMessage(type: P2PMessageType, handler: MessageHandler): void {
+  readonly offMessage = (
+    type: P2PMessageType,
+    handler: MessageHandler,
+  ): void => {
     const handlers = this.messageHandlers.get(type) || [];
     const index = handlers.indexOf(handler);
     if (index >= 0) {
       handlers.splice(index, 1);
     }
-  }
+  };
 
   // ===========================================================================
   // Connection Management
@@ -285,7 +293,7 @@ export class P2PTransport {
   /**
    * Initiate connection to a peer
    */
-  async connect(peerId: string): Promise<boolean> {
+  readonly connect = async (peerId: string): Promise<boolean> => {
     if (this.connections.has(peerId)) {
       return true; // Already connected or connecting
     }
@@ -324,12 +332,12 @@ export class P2PTransport {
         resolve(true);
       }, 100);
     });
-  }
+  };
 
   /**
    * Disconnect from a peer
    */
-  disconnect(peerId: string): void {
+  readonly disconnect = (peerId: string): void => {
     this.stopPingInterval(peerId);
 
     const connection = this.connections.get(peerId);
@@ -340,39 +348,39 @@ export class P2PTransport {
     }
 
     this.connections.delete(peerId);
-  }
+  };
 
   /**
    * Disconnect from all peers
    */
-  disconnectAll(): void {
+  readonly disconnectAll = (): void => {
     const peerIds = Array.from(this.connections.keys());
     for (const peerId of peerIds) {
       this.disconnect(peerId);
     }
-  }
+  };
 
   /**
    * Get connection state for a peer
    */
-  getConnection(peerId: string): IP2PConnection | undefined {
+  readonly getConnection = (peerId: string): IP2PConnection | undefined => {
     return this.connections.get(peerId);
-  }
+  };
 
   /**
    * Get all connections
    */
-  getAllConnections(): IP2PConnection[] {
+  readonly getAllConnections = (): IP2PConnection[] => {
     return Array.from(this.connections.values());
-  }
+  };
 
   /**
    * Check if connected to a peer
    */
-  isConnected(peerId: string): boolean {
+  readonly isConnected = (peerId: string): boolean => {
     const conn = this.connections.get(peerId);
     return conn?.state === 'connected' && conn?.dataChannelState === 'open';
-  }
+  };
 
   // ===========================================================================
   // Message Sending
@@ -381,7 +389,10 @@ export class P2PTransport {
   /**
    * Send a message to a peer
    */
-  async send(peerId: string, message: IP2PMessage): Promise<boolean> {
+  readonly send = async (
+    peerId: string,
+    message: IP2PMessage,
+  ): Promise<boolean> => {
     const connection = this.connections.get(peerId);
     if (!connection || connection.state !== 'connected') {
       return false;
@@ -397,12 +408,12 @@ export class P2PTransport {
     // In a full implementation, this would send via RTCDataChannel
     // For now, simulate delivery
     return true;
-  }
+  };
 
   /**
    * Broadcast a message to all connected peers
    */
-  async broadcast(message: IP2PMessage): Promise<number> {
+  readonly broadcast = async (message: IP2PMessage): Promise<number> => {
     let sent = 0;
     const peerIds = Array.from(this.connections.keys());
     for (const peerId of peerIds) {
@@ -411,7 +422,7 @@ export class P2PTransport {
       }
     }
     return sent;
-  }
+  };
 
   // ===========================================================================
   // Message Receiving
@@ -420,7 +431,10 @@ export class P2PTransport {
   /**
    * Handle a received message (called from data channel)
    */
-  async handleMessage(peerId: string, data: string): Promise<void> {
+  readonly handleMessage = async (
+    peerId: string,
+    data: string,
+  ): Promise<void> => {
     try {
       const message = JSON.parse(data) as IP2PMessage;
 
@@ -448,12 +462,14 @@ export class P2PTransport {
     } catch (error) {
       logger.error('Failed to handle message:', error);
     }
-  }
+  };
 
   /**
    * Handle signaling message (for WebRTC setup)
    */
-  async handleSignaling(message: ISignalingMessage): Promise<void> {
+  readonly handleSignaling = async (
+    message: ISignalingMessage,
+  ): Promise<void> => {
     // In a full implementation, this would:
     // - Handle offers by creating answers
     // - Handle answers by setting remote description
@@ -461,7 +477,7 @@ export class P2PTransport {
 
     // For now, just log
     logger.debug('Received signaling:', message.type, 'from', message.sourceId);
-  }
+  };
 
   // ===========================================================================
   // Internal Helpers

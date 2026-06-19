@@ -10,11 +10,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import {
+  initializeApiDatabase,
+  sendCaughtApiError,
+  sendOperationFailure,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
+import {
   getEncounterRepository,
   IEncounterOperationResult,
 } from '@/services/encounter/EncounterRepository';
 import { getEncounterService } from '@/services/encounter/EncounterService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { IEncounter, ICreateEncounterInput } from '@/types/encounter';
 
 // =============================================================================
@@ -46,27 +51,15 @@ type CreateResponse = IEncounterOperationResult & {
   encounter?: IEncounter;
 };
 
-type ErrorResponse = {
-  error: string;
-  code?: string;
-};
-
 // =============================================================================
 // Handler
 // =============================================================================
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ListResponse | CreateResponse | ErrorResponse>,
+  res: NextApiResponse<ListResponse | CreateResponse | ApiErrorResponse>,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initializeApiDatabase(res)) return;
 
   const encounterService = getEncounterService();
 
@@ -103,7 +96,7 @@ export default async function handler(
  */
 function handleGet(
   encounterService: ReturnType<typeof getEncounterService>,
-  res: NextApiResponse<ListResponse | ErrorResponse>,
+  res: NextApiResponse<ListResponse | ApiErrorResponse>,
 ) {
   try {
     const encounters = encounterService.getAllEncounters();
@@ -121,9 +114,8 @@ function handleGet(
       rawForceIds,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to list encounters';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'Failed to list encounters');
+    return;
   }
 }
 
@@ -133,7 +125,7 @@ function handleGet(
 function handlePost(
   encounterService: ReturnType<typeof getEncounterService>,
   req: NextApiRequest,
-  res: NextApiResponse<CreateResponse | ErrorResponse>,
+  res: NextApiResponse<CreateResponse | ApiErrorResponse>,
 ) {
   try {
     const body = req.body as ICreateEncounterInput;
@@ -150,15 +142,11 @@ function handlePost(
         .status(201)
         .json({ ...result, encounter: encounter || undefined });
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to create encounter',
-        errorCode: result.errorCode,
-      });
+      sendOperationFailure(res, result, 'Failed to create encounter');
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to create encounter';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'Failed to create encounter');
+    return;
   }
 }

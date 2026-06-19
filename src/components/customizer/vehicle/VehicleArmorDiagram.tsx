@@ -85,6 +85,10 @@ export function VehicleArmorDiagram({
   const hasTurret = turret !== null;
   const hasSecondaryTurret = secondaryTurret !== null;
   const isChinTurret = turret?.type === TurretType.CHIN;
+  const armorProfile = useMemo(
+    () => ({ hasTurret, isVTOL, hasSecondaryTurret }),
+    [hasTurret, isVTOL, hasSecondaryTurret],
+  );
 
   // Build ordered list of active locations for this vehicle configuration.
   // The turret slot's label switches to "Chin Turret" when turret.type === CHIN
@@ -112,16 +116,14 @@ export function VehicleArmorDiagram({
 
   const handleChange = useCallback(
     (location: VehicleArmorLocation, raw: number) => {
-      const max = getMaxVehicleArmorForLocation(
+      const max = getMaxVehicleArmorForLocation({
         tonnage,
         location,
-        hasTurret,
-        isVTOL,
-        hasSecondaryTurret,
-      );
+        profile: armorProfile,
+      });
       setLocationArmor(location, Math.max(0, Math.min(max, raw)));
     },
-    [setLocationArmor, tonnage, hasTurret, isVTOL, hasSecondaryTurret],
+    [setLocationArmor, tonnage, armorProfile],
   );
 
   // Available points derived from armor tonnage (standard 16 pts/ton for display)
@@ -246,13 +248,11 @@ export function VehicleArmorDiagram({
       <div className="grid grid-cols-2 gap-3">
         {locations.map(({ key, label }) => {
           const current = (armorAllocation as Record<string, number>)[key] ?? 0;
-          const max = getMaxVehicleArmorForLocation(
+          const max = getMaxVehicleArmorForLocation({
             tonnage,
-            key as VehicleArmorLocation,
-            hasTurret,
-            isVTOL,
-            hasSecondaryTurret,
-          );
+            location: key as VehicleArmorLocation,
+            profile: armorProfile,
+          });
           const accentClass =
             key === VehicleLocation.TURRET
               ? 'text-amber-400'

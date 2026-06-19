@@ -16,6 +16,7 @@ import { EngineType } from '@/types/construction/EngineType';
 import { AerospaceEngineType } from '@/types/unit/AerospaceInterfaces';
 
 import { customizerStyles as cs } from '../styles';
+import { SelectOptions } from '../tabs/SelectOptions';
 import {
   AEROSPACE_ENGINE_TYPE_OPTIONS,
   LEGACY_ENGINE_TYPE_OPTIONS,
@@ -88,11 +89,7 @@ export function EngineSection({
           className={`${cs.select.full} mt-1`}
           data-testid="aerospace-engine-type-select"
         >
-          {AEROSPACE_ENGINE_TYPE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
+          <SelectOptions options={AEROSPACE_ENGINE_TYPE_OPTIONS} />
         </select>
         <p className="text-text-theme-secondary mt-1 text-xs">
           Conventional fighters: ICE or Fuel Cell only
@@ -109,11 +106,7 @@ export function EngineSection({
           className={`${cs.select.full} mt-1`}
           data-testid="aerospace-legacy-engine-select"
         >
-          {LEGACY_ENGINE_TYPE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
+          <SelectOptions options={LEGACY_ENGINE_TYPE_OPTIONS} />
         </select>
       </div>
 

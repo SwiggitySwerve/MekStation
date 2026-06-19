@@ -98,6 +98,47 @@ const REAR_LOCATION_PATTERNS = [
   'RT (Rear)',
 ];
 
+const LOWER_REAR_LOCATION_PATTERNS = REAR_LOCATION_PATTERNS.map((pattern) =>
+  pattern.toLowerCase(),
+);
+
+interface LocationTokenRule {
+  readonly location: MechLocation;
+  readonly tokens: readonly string[];
+}
+
+interface RearAbbreviationRule {
+  readonly prefix: string;
+  readonly location: MechLocation;
+}
+
+const REAR_TEXT_RULES: readonly LocationTokenRule[] = [
+  { location: MechLocation.CENTER_TORSO, tokens: ['center'] },
+  { location: MechLocation.LEFT_TORSO, tokens: ['left'] },
+  { location: MechLocation.RIGHT_TORSO, tokens: ['right'] },
+];
+
+const REAR_ABBREVIATION_RULES: readonly RearAbbreviationRule[] = [
+  { prefix: 'CT', location: MechLocation.CENTER_TORSO },
+  { prefix: 'LT', location: MechLocation.LEFT_TORSO },
+  { prefix: 'RT', location: MechLocation.RIGHT_TORSO },
+];
+
+const FUZZY_LOCATION_RULES: readonly LocationTokenRule[] = [
+  { location: MechLocation.HEAD, tokens: ['head'] },
+  { location: MechLocation.CENTER_TORSO, tokens: ['center', 'torso'] },
+  { location: MechLocation.LEFT_TORSO, tokens: ['left', 'torso'] },
+  { location: MechLocation.RIGHT_TORSO, tokens: ['right', 'torso'] },
+  { location: MechLocation.LEFT_ARM, tokens: ['left', 'arm'] },
+  { location: MechLocation.RIGHT_ARM, tokens: ['right', 'arm'] },
+  { location: MechLocation.FRONT_LEFT_LEG, tokens: ['front', 'left', 'leg'] },
+  { location: MechLocation.FRONT_RIGHT_LEG, tokens: ['front', 'right', 'leg'] },
+  { location: MechLocation.REAR_LEFT_LEG, tokens: ['rear', 'left', 'leg'] },
+  { location: MechLocation.REAR_RIGHT_LEG, tokens: ['rear', 'right', 'leg'] },
+  { location: MechLocation.LEFT_LEG, tokens: ['left', 'leg'] },
+  { location: MechLocation.RIGHT_LEG, tokens: ['right', 'leg'] },
+];
+
 /**
  * Result of parsing a location string
  */
@@ -114,38 +155,46 @@ export function mapLocation(source: string): MechLocation | undefined {
   return LOCATION_MAP[normalized];
 }
 
+function matchesAllTokens(source: string, tokens: readonly string[]): boolean {
+  return tokens.every((token) => source.includes(token));
+}
+
+function matchTokenRule(
+  source: string,
+  rules: readonly LocationTokenRule[],
+): MechLocation | undefined {
+  return rules.find((rule) => matchesAllTokens(source, rule.tokens))?.location;
+}
+
+function hasRearLocationPattern(source: string): boolean {
+  return LOWER_REAR_LOCATION_PATTERNS.some((pattern) =>
+    source.includes(pattern),
+  );
+}
+
+function resolveRearLocation(
+  lowerSource: string,
+  upperSource: string,
+): MechLocation | undefined {
+  return (
+    matchTokenRule(lowerSource, REAR_TEXT_RULES) ??
+    REAR_ABBREVIATION_RULES.find((rule) => upperSource.startsWith(rule.prefix))
+      ?.location
+  );
+}
+
 /**
  * Parse a location string, detecting if it's a rear-facing location
  */
 export function parseLocation(source: string): ParsedLocation | undefined {
   const normalized = source.trim();
+  const lowerSource = normalized.toLowerCase();
+  const upperSource = normalized.toUpperCase();
 
-  // Check if it's a rear location
-  const isRear = REAR_LOCATION_PATTERNS.some(
-    (pattern) =>
-      normalized.toLowerCase().includes(pattern.toLowerCase()) ||
-      normalized === pattern,
-  );
-
-  if (isRear) {
-    // Extract the base location from rear pattern
-    if (normalized.toLowerCase().includes('center')) {
-      return { location: MechLocation.CENTER_TORSO, isRear: true };
-    }
-    if (normalized.toLowerCase().includes('left')) {
-      return { location: MechLocation.LEFT_TORSO, isRear: true };
-    }
-    if (normalized.toLowerCase().includes('right')) {
-      return { location: MechLocation.RIGHT_TORSO, isRear: true };
-    }
-    if (normalized.toUpperCase().startsWith('CT')) {
-      return { location: MechLocation.CENTER_TORSO, isRear: true };
-    }
-    if (normalized.toUpperCase().startsWith('LT')) {
-      return { location: MechLocation.LEFT_TORSO, isRear: true };
-    }
-    if (normalized.toUpperCase().startsWith('RT')) {
-      return { location: MechLocation.RIGHT_TORSO, isRear: true };
+  if (hasRearLocationPattern(lowerSource)) {
+    const rearLocation = resolveRearLocation(lowerSource, upperSource);
+    if (rearLocation) {
+      return { location: rearLocation, isRear: true };
     }
   }
 
@@ -155,73 +204,9 @@ export function parseLocation(source: string): ParsedLocation | undefined {
     return { location, isRear: false };
   }
 
-  // Fuzzy matching
-  const lowerSource = normalized.toLowerCase();
-
-  if (lowerSource.includes('head')) {
-    return { location: MechLocation.HEAD, isRear: false };
-  }
-
-  if (lowerSource.includes('center') && lowerSource.includes('torso')) {
-    return { location: MechLocation.CENTER_TORSO, isRear: false };
-  }
-
-  if (lowerSource.includes('left') && lowerSource.includes('torso')) {
-    return { location: MechLocation.LEFT_TORSO, isRear: false };
-  }
-
-  if (lowerSource.includes('right') && lowerSource.includes('torso')) {
-    return { location: MechLocation.RIGHT_TORSO, isRear: false };
-  }
-
-  if (lowerSource.includes('left') && lowerSource.includes('arm')) {
-    return { location: MechLocation.LEFT_ARM, isRear: false };
-  }
-
-  if (lowerSource.includes('right') && lowerSource.includes('arm')) {
-    return { location: MechLocation.RIGHT_ARM, isRear: false };
-  }
-
-  // Quad leg locations (check front/rear before generic legs)
-  if (
-    lowerSource.includes('front') &&
-    lowerSource.includes('left') &&
-    lowerSource.includes('leg')
-  ) {
-    return { location: MechLocation.FRONT_LEFT_LEG, isRear: false };
-  }
-
-  if (
-    lowerSource.includes('front') &&
-    lowerSource.includes('right') &&
-    lowerSource.includes('leg')
-  ) {
-    return { location: MechLocation.FRONT_RIGHT_LEG, isRear: false };
-  }
-
-  if (
-    lowerSource.includes('rear') &&
-    lowerSource.includes('left') &&
-    lowerSource.includes('leg')
-  ) {
-    return { location: MechLocation.REAR_LEFT_LEG, isRear: false };
-  }
-
-  if (
-    lowerSource.includes('rear') &&
-    lowerSource.includes('right') &&
-    lowerSource.includes('leg')
-  ) {
-    return { location: MechLocation.REAR_RIGHT_LEG, isRear: false };
-  }
-
-  // Biped leg locations (generic left/right leg)
-  if (lowerSource.includes('left') && lowerSource.includes('leg')) {
-    return { location: MechLocation.LEFT_LEG, isRear: false };
-  }
-
-  if (lowerSource.includes('right') && lowerSource.includes('leg')) {
-    return { location: MechLocation.RIGHT_LEG, isRear: false };
+  const fuzzyLocation = matchTokenRule(lowerSource, FUZZY_LOCATION_RULES);
+  if (fuzzyLocation) {
+    return { location: fuzzyLocation, isRear: false };
   }
 
   return undefined;
@@ -257,6 +242,68 @@ interface MutableArmorAllocation {
   rightLeg: number;
 }
 
+type ArmorLocationAssigner = (
+  allocation: MutableArmorAllocation,
+  points: number,
+  source: SourceArmorLocation,
+) => void;
+
+const REAR_ARMOR_ASSIGNERS: Partial<
+  Record<MechLocation, ArmorLocationAssigner>
+> = {
+  [MechLocation.CENTER_TORSO]: (allocation, points) => {
+    allocation.centerTorsoRear = points;
+  },
+  [MechLocation.LEFT_TORSO]: (allocation, points) => {
+    allocation.leftTorsoRear = points;
+  },
+  [MechLocation.RIGHT_TORSO]: (allocation, points) => {
+    allocation.rightTorsoRear = points;
+  },
+};
+
+function assignRearArmorPoints(
+  allocation: MutableArmorAllocation,
+  source: SourceArmorLocation,
+  rearKey: 'centerTorsoRear' | 'leftTorsoRear' | 'rightTorsoRear',
+): void {
+  if (typeof source.rear_armor_points === 'number') {
+    allocation[rearKey] = source.rear_armor_points;
+  }
+}
+
+const FRONT_ARMOR_ASSIGNERS: Partial<
+  Record<MechLocation, ArmorLocationAssigner>
+> = {
+  [MechLocation.HEAD]: (allocation, points) => {
+    allocation.head = points;
+  },
+  [MechLocation.CENTER_TORSO]: (allocation, points, source) => {
+    allocation.centerTorso = points;
+    assignRearArmorPoints(allocation, source, 'centerTorsoRear');
+  },
+  [MechLocation.LEFT_TORSO]: (allocation, points, source) => {
+    allocation.leftTorso = points;
+    assignRearArmorPoints(allocation, source, 'leftTorsoRear');
+  },
+  [MechLocation.RIGHT_TORSO]: (allocation, points, source) => {
+    allocation.rightTorso = points;
+    assignRearArmorPoints(allocation, source, 'rightTorsoRear');
+  },
+  [MechLocation.LEFT_ARM]: (allocation, points) => {
+    allocation.leftArm = points;
+  },
+  [MechLocation.RIGHT_ARM]: (allocation, points) => {
+    allocation.rightArm = points;
+  },
+  [MechLocation.LEFT_LEG]: (allocation, points) => {
+    allocation.leftLeg = points;
+  },
+  [MechLocation.RIGHT_LEG]: (allocation, points) => {
+    allocation.rightLeg = points;
+  },
+};
+
 /**
  * Convert MegaMekLab armor locations array to IArmorAllocation
  */
@@ -284,56 +331,9 @@ export function convertArmorLocations(
     const points = loc.armor_points;
 
     if (parsed.isRear) {
-      // This is a rear armor entry
-      switch (parsed.location) {
-        case MechLocation.CENTER_TORSO:
-          allocation.centerTorsoRear = points;
-          break;
-        case MechLocation.LEFT_TORSO:
-          allocation.leftTorsoRear = points;
-          break;
-        case MechLocation.RIGHT_TORSO:
-          allocation.rightTorsoRear = points;
-          break;
-      }
+      REAR_ARMOR_ASSIGNERS[parsed.location]?.(allocation, points, loc);
     } else {
-      // Front armor
-      switch (parsed.location) {
-        case MechLocation.HEAD:
-          allocation.head = points;
-          break;
-        case MechLocation.CENTER_TORSO:
-          allocation.centerTorso = points;
-          // Handle inline rear_armor_points if present
-          if (typeof loc.rear_armor_points === 'number') {
-            allocation.centerTorsoRear = loc.rear_armor_points;
-          }
-          break;
-        case MechLocation.LEFT_TORSO:
-          allocation.leftTorso = points;
-          if (typeof loc.rear_armor_points === 'number') {
-            allocation.leftTorsoRear = loc.rear_armor_points;
-          }
-          break;
-        case MechLocation.RIGHT_TORSO:
-          allocation.rightTorso = points;
-          if (typeof loc.rear_armor_points === 'number') {
-            allocation.rightTorsoRear = loc.rear_armor_points;
-          }
-          break;
-        case MechLocation.LEFT_ARM:
-          allocation.leftArm = points;
-          break;
-        case MechLocation.RIGHT_ARM:
-          allocation.rightArm = points;
-          break;
-        case MechLocation.LEFT_LEG:
-          allocation.leftLeg = points;
-          break;
-        case MechLocation.RIGHT_LEG:
-          allocation.rightLeg = points;
-          break;
-      }
+      FRONT_ARMOR_ASSIGNERS[parsed.location]?.(allocation, points, loc);
     }
   }
 

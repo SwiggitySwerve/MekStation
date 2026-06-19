@@ -11,14 +11,12 @@
 
 import { GamePhase, type ITacticalCommand } from '@/types/gameplay';
 
-const ALL_PHASES: readonly GamePhase[] = [
-  GamePhase.Initiative,
-  GamePhase.Movement,
-  GamePhase.WeaponAttack,
-  GamePhase.PhysicalAttack,
-  GamePhase.Heat,
-  GamePhase.End,
-];
+import {
+  activeUnitTurnAvailability,
+  ALL_GAME_PHASES,
+  alwaysAvailable,
+  commitStaticAction,
+} from './commandDescriptorHelpers';
 
 export function buildUtilityCommands(): readonly ITacticalCommand[] {
   return [
@@ -33,53 +31,35 @@ const UtilityEjectCommand: ITacticalCommand = {
   id: 'utility.eject',
   category: 'utility',
   label: 'Eject',
-  phaseConstraints: ALL_PHASES,
+  phaseConstraints: ALL_GAME_PHASES,
   requiresConfirmation: true, // Eject ends the unit's combat life.
   undoable: false,
-  availability(ctx) {
-    if (!ctx.activeUnitId)
-      return { available: false, reason: 'No unit is active.' };
-    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
-    return { available: true };
-  },
-  commit() {
-    return { actionId: 'eject', payload: {} };
-  },
+  availability: activeUnitTurnAvailability,
+  commit: commitStaticAction('eject'),
 };
 
 const UtilityWithdrawCommand: ITacticalCommand = {
   id: 'utility.withdraw',
   category: 'utility',
   label: 'Withdraw',
-  phaseConstraints: ALL_PHASES,
+  phaseConstraints: ALL_GAME_PHASES,
   requiresConfirmation: true,
   undoable: true,
-  availability(ctx) {
-    if (!ctx.activeUnitId)
-      return { available: false, reason: 'No unit is active.' };
-    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
-    return { available: true };
-  },
-  commit() {
-    return { actionId: 'withdraw', payload: {} };
-  },
+  availability: activeUnitTurnAvailability,
+  commit: commitStaticAction('withdraw'),
 };
 
 const UtilityConcedeCommand: ITacticalCommand = {
   id: 'utility.concede',
   category: 'utility',
   label: 'Concede',
-  phaseConstraints: ALL_PHASES,
+  phaseConstraints: ALL_GAME_PHASES,
   requiresConfirmation: true,
   undoable: false,
-  availability() {
-    // Concede is available from any side at any time — it does not
-    // require activeUnit or canAct (a player can concede out of turn).
-    return { available: true };
-  },
-  commit() {
-    return { actionId: 'concede', payload: {} };
-  },
+  availability: alwaysAvailable,
+  // Concede is available from any side at any time — it does not
+  // require activeUnit or canAct (a player can concede out of turn).
+  commit: commitStaticAction('concede'),
 };
 
 const UtilityRequestSpotCommand: ITacticalCommand = {
@@ -91,9 +71,8 @@ const UtilityRequestSpotCommand: ITacticalCommand = {
   undoable: true,
   targetsEnemy: true,
   availability(ctx) {
-    if (!ctx.activeUnitId)
-      return { available: false, reason: 'No unit is active.' };
-    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
+    const unavailable = activeUnitTurnAvailability(ctx);
+    if (!unavailable.available) return unavailable;
     if (!ctx.targetUnitId) {
       return { available: false, reason: 'Select a target to spot.' };
     }

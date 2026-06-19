@@ -127,6 +127,76 @@ describe('ParityValidationHelpers', () => {
       expect(issues.find((i) => i.field === 'LA armor')).toBeUndefined();
     });
 
+    it('reports missing and extra actuator slot mismatches', () => {
+      const original = [
+        ...baseLines,
+        'Left Arm:',
+        'Shoulder',
+        'Upper Arm Actuator',
+        '-Empty-',
+        'Medium Laser',
+      ];
+      const generated = [
+        ...baseLines,
+        'Left Arm:',
+        '-Empty-',
+        'Upper Arm Actuator',
+        'Hand Actuator',
+        'Medium Laser',
+      ];
+
+      const issues = compareAndCategorize(original, generated);
+
+      expect(issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            category: DiscrepancyCategory.MissingActuator,
+            location: 'LEFT_ARM',
+            index: 0,
+            expected: 'Shoulder',
+            actual: '-Empty-',
+          }),
+          expect.objectContaining({
+            category: DiscrepancyCategory.ExtraActuator,
+            location: 'LEFT_ARM',
+            index: 2,
+            expected: '-Empty-',
+            actual: 'Hand Actuator',
+          }),
+        ]),
+      );
+    });
+
+    it('reports non-actuator slot and slot-count mismatches', () => {
+      const original = [
+        ...baseLines,
+        'Right Arm:',
+        'Medium Laser',
+        'Heat Sink',
+      ];
+      const generated = [...baseLines, 'Right Arm:', 'Small Laser'];
+
+      const issues = compareAndCategorize(original, generated);
+
+      expect(issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            category: DiscrepancyCategory.SlotCountMismatch,
+            location: 'RIGHT_ARM',
+            expected: '2 slots',
+            actual: '1 slots',
+          }),
+          expect.objectContaining({
+            category: DiscrepancyCategory.SlotMismatch,
+            location: 'RIGHT_ARM',
+            index: 0,
+            expected: 'Medium Laser',
+            actual: 'Small Laser',
+          }),
+        ]),
+      );
+    });
+
     it('reports a QuirkMismatch for an extra quirk in the generated file', () => {
       const original = ['chassis:Atlas', 'quirk:rugged_1'];
       const generated = [

@@ -10,11 +10,22 @@
 
 import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
-import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
+import {
+  addGeneratedMountedEquipment,
+  clearMountedEquipment,
+  linkMountedAmmo,
+  removeMountedEquipment,
+  updateMountedEquipment,
+} from '@/stores/equipmentStoreActions';
+import {
+  createUnitStorePersistOptions,
+  createUnitIdentityActions,
+  modificationPatch,
+  pickPersistedUnitIdentity,
+} from '@/stores/unitStoreIdentityActions';
 import { IEquipmentItem } from '@/types/equipment';
-import { generateUnitId } from '@/utils/uuid';
 
 import {
   VehicleState,
@@ -64,49 +75,7 @@ export function createVehicleStore(
         // Identity Actions
         // =================================================================
 
-        setName: (name) =>
-          set({
-            name,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
-
-        setChassis: (chassis) =>
-          set((state) => ({
-            chassis,
-            name: `${chassis}${state.model ? ' ' + state.model : ''}`,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          })),
-
-        setModel: (model) =>
-          set((state) => ({
-            model,
-            name: `${state.chassis}${model ? ' ' + model : ''}`,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          })),
-
-        setMulId: (mulId) =>
-          set({
-            mulId,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
-
-        setYear: (year) =>
-          set({
-            year,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
-
-        setRulesLevel: (rulesLevel) =>
-          set({
-            rulesLevel,
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+        ...createUnitIdentityActions<VehicleStore>(set),
 
         // =================================================================
         // Chassis Actions
@@ -261,30 +230,20 @@ export function createVehicleStore(
         // Equipment Actions
         // =================================================================
 
-        addEquipment: (item: IEquipmentItem, location?, isTurretMounted?) => {
-          const instanceId = generateUnitId();
-          const mountedEquipment = createVehicleMountedEquipment(
-            item,
-            instanceId,
-            location,
-            isTurretMounted ?? false,
-          );
-
-          set((state) => ({
-            equipment: [...state.equipment, mountedEquipment],
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }));
-
-          return instanceId;
-        },
+        addEquipment: (item: IEquipmentItem, location?, isTurretMounted?) =>
+          addGeneratedMountedEquipment(set, (instanceId) =>
+            createVehicleMountedEquipment(
+              item,
+              instanceId,
+              location,
+              isTurretMounted ?? false,
+            ),
+          ),
 
         removeEquipment: (instanceId: string) =>
-          set((state) => ({
-            equipment: state.equipment.filter((e) => e.id !== instanceId),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          })),
+          set((state) =>
+            removeMountedEquipment(state, instanceId, (e) => e.id),
+          ),
 
         updateEquipmentLocation: (instanceId, location, isTurretMounted?) =>
           set((state) =>
@@ -297,58 +256,43 @@ export function createVehicleStore(
           ),
 
         setEquipmentRearMounted: (instanceId: string, isRearMounted: boolean) =>
-          set((state) => ({
-            equipment: state.equipment.map((e) =>
-              e.id === instanceId ? { ...e, isRearMounted } : e,
+          set((state) =>
+            updateMountedEquipment(
+              state,
+              instanceId,
+              (e) => e.id,
+              (e) => ({
+                ...e,
+                isRearMounted,
+              }),
             ),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          })),
+          ),
 
         linkAmmo: (
           weaponInstanceId: string,
           ammoInstanceId: string | undefined,
         ) =>
-          set((state) => ({
-            equipment: state.equipment.map((e) =>
-              e.id === weaponInstanceId
-                ? { ...e, linkedAmmoId: ammoInstanceId }
-                : e,
+          set((state) =>
+            linkMountedAmmo(
+              state,
+              weaponInstanceId,
+              ammoInstanceId,
+              (e) => e.id,
             ),
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          })),
+          ),
 
-        clearAllEquipment: () =>
-          set({
-            equipment: [],
-            isModified: true,
-            lastModifiedAt: Date.now(),
-          }),
+        clearAllEquipment: () => set(clearMountedEquipment()),
 
         // =================================================================
         // Metadata Actions
         // =================================================================
 
-        markModified: (modified = true) =>
-          set({
-            isModified: modified,
-            lastModifiedAt: Date.now(),
-          }),
+        markModified: (modified = true) => set(modificationPatch(modified)),
       }),
-      {
-        name: `megamek-vehicle-${initialState.id}`,
-        storage: createJSONStorage(() => clientSafeStorage),
-        skipHydration: true,
-        // Only persist state, not actions
-        partialize: (state) => ({
-          id: state.id,
-          name: state.name,
-          chassis: state.chassis,
-          model: state.model,
-          mulId: state.mulId,
-          year: state.year,
-          rulesLevel: state.rulesLevel,
+      createUnitStorePersistOptions(
+        `megamek-vehicle-${initialState.id}`,
+        (state: VehicleStore) => ({
+          ...pickPersistedUnitIdentity(state),
           tonnage: state.tonnage,
           techBase: state.techBase,
           unitType: state.unitType,
@@ -378,7 +322,7 @@ export function createVehicleStore(
           createdAt: state.createdAt,
           lastModifiedAt: state.lastModifiedAt,
         }),
-      },
+      ),
     ),
   );
 }

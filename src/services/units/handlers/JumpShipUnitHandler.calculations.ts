@@ -1,5 +1,7 @@
 import type { IJumpShip } from './JumpShipUnitHandler.types';
 
+import { pushTonnageRangeErrors } from './unitHandlerShared';
+
 export function validateJumpShip(unit: IJumpShip): {
   errors: string[];
   warnings: string[];
@@ -9,12 +11,13 @@ export function validateJumpShip(unit: IJumpShip): {
   const warnings: string[] = [];
   const infos: string[] = [];
 
-  if (unit.tonnage < 50000) {
-    errors.push('JumpShip tonnage must be at least 50,000 tons');
-  }
-  if (unit.tonnage > 500000) {
-    errors.push('JumpShip tonnage cannot exceed 500,000 tons');
-  }
+  pushTonnageRangeErrors(errors, unit.tonnage, {
+    label: 'JumpShip',
+    min: 50000,
+    max: 500000,
+    minText: '50,000',
+    maxText: '500,000',
+  });
 
   if (!unit.kfDrive.hasDriveCore) {
     errors.push('JumpShip must have a K-F drive core');

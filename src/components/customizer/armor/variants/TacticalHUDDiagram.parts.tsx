@@ -1,18 +1,15 @@
 import React from 'react';
 
-import type { LocationArmorData } from '@/types/construction/LocationArmorData';
-import type { MechConfigType } from '@/types/construction/MechConfigType';
+import type { MechLocation } from '@/types/construction';
 
-import { MechLocation } from '@/types/construction';
+import type { BaseArmorLocationProps } from '../shared/ArmorVariantRenderHelpers';
+import type { ResolvedPosition } from '../shared/layout';
 
+import { ArmorLocationInteractionGroup } from '../shared/ArmorLocationInteractionGroup';
 import {
-  getArmorStatusColor,
-  getTorsoFrontStatusColor,
-  getTorsoRearStatusColor,
-  darkenColor,
-} from '../shared/ArmorFills';
-import { ResolvedPosition } from '../shared/layout';
-import { getLocationLabel, hasTorsoRear } from '../shared/MechSilhouette';
+  resolveTacticalLocationViewModel,
+  type TacticalLocationViewModel,
+} from './TacticalHUDDiagram.location';
 
 interface LEDDigitProps {
   value: string;
@@ -141,89 +138,32 @@ function CornerBrackets({
   );
 }
 
-interface TacticalLocationProps {
-  location: MechLocation;
-  position: ResolvedPosition;
-  data?: LocationArmorData;
-  isSelected: boolean;
-  isHovered: boolean;
-  onClick: () => void;
-  onHover: (hovered: boolean) => void;
-  configType?: MechConfigType;
+type TacticalLocationProps = BaseArmorLocationProps;
+
+interface TacticalLocationSectionProps {
+  viewModel: TacticalLocationViewModel;
 }
 
-export function TacticalLocation({
-  location,
-  position,
-  data,
-  isSelected,
-  isHovered,
-  onClick,
-  onHover,
-  configType = 'biped',
-}: TacticalLocationProps): React.ReactElement {
-  const label = getLocationLabel(location, configType);
-  const showRear = hasTorsoRear(location);
-  const isHead = location === MechLocation.HEAD;
-
-  const pos = position;
-  const center = {
-    x: pos.x + pos.width / 2,
-    y: pos.y + pos.height / 2,
-  };
-
-  const front = data?.current ?? 0;
-  const frontMax = data?.maximum ?? 1;
-  const rear = data?.rear ?? 0;
-  const rearMax = data?.rearMaximum ?? 1;
-
-  const expectedFrontMax = showRear ? Math.round(frontMax * 0.75) : frontMax;
-  const expectedRearMax = showRear ? Math.round(frontMax * 0.25) : 1;
-
-  const frontPercent =
-    expectedFrontMax > 0 ? Math.min(100, (front / expectedFrontMax) * 100) : 0;
-  const rearPercent =
-    expectedRearMax > 0 ? Math.min(100, (rear / expectedRearMax) * 100) : 0;
-
-  const frontColor = isSelected
-    ? '#3b82f6'
-    : showRear
-      ? getTorsoFrontStatusColor(front, frontMax)
-      : getArmorStatusColor(front, frontMax);
-  const rearColor = isSelected
-    ? '#3b82f6'
-    : getTorsoRearStatusColor(rear, frontMax);
-  const darkFrontFill = darkenColor(frontColor, 0.6);
-  const darkRearFill = darkenColor(rearColor, 0.6);
-
-  const frontSectionHeight = showRear ? pos.height * 0.6 : pos.height;
-  const rearSectionHeight = showRear ? pos.height * 0.4 : 0;
-  const dividerY = pos.y + frontSectionHeight;
-
-  const frontFillHeight = frontSectionHeight * (frontPercent / 100);
-  const frontFillY = pos.y + frontSectionHeight - frontFillHeight;
-  const rearFillHeight = rearSectionHeight * (rearPercent / 100);
-  const rearFillY = dividerY + rearSectionHeight - rearFillHeight;
+function TacticalFrontSection({
+  viewModel,
+}: TacticalLocationSectionProps): React.ReactElement {
+  const {
+    label,
+    showRear,
+    isHead,
+    pos,
+    center,
+    front,
+    frontPercent,
+    frontColor,
+    darkFrontFill,
+    frontSectionHeight,
+    frontFillHeight,
+    frontFillY,
+  } = viewModel;
 
   return (
-    <g
-      role="button"
-      tabIndex={0}
-      aria-label={`${location} armor: ${front} of ${frontMax}${showRear ? `, rear: ${rear} of ${rearMax}` : ''}`}
-      aria-pressed={isSelected}
-      className="cursor-pointer focus:outline-none"
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      onMouseEnter={() => onHover(true)}
-      onMouseLeave={() => onHover(false)}
-      onFocus={() => onHover(true)}
-      onBlur={() => onHover(false)}
-    >
+    <>
       <rect
         x={pos.x}
         y={pos.y}
@@ -283,79 +223,119 @@ export function TacticalLocation({
           color={frontColor}
         />
       )}
+    </>
+  );
+}
 
-      {showRear && (
-        <>
-          <line
-            x1={pos.x}
-            y1={dividerY}
-            x2={pos.x + pos.width}
-            y2={dividerY}
-            stroke="#64748b"
-            strokeWidth={1}
-            strokeDasharray="3 2"
-          />
+function TacticalRearSection({
+  viewModel,
+}: TacticalLocationSectionProps): React.ReactElement | null {
+  if (!viewModel.showRear) {
+    return null;
+  }
 
-          <rect
-            x={pos.x}
-            y={dividerY}
-            width={pos.width}
-            height={rearSectionHeight}
-            fill={darkRearFill}
-            stroke="#475569"
-            strokeWidth={1}
-            className="transition-colors duration-200"
-          />
+  const {
+    label,
+    pos,
+    center,
+    rear,
+    rearPercent,
+    rearColor,
+    darkRearFill,
+    rearSectionHeight,
+    dividerY,
+    rearFillHeight,
+    rearFillY,
+  } = viewModel;
 
-          <rect
-            x={pos.x}
-            y={rearFillY}
-            width={pos.width}
-            height={rearFillHeight}
-            fill={rearColor}
-            opacity={0.8}
-            className="transition-all duration-300"
-          />
+  return (
+    <>
+      <line
+        x1={pos.x}
+        y1={dividerY}
+        x2={pos.x + pos.width}
+        y2={dividerY}
+        stroke="#64748b"
+        strokeWidth={1}
+        strokeDasharray="3 2"
+      />
 
-          <rect
-            x={pos.x}
-            y={dividerY}
-            width={pos.width}
-            height={rearSectionHeight}
-            fill="url(#armor-grid)"
-            opacity={0.5}
-          />
+      <rect
+        x={pos.x}
+        y={dividerY}
+        width={pos.width}
+        height={rearSectionHeight}
+        fill={darkRearFill}
+        stroke="#475569"
+        strokeWidth={1}
+        className="transition-colors duration-200"
+      />
 
-          <text
-            x={center.x}
-            y={dividerY + 10}
-            textAnchor="middle"
-            fontSize={9}
-            fill="#94a3b8"
-            fontFamily="monospace"
-          >
-            {label}-R
-          </text>
+      <rect
+        x={pos.x}
+        y={rearFillY}
+        width={pos.width}
+        height={rearFillHeight}
+        fill={rearColor}
+        opacity={0.8}
+        className="transition-all duration-300"
+      />
 
-          <LEDDigit
-            value={rear.toString().padStart(2, '0')}
-            x={center.x}
-            y={dividerY + rearSectionHeight / 2 + 4}
-            size={10}
-            color={rearColor}
-          />
+      <rect
+        x={pos.x}
+        y={dividerY}
+        width={pos.width}
+        height={rearSectionHeight}
+        fill="url(#armor-grid)"
+        opacity={0.5}
+      />
 
-          <BarGauge
-            x={pos.x + 4}
-            y={dividerY + rearSectionHeight - 7}
-            width={pos.width - 8}
-            height={3}
-            fillPercent={rearPercent}
-            color={rearColor}
-          />
-        </>
-      )}
+      <text
+        x={center.x}
+        y={dividerY + 10}
+        textAnchor="middle"
+        fontSize={9}
+        fill="#94a3b8"
+        fontFamily="monospace"
+      >
+        {label}-R
+      </text>
 
+      <LEDDigit
+        value={rear.toString().padStart(2, '0')}
+        x={center.x}
+        y={dividerY + rearSectionHeight / 2 + 4}
+        size={10}
+        color={rearColor}
+      />
+
+      <BarGauge
+        x={pos.x + 4}
+        y={dividerY + rearSectionHeight - 7}
+        width={pos.width - 8}
+        height={3}
+        fillPercent={rearPercent}
+        color={rearColor}
+      />
+    </>
+  );
+}
+
+interface TacticalLocationFrameProps {
+  viewModel: TacticalLocationViewModel;
+  isSelected: boolean;
+  isHovered: boolean;
+}
+
+function TacticalLocationFrame({
+  viewModel,
+  isSelected,
+  isHovered,
+}: TacticalLocationFrameProps): React.ReactElement {
+  const { pos } = viewModel;
+
+  return (
+    <>
       <rect
         x={pos.x}
         y={pos.y}
@@ -375,6 +355,47 @@ export function TacticalLocation({
           color={isSelected ? '#60a5fa' : '#22d3ee'}
         />
       )}
-    </g>
+    </>
+  );
+}
+
+export function TacticalLocation({
+  location,
+  position,
+  data,
+  isSelected,
+  isHovered,
+  onClick,
+  onHover,
+  configType = 'biped',
+}: TacticalLocationProps): React.ReactElement {
+  const viewModel = resolveTacticalLocationViewModel({
+    location,
+    position,
+    data,
+    isSelected,
+    configType,
+  });
+
+  return (
+    <ArmorLocationInteractionGroup
+      location={location}
+      current={viewModel.front}
+      maximum={viewModel.frontMax}
+      rear={viewModel.rear}
+      rearMaximum={viewModel.rearMax}
+      showRear={viewModel.showRear}
+      isSelected={isSelected}
+      onClick={onClick}
+      onHover={onHover}
+    >
+      <TacticalFrontSection viewModel={viewModel} />
+      <TacticalRearSection viewModel={viewModel} />
+      <TacticalLocationFrame
+        viewModel={viewModel}
+        isSelected={isSelected}
+        isHovered={isHovered}
+      />
+    </ArmorLocationInteractionGroup>
   );
 }

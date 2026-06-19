@@ -164,14 +164,22 @@ export function advanceInteractiveSessionPhase(
       context.d6RollerForResolvers(),
     );
     session = advancePhase(session);
-  } else if (phase === GamePhase.Movement) {
+    context.setSession(session);
+    return;
+  }
+
+  if (phase === GamePhase.Movement) {
     // Lock any units that haven't been locked yet
     session = lockStragglers(session, lockMovement);
     // Per `add-combat-morale-and-withdrawal`: a withdrawing unit that
     // moved onto its target edge exits here via `UnitRetreated`.
     session = runMoraleAndWithdrawalPass(session);
     session = advancePhase(session);
-  } else if (phase === GamePhase.WeaponAttack) {
+    context.setSession(session);
+    return;
+  }
+
+  if (phase === GamePhase.WeaponAttack) {
     // Lock any units that haven't been locked yet
     session = lockStragglers(session, lockAttack);
     session = resolveAllAttacks(session, context.diceRollerForResolvers());
@@ -185,7 +193,11 @@ export function advanceInteractiveSessionPhase(
     // trip the Forced Withdrawal check.
     session = runMoraleAndWithdrawalPass(session);
     session = advancePhase(session);
-  } else if (phase === GamePhase.PhysicalAttack) {
+    context.setSession(session);
+    return;
+  }
+
+  if (phase === GamePhase.PhysicalAttack) {
     // Per `wire-bot-ai-helpers-and-capstone`: resolve any
     // PhysicalAttackDeclared events for the current turn before
     // advancing — without this, declarations made by `runAITurn`
@@ -202,7 +214,11 @@ export function advanceInteractiveSessionPhase(
     session = checkAndQueueDamagePSRs(session);
     session = runMoraleAndWithdrawalPass(session);
     session = advancePhase(session);
-  } else if (phase === GamePhase.Heat) {
+    context.setSession(session);
+    return;
+  }
+
+  if (phase === GamePhase.Heat) {
     // Per `wire-heat-generation-and-effects` task 5 (water cooling):
     // `resolveHeatPhase` accepts an optional `getWaterDepth`
     // provider. `IHex.terrain` is a plain `string` here (no
@@ -216,7 +232,11 @@ export function advanceInteractiveSessionPhase(
     });
     session = runMoraleAndWithdrawalPass(session);
     session = advancePhase(session);
-  } else if (phase === GamePhase.End) {
+    context.setSession(session);
+    return;
+  }
+
+  if (phase === GamePhase.End) {
     // Per `wire-piloting-skill-rolls` § 7: drain the PSR queue for
     // every unit. Failures invoke `applyFall` (→ `UnitFell` +
     // `PilotHit`) and clear the remaining queue on that unit.
@@ -247,6 +267,8 @@ export function advanceInteractiveSessionPhase(
     if (!context.isGameOver()) {
       session = advancePhase(session);
     }
+    context.setSession(session);
+    return;
   }
 
   context.setSession(session);

@@ -26,6 +26,85 @@ interface RedeemResult {
   errorCode?: string;
 }
 
+interface ErrorPresentation {
+  readonly title: string;
+  readonly message: string;
+  readonly icon: string;
+}
+
+const ERROR_PRESENTATIONS: Record<string, ErrorPresentation> = {
+  NOT_FOUND: {
+    title: 'Share Link Not Found',
+    message: 'This share link does not exist or has been deleted.',
+    icon: '\u{1F50D}',
+  },
+  EXPIRED: {
+    title: 'Share Link Expired',
+    message: 'This share link has expired and is no longer valid.',
+    icon: '\u23F0',
+  },
+  MAX_USES: {
+    title: 'Share Link Used Up',
+    message: 'This share link has reached its maximum number of uses.',
+    icon: '\u{1F4CA}',
+  },
+  INACTIVE: {
+    title: 'Share Link Inactive',
+    message: 'This share link has been deactivated by its owner.',
+    icon: '\u{1F512}',
+  },
+};
+
+function errorPresentation(result: RedeemResult | null): ErrorPresentation {
+  const knownError = result?.errorCode
+    ? ERROR_PRESENTATIONS[result.errorCode]
+    : undefined;
+  return (
+    knownError ?? {
+      title: 'Invalid Share Link',
+      message: result?.error || 'There was a problem with this share link.',
+      icon: '\u26A0\uFE0F',
+    }
+  );
+}
+
+function ShareLinkErrorState({
+  result,
+  onTryAgain,
+  onGoHome,
+}: {
+  readonly result: RedeemResult | null;
+  readonly onTryAgain: () => void;
+  readonly onGoHome: () => void;
+}): React.JSX.Element {
+  const presentation = errorPresentation(result);
+
+  return (
+    <PageLayout
+      title={presentation.title}
+      subtitle={presentation.message}
+      backLink="/"
+      backLabel="Go Home"
+    >
+      <Card variant="dark" className="mx-auto max-w-md p-8 text-center">
+        <div className="mb-4 text-6xl">{presentation.icon}</div>
+        <h2 className="mb-2 text-xl font-bold text-white">
+          {presentation.title}
+        </h2>
+        <p className="mb-6 text-gray-400">{presentation.message}</p>
+        <div className="flex justify-center gap-3">
+          <Button variant="secondary" onClick={onTryAgain}>
+            Try Again
+          </Button>
+          <Button variant="primary" onClick={onGoHome}>
+            Go Home
+          </Button>
+        </div>
+      </Card>
+    </PageLayout>
+  );
+}
+
 // =============================================================================
 // Helper Functions
 // =============================================================================
@@ -142,61 +221,12 @@ export default function ShareLinkPage(): React.JSX.Element {
 
   // Error states
   if (!result?.success) {
-    const errorTitle =
-      result?.errorCode === 'NOT_FOUND'
-        ? 'Share Link Not Found'
-        : result?.errorCode === 'EXPIRED'
-          ? 'Share Link Expired'
-          : result?.errorCode === 'MAX_USES'
-            ? 'Share Link Used Up'
-            : result?.errorCode === 'INACTIVE'
-              ? 'Share Link Inactive'
-              : 'Invalid Share Link';
-
-    const errorMessage =
-      result?.errorCode === 'NOT_FOUND'
-        ? 'This share link does not exist or has been deleted.'
-        : result?.errorCode === 'EXPIRED'
-          ? 'This share link has expired and is no longer valid.'
-          : result?.errorCode === 'MAX_USES'
-            ? 'This share link has reached its maximum number of uses.'
-            : result?.errorCode === 'INACTIVE'
-              ? 'This share link has been deactivated by its owner.'
-              : result?.error || 'There was a problem with this share link.';
-
     return (
-      <>
-        <PageLayout
-          title={errorTitle}
-          subtitle={errorMessage}
-          backLink="/"
-          backLabel="Go Home"
-        >
-          <Card variant="dark" className="mx-auto max-w-md p-8 text-center">
-            <div className="mb-4 text-6xl">
-              {result?.errorCode === 'NOT_FOUND'
-                ? '🔍'
-                : result?.errorCode === 'EXPIRED'
-                  ? '⏰'
-                  : result?.errorCode === 'MAX_USES'
-                    ? '📊'
-                    : result?.errorCode === 'INACTIVE'
-                      ? '🔒'
-                      : '⚠️'}
-            </div>
-            <h2 className="mb-2 text-xl font-bold text-white">{errorTitle}</h2>
-            <p className="mb-6 text-gray-400">{errorMessage}</p>
-            <div className="flex justify-center gap-3">
-              <Button variant="secondary" onClick={handleTryAgain}>
-                Try Again
-              </Button>
-              <Button variant="primary" onClick={handleGoHome}>
-                Go Home
-              </Button>
-            </div>
-          </Card>
-        </PageLayout>
-      </>
+      <ShareLinkErrorState
+        result={result}
+        onTryAgain={handleTryAgain}
+        onGoHome={handleGoHome}
+      />
     );
   }
 

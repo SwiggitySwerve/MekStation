@@ -12,17 +12,19 @@ import type { ICommittedMovementValidationInput } from '@/utils/gameplay/movemen
 import {
   Facing,
   GameSide,
-  LockState,
   MovementType,
   TerrainType,
   TokenUnitType,
   VehicleMotionType,
 } from '@/types/gameplay';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
+import {
+  createTacticalMapTerrainGrid,
+  createTacticalMapUnitState,
+  overrideTacticalMapTokens,
+  requireTacticalMapMovementProjection,
+} from './tactical-map.fixture-helpers';
 import {
   tacticalMapHexTerrain,
   tacticalMapTokens,
@@ -31,24 +33,12 @@ import {
 const tacticalMapHoverWaterOrigin = { q: 0, r: 0 } as const;
 const tacticalMapHoverWaterDestination = { q: 1, r: 0 } as const;
 
-const tacticalMapHoverWaterUnit: IUnitGameState = {
+const tacticalMapHoverWaterUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: tacticalMapHoverWaterOrigin,
   facing: Facing.Northeast,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  lockState: LockState.Pending,
-};
+});
 
 const tacticalMapHoverWaterCapability: IMovementCapability = {
   walkMP: 3,
@@ -87,59 +77,29 @@ export const tacticalMapHoverWaterHexTerrain: readonly IHexTerrain[] = [
 ];
 
 function tacticalMapHoverWaterGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapHoverWaterHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
-}
-
-function requireSingleMovementProjection(
-  projection: IMovementRangeHex | null,
-): IMovementRangeHex {
-  if (!projection) {
-    throw new Error('Expected hover water movement projection');
-  }
-  return projection;
+  return createTacticalMapTerrainGrid(tacticalMapHoverWaterHexTerrain);
 }
 
 export const tacticalMapHoverWaterSelectedHex = tacticalMapHoverWaterOrigin;
 
 export const tacticalMapHoverWaterTokens: readonly IUnitToken[] =
-  tacticalMapTokens.map((token) => {
-    if (token.unitId === 'attacker') {
-      return {
-        ...token,
-        name: 'Savannah Master Hovercraft',
-        designation: 'SM1',
-        position: tacticalMapHoverWaterOrigin,
-        unitType: TokenUnitType.Vehicle,
-        vehicleMotionType: VehicleMotionType.Hover,
-      };
-    }
-    if (token.unitId === 'occluded') {
-      return {
-        ...token,
-        position: { q: 3, r: -1 },
-        isActiveTarget: false,
-      };
-    }
-    return token;
+  overrideTacticalMapTokens(tacticalMapTokens, {
+    attacker: {
+      name: 'Savannah Master Hovercraft',
+      designation: 'SM1',
+      position: tacticalMapHoverWaterOrigin,
+      unitType: TokenUnitType.Vehicle,
+      vehicleMotionType: VehicleMotionType.Hover,
+    },
+    occluded: {
+      position: { q: 3, r: -1 },
+      isActiveTarget: false,
+    },
   });
 
 export const tacticalMapHoverWaterMovementRange: readonly IMovementRangeHex[] =
   [
-    requireSingleMovementProjection(
+    requireTacticalMapMovementProjection(
       deriveMovementRangeHexForDestination(
         tacticalMapHoverWaterUnit,
         MovementType.Walk,
@@ -147,6 +107,7 @@ export const tacticalMapHoverWaterMovementRange: readonly IMovementRangeHex[] =
         tacticalMapHoverWaterCapability,
         tacticalMapHoverWaterDestination,
       ),
+      'hover water',
     ),
   ];
 

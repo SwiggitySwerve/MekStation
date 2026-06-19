@@ -99,9 +99,9 @@ function selectedRight(input: {
   return input.selectedLeg === 'right' || input.selectedLeg === 'both';
 }
 
-export function canJumpJetAttack(
+function commonJumpJetAttackRestriction(
   input: IJumpJetAttackEligibilityInput,
-): IJumpJetAttackEligibilityResult {
+): IJumpJetAttackEligibilityResult | undefined {
   if (input.tacOpsJumpJetAttackEnabled !== true) {
     return blocked(
       'Jump jet attacks require the TacOps Jump Jet Attack option',
@@ -145,6 +145,12 @@ export function canJumpJetAttack(
     );
   }
 
+  return undefined;
+}
+
+function selectedLegReadinessRestriction(
+  input: IJumpJetAttackEligibilityInput,
+): IJumpJetAttackEligibilityResult | undefined {
   if (
     (selectedLeft(input) && input.leftLegPresent === false) ||
     (selectedRight(input) && input.rightLegPresent === false)
@@ -182,6 +188,12 @@ export function canJumpJetAttack(
     );
   }
 
+  return undefined;
+}
+
+function targetRangeRestriction(
+  input: IJumpJetAttackEligibilityInput,
+): IJumpJetAttackEligibilityResult | undefined {
   if (input.targetDistance !== undefined && input.targetDistance !== 1) {
     return blocked(
       'Jump jet attacks require an adjacent range-one target',
@@ -189,38 +201,71 @@ export function canJumpJetAttack(
     );
   }
 
-  if (!input.attackerProne) {
-    if (
-      input.standingAttackerHeightAboveTargetHeight !== undefined &&
-      input.standingAttackerHeightAboveTargetHeight !== 1
-    ) {
-      return blocked(
-        'Standing jump jet attacks require attacker height one level above the target height',
-        'TargetElevationNotInRange',
-      );
-    }
+  return undefined;
+}
 
-    if (input.targetDirectlyAheadOfFeet === false) {
-      return blocked(
-        'Standing jump jet attacks require the target directly ahead of the feet',
-        'TargetNotDirectlyAheadOfFeet',
-      );
-    }
-  } else {
-    if (input.proneTargetElevationInRange === false) {
-      return blocked(
-        'Prone jump jet attacks require the target elevation to overlap the attacker height',
-        'TargetElevationNotInRange',
-      );
-    }
-
-    if (input.targetDirectlyBehindFeet === false) {
-      return blocked(
-        'Prone jump jet attacks require the target directly behind the feet',
-        'TargetNotDirectlyBehindFeet',
-      );
-    }
+function standingTargetGeometryRestriction(
+  input: IJumpJetAttackEligibilityInput,
+): IJumpJetAttackEligibilityResult | undefined {
+  if (
+    input.standingAttackerHeightAboveTargetHeight !== undefined &&
+    input.standingAttackerHeightAboveTargetHeight !== 1
+  ) {
+    return blocked(
+      'Standing jump jet attacks require attacker height one level above the target height',
+      'TargetElevationNotInRange',
+    );
   }
+
+  if (input.targetDirectlyAheadOfFeet === false) {
+    return blocked(
+      'Standing jump jet attacks require the target directly ahead of the feet',
+      'TargetNotDirectlyAheadOfFeet',
+    );
+  }
+
+  return undefined;
+}
+
+function proneTargetGeometryRestriction(
+  input: IJumpJetAttackEligibilityInput,
+): IJumpJetAttackEligibilityResult | undefined {
+  if (input.proneTargetElevationInRange === false) {
+    return blocked(
+      'Prone jump jet attacks require the target elevation to overlap the attacker height',
+      'TargetElevationNotInRange',
+    );
+  }
+
+  if (input.targetDirectlyBehindFeet === false) {
+    return blocked(
+      'Prone jump jet attacks require the target directly behind the feet',
+      'TargetNotDirectlyBehindFeet',
+    );
+  }
+
+  return undefined;
+}
+
+function targetGeometryRestriction(
+  input: IJumpJetAttackEligibilityInput,
+): IJumpJetAttackEligibilityResult | undefined {
+  if (!input.attackerProne) {
+    return standingTargetGeometryRestriction(input);
+  }
+  return proneTargetGeometryRestriction(input);
+}
+
+export function canJumpJetAttack(
+  input: IJumpJetAttackEligibilityInput,
+): IJumpJetAttackEligibilityResult {
+  const restriction =
+    commonJumpJetAttackRestriction(input) ??
+    selectedLegReadinessRestriction(input) ??
+    targetRangeRestriction(input) ??
+    targetGeometryRestriction(input);
+
+  if (restriction) return restriction;
 
   return { allowed: true };
 }

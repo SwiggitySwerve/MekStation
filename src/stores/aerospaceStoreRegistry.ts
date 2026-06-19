@@ -9,10 +9,8 @@
 
 import { StoreApi } from 'zustand';
 
-import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { logger } from '@/utils/logger';
-import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 import {
   AerospaceStore,
@@ -24,141 +22,74 @@ import {
   createAerospaceStore,
   createNewAerospaceStore,
 } from './useAerospaceStore';
+import { createStoreRegistry } from './utils/createStoreRegistry';
 
-const aerospaceStores = new Map<string, StoreApi<AerospaceStore>>();
+const aerospaceRegistry = createStoreRegistry<
+  AerospaceStore,
+  AerospaceState,
+  CreateAerospaceOptions
+>({
+  storageKeyPrefix: 'megamek-aerospace',
+  registryName: 'AerospaceStoreRegistry',
+  createStore: createAerospaceStore,
+  createNewStore: createNewAerospaceStore,
+  createDefaultState: (options, id) =>
+    createDefaultAerospaceState({ ...options, id }),
+  getIdFromState: (state) => state.id,
+});
 
 export function getAerospaceStore(
   aerospaceId: string,
 ): StoreApi<AerospaceStore> | undefined {
-  return aerospaceStores.get(aerospaceId);
+  return aerospaceRegistry.get(aerospaceId);
 }
 
 export function hasAerospaceStore(aerospaceId: string): boolean {
-  return aerospaceStores.has(aerospaceId);
+  return aerospaceRegistry.has(aerospaceId);
 }
 
 export function getAllAerospaceIds(): string[] {
-  return Array.from(aerospaceStores.keys());
+  return aerospaceRegistry.getAllIds();
 }
 
 export function getAerospaceStoreCount(): number {
-  return aerospaceStores.size;
-}
-
-function ensureValidAerospaceId(
-  aerospaceId: string | undefined | null,
-  context: string,
-): string {
-  if (aerospaceId && isValidUUID(aerospaceId)) {
-    return aerospaceId;
-  }
-
-  const newId = generateUUID();
-  logger.warn(
-    `[AerospaceStoreRegistry] ${context}: Invalid aerospace ID "${aerospaceId || '(missing)'}" replaced with "${newId}"`,
-  );
-  return newId;
+  return aerospaceRegistry.getCount();
 }
 
 export function createAndRegisterAerospace(
   options: CreateAerospaceOptions,
 ): StoreApi<AerospaceStore> {
-  const store = createNewAerospaceStore(options);
-  const state = store.getState();
-  aerospaceStores.set(state.id, store);
-  return store;
+  return aerospaceRegistry.createAndRegister(options);
 }
 
 export function registerAerospaceStore(store: StoreApi<AerospaceStore>): void {
-  const state = store.getState();
-  aerospaceStores.set(state.id, store);
+  aerospaceRegistry.register(store);
 }
 
 export function hydrateOrCreateAerospace(
   aerospaceId: string,
   fallbackOptions: CreateAerospaceOptions,
 ): StoreApi<AerospaceStore> {
-  const validAerospaceId = ensureValidAerospaceId(
-    aerospaceId,
-    'hydrateOrCreateAerospace',
-  );
-
-  const existing = aerospaceStores.get(validAerospaceId);
-  if (existing) {
-    return existing;
-  }
-
-  const storageKey = `megamek-aerospace-${validAerospaceId}`;
-  const savedState = safeGetItem(storageKey);
-
-  if (savedState) {
-    try {
-      const parsed = JSON.parse(savedState) as {
-        state?: Partial<AerospaceState>;
-      };
-      const state = parsed.state;
-
-      if (state) {
-        ensureValidAerospaceId(state.id, 'localStorage state');
-
-        const defaultState = createDefaultAerospaceState({
-          ...fallbackOptions,
-          id: validAerospaceId,
-        });
-        const mergedState: AerospaceState = {
-          ...defaultState,
-          ...state,
-          id: validAerospaceId,
-        };
-
-        const store = createAerospaceStore(mergedState);
-        aerospaceStores.set(validAerospaceId, store);
-        return store;
-      }
-    } catch (e) {
-      logger.warn(
-        `Failed to hydrate aerospace ${validAerospaceId}, creating new:`,
-        e,
-      );
-    }
-  }
-
-  const store = createNewAerospaceStore({
-    ...fallbackOptions,
-    id: validAerospaceId,
-  });
-  aerospaceStores.set(validAerospaceId, store);
-  return store;
+  return aerospaceRegistry.hydrateOrCreate(aerospaceId, fallbackOptions);
 }
 
 export function unregisterAerospaceStore(aerospaceId: string): boolean {
-  return aerospaceStores.delete(aerospaceId);
+  return aerospaceRegistry.unregister(aerospaceId);
 }
 
 export function deleteAerospace(aerospaceId: string): boolean {
-  const removed = aerospaceStores.delete(aerospaceId);
-  if (removed) {
-    const storageKey = `megamek-aerospace-${aerospaceId}`;
-    safeRemoveItem(storageKey);
-  }
-  return removed;
+  return aerospaceRegistry.delete(aerospaceId);
 }
 
 export function clearAllAerospaceStores(clearStorage = false): void {
-  if (clearStorage) {
-    Array.from(aerospaceStores.keys()).forEach((aerospaceId) => {
-      const storageKey = `megamek-aerospace-${aerospaceId}`;
-      safeRemoveItem(storageKey);
-    });
-  }
-  aerospaceStores.clear();
+  aerospaceRegistry.clearAll(clearStorage);
 }
 
 export function duplicateAerospace(
   sourceAerospaceId: string,
   newName?: string,
 ): StoreApi<AerospaceStore> | null {
-  const sourceStore = aerospaceStores.get(sourceAerospaceId);
+  const sourceStore = aerospaceRegistry.get(sourceAerospaceId);
   if (!sourceStore) {
     return null;
   }
@@ -188,19 +119,19 @@ export function duplicateAerospace(
   };
 
   const store = createAerospaceStore(mergedState);
-  aerospaceStores.set(mergedState.id, store);
+  aerospaceRegistry.register(store);
   return store;
 }
 
 export function createAerospaceFromFullState(
   state: AerospaceState,
 ): StoreApi<AerospaceStore> {
-  const validId = ensureValidAerospaceId(
+  const validId = aerospaceRegistry.ensureValidId(
     state.id,
     'createAerospaceFromFullState',
   );
 
-  const existing = aerospaceStores.get(validId);
+  const existing = aerospaceRegistry.get(validId);
   if (existing) {
     logger.warn(
       `Aerospace store ${validId} already exists, returning existing`,
@@ -208,15 +139,11 @@ export function createAerospaceFromFullState(
     return existing;
   }
 
-  const validatedState: AerospaceState = {
+  const store = createAerospaceStore({
     ...state,
     id: validId,
-  };
-
-  const store = createAerospaceStore(validatedState);
-  aerospaceStores.set(validId, store);
-
+  });
+  aerospaceRegistry.register(store);
   store.setState({ lastModifiedAt: Date.now() });
-
   return store;
 }

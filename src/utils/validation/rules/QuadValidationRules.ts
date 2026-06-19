@@ -1,34 +1,39 @@
+import type * as ValidationRules from '@/types/validation/rules/ValidationRuleInterfaces';
+
 import {
-  MechLocation,
   LOCATION_SLOT_COUNTS,
+  MechLocation,
 } from '@/types/construction/CriticalSlotAllocation';
 import {
-  IValidationRuleDefinition,
-  IValidationRuleResult,
-  IValidationContext,
-  IValidationError,
   ValidationCategory,
   ValidationSeverity,
 } from '@/types/validation/rules/ValidationRuleInterfaces';
 
-import { pass, fail, warn } from './validationHelpers';
+import {
+  countUsedCriticalSlots,
+  fail,
+  failIfErrors,
+  forConfiguration,
+  pass,
+  ruleError,
+  unitRecord,
+  warnIfWarnings,
+} from './validationHelpers';
 
-export const QuadNoArmsRule: IValidationRuleDefinition = {
-  id: 'configuration.quad.no_arms',
+export const QuadNoArmsRule: ValidationRules.IValidationRuleDefinition = {
   name: 'Quad No Arms',
+  category: ValidationCategory.CONSTRUCTION,
+  id: 'configuration.quad.no_arms',
   description:
     'Validates that quad mechs do not have equipment in arm locations',
-  category: ValidationCategory.CONSTRUCTION,
   priority: 5,
 
-  canValidate(context: IValidationContext): boolean {
-    const unit = context.unit as Record<string, unknown>;
-    const config = unit.configuration as string | undefined;
-    return config?.toLowerCase() === 'quad';
-  },
+  canValidate: forConfiguration('quad'),
 
-  validate(context: IValidationContext): IValidationRuleResult {
-    const unit = context.unit as Record<string, unknown>;
+  validate(
+    context: ValidationRules.IValidationContext,
+  ): ValidationRules.IValidationRuleResult {
+    const unit = unitRecord(context);
     const equipment = unit.equipment as
       | Array<Record<string, unknown>>
       | undefined;
@@ -38,46 +43,38 @@ export const QuadNoArmsRule: IValidationRuleDefinition = {
     }
 
     const armLocations = [MechLocation.LEFT_ARM, MechLocation.RIGHT_ARM];
-    const errors: IValidationError[] = [];
+    const errors: ValidationRules.IValidationError[] = [];
 
     for (const item of equipment) {
       const location = item.location as string | undefined;
       if (location && armLocations.includes(location as MechLocation)) {
-        errors.push({
-          ruleId: this.id,
-          ruleName: this.name,
-          severity: ValidationSeverity.ERROR,
-          category: this.category,
-          message: `Quad mechs cannot have equipment in ${location}`,
-          path: `equipment.${item.name}`,
-          suggestion: 'Move equipment to a leg or torso location',
-        });
+        errors.push(
+          ruleError(this, {
+            message: `Quad mechs cannot have equipment in ${location}`,
+            path: `equipment.${item.name}`,
+            suggestion: 'Move equipment to a leg or torso location',
+          }),
+        );
       }
     }
 
-    if (errors.length > 0) {
-      return fail(this.id, errors);
-    }
-
-    return pass(this.id);
+    return failIfErrors(this.id, errors);
   },
 };
 
-export const QuadLegCountRule: IValidationRuleDefinition = {
-  id: 'configuration.quad.leg_count',
+export const QuadLegCountRule: ValidationRules.IValidationRuleDefinition = {
   name: 'Quad Leg Count',
-  description: 'Validates that quad mechs have all four leg locations defined',
   category: ValidationCategory.CONSTRUCTION,
+  id: 'configuration.quad.leg_count',
+  description: 'Validates that quad mechs have all four leg locations defined',
   priority: 5,
 
-  canValidate(context: IValidationContext): boolean {
-    const unit = context.unit as Record<string, unknown>;
-    const config = unit.configuration as string | undefined;
-    return config?.toLowerCase() === 'quad';
-  },
+  canValidate: forConfiguration('quad'),
 
-  validate(context: IValidationContext): IValidationRuleResult {
-    const unit = context.unit as Record<string, unknown>;
+  validate(
+    context: ValidationRules.IValidationContext,
+  ): ValidationRules.IValidationRuleResult {
+    const unit = unitRecord(context);
     const armorAllocation = unit.armorAllocation as
       | Record<string, unknown>
       | undefined;
@@ -89,46 +86,38 @@ export const QuadLegCountRule: IValidationRuleDefinition = {
       MechLocation.REAR_RIGHT_LEG,
     ];
 
-    const errors: IValidationError[] = [];
+    const errors: ValidationRules.IValidationError[] = [];
 
     if (armorAllocation) {
       for (const leg of quadLegs) {
         if (!(leg in armorAllocation) && armorAllocation[leg] === undefined) {
-          errors.push({
-            ruleId: this.id,
-            ruleName: this.name,
-            severity: ValidationSeverity.ERROR,
-            category: this.category,
-            message: `Quad mech missing ${leg} location`,
-            path: `armorAllocation.${leg}`,
-          });
+          errors.push(
+            ruleError(this, {
+              message: `Quad mech missing ${leg} location`,
+              path: `armorAllocation.${leg}`,
+            }),
+          );
         }
       }
     }
 
-    if (errors.length > 0) {
-      return fail(this.id, errors);
-    }
-
-    return pass(this.id);
+    return failIfErrors(this.id, errors);
   },
 };
 
-export const QuadTotalSlotsRule: IValidationRuleDefinition = {
-  id: 'configuration.quad.total_slots',
+export const QuadTotalSlotsRule: ValidationRules.IValidationRuleDefinition = {
   name: 'Quad Total Slots',
-  description: 'Validates that quad mech critical slots do not exceed maximum',
   category: ValidationCategory.SLOTS,
+  id: 'configuration.quad.total_slots',
+  description: 'Validates that quad mech critical slots do not exceed maximum',
   priority: 10,
 
-  canValidate(context: IValidationContext): boolean {
-    const unit = context.unit as Record<string, unknown>;
-    const config = unit.configuration as string | undefined;
-    return config?.toLowerCase() === 'quad';
-  },
+  canValidate: forConfiguration('quad'),
 
-  validate(context: IValidationContext): IValidationRuleResult {
-    const unit = context.unit as Record<string, unknown>;
+  validate(
+    context: ValidationRules.IValidationContext,
+  ): ValidationRules.IValidationRuleResult {
+    const unit = unitRecord(context);
     const criticalSlots = unit.criticalSlots as
       | Record<string, Array<unknown>>
       | undefined;
@@ -151,26 +140,16 @@ export const QuadTotalSlotsRule: IValidationRuleDefinition = {
       (sum, loc) => sum + LOCATION_SLOT_COUNTS[loc],
       0,
     );
-    let usedSlots = 0;
-
-    for (const [, slots] of Object.entries(criticalSlots)) {
-      if (Array.isArray(slots)) {
-        usedSlots += slots.filter((s) => s !== null && s !== '-Empty-').length;
-      }
-    }
+    const usedSlots = countUsedCriticalSlots(criticalSlots);
 
     if (usedSlots > maxSlots) {
       return fail(this.id, [
-        {
-          ruleId: this.id,
-          ruleName: this.name,
-          severity: ValidationSeverity.ERROR,
-          category: this.category,
+        ruleError(this, {
           message: `Used critical slots (${usedSlots}) exceed quad maximum (${maxSlots})`,
           path: 'criticalSlots',
           expected: `<= ${maxSlots}`,
           actual: `${usedSlots}`,
-        },
+        }),
       ]);
     }
 
@@ -178,80 +157,74 @@ export const QuadTotalSlotsRule: IValidationRuleDefinition = {
   },
 };
 
-export const QuadLegArmorBalanceRule: IValidationRuleDefinition = {
-  id: 'configuration.quad.leg_armor_balance',
-  name: 'Quad Leg Armor Balance',
-  description: 'Warns if quad leg armor is significantly unbalanced',
-  category: ValidationCategory.ARMOR,
-  priority: 50,
+export const QuadLegArmorBalanceRule: ValidationRules.IValidationRuleDefinition =
+  {
+    category: ValidationCategory.ARMOR,
+    priority: 50,
+    description: 'Warns if quad leg armor is significantly unbalanced',
+    id: 'configuration.quad.leg_armor_balance',
+    name: 'Quad Leg Armor Balance',
 
-  canValidate(context: IValidationContext): boolean {
-    const unit = context.unit as Record<string, unknown>;
-    const config = unit.configuration as string | undefined;
-    return config?.toLowerCase() === 'quad';
-  },
+    canValidate: forConfiguration('quad'),
 
-  validate(context: IValidationContext): IValidationRuleResult {
-    const unit = context.unit as Record<string, unknown>;
-    const armorAllocation = unit.armorAllocation as
-      | Record<string, number>
-      | undefined;
+    validate(
+      context: ValidationRules.IValidationContext,
+    ): ValidationRules.IValidationRuleResult {
+      const unit = unitRecord(context);
+      const armorAllocation = unit.armorAllocation as
+        | Record<string, number>
+        | undefined;
 
-    if (!armorAllocation) {
-      return pass(this.id);
-    }
+      if (!armorAllocation) {
+        return pass(this.id);
+      }
 
-    const legArmor = [
-      armorAllocation[MechLocation.FRONT_LEFT_LEG] ?? 0,
-      armorAllocation[MechLocation.FRONT_RIGHT_LEG] ?? 0,
-      armorAllocation[MechLocation.REAR_LEFT_LEG] ?? 0,
-      armorAllocation[MechLocation.REAR_RIGHT_LEG] ?? 0,
-    ];
+      const legArmor = [
+        armorAllocation[MechLocation.FRONT_LEFT_LEG] ?? 0,
+        armorAllocation[MechLocation.FRONT_RIGHT_LEG] ?? 0,
+        armorAllocation[MechLocation.REAR_LEFT_LEG] ?? 0,
+        armorAllocation[MechLocation.REAR_RIGHT_LEG] ?? 0,
+      ];
 
-    const maxArmor = Math.max(...legArmor);
-    const minArmor = Math.min(...legArmor);
-    const warnings: IValidationError[] = [];
+      const maxArmor = Math.max(...legArmor);
+      const minArmor = Math.min(...legArmor);
+      const warnings: ValidationRules.IValidationError[] = [];
 
-    if (maxArmor > 0 && (maxArmor - minArmor) / maxArmor > 0.5) {
-      warnings.push({
-        ruleId: this.id,
-        ruleName: this.name,
-        severity: ValidationSeverity.WARNING,
-        category: this.category,
-        message: `Quad leg armor varies significantly (${minArmor} to ${maxArmor})`,
-        path: 'armorAllocation',
-        suggestion: 'Consider balancing leg armor for consistent protection',
-      });
-    }
+      if (maxArmor > 0 && (maxArmor - minArmor) / maxArmor > 0.5) {
+        warnings.push(
+          ruleError(this, {
+            severity: ValidationSeverity.WARNING,
+            message: `Quad leg armor varies significantly (${minArmor} to ${maxArmor})`,
+            path: 'armorAllocation',
+            suggestion:
+              'Consider balancing leg armor for consistent protection',
+          }),
+        );
+      }
 
-    const frontAvg =
-      ((armorAllocation[MechLocation.FRONT_LEFT_LEG] ?? 0) +
-        (armorAllocation[MechLocation.FRONT_RIGHT_LEG] ?? 0)) /
-      2;
-    const rearAvg =
-      ((armorAllocation[MechLocation.REAR_LEFT_LEG] ?? 0) +
-        (armorAllocation[MechLocation.REAR_RIGHT_LEG] ?? 0)) /
-      2;
+      const frontAvg =
+        ((armorAllocation[MechLocation.FRONT_LEFT_LEG] ?? 0) +
+          (armorAllocation[MechLocation.FRONT_RIGHT_LEG] ?? 0)) /
+        2;
+      const rearAvg =
+        ((armorAllocation[MechLocation.REAR_LEFT_LEG] ?? 0) +
+          (armorAllocation[MechLocation.REAR_RIGHT_LEG] ?? 0)) /
+        2;
 
-    if (frontAvg > 0 && rearAvg > frontAvg * 1.5) {
-      warnings.push({
-        ruleId: this.id,
-        ruleName: this.name,
-        severity: ValidationSeverity.WARNING,
-        category: this.category,
-        message: 'Front legs have significantly less armor than rear legs',
-        path: 'armorAllocation',
-        suggestion: 'Front legs typically face more combat exposure',
-      });
-    }
+      if (frontAvg > 0 && rearAvg > frontAvg * 1.5) {
+        warnings.push(
+          ruleError(this, {
+            severity: ValidationSeverity.WARNING,
+            message: 'Front legs have significantly less armor than rear legs',
+            path: 'armorAllocation',
+            suggestion: 'Front legs typically face more combat exposure',
+          }),
+        );
+      }
 
-    if (warnings.length > 0) {
-      return warn(this.id, warnings);
-    }
-
-    return pass(this.id);
-  },
-};
+      return warnIfWarnings(this.id, warnings);
+    },
+  };
 
 export const QuadValidationRules = [
   QuadNoArmsRule,

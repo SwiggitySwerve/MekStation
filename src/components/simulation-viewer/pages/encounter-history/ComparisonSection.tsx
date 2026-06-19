@@ -5,6 +5,7 @@ import { FOCUS_RING_CLASSES } from '@/utils/accessibility';
 
 import type { IBattle, ComparisonMode } from './types';
 
+import { ViewerSection } from '../SectionFrame';
 import { BAR_SEGMENTS, computeCampaignAverage, formatDuration } from './types';
 
 export interface IComparisonSectionProps {
@@ -66,13 +67,11 @@ export const ComparisonSection: React.FC<IComparisonSectionProps> = ({
   );
 
   return (
-    <section aria-label="Comparison view" data-testid="comparison-section">
-      <h2
-        className="mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200"
-        data-testid="section-heading"
-      >
-        Comparison
-      </h2>
+    <ViewerSection
+      ariaLabel="Comparison view"
+      testId="comparison-section"
+      title="Comparison"
+    >
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <select
           value={comparisonMode}
@@ -229,6 +228,6 @@ export const ComparisonSection: React.FC<IComparisonSectionProps> = ({
           Select a battle to compare against.
         </p>
       )}
-    </section>
+    </ViewerSection>
   );
 };

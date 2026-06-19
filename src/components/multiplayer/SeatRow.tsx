@@ -33,6 +33,119 @@ export interface ISeatRowProps {
   readonly onSetHuman: () => void;
 }
 
+interface ISeatStatus {
+  readonly label: string;
+  readonly badgeClassName: string;
+}
+
+function getSeatStatus(seat: IMatchSeat, isAi: boolean): ISeatStatus {
+  if (isAi) {
+    return {
+      label: `AI (${seat.aiProfile ?? 'basic'})`,
+      badgeClassName: 'bg-amber-700 text-amber-100',
+    };
+  }
+
+  if (!seat.occupant) {
+    return {
+      label: 'Empty',
+      badgeClassName: 'bg-slate-700 text-slate-300',
+    };
+  }
+
+  if (seat.ready) {
+    return {
+      label: 'Ready',
+      badgeClassName: 'bg-emerald-700 text-emerald-100',
+    };
+  }
+
+  return {
+    label: 'Not ready',
+    badgeClassName: 'bg-sky-700 text-sky-100',
+  };
+}
+
+function SeatStatusBadge({
+  status,
+}: {
+  readonly status: ISeatStatus;
+}): React.ReactElement {
+  return (
+    <span
+      className={`rounded px-2 py-0.5 text-xs font-medium ${status.badgeClassName}`}
+    >
+      {status.label}
+    </span>
+  );
+}
+
+function SeatActions({
+  props,
+  isAi,
+  isEmpty,
+}: {
+  readonly props: ISeatRowProps;
+  readonly isAi: boolean;
+  readonly isEmpty: boolean;
+}): React.ReactElement {
+  const { seat } = props;
+
+  return (
+    <div className="flex gap-1">
+      {props.canOccupy && isEmpty && (
+        <button
+          type="button"
+          className="rounded bg-emerald-600 px-2 py-1 text-xs font-medium text-white hover:bg-emerald-500"
+          onClick={props.onOccupy}
+        >
+          Sit here
+        </button>
+      )}
+      {props.canLeave && (
+        <button
+          type="button"
+          className="rounded bg-rose-700 px-2 py-1 text-xs font-medium text-white hover:bg-rose-600"
+          onClick={props.onLeave}
+        >
+          Leave
+        </button>
+      )}
+      {props.canToggleReady && (
+        <button
+          type="button"
+          className={`rounded px-2 py-1 text-xs font-medium text-white ${
+            seat.ready
+              ? 'bg-amber-700 hover:bg-amber-600'
+              : 'bg-emerald-600 hover:bg-emerald-500'
+          }`}
+          onClick={() => props.onToggleReady(!seat.ready)}
+        >
+          {seat.ready ? 'Unready' : 'Ready'}
+        </button>
+      )}
+      {props.canHostManage && !isAi && (
+        <button
+          type="button"
+          className="rounded bg-amber-700 px-2 py-1 text-xs font-medium text-white hover:bg-amber-600"
+          onClick={props.onSetAi}
+        >
+          Set AI
+        </button>
+      )}
+      {props.canHostManage && isAi && (
+        <button
+          type="button"
+          className="rounded bg-slate-600 px-2 py-1 text-xs font-medium text-white hover:bg-slate-500"
+          onClick={props.onSetHuman}
+        >
+          Set human
+        </button>
+      )}
+    </div>
+  );
+}
+
 // =============================================================================
 // Component
 // =============================================================================
@@ -46,25 +159,7 @@ export function SeatRow(props: ISeatRowProps): React.ReactElement {
   const { seat } = props;
   const isAi = seat.kind === 'ai';
   const isEmpty = !isAi && !seat.occupant;
-
-  // Status pill colour: ai = amber, ready = emerald, occupied-not-ready
-  // = sky, empty = slate. Centralised here so all rows render
-  // consistent badges without duplicating the colour logic.
-  const statusLabel = isAi
-    ? `AI (${seat.aiProfile ?? 'basic'})`
-    : seat.occupant
-      ? seat.ready
-        ? 'Ready'
-        : 'Not ready'
-      : 'Empty';
-
-  const statusBadge = isAi
-    ? 'bg-amber-700 text-amber-100'
-    : seat.occupant && seat.ready
-      ? 'bg-emerald-700 text-emerald-100'
-      : seat.occupant
-        ? 'bg-sky-700 text-sky-100'
-        : 'bg-slate-700 text-slate-300';
+  const status = getSeatStatus(seat, isAi);
 
   return (
     <div
@@ -80,62 +175,8 @@ export function SeatRow(props: ISeatRowProps): React.ReactElement {
         </span>
       </div>
       <div className="flex items-center gap-2">
-        <span
-          className={`rounded px-2 py-0.5 text-xs font-medium ${statusBadge}`}
-        >
-          {statusLabel}
-        </span>
-        <div className="flex gap-1">
-          {props.canOccupy && isEmpty && (
-            <button
-              type="button"
-              className="rounded bg-emerald-600 px-2 py-1 text-xs font-medium text-white hover:bg-emerald-500"
-              onClick={props.onOccupy}
-            >
-              Sit here
-            </button>
-          )}
-          {props.canLeave && (
-            <button
-              type="button"
-              className="rounded bg-rose-700 px-2 py-1 text-xs font-medium text-white hover:bg-rose-600"
-              onClick={props.onLeave}
-            >
-              Leave
-            </button>
-          )}
-          {props.canToggleReady && (
-            <button
-              type="button"
-              className={`rounded px-2 py-1 text-xs font-medium text-white ${
-                seat.ready
-                  ? 'bg-amber-700 hover:bg-amber-600'
-                  : 'bg-emerald-600 hover:bg-emerald-500'
-              }`}
-              onClick={() => props.onToggleReady(!seat.ready)}
-            >
-              {seat.ready ? 'Unready' : 'Ready'}
-            </button>
-          )}
-          {props.canHostManage && !isAi && (
-            <button
-              type="button"
-              className="rounded bg-amber-700 px-2 py-1 text-xs font-medium text-white hover:bg-amber-600"
-              onClick={props.onSetAi}
-            >
-              Set AI
-            </button>
-          )}
-          {props.canHostManage && isAi && (
-            <button
-              type="button"
-              className="rounded bg-slate-600 px-2 py-1 text-xs font-medium text-white hover:bg-slate-500"
-              onClick={props.onSetHuman}
-            >
-              Set human
-            </button>
-          )}
-        </div>
+        <SeatStatusBadge status={status} />
+        <SeatActions props={props} isAi={isAi} isEmpty={isEmpty} />
       </div>
     </div>
   );

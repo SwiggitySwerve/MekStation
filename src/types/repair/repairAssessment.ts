@@ -16,15 +16,25 @@ import {
 } from './repairCalculations';
 import { RepairJobStatus, RepairType, UnitLocation } from './repairTypes';
 
-export function createDamageAssessment(
-  unitId: string,
-  unitName: string,
-  armorDamage: Record<string, number>,
-  structureDamage: Record<string, number>,
-  destroyedComponents: string[],
-  armorMax: Record<string, number>,
-  structureMax: Record<string, number>,
-): IDamageAssessment {
+export interface CreateDamageAssessmentInput {
+  readonly unitId: string;
+  readonly unitName: string;
+  readonly armorDamage: Record<string, number>;
+  readonly structureDamage: Record<string, number>;
+  readonly destroyedComponents: readonly string[];
+  readonly armorMax: Record<string, number>;
+  readonly structureMax: Record<string, number>;
+}
+
+export function createDamageAssessment({
+  unitId,
+  unitName,
+  armorDamage,
+  structureDamage,
+  destroyedComponents,
+  armorMax,
+  structureMax,
+}: CreateDamageAssessmentInput): IDamageAssessment {
   const locationDamage: ILocationDamage[] = [];
   let totalArmorDamage = 0;
   let totalArmorMax = 0;

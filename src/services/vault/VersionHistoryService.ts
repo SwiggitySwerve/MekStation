@@ -70,9 +70,9 @@ export class VersionHistoryService {
   /**
    * Set the function to apply restored content during rollback
    */
-  setApplyContentFn(fn: ApplyContentFn): void {
+  readonly setApplyContentFn = (fn: ApplyContentFn): void => {
     this.applyContentFn = fn;
-  }
+  };
 
   // ===========================================================================
   // Version Tracking
@@ -81,13 +81,13 @@ export class VersionHistoryService {
   /**
    * Save a new version snapshot
    */
-  async saveVersion(
+  readonly saveVersion = async (
     contentType: ShareableContentType,
     itemId: string,
     content: string,
     createdBy: string,
     options?: ISaveVersionOptions,
-  ): Promise<IVersionSnapshot | null> {
+  ): Promise<IVersionSnapshot | null> => {
     const contentHash = await this.computeHash(content);
 
     // Check if we should skip unchanged content
@@ -109,54 +109,56 @@ export class VersionHistoryService {
       createdBy,
       options?.message,
     );
-  }
+  };
 
   /**
    * Get version history for an item
    */
-  async getHistory(
+  readonly getHistory = async (
     itemId: string,
     contentType: ShareableContentType,
     limit = 50,
-  ): Promise<IVersionSnapshot[]> {
+  ): Promise<IVersionSnapshot[]> => {
     return this.repository.getVersions(itemId, contentType, limit);
-  }
+  };
 
   /**
    * Get a specific version
    */
-  async getVersion(
+  readonly getVersion = async (
     itemId: string,
     contentType: ShareableContentType,
     version: number,
-  ): Promise<IVersionSnapshot | null> {
+  ): Promise<IVersionSnapshot | null> => {
     return this.repository.getVersion(itemId, contentType, version);
-  }
+  };
 
   /**
    * Get version by ID
    */
-  async getVersionById(id: string): Promise<IVersionSnapshot | null> {
+  readonly getVersionById = async (
+    id: string,
+  ): Promise<IVersionSnapshot | null> => {
     return this.repository.getVersionById(id);
-  }
+  };
 
   /**
    * Get the latest version
    */
-  async getLatestVersion(
+  readonly getLatestVersion = async (
     itemId: string,
     contentType: ShareableContentType,
-  ): Promise<IVersionSnapshot | null> {
+  ): Promise<IVersionSnapshot | null> => {
     return this.repository.getLatestVersion(itemId, contentType);
-  }
+  };
 
   /**
    * Get history summary for an item
    */
-  async getHistorySummary(
+  readonly getHistorySummary = async (
     itemId: string,
     contentType: ShareableContentType,
-  ): Promise<IVersionHistorySummary> {
+  ): Promise<IVersionHistorySummary> => {
     const versions = await this.repository.getVersions(
       itemId,
       contentType,
@@ -181,7 +183,7 @@ export class VersionHistoryService {
       newestVersion: versions.length > 0 ? versions[0].createdAt : null,
       totalSizeBytes,
     };
-  }
+  };
 
   // ===========================================================================
   // Version Diff
@@ -190,12 +192,12 @@ export class VersionHistoryService {
   /**
    * Compare two versions and return differences
    */
-  async diffVersions(
+  readonly diffVersions = async (
     itemId: string,
     contentType: ShareableContentType,
     fromVersion: number,
     toVersion: number,
-  ): Promise<IVersionDiff | null> {
+  ): Promise<IVersionDiff | null> => {
     const fromSnapshot = await this.repository.getVersion(
       itemId,
       contentType,
@@ -212,16 +214,16 @@ export class VersionHistoryService {
     }
 
     return this.computeDiff(fromSnapshot, toSnapshot);
-  }
+  };
 
   /**
    * Compare a version with the latest
    */
-  async diffWithLatest(
+  readonly diffWithLatest = async (
     itemId: string,
     contentType: ShareableContentType,
     version: number,
-  ): Promise<IVersionDiff | null> {
+  ): Promise<IVersionDiff | null> => {
     const snapshot = await this.repository.getVersion(
       itemId,
       contentType,
@@ -234,7 +236,7 @@ export class VersionHistoryService {
     }
 
     return this.computeDiff(snapshot, latest);
-  }
+  };
 
   /**
    * Compute diff between two snapshots
@@ -303,12 +305,12 @@ export class VersionHistoryService {
   /**
    * Rollback to a specific version
    */
-  async rollbackToVersion(
+  readonly rollbackToVersion = async (
     itemId: string,
     contentType: ShareableContentType,
     version: number,
     createdBy: string,
-  ): Promise<IRollbackResult> {
+  ): Promise<IRollbackResult> => {
     // Get the target version
     const targetVersion = await this.repository.getVersion(
       itemId,
@@ -359,15 +361,15 @@ export class VersionHistoryService {
       success: true,
       restoredVersion: newVersion,
     };
-  }
+  };
 
   /**
    * Rollback to a version by ID
    */
-  async rollbackToVersionById(
+  readonly rollbackToVersionById = async (
     versionId: string,
     createdBy: string,
-  ): Promise<IRollbackResult> {
+  ): Promise<IRollbackResult> => {
     const targetVersion = await this.repository.getVersionById(versionId);
 
     if (!targetVersion) {
@@ -383,7 +385,7 @@ export class VersionHistoryService {
       targetVersion.version,
       createdBy,
     );
-  }
+  };
 
   // ===========================================================================
   // Maintenance
@@ -392,30 +394,30 @@ export class VersionHistoryService {
   /**
    * Prune old versions, keeping only the most recent N
    */
-  async pruneVersions(
+  readonly pruneVersions = async (
     itemId: string,
     contentType: ShareableContentType,
     keepCount: number,
-  ): Promise<number> {
+  ): Promise<number> => {
     return this.repository.pruneOldVersions(itemId, contentType, keepCount);
-  }
+  };
 
   /**
    * Prune all versions older than a date
    */
-  async pruneByDate(olderThan: Date): Promise<number> {
+  readonly pruneByDate = async (olderThan: Date): Promise<number> => {
     return this.repository.pruneByDate(olderThan.toISOString());
-  }
+  };
 
   /**
    * Delete all versions for an item
    */
-  async deleteAllVersions(
+  readonly deleteAllVersions = async (
     itemId: string,
     contentType: ShareableContentType,
-  ): Promise<number> {
+  ): Promise<number> => {
     return this.repository.deleteAllVersions(itemId, contentType);
-  }
+  };
 
   // ===========================================================================
   // Helpers

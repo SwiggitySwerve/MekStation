@@ -1,8 +1,9 @@
-import type {
-  ICombatFeatureSourceReference,
-  ICombatFeatureSupportEntry,
+import { mekstationDeviationSourceRefWithLineAnchor as mekstationDeviationSourceRef } from './CombatFeatureSourceReference';
+import {
+  integrated,
+  type ICombatFeatureSourceReference,
+  type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
-
 import {
   ACTION_REMOVAL_SOURCE_REFS,
   EJECTED_TARGETABILITY_SOURCE_REFS,
@@ -11,31 +12,6 @@ import {
   RETREATED_TARGETABILITY_SOURCE_REFS,
   SHUTDOWN_TARGETABILITY_SOURCE_REFS,
 } from './CombatLifecycleSourceRefs';
-
-const MEKSTATION_SOURCE_VERSION = 'MekStation working-tree';
-
-function mekstationDeviationSourceRef(
-  citation: string,
-  path: string,
-  lineAnchor: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'mekstation-deviation',
-    citation,
-    url: `${path}#${lineAnchor}`,
-    sourceVersion: MEKSTATION_SOURCE_VERSION,
-  };
-}
-
-function integrated(
-  id: string,
-  evidence: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return sourceRefs
-    ? { id, level: 'integrated', evidence, sourceRefs }
-    : { id, level: 'integrated', evidence };
-}
 
 const TARGETABILITY_LIFECYCLE_SOURCE_REFS = [
   ...SHUTDOWN_TARGETABILITY_SOURCE_REFS,
@@ -66,7 +42,7 @@ const OBJECTIVE_OUTCOME_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation checkVictoryConditions consults evaluateObjectiveOutcome before destruction and turn-limit fallback winner selection.',
     'src/utils/gameplay/gameState/gameStateReducer.ts',
-    'L390-L425',
+    'L146-L182',
   ),
   mekstationDeviationSourceRef(
     'MekStation evaluateObjectiveOutcome routes markerless, capture, defend, and breakthrough scenarios through one objective outcome gate.',

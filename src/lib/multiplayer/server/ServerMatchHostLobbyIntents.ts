@@ -1,5 +1,4 @@
 import type { InteractiveSession } from '@/engine/InteractiveSession';
-import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 import type {
@@ -13,6 +12,7 @@ import { nowIso } from '@/types/multiplayer/Protocol';
 
 import type { IMatchMeta, IMatchStore } from './IMatchStore';
 import type { PendingPeerTracker } from './reconnection/PendingPeerTracker';
+import type { IServerMatchHostCaptureContext } from './ServerMatchHostCaptureContext';
 
 import {
   canLaunch,
@@ -25,7 +25,7 @@ import {
   setReady,
 } from './lobby/lobbyStateMachine';
 
-export interface IServerMatchHostLobbyContext {
+export interface IServerMatchHostLobbyContext extends IServerMatchHostCaptureContext {
   readonly matchId: string;
   readonly store: IMatchStore;
   readonly session: InteractiveSession;
@@ -36,12 +36,87 @@ export interface IServerMatchHostLobbyContext {
     message: IServerMessage & { kind: 'Event' },
   ) => Promise<void>;
   readonly maybeResume: () => void;
-  readonly installFreshCapture: () => void;
-  readonly drainNewEvents: () => readonly IGameEvent[];
-  readonly stampRollsOnNewEvents: (
-    events: readonly IGameEvent[],
-  ) => readonly IGameEvent[];
 }
+
+interface ILobbyIntentMutation {
+  readonly seats: IMatchSeat[];
+  readonly status?: IMatchMeta['status'];
+  readonly clearRoomCode?: boolean;
+}
+
+type LobbyIntent = Extract<
+  IIntent['intent'],
+  {
+    readonly kind:
+      | 'OccupySeat'
+      | 'LeaveSeat'
+      | 'ReassignSeat'
+      | 'SetAiSlot'
+      | 'SetHumanSlot'
+      | 'SetReady'
+      | 'LaunchMatch'
+      | 'MarkSeatAi';
+  }
+>;
+
+type LobbyIntentHandler<K extends LobbyIntent['kind']> = (
+  ctx: IServerMatchHostLobbyContext,
+  seats: readonly IMatchSeat[],
+  envelope: IIntent,
+  intent: Extract<LobbyIntent, { readonly kind: K }>,
+) => ILobbyIntentMutation;
+
+type LobbyIntentHandlers = {
+  readonly [K in LobbyIntent['kind']]: LobbyIntentHandler<K>;
+};
+
+const LOBBY_INTENT_HANDLERS: LobbyIntentHandlers = {
+  OccupySeat: (ctx, seats, envelope, intent) => ({
+    seats: handleOccupySeat(ctx.playerRefs, seats, intent.slotId, envelope),
+  }),
+  LeaveSeat: (_ctx, seats, envelope, intent) => ({
+    seats: leaveSeat(seats, intent.slotId, envelope.playerId),
+  }),
+  ReassignSeat: (_ctx, seats, _envelope, intent) => ({
+    seats: reassignSeat(seats, intent.slotId, intent.toSide, intent.toSeat),
+  }),
+  SetAiSlot: (_ctx, seats, _envelope, intent) => ({
+    seats: setAiSlot(seats, intent.slotId, intent.aiProfile),
+  }),
+  SetHumanSlot: (_ctx, seats, _envelope, intent) => ({
+    seats: setHumanSlot(seats, intent.slotId),
+  }),
+  SetReady: (_ctx, seats, envelope, intent) => ({
+    seats: handleSetReady(
+      seats,
+      intent.slotId,
+      envelope.playerId,
+      intent.ready,
+    ),
+  }),
+  LaunchMatch: (ctx, seats) => {
+    const nextSeats = seats.slice();
+    if (!canLaunch(nextSeats)) {
+      throw new LobbyStateError(
+        'Cannot launch: not all seats are filled and ready',
+      );
+    }
+    logAiSeats(ctx.matchId, nextSeats);
+    return { seats: nextSeats, status: 'active', clearRoomCode: true };
+  },
+  MarkSeatAi: (ctx, seats, _envelope, intent) => {
+    const target = seats.find((s) => s.slotId === intent.slotId);
+    if (!target) {
+      throw new LobbyStateError(`Unknown slotId: ${intent.slotId}`);
+    }
+    const droppedPlayerId = target.occupant?.playerId ?? null;
+    const nextSeats = setAiSlot(seats, intent.slotId, intent.aiProfile);
+    if (droppedPlayerId) {
+      ctx.pendingPeers.clearPending(droppedPlayerId);
+    }
+    return { seats: nextSeats };
+  },
+};
 
 export function isLobbyIntentKind(kind: IIntent['intent']['kind']): boolean {
   return (
@@ -85,81 +160,16 @@ export async function handleLobbyIntent(
     return handleForfeitMatch(ctx, meta);
   }
 
-  let nextSeats: IMatchSeat[];
-  let nextStatus = meta.status;
-  let clearRoomCode = false;
+  let mutation: ILobbyIntentMutation;
 
   try {
-    switch (intent.kind) {
-      case 'OccupySeat': {
-        nextSeats = handleOccupySeat(
-          ctx.playerRefs,
-          seats,
-          intent.slotId,
-          envelope,
-        );
-        break;
-      }
-      case 'LeaveSeat': {
-        nextSeats = leaveSeat(seats, intent.slotId, envelope.playerId);
-        break;
-      }
-      case 'ReassignSeat': {
-        nextSeats = reassignSeat(
-          seats,
-          intent.slotId,
-          intent.toSide,
-          intent.toSeat,
-        );
-        break;
-      }
-      case 'SetAiSlot': {
-        nextSeats = setAiSlot(seats, intent.slotId, intent.aiProfile);
-        break;
-      }
-      case 'SetHumanSlot': {
-        nextSeats = setHumanSlot(seats, intent.slotId);
-        break;
-      }
-      case 'SetReady': {
-        nextSeats = handleSetReady(
-          seats,
-          intent.slotId,
-          envelope.playerId,
-          intent.ready,
-        );
-        break;
-      }
-      case 'LaunchMatch': {
-        nextSeats = seats.slice();
-        if (!canLaunch(nextSeats)) {
-          throw new LobbyStateError(
-            'Cannot launch: not all seats are filled and ready',
-          );
-        }
-        nextStatus = 'active';
-        clearRoomCode = true;
-        logAiSeats(ctx.matchId, nextSeats);
-        break;
-      }
-      case 'MarkSeatAi': {
-        const target = seats.find((s) => s.slotId === intent.slotId);
-        if (!target) {
-          throw new LobbyStateError(`Unknown slotId: ${intent.slotId}`);
-        }
-        const droppedPlayerId = target.occupant?.playerId ?? null;
-        nextSeats = setAiSlot(seats, intent.slotId, intent.aiProfile);
-        if (droppedPlayerId) {
-          ctx.pendingPeers.clearPending(droppedPlayerId);
-        }
-        break;
-      }
-      default: {
-        throw new LobbyStateError(
-          `Unhandled lobby intent: ${(intent as { kind: string }).kind}`,
-        );
-      }
+    const handler = LOBBY_INTENT_HANDLERS[intent.kind as LobbyIntent['kind']];
+    if (!handler) {
+      throw new LobbyStateError(
+        `Unhandled lobby intent: ${(intent as { kind: string }).kind}`,
+      );
     }
+    mutation = handler(ctx, seats, envelope, intent as never);
   } catch (e) {
     const err: IServerMessage = {
       kind: 'Error',
@@ -172,11 +182,14 @@ export async function handleLobbyIntent(
     return [err];
   }
 
+  const nextSeats = mutation.seats;
+  const nextStatus = mutation.status ?? meta.status;
+
   try {
     await ctx.store.updateMatchMeta(ctx.matchId, {
       seats: nextSeats,
       status: nextStatus,
-      ...(clearRoomCode ? { roomCode: null } : {}),
+      ...(mutation.clearRoomCode ? { roomCode: null } : {}),
     });
   } catch (e) {
     const err: IServerMessage = {

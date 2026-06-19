@@ -13,8 +13,9 @@ import {
   AwardCategory,
   CriteriaType,
 } from '../AwardInterfaces';
+import { createAutoAwards } from './AutoAwardBuilders';
 
-export const CAMPAIGN_AWARDS: readonly IAward[] = [
+const AUTO_GRANT_CAMPAIGN_AWARDS = createAutoAwards([
   {
     id: 'campaign-initiate',
     name: 'Campaign Initiate',
@@ -22,19 +23,13 @@ export const CAMPAIGN_AWARDS: readonly IAward[] = [
     category: AwardCategory.Campaign,
     rarity: AwardRarity.Common,
     icon: 'award-campaign-initiate',
-    criteria: {
-      type: CriteriaType.MissionsCompleted,
-      threshold: 1,
-      description: 'Complete 1 campaign mission',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.MissionsCompleted,
+    criteriaThreshold: 1,
+    criteriaDescription: 'Complete 1 campaign mission',
     sortOrder: 400,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.SCENARIO,
-      threshold: 1,
-      thresholdType: 'missions',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.SCENARIO,
+    autoThreshold: 1,
+    autoThresholdType: 'missions',
   },
   {
     id: 'campaign-veteran',
@@ -43,19 +38,13 @@ export const CAMPAIGN_AWARDS: readonly IAward[] = [
     category: AwardCategory.Campaign,
     rarity: AwardRarity.Uncommon,
     icon: 'award-campaign-veteran',
-    criteria: {
-      type: CriteriaType.MissionsCompleted,
-      threshold: 10,
-      description: 'Complete 10 campaign missions',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.MissionsCompleted,
+    criteriaThreshold: 10,
+    criteriaDescription: 'Complete 10 campaign missions',
     sortOrder: 410,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.SCENARIO,
-      threshold: 10,
-      thresholdType: 'missions',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.SCENARIO,
+    autoThreshold: 10,
+    autoThresholdType: 'missions',
   },
   {
     id: 'campaign-elite',
@@ -64,20 +53,18 @@ export const CAMPAIGN_AWARDS: readonly IAward[] = [
     category: AwardCategory.Campaign,
     rarity: AwardRarity.Rare,
     icon: 'award-campaign-elite',
-    criteria: {
-      type: CriteriaType.MissionsCompleted,
-      threshold: 25,
-      description: 'Complete 25 campaign missions',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.MissionsCompleted,
+    criteriaThreshold: 25,
+    criteriaDescription: 'Complete 25 campaign missions',
     sortOrder: 420,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.SCENARIO,
-      threshold: 25,
-      thresholdType: 'missions',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.SCENARIO,
+    autoThreshold: 25,
+    autoThresholdType: 'missions',
   },
+]);
+
+export const CAMPAIGN_AWARDS: readonly IAward[] = [
+  ...AUTO_GRANT_CAMPAIGN_AWARDS,
   {
     id: 'campaign-victor',
     name: 'Campaign Victor',

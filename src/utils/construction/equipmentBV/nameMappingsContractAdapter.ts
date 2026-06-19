@@ -17,8 +17,8 @@
  *    check.
  *  - Previously the consumer cast the raw JSON `as unknown as
  *    NameMappingsData`, smuggling untyped JSON across the boundary. The
- *    cast was FIXME-tagged in `equipmentBVCatalogData.ts:99`. This
- *    adapter closes the FIXME by parsing through the canonical
+ *    cast was marked in `equipmentBVCatalogData.ts:99`. This
+ *    adapter closes the gap by parsing through the canonical
  *    JSON-Schema-derived Zod contract, so any future drift fails loudly
  *    with a Zod issue path instead of a silent BV miscalculation.
  *

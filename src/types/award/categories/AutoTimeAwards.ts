@@ -7,14 +7,10 @@
  */
 
 import { AutoAwardCategory } from '../../campaign/awards/autoAwardTypes';
-import {
-  IAward,
-  AwardRarity,
-  AwardCategory,
-  CriteriaType,
-} from '../AwardInterfaces';
+import { AwardRarity, AwardCategory, CriteriaType } from '../AwardInterfaces';
+import { createAutoAwards } from './AutoAwardBuilders';
 
-export const AUTO_TIME_AWARDS: readonly IAward[] = [
+export const AUTO_TIME_AWARDS = createAutoAwards([
   {
     id: 'one-year-service',
     name: 'Year of Service',
@@ -22,19 +18,13 @@ export const AUTO_TIME_AWARDS: readonly IAward[] = [
     category: AwardCategory.Service,
     rarity: AwardRarity.Common,
     icon: 'award-one-year',
-    criteria: {
-      type: CriteriaType.GamesPlayed,
-      threshold: 1,
-      description: '1 year of service',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.GamesPlayed,
+    criteriaThreshold: 1,
+    criteriaDescription: '1 year of service',
     sortOrder: 550,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.TIME,
-      threshold: 1,
-      thresholdType: 'years',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.TIME,
+    autoThreshold: 1,
+    autoThresholdType: 'years',
   },
   {
     id: 'two-year-service',
@@ -43,19 +33,13 @@ export const AUTO_TIME_AWARDS: readonly IAward[] = [
     category: AwardCategory.Service,
     rarity: AwardRarity.Common,
     icon: 'award-two-year',
-    criteria: {
-      type: CriteriaType.GamesPlayed,
-      threshold: 2,
-      description: '2 years of service',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.GamesPlayed,
+    criteriaThreshold: 2,
+    criteriaDescription: '2 years of service',
     sortOrder: 560,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.TIME,
-      threshold: 2,
-      thresholdType: 'years',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.TIME,
+    autoThreshold: 2,
+    autoThresholdType: 'years',
   },
   {
     id: 'five-year-service',
@@ -64,19 +48,13 @@ export const AUTO_TIME_AWARDS: readonly IAward[] = [
     category: AwardCategory.Service,
     rarity: AwardRarity.Uncommon,
     icon: 'award-five-year',
-    criteria: {
-      type: CriteriaType.GamesPlayed,
-      threshold: 5,
-      description: '5 years of service',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.GamesPlayed,
+    criteriaThreshold: 5,
+    criteriaDescription: '5 years of service',
     sortOrder: 570,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.TIME,
-      threshold: 5,
-      thresholdType: 'years',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.TIME,
+    autoThreshold: 5,
+    autoThresholdType: 'years',
   },
   {
     id: 'ten-year-service',
@@ -85,19 +63,13 @@ export const AUTO_TIME_AWARDS: readonly IAward[] = [
     category: AwardCategory.Service,
     rarity: AwardRarity.Rare,
     icon: 'award-ten-year',
-    criteria: {
-      type: CriteriaType.GamesPlayed,
-      threshold: 10,
-      description: '10 years of service',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.GamesPlayed,
+    criteriaThreshold: 10,
+    criteriaDescription: '10 years of service',
     sortOrder: 580,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.TIME,
-      threshold: 10,
-      thresholdType: 'years',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.TIME,
+    autoThreshold: 10,
+    autoThresholdType: 'years',
   },
   {
     id: 'twenty-year-service',
@@ -106,19 +78,13 @@ export const AUTO_TIME_AWARDS: readonly IAward[] = [
     category: AwardCategory.Service,
     rarity: AwardRarity.Rare,
     icon: 'award-twenty-year',
-    criteria: {
-      type: CriteriaType.GamesPlayed,
-      threshold: 20,
-      description: '20 years of service',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.GamesPlayed,
+    criteriaThreshold: 20,
+    criteriaDescription: '20 years of service',
     sortOrder: 590,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.TIME,
-      threshold: 20,
-      thresholdType: 'years',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.TIME,
+    autoThreshold: 20,
+    autoThresholdType: 'years',
   },
   {
     id: 'thirty-year-service',
@@ -127,18 +93,12 @@ export const AUTO_TIME_AWARDS: readonly IAward[] = [
     category: AwardCategory.Service,
     rarity: AwardRarity.Legendary,
     icon: 'award-thirty-year',
-    criteria: {
-      type: CriteriaType.GamesPlayed,
-      threshold: 30,
-      description: '30 years of service',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.GamesPlayed,
+    criteriaThreshold: 30,
+    criteriaDescription: '30 years of service',
     sortOrder: 595,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.TIME,
-      threshold: 30,
-      thresholdType: 'years',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.TIME,
+    autoThreshold: 30,
+    autoThresholdType: 'years',
   },
-];
+]);

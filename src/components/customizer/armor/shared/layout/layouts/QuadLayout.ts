@@ -16,6 +16,7 @@ import {
   MechLayoutConfig,
   PartDefinition,
 } from '../LayoutTypes';
+import { RECTANGULAR_PART_PATH } from './LayoutPathTemplates';
 
 // ============================================================================
 // Part Definitions
@@ -27,13 +28,7 @@ const HEAD: PartDefinition = {
   baseHeight: 45,
   shape: 'path',
   anchors: [{ id: 'neck', position: 'bottom', offset: { x: 0, y: 0 } }],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 const CENTER_TORSO: PartDefinition = {
@@ -67,13 +62,7 @@ const CENTER_TORSO: PartDefinition = {
       edgePosition: { edge: 'bottom', at: 0.8 },
     },
   ],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 const LEFT_TORSO: PartDefinition = {
@@ -90,13 +79,7 @@ const LEFT_TORSO: PartDefinition = {
       edgePosition: { edge: 'left', at: 0.75 },
     },
   ],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 const RIGHT_TORSO: PartDefinition = {
@@ -113,13 +96,7 @@ const RIGHT_TORSO: PartDefinition = {
       edgePosition: { edge: 'right', at: 0.75 },
     },
   ],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 // Front legs - positioned like normal biped legs at the center torso bottom
@@ -132,13 +109,7 @@ const FRONT_LEFT_LEG: PartDefinition = {
     // Hip on inner edge (top-right) so leg extends outward to the left
     { id: 'hip', position: 'top-right', offset: { x: 0, y: 0 } },
   ],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 const FRONT_RIGHT_LEG: PartDefinition = {
@@ -150,13 +121,7 @@ const FRONT_RIGHT_LEG: PartDefinition = {
     // Hip on inner edge (top-left) so leg extends outward to the right
     { id: 'hip', position: 'top-left', offset: { x: 0, y: 0 } },
   ],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 // Rear legs - positioned on outer edge of side torsos at lower portion
@@ -169,13 +134,7 @@ const REAR_LEFT_LEG: PartDefinition = {
     // Hip on inner edge (top-right) so leg extends outward to the left
     { id: 'hip', position: 'top-right', offset: { x: 0, y: 0 } },
   ],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 const REAR_RIGHT_LEG: PartDefinition = {
@@ -187,13 +146,7 @@ const REAR_RIGHT_LEG: PartDefinition = {
     // Hip on inner edge (top-left) so leg extends outward to the right
     { id: 'hip', position: 'top-left', offset: { x: 0, y: 0 } },
   ],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
+  pathTemplate: RECTANGULAR_PART_PATH,
 };
 
 // ============================================================================

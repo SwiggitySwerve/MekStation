@@ -9,9 +9,7 @@
 
 import { StoreApi } from 'zustand';
 
-import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
 import { logger } from '@/utils/logger';
-import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 import {
   BattleArmorStore,
@@ -23,143 +21,76 @@ import {
   createBattleArmorStore,
   createNewBattleArmorStore,
 } from './useBattleArmorStore';
+import { createStoreRegistry } from './utils/createStoreRegistry';
 
-const battleArmorStores = new Map<string, StoreApi<BattleArmorStore>>();
+const battleArmorRegistry = createStoreRegistry<
+  BattleArmorStore,
+  BattleArmorState,
+  CreateBattleArmorOptions
+>({
+  storageKeyPrefix: 'megamek-battlearmor',
+  registryName: 'BattleArmorStoreRegistry',
+  createStore: createBattleArmorStore,
+  createNewStore: createNewBattleArmorStore,
+  createDefaultState: (options, id) =>
+    createDefaultBattleArmorState({ ...options, id }),
+  getIdFromState: (state) => state.id,
+});
 
 export function getBattleArmorStore(
   battleArmorId: string,
 ): StoreApi<BattleArmorStore> | undefined {
-  return battleArmorStores.get(battleArmorId);
+  return battleArmorRegistry.get(battleArmorId);
 }
 
 export function hasBattleArmorStore(battleArmorId: string): boolean {
-  return battleArmorStores.has(battleArmorId);
+  return battleArmorRegistry.has(battleArmorId);
 }
 
 export function getAllBattleArmorIds(): string[] {
-  return Array.from(battleArmorStores.keys());
+  return battleArmorRegistry.getAllIds();
 }
 
 export function getBattleArmorStoreCount(): number {
-  return battleArmorStores.size;
-}
-
-function ensureValidBattleArmorId(
-  battleArmorId: string | undefined | null,
-  context: string,
-): string {
-  if (battleArmorId && isValidUUID(battleArmorId)) {
-    return battleArmorId;
-  }
-
-  const newId = generateUUID();
-  logger.warn(
-    `[BattleArmorStoreRegistry] ${context}: Invalid battle armor ID "${battleArmorId || '(missing)'}" replaced with "${newId}"`,
-  );
-  return newId;
+  return battleArmorRegistry.getCount();
 }
 
 export function createAndRegisterBattleArmor(
   options: CreateBattleArmorOptions,
 ): StoreApi<BattleArmorStore> {
-  const store = createNewBattleArmorStore(options);
-  const state = store.getState();
-  battleArmorStores.set(state.id, store);
-  return store;
+  return battleArmorRegistry.createAndRegister(options);
 }
 
 export function registerBattleArmorStore(
   store: StoreApi<BattleArmorStore>,
 ): void {
-  const state = store.getState();
-  battleArmorStores.set(state.id, store);
+  battleArmorRegistry.register(store);
 }
 
 export function hydrateOrCreateBattleArmor(
   battleArmorId: string,
   fallbackOptions: CreateBattleArmorOptions,
 ): StoreApi<BattleArmorStore> {
-  const validBattleArmorId = ensureValidBattleArmorId(
-    battleArmorId,
-    'hydrateOrCreateBattleArmor',
-  );
-
-  const existing = battleArmorStores.get(validBattleArmorId);
-  if (existing) {
-    return existing;
-  }
-
-  const storageKey = `megamek-battlearmor-${validBattleArmorId}`;
-  const savedState = safeGetItem(storageKey);
-
-  if (savedState) {
-    try {
-      const parsed = JSON.parse(savedState) as {
-        state?: Partial<BattleArmorState>;
-      };
-      const state = parsed.state;
-
-      if (state) {
-        ensureValidBattleArmorId(state.id, 'localStorage state');
-
-        const defaultState = createDefaultBattleArmorState({
-          ...fallbackOptions,
-          id: validBattleArmorId,
-        });
-        const mergedState: BattleArmorState = {
-          ...defaultState,
-          ...state,
-          id: validBattleArmorId,
-        };
-
-        const store = createBattleArmorStore(mergedState);
-        battleArmorStores.set(validBattleArmorId, store);
-        return store;
-      }
-    } catch (e) {
-      logger.warn(
-        `Failed to hydrate battle armor ${validBattleArmorId}, creating new:`,
-        e,
-      );
-    }
-  }
-
-  const store = createNewBattleArmorStore({
-    ...fallbackOptions,
-    id: validBattleArmorId,
-  });
-  battleArmorStores.set(validBattleArmorId, store);
-  return store;
+  return battleArmorRegistry.hydrateOrCreate(battleArmorId, fallbackOptions);
 }
 
 export function unregisterBattleArmorStore(battleArmorId: string): boolean {
-  return battleArmorStores.delete(battleArmorId);
+  return battleArmorRegistry.unregister(battleArmorId);
 }
 
 export function deleteBattleArmor(battleArmorId: string): boolean {
-  const removed = battleArmorStores.delete(battleArmorId);
-  if (removed) {
-    const storageKey = `megamek-battlearmor-${battleArmorId}`;
-    safeRemoveItem(storageKey);
-  }
-  return removed;
+  return battleArmorRegistry.delete(battleArmorId);
 }
 
 export function clearAllBattleArmorStores(clearStorage = false): void {
-  if (clearStorage) {
-    Array.from(battleArmorStores.keys()).forEach((battleArmorId) => {
-      const storageKey = `megamek-battlearmor-${battleArmorId}`;
-      safeRemoveItem(storageKey);
-    });
-  }
-  battleArmorStores.clear();
+  battleArmorRegistry.clearAll(clearStorage);
 }
 
 export function duplicateBattleArmor(
   sourceBattleArmorId: string,
   newName?: string,
 ): StoreApi<BattleArmorStore> | null {
-  const sourceStore = battleArmorStores.get(sourceBattleArmorId);
+  const sourceStore = battleArmorRegistry.get(sourceBattleArmorId);
   if (!sourceStore) {
     return null;
   }
@@ -189,19 +120,19 @@ export function duplicateBattleArmor(
   };
 
   const store = createBattleArmorStore(mergedState);
-  battleArmorStores.set(mergedState.id, store);
+  battleArmorRegistry.register(store);
   return store;
 }
 
 export function createBattleArmorFromFullState(
   state: BattleArmorState,
 ): StoreApi<BattleArmorStore> {
-  const validId = ensureValidBattleArmorId(
+  const validId = battleArmorRegistry.ensureValidId(
     state.id,
     'createBattleArmorFromFullState',
   );
 
-  const existing = battleArmorStores.get(validId);
+  const existing = battleArmorRegistry.get(validId);
   if (existing) {
     logger.warn(
       `Battle armor store ${validId} already exists, returning existing`,
@@ -209,15 +140,11 @@ export function createBattleArmorFromFullState(
     return existing;
   }
 
-  const validatedState: BattleArmorState = {
+  const store = createBattleArmorStore({
     ...state,
     id: validId,
-  };
-
-  const store = createBattleArmorStore(validatedState);
-  battleArmorStores.set(validId, store);
-
+  });
+  battleArmorRegistry.register(store);
   store.setState({ lastModifiedAt: Date.now() });
-
   return store;
 }

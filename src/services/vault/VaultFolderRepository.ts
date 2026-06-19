@@ -21,7 +21,11 @@ import {
   type SingletonFactory,
 } from '../core/createSingleton';
 import { ICrudRepository } from '../core/ICrudRepository';
-import { rowToFolder, rowToFolderItem } from './VaultFolderRepository.helpers';
+import {
+  VAULT_FOLDER_SCHEMA_SQL,
+  rowToFolder,
+  rowToFolderItem,
+} from './VaultFolderRepository.helpers';
 
 // =============================================================================
 // Repository
@@ -36,49 +40,16 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
   /**
    * Initialize the repository (ensure tables exist)
    */
-  async initialize(): Promise<void> {
+  readonly initialize = async (): Promise<void> => {
     if (this.initialized) return;
 
     const db = getSQLiteService();
     await db.initialize();
 
-    // Create folders table
-    db.getDatabase().exec(`
-      CREATE TABLE IF NOT EXISTS vault_folders (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        description TEXT,
-        parent_id TEXT,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL,
-        item_count INTEGER NOT NULL DEFAULT 0,
-        is_shared INTEGER NOT NULL DEFAULT 0,
-        FOREIGN KEY (parent_id) REFERENCES vault_folders(id) ON DELETE SET NULL
-      );
-      
-      CREATE INDEX IF NOT EXISTS idx_vault_folders_parent 
-        ON vault_folders(parent_id);
-      CREATE INDEX IF NOT EXISTS idx_vault_folders_shared 
-        ON vault_folders(is_shared);
-
-      -- Create folder items junction table
-      CREATE TABLE IF NOT EXISTS vault_folder_items (
-        folder_id TEXT NOT NULL,
-        item_id TEXT NOT NULL,
-        item_type TEXT NOT NULL CHECK(item_type IN ('unit', 'pilot', 'force', 'encounter')),
-        assigned_at TEXT NOT NULL,
-        PRIMARY KEY (folder_id, item_id, item_type),
-        FOREIGN KEY (folder_id) REFERENCES vault_folders(id) ON DELETE CASCADE
-      );
-      
-      CREATE INDEX IF NOT EXISTS idx_vault_folder_items_folder 
-        ON vault_folder_items(folder_id);
-      CREATE INDEX IF NOT EXISTS idx_vault_folder_items_item 
-        ON vault_folder_items(item_id, item_type);
-    `);
+    db.getDatabase().exec(VAULT_FOLDER_SCHEMA_SQL);
 
     this.initialized = true;
-  }
+  };
 
   // ===========================================================================
   // Folder CRUD
@@ -87,14 +58,14 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
   /**
    * Create a new folder
    */
-  async createFolder(
+  readonly createFolder = async (
     name: string,
     options?: {
       description?: string;
       parentId?: string;
       isShared?: boolean;
     },
-  ): Promise<IVaultFolder> {
+  ): Promise<IVaultFolder> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -128,12 +99,12 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       itemCount: 0,
       isShared: options?.isShared ?? false,
     };
-  }
+  };
 
   /**
    * Get folder by ID
    */
-  async getFolderById(id: string): Promise<IVaultFolder | null> {
+  readonly getFolderById = async (id: string): Promise<IVaultFolder | null> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -142,12 +113,12 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .get(id) as IStoredVaultFolder | undefined;
 
     return row ? rowToFolder(row) : null;
-  }
+  };
 
   /**
    * Get all root folders (no parent)
    */
-  async getRootFolders(): Promise<IVaultFolder[]> {
+  readonly getRootFolders = async (): Promise<IVaultFolder[]> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -158,9 +129,11 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .all() as IStoredVaultFolder[];
 
     return rows.map((row) => rowToFolder(row));
-  }
+  };
 
-  async getChildFolders(parentId: string): Promise<IVaultFolder[]> {
+  readonly getChildFolders = async (
+    parentId: string,
+  ): Promise<IVaultFolder[]> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -169,9 +142,9 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .all(parentId) as IStoredVaultFolder[];
 
     return rows.map((row) => rowToFolder(row));
-  }
+  };
 
-  async getAllFolders(): Promise<IVaultFolder[]> {
+  readonly getAllFolders = async (): Promise<IVaultFolder[]> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -180,9 +153,9 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .all() as IStoredVaultFolder[];
 
     return rows.map((row) => rowToFolder(row));
-  }
+  };
 
-  async getSharedFolders(): Promise<IVaultFolder[]> {
+  readonly getSharedFolders = async (): Promise<IVaultFolder[]> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -191,12 +164,15 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .all() as IStoredVaultFolder[];
 
     return rows.map((row) => rowToFolder(row));
-  }
+  };
 
   /**
    * Update folder name
    */
-  async updateFolderName(id: string, name: string): Promise<boolean> {
+  readonly updateFolderName = async (
+    id: string,
+    name: string,
+  ): Promise<boolean> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
@@ -206,15 +182,15 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .run(name, now, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Update folder description
    */
-  async updateFolderDescription(
+  readonly updateFolderDescription = async (
     id: string,
     description: string | null,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
@@ -226,12 +202,15 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .run(description, now, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Move folder to new parent
    */
-  async moveFolder(id: string, newParentId: string | null): Promise<boolean> {
+  readonly moveFolder = async (
+    id: string,
+    newParentId: string | null,
+  ): Promise<boolean> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
@@ -256,12 +235,15 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .run(newParentId, now, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Set folder shared status
    */
-  async setFolderShared(id: string, isShared: boolean): Promise<boolean> {
+  readonly setFolderShared = async (
+    id: string,
+    isShared: boolean,
+  ): Promise<boolean> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
@@ -273,12 +255,12 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .run(isShared ? 1 : 0, now, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Delete a folder (and all its items assignments)
    */
-  async deleteFolder(id: string): Promise<boolean> {
+  readonly deleteFolder = async (id: string): Promise<boolean> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -293,7 +275,7 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
     const result = db.prepare('DELETE FROM vault_folders WHERE id = ?').run(id);
 
     return result.changes > 0;
-  }
+  };
 
   // ===========================================================================
   // ICrudRepository Interface Methods
@@ -303,7 +285,9 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
    * Create a new folder (ICrudRepository interface method)
    * Wraps createFolder with standard CRUD signature
    */
-  async create(data: Partial<IVaultFolder>): Promise<IVaultFolder> {
+  readonly create = async (
+    data: Partial<IVaultFolder>,
+  ): Promise<IVaultFolder> => {
     if (!data.name) {
       throw new Error('Folder name is required');
     }
@@ -312,29 +296,32 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       parentId: data.parentId ?? undefined,
       isShared: data.isShared ?? undefined,
     });
-  }
+  };
 
   /**
    * Get folder by ID (ICrudRepository interface method)
    * Wraps getFolderById with standard CRUD signature
    */
-  async getById(id: string): Promise<IVaultFolder | null> {
+  readonly getById = async (id: string): Promise<IVaultFolder | null> => {
     return this.getFolderById(id);
-  }
+  };
 
   /**
    * Get all folders (ICrudRepository interface method)
    * Wraps getAllFolders with standard CRUD signature
    */
-  async getAll(): Promise<IVaultFolder[]> {
+  readonly getAll = async (): Promise<IVaultFolder[]> => {
     return this.getAllFolders();
-  }
+  };
 
   /**
    * Update a folder (ICrudRepository interface method)
    * Updates multiple fields of a folder at once
    */
-  async update(id: string, data: Partial<IVaultFolder>): Promise<IVaultFolder> {
+  readonly update = async (
+    id: string,
+    data: Partial<IVaultFolder>,
+  ): Promise<IVaultFolder> => {
     const current = await this.getFolderById(id);
     if (!current) {
       throw new Error(`Folder with id ${id} not found`);
@@ -363,20 +350,20 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       throw new Error(`Failed to retrieve updated folder with id ${id}`);
     }
     return updated;
-  }
+  };
 
   /**
    * Delete a folder (ICrudRepository interface method)
    * Wraps deleteFolder with standard CRUD signature
    */
-  async delete(id: string): Promise<boolean> {
+  readonly delete = async (id: string): Promise<boolean> => {
     return this.deleteFolder(id);
-  }
+  };
 
   /**
    * Count total folders (ICrudRepository optional method)
    */
-  async count(): Promise<number> {
+  readonly count = async (): Promise<number> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -385,7 +372,7 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .get() as { count: number };
 
     return row.count;
-  }
+  };
 
   // ===========================================================================
   // Folder Items
@@ -394,11 +381,11 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
   /**
    * Add item to folder
    */
-  async addItemToFolder(
+  readonly addItemToFolder = async (
     folderId: string,
     itemId: string,
     itemType: ShareableContentType,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
@@ -416,16 +403,16 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
     } catch {
       return false;
     }
-  }
+  };
 
   /**
    * Remove item from folder
    */
-  async removeItemFromFolder(
+  readonly removeItemFromFolder = async (
     folderId: string,
     itemId: string,
     itemType: ShareableContentType,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -440,12 +427,14 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
     }
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Get all items in a folder
    */
-  async getFolderItems(folderId: string): Promise<IFolderItem[]> {
+  readonly getFolderItems = async (
+    folderId: string,
+  ): Promise<IFolderItem[]> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -456,15 +445,15 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .all(folderId) as IStoredFolderItem[];
 
     return rows.map((row) => rowToFolderItem(row));
-  }
+  };
 
   /**
    * Get folders containing an item
    */
-  async getItemFolders(
+  readonly getItemFolders = async (
     itemId: string,
     itemType: ShareableContentType,
-  ): Promise<IVaultFolder[]> {
+  ): Promise<IVaultFolder[]> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -478,16 +467,16 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .all(itemId, itemType) as IStoredVaultFolder[];
 
     return rows.map((row) => rowToFolder(row));
-  }
+  };
 
   /**
    * Check if item is in folder
    */
-  async isItemInFolder(
+  readonly isItemInFolder = async (
     folderId: string,
     itemId: string,
     itemType: ShareableContentType,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -498,17 +487,17 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
       .get(folderId, itemId, itemType);
 
     return !!row;
-  }
+  };
 
   /**
    * Move item from one folder to another
    */
-  async moveItem(
+  readonly moveItem = async (
     itemId: string,
     itemType: ShareableContentType,
     fromFolderId: string,
     toFolderId: string,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
@@ -527,15 +516,15 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
     }
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Remove all item assignments (when item is deleted)
    */
-  async removeItemFromAllFolders(
+  readonly removeItemFromAllFolders = async (
     itemId: string,
     itemType: ShareableContentType,
-  ): Promise<number> {
+  ): Promise<number> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -554,7 +543,7 @@ export class VaultFolderRepository implements ICrudRepository<IVaultFolder> {
     }
 
     return result.changes;
-  }
+  };
 
   // ===========================================================================
   // Helper Methods

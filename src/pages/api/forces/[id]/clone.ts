@@ -8,10 +8,19 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  initializeApiDatabase as initCloneForceDb,
+  rejectMissingQueryString as readCloneForceId,
+  rejectUnexpectedMethod,
+  sendCaughtApiError as sendCloneForceError,
+  sendOperationFailure as sendCloneForceFailure,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { IForceOperationResult } from '@/services/forces/ForceRepository';
 import { getForceService } from '@/services/forces/ForceService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { IForce } from '@/types/force';
+
+const FORCES_ID_CLONE_TS_FAILED_TO_CLONE_FORCE_1 = 'Failed to clone force';
 
 // =============================================================================
 // Response Types
@@ -19,11 +28,6 @@ import { IForce } from '@/types/force';
 
 type CloneResponse = IForceOperationResult & {
   force?: IForce;
-};
-
-type ErrorResponse = {
-  error: string;
-  code?: string;
 };
 
 // =============================================================================
@@ -40,26 +44,13 @@ interface CloneBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<CloneResponse | ErrorResponse>,
+  res: NextApiResponse<CloneResponse | ApiErrorResponse>,
 ): Promise<void> {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-  }
+  if (rejectUnexpectedMethod(req, res, ['POST'])) return;
+  if (!initCloneForceDb(res)) return;
 
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
-
-  const { id } = req.query;
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid force ID' });
-  }
+  const id = readCloneForceId(req, res, 'id', 'Missing or invalid force ID');
+  if (!id) return;
 
   const body = req.body as CloneBody;
   if (!body.newName) {
@@ -75,15 +66,15 @@ export default async function handler(
       const force = forceService.getForce(result.id);
       return res.status(201).json({ ...result, force: force || undefined });
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to clone force',
-        errorCode: result.errorCode,
-      });
+      sendCloneForceFailure(
+        res,
+        result,
+        FORCES_ID_CLONE_TS_FAILED_TO_CLONE_FORCE_1,
+      );
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to clone force';
-    return res.status(500).json({ error: message });
+    sendCloneForceError(res, error, FORCES_ID_CLONE_TS_FAILED_TO_CLONE_FORCE_1);
+    return;
   }
 }

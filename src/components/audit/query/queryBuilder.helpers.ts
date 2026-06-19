@@ -1,4 +1,9 @@
-import { EventCategory, type IEventQueryFilters } from '@/types/events';
+import { formatAuditEventType } from '@/components/audit/auditEventFormatters';
+import {
+  EventCategory,
+  type IEventContext,
+  type IEventQueryFilters,
+} from '@/types/events';
 
 import type { FilterChipVariant } from './FilterChip';
 
@@ -58,13 +63,148 @@ export const EVENT_TYPES_BY_CATEGORY: Record<EventCategory, string[]> = {
   ],
 };
 
+export function getAvailableEventTypes(category?: EventCategory): string[] {
+  return category
+    ? EVENT_TYPES_BY_CATEGORY[category] || []
+    : Object.values(EVENT_TYPES_BY_CATEGORY).flat();
+}
+
+export function withCategoryFilter(
+  filters: IEventQueryFilters,
+  category: EventCategory | '',
+): IEventQueryFilters {
+  return {
+    ...filters,
+    category: category || undefined,
+    types: undefined,
+  };
+}
+
+export function toggleQueryType(types: string[], type: string): string[] {
+  return types.includes(type)
+    ? types.filter((currentType) => currentType !== type)
+    : [...types, type];
+}
+
+export function withQueryTypes(
+  filters: IEventQueryFilters,
+  types: string[],
+): IEventQueryFilters {
+  return {
+    ...filters,
+    types: types.length > 0 ? types : undefined,
+  };
+}
+
+export function withContextFilter(
+  filters: IEventQueryFilters,
+  field: keyof IEventContext,
+  value: string,
+): IEventQueryFilters {
+  const newContext: Partial<IEventContext> = {
+    ...filters.context,
+    [field]: value || undefined,
+  };
+  const cleanContext = Object.fromEntries(
+    Object.entries(newContext).filter(
+      ([, currentValue]) => currentValue !== undefined,
+    ),
+  ) as Partial<IEventContext>;
+
+  return {
+    ...filters,
+    context: Object.keys(cleanContext).length > 0 ? cleanContext : undefined,
+  };
+}
+
+export function withTimeRangeFilter(
+  filters: IEventQueryFilters,
+  field: 'from' | 'to',
+  value: string,
+): IEventQueryFilters {
+  if (!value) {
+    return withoutEmptyTimeRangeValue(filters, field);
+  }
+
+  return {
+    ...filters,
+    timeRange: {
+      from: field === 'from' ? value : filters.timeRange?.from || '',
+      to: field === 'to' ? value : filters.timeRange?.to || '',
+    },
+  };
+}
+
+function withoutEmptyTimeRangeValue(
+  filters: IEventQueryFilters,
+  field: 'from' | 'to',
+): IEventQueryFilters {
+  const hasOtherValue =
+    field === 'from' ? filters.timeRange?.to : filters.timeRange?.from;
+
+  if (!hasOtherValue) {
+    return { ...filters, timeRange: undefined };
+  }
+
+  if (!filters.timeRange) {
+    return filters;
+  }
+
+  return {
+    ...filters,
+    timeRange: {
+      from: field === 'from' ? '' : filters.timeRange.from,
+      to: field === 'to' ? '' : filters.timeRange.to,
+    },
+  };
+}
+
+export function withSequenceRangeFilter(
+  filters: IEventQueryFilters,
+  field: 'from' | 'to',
+  value: string,
+): IEventQueryFilters {
+  const numValue = value ? parseInt(value, 10) : undefined;
+
+  if (numValue === undefined || isNaN(numValue)) {
+    return withoutEmptySequenceRangeValue(filters, field);
+  }
+
+  return {
+    ...filters,
+    sequenceRange: {
+      from: field === 'from' ? numValue : filters.sequenceRange?.from || 0,
+      to: field === 'to' ? numValue : filters.sequenceRange?.to || 0,
+    },
+  };
+}
+
+function withoutEmptySequenceRangeValue(
+  filters: IEventQueryFilters,
+  field: 'from' | 'to',
+): IEventQueryFilters {
+  const hasOtherValue =
+    field === 'from' ? filters.sequenceRange?.to : filters.sequenceRange?.from;
+
+  if (!hasOtherValue) {
+    return { ...filters, sequenceRange: undefined };
+  }
+
+  if (!filters.sequenceRange) {
+    return filters;
+  }
+
+  return {
+    ...filters,
+    sequenceRange: {
+      from: field === 'from' ? 0 : filters.sequenceRange.from,
+      to: field === 'to' ? 0 : filters.sequenceRange.to,
+    },
+  };
+}
+
 export function formatEventType(type: string): string {
-  const shortType = type.includes('.')
-    ? type.split('.').slice(1).join('.')
-    : type;
-  return shortType
-    .replace(/[_-]/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return formatAuditEventType(type);
 }
 
 export function getActiveFilters(filters: IEventQueryFilters): Array<{

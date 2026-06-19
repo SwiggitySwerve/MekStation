@@ -54,6 +54,17 @@ export interface TrooperMovementInputs {
   readonly weightClass?: BAWeightClass;
 }
 
+export interface TrooperMassInputs {
+  readonly armorPoints: number;
+  readonly armorType: BAArmorType;
+  readonly chassisType: BAChassisType;
+  readonly leftManipulator: BAManipulator;
+  readonly rightManipulator: BAManipulator;
+  readonly weapons: readonly IBAWeaponMount[];
+  readonly equipment: readonly IBAEquipmentMount[];
+  readonly movement?: TrooperMovementInputs;
+}
+
 export interface MassValidationResult {
   readonly isValid: boolean;
   readonly errors: readonly string[];
@@ -72,31 +83,69 @@ export interface MassValidationResult {
  * Requirement: Trooper Mass Validation (and tasks §4.5 — extra MP mass cost)
  */
 export function computeTrooperMass(
-  armorPoints: number,
-  armorType: BAArmorType,
-  chassisType: BAChassisType,
-  leftManipulator: BAManipulator,
-  rightManipulator: BAManipulator,
-  weapons: readonly IBAWeaponMount[],
-  equipment: readonly IBAEquipmentMount[],
-  movement?: TrooperMovementInputs,
+  input: TrooperMassInputs | number,
+  ...legacy:
+    | []
+    | [
+        armorType: BAArmorType,
+        chassisType: BAChassisType,
+        leftManipulator: BAManipulator,
+        rightManipulator: BAManipulator,
+        weapons: readonly IBAWeaponMount[],
+        equipment: readonly IBAEquipmentMount[],
+        movement?: TrooperMovementInputs,
+      ]
 ): TrooperMassBreakdown {
-  const armorMass = armorMassKg(armorPoints, armorType);
-  const manipulatorMass = manipulatorMassKg(
+  const [
+    armorType,
     chassisType,
     leftManipulator,
     rightManipulator,
+    weapons,
+    equipment,
+    movement,
+  ] = legacy as [
+    BAArmorType,
+    BAChassisType,
+    BAManipulator,
+    BAManipulator,
+    readonly IBAWeaponMount[],
+    readonly IBAEquipmentMount[],
+    TrooperMovementInputs | undefined,
+  ];
+  const massInput =
+    typeof input !== 'number'
+      ? input
+      : {
+          armorPoints: input,
+          armorType,
+          chassisType,
+          leftManipulator,
+          rightManipulator,
+          weapons,
+          equipment,
+          movement,
+        };
+
+  const armorMass = armorMassKg(massInput.armorPoints, massInput.armorType);
+  const manipulatorMass = manipulatorMassKg(
+    massInput.chassisType,
+    massInput.leftManipulator,
+    massInput.rightManipulator,
   );
-  const weaponMass = weapons.reduce((sum, w) => sum + w.massKg, 0);
-  const equipmentMass = equipment.reduce((sum, e) => sum + e.massKg, 0);
+  const weaponMass = massInput.weapons.reduce((sum, w) => sum + w.massKg, 0);
+  const equipmentMass = massInput.equipment.reduce(
+    (sum, e) => sum + e.massKg,
+    0,
+  );
 
   const movementMass =
-    movement?.weightClass !== undefined
+    massInput.movement?.weightClass !== undefined
       ? extraMPMassKg(
-          movement.groundMP ?? 0,
-          movement.jumpMP ?? 0,
-          movement.umuMP ?? 0,
-          movement.weightClass,
+          massInput.movement.groundMP ?? 0,
+          massInput.movement.jumpMP ?? 0,
+          massInput.movement.umuMP ?? 0,
+          massInput.movement.weightClass,
         )
       : 0;
 

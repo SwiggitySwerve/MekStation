@@ -12,17 +12,19 @@ import type { ICommittedMovementValidationInput } from '@/utils/gameplay/movemen
 import {
   Facing,
   GameSide,
-  LockState,
   MovementType,
   TerrainType,
   TokenUnitType,
   VehicleMotionType,
 } from '@/types/gameplay';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
+import {
+  createTacticalMapTerrainGrid,
+  createTacticalMapUnitState,
+  overrideTacticalMapTokens,
+  requireTacticalMapMovementProjection,
+} from './tactical-map.fixture-helpers';
 import {
   tacticalMapHexTerrain,
   tacticalMapTokens,
@@ -31,24 +33,13 @@ import {
 const tacticalMapTrackedElevationOrigin = { q: 0, r: 0 } as const;
 const tacticalMapTrackedElevationDestination = { q: 1, r: 0 } as const;
 
-const tacticalMapTrackedElevationUnit: IUnitGameState = {
-  id: 'attacker',
-  side: GameSide.Player,
-  position: tacticalMapTrackedElevationOrigin,
-  facing: Facing.Northeast,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  lockState: LockState.Pending,
-};
+const tacticalMapTrackedElevationUnit: IUnitGameState =
+  createTacticalMapUnitState({
+    id: 'attacker',
+    side: GameSide.Player,
+    position: tacticalMapTrackedElevationOrigin,
+    facing: Facing.Northeast,
+  });
 
 const tacticalMapTrackedElevationCapability: IMovementCapability = {
   walkMP: 5,
@@ -84,60 +75,30 @@ export const tacticalMapTrackedElevationHexTerrain: readonly IHexTerrain[] = [
 ];
 
 function tacticalMapTrackedElevationGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapTrackedElevationHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
-}
-
-function requireSingleMovementProjection(
-  projection: IMovementRangeHex | null,
-): IMovementRangeHex {
-  if (!projection) {
-    throw new Error('Expected tracked elevation movement projection');
-  }
-  return projection;
+  return createTacticalMapTerrainGrid(tacticalMapTrackedElevationHexTerrain);
 }
 
 export const tacticalMapTrackedElevationSelectedHex =
   tacticalMapTrackedElevationOrigin;
 
 export const tacticalMapTrackedElevationTokens: readonly IUnitToken[] =
-  tacticalMapTokens.map((token) => {
-    if (token.unitId === 'attacker') {
-      return {
-        ...token,
-        name: 'Scorpion Light Tank',
-        designation: 'SCN',
-        position: tacticalMapTrackedElevationOrigin,
-        unitType: TokenUnitType.Vehicle,
-        vehicleMotionType: VehicleMotionType.Tracked,
-      };
-    }
-    if (token.unitId === 'occluded') {
-      return {
-        ...token,
-        position: { q: 3, r: -1 },
-        isActiveTarget: false,
-      };
-    }
-    return token;
+  overrideTacticalMapTokens(tacticalMapTokens, {
+    attacker: {
+      name: 'Scorpion Light Tank',
+      designation: 'SCN',
+      position: tacticalMapTrackedElevationOrigin,
+      unitType: TokenUnitType.Vehicle,
+      vehicleMotionType: VehicleMotionType.Tracked,
+    },
+    occluded: {
+      position: { q: 3, r: -1 },
+      isActiveTarget: false,
+    },
   });
 
 export const tacticalMapTrackedElevationMovementRange: readonly IMovementRangeHex[] =
   [
-    requireSingleMovementProjection(
+    requireTacticalMapMovementProjection(
       deriveMovementRangeHexForDestination(
         tacticalMapTrackedElevationUnit,
         MovementType.Walk,

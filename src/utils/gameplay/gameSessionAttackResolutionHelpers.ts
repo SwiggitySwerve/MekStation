@@ -165,17 +165,12 @@ export function emitCriticalEvents(
 
     if (event.type === 'unit_destroyed') {
       const payload = event.payload;
-      currentSession = appendEvent(
-        currentSession,
-        createUnitDestroyedEvent(
-          currentSession.id,
-          currentSession.events.length,
-          turn,
-          phase,
-          unitId,
-          payload.cause as IUnitDestroyedPayload['cause'],
-        ),
-      );
+      currentSession = appendUnitDestroyedEvent(currentSession, {
+        turn,
+        phase,
+        unitId,
+        cause: payload.cause as IUnitDestroyedPayload['cause'],
+      });
       continue;
     }
 
@@ -200,6 +195,28 @@ export function emitCriticalEvents(
   }
 
   return currentSession;
+}
+
+export function appendUnitDestroyedEvent(
+  session: IGameSession,
+  input: {
+    readonly turn: number;
+    readonly phase: GamePhase;
+    readonly unitId: string;
+    readonly cause: IUnitDestroyedPayload['cause'];
+  },
+): IGameSession {
+  return appendEvent(
+    session,
+    createUnitDestroyedEvent(
+      session.id,
+      session.events.length,
+      input.turn,
+      input.phase,
+      input.unitId,
+      input.cause,
+    ),
+  );
 }
 
 const DEFAULT_REAR_ARMOR: Record<

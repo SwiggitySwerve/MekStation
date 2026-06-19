@@ -52,14 +52,14 @@ export function embedRollsIntoEvent(
   // generic record so the spread type-checks; the resulting payload is
   // re-cast back to the union (`as never` widens to the event's
   // declared payload type) — runtime shape is unchanged.
-  const payload = event.payload as unknown as Record<string, unknown>;
+  const payload = event.payload as Record<string, unknown>;
   const merged = {
     ...payload,
     rolls: rolls.slice(),
   };
   return {
     ...event,
-    payload: merged as unknown as IGameEvent['payload'],
+    payload: merged as IGameEvent['payload'],
   };
 }
 

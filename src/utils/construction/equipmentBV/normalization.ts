@@ -17,86 +17,146 @@ import {
   NORMALIZATION_PATTERNS,
 } from './normalizationPatterns';
 
+type EquipmentCatalogLookup = ReadonlyMap<string, unknown>;
+
+function firstCatalogMatch(
+  catalog: EquipmentCatalogLookup,
+  candidates: readonly (string | undefined)[],
+): string | undefined {
+  return candidates.find(
+    (candidate): candidate is string =>
+      candidate !== undefined && catalog.has(candidate),
+  );
+}
+
+function firstMappedCatalogMatch(
+  catalog: EquipmentCatalogLookup,
+  mappings: Record<string, string>,
+  keys: readonly string[],
+): string | undefined {
+  for (const key of keys) {
+    const mapped = mappings[key];
+    if (mapped && catalog.has(mapped)) return mapped;
+  }
+  return undefined;
+}
+
+function firstLowerMappedCatalogMatch(
+  catalog: EquipmentCatalogLookup,
+  mappings: ReadonlyMap<string, string>,
+  keys: readonly string[],
+): string | undefined {
+  for (const key of keys) {
+    const mapped = mappings.get(key);
+    if (mapped && catalog.has(mapped)) return mapped;
+  }
+  return undefined;
+}
+
+function firstDirectAliasCatalogMatch(
+  catalog: EquipmentCatalogLookup,
+  keys: readonly string[],
+): string | undefined {
+  return firstMappedCatalogMatch(catalog, DIRECT_ALIAS_MAP, keys);
+}
+
+function firstPatternCatalogMatch(
+  catalog: EquipmentCatalogLookup,
+  value: string,
+): string | undefined {
+  for (const [pattern, replacement] of NORMALIZATION_PATTERNS) {
+    if (!value.match(pattern)) continue;
+    const result = value.replace(pattern, replacement);
+    if (catalog.has(result)) return result;
+  }
+  return undefined;
+}
+
+function clanPrefixCatalogMatch(
+  catalog: EquipmentCatalogLookup,
+  noSpaces: string,
+  withoutPrefix: string,
+  withoutPrefixHyphenated: string,
+): string | undefined {
+  if (!noSpaces.startsWith('cl')) return undefined;
+  return firstCatalogMatch(catalog, [
+    'clan-' + withoutPrefix,
+    'clan-' + withoutPrefixHyphenated,
+  ]);
+}
+
 export function normalizeEquipmentId(equipmentId: string): string {
   const catalog = loadEquipmentCatalog();
   const lower = equipmentId.toLowerCase().trim();
-
-  if (catalog.has(lower)) return lower;
-
   const stripped = lower.replace(/^\d+-/, '').replace(/-\d+$/, '');
-  if (catalog.has(stripped)) return stripped;
 
-  if (DIRECT_ALIAS_MAP[stripped]) {
-    const alias = DIRECT_ALIAS_MAP[stripped];
-    if (catalog.has(alias)) return alias;
-  }
-  if (DIRECT_ALIAS_MAP[lower]) {
-    const alias = DIRECT_ALIAS_MAP[lower];
-    if (catalog.has(alias)) return alias;
-  }
+  const directCatalogId = firstCatalogMatch(catalog, [lower, stripped]);
+  if (directCatalogId) return directCatalogId;
+
+  const directAliasId = firstDirectAliasCatalogMatch(catalog, [
+    stripped,
+    lower,
+  ]);
+  if (directAliasId) return directAliasId;
 
   const nameMappings = loadNameMappings();
-  if (nameMappings[equipmentId]) {
-    const mapped = nameMappings[equipmentId];
-    if (catalog.has(mapped)) return mapped;
-  }
+  const nameMappedId = firstMappedCatalogMatch(catalog, nameMappings, [
+    equipmentId,
+  ]);
+  if (nameMappedId) return nameMappedId;
 
   const lowerMappings = getOrBuildLowerMappings(nameMappings);
-  const mappedFromLower =
-    lowerMappings.get(stripped) ?? lowerMappings.get(lower);
-  if (mappedFromLower && catalog.has(mappedFromLower)) return mappedFromLower;
+  const lowerMappedId = firstLowerMappedCatalogMatch(catalog, lowerMappings, [
+    stripped,
+    lower,
+  ]);
+  if (lowerMappedId) return lowerMappedId;
 
-  if (ABBREVIATION_MAP[stripped]) {
-    const abbrev = ABBREVIATION_MAP[stripped];
-    if (catalog.has(abbrev)) return abbrev;
-  }
+  const abbreviationId = firstMappedCatalogMatch(catalog, ABBREVIATION_MAP, [
+    stripped,
+  ]);
+  if (abbreviationId) return abbreviationId;
 
   const noSpaces = stripped.replace(/\s+/g, '');
-  if (catalog.has(noSpaces)) return noSpaces;
-
   const hyphenated = noSpaces.replace(/([a-z])(\d)/g, '$1-$2');
-  if (catalog.has(hyphenated)) return hyphenated;
+  const compactId = firstCatalogMatch(catalog, [noSpaces, hyphenated]);
+  if (compactId) return compactId;
 
-  for (const [pattern, replacement] of NORMALIZATION_PATTERNS) {
-    if (noSpaces.match(pattern)) {
-      const result = noSpaces.replace(pattern, replacement);
-      if (catalog.has(result)) return result;
-    }
-  }
+  const compactPatternId = firstPatternCatalogMatch(catalog, noSpaces);
+  if (compactPatternId) return compactPatternId;
 
   const withoutPrefix = noSpaces.replace(/^(is|cl)-?/, '');
-  if (catalog.has(withoutPrefix)) return withoutPrefix;
-
   const withoutPrefixHyphenated = withoutPrefix.replace(
     /([a-z])(\d)/g,
     '$1-$2',
   );
-  if (catalog.has(withoutPrefixHyphenated)) return withoutPrefixHyphenated;
+  const unprefixedId = firstCatalogMatch(catalog, [
+    withoutPrefix,
+    withoutPrefixHyphenated,
+  ]);
+  if (unprefixedId) return unprefixedId;
 
-  if (noSpaces.startsWith('cl')) {
-    const clanId = 'clan-' + withoutPrefix;
-    if (catalog.has(clanId)) return clanId;
-    const clanIdHyphenated = 'clan-' + withoutPrefixHyphenated;
-    if (catalog.has(clanIdHyphenated)) return clanIdHyphenated;
-  }
+  const clanId = clanPrefixCatalogMatch(
+    catalog,
+    noSpaces,
+    withoutPrefix,
+    withoutPrefixHyphenated,
+  );
+  if (clanId) return clanId;
 
-  for (const [pattern, replacement] of NORMALIZATION_PATTERNS) {
-    if (withoutPrefix.match(pattern)) {
-      const result = withoutPrefix.replace(pattern, replacement);
-      if (catalog.has(result)) return result;
-    }
-  }
+  const unprefixedPatternId = firstPatternCatalogMatch(catalog, withoutPrefix);
+  if (unprefixedPatternId) return unprefixedPatternId;
 
   const strippedOriginal = equipmentId
     .replace(/^\d+-/, '')
     .replace(/-\d+$/, '');
   if (strippedOriginal !== equipmentId) {
-    if (nameMappings[strippedOriginal]) {
-      const mapped = nameMappings[strippedOriginal];
-      if (catalog.has(mapped)) return mapped;
-    }
-    const mappedStripped = lowerMappings.get(strippedOriginal.toLowerCase());
-    if (mappedStripped && catalog.has(mappedStripped)) return mappedStripped;
+    const originalMappedId =
+      firstMappedCatalogMatch(catalog, nameMappings, [strippedOriginal]) ??
+      firstLowerMappedCatalogMatch(catalog, lowerMappings, [
+        strippedOriginal.toLowerCase(),
+      ]);
+    if (originalMappedId) return originalMappedId;
   }
 
   return stripped || lower;

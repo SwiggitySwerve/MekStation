@@ -67,12 +67,34 @@ export interface IInteractiveSessionAIContext {
 export function runInteractiveSessionAITurn(
   context: IInteractiveSessionAIContext,
 ): void {
-  let session = context.getSession();
+  const session = context.getSession();
   const { phase } = session.currentState;
   const sortedEntries = Object.entries(session.currentState.units).sort(
     ([a], [b]) => a.localeCompare(b),
   );
 
+  if (phase === GamePhase.Movement) {
+    runInteractiveSessionMovementAI(context, sortedEntries);
+    return;
+  }
+
+  if (phase === GamePhase.WeaponAttack) {
+    runInteractiveSessionWeaponAI(context, sortedEntries);
+    return;
+  }
+
+  if (phase === GamePhase.PhysicalAttack) {
+    runInteractiveSessionPhysicalAI(context, sortedEntries);
+  }
+}
+
+type InteractiveSessionAIUnitEntry = readonly [string, IUnitGameState];
+
+function runInteractiveSessionMovementAI(
+  context: IInteractiveSessionAIContext,
+  sortedEntries: readonly InteractiveSessionAIUnitEntry[],
+): void {
+  let session = context.getSession();
   const setSession = (next: IGameSession): void => {
     session = next;
     context.setSession(next);
@@ -89,139 +111,169 @@ export function runInteractiveSessionAITurn(
       jumpMP: 0,
     };
 
-    if (phase === GamePhase.Movement) {
-      emitRetreatIfNeeded(context, unitId, weapons, gunnery);
-      session = context.getSession();
-      const refreshedUnit = session.currentState.units[unitId];
-      const aiUnit = toAIUnitState(refreshedUnit, weapons, gunnery);
-      const moveEvt = context.botPlayer.playMovementPhase(
-        aiUnit,
+    emitRetreatIfNeeded(context, unitId, weapons, gunnery);
+    session = context.getSession();
+    const refreshedUnit = session.currentState.units[unitId];
+    const aiUnit = toAIUnitState(refreshedUnit, weapons, gunnery);
+    const moveEvt = context.botPlayer.playMovementPhase(
+      aiUnit,
+      context.grid,
+      cap,
+    );
+    if (moveEvt) {
+      const validation = validateMovement(
         context.grid,
+        {
+          unitId,
+          coord: refreshedUnit.position,
+          facing: refreshedUnit.facing,
+          prone: refreshedUnit.prone ?? false,
+          isStuck: refreshedUnit.isStuck ?? false,
+        },
+        moveEvt.payload.to,
+        moveEvt.payload.facing as Facing,
+        moveEvt.payload.movementType,
         cap,
+        refreshedUnit.heat,
+        undefined,
+        { pilotAbilities: refreshedUnit.abilities },
       );
-      if (moveEvt) {
-        const validation = validateMovement(
-          context.grid,
-          {
-            unitId,
-            coord: refreshedUnit.position,
-            facing: refreshedUnit.facing,
-            prone: refreshedUnit.prone ?? false,
-            isStuck: refreshedUnit.isStuck ?? false,
-          },
+      if (!validation.valid) {
+        setSession(lockMovement(session, unitId));
+        emitUnitRetreatedIfNeeded(context, unitId);
+        continue;
+      }
+
+      const eventPath = buildMovementEventPath({
+        grid: context.grid,
+        from: refreshedUnit.position,
+        to: moveEvt.payload.to,
+        movementType: moveEvt.payload.movementType,
+        maxCost: Math.min(
+          validation.mpCost,
+          maxMovementCostForCapability(cap, moveEvt.payload.movementType),
+        ),
+        movementContext: { pilotAbilities: refreshedUnit.abilities },
+      });
+      setSession(
+        declareMovement(
+          session,
+          unitId,
+          refreshedUnit.position,
           moveEvt.payload.to,
           moveEvt.payload.facing as Facing,
           moveEvt.payload.movementType,
-          cap,
-          refreshedUnit.heat,
-          undefined,
-          { pilotAbilities: refreshedUnit.abilities },
-        );
-        if (!validation.valid) {
-          setSession(lockMovement(session, unitId));
-          emitUnitRetreatedIfNeeded(context, unitId);
-          continue;
-        }
-
-        const eventPath = buildMovementEventPath({
-          grid: context.grid,
-          from: refreshedUnit.position,
-          to: moveEvt.payload.to,
-          movementType: moveEvt.payload.movementType,
-          maxCost: Math.min(
-            validation.mpCost,
-            maxMovementCostForCapability(cap, moveEvt.payload.movementType),
-          ),
-          movementContext: { pilotAbilities: refreshedUnit.abilities },
-        });
-        setSession(
-          declareMovement(
-            session,
-            unitId,
-            refreshedUnit.position,
-            moveEvt.payload.to,
-            moveEvt.payload.facing as Facing,
-            moveEvt.payload.movementType,
-            validation.mpCost,
-            validation.heatGenerated,
-            eventPath,
-          ),
-        );
-      }
-      setSession(lockMovement(session, unitId));
-      emitUnitRetreatedIfNeeded(context, unitId);
-    } else if (phase === GamePhase.WeaponAttack) {
-      emitRetreatIfNeeded(context, unitId, weapons, gunnery);
-      session = context.getSession();
-      const refreshedUnit = session.currentState.units[unitId];
-      const aiUnit = toAIUnitState(refreshedUnit, weapons, gunnery);
-      const enemies = buildEnemyAIUnits(context, context.side);
-      const atkEvt = context.botPlayer.playAttackPhase(aiUnit, enemies);
-      if (atkEvt) {
-        const weaponAttacks: IWeaponAttack[] = buildWeaponAttacks(
-          atkEvt.payload.weapons,
-          weapons,
-          unitId,
-          undefined,
-          {
-            calledShots: atkEvt.payload.calledShots,
-            teammateCalledShots: atkEvt.payload.teammateCalledShots,
-          },
-        );
-        setSession(
-          declareAttack(
-            session,
-            unitId,
-            atkEvt.payload.targetId,
-            weaponAttacks,
-            3,
-            RangeBracket.Short,
-            undefined,
-            undefined,
-            false,
-            [],
-            null,
-            atkEvt.payload.selectedAMSWeaponIds,
-          ),
-        );
-      }
-      setSession(lockAttack(session, unitId));
-    } else if (phase === GamePhase.PhysicalAttack) {
-      const aiUnit = toAIUnitState(unit, weapons, gunnery);
-      const enemies = buildEnemyAIUnits(context, context.side);
-      const physEvt = context.botPlayer.playPhysicalAttackPhase(
-        aiUnit,
-        enemies,
+          validation.mpCost,
+          validation.heatGenerated,
+          eventPath,
+        ),
       );
-      if (physEvt) {
-        const targetUnit = session.currentState.units[physEvt.payload.targetId];
-        setSession(
-          declarePhysicalAttack(
-            session,
-            physEvt.payload.attackerId,
-            physEvt.payload.targetId,
-            physEvt.payload.attackType,
-            {
-              attackerTonnage: context.tonnageByUnit.get(unitId) ?? 65,
-              pilotingSkill: context.pilotingByUnit.get(unitId) ?? 5,
-              hexesMoved: unit.hexesMovedThisTurn,
-              isUnderwater:
-                waterDepthAtPosition(context.grid, unit.position) > 0 ||
-                (targetUnit
-                  ? waterDepthAtPosition(context.grid, targetUnit.position) > 0
-                  : false),
-              pilotAbilities: unit.abilities,
-              unitQuirks: unit.unitQuirks,
-              elevationDifference: elevationDifferenceBetween(
-                context.grid,
-                unit,
-                targetUnit,
-              ),
-              targetMovementComplete: true,
-            },
-          ),
-        );
-      }
+    }
+    setSession(lockMovement(session, unitId));
+    emitUnitRetreatedIfNeeded(context, unitId);
+  }
+}
+
+function runInteractiveSessionWeaponAI(
+  context: IInteractiveSessionAIContext,
+  sortedEntries: readonly InteractiveSessionAIUnitEntry[],
+): void {
+  let session = context.getSession();
+  const setSession = (next: IGameSession): void => {
+    session = next;
+    context.setSession(next);
+  };
+
+  for (const [unitId, unit] of sortedEntries) {
+    if (unit.side !== context.side || unit.destroyed) continue;
+
+    const weapons = context.weaponsByUnit.get(unitId) ?? [];
+    const gunnery = context.gunneryByUnit.get(unitId) ?? 4;
+
+    emitRetreatIfNeeded(context, unitId, weapons, gunnery);
+    session = context.getSession();
+    const refreshedUnit = session.currentState.units[unitId];
+    const aiUnit = toAIUnitState(refreshedUnit, weapons, gunnery);
+    const enemies = buildEnemyAIUnits(context, context.side);
+    const atkEvt = context.botPlayer.playAttackPhase(aiUnit, enemies);
+    if (atkEvt) {
+      const weaponAttacks: IWeaponAttack[] = buildWeaponAttacks(
+        atkEvt.payload.weapons,
+        weapons,
+        unitId,
+        undefined,
+        {
+          calledShots: atkEvt.payload.calledShots,
+          teammateCalledShots: atkEvt.payload.teammateCalledShots,
+        },
+      );
+      setSession(
+        declareAttack(
+          session,
+          unitId,
+          atkEvt.payload.targetId,
+          weaponAttacks,
+          3,
+          RangeBracket.Short,
+          undefined,
+          undefined,
+          false,
+          [],
+          null,
+          atkEvt.payload.selectedAMSWeaponIds,
+        ),
+      );
+    }
+    setSession(lockAttack(session, unitId));
+  }
+}
+
+function runInteractiveSessionPhysicalAI(
+  context: IInteractiveSessionAIContext,
+  sortedEntries: readonly InteractiveSessionAIUnitEntry[],
+): void {
+  let session = context.getSession();
+  const setSession = (next: IGameSession): void => {
+    session = next;
+    context.setSession(next);
+  };
+
+  for (const [unitId, unit] of sortedEntries) {
+    if (unit.side !== context.side || unit.destroyed) continue;
+
+    const weapons = context.weaponsByUnit.get(unitId) ?? [];
+    const gunnery = context.gunneryByUnit.get(unitId) ?? 4;
+    const aiUnit = toAIUnitState(unit, weapons, gunnery);
+    const enemies = buildEnemyAIUnits(context, context.side);
+    const physEvt = context.botPlayer.playPhysicalAttackPhase(aiUnit, enemies);
+    if (physEvt) {
+      const targetUnit = session.currentState.units[physEvt.payload.targetId];
+      setSession(
+        declarePhysicalAttack(
+          session,
+          physEvt.payload.attackerId,
+          physEvt.payload.targetId,
+          physEvt.payload.attackType,
+          {
+            attackerTonnage: context.tonnageByUnit.get(unitId) ?? 65,
+            pilotingSkill: context.pilotingByUnit.get(unitId) ?? 5,
+            hexesMoved: unit.hexesMovedThisTurn,
+            isUnderwater:
+              waterDepthAtPosition(context.grid, unit.position) > 0 ||
+              (targetUnit
+                ? waterDepthAtPosition(context.grid, targetUnit.position) > 0
+                : false),
+            pilotAbilities: unit.abilities,
+            unitQuirks: unit.unitQuirks,
+            elevationDifference: elevationDifferenceBetween(
+              context.grid,
+              unit,
+              targetUnit,
+            ),
+            targetMovementComplete: true,
+          },
+        ),
+      );
     }
   }
 }

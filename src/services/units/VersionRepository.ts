@@ -57,7 +57,7 @@ export class VersionRepository implements IVersionRepository {
   /**
    * Get version history for a unit (metadata only, no data)
    */
-  getVersionHistory(unitId: string): readonly IVersionMetadata[] {
+  getVersionHistory = (unitId: string): readonly IVersionMetadata[] => {
     const db = getSQLiteService().getDatabase();
 
     const rows = db
@@ -75,12 +75,12 @@ export class VersionRepository implements IVersionRepository {
       notes: row.notes,
       revertSource: row.revert_source,
     }));
-  }
+  };
 
   /**
    * Get a specific version of a unit
    */
-  getVersion(unitId: string, version: number): IVersionRecord | null {
+  getVersion = (unitId: string, version: number): IVersionRecord | null => {
     const db = getSQLiteService().getDatabase();
 
     const row = db
@@ -95,12 +95,12 @@ export class VersionRepository implements IVersionRepository {
     }
 
     return this.rowToRecord(row);
-  }
+  };
 
   /**
    * Get the latest version of a unit
    */
-  getLatestVersion(unitId: string): IVersionRecord | null {
+  getLatestVersion = (unitId: string): IVersionRecord | null => {
     const db = getSQLiteService().getDatabase();
 
     const row = db
@@ -117,17 +117,17 @@ export class VersionRepository implements IVersionRepository {
     }
 
     return this.rowToRecord(row);
-  }
+  };
 
   /**
    * Revert a unit to a previous version
    * Creates a new version with the data from the target version
    */
-  revert(
+  revert = (
     unitId: string,
     targetVersion: number,
     notes?: string,
-  ): IUnitOperationResult {
+  ): IUnitOperationResult => {
     const db = getSQLiteService().getDatabase();
 
     // Get the target version
@@ -212,12 +212,12 @@ export class VersionRepository implements IVersionRepository {
         },
       };
     }
-  }
+  };
 
   /**
    * Get the number of versions for a unit
    */
-  getVersionCount(unitId: string): number {
+  getVersionCount = (unitId: string): number => {
     const db = getSQLiteService().getDatabase();
 
     const result = db
@@ -227,7 +227,7 @@ export class VersionRepository implements IVersionRepository {
       .get(unitId) as { count: number };
 
     return result.count;
-  }
+  };
 
   /**
    * Prune old versions beyond the configured limit

@@ -10,6 +10,10 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IVersionDiff, ShareableContentType } from '@/types/vault';
 
+import {
+  sendLoggedApiError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getVersionHistoryService } from '@/services/vault/VersionHistoryService';
 
 // =============================================================================
@@ -20,17 +24,13 @@ interface DiffResponse {
   diff: IVersionDiff;
 }
 
-interface ErrorResponse {
-  error: string;
-}
-
 // =============================================================================
 // Handler
 // =============================================================================
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<DiffResponse | ErrorResponse>,
+  res: NextApiResponse<DiffResponse | ApiErrorResponse>,
 ): Promise<void> {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -76,10 +76,8 @@ export default async function handler(
 
     return res.status(200).json({ diff });
   } catch (error) {
-    console.error('Version diff API error:', error);
-    return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedApiError(res, 'Version diff API error:', error);
+    return;
   }
 }
 

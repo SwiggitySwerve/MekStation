@@ -6,6 +6,78 @@
 
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 
+const ENGINE_PLACEHOLDER = 'ENGINE_PLACEHOLDER';
+
+const HEAD_FIXED_SLOTS: readonly (string | null)[] = [
+  'Life Support',
+  'Sensors',
+  'Cockpit',
+  null,
+  'Sensors',
+  'Life Support',
+];
+
+const ARM_FIXED_SLOTS: readonly string[] = [
+  'Shoulder',
+  'Upper Arm Actuator',
+  'Lower Arm Actuator',
+  'Hand Actuator',
+];
+
+const LEG_FIXED_SLOTS: readonly string[] = [
+  'Hip',
+  'Upper Leg Actuator',
+  'Lower Leg Actuator',
+  'Foot Actuator',
+];
+
+const SIDE_TORSO_LOCATIONS = new Set<MechLocation>([
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+]);
+
+const FIXED_ACTUATOR_SLOTS_BY_LOCATION: Partial<
+  Record<MechLocation, readonly string[]>
+> = {
+  [MechLocation.LEFT_ARM]: ARM_FIXED_SLOTS,
+  [MechLocation.RIGHT_ARM]: ARM_FIXED_SLOTS,
+  [MechLocation.LEFT_LEG]: LEG_FIXED_SLOTS,
+  [MechLocation.RIGHT_LEG]: LEG_FIXED_SLOTS,
+  [MechLocation.CENTER_LEG]: LEG_FIXED_SLOTS,
+  [MechLocation.FRONT_LEFT_LEG]: LEG_FIXED_SLOTS,
+  [MechLocation.FRONT_RIGHT_LEG]: LEG_FIXED_SLOTS,
+  [MechLocation.REAR_LEFT_LEG]: LEG_FIXED_SLOTS,
+  [MechLocation.REAR_RIGHT_LEG]: LEG_FIXED_SLOTS,
+};
+
+function fixedIndexedContent(
+  slots: readonly (string | null)[],
+  slotIndex: number,
+): string | null {
+  return slots[slotIndex] ?? null;
+}
+
+function getCenterTorsoFixedSlotContent(
+  slotIndex: number,
+  gyroSlots: number,
+): string | null {
+  const firstEngineSlots = 3;
+  const gyroStart = firstEngineSlots;
+  const secondEngineStart = gyroStart + gyroSlots;
+  const secondEngineEnd = secondEngineStart + 3;
+
+  if (slotIndex < firstEngineSlots) {
+    return ENGINE_PLACEHOLDER;
+  }
+  if (slotIndex < secondEngineStart) {
+    return 'Gyro';
+  }
+  if (slotIndex < secondEngineEnd) {
+    return ENGINE_PLACEHOLDER;
+  }
+  return null;
+}
+
 /**
  * Get fixed slot content for a location and slot index
  */
@@ -15,105 +87,21 @@ export function getFixedSlotContent(
   engineSlots: { ct: number; sideTorso: number },
   gyroSlots: number,
 ): string | null {
-  // Head slots
   if (location === MechLocation.HEAD) {
-    switch (slotIndex) {
-      case 0:
-        return 'Life Support';
-      case 1:
-        return 'Sensors';
-      case 2:
-        return 'Cockpit';
-      case 3:
-        return null; // Available slot
-      case 4:
-        return 'Sensors';
-      case 5:
-        return 'Life Support';
-    }
+    return fixedIndexedContent(HEAD_FIXED_SLOTS, slotIndex);
   }
 
-  // Center Torso - Engine and Gyro (MegaMekLab style interleaved layout)
-  // Standard layout: Engine (3), Gyro (4), Engine (3) = 10 slots
-  // Compact engine: Engine (3), Gyro (varies), Engine (remaining)
   if (location === MechLocation.CENTER_TORSO) {
-    // First 3 slots: Engine (first half)
-    if (slotIndex < 3) {
-      return 'ENGINE_PLACEHOLDER';
-    }
-    // Next 4 slots (3-6): Gyro
-    if (slotIndex < 3 + gyroSlots) {
-      return 'Gyro';
-    }
-    // Next 3 slots: Engine (second half)
-    if (slotIndex < 3 + gyroSlots + 3) {
-      return 'ENGINE_PLACEHOLDER';
-    }
+    return getCenterTorsoFixedSlotContent(slotIndex, gyroSlots);
   }
 
-  // Side Torsos - Engine slots for XL/Light/XXL engines
-  if (
-    location === MechLocation.LEFT_TORSO ||
-    location === MechLocation.RIGHT_TORSO
-  ) {
-    if (slotIndex < engineSlots.sideTorso) {
-      return 'ENGINE_PLACEHOLDER';
-    }
+  if (SIDE_TORSO_LOCATIONS.has(location)) {
+    return slotIndex < engineSlots.sideTorso ? ENGINE_PLACEHOLDER : null;
   }
 
-  // Arms - Actuators
-  if (
-    location === MechLocation.LEFT_ARM ||
-    location === MechLocation.RIGHT_ARM
-  ) {
-    switch (slotIndex) {
-      case 0:
-        return 'Shoulder';
-      case 1:
-        return 'Upper Arm Actuator';
-      case 2:
-        return 'Lower Arm Actuator';
-      case 3:
-        return 'Hand Actuator';
-    }
-  }
-
-  // Biped/Tripod Legs - Actuators (6 slots)
-  if (
-    location === MechLocation.LEFT_LEG ||
-    location === MechLocation.RIGHT_LEG ||
-    location === MechLocation.CENTER_LEG
-  ) {
-    switch (slotIndex) {
-      case 0:
-        return 'Hip';
-      case 1:
-        return 'Upper Leg Actuator';
-      case 2:
-        return 'Lower Leg Actuator';
-      case 3:
-        return 'Foot Actuator';
-    }
-  }
-
-  // Quad Legs - Actuators (6 slots, same as biped legs: 4 actuators + 2 empty)
-  if (
-    location === MechLocation.FRONT_LEFT_LEG ||
-    location === MechLocation.FRONT_RIGHT_LEG ||
-    location === MechLocation.REAR_LEFT_LEG ||
-    location === MechLocation.REAR_RIGHT_LEG
-  ) {
-    switch (slotIndex) {
-      case 0:
-        return 'Hip';
-      case 1:
-        return 'Upper Leg Actuator';
-      case 2:
-        return 'Lower Leg Actuator';
-      case 3:
-        return 'Foot Actuator';
-      // Slots 4 and 5 are empty (Roll Again)
-    }
+  const actuatorSlots = FIXED_ACTUATOR_SLOTS_BY_LOCATION[location];
+  if (actuatorSlots) {
+    return fixedIndexedContent(actuatorSlots, slotIndex);
   }
 
   return null;

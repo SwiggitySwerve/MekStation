@@ -210,23 +210,19 @@ function applyChannelResult(
   });
 }
 
+const lobbyRejectionMessages: Partial<Record<LobbyRejectionReason, string>> = {
+  'unauthorized-slot': "You can only edit your own side's lobby slot",
+  'host-only': 'Only the host can change that lobby setting',
+  'lobby-full': 'This 1v1 lobby already has two players',
+  'invalid-loadout': 'Pick valid matching loadouts before marking ready',
+  'match-started': 'This lobby has already launched',
+  'not-ready': 'Both players must be ready with valid loadouts before launch',
+  'unknown-peer': 'This peer is not assigned to the lobby',
+};
+
 function formatLobbyRejection(reason: LobbyRejectionReason | string): string {
-  switch (reason) {
-    case 'unauthorized-slot':
-      return "You can only edit your own side's lobby slot";
-    case 'host-only':
-      return 'Only the host can change that lobby setting';
-    case 'lobby-full':
-      return 'This 1v1 lobby already has two players';
-    case 'invalid-loadout':
-      return 'Pick valid matching loadouts before marking ready';
-    case 'match-started':
-      return 'This lobby has already launched';
-    case 'not-ready':
-      return 'Both players must be ready with valid loadouts before launch';
-    case 'unknown-peer':
-      return 'This peer is not assigned to the lobby';
-    default:
-      return 'Lobby update was rejected';
-  }
+  return (
+    lobbyRejectionMessages[reason as LobbyRejectionReason] ??
+    'Lobby update was rejected'
+  );
 }

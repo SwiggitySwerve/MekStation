@@ -7,88 +7,43 @@
  * @spec openspec/changes/add-campaign-bay-ui/specs/campaign-bay-ui/spec.md
  */
 
-import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
-import { BayError, BayLoading } from '@/components/campaign/bays/BayStates';
 import { MedicalBay } from '@/components/campaign/bays/MedicalBay';
-import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
-import { EmptyState, PageLayout } from '@/components/ui';
+import * as CampaignShell from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { selectMedicalBay } from '@/stores/campaign/campaignBaySelectors';
-import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
-import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+
+const MEDICAL_BAY_LOADING = {
+  title: 'Medical Bay',
+  subtitle: 'Loading bay...',
+  variant: 'bay',
+} as const;
 
 export default function MedicalBayPage(): React.ReactElement {
-  const router = useRouter();
-  const { id } = router.query;
-  const store = useCampaignStore();
-  const campaign = store.getState().getCampaign();
-  const saveState = useCampaignPersistenceStore((state) => state.saveState);
-  const errorMessage = useCampaignPersistenceStore(
-    (state) => state.errorMessage,
+  const shell = CampaignShell.useCampaignPageShell('Medical Bay');
+  const loadStatus = CampaignShell.useCampaignLoadStatus();
+
+  const pendingPage = CampaignShell.renderPendingCampaignPage(
+    shell,
+    MEDICAL_BAY_LOADING,
   );
-  const loadCampaign = useCampaignPersistenceStore(
-    (state) => state.loadCampaign,
-  );
-  const [isClient, setIsClient] = useState(false);
+  if (pendingPage) return pendingPage;
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const breadcrumbs = [
-    { label: 'Home', href: '/' },
-    { label: 'Gameplay', href: '/gameplay' },
-    { label: 'Campaigns', href: '/gameplay/campaigns' },
-    { label: campaign?.name || 'Campaign', href: `/gameplay/campaigns/${id}` },
-    { label: 'Medical Bay' },
-  ];
-
-  if (!isClient) {
-    return (
-      <PageLayout title="Medical Bay" subtitle="Loading bay..." maxWidth="wide">
-        <BayLoading />
-      </PageLayout>
-    );
-  }
-
-  if (!campaign) {
-    return (
-      <PageLayout
-        title="Medical Bay"
-        subtitle="Campaign not found"
-        maxWidth="wide"
-        breadcrumbs={breadcrumbs}
-      >
-        <EmptyState
-          title="Campaign not found"
-          message="Return to campaigns list to select a campaign."
-        />
-      </PageLayout>
-    );
-  }
-
+  const campaign = CampaignShell.getLoadedCampaign(shell);
   const medicalBay = selectMedicalBay(campaign);
+  const frame = {
+    title: 'Medical Bay',
+    subtitle: `${campaign.name} — ${medicalBay.length} pilots in care`,
+    currentPage: 'medical-bay',
+  } as const;
+  const saveError = CampaignShell.renderCampaignBaySaveError(
+    campaign.id,
+    loadStatus,
+  );
 
   return (
-    <PageLayout
-      title="Medical Bay"
-      subtitle={`${campaign.name} — ${medicalBay.length} pilots in care`}
-      maxWidth="wide"
-      breadcrumbs={breadcrumbs}
-    >
-      <CampaignNavigation campaignId={campaign.id} currentPage="medical-bay" />
-
-      {saveState === 'error' ? (
-        <BayError
-          message={errorMessage ?? 'The campaign inventory failed to load.'}
-          onRetry={() => {
-            void loadCampaign(campaign.id);
-          }}
-        />
-      ) : (
-        <MedicalBay medicalBay={medicalBay} />
-      )}
-    </PageLayout>
+    <CampaignShell.CampaignPageFrameFromShell shell={shell} frame={frame}>
+      {saveError ?? <MedicalBay medicalBay={medicalBay} />}
+    </CampaignShell.CampaignPageFrameFromShell>
   );
 }

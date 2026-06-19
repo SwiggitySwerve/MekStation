@@ -9,13 +9,13 @@
  *        Requirement: Customizer Non-Mech Preview And Export Path
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
-import { getRecordSheetService } from '@/services/printing/RecordSheetService';
 import { useBattleArmorStore } from '@/stores/useBattleArmorStore';
-import { PaperSize, PAPER_DIMENSIONS } from '@/types/printing';
+import { PaperSize } from '@/types/printing';
 
-import { PreviewToolbar } from '../preview/PreviewToolbar';
+import { PreviewTabFrame } from '../preview/PreviewTabFrame';
+import { useRecordSheetToolbarActions } from '../preview/RecordSheetCanvasPreview';
 import { BattleArmorRecordSheetPreview } from './BattleArmorRecordSheetPreview';
 import { buildBattleArmorUnitObject } from './buildBattleArmorUnitObject';
 
@@ -87,46 +87,19 @@ export function BattleArmorPreviewTab({
     ],
   );
 
-  const handleExportPDF = useCallback(async () => {
-    const data = getRecordSheetService().extractData(unitObject);
-    await getRecordSheetService().exportPDF(data, {
-      paperSize,
-      includePilotData: false,
-    });
-  }, [unitObject, paperSize]);
-
-  const handlePrint = useCallback(async () => {
-    const tempCanvas = document.createElement('canvas');
-    const { width, height } = PAPER_DIMENSIONS[paperSize];
-    tempCanvas.width = width;
-    tempCanvas.height = height;
-
-    const data = getRecordSheetService().extractData(unitObject);
-    await getRecordSheetService().renderPreview(tempCanvas, data, paperSize);
-    getRecordSheetService().print(tempCanvas);
-  }, [unitObject, paperSize]);
+  const toolbarActions = useRecordSheetToolbarActions(
+    unitObject,
+    paperSize,
+    setPaperSize,
+  );
 
   return (
-    <div
-      className={`preview-tab ${className}`}
-      data-testid="battlearmor-preview-tab"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        backgroundColor: '#1a1a2e',
-      }}
+    <PreviewTabFrame
+      className={className}
+      testId="battlearmor-preview-tab"
+      toolbarActions={toolbarActions}
     >
-      <PreviewToolbar
-        onExportPDF={handleExportPDF}
-        onPrint={handlePrint}
-        paperSize={paperSize}
-        onPaperSizeChange={setPaperSize}
-      />
-
-      <div style={{ flex: 1, overflow: 'auto' }}>
-        <BattleArmorRecordSheetPreview paperSize={paperSize} scale={0.75} />
-      </div>
-    </div>
+      <BattleArmorRecordSheetPreview paperSize={paperSize} scale={0.75} />
+    </PreviewTabFrame>
   );
 }

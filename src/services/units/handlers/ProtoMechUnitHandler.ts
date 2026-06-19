@@ -7,7 +7,7 @@
  */
 
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
-import { TechBase, Era, WeightClass, RulesLevel } from '@/types/enums';
+import { TechBase, WeightClass, RulesLevel } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   SquadMotionType,
@@ -34,6 +34,15 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
+import {
+  UnitFieldParseMessages,
+  UnitValidationMessages,
+  buildCommonUnitFields,
+  createParseMessages,
+  createValidationMessages,
+  getRawTagBoolean,
+  mapLocationEquipment,
+} from './unitHandlerShared';
 
 // ============================================================================
 // Constants
@@ -92,12 +101,8 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
    */
   protected parseTypeSpecificFields(
     document: IBlkDocument,
-  ): Partial<IProtoMech> & {
-    errors: string[];
-    warnings: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  ): Partial<IProtoMech> & UnitFieldParseMessages {
+    const { errors, warnings } = createParseMessages();
 
     // Point/squad size (typically 5)
     const pointSize = document.trooperCount || 5;
@@ -141,8 +146,8 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     // that excludes arms (matching the previous `isGlider ? GLIDER : isQuad
     // ? QUAD : BIPED` precedence). Ultraheavy is selected on tonnage when no
     // explicit tag is present.
-    const isGliderTag = this.getBooleanFromRaw(rawTags, 'glider');
-    const isQuadTag = this.getBooleanFromRaw(rawTags, 'quad');
+    const isGliderTag = getRawTagBoolean(rawTags, 'glider');
+    const isQuadTag = getRawTagBoolean(rawTags, 'quad');
     const chassisType: ProtoChassis = isGliderTag
       ? ProtoChassis.GLIDER
       : isQuadTag
@@ -150,9 +155,9 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
         : weightPerUnit >= 10
           ? ProtoChassis.ULTRAHEAVY
           : ProtoChassis.BIPED;
-    const hasMyomerBooster = this.getBooleanFromRaw(rawTags, 'myomerbooster');
-    const hasMagneticClamps = this.getBooleanFromRaw(rawTags, 'magneticclamps');
-    const hasExtendedTorsoTwist = this.getBooleanFromRaw(
+    const hasMyomerBooster = getRawTagBoolean(rawTags, 'myomerbooster');
+    const hasMagneticClamps = getRawTagBoolean(rawTags, 'magneticclamps');
+    const hasExtendedTorsoTwist = getRawTagBoolean(
       rawTags,
       'extendedtorsotwist',
     );
@@ -234,25 +239,17 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
   private parseEquipment(
     document: IBlkDocument,
   ): readonly IProtoMechMountedEquipment[] {
-    const equipment: IProtoMechMountedEquipment[] = [];
-    let mountId = 0;
-
-    for (const [locationKey, items] of Object.entries(
+    return mapLocationEquipment(
       document.equipmentByLocation,
-    )) {
-      const location = this.normalizeLocation(locationKey);
-
-      for (const item of items) {
-        equipment.push({
-          id: `mount-${mountId++}`,
-          equipmentId: item,
-          name: item,
-          location,
-        });
-      }
-    }
-
-    return equipment;
+      (locationKey) => this.normalizeLocation(locationKey),
+      ({ mountId, item, location }) => ({
+        id: `mount-${mountId}`,
+        equipmentId: item,
+        name: item,
+        location,
+        isMainGun: location === ProtoMechLocation.MAIN_GUN,
+      }),
+    );
   }
 
   /**
@@ -261,20 +258,6 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
   private normalizeLocation(locationKey: string): ProtoMechLocation {
     const normalized = locationKey.toLowerCase();
     return LOCATION_MAP[normalized] || ProtoMechLocation.TORSO;
-  }
-
-  /**
-   * Get boolean value from raw tags
-   */
-  private getBooleanFromRaw(
-    rawTags: Record<string, string | string[]>,
-    key: string,
-  ): boolean {
-    const value = rawTags[key];
-    if (Array.isArray(value)) {
-      return value[0]?.toLowerCase() === 'true' || value[0] === '1';
-    }
-    return value?.toLowerCase() === 'true' || value === '1';
   }
 
   /**
@@ -294,43 +277,14 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     );
 
     return {
-      // Identity
-      id: `protomech-${Date.now()}`,
-      name: `${commonFields.chassis} ${commonFields.model}`.trim(),
-
-      // Classification
-      unitType: UnitType.PROTOMECH,
-      tonnage: commonFields.tonnage,
-      weightClass,
-
-      // Tech
-      techBase,
-      era: commonFields.era as Era,
-      rulesLevel,
-
-      // Metadata
-      metadata: {
-        chassis: commonFields.chassis,
-        model: commonFields.model,
-        year: commonFields.year,
-        rulesLevel,
+      ...buildCommonUnitFields({
+        commonFields,
+        idPrefix: 'protomech',
+        unitType: UnitType.PROTOMECH,
+        weightClass: weightClass,
         techBase,
-        role: commonFields.role,
-      },
-
-      // Optional fields
-      source: commonFields.source,
-      role: commonFields.role,
-
-      // Calculated values
-      bv: 0,
-      cost: 0,
-      totalWeight: commonFields.tonnage,
-      remainingTonnage: 0,
-      isValid: true,
-      validationErrors: [],
-
-      // ProtoMech-specific fields
+        rulesLevel,
+      }),
       ...typeSpecificFields,
     } as IProtoMech;
   }
@@ -376,14 +330,10 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
   /**
    * Validate ProtoMech-specific rules
    */
-  protected validateTypeSpecificRules(unit: IProtoMech): {
-    errors: string[];
-    warnings: string[];
-    infos: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-    const infos: string[] = [];
+  protected validateTypeSpecificRules(
+    unit: IProtoMech,
+  ): UnitValidationMessages {
+    const { errors, warnings, infos } = createValidationMessages();
 
     // Weight validation (2-9 tons per ProtoMech)
     if (unit.weightPerUnit < 2) {

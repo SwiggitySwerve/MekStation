@@ -65,6 +65,178 @@ function createEquipmentSlot(index: number, data: FilledSlotData): SlotContent {
   };
 }
 
+function getEquipmentSlotPosition(
+  slotIndex: number,
+  totalSlots: number,
+): EquipmentSlotPosition {
+  if (totalSlots === 1) return 'only';
+  if (slotIndex === 0) return 'first';
+  if (slotIndex === totalSlots - 1) return 'last';
+  return 'middle';
+}
+
+function collectFilledSlots(
+  equipment: readonly IMountedEquipmentInstance[],
+  location: MechLocation,
+): Map<number, FilledSlotData> {
+  const filledSlots = new Map<number, FilledSlotData>();
+  const locationEquipment = equipment.filter(
+    (item) => item.location === location,
+  );
+
+  for (const item of locationEquipment) {
+    const slotIds = item.slots;
+    if (!slotIds?.length) continue;
+
+    slotIds.forEach((slotIdx, index) => {
+      filledSlots.set(slotIdx, {
+        equipment: item,
+        position: getEquipmentSlotPosition(index, slotIds.length),
+      });
+    });
+  }
+
+  return filledSlots;
+}
+
+function slotForIndex(
+  index: number,
+  filledSlots: ReadonlyMap<number, FilledSlotData>,
+): SlotContent {
+  const filledSlot = filledSlots.get(index);
+  return filledSlot
+    ? createEquipmentSlot(index, filledSlot)
+    : { index, type: 'empty' };
+}
+
+function appendFillableSlots(
+  slots: SlotContent[],
+  startIndex: number,
+  slotCount: number,
+  filledSlots: ReadonlyMap<number, FilledSlotData>,
+): void {
+  for (let index = startIndex; index < slotCount; index++) {
+    slots.push(slotForIndex(index, filledSlots));
+  }
+}
+
+function appendFixedComponents(
+  slots: SlotContent[],
+  components: readonly FixedComponent[],
+): void {
+  components.forEach((component, index) => {
+    slots.push({ index, type: 'system', name: component.name });
+  });
+}
+
+function buildHeadSlots(
+  filledSlots: ReadonlyMap<number, FilledSlotData>,
+): SlotContent[] {
+  return [
+    { index: 0, type: 'system', name: 'Life Support' },
+    { index: 1, type: 'system', name: 'Sensors' },
+    { index: 2, type: 'system', name: 'Standard Cockpit' },
+    slotForIndex(3, filledSlots),
+    { index: 4, type: 'system', name: 'Sensors' },
+    { index: 5, type: 'system', name: 'Life Support' },
+  ];
+}
+
+function buildCenterTorsoSlots(
+  slotCount: number,
+  engineType: EngineType,
+  gyroType: GyroType,
+  filledSlots: ReadonlyMap<number, FilledSlotData>,
+): SlotContent[] {
+  const slots: SlotContent[] = [];
+  const engineSlots = getEngineSlots(engineType);
+  const gyroSlots = getGyroSlots(gyroType);
+
+  for (let index = 0; index < Math.min(3, engineSlots); index++) {
+    slots.push({ index, type: 'system', name: 'Engine' });
+  }
+  for (let index = 0; index < gyroSlots; index++) {
+    slots.push({ index: 3 + index, type: 'system', name: 'Standard Gyro' });
+  }
+  for (let index = 3; index < engineSlots; index++) {
+    slots.push({
+      index: 3 + gyroSlots + (index - 3),
+      type: 'system',
+      name: 'Engine',
+    });
+  }
+
+  appendFillableSlots(slots, engineSlots + gyroSlots, slotCount, filledSlots);
+  return slots;
+}
+
+function buildSideTorsoSlots(
+  slotCount: number,
+  engineType: EngineType,
+  filledSlots: ReadonlyMap<number, FilledSlotData>,
+): SlotContent[] {
+  const slots: SlotContent[] = [];
+  const sideTorsoSlots = getEngineSideTorsoSlots(engineType);
+
+  for (let index = 0; index < sideTorsoSlots; index++) {
+    slots.push({ index, type: 'system', name: 'Engine' });
+  }
+
+  appendFillableSlots(slots, sideTorsoSlots, slotCount, filledSlots);
+  return slots;
+}
+
+function buildActuatorSlots(
+  slotCount: number,
+  components: readonly FixedComponent[],
+  filledSlots: ReadonlyMap<number, FilledSlotData>,
+): SlotContent[] {
+  const slots: SlotContent[] = [];
+  appendFixedComponents(slots, components);
+  appendFillableSlots(slots, components.length, slotCount, filledSlots);
+  return slots;
+}
+
+function buildEmptySlots(slotCount: number): SlotContent[] {
+  return Array.from({ length: slotCount }, (_, index) => ({
+    index,
+    type: 'empty' as const,
+  }));
+}
+
+interface LocationSlotBuilderArgs {
+  readonly slotCount: number;
+  readonly engineType: EngineType;
+  readonly gyroType: GyroType;
+  readonly filledSlots: ReadonlyMap<number, FilledSlotData>;
+}
+
+type LocationSlotBuilder = (args: LocationSlotBuilderArgs) => SlotContent[];
+
+const LOCATION_SLOT_BUILDERS: Partial<
+  Record<MechLocation, LocationSlotBuilder>
+> = {
+  [MechLocation.HEAD]: ({ filledSlots }) => buildHeadSlots(filledSlots),
+  [MechLocation.CENTER_TORSO]: ({
+    slotCount,
+    engineType,
+    gyroType,
+    filledSlots,
+  }) => buildCenterTorsoSlots(slotCount, engineType, gyroType, filledSlots),
+  [MechLocation.LEFT_TORSO]: ({ slotCount, engineType, filledSlots }) =>
+    buildSideTorsoSlots(slotCount, engineType, filledSlots),
+  [MechLocation.RIGHT_TORSO]: ({ slotCount, engineType, filledSlots }) =>
+    buildSideTorsoSlots(slotCount, engineType, filledSlots),
+  [MechLocation.LEFT_ARM]: ({ slotCount, filledSlots }) =>
+    buildActuatorSlots(slotCount, ARM_ACTUATORS, filledSlots),
+  [MechLocation.RIGHT_ARM]: ({ slotCount, filledSlots }) =>
+    buildActuatorSlots(slotCount, ARM_ACTUATORS, filledSlots),
+  [MechLocation.LEFT_LEG]: ({ slotCount, filledSlots }) =>
+    buildActuatorSlots(slotCount, LEG_ACTUATORS, filledSlots),
+  [MechLocation.RIGHT_LEG]: ({ slotCount, filledSlots }) =>
+    buildActuatorSlots(slotCount, LEG_ACTUATORS, filledSlots),
+};
+
 export function buildLocationSlots(
   location: MechLocation,
   engineType: EngineType,
@@ -72,117 +244,10 @@ export function buildLocationSlots(
   equipment: readonly IMountedEquipmentInstance[],
 ): SlotContent[] {
   const slotCount = LOCATION_SLOT_COUNTS[location] || 6;
-  const slots: SlotContent[] = [];
+  const filledSlots = collectFilledSlots(equipment, location);
+  const builder = LOCATION_SLOT_BUILDERS[location];
 
-  const locationEquipment = equipment.filter((e) => e.location === location);
-  const filledSlots = new Map<number, FilledSlotData>();
-
-  for (const eq of locationEquipment) {
-    if (eq.slots && eq.slots.length > 0) {
-      for (let i = 0; i < eq.slots.length; i++) {
-        const slotIdx = eq.slots[i];
-        let position: EquipmentSlotPosition = 'only';
-        if (eq.slots.length > 1) {
-          if (i === 0) position = 'first';
-          else if (i === eq.slots.length - 1) position = 'last';
-          else position = 'middle';
-        }
-        filledSlots.set(slotIdx, { equipment: eq, position });
-      }
-    }
-  }
-
-  switch (location) {
-    case MechLocation.HEAD:
-      slots.push({ index: 0, type: 'system', name: 'Life Support' });
-      slots.push({ index: 1, type: 'system', name: 'Sensors' });
-      slots.push({ index: 2, type: 'system', name: 'Standard Cockpit' });
-      slots.push(
-        filledSlots.has(3)
-          ? createEquipmentSlot(3, filledSlots.get(3)!)
-          : { index: 3, type: 'empty' },
-      );
-      slots.push({ index: 4, type: 'system', name: 'Sensors' });
-      slots.push({ index: 5, type: 'system', name: 'Life Support' });
-      break;
-
-    case MechLocation.CENTER_TORSO: {
-      const engineSlots = getEngineSlots(engineType);
-      for (let i = 0; i < Math.min(3, engineSlots); i++) {
-        slots.push({ index: i, type: 'system', name: 'Engine' });
-      }
-      const gyroSlots = getGyroSlots(gyroType);
-      for (let i = 0; i < gyroSlots; i++) {
-        slots.push({ index: 3 + i, type: 'system', name: 'Standard Gyro' });
-      }
-      for (let i = 3; i < engineSlots; i++) {
-        slots.push({
-          index: 3 + gyroSlots + (i - 3),
-          type: 'system',
-          name: 'Engine',
-        });
-      }
-      const ctUsed = engineSlots + gyroSlots;
-      for (let i = ctUsed; i < slotCount; i++) {
-        if (filledSlots.has(i)) {
-          slots.push(createEquipmentSlot(i, filledSlots.get(i)!));
-        } else {
-          slots.push({ index: i, type: 'empty' });
-        }
-      }
-      break;
-    }
-
-    case MechLocation.LEFT_TORSO:
-    case MechLocation.RIGHT_TORSO: {
-      const sideTorsoSlots = getEngineSideTorsoSlots(engineType);
-      for (let i = 0; i < sideTorsoSlots; i++) {
-        slots.push({ index: i, type: 'system', name: 'Engine' });
-      }
-
-      for (let i = sideTorsoSlots; i < slotCount; i++) {
-        if (filledSlots.has(i)) {
-          slots.push(createEquipmentSlot(i, filledSlots.get(i)!));
-        } else {
-          slots.push({ index: i, type: 'empty' });
-        }
-      }
-      break;
-    }
-
-    case MechLocation.LEFT_ARM:
-    case MechLocation.RIGHT_ARM:
-      for (let i = 0; i < ARM_ACTUATORS.length; i++) {
-        slots.push({ index: i, type: 'system', name: ARM_ACTUATORS[i].name });
-      }
-      for (let i = ARM_ACTUATORS.length; i < slotCount; i++) {
-        if (filledSlots.has(i)) {
-          slots.push(createEquipmentSlot(i, filledSlots.get(i)!));
-        } else {
-          slots.push({ index: i, type: 'empty' });
-        }
-      }
-      break;
-
-    case MechLocation.LEFT_LEG:
-    case MechLocation.RIGHT_LEG:
-      for (let i = 0; i < LEG_ACTUATORS.length; i++) {
-        slots.push({ index: i, type: 'system', name: LEG_ACTUATORS[i].name });
-      }
-      for (let i = LEG_ACTUATORS.length; i < slotCount; i++) {
-        if (filledSlots.has(i)) {
-          slots.push(createEquipmentSlot(i, filledSlots.get(i)!));
-        } else {
-          slots.push({ index: i, type: 'empty' });
-        }
-      }
-      break;
-
-    default:
-      for (let i = 0; i < slotCount; i++) {
-        slots.push({ index: i, type: 'empty' });
-      }
-  }
-
-  return slots;
+  return builder
+    ? builder({ slotCount, engineType, gyroType, filledSlots })
+    : buildEmptySlots(slotCount);
 }

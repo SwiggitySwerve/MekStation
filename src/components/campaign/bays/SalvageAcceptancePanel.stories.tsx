@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { action } from '@storybook/addon-actions';
 
+import { paddedDarkCampaignStoryParameters } from '../campaignStoryParameters';
 import { SAMPLE_SALVAGE_BAY } from './__fixtures__/bayFixtures';
 import { BayError } from './BayStates';
 import { SalvageAcceptancePanel } from './SalvageAcceptancePanel';
@@ -9,13 +10,7 @@ import { SalvageAcceptancePanel } from './SalvageAcceptancePanel';
 const meta = {
   title: 'Campaign/Bays/SalvageAcceptancePanel',
   component: SalvageAcceptancePanel,
-  parameters: {
-    layout: 'padded',
-    backgrounds: {
-      default: 'dark',
-      values: [{ name: 'dark', value: '#0f172a' }],
-    },
-  },
+  parameters: paddedDarkCampaignStoryParameters,
   tags: ['autodocs'],
 } satisfies Meta<typeof SalvageAcceptancePanel>;
 

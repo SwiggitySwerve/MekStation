@@ -20,30 +20,19 @@ import {
 import { DoubleSlotRow } from './DoubleSlotRow';
 import { SlotRow } from './SlotRow';
 
-/**
- * Get full location name
- */
+const LOCATION_LABELS: Partial<Record<MechLocation, string>> = {
+  [MechLocation.HEAD]: 'Head',
+  [MechLocation.CENTER_TORSO]: 'Center Torso',
+  [MechLocation.LEFT_TORSO]: 'Left Torso',
+  [MechLocation.RIGHT_TORSO]: 'Right Torso',
+  [MechLocation.LEFT_ARM]: 'Left Arm',
+  [MechLocation.RIGHT_ARM]: 'Right Arm',
+  [MechLocation.LEFT_LEG]: 'Left Leg',
+  [MechLocation.RIGHT_LEG]: 'Right Leg',
+};
+
 function getLocationLabel(location: MechLocation): string {
-  switch (location) {
-    case MechLocation.HEAD:
-      return 'Head';
-    case MechLocation.CENTER_TORSO:
-      return 'Center Torso';
-    case MechLocation.LEFT_TORSO:
-      return 'Left Torso';
-    case MechLocation.RIGHT_TORSO:
-      return 'Right Torso';
-    case MechLocation.LEFT_ARM:
-      return 'Left Arm';
-    case MechLocation.RIGHT_ARM:
-      return 'Right Arm';
-    case MechLocation.LEFT_LEG:
-      return 'Left Leg';
-    case MechLocation.RIGHT_LEG:
-      return 'Right Leg';
-    default:
-      return '';
-  }
+  return LOCATION_LABELS[location] ?? '';
 }
 
 interface LocationGridProps {

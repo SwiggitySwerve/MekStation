@@ -94,13 +94,13 @@ export class EquipmentLookupService implements IEquipmentLookupService {
    * Falls back to hardcoded constants if loading fails.
    * Safe to call multiple times - subsequent calls return the same promise.
    */
-  async initialize(): Promise<void> {
+  initialize = async (): Promise<void> => {
     if (this.initPromise) {
       return this.initPromise;
     }
     this.initPromise = this.doInitialize();
     return this.initPromise;
-  }
+  };
 
   /**
    * Internal initialization logic
@@ -161,23 +161,23 @@ export class EquipmentLookupService implements IEquipmentLookupService {
   /**
    * Check if the service has been initialized
    */
-  isInitialized(): boolean {
+  isInitialized = (): boolean => {
     return this.initialized;
-  }
+  };
 
   /**
    * Get the current data source being used
    */
-  getDataSource(): 'json' | 'fallback' {
+  getDataSource = (): 'json' | 'fallback' => {
     return this.useJsonSource ? 'json' : 'fallback';
-  }
+  };
 
   /**
    * Get the result of the last load operation
    */
-  getLoadResult(): IEquipmentLoadResult | null {
+  getLoadResult = (): IEquipmentLoadResult | null => {
     return this.loadResult;
-  }
+  };
 
   /**
    * Build equipment items from the JSON loader
@@ -283,45 +283,45 @@ export class EquipmentLookupService implements IEquipmentLookupService {
   /**
    * Get equipment by unique identifier
    */
-  getById(id: string): IEquipmentItem | undefined {
+  getById = (id: string): IEquipmentItem | undefined => {
     return this.getEquipment().find((e) => e.id === id);
-  }
+  };
 
   /**
    * Get all equipment in a given category
    */
-  getByCategory(category: EquipmentCategory): IEquipmentItem[] {
+  getByCategory = (category: EquipmentCategory): IEquipmentItem[] => {
     return this.getEquipment().filter((e) => e.category === category);
-  }
+  };
 
   /**
    * Get equipment compatible with a tech base
    */
-  getByTechBase(techBase: TechBase): IEquipmentItem[] {
+  getByTechBase = (techBase: TechBase): IEquipmentItem[] => {
     return this.getEquipment().filter((e) => e.techBase === techBase);
-  }
+  };
 
   /**
    * Get equipment available in a given year
    */
-  getByEra(year: number): IEquipmentItem[] {
+  getByEra = (year: number): IEquipmentItem[] => {
     return this.getEquipment().filter((e) => e.introductionYear <= year);
-  }
+  };
 
   /**
    * Search equipment by name substring (case-insensitive)
    */
-  search(queryStr: string): IEquipmentItem[] {
+  search = (queryStr: string): IEquipmentItem[] => {
     const lowerQuery = queryStr.toLowerCase();
     return this.getEquipment().filter((e) =>
       e.name.toLowerCase().includes(lowerQuery),
     );
-  }
+  };
 
   /**
    * Query equipment with multiple filter criteria
    */
-  query(criteria: IEquipmentQueryCriteria): IEquipmentItem[] {
+  query = (criteria: IEquipmentQueryCriteria): IEquipmentItem[] => {
     let results = this.getEquipment();
 
     // Filter by category
@@ -363,34 +363,34 @@ export class EquipmentLookupService implements IEquipmentLookupService {
     }
 
     return results;
-  }
+  };
 
   /**
    * Get all weapon definitions
    */
-  getAllWeapons(): IWeapon[] {
+  getAllWeapons = (): IWeapon[] => {
     if (this.useJsonSource) {
       return getEquipmentLoader().getAllWeapons();
     }
     return getAllWeaponsFallback() as IWeapon[];
-  }
+  };
 
   /**
    * Get all ammunition definitions
    */
-  getAllAmmunition(): IAmmunition[] {
+  getAllAmmunition = (): IAmmunition[] => {
     if (this.useJsonSource) {
       return getEquipmentLoader().getAllAmmunition();
     }
     return getAllAmmunitionFallback() as IAmmunition[];
-  }
+  };
 
   /**
    * Get all equipment items
    */
-  getAllEquipment(): IEquipmentItem[] {
+  getAllEquipment = (): IEquipmentItem[] => {
     return this.getEquipment();
-  }
+  };
 }
 
 // Singleton instance with lazy initialization

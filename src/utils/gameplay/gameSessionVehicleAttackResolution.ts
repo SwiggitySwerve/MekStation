@@ -19,10 +19,10 @@ import {
   createLocationDestroyedEvent,
   createMotiveDamagedEvent,
   createMotivePenaltyAppliedEvent,
-  createUnitDestroyedEvent,
   createVehicleImmobilizedEvent,
   createVTOLCrashCheckEvent,
 } from './gameEvents';
+import { appendUnitDestroyedEvent } from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
 import { resolveVehicleCriticalIfTriggered } from './gameSessionVehicleCriticalResolution';
 import { computeEffectiveMP } from './motiveDamage';
@@ -225,17 +225,12 @@ export function tryResolveVehicleAttackHit(
     critSession.destructionCause ?? damageResult.destructionCause;
 
   if (unitDestroyed) {
-    currentSession = appendEvent(
-      currentSession,
-      createUnitDestroyedEvent(
-        currentSession.id,
-        currentSession.events.length,
-        currentSession.currentState.turn,
-        GamePhase.WeaponAttack,
-        params.targetId,
-        mapVehicleDestructionCause(destructionCause),
-      ),
-    );
+    currentSession = appendUnitDestroyedEvent(currentSession, {
+      turn: currentSession.currentState.turn,
+      phase: GamePhase.WeaponAttack,
+      unitId: params.targetId,
+      cause: mapVehicleDestructionCause(destructionCause),
+    });
   }
 
   return currentSession;

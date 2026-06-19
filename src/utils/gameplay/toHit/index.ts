@@ -46,6 +46,7 @@ export {
   calculateCalledShotModifier,
 } from './damageModifiers';
 export { calculateToHit, calculateToHitFromContext } from './calculate';
+export type { ICalculateToHitInput } from './calculate';
 export {
   calculateSemiGuidedTagIndirectFireModifier,
   calculateSemiGuidedTagTargetMovementModifier,
@@ -57,7 +58,7 @@ export {
   buildWeaponAttackTargetToHitState,
 } from './stateHydration';
 export { calculateToHitWithC3 } from './c3';
-export type { IC3ToHitInput } from './c3';
+export type { ICalculateToHitWithC3Input, IC3ToHitInput } from './c3';
 
 export {
   buildToHitForecast,

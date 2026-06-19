@@ -81,7 +81,7 @@ export class ValidationService implements IValidationService {
   /**
    * Validate entire mech build
    */
-  validate(mech: IEditableMech): IValidationResult {
+  validate = (mech: IEditableMech): IValidationResult => {
     const allErrors: IValidationError[] = [
       ...this.validateWeight(mech),
       ...this.validateArmor(mech),
@@ -96,9 +96,9 @@ export class ValidationService implements IValidationService {
     }
 
     return invalidResult(allErrors);
-  }
+  };
 
-  validateWeight(mech: IEditableMech): IValidationError[] {
+  validateWeight = (mech: IEditableMech): IValidationError[] => {
     const errors: IValidationError[] = [];
 
     const structureWeight = mech.tonnage * STRUCTURE_WEIGHT_PERCENT;
@@ -130,13 +130,13 @@ export class ValidationService implements IValidationService {
     }
 
     return errors;
-  }
+  };
 
   /**
    * Validate armor limits
    * Per TechManual: max armor = 2 × structure points (head = 9 maximum)
    */
-  validateArmor(mech: IEditableMech): IValidationError[] {
+  validateArmor = (mech: IEditableMech): IValidationError[] => {
     const errors: IValidationError[] = [];
     const armor = mech.armorAllocation;
 
@@ -234,9 +234,9 @@ export class ValidationService implements IValidationService {
     }
 
     return errors;
-  }
+  };
 
-  validateCriticalSlots(mech: IEditableMech): IValidationError[] {
+  validateCriticalSlots = (mech: IEditableMech): IValidationError[] => {
     const errors: IValidationError[] = [];
 
     const slotsUsed: Record<string, number> = {};
@@ -260,13 +260,13 @@ export class ValidationService implements IValidationService {
     }
 
     return errors;
-  }
+  };
 
   /**
    * Validate tech level compatibility
    * Checks that all equipment is compatible with the mech's tech base
    */
-  validateTechLevel(mech: IEditableMech): IValidationError[] {
+  validateTechLevel = (mech: IEditableMech): IValidationError[] => {
     const errors: IValidationError[] = [];
     const registry = getEquipmentRegistry();
 
@@ -305,7 +305,7 @@ export class ValidationService implements IValidationService {
     }
 
     return errors;
-  }
+  };
 
   private validateEngine(mech: IEditableMech): IValidationError[] {
     const errors: IValidationError[] = [];
@@ -349,11 +349,11 @@ export class ValidationService implements IValidationService {
     return errors;
   }
 
-  canAddEquipment(
+  canAddEquipment = (
     mech: IEditableMech,
     _equipmentId: string,
     location: string,
-  ): boolean {
+  ): boolean => {
     const locationEquipment = mech.equipment.filter(
       (e) => e.location === location,
     );
@@ -361,7 +361,7 @@ export class ValidationService implements IValidationService {
       CRITICAL_SLOTS[location as keyof typeof CRITICAL_SLOTS] ||
       CRITICAL_SLOTS_DEFAULT;
     return locationEquipment.length < max;
-  }
+  };
 
   // ============================================================================
   // HELPER CALCULATIONS
@@ -452,12 +452,12 @@ export class ValidationService implements IValidationService {
    * @param options - Validation options (strictMode, skipRules, etc.)
    * @returns Validation result with errors, warnings, and infos
    */
-  validateUnit(
+  validateUnit = (
     unit: IValidatableUnit,
     options?: IUnitValidationOptions,
-  ): IUnitValidationResult {
+  ): IUnitValidationResult => {
     return this.getOrchestrator().validate(unit, options);
-  }
+  };
 }
 
 // Singleton instance with lazy initialization

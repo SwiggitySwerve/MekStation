@@ -46,6 +46,12 @@ interface DetectorTrackingState {
   anomalyTriggered: boolean;
 }
 
+interface CurrentTurnSnapshotState {
+  armor: Map<string, Record<string, number>>;
+  structure: Map<string, Record<string, number>>;
+  heat: Map<string, number>;
+}
+
 /**
  * Detects state cycle anomalies from a stream of game events.
  *
@@ -202,8 +208,58 @@ export class StateCycleDetectionEngine {
     state: DetectorTrackingState,
     threshold: number,
   ): void {
-    const currentTurn = event.turn;
+    const currentState = this.getCurrentTurnState(
+      event.turn,
+      battleState,
+      state,
+    );
 
+    const currentSnapshot = createSnapshot(
+      event.turn,
+      currentState.armor,
+      currentState.structure,
+      currentState.heat,
+      state.unitPosition,
+    );
+
+    this.recordCycleAnomalyIfNeeded(
+      event,
+      currentSnapshot,
+      battleState,
+      state,
+      threshold,
+    );
+
+    state.snapshotHistory.push(currentSnapshot);
+    state.movementThisTurn = false;
+  }
+
+  private getCurrentTurnState(
+    currentTurn: number,
+    battleState: BattleState,
+    state: DetectorTrackingState,
+  ): CurrentTurnSnapshotState {
+    this.ensureTurnMaps(currentTurn, state);
+
+    const currentState: CurrentTurnSnapshotState = {
+      armor: new Map(state.unitArmor.get(currentTurn)),
+      structure: new Map(state.unitStructure.get(currentTurn)),
+      heat: new Map(state.unitHeat.get(currentTurn)),
+    };
+
+    const lastSnapshot =
+      state.snapshotHistory[state.snapshotHistory.length - 1];
+    if (lastSnapshot) {
+      this.inheritPreviousUnitState(currentState, lastSnapshot, battleState);
+    }
+
+    return currentState;
+  }
+
+  private ensureTurnMaps(
+    currentTurn: number,
+    state: DetectorTrackingState,
+  ): void {
     if (!state.unitArmor.has(currentTurn)) {
       state.unitArmor.set(currentTurn, new Map());
     }
@@ -213,70 +269,87 @@ export class StateCycleDetectionEngine {
     if (!state.unitHeat.has(currentTurn)) {
       state.unitHeat.set(currentTurn, new Map());
     }
+  }
 
-    const currentArmor = new Map(state.unitArmor.get(currentTurn) || new Map());
-    const currentStructure = new Map(
-      state.unitStructure.get(currentTurn) || new Map(),
-    );
-    const currentHeat = new Map(state.unitHeat.get(currentTurn) || new Map());
-
-    if (state.snapshotHistory.length > 0) {
-      const lastSnapshot =
-        state.snapshotHistory[state.snapshotHistory.length - 1];
-      for (const unit of battleState.units) {
-        if (!currentArmor.has(unit.id) && lastSnapshot.armor.has(unit.id)) {
-          currentArmor.set(unit.id, lastSnapshot.armor.get(unit.id)!);
-        }
-        if (
-          !currentStructure.has(unit.id) &&
-          lastSnapshot.structure.has(unit.id)
-        ) {
-          currentStructure.set(unit.id, lastSnapshot.structure.get(unit.id)!);
-        }
-        if (!currentHeat.has(unit.id) && lastSnapshot.heat.has(unit.id)) {
-          currentHeat.set(unit.id, lastSnapshot.heat.get(unit.id)!);
-        }
-      }
+  private inheritPreviousUnitState(
+    currentState: CurrentTurnSnapshotState,
+    lastSnapshot: BattleStateSnapshot,
+    battleState: BattleState,
+  ): void {
+    for (const unit of battleState.units) {
+      this.inheritUnitValue(currentState.armor, lastSnapshot.armor, unit.id);
+      this.inheritUnitValue(
+        currentState.structure,
+        lastSnapshot.structure,
+        unit.id,
+      );
+      this.inheritUnitValue(currentState.heat, lastSnapshot.heat, unit.id);
     }
+  }
 
-    const currentSnapshot = createSnapshot(
-      currentTurn,
-      currentArmor,
-      currentStructure,
-      currentHeat,
-      state.unitPosition,
+  private inheritUnitValue<T>(
+    currentValues: Map<string, T>,
+    lastValues: Map<string, T>,
+    unitId: string,
+  ): void {
+    if (!currentValues.has(unitId) && lastValues.has(unitId)) {
+      currentValues.set(unitId, lastValues.get(unitId)!);
+    }
+  }
+
+  private recordCycleAnomalyIfNeeded(
+    event: IGameEvent,
+    currentSnapshot: BattleStateSnapshot,
+    battleState: BattleState,
+    state: DetectorTrackingState,
+    threshold: number,
+  ): void {
+    const cycleCount = this.countTrailingMatchingSnapshots(
+      currentSnapshot,
+      battleState,
+      state,
     );
 
-    if (state.snapshotHistory.length > 0) {
-      let cycleCount = 0;
-      for (let i = state.snapshotHistory.length - 1; i >= 0; i--) {
-        if (
-          snapshotsEqual(state.snapshotHistory[i], currentSnapshot, battleState)
-        ) {
-          cycleCount++;
-        } else {
-          break;
-        }
-      }
+    if (this.shouldCreateCycleAnomaly(cycleCount, state, threshold)) {
+      const anomaly = this.createAnomaly(
+        event,
+        state,
+        currentSnapshot,
+        threshold,
+      );
+      state.anomalies.push(anomaly);
+      state.anomalyTriggered = true;
+    }
+  }
 
+  private countTrailingMatchingSnapshots(
+    currentSnapshot: BattleStateSnapshot,
+    battleState: BattleState,
+    state: DetectorTrackingState,
+  ): number {
+    let cycleCount = 0;
+
+    for (let i = state.snapshotHistory.length - 1; i >= 0; i--) {
       if (
-        cycleCount > 0 &&
-        cycleCount >= threshold - 1 &&
-        !state.anomalyTriggered
+        !snapshotsEqual(state.snapshotHistory[i], currentSnapshot, battleState)
       ) {
-        const anomaly = this.createAnomaly(
-          event,
-          state,
-          currentSnapshot,
-          threshold,
-        );
-        state.anomalies.push(anomaly);
-        state.anomalyTriggered = true;
+        break;
       }
+
+      cycleCount++;
     }
 
-    state.snapshotHistory.push(currentSnapshot);
-    state.movementThisTurn = false;
+    return cycleCount;
+  }
+
+  private shouldCreateCycleAnomaly(
+    cycleCount: number,
+    state: DetectorTrackingState,
+    threshold: number,
+  ): boolean {
+    return (
+      cycleCount > 0 && cycleCount >= threshold - 1 && !state.anomalyTriggered
+    );
   }
 
   private createAnomaly(

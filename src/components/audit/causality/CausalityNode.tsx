@@ -8,6 +8,10 @@
 
 import React from 'react';
 
+import {
+  formatAuditEventType,
+  formatAuditTimestamp,
+} from '@/components/audit/auditEventFormatters';
 import { Badge } from '@/components/ui/Badge';
 import { ICausalityNode } from '@/hooks/audit';
 import { EventCategory } from '@/types/events';
@@ -182,41 +186,6 @@ const CATEGORY_CONFIG: Record<EventCategory, CategoryConfig> = {
 };
 
 // =============================================================================
-// Helper Functions
-// =============================================================================
-
-/**
- * Format event type to display string (e.g., "pilot.skill_improved" -> "Skill Improved").
- */
-function formatEventType(type: string): string {
-  const shortType = type.includes('.')
-    ? type.split('.').slice(1).join('.')
-    : type;
-  return shortType
-    .replace(/[_-]/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-/**
- * Format timestamp to short format for compact display.
- */
-function formatTimestamp(timestamp: string, compact: boolean): string {
-  const date = new Date(timestamp);
-  if (compact) {
-    return date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  }
-  return date.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
-// =============================================================================
 // Component
 // =============================================================================
 
@@ -257,20 +226,20 @@ export function CausalityNode({
       <p
         className={`text-text-theme-primary truncate font-medium ${compact ? 'text-xs' : 'text-sm'} `}
       >
-        {formatEventType(node.event.type)}
+        {formatAuditEventType(node.event.type)}
       </p>
 
       {/* Timestamp (shown in full mode only, or on hover in compact) */}
       {!compact && (
         <p className="text-text-theme-muted mt-1 text-xs">
-          {formatTimestamp(node.event.timestamp, false)}
+          {formatAuditTimestamp(node.event.timestamp)}
         </p>
       )}
 
       {/* Compact hover tooltip */}
       {compact && (
         <div className="bg-surface-raised text-text-theme-secondary pointer-events-none absolute -bottom-8 left-1/2 z-10 -translate-x-1/2 rounded px-2 py-1 text-xs whitespace-nowrap opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-          {formatTimestamp(node.event.timestamp, false)}
+          {formatAuditTimestamp(node.event.timestamp)}
         </div>
       )}
 

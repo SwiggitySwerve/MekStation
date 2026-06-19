@@ -1,20 +1,10 @@
-import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
+import {
+  megamekSourceRef as megamekRef,
+  mekstationDeviationSourceRef as legacyQuirkMekStationRef,
+  type ICombatFeatureSourceReference,
+} from './CombatFeatureSourceReference';
 
-const MEGAMEK_LEGACY_QUIRK_SOURCE_VERSION =
-  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 const MEKHQ_RUGGED_SOURCE_VERSION = '8a792e7212e882110ca99613db4edc05f035b40e';
-
-function megamekRef(
-  citation: string,
-  pathWithLines: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'megamek-source',
-    citation,
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_LEGACY_QUIRK_SOURCE_VERSION}/${pathWithLines}`,
-    sourceVersion: MEGAMEK_LEGACY_QUIRK_SOURCE_VERSION,
-  };
-}
 
 function mekhqRef(
   citation: string,
@@ -28,24 +18,12 @@ function mekhqRef(
   };
 }
 
-function mekstationDeviationRef(
-  citation: string,
-  pathWithLines: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'mekstation-deviation',
-    citation,
-    url: pathWithLines,
-    sourceVersion: 'MekStation working-tree',
-  };
-}
-
 const MEGAMEK_PSR_QUIRK_REGISTRY_SOURCE_REF = megamekRef(
   'MegaMek OptionsConstants defines Easy Pilot, Stable, Cramped Cockpit, Hard Pilot, and Unbalanced quirk ids.',
   'megamek/src/megamek/common/options/OptionsConstants.java#L60-L146',
 );
 
-const MEKSTATION_PSR_QUIRK_HELPER_SOURCE_REF = mekstationDeviationRef(
+const MEKSTATION_PSR_QUIRK_HELPER_SOURCE_REF = legacyQuirkMekStationRef(
   'MekStation calculatePilotingQuirkPSRModifier scopes Stable to kick/push PSRs, Easy Pilot to piloting-skill-gated terrain/20+ damage PSRs, and Cramped Cockpit to non-Small-Pilot crews while applying local Hard to Pilot and Unbalanced target-number modifiers.',
   'src/utils/gameplay/quirkModifiers/pilotingQuirks.ts#L32-L76',
 );
@@ -120,11 +98,11 @@ export const MEGAMEK_BATTLE_FISTS_SOURCE_REFS = [
     'MegaMek OptionsConstants defines left and right Battle Fists quirk ids.',
     'megamek/src/megamek/common/options/OptionsConstants.java#L48-L50',
   ),
-  mekstationDeviationRef(
+  legacyQuirkMekStationRef(
     'MekStation getBattleFistPunchToHitModifier maps Battle Fists to -1 matching-arm punch to-hit.',
     'src/utils/gameplay/quirkModifiers/defensiveQuirks.ts#L13-L23',
   ),
-  mekstationDeviationRef(
+  legacyQuirkMekStationRef(
     'MekStation physical to-hit helpers consume Battle Fists when the matching arm has a working hand actuator.',
     'src/utils/gameplay/physicalAttacks/toHit.ts#L194-L218',
   ),
@@ -151,23 +129,23 @@ export const MEGAMEK_NO_ARMS_SOURCE_REFS = [
     'MegaMek OptionsConstants defines the No/Minimal Arms quirk id.',
     'megamek/src/megamek/common/options/OptionsConstants.java#L150-L155',
   ),
-  mekstationDeviationRef(
+  legacyQuirkMekStationRef(
     'MekStation hasNoArms exposes the local No Arms helper.',
     'src/utils/gameplay/quirkModifiers/defensiveQuirks.ts#L26-L30',
   ),
-  mekstationDeviationRef(
+  legacyQuirkMekStationRef(
     'MekStation physical attack restrictions consume No Arms for punch helpers.',
     'src/utils/gameplay/physicalAttacks/restrictions.ts#L331-L339',
   ),
-  mekstationDeviationRef(
+  legacyQuirkMekStationRef(
     'MekStation physical attack restrictions consume No Arms for arm-mounted melee helpers.',
     'src/utils/gameplay/physicalAttacks/restrictions.ts#L491-L499',
   ),
-  mekstationDeviationRef(
+  legacyQuirkMekStationRef(
     'MekStation physical attack restrictions consume No Arms for push helpers.',
     'src/utils/gameplay/physicalAttacks/restrictions.ts#L783-L791',
   ),
-  mekstationDeviationRef(
+  legacyQuirkMekStationRef(
     'MekStation piloting quirk PSR modifier applies the No Arms +2 stand-up PSR modifier.',
     'src/utils/gameplay/quirkModifiers/pilotingQuirks.ts#L74-L81',
   ),
@@ -182,7 +160,7 @@ export const MEGAMEK_LOW_ARMS_GAP_SOURCE_REFS = [
     'MegaMek Quirks registers Low Arms as a negative quirk option.',
     'megamek/src/megamek/common/options/Quirks.java#L147-L151',
   ),
-  mekstationDeviationRef(
+  legacyQuirkMekStationRef(
     'MekStation isLowArmsRestricted intentionally no-ops until source-backed combat semantics exist.',
     'src/utils/gameplay/quirkModifiers/defensiveQuirks.ts#L34-L46',
   ),
@@ -197,7 +175,7 @@ export const MEGAMEK_ANTI_MEK_ACTUATOR_SOURCE_REFS = [
     'MegaMek OptionsConstants defines Protected Actuators and Exposed Actuators quirk ids.',
     'megamek/src/megamek/common/options/OptionsConstants.java#L82-L122',
   ),
-  mekstationDeviationRef(
+  legacyQuirkMekStationRef(
     'MekStation getAntiMekActuatorTargetModifier exposes the same +/-1 helper without implementing anti-Mek Leg/Swarm attack paths.',
     'src/utils/gameplay/quirkModifiers/defensiveQuirks.ts#L121-L130',
   ),
@@ -212,7 +190,7 @@ export const MEKHQ_RUGGED_SOURCE_REFS = [
     'MegaMek OptionsConstants defines Rugged 1 and Rugged 2 quirk ids.',
     'megamek/src/megamek/common/options/OptionsConstants.java#L84-L85',
   ),
-  mekstationDeviationRef(
+  legacyQuirkMekStationRef(
     'MekStation getRuggedMaintenanceMultiplier mirrors the MekHQ maintenance multiplier helper outside combat runner resolution.',
     'src/utils/gameplay/quirkModifiers/defensiveQuirks.ts#L110-L119',
   ),

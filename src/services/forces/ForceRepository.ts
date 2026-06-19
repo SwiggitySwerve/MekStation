@@ -7,15 +7,15 @@
  * @spec openspec/changes/add-force-management/proposal.md
  */
 
-import {
-  IForce,
+import type {
+  IForce as ForceEntity,
   ICreateForceRequest,
   IUpdateForceRequest,
   IUpdateAssignmentRequest,
 } from '@/types/force';
 
 import {
-  createSingleton,
+  createSingleton as createRepositorySingleton,
   type SingletonFactory,
 } from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
@@ -50,10 +50,10 @@ export interface IForceRepository {
   createForce(request: ICreateForceRequest): IForceOperationResult;
   updateForce(id: string, request: IUpdateForceRequest): IForceOperationResult;
   deleteForce(id: string): IForceOperationResult;
-  getForceById(id: string): IForce | null;
-  getAllForces(): readonly IForce[];
-  getRootForces(): readonly IForce[];
-  getChildForces(parentId: string): readonly IForce[];
+  getForceById(id: string): ForceEntity | null;
+  getAllForces(): readonly ForceEntity[];
+  getRootForces(): readonly ForceEntity[];
+  getChildForces(parentId: string): readonly ForceEntity[];
   updateAssignment(
     assignmentId: string,
     request: IUpdateAssignmentRequest,
@@ -75,7 +75,7 @@ export class ForceRepository implements IForceRepository {
   /**
    * Initialize database tables for forces.
    */
-  initialize(): void {
+  initialize = (): void => {
     if (this.initialized) return;
 
     const db = getSQLiteService().getDatabase();
@@ -123,21 +123,21 @@ export class ForceRepository implements IForceRepository {
     );
 
     this.initialized = true;
-  }
+  };
 
   // ===========================================================================
   // Force CRUD Operations
   // ===========================================================================
 
-  createForce(request: ICreateForceRequest): IForceOperationResult {
+  createForce = (request: ICreateForceRequest): IForceOperationResult => {
     this.initialize();
     return createForceOperation(request);
-  }
+  };
 
   /**
    * Get a force by ID.
    */
-  getForceById(id: string): IForce | null {
+  getForceById = (id: string): ForceEntity | null => {
     this.initialize();
 
     const db = getSQLiteService().getDatabase();
@@ -150,9 +150,9 @@ export class ForceRepository implements IForceRepository {
     }
 
     return hydrateForce(row);
-  }
+  };
 
-  getAllForces(): readonly IForce[] {
+  getAllForces = (): readonly ForceEntity[] => {
     this.initialize();
 
     const db = getSQLiteService().getDatabase();
@@ -161,9 +161,9 @@ export class ForceRepository implements IForceRepository {
       .all() as ForceRow[];
 
     return rows.map((row) => hydrateForce(row));
-  }
+  };
 
-  getRootForces(): readonly IForce[] {
+  getRootForces = (): readonly ForceEntity[] => {
     this.initialize();
 
     const db = getSQLiteService().getDatabase();
@@ -172,9 +172,9 @@ export class ForceRepository implements IForceRepository {
       .all() as ForceRow[];
 
     return rows.map((row) => hydrateForce(row));
-  }
+  };
 
-  getChildForces(parentId: string): readonly IForce[] {
+  getChildForces = (parentId: string): readonly ForceEntity[] => {
     this.initialize();
 
     const db = getSQLiteService().getDatabase();
@@ -183,12 +183,15 @@ export class ForceRepository implements IForceRepository {
       .all(parentId) as ForceRow[];
 
     return rows.map((row) => hydrateForce(row));
-  }
+  };
 
-  updateForce(id: string, request: IUpdateForceRequest): IForceOperationResult {
+  updateForce = (
+    id: string,
+    request: IUpdateForceRequest,
+  ): IForceOperationResult => {
     this.initialize();
     return updateForceOperation(id, request);
-  }
+  };
 
   /**
    * Delete a force and its assignments.
@@ -207,7 +210,7 @@ export class ForceRepository implements IForceRepository {
    *   FK-linked), but ordering matters for crash-mid-transaction recovery
    *   semantics.
    */
-  deleteForce(id: string): IForceOperationResult {
+  deleteForce = (id: string): IForceOperationResult => {
     this.initialize();
 
     const db = getSQLiteService().getDatabase();
@@ -247,32 +250,32 @@ export class ForceRepository implements IForceRepository {
         errorCode: ForceErrorCode.DatabaseError,
       };
     }
-  }
+  };
 
   // ===========================================================================
   // Assignment Operations
   // ===========================================================================
 
-  updateAssignment(
+  updateAssignment = (
     assignmentId: string,
     request: IUpdateAssignmentRequest,
-  ): IForceOperationResult {
+  ): IForceOperationResult => {
     this.initialize();
     return updateAssignmentOperation(assignmentId, request);
-  }
+  };
 
-  swapAssignments(
+  swapAssignments = (
     assignmentId1: string,
     assignmentId2: string,
-  ): IForceOperationResult {
+  ): IForceOperationResult => {
     this.initialize();
     return swapAssignmentsOperation(assignmentId1, assignmentId2);
-  }
+  };
 
   /**
    * Clear an assignment (remove pilot and unit).
    */
-  clearAssignment(assignmentId: string): IForceOperationResult {
+  clearAssignment = (assignmentId: string): IForceOperationResult => {
     this.initialize();
 
     const db = getSQLiteService().getDatabase();
@@ -291,7 +294,7 @@ export class ForceRepository implements IForceRepository {
         errorCode: ForceErrorCode.DatabaseError,
       };
     }
-  }
+  };
 
   // ===========================================================================
   // Helper Methods
@@ -303,7 +306,7 @@ export class ForceRepository implements IForceRepository {
 // =============================================================================
 
 const forceRepositoryFactory: SingletonFactory<ForceRepository> =
-  createSingleton((): ForceRepository => new ForceRepository());
+  createRepositorySingleton((): ForceRepository => new ForceRepository());
 
 export function getForceRepository(): ForceRepository {
   return forceRepositoryFactory.get();

@@ -15,6 +15,10 @@ import type {
   ShareableContentType,
 } from '@/types/vault';
 
+import {
+  sendLoggedApiError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getVersionHistoryService } from '@/services/vault/VersionHistoryService';
 
 // =============================================================================
@@ -39,10 +43,6 @@ interface CreateVersionResponse {
   skipped?: boolean;
 }
 
-interface ErrorResponse {
-  error: string;
-}
-
 // =============================================================================
 // Handler
 // =============================================================================
@@ -50,7 +50,7 @@ interface ErrorResponse {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<
-    ListVersionsResponse | CreateVersionResponse | ErrorResponse
+    ListVersionsResponse | CreateVersionResponse | ApiErrorResponse
   >,
 ): Promise<void> {
   try {
@@ -65,10 +65,8 @@ export default async function handler(
         return res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
-    console.error('Versions API error:', error);
-    return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedApiError(res, 'Versions API error:', error);
+    return;
   }
 }
 
@@ -78,7 +76,7 @@ export default async function handler(
 
 async function handleList(
   req: NextApiRequest,
-  res: NextApiResponse<ListVersionsResponse | ErrorResponse>,
+  res: NextApiResponse<ListVersionsResponse | ApiErrorResponse>,
   versionService: ReturnType<typeof getVersionHistoryService>,
 ) {
   const { itemId, contentType, limit } = req.query;
@@ -105,7 +103,7 @@ async function handleList(
 
 async function handleCreate(
   req: NextApiRequest,
-  res: NextApiResponse<CreateVersionResponse | ErrorResponse>,
+  res: NextApiResponse<CreateVersionResponse | ApiErrorResponse>,
   versionService: ReturnType<typeof getVersionHistoryService>,
 ) {
   const { contentType, itemId, content, createdBy, message } =

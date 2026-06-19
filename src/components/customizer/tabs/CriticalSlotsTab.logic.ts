@@ -5,22 +5,27 @@ import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipme
 import { useCustomizerStore } from '@/stores/useCustomizerStore';
 import { useUnitStore } from '@/stores/useUnitStore';
 import { MechLocation } from '@/types/construction';
-import { isValidLocationForEquipment } from '@/types/equipment/EquipmentPlacement';
-import {
-  fillUnhittableSlots,
-  compactEquipmentSlots,
-  sortEquipmentBySize,
-  getUnallocatedUnhittables,
-} from '@/utils/construction/slotOperations';
-import { logger } from '@/utils/logger';
+import { getUnallocatedUnhittables } from '@/utils/construction/slotOperations';
 
 import type { LocationData } from '../critical-slots';
 
 import { slotsToCritEntries } from '../critical-slots';
+import { buildPlacementFingerprint } from './CriticalSlotsTab.auto';
 import {
-  buildPlacementFingerprint,
-  wouldAssignmentsChange,
-} from './CriticalSlotsTab.auto';
+  resetEquipmentLocations,
+  runCompactAction,
+  runFillAction,
+  runSortAction,
+  scheduleAutoFillUnhittables,
+  scheduleAutoOrganizeEquipment,
+} from './CriticalSlotsTab.logicAuto';
+import {
+  buildAssignableSlots,
+  findEquipmentByInstanceId,
+  handleEquipmentDropAction,
+  handleEquipmentRemoveAction,
+  handleSlotClickAction,
+} from './CriticalSlotsTab.slotActions';
 import { buildLocationSlots } from './CriticalSlotsTab.slotBuilders';
 
 interface UseCriticalSlotsTabLogicArgs {
@@ -88,10 +93,10 @@ export function useCriticalSlotsTabLogic({
   const toggleAutoCompact = useCustomizerStore((s) => s.toggleAutoCompact);
   const toggleAutoSort = useCustomizerStore((s) => s.toggleAutoSort);
 
-  const selectedEquipment = useMemo(() => {
-    if (!selectedEquipmentId) return null;
-    return equipment.find((e) => e.instanceId === selectedEquipmentId) || null;
-  }, [equipment, selectedEquipmentId]);
+  const selectedEquipment = useMemo(
+    () => findEquipmentByInstanceId(equipment, selectedEquipmentId),
+    [equipment, selectedEquipmentId],
+  );
 
   const getLocationData = useCallback(
     (location: MechLocation): LocationData => {
@@ -112,87 +117,29 @@ export function useCriticalSlotsTabLogic({
   );
 
   const getAssignableSlots = useCallback(
-    (location: MechLocation): number[] => {
-      if (!selectedEquipment || readOnly) {
-        return [];
-      }
-
-      if (
-        !isValidLocationForEquipment(selectedEquipment.equipmentId, location)
-      ) {
-        return [];
-      }
-
-      const locData = getLocationData(location);
-      const emptySlots = locData.slots
-        .filter((slot) => slot.type === 'empty')
-        .map((slot) => slot.index);
-
-      const slotsNeeded = selectedEquipment.criticalSlots;
-      const assignable: number[] = [];
-
-      for (let i = 0; i <= emptySlots.length - slotsNeeded; i++) {
-        let contiguous = true;
-        for (let j = 1; j < slotsNeeded; j++) {
-          if (emptySlots[i + j] !== emptySlots[i + j - 1] + 1) {
-            contiguous = false;
-            break;
-          }
-        }
-        if (contiguous) {
-          assignable.push(emptySlots[i]);
-        }
-      }
-
-      if (unitIsSuperheavy && slotsNeeded === 1) {
-        for (const entry of locData.entries) {
-          if (
-            entry.isDoubleSlot &&
-            !entry.secondary &&
-            entry.primary.type === 'equipment' &&
-            entry.primary.totalSlots === 1 &&
-            !assignable.includes(entry.index)
-          ) {
-            assignable.push(entry.index);
-          }
-        }
-      }
-
-      return assignable;
-    },
+    (location: MechLocation): number[] =>
+      buildAssignableSlots({
+        selectedEquipment,
+        readOnly,
+        location,
+        getLocationData,
+        unitIsSuperheavy,
+      }),
     [selectedEquipment, readOnly, getLocationData, unitIsSuperheavy],
   );
 
   const handleSlotClick = useCallback(
     (location: MechLocation, slotIndex: number) => {
-      if (readOnly) return;
-
-      const locData = getLocationData(location);
-      const clickedSlot = locData.slots.find(
-        (slot) => slot.index === slotIndex,
-      );
-
-      if (clickedSlot?.type === 'equipment' && clickedSlot.equipmentId) {
-        if (selectedEquipment?.instanceId === clickedSlot.equipmentId) {
-          onSelectEquipment?.(null);
-        } else {
-          onSelectEquipment?.(clickedSlot.equipmentId);
-        }
-        return;
-      }
-
-      if (selectedEquipment && clickedSlot?.type === 'empty') {
-        const assignable = getAssignableSlots(location);
-        if (!assignable.includes(slotIndex)) return;
-
-        const slots: number[] = [];
-        for (let i = 0; i < selectedEquipment.criticalSlots; i++) {
-          slots.push(slotIndex + i);
-        }
-
-        updateEquipmentLocation(selectedEquipment.instanceId, location, slots);
-        onSelectEquipment?.(null);
-      }
+      handleSlotClickAction({
+        readOnly,
+        selectedEquipment,
+        location,
+        slotIndex,
+        getLocationData,
+        getAssignableSlots,
+        updateEquipmentLocation,
+        onSelectEquipment,
+      });
     },
     [
       readOnly,
@@ -206,49 +153,17 @@ export function useCriticalSlotsTabLogic({
 
   const handleEquipmentDrop = useCallback(
     (location: MechLocation, slotIndex: number, equipmentId: string) => {
-      if (readOnly) return;
-      const eq = equipment.find((item) => item.instanceId === equipmentId);
-      if (!eq) return;
-
-      if (!isValidLocationForEquipment(eq.equipmentId, location)) {
-        return;
-      }
-
-      const locData = getLocationData(location);
-      const slotsNeeded = eq.criticalSlots;
-
-      if (unitIsSuperheavy && slotsNeeded === 1) {
-        const targetEntry = locData.entries.find(
-          (entry) => entry.index === slotIndex,
-        );
-        if (
-          targetEntry &&
-          targetEntry.isDoubleSlot &&
-          !targetEntry.secondary &&
-          targetEntry.primary.type === 'equipment' &&
-          targetEntry.primary.totalSlots === 1
-        ) {
-          logger.debug(
-            `Superheavy pairing: ${eq.name} -> slot ${slotIndex} (pairing not yet wired to store)`,
-          );
-        }
-      }
-
-      for (let i = 0; i < slotsNeeded; i++) {
-        const targetSlot = locData.slots.find(
-          (slot) => slot.index === slotIndex + i,
-        );
-        if (!targetSlot || targetSlot.type !== 'empty') {
-          return;
-        }
-      }
-
-      const slots: number[] = [];
-      for (let i = 0; i < slotsNeeded; i++) {
-        slots.push(slotIndex + i);
-      }
-      updateEquipmentLocation(equipmentId, location, slots);
-      onSelectEquipment?.(null);
+      handleEquipmentDropAction({
+        readOnly,
+        equipment,
+        location,
+        slotIndex,
+        equipmentId,
+        getLocationData,
+        unitIsSuperheavy,
+        updateEquipmentLocation,
+        onSelectEquipment,
+      });
     },
     [
       readOnly,
@@ -262,46 +177,49 @@ export function useCriticalSlotsTabLogic({
 
   const handleEquipmentRemove = useCallback(
     (location: MechLocation, slotIndex: number) => {
-      if (readOnly) return;
-      const locData = getLocationData(location);
-      const slot = locData.slots.find((item) => item.index === slotIndex);
-      if (!slot || slot.type !== 'equipment' || !slot.equipmentId) return;
-      clearEquipmentLocation(slot.equipmentId);
+      handleEquipmentRemoveAction({
+        readOnly,
+        location,
+        slotIndex,
+        getLocationData,
+        clearEquipmentLocation,
+      });
     },
     [readOnly, getLocationData, clearEquipmentLocation],
   );
 
   const handleReset = useCallback(() => {
-    if (readOnly) return;
-    for (const eq of equipment) {
-      if (eq.location !== undefined) {
-        clearEquipmentLocation(eq.instanceId);
-      }
-    }
+    resetEquipmentLocations(readOnly, equipment, clearEquipmentLocation);
   }, [readOnly, equipment, clearEquipmentLocation]);
 
   const handleFill = useCallback(() => {
-    if (readOnly) return;
-    const result = fillUnhittableSlots(equipment, engineType, gyroType);
-    if (result.assignments.length > 0) {
-      bulkUpdateEquipmentLocations(result.assignments);
-    }
+    runFillAction({
+      readOnly,
+      equipment,
+      engineType,
+      gyroType,
+      bulkUpdateEquipmentLocations,
+    });
   }, [readOnly, equipment, engineType, gyroType, bulkUpdateEquipmentLocations]);
 
   const handleCompact = useCallback(() => {
-    if (readOnly) return;
-    const result = compactEquipmentSlots(equipment, engineType, gyroType);
-    if (result.assignments.length > 0) {
-      bulkUpdateEquipmentLocations(result.assignments);
-    }
+    runCompactAction({
+      readOnly,
+      equipment,
+      engineType,
+      gyroType,
+      bulkUpdateEquipmentLocations,
+    });
   }, [readOnly, equipment, engineType, gyroType, bulkUpdateEquipmentLocations]);
 
   const handleSort = useCallback(() => {
-    if (readOnly) return;
-    const result = sortEquipmentBySize(equipment, engineType, gyroType);
-    if (result.assignments.length > 0) {
-      bulkUpdateEquipmentLocations(result.assignments);
-    }
+    runSortAction({
+      readOnly,
+      equipment,
+      engineType,
+      gyroType,
+      bulkUpdateEquipmentLocations,
+    });
   }, [readOnly, equipment, engineType, gyroType, bulkUpdateEquipmentLocations]);
 
   const isAutoRunning = useRef(false);
@@ -310,83 +228,55 @@ export function useCriticalSlotsTabLogic({
     return getUnallocatedUnhittables(equipment).length;
   }, [equipment]);
 
-  useEffect(() => {
-    if (readOnly || isAutoRunning.current) return;
-    if (!autoModeSettings.autoFillUnhittables) return;
-    if (unallocatedUnhittableCount === 0) return;
-
-    isAutoRunning.current = true;
-
-    const timer = setTimeout(() => {
-      const result = fillUnhittableSlots(equipment, engineType, gyroType);
-      if (result.assignments.length > 0) {
-        bulkUpdateEquipmentLocations(result.assignments);
-      }
-      isAutoRunning.current = false;
-    }, 100);
-
-    return () => {
-      clearTimeout(timer);
-      isAutoRunning.current = false;
-    };
-  }, [
-    unallocatedUnhittableCount,
-    autoModeSettings.autoFillUnhittables,
-    readOnly,
-    equipment,
-    engineType,
-    gyroType,
-    bulkUpdateEquipmentLocations,
-  ]);
+  useEffect(
+    () =>
+      scheduleAutoFillUnhittables({
+        readOnly,
+        equipment,
+        engineType,
+        gyroType,
+        bulkUpdateEquipmentLocations,
+        autoModeSettings,
+        isAutoRunning,
+        unallocatedUnhittableCount,
+      }),
+    [
+      unallocatedUnhittableCount,
+      autoModeSettings,
+      readOnly,
+      equipment,
+      engineType,
+      gyroType,
+      bulkUpdateEquipmentLocations,
+    ],
+  );
 
   const placementFingerprint = useMemo(
     () => buildPlacementFingerprint(equipment),
     [equipment],
   );
 
-  useEffect(() => {
-    if (readOnly || isAutoRunning.current) return;
-    if (!autoModeSettings.autoSort && !autoModeSettings.autoCompact) return;
-
-    const placedEquipment = equipment.filter((eq) => eq.location !== undefined);
-    if (placedEquipment.length === 0) return;
-
-    isAutoRunning.current = true;
-
-    const timer = setTimeout(() => {
-      let result;
-      if (autoModeSettings.autoSort) {
-        result = sortEquipmentBySize(equipment, engineType, gyroType);
-      } else if (autoModeSettings.autoCompact) {
-        result = compactEquipmentSlots(equipment, engineType, gyroType);
-      }
-
-      if (result && result.assignments.length > 0) {
-        const hasChanges = wouldAssignmentsChange(
-          result.assignments,
-          equipment,
-        );
-        if (hasChanges) {
-          bulkUpdateEquipmentLocations(result.assignments);
-        }
-      }
-
-      isAutoRunning.current = false;
-    }, 50);
-
-    return () => {
-      clearTimeout(timer);
-      isAutoRunning.current = false;
-    };
-  }, [
-    placementFingerprint,
-    readOnly,
-    autoModeSettings,
-    equipment,
-    engineType,
-    gyroType,
-    bulkUpdateEquipmentLocations,
-  ]);
+  useEffect(
+    () =>
+      scheduleAutoOrganizeEquipment({
+        readOnly,
+        equipment,
+        engineType,
+        gyroType,
+        bulkUpdateEquipmentLocations,
+        autoModeSettings,
+        isAutoRunning,
+      }),
+    [
+      placementFingerprint,
+      readOnly,
+      autoModeSettings,
+      equipment,
+      engineType,
+      gyroType,
+      bulkUpdateEquipmentLocations,
+    ],
+  );
 
   const handleEquipmentDragStart = useCallback(
     (equipmentId: string) => {

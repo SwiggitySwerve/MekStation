@@ -16,7 +16,7 @@ import {
   isBetterBracket,
 } from '../c3Network';
 import { IWeaponRangeProfile } from '../range';
-import { calculateToHit } from './calculate';
+import { calculateToHit, type ICalculateToHitInput } from './calculate';
 
 export interface IC3ToHitInput {
   readonly attackerEntityId: string;
@@ -32,6 +32,32 @@ export interface IC3RangeBracketSelection {
   readonly effectiveRangeBracket: RangeBracket;
   readonly c3Result: IC3TargetingResult;
 }
+
+export interface ICalculateToHitWithC3Input extends ICalculateToHitInput {
+  readonly c3Input: IC3ToHitInput;
+}
+
+interface IResolvedCalculateToHitWithC3Input extends Omit<
+  ICalculateToHitWithC3Input,
+  'minRange'
+> {
+  readonly minRange: number;
+}
+
+type LegacyCalculateToHitWithC3Args = readonly [
+  attacker: IAttackerState,
+  target: ITargetState,
+  rangeBracket: RangeBracket,
+  range: number,
+  c3Input: IC3ToHitInput,
+  minRange?: number,
+  weaponId?: string,
+  semiGuidedTagContext?: ISemiGuidedTagToHitContext,
+];
+
+type CalculateToHitWithC3Args =
+  | readonly [input: ICalculateToHitWithC3Input]
+  | LegacyCalculateToHitWithC3Args;
 
 export function selectC3RangeBracket({
   attackerEntityId,
@@ -92,16 +118,58 @@ export function selectC3RangeBracket({
   return bestSelection;
 }
 
+function normalizeCalculateToHitWithC3Input(
+  args: CalculateToHitWithC3Args,
+): IResolvedCalculateToHitWithC3Input {
+  if (args.length === 1) {
+    const { minRange = 0, ...input } = args[0];
+    return { ...input, minRange };
+  }
+
+  const [
+    attacker,
+    target,
+    rangeBracket,
+    range,
+    c3Input,
+    minRange = 0,
+    weaponId,
+    semiGuidedTagContext,
+  ] = args;
+  return {
+    attacker,
+    target,
+    rangeBracket,
+    range,
+    c3Input,
+    minRange,
+    ...(weaponId !== undefined ? { weaponId } : {}),
+    ...(semiGuidedTagContext !== undefined ? { semiGuidedTagContext } : {}),
+  };
+}
+
+function buildBaseToHitInput(
+  input: IResolvedCalculateToHitWithC3Input,
+  effectiveBracket: RangeBracket,
+): ICalculateToHitInput {
+  return {
+    attacker: input.attacker,
+    target: input.target,
+    rangeBracket: effectiveBracket,
+    range: input.range,
+    minRange: input.minRange,
+    ...(input.weaponId !== undefined ? { weaponId: input.weaponId } : {}),
+    ...(input.semiGuidedTagContext !== undefined
+      ? { semiGuidedTagContext: input.semiGuidedTagContext }
+      : {}),
+  };
+}
+
 export function calculateToHitWithC3(
-  attacker: IAttackerState,
-  target: ITargetState,
-  rangeBracket: RangeBracket,
-  range: number,
-  c3Input: IC3ToHitInput,
-  minRange: number = 0,
-  weaponId?: string,
-  semiGuidedTagContext?: ISemiGuidedTagToHitContext,
+  ...args: CalculateToHitWithC3Args
 ): IToHitCalculation & { readonly c3Result: IC3TargetingResult } {
+  const input = normalizeCalculateToHitWithC3Input(args);
+  const { c3Input } = input;
   const c3Result = getC3TargetingBenefit(
     c3Input.attackerEntityId,
     c3Input.targetPosition,
@@ -113,17 +181,9 @@ export function calculateToHitWithC3(
 
   const effectiveBracket = c3Result.benefitApplied
     ? c3Result.bestBracket
-    : rangeBracket;
+    : input.rangeBracket;
 
-  const baseCalc = calculateToHit(
-    attacker,
-    target,
-    effectiveBracket,
-    range,
-    minRange,
-    weaponId,
-    semiGuidedTagContext,
-  );
+  const baseCalc = calculateToHit(buildBaseToHitInput(input, effectiveBracket));
 
   if (!c3Result.benefitApplied) {
     return { ...baseCalc, c3Result };

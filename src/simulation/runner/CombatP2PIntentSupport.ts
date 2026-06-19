@@ -1,9 +1,12 @@
-import type { GameIntentType } from '@/types/gameplay';
+import { type GameIntentType } from '@/types/gameplay';
 
 import type {
   ICombatFeatureSourceReference,
   ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
+
+import { remappedMekStationDeviationSourceRef as mekstationDeviationSourceRef } from './CombatRemappedSourceReference';
+import { remapMekStationSourceRefs } from './CombatSourceRefAnchorRemap';
 
 interface ICombatP2PActionSupportEntry extends ICombatFeatureSupportEntry {
   readonly layer: 'p2p-translation';
@@ -20,22 +23,9 @@ function integrated(
         layer: 'p2p-translation',
         level: 'integrated',
         evidence,
-        sourceRefs,
+        sourceRefs: remapMekStationSourceRefs(sourceRefs),
       }
     : { id, layer: 'p2p-translation', level: 'integrated', evidence };
-}
-
-function mekstationDeviationSourceRef(
-  citation: string,
-  path: string,
-  lineRange: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'mekstation-deviation',
-    citation,
-    url: `${path}#${lineRange}`,
-    sourceVersion: 'MekStation working-tree',
-  };
 }
 
 const P2P_DECLARE_MOVEMENT_SOURCE_REFS = [

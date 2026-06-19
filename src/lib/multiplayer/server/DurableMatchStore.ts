@@ -159,7 +159,7 @@ export class DurableMatchStore implements IMatchStore {
     this.db.exec(SCHEMA_SQL);
   }
 
-  async createMatch(meta: IMatchMeta): Promise<string> {
+  createMatch = async (meta: IMatchMeta): Promise<string> => {
     const existing = this.db
       .prepare('SELECT match_id FROM mp_matches WHERE match_id = ?')
       .get(meta.matchId);
@@ -189,9 +189,9 @@ export class DurableMatchStore implements IMatchStore {
         JSON.stringify(meta),
       );
     return meta.matchId;
-  }
+  };
 
-  async appendEvent(matchId: string, event: IGameEvent): Promise<void> {
+  appendEvent = async (matchId: string, event: IGameEvent): Promise<void> => {
     const match = this.getMatchRow(matchId);
     if (!match) throw new MatchNotFoundError(matchId);
     // Transactional all-or-nothing: the sequence-collision check, the
@@ -247,12 +247,12 @@ export class DurableMatchStore implements IMatchStore {
         .run(nextMeta.updatedAt, JSON.stringify(nextMeta), mId);
     });
     tx(matchId, event);
-  }
+  };
 
-  async getEvents(
+  getEvents = async (
     matchId: string,
     fromSeq = 0,
-  ): Promise<readonly IGameEvent[]> {
+  ): Promise<readonly IGameEvent[]> => {
     if (!this.getMatchRow(matchId)) {
       throw new MatchNotFoundError(matchId);
     }
@@ -264,18 +264,18 @@ export class DurableMatchStore implements IMatchStore {
       )
       .all(matchId, fromSeq <= 0 ? 0 : fromSeq) as IEventRow[];
     return rows.map((r) => JSON.parse(r.event_json) as IGameEvent);
-  }
+  };
 
-  async getMatchMeta(matchId: string): Promise<IMatchMeta> {
+  getMatchMeta = async (matchId: string): Promise<IMatchMeta> => {
     const row = this.getMatchRow(matchId);
     if (!row) throw new MatchNotFoundError(matchId);
     return JSON.parse(row.meta_json) as IMatchMeta;
-  }
+  };
 
-  async updateMatchMeta(
+  updateMatchMeta = async (
     matchId: string,
     patch: IMatchMetaPatch,
-  ): Promise<void> {
+  ): Promise<void> => {
     const row = this.getMatchRow(matchId);
     if (!row) throw new MatchNotFoundError(matchId);
     const before = JSON.parse(row.meta_json) as IMatchMeta;
@@ -308,9 +308,9 @@ export class DurableMatchStore implements IMatchStore {
         JSON.stringify(nextMeta),
         matchId,
       );
-  }
+  };
 
-  async getMatchByRoomCode(roomCode: string): Promise<IMatchMeta | null> {
+  getMatchByRoomCode = async (roomCode: string): Promise<IMatchMeta | null> => {
     const normalized = normalizeRoomCode(roomCode);
     const row = this.db
       .prepare('SELECT * FROM mp_matches WHERE room_code = ?')
@@ -318,9 +318,9 @@ export class DurableMatchStore implements IMatchStore {
     if (!row) return null;
     if (row.status !== 'lobby') return null;
     return JSON.parse(row.meta_json) as IMatchMeta;
-  }
+  };
 
-  async closeMatch(matchId: string): Promise<void> {
+  closeMatch = async (matchId: string): Promise<void> => {
     const row = this.getMatchRow(matchId);
     if (!row) return; // idempotent — closing a missing match is a no-op
     if (row.status === 'completed') return; // already closed
@@ -336,7 +336,7 @@ export class DurableMatchStore implements IMatchStore {
          WHERE match_id = ?`,
       )
       .run(nextMeta.updatedAt, JSON.stringify(nextMeta), matchId);
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Recovery + retention surface (not part of the IMatchStore contract)
@@ -348,12 +348,12 @@ export class DurableMatchStore implements IMatchStore {
    * a `ServerMatchHost` per surviving match. Synchronous-class read
    * exposed async to match the rest of the store's surface.
    */
-  async listActiveMatches(): Promise<readonly IMatchMeta[]> {
+  listActiveMatches = async (): Promise<readonly IMatchMeta[]> => {
     const rows = this.db
       .prepare("SELECT meta_json FROM mp_matches WHERE status = 'active'")
       .all() as Pick<IMatchRow, 'meta_json'>[];
     return rows.map((r) => JSON.parse(r.meta_json) as IMatchMeta);
-  }
+  };
 
   /**
    * Enumerate every tracked match, optionally filtered by `status`.
@@ -362,9 +362,9 @@ export class DurableMatchStore implements IMatchStore {
    * `status` filter hits the `idx_mp_matches_status` index so a scan is
    * never needed for a single-status query.
    */
-  async listMatches(
+  listMatches = async (
     filter: { readonly status?: IMatchMeta['status'] } = {},
-  ): Promise<readonly IMatchMeta[]> {
+  ): Promise<readonly IMatchMeta[]> => {
     const rows = filter.status
       ? (this.db
           .prepare('SELECT meta_json FROM mp_matches WHERE status = ?')
@@ -374,14 +374,14 @@ export class DurableMatchStore implements IMatchStore {
           'meta_json'
         >[]);
     return rows.map((r) => JSON.parse(r.meta_json) as IMatchMeta);
-  }
+  };
 
   /**
    * Reap `completed` matches whose `updatedAt` is older than the
    * 7-day retention window. Returns the number of matches pruned. The
    * `ON DELETE CASCADE` foreign key drops their event rows too.
    */
-  pruneExpiredMatches(now: number = Date.now()): number {
+  pruneExpiredMatches = (now: number = Date.now()): number => {
     const cutoff = new Date(now - COMPLETED_MATCH_RETENTION_MS).toISOString();
     const result = this.db
       .prepare(
@@ -390,25 +390,25 @@ export class DurableMatchStore implements IMatchStore {
       )
       .run(cutoff);
     return result.changes;
-  }
+  };
 
   /** Number of matches currently tracked. Test/observability only. */
-  size(): number {
+  size = (): number => {
     const row = this.db
       .prepare('SELECT COUNT(*) AS n FROM mp_matches')
       .get() as { n: number };
     return row.n;
-  }
+  };
 
   /** Close the underlying SQLite handle. Call on server shutdown. */
-  close(): void {
+  close = (): void => {
     try {
       this.db.pragma('wal_checkpoint(TRUNCATE)');
     } catch {
       // best-effort checkpoint; close regardless
     }
     this.db.close();
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Internals

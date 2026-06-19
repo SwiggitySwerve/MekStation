@@ -8,17 +8,8 @@ import type {
   IUnitToken,
 } from '@/types/gameplay';
 
-import {
-  Facing,
-  GameSide,
-  LockState,
-  MovementType,
-  TerrainType,
-} from '@/types/gameplay';
+import { Facing, GameSide, TerrainType } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import {
   requireCombatProjection,
@@ -26,6 +17,11 @@ import {
   tacticalMapSelectedWeapons,
   tacticalMapWeaponsByUnit,
 } from './tactical-map.combat-scenarios';
+import {
+  createTacticalMapTerrainGrid,
+  createTacticalMapUnitState,
+  overrideTacticalMapTokens,
+} from './tactical-map.fixture-helpers';
 import {
   tacticalMapCombatState,
   tacticalMapHexTerrain,
@@ -72,96 +68,49 @@ export const tacticalMapProneCombatHexTerrain: readonly IHexTerrain[] = [
 ];
 
 function tacticalMapProneCombatGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapProneCombatHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) {
-      throw new Error(`Missing tactical-map prone-combat fixture hex ${key}`);
-    }
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
+  return createTacticalMapTerrainGrid(tacticalMapProneCombatHexTerrain, {
+    missingHexLabel: 'tactical-map prone-combat fixture',
+  });
 }
 
-const tacticalMapProneAttackerState: IUnitGameState = {
-  id: 'attacker',
-  side: GameSide.Player,
-  position: tacticalMapProneAttackerHex,
-  facing: Facing.Southeast,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  prone: true,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  lockState: LockState.Pending,
-  gunnery: 4,
-};
+const tacticalMapProneAttackerState: IUnitGameState =
+  createTacticalMapUnitState({
+    id: 'attacker',
+    side: GameSide.Player,
+    position: tacticalMapProneAttackerHex,
+    facing: Facing.Southeast,
+    prone: true,
+    gunnery: 4,
+  });
 
-const tacticalMapProneTargetState: IUnitGameState = {
+const tacticalMapProneTargetState: IUnitGameState = createTacticalMapUnitState({
   id: tacticalMapProneCombatTargetId,
   side: GameSide.Opponent,
   position: tacticalMapProneTargetHex,
   facing: Facing.North,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
   prone: true,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  lockState: LockState.Pending,
-};
+});
 
 export const tacticalMapProneCombatTokens: readonly IUnitToken[] =
-  tacticalMapTokens.map((token) => {
-    if (token.unitId === 'attacker') {
-      return {
-        ...token,
-        name: 'Prone Shadow Hawk SHD-2H',
-        designation: 'PRN',
-        position: tacticalMapProneAttackerHex,
-        facing: Facing.Southeast,
-      };
-    }
-    if (token.unitId === 'blocked-target') {
-      return {
-        ...token,
-        unitId: tacticalMapProneCombatTargetId,
-        name: 'Prone Locust LCT-1V',
-        designation: 'P-LCT',
-        position: tacticalMapProneTargetHex,
-        isActiveTarget: true,
-      };
-    }
-    if (token.unitId === 'occluded') {
-      return {
-        ...token,
-        position: { q: -3, r: 3 },
-        isActiveTarget: false,
-        isValidTarget: false,
-      };
-    }
-    return token;
+  overrideTacticalMapTokens(tacticalMapTokens, {
+    attacker: {
+      name: 'Prone Shadow Hawk SHD-2H',
+      designation: 'PRN',
+      position: tacticalMapProneAttackerHex,
+      facing: Facing.Southeast,
+    },
+    'blocked-target': {
+      unitId: tacticalMapProneCombatTargetId,
+      name: 'Prone Locust LCT-1V',
+      designation: 'P-LCT',
+      position: tacticalMapProneTargetHex,
+      isActiveTarget: true,
+    },
+    occluded: {
+      position: { q: -3, r: 3 },
+      isActiveTarget: false,
+      isValidTarget: false,
+    },
   });
 
 export const tacticalMapProneCombatState: IGameState = {

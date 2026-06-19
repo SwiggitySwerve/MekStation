@@ -53,6 +53,144 @@ interface ActionSheetProps {
 /** Animation duration in milliseconds */
 const ANIMATION_DURATION = 200;
 
+function useActionSheetVisibility(isOpen: boolean): {
+  readonly isAnimating: boolean;
+  readonly isVisible: boolean;
+} {
+  const [isAnimating, setIsAnimating] = React.useState(false);
+  const [isVisible, setIsVisible] = React.useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsVisible(true);
+      requestAnimationFrame(() => {
+        setIsAnimating(true);
+      });
+    } else if (isVisible) {
+      setIsAnimating(false);
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+      }, ANIMATION_DURATION);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, isVisible]);
+
+  return { isAnimating, isVisible };
+}
+
+function useEscapeToClose(isOpen: boolean, onClose: () => void): void {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+}
+
+function useLockedBodyScroll(isOpen: boolean): void {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
+}
+
+function ActionSheetHeader({
+  title,
+  subtitle,
+}: {
+  readonly title?: string;
+  readonly subtitle?: string;
+}): React.ReactElement | null {
+  if (!title && !subtitle) return null;
+
+  return (
+    <div className="border-border-theme border-b px-4 py-3 text-center">
+      {title && <h2 className="text-base font-semibold text-white">{title}</h2>}
+      {subtitle && (
+        <p className="text-text-theme-secondary mt-0.5 text-sm">{subtitle}</p>
+      )}
+    </div>
+  );
+}
+
+function ActionSheetActionButton({
+  action,
+  index,
+  onSelect,
+}: {
+  readonly action: ActionSheetItem;
+  readonly index: number;
+  readonly onSelect: (action: ActionSheetItem) => void;
+}): React.ReactElement {
+  return (
+    <button
+      key={action.id}
+      onClick={() => onSelect(action)}
+      disabled={action.disabled}
+      className={`flex min-h-[48px] w-full items-center gap-3 px-4 py-3 text-left transition-colors ${action.disabled ? 'cursor-not-allowed opacity-50' : 'active:bg-surface-raised'} ${action.danger ? 'text-red-400' : 'text-white'} ${index > 0 ? 'border-border-theme/50 border-t' : ''} `}
+    >
+      {action.icon && (
+        <span className="w-6 flex-shrink-0 text-center">{action.icon}</span>
+      )}
+      <span className="flex-1 text-base">{action.label}</span>
+    </button>
+  );
+}
+
+function ActionSheetActions({
+  actions,
+  onSelect,
+}: {
+  readonly actions: readonly ActionSheetItem[];
+  readonly onSelect: (action: ActionSheetItem) => void;
+}): React.ReactElement {
+  return (
+    <div className="py-2">
+      {actions.map((action, index) => (
+        <ActionSheetActionButton
+          key={action.id}
+          action={action}
+          index={index}
+          onSelect={onSelect}
+        />
+      ))}
+    </div>
+  );
+}
+
+function CancelAction({
+  showCancel,
+  cancelLabel,
+  onClose,
+}: {
+  readonly showCancel: boolean;
+  readonly cancelLabel: string;
+  readonly onClose: () => void;
+}): React.ReactElement | null {
+  if (!showCancel) return null;
+
+  return (
+    <>
+      <div className="bg-surface-deep/50 h-2" />
+      <button
+        onClick={onClose}
+        className="text-text-theme-primary bg-surface-base active:bg-surface-raised min-h-[48px] w-full px-4 py-3 text-center text-base font-medium transition-colors"
+      >
+        {cancelLabel}
+      </button>
+    </>
+  );
+}
+
 // =============================================================================
 // Main Component
 // =============================================================================
@@ -86,26 +224,9 @@ export function ActionSheet({
   cancelLabel = 'Cancel',
 }: ActionSheetProps): React.ReactElement | null {
   const sheetRef = useRef<HTMLDivElement>(null);
-  const [isAnimating, setIsAnimating] = React.useState(false);
-  const [isVisible, setIsVisible] = React.useState(false);
-
-  // Handle open/close animations
-  useEffect(() => {
-    if (isOpen) {
-      setIsVisible(true);
-      // Trigger animation on next frame
-      requestAnimationFrame(() => {
-        setIsAnimating(true);
-      });
-    } else if (isVisible) {
-      setIsAnimating(false);
-      // Wait for animation to complete before hiding
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-      }, ANIMATION_DURATION);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, isVisible]);
+  const { isAnimating, isVisible } = useActionSheetVisibility(isOpen);
+  useEscapeToClose(isOpen, onClose);
+  useLockedBodyScroll(isOpen);
 
   // Handle backdrop click
   const handleBackdropClick = useCallback(
@@ -116,29 +237,6 @@ export function ActionSheet({
     },
     [onClose],
   );
-
-  // Handle escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
-  // Prevent body scroll when open
-  useEffect(() => {
-    if (isOpen) {
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = originalOverflow;
-      };
-    }
-  }, [isOpen]);
 
   // Handle action selection
   const handleActionSelect = useCallback(
@@ -170,51 +268,13 @@ export function ActionSheet({
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
-        {/* Header */}
-        {(title || subtitle) && (
-          <div className="border-border-theme border-b px-4 py-3 text-center">
-            {title && (
-              <h2 className="text-base font-semibold text-white">{title}</h2>
-            )}
-            {subtitle && (
-              <p className="text-text-theme-secondary mt-0.5 text-sm">
-                {subtitle}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Action Items */}
-        <div className="py-2">
-          {actions.map((action, index) => (
-            <button
-              key={action.id}
-              onClick={() => handleActionSelect(action)}
-              disabled={action.disabled}
-              className={`flex min-h-[48px] w-full items-center gap-3 px-4 py-3 text-left transition-colors ${action.disabled ? 'cursor-not-allowed opacity-50' : 'active:bg-surface-raised'} ${action.danger ? 'text-red-400' : 'text-white'} ${index > 0 ? 'border-border-theme/50 border-t' : ''} `}
-            >
-              {action.icon && (
-                <span className="w-6 flex-shrink-0 text-center">
-                  {action.icon}
-                </span>
-              )}
-              <span className="flex-1 text-base">{action.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Cancel Button */}
-        {showCancel && (
-          <>
-            <div className="bg-surface-deep/50 h-2" />
-            <button
-              onClick={onClose}
-              className="text-text-theme-primary bg-surface-base active:bg-surface-raised min-h-[48px] w-full px-4 py-3 text-center text-base font-medium transition-colors"
-            >
-              {cancelLabel}
-            </button>
-          </>
-        )}
+        <ActionSheetHeader title={title} subtitle={subtitle} />
+        <ActionSheetActions actions={actions} onSelect={handleActionSelect} />
+        <CancelAction
+          showCancel={showCancel}
+          cancelLabel={cancelLabel}
+          onClose={onClose}
+        />
       </div>
     </div>
   );

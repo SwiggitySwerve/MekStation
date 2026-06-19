@@ -31,6 +31,13 @@
  * @spec openspec/changes/add-battlearmor-battle-value/specs/battle-armor-unit-system/spec.md
  */
 
+import type {
+  BADefensiveBVBreakdown,
+  BAOffensiveBVBreakdown,
+  BAPerTrooperBV,
+  IBABreakdown,
+} from '@/types/unit/BVBreakdownTypes';
+
 import {
   BAArmorType,
   BAManipulator,
@@ -39,6 +46,17 @@ import {
 import { getPilotSkillModifier } from '@/types/validation/BattleValue';
 
 import { resolveAmmoBV, resolveEquipmentBV } from '../equipmentBVResolver';
+
+const BA_ARMOR_BV_MULTIPLIERS: Readonly<Record<BAArmorType, number>> = {
+  [BAArmorType.STANDARD]: 1.0,
+  [BAArmorType.STEALTH_BASIC]: 1.5,
+  [BAArmorType.STEALTH_IMPROVED]: 1.5,
+  [BAArmorType.STEALTH_PROTOTYPE]: 1.5,
+  [BAArmorType.MIMETIC]: 1.5,
+  [BAArmorType.REACTIVE]: 1.3,
+  [BAArmorType.REFLECTIVE]: 1.3,
+  [BAArmorType.FIRE_RESISTANT]: 1.1,
+};
 
 // =============================================================================
 // Public Types
@@ -115,56 +133,12 @@ export interface IBattleArmorBVInput {
   piloting?: number;
 }
 
-/**
- * Per-trooper defensive BV breakdown.
- */
-export interface BADefensiveBVBreakdown {
-  armorBV: number;
-  moveBV: number;
-  jumpBV: number;
-  antiMechBonus: number;
-  total: number;
-}
-
-/**
- * Per-trooper offensive BV breakdown.
- */
-export interface BAOffensiveBVBreakdown {
-  weaponBV: number;
-  ammoBV: number;
-  manipulatorBV: number;
-  total: number;
-}
-
-/**
- * Per-trooper BV subtotal (defensive + offensive).
- */
-export interface BAPerTrooperBV {
-  defensive: BADefensiveBVBreakdown;
-  offensive: BAOffensiveBVBreakdown;
-  total: number;
-}
-
-/**
- * Full BA BV breakdown — exposed on `unit.bvBreakdown` for the status bar.
- *
- * Matches the shape called out in the spec delta
- * (`perTrooper.defensive`, `perTrooper.offensive`, `squadTotal`,
- * `pilotMultiplier`, `final`), plus the numeric subtotals needed by the
- * breakdown dialog.
- */
-export interface IBABreakdown {
-  /** Per-trooper subtotals. */
-  perTrooper: BAPerTrooperBV;
-  /** Squad size used to scale the per-trooper BV. */
-  squadSize: number;
-  /** Squad BV before pilot skill — perTrooper.total × squadSize. */
-  squadTotal: number;
-  /** Pilot skill multiplier (gunnery × piloting matrix). */
-  pilotMultiplier: number;
-  /** Final BV — `round(squadTotal × pilotMultiplier)`. */
-  final: number;
-}
+export type {
+  BADefensiveBVBreakdown,
+  BAOffensiveBVBreakdown,
+  BAPerTrooperBV,
+  IBABreakdown,
+} from '@/types/unit/BVBreakdownTypes';
 
 // =============================================================================
 // Armor-Type Multipliers
@@ -184,21 +158,7 @@ export interface IBABreakdown {
  * so the defensive premium shows up entirely in this multiplier.
  */
 export function getBAArmorBVMultiplier(type: BAArmorType): number {
-  switch (type) {
-    case BAArmorType.STEALTH_BASIC:
-    case BAArmorType.STEALTH_IMPROVED:
-    case BAArmorType.STEALTH_PROTOTYPE:
-    case BAArmorType.MIMETIC:
-      return 1.5;
-    case BAArmorType.REACTIVE:
-    case BAArmorType.REFLECTIVE:
-      return 1.3;
-    case BAArmorType.FIRE_RESISTANT:
-      return 1.1;
-    case BAArmorType.STANDARD:
-    default:
-      return 1.0;
-  }
+  return BA_ARMOR_BV_MULTIPLIERS[type] ?? 1.0;
 }
 
 // =============================================================================

@@ -40,26 +40,30 @@ const PHASE_LABELS: Record<GamePhase, string> = {
   [GamePhase.End]: 'End',
 };
 
+const CYAN_EVENT_TYPES = new Set<GameEventType>([
+  GameEventType.GameStarted,
+  GameEventType.GameEnded,
+]);
+
+const AMBER_EVENT_TYPES = new Set<GameEventType>([
+  GameEventType.TurnStarted,
+  GameEventType.TurnEnded,
+]);
+
+const RED_EVENT_TYPES = new Set<GameEventType>([
+  GameEventType.AttackResolved,
+  GameEventType.AMSInterception,
+  GameEventType.DesignatorMarkerApplied,
+  GameEventType.DamageApplied,
+]);
+
 function getEventColor(type: GameEventType): string {
-  switch (type) {
-    case GameEventType.GameStarted:
-    case GameEventType.GameEnded:
-      return 'bg-cyan-500';
-    case GameEventType.TurnStarted:
-    case GameEventType.TurnEnded:
-      return 'bg-amber-500';
-    case GameEventType.AttackResolved:
-    case GameEventType.AMSInterception:
-    case GameEventType.DesignatorMarkerApplied:
-    case GameEventType.DamageApplied:
-      return 'bg-red-500';
-    case GameEventType.UnitDestroyed:
-      return 'bg-red-700';
-    case GameEventType.CriticalHit:
-      return 'bg-orange-500';
-    default:
-      return 'bg-gray-500';
-  }
+  if (CYAN_EVENT_TYPES.has(type)) return 'bg-cyan-500';
+  if (AMBER_EVENT_TYPES.has(type)) return 'bg-amber-500';
+  if (RED_EVENT_TYPES.has(type)) return 'bg-red-500';
+  if (type === GameEventType.UnitDestroyed) return 'bg-red-700';
+  if (type === GameEventType.CriticalHit) return 'bg-orange-500';
+  return 'bg-gray-500';
 }
 
 function formatTime(timestamp: string): string {

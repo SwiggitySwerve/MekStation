@@ -19,6 +19,7 @@ import React from 'react';
 
 import type { ISalvageBayItem } from '@/types/campaign/CampaignInventory';
 
+import { CampaignListCard } from '@/components/campaign/CampaignListCard';
 import { Badge, Card } from '@/components/ui';
 import { type SalvageDecision } from '@/stores/campaign/campaignBayActions';
 import { computeAcceptedSalvageValue } from '@/stores/campaign/campaignBaySelectors';
@@ -67,9 +68,10 @@ export function SalvageRow({
   onDecide,
 }: SalvageRowProps): React.ReactElement {
   return (
-    <Card className="p-4" data-testid={`salvage-row-${item.partId}`}>
-      <div className="flex items-center justify-between gap-4">
-        <div className="min-w-0">
+    <CampaignListCard
+      testId={`salvage-row-${item.partId}`}
+      left={
+        <>
           <h3 className="text-text-theme-primary truncate text-base font-semibold">
             {item.designation}
           </h3>
@@ -80,8 +82,9 @@ export function SalvageRow({
             </span>{' '}
             · {item.disposition} share
           </p>
-        </div>
-
+        </>
+      }
+      right={
         <div className="flex items-center gap-3">
           <Badge className={statusClasses(item.status)}>{item.status}</Badge>
 
@@ -106,8 +109,8 @@ export function SalvageRow({
             </button>
           </div>
         </div>
-      </div>
-    </Card>
+      }
+    />
   );
 }
 

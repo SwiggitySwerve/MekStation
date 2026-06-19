@@ -11,6 +11,10 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IVaultFolder } from '@/types/vault';
 
+import {
+  sendLoggedApiError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getVaultService } from '@/services/vault/VaultService';
 
 // =============================================================================
@@ -32,10 +36,6 @@ interface CreateFolderResponse {
   folder: IVaultFolder;
 }
 
-interface ErrorResponse {
-  error: string;
-}
-
 // =============================================================================
 // Handler
 // =============================================================================
@@ -43,7 +43,7 @@ interface ErrorResponse {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<
-    ListFoldersResponse | CreateFolderResponse | ErrorResponse
+    ListFoldersResponse | CreateFolderResponse | ApiErrorResponse
   >,
 ): Promise<void> {
   try {
@@ -58,10 +58,8 @@ export default async function handler(
         return res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
-    console.error('Folders API error:', error);
-    return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedApiError(res, 'Folders API error:', error);
+    return;
   }
 }
 
@@ -71,7 +69,7 @@ export default async function handler(
 
 async function handleList(
   req: NextApiRequest,
-  res: NextApiResponse<ListFoldersResponse | ErrorResponse>,
+  res: NextApiResponse<ListFoldersResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   const { parentId, shared } = req.query;
@@ -96,7 +94,7 @@ async function handleList(
 
 async function handleCreate(
   req: NextApiRequest,
-  res: NextApiResponse<CreateFolderResponse | ErrorResponse>,
+  res: NextApiResponse<CreateFolderResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   const { name, description, parentId } = req.body as CreateFolderRequest;

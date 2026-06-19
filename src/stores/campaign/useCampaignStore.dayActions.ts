@@ -1,0 +1,253 @@
+import type { StateCreator } from 'zustand';
+
+import type { ICampaignWithBattleState } from '@/lib/campaign/processors/postBattleProcessor';
+import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
+
+import {
+  appendDailyBattleAuditEntry,
+  buildDailyBattleAuditEntry,
+} from '@/lib/campaign/dailyBattleAuditBuilder';
+import {
+  convertToLegacyDayReport,
+  DayReport,
+} from '@/lib/campaign/dayAdvancement';
+import { getDayPipeline } from '@/lib/campaign/dayPipeline';
+import { registerBuiltinProcessors } from '@/lib/campaign/processors';
+import { findSystemById } from '@/lib/starmap/loadInnerSphereSeed';
+import { ICampaign } from '@/types/campaign/Campaign';
+
+import type { CampaignStore } from './useCampaignStore.types';
+
+import {
+  snapshotRosterPilots,
+  withBattleQueueAttached,
+} from './useCampaignStore.persistence';
+
+type CampaignSet = Parameters<StateCreator<CampaignStore>>[0];
+type CampaignGet = Parameters<StateCreator<CampaignStore>>[1];
+
+function collectOutcomeErrors(
+  events: readonly { readonly type: string; readonly data?: unknown }[],
+  previousErrors: Record<string, string>,
+  queuedOutcomes: readonly ICombatOutcome[],
+): Record<string, string> {
+  const stillQueued = new Set(queuedOutcomes.map((outcome) => outcome.matchId));
+  const nextErrors: Record<string, string> = {};
+  for (const event of events) {
+    if (event.type !== 'post_battle_apply_failed') continue;
+    const data = event.data as { matchId?: unknown; error?: unknown };
+    if (typeof data.matchId === 'string' && typeof data.error === 'string') {
+      nextErrors[data.matchId] = data.error;
+    }
+  }
+  for (const [matchId, message] of Object.entries(previousErrors)) {
+    if (stillQueued.has(matchId) && !(matchId in nextErrors)) {
+      nextErrors[matchId] = message;
+    }
+  }
+  return nextErrors;
+}
+
+function syncReportMissions(get: CampaignGet, campaign: ICampaign): void {
+  const missionsStore = get().missionsStore;
+  if (!missionsStore) {
+    return;
+  }
+  const missionState = missionsStore.getState();
+  Array.from(campaign.missions.values()).forEach((mission) => {
+    missionState.addMission(mission);
+  });
+}
+
+function emitDailyActivityEntries(
+  get: CampaignGet,
+  report: DayReport,
+  postPipeline: { readonly dayNumber?: number },
+): void {
+  const dayNumber = postPipeline.dayNumber ?? 0;
+  const append = get().appendActivityLogEntry;
+  const isoNow = new Date().toISOString();
+  for (const heal of report.healedPersonnel) {
+    append({
+      id: `act-medical-${heal.personId}-${dayNumber}`,
+      category: 'medical',
+      timestamp: isoNow,
+      campaignDay: dayNumber,
+      message: `${heal.personName} recovered`,
+      payload: {
+        pilotId: heal.personId,
+        pilotName: heal.personName,
+        event: 'recovered',
+      },
+    });
+  }
+  for (const exp of report.expiredContracts) {
+    append({
+      id: `act-finances-contract-expiry-${exp.contractId}-${dayNumber}`,
+      category: 'finances',
+      timestamp: isoNow,
+      campaignDay: dayNumber,
+      message: `Contract "${exp.contractName}" expired`,
+      payload: {
+        event: 'contract-expiry',
+        amount: 0,
+        currency: 'C-bills',
+        memo: exp.contractName,
+      },
+    });
+  }
+  emitDailyCostEntry(append, report, dayNumber, isoNow);
+}
+
+function emitDailyCostEntry(
+  append: CampaignStore['appendActivityLogEntry'],
+  report: DayReport,
+  dayNumber: number,
+  timestamp: string,
+): void {
+  const totalAmount = report.costs.total?.amount ?? 0;
+  if (totalAmount === 0) {
+    return;
+  }
+  append({
+    id: `act-finances-daily-costs-${dayNumber}`,
+    category: 'finances',
+    timestamp,
+    campaignDay: dayNumber,
+    message: `Daily costs: ${totalAmount.toLocaleString()} C-bills`,
+    payload: {
+      event: 'daily-costs',
+      amount: -totalAmount,
+      currency: 'C-bills',
+    },
+  });
+}
+
+function advanceDayAction(
+  set: CampaignSet,
+  get: CampaignGet,
+): CampaignStore['advanceDay'] {
+  return () => {
+    const { campaign, pendingBattleOutcomes, processedBattleIds } = get();
+    if (!campaign) {
+      return null;
+    }
+    registerBuiltinProcessors();
+    const campaignWithOutcomes = withBattleQueueAttached(
+      campaign,
+      pendingBattleOutcomes,
+      processedBattleIds,
+    );
+    const beforeRosterPilots = snapshotRosterPilots();
+    const pipelineResult = getDayPipeline().processDay(campaignWithOutcomes);
+    const report = convertToLegacyDayReport(pipelineResult);
+    const postPipeline = report.campaign as ICampaign & {
+      readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
+      readonly processedBattleIds?: readonly string[];
+      readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
+      readonly dayNumber?: number;
+    };
+    const auditEntry = buildDailyBattleAuditEntry({
+      before: campaignWithOutcomes as ICampaignWithBattleState,
+      after: report.campaign as ICampaignWithBattleState,
+      beforeRoster: beforeRosterPilots,
+      afterRoster: snapshotRosterPilots(),
+      appliedOutcomes: postPipeline.recentlyAppliedOutcomes ?? [],
+      events: pipelineResult.events,
+      date: pipelineResult.date,
+    });
+    const campaignWithAudit = appendDailyBattleAuditEntry(
+      report.campaign,
+      auditEntry,
+    );
+    const pendingOutcomes = [...(postPipeline.pendingBattleOutcomes ?? [])];
+    set({
+      campaign: campaignWithAudit,
+      pendingBattleOutcomes: pendingOutcomes,
+      processedBattleIds: [
+        ...(postPipeline.processedBattleIds ?? processedBattleIds),
+      ],
+      outcomeApplyErrors: collectOutcomeErrors(
+        pipelineResult.events,
+        get().outcomeApplyErrors,
+        pendingOutcomes,
+      ),
+    });
+    syncReportMissions(get, report.campaign);
+    emitDailyActivityEntries(get, report, postPipeline);
+    get().saveCampaign();
+    return { ...report, campaign: campaignWithAudit };
+  };
+}
+
+function advanceDaysAction(get: CampaignGet): CampaignStore['advanceDays'] {
+  return (count: number) => {
+    if (!get().campaign) {
+      return null;
+    }
+    const reports: DayReport[] = [];
+    for (let i = 0; i < count; i++) {
+      const report = get().advanceDay();
+      if (!report) break;
+      reports.push(report);
+    }
+    return reports.length > 0 ? reports : null;
+  };
+}
+
+function campaignDayFor(campaign: ICampaign): number {
+  const startDate = campaign.campaignStartDate ?? campaign.currentDate;
+  const msPerDay = 24 * 60 * 60 * 1000;
+  return Math.max(
+    0,
+    Math.floor(
+      (campaign.currentDate.getTime() - startDate.getTime()) / msPerDay,
+    ),
+  );
+}
+
+function travelToSystemAction(
+  set: CampaignSet,
+  get: CampaignGet,
+): CampaignStore['travelToSystem'] {
+  return (systemId: string) => {
+    const { campaign } = get();
+    if (!campaign || !systemId) return false;
+    const destination = findSystemById(systemId);
+    if (!destination) return false;
+    const fromSystemId = campaign.currentSystemId ?? 'terra';
+    if (fromSystemId === systemId) return false;
+    const updatedCampaign: ICampaign = {
+      ...campaign,
+      currentSystemId: systemId,
+      updatedAt: new Date().toISOString(),
+    };
+    set({ campaign: updatedCampaign });
+    const campaignDay = campaignDayFor(updatedCampaign);
+    get().appendActivityLogEntry({
+      id: `travel-${campaign.id}-${campaignDay}-${systemId}`,
+      timestamp: new Date().toISOString(),
+      campaignDay,
+      category: 'travel',
+      message: `Jumped to ${destination.name}.`,
+      payload: {
+        event: 'jump',
+        fromSystemId,
+        toSystemId: systemId,
+        toSystemName: destination.name,
+      },
+    });
+    return true;
+  };
+}
+
+export function createCampaignDayActions(
+  set: CampaignSet,
+  get: CampaignGet,
+): Pick<CampaignStore, 'advanceDay' | 'advanceDays' | 'travelToSystem'> {
+  return {
+    advanceDay: advanceDayAction(set, get),
+    advanceDays: advanceDaysAction(get),
+    travelToSystem: travelToSystemAction(set, get),
+  };
+}

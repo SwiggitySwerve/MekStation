@@ -4,39 +4,24 @@ import type { IMovementRangeHex } from '@/types/gameplay';
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
 import {
-  formatTacticalProjectionRuleReferences,
-  formatTacticalProjectionSourceReferences,
-} from '@/utils/gameplay/tacticalMapProjection';
+  movementProjectionSourceMetadata,
+  tacticalProjectionDataAttributes,
+} from './HexMapDisplay.tacticalProjectionAttributes';
 
 function movementSourceAttributes(
   movementInfo: IMovementRangeHex,
   projection?: ITacticalMapHexProjection,
 ): Record<string, string | number | undefined> {
-  const movementSourceReferences =
-    projection?.sourceReferences.filter(
-      (source) => source.channel === 'movement',
-    ) ?? [];
-  const movementSourceRefsAttribute =
-    formatTacticalProjectionSourceReferences(movementSourceReferences) ||
-    undefined;
-  const movementRuleRefsAttribute =
-    formatTacticalProjectionRuleReferences(movementSourceReferences) ||
-    undefined;
-  const movementProjectionChannel =
-    movementSourceReferences.length > 0 ? 'movement' : undefined;
+  const source = movementProjectionSourceMetadata(projection?.sourceReferences);
 
   return {
-    'data-tactical-projection-source': movementProjectionChannel
-      ? 'shared-tactical-map-projection'
-      : undefined,
-    'data-tactical-projection-channel': movementProjectionChannel,
-    'data-tactical-rules-surface': movementProjectionChannel,
+    ...tacticalProjectionDataAttributes(source),
     'data-movement-reachable': movementInfo.reachable ? 'true' : 'false',
     'data-movement-type': movementInfo.movementType,
     'data-movement-mode': movementInfo.movementMode,
     'data-movement-mp-cost': movementInfo.mpCost,
-    'data-movement-source-refs': movementSourceRefsAttribute,
-    'data-movement-rule-refs': movementRuleRefsAttribute,
+    'data-movement-source-refs': source.sourceRefs,
+    'data-movement-rule-refs': source.ruleRefs,
   };
 }
 

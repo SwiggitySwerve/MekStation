@@ -17,7 +17,6 @@
  */
 
 import type { InteractiveSession } from '@/engine/InteractiveSession';
-import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 import type {
   IEventMessage,
@@ -29,6 +28,7 @@ import type { IMatchStore } from './IMatchStore';
 import type { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import type { IntentRateLimiter } from './reconnection/IntentRateLimiter';
 import type { PendingPeerTracker } from './reconnection/PendingPeerTracker';
+import type { IServerMatchHostCaptureContext } from './ServerMatchHostCaptureContext';
 import type { IServerMatchHostIntentContext } from './ServerMatchHostIntent';
 import type { IServerMatchHostLobbyContext } from './ServerMatchHostLobbyIntents';
 import type { IServerMatchHostReconnectContext } from './ServerMatchHostReconnectLifecycle';
@@ -41,7 +41,7 @@ import type { IMatchSocket } from './ServerMatchSocketTypes';
  * declared here, which keeps the host ↔ context coupling explicit and
  * one-directional.
  */
-export interface IServerMatchHostInternals {
+export interface IServerMatchHostInternals extends IServerMatchHostCaptureContext {
   readonly matchId: string;
   readonly store: IMatchStore;
   readonly session: InteractiveSession;
@@ -57,11 +57,6 @@ export interface IServerMatchHostInternals {
   readonly safeSend: (socket: IMatchSocket, message: IServerMessage) => void;
   readonly closeMatch: () => Promise<void>;
   readonly maybeResume: () => void;
-  readonly installFreshCapture: () => void;
-  readonly drainNewEvents: () => readonly IGameEvent[];
-  readonly stampRollsOnNewEvents: (
-    events: readonly IGameEvent[],
-  ) => readonly IGameEvent[];
   readonly tryPublishOutcome: () => void;
   readonly handleLobbyIntent: (
     envelope: IIntent,

@@ -9,6 +9,7 @@
 
 import type { Meta, StoryObj } from '@storybook/react';
 
+import { paddedDarkCampaignStoryParameters } from '../campaignStoryParameters';
 import { SAMPLE_CANDIDATES } from './__fixtures__/commandFixtures';
 import { CommandError } from './CommandStates';
 import { HiringPanel } from './HiringPanel';
@@ -16,13 +17,7 @@ import { HiringPanel } from './HiringPanel';
 const meta = {
   title: 'Campaign/Command/HiringPanel',
   component: HiringPanel,
-  parameters: {
-    layout: 'padded',
-    backgrounds: {
-      default: 'dark',
-      values: [{ name: 'dark', value: '#0f172a' }],
-    },
-  },
+  parameters: paddedDarkCampaignStoryParameters,
   tags: ['autodocs'],
 } satisfies Meta<typeof HiringPanel>;
 

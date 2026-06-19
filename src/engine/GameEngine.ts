@@ -149,15 +149,15 @@ export class GameEngine {
       session = advancePhase(session);
       // Per `wire-bot-ai-helpers-and-capstone`: PhysicalAttack phase
       // body — declare melee attacks via the bot, then resolve them.
-      session = runPhysicalAttackPhase(
+      session = runPhysicalAttackPhase({
         session,
         botPlayer,
         weaponsByUnit,
         gunneryByUnit,
         pilotingByUnit,
         d6Roller,
-        this.grid,
-      );
+        grid: this.grid,
+      });
       session = advancePhase(session);
       // Per `wire-heat-generation-and-effects` task 5: pass a
       // grid-aware water depth resolver so flooded hexes dissipate

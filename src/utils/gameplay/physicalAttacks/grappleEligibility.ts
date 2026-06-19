@@ -119,11 +119,9 @@ function isRightSelected(grappleSide: GrappleAttackSide | undefined) {
   return grappleSide === 'right' || grappleSide === 'both';
 }
 
-export function canGrapple(
+function grappleOptionRestriction(
   input: IGrappleAttackEligibilityInput,
-): IGrappleAttackEligibilityResult {
-  const grappleSide = input.grappleSide ?? 'both';
-
+): IGrappleAttackEligibilityResult | undefined {
   if (input.tacOpsGrapplingEnabled !== true) {
     return blocked(
       'Grapple attacks require the TacOps grappling option',
@@ -148,6 +146,12 @@ export function canGrapple(
     );
   }
 
+  return undefined;
+}
+
+function grappleUnitRestriction(
+  input: IGrappleAttackEligibilityInput,
+): IGrappleAttackEligibilityResult | undefined {
   if (input.targetIsFriendly && input.friendlyFireEnabled !== true) {
     return blocked(
       'A friendly unit cannot be the target of a direct grapple attack',
@@ -173,6 +177,13 @@ export function canGrapple(
     return blocked('Grapple attacks require normal arms', 'NoArmsQuirk');
   }
 
+  return undefined;
+}
+
+function grappleArmRestriction(
+  input: IGrappleAttackEligibilityInput,
+  grappleSide: GrappleAttackSide,
+): IGrappleAttackEligibilityResult | undefined {
   if (
     (isLeftSelected(grappleSide) && input.leftArmPresent === false) ||
     (isRightSelected(grappleSide) && input.rightArmPresent === false)
@@ -190,6 +201,12 @@ export function canGrapple(
     );
   }
 
+  return undefined;
+}
+
+function grapplePositionRestriction(
+  input: IGrappleAttackEligibilityInput,
+): IGrappleAttackEligibilityResult | undefined {
   if (
     !input.counterGrapple &&
     input.targetDistance !== undefined &&
@@ -219,6 +236,12 @@ export function canGrapple(
     );
   }
 
+  return undefined;
+}
+
+function grapplePostureRestriction(
+  input: IGrappleAttackEligibilityInput,
+): IGrappleAttackEligibilityResult | undefined {
   if (input.attackerProne) {
     return blocked(
       'Prone attackers cannot make grapple attacks',
@@ -230,6 +253,12 @@ export function canGrapple(
     return blocked('Prone targets cannot be grappled', 'TargetProne');
   }
 
+  return undefined;
+}
+
+function grapplePriorActionRestriction(
+  input: IGrappleAttackEligibilityInput,
+): IGrappleAttackEligibilityResult | undefined {
   if (!input.counterGrapple && input.weaponFiredThisTurn) {
     return blocked(
       'A unit that fired weapons this round cannot initiate a grapple',
@@ -248,7 +277,150 @@ export function canGrapple(
     );
   }
 
+  return undefined;
+}
+
+export function canGrapple(
+  input: IGrappleAttackEligibilityInput,
+): IGrappleAttackEligibilityResult {
+  const grappleSide = input.grappleSide ?? 'both';
+  const restriction =
+    grappleOptionRestriction(input) ??
+    grappleUnitRestriction(input) ??
+    grappleArmRestriction(input, grappleSide) ??
+    grapplePositionRestriction(input) ??
+    grapplePostureRestriction(input) ??
+    grapplePriorActionRestriction(input);
+
+  if (restriction) return restriction;
+
   return { allowed: true };
+}
+
+type GrappleArmSide = 'left' | 'right';
+
+interface IGrappleArmModifierState {
+  readonly upperWorking?: boolean;
+  readonly lowerWorking?: boolean;
+  readonly handWorking?: boolean;
+  readonly aesFunctional?: boolean;
+}
+
+const GRAPPLE_ARM_MODIFIER_REASONS: Readonly<
+  Record<
+    GrappleArmSide,
+    {
+      readonly upper: GrappleAttackModifierReason;
+      readonly lower: GrappleAttackModifierReason;
+      readonly hand: GrappleAttackModifierReason;
+      readonly label: string;
+    }
+  >
+> = {
+  left: {
+    upper: 'LeftUpperArmActuatorDestroyed',
+    lower: 'LeftLowerArmActuatorDestroyed',
+    hand: 'LeftHandActuatorDestroyed',
+    label: 'Left',
+  },
+  right: {
+    upper: 'RightUpperArmActuatorDestroyed',
+    lower: 'RightLowerArmActuatorDestroyed',
+    hand: 'RightHandActuatorDestroyed',
+    label: 'Right',
+  },
+};
+
+function grappleArmState(
+  input: IGrappleAttackModifierInput,
+  side: GrappleArmSide,
+): IGrappleArmModifierState {
+  return side === 'left'
+    ? {
+        upperWorking: input.leftUpperArmWorking,
+        lowerWorking: input.leftLowerArmWorking,
+        handWorking: input.leftHandWorking,
+        aesFunctional: input.leftArmAesFunctional,
+      }
+    : {
+        upperWorking: input.rightUpperArmWorking,
+        lowerWorking: input.rightLowerArmWorking,
+        handWorking: input.rightHandWorking,
+        aesFunctional: input.rightArmAesFunctional,
+      };
+}
+
+function armSelectedForGrapple(
+  side: GrappleArmSide,
+  grappleSide: GrappleAttackSide,
+): boolean {
+  return side === 'left'
+    ? isLeftSelected(grappleSide)
+    : isRightSelected(grappleSide);
+}
+
+function appendGrappleArmModifiers(
+  modifiers: IGrappleAttackModifier[],
+  input: IGrappleAttackModifierInput,
+  side: GrappleArmSide,
+  grappleSide: GrappleAttackSide,
+): void {
+  if (!armSelectedForGrapple(side, grappleSide)) return;
+
+  const state = grappleArmState(input, side);
+  const reasons = GRAPPLE_ARM_MODIFIER_REASONS[side];
+  const checks: readonly [
+    boolean | undefined,
+    number,
+    GrappleAttackModifierReason,
+    string,
+  ][] = [
+    [
+      state.upperWorking,
+      2,
+      reasons.upper,
+      `${reasons.label} upper arm actuator destroyed`,
+    ],
+    [
+      state.lowerWorking,
+      2,
+      reasons.lower,
+      `${reasons.label} lower arm actuator destroyed`,
+    ],
+    [
+      state.handWorking,
+      1,
+      reasons.hand,
+      `${reasons.label} hand actuator destroyed`,
+    ],
+  ];
+
+  for (const [working, value, reasonCode, description] of checks) {
+    if (working === false) {
+      modifiers.push(modifier(value, reasonCode, description));
+    }
+  }
+
+  if (state.aesFunctional && grappleSide === side) {
+    modifiers.push(modifier(-1, 'ArmAES', 'AES modifier'));
+  }
+}
+
+function appendBothArmGrappleModifiers(
+  modifiers: IGrappleAttackModifier[],
+  input: IGrappleAttackModifierInput,
+  grappleSide: GrappleAttackSide,
+): void {
+  appendGrappleArmModifiers(modifiers, input, 'left', grappleSide);
+  appendGrappleArmModifiers(modifiers, input, 'right', grappleSide);
+
+  if (
+    grappleSide === 'both' &&
+    input.leftArmAesFunctional &&
+    input.rightArmAesFunctional
+  ) {
+    modifiers.push(modifier(-1, 'ArmAES', 'AES modifier'));
+  }
 }
 
 export function getGrappleAttackToHitModifiers(
@@ -258,79 +430,7 @@ export function getGrappleAttackToHitModifiers(
   const grappleSide = input.grappleSide ?? 'both';
 
   if (input.attackerIsMek) {
-    if (isLeftSelected(grappleSide)) {
-      if (input.leftUpperArmWorking === false) {
-        modifiers.push(
-          modifier(
-            2,
-            'LeftUpperArmActuatorDestroyed',
-            'Left upper arm actuator destroyed',
-          ),
-        );
-      }
-      if (input.leftLowerArmWorking === false) {
-        modifiers.push(
-          modifier(
-            2,
-            'LeftLowerArmActuatorDestroyed',
-            'Left lower arm actuator destroyed',
-          ),
-        );
-      }
-      if (input.leftHandWorking === false) {
-        modifiers.push(
-          modifier(
-            1,
-            'LeftHandActuatorDestroyed',
-            'Left hand actuator destroyed',
-          ),
-        );
-      }
-      if (input.leftArmAesFunctional && grappleSide === 'left') {
-        modifiers.push(modifier(-1, 'ArmAES', 'AES modifier'));
-      }
-    }
-
-    if (isRightSelected(grappleSide)) {
-      if (input.rightUpperArmWorking === false) {
-        modifiers.push(
-          modifier(
-            2,
-            'RightUpperArmActuatorDestroyed',
-            'Right upper arm actuator destroyed',
-          ),
-        );
-      }
-      if (input.rightLowerArmWorking === false) {
-        modifiers.push(
-          modifier(
-            2,
-            'RightLowerArmActuatorDestroyed',
-            'Right lower arm actuator destroyed',
-          ),
-        );
-      }
-      if (input.rightHandWorking === false) {
-        modifiers.push(
-          modifier(
-            1,
-            'RightHandActuatorDestroyed',
-            'Right hand actuator destroyed',
-          ),
-        );
-      }
-      if (input.rightArmAesFunctional && grappleSide === 'right') {
-        modifiers.push(modifier(-1, 'ArmAES', 'AES modifier'));
-      }
-    }
-
-    if (
-      grappleSide === 'both' &&
-      input.leftArmAesFunctional &&
-      input.rightArmAesFunctional
-    ) {
-      modifiers.push(modifier(-1, 'ArmAES', 'AES modifier'));
-    }
+    appendBothArmGrappleModifiers(modifiers, input, grappleSide);
 
     if (grappleSide !== 'both' && input.attackerHasActiveTsm) {
       modifiers.push(modifier(-2, 'TSMActiveBonus', 'TSM Active Bonus'));

@@ -8,77 +8,47 @@
  * @spec openspec/changes/add-campaign-bay-ui/specs/campaign-bay-ui/spec.md
  */
 
-import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
-import { BayError, BayLoading } from '@/components/campaign/bays/BayStates';
 import { MechBay } from '@/components/campaign/bays/MechBay';
 import { RefitLaunchPanel } from '@/components/campaign/bays/RefitLaunchPanel';
-import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
-import { CampaignCoopRouteSurface } from '@/components/campaign/coop';
-import { EmptyState, PageLayout } from '@/components/ui';
 import { resolveUnitConfiguration } from '@/lib/campaign/refit/unitConfiguration';
+import * as CampaignShell from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
 import { commitRefitOrder } from '@/stores/campaign/campaignRefitActions';
-import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
-import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+
+const MECH_BAY_LOADING = {
+  title: 'Mech Bay',
+  subtitle: 'Loading bay...',
+  variant: 'bay',
+} as const;
 
 export default function MechBayPage(): React.ReactElement {
-  const router = useRouter();
-  const { id } = router.query;
-  const store = useCampaignStore();
-  const campaign = store.getState().getCampaign();
+  const shell = CampaignShell.useCampaignPageShell('Mech Bay');
   const units = useCampaignRosterStore((state) => state.units);
-  const saveState = useCampaignPersistenceStore((state) => state.saveState);
-  const errorMessage = useCampaignPersistenceStore(
-    (state) => state.errorMessage,
-  );
-  const loadCampaign = useCampaignPersistenceStore(
-    (state) => state.loadCampaign,
-  );
-  const [isClient, setIsClient] = useState(false);
+  const loadStatus = CampaignShell.useCampaignLoadStatus();
   // The unit currently selected for the refit launch flow (CP3, design D6).
   const [refitUnitId, setRefitUnitId] = useState<string | null>(null);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const pendingPage = CampaignShell.renderPendingCampaignPage(
+    shell,
+    MECH_BAY_LOADING,
+  );
+  if (pendingPage) return pendingPage;
 
-  const breadcrumbs = [
-    { label: 'Home', href: '/' },
-    { label: 'Gameplay', href: '/gameplay' },
-    { label: 'Campaigns', href: '/gameplay/campaigns' },
-    { label: campaign?.name || 'Campaign', href: `/gameplay/campaigns/${id}` },
-    { label: 'Mech Bay' },
-  ];
-
-  // Loading state while the campaign / inventory resolves (design D7).
-  if (!isClient) {
-    return (
-      <PageLayout title="Mech Bay" subtitle="Loading bay..." maxWidth="wide">
-        <BayLoading />
-      </PageLayout>
-    );
-  }
-
-  if (!campaign) {
-    return (
-      <PageLayout
-        title="Mech Bay"
-        subtitle="Campaign not found"
-        maxWidth="wide"
-        breadcrumbs={breadcrumbs}
-      >
-        <EmptyState
-          title="Campaign not found"
-          message="Return to campaigns list to select a campaign."
-        />
-      </PageLayout>
-    );
-  }
-
+  const campaign = CampaignShell.getLoadedCampaign(shell);
   const repairBay = selectRepairBay(campaign);
+  const frame = {
+    title: 'Mech Bay',
+    subtitle: `${campaign.name} — ${units.length} units`,
+    currentPage: 'mech-bay',
+    coopRouteId: 'mech-bay',
+  } as const;
+  const saveError = CampaignShell.renderCampaignBaySaveError(
+    campaign.id,
+    loadStatus,
+  );
 
   // The unit selected for refit, and its current configuration.
   const refitUnit = refitUnitId
@@ -89,27 +59,8 @@ export default function MechBayPage(): React.ReactElement {
     : null;
 
   return (
-    <PageLayout
-      title="Mech Bay"
-      subtitle={`${campaign.name} — ${units.length} units`}
-      maxWidth="wide"
-      breadcrumbs={breadcrumbs}
-    >
-      <CampaignNavigation
-        campaignId={campaign.id}
-        currentPage="mech-bay"
-        coopSession={campaign.coopSession}
-      />
-
-      <CampaignCoopRouteSurface campaign={campaign} routeId="mech-bay" />
-      {saveState === 'error' ? (
-        <BayError
-          message={errorMessage ?? 'The campaign inventory failed to load.'}
-          onRetry={() => {
-            void loadCampaign(campaign.id);
-          }}
-        />
-      ) : (
+    <CampaignShell.CampaignPageFrameFromShell shell={shell} frame={frame}>
+      {saveError ?? (
         <>
           {/* Refit launch flow (CP3, design D6) — opens above the grid
               when the player picks a unit's Refit affordance. */}
@@ -139,6 +90,6 @@ export default function MechBayPage(): React.ReactElement {
           />
         </>
       )}
-    </PageLayout>
+    </CampaignShell.CampaignPageFrameFromShell>
   );
 }

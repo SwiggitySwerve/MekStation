@@ -249,6 +249,110 @@ function heatSorter(
   return b.bv - a.bv;
 }
 
+function usesXXLHeatProfile(config: OffensiveBVConfig): boolean {
+  return config.isXXLEngine || config.engineType === EngineType.XXL;
+}
+
+function calculateRunningHeat(config: OffensiveBVConfig): number {
+  if (config.engineType === EngineType.ICE) return 0;
+  if (config.engineType === EngineType.FUEL_CELL) return 0;
+  return usesXXLHeatProfile(config) ? 6 : 2;
+}
+
+function calculateJumpHeat(config: OffensiveBVConfig): number {
+  const jumpHeatMP = config.jumpHeatMP ?? config.jumpMP;
+  if (jumpHeatMP <= 0) return 0;
+
+  const hasXXLHeatProfile = usesXXLHeatProfile(config);
+  if (config.hasPrototypeIJJ) {
+    const doubledMP = jumpHeatMP * 2;
+    if (hasXXLHeatProfile) return Math.max(6, doubledMP * 2);
+    return Math.max(6, Math.max(3, doubledMP));
+  }
+
+  const effectiveJumpMP = config.hasImprovedJJ
+    ? Math.ceil(jumpHeatMP / 2)
+    : jumpHeatMP;
+  if (hasXXLHeatProfile) return Math.max(6, effectiveJumpMP * 2);
+  return Math.max(3, effectiveJumpMP);
+}
+
+function calculateCoolantPodHeatBonus(config: OffensiveBVConfig): number {
+  const coolantPods = config.coolantPods ?? 0;
+  const heatSinkCount = config.heatSinkCount ?? 0;
+  return coolantPods > 0 && heatSinkCount > 0
+    ? Math.ceil((heatSinkCount * coolantPods) / 5)
+    : 0;
+}
+
+function calculateSignatureHeatPenalty(config: OffensiveBVConfig): number {
+  return (
+    (config.hasStealthArmor ? 10 : 0) +
+    (config.hasNullSig ? 10 : 0) +
+    (config.hasVoidSig ? 10 : 0) +
+    (config.hasChameleonShield ? 6 : 0)
+  );
+}
+
+function calculateHeatEfficiency(
+  config: OffensiveBVConfig,
+  moveHeat: number,
+): number {
+  return (
+    6 +
+    config.heatDissipation -
+    moveHeat +
+    calculateCoolantPodHeatBonus(config) -
+    calculateSignatureHeatPenalty(config)
+  );
+}
+
+function calculateHeatTrackedWeaponTotals(
+  sortedWeapons: Array<{ bv: number; heat: number }>,
+  heatEfficiency: number,
+) {
+  let heatExceeded = heatEfficiency <= 0;
+  let heatSum = 0;
+  let weaponBV = 0;
+  let rawWeaponBV = 0;
+  let halvedWeaponBV = 0;
+  let halvedWeaponCount = 0;
+
+  for (const weapon of sortedWeapons) {
+    heatSum += weapon.heat;
+    rawWeaponBV += weapon.bv;
+
+    const adjustedBV = heatExceeded ? weapon.bv * 0.5 : weapon.bv;
+    weaponBV += adjustedBV;
+
+    if (heatExceeded) {
+      halvedWeaponBV += adjustedBV;
+      halvedWeaponCount++;
+    }
+
+    heatExceeded = heatExceeded || heatSum >= heatEfficiency;
+  }
+
+  return {
+    weaponBV,
+    rawWeaponBV,
+    halvedWeaponBV,
+    halvedWeaponCount,
+  };
+}
+
+function calculateWeightBonus(config: OffensiveBVConfig): number {
+  const aesMultiplier =
+    1.0 + (config.aesArms ?? 0) * 0.1 + (config.aesLegs ?? 0) * 0.1;
+  const adjustedWeight = config.tonnage * aesMultiplier;
+  const tsmMultiplier = config.hasTSM
+    ? 1.5
+    : config.hasIndustrialTSM
+      ? 1.15
+      : 1.0;
+  return adjustedWeight * tsmMultiplier;
+}
+
 export function calculateOffensiveBVWithHeatTracking(
   config: OffensiveBVConfig,
 ): OffensiveBVResult {
@@ -260,91 +364,20 @@ export function calculateOffensiveBVWithHeatTracking(
   }));
 
   const sortedWeapons = [...weaponsWithModifiers].sort(heatSorter);
+  const moveHeat = config.hasSCM
+    ? 0
+    : Math.max(calculateRunningHeat(config), calculateJumpHeat(config));
+  const heatEfficiency = calculateHeatEfficiency(config, moveHeat);
+  const heatTrackedWeapons = calculateHeatTrackedWeaponTotals(
+    sortedWeapons,
+    heatEfficiency,
+  );
 
-  const engineType = config.engineType;
-  const runningHeat =
-    engineType === EngineType.ICE || engineType === EngineType.FUEL_CELL
-      ? 0
-      : config.isXXLEngine || engineType === EngineType.XXL
-        ? 6
-        : 2;
-  let jumpHeat = 0;
-  const jumpHeatMP = config.jumpHeatMP ?? config.jumpMP;
-  if (jumpHeatMP > 0) {
-    if (config.hasPrototypeIJJ) {
-      const doubledMP = jumpHeatMP * 2;
-      jumpHeat =
-        config.isXXLEngine || engineType === EngineType.XXL
-          ? Math.max(6, doubledMP * 2)
-          : Math.max(6, Math.max(3, doubledMP));
-    } else if (config.hasImprovedJJ) {
-      const effectiveJumpMP = Math.ceil(jumpHeatMP / 2);
-      jumpHeat =
-        config.isXXLEngine || engineType === EngineType.XXL
-          ? Math.max(6, effectiveJumpMP * 2)
-          : Math.max(3, effectiveJumpMP);
-    } else {
-      jumpHeat =
-        config.isXXLEngine || engineType === EngineType.XXL
-          ? Math.max(6, jumpHeatMP * 2)
-          : Math.max(3, jumpHeatMP);
-    }
-  }
-
-  const moveHeat = config.hasSCM ? 0 : Math.max(runningHeat, jumpHeat);
-  let heatEfficiency = 6 + config.heatDissipation - moveHeat;
-
-  const coolantPods = config.coolantPods ?? 0;
-  const heatSinkCount = config.heatSinkCount ?? 0;
-  if (coolantPods > 0 && heatSinkCount > 0) {
-    heatEfficiency += Math.ceil((heatSinkCount * coolantPods) / 5);
-  }
-
-  if (config.hasStealthArmor) heatEfficiency -= 10;
-  if (config.hasNullSig) heatEfficiency -= 10;
-  if (config.hasVoidSig) heatEfficiency -= 10;
-  if (config.hasChameleonShield) heatEfficiency -= 6;
-
-  let heatExceeded = heatEfficiency <= 0;
-  let heatSum = 0;
-  let weaponBV = 0;
-  let rawWeaponBVTotal = 0;
-  let halvedWeaponBVTotal = 0;
-  let halvedWeaponCount = 0;
-
-  for (const weapon of sortedWeapons) {
-    heatSum += weapon.heat;
-    let adjustedBV = weapon.bv;
-    rawWeaponBVTotal += weapon.bv;
-
-    if (heatExceeded) {
-      adjustedBV *= 0.5;
-      halvedWeaponBVTotal += weapon.bv * 0.5;
-      halvedWeaponCount++;
-    }
-
-    weaponBV += adjustedBV;
-
-    if (heatSum >= heatEfficiency) {
-      heatExceeded = true;
-    }
-  }
-
-  const ammoBV = config.ammo
-    ? calculateAmmoBVWithExcessiveCap(config.weapons, config.ammo)
-    : 0;
-
-  const aesMultiplier =
-    1.0 + (config.aesArms ?? 0) * 0.1 + (config.aesLegs ?? 0) * 0.1;
-  const adjustedWeight = config.tonnage * aesMultiplier;
-  let weightBonus: number;
-  if (config.hasTSM) {
-    weightBonus = adjustedWeight * 1.5;
-  } else if (config.hasIndustrialTSM) {
-    weightBonus = adjustedWeight * 1.15;
-  } else {
-    weightBonus = adjustedWeight;
-  }
+  const ammoBV = calculateAmmoBVWithExcessiveCap(
+    config.weapons,
+    config.ammo ?? [],
+  );
+  const weightBonus = calculateWeightBonus(config);
 
   const speedFactor = calculateOffensiveSpeedFactor(
     config.runMP,
@@ -354,23 +387,27 @@ export function calculateOffensiveBVWithHeatTracking(
   const physicalWeaponBV = config.physicalWeaponBV ?? 0;
   const offensiveEquipmentBV = config.offensiveEquipmentBV ?? 0;
   const baseOffensive =
-    weaponBV + ammoBV + physicalWeaponBV + weightBonus + offensiveEquipmentBV;
+    heatTrackedWeapons.weaponBV +
+    ammoBV +
+    physicalWeaponBV +
+    weightBonus +
+    offensiveEquipmentBV;
 
   const typeModifier = config.isIndustrialMech ? 0.9 : 1.0;
   const totalOffensiveBV = baseOffensive * speedFactor * typeModifier;
 
   return {
-    weaponBV,
+    weaponBV: heatTrackedWeapons.weaponBV,
     ammoBV,
     weightBonus,
     speedFactor,
     totalOffensiveBV,
     heatEfficiency,
     moveHeat,
-    rawWeaponBV: rawWeaponBVTotal,
-    halvedWeaponBV: halvedWeaponBVTotal,
+    rawWeaponBV: heatTrackedWeapons.rawWeaponBV,
+    halvedWeaponBV: heatTrackedWeapons.halvedWeaponBV,
     weaponCount: sortedWeapons.length,
-    halvedWeaponCount,
+    halvedWeaponCount: heatTrackedWeapons.halvedWeaponCount,
     physicalWeaponBV,
     offensiveEquipmentBV,
   };

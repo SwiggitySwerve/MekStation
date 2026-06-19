@@ -15,33 +15,17 @@ import type { IAnomaly } from '@/types/simulation-viewer/IAnomaly';
 
 import {
   GameEventType,
-  GameSide,
   type IGameEvent,
 } from '@/types/gameplay/GameSessionInterfaces';
 
+import type {
+  BasicBattleState as BattleState,
+  BasicBattleUnit as BattleUnit,
+} from './shared/battleState';
+
 import { getPayload } from './utils/getPayload';
 
-// =============================================================================
-// Types
-// =============================================================================
-
-/**
- * Static information about a unit in the battle.
- * Provided by the caller to give the detector context about each unit.
- */
-export interface BattleUnit {
-  readonly id: string;
-  readonly name: string;
-  readonly side: GameSide;
-}
-
-/**
- * Static battle context provided to the detector.
- * Contains all participating units with their starting attributes.
- */
-export interface BattleState {
-  readonly units: readonly BattleUnit[];
-}
+export type { BattleState, BattleUnit };
 
 // =============================================================================
 // Constants
@@ -73,18 +57,12 @@ interface DetectorTrackingState {
   currentTurn: number;
 }
 
-// =============================================================================
-// Helper Functions
-// =============================================================================
-
-/**
- * Gets a unit name by ID, falling back to the ID itself.
- */
-
-function _getUnitName(units: readonly BattleUnit[], unitId: string): string {
-  const unit = units.find((u) => u.id === unitId);
-  return unit ? unit.name : unitId;
-}
+type PassiveUnitEventHandler = (
+  event: IGameEvent,
+  battleState: BattleState,
+  state: DetectorTrackingState,
+  threshold: number,
+) => void;
 
 // =============================================================================
 // PassiveUnitDetector
@@ -105,6 +83,25 @@ function _getUnitName(units: readonly BattleUnit[], unitId: string): string {
  * ```
  */
 export class PassiveUnitDetector {
+  private readonly eventHandlers: Partial<
+    Record<GameEventType, PassiveUnitEventHandler>
+  > = {
+    [GameEventType.TurnEnded]: (event, battleState, state, threshold) =>
+      this.processTurnEnded(event, battleState, state, threshold),
+    [GameEventType.MovementDeclared]: (event, _battleState, state) =>
+      this.processMovement(event, state),
+    [GameEventType.MovementLocked]: (event, _battleState, state) =>
+      this.processMovement(event, state),
+    [GameEventType.AttackDeclared]: (event, _battleState, state) =>
+      this.processAttack(event, state),
+    [GameEventType.AttackLocked]: (event, _battleState, state) =>
+      this.processAttack(event, state),
+    [GameEventType.AttackResolved]: (event, _battleState, state) =>
+      this.processAttack(event, state),
+    [GameEventType.UnitDestroyed]: (event, _battleState, state) =>
+      this.processUnitDestroyed(event, state),
+  };
+
   /**
    * Detects passive unit anomalies from a stream of game events.
    *
@@ -168,29 +165,7 @@ export class PassiveUnitDetector {
     // Update current turn
     state.currentTurn = event.turn;
 
-    switch (event.type) {
-      case GameEventType.TurnEnded:
-        this.processTurnEnded(event, battleState, state, threshold);
-        break;
-
-      case GameEventType.MovementDeclared:
-      case GameEventType.MovementLocked:
-        this.processMovement(event, state);
-        break;
-
-      case GameEventType.AttackDeclared:
-      case GameEventType.AttackLocked:
-      case GameEventType.AttackResolved:
-        this.processAttack(event, state);
-        break;
-
-      case GameEventType.UnitDestroyed:
-        this.processUnitDestroyed(event, state);
-        break;
-
-      default:
-        break;
-    }
+    this.eventHandlers[event.type]?.(event, battleState, state, threshold);
   }
 
   private processTurnEnded(

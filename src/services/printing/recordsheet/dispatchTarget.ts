@@ -97,31 +97,28 @@ function normalizeTypeHint(rawType: string | undefined): string {
   return (rawType ?? 'mech').trim().toLowerCase().replace(/\s+/g, '');
 }
 
+const DISPATCH_KIND_BY_TYPE_HINT: ReadonlyMap<string, RecordSheetDispatchKind> =
+  new Map([
+    ['mech', 'mech'],
+    ['battlemech', 'mech'],
+    ['omnimech', 'mech'],
+    ['industrialmech', 'mech'],
+    ['vehicle', 'vehicle'],
+    ['vtol', 'vehicle'],
+    ['supportvehicle', 'vehicle'],
+    ['aerospace', 'aerospace'],
+    ['conventionalfighter', 'aerospace'],
+    ['battlearmor', 'battlearmor'],
+    ['infantry', 'infantry'],
+    ['protomech', 'protomech'],
+  ]);
+
 export function getRecordSheetDispatchKind(
   unit: UnitTypeHint,
 ): RecordSheetDispatchKind | undefined {
-  switch (normalizeTypeHint(unit.type ?? unit.unitType)) {
-    case 'mech':
-    case 'battlemech':
-    case 'omnimech':
-    case 'industrialmech':
-      return 'mech';
-    case 'vehicle':
-    case 'vtol':
-    case 'supportvehicle':
-      return 'vehicle';
-    case 'aerospace':
-    case 'conventionalfighter':
-      return 'aerospace';
-    case 'battlearmor':
-      return 'battlearmor';
-    case 'infantry':
-      return 'infantry';
-    case 'protomech':
-      return 'protomech';
-    default:
-      return undefined;
-  }
+  return DISPATCH_KIND_BY_TYPE_HINT.get(
+    normalizeTypeHint(unit.type ?? unit.unitType),
+  );
 }
 
 export function isMechUnitInput(

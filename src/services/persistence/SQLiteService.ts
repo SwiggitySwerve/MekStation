@@ -58,7 +58,7 @@ export class SQLiteService implements ISQLiteService {
   /**
    * Initialize the database
    */
-  initialize(): void {
+  initialize = (): void => {
     if (this.db) {
       return; // Already initialized
     }
@@ -80,43 +80,43 @@ export class SQLiteService implements ISQLiteService {
 
     // Run migrations
     this.runMigrations();
-  }
+  };
 
   /**
    * Get the database instance
    */
-  getDatabase(): Database.Database {
+  getDatabase = (): Database.Database => {
     if (!this.db) {
       throw new Error('Database not initialized. Call initialize() first.');
     }
     return this.db;
-  }
+  };
 
   /**
    * Check if database is initialized
    */
-  isInitialized(): boolean {
+  isInitialized = (): boolean => {
     return this.db !== null;
-  }
+  };
 
   /**
    * Close the database connection
    */
-  close(): void {
+  close = (): void => {
     if (this.db) {
       // Checkpoint WAL before closing
       this.db.pragma('wal_checkpoint(TRUNCATE)');
       this.db.close();
       this.db = null;
     }
-  }
+  };
 
   /**
    * Get database configuration
    */
-  getConfig(): IDatabaseConfig {
+  getConfig = (): IDatabaseConfig => {
     return this.config;
-  }
+  };
 
   /**
    * Run pending migrations

@@ -555,6 +555,57 @@ export function isSpecialAbilityParams(
   );
 }
 
+type TypedEffectParamsResult =
+  | { type: 'ToHitModifier'; params: IToHitModifierParams }
+  | { type: 'DamageModifier'; params: IDamageModifierParams }
+  | { type: 'PilotingModifier'; params: IPilotingModifierParams }
+  | { type: 'TMMModifier'; params: ITMMModifierParams }
+  | { type: 'ConsciousnessModifier'; params: IConsciousnessModifierParams }
+  | { type: 'HeatModifier'; params: IHeatModifierParams }
+  | { type: 'InitiativeModifier'; params: IInitiativeModifierParams }
+  | { type: 'Special'; params: ISpecialAbilityParams };
+
+type TypedEffectParamsResolver = (
+  params: AbilityEffectParams,
+) => TypedEffectParamsResult;
+
+const EFFECT_PARAM_RESOLVERS: Readonly<
+  Record<AbilityEffectType, TypedEffectParamsResolver>
+> = {
+  [AbilityEffectType.ToHitModifier]: (params) => ({
+    type: 'ToHitModifier',
+    params: params as IToHitModifierParams,
+  }),
+  [AbilityEffectType.DamageModifier]: (params) => ({
+    type: 'DamageModifier',
+    params: params as IDamageModifierParams,
+  }),
+  [AbilityEffectType.PilotingModifier]: (params) => ({
+    type: 'PilotingModifier',
+    params: params as IPilotingModifierParams,
+  }),
+  [AbilityEffectType.TMMModifier]: (params) => ({
+    type: 'TMMModifier',
+    params: params as ITMMModifierParams,
+  }),
+  [AbilityEffectType.ConsciousnessModifier]: (params) => ({
+    type: 'ConsciousnessModifier',
+    params: params as IConsciousnessModifierParams,
+  }),
+  [AbilityEffectType.HeatModifier]: (params) => ({
+    type: 'HeatModifier',
+    params: params as IHeatModifierParams,
+  }),
+  [AbilityEffectType.InitiativeModifier]: (params) => ({
+    type: 'InitiativeModifier',
+    params: params as IInitiativeModifierParams,
+  }),
+  [AbilityEffectType.Special]: (params) => ({
+    type: 'Special',
+    params: params as ISpecialAbilityParams,
+  }),
+};
+
 /**
  * Get typed effect parameters based on effect type.
  * Provides runtime type narrowing for effect parameters.
@@ -571,45 +622,9 @@ export function isSpecialAbilityParams(
 export function getTypedEffectParams(
   effectType: AbilityEffectType,
   params: AbilityEffectParams,
-):
-  | { type: 'ToHitModifier'; params: IToHitModifierParams }
-  | { type: 'DamageModifier'; params: IDamageModifierParams }
-  | { type: 'PilotingModifier'; params: IPilotingModifierParams }
-  | { type: 'TMMModifier'; params: ITMMModifierParams }
-  | { type: 'ConsciousnessModifier'; params: IConsciousnessModifierParams }
-  | { type: 'HeatModifier'; params: IHeatModifierParams }
-  | { type: 'InitiativeModifier'; params: IInitiativeModifierParams }
-  | { type: 'Special'; params: ISpecialAbilityParams } {
-  switch (effectType) {
-    case AbilityEffectType.ToHitModifier:
-      return { type: 'ToHitModifier', params: params as IToHitModifierParams };
-    case AbilityEffectType.DamageModifier:
-      return {
-        type: 'DamageModifier',
-        params: params as IDamageModifierParams,
-      };
-    case AbilityEffectType.PilotingModifier:
-      return {
-        type: 'PilotingModifier',
-        params: params as IPilotingModifierParams,
-      };
-    case AbilityEffectType.TMMModifier:
-      return { type: 'TMMModifier', params: params as ITMMModifierParams };
-    case AbilityEffectType.ConsciousnessModifier:
-      return {
-        type: 'ConsciousnessModifier',
-        params: params as IConsciousnessModifierParams,
-      };
-    case AbilityEffectType.HeatModifier:
-      return { type: 'HeatModifier', params: params as IHeatModifierParams };
-    case AbilityEffectType.InitiativeModifier:
-      return {
-        type: 'InitiativeModifier',
-        params: params as IInitiativeModifierParams,
-      };
-    case AbilityEffectType.Special:
-      return { type: 'Special', params: params as ISpecialAbilityParams };
-    default:
-      return { type: 'Special', params: params as ISpecialAbilityParams };
-  }
+): TypedEffectParamsResult {
+  const resolver =
+    EFFECT_PARAM_RESOLVERS[effectType] ??
+    EFFECT_PARAM_RESOLVERS[AbilityEffectType.Special];
+  return resolver(params);
 }

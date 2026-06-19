@@ -8,12 +8,50 @@ interface PanelProps {
   children: ReactNode;
 }
 
+type PanelDirection = 'forward' | 'backward' | null;
+type PanelPlacement = 'active' | 'previous' | 'next';
+
 interface PanelInternalProps extends PanelProps {
   isActive: boolean;
   isPrevious: boolean;
   isNext: boolean;
-  direction: 'forward' | 'backward' | null;
+  direction: PanelDirection;
 }
+
+interface PanelPresentation {
+  transform: string;
+  zIndex: number;
+  visibility: 'visible' | 'hidden';
+}
+
+interface PanelHistoryEntry {
+  id: string;
+}
+
+interface AdjacentPanelIds {
+  currentPanelId: string;
+  previousPanelId: string | null;
+  nextPanelId: string | null;
+}
+
+interface PanelSlot {
+  id: string | null;
+  placement: PanelPlacement;
+}
+
+interface PanelSlotRendererProps {
+  slot: PanelSlot;
+  panelMap: Map<string, ReactNode>;
+  direction: PanelDirection;
+}
+
+interface PanelStackProps {
+  children: ReactNode;
+  className?: string;
+}
+
+const PANEL_TRANSITION_MS = 300;
+const PANEL_TRANSITION = 'transform 300ms ease-in-out';
 
 /**
  * Individual panel component for PanelStack
@@ -31,6 +69,177 @@ export function Panel({ id: _id, children }: PanelProps): React.ReactElement {
   return <>{children}</>;
 }
 
+function shouldKeepPanelMounted({
+  isActive,
+  isPrevious,
+  isNext,
+}: Pick<PanelInternalProps, 'isActive' | 'isPrevious' | 'isNext'>): boolean {
+  return isActive || isPrevious || isNext;
+}
+
+function getPanelPresentation({
+  isActive,
+  isPrevious,
+  isNext,
+  direction,
+}: Omit<PanelInternalProps, 'id' | 'children'>): PanelPresentation {
+  if (isActive) {
+    return {
+      transform: 'translateX(0)',
+      zIndex: 10,
+      visibility: 'visible',
+    };
+  }
+
+  if (isPrevious) {
+    return {
+      transform: 'translateX(-100%)',
+      zIndex: direction === 'backward' ? 10 : 5,
+      visibility: 'visible',
+    };
+  }
+
+  if (isNext) {
+    return {
+      transform: 'translateX(100%)',
+      zIndex: direction === 'forward' ? 10 : 5,
+      visibility: 'visible',
+    };
+  }
+
+  return {
+    transform: 'translateX(0)',
+    zIndex: 0,
+    visibility: 'hidden',
+  };
+}
+
+function useRenderDuringTransition({
+  isActive,
+  isPrevious,
+  isNext,
+}: Pick<PanelInternalProps, 'isActive' | 'isPrevious' | 'isNext'>): boolean {
+  const [shouldRender, setShouldRender] = useState(isActive);
+
+  useEffect(() => {
+    if (shouldKeepPanelMounted({ isActive, isPrevious, isNext })) {
+      setShouldRender(true);
+      return undefined;
+    }
+
+    const timer = setTimeout(() => {
+      setShouldRender(false);
+    }, PANEL_TRANSITION_MS);
+
+    return () => clearTimeout(timer);
+  }, [isActive, isPrevious, isNext]);
+
+  return shouldRender;
+}
+
+function useNavigationDirection(currentIndex: number): PanelDirection {
+  const [direction, setDirection] = useState<PanelDirection>(null);
+  const previousIndexRef = useRef<number>(currentIndex);
+
+  useEffect(() => {
+    if (currentIndex === previousIndexRef.current) {
+      return undefined;
+    }
+
+    setDirection(
+      currentIndex > previousIndexRef.current ? 'forward' : 'backward',
+    );
+    previousIndexRef.current = currentIndex;
+
+    const timer = setTimeout(() => {
+      setDirection(null);
+    }, PANEL_TRANSITION_MS);
+
+    return () => clearTimeout(timer);
+  }, [currentIndex]);
+
+  return direction;
+}
+
+function isPanelElement(
+  child: ReactNode,
+): child is React.ReactElement<PanelProps> {
+  return React.isValidElement(child) && child.type === Panel;
+}
+
+function getPanelMap(children: ReactNode): Map<string, ReactNode> {
+  const panelMap = new Map<string, ReactNode>();
+
+  React.Children.toArray(children)
+    .filter(isPanelElement)
+    .forEach((child) => {
+      const panelId = child.props.id;
+
+      if (panelId) {
+        panelMap.set(panelId, child.props.children);
+      }
+    });
+
+  return panelMap;
+}
+
+function getPanelIdAt(
+  history: PanelHistoryEntry[],
+  index: number,
+): string | null {
+  return history[index]?.id ?? null;
+}
+
+function getAdjacentPanelIds({
+  history,
+  currentIndex,
+  currentPanel,
+}: {
+  history: PanelHistoryEntry[];
+  currentIndex: number;
+  currentPanel: string;
+}): AdjacentPanelIds {
+  return {
+    currentPanelId: currentPanel,
+    previousPanelId: getPanelIdAt(history, currentIndex - 1),
+    nextPanelId: getPanelIdAt(history, currentIndex + 1),
+  };
+}
+
+function buildPanelSlots({
+  currentPanelId,
+  previousPanelId,
+  nextPanelId,
+}: AdjacentPanelIds): PanelSlot[] {
+  return [
+    { id: currentPanelId, placement: 'active' },
+    { id: previousPanelId, placement: 'previous' },
+    { id: nextPanelId, placement: 'next' },
+  ];
+}
+
+function PanelSlotRenderer({
+  slot,
+  panelMap,
+  direction,
+}: PanelSlotRendererProps): React.ReactElement | null {
+  if (!slot.id || !panelMap.has(slot.id)) {
+    return null;
+  }
+
+  return (
+    <PanelInternal
+      id={slot.id}
+      isActive={slot.placement === 'active'}
+      isPrevious={slot.placement === 'previous'}
+      isNext={slot.placement === 'next'}
+      direction={direction}
+    >
+      {panelMap.get(slot.id)}
+    </PanelInternal>
+  );
+}
+
 /**
  * Panel internal component with animation state
  */
@@ -43,56 +252,22 @@ function PanelInternal({
   direction,
 }: PanelInternalProps): React.ReactElement | null {
   const panelRef = useRef<HTMLDivElement>(null);
-  const [shouldRender, setShouldRender] = useState(isActive);
-
-  // Render panel if it's active, previous, or next (for transitions)
-  useEffect(() => {
-    if (isActive || isPrevious || isNext) {
-      setShouldRender(true);
-    } else {
-      // Delay unmount to allow transition to complete
-      const timer = setTimeout(() => {
-        setShouldRender(false);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [isActive, isPrevious, isNext]);
+  const shouldRender = useRenderDuringTransition({
+    isActive,
+    isPrevious,
+    isNext,
+  });
 
   if (!shouldRender) {
     return null;
   }
 
-  // Calculate transform based on state and direction
-  let transform = 'translateX(0)';
-  let zIndex = 0;
-  let visibility: 'visible' | 'hidden' = 'hidden';
-
-  if (isActive) {
-    // Current panel - fully visible
-    transform = 'translateX(0)';
-    zIndex = 10;
-    visibility = 'visible';
-  } else if (isPrevious && direction === 'backward') {
-    // Previous panel sliding in from left during back navigation
-    transform = 'translateX(-100%)';
-    zIndex = 10;
-    visibility = 'visible';
-  } else if (isPrevious) {
-    // Previous panel, off-screen to the left
-    transform = 'translateX(-100%)';
-    zIndex = 5;
-    visibility = 'visible';
-  } else if (isNext && direction === 'forward') {
-    // Next panel sliding in from right during forward navigation
-    transform = 'translateX(100%)';
-    zIndex = 10;
-    visibility = 'visible';
-  } else if (isNext) {
-    // Next panel, off-screen to the right
-    transform = 'translateX(100%)';
-    zIndex = 5;
-    visibility = 'visible';
-  }
+  const presentation = getPanelPresentation({
+    isActive,
+    isPrevious,
+    isNext,
+    direction,
+  });
 
   return (
     <div
@@ -100,21 +275,14 @@ function PanelInternal({
       data-panel-id={id}
       className="fixed inset-0 h-full w-full bg-white dark:bg-gray-900"
       style={{
-        transform,
-        zIndex,
-        visibility,
-        transition: 'transform 300ms ease-in-out',
+        ...presentation,
+        transition: PANEL_TRANSITION,
         willChange: 'transform',
       }}
     >
       {children}
     </div>
   );
-}
-
-interface PanelStackProps {
-  children: ReactNode;
-  className?: string;
 }
 
 /**
@@ -146,90 +314,29 @@ export function PanelStack({
   const currentPanel = useNavigationSelector((state) => state.currentPanel);
   const history = useNavigationSelector((state) => state.history);
   const currentIndex = useNavigationSelector((state) => state.currentIndex);
-  const [direction, setDirection] = useState<'forward' | 'backward' | null>(
-    null,
-  );
-  const previousIndexRef = useRef<number>(currentIndex);
+  const direction = useNavigationDirection(currentIndex);
 
-  // Detect navigation direction
-  useEffect(() => {
-    if (currentIndex !== previousIndexRef.current) {
-      setDirection(
-        currentIndex > previousIndexRef.current ? 'forward' : 'backward',
-      );
-      previousIndexRef.current = currentIndex;
-
-      // Clear direction after transition
-      const timer = setTimeout(() => {
-        setDirection(null);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [currentIndex]);
-
-  // Don't render on desktop
   if (!isMobile) {
     return null;
   }
 
-  // Extract panel children
-  const panelChildren = React.Children.toArray(children).filter(
-    (child): child is React.ReactElement<PanelProps> => {
-      return React.isValidElement(child) && child.type === Panel;
-    },
-  );
-
-  // Create map of panel IDs to elements
-  const panelMap = new Map<string, ReactNode>();
-  panelChildren.forEach((child) => {
-    const panelId = child.props.id;
-    if (panelId) {
-      panelMap.set(panelId, child.props.children);
-    }
+  const panelMap = getPanelMap(children);
+  const adjacentPanelIds = getAdjacentPanelIds({
+    history,
+    currentIndex,
+    currentPanel,
   });
-
-  // Get current, previous, and next panel IDs
-  const currentPanelId = currentPanel;
-  const previousPanelId =
-    currentIndex > 0 ? history[currentIndex - 1].id : null;
-  const nextPanelId =
-    currentIndex < history.length - 1 ? history[currentIndex + 1].id : null;
 
   return (
     <div className={`md:hidden ${className}`.trim()}>
-      {panelMap.has(currentPanelId) && (
-        <PanelInternal
-          id={currentPanelId}
-          isActive={true}
-          isPrevious={false}
-          isNext={false}
+      {buildPanelSlots(adjacentPanelIds).map((slot) => (
+        <PanelSlotRenderer
+          key={`${slot.placement}:${slot.id ?? 'empty'}`}
+          slot={slot}
+          panelMap={panelMap}
           direction={direction}
-        >
-          {panelMap.get(currentPanelId)}
-        </PanelInternal>
-      )}
-      {previousPanelId && panelMap.has(previousPanelId) && (
-        <PanelInternal
-          id={previousPanelId}
-          isActive={false}
-          isPrevious={true}
-          isNext={false}
-          direction={direction}
-        >
-          {panelMap.get(previousPanelId)}
-        </PanelInternal>
-      )}
-      {nextPanelId && panelMap.has(nextPanelId) && (
-        <PanelInternal
-          id={nextPanelId}
-          isActive={false}
-          isPrevious={false}
-          isNext={true}
-          direction={direction}
-        >
-          {panelMap.get(nextPanelId)}
-        </PanelInternal>
-      )}
+        />
+      ))}
     </div>
   );
 }

@@ -24,7 +24,6 @@ import * as path from 'path';
 
 import { Era } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
-import { WeightClass } from '@/types/enums/WeightClass';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import type { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
@@ -34,6 +33,7 @@ import {
   type IFullUnit,
 } from './CanonicalUnitService';
 import { parseUnit } from './unitLoaderService/unitContractAdapter';
+import { getUnitIndexWeightClass } from './unitWeightClass';
 
 // =============================================================================
 // Raw index shapes (matches the on-disk index.json format)
@@ -88,16 +88,6 @@ function eraFromPath(filePath: string): Era {
 }
 
 /**
- * Map tonnage to the closest WeightClass bucket.
- */
-function weightClassFromTonnage(tonnage: number): WeightClass {
-  if (tonnage <= 35) return WeightClass.LIGHT;
-  if (tonnage <= 55) return WeightClass.MEDIUM;
-  if (tonnage <= 75) return WeightClass.HEAVY;
-  return WeightClass.ASSAULT;
-}
-
-/**
  * Map raw techBase string to TechBase enum.
  * Mixed units default to INNER_SPHERE to match CanonicalUnitService behaviour.
  */
@@ -118,7 +108,7 @@ function mapRawToIndexEntry(raw: RawIndexUnit): IUnitIndexEntry {
     tonnage: raw.tonnage,
     techBase: techBaseFromString(raw.techBase),
     era: eraFromPath(raw.path),
-    weightClass: weightClassFromTonnage(raw.tonnage),
+    weightClass: getUnitIndexWeightClass(raw.tonnage),
     unitType: UnitType.BATTLEMECH,
     // filePath uses the same "/data/..." prefix as the fetch-based service so
     // any code that reads `entry.filePath` gets a consistent shape.
@@ -229,21 +219,21 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
   /**
    * Return all index entries. Loads and caches the index on first call.
    */
-  async getIndex(): Promise<readonly IUnitIndexEntry[]> {
+  getIndex = async (): Promise<readonly IUnitIndexEntry[]> => {
     return this.loadRawIndex().entries;
-  }
+  };
 
   /**
    * Return the version stamp from the catalog index file.
    * Used as a cache key by `bvCatalogPrewarmer` so the BV cache invalidates
    * automatically when the catalog regenerates with a new version.
    */
-  getCatalogVersion(): string {
+  getCatalogVersion = (): string => {
     if (this.indexVersionCache === null) {
       this.loadRawIndex();
     }
     return this.indexVersionCache ?? 'unknown';
-  }
+  };
 
   /**
    * Load a single unit by id.
@@ -262,7 +252,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
    * naming the offending field path, failing loud at the loader boundary
    * instead of corrupting downstream domain code with a malformed unit.
    */
-  async getById(id: string): Promise<IFullUnit | null> {
+  getById = async (id: string): Promise<IFullUnit | null> => {
     // Return cached reference immediately — this also satisfies Task 2.8's
     // requirement that two calls for the same id return the same object.
     if (this.unitCache.has(id)) {
@@ -303,12 +293,12 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
     // Cache and return the parsed unit.
     this.unitCache.set(id, unit);
     return unit;
-  }
+  };
 
   /**
    * Bulk load units by id list. Returns only those that resolved successfully.
    */
-  async getByIds(ids: string[]): Promise<IFullUnit[]> {
+  getByIds = async (ids: string[]): Promise<IFullUnit[]> => {
     const results: IFullUnit[] = [];
     for (const id of ids) {
       const unit = await this.getById(id);
@@ -317,15 +307,15 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
       }
     }
     return results;
-  }
+  };
 
   /**
    * Filter the index by the given criteria. Mirrors the fetch-based service's
    * query() so Phase 4's random force generator can swap implementations.
    */
-  async query(
+  query = async (
     criteria: IUnitQueryCriteria,
-  ): Promise<readonly IUnitIndexEntry[]> {
+  ): Promise<readonly IUnitIndexEntry[]> => {
     let results = await this.getIndex();
 
     if (criteria.techBase !== undefined) {
@@ -348,17 +338,17 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
     }
 
     return results;
-  }
+  };
 
   /**
    * Clear all caches. Useful in tests that need fresh disk reads.
    */
-  clearCache(): void {
+  clearCache = (): void => {
     this.indexCache = null;
     this.rawIndexCache = null;
     this.indexVersionCache = null;
     this.unitCache.clear();
-  }
+  };
 }
 
 // =============================================================================

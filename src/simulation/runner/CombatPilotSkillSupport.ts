@@ -1,17 +1,8 @@
-import type {
-  ICombatFeatureSourceReference,
-  ICombatFeatureSupportEntry,
+import {
+  integrated,
+  type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
-
 import { PILOT_SKILL_SOURCE_REFS } from './CombatPilotSkillSourceRefs';
-
-function integrated(
-  id: string,
-  evidence: string,
-  sourceRefs: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return { id, level: 'integrated', evidence, sourceRefs };
-}
 
 export const PILOT_SKILL_COMBAT_SUPPORT = {
   'ranged-gunnery-to-hit': integrated(

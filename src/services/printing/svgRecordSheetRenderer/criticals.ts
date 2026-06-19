@@ -145,17 +145,17 @@ function renderLocationCriticals(
 
   // Draw multi-slot indicator bars
   multiSlotGroups.forEach((groupInfo) => {
-    drawMultiSlotBar(
+    drawMultiSlotBar({
       svgDoc,
       group,
       x,
-      slotsStartY,
+      y: slotsStartY,
       slotHeight,
       gapHeight,
       slotCount,
       groupInfo,
       barWidth,
-    );
+    });
   });
 
   // Insert after the rect element
@@ -245,17 +245,40 @@ function identifyMultiSlotGroups(
  * When equipment spans across the gap between slots 6 and 7, draws a single
  * continuous bracket that bridges across the gap.
  */
-function drawMultiSlotBar(
-  svgDoc: Document,
-  group: Element,
-  x: number,
-  y: number,
-  slotHeight: number,
-  gapHeight: number,
-  slotCount: number,
-  groupInfo: { startIndex: number; endIndex: number },
-  barWidth: number,
-): void {
+type MultiSlotBarParams = {
+  svgDoc: Document;
+  group: Element;
+  x: number;
+  y: number;
+  slotHeight: number;
+  gapHeight: number;
+  slotCount: number;
+  groupInfo: { startIndex: number; endIndex: number };
+  barWidth: number;
+};
+
+type BracketPathParams = {
+  svgDoc: Document;
+  group: Element;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  strokeWidth: number;
+};
+
+function drawMultiSlotBar(params: MultiSlotBarParams): void {
+  const {
+    svgDoc,
+    group,
+    x,
+    y,
+    slotHeight,
+    gapHeight,
+    slotCount,
+    groupInfo,
+    barWidth,
+  } = params;
   const startSlot = groupInfo.startIndex;
   const endSlot = groupInfo.endIndex;
   const bracketWidth = 3; // Width of horizontal bracket parts
@@ -284,30 +307,23 @@ function drawMultiSlotBar(
 
   // Single continuous bracket - even when spanning the gap
   // The bracket height already accounts for the gap via barEndY calculation
-  drawBracketPath(
+  drawBracketPath({
     svgDoc,
     group,
-    bracketX,
-    barStartY,
-    bracketWidth,
-    barEndY - barStartY,
+    x: bracketX,
+    y: barStartY,
+    width: bracketWidth,
+    height: barEndY - barStartY,
     strokeWidth,
-  );
+  });
 }
 
 /**
  * Draw an L-shaped bracket path (MegaMekLab style)
  * Path: Move to top, horizontal left, vertical down, horizontal right
  */
-function drawBracketPath(
-  svgDoc: Document,
-  group: Element,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  strokeWidth: number,
-): void {
+function drawBracketPath(params: BracketPathParams): void {
+  const { svgDoc, group, x, y, width, height, strokeWidth } = params;
   const path = svgDoc.createElementNS(SVG_NS, 'path');
   // Draw bracket: top horizontal, vertical bar, bottom horizontal
   path.setAttribute(

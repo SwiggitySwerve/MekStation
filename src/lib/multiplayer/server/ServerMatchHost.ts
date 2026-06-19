@@ -313,7 +313,7 @@ export class ServerMatchHost {
    * upgrade handler also needs to react to `BAD_ENVELOPE` rejections
    * before then.
    */
-  attachSocket(socket: IMatchSocket, playerId: string): void {
+  attachSocket = (socket: IMatchSocket, playerId: string): void => {
     if (this.closed) {
       this.safeSend(socket, {
         kind: 'Close',
@@ -333,15 +333,15 @@ export class ServerMatchHost {
     // MatchResumed.
     this.pendingPeers.clearPending(playerId);
     this.lifecycle.attach(socket, playerId);
-  }
+  };
 
   /**
    * Tear down per-socket bookkeeping. Safe to call from any disconnect
    * path (client bye, heartbeat timeout, host shutdown).
    */
-  detachSocket(socket: IMatchSocket): void {
+  detachSocket = (socket: IMatchSocket): void => {
     this.lifecycle.detach(socket);
-  }
+  };
 
   /**
    * Wave 4: look up whether `playerId` occupies a `human` seat in an
@@ -409,9 +409,9 @@ export class ServerMatchHost {
    * Bookkeeping called by the upgrade handler whenever ANY message
    * comes in for this socket. Resets the dead-connection timer.
    */
-  noteInbound(socket: IMatchSocket): void {
+  noteInbound = (socket: IMatchSocket): void => {
     this.lifecycle.noteInbound(socket);
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Replay
@@ -421,26 +421,26 @@ export class ServerMatchHost {
    * Stream the event history >= `fromSeq` to one socket. Delegates to
    * `ServerMatchHostReplay.sendReplay` (framing + fog filtering there).
    */
-  async sendReplay(
+  sendReplay = async (
     socket: IMatchSocket,
     fromSeq = 0,
     playerId?: string,
-  ): Promise<void> {
+  ): Promise<void> => {
     await sendReplay(
       buildReplayContext(this.internals()),
       socket,
       fromSeq,
       playerId,
     );
-  }
+  };
 
   /** Read the raw event history >= `seq` (delegates to replay module). */
-  async getEventsFromSeq(seq: number): Promise<readonly IGameEvent[]> {
+  getEventsFromSeq = async (seq: number): Promise<readonly IGameEvent[]> => {
     return getEventsFromSeq(buildReplayContext(this.internals()), seq);
-  }
+  };
 
   /** Answer a P2P reconnect request (delegates to replay module). */
-  async handleReconnectRequest(
+  handleReconnectRequest = async (
     request: IReconnectRequestEnvelope,
     channel: Pick<
       IGameSessionChannel,
@@ -449,20 +449,20 @@ export class ServerMatchHost {
       | 'broadcastReplayStream'
     >,
     metadataReader: ReconnectMetadataReader = matchLogStorage,
-  ): Promise<void> {
+  ): Promise<void> => {
     await handleReconnectRequest(
       buildReplayContext(this.internals()),
       request,
       channel,
       metadataReader,
     );
-  }
+  };
 
   /**
    * Subscribe to reconnect requests on a P2P channel; returns an
    * unsubscribe function (delegates to replay module).
    */
-  bindReconnectChannel(
+  bindReconnectChannel = (
     channel: Pick<
       IGameSessionChannel,
       | 'broadcastRejection'
@@ -471,25 +471,25 @@ export class ServerMatchHost {
       | 'onReconnectRequest'
     >,
     metadataReader: ReconnectMetadataReader = matchLogStorage,
-  ): () => void {
+  ): (() => void) => {
     return bindReconnectChannel(
       buildReplayContext(this.internals()),
       channel,
       metadataReader,
     );
-  }
+  };
 
   /**
    * Handle a `SessionJoin`: replay history, re-bind seat metadata, and
    * broadcast `LobbyUpdated`/`MatchResumed` (delegates to replay
    * module).
    */
-  async handleSessionJoin(
+  handleSessionJoin = async (
     socket: IMatchSocket,
     playerId: string,
     lastSeq?: number,
     requestedMatchId = this.matchId,
-  ): Promise<void> {
+  ): Promise<void> => {
     await handleSessionJoin(
       buildReplayContext(this.internals()),
       socket,
@@ -497,7 +497,7 @@ export class ServerMatchHost {
       lastSeq,
       requestedMatchId,
     );
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Intent dispatch
@@ -513,30 +513,30 @@ export class ServerMatchHost {
    * upgrade handler passes the per-socket identity; tests may pass any
    * stable string (or omit it for a shared bucket).
    */
-  async handleIntent(
+  handleIntent = async (
     envelope: IIntent,
     connectionKey?: string,
-  ): Promise<readonly IServerMessage[]> {
+  ): Promise<readonly IServerMessage[]> => {
     return handleIntentWithContext(
       buildIntentContext(this.internals()),
       envelope,
       connectionKey,
     );
-  }
+  };
 
   /**
    * harden-multiplayer-transport (M2) test/observability: drop a
    * connection's rate-limit bucket. The WebSocket upgrade handler calls
    * this on socket detach so per-socket state is not retained forever.
    */
-  releaseConnection(connectionKey: string): void {
+  releaseConnection = (connectionKey: string): void => {
     this.rateLimiter.release(connectionKey);
-  }
+  };
 
   /** Test/observability: number of accepted intent ids retained. */
-  acceptedIntentCount(): number {
+  acceptedIntentCount = (): number => {
     return this.acceptedIntents.size();
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Lifecycle
@@ -546,7 +546,7 @@ export class ServerMatchHost {
    * Close the match: drop all sockets, kill heartbeats, mark the store.
    * Idempotent.
    */
-  async closeMatch(): Promise<void> {
+  closeMatch = async (): Promise<void> => {
     if (this.closed) return;
     this.closed = true;
     // Wave 4: cancel every pending grace timer so a finished match
@@ -572,7 +572,7 @@ export class ServerMatchHost {
       this.detachSocket(socket);
     }
     await this.store.closeMatch(this.matchId);
-  }
+  };
 
   /**
    * Wave 5: delegate to the outcome-publisher safety net. Kept as a
@@ -583,40 +583,40 @@ export class ServerMatchHost {
   }
 
   /** Test/observability: number of currently-connected sockets. */
-  socketCount(): number {
+  socketCount = (): number => {
     return this.lifecycle.count();
-  }
+  };
 
   /** Test/observability: most recent broadcast sequence (or -1). */
-  highestSeq(): number {
+  highestSeq = (): number => {
     return this.lastBroadcastSeq;
-  }
+  };
 
   /** Test/observability: pull the live session (for assertions). */
-  getSessionForTests(): IGameSession {
+  getSessionForTests = (): IGameSession => {
     return this.session.getSession();
-  }
+  };
 
   /** Whether `closeMatch` has run. */
-  isClosed(): boolean {
+  isClosed = (): boolean => {
     return this.closed;
-  }
+  };
 
   /** Wave 4 test/observability: is the match currently paused? */
-  isPausedForReconnect(): boolean {
+  isPausedForReconnect = (): boolean => {
     return this.isPaused;
-  }
+  };
 
   /** Wave 4 test/observability: snapshot pending peers (slot+player). */
-  getPendingPeersForTests(): ReadonlyArray<{
+  getPendingPeersForTests = (): ReadonlyArray<{
     readonly playerId: string;
     readonly slotId: string;
-  }> {
+  }> => {
     return this.pendingPeers.getAllPending().map((p) => ({
       playerId: p.playerId,
       slotId: p.slotId,
     }));
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Internals
@@ -755,9 +755,9 @@ export class ServerMatchHost {
    * REST + auth path. Production wiring sets the ref on first
    * SessionJoin so subsequent OccupySeat intents have a name to use.
    */
-  registerPlayerRef(ref: IPlayerRef): void {
+  registerPlayerRef = (ref: IPlayerRef): void => {
     this.playerRefs.set(ref.playerId, ref);
-  }
+  };
 
   /**
    * Top-level lobby intent dispatcher. Loads the current meta, routes

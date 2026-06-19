@@ -12,6 +12,12 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { PermissionLevel } from '@/types/vault';
 
+import {
+  rejectMissingQueryString,
+  rejectUnexpectedMethod as rejectFolderShareMethod,
+  sendLoggedApiError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getVaultService } from '@/services/vault/VaultService';
 
 // =============================================================================
@@ -48,23 +54,22 @@ interface SuccessResponse {
   failed?: number;
 }
 
-interface ErrorResponse {
-  error: string;
-}
-
 // =============================================================================
 // Handler
 // =============================================================================
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SharesResponse | SuccessResponse | ErrorResponse>,
+  res: NextApiResponse<SharesResponse | SuccessResponse | ApiErrorResponse>,
 ): Promise<void> {
-  const { id } = req.query;
-
-  if (typeof id !== 'string') {
-    return res.status(400).json({ error: 'Invalid folder ID' });
-  }
+  const id = rejectMissingQueryString(req, res, 'id', 'Invalid folder ID');
+  if (!id) return;
+  if (
+    rejectFolderShareMethod(req, res, ['GET', 'POST', 'DELETE'], () => ({
+      error: 'Method not allowed',
+    }))
+  )
+    return;
 
   try {
     const vaultService = getVaultService();
@@ -82,14 +87,10 @@ export default async function handler(
         return handleShare(id, req, res, vaultService);
       case 'DELETE':
         return handleUnshare(id, req, res, vaultService);
-      default:
-        return res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
-    console.error('Folder share API error:', error);
-    return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedApiError(res, 'Folder share API error:', error);
+    return;
   }
 }
 
@@ -99,7 +100,7 @@ export default async function handler(
 
 async function handleList(
   folderId: string,
-  res: NextApiResponse<SharesResponse | ErrorResponse>,
+  res: NextApiResponse<SharesResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   const folderWithPermissions =
@@ -117,7 +118,7 @@ async function handleList(
 async function handleShare(
   folderId: string,
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse | ErrorResponse>,
+  res: NextApiResponse<SuccessResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   const body = req.body as ShareRequest | BulkShareRequest;
@@ -167,7 +168,7 @@ async function handleShare(
 async function handleUnshare(
   folderId: string,
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse | ErrorResponse>,
+  res: NextApiResponse<SuccessResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   const { contactFriendCode } = req.body as UnshareRequest;

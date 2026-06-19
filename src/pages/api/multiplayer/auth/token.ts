@@ -25,6 +25,7 @@ import type { IVaultIdentity } from '@/types/vault';
 
 import { canonicalTokenPayload } from '@/lib/multiplayer/server/auth';
 import { derivePlayerId } from '@/lib/multiplayer/server/playerIdFromPublicKey';
+import { rejectUnexpectedMethod } from '@/pages-modules/api/routeHelpers';
 import { getIdentityRepository } from '@/services/vault/IdentityRepository';
 import {
   fromBase64,
@@ -93,11 +94,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<IIssueResponse | IErrorResponse>,
 ): Promise<void> {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-    return;
-  }
+  if (rejectUnexpectedMethod(req, res, ['POST'])) return;
 
   const body = (req.body ?? {}) as IIssueRequestBody;
   const { password, displayName, ttlMs } = body;

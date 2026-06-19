@@ -3,8 +3,12 @@ import React from 'react';
 import type { ICombatRangeHex, IHexCoordinate } from '@/types/gameplay';
 import type { ITacticalMapCombatLosBlockerReference } from '@/utils/gameplay/tacticalMapProjection';
 
-import { CoverLevel, RangeBracket, TerrainType } from '@/types/gameplay';
+import { TerrainType } from '@/types/gameplay';
 
+import {
+  formatCombatBadgeSummary,
+  formatCombatRangeBadgeLabel,
+} from './HexCell.combatBadgeSummaries';
 import {
   combatWeaponOptionArcStatesAttribute,
   combatWeaponOptionAvailabilityAttribute,
@@ -13,28 +17,14 @@ import {
   combatWeaponOptionExpectedDamagesAttribute,
   combatWeaponOptionRangesAttribute,
 } from './HexCell.combatOptionSummaries';
-
-function formatRangeBracketLabel(bracket: RangeBracket): string {
-  switch (bracket) {
-    case RangeBracket.Short:
-      return 'S';
-    case RangeBracket.Medium:
-      return 'M';
-    case RangeBracket.Long:
-      return 'L';
-    case RangeBracket.Extreme:
-      return 'X';
-    case RangeBracket.OutOfRange:
-      return 'OUT';
-  }
-}
-
-function formatCombatRangeBadgeLabel(combatInfo: ICombatRangeHex): string {
-  const distance = Number.isFinite(combatInfo.distance)
-    ? combatInfo.distance
-    : '?';
-  return `${formatRangeBracketLabel(combatInfo.rangeBracket)}${distance}`;
-}
+import {
+  CombatCoverBadge,
+  CombatIndirectFireBadge,
+  CombatMinimumRangeBadge,
+  CombatRangeCoreBadge,
+  CombatToHitBadge,
+  CombatWeaponCountBadge,
+} from './HexCell.combatRangeSubBadges';
 
 function formatCombatLOSBadgeLabel(combatInfo: ICombatRangeHex): string {
   switch (combatInfo.losState) {
@@ -76,29 +66,6 @@ function formatCombatVisibilityBadgeLabel(
     case 'none':
       return null;
   }
-}
-
-function formatCombatCoverBadgeLevelLabel(level: CoverLevel): string {
-  switch (level) {
-    case CoverLevel.Partial:
-      return 'P';
-    case CoverLevel.Full:
-      return 'F';
-    case CoverLevel.None:
-      return 'C';
-  }
-}
-
-function formatCombatCoverBadgeLabel(combatInfo: ICombatRangeHex): string {
-  return `${formatCombatCoverBadgeLevelLabel(combatInfo.targetCoverLevel)}+${combatInfo.targetCoverModifier}`;
-}
-
-function formatRangeBracketName(bracket: RangeBracket): string {
-  return bracket.replace(/_/g, ' ');
-}
-
-function formatWeaponList(ids: readonly string[]): string {
-  return ids.length > 0 ? ids.join(', ') : 'none';
 }
 
 function formatHexKey(hex: IHexCoordinate): string {
@@ -153,47 +120,6 @@ function formatLOSBlockerTitle(
   );
   const affectedTargets = `affects target hex${targetHexes.length === 1 ? '' : 'es'} ${targetHexes.join(', ')}`;
   return `LOS ${primary.losState} at blocker ${formatHexKey(primary.blocker.hex)}: ${uniqueReasons.join('; ')}; ${affectedTargets}`;
-}
-
-function formatCombatBadgeSummary(combatInfo: ICombatRangeHex): string {
-  const status = combatInfo.attackable ? 'attack available' : 'not attackable';
-  const blockedOptions = combatInfo.weaponRangeOptions
-    .filter((option) => !option.available)
-    .map((option) => `${option.weaponId} ${option.blockedReason ?? 'blocked'}`);
-  const optionSummary =
-    blockedOptions.length > 0
-      ? `; blocked weapons ${blockedOptions.join(', ')}`
-      : '';
-  return `${formatRangeBracketName(combatInfo.rangeBracket)} range at ${combatInfo.distance} hexes; ${status}; weapons available ${formatWeaponList(combatInfo.weaponIdsAvailable)}${optionSummary}`;
-}
-
-function weaponOptionAvailabilityCount(combatInfo: ICombatRangeHex): {
-  readonly available: number;
-  readonly total: number;
-  readonly blocked: number;
-} {
-  const total = combatInfo.weaponRangeOptions.length;
-  const available = combatInfo.weaponRangeOptions.filter(
-    (option) => option.available,
-  ).length;
-  return {
-    available,
-    total,
-    blocked: total - available,
-  };
-}
-
-function formatWeaponAvailabilityTitle(combatInfo: ICombatRangeHex): string {
-  const { available, total, blocked } =
-    weaponOptionAvailabilityCount(combatInfo);
-  const blockedOptions = combatInfo.weaponRangeOptions
-    .filter((option) => !option.available)
-    .map(
-      (option) => `${option.weaponId}: ${option.blockedReason ?? 'blocked'}`,
-    );
-  const blockedSummary =
-    blockedOptions.length > 0 ? `; blocked ${blockedOptions.join(', ')}` : '';
-  return `Weapons available ${available} of ${total}; blocked ${blocked}${blockedSummary}`;
 }
 
 export function CombatLineOfSightBlockerBadge({
@@ -400,26 +326,10 @@ export function CombatRangeBadge({
   if (!combatInfo || (!combatInfo.inRange && !combatInfo.hasTarget)) {
     return null;
   }
-  const hasCoverModifier = combatInfo.targetCoverModifier > 0;
-  const hasIndirectFire = combatInfo.indirectFireAvailable === true;
-  const hasMinimumRangePenalty = (combatInfo.minimumRangePenalty ?? 0) > 0;
-  const hasToHitNumber = combatInfo.toHitNumber !== undefined;
-  const weaponAvailability = weaponOptionAvailabilityCount(combatInfo);
-  const hasWeaponOptionCount = weaponAvailability.total > 1;
+
   const rangeLabel = formatCombatRangeBadgeLabel(combatInfo);
   const rangeBadgeWidth = Math.max(28, rangeLabel.length * 5.4 + 10);
   const combatSummary = formatCombatBadgeSummary(combatInfo);
-  const weaponAvailabilityTitle = formatWeaponAvailabilityTitle(combatInfo);
-  const indirectTitle = combatInfo.indirectFireReason ?? 'Indirect fire';
-  const coverTitle =
-    combatInfo.targetCoverReason ??
-    `Cover modifier +${combatInfo.targetCoverModifier}`;
-  const coverLabel = formatCombatCoverBadgeLabel(combatInfo);
-  const minimumRangeTitle =
-    combatInfo.minimumRangeReason ??
-    `Minimum range penalty +${combatInfo.minimumRangePenalty ?? 0}`;
-  const toHitTitle =
-    combatInfo.toHitReason ?? `Target number ${combatInfo.toHitNumber ?? ''}`;
 
   return (
     <g
@@ -453,200 +363,20 @@ export function CombatRangeBadge({
       )}
     >
       <title>{combatSummary}</title>
-      {hasWeaponOptionCount && (
-        <g
-          data-testid={`hex-combat-weapon-count-badge-${hex.q}-${hex.r}`}
-          aria-label={weaponAvailabilityTitle}
-          data-combat-weapon-count-badge-available={
-            weaponAvailability.available
-          }
-          data-combat-weapon-count-badge-total={weaponAvailability.total}
-          data-combat-weapon-count-badge-blocked={weaponAvailability.blocked}
-          data-combat-weapon-count-badge-weapons-available={combatInfo.weaponIdsAvailable.join(
-            ',',
-          )}
-          data-combat-weapon-count-badge-blocked-reasons={combatWeaponOptionBlockedReasonsAttribute(
-            combatInfo.weaponRangeOptions,
-          )}
-        >
-          <title>{weaponAvailabilityTitle}</title>
-          <rect
-            x={x - 69}
-            y={y + 6}
-            width={56}
-            height={12}
-            rx={3}
-            fill={weaponAvailability.available > 0 ? '#334155' : '#7f1d1d'}
-            opacity={0.92}
-          />
-          <text
-            x={x - 41}
-            y={y + 15}
-            textAnchor="middle"
-            fontSize={8}
-            fontWeight="bold"
-            fill="#f8fafc"
-          >
-            {weaponAvailability.available}/{weaponAvailability.total} WPN
-          </text>
-        </g>
-      )}
-      {hasIndirectFire && (
-        <g
-          data-testid={`hex-indirect-fire-badge-${hex.q}-${hex.r}`}
-          aria-label={indirectTitle}
-          data-combat-indirect-badge-basis={combatInfo.indirectFireBasis}
-          data-combat-indirect-badge-spotter={combatInfo.indirectFireSpotterId}
-          data-combat-indirect-badge-penalty={
-            combatInfo.indirectFireToHitPenalty
-          }
-          data-combat-indirect-badge-spotter-attacked={
-            combatInfo.indirectFireSpotterAttacked ? 'true' : undefined
-          }
-          data-combat-indirect-badge-forward-observer={
-            combatInfo.indirectFireForwardObserver ? 'true' : undefined
-          }
-          data-combat-indirect-badge-penalty-cancelled={
-            combatInfo.indirectFirePenaltyCancelled
-          }
-        >
-          <title>{indirectTitle}</title>
-          <rect
-            x={x - 48}
-            y={y + 19}
-            width={32}
-            height={12}
-            rx={3}
-            fill="#1d4ed8"
-            opacity={0.9}
-          />
-          <text
-            x={x - 32}
-            y={y + 28}
-            textAnchor="middle"
-            fontSize={8}
-            fontWeight="bold"
-            fill="#eff6ff"
-          >
-            IND
-          </text>
-        </g>
-      )}
-      <rect
-        x={x - rangeBadgeWidth / 2}
-        y={y + 19}
-        width={rangeBadgeWidth}
-        height={12}
-        rx={3}
-        fill={combatInfo.attackable ? '#991b1b' : '#7f1d1d'}
-        opacity={0.88}
-      />
-      <text
+      <CombatWeaponCountBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
+      <CombatIndirectFireBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
+      <CombatRangeCoreBadge
         x={x}
-        y={y + 28}
-        textAnchor="middle"
-        fontSize={8}
-        fontWeight="bold"
-        fill="#fef2f2"
-      >
-        {rangeLabel}
-      </text>
+        y={y}
+        combatInfo={combatInfo}
+        label={rangeLabel}
+        width={rangeBadgeWidth}
+      />
       <CombatGeometryBadges x={x} y={y} hex={hex} combatInfo={combatInfo} />
       <CombatVisibilityBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
-      {hasCoverModifier && (
-        <g
-          data-testid={`hex-cover-badge-${hex.q}-${hex.r}`}
-          aria-label={coverTitle}
-          data-combat-cover-badge-level={combatInfo.targetCoverLevel}
-          data-combat-cover-badge-label={coverLabel}
-          data-combat-cover-badge-modifier={combatInfo.targetCoverModifier}
-          data-combat-cover-badge-reason={coverTitle}
-        >
-          <title>{coverTitle}</title>
-          <rect
-            x={x + 15}
-            y={y + 19}
-            width={30}
-            height={12}
-            rx={3}
-            fill="#92400e"
-            opacity={0.9}
-          />
-          <text
-            x={x + 30}
-            y={y + 28}
-            textAnchor="middle"
-            fontSize={8}
-            fontWeight="bold"
-            fill="#fffbeb"
-          >
-            {coverLabel}
-          </text>
-        </g>
-      )}
-      {hasMinimumRangePenalty && (
-        <g
-          data-testid={`hex-minimum-range-badge-${hex.q}-${hex.r}`}
-          aria-label={minimumRangeTitle}
-          data-combat-minimum-range-badge-penalty={
-            combatInfo.minimumRangePenalty
-          }
-          data-combat-minimum-range-badge-weapons={combatInfo.minimumRangeWeaponIds?.join(
-            ',',
-          )}
-          data-combat-minimum-range-badge-reason={minimumRangeTitle}
-        >
-          <title>{minimumRangeTitle}</title>
-          <rect
-            x={x + (hasCoverModifier ? 47 : 15)}
-            y={y + 19}
-            width={30}
-            height={12}
-            rx={3}
-            fill="#7c2d12"
-            opacity={0.9}
-          />
-          <text
-            x={x + (hasCoverModifier ? 62 : 30)}
-            y={y + 28}
-            textAnchor="middle"
-            fontSize={8}
-            fontWeight="bold"
-            fill="#fff7ed"
-          >
-            MIN+{combatInfo.minimumRangePenalty}
-          </text>
-        </g>
-      )}
-      {hasToHitNumber && (
-        <g
-          data-testid={`hex-to-hit-badge-${hex.q}-${hex.r}`}
-          aria-label={toHitTitle}
-          data-combat-to-hit-badge-number={combatInfo.toHitNumber}
-          data-combat-to-hit-badge-reason={toHitTitle}
-        >
-          <title>{toHitTitle}</title>
-          <rect
-            x={x - 16}
-            y={y + 32}
-            width={32}
-            height={12}
-            rx={3}
-            fill="#312e81"
-            opacity={0.92}
-          />
-          <text
-            x={x}
-            y={y + 41}
-            textAnchor="middle"
-            fontSize={8}
-            fontWeight="bold"
-            fill="#eef2ff"
-          >
-            TN{combatInfo.toHitNumber}
-          </text>
-        </g>
-      )}
+      <CombatCoverBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
+      <CombatMinimumRangeBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
+      <CombatToHitBadge x={x} y={y} hex={hex} combatInfo={combatInfo} />
     </g>
   );
 }

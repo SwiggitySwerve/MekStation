@@ -1,5 +1,5 @@
 /**
- * Aggregate Batch Outcomes — pure stats reducer for Quick Resolve.
+ * Aggregate Batch Outcomes - pure stats reducer for Quick Resolve.
  *
  * Reduces an `IBatchOutcome[]` produced by `QuickResolveService.runBatch`
  * into a single `IBatchResult` summary used by the result-display UI.
@@ -32,10 +32,6 @@ import type {
   IBatchWinProbability,
 } from './batchOutcome';
 
-// =============================================================================
-// Empty result helpers (spec: empty input must not throw or NaN-out)
-// =============================================================================
-
 const EMPTY_TURN_COUNT: IBatchTurnCount = {
   mean: 0,
   median: 0,
@@ -53,10 +49,10 @@ const EMPTY_PROBABILITY: IBatchWinProbability = {
   draw: 0,
 };
 
-/**
- * Build the canonical "no data" result. Used both for empty input and
- * for batches cancelled before any runs completed.
- */
+type SuccessfulOutcome = {
+  report: IPostBattleReport;
+};
+
 function emptyResult(baseSeed: number): IBatchResult {
   return {
     totalRuns: 0,
@@ -71,17 +67,6 @@ function emptyResult(baseSeed: number): IBatchResult {
   };
 }
 
-// =============================================================================
-// Percentile helper — nearest-rank method (R-2 / type 1)
-// =============================================================================
-
-/**
- * Linear interpolation percentile, matching the "type 7" definition
- * common in spreadsheets / numpy default. Sorted ascending input.
- *
- * Returns 0 for empty input rather than throwing — callers already
- * guard against empty `successful` outcomes via the empty-result path.
- */
 function percentile(sorted: readonly number[], p: number): number {
   if (sorted.length === 0) return 0;
   if (sorted.length === 1) return sorted[0]!;
@@ -93,60 +78,41 @@ function percentile(sorted: readonly number[], p: number): number {
   return sorted[lo]! * (1 - weight) + sorted[hi]! * weight;
 }
 
-// =============================================================================
-// Per-side helpers
-// =============================================================================
-
-/**
- * True iff at least one unit on `side` shut down due to heat at any
- * point during the match. We walk the full event log because the
- * post-battle report's `heatProblems` counter only counts heat>=14
- * events, not actual shutdown rolls.
- */
-function reportHadShutdown(report: IPostBattleReport, side: GameSide): boolean {
-  // Build a quick lookup of unit → side.
+function sideByUnitFromReport(
+  report: IPostBattleReport,
+): Map<string, GameSide> {
   const sideByUnit = new Map<string, GameSide>();
-  for (const u of report.units) sideByUnit.set(u.unitId, u.side);
+  for (const unit of report.units) {
+    sideByUnit.set(unit.unitId, unit.side);
+  }
+  return sideByUnit;
+}
 
+function reportHadShutdown(report: IPostBattleReport, side: GameSide): boolean {
+  const sideByUnit = sideByUnitFromReport(report);
   for (const event of report.log) {
     if (event.type !== GameEventType.ShutdownCheck) continue;
     const payload = (event as IGameEvent).payload as IShutdownCheckPayload;
-    if (!payload.shutdownOccurred) continue;
-    if (sideByUnit.get(payload.unitId) === side) return true;
+    if (payload.shutdownOccurred && sideByUnit.get(payload.unitId) === side) {
+      return true;
+    }
   }
   return false;
 }
 
-/**
- * True iff at least one unit on `side` ended the match destroyed.
- * Detected via `UnitDestroyed` events in the log so we count whichever
- * side had a casualty regardless of report-level metadata.
- */
 function reportHadDestroyed(
   report: IPostBattleReport,
   side: GameSide,
 ): boolean {
-  const sideByUnit = new Map<string, GameSide>();
-  for (const u of report.units) sideByUnit.set(u.unitId, u.side);
-
-  const destroyed = new Set<string>();
+  const sideByUnit = sideByUnitFromReport(report);
   for (const event of report.log) {
     if (event.type !== GameEventType.UnitDestroyed) continue;
     const unitId = (event.payload as { unitId: string }).unitId;
-    destroyed.add(unitId);
+    if (sideByUnit.get(unitId) === side) return true;
   }
-  let found = false;
-  destroyed.forEach((unitId) => {
-    if (!found && sideByUnit.get(unitId) === side) found = true;
-  });
-  return found;
+  return false;
 }
 
-/**
- * Survival check for `perUnitSurvival`. We rely on `UnitDestroyed`
- * events because `IUnitReport` does not expose a `destroyed` boolean
- * directly (kills count is on the killer, not the victim).
- */
 function destroyedUnitsFromReport(
   report: IPostBattleReport,
 ): ReadonlySet<string> {
@@ -159,88 +125,83 @@ function destroyedUnitsFromReport(
   return destroyed;
 }
 
-// =============================================================================
-// Public API
-// =============================================================================
-
-/**
- * Aggregate per-run outcomes into a Quick Resolve summary.
- *
- * @param outcomes per-run results from `QuickResolveService.runBatch`
- * @param baseSeed seed used for the batch — round-tripped onto the
- *   result so callers can replay; defaults to the first outcome's seed
- *   minus its index, or 0 when outcomes is empty.
- */
-export function aggregateBatchOutcomes(
+function resolveBaseSeed(
   outcomes: readonly IBatchOutcome[],
   baseSeed?: number,
-): IBatchResult {
-  // Resolve baseSeed: prefer caller-supplied; otherwise derive from
-  // outcome[0] if present (seed = baseSeed + runIndex).
-  const resolvedBaseSeed =
+): number {
+  return (
     baseSeed ??
-    (outcomes.length > 0 ? outcomes[0]!.seed - outcomes[0]!.runIndex : 0);
+    (outcomes.length > 0 ? outcomes[0]!.seed - outcomes[0]!.runIndex : 0)
+  );
+}
 
-  if (outcomes.length === 0) {
-    return emptyResult(resolvedBaseSeed);
-  }
-
-  // Partition by error vs success.
-  const successful: { outcome: IBatchOutcome; report: IPostBattleReport }[] =
-    [];
+function partitionOutcomes(outcomes: readonly IBatchOutcome[]): {
+  successful: SuccessfulOutcome[];
+  erroredRuns: number;
+} {
+  const successful: SuccessfulOutcome[] = [];
   let erroredRuns = 0;
-  for (const o of outcomes) {
-    if (o.report) {
-      successful.push({ outcome: o, report: o.report });
+
+  for (const outcome of outcomes) {
+    if (outcome.report) {
+      successful.push({ report: outcome.report });
     } else {
       erroredRuns++;
     }
   }
 
-  // If every run errored we cannot derive any probabilities — return
-  // an empty result but preserve totalRuns + erroredRuns for the UI.
-  if (successful.length === 0) {
-    return {
-      ...emptyResult(resolvedBaseSeed),
-      totalRuns: outcomes.length,
-      erroredRuns,
-    };
-  }
+  return { successful, erroredRuns };
+}
 
-  // ---- Win probability -----------------------------------------------------
+function winProbabilityFromReports(
+  successful: readonly SuccessfulOutcome[],
+): IBatchWinProbability {
   let playerWins = 0;
   let opponentWins = 0;
   let draws = 0;
+
   for (const { report } of successful) {
-    if (report.winner === GameSide.Player) playerWins++;
-    else if (report.winner === GameSide.Opponent) opponentWins++;
-    else draws++;
+    if (report.winner === GameSide.Player) {
+      playerWins++;
+    } else if (report.winner === GameSide.Opponent) {
+      opponentWins++;
+    } else {
+      draws++;
+    }
   }
+
   const denom = successful.length;
-  const winProbability: IBatchWinProbability = {
+  return {
     player: playerWins / denom,
     opponent: opponentWins / denom,
     draw: draws / denom,
   };
+}
 
-  // ---- Most likely outcome (ties between sides → draw) ---------------------
-  let mostLikelyOutcome: GameSide | 'draw';
+function mostLikelyOutcomeFrom(
+  winProbability: IBatchWinProbability,
+): GameSide | 'draw' {
   if (winProbability.player > winProbability.opponent) {
-    mostLikelyOutcome = GameSide.Player;
-  } else if (winProbability.opponent > winProbability.player) {
-    mostLikelyOutcome = GameSide.Opponent;
-  } else {
-    // Player == Opponent → draw, regardless of actual draw probability.
-    mostLikelyOutcome = 'draw';
+    return GameSide.Player;
   }
 
-  // ---- Turn count stats ----------------------------------------------------
+  if (winProbability.opponent > winProbability.player) {
+    return GameSide.Opponent;
+  }
+
+  return 'draw';
+}
+
+function turnCountFromReports(
+  successful: readonly SuccessfulOutcome[],
+): IBatchTurnCount {
   const turnCounts = successful
     .map(({ report }) => report.turnCount)
     .slice()
     .sort((a, b) => a - b);
-  const sum = turnCounts.reduce((acc, t) => acc + t, 0);
-  const turnCount: IBatchTurnCount = {
+  const sum = turnCounts.reduce((acc, turnCount) => acc + turnCount, 0);
+
+  return {
     mean: sum / turnCounts.length,
     median: percentile(turnCounts, 50),
     p25: percentile(turnCounts, 25),
@@ -249,68 +210,92 @@ export function aggregateBatchOutcomes(
     min: turnCounts[0]!,
     max: turnCounts[turnCounts.length - 1]!,
   };
+}
 
-  // ---- Heat shutdown frequency --------------------------------------------
-  let playerShutdownMatches = 0;
-  let opponentShutdownMatches = 0;
+function sideFrequencyFromReports(
+  successful: readonly SuccessfulOutcome[],
+  predicate: (report: IPostBattleReport, side: GameSide) => boolean,
+): IBatchSideFrequency {
+  let playerMatches = 0;
+  let opponentMatches = 0;
+
   for (const { report } of successful) {
-    if (reportHadShutdown(report, GameSide.Player)) playerShutdownMatches++;
-    if (reportHadShutdown(report, GameSide.Opponent)) opponentShutdownMatches++;
+    if (predicate(report, GameSide.Player)) playerMatches++;
+    if (predicate(report, GameSide.Opponent)) opponentMatches++;
   }
-  const heatShutdownFrequency: IBatchSideFrequency = {
-    player: playerShutdownMatches / denom,
-    opponent: opponentShutdownMatches / denom,
-  };
 
-  // ---- Mech destroyed frequency -------------------------------------------
-  let playerDestroyedMatches = 0;
-  let opponentDestroyedMatches = 0;
-  for (const { report } of successful) {
-    if (reportHadDestroyed(report, GameSide.Player)) playerDestroyedMatches++;
-    if (reportHadDestroyed(report, GameSide.Opponent)) {
-      opponentDestroyedMatches++;
-    }
-  }
-  const mechDestroyedFrequency: IBatchSideFrequency = {
-    player: playerDestroyedMatches / denom,
-    opponent: opponentDestroyedMatches / denom,
+  const denom = successful.length;
+  return {
+    player: playerMatches / denom,
+    opponent: opponentMatches / denom,
   };
+}
 
-  // ---- Per-unit survival --------------------------------------------------
-  // Initialize counters from the union of all unit ids across reports
-  // so the UI can render rows even for units that errored out of some
-  // runs. A unit "survives" a run iff it appears in `report.units` AND
-  // is NOT in the destroyed set for that run.
+function perUnitSurvivalFromReports(
+  successful: readonly SuccessfulOutcome[],
+): Record<string, number> {
   const survivalCounts = new Map<string, number>();
-  const presenceCounts = new Map<string, number>();
+
   for (const { report } of successful) {
     const destroyed = destroyedUnitsFromReport(report);
-    for (const u of report.units) {
-      presenceCounts.set(u.unitId, (presenceCounts.get(u.unitId) ?? 0) + 1);
-      if (!destroyed.has(u.unitId)) {
-        survivalCounts.set(u.unitId, (survivalCounts.get(u.unitId) ?? 0) + 1);
-      } else if (!survivalCounts.has(u.unitId)) {
-        // Ensure unit appears in the result map even if it never survived.
-        survivalCounts.set(u.unitId, 0);
+    for (const unit of report.units) {
+      if (!destroyed.has(unit.unitId)) {
+        survivalCounts.set(
+          unit.unitId,
+          (survivalCounts.get(unit.unitId) ?? 0) + 1,
+        );
+      } else if (!survivalCounts.has(unit.unitId)) {
+        survivalCounts.set(unit.unitId, 0);
       }
     }
   }
+
+  const denom = successful.length;
   const perUnitSurvival: Record<string, number> = {};
   survivalCounts.forEach((count, unitId) => {
-    // Normalize over successful runs (denom) per spec — a unit absent
-    // from a given run still counts that run against its survival rate.
     perUnitSurvival[unitId] = count / denom;
   });
+
+  return perUnitSurvival;
+}
+
+export function aggregateBatchOutcomes(
+  outcomes: readonly IBatchOutcome[],
+  baseSeed?: number,
+): IBatchResult {
+  const resolvedBaseSeed = resolveBaseSeed(outcomes, baseSeed);
+
+  if (outcomes.length === 0) {
+    return emptyResult(resolvedBaseSeed);
+  }
+
+  const { successful, erroredRuns } = partitionOutcomes(outcomes);
+
+  if (successful.length === 0) {
+    return {
+      ...emptyResult(resolvedBaseSeed),
+      totalRuns: outcomes.length,
+      erroredRuns,
+    };
+  }
+
+  const winProbability = winProbabilityFromReports(successful);
 
   return {
     totalRuns: outcomes.length,
     erroredRuns,
     baseSeed: resolvedBaseSeed,
     winProbability,
-    turnCount,
-    heatShutdownFrequency,
-    mechDestroyedFrequency,
-    perUnitSurvival,
-    mostLikelyOutcome,
+    turnCount: turnCountFromReports(successful),
+    heatShutdownFrequency: sideFrequencyFromReports(
+      successful,
+      reportHadShutdown,
+    ),
+    mechDestroyedFrequency: sideFrequencyFromReports(
+      successful,
+      reportHadDestroyed,
+    ),
+    perUnitSurvival: perUnitSurvivalFromReports(successful),
+    mostLikelyOutcome: mostLikelyOutcomeFrom(winProbability),
   };
 }

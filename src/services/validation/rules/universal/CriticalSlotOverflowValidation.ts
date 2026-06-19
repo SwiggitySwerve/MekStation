@@ -7,13 +7,21 @@
 
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
+  IUnitValidationError,
+  UnitValidationSeverity,
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
   IUnitValidationRuleResult,
-  UnitValidationSeverity,
-  createUnitValidationError,
-  createUnitValidationRuleResult,
 } from '@/types/validation/UnitValidationInterfaces';
+
+import {
+  createRuleResult,
+  createEmptyRuleResult,
+  addRuleDiagnostic,
+} from '../ruleResults';
+
+const CRITICAL_SLOT_OVERFLOW_VALIDATION_SLOTS_CATEGORY =
+  ValidationCategory.SLOTS;
 
 /**
  * VAL-UNIV-015: Critical Slot Overflow Validation
@@ -22,9 +30,9 @@ export const CriticalSlotOverflowValidation: IUnitValidationRuleDefinition = {
   id: 'VAL-UNIV-015',
   name: 'Critical Slot Overflow Validation',
   description: 'Validate no location exceeds its critical slot capacity',
-  category: ValidationCategory.SLOTS,
-  priority: 15,
+  category: CRITICAL_SLOT_OVERFLOW_VALIDATION_SLOTS_CATEGORY,
   applicableUnitTypes: 'ALL',
+  priority: 15,
 
   canValidate(context: IUnitValidationContext): boolean {
     return context.unit.slotsByLocation !== undefined;
@@ -32,10 +40,10 @@ export const CriticalSlotOverflowValidation: IUnitValidationRuleDefinition = {
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors: ReturnType<typeof createUnitValidationError>[] = [];
+    const errors: IUnitValidationError[] = [];
 
     if (!unit.slotsByLocation) {
-      return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+      return createEmptyRuleResult(this);
     }
 
     for (const [locationKey, slotInfo] of Object.entries(
@@ -45,31 +53,21 @@ export const CriticalSlotOverflowValidation: IUnitValidationRuleDefinition = {
 
       if (slotInfo.used > slotInfo.max) {
         const overage = slotInfo.used - slotInfo.max;
-        errors.push(
-          createUnitValidationError(
-            this.id,
-            this.name,
-            UnitValidationSeverity.CRITICAL_ERROR,
-            this.category,
-            `${displayName} exceeds slot capacity by ${overage} (${slotInfo.used}/${slotInfo.max} slots)`,
-            {
-              field: `criticalSlots.${locationKey}`,
-              expected: `<= ${slotInfo.max} slots`,
-              actual: `${slotInfo.used} slots`,
-              suggestion: `Remove or relocate equipment from ${displayName}`,
-            },
-          ),
+        addRuleDiagnostic(
+          errors,
+          this,
+          UnitValidationSeverity.CRITICAL_ERROR,
+          `${displayName} exceeds slot capacity by ${overage} (${slotInfo.used}/${slotInfo.max} slots)`,
+          {
+            field: `criticalSlots.${locationKey}`,
+            expected: `<= ${slotInfo.max} slots`,
+            actual: `${slotInfo.used} slots`,
+            suggestion: `Remove or relocate equipment from ${displayName}`,
+          },
         );
       }
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors });
   },
 };

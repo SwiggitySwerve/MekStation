@@ -24,6 +24,7 @@ import { useMemo } from 'react';
 
 import type { UnitId } from '@/types/gameplay/TacticalShellInterfaces';
 
+import { getPhaseMissingActionLabel } from '@/components/gameplay/EventLogDisplay.helpers';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import {
   GamePhase,
@@ -78,25 +79,6 @@ export interface IPhaseQueueProjection {
 // ---------------------------------------------------------------------------
 
 /** Human-readable "missing action" label per phase. */
-function missingActionLabel(phase: GamePhase): string {
-  switch (phase) {
-    case GamePhase.Movement:
-      return 'movement';
-    case GamePhase.WeaponAttack:
-      return 'weapon fire';
-    case GamePhase.PhysicalAttack:
-      return 'physical attack declaration';
-    case GamePhase.Initiative:
-      return 'initiative roll';
-    case GamePhase.Heat:
-      return 'heat resolution';
-    case GamePhase.End:
-      return 'end-of-turn action';
-    default:
-      return 'action';
-  }
-}
-
 // ---------------------------------------------------------------------------
 // Phases that require per-unit actions (alternating-activation phases)
 // ---------------------------------------------------------------------------
@@ -179,7 +161,7 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
 
     // Unresolved units: in play (not destroyed/retreated/withdrawn) AND
     // lockState is not Resolved.
-    const missingAction = missingActionLabel(phase);
+    const missingAction = getPhaseMissingActionLabel(phase);
 
     const unresolvedUnits: UnitId[] = [];
     const blockers: IPhaseBlocker[] = [];

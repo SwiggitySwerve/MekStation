@@ -57,91 +57,101 @@ export class VaultService {
     this.permissionService = permissionService ?? getPermissionService();
   }
 
-  async createFolder(
+  readonly createFolder = async (
     name: string,
     options?: { description?: string; parentId?: string },
-  ): Promise<IVaultFolder> {
+  ): Promise<IVaultFolder> => {
     return folderOps.createFolder(this.folderRepo, name, options);
-  }
+  };
 
-  async getFolder(id: string): Promise<IVaultFolder | null> {
+  readonly getFolder = async (id: string): Promise<IVaultFolder | null> => {
     return folderOps.getFolder(this.folderRepo, id);
-  }
+  };
 
-  async getRootFolders(): Promise<IVaultFolder[]> {
+  readonly getRootFolders = async (): Promise<IVaultFolder[]> => {
     return folderOps.getRootFolders(this.folderRepo);
-  }
+  };
 
-  async getChildFolders(parentId: string): Promise<IVaultFolder[]> {
+  readonly getChildFolders = async (
+    parentId: string,
+  ): Promise<IVaultFolder[]> => {
     return folderOps.getChildFolders(this.folderRepo, parentId);
-  }
+  };
 
-  async getAllFolders(): Promise<IVaultFolder[]> {
+  readonly getAllFolders = async (): Promise<IVaultFolder[]> => {
     return folderOps.getAllFolders(this.folderRepo);
-  }
+  };
 
-  async renameFolder(id: string, name: string): Promise<boolean> {
+  readonly renameFolder = async (
+    id: string,
+    name: string,
+  ): Promise<boolean> => {
     return folderOps.renameFolder(this.folderRepo, id, name);
-  }
+  };
 
-  async setFolderDescription(
+  readonly setFolderDescription = async (
     id: string,
     description: string | null,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     return folderOps.setFolderDescription(this.folderRepo, id, description);
-  }
+  };
 
-  async moveFolder(id: string, newParentId: string | null): Promise<boolean> {
+  readonly moveFolder = async (
+    id: string,
+    newParentId: string | null,
+  ): Promise<boolean> => {
     return folderOps.moveFolder(this.folderRepo, id, newParentId);
-  }
+  };
 
-  async deleteFolder(id: string): Promise<boolean> {
+  readonly deleteFolder = async (id: string): Promise<boolean> => {
     return folderOps.deleteFolder(this.folderRepo, this.permissionService, id);
-  }
+  };
 
-  async addItemToFolder(
+  readonly addItemToFolder = async (
     folderId: string,
     itemId: string,
     itemType: ShareableContentType,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     return folderOps.addItemToFolder(
       this.folderRepo,
       folderId,
       itemId,
       itemType,
     );
-  }
+  };
 
-  async removeItemFromFolder(
+  readonly removeItemFromFolder = async (
     folderId: string,
     itemId: string,
     itemType: ShareableContentType,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     return folderOps.removeItemFromFolder(
       this.folderRepo,
       folderId,
       itemId,
       itemType,
     );
-  }
+  };
 
-  async getFolderItems(folderId: string): Promise<IFolderItem[]> {
+  readonly getFolderItems = async (
+    folderId: string,
+  ): Promise<IFolderItem[]> => {
     return folderOps.getFolderItems(this.folderRepo, folderId);
-  }
+  };
 
-  async getItemFolders(
+  readonly getItemFolders = async (
     itemId: string,
     itemType: ShareableContentType,
-  ): Promise<IVaultFolder[]> {
+  ): Promise<IVaultFolder[]> => {
     return folderOps.getItemFolders(this.folderRepo, itemId, itemType);
-  }
+  };
 
-  async moveItem(
+  readonly moveItem = async (
     itemId: string,
     itemType: ShareableContentType,
     fromFolderId: string,
     toFolderId: string,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     return folderOps.moveItem(
       this.folderRepo,
       itemId,
@@ -149,24 +159,24 @@ export class VaultService {
       fromFolderId,
       toFolderId,
     );
-  }
+  };
 
-  async removeItemFromAllFolders(
+  readonly removeItemFromAllFolders = async (
     itemId: string,
     itemType: ShareableContentType,
-  ): Promise<number> {
+  ): Promise<number> => {
     return folderOps.removeItemFromAllFolders(
       this.folderRepo,
       itemId,
       itemType,
     );
-  }
+  };
 
-  async shareFolderWithContact(
+  readonly shareFolderWithContact = async (
     folderId: string,
     contactFriendCode: string,
     level: PermissionLevel,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     return sharingOps.shareFolderWithContact(
       this.folderRepo,
       this.permissionService,
@@ -174,14 +184,14 @@ export class VaultService {
       contactFriendCode,
       level,
     );
-  }
+  };
 
-  async shareItemWithContact(
+  readonly shareItemWithContact = async (
     itemId: string,
     itemType: ShareableContentType,
     contactFriendCode: string,
     level: PermissionLevel,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     return sharingOps.shareItemWithContact(
       this.permissionService,
       itemId,
@@ -189,36 +199,36 @@ export class VaultService {
       contactFriendCode,
       level,
     );
-  }
+  };
 
-  async shareCategoryWithContact(
+  readonly shareCategoryWithContact = async (
     category: ContentCategory,
     contactFriendCode: string,
     level: PermissionLevel,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     return sharingOps.shareCategoryWithContact(
       this.permissionService,
       category,
       contactFriendCode,
       level,
     );
-  }
+  };
 
-  async unshareFolder(
+  readonly unshareFolder = async (
     folderId: string,
     contactFriendCode: string,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     return sharingOps.unshareFolder(
       this.folderRepo,
       this.permissionService,
       folderId,
       contactFriendCode,
     );
-  }
+  };
 
-  async getFolderWithPermissions(
+  readonly getFolderWithPermissions = async (
     id: string,
-  ): Promise<IFolderWithPermissions | null> {
+  ): Promise<IFolderWithPermissions | null> => {
     const folder = await this.folderRepo.getFolderById(id);
     if (!folder) return null;
 
@@ -228,42 +238,42 @@ export class VaultService {
     );
 
     return { ...folder, sharedWith };
-  }
+  };
 
-  async getSharedFolders(): Promise<IVaultFolder[]> {
+  readonly getSharedFolders = async (): Promise<IVaultFolder[]> => {
     return folderOps.getSharedFolders(this.folderRepo);
-  }
+  };
 
-  async shareFolderWithContacts(
+  readonly shareFolderWithContacts = async (
     folderId: string,
     contacts: Array<{ friendCode: string; level: PermissionLevel }>,
-  ): Promise<{ success: number; failed: number }> {
+  ): Promise<{ success: number; failed: number }> => {
     return bulkOps.shareFolderWithContacts(
       this.folderRepo,
       this.permissionService,
       folderId,
       contacts,
     );
-  }
+  };
 
-  async shareItemsWithContact(
+  readonly shareItemsWithContact = async (
     items: Array<{ itemId: string; itemType: ShareableContentType }>,
     contactFriendCode: string,
     level: PermissionLevel,
-  ): Promise<{ success: number; failed: number }> {
+  ): Promise<{ success: number; failed: number }> => {
     return bulkOps.shareItemsWithContact(
       this.permissionService,
       items,
       contactFriendCode,
       level,
     );
-  }
+  };
 
-  async shareFolderContentsWithContact(
+  readonly shareFolderContentsWithContact = async (
     folderId: string,
     contactFriendCode: string,
     level: PermissionLevel,
-  ): Promise<{ folderShared: boolean; itemsShared: number }> {
+  ): Promise<{ folderShared: boolean; itemsShared: number }> => {
     return bulkOps.shareFolderContentsWithContact(
       this.folderRepo,
       this.permissionService,
@@ -271,42 +281,44 @@ export class VaultService {
       contactFriendCode,
       level,
     );
-  }
+  };
 
-  async revokeAllForContact(contactFriendCode: string): Promise<number> {
+  readonly revokeAllForContact = async (
+    contactFriendCode: string,
+  ): Promise<number> => {
     return bulkOps.revokeAllForContact(
       this.permissionService,
       contactFriendCode,
     );
-  }
+  };
 
-  async updateContactPermissionLevel(
+  readonly updateContactPermissionLevel = async (
     contactFriendCode: string,
     newLevel: PermissionLevel,
-  ): Promise<number> {
+  ): Promise<number> => {
     return bulkOps.updateContactPermissionLevel(
       this.permissionService,
       contactFriendCode,
       newLevel,
     );
-  }
+  };
 
-  async canAccessFolder(
+  readonly canAccessFolder = async (
     folderId: string,
     friendCode: string,
-  ): Promise<PermissionLevel | null> {
+  ): Promise<PermissionLevel | null> => {
     return accessOps.canAccessFolder(
       this.permissionService,
       folderId,
       friendCode,
     );
-  }
+  };
 
-  async canAccessItem(
+  readonly canAccessItem = async (
     itemId: string,
     itemType: ShareableContentType,
     friendCode: string,
-  ): Promise<PermissionLevel | null> {
+  ): Promise<PermissionLevel | null> => {
     return accessOps.canAccessItem(
       this.folderRepo,
       this.permissionService,
@@ -314,81 +326,87 @@ export class VaultService {
       itemType,
       friendCode,
     );
-  }
+  };
 
-  async getSharedWithMe(myFriendCode: string): Promise<ISharedContent[]> {
+  readonly getSharedWithMe = async (
+    myFriendCode: string,
+  ): Promise<ISharedContent[]> => {
     return accessOps.getSharedWithMe(this.permissionService, myFriendCode);
-  }
+  };
 
-  async makePublic(
+  readonly makePublic = async (
     itemId: string,
     itemType: ShareableContentType,
     level: PermissionLevel = 'read',
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     return publicOps.makePublic(
       this.permissionService,
       itemId,
       itemType,
       level,
     );
-  }
+  };
 
-  async makeFolderPublic(
+  readonly makeFolderPublic = async (
     folderId: string,
     level: PermissionLevel = 'read',
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     return publicOps.makeFolderPublic(
       this.folderRepo,
       this.permissionService,
       folderId,
       level,
     );
-  }
+  };
 
-  async makeCategoryPublic(
+  readonly makeCategoryPublic = async (
     category: ContentCategory,
     level: PermissionLevel = 'read',
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     return publicOps.makeCategoryPublic(
       this.permissionService,
       category,
       level,
     );
-  }
+  };
 
-  async removePublicAccess(
+  readonly removePublicAccess = async (
     itemId: string,
     itemType: ShareableContentType,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     return publicOps.removePublicAccess(
       this.permissionService,
       itemId,
       itemType,
     );
-  }
+  };
 
-  async removeFolderPublicAccess(folderId: string): Promise<boolean> {
+  readonly removeFolderPublicAccess = async (
+    folderId: string,
+  ): Promise<boolean> => {
     return publicOps.removeFolderPublicAccess(
       this.folderRepo,
       this.permissionService,
       folderId,
     );
-  }
+  };
 
-  async isPublic(
+  readonly isPublic = async (
     itemId: string,
     itemType: ShareableContentType,
-  ): Promise<PermissionLevel | null> {
+  ): Promise<PermissionLevel | null> => {
     return publicOps.isPublic(this.permissionService, itemId, itemType);
-  }
+  };
 
-  async isFolderPublic(folderId: string): Promise<PermissionLevel | null> {
+  readonly isFolderPublic = async (
+    folderId: string,
+  ): Promise<PermissionLevel | null> => {
     return publicOps.isFolderPublic(this.permissionService, folderId);
-  }
+  };
 
-  async getPublicItems(): Promise<IPermissionGrant[]> {
+  readonly getPublicItems = async (): Promise<IPermissionGrant[]> => {
     return publicOps.getPublicItems(this.permissionService);
-  }
+  };
 }
 
 const vaultServiceFactory = createSingleton(() => new VaultService());

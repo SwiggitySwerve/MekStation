@@ -95,33 +95,33 @@ export class SyncEngine {
   /**
    * Set content hash function for computing content hashes
    */
-  setContentHashFn(fn: ContentHashFn): void {
+  readonly setContentHashFn = (fn: ContentHashFn): void => {
     this.contentHashFn = fn;
-  }
+  };
 
   /**
    * Set content data function for getting content data
    */
-  setContentDataFn(fn: ContentDataFn): void {
+  readonly setContentDataFn = (fn: ContentDataFn): void => {
     this.contentDataFn = fn;
-  }
+  };
 
   /**
    * Register a resolver that maps (itemId, contentType) → display name.
    * Used so conflict records carry a human-readable name rather than a raw id.
    */
-  setItemNameFn(fn: ItemNameFn): void {
+  readonly setItemNameFn = (fn: ItemNameFn): void => {
     this.itemNameFn = fn;
-  }
+  };
 
   /**
    * Register a callback that persists remote content to local storage.
    * Used by applyChange (no-conflict path) and by conflict resolution paths
    * (acceptRemote, fork) so the sync engine stays storage-agnostic.
    */
-  setContentApplyFn(fn: ContentApplyFn): void {
+  readonly setContentApplyFn = (fn: ContentApplyFn): void => {
     this.contentApplyFn = fn;
-  }
+  };
 
   // ===========================================================================
   // Change Tracking
@@ -130,12 +130,12 @@ export class SyncEngine {
   /**
    * Record a local change
    */
-  async recordChange(
+  readonly recordChange = async (
     changeType: ChangeType,
     contentType: ShareableContentType | 'folder',
     itemId: string,
     data?: string,
-  ): Promise<IChangeLogEntry> {
+  ): Promise<IChangeLogEntry> => {
     const contentHash = this.contentHashFn
       ? await this.contentHashFn(itemId, contentType)
       : null;
@@ -147,34 +147,34 @@ export class SyncEngine {
       contentHash,
       data ?? null,
     );
-  }
+  };
 
   /**
    * Get changes to send to a peer
    */
-  async getChangesForPeer(
+  readonly getChangesForPeer = async (
     peerId: string,
     limit = 100,
-  ): Promise<IChangeLogEntry[]> {
+  ): Promise<IChangeLogEntry[]> => {
     const state = this.syncStates.get(peerId);
     const fromVersion = state?.lastVersion ?? 0;
 
     return this.changeLog.getChangesSince(fromVersion, limit);
-  }
+  };
 
   /**
    * Get all unsynced local changes
    */
-  async getUnsyncedChanges(): Promise<IChangeLogEntry[]> {
+  readonly getUnsyncedChanges = async (): Promise<IChangeLogEntry[]> => {
     return this.changeLog.getUnsynced();
-  }
+  };
 
   /**
    * Get current version
    */
-  async getCurrentVersion(): Promise<number> {
+  readonly getCurrentVersion = async (): Promise<number> => {
     return this.changeLog.getCurrentVersion();
-  }
+  };
 
   // ===========================================================================
   // Reconciliation
@@ -183,10 +183,10 @@ export class SyncEngine {
   /**
    * Apply changes received from a peer
    */
-  async applyRemoteChanges(
+  readonly applyRemoteChanges = async (
     peerId: string,
     changes: IChangeLogEntry[],
-  ): Promise<IReconciliationResult> {
+  ): Promise<IReconciliationResult> => {
     const applied: IChangeLogEntry[] = [];
     const conflicts: ISyncConflict[] = [];
     const skipped: IChangeLogEntry[] = [];
@@ -233,7 +233,7 @@ export class SyncEngine {
     }
 
     return { applied, conflicts, skipped };
-  }
+  };
 
   /**
    * Check if two changes conflict
@@ -332,47 +332,47 @@ export class SyncEngine {
   /**
    * Get pending conflicts
    */
-  async getPendingConflicts(): Promise<ISyncConflict[]> {
+  readonly getPendingConflicts = async (): Promise<ISyncConflict[]> => {
     const rows = await this.changeLog.getPendingConflicts();
     return mapPendingConflicts(rows);
-  }
+  };
 
   /**
    * Resolve a conflict by keeping local version
    */
-  async resolveKeepLocal(conflictId: string): Promise<boolean> {
+  readonly resolveKeepLocal = async (conflictId: string): Promise<boolean> => {
     return this.changeLog.resolveConflict(conflictId, 'local');
-  }
+  };
 
   /**
    * Resolve a conflict by accepting the remote version. Writes the supplied
    * remote payload to local storage via the registered apply callback.
    */
-  async resolveAcceptRemote(
+  readonly resolveAcceptRemote = async (
     conflictId: string,
     remoteData?: string,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     return resolveAcceptRemoteHelper(this.changeLog, conflictId, {
       remoteData,
       applyFn: this.contentApplyFn,
     });
-  }
+  };
 
   /**
    * Resolve a conflict by forking — keep the local version and write the
    * remote version into a new local item with a generated id.
    */
-  async resolveFork(
+  readonly resolveFork = async (
     conflictId: string,
     remoteData?: string,
-  ): Promise<boolean | { forkedItemId: string }> {
+  ): Promise<boolean | { forkedItemId: string }> => {
     return resolveForkHelper(this.changeLog, conflictId, {
       remoteData,
       applyFn: this.contentApplyFn,
       recordLocalChange: (contentType, itemId, data) =>
         this.recordChange('create', contentType, itemId, data),
     });
-  }
+  };
 
   // ===========================================================================
   // Sync State Management
@@ -381,9 +381,9 @@ export class SyncEngine {
   /**
    * Get sync state for a peer
    */
-  getSyncState(peerId: string): ISyncState | undefined {
+  readonly getSyncState = (peerId: string): ISyncState | undefined => {
     return this.syncStates.get(peerId);
-  }
+  };
 
   /**
    * Update sync state for a peer
@@ -408,7 +408,10 @@ export class SyncEngine {
   /**
    * Set sync status for a peer
    */
-  setSyncStatus(peerId: string, status: 'idle' | 'syncing' | 'error'): void {
+  readonly setSyncStatus = (
+    peerId: string,
+    status: 'idle' | 'syncing' | 'error',
+  ): void => {
     const existing = this.syncStates.get(peerId) || {
       peerId,
       lastVersion: 0,
@@ -422,28 +425,31 @@ export class SyncEngine {
       ...existing,
       status,
     });
-  }
+  };
 
   /**
    * Mark local changes as synced to a peer
    */
-  async markSyncedToPeer(peerId: string, changeIds: string[]): Promise<void> {
+  readonly markSyncedToPeer = async (
+    peerId: string,
+    changeIds: string[],
+  ): Promise<void> => {
     await this.changeLog.markSynced(changeIds);
-  }
+  };
 
   /**
    * Get all sync states
    */
-  getAllSyncStates(): ISyncState[] {
+  readonly getAllSyncStates = (): ISyncState[] => {
     return Array.from(this.syncStates.values());
-  }
+  };
 
   /**
    * Reset sync state for a peer
    */
-  resetSyncState(peerId: string): void {
+  readonly resetSyncState = (peerId: string): void => {
     this.syncStates.delete(peerId);
-  }
+  };
 
   // ===========================================================================
   // Folder-Level Sync
@@ -452,71 +458,71 @@ export class SyncEngine {
   /**
    * Record a folder change (when folder is created/updated/deleted)
    */
-  async recordFolderChange(
+  readonly recordFolderChange = async (
     changeType: ChangeType,
     folderId: string,
     folderData?: string,
-  ): Promise<IChangeLogEntry> {
+  ): Promise<IChangeLogEntry> => {
     return this.recordChange(changeType, 'folder', folderId, folderData);
-  }
+  };
 
   /**
    * Record when an item is added to a folder
    */
-  async recordFolderItemAdded(
+  readonly recordFolderItemAdded = async (
     folderId: string,
     itemId: string,
     itemType: ShareableContentType,
-  ): Promise<IChangeLogEntry> {
+  ): Promise<IChangeLogEntry> => {
     return this.recordChange(
       'update',
       'folder',
       folderId,
       buildFolderMembershipPayload('item_added', folderId, itemId, itemType),
     );
-  }
+  };
 
   /**
    * Record when an item is removed from a folder
    */
-  async recordFolderItemRemoved(
+  readonly recordFolderItemRemoved = async (
     folderId: string,
     itemId: string,
     itemType: ShareableContentType,
-  ): Promise<IChangeLogEntry> {
+  ): Promise<IChangeLogEntry> => {
     return this.recordChange(
       'update',
       'folder',
       folderId,
       buildFolderMembershipPayload('item_removed', folderId, itemId, itemType),
     );
-  }
+  };
 
   /**
    * Get changes for a specific folder (folder and all its items)
    */
-  async getChangesForFolder(
+  readonly getChangesForFolder = async (
     folderId: string,
     fromVersion = 0,
     limit = 100,
-  ): Promise<IChangeLogEntry[]> {
+  ): Promise<IChangeLogEntry[]> => {
     return getChangesForFolderHelper(
       this.changeLog,
       folderId,
       fromVersion,
       limit,
     );
-  }
+  };
 
   /**
    * Sync a specific folder with a peer
    * Returns changes that need to be sent to the peer
    */
-  async getFolderChangesForPeer(
+  readonly getFolderChangesForPeer = async (
     folderId: string,
     peerId: string,
     limit = 100,
-  ): Promise<IChangeLogEntry[]> {
+  ): Promise<IChangeLogEntry[]> => {
     return getFolderChangesForPeerHelper(
       this.changeLog,
       this.syncStates,
@@ -524,39 +530,39 @@ export class SyncEngine {
       peerId,
       limit,
     );
-  }
+  };
 
   /**
    * Apply folder-specific changes from a peer
    */
-  async applyFolderChanges(
+  readonly applyFolderChanges = async (
     folderId: string,
     peerId: string,
     changes: IChangeLogEntry[],
-  ): Promise<IReconciliationResult> {
+  ): Promise<IReconciliationResult> => {
     return this.applyRemoteChanges(
       peerId,
       filterFolderChanges(changes, folderId),
     );
-  }
+  };
 
   /**
    * Get folders that have unsynced changes
    */
-  async getFoldersWithUnsyncedChanges(): Promise<string[]> {
+  readonly getFoldersWithUnsyncedChanges = async (): Promise<string[]> => {
     return getFoldersWithUnsyncedChangesHelper(this.changeLog);
-  }
+  };
 
   /**
    * Get sync status for a specific folder
    */
-  async getFolderSyncStatus(
+  readonly getFolderSyncStatus = async (
     folderId: string,
     peerId: string,
   ): Promise<{
     pendingOutbound: number;
     lastSyncAt: string | null;
-  }> {
+  }> => {
     const state = this.syncStates.get(peerId);
     const pendingChanges = await this.getFolderChangesForPeer(folderId, peerId);
 
@@ -564,7 +570,7 @@ export class SyncEngine {
       pendingOutbound: pendingChanges.length,
       lastSyncAt: state?.lastSyncAt ?? null,
     };
-  }
+  };
 }
 
 // =============================================================================

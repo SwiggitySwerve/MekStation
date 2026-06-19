@@ -9,7 +9,12 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import {
+  initializeApiDatabase,
+  sendCaughtApiError,
+  sendOperationFailure,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getPilotService, IPilotOperationResult } from '@/services/pilots';
 import {
   IPilot,
@@ -28,11 +33,6 @@ type ListResponse = {
 
 type CreateResponse = IPilotOperationResult & {
   pilot?: IPilot;
-};
-
-type ErrorResponse = {
-  error: string;
-  code?: string;
 };
 
 // =============================================================================
@@ -61,16 +61,9 @@ interface CreatePilotBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ListResponse | CreateResponse | ErrorResponse>,
+  res: NextApiResponse<ListResponse | CreateResponse | ApiErrorResponse>,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initializeApiDatabase(res)) return;
 
   const pilotService = getPilotService();
 
@@ -93,7 +86,7 @@ export default async function handler(
 function handleGet(
   pilotService: ReturnType<typeof getPilotService>,
   req: NextApiRequest,
-  res: NextApiResponse<ListResponse | ErrorResponse>,
+  res: NextApiResponse<ListResponse | ApiErrorResponse>,
 ) {
   try {
     const { status } = req.query;
@@ -110,9 +103,8 @@ function handleGet(
       count: pilots.length,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to list pilots';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'Failed to list pilots');
+    return;
   }
 }
 
@@ -122,7 +114,7 @@ function handleGet(
 function handlePost(
   pilotService: ReturnType<typeof getPilotService>,
   req: NextApiRequest,
-  res: NextApiResponse<CreateResponse | ErrorResponse>,
+  res: NextApiResponse<CreateResponse | ApiErrorResponse>,
 ) {
   try {
     const body = req.body as CreatePilotBody;
@@ -174,15 +166,11 @@ function handlePost(
       const pilot = pilotService.getPilot(result.id);
       return res.status(201).json({ ...result, pilot: pilot || undefined });
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to create pilot',
-        errorCode: result.errorCode,
-      });
+      sendOperationFailure(res, result, 'Failed to create pilot');
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to create pilot';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'Failed to create pilot');
+    return;
   }
 }

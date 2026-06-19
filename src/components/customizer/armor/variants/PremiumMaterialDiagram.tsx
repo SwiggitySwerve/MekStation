@@ -1,65 +1,24 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-import type { LocationArmorData } from '@/types/construction/LocationArmorData';
 import type { MechConfigType } from '@/types/construction/MechConfigType';
 
 import { ARMOR_STATUS } from '@/constants/armorStatus';
 import { MechLocation } from '@/types/construction';
 
+import type { ConfigurableArmorDiagramProps } from '../shared/ArmorVariantRenderHelpers';
+
 import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
+import { ArmorDiagramSvgFrame } from '../shared/ArmorDiagramSvgFrame';
 import { GradientDefs } from '../shared/ArmorFills';
-import { useResolvedLayout, getLayoutIdForConfig } from '../shared/layout';
+import {
+  getArmorLocationsForConfig,
+  renderArmorLocationStates,
+  useArmorVariantLayout,
+} from '../shared/ArmorVariantRenderHelpers';
 import { PremiumLocation } from './PremiumMaterialDiagram.parts';
 
-export interface PremiumMaterialDiagramProps {
-  armorData: LocationArmorData[];
-  selectedLocation: MechLocation | null;
-  unallocatedPoints: number;
-  onLocationClick: (location: MechLocation) => void;
-  className?: string;
+export interface PremiumMaterialDiagramProps extends ConfigurableArmorDiagramProps {
   mechConfigType?: MechConfigType;
-}
-
-function getLocationsForConfig(configType: MechConfigType): MechLocation[] {
-  switch (configType) {
-    case 'quad':
-    case 'quadvee':
-      return [
-        MechLocation.HEAD,
-        MechLocation.CENTER_TORSO,
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.FRONT_LEFT_LEG,
-        MechLocation.FRONT_RIGHT_LEG,
-        MechLocation.REAR_LEFT_LEG,
-        MechLocation.REAR_RIGHT_LEG,
-      ];
-    case 'tripod':
-      return [
-        MechLocation.HEAD,
-        MechLocation.CENTER_TORSO,
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.LEFT_ARM,
-        MechLocation.RIGHT_ARM,
-        MechLocation.LEFT_LEG,
-        MechLocation.RIGHT_LEG,
-        MechLocation.CENTER_LEG,
-      ];
-    case 'lam':
-    case 'biped':
-    default:
-      return [
-        MechLocation.HEAD,
-        MechLocation.CENTER_TORSO,
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.LEFT_ARM,
-        MechLocation.RIGHT_ARM,
-        MechLocation.LEFT_LEG,
-        MechLocation.RIGHT_LEG,
-      ];
-  }
 }
 
 export function PremiumMaterialDiagram({
@@ -69,20 +28,9 @@ export function PremiumMaterialDiagram({
   className = '',
   mechConfigType = 'biped',
 }: PremiumMaterialDiagramProps): React.ReactElement {
-  const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(
-    null,
-  );
-
-  const layoutId = getLayoutIdForConfig(mechConfigType, 'battlemech');
-  const { getPosition, viewBox, bounds } = useResolvedLayout(layoutId);
-
-  const getArmorData = (
-    location: MechLocation,
-  ): LocationArmorData | undefined => {
-    return armorData.find((d) => d.location === location);
-  };
-
-  const locations = getLocationsForConfig(mechConfigType);
+  const { hoveredLocation, setHoveredLocation, getPosition, viewBox, bounds } =
+    useArmorVariantLayout(mechConfigType, 'battlemech');
+  const locations = getArmorLocationsForConfig(mechConfigType);
 
   return (
     <div
@@ -101,43 +49,35 @@ export function PremiumMaterialDiagram({
         </div>
       </div>
 
-      <div className="relative">
-        <svg
-          viewBox={viewBox}
-          className="mx-auto w-full max-w-[280px]"
-          style={{ height: 'auto' }}
-        >
-          <GradientDefs />
+      <ArmorDiagramSvgFrame viewBox={viewBox}>
+        <GradientDefs />
 
-          <ellipse
-            cx={bounds.minX + bounds.width / 2}
-            cy={bounds.minY + bounds.height / 2}
-            rx={bounds.width * 0.4}
-            ry={bounds.height * 0.4}
-            fill="url(#armor-gradient-selected)"
-            opacity="0.03"
-          />
+        <ellipse
+          cx={bounds.minX + bounds.width / 2}
+          cy={bounds.minY + bounds.height / 2}
+          rx={bounds.width * 0.4}
+          ry={bounds.height * 0.4}
+          fill="url(#armor-gradient-selected)"
+          opacity="0.03"
+        />
 
-          {locations.map((loc) => {
-            const position = getPosition(loc);
-            if (!position) return null;
-
-            return (
-              <PremiumLocation
-                key={loc}
-                location={loc}
-                position={position}
-                data={getArmorData(loc)}
-                isSelected={selectedLocation === loc}
-                isHovered={hoveredLocation === loc}
-                onClick={() => onLocationClick(loc)}
-                onHover={(hovered) => setHoveredLocation(hovered ? loc : null)}
-                configType={mechConfigType}
-              />
-            );
-          })}
-        </svg>
-      </div>
+        {renderArmorLocationStates(
+          locations,
+          getPosition,
+          armorData,
+          selectedLocation,
+          hoveredLocation,
+          (loc, renderState) => (
+            <PremiumLocation
+              key={loc}
+              {...renderState}
+              onClick={() => onLocationClick(loc)}
+              onHover={(hovered) => setHoveredLocation(hovered ? loc : null)}
+              configType={mechConfigType}
+            />
+          ),
+        )}
+      </ArmorDiagramSvgFrame>
 
       <div className="mt-5 flex justify-center gap-4">
         <div className="flex items-center gap-1.5">

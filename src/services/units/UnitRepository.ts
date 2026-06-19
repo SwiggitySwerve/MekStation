@@ -69,7 +69,7 @@ export class UnitRepository implements IUnitRepository {
   /**
    * Create a new custom unit
    */
-  create(request: ICreateUnitRequest): IUnitOperationResult {
+  create = (request: ICreateUnitRequest): IUnitOperationResult => {
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
     const id = `custom-${uuidv4()}`;
@@ -149,12 +149,12 @@ export class UnitRepository implements IUnitRepository {
         },
       };
     }
-  }
+  };
 
   /**
    * Update an existing custom unit (increments version)
    */
-  update(id: string, request: IUpdateUnitRequest): IUnitOperationResult {
+  update = (id: string, request: IUpdateUnitRequest): IUnitOperationResult => {
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
 
@@ -233,12 +233,12 @@ export class UnitRepository implements IUnitRepository {
         },
       };
     }
-  }
+  };
 
   /**
    * Delete a custom unit and all its versions
    */
-  delete(id: string): IUnitOperationResult {
+  delete = (id: string): IUnitOperationResult => {
     const db = getSQLiteService().getDatabase();
 
     try {
@@ -257,12 +257,12 @@ export class UnitRepository implements IUnitRepository {
         },
       };
     }
-  }
+  };
 
   /**
    * Get a custom unit by ID
    */
-  getById(id: string): ICustomUnitRecord | null {
+  getById = (id: string): ICustomUnitRecord | null => {
     const db = getSQLiteService().getDatabase();
 
     const row = db
@@ -276,12 +276,12 @@ export class UnitRepository implements IUnitRepository {
     }
 
     return this.rowToRecord(row);
-  }
+  };
 
   /**
    * Find a custom unit by chassis and variant
    */
-  findByName(chassis: string, variant: string): ICustomUnitRecord | null {
+  findByName = (chassis: string, variant: string): ICustomUnitRecord | null => {
     const db = getSQLiteService().getDatabase();
 
     const row = db
@@ -296,12 +296,12 @@ export class UnitRepository implements IUnitRepository {
     }
 
     return this.rowToRecord(row);
-  }
+  };
 
   /**
    * List all custom units as index entries
    */
-  list(): readonly ICustomUnitIndexEntry[] {
+  list = (): readonly ICustomUnitIndexEntry[] => {
     const db = getSQLiteService().getDatabase();
 
     const rows = db
@@ -314,23 +314,23 @@ export class UnitRepository implements IUnitRepository {
       .all() as CustomUnitRow[];
 
     return rows.map((row) => this.rowToIndexEntry(row));
-  }
+  };
 
   /**
    * Check if a unit exists by ID
    */
-  exists(id: string): boolean {
+  exists = (id: string): boolean => {
     const db = getSQLiteService().getDatabase();
     const result = db
       .prepare('SELECT 1 FROM custom_units WHERE id = ?')
       .get(id);
     return result !== undefined;
-  }
+  };
 
   /**
    * Check if a name is already taken
    */
-  nameExists(chassis: string, variant: string): boolean {
+  nameExists = (chassis: string, variant: string): boolean => {
     const db = getSQLiteService().getDatabase();
     const result = db
       .prepare(`
@@ -339,12 +339,15 @@ export class UnitRepository implements IUnitRepository {
     `)
       .get(chassis, variant);
     return result !== undefined;
-  }
+  };
 
   /**
    * Suggest a unique clone name
    */
-  suggestCloneName(chassis: string, baseVariant: string): ICloneNameSuggestion {
+  suggestCloneName = (
+    chassis: string,
+    baseVariant: string,
+  ): ICloneNameSuggestion => {
     // Strip any existing -Custom-N suffix
     const cleanVariant = baseVariant.replace(/-Custom-\d+$/, '');
 
@@ -361,7 +364,7 @@ export class UnitRepository implements IUnitRepository {
       variant: baseVariant,
       suggestedVariant,
     };
-  }
+  };
 
   /**
    * Prune old versions beyond the configured limit

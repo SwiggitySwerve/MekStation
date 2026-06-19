@@ -5,6 +5,7 @@ import { MechLocation } from '@/types/construction';
 
 import type { LocationArmorValues } from './LocationTypes';
 
+import { ArmorLocationInteractionGroup } from './ArmorLocationInteractionGroup';
 import {
   CleanTechLocationContent,
   NeonLocationContent,
@@ -44,26 +45,20 @@ export function VariantLocation({
   onHover,
 }: VariantLocationProps): React.ReactElement {
   const { current, maximum, rear = 0, rearMaximum = 1 } = data;
+  const interactionProps = {
+    location,
+    current,
+    maximum,
+    rear,
+    rearMaximum,
+    showRear,
+    isSelected,
+    onClick,
+    onHover,
+  };
 
   return (
-    <g
-      role="button"
-      tabIndex={0}
-      aria-label={`${location} armor: ${current} of ${maximum}${showRear ? `, rear: ${rear} of ${rearMaximum}` : ''}`}
-      aria-pressed={isSelected}
-      className="cursor-pointer focus:outline-none"
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      onMouseEnter={() => onHover(true)}
-      onMouseLeave={() => onHover(false)}
-      onFocus={() => onHover(true)}
-      onBlur={() => onHover(false)}
-    >
+    <ArmorLocationInteractionGroup {...interactionProps}>
       {variant === 'clean-tech' && (
         <CleanTechLocationContent
           pos={pos}
@@ -114,6 +109,6 @@ export function VariantLocation({
           isHovered={isHovered}
         />
       )}
-    </g>
+    </ArmorLocationInteractionGroup>
   );
 }

@@ -14,8 +14,9 @@ import {
   AwardCategory,
   CriteriaType,
 } from '../AwardInterfaces';
+import { createAutoAwards } from './AutoAwardBuilders';
 
-export const COMBAT_AWARDS: readonly IAward[] = [
+const AUTO_GRANT_COMBAT_AWARDS = createAutoAwards([
   {
     id: 'first-blood',
     name: 'First Blood',
@@ -23,19 +24,13 @@ export const COMBAT_AWARDS: readonly IAward[] = [
     category: AwardCategory.Combat,
     rarity: AwardRarity.Common,
     icon: 'award-first-blood',
-    criteria: {
-      type: CriteriaType.TotalKills,
-      threshold: 1,
-      description: 'Destroy 1 enemy unit',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.TotalKills,
+    criteriaThreshold: 1,
+    criteriaDescription: 'Destroy 1 enemy unit',
     sortOrder: 100,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.KILL,
-      threshold: 1,
-      thresholdType: 'kills',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.KILL,
+    autoThreshold: 1,
+    autoThresholdType: 'kills',
   },
   {
     id: 'warrior',
@@ -44,19 +39,13 @@ export const COMBAT_AWARDS: readonly IAward[] = [
     category: AwardCategory.Combat,
     rarity: AwardRarity.Common,
     icon: 'award-warrior',
-    criteria: {
-      type: CriteriaType.TotalKills,
-      threshold: 3,
-      description: 'Destroy 3 enemy units',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.TotalKills,
+    criteriaThreshold: 3,
+    criteriaDescription: 'Destroy 3 enemy units',
     sortOrder: 110,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.KILL,
-      threshold: 3,
-      thresholdType: 'kills',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.KILL,
+    autoThreshold: 3,
+    autoThresholdType: 'kills',
   },
   {
     id: 'ace',
@@ -66,19 +55,13 @@ export const COMBAT_AWARDS: readonly IAward[] = [
     category: AwardCategory.Combat,
     rarity: AwardRarity.Uncommon,
     icon: 'award-ace',
-    criteria: {
-      type: CriteriaType.TotalKills,
-      threshold: 5,
-      description: 'Destroy 5 enemy units',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.TotalKills,
+    criteriaThreshold: 5,
+    criteriaDescription: 'Destroy 5 enemy units',
     sortOrder: 120,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.KILL,
-      threshold: 5,
-      thresholdType: 'kills',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.KILL,
+    autoThreshold: 5,
+    autoThresholdType: 'kills',
   },
   {
     id: 'double-ace',
@@ -88,19 +71,13 @@ export const COMBAT_AWARDS: readonly IAward[] = [
     category: AwardCategory.Combat,
     rarity: AwardRarity.Rare,
     icon: 'award-double-ace',
-    criteria: {
-      type: CriteriaType.TotalKills,
-      threshold: 10,
-      description: 'Destroy 10 enemy units',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.TotalKills,
+    criteriaThreshold: 10,
+    criteriaDescription: 'Destroy 10 enemy units',
     sortOrder: 130,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.KILL,
-      threshold: 10,
-      thresholdType: 'kills',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.KILL,
+    autoThreshold: 10,
+    autoThresholdType: 'kills',
   },
   {
     id: 'triple-ace',
@@ -109,19 +86,13 @@ export const COMBAT_AWARDS: readonly IAward[] = [
     category: AwardCategory.Combat,
     rarity: AwardRarity.Rare,
     icon: 'award-triple-ace',
-    criteria: {
-      type: CriteriaType.TotalKills,
-      threshold: 15,
-      description: 'Destroy 15 enemy units',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.TotalKills,
+    criteriaThreshold: 15,
+    criteriaDescription: 'Destroy 15 enemy units',
     sortOrder: 140,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.KILL,
-      threshold: 15,
-      thresholdType: 'kills',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.KILL,
+    autoThreshold: 15,
+    autoThresholdType: 'kills',
   },
   {
     id: 'legend',
@@ -131,20 +102,18 @@ export const COMBAT_AWARDS: readonly IAward[] = [
     category: AwardCategory.Combat,
     rarity: AwardRarity.Legendary,
     icon: 'award-legend',
-    criteria: {
-      type: CriteriaType.TotalKills,
-      threshold: 25,
-      description: 'Destroy 25 enemy units',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.TotalKills,
+    criteriaThreshold: 25,
+    criteriaDescription: 'Destroy 25 enemy units',
     sortOrder: 150,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.KILL,
-      threshold: 25,
-      thresholdType: 'kills',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.KILL,
+    autoThreshold: 25,
+    autoThresholdType: 'kills',
   },
+]);
+
+export const COMBAT_AWARDS: readonly IAward[] = [
+  ...AUTO_GRANT_COMBAT_AWARDS,
   {
     id: 'marksman',
     name: 'Marksman',

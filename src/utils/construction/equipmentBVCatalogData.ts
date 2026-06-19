@@ -86,7 +86,7 @@ export const AMMUNITION_CATALOG_FILES: readonly CatalogDataFile[] = [
 // Parsed once at module load through `parseNameMappings`, which is the
 // adapter for the `NameMappingsContract` Zod schema generated from
 // `public/data/equipment/_schema/name-mappings-schema.json`. This
-// closes the previous `FIXME(schema-bridge)` cast: instead of trusting
+// closes the previous schema-bridge cast: instead of trusting
 // the imported JSON shape statically, we validate it at the boundary
 // so any future drift in `name-mappings.json` (e.g. a non-string value
 // sneaking in via an audit) fails loudly with a Zod issue path.

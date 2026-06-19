@@ -14,6 +14,11 @@
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  rejectNonGetDataRequest as rejectEquipmentCatalogNonGet,
+  sendLoggedSuccessApiError,
+  type ApiDataResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 
 interface ApiResponse {
@@ -24,6 +29,8 @@ interface ApiResponse {
   /** Data source used: 'json' for runtime-loaded JSON, 'fallback' for hardcoded constants */
   dataSource?: 'json' | 'fallback';
 }
+
+type EquipmentCatalogApiResponse = ApiResponse;
 
 /**
  * Interface for equipment items with name property
@@ -46,14 +53,9 @@ function hasNameProperty(item: unknown): item is INamedEquipment {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse>,
+  res: NextApiResponse<EquipmentCatalogApiResponse>,
 ): Promise<void> {
-  if (req.method !== 'GET') {
-    return res.status(405).json({
-      success: false,
-      error: 'Method not allowed. Use GET.',
-    });
-  }
+  if (rejectEquipmentCatalogNonGet(req, res)) return;
 
   try {
     // Initialize equipment loader (loads from JSON with fallback to hardcoded)
@@ -91,10 +93,7 @@ export default async function handler(
       dataSource: getEquipmentLookupService().getDataSource(),
     });
   } catch (error) {
-    console.error('Equipment Catalog API error:', error);
-    return res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedSuccessApiError(res, 'Equipment Catalog API error:', error);
+    return;
   }
 }

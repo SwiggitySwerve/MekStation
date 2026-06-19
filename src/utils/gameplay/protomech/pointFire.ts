@@ -77,7 +77,7 @@ export interface IProtoPointAttackResult {
  */
 function allocateDamage(
   total: number,
-  percentages: readonly [number, number, number, number, number],
+  percentages: readonly number[],
   protoIds: readonly string[],
 ): IProtoPointAttackDistribution[] {
   const shares = percentages.map((p) => Math.floor((total * p) / 100));
@@ -123,16 +123,10 @@ export function resolveProtoPointAttackFromRoll(
   const activeSum = activePercentages.reduce((a, b) => a + b, 0);
   const normalized =
     activeSum === 100
-      ? (activePercentages as unknown as readonly [
-          number,
-          number,
-          number,
-          number,
-          number,
-        ])
-      : (activePercentages.map((p) =>
+      ? activePercentages
+      : activePercentages.map((p) =>
           Math.round((p / Math.max(1, activeSum)) * 100),
-        ) as unknown as readonly [number, number, number, number, number]);
+        );
 
   const distribution = allocateDamage(input.totalDamage, normalized, padded);
 

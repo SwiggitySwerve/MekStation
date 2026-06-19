@@ -78,6 +78,33 @@ export function infantryDamageMultiplier(
   return ANTI_INFANTRY_MULTIPLIER[category] ?? 1;
 }
 
+const INFANTRY_WEAPON_CATEGORY_PATTERNS: readonly {
+  readonly category: InfantryWeaponCategory;
+  readonly matches: readonly string[];
+}[] = [
+  { category: 'inferno', matches: ['inferno'] },
+  { category: 'flamer', matches: ['flamer'] },
+  { category: 'mg', matches: ['machine gun', 'machinegun'] },
+  {
+    category: 'ballistic',
+    matches: [
+      'gauss',
+      'ac/',
+      'autocannon',
+      'lb ',
+      'lb-',
+      'ultra ac',
+      'rotary ac',
+      'rifle',
+    ],
+  },
+  { category: 'energy', matches: ['laser', 'ppc', 'plasma'] },
+  {
+    category: 'missile',
+    matches: ['lrm', 'srm', 'streak', 'mrm', 'atm', 'mml'],
+  },
+];
+
 // ============================================================================
 // Heuristic classifier (optional convenience for callers with a name / type)
 // ============================================================================
@@ -93,55 +120,15 @@ export function classifyInfantryWeaponCategory(
   weaponNameOrType: string,
 ): InfantryWeaponCategory {
   const key = weaponNameOrType.toLowerCase();
-
-  // Inferno rounds are checked first because "srm inferno" would otherwise
-  // fall into the `missile` bucket.
-  if (key.includes('inferno')) return 'inferno';
-
-  // Flamer covers plasma/vehicle/mech flamers equally.
-  if (key.includes('flamer')) return 'flamer';
-
-  // Machine guns (including arrays / light / heavy variants).
-  if (
-    key.includes('machine gun') ||
-    key.includes('machinegun') ||
-    key === 'mg'
-  ) {
+  if (key === 'mg') {
     return 'mg';
   }
 
-  // Ballistic weapons: autocannons, Gauss, rifles, LB-X slug rounds.
-  if (
-    key.includes('gauss') ||
-    key.includes('ac/') ||
-    key.includes('autocannon') ||
-    key.includes('lb ') ||
-    key.includes('lb-') ||
-    key.includes('ultra ac') ||
-    key.includes('rotary ac') ||
-    key.includes('rifle')
-  ) {
-    return 'ballistic';
-  }
-
-  // Energy: laser, PPC, plasma.
-  if (key.includes('laser') || key.includes('ppc') || key.includes('plasma')) {
-    return 'energy';
-  }
-
-  // Missile: generic LRM / SRM / streak / MRM / ATM.
-  if (
-    key.includes('lrm') ||
-    key.includes('srm') ||
-    key.includes('streak') ||
-    key.includes('mrm') ||
-    key.includes('atm') ||
-    key.includes('mml')
-  ) {
-    return 'missile';
-  }
-
-  return 'other';
+  return (
+    INFANTRY_WEAPON_CATEGORY_PATTERNS.find(({ matches }) =>
+      matches.some((pattern) => key.includes(pattern)),
+    )?.category ?? 'other'
+  );
 }
 
 // ============================================================================

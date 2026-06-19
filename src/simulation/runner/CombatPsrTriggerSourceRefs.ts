@@ -1,45 +1,19 @@
-import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
-
-const MEGAMEK_COMBAT_SOURCE_VERSION =
-  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
-const MEKSTATION_SOURCE_VERSION = 'MekStation working-tree';
-
-function megaMekSourceRef(
-  citation: string,
-  path: string,
-  lineAnchor: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'megamek-source',
-    citation,
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_COMBAT_SOURCE_VERSION}/${path}#${lineAnchor}`,
-    sourceVersion: MEGAMEK_COMBAT_SOURCE_VERSION,
-  };
-}
-
-function mekstationDeviationRef(
-  citation: string,
-  path: string,
-  lineAnchor: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'mekstation-deviation',
-    citation,
-    url: `${path}#${lineAnchor}`,
-    sourceVersion: MEKSTATION_SOURCE_VERSION,
-  };
-}
+import {
+  megamekSourceRefWithLineAnchor as megaMekSourceRef,
+  mekstationDeviationSourceRefWithLineAnchor as mekstationDeviationRef,
+  type ICombatFeatureSourceReference,
+} from './CombatFeatureSourceReference';
 
 const LOCAL_CRITICAL_PSR_BRIDGE_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation applyCriticalPSRTriggers forwards crit-origin psr_triggered events into unit.pendingPSRs unless the unit is destroyed, retreated, or ejected.',
     'src/simulation/runner/phases/weaponAttackPsrTriggers.ts',
-    'L82-L120',
+    'L82-L104',
   ),
   mekstationDeviationRef(
-    'MekStation weaponAttackHelpers converts crit-origin psr_triggered events into runner PSRTriggered events with canonical reasonCode values.',
-    'src/simulation/runner/phases/weaponAttackHelpers.ts',
-    'L329-L357',
+    'MekStation weaponAttackCriticalEvents converts crit-origin psr_triggered events into runner PSRTriggered events with canonical reasonCode values.',
+    'src/simulation/runner/phases/weaponAttackCriticalEvents.ts',
+    'L153-L186',
   ),
   mekstationDeviationRef(
     'MekStation heatCriticalDamage converts heat-critical psr_triggered events into runner PSRTriggered events with canonical reasonCode values.',
@@ -107,8 +81,8 @@ export const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
   ),
   mekstationDeviationRef(
     'MekStation runPSRPhase routes failed MASCFailure and SuperchargerFailure resolution through movement-enhancement failure critical-damage helpers.',
-    'src/simulation/runner/phases/postCombat.ts',
-    'L138-L176',
+    'src/simulation/runner/phases/postCombatPsr.ts',
+    'L111-L155',
   ),
   mekstationDeviationRef(
     'MekStation psrEdgeRerolls consumes edge_when_masc_fails to reroll failed MASCFailure and SuperchargerFailure PSRs before applying fall or booster-failure aftermath.',
@@ -123,7 +97,7 @@ export const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation movement-enhancement failure event translation emits CriticalHit/CriticalHitResolved/ComponentDestroyed events for failed MASC and Supercharger checks.',
     'src/simulation/runner/phases/movementEnhancementFailureEvents.ts',
-    'L11-L138',
+    'L11-L133',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -135,8 +109,8 @@ export const HEAT_SHUTDOWN_PSR_SOURCE_REFS = [
   ),
   mekstationDeviationRef(
     'MekStation runHeatPhase routes heat shutdown into queueRunnerShutdownPSR after emitting the ShutdownCheck event and before persisting shutdown state.',
-    'src/simulation/runner/phases/postCombat.ts',
-    'L389-L497',
+    'src/simulation/runner/phases/postCombatHeatLifecycle.ts',
+    'L97-L155',
   ),
   mekstationDeviationRef(
     'MekStation queueRunnerShutdownPSR emits PSRTriggered with PSRTrigger.Shutdown and appends the pending createShutdownPSR entry for later PSR phase resolution.',

@@ -7,7 +7,7 @@
 /**
  * Unit configuration interface (simplified for service)
  */
-export interface IUnitConfig {
+export interface IBaseRecordSheetUnitConfig {
   id: string;
   name: string;
   chassis: string;
@@ -16,6 +16,11 @@ export interface IUnitConfig {
   techBase: string;
   rulesLevel: string;
   era: string;
+  battleValue?: number;
+  cost?: number;
+}
+
+export interface IUnitConfig extends IBaseRecordSheetUnitConfig {
   configuration: string;
   engine: {
     type: string;
@@ -80,7 +85,5 @@ export interface IUnitConfig {
     string,
     Array<{ content: string; isSystem?: boolean; equipmentId?: string } | null>
   >;
-  battleValue?: number;
-  cost?: number;
   enhancements?: string[];
 }

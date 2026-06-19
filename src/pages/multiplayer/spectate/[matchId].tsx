@@ -1,100 +1,26 @@
-/**
- * Multiplayer Spectator — `/multiplayer/spectate/[matchId]`.
- *
- * `add-matchmaking-and-spectator` (M3). The spectator surface: a
- * non-playing observer watches an `active` match through the server's
- * fog-of-war redaction.
- *
- * Flow:
- *   1. Read `matchId` from the URL.
- *   2. Mint or reuse a vault token via `/api/multiplayer/auth/token`.
- *   3. Register as a spectator seat via
- *      `POST /api/multiplayer/matches/:id/spectate` (design D4).
- *   4. Open a WebSocket via `useMultiplayerSession` — the spectator
- *      receives the replay then live events exactly as a player does
- *      (design D5).
- *   5. Render `NetworkedGameSurface` in `spectator` mode — read-only,
- *      no intent controls (M1 reuse, design D5).
- *
- * A spectator never produces an `Intent`: the surface mounts no intent
- * controls and the server independently rejects any spectator intent.
- *
- * @spec openspec/changes/add-matchmaking-and-spectator/specs/multiplayer-matchmaking/spec.md
- */
-
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
 
-import type { IPlayerToken } from '@/types/multiplayer/Player';
+import type { MultiplayerTokenState } from '@/pages-modules/multiplayer/multiplayerPage.helpers';
 
 import { NetworkedGameSurface } from '@/components/multiplayer/NetworkedGameSurface';
 import { useMultiplayerSession } from '@/hooks/useMultiplayerSession';
-import { decodeTokenFromWire } from '@/types/multiplayer/Player';
+import {
+  buildWsUrl,
+  mintToken,
+} from '@/pages-modules/multiplayer/multiplayerPage.helpers';
 
-// =============================================================================
-// Types
-// =============================================================================
-
-interface ITokenState {
-  readonly wireToken: string;
-  readonly token: IPlayerToken;
-  readonly displayName: string;
-}
-
-// =============================================================================
-// Helpers
-// =============================================================================
-
-/** Build the spectator WebSocket URL from the current page origin. */
-function buildWsUrl(matchId: string): string | null {
-  if (typeof window === 'undefined') return null;
-  const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
-  return `${proto}://${window.location.host}/api/multiplayer/socket?matchId=${encodeURIComponent(matchId)}`;
-}
-
-/** Mint a vault token via the auth endpoint. */
-async function mintToken(password: string): Promise<ITokenState> {
-  const res = await fetch('/api/multiplayer/auth/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password }),
-  });
-  if (!res.ok) {
-    const data = (await res.json()) as { error?: string };
-    throw new Error(data.error ?? `HTTP ${res.status}`);
-  }
-  const data = (await res.json()) as {
-    token: string;
-    playerId: string;
-    displayName: string;
-  };
-  const decoded = decodeTokenFromWire(data.token);
-  if (!decoded) throw new Error('Server returned a malformed token');
-  return {
-    wireToken: data.token,
-    token: decoded,
-    displayName: data.displayName,
-  };
-}
-
-// =============================================================================
-// Page
-// =============================================================================
-
-export default function SpectatePage(): React.ReactElement {
-  const router = useRouter();
-  const matchId =
-    typeof router.query.matchId === 'string' ? router.query.matchId : null;
-
-  const [tokenState, setTokenState] = useState<ITokenState | null>(null);
-  const [password, setPassword] = useState<string>('');
-  const [authError, setAuthError] = useState<string | null>(null);
+function useSpectatorRegistration(
+  matchId: string | null,
+  tokenState: MultiplayerTokenState | null,
+): {
+  readonly registered: boolean;
+  readonly registerError: string | null;
+} {
   const [registered, setRegistered] = useState<boolean>(false);
   const [registerError, setRegisterError] = useState<string | null>(null);
 
-  // Register the spectator seat once the token is in place. A failure
-  // (match not active, at the spectator cap) surfaces inline.
   useEffect(() => {
     if (!matchId || !tokenState || registered) return;
     let cancelled = false;
@@ -126,9 +52,93 @@ export default function SpectatePage(): React.ReactElement {
     };
   }, [matchId, tokenState, registered]);
 
-  // Open the WebSocket only after the spectator seat is registered, so
-  // the server's seat metadata already classifies this player as a
-  // spectator when the connection's events flow.
+  return { registered, registerError };
+}
+
+function SpectatorAuthPrompt({
+  password,
+  authError,
+  onPasswordChange,
+  onSubmit,
+}: {
+  readonly password: string;
+  readonly authError: string | null;
+  readonly onPasswordChange: (password: string) => void;
+  readonly onSubmit: () => void;
+}): React.ReactElement {
+  return (
+    <div className="mx-auto max-w-md px-4 py-8 text-slate-200">
+      <Link
+        href="/multiplayer"
+        className="text-sm text-slate-400 hover:text-slate-200"
+      >
+        Back to multiplayer hub
+      </Link>
+      <h1 className="mt-2 text-2xl font-bold">Unlock vault to spectate</h1>
+      <p className="mt-2 text-xs text-slate-400">
+        Watching a match requires a signed identity. Enter your vault password
+        to mint a token.
+      </p>
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => onPasswordChange(e.target.value)}
+        className="mt-3 w-full rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:border-sky-500 focus:outline-none"
+        placeholder="Vault password"
+      />
+      <button
+        type="button"
+        onClick={onSubmit}
+        disabled={password.length === 0}
+        className="mt-2 w-full rounded bg-sky-600 px-3 py-2 text-sm font-medium text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:bg-slate-700"
+      >
+        Watch match
+      </button>
+      {authError && (
+        <p className="mt-2 text-xs text-rose-400" role="alert">
+          {authError}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function SpectatorRegisterError({
+  error,
+}: {
+  readonly error: string;
+}): React.ReactElement {
+  return (
+    <div className="mx-auto max-w-2xl px-4 py-8 text-slate-200">
+      <Link
+        href="/multiplayer"
+        className="text-sm text-slate-400 hover:text-slate-200"
+      >
+        Back to multiplayer hub
+      </Link>
+      <h1 className="mt-2 text-2xl font-bold">Cannot spectate</h1>
+      <p className="mt-2 text-sm text-rose-400" role="alert">
+        {error}
+      </p>
+    </div>
+  );
+}
+
+export default function SpectatePage(): React.ReactElement {
+  const router = useRouter();
+  const matchId =
+    typeof router.query.matchId === 'string' ? router.query.matchId : null;
+
+  const [tokenState, setTokenState] = useState<MultiplayerTokenState | null>(
+    null,
+  );
+  const [password, setPassword] = useState<string>('');
+  const [authError, setAuthError] = useState<string | null>(null);
+  const { registered, registerError } = useSpectatorRegistration(
+    matchId,
+    tokenState,
+  );
+
   const wsUrl = registered && matchId ? buildWsUrl(matchId) : null;
   const auth = useMemo(
     () =>
@@ -143,83 +153,39 @@ export default function SpectatePage(): React.ReactElement {
     auth,
   );
 
-  // ---------------------------------------------------------------------------
-  // Render branches
-  // ---------------------------------------------------------------------------
-
   if (!matchId) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-8 text-slate-200">
-        <p>Loading…</p>
+        <p>Loading...</p>
       </div>
     );
   }
 
   if (!tokenState) {
     return (
-      <div className="mx-auto max-w-md px-4 py-8 text-slate-200">
-        <Link
-          href="/multiplayer"
-          className="text-sm text-slate-400 hover:text-slate-200"
-        >
-          ← Back to multiplayer hub
-        </Link>
-        <h1 className="mt-2 text-2xl font-bold">Unlock vault to spectate</h1>
-        <p className="mt-2 text-xs text-slate-400">
-          Watching a match requires a signed identity. Enter your vault password
-          to mint a token.
-        </p>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mt-3 w-full rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:border-sky-500 focus:outline-none"
-          placeholder="Vault password"
-        />
-        <button
-          type="button"
-          onClick={() => {
-            setAuthError(null);
-            void (async () => {
-              try {
-                const t = await mintToken(password);
-                setTokenState(t);
-              } catch (e) {
-                setAuthError(
-                  e instanceof Error ? e.message : 'Failed to mint token',
-                );
-              }
-            })();
-          }}
-          disabled={password.length === 0}
-          className="mt-2 w-full rounded bg-sky-600 px-3 py-2 text-sm font-medium text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:bg-slate-700"
-        >
-          Watch match
-        </button>
-        {authError && (
-          <p className="mt-2 text-xs text-rose-400" role="alert">
-            {authError}
-          </p>
-        )}
-      </div>
+      <SpectatorAuthPrompt
+        password={password}
+        authError={authError}
+        onPasswordChange={setPassword}
+        onSubmit={() => {
+          setAuthError(null);
+          void (async () => {
+            try {
+              const t = await mintToken(password);
+              setTokenState(t);
+            } catch (e) {
+              setAuthError(
+                e instanceof Error ? e.message : 'Failed to mint token',
+              );
+            }
+          })();
+        }}
+      />
     );
   }
 
   if (registerError) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-8 text-slate-200">
-        <Link
-          href="/multiplayer"
-          className="text-sm text-slate-400 hover:text-slate-200"
-        >
-          ← Back to multiplayer hub
-        </Link>
-        <h1 className="mt-2 text-2xl font-bold">Cannot spectate</h1>
-        <p className="mt-2 text-sm text-rose-400" role="alert">
-          {registerError}
-        </p>
-      </div>
-    );
+    return <SpectatorRegisterError error={registerError} />;
   }
 
   return (
@@ -229,7 +195,7 @@ export default function SpectatePage(): React.ReactElement {
           href="/multiplayer"
           className="text-sm text-slate-400 hover:text-slate-200"
         >
-          ← Back to multiplayer hub
+          Back to multiplayer hub
         </Link>
         <span className="rounded border border-sky-700 bg-sky-900/30 px-2 py-1 text-xs font-medium text-sky-300">
           Spectator

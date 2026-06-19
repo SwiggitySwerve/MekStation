@@ -10,6 +10,54 @@ import {
   ResolvedPosition,
 } from './LayoutTypes';
 
+type AnchorPositionResolver = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+) => ResolvedAnchor;
+
+type EdgePositionResolver = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  at: number,
+) => ResolvedAnchor;
+
+const ANCHOR_POSITION_RESOLVERS: Readonly<
+  Record<AnchorPosition, AnchorPositionResolver>
+> = {
+  top: (x, y, width) => ({ x: x + width / 2, y }),
+  'top-left': (x, y) => ({ x, y }),
+  'top-right': (x, y, width) => ({ x: x + width, y }),
+  bottom: (x, y, width, height) => ({ x: x + width / 2, y: y + height }),
+  'bottom-left': (x, y, _width, height) => ({ x, y: y + height }),
+  'bottom-right': (x, y, width, height) => ({
+    x: x + width,
+    y: y + height,
+  }),
+  left: (x, y, _width, height) => ({ x, y: y + height / 2 }),
+  right: (x, y, width, height) => ({ x: x + width, y: y + height / 2 }),
+  center: (x, y, width, height) => ({ x: x + width / 2, y: y + height / 2 }),
+  custom: (x, y, width, height) => ({ x: x + width / 2, y: y + height / 2 }),
+};
+
+const EDGE_POSITION_RESOLVERS: Readonly<
+  Record<EdgeName, EdgePositionResolver>
+> = {
+  top: (x, y, width, _height, at) => ({ x: x + width * at, y }),
+  bottom: (x, y, width, height, at) => ({
+    x: x + width * at,
+    y: y + height,
+  }),
+  left: (x, y, _width, height, at) => ({ x, y: y + height * at }),
+  right: (x, y, width, height, at) => ({
+    x: x + width,
+    y: y + height * at,
+  }),
+};
+
 export function calculateAnchorPosition(
   anchor: AnchorPoint,
   x: number,
@@ -17,69 +65,16 @@ export function calculateAnchorPosition(
   width: number,
   height: number,
 ): ResolvedAnchor {
-  let ax: number;
-  let ay: number;
-
-  switch (anchor.position) {
-    case 'top':
-      ax = x + width / 2;
-      ay = y;
-      break;
-    case 'top-left':
-      ax = x;
-      ay = y;
-      break;
-    case 'top-right':
-      ax = x + width;
-      ay = y;
-      break;
-    case 'bottom':
-      ax = x + width / 2;
-      ay = y + height;
-      break;
-    case 'bottom-left':
-      ax = x;
-      ay = y + height;
-      break;
-    case 'bottom-right':
-      ax = x + width;
-      ay = y + height;
-      break;
-    case 'left':
-      ax = x;
-      ay = y + height / 2;
-      break;
-    case 'right':
-      ax = x + width;
-      ay = y + height / 2;
-      break;
-    case 'center':
-    case 'custom':
-    default:
-      ax = x + width / 2;
-      ay = y + height / 2;
-  }
+  let { x: ax, y: ay } = ANCHOR_POSITION_RESOLVERS[anchor.position](
+    x,
+    y,
+    width,
+    height,
+  );
 
   if (anchor.edgePosition) {
     const { edge, at } = anchor.edgePosition;
-    switch (edge) {
-      case 'top':
-        ax = x + width * at;
-        ay = y;
-        break;
-      case 'bottom':
-        ax = x + width * at;
-        ay = y + height;
-        break;
-      case 'left':
-        ax = x;
-        ay = y + height * at;
-        break;
-      case 'right':
-        ax = x + width;
-        ay = y + height * at;
-        break;
-    }
+    ({ x: ax, y: ay } = EDGE_POSITION_RESOLVERS[edge](x, y, width, height, at));
   }
 
   if (anchor.offset) {

@@ -2,9 +2,19 @@
  * Shared types, constants, and utility functions for KeyMomentDetector
  */
 
-import type { KeyMomentType } from '@/types/simulation-viewer/IKeyMoment';
+import type {
+  IKeyMoment,
+  KeyMomentType,
+} from '@/types/simulation-viewer/IKeyMoment';
 
-import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
+import {
+  GameSide,
+  type IGameEvent,
+} from '@/types/gameplay/GameSessionInterfaces';
+
+import { countOperationalUnits, getUnitName } from '../shared/battleState';
+
+export { countOperationalUnits, getUnitName };
 
 // =============================================================================
 // Battle Context Types
@@ -31,6 +41,22 @@ export interface BattleUnit {
 export interface BattleState {
   readonly units: readonly BattleUnit[];
 }
+
+export type MomentFactory = (
+  type: string,
+  event: IGameEvent,
+  description: string,
+  relatedUnitIds: string[],
+  state: DetectorTrackingState,
+  metadata?: Record<string, unknown>,
+) => IKeyMoment;
+
+export type KeyMomentHandler = (
+  event: IGameEvent,
+  battleState: BattleState,
+  state: DetectorTrackingState,
+  createMoment: MomentFactory,
+) => IKeyMoment[];
 
 // =============================================================================
 // Event Payload Types
@@ -184,32 +210,4 @@ export function calculateBvRatio(
 
   if (opposingBv === 0) return teamBv > 0 ? Infinity : 0;
   return teamBv / opposingBv;
-}
-
-/**
- * Counts operational (non-destroyed) units for a given side.
- */
-export function countOperationalUnits(
-  units: readonly BattleUnit[],
-  destroyedUnits: Set<string>,
-  side: GameSide,
-): number {
-  let count = 0;
-  for (const unit of units) {
-    if (unit.side === side && !destroyedUnits.has(unit.id)) {
-      count++;
-    }
-  }
-  return count;
-}
-
-/**
- * Gets a unit name by ID, falling back to the ID itself.
- */
-export function getUnitName(
-  units: readonly BattleUnit[],
-  unitId: string,
-): string {
-  const unit = units.find((u) => u.id === unitId);
-  return unit ? unit.name : unitId;
 }

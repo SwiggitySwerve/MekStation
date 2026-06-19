@@ -14,21 +14,64 @@ import { useVehicleStore } from '@/stores/useVehicleStore';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import {
-  TurretType,
+  ITurretConfiguration,
   IVehicleMountedEquipment,
+  TurretType,
 } from '@/types/unit/VehicleInterfaces';
 
 import { customizerStyles as cs } from '../styles';
 
-// =============================================================================
-// Constants
-// =============================================================================
+interface VehicleTurretTabProps {
+  /** Read-only mode */
+  readOnly?: boolean;
+  /** Additional CSS classes */
+  className?: string;
+}
 
-const TURRET_TYPE_OPTIONS: {
+type TurretOption = { value: TurretType; label: string; description: string };
+type SelectHandler = (e: React.ChangeEvent<HTMLSelectElement>) => void;
+type CheckboxHandler = (e: React.ChangeEvent<HTMLInputElement>) => void;
+type EquipmentAction = (instanceId: string) => void;
+type TurretStats = {
+  equipmentCount: number;
+  maxWeight: number;
+  weightPercent: number;
+  weightUsed: number;
+};
+type SelectProps = {
+  disabled: boolean;
+  onChange: SelectHandler;
+  options: TurretOption[];
+  testId?: string;
   value: TurretType;
-  label: string;
-  description: string;
-}[] = [
+};
+type SecondaryProps = {
+  hasSecondaryTurret: boolean;
+  onSecondaryTurretToggle: CheckboxHandler;
+  onSecondaryTurretTypeChange: SelectHandler;
+  readOnly: boolean;
+  secondaryTurret: ITurretConfiguration | null;
+  secondaryTurretTypeOptions: TurretOption[];
+};
+type ConfigProps = SecondaryProps & {
+  canHaveSecondaryTurret: boolean;
+  onTurretTypeChange: SelectHandler;
+  stats: TurretStats;
+  tonnage: number;
+  turret: ITurretConfiguration | null;
+  turretOptions: TurretOption[];
+};
+type WeaponsProps = {
+  hasTurret: boolean;
+  nonTurretEquipment: IVehicleMountedEquipment[];
+  onAddToTurret: EquipmentAction;
+  onRemoveFromTurret: EquipmentAction;
+  readOnly: boolean;
+  turretEquipment: IVehicleMountedEquipment[];
+};
+type RowProps = { item: IVehicleMountedEquipment; readOnly: boolean };
+
+const TURRET_TYPE_OPTIONS: TurretOption[] = [
   {
     value: TurretType.NONE,
     label: 'No Turret',
@@ -37,7 +80,7 @@ const TURRET_TYPE_OPTIONS: {
   {
     value: TurretType.SINGLE,
     label: 'Single Turret',
-    description: '360° rotation for weapons',
+    description: '360\u00b0 rotation for weapons',
   },
   {
     value: TurretType.DUAL,
@@ -51,36 +94,280 @@ const TURRET_TYPE_OPTIONS: {
   },
 ];
 
-// =============================================================================
-// Types
-// =============================================================================
-
-interface VehicleTurretTabProps {
-  /** Read-only mode */
-  readOnly?: boolean;
-  /** Additional CSS classes */
-  className?: string;
+function getTurretOptions(isVTOL: boolean): TurretOption[] {
+  if (isVTOL)
+    return TURRET_TYPE_OPTIONS.filter(
+      (opt) => opt.value === TurretType.NONE || opt.value === TurretType.CHIN,
+    );
+  return TURRET_TYPE_OPTIONS.filter((opt) => opt.value !== TurretType.CHIN);
 }
 
-// =============================================================================
-// Component
-// =============================================================================
+function getSecondaryTurretTypeOptions(): TurretOption[] {
+  return TURRET_TYPE_OPTIONS.filter(
+    (opt) => opt.value !== TurretType.CHIN && opt.value !== TurretType.NONE,
+  );
+}
 
-/**
- * Vehicle turret configuration and weapon management tab
- */
+function getTurretCapacityBarClass(percent: number): string {
+  if (percent > 100) return 'bg-red-500';
+  if (percent > 75) return 'bg-amber-500';
+  return 'bg-cyan-500';
+}
+
+function TurretOptionSelect({
+  disabled,
+  onChange,
+  options,
+  testId,
+  value,
+}: SelectProps) {
+  return (
+    <select
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      data-testid={testId}
+      className={`${cs.select.full} mt-1`}
+    >
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function SecondaryTurretControl({
+  hasSecondaryTurret,
+  onSecondaryTurretToggle,
+  onSecondaryTurretTypeChange,
+  readOnly,
+  secondaryTurret,
+  secondaryTurretTypeOptions,
+}: SecondaryProps) {
+  return (
+    <div className="mb-4">
+      <label className="flex cursor-pointer items-center gap-2 text-sm text-white">
+        <input
+          type="checkbox"
+          checked={hasSecondaryTurret}
+          onChange={onSecondaryTurretToggle}
+          disabled={readOnly}
+          data-testid="vehicle-secondary-turret-toggle"
+          aria-label="Enable secondary turret"
+          className="h-4 w-4 rounded border-slate-500"
+        />
+        Secondary Turret
+      </label>
+      {hasSecondaryTurret && (
+        <div className="mt-2">
+          <label className={cs.text.label}>Secondary Turret Type</label>
+          <TurretOptionSelect
+            value={secondaryTurret?.type ?? TurretType.SINGLE}
+            onChange={onSecondaryTurretTypeChange}
+            disabled={readOnly}
+            options={secondaryTurretTypeOptions}
+            testId="vehicle-secondary-turret-type"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TurretStat({
+  children,
+  label,
+}: React.PropsWithChildren<{ label: string }>) {
+  return (
+    <div>
+      <span className={cs.text.label}>{label}:</span>
+      <span className={`${cs.text.value} ml-2`}>{children}</span>
+    </div>
+  );
+}
+
+function TurretStatsPanel({
+  stats,
+  turret,
+}: {
+  stats: TurretStats;
+  turret: ITurretConfiguration;
+}) {
+  const usedClass =
+    stats.weightUsed > stats.maxWeight ? cs.text.valueNegative : cs.text.value;
+  return (
+    <div className={`${cs.panel.summary} mb-4`}>
+      <div className="grid grid-cols-2 gap-2 text-sm">
+        <TurretStat label="Max Capacity">
+          {stats.maxWeight.toFixed(1)} tons
+        </TurretStat>
+        <div>
+          <span className={cs.text.label}>Weight Used:</span>
+          <span className={`ml-2 ${usedClass}`}>
+            {stats.weightUsed.toFixed(1)} tons
+          </span>
+        </div>
+        <TurretStat label="Rotation Arc">
+          {turret.rotationArc}
+          {'\u00b0'}
+        </TurretStat>
+        <TurretStat label="Items Mounted">{stats.equipmentCount}</TurretStat>
+      </div>
+      <div className="mt-3">
+        <div className="bg-surface-base h-2 overflow-hidden rounded-full">
+          <div
+            className={`h-full transition-all ${getTurretCapacityBarClass(stats.weightPercent)}`}
+            style={{ width: `${Math.min(100, stats.weightPercent)}%` }}
+          />
+        </div>
+        <p className="text-text-theme-secondary mt-1 text-right text-xs">
+          {stats.weightPercent.toFixed(0)}% capacity used
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function TurretWeightInfo({ tonnage }: { tonnage: number }) {
+  return (
+    <div className="text-text-theme-secondary bg-surface-raised/30 rounded p-2 text-xs">
+      <p className="text-text-theme-primary mb-1 font-medium">
+        Turret Capacity
+      </p>
+      <p>
+        Maximum turret weight is typically 10% of vehicle tonnage (
+        {(tonnage * 0.1).toFixed(1)} tons for this {tonnage}-ton vehicle).
+      </p>
+    </div>
+  );
+}
+
+function TurretConfigurationSection({
+  canHaveSecondaryTurret,
+  hasSecondaryTurret,
+  onSecondaryTurretToggle,
+  onSecondaryTurretTypeChange,
+  onTurretTypeChange,
+  readOnly,
+  secondaryTurret,
+  secondaryTurretTypeOptions,
+  stats,
+  tonnage,
+  turret,
+  turretOptions,
+}: ConfigProps) {
+  return (
+    <section>
+      <h3 className={cs.text.sectionTitle}>Turret Configuration</h3>
+      <div className="mb-4">
+        <label className={cs.text.label}>Turret Type</label>
+        <TurretOptionSelect
+          value={turret?.type ?? TurretType.NONE}
+          onChange={onTurretTypeChange}
+          disabled={readOnly}
+          options={turretOptions}
+        />
+        {turret && (
+          <p className="text-text-theme-secondary mt-1 text-xs">
+            {turretOptions.find((o) => o.value === turret.type)?.description}
+          </p>
+        )}
+      </div>
+      {canHaveSecondaryTurret && (
+        <SecondaryTurretControl
+          hasSecondaryTurret={hasSecondaryTurret}
+          onSecondaryTurretToggle={onSecondaryTurretToggle}
+          onSecondaryTurretTypeChange={onSecondaryTurretTypeChange}
+          readOnly={readOnly}
+          secondaryTurret={secondaryTurret}
+          secondaryTurretTypeOptions={secondaryTurretTypeOptions}
+        />
+      )}
+      {turret ? (
+        <>
+          <TurretStatsPanel turret={turret} stats={stats} />
+          <TurretWeightInfo tonnage={tonnage} />
+        </>
+      ) : (
+        <div className={cs.panel.empty}>
+          <p className="text-text-theme-secondary">No turret configured</p>
+          <p className="text-text-theme-secondary/70 mt-1 text-xs">
+            Select a turret type above to enable turret weapon mounting
+          </p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function TurretWeaponsSection({
+  hasTurret,
+  nonTurretEquipment,
+  onAddToTurret,
+  onRemoveFromTurret,
+  readOnly,
+  turretEquipment,
+}: WeaponsProps) {
+  const emptyMessage = hasTurret
+    ? 'No weapons in turret'
+    : 'Configure a turret first';
+  return (
+    <section>
+      <h3 className={cs.text.sectionTitle}>Turret Weapons</h3>
+      {!hasTurret || turretEquipment.length === 0 ? (
+        <div className={cs.panel.empty}>
+          <p className="text-text-theme-secondary">{emptyMessage}</p>
+          {hasTurret && (
+            <p className="text-text-theme-secondary/70 mt-1 text-xs">
+              Move weapons from the list below or add equipment in the Equipment
+              tab
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="mb-4 space-y-2">
+          {turretEquipment.map((item) => (
+            <TurretEquipmentRow
+              key={item.id}
+              item={item}
+              readOnly={readOnly}
+              onRemove={onRemoveFromTurret}
+            />
+          ))}
+        </div>
+      )}
+      {hasTurret && nonTurretEquipment.length > 0 && (
+        <div className="mt-4">
+          <h4 className="text-text-theme-secondary mb-2 text-sm font-medium">
+            Available Equipment
+          </h4>
+          <div className="max-h-40 space-y-1 overflow-auto">
+            {nonTurretEquipment.map((item) => (
+              <AvailableEquipmentRow
+                key={item.id}
+                item={item}
+                readOnly={readOnly}
+                onAddToTurret={onAddToTurret}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function VehicleTurretTab({
   readOnly = false,
   className = '',
 }: VehicleTurretTabProps): React.ReactElement {
-  // Get state from store
   const tonnage = useVehicleStore((s) => s.tonnage);
   const motionType = useVehicleStore((s) => s.motionType);
   const turret = useVehicleStore((s) => s.turret);
   const secondaryTurret = useVehicleStore((s) => s.secondaryTurret);
   const equipment = useVehicleStore((s) => s.equipment);
-
-  // Get actions from store
   const setTurretType = useVehicleStore((s) => s.setTurretType);
   const setHasSecondaryTurret = useVehicleStore((s) => s.setHasSecondaryTurret);
   const setSecondaryTurretType = useVehicleStore(
@@ -90,52 +377,30 @@ export function VehicleTurretTab({
     (s) => s.updateEquipmentLocation,
   );
 
-  // Derived state
   const isVTOL = motionType === GroundMotionType.VTOL;
   const hasTurret = turret !== null;
   const hasSecondaryTurret = secondaryTurret !== null;
-  // Secondary turret is only meaningful for ground vehicles with a primary
-  // turret. VTOLs use chin turrets exclusively.
-  const canHaveSecondaryTurret = !isVTOL && hasTurret;
-
-  // Filter turret options based on vehicle type
-  const turretOptions = useMemo(() => {
-    if (isVTOL) {
-      // VTOLs use chin turrets
-      return TURRET_TYPE_OPTIONS.filter(
-        (opt) => opt.value === TurretType.NONE || opt.value === TurretType.CHIN,
-      );
-    }
-    // Ground vehicles can have single or dual turrets
-    return TURRET_TYPE_OPTIONS.filter((opt) => opt.value !== TurretType.CHIN);
-  }, [isVTOL]);
-
-  // Get turret-mounted equipment
-  const turretEquipment = useMemo(() => {
-    return equipment.filter((e) => e.isTurretMounted);
-  }, [equipment]);
-
-  // Get non-turret equipment that could be moved to turret
-  const nonTurretEquipment = useMemo(() => {
-    return equipment.filter((e) => !e.isTurretMounted);
-  }, [equipment]);
-
-  // Calculate turret weight usage (simplified - in real implementation would calculate from equipment data)
-  const turretWeightUsed = turretEquipment.length * 0.5; // Placeholder calculation
-  const turretMaxWeight = turret?.maxWeight ?? 0;
-  const turretWeightPercent =
-    turretMaxWeight > 0 ? (turretWeightUsed / turretMaxWeight) * 100 : 0;
-
-  // Filter secondary turret options — never offer CHIN (ground-vehicle only).
-  const secondaryTurretTypeOptions = useMemo(
-    () =>
-      TURRET_TYPE_OPTIONS.filter(
-        (opt) => opt.value !== TurretType.CHIN && opt.value !== TurretType.NONE,
-      ),
-    [],
+  const turretOptions = useMemo(() => getTurretOptions(isVTOL), [isVTOL]);
+  const turretEquipment = useMemo(
+    () => equipment.filter((e) => e.isTurretMounted),
+    [equipment],
   );
+  const nonTurretEquipment = useMemo(
+    () => equipment.filter((e) => !e.isTurretMounted),
+    [equipment],
+  );
+  const secondaryTurretTypeOptions = useMemo(getSecondaryTurretTypeOptions, []);
+  const stats = useMemo<TurretStats>(() => {
+    const weightUsed = turretEquipment.length * 0.5;
+    const maxWeight = turret?.maxWeight ?? 0;
+    return {
+      equipmentCount: turretEquipment.length,
+      maxWeight,
+      weightPercent: maxWeight > 0 ? (weightUsed / maxWeight) * 100 : 0,
+      weightUsed,
+    };
+  }, [turret, turretEquipment.length]);
 
-  // Handlers
   const handleTurretTypeChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       if (readOnly) return;
@@ -143,7 +408,6 @@ export function VehicleTurretTab({
     },
     [setTurretType, readOnly],
   );
-
   const handleSecondaryTurretToggle = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       if (readOnly) return;
@@ -151,7 +415,6 @@ export function VehicleTurretTab({
     },
     [setHasSecondaryTurret, readOnly],
   );
-
   const handleSecondaryTurretTypeChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       if (readOnly) return;
@@ -159,7 +422,6 @@ export function VehicleTurretTab({
     },
     [setSecondaryTurretType, readOnly],
   );
-
   const handleMoveToTurret = useCallback(
     (instanceId: string) => {
       if (readOnly || !hasTurret) return;
@@ -167,11 +429,9 @@ export function VehicleTurretTab({
     },
     [updateEquipmentLocation, readOnly, hasTurret],
   );
-
   const handleRemoveFromTurret = useCallback(
     (instanceId: string) => {
       if (readOnly) return;
-      // Move back to body, not turret mounted
       updateEquipmentLocation(instanceId, VehicleLocation.BODY, false);
     },
     [updateEquipmentLocation, readOnly],
@@ -180,205 +440,29 @@ export function VehicleTurretTab({
   return (
     <div className={`${cs.panel.main} ${className}`}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Turret Configuration Section */}
-        <section>
-          <h3 className={cs.text.sectionTitle}>Turret Configuration</h3>
-
-          {/* Turret Type Selector */}
-          <div className="mb-4">
-            <label className={cs.text.label}>Turret Type</label>
-            <select
-              value={turret?.type ?? TurretType.NONE}
-              onChange={handleTurretTypeChange}
-              disabled={readOnly}
-              className={`${cs.select.full} mt-1`}
-            >
-              {turretOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            {turret && (
-              <p className="text-text-theme-secondary mt-1 text-xs">
-                {
-                  turretOptions.find((o) => o.value === turret.type)
-                    ?.description
-                }
-              </p>
-            )}
-          </div>
-
-          {/* Secondary Turret Toggle — ground vehicles only, primary required. */}
-          {canHaveSecondaryTurret && (
-            <div className="mb-4">
-              <label className="flex cursor-pointer items-center gap-2 text-sm text-white">
-                <input
-                  type="checkbox"
-                  checked={hasSecondaryTurret}
-                  onChange={handleSecondaryTurretToggle}
-                  disabled={readOnly}
-                  data-testid="vehicle-secondary-turret-toggle"
-                  aria-label="Enable secondary turret"
-                  className="h-4 w-4 rounded border-slate-500"
-                />
-                Secondary Turret
-              </label>
-              {hasSecondaryTurret && (
-                <div className="mt-2">
-                  <label className={cs.text.label}>Secondary Turret Type</label>
-                  <select
-                    value={secondaryTurret?.type ?? TurretType.SINGLE}
-                    onChange={handleSecondaryTurretTypeChange}
-                    disabled={readOnly}
-                    data-testid="vehicle-secondary-turret-type"
-                    className={`${cs.select.full} mt-1`}
-                  >
-                    {secondaryTurretTypeOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Turret Stats (when turret is configured) */}
-          {hasTurret && (
-            <div className={`${cs.panel.summary} mb-4`}>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <span className={cs.text.label}>Max Capacity:</span>
-                  <span className={`${cs.text.value} ml-2`}>
-                    {turretMaxWeight.toFixed(1)} tons
-                  </span>
-                </div>
-                <div>
-                  <span className={cs.text.label}>Weight Used:</span>
-                  <span
-                    className={`ml-2 ${
-                      turretWeightUsed > turretMaxWeight
-                        ? cs.text.valueNegative
-                        : cs.text.value
-                    }`}
-                  >
-                    {turretWeightUsed.toFixed(1)} tons
-                  </span>
-                </div>
-                <div>
-                  <span className={cs.text.label}>Rotation Arc:</span>
-                  <span className={`${cs.text.value} ml-2`}>
-                    {turret.rotationArc}°
-                  </span>
-                </div>
-                <div>
-                  <span className={cs.text.label}>Items Mounted:</span>
-                  <span className={`${cs.text.value} ml-2`}>
-                    {turretEquipment.length}
-                  </span>
-                </div>
-              </div>
-
-              {/* Weight Bar */}
-              <div className="mt-3">
-                <div className="bg-surface-base h-2 overflow-hidden rounded-full">
-                  <div
-                    className={`h-full transition-all ${
-                      turretWeightPercent > 100
-                        ? 'bg-red-500'
-                        : turretWeightPercent > 75
-                          ? 'bg-amber-500'
-                          : 'bg-cyan-500'
-                    }`}
-                    style={{ width: `${Math.min(100, turretWeightPercent)}%` }}
-                  />
-                </div>
-                <p className="text-text-theme-secondary mt-1 text-right text-xs">
-                  {turretWeightPercent.toFixed(0)}% capacity used
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* No Turret Message */}
-          {!hasTurret && (
-            <div className={cs.panel.empty}>
-              <p className="text-text-theme-secondary">No turret configured</p>
-              <p className="text-text-theme-secondary/70 mt-1 text-xs">
-                Select a turret type above to enable turret weapon mounting
-              </p>
-            </div>
-          )}
-
-          {/* Turret Weight Info */}
-          {hasTurret && (
-            <div className="text-text-theme-secondary bg-surface-raised/30 rounded p-2 text-xs">
-              <p className="text-text-theme-primary mb-1 font-medium">
-                Turret Capacity
-              </p>
-              <p>
-                Maximum turret weight is typically 10% of vehicle tonnage (
-                {(tonnage * 0.1).toFixed(1)} tons for this {tonnage}-ton
-                vehicle).
-              </p>
-            </div>
-          )}
-        </section>
-
-        {/* Turret Weapons Section */}
-        <section>
-          <h3 className={cs.text.sectionTitle}>Turret Weapons</h3>
-
-          {!hasTurret ? (
-            <div className={cs.panel.empty}>
-              <p className="text-text-theme-secondary">
-                Configure a turret first
-              </p>
-            </div>
-          ) : turretEquipment.length === 0 ? (
-            <div className={cs.panel.empty}>
-              <p className="text-text-theme-secondary">No weapons in turret</p>
-              <p className="text-text-theme-secondary/70 mt-1 text-xs">
-                Move weapons from the list below or add equipment in the
-                Equipment tab
-              </p>
-            </div>
-          ) : (
-            <div className="mb-4 space-y-2">
-              {turretEquipment.map((item) => (
-                <TurretEquipmentRow
-                  key={item.id}
-                  item={item}
-                  readOnly={readOnly}
-                  onRemove={handleRemoveFromTurret}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Available Equipment to Add to Turret */}
-          {hasTurret && nonTurretEquipment.length > 0 && (
-            <div className="mt-4">
-              <h4 className="text-text-theme-secondary mb-2 text-sm font-medium">
-                Available Equipment
-              </h4>
-              <div className="max-h-40 space-y-1 overflow-auto">
-                {nonTurretEquipment.map((item) => (
-                  <AvailableEquipmentRow
-                    key={item.id}
-                    item={item}
-                    readOnly={readOnly}
-                    onAddToTurret={handleMoveToTurret}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </section>
+        <TurretConfigurationSection
+          canHaveSecondaryTurret={!isVTOL && hasTurret}
+          hasSecondaryTurret={hasSecondaryTurret}
+          onSecondaryTurretToggle={handleSecondaryTurretToggle}
+          onSecondaryTurretTypeChange={handleSecondaryTurretTypeChange}
+          onTurretTypeChange={handleTurretTypeChange}
+          readOnly={readOnly}
+          secondaryTurret={secondaryTurret}
+          secondaryTurretTypeOptions={secondaryTurretTypeOptions}
+          stats={stats}
+          tonnage={tonnage}
+          turret={turret}
+          turretOptions={turretOptions}
+        />
+        <TurretWeaponsSection
+          hasTurret={hasTurret}
+          nonTurretEquipment={nonTurretEquipment}
+          onAddToTurret={handleMoveToTurret}
+          onRemoveFromTurret={handleRemoveFromTurret}
+          readOnly={readOnly}
+          turretEquipment={turretEquipment}
+        />
       </div>
-
       {readOnly && (
         <div className={`${cs.panel.notice} mt-4`}>
           This vehicle is in read-only mode. Changes cannot be made.
@@ -388,21 +472,11 @@ export function VehicleTurretTab({
   );
 }
 
-// =============================================================================
-// Turret Equipment Row
-// =============================================================================
-
-interface TurretEquipmentRowProps {
-  item: IVehicleMountedEquipment;
-  readOnly: boolean;
-  onRemove: (instanceId: string) => void;
-}
-
 function TurretEquipmentRow({
   item,
-  readOnly,
   onRemove,
-}: TurretEquipmentRowProps): React.ReactElement {
+  readOnly,
+}: RowProps & { onRemove: EquipmentAction }) {
   return (
     <div className="flex items-center gap-2 rounded border border-amber-700/50 bg-amber-900/20 p-2">
       <div className="min-w-0 flex-1">
@@ -423,21 +497,11 @@ function TurretEquipmentRow({
   );
 }
 
-// =============================================================================
-// Available Equipment Row
-// =============================================================================
-
-interface AvailableEquipmentRowProps {
-  item: IVehicleMountedEquipment;
-  readOnly: boolean;
-  onAddToTurret: (instanceId: string) => void;
-}
-
 function AvailableEquipmentRow({
   item,
-  readOnly,
   onAddToTurret,
-}: AvailableEquipmentRowProps): React.ReactElement {
+  readOnly,
+}: RowProps & { onAddToTurret: EquipmentAction }) {
   return (
     <div className="bg-surface-raised/30 flex items-center gap-2 rounded p-1.5 text-sm">
       <div className="min-w-0 flex-1">

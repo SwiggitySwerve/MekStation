@@ -3,12 +3,7 @@ import { useEffect, useState, useCallback } from 'react';
 
 import type { IContact, ContactStatus } from '@/types/vault';
 
-import {
-  UserPlusIcon,
-  type ContactsResponse,
-  type AddContactResponse,
-  type ErrorResponse,
-} from '@/components/contacts/ContactFilters';
+import { UserPlusIcon } from '@/components/contacts/ContactFilters';
 import {
   AddContactDialog,
   EditContactDialog,
@@ -17,6 +12,14 @@ import {
 } from '@/components/contacts/ContactFormModal';
 import { ContactList } from '@/components/contacts/ContactList';
 import { PageLayout, PageLoading, PageError, Button } from '@/components/ui';
+import {
+  createContact,
+  fetchContactsList,
+  offlineStatusesFor,
+  removeContact,
+  toEditingContact,
+  updateContact,
+} from '@/pages-modules/contacts/helpers';
 import { logger } from '@/utils/logger';
 
 export default function ContactsPage(): React.ReactElement {
@@ -37,15 +40,9 @@ export default function ContactsPage(): React.ReactElement {
 
   const fetchContacts = useCallback(async () => {
     try {
-      const response = await fetch('/api/vault/contacts');
-      if (!response.ok) throw new Error('Failed to fetch contacts');
-      const data = (await response.json()) as ContactsResponse;
-      setContacts(data.contacts);
-      const statuses: Record<string, ContactStatus> = {};
-      data.contacts.forEach((c) => {
-        statuses[c.id] = 'offline';
-      });
-      setContactStatuses(statuses);
+      const contactsList = await fetchContactsList();
+      setContacts(contactsList);
+      setContactStatuses(offlineStatusesFor(contactsList));
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load contacts');
@@ -62,24 +59,11 @@ export default function ContactsPage(): React.ReactElement {
     setIsAdding(true);
     setAddDialogError(null);
     try {
-      const response = await fetch('/api/vault/contacts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          friendCode: data.friendCode,
-          nickname: data.nickname || undefined,
-          notes: data.notes || undefined,
-        }),
-      });
-      if (!response.ok) {
-        const errorData = (await response.json()) as ErrorResponse;
-        throw new Error(errorData.error || 'Failed to add contact');
-      }
-      const result = (await response.json()) as AddContactResponse;
-      setContacts((prev) => [...prev, result.contact]);
+      const contact = await createContact(data);
+      setContacts((prev) => [...prev, contact]);
       setContactStatuses((prev) => ({
         ...prev,
-        [result.contact.id]: 'offline',
+        [contact.id]: 'offline',
       }));
       setShowAddDialog(false);
     } catch (err) {
@@ -92,11 +76,7 @@ export default function ContactsPage(): React.ReactElement {
   };
 
   const handleEditContact = (contact: IContact) => {
-    setEditingContact({
-      id: contact.id,
-      nickname: contact.nickname || '',
-      notes: contact.notes || '',
-    });
+    setEditingContact(toEditingContact(contact));
   };
 
   const handleSaveEdit = async (
@@ -106,15 +86,10 @@ export default function ContactsPage(): React.ReactElement {
   ) => {
     setIsSaving(true);
     try {
-      const response = await fetch(`/api/vault/contacts/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nickname: nickname || null,
-          notes: notes || null,
-        }),
+      await updateContact(id, {
+        nickname: nickname || null,
+        notes: notes || null,
       });
-      if (!response.ok) throw new Error('Failed to update contact');
       setContacts((prev) =>
         prev.map((c) =>
           c.id === id
@@ -132,12 +107,7 @@ export default function ContactsPage(): React.ReactElement {
 
   const handleToggleTrust = async (contact: IContact) => {
     try {
-      const response = await fetch(`/api/vault/contacts/${contact.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isTrusted: !contact.isTrusted }),
-      });
-      if (!response.ok) throw new Error('Failed to update trust status');
+      await updateContact(contact.id, { isTrusted: !contact.isTrusted });
       setContacts((prev) =>
         prev.map((c) =>
           c.id === contact.id ? { ...c, isTrusted: !c.isTrusted } : c,
@@ -150,10 +120,7 @@ export default function ContactsPage(): React.ReactElement {
 
   const handleDelete = async (contact: IContact) => {
     try {
-      const response = await fetch(`/api/vault/contacts/${contact.id}`, {
-        method: 'DELETE',
-      });
-      if (!response.ok) throw new Error('Failed to delete contact');
+      await removeContact(contact.id);
       setContacts((prev) => prev.filter((c) => c.id !== contact.id));
     } catch (err) {
       logger.error('Failed to delete:', err);

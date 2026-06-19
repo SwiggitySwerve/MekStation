@@ -303,6 +303,51 @@ export function checkSpecialAwards(
 // Master Dispatcher
 // =============================================================================
 
+type AwardCategoryChecker = (
+  entry: ICampaignRosterEntry,
+  pilot: IPilot | null,
+  awards: readonly IAward[],
+  context: ICheckerContext,
+) => IAward[];
+
+const AWARD_CATEGORY_CHECKERS: Readonly<
+  Partial<Record<AutoAwardCategory, AwardCategoryChecker>>
+> = {
+  [AutoAwardCategory.KILL]: (entry, pilot, awards) =>
+    checkKillAwards(entry, pilot, awards),
+  [AutoAwardCategory.SCENARIO]: (entry, pilot, awards) =>
+    checkScenarioAwards(entry, pilot, awards),
+  [AutoAwardCategory.TIME]: checkTimeAwards,
+  [AutoAwardCategory.SKILL]: (entry, pilot, awards) =>
+    checkSkillAwards(entry, pilot, awards),
+  [AutoAwardCategory.RANK]: (entry, pilot, awards) =>
+    checkRankAwards(entry, pilot, awards),
+  [AutoAwardCategory.INJURY]: (entry, pilot, awards) =>
+    checkInjuryAwards(entry, pilot, awards),
+  [AutoAwardCategory.CONTRACT]: (entry, pilot, awards) =>
+    checkContractAwards(entry, pilot, awards),
+  [AutoAwardCategory.FACTION_HUNTER]: (entry, pilot, awards) =>
+    checkFactionHunterAwards(entry, pilot, awards),
+  [AutoAwardCategory.THEATRE_OF_WAR]: (entry, pilot, awards) =>
+    checkTheatreOfWarAwards(entry, pilot, awards),
+  [AutoAwardCategory.TRAINING]: (entry, pilot, awards) =>
+    checkTrainingAwards(entry, pilot, awards),
+  [AutoAwardCategory.SCENARIO_KILL]: (entry, pilot, awards) =>
+    checkScenarioKillAwards(entry, pilot, awards),
+  [AutoAwardCategory.MISC]: (entry, pilot, awards) =>
+    checkMiscAwards(entry, pilot, awards),
+  [AutoAwardCategory.COMBAT]: (entry, pilot, awards) =>
+    checkCombatAwards(entry, pilot, awards),
+  [AutoAwardCategory.SURVIVAL]: (entry, pilot, awards) =>
+    checkSurvivalAwards(entry, pilot, awards),
+  [AutoAwardCategory.SERVICE]: (entry, pilot, awards) =>
+    checkServiceAwards(entry, pilot, awards),
+  [AutoAwardCategory.CAMPAIGN]: (entry, pilot, awards) =>
+    checkCampaignAwards(entry, pilot, awards),
+  [AutoAwardCategory.SPECIAL]: (entry, pilot, awards) =>
+    checkSpecialAwards(entry, pilot, awards),
+};
+
 /**
  * Route an award category to its checker function.
  *
@@ -321,42 +366,7 @@ export function checkAwardsForCategory(
   awards: readonly IAward[],
   context: ICheckerContext,
 ): IAward[] {
-  switch (category) {
-    case AutoAwardCategory.KILL:
-      return checkKillAwards(entry, pilot, awards);
-    case AutoAwardCategory.SCENARIO:
-      return checkScenarioAwards(entry, pilot, awards);
-    case AutoAwardCategory.TIME:
-      return checkTimeAwards(entry, pilot, awards, context);
-    case AutoAwardCategory.SKILL:
-      return checkSkillAwards(entry, pilot, awards);
-    case AutoAwardCategory.RANK:
-      return checkRankAwards(entry, pilot, awards);
-    case AutoAwardCategory.INJURY:
-      return checkInjuryAwards(entry, pilot, awards);
-    case AutoAwardCategory.CONTRACT:
-      return checkContractAwards(entry, pilot, awards);
-    case AutoAwardCategory.FACTION_HUNTER:
-      return checkFactionHunterAwards(entry, pilot, awards);
-    case AutoAwardCategory.THEATRE_OF_WAR:
-      return checkTheatreOfWarAwards(entry, pilot, awards);
-    case AutoAwardCategory.TRAINING:
-      return checkTrainingAwards(entry, pilot, awards);
-    case AutoAwardCategory.SCENARIO_KILL:
-      return checkScenarioKillAwards(entry, pilot, awards);
-    case AutoAwardCategory.MISC:
-      return checkMiscAwards(entry, pilot, awards);
-    case AutoAwardCategory.COMBAT:
-      return checkCombatAwards(entry, pilot, awards);
-    case AutoAwardCategory.SURVIVAL:
-      return checkSurvivalAwards(entry, pilot, awards);
-    case AutoAwardCategory.SERVICE:
-      return checkServiceAwards(entry, pilot, awards);
-    case AutoAwardCategory.CAMPAIGN:
-      return checkCampaignAwards(entry, pilot, awards);
-    case AutoAwardCategory.SPECIAL:
-      return checkSpecialAwards(entry, pilot, awards);
-    default:
-      return [];
-  }
+  return (
+    AWARD_CATEGORY_CHECKERS[category]?.(entry, pilot, awards, context) ?? []
+  );
 }

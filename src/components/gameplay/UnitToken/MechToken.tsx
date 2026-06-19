@@ -40,6 +40,8 @@ import { HEX_SIZE } from '@/constants/hexMap';
 
 import type { ITokenSharedProps } from './tokenTypes';
 
+import { DestroyedCrossOverlay } from './tokenVisuals';
+
 // =============================================================================
 // Token radius constants — re-exported so callers (dispatcher, tests) can
 // place effects relative to the token body without re-deriving the math.
@@ -154,18 +156,7 @@ export const MechToken = React.memo(function MechToken({
       </text>
 
       {/* Destroyed cross overlay */}
-      {isDestroyed && (
-        <g
-          stroke="#dc2626"
-          strokeWidth={3}
-          data-testid="unit-destroyed-overlay"
-          pointerEvents="none"
-          aria-hidden="true"
-        >
-          <line x1={-12} y1={-12} x2={12} y2={12} />
-          <line x1={12} y1={-12} x2={-12} y2={12} />
-        </g>
-      )}
+      {isDestroyed && <DestroyedCrossOverlay xRadius={12} strokeWidth={3} />}
 
       {/* Damage feedback overlays (pointer-events:none — never intercept clicks) */}
       <PilotWoundFlash

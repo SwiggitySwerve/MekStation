@@ -22,6 +22,7 @@ import path from 'node:path';
 
 import type { IGameEvent } from '@/types/gameplay';
 
+import { type ApiErrorResponse } from '@/pages-modules/api/routeHelpers';
 import { ReplaySource } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
 
@@ -32,11 +33,6 @@ import { logger } from '@/utils/logger';
 type LoadResponse = {
   events: IGameEvent[];
   gameId: string;
-};
-
-type ErrorResponse = {
-  error: string;
-  code?: string;
 };
 
 // =============================================================================
@@ -72,7 +68,7 @@ const GAME_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
  */
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<LoadResponse | ErrorResponse>,
+  res: NextApiResponse<LoadResponse | ApiErrorResponse>,
 ): Promise<void> {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);

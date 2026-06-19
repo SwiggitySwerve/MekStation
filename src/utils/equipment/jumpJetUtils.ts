@@ -17,6 +17,7 @@ import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { generateUnitId } from '@/utils/uuid';
 
+import { createConfigurationMountedEquipment } from './configurationMountedEquipment';
 import { JUMP_JET_EQUIPMENT_IDS } from './equipmentConstants';
 
 const JUMP_JET_FALLBACKS: Record<string, IMiscEquipment> = {
@@ -133,22 +134,18 @@ export function createJumpJetEquipmentList(
 
   const result: IMountedEquipmentInstance[] = [];
   for (let i = 0; i < jumpMP; i++) {
-    result.push({
-      instanceId: generateUnitId(),
-      equipmentId: jetEquip.id,
-      name: jetEquip.name,
-      category: EquipmentCategory.MOVEMENT,
-      weight: jetEquip.weight,
-      criticalSlots: jetEquip.criticalSlots,
-      heat: 0,
-      techBase: jetEquip.techBase,
-      location: undefined,
-      slots: undefined,
-      isRearMounted: false,
-      linkedAmmoId: undefined,
-      isRemovable: false,
-      isOmniPodMounted: false,
-    });
+    result.push(
+      createConfigurationMountedEquipment({
+        instanceId: generateUnitId(),
+        equipmentId: jetEquip.id,
+        name: jetEquip.name,
+        category: EquipmentCategory.MOVEMENT,
+        weight: jetEquip.weight,
+        criticalSlots: jetEquip.criticalSlots,
+        heat: 0,
+        techBase: jetEquip.techBase,
+      }),
+    );
   }
   return result;
 }

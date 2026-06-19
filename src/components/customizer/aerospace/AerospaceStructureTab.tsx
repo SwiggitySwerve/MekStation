@@ -16,6 +16,7 @@
 import React, { useCallback, useMemo } from 'react';
 
 import { useAerospaceStore } from '@/stores/useAerospaceStore';
+import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import {
   AerospaceArc,
   AerospaceSubType,
@@ -61,10 +62,20 @@ export function AerospaceStructureTab({
   const quartersTons = crew?.quartersTons ?? 0;
 
   // Build arc allocation map for validation (convert from AerospaceLocation to AerospaceArc)
-  const arcAllocationForValidation = useMemo(() => {
-    // armorAllocation uses AerospaceLocation keys which match AerospaceArc string values
-    return armorAllocation as unknown as Partial<Record<AerospaceArc, number>>;
-  }, [armorAllocation]);
+  const arcAllocationForValidation = useMemo<
+    Partial<Record<AerospaceArc, number>>
+  >(
+    () => ({
+      [AerospaceArc.NOSE]: armorAllocation[AerospaceLocation.NOSE] ?? 0,
+      [AerospaceArc.LEFT_WING]:
+        armorAllocation[AerospaceLocation.LEFT_WING] ?? 0,
+      [AerospaceArc.RIGHT_WING]:
+        armorAllocation[AerospaceLocation.RIGHT_WING] ?? 0,
+      [AerospaceArc.AFT]: armorAllocation[AerospaceLocation.AFT] ?? 0,
+      [AerospaceArc.FUSELAGE]: armorAllocation[AerospaceLocation.FUSELAGE] ?? 0,
+    }),
+    [armorAllocation],
+  );
 
   // Compute live validation errors for display
   const validationErrors = useMemo(

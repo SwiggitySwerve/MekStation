@@ -1,15 +1,16 @@
-import { useRouter } from 'next/router';
 /**
  * Campaign Forces Page (TO&E)
  * Table of Organization and Equipment - manage force hierarchy.
  *
  * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
  */
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { PageLayout, Card, EmptyState, Badge } from '@/components/ui';
-import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import {
+  CampaignPageFrame,
+  useCampaignPageShell,
+} from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { FormationLevel } from '@/types/campaign/enums';
 import { IForce } from '@/types/campaign/Force';
 
@@ -135,26 +136,10 @@ function ForceNode({
 // =============================================================================
 
 export default function ForcesPage(): React.ReactElement {
-  const router = useRouter();
-  const { id } = router.query;
-  const store = useCampaignStore();
-  const campaign = store.getState().getCampaign();
-  const [isClient, setIsClient] = useState(false);
-
-  // Breadcrumbs
-  const breadcrumbs = [
-    { label: 'Home', href: '/' },
-    { label: 'Gameplay', href: '/gameplay' },
-    { label: 'Campaigns', href: '/gameplay/campaigns' },
-    { label: campaign?.name || 'Campaign', href: `/gameplay/campaigns/${id}` },
-    { label: 'Forces (TO&E)' },
-  ];
+  const { campaign, isClient, breadcrumbs } =
+    useCampaignPageShell('Forces (TO&E)');
 
   // Hydration fix — see PT-102 (`src/pages/gameplay/campaigns/index.tsx`).
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   // Show loading state during SSR/hydration
   if (!isClient) {
     return (
@@ -209,15 +194,13 @@ export default function ForcesPage(): React.ReactElement {
   const rootForce = campaign.forces.get(campaign.rootForceId);
 
   return (
-    <PageLayout
+    <CampaignPageFrame
+      campaign={campaign}
       title="Forces (TO&E)"
       subtitle={`${campaign.name} - Table of Organization and Equipment`}
-      maxWidth="wide"
+      currentPage="forces"
       breadcrumbs={breadcrumbs}
     >
-      {/* Navigation Tabs */}
-      <CampaignNavigation campaignId={campaign.id} currentPage="forces" />
-
       {!rootForce ? (
         <EmptyState
           icon={
@@ -260,6 +243,6 @@ export default function ForcesPage(): React.ReactElement {
           </div>
         </Card>
       )}
-    </PageLayout>
+    </CampaignPageFrame>
   );
 }

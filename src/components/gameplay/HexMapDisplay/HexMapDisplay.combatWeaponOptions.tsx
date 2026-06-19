@@ -7,9 +7,9 @@ import type {
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
 import {
-  formatTacticalProjectionRuleReferences,
-  formatTacticalProjectionSourceReferences,
-} from '@/utils/gameplay/tacticalMapProjection';
+  combatProjectionSourceMetadata,
+  tacticalProjectionDataAttributes,
+} from './HexMapDisplay.tacticalProjectionAttributes';
 
 function formatRangeLabel(option: ICombatWeaponRangeOption): string {
   return option.rangeBracket.replace(/_/g, ' ');
@@ -82,28 +82,15 @@ export function CombatWeaponOptionRows({
 }): React.ReactElement | null {
   if (combatInfo.weaponRangeOptions.length === 0) return null;
 
-  const combatSourceReferences =
-    projection?.sourceReferences.filter(
-      (source) => source.channel === 'combat',
-    ) ?? [];
-  const combatSourceRefsAttribute =
-    formatTacticalProjectionSourceReferences(combatSourceReferences) ||
-    undefined;
-  const combatRuleRefsAttribute =
-    formatTacticalProjectionRuleReferences(combatSourceReferences) || undefined;
-  const combatProjectionChannel =
-    combatSourceReferences.length > 0 ? 'combat' : undefined;
+  const source = combatProjectionSourceMetadata(projection?.sourceReferences);
+  const projectionAttributes = tacticalProjectionDataAttributes(source);
 
   return (
     <div
       data-testid={testId}
-      data-tactical-projection-source={
-        combatProjectionChannel ? 'shared-tactical-map-projection' : undefined
-      }
-      data-tactical-projection-channel={combatProjectionChannel}
-      data-tactical-rules-surface={combatProjectionChannel}
-      data-combat-weapon-option-source-refs={combatSourceRefsAttribute}
-      data-combat-weapon-option-rule-refs={combatRuleRefsAttribute}
+      {...projectionAttributes}
+      data-combat-weapon-option-source-refs={source.sourceRefs}
+      data-combat-weapon-option-rule-refs={source.ruleRefs}
     >
       Weapon options:{' '}
       {combatInfo.weaponRangeOptions.map((option, index) => (
@@ -114,15 +101,9 @@ export function CombatWeaponOptionRows({
               option,
               index,
             )}`}
-            data-tactical-projection-source={
-              combatProjectionChannel
-                ? 'shared-tactical-map-projection'
-                : undefined
-            }
-            data-tactical-projection-channel={combatProjectionChannel}
-            data-tactical-rules-surface={combatProjectionChannel}
-            data-combat-weapon-option-source-refs={combatSourceRefsAttribute}
-            data-combat-weapon-option-rule-refs={combatRuleRefsAttribute}
+            {...projectionAttributes}
+            data-combat-weapon-option-source-refs={source.sourceRefs}
+            data-combat-weapon-option-rule-refs={source.ruleRefs}
             data-combat-weapon-option-id={option.weaponId}
             data-combat-weapon-option-range={option.rangeBracket}
             data-combat-weapon-option-arc-state={

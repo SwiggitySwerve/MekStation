@@ -151,7 +151,7 @@ export function getOfficerModifier(
 /**
  * Service contract modifier — currently a no-op.
  *
- * FIXME(person-contract-tracking): MekHQ applies a turnover modifier when a
+ * Deferred(person-contract-tracking): MekHQ applies a turnover modifier when a
  * personnel contract is approaching expiry (typically `-1` if < 6 months
  * left, `+2` once expired). Implementing this requires `ICampaignRosterEntry`
  * to grow `serviceContractEnd: Date`. When that field lands, switch this

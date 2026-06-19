@@ -9,9 +9,7 @@
 
 import { StoreApi } from 'zustand';
 
-import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
 import { logger } from '@/utils/logger';
-import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 import {
   ProtoMechStore,
@@ -23,141 +21,74 @@ import {
   createProtoMechStore,
   createNewProtoMechStore,
 } from './useProtoMechStore';
+import { createStoreRegistry } from './utils/createStoreRegistry';
 
-const protoMechStores = new Map<string, StoreApi<ProtoMechStore>>();
+const protoMechRegistry = createStoreRegistry<
+  ProtoMechStore,
+  ProtoMechState,
+  CreateProtoMechOptions
+>({
+  storageKeyPrefix: 'megamek-protomech',
+  registryName: 'ProtoMechStoreRegistry',
+  createStore: createProtoMechStore,
+  createNewStore: createNewProtoMechStore,
+  createDefaultState: (options, id) =>
+    createDefaultProtoMechState({ ...options, id }),
+  getIdFromState: (state) => state.id,
+});
 
 export function getProtoMechStore(
   protoMechId: string,
 ): StoreApi<ProtoMechStore> | undefined {
-  return protoMechStores.get(protoMechId);
+  return protoMechRegistry.get(protoMechId);
 }
 
 export function hasProtoMechStore(protoMechId: string): boolean {
-  return protoMechStores.has(protoMechId);
+  return protoMechRegistry.has(protoMechId);
 }
 
 export function getAllProtoMechIds(): string[] {
-  return Array.from(protoMechStores.keys());
+  return protoMechRegistry.getAllIds();
 }
 
 export function getProtoMechStoreCount(): number {
-  return protoMechStores.size;
-}
-
-function ensureValidProtoMechId(
-  protoMechId: string | undefined | null,
-  context: string,
-): string {
-  if (protoMechId && isValidUUID(protoMechId)) {
-    return protoMechId;
-  }
-
-  const newId = generateUUID();
-  logger.warn(
-    `[ProtoMechStoreRegistry] ${context}: Invalid protomech ID "${protoMechId || '(missing)'}" replaced with "${newId}"`,
-  );
-  return newId;
+  return protoMechRegistry.getCount();
 }
 
 export function createAndRegisterProtoMech(
   options: CreateProtoMechOptions,
 ): StoreApi<ProtoMechStore> {
-  const store = createNewProtoMechStore(options);
-  const state = store.getState();
-  protoMechStores.set(state.id, store);
-  return store;
+  return protoMechRegistry.createAndRegister(options);
 }
 
 export function registerProtoMechStore(store: StoreApi<ProtoMechStore>): void {
-  const state = store.getState();
-  protoMechStores.set(state.id, store);
+  protoMechRegistry.register(store);
 }
 
 export function hydrateOrCreateProtoMech(
   protoMechId: string,
   fallbackOptions: CreateProtoMechOptions,
 ): StoreApi<ProtoMechStore> {
-  const validProtoMechId = ensureValidProtoMechId(
-    protoMechId,
-    'hydrateOrCreateProtoMech',
-  );
-
-  const existing = protoMechStores.get(validProtoMechId);
-  if (existing) {
-    return existing;
-  }
-
-  const storageKey = `megamek-protomech-${validProtoMechId}`;
-  const savedState = safeGetItem(storageKey);
-
-  if (savedState) {
-    try {
-      const parsed = JSON.parse(savedState) as {
-        state?: Partial<ProtoMechState>;
-      };
-      const state = parsed.state;
-
-      if (state) {
-        ensureValidProtoMechId(state.id, 'localStorage state');
-
-        const defaultState = createDefaultProtoMechState({
-          ...fallbackOptions,
-          id: validProtoMechId,
-        });
-        const mergedState: ProtoMechState = {
-          ...defaultState,
-          ...state,
-          id: validProtoMechId,
-        };
-
-        const store = createProtoMechStore(mergedState);
-        protoMechStores.set(validProtoMechId, store);
-        return store;
-      }
-    } catch (e) {
-      logger.warn(
-        `Failed to hydrate protomech ${validProtoMechId}, creating new:`,
-        e,
-      );
-    }
-  }
-
-  const store = createNewProtoMechStore({
-    ...fallbackOptions,
-    id: validProtoMechId,
-  });
-  protoMechStores.set(validProtoMechId, store);
-  return store;
+  return protoMechRegistry.hydrateOrCreate(protoMechId, fallbackOptions);
 }
 
 export function unregisterProtoMechStore(protoMechId: string): boolean {
-  return protoMechStores.delete(protoMechId);
+  return protoMechRegistry.unregister(protoMechId);
 }
 
 export function deleteProtoMech(protoMechId: string): boolean {
-  const removed = protoMechStores.delete(protoMechId);
-  if (removed) {
-    const storageKey = `megamek-protomech-${protoMechId}`;
-    safeRemoveItem(storageKey);
-  }
-  return removed;
+  return protoMechRegistry.delete(protoMechId);
 }
 
 export function clearAllProtoMechStores(clearStorage = false): void {
-  if (clearStorage) {
-    Array.from(protoMechStores.keys()).forEach((protoMechId) => {
-      const storageKey = `megamek-protomech-${protoMechId}`;
-      safeRemoveItem(storageKey);
-    });
-  }
-  protoMechStores.clear();
+  protoMechRegistry.clearAll(clearStorage);
 }
 
 export function duplicateProtoMech(
   sourceProtoMechId: string,
   newName?: string,
 ): StoreApi<ProtoMechStore> | null {
-  const sourceStore = protoMechStores.get(sourceProtoMechId);
+  const sourceStore = protoMechRegistry.get(sourceProtoMechId);
   if (!sourceStore) {
     return null;
   }
@@ -182,19 +113,19 @@ export function duplicateProtoMech(
   };
 
   const store = createProtoMechStore(mergedState);
-  protoMechStores.set(mergedState.id, store);
+  protoMechRegistry.register(store);
   return store;
 }
 
 export function createProtoMechFromFullState(
   state: ProtoMechState,
 ): StoreApi<ProtoMechStore> {
-  const validId = ensureValidProtoMechId(
+  const validId = protoMechRegistry.ensureValidId(
     state.id,
     'createProtoMechFromFullState',
   );
 
-  const existing = protoMechStores.get(validId);
+  const existing = protoMechRegistry.get(validId);
   if (existing) {
     logger.warn(
       `ProtoMech store ${validId} already exists, returning existing`,
@@ -202,15 +133,11 @@ export function createProtoMechFromFullState(
     return existing;
   }
 
-  const validatedState: ProtoMechState = {
+  const store = createProtoMechStore({
     ...state,
     id: validId,
-  };
-
-  const store = createProtoMechStore(validatedState);
-  protoMechStores.set(validId, store);
-
+  });
+  protoMechRegistry.register(store);
   store.setState({ lastModifiedAt: Date.now() });
-
   return store;
 }

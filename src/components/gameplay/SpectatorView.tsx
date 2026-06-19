@@ -6,24 +6,23 @@
 
 import Head from 'next/head';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 
-import { hexTerrainFromGrid } from '@/engine/GameEngine.helpers';
-import {
-  useGameplaySelector,
-  useGameplayStore,
-} from '@/stores/useGameplayStore';
-import { GamePhase, GameSide } from '@/types/gameplay';
+import { useGameplaySelector } from '@/stores/useGameplayStore';
 
 import { HexMapDisplay } from './HexMapDisplay';
 import {
-  unitStateToToken,
-  speedToInterval,
+  buildSpectatorTokens,
+  buildUnitInfoLookup,
+  terrainForInteractiveSession,
+} from './SpectatorView.logic';
+import {
   PlaybackControls,
   UnitRoster,
   ResultsOverlay,
 } from './SpectatorViewPanels';
 import { ShellSlot, TacticalCommandShell } from './TacticalCommandShell';
+import { useSpectatorPlayback } from './useSpectatorPlayback';
 
 export function SpectatorView(): React.ReactElement {
   // Per-field selectors (useGameplaySelector POC): each subscription
@@ -35,122 +34,31 @@ export function SpectatorView(): React.ReactElement {
   const interactiveSession = useGameplaySelector((s) => s.interactiveSession);
   const spectatorMode = useGameplaySelector((s) => s.spectatorMode);
 
-  const [playing, setPlaying] = useState(spectatorMode?.playing ?? true);
-  const [speed, setSpeed] = useState<1 | 2 | 4>(spectatorMode?.speed ?? 1);
-  const [gameOver, setGameOver] = useState(false);
-  const tickRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const runOneFullTurn = useCallback(() => {
-    if (!interactiveSession) return false;
-
-    if (interactiveSession.isGameOver()) {
-      setGameOver(true);
-      return false;
-    }
-
-    const state = interactiveSession.getState();
-    const { phase } = state;
-
-    if (phase === GamePhase.Initiative) {
-      interactiveSession.advancePhase();
-    }
-
-    const stateAfterInit = interactiveSession.getState();
-    if (stateAfterInit.phase === GamePhase.Movement) {
-      interactiveSession.runAITurn(GameSide.Player);
-      interactiveSession.runAITurn(GameSide.Opponent);
-      interactiveSession.advancePhase();
-    }
-
-    if (interactiveSession.getState().phase === GamePhase.WeaponAttack) {
-      interactiveSession.runAITurn(GameSide.Player);
-      interactiveSession.runAITurn(GameSide.Opponent);
-      interactiveSession.advancePhase();
-    }
-
-    if (interactiveSession.getState().phase === GamePhase.Heat) {
-      interactiveSession.advancePhase();
-    }
-
-    if (interactiveSession.getState().phase === GamePhase.End) {
-      interactiveSession.advancePhase();
-    }
-
-    if (interactiveSession.isGameOver()) {
-      setGameOver(true);
-      return false;
-    }
-
-    useGameplayStore.setState({
-      session: interactiveSession.getSession(),
-    });
-
-    return true;
-  }, [interactiveSession]);
-
-  // Auto-advance timer
-  useEffect(() => {
-    if (!playing || gameOver || !interactiveSession) {
-      if (tickRef.current) clearTimeout(tickRef.current);
-      return;
-    }
-
-    const tick = () => {
-      const continuePlay = runOneFullTurn();
-      if (continuePlay) {
-        tickRef.current = setTimeout(tick, speedToInterval(speed));
-      } else {
-        setPlaying(false);
-      }
-    };
-
-    tickRef.current = setTimeout(tick, speedToInterval(speed));
-
-    return () => {
-      if (tickRef.current) clearTimeout(tickRef.current);
-    };
-  }, [playing, speed, gameOver, interactiveSession, runOneFullTurn]);
-
-  const handleTogglePlay = useCallback(() => {
-    setPlaying((prev) => !prev);
-  }, []);
-
-  const handleStepForward = useCallback(() => {
-    runOneFullTurn();
-  }, [runOneFullTurn]);
-
-  const handleSetSpeed = useCallback((s: 1 | 2 | 4) => {
-    setSpeed(s);
-  }, []);
+  const {
+    playing,
+    speed,
+    gameOver,
+    handleTogglePlay,
+    handleStepForward,
+    handleSetSpeed,
+  } = useSpectatorPlayback({
+    interactiveSession,
+    initialPlaying: spectatorMode?.playing ?? true,
+    initialSpeed: spectatorMode?.speed ?? 1,
+  });
 
   // Build tokens from session
   const unitInfoLookup = useMemo(() => {
-    if (!session) return {};
-    const lookup: Record<string, { name: string; side: GameSide }> = {};
-    for (const unit of session.units) {
-      lookup[unit.id] = { name: unit.name, side: unit.side };
-    }
-    return lookup;
+    return buildUnitInfoLookup(session);
   }, [session]);
 
   const tokens = useMemo(() => {
-    if (!session) return [];
-    return Object.entries(session.currentState.units).map(([unitId, state]) => {
-      const unitInfo = unitInfoLookup[unitId] || {
-        name: 'Unknown',
-        side: GameSide.Player,
-      };
-      return unitStateToToken(unitId, state, unitInfo);
-    });
+    return buildSpectatorTokens(session, unitInfoLookup);
   }, [session, unitInfoLookup]);
 
-  const hexTerrain = useMemo(
-    () =>
-      interactiveSession
-        ? hexTerrainFromGrid(interactiveSession.getGrid())
-        : [],
-    [interactiveSession],
-  );
+  const hexTerrain = useMemo(() => {
+    return terrainForInteractiveSession(interactiveSession);
+  }, [interactiveSession]);
 
   if (!session || !interactiveSession) {
     return (

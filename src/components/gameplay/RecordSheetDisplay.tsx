@@ -106,6 +106,57 @@ export interface RecordSheetDisplayProps {
   className?: string;
 }
 
+type ProjectedUnitEvents = {
+  readonly pilotHitCount: number;
+  readonly damageHitsByLocation: Record<string, number>;
+};
+
+function projectUnitEvents(
+  unitId: string | undefined,
+  events: readonly IGameEvent[] | undefined,
+): ProjectedUnitEvents {
+  if (!unitId || !events || events.length === 0) {
+    return {
+      pilotHitCount: 0,
+      damageHitsByLocation: {},
+    };
+  }
+  let pilotHitCount = 0;
+  const damageHitsByLocation: Record<string, number> = {};
+  for (const ev of events) {
+    if (ev.type === GameEventType.PilotHit) {
+      const payload = ev.payload as IPilotHitPayload;
+      if (payload.unitId === unitId) pilotHitCount += 1;
+    } else if (ev.type === GameEventType.DamageApplied) {
+      const payload = ev.payload as IDamageAppliedPayload;
+      if (payload.unitId !== unitId) continue;
+      damageHitsByLocation[payload.location] =
+        (damageHitsByLocation[payload.location] ?? 0) + 1;
+    }
+  }
+  return { pilotHitCount, damageHitsByLocation };
+}
+
+function buildLocationStatuses(
+  state: IUnitGameState,
+  maxArmor: Record<string, number>,
+  maxStructure: Record<string, number>,
+) {
+  return LOCATION_ORDER.map((location) => {
+    const hasRear = REAR_ARMOR_LOCATIONS.includes(location);
+    return {
+      location,
+      armor: state.armor[location] ?? 0,
+      maxArmor: maxArmor[location] ?? 0,
+      structure: state.structure[location] ?? 0,
+      maxStructure: maxStructure[location] ?? 0,
+      destroyed: state.destroyedLocations.includes(location),
+      rearArmor: hasRear ? (state.armor[`${location}_rear`] ?? 0) : undefined,
+      maxRearArmor: hasRear ? (maxArmor[`${location}_rear`] ?? 0) : undefined,
+    };
+  });
+}
+
 // =============================================================================
 // Component
 // =============================================================================
@@ -139,45 +190,16 @@ export function RecordSheetDisplay({
   // automatically tears down (recomputes) when `unitId` changes per
   // task 1.3 — no manual unsubscribe needed because derivation is
   // pure.
-  const unitEvents = useMemo(() => {
-    if (!unitId || !events || events.length === 0) {
-      return {
-        pilotHitCount: 0,
-        damageHitsByLocation: {} as Record<string, number>,
-      };
-    }
-    let pilotHitCount = 0;
-    const damageHitsByLocation: Record<string, number> = {};
-    for (const ev of events) {
-      if (ev.type === GameEventType.PilotHit) {
-        const payload = ev.payload as IPilotHitPayload;
-        if (payload.unitId === unitId) pilotHitCount += 1;
-      } else if (ev.type === GameEventType.DamageApplied) {
-        const payload = ev.payload as IDamageAppliedPayload;
-        if (payload.unitId !== unitId) continue;
-        damageHitsByLocation[payload.location] =
-          (damageHitsByLocation[payload.location] ?? 0) + 1;
-      }
-    }
-    return { pilotHitCount, damageHitsByLocation };
-  }, [unitId, events]);
+  const unitEvents = useMemo(
+    () => projectUnitEvents(unitId, events),
+    [unitId, events],
+  );
 
   // Build location statuses
-  const locationStatuses = useMemo(() => {
-    return LOCATION_ORDER.map((location) => {
-      const hasRear = REAR_ARMOR_LOCATIONS.includes(location);
-      return {
-        location,
-        armor: state.armor[location] ?? 0,
-        maxArmor: maxArmor[location] ?? 0,
-        structure: state.structure[location] ?? 0,
-        maxStructure: maxStructure[location] ?? 0,
-        destroyed: state.destroyedLocations.includes(location),
-        rearArmor: hasRear ? (state.armor[`${location}_rear`] ?? 0) : undefined,
-        maxRearArmor: hasRear ? (maxArmor[`${location}_rear`] ?? 0) : undefined,
-      };
-    });
-  }, [state, maxArmor, maxStructure]);
+  const locationStatuses = useMemo(
+    () => buildLocationStatuses(state, maxArmor, maxStructure),
+    [state, maxArmor, maxStructure],
+  );
 
   return (
     <div
@@ -188,50 +210,14 @@ export function RecordSheetDisplay({
           badge. Side badge uses the same blue/red palette as the hex
           map tokens so the selected-unit → token visual link is
           preserved. */}
-      <div className="border-border-theme mb-4 border-b pb-2">
-        <div className="flex items-center gap-3">
-          <h2
-            className="text-text-theme-primary text-lg font-bold"
-            data-testid="record-sheet-unit-name"
-          >
-            {unitName}
-          </h2>
-          {side && (
-            <span
-              className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase ${
-                side === GameSide.Player
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'bg-red-100 text-red-700'
-              }`}
-              data-testid="record-sheet-side-badge"
-              data-side={side === GameSide.Player ? 'player' : 'opponent'}
-            >
-              <span
-                aria-hidden="true"
-                className={`h-2 w-2 rounded-full ${
-                  side === GameSide.Player ? 'bg-blue-500' : 'bg-red-500'
-                }`}
-              />
-              {side === GameSide.Player ? 'Player' : 'Opponent'}
-            </span>
-          )}
-          {state.destroyed && (
-            <span
-              className="ml-auto font-bold text-red-600"
-              data-testid="record-sheet-destroyed"
-            >
-              DESTROYED
-            </span>
-          )}
-        </div>
-        <div className="text-text-theme-secondary mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-          <span data-testid="record-sheet-designation">{designation}</span>
-          {chassis && <span data-testid="record-sheet-chassis">{chassis}</span>}
-          {tonnage !== undefined && (
-            <span data-testid="record-sheet-tonnage">{tonnage} tons</span>
-          )}
-        </div>
-      </div>
+      <RecordSheetHeader
+        unitName={unitName}
+        designation={designation}
+        destroyed={state.destroyed}
+        side={side}
+        tonnage={tonnage}
+        chassis={chassis}
+      />
 
       {/* Pilot Status */}
       <div className="mb-4">
@@ -308,46 +294,7 @@ export function RecordSheetDisplay({
       {/* SPAs — per § 8: list each Special Pilot Ability with a
           description tooltip; empty list shows the "No SPAs"
           placeholder so the panel never renders an orphan header. */}
-      <div className="mb-4" data-testid="spa-section">
-        <h3 className="text-text-theme-primary mb-2 text-sm font-bold">
-          SPECIAL PILOT ABILITIES
-        </h3>
-        {spas && spas.length > 0 ? (
-          <ul
-            className="border-border-theme divide-y rounded border"
-            data-testid="spa-list"
-          >
-            {spas.map((spa) => (
-              <li
-                key={spa.id}
-                className="bg-surface-raised px-3 py-2 text-sm"
-                data-testid={`spa-row-${spa.id}`}
-                title={spa.description}
-              >
-                <span
-                  className="text-text-theme-primary font-medium"
-                  data-testid={`spa-label-${spa.id}`}
-                >
-                  {spa.displayLabel}
-                </span>
-                <span
-                  className="text-text-theme-secondary ml-2 text-xs"
-                  data-testid={`spa-description-${spa.id}`}
-                >
-                  {spa.description}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p
-            className="text-text-theme-secondary text-sm italic"
-            data-testid="spa-empty"
-          >
-            No SPAs
-          </p>
-        )}
-      </div>
+      <SpecialPilotAbilitiesSection spas={spas} />
 
       {/* Movement info */}
       <div
@@ -363,6 +310,121 @@ export function RecordSheetDisplay({
           </span>
         )}
       </div>
+    </div>
+  );
+}
+
+function RecordSheetHeader({
+  unitName,
+  designation,
+  destroyed,
+  side,
+  tonnage,
+  chassis,
+}: {
+  readonly unitName: string;
+  readonly designation: string;
+  readonly destroyed: boolean;
+  readonly side: GameSide | undefined;
+  readonly tonnage: number | undefined;
+  readonly chassis: string | undefined;
+}): React.ReactElement {
+  return (
+    <div className="border-border-theme mb-4 border-b pb-2">
+      <div className="flex items-center gap-3">
+        <h2
+          className="text-text-theme-primary text-lg font-bold"
+          data-testid="record-sheet-unit-name"
+        >
+          {unitName}
+        </h2>
+        {side && <SideBadge side={side} />}
+        {destroyed && (
+          <span
+            className="ml-auto font-bold text-red-600"
+            data-testid="record-sheet-destroyed"
+          >
+            DESTROYED
+          </span>
+        )}
+      </div>
+      <div className="text-text-theme-secondary mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+        <span data-testid="record-sheet-designation">{designation}</span>
+        {chassis && <span data-testid="record-sheet-chassis">{chassis}</span>}
+        {tonnage !== undefined && (
+          <span data-testid="record-sheet-tonnage">{tonnage} tons</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SideBadge({ side }: { readonly side: GameSide }): React.ReactElement {
+  const isPlayer = side === GameSide.Player;
+  return (
+    <span
+      className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase ${
+        isPlayer ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
+      }`}
+      data-testid="record-sheet-side-badge"
+      data-side={isPlayer ? 'player' : 'opponent'}
+    >
+      <span
+        aria-hidden="true"
+        className={`h-2 w-2 rounded-full ${
+          isPlayer ? 'bg-blue-500' : 'bg-red-500'
+        }`}
+      />
+      {isPlayer ? 'Player' : 'Opponent'}
+    </span>
+  );
+}
+
+function SpecialPilotAbilitiesSection({
+  spas,
+}: {
+  readonly spas: readonly IPilotSpaSummary[] | undefined;
+}): React.ReactElement {
+  return (
+    <div className="mb-4" data-testid="spa-section">
+      <h3 className="text-text-theme-primary mb-2 text-sm font-bold">
+        SPECIAL PILOT ABILITIES
+      </h3>
+      {spas && spas.length > 0 ? (
+        <ul
+          className="border-border-theme divide-y rounded border"
+          data-testid="spa-list"
+        >
+          {spas.map((spa) => (
+            <li
+              key={spa.id}
+              className="bg-surface-raised px-3 py-2 text-sm"
+              data-testid={`spa-row-${spa.id}`}
+              title={spa.description}
+            >
+              <span
+                className="text-text-theme-primary font-medium"
+                data-testid={`spa-label-${spa.id}`}
+              >
+                {spa.displayLabel}
+              </span>
+              <span
+                className="text-text-theme-secondary ml-2 text-xs"
+                data-testid={`spa-description-${spa.id}`}
+              >
+                {spa.description}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p
+          className="text-text-theme-secondary text-sm italic"
+          data-testid="spa-empty"
+        >
+          No SPAs
+        </p>
+      )}
     </div>
   );
 }

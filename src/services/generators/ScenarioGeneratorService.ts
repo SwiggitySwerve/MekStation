@@ -35,6 +35,19 @@ import {
 } from '../../utils/gameplay/terrainGenerator';
 import { opForGenerator } from './OpForGeneratorService';
 
+const TERRAIN_BIOME_BY_SCENARIO_BIOME: Record<BiomeType, TerrainBiomeType> = {
+  [BiomeType.Arctic]: 'arctic',
+  [BiomeType.Badlands]: 'temperate',
+  [BiomeType.Desert]: 'desert',
+  [BiomeType.Forest]: 'temperate',
+  [BiomeType.Jungle]: 'jungle',
+  [BiomeType.Mountains]: 'temperate',
+  [BiomeType.Plains]: 'temperate',
+  [BiomeType.Swamp]: 'temperate',
+  [BiomeType.Urban]: 'urban',
+  [BiomeType.Volcanic]: 'desert',
+};
+
 /**
  * Map a scenario `BiomeType` to the terrain generator's biome vocabulary.
  * The terrain generator recognises five base biomes; scenario biomes that
@@ -42,24 +55,7 @@ import { opForGenerator } from './OpForGeneratorService';
  * preset feature overlay carries the scenario-specific character regardless.
  */
 function toTerrainBiome(biome: BiomeType): TerrainBiomeType {
-  switch (biome) {
-    case BiomeType.Desert:
-    case BiomeType.Volcanic:
-      return 'desert';
-    case BiomeType.Arctic:
-      return 'arctic';
-    case BiomeType.Urban:
-      return 'urban';
-    case BiomeType.Jungle:
-      return 'jungle';
-    case BiomeType.Forest:
-    case BiomeType.Plains:
-    case BiomeType.Badlands:
-    case BiomeType.Swamp:
-    case BiomeType.Mountains:
-    default:
-      return 'temperate';
-  }
+  return TERRAIN_BIOME_BY_SCENARIO_BIOME[biome] ?? 'temperate';
 }
 
 // =============================================================================
@@ -78,18 +74,18 @@ export class ScenarioGeneratorService {
   /**
    * Set a seed for reproducible random generation.
    */
-  setSeed(seed: number): void {
+  setSeed = (seed: number): void => {
     this.seed = seed;
     this.prngState = seed;
-  }
+  };
 
   /**
    * Clear the seed to use true random generation.
    */
-  clearSeed(): void {
+  clearSeed = (): void => {
     this.seed = null;
     this.prngState = null;
-  }
+  };
 
   /**
    * Generate a random number (seeded or true random).
@@ -114,7 +110,7 @@ export class ScenarioGeneratorService {
   /**
    * Generate a complete scenario.
    */
-  generate(config: IScenarioGeneratorConfig): IGeneratedScenario {
+  generate = (config: IScenarioGeneratorConfig): IGeneratedScenario => {
     // Set seed if provided
     if (config.seed !== undefined) {
       this.setSeed(config.seed);
@@ -155,7 +151,7 @@ export class ScenarioGeneratorService {
       seed: config.seed,
       ...(generatedMap ? { generatedMap } : {}),
     };
-  }
+  };
 
   /**
    * Generate the procedural battle-map terrain for the selected preset.
@@ -389,37 +385,37 @@ export class ScenarioGeneratorService {
   /**
    * Get all available scenario templates.
    */
-  getAvailableTemplates(): readonly IScenarioTemplate[] {
+  getAvailableTemplates = (): readonly IScenarioTemplate[] => {
     return SCENARIO_TEMPLATES;
-  }
+  };
 
   /**
    * Get a template by ID.
    */
-  getTemplateById(id: string): IScenarioTemplate | undefined {
+  getTemplateById = (id: string): IScenarioTemplate | undefined => {
     return getScenarioTemplateById(id);
-  }
+  };
 
   /**
    * Get all available biomes.
    */
-  getAvailableBiomes(): readonly BiomeType[] {
+  getAvailableBiomes = (): readonly BiomeType[] => {
     return Object.values(BiomeType);
-  }
+  };
 
   /**
    * Get map presets for a biome.
    */
-  getMapPresetsForBiome(biome: BiomeType): readonly IMapPreset[] {
+  getMapPresetsForBiome = (biome: BiomeType): readonly IMapPreset[] => {
     return getMapPresetsByBiome(biome);
-  }
+  };
 
   /**
    * Get all available modifiers.
    */
-  getAvailableModifiers(): readonly IBattleModifier[] {
+  getAvailableModifiers = (): readonly IBattleModifier[] => {
     return BATTLE_MODIFIERS;
-  }
+  };
 }
 
 // =============================================================================

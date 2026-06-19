@@ -147,7 +147,9 @@ export class EncounterService implements IEncounterService {
   // Encounter CRUD
   // ===========================================================================
 
-  createEncounter(input: ICreateEncounterInput): IEncounterOperationResult {
+  createEncounter = (
+    input: ICreateEncounterInput,
+  ): IEncounterOperationResult => {
     // Validate input
     if (!input.name || input.name.trim().length === 0) {
       return {
@@ -157,53 +159,53 @@ export class EncounterService implements IEncounterService {
     }
 
     return this.repository.createEncounter(input);
-  }
+  };
 
-  getEncounter(id: string): IEncounter | null {
+  getEncounter = (id: string): IEncounter | null => {
     const encounter = this.repository.getEncounterById(id);
     if (!encounter) return null;
 
     // Hydrate force references with current data
     return this.hydrateEncounter(encounter);
-  }
+  };
 
-  getAllEncounters(): readonly IEncounter[] {
+  getAllEncounters = (): readonly IEncounter[] => {
     return this.repository
       .getAllEncounters()
       .map((e) => this.hydrateEncounter(e));
-  }
+  };
 
-  getReadyEncounters(): readonly IEncounter[] {
+  getReadyEncounters = (): readonly IEncounter[] => {
     return this.repository
       .getEncountersByStatus(EncounterStatus.Ready)
       .map((e) => this.hydrateEncounter(e));
-  }
+  };
 
-  getDraftEncounters(): readonly IEncounter[] {
+  getDraftEncounters = (): readonly IEncounter[] => {
     return this.repository
       .getEncountersByStatus(EncounterStatus.Draft)
       .map((e) => this.hydrateEncounter(e));
-  }
+  };
 
-  updateEncounter(
+  updateEncounter = (
     id: string,
     input: IUpdateEncounterInput,
-  ): IEncounterOperationResult {
+  ): IEncounterOperationResult => {
     return this.repository.updateEncounter(id, input);
-  }
+  };
 
-  deleteEncounter(id: string): IEncounterOperationResult {
+  deleteEncounter = (id: string): IEncounterOperationResult => {
     return this.repository.deleteEncounter(id);
-  }
+  };
 
   // ===========================================================================
   // Configuration
   // ===========================================================================
 
-  setPlayerForce(
+  setPlayerForce = (
     encounterId: string,
     forceId: string,
-  ): IEncounterOperationResult {
+  ): IEncounterOperationResult => {
     // Validate force exists
     const forceRepo = getForceRepository();
     const force = forceRepo.getForceById(forceId);
@@ -217,12 +219,12 @@ export class EncounterService implements IEncounterService {
     return this.repository.updateEncounter(encounterId, {
       playerForceId: forceId,
     });
-  }
+  };
 
-  setOpponentForce(
+  setOpponentForce = (
     encounterId: string,
     forceId: string,
-  ): IEncounterOperationResult {
+  ): IEncounterOperationResult => {
     // Validate force exists
     const forceRepo = getForceRepository();
     const force = forceRepo.getForceById(forceId);
@@ -237,18 +239,18 @@ export class EncounterService implements IEncounterService {
       opponentForceId: forceId,
       opForConfig: undefined, // Clear OpFor config when setting explicit force
     });
-  }
+  };
 
-  clearOpponentForce(encounterId: string): IEncounterOperationResult {
+  clearOpponentForce = (encounterId: string): IEncounterOperationResult => {
     return this.repository.updateEncounter(encounterId, {
       opponentForceId: undefined,
     });
-  }
+  };
 
-  applyTemplate(
+  applyTemplate = (
     encounterId: string,
     template: ScenarioTemplateType,
-  ): IEncounterOperationResult {
+  ): IEncounterOperationResult => {
     const templateDef = SCENARIO_TEMPLATES.find((t) => t.type === template);
     if (!templateDef) {
       return {
@@ -261,13 +263,13 @@ export class EncounterService implements IEncounterService {
       mapConfig: templateDef.defaultMapConfig,
       victoryConditions: templateDef.defaultVictoryConditions,
     });
-  }
+  };
 
   // ===========================================================================
   // Validation
   // ===========================================================================
 
-  validateEncounter(id: string): IEncounterValidationResult {
+  validateEncounter = (id: string): IEncounterValidationResult => {
     const encounter = this.getEncounter(id);
     if (!encounter) {
       return {
@@ -278,21 +280,21 @@ export class EncounterService implements IEncounterService {
     }
 
     return validateEncounter(encounter);
-  }
+  };
 
-  canLaunch(id: string): boolean {
+  canLaunch = (id: string): boolean => {
     const validation = this.validateEncounter(id);
     return validation.valid;
-  }
+  };
 
   // ===========================================================================
   // Launch
   // ===========================================================================
 
-  launchEncounter(
+  launchEncounter = (
     id: string,
     options: ILaunchEncounterOptions = {},
-  ): IEncounterOperationResult {
+  ): IEncounterOperationResult => {
     const encounter = this.getEncounter(id);
     if (!encounter) {
       return {
@@ -386,13 +388,13 @@ export class EncounterService implements IEncounterService {
 
     const session = createGameSession(config, units, { encounterMeta });
     return this.repository.linkGameSession(id, session.id);
-  }
+  };
 
   // ===========================================================================
   // Cloning
   // ===========================================================================
 
-  cloneEncounter(id: string, newName: string): IEncounterOperationResult {
+  cloneEncounter = (id: string, newName: string): IEncounterOperationResult => {
     const encounter = this.getEncounter(id);
     if (!encounter) {
       return {
@@ -425,7 +427,7 @@ export class EncounterService implements IEncounterService {
     });
 
     return result;
-  }
+  };
 
   // ===========================================================================
   // Helper Methods

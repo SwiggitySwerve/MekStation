@@ -2,27 +2,24 @@ import * as arcScenarios from './tactical-map.arc-scenarios';
 import * as combatScenarios from './tactical-map.combat-scenarios';
 import { tacticalMapUnitWeapons } from './tactical-map.fixtures';
 
+const unitWeaponsByScenario: Record<string, typeof tacticalMapUnitWeapons> = {
+  'airborne-aerospace-indirect-rejected':
+    combatScenarios.tacticalMapAirborneAerospaceIndirectUnitWeapons,
+  'underwater-environment-restrictions':
+    combatScenarios.tacticalMapUnderwaterEnvironmentUnitWeapons,
+  'out-of-ammo': combatScenarios.tacticalMapOutOfAmmoUnitWeapons,
+  'selected-weapon-out-of-arc': arcScenarios.tacticalMapOutOfArcUnitWeapons,
+  'vehicle-sponson-in-arc': arcScenarios.tacticalMapSponsonArcUnitWeapons,
+  'vehicle-right-sponson-in-arc':
+    arcScenarios.tacticalMapRightSponsonArcUnitWeapons,
+  'vehicle-locked-turret-out-of-arc':
+    arcScenarios.tacticalMapLockedTurretUnitWeapons,
+  'vehicle-chin-turret-pivot':
+    arcScenarios.tacticalMapChinTurretPivotUnitWeapons,
+};
+
 export function tacticalMapUnitWeaponsForE2EScenario(
   scenario: string,
 ): typeof tacticalMapUnitWeapons {
-  switch (scenario) {
-    case 'airborne-aerospace-indirect-rejected':
-      return combatScenarios.tacticalMapAirborneAerospaceIndirectUnitWeapons;
-    case 'underwater-environment-restrictions':
-      return combatScenarios.tacticalMapUnderwaterEnvironmentUnitWeapons;
-    case 'out-of-ammo':
-      return combatScenarios.tacticalMapOutOfAmmoUnitWeapons;
-    case 'selected-weapon-out-of-arc':
-      return arcScenarios.tacticalMapOutOfArcUnitWeapons;
-    case 'vehicle-sponson-in-arc':
-      return arcScenarios.tacticalMapSponsonArcUnitWeapons;
-    case 'vehicle-right-sponson-in-arc':
-      return arcScenarios.tacticalMapRightSponsonArcUnitWeapons;
-    case 'vehicle-locked-turret-out-of-arc':
-      return arcScenarios.tacticalMapLockedTurretUnitWeapons;
-    case 'vehicle-chin-turret-pivot':
-      return arcScenarios.tacticalMapChinTurretPivotUnitWeapons;
-    default:
-      return tacticalMapUnitWeapons;
-  }
+  return unitWeaponsByScenario[scenario] ?? tacticalMapUnitWeapons;
 }

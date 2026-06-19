@@ -1,5 +1,4 @@
 import type { InteractiveSession } from '@/engine/InteractiveSession';
-import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IEventMessage,
   IServerMessage,
@@ -13,8 +12,9 @@ import type {
   IPendingPeerEntry,
   PendingPeerTracker,
 } from './reconnection/PendingPeerTracker';
+import type { IServerMatchHostCaptureContext } from './ServerMatchHostCaptureContext';
 
-export interface IServerMatchHostReconnectContext {
+export interface IServerMatchHostReconnectContext extends IServerMatchHostCaptureContext {
   readonly matchId: string;
   readonly store: IMatchStore;
   readonly session: InteractiveSession;
@@ -25,11 +25,6 @@ export interface IServerMatchHostReconnectContext {
   readonly broadcast: (message: IServerMessage) => void;
   readonly broadcastEvent: (message: IEventMessage) => Promise<void>;
   readonly closeMatch: () => Promise<void>;
-  readonly installFreshCapture: () => void;
-  readonly drainNewEvents: () => readonly IGameEvent[];
-  readonly stampRollsOnNewEvents: (
-    events: readonly IGameEvent[],
-  ) => readonly IGameEvent[];
   readonly tryPublishOutcome: () => void;
 }
 

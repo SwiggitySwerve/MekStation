@@ -14,10 +14,17 @@ import {
   IUnitValidationContext,
   IUnitValidationRuleResult,
   UnitValidationSeverity,
-  createUnitValidationError,
-  createUnitValidationRuleResult,
+  IUnitValidationError,
   IValidatableUnit,
 } from '@/types/validation/UnitValidationInterfaces';
+
+import { createRuleResult, addRuleDiagnostic } from '../ruleResults';
+
+const PERSONNEL_CATEGORY_RULES_CONSTRUCTION_CATEGORY =
+  ValidationCategory.CONSTRUCTION;
+const PERSONNEL_CATEGORY_RULES_WEIGHT_CATEGORY = ValidationCategory.WEIGHT;
+const PERSONNEL_CATEGORY_RULES_EQUIPMENT_CATEGORY =
+  ValidationCategory.EQUIPMENT;
 
 /**
  * Extended personnel unit interface for personnel-specific validation
@@ -53,13 +60,13 @@ export const PersonnelSquadSizeValid: IUnitValidationRuleDefinition = {
   id: 'VAL-PERS-001',
   name: 'Squad Size Valid',
   description: 'Squad/platoon size must be positive integer',
-  category: ValidationCategory.CONSTRUCTION,
+  category: PERSONNEL_CATEGORY_RULES_CONSTRUCTION_CATEGORY,
   priority: 50,
   applicableUnitTypes: [UnitType.INFANTRY, UnitType.BATTLE_ARMOR],
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors = [];
+    const errors: IUnitValidationError[] = [];
 
     if (isPersonnelUnit(unit)) {
       if (
@@ -67,32 +74,22 @@ export const PersonnelSquadSizeValid: IUnitValidationRuleDefinition = {
         !Number.isInteger(unit.squadSize) ||
         unit.squadSize <= 0
       ) {
-        errors.push(
-          createUnitValidationError(
-            this.id,
-            this.name,
-            UnitValidationSeverity.ERROR,
-            this.category,
-            'Squad/platoon size must be positive integer',
-            {
-              field: 'squadSize',
-              expected: '> 0 (integer)',
-              actual: String(unit.squadSize),
-              suggestion: 'Set a valid positive integer squad size',
-            },
-          ),
+        addRuleDiagnostic(
+          errors,
+          this,
+          UnitValidationSeverity.ERROR,
+          'Squad/platoon size must be positive integer',
+          {
+            field: 'squadSize',
+            expected: '> 0 (integer)',
+            actual: String(unit.squadSize),
+            suggestion: 'Set a valid positive integer squad size',
+          },
         );
       }
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors });
   },
 };
 
@@ -103,13 +100,13 @@ export const BattleArmorWeightRange: IUnitValidationRuleDefinition = {
   id: 'VAL-PERS-002',
   name: 'Battle Armor Weight Range',
   description: 'Battle armor weight must be 0.4-2.0 tons per trooper',
-  category: ValidationCategory.WEIGHT,
+  category: PERSONNEL_CATEGORY_RULES_WEIGHT_CATEGORY,
   priority: 51,
   applicableUnitTypes: [UnitType.BATTLE_ARMOR],
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors = [];
+    const errors: IUnitValidationError[] = [];
 
     if (unit.unitType === UnitType.BATTLE_ARMOR && isPersonnelUnit(unit)) {
       const trooperWeight = unit.trooperWeight ?? unit.weight;
@@ -118,32 +115,22 @@ export const BattleArmorWeightRange: IUnitValidationRuleDefinition = {
         trooperWeight < BATTLE_ARMOR_WEIGHT.min ||
         trooperWeight > BATTLE_ARMOR_WEIGHT.max
       ) {
-        errors.push(
-          createUnitValidationError(
-            this.id,
-            this.name,
-            UnitValidationSeverity.CRITICAL_ERROR,
-            this.category,
-            `Battle armor weight must be ${BATTLE_ARMOR_WEIGHT.min}-${BATTLE_ARMOR_WEIGHT.max} tons per trooper`,
-            {
-              field: 'trooperWeight',
-              expected: `${BATTLE_ARMOR_WEIGHT.min}-${BATTLE_ARMOR_WEIGHT.max}`,
-              actual: String(trooperWeight),
-              suggestion: `Adjust trooper weight to be within ${BATTLE_ARMOR_WEIGHT.min}-${BATTLE_ARMOR_WEIGHT.max} tons`,
-            },
-          ),
+        addRuleDiagnostic(
+          errors,
+          this,
+          UnitValidationSeverity.CRITICAL_ERROR,
+          `Battle armor weight must be ${BATTLE_ARMOR_WEIGHT.min}-${BATTLE_ARMOR_WEIGHT.max} tons per trooper`,
+          {
+            field: 'trooperWeight',
+            expected: `${BATTLE_ARMOR_WEIGHT.min}-${BATTLE_ARMOR_WEIGHT.max}`,
+            actual: String(trooperWeight),
+            suggestion: `Adjust trooper weight to be within ${BATTLE_ARMOR_WEIGHT.min}-${BATTLE_ARMOR_WEIGHT.max} tons`,
+          },
         );
       }
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors });
   },
 };
 
@@ -154,40 +141,30 @@ export const InfantryPrimaryWeaponRequired: IUnitValidationRuleDefinition = {
   id: 'VAL-PERS-003',
   name: 'Infantry Primary Weapon Required',
   description: 'Infantry units should have primary weapon type defined',
-  category: ValidationCategory.EQUIPMENT,
+  category: PERSONNEL_CATEGORY_RULES_EQUIPMENT_CATEGORY,
   priority: 52,
   applicableUnitTypes: [UnitType.INFANTRY],
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const warnings = [];
+    const warnings: IUnitValidationError[] = [];
 
     if (unit.unitType === UnitType.INFANTRY && isPersonnelUnit(unit)) {
       if (!unit.primaryWeapon) {
-        warnings.push(
-          createUnitValidationError(
-            this.id,
-            this.name,
-            UnitValidationSeverity.WARNING,
-            this.category,
-            'Infantry unit has no primary weapon defined',
-            {
-              field: 'primaryWeapon',
-              suggestion: 'Define a primary weapon type for the infantry unit',
-            },
-          ),
+        addRuleDiagnostic(
+          warnings,
+          this,
+          UnitValidationSeverity.WARNING,
+          'Infantry unit has no primary weapon defined',
+          {
+            field: 'primaryWeapon',
+            suggestion: 'Define a primary weapon type for the infantry unit',
+          },
         );
       }
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      [],
-      warnings,
-      [],
-      0,
-    );
+    return createRuleResult(this, { warnings });
   },
 };
 

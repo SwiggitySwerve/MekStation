@@ -24,16 +24,13 @@ import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
+import {
+  buildRecordSheetUnitIdentity,
+  type RecordSheetUnitIdentityWithTonnageInput,
+} from '../preview/recordSheetUnitIdentity';
+
 /** Store fields the vehicle unit-object builder reads. */
-export interface VehicleUnitObjectInput {
-  id: string;
-  name: string;
-  chassis: string;
-  model: string;
-  tonnage: number;
-  techBase: string;
-  rulesLevel: string;
-  year: number;
+export interface VehicleUnitObjectInput extends RecordSheetUnitIdentityWithTonnageInput {
   unitType: UnitType.VEHICLE | UnitType.VTOL | UnitType.SUPPORT_VEHICLE;
   motionType: GroundMotionType;
   cruiseMP: number;
@@ -112,14 +109,7 @@ export function buildVehicleUnitObject(
   input: VehicleUnitObjectInput,
 ): IVehicleRecordSheetUnitInput {
   return {
-    id: input.id,
-    name: input.name,
-    chassis: input.chassis || input.name.split(' ')[0] || 'Unknown',
-    model: input.model || input.name.split(' ').slice(1).join(' ') || 'Custom',
-    tonnage: input.tonnage,
-    techBase: String(input.techBase),
-    rulesLevel: String(input.rulesLevel),
-    era: `Year ${input.year}`,
+    ...buildRecordSheetUnitIdentity(input),
     // Dispatch hint — resolves to the 'vehicle' kind for all three sub-types.
     unitType: input.unitType,
     motionType: toMotionLabel(input.motionType),

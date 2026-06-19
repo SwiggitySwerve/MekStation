@@ -142,20 +142,20 @@ class MmDataAssetService {
    * Get the mm-data version to use for CDN/GitHub URLs.
    * Priority: MM_DATA_VERSION env var > config file > default
    */
-  getVersion(): string {
+  getVersion = (): string => {
     // Environment variable takes precedence
     if (typeof process !== 'undefined' && process.env?.MM_DATA_VERSION) {
       return process.env.MM_DATA_VERSION;
     }
     // Fall back to config or default
     return this.config?.version ?? DEFAULT_VERSION;
-  }
+  };
 
   /**
    * Load configuration from config/mm-data-assets.json.
    * Returns cached config if already loaded.
    */
-  async loadConfig(): Promise<MmDataAssetConfig> {
+  loadConfig = async (): Promise<MmDataAssetConfig> => {
     if (this.config) {
       return this.config;
     }
@@ -172,7 +172,7 @@ class MmDataAssetService {
     } finally {
       this.configLoadPromise = null;
     }
-  }
+  };
 
   private async doLoadConfig(): Promise<MmDataAssetConfig> {
     // Try multiple config paths in order of preference
@@ -244,33 +244,33 @@ class MmDataAssetService {
     ];
   }
 
-  getArmorPipPath(
+  getArmorPipPath = (
     location: MechLocation | string,
     count: number,
     isRear: boolean = false,
-  ): string {
+  ): string => {
     const mmCode = this.getLocationCode(location);
     const rearSuffix = isRear ? '_R' : '';
     return `${PIPS_BASE_PATH}/Armor_${mmCode}${rearSuffix}_${count}_Humanoid.svg`;
-  }
+  };
 
-  getStructurePipPath(
+  getStructurePipPath = (
     tonnage: number,
     location: MechLocation | string,
-  ): string {
+  ): string => {
     const abbrev = this.getLocationAbbreviation(location);
     return `${PIPS_BASE_PATH}/BipedIS${tonnage}_${abbrev}.svg`;
-  }
+  };
 
-  getRecordSheetTemplatePath(
+  getRecordSheetTemplatePath = (
     config: MechConfiguration,
     paperSize: PaperSize = PaperSize.LETTER,
-  ): string {
+  ): string => {
     return (
       TEMPLATE_PATHS[config]?.[paperSize] ??
       TEMPLATE_PATHS[MechConfiguration.BIPED][paperSize]
     );
-  }
+  };
 
   /**
    * Load SVG content with fallback chain.
@@ -278,7 +278,7 @@ class MmDataAssetService {
    *
    * @throws AssetLoadError if all sources fail
    */
-  async loadSVG(path: string): Promise<string> {
+  loadSVG = async (path: string): Promise<string> => {
     const cached = this.svgCache.get(path);
     if (cached && Date.now() - cached.timestamp < this.CACHE_TTL_MS) {
       return cached.content;
@@ -310,38 +310,38 @@ class MmDataAssetService {
 
     // All sources failed - throw user-friendly error
     throw new AssetLoadError(path, attemptedSources, sourceErrors);
-  }
+  };
 
-  async loadArmorPipSVG(
+  loadArmorPipSVG = async (
     location: MechLocation | string,
     count: number,
     isRear: boolean = false,
-  ): Promise<string> {
+  ): Promise<string> => {
     const path = this.getArmorPipPath(location, count, isRear);
     return this.loadSVG(path);
-  }
+  };
 
-  async loadStructurePipSVG(
+  loadStructurePipSVG = async (
     tonnage: number,
     location: MechLocation | string,
-  ): Promise<string> {
+  ): Promise<string> => {
     const path = this.getStructurePipPath(tonnage, location);
     return this.loadSVG(path);
-  }
+  };
 
-  async loadRecordSheetTemplate(
+  loadRecordSheetTemplate = async (
     config: MechConfiguration,
     paperSize: PaperSize = PaperSize.LETTER,
-  ): Promise<string> {
+  ): Promise<string> => {
     const path = this.getRecordSheetTemplatePath(config, paperSize);
     return this.loadSVG(path);
-  }
+  };
 
-  async preloadConfiguration(
+  preloadConfiguration = async (
     config: MechConfiguration,
     tonnage: number,
     paperSize: PaperSize = PaperSize.LETTER,
-  ): Promise<void> {
+  ): Promise<void> => {
     const locations = this.getLocationsForConfiguration(config);
 
     const templatePromise = this.loadRecordSheetTemplate(config, paperSize);
@@ -358,25 +358,27 @@ class MmDataAssetService {
     );
 
     await Promise.all([templatePromise, ...structurePromises]);
-  }
+  };
 
-  getLocationsForConfiguration(config: MechConfiguration): MechLocation[] {
+  getLocationsForConfiguration = (
+    config: MechConfiguration,
+  ): MechLocation[] => {
     // Use centralized registry with string-based lookup
     return getLocationsForConfigurationString(config);
-  }
+  };
 
-  parseSVGToPaths(svgContent: string): string[] {
+  parseSVGToPaths = (svgContent: string): string[] => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(svgContent, 'image/svg+xml');
     const paths = doc.querySelectorAll('path');
     return Array.from(paths).map((p) => p.outerHTML);
-  }
+  };
 
-  clearCache(): void {
+  clearCache = (): void => {
     this.svgCache.clear();
     this.config = null;
     this.configLoadPromise = null;
-  }
+  };
 
   private getLocationCode(location: MechLocation | string): string {
     if (

@@ -13,8 +13,11 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  initializeApiDatabase,
+  sendCaughtApiError,
+} from '@/pages-modules/api/routeHelpers';
 import { persistMatchLog } from '@/services/matchLog/MatchLogService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import {
   POST_BATTLE_REPORT_VERSION,
   type IPostBattleReport,
@@ -36,14 +39,7 @@ export default async function handler(
   res: NextApiResponse<CreateResponse | ErrorResponse>,
 ): Promise<void> {
   // Initialize database connection (idempotent).
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    res.status(500).json({ error: message });
-    return;
-  }
+  if (!initializeApiDatabase(res)) return;
 
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -81,8 +77,6 @@ export default async function handler(
     const matchId = persistMatchLog(body as IPostBattleReport);
     res.status(201).json({ matchId });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'failed to persist match log';
-    res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'failed to persist match log');
   }
 }

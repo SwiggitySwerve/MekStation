@@ -1,12 +1,13 @@
-import type { IBattleModifier } from '@/types/scenario';
-
 import { ModifierEffect, ScenarioObjectiveType } from '@/types/scenario';
 
-export const MINEFIELD: IBattleModifier = {
+import { defineBattleModifier } from './modifierDefinition';
+
+export const MINEFIELD = defineBattleModifier({
   id: 'minefield',
   name: 'Minefield',
-  description:
+  descriptionParts: [
     'The enemy has laid minefields in the approach. Random hexes contain mines that deal 10 damage when triggered.',
+  ],
   effect: ModifierEffect.Negative,
   applicability: {
     weight: 12,
@@ -24,13 +25,14 @@ export const MINEFIELD: IBattleModifier = {
     },
   },
   tags: ['hazard', 'mines', 'difficulty'],
-};
+});
 
-export const ARTILLERY_SUPPORT: IBattleModifier = {
+export const ARTILLERY_SUPPORT = defineBattleModifier({
   id: 'artillery_support',
   name: 'Artillery Support',
-  description:
+  descriptionParts: [
     'You have access to off-map artillery support. Once per game, call in a barrage dealing 15 damage to a 3-hex radius.',
+  ],
   effect: ModifierEffect.Positive,
   applicability: {
     weight: 8,
@@ -50,13 +52,14 @@ export const ARTILLERY_SUPPORT: IBattleModifier = {
     },
   },
   tags: ['support', 'artillery', 'help'],
-};
+});
 
-export const ENEMY_ARTILLERY: IBattleModifier = {
+export const ENEMY_ARTILLERY = defineBattleModifier({
   id: 'enemy_artillery',
   name: 'Enemy Artillery',
-  description:
+  descriptionParts: [
     'The enemy has artillery support. Every 3 turns, a random player unit is targeted with a 10-damage strike.',
+  ],
   effect: ModifierEffect.Negative,
   applicability: {
     weight: 10,
@@ -75,4 +78,4 @@ export const ENEMY_ARTILLERY: IBattleModifier = {
     },
   },
   tags: ['hazard', 'artillery', 'difficulty'],
-};
+});

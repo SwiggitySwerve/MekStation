@@ -1,5 +1,22 @@
 import type { IUnitGameState, MovementConversionMode } from '@/types/gameplay';
 
+const LAM_CONVERSION_MODE_BY_NUMBER = {
+  0: 'mek',
+  1: 'airmek',
+  2: 'fighter',
+} as const;
+
+const LAM_CONVERSION_MODE_BY_STRING = {
+  mek: 'mek',
+  mech: 'mek',
+  airmek: 'airmek',
+  airmech: 'airmek',
+  fighter: 'fighter',
+  vehicle: 'vehicle',
+  tracked: 'vehicle',
+  wheeled: 'vehicle',
+} as const;
+
 export function isVehicleCrewStunned(
   unit: Pick<IUnitGameState, 'combatState'> | undefined,
 ): boolean {
@@ -13,28 +30,14 @@ export function normalizedLamConversionMode(
   value: MovementConversionMode | string | number | undefined,
 ): 'mek' | 'airmek' | 'fighter' | 'vehicle' | undefined {
   if (typeof value === 'number') {
-    if (value === 0) return 'mek';
-    if (value === 1) return 'airmek';
-    if (value === 2) return 'fighter';
-    return undefined;
+    return LAM_CONVERSION_MODE_BY_NUMBER[
+      value as keyof typeof LAM_CONVERSION_MODE_BY_NUMBER
+    ];
   }
 
-  switch (value) {
-    case 'mek':
-    case 'mech':
-      return 'mek';
-    case 'airmek':
-    case 'airmech':
-      return 'airmek';
-    case 'fighter':
-      return 'fighter';
-    case 'vehicle':
-    case 'tracked':
-    case 'wheeled':
-      return 'vehicle';
-    default:
-      return undefined;
-  }
+  return LAM_CONVERSION_MODE_BY_STRING[
+    value as keyof typeof LAM_CONVERSION_MODE_BY_STRING
+  ];
 }
 
 export function isAirborneVTOLOrWiGEForPhysicalAttack(

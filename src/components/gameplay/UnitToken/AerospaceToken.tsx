@@ -17,14 +17,23 @@ import React from 'react';
 
 import type { IAerospaceToken } from '@/types/gameplay';
 
-import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
+import { HEX_SIZE } from '@/constants/hexMap';
 import {
   hex6ToRotationDeg,
   velocityVectorEndpoint,
 } from '@/lib/gameplay/facingRules';
-import { GameSide } from '@/types/gameplay';
 
 import type { ITokenSharedProps } from './tokenTypes';
+
+import {
+  DestroyedCrossOverlay,
+  TOKEN_BODY_OUTLINE_COLOR,
+  TOKEN_BODY_STROKE_WIDTH,
+  TokenDesignationLabel,
+  landedAerospaceBodyColor,
+  selectionTargetRingColor,
+  tokenSideBodyColor,
+} from './tokenVisuals';
 
 const RING_R = HEX_SIZE * 0.7;
 // Pixels added per velocity unit for the vector arrow.
@@ -49,22 +58,13 @@ export const AerospaceToken = React.memo(function AerospaceToken({
   const velocity = token.velocity ?? 0;
   const isLanded = altitude === 0;
 
-  let bodyColor =
-    token.side === GameSide.Player
-      ? HEX_COLORS.playerToken
-      : HEX_COLORS.opponentToken;
-  if (isDestroyed) {
-    bodyColor = HEX_COLORS.destroyedToken;
-  } else if (isLanded) {
+  let bodyColor = tokenSideBodyColor(token.side, isDestroyed);
+  if (!isDestroyed && isLanded) {
     // Desaturate slightly for landed state.
-    bodyColor = token.side === GameSide.Player ? '#93c5fd' : '#fca5a5';
+    bodyColor = landedAerospaceBodyColor(token.side);
   }
 
-  const ringColor = token.isSelected
-    ? '#fbbf24'
-    : token.isValidTarget
-      ? '#f87171'
-      : 'transparent';
+  const ringColor = selectionTargetRingColor(token);
 
   // Heading from 6-hex Facing → degrees for the wedge rotation.
   const headingDeg = hex6ToRotationDeg(token.facing);
@@ -83,8 +83,8 @@ export const AerospaceToken = React.memo(function AerospaceToken({
         <polygon
           points="0,-22 14,10 0,4 -14,10"
           fill={bodyColor}
-          stroke="#1e293b"
-          strokeWidth={2}
+          stroke={TOKEN_BODY_OUTLINE_COLOR}
+          strokeWidth={TOKEN_BODY_STROKE_WIDTH}
         />
         {/* Canopy dot */}
         <circle cx={0} cy={-10} r={3} fill="white" opacity={0.8} />
@@ -129,29 +129,12 @@ export const AerospaceToken = React.memo(function AerospaceToken({
       </g>
 
       {/* Designation label */}
-      <text
-        y={HEX_SIZE * 0.55}
-        textAnchor="middle"
-        fontSize={8}
-        fill="#1e293b"
-        style={{ pointerEvents: 'none' }}
-      >
+      <TokenDesignationLabel y={HEX_SIZE * 0.55} fontSize={8}>
         {token.designation}
-      </text>
+      </TokenDesignationLabel>
 
       {/* Destroyed cross overlay */}
-      {isDestroyed && (
-        <g
-          stroke="#dc2626"
-          strokeWidth={3}
-          data-testid="unit-destroyed-overlay"
-          pointerEvents="none"
-          aria-hidden="true"
-        >
-          <line x1={-12} y1={-12} x2={12} y2={12} />
-          <line x1={12} y1={-12} x2={-12} y2={12} />
-        </g>
-      )}
+      {isDestroyed && <DestroyedCrossOverlay xRadius={12} strokeWidth={3} />}
     </>
   );
 });

@@ -17,20 +17,18 @@ import React, {
 } from 'react';
 
 import { getCalculationService } from '@/services/construction/CalculationService';
-import {
-  IEditableMech,
-  IArmorAllocation as IEditableArmorAllocation,
-} from '@/services/construction/MechBuilderService';
 import { getRecordSheetService } from '@/services/printing/RecordSheetService';
 import { useUnitStore } from '@/stores/useUnitStore';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import { TechBase } from '@/types/enums/TechBase';
-import { EquipmentCategory } from '@/types/equipment';
 import { PaperSize, PAPER_DIMENSIONS } from '@/types/printing';
 import { logger } from '@/utils/logger';
 
-import { PreviewToolbar } from '../preview/PreviewToolbar';
+import { PreviewTabFrame } from '../preview/PreviewTabFrame';
 import { RecordSheetPreview } from '../preview/RecordSheetPreview';
+import {
+  buildEditableMech,
+  buildPreviewUnitConfig,
+} from './PreviewTab.builders';
+import { useMechStructureFields } from './useMechStructureFields';
 
 // =============================================================================
 // Types
@@ -68,11 +66,13 @@ export function PreviewTab({
   const rulesLevel = useUnitStore((s) => s.rulesLevel);
   const year = useUnitStore((s) => s.year);
   const configuration = useUnitStore((s) => s.configuration);
-  const engineType = useUnitStore((s) => s.engineType);
-  const engineRating = useUnitStore((s) => s.engineRating);
-  const gyroType = useUnitStore((s) => s.gyroType);
-  const internalStructureType = useUnitStore((s) => s.internalStructureType);
-  const cockpitType = useUnitStore((s) => s.cockpitType);
+  const {
+    engineType,
+    engineRating,
+    gyroType,
+    internalStructureType,
+    cockpitType,
+  } = useMechStructureFields();
   const armorType = useUnitStore((s) => s.armorType);
   const armorAllocation = useUnitStore((s) => s.armorAllocation);
   const heatSinkType = useUnitStore((s) => s.heatSinkType);
@@ -85,70 +85,60 @@ export function PreviewTab({
   const walkMP = engineRating > 0 ? Math.floor(engineRating / tonnage) : 0;
   const runMP = Math.ceil(walkMP * 1.5);
 
+  const previewState = useMemo(
+    () => ({
+      name,
+      chassis,
+      model,
+      tonnage,
+      techBase,
+      rulesLevel,
+      year,
+      configuration,
+      engineType,
+      engineRating,
+      gyroType,
+      internalStructureType,
+      cockpitType,
+      armorType,
+      armorAllocation,
+      heatSinkType,
+      heatSinkCount,
+      enhancement,
+      jumpMP,
+      equipment,
+    }),
+    [
+      name,
+      chassis,
+      model,
+      tonnage,
+      techBase,
+      rulesLevel,
+      year,
+      configuration,
+      engineType,
+      engineRating,
+      gyroType,
+      internalStructureType,
+      cockpitType,
+      armorType,
+      armorAllocation,
+      heatSinkType,
+      heatSinkCount,
+      enhancement,
+      jumpMP,
+      equipment,
+    ],
+  );
+
   /**
    * Convert store state to IEditableMech format for BV calculation
    */
-  const editableMech: IEditableMech = useMemo(() => {
-    // Convert armor allocation to the format expected by CalculationService
-    const armorAllocationForCalc: IEditableArmorAllocation = {
-      head: armorAllocation[MechLocation.HEAD],
-      centerTorso: armorAllocation[MechLocation.CENTER_TORSO],
-      centerTorsoRear: armorAllocation.centerTorsoRear,
-      leftTorso: armorAllocation[MechLocation.LEFT_TORSO],
-      leftTorsoRear: armorAllocation.leftTorsoRear,
-      rightTorso: armorAllocation[MechLocation.RIGHT_TORSO],
-      rightTorsoRear: armorAllocation.rightTorsoRear,
-      leftArm: armorAllocation[MechLocation.LEFT_ARM],
-      rightArm: armorAllocation[MechLocation.RIGHT_ARM],
-      leftLeg: armorAllocation[MechLocation.LEFT_LEG],
-      rightLeg: armorAllocation[MechLocation.RIGHT_LEG],
-    };
-
-    // Convert ALL equipment to IEquipmentSlot format for BV calculation
-    // BV should include all equipment on the mech, whether allocated or not
-    const equipmentSlots = equipment.map((eq) => ({
-      equipmentId: eq.equipmentId,
-      location: eq.location ?? '',
-      slotIndex: eq.slots?.[0] ?? 0,
-    }));
-
-    return {
-      id: 'preview',
-      chassis: chassis || name.split(' ')[0] || 'Unknown',
-      variant: model || name.split(' ').slice(1).join(' ') || 'Custom',
-      tonnage,
-      techBase: techBase as TechBase,
-      engineType,
-      engineRating,
-      walkMP,
-      structureType: internalStructureType,
-      gyroType,
-      cockpitType,
-      armorType,
-      armorAllocation: armorAllocationForCalc,
-      heatSinkType,
-      heatSinkCount,
-      equipment: equipmentSlots,
-      isDirty: false,
-    };
-  }, [
-    name,
-    chassis,
-    model,
-    tonnage,
-    techBase,
-    engineType,
-    engineRating,
-    walkMP,
-    internalStructureType,
-    gyroType,
-    cockpitType,
-    armorType,
-    armorAllocation,
-    heatSinkType,
-    heatSinkCount,
-    equipment,
-  ]);
+  const editableMech = useMemo(
+    () => buildEditableMech(previewState, walkMP),
+    [previewState, walkMP],
+  );
 
   /**
    * Calculate Battle Value using the calculation service
@@ -175,154 +165,13 @@ export function PreviewTab({
   }, [editableMech]);
 
   /**
-   * Build critical slots from equipment assignments
-   */
-  const buildCriticalSlotsFromEquipment = useCallback(() => {
-    const result: Record<
-      string,
-      Array<{
-        content: string;
-        isSystem?: boolean;
-        equipmentId?: string;
-      } | null>
-    > = {};
-
-    const locations = [
-      MechLocation.HEAD,
-      MechLocation.CENTER_TORSO,
-      MechLocation.LEFT_TORSO,
-      MechLocation.RIGHT_TORSO,
-      MechLocation.LEFT_ARM,
-      MechLocation.RIGHT_ARM,
-      MechLocation.LEFT_LEG,
-      MechLocation.RIGHT_LEG,
-    ];
-
-    // Initialize empty arrays for each location with proper typing
-    locations.forEach((loc) => {
-      const slotCount =
-        loc === MechLocation.HEAD ||
-        loc === MechLocation.LEFT_LEG ||
-        loc === MechLocation.RIGHT_LEG
-          ? 6
-          : 12;
-      result[loc] = new Array<{
-        content: string;
-        isSystem?: boolean;
-        equipmentId?: string;
-      } | null>(slotCount).fill(null);
-    });
-
-    // Fill in equipment from the equipment list
-    equipment.forEach((eq) => {
-      if (eq.location && eq.slots && eq.slots.length > 0) {
-        eq.slots.forEach((slotIndex) => {
-          if (result[eq.location!] && slotIndex < result[eq.location!].length) {
-            result[eq.location!][slotIndex] = {
-              content: eq.name,
-              isSystem: false,
-              equipmentId: eq.instanceId,
-            };
-          }
-        });
-      }
-    });
-
-    return result;
-  }, [equipment]);
-
-  /**
    * Build unit config from store state
    */
-  const buildUnitConfig = useCallback(() => {
-    return {
-      id: 'preview',
-      name: name,
-      chassis: chassis || name.split(' ')[0] || 'Unknown',
-      model: model || name.split(' ').slice(1).join(' ') || 'Custom',
-      tonnage,
-      techBase: techBase,
-      rulesLevel: rulesLevel,
-      era: `Year ${year}`,
-      configuration: configuration,
-      engine: {
-        type: engineType,
-        rating: engineRating,
-      },
-      gyro: {
-        type: gyroType,
-      },
-      structure: {
-        type: internalStructureType,
-      },
-      armor: {
-        type: armorType,
-        allocation: {
-          head: armorAllocation[MechLocation.HEAD],
-          centerTorso: armorAllocation[MechLocation.CENTER_TORSO],
-          centerTorsoRear: armorAllocation.centerTorsoRear,
-          leftTorso: armorAllocation[MechLocation.LEFT_TORSO],
-          leftTorsoRear: armorAllocation.leftTorsoRear,
-          rightTorso: armorAllocation[MechLocation.RIGHT_TORSO],
-          rightTorsoRear: armorAllocation.rightTorsoRear,
-          leftArm: armorAllocation[MechLocation.LEFT_ARM],
-          rightArm: armorAllocation[MechLocation.RIGHT_ARM],
-          leftLeg: armorAllocation[MechLocation.LEFT_LEG],
-          rightLeg: armorAllocation[MechLocation.RIGHT_LEG],
-        },
-      },
-      heatSinks: {
-        type: heatSinkType,
-        count: heatSinkCount,
-      },
-      movement: {
-        walkMP,
-        runMP,
-        jumpMP,
-      },
-      equipment: equipment.map((eq) => ({
-        id: eq.instanceId,
-        name: eq.name,
-        location: (eq.location || MechLocation.CENTER_TORSO) as string,
-        heat: eq.heat || 0,
-        damage: '-', // Would need equipment database lookup
-        ranges: undefined, // Would need equipment database lookup
-        isWeapon: eq.category.toLowerCase().includes('weapon'),
-        isAmmo: eq.category === EquipmentCategory.AMMUNITION,
-        ammoCount: undefined,
-        slots: eq.slots ? [...eq.slots] : undefined,
-      })),
-      criticalSlots: buildCriticalSlotsFromEquipment(),
-      enhancements: enhancement ? [enhancement] : [],
-      battleValue,
-      cost,
-    };
-  }, [
-    name,
-    chassis,
-    model,
-    tonnage,
-    techBase,
-    rulesLevel,
-    year,
-    configuration,
-    engineType,
-    engineRating,
-    gyroType,
-    internalStructureType,
-    armorType,
-    armorAllocation,
-    heatSinkType,
-    heatSinkCount,
-    enhancement,
-    walkMP,
-    runMP,
-    jumpMP,
-    equipment,
-    battleValue,
-    cost,
-    buildCriticalSlotsFromEquipment,
-  ]);
+  const buildUnitConfig = useCallback(
+    () =>
+      buildPreviewUnitConfig(previewState, walkMP, runMP, battleValue, cost),
+    [previewState, walkMP, runMP, battleValue, cost],
+  );
 
   /**
    * Handle PDF export using SVG template rendering
@@ -365,33 +214,24 @@ export function PreviewTab({
     canvasRef.current = canvas;
   }, []);
 
-  return (
-    <div
-      className={`preview-tab ${className}`}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        backgroundColor: '#1a1a2e',
-      }}
-    >
-      {/* Toolbar */}
-      <PreviewToolbar
-        onExportPDF={handleExportPDF}
-        onPrint={handlePrint}
-        paperSize={paperSize}
-        onPaperSizeChange={setPaperSize}
-      />
+  const toolbarActions = useMemo(
+    () => ({
+      onExportPDF: handleExportPDF,
+      onPrint: handlePrint,
+      paperSize,
+      onPaperSizeChange: setPaperSize,
+    }),
+    [handleExportPDF, handlePrint, paperSize],
+  );
 
-      {/* Preview Area */}
-      <div style={{ flex: 1, overflow: 'auto' }}>
-        <RecordSheetPreviewWithRef
-          paperSize={paperSize}
-          scale={0.75}
-          onCanvasRef={handleCanvasRef}
-        />
-      </div>
-    </div>
+  return (
+    <PreviewTabFrame className={className} toolbarActions={toolbarActions}>
+      <RecordSheetPreviewWithRef
+        paperSize={paperSize}
+        scale={0.75}
+        onCanvasRef={handleCanvasRef}
+      />
+    </PreviewTabFrame>
   );
 }
 

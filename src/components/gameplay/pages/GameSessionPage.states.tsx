@@ -34,6 +34,63 @@ interface CompletedGameProps {
   unitStates?: Record<string, IUnitGameState>;
 }
 
+function getWinnerText(winner: GameSide | 'draw'): string {
+  if (winner === 'draw') return 'Draw';
+  return winner === GameSide.Player ? 'Victory' : 'Defeat';
+}
+
+function getWinnerColor(winner: GameSide | 'draw'): string {
+  if (winner === 'draw') return 'text-amber-400';
+  return winner === GameSide.Player ? 'text-emerald-400' : 'text-red-400';
+}
+
+function getMissionResult(
+  winner: GameSide | 'draw',
+): 'victory' | 'defeat' | 'draw' {
+  if (winner === GameSide.Player) return 'victory';
+  return winner === GameSide.Opponent ? 'defeat' : 'draw';
+}
+
+function calculateLocationDamage(
+  values: Record<string, number | undefined>,
+): Record<string, number> {
+  const damage: Record<string, number> = {};
+  for (const [location, maxValue] of Object.entries(values)) {
+    const currentValue = values[location] ?? 0;
+    const difference = (maxValue ?? 0) - currentValue;
+    if (difference > 0) {
+      damage[location] = difference;
+    }
+  }
+  return damage;
+}
+
+function buildDamageStates(
+  unitStates: Record<string, IUnitGameState> | undefined,
+  rosterUnits: readonly { unitId: string }[],
+): IUnitDamageState[] {
+  if (!unitStates) return [];
+
+  const gameUnits = Object.values(unitStates);
+  return rosterUnits.flatMap((unit) => {
+    const gameUnit = gameUnits.find(
+      (unitState) =>
+        unitState.side === GameSide.Player && unitState.id === unit.unitId,
+    );
+    if (!gameUnit) return [];
+
+    return [
+      {
+        unitId: unit.unitId,
+        armorDamage: calculateLocationDamage(gameUnit.armor),
+        structureDamage: calculateLocationDamage(gameUnit.structure),
+        destroyedComponents: [...gameUnit.destroyedLocations],
+        destroyed: gameUnit.destroyed,
+      },
+    ];
+  });
+}
+
 export function CompletedGame({
   gameId,
   winner,
@@ -45,76 +102,24 @@ export function CompletedGame({
   const router = useRouter();
   const rosterStore = useCampaignRosterStore;
 
-  const winnerText =
-    winner === 'draw'
-      ? 'Draw'
-      : winner === GameSide.Player
-        ? 'Victory'
-        : 'Defeat';
-
-  const winnerColor =
-    winner === 'draw'
-      ? 'text-amber-400'
-      : winner === GameSide.Player
-        ? 'text-emerald-400'
-        : 'text-red-400';
+  const winnerText = getWinnerText(winner);
+  const winnerColor = getWinnerColor(winner);
 
   const handleReturnToCampaign = useCallback(() => {
     if (!campaignId || !missionId) {
       return;
     }
 
-    const resultValue =
-      winner === GameSide.Player
-        ? 'victory'
-        : winner === GameSide.Opponent
-          ? 'defeat'
-          : 'draw';
-
-    const damageStates: IUnitDamageState[] = [];
-    if (unitStates) {
-      const rosterUnits = rosterStore.getState().units;
-      for (const unit of rosterUnits) {
-        const gameUnit = Object.values(unitStates).find(
-          (unitState) =>
-            unitState.side === GameSide.Player && unitState.id === unit.unitId,
-        );
-
-        if (gameUnit) {
-          const armorDamage: Record<string, number> = {};
-          for (const [location, maxValue] of Object.entries(gameUnit.armor)) {
-            const currentValue = gameUnit.armor[location] ?? 0;
-            const difference = (maxValue ?? 0) - currentValue;
-            if (difference > 0) {
-              armorDamage[location] = difference;
-            }
-          }
-
-          const structureDamage: Record<string, number> = {};
-          for (const [location, value] of Object.entries(gameUnit.structure)) {
-            const maxStructure = gameUnit.structure[location] ?? 0;
-            const difference = maxStructure - (value ?? 0);
-            if (difference > 0) {
-              structureDamage[location] = difference;
-            }
-          }
-
-          damageStates.push({
-            unitId: unit.unitId,
-            armorDamage,
-            structureDamage,
-            destroyedComponents: [...gameUnit.destroyedLocations],
-            destroyed: gameUnit.destroyed,
-          });
-        }
-      }
-    }
+    const damageStates = buildDamageStates(
+      unitStates,
+      rosterStore.getState().units,
+    );
 
     rosterStore
       .getState()
       .completeMission(
         missionId,
-        resultValue as 'victory' | 'defeat' | 'draw',
+        getMissionResult(winner),
         damageStates,
         gameId,
       );

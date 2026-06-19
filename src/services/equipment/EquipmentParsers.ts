@@ -57,123 +57,84 @@ const unitTypeMap: Record<string, UnitType> = {
   SS_EQUIPMENT: UnitType.SPACE_STATION,
 };
 
+const weaponCategoryMap: Readonly<Record<string, WeaponCategory>> = {
+  Energy: WeaponCategory.ENERGY,
+  Ballistic: WeaponCategory.BALLISTIC,
+  Missile: WeaponCategory.MISSILE,
+  Physical: WeaponCategory.PHYSICAL,
+  Artillery: WeaponCategory.ARTILLERY,
+};
+
+const ammoCategoryMap: Readonly<Record<string, AmmoCategory>> = {
+  Autocannon: AmmoCategory.AUTOCANNON,
+  Gauss: AmmoCategory.GAUSS,
+  'Machine Gun': AmmoCategory.MACHINE_GUN,
+  LRM: AmmoCategory.LRM,
+  SRM: AmmoCategory.SRM,
+  MRM: AmmoCategory.MRM,
+  ATM: AmmoCategory.ATM,
+  NARC: AmmoCategory.NARC,
+  Artillery: AmmoCategory.ARTILLERY,
+  AMS: AmmoCategory.AMS,
+};
+
+const ammoVariantMap: Readonly<Record<string, AmmoVariant>> = {
+  Standard: AmmoVariant.STANDARD,
+  'Armor-Piercing': AmmoVariant.ARMOR_PIERCING,
+  Cluster: AmmoVariant.CLUSTER,
+  Precision: AmmoVariant.PRECISION,
+  Flechette: AmmoVariant.FLECHETTE,
+  Inferno: AmmoVariant.INFERNO,
+  Fragmentation: AmmoVariant.FRAGMENTATION,
+  Incendiary: AmmoVariant.INCENDIARY,
+  Smoke: AmmoVariant.SMOKE,
+  Thunder: AmmoVariant.THUNDER,
+  Swarm: AmmoVariant.SWARM,
+  'Tandem-Charge': AmmoVariant.TANDEM_CHARGE,
+  'Extended Range': AmmoVariant.EXTENDED_RANGE,
+  'High Explosive': AmmoVariant.HIGH_EXPLOSIVE,
+};
+
+const electronicsCategoryMap: Readonly<Record<string, ElectronicsCategory>> = {
+  Targeting: ElectronicsCategory.TARGETING,
+  ECM: ElectronicsCategory.ECM,
+  'Active Probe': ElectronicsCategory.ACTIVE_PROBE,
+  'C3 System': ElectronicsCategory.C3,
+  TAG: ElectronicsCategory.TAG,
+  Communications: ElectronicsCategory.COMMUNICATIONS,
+};
+
+const miscEquipmentCategoryMap: Readonly<
+  Record<string, MiscEquipmentCategory>
+> = {
+  'Heat Sink': MiscEquipmentCategory.HEAT_SINK,
+  'Jump Jet': MiscEquipmentCategory.JUMP_JET,
+  'Movement Enhancement': MiscEquipmentCategory.MOVEMENT,
+  Defensive: MiscEquipmentCategory.DEFENSIVE,
+  Myomer: MiscEquipmentCategory.MYOMER,
+  Industrial: MiscEquipmentCategory.INDUSTRIAL,
+};
+
 export function parseWeaponCategory(value: string): WeaponCategory {
-  switch (value) {
-    case 'Energy':
-      return WeaponCategory.ENERGY;
-    case 'Ballistic':
-      return WeaponCategory.BALLISTIC;
-    case 'Missile':
-      return WeaponCategory.MISSILE;
-    case 'Physical':
-      return WeaponCategory.PHYSICAL;
-    case 'Artillery':
-      return WeaponCategory.ARTILLERY;
-    default:
-      return WeaponCategory.ENERGY;
-  }
+  return weaponCategoryMap[value] ?? WeaponCategory.ENERGY;
 }
 
 export function parseAmmoCategory(value: string): AmmoCategory {
-  switch (value) {
-    case 'Autocannon':
-      return AmmoCategory.AUTOCANNON;
-    case 'Gauss':
-      return AmmoCategory.GAUSS;
-    case 'Machine Gun':
-      return AmmoCategory.MACHINE_GUN;
-    case 'LRM':
-      return AmmoCategory.LRM;
-    case 'SRM':
-      return AmmoCategory.SRM;
-    case 'MRM':
-      return AmmoCategory.MRM;
-    case 'ATM':
-      return AmmoCategory.ATM;
-    case 'NARC':
-      return AmmoCategory.NARC;
-    case 'Artillery':
-      return AmmoCategory.ARTILLERY;
-    case 'AMS':
-      return AmmoCategory.AMS;
-    default:
-      return AmmoCategory.AUTOCANNON;
-  }
+  return ammoCategoryMap[value] ?? AmmoCategory.AUTOCANNON;
 }
 
 export function parseAmmoVariant(value: string): AmmoVariant {
-  switch (value) {
-    case 'Standard':
-      return AmmoVariant.STANDARD;
-    case 'Armor-Piercing':
-      return AmmoVariant.ARMOR_PIERCING;
-    case 'Cluster':
-      return AmmoVariant.CLUSTER;
-    case 'Precision':
-      return AmmoVariant.PRECISION;
-    case 'Flechette':
-      return AmmoVariant.FLECHETTE;
-    case 'Inferno':
-      return AmmoVariant.INFERNO;
-    case 'Fragmentation':
-      return AmmoVariant.FRAGMENTATION;
-    case 'Incendiary':
-      return AmmoVariant.INCENDIARY;
-    case 'Smoke':
-      return AmmoVariant.SMOKE;
-    case 'Thunder':
-      return AmmoVariant.THUNDER;
-    case 'Swarm':
-      return AmmoVariant.SWARM;
-    case 'Tandem-Charge':
-      return AmmoVariant.TANDEM_CHARGE;
-    case 'Extended Range':
-      return AmmoVariant.EXTENDED_RANGE;
-    case 'High Explosive':
-      return AmmoVariant.HIGH_EXPLOSIVE;
-    default:
-      return AmmoVariant.STANDARD;
-  }
+  return ammoVariantMap[value] ?? AmmoVariant.STANDARD;
 }
 
 export function parseElectronicsCategory(value: string): ElectronicsCategory {
-  switch (value) {
-    case 'Targeting':
-      return ElectronicsCategory.TARGETING;
-    case 'ECM':
-      return ElectronicsCategory.ECM;
-    case 'Active Probe':
-      return ElectronicsCategory.ACTIVE_PROBE;
-    case 'C3 System':
-      return ElectronicsCategory.C3;
-    case 'TAG':
-      return ElectronicsCategory.TAG;
-    case 'Communications':
-      return ElectronicsCategory.COMMUNICATIONS;
-    default:
-      return ElectronicsCategory.TARGETING;
-  }
+  return electronicsCategoryMap[value] ?? ElectronicsCategory.TARGETING;
 }
 
 export function parseMiscEquipmentCategory(
   value: string,
 ): MiscEquipmentCategory {
-  switch (value) {
-    case 'Heat Sink':
-      return MiscEquipmentCategory.HEAT_SINK;
-    case 'Jump Jet':
-      return MiscEquipmentCategory.JUMP_JET;
-    case 'Movement Enhancement':
-      return MiscEquipmentCategory.MOVEMENT;
-    case 'Defensive':
-      return MiscEquipmentCategory.DEFENSIVE;
-    case 'Myomer':
-      return MiscEquipmentCategory.MYOMER;
-    case 'Industrial':
-      return MiscEquipmentCategory.INDUSTRIAL;
-    default:
-      return MiscEquipmentCategory.HEAT_SINK;
-  }
+  return miscEquipmentCategoryMap[value] ?? MiscEquipmentCategory.HEAT_SINK;
 }
 
 export function parseUnitType(value: string): UnitType | undefined {

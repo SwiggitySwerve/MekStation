@@ -33,14 +33,14 @@ export class ContactRepository implements ICrudRepository<IContact> {
   /**
    * Initialize the repository (ensure table exists)
    */
-  async initialize(): Promise<void> {
+  readonly initialize = async (): Promise<void> => {
     if (this.initialized) return;
 
-    const db = getSQLiteService();
-    await db.initialize();
+    const sqlite = getSQLiteService();
+    await sqlite.initialize();
 
     // Create contacts table if not exists
-    db.getDatabase().exec(`
+    sqlite.getDatabase().exec(`
       CREATE TABLE IF NOT EXISTS vault_contacts (
         id TEXT PRIMARY KEY,
         friend_code TEXT NOT NULL UNIQUE,
@@ -64,19 +64,21 @@ export class ContactRepository implements ICrudRepository<IContact> {
     `);
 
     this.initialized = true;
-  }
+  };
 
   /**
    * Create a new contact
    */
-  async create(contact: Omit<IContact, 'id' | 'addedAt'>): Promise<IContact> {
+  readonly create = async (
+    contact: Omit<IContact, 'id' | 'addedAt'>,
+  ): Promise<IContact> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
     const id = `contact-${crypto.randomUUID()}`;
     const addedAt = new Date().toISOString();
 
-    const stmt = db.prepare(`
+    const stmt = sqlite.prepare(`
       INSERT INTO vault_contacts (
         id, friend_code, public_key, nickname, display_name,
         avatar, added_at, last_seen_at, is_trusted, notes
@@ -108,91 +110,95 @@ export class ContactRepository implements ICrudRepository<IContact> {
       isTrusted: contact.isTrusted,
       notes: contact.notes,
     };
-  }
+  };
 
   /**
    * Get contact by ID
    */
-  async getById(id: string): Promise<IContact | null> {
+  readonly getById = async (id: string): Promise<IContact | null> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const row = db
+    const row = sqlite
       .prepare('SELECT * FROM vault_contacts WHERE id = ?')
       .get(id) as IStoredContact | undefined;
 
     return row ? this.rowToContact(row) : null;
-  }
+  };
 
   /**
    * Get contact by friend code
    */
-  async getByFriendCode(friendCode: string): Promise<IContact | null> {
+  readonly getByFriendCode = async (
+    friendCode: string,
+  ): Promise<IContact | null> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const row = db
+    const row = sqlite
       .prepare('SELECT * FROM vault_contacts WHERE friend_code = ?')
       .get(friendCode) as IStoredContact | undefined;
 
     return row ? this.rowToContact(row) : null;
-  }
+  };
 
   /**
    * Get contact by public key
    */
-  async getByPublicKey(publicKey: string): Promise<IContact | null> {
+  readonly getByPublicKey = async (
+    publicKey: string,
+  ): Promise<IContact | null> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const row = db
+    const row = sqlite
       .prepare('SELECT * FROM vault_contacts WHERE public_key = ?')
       .get(publicKey) as IStoredContact | undefined;
 
     return row ? this.rowToContact(row) : null;
-  }
+  };
 
   /**
    * Get all contacts
    */
-  async getAll(): Promise<IContact[]> {
+  readonly getAll = async (): Promise<IContact[]> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const rows = db
+    const rows = sqlite
       .prepare(
         'SELECT * FROM vault_contacts ORDER BY COALESCE(nickname, display_name)',
       )
       .all() as IStoredContact[];
 
     return rows.map((row) => this.rowToContact(row));
-  }
+  };
 
   /**
    * Get all trusted contacts
    */
-  async getTrusted(): Promise<IContact[]> {
+  readonly getTrusted = async (): Promise<IContact[]> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const rows = db
+    const rows = sqlite
       .prepare(
         'SELECT * FROM vault_contacts WHERE is_trusted = 1 ORDER BY COALESCE(nickname, display_name)',
       )
       .all() as IStoredContact[];
 
     return rows.map((row) => this.rowToContact(row));
-  }
+  };
 
   /**
    * Search contacts by name (nickname or display name)
    */
-  async search(query: string): Promise<IContact[]> {
+  readonly search = async (query: string): Promise<IContact[]> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
     const searchPattern = `%${query}%`;
-    const rows = db
+    const rows = sqlite
       .prepare(`
         SELECT * FROM vault_contacts 
         WHERE nickname LIKE ? OR display_name LIKE ? OR friend_code LIKE ?
@@ -201,91 +207,106 @@ export class ContactRepository implements ICrudRepository<IContact> {
       .all(searchPattern, searchPattern, searchPattern) as IStoredContact[];
 
     return rows.map((row) => this.rowToContact(row));
-  }
+  };
 
   /**
    * Update contact nickname
    */
-  async updateNickname(id: string, nickname: string | null): Promise<boolean> {
+  readonly updateNickname = async (
+    id: string,
+    nickname: string | null,
+  ): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = sqlite
       .prepare('UPDATE vault_contacts SET nickname = ? WHERE id = ?')
       .run(nickname, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Update contact trust status
    */
-  async updateTrusted(id: string, isTrusted: boolean): Promise<boolean> {
+  readonly updateTrusted = async (
+    id: string,
+    isTrusted: boolean,
+  ): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = sqlite
       .prepare('UPDATE vault_contacts SET is_trusted = ? WHERE id = ?')
       .run(isTrusted ? 1 : 0, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Update contact notes
    */
-  async updateNotes(id: string, notes: string | null): Promise<boolean> {
+  readonly updateNotes = async (
+    id: string,
+    notes: string | null,
+  ): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = sqlite
       .prepare('UPDATE vault_contacts SET notes = ? WHERE id = ?')
       .run(notes, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Update last seen timestamp
    */
-  async updateLastSeen(id: string, lastSeenAt: string): Promise<boolean> {
+  readonly updateLastSeen = async (
+    id: string,
+    lastSeenAt: string,
+  ): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = sqlite
       .prepare('UPDATE vault_contacts SET last_seen_at = ? WHERE id = ?')
       .run(lastSeenAt, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Update contact's display info from their identity
    */
-  async updateFromIdentity(
+  readonly updateFromIdentity = async (
     id: string,
     displayName: string,
     avatar: string | null,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = sqlite
       .prepare(
         'UPDATE vault_contacts SET display_name = ?, avatar = ? WHERE id = ?',
       )
       .run(displayName, avatar, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Update a contact (ICrudRepository interface method)
    * Updates multiple fields of a contact at once
    */
-  async update(id: string, data: Partial<IContact>): Promise<IContact> {
+  readonly update = async (
+    id: string,
+    data: Partial<IContact>,
+  ): Promise<IContact> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
     // Get current contact
     const current = await this.getById(id);
@@ -329,7 +350,7 @@ export class ContactRepository implements ICrudRepository<IContact> {
 
     // Execute update
     values.push(id);
-    const stmt = db.prepare(
+    const stmt = sqlite.prepare(
       `UPDATE vault_contacts SET ${updates.join(', ')} WHERE id = ?`,
     );
     stmt.run(...values);
@@ -340,66 +361,68 @@ export class ContactRepository implements ICrudRepository<IContact> {
       throw new Error(`Failed to retrieve updated contact with id ${id}`);
     }
     return updated;
-  }
+  };
 
   /**
    * Delete a contact
    */
-  async delete(id: string): Promise<boolean> {
+  readonly delete = async (id: string): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = sqlite
       .prepare('DELETE FROM vault_contacts WHERE id = ?')
       .run(id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Delete a contact by friend code
    */
-  async deleteByFriendCode(friendCode: string): Promise<boolean> {
+  readonly deleteByFriendCode = async (
+    friendCode: string,
+  ): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = sqlite
       .prepare('DELETE FROM vault_contacts WHERE friend_code = ?')
       .run(friendCode);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Check if a friend code exists in contacts
    */
-  async exists(friendCode: string): Promise<boolean> {
+  readonly exists = async (friendCode: string): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const row = db
+    const row = sqlite
       .prepare('SELECT 1 FROM vault_contacts WHERE friend_code = ?')
       .get(friendCode);
 
     return !!row;
-  }
+  };
 
   /**
    * Get contact count
    */
-  async count(): Promise<number> {
+  readonly count = async (): Promise<number> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const row = db
+    const row = sqlite
       .prepare('SELECT COUNT(*) as count FROM vault_contacts')
       .get() as { count: number };
 
     return row.count;
-  }
+  };
 
   /**
-   * Convert database row to IContact
+   * Convert sqlite row to IContact
    */
   private rowToContact(row: IStoredContact): IContact {
     return {

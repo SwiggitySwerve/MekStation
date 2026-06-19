@@ -110,6 +110,16 @@ export interface PrewarmResult {
   readonly source: 'cache' | 'report' | 'fallback' | 'mixed';
 }
 
+interface PrewarmPaths {
+  readonly cacheFilePath: string;
+  readonly bvReportPath: string;
+}
+
+interface BVReportLookup {
+  readonly bvByUnitId: Record<string, number>;
+  readonly reportHits: number;
+}
+
 /**
  * Enrich the catalog index with computed BV values.
  *
@@ -138,46 +148,20 @@ export async function prewarmCatalogBV(
   catalogVersion: string,
   options: PrewarmOptions = {},
 ): Promise<PrewarmResult> {
-  const cacheFilePath =
-    options.cacheFilePath ??
-    path.resolve(process.cwd(), '.cache/swarm-bv-cache.json');
-  const bvReportPath =
-    options.bvReportPath ??
-    path.resolve(process.cwd(), 'validation-output/bv-validation-report.json');
+  const { cacheFilePath, bvReportPath } = resolvePrewarmPaths(options);
 
   // -- Try disk cache first --------------------------------------------------
   if (!options.skipCache) {
-    const cached = tryReadCache(cacheFilePath, catalogVersion, catalog.length);
-    if (cached !== null) {
-      const enriched = catalog.map(
-        (entry): IUnitIndexEntry => ({
-          ...entry,
-          bv: cached.bvByUnitId[entry.id] ?? entry.bv ?? 0,
-        }),
-      );
-      const populated = enriched.filter((e) => (e.bv ?? 0) > 0).length;
-      return {
-        catalog: enriched,
-        populated,
-        skipped: enriched.length - populated,
-        fromCache: true,
-        source: 'cache',
-      };
-    }
+    const cached = buildCachedPrewarmResult(
+      catalog,
+      catalogVersion,
+      cacheFilePath,
+    );
+    if (cached !== null) return cached;
   }
 
   // -- Tier 1: read the BV validation report --------------------------------
-  const bvByUnitId: Record<string, number> = {};
-  let reportHits = 0;
-  const report = tryReadBVReport(bvReportPath);
-  if (report !== null) {
-    for (const entry of report.allResults) {
-      if (entry.calculatedBV !== null && entry.calculatedBV > 0) {
-        bvByUnitId[entry.unitId] = entry.calculatedBV;
-        reportHits++;
-      }
-    }
-  }
+  const { bvByUnitId, reportHits } = buildBVReportLookup(bvReportPath);
 
   // -- Tier 2: fallback for catalog entries the report missed ---------------
   const progressEveryN = options.progressEveryN ?? 500;
@@ -226,28 +210,82 @@ export async function prewarmCatalogBV(
     });
   }
 
-  // Pick a source label that helps the operator understand where BV came from.
-  let source: PrewarmResult['source'];
-  if (reportHits > 0 && fallbackHits > 0) {
-    source = 'mixed';
-  } else if (reportHits > 0) {
-    source = 'report';
-  } else {
-    source = 'fallback';
-  }
-
   return {
     catalog: enriched,
     populated,
     skipped,
     fromCache: false,
-    source,
+    source: getPrewarmSource(reportHits, fallbackHits),
   };
 }
 
 // =============================================================================
 // Internals
 // =============================================================================
+
+function resolvePrewarmPaths(options: PrewarmOptions): PrewarmPaths {
+  return {
+    cacheFilePath:
+      options.cacheFilePath ??
+      path.resolve(process.cwd(), '.cache/swarm-bv-cache.json'),
+    bvReportPath:
+      options.bvReportPath ??
+      path.resolve(
+        process.cwd(),
+        'validation-output/bv-validation-report.json',
+      ),
+  };
+}
+
+function buildCachedPrewarmResult(
+  catalog: readonly IUnitIndexEntry[],
+  catalogVersion: string,
+  cacheFilePath: string,
+): PrewarmResult | null {
+  const cached = tryReadCache(cacheFilePath, catalogVersion, catalog.length);
+  if (cached === null) return null;
+
+  const enriched = catalog.map(
+    (entry): IUnitIndexEntry => ({
+      ...entry,
+      bv: cached.bvByUnitId[entry.id] ?? entry.bv ?? 0,
+    }),
+  );
+  const populated = enriched.filter((e) => (e.bv ?? 0) > 0).length;
+  return {
+    catalog: enriched,
+    populated,
+    skipped: enriched.length - populated,
+    fromCache: true,
+    source: 'cache',
+  };
+}
+
+function buildBVReportLookup(bvReportPath: string): BVReportLookup {
+  const bvByUnitId: Record<string, number> = {};
+  const report = tryReadBVReport(bvReportPath);
+  if (report === null) {
+    return { bvByUnitId, reportHits: 0 };
+  }
+
+  let reportHits = 0;
+  for (const entry of report.allResults) {
+    if (entry.calculatedBV !== null && entry.calculatedBV > 0) {
+      bvByUnitId[entry.unitId] = entry.calculatedBV;
+      reportHits++;
+    }
+  }
+  return { bvByUnitId, reportHits };
+}
+
+function getPrewarmSource(
+  reportHits: number,
+  fallbackHits: number,
+): PrewarmResult['source'] {
+  if (reportHits > 0 && fallbackHits > 0) return 'mixed';
+  if (reportHits > 0) return 'report';
+  return 'fallback';
+}
 
 /**
  * Compute BV for a single catalog entry. Returns 0 on any failure path so
@@ -266,9 +304,9 @@ async function computeBVForEntry(
       return 0;
     }
     // The IFullUnit shape and UnitData shape overlap on every field
-    // calculateUnitBV reads — cast through unknown to satisfy strict mode
-    // without a structural mirror type.
-    return calculateUnitBV(fullUnit as unknown as UnitData);
+    // calculateUnitBV reads; keep this adapter boundary explicit until the
+    // construction-side BV input shape is split from raw unit persistence.
+    return calculateUnitBV(fullUnit as Partial<UnitData> as UnitData);
   } catch {
     return 0;
   }

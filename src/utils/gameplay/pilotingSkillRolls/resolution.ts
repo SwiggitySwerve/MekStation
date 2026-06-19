@@ -3,58 +3,135 @@
  * Implements PSR resolution logic, modifier calculation, and batch processing.
  */
 
-import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import { IComponentDamageState, IPendingPSR } from '@/types/gameplay';
 
 import { defaultD6Roller } from '../diceTypes';
-import {
-  type RepresentedGyroType,
-  gyroPsrModifierForType,
-  gyroPsrModifierName,
-} from '../gyroRules';
 import { D6Roller, roll2d6 } from '../hitLocation';
-import { calculatePilotingQuirkPSRModifier } from '../quirkModifiers';
 import {
-  calculateNeuralInterfacePilotingModifier,
-  getAnimalMimicryPSRModifier,
-  getFrogmanWaterPSRModifier,
-  getManeuveringAceFlankingTurningModifier,
-  getManeuveringAceOutOfControlModifier,
-  getManeuveringAceSkidModifier,
-  getMountaineerRubblePSRModifier,
-  getSwampBeastBogDownPSRModifier,
-} from '../spaModifiers';
-import { IPSRResult, IPSRBatchResult, IPSRModifier, PSRTrigger } from './types';
+  calculatePSRModifiers,
+  type IPSRModifierCalculationInput,
+  type IPSRResolutionOptions,
+  normalizeResolutionOptions,
+} from './modifierResolution';
+import { IPSRResult, IPSRBatchResult, PSRTrigger } from './types';
 
-export interface IPSRResolutionOptions {
-  readonly gyroType?: RepresentedGyroType;
-  readonly optionalRules?: readonly string[];
-  readonly unitQuirks?: readonly string[];
-  readonly pilotAbilities?: readonly string[];
-  readonly neuralInterfaceActive?: boolean;
-  readonly isQuadMek?: boolean;
-  readonly unitType?: string;
-  readonly pilotingSkill?: number;
+export interface IPSRResolveInput extends IPSRModifierCalculationInput {
+  readonly pilotingSkill: number;
+  readonly diceRoller?: D6Roller;
 }
 
-function isTerrainPSR(psr: IPendingPSR): boolean {
-  switch (psr.reasonCode ?? psr.triggerSource) {
-    case PSRTrigger.EnteringRubble:
-    case PSRTrigger.RunningRoughTerrain:
-    case PSRTrigger.MovingOnIce:
-    case PSRTrigger.EnteringWater:
-    case PSRTrigger.ExitingWater:
-    case PSRTrigger.Skidding:
-    case PSRTrigger.SwampBogDown:
-    case PSRTrigger.BuildingCollapse:
-      return true;
-    default:
-      return false;
-  }
+export interface IPSRBatchResolveInput extends IPSRResolutionOptions {
+  readonly pilotingSkill: number;
+  readonly pendingPSRs: readonly IPendingPSR[];
+  readonly componentDamage: IComponentDamageState;
+  readonly pilotWounds: number;
+  readonly diceRoller?: D6Roller;
 }
+
+type LegacyResolvePSRArgs = readonly [
+  pilotingSkill: number,
+  psr: IPendingPSR,
+  componentDamage: IComponentDamageState,
+  pilotWounds: number,
+  diceRoller?: D6Roller,
+  unitQuirks?: readonly string[] | IPSRResolutionOptions,
+  pilotAbilities?: readonly string[],
+  isQuadMek?: boolean,
+  unitType?: string,
+];
+
+type ResolvePSRArgs = readonly [input: IPSRResolveInput] | LegacyResolvePSRArgs;
+
+type LegacyResolveAllPSRsArgs = readonly [
+  pilotingSkill: number,
+  pendingPSRs: readonly IPendingPSR[],
+  componentDamage: IComponentDamageState,
+  pilotWounds: number,
+  diceRoller?: D6Roller,
+  unitQuirks?: readonly string[] | IPSRResolutionOptions,
+  pilotAbilities?: readonly string[],
+  isQuadMek?: boolean,
+  unitType?: string,
+];
+
+type ResolveAllPSRsArgs =
+  | readonly [input: IPSRBatchResolveInput]
+  | LegacyResolveAllPSRsArgs;
 
 function isStuckFailurePSR(psr: IPendingPSR): boolean {
   return (psr.reasonCode ?? psr.triggerSource) === PSRTrigger.SwampBogDown;
+}
+
+function normalizeResolvePSRInput(args: ResolvePSRArgs): IPSRResolveInput {
+  if (typeof args[0] === 'object') {
+    return args[0];
+  }
+
+  const legacyArgs = args as LegacyResolvePSRArgs;
+  const [
+    pilotingSkill,
+    psr,
+    componentDamage,
+    pilotWounds,
+    diceRoller,
+    unitQuirks,
+    pilotAbilities,
+    isQuadMek,
+    unitType,
+  ] = legacyArgs;
+  const options = normalizeResolutionOptions(
+    unitQuirks,
+    pilotAbilities ?? [],
+    isQuadMek ?? false,
+    unitType,
+    pilotingSkill,
+  );
+
+  return {
+    pilotingSkill,
+    psr,
+    componentDamage,
+    pilotWounds,
+    diceRoller,
+    ...options,
+  };
+}
+
+function normalizeResolveAllPSRsInput(
+  args: ResolveAllPSRsArgs,
+): IPSRBatchResolveInput {
+  if (typeof args[0] === 'object') {
+    return args[0];
+  }
+
+  const legacyArgs = args as LegacyResolveAllPSRsArgs;
+  const [
+    pilotingSkill,
+    pendingPSRs,
+    componentDamage,
+    pilotWounds,
+    diceRoller,
+    unitQuirks,
+    pilotAbilities,
+    isQuadMek,
+    unitType,
+  ] = legacyArgs;
+  const options = normalizeResolutionOptions(
+    unitQuirks,
+    pilotAbilities ?? [],
+    isQuadMek ?? false,
+    unitType,
+    pilotingSkill,
+  );
+
+  return {
+    pilotingSkill,
+    pendingPSRs,
+    componentDamage,
+    pilotWounds,
+    diceRoller,
+    ...options,
+  };
 }
 
 /**
@@ -68,28 +145,23 @@ function isStuckFailurePSR(psr: IPendingPSR): boolean {
  * @param diceRoller - Injectable dice roller for deterministic testing
  * @returns PSR result with roll details and pass/fail
  */
-export function resolvePSR(
-  pilotingSkill: number,
-  psr: IPendingPSR,
-  componentDamage: IComponentDamageState,
-  pilotWounds: number,
-  diceRoller: D6Roller = defaultD6Roller,
-  unitQuirks: readonly string[] | IPSRResolutionOptions = [],
-  pilotAbilities: readonly string[] = [],
-  isQuadMek = false,
-  unitType?: string,
-): IPSRResult {
+export function resolvePSR(...args: ResolvePSRArgs): IPSRResult {
+  const input = normalizeResolvePSRInput(args);
+  const { pilotingSkill, psr, diceRoller = defaultD6Roller } = input;
   const usesFixedTargetNumber = psr.fixedTargetNumber !== undefined;
-  const modifiers = calculatePSRModifiers(
+  const modifiers = calculatePSRModifiers({
     psr,
-    componentDamage,
-    pilotWounds,
-    unitQuirks,
-    pilotAbilities,
-    isQuadMek,
-    unitType,
+    componentDamage: input.componentDamage,
+    pilotWounds: input.pilotWounds,
+    gyroType: input.gyroType,
+    optionalRules: input.optionalRules,
+    unitQuirks: input.unitQuirks,
+    pilotAbilities: input.pilotAbilities,
+    neuralInterfaceActive: input.neuralInterfaceActive,
+    isQuadMek: input.isQuadMek,
+    unitType: input.unitType,
     pilotingSkill,
-  );
+  });
 
   const totalModifier = modifiers.reduce((sum, m) => sum + m.value, 0);
 
@@ -126,17 +198,16 @@ export function resolvePSR(
  * @param diceRoller - Injectable dice roller
  * @returns Batch result with all rolled PSRs and any cleared ones
  */
-export function resolveAllPSRs(
-  pilotingSkill: number,
-  pendingPSRs: readonly IPendingPSR[],
-  componentDamage: IComponentDamageState,
-  pilotWounds: number,
-  diceRoller: D6Roller = defaultD6Roller,
-  unitQuirks: readonly string[] | IPSRResolutionOptions = [],
-  pilotAbilities: readonly string[] = [],
-  isQuadMek = false,
-  unitType?: string,
-): IPSRBatchResult {
+export function resolveAllPSRs(...args: ResolveAllPSRsArgs): IPSRBatchResult {
+  const input = normalizeResolveAllPSRsInput(args);
+  const {
+    pilotingSkill,
+    pendingPSRs,
+    componentDamage,
+    pilotWounds,
+    diceRoller = defaultD6Roller,
+  } = input;
+
   if (pendingPSRs.length === 0) {
     return {
       results: [],
@@ -150,17 +221,20 @@ export function resolveAllPSRs(
 
   for (let i = 0; i < pendingPSRs.length; i++) {
     const psr = pendingPSRs[i];
-    const result = resolvePSR(
+    const result = resolvePSR({
       pilotingSkill,
       psr,
       componentDamage,
       pilotWounds,
       diceRoller,
-      unitQuirks,
-      pilotAbilities,
-      isQuadMek,
-      unitType,
-    );
+      gyroType: input.gyroType,
+      optionalRules: input.optionalRules,
+      unitQuirks: input.unitQuirks,
+      pilotAbilities: input.pilotAbilities,
+      neuralInterfaceActive: input.neuralInterfaceActive,
+      isQuadMek: input.isQuadMek,
+      unitType: input.unitType,
+    });
     results.push(result);
 
     if (!result.passed) {
@@ -191,254 +265,4 @@ export function resolveAllPSRs(
     unitFell: false,
     clearedPSRs: [],
   };
-}
-
-/**
- * Calculate all applicable modifiers for a PSR.
- * Stacking rules:
- * - Gyro hits: +3 per hit
- * - Pilot wounds: +1 per wound
- * - Actuator damage: varies by type
- * - PSR-specific additionalModifier from the trigger
- */
-export function calculatePSRModifiers(
-  psr: IPendingPSR,
-  componentDamage: IComponentDamageState,
-  pilotWounds: number,
-  unitQuirks: readonly string[] | IPSRResolutionOptions = [],
-  pilotAbilities: readonly string[] = [],
-  isQuadMek = false,
-  unitType?: string,
-  pilotingSkill?: number,
-): readonly IPSRModifier[] {
-  const unitQuirksIsList = Array.isArray(unitQuirks);
-  const options: IPSRResolutionOptions = unitQuirksIsList
-    ? {}
-    : (unitQuirks as IPSRResolutionOptions);
-  const normalizedUnitQuirks = unitQuirksIsList
-    ? unitQuirks
-    : (options.unitQuirks ?? []);
-  const normalizedPilotAbilities = unitQuirksIsList
-    ? pilotAbilities
-    : (options.pilotAbilities ?? pilotAbilities);
-  const normalizedIsQuadMek = unitQuirksIsList
-    ? isQuadMek
-    : (options.isQuadMek ?? isQuadMek);
-  const normalizedUnitType = unitQuirksIsList
-    ? unitType
-    : (options.unitType ?? unitType);
-  const normalizedPilotingSkill = unitQuirksIsList
-    ? pilotingSkill
-    : (options.pilotingSkill ?? pilotingSkill);
-  if (psr.fixedTargetNumber !== undefined) {
-    return psr.additionalModifier !== 0
-      ? [
-          {
-            name: `${psr.reason} modifier`,
-            value: psr.additionalModifier,
-            source: psr.triggerSource,
-          },
-        ]
-      : [];
-  }
-
-  const modifiers: IPSRModifier[] = [];
-  const landingSpecificDamageModifiers =
-    usesAirMekLandingSpecificDamageModifiers(psr);
-
-  if (!landingSpecificDamageModifiers) {
-    const gyroModifier = gyroPsrModifierForType(
-      componentDamage,
-      options.gyroType,
-      { optionalRules: options.optionalRules },
-    );
-    if (gyroModifier !== 0) {
-      modifiers.push({
-        name: gyroPsrModifierName(options.gyroType),
-        value: gyroModifier,
-        source: 'gyro',
-      });
-    }
-  }
-
-  // Pilot wounds: +1 per wound
-  if (pilotWounds > 0) {
-    modifiers.push({
-      name: 'Pilot wounds',
-      value: pilotWounds,
-      source: 'pilot',
-    });
-  }
-
-  if (!landingSpecificDamageModifiers) {
-    // Leg actuator damage modifiers
-    const actuators = componentDamage.actuators;
-    if (actuators[ActuatorType.HIP]) {
-      modifiers.push({
-        name: 'Hip actuator destroyed',
-        value: 2,
-        source: 'actuator',
-      });
-    }
-    if (actuators[ActuatorType.UPPER_LEG]) {
-      modifiers.push({
-        name: 'Upper leg actuator destroyed',
-        value: 1,
-        source: 'actuator',
-      });
-    }
-    if (actuators[ActuatorType.LOWER_LEG]) {
-      modifiers.push({
-        name: 'Lower leg actuator destroyed',
-        value: 1,
-        source: 'actuator',
-      });
-    }
-    if (actuators[ActuatorType.FOOT]) {
-      modifiers.push({
-        name: 'Foot actuator destroyed',
-        value: 1,
-        source: 'actuator',
-      });
-    }
-  }
-
-  // PSR-specific additional modifier (e.g., DFA miss +4)
-  if (psr.additionalModifier !== 0) {
-    modifiers.push({
-      name: `${psr.reason} modifier`,
-      value: psr.additionalModifier,
-      source: psr.triggerSource,
-    });
-  }
-
-  const quirkModifier = calculatePilotingQuirkPSRModifier(
-    normalizedUnitQuirks,
-    isTerrainPSR(psr),
-    psr.reasonCode ?? psr.triggerSource,
-    normalizedPilotingSkill,
-    normalizedPilotAbilities,
-  );
-  if (quirkModifier !== 0) {
-    modifiers.push({
-      name: 'Piloting quirks',
-      value: quirkModifier,
-      source: 'quirk',
-    });
-  }
-
-  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.Skidding) {
-    const maneuveringAceModifier = getManeuveringAceSkidModifier(
-      normalizedPilotAbilities,
-    );
-    if (maneuveringAceModifier !== 0) {
-      modifiers.push({
-        name: 'Maneuvering Ace',
-        value: maneuveringAceModifier,
-        source: 'spa',
-      });
-    }
-  }
-
-  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.OutOfControl) {
-    const maneuveringAceModifier = getManeuveringAceOutOfControlModifier(
-      normalizedPilotAbilities,
-    );
-    if (maneuveringAceModifier !== 0) {
-      modifiers.push({
-        name: 'Maneuvering Ace',
-        value: maneuveringAceModifier,
-        source: 'spa',
-      });
-    }
-  }
-
-  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.FlankingAndTurning) {
-    const maneuveringAceModifier = getManeuveringAceFlankingTurningModifier(
-      normalizedPilotAbilities,
-    );
-    if (maneuveringAceModifier !== 0) {
-      modifiers.push({
-        name: 'Maneuvering Ace',
-        value: maneuveringAceModifier,
-        source: 'spa',
-      });
-    }
-  }
-
-  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.EnteringWater) {
-    const frogmanModifier = getFrogmanWaterPSRModifier(
-      normalizedPilotAbilities,
-      psr.terrainLevel,
-      normalizedUnitType,
-    );
-    if (frogmanModifier !== 0) {
-      modifiers.push({
-        name: 'Frogman',
-        value: frogmanModifier,
-        source: 'spa',
-      });
-    }
-  }
-
-  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.EnteringRubble) {
-    const mountaineerModifier = getMountaineerRubblePSRModifier(
-      normalizedPilotAbilities,
-    );
-    if (mountaineerModifier !== 0) {
-      modifiers.push({
-        name: 'Mountaineer',
-        value: mountaineerModifier,
-        source: 'spa',
-      });
-    }
-  }
-
-  if ((psr.reasonCode ?? psr.triggerSource) === PSRTrigger.SwampBogDown) {
-    const swampBeastModifier = getSwampBeastBogDownPSRModifier(
-      normalizedPilotAbilities,
-    );
-    if (swampBeastModifier !== 0) {
-      modifiers.push({
-        name: 'Swamp Beast',
-        value: swampBeastModifier,
-        source: 'spa',
-      });
-    }
-  }
-
-  const animalMimicryModifier = getAnimalMimicryPSRModifier(
-    normalizedPilotAbilities,
-    normalizedIsQuadMek,
-  );
-  if (animalMimicryModifier !== 0) {
-    modifiers.push({
-      name: 'Animal Mimicry',
-      value: animalMimicryModifier,
-      source: 'spa',
-    });
-  }
-
-  const neuralInterfacePilotingModifier =
-    calculateNeuralInterfacePilotingModifier(
-      normalizedPilotAbilities,
-      normalizedUnitType,
-      options.neuralInterfaceActive ?? true,
-    );
-  if (neuralInterfacePilotingModifier) {
-    modifiers.push({
-      name: neuralInterfacePilotingModifier.name,
-      value: neuralInterfacePilotingModifier.value,
-      source: 'spa',
-    });
-  }
-
-  return modifiers;
-}
-
-function usesAirMekLandingSpecificDamageModifiers(psr: IPendingPSR): boolean {
-  return (
-    psr.reasonCode === PSRTrigger.AirMekLanding ||
-    psr.triggerSource === PSRTrigger.AirMekLanding
-  );
 }

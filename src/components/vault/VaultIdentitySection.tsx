@@ -9,6 +9,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 
+import { InlineErrorMessage } from '@/components/common/InlineErrorMessage';
 import {
   useIdentitySelector,
   selectFriendCode,
@@ -86,11 +87,7 @@ function CreateIdentityForm({
         </p>
       </div>
 
-      {displayError && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
-          {displayError}
-        </div>
-      )}
+      <InlineErrorMessage message={displayError} variant="identity" />
 
       <div>
         <label className="text-text-theme-primary mb-1 block text-sm font-medium">
@@ -189,11 +186,7 @@ function UnlockIdentityForm({
         </p>
       </div>
 
-      {error && (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
-          {error}
-        </div>
-      )}
+      <InlineErrorMessage message={error} variant="identity" />
 
       <div>
         <label className="text-text-theme-primary mb-1 block text-sm font-medium">

@@ -185,91 +185,91 @@ export function plus(base: IFormula, bonus: number): IFormula {
 // VALIDATION
 // ============================================================================
 
+type FormulaValidator = (formula: IFormula) => string[];
+
+function validateFixedFormula(formula: IFormula): string[] {
+  return formula.value === undefined ? ['FIXED formula requires value'] : [];
+}
+
+function validateDivideFormula(formula: IFormula): string[] {
+  const errors: string[] = [];
+  if (!formula.field) {
+    errors.push(`${formula.type} formula requires field`);
+  }
+  if (formula.divisor === undefined || formula.divisor <= 0) {
+    errors.push(`${formula.type} formula requires positive divisor`);
+  }
+  return errors;
+}
+
+function validateMultiplyFormula(formula: IFormula): string[] {
+  const errors: string[] = [];
+  if (!formula.field) {
+    errors.push('MULTIPLY formula requires field');
+  }
+  if (formula.multiplier === undefined) {
+    errors.push('MULTIPLY formula requires multiplier');
+  }
+  return errors;
+}
+
+function validateMultiplyRoundFormula(formula: IFormula): string[] {
+  const errors: string[] = [];
+  if (!formula.field) {
+    errors.push('MULTIPLY_ROUND formula requires field');
+  }
+  if (formula.multiplier === undefined) {
+    errors.push('MULTIPLY_ROUND formula requires multiplier');
+  }
+  if (formula.roundTo === undefined || formula.roundTo <= 0) {
+    errors.push('MULTIPLY_ROUND formula requires positive roundTo');
+  }
+  return errors;
+}
+
+function validateEqualsFieldFormula(formula: IFormula): string[] {
+  return formula.field ? [] : ['EQUALS_FIELD formula requires field'];
+}
+
+function validateCombinatorFormula(formula: IFormula): string[] {
+  if (!formula.formulas || formula.formulas.length === 0) {
+    return [`${formula.type} formula requires at least one sub-formula`];
+  }
+  return formula.formulas.flatMap(validateFormula);
+}
+
+function validatePlusFormula(formula: IFormula): string[] {
+  const errors = formula.base
+    ? validateFormula(formula.base)
+    : ['PLUS formula requires base formula'];
+  if (formula.bonus === undefined) {
+    errors.push('PLUS formula requires bonus value');
+  }
+  return errors;
+}
+
+const FORMULA_VALIDATORS: Readonly<Record<FormulaType, FormulaValidator>> = {
+  FIXED: validateFixedFormula,
+  CEIL_DIVIDE: validateDivideFormula,
+  FLOOR_DIVIDE: validateDivideFormula,
+  ROUND_DIVIDE: validateDivideFormula,
+  MULTIPLY: validateMultiplyFormula,
+  MULTIPLY_ROUND: validateMultiplyRoundFormula,
+  EQUALS_WEIGHT: () => [],
+  EQUALS_FIELD: validateEqualsFieldFormula,
+  MIN: validateCombinatorFormula,
+  MAX: validateCombinatorFormula,
+  PLUS: validatePlusFormula,
+};
+
 /**
  * Validate a formula definition
  */
 export function validateFormula(formula: IFormula): string[] {
-  const errors: string[] = [];
-
-  switch (formula.type) {
-    case 'FIXED':
-      if (formula.value === undefined) {
-        errors.push('FIXED formula requires value');
-      }
-      break;
-
-    case 'CEIL_DIVIDE':
-    case 'FLOOR_DIVIDE':
-    case 'ROUND_DIVIDE':
-      if (!formula.field) {
-        errors.push(`${formula.type} formula requires field`);
-      }
-      if (formula.divisor === undefined || formula.divisor <= 0) {
-        errors.push(`${formula.type} formula requires positive divisor`);
-      }
-      break;
-
-    case 'MULTIPLY':
-      if (!formula.field) {
-        errors.push('MULTIPLY formula requires field');
-      }
-      if (formula.multiplier === undefined) {
-        errors.push('MULTIPLY formula requires multiplier');
-      }
-      break;
-
-    case 'MULTIPLY_ROUND':
-      if (!formula.field) {
-        errors.push('MULTIPLY_ROUND formula requires field');
-      }
-      if (formula.multiplier === undefined) {
-        errors.push('MULTIPLY_ROUND formula requires multiplier');
-      }
-      if (formula.roundTo === undefined || formula.roundTo <= 0) {
-        errors.push('MULTIPLY_ROUND formula requires positive roundTo');
-      }
-      break;
-
-    case 'EQUALS_WEIGHT':
-      // No additional fields required
-      break;
-
-    case 'EQUALS_FIELD':
-      if (!formula.field) {
-        errors.push('EQUALS_FIELD formula requires field');
-      }
-      break;
-
-    case 'MIN':
-    case 'MAX':
-      if (!formula.formulas || formula.formulas.length === 0) {
-        errors.push(
-          `${formula.type} formula requires at least one sub-formula`,
-        );
-      } else {
-        // Validate sub-formulas recursively
-        for (const subFormula of formula.formulas) {
-          errors.push(...validateFormula(subFormula));
-        }
-      }
-      break;
-
-    case 'PLUS':
-      if (!formula.base) {
-        errors.push('PLUS formula requires base formula');
-      } else {
-        errors.push(...validateFormula(formula.base));
-      }
-      if (formula.bonus === undefined) {
-        errors.push('PLUS formula requires bonus value');
-      }
-      break;
-
-    default:
-      errors.push(`Unknown formula type: ${(formula as IFormula).type}`);
-  }
-
-  return errors;
+  const validator = FORMULA_VALIDATORS[formula.type as FormulaType];
+  return validator
+    ? validator(formula)
+    : [`Unknown formula type: ${(formula as IFormula).type}`];
 }
 
 /**

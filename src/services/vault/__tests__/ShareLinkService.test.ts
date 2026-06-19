@@ -6,214 +6,18 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import type {
-  IShareLink,
-  IShareLinkOptions,
-  IShareLinkRedeemResult,
-  PermissionScopeType,
-  ContentCategory,
-} from '@/types/vault';
+import type { IShareLink } from '@/types/vault';
 
 import {
   ShareLinkService,
   ICreateShareLinkOptions,
 } from '@/services/vault/ShareLinkService';
 
+import { MockShareLinkRepository } from './shareLinkService.test-helpers';
+
 // =============================================================================
 // Mock Repository
 // =============================================================================
-
-class MockShareLinkRepository {
-  private links: Map<string, IShareLink> = new Map();
-  private idCounter = 0;
-
-  async create(
-    scopeType: PermissionScopeType,
-    scopeId: string | null,
-    scopeCategory: ContentCategory | null,
-    options: IShareLinkOptions,
-  ): Promise<IShareLink> {
-    const id = `link-mock-${++this.idCounter}`;
-    const token = `test-token-${this.idCounter}`;
-    const createdAt = new Date().toISOString();
-
-    const link: IShareLink = {
-      id,
-      token,
-      scopeType,
-      scopeId,
-      scopeCategory,
-      level: options.level,
-      expiresAt: options.expiresAt || null,
-      maxUses: options.maxUses || null,
-      useCount: 0,
-      createdAt,
-      label: options.label,
-      isActive: true,
-    };
-
-    this.links.set(id, link);
-    return link;
-  }
-
-  async getById(id: string): Promise<IShareLink | null> {
-    return this.links.get(id) || null;
-  }
-
-  async getByToken(token: string): Promise<IShareLink | null> {
-    const links = Array.from(this.links.values());
-    for (const link of links) {
-      if (link.token === token) {
-        return link;
-      }
-    }
-    return null;
-  }
-
-  async getByItem(
-    scopeType: PermissionScopeType,
-    scopeId: string,
-  ): Promise<IShareLink[]> {
-    return Array.from(this.links.values()).filter(
-      (l) => l.scopeType === scopeType && l.scopeId === scopeId,
-    );
-  }
-
-  async getActive(): Promise<IShareLink[]> {
-    return Array.from(this.links.values()).filter((l) => l.isActive);
-  }
-
-  async getAll(): Promise<IShareLink[]> {
-    return Array.from(this.links.values());
-  }
-
-  async redeem(token: string): Promise<IShareLinkRedeemResult> {
-    const link = await this.getByToken(token);
-
-    if (!link) {
-      return {
-        success: false,
-        error: {
-          message: 'Share link not found',
-          errorCode: 'NOT_FOUND' as const,
-        },
-      };
-    }
-
-    if (!link.isActive) {
-      return {
-        success: false,
-        error: {
-          message: 'Share link is inactive',
-          errorCode: 'INACTIVE' as const,
-        },
-      };
-    }
-
-    if (link.expiresAt) {
-      const now = new Date();
-      const expiry = new Date(link.expiresAt);
-      if (now > expiry) {
-        return {
-          success: false,
-          error: {
-            message: 'Share link has expired',
-            errorCode: 'EXPIRED' as const,
-          },
-        };
-      }
-    }
-
-    if (link.maxUses !== null && link.useCount >= link.maxUses) {
-      return {
-        success: false,
-        error: {
-          message: 'Share link has reached maximum uses',
-          errorCode: 'MAX_USES' as const,
-        },
-      };
-    }
-
-    // Increment use count
-    const updatedLink = { ...link, useCount: link.useCount + 1 };
-    this.links.set(link.id, updatedLink);
-
-    return { success: true, data: { link: updatedLink } };
-  }
-
-  async deactivate(id: string): Promise<boolean> {
-    const link = this.links.get(id);
-    if (!link) return false;
-    this.links.set(id, { ...link, isActive: false });
-    return true;
-  }
-
-  async reactivate(id: string): Promise<boolean> {
-    const link = this.links.get(id);
-    if (!link) return false;
-    this.links.set(id, { ...link, isActive: true });
-    return true;
-  }
-
-  async updateLabel(id: string, label: string | null): Promise<boolean> {
-    const link = this.links.get(id);
-    if (!link) return false;
-    this.links.set(id, { ...link, label: label || undefined });
-    return true;
-  }
-
-  async updateExpiry(id: string, expiresAt: string | null): Promise<boolean> {
-    const link = this.links.get(id);
-    if (!link) return false;
-    this.links.set(id, { ...link, expiresAt });
-    return true;
-  }
-
-  async updateMaxUses(id: string, maxUses: number | null): Promise<boolean> {
-    const link = this.links.get(id);
-    if (!link) return false;
-    this.links.set(id, { ...link, maxUses });
-    return true;
-  }
-
-  async delete(id: string): Promise<boolean> {
-    return this.links.delete(id);
-  }
-
-  async deleteByItem(
-    scopeType: PermissionScopeType,
-    scopeId: string,
-  ): Promise<number> {
-    let count = 0;
-    const entries = Array.from(this.links.entries());
-    for (const [id, link] of entries) {
-      if (link.scopeType === scopeType && link.scopeId === scopeId) {
-        this.links.delete(id);
-        count++;
-      }
-    }
-    return count;
-  }
-
-  async cleanupExpired(): Promise<number> {
-    const now = new Date().toISOString();
-    let count = 0;
-    const entries = Array.from(this.links.entries());
-    for (const [id, link] of entries) {
-      if (link.expiresAt && link.expiresAt < now) {
-        this.links.delete(id);
-        count++;
-      }
-    }
-    return count;
-  }
-
-  // Test helper
-  clear(): void {
-    this.links.clear();
-    this.idCounter = 0;
-  }
-}
 
 // =============================================================================
 // Tests
@@ -347,10 +151,6 @@ describe('ShareLinkService', () => {
     });
   });
 
-  // ===========================================================================
-  // URL Building
-  // ===========================================================================
-
   describe('URL handling', () => {
     it('should build custom protocol URL', () => {
       const url = service.buildUrl('test-token-123');
@@ -397,10 +197,6 @@ describe('ShareLinkService', () => {
       });
     });
   });
-
-  // ===========================================================================
-  // Redeeming Share Links
-  // ===========================================================================
 
   describe('redeem', () => {
     it('should redeem valid link', async () => {
@@ -520,10 +316,6 @@ describe('ShareLinkService', () => {
     });
   });
 
-  // ===========================================================================
-  // Deactivate / Reactivate
-  // ===========================================================================
-
   describe('deactivate', () => {
     it('should deactivate link', async () => {
       const createResult = await service.create({
@@ -561,10 +353,6 @@ describe('ShareLinkService', () => {
       expect(result.link?.isActive).toBe(true);
     });
   });
-
-  // ===========================================================================
-  // Updating Links
-  // ===========================================================================
 
   describe('updateLabel', () => {
     it('should update label', async () => {
@@ -632,10 +420,6 @@ describe('ShareLinkService', () => {
     });
   });
 
-  // ===========================================================================
-  // Deleting Links
-  // ===========================================================================
-
   describe('delete', () => {
     it('should delete link', async () => {
       const createResult = await service.create({
@@ -657,154 +441,6 @@ describe('ShareLinkService', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('not found');
-    });
-  });
-
-  describe('deleteAllForItem', () => {
-    it('should delete all links for item', async () => {
-      await service.create({
-        scopeType: 'item',
-        scopeId: 'unit-1',
-        level: 'read',
-      });
-      await service.create({
-        scopeType: 'item',
-        scopeId: 'unit-1',
-        level: 'write',
-      });
-      await service.create({
-        scopeType: 'item',
-        scopeId: 'unit-2',
-        level: 'read',
-      });
-
-      const count = await service.deleteAllForItem('item', 'unit-1');
-
-      expect(count).toBe(2);
-
-      const remaining = await service.getAllLinks();
-      expect(remaining).toHaveLength(1);
-      expect(remaining[0].scopeId).toBe('unit-2');
-    });
-  });
-
-  // ===========================================================================
-  // Validation Helpers
-  // ===========================================================================
-
-  describe('isLinkValid', () => {
-    it('should return true for valid active link', async () => {
-      const createResult = await service.create({
-        scopeType: 'item',
-        scopeId: 'unit-123',
-        level: 'read',
-      });
-
-      expect(service.isLinkValid(createResult.link!)).toBe(true);
-    });
-
-    it('should return false for inactive link', async () => {
-      const createResult = await service.create({
-        scopeType: 'item',
-        scopeId: 'unit-123',
-        level: 'read',
-      });
-      await service.deactivate(createResult.link!.id);
-      const link = await service.getById(createResult.link!.id);
-
-      expect(service.isLinkValid(link!)).toBe(false);
-    });
-
-    it('should return false for expired link', () => {
-      const expiredLink: IShareLink = {
-        id: 'test',
-        token: 'test',
-        scopeType: 'item',
-        scopeId: 'test',
-        scopeCategory: null,
-        level: 'read',
-        expiresAt: new Date(Date.now() - 1000).toISOString(),
-        maxUses: null,
-        useCount: 0,
-        createdAt: new Date().toISOString(),
-        isActive: true,
-      };
-
-      expect(service.isLinkValid(expiredLink)).toBe(false);
-    });
-
-    it('should return false for max uses reached', () => {
-      const maxedLink: IShareLink = {
-        id: 'test',
-        token: 'test',
-        scopeType: 'item',
-        scopeId: 'test',
-        scopeCategory: null,
-        level: 'read',
-        expiresAt: null,
-        maxUses: 5,
-        useCount: 5,
-        createdAt: new Date().toISOString(),
-        isActive: true,
-      };
-
-      expect(service.isLinkValid(maxedLink)).toBe(false);
-    });
-  });
-
-  describe('getRemainingUses', () => {
-    it('should return null for unlimited', () => {
-      const link: IShareLink = {
-        id: 'test',
-        token: 'test',
-        scopeType: 'item',
-        scopeId: 'test',
-        scopeCategory: null,
-        level: 'read',
-        expiresAt: null,
-        maxUses: null,
-        useCount: 100,
-        createdAt: new Date().toISOString(),
-        isActive: true,
-      };
-
-      expect(service.getRemainingUses(link)).toBeNull();
-    });
-
-    it('should return remaining count', () => {
-      const link: IShareLink = {
-        id: 'test',
-        token: 'test',
-        scopeType: 'item',
-        scopeId: 'test',
-        scopeCategory: null,
-        level: 'read',
-        expiresAt: null,
-        maxUses: 10,
-        useCount: 3,
-        createdAt: new Date().toISOString(),
-        isActive: true,
-      };
-
-      expect(service.getRemainingUses(link)).toBe(7);
-    });
-
-    it('should return 0 when exceeded', () => {
-      const link: IShareLink = {
-        id: 'test',
-        token: 'test',
-        scopeType: 'item',
-        scopeId: 'test',
-        scopeCategory: null,
-        level: 'read',
-        expiresAt: null,
-        maxUses: 5,
-        useCount: 10,
-        createdAt: new Date().toISOString(),
-        isActive: true,
-      };
-
-      expect(service.getRemainingUses(link)).toBe(0);
     });
   });
 });

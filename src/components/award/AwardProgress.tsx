@@ -8,16 +8,21 @@
 import React, { useMemo } from 'react';
 
 import { Card } from '@/components/ui';
+import { getCriteriaValue } from '@/stores/awardStoreUtils';
 import { useAwardStore } from '@/stores/useAwardStore';
 import {
   IAward,
+  IPilotAward,
+  IPilotStats,
   AwardRarity,
   AwardCategory,
+  CriteriaType,
   AWARD_CATALOG,
   getRarityColor,
 } from '@/types/award';
 
 import { getAwardIcon, getRarityStrokeWidth } from './awardIcons';
+import { RARITY_SORT_ORDER } from './awardRarityStyles';
 
 // =============================================================================
 // Types
@@ -43,16 +48,29 @@ interface ProgressInfo {
   percentage: number;
 }
 
+interface BuildProgressOptions {
+  stats?: IPilotStats;
+  earnedAwardIds: Set<string>;
+  filterCategory?: AwardCategory;
+  nearCompletionOnly?: boolean;
+  minPercentage?: number;
+  excludeComplete?: boolean;
+  maxItems: number;
+  sortByRarity?: boolean;
+}
+
 // =============================================================================
 // Rarity Styling
 // =============================================================================
 
-const RARITY_ORDER: Record<AwardRarity, number> = {
-  [AwardRarity.Legendary]: 0,
-  [AwardRarity.Rare]: 1,
-  [AwardRarity.Uncommon]: 2,
-  [AwardRarity.Common]: 3,
-};
+const DISPLAY_CRITERIA_TYPES = new Set<CriteriaType>([
+  CriteriaType.TotalKills,
+  CriteriaType.DamageDealt,
+  CriteriaType.MissionsCompleted,
+  CriteriaType.CampaignsCompleted,
+  CriteriaType.ConsecutiveSurvival,
+  CriteriaType.GamesPlayed,
+]);
 
 function getProgressBarColor(rarity: AwardRarity): string {
   switch (rarity) {
@@ -66,6 +84,91 @@ function getProgressBarColor(rarity: AwardRarity): string {
     default:
       return 'bg-gradient-to-r from-slate-500 to-slate-400';
   }
+}
+
+function buildEarnedAwardIds(pilotAwards: IPilotAward[]): Set<string> {
+  return new Set(pilotAwards.map((pilotAward) => pilotAward.awardId));
+}
+
+function shouldSkipAward(
+  award: IAward,
+  { earnedAwardIds, filterCategory }: BuildProgressOptions,
+): boolean {
+  return (
+    (earnedAwardIds.has(award.id) && !award.repeatable) ||
+    Boolean(award.secret) ||
+    Boolean(filterCategory && award.category !== filterCategory) ||
+    !DISPLAY_CRITERIA_TYPES.has(award.criteria.type)
+  );
+}
+
+function getAwardProgressInfo(
+  award: IAward,
+  stats: IPilotStats,
+): ProgressInfo | null {
+  const current = getCriteriaValue(stats, award.criteria.type);
+  const required = award.criteria.threshold;
+  const percentage = Math.min((current / required) * 100, 100);
+
+  if (current <= 0) {
+    return null;
+  }
+
+  return { award, current, required, percentage };
+}
+
+function isVisibleProgress(
+  progressInfo: ProgressInfo,
+  { nearCompletionOnly, minPercentage, excludeComplete }: BuildProgressOptions,
+): boolean {
+  if (nearCompletionOnly && progressInfo.percentage < 50) return false;
+  if (minPercentage !== undefined && progressInfo.percentage < minPercentage) {
+    return false;
+  }
+  if (excludeComplete && progressInfo.percentage >= 100) return false;
+  return true;
+}
+
+function compareProgressByCompletion(
+  first: ProgressInfo,
+  second: ProgressInfo,
+): number {
+  return second.percentage - first.percentage;
+}
+
+function compareProgressForFullList(
+  first: ProgressInfo,
+  second: ProgressInfo,
+): number {
+  const completionDifference = compareProgressByCompletion(first, second);
+  if (Math.abs(completionDifference) > 0.1) {
+    return completionDifference;
+  }
+
+  return (
+    RARITY_SORT_ORDER[first.award.rarity] -
+    RARITY_SORT_ORDER[second.award.rarity]
+  );
+}
+
+function buildAwardProgressList(options: BuildProgressOptions): ProgressInfo[] {
+  const { stats, maxItems, sortByRarity } = options;
+  if (!stats) return [];
+
+  const progressList = AWARD_CATALOG.flatMap((award) => {
+    if (shouldSkipAward(award, options)) return [];
+
+    const progressInfo = getAwardProgressInfo(award, stats);
+    if (!progressInfo || !isVisibleProgress(progressInfo, options)) return [];
+
+    return [progressInfo];
+  });
+
+  progressList.sort(
+    sortByRarity ? compareProgressForFullList : compareProgressByCompletion,
+  );
+
+  return progressList.slice(0, maxItems);
 }
 
 // =============================================================================
@@ -191,87 +294,24 @@ export function AwardProgress({
   const stats = pilotStats[pilotId];
 
   // Build set of already-earned award IDs
-  const earnedAwardIds = useMemo(() => {
-    const ids = new Set<string>();
-    for (const pa of pilotAwards) {
-      ids.add(pa.awardId);
-    }
-    return ids;
-  }, [pilotAwards]);
+  const earnedAwardIds = useMemo(
+    () => buildEarnedAwardIds(pilotAwards),
+    [pilotAwards],
+  );
 
   // Calculate progress for each unearned award
-  const progressList = useMemo((): ProgressInfo[] => {
-    if (!stats) return [];
-
-    const results: ProgressInfo[] = [];
-
-    for (const award of AWARD_CATALOG) {
-      // Skip if already earned (unless repeatable)
-      if (earnedAwardIds.has(award.id) && !award.repeatable) {
-        continue;
-      }
-
-      // Skip secret awards
-      if (award.secret) {
-        continue;
-      }
-
-      // Filter by category if specified
-      if (filterCategory && award.category !== filterCategory) {
-        continue;
-      }
-
-      // Calculate current progress based on criteria type
-      let current = 0;
-      const required = award.criteria.threshold;
-
-      switch (award.criteria.type) {
-        case 'total_kills':
-          current = stats.combat?.totalKills ?? 0;
-          break;
-        case 'damage_dealt':
-          current = stats.combat?.totalDamageDealt ?? 0;
-          break;
-        case 'missions_completed':
-          current = stats.career?.missionsCompleted ?? 0;
-          break;
-        case 'campaigns_completed':
-          current = stats.career?.campaignsCompleted ?? 0;
-          break;
-        case 'consecutive_survival':
-          current = stats.career?.consecutiveSurvival ?? 0;
-          break;
-        case 'games_played':
-          current = stats.career?.gamesPlayed ?? 0;
-          break;
-        // Other criteria types would need additional stat tracking
-        default:
-          continue; // Skip criteria we can't calculate
-      }
-
-      const percentage = Math.min((current / required) * 100, 100);
-
-      // Filter near-completion only if requested
-      if (nearCompletionOnly && percentage < 50) {
-        continue;
-      }
-
-      // Only include if there's some progress
-      if (current > 0) {
-        results.push({ award, current, required, percentage });
-      }
-    }
-
-    // Sort by percentage (highest first), then by rarity
-    results.sort((a, b) => {
-      if (Math.abs(b.percentage - a.percentage) > 0.1) {
-        return b.percentage - a.percentage;
-      }
-      return RARITY_ORDER[a.award.rarity] - RARITY_ORDER[b.award.rarity];
-    });
-
-    return results.slice(0, maxItems);
-  }, [stats, earnedAwardIds, filterCategory, nearCompletionOnly, maxItems]);
+  const progressList = useMemo(
+    () =>
+      buildAwardProgressList({
+        stats,
+        earnedAwardIds,
+        filterCategory,
+        nearCompletionOnly,
+        maxItems,
+        sortByRarity: true,
+      }),
+    [stats, earnedAwardIds, filterCategory, nearCompletionOnly, maxItems],
+  );
 
   // Empty state
   if (progressList.length === 0) {
@@ -345,61 +385,23 @@ export function AwardProgressCompact({
   const stats = pilotStats[pilotId];
 
   // Build set of already-earned award IDs
-  const earnedAwardIds = useMemo(() => {
-    const ids = new Set<string>();
-    for (const pa of pilotAwards) {
-      ids.add(pa.awardId);
-    }
-    return ids;
-  }, [pilotAwards]);
+  const earnedAwardIds = useMemo(
+    () => buildEarnedAwardIds(pilotAwards),
+    [pilotAwards],
+  );
 
   // Calculate progress for each unearned award (near completion only)
-  const progressList = useMemo((): ProgressInfo[] => {
-    if (!stats) return [];
-
-    const results: ProgressInfo[] = [];
-
-    for (const award of AWARD_CATALOG) {
-      if (earnedAwardIds.has(award.id) && !award.repeatable) continue;
-      if (award.secret) continue;
-
-      let current = 0;
-      const required = award.criteria.threshold;
-
-      switch (award.criteria.type) {
-        case 'total_kills':
-          current = stats.combat?.totalKills ?? 0;
-          break;
-        case 'damage_dealt':
-          current = stats.combat?.totalDamageDealt ?? 0;
-          break;
-        case 'missions_completed':
-          current = stats.career?.missionsCompleted ?? 0;
-          break;
-        case 'campaigns_completed':
-          current = stats.career?.campaignsCompleted ?? 0;
-          break;
-        case 'consecutive_survival':
-          current = stats.career?.consecutiveSurvival ?? 0;
-          break;
-        case 'games_played':
-          current = stats.career?.gamesPlayed ?? 0;
-          break;
-        default:
-          continue;
-      }
-
-      const percentage = Math.min((current / required) * 100, 100);
-
-      // Only show awards with significant progress
-      if (percentage >= 50 && percentage < 100) {
-        results.push({ award, current, required, percentage });
-      }
-    }
-
-    results.sort((a, b) => b.percentage - a.percentage);
-    return results.slice(0, maxItems);
-  }, [stats, earnedAwardIds, maxItems]);
+  const progressList = useMemo(
+    () =>
+      buildAwardProgressList({
+        stats,
+        earnedAwardIds,
+        minPercentage: 50,
+        excludeComplete: true,
+        maxItems,
+      }),
+    [stats, earnedAwardIds, maxItems],
+  );
 
   if (progressList.length === 0) {
     return <></>;

@@ -7,6 +7,7 @@
  */
 
 import type { IArmorAllocation } from '../construction/ComponentInterfaces';
+import type { IUnitMountedEquipmentIdentity } from './MountedEquipmentInterfaces';
 
 import { ArmorTypeEnum } from '../construction/ArmorType';
 import { CockpitType } from '../construction/CockpitType';
@@ -124,10 +125,7 @@ export interface IMovementConfiguration {
 /**
  * Mounted equipment item
  */
-export interface IMountedEquipment {
-  readonly id: string;
-  readonly equipmentId: string;
-  readonly name: string;
+export interface IMountedEquipment extends IUnitMountedEquipmentIdentity {
   readonly location: MechLocation;
   readonly slots: number[];
   readonly isRearMounted: boolean;

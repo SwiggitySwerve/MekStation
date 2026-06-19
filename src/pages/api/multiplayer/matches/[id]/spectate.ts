@@ -33,6 +33,10 @@ import {
   addSpectatorSeat,
   SpectatorSeatError,
 } from '@/lib/multiplayer/server/lobby/spectatorSeats';
+import {
+  rejectMissingQueryString,
+  rejectUnexpectedMethod,
+} from '@/pages-modules/api/routeHelpers';
 
 // =============================================================================
 // Response types
@@ -73,17 +77,15 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ISpectateResponse | IErrorResponse>,
 ): Promise<void> {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-    return;
-  }
+  if (rejectUnexpectedMethod(req, res, ['POST'])) return;
 
-  const { id } = req.query;
-  if (typeof id !== 'string' || id.length === 0) {
-    res.status(400).json({ error: 'Missing or invalid match id' });
-    return;
-  }
+  const id = rejectMissingQueryString(
+    req,
+    res,
+    'id',
+    'Missing or invalid match id',
+  );
+  if (!id) return;
 
   const auth = await authenticateRequest(req);
   if (!auth.ok) {

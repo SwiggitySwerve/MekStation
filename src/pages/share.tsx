@@ -1,12 +1,10 @@
 import Head from 'next/head';
 import { useCallback, useEffect, useState } from 'react';
 
-import type {
-  ActionState,
-  ShareLinksResponse,
-} from '@/pages-modules/share/types';
+import type { ActionState } from '@/pages-modules/share/types';
 import type { IShareLink } from '@/types/vault';
 
+import { runBusyErrorOperation } from '@/components/common/runUiOperation';
 import {
   Badge,
   Button,
@@ -29,6 +27,15 @@ import {
   ToggleOnIcon,
   TrashIcon,
 } from '@/pages-modules/share/icons';
+import {
+  deleteShareLink,
+  fetchShareLinksList,
+  idleShareAction,
+  replaceShareLinkActive,
+  shareLinksSubtitle,
+  updateShareLinkActive,
+  withoutShareLink,
+} from '@/pages-modules/share/pageHelpers';
 import { formatExpiry } from '@/utils/formatting';
 import { logger } from '@/utils/logger';
 
@@ -36,29 +43,19 @@ export default function ManageShareLinksPage(): React.ReactElement {
   const [links, setLinks] = useState<IShareLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [actionState, setActionState] = useState<ActionState>({
-    linkId: null,
-    type: null,
-  });
+  const [actionState, setActionState] = useState<ActionState>(idleShareAction);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const fetchLinks = useCallback(async () => {
-    try {
-      const response = await fetch('/api/vault/share');
-      if (!response.ok) {
-        throw new Error('Failed to fetch share links');
-      }
-      const data = (await response.json()) as ShareLinksResponse;
-      setLinks(data.links);
-      setError(null);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to load share links',
-      );
-    } finally {
-      setLoading(false);
-    }
+    await runBusyErrorOperation(
+      setLoading,
+      setError,
+      'Failed to load share links',
+      async () => {
+        setLinks(await fetchShareLinksList());
+      },
+    );
   }, []);
 
   useEffect(() => {
@@ -82,21 +79,8 @@ export default function ManageShareLinksPage(): React.ReactElement {
   const handleToggleActive = async (link: IShareLink) => {
     setActionState({ linkId: link.id, type: 'toggle' });
     try {
-      const response = await fetch(`/api/vault/share/${link.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive: !link.isActive }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update link');
-      }
-
-      setLinks((prev) =>
-        prev.map((l) =>
-          l.id === link.id ? { ...l, isActive: !l.isActive } : l,
-        ),
-      );
+      await updateShareLinkActive(link);
+      setLinks((prev) => replaceShareLinkActive(prev, link.id));
     } catch (err) {
       logger.error('Failed to toggle:', err);
     } finally {
@@ -107,15 +91,8 @@ export default function ManageShareLinksPage(): React.ReactElement {
   const handleDelete = async (link: IShareLink) => {
     setActionState({ linkId: link.id, type: 'delete' });
     try {
-      const response = await fetch(`/api/vault/share/${link.id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete link');
-      }
-
-      setLinks((prev) => prev.filter((l) => l.id !== link.id));
+      await deleteShareLink(link.id);
+      setLinks((prev) => withoutShareLink(prev, link.id));
       setDeleteConfirmId(null);
     } catch (err) {
       logger.error('Failed to delete:', err);
@@ -147,7 +124,7 @@ export default function ManageShareLinksPage(): React.ReactElement {
 
       <PageLayout
         title="Share Links"
-        subtitle={`Manage ${links.length} share link${links.length !== 1 ? 's' : ''} for your vault content`}
+        subtitle={shareLinksSubtitle(links.length)}
         maxWidth="wide"
         backLink={{ href: '/', label: 'Home' }}
       >

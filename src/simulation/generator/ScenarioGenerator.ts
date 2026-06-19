@@ -74,6 +74,26 @@ export function createDefaultTerrainWeights(): WeightedTable<string> {
   return table;
 }
 
+const TERRAIN_BIOME_BY_SCENARIO_BIOME: Readonly<
+  Partial<Record<BiomeType, TerrainBiomeType>>
+> = {
+  [BiomeType.Desert]: 'desert',
+  [BiomeType.Volcanic]: 'desert',
+  [BiomeType.Arctic]: 'arctic',
+  [BiomeType.Urban]: 'urban',
+  [BiomeType.Jungle]: 'jungle',
+};
+
+interface UnitRowPlacementContext {
+  readonly units: readonly IGameUnit[];
+  readonly targetR: number;
+  readonly baseFacing: Facing;
+  readonly radius: number;
+  readonly random: SeededRandom;
+  readonly occupiedPositions: Set<string>;
+  readonly unitStates: Record<string, IUnitGameState>;
+}
+
 export class ScenarioGenerator {
   constructor(
     private readonly unitWeights: WeightedTable<IUnitTemplate>,
@@ -264,24 +284,7 @@ export class ScenarioGenerator {
    * feature overlay carries the scenario-specific character regardless.
    */
   private toTerrainBiome(biome: BiomeType): TerrainBiomeType {
-    switch (biome) {
-      case BiomeType.Desert:
-      case BiomeType.Volcanic:
-        return 'desert';
-      case BiomeType.Arctic:
-        return 'arctic';
-      case BiomeType.Urban:
-        return 'urban';
-      case BiomeType.Jungle:
-        return 'jungle';
-      case BiomeType.Forest:
-      case BiomeType.Plains:
-      case BiomeType.Badlands:
-      case BiomeType.Swamp:
-      case BiomeType.Mountains:
-      default:
-        return 'temperate';
-    }
+    return TERRAIN_BIOME_BY_SCENARIO_BIOME[biome] ?? 'temperate';
   }
 
   private generateForce(
@@ -333,38 +336,39 @@ export class ScenarioGenerator {
     const playerRow = -(radius - 1);
     const opponentRow = radius - 1;
 
-    this.placeUnitsOnRow(
-      playerUnits,
-      playerRow,
-      Facing.South,
+    this.placeUnitsOnRow({
+      units: playerUnits,
+      targetR: playerRow,
+      baseFacing: Facing.South,
       radius,
       random,
       occupiedPositions,
       unitStates,
-    );
+    });
 
-    this.placeUnitsOnRow(
-      opponentUnits,
-      opponentRow,
-      Facing.North,
+    this.placeUnitsOnRow({
+      units: opponentUnits,
+      targetR: opponentRow,
+      baseFacing: Facing.North,
       radius,
       random,
       occupiedPositions,
       unitStates,
-    );
+    });
 
     return unitStates;
   }
 
-  private placeUnitsOnRow(
-    units: IGameUnit[],
-    targetR: number,
-    baseFacing: Facing,
-    radius: number,
-    random: SeededRandom,
-    occupiedPositions: Set<string>,
-    unitStates: Record<string, IUnitGameState>,
-  ): void {
+  private placeUnitsOnRow(context: UnitRowPlacementContext): void {
+    const {
+      baseFacing,
+      occupiedPositions,
+      radius,
+      random,
+      targetR,
+      units,
+      unitStates,
+    } = context;
     const availablePositions = this.getPositionsAtRow(targetR, radius);
 
     for (const unit of units) {

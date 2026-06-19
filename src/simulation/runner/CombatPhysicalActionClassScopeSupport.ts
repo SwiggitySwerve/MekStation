@@ -4,6 +4,7 @@ import type {
 } from './CombatFeatureSupport';
 
 import { MEKSTATION_PHYSICAL_ACTION_HELPER_REFS } from './CombatPhysicalActionClassHelperRefs';
+import { remapMekStationSourceRefs } from './CombatSourceRefAnchorRemap';
 
 const MEGAMEK_PHYSICAL_ACTION_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
@@ -166,43 +167,66 @@ export interface IPhysicalActionClassScopeEntry extends ICombatFeatureSupportEnt
   readonly runtimeAttackTypes?: readonly string[];
 }
 
+function sourcePathFor(sourceClass: string): string {
+  return `megamek/src/megamek/common/actions/${sourceClass}.java`;
+}
+
 function integrated(
   id: string,
   sourceClass: string,
   evidence: string,
   runtimeAttackTypes: readonly string[],
-  sourceRefs: readonly ICombatFeatureSourceReference[],
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): IPhysicalActionClassScopeEntry {
-  return {
-    id,
-    sourceClass,
-    sourcePath: `E:/Projects/megamek/megamek/src/megamek/common/actions/${sourceClass}.java`,
-    battleMechScope: 'battlemech',
-    runtimeAttackTypes,
-    level: 'integrated',
-    evidence,
-    sourceRefs,
-  };
+  return sourceRefs
+    ? {
+        id,
+        sourceClass,
+        sourcePath: sourcePathFor(sourceClass),
+        battleMechScope: 'battlemech',
+        runtimeAttackTypes,
+        level: 'integrated',
+        evidence,
+        sourceRefs: remapMekStationSourceRefs(sourceRefs),
+      }
+    : {
+        id,
+        sourceClass,
+        sourcePath: sourcePathFor(sourceClass),
+        battleMechScope: 'battlemech',
+        runtimeAttackTypes,
+        level: 'integrated',
+        evidence,
+      };
 }
 
 function outOfScope(
   id: string,
   sourceClass: string,
   battleMechScope: PhysicalActionClassScope,
-  gap: string,
-  sourceRefs: readonly ICombatFeatureSourceReference[],
+  evidence: string,
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): IPhysicalActionClassScopeEntry {
-  return {
-    id,
-    sourceClass,
-    sourcePath: `E:/Projects/megamek/megamek/src/megamek/common/actions/${sourceClass}.java`,
-    battleMechScope,
-    level: 'out-of-scope',
-    evidence:
-      'MegaMek source class exists and is intentionally split out of the BattleMech combat validation matrix',
-    gap,
-    sourceRefs,
-  };
+  return sourceRefs
+    ? {
+        id,
+        sourceClass,
+        sourcePath: sourcePathFor(sourceClass),
+        battleMechScope,
+        level: 'out-of-scope',
+        evidence,
+        gap: evidence,
+        sourceRefs: remapMekStationSourceRefs(sourceRefs),
+      }
+    : {
+        id,
+        sourceClass,
+        sourcePath: sourcePathFor(sourceClass),
+        battleMechScope,
+        level: 'out-of-scope',
+        evidence,
+        gap: evidence,
+      };
 }
 
 export const MEGAMEK_CONCRETE_PHYSICAL_ACTION_CLASSES = [

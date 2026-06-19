@@ -4,17 +4,24 @@ import type { IHexCoordinate } from '@/types/gameplay';
 
 import { useScreenShake } from '@/hooks/useScreenShake';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
-import { GamePhase, GameSide } from '@/types/gameplay';
-import { isOperationalWeaponStatus } from '@/utils/gameplay/combatProjection';
-import { selectCombatProjectionWeapons } from '@/utils/gameplay/combatProjection.weaponSelection';
+import { GameSide } from '@/types/gameplay';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { buildTacticalMapHexProjectionLookup } from '@/utils/gameplay/tacticalMapProjection';
 
 import type { HexMapDisplayState } from './HexMapDisplay.stateTypes';
 import type { HexMapDisplayProps } from './HexMapDisplay.types';
 
-import { HexCell } from './HexCell';
+import {
+  useHasActiveMovementAnimation,
+  useHoverIsometricOccluderInfo,
+  useHoverUnreachableReason,
+  useIsometricForegroundUnitIds,
+  useLegacyAttackRangeLookup,
+  useRenderedHexes,
+  useSelectedToken,
+} from './HexMapDisplay.derivedStateHooks';
 import { buildIsometricSceneItems } from './HexMapDisplay.isometric';
+import { renderHexCell as renderHexCellElement } from './HexMapDisplay.renderHexCell';
 import {
   useCombatRangeLookup,
   useCombatProjectionValidTargetUnitIds,
@@ -28,15 +35,14 @@ import {
   useMovementAnimationsByUnit,
   useMovementRangeLookup,
   useOrderedTokens,
-  useSelectedWeaponMaxRange,
-  useSelectedWeaponVisibleFiringArcs,
   useTerrainLookup,
 } from './HexMapDisplay.stateHooks';
 import {
-  getMapProjectionTransform,
-  isIsometricProjection,
-  isometricDepthKey,
-} from './projection';
+  useSelectedCombatProjectionState,
+  useSelectedWeaponMaxRange,
+  useSelectedWeaponVisibleFiringArcs,
+} from './HexMapDisplay.weaponStateHooks';
+import { getMapProjectionTransform, isIsometricProjection } from './projection';
 import { generateHexesInRadius } from './renderHelpers';
 import { useMapInteraction } from './useMapInteraction';
 
@@ -98,24 +104,14 @@ export function useHexMapDisplayState({
   const highlightPathIndexLookup = useHighlightPathLookup(highlightPath);
   const hexGrid = useHexGrid(hexTerrain, hexes, radius);
 
-  const renderedHexes = useMemo(() => {
-    if (!isIsometricView) return hexes;
-    return [...hexes].sort(
-      (a, b) =>
-        isometricDepthKey(a, terrainLookup, interaction.isometricRotationStep) -
-        isometricDepthKey(b, terrainLookup, interaction.isometricRotationStep),
-    );
-  }, [
+  const renderedHexes = useRenderedHexes({
     hexes,
-    interaction.isometricRotationStep,
     isIsometricView,
+    rotationStep: interaction.isometricRotationStep,
     terrainLookup,
-  ]);
+  });
 
-  const selectedToken = useMemo(
-    () => tokens.find((t) => t.isSelected) ?? null,
-    [tokens],
-  );
+  const selectedToken = useSelectedToken(tokens);
   const selectedUnitPosition = selectedToken?.position ?? null;
   const movementAnimationsByUnit = useMovementAnimationsByUnit(
     activeAnimations,
@@ -128,35 +124,21 @@ export function useHexMapDisplayState({
     rotationStep: interaction.isometricRotationStep,
     movementAnimationsByUnit,
   });
-  const hasActiveMovementAnimation = useMemo(
-    () =>
-      activeAnimations.some(
-        (animation) =>
-          animation.mapId === mapId && animation.kind === 'movement',
-      ),
-    [activeAnimations, mapId],
-  );
-  const selectedUnitWeapons = useMemo(() => {
-    if (!selectedToken) return [];
-    return unitWeapons[selectedToken.unitId] ?? [];
-  }, [selectedToken, unitWeapons]);
-  const projectedCombatWeapons = useMemo(
-    () => selectCombatProjectionWeapons(selectedUnitWeapons, selectedWeaponIds),
-    [selectedUnitWeapons, selectedWeaponIds],
-  );
-  const hasConfiguredWeaponList =
-    selectedToken !== null &&
-    Object.prototype.hasOwnProperty.call(unitWeapons, selectedToken.unitId);
-  const isWeaponCombatProjectionEnabled =
-    hasConfiguredWeaponList &&
-    (combatState === null ||
-      combatState === undefined ||
-      combatState.phase === GamePhase.WeaponAttack);
-  const operationalWeapons = useMemo(
-    () => projectedCombatWeapons.filter(isOperationalWeaponStatus),
-    [projectedCombatWeapons],
-  );
-  const useLegacyAttackRange = !hasConfiguredWeaponList;
+  const hasActiveMovementAnimation = useHasActiveMovementAnimation({
+    activeAnimations,
+    mapId,
+  });
+  const {
+    hasConfiguredWeaponList,
+    isWeaponCombatProjectionEnabled,
+    operationalWeapons,
+    projectedCombatWeapons,
+  } = useSelectedCombatProjectionState({
+    combatState,
+    selectedToken,
+    selectedWeaponIds,
+    unitWeapons,
+  });
   const combatRangeLookup = useCombatRangeLookup({
     selectedToken,
     friendlySide,
@@ -173,13 +155,10 @@ export function useHexMapDisplayState({
       combatRangeLookup,
       enabled: isWeaponCombatProjectionEnabled,
     });
-  const legacyAttackRangeLookup = useMemo(
-    () =>
-      useLegacyAttackRange
-        ? new Set(attackRange.map(coordToKey))
-        : new Set<string>(),
-    [attackRange, useLegacyAttackRange],
-  );
+  const legacyAttackRangeLookup = useLegacyAttackRangeLookup({
+    attackRange,
+    enabled: !hasConfiguredWeaponList,
+  });
   const tacticalMapProjectionLookup = useMemo(
     () =>
       buildTacticalMapHexProjectionLookup({
@@ -234,11 +213,10 @@ export function useHexMapDisplayState({
     combatProjectionValidTargetUnitIds,
     isometricTerrainOcclusionInfoByUnit,
   });
-  const isometricForegroundUnitIds = useMemo(() => {
-    const ids = new Set(isometricOcclusionUnitIds);
-    movementAnimationsByUnit.forEach((_, unitId) => ids.add(unitId));
-    return ids;
-  }, [isometricOcclusionUnitIds, movementAnimationsByUnit]);
+  const isometricForegroundUnitIds = useIsometricForegroundUnitIds({
+    isometricOcclusionUnitIds,
+    movementAnimationsByUnit,
+  });
   const isometricSceneItems = useMemo(
     () =>
       buildIsometricSceneItems({
@@ -310,78 +288,30 @@ export function useHexMapDisplayState({
       ? hoverProjectionInfo.combat
       : undefined;
   const hoverTerrainInfo = hoverProjectionInfo?.terrain;
-  const hoverIsometricOccluderInfo = useMemo(() => {
-    if (!hoveredHex || !isIsometricView) return undefined;
-    return isometricTerrainOccluderInfoByHex.get(coordToKey(hoveredHex));
-  }, [hoveredHex, isIsometricView, isometricTerrainOccluderInfoByHex]);
-  const hoverUnreachableReason =
-    hoverUnreachable && hoverMovementInfo && !hoverMovementInfo.reachable
-      ? (hoverMovementInfo.movementInvalidDetails ??
-        hoverMovementInfo.blockedReason ??
-        hoverMovementInfo.movementInvalidReason)
-      : undefined;
+  const hoverIsometricOccluderInfo = useHoverIsometricOccluderInfo({
+    hoveredHex,
+    isIsometricView,
+    isometricTerrainOccluderInfoByHex,
+  });
+  const hoverUnreachableReason = useHoverUnreachableReason({
+    hoverUnreachable,
+    hoverMovementInfo,
+  });
 
   const renderHexCell = useCallback(
     (hex: IHexCoordinate): React.ReactElement => {
-      const key = coordToKey(hex);
-      const projection = tacticalMapProjectionLookup.get(key);
-      const movementInfo = projection?.movement;
-      const pathIndex = projection?.pathIndex;
-      const isometricOccluderInfo = isometricTerrainOccluderInfoByHex.get(key);
-      return (
-        <HexCell
-          key={`hex-cell-${key}`}
-          hex={hex}
-          terrain={projection?.terrain}
-          terrainLookup={terrainLookup}
-          isSelected={projection?.isSelected ?? false}
-          isHovered={projection?.isHovered ?? false}
-          movementInfo={movementInfo}
-          combatInfo={projection?.combat}
-          combatLosBlockerFor={projection?.combatLosBlockerFor}
-          isInAttackRange={projection?.inAttackRange ?? false}
-          isInPath={pathIndex !== undefined}
-          pathIndex={pathIndex}
-          tacticalProjectionIntent={projection?.intent}
-          tacticalProjectionStatus={projection?.status}
-          tacticalProjectionMovementStatus={projection?.movementStatus}
-          tacticalProjectionMovementCostStatus={projection?.movementCostStatus}
-          tacticalProjectionMovementCostReasons={
-            projection?.movementCostReasons
-          }
-          tacticalProjectionMovementHazardStatus={
-            projection?.movementHazardStatus
-          }
-          tacticalProjectionMovementHazardReasons={
-            projection?.movementHazardReasons
-          }
-          tacticalProjectionCombatStatus={projection?.combatStatus}
-          tacticalProjectionBlockedReasons={projection?.blockedReasons}
-          tacticalProjectionSourceReferences={projection?.sourceReferences}
-          tacticalProjectionExplanation={projection?.explanation}
-          isometricOccluderInfo={isometricOccluderInfo || undefined}
-          showCoordinate={showCoordinates}
-          projectionMode={interaction.projectionMode}
-          hoverMpCost={
-            projection?.isHovered &&
-            hoverMpCost !== undefined &&
-            movementInfo?.reachable
-              ? hoverMpCost
-              : undefined
-          }
-          isUnreachableHover={
-            projection?.isHovered &&
-            hoverUnreachable &&
-            !movementInfo?.reachable
-          }
-          // Referentially stable handlers — HexCell calls them with its
-          // own hex. Inline arrows here defeated HexCell's React.memo on
-          // every camera pan/zoom event (audit 2026-06-09 G, W5.1a).
-          onClick={handleHexClick}
-          onMouseEnter={handleHexHover}
-          onMouseLeave={handleHexLeave}
-        />
-      );
+      return renderHexCellElement(hex, {
+        handleHexClick,
+        handleHexHover,
+        handleHexLeave,
+        hoverMpCost,
+        hoverUnreachable,
+        isometricTerrainOccluderInfoByHex,
+        projectionMode: interaction.projectionMode,
+        showCoordinates,
+        tacticalMapProjectionLookup,
+        terrainLookup,
+      });
     },
     [
       handleHexClick,

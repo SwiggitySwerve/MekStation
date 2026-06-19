@@ -23,7 +23,7 @@ import {
   buildDamageState,
 } from '../SimulationRunnerState';
 import { applyAmmoExplosionPilotDamage } from './ammoExplosionPilotDamage';
-import { createGameEvent } from './utils';
+import { appendUnitDestroyedEvent, createGameEvent } from './utils';
 import { damagePerRoundForBin } from './weaponAttackHelpers';
 
 interface IApplyHeatInducedAmmoExplosionsOptions {
@@ -67,6 +67,90 @@ function selectHeatExplosionBin(
     }
     return best;
   });
+}
+
+type HeatCascadeLocationDamage = ReturnType<
+  typeof resolveInternalDamage
+>['result']['locationDamages'][number];
+
+function appendHeatEvent(options: {
+  readonly events: IGameEvent[];
+  readonly gameId: string;
+  readonly turn: number;
+  readonly unitId: string;
+  readonly eventType: GameEventType;
+  readonly payload: IGameEvent['payload'];
+}): void {
+  options.events.push(
+    createGameEvent({
+      gameId: options.gameId,
+      sequence: options.events.length,
+      type: options.eventType,
+      turn: options.turn,
+      phase: GamePhase.Heat,
+      payload: options.payload,
+      actorId: options.unitId,
+    }),
+  );
+}
+
+function appendCascadeDamageEvents(options: {
+  readonly events: IGameEvent[];
+  readonly gameId: string;
+  readonly turn: number;
+  readonly unitId: string;
+  readonly locDmg: HeatCascadeLocationDamage;
+  readonly isCascadeTransfer: boolean;
+}): void {
+  const { events, gameId, isCascadeTransfer, locDmg, turn, unitId } = options;
+
+  appendHeatEvent({
+    events,
+    gameId,
+    turn,
+    unitId,
+    eventType: GameEventType.DamageApplied,
+    payload: {
+      unitId,
+      location: locDmg.location,
+      damage: locDmg.damage,
+      armorRemaining: locDmg.armorRemaining,
+      structureRemaining: locDmg.structureRemaining,
+      locationDestroyed: locDmg.destroyed,
+      sourceUnitId: unitId,
+    },
+  });
+
+  if (locDmg.destroyed) {
+    appendHeatEvent({
+      events,
+      gameId,
+      turn,
+      unitId,
+      eventType: GameEventType.LocationDestroyed,
+      payload: {
+        unitId,
+        location: locDmg.location,
+        viaTransfer: isCascadeTransfer,
+      },
+    });
+  }
+
+  if (locDmg.transferredDamage > 0 && locDmg.transferLocation) {
+    appendHeatEvent({
+      events,
+      gameId,
+      turn,
+      unitId,
+      eventType: GameEventType.TransferDamage,
+      payload: {
+        unitId,
+        fromLocation: locDmg.location,
+        toLocation: locDmg.transferLocation,
+        damage: locDmg.transferredDamage,
+      },
+    });
+  }
 }
 
 export function applyHeatInducedAmmoExplosions(
@@ -193,60 +277,14 @@ export function applyHeatInducedAmmoExplosions(
     for (let i = 0; i < cascadeChain.length; i++) {
       const locDmg = cascadeChain[i];
       const isCascadeTransfer = i > 0;
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.DamageApplied,
-          currentState.turn,
-          GamePhase.Heat,
-          {
-            unitId,
-            location: locDmg.location,
-            damage: locDmg.damage,
-            armorRemaining: locDmg.armorRemaining,
-            structureRemaining: locDmg.structureRemaining,
-            locationDestroyed: locDmg.destroyed,
-            sourceUnitId: unitId,
-          },
-          unitId,
-        ),
-      );
-      if (locDmg.destroyed) {
-        events.push(
-          createGameEvent(
-            gameId,
-            events.length,
-            GameEventType.LocationDestroyed,
-            currentState.turn,
-            GamePhase.Heat,
-            {
-              unitId,
-              location: locDmg.location,
-              viaTransfer: isCascadeTransfer,
-            },
-            unitId,
-          ),
-        );
-      }
-      if (locDmg.transferredDamage > 0 && locDmg.transferLocation) {
-        events.push(
-          createGameEvent(
-            gameId,
-            events.length,
-            GameEventType.TransferDamage,
-            currentState.turn,
-            GamePhase.Heat,
-            {
-              unitId,
-              fromLocation: locDmg.location,
-              toLocation: locDmg.transferLocation,
-              damage: locDmg.transferredDamage,
-            },
-            unitId,
-          ),
-        );
-      }
+      appendCascadeDamageEvents({
+        events,
+        gameId,
+        turn: currentState.turn,
+        unitId,
+        locDmg,
+        isCascadeTransfer,
+      });
     }
 
     const pilotResult = applyAmmoExplosionPilotDamage({
@@ -267,19 +305,14 @@ export function applyHeatInducedAmmoExplosions(
       !unit.destroyed
     ) {
       const finalUnit = currentState.units[unitId];
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.UnitDestroyed,
-          currentState.turn,
-          GamePhase.Heat,
-          {
-            unitId,
-            cause: finalUnit?.destructionCause ?? ('ammo_explosion' as const),
-          },
-        ),
-      );
+      appendUnitDestroyedEvent({
+        events,
+        gameId,
+        turn: currentState.turn,
+        phase: GamePhase.Heat,
+        unitId,
+        cause: finalUnit?.destructionCause ?? 'ammo_explosion',
+      });
     }
   }
 

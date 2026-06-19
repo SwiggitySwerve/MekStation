@@ -98,20 +98,28 @@ function isLikelyWeapon(equipmentId: string): boolean {
  * Sum every numeric field in the armor allocation record to produce total
  * armor points. Non-numeric fields (e.g. nested objects) are ignored.
  */
+function sumNumericValues(values: readonly unknown[]): number {
+  return values.reduce<number>(
+    (total, value) => total + (typeof value === 'number' ? value : 0),
+    0,
+  );
+}
+
+function armorAllocationValueTotal(value: unknown): number {
+  if (typeof value === 'number') return value;
+  if (value && typeof value === 'object') {
+    return sumNumericValues(Object.values(value));
+  }
+  return 0;
+}
+
 function sumArmorAllocation(
   allocation: IVehicleArmorAllocation | Record<string, unknown>,
 ): number {
-  let total = 0;
-  for (const value of Object.values(allocation)) {
-    if (typeof value === 'number') {
-      total += value;
-    } else if (value && typeof value === 'object') {
-      for (const inner of Object.values(value)) {
-        if (typeof inner === 'number') total += inner;
-      }
-    }
-  }
-  return total;
+  return Object.values(allocation).reduce<number>(
+    (total, value) => total + armorAllocationValueTotal(value),
+    0,
+  );
 }
 
 /**

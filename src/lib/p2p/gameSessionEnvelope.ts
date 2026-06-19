@@ -91,105 +91,129 @@ export function deserializeGameSessionEnvelope(
     throw new Error('Invalid game session channel envelope');
   }
 
-  if (parsed.kind === 'game-event') {
-    if (typeof parsed.authorPeerId !== 'string') {
-      throw new Error('Invalid game event envelope author');
-    }
-    const event = deserializeEvent(JSON.stringify(parsed.event));
-    if (!isGameEvent(event)) {
-      throw new Error('Invalid game event envelope payload');
-    }
-    return {
-      kind: 'game-event',
-      event,
-      authorPeerId: parsed.authorPeerId,
-    };
+  switch (parsed.kind) {
+    case 'game-event':
+      return parseGameEventEnvelope(parsed);
+    case 'game-intent':
+      return parseGameIntentEnvelope(parsed);
+    case 'peer-rejected':
+      return parsePeerRejectedEnvelope(parsed);
+    case 'reconnect-request':
+      return parseReconnectRequestEnvelope(parsed);
+    case 'replay-stream':
+      return parseReplayStreamEnvelope(parsed);
+    case 'reconnect-reject':
+      return parseReconnectRejectEnvelope(parsed);
+    default:
+      throw new Error('Unknown game session channel envelope kind');
   }
+}
 
-  if (parsed.kind === 'game-intent') {
-    if (typeof parsed.authorPeerId !== 'string') {
-      throw new Error('Invalid game intent envelope author');
-    }
-    if (!isGameIntent(parsed.intent)) {
-      throw new Error('Invalid game intent envelope payload');
-    }
-    return {
-      kind: 'game-intent',
-      intent: parsed.intent,
-      authorPeerId: parsed.authorPeerId,
-    };
+function parseGameEventEnvelope(
+  parsed: Record<string, unknown>,
+): IGameEventEnvelope {
+  if (typeof parsed.authorPeerId !== 'string') {
+    throw new Error('Invalid game event envelope author');
   }
-
-  if (parsed.kind === 'peer-rejected') {
-    const intentId = parsed.intentId;
-    if (
-      (intentId !== undefined && typeof intentId !== 'string') ||
-      typeof parsed.reason !== 'string'
-    ) {
-      throw new Error('Invalid peer rejection envelope payload');
-    }
-    return {
-      kind: 'peer-rejected',
-      intentId,
-      reason: parsed.reason,
-    };
+  const event = deserializeEvent(JSON.stringify(parsed.event));
+  if (!isGameEvent(event)) {
+    throw new Error('Invalid game event envelope payload');
   }
+  return {
+    kind: 'game-event',
+    event,
+    authorPeerId: parsed.authorPeerId,
+  };
+}
 
-  if (parsed.kind === 'reconnect-request') {
-    if (
-      typeof parsed.matchId !== 'string' ||
-      typeof parsed.lastLocalSeq !== 'number' ||
-      !Number.isInteger(parsed.lastLocalSeq) ||
-      parsed.lastLocalSeq < 0 ||
-      typeof parsed.authorPeerId !== 'string'
-    ) {
-      throw new Error('Invalid reconnect request envelope payload');
-    }
-    return {
-      kind: 'reconnect-request',
-      matchId: parsed.matchId,
-      lastLocalSeq: parsed.lastLocalSeq,
-      authorPeerId: parsed.authorPeerId,
-    };
+function parseGameIntentEnvelope(
+  parsed: Record<string, unknown>,
+): IGameIntentEnvelope {
+  if (typeof parsed.authorPeerId !== 'string') {
+    throw new Error('Invalid game intent envelope author');
   }
-
-  if (parsed.kind === 'replay-stream') {
-    if (
-      typeof parsed.matchId !== 'string' ||
-      !Array.isArray(parsed.events) ||
-      typeof parsed.done !== 'boolean'
-    ) {
-      throw new Error('Invalid replay stream envelope payload');
-    }
-    const events = parsed.events.map((event) =>
-      deserializeEvent(JSON.stringify(event)),
-    );
-    if (!events.every(isGameEvent)) {
-      throw new Error('Invalid replay stream event payload');
-    }
-    return {
-      kind: 'replay-stream',
-      matchId: parsed.matchId,
-      events,
-      done: parsed.done,
-    };
+  if (!isGameIntent(parsed.intent)) {
+    throw new Error('Invalid game intent envelope payload');
   }
+  return {
+    kind: 'game-intent',
+    intent: parsed.intent,
+    authorPeerId: parsed.authorPeerId,
+  };
+}
 
-  if (parsed.kind === 'reconnect-reject') {
-    if (
-      typeof parsed.matchId !== 'string' ||
-      typeof parsed.reason !== 'string'
-    ) {
-      throw new Error('Invalid reconnect rejection envelope payload');
-    }
-    return {
-      kind: 'reconnect-reject',
-      matchId: parsed.matchId,
-      reason: parsed.reason,
-    };
+function parsePeerRejectedEnvelope(
+  parsed: Record<string, unknown>,
+): IPeerRejectedEnvelope {
+  const intentId = parsed.intentId;
+  if (
+    (intentId !== undefined && typeof intentId !== 'string') ||
+    typeof parsed.reason !== 'string'
+  ) {
+    throw new Error('Invalid peer rejection envelope payload');
   }
+  return {
+    kind: 'peer-rejected',
+    intentId,
+    reason: parsed.reason,
+  };
+}
 
-  throw new Error('Unknown game session channel envelope kind');
+function parseReconnectRequestEnvelope(
+  parsed: Record<string, unknown>,
+): IReconnectRequestEnvelope {
+  if (
+    typeof parsed.matchId !== 'string' ||
+    typeof parsed.lastLocalSeq !== 'number' ||
+    !Number.isInteger(parsed.lastLocalSeq) ||
+    parsed.lastLocalSeq < 0 ||
+    typeof parsed.authorPeerId !== 'string'
+  ) {
+    throw new Error('Invalid reconnect request envelope payload');
+  }
+  return {
+    kind: 'reconnect-request',
+    matchId: parsed.matchId,
+    lastLocalSeq: parsed.lastLocalSeq,
+    authorPeerId: parsed.authorPeerId,
+  };
+}
+
+function parseReplayStreamEnvelope(
+  parsed: Record<string, unknown>,
+): IReplayStreamEnvelope {
+  if (
+    typeof parsed.matchId !== 'string' ||
+    !Array.isArray(parsed.events) ||
+    typeof parsed.done !== 'boolean'
+  ) {
+    throw new Error('Invalid replay stream envelope payload');
+  }
+  const events = parsed.events.map((event) =>
+    deserializeEvent(JSON.stringify(event)),
+  );
+  if (!events.every(isGameEvent)) {
+    throw new Error('Invalid replay stream event payload');
+  }
+  return {
+    kind: 'replay-stream',
+    matchId: parsed.matchId,
+    events,
+    done: parsed.done,
+  };
+}
+
+function parseReconnectRejectEnvelope(
+  parsed: Record<string, unknown>,
+): IReconnectRejectEnvelope {
+  if (typeof parsed.matchId !== 'string' || typeof parsed.reason !== 'string') {
+    throw new Error('Invalid reconnect rejection envelope payload');
+  }
+  return {
+    kind: 'reconnect-reject',
+    matchId: parsed.matchId,
+    reason: parsed.reason,
+  };
 }
 
 export function tryDeserializeGameSessionEnvelope(

@@ -37,6 +37,136 @@ export interface KeyboardNavOptions<T> {
   enabled?: boolean;
 }
 
+interface NavigationIndexState {
+  readonly currentIndex: number;
+  readonly itemCount: number;
+  readonly wrap: boolean;
+  readonly horizontal: boolean;
+  readonly columns: number | undefined;
+}
+
+type TabIndexResolver = (currentIndex: number, tabCount: number) => number;
+
+const NAVIGATION_DIRECTION_BY_KEY: Readonly<Record<string, NavDirection>> = {
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+  Home: 'first',
+  End: 'last',
+};
+
+const TAB_INDEX_BY_KEY: Readonly<Record<string, TabIndexResolver>> = {
+  ArrowLeft: (currentIndex, tabCount) =>
+    currentIndex > 0 ? currentIndex - 1 : tabCount - 1,
+  ArrowRight: (currentIndex, tabCount) =>
+    currentIndex < tabCount - 1 ? currentIndex + 1 : 0,
+  Home: () => 0,
+  End: (_currentIndex, tabCount) => tabCount - 1,
+};
+
+function previousIndex(
+  currentIndex: number,
+  itemCount: number,
+  wrap: boolean,
+): number {
+  if (currentIndex > 0) return currentIndex - 1;
+  return wrap ? itemCount - 1 : 0;
+}
+
+function nextIndex(
+  currentIndex: number,
+  itemCount: number,
+  wrap: boolean,
+): number {
+  if (currentIndex < itemCount - 1) return currentIndex + 1;
+  return wrap ? 0 : itemCount - 1;
+}
+
+function gridUpIndex({
+  currentIndex,
+  itemCount,
+  wrap,
+  columns,
+}: NavigationIndexState): number {
+  const columnCount = columns ?? 1;
+  const newIndex = currentIndex - columnCount;
+  return newIndex < 0 ? (wrap ? itemCount + newIndex : currentIndex) : newIndex;
+}
+
+function gridDownIndex({
+  currentIndex,
+  itemCount,
+  wrap,
+  columns,
+}: NavigationIndexState): number {
+  const columnCount = columns ?? 1;
+  const newIndex = currentIndex + columnCount;
+  return newIndex >= itemCount
+    ? wrap
+      ? newIndex % itemCount
+      : currentIndex
+    : newIndex;
+}
+
+function verticalNavigationIndex(
+  direction: Extract<NavDirection, 'up' | 'down'>,
+  state: NavigationIndexState,
+): number | null {
+  if (state.columns) {
+    return direction === 'up' ? gridUpIndex(state) : gridDownIndex(state);
+  }
+  if (state.horizontal) return null;
+
+  return direction === 'up'
+    ? previousIndex(state.currentIndex, state.itemCount, state.wrap)
+    : nextIndex(state.currentIndex, state.itemCount, state.wrap);
+}
+
+function horizontalNavigationIndex(
+  direction: Extract<NavDirection, 'left' | 'right'>,
+  state: NavigationIndexState,
+): number | null {
+  if (!state.horizontal && !state.columns) return null;
+
+  return direction === 'left'
+    ? previousIndex(state.currentIndex, state.itemCount, state.wrap)
+    : nextIndex(state.currentIndex, state.itemCount, state.wrap);
+}
+
+function navigationIndexForDirection(
+  direction: NavDirection,
+  state: NavigationIndexState,
+): number | null {
+  switch (direction) {
+    case 'first':
+      return 0;
+    case 'last':
+      return state.itemCount - 1;
+    case 'up':
+    case 'down':
+      return verticalNavigationIndex(direction, state);
+    case 'left':
+    case 'right':
+      return horizontalNavigationIndex(direction, state);
+    default:
+      return null;
+  }
+}
+
+function shouldSelectNavigationIndex(
+  nextIndex: number | null,
+  currentIndex: number,
+  itemCount: number,
+): nextIndex is number {
+  return (
+    nextIndex !== null &&
+    nextIndex >= 0 &&
+    nextIndex < itemCount &&
+    nextIndex !== currentIndex
+  );
+}
+
 /**
  * Hook for keyboard navigation in lists and grids
  */
@@ -64,84 +194,15 @@ export function useKeyboardNavigation<T>({
     (direction: NavDirection) => {
       if (!enabled || items.length === 0) return;
 
-      let newIndex: number;
+      const newIndex = navigationIndexForDirection(direction, {
+        currentIndex,
+        itemCount: items.length,
+        wrap,
+        horizontal,
+        columns,
+      });
 
-      switch (direction) {
-        case 'first':
-          newIndex = 0;
-          break;
-        case 'last':
-          newIndex = items.length - 1;
-          break;
-        case 'up':
-          if (columns) {
-            // Grid navigation
-            newIndex = currentIndex - columns;
-            if (newIndex < 0) {
-              newIndex = wrap ? items.length + newIndex : currentIndex;
-            }
-          } else if (!horizontal) {
-            // List navigation
-            newIndex =
-              currentIndex <= 0
-                ? wrap
-                  ? items.length - 1
-                  : 0
-                : currentIndex - 1;
-          } else {
-            return;
-          }
-          break;
-        case 'down':
-          if (columns) {
-            newIndex = currentIndex + columns;
-            if (newIndex >= items.length) {
-              newIndex = wrap ? newIndex % items.length : currentIndex;
-            }
-          } else if (!horizontal) {
-            newIndex =
-              currentIndex >= items.length - 1
-                ? wrap
-                  ? 0
-                  : items.length - 1
-                : currentIndex + 1;
-          } else {
-            return;
-          }
-          break;
-        case 'left':
-          if (horizontal || columns) {
-            newIndex =
-              currentIndex <= 0
-                ? wrap
-                  ? items.length - 1
-                  : 0
-                : currentIndex - 1;
-          } else {
-            return;
-          }
-          break;
-        case 'right':
-          if (horizontal || columns) {
-            newIndex =
-              currentIndex >= items.length - 1
-                ? wrap
-                  ? 0
-                  : items.length - 1
-                : currentIndex + 1;
-          } else {
-            return;
-          }
-          break;
-        default:
-          return;
-      }
-
-      if (
-        newIndex >= 0 &&
-        newIndex < items.length &&
-        newIndex !== currentIndex
-      ) {
+      if (shouldSelectNavigationIndex(newIndex, currentIndex, items.length)) {
         onSelect(items[newIndex]);
       }
     },
@@ -153,38 +214,16 @@ export function useKeyboardNavigation<T>({
     (e: KeyboardEvent) => {
       if (!enabled) return;
 
-      switch (e.key) {
-        case 'ArrowUp':
-          e.preventDefault();
-          navigate('up');
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          navigate('down');
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          navigate('left');
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          navigate('right');
-          break;
-        case 'Home':
-          e.preventDefault();
-          navigate('first');
-          break;
-        case 'End':
-          e.preventDefault();
-          navigate('last');
-          break;
-        case 'Enter':
-        case ' ':
-          if (selectedItem && onActivate) {
-            e.preventDefault();
-            onActivate(selectedItem);
-          }
-          break;
+      const direction = NAVIGATION_DIRECTION_BY_KEY[e.key];
+      if (direction) {
+        e.preventDefault();
+        navigate(direction);
+        return;
+      }
+
+      if ((e.key === 'Enter' || e.key === ' ') && selectedItem && onActivate) {
+        e.preventDefault();
+        onActivate(selectedItem);
       }
     },
     [enabled, navigate, selectedItem, onActivate],
@@ -210,30 +249,11 @@ export function useTabKeyboardNavigation(
       const currentIndex = tabs.findIndex((t) => t.id === activeTabId);
       if (currentIndex === -1) return;
 
-      let newIndex: number | null = null;
+      const resolveIndex = TAB_INDEX_BY_KEY[e.key];
+      if (!resolveIndex) return;
 
-      switch (e.key) {
-        case 'ArrowLeft':
-          e.preventDefault();
-          newIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          newIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
-          break;
-        case 'Home':
-          e.preventDefault();
-          newIndex = 0;
-          break;
-        case 'End':
-          e.preventDefault();
-          newIndex = tabs.length - 1;
-          break;
-      }
-
-      if (newIndex !== null) {
-        onTabChange(tabs[newIndex].id);
-      }
+      e.preventDefault();
+      onTabChange(tabs[resolveIndex(currentIndex, tabs.length)].id);
     },
     [tabs, activeTabId, onTabChange],
   );

@@ -10,10 +10,20 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  initializeApiDatabase as initForceDb,
+  rejectMissingQueryString as readForceId,
+  sendCaughtApiError as sendForceError,
+  sendOperationFailure as sendForceFailure,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { IForceOperationResult } from '@/services/forces/ForceRepository';
 import { getForceService } from '@/services/forces/ForceService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { IForce, IUpdateForceRequest } from '@/types/force';
+
+const FORCES_ID_TS_FAILED_TO_GET_FORCE_1 = 'Failed to get force';
+const FORCES_ID_TS_FAILED_TO_UPDATE_FORCE_2 = 'Failed to update force';
+const FORCES_ID_TS_FAILED_TO_DELETE_FORCE_3 = 'Failed to delete force';
 
 // =============================================================================
 // Response Types
@@ -29,11 +39,6 @@ type UpdateResponse = IForceOperationResult & {
 
 type DeleteResponse = IForceOperationResult;
 
-type ErrorResponse = {
-  error: string;
-  code?: string;
-};
-
 // =============================================================================
 // Handler
 // =============================================================================
@@ -41,22 +46,13 @@ type ErrorResponse = {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<
-    GetResponse | UpdateResponse | DeleteResponse | ErrorResponse
+    GetResponse | UpdateResponse | DeleteResponse | ApiErrorResponse
   >,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initForceDb(res)) return;
 
-  const { id } = req.query;
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid force ID' });
-  }
+  const id = readForceId(req, res, 'id', 'Missing or invalid force ID');
+  if (!id) return;
 
   const forceService = getForceService();
 
@@ -81,7 +77,7 @@ export default async function handler(
 function handleGet(
   forceService: ReturnType<typeof getForceService>,
   id: string,
-  res: NextApiResponse<GetResponse | ErrorResponse>,
+  res: NextApiResponse<GetResponse | ApiErrorResponse>,
 ) {
   try {
     const force = forceService.getForce(id);
@@ -90,9 +86,8 @@ function handleGet(
     }
     return res.status(200).json({ force });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to get force';
-    return res.status(500).json({ error: message });
+    sendForceError(res, error, FORCES_ID_TS_FAILED_TO_GET_FORCE_1);
+    return;
   }
 }
 
@@ -103,7 +98,7 @@ function handlePatch(
   forceService: ReturnType<typeof getForceService>,
   id: string,
   req: NextApiRequest,
-  res: NextApiResponse<UpdateResponse | ErrorResponse>,
+  res: NextApiResponse<UpdateResponse | ApiErrorResponse>,
 ) {
   try {
     const body = req.body as IUpdateForceRequest;
@@ -113,16 +108,12 @@ function handlePatch(
       const force = forceService.getForce(id);
       return res.status(200).json({ ...result, force: force || undefined });
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to update force',
-        errorCode: result.errorCode,
-      });
+      sendForceFailure(res, result, FORCES_ID_TS_FAILED_TO_UPDATE_FORCE_2);
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to update force';
-    return res.status(500).json({ error: message });
+    sendForceError(res, error, FORCES_ID_TS_FAILED_TO_UPDATE_FORCE_2);
+    return;
   }
 }
 
@@ -132,7 +123,7 @@ function handlePatch(
 function handleDelete(
   forceService: ReturnType<typeof getForceService>,
   id: string,
-  res: NextApiResponse<DeleteResponse | ErrorResponse>,
+  res: NextApiResponse<DeleteResponse | ApiErrorResponse>,
 ) {
   try {
     const result = forceService.deleteForce(id);
@@ -140,15 +131,11 @@ function handleDelete(
     if (result.success) {
       return res.status(200).json(result);
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to delete force',
-        errorCode: result.errorCode,
-      });
+      sendForceFailure(res, result, FORCES_ID_TS_FAILED_TO_DELETE_FORCE_3);
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to delete force';
-    return res.status(500).json({ error: message });
+    sendForceError(res, error, FORCES_ID_TS_FAILED_TO_DELETE_FORCE_3);
+    return;
   }
 }

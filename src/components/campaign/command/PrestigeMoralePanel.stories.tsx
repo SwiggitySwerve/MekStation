@@ -11,6 +11,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { MoraleState } from '@/types/campaign/Prestige';
 
+import { paddedDarkCampaignStoryParameters } from '../campaignStoryParameters';
 import {
   SAMPLE_MORALE_TRANSITIONS,
   SAMPLE_UNIT_PRESTIGE,
@@ -21,13 +22,7 @@ import { PrestigeMoralePanel } from './PrestigeMoralePanel';
 const meta = {
   title: 'Campaign/Command/PrestigeMoralePanel',
   component: PrestigeMoralePanel,
-  parameters: {
-    layout: 'padded',
-    backgrounds: {
-      default: 'dark',
-      values: [{ name: 'dark', value: '#0f172a' }],
-    },
-  },
+  parameters: paddedDarkCampaignStoryParameters,
   tags: ['autodocs'],
 } satisfies Meta<typeof PrestigeMoralePanel>;
 

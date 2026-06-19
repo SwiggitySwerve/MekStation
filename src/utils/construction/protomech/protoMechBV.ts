@@ -30,6 +30,8 @@
  * @spec openspec/changes/add-protomech-battle-value/tasks.md
  */
 
+import type { IProtoMechBVBreakdown } from '@/types/unit/BVBreakdownTypes';
+
 import {
   IProtoMechMountedEquipment,
   IProtoMechUnit,
@@ -48,36 +50,7 @@ import {
 // Public interfaces
 // =============================================================================
 
-/**
- * Breakdown of a ProtoMech BV 2.0 calculation.
- *
- * - `defensiveBV` and `offensiveBV` are the two main components PRE-chassis multiplier.
- * - `baseBV` = round(defensiveBV + offensiveBV) — the integer base before multipliers.
- * - `chassisMultiplier` applies the Glider (0.90) / Ultraheavy (1.15) adjustment.
- * - `pilotMultiplier` applies the shared gunnery/piloting skill multiplier.
- * - `final` is the rounded final BV after both multipliers.
- */
-export interface IProtoMechBVBreakdown {
-  readonly defensiveBV: number;
-  readonly offensiveBV: number;
-  readonly baseBV: number;
-  readonly chassisMultiplier: number;
-  readonly pilotMultiplier: number;
-  readonly final: number;
-
-  // Sub-component detail (useful for parity debugging + status bar display).
-  readonly armorBV: number;
-  readonly structureBV: number;
-  readonly defensiveEquipmentBV: number;
-  readonly explosivePenalty: number;
-  readonly defensiveFactor: number;
-
-  readonly weaponBV: number;
-  readonly ammoBV: number;
-  readonly physicalWeaponBV: number;
-  readonly offensiveEquipmentBV: number;
-  readonly speedFactor: number;
-}
+export type { IProtoMechBVBreakdown } from '@/types/unit/BVBreakdownTypes';
 
 /**
  * Options controlling the ProtoMech BV calculation.
@@ -158,30 +131,21 @@ const EXPLOSIVE_SUBTYPE_HINTS: readonly string[] = [
 // Helpers
 // =============================================================================
 
-function sumNumericRecord(
-  rec: Readonly<Record<string, number>> | undefined,
-): number {
+function sumNumericRecord(rec: object | undefined): number {
   if (!rec) return 0;
   let sum = 0;
-  for (const k of Object.keys(rec)) {
-    const v = (rec as Record<string, unknown>)[k];
+  for (const v of Object.values(rec)) {
     if (typeof v === 'number') sum += v;
   }
   return sum;
 }
 
 function armorTotal(unit: IProtoMechUnit): number {
-  // Cast via unknown because `IProtoArmorByLocation` uses enum-string keys
-  // that don't match the wider `Record<string, number>` index signature.
-  return sumNumericRecord(
-    unit.armorByLocation as unknown as Record<string, number>,
-  );
+  return sumNumericRecord(unit.armorByLocation);
 }
 
 function structureTotal(unit: IProtoMechUnit): number {
-  return sumNumericRecord(
-    unit.structureByLocation as unknown as Record<string, number>,
-  );
+  return sumNumericRecord(unit.structureByLocation);
 }
 
 function classifyEquipment(

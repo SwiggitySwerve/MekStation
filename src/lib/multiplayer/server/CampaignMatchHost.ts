@@ -111,7 +111,7 @@ export class CampaignMatchHost {
    * `CampaignSyncSession` calls this when a host opens a campaign for
    * co-op; it then issues the room code.
    */
-  async open(): Promise<void> {
+  open = async (): Promise<void> => {
     if (this.opened || this.closed) return;
     this.opened = true;
     await this.commitEvents([
@@ -123,7 +123,7 @@ export class CampaignMatchHost {
         payload: { state: this.state },
       },
     ]);
-  }
+  };
 
   /**
    * Close the campaign session. Idempotent. After close, every intent
@@ -131,15 +131,15 @@ export class CampaignMatchHost {
    * the host-disconnect "session pauses, mirror frozen" contract
    * (design D6).
    */
-  close(): void {
+  close = (): void => {
     this.closed = true;
     this.subscribers.clear();
-  }
+  };
 
   /** Whether `close` has run. */
-  isClosed(): boolean {
+  isClosed = (): boolean => {
     return this.closed;
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Subscriptions
@@ -150,17 +150,17 @@ export class CampaignMatchHost {
    * unsubscribe function. The campaign analogue of `attachSocket` —
    * `CampaignSyncSession` wires one subscriber per connected client.
    */
-  subscribe(subscriber: CampaignEventSubscriber): () => void {
+  subscribe = (subscriber: CampaignEventSubscriber): (() => void) => {
     this.subscribers.add(subscriber);
     return () => {
       this.subscribers.delete(subscriber);
     };
-  }
+  };
 
   /** Number of currently-subscribed clients. Test/observability. */
-  subscriberCount(): number {
+  subscriberCount = (): number => {
     return this.subscribers.size;
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Authoritative state access
@@ -171,23 +171,23 @@ export class CampaignMatchHost {
    * is unnecessary because `ICampaignAuthoritativeState` is treated as
    * immutable everywhere — the host only ever replaces it wholesale.
    */
-  getState(): ICampaignAuthoritativeState {
+  getState = (): ICampaignAuthoritativeState => {
     return this.state;
-  }
+  };
 
   /** The campaign event log facade — for the sync-session replay path. */
-  getEventLog(): CampaignEventLog {
+  getEventLog = (): CampaignEventLog => {
     return this.log;
-  }
+  };
 
   /**
    * Build a fresh `CampaignSnapshotPublished` payload from the host's
    * CURRENT authoritative state. The sync session sends this as the
    * baseline a joining (or large-gap-resyncing) guest seeds from.
    */
-  buildSnapshotPayload(): ICampaignSnapshotPublishedPayload {
+  buildSnapshotPayload = (): ICampaignSnapshotPublishedPayload => {
     return { state: this.state };
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Intent handling — validate / commit / broadcast
@@ -208,7 +208,7 @@ export class CampaignMatchHost {
    * returning, so a test can assert on either the return value or the
    * subscriber buffer.
    */
-  async handleIntent(rawIntent: unknown): Promise<CampaignIntentResult> {
+  handleIntent = async (rawIntent: unknown): Promise<CampaignIntentResult> => {
     // Step 1 — closed check.
     if (this.closed) {
       return {
@@ -248,7 +248,7 @@ export class CampaignMatchHost {
     // path so host-driven and guest-driven events share one ordering.
     const committed = await this.commitEvents(validation.events);
     return { ok: true, events: committed };
-  }
+  };
 
   /**
    * Convenience for the host's OWN actions (e.g. a host UI clicking
@@ -257,9 +257,9 @@ export class CampaignMatchHost {
    * authoritative-state validation so a host action that breaks the
    * ledger invariant (over-spend) is rejected just like a guest's.
    */
-  async applyHostIntent(
+  applyHostIntent = async (
     intent: ICampaignIntent,
-  ): Promise<CampaignIntentResult> {
+  ): Promise<CampaignIntentResult> => {
     if (this.closed) {
       return {
         ok: false,
@@ -279,7 +279,7 @@ export class CampaignMatchHost {
     }
     const committed = await this.commitEvents(validation.events);
     return { ok: true, events: committed };
-  }
+  };
 
   /**
    * Credit the campaign salvage pool — a host-authoritative
@@ -296,10 +296,10 @@ export class CampaignMatchHost {
    * `value` must be positive; a non-positive credit is a no-op rejection
    * so reconciliation never emits an empty event.
    */
-  async creditSalvagePool(
+  creditSalvagePool = async (
     value: number,
     reason: string,
-  ): Promise<CampaignIntentResult> {
+  ): Promise<CampaignIntentResult> => {
     if (this.closed) {
       return {
         ok: false,
@@ -328,7 +328,7 @@ export class CampaignMatchHost {
       },
     ]);
     return { ok: true, events: committed };
-  }
+  };
 
   /**
    * Commit a `RosterUnitChanged` event under host authority — a
@@ -339,7 +339,7 @@ export class CampaignMatchHost {
    * through the single commit path so both mirrors converge on the
    * post-battle roster.
    */
-  async applyRosterUnitChange(
+  applyRosterUnitChange = async (
     campaignId: string,
     change: 'added' | 'removed' | 'repaired',
     unit: {
@@ -348,7 +348,7 @@ export class CampaignMatchHost {
       readonly status: 'operational' | 'damaged' | 'destroyed';
     },
     intentTag: string,
-  ): Promise<CampaignIntentResult> {
+  ): Promise<CampaignIntentResult> => {
     if (this.closed) {
       return {
         ok: false,
@@ -374,7 +374,7 @@ export class CampaignMatchHost {
       },
     ]);
     return { ok: true, events: committed };
-  }
+  };
 
   /**
    * Build the typed error envelope for a rejected intent, carrying the

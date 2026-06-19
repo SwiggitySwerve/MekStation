@@ -7,14 +7,10 @@
  */
 
 import { AutoAwardCategory } from '../../campaign/awards/autoAwardTypes';
-import {
-  IAward,
-  AwardRarity,
-  AwardCategory,
-  CriteriaType,
-} from '../AwardInterfaces';
+import { AwardRarity, AwardCategory, CriteriaType } from '../AwardInterfaces';
+import { createAutoAwards } from './AutoAwardBuilders';
 
-export const AUTO_KILL_AWARDS: readonly IAward[] = [
+export const AUTO_KILL_AWARDS = createAutoAwards([
   {
     id: 'destroyer',
     name: 'Destroyer',
@@ -23,19 +19,13 @@ export const AUTO_KILL_AWARDS: readonly IAward[] = [
     category: AwardCategory.Combat,
     rarity: AwardRarity.Legendary,
     icon: 'award-destroyer',
-    criteria: {
-      type: CriteriaType.TotalKills,
-      threshold: 50,
-      description: 'Destroy 50 enemy units',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.TotalKills,
+    criteriaThreshold: 50,
+    criteriaDescription: 'Destroy 50 enemy units',
     sortOrder: 160,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.KILL,
-      threshold: 50,
-      thresholdType: 'kills',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.KILL,
+    autoThreshold: 50,
+    autoThresholdType: 'kills',
   },
   {
     id: 'centurion-kills',
@@ -45,19 +35,13 @@ export const AUTO_KILL_AWARDS: readonly IAward[] = [
     category: AwardCategory.Combat,
     rarity: AwardRarity.Legendary,
     icon: 'award-centurion-kills',
-    criteria: {
-      type: CriteriaType.TotalKills,
-      threshold: 100,
-      description: 'Destroy 100 enemy units',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.TotalKills,
+    criteriaThreshold: 100,
+    criteriaDescription: 'Destroy 100 enemy units',
     sortOrder: 170,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.KILL,
-      threshold: 100,
-      thresholdType: 'kills',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.KILL,
+    autoThreshold: 100,
+    autoThresholdType: 'kills',
   },
   {
     id: 'warlord',
@@ -67,19 +51,13 @@ export const AUTO_KILL_AWARDS: readonly IAward[] = [
     category: AwardCategory.Combat,
     rarity: AwardRarity.Legendary,
     icon: 'award-warlord',
-    criteria: {
-      type: CriteriaType.TotalKills,
-      threshold: 250,
-      description: 'Destroy 250 enemy units',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.TotalKills,
+    criteriaThreshold: 250,
+    criteriaDescription: 'Destroy 250 enemy units',
     sortOrder: 180,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.KILL,
-      threshold: 250,
-      thresholdType: 'kills',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.KILL,
+    autoThreshold: 250,
+    autoThresholdType: 'kills',
   },
   {
     id: 'extinction-event',
@@ -88,18 +66,12 @@ export const AUTO_KILL_AWARDS: readonly IAward[] = [
     category: AwardCategory.Combat,
     rarity: AwardRarity.Legendary,
     icon: 'award-extinction-event',
-    criteria: {
-      type: CriteriaType.TotalKills,
-      threshold: 500,
-      description: 'Destroy 500 enemy units',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.TotalKills,
+    criteriaThreshold: 500,
+    criteriaDescription: 'Destroy 500 enemy units',
     sortOrder: 190,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.KILL,
-      threshold: 500,
-      thresholdType: 'kills',
-      stackable: false,
-    },
+    autoCategory: AutoAwardCategory.KILL,
+    autoThreshold: 500,
+    autoThresholdType: 'kills',
   },
-];
+]);

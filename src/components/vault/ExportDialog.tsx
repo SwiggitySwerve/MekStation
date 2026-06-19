@@ -13,8 +13,10 @@ import type {
   IExportableUnit,
   IExportablePilot,
   IExportableForce,
+  IExportResult,
 } from '@/types/vault';
 
+import { InlineErrorMessage } from '@/components/common/InlineErrorMessage';
 import { DialogTemplate } from '@/components/ui/DialogTemplate';
 import { useVaultExport, type ExportOptions } from '@/hooks/useVaultExport';
 import { useIdentitySelector } from '@/stores/useIdentityStore';
@@ -52,6 +54,53 @@ export interface ExportDialogProps {
 
   /** Callback when export completes successfully */
   onExportComplete?: () => void;
+}
+
+interface ExportContentHandlers {
+  exportUnits: (
+    units: IExportableUnit[],
+    options: ExportOptions,
+  ) => Promise<IExportResult>;
+  exportPilots: (
+    pilots: IExportablePilot[],
+    options: ExportOptions,
+  ) => Promise<IExportResult>;
+  exportForces: (
+    forces: IExportableForce[],
+    options: ExportOptions,
+  ) => Promise<IExportResult>;
+}
+
+function normalizeToArray<T>(item: T | T[]): T[] {
+  return Array.isArray(item) ? item : [item];
+}
+
+async function exportDialogContent(
+  contentType: ExportContentType,
+  content: ExportDialogProps['content'],
+  options: ExportOptions,
+  handlers: ExportContentHandlers,
+): Promise<IExportResult | undefined> {
+  switch (contentType) {
+    case 'unit':
+    case 'units':
+      return handlers.exportUnits(
+        normalizeToArray(content as IExportableUnit | IExportableUnit[]),
+        options,
+      );
+    case 'pilot':
+    case 'pilots':
+      return handlers.exportPilots(
+        normalizeToArray(content as IExportablePilot | IExportablePilot[]),
+        options,
+      );
+    case 'force':
+    case 'forces':
+      return handlers.exportForces(
+        normalizeToArray(content as IExportableForce | IExportableForce[]),
+        options,
+      );
+  }
 }
 
 // =============================================================================
@@ -93,35 +142,16 @@ export function ExportDialog({
       password,
     };
 
-    // Normalize content to array
-    const normalizeToArray = <T,>(item: T | T[]): T[] =>
-      Array.isArray(item) ? item : [item];
-
-    let exportResult;
-
-    switch (contentType) {
-      case 'unit':
-      case 'units':
-        exportResult = await exportUnits(
-          normalizeToArray(content as IExportableUnit | IExportableUnit[]),
-          options,
-        );
-        break;
-      case 'pilot':
-      case 'pilots':
-        exportResult = await exportPilots(
-          normalizeToArray(content as IExportablePilot | IExportablePilot[]),
-          options,
-        );
-        break;
-      case 'force':
-      case 'forces':
-        exportResult = await exportForces(
-          normalizeToArray(content as IExportableForce | IExportableForce[]),
-          options,
-        );
-        break;
-    }
+    const exportResult = await exportDialogContent(
+      contentType,
+      content,
+      options,
+      {
+        exportUnits,
+        exportPilots,
+        exportForces,
+      },
+    );
 
     if (exportResult?.success) {
       setPassword(''); // Clear password after successful export
@@ -251,11 +281,7 @@ export function ExportDialog({
         </>
       }
     >
-      {error && (
-        <div className="mb-4 rounded border border-red-500 bg-red-900/50 px-4 py-2 text-red-200">
-          {error}
-        </div>
-      )}
+      <InlineErrorMessage message={error} variant="dialog" />
 
       <div className="space-y-4">
         <div>

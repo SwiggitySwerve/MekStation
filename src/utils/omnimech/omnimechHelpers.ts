@@ -71,6 +71,51 @@ const OMNI_FIXED_ONLY_EQUIPMENT: readonly string[] = [
   'Foot Actuator',
 ];
 
+const BIPED_LOCATIONS: readonly MechLocation[] = [
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.LEFT_ARM,
+  MechLocation.RIGHT_ARM,
+  MechLocation.LEFT_LEG,
+  MechLocation.RIGHT_LEG,
+];
+
+const QUAD_LOCATIONS: readonly MechLocation[] = [
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.FRONT_LEFT_LEG,
+  MechLocation.FRONT_RIGHT_LEG,
+  MechLocation.REAR_LEFT_LEG,
+  MechLocation.REAR_RIGHT_LEG,
+];
+
+const TRIPOD_LOCATIONS: readonly MechLocation[] = [
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.LEFT_ARM,
+  MechLocation.RIGHT_ARM,
+  MechLocation.LEFT_LEG,
+  MechLocation.RIGHT_LEG,
+  MechLocation.CENTER_LEG,
+];
+
+const CONFIGURATION_LOCATIONS = new Map<string, readonly MechLocation[]>([
+  ['Quad', QUAD_LOCATIONS],
+  [MechConfiguration.QUAD, QUAD_LOCATIONS],
+  [MechConfiguration.QUADVEE, QUAD_LOCATIONS],
+  ['Tripod', TRIPOD_LOCATIONS],
+  [MechConfiguration.TRIPOD, TRIPOD_LOCATIONS],
+  ['Biped', BIPED_LOCATIONS],
+  [MechConfiguration.BIPED, BIPED_LOCATIONS],
+  [MechConfiguration.LAM, BIPED_LOCATIONS],
+]);
+
 /**
  * Check if an equipment item is "OmniFixedOnly" - meaning it can never be pod-mounted.
  * This includes structural components, engines, gyros, cockpits, and myomer.
@@ -248,54 +293,7 @@ export function calculateTotalPodSpace(state: UnitState): number {
  * Uses inline lookup to avoid circular dependencies with mechLocationRegistry.
  */
 function getLocationsForConfiguration(configuration: string): MechLocation[] {
-  const BIPED_LOCATIONS = [
-    MechLocation.HEAD,
-    MechLocation.CENTER_TORSO,
-    MechLocation.LEFT_TORSO,
-    MechLocation.RIGHT_TORSO,
-    MechLocation.LEFT_ARM,
-    MechLocation.RIGHT_ARM,
-    MechLocation.LEFT_LEG,
-    MechLocation.RIGHT_LEG,
-  ];
-
-  const QUAD_LOCATIONS = [
-    MechLocation.HEAD,
-    MechLocation.CENTER_TORSO,
-    MechLocation.LEFT_TORSO,
-    MechLocation.RIGHT_TORSO,
-    MechLocation.FRONT_LEFT_LEG,
-    MechLocation.FRONT_RIGHT_LEG,
-    MechLocation.REAR_LEFT_LEG,
-    MechLocation.REAR_RIGHT_LEG,
-  ];
-
-  const TRIPOD_LOCATIONS = [
-    MechLocation.HEAD,
-    MechLocation.CENTER_TORSO,
-    MechLocation.LEFT_TORSO,
-    MechLocation.RIGHT_TORSO,
-    MechLocation.LEFT_ARM,
-    MechLocation.RIGHT_ARM,
-    MechLocation.LEFT_LEG,
-    MechLocation.RIGHT_LEG,
-    MechLocation.CENTER_LEG,
-  ];
-
-  switch (configuration) {
-    case 'Quad':
-    case MechConfiguration.QUAD:
-    case MechConfiguration.QUADVEE:
-      return QUAD_LOCATIONS;
-    case 'Tripod':
-    case MechConfiguration.TRIPOD:
-      return TRIPOD_LOCATIONS;
-    case 'Biped':
-    case MechConfiguration.BIPED:
-    case MechConfiguration.LAM:
-    default:
-      return BIPED_LOCATIONS;
-  }
+  return [...(CONFIGURATION_LOCATIONS.get(configuration) ?? BIPED_LOCATIONS)];
 }
 
 /**

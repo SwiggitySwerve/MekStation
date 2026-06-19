@@ -24,6 +24,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { initializeApiDatabase } from '@/pages-modules/api/routeHelpers';
 import { getEncounterRepository } from '@/services/encounter/EncounterRepository';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { ScenarioTemplateType } from '@/types/encounter';
@@ -78,6 +79,12 @@ function buildSampleName(displayName: string, dateIso: string): string {
   return `Sample ${displayName} - ${datePart}`;
 }
 
+function seedFailureMessage(error: unknown): string {
+  return error instanceof Error
+    ? error.message
+    : 'Failed to seed sample encounters';
+}
+
 // =============================================================================
 // Handler
 // =============================================================================
@@ -93,15 +100,13 @@ export default async function handler(
       error: `Method ${req.method ?? 'unknown'} Not Allowed`,
     });
   }
-
-  // DB init failure → 500 (matches sibling handlers under /api/encounters/*).
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ success: false, error: message });
-  }
+  if (
+    !initializeApiDatabase(res, (message) => ({
+      success: false,
+      error: message,
+    }))
+  )
+    return;
 
   const dateIso = new Date().toISOString();
   const repo = getEncounterRepository();
@@ -132,10 +137,9 @@ export default async function handler(
     const ids = txn();
     return res.status(200).json({ success: true, ids });
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : 'Failed to seed sample encounters';
-    return res.status(500).json({ success: false, error: message });
+    return res.status(500).json({
+      success: false,
+      error: seedFailureMessage(error),
+    });
   }
 }

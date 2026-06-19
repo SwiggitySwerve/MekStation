@@ -1,7 +1,6 @@
 import {
   GamePhase,
   GameSide,
-  type IGameIntent,
   type MovementEnhancementActivationKind,
   type IWeaponAttackData,
 } from '@/types/gameplay/GameSessionInterfaces';
@@ -16,6 +15,21 @@ import {
   type PhysicalAttackLimb,
   type PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks/types';
+
+export {
+  buildActivateMovementEnhancementIntent,
+  buildConcedeIntent,
+  buildDeclareAttackIntent,
+  buildDeclareMovementIntent,
+  buildDeclarePhysicalIntent,
+  buildEjectIntent,
+  buildEndPhaseIntent,
+  buildGoProneIntent,
+  buildRequestSpotIntent,
+  buildStandIntent,
+  buildTorsoTwistIntent,
+  buildWithdrawIntent,
+} from './intentTranslationBuilders';
 
 /**
  * Payload the guest UI sends with a `declareMovement` intent. Mirrors
@@ -136,7 +150,7 @@ export function asStandPayload(payload: unknown): IStandIntentPayload | null {
   if (typeof payload.unitId !== 'string' || payload.unitId.length === 0) {
     return null;
   }
-  return payload as unknown as IStandIntentPayload;
+  return { unitId: payload.unitId };
 }
 
 export function asGoPronePayload(
@@ -146,7 +160,7 @@ export function asGoPronePayload(
   if (typeof payload.unitId !== 'string' || payload.unitId.length === 0) {
     return null;
   }
-  return payload as unknown as IGoProneIntentPayload;
+  return { unitId: payload.unitId };
 }
 
 export function asActivateMovementEnhancementPayload(
@@ -162,7 +176,7 @@ export function asActivateMovementEnhancementPayload(
   ) {
     return null;
   }
-  return payload as unknown as IActivateMovementEnhancementIntentPayload;
+  return { unitId: payload.unitId, enhancement: payload.enhancement };
 }
 
 export function asTorsoTwistPayload(
@@ -172,15 +186,10 @@ export function asTorsoTwistPayload(
   if (typeof payload.unitId !== 'string' || payload.unitId.length === 0) {
     return null;
   }
-  if (
-    typeof payload.secondaryFacing !== 'number' ||
-    !Number.isInteger(payload.secondaryFacing) ||
-    payload.secondaryFacing < 0 ||
-    payload.secondaryFacing > 5
-  ) {
+  if (!isFacing(payload.secondaryFacing)) {
     return null;
   }
-  return payload as unknown as ITorsoTwistIntentPayload;
+  return { unitId: payload.unitId, secondaryFacing: payload.secondaryFacing };
 }
 
 export function asAttackPayload(
@@ -232,15 +241,18 @@ export function asPhysicalPayload(
   ) {
     return null;
   }
-  if (
-    payload.limb !== undefined &&
-    !['leftArm', 'rightArm', 'leftLeg', 'rightLeg'].includes(
-      String(payload.limb),
-    )
-  ) {
+  if (payload.limb !== undefined && !isPhysicalAttackLimb(payload.limb)) {
     return null;
   }
-  return payload as unknown as IDeclarePhysicalIntentPayload;
+  return {
+    attackerId: payload.attackerId,
+    targetId: payload.targetId,
+    attackType: payload.attackType,
+    ...(payload.limb !== undefined ? { limb: payload.limb } : {}),
+    ...(payload.toHitNumber !== undefined
+      ? { toHitNumber: payload.toHitNumber }
+      : {}),
+  };
 }
 
 export function asRequestSpotPayload(
@@ -253,7 +265,7 @@ export function asRequestSpotPayload(
   if (typeof payload.targetId !== 'string' || payload.targetId.length === 0) {
     return null;
   }
-  return payload as unknown as IRequestSpotIntentPayload;
+  return { unitId: payload.unitId, targetId: payload.targetId };
 }
 
 export function asEndPhasePayload(
@@ -261,7 +273,7 @@ export function asEndPhasePayload(
 ): IEndPhaseIntentPayload | null {
   if (!isRecord(payload)) return null;
   if (!isGamePhase(payload.phase)) return null;
-  return payload as unknown as IEndPhaseIntentPayload;
+  return { phase: payload.phase };
 }
 
 export function asEjectPayload(payload: unknown): IEjectIntentPayload | null {
@@ -269,7 +281,7 @@ export function asEjectPayload(payload: unknown): IEjectIntentPayload | null {
   if (typeof payload.unitId !== 'string' || payload.unitId.length === 0) {
     return null;
   }
-  return payload as unknown as IEjectIntentPayload;
+  return { unitId: payload.unitId };
 }
 
 export function asWithdrawPayload(
@@ -280,7 +292,7 @@ export function asWithdrawPayload(
     return null;
   }
   if (!isWithdrawalEdge(payload.edge)) return null;
-  return payload as unknown as IWithdrawIntentPayload;
+  return { unitId: payload.unitId, edge: payload.edge };
 }
 
 export function asConcedePayload(
@@ -288,7 +300,7 @@ export function asConcedePayload(
 ): IConcedeIntentPayload | null {
   if (!isRecord(payload)) return null;
   if (!isGameSide(payload.side)) return null;
-  return payload as unknown as IConcedeIntentPayload;
+  return { side: payload.side };
 }
 
 function isHexCoord(value: unknown): value is IHexCoordinate {
@@ -328,6 +340,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function isPhysicalAttackLimb(value: unknown): value is PhysicalAttackLimb {
+  return (
+    value === 'leftArm' ||
+    value === 'rightArm' ||
+    value === 'leftLeg' ||
+    value === 'rightLeg'
+  );
+}
+
 function isWithdrawalEdge(value: unknown): value is WithdrawalEdge {
   return (
     value === 'north' ||
@@ -343,141 +364,4 @@ function isGameSide(value: unknown): value is GameSide {
 
 function isGamePhase(value: unknown): value is GamePhase {
   return Object.values(GamePhase).includes(value as GamePhase);
-}
-
-/**
- * Build a fully-formed `declareMovement` intent. The guest UI uses this
- * to keep the channel call site free of `as` casts; the host's
- * translator validates the shape regardless.
- */
-export function buildDeclareMovementIntent(
-  authorPeerId: string,
-  payload: IDeclareMovementIntentPayload,
-): IGameIntent {
-  return {
-    type: 'declareMovement',
-    payload,
-    authorPeerId,
-  };
-}
-
-export function buildStandIntent(
-  authorPeerId: string,
-  payload: IStandIntentPayload,
-): IGameIntent {
-  return {
-    type: 'stand',
-    payload,
-    authorPeerId,
-  };
-}
-
-export function buildGoProneIntent(
-  authorPeerId: string,
-  payload: IGoProneIntentPayload,
-): IGameIntent {
-  return {
-    type: 'goProne',
-    payload,
-    authorPeerId,
-  };
-}
-
-export function buildActivateMovementEnhancementIntent(
-  authorPeerId: string,
-  payload: IActivateMovementEnhancementIntentPayload,
-): IGameIntent {
-  return {
-    type: 'activateMovementEnhancement',
-    payload,
-    authorPeerId,
-  };
-}
-
-export function buildTorsoTwistIntent(
-  authorPeerId: string,
-  payload: ITorsoTwistIntentPayload,
-): IGameIntent {
-  return {
-    type: 'torsoTwist',
-    payload,
-    authorPeerId,
-  };
-}
-
-export function buildDeclareAttackIntent(
-  authorPeerId: string,
-  payload: IDeclareAttackIntentPayload,
-): IGameIntent {
-  return {
-    type: 'declareAttack',
-    payload,
-    authorPeerId,
-  };
-}
-
-export function buildDeclarePhysicalIntent(
-  authorPeerId: string,
-  payload: IDeclarePhysicalIntentPayload,
-): IGameIntent {
-  return {
-    type: 'declarePhysical',
-    payload,
-    authorPeerId,
-  };
-}
-
-export function buildRequestSpotIntent(
-  authorPeerId: string,
-  payload: IRequestSpotIntentPayload,
-): IGameIntent {
-  return {
-    type: 'requestSpot',
-    payload,
-    authorPeerId,
-  };
-}
-
-export function buildEjectIntent(
-  authorPeerId: string,
-  payload: IEjectIntentPayload,
-): IGameIntent {
-  return {
-    type: 'eject',
-    payload,
-    authorPeerId,
-  };
-}
-
-export function buildWithdrawIntent(
-  authorPeerId: string,
-  payload: IWithdrawIntentPayload,
-): IGameIntent {
-  return {
-    type: 'withdraw',
-    payload,
-    authorPeerId,
-  };
-}
-
-export function buildConcedeIntent(
-  authorPeerId: string,
-  payload: IConcedeIntentPayload,
-): IGameIntent {
-  return {
-    type: 'concede',
-    payload,
-    authorPeerId,
-  };
-}
-
-export function buildEndPhaseIntent(
-  authorPeerId: string,
-  payload: IEndPhaseIntentPayload,
-): IGameIntent {
-  return {
-    type: 'endPhase',
-    payload,
-    authorPeerId,
-  };
 }

@@ -6,6 +6,8 @@
  */
 import { useState, useCallback } from 'react';
 
+import { InlineErrorMessage } from '@/components/common/InlineErrorMessage';
+import { runBusyErrorOperation } from '@/components/common/runUiOperation';
 import { Card, Button, Select } from '@/components/ui';
 import { Faction } from '@/constants/scenario/rats';
 import { scenarioGenerator } from '@/services/generators';
@@ -77,31 +79,27 @@ export function ScenarioGenerator({
   );
 
   // Generate scenario
-  const handleGenerate = useCallback(() => {
-    setIsGenerating(true);
-    setError(null);
+  const handleGenerate = useCallback(async () => {
+    await runBusyErrorOperation(
+      setIsGenerating,
+      setError,
+      'Failed to generate scenario',
+      () => {
+        const scenario = scenarioGenerator.generate({
+          playerBV,
+          playerUnitCount,
+          scenarioType: config.scenarioType || undefined,
+          faction: config.faction,
+          era: config.era,
+          biome: config.biome || undefined,
+          difficulty: config.difficulty,
+          maxModifiers: config.maxModifiers,
+          allowNegativeModifiers: config.allowNegativeModifiers,
+        });
 
-    try {
-      const scenario = scenarioGenerator.generate({
-        playerBV,
-        playerUnitCount,
-        scenarioType: config.scenarioType || undefined,
-        faction: config.faction,
-        era: config.era,
-        biome: config.biome || undefined,
-        difficulty: config.difficulty,
-        maxModifiers: config.maxModifiers,
-        allowNegativeModifiers: config.allowNegativeModifiers,
-      });
-
-      setPreview(scenario);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to generate scenario',
-      );
-    } finally {
-      setIsGenerating(false);
-    }
+        setPreview(scenario);
+      },
+    );
   }, [playerBV, playerUnitCount, config]);
 
   // Accept generated scenario
@@ -245,12 +243,7 @@ export function ScenarioGenerator({
           </div>
         </div>
 
-        {/* Error Display */}
-        {error && (
-          <div className="mt-4 rounded-lg border border-red-600/30 bg-red-900/20 p-3">
-            <p className="text-sm text-red-400">{error}</p>
-          </div>
-        )}
+        <InlineErrorMessage message={error} variant="panel" />
 
         {/* Generate Button */}
         <div className="mt-4 flex justify-end">

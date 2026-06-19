@@ -15,6 +15,11 @@
 
 import { GamePhase, type ITacticalCommand } from '@/types/gameplay';
 
+import {
+  canActAvailability,
+  commitStaticAction,
+} from './commandDescriptorHelpers';
+
 export function buildHeatEndCommands(): readonly ITacticalCommand[] {
   return [HeatContinueCommand, EndPhaseCommand, NextTurnCommand];
 }
@@ -27,13 +32,8 @@ const HeatContinueCommand: ITacticalCommand = {
   phaseConstraints: [GamePhase.Heat],
   requiresConfirmation: false,
   undoable: false,
-  availability(ctx) {
-    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
-    return { available: true };
-  },
-  commit() {
-    return { actionId: 'continue', payload: {} };
-  },
+  availability: canActAvailability,
+  commit: commitStaticAction('continue'),
 };
 
 const EndPhaseCommand: ITacticalCommand = {
@@ -51,13 +51,8 @@ const EndPhaseCommand: ITacticalCommand = {
   // required actions remain.
   requiresConfirmation: true,
   undoable: false,
-  availability(ctx) {
-    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
-    return { available: true };
-  },
-  commit() {
-    return { actionId: 'lock', payload: { endPhase: true } };
-  },
+  availability: canActAvailability,
+  commit: commitStaticAction('lock', { endPhase: true }),
 };
 
 const NextTurnCommand: ITacticalCommand = {
@@ -68,11 +63,6 @@ const NextTurnCommand: ITacticalCommand = {
   phaseConstraints: [GamePhase.End],
   requiresConfirmation: false,
   undoable: false,
-  availability(ctx) {
-    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
-    return { available: true };
-  },
-  commit() {
-    return { actionId: 'next-turn', payload: {} };
-  },
+  availability: canActAvailability,
+  commit: commitStaticAction('next-turn'),
 };

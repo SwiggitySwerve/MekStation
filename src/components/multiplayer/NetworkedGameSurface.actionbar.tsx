@@ -99,6 +99,15 @@ export function NetworkedActionBar({
   // Controls are live only when the turn-ownership gate is open and the
   // match is not paused.
   const enabled = ownership.canAct && !paused;
+  const controlContext: IActionControlContext = {
+    session,
+    enabled,
+    authorPeerId,
+    selectedUnitId,
+    selectedHex,
+    targetUnitId,
+    onSendIntent,
+  };
 
   // When the gate is closed and the match is live, show the passive
   // indicator instead of dead controls (D4).
@@ -125,114 +134,18 @@ export function NetworkedActionBar({
       className="flex flex-wrap items-center gap-2"
     >
       {phase === GamePhase.Movement && (
-        <>
-          <button
-            type="button"
-            data-testid="declare-movement-button"
-            className={controlClass(
-              enabled && selectedUnitId !== null && selectedHex !== null,
-            )}
-            disabled={!enabled || !selectedUnitId || !selectedHex}
-            onClick={() => {
-              if (!selectedUnitId || !selectedHex) return;
-              const payload: IDeclareMovementPayload = {
-                unitId: selectedUnitId,
-                to: selectedHex,
-                facing: session.currentState.units[selectedUnitId]?.facing ?? 0,
-                movementType: MovementType.Walk,
-              };
-              onSendIntent(declareMovementIntent(authorPeerId, payload));
-            }}
-          >
-            Declare movement
-          </button>
-          <button
-            type="button"
-            data-testid="stand-button"
-            className={controlClass(enabled && selectedUnitId !== null)}
-            disabled={!enabled || !selectedUnitId}
-            onClick={() => {
-              if (!selectedUnitId) return;
-              onSendIntent(
-                standIntent(authorPeerId, { unitId: selectedUnitId }),
-              );
-            }}
-          >
-            Stand up
-          </button>
-        </>
+        <MovementPhaseControls context={controlContext} />
       )}
 
       {phase === GamePhase.WeaponAttack && (
-        <button
-          type="button"
-          data-testid="declare-attack-button"
-          className={controlClass(
-            enabled && selectedUnitId !== null && targetUnitId !== null,
-          )}
-          disabled={!enabled || !selectedUnitId || !targetUnitId}
-          onClick={() => {
-            if (!selectedUnitId || !targetUnitId) return;
-            onSendIntent(
-              declareAttackIntent(authorPeerId, {
-                attackerId: selectedUnitId,
-                targetId: targetUnitId,
-                // Wave-3 M1: fire every weapon the engine recognizes for
-                // the unit; the server resolves per-weapon hit/miss.
-                weaponIds: ['all-weapons'],
-              }),
-            );
-          }}
-        >
-          Declare attack
-        </button>
+        <WeaponAttackPhaseControls context={controlContext} />
       )}
 
       {phase === GamePhase.PhysicalAttack && (
-        <button
-          type="button"
-          data-testid="declare-physical-button"
-          className={controlClass(
-            enabled && selectedUnitId !== null && targetUnitId !== null,
-          )}
-          disabled={!enabled || !selectedUnitId || !targetUnitId}
-          onClick={() => {
-            if (!selectedUnitId || !targetUnitId) return;
-            onSendIntent(
-              declarePhysicalIntent(authorPeerId, {
-                attackerId: selectedUnitId,
-                targetId: targetUnitId,
-                attackType: 'punch',
-              }),
-            );
-          }}
-        >
-          Declare physical
-        </button>
+        <PhysicalAttackPhaseControls context={controlContext} />
       )}
 
-      <button
-        type="button"
-        data-testid="advance-phase-button"
-        className={controlClass(enabled)}
-        disabled={!enabled}
-        onClick={() => onSendIntent(endPhaseIntent(authorPeerId))}
-      >
-        End phase
-      </button>
-
-      <button
-        type="button"
-        data-testid="eject-button"
-        className={controlClass(enabled && selectedUnitId !== null)}
-        disabled={!enabled || !selectedUnitId}
-        onClick={() => {
-          if (!selectedUnitId) return;
-          onSendIntent(ejectIntent(authorPeerId, { unitId: selectedUnitId }));
-        }}
-      >
-        Eject
-      </button>
+      <CommonPhaseControls context={controlContext} />
 
       <ConcedeControl
         enabled={!paused}
@@ -241,6 +154,176 @@ export function NetworkedActionBar({
         }
       />
     </div>
+  );
+}
+
+interface IActionControlContext {
+  readonly session: IGameSession;
+  readonly enabled: boolean;
+  readonly authorPeerId: string;
+  readonly selectedUnitId: string | null;
+  readonly selectedHex: { readonly q: number; readonly r: number } | null;
+  readonly targetUnitId: string | null;
+  readonly onSendIntent: INetworkedActionBarProps['onSendIntent'];
+}
+
+function MovementPhaseControls({
+  context,
+}: {
+  readonly context: IActionControlContext;
+}): React.ReactElement {
+  const { enabled, selectedUnitId, selectedHex } = context;
+  return (
+    <>
+      <button
+        type="button"
+        data-testid="declare-movement-button"
+        className={controlClass(
+          enabled && selectedUnitId !== null && selectedHex !== null,
+        )}
+        disabled={!enabled || !selectedUnitId || !selectedHex}
+        onClick={() => sendMovementIntent(context)}
+      >
+        Declare movement
+      </button>
+      <button
+        type="button"
+        data-testid="stand-button"
+        className={controlClass(enabled && selectedUnitId !== null)}
+        disabled={!enabled || !selectedUnitId}
+        onClick={() => sendStandIntent(context)}
+      >
+        Stand up
+      </button>
+    </>
+  );
+}
+
+function WeaponAttackPhaseControls({
+  context,
+}: {
+  readonly context: IActionControlContext;
+}): React.ReactElement {
+  const canDeclare =
+    context.enabled &&
+    context.selectedUnitId !== null &&
+    context.targetUnitId !== null;
+  return (
+    <button
+      type="button"
+      data-testid="declare-attack-button"
+      className={controlClass(canDeclare)}
+      disabled={!canDeclare}
+      onClick={() => sendWeaponAttackIntent(context)}
+    >
+      Declare attack
+    </button>
+  );
+}
+
+function PhysicalAttackPhaseControls({
+  context,
+}: {
+  readonly context: IActionControlContext;
+}): React.ReactElement {
+  const canDeclare =
+    context.enabled &&
+    context.selectedUnitId !== null &&
+    context.targetUnitId !== null;
+  return (
+    <button
+      type="button"
+      data-testid="declare-physical-button"
+      className={controlClass(canDeclare)}
+      disabled={!canDeclare}
+      onClick={() => sendPhysicalAttackIntent(context)}
+    >
+      Declare physical
+    </button>
+  );
+}
+
+function CommonPhaseControls({
+  context,
+}: {
+  readonly context: IActionControlContext;
+}): React.ReactElement {
+  return (
+    <>
+      <button
+        type="button"
+        data-testid="advance-phase-button"
+        className={controlClass(context.enabled)}
+        disabled={!context.enabled}
+        onClick={() =>
+          context.onSendIntent(endPhaseIntent(context.authorPeerId))
+        }
+      >
+        End phase
+      </button>
+
+      <button
+        type="button"
+        data-testid="eject-button"
+        className={controlClass(
+          context.enabled && context.selectedUnitId !== null,
+        )}
+        disabled={!context.enabled || !context.selectedUnitId}
+        onClick={() => sendEjectIntent(context)}
+      >
+        Eject
+      </button>
+    </>
+  );
+}
+
+function sendMovementIntent(context: IActionControlContext): void {
+  if (!context.selectedUnitId || !context.selectedHex) return;
+  const payload: IDeclareMovementPayload = {
+    unitId: context.selectedUnitId,
+    to: context.selectedHex,
+    facing:
+      context.session.currentState.units[context.selectedUnitId]?.facing ?? 0,
+    movementType: MovementType.Walk,
+  };
+  context.onSendIntent(declareMovementIntent(context.authorPeerId, payload));
+}
+
+function sendStandIntent(context: IActionControlContext): void {
+  if (!context.selectedUnitId) return;
+  context.onSendIntent(
+    standIntent(context.authorPeerId, { unitId: context.selectedUnitId }),
+  );
+}
+
+function sendWeaponAttackIntent(context: IActionControlContext): void {
+  if (!context.selectedUnitId || !context.targetUnitId) return;
+  context.onSendIntent(
+    declareAttackIntent(context.authorPeerId, {
+      attackerId: context.selectedUnitId,
+      targetId: context.targetUnitId,
+      // Wave-3 M1: fire every weapon the engine recognizes for
+      // the unit; the server resolves per-weapon hit/miss.
+      weaponIds: ['all-weapons'],
+    }),
+  );
+}
+
+function sendPhysicalAttackIntent(context: IActionControlContext): void {
+  if (!context.selectedUnitId || !context.targetUnitId) return;
+  context.onSendIntent(
+    declarePhysicalIntent(context.authorPeerId, {
+      attackerId: context.selectedUnitId,
+      targetId: context.targetUnitId,
+      attackType: 'punch',
+    }),
+  );
+}
+
+function sendEjectIntent(context: IActionControlContext): void {
+  if (!context.selectedUnitId) return;
+  context.onSendIntent(
+    ejectIntent(context.authorPeerId, { unitId: context.selectedUnitId }),
   );
 }
 

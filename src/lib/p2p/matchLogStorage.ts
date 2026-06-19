@@ -77,19 +77,22 @@ export class MatchLogStorage {
     this.onFlushTransaction = options.onFlushTransaction;
   }
 
-  async initialize(): Promise<void> {
+  initialize = async (): Promise<void> => {
     await this.openDatabase();
-  }
+  };
 
-  close(): void {
+  close = (): void => {
     if (this.db) {
       this.db.close();
       this.db = null;
     }
     this.openPromise = null;
-  }
+  };
 
-  appendEvent(matchId: string, event: IGameEvent): Promise<IMatchEventRecord> {
+  appendEvent = (
+    matchId: string,
+    event: IGameEvent,
+  ): Promise<IMatchEventRecord> => {
     const record: IMatchEventRecord = {
       matchId,
       sequence: event.sequence,
@@ -103,9 +106,9 @@ export class MatchLogStorage {
 
     this.schedulePendingFlush();
     return promise;
-  }
+  };
 
-  async flushPendingWrites(): Promise<void> {
+  flushPendingWrites = async (): Promise<void> => {
     if (this.pendingEventWrites.length === 0) {
       return this.flushPromise ?? Promise.resolve();
     }
@@ -122,14 +125,16 @@ export class MatchLogStorage {
     });
     this.flushPromise = flush;
     return flush;
-  }
+  };
 
-  async getEventsForMatch(matchId: string): Promise<IGameEvent[]> {
+  getEventsForMatch = async (matchId: string): Promise<IGameEvent[]> => {
     const records = await this.getEventRecordsForMatch(matchId);
     return records.map((record) => record.event);
-  }
+  };
 
-  async getEventRecordsForMatch(matchId: string): Promise<IMatchEventRecord[]> {
+  getEventRecordsForMatch = async (
+    matchId: string,
+  ): Promise<IMatchEventRecord[]> => {
     const db = await this.openDatabase();
 
     return new Promise<IMatchEventRecord[]>((resolve, reject) => {
@@ -162,9 +167,9 @@ export class MatchLogStorage {
         reject(toStorageError('Match events read aborted', transaction.error));
       };
     });
-  }
+  };
 
-  async getLastSequence(matchId: string): Promise<number | null> {
+  getLastSequence = async (matchId: string): Promise<number | null> => {
     const db = await this.openDatabase();
 
     return new Promise<number | null>((resolve, reject) => {
@@ -201,11 +206,11 @@ export class MatchLogStorage {
         );
       };
     });
-  }
+  };
 
-  async upsertMatchMetadata(
+  upsertMatchMetadata = async (
     metadata: IMatchMetadataUpsert,
-  ): Promise<IMatchMetadataRecord> {
+  ): Promise<IMatchMetadataRecord> => {
     const db = await this.openDatabase();
     const lastActivity = metadata.lastActivity ?? this.now();
 
@@ -239,11 +244,11 @@ export class MatchLogStorage {
         );
       };
     });
-  }
+  };
 
-  async getMatchMetadata(
+  getMatchMetadata = async (
     matchId: string,
-  ): Promise<IMatchMetadataRecord | undefined> {
+  ): Promise<IMatchMetadataRecord | undefined> => {
     const db = await this.openDatabase();
     const result = await requestToPromise(
       db
@@ -253,22 +258,22 @@ export class MatchLogStorage {
       'Failed to read match metadata',
     );
     return result as IMatchMetadataRecord | undefined;
-  }
+  };
 
-  async markMatchCompleted(
+  markMatchCompleted = async (
     matchId: string,
     completedAt = this.now(),
-  ): Promise<IMatchMetadataRecord> {
+  ): Promise<IMatchMetadataRecord> => {
     return this.upsertMatchMetadata({
       matchId,
       status: 'completed',
       lastActivity: completedAt,
     });
-  }
+  };
 
-  async purgeOldMatches(
+  purgeOldMatches = async (
     retentionMs = MATCH_LOG_RETENTION_MS,
-  ): Promise<IPurgeOldMatchesResult> {
+  ): Promise<IPurgeOldMatchesResult> => {
     const db = await this.openDatabase();
     const nowMs = Date.parse(this.now());
     const cutoff = (Number.isFinite(nowMs) ? nowMs : Date.now()) - retentionMs;
@@ -321,7 +326,7 @@ export class MatchLogStorage {
         reject(toStorageError('Old match purge aborted', transaction.error));
       };
     });
-  }
+  };
 
   private async persistEventBatch(batch: IPendingEventWrite[]): Promise<void> {
     try {

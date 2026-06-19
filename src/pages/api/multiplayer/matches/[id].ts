@@ -16,15 +16,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
+import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import {
   MatchNotFoundError,
   type IMatchMeta,
 } from '@/lib/multiplayer/server/IMatchStore';
-import { getDefaultMatchStore } from '@/lib/multiplayer/server/InMemoryMatchStore';
 import {
   bootstrapMultiplayerServer,
   getMatchHostRegistry,
 } from '@/lib/multiplayer/server/MatchHostRegistry';
+import { rejectMissingQueryString } from '@/pages-modules/api/routeHelpers';
 
 // =============================================================================
 // Response types
@@ -52,11 +53,13 @@ export default async function handler(
     IGetMatchResponse | IDeleteMatchResponse | IErrorResponse
   >,
 ): Promise<void> {
-  const { id } = req.query;
-  if (typeof id !== 'string' || id.length === 0) {
-    res.status(400).json({ error: 'Missing or invalid match id' });
-    return;
-  }
+  const id = rejectMissingQueryString(
+    req,
+    res,
+    'id',
+    'Missing or invalid match id',
+  );
+  if (!id) return;
 
   const store = getDefaultMatchStore();
 

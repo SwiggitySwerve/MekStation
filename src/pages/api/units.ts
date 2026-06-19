@@ -19,6 +19,11 @@
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  rejectNonGetDataRequest as rejectUnitsNonGet,
+  sendLoggedSuccessApiError,
+  type ApiDataResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { IUnitQueryCriteria } from '@/services/common/types';
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { Era } from '@/types/enums/Era';
@@ -26,12 +31,7 @@ import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
-interface ApiResponse {
-  success: boolean;
-  data?: unknown;
-  error?: string;
-  count?: number;
-}
+type UnitsApiResponse = ApiDataResponse;
 
 /**
  * Type guard to validate TechBase enum value
@@ -71,14 +71,9 @@ function parseIntOrUndefined(value: string): number | undefined {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse>,
+  res: NextApiResponse<UnitsApiResponse>,
 ): Promise<void> {
-  if (req.method !== 'GET') {
-    return res.status(405).json({
-      success: false,
-      error: 'Method not allowed. Use GET.',
-    });
-  }
+  if (rejectUnitsNonGet(req, res)) return;
 
   try {
     const { id, techBase, era, weightClass, unitType, minTonnage, maxTonnage } =
@@ -127,10 +122,7 @@ export default async function handler(
       count: units.length,
     });
   } catch (error) {
-    console.error('Units API error:', error);
-    return res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedSuccessApiError(res, 'Units API error:', error);
+    return;
   }
 }

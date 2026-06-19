@@ -19,6 +19,30 @@ import {
 
 import { createEventBase } from './base';
 
+type GameCreatedEventArgs = [
+  gameId: string,
+  config: IGameConfig,
+  units: readonly IGameUnit[],
+  encounterMeta?: IEncounterMeta,
+  objectives?: Record<string, IObjectiveMarker>,
+  hexTerrain?: readonly IHexTerrain[],
+  c3Network?: IC3NetworkState,
+  groundObjects?: Record<string, IRepresentedGroundObjectState>,
+  minefields?: Readonly<Record<string, IRepresentedMinefieldState>>,
+];
+
+export interface ICreateGameCreatedEventInput {
+  readonly gameId: string;
+  readonly config: IGameConfig;
+  readonly units: readonly IGameUnit[];
+  readonly encounterMeta?: IEncounterMeta;
+  readonly objectives?: Record<string, IObjectiveMarker>;
+  readonly hexTerrain?: readonly IHexTerrain[];
+  readonly c3Network?: IC3NetworkState;
+  readonly groundObjects?: Record<string, IRepresentedGroundObjectState>;
+  readonly minefields?: Readonly<Record<string, IRepresentedMinefieldState>>;
+}
+
 /**
  * Per `link-encounters-to-replays` PR 3: optional `encounterMeta` is
  * stamped onto the GameCreated event payload when the session
@@ -46,45 +70,75 @@ import { createEventBase } from './base';
  * by a producer before it reaches this event payload.
  */
 export function createGameCreatedEvent(
-  gameId: string,
-  config: IGameConfig,
-  units: readonly IGameUnit[],
-  encounterMeta?: IEncounterMeta,
-  objectives?: Record<string, IObjectiveMarker>,
-  hexTerrain?: readonly IHexTerrain[],
-  c3Network?: IC3NetworkState,
-  groundObjects?: Record<string, IRepresentedGroundObjectState>,
-  minefields?: Readonly<Record<string, IRepresentedMinefieldState>>,
+  ...args: [ICreateGameCreatedEventInput] | GameCreatedEventArgs
 ): IGameEvent {
+  const input = normalizeGameCreatedEventInput(args);
   const payload: IGameCreatedPayload = {
-    config,
-    units,
-    ...(encounterMeta !== undefined ? { encounterMeta } : {}),
-    ...(hexTerrain !== undefined && hexTerrain.length > 0
-      ? { hexTerrain }
+    config: input.config,
+    units: input.units,
+    ...(input.encounterMeta !== undefined
+      ? { encounterMeta: input.encounterMeta }
       : {}),
-    ...(objectives !== undefined && Object.keys(objectives).length > 0
-      ? { objectives }
+    ...(input.hexTerrain !== undefined && input.hexTerrain.length > 0
+      ? { hexTerrain: input.hexTerrain }
       : {}),
-    ...(c3Network !== undefined && c3Network.networks.length > 0
-      ? { c3Network }
+    ...(input.objectives !== undefined &&
+    Object.keys(input.objectives).length > 0
+      ? { objectives: input.objectives }
       : {}),
-    ...(groundObjects !== undefined && Object.keys(groundObjects).length > 0
-      ? { groundObjects }
+    ...(input.c3Network !== undefined && input.c3Network.networks.length > 0
+      ? { c3Network: input.c3Network }
       : {}),
-    ...(minefields !== undefined && Object.keys(minefields).length > 0
-      ? { minefields }
+    ...(input.groundObjects !== undefined &&
+    Object.keys(input.groundObjects).length > 0
+      ? { groundObjects: input.groundObjects }
+      : {}),
+    ...(input.minefields !== undefined &&
+    Object.keys(input.minefields).length > 0
+      ? { minefields: input.minefields }
       : {}),
   };
   return {
     ...createEventBase(
-      gameId,
+      input.gameId,
       0,
       GameEventType.GameCreated,
       0,
       GamePhase.Initiative,
     ),
     payload,
+  };
+}
+
+function normalizeGameCreatedEventInput(
+  args: [ICreateGameCreatedEventInput] | GameCreatedEventArgs,
+): ICreateGameCreatedEventInput {
+  if (typeof args[0] !== 'string') {
+    return args[0];
+  }
+
+  const [
+    gameId,
+    config,
+    units,
+    encounterMeta,
+    objectives,
+    hexTerrain,
+    c3Network,
+    groundObjects,
+    minefields,
+  ] = args as GameCreatedEventArgs;
+
+  return {
+    gameId,
+    config,
+    units,
+    ...(encounterMeta !== undefined ? { encounterMeta } : {}),
+    ...(objectives !== undefined ? { objectives } : {}),
+    ...(hexTerrain !== undefined ? { hexTerrain } : {}),
+    ...(c3Network !== undefined ? { c3Network } : {}),
+    ...(groundObjects !== undefined ? { groundObjects } : {}),
+    ...(minefields !== undefined ? { minefields } : {}),
   };
 }
 

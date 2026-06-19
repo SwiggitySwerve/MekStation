@@ -42,14 +42,14 @@ export class ShareLinkRepository {
   /**
    * Initialize the repository (ensure table exists)
    */
-  async initialize(): Promise<void> {
+  readonly initialize = async (): Promise<void> => {
     if (this.initialized) return;
 
-    const db = getSQLiteService();
-    await db.initialize();
+    const database = getSQLiteService();
+    await database.initialize();
 
     // Create share_links table if not exists
-    db.getDatabase().exec(`
+    database.getDatabase().exec(`
       CREATE TABLE IF NOT EXISTS vault_share_links (
         id TEXT PRIMARY KEY,
         token TEXT UNIQUE NOT NULL,
@@ -74,7 +74,7 @@ export class ShareLinkRepository {
     `);
 
     this.initialized = true;
-  }
+  };
 
   /**
    * Generate a cryptographically secure URL-safe token using base64url encoding.
@@ -108,20 +108,20 @@ export class ShareLinkRepository {
   /**
    * Create a new share link
    */
-  async create(
+  readonly create = async (
     scopeType: PermissionScopeType,
     scopeId: string | null,
     scopeCategory: ContentCategory | null,
     options: IShareLinkOptions,
-  ): Promise<IShareLink> {
+  ): Promise<IShareLink> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
     const id = `link-${crypto.randomUUID()}`;
     const token = this.generateToken();
     const createdAt = new Date().toISOString();
 
-    const stmt = db.prepare(`
+    const stmt = database.prepare(`
       INSERT INTO vault_share_links (
         id, token, scope_type, scope_id, scope_category,
         level, expires_at, max_uses, use_count, created_at, label, is_active
@@ -155,97 +155,97 @@ export class ShareLinkRepository {
       label: options.label,
       isActive: true,
     };
-  }
+  };
 
   /**
    * Get share link by ID
    */
-  async getById(id: string): Promise<IShareLink | null> {
+  readonly getById = async (id: string): Promise<IShareLink | null> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const row = db
+    const row = database
       .prepare('SELECT * FROM vault_share_links WHERE id = ?')
       .get(id) as IStoredShareLink | undefined;
 
     return row ? this.rowToLink(row) : null;
-  }
+  };
 
   /**
    * Get share link by token
    */
-  async getByToken(token: string): Promise<IShareLink | null> {
+  readonly getByToken = async (token: string): Promise<IShareLink | null> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const row = db
+    const row = database
       .prepare('SELECT * FROM vault_share_links WHERE token = ?')
       .get(token) as IStoredShareLink | undefined;
 
     return row ? this.rowToLink(row) : null;
-  }
+  };
 
   /**
    * Get all share links for an item
    */
-  async getByItem(
+  readonly getByItem = async (
     scopeType: PermissionScopeType,
     scopeId: string,
-  ): Promise<IShareLink[]> {
+  ): Promise<IShareLink[]> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const rows = db
+    const rows = database
       .prepare(
         'SELECT * FROM vault_share_links WHERE scope_type = ? AND scope_id = ? ORDER BY created_at DESC',
       )
       .all(scopeType, scopeId) as IStoredShareLink[];
 
     return rows.map((row) => this.rowToLink(row));
-  }
+  };
 
   /**
    * Get all active share links
    */
-  async getActive(): Promise<IShareLink[]> {
+  readonly getActive = async (): Promise<IShareLink[]> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const rows = db
+    const rows = database
       .prepare(
         'SELECT * FROM vault_share_links WHERE is_active = 1 ORDER BY created_at DESC',
       )
       .all() as IStoredShareLink[];
 
     return rows.map((row) => this.rowToLink(row));
-  }
+  };
 
   /**
    * Get all share links
    */
-  async getAll(): Promise<IShareLink[]> {
+  readonly getAll = async (): Promise<IShareLink[]> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const rows = db
+    const rows = database
       .prepare('SELECT * FROM vault_share_links ORDER BY created_at DESC')
       .all() as IStoredShareLink[];
 
     return rows.map((row) => this.rowToLink(row));
-  }
+  };
 
   /**
    * Redeem a share link (validate and increment use count atomically)
    * Uses atomic UPDATE with all conditions to prevent race conditions.
    */
-  async redeem(token: string): Promise<IShareLinkRedeemResult> {
+  readonly redeem = async (token: string): Promise<IShareLinkRedeemResult> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
 
     // Atomic update with all validation conditions
     // This prevents race conditions where two requests could both pass maxUses check
-    const result = db
+    const result = database
       .prepare(`
       UPDATE vault_share_links 
       SET use_count = use_count + 1 
@@ -313,127 +313,136 @@ export class ShareLinkRepository {
     // Return updated link
     const updatedLink = await this.getByToken(token);
     return { success: true, data: { link: updatedLink! } };
-  }
+  };
 
   /**
    * Deactivate a share link
    */
-  async deactivate(id: string): Promise<boolean> {
+  readonly deactivate = async (id: string): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = database
       .prepare('UPDATE vault_share_links SET is_active = 0 WHERE id = ?')
       .run(id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Reactivate a share link
    */
-  async reactivate(id: string): Promise<boolean> {
+  readonly reactivate = async (id: string): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = database
       .prepare('UPDATE vault_share_links SET is_active = 1 WHERE id = ?')
       .run(id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Update share link label
    */
-  async updateLabel(id: string, label: string | null): Promise<boolean> {
+  readonly updateLabel = async (
+    id: string,
+    label: string | null,
+  ): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = database
       .prepare('UPDATE vault_share_links SET label = ? WHERE id = ?')
       .run(label, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Update share link expiry
    */
-  async updateExpiry(id: string, expiresAt: string | null): Promise<boolean> {
+  readonly updateExpiry = async (
+    id: string,
+    expiresAt: string | null,
+  ): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = database
       .prepare('UPDATE vault_share_links SET expires_at = ? WHERE id = ?')
       .run(expiresAt, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Update share link max uses
    */
-  async updateMaxUses(id: string, maxUses: number | null): Promise<boolean> {
+  readonly updateMaxUses = async (
+    id: string,
+    maxUses: number | null,
+  ): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = database
       .prepare('UPDATE vault_share_links SET max_uses = ? WHERE id = ?')
       .run(maxUses, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Delete a share link
    */
-  async delete(id: string): Promise<boolean> {
+  readonly delete = async (id: string): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = database
       .prepare('DELETE FROM vault_share_links WHERE id = ?')
       .run(id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Delete all share links for an item
    */
-  async deleteByItem(
+  readonly deleteByItem = async (
     scopeType: PermissionScopeType,
     scopeId: string,
-  ): Promise<number> {
+  ): Promise<number> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = database
       .prepare(
         'DELETE FROM vault_share_links WHERE scope_type = ? AND scope_id = ?',
       )
       .run(scopeType, scopeId);
 
     return result.changes;
-  }
+  };
 
   /**
    * Remove expired share links
    */
-  async cleanupExpired(): Promise<number> {
+  readonly cleanupExpired = async (): Promise<number> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const database = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
 
-    const result = db
+    const result = database
       .prepare(
         'DELETE FROM vault_share_links WHERE expires_at IS NOT NULL AND expires_at < ?',
       )
       .run(now);
 
     return result.changes;
-  }
+  };
 
   /**
    * Convert database row to IShareLink

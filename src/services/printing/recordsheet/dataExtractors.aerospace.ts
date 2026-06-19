@@ -8,26 +8,21 @@
 import {
   IAerospaceRecordSheetData,
   IAerospaceArcArmor,
-  IRecordSheetEquipment,
   IRecordSheetHeatSinks,
   IRecordSheetPilot,
   IRecordSheetSPAEntry,
 } from '@/types/printing';
 
+import type { IBaseRecordSheetUnitConfig } from './types';
+
 import { extractHeader } from './dataExtractors';
+import {
+  ISimpleEquipmentInput,
+  mapSimpleRecordSheetEquipment,
+} from './simpleEquipmentMapper';
 
 /** Aerospace-specific unit config fields. */
-export interface IAerospaceUnitConfig {
-  id: string;
-  name: string;
-  chassis: string;
-  model: string;
-  tonnage: number;
-  techBase: string;
-  rulesLevel: string;
-  era: string;
-  battleValue?: number;
-  cost?: number;
+export interface IAerospaceUnitConfig extends IBaseRecordSheetUnitConfig {
   /** Structural Integrity points. */
   structuralIntegrity?: number;
   /** Total fuel points (standard aerospace: 400). */
@@ -42,17 +37,7 @@ export interface IAerospaceUnitConfig {
   armorArcs?: Partial<
     Record<IAerospaceArcArmor['arc'], { current: number; maximum: number }>
   >;
-  equipment?: Array<{
-    id: string;
-    name: string;
-    location: string;
-    heat?: number;
-    damage?: number | string;
-    ranges?: { minimum: number; short: number; medium: number; long: number };
-    isWeapon?: boolean;
-    isAmmo?: boolean;
-    ammoCount?: number;
-  }>;
+  equipment?: ISimpleEquipmentInput[];
   /** Number of bomb bay slots (0 or absent when none). */
   bombBaySlots?: number;
   pilot?: IRecordSheetPilot;
@@ -90,26 +75,6 @@ export function extractAerospaceData(
     external: Math.max(0, hsRaw.count - 10),
   };
 
-  const equipment: IRecordSheetEquipment[] = (unit.equipment ?? []).map(
-    (eq, idx) => ({
-      id: eq.id ?? String(idx),
-      name: eq.name,
-      location: eq.location,
-      locationAbbr: eq.location.substring(0, 3).toUpperCase(),
-      heat: eq.heat ?? '-',
-      damage: eq.damage ?? '-',
-      damageCode: undefined,
-      minimum: eq.ranges?.minimum ?? '-',
-      short: eq.ranges?.short ?? '-',
-      medium: eq.ranges?.medium ?? '-',
-      long: eq.ranges?.long ?? '-',
-      quantity: 1,
-      isWeapon: eq.isWeapon ?? false,
-      isAmmo: eq.isAmmo ?? false,
-      ammoCount: eq.ammoCount,
-    }),
-  );
-
   return {
     unitType: 'aerospace',
     header: extractHeader(unit),
@@ -120,7 +85,7 @@ export function extractAerospaceData(
     heatSinks,
     armorType: unit.armorType ?? 'Aerospace Standard',
     armorArcs,
-    equipment,
+    equipment: mapSimpleRecordSheetEquipment(unit.equipment),
     bombBaySlots: unit.bombBaySlots ?? 0,
     pilot: unit.pilot,
     specialAbilities,

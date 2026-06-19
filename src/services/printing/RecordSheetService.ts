@@ -82,6 +82,32 @@ async function getJsPDFConstructor(): Promise<typeof import('jspdf').jsPDF> {
   return jsPDF;
 }
 
+type ExtractRecordSheetData = {
+  (
+    unit: IUnitConfig,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IMechRecordSheetData;
+  (
+    target: IRecordSheetDispatchTarget,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IRecordSheetData;
+  (
+    unit: IRecordSheetUnitInput,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IRecordSheetData;
+};
+
+type ExtractRecordSheetDataByType = {
+  (
+    target: IRecordSheetDispatchTarget,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IRecordSheetData;
+  (
+    unit: IRecordSheetUnitInput,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IRecordSheetData;
+};
+
 /**
  * Record Sheet Service class
  *
@@ -100,22 +126,10 @@ export class RecordSheetService {
    * New callers can pass either `{ type: 'vehicle' }` style unit configs or an
    * explicit `IRecordSheetDispatchTarget`.
    */
-  extractData(
-    unit: IUnitConfig,
-    pilotAbilities?: readonly IPilotAbilityRef[],
-  ): IMechRecordSheetData;
-  extractData(
-    target: IRecordSheetDispatchTarget,
-    pilotAbilities?: readonly IPilotAbilityRef[],
-  ): IRecordSheetData;
-  extractData(
-    unit: IRecordSheetUnitInput,
-    pilotAbilities?: readonly IPilotAbilityRef[],
-  ): IRecordSheetData;
-  extractData(
+  extractData: ExtractRecordSheetData = ((
     targetOrUnit: IRecordSheetDispatchTarget | IRecordSheetUnitInput,
     pilotAbilities?: readonly IPilotAbilityRef[],
-  ): IRecordSheetData {
+  ): IRecordSheetData => {
     const target = isRecordSheetDispatchTarget(targetOrUnit)
       ? targetOrUnit
       : dispatchTargetFromUnit(targetOrUnit);
@@ -142,29 +156,21 @@ export class RecordSheetService {
         return this.assertUnsupportedTarget(target);
       }
     }
-  }
+  }) as ExtractRecordSheetData;
 
   /**
    * Backward-compatible alias retained for callers introduced during early
    * Wave 2 scaffolding. Prefer `extractData`.
    */
-  extractDataByType(
-    target: IRecordSheetDispatchTarget,
-    pilotAbilities?: readonly IPilotAbilityRef[],
-  ): IRecordSheetData;
-  extractDataByType(
-    unit: IRecordSheetUnitInput,
-    pilotAbilities?: readonly IPilotAbilityRef[],
-  ): IRecordSheetData;
-  extractDataByType(
+  extractDataByType: ExtractRecordSheetDataByType = ((
     targetOrUnit: IRecordSheetDispatchTarget | IRecordSheetUnitInput,
     pilotAbilities?: readonly IPilotAbilityRef[],
-  ): IRecordSheetData {
+  ): IRecordSheetData => {
     if (isRecordSheetDispatchTarget(targetOrUnit)) {
       return this.extractData(targetOrUnit, pilotAbilities);
     }
     return this.extractData(targetOrUnit, pilotAbilities);
-  }
+  }) as ExtractRecordSheetDataByType;
 
   private assertUnsupportedTarget(target: never): never {
     throw new Error(`Unhandled record sheet target: ${String(target)}`);
@@ -204,18 +210,18 @@ export class RecordSheetService {
    * Mechs use the MegaMek SVG template pipeline; all other types use the
    * per-type string-based SVG renderer rendered via the canvas helper.
    */
-  async renderPreview(
+  renderPreview = async (
     canvas: HTMLCanvasElement,
     data: IRecordSheetData,
     paperSize: PaperSize = PaperSize.LETTER,
-  ): Promise<void> {
+  ): Promise<void> => {
     if (data.unitType === 'mech') {
       await this.renderMechPreview(canvas, data, paperSize);
       return;
     }
     const svgString = await this.buildNonMechSVG(data, paperSize);
     await renderSVGStringToCanvas(svgString, canvas, 1);
-  }
+  };
 
   /**
    * Return the SVG string for any unit type.
@@ -223,15 +229,15 @@ export class RecordSheetService {
    * Mechs go through the MegaMek template pipeline; others use the per-type
    * string renderers.
    */
-  async getSVGString(
+  getSVGString = async (
     data: IRecordSheetData,
     paperSize: PaperSize = PaperSize.LETTER,
-  ): Promise<string> {
+  ): Promise<string> => {
     if (data.unitType === 'mech') {
       return this.getMechSVGString(data, paperSize);
     }
     return this.buildNonMechSVG(data, paperSize);
-  }
+  };
 
   /**
    * Export to PDF and trigger a browser download.
@@ -239,13 +245,13 @@ export class RecordSheetService {
    * For non-mech units the per-type SVG is rasterised to canvas then embedded
    * in the PDF at letter / A4 dimensions.
    */
-  async exportPDF(
+  exportPDF = async (
     data: IRecordSheetData,
     options: IPDFExportOptions = {
       paperSize: PaperSize.LETTER,
       includePilotData: false,
     },
-  ): Promise<void> {
+  ): Promise<void> => {
     const { paperSize, filename } = options;
     const { width, height } = PAPER_DIMENSIONS[paperSize];
 
@@ -278,7 +284,7 @@ export class RecordSheetService {
       filename ||
       `${data.header.chassis}-${data.header.model}.pdf`.replace(/\s+/g, '-');
     pdf.save(pdfFilename);
-  }
+  };
 
   // ── Internal mech helpers (preserve existing behaviour exactly) ───────────
 
@@ -392,7 +398,7 @@ export class RecordSheetService {
   /**
    * Print record sheet using browser print dialog.
    */
-  print(canvas: HTMLCanvasElement): void {
+  print = (canvas: HTMLCanvasElement): void => {
     const dataUrl = canvas.toDataURL('image/png');
 
     const printWindow = window.open('', '_blank');
@@ -428,7 +434,7 @@ export class RecordSheetService {
       </html>
     `);
     windowDoc.close();
-  }
+  };
 }
 
 const recordSheetServiceFactory: SingletonFactory<RecordSheetService> =

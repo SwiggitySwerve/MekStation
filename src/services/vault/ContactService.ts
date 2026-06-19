@@ -50,7 +50,9 @@ export class ContactService {
   /**
    * Add a new contact by friend code
    */
-  async addContact(options: IAddContactOptions): Promise<IAddContactResult> {
+  readonly addContact = async (
+    options: IAddContactOptions,
+  ): Promise<IAddContactResult> => {
     const { friendCode, nickname, notes, trusted } = options;
 
     // Validate friend code format
@@ -134,80 +136,91 @@ export class ContactService {
       success: true,
       data: { contact },
     };
-  }
+  };
 
   /**
    * Get all contacts
    */
-  async getAllContacts(): Promise<IContact[]> {
+  readonly getAllContacts = async (): Promise<IContact[]> => {
     return this.repository.getAll();
-  }
+  };
 
   /**
    * Get contact by ID
    */
-  async getContact(id: string): Promise<IContact | null> {
+  readonly getContact = async (id: string): Promise<IContact | null> => {
     return this.repository.getById(id);
-  }
+  };
 
   /**
    * Get contact by friend code
    */
-  async getContactByFriendCode(friendCode: string): Promise<IContact | null> {
+  readonly getContactByFriendCode = async (
+    friendCode: string,
+  ): Promise<IContact | null> => {
     return this.repository.getByFriendCode(friendCode.toUpperCase());
-  }
+  };
 
   /**
    * Search contacts by name or friend code
    */
-  async searchContacts(query: string): Promise<IContact[]> {
+  readonly searchContacts = async (query: string): Promise<IContact[]> => {
     return this.repository.search(query);
-  }
+  };
 
   /**
    * Get trusted contacts only
    */
-  async getTrustedContacts(): Promise<IContact[]> {
+  readonly getTrustedContacts = async (): Promise<IContact[]> => {
     return this.repository.getTrusted();
-  }
+  };
 
   /**
    * Update contact nickname
    */
-  async setNickname(id: string, nickname: string | null): Promise<boolean> {
+  readonly setNickname = async (
+    id: string,
+    nickname: string | null,
+  ): Promise<boolean> => {
     return this.repository.updateNickname(id, nickname?.trim() || null);
-  }
+  };
 
   /**
    * Update contact trust status
    */
-  async setTrusted(id: string, isTrusted: boolean): Promise<boolean> {
+  readonly setTrusted = async (
+    id: string,
+    isTrusted: boolean,
+  ): Promise<boolean> => {
     return this.repository.updateTrusted(id, isTrusted);
-  }
+  };
 
   /**
    * Update contact notes
    */
-  async setNotes(id: string, notes: string | null): Promise<boolean> {
+  readonly setNotes = async (
+    id: string,
+    notes: string | null,
+  ): Promise<boolean> => {
     return this.repository.updateNotes(id, notes?.trim() || null);
-  }
+  };
 
   /**
    * Update last seen timestamp
    */
-  async updateLastSeen(id: string): Promise<boolean> {
+  readonly updateLastSeen = async (id: string): Promise<boolean> => {
     return this.repository.updateLastSeen(id, new Date().toISOString());
-  }
+  };
 
   /**
    * Update contact info from peer handshake
    */
-  async updateFromPeer(
+  readonly updateFromPeer = async (
     friendCode: string,
     displayName: string,
     publicKey: string,
     avatar: string | null,
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     const contact = await this.repository.getByFriendCode(friendCode);
     if (!contact) return false;
 
@@ -230,42 +243,44 @@ export class ContactService {
     }
 
     return updated;
-  }
+  };
 
   /**
    * Remove a contact
    */
-  async removeContact(id: string): Promise<boolean> {
+  readonly removeContact = async (id: string): Promise<boolean> => {
     return this.repository.delete(id);
-  }
+  };
 
   /**
    * Remove a contact by friend code
    */
-  async removeContactByFriendCode(friendCode: string): Promise<boolean> {
+  readonly removeContactByFriendCode = async (
+    friendCode: string,
+  ): Promise<boolean> => {
     return this.repository.deleteByFriendCode(friendCode.toUpperCase());
-  }
+  };
 
   /**
    * Check if a friend code is already a contact
    */
-  async isContact(friendCode: string): Promise<boolean> {
+  readonly isContact = async (friendCode: string): Promise<boolean> => {
     return this.repository.exists(friendCode.toUpperCase());
-  }
+  };
 
   /**
    * Get contact count
    */
-  async getContactCount(): Promise<number> {
+  readonly getContactCount = async (): Promise<number> => {
     return this.repository.count();
-  }
+  };
 
   /**
    * Get display name for a contact (nickname > displayName > friend code)
    */
-  getDisplayName(contact: IContact): string {
+  readonly getDisplayName = (contact: IContact): string => {
     return contact.nickname || contact.displayName || contact.friendCode;
-  }
+  };
 }
 
 // =============================================================================

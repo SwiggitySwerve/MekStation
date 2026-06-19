@@ -9,6 +9,8 @@
 
 import { TechBase } from '@/types/enums/TechBase';
 
+import type { IBABreakdown } from './BVBreakdownTypes';
+
 // ============================================================================
 // Chassis
 // ============================================================================
@@ -589,5 +591,5 @@ export interface IBattleArmorUnit {
    * @spec openspec/changes/add-battlearmor-battle-value/specs/battle-armor-unit-system/spec.md
    *       Requirement: BA BV Breakdown on Unit State
    */
-  readonly bvBreakdown?: import('@/utils/construction/battlearmor/battleArmorBV').IBABreakdown;
+  readonly bvBreakdown?: IBABreakdown;
 }

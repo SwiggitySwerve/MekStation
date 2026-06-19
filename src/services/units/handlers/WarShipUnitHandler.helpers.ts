@@ -4,16 +4,22 @@
 
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
-  ICapitalMountedEquipment,
-  ITransportBay,
-  ICrewQuarters,
-  ICapitalCrewConfiguration,
-  IGravityDeck,
   BayType,
-  QuartersType,
   CapitalArc,
+  ICapitalCrewConfiguration,
+  ICapitalMountedEquipment,
+  ICrewQuarters,
+  IGravityDeck,
+  ITransportBay,
   KFDriveType,
+  QuartersType,
 } from '@/types/unit/CapitalShipInterfaces';
+
+import {
+  DEFAULT_CAPITAL_TRANSPORT_BAY_RULES,
+  parseCapitalTransporterString,
+  type ITransportBayTypeRule,
+} from './transportBayParsing';
 
 const ARC_MAP: Record<string, CapitalArc> = {
   nose: CapitalArc.NOSE,
@@ -39,6 +45,11 @@ const ARC_MAP: Record<string, CapitalArc> = {
   rbs: CapitalArc.RIGHT_BROADSIDE,
   'rbs equipment': CapitalArc.RIGHT_BROADSIDE,
 };
+
+const WARSHIP_TRANSPORT_BAY_RULES: readonly ITransportBayTypeRule[] = [
+  { tokens: ['dropship'], type: BayType.DROPSHIP },
+  ...DEFAULT_CAPITAL_TRANSPORT_BAY_RULES,
+];
 
 export function parseArmorByArc(armor: readonly number[]): {
   nose: number;
@@ -124,33 +135,11 @@ function parseTransporterString(
   transporter: string,
   bayNumber: number,
 ): ITransportBay | null {
-  const lower = transporter.toLowerCase();
-  const parts = lower.split(':');
-
-  if (parts.length < 2) return null;
-
-  const typeStr = parts[0];
-  const capacity = parseFloat(parts[1]) || 0;
-  const doors = parts.length > 2 ? parseInt(parts[2], 10) : 1;
-
-  let type: BayType;
-  if (typeStr.includes('dropship')) {
-    type = BayType.DROPSHIP;
-  } else if (typeStr.includes('mech')) {
-    type = BayType.MECH;
-  } else if (typeStr.includes('vehicle')) {
-    type = BayType.VEHICLE;
-  } else if (typeStr.includes('fighter') || typeStr.includes('asf')) {
-    type = BayType.FIGHTER;
-  } else if (typeStr.includes('smallcraft')) {
-    type = BayType.SMALL_CRAFT;
-  } else if (typeStr.includes('cargo')) {
-    type = BayType.CARGO;
-  } else {
-    type = BayType.CARGO;
-  }
-
-  return { type, capacity, doors, bayNumber };
+  return parseCapitalTransporterString(
+    transporter,
+    bayNumber,
+    WARSHIP_TRANSPORT_BAY_RULES,
+  );
 }
 
 export function parseQuarters(

@@ -15,172 +15,94 @@
 
 import { MechLocation } from '@/types/construction';
 
-import {
+import type {
   LayoutConstraint,
   MechLayoutConfig,
   PartDefinition,
 } from '../LayoutTypes';
 
+import {
+  connectAnchors,
+  edgeAnchor,
+  gapConstraint,
+  layoutConfig,
+  offsetAnchor,
+  rectangularPart,
+  resizePart,
+} from './HumanoidLayoutHelpers';
+
 // ============================================================================
 // Part Definitions (LAM Mech Mode)
 // ============================================================================
 
-const HEAD: PartDefinition = {
+const HEAD: PartDefinition = rectangularPart({
   id: MechLocation.HEAD,
   baseWidth: 65,
   baseHeight: 50,
-  shape: 'path',
-  anchors: [{ id: 'neck', position: 'bottom', offset: { x: 0, y: 0 } }],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
-};
+  anchors: [offsetAnchor('neck', 'bottom')],
+});
 
-const CENTER_TORSO: PartDefinition = {
+const CENTER_TORSO: PartDefinition = rectangularPart({
   id: MechLocation.CENTER_TORSO,
   baseWidth: 100,
   baseHeight: 110,
-  shape: 'path',
   isRoot: true,
   anchors: [
-    { id: 'neck', position: 'top', offset: { x: 0, y: 0 } },
-    {
-      id: 'left_side',
-      position: 'left',
-      edgePosition: { edge: 'left', at: 0 },
-    },
-    {
-      id: 'right_side',
-      position: 'right',
-      edgePosition: { edge: 'right', at: 0 },
-    },
-    {
-      id: 'left_hip',
-      position: 'bottom',
-      edgePosition: { edge: 'bottom', at: 0.25 },
-    },
-    {
-      id: 'right_hip',
-      position: 'bottom',
-      edgePosition: { edge: 'bottom', at: 0.75 },
-    },
+    offsetAnchor('neck', 'top'),
+    edgeAnchor('left_side', 'left', 'left', 0),
+    edgeAnchor('right_side', 'right', 'right', 0),
+    edgeAnchor('left_hip', 'bottom', 'bottom', 0.25),
+    edgeAnchor('right_hip', 'bottom', 'bottom', 0.75),
   ],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
-};
+});
 
-const LEFT_TORSO: PartDefinition = {
+const LEFT_TORSO: PartDefinition = rectangularPart({
   id: MechLocation.LEFT_TORSO,
   baseWidth: 70,
   baseHeight: 100,
-  shape: 'path',
   anchors: [
-    { id: 'inner', position: 'right', edgePosition: { edge: 'right', at: 0 } },
-    {
-      id: 'arm_mount',
-      position: 'left',
-      edgePosition: { edge: 'left', at: 0.2 },
-    },
+    edgeAnchor('inner', 'right', 'right', 0),
+    edgeAnchor('arm_mount', 'left', 'left', 0.2),
   ],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
-};
+});
 
-const RIGHT_TORSO: PartDefinition = {
+const RIGHT_TORSO: PartDefinition = rectangularPart({
   id: MechLocation.RIGHT_TORSO,
   baseWidth: 70,
   baseHeight: 100,
-  shape: 'path',
   anchors: [
-    { id: 'inner', position: 'left', edgePosition: { edge: 'left', at: 0 } },
-    {
-      id: 'arm_mount',
-      position: 'right',
-      edgePosition: { edge: 'right', at: 0.2 },
-    },
+    edgeAnchor('inner', 'left', 'left', 0),
+    edgeAnchor('arm_mount', 'right', 'right', 0.2),
   ],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
-};
+});
 
-const LEFT_ARM: PartDefinition = {
+const LEFT_ARM: PartDefinition = rectangularPart({
   id: MechLocation.LEFT_ARM,
   baseWidth: 30,
   baseHeight: 130,
-  shape: 'path',
-  anchors: [{ id: 'shoulder', position: 'top-right', offset: { x: 0, y: 0 } }],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
-};
+  anchors: [offsetAnchor('shoulder', 'top-right')],
+});
 
-const RIGHT_ARM: PartDefinition = {
+const RIGHT_ARM: PartDefinition = rectangularPart({
   id: MechLocation.RIGHT_ARM,
   baseWidth: 30,
   baseHeight: 130,
-  shape: 'path',
-  anchors: [{ id: 'shoulder', position: 'top-left', offset: { x: 0, y: 0 } }],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
-};
+  anchors: [offsetAnchor('shoulder', 'top-left')],
+});
 
-const LEFT_LEG: PartDefinition = {
+const LEFT_LEG: PartDefinition = rectangularPart({
   id: MechLocation.LEFT_LEG,
   baseWidth: 50,
   baseHeight: 130,
-  shape: 'path',
-  anchors: [{ id: 'hip', position: 'top-right', offset: { x: 0, y: 0 } }],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
-};
+  anchors: [offsetAnchor('hip', 'top-right')],
+});
 
-const RIGHT_LEG: PartDefinition = {
+const RIGHT_LEG: PartDefinition = rectangularPart({
   id: MechLocation.RIGHT_LEG,
   baseWidth: 50,
   baseHeight: 130,
-  shape: 'path',
-  anchors: [{ id: 'hip', position: 'top-left', offset: { x: 0, y: 0 } }],
-  pathTemplate: `
-    M {x} {y}
-    L {x2} {y}
-    L {x2} {y2}
-    L {x} {y2}
-    Z
-  `,
-};
+  anchors: [offsetAnchor('hip', 'top-left')],
+});
 
 // ============================================================================
 // Layout Constraints
@@ -188,84 +110,76 @@ const RIGHT_LEG: PartDefinition = {
 
 const LAM_CONSTRAINTS: LayoutConstraint[] = [
   // Head connects to center torso neck
-  {
-    id: 'head-to-neck',
-    type: 'anchor-to-anchor',
-    source: { part: MechLocation.HEAD, anchor: 'bottom' },
-    target: { part: MechLocation.CENTER_TORSO, anchor: 'neck' },
-    gap: 5,
-    priority: 100,
-  },
+  connectAnchors(
+    'head-to-neck',
+    { part: MechLocation.HEAD, anchor: 'bottom' },
+    { part: MechLocation.CENTER_TORSO, anchor: 'neck' },
+    5,
+    100,
+  ),
 
   // Left torso flanks center torso on the left
-  {
-    id: 'left-torso-to-center',
-    type: 'anchor-to-anchor',
-    source: { part: MechLocation.LEFT_TORSO, anchor: 'inner' },
-    target: { part: MechLocation.CENTER_TORSO, anchor: 'left_side' },
-    gap: 0,
-    priority: 90,
-  },
+  connectAnchors(
+    'left-torso-to-center',
+    { part: MechLocation.LEFT_TORSO, anchor: 'inner' },
+    { part: MechLocation.CENTER_TORSO, anchor: 'left_side' },
+    0,
+    90,
+  ),
 
   // Right torso flanks center torso on the right
-  {
-    id: 'right-torso-to-center',
-    type: 'anchor-to-anchor',
-    source: { part: MechLocation.RIGHT_TORSO, anchor: 'inner' },
-    target: { part: MechLocation.CENTER_TORSO, anchor: 'right_side' },
-    gap: 0,
-    priority: 90,
-  },
+  connectAnchors(
+    'right-torso-to-center',
+    { part: MechLocation.RIGHT_TORSO, anchor: 'inner' },
+    { part: MechLocation.CENTER_TORSO, anchor: 'right_side' },
+    0,
+    90,
+  ),
 
   // Left arm connects to left torso
-  {
-    id: 'left-arm-to-torso',
-    type: 'anchor-to-anchor',
-    source: { part: MechLocation.LEFT_ARM, anchor: 'shoulder' },
-    target: { part: MechLocation.LEFT_TORSO, anchor: 'arm_mount' },
-    gap: 0,
-    priority: 80,
-  },
+  connectAnchors(
+    'left-arm-to-torso',
+    { part: MechLocation.LEFT_ARM, anchor: 'shoulder' },
+    { part: MechLocation.LEFT_TORSO, anchor: 'arm_mount' },
+    0,
+    80,
+  ),
 
   // Right arm connects to right torso
-  {
-    id: 'right-arm-to-torso',
-    type: 'anchor-to-anchor',
-    source: { part: MechLocation.RIGHT_ARM, anchor: 'shoulder' },
-    target: { part: MechLocation.RIGHT_TORSO, anchor: 'arm_mount' },
-    gap: 0,
-    priority: 80,
-  },
+  connectAnchors(
+    'right-arm-to-torso',
+    { part: MechLocation.RIGHT_ARM, anchor: 'shoulder' },
+    { part: MechLocation.RIGHT_TORSO, anchor: 'arm_mount' },
+    0,
+    80,
+  ),
 
   // Left leg connects to center torso hip
-  {
-    id: 'left-leg-to-hip',
-    type: 'anchor-to-anchor',
-    source: { part: MechLocation.LEFT_LEG, anchor: 'hip' },
-    target: { part: MechLocation.CENTER_TORSO, anchor: 'left_hip' },
-    gap: 5,
-    priority: 70,
-  },
+  connectAnchors(
+    'left-leg-to-hip',
+    { part: MechLocation.LEFT_LEG, anchor: 'hip' },
+    { part: MechLocation.CENTER_TORSO, anchor: 'left_hip' },
+    5,
+    70,
+  ),
 
   // Right leg connects to center torso hip
-  {
-    id: 'right-leg-to-hip',
-    type: 'anchor-to-anchor',
-    source: { part: MechLocation.RIGHT_LEG, anchor: 'hip' },
-    target: { part: MechLocation.CENTER_TORSO, anchor: 'right_hip' },
-    gap: 5,
-    priority: 70,
-  },
+  connectAnchors(
+    'right-leg-to-hip',
+    { part: MechLocation.RIGHT_LEG, anchor: 'hip' },
+    { part: MechLocation.CENTER_TORSO, anchor: 'right_hip' },
+    5,
+    70,
+  ),
 
   // Leg separation constraint
-  {
-    id: 'leg-separation',
-    type: 'gap',
-    source: { part: MechLocation.LEFT_LEG },
-    target: { part: MechLocation.RIGHT_LEG },
-    gap: 10,
-    priority: 60,
-  },
+  gapConstraint(
+    'leg-separation',
+    MechLocation.LEFT_LEG,
+    MechLocation.RIGHT_LEG,
+    10,
+    60,
+  ),
 ];
 
 // ============================================================================
@@ -275,7 +189,7 @@ const LAM_CONSTRAINTS: LayoutConstraint[] = [
 /**
  * Geometric LAM layout for HUD-style diagrams
  */
-export const GEOMETRIC_LAM_LAYOUT: MechLayoutConfig = {
+export const GEOMETRIC_LAM_LAYOUT: MechLayoutConfig = layoutConfig({
   id: 'geometric-lam',
   name: 'Geometric LAM',
   style: 'geometric',
@@ -290,35 +204,29 @@ export const GEOMETRIC_LAM_LAYOUT: MechLayoutConfig = {
     RIGHT_LEG,
   ],
   constraints: LAM_CONSTRAINTS,
-  padding: 10,
   minGap: 5,
-  visualConnectors: false,
-  scale: 1,
-};
+});
 
 /**
  * BattleMech-style LAM layout
  */
-export const BATTLEMECH_LAM_LAYOUT: MechLayoutConfig = {
+export const BATTLEMECH_LAM_LAYOUT: MechLayoutConfig = layoutConfig({
   id: 'battlemech-lam',
   name: 'BattleMech LAM',
   style: 'realistic',
   parts: [
-    { ...CENTER_TORSO, baseWidth: 70, baseHeight: 90 },
-    { ...HEAD, baseWidth: 50, baseHeight: 35 },
-    { ...LEFT_TORSO, baseWidth: 55, baseHeight: 85 },
-    { ...RIGHT_TORSO, baseWidth: 55, baseHeight: 85 },
-    { ...LEFT_ARM, baseWidth: 24, baseHeight: 100 },
-    { ...RIGHT_ARM, baseWidth: 24, baseHeight: 100 },
-    { ...LEFT_LEG, baseWidth: 40, baseHeight: 105 },
-    { ...RIGHT_LEG, baseWidth: 40, baseHeight: 105 },
+    resizePart(CENTER_TORSO, 70, 90),
+    resizePart(HEAD, 50, 35),
+    resizePart(LEFT_TORSO, 55, 85),
+    resizePart(RIGHT_TORSO, 55, 85),
+    resizePart(LEFT_ARM, 24, 100),
+    resizePart(RIGHT_ARM, 24, 100),
+    resizePart(LEFT_LEG, 40, 105),
+    resizePart(RIGHT_LEG, 40, 105),
   ],
   constraints: LAM_CONSTRAINTS,
-  padding: 10,
   minGap: 4,
-  visualConnectors: false,
-  scale: 1,
-};
+});
 
 // ============================================================================
 // All LAM Layouts

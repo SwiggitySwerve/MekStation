@@ -22,11 +22,15 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import {
+  initializeApiDatabase as initCampaignDb,
+  rejectMissingQueryString as readCampaignId,
+  sendCaughtApiError as sendCampaignError,
+} from '@/pages-modules/api/routeHelpers';
+import {
   deleteCampaign,
   readCampaign,
   saveCampaign,
 } from '@/services/campaignPersistence/CampaignPersistenceService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 type ErrorResponse = { error: string };
 
@@ -68,20 +72,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<SerializedCampaign | ErrorResponse>,
 ): Promise<void> {
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    res.status(500).json({ error: message });
-    return;
-  }
+  if (!initCampaignDb(res)) return;
 
-  const { id } = req.query;
-  if (typeof id !== 'string' || id.length === 0) {
-    res.status(400).json({ error: 'missing or invalid campaign id' });
-    return;
-  }
+  const id = readCampaignId(req, res, 'id', 'missing or invalid campaign id');
+  if (!id) return;
 
   switch (req.method) {
     case 'GET': {
@@ -125,9 +119,7 @@ export default async function handler(
         }
         res.status(200).json(result.record);
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'failed to persist campaign';
-        res.status(500).json({ error: message });
+        sendCampaignError(res, error, 'failed to persist campaign');
       }
       return;
     }
@@ -137,9 +129,7 @@ export default async function handler(
         deleteCampaign(id);
         res.status(204).end();
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'failed to delete campaign';
-        res.status(500).json({ error: message });
+        sendCampaignError(res, error, 'failed to delete campaign');
       }
       return;
     }

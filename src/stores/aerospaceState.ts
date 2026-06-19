@@ -10,6 +10,10 @@
  * @spec openspec/changes/add-aerospace-construction/specs/aerospace-unit-system/spec.md
  */
 
+import type { StoreEquipmentCollectionActions } from '@/stores/equipmentStoreActions';
+import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
+
+import { getThresholdWeightClass } from '@/services/units/unitWeightClass';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { EngineType } from '@/types/construction/EngineType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
@@ -280,15 +284,10 @@ export interface AerospaceState {
 /**
  * Actions available on an aerospace store
  */
-export interface AerospaceActions {
-  // Identity
-  setName: (name: string) => void;
-  setChassis: (chassis: string) => void;
-  setModel: (model: string) => void;
-  setMulId: (mulId: string) => void;
-  setYear: (year: number) => void;
-  setRulesLevel: (rulesLevel: RulesLevel) => void;
-
+export interface AerospaceActions
+  extends
+    UnitIdentityActions<AerospaceState>,
+    StoreEquipmentCollectionActions<AerospaceLocation> {
   // Chassis & sub-type
   setTonnage: (tonnage: number) => void;
   setIsOmni: (isOmni: boolean) => void;
@@ -328,14 +327,7 @@ export interface AerospaceActions {
   setEjectionSeat: (value: boolean) => void;
 
   // Equipment
-  addEquipment: (item: IEquipmentItem, arc?: AerospaceLocation) => string;
-  removeEquipment: (instanceId: string) => void;
   updateEquipmentArc: (instanceId: string, arc: AerospaceLocation) => void;
-  linkAmmo: (
-    weaponInstanceId: string,
-    ammoInstanceId: string | undefined,
-  ) => void;
-  clearAllEquipment: () => void;
 
   // Metadata
   markModified: (modified?: boolean) => void;
@@ -372,10 +364,15 @@ export function generateAerospaceId(): string {
  * Determine weight class from tonnage for aerospace
  */
 function getAerospaceWeightClass(tonnage: number): WeightClass {
-  if (tonnage <= 19) return WeightClass.LIGHT;
-  if (tonnage <= 39) return WeightClass.MEDIUM;
-  if (tonnage <= 69) return WeightClass.HEAVY;
-  return WeightClass.ASSAULT;
+  return getThresholdWeightClass(
+    tonnage,
+    [
+      { maxTonnage: 19, weightClass: WeightClass.LIGHT },
+      { maxTonnage: 39, weightClass: WeightClass.MEDIUM },
+      { maxTonnage: 69, weightClass: WeightClass.HEAVY },
+    ],
+    WeightClass.ASSAULT,
+  );
 }
 
 /**

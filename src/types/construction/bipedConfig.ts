@@ -1,4 +1,7 @@
-import type { IMechConfigurationDefinition } from './MechConfigTypes';
+import type {
+  ILocationDefinition,
+  IMechConfigurationDefinition,
+} from './MechConfigTypes';
 
 import {
   createLocationDef,
@@ -7,11 +10,8 @@ import {
 } from './mechConfigHelpers';
 import { MechConfiguration, MechLocation } from './MechConfigTypes';
 
-export const BIPED_CONFIGURATION: IMechConfigurationDefinition = {
-  id: MechConfiguration.BIPED,
-  displayName: 'Biped',
-  description: 'Standard two-legged BattleMech with arms',
-  locations: [
+export function createStandardTorsoLocationDefinitions(): ILocationDefinition[] {
+  return [
     createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, {
       maxArmorMultiplier: 3,
     }),
@@ -26,6 +26,15 @@ export const BIPED_CONFIGURATION: IMechConfigurationDefinition = {
       hasRearArmor: true,
       transfersTo: MechLocation.CENTER_TORSO,
     }),
+  ];
+}
+
+export const BIPED_CONFIGURATION: IMechConfigurationDefinition = {
+  id: MechConfiguration.BIPED,
+  displayName: 'Biped',
+  description: 'Standard two-legged BattleMech with arms',
+  locations: [
+    ...createStandardTorsoLocationDefinitions(),
     createLocationDef(MechLocation.LEFT_ARM, 'Left Arm', 'LA', 12, {
       isLimb: true,
       actuators: ARM_ACTUATORS,

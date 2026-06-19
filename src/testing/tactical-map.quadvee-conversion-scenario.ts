@@ -9,20 +9,16 @@ import type {
 } from '@/types/gameplay';
 import type { ICommittedMovementValidationInput } from '@/utils/gameplay/movement/commitValidation';
 
-import {
-  Facing,
-  GameSide,
-  LockState,
-  MovementType,
-  TerrainType,
-  TokenUnitType,
-} from '@/types/gameplay';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
+import { Facing, GameSide, MovementType, TerrainType } from '@/types/gameplay';
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
 import { resolveRuntimeMovementCapability } from '@/utils/gameplay/movement/runtimeCapability';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
+import {
+  createTacticalMapPlayerMechToken,
+  createTacticalMapTerrainGrid,
+  createTacticalMapUnitState,
+  requireTacticalMapMovementProjection,
+} from './tactical-map.fixture-helpers';
 import { tacticalMapHexTerrain } from './tactical-map.fixtures';
 
 const tacticalMapQuadveeConversionOrigin = { q: 0, r: 0 } as const;
@@ -37,25 +33,13 @@ const tacticalMapQuadveeCapability: IMovementCapability = {
   unitHeightProfile: { kind: 'quadvee', standingHeight: 1 },
 };
 
-const tacticalMapQuadveeMekUnit: IUnitGameState = {
+const tacticalMapQuadveeMekUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: tacticalMapQuadveeConversionOrigin,
   facing: Facing.Northeast,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  lockState: LockState.Pending,
   conversionMode: 'mek',
-};
+});
 
 const tacticalMapQuadveeVehicleUnit: IUnitGameState = {
   ...tacticalMapQuadveeMekUnit,
@@ -89,30 +73,7 @@ export const tacticalMapQuadveeConversionHexTerrain: readonly IHexTerrain[] = [
 ];
 
 function tacticalMapQuadveeConversionGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapQuadveeConversionHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
-}
-
-function requireSingleMovementProjection(
-  projection: IMovementRangeHex | null,
-): IMovementRangeHex {
-  if (!projection) {
-    throw new Error('Expected QuadVee conversion movement projection');
-  }
-  return projection;
+  return createTacticalMapTerrainGrid(tacticalMapQuadveeConversionHexTerrain);
 }
 
 function quadveeConversionTokens(
@@ -120,18 +81,12 @@ function quadveeConversionTokens(
   name: string,
 ): readonly IUnitToken[] {
   return [
-    {
+    createTacticalMapPlayerMechToken({
       unitId: 'attacker',
       name,
       designation,
       position: tacticalMapQuadveeConversionOrigin,
-      facing: Facing.Northeast,
-      side: GameSide.Player,
-      isDestroyed: false,
-      isSelected: true,
-      isValidTarget: false,
-      unitType: TokenUnitType.Mech,
-    },
+    }),
   ];
 }
 
@@ -149,7 +104,7 @@ export const tacticalMapQuadveeVehicleTokens = quadveeConversionTokens(
 
 export const tacticalMapQuadveeMekMovementRange: readonly IMovementRangeHex[] =
   [
-    requireSingleMovementProjection(
+    requireTacticalMapMovementProjection(
       deriveMovementRangeHexForDestination(
         tacticalMapQuadveeMekUnit,
         MovementType.Walk,
@@ -162,7 +117,7 @@ export const tacticalMapQuadveeMekMovementRange: readonly IMovementRangeHex[] =
 
 export const tacticalMapQuadveeVehicleMovementRange: readonly IMovementRangeHex[] =
   [
-    requireSingleMovementProjection(
+    requireTacticalMapMovementProjection(
       deriveMovementRangeHexForDestination(
         tacticalMapQuadveeVehicleUnit,
         MovementType.Walk,

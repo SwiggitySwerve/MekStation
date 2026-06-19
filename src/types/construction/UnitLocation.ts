@@ -215,71 +215,43 @@ export type UnitLocation =
 import { UnitType } from '../unit/BattleMechInterfaces';
 import { MechLocation } from './CriticalSlotAllocation';
 
+const MECH_UNIT_LOCATIONS = [
+  MechLocation.HEAD,
+  MechLocation.CENTER_TORSO,
+  MechLocation.LEFT_TORSO,
+  MechLocation.RIGHT_TORSO,
+  MechLocation.LEFT_ARM,
+  MechLocation.RIGHT_ARM,
+  MechLocation.LEFT_LEG,
+  MechLocation.RIGHT_LEG,
+] as const satisfies readonly string[];
+
+const CAPITAL_SHIP_LOCATIONS = Object.values(CapitalShipLocation);
+
+const UNIT_LOCATIONS_BY_UNIT_TYPE = {
+  [UnitType.BATTLEMECH]: MECH_UNIT_LOCATIONS,
+  [UnitType.OMNIMECH]: MECH_UNIT_LOCATIONS,
+  [UnitType.INDUSTRIALMECH]: MECH_UNIT_LOCATIONS,
+  [UnitType.VEHICLE]: Object.values(VehicleLocation),
+  [UnitType.VTOL]: Object.values(VTOLLocation),
+  [UnitType.AEROSPACE]: Object.values(AerospaceLocation),
+  [UnitType.CONVENTIONAL_FIGHTER]: Object.values(AerospaceLocation),
+  [UnitType.SMALL_CRAFT]: Object.values(SmallCraftLocation),
+  [UnitType.DROPSHIP]: Object.values(DropShipLocation),
+  [UnitType.JUMPSHIP]: CAPITAL_SHIP_LOCATIONS,
+  [UnitType.WARSHIP]: CAPITAL_SHIP_LOCATIONS,
+  [UnitType.SPACE_STATION]: CAPITAL_SHIP_LOCATIONS,
+  [UnitType.BATTLE_ARMOR]: Object.values(BattleArmorLocation),
+  [UnitType.PROTOMECH]: Object.values(ProtoMechLocation),
+  [UnitType.INFANTRY]: Object.values(InfantryLocation),
+  [UnitType.SUPPORT_VEHICLE]: Object.values(SupportVehicleLocation),
+} as const satisfies Readonly<Record<UnitType, readonly string[]>>;
+
 /**
  * Returns the appropriate location enum values for a given unit type
  */
 export function getLocationsForUnitType(unitType: UnitType): string[] {
-  switch (unitType) {
-    case UnitType.BATTLEMECH:
-    case UnitType.OMNIMECH:
-    case UnitType.INDUSTRIALMECH:
-      return [
-        MechLocation.HEAD,
-        MechLocation.CENTER_TORSO,
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.LEFT_ARM,
-        MechLocation.RIGHT_ARM,
-        MechLocation.LEFT_LEG,
-        MechLocation.RIGHT_LEG,
-      ];
-
-    case UnitType.VEHICLE:
-      return Object.values(VehicleLocation);
-
-    case UnitType.VTOL:
-      return Object.values(VTOLLocation);
-
-    case UnitType.AEROSPACE:
-    case UnitType.CONVENTIONAL_FIGHTER:
-      return Object.values(AerospaceLocation);
-
-    case UnitType.SMALL_CRAFT:
-      return Object.values(SmallCraftLocation);
-
-    case UnitType.DROPSHIP:
-      return Object.values(DropShipLocation);
-
-    case UnitType.JUMPSHIP:
-    case UnitType.WARSHIP:
-    case UnitType.SPACE_STATION:
-      return Object.values(CapitalShipLocation);
-
-    case UnitType.BATTLE_ARMOR:
-      return Object.values(BattleArmorLocation);
-
-    case UnitType.PROTOMECH:
-      return Object.values(ProtoMechLocation);
-
-    case UnitType.INFANTRY:
-      return Object.values(InfantryLocation);
-
-    case UnitType.SUPPORT_VEHICLE:
-      return Object.values(SupportVehicleLocation);
-
-    default:
-      // Default to mech locations for unknown types
-      return [
-        MechLocation.HEAD,
-        MechLocation.CENTER_TORSO,
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.LEFT_ARM,
-        MechLocation.RIGHT_ARM,
-        MechLocation.LEFT_LEG,
-        MechLocation.RIGHT_LEG,
-      ];
-  }
+  return [...(UNIT_LOCATIONS_BY_UNIT_TYPE[unitType] ?? MECH_UNIT_LOCATIONS)];
 }
 
 /**

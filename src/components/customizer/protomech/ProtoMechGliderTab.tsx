@@ -13,6 +13,8 @@
 
 import React from 'react';
 
+import { PlaceholderTab } from '../tabs/PlaceholderTab';
+
 export interface ProtoMechGliderTabProps {
   readOnly?: boolean;
   className?: string;
@@ -26,11 +28,11 @@ export function ProtoMechGliderTab({
   className = '',
 }: ProtoMechGliderTabProps): React.ReactElement {
   return (
-    <div className={`p-4 ${className}`} data-testid="protomech-glider-tab">
-      <p className="text-text-theme-secondary text-sm">
-        Coming soon — this tab will be wired up by add-protomech-construction
-      </p>
-    </div>
+    <PlaceholderTab
+      className={className}
+      testId="protomech-glider-tab"
+      wiredBy="add-protomech-construction"
+    />
   );
 }
 

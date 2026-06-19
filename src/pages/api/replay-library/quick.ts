@@ -24,7 +24,7 @@
  * Validation pattern mirrors the sibling `[source]/[gameId].ts` route:
  *   - inline runtime checks (no Zod — established convention in this
  *     directory; future consolidation is a separate sweep)
- *   - shared `ErrorResponse = { error, code? }` shape
+ *   - shared `ApiErrorResponse = { error, code? }` shape
  *   - `gameId` regex `^[A-Za-z0-9_-]+$` — same pattern, copied not
  *     imported (sibling route uses module-private const)
  *
@@ -45,6 +45,10 @@ import {
   type IPersistQuickGameInput,
   type IPersistQuickGameResult,
 } from '@/components/quickgame/persistQuickGame';
+import {
+  rejectUnexpectedMethod,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { readReplayIndex } from '@/replay-library/index-reader';
 import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import { logger } from '@/utils/logger';
@@ -89,11 +93,6 @@ type SuccessResponse = {
   path: string | null;
 };
 
-type ErrorResponse = {
-  error: string;
-  code?: string;
-};
-
 // =============================================================================
 // Validation helpers
 // =============================================================================
@@ -114,14 +113,14 @@ const VALID_WINNERS: ReadonlySet<string> = new Set([
 
 /**
  * Validates the POST body. Returns `null` on valid input + the typed
- * `IPersistQuickGameInput`, or an `ErrorResponse` describing the first
+ * `IPersistQuickGameInput`, or an `ApiErrorResponse` describing the first
  * rejection. Callers should `res.status(400).json(...)` the error.
  */
 function parseBody(
   body: unknown,
 ):
   | { ok: true; input: Omit<IPersistQuickGameInput, 'cwd'> }
-  | { ok: false; error: ErrorResponse } {
+  | { ok: false; error: ApiErrorResponse } {
   if (body === null || typeof body !== 'object' || Array.isArray(body)) {
     return {
       ok: false,
@@ -214,13 +213,9 @@ function parseBody(
  */
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse | ErrorResponse>,
+  res: NextApiResponse<SuccessResponse | ApiErrorResponse>,
 ): Promise<void> {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-    return;
-  }
+  if (rejectUnexpectedMethod(req, res, ['POST'])) return;
 
   // Explicit over-ceiling rejection (audit W5.2). Next's bodyParser
   // already 413s anything over the exported `sizeLimit` before this

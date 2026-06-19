@@ -9,7 +9,11 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import {
+  initializeApiDatabase,
+  sendCaughtApiError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 import {
   ICustomUnitIndexEntry,
@@ -27,23 +31,11 @@ type ListResponse = {
 
 type CreateResponse = IUnitOperationResult;
 
-type ErrorResponse = {
-  error: string;
-  code?: string;
-};
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ListResponse | CreateResponse | ErrorResponse>,
+  res: NextApiResponse<ListResponse | CreateResponse | ApiErrorResponse>,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initializeApiDatabase(res)) return;
 
   const unitRepository = getUnitRepository();
 
@@ -65,7 +57,7 @@ export default async function handler(
  */
 function handleGet(
   unitRepository: ReturnType<typeof getUnitRepository>,
-  res: NextApiResponse<ListResponse | ErrorResponse>,
+  res: NextApiResponse<ListResponse | ApiErrorResponse>,
 ) {
   try {
     const units = unitRepository.list();
@@ -74,9 +66,8 @@ function handleGet(
       count: units.length,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to list units';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'Failed to list units');
+    return;
   }
 }
 
@@ -86,7 +77,7 @@ function handleGet(
 function handlePost(
   unitRepository: ReturnType<typeof getUnitRepository>,
   req: NextApiRequest,
-  res: NextApiResponse<CreateResponse | ErrorResponse>,
+  res: NextApiResponse<CreateResponse | ApiErrorResponse>,
 ) {
   try {
     const body = req.body as ICreateUnitRequest;
@@ -106,8 +97,7 @@ function handlePost(
       return res.status(400).json(result);
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to create unit';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'Failed to create unit');
+    return;
   }
 }

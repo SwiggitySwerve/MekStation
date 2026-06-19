@@ -59,6 +59,16 @@ export interface IShareLinkOperationResult {
   error?: string;
 }
 
+function shareLinkOperationFailure(
+  error: unknown,
+  fallback: string,
+): IShareLinkOperationResult {
+  return {
+    success: false,
+    error: error instanceof Error ? error.message : fallback,
+  };
+}
+
 // =============================================================================
 // Constants
 // =============================================================================
@@ -88,9 +98,9 @@ export class ShareLinkService {
   /**
    * Create a new share link
    */
-  async create(
+  readonly create = async (
     options: ICreateShareLinkOptions,
-  ): Promise<IShareLinkOperationResult> {
+  ): Promise<IShareLinkOperationResult> => {
     try {
       // Validate inputs
       if (!options.level) {
@@ -142,31 +152,29 @@ export class ShareLinkService {
 
       return { success: true, link, url };
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Failed to create share link';
-      return { success: false, error: message };
+      return shareLinkOperationFailure(error, 'Failed to create share link');
     }
-  }
+  };
 
   /**
    * Build URL from token
    */
-  buildUrl(token: string): string {
+  readonly buildUrl = (token: string): string => {
     return `${this.baseUrl}/${token}`;
-  }
+  };
 
   /**
    * Build web-compatible URL from token
    */
-  buildWebUrl(token: string, host?: string): string {
+  readonly buildWebUrl = (token: string, host?: string): string => {
     const base = host ? `https://${host}` : '';
     return `${base}${WEB_BASE_URL}/${token}`;
-  }
+  };
 
   /**
    * Extract token from URL
    */
-  extractToken(url: string): string | null {
+  readonly extractToken = (url: string): string | null => {
     // Try custom protocol: mekstation://share/TOKEN
     const customMatch = url.match(/mekstation:\/\/share\/([A-Za-z0-9_-]+)/);
     if (customMatch) {
@@ -185,19 +193,21 @@ export class ShareLinkService {
     }
 
     return null;
-  }
+  };
 
   /**
    * Redeem a share link by token
    */
-  async redeem(token: string): Promise<IShareLinkRedeemResult> {
+  readonly redeem = async (token: string): Promise<IShareLinkRedeemResult> => {
     return this.repository.redeem(token);
-  }
+  };
 
   /**
    * Redeem a share link by URL
    */
-  async redeemByUrl(url: string): Promise<IShareLinkRedeemResult> {
+  readonly redeemByUrl = async (
+    url: string,
+  ): Promise<IShareLinkRedeemResult> => {
     const token = this.extractToken(url);
     if (!token) {
       return {
@@ -206,50 +216,52 @@ export class ShareLinkService {
       };
     }
     return this.redeem(token);
-  }
+  };
 
   /**
    * Get share link by ID
    */
-  async getById(id: string): Promise<IShareLink | null> {
+  readonly getById = async (id: string): Promise<IShareLink | null> => {
     return this.repository.getById(id);
-  }
+  };
 
   /**
    * Get share link by token
    */
-  async getByToken(token: string): Promise<IShareLink | null> {
+  readonly getByToken = async (token: string): Promise<IShareLink | null> => {
     return this.repository.getByToken(token);
-  }
+  };
 
   /**
    * Get all share links for an item
    */
-  async getLinksForItem(
+  readonly getLinksForItem = async (
     scopeType: PermissionScopeType,
     scopeId: string,
-  ): Promise<IShareLink[]> {
+  ): Promise<IShareLink[]> => {
     return this.repository.getByItem(scopeType, scopeId);
-  }
+  };
 
   /**
    * Get all active share links
    */
-  async getActiveLinks(): Promise<IShareLink[]> {
+  readonly getActiveLinks = async (): Promise<IShareLink[]> => {
     return this.repository.getActive();
-  }
+  };
 
   /**
    * Get all share links
    */
-  async getAllLinks(): Promise<IShareLink[]> {
+  readonly getAllLinks = async (): Promise<IShareLink[]> => {
     return this.repository.getAll();
-  }
+  };
 
   /**
    * Deactivate (revoke) a share link
    */
-  async deactivate(linkId: string): Promise<IShareLinkOperationResult> {
+  readonly deactivate = async (
+    linkId: string,
+  ): Promise<IShareLinkOperationResult> => {
     try {
       const deactivated = await this.repository.deactivate(linkId);
       if (!deactivated) {
@@ -258,18 +270,19 @@ export class ShareLinkService {
       const link = await this.repository.getById(linkId);
       return { success: true, link: link || undefined };
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : 'Failed to deactivate share link';
-      return { success: false, error: message };
+      return shareLinkOperationFailure(
+        error,
+        'Failed to deactivate share link',
+      );
     }
-  }
+  };
 
   /**
    * Reactivate a share link
    */
-  async reactivate(linkId: string): Promise<IShareLinkOperationResult> {
+  readonly reactivate = async (
+    linkId: string,
+  ): Promise<IShareLinkOperationResult> => {
     try {
       const reactivated = await this.repository.reactivate(linkId);
       if (!reactivated) {
@@ -278,21 +291,20 @@ export class ShareLinkService {
       const link = await this.repository.getById(linkId);
       return { success: true, link: link || undefined };
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : 'Failed to reactivate share link';
-      return { success: false, error: message };
+      return shareLinkOperationFailure(
+        error,
+        'Failed to reactivate share link',
+      );
     }
-  }
+  };
 
   /**
    * Update share link label
    */
-  async updateLabel(
+  readonly updateLabel = async (
     linkId: string,
     label: string | null,
-  ): Promise<IShareLinkOperationResult> {
+  ): Promise<IShareLinkOperationResult> => {
     try {
       const updated = await this.repository.updateLabel(linkId, label);
       if (!updated) {
@@ -301,19 +313,17 @@ export class ShareLinkService {
       const link = await this.repository.getById(linkId);
       return { success: true, link: link || undefined };
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Failed to update label';
-      return { success: false, error: message };
+      return shareLinkOperationFailure(error, 'Failed to update label');
     }
-  }
+  };
 
   /**
    * Update share link expiry
    */
-  async updateExpiry(
+  readonly updateExpiry = async (
     linkId: string,
     expiresAt: string | null,
-  ): Promise<IShareLinkOperationResult> {
+  ): Promise<IShareLinkOperationResult> => {
     try {
       const updated = await this.repository.updateExpiry(linkId, expiresAt);
       if (!updated) {
@@ -322,19 +332,17 @@ export class ShareLinkService {
       const link = await this.repository.getById(linkId);
       return { success: true, link: link || undefined };
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Failed to update expiry';
-      return { success: false, error: message };
+      return shareLinkOperationFailure(error, 'Failed to update expiry');
     }
-  }
+  };
 
   /**
    * Update share link max uses
    */
-  async updateMaxUses(
+  readonly updateMaxUses = async (
     linkId: string,
     maxUses: number | null,
-  ): Promise<IShareLinkOperationResult> {
+  ): Promise<IShareLinkOperationResult> => {
     try {
       const updated = await this.repository.updateMaxUses(linkId, maxUses);
       if (!updated) {
@@ -343,16 +351,16 @@ export class ShareLinkService {
       const link = await this.repository.getById(linkId);
       return { success: true, link: link || undefined };
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Failed to update max uses';
-      return { success: false, error: message };
+      return shareLinkOperationFailure(error, 'Failed to update max uses');
     }
-  }
+  };
 
   /**
    * Delete a share link
    */
-  async delete(linkId: string): Promise<IShareLinkOperationResult> {
+  readonly delete = async (
+    linkId: string,
+  ): Promise<IShareLinkOperationResult> => {
     try {
       const deleted = await this.repository.delete(linkId);
       if (!deleted) {
@@ -360,33 +368,31 @@ export class ShareLinkService {
       }
       return { success: true };
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Failed to delete share link';
-      return { success: false, error: message };
+      return shareLinkOperationFailure(error, 'Failed to delete share link');
     }
-  }
+  };
 
   /**
    * Delete all share links for an item
    */
-  async deleteAllForItem(
+  readonly deleteAllForItem = async (
     scopeType: PermissionScopeType,
     scopeId: string,
-  ): Promise<number> {
+  ): Promise<number> => {
     return this.repository.deleteByItem(scopeType, scopeId);
-  }
+  };
 
   /**
    * Clean up expired share links
    */
-  async cleanupExpired(): Promise<number> {
+  readonly cleanupExpired = async (): Promise<number> => {
     return this.repository.cleanupExpired();
-  }
+  };
 
   /**
    * Check if a link is valid (not expired, not at max uses, active)
    */
-  isLinkValid(link: IShareLink): boolean {
+  readonly isLinkValid = (link: IShareLink): boolean => {
     if (!link.isActive) {
       return false;
     }
@@ -404,17 +410,17 @@ export class ShareLinkService {
     }
 
     return true;
-  }
+  };
 
   /**
    * Get remaining uses for a link (null if unlimited)
    */
-  getRemainingUses(link: IShareLink): number | null {
+  readonly getRemainingUses = (link: IShareLink): number | null => {
     if (link.maxUses === null) {
       return null;
     }
     return Math.max(0, link.maxUses - link.useCount);
-  }
+  };
 }
 
 // =============================================================================

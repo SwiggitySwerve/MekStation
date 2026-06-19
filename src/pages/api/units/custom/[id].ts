@@ -10,7 +10,12 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import {
+  initializeApiDatabase as initCustomUnitDb,
+  rejectMissingQueryString as readCustomUnitId,
+  sendCaughtApiError as sendCustomUnitError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 import {
   ICustomUnitRecord,
@@ -27,32 +32,17 @@ type UpdateResponse = IUnitOperationResult;
 
 type DeleteResponse = IUnitOperationResult;
 
-type ErrorResponse = {
-  error: string;
-  code?: string;
-};
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<
-    GetResponse | UpdateResponse | DeleteResponse | ErrorResponse
+    GetResponse | UpdateResponse | DeleteResponse | ApiErrorResponse
   >,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initCustomUnitDb(res)) return;
 
   const unitRepository = getUnitRepository();
-  const { id } = req.query;
-
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ error: 'Missing unit ID' });
-  }
+  const id = readCustomUnitId(req, res, 'id', 'Missing unit ID');
+  if (!id) return;
 
   switch (req.method) {
     case 'GET':
@@ -75,7 +65,7 @@ export default async function handler(
 function handleGet(
   unitRepository: ReturnType<typeof getUnitRepository>,
   id: string,
-  res: NextApiResponse<GetResponse | ErrorResponse>,
+  res: NextApiResponse<GetResponse | ApiErrorResponse>,
 ) {
   try {
     const unit = unitRepository.getById(id);
@@ -92,9 +82,8 @@ function handleGet(
       parsedData,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to get unit';
-    return res.status(500).json({ error: message });
+    sendCustomUnitError(res, error, 'Failed to get unit');
+    return;
   }
 }
 
@@ -105,7 +94,7 @@ function handlePut(
   unitRepository: ReturnType<typeof getUnitRepository>,
   id: string,
   req: NextApiRequest,
-  res: NextApiResponse<UpdateResponse | ErrorResponse>,
+  res: NextApiResponse<UpdateResponse | ApiErrorResponse>,
 ) {
   try {
     const body = req.body as IUpdateUnitRequest;
@@ -126,9 +115,8 @@ function handlePut(
       return res.status(statusCode).json(result);
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to update unit';
-    return res.status(500).json({ error: message });
+    sendCustomUnitError(res, error, 'Failed to update unit');
+    return;
   }
 }
 
@@ -138,7 +126,7 @@ function handlePut(
 function handleDelete(
   unitRepository: ReturnType<typeof getUnitRepository>,
   id: string,
-  res: NextApiResponse<DeleteResponse | ErrorResponse>,
+  res: NextApiResponse<DeleteResponse | ApiErrorResponse>,
 ) {
   try {
     const result = unitRepository.delete(id);
@@ -149,8 +137,7 @@ function handleDelete(
       return res.status(400).json(result);
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to delete unit';
-    return res.status(500).json({ error: message });
+    sendCustomUnitError(res, error, 'Failed to delete unit');
+    return;
   }
 }

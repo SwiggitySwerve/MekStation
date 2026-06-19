@@ -2,18 +2,13 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbiter';
 
+import { centeredDarkCampaignStoryParameters } from '../campaignStoryParameters';
 import { HostGmReviewSurface } from './HostGmReviewSurface';
 
 const meta = {
   title: 'Campaign/Coop/HostGmReviewSurface',
   component: HostGmReviewSurface,
-  parameters: {
-    layout: 'centered',
-    backgrounds: {
-      default: 'dark',
-      values: [{ name: 'dark', value: '#0f172a' }],
-    },
-  },
+  parameters: centeredDarkCampaignStoryParameters,
   tags: ['autodocs'],
 } satisfies Meta<typeof HostGmReviewSurface>;
 

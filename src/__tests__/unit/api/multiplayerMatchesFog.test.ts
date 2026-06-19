@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
 
-import { _resetDefaultMatchStore } from '@/lib/multiplayer/server/InMemoryMatchStore';
+import { _resetDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import handler from '@/pages/api/multiplayer/matches';
 
 jest.mock('@/lib/multiplayer/server/auth', () => ({

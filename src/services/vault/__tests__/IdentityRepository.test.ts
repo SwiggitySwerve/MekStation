@@ -188,10 +188,6 @@ describe('IdentityRepository', () => {
     });
   });
 
-  // ===========================================================================
-  // Save
-  // ===========================================================================
-
   describe('save', () => {
     it('should save a new identity', async () => {
       const identity = createMockStoredIdentity();
@@ -255,10 +251,6 @@ describe('IdentityRepository', () => {
     });
   });
 
-  // ===========================================================================
-  // Get Active
-  // ===========================================================================
-
   describe('getActive', () => {
     it('should return active identity when exists', async () => {
       const storedRow = createMockStoredIdentityRow({ is_active: 1 });
@@ -315,10 +307,6 @@ describe('IdentityRepository', () => {
     });
   });
 
-  // ===========================================================================
-  // Get By ID
-  // ===========================================================================
-
   describe('getById', () => {
     it('should return identity when found', async () => {
       const storedRow = createMockStoredIdentityRow();
@@ -341,10 +329,6 @@ describe('IdentityRepository', () => {
       expect(result).toBeNull();
     });
   });
-
-  // ===========================================================================
-  // Get By Friend Code
-  // ===========================================================================
 
   describe('getByFriendCode', () => {
     it('should return identity when friend code found', async () => {
@@ -378,10 +362,6 @@ describe('IdentityRepository', () => {
       expect(result).toBeNull();
     });
   });
-
-  // ===========================================================================
-  // Get All
-  // ===========================================================================
 
   describe('getAll', () => {
     it('should return all identities sorted by created_at DESC', async () => {
@@ -432,10 +412,6 @@ describe('IdentityRepository', () => {
     });
   });
 
-  // ===========================================================================
-  // Set Active
-  // ===========================================================================
-
   describe('setActive', () => {
     it('should deactivate all identities then activate specified one', async () => {
       await repository.setActive('identity-123');
@@ -453,253 +429,6 @@ describe('IdentityRepository', () => {
       await repository.setActive('identity-123');
 
       expect(mockSQLiteService.initialize).toHaveBeenCalled();
-    });
-  });
-
-  // ===========================================================================
-  // Update
-  // ===========================================================================
-
-  describe('update', () => {
-    it('should update display name only', async () => {
-      await repository.update('identity-123', { displayName: 'New Name' });
-
-      expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_identities SET display_name = ? WHERE id = ?',
-      );
-      expect(mockStatement.run).toHaveBeenCalledWith(
-        'New Name',
-        'identity-123',
-      );
-    });
-
-    it('should update avatar only', async () => {
-      await repository.update('identity-123', { avatar: 'new-avatar' });
-
-      expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_identities SET avatar = ? WHERE id = ?',
-      );
-      expect(mockStatement.run).toHaveBeenCalledWith(
-        'new-avatar',
-        'identity-123',
-      );
-    });
-
-    it('should update both display name and avatar', async () => {
-      await repository.update('identity-123', {
-        displayName: 'Updated Name',
-        avatar: 'updated-avatar',
-      });
-
-      expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_identities SET display_name = ?, avatar = ? WHERE id = ?',
-      );
-      expect(mockStatement.run).toHaveBeenCalledWith(
-        'Updated Name',
-        'updated-avatar',
-        'identity-123',
-      );
-    });
-
-    it('should handle empty string avatar as null', async () => {
-      await repository.update('identity-123', { avatar: '' });
-
-      expect(mockStatement.run).toHaveBeenCalledWith(null, 'identity-123');
-    });
-
-    it('should do nothing when no updates provided', async () => {
-      await repository.update('identity-123', {});
-
-      // prepare should only be called for initialization, not for update
-      expect(mockDb.prepare).not.toHaveBeenCalledWith(
-        expect.stringContaining('UPDATE vault_identities SET'),
-      );
-    });
-
-    it('should handle undefined avatar to clear it', async () => {
-      // When avatar is explicitly set but empty, it should become null
-      await repository.update('identity-123', { avatar: '' });
-
-      expect(mockStatement.run).toHaveBeenCalledWith(null, 'identity-123');
-    });
-  });
-
-  // ===========================================================================
-  // Delete
-  // ===========================================================================
-
-  describe('delete', () => {
-    it('should delete identity by ID', async () => {
-      await repository.delete('identity-123');
-
-      expect(mockDb.prepare).toHaveBeenCalledWith(
-        'DELETE FROM vault_identities WHERE id = ?',
-      );
-      expect(mockStatement.run).toHaveBeenCalledWith('identity-123');
-    });
-
-    it('should initialize before deleting', async () => {
-      await repository.delete('identity-123');
-
-      expect(mockSQLiteService.initialize).toHaveBeenCalled();
-    });
-  });
-
-  // ===========================================================================
-  // Has Identity
-  // ===========================================================================
-
-  describe('hasIdentity', () => {
-    it('should return true when at least one identity exists', async () => {
-      mockStatement.get.mockReturnValue({ count: 1 });
-
-      const result = await repository.hasIdentity();
-
-      expect(mockDb.prepare).toHaveBeenCalledWith(
-        'SELECT COUNT(*) as count FROM vault_identities',
-      );
-      expect(result).toBe(true);
-    });
-
-    it('should return true when multiple identities exist', async () => {
-      mockStatement.get.mockReturnValue({ count: 5 });
-
-      const result = await repository.hasIdentity();
-
-      expect(result).toBe(true);
-    });
-
-    it('should return false when no identities exist', async () => {
-      mockStatement.get.mockReturnValue({ count: 0 });
-
-      const result = await repository.hasIdentity();
-
-      expect(result).toBe(false);
-    });
-  });
-
-  // ===========================================================================
-  // Singleton Functions
-  // ===========================================================================
-
-  describe('getIdentityRepository', () => {
-    it('should return singleton instance', () => {
-      const instance1 = getIdentityRepository();
-      const instance2 = getIdentityRepository();
-
-      expect(instance1).toBe(instance2);
-    });
-  });
-
-  // ===========================================================================
-  // Row Conversion
-  // ===========================================================================
-
-  describe('rowToIdentity conversion', () => {
-    it('should correctly map all stored fields', async () => {
-      const encryptedKey: IEncryptedData = {
-        ciphertext: 'full-cipher',
-        iv: 'full-iv',
-        salt: 'full-salt',
-        algorithm: 'AES-GCM-256',
-      };
-
-      const storedRow: StoredIdentityRow = {
-        id: 'identity-full',
-        display_name: 'Full Name',
-        public_key: 'full-public-key',
-        encrypted_private_key: JSON.stringify(encryptedKey),
-        friend_code: 'FULL-CODE-FULL-CODE',
-        created_at: '2024-06-15T12:00:00.000Z',
-        avatar: 'full-avatar',
-        is_active: 1,
-      };
-      mockStatement.get.mockReturnValue(storedRow);
-
-      const result = await repository.getById('identity-full');
-
-      expect(result).toEqual({
-        id: 'identity-full',
-        displayName: 'Full Name',
-        publicKey: 'full-public-key',
-        encryptedPrivateKey: encryptedKey,
-        friendCode: 'FULL-CODE-FULL-CODE',
-        createdAt: '2024-06-15T12:00:00.000Z',
-        avatar: 'full-avatar',
-      });
-    });
-
-    it('should handle avatar conversion from null to undefined', async () => {
-      const storedRow = createMockStoredIdentityRow({ avatar: null });
-      mockStatement.get.mockReturnValue(storedRow);
-
-      const result = await repository.getById('identity-test');
-
-      expect(result?.avatar).toBeUndefined();
-    });
-  });
-
-  // ===========================================================================
-  // Edge Cases
-  // ===========================================================================
-
-  describe('Edge Cases', () => {
-    it('should handle special characters in display name', async () => {
-      const identity = createMockStoredIdentity({
-        displayName: 'User "Special" <Test> & More',
-      });
-
-      await repository.save(identity);
-
-      const runArgs = mockStatement.run.mock.calls[0] as unknown[];
-      expect(runArgs[1]).toBe('User "Special" <Test> & More');
-    });
-
-    it('should handle unicode in display name', async () => {
-      const storedRow = createMockStoredIdentityRow({
-        display_name: '??????',
-      });
-      mockStatement.get.mockReturnValue(storedRow);
-
-      const result = await repository.getById('identity-test');
-
-      expect(result?.displayName).toBe('??????');
-    });
-
-    it('should handle complex encrypted key structure', async () => {
-      const complexKey: IEncryptedData = {
-        ciphertext: 'very-long-ciphertext-'.repeat(100),
-        iv: 'long-iv-value',
-        salt: 'long-salt-value',
-        algorithm: 'AES-GCM-256',
-      };
-
-      const storedRow = createMockStoredIdentityRow({
-        encrypted_private_key: JSON.stringify(complexKey),
-      });
-      mockStatement.get.mockReturnValue(storedRow);
-
-      const result = await repository.getById('identity-test');
-
-      expect(result?.encryptedPrivateKey.ciphertext).toBe(
-        complexKey.ciphertext,
-      );
-    });
-
-    it('should handle friend code with different formats', async () => {
-      // Friend codes should be uppercased for consistency
-      mockStatement.get.mockReturnValue(undefined);
-
-      await repository.getByFriendCode('abcd-EFGH-jklm-NPQR');
-
-      expect(mockStatement.get).toHaveBeenCalledWith('ABCD-EFGH-JKLM-NPQR');
-    });
-
-    it('should handle empty avatar string as null in update', async () => {
-      await repository.update('identity-123', { avatar: '' });
-
-      const runArgs = mockStatement.run.mock.calls[0] as unknown[];
-      expect(runArgs[0]).toBeNull();
     });
   });
 });

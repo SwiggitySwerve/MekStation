@@ -21,6 +21,7 @@ import {
 import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { generateUnitId } from '@/utils/uuid';
 
+import { createConfigurationMountedEquipment } from './configurationMountedEquipment';
 import { ENHANCEMENT_EQUIPMENT_IDS } from './equipmentConstants';
 
 const ENHANCEMENT_FALLBACKS: Record<string, IMiscEquipment> = {
@@ -248,29 +249,25 @@ export function createEnhancementEquipmentList(
   if (enhancementType === MovementEnhancementType.TSM) {
     const result: IMountedEquipmentInstance[] = [];
     for (let i = 0; i < slots; i++) {
-      result.push({
-        instanceId: generateUnitId(),
-        equipmentId: equip.id,
-        name: equip.name,
-        category,
-        weight: 0,
-        criticalSlots: 1,
-        heat: 0,
-        techBase: equip.techBase,
-        location: undefined,
-        slots: undefined,
-        isRearMounted: false,
-        linkedAmmoId: undefined,
-        isRemovable: false,
-        isOmniPodMounted: false,
-      });
+      result.push(
+        createConfigurationMountedEquipment({
+          instanceId: generateUnitId(),
+          equipmentId: equip.id,
+          name: equip.name,
+          category,
+          weight: 0,
+          criticalSlots: 1,
+          heat: 0,
+          techBase: equip.techBase,
+        }),
+      );
     }
     return result;
   }
 
   // MASC and Supercharger are single items
   return [
-    {
+    createConfigurationMountedEquipment({
       instanceId: generateUnitId(),
       equipmentId: equip.id,
       name: equip.name,
@@ -279,13 +276,7 @@ export function createEnhancementEquipmentList(
       criticalSlots: slots,
       heat: 0,
       techBase: equip.techBase,
-      location: undefined,
-      slots: undefined,
-      isRearMounted: false,
-      linkedAmmoId: undefined,
-      isRemovable: false,
-      isOmniPodMounted: false,
-    },
+    }),
   ];
 }
 

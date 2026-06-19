@@ -17,7 +17,11 @@ import {
 } from '@/utils/gameplay/heatCriticalDamage';
 import { applyPhysicalEquipmentCriticalEvents } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
-import { createGameEvent } from './utils';
+import {
+  appendPsrTriggeredEvent,
+  appendUnitDestroyedEvent,
+  createGameEvent,
+} from './utils';
 
 type UnitDestroyedCause =
   | 'damage'
@@ -145,28 +149,23 @@ function emitRunnerHeatCriticalEvents(options: {
 
     if (event.type === 'psr_triggered') {
       const payload = event.payload;
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.PSRTriggered,
-          turn,
-          GamePhase.Heat,
-          {
-            unitId,
-            reason: payload.reason,
-            additionalModifier: payload.additionalModifier,
-            triggerSource: payload.triggerSource,
-            ...(pilotingSkill !== undefined
-              ? { basePilotingSkill: pilotingSkill }
-              : {}),
-            ...(payload.reasonCode !== undefined
-              ? { reasonCode: payload.reasonCode }
-              : {}),
-          },
-          unitId,
-        ),
-      );
+      appendPsrTriggeredEvent({
+        events,
+        gameId,
+        turn,
+        phase: GamePhase.Heat,
+        unitId,
+        reason: payload.reason,
+        additionalModifier: payload.additionalModifier,
+        triggerSource: payload.triggerSource,
+        actorId: unitId,
+        ...(pilotingSkill !== undefined
+          ? { basePilotingSkill: pilotingSkill }
+          : {}),
+        ...(payload.reasonCode !== undefined
+          ? { reasonCode: payload.reasonCode }
+          : {}),
+      });
       continue;
     }
 
@@ -194,20 +193,15 @@ function emitRunnerHeatCriticalEvents(options: {
     }
 
     if (event.type === 'unit_destroyed') {
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.UnitDestroyed,
-          turn,
-          GamePhase.Heat,
-          {
-            unitId,
-            cause: mapCriticalDestructionCause(event.payload.cause),
-          },
-          unitId,
-        ),
-      );
+      appendUnitDestroyedEvent({
+        events,
+        gameId,
+        turn,
+        phase: GamePhase.Heat,
+        unitId,
+        cause: mapCriticalDestructionCause(event.payload.cause),
+        actorId: unitId,
+      });
     }
   }
 }

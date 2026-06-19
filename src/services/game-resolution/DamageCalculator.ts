@@ -92,6 +92,26 @@ export const MECH_LOCATIONS = [
   'right_leg',
 ] as const;
 
+function determineCombatStatus(
+  destroyed: boolean,
+  overallDamagePercent: number,
+): UnitCombatStatus {
+  if (destroyed) return 'destroyed';
+  if (overallDamagePercent >= DAMAGE_THRESHOLDS.CRIPPLED * 100) {
+    return 'crippled';
+  }
+  if (overallDamagePercent >= DAMAGE_THRESHOLDS.CRITICAL * 100) {
+    return 'critical';
+  }
+  if (overallDamagePercent >= DAMAGE_THRESHOLDS.HEAVY_DAMAGE * 100) {
+    return 'heavy_damage';
+  }
+  if (overallDamagePercent >= DAMAGE_THRESHOLDS.DAMAGED * 100) {
+    return 'damaged';
+  }
+  return 'operational';
+}
+
 // =============================================================================
 // Calculator Functions
 // =============================================================================
@@ -138,21 +158,7 @@ export function assessUnitDamage(
   const destroyedLocations = unit.destroyedLocations.length;
   const destroyedComponents = unit.destroyedEquipment.length;
 
-  // Determine status
-  let status: UnitCombatStatus;
-  if (unit.destroyed) {
-    status = 'destroyed';
-  } else if (overallDamagePercent >= DAMAGE_THRESHOLDS.CRIPPLED * 100) {
-    status = 'crippled';
-  } else if (overallDamagePercent >= DAMAGE_THRESHOLDS.CRITICAL * 100) {
-    status = 'critical';
-  } else if (overallDamagePercent >= DAMAGE_THRESHOLDS.HEAVY_DAMAGE * 100) {
-    status = 'heavy_damage';
-  } else if (overallDamagePercent >= DAMAGE_THRESHOLDS.DAMAGED * 100) {
-    status = 'damaged';
-  } else {
-    status = 'operational';
-  }
+  const status = determineCombatStatus(unit.destroyed, overallDamagePercent);
 
   // Combat effectiveness check
   const combatEffective =

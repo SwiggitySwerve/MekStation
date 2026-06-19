@@ -92,7 +92,7 @@ export class PilotRepository implements IPilotRepository {
   /**
    * Create a new pilot
    */
-  create(options: ICreatePilotOptions): IPilotOperationResult {
+  create = (options: ICreatePilotOptions): IPilotOperationResult => {
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
     const id = `pilot-${uuidv4()}`;
@@ -154,12 +154,12 @@ export class PilotRepository implements IPilotRepository {
         errorCode: PilotErrorCode.DatabaseError,
       };
     }
-  }
+  };
 
   /**
    * Update an existing pilot
    */
-  update(id: string, updates: Partial<IPilot>): IPilotOperationResult {
+  update = (id: string, updates: Partial<IPilot>): IPilotOperationResult => {
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
 
@@ -192,12 +192,12 @@ export class PilotRepository implements IPilotRepository {
         errorCode: PilotErrorCode.DatabaseError,
       };
     }
-  }
+  };
 
   /**
    * Delete a pilot
    */
-  delete(id: string): IPilotOperationResult {
+  delete = (id: string): IPilotOperationResult => {
     const db = getSQLiteService().getDatabase();
 
     if (!this.exists(id)) {
@@ -219,12 +219,12 @@ export class PilotRepository implements IPilotRepository {
         errorCode: PilotErrorCode.DatabaseError,
       };
     }
-  }
+  };
 
   /**
    * Get a pilot by ID
    */
-  getById(id: string): IPilot | null {
+  getById = (id: string): IPilot | null => {
     const db = getSQLiteService().getDatabase();
 
     const row = db.prepare('SELECT * FROM pilots WHERE id = ?').get(id) as
@@ -233,50 +233,50 @@ export class PilotRepository implements IPilotRepository {
     if (!row) return null;
 
     return rowToPilot(row);
-  }
+  };
 
   /**
    * List all pilots
    */
-  list(): readonly IPilot[] {
+  list = (): readonly IPilot[] => {
     const db = getSQLiteService().getDatabase();
 
     const rows = db
       .prepare('SELECT * FROM pilots ORDER BY name')
       .all() as PilotRow[];
     return rows.map((row) => rowToPilot(row));
-  }
+  };
 
-  listByStatus(status: PilotStatus): readonly IPilot[] {
+  listByStatus = (status: PilotStatus): readonly IPilot[] => {
     const db = getSQLiteService().getDatabase();
 
     const rows = db
       .prepare('SELECT * FROM pilots WHERE status = ? ORDER BY name')
       .all(status) as PilotRow[];
     return rows.map((row) => rowToPilot(row));
-  }
+  };
 
   /**
    * Check if a pilot exists
    */
-  exists(id: string): boolean {
+  exists = (id: string): boolean => {
     const db = getSQLiteService().getDatabase();
     const result = db.prepare('SELECT 1 FROM pilots WHERE id = ?').get(id);
     return result !== undefined;
-  }
+  };
 
   /**
    * Add an ability to a pilot. Phase 5 Wave 2a accepts an optional
    * designation payload + xpSpent so the editor can record the exact cost
    * paid (for refunds) and the option chosen (for record sheet display).
    */
-  addAbility(
+  addAbility = (
     pilotId: string,
     abilityId: string,
     gameId?: string,
     designation?: IPilotAbilityDesignation,
     xpSpent?: number,
-  ): IPilotOperationResult {
+  ): IPilotOperationResult => {
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
 
@@ -320,14 +320,14 @@ export class PilotRepository implements IPilotRepository {
         errorCode: PilotErrorCode.DatabaseError,
       };
     }
-  }
+  };
 
   /**
    * Refund XP without inflating `total_xp_earned`. Mirror of `addXp` but
    * only touches the spendable pool — used by SPA removal during creation
    * so the pilot's lifetime XP counter stays honest.
    */
-  refundXp(pilotId: string, amount: number): IPilotOperationResult {
+  refundXp = (pilotId: string, amount: number): IPilotOperationResult => {
     const db = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
 
@@ -352,12 +352,15 @@ export class PilotRepository implements IPilotRepository {
         errorCode: PilotErrorCode.DatabaseError,
       };
     }
-  }
+  };
 
   /**
    * Remove an ability from a pilot
    */
-  removeAbility(pilotId: string, abilityId: string): IPilotOperationResult {
+  removeAbility = (
+    pilotId: string,
+    abilityId: string,
+  ): IPilotOperationResult => {
     const db = getSQLiteService().getDatabase();
 
     try {
@@ -373,29 +376,29 @@ export class PilotRepository implements IPilotRepository {
         errorCode: PilotErrorCode.DatabaseError,
       };
     }
-  }
+  };
 
-  recordKill(
+  recordKill = (
     pilotId: string,
     kill: Omit<IKillRecord, 'date'>,
-  ): IPilotOperationResult {
+  ): IPilotOperationResult => {
     return careerOps.recordKill(pilotId, kill, this.exists.bind(this));
-  }
+  };
 
-  recordMission(
+  recordMission = (
     pilotId: string,
     mission: Omit<IMissionRecord, 'date'>,
-  ): IPilotOperationResult {
+  ): IPilotOperationResult => {
     return careerOps.recordMission(pilotId, mission, this.exists.bind(this));
-  }
+  };
 
-  addXp(pilotId: string, amount: number): IPilotOperationResult {
+  addXp = (pilotId: string, amount: number): IPilotOperationResult => {
     return careerOps.addXp(pilotId, amount, this.exists.bind(this));
-  }
+  };
 
-  spendXp(pilotId: string, amount: number): IPilotOperationResult {
+  spendXp = (pilotId: string, amount: number): IPilotOperationResult => {
     return careerOps.spendXp(pilotId, amount, this.getById.bind(this));
-  }
+  };
 
   // =============================================================================
   // Private Helpers

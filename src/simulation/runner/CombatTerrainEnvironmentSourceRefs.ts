@@ -1,37 +1,14 @@
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
-import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
-
+import {
+  megamekPackageSourceRefWithLineAnchor as megamekTerrainSourceRef,
+  mekstationDeviationSourceRefWithLineAnchor as mekstationDeviationSourceRef,
+  type ICombatFeatureSourceReference,
+} from './CombatFeatureSourceReference';
 import { MEGAMEK_TERRAIN_FEATURE_TO_HIT_SOURCE_REFS } from './CombatToHitSourceRefs';
 
 const MEGAMEK_TERRAIN_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
-
-function mekstationDeviationSourceRef(
-  citation: string,
-  path: string,
-  lineRange: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'mekstation-deviation',
-    citation,
-    url: `${path}#${lineRange}`,
-    sourceVersion: 'MekStation working-tree',
-  };
-}
-
-function megamekTerrainSourceRef(
-  citation: string,
-  path: string,
-  lineRange: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'megamek-source',
-    citation,
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/${path}#${lineRange}`,
-    sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
-  };
-}
 
 const MEGAMEK_INTERVENING_TERRAIN_TO_HIT_SOURCE_REF = {
   kind: 'megamek-source',
@@ -181,7 +158,7 @@ const MEKSTATION_TERRAIN_PSR_PROPERTIES_SOURCE_REF =
 const MEKSTATION_TERRAIN_PSR_RUNNER_SOURCE_REF = mekstationDeviationSourceRef(
   'MekStation queueMovementTerrainPSRs queues water entry/exit, rubble, running rough terrain, ice, swamp bog-down, overloaded building-collapse, and pavement-or-ice skidding PSRs from movement-step terrain features, and emits UnitStuck for jump-entry bog-down.',
   'src/simulation/runner/phases/movementTerrainPsr.ts',
-  'L37-L352',
+  'L75-L325',
 );
 
 const MEKSTATION_TERRAIN_PSR_FACTORY_SOURCE_REF = mekstationDeviationSourceRef(
@@ -193,14 +170,14 @@ const MEKSTATION_TERRAIN_PSR_FACTORY_SOURCE_REF = mekstationDeviationSourceRef(
 const MEKSTATION_TERRAIN_PSR_CLASSIFICATION_SOURCE_REF =
   mekstationDeviationSourceRef(
     'MekStation PSR resolution classifies terrain PSRs for quirk handling before resolving terrain and pilot-ability modifiers.',
-    'src/utils/gameplay/pilotingSkillRolls/resolution.ts',
-    'L20-L40',
+    'src/utils/gameplay/pilotingSkillRolls/modifierResolution.ts',
+    'L75-L92',
   );
 
 const MEKSTATION_TERRAIN_PSR_SPA_SOURCE_REF = mekstationDeviationSourceRef(
   'MekStation PSR resolution applies Maneuvering Ace to skidding, Frogman to entering-water, Mountaineer to entering-rubble, and Swamp Beast to swamp bog-down pending PSRs.',
-  'src/utils/gameplay/pilotingSkillRolls/resolution.ts',
-  'L276-L328',
+  'src/utils/gameplay/pilotingSkillRolls/modifierResolution.ts',
+  'L326-L377',
 );
 
 const MEKSTATION_LOS_FEATURE_PARSE_SOURCE_REF = mekstationDeviationSourceRef(

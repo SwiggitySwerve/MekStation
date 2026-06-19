@@ -15,6 +15,7 @@ import { getPayload } from '../utils/getPayload';
 import {
   type BattleState,
   type DetectorTrackingState,
+  type MomentFactory,
   ACE_KILL_THRESHOLD,
   COMEBACK_DISADVANTAGE_RATIO,
   LAST_STAND_ENEMY_THRESHOLD,
@@ -24,6 +25,17 @@ import {
   countOperationalUnits,
   getUnitName,
 } from './types';
+
+type UnitDestroyedPayload = ReturnType<typeof unitDestroyedPayload>;
+type BattleUnit = BattleState['units'][number];
+
+interface UnitDestroyedContext {
+  readonly event: IGameEvent;
+  readonly battleState: BattleState;
+  readonly state: DetectorTrackingState;
+  readonly createMoment: MomentFactory;
+  readonly payload: UnitDestroyedPayload;
+}
 
 /**
  * Processes UnitDestroyed events and detects all Tier 1 moments:
@@ -38,78 +50,107 @@ export function processUnitDestroyed(
   event: IGameEvent,
   battleState: BattleState,
   state: DetectorTrackingState,
-  createMoment: (
-    type: string,
-    event: IGameEvent,
-    description: string,
-    relatedUnitIds: string[],
-    state: DetectorTrackingState,
-    metadata?: Record<string, unknown>,
-  ) => IKeyMoment,
+  createMoment: MomentFactory,
 ): IKeyMoment[] {
-  const payload = getPayload(event, GameEventType.UnitDestroyed);
-  const moments: IKeyMoment[] = [];
-
-  // Track the destruction
-  state.destroyedUnits.add(payload.unitId);
-
-  // Track kills
-  if (payload.killerUnitId) {
-    const kills = state.killsPerUnit.get(payload.killerUnitId) ?? [];
-    kills.push(payload.unitId);
-    state.killsPerUnit.set(payload.killerUnitId, kills);
-  }
-
-  // 1. First blood
-  if (!state.firstBloodDetected) {
-    state.firstBloodDetected = true;
-    const relatedUnits = payload.killerUnitId
-      ? [payload.killerUnitId, payload.unitId]
-      : [payload.unitId];
-    const killerName = payload.killerUnitId
-      ? getUnitName(battleState.units, payload.killerUnitId)
-      : 'Unknown';
-    const victimName = getUnitName(battleState.units, payload.unitId);
-
-    moments.push(
-      createMoment(
-        'first-blood',
-        event,
-        `First blood: ${killerName} destroyed ${victimName}`,
-        relatedUnits,
-        state,
-      ),
-    );
-  }
-
-  // 2. BV swing major
+  const payload = unitDestroyedPayload(event);
+  trackDestroyedUnit(payload, state);
+  const context = { event, battleState, state, createMoment, payload };
   const currentAdvantage = calculateBvAdvantage(
     battleState.units,
     state.destroyedUnits,
   );
+  const ratios = updateBvRatios(battleState, state);
+
+  return [
+    ...detectFirstBlood(context),
+    ...detectBvSwing(context, currentAdvantage),
+    ...detectComebacks(context, ratios),
+    ...detectTeamWipe(context),
+    ...detectLastStands(context),
+    ...detectAceKill(context),
+  ];
+}
+
+function unitDestroyedPayload(event: IGameEvent) {
+  return getPayload(event, GameEventType.UnitDestroyed);
+}
+
+function trackDestroyedUnit(
+  payload: UnitDestroyedPayload,
+  state: DetectorTrackingState,
+): void {
+  state.destroyedUnits.add(payload.unitId);
+  if (!payload.killerUnitId) return;
+  const kills = state.killsPerUnit.get(payload.killerUnitId) ?? [];
+  kills.push(payload.unitId);
+  state.killsPerUnit.set(payload.killerUnitId, kills);
+}
+
+function detectFirstBlood({
+  event,
+  battleState,
+  state,
+  createMoment,
+  payload,
+}: UnitDestroyedContext): IKeyMoment[] {
+  if (state.firstBloodDetected) return [];
+  state.firstBloodDetected = true;
+  const relatedUnits = payload.killerUnitId
+    ? [payload.killerUnitId, payload.unitId]
+    : [payload.unitId];
+  const killerName = payload.killerUnitId
+    ? getUnitName(battleState.units, payload.killerUnitId)
+    : 'Unknown';
+  const victimName = getUnitName(battleState.units, payload.unitId);
+
+  return [
+    createMoment(
+      'first-blood',
+      event,
+      `First blood: ${killerName} destroyed ${victimName}`,
+      relatedUnits,
+      state,
+    ),
+  ];
+}
+
+function detectBvSwing(
+  { event, state, createMoment, payload }: UnitDestroyedContext,
+  currentAdvantage: number,
+): IKeyMoment[] {
   const swing = Math.abs(currentAdvantage - state.previousBvAdvantage);
-  if (swing > BV_SWING_THRESHOLD) {
-    const swingPercent = Math.round(swing * 100);
-    const prevPercent = Math.round(state.previousBvAdvantage * 100);
-    const currPercent = Math.round(currentAdvantage * 100);
-
-    moments.push(
-      createMoment(
-        'bv-swing-major',
-        event,
-        `Major BV swing: ${swingPercent}% shift (from ${prevPercent > 0 ? '+' : ''}${prevPercent}% to ${currPercent > 0 ? '+' : ''}${currPercent}%)`,
-        [payload.unitId],
-        state,
-        {
-          swingPercent,
-          bvBefore: prevPercent,
-          bvAfter: currPercent,
-        },
-      ),
-    );
-  }
+  const previousAdvantage = state.previousBvAdvantage;
   state.previousBvAdvantage = currentAdvantage;
+  if (swing <= BV_SWING_THRESHOLD) return [];
 
+  const swingPercent = Math.round(swing * 100);
+  const prevPercent = Math.round(previousAdvantage * 100);
+  const currPercent = Math.round(currentAdvantage * 100);
+  return [
+    createMoment(
+      'bv-swing-major',
+      event,
+      `Major BV swing: ${swingPercent}% shift (from ${prevPercent > 0 ? '+' : ''}${prevPercent}% to ${currPercent > 0 ? '+' : ''}${currPercent}%)`,
+      [payload.unitId],
+      state,
+      {
+        swingPercent,
+        bvBefore: prevPercent,
+        bvAfter: currPercent,
+      },
+    ),
+  ];
+}
+
+interface BvRatios {
+  readonly playerRatio: number;
+  readonly opponentRatio: number;
+}
+
+function updateBvRatios(
+  battleState: BattleState,
+  state: DetectorTrackingState,
+): BvRatios {
   const playerRatio = calculateBvRatio(
     battleState.units,
     state.destroyedUnits,
@@ -120,96 +161,102 @@ export function processUnitDestroyed(
     state.destroyedUnits,
     GameSide.Opponent,
   );
-
   if (playerRatio < state.minPlayerBvRatio) {
     state.minPlayerBvRatio = playerRatio;
   }
   if (opponentRatio < state.minOpponentBvRatio) {
     state.minOpponentBvRatio = opponentRatio;
   }
+  return { playerRatio, opponentRatio };
+}
 
-  // 3. Comeback - player side
+function detectComebacks(
+  context: UnitDestroyedContext,
+  ratios: BvRatios,
+): IKeyMoment[] {
+  return [
+    ...detectComebackForSide(context, GameSide.Player, ratios.playerRatio),
+    ...detectComebackForSide(context, GameSide.Opponent, ratios.opponentRatio),
+  ];
+}
+
+function detectComebackForSide(
+  { event, battleState, state, createMoment }: UnitDestroyedContext,
+  side: GameSide,
+  currentRatio: number,
+): IKeyMoment[] {
+  const sideState = comebackSideState(state, side);
   if (
-    !state.comebackDetectedPlayer &&
-    state.minPlayerBvRatio < COMEBACK_DISADVANTAGE_RATIO &&
-    playerRatio > 1.0
+    sideState.detected ||
+    sideState.minRatio >= COMEBACK_DISADVANTAGE_RATIO ||
+    currentRatio <= 1.0
   ) {
+    return [];
+  }
+
+  if (side === GameSide.Player) {
     state.comebackDetectedPlayer = true;
-    const playerUnits = battleState.units
-      .filter(
-        (u) => u.side === GameSide.Player && !state.destroyedUnits.has(u.id),
-      )
-      .map((u) => u.id);
-
-    moments.push(
-      createMoment(
-        'comeback',
-        event,
-        `Player comeback from ${Math.round(state.minPlayerBvRatio * 100)}% BV disadvantage`,
-        playerUnits,
-        state,
-        {
-          side: GameSide.Player,
-          minRatio: state.minPlayerBvRatio,
-          currentRatio: playerRatio,
-        },
-      ),
-    );
-  }
-
-  // 3. Comeback - opponent side
-  if (
-    !state.comebackDetectedOpponent &&
-    state.minOpponentBvRatio < COMEBACK_DISADVANTAGE_RATIO &&
-    opponentRatio > 1.0
-  ) {
+  } else {
     state.comebackDetectedOpponent = true;
-    const opponentUnits = battleState.units
-      .filter(
-        (u) => u.side === GameSide.Opponent && !state.destroyedUnits.has(u.id),
-      )
-      .map((u) => u.id);
-
-    moments.push(
-      createMoment(
-        'comeback',
-        event,
-        `Opponent comeback from ${Math.round(state.minOpponentBvRatio * 100)}% BV disadvantage`,
-        opponentUnits,
-        state,
-        {
-          side: GameSide.Opponent,
-          minRatio: state.minOpponentBvRatio,
-          currentRatio: opponentRatio,
-        },
-      ),
-    );
   }
 
-  // 4. Wipe - check if all units of one side destroyed
-  if (!state.wipeDetected) {
-    const destroyedSide = checkTeamWipe(battleState, state);
-    if (destroyedSide !== undefined) {
-      state.wipeDetected = true;
-      const wipedUnits = battleState.units
-        .filter((u) => u.side === destroyedSide)
-        .map((u) => u.id);
-      const sideName =
-        destroyedSide === GameSide.Player ? 'Player' : 'Opponent';
+  const sideName = side === GameSide.Player ? 'Player' : 'Opponent';
+  return [
+    createMoment(
+      'comeback',
+      event,
+      `${sideName} comeback from ${Math.round(sideState.minRatio * 100)}% BV disadvantage`,
+      operationalUnitIds(battleState.units, state, side),
+      state,
+      {
+        side,
+        minRatio: sideState.minRatio,
+        currentRatio,
+      },
+    ),
+  ];
+}
 
-      moments.push(
-        createMoment(
-          'wipe',
-          event,
-          `${sideName} team eliminated`,
-          wipedUnits,
-          state,
-        ),
-      );
-    }
-  }
+function comebackSideState(
+  state: DetectorTrackingState,
+  side: GameSide,
+): { readonly detected: boolean; readonly minRatio: number } {
+  return side === GameSide.Player
+    ? {
+        detected: state.comebackDetectedPlayer,
+        minRatio: state.minPlayerBvRatio,
+      }
+    : {
+        detected: state.comebackDetectedOpponent,
+        minRatio: state.minOpponentBvRatio,
+      };
+}
 
-  // 5. Last stand - check if either side has 1 unit vs 3+ enemies
+function detectTeamWipe({
+  event,
+  battleState,
+  state,
+  createMoment,
+}: UnitDestroyedContext): IKeyMoment[] {
+  if (state.wipeDetected) return [];
+  const destroyedSide = checkTeamWipe(battleState, state);
+  if (destroyedSide === undefined) return [];
+
+  state.wipeDetected = true;
+  const sideName = destroyedSide === GameSide.Player ? 'Player' : 'Opponent';
+  return [
+    createMoment(
+      'wipe',
+      event,
+      `${sideName} team eliminated`,
+      unitIdsForSide(battleState.units, destroyedSide),
+      state,
+    ),
+  ];
+}
+
+function detectLastStands(context: UnitDestroyedContext): IKeyMoment[] {
+  const { battleState, state } = context;
   const playerCount = countOperationalUnits(
     battleState.units,
     state.destroyedUnits,
@@ -220,80 +267,94 @@ export function processUnitDestroyed(
     state.destroyedUnits,
     GameSide.Opponent,
   );
+  return [
+    ...detectLastStandForSide(
+      context,
+      GameSide.Player,
+      playerCount,
+      opponentCount,
+    ),
+    ...detectLastStandForSide(
+      context,
+      GameSide.Opponent,
+      opponentCount,
+      playerCount,
+    ),
+  ];
+}
 
-  if (playerCount === 1 && opponentCount >= LAST_STAND_ENEMY_THRESHOLD) {
-    const loneUnit = battleState.units.find(
-      (u) => u.side === GameSide.Player && !state.destroyedUnits.has(u.id),
-    );
-    if (loneUnit && !state.lastStandDetected.has(loneUnit.id)) {
-      state.lastStandDetected.add(loneUnit.id);
-      const enemyIds = battleState.units
-        .filter(
-          (u) =>
-            u.side === GameSide.Opponent && !state.destroyedUnits.has(u.id),
-        )
-        .map((u) => u.id);
+function detectLastStandForSide(
+  { event, battleState, state, createMoment }: UnitDestroyedContext,
+  side: GameSide,
+  sideCount: number,
+  enemyCount: number,
+): IKeyMoment[] {
+  if (sideCount !== 1 || enemyCount < LAST_STAND_ENEMY_THRESHOLD) return [];
 
-      moments.push(
-        createMoment(
-          'last-stand',
-          event,
-          `${loneUnit.name} last stand vs ${opponentCount} enemies`,
-          [loneUnit.id, ...enemyIds],
-          state,
-        ),
-      );
-    }
+  const loneUnit = battleState.units.find(
+    (u) => u.side === side && !state.destroyedUnits.has(u.id),
+  );
+  if (!loneUnit || state.lastStandDetected.has(loneUnit.id)) return [];
+
+  state.lastStandDetected.add(loneUnit.id);
+  const enemySide =
+    side === GameSide.Player ? GameSide.Opponent : GameSide.Player;
+  return [
+    createMoment(
+      'last-stand',
+      event,
+      `${loneUnit.name} last stand vs ${enemyCount} enemies`,
+      [loneUnit.id, ...operationalUnitIds(battleState.units, state, enemySide)],
+      state,
+    ),
+  ];
+}
+
+function detectAceKill({
+  event,
+  battleState,
+  state,
+  createMoment,
+  payload,
+}: UnitDestroyedContext): IKeyMoment[] {
+  if (!payload.killerUnitId) return [];
+  const kills = state.killsPerUnit.get(payload.killerUnitId) ?? [];
+  if (
+    kills.length < ACE_KILL_THRESHOLD ||
+    state.aceKillDetected.has(payload.killerUnitId)
+  ) {
+    return [];
   }
 
-  if (opponentCount === 1 && playerCount >= LAST_STAND_ENEMY_THRESHOLD) {
-    const loneUnit = battleState.units.find(
-      (u) => u.side === GameSide.Opponent && !state.destroyedUnits.has(u.id),
-    );
-    if (loneUnit && !state.lastStandDetected.has(loneUnit.id)) {
-      state.lastStandDetected.add(loneUnit.id);
-      const enemyIds = battleState.units
-        .filter(
-          (u) => u.side === GameSide.Player && !state.destroyedUnits.has(u.id),
-        )
-        .map((u) => u.id);
+  state.aceKillDetected.add(payload.killerUnitId);
+  const aceName = getUnitName(battleState.units, payload.killerUnitId);
+  return [
+    createMoment(
+      'ace-kill',
+      event,
+      `${aceName} achieves ace status with ${kills.length} kills`,
+      [payload.killerUnitId, ...kills],
+      state,
+      { kills: kills.length },
+    ),
+  ];
+}
 
-      moments.push(
-        createMoment(
-          'last-stand',
-          event,
-          `${loneUnit.name} last stand vs ${playerCount} enemies`,
-          [loneUnit.id, ...enemyIds],
-          state,
-        ),
-      );
-    }
-  }
+function unitIdsForSide(
+  units: readonly BattleUnit[],
+  side: GameSide,
+): string[] {
+  return units.filter((u) => u.side === side).map((u) => u.id);
+}
 
-  // 6. Ace kill - check if killer has 3+ kills
-  if (payload.killerUnitId) {
-    const kills = state.killsPerUnit.get(payload.killerUnitId) ?? [];
-    if (
-      kills.length >= ACE_KILL_THRESHOLD &&
-      !state.aceKillDetected.has(payload.killerUnitId)
-    ) {
-      state.aceKillDetected.add(payload.killerUnitId);
-      const aceName = getUnitName(battleState.units, payload.killerUnitId);
-
-      moments.push(
-        createMoment(
-          'ace-kill',
-          event,
-          `${aceName} achieves ace status with ${kills.length} kills`,
-          [payload.killerUnitId, ...kills],
-          state,
-          { kills: kills.length },
-        ),
-      );
-    }
-  }
-
-  return moments;
+function operationalUnitIds(
+  units: readonly BattleUnit[],
+  state: DetectorTrackingState,
+  side: GameSide,
+): string[] {
+  return units
+    .filter((u) => u.side === side && !state.destroyedUnits.has(u.id))
+    .map((u) => u.id);
 }
 
 function checkTeamWipe(

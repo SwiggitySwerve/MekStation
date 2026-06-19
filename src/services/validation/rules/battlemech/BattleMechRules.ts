@@ -13,8 +13,8 @@
 
 import {
   BATTLEMECH_TONNAGE,
-  ENGINE_RATING_MIN,
   ENGINE_RATING_INCREMENT,
+  ENGINE_RATING_MIN,
 } from '@/services/construction/constructionConstants';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
@@ -22,11 +22,19 @@ import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
   IUnitValidationRuleResult,
+  IUnitValidationError,
   UnitValidationSeverity,
-  createUnitValidationError,
-  createUnitValidationRuleResult,
 } from '@/types/validation/UnitValidationInterfaces';
 import { isCombatMech } from '@/utils/validation/UnitCategoryMapper';
+
+import {
+  createRuleResult,
+  createEmptyRuleResult,
+  addRuleDiagnostic,
+} from '../ruleResults';
+
+const BATTLE_MECH_RULES_CONSTRUCTION_CATEGORY = ValidationCategory.CONSTRUCTION;
+const BATTLE_MECH_RULES_MOVEMENT_CATEGORY = ValidationCategory.MOVEMENT;
 
 /** Engine rating max for BattleMechs per TechManual (higher than general limit) */
 const ENGINE_RATING_MAX_BATTLEMECH = 500;
@@ -43,60 +51,47 @@ export const BattleMechTonnageRange: IUnitValidationRuleDefinition = {
   name: 'BattleMech Tonnage Range',
   description:
     'BattleMech tonnage must be 20-200 tons and divisible by 5 (105-200 for superheavy)',
-  category: ValidationCategory.CONSTRUCTION,
+  category: BATTLE_MECH_RULES_CONSTRUCTION_CATEGORY,
   priority: 10,
   applicableUnitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH],
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors = [];
+    const errors: IUnitValidationError[] = [];
     const tonnage = unit.weight;
     const { min, max, step } = BATTLEMECH_TONNAGE;
 
     if (isCombatMech(unit.unitType)) {
       if (tonnage < min || tonnage > max) {
-        errors.push(
-          createUnitValidationError(
-            this.id,
-            this.name,
-            UnitValidationSeverity.CRITICAL_ERROR,
-            this.category,
-            `BattleMech tonnage must be between ${min} and ${max} tons (current: ${tonnage})`,
-            {
-              field: 'weight',
-              expected: `${min}-${max}`,
-              actual: String(tonnage),
-              suggestion: `Select a valid tonnage between ${min} and ${max} tons`,
-            },
-          ),
+        addRuleDiagnostic(
+          errors,
+          this,
+          UnitValidationSeverity.CRITICAL_ERROR,
+          `BattleMech tonnage must be between ${min} and ${max} tons (current: ${tonnage})`,
+          {
+            field: 'weight',
+            expected: `${min}-${max}`,
+            actual: String(tonnage),
+            suggestion: `Select a valid tonnage between ${min} and ${max} tons`,
+          },
         );
       } else if (tonnage % step !== 0) {
-        errors.push(
-          createUnitValidationError(
-            this.id,
-            this.name,
-            UnitValidationSeverity.CRITICAL_ERROR,
-            this.category,
-            `BattleMech tonnage must be divisible by ${step} (current: ${tonnage})`,
-            {
-              field: 'weight',
-              expected: `divisible by ${step}`,
-              actual: String(tonnage),
-              suggestion: `Round tonnage to nearest valid value (${Math.round(tonnage / step) * step})`,
-            },
-          ),
+        addRuleDiagnostic(
+          errors,
+          this,
+          UnitValidationSeverity.CRITICAL_ERROR,
+          `BattleMech tonnage must be divisible by ${step} (current: ${tonnage})`,
+          {
+            field: 'weight',
+            expected: `divisible by ${step}`,
+            actual: String(tonnage),
+            suggestion: `Round tonnage to nearest valid value (${Math.round(tonnage / step) * step})`,
+          },
         );
       }
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors });
   },
 };
 
@@ -108,23 +103,23 @@ export const BattleMechEngineRatingRange: IUnitValidationRuleDefinition = {
   id: 'VAL-BM-002',
   name: 'Engine Rating Range',
   description: 'Engine rating must be 10-500 in multiples of 5',
-  category: ValidationCategory.CONSTRUCTION,
+  category: BATTLE_MECH_RULES_CONSTRUCTION_CATEGORY,
   priority: 11,
   applicableUnitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH],
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors = [];
+    const errors: IUnitValidationError[] = [];
 
     if (!isCombatMech(unit.unitType)) {
-      return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+      return createEmptyRuleResult(this);
     }
 
     // Extract engine rating from engineType string if available
     // Format is typically "Standard 250", "XL 300", etc.
     const engineType = unit.engineType;
     if (!engineType) {
-      return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+      return createEmptyRuleResult(this);
     }
 
     // Try to extract rating from engine type string
@@ -133,48 +128,35 @@ export const BattleMechEngineRatingRange: IUnitValidationRuleDefinition = {
       const rating = parseInt(ratingMatch[0], 10);
 
       if (rating < ENGINE_RATING_MIN || rating > ENGINE_RATING_MAX_BATTLEMECH) {
-        errors.push(
-          createUnitValidationError(
-            this.id,
-            this.name,
-            UnitValidationSeverity.CRITICAL_ERROR,
-            this.category,
-            `Engine rating must be between ${ENGINE_RATING_MIN} and ${ENGINE_RATING_MAX_BATTLEMECH} (current: ${rating})`,
-            {
-              field: 'engineType',
-              expected: `${ENGINE_RATING_MIN}-${ENGINE_RATING_MAX_BATTLEMECH}`,
-              actual: String(rating),
-              suggestion: `Select an engine with rating between ${ENGINE_RATING_MIN} and ${ENGINE_RATING_MAX_BATTLEMECH}`,
-            },
-          ),
+        addRuleDiagnostic(
+          errors,
+          this,
+          UnitValidationSeverity.CRITICAL_ERROR,
+          `Engine rating must be between ${ENGINE_RATING_MIN} and ${ENGINE_RATING_MAX_BATTLEMECH} (current: ${rating})`,
+          {
+            field: 'engineType',
+            expected: `${ENGINE_RATING_MIN}-${ENGINE_RATING_MAX_BATTLEMECH}`,
+            actual: String(rating),
+            suggestion: `Select an engine with rating between ${ENGINE_RATING_MIN} and ${ENGINE_RATING_MAX_BATTLEMECH}`,
+          },
         );
       } else if (rating % ENGINE_RATING_INCREMENT !== 0) {
-        errors.push(
-          createUnitValidationError(
-            this.id,
-            this.name,
-            UnitValidationSeverity.CRITICAL_ERROR,
-            this.category,
-            `Engine rating must be a multiple of ${ENGINE_RATING_INCREMENT} (current: ${rating})`,
-            {
-              field: 'engineType',
-              expected: `multiple of ${ENGINE_RATING_INCREMENT}`,
-              actual: String(rating),
-              suggestion: `Round engine rating to ${Math.round(rating / ENGINE_RATING_INCREMENT) * ENGINE_RATING_INCREMENT}`,
-            },
-          ),
+        addRuleDiagnostic(
+          errors,
+          this,
+          UnitValidationSeverity.CRITICAL_ERROR,
+          `Engine rating must be a multiple of ${ENGINE_RATING_INCREMENT} (current: ${rating})`,
+          {
+            field: 'engineType',
+            expected: `multiple of ${ENGINE_RATING_INCREMENT}`,
+            actual: String(rating),
+            suggestion: `Round engine rating to ${Math.round(rating / ENGINE_RATING_INCREMENT) * ENGINE_RATING_INCREMENT}`,
+          },
         );
       }
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors });
   },
 };
 
@@ -186,14 +168,14 @@ export const BattleMechEngineRatingMatch: IUnitValidationRuleDefinition = {
   id: 'VAL-BM-003',
   name: 'Engine Rating Match',
   description: 'Engine rating must match tonnage × walk MP',
-  category: ValidationCategory.CONSTRUCTION,
+  category: BATTLE_MECH_RULES_CONSTRUCTION_CATEGORY,
   priority: 12,
   applicableUnitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH],
 
   validate(_context: IUnitValidationContext): IUnitValidationRuleResult {
     // This requires walk MP which is not in IValidatableUnit yet
     // Will be enhanced when movement data is added
-    return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+    return createEmptyRuleResult(this);
   },
 };
 
@@ -205,27 +187,20 @@ export const OmniMechPodSpace: IUnitValidationRuleDefinition = {
   id: 'VAL-BM-004',
   name: 'OmniMech Pod Space',
   description: 'OmniMech must have pod space available for equipment',
-  category: ValidationCategory.CONSTRUCTION,
+  category: BATTLE_MECH_RULES_CONSTRUCTION_CATEGORY,
   priority: 13,
   applicableUnitTypes: [UnitType.OMNIMECH],
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const warnings: ReturnType<typeof createUnitValidationError>[] = [];
+    const warnings: IUnitValidationError[] = [];
 
     if (unit.unitType === UnitType.OMNIMECH) {
       // OmniMech pod space validation will be enhanced
       // when pod space data is added to IValidatableUnit
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      [],
-      warnings,
-      [],
-      0,
-    );
+    return createRuleResult(this, { warnings });
   },
 };
 
@@ -237,14 +212,14 @@ export const BattleMechMinimumWalkMP: IUnitValidationRuleDefinition = {
   id: 'VAL-BM-005',
   name: 'Minimum Walk MP',
   description: 'BattleMech must have at least 1 walk MP',
-  category: ValidationCategory.MOVEMENT,
+  category: BATTLE_MECH_RULES_MOVEMENT_CATEGORY,
   priority: 14,
   applicableUnitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH],
 
   validate(_context: IUnitValidationContext): IUnitValidationRuleResult {
     // Movement data not in IValidatableUnit yet
     // Will be enhanced when movement is added
-    return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+    return createEmptyRuleResult(this);
   },
 };
 
@@ -256,13 +231,13 @@ export const BattleMechMaximumWalkMP: IUnitValidationRuleDefinition = {
   id: 'VAL-BM-006',
   name: 'Maximum Walk MP',
   description: 'BattleMech walk MP cannot exceed engine rating / tonnage',
-  category: ValidationCategory.MOVEMENT,
+  category: BATTLE_MECH_RULES_MOVEMENT_CATEGORY,
   priority: 15,
   applicableUnitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH],
 
   validate(_context: IUnitValidationContext): IUnitValidationRuleResult {
     // Movement data not in IValidatableUnit yet
-    return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+    return createEmptyRuleResult(this);
   },
 };
 
@@ -275,14 +250,14 @@ export const BattleMechArmActuators: IUnitValidationRuleDefinition = {
   name: 'Arm Actuator Requirements',
   description:
     'Arm actuators must follow hierarchy (shoulder → upper → lower → hand)',
-  category: ValidationCategory.CONSTRUCTION,
+  category: BATTLE_MECH_RULES_CONSTRUCTION_CATEGORY,
   priority: 16,
   applicableUnitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH],
 
   validate(_context: IUnitValidationContext): IUnitValidationRuleResult {
     // Actuator data not in IValidatableUnit yet
     // Will be enhanced when critical slots are added
-    return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+    return createEmptyRuleResult(this);
   },
 };
 
@@ -294,13 +269,13 @@ export const BattleMechHeadRestrictions: IUnitValidationRuleDefinition = {
   id: 'VAL-BM-008',
   name: 'Head Location Restrictions',
   description: 'Head location has limited equipment options',
-  category: ValidationCategory.CONSTRUCTION,
+  category: BATTLE_MECH_RULES_CONSTRUCTION_CATEGORY,
   priority: 17,
   applicableUnitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH],
 
   validate(_context: IUnitValidationContext): IUnitValidationRuleResult {
     // Critical slot data not in IValidatableUnit yet
-    return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+    return createEmptyRuleResult(this);
   },
 };
 
@@ -312,13 +287,13 @@ export const BattleMechCTRequirements: IUnitValidationRuleDefinition = {
   id: 'VAL-BM-009',
   name: 'Center Torso Requirements',
   description: 'Engine and gyro must occupy center torso slots',
-  category: ValidationCategory.CONSTRUCTION,
+  category: BATTLE_MECH_RULES_CONSTRUCTION_CATEGORY,
   priority: 18,
   applicableUnitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH],
 
   validate(_context: IUnitValidationContext): IUnitValidationRuleResult {
     // Critical slot data not in IValidatableUnit yet
-    return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+    return createEmptyRuleResult(this);
   },
 };
 
@@ -330,13 +305,13 @@ export const BattleMechXLEngineSlots: IUnitValidationRuleDefinition = {
   id: 'VAL-BM-010',
   name: 'XL Engine Side Torso Slots',
   description: 'XL engines require 3 slots in each side torso',
-  category: ValidationCategory.CONSTRUCTION,
+  category: BATTLE_MECH_RULES_CONSTRUCTION_CATEGORY,
   priority: 19,
   applicableUnitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH],
 
   validate(_context: IUnitValidationContext): IUnitValidationRuleResult {
     // Critical slot data not in IValidatableUnit yet
-    return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+    return createEmptyRuleResult(this);
   },
 };
 
