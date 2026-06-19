@@ -38,6 +38,146 @@ interface FilterState {
   rulesLevel: RulesLevel | '';
 }
 
+const EMPTY_FILTERS: FilterState = {
+  search: '',
+  category: '',
+  techBase: '',
+  rulesLevel: '',
+};
+
+function filterEquipment(
+  equipment: readonly EquipmentEntry[],
+  filters: FilterState,
+): EquipmentEntry[] {
+  const searchLower = filters.search.toLowerCase();
+
+  return equipment.filter((eq) => {
+    if (
+      searchLower &&
+      !eq.name.toLowerCase().includes(searchLower) &&
+      !eq.id.toLowerCase().includes(searchLower)
+    ) {
+      return false;
+    }
+    if (filters.category && eq.category !== filters.category) return false;
+    if (filters.techBase && eq.techBase !== filters.techBase) return false;
+    if (filters.rulesLevel && eq.rulesLevel !== filters.rulesLevel) {
+      return false;
+    }
+    return true;
+  });
+}
+
+function countActiveFilters(filters: FilterState): number {
+  return [filters.category, filters.techBase, filters.rulesLevel].filter(
+    Boolean,
+  ).length;
+}
+
+function EquipmentHeaderActions({
+  viewMode,
+  onViewModeChange,
+  filters,
+  onFilterChange,
+  showFilters,
+  onToggleFilters,
+  activeFilterCount,
+}: {
+  readonly viewMode: ViewMode;
+  readonly onViewModeChange: (mode: ViewMode) => void;
+  readonly filters: FilterState;
+  readonly onFilterChange: <K extends keyof FilterState>(
+    key: K,
+    value: FilterState[K],
+  ) => void;
+  readonly showFilters: boolean;
+  readonly onToggleFilters: () => void;
+  readonly activeFilterCount: number;
+}): React.ReactElement {
+  const filtersAreHighlighted = showFilters || activeFilterCount > 0;
+
+  return (
+    <div className="flex items-center gap-3">
+      <ViewModeToggle mode={viewMode} onChange={onViewModeChange} />
+
+      <div className="w-64">
+        <Input
+          type="text"
+          placeholder="Search..."
+          value={filters.search}
+          onChange={(e) => onFilterChange('search', e.target.value)}
+          accent="amber"
+          aria-label="Search equipment"
+          className="!py-1.5 text-sm"
+        />
+      </div>
+
+      <button
+        onClick={onToggleFilters}
+        className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+          filtersAreHighlighted
+            ? 'bg-accent text-text-theme-primary'
+            : 'bg-surface-raised/50 text-text-theme-primary/80 hover:bg-surface-raised'
+        }`}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="h-4 w-4"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
+          />
+        </svg>
+        Filters
+        {activeFilterCount > 0 && (
+          <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-xs">
+            {activeFilterCount}
+          </span>
+        )}
+      </button>
+    </div>
+  );
+}
+
+function EquipmentResults({
+  displayedEquipment,
+  viewMode,
+  onClearFilters,
+}: {
+  readonly displayedEquipment: EquipmentEntry[];
+  readonly viewMode: ViewMode;
+  readonly onClearFilters: () => void;
+}): React.ReactElement {
+  if (displayedEquipment.length === 0) {
+    return (
+      <EmptyState
+        title="No equipment found"
+        action={
+          <Button variant="secondary" onClick={onClearFilters}>
+            Clear Filters
+          </Button>
+        }
+      />
+    );
+  }
+
+  if (viewMode === 'grid') {
+    return <EquipmentGridView equipment={displayedEquipment} />;
+  }
+
+  if (viewMode === 'list') {
+    return <EquipmentListView equipment={displayedEquipment} />;
+  }
+
+  return <EquipmentTableView equipment={displayedEquipment} />;
+}
+
 export default function EquipmentListPage(): React.ReactElement {
   const [equipment, setEquipment] = useState<EquipmentEntry[]>([]);
   const [filteredEquipment, setFilteredEquipment] = useState<EquipmentEntry[]>(
@@ -48,20 +188,10 @@ export default function EquipmentListPage(): React.ReactElement {
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState<FilterState>({
-    search: '',
-    category: '',
-    techBase: '',
-    rulesLevel: '',
-  });
+  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
 
-  const hasActiveFilters =
-    filters.category || filters.techBase || filters.rulesLevel;
-  const activeFilterCount = [
-    filters.category,
-    filters.techBase,
-    filters.rulesLevel,
-  ].filter(Boolean).length;
+  const activeFilterCount = countActiveFilters(filters);
+  const hasActiveFilters = activeFilterCount > 0;
 
   // Fetch equipment on mount
   useEffect(() => {
@@ -92,30 +222,7 @@ export default function EquipmentListPage(): React.ReactElement {
 
   // Apply filters
   const applyFilters = useCallback(() => {
-    let result = [...equipment];
-
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      result = result.filter(
-        (eq) =>
-          eq.name.toLowerCase().includes(searchLower) ||
-          eq.id.toLowerCase().includes(searchLower),
-      );
-    }
-
-    if (filters.category) {
-      result = result.filter((eq) => eq.category === filters.category);
-    }
-
-    if (filters.techBase) {
-      result = result.filter((eq) => eq.techBase === filters.techBase);
-    }
-
-    if (filters.rulesLevel) {
-      result = result.filter((eq) => eq.rulesLevel === filters.rulesLevel);
-    }
-
-    setFilteredEquipment(result);
+    setFilteredEquipment(filterEquipment(equipment, filters));
     setCurrentPage(1);
   }, [equipment, filters]);
 
@@ -139,7 +246,7 @@ export default function EquipmentListPage(): React.ReactElement {
   };
 
   const clearFilters = () => {
-    setFilters({ search: '', category: '', techBase: '', rulesLevel: '' });
+    setFilters(EMPTY_FILTERS);
   };
 
   if (loading) {
@@ -157,56 +264,16 @@ export default function EquipmentListPage(): React.ReactElement {
     );
   }
 
-  // Header actions for the layout
   const headerActions = (
-    <div className="flex items-center gap-3">
-      {/* View Mode Toggle */}
-      <ViewModeToggle mode={viewMode} onChange={setViewMode} />
-
-      {/* Search */}
-      <div className="w-64">
-        <Input
-          type="text"
-          placeholder="Search..."
-          value={filters.search}
-          onChange={(e) => handleFilterChange('search', e.target.value)}
-          accent="amber"
-          aria-label="Search equipment"
-          className="!py-1.5 text-sm"
-        />
-      </div>
-
-      {/* Filter Toggle Button */}
-      <button
-        onClick={() => setShowFilters(!showFilters)}
-        className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-          showFilters || hasActiveFilters
-            ? 'bg-accent text-text-theme-primary'
-            : 'bg-surface-raised/50 text-text-theme-primary/80 hover:bg-surface-raised'
-        }`}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="h-4 w-4"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
-          />
-        </svg>
-        Filters
-        {activeFilterCount > 0 && (
-          <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-xs">
-            {activeFilterCount}
-          </span>
-        )}
-      </button>
-    </div>
+    <EquipmentHeaderActions
+      viewMode={viewMode}
+      onViewModeChange={setViewMode}
+      filters={filters}
+      onFilterChange={handleFilterChange}
+      showFilters={showFilters}
+      onToggleFilters={() => setShowFilters(!showFilters)}
+      activeFilterCount={activeFilterCount}
+    />
   );
 
   return (
@@ -227,29 +294,11 @@ export default function EquipmentListPage(): React.ReactElement {
         />
       )}
 
-      {/* Equipment Display */}
-      {displayedEquipment.length === 0 ? (
-        <EmptyState
-          title="No equipment found"
-          action={
-            <Button variant="secondary" onClick={clearFilters}>
-              Clear Filters
-            </Button>
-          }
-        />
-      ) : (
-        <>
-          {viewMode === 'grid' && (
-            <EquipmentGridView equipment={displayedEquipment} />
-          )}
-          {viewMode === 'list' && (
-            <EquipmentListView equipment={displayedEquipment} />
-          )}
-          {viewMode === 'table' && (
-            <EquipmentTableView equipment={displayedEquipment} />
-          )}
-        </>
-      )}
+      <EquipmentResults
+        displayedEquipment={displayedEquipment}
+        viewMode={viewMode}
+        onClearFilters={clearFilters}
+      />
 
       {/* Pagination - Compact */}
       {totalPages > 1 && (

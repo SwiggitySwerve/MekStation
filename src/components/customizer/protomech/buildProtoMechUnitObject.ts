@@ -15,6 +15,11 @@ import type { IProtoMechArmorAllocation } from '@/stores/protoMechState';
 
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 
+import {
+  buildRecordSheetUnitIdentity,
+  type RecordSheetUnitIdentityWithTonnageInput,
+} from '../preview/recordSheetUnitIdentity';
+
 /** ProtoMech location label set used by the record-sheet extractor. */
 type ProtoLoc =
   | 'Head'
@@ -25,15 +30,7 @@ type ProtoLoc =
   | 'Main Gun';
 
 /** Store fields the protomech unit-object builder reads. */
-export interface ProtoMechUnitObjectInput {
-  id: string;
-  name: string;
-  chassis: string;
-  model: string;
-  tonnage: number;
-  techBase: string;
-  rulesLevel: string;
-  year: number;
+export interface ProtoMechUnitObjectInput extends RecordSheetUnitIdentityWithTonnageInput {
   pointSize: number;
   armorByLocation: IProtoMechArmorAllocation;
   mainGunWeaponId: string | undefined;
@@ -87,14 +84,7 @@ export function buildProtoMechUnitObject(
   }));
 
   return {
-    id: input.id,
-    name: input.name,
-    chassis: input.chassis || input.name.split(' ')[0] || 'Unknown',
-    model: input.model || input.name.split(' ').slice(1).join(' ') || 'Custom',
-    tonnage: input.tonnage,
-    techBase: String(input.techBase),
-    rulesLevel: String(input.rulesLevel),
-    era: `Year ${input.year}`,
+    ...buildRecordSheetUnitIdentity(input),
     // Dispatch hint — resolves to the 'protomech' kind.
     unitType: 'protomech',
     pointSize: input.pointSize,

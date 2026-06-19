@@ -8,12 +8,8 @@
  */
 
 import { CapitalShipLocation } from '@/types/construction/UnitLocation';
-import { TechBase, Era, WeightClass, RulesLevel } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
-import {
-  AerospaceMotionType,
-  IAerospaceMovement,
-} from '@/types/unit/BaseUnitInterfaces';
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
@@ -24,6 +20,7 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
+import { parseCapitalVesselBasics } from './capitalShipHandlerShared';
 import {
   calculateSpaceStationBV,
   calculateSpaceStationCost,
@@ -40,6 +37,15 @@ import {
   getBooleanFromRaw,
 } from './SpaceStationUnitHandler.helpers';
 import { SpaceStationType } from './SpaceStationUnitHandler.types';
+import {
+  UnitFieldParseMessages,
+  UnitValidationMessages,
+  combineAssaultUnitFields,
+  createParseMessages,
+  createValidationMessages,
+  parseRulesLevelThroughAdvancedFromType,
+  serializeConfigurationWithRulesLevel,
+} from './unitHandlerShared';
 
 // Re-export the handler-local interface and station-type enum so
 // existing consumers can still import them from this module (or via
@@ -72,36 +78,15 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
    */
   protected parseTypeSpecificFields(
     document: IBlkDocument,
-  ): Partial<ISpaceStation> & {
-    errors: string[];
-    warnings: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  ): Partial<ISpaceStation> & UnitFieldParseMessages {
+    const { errors, warnings } = createParseMessages();
 
     // Space stations are always spheroid (or modular)
     const motionType = AerospaceMotionType.SPHEROID;
 
-    // Movement - space stations typically have minimal or no thrust
-    const safeThrust = document.safeThrust || 0;
-    const maxThrust = Math.floor(safeThrust * 1.5);
-    const movement: IAerospaceMovement = { safeThrust, maxThrust };
-
-    // Fuel
-    const fuel = document.fuel || 0;
-
-    // Structural integrity
-    const structuralIntegrity = document.structuralIntegrity || 0;
-
-    // Heat sinks
-    const heatSinks = document.heatsinks || 0;
-    const heatSinkType = document.sinkType || 0;
-
-    // Armor
-    const armorType = document.armorType || 0;
-    const armor = document.armor || [];
-    const armorByArc = parseArmorByArc(armor);
-    const totalArmorPoints = armor.reduce((sum, val) => sum + val, 0);
+    const basics = parseCapitalVesselBasics(document, {
+      includeEngineType: false,
+    });
 
     // Station type
     const rawTags = document.rawTags || {};
@@ -148,15 +133,7 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
       unitType: UnitType.SPACE_STATION,
       motionType,
       stationType,
-      movement,
-      fuel,
-      structuralIntegrity,
-      heatSinks,
-      heatSinkType,
-      armorType,
-      armor,
-      armorByArc,
-      totalArmorPoints,
+      ...basics,
       dockingCollars,
       gravDecks,
       hasHPG,
@@ -170,7 +147,7 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
       lifeBoats,
       errors,
       warnings,
-    };
+    } satisfies Partial<ISpaceStation> & UnitFieldParseMessages;
   }
 
   /**
@@ -180,77 +157,13 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<ISpaceStation>,
   ): ISpaceStation {
-    const techBase = this.parseTechBase(commonFields.techBase);
-    const rulesLevel = this.parseRulesLevel(commonFields.techBase);
-
-    return {
-      // Identity
-      id: `space-station-${Date.now()}`,
-      name: `${commonFields.chassis} ${commonFields.model}`.trim(),
-
-      // Classification
+    return combineAssaultUnitFields<ISpaceStation>({
+      commonFields,
+      typeSpecificFields,
+      idPrefix: 'space-station',
       unitType: UnitType.SPACE_STATION,
-      tonnage: commonFields.tonnage,
-      weightClass: WeightClass.ASSAULT,
-
-      // Tech
-      techBase,
-      era: commonFields.era as Era,
-      rulesLevel,
-
-      // Metadata
-      metadata: {
-        chassis: commonFields.chassis,
-        model: commonFields.model,
-        year: commonFields.year,
-        rulesLevel,
-        techBase,
-        role: commonFields.role,
-      },
-
-      // Optional fields
-      source: commonFields.source,
-      role: commonFields.role,
-
-      // Calculated values
-      bv: 0,
-      cost: 0,
-      totalWeight: commonFields.tonnage,
-      remainingTonnage: 0,
-      isValid: true,
-      validationErrors: [],
-
-      // Space Station-specific fields
-      ...typeSpecificFields,
-    } as ISpaceStation;
-  }
-
-  /**
-   * Parse tech base from type string
-   */
-  private parseTechBase(typeStr: string): TechBase {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('clan') && !lower.includes('mixed')) {
-      return TechBase.CLAN;
-    }
-    return TechBase.INNER_SPHERE;
-  }
-
-  /**
-   * Parse rules level from type string
-   */
-  private parseRulesLevel(typeStr: string): RulesLevel {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('level 1') || lower.includes('introductory')) {
-      return RulesLevel.INTRODUCTORY;
-    }
-    if (lower.includes('level 2') || lower.includes('standard')) {
-      return RulesLevel.STANDARD;
-    }
-    if (lower.includes('level 3') || lower.includes('advanced')) {
-      return RulesLevel.ADVANCED;
-    }
-    return RulesLevel.STANDARD;
+      rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
+    });
   }
 
   /**
@@ -259,10 +172,10 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
   protected serializeTypeSpecificFields(
     unit: ISpaceStation,
   ): Partial<ISerializedUnit> {
-    return {
-      configuration: `Space Station (${unit.stationType})`,
-      rulesLevel: String(unit.rulesLevel),
-    };
+    return serializeConfigurationWithRulesLevel(
+      `Space Station (${unit.stationType})`,
+      unit.rulesLevel,
+    );
   }
 
   /**
@@ -274,11 +187,9 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
     ]);
   }
 
-  protected validateTypeSpecificRules(unit: ISpaceStation): {
-    errors: string[];
-    warnings: string[];
-    infos: string[];
-  } {
+  protected validateTypeSpecificRules(
+    unit: ISpaceStation,
+  ): UnitValidationMessages {
     return validateSpaceStation(unit);
   }
 

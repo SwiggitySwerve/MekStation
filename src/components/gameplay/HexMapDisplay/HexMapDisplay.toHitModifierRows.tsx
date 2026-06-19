@@ -4,9 +4,9 @@ import type { ICombatRangeHex, IToHitModifier } from '@/types/gameplay';
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
 import {
-  formatTacticalProjectionRuleReferences,
-  formatTacticalProjectionSourceReferences,
-} from '@/utils/gameplay/tacticalMapProjection';
+  combatProjectionSourceMetadata,
+  tacticalProjectionDataAttributes,
+} from './HexMapDisplay.tacticalProjectionAttributes';
 
 function formatSignedModifier(value: number): string {
   return value >= 0 ? `+${value}` : `${value}`;
@@ -57,27 +57,14 @@ export function CombatToHitModifierRows({
   const modifiers = combatInfo.toHitModifiers ?? [];
   if (modifiers.length === 0) return null;
 
-  const combatSourceReferences =
-    projection?.sourceReferences.filter(
-      (source) => source.channel === 'combat',
-    ) ?? [];
-  const combatSourceRefsAttribute =
-    formatTacticalProjectionSourceReferences(combatSourceReferences) ||
-    undefined;
-  const combatRuleRefsAttribute =
-    formatTacticalProjectionRuleReferences(combatSourceReferences) || undefined;
-  const combatProjectionChannel =
-    combatSourceReferences.length > 0 ? 'combat' : undefined;
+  const source = combatProjectionSourceMetadata(projection?.sourceReferences);
+  const projectionAttributes = tacticalProjectionDataAttributes(source);
 
   return (
     <div
       className="mt-1 border-t border-slate-700/70 pt-1 text-[11px] text-slate-200"
       data-testid={testId}
-      data-tactical-projection-source={
-        combatProjectionChannel ? 'shared-tactical-map-projection' : undefined
-      }
-      data-tactical-projection-channel={combatProjectionChannel}
-      data-tactical-rules-surface={combatProjectionChannel}
+      {...projectionAttributes}
       data-combat-to-hit-number={combatInfo.toHitNumber}
       data-combat-to-hit-modifier-count={modifiers.length}
       data-combat-to-hit-modifier-names={modifierNamesAttribute(modifiers)}
@@ -86,8 +73,8 @@ export function CombatToHitModifierRows({
       data-combat-to-hit-modifier-descriptions={modifierDescriptionsAttribute(
         modifiers,
       )}
-      data-combat-to-hit-modifier-source-refs={combatSourceRefsAttribute}
-      data-combat-to-hit-modifier-rule-refs={combatRuleRefsAttribute}
+      data-combat-to-hit-modifier-source-refs={source.sourceRefs}
+      data-combat-to-hit-modifier-rule-refs={source.ruleRefs}
     >
       <div data-testid={`${testId}-title`}>
         To-hit modifiers
@@ -104,15 +91,9 @@ export function CombatToHitModifierRows({
           data-combat-to-hit-modifier-value={modifier.value}
           data-combat-to-hit-modifier-source={modifier.source}
           data-combat-to-hit-modifier-description={modifier.description}
-          data-tactical-projection-source={
-            combatProjectionChannel
-              ? 'shared-tactical-map-projection'
-              : undefined
-          }
-          data-tactical-projection-channel={combatProjectionChannel}
-          data-tactical-rules-surface={combatProjectionChannel}
-          data-combat-to-hit-modifier-source-refs={combatSourceRefsAttribute}
-          data-combat-to-hit-modifier-rule-refs={combatRuleRefsAttribute}
+          {...projectionAttributes}
+          data-combat-to-hit-modifier-source-refs={source.sourceRefs}
+          data-combat-to-hit-modifier-rule-refs={source.ruleRefs}
         >
           {modifier.name} {formatSignedModifier(modifier.value)}
         </div>

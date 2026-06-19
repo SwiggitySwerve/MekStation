@@ -18,11 +18,18 @@ import React from 'react';
 
 import type { IProtoMechToken } from '@/types/gameplay';
 
-import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
+import { HEX_SIZE } from '@/constants/hexMap';
 import { hex6ToRotationDeg } from '@/lib/gameplay/facingRules';
-import { GameSide } from '@/types/gameplay';
 
 import type { ITokenSharedProps } from './tokenTypes';
+
+import {
+  DestroyedCrossOverlay,
+  TOKEN_BODY_STROKE_WIDTH,
+  TokenDesignationLabel,
+  selectionTargetRingColor,
+  tokenSideBodyColor,
+} from './tokenVisuals';
 
 export const PROTO_TOKEN_RADIUS = HEX_SIZE * 0.38;
 export const PROTO_RING_RADIUS = HEX_SIZE * 0.5;
@@ -62,19 +69,9 @@ export const ProtoMechToken = React.memo(function ProtoMechToken({
   const isGlider = token.isGlider;
   const hasMainGun = token.hasMainGun;
 
-  let bodyColor =
-    token.side === GameSide.Player
-      ? HEX_COLORS.playerToken
-      : HEX_COLORS.opponentToken;
-  if (isDestroyed) {
-    bodyColor = HEX_COLORS.destroyedToken;
-  }
+  const bodyColor = tokenSideBodyColor(token.side, isDestroyed);
 
-  const ringColor = token.isSelected
-    ? '#fbbf24'
-    : token.isValidTarget
-      ? '#f87171'
-      : 'transparent';
+  const ringColor = selectionTargetRingColor(token);
 
   // ProtoMechs use 6-hex facing (same as mechs).
   const headingDeg = hex6ToRotationDeg(token.facing);
@@ -94,7 +91,7 @@ export const ProtoMechToken = React.memo(function ProtoMechToken({
         r={PROTO_TOKEN_RADIUS}
         fill="#0f172a"
         stroke={bodyColor}
-        strokeWidth={2}
+        strokeWidth={TOKEN_BODY_STROKE_WIDTH}
       />
 
       {/* Glider wing overlays — extended triangles replacing normal body */}
@@ -155,29 +152,12 @@ export const ProtoMechToken = React.memo(function ProtoMechToken({
       )}
 
       {/* Designation label */}
-      <text
-        y={PROTO_RING_RADIUS + 10}
-        textAnchor="middle"
-        fontSize={7}
-        fill="#1e293b"
-        style={{ pointerEvents: 'none' }}
-      >
+      <TokenDesignationLabel y={PROTO_RING_RADIUS + 10} fontSize={7}>
         {token.designation}
-      </text>
+      </TokenDesignationLabel>
 
       {/* Destroyed cross overlay */}
-      {isDestroyed && (
-        <g
-          stroke="#dc2626"
-          strokeWidth={2.5}
-          data-testid="unit-destroyed-overlay"
-          pointerEvents="none"
-          aria-hidden="true"
-        >
-          <line x1={-10} y1={-10} x2={10} y2={10} />
-          <line x1={10} y1={-10} x2={-10} y2={10} />
-        </g>
-      )}
+      {isDestroyed && <DestroyedCrossOverlay xRadius={10} strokeWidth={2.5} />}
     </>
   );
 });

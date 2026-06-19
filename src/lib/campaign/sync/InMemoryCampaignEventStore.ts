@@ -42,7 +42,10 @@ interface ICampaignLogRecord {
 export class InMemoryCampaignEventStore implements ICampaignEventStore {
   private readonly logs = new Map<string, ICampaignLogRecord>();
 
-  async appendEvent(campaignId: string, event: ICampaignEvent): Promise<void> {
+  appendEvent = async (
+    campaignId: string,
+    event: ICampaignEvent,
+  ): Promise<void> => {
     const record = this.getOrCreate(campaignId);
     // Sequence-collision check FIRST — a collision rejects and mutates
     // nothing (the transactional all-or-nothing guarantee).
@@ -55,35 +58,35 @@ export class InMemoryCampaignEventStore implements ICampaignEventStore {
     // host always appends ascending, so this sort is near-free, but it
     // makes an out-of-order append (a test, a recovery splice) correct.
     record.events.sort((left, right) => left.sequence - right.sequence);
-  }
+  };
 
-  async getEvents(
+  getEvents = async (
     campaignId: string,
     fromSeq = 0,
-  ): Promise<readonly ICampaignEvent[]> {
+  ): Promise<readonly ICampaignEvent[]> => {
     const record = this.logs.get(campaignId);
     if (!record) return [];
     if (fromSeq <= 0) {
       return record.events.slice();
     }
     return record.events.filter((event) => event.sequence >= fromSeq);
-  }
+  };
 
-  async highestSequence(campaignId: string): Promise<number> {
+  highestSequence = async (campaignId: string): Promise<number> => {
     const record = this.logs.get(campaignId);
     if (!record || record.events.length === 0) return -1;
     return record.events[record.events.length - 1].sequence;
-  }
+  };
 
   /** Number of campaign logs currently tracked. Test/observability. */
-  size(): number {
+  size = (): number => {
     return this.logs.size;
-  }
+  };
 
   /** Drop every log. Used by tests for isolation. */
-  reset(): void {
+  reset = (): void => {
     this.logs.clear();
-  }
+  };
 
   private getOrCreate(campaignId: string): ICampaignLogRecord {
     let record = this.logs.get(campaignId);

@@ -7,6 +7,10 @@
 
 import React from 'react';
 
+import {
+  formatAuditEventType,
+  formatAuditTimestamp,
+} from '@/components/audit/auditEventFormatters';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { type IBaseEvent, EventCategory } from '@/types/events';
@@ -176,30 +180,24 @@ const CATEGORY_CONFIG: Record<EventCategory, CategoryDisplayConfig> = {
 // Helper Functions
 // =============================================================================
 
-/**
- * Format event type for display.
- */
-function formatEventType(type: string): string {
-  const shortType = type.includes('.')
-    ? type.split('.').slice(1).join('.')
-    : type;
-  return shortType
-    .replace(/[_-]/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
+function formatPayloadSummaryValue(value: unknown): string | null {
+  if (typeof value === 'string') {
+    return value.length > 30 ? `${value.slice(0, 30)}...` : value;
+  }
 
-/**
- * Format timestamp for display.
- */
-function formatTimestamp(timestamp: string): string {
-  const date = new Date(timestamp);
-  return date.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+
+  if (Array.isArray(value)) {
+    return `[${value.length} items]`;
+  }
+
+  if (typeof value === 'object') {
+    return '{...}';
+  }
+
+  return null;
 }
 
 /**
@@ -221,18 +219,8 @@ function generatePayloadSummary(
 
     if (value === null || value === undefined) continue;
 
-    let displayValue: string;
-    if (typeof value === 'string') {
-      displayValue = value.length > 30 ? `${value.slice(0, 30)}...` : value;
-    } else if (typeof value === 'number' || typeof value === 'boolean') {
-      displayValue = String(value);
-    } else if (Array.isArray(value)) {
-      displayValue = `[${value.length} items]`;
-    } else if (typeof value === 'object') {
-      displayValue = '{...}';
-    } else {
-      continue;
-    }
+    const displayValue = formatPayloadSummaryValue(value);
+    if (displayValue === null) continue;
 
     entries.push({ key, value: displayValue });
   }
@@ -325,12 +313,12 @@ export function ReplayEventOverlay({
 
         {/* Event Type */}
         <h3 className="text-text-theme-primary mb-1 truncate text-lg font-semibold">
-          {formatEventType(event.type)}
+          {formatAuditEventType(event.type)}
         </h3>
 
         {/* Timestamp */}
         <p className="text-text-theme-muted mb-3 text-xs">
-          {formatTimestamp(event.timestamp)}
+          {formatAuditTimestamp(event.timestamp, { includeSeconds: true })}
         </p>
 
         {/* Payload Summary */}

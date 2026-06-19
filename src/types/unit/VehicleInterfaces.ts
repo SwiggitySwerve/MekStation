@@ -6,6 +6,8 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.1
  */
 
+import type { IUnitMountedEquipmentIdentity } from './MountedEquipmentInterfaces';
+
 import { VehicleLocation, VTOLLocation } from '../construction/UnitLocation';
 import { IGroundUnit, GroundMotionType } from './BaseUnitInterfaces';
 import { UnitType } from './BattleMechInterfaces';
@@ -47,13 +49,7 @@ export interface ITurretConfiguration {
 /**
  * Vehicle-mounted equipment item
  */
-export interface IVehicleMountedEquipment {
-  /** Unique mount ID */
-  readonly id: string;
-  /** Equipment definition ID */
-  readonly equipmentId: string;
-  /** Display name */
-  readonly name: string;
+export interface IVehicleMountedEquipment extends IUnitMountedEquipmentIdentity {
   /** Location where mounted */
   readonly location: VehicleLocation | VTOLLocation;
   /** Is this rear-facing */

@@ -12,32 +12,35 @@ import {
   GameSide,
   type IGameSession,
   type IHexCoordinate,
-  type IHexGrid,
   type IMovementRangeHex,
   MovementType,
 } from '@/types/gameplay';
-import {
-  gridWithUnitOccupants,
-  resolveRuntimeMovementCapability,
-} from '@/utils/gameplay/movement';
-import {
-  deriveMovementRangeHexForDestination,
-  deriveReachableHexes,
-} from '@/utils/gameplay/movement/reachable';
 import { logger } from '@/utils/logger';
 
 import {
+  buildMovementGrid,
+  buildMovementRangeLookup,
+  buildReachableKeySet,
+  buildSelectedMovementModePlan,
+  deriveBaseMovementRangeHexes,
+  deriveHoveredMovementProjection,
+  getHoverMpCost,
+  getHoveredMovementRangeHex,
+  getHoveredPath,
+  getHoverUnreachable,
+  getRawMovementCapability,
+  getSelectedUnitInfo,
+  getSelectedUnitState,
+  resolveMovementCapability,
+  selectMovementPlan,
+  shouldClearPlannedMovement,
+} from './GameSessionPage.movement.helpers';
+import {
   appendHoveredMovementProjection,
-  buildMovementModeSeedPlan,
-  buildMovementPlan,
   buildMovementLegendState,
   canProjectMovementForSelectedUnit,
   getEffectiveMovementMps,
   getPlannedMovementForSelectedUnit,
-  mergeJumpMovementRangeHexes,
-  mergeRunMovementRangeHexes,
-  movementPathFromRangeHex,
-  movementTypeFromLegendSelection,
   type IEffectiveMovementMps,
 } from './GameSessionPage.movementPlanning';
 
@@ -85,32 +88,25 @@ export function useGameMovementPlanning({
   );
   const [hoveredHex, setHoveredHex] = useState<IHexCoordinate | null>(null);
 
-  const rawMovementCapability = useMemo(() => {
-    if (!interactiveSession || !selectedUnitId) return null;
-    return interactiveSession.getMovementCapability(selectedUnitId);
-  }, [interactiveSession, selectedUnitId]);
+  const rawMovementCapability = useMemo(
+    () => getRawMovementCapability(interactiveSession, selectedUnitId),
+    [interactiveSession, selectedUnitId],
+  );
 
-  const selectedUnitState = useMemo(() => {
-    if (!session || !selectedUnitId) return null;
-    return session.currentState.units[selectedUnitId] ?? null;
-  }, [session, selectedUnitId]);
+  const selectedUnitState = useMemo(
+    () => getSelectedUnitState(session, selectedUnitId),
+    [session, selectedUnitId],
+  );
 
-  const capability = useMemo(() => {
-    if (!rawMovementCapability || !selectedUnitState) {
-      return rawMovementCapability;
-    }
-    return (
-      resolveRuntimeMovementCapability(
-        selectedUnitState,
-        rawMovementCapability,
-      ) ?? rawMovementCapability
-    );
-  }, [rawMovementCapability, selectedUnitState]);
+  const capability = useMemo(
+    () => resolveMovementCapability(rawMovementCapability, selectedUnitState),
+    [rawMovementCapability, selectedUnitState],
+  );
 
-  const selectedUnitInfo = useMemo(() => {
-    if (!session || !selectedUnitId) return null;
-    return session.units.find((u) => u.id === selectedUnitId) ?? null;
-  }, [session, selectedUnitId]);
+  const selectedUnitInfo = useMemo(
+    () => getSelectedUnitInfo(session, selectedUnitId),
+    [session, selectedUnitId],
+  );
 
   const isPlayerControlled = selectedUnitInfo?.side === GameSide.Player;
   const canProjectMovement = canProjectMovementForSelectedUnit({
@@ -130,118 +126,65 @@ export function useGameMovementPlanning({
     if (!capability || !selectedUnitState) return null;
     return getEffectiveMovementMps(capability, selectedUnitState.heat);
   }, [capability, selectedUnitState]);
-  const movementGrid = useMemo((): IHexGrid | null => {
-    if (!interactiveSession) return null;
-    const baseGrid = interactiveSession.getGrid();
-    return session
-      ? gridWithUnitOccupants(baseGrid, session.currentState.units)
-      : baseGrid;
-  }, [interactiveSession, session]);
+  const movementGrid = useMemo(
+    () => buildMovementGrid(interactiveSession, session),
+    [interactiveSession, session],
+  );
 
-  const baseMovementRangeHexes = useMemo((): readonly IMovementRangeHex[] => {
-    if (
-      !interactiveSession ||
-      !selectedUnitState ||
-      !capability ||
-      !movementGrid ||
-      !canProjectMovement ||
-      movementType === MovementType.Stationary
-    ) {
-      return [];
-    }
-
-    const primary = deriveReachableHexes(
-      selectedUnitState,
-      movementType,
-      movementGrid,
-      capability,
-      'normal',
-      { environmentalConditions, optionalRules },
-    );
-    if (movementType === MovementType.Jump) {
-      const run = deriveReachableHexes(
+  const baseMovementRangeHexes = useMemo(
+    () =>
+      deriveBaseMovementRangeHexes({
+        interactiveSession,
         selectedUnitState,
-        MovementType.Run,
-        movementGrid,
         capability,
-        'normal',
-        { environmentalConditions, optionalRules },
-      );
-      const walk = deriveReachableHexes(
-        selectedUnitState,
-        MovementType.Walk,
         movementGrid,
-        capability,
-        'normal',
-        { environmentalConditions, optionalRules },
-      );
-      return mergeJumpMovementRangeHexes(primary, run, walk);
-    }
-
-    if (movementType !== MovementType.Run) return primary;
-
-    const walk = deriveReachableHexes(
+        canProjectMovement,
+        movementType,
+        environmentalConditions,
+        optionalRules,
+      }),
+    [
+      interactiveSession,
       selectedUnitState,
-      MovementType.Walk,
-      movementGrid,
       capability,
-      'normal',
-      { environmentalConditions, optionalRules },
-    );
-    return mergeRunMovementRangeHexes(primary, walk);
-  }, [
-    interactiveSession,
-    selectedUnitState,
-    capability,
-    movementGrid,
-    canProjectMovement,
-    movementType,
-    optionalRules,
-    environmentalConditions,
-  ]);
-
-  const baseMovementRangeLookup = useMemo(() => {
-    const lookup = new Map<string, IMovementRangeHex>();
-    for (const entry of baseMovementRangeHexes) {
-      lookup.set(`${entry.hex.q},${entry.hex.r}`, entry);
-    }
-    return lookup;
-  }, [baseMovementRangeHexes]);
-
-  const hoveredMovementProjection = useMemo((): IMovementRangeHex | null => {
-    if (
-      !hoveredHex ||
-      !interactiveSession ||
-      !selectedUnitState ||
-      !capability ||
-      !movementGrid ||
-      !canProjectMovement ||
-      movementType === MovementType.Stationary ||
-      baseMovementRangeLookup.has(`${hoveredHex.q},${hoveredHex.r}`)
-    ) {
-      return null;
-    }
-
-    return deriveMovementRangeHexForDestination(
-      selectedUnitState,
+      movementGrid,
+      canProjectMovement,
       movementType,
-      movementGrid,
-      capability,
+      optionalRules,
+      environmentalConditions,
+    ],
+  );
+
+  const baseMovementRangeLookup = useMemo(
+    () => buildMovementRangeLookup(baseMovementRangeHexes),
+    [baseMovementRangeHexes],
+  );
+
+  const hoveredMovementProjection = useMemo(
+    () =>
+      deriveHoveredMovementProjection({
+        hoveredHex,
+        interactiveSession,
+        selectedUnitState,
+        capability,
+        movementGrid,
+        canProjectMovement,
+        movementType,
+        baseMovementRangeLookup,
+        optionalRules,
+      }),
+    [
       hoveredHex,
-      'normal',
-      { optionalRules },
-    );
-  }, [
-    hoveredHex,
-    interactiveSession,
-    selectedUnitState,
-    capability,
-    movementGrid,
-    canProjectMovement,
-    movementType,
-    baseMovementRangeLookup,
-    optionalRules,
-  ]);
+      interactiveSession,
+      selectedUnitState,
+      capability,
+      movementGrid,
+      canProjectMovement,
+      movementType,
+      baseMovementRangeLookup,
+      optionalRules,
+    ],
+  );
 
   const movementRangeHexes = useMemo(
     () =>
@@ -252,51 +195,37 @@ export function useGameMovementPlanning({
     [baseMovementRangeHexes, hoveredMovementProjection],
   );
 
-  const reachableKeySet = useMemo(() => {
-    const keys = new Set<string>();
-    for (const r of movementRangeHexes) {
-      if (r.reachable) keys.add(`${r.hex.q},${r.hex.r}`);
-    }
-    return keys;
-  }, [movementRangeHexes]);
+  const reachableKeySet = useMemo(
+    () => buildReachableKeySet(movementRangeHexes),
+    [movementRangeHexes],
+  );
 
-  const movementRangeLookup = useMemo(() => {
-    const lookup = new Map<string, IMovementRangeHex>();
-    for (const entry of movementRangeHexes) {
-      lookup.set(`${entry.hex.q},${entry.hex.r}`, entry);
-    }
-    return lookup;
-  }, [movementRangeHexes]);
+  const movementRangeLookup = useMemo(
+    () => buildMovementRangeLookup(movementRangeHexes),
+    [movementRangeHexes],
+  );
 
-  const hoveredMovementRangeHex = useMemo(() => {
-    if (!hoveredHex) return undefined;
-    return movementRangeLookup.get(`${hoveredHex.q},${hoveredHex.r}`);
-  }, [hoveredHex, movementRangeLookup]);
+  const hoveredMovementRangeHex = useMemo(
+    () => getHoveredMovementRangeHex(hoveredHex, movementRangeLookup),
+    [hoveredHex, movementRangeLookup],
+  );
 
-  const hoveredPath = useMemo((): readonly IHexCoordinate[] => {
-    if (
-      !hoveredMovementRangeHex?.reachable ||
-      !selectedUnitState ||
-      phase !== GamePhase.Movement
-    ) {
-      return [];
-    }
-    return movementPathFromRangeHex(
-      hoveredMovementRangeHex,
-      selectedUnitState.position,
-    );
-  }, [hoveredMovementRangeHex, selectedUnitState, phase]);
+  const hoveredPath = useMemo(
+    () => getHoveredPath(hoveredMovementRangeHex, selectedUnitState, phase),
+    [hoveredMovementRangeHex, selectedUnitState, phase],
+  );
 
-  const hoverMpCost = useMemo(() => {
-    if (!hoveredMovementRangeHex?.reachable) return undefined;
-    return hoveredMovementRangeHex.mpCost;
-  }, [hoveredMovementRangeHex]);
+  const hoverMpCost = useMemo(
+    () => getHoverMpCost(hoveredMovementRangeHex),
+    [hoveredMovementRangeHex],
+  );
 
-  const hoverUnreachable =
-    canProjectMovement &&
-    hoveredHex !== null &&
-    movementRangeHexes.length > 0 &&
-    !reachableKeySet.has(`${hoveredHex.q},${hoveredHex.r}`);
+  const hoverUnreachable = getHoverUnreachable({
+    canProjectMovement,
+    hoveredHex,
+    movementRangeHexes,
+    reachableKeySet,
+  });
 
   const mpLegend = useMemo(() => {
     return buildMovementLegendState({
@@ -316,17 +245,16 @@ export function useGameMovementPlanning({
 
   const handleHexClick = useCallback(
     (hex: IHexCoordinate) => {
-      if (canProjectMovement && selectedUnitState) {
-        const plan = buildMovementPlan({
-          hex,
-          selectedUnitState,
-          movementRangeLookup,
-          movementType,
-        });
-        if (plan) {
-          setPlannedMovement(plan);
-          return;
-        }
+      const plan = selectMovementPlan({
+        hex,
+        canProjectMovement,
+        selectedUnitState,
+        movementRangeLookup,
+        movementType,
+      });
+      if (plan) {
+        setPlannedMovement(plan);
+        return;
       }
 
       if (interactiveSession) {
@@ -348,39 +276,31 @@ export function useGameMovementPlanning({
 
   const handleMovementModeSelect = useCallback(
     (mode: MapMovementKind) => {
-      if (!canProjectMovement || !selectedUnitState) return;
-      const selectedMovementType = movementTypeFromLegendSelection(mode);
-      if (
-        selectedMovementType === MovementType.Jump &&
-        !effectiveMovementMps?.jumpMP
-      ) {
-        return;
-      }
-      setPlannedMovement(
-        buildMovementModeSeedPlan({
-          selectedUnitState,
-          movementType: selectedMovementType,
-        }),
-      );
+      const plan = buildSelectedMovementModePlan({
+        mode,
+        canProjectMovement,
+        selectedUnitState,
+        effectiveMovementMps,
+      });
+      if (plan) setPlannedMovement(plan);
     },
     [
       canProjectMovement,
       selectedUnitState,
-      effectiveMovementMps?.jumpMP,
+      effectiveMovementMps,
       setPlannedMovement,
     ],
   );
 
   useEffect(() => {
-    if (plannedMovement && !plannedMovementForSelected) {
-      clearPlannedMovement();
-      return;
-    }
-    if (plannedMovement && !canProjectMovement) {
-      clearPlannedMovement();
-      return;
-    }
-    if (phase !== GamePhase.Movement && plannedMovement) {
+    if (
+      shouldClearPlannedMovement({
+        plannedMovement,
+        plannedMovementForSelected,
+        canProjectMovement,
+        phase,
+      })
+    ) {
       clearPlannedMovement();
     }
   }, [

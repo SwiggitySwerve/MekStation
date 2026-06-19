@@ -16,8 +16,6 @@ import {
   GamePhase,
   GameSide,
   GameStatus,
-  LockState,
-  MovementType,
   TokenUnitType,
 } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
@@ -27,10 +25,11 @@ import {
   rollInitiative,
   startGame,
 } from '@/utils/gameplay/gameSession';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
+import {
+  createTacticalMapTerrainGrid,
+  createTacticalMapUnitState,
+} from './tactical-map.fixture-helpers';
 import {
   tacticalMapCombatState,
   tacticalMapHexTerrain,
@@ -47,28 +46,17 @@ export const tacticalMapTargetTerrainModifierSelectedWeaponIds = [
   'medium-laser',
 ];
 
-const tacticalMapTargetTerrainModifierTargetState: IUnitGameState = {
-  id: tacticalMapTargetTerrainModifierTargetId,
-  side: GameSide.Opponent,
-  position: tacticalMapTargetTerrainModifierTargetHex,
-  facing: Facing.Southwest,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  lockState: LockState.Pending,
-  prone: false,
-  shutdown: false,
-  hasRetreated: false,
-  gunnery: 4,
-};
+const tacticalMapTargetTerrainModifierTargetState: IUnitGameState =
+  createTacticalMapUnitState({
+    id: tacticalMapTargetTerrainModifierTargetId,
+    side: GameSide.Opponent,
+    position: tacticalMapTargetTerrainModifierTargetHex,
+    facing: Facing.Southwest,
+    prone: false,
+    shutdown: false,
+    hasRetreated: false,
+    gunnery: 4,
+  });
 
 const tacticalMapTargetTerrainModifierTargetToken: IUnitToken = {
   unitId: tacticalMapTargetTerrainModifierTargetId,
@@ -104,21 +92,7 @@ export const tacticalMapTargetTerrainModifierCombatState: IGameState = {
 };
 
 function buildTacticalMapTargetTerrainGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
+  return createTacticalMapTerrainGrid(tacticalMapHexTerrain);
 }
 
 function tacticalMapTargetTerrainGameUnits(): readonly IGameUnit[] {

@@ -10,6 +10,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IVersionSnapshot, ShareableContentType } from '@/types/vault';
 
+import { sendLoggedSuccessApiError } from '@/pages-modules/api/routeHelpers';
 import { getVersionHistoryService } from '@/services/vault/VersionHistoryService';
 
 // =============================================================================
@@ -107,11 +108,8 @@ export default async function handler(
 
     return res.status(200).json(result);
   } catch (error) {
-    console.error('Version rollback API error:', error);
-    return res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedSuccessApiError(res, 'Version rollback API error:', error);
+    return;
   }
 }
 

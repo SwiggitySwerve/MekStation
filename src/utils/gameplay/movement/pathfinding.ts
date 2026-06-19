@@ -20,19 +20,45 @@ export interface IFindPathOptions {
   readonly requirePavementRoadBonusSurface?: boolean;
 }
 
+export interface IFindPathRequest {
+  readonly grid: IHexGrid;
+  readonly start: IHexCoordinate;
+  readonly end: IHexCoordinate;
+  readonly maxCost?: number;
+  readonly movementType?: UnitMovementType;
+  readonly context?: IMovementCostContext;
+  readonly options?: IFindPathOptions;
+}
+
+type FindPathArgs =
+  | readonly [request: IFindPathRequest]
+  | readonly [
+      grid: IHexGrid,
+      start: IHexCoordinate,
+      end: IHexCoordinate,
+      maxCost?: number,
+      movementType?: UnitMovementType,
+      context?: IMovementCostContext,
+      options?: IFindPathOptions,
+    ];
+
 /**
  * Find the shortest path between two hexes using A*.
  * Returns the path or null if no path exists.
  */
 export function findPath(
-  grid: IHexGrid,
-  start: IHexCoordinate,
-  end: IHexCoordinate,
-  maxCost: number = Infinity,
-  movementType: UnitMovementType = 'walk',
-  context: IMovementCostContext = {},
-  options: IFindPathOptions = {},
+  ...args: FindPathArgs
 ): readonly IHexCoordinate[] | null {
+  const {
+    grid,
+    start,
+    end,
+    maxCost = Infinity,
+    movementType = 'walk',
+    context = {},
+    options = {},
+  } = normalizeFindPathRequest(args);
+
   if (hexEquals(start, end)) {
     return [start];
   }
@@ -131,6 +157,12 @@ export function findPath(
   }
 
   return null;
+}
+
+function normalizeFindPathRequest(args: FindPathArgs): IFindPathRequest {
+  if (args.length === 1) return args[0];
+  const [grid, start, end, maxCost, movementType, context, options] = args;
+  return { grid, start, end, maxCost, movementType, context, options };
 }
 
 export function hexHasPavementRoadBonusSurface(

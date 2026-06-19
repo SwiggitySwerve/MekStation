@@ -59,7 +59,7 @@ function loadWeaponFile(fileName: string): IRawWeaponFile {
 // conform to the canonical schema today (corpus drift to be fixed by
 // PR-A2). Per the cross-language schema bridge plan, PR-A1 surfaces
 // drift but does not block on it; PR-A2 flips the gate strict and
-// patches the data. Each entry below is a concrete TODO for PR-A2.
+// patches the data. Each entry below is a concrete PR-A2 data repair note.
 const FIXTURES = [
   {
     file: 'energy-laser.json',

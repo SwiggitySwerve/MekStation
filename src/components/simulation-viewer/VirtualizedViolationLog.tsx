@@ -3,6 +3,7 @@ import { List } from 'react-window';
 
 import type { IViolation } from '@/types/simulation-viewer/IViolation';
 
+import { formatAuditTimestamp } from '@/components/audit/auditEventFormatters';
 import { FOCUS_RING_CLASSES } from '@/utils/accessibility';
 
 /* ========================================================================== */
@@ -40,21 +41,6 @@ interface IViolationRowProps {
   violations: readonly IViolation[];
   onViolationClick?: (violation: IViolation) => void;
   onViewBattle?: (battleId: string) => void;
-}
-
-function formatTimestamp(iso: string): string {
-  try {
-    const date = new Date(iso);
-    if (isNaN(date.getTime())) return iso;
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  } catch {
-    return iso;
-  }
 }
 
 const ViolationRow = ({
@@ -103,7 +89,7 @@ const ViolationRow = ({
           {violation.severity}
         </span>
         <span className="w-28 flex-shrink-0 text-xs whitespace-nowrap text-gray-500 dark:text-gray-400">
-          {formatTimestamp(violation.timestamp)}
+          {formatAuditTimestamp(violation.timestamp, { fallbackToInput: true })}
         </span>
         <span className="w-24 flex-shrink-0 truncate text-xs font-medium whitespace-nowrap text-gray-600 dark:text-gray-300">
           {violation.type}

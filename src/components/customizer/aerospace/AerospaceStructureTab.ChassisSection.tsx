@@ -12,6 +12,7 @@ import { TechBase } from '@/types/enums/TechBase';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 
 import { customizerStyles as cs } from '../styles';
+import { SelectOptions, toSelectOptions } from '../tabs/SelectOptions';
 import {
   SMALL_CRAFT_TONNAGE_OPTIONS,
   SUBTYPE_OPTIONS,
@@ -40,6 +41,10 @@ export function ChassisSection({
   const tonnageOptions = useMemo(
     () => (isSmallCraft ? SMALL_CRAFT_TONNAGE_OPTIONS : TONNAGE_OPTIONS),
     [isSmallCraft],
+  );
+  const tonnageSelectOptions = useMemo(
+    () => toSelectOptions(tonnageOptions, (t) => `${t} tons`),
+    [tonnageOptions],
   );
 
   const handleTonnageChange = useCallback(
@@ -70,11 +75,7 @@ export function ChassisSection({
           className={`${cs.select.full} mt-1`}
           data-testid="aerospace-subtype-select"
         >
-          {SUBTYPE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
+          <SelectOptions options={SUBTYPE_OPTIONS} />
         </select>
       </div>
 
@@ -88,11 +89,7 @@ export function ChassisSection({
           className={`${cs.select.full} mt-1`}
           data-testid="aerospace-tonnage-select"
         >
-          {tonnageOptions.map((t) => (
-            <option key={t} value={t}>
-              {t} tons
-            </option>
-          ))}
+          <SelectOptions options={tonnageSelectOptions} />
         </select>
       </div>
 

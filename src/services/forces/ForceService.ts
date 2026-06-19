@@ -79,7 +79,7 @@ export class ForceService implements IForceService {
     this.repository = getForceRepository();
   }
 
-  createForce(request: ICreateForceRequest): IForceOperationResult {
+  createForce = (request: ICreateForceRequest): IForceOperationResult => {
     if (!request.name || request.name.trim().length === 0) {
       return {
         success: false,
@@ -104,17 +104,20 @@ export class ForceService implements IForceService {
     }
 
     return this.repository.createForce(request);
-  }
+  };
 
-  getForce(id: string): IForce | null {
+  getForce = (id: string): IForce | null => {
     return this.repository.getForceById(id);
-  }
+  };
 
-  getAllForces(): readonly IForce[] {
+  getAllForces = (): readonly IForce[] => {
     return this.repository.getAllForces();
-  }
+  };
 
-  updateForce(id: string, request: IUpdateForceRequest): IForceOperationResult {
+  updateForce = (
+    id: string,
+    request: IUpdateForceRequest,
+  ): IForceOperationResult => {
     const force = this.repository.getForceById(id);
     if (!force) {
       return {
@@ -124,9 +127,9 @@ export class ForceService implements IForceService {
     }
 
     return this.repository.updateForce(id, request);
-  }
+  };
 
-  deleteForce(id: string): IForceOperationResult {
+  deleteForce = (id: string): IForceOperationResult => {
     const force = this.repository.getForceById(id);
     if (!force) {
       return {
@@ -136,29 +139,32 @@ export class ForceService implements IForceService {
     }
 
     return this.repository.deleteForce(id);
-  }
+  };
 
-  getRootForces(): readonly IForce[] {
+  getRootForces = (): readonly IForce[] => {
     return this.repository.getRootForces();
-  }
+  };
 
-  getChildForces(parentId: string): readonly IForce[] {
+  getChildForces = (parentId: string): readonly IForce[] => {
     return this.repository.getChildForces(parentId);
-  }
+  };
 
-  getForceHierarchy(id: string): IForceWithHierarchy | null {
+  getForceHierarchy = (id: string): IForceWithHierarchy | null => {
     const force = this.repository.getForceById(id);
     if (!force) {
       return null;
     }
     return buildForceHierarchy(force);
-  }
+  };
 
-  getForceSummaries(): readonly IForceSummary[] {
+  getForceSummaries = (): readonly IForceSummary[] => {
     return buildForceSummaries();
-  }
+  };
 
-  assignPilot(assignmentId: string, pilotId: string): IForceOperationResult {
+  assignPilot = (
+    assignmentId: string,
+    pilotId: string,
+  ): IForceOperationResult => {
     const pilotRepo = getPilotRepository();
     const pilot = pilotRepo.getById(pilotId);
     if (!pilot) {
@@ -190,17 +196,20 @@ export class ForceService implements IForceService {
     }
 
     return this.repository.updateAssignment(assignmentId, { pilotId });
-  }
+  };
 
-  assignUnit(assignmentId: string, unitId: string): IForceOperationResult {
+  assignUnit = (
+    assignmentId: string,
+    unitId: string,
+  ): IForceOperationResult => {
     return this.repository.updateAssignment(assignmentId, { unitId });
-  }
+  };
 
-  assignPilotAndUnit(
+  assignPilotAndUnit = (
     assignmentId: string,
     pilotId: string,
     unitId: string,
-  ): IForceOperationResult {
+  ): IForceOperationResult => {
     const pilotRepo = getPilotRepository();
     const pilot = pilotRepo.getById(pilotId);
     if (!pilot) {
@@ -232,23 +241,23 @@ export class ForceService implements IForceService {
     }
 
     return this.repository.updateAssignment(assignmentId, { pilotId, unitId });
-  }
+  };
 
-  clearAssignment(assignmentId: string): IForceOperationResult {
+  clearAssignment = (assignmentId: string): IForceOperationResult => {
     return this.repository.clearAssignment(assignmentId);
-  }
+  };
 
-  swapAssignments(
+  swapAssignments = (
     assignmentId1: string,
     assignmentId2: string,
-  ): IForceOperationResult {
+  ): IForceOperationResult => {
     return this.repository.swapAssignments(assignmentId1, assignmentId2);
-  }
+  };
 
-  setAssignmentPosition(
+  setAssignmentPosition = (
     assignmentId: string,
     position: ForcePosition,
-  ): IForceOperationResult {
+  ): IForceOperationResult => {
     const force = findAssignmentForce(assignmentId);
     if (!force) {
       return {
@@ -266,9 +275,9 @@ export class ForceService implements IForceService {
     }
 
     return this.repository.updateAssignment(assignmentId, { position });
-  }
+  };
 
-  promoteToLead(assignmentId: string): IForceOperationResult {
+  promoteToLead = (assignmentId: string): IForceOperationResult => {
     const force = findAssignmentForce(assignmentId);
     if (!force) {
       return {
@@ -295,9 +304,9 @@ export class ForceService implements IForceService {
     return this.repository.updateAssignment(assignmentId, {
       position: ForcePosition.Lead,
     });
-  }
+  };
 
-  validateForce(id: string): IForceValidation {
+  validateForce = (id: string): IForceValidation => {
     const force = this.repository.getForceById(id);
     if (!force) {
       return {
@@ -307,9 +316,9 @@ export class ForceService implements IForceService {
       };
     }
     return validateForceImpl(force);
-  }
+  };
 
-  cloneForce(id: string, newName: string): IForceOperationResult {
+  cloneForce = (id: string, newName: string): IForceOperationResult => {
     const force = this.repository.getForceById(id);
     if (!force) {
       return {
@@ -347,7 +356,7 @@ export class ForceService implements IForceService {
     }
 
     return result;
-  }
+  };
 }
 
 const forceServiceFactory: SingletonFactory<ForceService> = createSingleton(

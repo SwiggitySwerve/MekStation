@@ -2,6 +2,7 @@ import React from 'react';
 
 import type { IBattle } from './types';
 
+import { ViewerSection } from '../SectionFrame';
 import { OUTCOME_COLORS, STATUS_COLORS } from './types';
 
 export interface IForcesSectionProps {
@@ -10,13 +11,7 @@ export interface IForcesSectionProps {
 
 export const ForcesSection: React.FC<IForcesSectionProps> = ({ battle }) => {
   return (
-    <section aria-label="Forces" data-testid="forces-section">
-      <h2
-        className="mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200"
-        data-testid="section-heading"
-      >
-        Forces
-      </h2>
+    <ViewerSection ariaLabel="Forces" testId="forces-section" title="Forces">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div
           className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
@@ -103,6 +98,6 @@ export const ForcesSection: React.FC<IForcesSectionProps> = ({ battle }) => {
           {battle.stats.unitsLost} lost
         </span>
       </div>
-    </section>
+    </ViewerSection>
   );
 };

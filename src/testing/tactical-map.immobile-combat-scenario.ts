@@ -8,17 +8,8 @@ import type {
   IUnitToken,
 } from '@/types/gameplay';
 
-import {
-  Facing,
-  GameSide,
-  LockState,
-  MovementType,
-  TerrainType,
-} from '@/types/gameplay';
+import { Facing, GameSide, TerrainType } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import {
   requireCombatProjection,
@@ -26,6 +17,11 @@ import {
   tacticalMapSelectedWeapons,
   tacticalMapWeaponsByUnit,
 } from './tactical-map.combat-scenarios';
+import {
+  createTacticalMapTerrainGrid,
+  createTacticalMapUnitState,
+  overrideTacticalMapTokens,
+} from './tactical-map.fixture-helpers';
 import {
   tacticalMapCombatState,
   tacticalMapHexTerrain,
@@ -73,100 +69,52 @@ export const tacticalMapImmobileCombatHexTerrain: readonly IHexTerrain[] = [
 ];
 
 function tacticalMapImmobileCombatGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapImmobileCombatHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) {
-      throw new Error(
-        `Missing tactical-map immobile-combat fixture hex ${key}`,
-      );
-    }
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
+  return createTacticalMapTerrainGrid(tacticalMapImmobileCombatHexTerrain, {
+    missingHexLabel: 'tactical-map immobile-combat fixture',
+  });
 }
 
-const tacticalMapImmobileAttackerState: IUnitGameState = {
-  id: 'attacker',
-  side: GameSide.Player,
-  position: tacticalMapImmobileAttackerHex,
-  facing: Facing.Southeast,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  prone: false,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  shutdown: false,
-  lockState: LockState.Pending,
-  gunnery: 4,
-};
+const tacticalMapImmobileAttackerState: IUnitGameState =
+  createTacticalMapUnitState({
+    id: 'attacker',
+    side: GameSide.Player,
+    position: tacticalMapImmobileAttackerHex,
+    facing: Facing.Southeast,
+    prone: false,
+    shutdown: false,
+    gunnery: 4,
+  });
 
-const tacticalMapImmobileTargetState: IUnitGameState = {
-  id: tacticalMapImmobileCombatTargetId,
-  side: GameSide.Opponent,
-  position: tacticalMapImmobileTargetHex,
-  facing: Facing.North,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  prone: false,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  shutdown: true,
-  lockState: LockState.Pending,
-};
+const tacticalMapImmobileTargetState: IUnitGameState =
+  createTacticalMapUnitState({
+    id: tacticalMapImmobileCombatTargetId,
+    side: GameSide.Opponent,
+    position: tacticalMapImmobileTargetHex,
+    facing: Facing.North,
+    prone: false,
+    shutdown: true,
+  });
 
 export const tacticalMapImmobileCombatTokens: readonly IUnitToken[] =
-  tacticalMapTokens.map((token) => {
-    if (token.unitId === 'attacker') {
-      return {
-        ...token,
-        name: 'Shadow Hawk SHD-2H',
-        designation: 'SHD',
-        position: tacticalMapImmobileAttackerHex,
-        facing: Facing.Southeast,
-      };
-    }
-    if (token.unitId === 'blocked-target') {
-      return {
-        ...token,
-        unitId: tacticalMapImmobileCombatTargetId,
-        name: 'Shutdown Locust LCT-1V',
-        designation: 'SDN',
-        position: tacticalMapImmobileTargetHex,
-        isActiveTarget: true,
-      };
-    }
-    if (token.unitId === 'occluded') {
-      return {
-        ...token,
-        position: { q: -3, r: 3 },
-        isActiveTarget: false,
-        isValidTarget: false,
-      };
-    }
-    return token;
+  overrideTacticalMapTokens(tacticalMapTokens, {
+    attacker: {
+      name: 'Shadow Hawk SHD-2H',
+      designation: 'SHD',
+      position: tacticalMapImmobileAttackerHex,
+      facing: Facing.Southeast,
+    },
+    'blocked-target': {
+      unitId: tacticalMapImmobileCombatTargetId,
+      name: 'Shutdown Locust LCT-1V',
+      designation: 'SDN',
+      position: tacticalMapImmobileTargetHex,
+      isActiveTarget: true,
+    },
+    occluded: {
+      position: { q: -3, r: 3 },
+      isActiveTarget: false,
+      isValidTarget: false,
+    },
   });
 
 export const tacticalMapImmobileCombatState: IGameState = {

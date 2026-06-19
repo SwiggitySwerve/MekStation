@@ -17,56 +17,42 @@ export function replayToTurn(session: IGameSession, turn: number): IGameState {
   return deriveState(session.id, eventsUpTo);
 }
 
+const gameLogMessages: Record<string, string | ((actorId?: string) => string)> =
+  {
+    game_created: 'Game created',
+    game_started: 'Game started',
+    game_ended: 'Game ended',
+    phase_changed: (_actorId) => 'Phase changed',
+    initiative_rolled: 'Initiative rolled',
+    initiative_order_set: 'Initiative order set',
+    movement_declared: (actorId) => `Unit ${actorId} moved`,
+    movement_locked: (actorId) => `Unit ${actorId} locked movement`,
+    attack_declared: (actorId) => `Unit ${actorId} declared attack`,
+    attacks_revealed: 'Attacks revealed',
+    attack_resolved: 'Attack resolved',
+    damage_applied: 'Damage applied',
+    unit_destroyed: (actorId) => `Unit ${actorId} destroyed`,
+  };
+
+function formatGameLogMessage(event: IGameSession['events'][number]): string {
+  if (event.type === 'phase_changed') {
+    return `Phase changed to ${event.phase}`;
+  }
+
+  const message = gameLogMessages[event.type];
+  if (typeof message === 'function') {
+    return message(event.actorId);
+  }
+  return message ?? event.type;
+}
+
 export function generateGameLog(session: IGameSession): string {
   const lines: string[] = [];
 
   for (const event of session.events) {
     const timestamp = new Date(event.timestamp).toLocaleTimeString();
     const prefix = `[Turn ${event.turn}/${event.phase}] ${timestamp}:`;
-
-    switch (event.type) {
-      case 'game_created':
-        lines.push(`${prefix} Game created`);
-        break;
-      case 'game_started':
-        lines.push(`${prefix} Game started`);
-        break;
-      case 'game_ended':
-        lines.push(`${prefix} Game ended`);
-        break;
-      case 'phase_changed':
-        lines.push(`${prefix} Phase changed to ${event.phase}`);
-        break;
-      case 'initiative_rolled':
-        lines.push(`${prefix} Initiative rolled`);
-        break;
-      case 'initiative_order_set':
-        lines.push(`${prefix} Initiative order set`);
-        break;
-      case 'movement_declared':
-        lines.push(`${prefix} Unit ${event.actorId} moved`);
-        break;
-      case 'movement_locked':
-        lines.push(`${prefix} Unit ${event.actorId} locked movement`);
-        break;
-      case 'attack_declared':
-        lines.push(`${prefix} Unit ${event.actorId} declared attack`);
-        break;
-      case 'attacks_revealed':
-        lines.push(`${prefix} Attacks revealed`);
-        break;
-      case 'attack_resolved':
-        lines.push(`${prefix} Attack resolved`);
-        break;
-      case 'damage_applied':
-        lines.push(`${prefix} Damage applied`);
-        break;
-      case 'unit_destroyed':
-        lines.push(`${prefix} Unit ${event.actorId} destroyed`);
-        break;
-      default:
-        lines.push(`${prefix} ${event.type}`);
-    }
+    lines.push(`${prefix} ${formatGameLogMessage(event)}`);
   }
 
   return lines.join('\n');

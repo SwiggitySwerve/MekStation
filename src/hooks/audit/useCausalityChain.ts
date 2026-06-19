@@ -169,19 +169,24 @@ function findRootEvent(
   return findRootEvent(cause, eventMap, visited);
 }
 
+interface BuildCausalityNodeContext {
+  effectsMap: Map<string, IBaseEvent[]>;
+  maxDepth: number;
+  direction: TraversalDirection;
+  visited: Set<string>;
+}
+
 /**
  * Build a causality node and its effects recursively.
  */
 function buildCausalityNode(
   event: IBaseEvent,
-  eventMap: Map<string, IBaseEvent>,
-  effectsMap: Map<string, IBaseEvent[]>,
+  context: BuildCausalityNodeContext,
   depth: number,
-  maxDepth: number,
-  direction: TraversalDirection,
-  visited: Set<string>,
   parentNode: ICausalityNode | null,
 ): ICausalityNode {
+  const { effectsMap, maxDepth, direction, visited } = context;
+
   // Prevent infinite loops
   if (visited.has(event.id)) {
     return {
@@ -207,16 +212,7 @@ function buildCausalityNode(
   if ((direction === 'effects' || direction === 'both') && depth < maxDepth) {
     const effects = effectsMap.get(event.id) || [];
     const effectNodes = effects.map((effect) =>
-      buildCausalityNode(
-        effect,
-        eventMap,
-        effectsMap,
-        depth + 1,
-        maxDepth,
-        direction,
-        visited,
-        node,
-      ),
+      buildCausalityNode(effect, context, depth + 1, node),
     );
     // Assign to mutable effects property (internal construction)
     Object.assign(node, { effects: effectNodes });
@@ -344,17 +340,13 @@ export function useCausalityChain(
         }
 
         // Build the tree starting from root
-        const visited = new Set<string>();
-        const rootNode = buildCausalityNode(
-          rootEvent,
-          eventMap,
+        const context: BuildCausalityNodeContext = {
           effectsMap,
-          0,
           maxDepth,
           direction,
-          visited,
-          null,
-        );
+          visited: new Set<string>(),
+        };
+        const rootNode = buildCausalityNode(rootEvent, context, 0, null);
 
         // Flatten for easy access
         const allNodes = flattenNodes(rootNode);

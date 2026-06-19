@@ -9,18 +9,15 @@ import type {
 } from '@/types/gameplay';
 import type { ICommittedMovementValidationInput } from '@/utils/gameplay/movement/commitValidation';
 
-import {
-  Facing,
-  GameSide,
-  LockState,
-  MovementType,
-  TerrainType,
-} from '@/types/gameplay';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
+import { Facing, GameSide, MovementType, TerrainType } from '@/types/gameplay';
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
+import {
+  createTacticalMapTerrainGrid,
+  createTacticalMapUnitState,
+  overrideTacticalMapTokens,
+  requireTacticalMapMovementProjection,
+} from './tactical-map.fixture-helpers';
 import {
   tacticalMapHexTerrain,
   tacticalMapTokens,
@@ -29,24 +26,12 @@ import {
 const tacticalMapFrogmanOrigin = { q: 0, r: 0 } as const;
 const tacticalMapFrogmanDestination = { q: 1, r: 0 } as const;
 
-const tacticalMapFrogmanUnit: IUnitGameState = {
+const tacticalMapFrogmanUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: tacticalMapFrogmanOrigin,
   facing: Facing.Northeast,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  lockState: LockState.Pending,
-};
+});
 
 const tacticalMapFrogmanCapability: IMovementCapability = {
   walkMP: 3,
@@ -82,57 +67,28 @@ export const tacticalMapFrogmanHexTerrain: readonly IHexTerrain[] = [
 ];
 
 function tacticalMapFrogmanGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapFrogmanHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex)
-      throw new Error(`Missing tactical-map Frogman fixture hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
-}
-
-function requireSingleMovementProjection(
-  projection: IMovementRangeHex | null,
-): IMovementRangeHex {
-  if (!projection) {
-    throw new Error('Expected tactical-map Frogman movement projection');
-  }
-  return projection;
+  return createTacticalMapTerrainGrid(tacticalMapFrogmanHexTerrain, {
+    missingHexLabel: 'tactical-map Frogman fixture',
+  });
 }
 
 export const tacticalMapFrogmanSelectedHex = tacticalMapFrogmanOrigin;
 
 export const tacticalMapFrogmanTokens: readonly IUnitToken[] =
-  tacticalMapTokens.map((token) => {
-    if (token.unitId === 'attacker') {
-      return {
-        ...token,
-        name: 'Shadow Hawk Frogman Specialist',
-        designation: 'FGM',
-        position: tacticalMapFrogmanOrigin,
-      };
-    }
-    if (token.unitId === 'occluded') {
-      return {
-        ...token,
-        position: { q: 3, r: -1 },
-        isActiveTarget: false,
-      };
-    }
-    return token;
+  overrideTacticalMapTokens(tacticalMapTokens, {
+    attacker: {
+      name: 'Shadow Hawk Frogman Specialist',
+      designation: 'FGM',
+      position: tacticalMapFrogmanOrigin,
+    },
+    occluded: {
+      position: { q: 3, r: -1 },
+      isActiveTarget: false,
+    },
   });
 
 export const tacticalMapFrogmanMovementRange: readonly IMovementRangeHex[] = [
-  requireSingleMovementProjection(
+  requireTacticalMapMovementProjection(
     deriveMovementRangeHexForDestination(
       tacticalMapFrogmanUnit,
       MovementType.Walk,
@@ -140,6 +96,7 @@ export const tacticalMapFrogmanMovementRange: readonly IMovementRangeHex[] = [
       tacticalMapFrogmanCapability,
       tacticalMapFrogmanDestination,
     ),
+    'tactical-map Frogman',
   ),
 ];
 

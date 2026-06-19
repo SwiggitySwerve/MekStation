@@ -157,9 +157,9 @@ export class CampaignGmArbiter {
   // ---------------------------------------------------------------------------
 
   /** The campaign's current GM arbitration mode. */
-  getMode(): GmArbitrationMode {
+  getMode = (): GmArbitrationMode => {
     return this.mode;
-  }
+  };
 
   /**
    * Change the GM arbitration mode. Switching to `auto-approve` does NOT
@@ -167,9 +167,9 @@ export class CampaignGmArbiter {
    * stay pending until the host decides, so a mode flip never bypasses a
    * decision the host was about to make.
    */
-  setMode(mode: GmArbitrationMode): void {
+  setMode = (mode: GmArbitrationMode): void => {
     this.mode = mode;
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Pending-proposal queue (host GM review surface data source)
@@ -180,20 +180,20 @@ export class CampaignGmArbiter {
    * in `auto-approve` mode (a passing proposal commits immediately and
    * never queues). This is the host GM review surface's data source.
    */
-  getPendingProposals(): readonly IPendingProposal[] {
+  getPendingProposals = (): readonly IPendingProposal[] => {
     return Array.from(this.pending.values());
-  }
+  };
 
   /**
    * Register a listener for pending-queue changes. Returns an
    * unsubscribe function. The host GM review surface wires one.
    */
-  subscribePending(listener: PendingProposalListener): () => void {
+  subscribePending = (listener: PendingProposalListener): (() => void) => {
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);
     };
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Guest-facing path — submit a proposal
@@ -218,7 +218,9 @@ export class CampaignGmArbiter {
    * A vetoed / pending proposal commits nothing. Only an approved
    * proposal proceeds to CO1's commit-and-broadcast.
    */
-  async submitProposal(rawProposal: unknown): Promise<GuestProposalResult> {
+  submitProposal = async (
+    rawProposal: unknown,
+  ): Promise<GuestProposalResult> => {
     // Step 1 — parse the proposal envelope (and its wrapped intent).
     const proposal = parseGuestProposal(rawProposal);
     if (proposal === null) {
@@ -257,7 +259,7 @@ export class CampaignGmArbiter {
     // host needs to decide; do NOT commit.
     this.enqueue(proposal, state);
     return { status: 'pending', proposalId: proposal.proposalId };
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Host-facing path — decide a queued proposal
@@ -277,10 +279,10 @@ export class CampaignGmArbiter {
    * Returns `null` when no proposal with that id is queued (a stale or
    * duplicate decision).
    */
-  async decide(
+  decide = async (
     proposalId: string,
     decision: GmDecision,
-  ): Promise<GuestProposalResult | null> {
+  ): Promise<GuestProposalResult | null> => {
     const entry = this.pending.get(proposalId);
     if (entry === undefined) {
       return null;
@@ -305,7 +307,7 @@ export class CampaignGmArbiter {
     // break the ledger invariant (the balance moved while the proposal
     // sat in the queue) still resolves as a mechanical rejection.
     return this.commitProposal(entry.proposal);
-  }
+  };
 
   /**
    * Per `polish-wave-6.2-gaps` (gap #3): auto-veto a proposal that has
@@ -318,7 +320,7 @@ export class CampaignGmArbiter {
    * Returns `null` when no proposal with that id is queued (already
    * resolved by the host, mode flipped, or the timer fired twice).
    */
-  autoVetoForTimeout(proposalId: string): GuestProposalResult | null {
+  autoVetoForTimeout = (proposalId: string): GuestProposalResult | null => {
     const entry = this.pending.get(proposalId);
     if (entry === undefined) {
       return null;
@@ -336,7 +338,7 @@ export class CampaignGmArbiter {
         reason: 'host-review-timeout',
       },
     };
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Internals

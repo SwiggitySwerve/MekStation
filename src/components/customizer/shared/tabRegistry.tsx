@@ -496,6 +496,16 @@ export const PROTOMECH_TABS: TabSpec<ProtoMechVisibilityState>[] = [
   SHARED_FLUFF,
 ];
 
+const TAB_SPECS_BY_UNIT_TYPE = new Map<UnitType, TabSpec<unknown>[]>([
+  [UnitType.VEHICLE, VEHICLE_TABS as TabSpec<unknown>[]],
+  [UnitType.VTOL, VEHICLE_TABS as TabSpec<unknown>[]],
+  [UnitType.AEROSPACE, AEROSPACE_TABS as TabSpec<unknown>[]],
+  [UnitType.CONVENTIONAL_FIGHTER, AEROSPACE_TABS as TabSpec<unknown>[]],
+  [UnitType.BATTLE_ARMOR, BATTLE_ARMOR_TABS as TabSpec<unknown>[]],
+  [UnitType.INFANTRY, INFANTRY_TABS as TabSpec<unknown>[]],
+  [UnitType.PROTOMECH, PROTOMECH_TABS as TabSpec<unknown>[]],
+]);
+
 // =============================================================================
 // Lookup helper
 // =============================================================================
@@ -510,20 +520,5 @@ export const PROTOMECH_TABS: TabSpec<ProtoMechVisibilityState>[] = [
  * specific constant (e.g. AEROSPACE_TABS) directly.
  */
 export function getTabSpecsForUnitType(unitType: UnitType): TabSpec<unknown>[] {
-  switch (unitType) {
-    case UnitType.VEHICLE:
-    case UnitType.VTOL:
-      return VEHICLE_TABS;
-    case UnitType.AEROSPACE:
-    case UnitType.CONVENTIONAL_FIGHTER:
-      return AEROSPACE_TABS as TabSpec<unknown>[];
-    case UnitType.BATTLE_ARMOR:
-      return BATTLE_ARMOR_TABS;
-    case UnitType.INFANTRY:
-      return INFANTRY_TABS as TabSpec<unknown>[];
-    case UnitType.PROTOMECH:
-      return PROTOMECH_TABS as TabSpec<unknown>[];
-    default:
-      return MECH_TABS;
-  }
+  return TAB_SPECS_BY_UNIT_TYPE.get(unitType) ?? MECH_TABS;
 }

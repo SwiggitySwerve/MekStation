@@ -1,18 +1,7 @@
-import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
-
-const MEGAMEK_RANGE_SOURCE_VERSION = '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
-
-function megamekRangeRef(
-  citation: string,
-  pathWithLines: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'megamek-source',
-    citation,
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_RANGE_SOURCE_VERSION}/${pathWithLines}`,
-    sourceVersion: MEGAMEK_RANGE_SOURCE_VERSION,
-  };
-}
+import {
+  megamekSourceRef as megamekRangeRef,
+  type ICombatFeatureSourceReference,
+} from './CombatFeatureSourceReference';
 
 const MEGAMEK_RANGE_BRACKET_SOURCE_REF = megamekRangeRef(
   'MegaMek RangeType.calculateRangeBracket classifies distance as minimum, short, medium, long, extreme, LOS, or out of range from the weapon range array and active optional range rules.',

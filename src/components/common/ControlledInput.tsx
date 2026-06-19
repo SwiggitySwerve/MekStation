@@ -35,6 +35,137 @@ export interface ControlledInputProps<T = string> {
   onKeyPress?: (event: React.KeyboardEvent) => void;
 }
 
+const BASE_INPUT_CLASSES =
+  'w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-colors';
+const DEFAULT_INPUT_CLASSES =
+  'border-gray-300 focus:border-blue-500 focus:ring-blue-500';
+
+interface InputClassNameOptions {
+  readonly className: string;
+  readonly disabled: boolean;
+  readonly errorClassName: string;
+  readonly isDirty: boolean;
+  readonly showValidation: boolean;
+  readonly successClassName: string;
+  readonly validationResult: ValidationResult;
+  readonly warningClassName: string;
+}
+
+function getControlledInputClassName({
+  className,
+  disabled,
+  errorClassName,
+  isDirty,
+  showValidation,
+  successClassName,
+  validationResult,
+  warningClassName,
+}: InputClassNameOptions): string {
+  if (disabled) {
+    return `${BASE_INPUT_CLASSES} bg-gray-100 text-gray-500 cursor-not-allowed`;
+  }
+
+  if (!showValidation || !isDirty) {
+    return `${BASE_INPUT_CLASSES} ${DEFAULT_INPUT_CLASSES} ${className}`;
+  }
+
+  if (!validationResult.isValid) {
+    return `${BASE_INPUT_CLASSES} ${errorClassName} ${className}`;
+  }
+
+  if (validationResult.warning) {
+    return `${BASE_INPUT_CLASSES} ${warningClassName} ${className}`;
+  }
+
+  return `${BASE_INPUT_CLASSES} ${successClassName} ${className}`;
+}
+
+function getValidationMessage(
+  showValidation: boolean,
+  isDirty: boolean,
+  validationResult: ValidationResult,
+): string | null {
+  if (!showValidation || !isDirty) return null;
+
+  if (!validationResult.isValid && validationResult.error) {
+    return validationResult.error;
+  }
+
+  return validationResult.warning || null;
+}
+
+function getValidationMessageClassName(
+  validationResult: ValidationResult,
+): string {
+  if (!validationResult.isValid) return 'text-red-600';
+
+  return validationResult.warning ? 'text-yellow-600' : 'text-green-600';
+}
+
+function getValidationIcon(
+  showValidation: boolean,
+  isDirty: boolean,
+  validationResult: ValidationResult,
+): React.ReactElement | null {
+  if (!showValidation || !isDirty) return null;
+
+  if (!validationResult.isValid) {
+    return <ValidationWarningIcon className="h-5 w-5 text-red-500" />;
+  }
+
+  if (validationResult.warning) {
+    return <ValidationWarningIcon className="h-5 w-5 text-yellow-500" />;
+  }
+
+  return <ValidationSuccessIcon />;
+}
+
+function ValidationWarningIcon({
+  className,
+}: {
+  readonly className: string;
+}): React.ReactElement {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+      />
+    </svg>
+  );
+}
+
+function ValidationSuccessIcon(): React.ReactElement {
+  return (
+    <svg
+      className="h-5 w-5 text-green-500"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M5 13l4 4L19 7"
+      />
+    </svg>
+  );
+}
+
+function clearInputTimeout(timeout: NodeJS.Timeout | null): void {
+  if (timeout) {
+    clearTimeout(timeout);
+  }
+}
+
 export function ControlledInput<T = string>({
   value,
   onChange,
@@ -78,19 +209,14 @@ export function ControlledInput<T = string>({
     if (validation) {
       const result = validation(localValue);
       setValidationResult(result);
-
-      if (onValidationChange) {
-        onValidationChange(result);
-      }
+      onValidationChange?.(result);
     }
   }, [localValue, validation, onValidationChange]);
 
   // CRITICAL: Debounced onChange handler
   const debouncedOnChange = useCallback(
     (newValue: T) => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
+      clearInputTimeout(debounceTimeoutRef.current);
 
       debounceTimeoutRef.current = setTimeout(() => {
         onChange(newValue);
@@ -125,10 +251,7 @@ export function ControlledInput<T = string>({
     if (validation) {
       const result = validation(localValue);
       setValidationResult(result);
-
-      if (onValidationChange) {
-        onValidationChange(result);
-      }
+      onValidationChange?.(result);
     }
 
     // CRITICAL: Call onChange on blur if value is valid
@@ -136,168 +259,64 @@ export function ControlledInput<T = string>({
       onChange(localValue);
     }
 
-    if (onBlur) {
-      onBlur();
-    }
+    onBlur?.();
   }, [localValue, validation, onValidationChange, onChange, onBlur]);
 
   // CRITICAL: Handle input focus
   const handleFocus = useCallback(() => {
     _setIsFocused(true);
-    if (onFocus) {
-      onFocus();
-    }
+    onFocus?.();
   }, [onFocus]);
 
   // CRITICAL: Handle key events
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
-      if (onKeyDown) {
-        onKeyDown(event);
-      }
+      onKeyDown?.(event);
     },
     [onKeyDown],
   );
 
   const handleKeyUp = useCallback(
     (event: React.KeyboardEvent) => {
-      if (onKeyUp) {
-        onKeyUp(event);
-      }
+      onKeyUp?.(event);
     },
     [onKeyUp],
   );
 
   const handleKeyPress = useCallback(
     (event: React.KeyboardEvent) => {
-      if (onKeyPress) {
-        onKeyPress(event);
-      }
+      onKeyPress?.(event);
     },
     [onKeyPress],
   );
 
-  // CRITICAL: Get dynamic styling based on validation state
-  const getInputClassName = useCallback((): string => {
-    const baseClasses =
-      'w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-colors';
-
-    if (disabled) {
-      return `${baseClasses} bg-gray-100 text-gray-500 cursor-not-allowed`;
-    }
-
-    if (!showValidation || !isDirty) {
-      return `${baseClasses} border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${className}`;
-    }
-
-    if (!validationResult.isValid) {
-      return `${baseClasses} ${errorClassName} ${className}`;
-    }
-
-    if (validationResult.warning) {
-      return `${baseClasses} ${warningClassName} ${className}`;
-    }
-
-    if (isDirty && validationResult.isValid) {
-      return `${baseClasses} ${successClassName} ${className}`;
-    }
-
-    return `${baseClasses} border-gray-300 focus:border-blue-500 focus:ring-blue-500 ${className}`;
-  }, [
-    disabled,
-    showValidation,
-    isDirty,
-    validationResult,
-    className,
-    errorClassName,
-    warningClassName,
-    successClassName,
-  ]);
-
-  // CRITICAL: Get validation message
-  const getValidationMessage = useCallback((): string | null => {
-    if (!showValidation || !isDirty) return null;
-
-    if (!validationResult.isValid && validationResult.error) {
-      return validationResult.error;
-    }
-
-    if (validationResult.warning) {
-      return validationResult.warning;
-    }
-
-    return null;
-  }, [showValidation, isDirty, validationResult]);
-
-  // CRITICAL: Get validation icon
-  const getValidationIcon = useCallback(() => {
-    if (!showValidation || !isDirty) return null;
-
-    if (!validationResult.isValid) {
-      return (
-        <svg
-          className="h-5 w-5 text-red-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-          />
-        </svg>
-      );
-    }
-
-    if (validationResult.warning) {
-      return (
-        <svg
-          className="h-5 w-5 text-yellow-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-          />
-        </svg>
-      );
-    }
-
-    if (validationResult.isValid) {
-      return (
-        <svg
-          className="h-5 w-5 text-green-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 13l4 4L19 7"
-          />
-        </svg>
-      );
-    }
-
-    return null;
-  }, [showValidation, isDirty, validationResult]);
-
   // CRITICAL: Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
+      clearInputTimeout(debounceTimeoutRef.current);
     };
   }, []);
+
+  const inputClassName = getControlledInputClassName({
+    className,
+    disabled,
+    errorClassName,
+    isDirty,
+    showValidation,
+    successClassName,
+    validationResult,
+    warningClassName,
+  });
+  const validationMessage = getValidationMessage(
+    showValidation,
+    isDirty,
+    validationResult,
+  );
+  const validationIcon = getValidationIcon(
+    showValidation,
+    isDirty,
+    validationResult,
+  );
 
   return (
     <div className="space-y-1">
@@ -323,30 +342,24 @@ export function ControlledInput<T = string>({
           disabled={disabled}
           required={required}
           autoFocus={autoFocus}
-          className={getInputClassName()}
+          className={inputClassName}
           {...props}
         />
 
         {/* CRITICAL: Validation icon */}
-        {getValidationIcon() && (
+        {validationIcon && (
           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-            {getValidationIcon()}
+            {validationIcon}
           </div>
         )}
       </div>
 
       {/* CRITICAL: Validation message */}
-      {getValidationMessage() && (
+      {validationMessage && (
         <p
-          className={`text-sm ${
-            !validationResult.isValid
-              ? 'text-red-600'
-              : validationResult.warning
-                ? 'text-yellow-600'
-                : 'text-green-600'
-          }`}
+          className={`text-sm ${getValidationMessageClassName(validationResult)}`}
         >
-          {getValidationMessage()}
+          {validationMessage}
         </p>
       )}
     </div>

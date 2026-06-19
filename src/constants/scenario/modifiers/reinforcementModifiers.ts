@@ -1,12 +1,13 @@
-import type { IBattleModifier } from '@/types/scenario';
-
 import { ModifierEffect, ScenarioObjectiveType } from '@/types/scenario';
 
-export const ENEMY_REINFORCEMENTS: IBattleModifier = {
+import { defineBattleModifier } from './modifierDefinition';
+
+export const ENEMY_REINFORCEMENTS = defineBattleModifier({
   id: 'enemy_reinforcements',
   name: 'Enemy Reinforcements',
-  description:
+  descriptionParts: [
     'Additional enemy units will arrive as reinforcements during the battle. They appear on turn 4 from the enemy edge.',
+  ],
   effect: ModifierEffect.Negative,
   applicability: {
     weight: 15,
@@ -27,13 +28,14 @@ export const ENEMY_REINFORCEMENTS: IBattleModifier = {
     },
   },
   tags: ['reinforcement', 'enemy', 'difficulty'],
-};
+});
 
-export const ALLIED_REINFORCEMENTS: IBattleModifier = {
+export const ALLIED_REINFORCEMENTS = defineBattleModifier({
   id: 'allied_reinforcements',
   name: 'Allied Reinforcements',
-  description:
+  descriptionParts: [
     'Friendly reinforcements will arrive to assist you. They appear on turn 5 from your deployment edge.',
+  ],
   effect: ModifierEffect.Positive,
   applicability: {
     weight: 10,
@@ -54,4 +56,4 @@ export const ALLIED_REINFORCEMENTS: IBattleModifier = {
     },
   },
   tags: ['reinforcement', 'allied', 'help'],
-};
+});

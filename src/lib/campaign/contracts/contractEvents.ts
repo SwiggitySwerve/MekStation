@@ -107,134 +107,118 @@ function createEventByType(
   type: ContractEventType,
   random: RandomFn,
 ): IContractEvent {
-  switch (type) {
-    case ContractEventType.BONUS_ROLL:
-      return {
-        type,
-        description:
-          'Employer provides a bonus payment for excellent performance',
-        effects: [{ type: 'payment_modifier', multiplier: 1.1 }],
-      };
-    case ContractEventType.SPECIAL_SCENARIO:
-      return {
-        type,
-        description:
-          'Intelligence reports an opportunity for a special operation',
-        effects: [
-          { type: 'scenario_trigger', scenarioType: 'special_mission' },
-        ],
-      };
-    case ContractEventType.CIVIL_DISTURBANCE:
-      return {
-        type,
-        description: 'Civil unrest erupts in the contract area',
-        effects: [{ type: 'morale_change', value: 1 }], // +1 enemy morale (harder)
-      };
-    case ContractEventType.REBELLION:
-      return {
-        type,
-        description:
-          'A full-scale rebellion breaks out, complicating operations',
-        effects: [
-          { type: 'morale_change', value: 2 },
-          { type: 'scenario_trigger', scenarioType: 'rebellion_battle' },
-        ],
-      };
-    case ContractEventType.BETRAYAL: {
-      const subTypes = Object.values(BetrayalSubType);
-      const subType = subTypes[Math.floor(random() * subTypes.length)];
-      return createBetrayalEvent(subType);
-    }
-    case ContractEventType.TREACHERY:
-      return {
-        type,
-        description: 'Treacherous forces ambush your unit',
-        effects: [
-          { type: 'morale_change', value: 1 },
-          { type: 'scenario_trigger', scenarioType: 'ambush' },
-        ],
-      };
-    case ContractEventType.LOGISTICS_FAILURE:
-      return {
-        type,
-        description: 'Supply lines have been disrupted',
-        effects: [{ type: 'parts_modifier', value: -1 }],
-      };
-    case ContractEventType.REINFORCEMENTS:
-      return {
-        type,
-        description: 'Friendly reinforcements arrive to assist operations',
-        effects: [{ type: 'morale_change', value: -1 }], // -1 enemy morale (easier)
-      };
-    case ContractEventType.SPECIAL_EVENTS:
-      return {
-        type,
-        description: 'An unexpected event occurs during the contract',
-        effects: [{ type: 'morale_change', value: 0 }], // Neutral — flavor event
-      };
-    case ContractEventType.BIG_BATTLE:
-      return {
-        type,
-        description: 'A major battle erupts, drawing all available forces',
-        effects: [{ type: 'scenario_trigger', scenarioType: 'big_battle' }],
-      };
+  if (type === ContractEventType.BETRAYAL) {
+    const subTypes = Object.values(BetrayalSubType);
+    const subType = subTypes[Math.floor(random() * subTypes.length)];
+    return createBetrayalEvent(subType);
   }
+
+  return CONTRACT_EVENT_DEFINITIONS[type];
 }
+
+const CONTRACT_EVENT_DEFINITIONS: Record<
+  Exclude<ContractEventType, ContractEventType.BETRAYAL>,
+  IContractEvent
+> = {
+  [ContractEventType.BONUS_ROLL]: {
+    type: ContractEventType.BONUS_ROLL,
+    description: 'Employer provides a bonus payment for excellent performance',
+    effects: [{ type: 'payment_modifier', multiplier: 1.1 }],
+  },
+  [ContractEventType.SPECIAL_SCENARIO]: {
+    type: ContractEventType.SPECIAL_SCENARIO,
+    description: 'Intelligence reports an opportunity for a special operation',
+    effects: [{ type: 'scenario_trigger', scenarioType: 'special_mission' }],
+  },
+  [ContractEventType.CIVIL_DISTURBANCE]: {
+    type: ContractEventType.CIVIL_DISTURBANCE,
+    description: 'Civil unrest erupts in the contract area',
+    effects: [{ type: 'morale_change', value: 1 }],
+  },
+  [ContractEventType.REBELLION]: {
+    type: ContractEventType.REBELLION,
+    description: 'A full-scale rebellion breaks out, complicating operations',
+    effects: [
+      { type: 'morale_change', value: 2 },
+      { type: 'scenario_trigger', scenarioType: 'rebellion_battle' },
+    ],
+  },
+  [ContractEventType.TREACHERY]: {
+    type: ContractEventType.TREACHERY,
+    description: 'Treacherous forces ambush your unit',
+    effects: [
+      { type: 'morale_change', value: 1 },
+      { type: 'scenario_trigger', scenarioType: 'ambush' },
+    ],
+  },
+  [ContractEventType.LOGISTICS_FAILURE]: {
+    type: ContractEventType.LOGISTICS_FAILURE,
+    description: 'Supply lines have been disrupted',
+    effects: [{ type: 'parts_modifier', value: -1 }],
+  },
+  [ContractEventType.REINFORCEMENTS]: {
+    type: ContractEventType.REINFORCEMENTS,
+    description: 'Friendly reinforcements arrive to assist operations',
+    effects: [{ type: 'morale_change', value: -1 }],
+  },
+  [ContractEventType.SPECIAL_EVENTS]: {
+    type: ContractEventType.SPECIAL_EVENTS,
+    description: 'An unexpected event occurs during the contract',
+    effects: [{ type: 'morale_change', value: 0 }],
+  },
+  [ContractEventType.BIG_BATTLE]: {
+    type: ContractEventType.BIG_BATTLE,
+    description: 'A major battle erupts, drawing all available forces',
+    effects: [{ type: 'scenario_trigger', scenarioType: 'big_battle' }],
+  },
+};
 
 /**
  * Create a betrayal event with sub-type specific effects.
  */
 function createBetrayalEvent(subType: BetrayalSubType): IContractEvent {
-  const baseEvent = {
+  return {
+    ...BETRAYAL_EVENT_DEFINITIONS[subType],
     type: ContractEventType.BETRAYAL as const,
     betrayalSubType: subType,
   };
-
-  switch (subType) {
-    case BetrayalSubType.SUPPLY_CUTOFF:
-      return {
-        ...baseEvent,
-        description: 'Employer has cut off supply shipments',
-        effects: [{ type: 'parts_modifier', value: -2 }],
-      };
-    case BetrayalSubType.FALSE_INTEL:
-      return {
-        ...baseEvent,
-        description: 'Employer provided false intelligence',
-        effects: [{ type: 'scenario_trigger', scenarioType: 'ambush' }],
-      };
-    case BetrayalSubType.REDIRECT_REINFORCEMENTS:
-      return {
-        ...baseEvent,
-        description: 'Employer redirected promised reinforcements',
-        effects: [{ type: 'morale_change', value: 1 }],
-      };
-    case BetrayalSubType.POSITION_LEAKED:
-      return {
-        ...baseEvent,
-        description: 'Your position has been leaked to the enemy',
-        effects: [
-          { type: 'scenario_trigger', scenarioType: 'ambush' },
-          { type: 'morale_change', value: 1 },
-        ],
-      };
-    case BetrayalSubType.AMBUSH_SETUP:
-      return {
-        ...baseEvent,
-        description: 'Employer set up an ambush against your forces',
-        effects: [
-          { type: 'scenario_trigger', scenarioType: 'ambush' },
-          { type: 'morale_change', value: 2 },
-        ],
-      };
-    case BetrayalSubType.CONTRACT_BREACH:
-      return {
-        ...baseEvent,
-        description: 'Employer has breached the contract terms',
-        effects: [{ type: 'payment_modifier', multiplier: 0.5 }],
-      };
-  }
 }
+
+const BETRAYAL_EVENT_DEFINITIONS: Record<
+  BetrayalSubType,
+  Omit<IContractEvent, 'type' | 'betrayalSubType'>
+> = {
+  [BetrayalSubType.SUPPLY_CUTOFF]: {
+    description: 'Employer has cut off supply shipments',
+    effects: [{ type: 'parts_modifier', value: -2 }],
+  },
+  [BetrayalSubType.FALSE_INTEL]: {
+    description: 'Employer provided false intelligence',
+    effects: [{ type: 'scenario_trigger', scenarioType: 'ambush' }],
+  },
+  [BetrayalSubType.REDIRECT_REINFORCEMENTS]: {
+    description: 'Employer redirected promised reinforcements',
+    effects: [{ type: 'morale_change', value: 1 }],
+  },
+  [BetrayalSubType.POSITION_LEAKED]: {
+    description: 'Your position has been leaked to the enemy',
+    effects: [
+      { type: 'scenario_trigger', scenarioType: 'ambush' },
+      { type: 'morale_change', value: 1 },
+    ],
+  },
+  [BetrayalSubType.AMBUSH_SETUP]: {
+    description: 'Employer set up an ambush against your forces',
+    effects: [
+      { type: 'scenario_trigger', scenarioType: 'ambush' },
+      { type: 'morale_change', value: 2 },
+    ],
+  },
+  [BetrayalSubType.CONTRACT_BREACH]: {
+    description: 'Employer has breached the contract terms',
+    effects: [{ type: 'payment_modifier', multiplier: 0.5 }],
+  },
+};
 
 // =============================================================================
 // Event Checking

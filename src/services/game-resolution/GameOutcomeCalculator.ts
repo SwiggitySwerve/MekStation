@@ -52,6 +52,13 @@ export interface IGameOutcome {
   readonly durationMs: number;
 }
 
+type OutcomeWinner = IGameOutcome['winner'];
+
+interface IOutcomeDecision {
+  readonly winner: OutcomeWinner;
+  readonly reason: VictoryReason;
+}
+
 /**
  * Combat statistics extracted from game events.
  */
@@ -96,7 +103,7 @@ function isSideEliminated(state: IGameState, side: GameSide): boolean {
 /**
  * Per `add-victory-and-post-battle-summary` design D3: sum total damage
  * dealt by each side from `DamageApplied` events. Damage is attributed
- * to the OPPOSITE side of the unit that received it. Used by the
+ * to the opposite side of the unit that received it. Used by the
  * turn-limit tie-break which compares total damage between sides.
  */
 function sumDamageBySide(
@@ -120,7 +127,7 @@ function sumDamageBySide(
 }
 
 function generateVictoryDescription(
-  winner: 'player' | 'opponent' | 'draw',
+  winner: OutcomeWinner,
   reason: VictoryReason,
   playerSurviving: number,
   opponentSurviving: number,
@@ -138,7 +145,7 @@ function generateVictoryDescription(
 
     case 'turn_limit':
       if (winner === 'draw') {
-        return 'Turn limit reached. Damage within 5% tolerance — match is a draw.';
+        return 'Turn limit reached. Damage within 5% tolerance - match is a draw.';
       } else if (winner === 'player') {
         return `Victory! Turn limit reached with ${playerSurviving} vs ${opponentSurviving} units surviving (player dealt more damage).`;
       } else {
@@ -167,6 +174,82 @@ function generateVictoryDescription(
   }
 }
 
+function objectiveOutcomeDecision(
+  state: IGameState,
+  turnLimit: number,
+): IOutcomeDecision | null {
+  const objectiveOutcome = evaluateObjectiveOutcome(state, turnLimit);
+  if (
+    objectiveOutcome === null ||
+    objectiveOutcome.objectiveType === ScenarioObjectiveType.Destroy
+  ) {
+    return null;
+  }
+
+  return {
+    winner:
+      objectiveOutcome.winningSide === GameSide.Player ? 'player' : 'opponent',
+    reason: 'objective',
+  };
+}
+
+function eliminationOutcomeDecision(
+  playerEliminated: boolean,
+  opponentEliminated: boolean,
+): IOutcomeDecision | null {
+  if (playerEliminated && opponentEliminated) {
+    return { winner: 'draw', reason: 'mutual_destruction' };
+  }
+
+  if (opponentEliminated) {
+    return { winner: 'player', reason: 'elimination' };
+  }
+
+  if (playerEliminated) {
+    return { winner: 'opponent', reason: 'elimination' };
+  }
+
+  return null;
+}
+
+function turnLimitOutcomeDecision(
+  state: IGameState,
+  events: readonly IGameEvent[],
+  turnLimit: number,
+): IOutcomeDecision | null {
+  if (turnLimit <= 0 || state.turn < turnLimit) {
+    return null;
+  }
+
+  const { playerDamageDealt, opponentDamageDealt } = sumDamageBySide(
+    events,
+    state.units,
+  );
+  if (isTurnLimitDraw(playerDamageDealt, opponentDamageDealt)) {
+    return { winner: 'draw', reason: 'turn_limit' };
+  }
+
+  return {
+    winner: playerDamageDealt > opponentDamageDealt ? 'player' : 'opponent',
+    reason: 'turn_limit',
+  };
+}
+
+function survivorComparisonOutcomeDecision(
+  playerSurviving: number,
+  opponentSurviving: number,
+): IOutcomeDecision {
+  if (playerSurviving > opponentSurviving) {
+    return { winner: 'player', reason: 'objective' };
+  }
+
+  if (opponentSurviving > playerSurviving) {
+    return { winner: 'opponent', reason: 'objective' };
+  }
+
+  return { winner: 'draw', reason: 'objective' };
+}
+
 // =============================================================================
 // Main Calculator
 // =============================================================================
@@ -180,85 +263,25 @@ export function calculateGameOutcome(
 ): IGameOutcome {
   const { state, events, config, startedAt, endedAt } = input;
 
-  // Calculate duration
   const startTime = new Date(startedAt).getTime();
   const endTime = new Date(endedAt).getTime();
   const durationMs = endTime - startTime;
 
-  // Count units
   const playerSurviving = countSurvivingUnits(state, GameSide.Player);
   const opponentSurviving = countSurvivingUnits(state, GameSide.Opponent);
   const playerDestroyed = countDestroyedUnits(state, GameSide.Player);
   const opponentDestroyed = countDestroyedUnits(state, GameSide.Opponent);
-
-  // Determine outcome
   const playerEliminated = playerSurviving === 0;
   const opponentEliminated = opponentSurviving === 0;
 
-  let winner: 'player' | 'opponent' | 'draw';
-  let reason: VictoryReason;
-
-  // Per `add-scenario-objective-engine` (design.md D4 / task 5): an
-  // objective win is evaluated BEFORE the destruction / turn-limit
-  // path so it takes precedence over a turn-limit draw and over
-  // surviving-unit counts. A markerless scenario routes through the
-  // engine's `destroy` path; that outcome is left to fall through to
-  // the destruction branch below so it keeps the richer
-  // `elimination` / `mutual_destruction` reason labels this calculator
-  // has always produced. Only a true objective-marker win (Capture /
-  // Defend / Breakthrough) short-circuits with reason `objective`.
-  const objectiveOutcome = evaluateObjectiveOutcome(state, config.turnLimit);
-  const objectiveDecided =
-    objectiveOutcome !== null &&
-    objectiveOutcome.objectiveType !== ScenarioObjectiveType.Destroy;
-
-  if (objectiveDecided) {
-    winner =
-      objectiveOutcome!.winningSide === GameSide.Player ? 'player' : 'opponent';
-    reason = 'objective';
-  } else if (playerEliminated && opponentEliminated) {
-    // Both eliminated
-    winner = 'draw';
-    reason = 'mutual_destruction';
-  } else if (opponentEliminated) {
-    // Opponent eliminated
-    winner = 'player';
-    reason = 'elimination';
-  } else if (playerEliminated) {
-    // Player eliminated
-    winner = 'opponent';
-    reason = 'elimination';
-  } else if (config.turnLimit > 0 && state.turn >= config.turnLimit) {
-    // Turn limit reached. Per `add-victory-and-post-battle-summary`
-    // design D3 + spec scenario "Turn limit with near-equal damage is
-    // draw": tie-break by total damage dealt with a 5% tolerance.
-    // Replaces the previous surviving-unit-count branch which
-    // diverged from the spec.
-    reason = 'turn_limit';
-    const { playerDamageDealt, opponentDamageDealt } = sumDamageBySide(
-      events,
-      state.units,
-    );
-    if (isTurnLimitDraw(playerDamageDealt, opponentDamageDealt)) {
-      // Within 5% (or both zero) → draw.
-      winner = 'draw';
-    } else if (playerDamageDealt > opponentDamageDealt) {
-      winner = 'player';
-    } else {
-      winner = 'opponent';
-    }
-  } else {
-    // Game ended for other reason (concede, objective, etc.)
-    // Default to comparing survivors
-    if (playerSurviving > opponentSurviving) {
-      winner = 'player';
-    } else if (opponentSurviving > playerSurviving) {
-      winner = 'opponent';
-    } else {
-      winner = 'draw';
-    }
-    reason = 'objective'; // Default assumption
-  }
+  // Objective wins are evaluated before destruction and turn-limit paths.
+  // Markerless destroy scenarios fall through to the richer elimination labels.
+  const decision =
+    objectiveOutcomeDecision(state, config.turnLimit) ??
+    eliminationOutcomeDecision(playerEliminated, opponentEliminated) ??
+    turnLimitOutcomeDecision(state, events, config.turnLimit) ??
+    survivorComparisonOutcomeDecision(playerSurviving, opponentSurviving);
+  const { winner, reason } = decision;
 
   const description = generateVictoryDescription(
     winner,
@@ -319,10 +342,8 @@ export function calculateCombatStats(
         const targetUnit = units[payload.unitId];
         if (targetUnit) {
           if (targetUnit.side === GameSide.Opponent) {
-            // Player dealt damage to opponent
             playerDamageDealt += payload.damage;
           } else {
-            // Opponent dealt damage to player
             opponentDamageDealt += payload.damage;
           }
         }
@@ -330,11 +351,8 @@ export function calculateCombatStats(
       }
 
       case GameEventType.UnitDestroyed: {
-        // Track kills by the unit that destroyed this one
-        // Note: This would need the attacker info from the previous damage event
-        // For now, we just count destroyed units (payload not used yet)
         const _payload = event.payload as IUnitDestroyedPayload;
-        void _payload; // Intentionally unused until kill tracking is implemented
+        void _payload; // Intentionally unused until kill tracking is implemented.
         break;
       }
 
@@ -366,12 +384,10 @@ export function isGameEnded(state: IGameState, config: IGameConfig): boolean {
   const playerEliminated = isSideEliminated(state, GameSide.Player);
   const opponentEliminated = isSideEliminated(state, GameSide.Opponent);
 
-  // Either side eliminated
   if (playerEliminated || opponentEliminated) {
     return true;
   }
 
-  // Turn limit reached
   if (config.turnLimit > 0 && state.turn >= config.turnLimit) {
     return true;
   }
@@ -414,7 +430,6 @@ export function determineWinner(
     return 'opponent';
   }
 
-  // Check turn limit
   if (config.turnLimit > 0 && state.turn >= config.turnLimit) {
     if (playerSurviving > opponentSurviving) {
       return 'player';
@@ -424,5 +439,5 @@ export function determineWinner(
     return 'draw';
   }
 
-  return null; // Game not over yet
+  return null;
 }

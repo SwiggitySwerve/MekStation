@@ -41,55 +41,48 @@ export interface ForceCardProps {
 // Helper Functions
 // =============================================================================
 
+const STATUS_BADGE_VARIANTS: Partial<
+  Record<ForceStatus, 'emerald' | 'amber' | 'cyan' | 'muted'>
+> = {
+  [ForceStatus.Active]: 'emerald',
+  [ForceStatus.Maintenance]: 'amber',
+  [ForceStatus.Transit]: 'cyan',
+  [ForceStatus.Disbanded]: 'muted',
+};
+
+const STATUS_LABELS: Partial<Record<ForceStatus, string>> = {
+  [ForceStatus.Active]: 'Active',
+  [ForceStatus.Maintenance]: 'Maintenance',
+  [ForceStatus.Transit]: 'Transit',
+  [ForceStatus.Disbanded]: 'Disbanded',
+};
+
+const FORCE_TYPE_VARIANTS: Partial<
+  Record<ForceType, 'amber' | 'cyan' | 'violet' | 'muted'>
+> = {
+  [ForceType.Lance]: 'amber',
+  [ForceType.Company]: 'amber',
+  [ForceType.Battalion]: 'amber',
+  [ForceType.Star]: 'cyan',
+  [ForceType.Binary]: 'cyan',
+  [ForceType.Cluster]: 'cyan',
+  [ForceType.Level_II]: 'violet',
+};
+
 function getStatusBadgeVariant(
   status: ForceStatus,
 ): 'emerald' | 'amber' | 'cyan' | 'muted' {
-  switch (status) {
-    case ForceStatus.Active:
-      return 'emerald';
-    case ForceStatus.Maintenance:
-      return 'amber';
-    case ForceStatus.Transit:
-      return 'cyan';
-    case ForceStatus.Disbanded:
-      return 'muted';
-    default:
-      return 'muted';
-  }
+  return STATUS_BADGE_VARIANTS[status] ?? 'muted';
 }
 
 function getStatusLabel(status: ForceStatus): string {
-  switch (status) {
-    case ForceStatus.Active:
-      return 'Active';
-    case ForceStatus.Maintenance:
-      return 'Maintenance';
-    case ForceStatus.Transit:
-      return 'Transit';
-    case ForceStatus.Disbanded:
-      return 'Disbanded';
-    default:
-      return 'Unknown';
-  }
+  return STATUS_LABELS[status] ?? 'Unknown';
 }
 
 function getForceTypeVariant(
   forceType: ForceType,
 ): 'amber' | 'cyan' | 'violet' | 'muted' {
-  switch (forceType) {
-    case ForceType.Lance:
-    case ForceType.Company:
-    case ForceType.Battalion:
-      return 'amber'; // Inner Sphere
-    case ForceType.Star:
-    case ForceType.Binary:
-    case ForceType.Cluster:
-      return 'cyan'; // Clan
-    case ForceType.Level_II:
-      return 'violet'; // ComStar
-    default:
-      return 'muted';
-  }
+  return FORCE_TYPE_VARIANTS[forceType] ?? 'muted';
 }
 
 // =============================================================================

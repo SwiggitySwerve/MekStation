@@ -8,10 +8,20 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  initializeApiDatabase as initCloneEncounterDb,
+  rejectMissingQueryString as readCloneEncounterId,
+  rejectUnexpectedMethod as rejectCloneMethod,
+  sendCaughtApiError as sendCloneEncounterError,
+  sendOperationFailure as sendCloneEncounterFailure,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { IEncounterOperationResult } from '@/services/encounter/EncounterRepository';
 import { getEncounterService } from '@/services/encounter/EncounterService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { IEncounter } from '@/types/encounter';
+
+const ENCOUNTERS_ID_CLONE_TS_FAILED_TO_CLONE_ENCOUNTER_1 =
+  'Failed to clone encounter';
 
 // =============================================================================
 // Response Types
@@ -21,36 +31,25 @@ type CloneResponse = IEncounterOperationResult & {
   encounter?: IEncounter;
 };
 
-type ErrorResponse = {
-  error: string;
-};
-
 // =============================================================================
 // Handler
 // =============================================================================
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<CloneResponse | ErrorResponse>,
+  res: NextApiResponse<CloneResponse | ApiErrorResponse>,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initCloneEncounterDb(res)) return;
 
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-  }
+  if (rejectCloneMethod(req, res, ['POST'])) return;
 
-  const { id } = req.query;
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid encounter ID' });
-  }
+  const id = readCloneEncounterId(
+    req,
+    res,
+    'id',
+    'Missing or invalid encounter ID',
+  );
+  if (!id) return;
 
   const { newName } = req.body as { newName?: string };
   if (!newName) {
@@ -69,15 +68,19 @@ export default async function handler(
         encounter: encounter || undefined,
       });
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to clone encounter',
-        errorCode: result.errorCode,
-      });
+      sendCloneEncounterFailure(
+        res,
+        result,
+        ENCOUNTERS_ID_CLONE_TS_FAILED_TO_CLONE_ENCOUNTER_1,
+      );
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to clone encounter';
-    return res.status(500).json({ error: message });
+    sendCloneEncounterError(
+      res,
+      error,
+      ENCOUNTERS_ID_CLONE_TS_FAILED_TO_CLONE_ENCOUNTER_1,
+    );
+    return;
   }
 }

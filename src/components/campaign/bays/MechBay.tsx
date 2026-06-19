@@ -20,7 +20,8 @@ import React from 'react';
 import type { IRepairBayItem } from '@/types/campaign/CampaignInventory';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
-import { Badge, Card } from '@/components/ui';
+import { CampaignListCard } from '@/components/campaign/CampaignListCard';
+import { Badge } from '@/components/ui';
 
 import { BayEmpty } from './BayStates';
 
@@ -77,17 +78,19 @@ export function MechBayRow({
   onLaunchRefit,
 }: MechBayRowProps): React.ReactElement {
   return (
-    <Card className="p-4" data-testid={`mech-bay-row-${unit.unitId}`}>
-      <div className="flex items-center justify-between gap-4">
-        <div className="min-w-0">
+    <CampaignListCard
+      testId={`mech-bay-row-${unit.unitId}`}
+      left={
+        <>
           <h3 className="text-text-theme-primary truncate text-base font-semibold">
             {unit.unitName}
           </h3>
           <p className="text-text-theme-secondary mt-1 font-mono text-xs">
             {unit.chassisVariant}
           </p>
-        </div>
-
+        </>
+      }
+      right={
         <div className="flex items-center gap-3">
           <Badge className={readinessClasses(unit.readiness)}>
             {unit.readiness}
@@ -119,8 +122,8 @@ export function MechBayRow({
             Repair detail →
           </Link>
         </div>
-      </div>
-    </Card>
+      }
+    />
   );
 }
 

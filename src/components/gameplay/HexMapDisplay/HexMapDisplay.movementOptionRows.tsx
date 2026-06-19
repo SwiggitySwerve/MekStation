@@ -7,11 +7,6 @@ import type {
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
 import {
-  formatTacticalProjectionRuleReferences,
-  formatTacticalProjectionSourceReferences,
-} from '@/utils/gameplay/tacticalMapProjection';
-
-import {
   formatMovementOptionTitle,
   movementOptionAltitudeControlMpCostsAttribute,
   movementOptionAltitudeControlStepCountsAttribute,
@@ -31,6 +26,10 @@ import {
   movementOptionTerrainCostsAttribute,
   movementOptionTypesAttribute,
 } from './HexCell.movementOptionSummaries';
+import {
+  movementProjectionSourceMetadata,
+  tacticalProjectionDataAttributes,
+} from './HexMapDisplay.tacticalProjectionAttributes';
 
 function optionTestIdSuffix(
   option: IMovementRangeModeOption,
@@ -52,28 +51,14 @@ export function MovementModeOptionRows({
   const options = movementOptionsForBadge(movementInfo);
   if (options.length <= 1) return null;
 
-  const movementSourceReferences =
-    projection?.sourceReferences.filter(
-      (source) => source.channel === 'movement',
-    ) ?? [];
-  const movementSourceRefsAttribute =
-    formatTacticalProjectionSourceReferences(movementSourceReferences) ||
-    undefined;
-  const movementRuleRefsAttribute =
-    formatTacticalProjectionRuleReferences(movementSourceReferences) ||
-    undefined;
-  const movementProjectionChannel =
-    movementSourceReferences.length > 0 ? 'movement' : undefined;
+  const source = movementProjectionSourceMetadata(projection?.sourceReferences);
+  const projectionAttributes = tacticalProjectionDataAttributes(source);
 
   return (
     <div
       className="mt-1 border-t border-slate-700/70 pt-1 text-[11px] text-slate-200"
       data-testid={testId}
-      data-tactical-projection-source={
-        movementProjectionChannel ? 'shared-tactical-map-projection' : undefined
-      }
-      data-tactical-projection-channel={movementProjectionChannel}
-      data-tactical-rules-surface={movementProjectionChannel}
+      {...projectionAttributes}
       data-movement-option-count={options.length}
       data-movement-option-types={movementOptionTypesAttribute(movementInfo)}
       data-movement-option-costs={movementOptionCostsAttribute(movementInfo)}
@@ -112,8 +97,8 @@ export function MovementModeOptionRows({
       data-movement-option-invalid-details={movementOptionInvalidDetailsAttribute(
         options,
       )}
-      data-movement-option-source-refs={movementSourceRefsAttribute}
-      data-movement-option-rule-refs={movementRuleRefsAttribute}
+      data-movement-option-source-refs={source.sourceRefs}
+      data-movement-option-rule-refs={source.ruleRefs}
     >
       <div data-testid={`${testId}-title`}>Movement options:</div>
       {options.map((option, index) => {
@@ -122,13 +107,7 @@ export function MovementModeOptionRows({
           <div
             key={`${option.movementType}-${option.movementMode ?? 'mode'}-${index}`}
             data-testid={`${testId}-option-${optionTestIdSuffix(option, index)}`}
-            data-tactical-projection-source={
-              movementProjectionChannel
-                ? 'shared-tactical-map-projection'
-                : undefined
-            }
-            data-tactical-projection-channel={movementProjectionChannel}
-            data-tactical-rules-surface={movementProjectionChannel}
+            {...projectionAttributes}
             data-movement-option-type={option.movementType}
             data-movement-option-mode={option.movementMode}
             data-movement-option-state={
@@ -167,8 +146,8 @@ export function MovementModeOptionRows({
             data-movement-option-blocked-reason={blockedDetail}
             data-movement-option-invalid-reason={option.movementInvalidReason}
             data-movement-option-invalid-details={option.movementInvalidDetails}
-            data-movement-option-source-refs={movementSourceRefsAttribute}
-            data-movement-option-rule-refs={movementRuleRefsAttribute}
+            data-movement-option-source-refs={source.sourceRefs}
+            data-movement-option-rule-refs={source.ruleRefs}
           >
             {formatMovementOptionTitle(option)}
           </div>

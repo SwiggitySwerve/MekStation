@@ -1,31 +1,18 @@
-import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
-
 import {
   MEGAMEK_ACTIVE_TARGET_FILTER_SOURCE_REFS,
   MEGAMEK_EJECTION_TARGET_REMOVAL_SOURCE_REFS,
   MEGAMEK_RETREAT_TARGET_REMOVAL_SOURCE_REFS,
 } from './CombatAttackInvalidationSourceRefs';
-
-const MEKSTATION_SOURCE_VERSION = 'MekStation working-tree';
-
-function mekstationDeviationRef(
-  citation: string,
-  path: string,
-  lineAnchor: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'mekstation-deviation',
-    citation,
-    url: `${path}#${lineAnchor}`,
-    sourceVersion: MEKSTATION_SOURCE_VERSION,
-  };
-}
+import {
+  mekstationDeviationSourceRefWithLineAnchor as mekstationDeviationRef,
+  type ICombatFeatureSourceReference,
+} from './CombatFeatureSourceReference';
 
 const LOCAL_ACTION_ACTOR_REMOVAL_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation getActiveUnits, getUnitsAwaitingAction, and allUnitsLocked exclude destroyed, shutdown, retreated, ejected, and unconscious actors from turn rotation.',
     'src/utils/gameplay/gameState/gameStateReducer.ts',
-    'L292-L330',
+    'L51-L96',
   ),
   mekstationDeviationRef(
     'MekStation getAvailableActionsForState returns no movement or attack actions for destroyed, shutdown, retreated, ejected, or unconscious actors.',
@@ -34,8 +21,8 @@ const LOCAL_ACTION_ACTOR_REMOVAL_SOURCE_REFS = [
   ),
   mekstationDeviationRef(
     'MekStation runner movement phase skips destroyed, retreated, ejected, shutdown, and unconscious actors before movement planning.',
-    'src/simulation/runner/phases/movement.ts',
-    'L78-L88',
+    'src/simulation/runner/phases/movementUnitTurn.ts',
+    'L169-L177',
   ),
   mekstationDeviationRef(
     'MekStation runner weapon phase skips destroyed, retreated, ejected, shutdown, and unconscious attackers before target selection.',
@@ -80,8 +67,8 @@ const LOCAL_ACTION_TARGETABILITY_SOURCE_REFS = [
 const LOCAL_RETREATED_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation applyUnitRetreated latches hasRetreated without marking the unit destroyed.',
-    'src/utils/gameplay/gameState/extendedCombat.ts',
-    'L385-L413',
+    'src/utils/gameplay/gameState/unitExitState.ts',
+    'L31-L43',
   ),
   mekstationDeviationRef(
     'MekStation GameEngine movement phase emits UnitRetreated once a withdrawing unit reaches its retreat edge.',
@@ -98,8 +85,8 @@ export const LOCAL_EJECTION_SOURCE_REFS = [
   ),
   mekstationDeviationRef(
     'MekStation applyUnitEjected latches hasEjected, resolves the action, and preserves the existing armor, structure, destroyed, and pilotConscious state.',
-    'src/utils/gameplay/gameState/extendedCombat.ts',
-    'L416-L445',
+    'src/utils/gameplay/gameState/unitExitState.ts',
+    'L45-L59',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -107,7 +94,7 @@ export const LOCAL_SURVIVOR_COUNT_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation victory predicates exclude destroyed, retreated, and ejected units from surviving force counts and turn-limit winner selection.',
     'src/utils/gameplay/gameState/gameStateReducer.ts',
-    'L345-L421',
+    'L105-L184',
   ),
   mekstationDeviationRef(
     'MekStation objective control and destroy-objective predicates count only units that are alive and not retreated or ejected.',

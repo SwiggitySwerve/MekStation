@@ -1,4 +1,4 @@
-import { IHexCoordinate } from '@/types/gameplay';
+import type { IHexCoordinate } from '@/types/gameplay';
 
 import { calculateECCMCountering } from './countering';
 import {
@@ -76,19 +76,55 @@ export function areElectronicsNullified(
   return status.ecmProtected;
 }
 
-export function isAttackECMProtected(
+type AttackECMProtectionArgs = readonly [
   attackerPosition: IHexCoordinate,
   attackerTeamId: string,
   attackerEntityId: string,
   targetPosition: IHexCoordinate,
   targetTeamId: string,
-  _targetEntityId: string,
+  targetEntityId: string,
   ewState: IElectronicWarfareState,
-): boolean {
-  const targetFriendlyECMs = getFriendlyECMSources(
+];
+
+interface IAttackECMProtectionContext {
+  readonly attackerPosition: IHexCoordinate;
+  readonly attackerTeamId: string;
+  readonly attackerEntityId: string;
+  readonly targetPosition: IHexCoordinate;
+  readonly targetTeamId: string;
+  readonly ewState: IElectronicWarfareState;
+}
+
+function toAttackECMProtectionContext(
+  args: AttackECMProtectionArgs,
+): IAttackECMProtectionContext {
+  const [
+    attackerPosition,
+    attackerTeamId,
+    attackerEntityId,
+    targetPosition,
+    targetTeamId,
+    ,
+    ewState,
+  ] = args;
+
+  return {
+    attackerPosition,
+    attackerTeamId,
+    attackerEntityId,
     targetPosition,
     targetTeamId,
     ewState,
+  };
+}
+
+function resolveAttackECMProtection(
+  context: IAttackECMProtectionContext,
+): boolean {
+  const targetFriendlyECMs = getFriendlyECMSources(
+    context.targetPosition,
+    context.targetTeamId,
+    context.ewState,
   );
 
   if (targetFriendlyECMs.length === 0) {
@@ -96,9 +132,9 @@ export function isAttackECMProtected(
   }
 
   const attackerECCMs = getFriendlyECCMSources(
-    attackerPosition,
-    attackerTeamId,
-    ewState,
+    context.attackerPosition,
+    context.attackerTeamId,
+    context.ewState,
   );
 
   const { uncounteredEnemyECMs } = calculateECCMCountering(
@@ -110,8 +146,8 @@ export function isAttackECMProtected(
     return false;
   }
 
-  const attackerProbes = ewState.activeProbes.filter(
-    (probe) => probe.entityId === attackerEntityId && probe.operational,
+  const attackerProbes = context.ewState.activeProbes.filter(
+    (probe) => probe.entityId === context.attackerEntityId && probe.operational,
   );
 
   for (const enemyECM of uncounteredEnemyECMs) {
@@ -131,25 +167,13 @@ export function isAttackECMProtected(
   return false;
 }
 
-export function getECMProtectedFlag(
-  attackerPosition: IHexCoordinate,
-  attackerTeamId: string,
-  attackerEntityId: string,
-  targetPosition: IHexCoordinate,
-  targetTeamId: string,
-  targetEntityId: string,
-  ewState: IElectronicWarfareState,
-): boolean {
-  return isAttackECMProtected(
-    attackerPosition,
-    attackerTeamId,
-    attackerEntityId,
-    targetPosition,
-    targetTeamId,
-    targetEntityId,
-    ewState,
-  );
-}
+export const isAttackECMProtected = (
+  ...args: AttackECMProtectionArgs
+): boolean => resolveAttackECMProtection(toAttackECMProtectionContext(args));
+
+export const getECMProtectedFlag = (
+  ...args: AttackECMProtectionArgs
+): boolean => isAttackECMProtected(...args);
 
 export function resolveC3ECMDisruption(
   members: readonly {

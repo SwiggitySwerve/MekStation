@@ -2,7 +2,7 @@ import type { CriticalHitEvent } from '@/utils/gameplay/criticalHitResolution';
 
 import { GameEventType, GamePhase, IGameEvent } from '@/types/gameplay';
 
-import { createGameEvent } from './utils';
+import { appendPsrTriggeredEvent, createGameEvent } from './utils';
 
 export function emitPhysicalCriticalEvents(options: {
   events: IGameEvent[];
@@ -103,28 +103,23 @@ export function emitPhysicalCriticalEvents(options: {
 
     if (event.type === 'psr_triggered') {
       const payload = event.payload;
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.PSRTriggered,
-          turn,
-          GamePhase.PhysicalAttack,
-          {
-            unitId: payload.unitId,
-            reason: payload.reason,
-            additionalModifier: payload.additionalModifier,
-            triggerSource: payload.triggerSource,
-            ...(targetPilotingSkill !== undefined
-              ? { basePilotingSkill: targetPilotingSkill }
-              : {}),
-            ...(payload.reasonCode !== undefined
-              ? { reasonCode: payload.reasonCode }
-              : {}),
-          },
-          actorId,
-        ),
-      );
+      appendPsrTriggeredEvent({
+        events,
+        gameId,
+        turn,
+        phase: GamePhase.PhysicalAttack,
+        unitId: payload.unitId,
+        reason: payload.reason,
+        additionalModifier: payload.additionalModifier,
+        triggerSource: payload.triggerSource,
+        actorId,
+        ...(targetPilotingSkill !== undefined
+          ? { basePilotingSkill: targetPilotingSkill }
+          : {}),
+        ...(payload.reasonCode !== undefined
+          ? { reasonCode: payload.reasonCode }
+          : {}),
+      });
       continue;
     }
 

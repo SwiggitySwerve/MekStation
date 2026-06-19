@@ -107,6 +107,24 @@ export const EQUIPMENT_COLORS: Record<
   },
 };
 
+const LEGACY_WEAPON_CATEGORIES = new Set<EquipmentCategory>([
+  EquipmentCategory.ENERGY_WEAPON,
+  EquipmentCategory.BALLISTIC_WEAPON,
+  EquipmentCategory.MISSILE_WEAPON,
+  EquipmentCategory.ARTILLERY,
+  EquipmentCategory.CAPITAL_WEAPON,
+]);
+
+const LEGACY_CATEGORY_COLOR_TYPES: Readonly<
+  Partial<Record<EquipmentCategory, EquipmentColorType>>
+> = {
+  [EquipmentCategory.AMMUNITION]: 'ammunition',
+  [EquipmentCategory.ELECTRONICS]: 'electronics',
+  [EquipmentCategory.PHYSICAL_WEAPON]: 'physical',
+  [EquipmentCategory.MOVEMENT]: 'movement',
+  [EquipmentCategory.STRUCTURAL]: 'structural',
+};
+
 // =============================================================================
 // Legacy API Functions
 // =============================================================================
@@ -155,28 +173,7 @@ export function classifyEquipment(name: string): EquipmentColorType {
   const category = classifyEquipmentByName(name);
 
   if (category === 'heatsink') return 'heatsink';
-
-  // Map category to legacy type
-  switch (category) {
-    case EquipmentCategory.ENERGY_WEAPON:
-    case EquipmentCategory.BALLISTIC_WEAPON:
-    case EquipmentCategory.MISSILE_WEAPON:
-    case EquipmentCategory.ARTILLERY:
-    case EquipmentCategory.CAPITAL_WEAPON:
-      return 'weapon';
-    case EquipmentCategory.AMMUNITION:
-      return 'ammunition';
-    case EquipmentCategory.ELECTRONICS:
-      return 'electronics';
-    case EquipmentCategory.PHYSICAL_WEAPON:
-      return 'physical';
-    case EquipmentCategory.MOVEMENT:
-      return 'movement';
-    case EquipmentCategory.STRUCTURAL:
-      return 'structural';
-    default:
-      return 'misc';
-  }
+  return categoryToColorType(category);
 }
 
 /**
@@ -185,26 +182,8 @@ export function classifyEquipment(name: string): EquipmentColorType {
 export function categoryToColorType(
   category: EquipmentCategory,
 ): EquipmentColorType {
-  switch (category) {
-    case EquipmentCategory.ENERGY_WEAPON:
-    case EquipmentCategory.BALLISTIC_WEAPON:
-    case EquipmentCategory.MISSILE_WEAPON:
-    case EquipmentCategory.ARTILLERY:
-    case EquipmentCategory.CAPITAL_WEAPON:
-      return 'weapon';
-    case EquipmentCategory.AMMUNITION:
-      return 'ammunition';
-    case EquipmentCategory.ELECTRONICS:
-      return 'electronics';
-    case EquipmentCategory.PHYSICAL_WEAPON:
-      return 'physical';
-    case EquipmentCategory.MOVEMENT:
-      return 'movement';
-    case EquipmentCategory.STRUCTURAL:
-      return 'structural';
-    default:
-      return 'misc';
-  }
+  if (LEGACY_WEAPON_CATEGORIES.has(category)) return 'weapon';
+  return LEGACY_CATEGORY_COLOR_TYPES[category] ?? 'misc';
 }
 
 /**

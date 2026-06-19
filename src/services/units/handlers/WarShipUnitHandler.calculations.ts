@@ -4,6 +4,8 @@
 
 import { IWarShip, BayType } from '@/types/unit/CapitalShipInterfaces';
 
+import { pushSafeThrustAndStructureErrors } from './unitHandlerShared';
+
 export function validateWarShip(unit: IWarShip): {
   errors: string[];
   warnings: string[];
@@ -26,13 +28,12 @@ export function validateWarShip(unit: IWarShip): {
     errors.push('WarShip must have K-F Drive');
   }
 
-  if (unit.movement.safeThrust < 1) {
-    errors.push('WarShip must have at least 1 safe thrust');
-  }
-
-  if (unit.structuralIntegrity < 1) {
-    errors.push('WarShip must have at least 1 SI');
-  }
+  pushSafeThrustAndStructureErrors(
+    errors,
+    unit,
+    'WarShip must have at least 1 safe thrust',
+    'WarShip must have at least 1 SI',
+  );
 
   if (unit.crewConfiguration.crew < 100) {
     warnings.push('WarShip has unusually small crew');

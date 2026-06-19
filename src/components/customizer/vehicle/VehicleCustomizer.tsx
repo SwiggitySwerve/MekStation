@@ -9,13 +9,12 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3
  */
 
-import React, { useCallback } from 'react';
+import React from 'react';
 import { StoreApi } from 'zustand';
 
 import { VEHICLE_TABS } from '@/components/customizer/shared/tabRegistry';
-import { toCustomizerTabConfigs } from '@/components/customizer/shared/TabSpec';
 import { CustomizerTabs } from '@/components/customizer/tabs/CustomizerTabs';
-import { useCustomizerTabs } from '@/hooks/useCustomizerTabs';
+import { useCustomizerTabShell } from '@/components/customizer/tabs/useCustomizerTabShell';
 import { VehicleStoreContext, VehicleStore } from '@/stores/useVehicleStore';
 
 import { VehicleDiagram } from './VehicleDiagram';
@@ -66,27 +65,12 @@ export function VehicleCustomizer({
   className = '',
 }: VehicleCustomizerProps): React.ReactElement {
   // Vehicle tabs have no visibleWhen predicates — pass an empty state object
-  const { visibleSpecs, activeTab, setActiveTab, dirtyTabs, errorTabs } =
-    useCustomizerTabs({
-      specs: VEHICLE_TABS,
-      state: {},
-      initialTabId: initialTab,
-    });
-
-  const tabConfigs = toCustomizerTabConfigs(visibleSpecs);
-
-  const handleTabChange = useCallback(
-    (tabId: string) => {
-      setActiveTab(tabId);
-      onTabChange?.(tabId as VehicleTabId);
-    },
-    [setActiveTab, onTabChange],
-  );
-
-  // Find the active spec to render its component
-  const activeSpec =
-    visibleSpecs.find((s) => s.id === activeTab) ?? visibleSpecs[0];
-  const TabComponent = activeSpec?.component;
+  const { tabBarProps, activeTab, TabComponent } = useCustomizerTabShell({
+    specs: VEHICLE_TABS,
+    state: {},
+    initialTab,
+    onTabChange,
+  });
 
   return (
     <VehicleStoreContext.Provider value={store}>
@@ -99,12 +83,8 @@ export function VehicleCustomizer({
 
         {/* Tab Bar */}
         <CustomizerTabs
-          tabs={tabConfigs}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
+          {...tabBarProps}
           readOnly={readOnly}
-          dirtyTabs={dirtyTabs}
-          errorTabs={errorTabs}
           data-testid="vehicle-tab-bar"
         />
 

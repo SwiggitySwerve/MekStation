@@ -116,166 +116,76 @@ export interface FixedSlotAllocation {
   readonly isRequired: boolean;
 }
 
+function createFixedSlotAllocation(
+  location: MechLocation,
+  slotStart: number,
+  componentType: string,
+  isRequired: boolean,
+): FixedSlotAllocation {
+  return {
+    location,
+    slotStart,
+    slotCount: 1,
+    componentType,
+    isRequired,
+  };
+}
+
+type FixedSlotComponentSpec = readonly [
+  slotStart: number,
+  componentType: string,
+  isRequired: boolean,
+];
+
+function createFixedSlotAllocations(
+  location: MechLocation,
+  components: readonly FixedSlotComponentSpec[],
+): readonly FixedSlotAllocation[] {
+  return components.map(([slotStart, componentType, isRequired]) =>
+    createFixedSlotAllocation(location, slotStart, componentType, isRequired),
+  );
+}
+
+const HEAD_FIXED_COMPONENTS: readonly FixedSlotComponentSpec[] = [
+  [0, 'Life Support', true],
+  [1, 'Sensors', true],
+  [2, 'Cockpit', true],
+  [4, 'Sensors', true],
+  [5, 'Life Support', true],
+];
+
+const ARM_FIXED_COMPONENTS: readonly FixedSlotComponentSpec[] = [
+  [0, 'Shoulder', true],
+  [1, 'Upper Arm Actuator', true],
+  [2, 'Lower Arm Actuator', false],
+  [3, 'Hand Actuator', false],
+];
+
+const LEG_FIXED_COMPONENTS: readonly FixedSlotComponentSpec[] = [
+  [0, 'Hip', true],
+  [1, 'Upper Leg Actuator', true],
+  [2, 'Lower Leg Actuator', true],
+  [3, 'Foot Actuator', true],
+];
+
 /**
  * Standard fixed allocations for biped mechs
  */
 export const STANDARD_FIXED_ALLOCATIONS: readonly FixedSlotAllocation[] = [
   // Head
-  {
-    location: MechLocation.HEAD,
-    slotStart: 0,
-    slotCount: 1,
-    componentType: 'Life Support',
-    isRequired: true,
-  },
-  {
-    location: MechLocation.HEAD,
-    slotStart: 1,
-    slotCount: 1,
-    componentType: 'Sensors',
-    isRequired: true,
-  },
-  {
-    location: MechLocation.HEAD,
-    slotStart: 2,
-    slotCount: 1,
-    componentType: 'Cockpit',
-    isRequired: true,
-  },
-  {
-    location: MechLocation.HEAD,
-    slotStart: 4,
-    slotCount: 1,
-    componentType: 'Sensors',
-    isRequired: true,
-  },
-  {
-    location: MechLocation.HEAD,
-    slotStart: 5,
-    slotCount: 1,
-    componentType: 'Life Support',
-    isRequired: true,
-  },
+  ...createFixedSlotAllocations(MechLocation.HEAD, HEAD_FIXED_COMPONENTS),
 
   // Left Arm (standard biped)
-  {
-    location: MechLocation.LEFT_ARM,
-    slotStart: 0,
-    slotCount: 1,
-    componentType: 'Shoulder',
-    isRequired: true,
-  },
-  {
-    location: MechLocation.LEFT_ARM,
-    slotStart: 1,
-    slotCount: 1,
-    componentType: 'Upper Arm Actuator',
-    isRequired: true,
-  },
-  {
-    location: MechLocation.LEFT_ARM,
-    slotStart: 2,
-    slotCount: 1,
-    componentType: 'Lower Arm Actuator',
-    isRequired: false,
-  },
-  {
-    location: MechLocation.LEFT_ARM,
-    slotStart: 3,
-    slotCount: 1,
-    componentType: 'Hand Actuator',
-    isRequired: false,
-  },
+  ...createFixedSlotAllocations(MechLocation.LEFT_ARM, ARM_FIXED_COMPONENTS),
 
   // Right Arm (standard biped)
-  {
-    location: MechLocation.RIGHT_ARM,
-    slotStart: 0,
-    slotCount: 1,
-    componentType: 'Shoulder',
-    isRequired: true,
-  },
-  {
-    location: MechLocation.RIGHT_ARM,
-    slotStart: 1,
-    slotCount: 1,
-    componentType: 'Upper Arm Actuator',
-    isRequired: true,
-  },
-  {
-    location: MechLocation.RIGHT_ARM,
-    slotStart: 2,
-    slotCount: 1,
-    componentType: 'Lower Arm Actuator',
-    isRequired: false,
-  },
-  {
-    location: MechLocation.RIGHT_ARM,
-    slotStart: 3,
-    slotCount: 1,
-    componentType: 'Hand Actuator',
-    isRequired: false,
-  },
+  ...createFixedSlotAllocations(MechLocation.RIGHT_ARM, ARM_FIXED_COMPONENTS),
 
   // Left Leg
-  {
-    location: MechLocation.LEFT_LEG,
-    slotStart: 0,
-    slotCount: 1,
-    componentType: 'Hip',
-    isRequired: true,
-  },
-  {
-    location: MechLocation.LEFT_LEG,
-    slotStart: 1,
-    slotCount: 1,
-    componentType: 'Upper Leg Actuator',
-    isRequired: true,
-  },
-  {
-    location: MechLocation.LEFT_LEG,
-    slotStart: 2,
-    slotCount: 1,
-    componentType: 'Lower Leg Actuator',
-    isRequired: true,
-  },
-  {
-    location: MechLocation.LEFT_LEG,
-    slotStart: 3,
-    slotCount: 1,
-    componentType: 'Foot Actuator',
-    isRequired: true,
-  },
+  ...createFixedSlotAllocations(MechLocation.LEFT_LEG, LEG_FIXED_COMPONENTS),
 
   // Right Leg
-  {
-    location: MechLocation.RIGHT_LEG,
-    slotStart: 0,
-    slotCount: 1,
-    componentType: 'Hip',
-    isRequired: true,
-  },
-  {
-    location: MechLocation.RIGHT_LEG,
-    slotStart: 1,
-    slotCount: 1,
-    componentType: 'Upper Leg Actuator',
-    isRequired: true,
-  },
-  {
-    location: MechLocation.RIGHT_LEG,
-    slotStart: 2,
-    slotCount: 1,
-    componentType: 'Lower Leg Actuator',
-    isRequired: true,
-  },
-  {
-    location: MechLocation.RIGHT_LEG,
-    slotStart: 3,
-    slotCount: 1,
-    componentType: 'Foot Actuator',
-    isRequired: true,
-  },
+  ...createFixedSlotAllocations(MechLocation.RIGHT_LEG, LEG_FIXED_COMPONENTS),
 ];
 
 /**
@@ -360,6 +270,30 @@ export interface DistributedAllocationRule {
   readonly preferredLocations: MechLocation[];
 }
 
+function createFullDistributedPreferredLocations(): MechLocation[] {
+  return [
+    MechLocation.LEFT_TORSO,
+    MechLocation.RIGHT_TORSO,
+    MechLocation.LEFT_ARM,
+    MechLocation.RIGHT_ARM,
+    MechLocation.LEFT_LEG,
+    MechLocation.RIGHT_LEG,
+  ];
+}
+
+function createUpperDistributedPreferredLocations(): MechLocation[] {
+  return [
+    MechLocation.LEFT_TORSO,
+    MechLocation.RIGHT_TORSO,
+    MechLocation.LEFT_ARM,
+    MechLocation.RIGHT_ARM,
+  ];
+}
+
+function createTorsoDistributedPreferredLocations(): MechLocation[] {
+  return [MechLocation.LEFT_TORSO, MechLocation.RIGHT_TORSO];
+}
+
 /**
  * Standard distributed allocation rules
  */
@@ -370,46 +304,27 @@ export const DISTRIBUTED_ALLOCATION_RULES: readonly DistributedAllocationRule[] 
       totalSlots: 14,
       slotsPerUnit: 1,
       canAllocateToHead: true, // Technically allowed but not recommended
-      preferredLocations: [
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.LEFT_ARM,
-        MechLocation.RIGHT_ARM,
-        MechLocation.LEFT_LEG,
-        MechLocation.RIGHT_LEG,
-      ],
+      preferredLocations: createFullDistributedPreferredLocations(),
     },
     {
       componentType: 'Endo Steel (Clan)',
       totalSlots: 7,
       slotsPerUnit: 1,
       canAllocateToHead: true,
-      preferredLocations: [
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.LEFT_ARM,
-        MechLocation.RIGHT_ARM,
-      ],
+      preferredLocations: createUpperDistributedPreferredLocations(),
     },
     {
       componentType: 'Ferro-Fibrous (IS)',
       totalSlots: 14,
       slotsPerUnit: 1,
       canAllocateToHead: true,
-      preferredLocations: [
-        MechLocation.LEFT_TORSO,
-        MechLocation.RIGHT_TORSO,
-        MechLocation.LEFT_ARM,
-        MechLocation.RIGHT_ARM,
-        MechLocation.LEFT_LEG,
-        MechLocation.RIGHT_LEG,
-      ],
+      preferredLocations: createFullDistributedPreferredLocations(),
     },
     {
       componentType: 'Ferro-Fibrous (Clan)',
       totalSlots: 7,
       slotsPerUnit: 1,
       canAllocateToHead: true,
-      preferredLocations: [MechLocation.LEFT_TORSO, MechLocation.RIGHT_TORSO],
+      preferredLocations: createTorsoDistributedPreferredLocations(),
     },
   ];

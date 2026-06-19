@@ -1,12 +1,13 @@
-import type { IBattleModifier } from '@/types/scenario';
-
 import { BiomeType, ModifierEffect } from '@/types/scenario';
 
-export const HEAVY_FOG: IBattleModifier = {
+import { defineBattleModifier } from './modifierDefinition';
+
+export const HEAVY_FOG = defineBattleModifier({
   id: 'heavy_fog',
   name: 'Heavy Fog',
-  description:
+  descriptionParts: [
     'Dense fog blankets the battlefield, reducing visibility. All attacks beyond 6 hexes suffer a +2 modifier.',
+  ],
   effect: ModifierEffect.Neutral,
   applicability: {
     weight: 20,
@@ -26,13 +27,14 @@ export const HEAVY_FOG: IBattleModifier = {
     },
   },
   tags: ['weather', 'visibility', 'neutral'],
-};
+});
 
-export const NIGHT_BATTLE: IBattleModifier = {
+export const NIGHT_BATTLE = defineBattleModifier({
   id: 'night_battle',
   name: 'Night Battle',
-  description:
+  descriptionParts: [
     'The battle takes place at night. All attacks suffer a +1 modifier unless equipped with searchlights or advanced sensors.',
+  ],
   effect: ModifierEffect.Neutral,
   applicability: {
     weight: 15,
@@ -46,13 +48,14 @@ export const NIGHT_BATTLE: IBattleModifier = {
     },
   },
   tags: ['weather', 'night', 'visibility'],
-};
+});
 
-export const EXTREME_HEAT: IBattleModifier = {
+export const EXTREME_HEAT = defineBattleModifier({
   id: 'extreme_heat',
   name: 'Extreme Heat',
-  description:
+  descriptionParts: [
     'Scorching temperatures increase heat dissipation problems. All units generate +2 heat per turn.',
+  ],
   effect: ModifierEffect.Negative,
   applicability: {
     weight: 15,
@@ -66,13 +69,14 @@ export const EXTREME_HEAT: IBattleModifier = {
     },
   },
   tags: ['weather', 'heat', 'difficulty'],
-};
+});
 
-export const FREEZING_CONDITIONS: IBattleModifier = {
+export const FREEZING_CONDITIONS = defineBattleModifier({
   id: 'freezing_conditions',
   name: 'Freezing Conditions',
-  description:
+  descriptionParts: [
     'Sub-zero temperatures improve heat dissipation. All units dissipate 2 additional heat per turn.',
+  ],
   effect: ModifierEffect.Positive,
   applicability: {
     weight: 12,
@@ -86,13 +90,14 @@ export const FREEZING_CONDITIONS: IBattleModifier = {
     },
   },
   tags: ['weather', 'cold', 'help'],
-};
+});
 
-export const DUST_STORM: IBattleModifier = {
+export const DUST_STORM = defineBattleModifier({
   id: 'dust_storm',
   name: 'Dust Storm',
-  description:
+  descriptionParts: [
     'A severe dust storm reduces visibility and hampers movement. -1 MP for all ground units, +1 to hit at all ranges.',
+  ],
   effect: ModifierEffect.Neutral,
   applicability: {
     weight: 10,
@@ -108,4 +113,4 @@ export const DUST_STORM: IBattleModifier = {
     },
   },
   tags: ['weather', 'visibility', 'movement', 'neutral'],
-};
+});

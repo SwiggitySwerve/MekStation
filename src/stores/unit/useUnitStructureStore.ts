@@ -18,7 +18,9 @@ import type { MovementEnhancementType } from '@/types/construction/MovementEnhan
 import type { JumpJetType } from '@/utils/construction/movementCalculations';
 
 import type { UnitStore } from '../unitState';
+import type { UnitSliceGetFn, UnitSliceSetFn } from './unitSliceTypes';
 
+import { modificationPatch, modifiedPatch } from '../unitStoreIdentityActions';
 import {
   createChassisActions,
   type ChassisActions,
@@ -67,18 +69,9 @@ export interface UnitStructureActions extends IdentityActions, ChassisActions {
   markModified: (modified?: boolean) => void;
 }
 
-// =============================================================================
-// Slice Factory
-// =============================================================================
-
-type SetFn = (
-  partial: Partial<UnitStore> | ((state: UnitStore) => Partial<UnitStore>),
-) => void;
-type GetFn = () => UnitStore;
-
 export function createStructureSlice(
-  set: SetFn,
-  _get: GetFn,
+  set: UnitSliceSetFn,
+  _get: UnitSliceGetFn,
 ): UnitStructureActions {
   return {
     ...createIdentityActions(set),
@@ -89,11 +82,11 @@ export function createStructureSlice(
     // =================================================================
 
     setBaseChassisHeatSinks: (count) =>
-      set({
-        baseChassisHeatSinks: count,
-        isModified: true,
-        lastModifiedAt: Date.now(),
-      }),
+      set(
+        modifiedPatch({
+          baseChassisHeatSinks: count,
+        }),
+      ),
 
     resetChassis: () =>
       set((state) => {
@@ -103,11 +96,9 @@ export function createStructureSlice(
         const fixedEquipment = state.equipment.filter(
           (eq) => !eq.isOmniPodMounted,
         );
-        return {
+        return modifiedPatch({
           equipment: fixedEquipment,
-          isModified: true,
-          lastModifiedAt: Date.now(),
-        };
+        });
       }),
 
     setEquipmentPodMounted: (instanceId, isPodMounted) =>
@@ -117,11 +108,9 @@ export function createStructureSlice(
             ? { ...eq, isOmniPodMounted: isPodMounted }
             : eq,
         );
-        return {
+        return modifiedPatch({
           equipment,
-          isModified: true,
-          lastModifiedAt: Date.now(),
-        };
+        });
       }),
 
     // =================================================================
@@ -130,46 +119,42 @@ export function createStructureSlice(
 
     setEngineType: (type) =>
       set((state) => {
-        const equipment = applyEngineTypeChange(
-          state.equipment,
-          state.engineType,
-          type,
-          state.gyroType,
-          state.engineRating,
-          state.heatSinkType,
-          state.heatSinkCount,
-          state.enhancement,
-          state.tonnage,
-          state.techBase,
-        );
+        const equipment = applyEngineTypeChange({
+          equipment: state.equipment,
+          oldEngineType: state.engineType,
+          newEngineType: type,
+          gyroType: state.gyroType,
+          engineRating: state.engineRating,
+          heatSinkType: state.heatSinkType,
+          heatSinkCount: state.heatSinkCount,
+          enhancement: state.enhancement,
+          tonnage: state.tonnage,
+          techBase: state.techBase,
+        });
 
-        return {
+        return modifiedPatch({
           engineType: type,
           equipment,
-          isModified: true,
-          lastModifiedAt: Date.now(),
-        };
+        });
       }),
 
     setEngineRating: (rating) =>
       set((state) => {
-        const equipment = applyEngineRatingChange(
-          state.equipment,
-          rating,
-          state.engineType,
-          state.heatSinkType,
-          state.heatSinkCount,
-          state.enhancement,
-          state.tonnage,
-          state.techBase,
-        );
+        const equipment = applyEngineRatingChange({
+          equipment: state.equipment,
+          engineRating: rating,
+          engineType: state.engineType,
+          heatSinkType: state.heatSinkType,
+          heatSinkCount: state.heatSinkCount,
+          enhancement: state.enhancement,
+          tonnage: state.tonnage,
+          techBase: state.techBase,
+        });
 
-        return {
+        return modifiedPatch({
           engineRating: rating,
           equipment,
-          isModified: true,
-          lastModifiedAt: Date.now(),
-        };
+        });
       }),
 
     setGyroType: (type) =>
@@ -181,12 +166,10 @@ export function createStructureSlice(
           type,
         );
 
-        return {
+        return modifiedPatch({
           gyroType: type,
           equipment,
-          isModified: true,
-          lastModifiedAt: Date.now(),
-        };
+        });
       }),
 
     setInternalStructureType: (type) =>
@@ -196,20 +179,18 @@ export function createStructureSlice(
           type,
         );
 
-        return {
+        return modifiedPatch({
           internalStructureType: type,
           equipment,
-          isModified: true,
-          lastModifiedAt: Date.now(),
-        };
+        });
       }),
 
     setCockpitType: (type) =>
-      set({
-        cockpitType: type,
-        isModified: true,
-        lastModifiedAt: Date.now(),
-      }),
+      set(
+        modifiedPatch({
+          cockpitType: type,
+        }),
+      ),
 
     setHeatSinkType: (type) =>
       set((state) => {
@@ -221,12 +202,10 @@ export function createStructureSlice(
           state.heatSinkCount,
         );
 
-        return {
+        return modifiedPatch({
           heatSinkType: type,
           equipment,
-          isModified: true,
-          lastModifiedAt: Date.now(),
-        };
+        });
       }),
 
     setHeatSinkCount: (count) =>
@@ -239,12 +218,10 @@ export function createStructureSlice(
           count,
         );
 
-        return {
+        return modifiedPatch({
           heatSinkCount: count,
           equipment,
-          isModified: true,
-          lastModifiedAt: Date.now(),
-        };
+        });
       }),
 
     setArmorType: (type) =>
@@ -257,13 +234,11 @@ export function createStructureSlice(
           type,
         );
 
-        return {
+        return modifiedPatch({
           armorType: type,
           armorTonnage,
           equipment,
-          isModified: true,
-          lastModifiedAt: Date.now(),
-        };
+        });
       }),
 
     setEnhancement: (enhancement) =>
@@ -277,12 +252,10 @@ export function createStructureSlice(
           state.engineType,
         );
 
-        return {
+        return modifiedPatch({
           enhancement,
           equipment,
-          isModified: true,
-          lastModifiedAt: Date.now(),
-        };
+        });
       }),
 
     setJumpMP: (jumpMP) =>
@@ -295,12 +268,10 @@ export function createStructureSlice(
           jumpMP,
         );
 
-        return {
+        return modifiedPatch({
           jumpMP: clampedJumpMP,
           equipment,
-          isModified: true,
-          lastModifiedAt: Date.now(),
-        };
+        });
       }),
 
     setJumpJetType: (jumpJetType) =>
@@ -313,23 +284,17 @@ export function createStructureSlice(
           jumpJetType,
         );
 
-        return {
+        return modifiedPatch({
           jumpJetType,
           jumpMP: clampedJumpMP,
           equipment,
-          isModified: true,
-          lastModifiedAt: Date.now(),
-        };
+        });
       }),
 
     // =================================================================
     // Metadata Actions
     // =================================================================
 
-    markModified: (modified = true) =>
-      set({
-        isModified: modified,
-        lastModifiedAt: Date.now(),
-      }),
+    markModified: (modified = true) => set(modificationPatch(modified)),
   };
 }

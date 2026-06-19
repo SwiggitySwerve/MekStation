@@ -76,12 +76,12 @@ export class OfflineQueueService {
   /**
    * Queue a message for delivery to an offline peer
    */
-  async queueMessage(
+  readonly queueMessage = async (
     targetPeerId: string,
     messageType: P2PMessageType,
     payload: string | object,
     options?: IQueueOptions,
-  ): Promise<IQueuedMessage> {
+  ): Promise<IQueuedMessage> => {
     const payloadStr =
       typeof payload === 'string' ? payload : JSON.stringify(payload);
 
@@ -89,54 +89,56 @@ export class OfflineQueueService {
       expiryMs: options?.expiryMs,
       priority: options?.priority,
     });
-  }
+  };
 
   /**
    * Queue a P2P message for delivery
    */
-  async queueP2PMessage(
+  readonly queueP2PMessage = async (
     targetPeerId: string,
     message: IP2PMessage,
     options?: IQueueOptions,
-  ): Promise<IQueuedMessage> {
+  ): Promise<IQueuedMessage> => {
     return this.queueMessage(
       targetPeerId,
       message.type,
       JSON.stringify(message),
       options,
     );
-  }
+  };
 
   /**
    * Get pending messages for a peer
    */
-  async getPendingForPeer(
+  readonly getPendingForPeer = async (
     peerId: string,
     limit = 50,
-  ): Promise<IQueuedMessage[]> {
+  ): Promise<IQueuedMessage[]> => {
     return this.repository.getPendingForPeer(peerId, limit);
-  }
+  };
 
   /**
    * Get all pending messages
    */
-  async getAllPending(limit = 100): Promise<IQueuedMessage[]> {
+  readonly getAllPending = async (limit = 100): Promise<IQueuedMessage[]> => {
     return this.repository.getAllPending(limit);
-  }
+  };
 
   /**
    * Get queue summary for a peer
    */
-  async getPeerSummary(peerId: string): Promise<IPeerQueueSummary> {
+  readonly getPeerSummary = async (
+    peerId: string,
+  ): Promise<IPeerQueueSummary> => {
     return this.repository.getPeerSummary(peerId);
-  }
+  };
 
   /**
    * Get overall queue statistics
    */
-  async getStats(): Promise<IQueueStats> {
+  readonly getStats = async (): Promise<IQueueStats> => {
     return this.repository.getStats();
-  }
+  };
 
   // ===========================================================================
   // Flush (Send Pending Messages)
@@ -145,7 +147,7 @@ export class OfflineQueueService {
   /**
    * Attempt to send all pending messages to a peer
    */
-  async flushPeer(peerId: string): Promise<IFlushResult> {
+  readonly flushPeer = async (peerId: string): Promise<IFlushResult> => {
     let sent = 0;
     let failed = 0;
 
@@ -201,12 +203,12 @@ export class OfflineQueueService {
     const remaining = await this.repository.getPendingForPeer(peerId);
 
     return { sent, failed, expired, remaining: remaining.length };
-  }
+  };
 
   /**
    * Attempt to send all pending messages to all connected peers
    */
-  async flushAll(): Promise<Record<string, IFlushResult>> {
+  readonly flushAll = async (): Promise<Record<string, IFlushResult>> => {
     const results: Record<string, IFlushResult> = {};
 
     // Get all pending messages
@@ -221,7 +223,7 @@ export class OfflineQueueService {
     }
 
     return results;
-  }
+  };
 
   // ===========================================================================
   // Expiry Management
@@ -230,7 +232,7 @@ export class OfflineQueueService {
   /**
    * Mark expired messages and optionally delete them
    */
-  async processExpired(deleteExpired = false): Promise<number> {
+  readonly processExpired = async (deleteExpired = false): Promise<number> => {
     const marked = await this.repository.markExpired();
 
     if (deleteExpired) {
@@ -238,28 +240,28 @@ export class OfflineQueueService {
     }
 
     return marked;
-  }
+  };
 
   /**
    * Delete sent messages (cleanup)
    */
-  async cleanupSent(): Promise<number> {
+  readonly cleanupSent = async (): Promise<number> => {
     return this.repository.deleteSent();
-  }
+  };
 
   /**
    * Delete all messages for a peer
    */
-  async clearPeerQueue(peerId: string): Promise<number> {
+  readonly clearPeerQueue = async (peerId: string): Promise<number> => {
     return this.repository.deleteForPeer(peerId);
-  }
+  };
 
   /**
    * Delete messages older than a specific date
    */
-  async purgeOlderThan(date: Date): Promise<number> {
+  readonly purgeOlderThan = async (date: Date): Promise<number> => {
     return this.repository.deleteOlderThan(date.toISOString());
-  }
+  };
 
   // ===========================================================================
   // Background Processing
@@ -268,10 +270,10 @@ export class OfflineQueueService {
   /**
    * Start background processing (flush and expiry)
    */
-  startBackgroundProcessing(options?: {
+  readonly startBackgroundProcessing = (options?: {
     flushIntervalMs?: number;
     expiryIntervalMs?: number;
-  }): void {
+  }): void => {
     const flushInterval = options?.flushIntervalMs ?? 30000; // 30 seconds
     const expiryInterval = options?.expiryIntervalMs ?? 300000; // 5 minutes
 
@@ -295,12 +297,12 @@ export class OfflineQueueService {
         logger.error('Failed to process expired messages:', error);
       }
     }, expiryInterval);
-  }
+  };
 
   /**
    * Stop background processing
    */
-  stopBackgroundProcessing(): void {
+  readonly stopBackgroundProcessing = (): void => {
     if (this.flushInterval) {
       clearInterval(this.flushInterval);
       this.flushInterval = null;
@@ -309,7 +311,7 @@ export class OfflineQueueService {
       clearInterval(this.expiryInterval);
       this.expiryInterval = null;
     }
-  }
+  };
 
   // ===========================================================================
   // Relay Store-and-Forward
@@ -319,12 +321,12 @@ export class OfflineQueueService {
    * Store a message received from a relay for a peer
    * This is used when the relay forwards a message for an offline peer
    */
-  async storeFromRelay(
+  readonly storeFromRelay = async (
     targetPeerId: string,
     message: IP2PMessage,
     relayId: string,
     expiryMs?: number,
-  ): Promise<IQueuedMessage> {
+  ): Promise<IQueuedMessage> => {
     // Add relay metadata to the message
     const enrichedMessage = {
       ...message,
@@ -338,13 +340,13 @@ export class OfflineQueueService {
       JSON.stringify(enrichedMessage),
       { expiryMs: expiryMs ?? 7 * 24 * 60 * 60 * 1000, priority: 1 }, // Higher priority for relayed
     );
-  }
+  };
 
   /**
    * Get messages that should be forwarded to a relay
    * Returns pending messages for peers that are not directly connected
    */
-  async getMessagesForRelay(): Promise<IQueuedMessage[]> {
+  readonly getMessagesForRelay = async (): Promise<IQueuedMessage[]> => {
     const pending = await this.repository.getAllPending(100);
 
     // Filter to messages for disconnected peers
@@ -359,7 +361,7 @@ export class OfflineQueueService {
       const connection = transport.getConnection(msg.targetPeerId);
       return !connection || connection.state !== 'connected';
     });
-  }
+  };
 }
 
 // =============================================================================

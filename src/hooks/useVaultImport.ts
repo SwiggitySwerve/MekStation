@@ -16,11 +16,12 @@ import type {
 } from '@/types/vault';
 
 import {
-  importFromString,
-  readBundleFromFile,
-  validateBundleFile,
-  previewBundle,
-} from '@/services/vault/ImportService';
+  clearVaultImportFile,
+  createMissingContentResult,
+  importVaultContent,
+  resetVaultImportState,
+  selectVaultImportFile,
+} from './useVaultImport.helpers';
 
 // =============================================================================
 // Types
@@ -104,60 +105,30 @@ export function useVaultImport(): UseVaultImportState & UseVaultImportActions {
   const [step, setStep] = useState<UseVaultImportState['step']>('idle');
 
   const handleSelectFile = useCallback(async (selectedFile: File) => {
-    setError(null);
-    setResult(null);
-    setConflicts([]);
-
-    // Validate file
-    const validationError = validateBundleFile(selectedFile);
-    if (validationError) {
-      setError(validationError);
-      setStep('idle');
-      return;
-    }
-
-    setFile(selectedFile);
-    setStep('preview');
-
-    try {
-      // Read and preview
-      const content = await readBundleFromFile(selectedFile);
-      setFileContent(content);
-
-      const previewResult = await previewBundle(content);
-
-      if (previewResult.valid && previewResult.metadata) {
-        setPreview({
-          valid: true,
-          contentType: previewResult.metadata.contentType,
-          itemCount: previewResult.itemCount,
-          authorName: previewResult.metadata.author.displayName,
-          description: previewResult.metadata.description,
-          createdAt: previewResult.metadata.createdAt,
-        });
-      } else {
-        setPreview({
-          valid: false,
-          error: previewResult.error,
-        });
-        setError(previewResult.error || 'Invalid bundle');
-      }
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to read file';
-      setError(message);
-      setPreview({ valid: false, error: message });
-    }
+    await selectVaultImportFile({
+      selectedFile,
+      setConflicts,
+      setError,
+      setFile,
+      setFileContent,
+      setImporting,
+      setPreview,
+      setResult,
+      setStep,
+    });
   }, []);
 
   const handleClearFile = useCallback(() => {
-    setFile(null);
-    setFileContent(null);
-    setPreview(null);
-    setConflicts([]);
-    setResult(null);
-    setError(null);
-    setStep('idle');
+    clearVaultImportFile({
+      setConflicts,
+      setError,
+      setFile,
+      setFileContent,
+      setImporting,
+      setPreview,
+      setResult,
+      setStep,
+    });
   }, []);
 
   const handleImportFile = useCallback(
@@ -166,53 +137,20 @@ export function useVaultImport(): UseVaultImportState & UseVaultImportActions {
       options: IImportOptions = { conflictResolution: 'ask' },
     ): Promise<IImportResult> => {
       if (!fileContent) {
-        const err: IImportResult = {
-          success: false,
-          error: { message: 'No file content' },
-        };
-        setError(err.error.message);
-        return err;
+        return createMissingContentResult(setError);
       }
 
-      setImporting(true);
-      setError(null);
-      setStep('importing');
-
-      try {
-        const importResult = await importFromString<T>(
-          fileContent,
-          handlers,
-          options,
-        );
-
-        // Check for conflicts that need resolution
-        if (
-          importResult.success &&
-          importResult.data.conflicts &&
-          importResult.data.conflicts.length > 0
-        ) {
-          setConflicts(importResult.data.conflicts);
-          setStep('conflicts');
-          setImporting(false);
-          return importResult;
-        }
-
-        setResult(importResult);
-        setStep('complete');
-
-        if (!importResult.success) {
-          setError(importResult.error.message || 'Import failed');
-        }
-
-        return importResult;
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Import failed';
-        setError(message);
-        setStep('preview');
-        return { success: false, error: { message } };
-      } finally {
-        setImporting(false);
-      }
+      return importVaultContent<T>({
+        data: fileContent,
+        failureStep: 'preview',
+        handlers,
+        options,
+        setConflicts,
+        setError,
+        setImporting,
+        setResult,
+        setStep,
+      });
     },
     [fileContent],
   );
@@ -223,40 +161,17 @@ export function useVaultImport(): UseVaultImportState & UseVaultImportActions {
       handlers: IImportHandlers<T>,
       options: IImportOptions = { conflictResolution: 'ask' },
     ): Promise<IImportResult> => {
-      setImporting(true);
-      setError(null);
-      setStep('importing');
-
-      try {
-        const importResult = await importFromString<T>(data, handlers, options);
-
-        if (
-          importResult.success &&
-          importResult.data.conflicts &&
-          importResult.data.conflicts.length > 0
-        ) {
-          setConflicts(importResult.data.conflicts);
-          setStep('conflicts');
-          setImporting(false);
-          return importResult;
-        }
-
-        setResult(importResult);
-        setStep('complete');
-
-        if (!importResult.success) {
-          setError(importResult.error.message || 'Import failed');
-        }
-
-        return importResult;
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Import failed';
-        setError(message);
-        setStep('idle');
-        return { success: false, error: { message } };
-      } finally {
-        setImporting(false);
-      }
+      return importVaultContent<T>({
+        data,
+        failureStep: 'idle',
+        handlers,
+        options,
+        setConflicts,
+        setError,
+        setImporting,
+        setResult,
+        setStep,
+      });
     },
     [],
   );
@@ -267,12 +182,7 @@ export function useVaultImport(): UseVaultImportState & UseVaultImportActions {
       handlers: IImportHandlers<T>,
     ): Promise<IImportResult> => {
       if (!fileContent) {
-        const err: IImportResult = {
-          success: false,
-          error: { message: 'No file content' },
-        };
-        setError(err.error.message);
-        return err;
+        return createMissingContentResult(setError);
       }
 
       return handleImportFile<T>(handlers, {
@@ -284,14 +194,16 @@ export function useVaultImport(): UseVaultImportState & UseVaultImportActions {
   );
 
   const handleReset = useCallback(() => {
-    setFile(null);
-    setFileContent(null);
-    setPreview(null);
-    setConflicts([]);
-    setResult(null);
-    setError(null);
-    setStep('idle');
-    setImporting(false);
+    resetVaultImportState({
+      setConflicts,
+      setError,
+      setFile,
+      setFileContent,
+      setImporting,
+      setPreview,
+      setResult,
+      setStep,
+    });
   }, []);
 
   return {

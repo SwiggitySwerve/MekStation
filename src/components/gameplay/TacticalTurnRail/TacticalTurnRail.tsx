@@ -26,6 +26,7 @@
 
 import React, { useMemo } from 'react';
 
+import { getPhaseRailLabel } from '@/components/gameplay/EventLogDisplay.helpers';
 import {
   GamePhase,
   GameSide,
@@ -37,29 +38,6 @@ import type {
   TacticalTurnRailProps,
   UnitRailStatus,
 } from './TacticalTurnRail.types';
-
-// ---------------------------------------------------------------------------
-// Phase display helpers
-// ---------------------------------------------------------------------------
-
-function getPhaseLabel(phase: GamePhase): string {
-  switch (phase) {
-    case GamePhase.Initiative:
-      return 'Initiative';
-    case GamePhase.Movement:
-      return 'Movement';
-    case GamePhase.WeaponAttack:
-      return 'Weapon Attack';
-    case GamePhase.PhysicalAttack:
-      return 'Physical Attack';
-    case GamePhase.Heat:
-      return 'Heat';
-    case GamePhase.End:
-      return 'End';
-    default:
-      return 'Phase';
-  }
-}
 
 function getPhaseBgClass(phase: GamePhase): string {
   switch (phase) {
@@ -216,7 +194,7 @@ function BlockerBadge({
 }: BlockerBadgeProps): React.ReactElement | null {
   if (count === 0) return null;
 
-  const phaseLabel = getPhaseLabel(phase).toLowerCase();
+  const phaseLabel = getPhaseRailLabel(phase).toLowerCase();
 
   return (
     <div
@@ -254,7 +232,7 @@ export function TacticalTurnRail({
   className = '',
 }: TacticalTurnRailProps): React.ReactElement {
   const phaseBg = getPhaseBgClass(phase);
-  const phaseLabel = getPhaseLabel(phase);
+  const phaseLabel = getPhaseRailLabel(phase);
 
   // Build enriched rail units from the projection's initiativeOrder.
   const railUnits: IRailUnit[] = useMemo(() => {

@@ -1,10 +1,5 @@
 import { GameEventType } from '@/types/gameplay';
 
-import type {
-  ICombatFeatureSourceReference,
-  ICombatFeatureSupportEntry,
-} from './CombatFeatureSupport';
-
 import { BATTLEMECH_EVENT_SOURCE_REFS } from './CombatBattleMechEventSourceRefs';
 import {
   BATTLE_ARMOR_CASUALTY_EVENT_SOURCE_REFS,
@@ -13,26 +8,21 @@ import {
   BATTLE_ARMOR_SWARM_EVENT_SOURCE_REFS,
   VEHICLE_EVENT_SCOPE_SOURCE_REFS,
 } from './CombatEventSourceRefs';
+import {
+  outOfScope,
+  type ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
 
 function integrated(
-  eventType: GameEventType,
+  id: GameEventType,
   evidence: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatFeatureSupportEntry {
-  const refs = sourceRefs ?? BATTLEMECH_EVENT_SOURCE_REFS[eventType];
-
-  return refs
-    ? { id: eventType, level: 'integrated', evidence, sourceRefs: refs }
-    : { id: eventType, level: 'integrated', evidence };
-}
-
-function outOfScope(
-  eventType: GameEventType,
-  evidence: string,
-  gap: string,
-  sourceRefs: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return { id: eventType, level: 'out-of-scope', evidence, gap, sourceRefs };
+  return {
+    id,
+    level: 'integrated',
+    evidence,
+    sourceRefs: BATTLEMECH_EVENT_SOURCE_REFS[id],
+  };
 }
 
 export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {

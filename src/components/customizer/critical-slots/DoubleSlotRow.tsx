@@ -129,6 +129,157 @@ function getDisplayName(slot: SlotContent): string {
   return '';
 }
 
+interface DoubleSlotVisualState {
+  primary: SlotContent;
+  isAssignable: boolean;
+  isDragOver: boolean;
+  isPairable: boolean;
+  hasPair: boolean;
+}
+
+interface DoubleSlotTitleState {
+  primary: SlotContent;
+  canDrag: boolean;
+  isPairable: boolean;
+  hasPair: boolean;
+}
+
+interface DoubleSlotDragStartState {
+  canDrag: boolean;
+  equipmentId?: string;
+  onDragStart?: (equipmentId: string) => void;
+}
+
+interface DoubleSlotDropState {
+  onDrop: (equipmentId: string) => void;
+  setIsDragOver: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+interface DoubleSlotRemoveState {
+  canUnassign: boolean;
+  onRemove: () => void;
+}
+
+interface DoubleSlotContextMenuState extends DoubleSlotRemoveState {
+  setContextMenu: React.Dispatch<
+    React.SetStateAction<{ x: number; y: number } | null>
+  >;
+}
+
+function canAcceptDrop({
+  primary,
+  isAssignable,
+  isPairable,
+  hasPair,
+}: DoubleSlotVisualState): boolean {
+  return (primary.type === 'empty' && isAssignable) || (isPairable && !hasPair);
+}
+
+function getContainerClasses(state: DoubleSlotVisualState): string {
+  const { primary, isAssignable, isDragOver, isPairable, hasPair } = state;
+  if (isDragOver) {
+    return canAcceptDrop(state)
+      ? 'bg-green-800 border-green-400 scale-[1.02]'
+      : 'bg-red-900/70 border-red-400';
+  }
+
+  if (isAssignable && primary.type === 'empty') {
+    return 'bg-green-900/60 border-green-500';
+  }
+
+  if (isPairable && !hasPair && primary.type === 'equipment') {
+    return `${getItemClasses(primary)} ring-1 ring-blue-500/30 ring-inset`;
+  }
+
+  return getItemClasses(primary);
+}
+
+function getSingleSlotTitle({
+  primary,
+  canDrag,
+  isPairable,
+  hasPair,
+}: DoubleSlotTitleState): string | undefined {
+  if (isPairable && !hasPair && primary.type === 'equipment') {
+    return 'Double-slot: drop compatible ammo or heat sink to pair';
+  }
+  return canDrag
+    ? 'Drag to move, double-click or right-click to unassign'
+    : undefined;
+}
+
+function getSingleSlotAriaLabel(entry: CritEntry): string {
+  return entry.primary.name
+    ? `Slot ${entry.index + 1}: ${entry.primary.name}`
+    : `Empty slot ${entry.index + 1}`;
+}
+
+function getPairAriaLabel(entry: CritEntry, secondary: SlotContent): string {
+  return `Double slot ${entry.index + 1}: ${entry.primary.name ?? 'unknown'} + ${
+    secondary.name ?? 'unknown'
+  }`;
+}
+
+function handleDoubleSlotDragStart(
+  e: React.DragEvent,
+  state: DoubleSlotDragStartState,
+): void {
+  const { canDrag, equipmentId, onDragStart } = state;
+  if (!canDrag || !equipmentId) {
+    e.preventDefault();
+    return;
+  }
+
+  e.dataTransfer.setData('text/equipment-id', equipmentId);
+  e.dataTransfer.effectAllowed = 'move';
+  onDragStart?.(equipmentId);
+}
+
+function handleDoubleSlotDrop(
+  e: React.DragEvent,
+  state: DoubleSlotDropState,
+): void {
+  e.preventDefault();
+  state.setIsDragOver(false);
+  const equipmentId = e.dataTransfer.getData('text/equipment-id');
+
+  if (equipmentId) {
+    state.onDrop(equipmentId);
+  }
+}
+
+function handleDoubleSlotDoubleClick(state: DoubleSlotRemoveState): void {
+  if (state.canUnassign) {
+    state.onRemove();
+  }
+}
+
+function handleDoubleSlotContextMenu(
+  e: React.MouseEvent,
+  state: DoubleSlotContextMenuState,
+): void {
+  if (state.canUnassign) {
+    e.preventDefault();
+    state.setContextMenu({ x: e.clientX, y: e.clientY });
+  }
+}
+
+function handleDoubleSlotKeyDown(
+  e: React.KeyboardEvent,
+  state: DoubleSlotRemoveState & { onClick: () => void },
+): void {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    state.onClick();
+    return;
+  }
+
+  if ((e.key === 'Delete' || e.key === 'Backspace') && state.canUnassign) {
+    e.preventDefault();
+    state.onRemove();
+  }
+}
+
 // =============================================================================
 // Main Component
 // =============================================================================
@@ -183,65 +334,26 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
   const canDrag = !!(primary.equipmentId && primary.type === 'equipment');
   const canUnassign = primary.type === 'equipment' || hasPair;
 
-  // Drag handlers
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  };
-  const handleDragLeave = () => setIsDragOver(false);
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const equipmentId = e.dataTransfer.getData('text/equipment-id');
-    if (equipmentId) {
-      onDrop(equipmentId);
-    }
-  };
-  const handleDragStart = (e: React.DragEvent) => {
-    if (!canDrag || !primary.equipmentId) {
-      e.preventDefault();
-      return;
-    }
-    e.dataTransfer.setData('text/equipment-id', primary.equipmentId);
-    e.dataTransfer.effectAllowed = 'move';
-    onDragStart?.(primary.equipmentId);
-  };
-
-  const handleDoubleClick = () => {
-    if (canUnassign) onRemove();
-  };
-  const handleContextMenu = (e: React.MouseEvent) => {
-    if (canUnassign) {
-      e.preventDefault();
-      setContextMenu({ x: e.clientX, y: e.clientY });
-    }
-  };
-
-  // Style computation
-  const getContainerClasses = (): string => {
-    if (isDragOver) {
-      if (
-        (primary.type === 'empty' && isAssignable) ||
-        (isPairable && !hasPair)
-      ) {
-        return 'bg-green-800 border-green-400 scale-[1.02]';
-      }
-      return 'bg-red-900/70 border-red-400';
-    }
-    if (isAssignable && primary.type === 'empty') {
-      return 'bg-green-900/60 border-green-500';
-    }
-    if (isPairable && !hasPair && primary.type === 'equipment') {
-      // Subtle blue indicator for pairable slots
-      return `${getItemClasses(primary)} ring-1 ring-blue-500/30 ring-inset`;
-    }
-    return getItemClasses(primary);
-  };
-
   const selectionClasses = isSelected ? 'ring-2 ring-accent' : '';
   const sizeClasses = compact
     ? 'px-1 py-0.5 text-[10px] sm:text-xs'
     : 'px-1 py-0.5 text-[10px] sm:px-2 sm:py-1 sm:text-sm';
+  const visualState = {
+    primary,
+    isAssignable,
+    isDragOver,
+    isPairable,
+    hasPair,
+  };
+  const removeState = { canUnassign, onRemove };
+  const contextMenuState = { ...removeState, setContextMenu };
+  const containerClasses = getContainerClasses(visualState);
+  const singleSlotTitle = getSingleSlotTitle({
+    primary,
+    canDrag,
+    isPairable,
+    hasPair,
+  });
 
   if (hasPair && secondary) {
     // Split view: two items side by side
@@ -252,13 +364,18 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
           tabIndex={0}
           className={`border-border-theme-subtle my-0.5 flex items-stretch rounded-sm border transition-all ${selectionClasses} ${sizeClasses}`}
           onClick={onClick}
-          onDoubleClick={handleDoubleClick}
-          onContextMenu={handleContextMenu}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
+          onDoubleClick={() => handleDoubleSlotDoubleClick(removeState)}
+          onContextMenu={(e) =>
+            handleDoubleSlotContextMenu(e, contextMenuState)
+          }
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragOver(true);
+          }}
+          onDragLeave={() => setIsDragOver(false)}
+          onDrop={(e) => handleDoubleSlotDrop(e, { onDrop, setIsDragOver })}
           title="Double-slot: two items paired. Right-click to unpair."
-          aria-label={`Double slot ${entry.index + 1}: ${primary.name ?? 'unknown'} + ${secondary.name ?? 'unknown'}`}
+          aria-label={getPairAriaLabel(entry, secondary)}
         >
           {/* Primary half */}
           <div
@@ -296,36 +413,28 @@ export const DoubleSlotRow = memo(function DoubleSlotRow({
         role="gridcell"
         tabIndex={0}
         draggable={canDrag}
-        className={`border-border-theme-subtle my-0.5 flex items-center rounded-sm border transition-all ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} ${getContainerClasses()} ${selectionClasses} ${sizeClasses}`}
+        className={`border-border-theme-subtle my-0.5 flex items-center rounded-sm border transition-all ${canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} ${containerClasses} ${selectionClasses} ${sizeClasses}`}
         onClick={onClick}
-        onDoubleClick={handleDoubleClick}
-        onContextMenu={handleContextMenu}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onClick();
-          }
-          if ((e.key === 'Delete' || e.key === 'Backspace') && canUnassign) {
-            e.preventDefault();
-            onRemove();
-          }
+        onDoubleClick={() => handleDoubleSlotDoubleClick(removeState)}
+        onContextMenu={(e) => handleDoubleSlotContextMenu(e, contextMenuState)}
+        onDragStart={(e) =>
+          handleDoubleSlotDragStart(e, {
+            canDrag,
+            equipmentId: primary.equipmentId,
+            onDragStart,
+          })
+        }
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragOver(true);
         }}
-        title={
-          isPairable && !hasPair && primary.type === 'equipment'
-            ? 'Double-slot: drop compatible ammo or heat sink to pair'
-            : canDrag
-              ? 'Drag to move, double-click or right-click to unassign'
-              : undefined
-        }
-        aria-label={
-          primary.name
-            ? `Slot ${entry.index + 1}: ${primary.name}`
-            : `Empty slot ${entry.index + 1}`
-        }
+        onDragLeave={() => setIsDragOver(false)}
+        onDrop={(e) => handleDoubleSlotDrop(e, { onDrop, setIsDragOver })}
+        onKeyDown={(e) => {
+          handleDoubleSlotKeyDown(e, { ...removeState, onClick });
+        }}
+        title={singleSlotTitle}
+        aria-label={getSingleSlotAriaLabel(entry)}
       >
         <span className="flex-1 truncate">{getDisplayName(primary)}</span>
         {/* Double-slot indicator dot */}

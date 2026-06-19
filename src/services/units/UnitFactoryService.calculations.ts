@@ -12,6 +12,19 @@ import {
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
 
+const STRUCTURE_POINT_KEY_BY_LOCATION: Partial<
+  Record<MechLocation, 'HEAD' | 'CT' | 'TORSO' | 'ARM' | 'LEG'>
+> = {
+  [MechLocation.HEAD]: 'HEAD',
+  [MechLocation.CENTER_TORSO]: 'CT',
+  [MechLocation.LEFT_TORSO]: 'TORSO',
+  [MechLocation.RIGHT_TORSO]: 'TORSO',
+  [MechLocation.LEFT_ARM]: 'ARM',
+  [MechLocation.RIGHT_ARM]: 'ARM',
+  [MechLocation.LEFT_LEG]: 'LEG',
+  [MechLocation.RIGHT_LEG]: 'LEG',
+};
+
 export function getStructurePoints(
   location: MechLocation,
   tonnage: number,
@@ -41,24 +54,8 @@ export function getStructurePoints(
     Math.max(20, Math.round(tonnage / 5) * 5),
   );
   const table = structureTable[roundedTonnage] || structureTable[100];
-
-  switch (location) {
-    case MechLocation.HEAD:
-      return table.HEAD;
-    case MechLocation.CENTER_TORSO:
-      return table.CT;
-    case MechLocation.LEFT_TORSO:
-    case MechLocation.RIGHT_TORSO:
-      return table.TORSO;
-    case MechLocation.LEFT_ARM:
-    case MechLocation.RIGHT_ARM:
-      return table.ARM;
-    case MechLocation.LEFT_LEG:
-    case MechLocation.RIGHT_LEG:
-      return table.LEG;
-    default:
-      return 0;
-  }
+  const pointKey = STRUCTURE_POINT_KEY_BY_LOCATION[location];
+  return pointKey ? table[pointKey] : 0;
 }
 
 export function calculateGyroWeight(

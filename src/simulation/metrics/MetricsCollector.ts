@@ -44,12 +44,7 @@ import { IAggregateMetrics, ISimulationMetrics } from './types';
  */
 export { sideFromUnitId };
 
-/**
- * Walk the event log once and produce all derived counters in a single
- * pass. Returns the populated subset of `ISimulationMetrics` so
- * `recordGame` can splice it onto the run-level fields.
- */
-function deriveMetricsFromEvents(events: readonly IGameEvent[]): {
+type DerivedEventMetrics = {
   playerUnits: Set<string>;
   opponentUnits: Set<string>;
   destroyedUnits: Set<string>;
@@ -61,152 +56,155 @@ function deriveMetricsFromEvents(events: readonly IGameEvent[]): {
   shutdowns: number;
   falls: number;
   pilotHits: number;
-} {
-  const playerUnits = new Set<string>();
-  const opponentUnits = new Set<string>();
-  const destroyedUnits = new Set<string>();
-  let totalDamageDealtByPlayer = 0;
-  let totalDamageDealtByOpponent = 0;
-  let criticalHitsLanded = 0;
-  let componentDestroyedCount = 0;
-  let ammoExplosions = 0;
-  let shutdowns = 0;
-  let falls = 0;
-  let pilotHits = 0;
+};
 
-  /**
-   * Helper: register a unit id against its derived side. Called for
-   * every payload that carries a `unitId` so the start counts reflect
-   * every unit that participated in any event — not just damaged ones.
-   */
-  const registerUnit = (unitId: string | undefined): void => {
-    if (unitId === undefined) return;
-    const side = sideFromUnitId(unitId);
-    if (side === 'player') playerUnits.add(unitId);
-    else if (side === 'opponent') opponentUnits.add(unitId);
+type EventMetricsRecorder = (
+  event: IGameEvent,
+  metrics: DerivedEventMetrics,
+) => void;
+
+function registerUnit(
+  metrics: DerivedEventMetrics,
+  unitId: string | undefined,
+): void {
+  if (unitId === undefined) return;
+  const side = sideFromUnitId(unitId);
+  if (side === 'player') metrics.playerUnits.add(unitId);
+  else if (side === 'opponent') metrics.opponentUnits.add(unitId);
+}
+
+function recordDamageApplied(
+  event: IGameEvent,
+  metrics: DerivedEventMetrics,
+): void {
+  const payload = event.payload as IDamageAppliedPayload;
+  registerUnit(metrics, payload.unitId);
+  registerUnit(metrics, payload.sourceUnitId);
+  if (payload.sourceUnitId === undefined) return;
+
+  const sourceSide = sideFromUnitId(payload.sourceUnitId);
+  if (sourceSide === 'player') {
+    metrics.totalDamageDealtByPlayer += payload.damage;
+  } else if (sourceSide === 'opponent') {
+    metrics.totalDamageDealtByOpponent += payload.damage;
+  }
+}
+
+function recordUnitDestroyed(
+  event: IGameEvent,
+  metrics: DerivedEventMetrics,
+): void {
+  const payload = event.payload as IUnitDestroyedPayload;
+  registerUnit(metrics, payload.unitId);
+  registerUnit(metrics, payload.killerUnitId);
+  metrics.destroyedUnits.add(payload.unitId);
+}
+
+function recordCriticalHit(
+  event: IGameEvent,
+  metrics: DerivedEventMetrics,
+): void {
+  const payload = event.payload as ICriticalHitPayload;
+  registerUnit(metrics, payload.unitId);
+  registerUnit(metrics, payload.sourceUnitId);
+  metrics.criticalHitsLanded += payload.count ?? 1;
+}
+
+function recordComponentDestroyed(
+  event: IGameEvent,
+  metrics: DerivedEventMetrics,
+): void {
+  const payload = event.payload as IComponentDestroyedPayload;
+  registerUnit(metrics, payload.unitId);
+  metrics.componentDestroyedCount++;
+}
+
+function recordAmmoExplosion(
+  event: IGameEvent,
+  metrics: DerivedEventMetrics,
+): void {
+  const payload = event.payload as IAmmoExplosionPayload;
+  registerUnit(metrics, payload.unitId);
+  metrics.ammoExplosions++;
+}
+
+function recordHeatEffectApplied(
+  event: IGameEvent,
+  metrics: DerivedEventMetrics,
+): void {
+  const payload = event.payload as IHeatEffectAppliedPayload;
+  registerUnit(metrics, payload.unitId);
+  if (payload.effect === 'shutdown') {
+    metrics.shutdowns++;
+  }
+}
+
+function recordUnitFell(event: IGameEvent, metrics: DerivedEventMetrics): void {
+  const payload = event.payload as IUnitFellPayload;
+  registerUnit(metrics, payload.unitId);
+  metrics.falls++;
+}
+
+function recordPilotHit(event: IGameEvent, metrics: DerivedEventMetrics): void {
+  const payload = event.payload as IPilotHitPayload;
+  registerUnit(metrics, payload.unitId);
+  metrics.pilotHits++;
+}
+
+function recordDefaultEvent(
+  event: IGameEvent,
+  metrics: DerivedEventMetrics,
+): void {
+  const payload = event.payload as { readonly unitId?: string };
+  if (typeof payload.unitId === 'string') {
+    registerUnit(metrics, payload.unitId);
+  }
+  if (event.actorId !== undefined) {
+    registerUnit(metrics, event.actorId);
+  }
+}
+
+const EVENT_METRIC_RECORDERS: Partial<
+  Record<GameEventType, EventMetricsRecorder>
+> = {
+  [GameEventType.DamageApplied]: recordDamageApplied,
+  [GameEventType.UnitDestroyed]: recordUnitDestroyed,
+  [GameEventType.CriticalHit]: recordCriticalHit,
+  [GameEventType.ComponentDestroyed]: recordComponentDestroyed,
+  [GameEventType.AmmoExplosion]: recordAmmoExplosion,
+  [GameEventType.HeatEffectApplied]: recordHeatEffectApplied,
+  [GameEventType.UnitFell]: recordUnitFell,
+  [GameEventType.PilotHit]: recordPilotHit,
+};
+
+/**
+ * Walk the event log once and produce all derived counters in a single
+ * pass. Returns the populated subset of `ISimulationMetrics` so
+ * `recordGame` can splice it onto the run-level fields.
+ */
+function deriveMetricsFromEvents(
+  events: readonly IGameEvent[],
+): DerivedEventMetrics {
+  const metrics: DerivedEventMetrics = {
+    playerUnits: new Set<string>(),
+    opponentUnits: new Set<string>(),
+    destroyedUnits: new Set<string>(),
+    totalDamageDealtByPlayer: 0,
+    totalDamageDealtByOpponent: 0,
+    criticalHitsLanded: 0,
+    componentDestroyedCount: 0,
+    ammoExplosions: 0,
+    shutdowns: 0,
+    falls: 0,
+    pilotHits: 0,
   };
 
   for (const event of events) {
-    switch (event.type) {
-      case GameEventType.DamageApplied: {
-        const payload = event.payload as IDamageAppliedPayload;
-        registerUnit(payload.unitId);
-        registerUnit(payload.sourceUnitId);
-        // Total damage is attributed to the SOURCE (attacker) side per
-        // the spec scenario "Atlas-vs-Atlas mirror records non-zero
-        // damage" — `totalDamageDealt.player` is the damage the player
-        // dealt to opponent, not damage the player took.
-        if (payload.sourceUnitId !== undefined) {
-          const sourceSide = sideFromUnitId(payload.sourceUnitId);
-          if (sourceSide === 'player') {
-            totalDamageDealtByPlayer += payload.damage;
-          } else if (sourceSide === 'opponent') {
-            totalDamageDealtByOpponent += payload.damage;
-          }
-          // Self-damage (ammo cookoff, falls) carries an undefined
-          // sourceUnitId and is intentionally NOT counted as offensive
-          // damage by either side.
-        }
-        break;
-      }
-
-      case GameEventType.UnitDestroyed: {
-        const payload = event.payload as IUnitDestroyedPayload;
-        registerUnit(payload.unitId);
-        registerUnit(payload.killerUnitId);
-        destroyedUnits.add(payload.unitId);
-        break;
-      }
-
-      case GameEventType.CriticalHit: {
-        const payload = event.payload as ICriticalHitPayload;
-        registerUnit(payload.unitId);
-        registerUnit(payload.sourceUnitId);
-        // Per P3 emission convention each `CriticalHit` event carries
-        // `count: 1` (one event per resolved slot). When `count` is
-        // omitted (legacy session-side emitters), default to 1.
-        criticalHitsLanded += payload.count ?? 1;
-        break;
-      }
-
-      case GameEventType.ComponentDestroyed: {
-        const payload = event.payload as IComponentDestroyedPayload;
-        registerUnit(payload.unitId);
-        componentDestroyedCount++;
-        break;
-      }
-
-      case GameEventType.AmmoExplosion: {
-        const payload = event.payload as IAmmoExplosionPayload;
-        registerUnit(payload.unitId);
-        ammoExplosions++;
-        break;
-      }
-
-      case GameEventType.HeatEffectApplied: {
-        const payload = event.payload as IHeatEffectAppliedPayload;
-        registerUnit(payload.unitId);
-        // Per `IHeatEffectAppliedPayload.effect` doc-comment: `'shutdown'`
-        // is the auto-shutdown band (heat ≥ 30); `'shutdown_check'` is
-        // the avoidable band (heat ≥ 14). The spec scenario "Game with
-        // shutdowns records the count" specifies SHUTDOWNS — units that
-        // actually shut down — so we count `'shutdown'` only. Failed
-        // avoidance rolls during `'shutdown_check'` surface via the
-        // separate `ShutdownCheck` event but we do not double-count
-        // them here; the audit trail for failed checks lives at the
-        // event-log level.
-        if (payload.effect === 'shutdown') {
-          shutdowns++;
-        }
-        break;
-      }
-
-      case GameEventType.UnitFell: {
-        const payload = event.payload as IUnitFellPayload;
-        registerUnit(payload.unitId);
-        falls++;
-        break;
-      }
-
-      case GameEventType.PilotHit: {
-        const payload = event.payload as IPilotHitPayload;
-        registerUnit(payload.unitId);
-        pilotHits++;
-        break;
-      }
-
-      default: {
-        // Other event types still register their unitId when the
-        // payload carries one — keeps `playerUnitsStart` /
-        // `opponentUnitsStart` complete even when a unit only appears
-        // in lifecycle / movement events. The cast is safe because we
-        // narrow by the optional shape rather than by the discriminated
-        // union member.
-        const payload = event.payload as { readonly unitId?: string };
-        if (typeof payload.unitId === 'string') {
-          registerUnit(payload.unitId);
-        }
-        if (event.actorId !== undefined) {
-          registerUnit(event.actorId);
-        }
-        break;
-      }
-    }
+    const record = EVENT_METRIC_RECORDERS[event.type] ?? recordDefaultEvent;
+    record(event, metrics);
   }
 
-  return {
-    playerUnits,
-    opponentUnits,
-    destroyedUnits,
-    totalDamageDealtByPlayer,
-    totalDamageDealtByOpponent,
-    criticalHitsLanded,
-    componentDestroyedCount,
-    ammoExplosions,
-    shutdowns,
-    falls,
-    pilotHits,
-  };
+  return metrics;
 }
 
 export class MetricsCollector {

@@ -9,6 +9,11 @@
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  rejectNonGetDataRequest as rejectEquipmentFiltersNonGet,
+  sendLoggedSuccessApiError,
+  type ApiDataResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
@@ -25,6 +30,8 @@ interface ApiResponse {
   error?: string;
 }
 
+type EquipmentFiltersApiResponse = ApiResponse;
+
 /**
  * Format enum value to display label
  */
@@ -37,14 +44,9 @@ function formatLabel(value: string): string {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse>,
+  res: NextApiResponse<EquipmentFiltersApiResponse>,
 ): Promise<void> {
-  if (req.method !== 'GET') {
-    return res.status(405).json({
-      success: false,
-      error: 'Method not allowed. Use GET.',
-    });
-  }
+  if (rejectEquipmentFiltersNonGet(req, res)) return;
 
   try {
     const filters: FilterOptions = {
@@ -67,10 +69,7 @@ export default async function handler(
       data: filters,
     });
   } catch (error) {
-    console.error('Equipment Filters API error:', error);
-    return res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedSuccessApiError(res, 'Equipment Filters API error:', error);
+    return;
   }
 }

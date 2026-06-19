@@ -91,7 +91,7 @@ export class CampaignSyncSession {
    * room code. Returns the issued code. Idempotent — a second `open`
    * returns the already-issued code.
    */
-  async open(): Promise<string> {
+  open = async (): Promise<string> => {
     if (this.roomCode !== null) {
       return this.roomCode;
     }
@@ -102,17 +102,17 @@ export class CampaignSyncSession {
     // excluded — `generateRoomCode` already enforces it).
     this.roomCode = generateRoomCode();
     return this.roomCode;
-  }
+  };
 
   /** The issued room code, or `null` before `open`. */
-  getRoomCode(): string | null {
+  getRoomCode = (): string | null => {
     return this.roomCode;
-  }
+  };
 
   /** Whether the session is paused (host disconnected). */
-  isPaused(): boolean {
+  isPaused = (): boolean => {
     return this.paused;
-  }
+  };
 
   /**
    * Accept a guest joining with a room code. On success the session:
@@ -126,10 +126,10 @@ export class CampaignSyncSession {
    *
    * A wrong room code rejects with `ok: false` and delivers nothing.
    */
-  async joinGuest(
+  joinGuest = async (
     roomCode: string,
     sink: CampaignGuestSink,
-  ): Promise<ICampaignJoinResult> {
+  ): Promise<ICampaignJoinResult> => {
     if (
       this.roomCode === null ||
       normalizeRoomCode(roomCode) !== this.roomCode
@@ -160,7 +160,7 @@ export class CampaignSyncSession {
     });
 
     return { ok: true, delivered, disconnect: unsubscribe };
-  }
+  };
 
   /**
    * Resync a reconnecting guest from its last-received sequence.
@@ -172,10 +172,10 @@ export class CampaignSyncSession {
    *     from after it (spec scenario "Large-gap resync receives a fresh
    *     snapshot").
    */
-  async resyncGuest(
+  resyncGuest = async (
     lastSeq: number,
     sink: CampaignGuestSink,
-  ): Promise<ICampaignResyncResult> {
+  ): Promise<ICampaignResyncResult> => {
     if (this.roomCode === null) {
       return {
         ok: false,
@@ -211,7 +211,7 @@ export class CampaignSyncSession {
     }
     const unsubscribe = this.host.subscribe(sink);
     return { ok: true, delivered, snapshotted: false, disconnect: unsubscribe };
-  }
+  };
 
   /**
    * The host disconnected. The session pauses: the room code stops
@@ -219,11 +219,11 @@ export class CampaignSyncSession {
    * intent with `session-closed`), and the guest mirror — already
    * read-only — is frozen. No campaign-tier host migration (design D6).
    */
-  hostDisconnected(): void {
+  hostDisconnected = (): void => {
     this.paused = true;
     this.roomCode = null;
     this.host.close();
-  }
+  };
 
   /**
    * Build the framing `CampaignSnapshotPublished` event delivered as a

@@ -23,6 +23,7 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { customizerStyles as cs } from '../styles';
+import { SelectOptions } from '../tabs/SelectOptions';
 import { VehicleArmorDiagram } from './VehicleArmorDiagram';
 import {
   ARMOR_TYPE_OPTIONS,
@@ -69,6 +70,10 @@ export function VehicleArmorTab({
   const isVTOL = motionType === GroundMotionType.VTOL;
   const hasTurret = turret !== null;
   const hasSecondaryTurret = secondaryTurret !== null;
+  const armorProfile = useMemo(
+    () => ({ hasTurret, isVTOL, hasSecondaryTurret }),
+    [hasTurret, isVTOL, hasSecondaryTurret],
+  );
 
   // Calculate derived values
   const armorDef = useMemo(() => getArmorDefinition(armorType), [armorType]);
@@ -82,8 +87,8 @@ export function VehicleArmorTab({
     [armorAllocation, hasTurret, hasSecondaryTurret],
   );
   const maxTotalArmor = useMemo(
-    () => getMaxVehicleArmor(tonnage, hasTurret, isVTOL, hasSecondaryTurret),
-    [tonnage, hasTurret, isVTOL, hasSecondaryTurret],
+    () => getMaxVehicleArmor({ tonnage, profile: armorProfile }),
+    [tonnage, armorProfile],
   );
 
   // Calculate max useful tonnage
@@ -114,16 +119,15 @@ export function VehicleArmorTab({
 
   const handleLocationArmorChange = useCallback(
     (location: VehicleArmorLocation, points: number) => {
-      const max = getMaxVehicleArmorForLocation(
+      const max = getMaxVehicleArmorForLocation({
         tonnage,
         location,
-        hasTurret,
-        isVTOL,
-      );
+        profile: armorProfile,
+      });
       const clamped = Math.max(0, Math.min(max, points));
       setLocationArmor(location, clamped);
     },
-    [setLocationArmor, tonnage, hasTurret, isVTOL],
+    [setLocationArmor, tonnage, armorProfile],
   );
 
   const handleMaximizeArmor = useCallback(() => {
@@ -164,11 +168,7 @@ export function VehicleArmorTab({
               className={`${cs.select.full} mt-1`}
               data-testid="vehicle-armor-type-select"
             >
-              {ARMOR_TYPE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
+              <SelectOptions options={ARMOR_TYPE_OPTIONS} />
             </select>
           </div>
 
@@ -278,12 +278,11 @@ export function VehicleArmorTab({
           <div className="space-y-3">
             {locations.map(({ location, label }) => {
               const currentValue = armorAllocation[location] ?? 0;
-              const maxValue = getMaxVehicleArmorForLocation(
+              const maxValue = getMaxVehicleArmorForLocation({
                 tonnage,
                 location,
-                hasTurret,
-                isVTOL,
-              );
+                profile: armorProfile,
+              });
 
               return (
                 <div key={location} className="flex items-center gap-3">

@@ -145,37 +145,35 @@ function findWeaponTableEntryByName(
  * the conventional IS ammo id so the equipment catalog resolver can supply
  * a BV. When the resolver fails, the adapter gracefully emits a 0-BV entry.
  */
+const FIELD_GUN_AMMO_IDS = {
+  mg: 'isammomg',
+  ac2: 'isammoac2',
+  ac5: 'isammoac5',
+  ac10: 'isammoac10',
+  ac20: 'isammoac20',
+  srm2: 'isammosrm2',
+  srm4: 'isammosrm4',
+  srm6: 'isammosrm6',
+  lrm5: 'isammolrm5',
+  lrm10: 'isammolrm10',
+  lrm15: 'isammolrm15',
+  lrm20: 'isammolrm20',
+  flamer: 'isammoflamer',
+} as const satisfies Readonly<Record<string, string>>;
+
+type FieldGunAmmoWeaponId = keyof typeof FIELD_GUN_AMMO_IDS;
+
+function isKnownFieldGunAmmoWeaponId(
+  gunId: string,
+): gunId is FieldGunAmmoWeaponId {
+  return Object.prototype.hasOwnProperty.call(FIELD_GUN_AMMO_IDS, gunId);
+}
+
 function ammoIdForFieldGun(gunId: string): string {
-  switch (gunId) {
-    case 'mg':
-      return 'isammomg';
-    case 'ac2':
-      return 'isammoac2';
-    case 'ac5':
-      return 'isammoac5';
-    case 'ac10':
-      return 'isammoac10';
-    case 'ac20':
-      return 'isammoac20';
-    case 'srm2':
-      return 'isammosrm2';
-    case 'srm4':
-      return 'isammosrm4';
-    case 'srm6':
-      return 'isammosrm6';
-    case 'lrm5':
-      return 'isammolrm5';
-    case 'lrm10':
-      return 'isammolrm10';
-    case 'lrm15':
-      return 'isammolrm15';
-    case 'lrm20':
-      return 'isammolrm20';
-    case 'flamer':
-      return 'isammoflamer';
-    default:
-      return `isammo${gunId.replace(/[^a-z0-9]/gi, '')}`;
+  if (isKnownFieldGunAmmoWeaponId(gunId)) {
+    return FIELD_GUN_AMMO_IDS[gunId];
   }
+  return `isammo${gunId.replace(/[^a-z0-9]/gi, '')}`;
 }
 
 /**
@@ -279,30 +277,23 @@ export function computeInfantryBVFromState(
  * mechanized counterparts. `UMU` and `BEAST` have no BV-layer equivalent and
  * map to `FOOT` (1.0×) — the safest baseline.
  */
+const SQUAD_MOTION_TO_INFANTRY_MOTIVE = {
+  [SquadMotionType.FOOT]: InfantryMotive.FOOT,
+  [SquadMotionType.JUMP]: InfantryMotive.JUMP,
+  [SquadMotionType.MOTORIZED]: InfantryMotive.MOTORIZED,
+  [SquadMotionType.MECHANIZED]: InfantryMotive.MECHANIZED_TRACKED,
+  [SquadMotionType.TRACKED]: InfantryMotive.MECHANIZED_TRACKED,
+  [SquadMotionType.WHEELED]: InfantryMotive.MECHANIZED_WHEELED,
+  [SquadMotionType.HOVER]: InfantryMotive.MECHANIZED_HOVER,
+  [SquadMotionType.VTOL]: InfantryMotive.MECHANIZED_VTOL,
+  [SquadMotionType.UMU]: InfantryMotive.FOOT,
+  [SquadMotionType.BEAST]: InfantryMotive.FOOT,
+} as const satisfies Readonly<Record<SquadMotionType, InfantryMotive>>;
+
 function mapSquadMotionToInfantryMotive(
   motion: SquadMotionType,
 ): InfantryMotive {
-  switch (motion) {
-    case SquadMotionType.FOOT:
-      return InfantryMotive.FOOT;
-    case SquadMotionType.JUMP:
-      return InfantryMotive.JUMP;
-    case SquadMotionType.MOTORIZED:
-      return InfantryMotive.MOTORIZED;
-    case SquadMotionType.MECHANIZED:
-    case SquadMotionType.TRACKED:
-      return InfantryMotive.MECHANIZED_TRACKED;
-    case SquadMotionType.WHEELED:
-      return InfantryMotive.MECHANIZED_WHEELED;
-    case SquadMotionType.HOVER:
-      return InfantryMotive.MECHANIZED_HOVER;
-    case SquadMotionType.VTOL:
-      return InfantryMotive.MECHANIZED_VTOL;
-    case SquadMotionType.UMU:
-    case SquadMotionType.BEAST:
-    default:
-      return InfantryMotive.FOOT;
-  }
+  return SQUAD_MOTION_TO_INFANTRY_MOTIVE[motion] ?? InfantryMotive.FOOT;
 }
 
 /**

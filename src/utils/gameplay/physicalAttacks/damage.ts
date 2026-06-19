@@ -1,25 +1,13 @@
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
-import { CombatLocation, Facing, FiringArc } from '@/types/gameplay';
-import { calculateFallDamage } from '@/utils/gameplay/fallMechanics';
-import {
-  determineHitLocation,
-  roll2d6,
-  type D6Roller,
-} from '@/utils/gameplay/hitLocation';
 import { getMeleeSpecialistDamageBonus } from '@/utils/gameplay/spaModifiers';
 import { hasSPA } from '@/utils/gameplay/spaModifiers/canonicalize';
 
-import { calculateBrushOffAttackDamage } from './brushOffEligibility';
 import {
   CHARGE_DAMAGE_DIVISOR,
   CHARGE_HIT_PSR_MODIFIER,
   CLAW_PUNCH_DAMAGE_DIVISOR,
   DFA_ATTACKER_DAMAGE_DIVISOR,
   DFA_DAMAGE_MULTIPLIER,
-  DFA_HIT_ATTACKER_PSR_MODIFIER,
-  DFA_MISS_FALL_FACING_OFFSET,
-  DFA_MISS_FALL_HEIGHT,
-  DFA_MISS_PSR_MODIFIER,
   DFA_TARGET_DAMAGE_DIVISOR,
   FLAIL_DAMAGE,
   HATCHET_DAMAGE_DIVISOR,
@@ -27,7 +15,6 @@ import {
   LANCE_CHARGE_DAMAGE_MULTIPLIER,
   LANCE_DAMAGE_DIVISOR,
   MACE_DAMAGE_DIVISOR,
-  PHYSICAL_CLUSTER_SIZE,
   PUNCH_DAMAGE_DIVISOR,
   RETRACTABLE_BLADE_DAMAGE_DIVISOR,
   SWORD_DAMAGE_BONUS,
@@ -43,32 +30,22 @@ import { getThrashAttackDamageForWeight } from './thrashEligibility';
 import {
   IPhysicalAttackInput,
   IPhysicalDamageResult,
-  PhysicalHitTable,
-  PhysicalAttackType,
-  SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
   isZweihanderPhysicalAttackType,
 } from './types';
 
-export interface IPhysicalDamageCluster {
-  readonly damage: number;
-  readonly location: CombatLocation;
-}
-
-export interface IDfaMissFallDamageResult {
-  readonly fallDamage: number;
-  readonly fallHeight: number;
-  readonly newFacing: Facing;
-  readonly pilotDamage: number;
-  readonly clusters: readonly IPhysicalDamageCluster[];
-}
-
-export interface IDfaMissFallPilotDamageAvoidanceResult {
-  readonly targetNumber: number;
-  readonly roll: number;
-  readonly dice: readonly number[];
-  readonly passed: boolean;
-  readonly pilotDamage: number;
-}
+export {
+  type IDfaMissFallDamageResult,
+  type IDfaMissFallPilotDamageAvoidanceResult,
+  type IPhysicalDamageCluster,
+  resolveDfaMissFallDamage,
+  resolveDfaMissFallPilotDamageAvoidance,
+} from './dfaMissDamage';
+export { getPhysicalMissConsequences } from './missConsequences';
+export { calculatePhysicalDamage } from './physicalDamage';
+export {
+  selectPhysicalHitTable,
+  splitPhysicalDamageIntoClusters,
+} from './physicalHitTable';
 
 export function getEffectiveWeight(
   tonnage: number,
@@ -99,7 +76,9 @@ function punchDamageBonus(input: IPhysicalAttackInput): number {
   return physicalDamageBonus(input);
 }
 
-function isTwoHandedZweihanderAttack(input: IPhysicalAttackInput): boolean {
+export function isTwoHandedZweihanderAttack(
+  input: IPhysicalAttackInput,
+): boolean {
   return (
     isZweihanderPhysicalAttackType(input.attackType) &&
     input.twoHandedZweihander === true &&
@@ -274,6 +253,12 @@ export function calculateKickDamage(input: IPhysicalAttackInput): number {
   return applyUnderwaterModifier(damage, input.isUnderwater ?? false);
 }
 
+export function calculateBrushOffAttackDamage(
+  input: IPhysicalAttackInput,
+): number {
+  return calculatePunchDamage(input);
+}
+
 export function calculateChargeDamageToTarget(
   input: IPhysicalAttackInput,
 ): number {
@@ -327,61 +312,6 @@ export function calculateDFADamageToAttacker(
     input.attackerTonnage / DFA_ATTACKER_DAMAGE_DIVISOR,
   );
   return Math.ceil(totalDamage / 2);
-}
-
-export function resolveDfaMissFallDamage(
-  attackerTonnage: number,
-  currentFacing: Facing,
-  diceRoller: D6Roller,
-): IDfaMissFallDamageResult {
-  const fallDamage = calculateFallDamage(attackerTonnage, DFA_MISS_FALL_HEIGHT);
-  const clusters = splitPhysicalDamageIntoClusters(fallDamage).map(
-    (damage): IPhysicalDamageCluster => ({
-      damage,
-      location: determineHitLocation(FiringArc.Rear, diceRoller).location,
-    }),
-  );
-
-  return {
-    fallDamage,
-    fallHeight: DFA_MISS_FALL_HEIGHT,
-    newFacing: ((currentFacing + DFA_MISS_FALL_FACING_OFFSET) % 6) as Facing,
-    // MegaMek rolls separately to avoid pilot damage after doEntityFall.
-    // MekStation does not yet model that pilot-damage avoidance check here.
-    pilotDamage: 0,
-    clusters,
-  };
-}
-
-export function resolveDfaMissFallPilotDamageAvoidance(
-  pilotingSkill: number,
-  fallHeight: number,
-  diceRoller: D6Roller,
-  pilotAbilities: readonly string[] = [],
-): IDfaMissFallPilotDamageAvoidanceResult {
-  const hasPilotDamageImmunity =
-    pilotAbilities.includes('dermal_armor') ||
-    pilotAbilities.includes('tsm_implant');
-  const targetNumber = pilotingSkill + Math.max(0, fallHeight - 1);
-  if (hasPilotDamageImmunity) {
-    return {
-      targetNumber,
-      roll: Infinity,
-      dice: [],
-      passed: true,
-      pilotDamage: 0,
-    };
-  }
-
-  const roll = roll2d6(diceRoller);
-  const passed = roll.total >= targetNumber;
-  return {
-    targetNumber,
-    roll: roll.total,
-    dice: roll.dice,
-    passed,
-    pilotDamage: passed ? 0 : 1,
-  };
 }
 
 export function calculateHatchetDamage(input: IPhysicalAttackInput): number {
@@ -507,318 +437,4 @@ export function calculateJumpJetAttackDamage(
 
 export function calculateBrushOffDamage(input: IPhysicalAttackInput): number {
   return calculateBrushOffAttackDamage(input);
-}
-
-/**
- * Per `implement-physical-attack-phase` tasks 6.4 / 7.4: split damage
- * into 5-point clusters before hit-location resolution. Zero damage
- * returns an empty list; damage under the cluster size returns a single
- * cluster of the remaining damage.
- */
-export function splitPhysicalDamageIntoClusters(
-  totalDamage: number,
-): readonly number[] {
-  if (totalDamage <= 0) return [];
-  const clusters: number[] = [];
-  let remaining = totalDamage;
-  while (remaining > 0) {
-    const size = Math.min(PHYSICAL_CLUSTER_SIZE, remaining);
-    clusters.push(size);
-    remaining -= size;
-  }
-  return clusters;
-}
-
-const MELEE_WEAPON_ATTACK_TYPE_SET = new Set<string>(
-  SUPPORTED_PHYSICAL_WEAPON_ATTACK_TYPES,
-);
-const MEK_TARGET_TYPES = new Set([
-  'battlemech',
-  'mek',
-  'mech',
-  'omnimech',
-  'industrialmech',
-]);
-
-function isMeleeWeaponAttack(attackType: PhysicalAttackType): boolean {
-  return MELEE_WEAPON_ATTACK_TYPE_SET.has(attackType);
-}
-
-function representedMekTarget(unitType: string | undefined): boolean {
-  const canonical = unitType?.toLowerCase().replace(/[^a-z0-9]/g, '');
-  return canonical === undefined || MEK_TARGET_TYPES.has(canonical);
-}
-
-export function selectPhysicalHitTable(
-  input: IPhysicalAttackInput,
-): PhysicalHitTable {
-  if (input.hitTableOverride) return input.hitTableOverride;
-  if (input.attackType === 'kick') return 'kick';
-
-  if (input.attackType === 'punch') {
-    if (!input.attackerHullDown || !input.elevationContext) return 'punch';
-
-    return input.elevationContext.attackerArmElevation >
-      input.elevationContext.targetBaseElevation
-      ? 'punch'
-      : 'kick';
-  }
-
-  if (
-    isMeleeWeaponAttack(input.attackType) &&
-    input.attackerHullDown &&
-    representedMekTarget(input.targetUnitType)
-  ) {
-    return 'kick';
-  }
-
-  return 'punch';
-}
-
-export function calculatePhysicalDamage(
-  input: IPhysicalAttackInput,
-): IPhysicalDamageResult {
-  switch (input.attackType) {
-    case 'punch':
-      return {
-        targetDamage: calculatePunchDamage(input),
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: false,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    case 'kick':
-      return {
-        targetDamage: calculateKickDamage(input),
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: true,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: 'kick',
-        targetDisplaced: false,
-      };
-    case 'charge':
-      return {
-        targetDamage: calculateChargeDamageToTarget(input),
-        attackerDamage: calculateChargeDamageToAttacker(input),
-        attackerLegDamagePerLeg: 0,
-        targetPSR: true,
-        attackerPSR: true,
-        attackerPSRModifier: CHARGE_HIT_PSR_MODIFIER,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    case 'dfa':
-      return {
-        targetDamage: calculateDFADamageToTarget(input),
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: calculateDFADamageToAttacker(input),
-        targetPSR: true,
-        attackerPSR: true,
-        attackerPSRModifier: DFA_HIT_ATTACKER_PSR_MODIFIER,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    case 'push':
-      return {
-        targetDamage: 0,
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: true,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: true,
-      };
-    case 'trip':
-      return {
-        targetDamage: 0,
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: true,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    case 'thrash':
-      return {
-        targetDamage: calculateThrashDamage(input),
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: false,
-        attackerPSR: true,
-        attackerPSRModifier: 0,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    case 'jump-jet-attack':
-      return {
-        targetDamage: calculateJumpJetAttackDamage(input),
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: false,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    case 'brush-off':
-      return {
-        targetDamage: calculateBrushOffDamage(input),
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: false,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    case 'grapple':
-    case 'break-grapple':
-      return {
-        targetDamage: 0,
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: false,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    case 'hatchet':
-      return {
-        targetDamage: calculateHatchetDamage(input),
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: false,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    case 'sword':
-      return {
-        targetDamage: calculateSwordDamage(input),
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: false,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    case 'mace':
-      return {
-        targetDamage: calculateMaceDamage(input),
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: false,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    case 'lance':
-      return {
-        // Per task 9.4: the charge-double variant is applied at the
-        // resolution layer when the attacker is simultaneously charging;
-        // the baseline damage path is used here.
-        targetDamage: calculateLanceDamage(input, false),
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: false,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    case 'retractable-blade':
-      return {
-        targetDamage: calculateRetractableBladeDamage(input),
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: false,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    case 'flail':
-      return {
-        targetDamage: calculateFlailDamage(input),
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: false,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    case 'wrecking-ball':
-      return {
-        targetDamage: calculateWreckingBallDamage(input),
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: false,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: selectPhysicalHitTable(input),
-        targetDisplaced: false,
-      };
-    default:
-      return {
-        targetDamage: 0,
-        attackerDamage: 0,
-        attackerLegDamagePerLeg: 0,
-        targetPSR: false,
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        hitTable: 'punch',
-        targetDisplaced: false,
-      };
-  }
-}
-
-export function getPhysicalMissConsequences(
-  attackType: PhysicalAttackType,
-  input?: IPhysicalAttackInput,
-): {
-  attackerPSR: boolean;
-  attackerPSRModifier: number;
-  attackerDamage: number;
-  hitTable?: 'punch' | 'kick';
-} {
-  switch (attackType) {
-    case 'kick':
-      return { attackerPSR: true, attackerPSRModifier: 0, attackerDamage: 0 };
-    case 'charge':
-      return { attackerPSR: false, attackerPSRModifier: 0, attackerDamage: 0 };
-    case 'dfa':
-      return {
-        attackerPSR: true,
-        attackerPSRModifier: DFA_MISS_PSR_MODIFIER,
-        attackerDamage: 0,
-      };
-    case 'brush-off':
-      return {
-        attackerPSR: false,
-        attackerPSRModifier: 0,
-        attackerDamage: input ? calculateBrushOffDamage(input) : 0,
-        hitTable: 'punch',
-      };
-    default:
-      if (input && isTwoHandedZweihanderAttack(input)) {
-        return {
-          attackerPSR: true,
-          attackerPSRModifier: 0,
-          attackerDamage: 0,
-        };
-      }
-      return { attackerPSR: false, attackerPSRModifier: 0, attackerDamage: 0 };
-  }
 }

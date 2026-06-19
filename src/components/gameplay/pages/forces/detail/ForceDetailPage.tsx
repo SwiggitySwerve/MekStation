@@ -1,21 +1,27 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 
-import {
-  ForceBuilder,
-  PilotSelector,
-  UnitSelector,
-  UnitInfo,
-} from '@/components/force';
+import { ForceBuilder, PilotSelector, UnitSelector } from '@/components/force';
 import { useToast } from '@/components/shared/Toast';
 import { PageLayout, PageError } from '@/components/ui';
 import { unitSearchService } from '@/services/units/UnitSearchService';
 import { useForceSelector } from '@/stores/useForceStore';
 import { usePilotSelector } from '@/stores/usePilotStore';
 import { IForce, IForceValidation, getForceTypeName } from '@/types/force';
-import { IPilot, PilotStatus } from '@/types/pilot';
 import { IUnitIndexEntry } from '@/types/unit/UnitIndex';
 
+import {
+  buildAvailableUnits,
+  buildPilotMap,
+  buildUnitMap,
+  deleteForceAndNavigate,
+  getActivePilotCount,
+  getAssignedPilotIds,
+  getAssignedUnitIds,
+  handleAssignmentResult,
+  refreshForceDetail,
+  saveForceDetails,
+} from './ForceDetailPage.helpers';
 import { DeleteConfirmModal, EditNameModal } from './ForceDetailPage.modals';
 import {
   ForceErrorBanner,
@@ -23,7 +29,6 @@ import {
   ForceLoadingState,
   ForcePilotsLinkBar,
 } from './ForceDetailPage.sections';
-import { mapTechBase, mapWeightClass } from './ForceDetailPage.utils';
 
 export default function ForceDetailPage(): React.ReactElement {
   const router = useRouter();
@@ -85,59 +90,14 @@ export default function ForceDetailPage(): React.ReactElement {
     }
   }, [isInitialized, forceId, getForce, validateForce]);
 
-  const pilotMap = useMemo(() => {
-    const map = new Map<string, IPilot>();
-    for (const pilot of pilots) {
-      map.set(pilot.id, pilot);
-    }
-    return map;
-  }, [pilots]);
-
-  const unitMap = useMemo(() => {
-    const map = new Map<
-      string,
-      { name: string; bv: number; tonnage: number }
-    >();
-    for (const unit of allUnits) {
-      map.set(unit.id, {
-        name: unit.name,
-        bv: unit.bv ?? 0,
-        tonnage: unit.tonnage,
-      });
-    }
-    return map;
-  }, [allUnits]);
-
-  const assignedPilotIds = useMemo(() => {
-    if (!force) {
-      return [];
-    }
-    return force.assignments
-      .filter((assignment) => assignment.pilotId)
-      .map((assignment) => assignment.pilotId as string);
-  }, [force]);
-
-  const availableUnits: UnitInfo[] = useMemo(() => {
-    return allUnits.map((unit) => ({
-      id: unit.id,
-      name: unit.name,
-      chassis: unit.chassis,
-      model: unit.variant,
-      tonnage: unit.tonnage,
-      bv: unit.bv ?? 0,
-      techBase: mapTechBase(unit.techBase),
-      weightClass: mapWeightClass(unit.weightClass),
-    }));
-  }, [allUnits]);
-
-  const assignedUnitIds = useMemo(() => {
-    if (!force) {
-      return [];
-    }
-    return force.assignments
-      .filter((assignment) => assignment.unitId)
-      .map((assignment) => assignment.unitId as string);
-  }, [force]);
+  const pilotMap = useMemo(() => buildPilotMap(pilots), [pilots]);
+  const unitMap = useMemo(() => buildUnitMap(allUnits), [allUnits]);
+  const assignedPilotIds = useMemo(() => getAssignedPilotIds(force), [force]);
+  const availableUnits = useMemo(
+    () => buildAvailableUnits(allUnits),
+    [allUnits],
+  );
+  const assignedUnitIds = useMemo(() => getAssignedUnitIds(force), [force]);
 
   const handleSelectPilot = useCallback((assignmentId: string) => {
     setSelectedAssignmentId(assignmentId);
@@ -154,22 +114,23 @@ export default function ForceDetailPage(): React.ReactElement {
       if (!selectedAssignmentId) {
         return;
       }
-      const success = await assignPilot(selectedAssignmentId, pilotId);
-      if (forceId) {
-        await loadForces();
-        const updated = getForce(forceId);
-        setForce(updated ?? null);
-        const nextValidation = await validateForce(forceId);
-        setValidation(nextValidation);
-      }
-      if (success) {
-        showToast({
-          message: 'Pilot assigned successfully',
-          variant: 'success',
-        });
-      } else {
-        showToast({ message: 'Failed to assign pilot', variant: 'error' });
-      }
+      await handleAssignmentResult(
+        () => assignPilot(selectedAssignmentId, pilotId),
+        () =>
+          refreshForceDetail({
+            forceId,
+            loadForces,
+            getForce,
+            validateForce,
+            setForce,
+            setValidation,
+          }),
+        showToast,
+        {
+          success: 'Pilot assigned successfully',
+          error: 'Failed to assign pilot',
+        },
+      );
     },
     [
       assignPilot,
@@ -187,22 +148,23 @@ export default function ForceDetailPage(): React.ReactElement {
       if (!selectedAssignmentId) {
         return;
       }
-      const success = await assignUnit(selectedAssignmentId, unitId);
-      if (forceId) {
-        await loadForces();
-        const updated = getForce(forceId);
-        setForce(updated ?? null);
-        const nextValidation = await validateForce(forceId);
-        setValidation(nextValidation);
-      }
-      if (success) {
-        showToast({
-          message: 'Unit assigned successfully',
-          variant: 'success',
-        });
-      } else {
-        showToast({ message: 'Failed to assign unit', variant: 'error' });
-      }
+      await handleAssignmentResult(
+        () => assignUnit(selectedAssignmentId, unitId),
+        () =>
+          refreshForceDetail({
+            forceId,
+            loadForces,
+            getForce,
+            validateForce,
+            setForce,
+            setValidation,
+          }),
+        showToast,
+        {
+          success: 'Unit assigned successfully',
+          error: 'Failed to assign unit',
+        },
+      );
     },
     [
       assignUnit,
@@ -218,13 +180,14 @@ export default function ForceDetailPage(): React.ReactElement {
   const handleClearAssignment = useCallback(
     async (assignmentId: string) => {
       const success = await clearAssignment(assignmentId);
-      if (forceId) {
-        await loadForces();
-        const updated = getForce(forceId);
-        setForce(updated ?? null);
-        const nextValidation = await validateForce(forceId);
-        setValidation(nextValidation);
-      }
+      await refreshForceDetail({
+        forceId,
+        loadForces,
+        getForce,
+        validateForce,
+        setForce,
+        setValidation,
+      });
       if (success) {
         showToast({ message: 'Assignment cleared', variant: 'info' });
       }
@@ -235,32 +198,30 @@ export default function ForceDetailPage(): React.ReactElement {
   const handleSwapAssignments = useCallback(
     async (firstId: string, secondId: string) => {
       await swapAssignments(firstId, secondId);
-      if (forceId) {
-        await loadForces();
-        const updated = getForce(forceId);
-        setForce(updated ?? null);
-      }
+      await refreshForceDetail({
+        forceId,
+        loadForces,
+        getForce,
+        validateForce,
+        setForce,
+        setValidation,
+      });
     },
-    [swapAssignments, forceId, loadForces, getForce],
+    [swapAssignments, forceId, loadForces, getForce, validateForce],
   );
 
-  const handleDelete = useCallback(async () => {
-    if (!forceId) {
-      return;
-    }
-
-    setIsDeleting(true);
-    const success = await deleteForce(forceId);
-    setIsDeleting(false);
-
-    if (success) {
-      showToast({ message: 'Force deleted successfully', variant: 'success' });
-      router.push('/gameplay/forces');
-    } else {
-      showToast({ message: 'Failed to delete force', variant: 'error' });
-    }
-    setIsDeleteModalOpen(false);
-  }, [deleteForce, forceId, router, showToast]);
+  const handleDelete = useCallback(
+    () =>
+      deleteForceAndNavigate({
+        forceId,
+        deleteForce,
+        setIsDeleting,
+        setIsDeleteModalOpen,
+        showToast,
+        navigateToForces: () => router.push('/gameplay/forces'),
+      }),
+    [deleteForce, forceId, router, showToast],
+  );
 
   const handleSaveDetails = useCallback(
     async (updates: {
@@ -268,23 +229,17 @@ export default function ForceDetailPage(): React.ReactElement {
       description?: string;
       affiliation?: string;
     }) => {
-      if (!forceId) {
-        return;
-      }
-
-      setIsSaving(true);
-      const success = await updateForce(forceId, updates);
-      setIsSaving(false);
-
-      if (success) {
-        showToast({ message: 'Force details updated', variant: 'success' });
-        setIsEditModalOpen(false);
-        await loadForces();
-        const updated = getForce(forceId);
-        setForce(updated ?? null);
-      } else {
-        showToast({ message: 'Failed to update force', variant: 'error' });
-      }
+      await saveForceDetails({
+        forceId,
+        updates,
+        updateForce,
+        loadForces,
+        getForce,
+        setForce,
+        setIsSaving,
+        setIsEditModalOpen,
+        showToast,
+      });
     },
     [forceId, getForce, loadForces, showToast, updateForce],
   );
@@ -347,11 +302,7 @@ export default function ForceDetailPage(): React.ReactElement {
         onEditName={() => setIsEditModalOpen(true)}
       />
 
-      <ForcePilotsLinkBar
-        activePilotCount={
-          pilots.filter((pilot) => pilot.status === PilotStatus.Active).length
-        }
-      />
+      <ForcePilotsLinkBar activePilotCount={getActivePilotCount(pilots)} />
 
       <DeleteConfirmModal
         forceName={force.name}

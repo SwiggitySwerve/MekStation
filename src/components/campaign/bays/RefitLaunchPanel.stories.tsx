@@ -13,18 +13,13 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { createRefitOrder } from '@/lib/campaign/refit/refitPipeline';
 import { DEFAULT_UNIT_CONFIGURATION } from '@/lib/campaign/refit/unitConfiguration';
 
+import { paddedDarkCampaignStoryParameters } from '../campaignStoryParameters';
 import { RefitLaunchPanel } from './RefitLaunchPanel';
 
 const meta = {
   title: 'Campaign/Bays/RefitLaunchPanel',
   component: RefitLaunchPanel,
-  parameters: {
-    layout: 'padded',
-    backgrounds: {
-      default: 'dark',
-      values: [{ name: 'dark', value: '#0f172a' }],
-    },
-  },
+  parameters: paddedDarkCampaignStoryParameters,
   tags: ['autodocs'],
 } satisfies Meta<typeof RefitLaunchPanel>;
 

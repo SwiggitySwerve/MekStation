@@ -19,6 +19,43 @@ interface EventRowProps {
   readonly onRowFocus?: (eventId: string, unitId?: string) => void;
 }
 
+const EVENT_ICON_TEXT: Readonly<
+  Record<IFormattedEventWithGrouping['icon'], string>
+> = {
+  movement: '\u2192',
+  attack: '\u2694',
+  damage: '\u{1F4A5}',
+  heat: '\u{1F525}',
+  critical: '\u26A0',
+  phase: '\u25C6',
+  status: '\u2022',
+};
+
+function eventRowInteractionProps(
+  event: IFormattedEventWithGrouping,
+  onRowFocus?: (eventId: string, unitId?: string) => void,
+): Pick<
+  React.HTMLAttributes<HTMLDivElement>,
+  'onClick' | 'onKeyDown' | 'role' | 'tabIndex'
+> {
+  if (!onRowFocus) {
+    return {};
+  }
+
+  return {
+    onClick: () => onRowFocus(event.id, event.unitId),
+    role: 'button',
+    tabIndex: 0,
+    onKeyDown: (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') {
+        return;
+      }
+      e.preventDefault();
+      onRowFocus(event.id, event.unitId);
+    },
+  };
+}
+
 export function EventRow({
   event,
   actorLookup,
@@ -38,34 +75,14 @@ export function EventRow({
       data-testid="event-row"
       data-event-id={event.id}
       data-indent-level={event.indentLevel ?? 0}
-      onClick={
-        onRowFocus ? () => onRowFocus(event.id, event.unitId) : undefined
-      }
-      role={onRowFocus ? 'button' : undefined}
-      tabIndex={onRowFocus ? 0 : undefined}
-      onKeyDown={
-        onRowFocus
-          ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onRowFocus(event.id, event.unitId);
-              }
-            }
-          : undefined
-      }
+      {...eventRowInteractionProps(event, onRowFocus)}
     >
       <span
         className={`${iconColor} w-4 font-bold`}
         data-testid="event-icon"
         data-icon-type={event.icon}
       >
-        {event.icon === 'movement' && '→'}
-        {event.icon === 'attack' && '⚔'}
-        {event.icon === 'damage' && '💥'}
-        {event.icon === 'heat' && '🔥'}
-        {event.icon === 'critical' && '⚠'}
-        {event.icon === 'phase' && '◆'}
-        {event.icon === 'status' && '•'}
+        {EVENT_ICON_TEXT[event.icon]}
       </span>
       <span className="w-8 text-xs text-gray-500" data-testid="event-turn">
         T{event.turn}

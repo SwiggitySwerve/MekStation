@@ -8,20 +8,24 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  initializeApiDatabase,
+  rejectUnexpectedMethod,
+  sendCaughtApiError,
+  sendOperationFailure,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { IForceOperationResult } from '@/services/forces/ForceRepository';
 import { getForceService } from '@/services/forces/ForceService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
+
+const FORCES_ASSIGNMENTS_SWAP_TS_FAILED_TO_SWAP_ASSIGNMENTS_1 =
+  'Failed to swap assignments';
 
 // =============================================================================
 // Response Types
 // =============================================================================
 
 type SwapResponse = IForceOperationResult;
-
-type ErrorResponse = {
-  error: string;
-  code?: string;
-};
 
 // =============================================================================
 // Request Types
@@ -38,21 +42,10 @@ interface SwapBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SwapResponse | ErrorResponse>,
+  res: NextApiResponse<SwapResponse | ApiErrorResponse>,
 ): Promise<void> {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-  }
-
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (rejectUnexpectedMethod(req, res, ['POST'])) return;
+  if (!initializeApiDatabase(res)) return;
 
   const body = req.body as SwapBody;
 
@@ -73,15 +66,19 @@ export default async function handler(
     if (result.success) {
       return res.status(200).json(result);
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to swap assignments',
-        errorCode: result.errorCode,
-      });
+      sendOperationFailure(
+        res,
+        result,
+        FORCES_ASSIGNMENTS_SWAP_TS_FAILED_TO_SWAP_ASSIGNMENTS_1,
+      );
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to swap assignments';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(
+      res,
+      error,
+      FORCES_ASSIGNMENTS_SWAP_TS_FAILED_TO_SWAP_ASSIGNMENTS_1,
+    );
+    return;
   }
 }

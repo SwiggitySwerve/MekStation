@@ -13,18 +13,15 @@ import {
   buildMovementPlan,
   mergeRunMovementRangeHexes,
 } from '@/components/gameplay/pages/gameSession/GameSessionPage.movementPlanning';
-import {
-  Facing,
-  GameSide,
-  LockState,
-  MovementType,
-  TerrainType,
-} from '@/types/gameplay';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
+import { Facing, GameSide, MovementType, TerrainType } from '@/types/gameplay';
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
+import {
+  createTacticalMapTerrainGrid,
+  createTacticalMapUnitState,
+  overrideTacticalMapTokens,
+  requireTacticalMapMovementProjection,
+} from './tactical-map.fixture-helpers';
 import {
   tacticalMapHexTerrain,
   tacticalMapTokens,
@@ -33,24 +30,13 @@ import {
 const tacticalMapRunWaterFallbackOrigin = { q: 0, r: 0 } as const;
 const tacticalMapRunWaterFallbackDestination = { q: 2, r: 0 } as const;
 
-const tacticalMapRunWaterFallbackUnit: IUnitGameState = {
-  id: 'attacker',
-  side: GameSide.Player,
-  position: tacticalMapRunWaterFallbackOrigin,
-  facing: Facing.Northeast,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  lockState: LockState.Pending,
-};
+const tacticalMapRunWaterFallbackUnit: IUnitGameState =
+  createTacticalMapUnitState({
+    id: 'attacker',
+    side: GameSide.Player,
+    position: tacticalMapRunWaterFallbackOrigin,
+    facing: Facing.Northeast,
+  });
 
 const tacticalMapRunWaterFallbackCapability: IMovementCapability = {
   walkMP: 5,
@@ -60,30 +46,7 @@ const tacticalMapRunWaterFallbackCapability: IMovementCapability = {
 };
 
 function tacticalMapRunWaterFallbackGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapRunWaterFallbackHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
-}
-
-function requireSingleMovementProjection(
-  projection: IMovementRangeHex | null,
-): IMovementRangeHex {
-  if (!projection) {
-    throw new Error('Expected tactical-map movement projection');
-  }
-  return projection;
+  return createTacticalMapTerrainGrid(tacticalMapRunWaterFallbackHexTerrain);
 }
 
 function isRunWaterFallbackTerrainOverride(terrain: IHexTerrain): boolean {
@@ -122,25 +85,16 @@ export const tacticalMapRunWaterFallbackSelectedHex =
   tacticalMapRunWaterFallbackOrigin;
 
 export const tacticalMapRunWaterFallbackTokens: readonly IUnitToken[] =
-  tacticalMapTokens.map((token) => {
-    if (token.unitId === 'attacker') {
-      return {
-        ...token,
-        position: tacticalMapRunWaterFallbackOrigin,
-      };
-    }
-    if (token.unitId === 'occluded') {
-      return {
-        ...token,
-        position: { q: 3, r: -1 },
-        isActiveTarget: false,
-      };
-    }
-    return token;
+  overrideTacticalMapTokens(tacticalMapTokens, {
+    attacker: { position: tacticalMapRunWaterFallbackOrigin },
+    occluded: {
+      position: { q: 3, r: -1 },
+      isActiveTarget: false,
+    },
   });
 
 const tacticalMapRunWaterFallbackRunProjection =
-  requireSingleMovementProjection(
+  requireTacticalMapMovementProjection(
     deriveMovementRangeHexForDestination(
       tacticalMapRunWaterFallbackUnit,
       MovementType.Run,
@@ -151,7 +105,7 @@ const tacticalMapRunWaterFallbackRunProjection =
   );
 
 const tacticalMapRunWaterFallbackWalkProjection =
-  requireSingleMovementProjection(
+  requireTacticalMapMovementProjection(
     deriveMovementRangeHexForDestination(
       tacticalMapRunWaterFallbackUnit,
       MovementType.Walk,

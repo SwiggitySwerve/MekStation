@@ -7,7 +7,7 @@
  */
 
 // Fixtures
-export * from './fixtures';
+export * from './fixtures.test-helpers';
 
 // Mock Repositories
 export {
@@ -16,4 +16,4 @@ export {
   MockOfflineQueueRepository,
   MockPermissionService,
   MockP2PTransport,
-} from './mockRepositories';
+} from './mockRepositories.test-helpers';

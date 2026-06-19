@@ -1,6 +1,7 @@
 import type {
   IMovementRangeHex,
   IMovementRangeModeOption,
+  MovementTravelMode,
 } from '@/types/gameplay';
 
 import { MovementType } from '@/types/gameplay';
@@ -14,73 +15,62 @@ const MOVEMENT_TYPE_PRIORITY: Record<MovementType, number> = {
   [MovementType.Jump]: 3,
 };
 
+const MOVEMENT_TYPE_LABELS = {
+  [MovementType.Walk]: 'W',
+  [MovementType.Run]: 'R',
+  [MovementType.Sprint]: 'SPR',
+  [MovementType.Evade]: 'EVD',
+  [MovementType.Jump]: 'J',
+  [MovementType.Stationary]: 'S',
+} satisfies Record<MovementType, string>;
+
+const MOVEMENT_MODE_BADGE_LABELS = {
+  tracked: 'TRK',
+  wheeled: 'WHL',
+  hover: 'HOV',
+  vtol: 'VTOL',
+  naval: 'NAV',
+  hydrofoil: 'HYD',
+  submarine: 'SUB',
+  umu: 'UMU',
+  biped_swim: 'BSW',
+  quad_swim: 'QSW',
+  wige: 'WiGE',
+  rail: 'RAIL',
+  maglev: 'MAG',
+} satisfies Partial<Record<MovementTravelMode, string>>;
+
+const MOVEMENT_MODE_TITLE_LABELS = {
+  vtol: 'VTOL',
+  wige: 'WiGE',
+  umu: 'UMU',
+  biped_swim: 'biped swim',
+  quad_swim: 'quad swim',
+} satisfies Partial<Record<MovementTravelMode, string>>;
+
+function movementModeLookupLabel(
+  labels: Partial<Record<MovementTravelMode, string>>,
+  mode: string | undefined,
+): string | null {
+  if (!mode || !(mode in labels)) return null;
+  return labels[mode as MovementTravelMode] ?? null;
+}
+
 export function formatMovementTypeLabel(type: MovementType): string {
-  switch (type) {
-    case MovementType.Walk:
-      return 'W';
-    case MovementType.Run:
-      return 'R';
-    case MovementType.Sprint:
-      return 'SPR';
-    case MovementType.Evade:
-      return 'EVD';
-    case MovementType.Jump:
-      return 'J';
-    case MovementType.Stationary:
-      return 'S';
-  }
+  return MOVEMENT_TYPE_LABELS[type];
 }
 
 export function formatMovementModeLabel(
   mode: string | undefined,
 ): string | null {
-  switch (mode) {
-    case 'tracked':
-      return 'TRK';
-    case 'wheeled':
-      return 'WHL';
-    case 'hover':
-      return 'HOV';
-    case 'vtol':
-      return 'VTOL';
-    case 'naval':
-      return 'NAV';
-    case 'hydrofoil':
-      return 'HYD';
-    case 'submarine':
-      return 'SUB';
-    case 'umu':
-      return 'UMU';
-    case 'biped_swim':
-      return 'BSW';
-    case 'quad_swim':
-      return 'QSW';
-    case 'wige':
-      return 'WiGE';
-    case 'rail':
-      return 'RAIL';
-    case 'maglev':
-      return 'MAG';
-    default:
-      return null;
-  }
+  return movementModeLookupLabel(MOVEMENT_MODE_BADGE_LABELS, mode);
 }
 
 export function formatMovementModeTitleLabel(mode: string): string {
-  switch (mode) {
-    case 'vtol':
-      return 'VTOL';
-    case 'wige':
-      return 'WiGE';
-    case 'umu':
-      return 'UMU';
-    case 'biped_swim':
-      return 'biped swim';
-    case 'quad_swim':
-      return 'quad swim';
-    default:
-      return mode.replace(/_/g, ' ');
-  }
+  return (
+    movementModeLookupLabel(MOVEMENT_MODE_TITLE_LABELS, mode) ??
+    mode.replace(/_/g, ' ')
+  );
 }
 
 function compareMovementRangePrimary(
@@ -208,105 +198,82 @@ export function movementOptionBlockedDetail(
 export function movementOptionBlockedReasonsAttribute(
   options: readonly IMovementRangeModeOption[],
 ): string | undefined {
-  const blockedOptions = options
-    .map((option) => {
-      const reason = movementOptionBlockedDetail(option);
-      return reason ? `${option.movementType}:${reason}` : null;
-    })
-    .filter((entry): entry is string => entry !== null);
-  return blockedOptions.length > 0 ? blockedOptions.join('|') : undefined;
+  return movementOptionAttribute(options, movementOptionBlockedDetail);
 }
 
 export function movementOptionInvalidReasonsAttribute(
   options: readonly IMovementRangeModeOption[],
 ): string | undefined {
-  const invalidOptions = options
-    .filter((option) => option.movementInvalidReason)
-    .map((option) => `${option.movementType}:${option.movementInvalidReason}`);
-  return invalidOptions.length > 0 ? invalidOptions.join('|') : undefined;
+  return movementOptionAttribute(
+    options,
+    (option) => option.movementInvalidReason,
+  );
 }
 
 export function movementOptionInvalidDetailsAttribute(
   options: readonly IMovementRangeModeOption[],
 ): string | undefined {
-  const invalidOptions = options
-    .filter((option) => option.movementInvalidDetails)
-    .map((option) => `${option.movementType}:${option.movementInvalidDetails}`);
-  return invalidOptions.length > 0 ? invalidOptions.join('|') : undefined;
+  return movementOptionAttribute(
+    options,
+    (option) => option.movementInvalidDetails,
+  );
 }
 
 export function movementOptionTerrainCostsAttribute(
   options: readonly IMovementRangeModeOption[],
 ): string | undefined {
-  const costOptions = options
-    .filter((option) => option.terrainCost !== undefined)
-    .map((option) => `${option.movementType}:${option.terrainCost}`);
-  return costOptions.length > 0 ? costOptions.join('|') : undefined;
+  return movementOptionAttribute(options, (option) => option.terrainCost);
 }
 
 export function movementOptionElevationDeltasAttribute(
   options: readonly IMovementRangeModeOption[],
 ): string | undefined {
-  const elevationOptions = options
-    .filter((option) => option.elevationDelta !== undefined)
-    .map((option) => `${option.movementType}:${option.elevationDelta}`);
-  return elevationOptions.length > 0 ? elevationOptions.join('|') : undefined;
+  return movementOptionAttribute(options, (option) => option.elevationDelta);
 }
 
 export function movementOptionElevationCostsAttribute(
   options: readonly IMovementRangeModeOption[],
 ): string | undefined {
-  const costOptions = options
-    .filter((option) => option.elevationCost !== undefined)
-    .map((option) => `${option.movementType}:${option.elevationCost}`);
-  return costOptions.length > 0 ? costOptions.join('|') : undefined;
+  return movementOptionAttribute(options, (option) => option.elevationCost);
 }
 
 export function movementOptionHeatGeneratedAttribute(
   options: readonly IMovementRangeModeOption[],
 ): string | undefined {
-  const heatOptions = options
-    .filter((option) => option.heatGenerated !== undefined)
-    .map((option) => `${option.movementType}:${option.heatGenerated}`);
-  return heatOptions.length > 0 ? heatOptions.join('|') : undefined;
+  return movementOptionAttribute(options, (option) => option.heatGenerated);
 }
 
 export function movementOptionConversionStepCountsAttribute(
   options: readonly IMovementRangeModeOption[],
 ): string | undefined {
-  const conversionOptions = options
-    .filter((option) => option.conversionStepCount !== undefined)
-    .map((option) => `${option.movementType}:${option.conversionStepCount}`);
-  return conversionOptions.length > 0 ? conversionOptions.join('|') : undefined;
+  return movementOptionAttribute(
+    options,
+    (option) => option.conversionStepCount,
+  );
 }
 
 export function movementOptionConversionMpCostsAttribute(
   options: readonly IMovementRangeModeOption[],
 ): string | undefined {
-  const conversionOptions = options
-    .filter((option) => option.conversionMpCost !== undefined)
-    .map((option) => `${option.movementType}:${option.conversionMpCost}`);
-  return conversionOptions.length > 0 ? conversionOptions.join('|') : undefined;
+  return movementOptionAttribute(options, (option) => option.conversionMpCost);
 }
 
 export function movementOptionAltitudeControlStepCountsAttribute(
   options: readonly IMovementRangeModeOption[],
 ): string | undefined {
-  const altitudeOptions = options
-    .filter((option) => option.altitudeControlStepCount !== undefined)
-    .map(
-      (option) => `${option.movementType}:${option.altitudeControlStepCount}`,
-    );
-  return altitudeOptions.length > 0 ? altitudeOptions.join('|') : undefined;
+  return movementOptionAttribute(
+    options,
+    (option) => option.altitudeControlStepCount,
+  );
 }
 
 export function movementOptionAltitudeControlMpCostsAttribute(
   options: readonly IMovementRangeModeOption[],
 ): string | undefined {
-  const altitudeOptions = options
-    .filter((option) => option.altitudeControlMpCost !== undefined)
-    .map((option) => `${option.movementType}:${option.altitudeControlMpCost}`);
-  return altitudeOptions.length > 0 ? altitudeOptions.join('|') : undefined;
+  return movementOptionAttribute(
+    options,
+    (option) => option.altitudeControlMpCost,
+  );
 }
 
 export function movementOptionAltitudeControlsAttribute(
@@ -349,6 +316,22 @@ export function movementOptionMaxReachableHeatGenerated(
     .filter((heat): heat is number => heat !== undefined);
   if (reachableHeatValues.length === 0) return movementInfo.heatGenerated;
   return Math.max(...reachableHeatValues);
+}
+
+type MovementOptionAttributeValue = string | number;
+
+function movementOptionAttribute(
+  options: readonly IMovementRangeModeOption[],
+  resolveValue: (
+    option: IMovementRangeModeOption,
+  ) => MovementOptionAttributeValue | undefined,
+): string | undefined {
+  const entries = options.flatMap((option) => {
+    const value = resolveValue(option);
+    if (value === undefined || value === '') return [];
+    return `${option.movementType}:${value}`;
+  });
+  return entries.length > 0 ? entries.join('|') : undefined;
 }
 
 function formatSignedCost(value: number): string {

@@ -1,5 +1,8 @@
-import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
-
+import {
+  megamekSourceRef as pilotSkillMegamekRef,
+  mekstationDeviationSourceRef as mekstationRef,
+  type ICombatFeatureSourceReference,
+} from './CombatFeatureSourceReference';
 import {
   MEGAMEK_INITIATIVE_EQUIPMENT_SOURCE_REFS,
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
@@ -11,40 +14,12 @@ import {
   MEGAMEK_PILOT_WOUNDS_TO_HIT_SOURCE_REFS,
 } from './CombatToHitSourceRefs';
 
-const MEGAMEK_PILOT_SKILL_SOURCE_VERSION =
-  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
-const MEKSTATION_SOURCE_VERSION = 'MekStation working-tree';
-
-function megamekRef(
-  citation: string,
-  pathWithLines: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'megamek-source',
-    citation,
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_SKILL_SOURCE_VERSION}/${pathWithLines}`,
-    sourceVersion: MEGAMEK_PILOT_SKILL_SOURCE_VERSION,
-  };
-}
-
-function mekstationRef(
-  citation: string,
-  pathWithLines: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'mekstation-deviation',
-    citation,
-    url: pathWithLines,
-    sourceVersion: MEKSTATION_SOURCE_VERSION,
-  };
-}
-
 const MEGAMEK_BASE_PILOTING_ROLL_SOURCE_REFS = [
-  megamekRef(
+  pilotSkillMegamekRef(
     'MegaMek Entity.getBasePilotingRoll creates the base piloting roll from crew piloting skill and then applies entity and condition modifiers.',
     'megamek/src/megamek/common/units/Entity.java#L7581-L7677',
   ),
-  megamekRef(
+  pilotSkillMegamekRef(
     'MegaMek PilotingRollData can add the supplied crew piloting value as the target-number modifier for automatic-fall save handling.',
     'megamek/src/megamek/common/rolls/PilotingRollData.java#L63-L66',
   ),
@@ -52,34 +27,34 @@ const MEGAMEK_BASE_PILOTING_ROLL_SOURCE_REFS = [
 
 const MEGAMEK_PSR_ROLL_RESOLUTION_SOURCE_REFS = [
   ...MEGAMEK_BASE_PILOTING_ROLL_SOURCE_REFS,
-  megamekRef(
+  pilotSkillMegamekRef(
     'MegaMek resolvePilotingRolls consumes pending piloting rolls, rolls against the cumulative target, applies fall handling on failure, and clears the pending queue.',
     'megamek/src/megamek/server/totalWarfare/TWGameManager.java#L16289-L16636',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEGAMEK_PHYSICAL_PILOTING_TO_HIT_SOURCE_REFS = [
-  megamekRef(
+  pilotSkillMegamekRef(
     'MegaMek PunchAttackAction starts punch to-hit from the attacker crew piloting skill.',
     'megamek/src/megamek/common/actions/PunchAttackAction.java#L248-L269',
   ),
-  megamekRef(
+  pilotSkillMegamekRef(
     'MegaMek KickAttackAction starts kick to-hit from the attacker crew piloting skill.',
     'megamek/src/megamek/common/actions/KickAttackAction.java#L282-L318',
   ),
-  megamekRef(
+  pilotSkillMegamekRef(
     'MegaMek PushAttackAction starts push to-hit from the attacker crew piloting skill.',
     'megamek/src/megamek/common/actions/PushAttackAction.java#L289-L314',
   ),
-  megamekRef(
+  pilotSkillMegamekRef(
     'MegaMek ChargeAttackAction starts charge to-hit from attacker piloting and applies attacker-minus-target piloting differential.',
     'megamek/src/megamek/common/actions/ChargeAttackAction.java#L277-L305',
   ),
-  megamekRef(
+  pilotSkillMegamekRef(
     'MegaMek DfaAttackAction starts death-from-above to-hit from attacker piloting and applies attacker-minus-target piloting differential.',
     'megamek/src/megamek/common/actions/DfaAttackAction.java#L333-L360',
   ),
-  megamekRef(
+  pilotSkillMegamekRef(
     'MegaMek ClubAttackAction starts physical weapon to-hit from the attacker crew piloting skill.',
     'megamek/src/megamek/common/actions/ClubAttackAction.java#L512-L538',
   ),
@@ -92,7 +67,7 @@ const MEKSTATION_RANGED_GUNNERY_SOURCE_REFS = [
   ),
   mekstationRef(
     'MekStation calculateToHit appends the attacker gunnery value as the base ranged attack modifier.',
-    'src/utils/gameplay/toHit/calculate.ts#L72-L84',
+    'src/utils/gameplay/toHit/calculate.ts#L124-L133',
   ),
   mekstationRef(
     'MekStation declareAttack passes the interactive attacker gunnery value into the same ranged to-hit state builder.',
@@ -118,15 +93,15 @@ const MEKSTATION_PHYSICAL_PILOTING_SOURCE_REFS = [
 const MEKSTATION_PSR_PILOTING_SOURCE_REFS = [
   mekstationRef(
     'MekStation runPSRPhase resolves each unit pending PSRs with the unit piloting skill before emitting PSRResolved and fall aftermath events.',
-    'src/simulation/runner/phases/postCombat.ts#L52-L110',
+    'src/simulation/runner/phases/postCombatPsr.ts#L292-L300',
   ),
   mekstationRef(
     'MekStation resolvePSR and resolveAllPSRs compute PSR target numbers from pilotingSkill plus accumulated modifiers.',
-    'src/utils/gameplay/pilotingSkillRolls/resolution.ts#L46-L158',
+    'src/utils/gameplay/pilotingSkillRolls/resolution.ts#L148-L268',
   ),
   mekstationRef(
     'MekStation resolvePendingPSRs mirrors interactive PSR resolution through resolveAllPSRs with the unit piloting skill.',
-    'src/utils/gameplay/gameSessionPSR.ts#L181-L185',
+    'src/utils/gameplay/gameSessionPSRResolution.ts#L173-L191',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -141,7 +116,7 @@ const MEKSTATION_PSR_EVENT_STAMPING_SOURCE_REFS = [
   ),
   mekstationRef(
     'MekStation movementEnhancementFailureEvents stamps basePilotingSkill for MASC/Supercharger failure PSR trigger events.',
-    'src/simulation/runner/phases/movementEnhancementFailureEvents.ts#L126-L127',
+    'src/simulation/runner/phases/movementEnhancementFailureEvents.ts#L121-L123',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -152,7 +127,7 @@ const MEKSTATION_STAND_UP_PILOTING_SOURCE_REFS = [
   ),
   mekstationRef(
     'MekStation attemptStandUp computes the interactive stand-up target number from piloting plus gyro, wound, trigger, quirk, and SPA modifiers.',
-    'src/utils/gameplay/gameSessionPSR.ts#L322-L353',
+    'src/utils/gameplay/gameSessionPSR.ts#L87-L156',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -174,7 +149,7 @@ const MEKSTATION_RANGED_WOUND_SOURCE_REFS = [
   ),
   mekstationRef(
     'MekStation calculateToHit applies pilotWounds through calculatePilotWoundModifier after Pain Resistance effective-wound adjustment.',
-    'src/utils/gameplay/toHit/calculate.ts#L148-L154',
+    'src/utils/gameplay/toHit/calculate.ts#L198-L206',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -185,11 +160,11 @@ const MEKSTATION_PSR_WOUND_SOURCE_REFS = [
   ),
   mekstationRef(
     'MekStation calculatePSRModifiers adds one PSR target-number modifier per pilot wound.',
-    'src/utils/gameplay/pilotingSkillRolls/resolution.ts#L168-L207',
+    'src/utils/gameplay/pilotingSkillRolls/modifierResolution.ts#L241-L254',
   ),
   mekstationRef(
     'MekStation resolvePendingPSRs threads interactive unit pilotWounds into resolveAllPSRs.',
-    'src/utils/gameplay/gameSessionPSR.ts#L181-L185',
+    'src/utils/gameplay/gameSessionPSRResolution.ts#L173-L191',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -200,7 +175,7 @@ const MEKSTATION_STAND_UP_WOUND_SOURCE_REFS = [
   ),
   mekstationRef(
     'MekStation interactive stand-up resolution adds unitState.pilotWounds directly to the stand-up target number.',
-    'src/utils/gameplay/gameSessionPSR.ts#L345-L353',
+    'src/utils/gameplay/gameSessionPSR.ts#L132-L156',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

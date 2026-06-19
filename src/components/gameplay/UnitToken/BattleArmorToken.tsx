@@ -27,6 +27,13 @@ import { GameSide } from '@/types/gameplay';
 
 import type { ITokenSharedProps } from './tokenTypes';
 
+import {
+  DestroyedCrossOverlay,
+  TOKEN_BODY_OUTLINE_COLOR,
+  TokenDesignationLabel,
+  selectionTargetRingColor,
+} from './tokenVisuals';
+
 // BA tokens are deliberately smaller than mech tokens.
 export const BA_TOKEN_RADIUS = HEX_SIZE * 0.35;
 export const BA_RING_RADIUS = HEX_SIZE * 0.45;
@@ -80,11 +87,7 @@ export const BattleArmorToken = React.memo(function BattleArmorToken({
     token.side === GameSide.Player
       ? HEX_COLORS.playerToken
       : HEX_COLORS.opponentToken;
-  const ringColor = token.isSelected
-    ? '#fbbf24'
-    : token.isValidTarget
-      ? '#f87171'
-      : 'transparent';
+  const ringColor = selectionTargetRingColor(token);
 
   if (mountedBadge) {
     // Compact badge variant: small host-owned label with trooper count + squad ID.
@@ -102,7 +105,7 @@ export const BattleArmorToken = React.memo(function BattleArmorToken({
           height={24}
           rx={4}
           fill={isDestroyed ? HEX_COLORS.destroyedToken : dotColor}
-          stroke="#1e293b"
+          stroke={TOKEN_BODY_OUTLINE_COLOR}
           strokeWidth={1.5}
         />
         <text
@@ -172,29 +175,12 @@ export const BattleArmorToken = React.memo(function BattleArmorToken({
       ))}
 
       {/* Designation label */}
-      <text
-        y={BA_TOKEN_RADIUS + 10}
-        textAnchor="middle"
-        fontSize={7}
-        fill="#1e293b"
-        style={{ pointerEvents: 'none' }}
-      >
+      <TokenDesignationLabel y={BA_TOKEN_RADIUS + 10} fontSize={7}>
         {token.designation}
-      </text>
+      </TokenDesignationLabel>
 
       {/* Destroyed cross overlay */}
-      {isDestroyed && (
-        <g
-          stroke="#dc2626"
-          strokeWidth={2.5}
-          data-testid="unit-destroyed-overlay"
-          pointerEvents="none"
-          aria-hidden="true"
-        >
-          <line x1={-10} y1={-10} x2={10} y2={10} />
-          <line x1={10} y1={-10} x2={-10} y2={10} />
-        </g>
-      )}
+      {isDestroyed && <DestroyedCrossOverlay xRadius={10} strokeWidth={2.5} />}
     </>
   );
 });

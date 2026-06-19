@@ -10,20 +10,8 @@ import type {
 } from '@/types/gameplay';
 
 import { buildGameplayTokens } from '@/components/gameplay/GameplayLayout.viewModel';
-import {
-  Facing,
-  GamePhase,
-  GameSide,
-  GameStatus,
-  LockState,
-  MovementType,
-  TerrainType,
-  TokenUnitType,
-} from '@/types/gameplay';
+import { Facing, GameSide, TerrainType } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import {
   requireCombatProjection,
@@ -32,6 +20,12 @@ import {
   tacticalMapSelectedWeapons,
   tacticalMapWeaponsByUnit,
 } from './tactical-map.combat-scenarios';
+import {
+  createTacticalMapGameState,
+  createTacticalMapMechToken,
+  createTacticalMapTerrainGrid,
+  createTacticalMapUnitState,
+} from './tactical-map.fixture-helpers';
 import {
   tacticalMapCombatState,
   tacticalMapSelectedWeaponIds,
@@ -52,7 +46,7 @@ const fogViewerPlayerId = 'player-1';
 const fogSideOwners = {
   [GameSide.Player]: fogViewerPlayerId,
   [GameSide.Opponent]: 'opponent-1',
-} as unknown as IGameSession['sideOwners'];
+} satisfies NonNullable<IGameSession['sideOwners']>;
 
 function mixedVisibilityToken({
   unitId,
@@ -69,48 +63,31 @@ function mixedVisibilityToken({
   readonly position: IHexCoordinate;
   readonly lastKnownPosition?: IHexCoordinate;
 }): IUnitToken {
-  return {
+  return createTacticalMapMechToken({
     unitId,
     name,
     designation,
     position,
     lastKnownPosition,
-    facing: Facing.Southwest,
-    side: GameSide.Opponent,
-    isDestroyed: false,
-    isSelected: false,
     isValidTarget: false,
     fogStatus,
-    unitType: TokenUnitType.Mech,
-  };
+  });
 }
 
 function mixedVisibilityUnitState(
   unitId: string,
   position: IHexCoordinate,
 ): IUnitGameState {
-  return {
+  return createTacticalMapUnitState({
     id: unitId,
     side: GameSide.Opponent,
     position,
     facing: Facing.Southwest,
-    heat: 0,
-    movementThisTurn: MovementType.Stationary,
-    hexesMovedThisTurn: 0,
-    armor: {},
-    structure: {},
-    destroyedLocations: [],
-    destroyedEquipment: [],
-    ammo: {},
-    pilotWounds: 0,
-    pilotConscious: true,
-    destroyed: false,
-    lockState: LockState.Pending,
     prone: false,
     shutdown: false,
     hasRetreated: false,
     gunnery: 4,
-  };
+  });
 }
 
 export const tacticalMapMixedVisibilityTokens: readonly IUnitToken[] = [
@@ -132,25 +109,20 @@ export const tacticalMapMixedVisibilityTokens: readonly IUnitToken[] = [
   }),
 ];
 
-export const tacticalMapMixedVisibilityCombatState: IGameState = {
-  gameId: 'tactical-map-e2e',
-  status: GameStatus.Active,
-  turn: 1,
-  phase: GamePhase.WeaponAttack,
-  activationIndex: 0,
-  turnEvents: [],
-  units: {
-    ...tacticalMapCombatState.units,
-    [mixedVisibilityHiddenId]: mixedVisibilityUnitState(
-      mixedVisibilityHiddenId,
-      tacticalMapMixedVisibilityTargetHex,
-    ),
-    [mixedVisibilityLastKnownId]: mixedVisibilityUnitState(
-      mixedVisibilityLastKnownId,
-      { q: 3, r: -1 },
-    ),
-  },
-};
+export const tacticalMapMixedVisibilityCombatState: IGameState =
+  createTacticalMapGameState({
+    units: {
+      ...tacticalMapCombatState.units,
+      [mixedVisibilityHiddenId]: mixedVisibilityUnitState(
+        mixedVisibilityHiddenId,
+        tacticalMapMixedVisibilityTargetHex,
+      ),
+      [mixedVisibilityLastKnownId]: mixedVisibilityUnitState(
+        mixedVisibilityLastKnownId,
+        { q: 3, r: -1 },
+      ),
+    },
+  });
 
 const tacticalMapMixedVisibilityGrid = tacticalMapCombatGrid();
 const tacticalMapMixedVisibilityAttacker = tacticalMapTokens.find(
@@ -207,28 +179,16 @@ function fogLosUnitState({
   readonly position: IHexCoordinate;
   readonly facing: Facing;
 }): IUnitGameState {
-  return {
+  return createTacticalMapUnitState({
     id: unitId,
     side,
     position,
     facing,
-    heat: 0,
-    movementThisTurn: MovementType.Stationary,
-    hexesMovedThisTurn: 0,
-    armor: {},
-    structure: {},
-    destroyedLocations: [],
-    destroyedEquipment: [],
-    ammo: {},
-    pilotWounds: 0,
-    pilotConscious: true,
-    destroyed: false,
-    lockState: LockState.Pending,
     prone: false,
     shutdown: false,
     hasRetreated: false,
     gunnery: 4,
-  };
+  });
 }
 
 export const tacticalMapFogLosHexTerrain: readonly IHexTerrain[] = [
@@ -244,49 +204,35 @@ export const tacticalMapFogLosHexTerrain: readonly IHexTerrain[] = [
   },
 ];
 
-export const tacticalMapFogLosCombatState: IGameState = {
-  gameId: 'tactical-map-fog-los',
-  status: GameStatus.Active,
-  turn: 1,
-  phase: GamePhase.WeaponAttack,
-  activationIndex: 0,
-  turnEvents: [],
-  units: {
-    attacker: fogLosUnitState({
-      unitId: 'attacker',
-      side: GameSide.Player,
-      position: { q: 0, r: 0 },
-      facing: Facing.Southeast,
-    }),
-    [tacticalMapFogLosTargetId]: fogLosUnitState({
-      unitId: tacticalMapFogLosTargetId,
-      side: GameSide.Opponent,
-      position: tacticalMapFogLosTargetHex,
-      facing: Facing.Northwest,
-    }),
-  },
-};
+export const tacticalMapFogLosCombatState: IGameState =
+  createTacticalMapGameState({
+    gameId: 'tactical-map-fog-los',
+    units: {
+      attacker: fogLosUnitState({
+        unitId: 'attacker',
+        side: GameSide.Player,
+        position: { q: 0, r: 0 },
+        facing: Facing.Southeast,
+      }),
+      [tacticalMapFogLosTargetId]: fogLosUnitState({
+        unitId: tacticalMapFogLosTargetId,
+        side: GameSide.Opponent,
+        position: tacticalMapFogLosTargetHex,
+        facing: Facing.Northwest,
+      }),
+    },
+  });
 
 function tacticalMapFogLosGrid({
   blocked,
 }: {
   readonly blocked: boolean;
 }): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  if (!blocked) return grid;
+  if (!blocked) return createTacticalMapTerrainGrid([]);
 
-  const hexes = new Map(grid.hexes);
-  for (const terrain of tacticalMapFogLosHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map fog LOS hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-  return { ...grid, hexes };
+  return createTacticalMapTerrainGrid(tacticalMapFogLosHexTerrain, {
+    missingHexLabel: 'tactical-map fog LOS',
+  });
 }
 
 const tacticalMapFogLosClearGrid = tacticalMapFogLosGrid({ blocked: false });
@@ -323,7 +269,7 @@ const tacticalMapFogLosSessionStub = {
   ],
   events: [],
   sideOwners: fogSideOwners,
-} as unknown as IGameSession;
+} as Partial<IGameSession> as IGameSession;
 const tacticalMapFogLosUnitInfo = {
   attacker: { name: 'Shadow Hawk SHD-2H', side: GameSide.Player },
   [tacticalMapFogLosTargetId]: {

@@ -7,194 +7,31 @@
 
 import { renderHook, act } from '@testing-library/react';
 
-import type {
-  IExportableUnit,
-  IExportablePilot,
-  IExportableForce,
-  IShareableBundle,
-} from '@/types/vault';
-
-import { serializeBundle } from '@/services/vault/BundleService';
 import {
-  useIdentityStore,
-  useIdentitySelector,
-} from '@/stores/useIdentityStore';
+  cleanupVaultExportTest,
+  createExportOptions,
+  createMockBundle,
+  createMockForce,
+  createMockPilot,
+  createMockUnit,
+  mockClick,
+  mockFetch,
+  mockSerializeBundle,
+  mockUseIdentityStore,
+  mockWriteText,
+  setupVaultExportTest,
+} from './useVaultExport.test-helpers';
 
-import { useVaultExport, ExportOptions } from '../useVaultExport';
-
-// Mock dependencies
-jest.mock('@/stores/useIdentityStore');
-jest.mock('@/services/vault/BundleService');
-
-const mockUseIdentityStore = useIdentityStore as jest.MockedFunction<
-  typeof useIdentityStore
->;
-const mockUseIdentitySelector = useIdentitySelector as jest.MockedFunction<
-  typeof useIdentitySelector
->;
-const mockSerializeBundle = serializeBundle as jest.MockedFunction<
-  typeof serializeBundle
->;
-
-// Mock global fetch
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
-
-// Sample test data
-const createMockBundle = (): IShareableBundle => ({
-  metadata: {
-    version: '1.0.0',
-    contentType: 'unit',
-    itemCount: 1,
-    author: {
-      displayName: 'Test Author',
-      publicKey: 'abc123',
-      friendCode: 'TEST-1234',
-    },
-    createdAt: '2024-01-01T00:00:00Z',
-    appVersion: '0.1.0',
-  },
-  payload: JSON.stringify([{ id: 'unit-1', name: 'Test Unit' }]),
-  signature: 'test-signature',
-});
-
-const createMockUnit = (
-  overrides: Partial<IExportableUnit> = {},
-): IExportableUnit => ({
-  id: 'unit-1',
-  name: 'Test Mech',
-  chassis: 'Atlas',
-  model: 'AS7-D',
-  data: { tonnage: 100 },
-  ...overrides,
-});
-
-const createMockPilot = (
-  overrides: Partial<IExportablePilot> = {},
-): IExportablePilot => ({
-  id: 'pilot-1',
-  name: 'John Doe',
-  callsign: 'Maverick',
-  data: { gunnery: 4, piloting: 5 },
-  ...overrides,
-});
-
-const createMockForce = (
-  overrides: Partial<IExportableForce> = {},
-): IExportableForce => ({
-  id: 'force-1',
-  name: 'Alpha Lance',
-  description: 'Test force',
-  data: { units: [] },
-  ...overrides,
-});
-
-const createExportOptions = (
-  overrides: Partial<ExportOptions> = {},
-): ExportOptions => ({
-  password: 'test-password',
-  description: 'Test export',
-  tags: ['test'],
-  ...overrides,
-});
+const { useVaultExport } =
+  require('../useVaultExport') as typeof import('../useVaultExport');
 
 describe('useVaultExport', () => {
-  // Store original implementations
-  const originalCreateObjectURL = URL.createObjectURL;
-  const originalRevokeObjectURL = URL.revokeObjectURL;
-
-  // Mock functions for DOM operations
-  const mockClick = jest.fn();
-  const mockWriteText = jest.fn();
-  let createElementSpy: jest.SpyInstance;
-  let appendChildSpy: jest.SpyInstance;
-  let removeChildSpy: jest.SpyInstance;
-
   beforeEach(() => {
-    jest.clearAllMocks();
-
-    // Default identity store mock - unlocked
-    mockUseIdentityStore.mockReturnValue({
-      isUnlocked: true,
-      initialized: true,
-      hasIdentity: true,
-      publicIdentity: {
-        displayName: 'Test User',
-        publicKey: 'abc123',
-        friendCode: 'TEST-1234',
-      },
-      loading: false,
-      error: null,
-      checkIdentity: jest.fn(),
-      createIdentity: jest.fn(),
-      unlockIdentity: jest.fn(),
-      lockIdentity: jest.fn(),
-      updateDisplayName: jest.fn(),
-      clearError: jest.fn(),
-    });
-    mockUseIdentitySelector.mockImplementation((selector) =>
-      selector(mockUseIdentityStore()),
-    );
-
-    // Default fetch mock - success
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: () =>
-        Promise.resolve({
-          success: true,
-          bundle: createMockBundle(),
-          suggestedFilename: 'test-unit-20240101.mekbundle',
-        }),
-    });
-
-    // Default serialize mock
-    mockSerializeBundle.mockReturnValue('{"serialized":"bundle"}');
-
-    // Setup URL mocks
-    URL.createObjectURL = jest.fn().mockReturnValue('blob:test-url');
-    URL.revokeObjectURL = jest.fn();
-
-    // Setup DOM spies - only intercept anchor element creation
-    const mockAnchor = {
-      href: '',
-      download: '',
-      click: mockClick,
-    } as unknown as HTMLAnchorElement;
-
-    const originalCreateElement = document.createElement.bind(document);
-    // oxlint-disable-next-line @typescript-eslint/no-explicit-any
-    createElementSpy = jest
-      .spyOn(document, 'createElement')
-      .mockImplementation(((tagName: string) => {
-        if (tagName === 'a') {
-          return mockAnchor;
-        }
-        // Call original for other elements (needed by React Testing Library)
-        return originalCreateElement(tagName);
-      }) as unknown as jest.Mock) as unknown as jest.SpyInstance;
-
-    appendChildSpy = jest
-      .spyOn(document.body, 'appendChild')
-      .mockImplementation((node) => node);
-    removeChildSpy = jest
-      .spyOn(document.body, 'removeChild')
-      .mockImplementation((node) => node);
-
-    // Mock clipboard
-    Object.defineProperty(navigator, 'clipboard', {
-      value: { writeText: mockWriteText.mockResolvedValue(undefined) },
-      writable: true,
-      configurable: true,
-    });
+    setupVaultExportTest();
   });
 
   afterEach(() => {
-    // Restore original implementations
-    URL.createObjectURL = originalCreateObjectURL;
-    URL.revokeObjectURL = originalRevokeObjectURL;
-    createElementSpy?.mockRestore();
-    appendChildSpy?.mockRestore();
-    removeChildSpy?.mockRestore();
+    cleanupVaultExportTest();
   });
 
   describe('initial state', () => {

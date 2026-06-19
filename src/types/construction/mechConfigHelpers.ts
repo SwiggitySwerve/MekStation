@@ -13,49 +13,53 @@ import {
   type ILocationDefinition,
 } from './MechConfigTypes';
 
+type ActuatorSpec = readonly [
+  type: ActuatorType,
+  slotIndex: number,
+  required: boolean,
+  removable: boolean,
+];
+
+function createActuator([
+  type,
+  slotIndex,
+  required,
+  removable,
+]: ActuatorSpec): IActuatorSlot {
+  return {
+    type,
+    slotIndex,
+    required,
+    removable,
+  };
+}
+
+const ARM_ACTUATOR_SPECS: readonly ActuatorSpec[] = [
+  [ActuatorType.SHOULDER, 0, true, false],
+  [ActuatorType.UPPER_ARM, 1, true, false],
+  [ActuatorType.LOWER_ARM, 2, false, true],
+  [ActuatorType.HAND, 3, false, true],
+];
+
+const LEG_ACTUATOR_SPECS: readonly ActuatorSpec[] = [
+  [ActuatorType.HIP, 0, true, false],
+  [ActuatorType.UPPER_LEG, 1, true, false],
+  [ActuatorType.LOWER_LEG, 2, true, false],
+  [ActuatorType.FOOT, 3, true, false],
+];
+
 /**
  * Standard arm actuators (biped/tripod/LAM)
  */
 export const ARM_ACTUATORS: readonly IActuatorSlot[] = [
-  {
-    type: ActuatorType.SHOULDER,
-    slotIndex: 0,
-    required: true,
-    removable: false,
-  },
-  {
-    type: ActuatorType.UPPER_ARM,
-    slotIndex: 1,
-    required: true,
-    removable: false,
-  },
-  {
-    type: ActuatorType.LOWER_ARM,
-    slotIndex: 2,
-    required: false,
-    removable: true,
-  },
-  { type: ActuatorType.HAND, slotIndex: 3, required: false, removable: true },
+  ...ARM_ACTUATOR_SPECS.map(createActuator),
 ];
 
 /**
  * Standard leg actuators (all configurations)
  */
 export const LEG_ACTUATORS: readonly IActuatorSlot[] = [
-  { type: ActuatorType.HIP, slotIndex: 0, required: true, removable: false },
-  {
-    type: ActuatorType.UPPER_LEG,
-    slotIndex: 1,
-    required: true,
-    removable: false,
-  },
-  {
-    type: ActuatorType.LOWER_LEG,
-    slotIndex: 2,
-    required: true,
-    removable: false,
-  },
-  { type: ActuatorType.FOOT, slotIndex: 3, required: true, removable: false },
+  ...LEG_ACTUATOR_SPECS.map(createActuator),
 ];
 
 export const BIPED_LOCATIONS: MechLocation[] = [

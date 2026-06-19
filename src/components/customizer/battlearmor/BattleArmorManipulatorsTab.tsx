@@ -12,6 +12,8 @@
 
 import React from 'react';
 
+import { PlaceholderTab } from '../tabs/PlaceholderTab';
+
 export interface BattleArmorManipulatorsTabProps {
   readOnly?: boolean;
   className?: string;
@@ -25,11 +27,11 @@ export function BattleArmorManipulatorsTab({
   className = '',
 }: BattleArmorManipulatorsTabProps): React.ReactElement {
   return (
-    <div className={`p-4 ${className}`} data-testid="ba-manipulators-tab">
-      <p className="text-text-theme-secondary text-sm">
-        Coming soon — this tab will be wired up by add-battlearmor-construction
-      </p>
-    </div>
+    <PlaceholderTab
+      className={className}
+      testId="ba-manipulators-tab"
+      wiredBy="add-battlearmor-construction"
+    />
   );
 }
 

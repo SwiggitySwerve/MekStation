@@ -240,56 +240,40 @@ export interface IForceValidationWarning {
 // Helper Functions
 // =============================================================================
 
+const DEFAULT_SLOT_COUNT_BY_FORCE_TYPE: Readonly<Record<ForceType, number>> = {
+  [ForceType.Lance]: 4,
+  [ForceType.Star]: 5,
+  [ForceType.Level_II]: 6,
+  [ForceType.Company]: 12,
+  [ForceType.Binary]: 10,
+  [ForceType.Battalion]: 36,
+  [ForceType.Cluster]: 50,
+  [ForceType.Custom]: 4,
+};
+
+const FORCE_TYPE_NAME_BY_FORCE_TYPE: Readonly<Record<ForceType, string>> = {
+  [ForceType.Lance]: 'Lance',
+  [ForceType.Star]: 'Star',
+  [ForceType.Level_II]: 'Level II',
+  [ForceType.Company]: 'Company',
+  [ForceType.Binary]: 'Binary',
+  [ForceType.Battalion]: 'Battalion',
+  [ForceType.Cluster]: 'Cluster',
+  [ForceType.Custom]: 'Custom',
+};
+
 /**
  * Get the default slot count for a force type.
  */
 export function getDefaultSlotCount(forceType: ForceType): number {
-  switch (forceType) {
-    case ForceType.Lance:
-      return 4;
-    case ForceType.Star:
-      return 5;
-    case ForceType.Level_II:
-      return 6;
-    case ForceType.Company:
-      return 12;
-    case ForceType.Binary:
-      return 10;
-    case ForceType.Battalion:
-      return 36;
-    case ForceType.Cluster:
-      return 50;
-    case ForceType.Custom:
-      return 4; // Default for custom
-    default:
-      return 4;
-  }
+  return DEFAULT_SLOT_COUNT_BY_FORCE_TYPE[forceType] ?? 4;
 }
 
 /**
  * Get display name for force type.
  */
 export function getForceTypeName(forceType: ForceType): string {
-  switch (forceType) {
-    case ForceType.Lance:
-      return 'Lance';
-    case ForceType.Star:
-      return 'Star';
-    case ForceType.Level_II:
-      return 'Level II';
-    case ForceType.Company:
-      return 'Company';
-    case ForceType.Binary:
-      return 'Binary';
-    case ForceType.Battalion:
-      return 'Battalion';
-    case ForceType.Cluster:
-      return 'Cluster';
-    case ForceType.Custom:
-      return 'Custom';
-    default:
-      return 'Unknown';
-  }
+  return FORCE_TYPE_NAME_BY_FORCE_TYPE[forceType] ?? 'Unknown';
 }
 
 /**

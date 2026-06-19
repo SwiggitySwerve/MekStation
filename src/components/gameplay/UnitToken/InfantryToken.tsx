@@ -21,14 +21,22 @@ import React from 'react';
 
 import type { IInfantryToken } from '@/types/gameplay';
 
-import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
+import { HEX_SIZE } from '@/constants/hexMap';
 import {
-  GameSide,
   InfantryMotiveType,
   InfantryTokenSpecialization,
 } from '@/types/gameplay';
 
 import type { ITokenSharedProps } from './tokenTypes';
+
+import {
+  DestroyedCrossOverlay,
+  TOKEN_BODY_OUTLINE_COLOR,
+  TOKEN_BODY_STROKE_WIDTH,
+  TokenDesignationLabel,
+  selectionTargetRingColor,
+  tokenSideBodyColor,
+} from './tokenVisuals';
 
 export const INF_TOKEN_RADIUS = HEX_SIZE * 0.38;
 export const INF_RING_RADIUS = HEX_SIZE * 0.5;
@@ -84,19 +92,9 @@ export const InfantryToken = React.memo(function InfantryToken({
   const trooperCount = token.infantryCount;
   const platoonCount = token.platoonCount;
 
-  let bodyColor =
-    token.side === GameSide.Player
-      ? HEX_COLORS.playerToken
-      : HEX_COLORS.opponentToken;
-  if (isDestroyed) {
-    bodyColor = HEX_COLORS.destroyedToken;
-  }
+  const bodyColor = tokenSideBodyColor(token.side, isDestroyed);
 
-  const ringColor = token.isSelected
-    ? '#fbbf24'
-    : token.isValidTarget
-      ? '#f87171'
-      : 'transparent';
+  const ringColor = selectionTargetRingColor(token);
 
   const spec = specLabel(token.infantrySpecialization);
 
@@ -114,8 +112,8 @@ export const InfantryToken = React.memo(function InfantryToken({
       <circle
         r={INF_TOKEN_RADIUS}
         fill={bodyColor}
-        stroke="#1e293b"
-        strokeWidth={2}
+        stroke={TOKEN_BODY_OUTLINE_COLOR}
+        strokeWidth={TOKEN_BODY_STROKE_WIDTH}
       />
 
       {/* Stack icon: three horizontal lines (classic infantry counter symbol) */}
@@ -202,15 +200,9 @@ export const InfantryToken = React.memo(function InfantryToken({
       )}
 
       {/* Designation label */}
-      <text
-        y={INF_RING_RADIUS + 10}
-        textAnchor="middle"
-        fontSize={7}
-        fill="#1e293b"
-        style={{ pointerEvents: 'none' }}
-      >
+      <TokenDesignationLabel y={INF_RING_RADIUS + 10} fontSize={7}>
         {token.designation}
-      </text>
+      </TokenDesignationLabel>
 
       {/* Stack indicator badge "×N" when multiple platoons share the hex. */}
       {platoonCount > 1 && (
@@ -241,18 +233,7 @@ export const InfantryToken = React.memo(function InfantryToken({
       )}
 
       {/* Destroyed cross overlay */}
-      {isDestroyed && (
-        <g
-          stroke="#dc2626"
-          strokeWidth={2.5}
-          data-testid="unit-destroyed-overlay"
-          pointerEvents="none"
-          aria-hidden="true"
-        >
-          <line x1={-10} y1={-10} x2={10} y2={10} />
-          <line x1={10} y1={-10} x2={-10} y2={10} />
-        </g>
-      )}
+      {isDestroyed && <DestroyedCrossOverlay xRadius={10} strokeWidth={2.5} />}
     </>
   );
 });

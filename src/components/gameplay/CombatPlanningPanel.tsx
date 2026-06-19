@@ -24,34 +24,33 @@ import React, { useCallback, useMemo, useState } from 'react';
 import type { IWeapon } from '@/simulation/ai/types';
 import type {
   IAttackerState,
-  IHexCoordinate,
   ITargetState,
   MovementHeatProfile,
 } from '@/types/gameplay';
-import type { IForecastInput } from '@/utils/gameplay/toHit/forecast';
 
 import {
   useGameplaySelector,
   useSelectedUnit,
 } from '@/stores/useGameplayStore';
-import {
-  Facing,
-  GameEventType,
-  GamePhase,
-  LockState,
-  MovementType,
-} from '@/types/gameplay';
-import { hexDistance } from '@/utils/gameplay/hexMath';
+import { Facing, GamePhase, MovementType } from '@/types/gameplay';
 
-import { CommitMoveButton } from './CommitMoveButton';
-import { FacingPicker } from './FacingPicker';
-import { MovementTypeSwitcher } from './MovementTypeSwitcher';
+import type { PhysicalAttackIntent } from './PhysicalAttackPanel';
+
 import {
-  PhysicalAttackPanel,
-  type PhysicalAttackIntent,
-} from './PhysicalAttackPanel';
-import { ToHitForecastModal } from './ToHitForecastModal';
-import { WeaponSelector } from './WeaponSelector';
+  attackerStateForSelected,
+  createMovementPlan,
+  forecastWeaponsForPlan,
+  isMovementPlanReady,
+  movementPlanMetrics,
+  rangeToAttackTarget,
+  selectedWeaponModesForUnit,
+  targetStateForAttackPlan,
+} from './CombatPlanningPanel.model';
+import {
+  MovementPlanningSection,
+  PhysicalAttackPlanningSection,
+  WeaponAttackPlanningSection,
+} from './CombatPlanningPanel.sections';
 
 export interface CombatPlanningPanelProps {
   /** Walk MP for the currently selected unit (provided by parent). */
@@ -86,22 +85,6 @@ export interface CombatPlanningPanelProps {
   attackerTonnage?: number;
   /** Optional className */
   className?: string;
-}
-
-/**
- * Map a weapon catalog entry to the `IForecastInput` shape the
- * `buildToHitForecast` helper expects. Stays in this component so we
- * don't pull catalog-knowledge into the pure forecast util.
- */
-function weaponToForecastInput(weapon: IWeapon): IForecastInput {
-  return {
-    weaponId: weapon.id,
-    weaponName: weapon.name,
-    minRange: weapon.minRange,
-    shortRange: weapon.shortRange,
-    mediumRange: weapon.mediumRange,
-    longRange: weapon.longRange,
-  };
 }
 
 export function CombatPlanningPanel({
@@ -144,9 +127,10 @@ export function CombatPlanningPanel({
   const selected = useSelectedUnit();
 
   const [forecastOpen, setForecastOpen] = useState(false);
-  const selectedWeaponModes = selected
-    ? (weaponModesByUnitId[selected.id] ?? {})
-    : {};
+  const selectedWeaponModes = selectedWeaponModesForUnit(
+    weaponModesByUnitId,
+    selected,
+  );
 
   const phase = session?.currentState.phase;
 
@@ -161,15 +145,8 @@ export function CombatPlanningPanel({
       // immediately seed an empty plan with the new type so the
       // overlay knows which color to paint reachable hexes.
       clearPlannedMovement();
-      if (selected) {
-        setPlannedMovement({
-          unitId: selected.id,
-          destination: selected.state.position,
-          facing: selected.state.facing,
-          movementType: type,
-          path: [],
-        });
-      }
+      const nextPlan = createMovementPlan(type, selected);
+      if (nextPlan) setPlannedMovement(nextPlan);
     },
     [clearPlannedMovement, setPlannedMovement, selected],
   );
@@ -186,16 +163,11 @@ export function CombatPlanningPanel({
   // from their starting hex AND a facing. Same-hex destination would
   // mean "no movement" — covered by the Stationary type instead.
   const planReady = useMemo(() => {
-    if (!plannedMovement || !selected) return false;
-    const samePos =
-      plannedMovement.destination.q === selected.state.position.q &&
-      plannedMovement.destination.r === selected.state.position.r;
-    return !samePos;
+    return isMovementPlanReady(plannedMovement, selected);
   }, [plannedMovement, selected]);
 
-  const movementType = plannedMovement?.movementType ?? MovementType.Walk;
-  const mpCost = plannedMovement?.mpCost ?? plannedMovement?.path.length ?? 0;
-  const jumpHexes = movementType === MovementType.Jump ? mpCost : undefined;
+  const { movementType, mpCost, jumpHexes } =
+    movementPlanMetrics(plannedMovement);
 
   // ---------------------------------------------------------------------------
   // Attack-phase callbacks + derived state
@@ -207,13 +179,7 @@ export function CombatPlanningPanel({
    * to inert defaults.
    */
   const rangeToTarget = useMemo(() => {
-    if (!selected || !attackPlan.targetUnitId || !session) return 0;
-    const targetState = session.currentState.units[attackPlan.targetUnitId];
-    if (!targetState) return 0;
-    return hexDistance(
-      selected.state.position as IHexCoordinate,
-      targetState.position as IHexCoordinate,
-    );
+    return rangeToAttackTarget(selected, attackPlan.targetUnitId, session);
   }, [selected, attackPlan.targetUnitId, session]);
 
   /**
@@ -221,34 +187,16 @@ export function CombatPlanningPanel({
    * selected unit's live state + their `IGameUnit.gunnery`.
    */
   const attackerState: IAttackerState | null = useMemo(() => {
-    if (!selected) return null;
-    return {
-      gunnery: selected.unit.gunnery,
-      movementType: selected.state.movementThisTurn,
-      heat: selected.state.heat,
-      damageModifiers: [],
-    };
+    return attackerStateForSelected(selected);
   }, [selected]);
 
   const targetState: ITargetState | null = useMemo(() => {
-    if (!attackPlan.targetUnitId || !session) return null;
-    const t = session.currentState.units[attackPlan.targetUnitId];
-    if (!t) return null;
-    return {
-      movementType: t.movementThisTurn,
-      hexesMoved: t.hexesMovedThisTurn,
-      prone: t.prone ?? false,
-      immobile: false,
-      partialCover: false,
-    };
+    return targetStateForAttackPlan(attackPlan.targetUnitId, session);
   }, [attackPlan.targetUnitId, session]);
 
   const forecastWeapons = useMemo(
-    () =>
-      weapons
-        .filter((w) => attackPlan.selectedWeapons.includes(w.id))
-        .map(weaponToForecastInput),
-    [weapons, attackPlan.selectedWeapons],
+    () => forecastWeaponsForPlan(weapons, attackPlan),
+    [weapons, attackPlan],
   );
 
   const handleConfirmFire = useCallback(() => {
@@ -266,230 +214,61 @@ export function CombatPlanningPanel({
 
   if (phase === GamePhase.Movement) {
     return (
-      <section
-        className={`bg-surface-base flex flex-col gap-3 border-t border-gray-200 p-3 ${className}`}
-        aria-label="Movement planning"
-        data-testid="combat-planning-panel-movement"
-      >
-        <MovementTypeSwitcher
-          active={movementType}
-          walkMP={walkMP}
-          runMP={runMP}
-          jumpMP={jumpMP}
-          onChange={handleTypeChange}
-        />
-        <FacingPicker
-          selected={plannedMovement?.facing ?? null}
-          onSelect={handleFacingSelect}
-        />
-        <CommitMoveButton
-          ready={planReady && plannedMovement?.facing !== undefined}
-          mpCost={mpCost}
-          movementType={movementType}
-          heatGenerated={plannedMovement?.heatGenerated}
-          movementHeatProfile={movementHeatProfile}
-          movementMode={plannedMovement?.movementMode}
-          terrainCost={plannedMovement?.terrainCost}
-          elevationDelta={plannedMovement?.elevationDelta}
-          elevationCost={plannedMovement?.elevationCost}
-          jumpHexes={jumpHexes}
-          onCommit={commitPlannedMovement}
-        />
-      </section>
+      <MovementPlanningSection
+        className={className}
+        movementType={movementType}
+        walkMP={walkMP}
+        runMP={runMP}
+        jumpMP={jumpMP}
+        plannedMovement={plannedMovement}
+        planReady={planReady}
+        mpCost={mpCost}
+        jumpHexes={jumpHexes}
+        movementHeatProfile={movementHeatProfile}
+        onTypeChange={handleTypeChange}
+        onFacingSelect={handleFacingSelect}
+        onCommit={commitPlannedMovement}
+      />
     );
   }
 
   if (phase === GamePhase.WeaponAttack) {
-    const ammoMap: Record<string, number> = {};
-    for (const w of weapons) {
-      // Energy weapons (-1 ammo per ton) treated as unlimited; ammo
-      // weapons read from the unit's live ammo record.
-      ammoMap[w.id] = selected.state.ammo[w.id] ?? -1;
-    }
-
-    // Per `add-attack-phase-ui` task 5.3: any selected weapon with
-    // `ammoRemaining === 0` blocks the forecast preview so the player
-    // can't walk into a Confirm-Fire screen that mixes a dry launcher
-    // with live ones. -1 is the energy sentinel (unlimited) and > 0 is
-    // a live bin; only === 0 is blocking.
-    const hasZeroAmmoSelected = attackPlan.selectedWeapons.some(
-      (weaponId) => ammoMap[weaponId] === 0,
-    );
-
-    // Per `add-attack-phase-ui` task 7.3: attacker lockState becomes
-    // Locked once the session processes the AttackLocked event emitted
-    // by commitAttack. When locked, we render the planning view with
-    // checkboxes grayed out (via `disabled`-style props) + a banner.
-    const attackerLocked = selected.state.lockState === LockState.Locked;
-
-    // Per `add-attack-phase-ui` tasks 9.1–9.3: the "Waiting for
-    // Opponent..." banner is shown after the Player commits attacks
-    // and dismissed once the session emits `attacks_revealed`. We
-    // scan the event tail — the banner SHOULD disappear the same tick
-    // that `attacks_revealed` appears, even if we haven't yet advanced
-    // to the next phase.
-    const events = session.currentState ? session.events : [];
-    const lastRevealIndex = events.findLastIndex(
-      (e) => e.type === GameEventType.AttacksRevealed,
-    );
-    const lastPlayerLockIndex = events.findLastIndex(
-      (e) =>
-        e.type === GameEventType.AttackLocked && e.actorId === selected.unit.id,
-    );
-    const waitingForOpponent =
-      attackerLocked && lastPlayerLockIndex > lastRevealIndex;
-
-    // Renamed from `previewEnabled` (which now refers to the
-    // what-if Damage Preview toggle, per `add-what-if-to-hit-preview`
-    // § 8.2) to `forecastReady` so the two flags don't shadow each
-    // other inside the same scope. Also per task 5.3: zero-ammo
-    // selections block forecast preview. Per task 9.3: the forecast
-    // modal is locked out after commit (attackerLocked).
-    const forecastReady =
-      attackPlan.targetUnitId !== null &&
-      attackPlan.selectedWeapons.length > 0 &&
-      attackerState !== null &&
-      targetState !== null &&
-      !hasZeroAmmoSelected &&
-      !attackerLocked;
-
     return (
-      <section
-        className={`bg-surface-base flex flex-col gap-3 border-t border-gray-200 p-3 ${className}`}
-        aria-label="Attack planning"
-        data-testid="combat-planning-panel-attack"
-        data-attacker-locked={attackerLocked}
-      >
-        {waitingForOpponent && (
-          <div
-            className="rounded border border-amber-300 bg-amber-50 p-2 text-center text-sm font-semibold text-amber-800"
-            role="status"
-            aria-live="polite"
-            data-testid="waiting-for-opponent-banner"
-          >
-            Waiting for Opponent...
-          </div>
-        )}
-        {attackerLocked && !waitingForOpponent && (
-          <div
-            className="rounded border border-gray-300 bg-gray-100 p-2 text-center text-sm font-semibold text-gray-700"
-            data-testid="attacker-locked-banner"
-          >
-            Attacks locked. Awaiting phase resolution.
-          </div>
-        )}
-        <fieldset
-          disabled={attackerLocked}
-          className={`flex flex-col gap-3 border-0 p-0 ${
-            attackerLocked ? 'pointer-events-none opacity-60' : ''
-          }`}
-          data-testid="combat-planning-fieldset"
-        >
-          <WeaponSelector
-            weapons={weapons}
-            rangeToTarget={rangeToTarget}
-            selectedWeaponIds={attackPlan.selectedWeapons}
-            weaponModesByWeaponId={selectedWeaponModes}
-            weaponModeError={attackPlan.weaponModeError}
-            ammo={ammoMap}
-            onToggle={togglePlannedWeapon}
-            onModeChange={setPlannedWeaponMode}
-            attacker={attackerState}
-            target={targetState}
-            previewEnabled={previewEnabled}
-            onTogglePreview={setPreviewEnabled}
-          />
-          <button
-            type="button"
-            onClick={() => setForecastOpen(true)}
-            disabled={!forecastReady}
-            className={`min-h-[44px] rounded px-4 py-2 font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none ${
-              forecastReady
-                ? 'cursor-pointer bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500'
-                : 'cursor-not-allowed bg-gray-300 text-gray-500'
-            }`}
-            data-testid="preview-forecast-button"
-          >
-            Preview Forecast
-          </button>
-          {hasZeroAmmoSelected && (
-            <p
-              className="text-xs font-semibold text-red-700"
-              data-testid="zero-ammo-block-message"
-            >
-              One or more selected weapons have no ammo remaining.
-            </p>
-          )}
-        </fieldset>
-        {attackerState && targetState && !attackerLocked && (
-          <ToHitForecastModal
-            open={forecastOpen}
-            attacker={attackerState}
-            target={targetState}
-            range={rangeToTarget}
-            weapons={forecastWeapons}
-            previewEnabled={previewEnabled}
-            attackerWeapons={weapons}
-            onConfirm={handleConfirmFire}
-            onClose={() => setForecastOpen(false)}
-          />
-        )}
-      </section>
+      <WeaponAttackPlanningSection
+        className={className}
+        selected={selected}
+        attackPlan={attackPlan}
+        weapons={weapons}
+        selectedWeaponModes={selectedWeaponModes}
+        rangeToTarget={rangeToTarget}
+        attackerState={attackerState}
+        targetState={targetState}
+        forecastWeapons={forecastWeapons}
+        forecastOpen={forecastOpen}
+        events={session.events}
+        previewEnabled={previewEnabled}
+        onTogglePreview={setPreviewEnabled}
+        onToggleWeapon={togglePlannedWeapon}
+        onModeChange={setPlannedWeaponMode}
+        onOpenForecast={() => setForecastOpen(true)}
+        onConfirmFire={handleConfirmFire}
+        onCloseForecast={() => setForecastOpen(false)}
+        weaponModeError={attackPlan.weaponModeError}
+      />
     );
   }
 
   if (phase === GamePhase.PhysicalAttack) {
-    // Per `add-physical-attack-phase-ui` tasks 1.2 + 1.3 +
-    // `tactical-map-interface` delta "Physical Attack Sub-Panel":
-    // during the Physical Attack phase the weapon list is visible but
-    // fully inert — we keep the row grid mounted (so the player can
-    // still read range bands + ammo counts + heat values) while
-    // blocking pointer events and dropping opacity so the UI reads as
-    // "locked". The actual interaction surface is the
-    // `PhysicalAttackPanel` rendered underneath.
-    const ammoMap: Record<string, number> = {};
-    for (const w of weapons) {
-      ammoMap[w.id] = selected.state.ammo[w.id] ?? -1;
-    }
     return (
-      <section
-        className={`bg-surface-base flex flex-col gap-3 border-t border-gray-200 p-3 ${className}`}
-        aria-label="Physical attack planning"
-        data-testid="combat-planning-panel-physical"
-      >
-        {weapons.length > 0 && (
-          <div
-            // Pointer-events-none + aria-disabled keeps the list
-            // readable but un-clickable during the physical phase
-            // (task 1.3). `opacity-50` communicates the locked state
-            // visually; the sibling banner spells it out for
-            // accessibility-tree consumers.
-            className="pointer-events-none opacity-50 select-none"
-            aria-disabled="true"
-            data-testid="weapon-list-locked"
-          >
-            <p className="text-text-theme-muted mb-1 text-xs font-semibold uppercase">
-              Weapons locked — Physical Attack phase
-            </p>
-            <WeaponSelector
-              weapons={weapons}
-              rangeToTarget={0}
-              selectedWeaponIds={attackPlan.selectedWeapons}
-              weaponModesByWeaponId={selectedWeaponModes}
-              ammo={ammoMap}
-              // No-op toggle: even though pointer-events-none blocks
-              // clicks, keyboard assistive tech might still reach the
-              // checkbox — the no-op guarantees the selection model
-              // can't drift during the physical phase.
-              onToggle={() => undefined}
-            />
-          </div>
-        )}
-        <PhysicalAttackPanel
-          attackerTonnage={attackerTonnage}
-          onIntentChange={onPhysicalAttackIntentChange}
-        />
-      </section>
+      <PhysicalAttackPlanningSection
+        attackerTonnage={attackerTonnage}
+        attackPlan={attackPlan}
+        className={className}
+        onIntentChange={onPhysicalAttackIntentChange}
+        selected={selected}
+        selectedWeaponModes={selectedWeaponModes}
+        weapons={weapons}
+      />
     );
   }
 

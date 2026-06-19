@@ -1,13 +1,8 @@
-import {
-  GameEventType,
-  GamePhase,
-  IGameEvent,
-  IGameState,
-} from '@/types/gameplay';
+import { IGameEvent, IGameState } from '@/types/gameplay';
 
 import type { IWeapon } from '../../ai/types';
 
-import { createGameEvent } from './utils';
+import { appendAttackResolvedEvent } from './utils';
 
 export function isPlasmaCannonWeapon(weapon: IWeapon): boolean {
   const searchable = `${weapon.id} ${weapon.name}`.toLowerCase();
@@ -105,29 +100,25 @@ export function applyPlasmaCannonTargetHeat(options: {
   } = options;
   let { currentState } = options;
 
-  events.push(
-    createGameEvent(
-      gameId,
-      events.length,
-      GameEventType.AttackResolved,
-      currentState.turn,
-      GamePhase.WeaponAttack,
-      {
-        attackerId,
-        targetId,
-        weaponId,
-        roll: attackRoll,
-        toHitNumber,
-        hit: true,
-        location,
-        damage: 0,
-        heat: weapon.heat,
-        ...(projectileCount !== undefined ? { projectileCount } : {}),
-        attackerArc: firingArc,
-      },
+  appendAttackResolvedEvent({
+    events,
+    gameId,
+    turn: currentState.turn,
+    payload: {
       attackerId,
-    ),
-  );
+      targetId,
+      weaponId,
+      roll: attackRoll,
+      toHitNumber,
+      hit: true,
+      location,
+      damage: 0,
+      heat: weapon.heat,
+      ...(projectileCount !== undefined ? { projectileCount } : {}),
+      attackerArc: firingArc,
+    },
+    actorId: attackerId,
+  });
 
   const target = currentState.units[targetId];
   if (!targetTracksPlasmaHeat(target)) {

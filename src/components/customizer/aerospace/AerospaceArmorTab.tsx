@@ -23,6 +23,7 @@ import {
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { customizerStyles as cs } from '../styles';
+import { SelectOptions } from '../tabs/SelectOptions';
 import { AerospaceArmorDiagram } from './AerospaceArmorDiagram';
 
 // =============================================================================
@@ -160,11 +161,7 @@ export function AerospaceArmorTab({
               className={`${cs.select.full} mt-1`}
               data-testid="aerospace-armor-type-select"
             >
-              {ARMOR_TYPE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
+              <SelectOptions options={ARMOR_TYPE_OPTIONS} />
             </select>
           </div>
 

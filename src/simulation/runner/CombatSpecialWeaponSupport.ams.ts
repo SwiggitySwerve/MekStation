@@ -1,0 +1,125 @@
+import {
+  integrated,
+  outOfScope,
+  type ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
+import {
+  MEGAMEK_ACTIVE_PROBE_SOURCE_REFS,
+  MEGAMEK_AMS_AMMO_LIFECYCLE_SOURCE_REFS,
+  MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
+  MEGAMEK_AMS_CLUSTER_SOURCE_REFS,
+  MEGAMEK_AMS_SINGLE_MISSILE_SOURCE_REFS,
+  MEGAMEK_ARTEMIS_CLUSTER_SOURCE_REFS,
+  MEGAMEK_ARTEMIS_FCS_SOURCE_REFS,
+  MEGAMEK_ECM_SUITE_SOURCE_REFS,
+  INARC_POD_BRUSH_OFF_REMOVAL_SOURCE_REFS,
+  INARC_POD_BRUSH_OFF_TARGET_SELECTION_SOURCE_REFS,
+  MEKSTATION_ARTEMIS_STEALTH_LIFECYCLE_SOURCE_REFS,
+  MEGAMEK_INARC_ECM_C3_SOURCE_REFS,
+  MEGAMEK_INARC_ECM_SENSOR_EFFECT_SOURCE_REFS,
+  MEGAMEK_INARC_ECM_SOURCE_REFS,
+  MEGAMEK_INARC_EXPLOSIVE_SOURCE_REFS,
+  MEGAMEK_INARC_HAYWIRE_SOURCE_REFS,
+  MEGAMEK_INARC_HOMING_SOURCE_REFS,
+  MEGAMEK_INARC_NEMESIS_SOURCE_REFS,
+  MEGAMEK_INARC_POD_OBJECT_SOURCE_REFS,
+  MEGAMEK_INARC_POD_TYPE_SOURCE_REFS,
+  MEGAMEK_LBX_SOURCE_REFS,
+  MEGAMEK_MML_SOURCE_REFS,
+  MEGAMEK_NARC_CLUSTER_SOURCE_REFS,
+  MEGAMEK_NARC_MARKER_SOURCE_REFS,
+  MEGAMEK_NOVA_CEWS_NETWORK_SOURCE_REFS,
+  MEGAMEK_PLASMA_CANNON_BATTLEMECH_TARGET_HEAT_SOURCE_REFS,
+  MEGAMEK_RAC_SOURCE_REFS,
+  MEGAMEK_STEALTH_ACTIVE_SOURCE_REFS,
+  MEGAMEK_STREAK_SRM_SOURCE_REFS,
+  MEGAMEK_TAG_CLEAR_SOURCE_REFS,
+  MEGAMEK_TAG_DESIGNATION_SOURCE_REFS,
+  MEGAMEK_TAG_FAMILY_SOURCE_REFS,
+  MEGAMEK_TAG_SEMI_GUIDED_SOURCE_REFS,
+  MEGAMEK_UAC_SOURCE_REFS,
+} from './CombatSpecialWeaponSourceRefs';
+
+export const SPECIAL_WEAPON_AMS_COMBAT_SUPPORT = {
+  'ams-projectile-reduction': integrated(
+    'ams-projectile-reduction',
+    'resolveSpecialProjectileHit passes target-mounted AMS weapons through resolveAMSInterception, which applies the Total Warfare/MegaMek -4 cluster-table modifier',
+    MEGAMEK_AMS_CLUSTER_SOURCE_REFS,
+  ),
+  'ams-automatic-interception-assignment': integrated(
+    'ams-automatic-interception-assignment',
+    'runAttackPhase automatically passes defender mounted AMS into missile resolution and resolveAMSInterception selects an operational in-arc AMS without requiring manual defender choice',
+    MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
+  ),
+  'ams-mounted-arc-enforcement': integrated(
+    'ams-mounted-arc-enforcement',
+    'resolveAMSInterception and resolveSingleMissileAMSInterception filter target-mounted AMS by incoming attack arc when mountingArc or multi-arc mountingArcs state is available, unioning multi-arc coverage via weaponMountCoversTargetArc',
+    MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
+  ),
+  'ams-mounted-arc-hydration': integrated(
+    'ams-mounted-arc-hydration',
+    'UnitHydration maps canonical mounted equipment isRearMounted metadata into explicit Front/Rear mountingArc state and biped arm mount locations into MegaMek Mek.getWeaponArc front+side mountingArcs coverage for runner and AI combat snapshots',
+    MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
+  ),
+  'ams-streak-cluster-parity': integrated(
+    'ams-streak-cluster-parity',
+    'resolveSpecialProjectileHit treats Streak hits as cluster-roll 11 when target AMS engages, then applies the AMS -4 cluster-table modifier',
+    MEGAMEK_AMS_CLUSTER_SOURCE_REFS,
+  ),
+  'ams-single-missile-parity': integrated(
+    'ams-single-missile-parity',
+    'resolveSingleMissileAMSInterception mirrors MegaMek NARC/Thunderbolt handlers by rolling 1d6 and destroying the single incoming pod or missile on 1-3',
+    MEGAMEK_AMS_SINGLE_MISSILE_SOURCE_REFS,
+  ),
+  'ams-ammo-consumption': integrated(
+    'ams-ammo-consumption',
+    'runAttackPhase passes defender ammo state into missile resolution and consumes the target-mounted AMS ammo bin during cluster or single-missile interception',
+    MEGAMEK_AMS_AMMO_LIFECYCLE_SOURCE_REFS,
+  ),
+  'ams-authored-multi-use-lifecycle': integrated(
+    'ams-authored-multi-use-lifecycle',
+    'Runner and interactive attack resolution consume already-authored explicit amsMultiUse mount state or PLAYTEST_3 optional-rule state to allow same-phase AMS reuse while preserving ammo consumption, heat generation, and fired-state accounting',
+    [
+      ...MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
+      ...MEGAMEK_AMS_AMMO_LIFECYCLE_SOURCE_REFS,
+    ],
+  ),
+  'ams-interception-events': integrated(
+    'ams-interception-events',
+    'runAttackPhase emits AMSInterception payloads with incoming, intercepted, and remaining projectile counts before damage resolution',
+    [
+      ...MEGAMEK_AMS_CLUSTER_SOURCE_REFS,
+      ...MEGAMEK_AMS_SINGLE_MISSILE_SOURCE_REFS,
+    ],
+  ),
+  'ams-runner-selected-defender-choice': integrated(
+    'ams-runner-selected-defender-choice',
+    'runAttackPhase consumes replayable defender-selected AttackDeclared.selectedAMSWeaponIds, threads the selectedAMSWeaponId into missile AMS interception, honors eligible selected mounts, rejects ineligible explicit selections without automatic fallback or defender ammo/fired-state side effects, emits the selected AMS id in AttackDeclared and AMSInterception evidence, and keeps absent selections on automatic operational in-arc AMS assignment',
+    MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
+  ),
+  'ams-session-selected-defender-choice': integrated(
+    'ams-session-selected-defender-choice',
+    'applyInteractiveSessionAttack snapshots defender-selected AMS mount metadata onto AttackDeclared.selectedAMSWeaponMounts and resolveAttack consumes only that replayable payload plus currentState to honor selected mounts while rejecting invalid explicit selections without automatic fallback, defender ammo consumption, AMSInterception events, or fired-state side effects',
+    MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
+  ),
+  'ams-manual-defender-choice': integrated(
+    'ams-manual-defender-choice',
+    'InteractiveSession.applyAttack/applyInteractiveSessionAttack expose defender-selected selectedAMSWeaponIds as the interactive declaration surface, snapshot legal selected defender AMS mounts onto AttackDeclared before commit, reject illegal selected non-missile/non-AMS/out-of-arc/already-fired/no-ammo selections with AttackInvalid before AttackDeclared, and runner/session replay consume selected ids without automatic fallback',
+    MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
+  ),
+  'ams-bay-authoring': outOfScope(
+    'ams-bay-authoring',
+    'BattleMech official catalog data does not expose an AMS bay equipment entry or amsBay authoring field; MekStation represents standard AMS mounts plus explicit selected defender AMS mount ids, and AMS bay-shaped helper metadata does not make standard AMS reusable',
+    'AMS bay authoring belongs outside the current BattleMech blocker matrix until a source-backed BattleMech catalog entry or supported bay/multi-mount authoring model exists; standard AMS arc assignment, selected defender AMS support, and helper-shaped amsBay metadata must not be treated as AMS bay support',
+    MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
+  ),
+  'ams-optional-multi-use-authoring': outOfScope(
+    'ams-optional-multi-use-authoring',
+    'BattleMech official catalog data does not expose a multi-use AMS variant or amsMultiUse authoring field; MekStation consumes already-authored amsMultiUse mount state and PLAYTEST_3 optional-rule state under ams-authored-multi-use-lifecycle',
+    'Optional multi-use AMS catalog/editor/game-option authoring belongs outside the current BattleMech blocker matrix until a source-backed catalog field, editor surface, or rule-option authoring matrix exists; explicit amsMultiUse state and runtime optionalRules consumption must remain covered by ams-authored-multi-use-lifecycle',
+    [
+      ...MEGAMEK_AMS_ASSIGNMENT_SOURCE_REFS,
+      ...MEGAMEK_AMS_AMMO_LIFECYCLE_SOURCE_REFS,
+    ],
+  ),
+} satisfies Record<string, ICombatFeatureSupportEntry>;

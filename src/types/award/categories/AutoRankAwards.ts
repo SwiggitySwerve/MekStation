@@ -7,14 +7,10 @@
  */
 
 import { AutoAwardCategory } from '../../campaign/awards/autoAwardTypes';
-import {
-  IAward,
-  AwardRarity,
-  AwardCategory,
-  CriteriaType,
-} from '../AwardInterfaces';
+import { AwardRarity, AwardCategory, CriteriaType } from '../AwardInterfaces';
+import { createAutoAwards } from './AutoAwardBuilders';
 
-export const AUTO_RANK_AWARDS: readonly IAward[] = [
+export const AUTO_RANK_AWARDS = createAutoAwards([
   {
     id: 'officer-commission',
     name: 'Officer Commission',
@@ -22,21 +18,15 @@ export const AUTO_RANK_AWARDS: readonly IAward[] = [
     category: AwardCategory.Service,
     rarity: AwardRarity.Uncommon,
     icon: 'award-officer',
-    criteria: {
-      type: CriteriaType.SpecificEvent,
-      threshold: 1,
-      conditions: { eventType: 'promotion' },
-      description: 'Reach officer rank (level 3+)',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.SpecificEvent,
+    criteriaThreshold: 1,
+    criteriaConditions: { eventType: 'promotion' },
+    criteriaDescription: 'Reach officer rank (level 3+)',
     sortOrder: 700,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.RANK,
-      threshold: 3,
-      thresholdType: 'rank_level',
-      stackable: false,
-      rankMode: 'inclusive',
-    },
+    autoCategory: AutoAwardCategory.RANK,
+    autoThreshold: 3,
+    autoThresholdType: 'rank_level',
+    rankMode: 'inclusive',
   },
   {
     id: 'senior-officer',
@@ -45,21 +35,15 @@ export const AUTO_RANK_AWARDS: readonly IAward[] = [
     category: AwardCategory.Service,
     rarity: AwardRarity.Rare,
     icon: 'award-senior-officer',
-    criteria: {
-      type: CriteriaType.SpecificEvent,
-      threshold: 1,
-      conditions: { eventType: 'promotion' },
-      description: 'Reach senior officer rank (level 6+)',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.SpecificEvent,
+    criteriaThreshold: 1,
+    criteriaConditions: { eventType: 'promotion' },
+    criteriaDescription: 'Reach senior officer rank (level 6+)',
     sortOrder: 710,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.RANK,
-      threshold: 6,
-      thresholdType: 'rank_level',
-      stackable: false,
-      rankMode: 'inclusive',
-    },
+    autoCategory: AutoAwardCategory.RANK,
+    autoThreshold: 6,
+    autoThresholdType: 'rank_level',
+    rankMode: 'inclusive',
   },
   {
     id: 'command-rank',
@@ -68,20 +52,14 @@ export const AUTO_RANK_AWARDS: readonly IAward[] = [
     category: AwardCategory.Service,
     rarity: AwardRarity.Legendary,
     icon: 'award-command-rank',
-    criteria: {
-      type: CriteriaType.SpecificEvent,
-      threshold: 1,
-      conditions: { eventType: 'promotion' },
-      description: 'Reach command rank (level 9+)',
-    },
-    repeatable: false,
+    criteriaType: CriteriaType.SpecificEvent,
+    criteriaThreshold: 1,
+    criteriaConditions: { eventType: 'promotion' },
+    criteriaDescription: 'Reach command rank (level 9+)',
     sortOrder: 720,
-    autoGrantCriteria: {
-      category: AutoAwardCategory.RANK,
-      threshold: 9,
-      thresholdType: 'rank_level',
-      stackable: false,
-      rankMode: 'inclusive',
-    },
+    autoCategory: AutoAwardCategory.RANK,
+    autoThreshold: 9,
+    autoThresholdType: 'rank_level',
+    rankMode: 'inclusive',
   },
-];
+]);

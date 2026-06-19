@@ -200,15 +200,19 @@ function sessionWith(
  * layer, move every living friendly unit, and return the updated unit list.
  * The grid occupancy is kept in sync so the pathfinder routes around units.
  */
-function runBotMovementTurn(
-  bot: BotPlayer,
-  grid: IHexGrid,
-  objectives: Record<string, IObjectiveMarker>,
-  units: IUnitGameState[],
-  botSide: GameSide,
-  turn: number,
-  objectiveAware: boolean,
-): IUnitGameState[] {
+interface BotMovementTurnFixture {
+  readonly bot: BotPlayer;
+  readonly grid: IHexGrid;
+  readonly objectives: Record<string, IObjectiveMarker>;
+  readonly units: IUnitGameState[];
+  readonly botSide: GameSide;
+  readonly turn: number;
+  readonly objectiveAware: boolean;
+}
+
+function runBotMovementTurn(fixture: BotMovementTurnFixture): IUnitGameState[] {
+  const { bot, grid, objectives, units, botSide, turn, objectiveAware } =
+    fixture;
   let working = units.map((u) => ({ ...u }));
   const friendly = working.filter((u) => u.side === botSide && !u.destroyed);
   const enemies = working.filter((u) => u.side !== botSide && !u.destroyed);
@@ -302,15 +306,15 @@ describe('A3b integration — Capture scenario', () => {
     const bot = new BotPlayer(new SeededRandom(7), ELITE);
     let won = false;
     for (let turn = 1; turn <= 12; turn++) {
-      units = runBotMovementTurn(
+      units = runBotMovementTurn({
         bot,
         grid,
         objectives,
         units,
-        GameSide.Player,
+        botSide: GameSide.Player,
         turn,
-        true,
-      );
+        objectiveAware: true,
+      });
       objectives = advanceControl(objectives, units, turn);
       const outcome = evaluateObjectiveOutcome(
         { ...sessionWith(objectives, units, turn).currentState },
@@ -351,15 +355,15 @@ describe('A3b integration — Capture scenario', () => {
     for (let turn = 1; turn <= 12; turn++) {
       // `objectiveAware: false` — a Veteran caller never threads the
       // objective input, mirroring the tier's disabled awareness flag.
-      units = runBotMovementTurn(
+      units = runBotMovementTurn({
         bot,
         grid,
         objectives,
         units,
-        GameSide.Player,
+        botSide: GameSide.Player,
         turn,
-        false,
-      );
+        objectiveAware: false,
+      });
       objectives = advanceControl(objectives, units, turn);
       const outcome = evaluateObjectiveOutcome(
         { ...sessionWith(objectives, units, turn).currentState },
@@ -402,15 +406,15 @@ describe('A3b integration — Defend scenario', () => {
     const bot = new BotPlayer(new SeededRandom(3), ELITE);
     let defenderWon = false;
     for (let turn = 1; turn <= turnLimit; turn++) {
-      units = runBotMovementTurn(
+      units = runBotMovementTurn({
         bot,
         grid,
         objectives,
         units,
-        GameSide.Opponent,
+        botSide: GameSide.Opponent,
         turn,
-        true,
-      );
+        objectiveAware: true,
+      });
       objectives = advanceControl(objectives, units, turn);
       const outcome = evaluateObjectiveOutcome(
         sessionWith(objectives, units, turn).currentState,
@@ -458,15 +462,15 @@ describe('A3b integration — Breakthrough scenario', () => {
     const bot = new BotPlayer(new SeededRandom(5), ELITE);
     let won = false;
     for (let turn = 1; turn <= 20; turn++) {
-      units = runBotMovementTurn(
+      units = runBotMovementTurn({
         bot,
         grid,
         objectives,
         units,
-        GameSide.Player,
+        botSide: GameSide.Player,
         turn,
-        true,
-      );
+        objectiveAware: true,
+      });
       const outcome = evaluateObjectiveOutcome(
         sessionWith(objectives, units, turn).currentState,
         0,

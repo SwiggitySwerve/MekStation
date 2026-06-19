@@ -6,74 +6,13 @@
 
 import { renderHook, act, waitFor } from '@testing-library/react';
 
-import { EventStoreService } from '@/services/events';
-import { EventCategory, IBaseEvent } from '@/types/events';
-import { ReducerMap } from '@/utils/events/stateDerivation';
-
+import { useReplayPlayer } from '../useReplayPlayer';
 import {
-  useReplayPlayer,
-  PLAYBACK_SPEEDS,
-  getNextSpeed,
-  getPrevSpeed,
-  formatSpeed,
-  formatTime,
-} from '../useReplayPlayer';
-
-// =============================================================================
-// Test Types
-// =============================================================================
-
-interface TestState {
-  turn: number;
-  score: number;
-}
-
-// =============================================================================
-// Test Helpers
-// =============================================================================
-
-const initialState: TestState = { turn: 0, score: 0 };
-
-function createMockEvent(
-  sequence: number,
-  type: string,
-  payload: unknown = {},
-): IBaseEvent {
-  return {
-    id: `event-${sequence}`,
-    sequence,
-    timestamp: new Date().toISOString(),
-    category: EventCategory.Game,
-    type,
-    payload,
-    context: { gameId: 'game-1' },
-  };
-}
-
-const testReducers: ReducerMap<TestState> = {
-  [EventCategory.Game]: {
-    'turn-advance': (state, _event) => ({
-      ...state,
-      turn: state.turn + 1,
-    }),
-    'score-change': (state, event) => ({
-      ...state,
-      score: state.score + (event.payload as { delta: number }).delta,
-    }),
-  },
-};
-
-function createMockEventStore(events: IBaseEvent[] = []): EventStoreService {
-  const store = new EventStoreService();
-  for (const event of events) {
-    store.append(event);
-  }
-  return store;
-}
-
-// =============================================================================
-// Tests
-// =============================================================================
+  createMockEvent,
+  createMockEventStore,
+  initialState,
+  testReducers,
+} from './useReplayPlayer.test-helpers';
 
 describe('useReplayPlayer', () => {
   beforeEach(() => {
@@ -488,52 +427,6 @@ describe('useReplayPlayer', () => {
       });
 
       expect(onComplete).toHaveBeenCalled();
-    });
-  });
-});
-
-describe('utility functions', () => {
-  describe('PLAYBACK_SPEEDS', () => {
-    it('should contain expected speeds', () => {
-      expect(PLAYBACK_SPEEDS).toContain(0.5);
-      expect(PLAYBACK_SPEEDS).toContain(1);
-      expect(PLAYBACK_SPEEDS).toContain(2);
-      expect(PLAYBACK_SPEEDS).toContain(4);
-    });
-  });
-
-  describe('getNextSpeed', () => {
-    it('should cycle through speeds', () => {
-      expect(getNextSpeed(1)).toBe(2);
-      expect(getNextSpeed(8)).toBe(0.25); // wraps around
-    });
-  });
-
-  describe('getPrevSpeed', () => {
-    it('should cycle through speeds backwards', () => {
-      expect(getPrevSpeed(1)).toBe(0.5);
-      expect(getPrevSpeed(0.25)).toBe(8); // wraps around
-    });
-  });
-
-  describe('formatSpeed', () => {
-    it('should format speed with x suffix', () => {
-      expect(formatSpeed(1)).toBe('1x');
-      expect(formatSpeed(0.5)).toBe('0.5x');
-      expect(formatSpeed(4)).toBe('4x');
-    });
-  });
-
-  describe('formatTime', () => {
-    it('should format time as mm:ss', () => {
-      // 10 events remaining, 1000ms base, 1x speed = 10 seconds
-      expect(formatTime(0, 10, 1000, 1)).toBe('0:10');
-
-      // 60 events remaining, 1000ms base, 1x speed = 60 seconds
-      expect(formatTime(0, 60, 1000, 1)).toBe('1:00');
-
-      // 10 events remaining at 2x speed = 5 seconds
-      expect(formatTime(0, 10, 1000, 2)).toBe('0:05');
     });
   });
 });

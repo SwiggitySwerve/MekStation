@@ -13,6 +13,7 @@ import { EquipmentCategory } from '@/types/equipment';
 import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { generateUnitId } from '@/utils/uuid';
 
+import { createConfigurationMountedEquipment } from './configurationMountedEquipment';
 import {
   ARMOR_SLOTS_EQUIPMENT_ID,
   STEALTH_ARMOR_LOCATIONS,
@@ -31,22 +32,19 @@ export function createArmorEquipmentList(
   // Stealth armor: 6 × 2-slot items with fixed locations
   if (armorType === ArmorTypeEnum.STEALTH) {
     for (const location of STEALTH_ARMOR_LOCATIONS) {
-      result.push({
-        instanceId: generateUnitId(),
-        equipmentId: `${ARMOR_SLOTS_EQUIPMENT_ID}-${armorType}`,
-        name: 'Stealth',
-        category: EquipmentCategory.STRUCTURAL,
-        weight: 0,
-        criticalSlots: 2,
-        heat: 0,
-        techBase: armorDef.techBase,
-        location,
-        slots: undefined,
-        isRearMounted: false,
-        linkedAmmoId: undefined,
-        isRemovable: false,
-        isOmniPodMounted: false,
-      });
+      result.push(
+        createConfigurationMountedEquipment({
+          instanceId: generateUnitId(),
+          equipmentId: `${ARMOR_SLOTS_EQUIPMENT_ID}-${armorType}`,
+          name: 'Stealth',
+          category: EquipmentCategory.STRUCTURAL,
+          weight: 0,
+          criticalSlots: 2,
+          heat: 0,
+          techBase: armorDef.techBase,
+          location,
+        }),
+      );
     }
     return result;
   }
@@ -54,22 +52,18 @@ export function createArmorEquipmentList(
   // Other armor types: individual 1-slot items
   const slotCount = armorDef.criticalSlots;
   for (let i = 0; i < slotCount; i++) {
-    result.push({
-      instanceId: generateUnitId(),
-      equipmentId: `${ARMOR_SLOTS_EQUIPMENT_ID}-${armorType}`,
-      name: armorDef.name,
-      category: EquipmentCategory.STRUCTURAL,
-      weight: 0,
-      criticalSlots: 1,
-      heat: 0,
-      techBase: armorDef.techBase,
-      location: undefined,
-      slots: undefined,
-      isRearMounted: false,
-      linkedAmmoId: undefined,
-      isRemovable: false,
-      isOmniPodMounted: false,
-    });
+    result.push(
+      createConfigurationMountedEquipment({
+        instanceId: generateUnitId(),
+        equipmentId: `${ARMOR_SLOTS_EQUIPMENT_ID}-${armorType}`,
+        name: armorDef.name,
+        category: EquipmentCategory.STRUCTURAL,
+        weight: 0,
+        criticalSlots: 1,
+        heat: 0,
+        techBase: armorDef.techBase,
+      }),
+    );
   }
   return result;
 }

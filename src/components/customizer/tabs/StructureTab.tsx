@@ -36,6 +36,7 @@ import type {
 import { customizerStyles as cs } from '../styles';
 import { StructureTabChassisSection } from './StructureTabChassisSection';
 import { StructureTabMovementSection } from './StructureTabMovementSection';
+import { useMechStructureFields } from './useMechStructureFields';
 
 const CONFIGURATION_OPTIONS: StructureConfigurationOption[] = [
   { value: MechConfiguration.BIPED, label: 'Biped' },
@@ -74,11 +75,13 @@ export function StructureTab({
   const tonnage = useUnitStore((s) => s.tonnage);
   const configuration = useUnitStore((s) => s.configuration);
   const componentTechBases = useUnitStore((s) => s.componentTechBases);
-  const engineType = useUnitStore((s) => s.engineType);
-  const engineRating = useUnitStore((s) => s.engineRating);
-  const gyroType = useUnitStore((s) => s.gyroType);
-  const internalStructureType = useUnitStore((s) => s.internalStructureType);
-  const cockpitType = useUnitStore((s) => s.cockpitType);
+  const {
+    engineType,
+    engineRating,
+    gyroType,
+    internalStructureType,
+    cockpitType,
+  } = useMechStructureFields();
   const heatSinkType = useUnitStore((s) => s.heatSinkType);
   const heatSinkCount = useUnitStore((s) => s.heatSinkCount);
   const armorType = useUnitStore((s) => s.armorType);

@@ -7,11 +7,7 @@
 
 import type { RulesLevel } from '@/types/enums/RulesLevel';
 
-import type { UnitStore } from '../unitState';
-
-type SetFn = (
-  partial: Partial<UnitStore> | ((state: UnitStore) => Partial<UnitStore>),
-) => void;
+import type { UnitSliceSetFn } from './unitSliceTypes';
 
 export interface IdentityActions {
   setName: (name: string) => void;
@@ -23,7 +19,7 @@ export interface IdentityActions {
   setRulesLevel: (rulesLevel: RulesLevel) => void;
 }
 
-export function createIdentityActions(set: SetFn): IdentityActions {
+export function createIdentityActions(set: UnitSliceSetFn): IdentityActions {
   return {
     setName: (name) =>
       set({

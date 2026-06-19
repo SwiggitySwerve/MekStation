@@ -6,17 +6,24 @@ import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReferen
 import { MEKSTATION_PHYSICAL_COMMAND_SOURCE_REFS } from './CombatActionSupport';
 
 function integrated(
-  id: PhysicalAttackType,
+  id: string,
   evidence: string,
-  sourceRefs: readonly ICombatFeatureSourceReference[],
+  sourceRefs?: readonly ICombatFeatureSourceReference[],
 ): ICombatActionSupportEntry {
-  return {
-    id,
-    layer: 'physical-attack-type',
-    level: 'integrated',
-    evidence,
-    sourceRefs,
-  };
+  return sourceRefs
+    ? {
+        id,
+        layer: 'physical-attack-type',
+        level: 'integrated',
+        evidence,
+        sourceRefs,
+      }
+    : {
+        id,
+        layer: 'physical-attack-type',
+        level: 'integrated',
+        evidence,
+      };
 }
 
 const PHYSICAL_ATTACK_COMMAND_SOURCE_REFS = {

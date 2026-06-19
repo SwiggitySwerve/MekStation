@@ -68,6 +68,171 @@ const categoryLabels: Record<string, string> = {
   MISC_EQUIPMENT: 'Misc Equipment',
 };
 
+function equipmentCategoryLabel(category: string): string {
+  return categoryLabels[category] || category.replace(/_/g, ' ');
+}
+
+function EquipmentHeaderActions({
+  equipment,
+}: {
+  readonly equipment: EquipmentData;
+}): React.ReactElement {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {equipment.category && (
+        <Badge variant="cyan">
+          {equipmentCategoryLabel(equipment.category)}
+        </Badge>
+      )}
+      {equipment.techBase && <TechBaseBadge techBase={equipment.techBase} />}
+      {equipment.rulesLevel && (
+        <Badge variant="muted">{equipment.rulesLevel.replace(/_/g, ' ')}</Badge>
+      )}
+    </div>
+  );
+}
+
+function PhysicalPropertiesCard({
+  equipment,
+}: {
+  readonly equipment: EquipmentData;
+}): React.ReactElement {
+  return (
+    <StatCard title="Physical Properties" icon={<CubeIcon />} variant="cyan">
+      <StatList>
+        {equipment.weight !== undefined && (
+          <StatRow label="Weight" value={`${equipment.weight} tons`} />
+        )}
+        {equipment.criticalSlots !== undefined && (
+          <StatRow label="Critical Slots" value={equipment.criticalSlots} />
+        )}
+        {equipment.costCBills !== undefined && (
+          <StatRow
+            label="Cost (C-Bills)"
+            value={equipment.costCBills.toLocaleString()}
+            highlight
+          />
+        )}
+        {equipment.battleValue !== undefined && (
+          <StatRow label="Battle Value" value={equipment.battleValue} />
+        )}
+      </StatList>
+    </StatCard>
+  );
+}
+
+function AvailabilityCard({
+  equipment,
+}: {
+  readonly equipment: EquipmentData;
+}): React.ReactElement {
+  return (
+    <StatCard title="Availability" icon={<CalendarIcon />} variant="amber">
+      <StatList>
+        {equipment.introductionYear !== undefined && (
+          <StatRow label="Introduced" value={equipment.introductionYear} />
+        )}
+        {equipment.extinctionYear !== undefined && (
+          <StatRow label="Extinct" value={equipment.extinctionYear} />
+        )}
+        {equipment.reintroductionYear !== undefined && (
+          <StatRow label="Reintroduced" value={equipment.reintroductionYear} />
+        )}
+      </StatList>
+    </StatCard>
+  );
+}
+
+function CombatStatsGrid({
+  equipment,
+}: {
+  readonly equipment: EquipmentData;
+}): React.ReactElement | null {
+  if (!equipment.category?.includes('WEAPON')) {
+    return null;
+  }
+
+  const hasRangeData =
+    equipment.shortRange || equipment.mediumRange || equipment.longRange;
+
+  return (
+    <StatGrid cols={2} className="mb-6">
+      <StatCard title="Combat Stats" icon={<FlameIcon />} variant="rose">
+        <StatList>
+          {equipment.damage !== undefined && (
+            <StatRow label="Damage" value={equipment.damage} highlight />
+          )}
+          {equipment.heat !== undefined && (
+            <StatRow label="Heat" value={equipment.heat} />
+          )}
+          {equipment.ammoPerTon !== undefined && (
+            <StatRow label="Ammo/Ton" value={equipment.ammoPerTon} />
+          )}
+        </StatList>
+      </StatCard>
+
+      {hasRangeData && (
+        <StatCard title="Range Profile" icon={<TargetIcon />} variant="emerald">
+          <StatList>
+            {equipment.minimumRange !== undefined &&
+              equipment.minimumRange > 0 && (
+                <StatRow label="Minimum" value={equipment.minimumRange} />
+              )}
+            {equipment.shortRange !== undefined && (
+              <StatRow label="Short Range" value={equipment.shortRange} />
+            )}
+            {equipment.mediumRange !== undefined && (
+              <StatRow label="Medium Range" value={equipment.mediumRange} />
+            )}
+            {equipment.longRange !== undefined && (
+              <StatRow label="Long Range" value={equipment.longRange} />
+            )}
+            {equipment.extremeRange !== undefined && (
+              <StatRow label="Extreme Range" value={equipment.extremeRange} />
+            )}
+          </StatList>
+        </StatCard>
+      )}
+    </StatGrid>
+  );
+}
+
+function SpecialRulesCard({
+  rules,
+}: {
+  readonly rules?: readonly string[];
+}): React.ReactElement | null {
+  if (!rules || rules.length === 0) return null;
+
+  return (
+    <Card variant="dark" className="mb-6">
+      <CardSection title="Special Rules" />
+      <div className="flex flex-wrap gap-2">
+        {rules.map((rule, index) => (
+          <Badge key={index} variant="purple">
+            {rule}
+          </Badge>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+function DescriptionCard({
+  description,
+}: {
+  readonly description?: string;
+}): React.ReactElement | null {
+  if (!description) return null;
+
+  return (
+    <Card variant="dark">
+      <CardSection title="Description" />
+      <p className="text-text-theme-secondary leading-relaxed">{description}</p>
+    </Card>
+  );
+}
+
 export default function EquipmentDetailPage(): React.ReactElement {
   const router = useRouter();
   const { id } = router.query;
@@ -120,26 +285,6 @@ export default function EquipmentDetailPage(): React.ReactElement {
     );
   }
 
-  const isWeapon = equipment.category?.includes('WEAPON');
-  const hasRangeData =
-    equipment.shortRange || equipment.mediumRange || equipment.longRange;
-
-  // Header with category badges
-  const headerActions = (
-    <div className="flex flex-wrap gap-2">
-      {equipment.category && (
-        <Badge variant="cyan">
-          {categoryLabels[equipment.category] ||
-            equipment.category.replace(/_/g, ' ')}
-        </Badge>
-      )}
-      {equipment.techBase && <TechBaseBadge techBase={equipment.techBase} />}
-      {equipment.rulesLevel && (
-        <Badge variant="muted">{equipment.rulesLevel.replace(/_/g, ' ')}</Badge>
-      )}
-    </div>
-  );
-
   return (
     <CompendiumLayout
       title={equipment.name}
@@ -147,129 +292,17 @@ export default function EquipmentDetailPage(): React.ReactElement {
         { label: 'Equipment', href: '/compendium/equipment' },
         { label: equipment.name },
       ]}
-      headerActions={headerActions}
+      headerActions={<EquipmentHeaderActions equipment={equipment} />}
     >
       {/* Basic Stats */}
       <StatGrid cols={2} className="mb-6">
-        {/* Physical Properties */}
-        <StatCard
-          title="Physical Properties"
-          icon={<CubeIcon />}
-          variant="cyan"
-        >
-          <StatList>
-            {equipment.weight !== undefined && (
-              <StatRow label="Weight" value={`${equipment.weight} tons`} />
-            )}
-            {equipment.criticalSlots !== undefined && (
-              <StatRow label="Critical Slots" value={equipment.criticalSlots} />
-            )}
-            {equipment.costCBills !== undefined && (
-              <StatRow
-                label="Cost (C-Bills)"
-                value={equipment.costCBills.toLocaleString()}
-                highlight
-              />
-            )}
-            {equipment.battleValue !== undefined && (
-              <StatRow label="Battle Value" value={equipment.battleValue} />
-            )}
-          </StatList>
-        </StatCard>
-
-        {/* Availability */}
-        <StatCard title="Availability" icon={<CalendarIcon />} variant="amber">
-          <StatList>
-            {equipment.introductionYear !== undefined && (
-              <StatRow label="Introduced" value={equipment.introductionYear} />
-            )}
-            {equipment.extinctionYear !== undefined && (
-              <StatRow label="Extinct" value={equipment.extinctionYear} />
-            )}
-            {equipment.reintroductionYear !== undefined && (
-              <StatRow
-                label="Reintroduced"
-                value={equipment.reintroductionYear}
-              />
-            )}
-          </StatList>
-        </StatCard>
+        <PhysicalPropertiesCard equipment={equipment} />
+        <AvailabilityCard equipment={equipment} />
       </StatGrid>
 
-      {/* Combat Stats (for weapons) */}
-      {isWeapon && (
-        <StatGrid cols={2} className="mb-6">
-          {/* Damage & Heat */}
-          <StatCard title="Combat Stats" icon={<FlameIcon />} variant="rose">
-            <StatList>
-              {equipment.damage !== undefined && (
-                <StatRow label="Damage" value={equipment.damage} highlight />
-              )}
-              {equipment.heat !== undefined && (
-                <StatRow label="Heat" value={equipment.heat} />
-              )}
-              {equipment.ammoPerTon !== undefined && (
-                <StatRow label="Ammo/Ton" value={equipment.ammoPerTon} />
-              )}
-            </StatList>
-          </StatCard>
-
-          {/* Range Data */}
-          {hasRangeData && (
-            <StatCard
-              title="Range Profile"
-              icon={<TargetIcon />}
-              variant="emerald"
-            >
-              <StatList>
-                {equipment.minimumRange !== undefined &&
-                  equipment.minimumRange > 0 && (
-                    <StatRow label="Minimum" value={equipment.minimumRange} />
-                  )}
-                {equipment.shortRange !== undefined && (
-                  <StatRow label="Short Range" value={equipment.shortRange} />
-                )}
-                {equipment.mediumRange !== undefined && (
-                  <StatRow label="Medium Range" value={equipment.mediumRange} />
-                )}
-                {equipment.longRange !== undefined && (
-                  <StatRow label="Long Range" value={equipment.longRange} />
-                )}
-                {equipment.extremeRange !== undefined && (
-                  <StatRow
-                    label="Extreme Range"
-                    value={equipment.extremeRange}
-                  />
-                )}
-              </StatList>
-            </StatCard>
-          )}
-        </StatGrid>
-      )}
-
-      {/* Special Rules */}
-      {equipment.specialRules && equipment.specialRules.length > 0 && (
-        <Card variant="dark" className="mb-6">
-          <CardSection title="Special Rules" />
-          <div className="flex flex-wrap gap-2">
-            {equipment.specialRules.map((rule, index) => (
-              <Badge key={index} variant="purple">
-                {rule}
-              </Badge>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {/* Description */}
-      {equipment.description && (
-        <Card variant="dark">
-          <CardSection title="Description" />
-          <p className="text-text-theme-secondary leading-relaxed">
-            {equipment.description}
-          </p>
-        </Card>
-      )}
+      <CombatStatsGrid equipment={equipment} />
+      <SpecialRulesCard rules={equipment.specialRules} />
+      <DescriptionCard description={equipment.description} />
     </CompendiumLayout>
   );
 }

@@ -19,14 +19,14 @@ import {
   type MoraleLevel,
 } from '@/types/gameplay';
 
+import type {
+  GameplayEventContextArgs,
+  IGameplayEventContext,
+} from './eventContext';
+
 import { createEventBase } from './base';
 
-/**
- * Per `add-combat-morale-and-withdrawal` (D2 / D8): emitted when a
- * side's `battleMorale` changes. `from` / `to` make the event
- * self-describing so replay consumers need not re-fold the log.
- */
-export function createMoraleShiftedEvent(
+type MoraleShiftedEventArgs = [
   gameId: string,
   sequence: number,
   turn: number,
@@ -35,15 +35,53 @@ export function createMoraleShiftedEvent(
   from: MoraleLevel,
   to: MoraleLevel,
   cause: string,
+];
+
+export interface ICreateMoraleShiftedEventInput {
+  readonly gameId: string;
+  readonly sequence: number;
+  readonly turn: number;
+  readonly phase: GamePhase;
+  readonly side: GameSide;
+  readonly from: MoraleLevel;
+  readonly to: MoraleLevel;
+  readonly cause: string;
+}
+
+type WithdrawalDeclaredEventArgs = [
+  ...GameplayEventContextArgs,
+  edge: 'north' | 'south' | 'east' | 'west',
+  declaredBy: 'player' | 'forced',
+];
+
+export interface ICreateWithdrawalDeclaredEventInput extends IGameplayEventContext {
+  readonly edge: 'north' | 'south' | 'east' | 'west';
+  readonly declaredBy: 'player' | 'forced';
+}
+
+/**
+ * Per `add-combat-morale-and-withdrawal` (D2 / D8): emitted when a
+ * side's `battleMorale` changes. `from` / `to` make the event
+ * self-describing so replay consumers need not re-fold the log.
+ */
+export function createMoraleShiftedEvent(
+  ...args: [ICreateMoraleShiftedEventInput] | MoraleShiftedEventArgs
 ): IGameEvent {
-  const payload: IMoraleShiftedPayload = { side, from, to, cause, turn };
+  const input = normalizeMoraleShiftedEventInput(args);
+  const payload: IMoraleShiftedPayload = {
+    side: input.side,
+    from: input.from,
+    to: input.to,
+    cause: input.cause,
+    turn: input.turn,
+  };
   return {
     ...createEventBase(
-      gameId,
-      sequence,
+      input.gameId,
+      input.sequence,
       GameEventType.MoraleShifted,
-      turn,
-      phase,
+      input.turn,
+      input.phase,
     ),
     payload,
   };
@@ -56,30 +94,68 @@ export function createMoraleShiftedEvent(
  * The reducer latches `isWithdrawing` and stores `retreatTargetEdge`.
  */
 export function createWithdrawalDeclaredEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  phase: GamePhase,
-  unitId: string,
-  edge: 'north' | 'south' | 'east' | 'west',
-  declaredBy: 'player' | 'forced',
+  ...args: [ICreateWithdrawalDeclaredEventInput] | WithdrawalDeclaredEventArgs
 ): IGameEvent {
+  const input = normalizeWithdrawalDeclaredEventInput(args);
   const payload: IWithdrawalDeclaredPayload = {
-    unitId,
-    edge,
-    declaredBy,
-    turn,
+    unitId: input.unitId,
+    edge: input.edge,
+    declaredBy: input.declaredBy,
+    turn: input.turn,
   };
   return {
     ...createEventBase(
-      gameId,
-      sequence,
+      input.gameId,
+      input.sequence,
       GameEventType.WithdrawalDeclared,
-      turn,
-      phase,
-      unitId,
+      input.turn,
+      input.phase,
+      input.unitId,
     ),
     payload,
+  };
+}
+
+function normalizeMoraleShiftedEventInput(
+  args: [ICreateMoraleShiftedEventInput] | MoraleShiftedEventArgs,
+): ICreateMoraleShiftedEventInput {
+  if (typeof args[0] !== 'string') {
+    return args[0];
+  }
+
+  const [gameId, sequence, turn, phase, side, from, to, cause] =
+    args as MoraleShiftedEventArgs;
+
+  return {
+    gameId,
+    sequence,
+    turn,
+    phase,
+    side,
+    from,
+    to,
+    cause,
+  };
+}
+
+function normalizeWithdrawalDeclaredEventInput(
+  args: [ICreateWithdrawalDeclaredEventInput] | WithdrawalDeclaredEventArgs,
+): ICreateWithdrawalDeclaredEventInput {
+  if (typeof args[0] !== 'string') {
+    return args[0];
+  }
+
+  const [gameId, sequence, turn, phase, unitId, edge, declaredBy] =
+    args as WithdrawalDeclaredEventArgs;
+
+  return {
+    gameId,
+    sequence,
+    turn,
+    phase,
+    unitId,
+    edge,
+    declaredBy,
   };
 }
 

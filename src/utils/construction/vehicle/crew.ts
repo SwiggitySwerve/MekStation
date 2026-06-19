@@ -59,6 +59,21 @@ function navalVehicleMinCrew(tonnage: number): number {
   return base + extraHundreds;
 }
 
+type CrewResolver = (tonnage: number) => number;
+
+const SPECIALIZED_CREW_RESOLVERS: Partial<
+  Record<GroundMotionType, CrewResolver>
+> = {
+  [GroundMotionType.VTOL]: () => 2,
+  [GroundMotionType.NAVAL]: navalVehicleMinCrew,
+  [GroundMotionType.SUBMARINE]: navalVehicleMinCrew,
+  [GroundMotionType.HYDROFOIL]: navalVehicleMinCrew,
+};
+
+function resolveCrewCalculator(motionType: GroundMotionType): CrewResolver {
+  return SPECIALIZED_CREW_RESOLVERS[motionType] ?? groundVehicleMinCrew;
+}
+
 // =============================================================================
 // Public API
 // =============================================================================
@@ -70,25 +85,7 @@ export function computeMinimumCrew(
   tonnage: number,
   motionType: GroundMotionType,
 ): number {
-  switch (motionType) {
-    case GroundMotionType.VTOL:
-      // VTOLs always require at least pilot + gunner
-      return 2;
-
-    case GroundMotionType.NAVAL:
-    case GroundMotionType.SUBMARINE:
-    case GroundMotionType.HYDROFOIL:
-      return navalVehicleMinCrew(tonnage);
-
-    case GroundMotionType.TRACKED:
-    case GroundMotionType.WHEELED:
-    case GroundMotionType.HOVER:
-    case GroundMotionType.WIGE:
-    case GroundMotionType.RAIL:
-    case GroundMotionType.MAGLEV:
-    default:
-      return groundVehicleMinCrew(tonnage);
-  }
+  return resolveCrewCalculator(motionType)(tonnage);
 }
 
 /**

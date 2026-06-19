@@ -9,6 +9,50 @@ import {
 
 export type VehicleArmorLocation = VehicleLocation | VTOLLocation;
 
+export interface IVehicleArmorProfile {
+  readonly hasTurret: boolean;
+  readonly isVTOL: boolean;
+  readonly hasSecondaryTurret?: boolean;
+}
+
+export interface IGetMaxVehicleArmorForLocationInput {
+  readonly tonnage: number;
+  readonly location: VehicleArmorLocation;
+  readonly profile: IVehicleArmorProfile;
+}
+
+export interface IGetMaxVehicleArmorInput {
+  readonly tonnage: number;
+  readonly profile: IVehicleArmorProfile;
+}
+
+interface IVehicleArmorLimitContext {
+  readonly baseStructure: number;
+  readonly profile: Required<IVehicleArmorProfile>;
+}
+
+type VehicleArmorLimitResolver = (context: IVehicleArmorLimitContext) => number;
+
+const VEHICLE_ARMOR_LIMIT_RESOLVERS: ReadonlyMap<
+  VehicleArmorLocation,
+  VehicleArmorLimitResolver
+> = new Map<VehicleArmorLocation, VehicleArmorLimitResolver>([
+  [VehicleLocation.FRONT, ({ baseStructure }) => baseStructure * 4],
+  [VehicleLocation.LEFT, ({ baseStructure }) => baseStructure * 3],
+  [VehicleLocation.RIGHT, ({ baseStructure }) => baseStructure * 3],
+  [VehicleLocation.REAR, ({ baseStructure }) => baseStructure * 2],
+  [
+    VehicleLocation.TURRET,
+    ({ baseStructure, profile }) => (profile.hasTurret ? baseStructure * 2 : 0),
+  ],
+  [
+    VehicleLocation.TURRET_2,
+    ({ baseStructure, profile }) =>
+      profile.hasSecondaryTurret ? baseStructure * 2 : 0,
+  ],
+  [VTOLLocation.ROTOR, ({ profile }) => (profile.isVTOL ? 2 : 0)],
+]);
+
 export function calculateArmorPoints(
   tonnage: number,
   armorType: ArmorTypeEnum,
@@ -19,95 +63,98 @@ export function calculateArmorPoints(
 }
 
 export function getMaxVehicleArmorForLocation(
-  tonnage: number,
-  location: VehicleArmorLocation,
-  hasTurret: boolean,
-  isVTOL: boolean,
-  hasSecondaryTurret: boolean = false,
+  input: IGetMaxVehicleArmorForLocationInput | number,
+  ...legacy:
+    | []
+    | [
+        location: VehicleArmorLocation,
+        hasTurret: boolean,
+        isVTOL: boolean,
+        hasSecondaryTurret?: boolean,
+      ]
 ): number {
-  const baseStructure = Math.floor(tonnage / 10) + 1;
-
-  switch (location) {
-    case VehicleLocation.FRONT:
-      return baseStructure * 4;
-    case VehicleLocation.LEFT:
-    case VehicleLocation.RIGHT:
-      return baseStructure * 3;
-    case VehicleLocation.REAR:
-      return baseStructure * 2;
-    case VehicleLocation.TURRET:
-      return hasTurret ? baseStructure * 2 : 0;
-    case VehicleLocation.TURRET_2:
-      // Secondary turret mirrors primary turret armor budget.
-      return hasSecondaryTurret ? baseStructure * 2 : 0;
-    case VTOLLocation.ROTOR:
-      return isVTOL ? 2 : 0;
-    default:
-      return 0;
-  }
+  const [location, hasTurret, isVTOL, hasSecondaryTurret] = legacy as [
+    VehicleArmorLocation,
+    boolean,
+    boolean,
+    boolean | undefined,
+  ];
+  const eventInput =
+    typeof input !== 'number'
+      ? input
+      : {
+          tonnage: input,
+          location,
+          profile: { hasTurret, isVTOL, hasSecondaryTurret },
+        };
+  const armorProfile: Required<IVehicleArmorProfile> = {
+    ...eventInput.profile,
+    hasSecondaryTurret: eventInput.profile.hasSecondaryTurret ?? false,
+  };
+  const baseStructure = Math.floor(eventInput.tonnage / 10) + 1;
+  const resolver = VEHICLE_ARMOR_LIMIT_RESOLVERS.get(eventInput.location);
+  return resolver?.({ baseStructure, profile: armorProfile }) ?? 0;
 }
 
 export function getMaxVehicleArmor(
-  tonnage: number,
-  hasTurret: boolean,
-  isVTOL: boolean,
-  hasSecondaryTurret: boolean = false,
+  input: IGetMaxVehicleArmorInput | number,
+  ...legacy:
+    | []
+    | [hasTurret: boolean, isVTOL: boolean, hasSecondaryTurret?: boolean]
 ): number {
+  const [hasTurret, isVTOL, hasSecondaryTurret] = legacy as [
+    boolean,
+    boolean,
+    boolean | undefined,
+  ];
+  const eventInput =
+    typeof input !== 'number'
+      ? input
+      : {
+          tonnage: input,
+          profile: { hasTurret, isVTOL, hasSecondaryTurret },
+        };
   let total = 0;
-  total += getMaxVehicleArmorForLocation(
-    tonnage,
-    VehicleLocation.FRONT,
-    hasTurret,
-    isVTOL,
-    hasSecondaryTurret,
-  );
-  total += getMaxVehicleArmorForLocation(
-    tonnage,
-    VehicleLocation.LEFT,
-    hasTurret,
-    isVTOL,
-    hasSecondaryTurret,
-  );
-  total += getMaxVehicleArmorForLocation(
-    tonnage,
-    VehicleLocation.RIGHT,
-    hasTurret,
-    isVTOL,
-    hasSecondaryTurret,
-  );
-  total += getMaxVehicleArmorForLocation(
-    tonnage,
-    VehicleLocation.REAR,
-    hasTurret,
-    isVTOL,
-    hasSecondaryTurret,
-  );
-  if (hasTurret) {
-    total += getMaxVehicleArmorForLocation(
-      tonnage,
-      VehicleLocation.TURRET,
-      hasTurret,
-      isVTOL,
-      hasSecondaryTurret,
-    );
+  total += getMaxVehicleArmorForLocation({
+    tonnage: eventInput.tonnage,
+    location: VehicleLocation.FRONT,
+    profile: eventInput.profile,
+  });
+  total += getMaxVehicleArmorForLocation({
+    tonnage: eventInput.tonnage,
+    location: VehicleLocation.LEFT,
+    profile: eventInput.profile,
+  });
+  total += getMaxVehicleArmorForLocation({
+    tonnage: eventInput.tonnage,
+    location: VehicleLocation.RIGHT,
+    profile: eventInput.profile,
+  });
+  total += getMaxVehicleArmorForLocation({
+    tonnage: eventInput.tonnage,
+    location: VehicleLocation.REAR,
+    profile: eventInput.profile,
+  });
+  if (eventInput.profile.hasTurret) {
+    total += getMaxVehicleArmorForLocation({
+      tonnage: eventInput.tonnage,
+      location: VehicleLocation.TURRET,
+      profile: eventInput.profile,
+    });
   }
-  if (hasSecondaryTurret) {
-    total += getMaxVehicleArmorForLocation(
-      tonnage,
-      VehicleLocation.TURRET_2,
-      hasTurret,
-      isVTOL,
-      hasSecondaryTurret,
-    );
+  if (eventInput.profile.hasSecondaryTurret === true) {
+    total += getMaxVehicleArmorForLocation({
+      tonnage: eventInput.tonnage,
+      location: VehicleLocation.TURRET_2,
+      profile: eventInput.profile,
+    });
   }
-  if (isVTOL) {
-    total += getMaxVehicleArmorForLocation(
-      tonnage,
-      VTOLLocation.ROTOR,
-      hasTurret,
-      isVTOL,
-      hasSecondaryTurret,
-    );
+  if (eventInput.profile.isVTOL) {
+    total += getMaxVehicleArmorForLocation({
+      tonnage: eventInput.tonnage,
+      location: VTOLLocation.ROTOR,
+      profile: eventInput.profile,
+    });
   }
   return total;
 }

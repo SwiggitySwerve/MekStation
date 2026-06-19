@@ -86,7 +86,7 @@ export class MTFImportService implements IMTFImporter {
   /**
    * Import unit from MTF content (not implemented - use importFromJSON)
    */
-  import(_mtfContent: string): IDeserializationResult {
+  import = (_mtfContent: string): IDeserializationResult => {
     return {
       success: false,
       error: {
@@ -97,27 +97,27 @@ export class MTFImportService implements IMTFImporter {
         migrations: [],
       },
     };
-  }
+  };
 
   /**
    * Validate MTF content (not implemented - use validateJSON)
    */
-  validate(_mtfContent: string): { isValid: boolean; errors: string[] } {
+  validate = (_mtfContent: string): { isValid: boolean; errors: string[] } => {
     return {
       isValid: false,
       errors: [
         'Direct MTF validation not implemented. Use validateJSON for JSON data.',
       ],
     };
-  }
+  };
 
   /**
    * Import unit from pre-converted JSON data
    */
-  importFromJSON(
+  importFromJSON = (
     data: ISerializedUnit,
     options?: Partial<IValidationOptions>,
-  ): IMTFImportResult {
+  ): IMTFImportResult => {
     const opts = { ...DEFAULT_VALIDATION_OPTIONS, ...options };
     const errors: string[] = [];
     const warnings: string[] = [];
@@ -209,36 +209,40 @@ export class MTFImportService implements IMTFImporter {
         },
       };
     }
-  }
+  };
 
   /**
    * Validate required fields
    */
   private validateRequiredFields(data: ISerializedUnit): string[] {
     const errors: string[] = [];
+    const requiredFieldChecks: readonly [field: string, missing: boolean][] = [
+      ['id', !data.id],
+      ['chassis', !data.chassis],
+      ['model', !data.model],
+      ['unitType', !data.unitType],
+      ['configuration', !data.configuration],
+      ['techBase', !data.techBase],
+      ['rulesLevel', !data.rulesLevel],
+      ['era', !data.era],
+      ['year', data.year === undefined],
+      ['tonnage', data.tonnage === undefined],
+      ['engine', !data.engine],
+      ['gyro', !data.gyro],
+      ['cockpit', !data.cockpit],
+      ['structure', !data.structure],
+      ['armor', !data.armor],
+      ['heatSinks', !data.heatSinks],
+      ['movement', !data.movement],
+      ['equipment', !data.equipment],
+      ['criticalSlots', !data.criticalSlots],
+    ];
 
-    if (!data.id) errors.push('Missing required field: id');
-    if (!data.chassis) errors.push('Missing required field: chassis');
-    if (!data.model) errors.push('Missing required field: model');
-    if (!data.unitType) errors.push('Missing required field: unitType');
-    if (!data.configuration)
-      errors.push('Missing required field: configuration');
-    if (!data.techBase) errors.push('Missing required field: techBase');
-    if (!data.rulesLevel) errors.push('Missing required field: rulesLevel');
-    if (!data.era) errors.push('Missing required field: era');
-    if (data.year === undefined) errors.push('Missing required field: year');
-    if (data.tonnage === undefined)
-      errors.push('Missing required field: tonnage');
-    if (!data.engine) errors.push('Missing required field: engine');
-    if (!data.gyro) errors.push('Missing required field: gyro');
-    if (!data.cockpit) errors.push('Missing required field: cockpit');
-    if (!data.structure) errors.push('Missing required field: structure');
-    if (!data.armor) errors.push('Missing required field: armor');
-    if (!data.heatSinks) errors.push('Missing required field: heatSinks');
-    if (!data.movement) errors.push('Missing required field: movement');
-    if (!data.equipment) errors.push('Missing required field: equipment');
-    if (!data.criticalSlots)
-      errors.push('Missing required field: criticalSlots');
+    for (const [field, missing] of requiredFieldChecks) {
+      if (missing) {
+        errors.push(`Missing required field: ${field}`);
+      }
+    }
 
     return errors;
   }
@@ -363,10 +367,10 @@ export class MTFImportService implements IMTFImporter {
   /**
    * Load and import a unit from a URL
    */
-  async loadFromUrl(
+  loadFromUrl = async (
     url: string,
     options?: Partial<IValidationOptions>,
-  ): Promise<IMTFImportResult> {
+  ): Promise<IMTFImportResult> => {
     try {
       const response = await fetch(url);
       if (!response.ok) {
@@ -387,12 +391,12 @@ export class MTFImportService implements IMTFImporter {
         },
       };
     }
-  }
+  };
 
   /**
    * Validate JSON data without full import
    */
-  validateJSON(data: unknown): { isValid: boolean; errors: string[] } {
+  validateJSON = (data: unknown): { isValid: boolean; errors: string[] } => {
     const errors: string[] = [];
 
     if (!data || typeof data !== 'object') {
@@ -448,15 +452,17 @@ export class MTFImportService implements IMTFImporter {
     }
 
     return { isValid: errors.length === 0, errors };
-  }
+  };
 
   /**
    * Resolve equipment IDs for a unit
    */
-  resolveEquipment(equipmentIds: string[]): {
+  resolveEquipment = (
+    equipmentIds: string[],
+  ): {
     resolved: Map<string, string>;
     unresolved: string[];
-  } {
+  } => {
     const resolved = new Map<string, string>();
     const unresolved: string[] = [];
 
@@ -470,7 +476,7 @@ export class MTFImportService implements IMTFImporter {
     }
 
     return { resolved, unresolved };
-  }
+  };
 }
 
 const mtfImportServiceFactory: SingletonFactory<MTFImportService> =

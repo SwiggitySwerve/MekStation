@@ -47,6 +47,96 @@ interface SkillUpgradeRowProps {
   isUpgrading: boolean;
 }
 
+function getSkillColor(value: number): string {
+  if (value <= 2) return 'text-emerald-400';
+  if (value <= 3) return 'text-cyan-400';
+  if (value <= 4) return 'text-accent';
+  if (value <= 5) return 'text-orange-400';
+  return 'text-red-400';
+}
+
+function getBadgeVariant(
+  value: number,
+): 'emerald' | 'cyan' | 'amber' | 'orange' | 'red' {
+  if (value <= 2) return 'emerald';
+  if (value <= 3) return 'cyan';
+  if (value <= 4) return 'amber';
+  if (value <= 5) return 'orange';
+  return 'red';
+}
+
+function getUpgradeButtonLabel(isMaxed: boolean, canAfford: boolean): string {
+  if (isMaxed) return 'Maxed';
+  return canAfford ? 'Upgrade' : 'Need XP';
+}
+
+function UpgradeIcon({
+  isMaxed,
+  isUpgrading,
+}: {
+  readonly isMaxed: boolean;
+  readonly isUpgrading: boolean;
+}): React.ReactElement | false {
+  return (
+    !isUpgrading &&
+    !isMaxed && (
+      <svg
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M5 10l7-7m0 0l7 7m-7-7v18"
+        />
+      </svg>
+    )
+  );
+}
+
+function SkillUpgradeDetail({
+  currentValue,
+  xpCost,
+  isMaxed,
+}: {
+  readonly currentValue: number;
+  readonly xpCost: number | null;
+  readonly isMaxed: boolean;
+}): React.ReactElement | null {
+  if (isMaxed) {
+    return (
+      <p className="mt-1 flex items-center gap-1 text-xs text-emerald-400">
+        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fillRule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clipRule="evenodd"
+          />
+        </svg>
+        Maximum level reached
+      </p>
+    );
+  }
+
+  if (xpCost === null) {
+    return null;
+  }
+
+  return (
+    <p className="text-text-theme-secondary mt-1 text-xs">
+      Upgrade cost: <span className="text-accent font-medium">{xpCost} XP</span>
+      {currentValue > 1 && (
+        <span className="text-text-theme-muted ml-2">
+          ({currentValue} &rarr; {currentValue - 1})
+        </span>
+      )}
+    </p>
+  );
+}
+
 function SkillUpgradeRow({
   label,
   currentValue,
@@ -58,25 +148,6 @@ function SkillUpgradeRow({
   const skillLabel = getSkillLabel(currentValue);
   const canAfford = xpCost !== null && availableXp >= xpCost;
   const isMaxed = currentValue <= MIN_SKILL_VALUE;
-
-  // Color based on skill level
-  const getSkillColor = (value: number): string => {
-    if (value <= 2) return 'text-emerald-400';
-    if (value <= 3) return 'text-cyan-400';
-    if (value <= 4) return 'text-accent';
-    if (value <= 5) return 'text-orange-400';
-    return 'text-red-400';
-  };
-
-  const getBadgeVariant = (
-    value: number,
-  ): 'emerald' | 'cyan' | 'amber' | 'orange' | 'red' => {
-    if (value <= 2) return 'emerald';
-    if (value <= 3) return 'cyan';
-    if (value <= 4) return 'amber';
-    if (value <= 5) return 'orange';
-    return 'red';
-  };
 
   return (
     <div className="bg-surface-raised/30 border-border-theme-subtle/50 group hover:border-border-theme/50 flex items-center justify-between rounded-lg border p-4 transition-all">
@@ -98,29 +169,11 @@ function SkillUpgradeRow({
               {skillLabel}
             </Badge>
           </div>
-          {!isMaxed && xpCost !== null && (
-            <p className="text-text-theme-secondary mt-1 text-xs">
-              Upgrade cost:{' '}
-              <span className="text-accent font-medium">{xpCost} XP</span>
-              {currentValue > 1 && (
-                <span className="text-text-theme-muted ml-2">
-                  ({currentValue} &rarr; {currentValue - 1})
-                </span>
-              )}
-            </p>
-          )}
-          {isMaxed && (
-            <p className="mt-1 flex items-center gap-1 text-xs text-emerald-400">
-              <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Maximum level reached
-            </p>
-          )}
+          <SkillUpgradeDetail
+            currentValue={currentValue}
+            xpCost={xpCost}
+            isMaxed={isMaxed}
+          />
         </div>
       </div>
 
@@ -131,26 +184,9 @@ function SkillUpgradeRow({
         disabled={!canAfford || isMaxed || isUpgrading}
         onClick={onUpgrade}
         isLoading={isUpgrading}
-        leftIcon={
-          !isUpgrading &&
-          !isMaxed && (
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 10l7-7m0 0l7 7m-7-7v18"
-              />
-            </svg>
-          )
-        }
+        leftIcon={<UpgradeIcon isMaxed={isMaxed} isUpgrading={isUpgrading} />}
       >
-        {isMaxed ? 'Maxed' : canAfford ? 'Upgrade' : 'Need XP'}
+        {getUpgradeButtonLabel(isMaxed, canAfford)}
       </Button>
     </div>
   );

@@ -25,6 +25,7 @@
 
 import { useCallback, useEffect, useRef } from 'react';
 
+import { getPhaseAnnouncementLabel } from '@/components/gameplay/EventLogDisplay.helpers';
 import { usePhaseQueueProjection } from '@/hooks/gameplay/usePhaseQueueProjection';
 import { GamePhase } from '@/types/gameplay/GameSessionCoreTypes';
 
@@ -48,33 +49,6 @@ export interface IScreenReaderAnnouncer {
    * @param priority  - 'polite' (default) or 'assertive'.
    */
   readonly announce: (message: string, priority?: AnnouncePriority) => void;
-}
-
-// =============================================================================
-// Phase label helper
-// =============================================================================
-
-/**
- * Human-readable label for each game phase, suitable for screen-reader
- * announcement when the phase changes.
- */
-function phaseLabel(phase: GamePhase): string {
-  switch (phase) {
-    case GamePhase.Initiative:
-      return 'Initiative phase';
-    case GamePhase.Movement:
-      return 'Movement phase';
-    case GamePhase.WeaponAttack:
-      return 'Weapon attack phase';
-    case GamePhase.PhysicalAttack:
-      return 'Physical attack phase';
-    case GamePhase.Heat:
-      return 'Heat phase';
-    case GamePhase.End:
-      return 'End phase';
-    default:
-      return 'Phase change';
-  }
 }
 
 // =============================================================================
@@ -131,7 +105,7 @@ export function useScreenReaderAnnouncer(): IScreenReaderAnnouncer {
 
     // Announce phase transitions.
     if (prevPhaseRef.current !== null && prevPhaseRef.current !== phase) {
-      announce(phaseLabel(phase), 'polite');
+      announce(getPhaseAnnouncementLabel(phase), 'polite');
     }
     prevPhaseRef.current = phase;
 

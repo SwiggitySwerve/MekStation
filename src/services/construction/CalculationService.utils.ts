@@ -5,8 +5,8 @@
  */
 
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { CockpitType } from '@/types/construction/CockpitType';
-import { EngineType } from '@/types/construction/EngineType';
+import { CockpitType as CockpitTypeCode } from '@/types/construction/CockpitType';
+import { EngineType as EngineTypeCode } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
@@ -45,17 +45,20 @@ export function isDoubleHeatSink(heatSinkType: HeatSinkType | string): boolean {
  * Get engine cost multiplier based on engine type
  */
 export function getEngineCostMultiplier(
-  engineType: EngineType | string,
+  engineType: EngineTypeCode | string,
 ): number {
   const typeStr =
     typeof engineType === 'string' ? engineType.toLowerCase() : engineType;
 
   // Check enum values first
-  if (engineType === EngineType.XL_IS || engineType === EngineType.XL_CLAN)
+  if (
+    engineType === EngineTypeCode.XL_IS ||
+    engineType === EngineTypeCode.XL_CLAN
+  )
     return 2.0;
-  if (engineType === EngineType.LIGHT) return 1.5;
-  if (engineType === EngineType.XXL) return 3.0;
-  if (engineType === EngineType.COMPACT) return 1.5;
+  if (engineType === EngineTypeCode.LIGHT) return 1.5;
+  if (engineType === EngineTypeCode.XXL) return 3.0;
+  if (engineType === EngineTypeCode.COMPACT) return 1.5;
 
   // Check legacy string values
   if (typeof typeStr === 'string') {
@@ -91,9 +94,9 @@ export function getGyroCostMultiplier(gyroType: GyroType | string): number {
 /**
  * Get cockpit cost based on cockpit type
  */
-export function getCockpitCost(cockpitType: CockpitType | string): number {
-  if (cockpitType === CockpitType.SMALL) return COCKPIT_COST_SMALL;
-  if (cockpitType === CockpitType.COMMAND_CONSOLE)
+export function getCockpitCost(cockpitType: CockpitTypeCode | string): number {
+  if (cockpitType === CockpitTypeCode.SMALL) return COCKPIT_COST_SMALL;
+  if (cockpitType === CockpitTypeCode.COMMAND_CONSOLE)
     return COCKPIT_COST_COMMAND_CONSOLE;
 
   if (typeof cockpitType === 'string') {

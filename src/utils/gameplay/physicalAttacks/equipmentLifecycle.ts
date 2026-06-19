@@ -46,6 +46,65 @@ function payloadRemovesMountedEquipment(
   );
 }
 
+type PhysicalEquipmentFlag =
+  | 'leftArmHasClaw'
+  | 'rightArmHasClaw'
+  | 'leftArmHasTalons'
+  | 'rightArmHasTalons'
+  | 'leftLegHasTalons'
+  | 'rightLegHasTalons';
+
+const CLAW_FLAG_BY_LOCATION: Readonly<Record<string, PhysicalEquipmentFlag>> = {
+  left_arm: 'leftArmHasClaw',
+  right_arm: 'rightArmHasClaw',
+};
+
+const TALON_FLAG_BY_LOCATION: Readonly<Record<string, PhysicalEquipmentFlag>> =
+  {
+    left_arm: 'leftArmHasTalons',
+    right_arm: 'rightArmHasTalons',
+    left_leg: 'leftLegHasTalons',
+    right_leg: 'rightLegHasTalons',
+  };
+
+function physicalEquipmentFlagForPayload(
+  payload: ICriticalHitResolvedPayload,
+): PhysicalEquipmentFlag | undefined {
+  if (isClawEquipment(payload.componentName)) {
+    return CLAW_FLAG_BY_LOCATION[payload.location];
+  }
+
+  if (isTalonEquipment(payload.componentName)) {
+    return TALON_FLAG_BY_LOCATION[payload.location];
+  }
+
+  return undefined;
+}
+
+function clearPhysicalEquipmentFlag(
+  unit: IUnitGameState,
+  flag: PhysicalEquipmentFlag,
+): IUnitGameState {
+  return unit[flag] === true ? { ...unit, [flag]: false } : unit;
+}
+
+function decrementPartialWingJumpBonus(unit: IUnitGameState): IUnitGameState {
+  if (
+    typeof unit.partialWingJumpBonus !== 'number' ||
+    !Number.isFinite(unit.partialWingJumpBonus)
+  ) {
+    return unit;
+  }
+
+  const partialWingJumpBonus = Math.max(
+    0,
+    Math.floor(unit.partialWingJumpBonus) - 1,
+  );
+  return partialWingJumpBonus === unit.partialWingJumpBonus
+    ? unit
+    : { ...unit, partialWingJumpBonus };
+}
+
 function sourceMountRemovesMountedEquipment(slot: ICriticalSlotEntry): boolean {
   return slot.missing === true || slot.breached === true;
 }
@@ -131,43 +190,13 @@ export function applyDamagedPhysicalEquipmentCritical(
     return unit;
   }
 
-  if (isClawEquipment(payload.componentName)) {
-    if (payload.location === 'left_arm' && unit.leftArmHasClaw === true) {
-      return { ...unit, leftArmHasClaw: false };
-    }
-    if (payload.location === 'right_arm' && unit.rightArmHasClaw === true) {
-      return { ...unit, rightArmHasClaw: false };
-    }
-    return unit;
+  const flag = physicalEquipmentFlagForPayload(payload);
+  if (flag) {
+    return clearPhysicalEquipmentFlag(unit, flag);
   }
 
-  if (isTalonEquipment(payload.componentName)) {
-    if (payload.location === 'left_arm' && unit.leftArmHasTalons === true) {
-      return { ...unit, leftArmHasTalons: false };
-    }
-    if (payload.location === 'right_arm' && unit.rightArmHasTalons === true) {
-      return { ...unit, rightArmHasTalons: false };
-    }
-    if (payload.location === 'left_leg' && unit.leftLegHasTalons === true) {
-      return { ...unit, leftLegHasTalons: false };
-    }
-    if (payload.location === 'right_leg' && unit.rightLegHasTalons === true) {
-      return { ...unit, rightLegHasTalons: false };
-    }
-  }
-
-  if (
-    isPartialWingEquipment(payload.componentName) &&
-    typeof unit.partialWingJumpBonus === 'number' &&
-    Number.isFinite(unit.partialWingJumpBonus)
-  ) {
-    const partialWingJumpBonus = Math.max(
-      0,
-      Math.floor(unit.partialWingJumpBonus) - 1,
-    );
-    return partialWingJumpBonus === unit.partialWingJumpBonus
-      ? unit
-      : { ...unit, partialWingJumpBonus };
+  if (isPartialWingEquipment(payload.componentName)) {
+    return decrementPartialWingJumpBonus(unit);
   }
 
   return unit;

@@ -1,18 +1,14 @@
 import type {
-  IComponentDestroyedPayload,
   IGameSession,
-  IHexCoordinate,
   IHexGrid,
   IMovementCapability,
   IUnitPosition,
 } from '@/types/gameplay';
-import type { IElectronicWarfareState } from '@/utils/gameplay/electronicWarfare';
 
-import { GameEventType, GamePhase, MovementType } from '@/types/gameplay';
+import { GameEventType, GamePhase } from '@/types/gameplay';
 import { chooseBestPhysicalAttack } from '@/utils/gameplay/physicalAttacks';
 
 import type { SeededRandom } from '../core/SeededRandom';
-import type { IElectronicWarfareContext } from './AIElectronicWarfareAdvisor';
 import type { IAILanceContext } from './AILancePlanner';
 import type {
   IAttackEvent,
@@ -20,12 +16,10 @@ import type {
   IPhysicalAttackEvent,
   IRetreatEvent,
 } from './AIPlayerEvents';
-import type { IVisionContext } from './AIVisionAdvisor';
 import type { IAIPlayer } from './IAIPlayer';
 import type { IBotBehavior, IAIUnitState, IMove, IWeapon } from './types';
 
 import { planEffectiveThreshold } from './AIHeatPlanner';
-import { evaluateJump } from './AIJumpTactics';
 import {
   type IAITierAdvancedParameters,
   type IAITierCoordinationParameters,
@@ -36,12 +30,27 @@ import {
   resolveTierParameters,
 } from './AITierRegistry';
 import { collectWeaponModes } from './AIWeaponModeSelector';
-import { AttackAI, applyHeatBudget, scoreTarget } from './AttackAI';
-import { MoveAI, type IScoreMoveContext } from './MoveAI';
+import { AttackAI, applyHeatBudget } from './AttackAI';
+import { selectCoordinatedTarget } from './BotPlayerAttackDecision';
+import {
+  buildMoveScoreContext,
+  selectMovementType,
+  type IAIAdvancedContext,
+} from './BotPlayerMovementDecision';
+import {
+  applyObjectiveTargetDiscipline,
+  shouldHoldObjectiveHex,
+} from './BotPlayerObjectiveDecision';
+import {
+  computeMovementHeat,
+  computeRetreatSignals,
+  createVoluntaryGoProneEvent,
+  VITAL_COMPONENT_TYPES,
+} from './BotPlayerRetreatSignals';
+import { MoveAI } from './MoveAI';
 import {
   effectiveSafeHeatThreshold,
   resolveEdge,
-  retreatMovementType,
   shouldRetreat,
 } from './RetreatAI';
 import { DEFAULT_BEHAVIOR } from './types';
@@ -59,10 +68,9 @@ export type {
 // callers of `playMovementPhase` / `playAttackPhase` can import it alongside
 // `BotPlayer`.
 export type { IAILanceContext } from './AILancePlanner';
+export type { IAIAdvancedContext } from './BotPlayerMovementDecision';
 
 /** Vital component types whose destruction triggers a retreat per spec § 2. */
-const VITAL_COMPONENT_TYPES = new Set(['cockpit', 'engine', 'gyro']);
-
 /** Default attacker tonnage when caller doesn't supply per-unit data. */
 const DEFAULT_ATTACKER_TONNAGE = 65;
 /** Default piloting skill for physical-attack to-hit when not supplied. */
@@ -77,29 +85,6 @@ const MELEE_RANGE_HEXES = 1;
  * loadout (10 single heat sinks dissipating 1 each per turn).
  */
 const DEFAULT_HEAT_DISSIPATION = 10;
-
-function createVoluntaryGoProneEvent(unit: IAIUnitState): IMovementEvent {
-  return {
-    type: GameEventType.MovementDeclared,
-    payload: {
-      unitId: unit.unitId,
-      from: unit.position,
-      to: unit.position,
-      facing: unit.facing,
-      movementType: MovementType.Stationary,
-      mpUsed: 1,
-      heatGenerated: 0,
-      steps: [
-        {
-          kind: 'goProne',
-          index: 0,
-          at: { q: unit.position.q, r: unit.position.r },
-          mpCost: 1,
-        },
-      ],
-    },
-  };
-}
 
 export class BotPlayer implements IAIPlayer {
   private readonly moveAI: MoveAI;
@@ -241,7 +226,7 @@ export class BotPlayer implements IAIPlayer {
     // on the objective so it holds control / accrues hold progress. A
     // `screen`-role unit, a `Destroy` scenario, or a non-objective-aware tier
     // never hits this branch and moves exactly as the A3a bot does.
-    if (this.shouldHoldObjectiveHex(unit, lanceContext)) {
+    if (shouldHoldObjectiveHex(unit, lanceContext)) {
       return null;
     }
 
@@ -260,12 +245,15 @@ export class BotPlayer implements IAIPlayer {
     const livingEnemiesForMovement = (allUnits ?? []).filter(
       (u) => !u.destroyed && u.unitId !== unit.unitId,
     );
-    const movementType = this.selectMovementType(
+    const movementType = selectMovementType({
       unit,
       capability,
       grid,
-      livingEnemiesForMovement,
-    );
+      enemies: livingEnemiesForMovement,
+      advanced: this.advanced,
+      resource: this.resource,
+      random: this.random,
+    });
     const moves = this.moveAI.getValidMoves(
       grid,
       position,
@@ -296,70 +284,39 @@ export class BotPlayer implements IAIPlayer {
     // the +500 forward-arc bonus tries to end the move looking at
     // that threat. If no enemies are left we skip ctx entirely and
     // fall through to the retreat / legacy path in `selectMove`.
-    let ctx: IScoreMoveContext | undefined;
-    if (allUnits && !unit.isRetreating) {
-      const livingEnemies = allUnits.filter(
-        (u) => !u.destroyed && u.unitId !== unit.unitId,
-      );
-      if (livingEnemies.length > 0) {
-        let bestScore = -Infinity;
-        let best: IAIUnitState | undefined;
-        for (const enemy of livingEnemies) {
-          const s = scoreTarget(unit, enemy);
-          if (s > bestScore) {
-            bestScore = s;
-            best = enemy;
-          }
-        }
-        ctx = {
-          attacker: unit,
-          allUnits,
-          grid,
-          highestThreatTarget: best,
-          // Per `add-ai-terrain-aware-movement` design D6: thread the real
-          // movement capability so `MoveAI.selectMove` can run the
-          // terrain-cost pathfinder with the unit's true MP budget rather
-          // than a best-effort estimate from the move set.
-          capability,
-          // Per `add-ai-coordination-tactics` design D3: thread the lance
-          // centroid and the unit's lancemates (excluding the unit itself)
-          // so `scoreMove`'s cohesion term can run. `MoveAI.enrichScoreContext`
-          // attaches the tier coordination block; the term stays inert when
-          // the tier disables `lanceCoordination`. Omitted entirely when no
-          // lance context is supplied — the per-unit path is unchanged.
-          ...(lanceContext
-            ? {
-                lanceCentroid: lanceContext.plan.lanceCentroid,
-                lancemates: lanceContext.lancemates.filter(
-                  (m) => m.unitId !== unit.unitId,
-                ),
-              }
-            : {}),
-          // Per `add-ai-objective-awareness` (A3b) design D3: thread the
-          // unit's objective role and target hex from the lance plan's
-          // objective layer. `MoveAI.enrichScoreContext` attaches the tier
-          // objective block; `scoreMove`'s objective term stays inert for a
-          // `screen`-role unit or when the tier disables objective
-          // awareness. Omitted entirely when the plan carries no objective
-          // layer (a `Destroy` scenario or a non-objective-aware tier).
-          ...this.objectiveMoveFields(unit.unitId, lanceContext),
-          // Per `add-ai-advanced-systems` (A4) design D1–D4: thread the
-          // jump-evaluation score, the electronic-warfare context, and the
-          // vision context. `MoveAI.enrichScoreContext` attaches the tier
-          // advanced block; `scoreMove`'s three advanced terms stay inert
-          // when the tier disables `advancedSystems`. Omitted entirely for a
-          // non-advanced tier so the per-unit path is byte-identical.
-          ...this.advancedMoveFields(
-            unit,
-            grid,
-            capability,
-            livingEnemies,
-            lanceContext,
-            advancedContext,
-          ),
-        };
-      }
-    }
+    const ctx = buildMoveScoreContext({
+      unit,
+      allUnits,
+      grid,
+      capability,
+      lanceContext,
+      advancedContext,
+      advanced: this.advanced,
+      resource: this.resource,
+    });
+    // Per `add-ai-terrain-aware-movement` design D6: thread the real
+    // movement capability so `MoveAI.selectMove` can run the
+    // terrain-cost pathfinder with the unit's true MP budget rather
+    // than a best-effort estimate from the move set.
+    // Per `add-ai-coordination-tactics` design D3: thread the lance
+    // centroid and the unit's lancemates (excluding the unit itself)
+    // so `scoreMove`'s cohesion term can run. `MoveAI.enrichScoreContext`
+    // attaches the tier coordination block; the term stays inert when
+    // the tier disables `lanceCoordination`. Omitted entirely when no
+    // lance context is supplied — the per-unit path is unchanged.
+    // Per `add-ai-objective-awareness` (A3b) design D3: thread the
+    // unit's objective role and target hex from the lance plan's
+    // objective layer. `MoveAI.enrichScoreContext` attaches the tier
+    // objective block; `scoreMove`'s objective term stays inert for a
+    // `screen`-role unit or when the tier disables objective
+    // awareness. Omitted entirely when the plan carries no objective
+    // layer (a `Destroy` scenario or a non-objective-aware tier).
+    // Per `add-ai-advanced-systems` (A4) design D1–D4: thread the
+    // jump-evaluation score, the electronic-warfare context, and the
+    // vision context. `MoveAI.enrichScoreContext` attaches the tier
+    // advanced block; `scoreMove`'s three advanced terms stay inert
+    // when the tier disables `advancedSystems`. Omitted entirely for a
+    // non-advanced tier so the per-unit path is byte-identical.
 
     const selectedMove = this.moveAI.selectMove(
       nonStationaryMoves,
@@ -417,7 +374,7 @@ export class BotPlayer implements IAIPlayer {
     // (a bounded bias, not a hard mandate — design D4 risk note). A
     // `screen`-role unit, a `Destroy` scenario, or a non-objective-aware
     // tier leaves `disciplinedTargets` equal to `validTargets`.
-    const disciplinedTargets = this.applyObjectiveTargetDiscipline(
+    const disciplinedTargets = applyObjectiveTargetDiscipline(
       attacker,
       validTargets,
       lanceContext,
@@ -439,11 +396,13 @@ export class BotPlayer implements IAIPlayer {
     // objective-disciplined set so an objective-role unit still concentrates
     // fire with the lance, but only on an in-discipline target.
     const target =
-      this.selectCoordinatedTarget(
+      selectCoordinatedTarget({
+        attackAI: this.attackAI,
+        coordination: this.coordination,
         attacker,
-        disciplinedTargets,
+        validTargets: disciplinedTargets,
         lanceContext,
-      ) ??
+      }) ??
       this.attackAI.selectTarget(
         disciplinedTargets,
         this.random,
@@ -670,32 +629,11 @@ export class BotPlayer implements IAIPlayer {
    * coordinated pick is fully deterministic, and when this returns `null`
    * the fallback `selectTarget` draws exactly as the per-unit path does.
    */
-  private selectCoordinatedTarget(
-    attacker: IAIUnitState,
-    validTargets: readonly IAIUnitState[],
-    lanceContext?: IAILanceContext,
-  ): IAIUnitState | null {
-    if (!lanceContext) return null;
-    if (!this.coordination.lanceCoordination) return null;
-
-    const assignedId = lanceContext.plan.fireAssignment.assignments.get(
-      attacker.unitId,
-    );
-    if (!assignedId) return null;
-
-    const assigned = validTargets.find((t) => t.unitId === assignedId);
-    if (!assigned) return null;
-
-    // The assignment is a bias, not a mandate (design D2): honor it only
-    // when the unit can actually shoot the assigned target. `selectWeapons`
-    // applies the arc + range + minRange filters — an empty result means
-    // the target is out of arc/range, so we fall back to the self-scored
-    // pick rather than declaring an attack with no weapons.
-    const firingList = this.attackAI.selectWeapons(attacker, assigned);
-    if (firingList.length === 0) return null;
-
-    return assigned;
-  }
+  // The assignment is a bias, not a mandate (design D2): honor it only
+  // when the unit can actually shoot the assigned target. `selectWeapons`
+  // applies the arc + range + minRange filters — an empty result means
+  // the target is out of arc/range, so we fall back to the self-scored
+  // pick rather than declaring an attack with no weapons.
 
   /**
    * Per `add-ai-objective-awareness` (A3b) design D3: resolve the objective
@@ -709,21 +647,6 @@ export class BotPlayer implements IAIPlayer {
    * no objective hex — so `scoreMove`'s objective term stays inert and the
    * unit plays pure A3a movement.
    */
-  private objectiveMoveFields(
-    unitId: string,
-    lanceContext?: IAILanceContext,
-  ): Partial<Pick<IScoreMoveContext, 'objectiveRole' | 'objectiveHex'>> {
-    const objectivePlan = lanceContext?.plan.objectivePlan;
-    if (!objectivePlan) return {};
-
-    const role = objectivePlan.roles.get(unitId);
-    if (!role || role === 'screen') return {};
-
-    const hex = objectivePlan.targetHexes.get(unitId);
-    if (!hex) return {};
-
-    return { objectiveRole: role, objectiveHex: hex };
-  }
 
   /**
    * Per `add-ai-objective-awareness` (A3b) design D3: `true` when `unit`
@@ -737,21 +660,6 @@ export class BotPlayer implements IAIPlayer {
    * non-objective-aware tier (no `objectivePlan`) — every such unit moves
    * exactly as the A3a bot does.
    */
-  private shouldHoldObjectiveHex(
-    unit: IAIUnitState,
-    lanceContext?: IAILanceContext,
-  ): boolean {
-    const objectivePlan = lanceContext?.plan.objectivePlan;
-    if (!objectivePlan) return false;
-
-    const role = objectivePlan.roles.get(unit.unitId);
-    if (role !== 'capture' && role !== 'hold') return false;
-
-    const hex = objectivePlan.targetHexes.get(unit.unitId);
-    if (!hex) return false;
-
-    return unit.position.q === hex.q && unit.position.r === hex.r;
-  }
 
   /**
    * Per `add-ai-objective-awareness` (A3b) design D4: objective-aware target
@@ -771,37 +679,10 @@ export class BotPlayer implements IAIPlayer {
    *
    * Pure with respect to RNG — consumes no `SeededRandom`.
    */
-  private applyObjectiveTargetDiscipline(
-    attacker: IAIUnitState,
-    validTargets: readonly IAIUnitState[],
-    lanceContext?: IAILanceContext,
-  ): readonly IAIUnitState[] {
-    const objectivePlan = lanceContext?.plan.objectivePlan;
-    if (!objectivePlan) return validTargets;
-
-    const role = objectivePlan.roles.get(attacker.unitId);
-    if (!role || role === 'screen') return validTargets;
-
-    const hex = objectivePlan.targetHexes.get(attacker.unitId);
-    if (!hex) return validTargets;
-
-    // Longest live-weapon range — the reach the unit has standing on the
-    // objective hex. A unit with no live weapons cannot discipline-filter.
-    let maxRange = 0;
-    for (const weapon of attacker.weapons) {
-      if (weapon.destroyed) continue;
-      const range = weapon.extremeRange ?? weapon.longRange;
-      if (range > maxRange) maxRange = range;
-    }
-    if (maxRange <= 0) return validTargets;
-
-    const inDiscipline = validTargets.filter(
-      (target) => cubeHexDistance(hex, target.position) <= maxRange,
-    );
-    // Bounded bias: only narrow when at least one enemy is engageable from
-    // the objective; otherwise keep the full set so the unit still fires.
-    return inDiscipline.length > 0 ? inDiscipline : validTargets;
-  }
+  // Longest live-weapon range — the reach the unit has standing on the
+  // objective hex. A unit with no live weapons cannot discipline-filter.
+  // Bounded bias: only narrow when at least one enemy is engageable from
+  // the objective; otherwise keep the full set so the unit still fires.
 
   /**
    * Per `wire-bot-ai-helpers-and-capstone`: when the unit is retreating
@@ -823,63 +704,16 @@ export class BotPlayer implements IAIPlayer {
    * `grid` and `enemies` are consulted only on the advanced-tier jump-gate
    * path; the non-advanced path ignores them entirely.
    */
-  private selectMovementType(
-    unit: IAIUnitState,
-    capability: IMovementCapability,
-    grid: IHexGrid,
-    enemies: readonly IAIUnitState[],
-  ): MovementType {
-    if (capability.walkMP === 0 && capability.jumpMP === 0) {
-      return MovementType.Stationary;
-    }
-
-    if (unit.isRetreating) {
-      const choice = retreatMovementType({
-        walkAvailable: capability.walkMP > 0,
-        runAvailable: capability.runMP > 0,
-      });
-      switch (choice) {
-        case 'run':
-          return MovementType.Run;
-        case 'walk':
-          return MovementType.Walk;
-        case 'stationary':
-        default:
-          return MovementType.Stationary;
-      }
-    }
-
-    // Per A4 design D1: advanced-tier jump-tactics gate. Deterministic — no
-    // `SeededRandom` draw. Jump is chosen only when a jump destination's
-    // tactical score (terrain-clearing / elevation / charge-escape, net of
-    // heat safety) clears the threshold. A heat-unsafe jump drives the score
-    // deep negative, so it never clears the gate on heat grounds alone
-    // (spec scenario "Heat-unsafe jump is rejected").
-    if (this.advanced.advancedSystems && capability.jumpMP > 0) {
-      const evaluation = evaluateJump(unit, grid, capability, enemies, {
-        heatDissipation: unit.heatDissipation,
-        heatLookaheadTurns: this.resource.heatLookaheadTurns,
-      });
-      if (evaluation.bestJumpScore >= JUMP_TACTICS_THRESHOLD) {
-        return MovementType.Jump;
-      }
-      // The jump did not clear the gate — fall through to the walk/run pick.
-      // The advanced tier still draws ONE `next()` for the run/walk split so
-      // the 60/40 instinct is preserved; only the jump *decision* is
-      // deterministic, not the run-vs-walk one.
-      const runWalkRoll = this.random.next();
-      return runWalkRoll < 0.6 ? MovementType.Run : MovementType.Walk;
-    }
-
-    const roll = this.random.next();
-    if (capability.jumpMP > 0 && roll < 0.2) {
-      return MovementType.Jump;
-    }
-    if (roll < 0.6) {
-      return MovementType.Run;
-    }
-    return MovementType.Walk;
-  }
+  // Per A4 design D1: advanced-tier jump-tactics gate. Deterministic — no
+  // `SeededRandom` draw. Jump is chosen only when a jump destination's
+  // tactical score (terrain-clearing / elevation / charge-escape, net of
+  // heat safety) clears the threshold. A heat-unsafe jump drives the score
+  // deep negative, so it never clears the gate on heat grounds alone
+  // (spec scenario "Heat-unsafe jump is rejected").
+  // The jump did not clear the gate — fall through to the walk/run pick.
+  // The advanced tier still draws ONE `next()` for the run/walk split so
+  // the 60/40 instinct is preserved; only the jump *decision* is
+  // deterministic, not the run-vs-walk one.
 
   /**
    * Per `add-ai-advanced-systems` (A4) design D1–D4: assemble the advanced
@@ -902,60 +736,13 @@ export class BotPlayer implements IAIPlayer {
    *
    * Pure with respect to RNG — consumes no `SeededRandom`.
    */
-  private advancedMoveFields(
-    unit: IAIUnitState,
-    grid: IHexGrid,
-    capability: IMovementCapability,
-    livingEnemies: readonly IAIUnitState[],
-    lanceContext?: IAILanceContext,
-    advancedContext?: IAIAdvancedContext,
-  ): Partial<
-    Pick<
-      IScoreMoveContext,
-      'jumpEvaluationScore' | 'electronicWarfare' | 'vision'
-    >
-  > {
-    if (!this.advanced.advancedSystems) {
-      return {};
-    }
-
-    const lancemates = lanceContext
-      ? lanceContext.lancemates.filter((m) => m.unitId !== unit.unitId)
-      : [];
-
-    // Jump-tactics score — the net tactical value of the unit's best jump
-    // destination, precomputed once. `scoreMove` weights it on jump moves.
-    const jumpEvaluation = evaluateJump(unit, grid, capability, livingEnemies, {
-      heatDissipation: unit.heatDissipation,
-      heatLookaheadTurns: this.resource.heatLookaheadTurns,
-    });
-
-    // Vision context — derived from the grid and the enemy set. The advisor
-    // values scouting unspotted enemies and breaking enemy spotting lines.
-    const vision: IVisionContext = {
-      grid,
-      enemies: livingEnemies,
-      lancemates,
-    };
-
-    // Electronic-warfare context — threaded only when the caller supplied a
-    // live EW snapshot. Without it the ECM term has no state to read and is
-    // simply omitted (it stays inert).
-    const electronicWarfare: IElectronicWarfareContext | undefined =
-      advancedContext
-        ? {
-            movingUnitTeamId: advancedContext.movingUnitTeamId,
-            ewState: advancedContext.ewState,
-            lancemates,
-          }
-        : undefined;
-
-    return {
-      jumpEvaluationScore: jumpEvaluation.bestJumpScore,
-      vision,
-      ...(electronicWarfare ? { electronicWarfare } : {}),
-    };
-  }
+  // Jump-tactics score — the net tactical value of the unit's best jump
+  // destination, precomputed once. `scoreMove` weights it on jump moves.
+  // Vision context — derived from the grid and the enemy set. The advisor
+  // values scouting unspotted enemies and breaking enemy spotting lines.
+  // Electronic-warfare context — threaded only when the caller supplied a
+  // live EW snapshot. Without it the ECM term has no state to read and is
+  // simply omitted (it stays inert).
 }
 
 /**
@@ -971,12 +758,8 @@ export class BotPlayer implements IAIPlayer {
  * Omitting `advancedContext` (or running a non-advanced tier) leaves the ECM
  * term inert; the bot plays pure A1/A2/A3a/A3b movement.
  */
-export interface IAIAdvancedContext {
-  /** The team id of the moving unit — keys friendly vs. hostile EW sources. */
-  readonly movingUnitTeamId: string;
-  /** The live electronic-warfare snapshot. Read-only — never mutated. */
-  readonly ewState: IElectronicWarfareState;
-}
+/** The team id of the moving unit — keys friendly vs. hostile EW sources. */
+/** The live electronic-warfare snapshot. Read-only — never mutated. */
 
 /**
  * Per `add-ai-advanced-systems` (A4) design D1 / open question: the jump-
@@ -987,7 +770,6 @@ export interface IAIAdvancedContext {
  * to commit to a jump — but an aimless jump over open ground (score `0`)
  * never clears it. Revisit after swarm-harness tuning.
  */
-const JUMP_TACTICS_THRESHOLD = 150;
 
 /**
  * Per `add-bot-retreat-behavior` § 2 (Trigger A) + `wire-bot-ai-helpers-and-capstone`:
@@ -1007,40 +789,11 @@ const JUMP_TACTICS_THRESHOLD = 150;
  * Exported (file-scope helper) so unit tests can pin the math without
  * standing up a full BotPlayer instance.
  */
-function computeRetreatSignals(
-  unitId: string,
-  session: IGameSession,
-  currentStructure: Readonly<Record<string, number>>,
-  startingStructure: Readonly<Record<string, number>>,
-): { ratio: number; hasVitalCrit: boolean } {
-  // Sum starting + current internal structure points across all known
-  // starting-structure locations. Locations missing from startingStructure
-  // are skipped (they were never seeded — pre-damage units in non-CompendiumAdapter
-  // wiring paths). Locations present in startingStructure but missing
-  // from currentStructure default to 0 (location obliterated).
-  let sumStarting = 0;
-  let sumCurrent = 0;
-  for (const [location, starting] of Object.entries(startingStructure)) {
-    if (typeof starting !== 'number') continue;
-    sumStarting += starting;
-    const current = currentStructure[location];
-    sumCurrent += typeof current === 'number' ? current : 0;
-  }
-  const ratio = sumStarting > 0 ? (sumStarting - sumCurrent) / sumStarting : 0;
-
-  let hasVitalCrit = false;
-  for (const event of session.events) {
-    if (event.type !== GameEventType.ComponentDestroyed) continue;
-    const payload = event.payload as IComponentDestroyedPayload;
-    if (payload.unitId !== unitId) continue;
-    if (VITAL_COMPONENT_TYPES.has(payload.componentType)) {
-      hasVitalCrit = true;
-      break;
-    }
-  }
-
-  return { ratio, hasVitalCrit };
-}
+// Sum starting + current internal structure points across all known
+// starting-structure locations. Locations missing from startingStructure
+// are skipped (they were never seeded — pre-damage units in non-CompendiumAdapter
+// wiring paths). Locations present in startingStructure but missing
+// from currentStructure default to 0 (location obliterated).
 
 /**
  * Per `add-ai-objective-awareness` (A3b): cube-coordinate hex distance
@@ -1048,12 +801,6 @@ function computeRetreatSignals(
  * `playPhysicalAttackPhase` — kept local so `BotPlayer` stays free of a
  * `hexMath` import dependency. Pure function.
  */
-function cubeHexDistance(a: IHexCoordinate, b: IHexCoordinate): number {
-  const dq = b.q - a.q;
-  const dr = b.r - a.r;
-  const ds = -dq - dr;
-  return (Math.abs(dq) + Math.abs(dr) + Math.abs(ds)) / 2;
-}
 
 /**
  * Per `wire-bot-ai-helpers-and-capstone`: heat budget projection needs
@@ -1062,27 +809,6 @@ function cubeHexDistance(a: IHexCoordinate, b: IHexCoordinate): number {
  * than importing it to keep the BotPlayer module free of grid /
  * hex utility deps. Behavior must stay in sync with that helper.
  */
-function computeMovementHeat(
-  movementType: MovementType,
-  hexesMoved: number,
-): number {
-  switch (movementType) {
-    case MovementType.Stationary:
-      return 0;
-    case MovementType.Walk:
-      return 1;
-    case MovementType.Run:
-      return 2;
-    case MovementType.Sprint:
-      return 3;
-    case MovementType.Evade:
-      return 4;
-    case MovementType.Jump:
-      return Math.max(hexesMoved, 3);
-    default:
-      return 0;
-  }
-}
 
 /**
  * Per `wire-bot-ai-helpers-and-capstone`: re-export the phase enum and

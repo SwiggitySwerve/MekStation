@@ -14,7 +14,7 @@ import {
 
 import type { IWeapon, IWeaponFiringMode } from '../../ai/types';
 
-import { createGameEvent } from './utils';
+import { appendAttackResolvedEvent, createGameEvent } from './utils';
 import { weaponTypeFromMountId } from './weaponAttackHelpers';
 
 export function isNarcBeaconWeapon(weapon: IWeapon): boolean {
@@ -102,8 +102,11 @@ export function iNarcHomingTeams(
     .map((pod) => pod.teamId);
 
   const legacyTeams =
-    (unit as unknown as { iNarcMarkedByTeams?: readonly string[] })
-      .iNarcMarkedByTeams ?? [];
+    (
+      unit as IGameState['units'][string] & {
+        readonly iNarcMarkedByTeams?: readonly string[];
+      }
+    ).iNarcMarkedByTeams ?? [];
 
   const teams: string[] = [];
   for (const teamId of [...homingPodTeams, ...legacyTeams]) {
@@ -344,27 +347,23 @@ export function emitZeroDamageDesignatorHit(options: {
     weaponId,
   } = options;
 
-  events.push(
-    createGameEvent(
-      gameId,
-      events.length,
-      GameEventType.AttackResolved,
-      turn,
-      GamePhase.WeaponAttack,
-      {
-        attackerId: unitId,
-        targetId,
-        weaponId,
-        roll: attackRoll,
-        toHitNumber,
-        hit: true,
-        location,
-        damage: 0,
-        heat: weapon.heat,
-        ...(projectileCount !== undefined ? { projectileCount } : {}),
-        attackerArc: firingArc,
-      },
-      unitId,
-    ),
-  );
+  appendAttackResolvedEvent({
+    events,
+    gameId,
+    turn,
+    payload: {
+      attackerId: unitId,
+      targetId,
+      weaponId,
+      roll: attackRoll,
+      toHitNumber,
+      hit: true,
+      location,
+      damage: 0,
+      heat: weapon.heat,
+      ...(projectileCount !== undefined ? { projectileCount } : {}),
+      attackerArc: firingArc,
+    },
+    actorId: unitId,
+  });
 }

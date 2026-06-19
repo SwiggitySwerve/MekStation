@@ -7,13 +7,17 @@
 import { RulesLevel } from '@/types/enums';
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
-  IUnitValidationRuleDefinition,
   IUnitValidationContext,
   IUnitValidationRuleResult,
   UnitValidationSeverity,
-  createUnitValidationError,
-  createUnitValidationRuleResult,
+  IUnitValidationRuleDefinition,
+  IUnitValidationError,
 } from '@/types/validation/UnitValidationInterfaces';
+
+import { addRuleDiagnostic, createRuleResult } from '../ruleResults';
+
+const RULES_LEVEL_REQUIRED_CONSTRUCTION_CATEGORY =
+  ValidationCategory.CONSTRUCTION;
 
 /**
  * VAL-UNIV-005: Rules Level Required
@@ -22,40 +26,30 @@ export const RulesLevelRequired: IUnitValidationRuleDefinition = {
   id: 'VAL-UNIV-005',
   name: 'Rules Level Required',
   description: 'All units must have valid rules level',
-  category: ValidationCategory.CONSTRUCTION,
-  priority: 5,
+  category: RULES_LEVEL_REQUIRED_CONSTRUCTION_CATEGORY,
   applicableUnitTypes: 'ALL',
+  priority: 5,
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors = [];
+    const rulesLevelRequiredDiagnostics: IUnitValidationError[] = [];
 
     const validRulesLevels = Object.values(RulesLevel);
     if (!unit.rulesLevel || !validRulesLevels.includes(unit.rulesLevel)) {
-      errors.push(
-        createUnitValidationError(
-          this.id,
-          this.name,
-          UnitValidationSeverity.ERROR,
-          this.category,
-          'Unit must have a valid rules level',
-          {
-            field: 'rulesLevel',
-            actual: String(unit.rulesLevel),
-            suggestion:
-              'Select Introductory, Standard, Advanced, or Experimental',
-          },
-        ),
+      addRuleDiagnostic(
+        rulesLevelRequiredDiagnostics,
+        this,
+        UnitValidationSeverity.ERROR,
+        'Unit must have a valid rules level',
+        {
+          field: 'rulesLevel',
+          actual: String(unit.rulesLevel),
+          suggestion:
+            'Select Introductory, Standard, Advanced, or Experimental',
+        },
       );
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors: rulesLevelRequiredDiagnostics });
   },
 };

@@ -6,16 +6,16 @@
 
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
-  ICapitalMountedEquipment,
-  ITransportBay,
-  ICrewQuarters,
-  ICapitalCrewConfiguration,
-  BayType,
-  QuartersType,
   CapitalArc,
+  ICapitalCrewConfiguration,
+  ICapitalMountedEquipment,
+  ICrewQuarters,
+  ITransportBay,
+  QuartersType,
 } from '@/types/unit/CapitalShipInterfaces';
 
 import { SpaceStationType } from './SpaceStationUnitHandler.types';
+import { parseCapitalTransporterString } from './transportBayParsing';
 
 /**
  * Map location strings to CapitalArc enum
@@ -120,31 +120,7 @@ function parseTransporterString(
   transporter: string,
   bayNumber: number,
 ): ITransportBay | null {
-  const lower = transporter.toLowerCase();
-  const parts = lower.split(':');
-
-  if (parts.length < 2) return null;
-
-  const typeStr = parts[0];
-  const capacity = parseFloat(parts[1]) || 0;
-  const doors = parts.length > 2 ? parseInt(parts[2], 10) : 1;
-
-  let type: BayType;
-  if (typeStr.includes('mech')) {
-    type = BayType.MECH;
-  } else if (typeStr.includes('vehicle')) {
-    type = BayType.VEHICLE;
-  } else if (typeStr.includes('fighter') || typeStr.includes('asf')) {
-    type = BayType.FIGHTER;
-  } else if (typeStr.includes('smallcraft')) {
-    type = BayType.SMALL_CRAFT;
-  } else if (typeStr.includes('cargo')) {
-    type = BayType.CARGO;
-  } else {
-    type = BayType.CARGO;
-  }
-
-  return { type, capacity, doors, bayNumber };
+  return parseCapitalTransporterString(transporter, bayNumber);
 }
 
 /**

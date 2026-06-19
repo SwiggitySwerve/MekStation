@@ -9,10 +9,21 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  initializeApiDatabase as initOpponentForceDb,
+  rejectMissingQueryString as readOpponentEncounterId,
+  sendCaughtApiError as sendOpponentForceError,
+  sendOperationFailure as sendOpponentForceFailure,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { IEncounterOperationResult } from '@/services/encounter/EncounterRepository';
 import { getEncounterService } from '@/services/encounter/EncounterService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { IEncounter } from '@/types/encounter';
+
+const ENCOUNTERS_ID_OPPONENT_FORCE_TS_FAILED_TO_SET_OPPONENT_FORCE_1 =
+  'Failed to set opponent force';
+const ENCOUNTERS_ID_OPPONENT_FORCE_TS_FAILED_TO_CLEAR_OPPONENT_FORCE_2 =
+  'Failed to clear opponent force';
 
 // =============================================================================
 // Response Types
@@ -22,31 +33,23 @@ type ForceResponse = IEncounterOperationResult & {
   encounter?: IEncounter;
 };
 
-type ErrorResponse = {
-  error: string;
-};
-
 // =============================================================================
 // Handler
 // =============================================================================
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ForceResponse | ErrorResponse>,
+  res: NextApiResponse<ForceResponse | ApiErrorResponse>,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initOpponentForceDb(res)) return;
 
-  const { id } = req.query;
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid encounter ID' });
-  }
+  const id = readOpponentEncounterId(
+    req,
+    res,
+    'id',
+    'Missing or invalid encounter ID',
+  );
+  if (!id) return;
 
   const encounterService = getEncounterService();
 
@@ -70,7 +73,7 @@ function handlePut(
   encounterService: ReturnType<typeof getEncounterService>,
   id: string,
   req: NextApiRequest,
-  res: NextApiResponse<ForceResponse | ErrorResponse>,
+  res: NextApiResponse<ForceResponse | ApiErrorResponse>,
 ) {
   try {
     const { forceId } = req.body as { forceId?: string };
@@ -86,16 +89,20 @@ function handlePut(
         .status(200)
         .json({ ...result, encounter: encounter || undefined });
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to set opponent force',
-        errorCode: result.errorCode,
-      });
+      sendOpponentForceFailure(
+        res,
+        result,
+        ENCOUNTERS_ID_OPPONENT_FORCE_TS_FAILED_TO_SET_OPPONENT_FORCE_1,
+      );
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to set opponent force';
-    return res.status(500).json({ error: message });
+    sendOpponentForceError(
+      res,
+      error,
+      ENCOUNTERS_ID_OPPONENT_FORCE_TS_FAILED_TO_SET_OPPONENT_FORCE_1,
+    );
+    return;
   }
 }
 
@@ -105,7 +112,7 @@ function handlePut(
 function handleDelete(
   encounterService: ReturnType<typeof getEncounterService>,
   id: string,
-  res: NextApiResponse<ForceResponse | ErrorResponse>,
+  res: NextApiResponse<ForceResponse | ApiErrorResponse>,
 ) {
   try {
     const result = encounterService.clearOpponentForce(id);
@@ -116,15 +123,19 @@ function handleDelete(
         .status(200)
         .json({ ...result, encounter: encounter || undefined });
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to clear opponent force',
-        errorCode: result.errorCode,
-      });
+      sendOpponentForceFailure(
+        res,
+        result,
+        ENCOUNTERS_ID_OPPONENT_FORCE_TS_FAILED_TO_CLEAR_OPPONENT_FORCE_2,
+      );
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to clear opponent force';
-    return res.status(500).json({ error: message });
+    sendOpponentForceError(
+      res,
+      error,
+      ENCOUNTERS_ID_OPPONENT_FORCE_TS_FAILED_TO_CLEAR_OPPONENT_FORCE_2,
+    );
+    return;
   }
 }

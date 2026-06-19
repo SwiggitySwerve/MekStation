@@ -7,118 +7,134 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 
+type EngineIntent = Exclude<
+  IIntent['intent'],
+  {
+    readonly kind:
+      | 'OccupySeat'
+      | 'LeaveSeat'
+      | 'ReassignSeat'
+      | 'SetAiSlot'
+      | 'SetHumanSlot'
+      | 'SetReady'
+      | 'LaunchMatch'
+      | 'MarkSeatAi'
+      | 'ForfeitMatch';
+  }
+>;
+
+type EngineIntentHandler<K extends EngineIntent['kind']> = (
+  session: InteractiveSession,
+  intent: Extract<EngineIntent, { readonly kind: K }>,
+) => void;
+
+type EngineIntentHandlers = {
+  readonly [K in EngineIntent['kind']]: EngineIntentHandler<K>;
+};
+
+const ENGINE_INTENT_HANDLERS: EngineIntentHandlers = {
+  Move: (session, intent) => {
+    const movementType = parseMovementType(intent.movementType);
+    const facing = intent.facing as Facing;
+    session.applyMovement(
+      intent.unitId,
+      { q: intent.to.q, r: intent.to.r },
+      facing,
+      movementType,
+    );
+  },
+  Stand: (session, intent) => {
+    session.attemptStandUp(intent.unitId);
+  },
+  GoProne: (session, intent) => {
+    session.goProne(intent.unitId);
+  },
+  ActivateMovementEnhancement: (session, intent) => {
+    session.activateMovementEnhancement(intent.unitId, intent.enhancement);
+  },
+  TorsoTwist: (session, intent) => {
+    session.torsoTwist(intent.unitId, intent.secondaryFacing as Facing);
+  },
+  Attack: (session, intent) => {
+    session.applyAttack(intent.attackerId, intent.targetId, intent.weaponIds);
+  },
+  Physical: (session, intent) => {
+    session.applyPhysicalAttack(
+      intent.attackerId,
+      intent.targetId,
+      intent.attackType,
+      intent.limb,
+    );
+  },
+  RequestSpot: (session, intent) => {
+    session.requestSpot(intent.unitId, intent.targetId);
+  },
+  AdvancePhase: (session) => {
+    session.advancePhase();
+  },
+  Eject: (session, intent) => {
+    session.ejectUnit(intent.unitId);
+  },
+  Withdraw: (session, intent) => {
+    session.declareWithdrawal(intent.unitId, intent.edge);
+  },
+  Concede: (session, intent) => {
+    const side = intent.side === 'player' ? GameSide.Player : GameSide.Opponent;
+    session.concede(side);
+  },
+};
+
+const LOBBY_INTENT_KINDS = new Set<IIntent['intent']['kind']>([
+  'OccupySeat',
+  'LeaveSeat',
+  'ReassignSeat',
+  'SetAiSlot',
+  'SetHumanSlot',
+  'SetReady',
+  'LaunchMatch',
+  'MarkSeatAi',
+  'ForfeitMatch',
+]);
+
 export function dispatchToEngine(
   session: InteractiveSession,
   intent: IIntent['intent'],
 ): void {
-  switch (intent.kind) {
-    case 'Move': {
-      const movementType = parseMovementType(intent.movementType);
-      const facing = intent.facing as Facing;
-      session.applyMovement(
-        intent.unitId,
-        { q: intent.to.q, r: intent.to.r },
-        facing,
-        movementType,
-      );
-      return;
-    }
-    case 'Stand': {
-      session.attemptStandUp(intent.unitId);
-      return;
-    }
-    case 'GoProne': {
-      session.goProne(intent.unitId);
-      return;
-    }
-    case 'ActivateMovementEnhancement': {
-      session.activateMovementEnhancement(intent.unitId, intent.enhancement);
-      return;
-    }
-    case 'TorsoTwist': {
-      session.torsoTwist(intent.unitId, intent.secondaryFacing as Facing);
-      return;
-    }
-    case 'Attack': {
-      session.applyAttack(intent.attackerId, intent.targetId, intent.weaponIds);
-      return;
-    }
-    case 'Physical': {
-      session.applyPhysicalAttack(
-        intent.attackerId,
-        intent.targetId,
-        intent.attackType,
-        intent.limb,
-      );
-      return;
-    }
-    case 'RequestSpot': {
-      session.requestSpot(intent.unitId, intent.targetId);
-      return;
-    }
-    case 'AdvancePhase': {
-      session.advancePhase();
-      return;
-    }
-    case 'Eject': {
-      session.ejectUnit(intent.unitId);
-      return;
-    }
-    case 'Withdraw': {
-      session.declareWithdrawal(intent.unitId, intent.edge);
-      return;
-    }
-    case 'Concede': {
-      const side =
-        intent.side === 'player' ? GameSide.Player : GameSide.Opponent;
-      session.concede(side);
-      return;
-    }
-    case 'OccupySeat':
-    case 'LeaveSeat':
-    case 'ReassignSeat':
-    case 'SetAiSlot':
-    case 'SetHumanSlot':
-    case 'SetReady':
-    case 'LaunchMatch':
-    case 'MarkSeatAi':
-    case 'ForfeitMatch': {
-      throw new Error(
-        `Lobby intent ${intent.kind} routed to engine dispatcher (bug)`,
-      );
-    }
-    default: {
-      const _exhaustive: never = intent;
-      throw new Error(
-        `Unknown intent kind: ${(intent as { kind: string }).kind} (${String(_exhaustive)})`,
-      );
-    }
+  if (LOBBY_INTENT_KINDS.has(intent.kind)) {
+    throw new Error(
+      `Lobby intent ${intent.kind} routed to engine dispatcher (bug)`,
+    );
   }
+  const handler = ENGINE_INTENT_HANDLERS[intent.kind as EngineIntent['kind']];
+  if (!handler) {
+    throw new Error(
+      `Unknown intent kind: ${(intent as { kind: string }).kind}`,
+    );
+  }
+  handler(session, intent as never);
 }
 
+const MOVEMENT_TYPES: Readonly<Record<string, MovementType>> = {
+  walk: MovementType.Walk,
+  Walk: MovementType.Walk,
+  run: MovementType.Run,
+  Run: MovementType.Run,
+  sprint: MovementType.Sprint,
+  Sprint: MovementType.Sprint,
+  evade: MovementType.Evade,
+  Evade: MovementType.Evade,
+  jump: MovementType.Jump,
+  Jump: MovementType.Jump,
+  stationary: MovementType.Stationary,
+  Stationary: MovementType.Stationary,
+};
+
 export function parseMovementType(kind: string): MovementType {
-  switch (kind) {
-    case 'walk':
-    case 'Walk':
-      return MovementType.Walk;
-    case 'run':
-    case 'Run':
-      return MovementType.Run;
-    case 'sprint':
-    case 'Sprint':
-      return MovementType.Sprint;
-    case 'evade':
-    case 'Evade':
-      return MovementType.Evade;
-    case 'jump':
-    case 'Jump':
-      return MovementType.Jump;
-    case 'stationary':
-    case 'Stationary':
-      return MovementType.Stationary;
-    default:
-      throw new Error(`Unknown movement type: ${kind}`);
+  const movementType = MOVEMENT_TYPES[kind];
+  if (movementType === undefined) {
+    throw new Error(`Unknown movement type: ${kind}`);
   }
+  return movementType;
 }
 
 export function drainNewEvents(

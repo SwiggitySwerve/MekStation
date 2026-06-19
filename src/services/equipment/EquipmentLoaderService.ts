@@ -53,24 +53,24 @@ export class EquipmentLoaderService {
   /**
    * Check if equipment is loaded
    */
-  getIsLoaded(): boolean {
+  getIsLoaded = (): boolean => {
     return this.isLoaded;
-  }
+  };
 
   /**
    * Get any loading errors
    */
-  getLoadErrors(): readonly string[] {
+  getLoadErrors = (): readonly string[] => {
     return this.loadErrors;
-  }
+  };
 
   /**
    * Load all official equipment from JSON files
    * Works in both server-side (Node.js) and client-side (browser) environments
    */
-  async loadOfficialEquipment(
+  loadOfficialEquipment = async (
     basePath = '/data/equipment/official',
-  ): Promise<IEquipmentLoadResult> {
+  ): Promise<IEquipmentLoadResult> => {
     const result = await loadOfficialEquipmentSource(basePath, {
       weapons: this.weapons,
       ammunition: this.ammunition,
@@ -84,56 +84,56 @@ export class EquipmentLoaderService {
     }
 
     return result;
-  }
+  };
 
   /**
    * Load custom equipment from a JSON file or object
    */
-  async loadCustomEquipment(
+  loadCustomEquipment = async (
     source: string | File | object,
-  ): Promise<IEquipmentLoadResult> {
+  ): Promise<IEquipmentLoadResult> => {
     return loadCustomEquipmentSource(source, {
       weapons: this.weapons,
       ammunition: this.ammunition,
       electronics: this.electronics,
       miscEquipment: this.miscEquipment,
     });
-  }
+  };
 
   /**
    * Get weapon by ID
    */
-  getWeaponById(id: string): IWeapon | null {
+  getWeaponById = (id: string): IWeapon | null => {
     return this.weapons.get(id) || null;
-  }
+  };
 
   /**
    * Get ammunition by ID
    */
-  getAmmunitionById(id: string): IAmmunition | null {
+  getAmmunitionById = (id: string): IAmmunition | null => {
     return this.ammunition.get(id) || null;
-  }
+  };
 
   /**
    * Get electronics by ID
    */
-  getElectronicsById(id: string): IElectronics | null {
+  getElectronicsById = (id: string): IElectronics | null => {
     return this.electronics.get(id) || null;
-  }
+  };
 
   /**
    * Get misc equipment by ID
    */
-  getMiscEquipmentById(id: string): IMiscEquipment | null {
+  getMiscEquipmentById = (id: string): IMiscEquipment | null => {
     return this.miscEquipment.get(id) || null;
-  }
+  };
 
   /**
    * Get any equipment by ID (searches all categories)
    */
-  getById(
+  getById = (
     id: string,
-  ): IWeapon | IAmmunition | IElectronics | IMiscEquipment | null {
+  ): IWeapon | IAmmunition | IElectronics | IMiscEquipment | null => {
     return (
       this.weapons.get(id) ||
       this.ammunition.get(id) ||
@@ -141,74 +141,76 @@ export class EquipmentLoaderService {
       this.miscEquipment.get(id) ||
       null
     );
-  }
+  };
 
   /**
    * Get all weapons
    */
-  getAllWeapons(): IWeapon[] {
+  getAllWeapons = (): IWeapon[] => {
     return Array.from(this.weapons.values());
-  }
+  };
 
   /**
    * Get all ammunition
    */
-  getAllAmmunition(): IAmmunition[] {
+  getAllAmmunition = (): IAmmunition[] => {
     return Array.from(this.ammunition.values());
-  }
+  };
 
   /**
    * Get all electronics
    */
-  getAllElectronics(): IElectronics[] {
+  getAllElectronics = (): IElectronics[] => {
     return Array.from(this.electronics.values());
-  }
+  };
 
   /**
    * Get all misc equipment
    */
-  getAllMiscEquipment(): IMiscEquipment[] {
+  getAllMiscEquipment = (): IMiscEquipment[] => {
     return Array.from(this.miscEquipment.values());
-  }
+  };
 
   /**
    * Search weapons by filter
    */
-  searchWeapons(filter: IEquipmentFilter): IWeapon[] {
+  searchWeapons = (filter: IEquipmentFilter): IWeapon[] => {
     return filterEquipmentByCriteria(this.getAllWeapons(), filter);
-  }
+  };
 
   /**
    * Search ammunition by filter
    */
-  searchAmmunition(filter: IEquipmentFilter): IAmmunition[] {
+  searchAmmunition = (filter: IEquipmentFilter): IAmmunition[] => {
     return filterEquipmentByCriteria(this.getAllAmmunition(), filter);
-  }
+  };
 
   /**
    * Search electronics by filter
    */
-  searchElectronics(filter: IEquipmentFilter): IElectronics[] {
+  searchElectronics = (filter: IEquipmentFilter): IElectronics[] => {
     return filterEquipmentByCriteria(this.getAllElectronics(), filter);
-  }
+  };
 
   /**
    * Search misc equipment by filter
    */
-  searchMiscEquipment(filter: IEquipmentFilter): IMiscEquipment[] {
+  searchMiscEquipment = (filter: IEquipmentFilter): IMiscEquipment[] => {
     return filterEquipmentByCriteria(this.getAllMiscEquipment(), filter);
-  }
+  };
 
   /**
    * Search all equipment types by unit type
    * Convenience method to get all compatible equipment for a unit type
    */
-  searchByUnitType(unitType: UnitType): {
+  searchByUnitType = (
+    unitType: UnitType,
+  ): {
     weapons: IWeapon[];
     ammunition: IAmmunition[];
     electronics: IElectronics[];
     miscEquipment: IMiscEquipment[];
-  } {
+  } => {
     const filter: IEquipmentFilter = { unitType };
     return {
       weapons: this.searchWeapons(filter),
@@ -216,31 +218,31 @@ export class EquipmentLoaderService {
       electronics: this.searchElectronics(filter),
       miscEquipment: this.searchMiscEquipment(filter),
     };
-  }
+  };
 
   /**
    * Get total equipment count
    */
-  getTotalCount(): number {
+  getTotalCount = (): number => {
     return (
       this.weapons.size +
       this.ammunition.size +
       this.electronics.size +
       this.miscEquipment.size
     );
-  }
+  };
 
   /**
    * Clear all loaded equipment
    */
-  clear(): void {
+  clear = (): void => {
     this.weapons.clear();
     this.ammunition.clear();
     this.electronics.clear();
     this.miscEquipment.clear();
     this.isLoaded = false;
     this.loadErrors = [];
-  }
+  };
 }
 
 const equipmentLoaderServiceFactory: SingletonFactory<EquipmentLoaderService> =

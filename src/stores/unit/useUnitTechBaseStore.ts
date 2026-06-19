@@ -29,6 +29,7 @@ import {
 } from '@/utils/techBaseValidation';
 
 import type { UnitStore, ISelectionMemory } from '../unitState';
+import type { UnitSliceGetFn, UnitSliceSetFn } from './unitSliceTypes';
 
 // =============================================================================
 // Types
@@ -43,80 +44,190 @@ export interface UnitTechBaseActions {
   setAllComponentTechBases: (techBases: IComponentTechBases) => void;
 }
 
-// =============================================================================
-// Slice Factory
-// =============================================================================
+const techBaseByMode: Partial<Record<TechBaseMode, TechBase>> = {
+  [TechBaseMode.CLAN]: TechBase.CLAN,
+  [TechBaseMode.INNER_SPHERE]: TechBase.INNER_SPHERE,
+};
 
-type SetFn = (
-  partial: Partial<UnitStore> | ((state: UnitStore) => Partial<UnitStore>),
-) => void;
-type GetFn = () => UnitStore;
+function getModeTechBase(
+  mode: TechBaseMode,
+  currentTechBase: TechBase,
+): TechBase {
+  return techBaseByMode[mode] ?? currentTechBase;
+}
+
+function getFixedModeTechBase(mode: TechBaseMode): TechBase {
+  return techBaseByMode[mode] ?? TechBase.INNER_SPHERE;
+}
+
+function getCurrentSelections(state: UnitStore): ComponentSelections {
+  return {
+    engineType: state.engineType,
+    gyroType: state.gyroType,
+    internalStructureType: state.internalStructureType,
+    cockpitType: state.cockpitType,
+    heatSinkType: state.heatSinkType,
+    armorType: state.armorType,
+  };
+}
+
+function rememberFixedModeSelections(state: UnitStore): ISelectionMemory {
+  const oldTechBase = getFixedModeTechBase(state.techBaseMode);
+  if (state.techBaseMode === TechBaseMode.MIXED) {
+    return { ...state.selectionMemory };
+  }
+
+  return {
+    engine: {
+      ...state.selectionMemory.engine,
+      [oldTechBase]: state.engineType,
+    },
+    gyro: { ...state.selectionMemory.gyro, [oldTechBase]: state.gyroType },
+    structure: {
+      ...state.selectionMemory.structure,
+      [oldTechBase]: state.internalStructureType,
+    },
+    cockpit: {
+      ...state.selectionMemory.cockpit,
+      [oldTechBase]: state.cockpitType,
+    },
+    heatSink: {
+      ...state.selectionMemory.heatSink,
+      [oldTechBase]: state.heatSinkType,
+    },
+    armor: {
+      ...state.selectionMemory.armor,
+      [oldTechBase]: state.armorType,
+    },
+  };
+}
+
+type MemoryUpdateFn = (
+  state: UnitStore,
+  memory: ISelectionMemory,
+  oldTechBase: TechBase,
+) => ISelectionMemory;
+
+const componentMemoryUpdates: Partial<
+  Record<TechBaseComponent, MemoryUpdateFn>
+> = {
+  [TechBaseComponent.ENGINE]: (state, memory, oldTechBase) => ({
+    ...memory,
+    engine: { ...memory.engine, [oldTechBase]: state.engineType },
+  }),
+  [TechBaseComponent.GYRO]: (state, memory, oldTechBase) => ({
+    ...memory,
+    gyro: { ...memory.gyro, [oldTechBase]: state.gyroType },
+  }),
+  [TechBaseComponent.CHASSIS]: (state, memory, oldTechBase) => ({
+    ...memory,
+    structure: {
+      ...memory.structure,
+      [oldTechBase]: state.internalStructureType,
+    },
+    cockpit: { ...memory.cockpit, [oldTechBase]: state.cockpitType },
+  }),
+  [TechBaseComponent.HEATSINK]: (state, memory, oldTechBase) => ({
+    ...memory,
+    heatSink: { ...memory.heatSink, [oldTechBase]: state.heatSinkType },
+  }),
+  [TechBaseComponent.ARMOR]: (state, memory, oldTechBase) => ({
+    ...memory,
+    armor: { ...memory.armor, [oldTechBase]: state.armorType },
+  }),
+};
+
+function rememberComponentSelection(
+  state: UnitStore,
+  component: TechBaseComponent,
+): ISelectionMemory {
+  const oldTechBase = state.componentTechBases[component];
+  const updateMemory = componentMemoryUpdates[component];
+  const memory = { ...state.selectionMemory };
+  return updateMemory ? updateMemory(state, memory, oldTechBase) : memory;
+}
+
+function syncHeatSinkEquipment(
+  state: UnitStore,
+  equipment: readonly UnitStore['equipment'][number][],
+  selectionUpdates: Partial<ComponentSelections>,
+): readonly UnitStore['equipment'][number][] {
+  if (
+    !selectionUpdates.heatSinkType ||
+    selectionUpdates.heatSinkType === state.heatSinkType
+  ) {
+    return equipment;
+  }
+
+  const integralHeatSinks = calculateIntegralHeatSinks(
+    state.engineRating,
+    state.engineType,
+  );
+  const externalHeatSinks = Math.max(
+    0,
+    state.heatSinkCount - integralHeatSinks,
+  );
+  const nonHeatSinkEquipment = filterOutHeatSinks(equipment);
+  const heatSinkEquipment = createHeatSinkEquipmentList(
+    selectionUpdates.heatSinkType,
+    externalHeatSinks,
+  );
+  return [...nonHeatSinkEquipment, ...heatSinkEquipment];
+}
+
+function syncEnhancementEquipment(
+  state: UnitStore,
+  equipment: readonly UnitStore['equipment'][number][],
+  component: TechBaseComponent,
+  oldTechBase: TechBase,
+  techBase: TechBase,
+): readonly UnitStore['equipment'][number][] {
+  const shouldResyncEnhancement =
+    (component === TechBaseComponent.MYOMER ||
+      component === TechBaseComponent.MOVEMENT) &&
+    state.enhancement &&
+    oldTechBase !== techBase;
+
+  if (!shouldResyncEnhancement) {
+    return equipment;
+  }
+
+  const engineWeight = calculateEngineWeight(
+    state.engineRating,
+    state.engineType,
+  );
+  const nonEnhancementEquipment = filterOutEnhancementEquipment(equipment);
+  const enhancementEquipment = createEnhancementEquipmentList(
+    state.enhancement,
+    state.tonnage,
+    techBase,
+    engineWeight,
+  );
+  return [...nonEnhancementEquipment, ...enhancementEquipment];
+}
 
 export function createTechBaseSlice(
-  set: SetFn,
-  _get: GetFn,
+  set: UnitSliceSetFn,
+  _get: UnitSliceGetFn,
 ): UnitTechBaseActions {
   return {
     setTechBaseMode: (mode) =>
       set((state) => {
-        const newTechBase =
-          mode === TechBaseMode.MIXED
-            ? state.techBase
-            : mode === TechBaseMode.CLAN
-              ? TechBase.CLAN
-              : TechBase.INNER_SPHERE;
+        const newTechBase = getModeTechBase(mode, state.techBase);
         const newComponentTechBases =
           mode === TechBaseMode.MIXED
             ? state.componentTechBases
             : createDefaultComponentTechBases(newTechBase);
 
-        const oldTechBase =
-          state.techBaseMode === TechBaseMode.CLAN
-            ? TechBase.CLAN
-            : TechBase.INNER_SPHERE;
         const memoryTechBase =
           mode === TechBaseMode.MIXED ? undefined : newTechBase;
 
-        const currentSelections: ComponentSelections = {
-          engineType: state.engineType,
-          gyroType: state.gyroType,
-          internalStructureType: state.internalStructureType,
-          cockpitType: state.cockpitType,
-          heatSinkType: state.heatSinkType,
-          armorType: state.armorType,
-        };
-
         // Save current selections to memory for the OLD tech base (if not mixed)
-        let updatedMemory = { ...state.selectionMemory };
-        if (state.techBaseMode !== TechBaseMode.MIXED) {
-          updatedMemory = {
-            engine: {
-              ...updatedMemory.engine,
-              [oldTechBase]: state.engineType,
-            },
-            gyro: { ...updatedMemory.gyro, [oldTechBase]: state.gyroType },
-            structure: {
-              ...updatedMemory.structure,
-              [oldTechBase]: state.internalStructureType,
-            },
-            cockpit: {
-              ...updatedMemory.cockpit,
-              [oldTechBase]: state.cockpitType,
-            },
-            heatSink: {
-              ...updatedMemory.heatSink,
-              [oldTechBase]: state.heatSinkType,
-            },
-            armor: {
-              ...updatedMemory.armor,
-              [oldTechBase]: state.armorType,
-            },
-          };
-        }
+        const updatedMemory = rememberFixedModeSelections(state);
 
         const validatedSelections = getFullyValidatedSelections(
           newComponentTechBases,
-          currentSelections,
+          getCurrentSelections(state),
           memoryTechBase ? updatedMemory : undefined,
           memoryTechBase,
         );
@@ -152,104 +263,31 @@ export function createTechBaseSlice(
       set((state) => {
         const oldTechBase = state.componentTechBases[component];
 
-        const currentSelections: ComponentSelections = {
-          engineType: state.engineType,
-          gyroType: state.gyroType,
-          internalStructureType: state.internalStructureType,
-          cockpitType: state.cockpitType,
-          heatSinkType: state.heatSinkType,
-          armorType: state.armorType,
-        };
-
-        const updatedMemory: ISelectionMemory = {
-          ...state.selectionMemory,
-        };
-
         // Save current selection to memory for the OLD tech base
-        if (component === TechBaseComponent.ENGINE) {
-          updatedMemory.engine = {
-            ...updatedMemory.engine,
-            [oldTechBase]: state.engineType,
-          };
-        } else if (component === TechBaseComponent.GYRO) {
-          updatedMemory.gyro = {
-            ...updatedMemory.gyro,
-            [oldTechBase]: state.gyroType,
-          };
-        } else if (component === TechBaseComponent.CHASSIS) {
-          updatedMemory.structure = {
-            ...updatedMemory.structure,
-            [oldTechBase]: state.internalStructureType,
-          };
-          updatedMemory.cockpit = {
-            ...updatedMemory.cockpit,
-            [oldTechBase]: state.cockpitType,
-          };
-        } else if (component === TechBaseComponent.HEATSINK) {
-          updatedMemory.heatSink = {
-            ...updatedMemory.heatSink,
-            [oldTechBase]: state.heatSinkType,
-          };
-        } else if (component === TechBaseComponent.ARMOR) {
-          updatedMemory.armor = {
-            ...updatedMemory.armor,
-            [oldTechBase]: state.armorType,
-          };
-        }
+        const updatedMemory = rememberComponentSelection(
+          state,
+          component as TechBaseComponent,
+        );
 
         const selectionUpdates = getSelectionWithMemory(
           component as TechBaseComponent,
           techBase,
-          currentSelections,
+          getCurrentSelections(state),
           updatedMemory,
         );
 
-        // Sync equipment if heat sink type changed
-        let updatedEquipment = state.equipment;
-        if (
-          selectionUpdates.heatSinkType &&
-          selectionUpdates.heatSinkType !== state.heatSinkType
-        ) {
-          const integralHeatSinks = calculateIntegralHeatSinks(
-            state.engineRating,
-            state.engineType,
-          );
-          const externalHeatSinks = Math.max(
-            0,
-            state.heatSinkCount - integralHeatSinks,
-          );
-          const nonHeatSinkEquipment = filterOutHeatSinks(updatedEquipment);
-          const heatSinkEquipment = createHeatSinkEquipmentList(
-            selectionUpdates.heatSinkType,
-            externalHeatSinks,
-          );
-          updatedEquipment = [...nonHeatSinkEquipment, ...heatSinkEquipment];
-        }
-
-        // Sync enhancement equipment if MYOMER or MOVEMENT tech base changed
-        if (
-          (component === TechBaseComponent.MYOMER ||
-            component === TechBaseComponent.MOVEMENT) &&
-          state.enhancement &&
-          oldTechBase !== techBase
-        ) {
-          const engineWeight = calculateEngineWeight(
-            state.engineRating,
-            state.engineType,
-          );
-          const nonEnhancementEquipment =
-            filterOutEnhancementEquipment(updatedEquipment);
-          const enhancementEquipment = createEnhancementEquipmentList(
-            state.enhancement,
-            state.tonnage,
-            techBase,
-            engineWeight,
-          );
-          updatedEquipment = [
-            ...nonEnhancementEquipment,
-            ...enhancementEquipment,
-          ];
-        }
+        const heatSyncedEquipment = syncHeatSinkEquipment(
+          state,
+          state.equipment,
+          selectionUpdates,
+        );
+        const updatedEquipment = syncEnhancementEquipment(
+          state,
+          heatSyncedEquipment,
+          component as TechBaseComponent,
+          oldTechBase,
+          techBase,
+        );
 
         return {
           componentTechBases: {

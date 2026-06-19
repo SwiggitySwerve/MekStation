@@ -7,7 +7,10 @@
  * @spec openspec/specs/equipment-services/spec.md
  */
 
-import { IFormula } from '@/types/equipment/VariableEquipment';
+import {
+  IFormula,
+  type FormulaType,
+} from '@/types/equipment/VariableEquipment';
 
 import { ValidationError } from '../common/errors';
 
@@ -25,54 +28,54 @@ export interface IFormulaEvaluator {
   getRequiredFields(formula: IFormula): string[];
 }
 
+type FormulaEvaluatorMethod = (
+  formula: IFormula,
+  context: FormulaContext,
+) => number;
+
+const FIELD_REQUIRED_FORMULA_TYPES = new Set<FormulaType>([
+  'CEIL_DIVIDE',
+  'FLOOR_DIVIDE',
+  'ROUND_DIVIDE',
+  'MULTIPLY',
+  'MULTIPLY_ROUND',
+  'EQUALS_FIELD',
+]);
+
+const SUB_FORMULA_REQUIRED_TYPES = new Set<FormulaType>(['MIN', 'MAX']);
+
 /**
  * Formula Evaluator implementation
  */
 export class FormulaEvaluator implements IFormulaEvaluator {
+  private readonly formulaEvaluators: Readonly<
+    Record<FormulaType, FormulaEvaluatorMethod>
+  > = {
+    FIXED: this.evaluateFixed.bind(this),
+    CEIL_DIVIDE: this.evaluateCeilDivide.bind(this),
+    FLOOR_DIVIDE: this.evaluateFloorDivide.bind(this),
+    ROUND_DIVIDE: this.evaluateRoundDivide.bind(this),
+    MULTIPLY: this.evaluateMultiply.bind(this),
+    MULTIPLY_ROUND: this.evaluateMultiplyRound.bind(this),
+    EQUALS_WEIGHT: this.evaluateEqualsWeight.bind(this),
+    EQUALS_FIELD: this.evaluateEqualsField.bind(this),
+    MIN: this.evaluateMin.bind(this),
+    MAX: this.evaluateMax.bind(this),
+    PLUS: this.evaluatePlus.bind(this),
+  };
+
   /**
    * Evaluate a formula with the given context
    */
   evaluate(formula: IFormula, context: FormulaContext): number {
-    switch (formula.type) {
-      case 'FIXED':
-        return this.evaluateFixed(formula);
-
-      case 'CEIL_DIVIDE':
-        return this.evaluateCeilDivide(formula, context);
-
-      case 'FLOOR_DIVIDE':
-        return this.evaluateFloorDivide(formula, context);
-
-      case 'ROUND_DIVIDE':
-        return this.evaluateRoundDivide(formula, context);
-
-      case 'MULTIPLY':
-        return this.evaluateMultiply(formula, context);
-
-      case 'MULTIPLY_ROUND':
-        return this.evaluateMultiplyRound(formula, context);
-
-      case 'EQUALS_WEIGHT':
-        return this.evaluateEqualsWeight(context);
-
-      case 'EQUALS_FIELD':
-        return this.evaluateEqualsField(formula, context);
-
-      case 'MIN':
-        return this.evaluateMin(formula, context);
-
-      case 'MAX':
-        return this.evaluateMax(formula, context);
-
-      case 'PLUS':
-        return this.evaluatePlus(formula, context);
-
-      default:
-        throw new ValidationError(
-          `Unknown formula type: ${(formula as IFormula).type}`,
-          [`Formula type '${(formula as IFormula).type}' is not supported`],
-        );
+    const evaluator = this.formulaEvaluators[formula.type];
+    if (!evaluator) {
+      throw new ValidationError(
+        `Unknown formula type: ${(formula as IFormula).type}`,
+        [`Formula type '${(formula as IFormula).type}' is not supported`],
+      );
     }
+    return evaluator(formula, context);
   }
 
   /**
@@ -90,40 +93,19 @@ export class FormulaEvaluator implements IFormulaEvaluator {
   getRequiredFields(formula: IFormula): string[] {
     const fields: string[] = [];
 
-    switch (formula.type) {
-      case 'FIXED':
-        // No fields required
-        break;
-
-      case 'CEIL_DIVIDE':
-      case 'FLOOR_DIVIDE':
-      case 'ROUND_DIVIDE':
-      case 'MULTIPLY':
-      case 'MULTIPLY_ROUND':
-      case 'EQUALS_FIELD':
-        if (formula.field) {
-          fields.push(formula.field);
-        }
-        break;
-
-      case 'EQUALS_WEIGHT':
-        fields.push('weight');
-        break;
-
-      case 'MIN':
-      case 'MAX':
-        if (formula.formulas) {
-          for (const subFormula of formula.formulas) {
-            fields.push(...this.getRequiredFields(subFormula));
-          }
-        }
-        break;
-
-      case 'PLUS':
-        if (formula.base) {
-          fields.push(...this.getRequiredFields(formula.base));
-        }
-        break;
+    if (FIELD_REQUIRED_FORMULA_TYPES.has(formula.type) && formula.field) {
+      fields.push(formula.field);
+    }
+    if (formula.type === 'EQUALS_WEIGHT') {
+      fields.push('weight');
+    }
+    if (SUB_FORMULA_REQUIRED_TYPES.has(formula.type) && formula.formulas) {
+      for (const subFormula of formula.formulas) {
+        fields.push(...this.getRequiredFields(subFormula));
+      }
+    }
+    if (formula.type === 'PLUS' && formula.base) {
+      fields.push(...this.getRequiredFields(formula.base));
     }
 
     // Remove duplicates
@@ -134,7 +116,7 @@ export class FormulaEvaluator implements IFormulaEvaluator {
   // INDIVIDUAL FORMULA EVALUATORS
   // ============================================================================
 
-  private evaluateFixed(formula: IFormula): number {
+  private evaluateFixed(formula: IFormula, _context: FormulaContext): number {
     if (formula.value === undefined) {
       throw new ValidationError('FIXED formula missing value', [
         'value is required',
@@ -216,7 +198,10 @@ export class FormulaEvaluator implements IFormulaEvaluator {
     return Math.ceil(rawValue / formula.roundTo) * formula.roundTo;
   }
 
-  private evaluateEqualsWeight(context: FormulaContext): number {
+  private evaluateEqualsWeight(
+    _formula: IFormula,
+    context: FormulaContext,
+  ): number {
     if (context.weight === undefined) {
       throw new ValidationError(
         'EQUALS_WEIGHT requires weight to be calculated first',

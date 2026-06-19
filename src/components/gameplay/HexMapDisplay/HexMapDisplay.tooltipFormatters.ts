@@ -1,6 +1,7 @@
 import type { ICombatRangeHex, IMovementRangeHex } from '@/types/gameplay';
 
 import { CoverLevel } from '@/types/gameplay/TerrainTypes';
+import { formatCombatAmmoImpact } from '@/utils/gameplay/tacticalMapProjection.combatExplanation';
 
 export function formatCombatWeaponLabel(
   combatInfo: ICombatRangeHex,
@@ -34,13 +35,7 @@ export function formatCombatWeaponImpactLabel(
 
   const ammoRows = combatInfo.availableWeaponImpacts
     .filter((impact) => impact.ammoConsumed > 0)
-    .map((impact) => {
-      const remaining =
-        impact.ammoRemaining === undefined
-          ? ''
-          : ` (${Math.max(0, impact.ammoRemaining - impact.ammoConsumed)} left)`;
-      return `${impact.weaponName} -${impact.ammoConsumed}${remaining}`;
-    });
+    .map((impact) => formatCombatAmmoImpact(impact, 'parenthetical'));
   const ammoLabel = ammoRows.length > 0 ? `; ammo ${ammoRows.join('; ')}` : '';
   const damageLabel =
     combatInfo.availableWeaponDamage > 0

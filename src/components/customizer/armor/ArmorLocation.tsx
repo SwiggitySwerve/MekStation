@@ -12,6 +12,8 @@ import type { LocationArmorData } from '@/types/construction/LocationArmorData';
 
 import { MechLocation } from '@/types/construction';
 
+import { LOCATION_LABELS } from './shared/MechSilhouette.labels';
+
 interface ArmorLocationProps {
   /** Mech location */
   location: MechLocation;
@@ -64,26 +66,7 @@ function getLocationFill(
  * Get short location label
  */
 function getLocationLabel(location: MechLocation): string {
-  switch (location) {
-    case MechLocation.HEAD:
-      return 'HD';
-    case MechLocation.CENTER_TORSO:
-      return 'CT';
-    case MechLocation.LEFT_TORSO:
-      return 'LT';
-    case MechLocation.RIGHT_TORSO:
-      return 'RT';
-    case MechLocation.LEFT_ARM:
-      return 'LA';
-    case MechLocation.RIGHT_ARM:
-      return 'RA';
-    case MechLocation.LEFT_LEG:
-      return 'LL';
-    case MechLocation.RIGHT_LEG:
-      return 'RL';
-    default:
-      return '';
-  }
+  return LOCATION_LABELS[location] ?? '';
 }
 
 /**

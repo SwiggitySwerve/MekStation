@@ -12,6 +12,12 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IFolderItem, ShareableContentType } from '@/types/vault';
 
+import {
+  rejectMissingQueryString,
+  rejectUnexpectedMethod as rejectFolderItemsMethod,
+  sendLoggedApiError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getVaultService } from '@/services/vault/VaultService';
 
 // =============================================================================
@@ -46,23 +52,22 @@ interface SuccessResponse {
   failed?: number;
 }
 
-interface ErrorResponse {
-  error: string;
-}
-
 // =============================================================================
 // Handler
 // =============================================================================
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ListItemsResponse | SuccessResponse | ErrorResponse>,
+  res: NextApiResponse<ListItemsResponse | SuccessResponse | ApiErrorResponse>,
 ): Promise<void> {
-  const { id } = req.query;
-
-  if (typeof id !== 'string') {
-    return res.status(400).json({ error: 'Invalid folder ID' });
-  }
+  const id = rejectMissingQueryString(req, res, 'id', 'Invalid folder ID');
+  if (!id) return;
+  if (
+    rejectFolderItemsMethod(req, res, ['GET', 'POST', 'DELETE'], () => ({
+      error: 'Method not allowed',
+    }))
+  )
+    return;
 
   try {
     const vaultService = getVaultService();
@@ -80,14 +85,10 @@ export default async function handler(
         return handleAdd(id, req, res, vaultService);
       case 'DELETE':
         return handleRemove(id, req, res, vaultService);
-      default:
-        return res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
-    console.error('Folder items API error:', error);
-    return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedApiError(res, 'Folder items API error:', error);
+    return;
   }
 }
 
@@ -97,7 +98,7 @@ export default async function handler(
 
 async function handleList(
   folderId: string,
-  res: NextApiResponse<ListItemsResponse | ErrorResponse>,
+  res: NextApiResponse<ListItemsResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   const items = await vaultService.getFolderItems(folderId);
@@ -111,7 +112,7 @@ async function handleList(
 async function handleAdd(
   folderId: string,
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse | ErrorResponse>,
+  res: NextApiResponse<SuccessResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   const body = req.body as AddItemRequest | BulkAddItemsRequest;
@@ -160,7 +161,7 @@ async function handleAdd(
 async function handleRemove(
   folderId: string,
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse | ErrorResponse>,
+  res: NextApiResponse<SuccessResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   const { itemId, itemType } = req.body as RemoveItemRequest;

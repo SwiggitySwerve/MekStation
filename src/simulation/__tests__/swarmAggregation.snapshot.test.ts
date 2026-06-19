@@ -44,41 +44,46 @@ function makeEvent(type: GameEventType, payload: unknown, seq = 0): IGameEvent {
   };
 }
 
-function makeParticipant(
-  sideId: string,
-  unitId: string,
-  chassisId: string,
-  pilotId: string,
-  gunnery: number,
-  piloting: number,
-  aiVariant: string,
-): IParticipant {
+interface ParticipantFixture {
+  readonly sideId: string;
+  readonly unitId: string;
+  readonly chassisId: string;
+  readonly pilotId: string;
+  readonly gunnery: number;
+  readonly piloting: number;
+  readonly aiVariant: string;
+}
+
+function makeParticipant(fixture: ParticipantFixture): IParticipant {
   return {
-    sideId,
-    unitId,
-    chassisId,
-    pilotId,
-    gunnery,
-    piloting,
-    aiVariant,
+    sideId: fixture.sideId,
+    unitId: fixture.unitId,
+    chassisId: fixture.chassisId,
+    pilotId: fixture.pilotId,
+    gunnery: fixture.gunnery,
+    piloting: fixture.piloting,
+    aiVariant: fixture.aiVariant,
   };
 }
 
+interface V2ResultFixture {
+  readonly index: number;
+  readonly winner: 'player' | 'opponent' | 'draw' | null;
+  readonly chassisA: string;
+  readonly chassisB: string;
+  readonly gunneryA: number;
+  readonly gunneryB: number;
+  readonly variantA: string;
+  readonly variantB: string;
+  readonly pilotIdA: string;
+  readonly pilotIdB: string;
+  readonly damageAtoB?: number;
+  readonly damageBtoA?: number;
+}
+
 /** Build a minimal v2 ISimulationRunResult for snapshot testing. */
-function makeV2Result(
-  index: number,
-  winner: 'player' | 'opponent' | 'draw' | null,
-  chassisA: string,
-  chassisB: string,
-  gunneryA: number,
-  gunneryB: number,
-  variantA: string,
-  variantB: string,
-  pilotIdA: string,
-  pilotIdB: string,
-  damageAtoB = 50,
-  damageBtoA = 40,
-): ISimulationRunResult {
+function makeV2Result(fixture: V2ResultFixture): ISimulationRunResult {
+  const { index, winner, damageAtoB = 50, damageBtoA = 40 } = fixture;
   const unitIdA = `unit-A-${index}`;
   const unitIdB = `unit-B-${index}`;
 
@@ -123,8 +128,24 @@ function makeV2Result(
     haltedByCriticalAnomaly: false,
     schemaVersion: 2,
     participants: [
-      makeParticipant('A', unitIdA, chassisA, pilotIdA, gunneryA, 4, variantA),
-      makeParticipant('B', unitIdB, chassisB, pilotIdB, gunneryB, 4, variantB),
+      makeParticipant({
+        sideId: 'A',
+        unitId: unitIdA,
+        chassisId: fixture.chassisA,
+        pilotId: fixture.pilotIdA,
+        gunnery: fixture.gunneryA,
+        piloting: 4,
+        aiVariant: fixture.variantA,
+      }),
+      makeParticipant({
+        sideId: 'B',
+        unitId: unitIdB,
+        chassisId: fixture.chassisB,
+        pilotId: fixture.pilotIdB,
+        gunnery: fixture.gunneryB,
+        piloting: 4,
+        aiVariant: fixture.variantB,
+      }),
     ],
   };
 }
@@ -146,18 +167,18 @@ function buildSnapshotBatch(): readonly ISimulationRunResult[] {
     else winner = 'draw';
 
     results.push(
-      makeV2Result(
-        i,
+      makeV2Result({
+        index: i,
         winner,
-        'ATL-D-A',
-        'LCT-1V',
-        3,
-        5,
-        'aggressive',
-        'defensive',
-        `synth-pilot-A-${i}`,
-        `synth-pilot-B-${i}`,
-      ),
+        chassisA: 'ATL-D-A',
+        chassisB: 'LCT-1V',
+        gunneryA: 3,
+        gunneryB: 5,
+        variantA: 'aggressive',
+        variantB: 'defensive',
+        pilotIdA: `synth-pilot-A-${i}`,
+        pilotIdB: `synth-pilot-B-${i}`,
+      }),
     );
   }
   return results;

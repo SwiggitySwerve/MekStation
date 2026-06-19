@@ -53,41 +53,7 @@ export interface IAerospaceBVInput {
   readonly pilotPiloting?: number;
 }
 
-/**
- * Per-arc weighted BV contribution breakdown.
- * `weight` is the fire-pool multiplier (1.0 / 0.5 / 0.25 / 1.0 for fuselage).
- */
-export interface IAerospaceArcContribution {
-  readonly arc: AerospaceArc;
-  readonly rawBV: number;
-  readonly weight: number;
-  readonly weightedBV: number;
-  readonly isPrimary: boolean;
-}
-
-/**
- * Complete aerospace BV breakdown, surfaced on the unit and displayed in the
- * status bar / breakdown dialog.
- */
-export interface IAerospaceBVBreakdown {
-  readonly armorBV: number;
-  readonly siBV: number;
-  readonly defensiveEquipmentBV: number;
-  readonly explosivePenalties: number;
-  readonly defensiveFactor: number;
-  readonly defensive: number;
-
-  readonly arcContributions: readonly IAerospaceArcContribution[];
-  readonly primaryArc: AerospaceArc | null;
-  readonly weaponFirePoolBV: number;
-  readonly fuselageWeaponBV: number;
-  readonly ammoBV: number;
-  readonly offensiveEquipmentBV: number;
-  readonly avgThrust: number;
-  readonly speedFactor: number;
-  readonly offensive: number;
-
-  readonly subTypeMultiplier: number;
-  readonly pilotMultiplier: number;
-  readonly final: number;
-}
+export type {
+  IAerospaceArcContribution,
+  IAerospaceBVBreakdown,
+} from '@/types/unit/BVBreakdownTypes';

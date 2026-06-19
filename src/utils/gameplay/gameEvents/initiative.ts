@@ -9,7 +9,18 @@ import {
 
 import { createEventBase } from './base';
 
-export function createInitiativeRolledEvent(
+interface IInitiativeModifiersInput {
+  readonly playerModifier: number;
+  readonly opponentModifier: number;
+}
+
+interface ITacticalGeniusRerollInput {
+  readonly side: GameSide;
+  readonly originalPlayerRoll: number;
+  readonly originalOpponentRoll: number;
+}
+
+type InitiativeRolledEventArgs = [
   gameId: string,
   sequence: number,
   turn: number,
@@ -17,49 +28,93 @@ export function createInitiativeRolledEvent(
   opponentRoll: number,
   winner: GameSide,
   movesFirst: GameSide,
-  initiativeModifiers?: {
-    readonly playerModifier: number;
-    readonly opponentModifier: number;
-  },
-  tacticalGeniusReroll?: {
-    readonly side: GameSide;
-    readonly originalPlayerRoll: number;
-    readonly originalOpponentRoll: number;
-  },
+  initiativeModifiers?: IInitiativeModifiersInput,
+  tacticalGeniusReroll?: ITacticalGeniusRerollInput,
+];
+
+export interface ICreateInitiativeRolledEventInput {
+  readonly gameId: string;
+  readonly sequence: number;
+  readonly turn: number;
+  readonly playerRoll: number;
+  readonly opponentRoll: number;
+  readonly winner: GameSide;
+  readonly movesFirst: GameSide;
+  readonly initiativeModifiers?: IInitiativeModifiersInput;
+  readonly tacticalGeniusReroll?: ITacticalGeniusRerollInput;
+}
+
+export function createInitiativeRolledEvent(
+  ...args: [ICreateInitiativeRolledEventInput] | InitiativeRolledEventArgs
 ): IGameEvent {
+  const input = normalizeInitiativeRolledEventInput(args);
   const payload: IInitiativeRolledPayload = {
-    playerRoll,
-    opponentRoll,
-    winner,
-    movesFirst,
-    ...(tacticalGeniusReroll
+    playerRoll: input.playerRoll,
+    opponentRoll: input.opponentRoll,
+    winner: input.winner,
+    movesFirst: input.movesFirst,
+    ...(input.tacticalGeniusReroll
       ? {
-          tacticalGeniusRerollSide: tacticalGeniusReroll.side,
-          playerOriginalRoll: tacticalGeniusReroll.originalPlayerRoll,
-          opponentOriginalRoll: tacticalGeniusReroll.originalOpponentRoll,
+          tacticalGeniusRerollSide: input.tacticalGeniusReroll.side,
+          playerOriginalRoll: input.tacticalGeniusReroll.originalPlayerRoll,
+          opponentOriginalRoll: input.tacticalGeniusReroll.originalOpponentRoll,
         }
       : {}),
-    ...(initiativeModifiers &&
-    (initiativeModifiers.playerModifier !== 0 ||
-      initiativeModifiers.opponentModifier !== 0)
+    ...(input.initiativeModifiers &&
+    (input.initiativeModifiers.playerModifier !== 0 ||
+      input.initiativeModifiers.opponentModifier !== 0)
       ? {
-          playerModifier: initiativeModifiers.playerModifier,
-          opponentModifier: initiativeModifiers.opponentModifier,
-          playerTotal: playerRoll + initiativeModifiers.playerModifier,
-          opponentTotal: opponentRoll + initiativeModifiers.opponentModifier,
+          playerModifier: input.initiativeModifiers.playerModifier,
+          opponentModifier: input.initiativeModifiers.opponentModifier,
+          playerTotal:
+            input.playerRoll + input.initiativeModifiers.playerModifier,
+          opponentTotal:
+            input.opponentRoll + input.initiativeModifiers.opponentModifier,
         }
       : {}),
   };
 
   return {
     ...createEventBase(
-      gameId,
-      sequence,
+      input.gameId,
+      input.sequence,
       GameEventType.InitiativeRolled,
-      turn,
+      input.turn,
       GamePhase.Initiative,
     ),
     payload,
+  };
+}
+
+function normalizeInitiativeRolledEventInput(
+  args: [ICreateInitiativeRolledEventInput] | InitiativeRolledEventArgs,
+): ICreateInitiativeRolledEventInput {
+  if (typeof args[0] !== 'string') {
+    return args[0];
+  }
+
+  const [
+    gameId,
+    sequence,
+    turn,
+    playerRoll,
+    opponentRoll,
+    winner,
+    movesFirst,
+    initiativeModifiers,
+    tacticalGeniusReroll,
+  ] = args as InitiativeRolledEventArgs;
+
+  return {
+    gameId,
+    sequence,
+    turn,
+    playerRoll,
+    opponentRoll,
+    winner,
+    movesFirst,
+    ...(initiativeModifiers !== undefined ? { initiativeModifiers } : {}),
+    ...(tacticalGeniusReroll !== undefined ? { tacticalGeniusReroll } : {}),
   };
 }
 

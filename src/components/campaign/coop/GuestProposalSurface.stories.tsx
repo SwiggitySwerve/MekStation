@@ -8,19 +8,14 @@ import type {
   IGuestProposal,
 } from '@/types/campaign/CoopCampaign';
 
+import { centeredDarkCampaignStoryParameters } from '../campaignStoryParameters';
 import { GuestProposalSurface } from './GuestProposalSurface';
 import { useGuestProposals } from './useGuestProposals';
 
 const meta = {
   title: 'Campaign/Coop/GuestProposalSurface',
   component: GuestProposalSurface,
-  parameters: {
-    layout: 'centered',
-    backgrounds: {
-      default: 'dark',
-      values: [{ name: 'dark', value: '#0f172a' }],
-    },
-  },
+  parameters: centeredDarkCampaignStoryParameters,
   tags: ['autodocs'],
 } satisfies Meta<typeof GuestProposalSurface>;
 

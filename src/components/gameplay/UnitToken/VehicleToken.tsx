@@ -17,11 +17,20 @@ import React from 'react';
 
 import type { IVehicleToken } from '@/types/gameplay';
 
-import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
+import { HEX_SIZE } from '@/constants/hexMap';
 import { cardinal8ToRotationDeg } from '@/lib/gameplay/facingRules';
-import { GameSide, VehicleMotionType } from '@/types/gameplay';
+import { VehicleMotionType } from '@/types/gameplay';
 
 import type { ITokenSharedProps } from './tokenTypes';
+
+import {
+  DestroyedCrossOverlay,
+  TOKEN_BODY_OUTLINE_COLOR,
+  TOKEN_BODY_STROKE_WIDTH,
+  TokenDesignationLabel,
+  selectionTargetRingColor,
+  tokenSideBodyColor,
+} from './tokenVisuals';
 
 // Token geometry — rectangular body fits inside the hex.
 const BODY_W = HEX_SIZE * 0.9;
@@ -75,19 +84,9 @@ export const VehicleToken = React.memo(function VehicleToken({
     isAltitudeBadgeMotion(token.vehicleMotionType) &&
     token.altitude !== undefined;
 
-  let bodyColor =
-    token.side === GameSide.Player
-      ? HEX_COLORS.playerToken
-      : HEX_COLORS.opponentToken;
-  if (isDestroyed) {
-    bodyColor = HEX_COLORS.destroyedToken;
-  }
+  const bodyColor = tokenSideBodyColor(token.side, isDestroyed);
 
-  const ringColor = token.isSelected
-    ? '#fbbf24'
-    : token.isValidTarget
-      ? '#f87171'
-      : 'transparent';
+  const ringColor = selectionTargetRingColor(token);
 
   // Body rotation: cardinal8 direction stored in token.facing (0-7).
   // For vehicles the facing value reuses the Facing enum slot but represents
@@ -114,8 +113,8 @@ export const VehicleToken = React.memo(function VehicleToken({
           height={BODY_H}
           rx={4}
           fill={bodyColor}
-          stroke="#1e293b"
-          strokeWidth={2}
+          stroke={TOKEN_BODY_OUTLINE_COLOR}
+          strokeWidth={TOKEN_BODY_STROKE_WIDTH}
         />
 
         {/* 8-direction facing arrow pointing "forward" (top of rect = front) */}
@@ -166,15 +165,9 @@ export const VehicleToken = React.memo(function VehicleToken({
       )}
 
       {/* Designation label below the body */}
-      <text
-        y={BODY_H / 2 + 10}
-        textAnchor="middle"
-        fontSize={8}
-        fill="#1e293b"
-        style={{ pointerEvents: 'none' }}
-      >
+      <TokenDesignationLabel y={BODY_H / 2 + 10} fontSize={8}>
         {token.designation}
-      </text>
+      </TokenDesignationLabel>
 
       {/* Turret indicator — small circle + weapon arrow, rotated independently */}
       {token.turretFacing !== undefined && (
@@ -199,16 +192,7 @@ export const VehicleToken = React.memo(function VehicleToken({
 
       {/* Destroyed cross overlay */}
       {isDestroyed && (
-        <g
-          stroke="#dc2626"
-          strokeWidth={3}
-          data-testid="unit-destroyed-overlay"
-          pointerEvents="none"
-          aria-hidden="true"
-        >
-          <line x1={-14} y1={-10} x2={14} y2={10} />
-          <line x1={14} y1={-10} x2={-14} y2={10} />
-        </g>
+        <DestroyedCrossOverlay xRadius={14} yRadius={10} strokeWidth={3} />
       )}
     </>
   );

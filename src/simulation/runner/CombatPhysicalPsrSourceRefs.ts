@@ -1,34 +1,8 @@
-import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
-
-const MEGAMEK_COMBAT_SOURCE_VERSION =
-  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
-const MEKSTATION_SOURCE_VERSION = 'MekStation working-tree';
-
-function megaMekSourceRef(
-  citation: string,
-  path: string,
-  lineAnchor: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'megamek-source',
-    citation,
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_COMBAT_SOURCE_VERSION}/${path}#${lineAnchor}`,
-    sourceVersion: MEGAMEK_COMBAT_SOURCE_VERSION,
-  };
-}
-
-function mekstationDeviationRef(
-  citation: string,
-  path: string,
-  lineAnchor: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'mekstation-deviation',
-    citation,
-    url: `${path}#${lineAnchor}`,
-    sourceVersion: MEKSTATION_SOURCE_VERSION,
-  };
-}
+import {
+  megamekSourceRefWithLineAnchor as megaMekSourceRef,
+  mekstationDeviationSourceRefWithLineAnchor as mekstationDeviationRef,
+  type ICombatFeatureSourceReference,
+} from './CombatFeatureSourceReference';
 
 const MEGAMEK_KICK_PUSH_PSR_HELPER_SOURCE_REF = megaMekSourceRef(
   'MegaMek getKickPushPSR builds kick/push target PSRs and applies Stable plus optional physical-PSR weight-class modifiers.',

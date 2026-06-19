@@ -24,6 +24,16 @@ export interface IArmorAllocationInput {
   [key: string]: number;
 }
 
+type ArmorSpecKind = 'standard' | 'frontTorso' | 'rearTorso';
+
+interface ArmorLocationSpec {
+  readonly key: string;
+  readonly displayName: string;
+  readonly locationKey: MechLocation | string;
+  readonly allocationKey: MechLocation | string;
+  readonly kind?: ArmorSpecKind;
+}
+
 /**
  * Standard front/rear armor distribution ratio (75/25 split)
  * Must match ArmorFills.tsx for consistent UI/validation behavior
@@ -81,6 +91,180 @@ function addRearTorsoLocation(
   armorByLocation[key] = { current, max: expectedRearMax, displayName };
 }
 
+const UNIVERSAL_ARMOR_SPECS: readonly ArmorLocationSpec[] = [
+  {
+    key: 'head',
+    displayName: 'Head',
+    locationKey: 'head',
+    allocationKey: MechLocation.HEAD,
+  },
+  {
+    key: 'centerTorso',
+    displayName: 'Center Torso',
+    locationKey: 'centerTorso',
+    allocationKey: MechLocation.CENTER_TORSO,
+    kind: 'frontTorso',
+  },
+  {
+    key: 'centerTorsoRear',
+    displayName: 'Center Torso (Rear)',
+    locationKey: 'centerTorso',
+    allocationKey: 'centerTorsoRear',
+    kind: 'rearTorso',
+  },
+  {
+    key: 'leftTorso',
+    displayName: 'Left Torso',
+    locationKey: 'leftTorso',
+    allocationKey: MechLocation.LEFT_TORSO,
+    kind: 'frontTorso',
+  },
+  {
+    key: 'leftTorsoRear',
+    displayName: 'Left Torso (Rear)',
+    locationKey: 'leftTorso',
+    allocationKey: 'leftTorsoRear',
+    kind: 'rearTorso',
+  },
+  {
+    key: 'rightTorso',
+    displayName: 'Right Torso',
+    locationKey: 'rightTorso',
+    allocationKey: MechLocation.RIGHT_TORSO,
+    kind: 'frontTorso',
+  },
+  {
+    key: 'rightTorsoRear',
+    displayName: 'Right Torso (Rear)',
+    locationKey: 'rightTorso',
+    allocationKey: 'rightTorsoRear',
+    kind: 'rearTorso',
+  },
+];
+
+const STANDARD_LIMB_SPECS: readonly ArmorLocationSpec[] = [
+  {
+    key: 'leftArm',
+    displayName: 'Left Arm',
+    locationKey: 'leftArm',
+    allocationKey: MechLocation.LEFT_ARM,
+  },
+  {
+    key: 'rightArm',
+    displayName: 'Right Arm',
+    locationKey: 'rightArm',
+    allocationKey: MechLocation.RIGHT_ARM,
+  },
+  {
+    key: 'leftLeg',
+    displayName: 'Left Leg',
+    locationKey: 'leftLeg',
+    allocationKey: MechLocation.LEFT_LEG,
+  },
+  {
+    key: 'rightLeg',
+    displayName: 'Right Leg',
+    locationKey: 'rightLeg',
+    allocationKey: MechLocation.RIGHT_LEG,
+  },
+];
+
+const QUAD_LIMB_SPECS: readonly ArmorLocationSpec[] = [
+  {
+    key: 'frontLeftLeg',
+    displayName: 'Front Left Leg',
+    locationKey: MechLocation.FRONT_LEFT_LEG,
+    allocationKey: MechLocation.FRONT_LEFT_LEG,
+  },
+  {
+    key: 'frontRightLeg',
+    displayName: 'Front Right Leg',
+    locationKey: MechLocation.FRONT_RIGHT_LEG,
+    allocationKey: MechLocation.FRONT_RIGHT_LEG,
+  },
+  {
+    key: 'rearLeftLeg',
+    displayName: 'Rear Left Leg',
+    locationKey: MechLocation.REAR_LEFT_LEG,
+    allocationKey: MechLocation.REAR_LEFT_LEG,
+  },
+  {
+    key: 'rearRightLeg',
+    displayName: 'Rear Right Leg',
+    locationKey: MechLocation.REAR_RIGHT_LEG,
+    allocationKey: MechLocation.REAR_RIGHT_LEG,
+  },
+];
+
+const TRIPOD_LIMB_SPECS: readonly ArmorLocationSpec[] = [
+  ...STANDARD_LIMB_SPECS,
+  {
+    key: 'centerLeg',
+    displayName: 'Center Leg',
+    locationKey: MechLocation.CENTER_LEG,
+    allocationKey: MechLocation.CENTER_LEG,
+  },
+];
+
+const QUAD_CONFIGURATIONS = new Set<MechConfiguration>([
+  MechConfiguration.QUAD,
+  MechConfiguration.QUADVEE,
+]);
+
+function getLimbSpecs(
+  configuration?: MechConfiguration,
+): readonly ArmorLocationSpec[] {
+  if (configuration === MechConfiguration.TRIPOD) {
+    return TRIPOD_LIMB_SPECS;
+  }
+
+  return configuration && QUAD_CONFIGURATIONS.has(configuration)
+    ? QUAD_LIMB_SPECS
+    : STANDARD_LIMB_SPECS;
+}
+
+function applyArmorSpec(
+  armorByLocation: IArmorByLocation,
+  allocation: IArmorAllocationInput,
+  tonnage: number,
+  spec: ArmorLocationSpec,
+): void {
+  const current = allocation[spec.allocationKey] || 0;
+
+  if (spec.kind === 'frontTorso') {
+    addFrontTorsoLocation(
+      armorByLocation,
+      spec.key,
+      spec.displayName,
+      spec.locationKey,
+      current,
+      tonnage,
+    );
+    return;
+  }
+
+  if (spec.kind === 'rearTorso') {
+    addRearTorsoLocation(
+      armorByLocation,
+      spec.key,
+      spec.displayName,
+      spec.locationKey,
+      current,
+      tonnage,
+    );
+    return;
+  }
+
+  addLocation(
+    armorByLocation,
+    spec.key,
+    spec.displayName,
+    spec.locationKey,
+    current,
+    tonnage,
+  );
+}
+
 /**
  * Build per-location armor data based on mech configuration
  * Handles Biped, Quad, Tripod, LAM, and QuadVee configurations
@@ -97,178 +281,11 @@ export function buildArmorByLocation(
 ): IArmorByLocation {
   const armorByLocation: IArmorByLocation = {};
 
-  // Universal locations (all configurations have these)
-  addLocation(
-    armorByLocation,
-    'head',
-    'Head',
-    'head',
-    allocation[MechLocation.HEAD] || 0,
-    tonnage,
-  );
-  addFrontTorsoLocation(
-    armorByLocation,
-    'centerTorso',
-    'Center Torso',
-    'centerTorso',
-    allocation[MechLocation.CENTER_TORSO] || 0,
-    tonnage,
-  );
-  addRearTorsoLocation(
-    armorByLocation,
-    'centerTorsoRear',
-    'Center Torso (Rear)',
-    'centerTorso',
-    allocation.centerTorsoRear || 0,
-    tonnage,
-  );
-  addFrontTorsoLocation(
-    armorByLocation,
-    'leftTorso',
-    'Left Torso',
-    'leftTorso',
-    allocation[MechLocation.LEFT_TORSO] || 0,
-    tonnage,
-  );
-  addRearTorsoLocation(
-    armorByLocation,
-    'leftTorsoRear',
-    'Left Torso (Rear)',
-    'leftTorso',
-    allocation.leftTorsoRear || 0,
-    tonnage,
-  );
-  addFrontTorsoLocation(
-    armorByLocation,
-    'rightTorso',
-    'Right Torso',
-    'rightTorso',
-    allocation[MechLocation.RIGHT_TORSO] || 0,
-    tonnage,
-  );
-  addRearTorsoLocation(
-    armorByLocation,
-    'rightTorsoRear',
-    'Right Torso (Rear)',
-    'rightTorso',
-    allocation.rightTorsoRear || 0,
-    tonnage,
-  );
-
-  // Configuration-specific limb locations
-  if (
-    configuration === MechConfiguration.QUAD ||
-    configuration === MechConfiguration.QUADVEE
-  ) {
-    // Quad mechs have 4 legs, no arms
-    addLocation(
-      armorByLocation,
-      'frontLeftLeg',
-      'Front Left Leg',
-      MechLocation.FRONT_LEFT_LEG,
-      allocation[MechLocation.FRONT_LEFT_LEG] || 0,
-      tonnage,
-    );
-    addLocation(
-      armorByLocation,
-      'frontRightLeg',
-      'Front Right Leg',
-      MechLocation.FRONT_RIGHT_LEG,
-      allocation[MechLocation.FRONT_RIGHT_LEG] || 0,
-      tonnage,
-    );
-    addLocation(
-      armorByLocation,
-      'rearLeftLeg',
-      'Rear Left Leg',
-      MechLocation.REAR_LEFT_LEG,
-      allocation[MechLocation.REAR_LEFT_LEG] || 0,
-      tonnage,
-    );
-    addLocation(
-      armorByLocation,
-      'rearRightLeg',
-      'Rear Right Leg',
-      MechLocation.REAR_RIGHT_LEG,
-      allocation[MechLocation.REAR_RIGHT_LEG] || 0,
-      tonnage,
-    );
-  } else if (configuration === MechConfiguration.TRIPOD) {
-    // Tripod has arms + 3 legs (including center leg)
-    addLocation(
-      armorByLocation,
-      'leftArm',
-      'Left Arm',
-      'leftArm',
-      allocation[MechLocation.LEFT_ARM] || 0,
-      tonnage,
-    );
-    addLocation(
-      armorByLocation,
-      'rightArm',
-      'Right Arm',
-      'rightArm',
-      allocation[MechLocation.RIGHT_ARM] || 0,
-      tonnage,
-    );
-    addLocation(
-      armorByLocation,
-      'leftLeg',
-      'Left Leg',
-      'leftLeg',
-      allocation[MechLocation.LEFT_LEG] || 0,
-      tonnage,
-    );
-    addLocation(
-      armorByLocation,
-      'rightLeg',
-      'Right Leg',
-      'rightLeg',
-      allocation[MechLocation.RIGHT_LEG] || 0,
-      tonnage,
-    );
-    addLocation(
-      armorByLocation,
-      'centerLeg',
-      'Center Leg',
-      MechLocation.CENTER_LEG,
-      allocation[MechLocation.CENTER_LEG] || 0,
-      tonnage,
-    );
-  } else {
-    // Biped/LAM/default: standard arms + legs
-    addLocation(
-      armorByLocation,
-      'leftArm',
-      'Left Arm',
-      'leftArm',
-      allocation[MechLocation.LEFT_ARM] || 0,
-      tonnage,
-    );
-    addLocation(
-      armorByLocation,
-      'rightArm',
-      'Right Arm',
-      'rightArm',
-      allocation[MechLocation.RIGHT_ARM] || 0,
-      tonnage,
-    );
-    addLocation(
-      armorByLocation,
-      'leftLeg',
-      'Left Leg',
-      'leftLeg',
-      allocation[MechLocation.LEFT_LEG] || 0,
-      tonnage,
-    );
-    addLocation(
-      armorByLocation,
-      'rightLeg',
-      'Right Leg',
-      'rightLeg',
-      allocation[MechLocation.RIGHT_LEG] || 0,
-      tonnage,
-    );
+  for (const spec of [
+    ...UNIVERSAL_ARMOR_SPECS,
+    ...getLimbSpecs(configuration),
+  ]) {
+    applyArmorSpec(armorByLocation, allocation, tonnage, spec);
   }
 
   return armorByLocation;

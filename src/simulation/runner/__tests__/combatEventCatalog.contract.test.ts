@@ -129,48 +129,49 @@ describe('BattleMech combat event support catalog', () => {
 
     expect(urlsFor(GameEventType.GameCreated)).toEqual(
       expect.arrayContaining([
-        'src/utils/gameplay/gameEvents/lifecycle.ts#L32-L91',
+        'src/utils/gameplay/gameEvents/lifecycle.ts#L72-L180',
         'src/simulation/runner/SimulationRunner.ts#L181-L405',
       ]),
     );
     expect(urlsFor(GameEventType.AttackResolved)).toEqual(
       expect.arrayContaining([
-        'src/utils/gameplay/gameEvents/combat.ts#L27-L145',
-        'src/simulation/runner/phases/weaponAttackHitResolution.ts#L114-L430',
+        'src/utils/gameplay/gameEvents/combat.ts#L22-L353',
+        'src/simulation/runner/phases/weaponAttackHitResolution.ts#L58-L306',
+        'src/simulation/runner/phases/weaponAttackHitResolutionEarlyReturns.ts#L76-L353',
       ]),
     );
     expect(urlsFor(GameEventType.UnitEjected)).toEqual(
       expect.arrayContaining([
-        'src/utils/gameplay/gameEvents/statusPhysical.ts#L105-L171',
-        'src/utils/gameplay/gameState/extendedCombat.ts#L418-L450',
+        'src/utils/gameplay/gameEvents/statusPhysical.ts#L267-L364',
+        'src/utils/gameplay/gameState/unitExitState.ts#L45-L59',
       ]),
     );
     expect(urlsFor(GameEventType.ObjectiveCaptured)).toEqual(
       expect.arrayContaining([
-        'src/utils/gameplay/objectives/objectiveEvents.ts#L26-L110',
+        'src/utils/gameplay/objectives/objectiveEvents.ts#L25-L185',
         'src/simulation/runner/SimulationRunner.ts#L321-L338',
       ]),
     );
     expect(urlsFor(GameEventType.AttacksRevealed)).toEqual(
       expect.arrayContaining([
         'src/utils/gameplay/gameEvents/attackReveal.ts#L1-L28',
-        'src/utils/gameplay/gameSessionCore.ts#L667-L679',
+        'src/utils/gameplay/gameSessionCore.ts#L398-L430',
         'src/utils/gameplay/gameSessionAttackReveal.ts#L22-L87',
         'src/utils/gameplay/gameState/actionLocking.ts#L157-L205',
-        'src/utils/gameplay/gameState/gameStateReducer.ts#L161-L165',
+        'src/utils/gameplay/gameState/eventDispatch.ts#L224-L225',
       ]),
     );
     expect(urlsFor(GameEventType.InitiativeOrderSet)).toEqual(
       expect.arrayContaining([
-        'src/utils/gameplay/gameEvents/initiative.ts#L11-L85',
+        'src/utils/gameplay/gameEvents/initiative.ts#L47-L146',
         'src/utils/gameplay/gameSessionCore.ts#L258-L380',
       ]),
     );
     expect(urlsFor(GameEventType.UnitStuck)).toEqual(
       expect.arrayContaining([
-        'src/utils/gameplay/gameEvents/statusChecks.ts#L18-L243',
-        'src/utils/gameplay/gameSessionPSR.ts#L44-L388',
-        'src/simulation/runner/phases/postCombat.ts#L101-L469',
+        'src/utils/gameplay/gameEvents/statusChecksUnitState.ts#L1-L210',
+        'src/utils/gameplay/gameSessionPSRResolution.ts#L54-L410',
+        'src/simulation/runner/phases/postCombatPsr.ts#L70-L230',
       ]),
     );
   });
@@ -220,25 +221,25 @@ describe('BattleMech combat event support catalog', () => {
 
     expect(urlsFor(GameEventType.MotiveDamaged)).toEqual(
       expect.arrayContaining([
-        'src/utils/gameplay/gameEvents/vehicle.ts#L21-L190',
+        'src/utils/gameplay/gameEvents/vehicle.ts#L1-L340',
         'src/utils/gameplay/__tests__/vehicleEvents.test.ts#L18-L110',
       ]),
     );
     expect(urlsFor(GameEventType.SwarmDamage)).toEqual(
       expect.arrayContaining([
-        'src/utils/gameplay/gameEvents/battleArmor.ts#L84-L179',
+        'src/utils/gameplay/gameEvents/battleArmorSwarm.ts#L17-L177',
         'src/engine/__tests__/InteractiveSession.swarmFire.scenario.test.ts#L167-L224',
       ]),
     );
     expect(urlsFor(GameEventType.LegAttackResolved)).toEqual(
       expect.arrayContaining([
-        'src/utils/gameplay/gameEvents/battleArmor.ts#L181-L318',
-        'src/engine/InteractiveSession.actions.ts#L326-L397',
+        'src/utils/gameplay/gameEvents/battleArmorLeg.ts#L16-L168',
+        'src/engine/InteractiveSession.actions.battleArmor.ts#L119-L145',
       ]),
     );
     expect(urlsFor(GameEventType.StealthBonus)).toEqual(
       expect.arrayContaining([
-        'src/utils/gameplay/gameEvents/battleArmor.ts#L217-L273',
+        'src/utils/gameplay/gameEvents/battleArmorStealth.ts#L16-L117',
         'src/utils/gameplay/battlearmor/stealth.ts#L1-L58',
       ]),
     );

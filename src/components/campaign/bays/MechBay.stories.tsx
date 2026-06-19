@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
+import { paddedDarkCampaignStoryParameters } from '../campaignStoryParameters';
 import {
   SAMPLE_REPAIR_BAY,
   SAMPLE_ROSTER_UNITS,
@@ -10,13 +11,7 @@ import { MechBay } from './MechBay';
 const meta = {
   title: 'Campaign/Bays/MechBay',
   component: MechBay,
-  parameters: {
-    layout: 'padded',
-    backgrounds: {
-      default: 'dark',
-      values: [{ name: 'dark', value: '#0f172a' }],
-    },
-  },
+  parameters: paddedDarkCampaignStoryParameters,
   tags: ['autodocs'],
 } satisfies Meta<typeof MechBay>;
 

@@ -1,56 +1,13 @@
-import type {
-  ICombatFeatureSourceReference,
-  ICombatFeatureSupportEntry,
+import {
+  megamekSrcSourceRefWithLineAnchor as megamekSourceRef,
+  mekstationDeviationSourceRefWithLineAnchor as mekstationDeviationSourceRef,
+  type ICombatFeatureSourceReference,
+} from './CombatFeatureSourceReference';
+import {
+  integrated,
+  outOfScope,
+  type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
-
-function integrated(
-  id: string,
-  evidence: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return sourceRefs
-    ? { id, level: 'integrated', evidence, sourceRefs }
-    : { id, level: 'integrated', evidence };
-}
-
-function outOfScope(
-  id: string,
-  evidence: string,
-  gap: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return sourceRefs
-    ? { id, level: 'out-of-scope', evidence, gap, sourceRefs }
-    : { id, level: 'out-of-scope', evidence, gap };
-}
-
-function mekstationDeviationSourceRef(
-  citation: string,
-  path: string,
-  lineRange: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'mekstation-deviation',
-    citation,
-    url: `${path}#${lineRange}`,
-    sourceVersion: 'MekStation working-tree',
-  };
-}
-
-const MEGAMEK_SOURCE_VERSION = '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
-
-function megamekSourceRef(
-  citation: string,
-  path: string,
-  lineRange: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'megamek-source',
-    citation,
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_SOURCE_VERSION}/megamek/src/${path}#${lineRange}`,
-    sourceVersion: MEGAMEK_SOURCE_VERSION,
-  };
-}
 
 const MEKSTATION_OFFICIAL_AMMO_CATALOG_SOURCE_REFS = [
   mekstationDeviationSourceRef(
@@ -89,41 +46,41 @@ const MEKSTATION_AMMO_TRACKING_SOURCE_REFS = [
 const MEKSTATION_AMMO_COMPATIBLE_CONTRACT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract pins exact compatible BattleMech ammo ids.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L433-L486',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.test-helpers.ts',
+    'L470-L523',
   ),
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract proves every compatible official ammo row initializes, totals, and consumes as a combat ammo bin for each referenced official weapon id.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L1140-L1185',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.01.covers-every-official-ranged-weapon-physical-weapon-an.fragment.ts',
+    'L273-L318',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const MEKSTATION_AMMO_GAP_CONTRACT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract pins exact BattleMech ammo gap ids for missing compatible weapon refs and duplicate runtime ids.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L162-L183',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.test-helpers.ts',
+    'L194-L216',
   ),
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract pins exact non-BattleMech ammo scope split ids for aerospace/capital, battle armor, ProtoMech, torpedo, and artillery rows.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L191-L284',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.test-helpers.ts',
+    'L228-L321',
   ),
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract pins exact experimental and unofficial official ammo rows with no compatible weapon refs.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L287-L431',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.test-helpers.ts',
+    'L324-L468',
   ),
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract classifies every official ammo row and locks the expected support class counts.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L1187-L1378',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.02.classifies-official-ammo-rows-without-compatible-weapo.fragment.ts',
+    'L4-L224',
   ),
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract guards empty-compatible non-official rows and unsupported RAC/10/RAC/20 ammo against drifting into official compatible ammo coverage or static alias/BV fallback.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L1407-L1600',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.03.keeps-non-covered-ammo-compatibility-rows-out-of-cover.fragment.ts',
+    'L4-L165',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -140,18 +97,18 @@ const MEKSTATION_UNSUPPORTED_RAC_AMMO_CATALOG_SOURCE_REFS = [
   ),
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract proves the official autocannon ammo catalog carries standard RAC/10 and RAC/20 ammo rows with empty compatibleWeaponIds.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L1420-L1439',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.02.classifies-official-ammo-rows-without-compatible-weapo.fragment.ts',
+    'L180-L224',
   ),
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract proves unsupported RAC/10 and RAC/20 ammo critical slots do not hydrate into fireable runtime ammo bins.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L1223-L1247',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.01.covers-every-official-ranged-weapon-physical-weapon-an.fragment.ts',
+    'L320-L344',
   ),
   mekstationDeviationSourceRef(
     'MekStation battlemechCombatCatalog.contract proves the official ballistic-autocannon weapon catalog exposes Rotary AC/2 and Rotary AC/5 rows but no official RAC/10 or RAC/20 weapon rows.',
-    'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts',
-    'L1400-L1418',
+    'src/simulation/runner/__tests__/battlemechCombatCatalog.03.keeps-non-covered-ammo-compatibility-rows-out-of-cover.fragment.ts',
+    'L84-L142',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

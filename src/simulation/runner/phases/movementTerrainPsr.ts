@@ -18,6 +18,7 @@ import {
 } from '@/utils/gameplay/gameEvents/statusChecks';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { parseTerrainFeatures } from '@/utils/gameplay/lineOfSight';
+import { movementModeForPath } from '@/utils/gameplay/movement';
 import {
   createEnteringWaterPSR,
   createBuildingCollapsePSR,
@@ -40,13 +41,29 @@ type TerrainBearingMovementStep = {
   readonly terrainEntered?: string;
 };
 
-function isRunBasedMovement(movementType: MovementType): boolean {
-  return (
-    movementType === MovementType.Run ||
-    movementType === MovementType.Evade ||
-    movementType === MovementType.Sprint
-  );
-}
+type TerrainPsrContext = {
+  readonly grid: IHexGrid;
+  readonly movementType: MovementType;
+  readonly step: TerrainBearingMovementStep;
+  readonly steps: readonly TerrainBearingMovementStep[];
+  readonly unitId: string;
+  readonly unitTonnage?: number;
+  readonly unitType?: string;
+  readonly enteredFeatures: readonly ITerrainFeature[];
+  readonly fromFeatures: readonly ITerrainFeature[];
+};
+
+const movementBeforeSkidModifiers: readonly {
+  readonly minimumExclusiveDistance: number;
+  readonly modifier: number;
+}[] = [
+  { minimumExclusiveDistance: 24, modifier: 6 },
+  { minimumExclusiveDistance: 17, modifier: 5 },
+  { minimumExclusiveDistance: 10, modifier: 4 },
+  { minimumExclusiveDistance: 7, modifier: 2 },
+  { minimumExclusiveDistance: 4, modifier: 1 },
+  { minimumExclusiveDistance: 2, modifier: 0 },
+];
 
 export function queueMovementTerrainPSRs(options: {
   currentState: IGameState;
@@ -146,12 +163,39 @@ function terrainPSRsForStep(options: {
   readonly unitTonnage?: number;
   readonly unitType?: string;
 }): readonly IPendingPSR[] {
-  const { grid, movementType, step, steps, unitId, unitTonnage, unitType } =
-    options;
-  const enteredFeatures = terrainFeaturesFromTag(
-    step.terrainEntered ?? terrainAt(grid, step.to),
-  );
-  const fromFeatures = terrainFeaturesFromTag(terrainAt(grid, step.from));
+  const context = terrainPsrContext(options);
+  return [
+    ...waterTransitionPSRs(context),
+    ...enteredTerrainPSRs(context),
+    ...swampBogDownPSRs(context),
+    ...buildingCollapsePSRs(context),
+    ...skiddingPSRs(context),
+  ];
+}
+
+function terrainPsrContext(options: {
+  readonly grid: IHexGrid;
+  readonly movementType: MovementType;
+  readonly step: TerrainBearingMovementStep;
+  readonly steps: readonly TerrainBearingMovementStep[];
+  readonly unitId: string;
+  readonly unitTonnage?: number;
+  readonly unitType?: string;
+}): TerrainPsrContext {
+  const { grid, step } = options;
+  return {
+    ...options,
+    enteredFeatures: terrainFeaturesFromTag(
+      step.terrainEntered ?? terrainAt(grid, step.to),
+    ),
+    fromFeatures: terrainFeaturesFromTag(terrainAt(grid, step.from)),
+  };
+}
+
+function waterTransitionPSRs(
+  context: TerrainPsrContext,
+): readonly IPendingPSR[] {
+  const { enteredFeatures, fromFeatures, step, unitId } = context;
   const psrs: IPendingPSR[] = [];
 
   if (
@@ -172,13 +216,22 @@ function terrainPSRsForStep(options: {
     );
   }
 
+  return psrs;
+}
+
+function enteredTerrainPSRs(
+  context: TerrainPsrContext,
+): readonly IPendingPSR[] {
+  const { enteredFeatures, movementType, step, unitId } = context;
+  const psrs: IPendingPSR[] = [];
+
   if (hasTerrainFeature(enteredFeatures, TerrainType.Rubble)) {
     psrs.push(createRubblePSR(unitId, step.index));
   }
 
   if (
     hasTerrainFeature(enteredFeatures, TerrainType.Rough) &&
-    isRunBasedMovement(movementType)
+    movementModeForPath(movementType) === 'run'
   ) {
     psrs.push(createRunningRoughTerrainPSR(unitId, step.index));
   }
@@ -187,53 +240,61 @@ function terrainPSRsForStep(options: {
     psrs.push(createIcePSR(unitId, step.index));
   }
 
-  if (
+  return psrs;
+}
+
+function swampBogDownPSRs(context: TerrainPsrContext): readonly IPendingPSR[] {
+  const { enteredFeatures, step, unitId } = context;
+  if (!shouldQueueSwampBogDownPSR(context)) return [];
+
+  return [
+    createSwampBogDownPSR(unitId, step.index, {
+      swampDepth: terrainLevelFromFeatures(enteredFeatures, TerrainType.Swamp),
+    }),
+  ];
+}
+
+function shouldQueueSwampBogDownPSR(context: TerrainPsrContext): boolean {
+  const { enteredFeatures, fromFeatures, movementType, step, unitType } =
+    context;
+  return (
     step.kind !== 'turn' &&
     movementType !== MovementType.Jump &&
     isBattleMechLikeUnitType(unitType) &&
     hasTerrainFeature(enteredFeatures, TerrainType.Swamp) &&
     !hasTerrainFeature(fromFeatures, TerrainType.Swamp) &&
     !hasTerrainFeature(enteredFeatures, TerrainType.Pavement)
-  ) {
-    psrs.push(
-      createSwampBogDownPSR(unitId, step.index, {
-        swampDepth: terrainLevelFromFeatures(
-          enteredFeatures,
-          TerrainType.Swamp,
-        ),
-      }),
-    );
-  }
-
-  const hasOverloadedBuilding = hasOverloadedBuildingFeature(
-    enteredFeatures,
-    unitTonnage,
   );
-  if (
-    step.kind !== 'turn' &&
-    isBattleMechLikeUnitType(unitType) &&
-    hasOverloadedBuilding
-  ) {
-    psrs.push(createBuildingCollapsePSR(unitId, step.index));
+}
+
+function buildingCollapsePSRs(
+  context: TerrainPsrContext,
+): readonly IPendingPSR[] {
+  const { enteredFeatures, step, unitId, unitTonnage, unitType } = context;
+  if (step.kind === 'turn') return [];
+  if (!isBattleMechLikeUnitType(unitType)) return [];
+  if (!hasOverloadedBuildingFeature(enteredFeatures, unitTonnage)) return [];
+
+  return [createBuildingCollapsePSR(unitId, step.index)];
+}
+
+function skiddingPSRs(context: TerrainPsrContext): readonly IPendingPSR[] {
+  const { grid, movementType, step, steps, unitId } = context;
+  if (step.kind !== 'turn') return [];
+  if (movementModeForPath(movementType) !== 'run') return [];
+  if (!isSkidTerrain(terrainFeaturesFromTag(terrainAt(grid, step.at)))) {
+    return [];
   }
 
-  if (
-    step.kind === 'turn' &&
-    isRunBasedMovement(movementType) &&
-    isSkidTerrain(terrainFeaturesFromTag(terrainAt(grid, step.at)))
-  ) {
-    psrs.push(
-      createSkiddingPSR(
-        unitId,
-        step.index,
-        calculateMovementBeforeSkidModifier(
-          countHexesMovedBeforeStep(steps, step.index),
-        ),
+  return [
+    createSkiddingPSR(
+      unitId,
+      step.index,
+      calculateMovementBeforeSkidModifier(
+        countHexesMovedBeforeStep(steps, step.index),
       ),
-    );
-  }
-
-  return psrs;
+    ),
+  ];
 }
 
 function isJumpIntoSwampBogDown(options: {
@@ -269,25 +330,11 @@ function countHexesMovedBeforeStep(
 }
 
 function calculateMovementBeforeSkidModifier(distance: number): number {
-  let modifier: number;
-
-  if (distance > 24) {
-    modifier = 6;
-  } else if (distance > 17) {
-    modifier = 5;
-  } else if (distance > 10) {
-    modifier = 4;
-  } else if (distance > 7) {
-    modifier = 2;
-  } else if (distance > 4) {
-    modifier = 1;
-  } else if (distance > 2) {
-    modifier = 0;
-  } else {
-    modifier = -1;
-  }
-
-  return modifier;
+  return (
+    movementBeforeSkidModifiers.find(
+      (entry) => distance > entry.minimumExclusiveDistance,
+    )?.modifier ?? -1
+  );
 }
 
 function terrainAt(

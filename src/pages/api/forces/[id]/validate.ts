@@ -8,8 +8,14 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  initializeApiDatabase as initValidateForceDb,
+  rejectMissingQueryString as readValidateForceId,
+  rejectUnexpectedMethod,
+  sendCaughtApiError as sendValidateForceError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getForceService } from '@/services/forces/ForceService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { IForceValidation } from '@/types/force';
 
 // =============================================================================
@@ -20,36 +26,19 @@ type ValidateResponse = {
   validation: IForceValidation;
 };
 
-type ErrorResponse = {
-  error: string;
-};
-
 // =============================================================================
 // Handler
 // =============================================================================
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ValidateResponse | ErrorResponse>,
+  res: NextApiResponse<ValidateResponse | ApiErrorResponse>,
 ): Promise<void> {
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', ['GET']);
-    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-  }
+  if (rejectUnexpectedMethod(req, res, ['GET'])) return;
+  if (!initValidateForceDb(res)) return;
 
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
-
-  const { id } = req.query;
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid force ID' });
-  }
+  const id = readValidateForceId(req, res, 'id', 'Missing or invalid force ID');
+  if (!id) return;
 
   const forceService = getForceService();
 
@@ -57,8 +46,7 @@ export default async function handler(
     const validation = forceService.validateForce(id);
     return res.status(200).json({ validation });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to validate force';
-    return res.status(500).json({ error: message });
+    sendValidateForceError(res, error, 'Failed to validate force');
+    return;
   }
 }

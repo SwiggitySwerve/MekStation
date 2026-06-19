@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
  */
 import { useState, useCallback } from 'react';
 
+import { InlineErrorMessage } from '@/components/common/InlineErrorMessage';
 import { useToast } from '@/components/shared/Toast';
 import {
   PageLayout,
@@ -191,12 +192,7 @@ export default function CreateForcePage(): React.ReactElement {
       backLabel="Back to Roster"
     >
       <form onSubmit={handleSubmit} className="mx-auto max-w-3xl space-y-6">
-        {/* Error Display */}
-        {error && (
-          <div className="rounded-lg border border-red-600/30 bg-red-900/20 p-4">
-            <p className="text-sm text-red-400">{error}</p>
-          </div>
-        )}
+        <InlineErrorMessage message={error} variant="form" />
 
         {/* Force Identity */}
         <Card variant="dark">

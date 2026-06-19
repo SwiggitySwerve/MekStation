@@ -143,6 +143,99 @@ function deepEqual(a: unknown, b: unknown): boolean {
   return false;
 }
 
+function getBoundaryDiffEntry(
+  before: unknown,
+  after: unknown,
+  path: string,
+): IDiffEntry | null {
+  if (before === undefined && after !== undefined) {
+    return { path, changeType: 'added', after };
+  }
+  if (before !== undefined && after === undefined) {
+    return { path, changeType: 'removed', before };
+  }
+  if (
+    (before === null && after !== null) ||
+    (before !== null && after === null)
+  ) {
+    return { path, changeType: 'modified', before, after };
+  }
+  return null;
+}
+
+function computeMaxDepthEntry(
+  before: unknown,
+  after: unknown,
+  path: string,
+): IDiffEntry[] {
+  return deepEqual(before, after)
+    ? []
+    : [{ path, changeType: 'modified', before, after }];
+}
+
+function computeArrayDiffEntries(
+  before: unknown[],
+  after: unknown[],
+  path: string,
+  depth: number,
+  maxDepth: number,
+  ignorePaths: string[],
+): IDiffEntry[] {
+  const entries: IDiffEntry[] = [];
+  const maxLen = Math.max(before.length, after.length);
+
+  for (let i = 0; i < maxLen; i++) {
+    const itemPath = `${path}[${i}]`;
+    if (i >= before.length) {
+      entries.push({ path: itemPath, changeType: 'added', after: after[i] });
+    } else if (i >= after.length) {
+      entries.push({
+        path: itemPath,
+        changeType: 'removed',
+        before: before[i],
+      });
+    } else {
+      entries.push(
+        ...computeDiffEntries(
+          before[i],
+          after[i],
+          itemPath,
+          depth + 1,
+          maxDepth,
+          ignorePaths,
+        ),
+      );
+    }
+  }
+
+  return entries;
+}
+
+function computeObjectDiffEntries(
+  before: Record<string, unknown>,
+  after: Record<string, unknown>,
+  path: string,
+  depth: number,
+  maxDepth: number,
+  ignorePaths: string[],
+): IDiffEntry[] {
+  const beforeKeys = Object.keys(before);
+  const afterKeys = Object.keys(after);
+  const allKeys = Array.from(new Set([...beforeKeys, ...afterKeys]));
+
+  return allKeys.flatMap((key) => {
+    const keyPath = path ? `${path}.${key}` : key;
+    return computeDiffEntries(
+      before[key],
+      after[key],
+      keyPath,
+      depth + 1,
+      maxDepth,
+      ignorePaths,
+    );
+  });
+}
+
 /**
  * Compute diff entries between two values recursively.
  */
@@ -161,76 +254,37 @@ function computeDiffEntries(
 
   // Check max depth
   if (depth > maxDepth) {
-    if (!deepEqual(before, after)) {
-      return [{ path, changeType: 'modified', before, after }];
-    }
-    return [];
+    return computeMaxDepthEntry(before, after, path);
   }
-
-  const entries: IDiffEntry[] = [];
 
   // Handle null/undefined
-  if (before === undefined && after !== undefined) {
-    return [{ path, changeType: 'added', after }];
-  }
-  if (before !== undefined && after === undefined) {
-    return [{ path, changeType: 'removed', before }];
-  }
-  if (before === null && after !== null) {
-    return [{ path, changeType: 'modified', before, after }];
-  }
-  if (before !== null && after === null) {
-    return [{ path, changeType: 'modified', before, after }];
+  const boundaryEntry = getBoundaryDiffEntry(before, after, path);
+  if (boundaryEntry) {
+    return [boundaryEntry];
   }
 
   // Handle arrays
   if (Array.isArray(before) && Array.isArray(after)) {
-    const maxLen = Math.max(before.length, after.length);
-    for (let i = 0; i < maxLen; i++) {
-      const itemPath = `${path}[${i}]`;
-      if (i >= before.length) {
-        entries.push({ path: itemPath, changeType: 'added', after: after[i] });
-      } else if (i >= after.length) {
-        entries.push({
-          path: itemPath,
-          changeType: 'removed',
-          before: before[i],
-        });
-      } else {
-        entries.push(
-          ...computeDiffEntries(
-            before[i],
-            after[i],
-            itemPath,
-            depth + 1,
-            maxDepth,
-            ignorePaths,
-          ),
-        );
-      }
-    }
-    return entries;
+    return computeArrayDiffEntries(
+      before,
+      after,
+      path,
+      depth,
+      maxDepth,
+      ignorePaths,
+    );
   }
 
   // Handle objects
   if (isPlainObject(before) && isPlainObject(after)) {
-    const beforeKeys = Object.keys(before);
-    const afterKeys = Object.keys(after);
-    const allKeys = Array.from(new Set([...beforeKeys, ...afterKeys]));
-    for (const key of allKeys) {
-      const keyPath = path ? `${path}.${key}` : key;
-      entries.push(
-        ...computeDiffEntries(
-          before[key],
-          after[key],
-          keyPath,
-          depth + 1,
-          maxDepth,
-          ignorePaths,
-        ),
-      );
-    }
-    return entries;
+    return computeObjectDiffEntries(
+      before,
+      after,
+      path,
+      depth,
+      maxDepth,
+      ignorePaths,
+    );
   }
 
   // Handle primitives

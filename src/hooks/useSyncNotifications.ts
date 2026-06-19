@@ -20,6 +20,15 @@ import type {
 
 import { useToast } from '@/components/shared/Toast';
 
+import {
+  buildConflictToast,
+  buildConnectionChangedToast,
+  buildShareReceivedToast,
+  buildSyncCompleteToast,
+  getNotificationKey,
+  wasRecentlyShown as wasNotificationRecentlyShown,
+} from './useSyncNotifications.helpers';
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -76,35 +85,6 @@ export interface UseSyncNotificationsReturn {
   notifyConnectionChanged: (data: ConnectionChangedData) => void;
 }
 
-// =============================================================================
-// Helpers
-// =============================================================================
-
-function getContentTypeLabel(type: ShareableContentType | 'folder'): string {
-  switch (type) {
-    case 'unit':
-      return 'unit';
-    case 'pilot':
-      return 'pilot';
-    case 'force':
-      return 'force';
-    case 'encounter':
-      return 'encounter';
-    case 'folder':
-      return 'folder';
-    default:
-      return 'item';
-  }
-}
-
-function pluralize(count: number, singular: string, plural?: string): string {
-  return count === 1 ? singular : plural || `${singular}s`;
-}
-
-// =============================================================================
-// Hook
-// =============================================================================
-
 /**
  * Hook for displaying sync-related toast notifications
  *
@@ -152,24 +132,10 @@ export function useSyncNotifications(
   }, []);
 
   /**
-   * Generate a unique key for deduplication
-   */
-  const getNotificationKey = useCallback(
-    (type: string, ...args: string[]): string => {
-      return `${type}:${args.join(':')}`;
-    },
-    [],
-  );
-
-  /**
    * Check if notification was recently shown (dedupe)
    */
   const wasRecentlyShown = useCallback((key: string): boolean => {
-    if (recentNotifications.current.has(key)) {
-      return true;
-    }
-    recentNotifications.current.add(key);
-    return false;
+    return wasNotificationRecentlyShown(recentNotifications.current, key);
   }, []);
 
   /**
@@ -186,25 +152,9 @@ export function useSyncNotifications(
       );
       if (wasRecentlyShown(key)) return;
 
-      const typeLabel = getContentTypeLabel(data.itemType);
-      const message =
-        data.itemCount && data.itemCount > 1
-          ? `${data.fromContactName} shared ${data.itemCount} ${pluralize(data.itemCount, typeLabel)} with you`
-          : `${data.fromContactName} shared "${data.itemName}" with you`;
-
-      showToast({
-        message,
-        variant: 'info',
-        duration: 5000,
-        action: onViewShare
-          ? {
-              label: 'View',
-              onClick: () => onViewShare('', data.itemType),
-            }
-          : undefined,
-      });
+      showToast(buildShareReceivedToast(data, onViewShare));
     },
-    [enabled, showToast, onViewShare, getNotificationKey, wasRecentlyShown],
+    [enabled, showToast, onViewShare, wasRecentlyShown],
   );
 
   /**
@@ -217,27 +167,9 @@ export function useSyncNotifications(
       const key = getNotificationKey('conflict', conflict.id);
       if (wasRecentlyShown(key)) return;
 
-      const typeLabel = getContentTypeLabel(conflict.contentType);
-
-      showToast({
-        message: `Sync conflict detected for ${typeLabel} "${conflict.itemName}"`,
-        variant: 'warning',
-        duration: 8000,
-        action: onResolveConflict
-          ? {
-              label: 'Resolve',
-              onClick: () => onResolveConflict(conflict),
-            }
-          : undefined,
-      });
+      showToast(buildConflictToast(conflict, onResolveConflict));
     },
-    [
-      enabled,
-      showToast,
-      onResolveConflict,
-      getNotificationKey,
-      wasRecentlyShown,
-    ],
+    [enabled, showToast, onResolveConflict, wasRecentlyShown],
   );
 
   /**
@@ -247,10 +179,10 @@ export function useSyncNotifications(
     (data: SyncCompleteData) => {
       if (!enabled) return;
 
-      // Only notify if there were actual changes
-      const totalChanges = data.changesReceived + data.changesSent;
-      if (totalChanges === 0) return;
+      const toast = buildSyncCompleteToast(data, onViewSyncDetails);
+      if (!toast) return;
 
+      const totalChanges = data.changesReceived + data.changesSent;
       const key = getNotificationKey(
         'sync',
         data.peerName,
@@ -258,33 +190,9 @@ export function useSyncNotifications(
       );
       if (wasRecentlyShown(key)) return;
 
-      const parts: string[] = [];
-      if (data.changesReceived > 0) {
-        parts.push(`received ${data.changesReceived}`);
-      }
-      if (data.changesSent > 0) {
-        parts.push(`sent ${data.changesSent}`);
-      }
-
-      showToast({
-        message: `Synced with ${data.peerName}: ${parts.join(', ')} ${pluralize(totalChanges, 'change')}`,
-        variant: 'success',
-        duration: 4000,
-        action: onViewSyncDetails
-          ? {
-              label: 'Details',
-              onClick: onViewSyncDetails,
-            }
-          : undefined,
-      });
+      showToast(toast);
     },
-    [
-      enabled,
-      showToast,
-      onViewSyncDetails,
-      getNotificationKey,
-      wasRecentlyShown,
-    ],
+    [enabled, showToast, onViewSyncDetails, wasRecentlyShown],
   );
 
   /**
@@ -294,39 +202,15 @@ export function useSyncNotifications(
     (data: ConnectionChangedData) => {
       if (!enabled) return;
 
-      // Only notify for significant state changes
-      if (data.state === 'connecting') return;
+      const toast = buildConnectionChangedToast(data);
+      if (!toast) return;
 
       const key = getNotificationKey('connection', data.peerName, data.state);
       if (wasRecentlyShown(key)) return;
 
-      let message: string;
-      let variant: 'success' | 'warning' | 'info';
-
-      switch (data.state) {
-        case 'connected':
-          message = `Connected to ${data.peerName}`;
-          variant = 'success';
-          break;
-        case 'disconnected':
-          message = `Disconnected from ${data.peerName}`;
-          variant = 'info';
-          break;
-        case 'failed':
-          message = `Failed to connect to ${data.peerName}`;
-          variant = 'warning';
-          break;
-        default:
-          return;
-      }
-
-      showToast({
-        message,
-        variant,
-        duration: 3000,
-      });
+      showToast(toast);
     },
-    [enabled, showToast, getNotificationKey, wasRecentlyShown],
+    [enabled, showToast, wasRecentlyShown],
   );
 
   return {

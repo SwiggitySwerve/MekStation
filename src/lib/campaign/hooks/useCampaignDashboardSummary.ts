@@ -117,7 +117,7 @@ function extractActiveContractSummary(
   // src/types/campaign/CampaignCommandExtensions.ts; rather than couple this
   // hook to the full extension shape, we read defensively. The
   // <ActiveContractCard> only needs name/employer/deadline/completion.
-  const extended = campaign as unknown as {
+  const extended = campaign as ICampaign & {
     activeContract?: {
       id?: string;
       name?: string;
@@ -169,7 +169,7 @@ function extractFinancesSummary(campaign: ICampaign | null): IFinancesSummary {
       runwayDays: 0,
     };
   }
-  const extended = campaign as unknown as {
+  const extended = campaign as ICampaign & {
     finances?: {
       balance?: {
         amount?: number;
@@ -239,7 +239,7 @@ function extractForceSnapshot(
       repairQueueDepth: 0,
     };
   }
-  const extended = campaign as unknown as {
+  const extended = campaign as ICampaign & {
     personnel?: Set<unknown> | { size: number };
     forces?: Set<unknown> | { size: number };
     medical?: { injuries?: readonly unknown[] };

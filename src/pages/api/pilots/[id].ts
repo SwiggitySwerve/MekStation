@@ -10,9 +10,19 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import {
+  initializeApiDatabase as initPilotDb,
+  rejectMissingQueryString as readPilotId,
+  sendCaughtApiError as sendPilotError,
+  sendOperationFailure as sendPilotFailure,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getPilotService, IPilotOperationResult } from '@/services/pilots';
 import { IPilot } from '@/types/pilot';
+
+const PILOTS_ID_TS_FAILED_TO_GET_PILOT_1 = 'Failed to get pilot';
+const PILOTS_ID_TS_FAILED_TO_UPDATE_PILOT_2 = 'Failed to update pilot';
+const PILOTS_ID_TS_FAILED_TO_DELETE_PILOT_3 = 'Failed to delete pilot';
 
 // =============================================================================
 // Response Types
@@ -28,11 +38,6 @@ type UpdateResponse = IPilotOperationResult & {
 
 type DeleteResponse = IPilotOperationResult;
 
-type ErrorResponse = {
-  error: string;
-  code?: string;
-};
-
 // =============================================================================
 // Handler
 // =============================================================================
@@ -40,22 +45,13 @@ type ErrorResponse = {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<
-    GetResponse | UpdateResponse | DeleteResponse | ErrorResponse
+    GetResponse | UpdateResponse | DeleteResponse | ApiErrorResponse
   >,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initPilotDb(res)) return;
 
-  const { id } = req.query;
-  if (typeof id !== 'string') {
-    return res.status(400).json({ error: 'Invalid pilot ID' });
-  }
+  const id = readPilotId(req, res, 'id', 'Invalid pilot ID');
+  if (!id) return;
 
   const pilotService = getPilotService();
 
@@ -80,7 +76,7 @@ export default async function handler(
 function handleGet(
   pilotService: ReturnType<typeof getPilotService>,
   id: string,
-  res: NextApiResponse<GetResponse | ErrorResponse>,
+  res: NextApiResponse<GetResponse | ApiErrorResponse>,
 ) {
   try {
     const pilot = pilotService.getPilot(id);
@@ -91,9 +87,8 @@ function handleGet(
 
     return res.status(200).json({ pilot });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to get pilot';
-    return res.status(500).json({ error: message });
+    sendPilotError(res, error, PILOTS_ID_TS_FAILED_TO_GET_PILOT_1);
+    return;
   }
 }
 
@@ -104,7 +99,7 @@ function handlePut(
   pilotService: ReturnType<typeof getPilotService>,
   id: string,
   req: NextApiRequest,
-  res: NextApiResponse<UpdateResponse | ErrorResponse>,
+  res: NextApiResponse<UpdateResponse | ApiErrorResponse>,
 ) {
   try {
     const body = req.body as Partial<IPilot>;
@@ -118,16 +113,12 @@ function handlePut(
       const pilot = pilotService.getPilot(id);
       return res.status(200).json({ ...result, pilot: pilot || undefined });
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to update pilot',
-        errorCode: result.errorCode,
-      });
+      sendPilotFailure(res, result, PILOTS_ID_TS_FAILED_TO_UPDATE_PILOT_2);
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to update pilot';
-    return res.status(500).json({ error: message });
+    sendPilotError(res, error, PILOTS_ID_TS_FAILED_TO_UPDATE_PILOT_2);
+    return;
   }
 }
 
@@ -137,7 +128,7 @@ function handlePut(
 function handleDelete(
   pilotService: ReturnType<typeof getPilotService>,
   id: string,
-  res: NextApiResponse<DeleteResponse | ErrorResponse>,
+  res: NextApiResponse<DeleteResponse | ApiErrorResponse>,
 ) {
   try {
     const result = pilotService.deletePilot(id);
@@ -152,8 +143,7 @@ function handleDelete(
       });
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to delete pilot';
-    return res.status(500).json({ error: message });
+    sendPilotError(res, error, PILOTS_ID_TS_FAILED_TO_DELETE_PILOT_3);
+    return;
   }
 }

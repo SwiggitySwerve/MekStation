@@ -4,14 +4,14 @@
 
 import { getHeatMovementPenalty } from '@/constants/heat';
 import {
+  Facing,
   IEnvironmentalConditions,
   IHexCoordinate,
   IHexGrid,
-  IUnitPosition,
   IMovementCapability,
   IMovementValidation,
+  IUnitPosition,
   MovementType,
-  Facing,
   StandUpMode,
 } from '@/types/gameplay';
 import {
@@ -41,223 +41,311 @@ import { movementModeForPath } from './mode';
 import { calculateMovementHeat } from './modifiers';
 import { findPath } from './pathfinding';
 
+export interface IValidateMovementInput {
+  readonly grid: IHexGrid;
+  readonly position: IUnitPosition;
+  readonly destination: IHexCoordinate;
+  readonly newFacing: Facing;
+  readonly movementType: MovementType;
+  readonly capability: IMovementCapability;
+  readonly currentHeat?: number;
+  readonly environmentalConditions?: IEnvironmentalConditions;
+  readonly movementContext?: IMovementCostContext;
+}
+
+type ValidateMovementArgs =
+  | readonly [input: IValidateMovementInput]
+  | readonly [
+      grid: IHexGrid,
+      position: IUnitPosition,
+      destination: IHexCoordinate,
+      newFacing: Facing,
+      movementType: MovementType,
+      capability: IMovementCapability,
+      currentHeat?: number,
+      environmentalConditions?: IEnvironmentalConditions,
+      movementContext?: IMovementCostContext,
+    ];
+
 /**
  * Validate a movement action.
  *
- * Per `wire-heat-generation-and-effects` task 7.3 as corrected by audit
- * 2026-06-09 C-1/C-2: when `currentHeat` is provided,
- * `getHeatMovementPenalty(currentHeat)` reduces WALK MP only; run/sprint
- * MP are re-derived from the heat-adjusted walk inside `getMaxMP`, and
- * jump MP is heat-immune. At heat 15 (penalty 3), a walk-5 unit validates
- * against walk-2 (not walk-5); attempting distance > 2 fails validation
- * with the heat-penalised range in the error string.
+ * Heat reduces walking MP only; run/sprint MP are derived from the adjusted
+ * walk allowance, and jump MP is heat-immune.
  */
 export function validateMovement(
-  grid: IHexGrid,
-  position: IUnitPosition,
-  destination: IHexCoordinate,
-  newFacing: Facing,
-  movementType: MovementType,
-  capability: IMovementCapability,
-  currentHeat: number = 0,
-  environmentalConditions?: IEnvironmentalConditions,
-  movementContext?: IMovementCostContext,
+  ...args: ValidateMovementArgs
 ): IMovementValidation {
-  if (position.isStuck) {
-    return {
-      valid: false,
-      error: 'Unit is stuck',
-      mpCost: 0,
-      heatGenerated: 0,
-    };
-  }
+  const input = normalizeValidateMovementInput(args);
+  const preconditionFailure = movementPreconditionFailure(input);
+  if (preconditionFailure) return preconditionFailure;
 
-  if (!isInBounds(grid, destination)) {
-    return {
-      valid: false,
-      error: 'Destination is outside map bounds',
-      mpCost: 0,
-      heatGenerated: 0,
-    };
-  }
-
-  if (
-    !hexEquals(position.coord, destination) &&
-    isOccupied(grid, destination)
-  ) {
-    return {
-      valid: false,
-      error: 'Destination hex is occupied',
-      mpCost: 0,
-      heatGenerated: 0,
-    };
-  }
-
-  const distance = hexDistance(position.coord, destination);
-  if (distance > 0 && startHexIsOccupiedByAnotherUnit(grid, position)) {
-    return {
-      valid: false,
-      error:
-        'Unit cannot make follow-up movement from a start hex occupied by another unit',
-      mpCost: 0,
-      heatGenerated: 0,
-    };
-  }
-
-  const facingChangeCost = getFacingChangeCost(position.facing, newFacing);
-
-  if (movementType === MovementType.Jump && capability.jumpMP === 0) {
-    return {
-      valid: false,
-      error: 'Unit cannot jump (no jump jets)',
-      mpCost: 0,
-      heatGenerated: 0,
-    };
-  }
-
-  const heatPenalty = currentHeat > 0 ? getHeatMovementPenalty(currentHeat) : 0;
+  const distance = hexDistance(input.position.coord, input.destination);
+  const movementCostContext = resolveMovementCostContext(input);
   const maxMP = getEnvironmentalMaxMP(
-    capability,
-    movementType,
-    heatPenalty,
-    environmentalConditions,
+    input.capability,
+    input.movementType,
+    heatMovementPenalty(input.currentHeat),
+    input.environmentalConditions,
   );
-  const movementCostContext =
-    environmentalConditions === undefined
-      ? movementContext
-      : {
-          ...movementContext,
-          environmentalConditions,
-        };
+  const costResolution = resolveMovementMpCost({
+    ...input,
+    distance,
+    movementCostContext,
+  });
+  if (!costResolution.accepted) return costResolution.validation;
 
-  let mpCost = distance === 0 ? facingChangeCost : distance;
-  if (movementType !== MovementType.Jump && distance > 0) {
-    // Audit 2026-06-09 B-4: path with the capability's motive mode (hover,
-    // tracked, wige, …) exactly like the reachability projection does, so
-    // both validators charge the same terrain costs. The plain walk/run
-    // mapping is only the fallback for capabilities without a motive mode.
-    const unitMovementType: UnitMovementType = movementModeForPath(
-      movementType,
-      capability,
-    );
-    const path = findPath(
-      grid,
-      position.coord,
-      destination,
-      Infinity,
-      unitMovementType,
-      movementCostContext,
-    );
-
-    if (!path) {
-      const directStep = getMovementStepCostBreakdown(
-        grid,
-        destination,
-        unitMovementType,
-        position.coord,
-        movementCostContext,
-      );
-      if (!Number.isFinite(directStep.mpCost)) {
-        return {
-          valid: false,
-          error:
-            directStep.blockedReason ??
-            `Path crosses impassable terrain at (${destination.q}, ${destination.r})`,
-          mpCost: 0,
-          heatGenerated: 0,
-        };
-      }
-
-      return {
-        valid: false,
-        error: 'No valid ground path to destination',
-        mpCost: 0,
-        heatGenerated: 0,
-      };
-    }
-
-    mpCost = calculateGroundPathMpCost(
-      grid,
-      path,
-      unitMovementType,
-      position.facing,
-      newFacing,
-      movementCostContext,
-    );
-    const canUseManeuveringAceLateralStep =
-      canUseManeuveringAceBipedLateralShift({
-        from: position.coord,
-        to: destination,
-        fromFacing: position.facing,
-        toFacing: newFacing,
-        movementType,
-        movementContext: movementCostContext,
-      });
-    if (canUseManeuveringAceLateralStep) {
-      const lateralStepCost =
-        capability.mekLegProfile === 'quad'
-          ? calculateManeuveringAceQuadLateralStepCost({
-              grid,
-              from: position.coord,
-              to: destination,
-              movementType: unitMovementType,
-              movementContext: movementCostContext,
-            })
-          : calculateManeuveringAceBipedLateralShiftCost({
-              grid,
-              from: position.coord,
-              to: destination,
-              movementType: unitMovementType,
-              movementContext: movementCostContext,
-            });
-      mpCost = Math.min(mpCost, lateralStepCost);
-    }
-  }
-
-  if (mpCost > maxMP) {
+  if (costResolution.mpCost > maxMP) {
     return {
       valid: false,
-      error: `Destination costs ${mpCost} MP, but max range for ${movementType} is ${maxMP}`,
-      mpCost,
+      error: `Destination costs ${costResolution.mpCost} MP, but max range for ${input.movementType} is ${maxMP}`,
+      mpCost: costResolution.mpCost,
       heatGenerated: 0,
     };
   }
 
-  // Audit 2026-06-09 C-13: jump movement must respect the same terrain gates
-  // as the reachability projection (reachable.ts) — the simulation runner
-  // validates bot moves solely through validateMovement, so without these
-  // gates bots could jump onto elevation rises above jump MP or over
-  // intervening terrain above the jump clearance (MegaMek marks such jump
-  // steps illegal). maxMP here is the effective jump MP: gravity/wind
-  // scaled and heat-immune, mirroring reachable.ts's pathBudget usage.
-  if (movementType === MovementType.Jump && distance > 0) {
-    const jumpBlockedReason =
-      getJumpElevationBlockedReason(grid, position.coord, destination, maxMP) ??
-      getJumpClearanceBlockedReason(grid, position.coord, destination, maxMP);
-    if (jumpBlockedReason) {
-      return {
-        valid: false,
-        error: jumpBlockedReason,
-        mpCost,
-        heatGenerated: 0,
-      };
-    }
+  const jumpBlockedReason = jumpMovementBlockedReason(input, distance, maxMP);
+  if (jumpBlockedReason) {
+    return {
+      valid: false,
+      error: jumpBlockedReason,
+      mpCost: costResolution.mpCost,
+      heatGenerated: 0,
+    };
   }
 
-  // Audit 2026-06-09 B-3: pass the full capability heat state — previously
-  // only the Partial Wing bonus was forwarded, so non-Mek units (hover,
-  // tracked, …) were charged Mek movement heat here.
-  const heatGenerated = calculateMovementHeat(movementType, distance, {
-    movementMode: capability.movementMode,
-    movementHeatProfile: capability.movementHeatProfile,
-    partialWingJumpBonus: capability.partialWingJumpBonus,
+  const heatGenerated = calculateMovementHeat(input.movementType, distance, {
+    movementMode: input.capability.movementMode,
+    movementHeatProfile: input.capability.movementHeatProfile,
+    partialWingJumpBonus: input.capability.partialWingJumpBonus,
   });
 
   return {
     valid: true,
-    mpCost,
+    mpCost: costResolution.mpCost,
     heatGenerated,
   };
+}
+
+function normalizeValidateMovementInput(
+  args: ValidateMovementArgs,
+): IValidateMovementInput {
+  if (args.length === 1) return args[0];
+  const [
+    grid,
+    position,
+    destination,
+    newFacing,
+    movementType,
+    capability,
+    currentHeat = 0,
+    environmentalConditions,
+    movementContext,
+  ] = args;
+  return {
+    grid,
+    position,
+    destination,
+    newFacing,
+    movementType,
+    capability,
+    currentHeat,
+    environmentalConditions,
+    movementContext,
+  };
+}
+
+function movementPreconditionFailure(
+  input: IValidateMovementInput,
+): IMovementValidation | null {
+  if (input.position.isStuck) {
+    return invalidMovement('Unit is stuck');
+  }
+  if (!isInBounds(input.grid, input.destination)) {
+    return invalidMovement('Destination is outside map bounds');
+  }
+  if (
+    !hexEquals(input.position.coord, input.destination) &&
+    isOccupied(input.grid, input.destination)
+  ) {
+    return invalidMovement('Destination hex is occupied');
+  }
+  if (
+    hexDistance(input.position.coord, input.destination) > 0 &&
+    startHexIsOccupiedByAnotherUnit(input.grid, input.position)
+  ) {
+    return invalidMovement(
+      'Unit cannot make follow-up movement from a start hex occupied by another unit',
+    );
+  }
+  if (
+    input.movementType === MovementType.Jump &&
+    input.capability.jumpMP === 0
+  ) {
+    return invalidMovement('Unit cannot jump (no jump jets)');
+  }
+  return null;
+}
+
+function invalidMovement(error: string): IMovementValidation {
+  return {
+    valid: false,
+    error,
+    mpCost: 0,
+    heatGenerated: 0,
+  };
+}
+
+function heatMovementPenalty(currentHeat: number | undefined): number {
+  return currentHeat && currentHeat > 0
+    ? getHeatMovementPenalty(currentHeat)
+    : 0;
+}
+
+function resolveMovementCostContext(
+  input: IValidateMovementInput,
+): IMovementCostContext | undefined {
+  return input.environmentalConditions === undefined
+    ? input.movementContext
+    : {
+        ...input.movementContext,
+        environmentalConditions: input.environmentalConditions,
+      };
+}
+
+type MovementMpCostResolution =
+  | { readonly accepted: true; readonly mpCost: number }
+  | { readonly accepted: false; readonly validation: IMovementValidation };
+
+interface IMovementMpCostInput extends IValidateMovementInput {
+  readonly movementCostContext?: IMovementCostContext;
+  readonly distance: number;
+}
+
+function resolveMovementMpCost(
+  input: IMovementMpCostInput,
+): MovementMpCostResolution {
+  const facingChangeCost = getFacingChangeCost(
+    input.position.facing,
+    input.newFacing,
+  );
+  let mpCost = input.distance === 0 ? facingChangeCost : input.distance;
+  if (input.movementType === MovementType.Jump || input.distance === 0) {
+    return { accepted: true, mpCost };
+  }
+
+  const unitMovementType = movementModeForPath(
+    input.movementType,
+    input.capability,
+  );
+  const path = findPath({
+    grid: input.grid,
+    start: input.position.coord,
+    end: input.destination,
+    maxCost: Infinity,
+    movementType: unitMovementType,
+    context: input.movementCostContext,
+  });
+  if (!path) return groundPathFailure(input, unitMovementType);
+
+  mpCost = calculateGroundPathMpCost(
+    input.grid,
+    path,
+    unitMovementType,
+    input.position.facing,
+    input.newFacing,
+    input.movementCostContext,
+  );
+  const lateralStepCost = maneuveringAceLateralStepCost(
+    input,
+    unitMovementType,
+  );
+  return {
+    accepted: true,
+    mpCost:
+      lateralStepCost === undefined
+        ? mpCost
+        : Math.min(mpCost, lateralStepCost),
+  };
+}
+
+function groundPathFailure(
+  input: IMovementMpCostInput,
+  unitMovementType: UnitMovementType,
+): MovementMpCostResolution {
+  const directStep = getMovementStepCostBreakdown(
+    input.grid,
+    input.destination,
+    unitMovementType,
+    input.position.coord,
+    input.movementCostContext,
+  );
+  if (!Number.isFinite(directStep.mpCost)) {
+    return {
+      accepted: false,
+      validation: invalidMovement(
+        directStep.blockedReason ??
+          `Path crosses impassable terrain at (${input.destination.q}, ${input.destination.r})`,
+      ),
+    };
+  }
+
+  return {
+    accepted: false,
+    validation: invalidMovement('No valid ground path to destination'),
+  };
+}
+
+function maneuveringAceLateralStepCost(
+  input: IMovementMpCostInput,
+  unitMovementType: UnitMovementType,
+): number | undefined {
+  const canUseLateralStep = canUseManeuveringAceBipedLateralShift({
+    from: input.position.coord,
+    to: input.destination,
+    fromFacing: input.position.facing,
+    toFacing: input.newFacing,
+    movementType: input.movementType,
+    movementContext: input.movementCostContext,
+  });
+  if (!canUseLateralStep) return undefined;
+
+  const params = {
+    grid: input.grid,
+    from: input.position.coord,
+    to: input.destination,
+    movementType: unitMovementType,
+    movementContext: input.movementCostContext,
+  };
+  return input.capability.mekLegProfile === 'quad'
+    ? calculateManeuveringAceQuadLateralStepCost(params)
+    : calculateManeuveringAceBipedLateralShiftCost(params);
+}
+
+function jumpMovementBlockedReason(
+  input: IValidateMovementInput,
+  distance: number,
+  maxMP: number,
+): string | undefined {
+  if (input.movementType !== MovementType.Jump || distance <= 0) {
+    return undefined;
+  }
+
+  return (
+    getJumpElevationBlockedReason(
+      input.grid,
+      input.position.coord,
+      input.destination,
+      maxMP,
+    ) ??
+    getJumpClearanceBlockedReason(
+      input.grid,
+      input.position.coord,
+      input.destination,
+      maxMP,
+    ) ??
+    undefined
+  );
 }
 
 function startHexIsOccupiedByAnotherUnit(
@@ -290,8 +378,6 @@ function getEnvironmentalMaxMP(
     capability.jumpMP,
     environmentalConditions.gravity,
   );
-  // Audit 2026-06-09 C-2: jump MP is heat-immune (MegaMek Mek.getJumpMP has
-  // no heat term) — gravity and wind are the only jump MP modifiers here.
   return Math.max(
     0,
     scaledJumpMP - getWindJumpReduction(environmentalConditions.wind),
@@ -366,60 +452,95 @@ export function getStandingCost(
   return capability.runMP === 1 ? 1 : 2;
 }
 
+export interface IGetValidDestinationsInput {
+  readonly grid: IHexGrid;
+  readonly position: IUnitPosition;
+  readonly movementType: MovementType;
+  readonly capability: IMovementCapability;
+  readonly currentHeat?: number;
+  readonly environmentalConditions?: IEnvironmentalConditions;
+  readonly movementContext?: IMovementCostContext;
+}
+
+type GetValidDestinationsArgs =
+  | readonly [input: IGetValidDestinationsInput]
+  | readonly [
+      grid: IHexGrid,
+      position: IUnitPosition,
+      movementType: MovementType,
+      capability: IMovementCapability,
+      currentHeat?: number,
+      environmentalConditions?: IEnvironmentalConditions,
+      movementContext?: IMovementCostContext,
+    ];
+
 /**
  * Get all valid destinations for a movement type.
- *
- * Per `wire-heat-generation-and-effects` task 7.3 as corrected by audit
- * 2026-06-09 C-1/C-2: when `currentHeat` is provided, walk MP is
- * heat-reduced and run/sprint MP re-derive from it (jump MP is
- * heat-immune) so UI previews + bot planning both respect the penalty.
  */
 export function getValidDestinations(
-  grid: IHexGrid,
-  position: IUnitPosition,
-  movementType: MovementType,
-  capability: IMovementCapability,
-  currentHeat: number = 0,
-  environmentalConditions?: IEnvironmentalConditions,
-  movementContext?: IMovementCostContext,
+  ...args: GetValidDestinationsArgs
 ): readonly IHexCoordinate[] {
-  const heatPenalty = currentHeat > 0 ? getHeatMovementPenalty(currentHeat) : 0;
+  const input = normalizeGetValidDestinationsInput(args);
   const maxMP = getEnvironmentalMaxMP(
-    capability,
-    movementType,
-    heatPenalty,
-    environmentalConditions,
+    input.capability,
+    input.movementType,
+    heatMovementPenalty(input.currentHeat),
+    input.environmentalConditions,
   );
   if (maxMP === 0) {
-    return [position.coord];
+    return [input.position.coord];
   }
 
   const destinations: IHexCoordinate[] = [];
 
   for (let dq = -maxMP; dq <= maxMP; dq++) {
     for (let dr = -maxMP; dr <= maxMP; dr++) {
-      const dest: IHexCoordinate = {
-        q: position.coord.q + dq,
-        r: position.coord.r + dr,
+      const destination: IHexCoordinate = {
+        q: input.position.coord.q + dq,
+        r: input.position.coord.r + dr,
       };
 
-      const validation = validateMovement(
-        grid,
-        position,
-        dest,
-        position.facing,
-        movementType,
-        capability,
-        currentHeat,
-        environmentalConditions,
-        movementContext,
-      );
+      const validation = validateMovement({
+        grid: input.grid,
+        position: input.position,
+        destination,
+        newFacing: input.position.facing,
+        movementType: input.movementType,
+        capability: input.capability,
+        currentHeat: input.currentHeat,
+        environmentalConditions: input.environmentalConditions,
+        movementContext: input.movementContext,
+      });
 
       if (validation.valid) {
-        destinations.push(dest);
+        destinations.push(destination);
       }
     }
   }
 
   return destinations;
+}
+
+function normalizeGetValidDestinationsInput(
+  args: GetValidDestinationsArgs,
+): IGetValidDestinationsInput {
+  if (args.length === 1) return args[0];
+  const [
+    grid,
+    position,
+    movementType,
+    capability,
+    currentHeat = 0,
+    environmentalConditions,
+    movementContext,
+  ] = args;
+  return {
+    grid,
+    position,
+    movementType,
+    capability,
+    currentHeat,
+    environmentalConditions,
+    movementContext,
+  };
 }

@@ -11,6 +11,7 @@ import { FOCUS_RING_CLASSES } from '@/utils/accessibility';
 
 import type { IBattle } from './types';
 
+import { ViewerSection } from '../SectionFrame';
 import { getMaxTurn, resolveUnitName } from './types';
 
 export interface IEventTimelineSectionProps {
@@ -106,13 +107,11 @@ export const EventTimelineSection: React.FC<IEventTimelineSectionProps> = ({
   );
 
   return (
-    <section aria-label="Event timeline" data-testid="event-timeline-section">
-      <h2
-        className="mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200"
-        data-testid="section-heading"
-      >
-        Event Timeline
-      </h2>
+    <ViewerSection
+      ariaLabel="Event timeline"
+      testId="event-timeline-section"
+      title="Event Timeline"
+    >
       <div
         className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800"
         data-testid="vcr-controls"
@@ -186,6 +185,6 @@ export const EventTimelineSection: React.FC<IEventTimelineSectionProps> = ({
           />
         </div>
       )}
-    </section>
+    </ViewerSection>
   );
 };

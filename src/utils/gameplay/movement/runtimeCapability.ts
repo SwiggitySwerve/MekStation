@@ -1,7 +1,6 @@
 import type {
   IMovementCapability,
   IUnitGameState,
-  MovementConversionMode,
   MovementMotiveMode,
   MovementTravelMode,
   MovementUnitHeightProfile,
@@ -11,40 +10,15 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import { isGyroDestroyedForType } from '@/utils/gameplay/gyroRules';
 
+import {
+  applyRuntimeCapabilityAdjustments,
+  runtimeCapabilityHasChanges,
+  type IRuntimeMovementCapabilityAdjustments,
+} from './runtimeCapabilityAdjustments';
+import { normalizedConversionMode } from './runtimeConversionMode';
+
 function normalizedHeight(value: number | undefined): number | undefined {
   return value === undefined ? undefined : Math.max(0, Math.floor(value));
-}
-
-function normalizedConversionMode(
-  value: MovementConversionMode | number | undefined,
-  profile: MovementUnitHeightProfile,
-): 'mek' | 'airmek' | 'fighter' | 'vehicle' | undefined {
-  if (typeof value === 'number') {
-    if (value === 0) return 'mek';
-    if (profile.kind === 'lam') {
-      if (value === 1) return 'airmek';
-      if (value === 2) return 'fighter';
-    }
-    if (profile.kind === 'quadvee' && value === 1) return 'vehicle';
-    return undefined;
-  }
-
-  switch (value) {
-    case 'mek':
-    case 'mech':
-      return 'mek';
-    case 'airmek':
-    case 'airmech':
-      return 'airmek';
-    case 'fighter':
-      return 'fighter';
-    case 'vehicle':
-    case 'tracked':
-    case 'wheeled':
-      return 'vehicle';
-    default:
-      return undefined;
-  }
 }
 
 function conversionModeHeight(
@@ -402,51 +376,36 @@ export function resolveRuntimeMovementCapability(
 ): IMovementCapability | undefined {
   if (!capability) return undefined;
 
-  const runtimeHeight = runtimeUnitHeightForMovement(unit, capability);
   const profile = capability.unitHeightProfile;
-  const runtimeMovementMode = profile
-    ? conversionModeMovementMode(unit, capability, profile)
-    : undefined;
-  const runtimeMovementPoints = profile
-    ? conversionModeMovementPoints(unit, capability, profile)
-    : undefined;
-  const runtimeJumpMP = profile
-    ? conversionModeJumpMP(unit, profile)
-    : undefined;
-  const runtimeMovementHeatProfile = profile
-    ? conversionModeMovementHeatProfile(unit, profile)
-    : undefined;
+  const adjustments = runtimeMovementCapabilityAdjustments(
+    unit,
+    capability,
+    profile,
+  );
 
-  if (
-    (runtimeHeight === undefined || runtimeHeight === capability.unitHeight) &&
-    (runtimeMovementMode === undefined ||
-      runtimeMovementMode === capability.movementMode) &&
-    (runtimeMovementPoints === undefined ||
-      (runtimeMovementPoints.walkMP === capability.walkMP &&
-        runtimeMovementPoints.runMP === capability.runMP)) &&
-    (runtimeJumpMP === undefined || runtimeJumpMP === capability.jumpMP) &&
-    (runtimeMovementHeatProfile === undefined ||
-      runtimeMovementHeatProfile === capability.movementHeatProfile)
-  ) {
+  if (!runtimeCapabilityHasChanges(capability, adjustments)) {
     return capability;
   }
 
+  return applyRuntimeCapabilityAdjustments(capability, profile, adjustments);
+}
+
+function runtimeMovementCapabilityAdjustments(
+  unit: IUnitGameState,
+  capability: IMovementCapability,
+  profile: MovementUnitHeightProfile | undefined,
+): IRuntimeMovementCapabilityAdjustments {
   return {
-    ...capability,
-    ...(runtimeHeight !== undefined ? { unitHeight: runtimeHeight } : {}),
-    ...(runtimeMovementMode !== undefined
-      ? { movementMode: runtimeMovementMode }
-      : {}),
-    ...(runtimeMovementPoints !== undefined ? runtimeMovementPoints : {}),
-    ...(runtimeJumpMP !== undefined ? { jumpMP: runtimeJumpMP } : {}),
-    ...(runtimeMovementHeatProfile !== undefined
-      ? { movementHeatProfile: runtimeMovementHeatProfile }
-      : {}),
-    ...(profile?.kind === 'lam'
-      ? {
-          conversionThrustMP:
-            capability.conversionThrustMP ?? capability.jumpMP,
-        }
-      : {}),
+    runtimeHeight: runtimeUnitHeightForMovement(unit, capability),
+    runtimeMovementMode: profile
+      ? conversionModeMovementMode(unit, capability, profile)
+      : undefined,
+    runtimeMovementPoints: profile
+      ? conversionModeMovementPoints(unit, capability, profile)
+      : undefined,
+    runtimeJumpMP: profile ? conversionModeJumpMP(unit, profile) : undefined,
+    runtimeMovementHeatProfile: profile
+      ? conversionModeMovementHeatProfile(unit, profile)
+      : undefined,
   };
 }

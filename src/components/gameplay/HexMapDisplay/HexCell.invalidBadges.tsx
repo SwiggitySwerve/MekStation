@@ -8,12 +8,128 @@ import type {
 import type { ITacticalMapProjectionSourceReference } from '@/utils/gameplay/tacticalMapProjection';
 
 import {
-  formatTacticalProjectionRuleReferences,
-  formatTacticalProjectionSourceReferences,
-} from '@/utils/gameplay/tacticalMapProjection';
+  HexCellSvgTextBadge,
+  type MovementProjectionBadgeProps,
+} from './HexCell.badgePrimitives';
+import {
+  tacticalProjectionDataAttributes,
+  tacticalProjectionSourceMetadata,
+  tacticalProjectionSourceReferencesFor,
+} from './HexMapDisplay.tacticalProjectionAttributes';
 
-function includesReason(text: string | undefined, pattern: string): boolean {
-  return text?.toLowerCase().includes(pattern) ?? false;
+type ReasonPatternBadgeLabelResolver = {
+  readonly label: string;
+  readonly patterns: readonly string[];
+};
+
+type MovementInvalidBadgeLabelResolver =
+  | ReasonPatternBadgeLabelResolver
+  | {
+      readonly label: string;
+      readonly requiresAltitudeControl: true;
+    };
+
+type MovementInvalidReason = NonNullable<
+  IMovementRangeHex['movementInvalidReason']
+>;
+
+type AttackInvalidReason = NonNullable<ICombatRangeHex['attackInvalidReason']>;
+
+const MOVEMENT_INVALID_BADGE_LABEL_RESOLVERS = [
+  { label: 'WTR', patterns: ['water'] },
+  { label: 'ALT', requiresAltitudeControl: true },
+  { label: 'ALT', patterns: ['altitude controls'] },
+  { label: 'BRDG', patterns: ['bridge', 'clearance'] },
+  { label: 'ELEV', patterns: ['elevation'] },
+  { label: 'OCC', patterns: ['occupied'] },
+  { label: 'OOB', patterns: ['outside'] },
+  { label: 'STAND', patterns: ['stand'] },
+  { label: 'NO MP', patterns: ['path costs'] },
+  { label: 'NO PATH', patterns: ['no legal'] },
+  { label: 'SHUT', patterns: ['shut down'] },
+  { label: 'KO', patterns: ['unconscious'] },
+  { label: 'AERO', patterns: ['aerospace', 'flight'] },
+] as const satisfies readonly MovementInvalidBadgeLabelResolver[];
+
+const MOVEMENT_INVALID_REASON_LABELS: Readonly<
+  Partial<Record<MovementInvalidReason, string>>
+> = {
+  DestinationOccupied: 'OCC',
+  DestinationOutOfBounds: 'OOB',
+  InsufficientMP: 'NO MP',
+  UnitImmobile: 'NO MOVE',
+  InvalidPath: 'BAD PATH',
+  JumpUnavailable: 'NO JUMP',
+  NoLegalPath: 'NO PATH',
+  NoMovementCapability: 'NO MOVE',
+  TerrainBlocked: 'TERR',
+  InvalidDestination: 'BAD',
+};
+
+const NO_LINE_OF_SIGHT_BADGE_LABEL_RESOLVERS = [
+  { label: 'TAG', patterns: ['tag', 'ecm'] },
+  { label: 'ELEV', patterns: ['elevation'] },
+  { label: 'BLDG', patterns: ['building'] },
+  { label: 'WOOD', patterns: ['woods'] },
+  { label: 'SMK', patterns: ['smoke'] },
+] as const satisfies readonly ReasonPatternBadgeLabelResolver[];
+
+const ATTACK_INVALID_REASON_LABELS: Readonly<
+  Partial<Record<AttackInvalidReason, string>>
+> = {
+  NoLineOfSight: 'LOS',
+  OutOfAmmo: 'AMMO',
+  OutOfArc: 'ARC',
+  OutOfRange: 'OUT',
+  SameHex: 'SAME',
+  TargetNotVisible: 'HIDDEN',
+  InvalidTarget: 'INVALID',
+};
+
+function reasonMatchesAny(
+  text: string | undefined,
+  patterns: readonly string[],
+): boolean {
+  const normalizedText = text?.toLowerCase();
+  return normalizedText
+    ? patterns.some((pattern) => normalizedText.includes(pattern))
+    : false;
+}
+
+function isReasonPatternResolver(
+  resolver: MovementInvalidBadgeLabelResolver,
+): resolver is ReasonPatternBadgeLabelResolver {
+  return 'patterns' in resolver;
+}
+
+function movementBadgeResolverMatches(
+  resolver: MovementInvalidBadgeLabelResolver,
+  movementInfo: IMovementRangeHex,
+  reason: string | undefined,
+): boolean {
+  if (isReasonPatternResolver(resolver)) {
+    return reasonMatchesAny(reason, resolver.patterns);
+  }
+
+  return movementInfo.altitudeControlRequired === true;
+}
+
+function resolveReasonPatternBadgeLabel(
+  reason: string | undefined,
+  resolvers: readonly ReasonPatternBadgeLabelResolver[],
+): string | undefined {
+  return resolvers.find((resolver) =>
+    reasonMatchesAny(reason, resolver.patterns),
+  )?.label;
+}
+
+function resolveMovementInvalidBadgeLabel(
+  movementInfo: IMovementRangeHex,
+  reason: string | undefined,
+): string | undefined {
+  return MOVEMENT_INVALID_BADGE_LABEL_RESOLVERS.find((resolver) =>
+    movementBadgeResolverMatches(resolver, movementInfo, reason),
+  )?.label;
 }
 
 function movementReasonText(
@@ -42,9 +158,7 @@ function movementSourceReferencesFor(
     | readonly ITacticalMapProjectionSourceReference[]
     | undefined,
 ): readonly ITacticalMapProjectionSourceReference[] {
-  return (
-    sourceReferences?.filter((source) => source.channel === 'movement') ?? []
-  );
+  return tacticalProjectionSourceReferencesFor(sourceReferences, 'movement');
 }
 
 function combatSourceReferencesFor(
@@ -52,94 +166,50 @@ function combatSourceReferencesFor(
     | readonly ITacticalMapProjectionSourceReference[]
     | undefined,
 ): readonly ITacticalMapProjectionSourceReference[] {
-  return (
-    sourceReferences?.filter((source) =>
-      ['combat', 'los-blocker'].includes(source.channel),
-    ) ?? []
-  );
+  return tacticalProjectionSourceReferencesFor(sourceReferences, [
+    'combat',
+    'los-blocker',
+  ]);
 }
 
 function formatMovementInvalidBadgeLabel(
   movementInfo: IMovementRangeHex,
 ): string {
   const reason = movementReasonText(movementInfo);
-  if (includesReason(reason, 'water')) return 'WTR';
-  if (movementInfo.altitudeControlRequired) return 'ALT';
-  if (includesReason(reason, 'altitude controls')) return 'ALT';
-  if (includesReason(reason, 'bridge') || includesReason(reason, 'clearance')) {
-    return 'BRDG';
-  }
-  if (includesReason(reason, 'elevation')) return 'ELEV';
-  if (includesReason(reason, 'occupied')) return 'OCC';
-  if (includesReason(reason, 'outside')) return 'OOB';
-  if (includesReason(reason, 'stand')) return 'STAND';
-  if (includesReason(reason, 'path costs')) return 'NO MP';
-  if (includesReason(reason, 'no legal')) return 'NO PATH';
-  if (includesReason(reason, 'shut down')) return 'SHUT';
-  if (includesReason(reason, 'unconscious')) return 'KO';
-  if (includesReason(reason, 'aerospace') || includesReason(reason, 'flight')) {
-    return 'AERO';
+
+  return (
+    resolveMovementInvalidBadgeLabel(movementInfo, reason) ??
+    (movementInfo.movementInvalidReason
+      ? MOVEMENT_INVALID_REASON_LABELS[movementInfo.movementInvalidReason]
+      : undefined) ??
+    (movementInfo.blockedReason ? 'BLK' : 'NO')
+  );
+}
+
+function resolveNoLineOfSightBadgeLabel(
+  combatInfo: ICombatRangeHex,
+  blockerReason: string | undefined,
+): string | undefined {
+  if (combatInfo.attackInvalidReason !== 'NoLineOfSight') {
+    return undefined;
   }
 
-  switch (movementInfo.movementInvalidReason) {
-    case 'DestinationOccupied':
-      return 'OCC';
-    case 'DestinationOutOfBounds':
-      return 'OOB';
-    case 'InsufficientMP':
-      return 'NO MP';
-    case 'UnitImmobile':
-      return 'NO MOVE';
-    case 'InvalidPath':
-      return 'BAD PATH';
-    case 'JumpUnavailable':
-      return 'NO JUMP';
-    case 'NoLegalPath':
-      return 'NO PATH';
-    case 'NoMovementCapability':
-      return 'NO MOVE';
-    case 'TerrainBlocked':
-      return 'TERR';
-    case 'InvalidDestination':
-      return 'BAD';
-    default:
-      return movementInfo.blockedReason ? 'BLK' : 'NO';
-  }
+  return resolveReasonPatternBadgeLabel(
+    blockerReason,
+    NO_LINE_OF_SIGHT_BADGE_LABEL_RESOLVERS,
+  );
 }
 
 function formatCombatInvalidBadgeLabel(combatInfo: ICombatRangeHex): string {
   const blockerReason = combatReasonText(combatInfo);
-  if (combatInfo.attackInvalidReason === 'NoLineOfSight') {
-    if (
-      includesReason(blockerReason, 'tag') ||
-      includesReason(blockerReason, 'ecm')
-    ) {
-      return 'TAG';
-    }
-    if (includesReason(blockerReason, 'elevation')) return 'ELEV';
-    if (includesReason(blockerReason, 'building')) return 'BLDG';
-    if (includesReason(blockerReason, 'woods')) return 'WOOD';
-    if (includesReason(blockerReason, 'smoke')) return 'SMK';
-  }
 
-  switch (combatInfo.attackInvalidReason) {
-    case 'NoLineOfSight':
-      return 'LOS';
-    case 'OutOfAmmo':
-      return 'AMMO';
-    case 'OutOfArc':
-      return 'ARC';
-    case 'OutOfRange':
-      return 'OUT';
-    case 'SameHex':
-      return 'SAME';
-    case 'TargetNotVisible':
-      return 'HIDDEN';
-    case 'InvalidTarget':
-      return 'INVALID';
-    default:
-      return combatInfo.blockedReason ? 'BLOCK' : 'NO';
-  }
+  return (
+    resolveNoLineOfSightBadgeLabel(combatInfo, blockerReason) ??
+    (combatInfo.attackInvalidReason
+      ? ATTACK_INVALID_REASON_LABELS[combatInfo.attackInvalidReason]
+      : undefined) ??
+    (combatInfo.blockedReason ? 'BLOCK' : 'NO')
+  );
 }
 
 function Badge({
@@ -168,78 +238,50 @@ function Badge({
   readonly sourceReferences?: readonly ITacticalMapProjectionSourceReference[];
 }): React.ReactElement {
   const label = reason ?? text;
-  const formattedSourceReferences =
-    sourceReferences && sourceReferences.length > 0
-      ? formatTacticalProjectionSourceReferences(sourceReferences)
-      : undefined;
-  const formattedRuleReferences =
-    sourceReferences && sourceReferences.length > 0
-      ? formatTacticalProjectionRuleReferences(sourceReferences)
-      : undefined;
-  const projectionChannel =
-    sourceReferences && sourceReferences.length > 0 ? reasonKind : undefined;
+  const source = tacticalProjectionSourceMetadata(sourceReferences, reasonKind);
   return (
-    <g
-      pointerEvents="none"
-      data-testid={testId}
-      aria-label={label}
-      data-tactical-projection-source={
-        projectionChannel ? 'shared-tactical-map-projection' : undefined
-      }
-      data-tactical-projection-channel={projectionChannel}
-      data-tactical-rules-surface={projectionChannel}
-      data-invalid-badge-kind={reasonKind}
-      data-invalid-badge-reason={reason}
-      data-invalid-badge-code={reasonCode}
-      data-invalid-badge-source-refs={formattedSourceReferences}
-      data-invalid-badge-rule-refs={formattedRuleReferences}
-      data-invalid-badge-projection-explanation={projectionExplanation}
-    >
-      <title>{label}</title>
-      <rect
-        x={x - width / 2}
-        y={y}
-        width={width}
-        height={12}
-        rx={3}
-        fill={fill}
-        opacity={0.92}
-      />
-      <text
-        x={x}
-        y={y + 9}
-        textAnchor="middle"
-        fontSize={8}
-        fontWeight="bold"
-        fill="#fff7ed"
-      >
-        {text}
-      </text>
-    </g>
+    <HexCellSvgTextBadge
+      testId={testId}
+      title={label}
+      label={text}
+      dataAttributes={{
+        ...tacticalProjectionDataAttributes(source),
+        'data-invalid-badge-kind': reasonKind,
+        'data-invalid-badge-reason': reason,
+        'data-invalid-badge-code': reasonCode,
+        'data-invalid-badge-source-refs': source.sourceRefs,
+        'data-invalid-badge-rule-refs': source.ruleRefs,
+        'data-invalid-badge-projection-explanation': projectionExplanation,
+      }}
+      rect={{
+        x: x - width / 2,
+        y,
+        width,
+        height: 12,
+        rx: 3,
+        fill,
+        opacity: 0.92,
+      }}
+      text={{
+        x,
+        y: y + 9,
+        fontSize: 8,
+        fontWeight: 'bold',
+        fill: '#fff7ed',
+      }}
+    />
   );
 }
 
-export function MovementInvalidBadge({
-  x,
-  y,
-  hex,
-  movementInfo,
-  projectionExplanation,
-  sourceReferences,
-}: {
-  readonly x: number;
-  readonly y: number;
-  readonly hex: IHexCoordinate;
-  readonly movementInfo?: IMovementRangeHex;
-  readonly projectionExplanation?: string;
-  readonly sourceReferences?: readonly ITacticalMapProjectionSourceReference[];
-}): React.ReactElement | null {
+export function MovementInvalidBadge(
+  props: MovementProjectionBadgeProps,
+): React.ReactElement | null {
+  const { x, y, hex, movementInfo, projectionExplanation, sourceReferences } =
+    props;
   if (!movementInfo || movementInfo.reachable) return null;
 
   const label = formatMovementInvalidBadgeLabel(movementInfo);
   const reason = movementReasonText(movementInfo);
-  const movementSourceReferences =
-    movementSourceReferencesFor(sourceReferences);
   return (
     <Badge
       x={x}
@@ -252,7 +294,7 @@ export function MovementInvalidBadge({
       reasonCode={movementInfo.movementInvalidReason}
       reasonKind="movement"
       projectionExplanation={projectionExplanation}
-      sourceReferences={movementSourceReferences}
+      sourceReferences={movementSourceReferencesFor(sourceReferences)}
     />
   );
 }

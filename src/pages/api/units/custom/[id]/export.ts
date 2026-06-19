@@ -9,7 +9,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { BUILD_VERSION } from '@/constants/appVersion';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import {
+  initializeApiDatabase,
+  rejectUnexpectedMethod,
+  sendCaughtApiError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 import { ISerializedUnitEnvelope } from '@/types/persistence/UnitPersistence';
 
@@ -21,27 +26,13 @@ const FORMAT_VERSION = '1.0.0';
  */
 type ExportResponse = ISerializedUnitEnvelope;
 
-type ErrorResponse = {
-  error: string;
-};
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ExportResponse | ErrorResponse>,
+  res: NextApiResponse<ExportResponse | ApiErrorResponse>,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initializeApiDatabase(res)) return;
 
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', ['GET']);
-    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-  }
+  if (rejectUnexpectedMethod(req, res, ['GET'])) return;
 
   const { id, download } = req.query;
 
@@ -86,8 +77,7 @@ export default async function handler(
 
     return res.status(200).json(envelope);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to export unit';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'Failed to export unit');
+    return;
   }
 }

@@ -12,6 +12,8 @@ import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry'
 import type { ISkillType } from '@/types/campaign/skills';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
+import { getPilotSkillValue } from './skillHelpers';
+
 /**
  * Function type for random number generation.
  *
@@ -113,9 +115,7 @@ export function getEffectiveSkillTN(
     // @stub Plan 7 — IPilot.skills only has gunnery and piloting as plain numbers.
     // Use the numeric value as the skill level (bonus=0, attrMod=0 until attributes land).
     // All other skill IDs fall through to the unskilled branch.
-    const pilotSkillValue = (
-      pilot.skills as unknown as Record<string, number | undefined>
-    )[skillId];
+    const pilotSkillValue = getPilotSkillValue(pilot, skillId);
 
     if (pilotSkillValue !== undefined) {
       // Known skill: subtract the numeric level from the base TN

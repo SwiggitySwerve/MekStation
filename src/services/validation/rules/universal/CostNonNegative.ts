@@ -10,9 +10,12 @@ import {
   IUnitValidationContext,
   IUnitValidationRuleResult,
   UnitValidationSeverity,
-  createUnitValidationError,
-  createUnitValidationRuleResult,
+  IUnitValidationError,
 } from '@/types/validation/UnitValidationInterfaces';
+
+import { createRuleResult, addRuleDiagnostic } from '../ruleResults';
+
+const COST_NON_NEGATIVE_CONSTRUCTION_CATEGORY = ValidationCategory.CONSTRUCTION;
 
 /**
  * VAL-UNIV-009: Cost Non-Negative
@@ -21,39 +24,29 @@ export const CostNonNegative: IUnitValidationRuleDefinition = {
   id: 'VAL-UNIV-009',
   name: 'Cost Non-Negative',
   description: 'Unit cost must be finite and non-negative',
-  category: ValidationCategory.CONSTRUCTION,
-  priority: 9,
+  category: COST_NON_NEGATIVE_CONSTRUCTION_CATEGORY,
   applicableUnitTypes: 'ALL',
+  priority: 9,
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors = [];
+    const costNonNegativeDiagnostics: IUnitValidationError[] = [];
 
     if (!Number.isFinite(unit.cost) || unit.cost < 0) {
-      errors.push(
-        createUnitValidationError(
-          this.id,
-          this.name,
-          UnitValidationSeverity.ERROR,
-          this.category,
-          'Unit cost must be a non-negative finite number',
-          {
-            field: 'cost',
-            expected: '>= 0',
-            actual: String(unit.cost),
-            suggestion: 'Correct the cost value to be >= 0 and finite',
-          },
-        ),
+      addRuleDiagnostic(
+        costNonNegativeDiagnostics,
+        this,
+        UnitValidationSeverity.ERROR,
+        'Unit cost must be a non-negative finite number',
+        {
+          field: 'cost',
+          expected: '>= 0',
+          actual: String(unit.cost),
+          suggestion: 'Correct the cost value to be >= 0 and finite',
+        },
       );
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors: costNonNegativeDiagnostics });
   },
 };

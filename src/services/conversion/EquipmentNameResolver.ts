@@ -24,7 +24,7 @@ export class EquipmentNameResolver {
   private normalizedNameMap: Map<string, IEquipmentItem> = new Map();
   private initialized = false;
 
-  initialize(): void {
+  initialize = (): void => {
     if (this.initialized) return;
 
     const allEquipment = getAllEquipmentItemsForResolver();
@@ -35,13 +35,13 @@ export class EquipmentNameResolver {
     }
 
     this.initialized = true;
-  }
+  };
 
-  resolve(
+  resolve = (
     itemType: string,
     itemName: string,
     techBase?: TechBase,
-  ): EquipmentResolution {
+  ): EquipmentResolution => {
     this.initialize();
 
     const { cleanType } = stripQuantityPrefix(itemType);
@@ -128,29 +128,29 @@ export class EquipmentNameResolver {
       originalName: itemName,
       originalType: itemType,
     };
-  }
+  };
 
-  getById(id: string): IEquipmentItem | undefined {
+  getById = (id: string): IEquipmentItem | undefined => {
     this.initialize();
     return this.equipmentById.get(id);
-  }
+  };
 
-  isSystemComponent(itemType: string): boolean {
+  isSystemComponent = (itemType: string): boolean => {
     return SYSTEM_COMPONENTS.some((component) =>
       itemType.toLowerCase().includes(component.toLowerCase()),
     );
-  }
+  };
 
-  isHeatSink(itemType: string): boolean {
+  isHeatSink = (itemType: string): boolean => {
     return (
       itemType.toLowerCase().includes('heat sink') ||
       itemType.toLowerCase().includes('heatsink')
     );
-  }
+  };
 
-  getMappings(): Record<string, string> {
+  getMappings = (): Record<string, string> => {
     return { ...MEGAMEKLAB_TYPE_MAP };
-  }
+  };
 }
 
 export const equipmentNameResolver = new EquipmentNameResolver();

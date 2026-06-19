@@ -21,54 +21,48 @@ import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 
+type RawArmorValue = number | { front: number; rear: number };
+type RearArmorField = 'centerTorsoRear' | 'leftTorsoRear' | 'rightTorsoRear';
+
+const ENGINE_TYPE_BY_NORMALIZED_VALUE: Readonly<Record<string, EngineType>> = {
+  FUSION: EngineType.STANDARD,
+  STANDARD: EngineType.STANDARD,
+  STANDARDFUSION: EngineType.STANDARD,
+  XLIS: EngineType.XL_IS,
+  XLENGINEIS: EngineType.XL_IS,
+  XLCLAN: EngineType.XL_CLAN,
+  XLENGINECLAN: EngineType.XL_CLAN,
+  LIGHT: EngineType.LIGHT,
+  LIGHTENGINE: EngineType.LIGHT,
+  XXL: EngineType.XXL,
+  XXLENGINE: EngineType.XXL,
+  COMPACT: EngineType.COMPACT,
+  COMPACTENGINE: EngineType.COMPACT,
+  ICE: EngineType.ICE,
+  INTERNALCOMBUSTION: EngineType.ICE,
+  FUELCELL: EngineType.FUEL_CELL,
+  FISSION: EngineType.FISSION,
+};
+
+const REAR_ARMOR_FIELD_BY_LOCATION: Partial<
+  Record<MechLocation, RearArmorField>
+> = {
+  [MechLocation.CENTER_TORSO]: 'centerTorsoRear',
+  [MechLocation.LEFT_TORSO]: 'leftTorsoRear',
+  [MechLocation.RIGHT_TORSO]: 'rightTorsoRear',
+};
+
 /**
  * Map engine type string to EngineType enum
  */
 export function mapEngineType(typeStr: string, techBase: TechBase): EngineType {
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
 
-  // Standard fusion engine variations
-  if (
-    normalized === 'FUSION' ||
-    normalized === 'STANDARD' ||
-    normalized === 'STANDARDFUSION'
-  ) {
-    return EngineType.STANDARD;
-  }
-
-  // XL engine - depends on tech base
   if (normalized === 'XL' || normalized === 'XLENGINE') {
     return techBase === TechBase.CLAN ? EngineType.XL_CLAN : EngineType.XL_IS;
   }
-  if (normalized === 'XLIS' || normalized === 'XLENGINEIS') {
-    return EngineType.XL_IS;
-  }
-  if (normalized === 'XLCLAN' || normalized === 'XLENGINECLAN') {
-    return EngineType.XL_CLAN;
-  }
 
-  // Other engine types
-  if (normalized === 'LIGHT' || normalized === 'LIGHTENGINE') {
-    return EngineType.LIGHT;
-  }
-  if (normalized === 'XXL' || normalized === 'XXLENGINE') {
-    return EngineType.XXL;
-  }
-  if (normalized === 'COMPACT' || normalized === 'COMPACTENGINE') {
-    return EngineType.COMPACT;
-  }
-  if (normalized === 'ICE' || normalized === 'INTERNALCOMBUSTION') {
-    return EngineType.ICE;
-  }
-  if (normalized === 'FUELCELL') {
-    return EngineType.FUEL_CELL;
-  }
-  if (normalized === 'FISSION') {
-    return EngineType.FISSION;
-  }
-
-  // Default to standard
-  return EngineType.STANDARD;
+  return ENGINE_TYPE_BY_NORMALIZED_VALUE[normalized] ?? EngineType.STANDARD;
 }
 
 /**
@@ -339,58 +333,62 @@ function setArmorValue(
   location: MechLocation,
   value: number,
 ): void {
-  switch (location) {
-    case MechLocation.HEAD:
-      result[MechLocation.HEAD] = value;
-      break;
-    case MechLocation.CENTER_TORSO:
-      result[MechLocation.CENTER_TORSO] = value;
-      break;
-    case MechLocation.LEFT_TORSO:
-      result[MechLocation.LEFT_TORSO] = value;
-      break;
-    case MechLocation.RIGHT_TORSO:
-      result[MechLocation.RIGHT_TORSO] = value;
-      break;
-    case MechLocation.LEFT_ARM:
-      result[MechLocation.LEFT_ARM] = value;
-      break;
-    case MechLocation.RIGHT_ARM:
-      result[MechLocation.RIGHT_ARM] = value;
-      break;
-    case MechLocation.LEFT_LEG:
-      result[MechLocation.LEFT_LEG] = value;
-      break;
-    case MechLocation.RIGHT_LEG:
-      result[MechLocation.RIGHT_LEG] = value;
-      break;
-    // Tripod center leg
-    case MechLocation.CENTER_LEG:
-      result[MechLocation.CENTER_LEG] = value;
-      break;
-    // Quad/QuadVee leg locations
-    case MechLocation.FRONT_LEFT_LEG:
-      result[MechLocation.FRONT_LEFT_LEG] = value;
-      break;
-    case MechLocation.FRONT_RIGHT_LEG:
-      result[MechLocation.FRONT_RIGHT_LEG] = value;
-      break;
-    case MechLocation.REAR_LEFT_LEG:
-      result[MechLocation.REAR_LEFT_LEG] = value;
-      break;
-    case MechLocation.REAR_RIGHT_LEG:
-      result[MechLocation.REAR_RIGHT_LEG] = value;
-      break;
+  result[location] = value;
+}
+
+function isSplitArmorValue(value: unknown): value is {
+  front: number;
+  rear: number;
+} {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'front' in value &&
+    'rear' in value
+  );
+}
+
+function setRearArmorValue(
+  result: IArmorAllocation,
+  location: MechLocation,
+  value: number,
+): void {
+  const field = REAR_ARMOR_FIELD_BY_LOCATION[location];
+  if (!field) {
+    return;
   }
+
+  result[field] = value;
+}
+
+function applyArmorAllocationEntry(
+  result: IArmorAllocation,
+  locationKey: string,
+  value: RawArmorValue,
+): void {
+  const location = mapMechLocation(locationKey);
+  if (location === undefined) {
+    return;
+  }
+
+  if (typeof value === 'number') {
+    setArmorValue(result, location, value);
+    return;
+  }
+
+  if (!isSplitArmorValue(value)) {
+    return;
+  }
+
+  setArmorValue(result, location, value.front);
+  setRearArmorValue(result, location, value.rear);
 }
 
 /**
  * Map armor allocation from JSON format to IArmorAllocation
  */
 export function mapArmorAllocation(
-  allocation:
-    | Record<string, number | { front: number; rear: number }>
-    | undefined,
+  allocation: Record<string, RawArmorValue> | undefined,
 ): IArmorAllocation {
   if (!allocation) {
     return createEmptyArmorAllocation();
@@ -399,33 +397,7 @@ export function mapArmorAllocation(
   const result = createEmptyArmorAllocation();
 
   for (const [locationKey, value] of Object.entries(allocation)) {
-    const location = mapMechLocation(locationKey);
-
-    if (location === undefined) {
-      continue;
-    }
-
-    if (typeof value === 'number') {
-      // Simple number - direct armor value
-      setArmorValue(result, location, value);
-    } else if (
-      typeof value === 'object' &&
-      value !== null &&
-      'front' in value &&
-      'rear' in value
-    ) {
-      // Object with front/rear
-      setArmorValue(result, location, value.front);
-
-      // Map rear armor
-      if (location === MechLocation.CENTER_TORSO) {
-        result.centerTorsoRear = value.rear;
-      } else if (location === MechLocation.LEFT_TORSO) {
-        result.leftTorsoRear = value.rear;
-      } else if (location === MechLocation.RIGHT_TORSO) {
-        result.rightTorsoRear = value.rear;
-      }
-    }
+    applyArmorAllocationEntry(result, locationKey, value);
   }
 
   return result;

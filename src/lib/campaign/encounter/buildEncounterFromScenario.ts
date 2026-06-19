@@ -78,33 +78,48 @@ export interface IScenarioGeneratedPayload {
 export function deriveVictoryConditions(
   scenarioType: string,
 ): readonly IVictoryCondition[] {
-  switch (scenarioType) {
-    case 'standup':
-    case 'breakthrough':
-      return [{ type: VictoryConditionType.DestroyAll }];
-    case 'hold_the_line':
-    case 'base_attack':
-      return [
-        { type: VictoryConditionType.Cripple, threshold: 50 },
-        { type: VictoryConditionType.TurnLimit, turnLimit: 15 },
-      ];
-    case 'chase':
-    case 'extraction':
-    case 'hide_and_seek':
-      return [
-        { type: VictoryConditionType.Cripple, threshold: 50 },
-        { type: VictoryConditionType.TurnLimit, turnLimit: 12 },
-      ];
-    case 'probe':
-    case 'recon_raid':
-      return [
-        { type: VictoryConditionType.Cripple, threshold: 40 },
-        { type: VictoryConditionType.TurnLimit, turnLimit: 10 },
-      ];
-    default:
-      return [{ type: VictoryConditionType.DestroyAll }];
-  }
+  return (
+    VICTORY_CONDITIONS_BY_SCENARIO[scenarioType] ?? [
+      { type: VictoryConditionType.DestroyAll },
+    ]
+  );
 }
+
+const VICTORY_CONDITIONS_BY_SCENARIO: Record<
+  string,
+  readonly IVictoryCondition[]
+> = {
+  standup: [{ type: VictoryConditionType.DestroyAll }],
+  breakthrough: [{ type: VictoryConditionType.DestroyAll }],
+  hold_the_line: [
+    { type: VictoryConditionType.Cripple, threshold: 50 },
+    { type: VictoryConditionType.TurnLimit, turnLimit: 15 },
+  ],
+  base_attack: [
+    { type: VictoryConditionType.Cripple, threshold: 50 },
+    { type: VictoryConditionType.TurnLimit, turnLimit: 15 },
+  ],
+  chase: [
+    { type: VictoryConditionType.Cripple, threshold: 50 },
+    { type: VictoryConditionType.TurnLimit, turnLimit: 12 },
+  ],
+  extraction: [
+    { type: VictoryConditionType.Cripple, threshold: 50 },
+    { type: VictoryConditionType.TurnLimit, turnLimit: 12 },
+  ],
+  hide_and_seek: [
+    { type: VictoryConditionType.Cripple, threshold: 50 },
+    { type: VictoryConditionType.TurnLimit, turnLimit: 12 },
+  ],
+  probe: [
+    { type: VictoryConditionType.Cripple, threshold: 40 },
+    { type: VictoryConditionType.TurnLimit, turnLimit: 10 },
+  ],
+  recon_raid: [
+    { type: VictoryConditionType.Cripple, threshold: 40 },
+    { type: VictoryConditionType.TurnLimit, turnLimit: 10 },
+  ],
+};
 
 // =============================================================================
 // Scenario Conditions → Map Config

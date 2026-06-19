@@ -185,7 +185,7 @@ export class DayPipelineRegistry {
    *
    * @param processor - The processor to register
    */
-  register(processor: IDayProcessor): void {
+  register = (processor: IDayProcessor): void => {
     const existingIndex = this.processors.findIndex(
       (p) => p.id === processor.id,
     );
@@ -194,36 +194,36 @@ export class DayPipelineRegistry {
     } else {
       this.processors.push(processor);
     }
-  }
+  };
 
   /**
    * Unregister a processor by ID.
    *
    * @param id - The processor ID to remove
    */
-  unregister(id: string): void {
+  unregister = (id: string): void => {
     this.processors = this.processors.filter((p) => p.id !== id);
-  }
+  };
 
   /**
    * Get all registered processors, sorted by phase (ascending).
    *
    * Within the same phase, processors are ordered by registration order.
    */
-  getProcessors(): readonly IDayProcessor[] {
+  getProcessors = (): readonly IDayProcessor[] => {
     return [...this.processors].sort((a, b) => a.phase - b.phase);
-  }
+  };
 
   /**
    * Get processors registered for a specific phase.
    *
    * @param phase - The phase to filter by
    */
-  getProcessorsByPhase(phase: DayPhase): readonly IDayProcessor[] {
+  getProcessorsByPhase = (phase: DayPhase): readonly IDayProcessor[] => {
     return this.processors
       .filter((p) => p.phase === phase)
       .sort((a, b) => a.phase - b.phase);
-  }
+  };
 
   /**
    * Process one day through all registered processors.
@@ -237,7 +237,7 @@ export class DayPipelineRegistry {
    * @param campaign - The campaign to process
    * @returns Aggregated result from all processors
    */
-  processDay(campaign: ICampaign): IDayPipelineResult {
+  processDay = (campaign: ICampaign): IDayPipelineResult => {
     const processedDate = campaign.currentDate;
     const sortedProcessors = this.getProcessors();
     const allEvents: IDayEvent[] = [];
@@ -294,7 +294,7 @@ export class DayPipelineRegistry {
       campaign: finalCampaign,
       processorsRun,
     };
-  }
+  };
 }
 
 // =============================================================================

@@ -18,6 +18,7 @@ import {
 import { AwardBadge } from './AwardBadge';
 import { AwardDetailModal } from './AwardDetailModal';
 import { getAwardIcon, getRarityStrokeWidth } from './awardIcons';
+import { RARITY_SORT_ORDER } from './awardRarityStyles';
 
 // =============================================================================
 // Types
@@ -54,13 +55,6 @@ interface AwardSummaryProps {
 // =============================================================================
 // Rarity Styling Helpers
 // =============================================================================
-
-const RARITY_ORDER: Record<AwardRarity, number> = {
-  [AwardRarity.Legendary]: 0,
-  [AwardRarity.Rare]: 1,
-  [AwardRarity.Uncommon]: 2,
-  [AwardRarity.Common]: 3,
-};
 
 const RARITY_LABELS: Record<AwardRarity, string> = {
   [AwardRarity.Legendary]: 'Legendary',
@@ -206,7 +200,8 @@ export function AwardSummary({
   // Sort earned awards by rarity (legendary first)
   const sortedEarnedAwards = useMemo(() => {
     return [...earnedAwards].sort(
-      (a, b) => RARITY_ORDER[a.award.rarity] - RARITY_ORDER[b.award.rarity],
+      (a, b) =>
+        RARITY_SORT_ORDER[a.award.rarity] - RARITY_SORT_ORDER[b.award.rarity],
     );
   }, [earnedAwards]);
 

@@ -1,7 +1,3 @@
-import type { IPhysicalAttackInput } from './types';
-
-import { calculatePunchDamage } from './damage';
-
 export type BrushOffAttackInvalidReason =
   | 'AttackerNotMek'
   | 'InvalidArmSelection'
@@ -244,10 +240,4 @@ export function getBrushOffAttackToHitModifiers(
   }
 
   return { possible: true, modifiers };
-}
-
-export function calculateBrushOffAttackDamage(
-  input: IPhysicalAttackInput,
-): number {
-  return calculatePunchDamage(input);
 }

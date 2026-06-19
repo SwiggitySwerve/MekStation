@@ -22,35 +22,77 @@ import { createEventBase } from '@/utils/gameplay/gameEvents/base';
 
 import { advanceObjectiveControl } from './objectiveEngine';
 
+interface IObjectiveLifecycleEventInput {
+  readonly gameId: string;
+  readonly sequence: number;
+  readonly turn: number;
+  readonly objectiveId: string;
+  readonly hexKey: string;
+  readonly phase?: GamePhase;
+}
+
+export interface ICreateObjectiveCapturedEventInput extends IObjectiveLifecycleEventInput {
+  readonly capturingSide: ObjectiveSide;
+}
+
 /**
  * Builds an `ObjectiveCaptured` event. Emitted when a marker's
  * `controlSide` changes to a concrete side.
  */
 export function createObjectiveCapturedEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  objectiveId: string,
-  hexKey: string,
-  capturingSide: ObjectiveSide,
-  phase: GamePhase = GamePhase.End,
+  input: ICreateObjectiveCapturedEventInput | string,
+  ...legacy:
+    | []
+    | [
+        sequence: number,
+        turn: number,
+        objectiveId: string,
+        hexKey: string,
+        capturingSide: ObjectiveSide,
+        phase?: GamePhase,
+      ]
 ): IGameEvent {
+  const [sequence, turn, objectiveId, hexKey, capturingSide, phase] =
+    legacy as [
+      number,
+      number,
+      string,
+      string,
+      ObjectiveSide,
+      GamePhase | undefined,
+    ];
+  const eventInput =
+    typeof input !== 'string'
+      ? input
+      : {
+          gameId: input,
+          sequence,
+          turn,
+          objectiveId,
+          hexKey,
+          capturingSide,
+          phase,
+        };
   const payload: IObjectiveCapturedPayload = {
-    objectiveId,
-    hexKey,
-    capturingSide,
-    turn,
+    objectiveId: eventInput.objectiveId,
+    hexKey: eventInput.hexKey,
+    capturingSide: eventInput.capturingSide,
+    turn: eventInput.turn,
   };
   return {
     ...createEventBase(
-      gameId,
-      sequence,
+      eventInput.gameId,
+      eventInput.sequence,
       GameEventType.ObjectiveCaptured,
-      turn,
-      phase,
+      eventInput.turn,
+      eventInput.phase ?? GamePhase.End,
     ),
     payload,
   };
+}
+
+export interface ICreateObjectiveLostEventInput extends IObjectiveLifecycleEventInput {
+  readonly losingSide: ObjectiveSide;
 }
 
 /**
@@ -58,27 +100,51 @@ export function createObjectiveCapturedEvent(
  * controlled becomes contested / neutral / flips.
  */
 export function createObjectiveLostEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  objectiveId: string,
-  hexKey: string,
-  losingSide: ObjectiveSide,
-  phase: GamePhase = GamePhase.End,
+  input: ICreateObjectiveLostEventInput | string,
+  ...legacy:
+    | []
+    | [
+        sequence: number,
+        turn: number,
+        objectiveId: string,
+        hexKey: string,
+        losingSide: ObjectiveSide,
+        phase?: GamePhase,
+      ]
 ): IGameEvent {
+  const [sequence, turn, objectiveId, hexKey, losingSide, phase] = legacy as [
+    number,
+    number,
+    string,
+    string,
+    ObjectiveSide,
+    GamePhase | undefined,
+  ];
+  const eventInput =
+    typeof input !== 'string'
+      ? input
+      : {
+          gameId: input,
+          sequence,
+          turn,
+          objectiveId,
+          hexKey,
+          losingSide,
+          phase,
+        };
   const payload: IObjectiveLostPayload = {
-    objectiveId,
-    hexKey,
-    losingSide,
-    turn,
+    objectiveId: eventInput.objectiveId,
+    hexKey: eventInput.hexKey,
+    losingSide: eventInput.losingSide,
+    turn: eventInput.turn,
   };
   return {
     ...createEventBase(
-      gameId,
-      sequence,
+      eventInput.gameId,
+      eventInput.sequence,
       GameEventType.ObjectiveLost,
-      turn,
-      phase,
+      eventInput.turn,
+      eventInput.phase ?? GamePhase.End,
     ),
     payload,
   };

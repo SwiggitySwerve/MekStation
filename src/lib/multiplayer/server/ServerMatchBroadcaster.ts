@@ -30,38 +30,38 @@ export class ServerMatchBroadcaster {
    * Register a socket so subsequent `broadcast` calls reach it.
    * Idempotent — re-registering the same socket is a no-op.
    */
-  register(socket: IMatchSocket): void {
+  register = (socket: IMatchSocket): void => {
     this.sockets.add(socket);
-  }
+  };
 
   /**
    * Drop a socket from the fan-out set. Idempotent. Does NOT close the
    * underlying socket — that's the caller's responsibility.
    */
-  unregister(socket: IMatchSocket): void {
+  unregister = (socket: IMatchSocket): void => {
     this.sockets.delete(socket);
-  }
+  };
 
   /**
    * Snapshot the current socket count. Test/observability hook.
    */
-  count(): number {
+  count = (): number => {
     return this.sockets.size;
-  }
+  };
 
   /**
    * Snapshot the registered sockets. Returned as an array so callers
    * can iterate without observing concurrent mutations to the set.
    */
-  snapshot(): readonly IMatchSocket[] {
+  snapshot = (): readonly IMatchSocket[] => {
     return Array.from(this.sockets);
-  }
+  };
 
   /**
    * Send to every attached socket. Failures (closed socket, etc.) are
    * swallowed — the heartbeat timer will reap dead sockets.
    */
-  broadcast(message: IServerMessage): void {
+  broadcast = (message: IServerMessage): void => {
     const payload = JSON.stringify(message);
     this.sockets.forEach((socket) => {
       try {
@@ -70,18 +70,18 @@ export class ServerMatchBroadcaster {
         // Socket is dead — let the heartbeat / close handler clean up.
       }
     });
-  }
+  };
 
   /**
    * Send to a single socket, swallowing send errors. Used for join +
    * replay paths where we don't want a single bad socket to throw out
    * of the upgrade handler.
    */
-  safeSend(socket: IMatchSocket, message: IServerMessage): void {
+  safeSend = (socket: IMatchSocket, message: IServerMessage): void => {
     try {
       socket.send(JSON.stringify(message));
     } catch {
       // ignore
     }
-  }
+  };
 }

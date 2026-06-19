@@ -19,6 +19,7 @@ import {
 
 import { AwardBadge } from './AwardBadge';
 import { AwardDetailModal } from './AwardDetailModal';
+import { RARITY_SORT_ORDER } from './awardRarityStyles';
 
 // =============================================================================
 // Types
@@ -45,13 +46,6 @@ const _CATEGORY_LABELS: Record<AwardCategory, string> = {
   [AwardCategory.Campaign]: 'Campaign',
   [AwardCategory.Service]: 'Service',
   [AwardCategory.Special]: 'Special',
-};
-
-const RARITY_ORDER: Record<AwardRarity, number> = {
-  [AwardRarity.Legendary]: 0,
-  [AwardRarity.Rare]: 1,
-  [AwardRarity.Uncommon]: 2,
-  [AwardRarity.Common]: 3,
 };
 
 // =============================================================================
@@ -108,7 +102,8 @@ export function AwardGrid({
     switch (sortBy) {
       case 'rarity':
         awards.sort((a, b) => {
-          const rarityDiff = RARITY_ORDER[a.rarity] - RARITY_ORDER[b.rarity];
+          const rarityDiff =
+            RARITY_SORT_ORDER[a.rarity] - RARITY_SORT_ORDER[b.rarity];
           if (rarityDiff !== 0) return rarityDiff;
           return a.sortOrder - b.sortOrder;
         });

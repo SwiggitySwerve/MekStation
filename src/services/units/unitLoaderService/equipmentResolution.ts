@@ -16,6 +16,19 @@ import { IEquipmentItem } from '@/types/equipment';
 
 type TechHint = 'clan' | 'is';
 
+interface IResolvedEquipment {
+  equipmentDef: IEquipmentItem | undefined;
+  resolvedId: string;
+}
+
+interface IEquipmentVariantCandidates {
+  baseId: string;
+  isId: string;
+  clanId: string;
+  isDef: IEquipmentItem | undefined;
+  clanDef: IEquipmentItem | undefined;
+}
+
 export const CRITICAL_SLOTS_LOCATION_KEYS: Partial<
   Readonly<Record<MechLocation, string>>
 > = {
@@ -87,6 +100,122 @@ function stripTechPrefixFromNormalizedKey(
   }
 
   return normalized;
+}
+
+function resolveCandidate(
+  equipmentDef: IEquipmentItem | undefined,
+  resolvedId: string,
+): IResolvedEquipment | null {
+  return equipmentDef ? { equipmentDef, resolvedId } : null;
+}
+
+function buildEquipmentVariantCandidates(
+  normalizedId: string,
+): IEquipmentVariantCandidates {
+  const baseId = normalizedId.startsWith('clan-')
+    ? normalizedId.slice(5)
+    : normalizedId;
+
+  // Canonical IDs in our catalog generally follow the pattern:
+  // - Inner Sphere: <id>
+  // - Clan: clan-<id>
+  const isId = baseId;
+  const clanId = `clan-${baseId}`;
+  const lookupService = getEquipmentLookupService();
+
+  return {
+    baseId,
+    isId,
+    clanId,
+    isDef: lookupService.getById(isId),
+    clanDef: lookupService.getById(clanId),
+  };
+}
+
+function resolveVariantByTechBase(
+  candidates: IEquipmentVariantCandidates,
+  techBase: TechBase,
+): IResolvedEquipment | null {
+  return techBase === TechBase.CLAN
+    ? resolveCandidate(candidates.clanDef, candidates.clanId)
+    : resolveCandidate(candidates.isDef, candidates.isId);
+}
+
+function resolveMixedTechVariant(
+  candidates: IEquipmentVariantCandidates,
+  unitTechBaseMode: TechBaseMode,
+  locationCriticalSlots: ReadonlyArray<string | null> | undefined,
+): IResolvedEquipment | null {
+  if (
+    unitTechBaseMode !== TechBaseMode.MIXED ||
+    (!candidates.isDef && !candidates.clanDef)
+  ) {
+    return null;
+  }
+
+  const candidateName = (candidates.isDef ?? candidates.clanDef)?.name;
+  const equipmentNameKey = candidateName
+    ? normalizeMatchKey(stripTechMarkersFromName(candidateName))
+    : normalizeMatchKey(candidates.baseId);
+
+  const hintedTechBase = inferPreferredTechBaseFromCriticalSlots(
+    locationCriticalSlots,
+    equipmentNameKey,
+  );
+
+  return hintedTechBase
+    ? resolveVariantByTechBase(candidates, hintedTechBase)
+    : null;
+}
+
+function resolveUnitPreferredVariant(
+  candidates: IEquipmentVariantCandidates,
+  unitTechBaseMode: TechBaseMode,
+): IResolvedEquipment | null {
+  const preferredTechBase =
+    unitTechBaseMode === TechBaseMode.CLAN
+      ? TechBase.CLAN
+      : TechBase.INNER_SPHERE;
+
+  return resolveVariantByTechBase(candidates, preferredTechBase);
+}
+
+function resolveAnyVariant(
+  candidates: IEquipmentVariantCandidates,
+): IResolvedEquipment | null {
+  return (
+    resolveCandidate(candidates.isDef, candidates.isId) ??
+    resolveCandidate(candidates.clanDef, candidates.clanId)
+  );
+}
+
+function resolveRegistryLookupToken(token: string): IResolvedEquipment | null {
+  const lookupResult = getEquipmentRegistry().lookup(token);
+
+  if (!lookupResult.found || !lookupResult.equipment) {
+    return null;
+  }
+
+  const resolvedId = lookupResult.equipment.id;
+  const resolvedEquipment = getEquipmentLookupService().getById(resolvedId);
+
+  return resolveCandidate(resolvedEquipment, resolvedId);
+}
+
+function resolveRegistryAlias(
+  id: string,
+  normalizedId: string,
+): IResolvedEquipment | null {
+  const registry = getEquipmentRegistry();
+
+  if (!registry.isReady()) {
+    return null;
+  }
+
+  return (
+    resolveRegistryLookupToken(id) ??
+    (normalizedId !== id ? resolveRegistryLookupToken(normalizedId) : null)
+  );
 }
 
 export function inferPreferredTechBaseFromCriticalSlots(
@@ -194,94 +323,22 @@ export function resolveEquipmentId(
   unitTechBase: TechBase,
   unitTechBaseMode: TechBaseMode,
   locationCriticalSlots: ReadonlyArray<string | null> | undefined,
-): { equipmentDef: IEquipmentItem | undefined; resolvedId: string } {
+): IResolvedEquipment {
   const normalizedId = normalizeEquipmentId(id, unitTechBase);
-  const baseId = normalizedId.startsWith('clan-')
-    ? normalizedId.slice(5)
-    : normalizedId;
 
-  // Canonical IDs in our catalog generally follow the pattern:
-  // - Inner Sphere: <id>
-  // - Clan: clan-<id>
-  const isId = baseId;
-  const clanId = `clan-${baseId}`;
+  const candidates = buildEquipmentVariantCandidates(normalizedId);
 
-  const isDef = getEquipmentLookupService().getById(isId);
-  const clanDef = getEquipmentLookupService().getById(clanId);
-
-  // For mixed-tech units, use critical slot tokens as a per-item hint for Clan vs IS variants.
-  if (unitTechBaseMode === TechBaseMode.MIXED && (isDef || clanDef)) {
-    const candidateName = (isDef ?? clanDef)?.name;
-    const equipmentNameKey = candidateName
-      ? normalizeMatchKey(stripTechMarkersFromName(candidateName))
-      : normalizeMatchKey(baseId);
-
-    const hintedTechBase = inferPreferredTechBaseFromCriticalSlots(
+  return (
+    resolveMixedTechVariant(
+      candidates,
+      unitTechBaseMode,
       locationCriticalSlots,
-      equipmentNameKey,
-    );
-
-    if (hintedTechBase === TechBase.CLAN && clanDef) {
-      return { equipmentDef: clanDef, resolvedId: clanId };
+    ) ??
+    resolveUnitPreferredVariant(candidates, unitTechBaseMode) ??
+    resolveAnyVariant(candidates) ??
+    resolveRegistryAlias(id, normalizedId) ?? {
+      equipmentDef: undefined,
+      resolvedId: normalizedId,
     }
-    if (hintedTechBase === TechBase.INNER_SPHERE && isDef) {
-      return { equipmentDef: isDef, resolvedId: isId };
-    }
-  }
-
-  // Unit-level preference: Clan units prefer clan-* variants when available.
-  const preferredTechBase: TechBase =
-    unitTechBaseMode === TechBaseMode.CLAN
-      ? TechBase.CLAN
-      : TechBase.INNER_SPHERE;
-
-  if (preferredTechBase === TechBase.CLAN && clanDef) {
-    return { equipmentDef: clanDef, resolvedId: clanId };
-  }
-  if (preferredTechBase === TechBase.INNER_SPHERE && isDef) {
-    return { equipmentDef: isDef, resolvedId: isId };
-  }
-
-  // Fallback: return whichever variant exists.
-  if (isDef) {
-    return { equipmentDef: isDef, resolvedId: isId };
-  }
-  if (clanDef) {
-    return { equipmentDef: clanDef, resolvedId: clanId };
-  }
-
-  // Final fallback: EquipmentRegistry name-based alias resolution
-  const registry = getEquipmentRegistry();
-  if (registry.isReady()) {
-    const lookupResult = registry.lookup(id);
-    if (lookupResult.found && lookupResult.equipment) {
-      const resolvedEquipment = getEquipmentLookupService().getById(
-        lookupResult.equipment.id,
-      );
-      if (resolvedEquipment) {
-        return {
-          equipmentDef: resolvedEquipment,
-          resolvedId: lookupResult.equipment.id,
-        };
-      }
-    }
-
-    if (normalizedId !== id) {
-      const normalizedLookup = registry.lookup(normalizedId);
-      if (normalizedLookup.found && normalizedLookup.equipment) {
-        const resolvedEquipment = getEquipmentLookupService().getById(
-          normalizedLookup.equipment.id,
-        );
-        if (resolvedEquipment) {
-          return {
-            equipmentDef: resolvedEquipment,
-            resolvedId: normalizedLookup.equipment.id,
-          };
-        }
-      }
-    }
-  }
-
-  // Not found
-  return { equipmentDef: undefined, resolvedId: normalizedId };
+  );
 }

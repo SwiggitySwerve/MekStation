@@ -9,6 +9,7 @@
 
 import type { Meta, StoryObj } from '@storybook/react';
 
+import { paddedDarkCampaignStoryParameters } from '../campaignStoryParameters';
 import { SAMPLE_OFFERS } from './__fixtures__/commandFixtures';
 import { CommandError } from './CommandStates';
 import { ContractMarketPanel } from './ContractMarketPanel';
@@ -16,13 +17,7 @@ import { ContractMarketPanel } from './ContractMarketPanel';
 const meta = {
   title: 'Campaign/Command/ContractMarketPanel',
   component: ContractMarketPanel,
-  parameters: {
-    layout: 'padded',
-    backgrounds: {
-      default: 'dark',
-      values: [{ name: 'dark', value: '#0f172a' }],
-    },
-  },
+  parameters: paddedDarkCampaignStoryParameters,
   tags: ['autodocs'],
 } satisfies Meta<typeof ContractMarketPanel>;
 

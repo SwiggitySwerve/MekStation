@@ -2,7 +2,7 @@ import type { WeaponFireMode } from '@/types/gameplay';
 
 import { isIndirectFireCapable } from '@/utils/gameplay/indirectFire';
 
-import type { GetFn, SetFn } from './useGameplayStore.combatFlows';
+import type { GetFn, SetFn } from './useGameplayStore.combatFlowTypes';
 
 import { InteractivePhase } from './useGameplayStore.helpers';
 

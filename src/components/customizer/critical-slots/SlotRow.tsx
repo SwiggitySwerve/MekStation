@@ -129,6 +129,224 @@ function getSlotContentClasses(slot: SlotContent): string {
   return 'bg-surface-raised border-border-theme text-slate-300';
 }
 
+function isFixedEquipmentOnOmni(slot: SlotContent, isOmni: boolean): boolean {
+  return isOmni && slot.type === 'equipment' && slot.isOmniPodMounted === false;
+}
+
+function canUnassignSlot(slot: SlotContent, isFixedOnOmni: boolean): boolean {
+  return (
+    !isFixedOnOmni &&
+    (slot.type === 'equipment' ||
+      (slot.type === 'system' && !!slot.equipmentId))
+  );
+}
+
+interface SlotStyleState {
+  slot: SlotContent;
+  isAssignable: boolean;
+  isDragOver: boolean;
+}
+
+interface SlotInteractivityState {
+  canDrag: boolean;
+  isTouchDevice: boolean;
+  isFixedOnOmni: boolean;
+  canUnassign: boolean;
+}
+
+interface SlotDragStartState {
+  canDrag: boolean;
+  equipmentId?: string;
+  onDragStart?: (equipmentId: string) => void;
+  setIsDragging: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+interface SlotDropState {
+  slot: SlotContent;
+  onDrop: (equipmentId: string) => void;
+  setIsDragOver: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+interface SlotRemoveState {
+  canUnassign: boolean;
+  onRemove: () => void;
+}
+
+interface SlotContextMenuState extends SlotRemoveState {
+  setContextMenu: React.Dispatch<
+    React.SetStateAction<{ x: number; y: number } | null>
+  >;
+}
+
+interface SlotTouchState extends SlotContextMenuState {
+  isTouchDevice: boolean;
+  setLongPressTimer: React.Dispatch<
+    React.SetStateAction<ReturnType<typeof setTimeout> | null>
+  >;
+}
+
+interface SlotKeyState extends SlotRemoveState {
+  onClick: () => void;
+}
+
+function getStyleClasses({
+  slot,
+  isAssignable,
+  isDragOver,
+}: SlotStyleState): string {
+  if (isDragOver) {
+    return slot.type === 'empty' && isAssignable
+      ? 'bg-green-800 border-green-400 text-green-200 scale-[1.02]'
+      : 'bg-red-900/70 border-red-400 text-red-200';
+  }
+
+  if (isAssignable && slot.type === 'empty') {
+    return 'bg-green-900/60 border-green-500 text-green-300';
+  }
+
+  return getSlotContentClasses(slot);
+}
+
+function getDisplayName(slot: SlotContent, isOmni: boolean): string {
+  if (slot.type === 'empty') return '- Empty -';
+  if (!slot.name) return '';
+
+  const name = abbreviateEquipmentName(slot.name);
+  if (!isOmni || slot.type !== 'equipment') return name;
+
+  return `${name}${slot.isOmniPodMounted ? ' (Pod)' : ' (Fixed)'}`;
+}
+
+function getCursorClasses({
+  canDrag,
+  isTouchDevice,
+  isFixedOnOmni,
+}: SlotInteractivityState): string {
+  if (canDrag) {
+    return isTouchDevice
+      ? 'cursor-pointer'
+      : 'cursor-grab active:cursor-grabbing';
+  }
+  return isFixedOnOmni ? 'cursor-not-allowed' : 'cursor-pointer';
+}
+
+function getOpacityClasses({
+  isDragging,
+  isFixedOnOmni,
+}: {
+  isDragging: boolean;
+  isFixedOnOmni: boolean;
+}): string {
+  if (isDragging) return 'opacity-50';
+  return isFixedOnOmni ? 'opacity-60' : '';
+}
+
+function getTitle({
+  isFixedOnOmni,
+  canDrag,
+  canUnassign,
+  isTouchDevice,
+}: SlotInteractivityState): string | undefined {
+  if (isFixedOnOmni) return 'Fixed equipment - part of OmniMech base chassis';
+  if (canDrag) {
+    return isTouchDevice
+      ? 'Tap to select, long-press to unassign'
+      : 'Drag to move, double-click or right-click to unassign';
+  }
+  if (!canUnassign) return undefined;
+
+  return isTouchDevice
+    ? 'Long-press to unassign'
+    : 'Double-click or right-click to unassign';
+}
+
+function getSlotAriaLabel(slot: SlotContent): string {
+  return slot.name
+    ? `Slot ${slot.index + 1}: ${slot.name}`
+    : `Empty slot ${slot.index + 1}`;
+}
+
+function handleSlotDragStart(
+  e: React.DragEvent,
+  state: SlotDragStartState,
+): void {
+  const { canDrag, equipmentId, onDragStart, setIsDragging } = state;
+  if (!canDrag || !equipmentId) {
+    e.preventDefault();
+    return;
+  }
+
+  e.dataTransfer.setData('text/equipment-id', equipmentId);
+  e.dataTransfer.effectAllowed = 'move';
+  setIsDragging(true);
+  onDragStart?.(equipmentId);
+}
+
+function handleSlotDrop(e: React.DragEvent, state: SlotDropState): void {
+  e.preventDefault();
+  state.setIsDragOver(false);
+  const equipmentId = e.dataTransfer.getData('text/equipment-id');
+
+  if (equipmentId && state.slot.type === 'empty') {
+    state.onDrop(equipmentId);
+  }
+}
+
+function handleSlotDoubleClick(state: SlotRemoveState): void {
+  if (state.canUnassign) {
+    state.onRemove();
+  }
+}
+
+function handleSlotContextMenu(
+  e: React.MouseEvent,
+  state: SlotContextMenuState,
+): void {
+  if (state.canUnassign) {
+    e.preventDefault();
+    state.setContextMenu({ x: e.clientX, y: e.clientY });
+  }
+}
+
+function handleSlotTouchStart(
+  e: React.TouchEvent,
+  state: SlotTouchState,
+): void {
+  if (!state.canUnassign || !state.isTouchDevice) return;
+
+  const timer = setTimeout(() => {
+    const touch = e.touches[0];
+    state.setContextMenu({ x: touch.clientX, y: touch.clientY });
+  }, 500);
+
+  state.setLongPressTimer(timer);
+}
+
+function clearLongPressTimer(
+  longPressTimer: ReturnType<typeof setTimeout> | null,
+  setLongPressTimer: React.Dispatch<
+    React.SetStateAction<ReturnType<typeof setTimeout> | null>
+  >,
+): void {
+  if (longPressTimer) {
+    clearTimeout(longPressTimer);
+    setLongPressTimer(null);
+  }
+}
+
+function handleSlotKeyDown(e: React.KeyboardEvent, state: SlotKeyState): void {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    state.onClick();
+    return;
+  }
+
+  if ((e.key === 'Delete' || e.key === 'Backspace') && state.canUnassign) {
+    e.preventDefault();
+    state.onRemove();
+  }
+}
+
 /**
  * Single critical slot row
  * Memoized for performance with many slots
@@ -162,142 +380,19 @@ export const SlotRow = memo(function SlotRow({
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
   }, []);
 
-  // Check if this is fixed equipment on an OmniMech (cannot be removed)
-  const isFixedOnOmni =
-    isOmni && slot.type === 'equipment' && slot.isOmniPodMounted === false;
-
-  // Check if this slot has equipment that can be unassigned
-  // Equipment and system types can be unassigned (moved back to unallocated)
-  // Only truly fixed items (like cockpit, gyro) cannot be unassigned
-  // On OmniMechs, fixed equipment (isOmniPodMounted === false) also cannot be unassigned
-  const canUnassign =
-    !isFixedOnOmni &&
-    (slot.type === 'equipment' || (slot.type === 'system' && slot.equipmentId)); // System with equipment ID can be unassigned
-
-  // Slots with equipment can be dragged to other locations or back to tray
-  // Fixed equipment on OmniMechs cannot be dragged
+  const isFixedOnOmni = isFixedEquipmentOnOmni(slot, isOmni);
+  const canUnassign = canUnassignSlot(slot, isFixedOnOmni);
   const canDrag = !!(slot.equipmentId && canUnassign);
-
-  // Determine styling classes - assignable/drag states override content classes
-  // This is needed because Tailwind classes don't override by className order
-  const getStyleClasses = (): string => {
-    // Drag over state has highest priority
-    if (isDragOver) {
-      // Empty AND assignable = valid drop target (green)
-      // Empty but NOT assignable = invalid drop target (red) - not enough space
-      // Not empty = invalid drop target (red) - slot occupied
-      if (slot.type === 'empty' && isAssignable) {
-        return 'bg-green-800 border-green-400 text-green-200 scale-[1.02]';
-      }
-      return 'bg-red-900/70 border-red-400 text-red-200';
-    }
-    // Assignable empty slots show green highlight (when equipment is selected)
-    if (isAssignable && slot.type === 'empty') {
-      return 'bg-green-900/60 border-green-500 text-green-300';
-    }
-    // Default content classes
-    return getSlotContentClasses(slot);
+  const interactivityState = {
+    canDrag,
+    isTouchDevice,
+    isFixedOnOmni,
+    canUnassign,
   };
-
-  const styleClasses = getStyleClasses();
+  const styleClasses = getStyleClasses({ slot, isAssignable, isDragOver });
   const selectionClasses = isSelected ? 'ring-2 ring-accent' : '';
-
-  // Handle drag start (this slot is the source)
-  const handleDragStart = (e: React.DragEvent) => {
-    if (!canDrag || !slot.equipmentId) {
-      e.preventDefault();
-      return;
-    }
-    e.dataTransfer.setData('text/equipment-id', slot.equipmentId);
-    e.dataTransfer.effectAllowed = 'move';
-    setIsDragging(true);
-    // Notify parent so equipment can be selected and valid slots highlighted
-    onDragStartProp?.(slot.equipmentId);
-  };
-
-  const handleDragEnd = () => {
-    setIsDragging(false);
-  };
-
-  // Handle drag events (this slot is the target)
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragOver(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const equipmentId = e.dataTransfer.getData('text/equipment-id');
-    // Allow drop on empty slots - parent handler will validate if there's enough space
-    // isAssignable check is for visual feedback, but we let parent do final validation
-    // This handles both: drag from tray (selection highlights work) and drag between slots
-    if (equipmentId && slot.type === 'empty') {
-      onDrop(equipmentId);
-    }
-  };
-
-  // Double-click to unassign any equipment
-  const handleDoubleClick = () => {
-    if (canUnassign) {
-      onRemove();
-    }
-  };
-
-  // Right-click to show context menu
-  const handleContextMenu = (e: React.MouseEvent) => {
-    if (canUnassign) {
-      e.preventDefault();
-      setContextMenu({ x: e.clientX, y: e.clientY });
-    }
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!canUnassign || !isTouchDevice) return;
-
-    const timer = setTimeout(() => {
-      const touch = e.touches[0];
-      setContextMenu({ x: touch.clientX, y: touch.clientY });
-    }, 500);
-
-    setLongPressTimer(timer);
-  };
-
-  const handleTouchEnd = () => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
-    }
-  };
-
-  const handleTouchMove = () => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
-    }
-  };
-
-  // Determine display name with OmniMech postfix and abbreviations
-  let displayName: string;
-  if (slot.type === 'empty') {
-    displayName = '- Empty -';
-  } else if (slot.name) {
-    // Apply abbreviations for compact display (e.g., (Clan) -> (C))
-    let name = abbreviateEquipmentName(slot.name);
-    // Add (Pod) or (Fixed) postfix for OmniMech equipment
-    if (isOmni && slot.type === 'equipment') {
-      const postfix = slot.isOmniPodMounted ? ' (Pod)' : ' (Fixed)';
-      name = name + postfix;
-    }
-    displayName = name;
-  } else {
-    // Continuation of multi-slot equipment - show empty or continuation marker
-    displayName = '';
-  }
+  const displayName = getDisplayName(slot, isOmni);
+  const title = getTitle(interactivityState);
 
   return (
     <>
@@ -305,48 +400,48 @@ export const SlotRow = memo(function SlotRow({
         role="gridcell"
         tabIndex={0}
         draggable={canDrag}
-        aria-label={
-          slot.name
-            ? `Slot ${slot.index + 1}: ${slot.name}`
-            : `Empty slot ${slot.index + 1}`
-        }
+        aria-label={getSlotAriaLabel(slot)}
         aria-selected={isSelected}
-        className={`border-border-theme-subtle my-0.5 flex items-center rounded-sm border transition-all focus:outline-none ${canDrag ? (isTouchDevice ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing') : isFixedOnOmni ? 'cursor-not-allowed' : 'cursor-pointer'} ${isDragging ? 'opacity-50' : isFixedOnOmni ? 'opacity-60' : ''} ${isAssignable ? 'focus:ring-1 focus:ring-green-400 focus:ring-inset' : ''} ${styleClasses} ${selectionClasses} ${compact ? 'px-1 py-0.5 text-[10px] sm:text-xs' : 'px-1 py-0.5 text-[10px] sm:px-2 sm:py-1 sm:text-sm'} `}
+        className={`border-border-theme-subtle my-0.5 flex items-center rounded-sm border transition-all focus:outline-none ${getCursorClasses(interactivityState)} ${getOpacityClasses({ isDragging, isFixedOnOmni })} ${isAssignable ? 'focus:ring-1 focus:ring-green-400 focus:ring-inset' : ''} ${styleClasses} ${selectionClasses} ${compact ? 'px-1 py-0.5 text-[10px] sm:text-xs' : 'px-1 py-0.5 text-[10px] sm:px-2 sm:py-1 sm:text-sm'} `}
         onClick={onClick}
-        onDoubleClick={handleDoubleClick}
-        onContextMenu={handleContextMenu}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onClick();
-          } else if (e.key === 'Delete' || e.key === 'Backspace') {
-            if (canUnassign) {
-              e.preventDefault();
-              onRemove();
-            }
-          }
-        }}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        onTouchMove={handleTouchMove}
-        title={
-          isFixedOnOmni
-            ? 'Fixed equipment - part of OmniMech base chassis'
-            : canDrag
-              ? isTouchDevice
-                ? 'Tap to select, long-press to unassign'
-                : 'Drag to move, double-click or right-click to unassign'
-              : canUnassign
-                ? isTouchDevice
-                  ? 'Long-press to unassign'
-                  : 'Double-click or right-click to unassign'
-                : undefined
+        onDoubleClick={() => handleSlotDoubleClick({ canUnassign, onRemove })}
+        onContextMenu={(e) =>
+          handleSlotContextMenu(e, { canUnassign, onRemove, setContextMenu })
         }
+        onKeyDown={(e) => {
+          handleSlotKeyDown(e, { canUnassign, onClick, onRemove });
+        }}
+        onDragStart={(e) =>
+          handleSlotDragStart(e, {
+            canDrag,
+            equipmentId: slot.equipmentId,
+            onDragStart: onDragStartProp,
+            setIsDragging,
+          })
+        }
+        onDragEnd={() => setIsDragging(false)}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragOver(true);
+        }}
+        onDragLeave={() => setIsDragOver(false)}
+        onDrop={(e) => handleSlotDrop(e, { slot, onDrop, setIsDragOver })}
+        onTouchStart={(e) =>
+          handleSlotTouchStart(e, {
+            canUnassign,
+            onRemove,
+            setContextMenu,
+            isTouchDevice,
+            setLongPressTimer,
+          })
+        }
+        onTouchEnd={() =>
+          clearLongPressTimer(longPressTimer, setLongPressTimer)
+        }
+        onTouchMove={() =>
+          clearLongPressTimer(longPressTimer, setLongPressTimer)
+        }
+        title={title}
       >
         <span className="flex-1 truncate">{displayName}</span>
       </div>

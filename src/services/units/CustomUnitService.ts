@@ -67,7 +67,7 @@ export class CustomUnitService implements ICustomUnitService {
    * @param overwriteId - Optional ID of existing unit to overwrite
    * @returns The unit ID (either generated or the overwriteId)
    */
-  async create(unit: IFullUnit, overwriteId?: string): Promise<string> {
+  create = async (unit: IFullUnit, overwriteId?: string): Promise<string> => {
     await this.ensureInitialized();
 
     // If overwriting, use the existing ID; otherwise generate a new one
@@ -77,12 +77,12 @@ export class CustomUnitService implements ICustomUnitService {
     await getIndexedDBService().put(STORES.CUSTOM_UNITS, id, unitWithId);
 
     return id;
-  }
+  };
 
   /**
    * Update an existing custom unit
    */
-  async update(id: string, unit: IFullUnit): Promise<void> {
+  update = async (id: string, unit: IFullUnit): Promise<void> => {
     await this.ensureInitialized();
 
     const existing = await this.getById(id);
@@ -92,56 +92,56 @@ export class CustomUnitService implements ICustomUnitService {
 
     const unitWithId = { ...unit, id };
     await getIndexedDBService().put(STORES.CUSTOM_UNITS, id, unitWithId);
-  }
+  };
 
   /**
    * Delete a custom unit
    */
-  async delete(id: string): Promise<void> {
+  delete = async (id: string): Promise<void> => {
     await this.ensureInitialized();
     await getIndexedDBService().delete(STORES.CUSTOM_UNITS, id);
-  }
+  };
 
   /**
    * Get a custom unit by ID
    */
-  async getById(id: string): Promise<IFullUnit | null> {
+  getById = async (id: string): Promise<IFullUnit | null> => {
     await this.ensureInitialized();
     const unit = await getIndexedDBService().get<IFullUnit>(
       STORES.CUSTOM_UNITS,
       id,
     );
     return unit || null;
-  }
+  };
 
   /**
    * List all custom units as index entries
    */
-  async list(): Promise<readonly IUnitIndexEntry[]> {
+  list = async (): Promise<readonly IUnitIndexEntry[]> => {
     await this.ensureInitialized();
     const units = await getIndexedDBService().getAll<IFullUnit>(
       STORES.CUSTOM_UNITS,
     );
 
     return units.map((unit) => this.toIndexEntry(unit));
-  }
+  };
 
   /**
    * Check if a custom unit exists
    */
-  async exists(id: string): Promise<boolean> {
+  exists = async (id: string): Promise<boolean> => {
     const unit = await this.getById(id);
     return unit !== null;
-  }
+  };
 
   /**
    * Find a custom unit by chassis and variant name
    * Uses case-insensitive comparison
    */
-  async findByName(
+  findByName = async (
     chassis: string,
     variant: string,
-  ): Promise<IFullUnit | null> {
+  ): Promise<IFullUnit | null> => {
     await this.ensureInitialized();
 
     const normalizedChassis = chassis.trim().toLowerCase();
@@ -160,13 +160,13 @@ export class CustomUnitService implements ICustomUnitService {
     });
 
     return match || null;
-  }
+  };
 
   /**
    * List all custom unit names for quick lookup
    * More efficient than loading full unit data
    */
-  async listNames(): Promise<readonly IUnitNameEntry[]> {
+  listNames = async (): Promise<readonly IUnitNameEntry[]> => {
     await this.ensureInitialized();
 
     const units = await getIndexedDBService().getAll<IFullUnit>(
@@ -179,7 +179,7 @@ export class CustomUnitService implements ICustomUnitService {
       variant: unit.variant || '',
       fullName: `${unit.chassis || ''} ${unit.variant || ''}`.trim(),
     }));
-  }
+  };
 
   /**
    * Convert full unit to index entry

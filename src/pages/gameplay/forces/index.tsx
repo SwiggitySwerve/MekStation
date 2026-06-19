@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
  */
 import { useEffect, useState, useCallback } from 'react';
 
+import { InlineErrorMessage } from '@/components/common/InlineErrorMessage';
 import {
   SkeletonText,
   SkeletonInput,
@@ -166,12 +167,7 @@ export default function ForceRosterPage(): React.ReactElement {
         </div>
       </Card>
 
-      {/* Error Display */}
-      {error && (
-        <div className="mb-6 rounded-lg border border-red-600/30 bg-red-900/20 p-4">
-          <p className="text-sm text-red-400">{error}</p>
-        </div>
-      )}
+      <InlineErrorMessage message={error} />
 
       {/* Force Grid */}
       {filteredForces.length === 0 ? (

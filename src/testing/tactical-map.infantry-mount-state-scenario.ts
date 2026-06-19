@@ -6,17 +6,13 @@ import type {
 } from '@/types/gameplay';
 import type { ICommittedMovementValidationInput } from '@/utils/gameplay/movement/commitValidation';
 
-import {
-  Facing,
-  GameSide,
-  LockState,
-  MovementType,
-  TerrainType,
-} from '@/types/gameplay';
+import { Facing, GameSide, MovementType, TerrainType } from '@/types/gameplay';
 import { createHexGrid } from '@/utils/gameplay/hexGrid';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
+
+import { createTacticalMapUnitState } from './tactical-map.fixture-helpers';
 
 const bridgeOrigin = { q: 0, r: 0 } as const;
 const bridgeDestination = { q: 1, r: 0 } as const;
@@ -48,24 +44,12 @@ export function tacticalMapInfantryMountStateGrid(): IHexGrid {
   return { ...grid, hexes };
 }
 
-const baseUnit: IUnitGameState = {
+const baseUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: bridgeOrigin,
   facing: Facing.Northeast,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  lockState: LockState.Pending,
-};
+});
 
 const capability: IMovementCapability = {
   walkMP: 3,

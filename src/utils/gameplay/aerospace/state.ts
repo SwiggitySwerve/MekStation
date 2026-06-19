@@ -128,6 +128,19 @@ export interface IAerospaceCombatState {
 // Arc lookup helpers
 // ============================================================================
 
+const arcArmorReaders: Record<
+  AerospaceArc,
+  (armor: IAerospaceArcArmor) => number
+> = {
+  [AerospaceArc.NOSE]: (armor) => armor.nose,
+  [AerospaceArc.LEFT_WING]: (armor) => armor.leftWing ?? 0,
+  [AerospaceArc.RIGHT_WING]: (armor) => armor.rightWing ?? 0,
+  [AerospaceArc.LEFT_SIDE]: (armor) => armor.leftSide ?? 0,
+  [AerospaceArc.RIGHT_SIDE]: (armor) => armor.rightSide ?? 0,
+  [AerospaceArc.AFT]: (armor) => armor.aft,
+  [AerospaceArc.FUSELAGE]: () => 0,
+};
+
 /**
  * Read armor for a given arc from the combat state.
  * Returns 0 when the arc is not present on this aerospace sub-type
@@ -137,25 +150,28 @@ export function getArcArmor(
   state: IAerospaceCombatState,
   arc: AerospaceArc,
 ): number {
-  switch (arc) {
-    case AerospaceArc.NOSE:
-      return state.armorByArc.nose;
-    case AerospaceArc.LEFT_WING:
-      return state.armorByArc.leftWing ?? 0;
-    case AerospaceArc.RIGHT_WING:
-      return state.armorByArc.rightWing ?? 0;
-    case AerospaceArc.LEFT_SIDE:
-      return state.armorByArc.leftSide ?? 0;
-    case AerospaceArc.RIGHT_SIDE:
-      return state.armorByArc.rightSide ?? 0;
-    case AerospaceArc.AFT:
-      return state.armorByArc.aft;
-    case AerospaceArc.FUSELAGE:
-      return 0;
-    default:
-      return 0;
-  }
+  return arcArmorReaders[arc]?.(state.armorByArc) ?? 0;
 }
+
+const arcArmorWriters: Partial<
+  Record<
+    AerospaceArc,
+    (armor: IAerospaceArcArmor, value: number) => IAerospaceArcArmor
+  >
+> = {
+  [AerospaceArc.NOSE]: (armor, value) => ({ ...armor, nose: value }),
+  [AerospaceArc.LEFT_WING]: (armor, value) => ({ ...armor, leftWing: value }),
+  [AerospaceArc.RIGHT_WING]: (armor, value) => ({
+    ...armor,
+    rightWing: value,
+  }),
+  [AerospaceArc.LEFT_SIDE]: (armor, value) => ({ ...armor, leftSide: value }),
+  [AerospaceArc.RIGHT_SIDE]: (armor, value) => ({
+    ...armor,
+    rightSide: value,
+  }),
+  [AerospaceArc.AFT]: (armor, value) => ({ ...armor, aft: value }),
+};
 
 /**
  * Return a new arc-armor map with `value` written to `arc`.
@@ -165,24 +181,7 @@ export function setArcArmor(
   arc: AerospaceArc,
   value: number,
 ): IAerospaceArcArmor {
-  switch (arc) {
-    case AerospaceArc.NOSE:
-      return { ...armor, nose: value };
-    case AerospaceArc.LEFT_WING:
-      return { ...armor, leftWing: value };
-    case AerospaceArc.RIGHT_WING:
-      return { ...armor, rightWing: value };
-    case AerospaceArc.LEFT_SIDE:
-      return { ...armor, leftSide: value };
-    case AerospaceArc.RIGHT_SIDE:
-      return { ...armor, rightSide: value };
-    case AerospaceArc.AFT:
-      return { ...armor, aft: value };
-    case AerospaceArc.FUSELAGE:
-      return armor;
-    default:
-      return armor;
-  }
+  return arcArmorWriters[arc]?.(armor, value) ?? armor;
 }
 
 // ============================================================================

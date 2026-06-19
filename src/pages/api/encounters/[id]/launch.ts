@@ -8,13 +8,24 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  initializeApiDatabase as initLaunchEncounterDb,
+  rejectMissingQueryString as readLaunchEncounterId,
+  rejectUnexpectedMethod as rejectLaunchMethod,
+  sendCaughtApiError as sendLaunchEncounterError,
+  sendOperationFailure as sendLaunchEncounterFailure,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { IEncounterOperationResult } from '@/services/encounter/EncounterRepository';
 import {
   getEncounterService,
   type ILaunchEncounterOptions,
 } from '@/services/encounter/EncounterService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { IEncounter } from '@/types/encounter';
+
+const ENCOUNTERS_ID_LAUNCH_TS_FAILED_TO_LAUNCH_ENCOUNTER_1 =
+  'Failed to launch encounter';
+const LAUNCH_ENCOUNTER_ID_ERROR = 'Missing or invalid encounter ID';
 
 // =============================================================================
 // Response Types
@@ -23,10 +34,6 @@ import { IEncounter } from '@/types/encounter';
 type LaunchResponse = IEncounterOperationResult & {
   encounter?: IEncounter;
   gameSessionId?: string;
-};
-
-type ErrorResponse = {
-  error: string;
 };
 
 function readOptionalId(
@@ -59,26 +66,14 @@ function parseLaunchOptions(body: unknown): ILaunchEncounterOptions {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<LaunchResponse | ErrorResponse>,
+  res: NextApiResponse<LaunchResponse | ApiErrorResponse>,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initLaunchEncounterDb(res)) return;
 
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-  }
+  if (rejectLaunchMethod(req, res, ['POST'])) return;
 
-  const { id } = req.query;
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid encounter ID' });
-  }
+  const id = readLaunchEncounterId(req, res, 'id', LAUNCH_ENCOUNTER_ID_ERROR);
+  if (!id) return;
 
   const encounterService = getEncounterService();
 
@@ -96,15 +91,19 @@ export default async function handler(
         gameSessionId: encounter?.gameSessionId,
       });
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to launch encounter',
-        errorCode: result.errorCode,
-      });
+      sendLaunchEncounterFailure(
+        res,
+        result,
+        ENCOUNTERS_ID_LAUNCH_TS_FAILED_TO_LAUNCH_ENCOUNTER_1,
+      );
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to launch encounter';
-    return res.status(500).json({ error: message });
+    sendLaunchEncounterError(
+      res,
+      error,
+      ENCOUNTERS_ID_LAUNCH_TS_FAILED_TO_LAUNCH_ENCOUNTER_1,
+    );
+    return;
   }
 }

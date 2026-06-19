@@ -41,9 +41,8 @@ export class EventLogQuery {
    * Entry point. Wraps the supplied event array by reference (no copy)
    * so the query layer adds zero memory overhead for an unfiltered chain.
    */
-  static from(events: readonly IGameEvent[]): EventLogQuery {
-    return new EventLogQuery(events);
-  }
+  static readonly from = (events: readonly IGameEvent[]): EventLogQuery =>
+    new EventLogQuery(events);
 
   /**
    * Filter to events whose `event.type` equals the argument. The generic
@@ -109,9 +108,8 @@ export class EventLogQuery {
   /**
    * Filter to events on a given turn. Turn comparison is exact-match.
    */
-  inTurn(turn: number): EventLogQuery {
-    return new EventLogQuery(this.events.filter((e) => e.turn === turn));
-  }
+  readonly inTurn = (turn: number): EventLogQuery =>
+    new EventLogQuery(this.events.filter((e) => e.turn === turn));
 
   /**
    * Filter to events in a given phase. Phase comparison is exact-match
@@ -126,36 +124,31 @@ export class EventLogQuery {
    * predicate. Events with no `actorId` are dropped — `whereActor` is
    * for actor-scoped slicing, so a missing actor is always a non-match.
    */
-  whereActor(predicate: (actorId: string) => boolean): EventLogQuery {
-    return new EventLogQuery(
+  readonly whereActor = (
+    predicate: (actorId: string) => boolean,
+  ): EventLogQuery =>
+    new EventLogQuery(
       this.events.filter(
         (e) => e.actorId !== undefined && predicate(e.actorId),
       ),
     );
-  }
 
   /**
    * Returns the current filtered array. No copy — consumers SHALL treat
    * the returned array as readonly (the type signature enforces this at
    * the type-system level).
    */
-  toArray(): readonly IGameEvent[] {
-    return this.events;
-  }
+  readonly toArray = (): readonly IGameEvent[] => this.events;
 
   /**
    * Returns the length of the current filtered array.
    */
-  count(): number {
-    return this.events.length;
-  }
+  readonly count = (): number => this.events.length;
 
   /**
    * Returns the first event of the current filtered array, or
    * `undefined` if empty. Useful for `query.ofType(X).byUnit(Y).first()`
    * style spot-checks in scenario tests.
    */
-  first(): IGameEvent | undefined {
-    return this.events[0];
-  }
+  readonly first = (): IGameEvent | undefined => this.events[0];
 }

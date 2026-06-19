@@ -11,6 +11,12 @@ import {
 } from '@/types/gameplay';
 
 import { HexMapDisplay } from './HexMapDisplay';
+import {
+  sampleTerrain,
+  sampleToken,
+  waterDepthGradientTerrain,
+  woodsPatternTerrain,
+} from './HexMapDisplay.stories.test-helpers';
 
 const meta: Meta<typeof HexMapDisplay> = {
   title: 'Gameplay/HexMapDisplay',
@@ -30,112 +36,6 @@ const meta: Meta<typeof HexMapDisplay> = {
 
 export default meta;
 type Story = StoryObj<typeof HexMapDisplay>;
-
-const sampleTerrain: IHexTerrain[] = [
-  {
-    coordinate: { q: 0, r: 0 },
-    elevation: 0,
-    features: [{ type: TerrainType.Clear, level: 0 }],
-  },
-  {
-    coordinate: { q: 1, r: 0 },
-    elevation: 0,
-    features: [{ type: TerrainType.LightWoods, level: 1 }],
-  },
-  {
-    coordinate: { q: 2, r: 0 },
-    elevation: 0,
-    features: [{ type: TerrainType.HeavyWoods, level: 2 }],
-  },
-  {
-    coordinate: { q: -1, r: 0 },
-    elevation: 0,
-    features: [{ type: TerrainType.Water, level: 1 }],
-  },
-  {
-    coordinate: { q: -2, r: 0 },
-    elevation: 0,
-    features: [{ type: TerrainType.Water, level: 2 }],
-  },
-  {
-    coordinate: { q: -2, r: 1 },
-    elevation: 0,
-    features: [{ type: TerrainType.Water, level: 3 }],
-  },
-  {
-    coordinate: { q: 0, r: 1 },
-    elevation: 0,
-    features: [{ type: TerrainType.Rough, level: 1 }],
-  },
-  {
-    coordinate: { q: 1, r: 1 },
-    elevation: 0,
-    features: [{ type: TerrainType.Rubble, level: 1 }],
-  },
-  {
-    coordinate: { q: 2, r: -1 },
-    elevation: 0,
-    features: [{ type: TerrainType.Building, level: 1 }],
-  },
-  {
-    coordinate: { q: 0, r: -1 },
-    elevation: 0,
-    features: [{ type: TerrainType.Pavement, level: 0 }],
-  },
-  {
-    coordinate: { q: 1, r: -1 },
-    elevation: 0,
-    features: [{ type: TerrainType.Road, level: 0 }],
-  },
-  {
-    coordinate: { q: -1, r: 1 },
-    elevation: 0,
-    features: [{ type: TerrainType.Sand, level: 0 }],
-  },
-  {
-    coordinate: { q: -1, r: -1 },
-    elevation: 0,
-    features: [{ type: TerrainType.Mud, level: 0 }],
-  },
-  {
-    coordinate: { q: 2, r: 1 },
-    elevation: 0,
-    features: [{ type: TerrainType.Snow, level: 0 }],
-  },
-  {
-    coordinate: { q: -2, r: -1 },
-    elevation: 0,
-    features: [{ type: TerrainType.Ice, level: 0 }],
-  },
-  {
-    coordinate: { q: 0, r: 2 },
-    elevation: 0,
-    features: [{ type: TerrainType.Swamp, level: 0 }],
-  },
-  {
-    coordinate: { q: 1, r: 2 },
-    elevation: 0,
-    features: [{ type: TerrainType.Fire, level: 0 }],
-  },
-  {
-    coordinate: { q: -1, r: 2 },
-    elevation: 0,
-    features: [{ type: TerrainType.Smoke, level: 0 }],
-  },
-];
-
-const sampleToken: IUnitToken = {
-  unitId: 'atlas-1',
-  name: 'Atlas AS7-D',
-  designation: 'AS7',
-  position: { q: 0, r: 0 },
-  facing: Facing.North,
-  side: GameSide.Player,
-  isDestroyed: false,
-  isSelected: false,
-  isValidTarget: false,
-  unitType: TokenUnitType.Mech,
-};
 
 export const Default: Story = {
   args: {
@@ -161,38 +61,7 @@ export const WaterDepthGradient: Story = {
     radius: 3,
     tokens: [],
     selectedHex: null,
-    hexTerrain: [
-      {
-        coordinate: { q: 0, r: 0 },
-        elevation: 0,
-        features: [{ type: TerrainType.Water, level: 0 }],
-      },
-      {
-        coordinate: { q: 1, r: 0 },
-        elevation: 0,
-        features: [{ type: TerrainType.Water, level: 1 }],
-      },
-      {
-        coordinate: { q: -1, r: 0 },
-        elevation: 0,
-        features: [{ type: TerrainType.Water, level: 2 }],
-      },
-      {
-        coordinate: { q: 0, r: 1 },
-        elevation: 0,
-        features: [{ type: TerrainType.Water, level: 3 }],
-      },
-      {
-        coordinate: { q: 1, r: -1 },
-        elevation: 0,
-        features: [{ type: TerrainType.Water, level: 4 }],
-      },
-      {
-        coordinate: { q: -1, r: 1 },
-        elevation: 0,
-        features: [{ type: TerrainType.Water, level: 5 }],
-      },
-    ],
+    hexTerrain: waterDepthGradientTerrain,
     showCoordinates: true,
   },
 };
@@ -202,38 +71,7 @@ export const WoodsPatterns: Story = {
     radius: 3,
     tokens: [],
     selectedHex: null,
-    hexTerrain: [
-      {
-        coordinate: { q: 0, r: 0 },
-        elevation: 0,
-        features: [{ type: TerrainType.LightWoods, level: 1 }],
-      },
-      {
-        coordinate: { q: 1, r: 0 },
-        elevation: 0,
-        features: [{ type: TerrainType.LightWoods, level: 1 }],
-      },
-      {
-        coordinate: { q: -1, r: 0 },
-        elevation: 0,
-        features: [{ type: TerrainType.LightWoods, level: 1 }],
-      },
-      {
-        coordinate: { q: 0, r: 1 },
-        elevation: 0,
-        features: [{ type: TerrainType.HeavyWoods, level: 2 }],
-      },
-      {
-        coordinate: { q: 1, r: -1 },
-        elevation: 0,
-        features: [{ type: TerrainType.HeavyWoods, level: 2 }],
-      },
-      {
-        coordinate: { q: -1, r: 1 },
-        elevation: 0,
-        features: [{ type: TerrainType.HeavyWoods, level: 2 }],
-      },
-    ],
+    hexTerrain: woodsPatternTerrain,
     showCoordinates: false,
   },
 };

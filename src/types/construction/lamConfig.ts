@@ -1,5 +1,6 @@
 import type { IMechConfigurationDefinition } from './MechConfigTypes';
 
+import { createStandardTorsoLocationDefinitions } from './bipedConfig';
 import {
   createLocationDef,
   ARM_ACTUATORS,
@@ -44,20 +45,7 @@ export const LAM_CONFIGURATION: IMechConfigurationDefinition = {
   displayName: 'Land-Air Mech',
   description: 'Transformable BattleMech capable of flight (max 55 tons)',
   locations: [
-    createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, {
-      maxArmorMultiplier: 3,
-    }),
-    createLocationDef(MechLocation.CENTER_TORSO, 'Center Torso', 'CT', 12, {
-      hasRearArmor: true,
-    }),
-    createLocationDef(MechLocation.LEFT_TORSO, 'Left Torso', 'LT', 12, {
-      hasRearArmor: true,
-      transfersTo: MechLocation.CENTER_TORSO,
-    }),
-    createLocationDef(MechLocation.RIGHT_TORSO, 'Right Torso', 'RT', 12, {
-      hasRearArmor: true,
-      transfersTo: MechLocation.CENTER_TORSO,
-    }),
+    ...createStandardTorsoLocationDefinitions(),
     createLocationDef(MechLocation.LEFT_ARM, 'Left Arm', 'LA', 12, {
       isLimb: true,
       actuators: ARM_ACTUATORS,

@@ -31,6 +31,163 @@ interface CreateShareLinkBody {
   label?: unknown;
 }
 
+interface ValidationSuccess<T> {
+  readonly ok: true;
+  readonly value: T;
+}
+
+interface ValidationFailure {
+  readonly ok: false;
+  readonly error: string;
+}
+
+type ValidationResult<T> = ValidationSuccess<T> | ValidationFailure;
+
+interface ShareScopeInput {
+  readonly scopeType: PermissionScopeType;
+  readonly scopeId: string | null;
+  readonly scopeCategory: ContentCategory | null;
+  readonly level: PermissionLevel;
+}
+
+interface ShareOptionInput {
+  readonly expiresAt: string | null;
+  readonly maxUses: number | null;
+  readonly label?: string;
+}
+
+const VALID_SCOPE_TYPES = ['item', 'folder', 'category', 'all'];
+const VALID_PERMISSION_LEVELS = ['read', 'write', 'admin'];
+const VALID_SCOPE_CATEGORIES = ['units', 'pilots', 'forces', 'encounters'];
+
+function validationError(error: string): ValidationFailure {
+  return { ok: false, error };
+}
+
+function isValidScopeType(value: string): value is PermissionScopeType {
+  return VALID_SCOPE_TYPES.includes(value);
+}
+
+function isValidPermissionLevel(value: string): value is PermissionLevel {
+  return VALID_PERMISSION_LEVELS.includes(value);
+}
+
+function isValidScopeCategory(value: string): value is ContentCategory {
+  return VALID_SCOPE_CATEGORIES.includes(value);
+}
+
+function parseShareScope(
+  body: CreateShareLinkBody,
+): ValidationResult<ShareScopeInput> {
+  if (!body.scopeType || typeof body.scopeType !== 'string') {
+    return validationError('scopeType is required');
+  }
+  if (!isValidScopeType(body.scopeType)) {
+    return validationError(
+      'scopeType must be one of: item, folder, category, all',
+    );
+  }
+  if (!body.level || typeof body.level !== 'string') {
+    return validationError('level is required');
+  }
+  if (!isValidPermissionLevel(body.level)) {
+    return validationError('level must be one of: read, write, admin');
+  }
+
+  const scopeInput = parseScopeTarget(body, body.scopeType);
+  if (!scopeInput.ok) return scopeInput;
+
+  return {
+    ok: true,
+    value: {
+      scopeType: body.scopeType,
+      level: body.level,
+      ...scopeInput.value,
+    },
+  };
+}
+
+function parseScopeTarget(
+  body: CreateShareLinkBody,
+  scopeType: PermissionScopeType,
+): ValidationResult<Pick<ShareScopeInput, 'scopeId' | 'scopeCategory'>> {
+  if (scopeType === 'item' || scopeType === 'folder') {
+    if (!body.scopeId || typeof body.scopeId !== 'string') {
+      return validationError('scopeId is required for item/folder scope');
+    }
+    return { ok: true, value: { scopeId: body.scopeId, scopeCategory: null } };
+  }
+
+  if (scopeType === 'category') {
+    return parseCategoryScope(body.scopeCategory);
+  }
+
+  return { ok: true, value: { scopeId: null, scopeCategory: null } };
+}
+
+function parseCategoryScope(
+  scopeCategory: unknown,
+): ValidationResult<Pick<ShareScopeInput, 'scopeId' | 'scopeCategory'>> {
+  if (!scopeCategory || typeof scopeCategory !== 'string') {
+    return validationError('scopeCategory is required for category scope');
+  }
+  if (!isValidScopeCategory(scopeCategory)) {
+    return validationError(
+      'scopeCategory must be one of: units, pilots, forces, encounters',
+    );
+  }
+  return { ok: true, value: { scopeId: null, scopeCategory } };
+}
+
+function parseShareOptions(
+  body: CreateShareLinkBody,
+): ValidationResult<ShareOptionInput> {
+  const expiresAt = parseExpiresAt(body.expiresAt);
+  if (!expiresAt.ok) return expiresAt;
+
+  const maxUses = parseMaxUses(body.maxUses);
+  if (!maxUses.ok) return maxUses;
+
+  const label = parseShareLabel(body.label);
+  if (!label.ok) return label;
+
+  return {
+    ok: true,
+    value: {
+      expiresAt: expiresAt.value,
+      maxUses: maxUses.value,
+      label: label.value,
+    },
+  };
+}
+
+function parseExpiresAt(value: unknown): ValidationResult<string | null> {
+  if (value === undefined) return { ok: true, value: null };
+  if (typeof value !== 'string') {
+    return validationError('expiresAt must be a string');
+  }
+  if (Number.isNaN(new Date(value).getTime())) {
+    return validationError('expiresAt must be a valid ISO date');
+  }
+  return { ok: true, value };
+}
+
+function parseMaxUses(value: unknown): ValidationResult<number | null> {
+  if (value === undefined) return { ok: true, value: null };
+  if (typeof value !== 'number' || value < 1) {
+    return validationError('maxUses must be a positive number');
+  }
+  return { ok: true, value: Math.floor(value) };
+}
+
+function parseShareLabel(value: unknown): ValidationResult<string | undefined> {
+  if (value === undefined) return { ok: true, value: undefined };
+  if (typeof value !== 'string') {
+    return validationError('label must be a string');
+  }
+  return { ok: true, value: value.trim() || undefined };
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -87,105 +244,16 @@ async function handlePost(
 ) {
   try {
     const body = req.body as CreateShareLinkBody;
+    const scope = parseShareScope(body);
+    if (!scope.ok) return res.status(400).json({ error: scope.error });
 
-    // Validate required fields
-    if (!body.scopeType || typeof body.scopeType !== 'string') {
-      return res.status(400).json({ error: 'scopeType is required' });
-    }
-
-    if (!['item', 'folder', 'category', 'all'].includes(body.scopeType)) {
-      return res.status(400).json({
-        error: 'scopeType must be one of: item, folder, category, all',
-      });
-    }
-
-    if (!body.level || typeof body.level !== 'string') {
-      return res.status(400).json({ error: 'level is required' });
-    }
-
-    if (!['read', 'write', 'admin'].includes(body.level)) {
-      return res.status(400).json({
-        error: 'level must be one of: read, write, admin',
-      });
-    }
-
-    // Validate scope-specific requirements
-    const scopeType = body.scopeType as PermissionScopeType;
-    const level = body.level as PermissionLevel;
-
-    let scopeId: string | null = null;
-    let scopeCategory: ContentCategory | null = null;
-
-    if (scopeType === 'item' || scopeType === 'folder') {
-      if (!body.scopeId || typeof body.scopeId !== 'string') {
-        return res
-          .status(400)
-          .json({ error: 'scopeId is required for item/folder scope' });
-      }
-      scopeId = body.scopeId;
-    }
-
-    if (scopeType === 'category') {
-      if (!body.scopeCategory || typeof body.scopeCategory !== 'string') {
-        return res
-          .status(400)
-          .json({ error: 'scopeCategory is required for category scope' });
-      }
-      if (
-        !['units', 'pilots', 'forces', 'encounters'].includes(
-          body.scopeCategory,
-        )
-      ) {
-        return res.status(400).json({
-          error:
-            'scopeCategory must be one of: units, pilots, forces, encounters',
-        });
-      }
-      scopeCategory = body.scopeCategory as ContentCategory;
-    }
-
-    // Validate optional fields
-    let expiresAt: string | null = null;
-    if (body.expiresAt !== undefined) {
-      if (typeof body.expiresAt !== 'string') {
-        return res.status(400).json({ error: 'expiresAt must be a string' });
-      }
-      const date = new Date(body.expiresAt);
-      if (isNaN(date.getTime())) {
-        return res
-          .status(400)
-          .json({ error: 'expiresAt must be a valid ISO date' });
-      }
-      expiresAt = body.expiresAt;
-    }
-
-    let maxUses: number | null = null;
-    if (body.maxUses !== undefined) {
-      if (typeof body.maxUses !== 'number' || body.maxUses < 1) {
-        return res
-          .status(400)
-          .json({ error: 'maxUses must be a positive number' });
-      }
-      maxUses = Math.floor(body.maxUses);
-    }
-
-    let label: string | undefined;
-    if (body.label !== undefined) {
-      if (typeof body.label !== 'string') {
-        return res.status(400).json({ error: 'label must be a string' });
-      }
-      label = body.label.trim() || undefined;
-    }
+    const options = parseShareOptions(body);
+    if (!options.ok) return res.status(400).json({ error: options.error });
 
     // Create the share link
     const result = await service.create({
-      scopeType,
-      scopeId,
-      scopeCategory,
-      level,
-      expiresAt,
-      maxUses,
-      label,
+      ...scope.value,
+      ...options.value,
     });
 
     if (!result.success) {

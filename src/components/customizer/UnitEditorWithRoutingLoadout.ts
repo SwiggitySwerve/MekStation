@@ -34,6 +34,13 @@ const LOCATION_LABELS: Partial<Record<MechLocation, string>> = {
   [MechLocation.RIGHT_LEG]: 'Right Leg',
 };
 
+interface FixedSlotContext {
+  engineType: EngineType;
+  gyroType: GyroType;
+}
+
+type FixedSlotResolver = (context: FixedSlotContext) => number[];
+
 interface UseUnitEditorLoadoutOptions {
   equipment: readonly IMountedEquipmentInstance[];
   engineType: EngineType;
@@ -62,62 +69,64 @@ interface UseUnitEditorLoadoutResult {
   ) => AvailableLocation[];
 }
 
+function getCenterTorsoFixedSlots({
+  engineType,
+  gyroType,
+}: FixedSlotContext): number[] {
+  const fixed: number[] = [];
+  const engineDef = getEngineDefinition(engineType);
+  const gyroDef = getGyroDefinition(gyroType);
+  const engineSlots = engineDef?.ctSlots ?? 6;
+  const gyroSlots = gyroDef?.criticalSlots ?? 4;
+
+  for (let i = 0; i < Math.min(3, engineSlots); i++) {
+    fixed.push(i);
+  }
+  for (let i = 0; i < gyroSlots; i++) {
+    fixed.push(3 + i);
+  }
+  for (let i = 3; i < engineSlots; i++) {
+    fixed.push(3 + gyroSlots + (i - 3));
+  }
+
+  return fixed;
+}
+
+function getSideTorsoFixedSlots({ engineType }: FixedSlotContext): number[] {
+  const engineDef = getEngineDefinition(engineType);
+  const sideTorsoSlots = engineDef?.sideTorsoSlots ?? 0;
+  const fixed: number[] = [];
+
+  for (let i = 0; i < sideTorsoSlots; i++) {
+    fixed.push(i);
+  }
+
+  return fixed;
+}
+
+function fixedSlots(...slots: number[]): FixedSlotResolver {
+  return () => slots;
+}
+
+const FIXED_SLOT_RESOLVERS: Partial<Record<MechLocation, FixedSlotResolver>> = {
+  [MechLocation.HEAD]: fixedSlots(0, 1, 2, 4, 5),
+  [MechLocation.CENTER_TORSO]: getCenterTorsoFixedSlots,
+  [MechLocation.LEFT_ARM]: fixedSlots(0, 1, 2, 3),
+  [MechLocation.RIGHT_ARM]: fixedSlots(0, 1, 2, 3),
+  [MechLocation.LEFT_LEG]: fixedSlots(0, 1, 2, 3),
+  [MechLocation.RIGHT_LEG]: fixedSlots(0, 1, 2, 3),
+  [MechLocation.LEFT_TORSO]: getSideTorsoFixedSlots,
+  [MechLocation.RIGHT_TORSO]: getSideTorsoFixedSlots,
+};
+
 function getFixedSlotIndices(
   location: MechLocation,
   engineType: EngineType,
   gyroType: GyroType,
 ): Set<number> {
-  const fixed = new Set<number>();
-
-  switch (location) {
-    case MechLocation.HEAD:
-      fixed.add(0);
-      fixed.add(1);
-      fixed.add(2);
-      fixed.add(4);
-      fixed.add(5);
-      break;
-
-    case MechLocation.CENTER_TORSO: {
-      const engineDef = getEngineDefinition(engineType);
-      const gyroDef = getGyroDefinition(gyroType);
-      const engineSlots = engineDef?.ctSlots ?? 6;
-      const gyroSlots = gyroDef?.criticalSlots ?? 4;
-
-      for (let i = 0; i < Math.min(3, engineSlots); i++) {
-        fixed.add(i);
-      }
-      for (let i = 0; i < gyroSlots; i++) {
-        fixed.add(3 + i);
-      }
-      for (let i = 3; i < engineSlots; i++) {
-        fixed.add(3 + gyroSlots + (i - 3));
-      }
-      break;
-    }
-
-    case MechLocation.LEFT_ARM:
-    case MechLocation.RIGHT_ARM:
-    case MechLocation.LEFT_LEG:
-    case MechLocation.RIGHT_LEG:
-      fixed.add(0);
-      fixed.add(1);
-      fixed.add(2);
-      fixed.add(3);
-      break;
-
-    case MechLocation.LEFT_TORSO:
-    case MechLocation.RIGHT_TORSO: {
-      const sideTorsoEngineDef = getEngineDefinition(engineType);
-      const sideTorsoSlots = sideTorsoEngineDef?.sideTorsoSlots ?? 0;
-      for (let i = 0; i < sideTorsoSlots; i++) {
-        fixed.add(i);
-      }
-      break;
-    }
-  }
-
-  return fixed;
+  const resolver = FIXED_SLOT_RESOLVERS[location];
+  const fixedSlotsForLocation = resolver?.({ engineType, gyroType }) ?? [];
+  return new Set(fixedSlotsForLocation);
 }
 
 function getUsedSlotIndices(

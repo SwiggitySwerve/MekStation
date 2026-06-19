@@ -11,6 +11,8 @@
 
 import React from 'react';
 
+import { PlaceholderTab } from '../tabs/PlaceholderTab';
+
 export interface BattleArmorModularWeaponsTabProps {
   readOnly?: boolean;
   className?: string;
@@ -24,11 +26,11 @@ export function BattleArmorModularWeaponsTab({
   className = '',
 }: BattleArmorModularWeaponsTabProps): React.ReactElement {
   return (
-    <div className={`p-4 ${className}`} data-testid="ba-modular-weapons-tab">
-      <p className="text-text-theme-secondary text-sm">
-        Coming soon — this tab will be wired up by add-battlearmor-construction
-      </p>
-    </div>
+    <PlaceholderTab
+      className={className}
+      testId="ba-modular-weapons-tab"
+      wiredBy="add-battlearmor-construction"
+    />
   );
 }
 

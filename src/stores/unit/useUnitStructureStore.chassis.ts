@@ -12,13 +12,9 @@ import type {
 
 import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 
-import type { UnitStore } from '../unitState';
+import type { UnitSliceSetFn } from './unitSliceTypes';
 
 import { applyTonnageChange } from './useUnitStructureStore.helpers';
-
-type SetFn = (
-  partial: Partial<UnitStore> | ((state: UnitStore) => Partial<UnitStore>),
-) => void;
 
 export interface ChassisActions {
   setTonnage: (tonnage: number) => void;
@@ -28,21 +24,21 @@ export interface ChassisActions {
   setQuadVeeMode: (mode: QuadVeeMode) => void;
 }
 
-export function createChassisActions(set: SetFn): ChassisActions {
+export function createChassisActions(set: UnitSliceSetFn): ChassisActions {
   return {
     setTonnage: (tonnage) =>
       set((state) => {
-        const { equipment, engineRating } = applyTonnageChange(
-          state.equipment,
-          state.tonnage,
-          tonnage,
-          state.engineRating,
-          state.engineType,
-          state.enhancement,
-          state.techBase,
-          state.jumpMP,
-          state.jumpJetType,
-        );
+        const { equipment, engineRating } = applyTonnageChange({
+          equipment: state.equipment,
+          oldTonnage: state.tonnage,
+          newTonnage: tonnage,
+          engineRating: state.engineRating,
+          engineType: state.engineType,
+          enhancement: state.enhancement,
+          techBase: state.techBase,
+          jumpMP: state.jumpMP,
+          jumpJetType: state.jumpJetType,
+        });
 
         return {
           tonnage,

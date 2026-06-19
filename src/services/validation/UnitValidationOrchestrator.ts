@@ -55,10 +55,10 @@ export class UnitValidationOrchestrator implements IUnitValidationOrchestrator {
   /**
    * Validate a unit with full rule set
    */
-  validate(
+  validate = (
     unit: IValidatableUnit,
     options?: IUnitValidationOptions,
-  ): IUnitValidationResult {
+  ): IUnitValidationResult => {
     const startTime = performance.now();
     const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
 
@@ -85,35 +85,35 @@ export class UnitValidationOrchestrator implements IUnitValidationOrchestrator {
 
     // Build aggregated result
     return this.buildResult(results, context, startTime);
-  }
+  };
 
   /**
    * Validate using only rules from a specific validation category
    */
-  validateCategory(
+  validateCategory = (
     unit: IValidatableUnit,
     category: ValidationCategory,
-  ): IUnitValidationResult {
+  ): IUnitValidationResult => {
     return this.validate(unit, { categories: [category] });
-  }
+  };
 
   /**
    * Validate using only rules from a specific unit category
    */
-  validateUnitCategory(
+  validateUnitCategory = (
     unit: IValidatableUnit,
     unitCategory: UnitCategory,
-  ): IUnitValidationResult {
+  ): IUnitValidationResult => {
     return this.validate(unit, { unitCategories: [unitCategory] });
-  }
+  };
 
   /**
    * Run a specific rule
    */
-  validateRule(
+  validateRule = (
     unit: IValidatableUnit,
     ruleId: string,
-  ): IUnitValidationRuleResult | null {
+  ): IUnitValidationRuleResult | null => {
     const rule = this.registry.getRule(ruleId);
     if (!rule) {
       return null;
@@ -126,14 +126,14 @@ export class UnitValidationOrchestrator implements IUnitValidationOrchestrator {
     }
 
     return this.executeRule(rule, context);
-  }
+  };
 
   /**
    * Get the registry
    */
-  getRegistry(): IUnitValidationRegistry {
+  getRegistry = (): IUnitValidationRegistry => {
     return this.registry;
-  }
+  };
 
   /**
    * Build validation context from unit and options

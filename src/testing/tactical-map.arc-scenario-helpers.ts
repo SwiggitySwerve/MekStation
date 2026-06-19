@@ -10,10 +10,7 @@ import type {
 import {
   Facing,
   FiringArc,
-  GamePhase,
   GameSide,
-  GameStatus,
-  MovementType,
   TokenUnitType,
   VehicleMotionType,
 } from '@/types/gameplay';
@@ -24,6 +21,10 @@ import {
   tacticalMapCombatGrid,
   tacticalMapCombatSession,
 } from './tactical-map.combat-scenarios';
+import {
+  createTacticalMapGameStateForTokens,
+  createTacticalMapMechToken,
+} from './tactical-map.fixture-helpers';
 
 export type TacticalMapCombatGrid = ReturnType<typeof tacticalMapCombatGrid>;
 
@@ -33,7 +34,7 @@ export function tacticalMapAttackerToken(params: {
   readonly unitType: TokenUnitType;
   readonly vehicleMotionType?: VehicleMotionType;
 }): IUnitToken {
-  return {
+  return createTacticalMapMechToken({
     unitId: 'attacker',
     name: params.name,
     designation: params.designation,
@@ -47,7 +48,7 @@ export function tacticalMapAttackerToken(params: {
     ...(params.vehicleMotionType
       ? { vehicleMotionType: params.vehicleMotionType }
       : {}),
-  } as IUnitToken;
+  });
 }
 
 export function tacticalMapTargetToken(params: {
@@ -56,51 +57,27 @@ export function tacticalMapTargetToken(params: {
   readonly designation: string;
   readonly position: IUnitToken['position'];
 }): IUnitToken {
-  return {
+  return createTacticalMapMechToken({
     unitId: params.unitId,
     name: params.name,
     designation: params.designation,
     position: params.position,
     facing: Facing.South,
-    side: GameSide.Opponent,
-    isDestroyed: false,
-    isSelected: false,
-    isValidTarget: true,
     isActiveTarget: true,
-    unitType: TokenUnitType.Mech,
-  };
+  });
 }
 
 export function tacticalMapCombatStateForTokens(
   tokens: readonly IUnitToken[],
 ): IGameState {
-  return {
-    gameId: 'tactical-map-e2e',
-    status: GameStatus.Active,
-    turn: 1,
-    phase: GamePhase.WeaponAttack,
-    activationIndex: 0,
-    turnEvents: [],
-    units: Object.fromEntries(
-      tokens.map((token) => [
-        token.unitId,
-        {
-          id: token.unitId,
-          side: token.side,
-          position: token.position,
-          facing: token.facing,
-          heat: 0,
-          movementThisTurn: MovementType.Stationary,
-          hexesMovedThisTurn: 0,
-          prone: false,
-          destroyed: token.isDestroyed,
-          shutdown: false,
-          hasRetreated: false,
-          gunnery: 4,
-        },
-      ]),
-    ) as IGameState['units'],
-  };
+  return createTacticalMapGameStateForTokens(tokens, {
+    unitOverrides: () => ({
+      prone: false,
+      shutdown: false,
+      hasRetreated: false,
+      gunnery: 4,
+    }),
+  });
 }
 
 export function tacticalMapWeapon(params: {

@@ -38,6 +38,157 @@ interface UsePreBattleSkirmishResult {
   launchSkirmish: (config: ISkirmishLaunchConfig) => Promise<void>;
 }
 
+type SkirmishSide = 'player' | 'opponent';
+
+function stripPilotFromSelections(
+  list: readonly ISkirmishUnitSelection[],
+  pilot: IPilot | null,
+): readonly ISkirmishUnitSelection[] {
+  if (!pilot) return list;
+  return list.map((unit) =>
+    unit.pilot?.pilotId === pilot.id ? { ...unit, pilot: null } : unit,
+  );
+}
+
+function applyPilotToSelection(
+  list: readonly ISkirmishUnitSelection[],
+  unitId: string,
+  pilot: IPilot | null,
+): readonly ISkirmishUnitSelection[] {
+  return list.map((unit) =>
+    unit.unitId === unitId
+      ? {
+          ...unit,
+          pilot: pilot
+            ? {
+                pilotId: pilot.id,
+                callsign: pilot.callsign ?? pilot.name,
+                gunnery: pilot.skills.gunnery,
+                piloting: pilot.skills.piloting,
+                rpgToughness: pilot.rpgToughness,
+              }
+            : null,
+        }
+      : unit,
+  );
+}
+
+function updatePilotAssignment(
+  list: readonly ISkirmishUnitSelection[],
+  targetSide: SkirmishSide,
+  currentSide: SkirmishSide,
+  unitId: string,
+  pilot: IPilot | null,
+): readonly ISkirmishUnitSelection[] {
+  const stripped = stripPilotFromSelections(list, pilot);
+  return targetSide === currentSide
+    ? applyPilotToSelection(stripped, unitId, pilot)
+    : stripped;
+}
+
+function addUniqueSkirmishUnit(
+  units: readonly ISkirmishUnitSelection[],
+  selection: ISkirmishUnitSelection,
+): readonly ISkirmishUnitSelection[] {
+  if (units.length >= 2) return units;
+  if (units.some((unit) => unit.unitId === selection.unitId)) return units;
+  return [...units, selection];
+}
+
+function ensureEncounterCanLaunch(
+  encounter: IEncounter | undefined,
+): string | null {
+  if (!encounter) return 'Encounter not loaded';
+  if (
+    encounter.status === EncounterStatus.Launched ||
+    encounter.status === EncounterStatus.Completed
+  ) {
+    return 'Encounter already launched - return to the encounter page to continue.';
+  }
+  return null;
+}
+
+async function adaptSelection(
+  selection: ISkirmishUnitSelection,
+  side: GameSide,
+): Promise<IAdaptedUnit | null> {
+  const pilot = selection.pilot;
+  return adaptUnit(selection.unitId, {
+    side,
+    gunnery: pilot?.gunnery ?? 4,
+    piloting: pilot?.piloting ?? 5,
+  });
+}
+
+function requireAllAdaptedUnits(
+  adaptedUnits: readonly (IAdaptedUnit | null)[],
+  expectedCount: number,
+): IAdaptedUnit[] {
+  const units = adaptedUnits.filter(
+    (unit): unit is IAdaptedUnit => unit !== null,
+  );
+  if (units.length !== expectedCount) {
+    throw new Error(
+      'Failed to adapt one or more picked units - check the unit catalog',
+    );
+  }
+  return units;
+}
+
+function buildGameUnits(
+  session: ReturnType<typeof buildFromSkirmishConfig>,
+): IGameUnit[] {
+  return session.units.map((unit) => ({
+    id: unit.id,
+    name: unit.name,
+    side: unit.side,
+    unitRef: unit.unitRef,
+    pilotRef: unit.pilotRef,
+    gunnery: unit.gunnery,
+    piloting: unit.piloting,
+    pilotToughness: unit.pilotToughness,
+  }));
+}
+
+async function createInteractiveSkirmishSession(
+  config: ISkirmishLaunchConfig,
+  encounter: IEncounter,
+): Promise<InteractiveSession> {
+  const session = buildFromSkirmishConfig(config);
+  const [playerAdapted, opponentAdapted] = await Promise.all([
+    Promise.all(
+      config.player.units.map((unit) => adaptSelection(unit, GameSide.Player)),
+    ),
+    Promise.all(
+      config.opponent.units.map((unit) =>
+        adaptSelection(unit, GameSide.Opponent),
+      ),
+    ),
+  ]);
+
+  const adaptedPlayerUnits = requireAllAdaptedUnits(
+    playerAdapted,
+    config.player.units.length,
+  );
+  const adaptedOpponentUnits = requireAllAdaptedUnits(
+    opponentAdapted,
+    config.opponent.units.length,
+  );
+
+  const engine = new GameEngine({
+    seed: Date.now(),
+    mapRadius: config.mapRadius,
+    turnLimit: config.turnLimit,
+    grid: createGridFromTerrainPreset(config.mapRadius, config.terrainPreset),
+  });
+  return engine.createInteractiveSession(
+    adaptedPlayerUnits,
+    adaptedOpponentUnits,
+    buildGameUnits(session),
+    { encounterId: encounter.id },
+  );
+}
+
 export function usePreBattleSkirmish({
   encounter,
   router,
@@ -53,61 +204,19 @@ export function usePreBattleSkirmish({
   const [isLaunching, setIsLaunching] = useState(false);
 
   const assignPilotMoving = useCallback(
-    (
-      targetSide: 'player' | 'opponent',
-      unitId: string,
-      pilot: IPilot | null,
-    ) => {
-      const stripPilot = (
-        list: readonly ISkirmishUnitSelection[],
-      ): readonly ISkirmishUnitSelection[] => {
-        if (!pilot) {
-          return list;
-        }
-        return list.map((unit) =>
-          unit.pilot?.pilotId === pilot.id ? { ...unit, pilot: null } : unit,
-        );
-      };
-
-      const applyToTarget = (
-        list: readonly ISkirmishUnitSelection[],
-      ): readonly ISkirmishUnitSelection[] => {
-        return list.map((unit) =>
-          unit.unitId === unitId
-            ? {
-                ...unit,
-                pilot: pilot
-                  ? {
-                      pilotId: pilot.id,
-                      callsign: pilot.callsign ?? pilot.name,
-                      gunnery: pilot.skills.gunnery,
-                      piloting: pilot.skills.piloting,
-                      rpgToughness: pilot.rpgToughness,
-                    }
-                  : null,
-              }
-            : unit,
-        );
-      };
-
-      setPlayerUnits((prev) => {
-        const stripped = stripPilot(prev);
-        return targetSide === 'player' ? applyToTarget(stripped) : stripped;
-      });
-      setOpponentUnits((prev) => {
-        const stripped = stripPilot(prev);
-        return targetSide === 'opponent' ? applyToTarget(stripped) : stripped;
-      });
+    (targetSide: SkirmishSide, unitId: string, pilot: IPilot | null) => {
+      setPlayerUnits((prev) =>
+        updatePilotAssignment(prev, targetSide, 'player', unitId, pilot),
+      );
+      setOpponentUnits((prev) =>
+        updatePilotAssignment(prev, targetSide, 'opponent', unitId, pilot),
+      );
     },
     [],
   );
 
   const addPlayerUnit = useCallback((selection: ISkirmishUnitSelection) => {
-    setPlayerUnits((prev) =>
-      prev.length >= 2 || prev.some((unit) => unit.unitId === selection.unitId)
-        ? prev
-        : [...prev, selection],
-    );
+    setPlayerUnits((prev) => addUniqueSkirmishUnit(prev, selection));
   }, []);
 
   const removePlayerUnit = useCallback((unitId: string) => {
@@ -115,11 +224,7 @@ export function usePreBattleSkirmish({
   }, []);
 
   const addOpponentUnit = useCallback((selection: ISkirmishUnitSelection) => {
-    setOpponentUnits((prev) =>
-      prev.length >= 2 || prev.some((unit) => unit.unitId === selection.unitId)
-        ? prev
-        : [...prev, selection],
-    );
+    setOpponentUnits((prev) => addUniqueSkirmishUnit(prev, selection));
   }, []);
 
   const removeOpponentUnit = useCallback((unitId: string) => {
@@ -142,17 +247,10 @@ export function usePreBattleSkirmish({
 
   const launchSkirmish = useCallback(
     async (config: ISkirmishLaunchConfig) => {
-      if (!encounter) {
-        showToast({ message: 'Encounter not loaded', variant: 'error' });
-        return;
-      }
-      if (
-        encounter.status === EncounterStatus.Launched ||
-        encounter.status === EncounterStatus.Completed
-      ) {
+      const launchError = ensureEncounterCanLaunch(encounter);
+      if (launchError || !encounter) {
         showToast({
-          message:
-            'Encounter already launched - return to the encounter page to continue.',
+          message: launchError ?? 'Encounter not loaded',
           variant: 'error',
         });
         return;
@@ -160,73 +258,9 @@ export function usePreBattleSkirmish({
 
       setIsLaunching(true);
       try {
-        const session = buildFromSkirmishConfig(config);
-        const adaptSelection = async (
-          selection: ISkirmishUnitSelection,
-          side: GameSide,
-        ): Promise<IAdaptedUnit | null> => {
-          const pilot = selection.pilot;
-          return adaptUnit(selection.unitId, {
-            side,
-            gunnery: pilot?.gunnery ?? 4,
-            piloting: pilot?.piloting ?? 5,
-          });
-        };
-
-        const [playerAdapted, opponentAdapted] = await Promise.all([
-          Promise.all(
-            config.player.units.map((unit) =>
-              adaptSelection(unit, GameSide.Player),
-            ),
-          ),
-          Promise.all(
-            config.opponent.units.map((unit) =>
-              adaptSelection(unit, GameSide.Opponent),
-            ),
-          ),
-        ]);
-
-        const adaptedPlayerUnits = playerAdapted.filter(
-          (unit): unit is IAdaptedUnit => unit !== null,
-        );
-        const adaptedOpponentUnits = opponentAdapted.filter(
-          (unit): unit is IAdaptedUnit => unit !== null,
-        );
-
-        if (
-          adaptedPlayerUnits.length !== config.player.units.length ||
-          adaptedOpponentUnits.length !== config.opponent.units.length
-        ) {
-          throw new Error(
-            'Failed to adapt one or more picked units - check the unit catalog',
-          );
-        }
-
-        const gameUnits: IGameUnit[] = session.units.map((unit) => ({
-          id: unit.id,
-          name: unit.name,
-          side: unit.side,
-          unitRef: unit.unitRef,
-          pilotRef: unit.pilotRef,
-          gunnery: unit.gunnery,
-          piloting: unit.piloting,
-          pilotToughness: unit.pilotToughness,
-        }));
-
-        const engine = new GameEngine({
-          seed: Date.now(),
-          mapRadius: config.mapRadius,
-          turnLimit: config.turnLimit,
-          grid: createGridFromTerrainPreset(
-            config.mapRadius,
-            config.terrainPreset,
-          ),
-        });
-        const interactiveSession = engine.createInteractiveSession(
-          adaptedPlayerUnits,
-          adaptedOpponentUnits,
-          gameUnits,
-          { encounterId: encounter.id },
+        const interactiveSession = await createInteractiveSkirmishSession(
+          config,
+          encounter,
         );
         const liveSession = interactiveSession.getSession();
 

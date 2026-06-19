@@ -35,14 +35,14 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
   /**
    * Initialize the repository (ensure table exists)
    */
-  async initialize(): Promise<void> {
+  readonly initialize = async (): Promise<void> => {
     if (this.initialized) return;
 
-    const db = getSQLiteService();
-    await db.initialize();
+    const sqlite = getSQLiteService();
+    await sqlite.initialize();
 
     // Create permissions table if not exists
-    db.getDatabase().exec(`
+    sqlite.getDatabase().exec(`
       CREATE TABLE IF NOT EXISTS vault_permissions (
         id TEXT PRIMARY KEY,
         grantee_id TEXT NOT NULL,
@@ -71,21 +71,21 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
     `);
 
     this.initialized = true;
-  }
+  };
 
   /**
    * Create a new permission grant
    */
-  async create(
+  readonly create = async (
     grant: Omit<IPermissionGrant, 'id' | 'createdAt'>,
-  ): Promise<IPermissionGrant> {
+  ): Promise<IPermissionGrant> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
     const id = `perm-${crypto.randomUUID()}`;
     const createdAt = new Date().toISOString();
 
-    const stmt = db.prepare(`
+    const stmt = sqlite.prepare(`
       INSERT INTO vault_permissions (
         id, grantee_id, scope_type, scope_id, scope_category,
         level, expires_at, created_at, grantee_name
@@ -115,104 +115,108 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
       createdAt,
       granteeName: grant.granteeName,
     };
-  }
+  };
 
   /**
    * Get permission by ID
    */
-  async getById(id: string): Promise<IPermissionGrant | null> {
+  readonly getById = async (id: string): Promise<IPermissionGrant | null> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const row = db
+    const row = sqlite
       .prepare('SELECT * FROM vault_permissions WHERE id = ?')
       .get(id) as IStoredPermission | undefined;
 
     return row ? this.rowToGrant(row) : null;
-  }
+  };
 
   /**
    * Get all permissions for a grantee (by friend code)
    */
-  async getByGrantee(granteeId: string): Promise<IPermissionGrant[]> {
+  readonly getByGrantee = async (
+    granteeId: string,
+  ): Promise<IPermissionGrant[]> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const rows = db
+    const rows = sqlite
       .prepare(
         'SELECT * FROM vault_permissions WHERE grantee_id = ? ORDER BY created_at DESC',
       )
       .all(granteeId) as IStoredPermission[];
 
     return rows.map((row) => this.rowToGrant(row));
-  }
+  };
 
   /**
    * Get all permissions for a specific item
    */
-  async getByItem(
+  readonly getByItem = async (
     scopeType: PermissionScopeType,
     scopeId: string,
-  ): Promise<IPermissionGrant[]> {
+  ): Promise<IPermissionGrant[]> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const rows = db
+    const rows = sqlite
       .prepare(
         'SELECT * FROM vault_permissions WHERE scope_type = ? AND scope_id = ? ORDER BY created_at DESC',
       )
       .all(scopeType, scopeId) as IStoredPermission[];
 
     return rows.map((row) => this.rowToGrant(row));
-  }
+  };
 
   /**
    * Get all permissions for a category
    */
-  async getByCategory(category: ContentCategory): Promise<IPermissionGrant[]> {
+  readonly getByCategory = async (
+    category: ContentCategory,
+  ): Promise<IPermissionGrant[]> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const rows = db
+    const rows = sqlite
       .prepare(
         'SELECT * FROM vault_permissions WHERE scope_category = ? ORDER BY created_at DESC',
       )
       .all(category) as IStoredPermission[];
 
     return rows.map((row) => this.rowToGrant(row));
-  }
+  };
 
   /**
    * Get all permissions
    */
-  async getAll(): Promise<IPermissionGrant[]> {
+  readonly getAll = async (): Promise<IPermissionGrant[]> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const rows = db
+    const rows = sqlite
       .prepare('SELECT * FROM vault_permissions ORDER BY created_at DESC')
       .all() as IStoredPermission[];
 
     return rows.map((row) => this.rowToGrant(row));
-  }
+  };
 
   /**
    * Check if a grantee has permission for an item
    * Returns the effective permission level or null if no access
    */
-  async checkPermission(
+  readonly checkPermission = async (
     granteeId: string,
     scopeType: PermissionScopeType,
     scopeId: string | null,
     category?: ContentCategory,
-  ): Promise<PermissionLevel | null> {
+  ): Promise<PermissionLevel | null> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
 
     // Check for explicit item permission first
     if (scopeType === 'item' && scopeId) {
-      const itemPerm = db
+      const itemPerm = sqlite
         .prepare(`
           SELECT level FROM vault_permissions 
           WHERE grantee_id = ? AND scope_type = 'item' AND scope_id = ?
@@ -225,7 +229,7 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
 
     // Check for category permission
     if (category) {
-      const categoryPerm = db
+      const categoryPerm = sqlite
         .prepare(`
           SELECT level FROM vault_permissions 
           WHERE grantee_id = ? AND scope_type = 'category' AND scope_category = ?
@@ -239,7 +243,7 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
     }
 
     // Check for vault-wide permission
-    const allPerm = db
+    const allPerm = sqlite
       .prepare(`
         SELECT level FROM vault_permissions 
         WHERE grantee_id = ? AND scope_type = 'all'
@@ -255,60 +259,66 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
     }
 
     return null;
-  }
+  };
 
   /**
    * Check if a permission exists (ICrudRepository optional method)
    */
-  async exists(id: string): Promise<boolean> {
+  readonly exists = async (id: string): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const row = db
+    const row = sqlite
       .prepare('SELECT 1 FROM vault_permissions WHERE id = ?')
       .get(id);
 
     return !!row;
-  }
+  };
 
   /**
    * Update permission level
    */
-  async updateLevel(id: string, level: PermissionLevel): Promise<boolean> {
+  readonly updateLevel = async (
+    id: string,
+    level: PermissionLevel,
+  ): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = sqlite
       .prepare('UPDATE vault_permissions SET level = ? WHERE id = ?')
       .run(level, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Update permission expiry
    */
-  async updateExpiry(id: string, expiresAt: string | null): Promise<boolean> {
+  readonly updateExpiry = async (
+    id: string,
+    expiresAt: string | null,
+  ): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = sqlite
       .prepare('UPDATE vault_permissions SET expires_at = ? WHERE id = ?')
       .run(expiresAt, id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Update a permission (ICrudRepository interface method)
    * Updates multiple fields of a permission at once
    */
-  async update(
+  readonly update = async (
     id: string,
     data: Partial<IPermissionGrant>,
-  ): Promise<IPermissionGrant> {
+  ): Promise<IPermissionGrant> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
     // Get current permission
     const current = await this.getById(id);
@@ -340,7 +350,7 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
 
     // Execute update
     values.push(id);
-    const stmt = db.prepare(
+    const stmt = sqlite.prepare(
       `UPDATE vault_permissions SET ${updates.join(', ')} WHERE id = ?`,
     );
     stmt.run(...values);
@@ -351,74 +361,74 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
       throw new Error(`Failed to retrieve updated permission with id ${id}`);
     }
     return updated;
-  }
+  };
 
   /**
    * Delete a permission
    */
-  async delete(id: string): Promise<boolean> {
+  readonly delete = async (id: string): Promise<boolean> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = sqlite
       .prepare('DELETE FROM vault_permissions WHERE id = ?')
       .run(id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Delete all permissions for a grantee
    */
-  async deleteByGrantee(granteeId: string): Promise<number> {
+  readonly deleteByGrantee = async (granteeId: string): Promise<number> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = sqlite
       .prepare('DELETE FROM vault_permissions WHERE grantee_id = ?')
       .run(granteeId);
 
     return result.changes;
-  }
+  };
 
   /**
    * Delete all permissions for an item
    */
-  async deleteByItem(
+  readonly deleteByItem = async (
     scopeType: PermissionScopeType,
     scopeId: string,
-  ): Promise<number> {
+  ): Promise<number> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
 
-    const result = db
+    const result = sqlite
       .prepare(
         'DELETE FROM vault_permissions WHERE scope_type = ? AND scope_id = ?',
       )
       .run(scopeType, scopeId);
 
     return result.changes;
-  }
+  };
 
   /**
    * Remove expired permissions
    */
-  async cleanupExpired(): Promise<number> {
+  readonly cleanupExpired = async (): Promise<number> => {
     await this.initialize();
-    const db = getSQLiteService().getDatabase();
+    const sqlite = getSQLiteService().getDatabase();
     const now = new Date().toISOString();
 
-    const result = db
+    const result = sqlite
       .prepare(
         'DELETE FROM vault_permissions WHERE expires_at IS NOT NULL AND expires_at < ?',
       )
       .run(now);
 
     return result.changes;
-  }
+  };
 
   /**
-   * Convert database row to IPermissionGrant
+   * Convert sqlite row to IPermissionGrant
    */
   private rowToGrant(row: IStoredPermission): IPermissionGrant {
     return {

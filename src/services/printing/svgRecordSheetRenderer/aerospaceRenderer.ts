@@ -11,20 +11,19 @@
 import { IAerospaceRecordSheetData } from '@/types/printing';
 
 import { buildSPASectionString } from './spaSection';
-
-const SVG_W = 612;
-const SVG_H = 792;
-const MARGIN = 18;
-const FONT = 'Eurostile, Arial, sans-serif';
-
-/** Escape text for safe SVG embedding. */
-function esc(s: string | number): string {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+import {
+  EquipmentColumns,
+  FONT,
+  MARGIN,
+  SVG_H,
+  SVG_W,
+  esc,
+  renderEquipmentColumnHeaders,
+  renderEquipmentRows,
+  renderFooter,
+  renderSvgDocument,
+  renderTitleBlock,
+} from './stringRendererPrimitives';
 
 /** Horizontal pip bar for SI / fuel. */
 function pipBar(
@@ -60,11 +59,11 @@ export function renderAerospaceSVG(data: IAerospaceRecordSheetData): string {
   } = data;
 
   // ── Title block ──────────────────────────────────────────────────────────
-  let body = `
-  <!-- Title block -->
-  <rect x="${MARGIN}" y="${MARGIN}" width="${SVG_W - MARGIN * 2}" height="36" fill="#1a2e3a" rx="3"/>
-  <text x="${SVG_W / 2}" y="${MARGIN + 14}" font-family="${FONT}" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">${esc(header.chassis)} ${esc(header.model)}</text>
-  <text x="${SVG_W / 2}" y="${MARGIN + 28}" font-family="${FONT}" font-size="8" fill="#ccc" text-anchor="middle">${esc(header.tonnage)}t · ${esc(header.techBase)} · BV ${esc(header.battleValue.toLocaleString())}</text>`;
+  let body = renderTitleBlock(
+    '#1a2e3a',
+    `${header.chassis} ${header.model}`,
+    `${esc(header.tonnage)}t · ${esc(header.techBase)} · BV ${esc(header.battleValue.toLocaleString())}`,
+  );
 
   // ── Thrust / velocity table ──────────────────────────────────────────────
   const thrustY = MARGIN + 46;
@@ -128,7 +127,7 @@ export function renderAerospaceSVG(data: IAerospaceRecordSheetData): string {
   <text x="${MARGIN}" y="${equipStartY}" font-family="${FONT}" font-size="8" font-weight="bold" fill="#000">WEAPONS &amp; EQUIPMENT</text>
   <line x1="${MARGIN}" y1="${equipStartY + 2}" x2="${SVG_W - MARGIN}" y2="${equipStartY + 2}" stroke="#000" stroke-width="0.5"/>`;
 
-  const cols = {
+  const cols: EquipmentColumns = {
     qty: MARGIN + 2,
     name: MARGIN + 18,
     loc: MARGIN + 160,
@@ -138,34 +137,10 @@ export function renderAerospaceSVG(data: IAerospaceRecordSheetData): string {
     lng: MARGIN + 290,
   };
   const hdrY = equipStartY + 12;
-  body += `
-  <text x="${cols.qty}" y="${hdrY}" font-family="${FONT}" font-size="6" font-weight="bold" fill="#000">Qty</text>
-  <text x="${cols.name}" y="${hdrY}" font-family="${FONT}" font-size="6" font-weight="bold" fill="#000">Type</text>
-  <text x="${cols.loc}" y="${hdrY}" font-family="${FONT}" font-size="6" font-weight="bold" fill="#000">Loc</text>
-  <text x="${cols.dmg}" y="${hdrY}" font-family="${FONT}" font-size="6" font-weight="bold" fill="#000">Dmg</text>
-  <text x="${cols.sht}" y="${hdrY}" font-family="${FONT}" font-size="6" font-weight="bold" fill="#000">Sht</text>
-  <text x="${cols.med}" y="${hdrY}" font-family="${FONT}" font-size="6" font-weight="bold" fill="#000">Med</text>
-  <text x="${cols.lng}" y="${hdrY}" font-family="${FONT}" font-size="6" font-weight="bold" fill="#000">Lng</text>`;
+  body += renderEquipmentColumnHeaders(cols, hdrY);
 
   const maxEqRows = Math.floor((SVG_H - equipStartY - 30) / 9);
-  equipment.slice(0, maxEqRows).forEach((eq, i) => {
-    const ry = hdrY + 10 + i * 9;
-    const name =
-      eq.name.length > 22 ? eq.name.substring(0, 20) + '..' : eq.name;
-    body += `
-  <text x="${cols.qty}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.quantity)}</text>
-  <text x="${cols.name}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(name)}</text>
-  <text x="${cols.loc}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.locationAbbr)}</text>`;
-    if (eq.isWeapon) {
-      body += `
-  <text x="${cols.dmg}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.damage ?? '-')}</text>
-  <text x="${cols.sht}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.short || '-')}</text>
-  <text x="${cols.med}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.medium || '-')}</text>
-  <text x="${cols.lng}" y="${ry}" font-family="${FONT}" font-size="6" fill="#000">${esc(eq.long || '-')}</text>`;
-    } else if (eq.isAmmo) {
-      body += `<text x="${cols.dmg}" y="${ry}" font-family="${FONT}" font-size="6" fill="#555">(${esc(eq.ammoCount ?? 0)} shots)</text>`;
-    }
-  });
+  body += renderEquipmentRows(equipment, cols, hdrY, maxEqRows);
 
   // ── Pilot block ───────────────────────────────────────────────────────────
   if (data.pilot) {
@@ -187,11 +162,6 @@ export function renderAerospaceSVG(data: IAerospaceRecordSheetData): string {
     );
   }
 
-  body += `
-  <text x="${SVG_W / 2}" y="${SVG_H - 6}" font-family="${FONT}" font-size="5.5" fill="#888" text-anchor="middle">MekStation · Aerospace Record Sheet</text>`;
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_W}" height="${SVG_H}" viewBox="0 0 ${SVG_W} ${SVG_H}">
-  <rect width="${SVG_W}" height="${SVG_H}" fill="#fff"/>
-  ${body}
-</svg>`;
+  body += renderFooter('MekStation · Aerospace Record Sheet');
+  return renderSvgDocument(body);
 }

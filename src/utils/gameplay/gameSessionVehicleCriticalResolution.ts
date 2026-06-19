@@ -253,90 +253,60 @@ function emitAmmoExplosionEvent(
   );
 }
 
+const vehicleCritComponentTypes: Record<VehicleCritKind, string> = {
+  ammo_explosion: 'ammo',
+  cargo_hit: 'cargo',
+  commander_hit: 'commander',
+  copilot_hit: 'copilot',
+  crew_killed: 'crew',
+  crew_stunned: 'crew',
+  driver_hit: 'driver',
+  engine_hit: 'engine',
+  flight_stabilizer: 'stabilizer',
+  fuel_tank: 'engine',
+  none: 'none',
+  pilot_hit: 'driver',
+  rotor_damage: 'rotor',
+  rotor_destroyed: 'rotor',
+  sensor_hit: 'sensor',
+  stabilizer_hit: 'stabilizer',
+  turret_destroyed: 'turret',
+  turret_jammed: 'turret',
+  turret_locked: 'turret',
+  weapon_destroyed: 'weapon',
+  weapon_jammed: 'weapon',
+};
+
 function vehicleCritComponentType(kind: VehicleCritKind): string {
-  switch (kind) {
-    case 'ammo_explosion':
-      return 'ammo';
-    case 'cargo_hit':
-      return 'cargo';
-    case 'commander_hit':
-      return 'commander';
-    case 'copilot_hit':
-      return 'copilot';
-    case 'crew_killed':
-    case 'crew_stunned':
-      return 'crew';
-    case 'driver_hit':
-    case 'pilot_hit':
-      return 'driver';
-    case 'engine_hit':
-    case 'fuel_tank':
-      return 'engine';
-    case 'flight_stabilizer':
-    case 'stabilizer_hit':
-      return 'stabilizer';
-    case 'rotor_damage':
-    case 'rotor_destroyed':
-      return 'rotor';
-    case 'sensor_hit':
-      return 'sensor';
-    case 'turret_destroyed':
-    case 'turret_jammed':
-    case 'turret_locked':
-      return 'turret';
-    case 'weapon_jammed':
-    case 'weapon_destroyed':
-      return 'weapon';
-    case 'none':
-      return 'none';
-  }
+  return vehicleCritComponentTypes[kind];
 }
 
+const vehicleCritComponentNames: Record<VehicleCritKind, string> = {
+  ammo_explosion: 'Ammo',
+  cargo_hit: 'Cargo',
+  commander_hit: 'Commander',
+  copilot_hit: 'Copilot',
+  crew_killed: 'Crew killed',
+  crew_stunned: 'Crew',
+  driver_hit: 'Driver',
+  engine_hit: 'Engine',
+  flight_stabilizer: 'Flight stabilizer',
+  fuel_tank: 'Fuel Tank',
+  none: 'None',
+  pilot_hit: 'Pilot',
+  rotor_damage: 'Rotor damage',
+  rotor_destroyed: 'Rotor destroyed',
+  sensor_hit: 'Sensor',
+  stabilizer_hit: 'Stabilizer',
+  turret_destroyed: 'Turret destroyed',
+  turret_jammed: 'Turret jammed',
+  turret_locked: 'Turret locked',
+  weapon_destroyed: 'Vehicle weapon',
+  weapon_jammed: 'Vehicle weapon jammed',
+};
+
 function vehicleCritComponentName(kind: VehicleCritKind): string {
-  switch (kind) {
-    case 'ammo_explosion':
-      return 'Ammo';
-    case 'cargo_hit':
-      return 'Cargo';
-    case 'commander_hit':
-      return 'Commander';
-    case 'copilot_hit':
-      return 'Copilot';
-    case 'crew_killed':
-      return 'Crew killed';
-    case 'crew_stunned':
-      return 'Crew';
-    case 'driver_hit':
-      return 'Driver';
-    case 'engine_hit':
-      return 'Engine';
-    case 'fuel_tank':
-      return 'Fuel Tank';
-    case 'flight_stabilizer':
-      return 'Flight stabilizer';
-    case 'pilot_hit':
-      return 'Pilot';
-    case 'rotor_damage':
-      return 'Rotor damage';
-    case 'rotor_destroyed':
-      return 'Rotor destroyed';
-    case 'sensor_hit':
-      return 'Sensor';
-    case 'stabilizer_hit':
-      return 'Stabilizer';
-    case 'turret_destroyed':
-      return 'Turret destroyed';
-    case 'turret_jammed':
-      return 'Turret jammed';
-    case 'turret_locked':
-      return 'Turret locked';
-    case 'weapon_jammed':
-      return 'Vehicle weapon jammed';
-    case 'weapon_destroyed':
-      return 'Vehicle weapon';
-    case 'none':
-      return 'None';
-  }
+  return vehicleCritComponentNames[kind];
 }
 
 function hasExplosiveAmmoForVehicle(

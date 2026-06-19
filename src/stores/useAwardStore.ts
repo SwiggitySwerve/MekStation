@@ -19,13 +19,13 @@ import {
   IAwardNotification,
   IAwardCheckResult,
   IGrantAwardInput,
-  CriteriaType,
   createEmptyPilotStats,
   calculateProgress,
   AWARD_CATALOG,
   getAwardById,
 } from '@/types/award';
 
+import { grantMatchingEventAwards } from './awardStoreEventMatching';
 import { getCriteriaValue } from './awardStoreUtils';
 
 // =============================================================================
@@ -441,44 +441,15 @@ export const useAwardStore = create<AwardStore>()(
         data: Record<string, unknown>,
         context: IAwardContext,
       ) => {
-        // For specific events, we need to check awards that match this event type
-        const matchingAwards = AWARD_CATALOG.filter(
-          (award) =>
-            award.criteria.type === CriteriaType.SpecificEvent &&
-            award.criteria.conditions?.eventType === eventType,
-        );
-
-        for (const award of matchingAwards) {
-          if (!get().hasPilotAward(pilotId, award.id)) {
-            // Check any additional conditions
-            const conditions = award.criteria.conditions;
-            let conditionsMet = true;
-
-            if (conditions) {
-              for (const [key, value] of Object.entries(conditions)) {
-                if (key !== 'eventType' && data[key] !== value) {
-                  // For numeric comparisons
-                  if (
-                    typeof value === 'number' &&
-                    typeof data[key] === 'number'
-                  ) {
-                    if (data[key] < value) {
-                      conditionsMet = false;
-                      break;
-                    }
-                  } else {
-                    conditionsMet = false;
-                    break;
-                  }
-                }
-              }
-            }
-
-            if (conditionsMet) {
-              get().grantAward({ pilotId, awardId: award.id, context });
-            }
-          }
-        }
+        const store = get();
+        grantMatchingEventAwards({
+          pilotId,
+          eventType,
+          data,
+          context,
+          hasPilotAward: store.hasPilotAward,
+          grantAward: store.grantAward,
+        });
       },
 
       // Reset survival streak

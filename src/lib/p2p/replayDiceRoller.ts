@@ -84,7 +84,7 @@ export class ReplayDiceRoller implements IReplayDiceRoller {
     this.cachedRoller = () => this.d6();
   }
 
-  d6(): number {
+  d6 = (): number => {
     if (this.activeEventId === null) {
       throw new Error(
         'ReplayDiceRoller.d6() called without an active event id — ' +
@@ -108,13 +108,13 @@ export class ReplayDiceRoller implements IReplayDiceRoller {
     const value = slot.rolls[slot.cursor];
     slot.cursor += 1;
     return value;
-  }
+  };
 
-  asD6Roller(): D6Roller {
+  asD6Roller = (): D6Roller => {
     return this.cachedRoller;
-  }
+  };
 
-  pushEventRolls(eventId: string, rolls: readonly number[]): void {
+  pushEventRolls = (eventId: string, rolls: readonly number[]): void => {
     const existing = this.slots.get(eventId);
     if (existing) {
       // Idempotent re-push (e.g. reconnect replay): allow when the rolls
@@ -129,26 +129,26 @@ export class ReplayDiceRoller implements IReplayDiceRoller {
       return;
     }
     this.slots.set(eventId, { rolls: rolls.slice(), cursor: 0 });
-  }
+  };
 
-  setActiveEventId(eventId: string | null): void {
+  setActiveEventId = (eventId: string | null): void => {
     this.activeEventId = eventId;
-  }
+  };
 
-  peekEventRolls(eventId: string): readonly number[] {
+  peekEventRolls = (eventId: string): readonly number[] => {
     const slot = this.slots.get(eventId);
     if (!slot) return [];
     return slot.rolls.slice(slot.cursor);
-  }
+  };
 
-  hasEventRolls(eventId: string): boolean {
+  hasEventRolls = (eventId: string): boolean => {
     return this.slots.has(eventId);
-  }
+  };
 
-  reset(): void {
+  reset = (): void => {
     this.slots.clear();
     this.activeEventId = null;
-  }
+  };
 }
 
 /**

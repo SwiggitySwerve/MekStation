@@ -7,180 +7,16 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import type { IPermissionGrant, PermissionLevel } from '@/types/vault';
-
 import {
   PermissionService,
   IGrantPermissionOptions,
 } from '@/services/vault/PermissionService';
 
+import { MockPermissionRepository } from './permissionService.test-helpers';
+
 // =============================================================================
 // Mock Repository
 // =============================================================================
-
-class MockPermissionRepository {
-  private permissions: Map<string, IPermissionGrant> = new Map();
-  private idCounter = 0;
-
-  async create(
-    grant: Omit<IPermissionGrant, 'id' | 'createdAt'>,
-  ): Promise<IPermissionGrant> {
-    const id = `perm-mock-${++this.idCounter}`;
-    const createdAt = new Date().toISOString();
-    const permission: IPermissionGrant = {
-      id,
-      granteeId: grant.granteeId,
-      scopeType: grant.scopeType,
-      scopeId: grant.scopeId,
-      scopeCategory: grant.scopeCategory,
-      level: grant.level,
-      expiresAt: grant.expiresAt,
-      createdAt,
-      granteeName: grant.granteeName,
-    };
-    this.permissions.set(id, permission);
-    return permission;
-  }
-
-  async getById(id: string): Promise<IPermissionGrant | null> {
-    return this.permissions.get(id) || null;
-  }
-
-  async getByGrantee(granteeId: string): Promise<IPermissionGrant[]> {
-    return Array.from(this.permissions.values()).filter(
-      (p) => p.granteeId === granteeId,
-    );
-  }
-
-  async getByItem(
-    scopeType: string,
-    scopeId: string,
-  ): Promise<IPermissionGrant[]> {
-    return Array.from(this.permissions.values()).filter(
-      (p) => p.scopeType === scopeType && p.scopeId === scopeId,
-    );
-  }
-
-  async getByCategory(category: string): Promise<IPermissionGrant[]> {
-    return Array.from(this.permissions.values()).filter(
-      (p) => p.scopeCategory === category,
-    );
-  }
-
-  async getAll(): Promise<IPermissionGrant[]> {
-    return Array.from(this.permissions.values());
-  }
-
-  async checkPermission(
-    granteeId: string,
-    scopeType: string,
-    scopeId: string | null,
-    category?: string,
-  ): Promise<PermissionLevel | null> {
-    const now = new Date().toISOString();
-
-    // Check for explicit item permission
-    if (scopeType === 'item' && scopeId) {
-      const itemPerm = Array.from(this.permissions.values()).find(
-        (p) =>
-          p.granteeId === granteeId &&
-          p.scopeType === 'item' &&
-          p.scopeId === scopeId &&
-          (!p.expiresAt || p.expiresAt > now),
-      );
-      if (itemPerm) return itemPerm.level;
-    }
-
-    // Check for category permission
-    if (category) {
-      const categoryPerm = Array.from(this.permissions.values()).find(
-        (p) =>
-          p.granteeId === granteeId &&
-          p.scopeType === 'category' &&
-          p.scopeCategory === category &&
-          (!p.expiresAt || p.expiresAt > now),
-      );
-      if (categoryPerm) return categoryPerm.level;
-    }
-
-    // Check for vault-wide permission
-    const allPerm = Array.from(this.permissions.values()).find(
-      (p) =>
-        p.granteeId === granteeId &&
-        p.scopeType === 'all' &&
-        (!p.expiresAt || p.expiresAt > now),
-    );
-    if (allPerm) return allPerm.level;
-
-    // Check for public permission
-    if (granteeId !== 'public') {
-      return this.checkPermission('public', scopeType, scopeId, category);
-    }
-
-    return null;
-  }
-
-  async updateLevel(id: string, level: PermissionLevel): Promise<boolean> {
-    const perm = this.permissions.get(id);
-    if (!perm) return false;
-    this.permissions.set(id, { ...perm, level });
-    return true;
-  }
-
-  async updateExpiry(id: string, expiresAt: string | null): Promise<boolean> {
-    const perm = this.permissions.get(id);
-    if (!perm) return false;
-    this.permissions.set(id, { ...perm, expiresAt });
-    return true;
-  }
-
-  async delete(id: string): Promise<boolean> {
-    return this.permissions.delete(id);
-  }
-
-  async deleteByGrantee(granteeId: string): Promise<number> {
-    let count = 0;
-    const entries = Array.from(this.permissions.entries());
-    for (const [id, perm] of entries) {
-      if (perm.granteeId === granteeId) {
-        this.permissions.delete(id);
-        count++;
-      }
-    }
-    return count;
-  }
-
-  async deleteByItem(scopeType: string, scopeId: string): Promise<number> {
-    let count = 0;
-    const entries = Array.from(this.permissions.entries());
-    for (const [id, perm] of entries) {
-      if (perm.scopeType === scopeType && perm.scopeId === scopeId) {
-        this.permissions.delete(id);
-        count++;
-      }
-    }
-    return count;
-  }
-
-  async cleanupExpired(): Promise<number> {
-    const now = new Date().toISOString();
-    let count = 0;
-    const entries = Array.from(this.permissions.entries());
-    for (const [id, perm] of entries) {
-      if (perm.expiresAt && perm.expiresAt < now) {
-        this.permissions.delete(id);
-        count++;
-      }
-    }
-    return count;
-  }
-
-  // Test helper
-  clear(): void {
-    this.permissions.clear();
-    this.idCounter = 0;
-  }
-}
 
 // =============================================================================
 // Tests
@@ -335,10 +171,6 @@ describe('PermissionService', () => {
     });
   });
 
-  // ===========================================================================
-  // Revoking Permissions
-  // ===========================================================================
-
   describe('revoke', () => {
     it('should revoke existing permission', async () => {
       const grantResult = await service.grant({
@@ -363,10 +195,6 @@ describe('PermissionService', () => {
       expect(result.error).toContain('not found');
     });
   });
-
-  // ===========================================================================
-  // Checking Permissions
-  // ===========================================================================
 
   describe('check', () => {
     it('should find item permission', async () => {
@@ -469,10 +297,6 @@ describe('PermissionService', () => {
     });
   });
 
-  // ===========================================================================
-  // Action Checks
-  // ===========================================================================
-
   describe('canPerformAction', () => {
     beforeEach(async () => {
       await service.grant({
@@ -540,10 +364,6 @@ describe('PermissionService', () => {
     });
   });
 
-  // ===========================================================================
-  // Updating Permissions
-  // ===========================================================================
-
   describe('updateLevel', () => {
     it('should update permission level', async () => {
       const grantResult = await service.grant({
@@ -605,108 +425,6 @@ describe('PermissionService', () => {
 
       expect(updateResult.success).toBe(true);
       expect(updateResult.grant?.expiresAt).toBeNull();
-    });
-  });
-
-  // ===========================================================================
-  // Bulk Operations
-  // ===========================================================================
-
-  describe('revokeAllForGrantee', () => {
-    it('should revoke all permissions for a grantee', async () => {
-      await service.grant({
-        granteeId: 'ABCD-EFGH-JKLM-NPQR',
-        scopeType: 'item',
-        scopeId: 'unit-1',
-        level: 'read',
-      });
-      await service.grant({
-        granteeId: 'ABCD-EFGH-JKLM-NPQR',
-        scopeType: 'item',
-        scopeId: 'unit-2',
-        level: 'write',
-      });
-      await service.grant({
-        granteeId: 'OTHER-USER-CODE',
-        scopeType: 'item',
-        scopeId: 'unit-1',
-        level: 'read',
-      });
-
-      const count = await service.revokeAllForGrantee('ABCD-EFGH-JKLM-NPQR');
-
-      expect(count).toBe(2);
-
-      const remaining = await service.getAllGrants();
-      expect(remaining).toHaveLength(1);
-      expect(remaining[0].granteeId).toBe('OTHER-USER-CODE');
-    });
-  });
-
-  describe('revokeAllForItem', () => {
-    it('should revoke all permissions for an item', async () => {
-      await service.grant({
-        granteeId: 'user-1',
-        scopeType: 'item',
-        scopeId: 'unit-123',
-        level: 'read',
-      });
-      await service.grant({
-        granteeId: 'user-2',
-        scopeType: 'item',
-        scopeId: 'unit-123',
-        level: 'write',
-      });
-      await service.grant({
-        granteeId: 'user-1',
-        scopeType: 'item',
-        scopeId: 'unit-456',
-        level: 'read',
-      });
-
-      const count = await service.revokeAllForItem('item', 'unit-123');
-
-      expect(count).toBe(2);
-
-      const remaining = await service.getAllGrants();
-      expect(remaining).toHaveLength(1);
-      expect(remaining[0].scopeId).toBe('unit-456');
-    });
-  });
-
-  describe('cleanupExpired', () => {
-    it('should remove expired permissions', async () => {
-      const expiredAt = new Date(Date.now() - 1000).toISOString();
-      const futureAt = new Date(Date.now() + 86400000).toISOString();
-
-      await service.grant({
-        granteeId: 'user-1',
-        scopeType: 'item',
-        scopeId: 'unit-1',
-        level: 'read',
-        expiresAt: expiredAt,
-      });
-      await service.grant({
-        granteeId: 'user-2',
-        scopeType: 'item',
-        scopeId: 'unit-2',
-        level: 'read',
-        expiresAt: futureAt,
-      });
-      await service.grant({
-        granteeId: 'user-3',
-        scopeType: 'item',
-        scopeId: 'unit-3',
-        level: 'read',
-        // No expiry
-      });
-
-      const count = await service.cleanupExpired();
-
-      expect(count).toBe(1);
-
-      const remaining = await service.getAllGrants();
-      expect(remaining).toHaveLength(2);
     });
   });
 });

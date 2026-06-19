@@ -13,15 +13,13 @@
 import type { IBattleArmorRecordSheetUnitInput } from '@/services/printing/recordsheet/dispatchTarget';
 import type { ManipulatorType } from '@/types/unit/PersonnelInterfaces';
 
+import {
+  buildRecordSheetUnitIdentity,
+  type RecordSheetUnitIdentityInput,
+} from '../preview/recordSheetUnitIdentity';
+
 /** Store fields the battle armor unit-object builder reads. */
-export interface BattleArmorUnitObjectInput {
-  id: string;
-  name: string;
-  chassis: string;
-  model: string;
-  techBase: string;
-  rulesLevel: string;
-  year: number;
+export interface BattleArmorUnitObjectInput extends RecordSheetUnitIdentityInput {
   squadSize: number;
   armorPerTrooper: number;
   leftManipulator: ManipulatorType;
@@ -49,14 +47,7 @@ export function buildBattleArmorUnitObject(
   }));
 
   return {
-    id: input.id,
-    name: input.name,
-    chassis: input.chassis || input.name.split(' ')[0] || 'Unknown',
-    model: input.model || input.name.split(' ').slice(1).join(' ') || 'Custom',
-    tonnage: 0,
-    techBase: String(input.techBase),
-    rulesLevel: String(input.rulesLevel),
-    era: `Year ${input.year}`,
+    ...buildRecordSheetUnitIdentity({ ...input, tonnage: 0 }),
     // Dispatch hint — resolves to the 'battlearmor' kind.
     unitType: 'battlearmor',
     squadSize: input.squadSize,

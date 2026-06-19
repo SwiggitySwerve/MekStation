@@ -27,11 +27,66 @@ import {
   reorderPendingJobs,
 } from './RepairBayPage.utils';
 
+const DEMO_CAMPAIGN_ID = 'demo-campaign';
+const AVAILABLE_C_BILLS = 500000;
+
+function getActiveCampaignId(
+  campaignId: string | string[] | undefined,
+): string {
+  return typeof campaignId === 'string' ? campaignId : DEMO_CAMPAIGN_ID;
+}
+
+function getSelectedJob(
+  activeCampaignId: string,
+  selectedJobId: string | null,
+  getJob: (campaignId: string, jobId: string) => IRepairJob | undefined,
+): IRepairJob | null {
+  if (!selectedJobId) return null;
+  return getJob(activeCampaignId, selectedJobId) ?? null;
+}
+
+function getQueueJobs(allJobs: readonly IRepairJob[]): IRepairJob[] {
+  return allJobs.filter(
+    (job) =>
+      job.status === RepairJobStatus.InProgress ||
+      job.status === RepairJobStatus.Pending ||
+      job.status === RepairJobStatus.Completed,
+  );
+}
+
+function moveRepairJob(params: {
+  readonly allJobs: readonly IRepairJob[];
+  readonly activeCampaignId: string;
+  readonly jobId: string;
+  readonly direction: 'up' | 'down';
+  readonly reorderJobs: (campaignId: string, orderedJobIds: string[]) => void;
+}): void {
+  const { allJobs, activeCampaignId, jobId, direction, reorderJobs } = params;
+  const pendingJobs = getPendingJobsInPriorityOrder(allJobs);
+  const reorderedIds = reorderPendingJobs(pendingJobs, jobId, direction);
+  if (reorderedIds) {
+    reorderJobs(activeCampaignId, reorderedIds);
+  }
+}
+
+function startPendingRepairJobs(
+  allJobs: readonly IRepairJob[],
+  activeCampaignId: string,
+  startJob: (campaignId: string, jobId: string) => void,
+): void {
+  const pendingJobs = allJobs.filter(
+    (job) => job.status === RepairJobStatus.Pending,
+  );
+  pendingJobs.forEach((job) => {
+    startJob(activeCampaignId, job.id);
+  });
+}
+
 export default function RepairBayPage(): React.ReactElement {
   const router = useRouter();
   const { campaignId } = router.query;
 
-  const activeCampaignId = (campaignId as string) || 'demo-campaign';
+  const activeCampaignId = getActiveCampaignId(campaignId);
 
   const isLoading = useRepairSelector((state) => state.isLoading);
   const error = useRepairSelector((state) => state.error);
@@ -64,9 +119,7 @@ export default function RepairBayPage(): React.ReactElement {
   });
 
   const allJobs = getJobs(activeCampaignId);
-  const selectedJob: IRepairJob | null = selectedJobId
-    ? (getJob(activeCampaignId, selectedJobId) ?? null)
-    : null;
+  const selectedJob = getSelectedJob(activeCampaignId, selectedJobId, getJob);
 
   const filteredJobs = useMemo(() => {
     return filterAndSortJobs(allJobs, statusFilter, searchQuery);
@@ -118,22 +171,26 @@ export default function RepairBayPage(): React.ReactElement {
 
   const handleMoveUp = useCallback(
     (jobId: string) => {
-      const pendingJobs = getPendingJobsInPriorityOrder(allJobs);
-      const reorderedIds = reorderPendingJobs(pendingJobs, jobId, 'up');
-      if (reorderedIds) {
-        reorderJobs(activeCampaignId, reorderedIds);
-      }
+      moveRepairJob({
+        allJobs,
+        activeCampaignId,
+        jobId,
+        direction: 'up',
+        reorderJobs,
+      });
     },
     [activeCampaignId, allJobs, reorderJobs],
   );
 
   const handleMoveDown = useCallback(
     (jobId: string) => {
-      const pendingJobs = getPendingJobsInPriorityOrder(allJobs);
-      const reorderedIds = reorderPendingJobs(pendingJobs, jobId, 'down');
-      if (reorderedIds) {
-        reorderJobs(activeCampaignId, reorderedIds);
-      }
+      moveRepairJob({
+        allJobs,
+        activeCampaignId,
+        jobId,
+        direction: 'down',
+        reorderJobs,
+      });
     },
     [activeCampaignId, allJobs, reorderJobs],
   );
@@ -143,28 +200,16 @@ export default function RepairBayPage(): React.ReactElement {
   }, []);
 
   const handleRepairAll = useCallback(() => {
-    const pendingJobs = allJobs.filter(
-      (job) => job.status === RepairJobStatus.Pending,
-    );
-    pendingJobs.forEach((job) => {
-      startJob(activeCampaignId, job.id);
-    });
+    startPendingRepairJobs(allJobs, activeCampaignId, startJob);
   }, [activeCampaignId, allJobs, startJob]);
 
   const stats = useMemo(() => calculateRepairStats(allJobs), [allJobs]);
-
-  const availableCBills = 500000;
 
   if (!isInitialized || isLoading) {
     return <PageLoading message="Loading repair bay..." />;
   }
 
-  const queueJobs = allJobs.filter(
-    (job) =>
-      job.status === RepairJobStatus.InProgress ||
-      job.status === RepairJobStatus.Pending ||
-      job.status === RepairJobStatus.Completed,
-  );
+  const queueJobs = getQueueJobs(allJobs);
 
   return (
     <PageLayout
@@ -203,7 +248,7 @@ export default function RepairBayPage(): React.ReactElement {
           filteredJobs={filteredJobs}
           selectedJobId={selectedJobId}
           selectedJob={selectedJob}
-          availableCBills={availableCBills}
+          availableCBills={AVAILABLE_C_BILLS}
           onJobClick={handleJobClick}
           onToggleItem={handleToggleItem}
           onSelectAll={handleSelectAll}

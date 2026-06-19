@@ -11,6 +11,11 @@ import {
   getEquipmentCalculatorService,
   VARIABLE_EQUIPMENT,
 } from '@/services/equipment/EquipmentCalculatorService';
+import {
+  clearMountedEquipment,
+  linkMountedAmmo,
+  updateMountedEquipment,
+} from '@/stores/equipmentStoreActions';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { IEquipmentItem } from '@/types/equipment';
 import { createMountedEquipment } from '@/types/equipment/MountedEquipment';
@@ -23,6 +28,7 @@ import { logger } from '@/utils/logger';
 import { generateUnitId } from '@/utils/uuid';
 
 import type { UnitStore } from '../unitState';
+import type { UnitSliceGetFn, UnitSliceSetFn } from './unitSliceTypes';
 
 // =============================================================================
 // Constants
@@ -95,18 +101,9 @@ export interface UnitEquipmentActions {
   clearAllEquipment: () => void;
 }
 
-// =============================================================================
-// Slice Factory
-// =============================================================================
-
-type SetFn = (
-  partial: Partial<UnitStore> | ((state: UnitStore) => Partial<UnitStore>),
-) => void;
-type GetFn = () => UnitStore;
-
 export function createEquipmentSlice(
-  set: SetFn,
-  get: GetFn,
+  set: UnitSliceSetFn,
+  get: UnitSliceGetFn,
 ): UnitEquipmentActions {
   return {
     addEquipment: (item: IEquipmentItem) => {
@@ -191,13 +188,14 @@ export function createEquipmentSlice(
       location: MechLocation,
       slots: readonly number[],
     ) =>
-      set((state) => ({
-        equipment: state.equipment.map((e) =>
-          e.instanceId === instanceId ? { ...e, location, slots } : e,
+      set((state) =>
+        updateMountedEquipment(
+          state,
+          instanceId,
+          (e) => e.instanceId,
+          (e) => ({ ...e, location, slots }),
         ),
-        isModified: true,
-        lastModifiedAt: Date.now(),
-      })),
+      ),
 
     bulkUpdateEquipmentLocations: (
       updates: ReadonlyArray<{
@@ -221,41 +219,38 @@ export function createEquipmentSlice(
       }),
 
     clearEquipmentLocation: (instanceId: string) =>
-      set((state) => ({
-        equipment: state.equipment.map((e) =>
-          e.instanceId === instanceId
-            ? { ...e, location: undefined, slots: undefined }
-            : e,
+      set((state) =>
+        updateMountedEquipment(
+          state,
+          instanceId,
+          (e) => e.instanceId,
+          (e) => ({ ...e, location: undefined, slots: undefined }),
         ),
-        isModified: true,
-        lastModifiedAt: Date.now(),
-      })),
+      ),
 
     setEquipmentRearMounted: (instanceId: string, isRearMounted: boolean) =>
-      set((state) => ({
-        equipment: state.equipment.map((e) =>
-          e.instanceId === instanceId ? { ...e, isRearMounted } : e,
+      set((state) =>
+        updateMountedEquipment(
+          state,
+          instanceId,
+          (e) => e.instanceId,
+          (e) => ({ ...e, isRearMounted }),
         ),
-        isModified: true,
-        lastModifiedAt: Date.now(),
-      })),
+      ),
 
     linkAmmo: (weaponInstanceId: string, ammoInstanceId: string | undefined) =>
-      set((state) => ({
-        equipment: state.equipment.map((e) =>
-          e.instanceId === weaponInstanceId
-            ? { ...e, linkedAmmoId: ammoInstanceId }
-            : e,
+      set((state) =>
+        linkMountedAmmo(
+          state,
+          weaponInstanceId,
+          ammoInstanceId,
+          (e) => e.instanceId,
         ),
-        isModified: true,
-        lastModifiedAt: Date.now(),
-      })),
+      ),
 
     clearAllEquipment: () =>
-      set((state) => ({
-        equipment: state.equipment.filter((e) => !e.isRemovable),
-        isModified: true,
-        lastModifiedAt: Date.now(),
-      })),
+      set((state) =>
+        clearMountedEquipment(state.equipment.filter((e) => !e.isRemovable)),
+      ),
   };
 }

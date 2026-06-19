@@ -11,37 +11,46 @@
 import { IBattleArmorRecordSheetData } from '@/types/printing';
 
 import { buildSPASectionString } from './spaSection';
-
-const SVG_W = 612;
-const SVG_H = 792;
-const MARGIN = 18;
-const FONT = 'Eurostile, Arial, sans-serif';
-
-/** Escape text for safe SVG embedding. */
-function esc(s: string | number): string {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+import {
+  FONT,
+  MARGIN,
+  SVG_H,
+  SVG_W,
+  esc,
+  renderFooter,
+  renderSvgDocument,
+  renderTitleBlock,
+} from './stringRendererPrimitives';
 
 /**
  * Render a column of armor pips for one trooper.
  *
  * Each pip is a small circle: filled for remaining armor, open for damage.
  */
-function trooperColumn(
-  x: number,
-  y: number,
-  trooperIndex: number,
-  armorPips: number,
-  maximumPips: number,
-  gunnery: number,
-  antiMech: number,
-  modularWeapon?: string,
-  apWeapon?: string,
-): string {
+type TrooperColumnParams = {
+  x: number;
+  y: number;
+  trooperIndex: number;
+  armorPips: number;
+  maximumPips: number;
+  gunnery: number;
+  antiMech: number;
+  modularWeapon?: string;
+  apWeapon?: string;
+};
+
+function trooperColumn(params: TrooperColumnParams): string {
+  const {
+    x,
+    y,
+    trooperIndex,
+    armorPips,
+    maximumPips,
+    gunnery,
+    antiMech,
+    modularWeapon,
+    apWeapon,
+  } = params;
   const PIP_R = 4;
   const PIP_GAP = 11;
   const COLS_PER_ROW = 2;
@@ -89,11 +98,11 @@ export function renderBattleArmorSVG(
   } = data;
 
   // ── Title block ──────────────────────────────────────────────────────────
-  let body = `
-  <!-- Title block -->
-  <rect x="${MARGIN}" y="${MARGIN}" width="${SVG_W - MARGIN * 2}" height="36" fill="#2e1a1a" rx="3"/>
-  <text x="${SVG_W / 2}" y="${MARGIN + 14}" font-family="${FONT}" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">${esc(header.chassis)} ${esc(header.model)}</text>
-  <text x="${SVG_W / 2}" y="${MARGIN + 28}" font-family="${FONT}" font-size="8" fill="#ccc" text-anchor="middle">BattleArmor · Squad Size: ${esc(squadSize)} · ${esc(header.techBase)} · BV ${esc(header.battleValue.toLocaleString())}</text>`;
+  let body = renderTitleBlock(
+    '#2e1a1a',
+    `${header.chassis} ${header.model}`,
+    `BattleArmor · Squad Size: ${esc(squadSize)} · ${esc(header.techBase)} · BV ${esc(header.battleValue.toLocaleString())}`,
+  );
 
   // ── Movement block ───────────────────────────────────────────────────────
   const moveY = MARGIN + 46;
@@ -118,17 +127,17 @@ export function renderBattleArmorSVG(
   const colW = Math.floor((SVG_W - MARGIN * 2) / Math.max(squadSize, 1));
   troopers.forEach((t, i) => {
     const tx = MARGIN + i * colW;
-    body += trooperColumn(
-      tx,
-      trooperStartY + 12,
-      t.index,
-      t.armorPips,
-      t.maximumArmorPips,
-      t.gunnery,
-      t.antiMech,
-      t.modularWeapon,
-      t.apWeapon,
-    );
+    body += trooperColumn({
+      x: tx,
+      y: trooperStartY + 12,
+      trooperIndex: t.index,
+      armorPips: t.armorPips,
+      maximumPips: t.maximumArmorPips,
+      gunnery: t.gunnery,
+      antiMech: t.antiMech,
+      modularWeapon: t.modularWeapon,
+      apWeapon: t.apWeapon,
+    });
   });
 
   // Estimate where trooper columns end (max pips determines height)
@@ -148,11 +157,6 @@ export function renderBattleArmorSVG(
   }
 
   // ── Footer ───────────────────────────────────────────────────────────────
-  body += `
-  <text x="${SVG_W / 2}" y="${SVG_H - 6}" font-family="${FONT}" font-size="5.5" fill="#888" text-anchor="middle">MekStation · BattleArmor Record Sheet</text>`;
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_W}" height="${SVG_H}" viewBox="0 0 ${SVG_W} ${SVG_H}">
-  <rect width="${SVG_W}" height="${SVG_H}" fill="#fff"/>
-  ${body}
-</svg>`;
+  body += renderFooter('MekStation · BattleArmor Record Sheet');
+  return renderSvgDocument(body);
 }

@@ -8,7 +8,12 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import {
+  initializeApiDatabase,
+  rejectUnexpectedMethod,
+  sendCaughtApiError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getVersionRepository } from '@/services/units/VersionRepository';
 import { IVersionRecord } from '@/types/persistence/UnitPersistence';
 
@@ -17,27 +22,13 @@ import { IVersionRecord } from '@/types/persistence/UnitPersistence';
  */
 type VersionResponse = IVersionRecord & { parsedData: Record<string, unknown> };
 
-type ErrorResponse = {
-  error: string;
-};
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<VersionResponse | ErrorResponse>,
+  res: NextApiResponse<VersionResponse | ApiErrorResponse>,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initializeApiDatabase(res)) return;
 
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', ['GET']);
-    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-  }
+  if (rejectUnexpectedMethod(req, res, ['GET'])) return;
 
   const { id, version } = req.query;
 
@@ -76,8 +67,7 @@ export default async function handler(
       parsedData,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to get version';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'Failed to get version');
+    return;
   }
 }

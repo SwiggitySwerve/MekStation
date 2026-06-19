@@ -19,34 +19,12 @@ import {
   SyncedItemsSection,
   type TestItem,
 } from '@/components/pages/e2e/SyncTestPage.components';
-import {
-  createMockSyncRoom,
-  joinMockSyncRoom,
-  leaveMockCurrentRoom,
-  getMockConnectionState,
-  getMockConnectedPeerCount,
-  getMockActiveRoom,
-  onMockSyncEvent,
-  getMockLocalPeerId,
-  getMockYMap,
-  cancelMockReconnect,
-  getMockRetryState,
-  shouldUseMockSync,
-} from '@/lib/p2p/MockSyncProvider';
-import {
-  createSyncRoom,
-  joinSyncRoom,
-  leaveCurrentRoom,
-  getConnectionState,
-  getConnectedPeerCount,
-  getActiveRoom,
-  onSyncEvent,
-  getLocalPeerId,
-  getYMap,
-  cancelReconnect,
-  getRetryState,
-} from '@/lib/p2p/SyncProvider';
+import { shouldUseMockSync } from '@/lib/p2p/MockSyncProvider';
 import { ConnectionState, type SyncEvent } from '@/lib/p2p/types';
+import {
+  createSyncTestProviders,
+  readSyncedTestItems,
+} from '@/pages-modules/e2e/syncTestPage.helpers';
 
 const isTestEnv =
   process.env.NODE_ENV === 'development' ||
@@ -60,22 +38,7 @@ export default function SyncTestPage() {
     setUseMock(shouldUseMockSync());
   }, []);
 
-  const providers = useMemo(
-    () => ({
-      createRoom: useMock ? createMockSyncRoom : createSyncRoom,
-      joinRoom: useMock ? joinMockSyncRoom : joinSyncRoom,
-      leaveRoom: useMock ? leaveMockCurrentRoom : leaveCurrentRoom,
-      getState: useMock ? getMockConnectionState : getConnectionState,
-      getPeerCount: useMock ? getMockConnectedPeerCount : getConnectedPeerCount,
-      getRoom: useMock ? getMockActiveRoom : getActiveRoom,
-      onEvent: useMock ? onMockSyncEvent : onSyncEvent,
-      getPeerId: useMock ? getMockLocalPeerId : getLocalPeerId,
-      getMap: useMock ? getMockYMap : getYMap,
-      cancelRetry: useMock ? cancelMockReconnect : cancelReconnect,
-      getRetry: useMock ? getMockRetryState : getRetryState,
-    }),
-    [useMock],
-  );
+  const providers = useMemo(() => createSyncTestProviders(useMock), [useMock]);
 
   const [connectionState, setConnectionState] = useState<ConnectionState>(
     ConnectionState.Disconnected,
@@ -103,11 +66,7 @@ export default function SyncTestPage() {
 
       const yMap = providers.getMap<TestItem>('test-items');
       if (yMap) {
-        const newItems: Record<string, TestItem> = {};
-        yMap.forEach((value, key) => {
-          newItems[key] = value;
-        });
-        setItems(newItems);
+        setItems(readSyncedTestItems(yMap));
       }
     }, 100);
 
@@ -140,11 +99,7 @@ export default function SyncTestPage() {
 
     const yMap = room.doc.getMap<TestItem>('test-items');
     const observer = () => {
-      const newItems: Record<string, TestItem> = {};
-      yMap.forEach((value, key) => {
-        newItems[key] = value;
-      });
-      setItems(newItems);
+      setItems(readSyncedTestItems(yMap));
     };
 
     yMap.observe(observer);

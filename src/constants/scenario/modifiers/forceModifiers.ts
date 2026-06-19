@@ -1,16 +1,17 @@
-import type { IBattleModifier } from '@/types/scenario';
-
 import {
   BiomeType,
   ModifierEffect,
   ScenarioObjectiveType,
 } from '@/types/scenario';
 
-export const AMBUSH: IBattleModifier = {
+import { defineBattleModifier } from './modifierDefinition';
+
+export const AMBUSH = defineBattleModifier({
   id: 'ambush',
   name: 'Ambush',
-  description:
+  descriptionParts: [
     'The enemy has set up an ambush. Some enemy units deploy hidden and are revealed when they attack or are spotted.',
+  ],
   effect: ModifierEffect.Negative,
   applicability: {
     weight: 12,
@@ -29,13 +30,14 @@ export const AMBUSH: IBattleModifier = {
     },
   },
   tags: ['tactical', 'surprise', 'difficulty'],
-};
+});
 
-export const SENSOR_GHOSTS: IBattleModifier = {
+export const SENSOR_GHOSTS = defineBattleModifier({
   id: 'sensor_ghosts',
   name: 'Sensor Ghosts',
-  description:
+  descriptionParts: [
     'Electronic interference creates false sensor contacts. Some blips on your sensors are decoys.',
+  ],
   effect: ModifierEffect.Negative,
   applicability: {
     weight: 8,
@@ -49,13 +51,14 @@ export const SENSOR_GHOSTS: IBattleModifier = {
     },
   },
   tags: ['electronic', 'deception', 'difficulty'],
-};
+});
 
-export const INTEL_ADVANTAGE: IBattleModifier = {
+export const INTEL_ADVANTAGE = defineBattleModifier({
   id: 'intel_advantage',
   name: 'Intel Advantage',
-  description:
+  descriptionParts: [
     'Your reconnaissance has paid off. Enemy units are revealed at the start of battle.',
+  ],
   effect: ModifierEffect.Positive,
   applicability: {
     weight: 10,
@@ -71,13 +74,14 @@ export const INTEL_ADVANTAGE: IBattleModifier = {
     },
   },
   tags: ['intel', 'reconnaissance', 'help'],
-};
+});
 
-export const DAMAGED_UNITS: IBattleModifier = {
+export const DAMAGED_UNITS = defineBattleModifier({
   id: 'damaged_units',
   name: 'Battered Force',
-  description:
+  descriptionParts: [
     'Your force has seen recent action. Each unit starts with 10-30% armor damage randomly distributed.',
+  ],
   effect: ModifierEffect.Negative,
   applicability: {
     weight: 8,
@@ -96,4 +100,4 @@ export const DAMAGED_UNITS: IBattleModifier = {
     },
   },
   tags: ['damage', 'attrition', 'difficulty'],
-};
+});

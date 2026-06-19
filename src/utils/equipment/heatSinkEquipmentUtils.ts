@@ -17,6 +17,7 @@ import {
 import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { generateUnitId } from '@/utils/uuid';
 
+import { createConfigurationMountedEquipment } from './configurationMountedEquipment';
 import { HEAT_SINK_EQUIPMENT_IDS } from './equipmentConstants';
 
 const HEAT_SINK_FALLBACKS: Record<string, IMiscEquipment> = {
@@ -124,22 +125,18 @@ export function createHeatSinkEquipmentList(
 
   const result: IMountedEquipmentInstance[] = [];
   for (let i = 0; i < externalCount; i++) {
-    result.push({
-      instanceId: generateUnitId(),
-      equipmentId: hsEquip.id,
-      name: hsEquip.name,
-      category: EquipmentCategory.MISC_EQUIPMENT,
-      weight: hsEquip.weight,
-      criticalSlots: hsEquip.criticalSlots,
-      heat: 0,
-      techBase: hsEquip.techBase,
-      location: undefined,
-      slots: undefined,
-      isRearMounted: false,
-      linkedAmmoId: undefined,
-      isRemovable: false,
-      isOmniPodMounted: false,
-    });
+    result.push(
+      createConfigurationMountedEquipment({
+        instanceId: generateUnitId(),
+        equipmentId: hsEquip.id,
+        name: hsEquip.name,
+        category: EquipmentCategory.MISC_EQUIPMENT,
+        weight: hsEquip.weight,
+        criticalSlots: hsEquip.criticalSlots,
+        heat: 0,
+        techBase: hsEquip.techBase,
+      }),
+    );
   }
   return result;
 }

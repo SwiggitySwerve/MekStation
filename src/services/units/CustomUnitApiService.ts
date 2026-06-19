@@ -111,7 +111,7 @@ export class CustomUnitApiService implements ICustomUnitApiService {
   /**
    * List all custom units
    */
-  async list(): Promise<readonly ICustomUnitIndexEntry[]> {
+  list = async (): Promise<readonly ICustomUnitIndexEntry[]> => {
     const response = await fetch(`${API_BASE}/custom`);
 
     if (!response.ok) {
@@ -120,12 +120,12 @@ export class CustomUnitApiService implements ICustomUnitApiService {
 
     const data = (await response.json()) as IUnitListResponse;
     return data.units;
-  }
+  };
 
   /**
    * Get a custom unit by ID
    */
-  async getById(id: string): Promise<IFullUnit | null> {
+  getById = async (id: string): Promise<IFullUnit | null> => {
     const response = await fetch(
       `${API_BASE}/custom/${encodeURIComponent(id)}`,
     );
@@ -154,17 +154,17 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       createdAt: data.data.createdAt,
       updatedAt: data.data.updatedAt,
     } as IFullUnit;
-  }
+  };
 
   /**
    * Create a new custom unit
    */
-  async create(
+  create = async (
     unit: IFullUnit,
     chassis: string,
     variant: string,
     notes?: string,
-  ): Promise<ISaveResult> {
+  ): Promise<ISaveResult> => {
     // Check if name is already taken
     const existingCustom = await this.findByName(chassis, variant);
     if (existingCustom) {
@@ -203,16 +203,16 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       id: result.data?.id,
       version: result.data?.version,
     };
-  }
+  };
 
   /**
    * Save (update) an existing custom unit
    */
-  async save(
+  save = async (
     id: string,
     unit: IFullUnit,
     notes?: string,
-  ): Promise<ISaveResult> {
+  ): Promise<ISaveResult> => {
     const response = await fetch(
       `${API_BASE}/custom/${encodeURIComponent(id)}`,
       {
@@ -239,12 +239,12 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       id: result.data?.id,
       version: result.data?.version,
     };
-  }
+  };
 
   /**
    * Delete a custom unit
    */
-  async delete(id: string): Promise<IUnitOperationResult> {
+  delete = async (id: string): Promise<IUnitOperationResult> => {
     const response = await fetch(
       `${API_BASE}/custom/${encodeURIComponent(id)}`,
       {
@@ -264,12 +264,12 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       success: false,
       error: { message: result.error?.message || 'Failed to delete' },
     };
-  }
+  };
 
   /**
    * Check if a chassis/variant combination is a canonical unit
    */
-  async isCanonical(chassis: string, variant: string): Promise<boolean> {
+  isCanonical = async (chassis: string, variant: string): Promise<boolean> => {
     const index = await getCanonicalUnitService().getIndex();
     const normalizedName = `${chassis} ${variant}`.toLowerCase();
 
@@ -277,15 +277,15 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       (entry) =>
         `${entry.chassis} ${entry.variant}`.toLowerCase() === normalizedName,
     );
-  }
+  };
 
   /**
    * Get a suggested clone name
    */
-  async suggestCloneName(
+  suggestCloneName = async (
     chassis: string,
     variant: string,
-  ): Promise<ICloneNameSuggestion> {
+  ): Promise<ICloneNameSuggestion> => {
     const response = await fetch(`${API_BASE}/custom/suggest-name`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -302,15 +302,15 @@ export class CustomUnitApiService implements ICustomUnitApiService {
     }
 
     return response.json() as Promise<ICloneNameSuggestion>;
-  }
+  };
 
   /**
    * Check if saving is allowed and get rename suggestion if needed
    */
-  async checkSaveAllowed(
+  checkSaveAllowed = async (
     unit: IFullUnit,
     originalId?: string,
-  ): Promise<ISaveResult> {
+  ): Promise<ISaveResult> => {
     const chassis = unit.chassis;
     const variant = unit.variant;
 
@@ -332,12 +332,14 @@ export class CustomUnitApiService implements ICustomUnitApiService {
     }
 
     return { success: true };
-  }
+  };
 
   /**
    * Get version history for a unit
    */
-  async getVersionHistory(id: string): Promise<readonly IVersionMetadata[]> {
+  getVersionHistory = async (
+    id: string,
+  ): Promise<readonly IVersionMetadata[]> => {
     const response = await fetch(
       `${API_BASE}/custom/${encodeURIComponent(id)}/versions`,
     );
@@ -348,15 +350,15 @@ export class CustomUnitApiService implements ICustomUnitApiService {
 
     const data = (await response.json()) as { versions: IVersionMetadata[] };
     return data.versions;
-  }
+  };
 
   /**
    * Get a specific version of a unit
    */
-  async getVersion(
+  getVersion = async (
     id: string,
     version: number,
-  ): Promise<IVersionWithData | null> {
+  ): Promise<IVersionWithData | null> => {
     const response = await fetch(
       `${API_BASE}/custom/${encodeURIComponent(id)}/versions/${version}`,
     );
@@ -384,16 +386,16 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       revertSource: data.revertSource,
       data: data.parsedData,
     };
-  }
+  };
 
   /**
    * Revert a unit to a previous version
    */
-  async revert(
+  revert = async (
     id: string,
     targetVersion: number,
     notes?: string,
-  ): Promise<IUnitOperationResult> {
+  ): Promise<IUnitOperationResult> => {
     const response = await fetch(
       `${API_BASE}/custom/${encodeURIComponent(id)}/revert/${targetVersion}`,
       {
@@ -418,12 +420,12 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       success: false,
       error: { message: result.error?.message || 'Failed to revert' },
     };
-  }
+  };
 
   /**
    * Export a unit as JSON envelope
    */
-  async exportUnit(id: string): Promise<ISerializedUnitEnvelope | null> {
+  exportUnit = async (id: string): Promise<ISerializedUnitEnvelope | null> => {
     const response = await fetch(
       `${API_BASE}/custom/${encodeURIComponent(id)}/export`,
     );
@@ -437,14 +439,14 @@ export class CustomUnitApiService implements ICustomUnitApiService {
     }
 
     return response.json() as Promise<ISerializedUnitEnvelope>;
-  }
+  };
 
   /**
    * Import a unit from JSON
    */
-  async importUnit(
+  importUnit = async (
     data: ISerializedUnitEnvelope | Record<string, unknown>,
-  ): Promise<ISaveResult> {
+  ): Promise<ISaveResult> => {
     const response = await fetch(`${API_BASE}/import`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -480,7 +482,7 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       id: result.data?.unitId,
       version: 1,
     };
-  }
+  };
 
   /**
    * Find a custom unit by name
@@ -503,7 +505,7 @@ export class CustomUnitApiService implements ICustomUnitApiService {
   /**
    * Download a unit as a file
    */
-  async downloadUnit(id: string): Promise<void> {
+  downloadUnit = async (id: string): Promise<void> => {
     const envelope = await this.exportUnit(id);
     if (!envelope) {
       throw new Error('Unit not found');
@@ -528,7 +530,7 @@ export class CustomUnitApiService implements ICustomUnitApiService {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }
+  };
 }
 
 // Singleton instance

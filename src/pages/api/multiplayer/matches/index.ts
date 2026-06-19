@@ -28,10 +28,11 @@ import type {
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
-import { getDefaultMatchStore } from '@/lib/multiplayer/server/InMemoryMatchStore';
+import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import { getDefaultPlayerStore } from '@/lib/multiplayer/server/InMemoryPlayerStore';
 import { setAiSlot } from '@/lib/multiplayer/server/lobby/lobbyStateMachine';
 import { generateRoomCode } from '@/lib/p2p/roomCodes';
+import { rejectUnexpectedMethod } from '@/pages-modules/api/routeHelpers';
 import {
   defaultSeats,
   TeamLayoutSchema,
@@ -81,47 +82,56 @@ interface IErrorResponse {
 // Helpers
 // =============================================================================
 
+function isNonEmptyStringArray(value: unknown): value is readonly string[] {
+  return (
+    Array.isArray(value) &&
+    value.every((item) => typeof item === 'string' && item.length > 0)
+  );
+}
+
+function hasRequiredRoster(body: Partial<ICreateMatchBody>): boolean {
+  return isNonEmptyStringArray(body.playerIds);
+}
+
+function hasValidLayoutRoster(body: Partial<ICreateMatchBody>): boolean {
+  if (!TeamLayoutSchema.safeParse(body.layout).success) return false;
+  if (body.playerIds !== undefined && !isNonEmptyStringArray(body.playerIds)) {
+    return false;
+  }
+  if (body.aiSlots !== undefined && !isNonEmptyStringArray(body.aiSlots)) {
+    return false;
+  }
+  return true;
+}
+
+function hasValidConfig(config: unknown): config is IMatchConfig {
+  if (typeof config !== 'object' || config === null) return false;
+  const cfg = config as Partial<IMatchConfig>;
+  if (typeof cfg.mapRadius !== 'number' || typeof cfg.turnLimit !== 'number') {
+    return false;
+  }
+  return cfg.fogOfWar === undefined || typeof cfg.fogOfWar === 'boolean';
+}
+
+function hasValidDisplayName(displayName: unknown): boolean {
+  return (
+    displayName === undefined ||
+    (typeof displayName === 'string' && displayName.length > 0)
+  );
+}
+
 function isValidBody(body: unknown): body is ICreateMatchBody {
   if (typeof body !== 'object' || body === null) return false;
   const b = body as Partial<ICreateMatchBody>;
   // Wave 3b made `playerIds` optional in favour of `layout`; require
   // ONE of the two paths so we never fall through to a roster-less match.
-  const hasLayout = b.layout !== undefined;
-  if (!hasLayout) {
-    if (!Array.isArray(b.playerIds) || b.playerIds.length === 0) return false;
-    if (!b.playerIds.every((p) => typeof p === 'string' && p.length > 0)) {
-      return false;
-    }
-  } else {
-    if (!TeamLayoutSchema.safeParse(b.layout).success) return false;
-    if (b.playerIds !== undefined) {
-      if (!Array.isArray(b.playerIds)) return false;
-      if (!b.playerIds.every((p) => typeof p === 'string' && p.length > 0)) {
-        return false;
-      }
-    }
-    if (b.aiSlots !== undefined) {
-      if (!Array.isArray(b.aiSlots)) return false;
-      if (!b.aiSlots.every((s) => typeof s === 'string' && s.length > 0)) {
-        return false;
-      }
-    }
-  }
-  if (typeof b.config !== 'object' || b.config === null) return false;
-  const cfg = b.config as Partial<IMatchConfig>;
-  if (typeof cfg.mapRadius !== 'number' || typeof cfg.turnLimit !== 'number') {
-    return false;
-  }
-  if (cfg.fogOfWar !== undefined && typeof cfg.fogOfWar !== 'boolean') {
-    return false;
-  }
-  if (
-    b.displayName !== undefined &&
-    (typeof b.displayName !== 'string' || b.displayName.length === 0)
-  ) {
-    return false;
-  }
-  return true;
+  const hasValidRoster =
+    b.layout === undefined ? hasRequiredRoster(b) : hasValidLayoutRoster(b);
+  return (
+    hasValidRoster &&
+    hasValidConfig(b.config) &&
+    hasValidDisplayName(b.displayName)
+  );
 }
 
 function buildWsUrl(req: NextApiRequest, matchId: string): string {
@@ -144,11 +154,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ICreateMatchResponse | IErrorResponse>,
 ): Promise<void> {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-    return;
-  }
+  if (rejectUnexpectedMethod(req, res, ['POST'])) return;
 
   const auth = await authenticateRequest(req);
   if (!auth.ok) {

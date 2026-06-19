@@ -1,30 +1,18 @@
-import { v4 as uuidv4 } from 'uuid';
+﻿import { v4 as uuidv4 } from 'uuid';
 
 import {
-  Facing,
   GameEventType,
   GamePhase,
   GameSide,
   GameStatus,
   IEncounterMeta,
-  IAttackDeclaredPayload,
   IGameConfig,
   IGameCreatedPayload,
   IGameEvent,
   IGameSession,
   IGameUnit,
-  IHexCoordinate,
   IHexTerrain,
-  IToHitModifier,
-  IToHitModifierDetail,
-  IWeaponAttack,
-  IWeaponAttackData,
-  MovementType,
-  RangeBracket,
-  type StandUpMode,
 } from '@/types/gameplay';
-
-import type { ILOSInterveningTerrainEffect } from './lineOfSight';
 
 /**
  * Per `add-victory-and-post-battle-summary` design D3 + spec scenario
@@ -64,61 +52,28 @@ import {
 } from './c3Network';
 import { type D6Roller, defaultD6Roller } from './diceTypes';
 import {
-  createAttackDeclaredEvent,
   createAttackLockedEvent,
   createGameCreatedEvent,
   createGameEndedEvent,
   createGameStartedEvent,
-  createIndirectFireForwardObserverEvent,
-  createIndirectFireNarcOverrideEvent,
-  createIndirectFireSpotterSelectedEvent,
   createInitiativeOrderSetEvent,
   createInitiativeRolledEvent,
-  createMovementDeclaredEvent,
   createMovementLockedEvent,
   createPhaseChangedEvent,
   createSpottingDeclaredEvent,
 } from './gameEvents';
-import {
-  invalidateEvadingAttackerAttack,
-  invalidateInvalidTargetAttack,
-  invalidateSprintingAttackerAttack,
-} from './gameSessionAttackResolutionValidation';
 import { appendAttackRevealIfReady } from './gameSessionAttackReveal';
 import { appendEvent } from './gameSessionEvents';
 import { allUnitsLocked, deriveState } from './gameState';
-import { isGroundToGroundGameAttack } from './groundToGround';
 import {
   calculateSideInitiativeModifier,
   hasSideTacticalGeniusInitiativeReroll,
 } from './initiativeModifiers';
-import {
-  strictestApplicableMinimumRange,
-  type IWeaponRangeProfile,
-} from './range';
-import { isSemiGuidedLRM } from './specialWeaponMechanics';
-import {
-  buildWeaponAttackAttackerToHitState,
-  buildWeaponAttackTargetToHitState,
-  calculateToHit,
-  calculateToHitWithC3,
-} from './toHit';
-
-function weaponRangeProfileFromAttack(
-  weapon: IWeaponAttack | undefined,
-): IWeaponRangeProfile | undefined {
-  if (!weapon) return undefined;
-
-  return {
-    short: weapon.shortRange,
-    medium: weapon.mediumRange,
-    long: weapon.longRange,
-    ...(weapon.extremeRange !== undefined
-      ? { extreme: weapon.extremeRange }
-      : {}),
-    ...(weapon.minRange !== undefined ? { minimum: weapon.minRange } : {}),
-  };
-}
+export { declareAttack } from './gameSessionCore.attack';
+export {
+  declareMovement,
+  type IDeclareMovementOptions,
+} from './gameSessionCore.movement';
 
 export interface ICreateGameSessionOptions {
   readonly id?: string;
@@ -413,58 +368,6 @@ export function rollInitiative(
   );
 }
 
-export function declareMovement(
-  session: IGameSession,
-  unitId: string,
-  from: IHexCoordinate,
-  to: IHexCoordinate,
-  facing: Facing,
-  movementType: MovementType,
-  mpUsed: number,
-  heatGenerated: number,
-  path?: readonly IHexCoordinate[],
-  options?: {
-    readonly standUpAttempt?: boolean;
-    readonly standUpSucceeded?: boolean;
-    readonly standUpMode?: StandUpMode;
-    readonly hullDownExitAttempt?: boolean;
-    readonly hullDownEntryAttempt?: boolean;
-    readonly goProneAttempt?: boolean;
-    readonly conversionStepCount?: number;
-    readonly conversionMpCost?: number;
-    readonly altitudeControlStepCount?: number;
-    readonly altitudeControlMpCost?: number;
-  },
-): IGameSession {
-  if (session.currentState.phase !== GamePhase.Movement) {
-    throw new Error('Not in movement phase');
-  }
-
-  const unit = session.currentState.units[unitId];
-  if (!unit) {
-    throw new Error(`Unit ${unitId} not found`);
-  }
-
-  const sequence = session.events.length;
-  const { turn } = session.currentState;
-  const event = createMovementDeclaredEvent(
-    session.id,
-    sequence,
-    turn,
-    unitId,
-    from,
-    to,
-    facing,
-    movementType,
-    mpUsed,
-    heatGenerated,
-    path,
-    options,
-  );
-
-  return appendEvent(session, event);
-}
-
 export function lockMovement(
   session: IGameSession,
   unitId: string,
@@ -485,341 +388,6 @@ export function lockMovement(
 // between declaration and resolution don't corrupt hit-location selection.
 // (Per wire-firing-arc-resolution; previously `_firingArc` was accepted
 // and silently discarded.)
-export function declareAttack(
-  session: IGameSession,
-  attackerId: string,
-  targetId: string,
-  weapons: readonly IWeaponAttack[],
-  range: number,
-  rangeBracket: RangeBracket,
-  /**
-   * Wave 8 PR-K4: optional pre-computed indirect-fire resolution. When
-   * present and `permitted && isIndirect`, the resolution's `toHitPenalty`
-   * is appended to the to-hit modifier list AND the appropriate indirect-
-   * fire event (`IndirectFireSpotterSelected` / `IndirectFireNarcOverride`)
-   * is emitted immediately after `AttackDeclared`. When undefined, the
-   * function behaves identically to its pre-PR-K4 contract.
-   *
-   * Wave 8 PR-K11: also accepts the new `IAttackPreResolution`
-   * discriminated union returned by `prepareAttackContext`. The union
-   * is normalized internally - callers may pass either the bare
-   * `IIndirectFireResolution` (legacy, pre-K11) OR the union (the
-   * post-K11 callers). Back-compat preserved.
-   */
-  indirectFireResolutionInput?:
-    | import('@/types/gameplay/IndirectFireInterfaces').IIndirectFireResolution
-    | import('@/engine/attackContext').IAttackPreResolution,
-  /**
-   * Optional target hex carried on the indirect-fire event payloads.
-   * Defaults to the live target unit position when omitted.
-   */
-  targetHex?: import('@/types/gameplay/HexGridInterfaces').IHexCoordinate,
-  /** Whether the target's hex grants partial cover for this declaration. */
-  targetPartialCover = false,
-  /** Intervening LOS terrain effects that should modify the attack to-hit. */
-  interveningTerrainEffects: readonly ILOSInterveningTerrainEffect[] = [],
-  /** Target-hex woods/smoke terrain modifier, separate from true partial cover. */
-  targetTerrainModifier: IToHitModifierDetail | null = null,
-  /** Replayable defender-selected AMS mount ids keyed by incoming weapon id. */
-  selectedAMSWeaponIds?: IAttackDeclaredPayload['selectedAMSWeaponIds'],
-  /** Replayable selected defender AMS mount metadata keyed by incoming weapon id. */
-  selectedAMSWeaponMounts?: IAttackDeclaredPayload['selectedAMSWeaponMounts'],
-): IGameSession {
-  if (session.currentState.phase !== GamePhase.WeaponAttack) {
-    throw new Error('Not in weapon attack phase');
-  }
-
-  const attackerUnit = session.currentState.units[attackerId];
-  const targetUnit = session.currentState.units[targetId];
-
-  if (!attackerUnit) {
-    throw new Error(`Attacker unit ${attackerId} not found`);
-  }
-
-  const invalidTargetSession = invalidateInvalidTargetAttack(
-    session,
-    attackerId,
-    targetId,
-    weapons.map((weapon) => weapon.weaponId),
-  );
-  if (invalidTargetSession) return invalidTargetSession;
-
-  const evadingAttackerSession = invalidateEvadingAttackerAttack(
-    session,
-    attackerId,
-    targetId,
-    weapons.map((weapon) => weapon.weaponId),
-  );
-  if (evadingAttackerSession) return evadingAttackerSession;
-
-  const sprintingAttackerSession = invalidateSprintingAttackerAttack(
-    session,
-    attackerId,
-    targetId,
-    weapons.map((weapon) => weapon.weaponId),
-  );
-  if (sprintingAttackerSession) return sprintingAttackerSession;
-
-  if (!targetUnit) {
-    throw new Error(`Target unit ${targetId} not found`);
-  }
-
-  const attacker = session.units.find((unit) => unit.id === attackerId);
-  if (!attacker) {
-    throw new Error(`Attacker ${attackerId} not found in units`);
-  }
-
-  // Wave 8 PR-K11: normalize IAttackPreResolution union → bare resolution
-  // so the existing pipeline below uses one shape. Back-compat: pre-K11
-  // callers passing IIndirectFireResolution directly continue to work.
-  const indirectFireResolution:
-    | import('@/types/gameplay/IndirectFireInterfaces').IIndirectFireResolution
-    | undefined = !indirectFireResolutionInput
-    ? undefined
-    : 'kind' in indirectFireResolutionInput
-      ? indirectFireResolutionInput.kind === 'indirect'
-        ? indirectFireResolutionInput.resolution
-        : undefined
-      : indirectFireResolutionInput;
-
-  const primaryWeapon = weapons[0];
-  const semiGuidedTagContext = primaryWeapon
-    ? {
-        isSemiGuided:
-          isSemiGuidedLRM(primaryWeapon.ammoType ?? '') ||
-          isSemiGuidedLRM(primaryWeapon.weaponId) ||
-          isSemiGuidedLRM(primaryWeapon.weaponName),
-        targetTagDesignated: targetUnit.tagDesignated,
-        isIndirectFire:
-          indirectFireResolution?.permitted === true &&
-          indirectFireResolution.isIndirect,
-      }
-    : undefined;
-
-  // Audit B-6 (W1.2): route the volley minimum range through the SAME shared
-  // helper the projection uses (strictest in-effect minimum across declared
-  // weapons, inclusive at exactly minimum range, ground-to-ground gated per
-  // MegaMek Compute.java#L1714-L1716) instead of the primary weapon's
-  // minimum alone — preview and commit must produce equal to-hit numbers.
-  const volleyMinimumRange = strictestApplicableMinimumRange(
-    weapons.map((weapon) => weapon.minRange),
-    range,
-    isGroundToGroundGameAttack(attackerUnit, targetUnit),
-  );
-
-  const attackerToHitState = buildWeaponAttackAttackerToHitState(
-    attackerUnit,
-    attacker.gunnery,
-    primaryWeapon
-      ? {
-          id: primaryWeapon.weaponId,
-          name: primaryWeapon.weaponName,
-          category: primaryWeapon.category,
-        }
-      : undefined,
-    targetId,
-    undefined,
-    // Audit B-5 (W1.2): named options — `targetPartialCover` was previously
-    // passed positionally into the applyLocalCalledShotAbilityReduction
-    // slot, silently disabling the Marksman/Sharpshooter reduction whenever
-    // the target lacked partial cover. Cover belongs to target state only.
-    {
-      calledShot: weapons.some((weapon) => weapon.calledShot === true),
-      teammateCalledShot: weapons.some(
-        (weapon) => weapon.teammateCalledShot === true,
-      ),
-    },
-  );
-  const targetToHitState = buildWeaponAttackTargetToHitState(
-    targetUnit,
-    targetPartialCover,
-  );
-  const c3State = hydrateC3NetworkStateFromGameState(session.currentState);
-  const c3WeaponRangeProfile = weaponRangeProfileFromAttack(primaryWeapon);
-  const isDirectFire =
-    indirectFireResolution?.permitted !== true ||
-    indirectFireResolution.isIndirect !== true;
-  const toHitCalc =
-    isDirectFire && c3State && c3WeaponRangeProfile && primaryWeapon
-      ? calculateToHitWithC3(
-          attackerToHitState,
-          targetToHitState,
-          rangeBracket,
-          range,
-          {
-            attackerEntityId: attackerId,
-            targetPosition: targetUnit.position,
-            weaponRangeProfile: c3WeaponRangeProfile,
-            c3State,
-          },
-          volleyMinimumRange,
-          primaryWeapon.weaponId,
-          semiGuidedTagContext,
-        )
-      : calculateToHit(
-          attackerToHitState,
-          targetToHitState,
-          rangeBracket,
-          range,
-          volleyMinimumRange,
-          primaryWeapon?.weaponId,
-          semiGuidedTagContext,
-        );
-
-  const modifiers: IToHitModifier[] = toHitCalc.modifiers.map((modifier) => ({
-    name: modifier.name,
-    value: modifier.value,
-    source: modifier.source,
-    description: modifier.description,
-  }));
-  let attackContextModifierTotal = 0;
-
-  for (const terrainEffect of interveningTerrainEffects) {
-    if (terrainEffect.modifier === 0) continue;
-    attackContextModifierTotal += terrainEffect.modifier;
-    modifiers.push({
-      name: 'Intervening terrain',
-      value: terrainEffect.modifier,
-      source: 'terrain',
-      description: `${terrainEffect.terrain} at (${terrainEffect.coord.q}, ${terrainEffect.coord.r})`,
-    });
-  }
-
-  if (targetTerrainModifier) {
-    attackContextModifierTotal += targetTerrainModifier.value;
-    modifiers.push({
-      name: targetTerrainModifier.name,
-      value: targetTerrainModifier.value,
-      source: targetTerrainModifier.source,
-      description: targetTerrainModifier.description,
-    });
-  }
-
-  // Wave 8 PR-K4: append indirect-fire penalty to the modifier list so
-  // the AttackDeclared event's toHitNumber reflects the live indirect
-  // resolution. The penalty math (base +1, +1 spotter-walked, -1 FO SPA)
-  // happened upstream in `computeIndirectFireContext`.
-  let finalToHit = toHitCalc.finalToHit + attackContextModifierTotal;
-  if (
-    indirectFireResolution &&
-    indirectFireResolution.permitted &&
-    indirectFireResolution.isIndirect &&
-    indirectFireResolution.toHitPenalty > 0
-  ) {
-    modifiers.push({
-      name: 'Indirect fire',
-      value: indirectFireResolution.toHitPenalty,
-      source: 'other',
-    });
-    finalToHit += indirectFireResolution.toHitPenalty;
-  }
-
-  const weaponIds = weapons.map((weapon) => weapon.weaponId);
-  const weaponAttackData: IWeaponAttackData[] = weapons.map((weapon) => ({
-    weaponId: weapon.weaponId,
-    weaponName: weapon.weaponName,
-    damage: weapon.damage,
-    heat: weapon.heat,
-  }));
-
-  const sequence = session.events.length;
-  const { turn } = session.currentState;
-  const baseEvent = createAttackDeclaredEvent(
-    session.id,
-    sequence,
-    turn,
-    attackerId,
-    targetId,
-    weaponIds,
-    finalToHit,
-    modifiers,
-    weaponAttackData,
-  );
-  const event =
-    selectedAMSWeaponIds !== undefined || selectedAMSWeaponMounts !== undefined
-      ? {
-          ...baseEvent,
-          payload: {
-            ...(baseEvent.payload as IAttackDeclaredPayload),
-            ...(selectedAMSWeaponIds !== undefined
-              ? { selectedAMSWeaponIds }
-              : {}),
-            ...(selectedAMSWeaponMounts !== undefined
-              ? { selectedAMSWeaponMounts }
-              : {}),
-          },
-        }
-      : baseEvent;
-
-  let updatedSession = appendEvent(session, event);
-
-  // Wave 8 PR-K4: emit the indirect-fire dispatch event after AttackDeclared.
-  // Multi-weapon attacks share the same resolution today (the upstream
-  // collaborator returns a per-weapon result; callers pre-merge when they
-  // declare a multi-weapon attack). The first weaponId in the attack is
-  // used as the event's weapon reference.
-  if (
-    indirectFireResolution &&
-    indirectFireResolution.permitted &&
-    indirectFireResolution.isIndirect &&
-    weaponIds.length > 0
-  ) {
-    const resolvedTargetHex = targetHex ?? targetUnit.position;
-    const eventWeaponId = weaponIds[0];
-    const eventSequence = updatedSession.events.length;
-    if (
-      indirectFireResolution.basis === 'narc' ||
-      indirectFireResolution.basis === 'inarc'
-    ) {
-      const narcEvent = createIndirectFireNarcOverrideEvent(
-        updatedSession.id,
-        eventSequence,
-        turn,
-        attackerId,
-        eventWeaponId,
-        resolvedTargetHex,
-        indirectFireResolution.basis,
-        indirectFireResolution.toHitPenalty,
-      );
-      updatedSession = appendEvent(updatedSession, narcEvent);
-    } else if (indirectFireResolution.spotterId) {
-      const spotterEvent = createIndirectFireSpotterSelectedEvent(
-        updatedSession.id,
-        eventSequence,
-        turn,
-        attackerId,
-        indirectFireResolution.spotterId,
-        eventWeaponId,
-        resolvedTargetHex,
-        indirectFireResolution.toHitPenalty,
-        undefined,
-        // Audit C-5: carry the spotter-attacked +1 flag onto the event so
-        // replay/event-log consumers can explain the penalty composition.
-        indirectFireResolution.spotterAttackedThisTurn,
-      );
-      updatedSession = appendEvent(updatedSession, spotterEvent);
-      if (indirectFireResolution.forwardObserverApplied) {
-        const forwardObserverEvent = createIndirectFireForwardObserverEvent(
-          updatedSession.id,
-          updatedSession.events.length,
-          turn,
-          attackerId,
-          indirectFireResolution.spotterId,
-          eventWeaponId,
-          resolvedTargetHex,
-          indirectFireResolution.toHitPenalty,
-          undefined,
-          // Audit C-5: same spotter-attacked flag as the selection event.
-          indirectFireResolution.spotterAttackedThisTurn,
-        );
-        updatedSession = appendEvent(updatedSession, forwardObserverEvent);
-      }
-    }
-  }
-
-  return updatedSession;
-}
-
 export function lockAttack(
   session: IGameSession,
   unitId: string,

@@ -8,8 +8,14 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  initializeApiDatabase as initValidateEncounterDb,
+  rejectMissingQueryString as readValidateEncounterId,
+  rejectUnexpectedMethod as rejectValidateMethod,
+  sendCaughtApiError as sendValidateEncounterError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getEncounterService } from '@/services/encounter/EncounterService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { IEncounterValidationResult } from '@/types/encounter';
 
 // =============================================================================
@@ -20,36 +26,25 @@ type ValidationResponse = {
   validation: IEncounterValidationResult;
 };
 
-type ErrorResponse = {
-  error: string;
-};
-
 // =============================================================================
 // Handler
 // =============================================================================
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ValidationResponse | ErrorResponse>,
+  res: NextApiResponse<ValidationResponse | ApiErrorResponse>,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initValidateEncounterDb(res)) return;
 
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', ['GET']);
-    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-  }
+  if (rejectValidateMethod(req, res, ['GET'])) return;
 
-  const { id } = req.query;
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid encounter ID' });
-  }
+  const id = readValidateEncounterId(
+    req,
+    res,
+    'id',
+    'Missing or invalid encounter ID',
+  );
+  if (!id) return;
 
   const encounterService = getEncounterService();
 
@@ -57,8 +52,7 @@ export default async function handler(
     const validation = encounterService.validateEncounter(id);
     return res.status(200).json({ validation });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to validate encounter';
-    return res.status(500).json({ error: message });
+    sendValidateEncounterError(res, error, 'Failed to validate encounter');
+    return;
   }
 }

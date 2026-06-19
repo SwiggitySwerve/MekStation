@@ -251,21 +251,21 @@ export function validateBattleArmorConstruction(
   }
 
   // VAL-BA-CLASS: trooper mass (includes extra-MP weight cost per §4.5)
-  const massBreakdown = computeTrooperMass(
-    unit.armorPointsPerTrooper,
-    unit.armorType,
-    unit.chassisType,
-    unit.leftManipulator,
-    unit.rightManipulator,
-    unit.weapons,
-    unit.equipment,
-    {
+  const massBreakdown = computeTrooperMass({
+    armorPoints: unit.armorPointsPerTrooper,
+    armorType: unit.armorType,
+    chassisType: unit.chassisType,
+    leftManipulator: unit.leftManipulator,
+    rightManipulator: unit.rightManipulator,
+    weapons: unit.weapons,
+    equipment: unit.equipment,
+    movement: {
       groundMP: unit.groundMP,
       jumpMP: unit.jumpMP,
       umuMP: unit.umuMP,
       weightClass: unit.weightClass,
     },
-  );
+  });
 
   const classLimits = BA_WEIGHT_CLASS_LIMITS[unit.weightClass];
   if (massBreakdown.totalMass > classLimits.maxMassKg) {

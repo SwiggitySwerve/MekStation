@@ -18,9 +18,9 @@ import {
   createPSRTriggeredEvent,
   createTransferDamageEvent,
   createUnitFellEvent,
-  createUnitDestroyedEvent,
 } from './gameEvents';
 import {
+  appendUnitDestroyedEvent,
   buildDamageStateFromUnit,
   emitCriticalEvents,
 } from './gameSessionAttackResolutionHelpers';
@@ -289,17 +289,12 @@ function appendAirMekLandingFallDamageClusters(
       );
     }
     if (damageResult.result.unitDestroyed && !hasCriticalDestruction) {
-      currentSession = appendEvent(
-        currentSession,
-        createUnitDestroyedEvent(
-          currentSession.id,
-          currentSession.events.length,
-          currentSession.currentState.turn,
-          phase,
-          unitId,
-          damageResult.result.destructionCause ?? 'damage',
-        ),
-      );
+      currentSession = appendUnitDestroyedEvent(currentSession, {
+        turn: currentSession.currentState.turn,
+        phase,
+        unitId,
+        cause: damageResult.result.destructionCause ?? 'damage',
+      });
     }
   }
   return currentSession;

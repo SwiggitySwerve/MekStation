@@ -21,6 +21,106 @@ interface GameSessionLifecycleParams {
   readonly createDemoSession: () => void;
 }
 
+function loadRouteSession(
+  routeId: string | string[] | undefined,
+  loadSession: (id: string) => Promise<void>,
+  createDemoSession: () => void,
+): void {
+  if (routeId === 'demo') {
+    createDemoSession();
+    return;
+  }
+  if (typeof routeId === 'string') {
+    void loadSession(routeId);
+  }
+}
+
+function canPersistCompletedSession(
+  session: IGameSession | null,
+  isCompletedForRedirect: boolean,
+  hasPersisted: boolean,
+  routeId: string | string[] | undefined,
+): session is IGameSession {
+  return Boolean(
+    session &&
+    isCompletedForRedirect &&
+    !hasPersisted &&
+    typeof routeId === 'string' &&
+    routeId !== 'demo',
+  );
+}
+
+function persistMatchLog(
+  session: IGameSession,
+  onPersisted: () => void,
+): () => void {
+  let cancelled = false;
+  void import('@/lib/combat/combatResolution').then(({ finalize }) =>
+    finalize(session)
+      .then(() => {
+        if (!cancelled) onPersisted();
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        logger.warn('match log persistence failed:', err);
+        onPersisted();
+      }),
+  );
+  return () => {
+    cancelled = true;
+  };
+}
+
+function shouldPersistEncounter(
+  session: IGameSession | null,
+  isCompletedForRedirect: boolean,
+  routeId: string | string[] | undefined,
+  alreadyFired: boolean,
+): session is IGameSession {
+  return Boolean(
+    session &&
+    isCompletedForRedirect &&
+    typeof routeId === 'string' &&
+    routeId !== 'demo' &&
+    session.config.encounterId &&
+    !alreadyFired,
+  );
+}
+
+function persistEncounterReplay(session: IGameSession): () => void {
+  let cancelled = false;
+  void import('@/components/encounter/persistEncounterFromSession').then(
+    ({ persistEncounterFromSession }) =>
+      persistEncounterFromSession(session).then((result) => {
+        if (cancelled) return;
+        if (!result.ok) {
+          logger.warn('[encounter] replay-library persist failed', {
+            status: result.status,
+            error: result.error,
+            gameId: session.id,
+          });
+        }
+      }),
+  );
+
+  return () => {
+    cancelled = true;
+  };
+}
+
+function shouldRedirectCompletedGame(
+  isCompletedForRedirect: boolean,
+  isCampaignBound: boolean,
+  routeId: string | string[] | undefined,
+): routeId is string {
+  return (
+    isCompletedForRedirect &&
+    !isCampaignBound &&
+    typeof routeId === 'string' &&
+    routeId !== 'demo'
+  );
+}
+
 export function useGameSessionLifecycle({
   router,
   routeId,
@@ -50,66 +150,45 @@ export function useGameSessionLifecycle({
   });
 
   useEffect(() => {
-    if (routeId === 'demo') {
-      createDemoSession();
-    } else if (typeof routeId === 'string') {
-      void loadSession(routeId);
-    }
+    loadRouteSession(routeId, loadSession, createDemoSession);
   }, [routeId, loadSession, createDemoSession]);
 
   useEffect(() => {
-    if (!session || !isCompletedForRedirect || hasPersisted) return;
-    if (typeof routeId !== 'string' || routeId === 'demo') return;
-    let cancelled = false;
-    void import('@/lib/combat/combatResolution').then(({ finalize }) =>
-      finalize(session)
-        .then(() => {
-          if (!cancelled) setHasPersisted(true);
-        })
-        .catch((err: unknown) => {
-          if (cancelled) return;
-          logger.warn('match log persistence failed:', err);
-          setHasPersisted(true);
-        }),
-    );
-    return () => {
-      cancelled = true;
-    };
+    if (
+      !canPersistCompletedSession(
+        session,
+        isCompletedForRedirect,
+        hasPersisted,
+        routeId,
+      )
+    ) {
+      return;
+    }
+    return persistMatchLog(session, () => setHasPersisted(true));
   }, [session, isCompletedForRedirect, hasPersisted, routeId]);
 
   useEffect(() => {
-    if (!session || !isCompletedForRedirect) return;
-    if (typeof routeId !== 'string' || routeId === 'demo') return;
-    if (!session.config.encounterId) return;
-    if (encounterPersistFiredRef.current) return;
+    if (
+      !shouldPersistEncounter(
+        session,
+        isCompletedForRedirect,
+        routeId,
+        encounterPersistFiredRef.current,
+      )
+    ) {
+      return;
+    }
     encounterPersistFiredRef.current = true;
-
-    let cancelled = false;
-    void import('@/components/encounter/persistEncounterFromSession').then(
-      ({ persistEncounterFromSession }) =>
-        persistEncounterFromSession(session).then((result) => {
-          if (cancelled) return;
-          if (!result.ok) {
-            logger.warn('[encounter] replay-library persist failed', {
-              status: result.status,
-              error: result.error,
-              gameId: session.id,
-            });
-          }
-        }),
-    );
-
-    return () => {
-      cancelled = true;
-    };
+    return persistEncounterReplay(session);
   }, [session, isCompletedForRedirect, routeId]);
 
   useEffect(() => {
     if (
-      isCompletedForRedirect &&
-      !isCampaignBound &&
-      typeof routeId === 'string' &&
-      routeId !== 'demo'
+      shouldRedirectCompletedGame(
+        isCompletedForRedirect,
+        isCampaignBound,
+        routeId,
+      )
     ) {
       void router.replace(`/gameplay/games/${routeId}/victory`);
     }

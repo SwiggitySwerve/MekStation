@@ -14,97 +14,64 @@
  * @spec openspec/changes/add-campaign-command-ui/specs/campaign-command-ui/spec.md
  */
 
-import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
 
-import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
-import {
-  CommandError,
-  CommandLoading,
-} from '@/components/campaign/command/CommandStates';
 import { HiringPanel } from '@/components/campaign/command/HiringPanel';
-import { CampaignCoopRouteSurface } from '@/components/campaign/coop';
-import { EmptyState, PageLayout } from '@/components/ui';
 import { generatePersonnelForDay } from '@/lib/campaign/markets/personnelMarket';
+import {
+  CampaignPageFrameFromShell,
+  getLoadedCampaign,
+  renderCampaignCommandFeedback,
+  renderPendingCampaignPage,
+  useCampaignLoadStatus,
+  useCampaignPageShell,
+} from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { hireCandidate } from '@/stores/campaign/campaignCommandActions';
 import { selectPersonnelMarket } from '@/stores/campaign/campaignCommandSelectors';
-import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
-import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+
+const HIRING_LOADING = {
+  title: 'Personnel & Hiring',
+  subtitle: 'Loading hiring market...',
+} as const;
 
 export default function HiringPage(): React.ReactElement {
-  const router = useRouter();
-  const { id } = router.query;
-  const store = useCampaignStore();
-  const campaign = store.getState().getCampaign();
-  const saveState = useCampaignPersistenceStore((state) => state.saveState);
-  const loadCampaign = useCampaignPersistenceStore(
-    (state) => state.loadCampaign,
-  );
-  const [isClient, setIsClient] = useState(false);
+  const shell = useCampaignPageShell('Personnel & Hiring');
+  const { campaign: shellCampaign, store, isClient } = shell;
+  const loadStatus = useCampaignLoadStatus();
   // Re-render tick — bumped after a hire so the page re-reads the market.
   const [, setActionTick] = useState(0);
   // Offer id of a hire in flight, and any action error.
   const [hiringOfferId, setHiringOfferId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   // Seed the personnel market on first open when the campaign has no
   // pool yet (a fresh campaign that has not advanced a day). Uses the
   // existing market engine — no new generation logic.
   useEffect(() => {
-    if (!isClient || !campaign) return;
-    const extended = campaign as ICampaignWithCommand;
+    if (!isClient || !shellCampaign) return;
+    const extended = shellCampaign as ICampaignWithCommand;
     if (extended.personnelMarket !== undefined) return;
-    const offers = generatePersonnelForDay(campaign, Math.random);
+    const offers = generatePersonnelForDay(shellCampaign, Math.random);
     store
       .getState()
       .updateCampaign({ personnelMarket: offers } as Partial<ICampaign>);
     setActionTick((tick) => tick + 1);
-  }, [isClient, campaign, store]);
+  }, [isClient, shellCampaign, store]);
 
-  const breadcrumbs = [
-    { label: 'Home', href: '/' },
-    { label: 'Gameplay', href: '/gameplay' },
-    { label: 'Campaigns', href: '/gameplay/campaigns' },
-    { label: campaign?.name || 'Campaign', href: `/gameplay/campaigns/${id}` },
-    { label: 'Personnel & Hiring' },
-  ];
+  const pendingPage = renderPendingCampaignPage(shell, HIRING_LOADING);
+  if (pendingPage) return pendingPage;
 
-  if (!isClient) {
-    return (
-      <PageLayout
-        title="Personnel & Hiring"
-        subtitle="Loading hiring market..."
-        maxWidth="wide"
-      >
-        <CommandLoading />
-      </PageLayout>
-    );
-  }
-
-  if (!campaign) {
-    return (
-      <PageLayout
-        title="Personnel & Hiring"
-        subtitle="Campaign not found"
-        maxWidth="wide"
-        breadcrumbs={breadcrumbs}
-      >
-        <EmptyState
-          title="Campaign not found"
-          message="Return to campaigns list to select a campaign."
-        />
-      </PageLayout>
-    );
-  }
-
+  const campaign = getLoadedCampaign(shell);
   const candidates = selectPersonnelMarket(campaign);
+  const frame = {
+    title: 'Personnel & Hiring',
+    subtitle: `${campaign.name} — ${candidates.length} candidates on the market`,
+    currentPage: 'hiring',
+    coopRouteId: 'hiring',
+  } as const;
 
   /** Hire a candidate through the existing personnel-management logic. */
   const handleHire = (offerId: string): void => {
@@ -119,40 +86,22 @@ export default function HiringPage(): React.ReactElement {
     setActionTick((tick) => tick + 1);
   };
 
+  const feedback = renderCampaignCommandFeedback({
+    actionError,
+    campaignId: campaign.id,
+    loadStatus,
+    onClearActionError: () => setActionError(null),
+  });
+
   return (
-    <PageLayout
-      title="Personnel & Hiring"
-      subtitle={`${campaign.name} — ${candidates.length} candidates on the market`}
-      maxWidth="wide"
-      breadcrumbs={breadcrumbs}
-    >
-      <CampaignNavigation
-        campaignId={campaign.id}
-        currentPage="hiring"
-        coopSession={campaign.coopSession}
-      />
-
-      <CampaignCoopRouteSurface campaign={campaign} routeId="hiring" />
-
-      {actionError ? (
-        <CommandError
-          message={actionError}
-          onRetry={() => setActionError(null)}
-        />
-      ) : saveState === 'error' ? (
-        <CommandError
-          message="The campaign command data failed to load."
-          onRetry={() => {
-            void loadCampaign(campaign.id);
-          }}
-        />
-      ) : (
+    <CampaignPageFrameFromShell shell={shell} frame={frame}>
+      {feedback ?? (
         <HiringPanel
           candidates={candidates}
           onHire={handleHire}
           hiringOfferId={hiringOfferId}
         />
       )}
-    </PageLayout>
+    </CampaignPageFrameFromShell>
   );
 }

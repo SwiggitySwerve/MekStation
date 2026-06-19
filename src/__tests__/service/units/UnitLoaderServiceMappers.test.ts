@@ -39,6 +39,9 @@ describe('UnitLoaderService Component Mappers', () => {
     it('should map XL engines based on tech base', () => {
       expect(mapEngineType('XL', TechBase.INNER_SPHERE)).toBe(EngineType.XL_IS);
       expect(mapEngineType('XL', TechBase.CLAN)).toBe(EngineType.XL_CLAN);
+      expect(mapEngineType('XL Engine', TechBase.CLAN)).toBe(
+        EngineType.XL_CLAN,
+      );
     });
 
     it('should map specific XL engines', () => {
@@ -50,6 +53,9 @@ describe('UnitLoaderService Component Mappers', () => {
 
     it('should map other engine types', () => {
       expect(mapEngineType('Light', TechBase.INNER_SPHERE)).toBe(
+        EngineType.LIGHT,
+      );
+      expect(mapEngineType('Light Engine', TechBase.INNER_SPHERE)).toBe(
         EngineType.LIGHT,
       );
       expect(mapEngineType('XXL', TechBase.INNER_SPHERE)).toBe(EngineType.XXL);
@@ -283,6 +289,22 @@ describe('UnitLoaderService Component Mappers', () => {
       expect(result.leftTorsoRear).toBe(8);
       expect(result[MechLocation.RIGHT_TORSO]).toBe(20);
       expect(result.rightTorsoRear).toBe(8);
+    });
+
+    it('should map split front armor without rear fields for non-torso locations', () => {
+      const allocation = {
+        'Left Arm': { front: 15, rear: 4 },
+      };
+      const result = mapArmorAllocation(allocation);
+      expect(result[MechLocation.LEFT_ARM]).toBe(15);
+    });
+
+    it('should ignore malformed split armor values', () => {
+      const allocation = {
+        Head: { front: 9 } as unknown as { front: number; rear: number },
+      };
+      const result = mapArmorAllocation(allocation);
+      expect(result[MechLocation.HEAD]).toBe(0);
     });
 
     it('should ignore unknown locations', () => {

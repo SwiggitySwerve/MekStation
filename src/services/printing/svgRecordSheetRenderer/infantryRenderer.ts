@@ -7,19 +7,16 @@
 import { IInfantryRecordSheetData } from '@/types/printing';
 
 import { buildSPASectionString } from './spaSection';
-
-const SVG_W = 612;
-const SVG_H = 792;
-const MARGIN = 18;
-const FONT = 'Eurostile, Arial, sans-serif';
-
-function esc(s: string | number): string {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+import {
+  FONT,
+  MARGIN,
+  SVG_H,
+  SVG_W,
+  esc,
+  renderFooter,
+  renderSvgDocument,
+  renderTitleBlock,
+} from './stringRendererPrimitives';
 
 function trooperPips(x: number, y: number, count: number): string {
   const pipRadius = 4;
@@ -54,11 +51,11 @@ export function renderInfantrySVG(data: IInfantryRecordSheetData): string {
     antiMech,
   } = data;
 
-  let body = `
-  <!-- Title block -->
-  <rect x="${MARGIN}" y="${MARGIN}" width="${SVG_W - MARGIN * 2}" height="36" fill="#1a3a1a" rx="3"/>
-  <text x="${SVG_W / 2}" y="${MARGIN + 14}" font-family="${FONT}" font-size="13" font-weight="bold" fill="#fff" text-anchor="middle">${esc(header.chassis)} ${esc(header.model)}</text>
-  <text x="${SVG_W / 2}" y="${MARGIN + 28}" font-family="${FONT}" font-size="8" fill="#ccc" text-anchor="middle">Infantry - ${esc(header.techBase)} - ${esc(platoonComposition.squads)}x${esc(platoonComposition.troopersPerSquad)} - BV ${esc(header.battleValue.toLocaleString())}</text>`;
+  let body = renderTitleBlock(
+    '#1a3a1a',
+    `${header.chassis} ${header.model}`,
+    `Infantry - ${esc(header.techBase)} - ${esc(platoonComposition.squads)}x${esc(platoonComposition.troopersPerSquad)} - BV ${esc(header.battleValue.toLocaleString())}`,
+  );
 
   const badgeY = MARGIN + 46;
   body += `
@@ -122,11 +119,6 @@ export function renderInfantrySVG(data: IInfantryRecordSheetData): string {
     );
   }
 
-  body += `
-  <text x="${SVG_W / 2}" y="${SVG_H - 6}" font-family="${FONT}" font-size="5.5" fill="#888" text-anchor="middle">MekStation - Infantry Record Sheet</text>`;
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_W}" height="${SVG_H}" viewBox="0 0 ${SVG_W} ${SVG_H}">
-  <rect width="${SVG_W}" height="${SVG_H}" fill="#fff"/>
-  ${body}
-</svg>`;
+  body += renderFooter('MekStation - Infantry Record Sheet');
+  return renderSvgDocument(body);
 }

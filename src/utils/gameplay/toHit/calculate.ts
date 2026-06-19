@@ -52,47 +52,126 @@ import {
 } from './semiGuidedTagModifiers';
 import { calculateChinTurretPivotModifier } from './vehicleModifiers';
 
-export function calculateToHit(
+export interface ICalculateToHitInput {
+  readonly attacker: IAttackerState;
+  readonly target: ITargetState;
+  readonly rangeBracket: RangeBracket;
+  readonly range: number;
+  readonly minRange?: number;
+  readonly weaponId?: string;
+  readonly semiGuidedTagContext?: ISemiGuidedTagToHitContext;
+}
+
+interface IResolvedCalculateToHitInput extends Omit<
+  ICalculateToHitInput,
+  'minRange'
+> {
+  readonly minRange: number;
+}
+
+type LegacyCalculateToHitArgs = readonly [
   attacker: IAttackerState,
   target: ITargetState,
   rangeBracket: RangeBracket,
   range: number,
-  minRange: number = 0,
+  minRange?: number,
   weaponId?: string,
   semiGuidedTagContext?: ISemiGuidedTagToHitContext,
-): IToHitCalculation {
-  const modifiers: IToHitModifierDetail[] = [];
+];
 
-  modifiers.push(createBaseModifier(attacker.gunnery));
-  modifiers.push(getRangeModifierForBracket(rangeBracket));
+type CalculateToHitArgs =
+  | readonly [input: ICalculateToHitInput]
+  | LegacyCalculateToHitArgs;
 
-  const minRangeMod = calculateMinimumRangeModifier(range, minRange);
-  if (minRangeMod) modifiers.push(minRangeMod);
+function normalizeCalculateToHitInput(
+  args: CalculateToHitArgs,
+): IResolvedCalculateToHitInput {
+  if (args.length === 1) {
+    const { minRange = 0, ...input } = args[0];
+    return { ...input, minRange };
+  }
 
-  modifiers.push(calculateAttackerMovementModifier(attacker.movementType));
+  const [
+    attacker,
+    target,
+    rangeBracket,
+    range,
+    minRange = 0,
+    weaponId,
+    semiGuidedTagContext,
+  ] = args;
+  return {
+    attacker,
+    target,
+    rangeBracket,
+    range,
+    minRange,
+    ...(weaponId !== undefined ? { weaponId } : {}),
+    ...(semiGuidedTagContext !== undefined ? { semiGuidedTagContext } : {}),
+  };
+}
+
+function appendModifier(
+  modifiers: IToHitModifierDetail[],
+  modifier: IToHitModifierDetail | null | undefined,
+): void {
+  if (modifier) modifiers.push(modifier);
+}
+
+function collectBaseAndRangeModifiers({
+  attacker,
+  rangeBracket,
+  range,
+  minRange,
+}: IResolvedCalculateToHitInput): IToHitModifierDetail[] {
+  const modifiers = [
+    createBaseModifier(attacker.gunnery),
+    getRangeModifierForBracket(rangeBracket),
+  ];
+
+  appendModifier(modifiers, calculateMinimumRangeModifier(range, minRange));
+  return modifiers;
+}
+
+function collectMovementModifiers({
+  attacker,
+  target,
+  semiGuidedTagContext,
+}: IResolvedCalculateToHitInput): IToHitModifierDetail[] {
+  const modifiers = [calculateAttackerMovementModifier(attacker.movementType)];
   const targetMovementModifier = calculateTMM(
     target.movementType,
     target.hexesMoved,
   );
   modifiers.push(targetMovementModifier);
-  const semiGuidedTargetMovementModifier =
+  appendModifier(
+    modifiers,
     calculateSemiGuidedTagTargetMovementModifier(
       semiGuidedTagContext,
       targetMovementModifier,
-    );
-  if (semiGuidedTargetMovementModifier) {
-    modifiers.push(semiGuidedTargetMovementModifier);
-  }
-  const targetEvasionMod = calculateTargetEvasionModifier(
-    target.isEvading,
-    target.prone,
-    target.evasionBonus,
+    ),
   );
-  if (targetEvasionMod) modifiers.push(targetEvasionMod);
-  const targetSprintedMod = calculateTargetSprintedModifier(
-    target.sprintedThisTurn,
+  appendModifier(
+    modifiers,
+    calculateTargetEvasionModifier(
+      target.isEvading,
+      target.prone,
+      target.evasionBonus,
+    ),
   );
-  if (targetSprintedMod) modifiers.push(targetSprintedMod);
+  appendModifier(
+    modifiers,
+    calculateTargetSprintedModifier(target.sprintedThisTurn),
+  );
+  return modifiers;
+}
+
+function collectHeatAndTargetDefenseModifiers({
+  attacker,
+  target,
+  range,
+}: IResolvedCalculateToHitInput): IToHitModifierDetail[] {
+  const modifiers: IToHitModifierDetail[] = [];
   modifiers.push(
     calculateHeatModifier(
       attacker.heat,
@@ -100,124 +179,167 @@ export function calculateToHit(
     ),
   );
 
-  const proneMod = calculateProneModifier(target.prone, range);
-  if (proneMod) modifiers.push(proneMod);
-
-  const immobileMod = calculateImmobileModifier(target.immobile);
-  if (immobileMod) modifiers.push(immobileMod);
+  appendModifier(modifiers, calculateProneModifier(target.prone, range));
+  appendModifier(modifiers, calculateImmobileModifier(target.immobile));
 
   const targetHullDown = target.hullDown ?? false;
-  const coverMod = calculatePartialCoverModifier(
-    targetHullDown ? false : target.partialCover,
+  appendModifier(
+    modifiers,
+    calculatePartialCoverModifier(targetHullDown ? false : target.partialCover),
   );
-  if (coverMod) modifiers.push(coverMod);
-
-  const hullDownMod = calculateHullDownModifier(
-    targetHullDown,
-    target.partialCover,
+  appendModifier(
+    modifiers,
+    calculateHullDownModifier(targetHullDown, target.partialCover),
   );
-  if (hullDownMod) modifiers.push(hullDownMod);
+  return modifiers;
+}
 
-  modifiers.push(...attacker.damageModifiers);
+function getPilotWoundModifier(
+  attacker: IAttackerState,
+): IToHitModifierDetail | null {
+  if (!attacker.pilotWounds) return null;
 
-  if (attacker.pilotWounds) {
-    const effectiveWounds = getEffectiveWounds(
-      attacker.abilities ?? [],
-      attacker.pilotWounds,
-    );
-    const woundMod = calculatePilotWoundModifier(effectiveWounds);
-    if (woundMod) modifiers.push(woundMod);
-  }
+  const effectiveWounds = getEffectiveWounds(
+    attacker.abilities ?? [],
+    attacker.pilotWounds,
+  );
+  return calculatePilotWoundModifier(effectiveWounds);
+}
 
-  if (attacker.sensorHits) {
-    const sensorMod = calculateSensorDamageModifier(attacker.sensorHits);
-    if (sensorMod) modifiers.push(sensorMod);
-  }
+function collectAttackerConditionModifiers({
+  attacker,
+}: IResolvedCalculateToHitInput): IToHitModifierDetail[] {
+  const modifiers = [...attacker.damageModifiers];
 
-  if (attacker.actuatorDamage) {
-    const actuatorMod = calculateActuatorDamageModifier(
-      attacker.actuatorDamage,
-    );
-    if (actuatorMod) modifiers.push(actuatorMod);
-  }
+  appendModifier(modifiers, getPilotWoundModifier(attacker));
+  appendModifier(
+    modifiers,
+    attacker.sensorHits
+      ? calculateSensorDamageModifier(attacker.sensorHits)
+      : null,
+  );
+  appendModifier(
+    modifiers,
+    attacker.actuatorDamage
+      ? calculateActuatorDamageModifier(attacker.actuatorDamage)
+      : null,
+  );
+  appendModifier(
+    modifiers,
+    calculateTargetingComputerModifier(attacker.targetingComputer ?? false),
+  );
+  appendModifier(
+    modifiers,
+    calculateAttackerProneModifier(attacker.prone ?? false),
+  );
 
-  if (attacker.targetingComputer) {
-    const tcMod = calculateTargetingComputerModifier(
-      attacker.targetingComputer,
-    );
-    if (tcMod) modifiers.push(tcMod);
-  }
+  return modifiers;
+}
 
-  if (attacker.prone) {
-    const attackerProneMod = calculateAttackerProneModifier(attacker.prone);
-    if (attackerProneMod) modifiers.push(attackerProneMod);
-  }
-
-  const spottingMod = calculateSpottingAttackerModifier(attacker.isSpotting);
-  if (spottingMod) modifiers.push(spottingMod);
-
-  if (attacker.secondaryTarget) {
-    const secMod = calculateSecondaryTargetModifier(attacker.secondaryTarget);
-    if (secMod) modifiers.push(secMod);
-  }
-
-  if (attacker.indirectFire) {
-    const indirectMod = calculateIndirectFireModifier(attacker.indirectFire);
-    if (indirectMod) modifiers.push(indirectMod);
-  }
-  const semiGuidedIndirectMod =
-    calculateSemiGuidedTagIndirectFireModifier(semiGuidedTagContext);
-  if (semiGuidedIndirectMod) modifiers.push(semiGuidedIndirectMod);
-
-  if (attacker.calledShot) {
-    const calledMod = calculateCalledShotModifier(
-      attacker.calledShot,
-      attacker.teammateCalledShot,
-      attacker.abilities,
-      attacker.applyLocalCalledShotAbilityReduction !== false,
-    );
-    if (calledMod) modifiers.push(calledMod);
+function getVehicleChinTurretModifier(
+  attacker: IAttackerState,
+): IToHitModifierDetail | null {
+  const {
+    vehicleTurretType,
+    vehicleWeaponMountLocation,
+    vehicleWeaponIsTurretMounted,
+  } = attacker;
+  if (
+    vehicleTurretType === undefined ||
+    vehicleWeaponMountLocation === undefined ||
+    vehicleWeaponIsTurretMounted === undefined
+  ) {
+    return null;
   }
 
   // Vehicle-only chin-turret pivot penalty. Per archived
   // `tier5-audit-cleanup` Phase C 1.A and the firing-arc-calculation spec
   // ("Vehicle Chin Turret Pivot Penalty"), a ground vehicle that pivots its
   // chin turret during the current turn incurs +1 to-hit on every weapon
-  // attack from that turret. The fields below are populated only when the
-  // attacker is a vehicle; mech callers leave them undefined and the
-  // modifier returns null.
-  if (
-    attacker.vehicleTurretType !== undefined &&
-    attacker.vehicleWeaponMountLocation !== undefined &&
-    attacker.vehicleWeaponIsTurretMounted !== undefined
-  ) {
-    const chinPivotMod = calculateChinTurretPivotModifier({
-      turretType: attacker.vehicleTurretType,
-      turretPivotedThisTurn: attacker.vehicleTurretPivotedThisTurn ?? false,
-      weaponMountLocation: attacker.vehicleWeaponMountLocation,
-      weaponIsTurretMounted: attacker.vehicleWeaponIsTurretMounted,
-    });
-    if (chinPivotMod) modifiers.push(chinPivotMod);
-  }
+  // attack from that turret.
+  return calculateChinTurretPivotModifier({
+    turretType: vehicleTurretType,
+    turretPivotedThisTurn: attacker.vehicleTurretPivotedThisTurn ?? false,
+    weaponMountLocation: vehicleWeaponMountLocation,
+    weaponIsTurretMounted: vehicleWeaponIsTurretMounted,
+  });
+}
 
+function collectAttackContextModifiers({
+  attacker,
+  semiGuidedTagContext,
+}: IResolvedCalculateToHitInput): IToHitModifierDetail[] {
+  const modifiers: IToHitModifierDetail[] = [];
+
+  appendModifier(
+    modifiers,
+    calculateSpottingAttackerModifier(attacker.isSpotting),
+  );
+  appendModifier(
+    modifiers,
+    attacker.secondaryTarget
+      ? calculateSecondaryTargetModifier(attacker.secondaryTarget)
+      : null,
+  );
+  appendModifier(
+    modifiers,
+    attacker.indirectFire
+      ? calculateIndirectFireModifier(attacker.indirectFire)
+      : null,
+  );
+  appendModifier(
+    modifiers,
+    calculateSemiGuidedTagIndirectFireModifier(semiGuidedTagContext),
+  );
+  appendModifier(
+    modifiers,
+    attacker.calledShot
+      ? calculateCalledShotModifier({
+          calledShot: attacker.calledShot,
+          teammateCalledShot: attacker.teammateCalledShot,
+          abilities: attacker.abilities,
+          applyLocalAbilityReduction:
+            attacker.applyLocalCalledShotAbilityReduction !== false,
+        })
+      : null,
+  );
+  appendModifier(modifiers, getVehicleChinTurretModifier(attacker));
+  return modifiers;
+}
+
+function collectSourceBackedModifiers({
+  attacker,
+  target,
+  rangeBracket,
+  weaponId,
+}: IResolvedCalculateToHitInput): IToHitModifierDetail[] {
   const rangeModValue = RANGE_MODIFIERS[rangeBracket] ?? 0;
-  const spaModifiers = calculateAttackerSPAModifiers(
-    attacker,
-    target,
-    rangeBracket,
-    rangeModValue,
-  );
-  modifiers.push(...spaModifiers);
+  return [
+    ...calculateAttackerSPAModifiers(
+      attacker,
+      target,
+      rangeBracket,
+      rangeModValue,
+    ),
+    ...calculateAttackerQuirkModifiers(
+      attacker,
+      target,
+      rangeBracket,
+      weaponId,
+    ),
+  ];
+}
 
-  const quirkModifiers = calculateAttackerQuirkModifiers(
-    attacker,
-    target,
-    rangeBracket,
-    weaponId,
-  );
-  modifiers.push(...quirkModifiers);
-
-  return aggregateModifiers(modifiers);
+export function calculateToHit(...args: CalculateToHitArgs): IToHitCalculation {
+  const input = normalizeCalculateToHitInput(args);
+  return aggregateModifiers([
+    ...collectBaseAndRangeModifiers(input),
+    ...collectMovementModifiers(input),
+    ...collectHeatAndTargetDefenseModifiers(input),
+    ...collectAttackerConditionModifiers(input),
+    ...collectAttackContextModifiers(input),
+    ...collectSourceBackedModifiers(input),
+  ]);
 }
 
 export function calculateToHitFromContext(
@@ -225,11 +347,11 @@ export function calculateToHitFromContext(
   minRange: number = 0,
 ): IToHitCalculation {
   const rangeBracket = getRangeBracket(context.range, 3, 6, 15);
-  return calculateToHit(
-    context.attacker,
-    context.target,
+  return calculateToHit({
+    attacker: context.attacker,
+    target: context.target,
     rangeBracket,
-    context.range,
+    range: context.range,
     minRange,
-  );
+  });
 }

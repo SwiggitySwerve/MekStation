@@ -44,31 +44,30 @@ export interface UnitAccumulator {
   };
 }
 
+const TOKEN_TYPE_BY_UNIT_TYPE: Readonly<
+  Partial<Record<UnitType, TokenUnitType>>
+> = {
+  [UnitType.AEROSPACE]: TokenUnitType.Aerospace,
+  [UnitType.CONVENTIONAL_FIGHTER]: TokenUnitType.Aerospace,
+  [UnitType.SMALL_CRAFT]: TokenUnitType.Aerospace,
+  [UnitType.DROPSHIP]: TokenUnitType.Aerospace,
+  [UnitType.JUMPSHIP]: TokenUnitType.Aerospace,
+  [UnitType.WARSHIP]: TokenUnitType.Aerospace,
+  [UnitType.SPACE_STATION]: TokenUnitType.Aerospace,
+  [UnitType.PROTOMECH]: TokenUnitType.ProtoMech,
+  [UnitType.BATTLE_ARMOR]: TokenUnitType.BattleArmor,
+  [UnitType.INFANTRY]: TokenUnitType.Infantry,
+  [UnitType.VEHICLE]: TokenUnitType.Vehicle,
+  [UnitType.VTOL]: TokenUnitType.Vehicle,
+  [UnitType.BATTLEMECH]: TokenUnitType.Mech,
+  [UnitType.OMNIMECH]: TokenUnitType.Mech,
+  [UnitType.INDUSTRIALMECH]: TokenUnitType.Mech,
+};
+
 function tokenTypeFor(unitType: UnitType | undefined): TokenUnitType {
-  switch (unitType) {
-    case UnitType.AEROSPACE:
-    case UnitType.CONVENTIONAL_FIGHTER:
-    case UnitType.SMALL_CRAFT:
-    case UnitType.DROPSHIP:
-    case UnitType.JUMPSHIP:
-    case UnitType.WARSHIP:
-    case UnitType.SPACE_STATION:
-      return TokenUnitType.Aerospace;
-    case UnitType.PROTOMECH:
-      return TokenUnitType.ProtoMech;
-    case UnitType.BATTLE_ARMOR:
-      return TokenUnitType.BattleArmor;
-    case UnitType.INFANTRY:
-      return TokenUnitType.Infantry;
-    case UnitType.VEHICLE:
-    case UnitType.VTOL:
-      return TokenUnitType.Vehicle;
-    case UnitType.BATTLEMECH:
-    case UnitType.OMNIMECH:
-    case UnitType.INDUSTRIALMECH:
-    default:
-      return TokenUnitType.Mech;
-  }
+  return unitType
+    ? (TOKEN_TYPE_BY_UNIT_TYPE[unitType] ?? TokenUnitType.Mech)
+    : TokenUnitType.Mech;
 }
 
 function designationFor(name: string): string {
@@ -217,46 +216,32 @@ const INTERNAL_COMPONENT_TYPES: ReadonlySet<string> = new Set([
   'ammo',
 ]);
 
+const BIPED_LOCATION_BY_CODE: Readonly<Record<string, BipedPipLocation>> = {
+  HD: 'head',
+  CT: 'centerTorso',
+  LT: 'leftTorso',
+  RT: 'rightTorso',
+  LA: 'leftArm',
+  RA: 'rightArm',
+  LL: 'leftLeg',
+  RL: 'rightLeg',
+};
+
+const QUAD_LOCATION_BY_CODE: Readonly<Record<string, QuadPipLocation>> = {
+  HD: 'head',
+  CT: 'centerTorso',
+  FLL: 'frontLeftLeg',
+  FRL: 'frontRightLeg',
+  RLL: 'rearLeftLeg',
+  RRL: 'rearRightLeg',
+};
+
 function bipedLocationFromCode(code: string): BipedPipLocation | null {
-  switch (code) {
-    case 'HD':
-      return 'head';
-    case 'CT':
-      return 'centerTorso';
-    case 'LT':
-      return 'leftTorso';
-    case 'RT':
-      return 'rightTorso';
-    case 'LA':
-      return 'leftArm';
-    case 'RA':
-      return 'rightArm';
-    case 'LL':
-      return 'leftLeg';
-    case 'RL':
-      return 'rightLeg';
-    default:
-      return null;
-  }
+  return BIPED_LOCATION_BY_CODE[code] ?? null;
 }
 
 function quadLocationFromCode(code: string): QuadPipLocation | null {
-  switch (code) {
-    case 'HD':
-      return 'head';
-    case 'CT':
-      return 'centerTorso';
-    case 'FLL':
-      return 'frontLeftLeg';
-    case 'FRL':
-      return 'frontRightLeg';
-    case 'RLL':
-      return 'rearLeftLeg';
-    case 'RRL':
-      return 'rearRightLeg';
-    default:
-      return null;
-  }
+  return QUAD_LOCATION_BY_CODE[code] ?? null;
 }
 
 function emptyArmorPipState(): ArmorPipState {

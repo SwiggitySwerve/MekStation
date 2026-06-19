@@ -18,7 +18,8 @@ import React from 'react';
 
 import type { IMedicalBayItem } from '@/types/campaign/CampaignInventory';
 
-import { Badge, Card } from '@/components/ui';
+import { CampaignListCard } from '@/components/campaign/CampaignListCard';
+import { Badge } from '@/components/ui';
 
 import { BayEmpty } from './BayStates';
 
@@ -73,9 +74,10 @@ export function MedicalBayRow({
   item,
 }: MedicalBayRowProps): React.ReactElement {
   return (
-    <Card className="p-4" data-testid={`medical-bay-row-${item.pilotId}`}>
-      <div className="flex items-center justify-between gap-4">
-        <div className="min-w-0">
+    <CampaignListCard
+      testId={`medical-bay-row-${item.pilotId}`}
+      left={
+        <>
           <h3 className="text-text-theme-primary truncate text-base font-semibold">
             {item.pilotName}
           </h3>
@@ -91,16 +93,17 @@ export function MedicalBayRow({
                     item.daysToRecover === 1 ? 'day' : 'days'
                   } to recover`}
           </p>
-        </div>
-
+        </>
+      }
+      right={
         <div className="flex items-center gap-3">
           <Badge className={injuryClasses(item.injuryLevel)}>
             {item.injuryLevel}
           </Badge>
           <Badge className={statusClasses(item.status)}>{item.status}</Badge>
         </div>
-      </div>
-    </Card>
+      }
+    />
   );
 }
 

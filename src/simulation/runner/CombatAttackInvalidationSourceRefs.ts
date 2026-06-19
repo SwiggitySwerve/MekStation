@@ -1,33 +1,8 @@
-import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
-
-const MEGAMEK_COMBAT_SOURCE_VERSION =
-  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
-
-function megamekSourceRef(
-  citation: string,
-  path: string,
-  lineAnchor: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'megamek-source',
-    citation,
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_COMBAT_SOURCE_VERSION}/${path}#${lineAnchor}`,
-    sourceVersion: MEGAMEK_COMBAT_SOURCE_VERSION,
-  };
-}
-
-function mekstationDeviationRef(
-  citation: string,
-  path: string,
-  lineAnchor: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'mekstation-deviation',
-    citation,
-    url: `${path}#${lineAnchor}`,
-    sourceVersion: 'MekStation working-tree',
-  };
-}
+import {
+  megamekSourceRefWithLineAnchor as megamekSourceRef,
+  mekstationDeviationSourceRefWithLineAnchor as mekstationDeviationRef,
+  type ICombatFeatureSourceReference,
+} from './CombatFeatureSourceReference';
 
 export const MEGAMEK_OUT_OF_AMMO_INVALIDATION_SOURCE_REFS = [
   megamekSourceRef(
@@ -213,7 +188,7 @@ export const MEKSTATION_ATTACK_INVALID_HEAT_SUPPRESSION_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation markWeaponFiredForHeat is the runner weapon-fire heat-accounting boundary because heat phase later derives weapon heat from weaponsFiredThisTurn.',
     'src/simulation/runner/phases/weaponAttackFiringModes.ts',
-    'L121-L137',
+    'L117-L143',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -231,7 +206,7 @@ export const MEKSTATION_ATTACK_INVALID_AMMO_SUPPRESSION_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation resolveWeaponHit emits AttackResolved and then consumes ammo only for valid hit-resolution paths.',
     'src/simulation/runner/phases/weaponAttackHitResolution.ts',
-    'L401-L430',
+    'L253-L306',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -244,7 +219,7 @@ export const MEKSTATION_ATTACK_INVALID_DAMAGE_SUPPRESSION_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation resolveWeaponHit increments damageThisPhase and emits AttackResolved only on valid hit-resolution paths.',
     'src/simulation/runner/phases/weaponAttackHitResolution.ts',
-    'L389-L430',
+    'L238-L306',
   ),
   mekstationDeviationRef(
     'MekStation emitDamageChainEvents is the runner DamageApplied and transfer side-effect boundary, so invalid attacks must not reach it.',
@@ -262,6 +237,6 @@ export const MEKSTATION_ATTACK_INVALID_FIRED_WEAPON_SUPPRESSION_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation markWeaponFiredForHeat appends the weapon id to weaponsFiredThisTurn, so invalid attacks must exit before this helper.',
     'src/simulation/runner/phases/weaponAttackFiringModes.ts',
-    'L121-L137',
+    'L117-L143',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];

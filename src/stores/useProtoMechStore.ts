@@ -1,8 +1,20 @@
 import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
-import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
+import {
+  addGeneratedMountedEquipment,
+  clearMountedEquipment,
+  linkMountedAmmo,
+  removeMountedEquipment,
+  updateMountedEquipment,
+} from '@/stores/equipmentStoreActions';
+import {
+  createUnitStorePersistOptions,
+  createUnitIdentityActions,
+  modificationPatch,
+  pickPersistedUnitIdentity,
+} from '@/stores/unitStoreIdentityActions';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { IEquipmentItem } from '@/types/equipment';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
@@ -11,7 +23,6 @@ import {
   getProtoMPCaps,
   getProtoWeightClass,
 } from '@/utils/construction/protomech';
-import { generateUnitId } from '@/utils/uuid';
 
 import { BV_AFFECTING_KEYS } from './protoMechBvKeys';
 import {
@@ -90,49 +101,7 @@ export function createProtoMechStore(
           // Identity Actions
           // =================================================================
 
-          setName: (name) =>
-            set({
-              name,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            }),
-
-          setChassis: (chassis) =>
-            set((state) => ({
-              chassis,
-              name: `${chassis}${state.model ? ' ' + state.model : ''}`,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            })),
-
-          setModel: (model) =>
-            set((state) => ({
-              model,
-              name: `${state.chassis}${model ? ' ' + model : ''}`,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            })),
-
-          setMulId: (mulId) =>
-            set({
-              mulId,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            }),
-
-          setYear: (year) =>
-            set({
-              year,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            }),
-
-          setRulesLevel: (rulesLevel) =>
-            set({
-              rulesLevel,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            }),
+          ...createUnitIdentityActions<ProtoMechStore>(set),
 
           // =================================================================
           // Classification Actions
@@ -362,69 +331,49 @@ export function createProtoMechStore(
           // Equipment Actions
           // =================================================================
 
-          addEquipment: (item: IEquipmentItem, location?) => {
-            const instanceId = generateUnitId();
-            const mountedEquipment = createProtoMechMountedEquipment(
-              item,
-              instanceId,
-              location,
-            );
-
-            set((state) => ({
-              equipment: [...state.equipment, mountedEquipment],
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            }));
-
-            return instanceId;
-          },
+          addEquipment: (item: IEquipmentItem, location?) =>
+            addGeneratedMountedEquipment(set, (instanceId) =>
+              createProtoMechMountedEquipment(item, instanceId, location),
+            ),
 
           removeEquipment: (instanceId: string) =>
-            set((state) => ({
-              equipment: state.equipment.filter((e) => e.id !== instanceId),
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            })),
+            set((state) =>
+              removeMountedEquipment(state, instanceId, (e) => e.id),
+            ),
 
           updateEquipmentLocation: (instanceId: string, location) =>
-            set((state) => ({
-              equipment: state.equipment.map((e) =>
-                e.id === instanceId ? { ...e, location } : e,
+            set((state) =>
+              updateMountedEquipment(
+                state,
+                instanceId,
+                (e) => e.id,
+                (e) => ({
+                  ...e,
+                  location,
+                }),
               ),
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            })),
+            ),
 
           linkAmmo: (
             weaponInstanceId: string,
             ammoInstanceId: string | undefined,
           ) =>
-            set((state) => ({
-              equipment: state.equipment.map((e) =>
-                e.id === weaponInstanceId
-                  ? { ...e, linkedAmmoId: ammoInstanceId }
-                  : e,
+            set((state) =>
+              linkMountedAmmo(
+                state,
+                weaponInstanceId,
+                ammoInstanceId,
+                (e) => e.id,
               ),
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            })),
+            ),
 
-          clearAllEquipment: () =>
-            set({
-              equipment: [],
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            }),
+          clearAllEquipment: () => set(clearMountedEquipment()),
 
           // =================================================================
           // Metadata Actions
           // =================================================================
 
-          markModified: (modified = true) =>
-            set({
-              isModified: modified,
-              lastModifiedAt: Date.now(),
-            }),
+          markModified: (modified = true) => set(modificationPatch(modified)),
 
           // =================================================================
           // BV Actions
@@ -442,18 +391,10 @@ export function createProtoMechStore(
           },
         };
       },
-      {
-        name: `megamek-protomech-${initialState.id}`,
-        storage: createJSONStorage(() => clientSafeStorage),
-        skipHydration: true,
-        partialize: (state) => ({
-          id: state.id,
-          name: state.name,
-          chassis: state.chassis,
-          model: state.model,
-          mulId: state.mulId,
-          year: state.year,
-          rulesLevel: state.rulesLevel,
+      createUnitStorePersistOptions(
+        `megamek-protomech-${initialState.id}`,
+        (state: ProtoMechStore) => ({
+          ...pickPersistedUnitIdentity(state),
           techBase: state.techBase,
           unitType: state.unitType,
           tonnage: state.tonnage,
@@ -483,7 +424,7 @@ export function createProtoMechStore(
           // rewritten on the first BV-affecting mutation.
           bvBreakdown: state.bvBreakdown,
         }),
-      },
+      ),
     ),
   );
 }

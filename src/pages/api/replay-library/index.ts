@@ -20,6 +20,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IReplayManifestEntry } from '@/replay-library/types';
 
+import { type ApiErrorResponse } from '@/pages-modules/api/routeHelpers';
 import { readReplayIndex } from '@/replay-library/index-reader';
 import { logger } from '@/utils/logger';
 
@@ -30,11 +31,6 @@ import { logger } from '@/utils/logger';
 type ListResponse = {
   entries: readonly IReplayManifestEntry[];
   total: number;
-};
-
-type ErrorResponse = {
-  error: string;
-  code?: string;
 };
 
 // =============================================================================
@@ -49,7 +45,7 @@ type ErrorResponse = {
  */
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ListResponse | ErrorResponse>,
+  res: NextApiResponse<ListResponse | ApiErrorResponse>,
 ): Promise<void> {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);

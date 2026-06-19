@@ -431,8 +431,10 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
       interactiveSession,
       get,
       set,
-      get().selectUnitForMovement,
-      get().selectAttackTarget,
+      {
+        selectUnitForMovement: get().selectUnitForMovement,
+        selectAttackTarget: get().selectAttackTarget,
+      },
     );
   },
   skipPhase: () => {

@@ -1,22 +1,13 @@
-import type { CriticalSlotComponentType } from '@/utils/gameplay/criticalHitResolution';
-
-import type {
-  ICombatFeatureSourceReference,
-  ICombatFeatureSupportEntry,
-} from './CombatFeatureSupport';
+import { type CriticalSlotComponentType } from '@/utils/gameplay/criticalHitResolution';
 
 import {
   MEGAMEK_MTF_EQUIPMENT_CRITICAL_SOURCE_REFS,
   MEGAMEK_MTF_SYSTEM_CRITICAL_SOURCE_REFS,
 } from './CombatCriticalSlotSourceRefs';
-
-function integrated(
-  id: CriticalSlotComponentType,
-  evidence: string,
-  sourceRefs: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return { id, level: 'integrated', evidence, sourceRefs };
-}
+import {
+  integrated,
+  type ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
 
 export const CRITICAL_SLOT_COMPONENT_TYPES = [
   'actuator',

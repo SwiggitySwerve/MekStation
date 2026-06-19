@@ -1,37 +1,15 @@
-import type {
-  ICombatFeatureSourceReference,
-  ICombatFeatureSupportEntry,
+import { mekstationDeviationSourceRefWithLineAnchor as mekstationDeviationSourceRef } from './CombatFeatureSourceReference';
+import {
+  integrated,
+  type ICombatFeatureSourceReference,
+  type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
-
 import { COMBAT_INTEGRATION_SCENARIO_SUPPORT } from './CombatIntegrationSupport';
-
-const MEKSTATION_SOURCE_VERSION = 'MekStation working-tree';
-
-function mekstationDeviationSourceRef(
-  citation: string,
-  path: string,
-  lineRange: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'mekstation-deviation',
-    citation,
-    url: `${path}#${lineRange}`,
-    sourceVersion: MEKSTATION_SOURCE_VERSION,
-  };
-}
 
 function sourceRefsFrom(
   entry: ICombatFeatureSupportEntry,
 ): readonly ICombatFeatureSourceReference[] {
   return entry.sourceRefs ?? [];
-}
-
-function integrated(
-  id: string,
-  evidence: string,
-  sourceRefs: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return { id, level: 'integrated', evidence, sourceRefs };
 }
 
 const MOVEMENT_PARITY_SOURCE_REFS = [
@@ -108,7 +86,7 @@ const WEAPON_DAMAGE_CRITICAL_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner weapon hit resolution routes damage through resolveDamage and forwards critical-hit events.',
     'src/simulation/runner/phases/weaponAttackHitResolution.ts',
-    'L346-L500',
+    'L188-L397',
   ),
   mekstationDeviationSourceRef(
     'MekStation event-sourced attack resolution routes hits through resolveDamagePipeline and critical-hit event helpers.',
@@ -151,8 +129,8 @@ const PHYSICAL_DISPLACEMENT_PARITY_SOURCE_REFS = [
 const HEAT_CORE_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner heat phase processes weapon, movement, engine, terrain/environment heat, heat-sink dissipation, shutdown/startup, ammo explosion, pilot heat damage, and MaxTech heat criticals.',
-    'src/simulation/runner/phases/postCombat.ts',
-    'L285-L565',
+    'src/simulation/runner/phases/postCombatHeat.ts',
+    'L27-L140',
   ),
   mekstationDeviationSourceRef(
     'MekStation event-sourced resolveHeatPhase processes heat from movement, AttackDeclared weapon payloads, engine hits, environment, dissipation, startup, shutdown, ammo explosion, and heat effects.',
@@ -169,8 +147,8 @@ const HEAT_CORE_PARITY_SOURCE_REFS = [
 const HEAT_DISSIPATION_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner heat phase emits HeatDissipated with negative amount and base/water/environment/generated-heat breakdown.',
-    'src/simulation/runner/phases/postCombat.ts',
-    'L405-L424',
+    'src/simulation/runner/phases/postCombatHeatAccounting.ts',
+    'L195-L245',
   ),
   mekstationDeviationSourceRef(
     'MekStation event-sourced resolveHeatPhase emits HeatDissipated with the same dissipation breakdown payload shape.',
@@ -180,15 +158,15 @@ const HEAT_DISSIPATION_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation heat environment parity tests assert runner and interactive dissipation payload parity.',
     'src/simulation/runner/__tests__/heatEnvironmentParity.behavior.test.ts',
-    'L263-L343',
+    'L124-L169',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const HEAT_ENVIRONMENT_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner heat phase consumes terrain heat effects plus environmental heat modifiers in the heat budget.',
-    'src/simulation/runner/phases/postCombat.ts',
-    'L342-L350',
+    'src/simulation/runner/phases/postCombatHeatAccounting.ts',
+    'L103-L193',
   ),
   mekstationDeviationSourceRef(
     'MekStation event-sourced resolveHeatPhase consumes water-depth cooling and environmental heat modifiers from its providers.',
@@ -197,16 +175,16 @@ const HEAT_ENVIRONMENT_PARITY_SOURCE_REFS = [
   ),
   mekstationDeviationSourceRef(
     'MekStation heat environment parity tests prove water, fire, atmosphere, and temperature effects through both heat resolvers.',
-    'src/simulation/runner/__tests__/heatEnvironmentParity.behavior.test.ts',
-    'L559-L589',
+    'src/simulation/runner/__tests__/heatEnvironmentParity.behavior.02.test.ts',
+    'L166-L243',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const HEAT_PILOT_DAMAGE_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner heat phase applies heat-sourced PilotHit and optional MaxTech heat-scale pilot damage.',
-    'src/simulation/runner/phases/postCombat.ts',
-    'L510-L521',
+    'src/simulation/runner/phases/postCombatHeatLifecycle.ts',
+    'L194-L227',
   ),
   mekstationDeviationSourceRef(
     'MekStation event-sourced resolveHeatPhase emits heat-sourced PilotHit, persists wounds, and applies optional MaxTech heat-scale damage.',
@@ -214,22 +192,27 @@ const HEAT_PILOT_DAMAGE_PARITY_SOURCE_REFS = [
     'L1082-L1148',
   ),
   mekstationDeviationSourceRef(
-    'MekStation heat environment parity tests prove default and optional MaxTech heat pilot wounds in runner and interactive heat resolvers.',
-    'src/simulation/runner/__tests__/heatEnvironmentParity.behavior.test.ts',
-    'L604-L775',
+    'MekStation heat environment parity tests prove default heat pilot wounds in runner and interactive heat resolvers.',
+    'src/simulation/runner/__tests__/heatEnvironmentParity.behavior.04.test.ts',
+    'L85-L159',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation heat environment parity tests prove optional MaxTech heat pilot wounds and Hot Dog relief in runner and interactive heat resolvers.',
+    'src/simulation/runner/__tests__/heatEnvironmentParity.behavior.03.test.ts',
+    'L85-L177',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const PSR_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner PSR phase resolves queued PSRs with per-unit piloting, emits PSRResolved, and applies first-failure fallout.',
-    'src/simulation/runner/phases/postCombat.ts',
-    'L52-L170',
+    'src/simulation/runner/phases/postCombatPsr.ts',
+    'L272-L323',
   ),
   mekstationDeviationSourceRef(
     'MekStation event-sourced End phase resolves pending PSRs with per-unit piloting, component damage, wounds, quirks, abilities, and unit type.',
-    'src/utils/gameplay/gameSessionPSR.ts',
-    'L63-L205',
+    'src/utils/gameplay/gameSessionPSRResolution.ts',
+    'L54-L410',
   ),
   mekstationDeviationSourceRef(
     'MekStation resolveAllPSRs applies the shared first-failure batch contract for queued piloting skill rolls.',

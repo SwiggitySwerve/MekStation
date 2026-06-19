@@ -16,7 +16,16 @@ import type {
   IShareLink,
 } from '@/types/vault';
 
-import { logger } from '@/utils/logger';
+import { runBusyErrorOperation } from '@/components/common/runUiOperation';
+
+import {
+  ShareDialogForm,
+  ShareDialogSuccess,
+  type ExpiryOption,
+  type MaxUsesOption,
+  type ShareLinkResult,
+} from './ShareDialogViews';
+import { buildResponseError } from './vaultDialogApi';
 
 // =============================================================================
 // Types
@@ -43,14 +52,6 @@ export interface ShareDialogProps {
 
   /** Callback when share link is created successfully */
   onShareCreated?: (link: IShareLink, url: string) => void;
-}
-
-type ExpiryOption = 'none' | '1hour' | '1day' | '1week' | '1month' | 'custom';
-type MaxUsesOption = 'unlimited' | '1' | '5' | '10' | 'custom';
-
-interface ShareLinkResult {
-  link: IShareLink;
-  url: string;
 }
 
 // =============================================================================
@@ -87,6 +88,64 @@ function getMaxUses(
   if (option === 'unlimited') return null;
   if (option === 'custom' && customValue !== undefined) return customValue;
   return parseInt(option, 10);
+}
+
+interface CreateShareLinkRequest {
+  scopeType: PermissionScopeType;
+  scopeId?: string | null;
+  scopeCategory?: ContentCategory | null;
+  level: PermissionLevel;
+  expiresAt: string | null;
+  maxUses: number | null;
+  label: string;
+}
+
+async function createShareLink({
+  scopeType,
+  scopeId,
+  scopeCategory,
+  level,
+  expiresAt,
+  maxUses,
+  label,
+}: CreateShareLinkRequest): Promise<ShareLinkResult> {
+  const response = await fetch('/api/vault/share', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      scopeType,
+      scopeId: scopeId ?? null,
+      scopeCategory: scopeCategory ?? null,
+      level,
+      expiresAt,
+      maxUses,
+      label: label.trim() || undefined,
+    }),
+  });
+
+  if (!response.ok) {
+    throw await buildResponseError(
+      response,
+      'Response not JSON when creating share link',
+      'Failed to create share link',
+    );
+  }
+
+  return (await response.json()) as ShareLinkResult;
+}
+
+async function copyShareUrl(url: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(url);
+  } catch {
+    // Fallback for older browsers
+    const textarea = document.createElement('textarea');
+    textarea.value = url;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+  }
 }
 
 // =============================================================================
@@ -130,49 +189,27 @@ export function ShareDialog({
   }, []);
 
   const handleCreate = useCallback(async () => {
-    setCreating(true);
-    setError(null);
+    await runBusyErrorOperation(
+      setCreating,
+      setError,
+      'Failed to create share link',
+      async () => {
+        const expiresAt = getExpiryDate(expiryOption, customExpiry);
+        const maxUses = getMaxUses(maxUsesOption, customMaxUses);
 
-    try {
-      const expiresAt = getExpiryDate(expiryOption, customExpiry);
-      const maxUses = getMaxUses(maxUsesOption, customMaxUses);
-
-      const response = await fetch('/api/vault/share', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        const data = await createShareLink({
           scopeType,
-          scopeId: scopeId ?? null,
-          scopeCategory: scopeCategory ?? null,
+          scopeId,
+          scopeCategory,
           level,
           expiresAt,
           maxUses,
-          label: label.trim() || undefined,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = (await response.json().catch((e) => {
-          logger.debug('Response not JSON when creating share link', e);
-          return {};
-        })) as {
-          error?: string;
-        };
-        throw new Error(
-          errorData.error || `Failed to create share link (${response.status})`,
-        );
-      }
-
-      const data = (await response.json()) as ShareLinkResult;
-      setResult(data);
-      onShareCreated?.(data.link, data.url);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to create share link',
-      );
-    } finally {
-      setCreating(false);
-    }
+          label,
+        });
+        setResult(data);
+        onShareCreated?.(data.link, data.url);
+      },
+    );
   }, [
     scopeType,
     scopeId,
@@ -189,21 +226,9 @@ export function ShareDialog({
   const handleCopy = useCallback(async () => {
     if (!result?.url) return;
 
-    try {
-      await navigator.clipboard.writeText(result.url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Fallback for older browsers
-      const textarea = document.createElement('textarea');
-      textarea.value = result.url;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+    await copyShareUrl(result.url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }, [result]);
 
   const handleClose = useCallback(() => {
@@ -220,206 +245,37 @@ export function ShareDialog({
   // Success state - show generated link
   if (result) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div className="mx-4 w-full max-w-md rounded-lg bg-gray-800 p-6">
-          <h2 className="mb-4 text-xl font-bold text-green-400">
-            Share Link Created
-          </h2>
-
-          <div className="space-y-4">
-            <div>
-              <label className="mb-1 block text-sm text-gray-400">
-                Share Link
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={result.url}
-                  className="flex-1 rounded border border-gray-600 bg-gray-700 px-3 py-2 font-mono text-sm text-white"
-                />
-                <button
-                  onClick={handleCopy}
-                  className="rounded bg-blue-600 px-4 py-2 whitespace-nowrap text-white hover:bg-blue-500"
-                >
-                  {copied ? 'Copied!' : 'Copy'}
-                </button>
-              </div>
-            </div>
-
-            <div className="rounded-lg bg-gray-700 p-4">
-              <h3 className="mb-2 font-medium text-white">Link Settings</h3>
-              <dl className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <dt className="text-gray-400">Permission:</dt>
-                  <dd className="text-white capitalize">{result.link.level}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-gray-400">Expires:</dt>
-                  <dd className="text-white">
-                    {result.link.expiresAt
-                      ? new Date(result.link.expiresAt).toLocaleString()
-                      : 'Never'}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-gray-400">Max Uses:</dt>
-                  <dd className="text-white">
-                    {result.link.maxUses ?? 'Unlimited'}
-                  </dd>
-                </div>
-                {result.link.label && (
-                  <div className="flex justify-between">
-                    <dt className="text-gray-400">Label:</dt>
-                    <dd className="text-white">{result.link.label}</dd>
-                  </div>
-                )}
-              </dl>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={handleCreateAnother}
-                className="w-full rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-500"
-              >
-                Create Another Link
-              </button>
-              <button
-                onClick={handleClose}
-                className="w-full rounded bg-gray-700 px-4 py-2 text-white hover:bg-gray-600"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ShareDialogSuccess
+        result={result}
+        copied={copied}
+        onCopy={handleCopy}
+        onCreateAnother={handleCreateAnother}
+        onClose={handleClose}
+      />
     );
   }
 
   // Main form
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="mx-4 w-full max-w-md rounded-lg bg-gray-800 p-6">
-        <h2 className="mb-4 text-xl font-bold text-white">Share {itemName}</h2>
-
-        {error && (
-          <div className="mb-4 rounded border border-red-500 bg-red-900/50 px-4 py-2 text-red-200">
-            {error}
-          </div>
-        )}
-
-        <div className="space-y-4">
-          {/* Permission Level */}
-          <div>
-            <label className="mb-1 block text-sm text-gray-400">
-              Permission Level
-            </label>
-            <select
-              value={level}
-              onChange={(e) => setLevel(e.target.value as PermissionLevel)}
-              className="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white"
-            >
-              <option value="read">Read - View and copy content</option>
-              <option value="write">Write - View, copy, and edit</option>
-              <option value="admin">
-                Admin - Full access including re-share
-              </option>
-            </select>
-          </div>
-
-          {/* Expiration */}
-          <div>
-            <label className="mb-1 block text-sm text-gray-400">
-              Link Expiration
-            </label>
-            <select
-              value={expiryOption}
-              onChange={(e) => setExpiryOption(e.target.value as ExpiryOption)}
-              className="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white"
-            >
-              <option value="none">Never expires</option>
-              <option value="1hour">1 hour</option>
-              <option value="1day">1 day</option>
-              <option value="1week">1 week</option>
-              <option value="1month">1 month</option>
-              <option value="custom">Custom date</option>
-            </select>
-            {expiryOption === 'custom' && (
-              <input
-                type="datetime-local"
-                value={customExpiry}
-                onChange={(e) => setCustomExpiry(e.target.value)}
-                className="mt-2 w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white"
-              />
-            )}
-          </div>
-
-          {/* Max Uses */}
-          <div>
-            <label className="mb-1 block text-sm text-gray-400">
-              Maximum Uses
-            </label>
-            <select
-              value={maxUsesOption}
-              onChange={(e) =>
-                setMaxUsesOption(e.target.value as MaxUsesOption)
-              }
-              className="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white"
-            >
-              <option value="unlimited">Unlimited</option>
-              <option value="1">1 use</option>
-              <option value="5">5 uses</option>
-              <option value="10">10 uses</option>
-              <option value="custom">Custom</option>
-            </select>
-            {maxUsesOption === 'custom' && (
-              <input
-                type="number"
-                min="1"
-                value={customMaxUses}
-                onChange={(e) =>
-                  setCustomMaxUses(parseInt(e.target.value, 10) || 1)
-                }
-                className="mt-2 w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white"
-                placeholder="Enter max uses"
-              />
-            )}
-          </div>
-
-          {/* Label */}
-          <div>
-            <label className="mb-1 block text-sm text-gray-400">
-              Label (optional)
-            </label>
-            <input
-              type="text"
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              placeholder="e.g., For Discord server"
-              className="w-full rounded border border-gray-600 bg-gray-700 px-3 py-2 text-white placeholder-gray-500"
-            />
-          </div>
-        </div>
-
-        <div className="mt-6 flex justify-end gap-3">
-          <button
-            onClick={handleClose}
-            disabled={creating}
-            className="rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-500 disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleCreate}
-            disabled={creating || (expiryOption === 'custom' && !customExpiry)}
-            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 disabled:opacity-50"
-          >
-            {creating ? 'Creating...' : 'Create Link'}
-          </button>
-        </div>
-      </div>
-    </div>
+    <ShareDialogForm
+      itemName={itemName}
+      level={level}
+      expiryOption={expiryOption}
+      customExpiry={customExpiry}
+      maxUsesOption={maxUsesOption}
+      customMaxUses={customMaxUses}
+      label={label}
+      creating={creating}
+      error={error}
+      onLevelChange={setLevel}
+      onExpiryOptionChange={setExpiryOption}
+      onCustomExpiryChange={setCustomExpiry}
+      onMaxUsesOptionChange={setMaxUsesOption}
+      onCustomMaxUsesChange={setCustomMaxUses}
+      onLabelChange={setLabel}
+      onClose={handleClose}
+      onCreate={handleCreate}
+    />
   );
 }
 

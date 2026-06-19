@@ -116,7 +116,7 @@ export class CalculationService implements ICalculationService {
   /**
    * Calculate all totals for a mech
    */
-  calculateTotals(mech: IEditableMech): IMechTotals {
+  calculateTotals = (mech: IEditableMech): IMechTotals => {
     const weights = this.calculateComponentWeights(mech);
     const totalWeight = Object.values(weights).reduce((sum, w) => sum + w, 0);
 
@@ -135,7 +135,7 @@ export class CalculationService implements ICalculationService {
       usedCriticalSlots: usedSlots,
       totalCriticalSlots: totalSlots,
     };
-  }
+  };
 
   /**
    * Calculate Battle Value using the validated BV 2.0 engine.
@@ -146,7 +146,7 @@ export class CalculationService implements ICalculationService {
    *
    * @spec openspec/specs/battle-value-system/spec.md
    */
-  calculateBattleValue(mech: IEditableMech): number {
+  calculateBattleValue = (mech: IEditableMech): number => {
     const movement = this.calculateMovement(mech);
     const heatSinkCapacity = isDoubleHeatSink(mech.heatSinkType)
       ? HEAT_SINK_CAPACITY_DOUBLE
@@ -175,7 +175,7 @@ export class CalculationService implements ICalculationService {
     };
 
     return calculateTotalBV(config);
-  }
+  };
 
   /**
    * Extract weapon entries from mech equipment for BV calculation.
@@ -195,7 +195,7 @@ export class CalculationService implements ICalculationService {
    * Calculate C-Bill cost using TechManual formula
    * Total Cost = (Structure + Engine + Gyro + Cockpit + Armor + Equipment) × Tech Multiplier
    */
-  calculateCost(mech: IEditableMech): number {
+  calculateCost = (mech: IEditableMech): number => {
     const structureCost =
       mech.tonnage *
       STRUCTURE_COST_BASE *
@@ -244,9 +244,9 @@ export class CalculationService implements ICalculationService {
       heatSinkCost;
 
     return Math.round(baseCost * MECH_CONSTRUCTION_MULTIPLIER);
-  }
+  };
 
-  calculateHeatProfile(mech: IEditableMech): IHeatProfile {
+  calculateHeatProfile = (mech: IEditableMech): IHeatProfile => {
     const heatSinkCapacity = isDoubleHeatSink(mech.heatSinkType)
       ? HEAT_SINK_CAPACITY_DOUBLE
       : HEAT_SINK_CAPACITY_SINGLE;
@@ -291,12 +291,12 @@ export class CalculationService implements ICalculationService {
       netHeat: heatGenerated - heatDissipated,
       alphaStrikeHeat,
     };
-  }
+  };
 
   /**
    * Calculate movement profile including jump MP from jump jets
    */
-  calculateMovement(mech: IEditableMech): IMovementProfile {
+  calculateMovement = (mech: IEditableMech): IMovementProfile => {
     const walkMP = mech.walkMP;
     const runMP = Math.floor(walkMP * 1.5);
     const jumpMP = extractJumpMP(mech);
@@ -306,7 +306,7 @@ export class CalculationService implements ICalculationService {
       runMP,
       jumpMP,
     };
-  }
+  };
 
   // ============================================================================
   // HELPER METHODS

@@ -1,8 +1,3 @@
-import type {
-  ICombatFeatureSourceReference,
-  ICombatFeatureSupportEntry,
-} from './CombatFeatureSupport';
-
 import {
   MEKSTATION_AC_PLAYTEST_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
   MEKSTATION_ACTIVE_PROBE_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
@@ -29,23 +24,11 @@ import {
   MEKSTATION_STEALTH_LINKED_ECM_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
   MEGAMEK_SYSTEM_CRITICAL_EFFECT_SOURCE_REFS,
 } from './CombatCriticalSlotSourceRefs';
-
-function integrated(
-  id: string,
-  evidence: string,
-  sourceRefs: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return { id, level: 'integrated', evidence, sourceRefs };
-}
-
-function outOfScope(
-  id: string,
-  evidence: string,
-  gap: string,
-  sourceRefs: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return { id, level: 'out-of-scope', evidence, gap, sourceRefs };
-}
+import {
+  integrated,
+  outOfScope,
+  type ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
 
 export const UNRESOLVED_EQUIPMENT_CRITICAL_EFFECT_BRANCHES = [] as const;
 

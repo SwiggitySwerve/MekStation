@@ -66,13 +66,13 @@ function assertNeverRecordSheetVariant(data: never): never {
 export class SVGRecordSheetRenderer {
   private readonly core = new TemplateRecordSheetRenderer();
 
-  async loadTemplate(templatePath: string): Promise<void> {
+  loadTemplate = async (templatePath: string): Promise<void> => {
     await this.core.loadTemplate(templatePath);
     // Mech-specific: expand the template viewBox to US-Letter margins.
     addDocumentMargins(this.core.root);
-  }
+  };
 
-  fillTemplate(data: IMechRecordSheetData): void {
+  fillTemplate = (data: IMechRecordSheetData): void => {
     // `core.document` throws 'Template not loaded' when no template is
     // loaded — preserves the prior guard behaviour.
     const svgDoc = this.core.document;
@@ -111,20 +111,20 @@ export class SVGRecordSheetRenderer {
         hasContent: true,
       });
     }
-  }
+  };
 
-  async fillArmorPips(
+  fillArmorPips = async (
     armor: IMechRecordSheetData['armor'],
     mechType?: string,
-  ): Promise<void> {
+  ): Promise<void> => {
     await fillArmorPips(this.core.document, this.core.root, armor, mechType);
-  }
+  };
 
-  async fillStructurePips(
+  fillStructurePips = async (
     structure: IMechRecordSheetData['structure'],
     tonnage: number,
     mechType?: string,
-  ): Promise<void> {
+  ): Promise<void> => {
     await fillStructurePips(
       this.core.document,
       this.core.root,
@@ -132,22 +132,22 @@ export class SVGRecordSheetRenderer {
       tonnage,
       mechType,
     );
-  }
+  };
 
-  getSVGString(): string {
+  getSVGString = (): string => {
     return this.core.getSVGString();
-  }
+  };
 
-  async renderToCanvas(canvas: HTMLCanvasElement): Promise<void> {
+  renderToCanvas = async (canvas: HTMLCanvasElement): Promise<void> => {
     await this.renderToCanvasHighDPI(canvas, PREVIEW_DPI_MULTIPLIER);
-  }
+  };
 
-  async renderToCanvasHighDPI(
+  renderToCanvasHighDPI = async (
     canvas: HTMLCanvasElement,
     dpiMultiplier: number,
-  ): Promise<void> {
+  ): Promise<void> => {
     await this.core.renderToCanvas(canvas, dpiMultiplier);
-  }
+  };
 }
 
 export async function createSVGRenderer(

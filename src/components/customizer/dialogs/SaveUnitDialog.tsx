@@ -20,6 +20,12 @@ import {
 import { logger } from '@/utils/logger';
 
 import { customizerStyles as cs } from '../styles';
+import {
+  CheckIcon,
+  ErrorIcon,
+  SpinnerIcon,
+  WarningIcon,
+} from './dialogPresentation';
 
 // =============================================================================
 // Types
@@ -47,6 +53,251 @@ type ValidationStatus =
   | 'canonical-conflict'
   | 'custom-conflict'
   | 'error';
+
+function statusFromValidationResult(
+  result: INameValidationResult,
+): ValidationStatus {
+  if (result.isCanonicalConflict) return 'canonical-conflict';
+  if (result.isCustomConflict) return 'custom-conflict';
+  if (result.isValid) return 'valid';
+
+  return 'error';
+}
+
+function getInputConflictClass(status: ValidationStatus) {
+  if (status === 'canonical-conflict')
+    return 'border-red-500 focus:ring-red-500';
+  if (status === 'custom-conflict')
+    return 'border-amber-500 focus:ring-amber-500';
+
+  return '';
+}
+
+function getSaveButtonClass(status: ValidationStatus, canSave: boolean) {
+  if (!canSave) return cs.dialog.btnPrimary;
+  if (status === 'custom-conflict') return cs.dialog.btnWarning;
+
+  return cs.dialog.btnPrimary;
+}
+
+function ValidationStatusIndicator({
+  result,
+  status,
+}: {
+  result: INameValidationResult | null;
+  status: ValidationStatus;
+}) {
+  const messages: Partial<Record<ValidationStatus, React.ReactElement>> = {
+    validating: (
+      <div className="text-text-theme-secondary flex items-center gap-2">
+        <SpinnerIcon className="h-4 w-4 animate-spin" />
+        <span className="text-sm">Checking availability...</span>
+      </div>
+    ),
+    valid: (
+      <div className="flex items-center gap-2 text-green-400">
+        <CheckIcon />
+        <span className="text-sm">Name is available</span>
+      </div>
+    ),
+    'canonical-conflict': (
+      <div className="flex items-center gap-2 text-red-400">
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+        <span className="text-sm">
+          {result?.errorMessage || 'Conflicts with official unit'}
+        </span>
+      </div>
+    ),
+    'custom-conflict': (
+      <div className="text-accent flex items-center gap-2">
+        <WarningIcon />
+        <span className="text-sm">Conflicts with existing custom unit</span>
+      </div>
+    ),
+    error: (
+      <div className="flex items-center gap-2 text-red-400">
+        <ErrorIcon />
+        <span className="text-sm">
+          {result?.errorMessage || 'Invalid name'}
+        </span>
+      </div>
+    ),
+  };
+
+  return messages[status] ?? null;
+}
+
+function scheduleValidation(
+  existingTimeout: NodeJS.Timeout | null,
+  validate: () => void,
+) {
+  if (existingTimeout) {
+    clearTimeout(existingTimeout);
+  }
+
+  return setTimeout(validate, 300);
+}
+
+function saveUnitName({
+  chassis,
+  onSave,
+  status,
+  validationResult,
+  variant,
+}: {
+  chassis: string;
+  onSave: SaveUnitDialogProps['onSave'];
+  status: ValidationStatus;
+  validationResult: INameValidationResult | null;
+  variant: string;
+}) {
+  if (status === 'canonical-conflict') return;
+
+  if (status === 'custom-conflict' && validationResult?.conflictingUnitId) {
+    onSave(chassis.trim(), variant.trim(), validationResult.conflictingUnitId);
+    return;
+  }
+
+  onSave(chassis.trim(), variant.trim());
+}
+
+function SaveDialogFooter({
+  canSave,
+  handleSave,
+  handleSaveAsNew,
+  onCancel,
+  saveButtonClass,
+  status,
+  validationResult,
+}: {
+  canSave: boolean;
+  handleSave: () => void;
+  handleSaveAsNew: () => void;
+  onCancel: () => void;
+  saveButtonClass: string;
+  status: ValidationStatus;
+  validationResult: INameValidationResult | null;
+}) {
+  return (
+    <>
+      <button onClick={onCancel} className={cs.dialog.btnGhost}>
+        Cancel
+      </button>
+
+      {status === 'custom-conflict' && validationResult?.suggestedName && (
+        <button onClick={handleSaveAsNew} className={cs.dialog.btnSecondary}>
+          Save As New
+        </button>
+      )}
+
+      <button
+        onClick={handleSave}
+        disabled={!canSave}
+        className={`min-w-[100px] ${saveButtonClass}`}
+      >
+        {status === 'custom-conflict' ? 'Overwrite' : 'Save'}
+      </button>
+    </>
+  );
+}
+
+function SaveDialogFields({
+  chassis,
+  handleAutoSuggest,
+  handleChassisChange,
+  handleVariantChange,
+  hasConflict,
+  inputConflictClass,
+  variant,
+}: {
+  chassis: string;
+  handleAutoSuggest: () => void;
+  handleChassisChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleVariantChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  hasConflict: boolean;
+  inputConflictClass: string;
+  variant: string;
+}) {
+  return (
+    <>
+      <div>
+        <label
+          htmlFor="chassis"
+          className="mb-1 block text-sm font-medium text-slate-300"
+        >
+          Chassis Name
+        </label>
+        <input
+          id="chassis"
+          type="text"
+          value={chassis}
+          onChange={handleChassisChange}
+          placeholder="e.g., Atlas, Timber Wolf"
+          className={`${cs.dialog.input} ${inputConflictClass}`}
+        />
+      </div>
+
+      <div>
+        <label
+          htmlFor="variant"
+          className="mb-1 block text-sm font-medium text-slate-300"
+        >
+          Variant Designation
+        </label>
+        <div className="flex gap-2">
+          <input
+            id="variant"
+            type="text"
+            value={variant}
+            onChange={handleVariantChange}
+            placeholder="e.g., AS7-D, Prime"
+            className={`flex-1 ${cs.dialog.input} ${inputConflictClass}`}
+          />
+          {hasConflict && (
+            <button
+              onClick={handleAutoSuggest}
+              className={cs.dialog.btnSecondary}
+              title="Suggest unique name"
+            >
+              Suggest
+            </button>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function UnitNamePreview({
+  chassis,
+  variant,
+}: {
+  chassis: string;
+  variant: string;
+}) {
+  if (!chassis.trim() || !variant.trim()) return null;
+
+  return (
+    <div className={cs.dialog.infoPanel}>
+      <div className="mb-1 text-xs text-slate-400">Full Unit Name:</div>
+      <div className="font-medium text-white">
+        {unitNameValidator.buildFullName(chassis.trim(), variant.trim())}
+      </div>
+    </div>
+  );
+}
 
 // =============================================================================
 // Component
@@ -100,16 +351,7 @@ export function SaveUnitDialog({
         );
 
         setValidationResult(result);
-
-        if (result.isCanonicalConflict) {
-          setStatus('canonical-conflict');
-        } else if (result.isCustomConflict) {
-          setStatus('custom-conflict');
-        } else if (result.isValid) {
-          setStatus('valid');
-        } else {
-          setStatus('error');
-        }
+        setStatus(statusFromValidationResult(result));
       } catch (error) {
         logger.error('Validation error:', error);
         setStatus('error');
@@ -128,53 +370,26 @@ export function SaveUnitDialog({
   const handleChassisChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setChassis(value);
-
-    // Clear existing debounce
-    if (validationDebounce) {
-      clearTimeout(validationDebounce);
-    }
-
-    // Debounce validation
-    const timeout = setTimeout(() => {
-      validateName(value, variant);
-    }, 300);
-    setValidationDebounce(timeout);
+    setValidationDebounce(
+      scheduleValidation(validationDebounce, () =>
+        validateName(value, variant),
+      ),
+    );
   };
 
   const handleVariantChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setVariant(value);
-
-    // Clear existing debounce
-    if (validationDebounce) {
-      clearTimeout(validationDebounce);
-    }
-
-    // Debounce validation
-    const timeout = setTimeout(() => {
-      validateName(chassis, value);
-    }, 300);
-    setValidationDebounce(timeout);
+    setValidationDebounce(
+      scheduleValidation(validationDebounce, () =>
+        validateName(chassis, value),
+      ),
+    );
   };
 
   // Handle save action
   const handleSave = () => {
-    if (status === 'canonical-conflict') {
-      // Cannot save - blocked
-      return;
-    }
-
-    if (status === 'custom-conflict' && validationResult?.conflictingUnitId) {
-      // Save with overwrite
-      onSave(
-        chassis.trim(),
-        variant.trim(),
-        validationResult.conflictingUnitId,
-      );
-    } else {
-      // Save as new
-      onSave(chassis.trim(), variant.trim());
-    }
+    saveUnitName({ chassis, onSave, status, validationResult, variant });
   };
 
   // Handle save as new (different name to avoid conflict)
@@ -210,122 +425,11 @@ export function SaveUnitDialog({
   const isValidating = status === 'validating';
   const canSave =
     (status === 'valid' || status === 'custom-conflict') && !isValidating;
-  const isBlocked = status === 'canonical-conflict';
   const hasConflict =
     status === 'custom-conflict' || status === 'canonical-conflict';
 
-  // Get status indicator
-  const getStatusIndicator = () => {
-    switch (status) {
-      case 'validating':
-        return (
-          <div className="text-text-theme-secondary flex items-center gap-2">
-            <svg
-              className="h-4 w-4 animate-spin"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-            <span className="text-sm">Checking availability...</span>
-          </div>
-        );
-      case 'valid':
-        return (
-          <div className="flex items-center gap-2 text-green-400">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            <span className="text-sm">Name is available</span>
-          </div>
-        );
-      case 'canonical-conflict':
-        return (
-          <div className="flex items-center gap-2 text-red-400">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-            <span className="text-sm">
-              {validationResult?.errorMessage || 'Conflicts with official unit'}
-            </span>
-          </div>
-        );
-      case 'custom-conflict':
-        return (
-          <div className="text-accent flex items-center gap-2">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
-            <span className="text-sm">Conflicts with existing custom unit</span>
-          </div>
-        );
-      case 'error':
-        return (
-          <div className="flex items-center gap-2 text-red-400">
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <span className="text-sm">
-              {validationResult?.errorMessage || 'Invalid name'}
-            </span>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
+  const inputConflictClass = getInputConflictClass(status);
+  const saveButtonClass = getSaveButtonClass(status, canSave);
 
   return (
     <DialogTemplate
@@ -334,107 +438,34 @@ export function SaveUnitDialog({
       title="Save Unit"
       className="mx-4 w-full max-w-lg"
       footer={
-        <>
-          <button onClick={onCancel} className={cs.dialog.btnGhost}>
-            Cancel
-          </button>
-
-          {status === 'custom-conflict' && validationResult?.suggestedName && (
-            <button
-              onClick={handleSaveAsNew}
-              className={cs.dialog.btnSecondary}
-            >
-              Save As New
-            </button>
-          )}
-
-          <button
-            onClick={handleSave}
-            disabled={!canSave}
-            className={`min-w-[100px] ${
-              canSave
-                ? status === 'custom-conflict'
-                  ? cs.dialog.btnWarning
-                  : cs.dialog.btnPrimary
-                : cs.dialog.btnPrimary
-            }`}
-          >
-            {status === 'custom-conflict' ? 'Overwrite' : 'Save'}
-          </button>
-        </>
+        <SaveDialogFooter
+          canSave={canSave}
+          handleSave={handleSave}
+          handleSaveAsNew={handleSaveAsNew}
+          onCancel={onCancel}
+          saveButtonClass={saveButtonClass}
+          status={status}
+          validationResult={validationResult}
+        />
       }
     >
-      {/* Chassis input */}
-      <div>
-        <label
-          htmlFor="chassis"
-          className="mb-1 block text-sm font-medium text-slate-300"
-        >
-          Chassis Name
-        </label>
-        <input
-          id="chassis"
-          type="text"
-          value={chassis}
-          onChange={handleChassisChange}
-          placeholder="e.g., Atlas, Timber Wolf"
-          className={`${cs.dialog.input} ${
-            isBlocked
-              ? 'border-red-500 focus:ring-red-500'
-              : status === 'custom-conflict'
-                ? 'border-amber-500 focus:ring-amber-500'
-                : ''
-          }`}
-        />
-      </div>
-
-      {/* Variant input */}
-      <div>
-        <label
-          htmlFor="variant"
-          className="mb-1 block text-sm font-medium text-slate-300"
-        >
-          Variant Designation
-        </label>
-        <div className="flex gap-2">
-          <input
-            id="variant"
-            type="text"
-            value={variant}
-            onChange={handleVariantChange}
-            placeholder="e.g., AS7-D, Prime"
-            className={`flex-1 ${cs.dialog.input} ${
-              isBlocked
-                ? 'border-red-500 focus:ring-red-500'
-                : status === 'custom-conflict'
-                  ? 'border-amber-500 focus:ring-amber-500'
-                  : ''
-            }`}
-          />
-          {hasConflict && (
-            <button
-              onClick={handleAutoSuggest}
-              className={cs.dialog.btnSecondary}
-              title="Suggest unique name"
-            >
-              Suggest
-            </button>
-          )}
-        </div>
-      </div>
+      <SaveDialogFields
+        chassis={chassis}
+        handleAutoSuggest={handleAutoSuggest}
+        handleChassisChange={handleChassisChange}
+        handleVariantChange={handleVariantChange}
+        hasConflict={hasConflict}
+        inputConflictClass={inputConflictClass}
+        variant={variant}
+      />
 
       {/* Validation status */}
-      <div className="min-h-[24px]">{getStatusIndicator()}</div>
+      <div className="min-h-[24px]">
+        <ValidationStatusIndicator result={validationResult} status={status} />
+      </div>
 
       {/* Preview */}
-      {chassis.trim() && variant.trim() && (
-        <div className={cs.dialog.infoPanel}>
-          <div className="mb-1 text-xs text-slate-400">Full Unit Name:</div>
-          <div className="font-medium text-white">
-            {unitNameValidator.buildFullName(chassis.trim(), variant.trim())}
-          </div>
-        </div>
-      )}
+      <UnitNamePreview chassis={chassis} variant={variant} />
     </DialogTemplate>
   );
 }

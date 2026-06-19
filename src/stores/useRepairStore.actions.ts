@@ -159,7 +159,7 @@ export function addSalvageLogic(
   return { parts: newParts, totalValue };
 }
 
-export function useSalvageForRepairLogic(
+export function applySalvageForRepairLogic(
   job: IRepairJob,
   itemId: string,
   partId: string,

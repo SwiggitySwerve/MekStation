@@ -6,7 +6,11 @@ import {
   type IGameEvent,
 } from '@/types/gameplay';
 
-import { createGameEvent } from './utils';
+import {
+  appendPsrTriggeredEvent,
+  appendUnitDestroyedEvent,
+  createGameEvent,
+} from './utils';
 
 export function emitMovementEnhancementFailureCriticalEvents(options: {
   readonly events: IGameEvent[];
@@ -89,50 +93,40 @@ export function emitMovementEnhancementFailureCriticalEvents(options: {
     }
 
     if (event.type === 'unit_destroyed') {
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.UnitDestroyed,
-          turn,
-          phase,
-          {
-            unitId,
-            cause:
-              event.payload.cause === 'damage'
-                ? 'engine_destroyed'
-                : event.payload.cause,
-          },
-          unitId,
-        ),
-      );
+      appendUnitDestroyedEvent({
+        events,
+        gameId,
+        turn,
+        phase,
+        unitId,
+        cause:
+          event.payload.cause === 'damage'
+            ? 'engine_destroyed'
+            : event.payload.cause,
+        actorId: unitId,
+      });
       continue;
     }
 
     if (event.type === 'psr_triggered') {
       const payload = event.payload;
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.PSRTriggered,
-          turn,
-          phase,
-          {
-            unitId,
-            reason: payload.reason,
-            additionalModifier: payload.additionalModifier,
-            triggerSource: payload.triggerSource,
-            ...(pilotingSkill !== undefined
-              ? { basePilotingSkill: pilotingSkill }
-              : {}),
-            ...(payload.reasonCode !== undefined
-              ? { reasonCode: payload.reasonCode }
-              : {}),
-          },
-          unitId,
-        ),
-      );
+      appendPsrTriggeredEvent({
+        events,
+        gameId,
+        turn,
+        phase,
+        unitId,
+        reason: payload.reason,
+        additionalModifier: payload.additionalModifier,
+        triggerSource: payload.triggerSource,
+        actorId: unitId,
+        ...(pilotingSkill !== undefined
+          ? { basePilotingSkill: pilotingSkill }
+          : {}),
+        ...(payload.reasonCode !== undefined
+          ? { reasonCode: payload.reasonCode }
+          : {}),
+      });
     }
   }
 }

@@ -54,7 +54,7 @@ export const MEKSTATION_PHYSICAL_ACTION_HELPER_REFS = {
       kind: 'mekstation-deviation',
       citation:
         'MekStation canBrushOff exposes source-backed brush-off target, arm, posture, actuator, quirk, and selected-arm weapon-fire gates as helper-only coverage without adding a runtime PhysicalAttackType.',
-      url: 'src/utils/gameplay/physicalAttacks/brushOffEligibility.ts#L95-L252',
+      url: 'src/utils/gameplay/physicalAttacks/brushOffEligibility.ts#L91-L243',
       sourceVersion: 'MekStation working-tree',
     },
     {

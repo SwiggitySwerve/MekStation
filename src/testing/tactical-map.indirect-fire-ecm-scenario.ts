@@ -2,9 +2,6 @@ import type { IApplyAttackInput } from '@/engine/InteractiveSession.actions';
 import type { ICombatRangeHex, IGameState, IHexGrid } from '@/types/gameplay';
 
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import {
   requireCombatProjection,
@@ -12,6 +9,7 @@ import {
   tacticalMapSelectedWeapons,
   tacticalMapWeaponsByUnit,
 } from './tactical-map.combat-scenarios';
+import { createTacticalMapTerrainGrid } from './tactical-map.fixture-helpers';
 import {
   tacticalMapIndirectFireTargetHex,
   tacticalMapSemiGuidedTagIndirectFireCombatState,
@@ -44,21 +42,12 @@ export const tacticalMapEcmNullifiedTagIndirectFireCombatState: IGameState = {
 };
 
 function tacticalMapEcmNullifiedTagIndirectFireGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapEcmNullifiedTagIndirectFireHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map ECM TAG hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
+  return createTacticalMapTerrainGrid(
+    tacticalMapEcmNullifiedTagIndirectFireHexTerrain,
+    {
+      missingHexLabel: 'tactical-map ECM TAG',
+    },
+  );
 }
 
 const tacticalMapEcmNullifiedTagIndirectFireAttackerToken =

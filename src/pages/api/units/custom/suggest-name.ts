@@ -8,7 +8,12 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import {
+  initializeApiDatabase,
+  rejectUnexpectedMethod,
+  sendCaughtApiError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 import { ICloneNameSuggestion } from '@/types/persistence/UnitPersistence';
 
@@ -27,27 +32,13 @@ type SuggestNameResponse = ICloneNameSuggestion & {
   isOriginalAvailable: boolean;
 };
 
-type ErrorResponse = {
-  error: string;
-};
-
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuggestNameResponse | ErrorResponse>,
+  res: NextApiResponse<SuggestNameResponse | ApiErrorResponse>,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initializeApiDatabase(res)) return;
 
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-  }
+  if (rejectUnexpectedMethod(req, res, ['POST'])) return;
 
   const body = req.body as SuggestNameRequest;
 
@@ -77,8 +68,7 @@ export default async function handler(
       isOriginalAvailable,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to suggest name';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'Failed to suggest name');
+    return;
   }
 }

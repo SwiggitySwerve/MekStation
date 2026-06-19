@@ -101,7 +101,7 @@ export function parseUnit(
   // Zod's inferred type is a permissive structural subset of
   // IRawSerializedUnit; the index signature makes the cast safe at this
   // boundary because we've just proven the runtime shape conforms.
-  return result.data as unknown as IRawSerializedUnit;
+  return result.data as IRawSerializedUnit;
 }
 
 /**

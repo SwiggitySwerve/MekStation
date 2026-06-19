@@ -9,7 +9,6 @@
  */
 
 import { SmallCraftLocation } from '@/types/construction/UnitLocation';
-import { TechBase, Era, WeightClass, RulesLevel } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   ISmallCraft,
@@ -27,6 +26,18 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
+import {
+  UnitFieldParseMessages,
+  UnitValidationMessages,
+  combineAssaultUnitFields,
+  createParseMessages,
+  createValidationMessages,
+  mapLocationEquipment,
+  parseRulesLevelThroughAdvancedFromType,
+  pushSafeThrustAndStructureErrors,
+  pushTonnageRangeErrors,
+  serializeConfigurationWithRulesLevel,
+} from './unitHandlerShared';
 
 // ============================================================================
 // Constants
@@ -71,12 +82,8 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
    */
   protected parseTypeSpecificFields(
     document: IBlkDocument,
-  ): Partial<ISmallCraft> & {
-    errors: string[];
-    warnings: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  ): Partial<ISmallCraft> & UnitFieldParseMessages {
+    const { errors, warnings } = createParseMessages();
 
     // Motion type (aerodyne or spheroid)
     const motionTypeStr = document.motionType?.toLowerCase() || 'aerodyne';
@@ -128,12 +135,11 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
     const lifeBoats = document.lifeBoat || 0;
 
     // Tonnage validation (100-200 tons for small craft)
-    if (document.tonnage < 100) {
-      errors.push('Small craft tonnage must be at least 100 tons');
-    }
-    if (document.tonnage > 200) {
-      errors.push('Small craft tonnage cannot exceed 200 tons');
-    }
+    pushTonnageRangeErrors(errors, document.tonnage, {
+      label: 'Small craft',
+      min: 100,
+      max: 200,
+    });
 
     return {
       unitType: UnitType.SMALL_CRAFT,
@@ -156,7 +162,7 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
       lifeBoats,
       errors,
       warnings,
-    };
+    } satisfies Partial<ISmallCraft> & UnitFieldParseMessages;
   }
 
   /**
@@ -194,25 +200,16 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
   private parseEquipment(
     document: IBlkDocument,
   ): readonly ISmallCraftMountedEquipment[] {
-    const equipment: ISmallCraftMountedEquipment[] = [];
-    let mountId = 0;
-
-    for (const [locationKey, items] of Object.entries(
+    return mapLocationEquipment(
       document.equipmentByLocation,
-    )) {
-      const location = this.normalizeLocation(locationKey);
-
-      for (const item of items) {
-        equipment.push({
-          id: `mount-${mountId++}`,
-          equipmentId: item,
-          name: item,
-          location,
-        });
-      }
-    }
-
-    return equipment;
+      (locationKey) => this.normalizeLocation(locationKey),
+      ({ mountId, item, location }) => ({
+        id: `mount-${mountId}`,
+        equipmentId: item,
+        name: item,
+        location,
+      }),
+    );
   }
 
   /**
@@ -230,77 +227,13 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<ISmallCraft>,
   ): ISmallCraft {
-    const techBase = this.parseTechBase(commonFields.techBase);
-    const rulesLevel = this.parseRulesLevel(commonFields.techBase);
-
-    return {
-      // Identity
-      id: `small-craft-${Date.now()}`,
-      name: `${commonFields.chassis} ${commonFields.model}`.trim(),
-
-      // Classification
+    return combineAssaultUnitFields<ISmallCraft>({
+      commonFields,
+      typeSpecificFields,
+      idPrefix: 'small-craft',
       unitType: UnitType.SMALL_CRAFT,
-      tonnage: commonFields.tonnage,
-      weightClass: WeightClass.ASSAULT, // Small craft are always assault weight
-
-      // Tech
-      techBase,
-      era: commonFields.era as Era,
-      rulesLevel,
-
-      // Metadata
-      metadata: {
-        chassis: commonFields.chassis,
-        model: commonFields.model,
-        year: commonFields.year,
-        rulesLevel,
-        techBase,
-        role: commonFields.role,
-      },
-
-      // Optional fields
-      source: commonFields.source,
-      role: commonFields.role,
-
-      // Calculated values
-      bv: 0,
-      cost: 0,
-      totalWeight: commonFields.tonnage,
-      remainingTonnage: 0,
-      isValid: true,
-      validationErrors: [],
-
-      // Small craft-specific fields
-      ...typeSpecificFields,
-    } as ISmallCraft;
-  }
-
-  /**
-   * Parse tech base from type string
-   */
-  private parseTechBase(typeStr: string): TechBase {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('clan') && !lower.includes('mixed')) {
-      return TechBase.CLAN;
-    }
-    return TechBase.INNER_SPHERE;
-  }
-
-  /**
-   * Parse rules level from type string
-   */
-  private parseRulesLevel(typeStr: string): RulesLevel {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('level 1') || lower.includes('introductory')) {
-      return RulesLevel.INTRODUCTORY;
-    }
-    if (lower.includes('level 2') || lower.includes('standard')) {
-      return RulesLevel.STANDARD;
-    }
-    if (lower.includes('level 3') || lower.includes('advanced')) {
-      return RulesLevel.ADVANCED;
-    }
-    return RulesLevel.STANDARD;
+      rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
+    });
   }
 
   /**
@@ -309,10 +242,10 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
   protected serializeTypeSpecificFields(
     unit: ISmallCraft,
   ): Partial<ISerializedUnit> {
-    return {
-      configuration: String(unit.motionType),
-      rulesLevel: String(unit.rulesLevel),
-    };
+    return serializeConfigurationWithRulesLevel(
+      String(unit.motionType),
+      unit.rulesLevel,
+    );
   }
 
   /**
@@ -327,32 +260,23 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
   /**
    * Validate small craft-specific rules
    */
-  protected validateTypeSpecificRules(unit: ISmallCraft): {
-    errors: string[];
-    warnings: string[];
-    infos: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-    const infos: string[] = [];
+  protected validateTypeSpecificRules(
+    unit: ISmallCraft,
+  ): UnitValidationMessages {
+    const { errors, warnings, infos } = createValidationMessages();
 
-    // Tonnage validation
-    if (unit.tonnage < 100) {
-      errors.push('Small craft tonnage must be at least 100 tons');
-    }
-    if (unit.tonnage > 200) {
-      errors.push('Small craft tonnage cannot exceed 200 tons');
-    }
+    pushTonnageRangeErrors(errors, unit.tonnage, {
+      label: 'Small craft',
+      min: 100,
+      max: 200,
+    });
 
-    // Thrust validation
-    if (unit.movement.safeThrust < 1) {
-      errors.push('Small craft must have at least 1 safe thrust');
-    }
-
-    // SI validation
-    if (unit.structuralIntegrity < 1) {
-      errors.push('Small craft must have at least 1 SI');
-    }
+    pushSafeThrustAndStructureErrors(
+      errors,
+      unit,
+      'Small craft must have at least 1 safe thrust',
+      'Small craft must have at least 1 SI',
+    );
 
     // Crew validation
     if (unit.crew < 1) {

@@ -57,6 +57,12 @@ interface DetectorTrackingState {
   anomalyTriggered: boolean;
 }
 
+interface CurrentTurnSnapshotState {
+  armor: Map<string, Record<string, number>>;
+  structure: Map<string, Record<string, number>>;
+  heat: Map<string, number>;
+}
+
 /**
  * Detects no-progress anomalies from a stream of game events.
  *
@@ -215,7 +221,63 @@ export class NoProgressDetectionEngine {
     threshold: number,
   ): void {
     const currentTurn = event.turn;
+    const currentState = this.getCurrentTurnState(
+      currentTurn,
+      battleState,
+      state,
+    );
+    const currentSnapshot = createSnapshot(
+      currentTurn,
+      currentState.armor,
+      currentState.structure,
+      currentState.heat,
+      state.unitPosition,
+    );
 
+    if (this.initializeFirstSnapshot(currentSnapshot, state)) {
+      return;
+    }
+
+    this.updateNoProgressState(
+      event,
+      currentSnapshot,
+      battleState,
+      state,
+      threshold,
+    );
+
+    state.lastSnapshot = currentSnapshot;
+    state.movementThisTurn = false;
+  }
+
+  private getCurrentTurnState(
+    currentTurn: number,
+    battleState: BattleState,
+    state: DetectorTrackingState,
+  ): CurrentTurnSnapshotState {
+    this.ensureTurnMaps(currentTurn, state);
+
+    const currentState: CurrentTurnSnapshotState = {
+      armor: new Map(state.unitArmor.get(currentTurn)),
+      structure: new Map(state.unitStructure.get(currentTurn)),
+      heat: new Map(state.unitHeat.get(currentTurn)),
+    };
+
+    if (state.lastSnapshot !== null) {
+      this.inheritPreviousUnitState(
+        currentState,
+        state.lastSnapshot,
+        battleState,
+      );
+    }
+
+    return currentState;
+  }
+
+  private ensureTurnMaps(
+    currentTurn: number,
+    state: DetectorTrackingState,
+  ): void {
     if (!state.unitArmor.has(currentTurn)) {
       state.unitArmor.set(currentTurn, new Map());
     }
@@ -225,59 +287,57 @@ export class NoProgressDetectionEngine {
     if (!state.unitHeat.has(currentTurn)) {
       state.unitHeat.set(currentTurn, new Map());
     }
+  }
 
-    const currentArmor = new Map(
-      state.unitArmor.get(currentTurn) || new Map(),
-    ) as Map<string, Record<string, number>>;
-
-    const currentStructure = new Map(
-      state.unitStructure.get(currentTurn) || new Map(),
-    ) as Map<string, Record<string, number>>;
-
-    const currentHeat = new Map(
-      state.unitHeat.get(currentTurn) || new Map(),
-    ) as Map<string, number>;
-
-    if (state.lastSnapshot !== null) {
-      for (const unit of battleState.units) {
-        if (
-          !currentArmor.has(unit.id) &&
-          state.lastSnapshot.armor.has(unit.id)
-        ) {
-          currentArmor.set(unit.id, state.lastSnapshot.armor.get(unit.id)!);
-        }
-        if (
-          !currentStructure.has(unit.id) &&
-          state.lastSnapshot.structure.has(unit.id)
-        ) {
-          currentStructure.set(
-            unit.id,
-            state.lastSnapshot.structure.get(unit.id)!,
-          );
-        }
-        if (!currentHeat.has(unit.id) && state.lastSnapshot.heat.has(unit.id)) {
-          currentHeat.set(unit.id, state.lastSnapshot.heat.get(unit.id)!);
-        }
-      }
+  private inheritPreviousUnitState(
+    currentState: CurrentTurnSnapshotState,
+    lastSnapshot: BattleStateSnapshot,
+    battleState: BattleState,
+  ): void {
+    for (const unit of battleState.units) {
+      this.inheritUnitValue(currentState.armor, lastSnapshot.armor, unit.id);
+      this.inheritUnitValue(
+        currentState.structure,
+        lastSnapshot.structure,
+        unit.id,
+      );
+      this.inheritUnitValue(currentState.heat, lastSnapshot.heat, unit.id);
     }
+  }
 
-    const currentSnapshot = createSnapshot(
-      currentTurn,
-      currentArmor,
-      currentStructure,
-      currentHeat,
-      state.unitPosition,
-    );
+  private inheritUnitValue<T>(
+    currentValues: Map<string, T>,
+    lastValues: Map<string, T>,
+    unitId: string,
+  ): void {
+    if (!currentValues.has(unitId) && lastValues.has(unitId)) {
+      currentValues.set(unitId, lastValues.get(unitId)!);
+    }
+  }
 
+  private initializeFirstSnapshot(
+    currentSnapshot: BattleStateSnapshot,
+    state: DetectorTrackingState,
+  ): boolean {
     if (state.lastSnapshot === null) {
       state.lastSnapshot = currentSnapshot;
       state.noProgressCounter = state.movementThisTurn ? 0 : 1;
       state.movementThisTurn = false;
-      return;
+      return true;
     }
 
+    return false;
+  }
+
+  private updateNoProgressState(
+    event: IGameEvent,
+    currentSnapshot: BattleStateSnapshot,
+    battleState: BattleState,
+    state: DetectorTrackingState,
+    threshold: number,
+  ): void {
     const stateChanged = !snapshotsEqual(
-      state.lastSnapshot,
+      state.lastSnapshot!,
       currentSnapshot,
       battleState,
     );
@@ -295,9 +355,6 @@ export class NoProgressDetectionEngine {
         state.anomalyTriggered = true;
       }
     }
-
-    state.lastSnapshot = currentSnapshot;
-    state.movementThisTurn = false;
   }
 
   private createAnomaly(

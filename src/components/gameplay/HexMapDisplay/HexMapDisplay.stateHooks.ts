@@ -15,13 +15,8 @@ import type {
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { GamePhase, GameSide, TerrainType } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
-import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
+import { coordToKey } from '@/utils/gameplay/hexMath';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
-import { representedWeaponMountArcs } from '@/utils/gameplay/weaponMountArcs';
-import {
-  firingArcToUiArc,
-  type UiFiringArc,
-} from '@/utils/overlays/arcClassifier';
 
 import type {
   IsometricTerrainOccluderInfo,
@@ -365,71 +360,6 @@ export function useIsometricOccluderInfo({
     }
     return deriveIsometricTerrainOccluderInfo(isometricTerrainOcclusionInfos);
   }, [isIsometricView, isometricTerrainOcclusionInfos]);
-}
-
-export function useSelectedWeaponMaxRange({
-  hasConfiguredWeaponList,
-  operationalWeapons,
-  selectedUnitPosition,
-  attackRange,
-  radius,
-}: {
-  readonly hasConfiguredWeaponList: boolean;
-  readonly operationalWeapons: readonly IWeaponStatus[];
-  readonly selectedUnitPosition: IHexCoordinate | null;
-  readonly attackRange: readonly IHexCoordinate[];
-  readonly radius: number;
-}): number {
-  return useMemo(() => {
-    if (hasConfiguredWeaponList) {
-      if (operationalWeapons.length === 0) return radius;
-      return Math.max(
-        0,
-        ...operationalWeapons.map((weapon) =>
-          Math.max(weapon.ranges.long, weapon.ranges.extreme ?? 0),
-        ),
-      );
-    }
-    if (!selectedUnitPosition || attackRange.length === 0) return radius;
-    return Math.max(
-      0,
-      ...attackRange.map((hex) => hexDistance(selectedUnitPosition, hex)),
-    );
-  }, [
-    attackRange,
-    hasConfiguredWeaponList,
-    operationalWeapons,
-    radius,
-    selectedUnitPosition,
-  ]);
-}
-
-export function useSelectedWeaponVisibleFiringArcs({
-  hasConfiguredWeaponList,
-  operationalWeapons,
-}: {
-  readonly hasConfiguredWeaponList: boolean;
-  readonly operationalWeapons: readonly IWeaponStatus[];
-}): readonly UiFiringArc[] | undefined {
-  return useMemo(() => {
-    if (!hasConfiguredWeaponList) return undefined;
-    if (operationalWeapons.length === 0) return [];
-    if (
-      operationalWeapons.some(
-        (weapon) => representedWeaponMountArcs(weapon) === undefined,
-      )
-    ) {
-      return undefined;
-    }
-
-    const arcs = new Set<UiFiringArc>();
-    for (const weapon of operationalWeapons) {
-      for (const arc of representedWeaponMountArcs(weapon) ?? []) {
-        arcs.add(firingArcToUiArc(arc));
-      }
-    }
-    return Array.from(arcs);
-  }, [hasConfiguredWeaponList, operationalWeapons]);
 }
 
 export function useHoverUnreachableReason({

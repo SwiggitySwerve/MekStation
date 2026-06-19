@@ -62,7 +62,7 @@ export const TERRAIN_VISUAL_KEYS: readonly TerrainVisualKey[] = [
  * Why: spec requires the asset to live under `public/sprites/terrain/`
  * so it is also reachable externally (storybook, docs, future
  * exports). Runtime rendering prefers the inline symbol (D2) for
- * performance — this URL exists to satisfy the spec contract and as a
+ * performance; this URL exists to satisfy the spec contract and as a
  * fallback loader.
  */
 export const TERRAIN_VISUAL_ASSET_URLS: Readonly<
@@ -82,6 +82,17 @@ export const TERRAIN_VISUAL_ASSET_URLS: Readonly<
   pavement: '/sprites/terrain/pavement.svg',
 };
 
+const SIMPLE_TERRAIN_VISUAL_KEYS: Readonly<
+  Partial<Record<TerrainType, TerrainVisualKey>>
+> = {
+  [TerrainType.Clear]: 'clear',
+  [TerrainType.Pavement]: 'pavement',
+  [TerrainType.Rough]: 'rough',
+  [TerrainType.Rubble]: 'rubble',
+  [TerrainType.LightWoods]: 'light-woods',
+  [TerrainType.HeavyWoods]: 'heavy-woods',
+};
+
 /**
  * Resolve a terrain feature's visual key from `(type, level)`.
  *
@@ -93,36 +104,28 @@ export function visualKeyFor(
   type: TerrainType,
   level: number = 0,
 ): TerrainVisualKey | null {
-  switch (type) {
-    case TerrainType.Clear:
-      return 'clear';
-    case TerrainType.Pavement:
-      return 'pavement';
-    case TerrainType.Rough:
-      return 'rough';
-    case TerrainType.Rubble:
-      return 'rubble';
-    case TerrainType.LightWoods:
-      return 'light-woods';
-    case TerrainType.HeavyWoods:
-      return 'heavy-woods';
-    case TerrainType.Water:
-      // Why: BattleTech water depth 0-1 is wade-able (shallow); depth 2+
-      // drops a mech to prone / submerges infantry entirely (deep).
-      return level >= 2 ? 'deep-water' : 'shallow-water';
-    case TerrainType.Building:
-      // Why: BattleTech building CF tiers — level 1 light (CF 15), 2
-      // medium (CF 40), 3 heavy (CF 90), 4+ hardened (CF 150). We
-      // encode tier via the `level` field rather than CF because CF
-      // values are pre-damage state.
-      if (level >= 4) return 'hardened-building';
-      if (level === 3) return 'heavy-building';
-      if (level === 2) return 'medium-building';
-      return 'light-building';
-    default:
-      // road, sand, mud, snow, ice, swamp, bridge, fire, smoke
-      return null;
-  }
+  const simpleKey = SIMPLE_TERRAIN_VISUAL_KEYS[type];
+  if (simpleKey) return simpleKey;
+  if (type === TerrainType.Water) return waterVisualKey(level);
+  if (type === TerrainType.Building) return buildingVisualKey(level);
+  // road, sand, mud, snow, ice, swamp, bridge, fire, smoke
+  return null;
+}
+
+function waterVisualKey(level: number): TerrainVisualKey {
+  // Why: BattleTech water depth 0-1 is wade-able (shallow); depth 2+
+  // drops a mech to prone / submerges infantry entirely (deep).
+  return level >= 2 ? 'deep-water' : 'shallow-water';
+}
+
+function buildingVisualKey(level: number): TerrainVisualKey {
+  // Why: BattleTech building CF tiers: level 1 light (CF 15), 2 medium
+  // (CF 40), 3 heavy (CF 90), 4+ hardened (CF 150). We encode tier via
+  // the `level` field rather than CF because CF values are pre-damage state.
+  if (level >= 4) return 'hardened-building';
+  if (level === 3) return 'heavy-building';
+  if (level === 2) return 'medium-building';
+  return 'light-building';
 }
 
 /**

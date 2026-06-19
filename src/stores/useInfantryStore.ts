@@ -9,9 +9,13 @@
 
 import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
-import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
+import {
+  createUnitStorePersistOptions,
+  createUnitIdentityActions,
+  pickPersistedUnitIdentity,
+} from '@/stores/unitStoreIdentityActions';
 import { IInfantryFieldGun } from '@/types/unit/InfantryInterfaces';
 import {
   InfantryMotive,
@@ -92,49 +96,7 @@ export function createInfantryStore(
           // Identity Actions
           // =================================================================
 
-          setName: (name) =>
-            set({
-              name,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            }),
-
-          setChassis: (chassis) =>
-            set((state) => ({
-              chassis,
-              name: `${chassis}${state.model ? ' ' + state.model : ''}`,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            })),
-
-          setModel: (model) =>
-            set((state) => ({
-              model,
-              name: `${state.chassis}${model ? ' ' + model : ''}`,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            })),
-
-          setMulId: (mulId) =>
-            set({
-              mulId,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            }),
-
-          setYear: (year) =>
-            set({
-              year,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            }),
-
-          setRulesLevel: (rulesLevel) =>
-            set({
-              rulesLevel,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            }),
+          ...createUnitIdentityActions<InfantryStore>(set),
 
           // =================================================================
           // Classification Actions
@@ -353,18 +315,10 @@ export function createInfantryStore(
             }),
         };
       },
-      {
-        name: `megamek-infantry-${initialState.id}`,
-        storage: createJSONStorage(() => clientSafeStorage),
-        skipHydration: true,
-        partialize: (state) => ({
-          id: state.id,
-          name: state.name,
-          chassis: state.chassis,
-          model: state.model,
-          mulId: state.mulId,
-          year: state.year,
-          rulesLevel: state.rulesLevel,
+      createUnitStorePersistOptions(
+        `megamek-infantry-${initialState.id}`,
+        (state: InfantryStore) => ({
+          ...pickPersistedUnitIdentity(state),
           techBase: state.techBase,
           unitType: state.unitType,
           squadSize: state.squadSize,
@@ -391,7 +345,7 @@ export function createInfantryStore(
           createdAt: state.createdAt,
           lastModifiedAt: state.lastModifiedAt,
         }),
-      },
+      ),
     ),
   );
 }

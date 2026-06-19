@@ -75,10 +75,10 @@ export class MatchHostRegistry {
    * `SeededDiceRoller` (deterministic) instead of `CryptoDiceRoller`
    * (production). Off by default — production never reads it.
    */
-  async getOrCreate(
+  getOrCreate = async (
     matchId: string,
     options: { diceSeed?: number } = {},
-  ): Promise<ServerMatchHost | null> {
+  ): Promise<ServerMatchHost | null> => {
     const existing = this.hosts.get(matchId);
     if (existing && !existing.isClosed()) return existing;
 
@@ -108,12 +108,12 @@ export class MatchHostRegistry {
     });
     this.hosts.set(matchId, host);
     return host;
-  }
+  };
 
   /** Look up a host without creating one. */
-  get(matchId: string): ServerMatchHost | null {
+  get = (matchId: string): ServerMatchHost | null => {
     return this.hosts.get(matchId) ?? null;
-  }
+  };
 
   /**
    * harden-multiplayer-transport (M2), design D3 — server-startup match
@@ -126,10 +126,10 @@ export class MatchHostRegistry {
    * Idempotent: a match already tracked in the registry is left as-is
    * — recovery never clobbers a live host.
    */
-  async recoverActiveMatches(): Promise<{
+  recoverActiveMatches = async (): Promise<{
     readonly recovered: number;
     readonly failed: number;
-  }> {
+  }> => {
     const result = await recoverActiveMatches(this.store);
     for (const [matchId, host] of Array.from(result.hosts.entries())) {
       if (!this.hosts.has(matchId)) {
@@ -140,31 +140,31 @@ export class MatchHostRegistry {
       recovered: result.hosts.size,
       failed: result.failed.length,
     };
-  }
+  };
 
   /** Number of currently-tracked hosts (open or otherwise). */
-  size(): number {
+  size = (): number => {
     return this.hosts.size;
-  }
+  };
 
   /**
    * Close + drop a host. Called on `DELETE /matches/:id` and on
    * server shutdown.
    */
-  async closeMatch(matchId: string): Promise<void> {
+  closeMatch = async (matchId: string): Promise<void> => {
     const host = this.hosts.get(matchId);
     if (!host) return;
     await host.closeMatch();
     this.hosts.delete(matchId);
-  }
+  };
 
   /** Test-only: drop everything. */
-  _reset(): void {
+  _reset = (): void => {
     this.hosts.forEach((host) => {
       void host.closeMatch();
     });
     this.hosts.clear();
-  }
+  };
 }
 
 let _singleton: MatchHostRegistry | null = null;

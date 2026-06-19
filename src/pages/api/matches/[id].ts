@@ -18,8 +18,11 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IPostBattleReport } from '@/utils/gameplay/postBattleReport';
 
+import {
+  initializeApiDatabase as initMatchLogDb,
+  rejectMissingQueryString as readMatchId,
+} from '@/pages-modules/api/routeHelpers';
 import { readMatchLog } from '@/services/matchLog/MatchLogService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { POST_BATTLE_REPORT_VERSION } from '@/utils/gameplay/postBattleReport';
 
 type ErrorResponse = { error: string };
@@ -28,20 +31,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<IPostBattleReport | ErrorResponse>,
 ): Promise<void> {
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    res.status(500).json({ error: message });
-    return;
-  }
+  if (!initMatchLogDb(res)) return;
 
-  const { id } = req.query;
-  if (typeof id !== 'string' || id.length === 0) {
-    res.status(400).json({ error: 'missing or invalid match id' });
-    return;
-  }
+  const id = readMatchId(req, res, 'id', 'missing or invalid match id');
+  if (!id) return;
 
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');

@@ -7,7 +7,7 @@
  */
 
 import { BattleArmorLocation } from '@/types/construction/UnitLocation';
-import { TechBase, Era, WeightClass, RulesLevel } from '@/types/enums';
+import { WeightClass } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   SquadMotionType,
@@ -28,6 +28,18 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
+import {
+  UnitFieldParseMessages,
+  UnitValidationMessages,
+  combineCommonUnitFields,
+  createParseMessages,
+  createValidationMessages,
+  getRawTagBoolean,
+  getRawTagNumber,
+  getRawTagString,
+  mapLocationEquipment,
+  parseRulesLevelThroughAdvancedFromType,
+} from './unitHandlerShared';
 
 // ============================================================================
 // Constants
@@ -82,12 +94,8 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
    */
   protected parseTypeSpecificFields(
     document: IBlkDocument,
-  ): Partial<IBattleArmor> & {
-    errors: string[];
-    warnings: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  ): Partial<IBattleArmor> & UnitFieldParseMessages {
+    const { errors, warnings } = createParseMessages();
 
     // Chassis type
     const chassisStr = document.chassis?.toLowerCase() || 'biped';
@@ -116,7 +124,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     // Movement
     const groundMP = document.cruiseMP || 1;
     const jumpMP = document.jumpingMP || 0;
-    const umuMP = this.getNumericFromRaw(document.rawTags, 'umump') || 0;
+    const umuMP = getRawTagNumber(document.rawTags, 'umump') || 0;
     const movement: ISquadMovement = { groundMP, jumpMP, umuMP };
 
     // Manipulators
@@ -138,16 +146,13 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
 
     // Special features
     const rawTags = document.rawTags || {};
-    const hasAPMount = this.getBooleanFromRaw(rawTags, 'apmount');
-    const hasModularMount = this.getBooleanFromRaw(rawTags, 'modularmount');
-    const hasTurretMount = this.getBooleanFromRaw(rawTags, 'turretmount');
-    const hasStealthSystem = this.getBooleanFromRaw(rawTags, 'stealth');
-    const hasMimeticArmor = this.getBooleanFromRaw(rawTags, 'mimetic');
-    const hasFireResistantArmor = this.getBooleanFromRaw(
-      rawTags,
-      'fireresistant',
-    );
-    const hasMechanicalJumpBoosters = this.getBooleanFromRaw(
+    const hasAPMount = getRawTagBoolean(rawTags, 'apmount');
+    const hasModularMount = getRawTagBoolean(rawTags, 'modularmount');
+    const hasTurretMount = getRawTagBoolean(rawTags, 'turretmount');
+    const hasStealthSystem = getRawTagBoolean(rawTags, 'stealth');
+    const hasMimeticArmor = getRawTagBoolean(rawTags, 'mimetic');
+    const hasFireResistantArmor = getRawTagBoolean(rawTags, 'fireresistant');
+    const hasMechanicalJumpBoosters = getRawTagBoolean(
       rawTags,
       'mechanicaljumpboosters',
     );
@@ -216,7 +221,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     rawTags: Record<string, string | string[]>,
     key: string,
   ): ManipulatorType {
-    const value = this.getStringFromRaw(rawTags, key)?.toLowerCase();
+    const value = getRawTagString(rawTags, key)?.toLowerCase();
     if (!value) return ManipulatorType.NONE;
 
     if (value.includes('armored glove')) return ManipulatorType.ARMORED_GLOVE;
@@ -241,30 +246,19 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
   private parseEquipment(
     document: IBlkDocument,
   ): readonly IBattleArmorMountedEquipment[] {
-    const equipment: IBattleArmorMountedEquipment[] = [];
-    let mountId = 0;
-
-    for (const [locationKey, items] of Object.entries(
+    return mapLocationEquipment(
       document.equipmentByLocation,
-    )) {
-      const location = this.normalizeLocation(locationKey);
-      const isTurretMounted = locationKey.toLowerCase().includes('turret');
-      const isAPMount = locationKey.toLowerCase().includes('ap');
-
-      for (const item of items) {
-        equipment.push({
-          id: `mount-${mountId++}`,
-          equipmentId: item,
-          name: item,
-          location,
-          isAPMount,
-          isTurretMounted,
-          isModular: false,
-        });
-      }
-    }
-
-    return equipment;
+      (locationKey) => this.normalizeLocation(locationKey),
+      ({ mountId, item, location, locationKey }) => ({
+        id: `mount-${mountId}`,
+        equipmentId: item,
+        name: item,
+        location,
+        isAPMount: locationKey.toLowerCase().includes('ap'),
+        isTurretMounted: locationKey.toLowerCase().includes('turret'),
+        isModular: false,
+      }),
+    );
   }
 
   /**
@@ -289,117 +283,20 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
   }
 
   /**
-   * Get string value from raw tags
-   */
-  private getStringFromRaw(
-    rawTags: Record<string, string | string[]>,
-    key: string,
-  ): string | undefined {
-    const value = rawTags[key];
-    if (Array.isArray(value)) return value[0];
-    return value;
-  }
-
-  /**
-   * Get boolean value from raw tags
-   */
-  private getBooleanFromRaw(
-    rawTags: Record<string, string | string[]>,
-    key: string,
-  ): boolean {
-    const value = this.getStringFromRaw(rawTags, key);
-    return value?.toLowerCase() === 'true' || value === '1';
-  }
-
-  /**
-   * Get numeric value from raw tags
-   */
-  private getNumericFromRaw(
-    rawTags: Record<string, string | string[]>,
-    key: string,
-  ): number {
-    const value = this.getStringFromRaw(rawTags, key);
-    return value ? parseInt(value, 10) : 0;
-  }
-
-  /**
    * Combine common and BA-specific fields into IBattleArmor
    */
   protected combineFields(
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<IBattleArmor>,
   ): IBattleArmor {
-    const techBase = this.parseTechBase(commonFields.techBase);
-    const rulesLevel = this.parseRulesLevel(commonFields.techBase);
-
-    return {
-      // Identity
-      id: `battlearmor-${Date.now()}`,
-      name: `${commonFields.chassis} ${commonFields.model}`.trim(),
-
-      // Classification
+    return combineCommonUnitFields<IBattleArmor>({
+      commonFields,
+      typeSpecificFields,
+      idPrefix: 'battlearmor',
       unitType: UnitType.BATTLE_ARMOR,
-      tonnage: commonFields.tonnage,
-      weightClass: WeightClass.LIGHT, // BA doesn't use standard weight classes
-
-      // Tech
-      techBase,
-      era: commonFields.era as Era,
-      rulesLevel,
-
-      // Metadata
-      metadata: {
-        chassis: commonFields.chassis,
-        model: commonFields.model,
-        year: commonFields.year,
-        rulesLevel,
-        techBase,
-        role: commonFields.role,
-      },
-
-      // Optional fields
-      source: commonFields.source,
-      role: commonFields.role,
-
-      // Calculated values
-      bv: 0,
-      cost: 0,
-      totalWeight: commonFields.tonnage,
-      remainingTonnage: 0,
-      isValid: true,
-      validationErrors: [],
-
-      // BA-specific fields
-      ...typeSpecificFields,
-    } as IBattleArmor;
-  }
-
-  /**
-   * Parse tech base from type string
-   */
-  private parseTechBase(typeStr: string): TechBase {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('clan') && !lower.includes('mixed')) {
-      return TechBase.CLAN;
-    }
-    return TechBase.INNER_SPHERE;
-  }
-
-  /**
-   * Parse rules level from type string
-   */
-  private parseRulesLevel(typeStr: string): RulesLevel {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('level 1') || lower.includes('introductory')) {
-      return RulesLevel.INTRODUCTORY;
-    }
-    if (lower.includes('level 2') || lower.includes('standard')) {
-      return RulesLevel.STANDARD;
-    }
-    if (lower.includes('level 3') || lower.includes('advanced')) {
-      return RulesLevel.ADVANCED;
-    }
-    return RulesLevel.STANDARD;
+      weightClass: WeightClass.LIGHT,
+      rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
+    });
   }
 
   /**
@@ -426,14 +323,10 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
   /**
    * Validate BA-specific rules
    */
-  protected validateTypeSpecificRules(unit: IBattleArmor): {
-    errors: string[];
-    warnings: string[];
-    infos: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-    const infos: string[] = [];
+  protected validateTypeSpecificRules(
+    unit: IBattleArmor,
+  ): UnitValidationMessages {
+    const { errors, warnings, infos } = createValidationMessages();
 
     // Squad size validation
     if (unit.squadSize < 1 || unit.squadSize > 6) {

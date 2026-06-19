@@ -9,20 +9,16 @@ import type {
 } from '@/types/gameplay';
 import type { ICommittedMovementValidationInput } from '@/utils/gameplay/movement/commitValidation';
 
-import {
-  Facing,
-  GameSide,
-  LockState,
-  MovementType,
-  TerrainType,
-  TokenUnitType,
-} from '@/types/gameplay';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
+import { Facing, GameSide, MovementType, TerrainType } from '@/types/gameplay';
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
 import { resolveRuntimeMovementCapability } from '@/utils/gameplay/movement/runtimeCapability';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
+import {
+  createTacticalMapPlayerMechToken,
+  createTacticalMapTerrainGrid,
+  createTacticalMapUnitState,
+  requireTacticalMapMovementProjection,
+} from './tactical-map.fixture-helpers';
 import { tacticalMapHexTerrain } from './tactical-map.fixtures';
 
 const tacticalMapLamConversionOrigin = { q: 0, r: 0 } as const;
@@ -59,25 +55,13 @@ const tacticalMapLamCapability: IMovementCapability = {
   unitHeightProfile: { kind: 'lam', standingHeight: 1 },
 };
 
-const tacticalMapLamMekUnit: IUnitGameState = {
+const tacticalMapLamMekUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: tacticalMapLamConversionOrigin,
   facing: Facing.Northeast,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  lockState: LockState.Pending,
   conversionMode: 'mek',
-};
+});
 
 const tacticalMapLamAirMekUnit: IUnitGameState = {
   ...tacticalMapLamMekUnit,
@@ -167,66 +151,22 @@ export const tacticalMapLamAirMekLongCruiseHexTerrain: readonly IHexTerrain[] =
   ];
 
 function tacticalMapLamConversionGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapLamConversionHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
+  return createTacticalMapTerrainGrid(tacticalMapLamConversionHexTerrain);
 }
 
 function tacticalMapLamAirMekLongCruiseGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 6 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapLamAirMekLongCruiseHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
+  return createTacticalMapTerrainGrid(
+    tacticalMapLamAirMekLongCruiseHexTerrain,
+    {
+      radius: 6,
+    },
+  );
 }
 
 function tacticalMapLamFighterConversionGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapLamFighterConversionHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
-}
-
-function requireSingleMovementProjection(
-  projection: IMovementRangeHex | null,
-): IMovementRangeHex {
-  if (!projection) {
-    throw new Error('Expected LAM conversion movement projection');
-  }
-  return projection;
+  return createTacticalMapTerrainGrid(
+    tacticalMapLamFighterConversionHexTerrain,
+  );
 }
 
 function lamConversionTokens(
@@ -234,18 +174,12 @@ function lamConversionTokens(
   name: string,
 ): readonly IUnitToken[] {
   return [
-    {
+    createTacticalMapPlayerMechToken({
       unitId: 'attacker',
       name,
       designation,
       position: tacticalMapLamConversionOrigin,
-      facing: Facing.Northeast,
-      side: GameSide.Player,
-      isDestroyed: false,
-      isSelected: true,
-      isValidTarget: false,
-      unitType: TokenUnitType.Mech,
-    },
+    }),
   ];
 }
 
@@ -286,7 +220,7 @@ export const tacticalMapLamFighterTokens = lamConversionTokens(
 );
 
 export const tacticalMapLamMekMovementRange: readonly IMovementRangeHex[] = [
-  requireSingleMovementProjection(
+  requireTacticalMapMovementProjection(
     deriveMovementRangeHexForDestination(
       tacticalMapLamMekUnit,
       MovementType.Walk,
@@ -298,7 +232,7 @@ export const tacticalMapLamMekMovementRange: readonly IMovementRangeHex[] = [
 ];
 
 export const tacticalMapLamAirMekMovementRange: readonly IMovementRangeHex[] = [
-  requireSingleMovementProjection(
+  requireTacticalMapMovementProjection(
     deriveMovementRangeHexForDestination(
       tacticalMapLamAirMekUnit,
       MovementType.Walk,
@@ -311,7 +245,7 @@ export const tacticalMapLamAirMekMovementRange: readonly IMovementRangeHex[] = [
 
 export const tacticalMapLamAirMekLongCruiseMovementRange: readonly IMovementRangeHex[] =
   [
-    requireSingleMovementProjection(
+    requireTacticalMapMovementProjection(
       deriveMovementRangeHexForDestination(
         tacticalMapLamAirMekUnit,
         MovementType.Walk,
@@ -324,7 +258,7 @@ export const tacticalMapLamAirMekLongCruiseMovementRange: readonly IMovementRang
 
 export const tacticalMapLamFighterMovementRange: readonly IMovementRangeHex[] =
   [
-    requireSingleMovementProjection(
+    requireTacticalMapMovementProjection(
       deriveMovementRangeHexForDestination(
         tacticalMapLamFighterUnit,
         MovementType.Walk,

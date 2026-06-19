@@ -33,7 +33,7 @@ export class ChangeLogRepository {
   /**
    * Initialize the repository (ensure tables exist)
    */
-  async initialize(): Promise<void> {
+  readonly initialize = async (): Promise<void> => {
     if (this.initialized) return;
 
     const db = getSQLiteService();
@@ -85,7 +85,7 @@ export class ChangeLogRepository {
     `);
 
     this.initialized = true;
-  }
+  };
 
   // ===========================================================================
   // Change Log Operations
@@ -94,14 +94,14 @@ export class ChangeLogRepository {
   /**
    * Record a change to the log
    */
-  async recordChange(
+  readonly recordChange = async (
     changeType: ChangeType,
     contentType: ShareableContentType | 'folder',
     itemId: string,
     contentHash: string | null,
     data: string | null,
     sourceId: string | null = null,
-  ): Promise<IChangeLogEntry> {
+  ): Promise<IChangeLogEntry> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -144,12 +144,12 @@ export class ChangeLogRepository {
       synced: !!sourceId,
       sourceId,
     };
-  }
+  };
 
   /**
    * Get all unsynced changes
    */
-  async getUnsynced(): Promise<IChangeLogEntry[]> {
+  readonly getUnsynced = async (): Promise<IChangeLogEntry[]> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -160,15 +160,15 @@ export class ChangeLogRepository {
       .all() as IStoredChangeLogEntry[];
 
     return rows.map((row) => this.rowToEntry(row));
-  }
+  };
 
   /**
    * Get changes since a specific version
    */
-  async getChangesSince(
+  readonly getChangesSince = async (
     version: number,
     limit = 100,
-  ): Promise<IChangeLogEntry[]> {
+  ): Promise<IChangeLogEntry[]> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -179,15 +179,15 @@ export class ChangeLogRepository {
       .all(version, limit) as IStoredChangeLogEntry[];
 
     return rows.map((row) => this.rowToEntry(row));
-  }
+  };
 
   /**
    * Get latest change for an item
    */
-  async getLatestForItem(
+  readonly getLatestForItem = async (
     itemId: string,
     contentType: ShareableContentType | 'folder',
-  ): Promise<IChangeLogEntry | null> {
+  ): Promise<IChangeLogEntry | null> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -200,12 +200,12 @@ export class ChangeLogRepository {
       .get(itemId, contentType) as IStoredChangeLogEntry | undefined;
 
     return row ? this.rowToEntry(row) : null;
-  }
+  };
 
   /**
    * Get current version number
    */
-  async getCurrentVersion(): Promise<number> {
+  readonly getCurrentVersion = async (): Promise<number> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -214,12 +214,12 @@ export class ChangeLogRepository {
       .get() as { max: number | null };
 
     return result.max || 0;
-  }
+  };
 
   /**
    * Mark changes as synced
    */
-  async markSynced(changeIds: string[]): Promise<number> {
+  readonly markSynced = async (changeIds: string[]): Promise<number> => {
     await this.initialize();
     if (changeIds.length === 0) return 0;
 
@@ -233,15 +233,15 @@ export class ChangeLogRepository {
       .run(...changeIds);
 
     return result.changes;
-  }
+  };
 
   /**
    * Get all changes for an item
    */
-  async getHistoryForItem(
+  readonly getHistoryForItem = async (
     itemId: string,
     contentType: ShareableContentType | 'folder',
-  ): Promise<IChangeLogEntry[]> {
+  ): Promise<IChangeLogEntry[]> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -254,12 +254,12 @@ export class ChangeLogRepository {
       .all(itemId, contentType) as IStoredChangeLogEntry[];
 
     return rows.map((row) => this.rowToEntry(row));
-  }
+  };
 
   /**
    * Prune old synced changes (keep recent history)
    */
-  async pruneOldChanges(keepCount = 1000): Promise<number> {
+  readonly pruneOldChanges = async (keepCount = 1000): Promise<number> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -275,7 +275,7 @@ export class ChangeLogRepository {
       .run(keepCount);
 
     return result.changes;
-  }
+  };
 
   // ===========================================================================
   // Conflict Operations
@@ -284,7 +284,7 @@ export class ChangeLogRepository {
   /**
    * Record a sync conflict
    */
-  async recordConflict(conflict: {
+  readonly recordConflict = async (conflict: {
     contentType: ShareableContentType | 'folder';
     itemId: string;
     itemName: string;
@@ -293,7 +293,7 @@ export class ChangeLogRepository {
     remoteVersion: number;
     remoteHash: string;
     remotePeerId: string;
-  }): Promise<string> {
+  }): Promise<string> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -319,12 +319,12 @@ export class ChangeLogRepository {
     );
 
     return id;
-  }
+  };
 
   /**
    * Get pending conflicts
    */
-  async getPendingConflicts(): Promise<
+  readonly getPendingConflicts = async (): Promise<
     Array<{
       id: string;
       contentType: ShareableContentType | 'folder';
@@ -337,7 +337,7 @@ export class ChangeLogRepository {
       remotePeerId: string;
       detectedAt: string;
     }>
-  > {
+  > => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -370,15 +370,15 @@ export class ChangeLogRepository {
       remotePeerId: row.remote_peer_id,
       detectedAt: row.detected_at,
     }));
-  }
+  };
 
   /**
    * Resolve a conflict
    */
-  async resolveConflict(
+  readonly resolveConflict = async (
     conflictId: string,
     resolution: 'local' | 'remote' | 'merged' | 'forked',
-  ): Promise<boolean> {
+  ): Promise<boolean> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -387,7 +387,7 @@ export class ChangeLogRepository {
       .run(resolution, conflictId);
 
     return result.changes > 0;
-  }
+  };
 
   // ===========================================================================
   // Helpers

@@ -12,10 +12,9 @@ import {
   type IGameState,
   type IPhysicalDisplacement,
   type IPhysicalDominoStepOutDecisionPayload,
-  type IUnitDestroyedPayload,
 } from '@/types/gameplay';
 
-import { createGameEvent } from './utils';
+import { appendUnitDestroyedEvent, createGameEvent } from './utils';
 
 export function emitPhysicalAttackDeclaredEvent(options: {
   readonly events: IGameEvent[];
@@ -154,22 +153,16 @@ export function applyImpossibleDisplacementDestruction(options: {
   }
 
   const killerUnitId = destroyedUnitId === targetId ? attackerId : undefined;
-  const payload: IUnitDestroyedPayload = {
+  appendUnitDestroyedEvent({
+    events,
+    gameId,
+    turn,
+    phase: GamePhase.PhysicalAttack,
     unitId: destroyedUnitId,
     cause: 'impossible_displacement',
+    actorId: killerUnitId ?? destroyedUnitId,
     ...(killerUnitId !== undefined ? { killerUnitId } : {}),
-  };
-  events.push(
-    createGameEvent(
-      gameId,
-      events.length,
-      GameEventType.UnitDestroyed,
-      turn,
-      GamePhase.PhysicalAttack,
-      payload,
-      killerUnitId ?? destroyedUnitId,
-    ),
-  );
+  });
 
   return markUnitDestroyed(state, destroyedUnitId);
 }

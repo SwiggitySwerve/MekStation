@@ -4,30 +4,23 @@ import type { ICombatRangeHex, ICombatWeaponImpact } from '@/types/gameplay';
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
 import {
-  formatTacticalProjectionRuleReferences,
-  formatTacticalProjectionSourceReferences,
-} from '@/utils/gameplay/tacticalMapProjection';
+  ammoRemainingAfterImpact,
+  formatCombatAmmoDelta,
+} from '@/utils/gameplay/tacticalMapProjection.combatExplanation';
+
+import {
+  combatProjectionSourceMetadata,
+  tacticalProjectionDataAttributes,
+} from './HexMapDisplay.tacticalProjectionAttributes';
 
 function formatDamageValue(value: number): string {
   return Number.isInteger(value) ? `${value}` : value.toFixed(1);
 }
 
-function ammoRemainingAfterImpact(
-  impact: ICombatWeaponImpact,
-): number | undefined {
-  if (impact.ammoRemaining === undefined) return undefined;
-  return Math.max(0, impact.ammoRemaining - impact.ammoConsumed);
-}
-
 function formatWeaponImpact(impact: ICombatWeaponImpact): string {
-  const ammoRemainingAfter = ammoRemainingAfterImpact(impact);
   const ammo =
     impact.ammoConsumed > 0
-      ? `, ammo -${impact.ammoConsumed}${
-          ammoRemainingAfter === undefined
-            ? ''
-            : ` (${ammoRemainingAfter} left)`
-        }`
+      ? `, ammo ${formatCombatAmmoDelta(impact, 'parenthetical')}`
       : '';
   return `${impact.weaponName}: +${impact.heat} heat, ${formatDamageValue(
     impact.damage,
@@ -66,26 +59,13 @@ export function CombatWeaponImpactRows({
   }
 
   const impacts = combatInfo.availableWeaponImpacts;
-  const combatSourceReferences =
-    projection?.sourceReferences.filter(
-      (source) => source.channel === 'combat',
-    ) ?? [];
-  const combatSourceRefsAttribute =
-    formatTacticalProjectionSourceReferences(combatSourceReferences) ||
-    undefined;
-  const combatRuleRefsAttribute =
-    formatTacticalProjectionRuleReferences(combatSourceReferences) || undefined;
-  const combatProjectionChannel =
-    combatSourceReferences.length > 0 ? 'combat' : undefined;
+  const source = combatProjectionSourceMetadata(projection?.sourceReferences);
+  const projectionAttributes = tacticalProjectionDataAttributes(source);
 
   return (
     <div
       data-testid={testId}
-      data-tactical-projection-source={
-        combatProjectionChannel ? 'shared-tactical-map-projection' : undefined
-      }
-      data-tactical-projection-channel={combatProjectionChannel}
-      data-tactical-rules-surface={combatProjectionChannel}
+      {...projectionAttributes}
       data-combat-weapon-impact-ids={joinedImpactAttribute(
         impacts,
         (impact) => impact.weaponId,
@@ -110,8 +90,8 @@ export function CombatWeaponImpactRows({
         impacts,
         ammoRemainingAfterImpact,
       )}
-      data-combat-weapon-impact-source-refs={combatSourceRefsAttribute}
-      data-combat-weapon-impact-rule-refs={combatRuleRefsAttribute}
+      data-combat-weapon-impact-source-refs={source.sourceRefs}
+      data-combat-weapon-impact-rule-refs={source.ruleRefs}
     >
       Weapon impact detail:{' '}
       {impacts.map((impact, index) => (
@@ -122,15 +102,9 @@ export function CombatWeaponImpactRows({
               impact,
               index,
             )}`}
-            data-tactical-projection-source={
-              combatProjectionChannel
-                ? 'shared-tactical-map-projection'
-                : undefined
-            }
-            data-tactical-projection-channel={combatProjectionChannel}
-            data-tactical-rules-surface={combatProjectionChannel}
-            data-combat-weapon-impact-source-refs={combatSourceRefsAttribute}
-            data-combat-weapon-impact-rule-refs={combatRuleRefsAttribute}
+            {...projectionAttributes}
+            data-combat-weapon-impact-source-refs={source.sourceRefs}
+            data-combat-weapon-impact-rule-refs={source.ruleRefs}
             data-combat-weapon-impact-id={impact.weaponId}
             data-combat-weapon-impact-name={impact.weaponName}
             data-combat-weapon-impact-heat={impact.heat}

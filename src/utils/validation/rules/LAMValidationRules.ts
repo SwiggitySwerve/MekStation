@@ -1,67 +1,67 @@
+import type * as ValidationRules from '@/types/validation/rules/ValidationRuleInterfaces';
+
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import {
-  IValidationRuleDefinition,
-  IValidationRuleResult,
-  IValidationContext,
-  IValidationError,
   ValidationCategory,
   ValidationSeverity,
 } from '@/types/validation/rules/ValidationRuleInterfaces';
 
-import { pass, fail, warn } from './validationHelpers';
+import {
+  fail,
+  failIfErrors,
+  forConfiguration,
+  missingLocationsForSlotText,
+  pass,
+  ruleError,
+  warn,
+} from './validationHelpers';
 
-export const LAMMaxTonnageRule: IValidationRuleDefinition = {
+export const LAMMaxTonnageRule: ValidationRules.IValidationRuleDefinition = {
   id: 'configuration.lam.max_tonnage',
-  name: 'LAM Max Tonnage',
-  description: 'LAMs cannot exceed 55 tons',
-  category: ValidationCategory.CONSTRUCTION,
   priority: 1,
+  name: 'LAM Max Tonnage',
+  category: ValidationCategory.CONSTRUCTION,
+  description: 'LAMs cannot exceed 55 tons',
 
-  canValidate(context: IValidationContext): boolean {
-    const unit = context.unit as Record<string, unknown>;
-    const config = unit.configuration as string | undefined;
-    return config?.toLowerCase() === 'lam';
-  },
+  canValidate: forConfiguration('lam'),
 
-  validate(context: IValidationContext): IValidationRuleResult {
+  validate(
+    context: ValidationRules.IValidationContext,
+  ): ValidationRules.IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
     const tonnage = unit.tonnage as number | undefined;
 
     if (tonnage !== undefined && tonnage > 55) {
-      return fail(this.id, [
-        {
-          ruleId: this.id,
-          ruleName: this.name,
-          severity: ValidationSeverity.ERROR,
-          category: this.category,
+      const errors = [
+        ruleError(this, {
           message: `LAMs cannot exceed 55 tons (current: ${tonnage} tons)`,
           path: 'tonnage',
           expected: '<= 55',
           actual: `${tonnage}`,
           suggestion: 'Reduce the mech tonnage to 55 or less',
-        },
-      ]);
+        }),
+      ];
+
+      return fail(this.id, errors);
     }
 
     return pass(this.id);
   },
 };
 
-export const LAMEngineTypeRule: IValidationRuleDefinition = {
+export const LAMEngineTypeRule: ValidationRules.IValidationRuleDefinition = {
   id: 'configuration.lam.engine_type',
+  priority: 5,
   name: 'LAM Engine Type',
+  category: ValidationCategory.CONSTRUCTION,
   description:
     'LAMs can only use standard Fusion engines (no XL, Light, Compact)',
-  category: ValidationCategory.CONSTRUCTION,
-  priority: 5,
 
-  canValidate(context: IValidationContext): boolean {
-    const unit = context.unit as Record<string, unknown>;
-    const config = unit.configuration as string | undefined;
-    return config?.toLowerCase() === 'lam';
-  },
+  canValidate: forConfiguration('lam'),
 
-  validate(context: IValidationContext): IValidationRuleResult {
+  validate(
+    context: ValidationRules.IValidationContext,
+  ): ValidationRules.IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
     const engine = unit.engine as Record<string, unknown> | undefined;
 
@@ -82,19 +82,17 @@ export const LAMEngineTypeRule: IValidationRuleDefinition = {
 
     for (const prohibited of prohibitedEngines) {
       if (engineType.includes(prohibited)) {
-        return fail(this.id, [
-          {
-            ruleId: this.id,
-            ruleName: this.name,
-            severity: ValidationSeverity.ERROR,
-            category: this.category,
+        const errors = [
+          ruleError(this, {
             message: `LAMs cannot use ${engine.type} engines`,
             path: 'engine.type',
             expected: 'FUSION (Standard)',
             actual: `${engine.type}`,
             suggestion: 'Use a standard Fusion engine',
-          },
-        ]);
+          }),
+        ];
+
+        return fail(this.id, errors);
       }
     }
 
@@ -102,92 +100,85 @@ export const LAMEngineTypeRule: IValidationRuleDefinition = {
   },
 };
 
-export const LAMStructureArmorRule: IValidationRuleDefinition = {
-  id: 'configuration.lam.structure_armor',
-  name: 'LAM Structure/Armor Restrictions',
-  description: 'LAMs cannot use Endo Steel or Ferro-Fibrous armor/structure',
-  category: ValidationCategory.CONSTRUCTION,
-  priority: 5,
+export const LAMStructureArmorRule: ValidationRules.IValidationRuleDefinition =
+  {
+    id: 'configuration.lam.structure_armor',
+    priority: 5,
+    category: ValidationCategory.CONSTRUCTION,
+    description: 'LAMs cannot use Endo Steel or Ferro-Fibrous armor/structure',
+    name: 'LAM Structure/Armor Restrictions',
 
-  canValidate(context: IValidationContext): boolean {
-    const unit = context.unit as Record<string, unknown>;
-    const config = unit.configuration as string | undefined;
-    return config?.toLowerCase() === 'lam';
-  },
+    canValidate(context: ValidationRules.IValidationContext): boolean {
+      const unit = context.unit as Record<string, unknown>;
+      const config = unit.configuration as string | undefined;
+      return config?.toLowerCase() === 'lam';
+    },
 
-  validate(context: IValidationContext): IValidationRuleResult {
-    const unit = context.unit as Record<string, unknown>;
-    const structure = unit.structure as Record<string, unknown> | undefined;
-    const armor = unit.armor as Record<string, unknown> | undefined;
-    const errors: IValidationError[] = [];
+    validate(
+      context: ValidationRules.IValidationContext,
+    ): ValidationRules.IValidationRuleResult {
+      const unit = context.unit as Record<string, unknown>;
+      const structure = unit.structure as Record<string, unknown> | undefined;
+      const armor = unit.armor as Record<string, unknown> | undefined;
+      const errors: ValidationRules.IValidationError[] = [];
 
-    if (structure) {
-      const structureType = (structure.type as string)?.toLowerCase() ?? '';
-      if (structureType.includes('endo')) {
-        errors.push({
-          ruleId: this.id,
-          ruleName: this.name,
-          severity: ValidationSeverity.ERROR,
-          category: this.category,
-          message: `LAMs cannot use ${structure.type} structure`,
-          path: 'structure.type',
-          expected: 'STANDARD',
-          actual: `${structure.type}`,
-          suggestion: 'Use standard internal structure',
-        });
-      }
-    }
-
-    if (armor) {
-      const armorType = (armor.type as string)?.toLowerCase() ?? '';
-      const prohibitedArmor = [
-        'ferro',
-        'stealth',
-        'reactive',
-        'reflective',
-        'hardened',
-      ];
-
-      for (const prohibited of prohibitedArmor) {
-        if (armorType.includes(prohibited)) {
-          errors.push({
-            ruleId: this.id,
-            ruleName: this.name,
-            severity: ValidationSeverity.ERROR,
-            category: this.category,
-            message: `LAMs cannot use ${armor.type} armor`,
-            path: 'armor.type',
-            expected: 'STANDARD',
-            actual: `${armor.type}`,
-            suggestion: 'Use standard armor',
-          });
-          break;
+      if (structure) {
+        const structureType = (structure.type as string)?.toLowerCase() ?? '';
+        if (structureType.includes('endo')) {
+          errors.push(
+            ruleError(this, {
+              message: `LAMs cannot use ${structure.type} structure`,
+              path: 'structure.type',
+              expected: 'STANDARD',
+              actual: `${structure.type}`,
+              suggestion: 'Use standard internal structure',
+            }),
+          );
         }
       }
-    }
 
-    if (errors.length > 0) {
-      return fail(this.id, errors);
-    }
+      if (armor) {
+        const armorType = (armor.type as string)?.toLowerCase() ?? '';
+        const prohibitedArmor = [
+          'ferro',
+          'stealth',
+          'reactive',
+          'reflective',
+          'hardened',
+        ];
 
-    return pass(this.id);
-  },
-};
+        for (const prohibited of prohibitedArmor) {
+          if (armorType.includes(prohibited)) {
+            errors.push(
+              ruleError(this, {
+                message: `LAMs cannot use ${armor.type} armor`,
+                path: 'armor.type',
+                expected: 'STANDARD',
+                actual: `${armor.type}`,
+                suggestion: 'Use standard armor',
+              }),
+            );
+            break;
+          }
+        }
+      }
 
-export const LAMLandingGearRule: IValidationRuleDefinition = {
+      return failIfErrors(this.id, errors);
+    },
+  };
+
+export const LAMLandingGearRule: ValidationRules.IValidationRuleDefinition = {
   id: 'configuration.lam.landing_gear',
-  name: 'LAM Landing Gear Required',
-  description: 'LAMs must have Landing Gear in CT, LT, and RT',
-  category: ValidationCategory.CONSTRUCTION,
   priority: 10,
+  name: 'LAM Landing Gear Required',
+  category: ValidationCategory.CONSTRUCTION,
+  description: 'LAMs must have Landing Gear in CT, LT, and RT',
 
-  canValidate(context: IValidationContext): boolean {
-    const unit = context.unit as Record<string, unknown>;
-    const config = unit.configuration as string | undefined;
-    return config?.toLowerCase() === 'lam';
-  },
+  canValidate: forConfiguration('lam'),
 
-  validate(context: IValidationContext): IValidationRuleResult {
+  validate(
+    context: ValidationRules.IValidationContext,
+  ): ValidationRules.IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
     const criticalSlots = unit.criticalSlots as
       | Record<string, Array<string | null>>
@@ -195,14 +186,11 @@ export const LAMLandingGearRule: IValidationRuleDefinition = {
 
     if (!criticalSlots) {
       return warn(this.id, [
-        {
-          ruleId: this.id,
-          ruleName: this.name,
+        ruleError(this, {
           severity: ValidationSeverity.WARNING,
-          category: this.category,
           message: 'Cannot verify Landing Gear - no critical slot data',
           path: 'criticalSlots',
-        },
+        }),
       ]);
     }
 
@@ -211,34 +199,19 @@ export const LAMLandingGearRule: IValidationRuleDefinition = {
       MechLocation.LEFT_TORSO,
       MechLocation.RIGHT_TORSO,
     ];
-    const missingLocations: string[] = [];
-
-    for (const loc of requiredLocations) {
-      const slots = criticalSlots[loc];
-      if (!slots) {
-        missingLocations.push(loc);
-        continue;
-      }
-
-      const hasLandingGear = slots.some(
-        (s) => s && s.toLowerCase().includes('landing gear'),
-      );
-      if (!hasLandingGear) {
-        missingLocations.push(loc);
-      }
-    }
+    const missingLocations = missingLocationsForSlotText(
+      criticalSlots,
+      requiredLocations,
+      'landing gear',
+    );
 
     if (missingLocations.length > 0) {
       return fail(this.id, [
-        {
-          ruleId: this.id,
-          ruleName: this.name,
-          severity: ValidationSeverity.ERROR,
-          category: this.category,
+        ruleError(this, {
           message: `LAM missing Landing Gear in: ${missingLocations.join(', ')}`,
           path: 'criticalSlots',
           suggestion: 'Add Landing Gear to CT, LT, and RT',
-        },
+        }),
       ]);
     }
 
@@ -246,20 +219,18 @@ export const LAMLandingGearRule: IValidationRuleDefinition = {
   },
 };
 
-export const LAMAvionicsRule: IValidationRuleDefinition = {
+export const LAMAvionicsRule: ValidationRules.IValidationRuleDefinition = {
   id: 'configuration.lam.avionics',
-  name: 'LAM Avionics Required',
-  description: 'LAMs must have Avionics in HD, LT, and RT',
-  category: ValidationCategory.CONSTRUCTION,
   priority: 10,
+  name: 'LAM Avionics Required',
+  category: ValidationCategory.CONSTRUCTION,
+  description: 'LAMs must have Avionics in HD, LT, and RT',
 
-  canValidate(context: IValidationContext): boolean {
-    const unit = context.unit as Record<string, unknown>;
-    const config = unit.configuration as string | undefined;
-    return config?.toLowerCase() === 'lam';
-  },
+  canValidate: forConfiguration('lam'),
 
-  validate(context: IValidationContext): IValidationRuleResult {
+  validate(
+    context: ValidationRules.IValidationContext,
+  ): ValidationRules.IValidationRuleResult {
     const unit = context.unit as Record<string, unknown>;
     const criticalSlots = unit.criticalSlots as
       | Record<string, Array<string | null>>
@@ -267,14 +238,11 @@ export const LAMAvionicsRule: IValidationRuleDefinition = {
 
     if (!criticalSlots) {
       return warn(this.id, [
-        {
-          ruleId: this.id,
-          ruleName: this.name,
+        ruleError(this, {
           severity: ValidationSeverity.WARNING,
-          category: this.category,
           message: 'Cannot verify Avionics - no critical slot data',
           path: 'criticalSlots',
-        },
+        }),
       ]);
     }
 
@@ -283,34 +251,19 @@ export const LAMAvionicsRule: IValidationRuleDefinition = {
       MechLocation.LEFT_TORSO,
       MechLocation.RIGHT_TORSO,
     ];
-    const missingLocations: string[] = [];
-
-    for (const loc of requiredLocations) {
-      const slots = criticalSlots[loc];
-      if (!slots) {
-        missingLocations.push(loc);
-        continue;
-      }
-
-      const hasAvionics = slots.some(
-        (s) => s && s.toLowerCase().includes('avionics'),
-      );
-      if (!hasAvionics) {
-        missingLocations.push(loc);
-      }
-    }
+    const missingLocations = missingLocationsForSlotText(
+      criticalSlots,
+      requiredLocations,
+      'avionics',
+    );
 
     if (missingLocations.length > 0) {
       return fail(this.id, [
-        {
-          ruleId: this.id,
-          ruleName: this.name,
-          severity: ValidationSeverity.ERROR,
-          category: this.category,
+        ruleError(this, {
           message: `LAM missing Avionics in: ${missingLocations.join(', ')}`,
           path: 'criticalSlots',
           suggestion: 'Add Avionics to HD, LT, and RT',
-        },
+        }),
       ]);
     }
 

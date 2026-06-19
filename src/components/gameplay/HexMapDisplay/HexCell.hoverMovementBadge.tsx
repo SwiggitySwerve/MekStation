@@ -1,17 +1,19 @@
 import React from 'react';
 
-import type { IHexCoordinate, IMovementRangeHex } from '@/types/gameplay';
-import type { ITacticalMapProjectionSourceReference } from '@/utils/gameplay/tacticalMapProjection';
+import type { IMovementRangeHex } from '@/types/gameplay';
 
 import {
-  formatTacticalProjectionRuleReferences,
-  formatTacticalProjectionSourceReferences,
-} from '@/utils/gameplay/tacticalMapProjection';
-
+  HexCellSvgTextBadge,
+  type MovementProjectionBadgeProps,
+} from './HexCell.badgePrimitives';
 import {
   formatMovementModeTitle,
   formatMovementReachBadgeLabel,
 } from './HexCell.movementBadges';
+import {
+  movementProjectionSourceMetadata,
+  tacticalProjectionDataAttributes,
+} from './HexMapDisplay.tacticalProjectionAttributes';
 
 function formatSignedCost(value: number): string {
   return value >= 0 ? `+${value}` : `${value}`;
@@ -61,14 +63,8 @@ export function MovementHoverCostBadge({
   movementInfo,
   projectionExplanation,
   sourceReferences,
-}: {
-  readonly x: number;
-  readonly y: number;
-  readonly hex: IHexCoordinate;
+}: MovementProjectionBadgeProps & {
   readonly hoverMpCost?: number;
-  readonly movementInfo?: IMovementRangeHex;
-  readonly projectionExplanation?: string;
-  readonly sourceReferences?: readonly ITacticalMapProjectionSourceReference[];
 }): React.ReactElement | null {
   if (hoverMpCost === undefined) return null;
 
@@ -84,58 +80,42 @@ export function MovementHoverCostBadge({
     : `${hoverMpCost}MP`;
   const title = formatPathPreviewTitle(movementInfo, hoverMpCost);
   const width = Math.max(34, label.length * 5.6 + 10);
-  const movementSourceReferences =
-    sourceReferences?.filter((source) => source.channel === 'movement') ?? [];
-  const movementSourceRefsAttribute =
-    formatTacticalProjectionSourceReferences(movementSourceReferences) ||
-    undefined;
-  const movementRuleRefsAttribute =
-    formatTacticalProjectionRuleReferences(movementSourceReferences) ||
-    undefined;
-  const movementProjectionChannel =
-    movementSourceReferences.length > 0 ? 'movement' : undefined;
+  const source = movementProjectionSourceMetadata(sourceReferences);
 
   return (
-    <g
-      pointerEvents="none"
-      data-testid={`hex-mp-badge-${hex.q}-${hex.r}`}
-      aria-label={title}
-      data-tactical-projection-source={
-        movementProjectionChannel ? 'shared-tactical-map-projection' : undefined
-      }
-      data-tactical-projection-channel={movementProjectionChannel}
-      data-tactical-rules-surface={movementProjectionChannel}
-      data-hover-mp-cost={hoverMpCost}
-      data-movement-badge-type={movementInfo?.movementType}
-      data-movement-badge-mode={movementInfo?.movementMode}
-      data-movement-badge-terrain-cost={movementInfo?.terrainCost}
-      data-movement-badge-elevation-delta={movementInfo?.elevationDelta}
-      data-movement-badge-elevation-cost={movementInfo?.elevationCost}
-      data-movement-badge-heat-generated={movementInfo?.heatGenerated}
-      data-movement-badge-source-refs={movementSourceRefsAttribute}
-      data-movement-badge-rule-refs={movementRuleRefsAttribute}
-      data-movement-badge-projection-explanation={projectionExplanation}
-    >
-      <title>{title}</title>
-      <rect
-        x={x - width / 2}
-        y={y + 6}
-        width={width}
-        height={12}
-        rx={3}
-        fill="#1e293b"
-        opacity={0.9}
-      />
-      <text
-        x={x}
-        y={y + 15}
-        textAnchor="middle"
-        fontSize={8}
-        fontWeight="bold"
-        fill="#f8fafc"
-      >
-        {label}
-      </text>
-    </g>
+    <HexCellSvgTextBadge
+      title={title}
+      label={label}
+      testId={`hex-mp-badge-${hex.q}-${hex.r}`}
+      dataAttributes={{
+        ...tacticalProjectionDataAttributes(source),
+        'data-hover-mp-cost': hoverMpCost,
+        'data-movement-badge-type': movementInfo?.movementType,
+        'data-movement-badge-mode': movementInfo?.movementMode,
+        'data-movement-badge-terrain-cost': movementInfo?.terrainCost,
+        'data-movement-badge-elevation-delta': movementInfo?.elevationDelta,
+        'data-movement-badge-elevation-cost': movementInfo?.elevationCost,
+        'data-movement-badge-heat-generated': movementInfo?.heatGenerated,
+        'data-movement-badge-source-refs': source.sourceRefs,
+        'data-movement-badge-rule-refs': source.ruleRefs,
+        'data-movement-badge-projection-explanation': projectionExplanation,
+      }}
+      rect={{
+        x: x - width / 2,
+        y: y + 6,
+        width,
+        height: 12,
+        rx: 3,
+        fill: '#1e293b',
+        opacity: 0.9,
+      }}
+      text={{
+        x,
+        y: y + 15,
+        fontSize: 8,
+        fontWeight: 'bold',
+        fill: '#f8fafc',
+      }}
+    />
   );
 }

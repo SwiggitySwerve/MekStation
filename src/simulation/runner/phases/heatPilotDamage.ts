@@ -13,7 +13,7 @@ import { D6Roller } from '@/utils/gameplay/hitLocation';
 import { hasSPA } from '@/utils/gameplay/spaModifiers/canonicalize';
 
 import { LETHAL_PILOT_WOUNDS } from '../SimulationRunnerConstants';
-import { createGameEvent } from './utils';
+import { appendUnitDestroyedEvent, createGameEvent } from './utils';
 
 interface IApplyRunnerHeatPilotDamageOptions {
   readonly unit: IUnitGameState;
@@ -108,19 +108,14 @@ export function applyRunnerHeatPilotDamage(
     );
 
     if (pilotKilled) {
-      events.push(
-        createGameEvent(
-          gameId,
-          events.length,
-          GameEventType.UnitDestroyed,
-          turn,
-          GamePhase.Heat,
-          {
-            unitId,
-            cause: 'pilot_death' as const,
-          },
-        ),
-      );
+      appendUnitDestroyedEvent({
+        events,
+        gameId,
+        turn,
+        phase: GamePhase.Heat,
+        unitId,
+        cause: 'pilot_death',
+      });
     }
   }
 

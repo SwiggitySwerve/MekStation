@@ -8,7 +8,6 @@
  */
 
 import { VehicleLocation } from '@/types/construction/UnitLocation';
-import { TechBase, Era, WeightClass, RulesLevel } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
@@ -28,6 +27,17 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
+import {
+  UnitFieldParseMessages,
+  UnitValidationMessages,
+  combineCommonUnitFields,
+  createParseMessages,
+  createValidationMessages,
+  getRawTagString,
+  getVehicleWeightClass,
+  mapLocationEquipment,
+  pushTonnageRangeErrors,
+} from './unitHandlerShared';
 import {
   getBooleanFromRawTags,
   hasVehicleEquipmentFeature,
@@ -64,6 +74,28 @@ const MOTION_TYPE_MAP: Record<string, GroundMotionType> = {
   maglev: GroundMotionType.MAGLEV,
 };
 
+const VEHICLE_LOCATION_MAP: Record<string, VehicleLocation> = {
+  front: VehicleLocation.FRONT,
+  left: VehicleLocation.LEFT,
+  'left side': VehicleLocation.LEFT,
+  right: VehicleLocation.RIGHT,
+  'right side': VehicleLocation.RIGHT,
+  rear: VehicleLocation.REAR,
+  turret: VehicleLocation.TURRET,
+  body: VehicleLocation.BODY,
+};
+
+const ENGINE_WEIGHT_MULTIPLIER: Record<number, number> = {
+  0: 1.0,
+  1: 0.5,
+  2: 0.33,
+  3: 1.5,
+  4: 0.75,
+  5: 2.0,
+  6: 1.2,
+  7: 1.75,
+};
+
 // ============================================================================
 // Vehicle Unit Handler
 // ============================================================================
@@ -87,12 +119,8 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
    */
   protected parseTypeSpecificFields(
     document: IBlkDocument,
-  ): Partial<IVehicle> & {
-    errors: string[];
-    warnings: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  ): Partial<IVehicle> & UnitFieldParseMessages {
+    const { errors, warnings } = createParseMessages();
 
     // Motion type
     const motionTypeStr = document.motionType?.toLowerCase() || 'tracked';
@@ -249,29 +277,19 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
   private parseEquipment(
     document: IBlkDocument,
   ): readonly IVehicleMountedEquipment[] {
-    const equipment: IVehicleMountedEquipment[] = [];
-    let mountId = 0;
-
-    for (const [locationKey, items] of Object.entries(
+    return mapLocationEquipment(
       document.equipmentByLocation,
-    )) {
-      const location = this.normalizeLocation(locationKey);
-      const isTurretMounted = locationKey.toLowerCase().includes('turret');
-
-      for (const item of items) {
-        equipment.push({
-          id: `mount-${mountId++}`,
-          equipmentId: item,
-          name: item,
-          location,
-          isRearMounted: false,
-          isTurretMounted,
-          isSponsonMounted: false,
-        });
-      }
-    }
-
-    return equipment;
+      (locationKey) => this.normalizeLocation(locationKey),
+      ({ mountId, item, location, locationKey }) => ({
+        id: `mount-${mountId}`,
+        equipmentId: item,
+        name: item,
+        location,
+        isRearMounted: locationKey.toLowerCase().includes('rear'),
+        isTurretMounted: locationKey.toLowerCase().includes('turret'),
+        isSponsonMounted: locationKey.toLowerCase().includes('sponson'),
+      }),
+    );
   }
 
   /**
@@ -279,23 +297,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
    */
   private normalizeLocation(locationKey: string): VehicleLocation {
     const normalized = locationKey.toLowerCase().replace(' equipment', '');
-    switch (normalized) {
-      case 'front':
-        return VehicleLocation.FRONT;
-      case 'left':
-      case 'left side':
-        return VehicleLocation.LEFT;
-      case 'right':
-      case 'right side':
-        return VehicleLocation.RIGHT;
-      case 'rear':
-        return VehicleLocation.REAR;
-      case 'turret':
-        return VehicleLocation.TURRET;
-      case 'body':
-      default:
-        return VehicleLocation.BODY;
-    }
+    return VEHICLE_LOCATION_MAP[normalized] || VehicleLocation.BODY;
   }
 
   /**
@@ -313,11 +315,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     rawTags: Record<string, string | string[]>,
     key: string,
   ): string | undefined {
-    const value = rawTags[key];
-    if (Array.isArray(value)) {
-      return value[0];
-    }
-    return value;
+    return getRawTagString(rawTags, key);
   }
 
   /**
@@ -328,97 +326,15 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     typeSpecificFields: Partial<IVehicle>,
   ): IVehicle {
     // Determine weight class
-    const weightClass = this.getWeightClass(commonFields.tonnage);
+    const weightClass = getVehicleWeightClass(commonFields.tonnage);
 
-    // Parse tech base from type string
-    const techBase = this.parseTechBase(commonFields.techBase);
-
-    // Parse rules level from type string
-    const rulesLevel = this.parseRulesLevel(commonFields.techBase);
-
-    return {
-      // Identity
-      id: `vehicle-${Date.now()}`,
-      name: `${commonFields.chassis} ${commonFields.model}`.trim(),
-
-      // Classification
+    return combineCommonUnitFields<IVehicle>({
+      commonFields,
+      typeSpecificFields,
+      idPrefix: 'vehicle',
       unitType: UnitType.VEHICLE,
-      tonnage: commonFields.tonnage,
       weightClass,
-
-      // Tech
-      techBase,
-      era: commonFields.era as Era,
-      rulesLevel,
-
-      // Metadata
-      metadata: {
-        chassis: commonFields.chassis,
-        model: commonFields.model,
-        year: commonFields.year,
-        rulesLevel,
-        techBase,
-        role: commonFields.role,
-      },
-
-      // Optional fields
-      source: commonFields.source,
-      role: commonFields.role,
-
-      // Calculated values (will be recalculated)
-      bv: 0,
-      cost: 0,
-      totalWeight: commonFields.tonnage, // Placeholder
-      remainingTonnage: 0,
-      isValid: true,
-      validationErrors: [],
-
-      // Vehicle-specific fields
-      ...typeSpecificFields,
-    } as IVehicle;
-  }
-
-  /**
-   * Determine weight class from tonnage
-   */
-  private getWeightClass(tonnage: number): WeightClass {
-    if (tonnage <= 35) return WeightClass.LIGHT;
-    if (tonnage <= 55) return WeightClass.MEDIUM;
-    if (tonnage <= 75) return WeightClass.HEAVY;
-    return WeightClass.ASSAULT;
-  }
-
-  /**
-   * Parse tech base from type string
-   * Note: Mixed tech units default to Inner Sphere component tech base
-   * per spec VAL-ENUM-004 (components have binary tech base)
-   */
-  private parseTechBase(typeStr: string): TechBase {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('clan') && !lower.includes('mixed')) {
-      return TechBase.CLAN;
-    }
-    return TechBase.INNER_SPHERE;
-  }
-
-  /**
-   * Parse rules level from type string
-   */
-  private parseRulesLevel(typeStr: string): RulesLevel {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('level 1') || lower.includes('introductory')) {
-      return RulesLevel.INTRODUCTORY;
-    }
-    if (lower.includes('level 2') || lower.includes('standard')) {
-      return RulesLevel.STANDARD;
-    }
-    if (lower.includes('level 3') || lower.includes('advanced')) {
-      return RulesLevel.ADVANCED;
-    }
-    if (lower.includes('level 4') || lower.includes('experimental')) {
-      return RulesLevel.EXPERIMENTAL;
-    }
-    return RulesLevel.STANDARD;
+    });
   }
 
   /**
@@ -446,24 +362,18 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
   /**
    * Validate vehicle-specific rules
    */
-  protected validateTypeSpecificRules(unit: IVehicle): {
-    errors: string[];
-    warnings: string[];
-    infos: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-    const infos: string[] = [];
+  protected validateTypeSpecificRules(unit: IVehicle): UnitValidationMessages {
+    const { errors, warnings, infos } = createValidationMessages();
 
     // Tonnage limits
-    if (unit.tonnage < 1) {
-      errors.push('Vehicle tonnage must be at least 1 ton');
-    }
+    pushTonnageRangeErrors(errors, unit.tonnage, {
+      label: 'Vehicle',
+      min: 1,
+      max: 200,
+      minText: '1',
+    });
     if (unit.tonnage > 100 && !unit.isSuperheavy) {
       errors.push('Vehicles over 100 tons must be marked as superheavy');
-    }
-    if (unit.tonnage > 200) {
-      errors.push('Vehicle tonnage cannot exceed 200 tons');
     }
 
     // Movement validation
@@ -525,29 +435,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
    * Get engine weight multiplier based on type
    */
   private getEngineWeightMultiplier(engineType: number): number {
-    // Engine type codes:
-    // 0 = Fusion, 1 = XL, 2 = XXL, 3 = Compact, 4 = Light
-    // 5 = ICE, 6 = Fuel Cell, 7 = Fission
-    switch (engineType) {
-      case 0:
-        return 1.0; // Fusion
-      case 1:
-        return 0.5; // XL
-      case 2:
-        return 0.33; // XXL
-      case 3:
-        return 1.5; // Compact
-      case 4:
-        return 0.75; // Light
-      case 5:
-        return 2.0; // ICE
-      case 6:
-        return 1.2; // Fuel Cell
-      case 7:
-        return 1.75; // Fission
-      default:
-        return 1.0;
-    }
+    return ENGINE_WEIGHT_MULTIPLIER[engineType] ?? 1.0;
   }
 
   /**

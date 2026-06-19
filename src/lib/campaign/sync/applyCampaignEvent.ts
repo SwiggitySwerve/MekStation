@@ -23,11 +23,91 @@
  */
 
 import type {
+  CampaignEventType,
   ICampaignAuthoritativeState,
   ICampaignEvent,
 } from '@/types/campaign/CampaignSync';
 
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
+
+type CampaignEventReducer<T extends CampaignEventType> = (
+  state: ICampaignAuthoritativeState,
+  event: ICampaignEvent<T>,
+) => ICampaignAuthoritativeState;
+
+type CampaignEventReducerMap = {
+  readonly [T in CampaignEventType]: CampaignEventReducer<T>;
+};
+
+function applyRosterUnitChanged(
+  state: ICampaignAuthoritativeState,
+  event: ICampaignEvent<'RosterUnitChanged'>,
+): ICampaignAuthoritativeState {
+  const { change, unit } = event.payload;
+  if (change === 'removed') {
+    const nextUnits = { ...state.rosterUnits };
+    delete nextUnits[unit.unitId];
+    return { ...state, rosterUnits: nextUnits };
+  }
+
+  return {
+    ...state,
+    rosterUnits: { ...state.rosterUnits, [unit.unitId]: unit },
+  };
+}
+
+function applySalvageAllocated(
+  state: ICampaignAuthoritativeState,
+  event: ICampaignEvent<'SalvageAllocated'>,
+): ICampaignAuthoritativeState {
+  const { poolRemaining, recoveredUnit } = event.payload;
+  const nextUnits = recoveredUnit
+    ? { ...state.rosterUnits, [recoveredUnit.unitId]: recoveredUnit }
+    : state.rosterUnits;
+  return {
+    ...state,
+    salvagePool: poolRemaining,
+    rosterUnits: nextUnits,
+  };
+}
+
+const CAMPAIGN_EVENT_REDUCERS: CampaignEventReducerMap = {
+  CampaignSnapshotPublished: (_state, event) => event.payload.state,
+  CampaignDayAdvanced: (state, event) => ({
+    ...state,
+    day: event.payload.newDay,
+  }),
+  FundsChanged: (state, event) => ({
+    ...state,
+    balance: event.payload.balance,
+  }),
+  PilotHired: (state, event) => {
+    const { pilot } = event.payload;
+    return {
+      ...state,
+      pilots: { ...state.pilots, [pilot.pilotId]: pilot },
+    };
+  },
+  ContractAccepted: (state, event) => {
+    const { contract } = event.payload;
+    return {
+      ...state,
+      contracts: { ...state.contracts, [contract.contractId]: contract },
+    };
+  },
+  RosterUnitChanged: applyRosterUnitChanged,
+  SalvageAllocated: applySalvageAllocated,
+};
+
+function reduceCampaignEvent<T extends CampaignEventType>(
+  state: ICampaignAuthoritativeState,
+  event: ICampaignEvent<T>,
+): ICampaignAuthoritativeState {
+  const reducer = CAMPAIGN_EVENT_REDUCERS[
+    event.type
+  ] as CampaignEventReducer<T>;
+  return reducer(state, event);
+}
 
 /**
  * Apply one committed campaign event to a campaign state, returning a
@@ -41,6 +121,8 @@ export function applyCampaignEvent(
   state: ICampaignAuthoritativeState,
   event: ICampaignEvent,
 ): ICampaignAuthoritativeState {
+  return reduceCampaignEvent(state, event);
+  /*
   switch (event.type) {
     case 'CampaignSnapshotPublished': {
       // A snapshot is a whole-state baseline — adopt it verbatim. This
@@ -109,6 +191,7 @@ export function applyCampaignEvent(
       return state;
     }
   }
+  */
 }
 
 /**

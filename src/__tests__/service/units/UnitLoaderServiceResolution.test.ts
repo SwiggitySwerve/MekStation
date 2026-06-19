@@ -13,6 +13,10 @@ import { EquipmentType } from '@/types/enums/EquipmentType';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { IEquipmentItem, EquipmentCategory } from '@/types/equipment';
+import {
+  type IWeapon,
+  WeaponCategory,
+} from '@/types/equipment/weapons/interfaces';
 
 jest.mock('@/services/equipment/EquipmentLookupService', () => {
   const _mock_equipmentLookupService = {
@@ -51,6 +55,34 @@ function createMockEquipment(
     criticalSlots: 1,
     costCBills: 1000,
     battleValue: 10,
+    introductionYear: 3025,
+  };
+}
+
+function createMockRegistryWeapon(
+  id: string,
+  name: string,
+  techBase: TechBase,
+): IWeapon {
+  return {
+    id,
+    name,
+    category: WeaponCategory.ENERGY,
+    subType: 'Laser',
+    techBase,
+    rulesLevel: RulesLevel.STANDARD,
+    damage: 5,
+    heat: 3,
+    ranges: {
+      minimum: 0,
+      short: 3,
+      medium: 6,
+      long: 9,
+    },
+    weight: 1,
+    criticalSlots: 1,
+    costCBills: 40000,
+    battleValue: 46,
     introductionYear: 3025,
   };
 }
@@ -262,6 +294,46 @@ describe('UnitLoaderService Equipment Resolution', () => {
       );
       expect(result.equipmentDef).toBeUndefined();
       expect(result.resolvedId).toBe('unknown-weapon-x');
+    });
+
+    it('should resolve registry aliases through the lookup service', () => {
+      mockRegistry.isReady.mockReturnValue(true);
+      mockRegistry.lookup.mockImplementation((id: string) => {
+        if (id === 'Mystery Alias') {
+          return {
+            found: true,
+            equipment: createMockRegistryWeapon(
+              'medium-laser',
+              'Medium Laser',
+              TechBase.INNER_SPHERE,
+            ),
+            category: EquipmentType.WEAPON,
+          };
+        }
+
+        return { found: false, equipment: null, category: null };
+      });
+      mockEquipmentLookupService.getById.mockImplementation((id: string) => {
+        if (id === 'medium-laser') {
+          return createMockEquipment(
+            'medium-laser',
+            'Medium Laser',
+            TechBase.INNER_SPHERE,
+          );
+        }
+
+        return undefined;
+      });
+
+      const result = resolveEquipmentId(
+        'Mystery Alias',
+        TechBase.INNER_SPHERE,
+        TechBaseMode.INNER_SPHERE,
+        [],
+      );
+
+      expect(result.equipmentDef?.id).toBe('medium-laser');
+      expect(result.resolvedId).toBe('medium-laser');
     });
 
     it('should handle tech base fallbacks if preferred not found', () => {

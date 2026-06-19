@@ -169,17 +169,44 @@ export function calculateIndirectFireModifier(
   };
 }
 
+export interface ICalledShotModifierInput {
+  readonly calledShot: boolean;
+  readonly teammateCalledShot?: boolean;
+  readonly abilities?: readonly string[];
+  readonly applyLocalAbilityReduction?: boolean;
+}
+
 export function calculateCalledShotModifier(
-  calledShot: boolean,
-  teammateCalledShot?: boolean,
-  abilities?: readonly string[],
-  applyLocalAbilityReduction: boolean = true,
+  input: ICalledShotModifierInput | boolean,
+  ...legacy:
+    | []
+    | [
+        teammateCalledShot?: boolean,
+        abilities?: readonly string[],
+        applyLocalAbilityReduction?: boolean,
+      ]
 ): IToHitModifierDetail | null {
-  if (!calledShot) {
+  const [teammateCalledShot, abilities, applyLocalAbilityReduction] =
+    legacy as [
+      boolean | undefined,
+      readonly string[] | undefined,
+      boolean | undefined,
+    ];
+  const calledShotInput =
+    typeof input !== 'boolean'
+      ? input
+      : {
+          calledShot: input,
+          teammateCalledShot,
+          abilities,
+          applyLocalAbilityReduction,
+        };
+
+  if (!calledShotInput.calledShot) {
     return null;
   }
 
-  if (teammateCalledShot) {
+  if (calledShotInput.teammateCalledShot) {
     return {
       name: 'Called Shot',
       value: 0,
@@ -188,11 +215,14 @@ export function calculateCalledShotModifier(
     };
   }
 
-  const calledShotReduction = applyLocalAbilityReduction
-    ? -(abilities ? getSharpshooterBonus(abilities) : 0)
-    : 0;
+  const calledShotReduction =
+    (calledShotInput.applyLocalAbilityReduction ?? true)
+      ? -(calledShotInput.abilities
+          ? getSharpshooterBonus(calledShotInput.abilities)
+          : 0)
+      : 0;
   const value = 3 - calledShotReduction;
-  const reductionName = abilities?.includes('marksman')
+  const reductionName = calledShotInput.abilities?.includes('marksman')
     ? 'Marksman'
     : 'Sharpshooter';
 

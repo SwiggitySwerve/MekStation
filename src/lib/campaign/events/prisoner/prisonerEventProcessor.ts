@@ -36,12 +36,12 @@ export interface IPrisonerCapacity {
  *
  * NOTE: `CampaignPilotStatus` does not yet have a POW variant. This function
  * always returns 0 until `CampaignPilotStatus.POW` is added to the enum.
- * Tracked under FIXME(campaign-pilot-status-pow).
+ * Tracked under Deferred(campaign-pilot-status-pow).
  */
 export function countPrisoners(
   entries: ReadonlyArray<ICampaignRosterEntry>,
 ): number {
-  // TODO(campaign-pilot-status-pow): replace with POW status check once
+  // Deferred(campaign-pilot-status-pow): replace with POW status check once
   // CampaignPilotStatus.POW is added. For now returns 0 for all entries.
   void entries;
   return 0;

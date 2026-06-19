@@ -129,7 +129,7 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
   /**
    * Register a universal rule (applies to all unit types)
    */
-  registerUniversalRule(definition: IUnitValidationRuleDefinition): void {
+  registerUniversalRule = (definition: IUnitValidationRuleDefinition): void => {
     const rule = new UnitValidationRule({
       ...definition,
       applicableUnitTypes: 'ALL',
@@ -138,15 +138,15 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
     this.universalRules.set(rule.id, rule);
     this.allRulesById.set(rule.id, rule);
     this.clearCache();
-  }
+  };
 
   /**
    * Register a category rule (applies to unit category)
    */
-  registerCategoryRule(
+  registerCategoryRule = (
     category: UnitCategory,
     definition: IUnitValidationRuleDefinition,
-  ): void {
+  ): void => {
     const rule = new UnitValidationRule(definition);
 
     const categoryMap = this.categoryRules.get(category);
@@ -155,15 +155,15 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
     }
     this.allRulesById.set(rule.id, rule);
     this.clearCache();
-  }
+  };
 
   /**
    * Register a unit-type-specific rule
    */
-  registerUnitTypeRule(
+  registerUnitTypeRule = (
     unitType: UnitType,
     definition: IUnitValidationRuleDefinition,
-  ): void {
+  ): void => {
     const rule = new UnitValidationRule({
       ...definition,
       applicableUnitTypes: [unitType],
@@ -175,12 +175,12 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
     }
     this.allRulesById.set(rule.id, rule);
     this.clearCache();
-  }
+  };
 
   /**
    * Unregister a rule by ID
    */
-  unregister(ruleId: string): void {
+  unregister = (ruleId: string): void => {
     // Remove from universal rules
     this.universalRules.delete(ruleId);
 
@@ -197,12 +197,14 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
     // Remove from lookup
     this.allRulesById.delete(ruleId);
     this.clearCache();
-  }
+  };
 
   /**
    * Get all rules applicable to a unit type (resolved with inheritance)
    */
-  getRulesForUnitType(unitType: UnitType): readonly IUnitValidationRule[] {
+  getRulesForUnitType = (
+    unitType: UnitType,
+  ): readonly IUnitValidationRule[] => {
     // Check cache
     const cached = this.resolvedRulesCache.get(unitType);
     if (cached) {
@@ -239,64 +241,66 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
     // Cache and return
     this.resolvedRulesCache.set(unitType, resolved);
     return resolved;
-  }
+  };
 
   /**
    * Get a specific rule by ID
    */
-  getRule(ruleId: string): IUnitValidationRule | undefined {
+  getRule = (ruleId: string): IUnitValidationRule | undefined => {
     return this.allRulesById.get(ruleId);
-  }
+  };
 
   /**
    * Get all universal rules
    */
-  getUniversalRules(): readonly IUnitValidationRule[] {
+  getUniversalRules = (): readonly IUnitValidationRule[] => {
     return Array.from(this.universalRules.values());
-  }
+  };
 
   /**
    * Get category rules for a category
    */
-  getCategoryRules(category: UnitCategory): readonly IUnitValidationRule[] {
+  getCategoryRules = (
+    category: UnitCategory,
+  ): readonly IUnitValidationRule[] => {
     const categoryMap = this.categoryRules.get(category);
     return categoryMap ? Array.from(categoryMap.values()) : [];
-  }
+  };
 
   /**
    * Get unit-type-specific rules
    */
-  getUnitTypeRules(unitType: UnitType): readonly IUnitValidationRule[] {
+  getUnitTypeRules = (unitType: UnitType): readonly IUnitValidationRule[] => {
     const unitTypeMap = this.unitTypeRules.get(unitType);
     return unitTypeMap ? Array.from(unitTypeMap.values()) : [];
-  }
+  };
 
   /**
    * Enable a rule
    */
-  enableRule(ruleId: string): void {
+  enableRule = (ruleId: string): void => {
     const rule = this.allRulesById.get(ruleId);
     if (rule && 'isEnabled' in rule) {
       (rule as UnitValidationRule).isEnabled = true;
       this.clearCache();
     }
-  }
+  };
 
   /**
    * Disable a rule
    */
-  disableRule(ruleId: string): void {
+  disableRule = (ruleId: string): void => {
     const rule = this.allRulesById.get(ruleId);
     if (rule && 'isEnabled' in rule) {
       (rule as UnitValidationRule).isEnabled = false;
       this.clearCache();
     }
-  }
+  };
 
   /**
    * Clear all rules
    */
-  clear(): void {
+  clear = (): void => {
     this.universalRules.clear();
     Array.from(this.categoryRules.values()).forEach((categoryMap) => {
       categoryMap.clear();
@@ -306,14 +310,14 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
     });
     this.allRulesById.clear();
     this.clearCache();
-  }
+  };
 
   /**
    * Clear cached rule sets
    */
-  clearCache(): void {
+  clearCache = (): void => {
     this.resolvedRulesCache.clear();
-  }
+  };
 
   /**
    * Resolve inheritance (overrides and extends)

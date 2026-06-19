@@ -1,10 +1,16 @@
 import { TERRAIN_PROPERTIES, TerrainType } from '@/types/gameplay/TerrainTypes';
 
-import type {
-  ICombatFeatureSourceReference,
-  ICombatFeatureSupportEntry,
+import {
+  combatFeatureSourceRef,
+  megamekPackageSourceRefWithLineAnchor as megamekHeatSourceRef,
+  mekstationDeviationSourceRefWithLineAnchor as mekstationDeviationSourceRef,
+} from './CombatFeatureSourceReference';
+import {
+  helperOnly,
+  integrated,
+  type ICombatFeatureSourceReference,
+  type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
-
 import {
   terrainAttackModifierSourceRefs,
   terrainLosSourceRefs,
@@ -13,73 +19,42 @@ import {
 
 const MEGAMEK_TERRAIN_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
-const MEGAMEK_HEAT_SOURCE_VERSION = '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
 
-function megamekHeatSourceRef(
-  citation: string,
-  path: string,
-  lineRange: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'megamek-source',
-    citation,
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_HEAT_SOURCE_VERSION}/megamek/src/megamek/${path}#${lineRange}`,
-    sourceVersion: MEGAMEK_HEAT_SOURCE_VERSION,
-  };
-}
+const MEGAMEK_TERRAIN_MOVEMENT_COST_SOURCE_REF = combatFeatureSourceRef(
+  'megamek-source',
+  'MegaMek Terrain.movementCost maps additional movement costs for rubble, woods, snow, mud, swamp, ice, rough, sand, industrial terrain, and default zero-cost terrain.',
+  `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/units/Terrain.java#L402-L604`,
+  MEGAMEK_TERRAIN_SOURCE_VERSION,
+);
 
-function mekstationDeviationSourceRef(
-  citation: string,
-  path: string,
-  lineRange: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'mekstation-deviation',
-    citation,
-    url: `${path}#${lineRange}`,
-    sourceVersion: 'MekStation working-tree',
-  };
-}
+const MEGAMEK_PAVEMENT_ROAD_BRIDGE_MOVEMENT_SOURCE_REF = combatFeatureSourceRef(
+  'megamek-source',
+  'MegaMek Compute.canMoveOnPavement treats pavement, paved roads, and bridges as movement surfaces that may change costs or override prohibited terrain.',
+  `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/compute/Compute.java#L5955-L6004`,
+  MEGAMEK_TERRAIN_SOURCE_VERSION,
+);
 
-const MEGAMEK_TERRAIN_MOVEMENT_COST_SOURCE_REF = {
-  kind: 'megamek-source',
-  citation:
-    'MegaMek Terrain.movementCost maps additional movement costs for rubble, woods, snow, mud, swamp, ice, rough, sand, industrial terrain, and default zero-cost terrain.',
-  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/units/Terrain.java#L402-L604`,
-  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
-} satisfies ICombatFeatureSourceReference;
-
-const MEGAMEK_PAVEMENT_ROAD_BRIDGE_MOVEMENT_SOURCE_REF = {
-  kind: 'megamek-source',
-  citation:
-    'MegaMek Compute.canMoveOnPavement treats pavement, paved roads, and bridges as movement surfaces that may change costs or override prohibited terrain.',
-  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/compute/Compute.java#L5955-L6004`,
-  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
-} satisfies ICombatFeatureSourceReference;
-
-const MEKSTATION_TERRAIN_MOVEMENT_PROPERTIES_SOURCE_REF = {
-  kind: 'mekstation-deviation',
-  citation:
+const MEKSTATION_TERRAIN_MOVEMENT_PROPERTIES_SOURCE_REF =
+  combatFeatureSourceRef(
+    'mekstation-deviation',
     'MekStation TERRAIN_PROPERTIES defines the per-motive movementCostModifier table consumed by getHexMovementCost, summed across all hex features with level-aware swamp/sand/mud/snow/ice/rough/rubble costs per MegaMek Terrain.movementCost (audit 2026-06-09 C-3/C-4).',
-  url: 'src/types/gameplay/TerrainTypes.ts#L146-L488',
-  sourceVersion: 'MekStation working-tree',
-} satisfies ICombatFeatureSourceReference;
+    'src/types/gameplay/TerrainTypes.ts#L146-L488',
+    'MekStation working-tree',
+  );
 
-const MEKSTATION_WATER_GROUND_DISALLOW_SOURCE_REF = {
-  kind: 'mekstation-deviation',
-  citation:
-    'MekStation getHexMovementCost treats walk and run entry into TerrainType.Water as impassable before movement side effects.',
-  url: 'src/utils/gameplay/movement/calculations.ts#L170-L195',
-  sourceVersion: 'MekStation working-tree',
-} satisfies ICombatFeatureSourceReference;
+const MEKSTATION_WATER_GROUND_DISALLOW_SOURCE_REF = combatFeatureSourceRef(
+  'mekstation-deviation',
+  'MekStation getHexMovementCost treats walk and run entry into TerrainType.Water as impassable before movement side effects.',
+  'src/utils/gameplay/movement/calculations.ts#L170-L195',
+  'MekStation working-tree',
+);
 
-const MEKSTATION_BUILDING_MOVEMENT_COST_SOURCE_REF = {
-  kind: 'mekstation-deviation',
-  citation:
-    'MekStation currently models Building as a flat local movementCostModifier row without claiming MegaMek building-collapse movement parity.',
-  url: 'src/types/gameplay/TerrainTypes.ts#L409-L428',
-  sourceVersion: 'MekStation working-tree',
-} satisfies ICombatFeatureSourceReference;
+const MEKSTATION_BUILDING_MOVEMENT_COST_SOURCE_REF = combatFeatureSourceRef(
+  'mekstation-deviation',
+  'MekStation currently models Building as a flat local movementCostModifier row without claiming MegaMek building-collapse movement parity.',
+  'src/types/gameplay/TerrainTypes.ts#L409-L428',
+  'MekStation working-tree',
+);
 
 const MEGAMEK_WATER_COOLING_SOURCE_REF = megamekHeatSourceRef(
   'MegaMek Mek.getHeatCapacityWithWater adds up to six underwater heat sinks after checking water depth, prone state, and destroyed or breached sink mounts.',
@@ -121,8 +96,8 @@ const MEKSTATION_TERRAIN_HEAT_EFFECT_SOURCE_REF = mekstationDeviationSourceRef(
 const MEKSTATION_RUNNER_TERRAIN_HEAT_PHASE_SOURCE_REF =
   mekstationDeviationSourceRef(
     'MekStation post-combat heat resolution consumes terrainHeatEffect as environmentHeat or waterBonus before computing generated heat and dissipation.',
-    'src/simulation/runner/phases/postCombat.ts',
-    'L340-L376',
+    'src/simulation/runner/phases/postCombatHeatAccounting.ts',
+    'L103-L193',
   );
 
 const pavementMovementTerrains = new Set<TerrainType>([
@@ -130,27 +105,6 @@ const pavementMovementTerrains = new Set<TerrainType>([
   TerrainType.Road,
   TerrainType.Bridge,
 ]);
-
-function integrated(
-  id: string,
-  evidence: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return sourceRefs
-    ? { id, level: 'integrated', evidence, sourceRefs }
-    : { id, level: 'integrated', evidence };
-}
-
-function helperOnly(
-  id: string,
-  evidence: string,
-  gap: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return sourceRefs
-    ? { id, level: 'helper-only', evidence, gap, sourceRefs }
-    : { id, level: 'helper-only', evidence, gap };
-}
 
 export const TERRAIN_TYPE_COMBAT_COVERAGE = Object.values(TerrainType);
 

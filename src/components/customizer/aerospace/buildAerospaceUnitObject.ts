@@ -19,16 +19,13 @@ import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
+import {
+  buildRecordSheetUnitIdentity,
+  type RecordSheetUnitIdentityWithTonnageInput,
+} from '../preview/recordSheetUnitIdentity';
+
 /** Store fields the aerospace unit-object builder reads. */
-export interface AerospaceUnitObjectInput {
-  id: string;
-  name: string;
-  chassis: string;
-  model: string;
-  tonnage: number;
-  techBase: string;
-  rulesLevel: string;
-  year: number;
+export interface AerospaceUnitObjectInput extends RecordSheetUnitIdentityWithTonnageInput {
   unitType: UnitType.AEROSPACE | UnitType.CONVENTIONAL_FIGHTER;
   structuralIntegrity: number;
   fuelPoints: number;
@@ -77,14 +74,7 @@ export function buildAerospaceUnitObject(
   input: AerospaceUnitObjectInput,
 ): IAerospaceRecordSheetUnitInput {
   return {
-    id: input.id,
-    name: input.name,
-    chassis: input.chassis || input.name.split(' ')[0] || 'Unknown',
-    model: input.model || input.name.split(' ').slice(1).join(' ') || 'Custom',
-    tonnage: input.tonnage,
-    techBase: String(input.techBase),
-    rulesLevel: String(input.rulesLevel),
-    era: `Year ${input.year}`,
+    ...buildRecordSheetUnitIdentity(input),
     // Dispatch hint — resolves to the 'aerospace' kind for both sub-types.
     unitType: input.unitType,
     structuralIntegrity: input.structuralIntegrity,

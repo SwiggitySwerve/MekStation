@@ -11,6 +11,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { Money } from '@/types/campaign/Money';
 
+import { paddedDarkCampaignStoryParameters } from '../campaignStoryParameters';
 import {
   SAMPLE_DAILY_COST,
   SAMPLE_LOANS,
@@ -22,13 +23,7 @@ import { FinancesPanel } from './FinancesPanel';
 const meta = {
   title: 'Campaign/Command/FinancesPanel',
   component: FinancesPanel,
-  parameters: {
-    layout: 'padded',
-    backgrounds: {
-      default: 'dark',
-      values: [{ name: 'dark', value: '#0f172a' }],
-    },
-  },
+  parameters: paddedDarkCampaignStoryParameters,
   tags: ['autodocs'],
 } satisfies Meta<typeof FinancesPanel>;
 

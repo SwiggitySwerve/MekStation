@@ -7,6 +7,7 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.1
  */
 
+import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
 import type { IBABreakdown } from '@/utils/construction/battlearmor/battleArmorBV';
 
 import { BattleArmorLocation } from '@/types/construction/UnitLocation';
@@ -222,15 +223,7 @@ export interface BattleArmorState {
 /**
  * Actions available on a Battle Armor store
  */
-export interface BattleArmorStoreActions {
-  // Identity Actions
-  setName: (name: string) => void;
-  setChassis: (chassis: string) => void;
-  setModel: (model: string) => void;
-  setMulId: (mulId: string) => void;
-  setYear: (year: number) => void;
-  setRulesLevel: (level: RulesLevel) => void;
-
+export interface BattleArmorStoreActions extends UnitIdentityActions<BattleArmorState> {
   // Classification Actions
   setTechBase: (techBase: TechBase) => void;
   setChassisType: (type: BattleArmorChassisType) => void;

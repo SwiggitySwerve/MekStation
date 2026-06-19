@@ -56,7 +56,7 @@ interface EncounterRow {
 export class EncounterRepository implements IEncounterRepository {
   private initialized = false;
 
-  initialize(): void {
+  initialize = (): void => {
     if (this.initialized) return;
     const db = getSQLiteService().getDatabase();
     db.exec(`
@@ -84,9 +84,11 @@ export class EncounterRepository implements IEncounterRepository {
       `CREATE INDEX IF NOT EXISTS idx_encounters_game_session ON encounters(game_session_id)`,
     );
     this.initialized = true;
-  }
+  };
 
-  createEncounter(input: ICreateEncounterInput): IEncounterOperationResult {
+  createEncounter = (
+    input: ICreateEncounterInput,
+  ): IEncounterOperationResult => {
     this.initialize();
     const id = `encounter-${uuidv4()}`;
     const now = new Date().toISOString();
@@ -97,27 +99,27 @@ export class EncounterRepository implements IEncounterRepository {
     } catch (error) {
       return this.databaseError(error);
     }
-  }
+  };
 
-  getEncounterById(id: string): IEncounter | null {
+  getEncounterById = (id: string): IEncounter | null => {
     const row = this.getRowById(id);
     return row ? rowToEncounter(row) : null;
-  }
+  };
 
-  getEncounterWithRawIds(id: string): IEncounterWithRawForceIds | null {
+  getEncounterWithRawIds = (id: string): IEncounterWithRawForceIds | null => {
     const row = this.getRowById(id);
     return row ? extractRawForceIds(row) : null;
-  }
+  };
 
-  getAllEncounters(): readonly IEncounter[] {
+  getAllEncounters = (): readonly IEncounter[] => {
     return this.getOrderedRows().map((row) => rowToEncounter(row));
-  }
+  };
 
-  getAllEncountersWithRawIds(): readonly IEncounterWithRawForceIds[] {
+  getAllEncountersWithRawIds = (): readonly IEncounterWithRawForceIds[] => {
     return this.getOrderedRows().map((row) => extractRawForceIds(row));
-  }
+  };
 
-  getEncountersByStatus(status: EncounterStatus): readonly IEncounter[] {
+  getEncountersByStatus = (status: EncounterStatus): readonly IEncounter[] => {
     this.initialize();
     const db = getSQLiteService().getDatabase();
     const rows = db
@@ -126,12 +128,12 @@ export class EncounterRepository implements IEncounterRepository {
       )
       .all(status) as EncounterRow[];
     return rows.map((row) => rowToEncounter(row));
-  }
+  };
 
-  updateEncounter(
+  updateEncounter = (
     id: string,
     input: IUpdateEncounterInput,
-  ): IEncounterOperationResult {
+  ): IEncounterOperationResult => {
     this.initialize();
     const existing = this.getEncounterById(id);
     if (!existing) {
@@ -165,9 +167,9 @@ export class EncounterRepository implements IEncounterRepository {
     } catch (error) {
       return this.databaseError(error);
     }
-  }
+  };
 
-  deleteEncounter(id: string): IEncounterOperationResult {
+  deleteEncounter = (id: string): IEncounterOperationResult => {
     this.initialize();
     const existing = this.getEncounterById(id);
     if (!existing) return this.notFound();
@@ -188,12 +190,12 @@ export class EncounterRepository implements IEncounterRepository {
     } catch (error) {
       return this.databaseError(error);
     }
-  }
+  };
 
-  setEncounterStatus(
+  setEncounterStatus = (
     id: string,
     status: EncounterStatus,
-  ): IEncounterOperationResult {
+  ): IEncounterOperationResult => {
     this.initialize();
     const now = new Date().toISOString();
     try {
@@ -207,12 +209,12 @@ export class EncounterRepository implements IEncounterRepository {
     } catch (error) {
       return this.databaseError(error);
     }
-  }
+  };
 
-  linkGameSession(
+  linkGameSession = (
     encounterId: string,
     gameSessionId: string,
-  ): IEncounterOperationResult {
+  ): IEncounterOperationResult => {
     this.initialize();
     const now = new Date().toISOString();
     try {
@@ -226,16 +228,18 @@ export class EncounterRepository implements IEncounterRepository {
     } catch (error) {
       return this.databaseError(error);
     }
-  }
+  };
 
-  clearForceReference(forceId: string): {
+  clearForceReference = (
+    forceId: string,
+  ): {
     affectedEncounterIds: readonly string[];
-  } {
+  } => {
     this.initialize();
     return clearEncounterForceReferenceRows(forceId, (id) =>
       this.recalculateStatus(id),
     );
-  }
+  };
 
   private getRowById(id: string): EncounterRow | null {
     this.initialize();

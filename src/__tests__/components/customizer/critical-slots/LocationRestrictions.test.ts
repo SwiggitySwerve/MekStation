@@ -43,6 +43,89 @@ describe('Location Restrictions', () => {
       });
     });
 
+    it('should apply explicit restriction predicates consistently', () => {
+      const cases = [
+        {
+          restriction: LocationRestriction.NONE,
+          allowed: [MechLocation.HEAD, MechLocation.CENTER_TORSO],
+          blocked: [],
+        },
+        {
+          restriction: LocationRestriction.ARM_ONLY,
+          allowed: [MechLocation.LEFT_ARM, MechLocation.RIGHT_ARM],
+          blocked: [MechLocation.LEFT_TORSO],
+        },
+        {
+          restriction: LocationRestriction.TORSO_ONLY,
+          allowed: [
+            MechLocation.CENTER_TORSO,
+            MechLocation.LEFT_TORSO,
+            MechLocation.RIGHT_TORSO,
+          ],
+          blocked: [MechLocation.LEFT_ARM],
+        },
+        {
+          restriction: LocationRestriction.LEG_ONLY,
+          allowed: [MechLocation.LEFT_LEG, MechLocation.RIGHT_LEG],
+          blocked: [MechLocation.RIGHT_ARM],
+        },
+        {
+          restriction: LocationRestriction.HEAD_ONLY,
+          allowed: [MechLocation.HEAD],
+          blocked: [MechLocation.CENTER_TORSO],
+        },
+        {
+          restriction: LocationRestriction.NOT_HEAD,
+          allowed: [MechLocation.CENTER_TORSO],
+          blocked: [MechLocation.HEAD],
+        },
+        {
+          restriction: LocationRestriction.NOT_LEGS,
+          allowed: [MechLocation.RIGHT_ARM],
+          blocked: [MechLocation.LEFT_LEG, MechLocation.RIGHT_LEG],
+        },
+        {
+          restriction: LocationRestriction.NOT_ARMS,
+          allowed: [MechLocation.HEAD],
+          blocked: [MechLocation.LEFT_ARM, MechLocation.RIGHT_ARM],
+        },
+        {
+          restriction: LocationRestriction.CENTER_TORSO,
+          allowed: [MechLocation.CENTER_TORSO],
+          blocked: [MechLocation.LEFT_TORSO],
+        },
+        {
+          restriction: LocationRestriction.SIDE_TORSO,
+          allowed: [MechLocation.LEFT_TORSO, MechLocation.RIGHT_TORSO],
+          blocked: [MechLocation.CENTER_TORSO],
+        },
+        {
+          restriction: LocationRestriction.TORSO_OR_LEG,
+          allowed: [MechLocation.RIGHT_TORSO, MechLocation.LEFT_LEG],
+          blocked: [MechLocation.LEFT_ARM],
+        },
+        {
+          restriction: LocationRestriction.FRONT_ONLY,
+          allowed: [MechLocation.HEAD, MechLocation.LEFT_ARM],
+          blocked: [MechLocation.CENTER_TORSO],
+        },
+      ];
+
+      cases.forEach(({ restriction, allowed, blocked }) => {
+        allowed.forEach((location) => {
+          expect(
+            isValidLocationForEquipment('explicit-rule', location, restriction),
+          ).toBe(true);
+        });
+
+        blocked.forEach((location) => {
+          expect(
+            isValidLocationForEquipment('explicit-rule', location, restriction),
+          ).toBe(false);
+        });
+      });
+    });
+
     describe('jump jet restrictions', () => {
       // These are the actual equipment IDs from PLACEMENT_RULES
       const jumpJetIds = [

@@ -5,6 +5,7 @@ import { FOCUS_RING_CLASSES } from '@/utils/accessibility';
 
 import type { IBattle, IKeyMoment } from './types';
 
+import { ViewerSection } from '../SectionFrame';
 import { TIER_COLORS, TIER_FILTER_DEF, TYPE_FILTER_DEF } from './types';
 
 export interface IKeyMomentsSectionProps {
@@ -34,13 +35,11 @@ export const KeyMomentsSection: React.FC<IKeyMomentsSectionProps> = ({
   }, [battle, momentFilter]);
 
   return (
-    <section aria-label="Key moments" data-testid="key-moments-section">
-      <h2
-        className="mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200"
-        data-testid="section-heading"
-      >
-        Key Moments
-      </h2>
+    <ViewerSection
+      ariaLabel="Key moments"
+      testId="key-moments-section"
+      title="Key Moments"
+    >
       <div data-testid="key-moments-filter" className="mb-3">
         <FilterPanel
           filters={[TIER_FILTER_DEF, TYPE_FILTER_DEF]}
@@ -90,6 +89,6 @@ export const KeyMomentsSection: React.FC<IKeyMomentsSectionProps> = ({
           ))}
         </div>
       )}
-    </section>
+    </ViewerSection>
   );
 };

@@ -7,6 +7,13 @@
 
 import { AwardRarity } from '@/types/award';
 
+export const RARITY_SORT_ORDER: Record<AwardRarity, number> = {
+  [AwardRarity.Legendary]: 0,
+  [AwardRarity.Rare]: 1,
+  [AwardRarity.Uncommon]: 2,
+  [AwardRarity.Common]: 3,
+};
+
 /**
  * Get rarity border class for award badges.
  * Used in AwardBadge component.

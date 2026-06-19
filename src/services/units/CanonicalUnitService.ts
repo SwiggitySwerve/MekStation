@@ -14,10 +14,10 @@ import {
 } from '@/services/core/createSingleton';
 import { Era } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
-import { WeightClass } from '@/types/enums/WeightClass';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
+import { getUnitIndexWeightClass } from './unitWeightClass';
 
 /**
  * Raw unit index entry from index.json
@@ -36,57 +36,46 @@ interface RawUnitIndexEntry {
   path: string;
 }
 
+const TECH_BASE_BY_RAW_VALUE: Readonly<Record<string, TechBase>> = {
+  CLAN: TechBase.CLAN,
+  INNER_SPHERE: TechBase.INNER_SPHERE,
+  MIXED: TechBase.INNER_SPHERE,
+};
+
+const ERA_BY_PATH_SEGMENT = [
+  { segment: '1-age-of-war', era: Era.AGE_OF_WAR },
+  { segment: '2-star-league', era: Era.STAR_LEAGUE },
+  { segment: '3-succession-wars', era: Era.LATE_SUCCESSION_WARS },
+  { segment: '4-clan-invasion', era: Era.CLAN_INVASION },
+  { segment: '5-civil-war', era: Era.CIVIL_WAR },
+  { segment: '6-dark-age', era: Era.DARK_AGE },
+  { segment: '7-ilclan', era: Era.IL_CLAN },
+] as const;
+
+function techBaseFromRawValue(rawTechBase: string): TechBase {
+  return TECH_BASE_BY_RAW_VALUE[rawTechBase] ?? TechBase.INNER_SPHERE;
+}
+
+function eraFromPath(filePath: string): Era {
+  return (
+    ERA_BY_PATH_SEGMENT.find(({ segment }) => filePath.includes(segment))
+      ?.era ?? Era.LATE_SUCCESSION_WARS
+  );
+}
+
 /**
  * Map raw index data to IUnitIndexEntry format
  */
 function mapRawToIndexEntry(raw: RawUnitIndexEntry): IUnitIndexEntry {
-  // Map techBase string to TechBase enum
-  let techBase: TechBase = TechBase.INNER_SPHERE;
-  if (raw.techBase === 'CLAN') {
-    techBase = TechBase.CLAN;
-  } else if (raw.techBase === 'MIXED') {
-    techBase = TechBase.INNER_SPHERE; // Default mixed to IS
-  }
-
-  // Determine weight class from tonnage
-  let weightClass: WeightClass;
-  if (raw.tonnage <= 35) {
-    weightClass = WeightClass.LIGHT;
-  } else if (raw.tonnage <= 55) {
-    weightClass = WeightClass.MEDIUM;
-  } else if (raw.tonnage <= 75) {
-    weightClass = WeightClass.HEAVY;
-  } else {
-    weightClass = WeightClass.ASSAULT;
-  }
-
-  // Map era from file path (e.g., "2-star-league/standard/...")
-  let era: Era = Era.LATE_SUCCESSION_WARS;
-  if (raw.path.includes('1-age-of-war')) {
-    era = Era.AGE_OF_WAR;
-  } else if (raw.path.includes('2-star-league')) {
-    era = Era.STAR_LEAGUE;
-  } else if (raw.path.includes('3-succession-wars')) {
-    era = Era.LATE_SUCCESSION_WARS;
-  } else if (raw.path.includes('4-clan-invasion')) {
-    era = Era.CLAN_INVASION;
-  } else if (raw.path.includes('5-civil-war')) {
-    era = Era.CIVIL_WAR;
-  } else if (raw.path.includes('6-dark-age')) {
-    era = Era.DARK_AGE;
-  } else if (raw.path.includes('7-ilclan')) {
-    era = Era.IL_CLAN;
-  }
-
   return {
     id: raw.id,
     name: `${raw.chassis} ${raw.model}`,
     chassis: raw.chassis,
     variant: raw.model,
     tonnage: raw.tonnage,
-    techBase,
-    era,
-    weightClass,
+    techBase: techBaseFromRawValue(raw.techBase),
+    era: eraFromPath(raw.path),
+    weightClass: getUnitIndexWeightClass(raw.tonnage),
     unitType: UnitType.BATTLEMECH,
     filePath: `/data/units/battlemechs/${raw.path}`,
     year: raw.year,
@@ -182,7 +171,7 @@ export class CanonicalUnitService implements ICanonicalUnitService {
   /**
    * Load the lightweight unit index
    */
-  async getIndex(): Promise<readonly IUnitIndexEntry[]> {
+  getIndex = async (): Promise<readonly IUnitIndexEntry[]> => {
     if (this.indexCache) {
       return this.indexCache;
     }
@@ -205,12 +194,12 @@ export class CanonicalUnitService implements ICanonicalUnitService {
       this.indexCache = [];
       return this.indexCache;
     }
-  }
+  };
 
   /**
    * Get full unit data by ID (lazy loads from static JSON)
    */
-  async getById(id: string): Promise<IFullUnit | null> {
+  getById = async (id: string): Promise<IFullUnit | null> => {
     // Check cache first
     if (this.unitCache.has(id)) {
       return this.unitCache.get(id)!;
@@ -234,22 +223,22 @@ export class CanonicalUnitService implements ICanonicalUnitService {
     } catch {
       return null;
     }
-  }
+  };
 
   /**
    * Get multiple units by ID (parallel loading)
    */
-  async getByIds(ids: string[]): Promise<IFullUnit[]> {
+  getByIds = async (ids: string[]): Promise<IFullUnit[]> => {
     const results = await Promise.all(ids.map((id) => this.getById(id)));
     return results.filter((unit): unit is IFullUnit => unit !== null);
-  }
+  };
 
   /**
    * Query units by criteria (filters index in memory)
    */
-  async query(
+  query = async (
     criteria: IUnitQueryCriteria,
-  ): Promise<readonly IUnitIndexEntry[]> {
+  ): Promise<readonly IUnitIndexEntry[]> => {
     let results = await this.getIndex();
 
     if (criteria.techBase !== undefined) {
@@ -277,15 +266,15 @@ export class CanonicalUnitService implements ICanonicalUnitService {
     }
 
     return results;
-  }
+  };
 
   /**
    * Clear caches (for testing)
    */
-  clearCache(): void {
+  clearCache = (): void => {
     this.indexCache = null;
     this.unitCache.clear();
-  }
+  };
 }
 
 // Singleton instance with lazy initialization

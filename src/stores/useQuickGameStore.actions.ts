@@ -43,6 +43,55 @@ type SetFn = (
     | ((state: QuickGameStore) => Partial<QuickGameStore>),
 ) => void;
 type GetFn = () => QuickGameStore;
+type AdaptedQuickGameUnits = Awaited<ReturnType<typeof adaptUnits>>;
+
+interface QuickGameBattleSetup {
+  readonly playerAdapted: AdaptedQuickGameUnits;
+  readonly opponentAdapted: AdaptedQuickGameUnits;
+  readonly gameUnits: IGameUnit[];
+}
+
+async function prepareQuickGameBattle(
+  game: IQuickGameInstance,
+): Promise<QuickGameBattleSetup> {
+  const playerAdapted = await adaptUnits(
+    game.playerForce.units,
+    GameSide.Player,
+  );
+  const opponentAdapted = await adaptUnits(
+    game.opponentForce?.units ?? [],
+    GameSide.Opponent,
+  );
+
+  return {
+    playerAdapted,
+    opponentAdapted,
+    gameUnits: [
+      ...buildGameUnits(game.playerForce.units, playerAdapted, GameSide.Player),
+      ...buildGameUnits(
+        game.opponentForce?.units ?? [],
+        opponentAdapted,
+        GameSide.Opponent,
+      ),
+    ],
+  };
+}
+
+function buildGameUnits(
+  units: IQuickGameForce['units'],
+  adaptedUnits: AdaptedQuickGameUnits,
+  side: GameSide,
+): IGameUnit[] {
+  return units.map((unit, index) => ({
+    id: adaptedUnits[index]?.id ?? unit.instanceId,
+    name: unit.name,
+    side,
+    unitRef: unit.sourceUnitId,
+    pilotRef: unit.pilotName ?? 'Unknown',
+    gunnery: unit.gunnery,
+    piloting: unit.piloting,
+  }));
+}
 
 export function createScenarioActions(
   set: SetFn,
@@ -152,36 +201,8 @@ export function createBattleActions(
       set({ isLoading: true, error: null });
 
       try {
-        const playerAdapted = await adaptUnits(
-          game.playerForce.units,
-          GameSide.Player,
-        );
-        const opponentAdapted = await adaptUnits(
-          game.opponentForce.units,
-          GameSide.Opponent,
-        );
-
-        const gameUnits: IGameUnit[] = [
-          ...game.playerForce.units.map((u, i) => ({
-            id: playerAdapted[i]?.id ?? u.instanceId,
-            name: u.name,
-            side: GameSide.Player as GameSide,
-            unitRef: u.sourceUnitId,
-            pilotRef: u.pilotName ?? 'Unknown',
-            gunnery: u.gunnery,
-            piloting: u.piloting,
-          })),
-          ...game.opponentForce.units.map((u, i) => ({
-            id: opponentAdapted[i]?.id ?? u.instanceId,
-            name: u.name,
-            side: GameSide.Opponent as GameSide,
-            unitRef: u.sourceUnitId,
-            pilotRef: u.pilotName ?? 'Unknown',
-            gunnery: u.gunnery,
-            piloting: u.piloting,
-          })),
-        ];
-
+        const { playerAdapted, opponentAdapted, gameUnits } =
+          await prepareQuickGameBattle(game);
         const engine = createEngineForQuickGame(game);
         const session = engine.runToCompletion(
           playerAdapted,
@@ -233,36 +254,8 @@ export function createBattleActions(
       set({ isLoading: true, error: null });
 
       try {
-        const playerAdapted = await adaptUnits(
-          game.playerForce.units,
-          GameSide.Player,
-        );
-        const opponentAdapted = await adaptUnits(
-          game.opponentForce.units,
-          GameSide.Opponent,
-        );
-
-        const gameUnits: IGameUnit[] = [
-          ...game.playerForce.units.map((u, i) => ({
-            id: playerAdapted[i]?.id ?? u.instanceId,
-            name: u.name,
-            side: GameSide.Player as GameSide,
-            unitRef: u.sourceUnitId,
-            pilotRef: u.pilotName ?? 'Unknown',
-            gunnery: u.gunnery,
-            piloting: u.piloting,
-          })),
-          ...game.opponentForce.units.map((u, i) => ({
-            id: opponentAdapted[i]?.id ?? u.instanceId,
-            name: u.name,
-            side: GameSide.Opponent as GameSide,
-            unitRef: u.sourceUnitId,
-            pilotRef: u.pilotName ?? 'Unknown',
-            gunnery: u.gunnery,
-            piloting: u.piloting,
-          })),
-        ];
-
+        const { playerAdapted, opponentAdapted, gameUnits } =
+          await prepareQuickGameBattle(game);
         const engine = createEngineForQuickGame(game);
         const interactiveSession = engine.createInteractiveSession(
           playerAdapted,

@@ -7,12 +7,8 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.7
  */
 
-import { TechBase, Era, WeightClass, RulesLevel } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
-import {
-  AerospaceMotionType,
-  IAerospaceMovement,
-} from '@/types/unit/BaseUnitInterfaces';
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { IWarShip, CapitalArc } from '@/types/unit/CapitalShipInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
@@ -22,13 +18,22 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
+import { parseCapitalVesselBasics } from './capitalShipHandlerShared';
+import {
+  UnitFieldParseMessages,
+  UnitValidationMessages,
+  combineAssaultUnitFields,
+  createParseMessages,
+  createValidationMessages,
+  parseRulesLevelThroughAdvancedFromType,
+  serializeConfigurationWithRulesLevel,
+} from './unitHandlerShared';
 import {
   validateWarShip,
   calculateWarShipBV,
   calculateWarShipCost,
 } from './WarShipUnitHandler.calculations';
 import {
-  parseArmorByArc,
   parseKFDriveType,
   parseGravityDecks,
   parseCrewConfiguration,
@@ -63,34 +68,15 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
    */
   protected parseTypeSpecificFields(
     document: IBlkDocument,
-  ): Partial<IWarShip> & {
-    errors: string[];
-    warnings: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  ): Partial<IWarShip> & UnitFieldParseMessages {
+    const { errors, warnings } = createParseMessages();
 
     // WarShips are always spheroid
     const motionType = AerospaceMotionType.SPHEROID;
 
-    // Movement - thrust values
-    const safeThrust = document.safeThrust || 0;
-    const maxThrust = Math.floor(safeThrust * 1.5);
-    const movement: IAerospaceMovement = { safeThrust, maxThrust };
-
-    // Fuel
-    const fuel = document.fuel || 0;
-
-    // Structural integrity
-    const structuralIntegrity = document.structuralIntegrity || 0;
-
-    // Heat sinks
-    const heatSinks = document.heatsinks || 0;
-    const heatSinkType = document.sinkType || 0;
-
-    // Engine and armor types
-    const engineType = document.engineType || 0;
-    const armorType = document.armorType || 0;
+    const basics = parseCapitalVesselBasics(document, {
+      includeBroadsides: true,
+    });
 
     // K-F Drive
     const rawTags = document.rawTags || {};
@@ -104,11 +90,6 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
     // Docking and gravity
     const dockingHardpoints = getNumericFromRaw(rawTags, 'hardpoints') || 0;
     const gravityDecks = parseGravityDecks(rawTags);
-
-    // Parse armor by arc (includes broadsides)
-    const armor = document.armor || [];
-    const armorByArc = parseArmorByArc(armor);
-    const totalArmorPoints = armor.reduce((sum, val) => sum + val, 0);
 
     // Crew configuration
     const crewConfiguration = parseCrewConfiguration(document);
@@ -133,16 +114,7 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
     return {
       unitType: UnitType.WARSHIP,
       motionType,
-      movement,
-      fuel,
-      structuralIntegrity,
-      heatSinks,
-      heatSinkType,
-      engineType,
-      armorType,
-      armor,
-      armorByArc,
-      totalArmorPoints,
+      ...basics,
       kfDriveType,
       hasLFBattery,
       sailArea,
@@ -159,7 +131,7 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
       hpgClass,
       errors,
       warnings,
-    };
+    } satisfies Partial<IWarShip> & UnitFieldParseMessages;
   }
 
   /**
@@ -169,71 +141,13 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<IWarShip>,
   ): IWarShip {
-    const techBase = this.parseTechBase(commonFields.techBase);
-    const rulesLevel = this.parseRulesLevel(commonFields.techBase);
-
-    return {
-      // Identity
-      id: `warship-${Date.now()}`,
-      name: `${commonFields.chassis} ${commonFields.model}`.trim(),
-
-      // Classification
+    return combineAssaultUnitFields<IWarShip>({
+      commonFields,
+      typeSpecificFields,
+      idPrefix: 'warship',
       unitType: UnitType.WARSHIP,
-      tonnage: commonFields.tonnage,
-      weightClass: WeightClass.ASSAULT,
-
-      // Tech
-      techBase,
-      era: commonFields.era as Era,
-      rulesLevel,
-
-      // Metadata
-      metadata: {
-        chassis: commonFields.chassis,
-        model: commonFields.model,
-        year: commonFields.year,
-        rulesLevel,
-        techBase,
-        role: commonFields.role,
-      },
-
-      // Optional fields
-      source: commonFields.source,
-      role: commonFields.role,
-
-      // Calculated values
-      bv: 0,
-      cost: 0,
-      totalWeight: commonFields.tonnage,
-      remainingTonnage: 0,
-      isValid: true,
-      validationErrors: [],
-
-      // WarShip-specific fields
-      ...typeSpecificFields,
-    } as IWarShip;
-  }
-
-  /**
-   * Parse tech base from type string
-   */
-  private parseTechBase(typeStr: string): TechBase {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('clan') && !lower.includes('mixed')) {
-      return TechBase.CLAN;
-    }
-    return TechBase.INNER_SPHERE;
-  }
-
-  /**
-   * Parse rules level from type string
-   */
-  private parseRulesLevel(typeStr: string): RulesLevel {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('level 3') || lower.includes('advanced')) {
-      return RulesLevel.ADVANCED;
-    }
-    return RulesLevel.STANDARD;
+      rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
+    });
   }
 
   /**
@@ -242,10 +156,7 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
   protected serializeTypeSpecificFields(
     unit: IWarShip,
   ): Partial<ISerializedUnit> {
-    return {
-      configuration: 'Spheroid',
-      rulesLevel: String(unit.rulesLevel),
-    };
+    return serializeConfigurationWithRulesLevel('Spheroid', unit.rulesLevel);
   }
 
   /**
@@ -255,11 +166,7 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
     return createFailureResult(['WarShip deserialization not yet implemented']);
   }
 
-  protected validateTypeSpecificRules(unit: IWarShip): {
-    errors: string[];
-    warnings: string[];
-    infos: string[];
-  } {
+  protected validateTypeSpecificRules(unit: IWarShip): UnitValidationMessages {
     return validateWarShip(unit);
   }
 

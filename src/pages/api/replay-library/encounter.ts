@@ -23,7 +23,7 @@
  * Validation pattern mirrors `quick.ts`:
  *   - inline runtime checks (no Zod — established convention in this
  *     directory; future consolidation is a separate sweep)
- *   - shared `ErrorResponse = { error, code? }` shape
+ *   - shared `ApiErrorResponse = { error, code? }` shape
  *   - `gameId` regex `^[A-Za-z0-9_-]+$` — same pattern, copied not
  *     imported (sibling route uses module-private const)
  *
@@ -44,6 +44,10 @@ import {
   type IPersistEncounterGameInput,
   type IPersistEncounterGameResult,
 } from '@/components/encounter/persistEncounterGame';
+import {
+  rejectUnexpectedMethod,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { readReplayIndex } from '@/replay-library/index-reader';
 import { ScenarioTemplateType } from '@/types/encounter/EncounterInterfaces';
 import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
@@ -89,11 +93,6 @@ type SuccessResponse = {
   path: string | null;
 };
 
-type ErrorResponse = {
-  error: string;
-  code?: string;
-};
-
 // =============================================================================
 // Validation helpers
 // =============================================================================
@@ -129,7 +128,7 @@ function parseBody(
   body: unknown,
 ):
   | { ok: true; input: Omit<IPersistEncounterGameInput, 'cwd'> }
-  | { ok: false; error: ErrorResponse } {
+  | { ok: false; error: ApiErrorResponse } {
   if (body === null || typeof body !== 'object' || Array.isArray(body)) {
     return {
       ok: false,
@@ -282,13 +281,9 @@ function parseBody(
  */
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SuccessResponse | ErrorResponse>,
+  res: NextApiResponse<SuccessResponse | ApiErrorResponse>,
 ): Promise<void> {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    res.status(405).json({ error: `Method ${req.method} Not Allowed` });
-    return;
-  }
+  if (rejectUnexpectedMethod(req, res, ['POST'])) return;
 
   // Explicit over-ceiling rejection (audit W5.2). Next's bodyParser
   // already 413s anything over the exported `sizeLimit` before this

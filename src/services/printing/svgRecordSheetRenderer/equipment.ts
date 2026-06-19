@@ -7,6 +7,18 @@ import { IRecordSheetEquipment } from '@/types/printing';
 
 import { SVG_NS, ELEMENT_IDS } from './constants';
 
+type EquipmentColumns = {
+  qty: number;
+  name: number;
+  loc: number;
+  heat: number;
+  dmg: number;
+  min: number;
+  sht: number;
+  med: number;
+  lng: number;
+};
+
 /**
  * Render the equipment/inventory table
  */
@@ -35,7 +47,7 @@ export function renderEquipmentTable(
   const maxRows = Math.floor((height - 30) / rowHeight);
 
   // Column positions - adjusted for damage codes like "1/Msl [M,C,S]"
-  const cols = {
+  const cols: EquipmentColumns = {
     qty: x + 2,
     name: x + 12,
     loc: x + 80, // Shortened name column
@@ -47,6 +59,25 @@ export function renderEquipmentTable(
     lng: x + 200,
   };
 
+  appendEquipmentHeaders(svgDoc, group, cols, headerY);
+
+  const displayEquipment = equipment.slice(0, maxRows);
+  displayEquipment.forEach((eq, index) => {
+    appendEquipmentRow(svgDoc, group, cols, eq, startY + index * rowHeight);
+  });
+
+  const parent = inventoryArea.parentNode;
+  if (parent) {
+    parent.insertBefore(group, inventoryArea.nextSibling);
+  }
+}
+
+function appendEquipmentHeaders(
+  svgDoc: Document,
+  group: Element,
+  cols: EquipmentColumns,
+  headerY: number,
+): void {
   const headers = [
     { text: 'Qty', x: cols.qty },
     { text: 'Type', x: cols.name },
@@ -59,98 +90,112 @@ export function renderEquipmentTable(
     { text: 'Lng', x: cols.lng },
   ];
 
-  headers.forEach((h) => {
-    const text = createEquipmentText(svgDoc, h.x, headerY, h.text, true);
-    group.appendChild(text);
+  headers.forEach((header) => {
+    group.appendChild(
+      createEquipmentText(svgDoc, header.x, headerY, header.text, true),
+    );
   });
+}
 
-  const displayEquipment = equipment.slice(0, maxRows);
-  displayEquipment.forEach((eq, index) => {
-    const rowY = startY + index * rowHeight;
-
-    const qty = createEquipmentText(
+function appendEquipmentRow(
+  svgDoc: Document,
+  group: Element,
+  cols: EquipmentColumns,
+  equipment: IRecordSheetEquipment,
+  rowY: number,
+): void {
+  group.appendChild(
+    createEquipmentText(
       svgDoc,
       cols.qty,
       rowY,
-      String(eq.quantity || 1),
+      String(equipment.quantity || 1),
       false,
-    );
-    group.appendChild(qty);
+    ),
+  );
 
-    // Truncate long names to fit in narrower column
-    const name =
-      eq.name.length > 16 ? eq.name.substring(0, 14) + '..' : eq.name;
-    const nameEl = createEquipmentText(svgDoc, cols.name, rowY, name, false);
-    group.appendChild(nameEl);
+  const name =
+    equipment.name.length > 16
+      ? equipment.name.substring(0, 14) + '..'
+      : equipment.name;
+  group.appendChild(createEquipmentText(svgDoc, cols.name, rowY, name, false));
+  group.appendChild(
+    createEquipmentText(svgDoc, cols.loc, rowY, equipment.locationAbbr, false),
+  );
 
-    const loc = createEquipmentText(
-      svgDoc,
-      cols.loc,
-      rowY,
-      eq.locationAbbr,
-      false,
-    );
-    group.appendChild(loc);
+  if (equipment.isWeapon || equipment.isEquipment) {
+    appendWeaponOrEquipmentColumns(svgDoc, group, cols, equipment, rowY);
+    return;
+  }
 
-    if (eq.isWeapon || eq.isEquipment) {
-      // Heat column
-      const heatStr = eq.heat === 0 || eq.heat === '-' ? '-' : String(eq.heat);
-      const heat = createEquipmentText(svgDoc, cols.heat, rowY, heatStr, false);
-      group.appendChild(heat);
-
-      // Damage column with type code: "5 [DE]" format
-      const damageStr = eq.damageCode
-        ? `${eq.damage} ${eq.damageCode}`
-        : String(eq.damage || '-');
-      const dmg = createEquipmentText(svgDoc, cols.dmg, rowY, damageStr, false);
-      group.appendChild(dmg);
-
-      // Range columns - show '-' for 0 minimum
-      const minStr =
-        eq.minimum === 0 || eq.minimum === '-' ? '-' : String(eq.minimum);
-      const min = createEquipmentText(svgDoc, cols.min, rowY, minStr, false);
-      group.appendChild(min);
-
-      const sht = createEquipmentText(
-        svgDoc,
-        cols.sht,
-        rowY,
-        String(eq.short || '-'),
-        false,
-      );
-      const med = createEquipmentText(
-        svgDoc,
-        cols.med,
-        rowY,
-        String(eq.medium || '-'),
-        false,
-      );
-      const lng = createEquipmentText(
-        svgDoc,
-        cols.lng,
-        rowY,
-        String(eq.long || '-'),
-        false,
-      );
-      group.appendChild(sht);
-      group.appendChild(med);
-      group.appendChild(lng);
-    } else if (eq.isAmmo) {
-      const ammoInfo = createEquipmentText(
+  if (equipment.isAmmo) {
+    group.appendChild(
+      createEquipmentText(
         svgDoc,
         cols.dmg,
         rowY,
-        eq.ammoCount ? `(${eq.ammoCount})` : '-',
+        equipment.ammoCount ? `(${equipment.ammoCount})` : '-',
         false,
-      );
-      group.appendChild(ammoInfo);
-    }
-  });
-
-  const parent = inventoryArea.parentNode;
-  if (parent) {
-    parent.insertBefore(group, inventoryArea.nextSibling);
+      ),
+    );
   }
+}
+
+function appendWeaponOrEquipmentColumns(
+  svgDoc: Document,
+  group: Element,
+  cols: EquipmentColumns,
+  equipment: IRecordSheetEquipment,
+  rowY: number,
+): void {
+  const heatStr =
+    equipment.heat === 0 || equipment.heat === '-'
+      ? '-'
+      : String(equipment.heat);
+  group.appendChild(
+    createEquipmentText(svgDoc, cols.heat, rowY, heatStr, false),
+  );
+
+  const damageStr = equipment.damageCode
+    ? `${equipment.damage} ${equipment.damageCode}`
+    : String(equipment.damage || '-');
+  group.appendChild(
+    createEquipmentText(svgDoc, cols.dmg, rowY, damageStr, false),
+  );
+
+  const minStr =
+    equipment.minimum === 0 || equipment.minimum === '-'
+      ? '-'
+      : String(equipment.minimum);
+  group.appendChild(createEquipmentText(svgDoc, cols.min, rowY, minStr, false));
+
+  group.appendChild(
+    createEquipmentText(
+      svgDoc,
+      cols.sht,
+      rowY,
+      String(equipment.short || '-'),
+      false,
+    ),
+  );
+  group.appendChild(
+    createEquipmentText(
+      svgDoc,
+      cols.med,
+      rowY,
+      String(equipment.medium || '-'),
+      false,
+    ),
+  );
+  group.appendChild(
+    createEquipmentText(
+      svgDoc,
+      cols.lng,
+      rowY,
+      String(equipment.long || '-'),
+      false,
+    ),
+  );
 }
 
 /**

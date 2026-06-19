@@ -42,7 +42,7 @@ export class UnitSearchService implements IUnitSearchService {
    * assignment — MiniSearch then threw "duplicate ID <first-unit>"
    * (e2e triage RC16, force.spec dev-overlay interception).
    */
-  async initialize(): Promise<void> {
+  initialize = async (): Promise<void> => {
     if (this.initialized) {
       return;
     }
@@ -56,7 +56,7 @@ export class UnitSearchService implements IUnitSearchService {
       // Clear the latch so a future rebuildIndex() can re-run init.
       this.initPromise = null;
     }
-  }
+  };
 
   /**
    * The actual index build — only ever one in flight (see initialize()).
@@ -117,7 +117,7 @@ export class UnitSearchService implements IUnitSearchService {
   /**
    * Search units by query string
    */
-  search(query: string, options?: ISearchOptions): IUnitIndexEntry[] {
+  search = (query: string, options?: ISearchOptions): IUnitIndexEntry[] => {
     if (!this.searchIndex) {
       return [];
     }
@@ -139,12 +139,12 @@ export class UnitSearchService implements IUnitSearchService {
     }
 
     return units;
-  }
+  };
 
   /**
    * Add a unit to the search index
    */
-  addToIndex(unit: IUnitIndexEntry): void {
+  addToIndex = (unit: IUnitIndexEntry): void => {
     if (!this.searchIndex) {
       return;
     }
@@ -156,29 +156,29 @@ export class UnitSearchService implements IUnitSearchService {
 
     this.allUnits.set(unit.id, unit);
     this.searchIndex.add(unit);
-  }
+  };
 
   /**
    * Remove a unit from the search index
    */
-  removeFromIndex(id: string): void {
+  removeFromIndex = (id: string): void => {
     if (!this.searchIndex || !this.allUnits.has(id)) {
       return;
     }
 
     this.searchIndex.discard(id);
     this.allUnits.delete(id);
-  }
+  };
 
   /**
    * Rebuild the entire search index
    */
-  async rebuildIndex(): Promise<void> {
+  rebuildIndex = async (): Promise<void> => {
     this.initialized = false;
     this.searchIndex = null;
     this.allUnits.clear();
     await this.initialize();
-  }
+  };
 }
 
 // Singleton instance

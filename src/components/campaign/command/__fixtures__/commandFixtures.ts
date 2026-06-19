@@ -110,57 +110,59 @@ export const SAMPLE_LOANS: readonly ICampaignLoan[] = [
 // =============================================================================
 
 /** Build a sample contract offer via the canonical `createContract` factory. */
-function makeContract(
-  id: string,
-  name: string,
-  employerId: string,
-  basePayment: number,
-  salvageRights: 'None' | 'Exchange' | 'Integrated',
-  startDate: string,
-  endDate: string,
-): IContract {
+interface ContractFixture {
+  readonly id: string;
+  readonly name: string;
+  readonly employerId: string;
+  readonly basePayment: number;
+  readonly salvageRights: 'None' | 'Exchange' | 'Integrated';
+  readonly startDate: string;
+  readonly endDate: string;
+}
+
+function makeContract(fixture: ContractFixture): IContract {
   return createContract({
-    id,
-    name,
-    employerId,
+    id: fixture.id,
+    name: fixture.name,
+    employerId: fixture.employerId,
     targetId: 'liao',
-    startDate,
-    endDate,
-    salvageRights,
+    startDate: fixture.startDate,
+    endDate: fixture.endDate,
+    salvageRights: fixture.salvageRights,
     paymentTerms: {
       ...createDefaultPaymentTerms(),
-      basePayment: new Money(basePayment),
+      basePayment: new Money(fixture.basePayment),
     },
   });
 }
 
 /** A populated contract-market pool. */
 export const SAMPLE_OFFERS: readonly IContract[] = [
-  makeContract(
-    'contract-raid',
-    'Raid on Hesperus II',
-    'davion',
-    600000,
-    'Exchange',
-    '3025-02-01',
-    '3025-05-01',
-  ),
-  makeContract(
-    'contract-garrison',
-    'Garrison Duty — New Avalon',
-    'steiner',
-    350000,
-    'None',
-    '3025-02-01',
-    '3025-08-01',
-  ),
-  makeContract(
-    'contract-recon',
-    'Recon Sweep — Galtor',
-    'marik',
-    420000,
-    'Integrated',
-    '3025-02-01',
-    '3025-04-01',
-  ),
+  makeContract({
+    id: 'contract-raid',
+    name: 'Raid on Hesperus II',
+    employerId: 'davion',
+    basePayment: 600000,
+    salvageRights: 'Exchange',
+    startDate: '3025-02-01',
+    endDate: '3025-05-01',
+  }),
+  makeContract({
+    id: 'contract-garrison',
+    name: 'Garrison Duty — New Avalon',
+    employerId: 'steiner',
+    basePayment: 350000,
+    salvageRights: 'None',
+    startDate: '3025-02-01',
+    endDate: '3025-08-01',
+  }),
+  makeContract({
+    id: 'contract-recon',
+    name: 'Recon Sweep — Galtor',
+    employerId: 'marik',
+    basePayment: 420000,
+    salvageRights: 'Integrated',
+    startDate: '3025-02-01',
+    endDate: '3025-04-01',
+  }),
 ];

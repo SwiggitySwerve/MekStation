@@ -250,17 +250,38 @@ describe('getAerospacePilotMultiplier', () => {
 // ============================================================================
 
 describe('normalizeArcLocation', () => {
-  it("maps BLK-style 'Left Wing' onto AerospaceArc.LEFT_WING", () => {
-    expect(normalizeArcLocation('Left Wing')).toBe(AerospaceArc.LEFT_WING);
-  });
+  const directArcCases: readonly AerospaceArc[] = [
+    AerospaceArc.NOSE,
+    AerospaceArc.LEFT_WING,
+    AerospaceArc.RIGHT_WING,
+    AerospaceArc.LEFT_SIDE,
+    AerospaceArc.RIGHT_SIDE,
+    AerospaceArc.AFT,
+    AerospaceArc.FUSELAGE,
+  ];
 
-  it("maps Small Craft 'Hull' onto FUSELAGE", () => {
-    expect(normalizeArcLocation('Hull')).toBe(AerospaceArc.FUSELAGE);
-  });
+  const legacyArcCases: ReadonlyArray<readonly [string, AerospaceArc]> = [
+    ['Left Wing', AerospaceArc.LEFT_WING],
+    ['Right Wing', AerospaceArc.RIGHT_WING],
+    ['Left Side', AerospaceArc.LEFT_SIDE],
+    ['Right Side', AerospaceArc.RIGHT_SIDE],
+    ['Hull', AerospaceArc.FUSELAGE],
+    ['Wings', AerospaceArc.FUSELAGE],
+  ];
 
-  it('passes through a direct AerospaceArc value', () => {
-    expect(normalizeArcLocation(AerospaceArc.NOSE)).toBe(AerospaceArc.NOSE);
-  });
+  it.each(directArcCases)(
+    'passes through direct AerospaceArc value %s',
+    (arc) => {
+      expect(normalizeArcLocation(arc)).toBe(arc);
+    },
+  );
+
+  it.each(legacyArcCases)(
+    'maps legacy location %s onto %s',
+    (location, expectedArc) => {
+      expect(normalizeArcLocation(location)).toBe(expectedArc);
+    },
+  );
 
   it('returns null for unknown location strings', () => {
     expect(normalizeArcLocation('Turret Top')).toBeNull();

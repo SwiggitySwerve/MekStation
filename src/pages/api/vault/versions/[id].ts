@@ -11,6 +11,12 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IVersionSnapshot } from '@/types/vault';
 
+import {
+  rejectMissingQueryString,
+  rejectUnexpectedMethod,
+  sendLoggedApiError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getVersionHistoryService } from '@/services/vault/VersionHistoryService';
 
 // =============================================================================
@@ -25,23 +31,22 @@ interface DeleteResponse {
   success: boolean;
 }
 
-interface ErrorResponse {
-  error: string;
-}
-
 // =============================================================================
 // Handler
 // =============================================================================
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<VersionResponse | DeleteResponse | ErrorResponse>,
+  res: NextApiResponse<VersionResponse | DeleteResponse | ApiErrorResponse>,
 ): Promise<void> {
-  const { id } = req.query;
-
-  if (typeof id !== 'string') {
-    return res.status(400).json({ error: 'Invalid version ID' });
-  }
+  const id = rejectMissingQueryString(req, res, 'id', 'Invalid version ID');
+  if (!id) return;
+  if (
+    rejectUnexpectedMethod(req, res, ['GET', 'DELETE'], () => ({
+      error: 'Method not allowed',
+    }))
+  )
+    return;
 
   try {
     const versionService = getVersionHistoryService();
@@ -51,14 +56,10 @@ export default async function handler(
         return handleGet(id, res, versionService);
       case 'DELETE':
         return handleDelete(id, res, versionService);
-      default:
-        return res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
-    console.error('Version API error:', error);
-    return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedApiError(res, 'Version API error:', error);
+    return;
   }
 }
 
@@ -68,7 +69,7 @@ export default async function handler(
 
 async function handleGet(
   id: string,
-  res: NextApiResponse<VersionResponse | ErrorResponse>,
+  res: NextApiResponse<VersionResponse | ApiErrorResponse>,
   versionService: ReturnType<typeof getVersionHistoryService>,
 ) {
   const version = await versionService.getVersionById(id);
@@ -82,7 +83,7 @@ async function handleGet(
 
 async function handleDelete(
   id: string,
-  res: NextApiResponse<DeleteResponse | ErrorResponse>,
+  res: NextApiResponse<DeleteResponse | ApiErrorResponse>,
   versionService: ReturnType<typeof getVersionHistoryService>,
 ) {
   const version = await versionService.getVersionById(id);

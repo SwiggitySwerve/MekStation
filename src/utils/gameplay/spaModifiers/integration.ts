@@ -18,7 +18,7 @@
  *   - Range Master       (range_bracket)
  *   - Environmental Specialist (represented fog/snow/rain/wind terrain/environment slices)
  *
- * TODO (next wave):
+ * Follow-up notes:
  *   - Sandblaster        (weapon_type damage modifier; cluster path consumes
  *                         `designatedWeaponType` outside to-hit aggregation)
  *   - Human TRO          (weapon_type critical hit shift)
@@ -26,7 +26,7 @@
  *   - Oblique Attacker terrain refinement (currently unconditional)
  */
 
-import type { IPilot } from '@/types/pilot';
+import type { IPilot, IPilotAbilityRef } from '@/types/pilot';
 
 import { RangeBracket } from '@/types/gameplay';
 import {
@@ -54,6 +54,14 @@ import { calculateWeaponSpecialistModifier } from './weaponSpecialists';
 import { calculateGunnerySpecialistModifier } from './weaponSpecialists';
 import { calculateRangeMasterModifier } from './weaponSpecialists';
 import { calculateSniperModifier } from './weaponSpecialists';
+
+interface IAttackerDesignationFields {
+  designatedWeaponType?: string;
+  designatedWeaponCategory?: string;
+  designatedTargetId?: string;
+  designatedRangeBracket?: RangeBracket;
+  designatedEnvironment?: string;
+}
 
 export function calculateAttackerSPAModifiers(
   attacker: IAttackerState,
@@ -156,6 +164,73 @@ export function calculateAttackerSPAModifiers(
   return modifiers;
 }
 
+function collectAttackerDesignations(
+  abilities: readonly IPilotAbilityRef[],
+): IAttackerDesignationFields {
+  const designations: IAttackerDesignationFields = {};
+
+  for (const ability of abilities) {
+    applyAttackerDesignation(ability, designations);
+  }
+
+  return designations;
+}
+
+function applyAttackerDesignation(
+  ability: IPilotAbilityRef,
+  designations: IAttackerDesignationFields,
+): void {
+  const designation = ability.designation;
+  if (!designation) return;
+
+  if (isWeaponTypeDesignation(designation)) {
+    designations.designatedWeaponType =
+      designation.displayLabel || designation.weaponTypeId;
+    return;
+  }
+
+  if (isWeaponCategoryDesignation(designation)) {
+    designations.designatedWeaponCategory = designation.category;
+    return;
+  }
+
+  if (isTargetDesignation(designation)) {
+    if (designation.targetUnitId) {
+      designations.designatedTargetId = designation.targetUnitId;
+    }
+    return;
+  }
+
+  if (isRangeBracketDesignation(designation)) {
+    designations.designatedRangeBracket = designation.bracket as RangeBracket;
+    return;
+  }
+
+  if (!isTerrainDesignation(designation)) return;
+  if (!hasSPA([ability.abilityId], 'env_specialist')) return;
+
+  designations.designatedEnvironment = designation.terrainTypeId;
+}
+
+function mergeAttackerDesignations(
+  base: IAttackerState,
+  designations: IAttackerDesignationFields,
+): IAttackerState {
+  return {
+    ...base,
+    designatedWeaponType:
+      base.designatedWeaponType ?? designations.designatedWeaponType,
+    designatedWeaponCategory:
+      base.designatedWeaponCategory ?? designations.designatedWeaponCategory,
+    designatedTargetId:
+      base.designatedTargetId ?? designations.designatedTargetId,
+    designatedRangeBracket:
+      base.designatedRangeBracket ?? designations.designatedRangeBracket,
+    designatedEnvironment:
+      base.designatedEnvironment ?? designations.designatedEnvironment,
+  };
+}
+
 // =============================================================================
 // Wave 2b — designation hand-off
 // =============================================================================
@@ -183,46 +258,11 @@ export function populateAttackerDesignations(
   pilot: Pick<IPilot, 'abilities'>,
   base: IAttackerState,
 ): IAttackerState {
-  let designatedWeaponType: string | undefined;
-  let designatedWeaponCategory: string | undefined;
-  let designatedTargetId: string | undefined;
-  let designatedRangeBracket: RangeBracket | undefined;
-  let designatedEnvironment: string | undefined;
-
-  for (const ability of pilot.abilities) {
-    const d = ability.designation;
-    if (!d) continue;
-    if (isWeaponTypeDesignation(d)) {
-      // Prefer the displayLabel because the modifier compares against
-      // the wire-format weapon name ("PPC", not "ppc"). Fall back to the
-      // canonical id when the label is missing.
-      designatedWeaponType = d.displayLabel || d.weaponTypeId;
-    } else if (isWeaponCategoryDesignation(d)) {
-      designatedWeaponCategory = d.category;
-    } else if (isTargetDesignation(d)) {
-      // Empty unit id (deferred binding) intentionally clears nothing.
-      if (d.targetUnitId) designatedTargetId = d.targetUnitId;
-    } else if (isRangeBracketDesignation(d)) {
-      designatedRangeBracket = d.bracket as RangeBracket;
-    } else if (
-      isTerrainDesignation(d) &&
-      hasSPA([ability.abilityId], 'env_specialist')
-    ) {
-      designatedEnvironment = d.terrainTypeId;
-    }
-  }
-
   // Preserve any caller-supplied overrides — only fill in fields the
   // caller didn't set. This keeps tests that hand-craft an attacker
   // state passing without us clobbering their inputs.
-  return {
-    ...base,
-    designatedWeaponType: base.designatedWeaponType ?? designatedWeaponType,
-    designatedWeaponCategory:
-      base.designatedWeaponCategory ?? designatedWeaponCategory,
-    designatedTargetId: base.designatedTargetId ?? designatedTargetId,
-    designatedRangeBracket:
-      base.designatedRangeBracket ?? designatedRangeBracket,
-    designatedEnvironment: base.designatedEnvironment ?? designatedEnvironment,
-  };
+  return mergeAttackerDesignations(
+    base,
+    collectAttackerDesignations(pilot.abilities),
+  );
 }

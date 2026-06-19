@@ -1,19 +1,17 @@
 import React from 'react';
 
+import type { MechLocation } from '@/types/construction';
 import type { LocationArmorData } from '@/types/construction/LocationArmorData';
 import type { MechConfigType } from '@/types/construction/MechConfigType';
 
-import { MechLocation } from '@/types/construction';
+import type { ResolvedPosition } from '../shared/layout';
 
+import { darkenColor, lightenColor } from '../shared/ArmorFills';
+import { ArmorLocationInteractionGroup } from '../shared/ArmorLocationInteractionGroup';
 import {
-  getArmorStatusColor,
-  getTorsoFrontStatusColor,
-  getTorsoRearStatusColor,
-  darkenColor,
-  lightenColor,
-} from '../shared/ArmorFills';
-import { ResolvedPosition } from '../shared/layout';
-import { getLocationLabel, hasTorsoRear } from '../shared/MechSilhouette';
+  buildPremiumLocationModel,
+  type PremiumLocationModel,
+} from './PremiumMaterialDiagram.location';
 
 interface NumberBadgeProps {
   x: number;
@@ -128,6 +126,225 @@ interface PremiumLocationProps {
   configType?: MechConfigType;
 }
 
+interface PremiumLocationSectionProps {
+  model: PremiumLocationModel;
+}
+
+function PremiumFrontSection({
+  model,
+}: PremiumLocationSectionProps): React.ReactElement {
+  const pos = model.position;
+
+  return (
+    <g
+      transform={`translate(0, ${model.liftOffset})`}
+      style={{
+        filter: model.isHovered ? 'url(#armor-lift-shadow)' : undefined,
+        transition: 'transform 0.15s ease-out',
+      }}
+    >
+      <rect
+        x={pos.x}
+        y={pos.y}
+        width={pos.width}
+        height={model.frontSectionHeight}
+        rx={8}
+        ry={8}
+        fill={darkenColor(model.frontColor, 0.3)}
+        stroke={
+          model.isSelected ? '#60a5fa' : darkenColor(model.frontColor, 0.1)
+        }
+        strokeWidth={model.isSelected ? 2 : 1}
+        className="transition-colors duration-150"
+      />
+
+      <rect
+        x={pos.x}
+        y={pos.y}
+        width={pos.width}
+        height={model.frontSectionHeight}
+        rx={8}
+        fill="url(#armor-metallic)"
+        opacity={0.6}
+      />
+
+      <rect
+        x={pos.x + 2}
+        y={pos.y + 2}
+        width={pos.width - 4}
+        height={model.frontSectionHeight * 0.12}
+        rx={6}
+        fill="white"
+        opacity={0.1}
+      />
+
+      <rect
+        x={pos.x}
+        y={pos.y + model.frontSectionHeight * (1 - model.frontPercent / 100)}
+        width={pos.width}
+        height={model.frontSectionHeight * (model.frontPercent / 100)}
+        rx={8}
+        fill={model.frontColor}
+        opacity={0.4}
+        className="transition-all duration-300"
+      />
+
+      <text
+        x={model.center.x}
+        y={model.frontLabelY}
+        textAnchor="middle"
+        fontSize={model.frontLabelFontSize}
+        fill="rgba(255,255,255,0.8)"
+        fontWeight="600"
+        letterSpacing="0.5"
+      >
+        {model.frontLabel}
+      </text>
+
+      <NumberBadge
+        x={model.center.x}
+        y={model.frontCenterY + (model.isHead ? 1 : 2)}
+        value={model.front}
+        color={model.frontColor}
+        size={model.frontBadgeSize}
+      />
+
+      {model.showFrontDots && (
+        <DotIndicator
+          x={model.center.x}
+          y={pos.y + model.frontSectionHeight - 10}
+          fillPercent={model.frontPercent}
+          color={model.frontColor}
+          dots={model.frontDotCount}
+          dotSize={model.frontDotSize}
+        />
+      )}
+
+      {model.cornerRivetPoints.map((point) => (
+        <circle
+          key={`${point.x}-${point.y}`}
+          cx={point.x}
+          cy={point.y}
+          r={2}
+          fill="#64748b"
+        />
+      ))}
+    </g>
+  );
+}
+
+function PremiumRearSection({
+  model,
+}: PremiumLocationSectionProps): React.ReactElement {
+  const pos = model.position;
+
+  return (
+    <>
+      <line
+        x1={pos.x + 4}
+        y1={model.dividerY}
+        x2={pos.x + pos.width - 4}
+        y2={model.dividerY}
+        stroke="#475569"
+        strokeWidth={1}
+        strokeDasharray="3 2"
+      />
+
+      <rect
+        x={pos.x}
+        y={model.dividerY}
+        width={pos.width}
+        height={model.rearSectionHeight}
+        rx={8}
+        fill={darkenColor(model.rearColor, 0.4)}
+        stroke={
+          model.isSelected ? '#60a5fa' : darkenColor(model.rearColor, 0.2)
+        }
+        strokeWidth={model.isSelected ? 2 : 1}
+        className="transition-colors duration-150"
+      />
+
+      <rect
+        x={pos.x}
+        y={model.dividerY}
+        width={pos.width}
+        height={model.rearSectionHeight}
+        rx={8}
+        fill="url(#armor-carbon)"
+        opacity={0.3}
+      />
+
+      <rect
+        x={pos.x}
+        y={
+          model.dividerY +
+          model.rearSectionHeight * (1 - model.rearPercent / 100)
+        }
+        width={pos.width}
+        height={model.rearSectionHeight * (model.rearPercent / 100)}
+        rx={8}
+        fill={model.rearColor}
+        opacity={0.4}
+        className="transition-all duration-300"
+      />
+
+      <text
+        x={model.center.x}
+        y={model.dividerY + 9}
+        textAnchor="middle"
+        fontSize="8"
+        fill="rgba(255,255,255,0.7)"
+        fontWeight="500"
+      >
+        {model.rearLabel}
+      </text>
+
+      <NumberBadge
+        x={model.center.x}
+        y={model.rearCenterY + 2}
+        value={model.rear}
+        color={model.rearColor}
+        size={model.rearBadgeSize}
+      />
+
+      <DotIndicator
+        x={model.center.x}
+        y={model.dividerY + model.rearSectionHeight - 8}
+        fillPercent={model.rearPercent}
+        color={model.rearColor}
+        dots={4}
+        dotSize={3}
+      />
+    </>
+  );
+}
+
+function PremiumSelectionOutline({
+  model,
+}: PremiumLocationSectionProps): React.ReactElement {
+  const pos = model.position;
+
+  return (
+    <rect
+      x={pos.x}
+      y={pos.y}
+      width={pos.width}
+      height={pos.height}
+      rx={8}
+      fill="none"
+      stroke={
+        model.isSelected
+          ? '#60a5fa'
+          : model.isHovered
+            ? '#64748b'
+            : 'transparent'
+      }
+      strokeWidth={model.isSelected ? 2 : 1}
+      className="transition-colors duration-150"
+    />
+  );
+}
+
 export function PremiumLocation({
   location,
   position,
@@ -138,268 +355,30 @@ export function PremiumLocation({
   onHover,
   configType = 'biped',
 }: PremiumLocationProps): React.ReactElement {
-  const label = getLocationLabel(location, configType);
-  const showRear = hasTorsoRear(location);
-  const isHead = location === MechLocation.HEAD;
-  const pos = position;
-
-  const frontLabel = showRear ? `${label}-F` : label;
-  const rearLabel = 'R';
-
-  const front = data?.current ?? 0;
-  const frontMax = data?.maximum ?? 1;
-  const rear = data?.rear ?? 0;
-  const rearMax = data?.rearMaximum ?? 1;
-
-  const expectedFrontMax = showRear ? Math.round(frontMax * 0.75) : frontMax;
-  const expectedRearMax = showRear ? Math.round(frontMax * 0.25) : 1;
-
-  const frontPercent =
-    expectedFrontMax > 0 ? Math.min(100, (front / expectedFrontMax) * 100) : 0;
-  const rearPercent =
-    expectedRearMax > 0 ? Math.min(100, (rear / expectedRearMax) * 100) : 0;
-
-  const frontColor = isSelected
-    ? '#3b82f6'
-    : showRear
-      ? getTorsoFrontStatusColor(front, frontMax)
-      : getArmorStatusColor(front, frontMax);
-  const rearColor = isSelected
-    ? '#2563eb'
-    : getTorsoRearStatusColor(rear, frontMax);
-
-  const liftOffset = isHovered ? -2 : 0;
-
-  const frontSectionHeight = showRear ? pos.height * 0.6 : pos.height;
-  const rearSectionHeight = showRear ? pos.height * 0.4 : 0;
-  const dividerY = pos.y + frontSectionHeight;
-
-  const center = pos.center;
-  const frontCenterY = pos.y + frontSectionHeight / 2;
-  const rearCenterY = dividerY + rearSectionHeight / 2;
+  const model = buildPremiumLocationModel({
+    location,
+    position,
+    data,
+    isSelected,
+    isHovered,
+    configType,
+  });
 
   return (
-    <g
-      role="button"
-      tabIndex={0}
-      aria-label={`${location} armor: ${front} of ${frontMax}${showRear ? `, rear: ${rear} of ${rearMax}` : ''}`}
-      aria-pressed={isSelected}
-      className="cursor-pointer focus:outline-none"
+    <ArmorLocationInteractionGroup
+      location={String(location)}
+      current={model.front}
+      maximum={model.frontMax}
+      rear={model.rear}
+      rearMaximum={model.rearMax}
+      showRear={model.showRear}
+      isSelected={model.isSelected}
       onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      onMouseEnter={() => onHover(true)}
-      onMouseLeave={() => onHover(false)}
-      onFocus={() => onHover(true)}
-      onBlur={() => onHover(false)}
+      onHover={onHover}
     >
-      <g
-        transform={`translate(0, ${liftOffset})`}
-        style={{
-          filter: isHovered ? 'url(#armor-lift-shadow)' : undefined,
-          transition: 'transform 0.15s ease-out',
-        }}
-      >
-        <rect
-          x={pos.x}
-          y={pos.y}
-          width={pos.width}
-          height={frontSectionHeight}
-          rx={8}
-          ry={8}
-          fill={darkenColor(frontColor, 0.3)}
-          stroke={isSelected ? '#60a5fa' : darkenColor(frontColor, 0.1)}
-          strokeWidth={isSelected ? 2 : 1}
-          className="transition-colors duration-150"
-        />
-
-        <rect
-          x={pos.x}
-          y={pos.y}
-          width={pos.width}
-          height={frontSectionHeight}
-          rx={8}
-          fill="url(#armor-metallic)"
-          opacity={0.6}
-        />
-
-        <rect
-          x={pos.x + 2}
-          y={pos.y + 2}
-          width={pos.width - 4}
-          height={frontSectionHeight * 0.12}
-          rx={6}
-          fill="white"
-          opacity={0.1}
-        />
-
-        <rect
-          x={pos.x}
-          y={pos.y + frontSectionHeight * (1 - frontPercent / 100)}
-          width={pos.width}
-          height={frontSectionHeight * (frontPercent / 100)}
-          rx={8}
-          fill={frontColor}
-          opacity={0.4}
-          className="transition-all duration-300"
-        />
-
-        <text
-          x={center.x}
-          y={pos.y + (isHead ? 9 : showRear ? 10 : 12)}
-          textAnchor="middle"
-          fontSize={isHead ? '7' : showRear ? '8' : '10'}
-          fill="rgba(255,255,255,0.8)"
-          fontWeight="600"
-          letterSpacing="0.5"
-        >
-          {frontLabel}
-        </text>
-
-        <NumberBadge
-          x={center.x}
-          y={frontCenterY + (isHead ? 1 : 2)}
-          value={front}
-          color={frontColor}
-          size={
-            isHead
-              ? 14
-              : showRear
-                ? pos.width < 50
-                  ? 18
-                  : 22
-                : pos.width < 50
-                  ? 20
-                  : 28
-          }
-        />
-
-        {!isHead && (
-          <DotIndicator
-            x={center.x}
-            y={pos.y + frontSectionHeight - 10}
-            fillPercent={frontPercent}
-            color={frontColor}
-            dots={showRear ? 4 : 5}
-            dotSize={showRear ? 3 : pos.width < 50 ? 3 : 4}
-          />
-        )}
-
-        {pos.width > 40 && !showRear && (
-          <>
-            <circle cx={pos.x + 8} cy={pos.y + 8} r={2} fill="#64748b" />
-            <circle
-              cx={pos.x + pos.width - 8}
-              cy={pos.y + 8}
-              r={2}
-              fill="#64748b"
-            />
-            <circle
-              cx={pos.x + 8}
-              cy={pos.y + frontSectionHeight - 8}
-              r={2}
-              fill="#64748b"
-            />
-            <circle
-              cx={pos.x + pos.width - 8}
-              cy={pos.y + frontSectionHeight - 8}
-              r={2}
-              fill="#64748b"
-            />
-          </>
-        )}
-      </g>
-
-      {showRear && (
-        <>
-          <line
-            x1={pos.x + 4}
-            y1={dividerY}
-            x2={pos.x + pos.width - 4}
-            y2={dividerY}
-            stroke="#475569"
-            strokeWidth={1}
-            strokeDasharray="3 2"
-          />
-
-          <rect
-            x={pos.x}
-            y={dividerY}
-            width={pos.width}
-            height={rearSectionHeight}
-            rx={8}
-            fill={darkenColor(rearColor, 0.4)}
-            stroke={isSelected ? '#60a5fa' : darkenColor(rearColor, 0.2)}
-            strokeWidth={isSelected ? 2 : 1}
-            className="transition-colors duration-150"
-          />
-
-          <rect
-            x={pos.x}
-            y={dividerY}
-            width={pos.width}
-            height={rearSectionHeight}
-            rx={8}
-            fill="url(#armor-carbon)"
-            opacity={0.3}
-          />
-
-          <rect
-            x={pos.x}
-            y={dividerY + rearSectionHeight * (1 - rearPercent / 100)}
-            width={pos.width}
-            height={rearSectionHeight * (rearPercent / 100)}
-            rx={8}
-            fill={rearColor}
-            opacity={0.4}
-            className="transition-all duration-300"
-          />
-
-          <text
-            x={center.x}
-            y={dividerY + 9}
-            textAnchor="middle"
-            fontSize="8"
-            fill="rgba(255,255,255,0.7)"
-            fontWeight="500"
-          >
-            {rearLabel}
-          </text>
-
-          <NumberBadge
-            x={center.x}
-            y={rearCenterY + 2}
-            value={rear}
-            color={rearColor}
-            size={pos.width < 50 ? 16 : 20}
-          />
-
-          <DotIndicator
-            x={center.x}
-            y={dividerY + rearSectionHeight - 8}
-            fillPercent={rearPercent}
-            color={rearColor}
-            dots={4}
-            dotSize={3}
-          />
-        </>
-      )}
-
-      <rect
-        x={pos.x}
-        y={pos.y}
-        width={pos.width}
-        height={pos.height}
-        rx={8}
-        fill="none"
-        stroke={isSelected ? '#60a5fa' : isHovered ? '#64748b' : 'transparent'}
-        strokeWidth={isSelected ? 2 : 1}
-        className="transition-colors duration-150"
-      />
-    </g>
+      <PremiumFrontSection model={model} />
+      {model.showRear && <PremiumRearSection model={model} />}
+      <PremiumSelectionOutline model={model} />
+    </ArmorLocationInteractionGroup>
   );
 }

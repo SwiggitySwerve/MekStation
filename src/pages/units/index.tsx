@@ -30,6 +30,265 @@ import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
+interface FilterToolbarProps {
+  readonly viewMode: ViewMode;
+  readonly filters: FilterState;
+  readonly showFilters: boolean;
+  readonly hasActiveFilters: boolean;
+  readonly activeFilterCount: number;
+  readonly onViewModeChange: (mode: ViewMode) => void;
+  readonly onFilterChange: <K extends keyof FilterState>(
+    key: K,
+    value: FilterState[K],
+  ) => void;
+  readonly onToggleFilters: () => void;
+}
+
+interface FilterPanelProps {
+  readonly filters: FilterState;
+  readonly hasActiveFilters: boolean;
+  readonly onFilterChange: <K extends keyof FilterState>(
+    key: K,
+    value: FilterState[K],
+  ) => void;
+  readonly onClearFilters: () => void;
+}
+
+interface UnitResultsProps {
+  readonly units: UnitEntry[];
+  readonly displayedUnits: UnitEntry[];
+  readonly viewMode: ViewMode;
+  readonly onClearFilters: () => void;
+}
+
+const unitTypeOptions = Object.values(UnitType).map((ut) => ({
+  value: ut,
+  label: UNIT_TYPE_CONFIG[ut]?.label ?? ut,
+}));
+
+const techBaseOptions = Object.values(TechBase).map((tb) => ({
+  value: tb,
+  label: tb,
+}));
+
+const rulesLevelOptions = Object.values(RulesLevel).map((rl) => ({
+  value: rl,
+  label: rl,
+}));
+
+const weightClassOptions = Object.values(WeightClass).map((wc) => ({
+  value: wc,
+  label: WEIGHT_CLASS_CONFIG[wc]?.label ?? wc,
+}));
+
+function filterUnits(units: UnitEntry[], filters: FilterState): UnitEntry[] {
+  let result = [...units];
+
+  if (filters.search) {
+    const searchLower = filters.search.toLowerCase();
+    result = result.filter(
+      (unit) =>
+        unit.chassis.toLowerCase().includes(searchLower) ||
+        unit.variant.toLowerCase().includes(searchLower) ||
+        `${unit.chassis} ${unit.variant}`.toLowerCase().includes(searchLower),
+    );
+  }
+
+  if (filters.unitType) {
+    result = result.filter((unit) => unit.unitType === filters.unitType);
+  }
+
+  if (filters.techBase) {
+    result = result.filter((unit) => unit.techBase === filters.techBase);
+  }
+
+  if (filters.rulesLevel) {
+    result = result.filter((unit) => unit.rulesLevel === filters.rulesLevel);
+  }
+
+  if (filters.weightClass) {
+    result = result.filter((unit) => unit.weightClass === filters.weightClass);
+  }
+
+  return result;
+}
+
+function FilterToolbar({
+  viewMode,
+  filters,
+  showFilters,
+  hasActiveFilters,
+  activeFilterCount,
+  onViewModeChange,
+  onFilterChange,
+  onToggleFilters,
+}: FilterToolbarProps): React.ReactElement {
+  return (
+    <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="flex items-center gap-3">
+        <ViewModeToggle mode={viewMode} onChange={onViewModeChange} />
+
+        <div className="w-64">
+          <Input
+            type="text"
+            placeholder="Search units..."
+            value={filters.search}
+            onChange={(e) => onFilterChange('search', e.target.value)}
+            accent="emerald"
+            aria-label="Search units"
+            className="!py-1.5 text-sm"
+          />
+        </div>
+
+        <button
+          onClick={onToggleFilters}
+          className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+            showFilters || hasActiveFilters
+              ? 'bg-accent text-text-theme-primary'
+              : 'bg-surface-raised/50 text-text-theme-primary/80 hover:bg-surface-raised'
+          }`}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="h-4 w-4"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
+            />
+          </svg>
+          Filters
+          {activeFilterCount > 0 && (
+            <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-xs">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
+      </div>
+
+      <Link href="/customizer">
+        <Button variant="primary">Create Unit</Button>
+      </Link>
+    </div>
+  );
+}
+
+function FilterPanel({
+  filters,
+  hasActiveFilters,
+  onFilterChange,
+  onClearFilters,
+}: FilterPanelProps): React.ReactElement {
+  return (
+    <div className="bg-surface-base/40 border-border-theme-subtle/50 animate-fadeIn mb-4 rounded-lg border p-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <Select
+          value={filters.unitType}
+          onChange={(e) => onFilterChange('unitType', e.target.value)}
+          options={unitTypeOptions}
+          placeholder="Unit Type"
+          accent="emerald"
+          aria-label="Filter by unit type"
+          className="w-40"
+        />
+        <Select
+          value={filters.techBase}
+          onChange={(e) =>
+            onFilterChange('techBase', e.target.value as TechBase | '')
+          }
+          options={techBaseOptions}
+          placeholder="Tech Base"
+          accent="emerald"
+          aria-label="Filter by tech base"
+          className="w-36"
+        />
+        <Select
+          value={filters.rulesLevel}
+          onChange={(e) =>
+            onFilterChange('rulesLevel', e.target.value as RulesLevel | '')
+          }
+          options={rulesLevelOptions}
+          placeholder="Rules Level"
+          accent="emerald"
+          aria-label="Filter by rules level"
+          className="w-36"
+        />
+        <Select
+          value={filters.weightClass}
+          onChange={(e) =>
+            onFilterChange('weightClass', e.target.value as WeightClass | '')
+          }
+          options={weightClassOptions}
+          placeholder="Weight Class"
+          accent="emerald"
+          aria-label="Filter by weight class"
+          className="w-36"
+        />
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClearFilters}
+            className="text-text-theme-secondary hover:text-text-theme-primary"
+          >
+            Clear All
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function UnitResults({
+  units,
+  displayedUnits,
+  viewMode,
+  onClearFilters,
+}: UnitResultsProps): React.ReactElement {
+  if (units.length === 0) {
+    return (
+      <EmptyState
+        title="No custom units yet"
+        message="Create custom units using the unit builder or import existing units."
+        action={
+          <div className="flex gap-3">
+            <Link href="/customizer">
+              <Button variant="primary">Create Unit</Button>
+            </Link>
+          </div>
+        }
+      />
+    );
+  }
+
+  if (displayedUnits.length === 0) {
+    return (
+      <EmptyState
+        title="No units found"
+        message="Try adjusting your filters or search terms."
+        action={
+          <Button variant="secondary" onClick={onClearFilters}>
+            Clear Filters
+          </Button>
+        }
+      />
+    );
+  }
+
+  return (
+    <>
+      {viewMode === 'grid' && <UnitGridView units={displayedUnits} />}
+      {viewMode === 'list' && <UnitCardListView units={displayedUnits} />}
+      {viewMode === 'table' && <UnitTableView units={displayedUnits} />}
+    </>
+  );
+}
+
 export default function CustomUnitsListPage(): React.ReactElement {
   const [units, setUnits] = useState<UnitEntry[]>([]);
   const [filteredUnits, setFilteredUnits] = useState<UnitEntry[]>([]);
@@ -46,11 +305,12 @@ export default function CustomUnitsListPage(): React.ReactElement {
     weightClass: '',
   });
 
-  const hasActiveFilters =
+  const hasActiveFilters = Boolean(
     filters.unitType ||
     filters.techBase ||
     filters.rulesLevel ||
-    filters.weightClass;
+    filters.weightClass,
+  );
 
   const activeFilterCount = [
     filters.unitType,
@@ -58,26 +318,6 @@ export default function CustomUnitsListPage(): React.ReactElement {
     filters.rulesLevel,
     filters.weightClass,
   ].filter(Boolean).length;
-
-  const unitTypeOptions = Object.values(UnitType).map((ut) => ({
-    value: ut,
-    label: UNIT_TYPE_CONFIG[ut]?.label ?? ut,
-  }));
-
-  const techBaseOptions = Object.values(TechBase).map((tb) => ({
-    value: tb,
-    label: tb,
-  }));
-
-  const rulesLevelOptions = Object.values(RulesLevel).map((rl) => ({
-    value: rl,
-    label: rl,
-  }));
-
-  const weightClassOptions = Object.values(WeightClass).map((wc) => ({
-    value: wc,
-    label: WEIGHT_CLASS_CONFIG[wc]?.label ?? wc,
-  }));
 
   useEffect(() => {
     async function fetchUnits() {
@@ -105,37 +345,7 @@ export default function CustomUnitsListPage(): React.ReactElement {
   }, []);
 
   const applyFilters = useCallback(() => {
-    let result = [...units];
-
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      result = result.filter(
-        (unit) =>
-          unit.chassis.toLowerCase().includes(searchLower) ||
-          unit.variant.toLowerCase().includes(searchLower) ||
-          `${unit.chassis} ${unit.variant}`.toLowerCase().includes(searchLower),
-      );
-    }
-
-    if (filters.unitType) {
-      result = result.filter((unit) => unit.unitType === filters.unitType);
-    }
-
-    if (filters.techBase) {
-      result = result.filter((unit) => unit.techBase === filters.techBase);
-    }
-
-    if (filters.rulesLevel) {
-      result = result.filter((unit) => unit.rulesLevel === filters.rulesLevel);
-    }
-
-    if (filters.weightClass) {
-      result = result.filter(
-        (unit) => unit.weightClass === filters.weightClass,
-      );
-    }
-
-    setFilteredUnits(result);
+    setFilteredUnits(filterUnits(units, filters));
     setCurrentPage(1);
   }, [units, filters]);
 
@@ -181,152 +391,32 @@ export default function CustomUnitsListPage(): React.ReactElement {
       subtitle={`${filteredUnits.length} custom units`}
       maxWidth="wide"
     >
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <ViewModeToggle mode={viewMode} onChange={setViewMode} />
-
-          <div className="w-64">
-            <Input
-              type="text"
-              placeholder="Search units..."
-              value={filters.search}
-              onChange={(e) => handleFilterChange('search', e.target.value)}
-              accent="emerald"
-              aria-label="Search units"
-              className="!py-1.5 text-sm"
-            />
-          </div>
-
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-              showFilters || hasActiveFilters
-                ? 'bg-accent text-text-theme-primary'
-                : 'bg-surface-raised/50 text-text-theme-primary/80 hover:bg-surface-raised'
-            }`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="h-4 w-4"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
-              />
-            </svg>
-            Filters
-            {activeFilterCount > 0 && (
-              <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-xs">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
-        </div>
-
-        <Link href="/customizer">
-          <Button variant="primary">Create Unit</Button>
-        </Link>
-      </div>
+      <FilterToolbar
+        viewMode={viewMode}
+        filters={filters}
+        showFilters={showFilters}
+        hasActiveFilters={hasActiveFilters}
+        activeFilterCount={activeFilterCount}
+        onViewModeChange={setViewMode}
+        onFilterChange={handleFilterChange}
+        onToggleFilters={() => setShowFilters(!showFilters)}
+      />
 
       {showFilters && (
-        <div className="bg-surface-base/40 border-border-theme-subtle/50 animate-fadeIn mb-4 rounded-lg border p-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <Select
-              value={filters.unitType}
-              onChange={(e) => handleFilterChange('unitType', e.target.value)}
-              options={unitTypeOptions}
-              placeholder="Unit Type"
-              accent="emerald"
-              aria-label="Filter by unit type"
-              className="w-40"
-            />
-            <Select
-              value={filters.techBase}
-              onChange={(e) =>
-                handleFilterChange('techBase', e.target.value as TechBase | '')
-              }
-              options={techBaseOptions}
-              placeholder="Tech Base"
-              accent="emerald"
-              aria-label="Filter by tech base"
-              className="w-36"
-            />
-            <Select
-              value={filters.rulesLevel}
-              onChange={(e) =>
-                handleFilterChange(
-                  'rulesLevel',
-                  e.target.value as RulesLevel | '',
-                )
-              }
-              options={rulesLevelOptions}
-              placeholder="Rules Level"
-              accent="emerald"
-              aria-label="Filter by rules level"
-              className="w-36"
-            />
-            <Select
-              value={filters.weightClass}
-              onChange={(e) =>
-                handleFilterChange(
-                  'weightClass',
-                  e.target.value as WeightClass | '',
-                )
-              }
-              options={weightClassOptions}
-              placeholder="Weight Class"
-              accent="emerald"
-              aria-label="Filter by weight class"
-              className="w-36"
-            />
-            {hasActiveFilters && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearFilters}
-                className="text-text-theme-secondary hover:text-text-theme-primary"
-              >
-                Clear All
-              </Button>
-            )}
-          </div>
-        </div>
+        <FilterPanel
+          filters={filters}
+          hasActiveFilters={hasActiveFilters}
+          onFilterChange={handleFilterChange}
+          onClearFilters={clearFilters}
+        />
       )}
 
-      {units.length === 0 ? (
-        <EmptyState
-          title="No custom units yet"
-          message="Create custom units using the unit builder or import existing units."
-          action={
-            <div className="flex gap-3">
-              <Link href="/customizer">
-                <Button variant="primary">Create Unit</Button>
-              </Link>
-            </div>
-          }
-        />
-      ) : displayedUnits.length === 0 ? (
-        <EmptyState
-          title="No units found"
-          message="Try adjusting your filters or search terms."
-          action={
-            <Button variant="secondary" onClick={clearFilters}>
-              Clear Filters
-            </Button>
-          }
-        />
-      ) : (
-        <>
-          {viewMode === 'grid' && <UnitGridView units={displayedUnits} />}
-          {viewMode === 'list' && <UnitCardListView units={displayedUnits} />}
-          {viewMode === 'table' && <UnitTableView units={displayedUnits} />}
-        </>
-      )}
+      <UnitResults
+        units={units}
+        displayedUnits={displayedUnits}
+        viewMode={viewMode}
+        onClearFilters={clearFilters}
+      />
 
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-between">

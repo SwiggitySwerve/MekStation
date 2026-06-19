@@ -18,6 +18,10 @@ export {
   JUMP_JET_EQUIPMENT_IDS,
   TARGETING_COMPUTER_IDS,
 } from './equipmentConstants';
+export {
+  CONFIGURATION_MOUNTED_EQUIPMENT_DEFAULTS,
+  createConfigurationMountedEquipment,
+} from './configurationMountedEquipment';
 
 export {
   getJumpJetEquipmentId,

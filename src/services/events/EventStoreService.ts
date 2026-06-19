@@ -38,7 +38,7 @@ export class EventStoreService {
    * Append a single event to the store.
    * @throws Error if event sequence is not greater than latest
    */
-  append(event: IBaseEvent): void {
+  append = (event: IBaseEvent): void => {
     if (event.sequence <= this.latestSequence) {
       throw new Error(
         `Event sequence ${event.sequence} must be greater than latest sequence ${this.latestSequence}`,
@@ -46,13 +46,13 @@ export class EventStoreService {
     }
     this.events.push(event);
     this.latestSequence = event.sequence;
-  }
+  };
 
   /**
    * Append multiple events atomically.
    * @throws Error if any event sequence is out of order
    */
-  appendBatch(events: readonly IBaseEvent[]): void {
+  appendBatch = (events: readonly IBaseEvent[]): void => {
     if (events.length === 0) return;
 
     // Sort by sequence to ensure correct order
@@ -72,7 +72,7 @@ export class EventStoreService {
     // Append all events
     this.events.push(...sorted);
     this.latestSequence = sorted[sorted.length - 1].sequence;
-  }
+  };
 
   // ===========================================================================
   // Query Operations
@@ -81,7 +81,7 @@ export class EventStoreService {
   /**
    * Query events with filters and pagination.
    */
-  query(options: IEventQueryOptions = {}): IEventQueryResult<IBaseEvent> {
+  query = (options: IEventQueryOptions = {}): IEventQueryResult<IBaseEvent> => {
     const { filters, pagination, sort } = options;
 
     // Apply filters
@@ -107,49 +107,49 @@ export class EventStoreService {
       offset,
       limit,
     };
-  }
+  };
 
   /**
    * Get events in a sequence range (inclusive).
    */
-  getEventsInRange(from: number, to: number): readonly IBaseEvent[] {
+  getEventsInRange = (from: number, to: number): readonly IBaseEvent[] => {
     return this.events.filter((e) => e.sequence >= from && e.sequence <= to);
-  }
+  };
 
   /**
    * Get the latest sequence number.
    */
-  getLatestSequence(): number {
+  getLatestSequence = (): number => {
     return this.latestSequence;
-  }
+  };
 
   /**
    * Get total event count.
    */
-  getEventCount(): number {
+  getEventCount = (): number => {
     return this.events.length;
-  }
+  };
 
   /**
    * Get all events (readonly).
    */
-  getAllEvents(): readonly IBaseEvent[] {
+  getAllEvents = (): readonly IBaseEvent[] => {
     return this.events;
-  }
+  };
 
   /**
    * Get a single event by ID.
    */
-  getEventById(id: string): IBaseEvent | undefined {
+  getEventById = (id: string): IBaseEvent | undefined => {
     return this.events.find((e) => e.id === id);
-  }
+  };
 
   /**
    * Get events caused by a specific event.
    */
-  getEventsCausedBy(eventId: string): readonly IBaseEvent[] {
+  getEventsCausedBy = (eventId: string): readonly IBaseEvent[] => {
     return this.events.filter((e) => e.causedBy?.eventId === eventId);
-  }
+  };
 
   // ===========================================================================
   // Internal Methods
@@ -255,24 +255,24 @@ export class EventStoreService {
   /**
    * Clear all events (for testing).
    */
-  clear(): void {
+  clear = (): void => {
     this.events = [];
     this.latestSequence = 0;
-  }
+  };
 
   /**
    * Get events by category.
    */
-  getEventsByCategory(category: EventCategory): readonly IBaseEvent[] {
+  getEventsByCategory = (category: EventCategory): readonly IBaseEvent[] => {
     return this.events.filter((e) => e.category === category);
-  }
+  };
 
   /**
    * Get the last N events.
    */
-  getRecentEvents(count: number): readonly IBaseEvent[] {
+  getRecentEvents = (count: number): readonly IBaseEvent[] => {
     return this.events.slice(-count);
-  }
+  };
 }
 
 // =============================================================================

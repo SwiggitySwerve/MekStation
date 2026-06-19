@@ -73,69 +73,53 @@ export type PSRReasonCategory = 'movement' | 'damage' | 'heat' | 'recovery';
 /**
  * Map a `PSRTrigger` value to its `PSRReasonCategory` bucket.
  *
- * The mapping is deterministic and total — every code maps to exactly
- * one of `'movement' | 'damage' | 'heat' | 'recovery'`. Implemented as
- * an exhaustive switch so adding a new `PSRTrigger` member fails the
- * typechecker until it's categorised.
+ * The mapping is deterministic and total; every code maps to exactly
+ * one of `'movement' | 'damage' | 'heat' | 'recovery'`. The lookup table
+ * satisfies `Record<PSRTrigger, PSRReasonCategory>` so adding a new
+ * `PSRTrigger` member fails the typechecker until it's categorised.
  *
  * @spec openspec/specs/piloting-skill-rolls/spec.md
  *   Requirement: PSR Reason Category Bucket Helper
  */
+const PSR_REASON_CATEGORY_BY_TRIGGER = {
+  [PSRTrigger.PhaseDamage20Plus]: 'damage',
+  [PSRTrigger.LegDamage]: 'damage',
+  [PSRTrigger.HipActuatorDestroyed]: 'damage',
+  [PSRTrigger.GyroHit]: 'damage',
+  [PSRTrigger.EngineHit]: 'damage',
+  [PSRTrigger.UpperLegActuatorHit]: 'damage',
+  [PSRTrigger.LowerLegActuatorHit]: 'damage',
+  [PSRTrigger.FootActuatorHit]: 'damage',
+
+  [PSRTrigger.Kicked]: 'movement',
+  [PSRTrigger.Charged]: 'movement',
+  [PSRTrigger.DFATarget]: 'movement',
+  [PSRTrigger.Pushed]: 'movement',
+  [PSRTrigger.DominoEffect]: 'movement',
+  [PSRTrigger.KickMiss]: 'movement',
+  [PSRTrigger.ChargeMiss]: 'movement',
+  [PSRTrigger.DFAMiss]: 'movement',
+  [PSRTrigger.EnteringRubble]: 'movement',
+  [PSRTrigger.RunningRoughTerrain]: 'movement',
+  [PSRTrigger.MovingOnIce]: 'movement',
+  [PSRTrigger.EnteringWater]: 'movement',
+  [PSRTrigger.ExitingWater]: 'movement',
+  [PSRTrigger.Skidding]: 'movement',
+  [PSRTrigger.SwampBogDown]: 'movement',
+  [PSRTrigger.AirMekLanding]: 'movement',
+  [PSRTrigger.RunningDamagedHip]: 'movement',
+  [PSRTrigger.RunningDamagedGyro]: 'movement',
+  [PSRTrigger.ControlledSideslip]: 'movement',
+  [PSRTrigger.FlankingAndTurning]: 'movement',
+  [PSRTrigger.OutOfControl]: 'movement',
+  [PSRTrigger.BuildingCollapse]: 'movement',
+  [PSRTrigger.MASCFailure]: 'movement',
+  [PSRTrigger.SuperchargerFailure]: 'movement',
+
+  [PSRTrigger.Shutdown]: 'heat',
+  [PSRTrigger.StandingUp]: 'recovery',
+} as const satisfies Readonly<Record<PSRTrigger, PSRReasonCategory>>;
+
 export function getPSRReasonCategory(code: PSRTrigger): PSRReasonCategory {
-  switch (code) {
-    // Damage bucket
-    case PSRTrigger.PhaseDamage20Plus:
-    case PSRTrigger.LegDamage:
-    case PSRTrigger.HipActuatorDestroyed:
-    case PSRTrigger.GyroHit:
-    case PSRTrigger.EngineHit:
-    case PSRTrigger.UpperLegActuatorHit:
-    case PSRTrigger.LowerLegActuatorHit:
-    case PSRTrigger.FootActuatorHit:
-      return 'damage';
-
-    // Movement bucket — physical attack target/miss + terrain + system
-    case PSRTrigger.Kicked:
-    case PSRTrigger.Charged:
-    case PSRTrigger.DFATarget:
-    case PSRTrigger.Pushed:
-    case PSRTrigger.DominoEffect:
-    case PSRTrigger.KickMiss:
-    case PSRTrigger.ChargeMiss:
-    case PSRTrigger.DFAMiss:
-    case PSRTrigger.EnteringRubble:
-    case PSRTrigger.RunningRoughTerrain:
-    case PSRTrigger.MovingOnIce:
-    case PSRTrigger.EnteringWater:
-    case PSRTrigger.ExitingWater:
-    case PSRTrigger.Skidding:
-    case PSRTrigger.SwampBogDown:
-    case PSRTrigger.AirMekLanding:
-    case PSRTrigger.RunningDamagedHip:
-    case PSRTrigger.RunningDamagedGyro:
-    case PSRTrigger.ControlledSideslip:
-    case PSRTrigger.FlankingAndTurning:
-    case PSRTrigger.OutOfControl:
-    case PSRTrigger.BuildingCollapse:
-    case PSRTrigger.MASCFailure:
-    case PSRTrigger.SuperchargerFailure:
-      return 'movement';
-
-    // Heat bucket
-    case PSRTrigger.Shutdown:
-      return 'heat';
-
-    // Recovery bucket
-    case PSRTrigger.StandingUp:
-      return 'recovery';
-
-    default: {
-      // Exhaustiveness check — a new PSRTrigger member that lacks a
-      // category mapping fails the typechecker on this line.
-      const exhaustive: never = code;
-      throw new Error(
-        `getPSRReasonCategory: unhandled PSRTrigger value ${String(exhaustive)}`,
-      );
-    }
-  }
+  return PSR_REASON_CATEGORY_BY_TRIGGER[code];
 }

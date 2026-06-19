@@ -16,36 +16,71 @@ import {
   IVTOLCrashCheckPayload,
 } from '@/types/gameplay';
 
+import type { IGameplayEventContext } from './eventContext';
+
 import { createEventBase } from './base';
 
 /**
  * Emitted when a vehicle hit triggers a motive-damage roll. The severity
  * and mpPenalty match the 2d6 motive-damage table (TW p.193).
  */
+export interface ICreateMotiveDamagedEventInput extends IGameplayEventContext {
+  readonly severity: IMotiveDamagedPayload['severity'];
+  readonly mpPenalty: number;
+  readonly rolls?: readonly number[];
+}
+
 export function createMotiveDamagedEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  phase: GamePhase,
-  unitId: string,
-  severity: IMotiveDamagedPayload['severity'],
-  mpPenalty: number,
-  rolls?: readonly number[],
+  input: ICreateMotiveDamagedEventInput | string,
+  ...legacy:
+    | []
+    | [
+        sequence: number,
+        turn: number,
+        phase: GamePhase,
+        unitId: string,
+        severity: IMotiveDamagedPayload['severity'],
+        mpPenalty: number,
+        rolls?: readonly number[],
+      ]
 ): IGameEvent {
+  const [sequence, turn, phase, unitId, severity, mpPenalty, rolls] =
+    legacy as [
+      number,
+      number,
+      GamePhase,
+      string,
+      IMotiveDamagedPayload['severity'],
+      number,
+      readonly number[] | undefined,
+    ];
+  const eventInput =
+    typeof input !== 'string'
+      ? input
+      : {
+          gameId: input,
+          sequence,
+          turn,
+          phase,
+          unitId,
+          severity,
+          mpPenalty,
+          rolls,
+        };
   const payload: IMotiveDamagedPayload = {
-    unitId,
-    severity,
-    mpPenalty,
-    rolls,
+    unitId: eventInput.unitId,
+    severity: eventInput.severity,
+    mpPenalty: eventInput.mpPenalty,
+    rolls: eventInput.rolls,
   };
   return {
     ...createEventBase(
-      gameId,
-      sequence,
+      eventInput.gameId,
+      eventInput.sequence,
       GameEventType.MotiveDamaged,
-      turn,
-      phase,
-      unitId,
+      eventInput.turn,
+      eventInput.phase,
+      eventInput.unitId,
     ),
     payload,
   };
@@ -55,30 +90,62 @@ export function createMotiveDamagedEvent(
  * Emitted after motive damage mutates a vehicle's effective MP — useful
  * for pathfinder invalidation and UI gauges.
  */
+export interface ICreateMotivePenaltyAppliedEventInput extends IGameplayEventContext {
+  readonly previousCruiseMP: number;
+  readonly newCruiseMP: number;
+  readonly newFlankMP: number;
+}
+
 export function createMotivePenaltyAppliedEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  phase: GamePhase,
-  unitId: string,
-  previousCruiseMP: number,
-  newCruiseMP: number,
-  newFlankMP: number,
+  input: ICreateMotivePenaltyAppliedEventInput | string,
+  ...legacy:
+    | []
+    | [
+        sequence: number,
+        turn: number,
+        phase: GamePhase,
+        unitId: string,
+        previousCruiseMP: number,
+        newCruiseMP: number,
+        newFlankMP: number,
+      ]
 ): IGameEvent {
-  const payload: IMotivePenaltyAppliedPayload = {
+  const [
+    sequence,
+    turn,
+    phase,
     unitId,
     previousCruiseMP,
     newCruiseMP,
     newFlankMP,
+  ] = legacy as [number, number, GamePhase, string, number, number, number];
+  const eventInput =
+    typeof input !== 'string'
+      ? input
+      : {
+          gameId: input,
+          sequence,
+          turn,
+          phase,
+          unitId,
+          previousCruiseMP,
+          newCruiseMP,
+          newFlankMP,
+        };
+  const payload: IMotivePenaltyAppliedPayload = {
+    unitId: eventInput.unitId,
+    previousCruiseMP: eventInput.previousCruiseMP,
+    newCruiseMP: eventInput.newCruiseMP,
+    newFlankMP: eventInput.newFlankMP,
   };
   return {
     ...createEventBase(
-      gameId,
-      sequence,
+      eventInput.gameId,
+      eventInput.sequence,
       GameEventType.MotivePenaltyApplied,
-      turn,
-      phase,
-      unitId,
+      eventInput.turn,
+      eventInput.phase,
+      eventInput.unitId,
     ),
     payload,
   };
@@ -89,22 +156,44 @@ export function createMotivePenaltyAppliedEvent(
  * pick the `cause` matching the trigger.
  */
 export function createVehicleImmobilizedEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  phase: GamePhase,
-  unitId: string,
-  cause: IVehicleImmobilizedPayload['cause'],
+  input:
+    | (IGameplayEventContext & {
+        readonly cause: IVehicleImmobilizedPayload['cause'];
+      })
+    | string,
+  ...legacy:
+    | []
+    | [
+        sequence: number,
+        turn: number,
+        phase: GamePhase,
+        unitId: string,
+        cause: IVehicleImmobilizedPayload['cause'],
+      ]
 ): IGameEvent {
-  const payload: IVehicleImmobilizedPayload = { unitId, cause };
+  const [sequence, turn, phase, unitId, cause] = legacy as [
+    number,
+    number,
+    GamePhase,
+    string,
+    IVehicleImmobilizedPayload['cause'],
+  ];
+  const eventInput =
+    typeof input !== 'string'
+      ? input
+      : { gameId: input, sequence, turn, phase, unitId, cause };
+  const payload: IVehicleImmobilizedPayload = {
+    unitId: eventInput.unitId,
+    cause: eventInput.cause,
+  };
   return {
     ...createEventBase(
-      gameId,
-      sequence,
+      eventInput.gameId,
+      eventInput.sequence,
       GameEventType.VehicleImmobilized,
-      turn,
-      phase,
-      unitId,
+      eventInput.turn,
+      eventInput.phase,
+      eventInput.unitId,
     ),
     payload,
   };
@@ -114,22 +203,40 @@ export function createVehicleImmobilizedEvent(
  * Emitted when a vehicle turret is locked (primary or secondary).
  */
 export function createTurretLockedEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  phase: GamePhase,
-  unitId: string,
-  secondary: boolean,
+  input: (IGameplayEventContext & { readonly secondary: boolean }) | string,
+  ...legacy:
+    | []
+    | [
+        sequence: number,
+        turn: number,
+        phase: GamePhase,
+        unitId: string,
+        secondary: boolean,
+      ]
 ): IGameEvent {
-  const payload: ITurretLockedPayload = { unitId, secondary };
+  const [sequence, turn, phase, unitId, secondary] = legacy as [
+    number,
+    number,
+    GamePhase,
+    string,
+    boolean,
+  ];
+  const eventInput =
+    typeof input !== 'string'
+      ? input
+      : { gameId: input, sequence, turn, phase, unitId, secondary };
+  const payload: ITurretLockedPayload = {
+    unitId: eventInput.unitId,
+    secondary: eventInput.secondary,
+  };
   return {
     ...createEventBase(
-      gameId,
-      sequence,
+      eventInput.gameId,
+      eventInput.sequence,
       GameEventType.TurretLocked,
-      turn,
-      phase,
-      unitId,
+      eventInput.turn,
+      eventInput.phase,
+      eventInput.unitId,
     ),
     payload,
   };
@@ -140,22 +247,40 @@ export function createTurretLockedEvent(
  * of upcoming phases skipped (typically 2 — next movement + weapon).
  */
 export function createVehicleCrewStunnedEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  phase: GamePhase,
-  unitId: string,
-  phasesStunned: number,
+  input: (IGameplayEventContext & { readonly phasesStunned: number }) | string,
+  ...legacy:
+    | []
+    | [
+        sequence: number,
+        turn: number,
+        phase: GamePhase,
+        unitId: string,
+        phasesStunned: number,
+      ]
 ): IGameEvent {
-  const payload: IVehicleCrewStunnedPayload = { unitId, phasesStunned };
+  const [sequence, turn, phase, unitId, phasesStunned] = legacy as [
+    number,
+    number,
+    GamePhase,
+    string,
+    number,
+  ];
+  const eventInput =
+    typeof input !== 'string'
+      ? input
+      : { gameId: input, sequence, turn, phase, unitId, phasesStunned };
+  const payload: IVehicleCrewStunnedPayload = {
+    unitId: eventInput.unitId,
+    phasesStunned: eventInput.phasesStunned,
+  };
   return {
     ...createEventBase(
-      gameId,
-      sequence,
+      eventInput.gameId,
+      eventInput.sequence,
       GameEventType.VehicleCrewStunned,
-      turn,
-      phase,
-      unitId,
+      eventInput.turn,
+      eventInput.phase,
+      eventInput.unitId,
     ),
     payload,
   };
@@ -166,24 +291,49 @@ export function createVehicleCrewStunnedEvent(
  * `10 × altitude`; the caller is responsible for applying that damage
  * via the standard damage pipeline if the crash check fails.
  */
+export interface ICreateVTOLCrashCheckEventInput extends IGameplayEventContext {
+  readonly altitude: number;
+  readonly fallDamage: number;
+}
+
 export function createVTOLCrashCheckEvent(
-  gameId: string,
-  sequence: number,
-  turn: number,
-  phase: GamePhase,
-  unitId: string,
-  altitude: number,
-  fallDamage: number,
+  input: ICreateVTOLCrashCheckEventInput | string,
+  ...legacy:
+    | []
+    | [
+        sequence: number,
+        turn: number,
+        phase: GamePhase,
+        unitId: string,
+        altitude: number,
+        fallDamage: number,
+      ]
 ): IGameEvent {
-  const payload: IVTOLCrashCheckPayload = { unitId, altitude, fallDamage };
+  const [sequence, turn, phase, unitId, altitude, fallDamage] = legacy as [
+    number,
+    number,
+    GamePhase,
+    string,
+    number,
+    number,
+  ];
+  const eventInput =
+    typeof input !== 'string'
+      ? input
+      : { gameId: input, sequence, turn, phase, unitId, altitude, fallDamage };
+  const payload: IVTOLCrashCheckPayload = {
+    unitId: eventInput.unitId,
+    altitude: eventInput.altitude,
+    fallDamage: eventInput.fallDamage,
+  };
   return {
     ...createEventBase(
-      gameId,
-      sequence,
+      eventInput.gameId,
+      eventInput.sequence,
       GameEventType.VTOLCrashCheck,
-      turn,
-      phase,
-      unitId,
+      eventInput.turn,
+      eventInput.phase,
+      eventInput.unitId,
     ),
     payload,
   };

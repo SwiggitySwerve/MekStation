@@ -4,6 +4,7 @@ import { FOCUS_RING_CLASSES } from '@/utils/accessibility';
 
 import type { IBattle } from './types';
 
+import { ViewerSection } from '../SectionFrame';
 import { getDamageIntensityClass, resolveUnitName } from './types';
 
 export interface IDamageMatrixSectionProps {
@@ -23,13 +24,11 @@ export const DamageMatrixSection: React.FC<IDamageMatrixSectionProps> = ({
   }, [battle]);
 
   return (
-    <section aria-label="Damage matrix" data-testid="damage-matrix-section">
-      <h2
-        className="mb-3 text-lg font-semibold text-gray-800 dark:text-gray-200"
-        data-testid="section-heading"
-      >
-        Damage Matrix
-      </h2>
+    <ViewerSection
+      ariaLabel="Damage matrix"
+      testId="damage-matrix-section"
+      title="Damage Matrix"
+    >
       {battle.damageMatrix.cells.length === 0 ? (
         <p
           className="text-sm text-gray-500 italic dark:text-gray-400"
@@ -107,6 +106,6 @@ export const DamageMatrixSection: React.FC<IDamageMatrixSectionProps> = ({
           </table>
         </div>
       )}
-    </section>
+    </ViewerSection>
   );
 };

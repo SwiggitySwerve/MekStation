@@ -1,35 +1,20 @@
 import type { IGameState, IUnitGameState, IUnitToken } from '@/types/gameplay';
 
 import { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
-import {
-  Facing,
-  GamePhase,
-  GameSide,
-  GameStatus,
-  LockState,
-  MovementType,
-} from '@/types/gameplay';
+import { Facing, GamePhase, GameSide } from '@/types/gameplay';
 import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 
+import {
+  createTacticalMapGameState,
+  createTacticalMapUnitState,
+} from './tactical-map.fixture-helpers';
 import { tacticalMapTokens } from './tactical-map.fixtures';
 
-const aerospaceUnitState: IUnitGameState = {
+const aerospaceUnitState: IUnitGameState = createTacticalMapUnitState({
   id: 'aero-attacker',
   side: GameSide.Player,
   position: { q: 0, r: 0 },
   facing: Facing.Northeast,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  lockState: LockState.Pending,
   combatState: {
     kind: 'aero',
     state: createAerospaceCombatState({
@@ -45,7 +30,7 @@ const aerospaceUnitState: IUnitGameState = {
       airborneState: 'airborne',
     }),
   },
-};
+});
 
 const aerospaceToken = unitStateToToken(
   aerospaceUnitState.id,
@@ -67,12 +52,8 @@ export const tacticalMapAerospaceTokens: readonly IUnitToken[] = [
     ),
 ];
 
-export const tacticalMapAerospaceCombatState: IGameState = {
-  gameId: 'tactical-map-e2e',
-  status: GameStatus.Active,
-  turn: 1,
-  phase: GamePhase.Movement,
-  activationIndex: 0,
-  turnEvents: [],
-  units: { [aerospaceUnitState.id]: aerospaceUnitState },
-};
+export const tacticalMapAerospaceCombatState: IGameState =
+  createTacticalMapGameState({
+    phase: GamePhase.Movement,
+    units: { [aerospaceUnitState.id]: aerospaceUnitState },
+  });

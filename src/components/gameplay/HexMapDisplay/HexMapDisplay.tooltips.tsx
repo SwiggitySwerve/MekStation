@@ -56,6 +56,68 @@ interface MapHtmlOverlaysProps {
   readonly onMovementModeSelect?: (mode: MapMovementKind) => void;
 }
 
+function renderMapHoverTooltip({
+  hoverUnreachable,
+  hoverUnreachableReason,
+  hoverMovementInfo,
+  hoverCombatInfo,
+  hoverTerrainInfo,
+  hoverProjectionInfo,
+  hoverIsometricOccluderInfo,
+}: MapHtmlOverlaysProps): React.ReactElement | null {
+  if (hoverProjectionInfo?.movement && hoverProjectionInfo.combat) {
+    return (
+      <CombinedTacticalHoverTooltip
+        projection={hoverProjectionInfo}
+        isometricOccluderInfo={hoverIsometricOccluderInfo}
+      />
+    );
+  }
+
+  if (hoverMovementInfo) {
+    return (
+      <MovementHoverTooltip
+        movementInfo={hoverMovementInfo}
+        projection={hoverProjectionInfo}
+        terrain={hoverTerrainInfo}
+        isometricOccluderInfo={hoverIsometricOccluderInfo}
+      />
+    );
+  }
+
+  if (hoverUnreachable) {
+    return (
+      <UnreachableHoverTooltip
+        reason={hoverUnreachableReason}
+        terrain={hoverTerrainInfo}
+        projection={hoverProjectionInfo}
+        isometricOccluderInfo={hoverIsometricOccluderInfo}
+      />
+    );
+  }
+
+  if (hoverCombatInfo) {
+    return (
+      <CombatHoverTooltip
+        combatInfo={hoverCombatInfo}
+        projection={hoverProjectionInfo}
+        terrain={hoverTerrainInfo}
+        isometricOccluderInfo={hoverIsometricOccluderInfo}
+      />
+    );
+  }
+
+  if (!hoverTerrainInfo) return null;
+
+  return (
+    <TerrainHoverTooltip
+      terrain={hoverTerrainInfo}
+      projection={hoverProjectionInfo}
+      isometricOccluderInfo={hoverIsometricOccluderInfo}
+    />
+  );
+}
+
 export function MapHtmlOverlays({
   hoverUnreachable,
   hoverUnreachableReason,
@@ -67,87 +129,19 @@ export function MapHtmlOverlays({
   mpLegend,
   onMovementModeSelect,
 }: MapHtmlOverlaysProps): React.ReactElement {
-  const showCombinedTacticalTooltip = Boolean(
-    hoverProjectionInfo?.movement && hoverProjectionInfo.combat,
-  );
-
   return (
     <>
-      {showCombinedTacticalTooltip && hoverProjectionInfo && (
-        <CombinedTacticalHoverTooltip
-          projection={hoverProjectionInfo}
-          isometricOccluderInfo={hoverIsometricOccluderInfo}
-        />
-      )}
-
-      {!showCombinedTacticalTooltip && hoverMovementInfo && (
-        <MovementHoverTooltip
-          movementInfo={hoverMovementInfo}
-          projection={hoverProjectionInfo}
-          terrain={hoverTerrainInfo}
-          isometricOccluderInfo={hoverIsometricOccluderInfo}
-        />
-      )}
-
-      {!showCombinedTacticalTooltip &&
-        !hoverMovementInfo &&
-        hoverUnreachable && (
-          <div
-            className="pointer-events-none absolute top-2 left-1/2 max-w-[260px] -translate-x-1/2 rounded bg-slate-900/90 px-2 py-1 text-xs font-medium text-slate-100 shadow"
-            data-testid="hex-unreachable-tooltip"
-            role="tooltip"
-          >
-            <div>Unreachable</div>
-            {hoverUnreachableReason && (
-              <div
-                className="mt-0.5 text-[11px] font-normal text-slate-200"
-                data-testid="hex-unreachable-tooltip-reason"
-              >
-                {hoverUnreachableReason}
-              </div>
-            )}
-            {hoverTerrainInfo && (
-              <TerrainContextRows
-                terrain={hoverTerrainInfo}
-                projection={hoverProjectionInfo}
-                testIdPrefix="hex-unreachable-tooltip"
-              />
-            )}
-            <IsometricOccluderContextRows
-              info={hoverIsometricOccluderInfo}
-              testIdPrefix="hex-unreachable-tooltip"
-            />
-            <ProjectionContextRows
-              projection={hoverProjectionInfo}
-              testIdPrefix="hex-unreachable-tooltip"
-            />
-          </div>
-        )}
-
-      {!showCombinedTacticalTooltip &&
-        !hoverMovementInfo &&
-        !hoverUnreachable &&
-        hoverCombatInfo && (
-          <CombatHoverTooltip
-            combatInfo={hoverCombatInfo}
-            projection={hoverProjectionInfo}
-            terrain={hoverTerrainInfo}
-            isometricOccluderInfo={hoverIsometricOccluderInfo}
-          />
-        )}
-
-      {!showCombinedTacticalTooltip &&
-        !hoverMovementInfo &&
-        !hoverUnreachable &&
-        !hoverCombatInfo &&
-        hoverTerrainInfo && (
-          <TerrainHoverTooltip
-            terrain={hoverTerrainInfo}
-            projection={hoverProjectionInfo}
-            isometricOccluderInfo={hoverIsometricOccluderInfo}
-          />
-        )}
-
+      {renderMapHoverTooltip({
+        hoverUnreachable,
+        hoverUnreachableReason,
+        hoverMovementInfo,
+        hoverCombatInfo,
+        hoverTerrainInfo,
+        hoverProjectionInfo,
+        hoverIsometricOccluderInfo,
+        mpLegend,
+        onMovementModeSelect,
+      })}
       {mpLegend && (
         <MapMovementPointLegend
           {...mpLegend}
@@ -155,6 +149,51 @@ export function MapHtmlOverlays({
         />
       )}
     </>
+  );
+}
+
+function UnreachableHoverTooltip({
+  reason,
+  terrain,
+  projection,
+  isometricOccluderInfo,
+}: {
+  readonly reason?: string;
+  readonly terrain?: IHexTerrain;
+  readonly projection?: ITacticalMapHexProjection;
+  readonly isometricOccluderInfo?: IsometricTerrainOccluderInfo;
+}): React.ReactElement {
+  return (
+    <div
+      className="pointer-events-none absolute top-2 left-1/2 max-w-[260px] -translate-x-1/2 rounded bg-slate-900/90 px-2 py-1 text-xs font-medium text-slate-100 shadow"
+      data-testid="hex-unreachable-tooltip"
+      role="tooltip"
+    >
+      <div>Unreachable</div>
+      {reason && (
+        <div
+          className="mt-0.5 text-[11px] font-normal text-slate-200"
+          data-testid="hex-unreachable-tooltip-reason"
+        >
+          {reason}
+        </div>
+      )}
+      {terrain && (
+        <TerrainContextRows
+          terrain={terrain}
+          projection={projection}
+          testIdPrefix="hex-unreachable-tooltip"
+        />
+      )}
+      <IsometricOccluderContextRows
+        info={isometricOccluderInfo}
+        testIdPrefix="hex-unreachable-tooltip"
+      />
+      <ProjectionContextRows
+        projection={projection}
+        testIdPrefix="hex-unreachable-tooltip"
+      />
+    </div>
   );
 }
 

@@ -39,7 +39,7 @@ import type {
 } from '@/types/gameplay/TacticalShellInterfaces';
 
 import { TacticalUnitInspector } from '@/components/gameplay/TacticalUnitInspector';
-import { GameSide, LockState, MovementType } from '@/types/gameplay';
+import { Facing, GameSide, LockState, MovementType } from '@/types/gameplay';
 
 // =============================================================================
 // Test-environment gate
@@ -136,7 +136,7 @@ function buildUnitState(id: string, side: GameSide): IUnitGameState {
     id,
     side,
     position: { q: 0, r: 0 },
-    facing: 0 as unknown as IUnitGameState['facing'],
+    facing: Facing.North,
     heat: 12,
     movementThisTurn: MovementType.Walk,
     hexesMovedThisTurn: 3,
@@ -199,7 +199,7 @@ function buildSyntheticSession(): IGameSession {
     initiativeWinner: GameSide.Player,
     activationIndex: 0,
     turnEvents: [],
-  } as unknown as IGameState;
+  } as Partial<IGameState> as IGameState;
 
   return {
     id: 'intel-tier-harness-session',
@@ -218,7 +218,7 @@ function buildSyntheticSession(): IGameSession {
       [GameSide.Player]: VIEWER_PLAYER_ID,
       [GameSide.Opponent]: OPPONENT_PLAYER_ID,
     },
-  } as unknown as IGameSession;
+  } as Partial<IGameSession> as IGameSession;
 }
 
 // =============================================================================

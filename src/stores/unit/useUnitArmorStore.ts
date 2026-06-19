@@ -21,6 +21,7 @@ import {
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import type { UnitStore } from '../unitState';
+import type { UnitSliceGetFn, UnitSliceSetFn } from './unitSliceTypes';
 
 // =============================================================================
 // Types
@@ -39,19 +40,13 @@ export interface UnitArmorActions {
   clearAllArmor: () => void;
 }
 
-// =============================================================================
-// Slice Factory
-// =============================================================================
-
-type SetFn = (
-  partial: Partial<UnitStore> | ((state: UnitStore) => Partial<UnitStore>),
-) => void;
-type GetFn = () => UnitStore;
-
 /**
  * Create armor allocation actions for the unit store.
  */
-export function createArmorSlice(set: SetFn, _get: GetFn): UnitArmorActions {
+export function createArmorSlice(
+  set: UnitSliceSetFn,
+  _get: UnitSliceGetFn,
+): UnitArmorActions {
   return {
     setArmorTonnage: (tonnage) =>
       set({

@@ -68,19 +68,19 @@ const SAMPLE_LOBBIES: readonly IJoinableLobby[] = [
 
 /** Build a `fetchImpl` stub returning a fixed lobby list. */
 function fetchReturning(lobbies: readonly IJoinableLobby[]): typeof fetch {
-  return (async () =>
+  return async () =>
     Promise.resolve({
       ok: true,
       status: 200,
       json: async () => Promise.resolve({ lobbies }),
-    } as Response)) as unknown as typeof fetch;
+    } as Response);
 }
 
 /** A `fetchImpl` stub that never resolves — pins the refreshing state. */
-const NEVER_RESOLVING_FETCH = (() =>
+const NEVER_RESOLVING_FETCH: typeof fetch = () =>
   new Promise<Response>(() => {
     /* intentionally never resolves */
-  })) as unknown as typeof fetch;
+  });
 
 // =============================================================================
 // Meta

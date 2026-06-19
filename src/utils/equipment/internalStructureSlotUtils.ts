@@ -13,6 +13,7 @@ import { EquipmentCategory } from '@/types/equipment';
 import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { generateUnitId } from '@/utils/uuid';
 
+import { createConfigurationMountedEquipment } from './configurationMountedEquipment';
 import { INTERNAL_STRUCTURE_EQUIPMENT_ID } from './equipmentConstants';
 
 export function createInternalStructureEquipmentList(
@@ -27,22 +28,18 @@ export function createInternalStructureEquipmentList(
   const slotCount = structureDef.criticalSlots;
 
   for (let i = 0; i < slotCount; i++) {
-    result.push({
-      instanceId: generateUnitId(),
-      equipmentId: `${INTERNAL_STRUCTURE_EQUIPMENT_ID}-${structureType}`,
-      name: structureDef.name,
-      category: EquipmentCategory.STRUCTURAL,
-      weight: 0,
-      criticalSlots: 1,
-      heat: 0,
-      techBase: structureDef.techBase,
-      location: undefined,
-      slots: undefined,
-      isRearMounted: false,
-      linkedAmmoId: undefined,
-      isRemovable: false,
-      isOmniPodMounted: false,
-    });
+    result.push(
+      createConfigurationMountedEquipment({
+        instanceId: generateUnitId(),
+        equipmentId: `${INTERNAL_STRUCTURE_EQUIPMENT_ID}-${structureType}`,
+        name: structureDef.name,
+        category: EquipmentCategory.STRUCTURAL,
+        weight: 0,
+        criticalSlots: 1,
+        heat: 0,
+        techBase: structureDef.techBase,
+      }),
+    );
   }
   return result;
 }

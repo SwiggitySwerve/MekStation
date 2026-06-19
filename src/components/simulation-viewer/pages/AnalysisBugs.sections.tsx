@@ -25,6 +25,7 @@ import {
   DETECTOR_LABELS,
 } from './AnalysisBugs.constants';
 import { mapToCardAnomaly } from './AnalysisBugs.utils';
+import { ViewerSection } from './SectionFrame';
 
 interface InvariantStatusSectionProps {
   invariants: IInvariant[];
@@ -35,14 +36,12 @@ export const InvariantStatusSection: React.FC<InvariantStatusSectionProps> = ({
   invariants,
   onViewInvariant,
 }) => (
-  <section aria-label="Invariant status" data-testid="invariant-section">
-    <h2
-      className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-200"
-      data-testid="invariant-heading"
-    >
-      Invariant Status
-    </h2>
-
+  <ViewerSection
+    ariaLabel="Invariant status"
+    headingTestId="invariant-heading"
+    testId="invariant-section"
+    title="Invariant Status"
+  >
     {invariants.length === 0 ? (
       <p
         className="text-sm text-gray-500 italic dark:text-gray-400"
@@ -64,7 +63,7 @@ export const InvariantStatusSection: React.FC<InvariantStatusSectionProps> = ({
         ))}
       </div>
     )}
-  </section>
+  </ViewerSection>
 );
 
 interface AnomalyAlertsSectionProps {
@@ -95,34 +94,27 @@ export const AnomalyAlertsSection: React.FC<AnomalyAlertsSectionProps> = ({
     }
   };
 
+  const dismissedToggle = anomalies.some((anomaly) => anomaly.dismissed) ? (
+    <button
+      type="button"
+      onClick={onToggleDismissed}
+      className={`min-h-[44px] rounded-md px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 md:min-h-0 md:py-1 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200 ${FOCUS_RING_CLASSES}`}
+      data-testid="toggle-dismissed"
+      aria-pressed={showDismissed}
+    >
+      {showDismissed ? 'Hide Dismissed' : 'Show Dismissed'}
+    </button>
+  ) : null;
+
   return (
-    <section aria-label="Anomaly alerts" data-testid="anomaly-section">
-      <div className="mb-4 flex items-center justify-between">
-        <h2
-          className="text-lg font-semibold text-gray-800 dark:text-gray-200"
-          data-testid="anomaly-heading"
-        >
-          Anomaly Alerts
-          {anomalies.length > 0 && (
-            <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
-              ({visibleAnomalies.length})
-            </span>
-          )}
-        </h2>
-
-        {anomalies.some((anomaly) => anomaly.dismissed) && (
-          <button
-            type="button"
-            onClick={onToggleDismissed}
-            className={`min-h-[44px] rounded-md px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 md:min-h-0 md:py-1 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200 ${FOCUS_RING_CLASSES}`}
-            data-testid="toggle-dismissed"
-            aria-pressed={showDismissed}
-          >
-            {showDismissed ? 'Hide Dismissed' : 'Show Dismissed'}
-          </button>
-        )}
-      </div>
-
+    <ViewerSection
+      ariaLabel="Anomaly alerts"
+      count={anomalies.length > 0 ? visibleAnomalies.length : undefined}
+      headerAction={dismissedToggle}
+      headingTestId="anomaly-heading"
+      testId="anomaly-section"
+      title="Anomaly Alerts"
+    >
       {visibleAnomalies.length === 0 ? (
         <p
           className="text-sm text-gray-500 italic dark:text-gray-400"
@@ -156,7 +148,7 @@ export const AnomalyAlertsSection: React.FC<AnomalyAlertsSectionProps> = ({
           </div>
         </div>
       )}
-    </section>
+    </ViewerSection>
   );
 };
 
@@ -175,23 +167,16 @@ export const ViolationLogSection: React.FC<ViolationLogSectionProps> = ({
   filteredViolations,
   onViewBattle,
 }) => (
-  <section
+  <ViewerSection
+    ariaLabel="Violation log"
     className="lg:col-span-3"
-    aria-label="Violation log"
-    data-testid="violation-section"
+    count={
+      filteredViolations.length > 0 ? filteredViolations.length : undefined
+    }
+    headingTestId="violation-heading"
+    testId="violation-section"
+    title="Violation Log"
   >
-    <h2
-      className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-200"
-      data-testid="violation-heading"
-    >
-      Violation Log
-      {filteredViolations.length > 0 && (
-        <span className="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
-          ({filteredViolations.length})
-        </span>
-      )}
-    </h2>
-
     <FilterPanel
       filters={violationFilters}
       activeFilters={activeFilters}
@@ -205,7 +190,7 @@ export const ViolationLogSection: React.FC<ViolationLogSectionProps> = ({
       itemHeight={56}
       onViewBattle={onViewBattle}
     />
-  </section>
+  </ViewerSection>
 );
 
 interface ThresholdConfigurationSectionProps {
@@ -237,18 +222,13 @@ export const ThresholdConfigurationSection: React.FC<
   setAutoSnapshotWarning,
   setAutoSnapshotInfo,
 }) => (
-  <section
+  <ViewerSection
+    ariaLabel="Threshold configuration"
     className="lg:col-span-2"
-    aria-label="Threshold configuration"
-    data-testid="threshold-section"
+    headingTestId="threshold-heading"
+    testId="threshold-section"
+    title="Threshold Configuration"
   >
-    <h2
-      className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-200"
-      data-testid="threshold-heading"
-    >
-      Threshold Configuration
-    </h2>
-
     <div className="space-y-5 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
       {(Object.keys(DETECTOR_LABELS) as Array<keyof IThresholds>).map(
         (detectorKey) => (
@@ -315,5 +295,5 @@ export const ThresholdConfigurationSection: React.FC<
         </div>
       </div>
     </div>
-  </section>
+  </ViewerSection>
 );

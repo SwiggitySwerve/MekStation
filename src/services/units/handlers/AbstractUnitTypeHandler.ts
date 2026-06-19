@@ -13,7 +13,6 @@ import { IBaseUnit } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import {
-  IUnitTypeHandler,
   IUnitParseResult,
   IUnitSerializeResult,
   IUnitValidateResult,
@@ -21,6 +20,12 @@ import {
   getUnitCategory,
 } from '@/types/unit/UnitTypeHandler';
 
+import {
+  UnitFieldParseMessages,
+  UnitValidationMessages,
+  createParseMessages,
+  createValidationMessages,
+} from './unitHandlerShared';
 // ============================================================================
 // Abstract Base Handler
 // ============================================================================
@@ -33,9 +38,7 @@ import {
  *
  * @template T The specific unit interface this handler works with
  */
-export abstract class AbstractUnitTypeHandler<
-  T extends IBaseUnit = IBaseUnit,
-> implements IUnitTypeHandler<T> {
+export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit> {
   /** Unit type this handler supports */
   abstract readonly unitType: UnitType;
 
@@ -79,11 +82,7 @@ export abstract class AbstractUnitTypeHandler<
    * @param unit The unit to validate
    * @returns Validation errors and warnings
    */
-  protected abstract validateTypeSpecificRules(unit: T): {
-    errors: string[];
-    warnings: string[];
-    infos: string[];
-  };
+  protected abstract validateTypeSpecificRules(unit: T): UnitValidationMessages;
 
   /**
    * Calculate unit-type-specific weight components
@@ -113,9 +112,8 @@ export abstract class AbstractUnitTypeHandler<
   /**
    * Parse a BLK document into the unit type's interface
    */
-  parse(document: IBlkDocument): IUnitParseResult<T> {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  readonly parse = (document: IBlkDocument): IUnitParseResult<T> => {
+    const { errors, warnings } = createParseMessages();
 
     // Verify this handler can handle this document
     if (!this.canHandle(document)) {
@@ -155,7 +153,7 @@ export abstract class AbstractUnitTypeHandler<
       success: true,
       data: { unit, warnings },
     };
-  }
+  };
 
   /**
    * Parse common fields present in all unit types
@@ -172,8 +170,7 @@ export abstract class AbstractUnitTypeHandler<
     errors: string[];
     warnings: string[];
   } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+    const { errors, warnings } = createParseMessages();
 
     // Required fields - IBlkDocument already has structured fields
     const chassis = document.name;
@@ -243,7 +240,7 @@ export abstract class AbstractUnitTypeHandler<
   /**
    * Serialize a unit to the standard serialization format
    */
-  serialize(unit: T): IUnitSerializeResult {
+  readonly serialize = (unit: T): IUnitSerializeResult => {
     try {
       const commonFields = this.serializeCommonFields(unit);
       const typeSpecificFields = this.serializeTypeSpecificFields(unit);
@@ -267,7 +264,7 @@ export abstract class AbstractUnitTypeHandler<
         },
       };
     }
-  }
+  };
 
   /**
    * Serialize common fields
@@ -297,10 +294,8 @@ export abstract class AbstractUnitTypeHandler<
   /**
    * Validate a unit according to type-specific rules
    */
-  validate(unit: T): IUnitValidateResult {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-    const infos: string[] = [];
+  readonly validate = (unit: T): IUnitValidateResult => {
+    const { errors, warnings, infos } = createValidationMessages();
 
     // Common validation
     const commonResult = this.validateCommonRules(unit);
@@ -320,19 +315,13 @@ export abstract class AbstractUnitTypeHandler<
       warnings,
       infos,
     };
-  }
+  };
 
   /**
    * Common validation rules for all unit types
    */
-  protected validateCommonRules(unit: T): {
-    errors: string[];
-    warnings: string[];
-    infos: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-    const infos: string[] = [];
+  protected validateCommonRules(unit: T): UnitValidationMessages {
+    const { errors, warnings, infos } = createValidationMessages();
 
     // Tonnage validation
     if (unit.tonnage <= 0) {
@@ -361,23 +350,23 @@ export abstract class AbstractUnitTypeHandler<
   /**
    * Calculate total weight for the unit
    */
-  calculateWeight(unit: T): number {
+  readonly calculateWeight = (unit: T): number => {
     return this.calculateTypeSpecificWeight(unit);
-  }
+  };
 
   /**
    * Calculate Battle Value for the unit
    */
-  calculateBV(unit: T): number {
+  readonly calculateBV = (unit: T): number => {
     return this.calculateTypeSpecificBV(unit);
-  }
+  };
 
   /**
    * Calculate C-Bill cost for the unit
    */
-  calculateCost(unit: T): number {
+  readonly calculateCost = (unit: T): number => {
     return this.calculateTypeSpecificCost(unit);
-  }
+  };
 
   // ============================================================================
   // Location Support
@@ -396,7 +385,7 @@ export abstract class AbstractUnitTypeHandler<
   /**
    * Check if this handler can handle a given BLK document
    */
-  canHandle(document: IBlkDocument): boolean {
+  readonly canHandle = (document: IBlkDocument): boolean => {
     // Check primary unit type
     if (document.mappedUnitType === this.unitType) {
       return true;
@@ -420,7 +409,7 @@ export abstract class AbstractUnitTypeHandler<
     }
 
     return false;
-  }
+  };
 }
 
 // ============================================================================

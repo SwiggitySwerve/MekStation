@@ -6,33 +6,29 @@
  * @spec openspec/changes/add-movement-phase-ui/specs/tactical-map-interface/spec.md
  */
 
+import type React from 'react';
+
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type { PhysicalAttackIntent } from '@/components/gameplay';
-import type { IGameplayActionPayload } from '@/stores/useGameplayStore.helpers';
-import type { TacticalActionPayload } from '@/types/gameplay';
-import type { IRuntimeMovementStateChangedPayload } from '@/types/gameplay/GameSessionMovementEvents';
-
-import {
-  CombatPlanningPanel,
-  GameplayLayout,
-  SpectatorView,
-} from '@/components/gameplay';
+import { CombatPlanningPanel } from '@/components/gameplay/CombatPlanningPanel';
+import { GameplayLayout } from '@/components/gameplay/GameplayLayout';
 import { useGameSessionLifecycle } from '@/components/gameplay/pages/gameSession/GameSessionPage.lifecycle';
 import { useGameMovementPlanning } from '@/components/gameplay/pages/gameSession/GameSessionPage.movement';
-import { buildMovementModeSeedPlanFromCommandPayload } from '@/components/gameplay/pages/gameSession/GameSessionPage.movementPlanning';
-import { planningWeaponsForSelectedUnit } from '@/components/gameplay/pages/gameSession/GameSessionPage.weaponPlanning';
 import {
-  CompletedGame,
   GameError,
   GameLoading,
 } from '@/components/gameplay/pages/GameSessionPage.states';
+import { SpectatorView } from '@/components/gameplay/SpectatorView';
 import {
-  InteractivePhase,
-  useGameplaySelector,
-} from '@/stores/useGameplayStore';
+  completedInteractiveElement,
+  completedSessionElement,
+  shouldShowPlanningPanel,
+  useGameSessionCallbacks,
+  usePhysicalAttackIntentState,
+  useSelectedPlanningWeapons,
+} from '@/pages-modules/gameplay/games/gameSessionPage.helpers';
+import { useGameplaySelector } from '@/stores/useGameplayStore';
 import { GamePhase, GameSide, GameStatus } from '@/types/gameplay';
 
 export default function GameSessionPage(): React.ReactElement {
@@ -97,7 +93,7 @@ export default function GameSessionPage(): React.ReactElement {
 
   const isCompletedForRedirect =
     session?.currentState.status === GameStatus.Completed;
-  const isCampaignBound = !!session?.config.contractId;
+  const isCampaignBound = Boolean(session?.config.contractId);
   useGameSessionLifecycle({
     router,
     routeId: id,
@@ -109,7 +105,7 @@ export default function GameSessionPage(): React.ReactElement {
     createDemoSession,
   });
 
-  const isInteractive = !!interactiveSession;
+  const isInteractive = Boolean(interactiveSession);
   const phase = session?.currentState.phase;
   const movement = useGameMovementPlanning({
     session,
@@ -118,126 +114,22 @@ export default function GameSessionPage(): React.ReactElement {
     phase,
     handleInteractiveHexClick,
   });
-  const selectedPlanningWeapons = useMemo(
-    () =>
-      planningWeaponsForSelectedUnit({
-        selectedUnitId: ui.selectedUnitId,
-        unitWeapons,
-      }),
-    [ui.selectedUnitId, unitWeapons],
+  const selectedPlanningWeapons = useSelectedPlanningWeapons(
+    ui.selectedUnitId,
+    unitWeapons,
   );
   const [physicalAttackIntent, setPhysicalAttackIntent] =
-    useState<PhysicalAttackIntent | null>(null);
-
-  useEffect(() => {
-    if (phase !== GamePhase.PhysicalAttack || !ui.selectedUnitId) {
-      setPhysicalAttackIntent(null);
-    }
-  }, [phase, ui.selectedUnitId]);
-
-  const handleRetry = useCallback(() => {
-    clearError();
-    if (typeof id === 'string') {
-      void loadSession(id);
-    }
-  }, [id, loadSession, clearError]);
-
-  const handleTokenClick = useCallback(
-    (unitId: string | null) => {
-      if (!unitId) {
-        selectUnit(null);
-        return;
-      }
-
-      if (isInteractive) {
-        handleInteractiveTokenClick(unitId);
-      } else {
-        selectUnit(unitId === ui.selectedUnitId ? null : unitId);
-      }
-    },
-    [isInteractive, handleInteractiveTokenClick, selectUnit, ui.selectedUnitId],
-  );
-
-  const handleInteractiveAction = useCallback(
-    (actionId: string, payload?: TacticalActionPayload) => {
-      // Audit 2026-06-09 G (W5.1a): the structured TacticalActionPayload
-      // must survive EVERY dispatch path — the non-interactive and
-      // default branches used to drop it, so payload-carrying commands
-      // (e.g. torso-twist with a direction) silently lost their data.
-      // TacticalActionPayload is the wide Record contract; the store
-      // reads only its known optional fields, so the narrowing cast is
-      // the documented hand-off between the two payload vocabularies.
-      const storePayload = payload as IGameplayActionPayload | undefined;
-      if (!isInteractive) {
-        handleAction(actionId, storePayload);
-        return;
-      }
-
-      switch (actionId) {
-        case 'lock': {
-          const selectedUnitState = ui.selectedUnitId
-            ? (session?.currentState.units[ui.selectedUnitId] ?? null)
-            : null;
-          const movementModePlan = buildMovementModeSeedPlanFromCommandPayload({
-            phase,
-            payload,
-            selectedUnitState,
-          });
-          if (movementModePlan) {
-            setPlannedMovement(movementModePlan);
-            return;
-          }
-          skipPhase();
-          break;
-        }
-        case 'skip':
-          skipPhase();
-          break;
-        case 'stand':
-          standActiveUnit();
-          break;
-        case 'stand-careful':
-          standActiveUnit('careful');
-          break;
-        case 'hull-down':
-          enterHullDownActiveUnit();
-          break;
-        case 'go-prone':
-          goProneActiveUnit();
-          break;
-        case 'runtime-movement-state':
-          if (payload) {
-            applyRuntimeMovementState(
-              payload as Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
-            );
-          }
-          break;
-        case 'next-turn':
-          runAITurn();
-          break;
-        case 'fire':
-          fireWeapons();
-          break;
-        case 'advance':
-          advanceInteractivePhase();
-          break;
-        case 'concede':
-          handleAction(actionId, storePayload);
-          break;
-        default:
-          // Non-special-cased commands forward BOTH the action id AND
-          // the structured payload to the store (W5.1a).
-          handleAction(actionId, storePayload);
-      }
-
-      checkGameOver();
-    },
-    [
+    usePhysicalAttackIntentState(phase, ui.selectedUnitId);
+  const { handleInteractiveAction, handleRetry, handleTokenClick } =
+    useGameSessionCallbacks({
+      routeId: id,
       isInteractive,
       handleAction,
       phase,
       session,
-      ui.selectedUnitId,
+      selectedUnitId: ui.selectedUnitId,
+      selectUnit,
+      handleInteractiveTokenClick,
       setPlannedMovement,
       skipPhase,
       standActiveUnit,
@@ -248,65 +140,40 @@ export default function GameSessionPage(): React.ReactElement {
       fireWeapons,
       advanceInteractivePhase,
       checkGameOver,
-    ],
-  );
+      clearError,
+      loadSession,
+    });
 
   if (isLoading) return <GameLoading />;
   if (error) return <GameError message={error} onRetry={handleRetry} />;
   if (!session) return <GameLoading />;
 
-  if (
-    session.currentState.status === GameStatus.Completed &&
-    session.currentState.result
-  ) {
-    return (
-      <CompletedGame
-        gameId={session.id}
-        winner={session.currentState.result.winner}
-        reason={session.currentState.result.reason}
-        campaignId={campaignIdStr}
-        missionId={missionIdStr}
-        unitStates={session.currentState.units}
-      />
-    );
-  }
+  const completedSession = completedSessionElement(
+    session,
+    campaignIdStr,
+    missionIdStr,
+  );
+  if (completedSession) return completedSession;
 
-  if (
-    interactivePhase === InteractivePhase.GameOver &&
-    interactiveSession &&
-    !spectatorMode
-  ) {
-    const result = interactiveSession.getResult();
-    const rawWinner = result?.winner ?? 'draw';
-    const winner: GameSide | 'draw' =
-      rawWinner === 'player'
-        ? GameSide.Player
-        : rawWinner === 'opponent'
-          ? GameSide.Opponent
-          : 'draw';
-
-    return (
-      <CompletedGame
-        gameId={session.id}
-        winner={winner}
-        reason={result?.reason ?? 'unknown'}
-        campaignId={campaignIdStr}
-        missionId={missionIdStr}
-        unitStates={interactiveSession.getState().units}
-      />
-    );
-  }
+  const completedInteractive = completedInteractiveElement(
+    session,
+    interactivePhase,
+    interactiveSession,
+    spectatorMode,
+    campaignIdStr,
+    missionIdStr,
+  );
+  if (completedInteractive) return completedInteractive;
 
   if (spectatorMode?.enabled && interactiveSession) {
     return <SpectatorView />;
   }
 
-  const showPlanningPanel =
-    isInteractive &&
-    movement.isPlayerControlled &&
-    (phase === GamePhase.Movement ||
-      phase === GamePhase.WeaponAttack ||
-      phase === GamePhase.PhysicalAttack);
+  const showPlanningPanel = shouldShowPlanningPanel({
+    isInteractive,
+    isPlayerControlled: movement.isPlayerControlled,
+    phase,
+  });
 
   return (
     <>

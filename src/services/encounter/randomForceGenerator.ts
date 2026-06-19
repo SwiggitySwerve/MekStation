@@ -193,6 +193,227 @@ function computeStats(entries: IUnitIndexEntry[]): IForceStats {
   };
 }
 
+interface IGenerationSettings {
+  readonly bvBudget: number;
+  readonly count: number;
+  readonly random: SeededRandom;
+  readonly sideId: string;
+  readonly duplicateChassisCap: number;
+  readonly lowerBound: number;
+  readonly upperBound: number;
+}
+
+interface IBudgetBounds {
+  readonly achievableMinBV: number;
+  readonly achievableMaxBV: number;
+}
+
+interface IAffordableEntryInput {
+  readonly remaining: readonly IUnitIndexEntry[];
+  readonly remainingBudget: number;
+  readonly slotsLeft: number;
+  readonly lowerBound: number;
+  readonly cumulativeBV: number;
+}
+
+interface IForceSelectionInput {
+  readonly eligible: readonly IUnitIndexEntry[];
+  readonly settings: IGenerationSettings;
+  readonly bounds: IBudgetBounds;
+  readonly opts: IRandomForceOptions;
+}
+
+function deriveGenerationSettings(
+  opts: IRandomForceOptions,
+): IGenerationSettings {
+  const { bvBudget, bvTolerance = 0.05, count, random, sideId } = opts;
+  const duplicateChassisCap =
+    opts.duplicateChassisCap ?? Math.max(1, Math.ceil(count / 4));
+
+  return {
+    bvBudget,
+    count,
+    random,
+    sideId,
+    duplicateChassisCap,
+    lowerBound: bvBudget * (1 - bvTolerance),
+    upperBound: bvBudget * (1 + bvTolerance),
+  };
+}
+
+function computeBudgetBounds(
+  eligible: readonly IUnitIndexEntry[],
+  count: number,
+): IBudgetBounds {
+  const sortedByCost = [...eligible].sort((a, b) => (a.bv ?? 0) - (b.bv ?? 0));
+  const cheapestN = sortedByCost.slice(0, count);
+  const mostExpensiveN = [...eligible]
+    .sort((a, b) => (b.bv ?? 0) - (a.bv ?? 0))
+    .slice(0, count);
+
+  return {
+    achievableMinBV: cheapestN.reduce((sum, entry) => sum + (entry.bv ?? 0), 0),
+    achievableMaxBV: mostExpensiveN.reduce(
+      (sum, entry) => sum + (entry.bv ?? 0),
+      0,
+    ),
+  };
+}
+
+function throwUnsatisfiable(
+  bounds: IBudgetBounds,
+  opts: IRandomForceOptions,
+): never {
+  throw new BudgetUnsatisfiableError(
+    bounds.achievableMinBV,
+    bounds.achievableMaxBV,
+    opts,
+  );
+}
+
+function assertBudgetIsSatisfiable(
+  bounds: IBudgetBounds,
+  settings: IGenerationSettings,
+  opts: IRandomForceOptions,
+): void {
+  if (
+    bounds.achievableMinBV > settings.upperBound ||
+    bounds.achievableMaxBV < settings.lowerBound
+  ) {
+    throwUnsatisfiable(bounds, opts);
+  }
+}
+
+function filteredByBVRange(
+  entries: readonly IUnitIndexEntry[],
+  minBV: number,
+  maxBV: number,
+): IUnitIndexEntry[] {
+  return entries.filter((entry) => {
+    const bv = entry.bv ?? 0;
+    return bv >= minBV && bv <= maxBV;
+  });
+}
+
+function findAffordableEntries({
+  remaining,
+  remainingBudget,
+  slotsLeft,
+  lowerBound,
+  cumulativeBV,
+}: IAffordableEntryInput): IUnitIndexEntry[] {
+  const deficit = lowerBound - cumulativeBV;
+  const slotMin = deficit > 0 ? deficit / slotsLeft : 0;
+  const slotCap = (remainingBudget / slotsLeft) * 2;
+  const heuristicMatches = filteredByBVRange(remaining, slotMin, slotCap);
+  const budgetMatches = filteredByBVRange(remaining, slotMin, remainingBudget);
+
+  return heuristicMatches.length > 0
+    ? heuristicMatches
+    : budgetMatches.length > 0
+      ? budgetMatches
+      : filteredByBVRange(remaining, 0, remainingBudget);
+}
+
+function selectAffordableEntry(
+  affordable: readonly IUnitIndexEntry[],
+  settings: IGenerationSettings,
+  bounds: IBudgetBounds,
+  opts: IRandomForceOptions,
+): IUnitIndexEntry {
+  const table = buildWeightedTable(affordable);
+  return (
+    table.select(() => settings.random.next()) ??
+    throwUnsatisfiable(bounds, opts)
+  );
+}
+
+function removeChassisWhenCapped(
+  remaining: readonly IUnitIndexEntry[],
+  pick: IUnitIndexEntry,
+  chassisCounts: Map<string, number>,
+  duplicateChassisCap: number,
+): IUnitIndexEntry[] {
+  const chassisCount = (chassisCounts.get(pick.chassis) ?? 0) + 1;
+  chassisCounts.set(pick.chassis, chassisCount);
+
+  return chassisCount >= duplicateChassisCap
+    ? remaining.filter((entry) => entry.chassis !== pick.chassis)
+    : [...remaining];
+}
+
+function selectForceEntries({
+  eligible,
+  settings,
+  bounds,
+  opts,
+}: IForceSelectionInput): IUnitIndexEntry[] {
+  const chassisCounts: Map<string, number> = new Map();
+  const selected: IUnitIndexEntry[] = [];
+  let cumulativeBV = 0;
+  let remaining = [...eligible];
+
+  for (let slot = 0; slot < settings.count; slot++) {
+    const affordable = findAffordableEntries({
+      remaining,
+      remainingBudget: settings.upperBound - cumulativeBV,
+      slotsLeft: settings.count - slot,
+      lowerBound: settings.lowerBound,
+      cumulativeBV,
+    });
+
+    if (affordable.length === 0) {
+      if (cumulativeBV >= settings.lowerBound) break;
+      throwUnsatisfiable(bounds, opts);
+    }
+
+    const pick = selectAffordableEntry(affordable, settings, bounds, opts);
+    selected.push(pick);
+    cumulativeBV += pick.bv ?? 0;
+    remaining = removeChassisWhenCapped(
+      remaining,
+      pick,
+      chassisCounts,
+      settings.duplicateChassisCap,
+    );
+  }
+
+  if (cumulativeBV < settings.lowerBound && selected.length < settings.count) {
+    throwUnsatisfiable(bounds, opts);
+  }
+
+  return selected;
+}
+
+function buildGeneratedForce(
+  selected: IUnitIndexEntry[],
+  settings: IGenerationSettings,
+): IForce {
+  const forceId = `rand-force-${settings.sideId}-${settings.random.nextInt(
+    1_000_000,
+  )}`;
+  const now = new Date().toISOString();
+  const assignments: IAssignment[] = selected.map((entry, idx) => ({
+    id: makeAssignmentId(forceId, idx + 1),
+    pilotId: null, // Pilot pairing done separately (Task 4.10)
+    unitId: entry.id,
+    position: idx === 0 ? ForcePosition.Commander : ForcePosition.Member,
+    slot: idx + 1,
+  }));
+
+  return {
+    id: forceId,
+    name: `${settings.sideId} Force`,
+    forceType: ForceType.Custom,
+    status: ForceStatus.Active,
+    childIds: [],
+    assignments,
+    stats: computeStats(selected),
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
 // =============================================================================
 // Public Generator
 // =============================================================================
@@ -243,146 +464,15 @@ export function generateRandomForce(opts: IRandomForceOptions): IForce {
  * privately so `generateRandomForce` can wrap it with the PT-010 retry.
  */
 function generateRandomForceOnce(opts: IRandomForceOptions): IForce {
-  // Default ±5% per spec scenario in
-  // openspec/changes/add-encounter-swarm-harness/specs/random-force-generator/spec.md.
-  const { bvBudget, bvTolerance = 0.05, count, random, sideId } = opts;
-
-  const duplicateChassisCap =
-    opts.duplicateChassisCap ?? Math.max(1, Math.ceil(count / 4));
-
-  const tolerance = bvTolerance;
-  const lowerBound = bvBudget * (1 - tolerance);
-  const upperBound = bvBudget * (1 + tolerance);
-
-  // --- Step 1: filter catalog ---
+  const settings = deriveGenerationSettings(opts);
   const eligible = filterCatalog(opts.catalog, opts);
 
   if (eligible.length === 0) {
     throw new BudgetUnsatisfiableError(0, 0, opts);
   }
 
-  // Sanity check: can the budget even be satisfied?
-  const sortedByCost = [...eligible].sort((a, b) => (a.bv ?? 0) - (b.bv ?? 0));
-  const cheapestN = sortedByCost.slice(0, count);
-  const achievableMinBV = cheapestN.reduce((s, e) => s + (e.bv ?? 0), 0);
-  // max is harder to bound (chassis cap applies), so use top-N uncapped as upper
-  const mostExpensiveN = [...eligible]
-    .sort((a, b) => (b.bv ?? 0) - (a.bv ?? 0))
-    .slice(0, count);
-  const achievableMaxBV = mostExpensiveN.reduce((s, e) => s + (e.bv ?? 0), 0);
-
-  if (achievableMinBV > upperBound || achievableMaxBV < lowerBound) {
-    throw new BudgetUnsatisfiableError(achievableMinBV, achievableMaxBV, opts);
-  }
-
-  // --- Steps 2–4: greedy fill ---
-  const chassisCounts: Map<string, number> = new Map();
-  const selected: IUnitIndexEntry[] = [];
-  let cumulativeBV = 0;
-
-  // We maintain a mutable set of remaining eligible entries and rebuild the
-  // weighted table each pass (entries are excluded by budget cap or chassis cap).
-  let remaining = [...eligible];
-
-  for (let slot = 0; slot < count; slot++) {
-    const remainingBudget = upperBound - cumulativeBV;
-    const slotsLeft = count - slot;
-
-    // Exclude entries whose BV would bust the upper bound for THIS slot.
-    // We leave headroom for future slots: remainingBudget / slotsLeft is the
-    // average per slot; we allow up to 2× that so diverse fills are possible.
-    const slotCap = (remainingBudget / slotsLeft) * 2;
-
-    // Enforce lower-bound reachability: each slot must contribute at least
-    // (deficit / slotsLeft) BV so the cumulative total can reach lowerBound.
-    const deficit = lowerBound - cumulativeBV;
-    const slotMin = deficit > 0 ? deficit / slotsLeft : 0;
-
-    let affordable = remaining.filter(
-      (e) => (e.bv ?? 0) <= slotCap && (e.bv ?? 0) >= slotMin,
-    );
-
-    if (affordable.length === 0) {
-      // Relax slotCap (headroom heuristic) but keep slotMin to preserve
-      // lower-bound reachability. Accept anything in [slotMin, remainingBudget].
-      affordable = remaining.filter(
-        (e) => (e.bv ?? 0) <= remainingBudget && (e.bv ?? 0) >= slotMin,
-      );
-    }
-
-    if (affordable.length === 0) {
-      // Final relax: slotMin is impossible to satisfy — just stay within budget.
-      // Lower bound may not be reached; final check below handles it.
-      affordable = remaining.filter((e) => (e.bv ?? 0) <= remainingBudget);
-    }
-
-    if (affordable.length === 0) {
-      // Can't add more — check if we already satisfy lower bound
-      if (cumulativeBV >= lowerBound) break;
-      throw new BudgetUnsatisfiableError(
-        achievableMinBV,
-        achievableMaxBV,
-        opts,
-      );
-    }
-
-    // Rebuild table with current affordable subset
-    const table = buildWeightedTable(affordable);
-    const pick = table.select(() => random.next());
-
-    if (pick === null) {
-      // Weighted table returned null despite non-empty affordable — shouldn't happen
-      if (cumulativeBV >= lowerBound) break;
-      throw new BudgetUnsatisfiableError(
-        achievableMinBV,
-        achievableMaxBV,
-        opts,
-      );
-    }
-
-    selected.push(pick);
-    cumulativeBV += pick.bv ?? 0;
-
-    // Track chassis usage and evict at cap
-    const chassisCount = (chassisCounts.get(pick.chassis) ?? 0) + 1;
-    chassisCounts.set(pick.chassis, chassisCount);
-
-    if (chassisCount >= duplicateChassisCap) {
-      // Remove all further entries for this chassis
-      remaining = remaining.filter((e) => e.chassis !== pick.chassis);
-    }
-  }
-
-  // Final check: did we achieve the lower bound?
-  if (cumulativeBV < lowerBound && selected.length < count) {
-    throw new BudgetUnsatisfiableError(achievableMinBV, achievableMaxBV, opts);
-  }
-
-  // --- Step 5: assemble IForce ---
-  const forceId = `rand-force-${sideId}-${random.nextInt(1_000_000)}`;
-  const now = new Date().toISOString();
-
-  const assignments: IAssignment[] = selected.map((entry, idx) => ({
-    id: makeAssignmentId(forceId, idx + 1),
-    pilotId: null, // Pilot pairing done separately (Task 4.10)
-    unitId: entry.id,
-    position: idx === 0 ? ForcePosition.Commander : ForcePosition.Member,
-    slot: idx + 1,
-  }));
-
-  const stats = computeStats(selected);
-
-  const force: IForce = {
-    id: forceId,
-    name: `${sideId} Force`,
-    forceType: ForceType.Custom,
-    status: ForceStatus.Active,
-    childIds: [],
-    assignments,
-    stats,
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  return force;
+  const bounds = computeBudgetBounds(eligible, settings.count);
+  assertBudgetIsSatisfiable(bounds, settings, opts);
+  const selected = selectForceEntries({ eligible, settings, bounds, opts });
+  return buildGeneratedForce(selected, settings);
 }

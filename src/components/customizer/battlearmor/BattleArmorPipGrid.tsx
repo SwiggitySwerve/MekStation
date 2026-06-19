@@ -49,7 +49,7 @@ interface BattleArmorPipGridProps {
   /**
    * Per-trooper damage array (index = trooper index, value = pips lost).
    * Defaults to all-zeros (full health) when not supplied.
-   * TODO(add-battlearmor-combat-behavior): wire from combat session state.
+   * Deferred(add-battlearmor-combat-behavior): wire from combat session state.
    */
   damageByTrooper?: number[];
   className?: string;

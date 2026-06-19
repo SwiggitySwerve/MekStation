@@ -26,6 +26,44 @@ type ReplayEventAppender = (
   event: IGameEvent,
 ) => Promise<void> | void;
 
+type ReplayStreamMessage = Parameters<
+  Parameters<IGameSessionChannel['onReplayStream']>[0]
+>[0];
+
+interface ReconnectDependencies {
+  readonly timeoutMs: number;
+  readonly pollIntervalMs: number;
+  readonly getLastSequence: (matchId: string) => Promise<number | null>;
+  readonly getMatchMetadata: (
+    matchId: string,
+  ) => Promise<IMatchMetadataRecord | undefined>;
+  readonly ensureSyncRoom: (matchId: string) => Promise<void> | void;
+  readonly getLocalPeerId: () => string | null;
+  readonly getHostPresent: (hostPeerId: string | null) => boolean;
+  readonly createChannel: (
+    matchId: string,
+    localPeerId: string,
+  ) => IGameSessionChannel;
+  readonly appendReplayEvent: ReplayEventAppender;
+  readonly hydrateFromMatchLog: (matchId: string) => Promise<IGameSession>;
+  readonly setHydratedSession: (session: IGameSession) => void;
+  readonly setHostPending: () => void;
+  readonly setLive: () => void;
+  readonly redirectToLobby: (matchId: string, reason: string) => void;
+  readonly getHostEventsFromSeq: (
+    seq: number,
+  ) => readonly IGameEvent[] | Promise<readonly IGameEvent[]>;
+}
+
+interface ReconnectRuntime {
+  cancelled: boolean;
+  cleanupChannel: (() => void) | null;
+  timeoutId: ReturnType<typeof setTimeout> | null;
+  pollId: ReturnType<typeof setInterval> | null;
+  requestSent: boolean;
+  replayChain: Promise<void>;
+}
+
 export interface IUseP2PReconnectSessionOptions {
   readonly timeoutMs?: number;
   readonly pollIntervalMs?: number;
@@ -59,142 +97,229 @@ export function useP2PReconnectSession(
     if (typeof window === 'undefined') return;
     if (!matchId) return;
 
-    let cancelled = false;
-    let cleanupChannel: (() => void) | null = null;
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-    let pollId: ReturnType<typeof setInterval> | null = null;
-    let requestSent = false;
-    let replayChain = Promise.resolve();
+    const runtime = createReconnectRuntime();
+    void startReconnectSession(matchId, options, runtime);
 
-    const clearTimers = (): void => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-        timeoutId = null;
-      }
-      if (pollId) {
-        clearInterval(pollId);
-        pollId = null;
-      }
-    };
-
-    const getLastSequence =
-      options.getLastSequence ??
-      matchLogStorage.getLastSequence.bind(matchLogStorage);
-    const getMatchMetadata =
-      options.getMatchMetadata ??
-      matchLogStorage.getMatchMetadata.bind(matchLogStorage);
-    const ensureSyncRoom = options.ensureSyncRoom ?? defaultEnsureSyncRoom;
-    const getLocalPeerId = options.getLocalPeerId ?? defaultGetLocalPeerId;
-    const getHostPresent = options.getHostPresent ?? defaultGetHostPresent;
-    const createChannel = options.createChannel ?? defaultCreateChannel;
-    const appendReplayEvent =
-      options.appendReplayEvent ?? appendReplayEventToActiveSession;
-    const hydrateFromMatchLog =
-      options.hydrateFromMatchLog ?? InteractiveSession.fromMatchLog;
-    const setHydratedSession =
-      options.setHydratedSession ?? defaultSetHydratedSession;
-    const setHostPending = options.setHostPending ?? defaultSetHostPending;
-    const setLive = options.setLive ?? defaultSetLive;
-    const redirectToLobby = options.redirectToLobby ?? defaultRedirectToLobby;
-    const timeoutMs = options.timeoutMs ?? RECONNECT_HOST_WAIT_MS;
-    const pollIntervalMs = options.pollIntervalMs ?? HOST_POLL_INTERVAL_MS;
-
-    void (async () => {
-      const [lastSequenceResult, metadata] = await Promise.all([
-        getLastSequence(matchId),
-        getMatchMetadata(matchId),
-      ]);
-      const lastLocalSeq = lastSequenceResult ?? 0;
-
-      await ensureSyncRoom(matchId);
-      if (cancelled) return;
-
-      const localPeerId = getLocalPeerId();
-      if (!localPeerId) return;
-
-      const channel = createChannel(matchId, localPeerId);
-
-      if (metadata?.hostPeerId === localPeerId) {
-        cleanupChannel = channel.onReconnectRequest((request) => {
-          void answerReconnectRequest(request, {
-            matchId,
-            metadata,
-            channel,
-            getEventsFromSeq:
-              options.getHostEventsFromSeq ?? defaultGetHostEventsFromSeq,
-          });
-        });
-        return;
-      }
-
-      if (!metadata?.guestPeerId || metadata.guestPeerId !== localPeerId) {
-        redirectToLobby(matchId, 'Match in progress');
-        return;
-      }
-
-      const unsubscribeReplay = channel.onReplayStream((stream) => {
-        if (stream.matchId !== matchId) return;
-        replayChain = replayChain.then(async () => {
-          const events = stream.events.slice().sort((left, right) => {
-            return left.sequence - right.sequence;
-          });
-          for (const event of events) {
-            await appendReplayEvent(matchId, event);
-          }
-          if (!stream.done || cancelled) return;
-          if (!useGameplayStore.getState().interactiveSession) {
-            setHydratedSession(await hydrateFromMatchLog(matchId));
-          }
-          setLive();
-        });
-      });
-
-      const unsubscribeReject = channel.onReconnectReject((rejection) => {
-        if (rejection.matchId !== matchId) return;
-        clearTimers();
-        redirectToLobby(matchId, rejection.reason);
-      });
-
-      cleanupChannel = () => {
-        unsubscribeReplay();
-        unsubscribeReject();
-      };
-
-      const sendReconnectRequest = (): void => {
-        if (requestSent || cancelled) return;
-        requestSent = true;
-        clearTimers();
-        channel.broadcastReconnectRequest({ matchId, lastLocalSeq });
-      };
-
-      const checkHost = (): void => {
-        if (getHostPresent(metadata.hostPeerId)) {
-          sendReconnectRequest();
-        }
-      };
-
-      timeoutId = setTimeout(() => {
-        if (requestSent || cancelled) return;
-        clearTimers();
-        void hydrateFromMatchLog(matchId).then((session) => {
-          if (cancelled) return;
-          setHydratedSession(session);
-          setHostPending();
-        });
-      }, timeoutMs);
-
-      pollId = setInterval(checkHost, pollIntervalMs);
-      checkHost();
-    })();
-
-    return () => {
-      cancelled = true;
-      clearTimers();
-      cleanupChannel?.();
-    };
+    return () => stopReconnectRuntime(runtime);
     // Reconnect dependencies are intentionally captured at mount time.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchId]);
+}
+
+function createReconnectRuntime(): ReconnectRuntime {
+  return {
+    cancelled: false,
+    cleanupChannel: null,
+    timeoutId: null,
+    pollId: null,
+    requestSent: false,
+    replayChain: Promise.resolve(),
+  };
+}
+
+function clearReconnectTimers(runtime: ReconnectRuntime): void {
+  if (runtime.timeoutId) {
+    clearTimeout(runtime.timeoutId);
+    runtime.timeoutId = null;
+  }
+  if (runtime.pollId) {
+    clearInterval(runtime.pollId);
+    runtime.pollId = null;
+  }
+}
+
+function stopReconnectRuntime(runtime: ReconnectRuntime): void {
+  runtime.cancelled = true;
+  clearReconnectTimers(runtime);
+  runtime.cleanupChannel?.();
+}
+
+function resolveReconnectDependencies(
+  options: IUseP2PReconnectSessionOptions,
+): ReconnectDependencies {
+  return {
+    getLastSequence:
+      options.getLastSequence ??
+      matchLogStorage.getLastSequence.bind(matchLogStorage),
+    getMatchMetadata:
+      options.getMatchMetadata ??
+      matchLogStorage.getMatchMetadata.bind(matchLogStorage),
+    ensureSyncRoom: options.ensureSyncRoom ?? defaultEnsureSyncRoom,
+    getLocalPeerId: options.getLocalPeerId ?? defaultGetLocalPeerId,
+    getHostPresent: options.getHostPresent ?? defaultGetHostPresent,
+    createChannel: options.createChannel ?? defaultCreateChannel,
+    appendReplayEvent:
+      options.appendReplayEvent ?? appendReplayEventToActiveSession,
+    hydrateFromMatchLog:
+      options.hydrateFromMatchLog ?? InteractiveSession.fromMatchLog,
+    setHydratedSession: options.setHydratedSession ?? defaultSetHydratedSession,
+    setHostPending: options.setHostPending ?? defaultSetHostPending,
+    setLive: options.setLive ?? defaultSetLive,
+    redirectToLobby: options.redirectToLobby ?? defaultRedirectToLobby,
+    getHostEventsFromSeq:
+      options.getHostEventsFromSeq ?? defaultGetHostEventsFromSeq,
+    timeoutMs: options.timeoutMs ?? RECONNECT_HOST_WAIT_MS,
+    pollIntervalMs: options.pollIntervalMs ?? HOST_POLL_INTERVAL_MS,
+  };
+}
+
+async function startReconnectSession(
+  matchId: string,
+  options: IUseP2PReconnectSessionOptions,
+  runtime: ReconnectRuntime,
+): Promise<void> {
+  const deps = resolveReconnectDependencies(options);
+  const [lastSequenceResult, metadata] = await Promise.all([
+    deps.getLastSequence(matchId),
+    deps.getMatchMetadata(matchId),
+  ]);
+  const lastLocalSeq = lastSequenceResult ?? 0;
+
+  await deps.ensureSyncRoom(matchId);
+  if (runtime.cancelled) return;
+
+  const localPeerId = deps.getLocalPeerId();
+  if (!localPeerId) return;
+
+  const channel = deps.createChannel(matchId, localPeerId);
+
+  if (metadata?.hostPeerId === localPeerId) {
+    setupHostReconnectResponder(matchId, metadata, channel, deps, runtime);
+    return;
+  }
+
+  if (!metadata?.guestPeerId || metadata.guestPeerId !== localPeerId) {
+    deps.redirectToLobby(matchId, 'Match in progress');
+    return;
+  }
+
+  setupGuestReconnect(matchId, metadata, lastLocalSeq, channel, deps, runtime);
+}
+
+function setupHostReconnectResponder(
+  matchId: string,
+  metadata: IMatchMetadataRecord,
+  channel: IGameSessionChannel,
+  deps: ReconnectDependencies,
+  runtime: ReconnectRuntime,
+): void {
+  runtime.cleanupChannel = channel.onReconnectRequest((request) => {
+    void answerReconnectRequest(request, {
+      matchId,
+      metadata,
+      channel,
+      getEventsFromSeq: deps.getHostEventsFromSeq,
+    });
+  });
+}
+
+function setupGuestReconnect(
+  matchId: string,
+  metadata: IMatchMetadataRecord,
+  lastLocalSeq: number,
+  channel: IGameSessionChannel,
+  deps: ReconnectDependencies,
+  runtime: ReconnectRuntime,
+): void {
+  const unsubscribeReplay = subscribeReplayStream(
+    matchId,
+    channel,
+    deps,
+    runtime,
+  );
+  const unsubscribeReject = subscribeReconnectReject(
+    matchId,
+    channel,
+    deps,
+    runtime,
+  );
+
+  runtime.cleanupChannel = () => {
+    unsubscribeReplay();
+    unsubscribeReject();
+  };
+
+  const sendReconnectRequest = (): void => {
+    if (runtime.requestSent || runtime.cancelled) return;
+    runtime.requestSent = true;
+    clearReconnectTimers(runtime);
+    channel.broadcastReconnectRequest({ matchId, lastLocalSeq });
+  };
+
+  const checkHost = (): void => {
+    if (deps.getHostPresent(metadata.hostPeerId)) {
+      sendReconnectRequest();
+    }
+  };
+
+  runtime.timeoutId = setTimeout(() => {
+    handleReconnectTimeout(matchId, deps, runtime);
+  }, deps.timeoutMs);
+
+  runtime.pollId = setInterval(checkHost, deps.pollIntervalMs);
+  checkHost();
+}
+
+function subscribeReplayStream(
+  matchId: string,
+  channel: IGameSessionChannel,
+  deps: ReconnectDependencies,
+  runtime: ReconnectRuntime,
+): () => void {
+  return channel.onReplayStream((stream) => {
+    if (stream.matchId !== matchId) return;
+    runtime.replayChain = runtime.replayChain.then(() =>
+      applyReplayStream(matchId, stream, deps, runtime),
+    );
+  });
+}
+
+async function applyReplayStream(
+  matchId: string,
+  stream: ReplayStreamMessage,
+  deps: ReconnectDependencies,
+  runtime: ReconnectRuntime,
+): Promise<void> {
+  const events = stream.events.slice().sort(compareEventsBySequence);
+  for (const event of events) {
+    await deps.appendReplayEvent(matchId, event);
+  }
+  if (!stream.done || runtime.cancelled) return;
+  if (!useGameplayStore.getState().interactiveSession) {
+    deps.setHydratedSession(await deps.hydrateFromMatchLog(matchId));
+  }
+  deps.setLive();
+}
+
+function compareEventsBySequence(left: IGameEvent, right: IGameEvent): number {
+  return left.sequence - right.sequence;
+}
+
+function subscribeReconnectReject(
+  matchId: string,
+  channel: IGameSessionChannel,
+  deps: ReconnectDependencies,
+  runtime: ReconnectRuntime,
+): () => void {
+  return channel.onReconnectReject((rejection) => {
+    if (rejection.matchId !== matchId) return;
+    clearReconnectTimers(runtime);
+    deps.redirectToLobby(matchId, rejection.reason);
+  });
+}
+
+function handleReconnectTimeout(
+  matchId: string,
+  deps: ReconnectDependencies,
+  runtime: ReconnectRuntime,
+): void {
+  if (runtime.requestSent || runtime.cancelled) return;
+  clearReconnectTimers(runtime);
+  void deps.hydrateFromMatchLog(matchId).then((session) => {
+    if (runtime.cancelled) return;
+    deps.setHydratedSession(session);
+    deps.setHostPending();
+  });
 }
 
 export function deriveReconnectRoomCode(matchId: string): string | null {
@@ -269,5 +394,5 @@ function defaultGetHostEventsFromSeq(seq: number): readonly IGameEvent[] {
     interactiveSession?.getSession() ?? useGameplayStore.getState().session;
   return (session?.events ?? [])
     .filter((event) => event.sequence >= seq)
-    .sort((left, right) => left.sequence - right.sequence);
+    .sort(compareEventsBySequence);
 }

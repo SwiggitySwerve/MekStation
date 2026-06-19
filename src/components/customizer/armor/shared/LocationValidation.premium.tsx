@@ -10,6 +10,78 @@ import {
 } from './ArmorFills';
 import { NumberBadge, DotIndicator } from './LocationRenderer';
 
+type ArmorPosition = LocationContentProps['pos'];
+
+function getFillPercent(value: number, maximum: number): number {
+  return maximum > 0 ? Math.min(100, (value / maximum) * 100) : 0;
+}
+
+function getPremiumSplitPercents({
+  current,
+  maximum,
+  rear,
+  showRear,
+}: {
+  current: number;
+  maximum: number;
+  rear: number;
+  showRear: boolean;
+}): { frontPercent: number; rearPercent: number } {
+  const expectedFrontMax = showRear ? Math.round(maximum * 0.75) : maximum;
+  const expectedRearMax = showRear ? Math.round(maximum * 0.25) : 1;
+
+  return {
+    frontPercent: getFillPercent(current, expectedFrontMax),
+    rearPercent: getFillPercent(rear, expectedRearMax),
+  };
+}
+
+function getPremiumLocationColors({
+  current,
+  maximum,
+  rear,
+  showRear,
+  isSelected,
+}: {
+  current: number;
+  maximum: number;
+  rear: number;
+  showRear: boolean;
+  isSelected: boolean;
+}): { frontColor: string; rearColor: string } {
+  return {
+    frontColor: isSelected
+      ? '#3b82f6'
+      : showRear
+        ? getTorsoFrontStatusColor(current, maximum)
+        : getArmorStatusColor(current, maximum),
+    rearColor: isSelected ? '#2563eb' : getTorsoRearStatusColor(rear, maximum),
+  };
+}
+
+function getPremiumSections(
+  pos: ArmorPosition,
+  showRear: boolean,
+): {
+  frontSectionHeight: number;
+  rearSectionHeight: number;
+  dividerY: number;
+  frontCenterY: number;
+  rearCenterY: number;
+} {
+  const frontSectionHeight = showRear ? pos.height * 0.58 : pos.height;
+  const rearSectionHeight = showRear ? pos.height * 0.42 : 0;
+  const dividerY = pos.y + frontSectionHeight;
+
+  return {
+    frontSectionHeight,
+    rearSectionHeight,
+    dividerY,
+    frontCenterY: pos.y + frontSectionHeight / 2,
+    rearCenterY: dividerY + rearSectionHeight / 2,
+  };
+}
+
 export function PremiumLocationContent({
   pos,
   data,
@@ -20,31 +92,27 @@ export function PremiumLocationContent({
 }: LocationContentProps): React.ReactElement {
   const { current, maximum, rear = 0 } = data;
   const center = { x: pos.x + pos.width / 2, y: pos.y + pos.height / 2 };
-
-  const expectedFrontMax = showRear ? Math.round(maximum * 0.75) : maximum;
-  const expectedRearMax = showRear ? Math.round(maximum * 0.25) : 1;
-  const frontPercent =
-    expectedFrontMax > 0
-      ? Math.min(100, (current / expectedFrontMax) * 100)
-      : 0;
-  const rearPercent =
-    expectedRearMax > 0 ? Math.min(100, (rear / expectedRearMax) * 100) : 0;
-
-  const frontColor = isSelected
-    ? '#3b82f6'
-    : showRear
-      ? getTorsoFrontStatusColor(current, maximum)
-      : getArmorStatusColor(current, maximum);
-  const rearColor = isSelected
-    ? '#2563eb'
-    : getTorsoRearStatusColor(rear, maximum);
+  const { frontPercent, rearPercent } = getPremiumSplitPercents({
+    current,
+    maximum,
+    rear,
+    showRear,
+  });
+  const { frontColor, rearColor } = getPremiumLocationColors({
+    current,
+    maximum,
+    rear,
+    showRear,
+    isSelected,
+  });
   const liftOffset = isHovered ? -2 : 0;
-
-  const frontSectionHeight = showRear ? pos.height * 0.58 : pos.height;
-  const rearSectionHeight = showRear ? pos.height * 0.42 : 0;
-  const dividerY = pos.y + frontSectionHeight;
-  const frontCenterY = pos.y + frontSectionHeight / 2;
-  const rearCenterY = dividerY + rearSectionHeight / 2;
+  const {
+    frontSectionHeight,
+    rearSectionHeight,
+    dividerY,
+    frontCenterY,
+    rearCenterY,
+  } = getPremiumSections(pos, showRear);
 
   return (
     <>

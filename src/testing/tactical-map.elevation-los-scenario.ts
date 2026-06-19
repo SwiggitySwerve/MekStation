@@ -7,17 +7,8 @@ import type {
   IUnitToken,
 } from '@/types/gameplay';
 
-import {
-  Facing,
-  GameSide,
-  MovementType,
-  TerrainType,
-  TokenUnitType,
-} from '@/types/gameplay';
+import { Facing, GameSide, MovementType, TerrainType } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import {
   requireCombatProjection,
@@ -25,6 +16,10 @@ import {
   tacticalMapSelectedWeapons,
   tacticalMapWeaponsByUnit,
 } from './tactical-map.combat-scenarios';
+import {
+  createTacticalMapMechToken,
+  createTacticalMapTerrainGrid,
+} from './tactical-map.fixture-helpers';
 import {
   tacticalMapCombatState,
   tacticalMapTokens,
@@ -85,7 +80,7 @@ const tacticalMapElevationLosBaseTokens: readonly IUnitToken[] =
         };
       }
 
-      return {
+      return createTacticalMapMechToken({
         ...token,
         unitId: tacticalMapElevationLosTargetId,
         name: 'Locust LCT-1V',
@@ -93,25 +88,18 @@ const tacticalMapElevationLosBaseTokens: readonly IUnitToken[] =
         position: tacticalMapElevationLosTargetHex,
         facing: Facing.North,
         side: GameSide.Opponent,
-        isSelected: false,
-        isValidTarget: true,
         isActiveTarget: true,
-        unitType: TokenUnitType.Mech,
-      };
+      });
     });
 
-const tacticalMapElevationCoverTargetToken: IUnitToken = {
-  unitId: tacticalMapElevationCoverTargetId,
-  name: 'Wasp WSP-1A',
-  designation: 'WSP',
-  position: tacticalMapElevationCoverTargetHex,
-  facing: Facing.North,
-  side: GameSide.Opponent,
-  isDestroyed: false,
-  isSelected: false,
-  isValidTarget: true,
-  unitType: TokenUnitType.Mech,
-};
+const tacticalMapElevationCoverTargetToken: IUnitToken =
+  createTacticalMapMechToken({
+    unitId: tacticalMapElevationCoverTargetId,
+    name: 'Wasp WSP-1A',
+    designation: 'WSP',
+    position: tacticalMapElevationCoverTargetHex,
+    facing: Facing.North,
+  });
 
 export const tacticalMapElevationLosTokens: readonly IUnitToken[] = [
   ...tacticalMapElevationLosBaseTokens,
@@ -122,7 +110,7 @@ export const tacticalMapWoodsLosTokens: readonly IUnitToken[] =
   tacticalMapElevationLosBaseTokens.map((token): IUnitToken => {
     if (token.unitId === 'attacker') return token;
 
-    return {
+    return createTacticalMapMechToken({
       ...token,
       unitId: tacticalMapWoodsLosTargetId,
       name: 'Locust LCT-1V',
@@ -130,11 +118,8 @@ export const tacticalMapWoodsLosTokens: readonly IUnitToken[] =
       position: tacticalMapWoodsLosTargetHex,
       facing: Facing.North,
       side: GameSide.Opponent,
-      isSelected: false,
-      isValidTarget: true,
       isActiveTarget: true,
-      unitType: TokenUnitType.Mech,
-    };
+    });
   });
 
 export const tacticalMapElevationLosCombatState: IGameState = {
@@ -186,39 +171,11 @@ export const tacticalMapWoodsLosCombatState: IGameState = {
 };
 
 function tacticalMapElevationLosGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapElevationLosHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
+  return createTacticalMapTerrainGrid(tacticalMapElevationLosHexTerrain);
 }
 
 function tacticalMapWoodsLosGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapWoodsLosHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
+  return createTacticalMapTerrainGrid(tacticalMapWoodsLosHexTerrain);
 }
 
 const tacticalMapElevationLosAttacker = tacticalMapElevationLosTokens.find(

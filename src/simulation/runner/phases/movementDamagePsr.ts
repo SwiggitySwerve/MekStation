@@ -7,6 +7,7 @@ import {
   MovementType,
 } from '@/types/gameplay';
 import { createPSRTriggeredEvent } from '@/utils/gameplay/gameEvents/statusChecks';
+import { movementModeForPath } from '@/utils/gameplay/movement';
 import {
   createRunningDamagedGyroPSR,
   createRunningDamagedHipPSR,
@@ -18,14 +19,6 @@ type MovementDamageStep = {
   readonly kind: string;
   readonly index: number;
 };
-
-function isRunBasedMovement(movementType: MovementType): boolean {
-  return (
-    movementType === MovementType.Run ||
-    movementType === MovementType.Evade ||
-    movementType === MovementType.Sprint
-  );
-}
 
 export function queueMovementDamagePSRs(options: {
   currentState: IGameState;
@@ -71,7 +64,7 @@ function movementDamagePSRsForUnit(
   movementType: MovementType,
   steps: readonly MovementDamageStep[],
 ): readonly IPendingPSR[] {
-  if (!isRunBasedMovement(movementType)) return [];
+  if (movementModeForPath(movementType) !== 'run') return [];
 
   const unit = state.units[unitId];
   const componentDamage = unit?.componentDamage;

@@ -6,6 +6,8 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.1
  */
 
+import type { IUnitMountedEquipmentIdentity } from './MountedEquipmentInterfaces';
+
 import { IAerospaceUnit, AerospaceMotionType } from './BaseUnitInterfaces';
 import { UnitType } from './BattleMechInterfaces';
 
@@ -86,13 +88,7 @@ export enum CapitalArc {
 /**
  * Capital ship-mounted equipment item
  */
-export interface ICapitalMountedEquipment {
-  /** Unique mount ID */
-  readonly id: string;
-  /** Equipment definition ID */
-  readonly equipmentId: string;
-  /** Display name */
-  readonly name: string;
+export interface ICapitalMountedEquipment extends IUnitMountedEquipmentIdentity {
   /** Firing arc */
   readonly arc: CapitalArc;
   /** Is this a capital-scale weapon */

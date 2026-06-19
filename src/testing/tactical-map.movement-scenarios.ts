@@ -15,17 +15,19 @@ import type { ICommittedMovementValidationInput } from '@/utils/gameplay/movemen
 import {
   Facing,
   GameSide,
-  LockState,
   MovementType,
   TerrainType,
   TokenUnitType,
   VehicleMotionType,
 } from '@/types/gameplay';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
+import {
+  createTacticalMapTerrainGrid,
+  createTacticalMapUnitState,
+  overrideTacticalMapTokens,
+  requireTacticalMapMovementProjection,
+} from './tactical-map.fixture-helpers';
 import {
   tacticalMapHexTerrain,
   tacticalMapMpLegend,
@@ -43,24 +45,12 @@ const tacticalMapJumpElevationDestination = { q: 0, r: 1 } as const;
 const tacticalMapBipedOptionOrigin = { q: 0, r: 0 } as const;
 const tacticalMapBipedOptionDestination = { q: 0, r: 1 } as const;
 
-const tacticalMapMovementUnit: IUnitGameState = {
+const tacticalMapMovementUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: { q: -1, r: 0 },
   facing: Facing.Northeast,
-  heat: 0,
-  movementThisTurn: MovementType.Stationary,
-  hexesMovedThisTurn: 0,
-  armor: {},
-  structure: {},
-  destroyedLocations: [],
-  destroyedEquipment: [],
-  ammo: {},
-  pilotWounds: 0,
-  pilotConscious: true,
-  destroyed: false,
-  lockState: LockState.Pending,
-};
+});
 
 const tacticalMapBipedOptionUnit: IUnitGameState = {
   ...tacticalMapMovementUnit,
@@ -70,20 +60,9 @@ const tacticalMapBipedOptionUnit: IUnitGameState = {
 export const tacticalMapBipedOptionSelectedHex = tacticalMapBipedOptionOrigin;
 
 export const tacticalMapBipedOptionTokens: readonly IUnitToken[] =
-  tacticalMapTokens.map((token) => {
-    if (token.unitId === 'attacker') {
-      return {
-        ...token,
-        position: tacticalMapBipedOptionOrigin,
-      };
-    }
-    if (token.unitId === 'occluded') {
-      return {
-        ...token,
-        position: { q: 2, r: -1 },
-      };
-    }
-    return token;
+  overrideTacticalMapTokens(tacticalMapTokens, {
+    attacker: { position: tacticalMapBipedOptionOrigin },
+    occluded: { position: { q: 2, r: -1 } },
   });
 
 export const tacticalMapJumpElevationMpLegend: MapMovementPointLegendState = {
@@ -93,18 +72,15 @@ export const tacticalMapJumpElevationMpLegend: MapMovementPointLegendState = {
 };
 
 export const tacticalMapVtolTokens: readonly IUnitToken[] =
-  tacticalMapTokens.map((token) =>
-    token.unitId === 'attacker'
-      ? {
-          ...token,
-          name: 'Karnov UR Transport',
-          designation: 'KAR',
-          unitType: TokenUnitType.Vehicle,
-          vehicleMotionType: VehicleMotionType.VTOL,
-          altitude: 3,
-        }
-      : token,
-  );
+  overrideTacticalMapTokens(tacticalMapTokens, {
+    attacker: {
+      name: 'Karnov UR Transport',
+      designation: 'KAR',
+      unitType: TokenUnitType.Vehicle,
+      vehicleMotionType: VehicleMotionType.VTOL,
+      altitude: 3,
+    },
+  });
 
 const tacticalMapVtolCapability: IMovementCapability = {
   walkMP: 4,
@@ -120,33 +96,16 @@ const tacticalMapRuntimeHeightBridgeDestination = { q: 1, r: 0 } as const;
 function tacticalMapMovementGrid(
   hexTerrain: readonly IHexTerrain[] = tacticalMapHexTerrain,
 ): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of hexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
+  return createTacticalMapTerrainGrid(hexTerrain);
 }
 
 function requireMovementProjection(
   projection: IMovementRangeHex | null,
 ): readonly IMovementRangeHex[] {
-  if (!projection) {
-    throw new Error('Expected tactical-map movement projection');
-  }
-  return [projection];
+  return [requireTacticalMapMovementProjection(projection, 'tactical-map')];
 }
 
-function requireSingleMovementProjection(
+function requireMovementRangeHex(
   projection: IMovementRangeHex | null,
 ): IMovementRangeHex {
   const [required] = requireMovementProjection(projection);
@@ -155,7 +114,7 @@ function requireSingleMovementProjection(
 
 export const tacticalMapBipedOptionMovementRange: readonly IMovementRangeHex[] =
   [
-    requireSingleMovementProjection(
+    requireMovementRangeHex(
       deriveMovementRangeHexForDestination(
         tacticalMapBipedOptionUnit,
         MovementType.Walk,
@@ -164,7 +123,7 @@ export const tacticalMapBipedOptionMovementRange: readonly IMovementRangeHex[] =
         tacticalMapBipedOptionDestination,
       ),
     ),
-    requireSingleMovementProjection(
+    requireMovementRangeHex(
       deriveMovementRangeHexForDestination(
         tacticalMapBipedOptionUnit,
         MovementType.Run,
@@ -173,7 +132,7 @@ export const tacticalMapBipedOptionMovementRange: readonly IMovementRangeHex[] =
         tacticalMapBipedOptionDestination,
       ),
     ),
-    requireSingleMovementProjection(
+    requireMovementRangeHex(
       deriveMovementRangeHexForDestination(
         tacticalMapBipedOptionUnit,
         MovementType.Jump,
@@ -313,25 +272,18 @@ export const tacticalMapRuntimeHeightSelectedHex =
   tacticalMapRuntimeHeightOrigin;
 
 export const tacticalMapRuntimeHeightTokens: readonly IUnitToken[] =
-  tacticalMapTokens.map((token) => {
-    if (token.unitId === 'attacker') {
-      return {
-        ...token,
-        name: 'River Monitor',
-        designation: 'NAV',
-        position: tacticalMapRuntimeHeightOrigin,
-        unitType: TokenUnitType.Vehicle,
-        vehicleMotionType: VehicleMotionType.Naval,
-      };
-    }
-    if (token.unitId === 'occluded') {
-      return {
-        ...token,
-        position: { q: 3, r: -1 },
-        isActiveTarget: false,
-      };
-    }
-    return token;
+  overrideTacticalMapTokens(tacticalMapTokens, {
+    attacker: {
+      name: 'River Monitor',
+      designation: 'NAV',
+      position: tacticalMapRuntimeHeightOrigin,
+      unitType: TokenUnitType.Vehicle,
+      vehicleMotionType: VehicleMotionType.Naval,
+    },
+    occluded: {
+      position: { q: 3, r: -1 },
+      isActiveTarget: false,
+    },
   });
 
 const tacticalMapRuntimeHeightUnit: IUnitGameState = {

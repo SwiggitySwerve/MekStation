@@ -7,6 +7,7 @@
 
 import React from 'react';
 
+import { getPhaseDisplayName } from '@/components/gameplay/EventLogDisplay.helpers';
 import { GamePhase, GameSide } from '@/types/gameplay';
 
 // =============================================================================
@@ -31,28 +32,6 @@ export interface PhaseBannerProps {
 // =============================================================================
 // Helper Functions
 // =============================================================================
-
-/**
- * Get display name for a phase.
- */
-function getPhaseDisplayName(phase: GamePhase): string {
-  switch (phase) {
-    case GamePhase.Initiative:
-      return 'Initiative';
-    case GamePhase.Movement:
-      return 'Movement Phase';
-    case GamePhase.WeaponAttack:
-      return 'Weapon Attack Phase';
-    case GamePhase.PhysicalAttack:
-      return 'Physical Attack Phase';
-    case GamePhase.Heat:
-      return 'Heat Phase';
-    case GamePhase.End:
-      return 'End Phase';
-    default:
-      return 'Unknown Phase';
-  }
-}
 
 /**
  * Get phase color for styling.

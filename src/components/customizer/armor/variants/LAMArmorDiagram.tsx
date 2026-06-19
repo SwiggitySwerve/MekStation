@@ -10,50 +10,36 @@ import {
   configurationRegistry,
 } from '@/types/construction/MechConfigurationSystem';
 
-import { ArmorDiagramQuickSettings } from '../ArmorDiagramQuickSettings';
+import type { VariantArmorDiagramProps } from '../shared/ArmorVariantRenderHelpers';
+
+import { ArmorDiagramSvgFrame } from '../shared/ArmorDiagramSvgFrame';
 import { GradientDefs } from '../shared/ArmorFills';
+import {
+  BIPED_ARMOR_LOCATIONS,
+  FIGHTER_ARMOR_LOCATIONS,
+  findArmorData,
+  getArmorValues,
+} from '../shared/ArmorVariantRenderHelpers';
 import {
   REALISTIC_SILHOUETTE,
   FIGHTER_SILHOUETTE,
   LOCATION_LABELS,
   FIGHTER_LOCATION_LABELS,
-  getLocationCenter,
   hasTorsoRear,
 } from '../shared/MechSilhouette';
+import * as VariantChrome from '../shared/VariantDiagramChrome';
+import { VariantDiagramSvgPrelude } from '../shared/VariantDiagramSvgPrelude';
 import { VariantLocation } from '../shared/VariantLocationRenderer';
-import {
-  getVariantStyle,
-  VariantLegend,
-  VariantSVGDecorations,
-  TargetingReticle,
-} from '../shared/VariantStyles';
+import { getVariantStyle, VariantLegend } from '../shared/VariantStyles';
 
-export interface LAMArmorDiagramProps {
-  armorData: LocationArmorData[];
-  selectedLocation: MechLocation | null;
-  unallocatedPoints: number;
-  onLocationClick: (location: MechLocation) => void;
-  className?: string;
+export interface LAMArmorDiagramProps extends VariantArmorDiagramProps {
   variant?: ArmorDiagramVariant;
 }
 
-const MECH_LOCATIONS: MechLocation[] = [
-  MechLocation.HEAD,
-  MechLocation.CENTER_TORSO,
-  MechLocation.LEFT_TORSO,
-  MechLocation.RIGHT_TORSO,
-  MechLocation.LEFT_ARM,
-  MechLocation.RIGHT_ARM,
-  MechLocation.LEFT_LEG,
-  MechLocation.RIGHT_LEG,
-];
-
-const FIGHTER_LOCATIONS: MechLocation[] = [
-  MechLocation.NOSE,
-  MechLocation.FUSELAGE,
-  MechLocation.LEFT_WING,
-  MechLocation.RIGHT_WING,
-  MechLocation.AFT,
+const LAM_MODES: readonly LAMMode[] = [
+  LAMMode.MECH,
+  LAMMode.AIRMECH,
+  LAMMode.FIGHTER,
 ];
 
 function calculateFighterArmor(
@@ -74,7 +60,7 @@ function calculateFighterArmor(
 
   const fighterArmor: Map<MechLocation, LocationArmorData> = new Map();
 
-  for (const fighterLoc of FIGHTER_LOCATIONS) {
+  for (const fighterLoc of FIGHTER_ARMOR_LOCATIONS) {
     fighterArmor.set(fighterLoc, {
       location: fighterLoc,
       current: 0,
@@ -82,9 +68,9 @@ function calculateFighterArmor(
     });
   }
 
-  for (const mechLoc of MECH_LOCATIONS) {
+  for (const mechLoc of BIPED_ARMOR_LOCATIONS) {
     const fighterLoc = armorMapping[mechLoc];
-    if (!fighterLoc || !FIGHTER_LOCATIONS.includes(fighterLoc)) continue;
+    if (!fighterLoc || !FIGHTER_ARMOR_LOCATIONS.includes(fighterLoc)) continue;
 
     const mechData = mechArmorMap.get(mechLoc);
     if (!mechData) continue;
@@ -104,72 +90,168 @@ function calculateFighterArmor(
   return Array.from(fighterArmor.values());
 }
 
-export function LAMArmorDiagram({
-  armorData,
+function getLamDisplayState(
+  currentMode: LAMMode,
+  armorData: LocationArmorData[],
+  hoveredLocation: MechLocation | null,
+) {
+  const isFighterMode = currentMode === LAMMode.FIGHTER;
+  const silhouette = isFighterMode ? FIGHTER_SILHOUETTE : REALISTIC_SILHOUETTE;
+
+  return {
+    isFighterMode,
+    displayLocations: isFighterMode
+      ? FIGHTER_ARMOR_LOCATIONS
+      : BIPED_ARMOR_LOCATIONS,
+    displayArmorData: isFighterMode
+      ? calculateFighterArmor(armorData)
+      : armorData,
+    silhouette,
+    labels: isFighterMode ? FIGHTER_LOCATION_LABELS : LOCATION_LABELS,
+    hoveredPos: hoveredLocation ? silhouette.locations[hoveredLocation] : null,
+  };
+}
+
+interface LamModeSelectorProps {
+  currentMode: LAMMode;
+  onModeChange: (mode: LAMMode) => void;
+}
+
+function LamModeSelector({
+  currentMode,
+  onModeChange,
+}: LamModeSelectorProps): React.ReactElement {
+  return (
+    <div className="mb-4 flex justify-center">
+      <div className="bg-surface-subtle inline-flex rounded-lg p-1">
+        {LAM_MODES.map((mode) => (
+          <button
+            key={mode}
+            onClick={() => onModeChange(mode)}
+            className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+              currentMode === mode
+                ? 'bg-accent text-white'
+                : 'text-text-theme-secondary hover:text-white'
+            }`}
+          >
+            {mode}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+interface LamLocationLayerProps {
+  displayLocations: readonly MechLocation[];
+  displayArmorData: readonly LocationArmorData[];
+  labels: Partial<Record<MechLocation, string>>;
+  silhouette: typeof REALISTIC_SILHOUETTE;
+  isFighterMode: boolean;
+  selectedLocation: MechLocation | null;
+  hoveredLocation: MechLocation | null;
+  variant: ArmorDiagramVariant;
+  onLocationClick: (location: MechLocation) => void;
+  onHover: (location: MechLocation | null) => void;
+}
+
+function LamLocationLayer({
+  displayLocations,
+  displayArmorData,
+  labels,
+  silhouette,
+  isFighterMode,
   selectedLocation,
-  unallocatedPoints,
+  hoveredLocation,
+  variant,
   onLocationClick,
-  className = '',
-  variant = 'clean-tech',
-}: LAMArmorDiagramProps): React.ReactElement {
+  onHover,
+}: LamLocationLayerProps): React.ReactElement {
+  return (
+    <>
+      {displayLocations.map((loc) => {
+        const pos = silhouette.locations[loc];
+        if (!pos) return null;
+
+        return (
+          <VariantLocation
+            key={loc}
+            location={loc}
+            label={labels[loc] ?? loc}
+            pos={pos}
+            data={getArmorValues(findArmorData(displayArmorData, loc))}
+            showRear={!isFighterMode && hasTorsoRear(loc)}
+            isSelected={selectedLocation === loc}
+            isHovered={hoveredLocation === loc}
+            variant={variant}
+            onClick={() => !isFighterMode && onLocationClick(loc)}
+            onHover={(hovered) => onHover(hovered ? loc : null)}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+function LamModeKey({
+  isFighterMode,
+}: {
+  isFighterMode: boolean;
+}): React.ReactElement {
+  const rows = isFighterMode
+    ? [
+        'NOS = Nose',
+        'FUS = Fuselage',
+        'LW = Left Wing',
+        'RW = Right Wing',
+        'AFT = Aft',
+      ]
+    : [
+        'HD = Head',
+        'CT = Center Torso',
+        'LT/RT = Left/Right Torso',
+        'LA/RA = Left/Right Arm',
+        'LL/RL = Left/Right Leg',
+      ];
+
+  return (
+    <div className="text-text-theme-secondary grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+      {rows.map((row) => (
+        <div key={row}>{row}</div>
+      ))}
+    </div>
+  );
+}
+
+export function LAMArmorDiagram(
+  props: LAMArmorDiagramProps,
+): React.ReactElement {
+  const { armorData, selectedLocation, unallocatedPoints } = props;
+  const { onLocationClick, className = '', variant = 'clean-tech' } = props;
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(
     null,
   );
   const [currentMode, setCurrentMode] = useState<LAMMode>(LAMMode.MECH);
   const style = getVariantStyle(variant);
-
-  const isFighterMode = currentMode === LAMMode.FIGHTER;
-
-  const displayLocations = isFighterMode ? FIGHTER_LOCATIONS : MECH_LOCATIONS;
-  const displayArmorData = isFighterMode
-    ? calculateFighterArmor(armorData)
-    : armorData;
-
-  const getArmorData = (
-    location: MechLocation,
-  ): LocationArmorData | undefined => {
-    return displayArmorData.find((d) => d.location === location);
-  };
-
-  const silhouette = isFighterMode ? FIGHTER_SILHOUETTE : REALISTIC_SILHOUETTE;
-  const labels = isFighterMode ? FIGHTER_LOCATION_LABELS : LOCATION_LABELS;
-
-  const hoveredPos = hoveredLocation
-    ? silhouette.locations[hoveredLocation]
-    : null;
+  const {
+    isFighterMode,
+    displayLocations,
+    displayArmorData,
+    silhouette,
+    labels,
+    hoveredPos,
+  } = getLamDisplayState(currentMode, armorData, hoveredLocation);
 
   return (
-    <div
-      className={`${style.containerBg} rounded-lg border ${style.containerBorder} p-4 ${className}`}
+    <VariantChrome.VariantDiagramContainer
+      style={style}
+      title="LAM Armor Allocation"
+      className={className}
     >
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h3 className={style.headerTextClass} style={style.headerTextStyle}>
-            LAM Armor Allocation
-          </h3>
-          <ArmorDiagramQuickSettings />
-        </div>
-      </div>
-
-      <div className="mb-4 flex justify-center">
-        <div className="bg-surface-subtle inline-flex rounded-lg p-1">
-          {([LAMMode.MECH, LAMMode.AIRMECH, LAMMode.FIGHTER] as LAMMode[]).map(
-            (mode) => (
-              <button
-                key={mode}
-                onClick={() => setCurrentMode(mode)}
-                className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
-                  currentMode === mode
-                    ? 'bg-accent text-white'
-                    : 'text-text-theme-secondary hover:text-white'
-                }`}
-              >
-                {mode}
-              </button>
-            ),
-          )}
-        </div>
-      </div>
+      <LamModeSelector
+        currentMode={currentMode}
+        onModeChange={setCurrentMode}
+      />
 
       {isFighterMode && (
         <div className="text-text-theme-secondary mb-3 text-center text-xs">
@@ -177,75 +259,35 @@ export function LAMArmorDiagram({
         </div>
       )}
 
-      <div className="relative">
-        <svg
-          viewBox={silhouette.viewBox}
-          className="mx-auto w-full max-w-[300px]"
-          style={{ height: 'auto' }}
-        >
-          <GradientDefs />
+      <ArmorDiagramSvgFrame
+        viewBox={silhouette.viewBox}
+        className="mx-auto w-full max-w-[300px]"
+      >
+        <VariantDiagramSvgPrelude variant={variant} />
 
-          <VariantSVGDecorations variant={variant} width={300} height={280} />
+        <LamLocationLayer
+          displayLocations={displayLocations}
+          displayArmorData={displayArmorData}
+          labels={labels}
+          silhouette={silhouette}
+          isFighterMode={isFighterMode}
+          selectedLocation={selectedLocation}
+          hoveredLocation={hoveredLocation}
+          variant={variant}
+          onLocationClick={onLocationClick}
+          onHover={setHoveredLocation}
+        />
 
-          {displayLocations.map((loc) => {
-            const pos = silhouette.locations[loc];
-            if (!pos) return null;
-            const data = getArmorData(loc);
-            const label = labels[loc] ?? loc;
-            const showRear = !isFighterMode && hasTorsoRear(loc);
-
-            return (
-              <VariantLocation
-                key={loc}
-                location={loc}
-                label={label}
-                pos={pos}
-                data={{
-                  current: data?.current ?? 0,
-                  maximum: data?.maximum ?? 1,
-                  rear: data?.rear ?? 0,
-                  rearMaximum: data?.rearMaximum ?? 1,
-                }}
-                showRear={showRear}
-                isSelected={selectedLocation === loc}
-                isHovered={hoveredLocation === loc}
-                variant={variant}
-                onClick={() => !isFighterMode && onLocationClick(loc)}
-                onHover={(h) => setHoveredLocation(h ? loc : null)}
-              />
-            );
-          })}
-
-          {style.showTargetingReticle && hoveredPos && (
-            <TargetingReticle
-              cx={getLocationCenter(hoveredPos).x}
-              cy={getLocationCenter(hoveredPos).y}
-              visible={true}
-            />
-          )}
-        </svg>
-      </div>
+        <VariantChrome.VariantTargetingReticle
+          position={hoveredPos}
+          visible={style.showTargetingReticle}
+        />
+      </ArmorDiagramSvgFrame>
 
       <VariantLegend variant={variant} unallocatedPoints={unallocatedPoints} />
 
       <div className="border-border-theme-subtle mt-3 border-t pt-3">
-        {isFighterMode ? (
-          <div className="text-text-theme-secondary grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-            <div>NOS = Nose</div>
-            <div>FUS = Fuselage</div>
-            <div>LW = Left Wing</div>
-            <div>RW = Right Wing</div>
-            <div>AFT = Aft</div>
-          </div>
-        ) : (
-          <div className="text-text-theme-secondary grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-            <div>HD = Head</div>
-            <div>CT = Center Torso</div>
-            <div>LT/RT = Left/Right Torso</div>
-            <div>LA/RA = Left/Right Arm</div>
-            <div>LL/RL = Left/Right Leg</div>
-          </div>
-        )}
+        <LamModeKey isFighterMode={isFighterMode} />
       </div>
 
       <p className={style.instructionsClass}>
@@ -253,6 +295,6 @@ export function LAMArmorDiagram({
           ? 'Switch to Mech mode to edit armor values'
           : style.instructionsText}
       </p>
-    </div>
+    </VariantChrome.VariantDiagramContainer>
   );
 }

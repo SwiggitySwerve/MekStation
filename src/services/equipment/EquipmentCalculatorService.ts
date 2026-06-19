@@ -62,17 +62,17 @@ export class EquipmentCalculatorService implements IEquipmentCalculatorService {
   /**
    * Initialize the service (loads custom formulas from storage)
    */
-  async initialize(): Promise<void> {
+  initialize = async (): Promise<void> => {
     await this.registry.initialize();
-  }
+  };
 
   /**
    * Calculate properties for variable equipment
    */
-  calculateProperties(
+  calculateProperties = (
     equipmentId: string,
     context: IVariableEquipmentContext,
-  ): ICalculatedEquipmentProperties {
+  ): ICalculatedEquipmentProperties => {
     // Get formulas from registry
     const formulas = this.registry.getFormulas(equipmentId);
 
@@ -126,28 +126,28 @@ export class EquipmentCalculatorService implements IEquipmentCalculatorService {
       costCBills,
       ...(damage !== undefined && { damage }),
     };
-  }
+  };
 
   /**
    * Check if equipment has variable properties
    */
-  isVariable(equipmentId: string): boolean {
+  isVariable = (equipmentId: string): boolean => {
     return this.registry.isVariable(equipmentId);
-  }
+  };
 
   /**
    * Get required context fields for equipment
    */
-  getRequiredContext(equipmentId: string): readonly string[] {
+  getRequiredContext = (equipmentId: string): readonly string[] => {
     return this.registry.getRequiredContext(equipmentId);
-  }
+  };
 
   /**
    * Get all variable equipment IDs
    */
-  getAllVariableEquipmentIds(): string[] {
+  getAllVariableEquipmentIds = (): string[] => {
     return this.registry.getAllVariableEquipmentIds();
-  }
+  };
 
   // ============================================================================
   // HELPERS

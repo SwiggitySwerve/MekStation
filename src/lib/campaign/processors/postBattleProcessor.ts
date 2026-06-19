@@ -36,6 +36,81 @@ export interface IPostBattleApplied {
   readonly skippedDuplicate: boolean;
   readonly errors: readonly string[];
 }
+
+interface IOutcomeDeltaApplicationContext {
+  readonly campaign: ICampaignWithBattleState;
+  readonly outcome: ICombatOutcome;
+  readonly wonByPlayer: boolean;
+  readonly unitStates: Record<string, IUnitCombatState>;
+  readonly nowIso: string;
+}
+
+interface IOutcomeDeltaApplicationResult {
+  readonly pilotPatches: Map<string, Partial<ICampaignRosterEntry>>;
+  readonly pilotsUpdated: string[];
+  readonly unitsUpdated: string[];
+  readonly errors: string[];
+}
+
+function applyOutcomeDeltas({
+  campaign,
+  outcome,
+  wonByPlayer,
+  unitStates,
+  nowIso,
+}: IOutcomeDeltaApplicationContext): IOutcomeDeltaApplicationResult {
+  const rosterEntries = useCampaignRosterStore.getState().pilots;
+  const vault = usePilotStore.getState().pilots;
+  const pilotsByPilotId = buildPilotLookup(vault);
+  const entriesByPilotId = new Map(rosterEntries.map((e) => [e.pilotId, e]));
+  // D-8 remediation (2026-06-09 audit): kill attribution comes from the
+  // after-action report's per-unit rows so campaignKills can increment.
+  const reportUnitsById = new Map(
+    outcome.report.units.map((u) => [u.unitId, u]),
+  );
+  const pilotPatches = new Map<string, Partial<ICampaignRosterEntry>>();
+  const pilotsUpdated: string[] = [];
+  const unitsUpdated: string[] = [];
+  const errors: string[] = [];
+
+  for (const delta of outcome.unitDeltas) {
+    const entry = entriesByPilotId.get(delta.unitId) ?? null;
+    const pilot = pilotsByPilotId.get(delta.unitId) ?? null;
+    const pilotResult = applyPilotDelta({
+      campaign,
+      pilotId: delta.unitId,
+      delta,
+      outcomeWonByPlayer: wonByPlayer,
+      entry,
+      pilot,
+      killCount: reportUnitsById.get(delta.unitId)?.kills ?? 0,
+    });
+    if (pilotResult) {
+      pilotPatches.set(delta.unitId, pilotResult.patch);
+      pilotsUpdated.push(delta.unitId);
+    }
+    try {
+      const next = applyUnitDelta(
+        unitStates[delta.unitId],
+        delta,
+        outcome.matchId,
+        nowIso,
+      );
+      unitStates[delta.unitId] = next;
+      unitsUpdated.push(delta.unitId);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      errors.push(`unit ${delta.unitId}: ${message}`);
+      logger.error(
+        `[postBattleProcessor] Failed to apply unit delta for ${delta.unitId}:`,
+        err,
+      );
+    }
+  }
+
+  return { pilotPatches, pilotsUpdated, unitsUpdated, errors };
+}
+
 function applyOutcome(
   campaign: ICampaignWithBattleState,
   outcome: ICombatOutcome,
@@ -63,55 +138,16 @@ function applyOutcome(
   const unitStates: Record<string, IUnitCombatState> = {
     ...(campaign.unitCombatStates ?? {}),
   };
-  const pilotsUpdated: string[] = [];
-  const unitsUpdated: string[] = [];
-  const errors: string[] = [];
   const wonByPlayer = playerWon(outcome);
   const nowIso = new Date().toISOString();
-  const rosterEntries = useCampaignRosterStore.getState().pilots;
-  const vault = usePilotStore.getState().pilots;
-  const pilotsByPilotId = buildPilotLookup(vault);
-  const entriesByPilotId = new Map(rosterEntries.map((e) => [e.pilotId, e]));
-  // D-8 remediation (2026-06-09 audit): kill attribution comes from the
-  // after-action report's per-unit rows so campaignKills can increment.
-  const reportUnitsById = new Map(
-    outcome.report.units.map((u) => [u.unitId, u]),
-  );
-  const pilotPatches = new Map<string, Partial<ICampaignRosterEntry>>();
-  for (const delta of outcome.unitDeltas) {
-    const entry = entriesByPilotId.get(delta.unitId) ?? null;
-    const pilot = pilotsByPilotId.get(delta.unitId) ?? null;
-    const pilotResult = applyPilotDelta(
+  const { pilotPatches, pilotsUpdated, unitsUpdated, errors } =
+    applyOutcomeDeltas({
       campaign,
-      delta.unitId,
-      delta,
+      outcome,
       wonByPlayer,
-      entry,
-      pilot,
-      reportUnitsById.get(delta.unitId)?.kills ?? 0,
-    );
-    if (pilotResult) {
-      pilotPatches.set(delta.unitId, pilotResult.patch);
-      pilotsUpdated.push(delta.unitId);
-    }
-    try {
-      const next = applyUnitDelta(
-        unitStates[delta.unitId],
-        delta,
-        outcome.matchId,
-        nowIso,
-      );
-      unitStates[delta.unitId] = next;
-      unitsUpdated.push(delta.unitId);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      errors.push(`unit ${delta.unitId}: ${message}`);
-      logger.error(
-        `[postBattleProcessor] Failed to apply unit delta for ${delta.unitId}:`,
-        err,
-      );
-    }
-  }
+      unitStates,
+      nowIso,
+    });
   // D-5 remediation (2026-06-09 audit): pilot patches are NOT committed
   // here. Every step that can throw (contract delta, prestige) must run
   // first — the roster-store commit happens at the very end of this

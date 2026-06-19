@@ -3,40 +3,26 @@
  * Turn-by-turn game session with player and AI control.
  */
 
+import type { IGameOutcome } from '@/services/game-resolution/GameOutcomeCalculator';
 import type { IWeapon } from '@/simulation/ai/types';
+import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IRuntimeMovementStateChangedPayload } from '@/types/gameplay/GameSessionMovementEvents';
 import type {
   IIndirectFireResolution,
   WeaponFireMode,
 } from '@/types/gameplay/IndirectFireInterfaces';
-import type { D6Roller, DiceRoller } from '@/utils/gameplay/diceTypes';
+import type { D6Roller } from '@/utils/gameplay/diceTypes';
 import type {
   PhysicalAttackLimb,
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks';
 
-import {
-  deriveCombatOutcome,
-  type IDeriveCombatOutcomeOptions,
-} from '@/lib/combat/outcome/combatOutcome';
+import { type IDeriveCombatOutcomeOptions } from '@/lib/combat/outcome/combatOutcome';
 import { matchLogStorage } from '@/lib/p2p/matchLogStorage';
-import {
-  calculateGameOutcome,
-  isGameEnded,
-  type IGameOutcome,
-} from '@/services/game-resolution/GameOutcomeCalculator';
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
-  CombatNotCompleteError,
-  type ICombatOutcome,
-} from '@/types/combat/CombatOutcome';
-import {
-  GameEventType,
-  GamePhase,
   GameSide,
-  GameStatus,
-  type IGameCreatedPayload,
   type IGameSession,
   type IGameConfig,
   type IGameUnit,
@@ -47,66 +33,58 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
-  MovementType,
   type IHexCoordinate,
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
-import {
-  applyBattlefieldWreckTerrainForSessionEvents,
-  terrainChangedPayloadFromBattlefieldWreckResult,
-} from '@/utils/gameplay/battlefieldWreckTerrain';
-import {
-  createTerrainChangedEvent,
-  createUnitEjectedEvent,
-} from '@/utils/gameplay/gameEvents';
-import {
-  activateMovementEnhancement as activateMovementEnhancementAction,
-  createGameSession,
-  startGame,
-  appendEvent,
-  attemptStandUp as attemptStandUpAction,
-  declarePhysicalAttack,
-  endGame,
-  goProne as goProneAction,
-  requestSpot as requestSpotAction,
-  torsoTwist as torsoTwistAction,
-  type IPhysicalAttackContext,
-} from '@/utils/gameplay/gameSession';
-import { declarePlayerWithdrawal } from '@/utils/gameplay/morale';
-import { resolveRuntimeMovementCapability } from '@/utils/gameplay/movement';
-import { applyTerrainOverridesToGrid } from '@/utils/gameplay/terrainState';
+import { createGameSession, startGame } from '@/utils/gameplay/gameSession';
 
+import type { IInteractiveSessionRuntimeContext } from './InteractiveSession.runtime';
 import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 import type { IAdaptedUnit, IAvailableActions } from './types';
 
-import { adaptUnit } from './adapters/CompendiumAdapter';
+import { seedHexTerrainFromGrid } from './GameEngine.helpers';
 import {
-  createGridFromHexTerrain,
-  seedHexTerrainFromGrid,
-} from './GameEngine.helpers';
+  computeInteractiveSessionIndirectFireContext,
+  getInteractiveSessionAvailableActions,
+  getInteractiveSessionGrid,
+  getInteractiveSessionMovementCapability,
+  getInteractiveSessionSession,
+  getInteractiveSessionState,
+} from './InteractiveSession.accessors';
 import {
-  applyInteractiveSessionAttack,
-  applyInteractiveSessionMovement,
-  applyInteractiveSessionRuntimeMovementState,
-} from './InteractiveSession.actions';
-import { runInteractiveSessionAITurn } from './InteractiveSession.ai';
-import { computeIndirectFireContext as computeIndirectFireContextImpl } from './InteractiveSession.indirectFire';
-import { finalizeSessionOutcome } from './InteractiveSession.outcome';
+  activateInteractiveSessionMovementEnhancement,
+  applyInteractiveSessionAttackCommand,
+  applyInteractiveSessionMovementCommand,
+  applyInteractiveSessionPhysicalAttackCommand,
+  applyInteractiveSessionRuntimeMovementStateCommand,
+  attemptInteractiveSessionStandUp,
+  declareInteractiveSessionWithdrawal,
+  ejectInteractiveSessionUnit,
+  goInteractiveSessionProne,
+  requestInteractiveSessionSpot,
+  twistInteractiveSessionTorso,
+  type ApplyMovementArgs,
+} from './InteractiveSession.commands';
+import {
+  abortInteractiveSession,
+  advanceInteractiveSession,
+  concedeInteractiveSession,
+  getInteractiveSessionOutcome,
+  getInteractiveSessionResult,
+  hasInteractiveSessionPublishedOutcome,
+  isInteractiveSessionGameOver,
+  runInteractiveSessionAI,
+} from './InteractiveSession.lifecycle';
 import {
   hydrateSessionFromMatchLog,
-  reportMatchLogDivergence,
   type MatchLogHydrationStorage,
 } from './InteractiveSession.persistence';
-import { advanceInteractiveSessionPhase } from './InteractiveSession.phases';
-import { getAvailableActionsForState } from './InteractiveSession.queries';
 import {
-  d6RollerForResolvers,
-  diceRollerForResolvers,
-  environmentHeatEffectAt,
-  physicalContextByUnit,
-  waterDepthAt,
-} from './InteractiveSession.resolvers';
+  createRecoveredGridFromSession,
+  deriveAdaptedUnitsFromSession,
+} from './InteractiveSession.recovery';
+import { appendAndPersistInteractiveSessionEvent } from './InteractiveSession.sessionEvents';
 import {
   buildInteractiveSessionGameConfig,
   buildInteractiveSessionUnitMaps,
@@ -122,19 +100,20 @@ import {
  * outcome resolves.
  */
 export type { IInteractiveSessionLinkage } from './InteractiveSession.types';
+export { deriveAdaptedUnitsFromSession } from './InteractiveSession.recovery';
 
-function createRecoveredGridFromSession(session: IGameSession): IHexGrid {
-  const created = session.events.find(
-    (event) => event.type === GameEventType.GameCreated,
-  );
-  const initialTerrain =
-    (created?.payload as IGameCreatedPayload | undefined)?.hexTerrain ?? [];
-
-  return applyTerrainOverridesToGrid(
-    createGridFromHexTerrain(session.config.mapRadius, initialTerrain),
-    session.currentState.terrainOverrides,
-  );
-}
+type InteractiveSessionConstructorArgs = [
+  mapRadius: number,
+  turnLimit: number,
+  random: SeededRandom,
+  grid: IHexGrid,
+  playerUnits: readonly IAdaptedUnit[],
+  opponentUnits: readonly IAdaptedUnit[],
+  gameUnits: readonly IGameUnit[],
+  linkage?: IInteractiveSessionLinkage,
+  d6Roller?: D6Roller,
+  optionalRules?: readonly string[],
+];
 
 export class InteractiveSession {
   private session: IGameSession;
@@ -151,6 +130,7 @@ export class InteractiveSession {
   private readonly random: SeededRandom;
   private readonly grid: IHexGrid;
   private readonly botPlayer: BotPlayer;
+  private readonly runtimeContext: IInteractiveSessionRuntimeContext;
   /**
    * Per `add-authoritative-roll-arbitration` (Wave 3a): on the server
    * path, callers (`ServerMatchHost`) inject a roller backed by
@@ -171,18 +151,19 @@ export class InteractiveSession {
   private outcomePublished = false;
   private readonly linkage: IInteractiveSessionLinkage;
 
-  constructor(
-    mapRadius: number,
-    turnLimit: number,
-    random: SeededRandom,
-    grid: IHexGrid,
-    playerUnits: readonly IAdaptedUnit[],
-    opponentUnits: readonly IAdaptedUnit[],
-    gameUnits: readonly IGameUnit[],
-    linkage: IInteractiveSessionLinkage = {},
-    d6Roller?: D6Roller,
-    optionalRules: readonly string[] = [],
-  ) {
+  constructor(...args: InteractiveSessionConstructorArgs) {
+    const [
+      mapRadius,
+      turnLimit,
+      random,
+      grid,
+      playerUnits,
+      opponentUnits,
+      gameUnits,
+      linkage = {},
+      d6Roller,
+      optionalRules = [],
+    ] = args;
     this.random = random;
     this.grid = grid;
     this.botPlayer = new BotPlayer(random);
@@ -225,6 +206,31 @@ export class InteractiveSession {
       },
     );
     this.session = startGame(this.session, GameSide.Player);
+    this.runtimeContext = this.createRuntimeContext();
+  }
+
+  private createRuntimeContext(): IInteractiveSessionRuntimeContext {
+    return {
+      gameConfig: this.gameConfig,
+      weaponsByUnit: this.weaponsByUnit,
+      movementByUnit: this.movementByUnit,
+      gunneryByUnit: this.gunneryByUnit,
+      pilotingByUnit: this.pilotingByUnit,
+      tonnageByUnit: this.tonnageByUnit,
+      grid: this.grid,
+      botPlayer: this.botPlayer,
+      d6Roller: this.d6Roller,
+      startedAt: this.startedAt,
+      linkage: this.linkage,
+      getSession: () => this.session,
+      setSession: (session) => {
+        this.session = session;
+      },
+      getOutcomePublished: () => this.outcomePublished,
+      setOutcomePublished: (published) => {
+        this.outcomePublished = published;
+      },
+    };
   }
 
   static async fromMatchLog(
@@ -318,17 +324,17 @@ export class InteractiveSession {
     return instance;
   }
 
-  getState(): IGameState {
-    return this.session.currentState;
-  }
+  getState = (): IGameState => {
+    return getInteractiveSessionState(this.runtimeContext);
+  };
 
-  getSession(): IGameSession {
-    return this.session;
-  }
+  getSession = (): IGameSession => {
+    return getInteractiveSessionSession(this.runtimeContext);
+  };
 
-  appendEvent(event: IGameEvent): void {
-    this.appendAndPersistEvent(event);
-  }
+  appendEvent = (event: IGameEvent): void => {
+    appendAndPersistInteractiveSessionEvent(this.runtimeContext, event);
+  };
 
   /**
    * Per `add-movement-phase-ui` § 2: surface the cached
@@ -337,14 +343,9 @@ export class InteractiveSession {
    * re-adapting the unit catalog. Returns `null` when the id is
    * unknown (callers treat missing capability as "no movement").
    */
-  getMovementCapability(unitId: string): IMovementCapability | null {
-    const capability = this.movementByUnit.get(unitId);
-    if (!capability) return null;
-    const unit = this.session.currentState.units[unitId];
-    return unit
-      ? (resolveRuntimeMovementCapability(unit, capability) ?? capability)
-      : capability;
-  }
+  getMovementCapability = (unitId: string): IMovementCapability | null => {
+    return getInteractiveSessionMovementCapability(this.runtimeContext, unitId);
+  };
 
   /**
    * Per `add-movement-phase-ui` § 2: expose the cached `IHexGrid`
@@ -353,17 +354,13 @@ export class InteractiveSession {
    * same grid the pathfinder uses so movement costs stay in lockstep
    * with simulation outcomes.
    */
-  getGrid(): IHexGrid {
-    return this.grid;
-  }
+  getGrid = (): IHexGrid => {
+    return getInteractiveSessionGrid(this.runtimeContext);
+  };
 
-  getAvailableActions(unitId: string): IAvailableActions {
-    return getAvailableActionsForState(
-      this.session.currentState,
-      unitId,
-      this.weaponsByUnit,
-    );
-  }
+  getAvailableActions = (unitId: string): IAvailableActions => {
+    return getInteractiveSessionAvailableActions(this.runtimeContext, unitId);
+  };
 
   /**
    * Per `add-indirect-fire-and-spotter-network` §1 (Engine Integration Contract):
@@ -381,201 +378,92 @@ export class InteractiveSession {
    *
    * @spec openspec/changes/add-indirect-fire-and-spotter-network/specs/indirect-fire-system/spec.md
    */
-  computeIndirectFireContext(
+  computeIndirectFireContext = (
     attackerId: string,
     weaponId: string,
     targetHex: IHexCoordinate,
-  ): IIndirectFireResolution {
-    return computeIndirectFireContextImpl(
+  ): IIndirectFireResolution => {
+    return computeInteractiveSessionIndirectFireContext(
+      this.runtimeContext,
       attackerId,
       weaponId,
       targetHex,
-      this.session.currentState,
-      this.grid,
-      undefined,
-      undefined,
-      this.session.config.optionalRules,
     );
-  }
+  };
 
-  applyMovement(
-    unitId: string,
-    to: IHexCoordinate,
-    facing: Facing,
-    movementType: MovementType,
-    path?: readonly IHexCoordinate[],
-    standUpMode?: StandUpMode,
-    options?: {
-      readonly hullDownEntryAttempt?: boolean;
-      readonly goProneAttempt?: boolean;
-    },
-  ): void {
-    // Declare-then-lock logic lives in `InteractiveSession.actions`.
-    this.session = applyInteractiveSessionMovement({
-      session: this.session,
-      grid: this.grid,
-      movementByUnit: this.movementByUnit,
-      unitId,
-      to,
-      facing,
-      movementType,
-      path,
-      standUpMode,
-      hullDownEntryAttempt: options?.hullDownEntryAttempt,
-      goProneAttempt: options?.goProneAttempt,
-      diceRoller: this.diceRollerForResolvers(),
-    });
-    this.tryFinalizeAndPublish();
-  }
+  applyMovement = (...args: ApplyMovementArgs): void => {
+    applyInteractiveSessionMovementCommand(this.runtimeContext, ...args);
+  };
 
-  attemptStandUp(unitId: string, mode?: StandUpMode): void {
-    if (this.session.currentState.status !== GameStatus.Active) return;
-    if (this.session.currentState.phase !== GamePhase.Movement) return;
+  attemptStandUp = (unitId: string, mode?: StandUpMode): void => {
+    attemptInteractiveSessionStandUp(this.runtimeContext, unitId, mode);
+  };
 
-    this.session = attemptStandUpAction(
-      this.session,
-      unitId,
-      this.diceRollerForResolvers(),
-      mode,
-    );
-    this.tryFinalizeAndPublish();
-  }
+  goProne = (unitId: string): void => {
+    goInteractiveSessionProne(this.runtimeContext, unitId);
+  };
 
-  goProne(unitId: string): void {
-    this.session = goProneAction(this.session, unitId);
-    this.tryFinalizeAndPublish();
-  }
-
-  activateMovementEnhancement(
+  activateMovementEnhancement = (
     unitId: string,
     enhancement: MovementEnhancementActivationKind,
-  ): void {
-    this.session = activateMovementEnhancementAction(
-      this.session,
+  ): void => {
+    activateInteractiveSessionMovementEnhancement(
+      this.runtimeContext,
       unitId,
       enhancement,
     );
-    this.tryFinalizeAndPublish();
-  }
+  };
 
-  torsoTwist(unitId: string, secondaryFacing: Facing): void {
-    this.session = torsoTwistAction(this.session, unitId, secondaryFacing);
-    this.tryFinalizeAndPublish();
-  }
+  torsoTwist = (unitId: string, secondaryFacing: Facing): void => {
+    twistInteractiveSessionTorso(this.runtimeContext, unitId, secondaryFacing);
+  };
 
-  applyRuntimeMovementState(
+  applyRuntimeMovementState = (
     unitId: string,
     patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
-  ): void {
-    this.session = applyInteractiveSessionRuntimeMovementState({
-      session: this.session,
+  ): void => {
+    applyInteractiveSessionRuntimeMovementStateCommand(
+      this.runtimeContext,
       unitId,
       patch,
-      diceRoller: this.d6RollerForResolvers(),
-      tonnageByUnit: this.tonnageByUnit,
-    });
-    this.tryFinalizeAndPublish();
-  }
+    );
+  };
 
-  applyAttack(
+  applyAttack = (
     attackerId: string,
     targetId: string,
     weaponIds: readonly string[],
     weaponModesByWeaponId?: Readonly<Record<string, WeaponFireMode>>,
     selectedAMSWeaponIds?: Readonly<Record<string, string>>,
-  ): void {
-    // Declare-then-lock logic lives in `InteractiveSession.actions`.
-    // Wave 8 PR-K5: pass the grid + target hex so the action layer can
-    // pre-compute the indirect-fire resolution and thread it into
-    // `declareAttack` (engine path established by PR-K + PR-K4).
-    const targetUnit = this.session.currentState.units[targetId];
-    this.session = applyInteractiveSessionAttack({
-      session: this.session,
-      weaponsByUnit: this.weaponsByUnit,
+  ): void => {
+    applyInteractiveSessionAttackCommand(
+      this.runtimeContext,
       attackerId,
       targetId,
       weaponIds,
       weaponModesByWeaponId,
       selectedAMSWeaponIds,
-      grid: this.grid,
-      targetHex: targetUnit?.position,
-    });
-    this.tryFinalizeAndPublish();
-  }
+    );
+  };
 
-  applyPhysicalAttack(
+  applyPhysicalAttack = (
     attackerId: string,
     targetId: string,
     attackType: PhysicalAttackType,
     limb?: PhysicalAttackLimb,
-  ): void {
-    const baseContext = this.physicalContextByUnit().get(attackerId);
-    if (!baseContext) return;
-    const elevationDifference = this.elevationDifferenceBetween(
-      attackerId,
-      targetId,
-    );
-    const context: IPhysicalAttackContext = {
-      ...baseContext,
-      ...this.buildJumpJetAttackSessionContext(
-        attackerId,
-        attackType,
-        limb,
-        baseContext,
-        elevationDifference,
-      ),
-      elevationDifference,
-      limb,
-      targetMovementComplete: true,
-    };
-
-    this.session = declarePhysicalAttack(
-      this.session,
+  ): void => {
+    applyInteractiveSessionPhysicalAttackCommand(
+      this.runtimeContext,
       attackerId,
       targetId,
       attackType,
-      context,
+      limb,
     );
-    this.tryFinalizeAndPublish();
-  }
+  };
 
-  private buildJumpJetAttackSessionContext(
-    attackerId: string,
-    attackType: PhysicalAttackType,
-    limb: PhysicalAttackLimb | undefined,
-    baseContext: IPhysicalAttackContext,
-    elevationDifference: number,
-  ): Partial<IPhysicalAttackContext> {
-    if (attackType !== 'jump-jet-attack') return {};
-
-    const jumpMP = this.movementByUnit.get(attackerId)?.jumpMP ?? 0;
-    if (jumpMP <= 0) return {};
-
-    const selectedLeg =
-      baseContext.jumpJetAttackSelectedLeg ??
-      (limb === 'leftLeg' ? 'left' : 'right');
-    const selectedLeftLeg = selectedLeg === 'left' || selectedLeg === 'both';
-    const selectedRightLeg = selectedLeg === 'right' || selectedLeg === 'both';
-
-    return {
-      attackerJumpMP: baseContext.attackerJumpMP ?? jumpMP,
-      jumpJetAttackSelectedLeg: selectedLeg,
-      standingAttackerHeightAboveTargetHeight:
-        baseContext.standingAttackerHeightAboveTargetHeight ??
-        1 - elevationDifference,
-      leftReadyJumpJetCount: selectedLeftLeg
-        ? (baseContext.leftReadyJumpJetCount ?? jumpMP)
-        : baseContext.leftReadyJumpJetCount,
-      rightReadyJumpJetCount: selectedRightLeg
-        ? (baseContext.rightReadyJumpJetCount ?? jumpMP)
-        : baseContext.rightReadyJumpJetCount,
-    };
-  }
-
-  requestSpot(unitId: string, targetId: string): void {
-    this.session = requestSpotAction(this.session, unitId, targetId);
-    this.tryFinalizeAndPublish();
-  }
+  requestSpot = (unitId: string, targetId: string): void => {
+    requestInteractiveSessionSpot(this.runtimeContext, unitId, targetId);
+  };
 
   /**
    * Per `add-combat-morale-and-withdrawal` (D4): the player-facing
@@ -589,134 +477,24 @@ export class InteractiveSession {
    * destroyed, or already retreated is a no-op (the player cannot
    * cancel a declared withdrawal).
    */
-  declareWithdrawal(
+  declareWithdrawal = (
     unitId: string,
     edge: 'north' | 'south' | 'east' | 'west',
-  ): void {
-    this.session = declarePlayerWithdrawal(this.session, unitId, edge);
-    this.tryFinalizeAndPublish();
-  }
+  ): void => {
+    declareInteractiveSessionWithdrawal(this.runtimeContext, unitId, edge);
+  };
 
-  ejectUnit(unitId: string): void {
-    if (this.session.currentState.status !== GameStatus.Active) return;
+  ejectUnit = (unitId: string): void => {
+    ejectInteractiveSessionUnit(this.runtimeContext, unitId);
+  };
 
-    const unit = this.session.currentState.units[unitId];
-    if (!unit || unit.destroyed || unit.hasRetreated || unit.hasEjected) {
-      return;
-    }
+  advancePhase = (): void => {
+    advanceInteractiveSession(this.runtimeContext);
+  };
 
-    this.appendAndPersistEvent(
-      createUnitEjectedEvent(
-        this.session.id,
-        this.session.events.length,
-        this.session.currentState.turn,
-        this.session.currentState.phase,
-        unitId,
-        'player_declared',
-      ),
-    );
-    this.tryFinalizeAndPublish();
-  }
-
-  advancePhase(): void {
-    // Per-phase transition logic lives in `InteractiveSession.phases`.
-    // The class stays a thin coordinator: it threads its private state
-    // through the phase-context callbacks and keeps ownership of the
-    // trailing finalize/publish step so the once-per-session outcome
-    // guard is not split across modules.
-    const sessionBeforePhase = this.session;
-    advanceInteractiveSessionPhase({
-      getSession: () => this.session,
-      setSession: (session) => {
-        this.session = session;
-      },
-      d6RollerForResolvers: () => this.d6RollerForResolvers(),
-      diceRollerForResolvers: () => this.diceRollerForResolvers(),
-      physicalContextByUnit: () => this.physicalContextByUnit(),
-      grid: () => this.grid,
-      waterDepthAt: (position) => this.waterDepthAt(position),
-      environmentHeatEffectAt: (position) =>
-        this.environmentHeatEffectAt(position),
-      isGameOver: () => this.isGameOver(),
-    });
-    this.applyBattlefieldWreckTerrainForNewEvents(sessionBeforePhase);
-    // Wave 5: any phase transition can land us in a victory condition
-    // (e.g., the final attack resolution destroys the last opponent
-    // unit). Try to finalize+publish here so the campaign store is
-    // notified within the same call.
-    this.tryFinalizeAndPublish();
-  }
-
-  runAITurn(side: GameSide): void {
-    runInteractiveSessionAITurn({
-      side,
-      getSession: () => this.session,
-      setSession: (session) => {
-        this.session = session;
-      },
-      appendAndPersistEvent: (event) => this.appendAndPersistEvent(event),
-      weaponsByUnit: this.weaponsByUnit,
-      movementByUnit: this.movementByUnit,
-      gunneryByUnit: this.gunneryByUnit,
-      pilotingByUnit: this.pilotingByUnit,
-      tonnageByUnit: this.tonnageByUnit,
-      grid: this.grid,
-      botPlayer: this.botPlayer,
-    });
-    this.tryFinalizeAndPublish();
-  }
-
-  private appendAndPersistEvent(event: IGameEvent): void {
-    const sessionBeforeEvent = this.session;
-    this.session = appendEvent(this.session, event);
-    this.persistMatchLogEvent(event);
-    this.applyBattlefieldWreckTerrainForNewEvents(sessionBeforeEvent);
-  }
-
-  private persistMatchLogEvent(event: IGameEvent): void {
-    void matchLogStorage
-      .appendEvent(this.session.matchId ?? this.session.id, event)
-      .catch((error: unknown) => {
-        reportMatchLogDivergence(error);
-      });
-  }
-
-  private applyBattlefieldWreckTerrainForNewEvents(
-    sessionBeforeEvents: IGameSession,
-  ): void {
-    const newEvents = this.session.events.slice(
-      sessionBeforeEvents.events.length,
-    );
-    const results = applyBattlefieldWreckTerrainForSessionEvents(
-      this.grid,
-      sessionBeforeEvents,
-      newEvents,
-      this.tonnageByUnit,
-    );
-    for (const result of results) {
-      const payload = terrainChangedPayloadFromBattlefieldWreckResult(result);
-      if (payload === null) continue;
-      const event = createTerrainChangedEvent(
-        this.session.id,
-        this.session.events.length,
-        this.session.currentState.turn,
-        this.session.currentState.phase,
-        payload,
-      );
-      this.session = appendEvent(this.session, event);
-      this.persistMatchLogEvent(event);
-    }
-  }
-
-  // Resolver-input shaping lives in `InteractiveSession.resolvers`.
-  private physicalContextByUnit(): Map<string, IPhysicalAttackContext> {
-    return physicalContextByUnit(
-      this.session,
-      this.tonnageByUnit,
-      this.pilotingByUnit,
-      this.grid,
-    );
-  }
+  runAITurn = (side: GameSide): void => {
+    runInteractiveSessionAI(this.runtimeContext, side);
+  };
 
   /**
    * Per `add-victory-and-post-battle-summary` task 1.3 + B3 from the
@@ -738,113 +516,35 @@ export class InteractiveSession {
    * check) routes through `tryFinalizeAndPublish` so the
    * `CombatOutcomeReady` bus event fires exactly once per session.
    */
-  concede(side: GameSide): void {
-    if (this.session.currentState.status !== GameStatus.Active) {
-      throw new Error('Game is not active');
-    }
-    const winner =
-      side === GameSide.Player ? GameSide.Opponent : GameSide.Player;
-    this.session = endGame(this.session, winner, 'concede');
-    this.tryFinalizeAndPublish();
-  }
+  concede = (side: GameSide): void => {
+    concedeInteractiveSession(this.runtimeContext, side);
+  };
 
   /**
    * Wave 4 reconnect timeout: an expired grace window is neither side's
    * victory, but it must still append a terminal `GameEnded` event so
    * persisted logs and reconnect replay converge on a completed match.
    */
-  abortMatch(): void {
-    if (this.session.currentState.status !== GameStatus.Active) {
-      throw new Error('Game is not active');
-    }
-    this.session = endGame(this.session, 'draw', 'aborted');
-    this.tryFinalizeAndPublish();
-  }
-
-  /**
-   * Auto-finalize the session when the win-condition predicate trips
-   * (turn limit reached, side eliminated) but no explicit `endGame` has
-   * fired yet, then publish `CombatOutcomeReady` exactly once. Idempotent
-   * — once `outcomePublished` is true, subsequent calls are no-ops.
-   *
-   * The publishing path is intentionally synchronous: subscribers run
-   * inside `publishCombatOutcome`, so by the time this method returns
-   * the campaign store has already enqueued the outcome (see
-   * `useCampaignStore.subscribeToOutcomeBus`). This makes the round-trip
-   * provable in a single tick — exactly what the capstone integration
-   * test relies on.
-   */
-  private tryFinalizeAndPublish(): void {
-    if (this.outcomePublished) return;
-    if (!this.isGameOver()) return;
-
-    const result = finalizeSessionOutcome({
-      session: this.session,
-      gameConfig: this.gameConfig,
-      startedAt: this.startedAt,
-      linkage: this.linkage,
-    });
-    this.session = result.session;
-    this.outcomePublished = result.published;
-  }
+  abortMatch = (): void => {
+    abortInteractiveSession(this.runtimeContext);
+  };
 
   /**
    * Test-observability accessor for the once-per-session publish guard.
    * The capstone E2E test asserts double-publish suppression by reading
    * this flag.
    */
-  hasPublishedOutcome(): boolean {
-    return this.outcomePublished;
-  }
+  hasPublishedOutcome = (): boolean => {
+    return hasInteractiveSessionPublishedOutcome(this.runtimeContext);
+  };
 
-  // Resolver-roller adapters live in `InteractiveSession.resolvers`.
-  private d6RollerForResolvers(): D6Roller | undefined {
-    return d6RollerForResolvers(this.d6Roller);
-  }
+  isGameOver = (): boolean => {
+    return isInteractiveSessionGameOver(this.runtimeContext);
+  };
 
-  private diceRollerForResolvers(): DiceRoller | undefined {
-    return diceRollerForResolvers(this.d6Roller);
-  }
-
-  // Heat-phase water-depth lookup lives in `InteractiveSession.resolvers`.
-  private waterDepthAt(position: IHexCoordinate): number {
-    return waterDepthAt(this.grid, position);
-  }
-
-  private elevationDifferenceBetween(
-    attackerId: string,
-    targetId: string,
-  ): number {
-    const attacker = this.session.currentState.units[attackerId];
-    const target = this.session.currentState.units[targetId];
-    if (!attacker || !target) return 0;
-    const attackerHex = this.grid.hexes.get(
-      `${attacker.position.q},${attacker.position.r}`,
-    );
-    const targetHex = this.grid.hexes.get(
-      `${target.position.q},${target.position.r}`,
-    );
-    return (targetHex?.elevation ?? 0) - (attackerHex?.elevation ?? 0);
-  }
-
-  private environmentHeatEffectAt(position: IHexCoordinate): number {
-    return environmentHeatEffectAt(this.grid, position);
-  }
-
-  isGameOver(): boolean {
-    return isGameEnded(this.session.currentState, this.gameConfig);
-  }
-
-  getResult(): IGameOutcome | null {
-    if (!this.isGameOver()) return null;
-    return calculateGameOutcome({
-      state: this.session.currentState,
-      events: this.session.events,
-      config: this.gameConfig,
-      startedAt: this.startedAt,
-      endedAt: new Date().toISOString(),
-    });
-  }
+  getResult = (): IGameOutcome | null => {
+    return getInteractiveSessionResult(this.runtimeContext);
+  };
 
   /**
    * Per `add-combat-outcome-model` task 3.1: derive the campaign-facing
@@ -857,60 +557,7 @@ export class InteractiveSession {
    * hooks: the engine never knows them, but the campaign orchestrator
    * passes them through here so the persisted outcome is self-describing.
    */
-  getOutcome(options: IDeriveCombatOutcomeOptions = {}): ICombatOutcome {
-    if (!this.isGameOver()) {
-      throw new CombatNotCompleteError();
-    }
-    // Wave 5: ensure the session reaches `Completed` and the bus event
-    // fires before we return — keeps `getOutcome()` as a one-stop entry
-    // for legacy callers (review page, tests) that don't go through the
-    // phase-transition methods.
-    this.tryFinalizeAndPublish();
-    // Merge caller-provided options with our linkage so explicit
-    // callsite overrides win (tests sometimes inject deterministic
-    // capturedAt values).
-    const merged: IDeriveCombatOutcomeOptions = {
-      contractId: options.contractId ?? this.linkage.contractId ?? undefined,
-      scenarioId: options.scenarioId ?? this.linkage.scenarioId ?? undefined,
-      capturedAt: options.capturedAt,
-    };
-    return deriveCombatOutcome(this.session, merged);
-  }
-}
-
-/**
- * Per `fix-recovered-session-adapted-units` (closes playtest gap #2):
- * re-derive adapted units from each game unit's `unitRef` against the
- * canonical unit catalog. The bootstrap path's
- * `preBattleSessionBuilder.adaptParticipants` runs the same `adaptUnit`
- * call per participant; this helper is the recovery-path mirror. Both
- * paths converge on the same `IAdaptedUnit` shape so a recovered
- * session is byte-equivalent to a freshly-bootstrapped one with the
- * same units (bootstrap parity, per spec scenario "Recovered session
- * adapted-units match bootstrap parity").
- *
- * Exported for the recovery test only — production code should use
- * `InteractiveSession.fromSessionAsync`.
- */
-export async function deriveAdaptedUnitsFromSession(
-  session: IGameSession,
-): Promise<IAdaptedUnit[]> {
-  const adapted: IAdaptedUnit[] = [];
-  for (const gameUnit of session.units) {
-    const adaptedUnit = await adaptUnit(gameUnit.unitRef, {
-      side: gameUnit.side,
-    });
-    if (adaptedUnit === null) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `[InteractiveSession.fromSessionAsync] unit '${gameUnit.id}' ` +
-          `(unitRef '${gameUnit.unitRef}') not found in the canonical ` +
-          `catalog — skipping. The recovered host will not have adapted ` +
-          `state for this unit and any action targeting it will fail.`,
-      );
-      continue;
-    }
-    adapted.push(adaptedUnit);
-  }
-  return adapted;
+  getOutcome = (options: IDeriveCombatOutcomeOptions = {}): ICombatOutcome => {
+    return getInteractiveSessionOutcome(this.runtimeContext, options);
+  };
 }

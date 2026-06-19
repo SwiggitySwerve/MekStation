@@ -38,6 +38,12 @@ yarn-error.log*
 scripts/**
 !scripts/
 !scripts/print-combat-validation-gaps.ts
+!scripts/maintenance/
+!scripts/maintenance/scan-maintenance.mjs
+!scripts/jest/
+!scripts/jest/run-jest-lane.mjs
+!scripts/qc/
+!scripts/qc/**
 
 # Development files (now organized in scripts/)
 /test-*

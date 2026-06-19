@@ -28,6 +28,36 @@ const QUADVEE_CONVERSION_ACTUATORS = [
   ActuatorType.FOOT,
 ] as const;
 
+type NormalizedCommandConversionMode = 'mek' | 'airmek' | 'fighter' | 'vehicle';
+
+const LAM_NUMERIC_CONVERSION_MODES: Readonly<
+  Partial<Record<number, NormalizedCommandConversionMode>>
+> = {
+  0: 'mek',
+  1: 'airmek',
+  2: 'fighter',
+};
+
+const QUADVEE_NUMERIC_CONVERSION_MODES: Readonly<
+  Partial<Record<number, NormalizedCommandConversionMode>>
+> = {
+  0: 'mek',
+  1: 'vehicle',
+};
+
+const STRING_CONVERSION_MODE_ALIASES: Readonly<
+  Record<string, NormalizedCommandConversionMode>
+> = {
+  mek: 'mek',
+  mech: 'mek',
+  airmek: 'airmek',
+  airmech: 'airmek',
+  fighter: 'fighter',
+  vehicle: 'vehicle',
+  tracked: 'vehicle',
+  wheeled: 'vehicle',
+};
+
 export interface IRuntimeConversionCommandMetadata {
   readonly conversionStepCount: number;
   readonly conversionMpCost: number;
@@ -118,36 +148,21 @@ export function runtimeLamAirMekAutomaticLandingPatch(
 export function normalizedCommandConversionMode(
   value: MovementConversionMode | number | undefined,
   profile: MovementUnitHeightProfile | undefined,
-): 'mek' | 'airmek' | 'fighter' | 'vehicle' | undefined {
+): NormalizedCommandConversionMode | undefined {
   if (!profile) return undefined;
   if (value === undefined) return 'mek';
 
   if (typeof value === 'number') {
-    if (value === 0) return 'mek';
-    if (profile.kind === 'lam') {
-      if (value === 1) return 'airmek';
-      if (value === 2) return 'fighter';
-    }
-    if (profile.kind === 'quadvee' && value === 1) return 'vehicle';
-    return undefined;
+    const numericModes =
+      profile.kind === 'lam'
+        ? LAM_NUMERIC_CONVERSION_MODES
+        : profile.kind === 'quadvee'
+          ? QUADVEE_NUMERIC_CONVERSION_MODES
+          : undefined;
+    return numericModes?.[value];
   }
 
-  switch (value) {
-    case 'mek':
-    case 'mech':
-      return 'mek';
-    case 'airmek':
-    case 'airmech':
-      return 'airmek';
-    case 'fighter':
-      return 'fighter';
-    case 'vehicle':
-    case 'tracked':
-    case 'wheeled':
-      return 'vehicle';
-    default:
-      return undefined;
-  }
+  return STRING_CONVERSION_MODE_ALIASES[value];
 }
 
 function normalizeNonNegativeInteger(value: number | undefined): number {

@@ -12,6 +12,8 @@ import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 import { logger } from '@/utils/logger';
 
+import { BIPED_ARMOR_LOCATIONS } from '../armor/shared/ArmorVariantRenderHelpers';
+
 type CriticalSlotCell = {
   content: string;
   isSystem?: boolean;
@@ -215,18 +217,8 @@ export function buildCriticalSlotsFromEquipment(
   equipment: readonly IMountedEquipmentInstance[],
 ): PreviewCriticalSlots {
   const result: PreviewCriticalSlots = {};
-  const locations = [
-    MechLocation.HEAD,
-    MechLocation.CENTER_TORSO,
-    MechLocation.LEFT_TORSO,
-    MechLocation.RIGHT_TORSO,
-    MechLocation.LEFT_ARM,
-    MechLocation.RIGHT_ARM,
-    MechLocation.LEFT_LEG,
-    MechLocation.RIGHT_LEG,
-  ];
 
-  locations.forEach((location) => {
+  BIPED_ARMOR_LOCATIONS.forEach((location) => {
     const slotCount =
       location === MechLocation.HEAD ||
       location === MechLocation.LEFT_LEG ||

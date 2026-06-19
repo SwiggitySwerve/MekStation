@@ -14,6 +14,7 @@ import { getPayload } from '../utils/getPayload';
 import {
   type BattleState,
   type DetectorTrackingState,
+  type MomentFactory,
   FOCUS_FIRE_THRESHOLD,
   getUnitName,
 } from './types';
@@ -22,14 +23,7 @@ export function processAttackResolved(
   event: IGameEvent,
   battleState: BattleState,
   state: DetectorTrackingState,
-  createMoment: (
-    type: string,
-    event: IGameEvent,
-    description: string,
-    relatedUnitIds: string[],
-    state: DetectorTrackingState,
-    metadata?: Record<string, unknown>,
-  ) => IKeyMoment,
+  createMoment: MomentFactory,
 ): IKeyMoment[] {
   const payload = getPayload(event, GameEventType.AttackResolved);
   const moments: IKeyMoment[] = [];
@@ -140,14 +134,7 @@ export function processDamageApplied(
   event: IGameEvent,
   battleState: BattleState,
   state: DetectorTrackingState,
-  createMoment: (
-    type: string,
-    event: IGameEvent,
-    description: string,
-    relatedUnitIds: string[],
-    state: DetectorTrackingState,
-    metadata?: Record<string, unknown>,
-  ) => IKeyMoment,
+  createMoment: MomentFactory,
 ): IKeyMoment[] {
   const payload = getPayload(event, GameEventType.DamageApplied);
   const moments: IKeyMoment[] = [];
@@ -224,14 +211,7 @@ export function processCriticalHit(
   event: IGameEvent,
   battleState: BattleState,
   state: DetectorTrackingState,
-  createMoment: (
-    type: string,
-    event: IGameEvent,
-    description: string,
-    relatedUnitIds: string[],
-    state: DetectorTrackingState,
-    metadata?: Record<string, unknown>,
-  ) => IKeyMoment,
+  createMoment: MomentFactory,
 ): IKeyMoment[] {
   const payload = getPayload(event, GameEventType.CriticalHit);
   const moments: IKeyMoment[] = [];
@@ -273,14 +253,7 @@ export function processAmmoExplosion(
   event: IGameEvent,
   battleState: BattleState,
   state: DetectorTrackingState,
-  createMoment: (
-    type: string,
-    event: IGameEvent,
-    description: string,
-    relatedUnitIds: string[],
-    state: DetectorTrackingState,
-    metadata?: Record<string, unknown>,
-  ) => IKeyMoment,
+  createMoment: MomentFactory,
 ): IKeyMoment[] {
   const payload = getPayload(event, GameEventType.AmmoExplosion);
   const unitName = getUnitName(battleState.units, payload.unitId);
@@ -301,14 +274,7 @@ export function processPilotHit(
   event: IGameEvent,
   battleState: BattleState,
   state: DetectorTrackingState,
-  createMoment: (
-    type: string,
-    event: IGameEvent,
-    description: string,
-    relatedUnitIds: string[],
-    state: DetectorTrackingState,
-    metadata?: Record<string, unknown>,
-  ) => IKeyMoment,
+  createMoment: MomentFactory,
 ): IKeyMoment[] {
   const payload = getPayload(event, GameEventType.PilotHit);
 

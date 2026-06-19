@@ -1,0 +1,142 @@
+import { MEGAMEK_AMMO_EXPLOSION_PILOT_DAMAGE_SOURCE_REFS } from './CombatConsciousnessSourceRefs';
+import {
+  EQUIPMENT_ARTEMIS_FCS_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_BOMB_BAY_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_BOMB_BAY_CRITICAL_EFFECT_GAP,
+  EQUIPMENT_BLUE_SHIELD_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_BLUE_SHIELD_SPECIAL_RULES_EVIDENCE,
+  EQUIPMENT_BLUE_SHIELD_SPECIAL_RULES_GAP,
+  EQUIPMENT_CHARGED_CAPACITOR_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_EXTENDED_FUEL_TANK_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_FUEL_INCENDIARY_BRANCH_EVIDENCE,
+  EQUIPMENT_FUEL_INCENDIARY_BRANCH_GAP,
+  EQUIPMENT_HOT_LOAD_LINKED_AMMO_INFERENCE_EVIDENCE,
+  EQUIPMENT_HOT_LOAD_MODE_STATE_INFERENCE_EVIDENCE,
+  EQUIPMENT_PROTOTYPE_IMPROVED_JUMP_JET_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_EXPLOSIVE_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_HOT_LOADED_WEAPON_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_RISC_LPM_AMBIGUOUS_LINK_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_RISC_LASER_PULSE_MODULE_INOPERABLE_LINKED_CRITICAL_EFFECT_EVIDENCE,
+  EQUIPMENT_RISC_LASER_PULSE_MODULE_CRITICAL_EFFECT_EVIDENCE,
+  UNRESOLVED_EQUIPMENT_CRITICAL_EFFECT_BRANCHES,
+} from './CombatCriticalSlotEffectSupport';
+import {
+  MEKSTATION_AC_PLAYTEST_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_ACTIVE_PROBE_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_ARTEMIS_FCS_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEGAMEK_AMMO_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_BLUE_SHIELD_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_CHARGED_CAPACITOR_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_EMERGENCY_COOLANT_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEGAMEK_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_HARJEL_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_HOT_LOADED_WEAPON_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_EXTENDED_FUEL_TANK_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_FUEL_INCENDIARY_SCOPE_SPLIT_SOURCE_REFS,
+  MEKSTATION_AMMO_EXHAUSTION_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_GENERIC_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEGAMEK_MTF_EQUIPMENT_CRITICAL_SOURCE_REFS,
+  MEGAMEK_MTF_SYSTEM_CRITICAL_SOURCE_REFS,
+  MEGAMEK_PARTIAL_WING_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEGAMEK_PHYSICAL_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_PROTOTYPE_IMPROVED_JUMP_JET_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_REPRESENTED_EXPLOSIVE_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_RISC_LASER_PULSE_MODULE_INOPERABLE_LINKED_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_RISC_LASER_PULSE_MODULE_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_SCM_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_SHIELD_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEKSTATION_STEALTH_LINKED_ECM_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
+  MEGAMEK_SYSTEM_CRITICAL_EFFECT_SOURCE_REFS,
+} from './CombatCriticalSlotSourceRefs';
+import {
+  BATTLEMECH_MANUAL_DAMAGE_SOURCE_REFS,
+  MEGAMEK_BATTLEMECH_DAMAGE_SOURCE_REFS,
+  MEKSTATION_COCKPIT_CRIT_PILOT_DEATH_SOURCE_REFS,
+  MEKSTATION_DAMAGE_EVENT_SOURCE_REFS,
+  MEKSTATION_DAMAGE_RESOLUTION_SOURCE_REFS,
+  MEKSTATION_DESTRUCTION_CAUSE_SOURCE_REFS,
+  MEKSTATION_HEAT_AMMO_EXPLOSION_DAMAGE_SOURCE_REFS,
+  MEKSTATION_HEAT_PILOT_DAMAGE_SOURCE_REFS,
+  MEKSTATION_MAXTECH_HEAT_CRITICAL_SOURCE_REFS,
+  MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
+} from './CombatDamageSourceRefs';
+import {
+  MEGAMEK_DFA_IMPOSSIBLE_DISPLACEMENT_SOURCE_REFS,
+  MEGAMEK_FALL_PILOT_DAMAGE_SOURCE_REFS,
+  MEGAMEK_CASE_AMMO_EXPLOSION_SOURCE_REFS,
+  CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
+  DAMAGE_EVENT_SOURCE_REFS,
+  HEAT_AMMO_EXPLOSION_DAMAGE_CASCADE_SOURCE_REFS,
+  DAMAGE_DESTRUCTION_CAUSE_SOURCE_REFS,
+  ENGINE_DESTRUCTION_CAUSE_SOURCE_REFS,
+} from './CombatDamageSupport.sourceRefs';
+import {
+  integrated,
+  outOfScope,
+  type ICombatFeatureSourceReference,
+  type ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
+import { DAMAGE_THRESHOLD_PSR_SOURCE_REFS } from './CombatPsrTriggerSourceRefs';
+
+export const DAMAGE_RESOLUTION_COMBAT_SUPPORT = {
+  'armor-damage': integrated(
+    'armor-damage',
+    'resolveDamage + runAttackPhase emit DamageApplied and persist armor totals',
+    CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
+  ),
+  'internal-structure-damage': integrated(
+    'internal-structure-damage',
+    'resolveDamage applies structure damage and applyDamageResultToState persists structure totals',
+    CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
+  ),
+  'rear-armor-damage': integrated(
+    'rear-armor-damage',
+    'applyDamageToLocation maps rear hit locations through rearArmor before structure',
+    CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
+  ),
+  'head-damage-cap': integrated(
+    'head-damage-cap',
+    'resolveDamage caps each head hit at HEAD_DAMAGE_CAP_PER_HIT before transfer',
+    CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
+  ),
+  'damage-transfer': integrated(
+    'damage-transfer',
+    'applyDamageWithTransfer follows getTransferCombatLocation until overflow ends',
+    CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
+  ),
+  'side-torso-arm-cascade': integrated(
+    'side-torso-arm-cascade',
+    'applyDamageToLocation and runner LocationDestroyed events cascade side torso destruction to the same-side arm',
+    CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
+  ),
+  'location-destroyed-events': integrated(
+    'location-destroyed-events',
+    'weaponAttackHitResolution emits LocationDestroyed for each destroyed location in the damage chain',
+    DAMAGE_EVENT_SOURCE_REFS,
+  ),
+  'transfer-damage-events': integrated(
+    'transfer-damage-events',
+    'weaponAttackHitResolution emits TransferDamage when overflow transfers to another location',
+    DAMAGE_EVENT_SOURCE_REFS,
+  ),
+  'twenty-plus-damage-psr': integrated(
+    'twenty-plus-damage-psr',
+    'weaponAttackHitResolution queues createDamagePSR after 20+ damage in one phase',
+    DAMAGE_THRESHOLD_PSR_SOURCE_REFS,
+  ),
+  'heat-ammo-explosion-damage-cascade': integrated(
+    'heat-ammo-explosion-damage-cascade',
+    'runHeatPhase and resolveHeatPhase empty the selected heat-cookoff bin, route explosion damage through resolveDamage, emit damage/transfer/destruction events, and tag fatal cookoffs as ammo_explosion',
+    HEAT_AMMO_EXPLOSION_DAMAGE_CASCADE_SOURCE_REFS,
+  ),
+  'case-ammo-explosion-containment': integrated(
+    'case-ammo-explosion-containment',
+    'UnitHydration and IGameUnit setup project CASE, CASE-P/prototype CASE, and CASE II into per-location combat state; heat, crit, and event-sourced heat cookoffs emit caseProtection, route explosion damage directly to internal structure, blow out rear armor for surviving protected torso locations, and cap protected damage before transfer can occur',
+    MEGAMEK_CASE_AMMO_EXPLOSION_SOURCE_REFS,
+  ),
+  'destruction-cause-state-persistence': integrated(
+    'destruction-cause-state-persistence',
+    'resolveDamage returns destructionCause, applyDamageResultToState persists it on IUnitGameState, ammo explosion cascades can override generic damage, and UnitDestroyed replay stores the event cause',
+    DAMAGE_DESTRUCTION_CAUSE_SOURCE_REFS,
+  ),
+} satisfies Record<string, ICombatFeatureSupportEntry>;

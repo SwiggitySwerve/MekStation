@@ -15,8 +15,11 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { ICampaignSummary } from '@/types/campaign/SerializedCampaign';
 
+import {
+  initializeApiDatabase,
+  sendCaughtApiError,
+} from '@/pages-modules/api/routeHelpers';
 import { listCampaignSummaries } from '@/services/campaignPersistence/CampaignPersistenceService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 type ErrorResponse = { error: string };
 
@@ -24,14 +27,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<readonly ICampaignSummary[] | ErrorResponse>,
 ): Promise<void> {
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    res.status(500).json({ error: message });
-    return;
-  }
+  if (!initializeApiDatabase(res)) return;
 
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
@@ -43,8 +39,6 @@ export default async function handler(
     const summaries = listCampaignSummaries();
     res.status(200).json(summaries);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'failed to list campaigns';
-    res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'failed to list campaigns');
   }
 }

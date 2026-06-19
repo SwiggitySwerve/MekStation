@@ -19,6 +19,62 @@ interface RedeemShareLinkBody {
   url?: unknown;
 }
 
+type ShareLinkService = ReturnType<typeof getShareLinkService>;
+type RedeemResult = Awaited<ReturnType<ShareLinkService['redeem']>>;
+
+interface RedeemInput {
+  readonly type: 'token' | 'url';
+  readonly value: string;
+}
+
+interface RedeemInputSuccess {
+  readonly ok: true;
+  readonly input: RedeemInput;
+}
+
+interface RedeemInputFailure {
+  readonly ok: false;
+  readonly error: string;
+}
+
+const REDEEM_ERROR_STATUS: Record<string, number> = {
+  NOT_FOUND: 404,
+  EXPIRED: 410,
+  MAX_USES: 410,
+  INACTIVE: 410,
+};
+
+function parseRedeemInput(
+  body: RedeemShareLinkBody,
+): RedeemInputSuccess | RedeemInputFailure {
+  if (!body.token && !body.url) {
+    return { ok: false, error: 'Either token or url is required' };
+  }
+
+  if (body.url && typeof body.url === 'string') {
+    return { ok: true, input: { type: 'url', value: body.url } };
+  }
+
+  if (body.token && typeof body.token === 'string') {
+    return { ok: true, input: { type: 'token', value: body.token } };
+  }
+
+  return { ok: false, error: 'token or url must be a string' };
+}
+
+function redeemErrorStatus(errorCode: string): number {
+  return REDEEM_ERROR_STATUS[errorCode] ?? 400;
+}
+
+function redeemShareLink(
+  service: ShareLinkService,
+  input: RedeemInput,
+): Promise<RedeemResult> {
+  return input.type === 'url'
+    ? service.redeemByUrl(input.value)
+    : service.redeem(input.value);
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -32,37 +88,13 @@ export default async function handler(
 
   try {
     const body = req.body as RedeemShareLinkBody;
+    const parsed = parseRedeemInput(body);
+    if (!parsed.ok) return res.status(400).json({ error: parsed.error });
 
-    // Either token or url must be provided
-    if (!body.token && !body.url) {
-      return res.status(400).json({ error: 'Either token or url is required' });
-    }
-
-    let result;
-
-    if (body.url && typeof body.url === 'string') {
-      // Redeem by URL
-      result = await service.redeemByUrl(body.url);
-    } else if (body.token && typeof body.token === 'string') {
-      // Redeem by token
-      result = await service.redeem(body.token);
-    } else {
-      return res.status(400).json({ error: 'token or url must be a string' });
-    }
+    const result = await redeemShareLink(service, parsed.input);
 
     if (!result.success) {
-      // Map error codes to HTTP status codes
-      const statusCode =
-        result.error.errorCode === 'NOT_FOUND'
-          ? 404
-          : result.error.errorCode === 'EXPIRED'
-            ? 410
-            : result.error.errorCode === 'MAX_USES'
-              ? 410
-              : result.error.errorCode === 'INACTIVE'
-                ? 410
-                : 400;
-
+      const statusCode = redeemErrorStatus(result.error.errorCode);
       return res.status(statusCode).json({
         success: false,
         error: result.error.message,

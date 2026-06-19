@@ -10,10 +10,17 @@ import {
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
   IUnitValidationRuleResult,
+  IUnitValidationError,
   UnitValidationSeverity,
-  createUnitValidationError,
-  createUnitValidationRuleResult,
 } from '@/types/validation/UnitValidationInterfaces';
+
+import {
+  addRuleDiagnostic,
+  createRuleResult,
+  createEmptyRuleResult,
+} from '../ruleResults';
+
+const WEIGHT_OVERFLOW_VALIDATION_WEIGHT_CATEGORY = ValidationCategory.WEIGHT;
 
 /**
  * VAL-UNIV-014: Weight Overflow Validation
@@ -22,9 +29,9 @@ export const WeightOverflowValidation: IUnitValidationRuleDefinition = {
   id: 'VAL-UNIV-014',
   name: 'Weight Overflow Validation',
   description: 'Validate total weight does not exceed maximum tonnage',
-  category: ValidationCategory.WEIGHT,
-  priority: 14,
+  category: WEIGHT_OVERFLOW_VALIDATION_WEIGHT_CATEGORY,
   applicableUnitTypes: 'ALL',
+  priority: 14,
 
   canValidate(context: IUnitValidationContext): boolean {
     return (
@@ -35,10 +42,10 @@ export const WeightOverflowValidation: IUnitValidationRuleDefinition = {
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors: ReturnType<typeof createUnitValidationError>[] = [];
+    const errors: IUnitValidationError[] = [];
 
     if (unit.allocatedWeight === undefined || unit.maxWeight === undefined) {
-      return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+      return createEmptyRuleResult(this);
     }
 
     const allocated = unit.allocatedWeight;
@@ -46,31 +53,21 @@ export const WeightOverflowValidation: IUnitValidationRuleDefinition = {
 
     if (allocated > max) {
       const overage = (allocated - max).toFixed(1);
-      errors.push(
-        createUnitValidationError(
-          this.id,
-          this.name,
-          UnitValidationSeverity.CRITICAL_ERROR,
-          this.category,
-          `Unit exceeds maximum tonnage by ${overage} tons (${allocated.toFixed(1)}/${max} tons)`,
-          {
-            field: 'weight',
-            expected: `<= ${max} tons`,
-            actual: `${allocated.toFixed(1)} tons`,
-            suggestion:
-              'Remove equipment or reduce armor/components to meet weight limit',
-          },
-        ),
+      addRuleDiagnostic(
+        errors,
+        this,
+        UnitValidationSeverity.CRITICAL_ERROR,
+        `Unit exceeds maximum tonnage by ${overage} tons (${allocated.toFixed(1)}/${max} tons)`,
+        {
+          field: 'weight',
+          expected: `<= ${max} tons`,
+          actual: `${allocated.toFixed(1)} tons`,
+          suggestion:
+            'Remove equipment or reduce armor/components to meet weight limit',
+        },
       );
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors });
   },
 };

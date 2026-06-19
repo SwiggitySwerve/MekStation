@@ -17,6 +17,7 @@ import { computeMinimumCrew } from '@/utils/construction/vehicle/crew';
 import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 
 import { customizerStyles as cs } from '../styles';
+import { SelectOptions, toSelectOptions } from '../tabs/SelectOptions';
 import { VehicleSpecialFeaturesSection } from './VehicleSpecialFeaturesSection';
 import {
   ENGINE_TYPE_OPTIONS,
@@ -156,6 +157,13 @@ export function VehicleStructureTab({
           (t) => t.value === TurretType.NONE || t.value === TurretType.CHIN,
         )
       : TURRET_TYPE_OPTIONS.filter((t) => t.value !== TurretType.CHIN);
+  const motionSelectOptions = toSelectOptions(
+    MOTION_TYPE_OPTIONS.map((option) => option.value),
+    (value) => {
+      const option = MOTION_TYPE_OPTIONS.find((item) => item.value === value);
+      return `${option?.label ?? value} (max ${option?.maxTonnage ?? 200}t)`;
+    },
+  );
 
   return (
     <div
@@ -201,11 +209,7 @@ export function VehicleStructureTab({
               className={`${cs.select.full} mt-1`}
               data-testid="vehicle-motion-type-select"
             >
-              {MOTION_TYPE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label} (max {option.maxTonnage}t)
-                </option>
-              ))}
+              <SelectOptions options={motionSelectOptions} />
             </select>
           </div>
 
@@ -218,11 +222,7 @@ export function VehicleStructureTab({
               disabled={readOnly}
               className={`${cs.select.full} mt-1`}
             >
-              {availableTurretOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
+              <SelectOptions options={availableTurretOptions} />
             </select>
           </div>
 
@@ -238,11 +238,7 @@ export function VehicleStructureTab({
               className={`${cs.select.full} mt-1`}
               data-testid="vehicle-structure-type-select"
             >
-              {STRUCTURE_TYPE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
+              <SelectOptions options={STRUCTURE_TYPE_OPTIONS} />
             </select>
           </div>
 
@@ -323,11 +319,7 @@ export function VehicleStructureTab({
               className={`${cs.select.full} mt-1`}
               data-testid="vehicle-engine-type-select"
             >
-              {ENGINE_TYPE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
+              <SelectOptions options={ENGINE_TYPE_OPTIONS} />
             </select>
             {isTrailer && (
               <p className={cs.text.secondary}>Trailers have no engine</p>

@@ -49,11 +49,11 @@ export class ChunkManagerService {
   /**
    * Create and store a new chunk from events.
    */
-  createChunk(params: {
+  createChunk = (params: {
     events: readonly IBaseEvent[];
     campaignId?: string;
     previousHash?: string | null;
-  }): IEventChunk {
+  }): IEventChunk => {
     const { events, campaignId, previousHash } = params;
 
     // Get previous hash from campaign's last chunk if not provided
@@ -84,26 +84,26 @@ export class ChunkManagerService {
     }
 
     return chunk;
-  }
+  };
 
   /**
    * Load a chunk by ID.
    */
-  loadChunk(chunkId: string): IEventChunk | undefined {
+  loadChunk = (chunkId: string): IEventChunk | undefined => {
     return this.chunks.get(chunkId);
-  }
+  };
 
   /**
    * Get all chunks for a campaign in order.
    */
-  getChunksForCampaign(campaignId: string): readonly IEventChunk[] {
+  getChunksForCampaign = (campaignId: string): readonly IEventChunk[] => {
     const manifest = this.manifests.get(campaignId);
     if (!manifest) return [];
 
     return manifest.chunkIds
       .map((id) => this.chunks.get(id))
       .filter((c): c is IEventChunk => c !== undefined);
-  }
+  };
 
   // ===========================================================================
   // Checkpoint Operations
@@ -112,11 +112,11 @@ export class ChunkManagerService {
   /**
    * Create and store a checkpoint.
    */
-  createCheckpoint<TState>(params: {
+  createCheckpoint = <TState>(params: {
     sequence: number;
     state: TState;
     campaignId?: string;
-  }): ICheckpoint<TState> {
+  }): ICheckpoint<TState> => {
     const { sequence, state, campaignId } = params;
 
     const checkpoint = createCheckpoint({
@@ -141,44 +141,44 @@ export class ChunkManagerService {
     }
 
     return checkpoint;
-  }
+  };
 
   /**
    * Load a checkpoint by ID.
    */
-  loadCheckpoint<TState>(
+  loadCheckpoint = <TState>(
     checkpointId: string,
-  ): ICheckpoint<TState> | undefined {
+  ): ICheckpoint<TState> | undefined => {
     return this.checkpoints.get(checkpointId) as
       | ICheckpoint<TState>
       | undefined;
-  }
+  };
 
   /**
    * Get the latest checkpoint for a campaign.
    */
-  getLatestCheckpoint<TState>(
+  getLatestCheckpoint = <TState>(
     campaignId: string,
-  ): ICheckpoint<TState> | undefined {
+  ): ICheckpoint<TState> | undefined => {
     const manifest = this.manifests.get(campaignId);
     if (!manifest?.latestCheckpointId) return undefined;
     return this.loadCheckpoint(manifest.latestCheckpointId);
-  }
+  };
 
   /**
    * Find the nearest checkpoint before a sequence number.
    */
-  findCheckpointBefore<TState>(
+  findCheckpointBefore = <TState>(
     campaignId: string,
     sequence: number,
-  ): ICheckpoint<TState> | undefined {
+  ): ICheckpoint<TState> | undefined => {
     // Get all checkpoints for campaign
     const campaignCheckpoints = Array.from(this.checkpoints.values())
       .filter((c) => c.campaignId === campaignId && c.sequence <= sequence)
       .sort((a, b) => b.sequence - a.sequence);
 
     return campaignCheckpoints[0] as ICheckpoint<TState> | undefined;
-  }
+  };
 
   // ===========================================================================
   // Manifest Operations
@@ -187,14 +187,14 @@ export class ChunkManagerService {
   /**
    * Get the manifest for a campaign.
    */
-  getManifest(campaignId: string): ICampaignManifest | undefined {
+  getManifest = (campaignId: string): ICampaignManifest | undefined => {
     return this.manifests.get(campaignId);
-  }
+  };
 
   /**
    * Create a new manifest for a campaign.
    */
-  createManifest(campaignId: string): ICampaignManifest {
+  createManifest = (campaignId: string): ICampaignManifest => {
     const manifest: ICampaignManifest = {
       campaignId,
       chunkIds: [],
@@ -204,7 +204,7 @@ export class ChunkManagerService {
     };
     this.manifests.set(campaignId, manifest);
     return manifest;
-  }
+  };
 
   /**
    * Update a campaign manifest with a new chunk.
@@ -230,19 +230,19 @@ export class ChunkManagerService {
   /**
    * Verify a campaign's chunk chain integrity.
    */
-  verifyCampaignIntegrity(campaignId: string): IChainVerificationResult {
+  verifyCampaignIntegrity = (campaignId: string): IChainVerificationResult => {
     const chunks = this.getChunksForCampaign(campaignId);
     return verifyChainIntegrity(chunks);
-  }
+  };
 
   /**
    * Verify a single chunk has not been tampered with.
    */
-  verifyChunk(chunkId: string): boolean {
+  verifyChunk = (chunkId: string): boolean => {
     const chunk = this.chunks.get(chunkId);
     if (!chunk) return false;
     return verifyChunk(chunk);
-  }
+  };
 
   // ===========================================================================
   // Utility Methods
@@ -251,34 +251,34 @@ export class ChunkManagerService {
   /**
    * Clear all data (for testing).
    */
-  clear(): void {
+  clear = (): void => {
     this.chunks.clear();
     this.checkpoints.clear();
     this.manifests.clear();
-  }
+  };
 
   /**
    * Get statistics about stored data.
    */
-  getStats(): {
+  getStats = (): {
     chunkCount: number;
     checkpointCount: number;
     campaignCount: number;
-  } {
+  } => {
     return {
       chunkCount: this.chunks.size,
       checkpointCount: this.checkpoints.size,
       campaignCount: this.manifests.size,
     };
-  }
+  };
 
   /**
    * Get events from chunks in a sequence range.
    */
-  getEventsFromChunks(
+  getEventsFromChunks = (
     campaignId: string,
     range?: ISequenceRange,
-  ): readonly IBaseEvent[] {
+  ): readonly IBaseEvent[] => {
     const chunks = this.getChunksForCampaign(campaignId);
     const events: IBaseEvent[] = [];
 
@@ -302,7 +302,7 @@ export class ChunkManagerService {
     }
 
     return events.sort((a, b) => a.sequence - b.sequence);
-  }
+  };
 }
 
 // =============================================================================

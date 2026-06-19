@@ -38,7 +38,7 @@ import {
 export type { IPilotService } from './PilotService.types';
 export class PilotService implements IPilotService {
   private repo = getPilotRepository();
-  createPilot(options: ICreatePilotOptions): IPilotOperationResult {
+  createPilot = (options: ICreatePilotOptions): IPilotOperationResult => {
     const errors = this.validateCreateOptions(options);
     if (errors.length > 0) {
       return {
@@ -48,11 +48,11 @@ export class PilotService implements IPilotService {
       };
     }
     return this.repo.create(options);
-  }
-  createFromTemplate(
+  };
+  createFromTemplate = (
     level: PilotExperienceLevel,
     identity: IPilotIdentity,
-  ): IPilotOperationResult {
+  ): IPilotOperationResult => {
     const template = PILOT_TEMPLATES[level];
     return this.repo.create({
       identity,
@@ -61,11 +61,11 @@ export class PilotService implements IPilotService {
       startingXp: template.startingXp,
       rank: this.getRankForLevel(level),
     });
-  }
-  createRandom(
+  };
+  createRandom = (
     identity: IPilotIdentity,
     randomFn: () => number = Math.random,
-  ): IPilotOperationResult {
+  ): IPilotOperationResult => {
     const gunneryRoll = this.rollSkill();
     const pilotingRoll = this.rollSkill();
     const hasAbility = randomFn() < 0.2;
@@ -78,8 +78,8 @@ export class PilotService implements IPilotService {
       startingXp: 0,
       abilityIds,
     });
-  }
-  createStatblock(statblock: IPilotStatblock): IPilot {
+  };
+  createStatblock = (statblock: IPilotStatblock): IPilot => {
     const now = new Date().toISOString();
     return {
       id: `statblock-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
@@ -98,45 +98,52 @@ export class PilotService implements IPilotService {
       createdAt: now,
       updatedAt: now,
     };
-  }
-  updatePilot(id: string, updates: Partial<IPilot>): IPilotOperationResult {
+  };
+  updatePilot = (
+    id: string,
+    updates: Partial<IPilot>,
+  ): IPilotOperationResult => {
     return this.repo.update(id, updates);
-  }
-  deletePilot(id: string): IPilotOperationResult {
+  };
+  deletePilot = (id: string): IPilotOperationResult => {
     return this.repo.delete(id);
-  }
-  getPilot(id: string): IPilot | null {
+  };
+  getPilot = (id: string): IPilot | null => {
     return this.repo.getById(id);
-  }
-  listPilots(): readonly IPilot[] {
+  };
+  listPilots = (): readonly IPilot[] => {
     return this.repo.list();
-  }
-  listActivePilots(): readonly IPilot[] {
+  };
+  listActivePilots = (): readonly IPilot[] => {
     return this.repo.listByStatus(PilotStatus.Active);
-  }
-  canImproveGunnery(pilot: IPilot): {
+  };
+  canImproveGunnery = (
+    pilot: IPilot,
+  ): {
     canImprove: boolean;
     cost: number | null;
-  } {
+  } => {
     const cost = getGunneryImprovementCost(pilot.skills.gunnery);
     if (cost === null) {
       return { canImprove: false, cost: null };
     }
     const hasXp = pilot.career && pilot.career.xp >= cost;
     return { canImprove: hasXp || false, cost };
-  }
-  canImprovePiloting(pilot: IPilot): {
+  };
+  canImprovePiloting = (
+    pilot: IPilot,
+  ): {
     canImprove: boolean;
     cost: number | null;
-  } {
+  } => {
     const cost = getPilotingImprovementCost(pilot.skills.piloting);
     if (cost === null) {
       return { canImprove: false, cost: null };
     }
     const hasXp = pilot.career && pilot.career.xp >= cost;
     return { canImprove: hasXp || false, cost };
-  }
-  improveGunnery(pilotId: string): IPilotOperationResult {
+  };
+  improveGunnery = (pilotId: string): IPilotOperationResult => {
     const pilot = this.repo.getById(pilotId);
     if (!pilot) {
       return {
@@ -169,8 +176,8 @@ export class PilotService implements IPilotService {
         piloting: pilot.skills.piloting,
       },
     });
-  }
-  improvePiloting(pilotId: string): IPilotOperationResult {
+  };
+  improvePiloting = (pilotId: string): IPilotOperationResult => {
     const pilot = this.repo.getById(pilotId);
     if (!pilot) {
       return {
@@ -203,13 +210,13 @@ export class PilotService implements IPilotService {
         piloting: pilot.skills.piloting - 1,
       },
     });
-  }
-  awardMissionXp(
+  };
+  awardMissionXp = (
     pilotId: string,
     outcome: 'victory' | 'defeat' | 'draw',
     kills: number,
     bonuses?: { firstBlood?: boolean; higherBVOpponent?: boolean },
-  ): IPilotOperationResult {
+  ): IPilotOperationResult => {
     let totalXp = XP_AWARDS.missionSurvival;
     totalXp += kills * XP_AWARDS.kill;
     if (outcome === 'victory') {
@@ -228,8 +235,8 @@ export class PilotService implements IPilotService {
       xpEarned: totalXp,
       kills,
     });
-  }
-  applyWound(pilotId: string): IPilotOperationResult {
+  };
+  applyWound = (pilotId: string): IPilotOperationResult => {
     const pilot = this.repo.getById(pilotId);
     if (!pilot) {
       return {
@@ -250,8 +257,8 @@ export class PilotService implements IPilotService {
       wounds: newWounds,
       status: newStatus,
     });
-  }
-  healWounds(pilotId: string): IPilotOperationResult {
+  };
+  healWounds = (pilotId: string): IPilotOperationResult => {
     const pilot = this.repo.getById(pilotId);
     if (!pilot) {
       return {
@@ -271,32 +278,32 @@ export class PilotService implements IPilotService {
       wounds: 0,
       status: PilotStatus.Active,
     });
-  }
+  };
 
-  purchaseSPA(
+  purchaseSPA = (
     pilotId: string,
     spaId: string,
     options?: {
       designation?: IPilotAbilityDesignation;
       isCreationFlow?: boolean;
     },
-  ): IPilotOperationResult {
+  ): IPilotOperationResult => {
     return purchasePilotSPA(this.repo, pilotId, spaId, options);
-  }
-  removeSPA(
+  };
+  removeSPA = (
     pilotId: string,
     spaId: string,
     options?: { isCreationFlow?: boolean },
-  ): IPilotOperationResult {
+  ): IPilotOperationResult => {
     return removePilotSPA(this.repo, pilotId, spaId, options);
-  }
-  getPilotDesignation(
+  };
+  getPilotDesignation = (
     pilot: IPilot,
     spaId: string,
-  ): ISPADesignation | undefined {
+  ): ISPADesignation | undefined => {
     return getPilotSPADesignation(pilot, spaId);
-  }
-  validatePilot(pilot: Partial<IPilot>): string[] {
+  };
+  validatePilot = (pilot: Partial<IPilot>): string[] => {
     const errors: string[] = [];
     if (pilot.skills) {
       if (!isValidSkillValue(pilot.skills.gunnery)) {
@@ -317,7 +324,7 @@ export class PilotService implements IPilotService {
       errors.push('Pilot name is required');
     }
     return errors;
-  }
+  };
   private validateCreateOptions(options: ICreatePilotOptions): string[] {
     const errors: string[] = [];
     if (!options.identity.name || options.identity.name.trim().length === 0) {

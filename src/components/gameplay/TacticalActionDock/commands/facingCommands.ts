@@ -12,6 +12,11 @@
 
 import { GamePhase, type ITacticalCommand } from '@/types/gameplay';
 
+import {
+  activeUnitTurnAvailability,
+  commitStaticAction,
+} from './commandDescriptorHelpers';
+
 export function buildFacingCommands(): readonly ITacticalCommand[] {
   return [
     FacingRotateLeftCommand,
@@ -28,15 +33,8 @@ const FacingRotateLeftCommand: ITacticalCommand = {
   phaseConstraints: [GamePhase.Movement],
   requiresConfirmation: false,
   undoable: true,
-  availability(ctx) {
-    if (!ctx.activeUnitId)
-      return { available: false, reason: 'No unit is active.' };
-    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
-    return { available: true };
-  },
-  commit() {
-    return { actionId: 'facing-left', payload: {} };
-  },
+  availability: activeUnitTurnAvailability,
+  commit: commitStaticAction('facing-left'),
 };
 
 const FacingRotateRightCommand: ITacticalCommand = {
@@ -47,15 +45,8 @@ const FacingRotateRightCommand: ITacticalCommand = {
   phaseConstraints: [GamePhase.Movement],
   requiresConfirmation: false,
   undoable: true,
-  availability(ctx) {
-    if (!ctx.activeUnitId)
-      return { available: false, reason: 'No unit is active.' };
-    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
-    return { available: true };
-  },
-  commit() {
-    return { actionId: 'facing-right', payload: {} };
-  },
+  availability: activeUnitTurnAvailability,
+  commit: commitStaticAction('facing-right'),
 };
 
 const FacingTorsoTwistCommand: ITacticalCommand = {
@@ -70,13 +61,6 @@ const FacingTorsoTwistCommand: ITacticalCommand = {
   phaseConstraints: [GamePhase.WeaponAttack],
   requiresConfirmation: false,
   undoable: true,
-  availability(ctx) {
-    if (!ctx.activeUnitId)
-      return { available: false, reason: 'No unit is active.' };
-    if (!ctx.canAct) return { available: false, reason: 'Not your turn.' };
-    return { available: true };
-  },
-  commit() {
-    return { actionId: 'torso-twist', payload: { direction: 'left' } };
-  },
+  availability: activeUnitTurnAvailability,
+  commit: commitStaticAction('torso-twist', { direction: 'left' }),
 };

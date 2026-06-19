@@ -15,9 +15,6 @@ import {
   TokenUnitType,
 } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
-import { createHexGrid } from '@/utils/gameplay/hexGrid';
-import { coordToKey } from '@/utils/gameplay/hexMath';
-import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 import {
   requireCombatProjection,
@@ -25,6 +22,7 @@ import {
   tacticalMapSelectedWeapons,
   tacticalMapWeaponsByUnit,
 } from './tactical-map.combat-scenarios';
+import { createTacticalMapTerrainGrid } from './tactical-map.fixture-helpers';
 import {
   tacticalMapCombatState,
   tacticalMapTokens,
@@ -98,21 +96,7 @@ export const tacticalMapStackedLosCombatState: IGameState = {
 };
 
 function tacticalMapStackedLosGrid(): IHexGrid {
-  const grid = createHexGrid({ radius: 3 });
-  const hexes = new Map(grid.hexes);
-
-  for (const terrain of tacticalMapStackedLosHexTerrain) {
-    const key = coordToKey(terrain.coordinate);
-    const hex = hexes.get(key);
-    if (!hex) throw new Error(`Missing tactical-map fixture hex ${key}`);
-    hexes.set(key, {
-      ...hex,
-      terrain: terrainStringFromFeatures(terrain.features),
-      elevation: terrain.elevation,
-    });
-  }
-
-  return { ...grid, hexes };
+  return createTacticalMapTerrainGrid(tacticalMapStackedLosHexTerrain);
 }
 
 const tacticalMapStackedLosAttacker = tacticalMapStackedLosTokens.find(

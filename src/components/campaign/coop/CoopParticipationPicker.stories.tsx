@@ -2,18 +2,13 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import React from 'react';
 
+import { centeredDarkCampaignStoryParameters } from '../campaignStoryParameters';
 import { CoopParticipationPicker } from './CoopParticipationPicker';
 
 const meta = {
   title: 'Campaign/Coop/CoopParticipationPicker',
   component: CoopParticipationPicker,
-  parameters: {
-    layout: 'centered',
-    backgrounds: {
-      default: 'dark',
-      values: [{ name: 'dark', value: '#0f172a' }],
-    },
-  },
+  parameters: centeredDarkCampaignStoryParameters,
   tags: ['autodocs'],
 } satisfies Meta<typeof CoopParticipationPicker>;
 

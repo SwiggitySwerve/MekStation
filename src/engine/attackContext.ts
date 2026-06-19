@@ -48,6 +48,54 @@ export type IAttackPreResolution =
   | { readonly kind: 'direct' }
   | { readonly kind: 'indirect'; readonly resolution: IIndirectFireResolution };
 
+export interface IPrepareAttackContextInput {
+  readonly attackerId: string;
+  readonly weaponIds: readonly string[];
+  readonly targetId: string;
+  readonly gameState: IGameState;
+  readonly grid: IHexGrid;
+  readonly pilotSpasByUnitId?: Readonly<Record<string, readonly string[]>>;
+  readonly optionalRules?: readonly string[];
+}
+
+type PrepareAttackContextArgs =
+  | [input: IPrepareAttackContextInput]
+  | [
+      attackerId: string,
+      weaponIds: readonly string[],
+      targetId: string,
+      gameState: IGameState,
+      grid: IHexGrid,
+      pilotSpasByUnitId?: Readonly<Record<string, readonly string[]>>,
+      optionalRules?: readonly string[],
+    ];
+
+function normalizePrepareAttackContextInput(
+  args: PrepareAttackContextArgs,
+): IPrepareAttackContextInput {
+  if (args.length === 1) {
+    return args[0];
+  }
+  const [
+    attackerId,
+    weaponIds,
+    targetId,
+    gameState,
+    grid,
+    pilotSpasByUnitId,
+    optionalRules,
+  ] = args;
+  return {
+    attackerId,
+    weaponIds,
+    targetId,
+    gameState,
+    grid,
+    pilotSpasByUnitId,
+    optionalRules,
+  };
+}
+
 /**
  * Derive an `IAttackPreResolution` for an attack declared from
  * `attackerId` against `targetId` carrying `weaponIds`.
@@ -75,14 +123,17 @@ export type IAttackPreResolution =
  *          a fresh value; the function does not mutate inputs.
  */
 export function prepareAttackContext(
-  attackerId: string,
-  weaponIds: readonly string[],
-  targetId: string,
-  gameState: IGameState,
-  grid: IHexGrid,
-  pilotSpasByUnitId?: Readonly<Record<string, readonly string[]>>,
-  optionalRules?: readonly string[],
+  ...args: PrepareAttackContextArgs
 ): IAttackPreResolution {
+  const {
+    attackerId,
+    weaponIds,
+    targetId,
+    gameState,
+    grid,
+    pilotSpasByUnitId,
+    optionalRules,
+  } = normalizePrepareAttackContextInput(args);
   const targetUnit = gameState.units[targetId];
   if (!targetUnit) {
     // No target hex available — cannot compute indirect resolution.
@@ -91,16 +142,16 @@ export function prepareAttackContext(
   const targetHex = targetUnit.position;
 
   for (const weaponId of weaponIds) {
-    const result = computeIndirectFireContext(
+    const result = computeIndirectFireContext({
       attackerId,
       weaponId,
       targetHex,
       gameState,
       grid,
       pilotSpasByUnitId,
-      targetId,
+      targetEntityId: targetId,
       optionalRules,
-    );
+    });
     if (result.permitted && result.isIndirect) {
       return { kind: 'indirect', resolution: result };
     }

@@ -82,12 +82,12 @@ export class TemplateRecordSheetRenderer {
    * then validated and parsed by `parseSVGTemplate`, the same parse +
    * validation the mech `loadSVGTemplate` path uses.
    */
-  async loadTemplate(templatePath: string): Promise<void> {
+  loadTemplate = async (templatePath: string): Promise<void> => {
     const svgText = await getMmDataAssetService().loadSVG(templatePath);
     const { svgDoc, svgRoot } = parseSVGTemplate(svgText, templatePath);
     this.svgDoc = svgDoc;
     this.svgRoot = svgRoot;
-  }
+  };
 
   /** The parsed template document. Throws if no template is loaded. */
   get document(): Document {
@@ -125,7 +125,7 @@ export class TemplateRecordSheetRenderer {
    * method returns without mounting (attribute-based geometry still
    * works for callers that do not need `getBBox()`).
    */
-  mount(): void {
+  mount = (): void => {
     if (this.mountContainer) {
       return;
     }
@@ -144,7 +144,7 @@ export class TemplateRecordSheetRenderer {
     container.appendChild(this.svgRoot);
     document.body.appendChild(container);
     this.mountContainer = container;
-  }
+  };
 
   /**
    * Remove the off-screen container from the document.
@@ -155,7 +155,7 @@ export class TemplateRecordSheetRenderer {
    * exactly as it was before `mount()`. The container is then removed
    * from the page. Idempotent.
    */
-  unmount(): void {
+  unmount = (): void => {
     if (!this.mountContainer) {
       return;
     }
@@ -171,7 +171,7 @@ export class TemplateRecordSheetRenderer {
       this.mountContainer.parentNode.removeChild(this.mountContainer);
     }
     this.mountContainer = null;
-  }
+  };
 
   /**
    * Await web-font readiness before any text-width measurement.
@@ -182,7 +182,7 @@ export class TemplateRecordSheetRenderer {
    * consuming family inherits the fix. Resolves immediately in
    * environments without the Font Loading API.
    */
-  async awaitFontsReady(): Promise<void> {
+  awaitFontsReady = async (): Promise<void> => {
     if (
       typeof document !== 'undefined' &&
       'fonts' in document &&
@@ -191,7 +191,7 @@ export class TemplateRecordSheetRenderer {
     ) {
       await document.fonts.ready;
     }
-  }
+  };
 
   /**
    * Resolve an element by ID within the template SVG.
@@ -224,14 +224,14 @@ export class TemplateRecordSheetRenderer {
    * silently skipped — a binding for a missing ID is a no-op, never an
    * error.
    */
-  applyBindings(texts: TextBindings): void {
+  applyBindings = (texts: TextBindings): void => {
     for (const [id, value] of Object.entries(texts)) {
       const element = this.elementById(id);
       if (element) {
         element.textContent = value;
       }
     }
-  }
+  };
 
   /**
    * Lay out pip groups using the supplied pip applicator.
@@ -245,7 +245,7 @@ export class TemplateRecordSheetRenderer {
    * The SVG MUST be mounted (`mount()`) before this is called if the
    * applicator measures geometry via `getBBox()`.
    */
-  applyPips(fills: readonly PipFill[], applicator: PipApplicator): void {
+  applyPips = (fills: readonly PipFill[], applicator: PipApplicator): void => {
     // `doc` is used only to create new pip elements (createElementNS),
     // which works whether or not the root is currently mounted. Group
     // resolution goes through `elementById`, which searches the root
@@ -266,7 +266,7 @@ export class TemplateRecordSheetRenderer {
         applicator(doc, grouped, fill);
       }
     }
-  }
+  };
 
   /**
    * Serialize the (possibly mutated) template document to an SVG string.
@@ -277,24 +277,24 @@ export class TemplateRecordSheetRenderer {
    * the output byte-identical to the pre-refactor mech path (which
    * serialized `svgDoc` and never mounted).
    */
-  getSVGString(): string {
+  getSVGString = (): string => {
     const doc = this.document;
     // Detach the off-screen container (restores root into doc) before
     // serializing, so no detached DOM nodes are left behind.
     this.unmount();
     const serializer = new XMLSerializer();
     return serializer.serializeToString(doc);
-  }
+  };
 
   /**
    * Rasterize the current template document onto a canvas at high DPI.
    * Delegates to the proven `renderToCanvasHighDPI` mech code path.
    */
-  async renderToCanvas(
+  renderToCanvas = async (
     canvas: HTMLCanvasElement,
     dpiMultiplier: number,
-  ): Promise<void> {
+  ): Promise<void> => {
     const svgString = this.getSVGString();
     await renderToCanvasHighDPI(svgString, canvas, dpiMultiplier);
-  }
+  };
 }

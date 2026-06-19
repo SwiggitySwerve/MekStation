@@ -1,5 +1,6 @@
 import { MechLocation } from '@/types/construction';
 
+import { BATTLEMECH_BIPED_OUTLINE_PATH } from './MechSilhouette.outlinePaths';
 import { SilhouetteConfig } from './MechSilhouette.types';
 
 export const BATTLEMECH_SILHOUETTE: SilhouetteConfig = {
@@ -160,35 +161,5 @@ export const BATTLEMECH_SILHOUETTE: SilhouetteConfig = {
       `,
     },
   },
-  outlinePath: `
-    M 100 0
-    C 85 0, 78 4, 78 12
-    L 78 32
-    L 70 36
-    L 30 42
-    L 26 42
-    L 2 54
-    L 2 142
-    L 26 142
-    L 30 120
-    L 42 120
-    L 42 232
-    L 88 232
-    L 88 120
-    L 112 120
-    L 112 232
-    L 158 232
-    L 158 120
-    L 170 120
-    L 174 142
-    L 198 142
-    L 198 54
-    L 174 42
-    L 170 42
-    L 130 36
-    L 122 32
-    L 122 12
-    C 122 4, 115 0, 100 0
-    Z
-  `,
+  outlinePath: BATTLEMECH_BIPED_OUTLINE_PATH,
 };

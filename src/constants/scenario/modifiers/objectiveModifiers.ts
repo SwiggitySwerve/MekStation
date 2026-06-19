@@ -1,12 +1,13 @@
-import type { IBattleModifier } from '@/types/scenario';
-
 import { ModifierEffect, ScenarioObjectiveType } from '@/types/scenario';
 
-export const TIME_PRESSURE: IBattleModifier = {
+import { defineBattleModifier } from './modifierDefinition';
+
+export const TIME_PRESSURE = defineBattleModifier({
   id: 'time_pressure',
   name: 'Time Pressure',
-  description:
+  descriptionParts: [
     'External factors require a quick resolution. The turn limit is reduced by 3 turns.',
+  ],
   effect: ModifierEffect.Negative,
   applicability: {
     weight: 10,
@@ -24,13 +25,14 @@ export const TIME_PRESSURE: IBattleModifier = {
     },
   },
   tags: ['time', 'pressure', 'difficulty'],
-};
+});
 
-export const EXTENDED_ENGAGEMENT: IBattleModifier = {
+export const EXTENDED_ENGAGEMENT = defineBattleModifier({
   id: 'extended_engagement',
   name: 'Extended Engagement',
-  description:
+  descriptionParts: [
     'No time pressure allows for a longer engagement. Turn limit increased by 5 turns.',
+  ],
   effect: ModifierEffect.Positive,
   applicability: {
     weight: 8,
@@ -47,4 +49,4 @@ export const EXTENDED_ENGAGEMENT: IBattleModifier = {
     },
   },
   tags: ['time', 'extension', 'help'],
-};
+});

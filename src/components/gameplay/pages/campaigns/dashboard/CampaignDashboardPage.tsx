@@ -1,6 +1,8 @@
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 
+import type { ICampaign } from '@/types/campaign/Campaign';
+
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { CampaignCoopRouteSurface } from '@/components/campaign/coop';
 import { CampaignDashboard } from '@/components/campaign/dashboard/CampaignDashboard';
@@ -202,9 +204,7 @@ export default function CampaignDashboardPage(): React.ReactElement {
        * is the empty placeholder until then.
        */}
       <CampaignCoopRouteSurface
-        campaign={
-          campaign as unknown as import('@/types/campaign/Campaign').ICampaign
-        }
+        campaign={campaign as CampaignDashboardCampaign & ICampaign}
         routeId="dashboard"
         dashboardMount
       />

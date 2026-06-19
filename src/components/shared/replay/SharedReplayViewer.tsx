@@ -313,37 +313,25 @@ function EventList({
 /**
  * Get marker color based on event type.
  */
+const EVENT_MARKER_COLOR_BY_TYPE: Readonly<Record<string, string>> = {
+  [GameEventType.GameCreated]: 'bg-green-500',
+  [GameEventType.GameStarted]: 'bg-green-500',
+  [GameEventType.GameEnded]: 'bg-green-500',
+  [GameEventType.TurnStarted]: 'bg-blue-500',
+  [GameEventType.TurnEnded]: 'bg-blue-500',
+  [GameEventType.PhaseChanged]: 'bg-blue-500',
+  [GameEventType.MovementDeclared]: 'bg-yellow-500',
+  [GameEventType.MovementLocked]: 'bg-yellow-500',
+  [GameEventType.AttackDeclared]: 'bg-red-500',
+  [GameEventType.AttackResolved]: 'bg-red-500',
+  [GameEventType.DamageApplied]: 'bg-red-500',
+  [GameEventType.UnitDestroyed]: 'bg-red-700',
+  [GameEventType.CriticalHit]: 'bg-orange-500',
+  [GameEventType.AmmoExplosion]: 'bg-orange-500',
+};
+
 function getMarkerColor(type: GameEventType | string): string {
-  switch (type) {
-    case GameEventType.GameCreated:
-    case GameEventType.GameStarted:
-    case GameEventType.GameEnded:
-      return 'bg-green-500';
-
-    case GameEventType.TurnStarted:
-    case GameEventType.TurnEnded:
-    case GameEventType.PhaseChanged:
-      return 'bg-blue-500';
-
-    case GameEventType.MovementDeclared:
-    case GameEventType.MovementLocked:
-      return 'bg-yellow-500';
-
-    case GameEventType.AttackDeclared:
-    case GameEventType.AttackResolved:
-    case GameEventType.DamageApplied:
-      return 'bg-red-500';
-
-    case GameEventType.UnitDestroyed:
-      return 'bg-red-700';
-
-    case GameEventType.CriticalHit:
-    case GameEventType.AmmoExplosion:
-      return 'bg-orange-500';
-
-    default:
-      return 'bg-gray-500';
-  }
+  return EVENT_MARKER_COLOR_BY_TYPE[type] ?? 'bg-gray-500';
 }
 
 /**

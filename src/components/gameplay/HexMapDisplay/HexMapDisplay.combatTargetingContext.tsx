@@ -4,32 +4,18 @@ import type { ICombatRangeHex } from '@/types/gameplay';
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
 import {
-  formatTacticalProjectionRuleReferences,
-  formatTacticalProjectionSourceReferences,
-} from '@/utils/gameplay/tacticalMapProjection';
+  combatProjectionSourceMetadata,
+  tacticalProjectionDataAttributes,
+} from './HexMapDisplay.tacticalProjectionAttributes';
 
 function combatTargetingSourceAttributes(
   combatInfo: ICombatRangeHex,
   projection?: ITacticalMapHexProjection,
 ): Record<string, string | number | undefined> {
-  const combatSourceReferences =
-    projection?.sourceReferences.filter(
-      (source) => source.channel === 'combat',
-    ) ?? [];
-  const sourceRefsAttribute =
-    formatTacticalProjectionSourceReferences(combatSourceReferences) ||
-    undefined;
-  const ruleRefsAttribute =
-    formatTacticalProjectionRuleReferences(combatSourceReferences) || undefined;
-  const projectionChannel =
-    combatSourceReferences.length > 0 ? 'combat' : undefined;
+  const source = combatProjectionSourceMetadata(projection?.sourceReferences);
 
   return {
-    'data-tactical-projection-source': projectionChannel
-      ? 'shared-tactical-map-projection'
-      : undefined,
-    'data-tactical-projection-channel': projectionChannel,
-    'data-tactical-rules-surface': projectionChannel,
+    ...tacticalProjectionDataAttributes(source),
     'data-combat-has-target': combatInfo.hasTarget ? 'true' : 'false',
     'data-combat-attackable': combatInfo.attackable ? 'true' : 'false',
     'data-combat-in-range': combatInfo.inRange ? 'true' : 'false',
@@ -43,8 +29,8 @@ function combatTargetingSourceAttributes(
     'data-combat-weapons-in-range': combatInfo.weaponIdsInRange.join(','),
     'data-combat-weapons-in-arc': combatInfo.weaponIdsInArc.join(','),
     'data-combat-weapons-available': combatInfo.weaponIdsAvailable.join(','),
-    'data-combat-targeting-source-refs': sourceRefsAttribute,
-    'data-combat-targeting-rule-refs': ruleRefsAttribute,
+    'data-combat-targeting-source-refs': source.sourceRefs,
+    'data-combat-targeting-rule-refs': source.ruleRefs,
   };
 }
 

@@ -124,7 +124,7 @@ describe('BattleMech attack invalidation support catalog', () => {
     expect(sameHexRefs).toEqual([
       expect.objectContaining({
         kind: 'mekstation-deviation',
-        url: 'src/simulation/runner/phases/weaponAttack.ts#L754-L769',
+        url: 'src/simulation/runner/phases/weaponAttackContext.ts#L108-L118',
       }),
     ]);
 
@@ -258,8 +258,8 @@ describe('BattleMech attack invalidation support catalog', () => {
       ].sourceRefs?.map(({ url }) => url),
     ).toEqual(
       expect.arrayContaining([
-        'src/simulation/runner/phases/weaponAttack.ts#L643-L803',
-        'src/simulation/runner/phases/weaponAttack.ts#L1006-L1208',
+        'src/simulation/runner/phases/weaponAttackShotContext.ts#L101-L261',
+        'src/simulation/runner/phases/weaponAttackShotContext.ts#L238-L261',
       ]),
     );
 
@@ -269,7 +269,7 @@ describe('BattleMech attack invalidation support catalog', () => {
       ].sourceRefs?.map(({ url }) => url),
     ).toEqual(
       expect.arrayContaining([
-        'src/simulation/runner/phases/weaponAttack.ts#L1006-L1208',
+        'src/simulation/runner/phases/weaponAttackShotContext.ts#L238-L261',
       ]),
     );
 
@@ -279,8 +279,8 @@ describe('BattleMech attack invalidation support catalog', () => {
       ),
     ).toEqual(
       expect.arrayContaining([
-        'src/simulation/runner/phases/weaponAttack.ts#L1178-L1229',
-        'src/simulation/runner/phases/weaponAttackFiringModes.ts#L121-L137',
+        'src/simulation/runner/phases/weaponAttackShots.ts#L123-L192',
+        'src/simulation/runner/phases/weaponAttackFiringModes.ts#L117-L143',
       ]),
     );
 

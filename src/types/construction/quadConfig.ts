@@ -1,5 +1,6 @@
 import type { IMechConfigurationDefinition } from './MechConfigTypes';
 
+import { createStandardTorsoLocationDefinitions } from './bipedConfig';
 import { createLocationDef, LEG_ACTUATORS } from './mechConfigHelpers';
 import { MechConfiguration, MechLocation } from './MechConfigTypes';
 
@@ -8,20 +9,7 @@ export const QUAD_CONFIGURATION: IMechConfigurationDefinition = {
   displayName: 'Quad',
   description: 'Four-legged BattleMech without arms',
   locations: [
-    createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, {
-      maxArmorMultiplier: 3,
-    }),
-    createLocationDef(MechLocation.CENTER_TORSO, 'Center Torso', 'CT', 12, {
-      hasRearArmor: true,
-    }),
-    createLocationDef(MechLocation.LEFT_TORSO, 'Left Torso', 'LT', 12, {
-      hasRearArmor: true,
-      transfersTo: MechLocation.CENTER_TORSO,
-    }),
-    createLocationDef(MechLocation.RIGHT_TORSO, 'Right Torso', 'RT', 12, {
-      hasRearArmor: true,
-      transfersTo: MechLocation.CENTER_TORSO,
-    }),
+    ...createStandardTorsoLocationDefinitions(),
     createLocationDef(
       MechLocation.FRONT_LEFT_LEG,
       'Front Left Leg',

@@ -10,18 +10,29 @@
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
+  UnitValidationSeverity,
   IUnitValidationRuleDefinition,
   IUnitValidationContext,
   IUnitValidationRuleResult,
-  UnitValidationSeverity,
-  createUnitValidationError,
-  createUnitValidationRuleResult,
+  IUnitValidationError,
 } from '@/types/validation/UnitValidationInterfaces';
 import {
   isMechType,
   requiresGyro,
   requiresMinimumHeatSinks,
 } from '@/utils/validation/UnitCategoryMapper';
+
+import {
+  createEmptyRuleResult,
+  addRuleDiagnostic,
+  createRuleResult,
+} from '../ruleResults';
+
+const MECH_CATEGORY_RULES_CONSTRUCTION_CATEGORY =
+  ValidationCategory.CONSTRUCTION;
+const MECH_CATEGORY_RULES_HEAT_CATEGORY = ValidationCategory.HEAT;
+const MECH_CATEGORY_RULES_WEIGHT_CATEGORY = ValidationCategory.WEIGHT;
+const MECH_CATEGORY_RULES_SLOTS_CATEGORY = ValidationCategory.SLOTS;
 
 /**
  * VAL-MECH-001: Engine Required
@@ -30,7 +41,7 @@ export const MechEngineRequired: IUnitValidationRuleDefinition = {
   id: 'VAL-MECH-001',
   name: 'Engine Required',
   description: 'All Mech category units must have an engine',
-  category: ValidationCategory.CONSTRUCTION,
+  category: MECH_CATEGORY_RULES_CONSTRUCTION_CATEGORY,
   priority: 20,
   applicableUnitTypes: [
     UnitType.BATTLEMECH,
@@ -41,32 +52,22 @@ export const MechEngineRequired: IUnitValidationRuleDefinition = {
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors = [];
+    const errors: IUnitValidationError[] = [];
 
     if (isMechType(unit.unitType) && !unit.engineType) {
-      errors.push(
-        createUnitValidationError(
-          this.id,
-          this.name,
-          UnitValidationSeverity.CRITICAL_ERROR,
-          this.category,
-          'Engine required',
-          {
-            field: 'engineType',
-            suggestion: 'Select an engine for the unit',
-          },
-        ),
+      addRuleDiagnostic(
+        errors,
+        this,
+        UnitValidationSeverity.CRITICAL_ERROR,
+        'Engine required',
+        {
+          field: 'engineType',
+          suggestion: 'Select an engine for the unit',
+        },
       );
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors });
   },
 };
 
@@ -77,7 +78,7 @@ export const MechGyroRequired: IUnitValidationRuleDefinition = {
   id: 'VAL-MECH-002',
   name: 'Gyro Required',
   description: 'BattleMech, OmniMech, and IndustrialMech require a gyro',
-  category: ValidationCategory.CONSTRUCTION,
+  category: MECH_CATEGORY_RULES_CONSTRUCTION_CATEGORY,
   priority: 21,
   applicableUnitTypes: [
     UnitType.BATTLEMECH,
@@ -91,36 +92,26 @@ export const MechGyroRequired: IUnitValidationRuleDefinition = {
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors = [];
+    const errors: IUnitValidationError[] = [];
 
     if (
       isMechType(unit.unitType) &&
       requiresGyro(unit.unitType) &&
       !unit.gyroType
     ) {
-      errors.push(
-        createUnitValidationError(
-          this.id,
-          this.name,
-          UnitValidationSeverity.CRITICAL_ERROR,
-          this.category,
-          'Gyro required',
-          {
-            field: 'gyroType',
-            suggestion: 'Select a gyro for the unit',
-          },
-        ),
+      addRuleDiagnostic(
+        errors,
+        this,
+        UnitValidationSeverity.CRITICAL_ERROR,
+        'Gyro required',
+        {
+          field: 'gyroType',
+          suggestion: 'Select a gyro for the unit',
+        },
       );
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors });
   },
 };
 
@@ -131,7 +122,7 @@ export const MechCockpitRequired: IUnitValidationRuleDefinition = {
   id: 'VAL-MECH-003',
   name: 'Cockpit Required',
   description: 'All Mech category units must have a cockpit',
-  category: ValidationCategory.CONSTRUCTION,
+  category: MECH_CATEGORY_RULES_CONSTRUCTION_CATEGORY,
   priority: 22,
   applicableUnitTypes: [
     UnitType.BATTLEMECH,
@@ -142,32 +133,22 @@ export const MechCockpitRequired: IUnitValidationRuleDefinition = {
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors = [];
+    const errors: IUnitValidationError[] = [];
 
     if (isMechType(unit.unitType) && !unit.cockpitType) {
-      errors.push(
-        createUnitValidationError(
-          this.id,
-          this.name,
-          UnitValidationSeverity.CRITICAL_ERROR,
-          this.category,
-          'Cockpit required',
-          {
-            field: 'cockpitType',
-            suggestion: 'Select a cockpit for the unit',
-          },
-        ),
+      addRuleDiagnostic(
+        errors,
+        this,
+        UnitValidationSeverity.CRITICAL_ERROR,
+        'Cockpit required',
+        {
+          field: 'cockpitType',
+          suggestion: 'Select a cockpit for the unit',
+        },
       );
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors });
   },
 };
 
@@ -178,7 +159,7 @@ export const MechStructureRequired: IUnitValidationRuleDefinition = {
   id: 'VAL-MECH-004',
   name: 'Internal Structure Required',
   description: 'All Mech category units must have internal structure',
-  category: ValidationCategory.CONSTRUCTION,
+  category: MECH_CATEGORY_RULES_CONSTRUCTION_CATEGORY,
   priority: 23,
   applicableUnitTypes: [
     UnitType.BATTLEMECH,
@@ -189,32 +170,22 @@ export const MechStructureRequired: IUnitValidationRuleDefinition = {
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors = [];
+    const errors: IUnitValidationError[] = [];
 
     if (isMechType(unit.unitType) && !unit.internalStructureType) {
-      errors.push(
-        createUnitValidationError(
-          this.id,
-          this.name,
-          UnitValidationSeverity.CRITICAL_ERROR,
-          this.category,
-          'Internal structure required',
-          {
-            field: 'internalStructureType',
-            suggestion: 'Select internal structure type for the unit',
-          },
-        ),
+      addRuleDiagnostic(
+        errors,
+        this,
+        UnitValidationSeverity.CRITICAL_ERROR,
+        'Internal structure required',
+        {
+          field: 'internalStructureType',
+          suggestion: 'Select internal structure type for the unit',
+        },
       );
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      errors,
-      [],
-      [],
-      0,
-    );
+    return createRuleResult(this, { errors });
   },
 };
 
@@ -225,7 +196,7 @@ export const MechMinimumHeatSinks: IUnitValidationRuleDefinition = {
   id: 'VAL-MECH-005',
   name: 'Minimum Heat Sinks',
   description: 'BattleMech and OmniMech must have at least 10 heat sinks',
-  category: ValidationCategory.HEAT,
+  category: MECH_CATEGORY_RULES_HEAT_CATEGORY,
   priority: 24,
   applicableUnitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH],
 
@@ -235,39 +206,29 @@ export const MechMinimumHeatSinks: IUnitValidationRuleDefinition = {
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const warnings = [];
+    const warnings: IUnitValidationError[] = [];
 
     if (isMechType(unit.unitType) && requiresMinimumHeatSinks(unit.unitType)) {
       const heatSinkCount = unit.heatSinkCount ?? 0;
       const MINIMUM_HEAT_SINKS = 10;
 
       if (heatSinkCount < MINIMUM_HEAT_SINKS) {
-        warnings.push(
-          createUnitValidationError(
-            this.id,
-            this.name,
-            UnitValidationSeverity.WARNING,
-            this.category,
-            `Unit should have at least ${MINIMUM_HEAT_SINKS} heat sinks (current: ${heatSinkCount})`,
-            {
-              field: 'heatSinkCount',
-              expected: `>= ${MINIMUM_HEAT_SINKS}`,
-              actual: String(heatSinkCount),
-              suggestion: `Add ${MINIMUM_HEAT_SINKS - heatSinkCount} more heat sinks`,
-            },
-          ),
+        addRuleDiagnostic(
+          warnings,
+          this,
+          UnitValidationSeverity.WARNING,
+          `Unit should have at least ${MINIMUM_HEAT_SINKS} heat sinks (current: ${heatSinkCount})`,
+          {
+            field: 'heatSinkCount',
+            expected: `>= ${MINIMUM_HEAT_SINKS}`,
+            actual: String(heatSinkCount),
+            suggestion: `Add ${MINIMUM_HEAT_SINKS - heatSinkCount} more heat sinks`,
+          },
         );
       }
     }
 
-    return createUnitValidationRuleResult(
-      this.id,
-      this.name,
-      [],
-      warnings,
-      [],
-      0,
-    );
+    return createRuleResult(this, { warnings });
   },
 };
 
@@ -278,7 +239,7 @@ export const MechExactWeightMatch: IUnitValidationRuleDefinition = {
   id: 'VAL-MECH-006',
   name: 'Exact Weight Match',
   description: 'Total component weight must equal declared tonnage',
-  category: ValidationCategory.WEIGHT,
+  category: MECH_CATEGORY_RULES_WEIGHT_CATEGORY,
   priority: 25,
   applicableUnitTypes: [
     UnitType.BATTLEMECH,
@@ -290,7 +251,7 @@ export const MechExactWeightMatch: IUnitValidationRuleDefinition = {
   validate(_context: IUnitValidationContext): IUnitValidationRuleResult {
     // Weight validation is handled by the UI via totalWeight calculation
     // This rule will be enhanced when totalWeight is added to IValidatableUnit
-    return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+    return createEmptyRuleResult(this);
   },
 };
 
@@ -301,7 +262,7 @@ export const MechCriticalSlotLimits: IUnitValidationRuleDefinition = {
   id: 'VAL-MECH-007',
   name: 'Critical Slot Limits',
   description: 'Per-location slot usage must not exceed limits',
-  category: ValidationCategory.SLOTS,
+  category: MECH_CATEGORY_RULES_SLOTS_CATEGORY,
   priority: 26,
   applicableUnitTypes: [
     UnitType.BATTLEMECH,
@@ -313,7 +274,7 @@ export const MechCriticalSlotLimits: IUnitValidationRuleDefinition = {
   validate(_context: IUnitValidationContext): IUnitValidationRuleResult {
     // Critical slot validation is handled by the UI via slot counting
     // This rule will be enhanced when criticalSlots data is added to IValidatableUnit
-    return createUnitValidationRuleResult(this.id, this.name, [], [], [], 0);
+    return createEmptyRuleResult(this);
   },
 };
 

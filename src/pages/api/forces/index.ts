@@ -9,9 +9,14 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  initializeApiDatabase,
+  sendCaughtApiError,
+  sendOperationFailure,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { IForceOperationResult } from '@/services/forces/ForceRepository';
 import { getForceService } from '@/services/forces/ForceService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { IForce, ICreateForceRequest } from '@/types/force';
 
 // =============================================================================
@@ -27,27 +32,15 @@ type CreateResponse = IForceOperationResult & {
   force?: IForce;
 };
 
-type ErrorResponse = {
-  error: string;
-  code?: string;
-};
-
 // =============================================================================
 // Handler
 // =============================================================================
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ListResponse | CreateResponse | ErrorResponse>,
+  res: NextApiResponse<ListResponse | CreateResponse | ApiErrorResponse>,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initializeApiDatabase(res)) return;
 
   const forceService = getForceService();
 
@@ -69,7 +62,7 @@ export default async function handler(
  */
 function handleGet(
   forceService: ReturnType<typeof getForceService>,
-  res: NextApiResponse<ListResponse | ErrorResponse>,
+  res: NextApiResponse<ListResponse | ApiErrorResponse>,
 ) {
   try {
     const forces = forceService.getAllForces();
@@ -78,9 +71,8 @@ function handleGet(
       count: forces.length,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to list forces';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'Failed to list forces');
+    return;
   }
 }
 
@@ -90,7 +82,7 @@ function handleGet(
 function handlePost(
   forceService: ReturnType<typeof getForceService>,
   req: NextApiRequest,
-  res: NextApiResponse<CreateResponse | ErrorResponse>,
+  res: NextApiResponse<CreateResponse | ApiErrorResponse>,
 ) {
   try {
     const body = req.body as ICreateForceRequest;
@@ -111,15 +103,11 @@ function handlePost(
       const force = forceService.getForce(result.id);
       return res.status(201).json({ ...result, force: force || undefined });
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to create force',
-        errorCode: result.errorCode,
-      });
+      sendOperationFailure(res, result, 'Failed to create force');
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to create force';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'Failed to create force');
+    return;
   }
 }

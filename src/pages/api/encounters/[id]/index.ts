@@ -10,9 +10,15 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  initializeApiDatabase,
+  rejectMissingQueryString,
+  sendCaughtApiError,
+  sendOperationFailure,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { IEncounterOperationResult } from '@/services/encounter/EncounterRepository';
 import { getEncounterService } from '@/services/encounter/EncounterService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { IEncounter, IUpdateEncounterInput } from '@/types/encounter';
 
 // =============================================================================
@@ -29,11 +35,6 @@ type UpdateResponse = IEncounterOperationResult & {
 
 type DeleteResponse = IEncounterOperationResult;
 
-type ErrorResponse = {
-  error: string;
-  code?: string;
-};
-
 // =============================================================================
 // Handler
 // =============================================================================
@@ -41,22 +42,18 @@ type ErrorResponse = {
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<
-    GetResponse | UpdateResponse | DeleteResponse | ErrorResponse
+    GetResponse | UpdateResponse | DeleteResponse | ApiErrorResponse
   >,
 ): Promise<void> {
-  // Initialize database
-  try {
-    getSQLiteService().initialize();
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Database initialization failed';
-    return res.status(500).json({ error: message });
-  }
+  if (!initializeApiDatabase(res)) return;
 
-  const { id } = req.query;
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid encounter ID' });
-  }
+  const id = rejectMissingQueryString(
+    req,
+    res,
+    'id',
+    'Missing or invalid encounter ID',
+  );
+  if (!id) return;
 
   const encounterService = getEncounterService();
 
@@ -81,7 +78,7 @@ export default async function handler(
 function handleGet(
   encounterService: ReturnType<typeof getEncounterService>,
   id: string,
-  res: NextApiResponse<GetResponse | ErrorResponse>,
+  res: NextApiResponse<GetResponse | ApiErrorResponse>,
 ) {
   try {
     const encounter = encounterService.getEncounter(id);
@@ -90,9 +87,8 @@ function handleGet(
     }
     return res.status(200).json({ encounter });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to get encounter';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'Failed to get encounter');
+    return;
   }
 }
 
@@ -103,7 +99,7 @@ function handlePatch(
   encounterService: ReturnType<typeof getEncounterService>,
   id: string,
   req: NextApiRequest,
-  res: NextApiResponse<UpdateResponse | ErrorResponse>,
+  res: NextApiResponse<UpdateResponse | ApiErrorResponse>,
 ) {
   try {
     const body = req.body as IUpdateEncounterInput;
@@ -115,16 +111,12 @@ function handlePatch(
         .status(200)
         .json({ ...result, encounter: encounter || undefined });
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to update encounter',
-        errorCode: result.errorCode,
-      });
+      sendOperationFailure(res, result, 'Failed to update encounter');
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to update encounter';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'Failed to update encounter');
+    return;
   }
 }
 
@@ -134,7 +126,7 @@ function handlePatch(
 function handleDelete(
   encounterService: ReturnType<typeof getEncounterService>,
   id: string,
-  res: NextApiResponse<DeleteResponse | ErrorResponse>,
+  res: NextApiResponse<DeleteResponse | ApiErrorResponse>,
 ) {
   try {
     const result = encounterService.deleteEncounter(id);
@@ -142,15 +134,11 @@ function handleDelete(
     if (result.success) {
       return res.status(200).json(result);
     } else {
-      return res.status(400).json({
-        success: false,
-        error: result.error || 'Failed to delete encounter',
-        errorCode: result.errorCode,
-      });
+      sendOperationFailure(res, result, 'Failed to delete encounter');
+      return;
     }
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Failed to delete encounter';
-    return res.status(500).json({ error: message });
+    sendCaughtApiError(res, error, 'Failed to delete encounter');
+    return;
   }
 }

@@ -1,3 +1,5 @@
+import type { IUnitValidationRuleDefinition } from '@/types/validation/UnitValidationInterfaces';
+
 export { EntityIdRequired } from './EntityIdRequired';
 export { EntityNameRequired } from './EntityNameRequired';
 export { ValidUnitType } from './ValidUnitType';
@@ -13,8 +15,6 @@ export { RulesLevelCompliance } from './RulesLevelCompliance';
 export { ArmorAllocationValidation } from './ArmorAllocationValidation';
 export { WeightOverflowValidation } from './WeightOverflowValidation';
 export { CriticalSlotOverflowValidation } from './CriticalSlotOverflowValidation';
-
-import type { IUnitValidationRuleDefinition } from '@/types/validation/UnitValidationInterfaces';
 
 import { ArmorAllocationValidation } from './ArmorAllocationValidation';
 import { BattleValueNonNegative } from './BattleValueNonNegative';

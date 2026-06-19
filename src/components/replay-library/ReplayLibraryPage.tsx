@@ -3,23 +3,7 @@
  *
  * On mount, fetches `/api/replay-library` and renders the manifest
  * entries as a card grid. Each row shows shared fields (id, createdAt,
- * turns, winner, bvTotal) plus source-specific metadata (configName/seed/
- * batchTimestamp for swarm; aiVariant/playerSide for quick; etc.).
- *
- * A source filter (All | Swarm | Quick | PvP | Campaign) restricts the
- * visible rows to one ReplaySource at a time.
- *
- * Click "Watch" to mount `<QuickGameReplayPanel>` inline. The viewer
- * fetches events via `/api/replay-library/<source>/<gameId>` and re-uses
- * the same playback affordances as the in-app quick-game replay.
- *
- * Imports use deep paths (`@/replay-library/types`) — never the barrel —
- * because the barrel re-exports `node:fs`-using modules that Turbopack
- * traces into the client bundle and breaks the Next build.
- *
- * The route file at `src/pages/replay-library.tsx` is a thin re-export
- * so this component can live alongside its storybook story (Next.js's
- * route-type validator inspects every file under `src/pages/`).
+ * turns, winner, bvTotal) plus source-specific metadata.
  *
  * @spec openspec/changes/add-replay-library/specs/replay-library/spec.md
  */
@@ -47,30 +31,29 @@ import {
 import { IGameEvent } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
 
-// =============================================================================
-// Page component
-// =============================================================================
-
-// Viewer state — set when the user clicks "Watch" on a row. The page
-// renders the replay viewer inline (replacing the list) until the user
-// clicks "Back to library". Lift the state up to the page so the
-// fetch + lifecycle live alongside the list, not hidden inside a row.
 interface IViewerState {
   readonly entry: IReplayManifestEntry;
-  readonly events: readonly IGameEvent[] | null; // null while fetch in flight
+  readonly events: readonly IGameEvent[] | null;
   readonly error: string | null;
 }
 
-export function ReplayLibraryPage(): React.ReactElement {
-  const router = useRouter();
+interface ReplayManifestState {
+  readonly entries: readonly IReplayManifestEntry[];
+  readonly loading: boolean;
+  readonly error: string | null;
+}
+
+interface ReplayViewerController {
+  readonly viewer: IViewerState | null;
+  readonly handleBackToList: () => void;
+  readonly handleWatch: (entry: IReplayManifestEntry) => void;
+}
+
+function useReplayManifestEntries(): ReplayManifestState {
   const [entries, setEntries] = useState<readonly IReplayManifestEntry[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<SourceFilter>('all');
-  const [viewer, setViewer] = useState<IViewerState | null>(null);
 
-  // Fetch the manifest once on mount. Errors surface as the page error
-  // state (full-screen card) so the user knows the disk read failed.
   useEffect(() => {
     let cancelled = false;
     async function load(): Promise<void> {
@@ -92,20 +75,24 @@ export function ReplayLibraryPage(): React.ReactElement {
         }
       }
     }
-    load();
+
+    void load();
     return () => {
       cancelled = true;
     };
   }, []);
 
-  // When the viewer state has an entry but no events, fetch them. Splitting
-  // the fetch into its own effect (rather than inline in handleWatch) keeps
-  // the cancel-on-unmount semantics clean — clicking Back during a slow
-  // fetch correctly drops the in-flight result.
+  return { entries, loading, error };
+}
+
+function useReplayViewer(): ReplayViewerController {
+  const [viewer, setViewer] = useState<IViewerState | null>(null);
+
   useEffect(() => {
     if (viewer === null || viewer.events !== null || viewer.error !== null) {
       return undefined;
     }
+
     let cancelled = false;
     async function loadEvents(entry: IReplayManifestEntry): Promise<void> {
       try {
@@ -132,15 +119,13 @@ export function ReplayLibraryPage(): React.ReactElement {
         }
       }
     }
+
     void loadEvents(viewer.entry);
     return () => {
       cancelled = true;
     };
   }, [viewer]);
 
-  // Mounting the viewer triggers the load effect above. Re-clicking Watch
-  // on the same row is a no-op (the events are already loaded); clicking a
-  // different row clears `events` so the load fires again for the new id.
   const handleWatch = useCallback((entry: IReplayManifestEntry) => {
     setViewer((prev) =>
       prev !== null && prev.entry.id === entry.id
@@ -153,6 +138,14 @@ export function ReplayLibraryPage(): React.ReactElement {
     setViewer(null);
   }, []);
 
+  return { viewer, handleBackToList, handleWatch };
+}
+
+export function ReplayLibraryPage(): React.ReactElement {
+  const router = useRouter();
+  const [filter, setFilter] = useState<SourceFilter>('all');
+  const { entries, loading, error } = useReplayManifestEntries();
+  const { viewer, handleBackToList, handleWatch } = useReplayViewer();
   const filteredEntries = useMemo(() => {
     if (filter === 'all') return entries;
     return entries.filter((entry) => entry.replaySource === filter);
@@ -173,123 +166,211 @@ export function ReplayLibraryPage(): React.ReactElement {
     );
   }
 
-  // Inline viewer mode — replaces the list when the user clicks Watch.
-  // Re-using `<QuickGameReplayPanel>` keeps the viewer affordances
-  // identical to the in-app quick-game replay tab so users see one
-  // consistent UI regardless of where the events came from.
   if (viewer !== null) {
     return (
-      <PageLayout
-        title="Replay Library"
-        subtitle={`Watching ${viewer.entry.id} (${viewer.entry.replaySource})`}
-        maxWidth="wide"
-      >
-        <div className="mb-4">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleBackToList}
-            data-testid="back-to-library"
-          >
-            ← Back to library
-          </Button>
-        </div>
-
-        {viewer.error !== null ? (
-          <Card data-testid="replay-viewer-error">
-            <p className="text-text-theme-primary mb-2 font-medium">
-              Failed to load replay
-            </p>
-            <p className="text-text-theme-secondary text-sm">{viewer.error}</p>
-          </Card>
-        ) : viewer.events === null ? (
-          <PageLoading message="Loading replay events..." />
-        ) : (
-          <QuickGameReplayPanel
-            gameId={viewer.entry.id}
-            events={viewer.events}
-          />
-        )}
-      </PageLayout>
+      <ReplayViewerLayout viewer={viewer} onBackToList={handleBackToList} />
     );
   }
 
+  return (
+    <ReplayLibraryListView
+      entries={entries}
+      filteredEntries={filteredEntries}
+      filter={filter}
+      onFilterChange={setFilter}
+      onStartEncounter={() => router.push('/gameplay/encounters')}
+      onStartQuickGame={() => router.push('/gameplay/quick')}
+      onWatch={handleWatch}
+    />
+  );
+}
+
+function ReplayViewerLayout({
+  viewer,
+  onBackToList,
+}: {
+  readonly viewer: IViewerState;
+  readonly onBackToList: () => void;
+}): React.ReactElement {
+  return (
+    <PageLayout
+      title="Replay Library"
+      subtitle={`Watching ${viewer.entry.id} (${viewer.entry.replaySource})`}
+      maxWidth="wide"
+    >
+      <div className="mb-4">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onBackToList}
+          data-testid="back-to-library"
+        >
+          ← Back to library
+        </Button>
+      </div>
+
+      <ReplayViewerBody viewer={viewer} />
+    </PageLayout>
+  );
+}
+
+function ReplayViewerBody({
+  viewer,
+}: {
+  readonly viewer: IViewerState;
+}): React.ReactElement {
+  if (viewer.error !== null) {
+    return (
+      <Card data-testid="replay-viewer-error">
+        <p className="text-text-theme-primary mb-2 font-medium">
+          Failed to load replay
+        </p>
+        <p className="text-text-theme-secondary text-sm">{viewer.error}</p>
+      </Card>
+    );
+  }
+
+  if (viewer.events === null) {
+    return <PageLoading message="Loading replay events..." />;
+  }
+
+  return (
+    <QuickGameReplayPanel gameId={viewer.entry.id} events={viewer.events} />
+  );
+}
+
+function ReplayLibraryListView({
+  entries,
+  filteredEntries,
+  filter,
+  onFilterChange,
+  onStartEncounter,
+  onStartQuickGame,
+  onWatch,
+}: {
+  readonly entries: readonly IReplayManifestEntry[];
+  readonly filteredEntries: readonly IReplayManifestEntry[];
+  readonly filter: SourceFilter;
+  readonly onFilterChange: (filter: SourceFilter) => void;
+  readonly onStartEncounter: () => void;
+  readonly onStartQuickGame: () => void;
+  readonly onWatch: (entry: IReplayManifestEntry) => void;
+}): React.ReactElement {
   return (
     <PageLayout
       title="Replay Library"
       subtitle="Browse swarm runs, quick games, and saved replays"
       maxWidth="wide"
     >
-      <Card className="mb-6">
-        <div className="flex flex-wrap gap-2" data-testid="source-filter">
-          {SOURCE_FILTERS.map(({ key, label }) => (
-            <Button
-              key={key}
-              variant={filter === key ? 'primary' : 'secondary'}
-              size="sm"
-              onClick={() => setFilter(key)}
-              data-testid={`source-filter-${key}`}
-            >
-              {label}
-            </Button>
-          ))}
-        </div>
-        <div className="text-text-theme-secondary mt-3 text-sm">
-          Showing {filteredEntries.length} of {entries.length} replay
-          {entries.length === 1 ? '' : 's'}
-        </div>
-      </Card>
+      <ReplaySourceFilter
+        entries={entries}
+        filteredEntries={filteredEntries}
+        filter={filter}
+        onFilterChange={onFilterChange}
+      />
 
       {filteredEntries.length === 0 ? (
-        <EmptyState
-          data-testid="replay-library-empty"
-          title={
-            entries.length === 0
-              ? 'No replays yet'
-              : 'No replays match this filter'
-          }
-          message={
-            entries.length === 0
-              ? 'Finish a quick game or set up an encounter, and the resulting replay will show up here. Swarm CLI runs land here too.'
-              : 'Try a different source filter.'
-          }
-          action={
-            entries.length === 0 ? (
-              <div className="flex flex-wrap justify-center gap-2">
-                <Button
-                  variant="primary"
-                  onClick={() => router.push('/gameplay/quick')}
-                  data-testid="empty-state-quick-game"
-                >
-                  Start Quick Game
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => router.push('/gameplay/encounters')}
-                  data-testid="empty-state-encounters"
-                >
-                  Browse Encounters
-                </Button>
-              </div>
-            ) : undefined
-          }
+        <ReplayLibraryEmptyState
+          hasEntries={entries.length > 0}
+          onStartEncounter={onStartEncounter}
+          onStartQuickGame={onStartQuickGame}
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 pb-12 md:grid-cols-2 lg:grid-cols-3">
-          {filteredEntries.map((entry, idx) => (
-            // Composite key as defense-in-depth: the persister now dedupes
-            // by `entry.id` (PT-101), but the index file may carry stale
-            // duplicates from before the fix landed. Using `${id}-${idx}`
-            // keeps React happy even if dedup ever regresses.
-            <ReplayRow
-              key={`${entry.id}-${idx}`}
-              entry={entry}
-              onWatch={handleWatch}
-            />
-          ))}
-        </div>
+        <ReplayLibraryGrid entries={filteredEntries} onWatch={onWatch} />
       )}
     </PageLayout>
+  );
+}
+
+function ReplaySourceFilter({
+  entries,
+  filteredEntries,
+  filter,
+  onFilterChange,
+}: {
+  readonly entries: readonly IReplayManifestEntry[];
+  readonly filteredEntries: readonly IReplayManifestEntry[];
+  readonly filter: SourceFilter;
+  readonly onFilterChange: (filter: SourceFilter) => void;
+}): React.ReactElement {
+  return (
+    <Card className="mb-6">
+      <div className="flex flex-wrap gap-2" data-testid="source-filter">
+        {SOURCE_FILTERS.map(({ key, label }) => (
+          <Button
+            key={key}
+            variant={filter === key ? 'primary' : 'secondary'}
+            size="sm"
+            onClick={() => onFilterChange(key)}
+            data-testid={`source-filter-${key}`}
+          >
+            {label}
+          </Button>
+        ))}
+      </div>
+      <div className="text-text-theme-secondary mt-3 text-sm">
+        Showing {filteredEntries.length} of {entries.length} replay
+        {entries.length === 1 ? '' : 's'}
+      </div>
+    </Card>
+  );
+}
+
+function ReplayLibraryEmptyState({
+  hasEntries,
+  onStartEncounter,
+  onStartQuickGame,
+}: {
+  readonly hasEntries: boolean;
+  readonly onStartEncounter: () => void;
+  readonly onStartQuickGame: () => void;
+}): React.ReactElement {
+  return (
+    <EmptyState
+      data-testid="replay-library-empty"
+      title={hasEntries ? 'No replays match this filter' : 'No replays yet'}
+      message={
+        hasEntries
+          ? 'Try a different source filter.'
+          : 'Finish a quick game or set up an encounter, and the resulting replay will show up here. Swarm CLI runs land here too.'
+      }
+      action={
+        hasEntries ? undefined : (
+          <div className="flex flex-wrap justify-center gap-2">
+            <Button
+              variant="primary"
+              onClick={onStartQuickGame}
+              data-testid="empty-state-quick-game"
+            >
+              Start Quick Game
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={onStartEncounter}
+              data-testid="empty-state-encounters"
+            >
+              Browse Encounters
+            </Button>
+          </div>
+        )
+      }
+    />
+  );
+}
+
+function ReplayLibraryGrid({
+  entries,
+  onWatch,
+}: {
+  readonly entries: readonly IReplayManifestEntry[];
+  readonly onWatch: (entry: IReplayManifestEntry) => void;
+}): React.ReactElement {
+  return (
+    <div className="grid grid-cols-1 gap-4 pb-12 md:grid-cols-2 lg:grid-cols-3">
+      {entries.map((entry, idx) => (
+        <ReplayRow key={`${entry.id}-${idx}`} entry={entry} onWatch={onWatch} />
+      ))}
+    </div>
   );
 }
 

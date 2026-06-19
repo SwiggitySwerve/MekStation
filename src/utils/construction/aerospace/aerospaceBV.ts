@@ -50,6 +50,26 @@ import type {
   IAerospaceBVInput,
 } from './aerospaceBVTypes';
 
+const DIRECT_AEROSPACE_ARCS: ReadonlySet<AerospaceArc> = new Set(
+  Object.values(AerospaceArc),
+);
+
+const LEGACY_ARC_LOCATION_MAP: Readonly<Partial<Record<string, AerospaceArc>>> =
+  {
+    'Left Wing': AerospaceArc.LEFT_WING,
+    'Right Wing': AerospaceArc.RIGHT_WING,
+    'Left Side': AerospaceArc.LEFT_SIDE,
+    'Right Side': AerospaceArc.RIGHT_SIDE,
+    Hull: AerospaceArc.FUSELAGE,
+    Wings: AerospaceArc.FUSELAGE,
+  };
+
+function isAerospaceArc(
+  location: AerospaceArc | string,
+): location is AerospaceArc {
+  return DIRECT_AEROSPACE_ARCS.has(location as AerospaceArc);
+}
+
 // ============================================================================
 // Arc-Pool Fire Weighting
 // ============================================================================
@@ -86,39 +106,11 @@ export function getMainArcsForSubType(
 export function normalizeArcLocation(
   location: AerospaceArc | string,
 ): AerospaceArc | null {
-  if (
-    location === AerospaceArc.NOSE ||
-    location === AerospaceArc.LEFT_WING ||
-    location === AerospaceArc.RIGHT_WING ||
-    location === AerospaceArc.LEFT_SIDE ||
-    location === AerospaceArc.RIGHT_SIDE ||
-    location === AerospaceArc.AFT ||
-    location === AerospaceArc.FUSELAGE
-  ) {
+  if (isAerospaceArc(location)) {
     return location;
   }
 
-  // Legacy / string-form locations seen in unit data
-  switch (location) {
-    case 'Nose':
-      return AerospaceArc.NOSE;
-    case 'Left Wing':
-      return AerospaceArc.LEFT_WING;
-    case 'Right Wing':
-      return AerospaceArc.RIGHT_WING;
-    case 'Left Side':
-      return AerospaceArc.LEFT_SIDE;
-    case 'Right Side':
-      return AerospaceArc.RIGHT_SIDE;
-    case 'Aft':
-      return AerospaceArc.AFT;
-    case 'Fuselage':
-    case 'Hull':
-    case 'Wings':
-      return AerospaceArc.FUSELAGE;
-    default:
-      return null;
-  }
+  return LEGACY_ARC_LOCATION_MAP[location] ?? null;
 }
 
 /**

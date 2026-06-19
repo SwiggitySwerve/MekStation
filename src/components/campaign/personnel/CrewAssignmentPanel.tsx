@@ -88,7 +88,7 @@ export function CrewAssignmentPanel({
   const currentAssignment = allAssignments.find(
     ({ assignment }) => assignment.pilotId === pilotId,
   );
-  // TODO: role-based filtering (mech vs vehicle vs aerospace) is deferred.
+  // Deferred: role-based filtering (mech vs vehicle vs aerospace).
   // ICampaignRosterEntry doesn't carry role today; refining requires a vault
   // join + unit-type lookup. Tracked in council-decisions/2026-05-01-personnel-architecture-path.md.
   const compatibleSlots = allAssignments.filter(

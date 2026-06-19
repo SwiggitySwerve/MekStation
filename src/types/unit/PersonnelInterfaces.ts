@@ -6,9 +6,11 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.1
  */
 
-// Type-only import avoids a runtime cycle; IProtoMechBVBreakdown is erased at
-// runtime and is only used to tag the optional breakdown on IProtoMech.
-import type { IProtoMechBVBreakdown } from '@/utils/construction/protomech/protoMechBV';
+import type {
+  IInfantryBVBreakdown,
+  IProtoMechBVBreakdown,
+} from './BVBreakdownTypes';
+import type { IUnitMountedEquipmentIdentity } from './MountedEquipmentInterfaces';
 
 import {
   BattleArmorLocation,
@@ -65,13 +67,7 @@ export enum ManipulatorType {
 /**
  * Battle Armor-mounted equipment item
  */
-export interface IBattleArmorMountedEquipment {
-  /** Unique mount ID */
-  readonly id: string;
-  /** Equipment definition ID */
-  readonly equipmentId: string;
-  /** Display name */
-  readonly name: string;
+export interface IBattleArmorMountedEquipment extends IUnitMountedEquipmentIdentity {
   /** Location (Squad, Body, Left Arm, Right Arm, Turret) */
   readonly location: BattleArmorLocation;
   /** Is this anti-personnel mount equipment */
@@ -309,7 +305,7 @@ export interface IInfantry extends ISquadUnit {
    *
    * @spec openspec/changes/add-infantry-battle-value/specs/infantry-unit-system/spec.md
    */
-  readonly bvBreakdown?: import('@/utils/construction/infantry/infantryBV').IInfantryBVBreakdown;
+  readonly bvBreakdown?: IInfantryBVBreakdown;
 }
 
 // ============================================================================
@@ -321,13 +317,7 @@ export interface IInfantry extends ISquadUnit {
 /**
  * ProtoMech-mounted equipment item
  */
-export interface IProtoMechMountedEquipment {
-  /** Unique mount ID */
-  readonly id: string;
-  /** Equipment definition ID */
-  readonly equipmentId: string;
-  /** Display name */
-  readonly name: string;
+export interface IProtoMechMountedEquipment extends IUnitMountedEquipmentIdentity {
   /** Location */
   readonly location: ProtoMechLocation;
   /** Linked ammunition ID */

@@ -1,5 +1,4 @@
 import type { InteractiveSession } from '@/engine/InteractiveSession';
-import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 import type {
   IEventMessage,
@@ -15,13 +14,14 @@ import {
 import type { IMatchStore } from './IMatchStore';
 import type { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import type { IntentRateLimiter } from './reconnection/IntentRateLimiter';
+import type { IServerMatchHostCaptureContext } from './ServerMatchHostCaptureContext';
 
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
 import { dispatchToEngine } from './ServerMatchHostEngineDispatch';
 import { stampIntentIdOnNewEvents } from './ServerMatchHostEvents';
 import { isLobbyIntentKind } from './ServerMatchHostLobbyIntents';
 
-export interface IServerMatchHostIntentContext {
+export interface IServerMatchHostIntentContext extends IServerMatchHostCaptureContext {
   readonly matchId: string;
   readonly store: IMatchStore;
   readonly session: InteractiveSession;
@@ -33,11 +33,6 @@ export interface IServerMatchHostIntentContext {
   readonly handleLobbyIntent: (
     envelope: IIntent,
   ) => Promise<readonly IServerMessage[]>;
-  readonly installFreshCapture: () => void;
-  readonly drainNewEvents: () => readonly IGameEvent[];
-  readonly stampRollsOnNewEvents: (
-    events: readonly IGameEvent[],
-  ) => readonly IGameEvent[];
   readonly tryPublishOutcome: () => void;
   /**
    * harden-multiplayer-transport (M2) — per-connection token-bucket

@@ -1,12 +1,9 @@
 import Head from 'next/head';
 import { useCallback, useEffect, useState } from 'react';
 
-import type {
-  ISharedItem,
-  SharedItemsResponse,
-  ViewMode,
-} from '@/pages-modules/shared/types';
+import type { ISharedItem, ViewMode } from '@/pages-modules/shared/types';
 
+import { runFinishLoadingOperation } from '@/components/common/runUiOperation';
 import {
   Button,
   EmptyState,
@@ -19,6 +16,13 @@ import {
   RefreshIcon,
   ShareIcon,
 } from '@/pages-modules/shared/icons';
+import {
+  fetchSharedItemsList,
+  requestVaultSync,
+  revokeSharedItem,
+  sharedItemPath,
+  withoutSharedItem,
+} from '@/pages-modules/shared/pageHelpers';
 import { SharedItemCard } from '@/pages-modules/shared/SharedItemCard';
 import { logger } from '@/utils/logger';
 
@@ -33,22 +37,16 @@ export default function SharedPage(): React.ReactElement {
   const [isSyncing, setIsSyncing] = useState(false);
 
   const fetchSharedItems = useCallback(async () => {
-    try {
-      const response = await fetch('/api/vault/shared');
-      if (!response.ok) {
-        throw new Error('Failed to fetch shared items');
-      }
-      const data = (await response.json()) as SharedItemsResponse;
-      setSharedWithMe(data.sharedWithMe);
-      setMySharedItems(data.mySharedItems);
-      setError(null);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to load shared items',
-      );
-    } finally {
-      setLoading(false);
-    }
+    await runFinishLoadingOperation(
+      setLoading,
+      setError,
+      'Failed to load shared items',
+      async () => {
+        const data = await fetchSharedItemsList();
+        setSharedWithMe(data.sharedWithMe);
+        setMySharedItems(data.mySharedItems);
+      },
+    );
   }, []);
 
   useEffect(() => {
@@ -58,7 +56,7 @@ export default function SharedPage(): React.ReactElement {
   const handleSync = async () => {
     setIsSyncing(true);
     try {
-      await fetch('/api/vault/sync', { method: 'POST' });
+      await requestVaultSync();
       await fetchSharedItems();
     } catch (err) {
       logger.error('Sync failed:', err);
@@ -68,27 +66,17 @@ export default function SharedPage(): React.ReactElement {
   };
 
   const handleView = (item: ISharedItem) => {
-    const basePath = item.type === 'folder' ? '/folders' : `/${item.type}s`;
-    window.location.href = `${basePath}/${item.id}`;
+    window.location.href = sharedItemPath(item);
   };
 
   const handleRevoke = async (item: ISharedItem) => {
     setProcessingId(item.id);
     try {
-      const endpoint =
-        viewMode === 'received'
-          ? `/api/vault/shared/received/${item.id}`
-          : `/api/vault/shared/mine/${item.id}`;
-
-      const response = await fetch(endpoint, { method: 'DELETE' });
-      if (!response.ok) {
-        throw new Error('Failed to revoke sharing');
-      }
-
+      await revokeSharedItem(item.id, viewMode);
       if (viewMode === 'received') {
-        setSharedWithMe((prev) => prev.filter((i) => i.id !== item.id));
+        setSharedWithMe((prev) => withoutSharedItem(prev, item.id));
       } else {
-        setMySharedItems((prev) => prev.filter((i) => i.id !== item.id));
+        setMySharedItems((prev) => withoutSharedItem(prev, item.id));
       }
       setRevokeConfirmId(null);
     } catch (err) {

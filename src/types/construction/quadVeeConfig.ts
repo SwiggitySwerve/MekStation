@@ -1,5 +1,6 @@
 import type { IMechConfigurationDefinition } from './MechConfigTypes';
 
+import { createStandardTorsoLocationDefinitions } from './bipedConfig';
 import { createLocationDef, LEG_ACTUATORS } from './mechConfigHelpers';
 import { MechConfiguration, MechLocation } from './MechConfigTypes';
 
@@ -37,20 +38,7 @@ export const QUADVEE_CONFIGURATION: IMechConfigurationDefinition = {
   displayName: 'QuadVee',
   description: 'Transformable quad mech capable of vehicle mode',
   locations: [
-    createLocationDef(MechLocation.HEAD, 'Head', 'HD', 6, {
-      maxArmorMultiplier: 3,
-    }),
-    createLocationDef(MechLocation.CENTER_TORSO, 'Center Torso', 'CT', 12, {
-      hasRearArmor: true,
-    }),
-    createLocationDef(MechLocation.LEFT_TORSO, 'Left Torso', 'LT', 12, {
-      hasRearArmor: true,
-      transfersTo: MechLocation.CENTER_TORSO,
-    }),
-    createLocationDef(MechLocation.RIGHT_TORSO, 'Right Torso', 'RT', 12, {
-      hasRearArmor: true,
-      transfersTo: MechLocation.CENTER_TORSO,
-    }),
+    ...createStandardTorsoLocationDefinitions(),
     createLocationDef(
       MechLocation.FRONT_LEFT_LEG,
       'Front Left Leg',

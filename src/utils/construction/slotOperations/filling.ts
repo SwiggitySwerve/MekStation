@@ -18,6 +18,8 @@ const FILL_SINGLE_LOCATIONS: readonly MechLocation[] = [
   MechLocation.HEAD,
 ];
 
+type AvailableSlotsByLocation = Map<MechLocation, number[]>;
+
 export function getUnallocatedUnhittables(
   equipment: readonly IMountedEquipmentInstance[],
 ): IMountedEquipmentInstance[] {
@@ -26,92 +28,149 @@ export function getUnallocatedUnhittables(
   );
 }
 
-export function fillUnhittableSlots(
+function createAvailableSlotsByLocation(
   equipment: readonly IMountedEquipmentInstance[],
   engineType: EngineType,
   gyroType: GyroType,
-): SlotOperationResult {
-  const assignments: SlotAssignment[] = [];
-  const unassigned: string[] = [];
-
-  const unhittables = getUnallocatedUnhittables(equipment);
-  if (unhittables.length === 0) {
-    return { assignments, unassigned };
-  }
-
-  const availableByLocation = new Map<MechLocation, number[]>();
+): AvailableSlotsByLocation {
+  const availableByLocation: AvailableSlotsByLocation = new Map();
   for (const loc of Object.values(MechLocation)) {
     availableByLocation.set(
       loc,
       getAvailableSlotIndices(loc, engineType, gyroType, equipment),
     );
   }
+  return availableByLocation;
+}
 
-  const assignToLocation = (
-    eq: IMountedEquipmentInstance,
-    location: MechLocation,
-  ): boolean => {
-    const available = availableByLocation.get(location) || [];
-    if (available.length === 0) return false;
+function assignToLocation(
+  eq: IMountedEquipmentInstance,
+  location: MechLocation,
+  availableByLocation: AvailableSlotsByLocation,
+  assignments: SlotAssignment[],
+): boolean {
+  const available = availableByLocation.get(location) || [];
+  if (available.length === 0) return false;
 
-    const slot = available.shift()!;
-    assignments.push({
-      instanceId: eq.instanceId,
-      location,
-      slots: [slot],
-    });
-    return true;
-  };
+  const slot = available.shift()!;
+  assignments.push({
+    instanceId: eq.instanceId,
+    location,
+    slots: [slot],
+  });
+  return true;
+}
 
-  let unhittableIndex = 0;
+function choosePairedLocation(
+  availableByLocation: AvailableSlotsByLocation,
+  leftLoc: MechLocation,
+  rightLoc: MechLocation,
+  useLeft: boolean,
+): MechLocation | undefined {
+  const preferred = useLeft ? [leftLoc, rightLoc] : [rightLoc, leftLoc];
+  return preferred.find(
+    (location) => (availableByLocation.get(location) || []).length > 0,
+  );
+}
+
+function fillPairedLocations(
+  unhittables: readonly IMountedEquipmentInstance[],
+  startIndex: number,
+  availableByLocation: AvailableSlotsByLocation,
+  assignments: SlotAssignment[],
+): number {
+  let unhittableIndex = startIndex;
 
   for (const [leftLoc, rightLoc] of FILL_LOCATION_PAIRS) {
     let useLeft = true;
 
     while (unhittableIndex < unhittables.length) {
-      const eq = unhittables[unhittableIndex];
-      const leftAvailable = (availableByLocation.get(leftLoc) || []).length;
-      const rightAvailable = (availableByLocation.get(rightLoc) || []).length;
+      const location = choosePairedLocation(
+        availableByLocation,
+        leftLoc,
+        rightLoc,
+        useLeft,
+      );
+      if (location === undefined) break;
 
-      if (leftAvailable === 0 && rightAvailable === 0) {
-        break;
-      }
+      const assigned = assignToLocation(
+        unhittables[unhittableIndex],
+        location,
+        availableByLocation,
+        assignments,
+      );
+      if (!assigned) break;
 
-      let assigned = false;
-      if (useLeft && leftAvailable > 0) {
-        assigned = assignToLocation(eq, leftLoc);
-      } else if (!useLeft && rightAvailable > 0) {
-        assigned = assignToLocation(eq, rightLoc);
-      } else if (leftAvailable > 0) {
-        assigned = assignToLocation(eq, leftLoc);
-      } else if (rightAvailable > 0) {
-        assigned = assignToLocation(eq, rightLoc);
-      }
-
-      if (assigned) {
-        unhittableIndex++;
-        useLeft = !useLeft;
-      } else {
-        break;
-      }
+      unhittableIndex++;
+      useLeft = !useLeft;
     }
   }
+
+  return unhittableIndex;
+}
+
+function fillSingleLocations(
+  unhittables: readonly IMountedEquipmentInstance[],
+  startIndex: number,
+  availableByLocation: AvailableSlotsByLocation,
+  assignments: SlotAssignment[],
+): number {
+  let unhittableIndex = startIndex;
 
   for (const loc of FILL_SINGLE_LOCATIONS) {
-    while (unhittableIndex < unhittables.length) {
-      const eq = unhittables[unhittableIndex];
-      if (assignToLocation(eq, loc)) {
-        unhittableIndex++;
-      } else {
-        break;
-      }
+    while (
+      unhittableIndex < unhittables.length &&
+      assignToLocation(
+        unhittables[unhittableIndex],
+        loc,
+        availableByLocation,
+        assignments,
+      )
+    ) {
+      unhittableIndex++;
     }
   }
 
-  while (unhittableIndex < unhittables.length) {
-    unassigned.push(unhittables[unhittableIndex].instanceId);
-    unhittableIndex++;
+  return unhittableIndex;
+}
+
+function collectUnassigned(
+  unhittables: readonly IMountedEquipmentInstance[],
+  startIndex: number,
+): string[] {
+  return unhittables.slice(startIndex).map((eq) => eq.instanceId);
+}
+
+export function fillUnhittableSlots(
+  equipment: readonly IMountedEquipmentInstance[],
+  engineType: EngineType,
+  gyroType: GyroType,
+): SlotOperationResult {
+  const assignments: SlotAssignment[] = [];
+
+  const unhittables = getUnallocatedUnhittables(equipment);
+  if (unhittables.length === 0) {
+    return { assignments, unassigned: [] };
   }
+
+  const availableByLocation = createAvailableSlotsByLocation(
+    equipment,
+    engineType,
+    gyroType,
+  );
+  const pairedIndex = fillPairedLocations(
+    unhittables,
+    0,
+    availableByLocation,
+    assignments,
+  );
+  const filledIndex = fillSingleLocations(
+    unhittables,
+    pairedIndex,
+    availableByLocation,
+    assignments,
+  );
+  const unassigned = collectUnassigned(unhittables, filledIndex);
 
   return { assignments, unassigned };
 }

@@ -10,6 +10,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { rejectMissingQueryString } from '@/pages-modules/api/routeHelpers';
 import { getShareLinkService } from '@/services/vault/ShareLinkService';
 
 // =============================================================================
@@ -23,15 +24,128 @@ interface UpdateShareLinkBody {
   isActive?: unknown;
 }
 
+type ShareLinkService = ReturnType<typeof getShareLinkService>;
+
+interface MutationResult {
+  readonly success: boolean;
+  readonly error?: string;
+}
+
+function sendBadRequest(res: NextApiResponse, error: string): false {
+  res.status(400).json({ error });
+  return false;
+}
+
+function sendMutationResult(
+  res: NextApiResponse,
+  result: MutationResult,
+): boolean {
+  if (result.success) return true;
+  res.status(400).json({ error: result.error });
+  return false;
+}
+
+async function updateLabelField(
+  body: UpdateShareLinkBody,
+  service: ShareLinkService,
+  id: string,
+  res: NextApiResponse,
+): Promise<boolean> {
+  if (body.label === undefined) return true;
+  if (body.label !== null && typeof body.label !== 'string') {
+    return sendBadRequest(res, 'label must be a string or null');
+  }
+  const result = await service.updateLabel(
+    id,
+    body.label === null ? null : body.label.trim() || null,
+  );
+  return sendMutationResult(res, result);
+}
+
+async function updateExpiryField(
+  body: UpdateShareLinkBody,
+  service: ShareLinkService,
+  id: string,
+  res: NextApiResponse,
+): Promise<boolean> {
+  if (body.expiresAt === undefined) return true;
+  if (body.expiresAt !== null) {
+    if (typeof body.expiresAt !== 'string') {
+      return sendBadRequest(res, 'expiresAt must be a string or null');
+    }
+    if (Number.isNaN(new Date(body.expiresAt).getTime())) {
+      return sendBadRequest(res, 'expiresAt must be a valid ISO date');
+    }
+  }
+  const result = await service.updateExpiry(
+    id,
+    body.expiresAt as string | null,
+  );
+  return sendMutationResult(res, result);
+}
+
+async function updateMaxUsesField(
+  body: UpdateShareLinkBody,
+  service: ShareLinkService,
+  id: string,
+  res: NextApiResponse,
+): Promise<boolean> {
+  if (body.maxUses === undefined) return true;
+  if (
+    body.maxUses !== null &&
+    (typeof body.maxUses !== 'number' || body.maxUses < 1)
+  ) {
+    return sendBadRequest(res, 'maxUses must be a positive number or null');
+  }
+  const result = await service.updateMaxUses(
+    id,
+    body.maxUses === null ? null : Math.floor(body.maxUses),
+  );
+  return sendMutationResult(res, result);
+}
+
+async function updateActiveField(
+  body: UpdateShareLinkBody,
+  service: ShareLinkService,
+  id: string,
+  res: NextApiResponse,
+): Promise<boolean> {
+  if (body.isActive === undefined) return true;
+  if (typeof body.isActive !== 'boolean') {
+    return sendBadRequest(res, 'isActive must be a boolean');
+  }
+  const result = body.isActive
+    ? await service.reactivate(id)
+    : await service.deactivate(id);
+  return sendMutationResult(res, result);
+}
+
+async function applyShareLinkPatch(
+  body: UpdateShareLinkBody,
+  service: ShareLinkService,
+  id: string,
+  res: NextApiResponse,
+): Promise<boolean> {
+  const updateSteps = [
+    updateLabelField,
+    updateExpiryField,
+    updateMaxUsesField,
+    updateActiveField,
+  ];
+
+  for (const updateStep of updateSteps) {
+    if (!(await updateStep(body, service, id, res))) return false;
+  }
+
+  return true;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<void> {
-  const { id } = req.query;
-
-  if (!id || typeof id !== 'string') {
-    return res.status(400).json({ error: 'Invalid share link ID' });
-  }
+  const id = rejectMissingQueryString(req, res, 'id', 'Invalid share link ID');
+  if (!id) return;
 
   const service = getShareLinkService();
 
@@ -54,7 +168,7 @@ export default async function handler(
 async function handleGet(
   _req: NextApiRequest,
   res: NextApiResponse,
-  service: ReturnType<typeof getShareLinkService>,
+  service: ShareLinkService,
   id: string,
 ) {
   try {
@@ -86,7 +200,7 @@ async function handleGet(
 async function handlePatch(
   req: NextApiRequest,
   res: NextApiResponse,
-  service: ReturnType<typeof getShareLinkService>,
+  service: ShareLinkService,
   id: string,
 ) {
   try {
@@ -98,77 +212,8 @@ async function handlePatch(
       return res.status(404).json({ error: 'Share link not found' });
     }
 
-    // Update label
-    if (body.label !== undefined) {
-      if (body.label !== null && typeof body.label !== 'string') {
-        return res
-          .status(400)
-          .json({ error: 'label must be a string or null' });
-      }
-      const result = await service.updateLabel(
-        id,
-        body.label === null ? null : body.label.trim() || null,
-      );
-      if (!result.success) {
-        return res.status(400).json({ error: result.error });
-      }
-    }
-
-    // Update expiry
-    if (body.expiresAt !== undefined) {
-      if (body.expiresAt !== null) {
-        if (typeof body.expiresAt !== 'string') {
-          return res
-            .status(400)
-            .json({ error: 'expiresAt must be a string or null' });
-        }
-        const date = new Date(body.expiresAt);
-        if (isNaN(date.getTime())) {
-          return res
-            .status(400)
-            .json({ error: 'expiresAt must be a valid ISO date' });
-        }
-      }
-      const result = await service.updateExpiry(
-        id,
-        body.expiresAt as string | null,
-      );
-      if (!result.success) {
-        return res.status(400).json({ error: result.error });
-      }
-    }
-
-    // Update max uses
-    if (body.maxUses !== undefined) {
-      if (
-        body.maxUses !== null &&
-        (typeof body.maxUses !== 'number' || body.maxUses < 1)
-      ) {
-        return res
-          .status(400)
-          .json({ error: 'maxUses must be a positive number or null' });
-      }
-      const result = await service.updateMaxUses(
-        id,
-        body.maxUses === null ? null : Math.floor(body.maxUses),
-      );
-      if (!result.success) {
-        return res.status(400).json({ error: result.error });
-      }
-    }
-
-    // Update active status
-    if (body.isActive !== undefined) {
-      if (typeof body.isActive !== 'boolean') {
-        return res.status(400).json({ error: 'isActive must be a boolean' });
-      }
-      const result = body.isActive
-        ? await service.reactivate(id)
-        : await service.deactivate(id);
-      if (!result.success) {
-        return res.status(400).json({ error: result.error });
-      }
-    }
+    const updated = await applyShareLinkPatch(body, service, id, res);
+    if (!updated) return;
 
     // Return updated link
     const updatedLink = await service.getById(id);
@@ -191,7 +236,7 @@ async function handlePatch(
 async function handleDelete(
   _req: NextApiRequest,
   res: NextApiResponse,
-  service: ReturnType<typeof getShareLinkService>,
+  service: ShareLinkService,
   id: string,
 ) {
   try {

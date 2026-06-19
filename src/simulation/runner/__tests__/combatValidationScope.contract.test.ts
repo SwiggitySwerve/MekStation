@@ -220,12 +220,12 @@ describe('BattleMech validation scope support catalog', () => {
     expect(urlsFor('catalog-filter-gate-ban')).toEqual(
       expect.arrayContaining([
         'src/simulation/runner/__tests__/combatValidationScope.contract.test.ts#L163-L177',
-        'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts#L3554-L3574',
+        'src/simulation/runner/__tests__/battlemechCombatCatalog.19.audits-known-limitation-traps-without-filtering-combat.fragment.ts#L26-L46',
       ]),
     );
     expect(urlsFor('static-weapon-database-subset')).toEqual(
       expect.arrayContaining([
-        'src/simulation/runner/__tests__/battlemechCombatCatalog.contract.test.ts#L915-L984',
+        'src/simulation/runner/__tests__/battlemechCombatCatalog.01.covers-every-official-ranged-weapon-physical-weapon-an.fragment.ts#L84-L151',
         'src/engine/adapters/CompendiumAdapter.ts#L55-L95',
       ]),
     );
@@ -238,8 +238,7 @@ describe('BattleMech validation scope support catalog', () => {
     expect(urlsFor('unresolved-completion-blocker-inventory')).toEqual(
       expect.arrayContaining([
         'src/simulation/runner/CombatValidationGapInventory.ts#L21-L69',
-        'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts#L159-L1479',
-        'src/simulation/runner/__tests__/combatValidationCatalog.contract.test.ts#L1485-L1534',
+        'src/simulation/runner/__tests__/combatValidationCatalog.test-helpers.ts#L445-L2236',
       ]),
     );
   });

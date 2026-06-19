@@ -8,7 +8,7 @@
  */
 
 import { VTOLLocation } from '@/types/construction/UnitLocation';
-import { TechBase, Era, WeightClass, RulesLevel } from '@/types/enums';
+import { WeightClass } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
@@ -28,6 +28,16 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
+import {
+  UnitFieldParseMessages,
+  UnitValidationMessages,
+  combineCommonUnitFields,
+  createParseMessages,
+  createValidationMessages,
+  getRawTagString,
+  mapLocationEquipment,
+  pushTonnageRangeErrors,
+} from './unitHandlerShared';
 
 // ============================================================================
 // Constants
@@ -44,6 +54,19 @@ const VTOL_ARMOR_LOCATIONS = [
   VTOLLocation.REAR,
   VTOLLocation.ROTOR,
 ] as const;
+
+const VTOL_LOCATION_MAP: Record<string, VTOLLocation> = {
+  front: VTOLLocation.FRONT,
+  left: VTOLLocation.LEFT,
+  'left side': VTOLLocation.LEFT,
+  right: VTOLLocation.RIGHT,
+  'right side': VTOLLocation.RIGHT,
+  rear: VTOLLocation.REAR,
+  rotor: VTOLLocation.ROTOR,
+  turret: VTOLLocation.BODY,
+  chin: VTOLLocation.BODY,
+  body: VTOLLocation.BODY,
+};
 
 // ============================================================================
 // VTOL Unit Handler
@@ -66,12 +89,10 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
   /**
    * Parse VTOL-specific fields from BLK document
    */
-  protected parseTypeSpecificFields(document: IBlkDocument): Partial<IVTOL> & {
-    errors: string[];
-    warnings: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  protected parseTypeSpecificFields(
+    document: IBlkDocument,
+  ): Partial<IVTOL> & UnitFieldParseMessages {
+    const { errors, warnings } = createParseMessages();
 
     // VTOLs always have VTOL motion type
     const motionType = GroundMotionType.VTOL;
@@ -205,31 +226,21 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
   private parseEquipment(
     document: IBlkDocument,
   ): readonly IVehicleMountedEquipment[] {
-    const equipment: IVehicleMountedEquipment[] = [];
-    let mountId = 0;
-
-    for (const [locationKey, items] of Object.entries(
+    return mapLocationEquipment(
       document.equipmentByLocation,
-    )) {
-      const location = this.normalizeLocation(locationKey);
-      const isTurretMounted =
-        locationKey.toLowerCase().includes('turret') ||
-        locationKey.toLowerCase().includes('chin');
-
-      for (const item of items) {
-        equipment.push({
-          id: `mount-${mountId++}`,
-          equipmentId: item,
-          name: item,
-          location,
-          isRearMounted: false,
-          isTurretMounted,
-          isSponsonMounted: false,
-        });
-      }
-    }
-
-    return equipment;
+      (locationKey) => this.normalizeLocation(locationKey),
+      ({ mountId, item, location, locationKey }) => ({
+        id: `mount-${mountId}`,
+        equipmentId: item,
+        name: item,
+        location,
+        isRearMounted: false,
+        isTurretMounted:
+          locationKey.toLowerCase().includes('turret') ||
+          locationKey.toLowerCase().includes('chin'),
+        isSponsonMounted: false,
+      }),
+    );
   }
 
   /**
@@ -237,25 +248,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
    */
   private normalizeLocation(locationKey: string): VTOLLocation {
     const normalized = locationKey.toLowerCase().replace(' equipment', '');
-    switch (normalized) {
-      case 'front':
-        return VTOLLocation.FRONT;
-      case 'left':
-      case 'left side':
-        return VTOLLocation.LEFT;
-      case 'right':
-      case 'right side':
-        return VTOLLocation.RIGHT;
-      case 'rear':
-        return VTOLLocation.REAR;
-      case 'rotor':
-        return VTOLLocation.ROTOR;
-      case 'turret':
-      case 'chin':
-      case 'body':
-      default:
-        return VTOLLocation.BODY;
-    }
+    return VTOL_LOCATION_MAP[normalized] || VTOLLocation.BODY;
   }
 
   /**
@@ -272,11 +265,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     rawTags: Record<string, string | string[]>,
     key: string,
   ): string | undefined {
-    const value = rawTags[key];
-    if (Array.isArray(value)) {
-      return value[0];
-    }
-    return value;
+    return getRawTagString(rawTags, key);
   }
 
   /**
@@ -287,49 +276,14 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     typeSpecificFields: Partial<IVTOL>,
   ): IVTOL {
     const weightClass = this.getWeightClass(commonFields.tonnage);
-    const techBase = this.parseTechBase(commonFields.techBase);
-    const rulesLevel = this.parseRulesLevel(commonFields.techBase);
 
-    return {
-      // Identity
-      id: `vtol-${Date.now()}`,
-      name: `${commonFields.chassis} ${commonFields.model}`.trim(),
-
-      // Classification
+    return combineCommonUnitFields<IVTOL>({
+      commonFields,
+      typeSpecificFields,
+      idPrefix: 'vtol',
       unitType: UnitType.VTOL,
-      tonnage: commonFields.tonnage,
       weightClass,
-
-      // Tech
-      techBase,
-      era: commonFields.era as Era,
-      rulesLevel,
-
-      // Metadata
-      metadata: {
-        chassis: commonFields.chassis,
-        model: commonFields.model,
-        year: commonFields.year,
-        rulesLevel,
-        techBase,
-        role: commonFields.role,
-      },
-
-      // Optional fields
-      source: commonFields.source,
-      role: commonFields.role,
-
-      // Calculated values
-      bv: 0,
-      cost: 0,
-      totalWeight: commonFields.tonnage,
-      remainingTonnage: 0,
-      isValid: true,
-      validationErrors: [],
-
-      // VTOL-specific fields
-      ...typeSpecificFields,
-    } as IVTOL;
+    });
   }
 
   /**
@@ -338,37 +292,6 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
    */
   private getWeightClass(_tonnage: number): WeightClass {
     return WeightClass.LIGHT;
-  }
-
-  /**
-   * Parse tech base from type string
-   */
-  private parseTechBase(typeStr: string): TechBase {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('clan') && !lower.includes('mixed')) {
-      return TechBase.CLAN;
-    }
-    return TechBase.INNER_SPHERE;
-  }
-
-  /**
-   * Parse rules level from type string
-   */
-  private parseRulesLevel(typeStr: string): RulesLevel {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('level 1') || lower.includes('introductory')) {
-      return RulesLevel.INTRODUCTORY;
-    }
-    if (lower.includes('level 2') || lower.includes('standard')) {
-      return RulesLevel.STANDARD;
-    }
-    if (lower.includes('level 3') || lower.includes('advanced')) {
-      return RulesLevel.ADVANCED;
-    }
-    if (lower.includes('level 4') || lower.includes('experimental')) {
-      return RulesLevel.EXPERIMENTAL;
-    }
-    return RulesLevel.STANDARD;
   }
 
   /**
@@ -391,22 +314,15 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
   /**
    * Validate VTOL-specific rules
    */
-  protected validateTypeSpecificRules(unit: IVTOL): {
-    errors: string[];
-    warnings: string[];
-    infos: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-    const infos: string[] = [];
+  protected validateTypeSpecificRules(unit: IVTOL): UnitValidationMessages {
+    const { errors, warnings, infos } = createValidationMessages();
 
-    // VTOL tonnage limits (1-30 tons per TM)
-    if (unit.tonnage < 1) {
-      errors.push('VTOL tonnage must be at least 1 ton');
-    }
-    if (unit.tonnage > 30) {
-      errors.push('VTOL tonnage cannot exceed 30 tons');
-    }
+    pushTonnageRangeErrors(errors, unit.tonnage, {
+      label: 'VTOL',
+      min: 1,
+      max: 30,
+      minText: '1',
+    });
 
     // Movement validation
     if (unit.movement.cruiseMP < 1) {

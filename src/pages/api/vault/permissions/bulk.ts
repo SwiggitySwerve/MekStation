@@ -14,6 +14,10 @@ import type {
   ContentCategory,
 } from '@/types/vault';
 
+import {
+  sendLoggedApiError,
+  type ApiErrorResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getVaultService } from '@/services/vault/VaultService';
 
 // =============================================================================
@@ -98,17 +102,13 @@ interface BulkResponse {
   };
 }
 
-interface ErrorResponse {
-  error: string;
-}
-
 // =============================================================================
 // Handler
 // =============================================================================
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<BulkResponse | ErrorResponse>,
+  res: NextApiResponse<BulkResponse | ApiErrorResponse>,
 ): Promise<void> {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -140,10 +140,8 @@ export default async function handler(
         return res.status(400).json({ error: 'Unknown operation type' });
     }
   } catch (error) {
-    console.error('Bulk permissions API error:', error);
-    return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedApiError(res, 'Bulk permissions API error:', error);
+    return;
   }
 }
 
@@ -153,7 +151,7 @@ export default async function handler(
 
 async function handleShareFolderWithContacts(
   body: ShareFolderWithContactsRequest,
-  res: NextApiResponse<BulkResponse | ErrorResponse>,
+  res: NextApiResponse<BulkResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   if (!body.folderId) {
@@ -182,7 +180,7 @@ async function handleShareFolderWithContacts(
 
 async function handleShareItemsWithContact(
   body: ShareItemsWithContactRequest,
-  res: NextApiResponse<BulkResponse | ErrorResponse>,
+  res: NextApiResponse<BulkResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   if (!Array.isArray(body.items) || body.items.length === 0) {
@@ -210,7 +208,7 @@ async function handleShareItemsWithContact(
 
 async function handleShareFolderContents(
   body: ShareFolderContentsRequest,
-  res: NextApiResponse<BulkResponse | ErrorResponse>,
+  res: NextApiResponse<BulkResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   if (!body.folderId) {
@@ -243,7 +241,7 @@ async function handleShareFolderContents(
 
 async function handleShareCategoryWithContacts(
   body: ShareCategoryWithContactsRequest,
-  res: NextApiResponse<BulkResponse | ErrorResponse>,
+  res: NextApiResponse<BulkResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   if (!isValidCategory(body.category)) {
@@ -278,7 +276,7 @@ async function handleShareCategoryWithContacts(
 
 async function handleRevokeAllForContact(
   body: RevokeAllForContactRequest,
-  res: NextApiResponse<BulkResponse | ErrorResponse>,
+  res: NextApiResponse<BulkResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   if (!body.contactFriendCode) {
@@ -298,7 +296,7 @@ async function handleRevokeAllForContact(
 
 async function handleUpdateContactLevel(
   body: UpdateContactLevelRequest,
-  res: NextApiResponse<BulkResponse | ErrorResponse>,
+  res: NextApiResponse<BulkResponse | ApiErrorResponse>,
   vaultService: ReturnType<typeof getVaultService>,
 ) {
   if (!body.contactFriendCode) {

@@ -7,11 +7,16 @@
 import {
   IProtoMechRecordSheetData,
   IProtoMechUnit,
-  IRecordSheetEquipment,
   IRecordSheetPilot,
 } from '@/types/printing';
 
+import type { IBaseRecordSheetUnitConfig } from './types';
+
 import { extractHeader } from './dataExtractors';
+import {
+  ISimpleEquipmentInput,
+  mapSimpleRecordSheetEquipment,
+} from './simpleEquipmentMapper';
 
 /** ProtoMech location keys. */
 type ProtoLoc =
@@ -23,18 +28,8 @@ type ProtoLoc =
   | 'Main Gun';
 
 /** ProtoMech-specific unit config fields. */
-export interface IProtoMechUnitConfig {
-  id: string;
-  name: string;
-  chassis: string;
-  model: string;
+export interface IProtoMechUnitConfig extends IBaseRecordSheetUnitConfig {
   /** Tonnage per individual ProtoMech (2–9t). */
-  tonnage: number;
-  techBase: string;
-  rulesLevel: string;
-  era: string;
-  battleValue?: number;
-  cost?: number;
   /** Number of ProtoMechs in this point (1–5). */
   pointSize?: number;
   /** Per-proto armor data. Missing entries get synthetic defaults. */
@@ -53,17 +48,7 @@ export interface IProtoMechUnitConfig {
   walkMP?: number;
   jumpMP?: number;
   pilot?: IRecordSheetPilot;
-  equipment?: Array<{
-    id: string;
-    name: string;
-    location: string;
-    heat?: number;
-    damage?: number | string;
-    ranges?: { minimum: number; short: number; medium: number; long: number };
-    isWeapon?: boolean;
-    isAmmo?: boolean;
-    ammoCount?: number;
-  }>;
+  equipment?: ISimpleEquipmentInput[];
 }
 
 /** Default armor values per location when absent from config. */
@@ -116,26 +101,6 @@ export function extractProtoMechData(
     };
   });
 
-  const equipment: IRecordSheetEquipment[] = (unit.equipment ?? []).map(
-    (eq, idx) => ({
-      id: eq.id ?? String(idx),
-      name: eq.name,
-      location: eq.location,
-      locationAbbr: eq.location.substring(0, 3).toUpperCase(),
-      heat: eq.heat ?? '-',
-      damage: eq.damage ?? '-',
-      damageCode: undefined,
-      minimum: eq.ranges?.minimum ?? '-',
-      short: eq.ranges?.short ?? '-',
-      medium: eq.ranges?.medium ?? '-',
-      long: eq.ranges?.long ?? '-',
-      quantity: 1,
-      isWeapon: eq.isWeapon ?? false,
-      isAmmo: eq.isAmmo ?? false,
-      ammoCount: eq.ammoCount,
-    }),
-  );
-
   return {
     unitType: 'protomech',
     header: extractHeader(unit),
@@ -147,7 +112,7 @@ export function extractProtoMechData(
     isGlider: unit.isGlider ?? false,
     walkMP: unit.walkMP ?? 0,
     jumpMP: unit.jumpMP ?? 0,
-    equipment,
+    equipment: mapSimpleRecordSheetEquipment(unit.equipment),
     pilot: unit.pilot,
   };
 }

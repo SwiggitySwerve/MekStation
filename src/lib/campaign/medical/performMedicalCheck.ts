@@ -9,6 +9,16 @@ import { alternateMedicalCheck } from './alternateMedical';
 import { IMedicalCheckResult, MedicalSystem } from './medicalTypes';
 import { standardMedicalCheck, RandomFn } from './standardMedical';
 
+export interface IMedicalCheckContext {
+  readonly system: MedicalSystem;
+  readonly patientEntry: ICampaignRosterEntry;
+  readonly injury: IInjury;
+  readonly doctorEntry: ICampaignRosterEntry | null;
+  readonly doctorPilot: IPilot | null;
+  readonly options: ICampaignOptions;
+  readonly random: RandomFn;
+}
+
 /**
  * Dispatch a medical check to the appropriate system implementation.
  *
@@ -26,15 +36,15 @@ import { standardMedicalCheck, RandomFn } from './standardMedical';
  * @param random - Injectable random function (0-1)
  * @returns Medical check result from the selected system
  */
-export function performMedicalCheck(
-  system: MedicalSystem,
-  patientEntry: ICampaignRosterEntry,
-  injury: IInjury,
-  doctorEntry: ICampaignRosterEntry | null,
-  doctorPilot: IPilot | null,
-  options: ICampaignOptions,
-  random: RandomFn,
-): IMedicalCheckResult {
+export function performMedicalCheck({
+  system,
+  patientEntry,
+  injury,
+  doctorEntry,
+  doctorPilot,
+  options,
+  random,
+}: IMedicalCheckContext): IMedicalCheckResult {
   switch (system) {
     case MedicalSystem.STANDARD:
       return standardMedicalCheck(

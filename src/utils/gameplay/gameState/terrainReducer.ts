@@ -76,86 +76,141 @@ export function applyMinefieldChanged(
   state: IGameState,
   payload: IMinefieldChangedPayload,
 ): IGameState {
-  if (payload.operation === 'clear') {
-    return withMinefields(state, {});
-  }
+  return MINEFIELD_CHANGE_HANDLERS[payload.operation](state, payload);
+}
 
-  if (payload.operation === 'reset') {
-    return withMinefields(
-      state,
-      normalizeMinefieldMap(payload.minefields ?? {}),
-    );
-  }
+type MinefieldChangeHandler = (
+  state: IGameState,
+  payload: IMinefieldChangedPayload,
+) => IGameState;
 
-  if (!payload.hex) {
+const MINEFIELD_CHANGE_HANDLERS: Record<
+  IMinefieldChangedPayload['operation'],
+  MinefieldChangeHandler
+> = {
+  add: applyMinefieldSet,
+  clear: applyMinefieldClear,
+  detect: applyMinefieldDetect,
+  detonate: applyMinefieldDetonate,
+  remove: applyMinefieldRemove,
+  reset: applyMinefieldReset,
+  reveal: applyMinefieldReveal,
+  set: applyMinefieldSet,
+};
+
+function applyMinefieldClear(state: IGameState): IGameState {
+  return withMinefields(state, {});
+}
+
+function applyMinefieldReset(
+  state: IGameState,
+  payload: IMinefieldChangedPayload,
+): IGameState {
+  return withMinefields(state, normalizeMinefieldMap(payload.minefields ?? {}));
+}
+
+function applyMinefieldRemove(
+  state: IGameState,
+  payload: IMinefieldChangedPayload,
+): IGameState {
+  const key = minefieldPayloadKey(payload);
+  if (!key) {
     return state;
   }
 
-  const key = coordToKey(payload.hex);
-  const currentMinefields = { ...(state.minefields ?? {}) };
+  const minefields = currentMinefields(state);
+  delete minefields[key];
+  return withMinefields(state, minefields);
+}
 
-  if (payload.operation === 'remove') {
-    delete currentMinefields[key];
-    return withMinefields(state, currentMinefields);
+function applyMinefieldDetonate(
+  state: IGameState,
+  payload: IMinefieldChangedPayload,
+): IGameState {
+  return updateExistingMinefield(state, payload, (minefield) => ({
+    ...minefield,
+    detonated: true,
+  }));
+}
+
+function applyMinefieldDetect(
+  state: IGameState,
+  payload: IMinefieldChangedPayload,
+): IGameState {
+  const detectingSide =
+    payload.detectingSide ??
+    (payload.sourceUnitId
+      ? state.units[payload.sourceUnitId]?.side
+      : undefined);
+  if (!detectingSide) {
+    return state;
   }
 
-  if (payload.operation === 'detonate') {
-    const minefield = payload.minefield ?? currentMinefields[key];
-    if (!minefield) {
-      return state;
-    }
+  return updateExistingMinefield(state, payload, (minefield) => ({
+    ...minefield,
+    hidden: minefield.hidden ?? true,
+    detectedBySides: Array.from(
+      new Set([...(minefield.detectedBySides ?? []), detectingSide]),
+    ),
+  }));
+}
 
-    return withMinefields(state, {
-      ...currentMinefields,
-      [key]: normalizeMinefield({ ...minefield, detonated: true }),
-    });
-  }
+function applyMinefieldReveal(
+  state: IGameState,
+  payload: IMinefieldChangedPayload,
+): IGameState {
+  return updateExistingMinefield(state, payload, (minefield) => ({
+    ...minefield,
+    hidden: false,
+    revealed: true,
+  }));
+}
 
-  if (payload.operation === 'detect') {
-    const minefield = payload.minefield ?? currentMinefields[key];
-    const detectingSide =
-      payload.detectingSide ??
-      (payload.sourceUnitId
-        ? state.units[payload.sourceUnitId]?.side
-        : undefined);
-    if (!minefield || !detectingSide) {
-      return state;
-    }
-
-    return withMinefields(state, {
-      ...currentMinefields,
-      [key]: normalizeMinefield({
-        ...minefield,
-        hidden: minefield.hidden ?? true,
-        detectedBySides: Array.from(
-          new Set([...(minefield.detectedBySides ?? []), detectingSide]),
-        ),
-      }),
-    });
-  }
-
-  if (payload.operation === 'reveal') {
-    const minefield = payload.minefield ?? currentMinefields[key];
-    if (!minefield) {
-      return state;
-    }
-
-    return withMinefields(state, {
-      ...currentMinefields,
-      [key]: normalizeMinefield({
-        ...minefield,
-        hidden: false,
-        revealed: true,
-      }),
-    });
-  }
-
-  if (!payload.minefield) {
+function applyMinefieldSet(
+  state: IGameState,
+  payload: IMinefieldChangedPayload,
+): IGameState {
+  const key = minefieldPayloadKey(payload);
+  if (!key || !payload.minefield) {
     return state;
   }
 
   return withMinefields(state, {
-    ...currentMinefields,
+    ...currentMinefields(state),
     [key]: normalizeMinefield(payload.minefield),
   });
+}
+
+function updateExistingMinefield(
+  state: IGameState,
+  payload: IMinefieldChangedPayload,
+  update: (minefield: IRepresentedMinefieldState) => IRepresentedMinefieldState,
+): IGameState {
+  const key = minefieldPayloadKey(payload);
+  if (!key) {
+    return state;
+  }
+
+  const minefields = currentMinefields(state);
+  const minefield = payload.minefield ?? minefields[key];
+  if (!minefield) {
+    return state;
+  }
+
+  return withMinefields(state, {
+    ...minefields,
+    [key]: normalizeMinefield(update(minefield)),
+  });
+}
+
+function minefieldPayloadKey(
+  payload: IMinefieldChangedPayload,
+): string | undefined {
+  return payload.hex ? coordToKey(payload.hex) : undefined;
+}
+
+function currentMinefields(
+  state: IGameState,
+): Record<string, IRepresentedMinefieldState> {
+  return { ...(state.minefields ?? {}) };
 }

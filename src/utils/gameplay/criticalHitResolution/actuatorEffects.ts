@@ -24,6 +24,31 @@ import {
   ICriticalSlotEntry,
 } from './types';
 
+const COMBAT_LOCATIONS = new Set<string>([
+  'head',
+  'center_torso',
+  'center_torso_rear',
+  'left_torso',
+  'left_torso_rear',
+  'right_torso',
+  'right_torso_rear',
+  'left_arm',
+  'right_arm',
+  'left_leg',
+  'right_leg',
+]);
+
+const ACTUATOR_TO_HIT_MODIFIERS: Readonly<Record<ActuatorType, number>> = {
+  [ActuatorType.SHOULDER]: SHOULDER_TO_HIT_MODIFIER,
+  [ActuatorType.UPPER_ARM]: UPPER_ARM_TO_HIT_MODIFIER,
+  [ActuatorType.LOWER_ARM]: LOWER_ARM_TO_HIT_MODIFIER,
+  [ActuatorType.HAND]: HAND_TO_HIT_MODIFIER,
+  [ActuatorType.HIP]: 0,
+  [ActuatorType.UPPER_LEG]: UPPER_LEG_TO_HIT_MODIFIER,
+  [ActuatorType.LOWER_LEG]: LOWER_LEG_TO_HIT_MODIFIER,
+  [ActuatorType.FOOT]: FOOT_TO_HIT_MODIFIER,
+};
+
 export function applyActuatorHit(
   slot: ICriticalSlotEntry,
   unitId: string,
@@ -111,43 +136,11 @@ export function applyActuatorHit(
  * applies the same guard when mirroring per-location actuator damage.
  */
 export function asCombatLocation(location: string): CombatLocation | null {
-  switch (location) {
-    case 'head':
-    case 'center_torso':
-    case 'center_torso_rear':
-    case 'left_torso':
-    case 'left_torso_rear':
-    case 'right_torso':
-    case 'right_torso_rear':
-    case 'left_arm':
-    case 'right_arm':
-    case 'left_leg':
-    case 'right_leg':
-      return location;
-    default:
-      return null;
-  }
+  return COMBAT_LOCATIONS.has(location) ? (location as CombatLocation) : null;
 }
 
 export function getActuatorToHitModifier(actuatorType: ActuatorType): number {
-  switch (actuatorType) {
-    case ActuatorType.SHOULDER:
-      return SHOULDER_TO_HIT_MODIFIER;
-    case ActuatorType.UPPER_ARM:
-      return UPPER_ARM_TO_HIT_MODIFIER;
-    case ActuatorType.LOWER_ARM:
-      return LOWER_ARM_TO_HIT_MODIFIER;
-    case ActuatorType.HAND:
-      return HAND_TO_HIT_MODIFIER;
-    case ActuatorType.HIP:
-      return 0;
-    case ActuatorType.UPPER_LEG:
-      return UPPER_LEG_TO_HIT_MODIFIER;
-    case ActuatorType.LOWER_LEG:
-      return LOWER_LEG_TO_HIT_MODIFIER;
-    case ActuatorType.FOOT:
-      return FOOT_TO_HIT_MODIFIER;
-  }
+  return ACTUATOR_TO_HIT_MODIFIERS[actuatorType];
 }
 
 export function actuatorPreventsAttack(

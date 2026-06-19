@@ -1,9 +1,4 @@
-import type { IAttackInvalidPayload } from '@/types/gameplay/GameSessionAttackEvents';
-
-import type {
-  ICombatFeatureSourceReference,
-  ICombatFeatureSupportEntry,
-} from './CombatFeatureSupport';
+import { type IAttackInvalidPayload } from '@/types/gameplay/GameSessionAttackEvents';
 
 import {
   MEGAMEK_ACTIVE_TARGET_FILTER_SOURCE_REFS,
@@ -26,6 +21,10 @@ import {
   MEKSTATION_ATTACK_INVALID_HEAT_SUPPRESSION_SOURCE_REFS,
   MEKSTATION_SAME_HEX_INVALIDATION_SOURCE_REFS,
 } from './CombatAttackInvalidationSourceRefs';
+import {
+  integrated,
+  type ICombatFeatureSupportEntry,
+} from './CombatFeatureSupport';
 
 export type InvalidTargetState =
   | 'missing-target'
@@ -41,16 +40,6 @@ export type AttackInvalidationSideEffectGuard =
   | 'no-ammo-consumed'
   | 'no-damage-applied'
   | 'no-fired-weapon-state';
-
-function integrated(
-  id: string,
-  evidence: string,
-  sourceRefs?: readonly ICombatFeatureSourceReference[],
-): ICombatFeatureSupportEntry {
-  return sourceRefs
-    ? { id, level: 'integrated', evidence, sourceRefs }
-    : { id, level: 'integrated', evidence };
-}
 
 export const ATTACK_INVALIDATION_REASON_SUPPORT = {
   OutOfAmmo: integrated(

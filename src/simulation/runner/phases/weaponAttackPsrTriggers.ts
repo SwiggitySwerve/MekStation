@@ -1,16 +1,11 @@
 import type { CriticalHitEvent } from '@/utils/gameplay/criticalHitResolution/types';
 import type { IResolveDamageResult } from '@/utils/gameplay/damage';
 
-import {
-  GameEventType,
-  GamePhase,
-  IGameEvent,
-  IGameState,
-} from '@/types/gameplay';
+import { GamePhase, IGameEvent, IGameState } from '@/types/gameplay';
 import { isLegLocation } from '@/utils/gameplay/hitLocation';
 import { createLegDamagePSR } from '@/utils/gameplay/pilotingSkillRolls';
 
-import { createGameEvent } from './utils';
+import { appendPsrTriggeredEvent } from './utils';
 
 /**
  * Queue a leg-damage PSR when a weapon hit breaches leg armor and damages
@@ -41,26 +36,21 @@ export function applyLegDamagePSR(options: {
   }
 
   const psr = createLegDamagePSR(targetId);
-  events.push(
-    createGameEvent(
-      gameId,
-      events.length,
-      GameEventType.PSRTriggered,
-      currentState.turn,
-      GamePhase.WeaponAttack,
-      {
-        unitId: targetId,
-        reason: psr.reason,
-        additionalModifier: psr.additionalModifier,
-        triggerSource: psr.triggerSource,
-        ...(target.piloting !== undefined
-          ? { basePilotingSkill: target.piloting }
-          : {}),
-        ...(psr.reasonCode !== undefined ? { reasonCode: psr.reasonCode } : {}),
-      },
-      targetId,
-    ),
-  );
+  appendPsrTriggeredEvent({
+    events,
+    gameId,
+    turn: currentState.turn,
+    phase: GamePhase.WeaponAttack,
+    unitId: targetId,
+    reason: psr.reason,
+    additionalModifier: psr.additionalModifier,
+    triggerSource: psr.triggerSource,
+    actorId: targetId,
+    ...(target.piloting !== undefined
+      ? { basePilotingSkill: target.piloting }
+      : {}),
+    ...(psr.reasonCode !== undefined ? { reasonCode: psr.reasonCode } : {}),
+  });
 
   return {
     ...currentState,

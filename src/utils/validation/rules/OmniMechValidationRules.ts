@@ -6,7 +6,11 @@ import {
   ValidationSeverity,
 } from '@/types/validation/rules/ValidationRuleInterfaces';
 
-import { pass, fail, warn } from './validationHelpers';
+import { pass, fail, unitRecord, warn } from './validationHelpers';
+
+function isOmni(context: IValidationContext): boolean {
+  return unitRecord(context).isOmni === true;
+}
 
 export const OmniMechBaseHeatSinksRule: IValidationRuleDefinition = {
   id: 'configuration.omnimech.base_heat_sinks',
@@ -17,12 +21,11 @@ export const OmniMechBaseHeatSinksRule: IValidationRuleDefinition = {
   priority: 10,
 
   canValidate(context: IValidationContext): boolean {
-    const unit = context.unit as Record<string, unknown>;
-    return unit.isOmni === true;
+    return isOmni(context);
   },
 
   validate(context: IValidationContext): IValidationRuleResult {
-    const unit = context.unit as Record<string, unknown>;
+    const unit = unitRecord(context);
     const baseChassisHeatSinks = unit.baseChassisHeatSinks as
       | number
       | undefined;
@@ -55,18 +58,17 @@ export const OmniMechBaseHeatSinksRule: IValidationRuleDefinition = {
 
 export const OmniMechBaseHeatSinksValidRule: IValidationRuleDefinition = {
   id: 'configuration.omnimech.base_heat_sinks_valid',
-  name: 'OmniMech Base Heat Sinks Valid',
-  description: 'Validates that base chassis heat sinks value is valid',
-  category: ValidationCategory.CONSTRUCTION,
   priority: 10,
+  category: ValidationCategory.CONSTRUCTION,
+  description: 'Validates that base chassis heat sinks value is valid',
+  name: 'OmniMech Base Heat Sinks Valid',
 
   canValidate(context: IValidationContext): boolean {
-    const unit = context.unit as Record<string, unknown>;
-    return unit.isOmni === true;
+    return isOmni(context);
   },
 
   validate(context: IValidationContext): IValidationRuleResult {
-    const unit = context.unit as Record<string, unknown>;
+    const unit = unitRecord(context);
     const baseChassisHeatSinks = unit.baseChassisHeatSinks as
       | number
       | undefined;
@@ -98,18 +100,17 @@ export const OmniMechBaseHeatSinksValidRule: IValidationRuleDefinition = {
 
 export const OmniMechFixedEquipmentRule: IValidationRuleDefinition = {
   id: 'configuration.omnimech.fixed_equipment',
-  name: 'OmniMech Fixed Equipment',
-  description: 'Warns if OmniMech has no fixed equipment defined',
-  category: ValidationCategory.CONSTRUCTION,
   priority: 50,
+  category: ValidationCategory.CONSTRUCTION,
+  description: 'Warns if OmniMech has no fixed equipment defined',
+  name: 'OmniMech Fixed Equipment',
 
   canValidate(context: IValidationContext): boolean {
-    const unit = context.unit as Record<string, unknown>;
-    return unit.isOmni === true;
+    return isOmni(context);
   },
 
   validate(context: IValidationContext): IValidationRuleResult {
-    const unit = context.unit as Record<string, unknown>;
+    const unit = unitRecord(context);
     const equipment = unit.equipment as
       | Array<Record<string, unknown>>
       | undefined;

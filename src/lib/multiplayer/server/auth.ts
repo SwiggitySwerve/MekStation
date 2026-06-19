@@ -55,7 +55,7 @@ async function getCrypto(): Promise<Crypto> {
     }
   }
   const nodeCrypto = await import('node:crypto');
-  return nodeCrypto.webcrypto as unknown as Crypto;
+  return nodeCrypto.webcrypto as Crypto;
 }
 
 function fromBase64(value: string): Uint8Array {

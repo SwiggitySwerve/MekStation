@@ -53,7 +53,7 @@ export class IndexedDBService implements IIndexedDBService {
   /**
    * Initialize the database
    */
-  async initialize(): Promise<void> {
+  initialize = async (): Promise<void> => {
     // Return existing promise if initialization is in progress
     if (this.initPromise) {
       return this.initPromise;
@@ -66,7 +66,7 @@ export class IndexedDBService implements IIndexedDBService {
 
     this.initPromise = this.openDatabase();
     return this.initPromise;
-  }
+  };
 
   private async openDatabase(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -125,7 +125,7 @@ export class IndexedDBService implements IIndexedDBService {
   /**
    * Store a value by key
    */
-  async put<T>(store: StoreName, key: string, value: T): Promise<void> {
+  put = async <T>(store: StoreName, key: string, value: T): Promise<void> => {
     const db = this.ensureDb();
 
     return new Promise((resolve, reject) => {
@@ -146,12 +146,12 @@ export class IndexedDBService implements IIndexedDBService {
         resolve();
       };
     });
-  }
+  };
 
   /**
    * Retrieve a value by key
    */
-  async get<T>(store: StoreName, key: string): Promise<T | undefined> {
+  get = async <T>(store: StoreName, key: string): Promise<T | undefined> => {
     const db = this.ensureDb();
 
     return new Promise((resolve, reject) => {
@@ -172,12 +172,12 @@ export class IndexedDBService implements IIndexedDBService {
         resolve(request.result as T | undefined);
       };
     });
-  }
+  };
 
   /**
    * Delete a value by key
    */
-  async delete(store: StoreName, key: string): Promise<void> {
+  delete = async (store: StoreName, key: string): Promise<void> => {
     const db = this.ensureDb();
 
     return new Promise((resolve, reject) => {
@@ -198,12 +198,12 @@ export class IndexedDBService implements IIndexedDBService {
         resolve();
       };
     });
-  }
+  };
 
   /**
    * Get all values from a store
    */
-  async getAll<T>(store: StoreName): Promise<T[]> {
+  getAll = async <T>(store: StoreName): Promise<T[]> => {
     const db = this.ensureDb();
 
     return new Promise((resolve, reject) => {
@@ -223,12 +223,12 @@ export class IndexedDBService implements IIndexedDBService {
         resolve(request.result as T[]);
       };
     });
-  }
+  };
 
   /**
    * Clear all items from a store
    */
-  async clear(store: StoreName): Promise<void> {
+  clear = async (store: StoreName): Promise<void> => {
     const db = this.ensureDb();
 
     return new Promise((resolve, reject) => {
@@ -248,18 +248,18 @@ export class IndexedDBService implements IIndexedDBService {
         resolve();
       };
     });
-  }
+  };
 
   /**
    * Close the database connection
    */
-  close(): void {
+  close = (): void => {
     if (this.db) {
       this.db.close();
       this.db = null;
       this.initPromise = null;
     }
-  }
+  };
 }
 
 // Singleton instance with lazy initialization

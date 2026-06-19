@@ -24,6 +24,35 @@ export interface IVehicleHeatModel {
   /** Human-readable rationale (e.g. "ICE engine — no heat track"). */
   readonly rationale: string;
 }
+const noHeatTrackEngineModels: Partial<Record<EngineType, IVehicleHeatModel>> =
+  {
+    [EngineType.ICE]: {
+      hasHeatTrack: false,
+      rationale:
+        'ICE engine — vehicles with internal-combustion have no heat track (TW p.196).',
+    },
+    [EngineType.FUEL_CELL]: {
+      hasHeatTrack: false,
+      rationale: 'Fuel Cell engine — no heat track.',
+    },
+  };
+
+const fusionClassEngines = new Set<EngineType | string | number>([
+  EngineType.STANDARD,
+  EngineType.XL_IS,
+  EngineType.XL_CLAN,
+  EngineType.LIGHT,
+  EngineType.XXL,
+  EngineType.COMPACT,
+  EngineType.FISSION,
+]);
+
+const fusionClassHeatModel: IVehicleHeatModel = {
+  hasHeatTrack: true,
+  shutdownCap: 6,
+  rationale:
+    'Fusion-class engine — vehicle-scale heat tracking, shutdown at 6+.',
+};
 
 /**
  * Compute the heat model for a vehicle given its engine type.
@@ -35,35 +64,14 @@ export interface IVehicleHeatModel {
 export function getVehicleHeatModel(
   engineType: EngineType | string | number,
 ): IVehicleHeatModel {
-  switch (engineType) {
-    case EngineType.ICE:
-      return {
-        hasHeatTrack: false,
-        rationale:
-          'ICE engine — vehicles with internal-combustion have no heat track (TW p.196).',
-      };
-    case EngineType.FUEL_CELL:
-      return {
-        hasHeatTrack: false,
-        rationale: 'Fuel Cell engine — no heat track.',
-      };
-    case EngineType.STANDARD:
-    case EngineType.XL_IS:
-    case EngineType.XL_CLAN:
-    case EngineType.LIGHT:
-    case EngineType.XXL:
-    case EngineType.COMPACT:
-    case EngineType.FISSION:
-      return {
-        hasHeatTrack: true,
-        shutdownCap: 6,
-        rationale:
-          'Fusion-class engine — vehicle-scale heat tracking, shutdown at 6+.',
-      };
-    default:
-      return {
-        hasHeatTrack: false,
-        rationale: `Unknown engine type ${engineType} — defaulting to no heat track.`,
-      };
+  if (typeof engineType === 'string' && engineType in noHeatTrackEngineModels) {
+    return noHeatTrackEngineModels[engineType as EngineType]!;
   }
+  if (fusionClassEngines.has(engineType)) {
+    return fusionClassHeatModel;
+  }
+  return {
+    hasHeatTrack: false,
+    rationale: `Unknown engine type ${engineType} — defaulting to no heat track.`,
+  };
 }

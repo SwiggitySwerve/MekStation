@@ -42,40 +42,40 @@ export class MockLocalStorage implements Storage {
     return Object.keys(this.store).length;
   }
 
-  clear(): void {
+  clear = (): void => {
     this.store = {};
-  }
+  };
 
-  getItem(key: string): string | null {
+  getItem = (key: string): string | null => {
     return this.store[key] ?? null;
-  }
+  };
 
-  key(index: number): string | null {
+  key = (index: number): string | null => {
     const keys = Object.keys(this.store);
     return keys[index] ?? null;
-  }
+  };
 
-  removeItem(key: string): void {
+  removeItem = (key: string): void => {
     delete this.store[key];
-  }
+  };
 
-  setItem(key: string, value: string): void {
+  setItem = (key: string, value: string): void => {
     this.store[key] = value;
-  }
+  };
 
   /**
    * Get all stored keys (for testing)
    */
-  getAllKeys(): string[] {
+  getAllKeys = (): string[] => {
     return Object.keys(this.store);
-  }
+  };
 
   /**
    * Get raw store (for testing)
    */
-  getRawStore(): Record<string, string> {
+  getRawStore = (): Record<string, string> => {
     return { ...this.store };
-  }
+  };
 }
 
 /**

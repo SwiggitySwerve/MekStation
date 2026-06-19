@@ -11,25 +11,20 @@
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  rejectNonGetDataRequest as rejectCatalogNonGet,
+  sendLoggedSuccessApiError,
+  type ApiDataResponse,
+} from '@/pages-modules/api/routeHelpers';
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 
-interface ApiResponse {
-  success: boolean;
-  data?: unknown;
-  error?: string;
-  count?: number;
-}
+type CatalogApiResponse = ApiDataResponse;
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ApiResponse>,
+  res: NextApiResponse<CatalogApiResponse>,
 ): Promise<void> {
-  if (req.method !== 'GET') {
-    return res.status(405).json({
-      success: false,
-      error: 'Method not allowed. Use GET.',
-    });
-  }
+  if (rejectCatalogNonGet(req, res)) return;
 
   try {
     // Get the full unit index
@@ -60,10 +55,7 @@ export default async function handler(
       count: index.length,
     });
   } catch (error) {
-    console.error('Catalog API error:', error);
-    return res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Internal server error',
-    });
+    sendLoggedSuccessApiError(res, 'Catalog API error:', error);
+    return;
   }
 }

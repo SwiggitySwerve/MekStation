@@ -154,7 +154,7 @@ export class MechBuilderService implements IMechBuilderService {
   /**
    * Create an empty mech shell with specified tonnage and tech base
    */
-  createEmpty(tonnage: number, techBase: TechBase): IEditableMech {
+  createEmpty = (tonnage: number, techBase: TechBase): IEditableMech => {
     // Validate tonnage
     if (tonnage < 20 || tonnage > 100 || tonnage % 5 !== 0) {
       throw new ValidationError(`Invalid tonnage: ${tonnage}`, [
@@ -188,12 +188,12 @@ export class MechBuilderService implements IMechBuilderService {
       equipment: [],
       isDirty: false,
     };
-  }
+  };
 
   /**
    * Create an editable mech from an existing unit definition
    */
-  createFromUnit(unit: IFullUnit): IEditableMech {
+  createFromUnit = (unit: IFullUnit): IEditableMech => {
     // Extract or default values from unit
     const tonnage = typeof unit.tonnage === 'number' ? unit.tonnage : 50;
     const techBase = (unit.techBase as TechBase) || TechBase.INNER_SPHERE;
@@ -208,12 +208,15 @@ export class MechBuilderService implements IMechBuilderService {
       variant: unit.variant,
       isDirty: false,
     };
-  }
+  };
 
   /**
    * Apply a set of changes to a mech immutably
    */
-  applyChanges(mech: IEditableMech, changes: IMechChanges): IEditableMech {
+  applyChanges = (
+    mech: IEditableMech,
+    changes: IMechChanges,
+  ): IEditableMech => {
     let result = { ...mech, isDirty: true };
 
     if (changes.chassis !== undefined) {
@@ -247,17 +250,17 @@ export class MechBuilderService implements IMechBuilderService {
     }
 
     return result;
-  }
+  };
 
   /**
    * Set engine type and optionally walk MP
    * Engine rating is calculated: rating = walkMP × tonnage
    */
-  setEngine(
+  setEngine = (
     mech: IEditableMech,
     engineType: string,
     walkMP?: number,
-  ): IEditableMech {
+  ): IEditableMech => {
     const newWalkMP = walkMP ?? mech.walkMP;
     const engineRating = newWalkMP * mech.tonnage;
 
@@ -287,15 +290,15 @@ export class MechBuilderService implements IMechBuilderService {
       engineRating,
       isDirty: true,
     };
-  }
+  };
 
   /**
    * Set armor allocation with validation
    */
-  setArmor(
+  setArmor = (
     mech: IEditableMech,
     allocation: Partial<IArmorAllocation>,
-  ): IEditableMech {
+  ): IEditableMech => {
     // Validate each location's armor value
     const errors: string[] = [];
 
@@ -353,16 +356,16 @@ export class MechBuilderService implements IMechBuilderService {
       armorAllocation: { ...mech.armorAllocation, ...allocation },
       isDirty: true,
     };
-  }
+  };
 
   /**
    * Add equipment to a location
    */
-  addEquipment(
+  addEquipment = (
     mech: IEditableMech,
     equipmentId: string,
     location: string,
-  ): IEditableMech {
+  ): IEditableMech => {
     // Find next available slot index
     const locationEquipment = mech.equipment.filter(
       (e) => e.location === location,
@@ -380,12 +383,12 @@ export class MechBuilderService implements IMechBuilderService {
       equipment: [...mech.equipment, newSlot],
       isDirty: true,
     };
-  }
+  };
 
   /**
    * Remove equipment by slot index
    */
-  removeEquipment(mech: IEditableMech, slotIndex: number): IEditableMech {
+  removeEquipment = (mech: IEditableMech, slotIndex: number): IEditableMech => {
     const equipment = mech.equipment.filter((_, i) => i !== slotIndex);
 
     return {
@@ -393,7 +396,7 @@ export class MechBuilderService implements IMechBuilderService {
       equipment,
       isDirty: true,
     };
-  }
+  };
 }
 
 // Singleton instance with lazy initialization

@@ -54,6 +54,15 @@ interface HealedPersonEvent {
   readonly returnedToActive: boolean;
 }
 
+interface IEntryHealingContext {
+  readonly entry: ICampaignRosterEntry;
+  readonly allEntries: readonly ICampaignRosterEntry[];
+  readonly pilotsByPilotId: ReadonlyMap<string, IPilot>;
+  readonly system: MedicalSystem;
+  readonly campaign: ICampaign;
+  readonly random: () => number;
+}
+
 // =============================================================================
 // Core Healing Logic
 // =============================================================================
@@ -65,20 +74,14 @@ interface HealedPersonEvent {
  * returned to active, and the list of healed injury IDs. Does NOT mutate
  * the entry — the caller writes the result to campaign.personnel.
  */
-function processEntryHealing(
-  entry: ICampaignRosterEntry,
-  pilot: IPilot | null,
-  allEntries: readonly ICampaignRosterEntry[],
-  pilotsByPilotId: ReadonlyMap<string, IPilot>,
-  system: MedicalSystem,
-  campaign: ICampaign,
-  random: () => number,
-): {
+function processEntryHealing(context: IEntryHealingContext): {
   updatedInjuries: IInjury[];
   healedInjuryIds: string[];
   newRecoveryTime: number;
   returnedToActive: boolean;
 } {
+  const { entry, allEntries, pilotsByPilotId, system, campaign, random } =
+    context;
   const injuries: readonly IInjury[] = entry.injuries ?? [];
   const healedInjuryIds: string[] = [];
   const updatedInjuries: IInjury[] = [];
@@ -101,17 +104,17 @@ function processEntryHealing(
       continue;
     }
 
-    const medResult = performMedicalCheck(
+    const medResult = performMedicalCheck({
       system,
-      entry,
+      patientEntry: entry,
       injury,
       doctorEntry,
       doctorPilot,
-      campaign.options,
+      options: campaign.options,
       // D-10 (2026-06-09 audit, W3.4): the 2d6 medical check draws from
       // the campaign's seeded daily stream so days are replayable.
       random,
-    );
+    });
 
     const daysReduced = medResult.healingDaysReduced;
     const newDaysToHeal = Math.max(0, injury.daysToHeal - daysReduced);
@@ -167,22 +170,19 @@ export const healingProcessor: IDayProcessor = {
     for (const entry of rosterEntries) {
       if (entry.status !== CampaignPilotStatus.Wounded) continue;
 
-      const pilot = pilotsByPilotId.get(entry.pilotId) ?? null;
-
       const {
         updatedInjuries,
         healedInjuryIds,
         newRecoveryTime,
         returnedToActive,
-      } = processEntryHealing(
+      } = processEntryHealing({
         entry,
-        pilot,
-        rosterEntries,
+        allEntries: rosterEntries,
         pilotsByPilotId,
         system,
         campaign,
         random,
-      );
+      });
 
       // Commit when ANY field changes — recoveryTime decrements even
       // when no injury cleared, so silent recovery-clock ticks must

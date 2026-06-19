@@ -1,0 +1,1216 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-18",
+  "surfaces": [
+    {
+      "surfaceId": "app-shell-navigation",
+      "title": "App Shell, Navigation, Settings, PWA",
+      "level": "top",
+      "parentId": null,
+      "riskTags": ["playability", "discoverability", "regression"],
+      "qualityLenses": ["usability", "ux", "functionality", "accessibility"],
+      "coverageStatus": "partial",
+      "routes": ["/", "/gameplay", "/settings"],
+      "apis": [],
+      "desktopSurfaces": ["electron shell"],
+      "modules": ["src/pages", "src/components/ui", "src/components/common"],
+      "submodules": [
+        "navigation",
+        "error boundaries",
+        "route entry points",
+        "settings persistence"
+      ],
+      "specRefs": ["openspec/specs/game-state-management/spec.md"],
+      "activeChangeRefs": [
+        "fix-navigation-and-playability-deadends",
+        "harden-desktop-and-api-security"
+      ],
+      "tests": ["src/__tests__", "e2e"],
+      "commands": [
+        "npm.cmd run lint",
+        "npm.cmd run typecheck -- --pretty false",
+        "npx.cmd playwright test --project=chromium"
+      ],
+      "manualChecks": [
+        "Launch from first screen to each primary workflow",
+        "Refresh/deep-link active gameplay routes",
+        "Check keyboard and screen-reader reachable navigation"
+      ],
+      "evidence": ["docs/audits/2026-06-12-full-codebase-review.md"],
+      "gaps": [
+        "Recent audit called out navigation/playability dead ends and refresh-loss risks."
+      ]
+    },
+    {
+      "surfaceId": "compendium-unit-data",
+      "title": "Compendium And Official Unit Data",
+      "level": "top",
+      "parentId": null,
+      "riskTags": ["source-truth", "data-integrity", "catalog-drift"],
+      "qualityLenses": ["functionality", "rules-parity", "data-quality"],
+      "coverageStatus": "partial",
+      "routes": ["/compendium"],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/engine/adapters",
+        "src/services/assets",
+        "src/services/units"
+      ],
+      "submodules": [
+        "MegaMek/MekHQ imports",
+        "catalog adapters",
+        "unit hydration",
+        "search/indexing"
+      ],
+      "specRefs": ["openspec/specs/unit-services/spec.md"],
+      "activeChangeRefs": ["reconcile-spec-source-of-truth"],
+      "tests": ["src/engine/__tests__", "src/services/**/__tests__"],
+      "commands": [
+        "npm.cmd run validate:assets:strict",
+        "npm.cmd run schema:gen-check"
+      ],
+      "manualChecks": [
+        "Inspect representative BattleMech, vehicle, aerospace, battle armor, infantry, and ProtoMech records"
+      ],
+      "evidence": ["docs/audits/2026-05-22-combat-validation-source-truth.md"],
+      "gaps": [
+        "Non-BattleMech systems need separate matrices where BattleMech combat validation excludes them."
+      ]
+    },
+    {
+      "surfaceId": "customizer-construction-bv-export",
+      "title": "Customizer, Construction, BV, Export",
+      "level": "top",
+      "parentId": null,
+      "riskTags": ["bv-parity", "source-truth", "user-workflow"],
+      "qualityLenses": ["functionality", "usability", "rules-parity"],
+      "coverageStatus": "partial",
+      "routes": ["/customizer"],
+      "apis": [],
+      "desktopSurfaces": ["desktop export/open flows"],
+      "modules": [
+        "src/components/customizer",
+        "src/utils/construction",
+        "src/services/printing",
+        "scripts/validate-bv.ts"
+      ],
+      "submodules": [
+        "unit tabs",
+        "equipment catalogs",
+        "BV calculators",
+        "record-sheet rendering",
+        "BLK/MTF conversion"
+      ],
+      "specRefs": ["openspec/specs/unit-services/spec.md"],
+      "activeChangeRefs": [
+        "restore-bv-parity-reproducibility",
+        "consolidate-equipment-and-hex-duplication"
+      ],
+      "tests": [
+        "src/components/customizer/**/__tests__",
+        "src/utils/construction/**/__tests__",
+        "scripts/__tests__"
+      ],
+      "commands": [
+        "npm.cmd run validate:bv",
+        "npm.cmd run validate:vehicle",
+        "npm.cmd run validate:aerospace",
+        "npm.cmd run validate:ba-bv",
+        "npm.cmd run validate:proto",
+        "npm.cmd run validate:infantry"
+      ],
+      "manualChecks": [
+        "Create and export one representative unit per supported family"
+      ],
+      "evidence": [
+        "docs/audits/2026-05-13-customizer-armor-megameklab-parity.md"
+      ],
+      "gaps": [
+        "BV reproducibility needs to stay tied to live reference assets instead of stale caches."
+      ]
+    },
+    {
+      "surfaceId": "force-pilot-encounter-setup",
+      "title": "Force, Pilot, Scenario, Encounter Setup",
+      "level": "top",
+      "parentId": null,
+      "riskTags": ["setup-flow", "data-integrity", "playability"],
+      "qualityLenses": ["functionality", "ux", "rules-parity"],
+      "coverageStatus": "partial",
+      "routes": ["/gameplay/encounters", "/gameplay/campaigns"],
+      "apis": ["/api/replay-library/encounter"],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/services/encounter",
+        "src/services/generators",
+        "src/components/campaign",
+        "src/constants/scenario"
+      ],
+      "submodules": [
+        "scenario templates",
+        "pilot assignment",
+        "force generation",
+        "pre-battle setup"
+      ],
+      "specRefs": [
+        "openspec/specs/encounter-system/spec.md",
+        "openspec/specs/personnel-management/spec.md"
+      ],
+      "activeChangeRefs": ["fix-navigation-and-playability-deadends"],
+      "tests": [
+        "src/services/encounter/__tests__",
+        "src/types/encounter/__tests__"
+      ],
+      "commands": [
+        "npm.cmd test -- --watchAll=false --runTestsByPath src/services/encounter/__tests__/EncounterService.test.ts"
+      ],
+      "manualChecks": [
+        "Start from encounter creation and reach a playable battle without hidden state assumptions"
+      ],
+      "evidence": ["docs/audits/2026-06-12-full-codebase-review.md"],
+      "gaps": [
+        "Setup routes must prove playable continuity into tactical combat and campaign post-battle flows."
+      ]
+    },
+    {
+      "surfaceId": "gameplay-tactical-map-combat",
+      "title": "Gameplay Tactical Map And Combat UI",
+      "level": "top",
+      "parentId": null,
+      "riskTags": [
+        "rules-explanation",
+        "preview-resolution-drift",
+        "playability"
+      ],
+      "qualityLenses": [
+        "usability",
+        "ui",
+        "ux",
+        "functionality",
+        "rules-parity",
+        "accessibility"
+      ],
+      "coverageStatus": "partial",
+      "claimIds": ["ui.tactical"],
+      "routes": ["/gameplay/[id]", "/e2e/tactical-map"],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/components/gameplay",
+        "src/stores/useGameplayStore.*",
+        "src/utils/gameplay",
+        "src/engine"
+      ],
+      "submodules": [
+        "HexMapDisplay",
+        "CombatPlanningPanel",
+        "movement projection",
+        "combat projection",
+        "physical attacks",
+        "phase queue"
+      ],
+      "specRefs": [
+        "openspec/specs/tactical-map-interface/spec.md",
+        "openspec/specs/combat-resolution/spec.md"
+      ],
+      "activeChangeRefs": [
+        "fix-tactical-projection-agreement-gaps",
+        "extend-projection-agreement-tohit",
+        "add-topdown-tactical-legibility",
+        "add-isometric-elevation-extrusion",
+        "wire-interactive-turn-engine"
+      ],
+      "tests": [
+        "src/components/gameplay/HexMapDisplay/__tests__",
+        "src/testing/__tests__/tactical-map.*.test.ts",
+        "e2e/tactical-map-visual-smoke.spec.ts"
+      ],
+      "commands": [
+        "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/testing/__tests__/tactical-map.movement-scenarios.test.ts src/testing/__tests__/tactical-map.combat-scenarios.test.ts --no-coverage",
+        "npx.cmd playwright test e2e/tactical-map-visual-smoke.spec.ts --project=chromium"
+      ],
+      "manualChecks": [
+        "Verify every invalid movement/combat preview explains why before commit",
+        "Verify overlays use symbols/text/shape, not color alone"
+      ],
+      "evidence": [
+        "docs/audits/2026-05-22-tactical-map-rules-source-matrix.md",
+        "2026-06-18 tactical review: targeted tactical-map Jest passed 9 suites / 250 tests against movement, combat, projection, terrain labels, camera, and interaction paths.",
+        "2026-06-18 subagent review found shared tacticalMapProjectionLookup routing for terrain, movement, combat, selection, path, and LOS overlays.",
+        "2026-06-18 Playwright tactical-map visual smoke passed 60 Chromium tests across top-down labels, isometric occlusion/rotation, movement constraints, LOS blockers, and combat-preview evidence."
+      ],
+      "gaps": [
+        "Preview/engine agreement is represented but legacy preview fallbacks, visual readability, physical command availability, facing/turn MP agreement, and phase-driver paths remain high-risk checks."
+      ]
+    },
+    {
+      "surfaceId": "tactical-map-rules-explanation",
+      "title": "Tactical Map As Rules Explanation Layer",
+      "level": "main",
+      "parentId": "gameplay-tactical-map-combat",
+      "riskTags": ["preview-resolution-drift", "source-truth", "user-trust"],
+      "qualityLenses": ["usability", "ux", "rules-parity"],
+      "coverageStatus": "partial",
+      "claimIds": ["ui.tactical.rules-explanation"],
+      "routes": ["/gameplay/[id]", "/e2e/tactical-map"],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/components/gameplay/HexMapDisplay",
+        "src/utils/gameplay/movement",
+        "src/utils/gameplay/combatProjection.ts"
+      ],
+      "submodules": [
+        "projection lookup",
+        "movement overlays",
+        "combat overlays",
+        "terrain/elevation/LOS metadata"
+      ],
+      "specRefs": ["openspec/specs/tactical-map-interface/spec.md"],
+      "activeChangeRefs": [
+        "fix-tactical-projection-agreement-gaps",
+        "extend-projection-agreement-tohit"
+      ],
+      "tests": [
+        "src/testing/__tests__/tactical-map.movement-scenarios.test.ts",
+        "src/testing/__tests__/tactical-map.combat-scenarios.test.ts"
+      ],
+      "commands": [
+        "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/testing/__tests__/tactical-map.movement-scenarios.test.ts src/testing/__tests__/tactical-map.combat-scenarios.test.ts --no-coverage"
+      ],
+      "manualChecks": [
+        "Hover legal, costly, blocked, and invalid destinations and confirm reasons match commit validation"
+      ],
+      "evidence": [
+        "2026-06-18 tactical review found tacticalMapProjectionLookup drives terrain, movement, combat, selection, path, and LOS overlays.",
+        "2026-06-18 verification passed 9 tactical UI/projection Jest suites / 157 tests and 2 movement/combat scenario suites / 56 tests."
+      ],
+      "gaps": [
+        "Some consumers can still drift from shared projection data when callers fall back outside weapon-backed combat projection."
+      ]
+    },
+    {
+      "surfaceId": "topdown-hex-legibility",
+      "title": "Top-Down Hex Legibility",
+      "level": "main",
+      "parentId": "gameplay-tactical-map-combat",
+      "riskTags": ["visual-legibility", "accessibility", "playability"],
+      "qualityLenses": ["ui", "ux", "accessibility"],
+      "coverageStatus": "partial",
+      "claimIds": ["ui.tactical.topdown-legibility"],
+      "routes": ["/e2e/tactical-map"],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/components/gameplay/HexMapDisplay/HexCell.labels.tsx",
+        "src/components/gameplay/HexMapDisplay/Overlays.tsx",
+        "src/components/gameplay/overlays"
+      ],
+      "submodules": [
+        "terrain labels",
+        "elevation badges",
+        "reachable/blocked/costly/tactical overlays"
+      ],
+      "specRefs": ["openspec/specs/tactical-map-interface/spec.md"],
+      "activeChangeRefs": [
+        "add-topdown-tactical-legibility",
+        "fix-tactical-map-perf-and-legibility"
+      ],
+      "tests": [
+        "src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.terrainLabels.01.test.tsx",
+        "src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.terrainLabels.02.test.tsx",
+        "src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.terrainLabels.03.test.tsx",
+        "src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.terrainLabels.04.test.tsx",
+        "e2e/tactical-map-visual-smoke.spec.ts"
+      ],
+      "commands": [
+        "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.terrainLabels.01.test.tsx src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.terrainLabels.02.test.tsx src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.terrainLabels.03.test.tsx src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.terrainLabels.04.test.tsx --no-coverage",
+        "npx.cmd playwright test e2e/tactical-map-visual-smoke.spec.ts --project=chromium"
+      ],
+      "manualChecks": [
+        "Zoom out/in and verify terrain and elevation remain readable without obscuring units"
+      ],
+      "evidence": [
+        "2026-06-18 Playwright tactical-map visual smoke passed 60 Chromium tests.",
+        "2026-06-18 tactical review found terrain/elevation badges, ARIA labels, text badges, dash/pattern overlays, and non-color-only projection status indicators."
+      ],
+      "gaps": [
+        "Browser smoke now covers the critical overlap and readability lanes; manual visual review is still useful before release-grade UX signoff."
+      ]
+    },
+    {
+      "surfaceId": "movement-preview-engine-agreement",
+      "title": "Movement Preview And Engine Agreement",
+      "level": "main",
+      "parentId": "gameplay-tactical-map-combat",
+      "riskTags": [
+        "rules-parity",
+        "preview-resolution-drift",
+        "engine-agreement"
+      ],
+      "qualityLenses": ["functionality", "rules-parity", "ux"],
+      "coverageStatus": "partial",
+      "claimIds": ["ui.tactical.movement-preview"],
+      "routes": ["/gameplay/[id]", "/e2e/tactical-map"],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/utils/gameplay/movement",
+        "src/simulation/runner/phases/movement.ts",
+        "src/simulation/runner/phases/movementUnitTurn.ts",
+        "src/simulation/runner/phases/movementCommit.ts",
+        "src/stores/useGameplayStore.helpers.ts",
+        "src/stores/useGameplayStore.interactions.ts"
+      ],
+      "submodules": [
+        "walk/run/jump",
+        "stand/prone",
+        "facing",
+        "torso twist",
+        "vehicles/VTOLs",
+        "MP/TMM/heat",
+        "legality reasons"
+      ],
+      "specRefs": ["openspec/specs/tactical-map-interface/spec.md"],
+      "activeChangeRefs": ["fix-tactical-projection-agreement-gaps"],
+      "tests": [
+        "src/testing/__tests__/tactical-map.movement-scenarios.test.ts"
+      ],
+      "commands": [
+        "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/testing/__tests__/tactical-map.movement-scenarios.test.ts --no-coverage"
+      ],
+      "manualChecks": [
+        "Compare projected MP, heat, TMM, and blocked reason to committed movement event for representative unit families"
+      ],
+      "evidence": [
+        "2026-06-18 tactical review found UI and commit validation share deriveMovementRangeHexForDestination for map-driven movement legality.",
+        "2026-06-18 parity review passed movement/combat/attack-projection agreement Jest: 3 suites / 105 tests."
+      ],
+      "gaps": [
+        "Projection-vs-legacy validateMovement divergence around turn/facing MP is intentional and covered, but remains a fragile contract."
+      ]
+    },
+    {
+      "surfaceId": "combat-preview-engine-agreement",
+      "title": "Combat Preview And Engine Agreement",
+      "level": "main",
+      "parentId": "gameplay-tactical-map-combat",
+      "riskTags": ["rules-parity", "preview-resolution-drift", "targetability"],
+      "qualityLenses": ["functionality", "rules-parity", "ux"],
+      "coverageStatus": "partial",
+      "claimIds": ["ui.tactical.combat-preview"],
+      "routes": ["/gameplay/[id]", "/e2e/tactical-map"],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/utils/gameplay/combatProjection.ts",
+        "src/components/gameplay/CombatPlanningPanel.tsx",
+        "src/stores/useGameplayStore.combatFlows.ts"
+      ],
+      "submodules": [
+        "range bands",
+        "firing arcs",
+        "LOS",
+        "cover",
+        "visibility",
+        "targetability",
+        "attack commit"
+      ],
+      "specRefs": [
+        "openspec/specs/combat-resolution/spec.md",
+        "openspec/specs/tactical-map-interface/spec.md"
+      ],
+      "activeChangeRefs": [
+        "extend-projection-agreement-tohit",
+        "fix-tactical-projection-agreement-gaps"
+      ],
+      "tests": [
+        "src/testing/__tests__/tactical-map.combat-scenarios.test.ts",
+        "src/engine/__tests__/InteractiveSession.attackProjectionAgreement.scenario.test.ts"
+      ],
+      "commands": [
+        "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/testing/__tests__/tactical-map.combat-scenarios.test.ts src/engine/__tests__/InteractiveSession.attackProjectionAgreement.scenario.test.ts --no-coverage"
+      ],
+      "manualChecks": [
+        "Compare previewed legal/invalid reasons with actual attack declaration and resolution for representative targets"
+      ],
+      "evidence": [
+        "2026-06-18 tactical review found represented ranged attack previews cover range, arcs, LOS, visibility, cover, min range, to-hit, invalid reasons, and weapon options.",
+        "2026-06-18 parity review found deriveCombatRangeHexes centralizes ranged preview facts and command previews consume projection heat, ammo, and expected damage."
+      ],
+      "gaps": [
+        "Combat preview parity is partial where callers fall back outside shared combat projection, use local planning math, or expose physical commands without shared projected legality."
+      ]
+    },
+    {
+      "surfaceId": "isometric-rotatable-25d",
+      "title": "Rotatable Isometric 2.5D Battlefield",
+      "level": "main",
+      "parentId": "gameplay-tactical-map-combat",
+      "riskTags": ["visual-legibility", "depth-sorting", "playability"],
+      "qualityLenses": ["ui", "ux", "functionality"],
+      "coverageStatus": "partial",
+      "claimIds": ["ui.tactical.isometric-25d"],
+      "routes": ["/e2e/tactical-map"],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.isometric.ts",
+        "src/components/gameplay/HexMapDisplay/HexCell.isometricStack.tsx"
+      ],
+      "submodules": [
+        "camera rotation",
+        "stacked/elevated layers",
+        "depth sorting",
+        "occluded unit outlines/ghosting"
+      ],
+      "specRefs": ["openspec/specs/tactical-map-interface/spec.md"],
+      "activeChangeRefs": ["add-isometric-elevation-extrusion"],
+      "tests": [
+        "src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.isometric.test.ts",
+        "e2e/tactical-map-visual-smoke.spec.ts"
+      ],
+      "commands": [
+        "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.isometric.test.ts --no-coverage",
+        "npx.cmd playwright test e2e/tactical-map-visual-smoke.spec.ts --project=chromium"
+      ],
+      "manualChecks": [
+        "Rotate camera through discrete steps and confirm occlusion/depth order shifts correctly"
+      ],
+      "evidence": [
+        "Prior review found rotation/depth/occlusion tests present and passing.",
+        "2026-06-18 tactical review found discrete camera rotation, depth keys, elevated terrain stacks, and visibility halo/badge signaling in the isometric path."
+      ],
+      "gaps": [
+        "Hidden-unit outlines/ghosting are implemented as visibility signaling, but screenshot evidence is still needed for tall-elevation occlusion quality."
+      ]
+    },
+    {
+      "surfaceId": "simulation-combat-validation",
+      "title": "Simulation And Combat Validation",
+      "level": "top",
+      "parentId": null,
+      "riskTags": ["rules-parity", "catalog-drift", "known-gap-honesty"],
+      "qualityLenses": ["functionality", "rules-parity", "test-quality"],
+      "coverageStatus": "partial",
+      "claimIds": ["combat.validation"],
+      "routes": [],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/simulation",
+        "src/engine",
+        "src/utils/gameplay",
+        "scripts/validate-combat-suite.mjs"
+      ],
+      "submodules": [
+        "combat runner",
+        "event-sourced interactive session",
+        "catalog inventory",
+        "known limitations",
+        "integration scenarios",
+        "physical runtime boundaries",
+        "ejection lifecycle",
+        "non-BattleMech scope split"
+      ],
+      "specRefs": ["openspec/specs/combat-resolution/spec.md"],
+      "activeChangeRefs": [
+        "fix-combat-damage-crit-parity",
+        "wire-interactive-turn-engine"
+      ],
+      "tests": [
+        "src/simulation/**/__tests__",
+        "src/engine/**/__tests__",
+        "src/utils/gameplay/**/__tests__"
+      ],
+      "commands": [
+        "npm.cmd run validate:combat",
+        "npx.cmd tsx scripts/print-combat-validation-gaps.ts --format=summary",
+        "npx.cmd openspec validate --all --strict"
+      ],
+      "manualChecks": [
+        "Inspect unsupported rows and ensure every suppressed failure remains visible as a named gap"
+      ],
+      "evidence": [
+        "docs/audits/2026-06-13-combat-validation-gap-inventory-checkpoint.md",
+        "docs/audits/2026-05-22-combat-validation-source-truth.md",
+        "2026-06-18 combat review: validate:combat passed 76 suites / 2648 tests; gap summary total 0; non-BattleMech out-of-scope split 140.",
+        "2026-06-18 damage source refs were repinned after the damage finalizer/location helper split; validate:combat reran green at 76 suites / 2648 tests.",
+        "2026-06-18 integration review confirmed older unresolved BattleMech helper/unsupported audit wording is stale against current live validators."
+      ],
+      "gaps": [
+        "BattleMech validation is green with explicit non-BattleMech scope splits; interactive physical command availability and phase-driver parity remain under active changes."
+      ]
+    },
+    {
+      "surfaceId": "battlemech-combat-catalog-validation",
+      "title": "BattleMech Catalog-Driven Combat Validation",
+      "level": "main",
+      "parentId": "simulation-combat-validation",
+      "riskTags": ["catalog-drift", "rules-parity", "fallback-hiding"],
+      "qualityLenses": ["functionality", "rules-parity", "test-quality"],
+      "coverageStatus": "ready-with-scope",
+      "claimIds": ["combat.catalog.battlemech"],
+      "routes": [],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/simulation/runner/Combat*Support.ts",
+        "scripts/validate-combat-suite.mjs",
+        "scripts/print-combat-validation-gaps.ts"
+      ],
+      "submodules": [
+        "ranged weapons",
+        "physical weapons",
+        "ammo",
+        "special modes",
+        "cluster behavior",
+        "fallback guards"
+      ],
+      "specRefs": ["openspec/specs/combat-resolution/spec.md"],
+      "activeChangeRefs": ["fix-combat-damage-crit-parity"],
+      "tests": [
+        "src/simulation/runner/**/__tests__",
+        "src/types/contracts/__tests__"
+      ],
+      "commands": [
+        "npm.cmd run validate:combat",
+        "npx.cmd tsx scripts/print-combat-validation-gaps.ts --format=summary",
+        "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary"
+      ],
+      "manualChecks": [
+        "Review out-of-scope split before claiming all official ammo or non-BattleMech support"
+      ],
+      "evidence": [
+        "Current review context: validate:combat passed 76 suites / 2648 tests; gap summary total 0.",
+        "2026-06-18 source-reference validation was repaired after the damage split by moving stale resolve.ts pins to finalize.ts and locationApplication.ts.",
+        "2026-06-18 catalog review confirmed ranged/physical/ammo mapping, special-mode behavior, fallback guards, MML hazard classification, knownLimitations bypass, and ejection lifecycle coverage in the BattleMech lane.",
+        "2026-06-18 catalog review confirmed unsupported non-BattleMech and non-compatible ammo rows remain classified rather than silently ignored."
+      ],
+      "gaps": [
+        "Use 'BattleMech-compatible official rows' wording; broader official catalog support belongs in separate matrices."
+      ]
+    },
+    {
+      "surfaceId": "behavior-class-combat-rules",
+      "title": "Behavior-Class Combat Rule Tests",
+      "level": "main",
+      "parentId": "simulation-combat-validation",
+      "riskTags": ["rules-parity", "mechanics-regression", "known-gap-honesty"],
+      "qualityLenses": ["functionality", "rules-parity", "test-quality"],
+      "coverageStatus": "partial",
+      "claimIds": ["combat.behavior-class"],
+      "routes": [],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": ["src/utils/gameplay", "src/simulation/runner", "src/engine"],
+      "submodules": [
+        "movement",
+        "heat",
+        "range",
+        "LOS",
+        "to-hit modifiers",
+        "terrain",
+        "physical combat",
+        "SPAs/quirks",
+        "damage/death",
+        "PSRs/falls",
+        "shutdown/startup",
+        "ammo explosions"
+      ],
+      "specRefs": ["openspec/specs/combat-resolution/spec.md"],
+      "activeChangeRefs": ["fix-combat-damage-crit-parity"],
+      "tests": [
+        "src/utils/gameplay/**/__tests__",
+        "src/simulation/**/__tests__",
+        "src/engine/**/__tests__"
+      ],
+      "commands": ["npm.cmd test -- --watchAll=false"],
+      "manualChecks": [
+        "Spot-check behavior-class coverage against exported catalog rows, not helper names only"
+      ],
+      "evidence": [
+        "docs/audits/2026-05-22-combat-validation-source-truth.md",
+        "2026-06-18 behavior review: validate:combat passed and an additional 15-suite integration slice passed 260 tests for session, objective, and UI-projection paths."
+      ],
+      "gaps": [
+        "Known limitations and skipped tests must be audited so green suites do not hide missing mechanics; phase queue tests still emit non-failing React act warning noise."
+      ]
+    },
+    {
+      "surfaceId": "integration-runner-interactive-parity",
+      "title": "Runner And Interactive Parity",
+      "level": "main",
+      "parentId": "simulation-combat-validation",
+      "riskTags": ["engine-agreement", "phase-driver", "integration"],
+      "qualityLenses": ["functionality", "rules-parity", "test-quality"],
+      "coverageStatus": "partial",
+      "claimIds": [
+        "combat.integration.parity",
+        "combat.integration.objectives",
+        "combat.integration.physical-dispatch"
+      ],
+      "routes": ["/gameplay/[id]"],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/engine/InteractiveSession.ts",
+        "src/stores/useGameplayStore.*",
+        "src/simulation/runner"
+      ],
+      "submodules": [
+        "phase queue",
+        "targetability",
+        "objectives",
+        "terminal states",
+        "movement",
+        "attacks",
+        "physical combat",
+        "heat",
+        "PSR"
+      ],
+      "specRefs": [
+        "openspec/specs/combat-resolution/spec.md",
+        "openspec/specs/game-state-management/spec.md"
+      ],
+      "activeChangeRefs": ["wire-interactive-turn-engine"],
+      "tests": [
+        "src/engine/__tests__",
+        "src/stores/__tests__",
+        "src/simulation/__tests__"
+      ],
+      "commands": [
+        "npm.cmd run validate:combat",
+        "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/testing/__tests__/tactical-map.movement-scenarios.test.ts src/testing/__tests__/tactical-map.combat-scenarios.test.ts src/engine/__tests__/InteractiveSession.attackProjectionAgreement.scenario.test.ts --no-coverage"
+      ],
+      "manualChecks": [
+        "Commit a physical attack interactively and confirm engine state, store state, and phase advancement agree"
+      ],
+      "evidence": [
+        "2026-06-18 behavior review found runner vs interactive agreement covered for heat environment, attack and movement projection, objective scenarios, and terminal state slices.",
+        "2026-06-18 integration review passed validate:combat and a 49-test attack projection agreement slice; objective and physical-dispatch lanes still need dedicated on-demand commands."
+      ],
+      "gaps": [
+        "Objective agreement is integration-tested but not folded into validate:combat; phase queue warning noise and physical command availability should be cleaned before treating UI regression guards as high-confidence."
+      ]
+    },
+    {
+      "surfaceId": "physical-weapon-runtime-boundary",
+      "title": "Physical Weapon Runtime Boundary",
+      "level": "main",
+      "parentId": "simulation-combat-validation",
+      "riskTags": ["rules-parity", "known-gap-honesty", "targetability"],
+      "qualityLenses": ["functionality", "rules-parity", "test-quality"],
+      "coverageStatus": "partial",
+      "claimIds": ["combat.physical-boundary"],
+      "routes": ["/gameplay/[id]"],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/utils/gameplay/physicalAttacks",
+        "src/simulation/runner/__tests__",
+        "src/components/gameplay/TacticalActionDock/commands"
+      ],
+      "submodules": [
+        "standalone physical weapons",
+        "modifier-only claws/talons",
+        "bot punch/kick defaults",
+        "command availability",
+        "runtime targetability"
+      ],
+      "specRefs": [
+        "openspec/specs/combat-resolution/spec.md",
+        "openspec/specs/tactical-map-interface/spec.md"
+      ],
+      "activeChangeRefs": ["wire-interactive-turn-engine"],
+      "tests": [
+        "src/simulation/runner/__tests__/physicalWeaponCatalogBoundary.behavior.test.ts",
+        "src/simulation/__tests__/wireBotAiHelpersAndCapstone.smoke.test.ts"
+      ],
+      "commands": [
+        "npm.cmd run validate:combat",
+        "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/simulation/runner/__tests__/physicalWeaponCatalogBoundary.behavior.test.ts src/simulation/__tests__/wireBotAiHelpersAndCapstone.smoke.test.ts --no-coverage"
+      ],
+      "manualChecks": [
+        "Confirm physical commands are hidden or disabled using shared projected restriction reasons, not only active-unit/target presence"
+      ],
+      "evidence": [
+        "2026-06-18 integration review found runtime supports core attacks plus official standalone physical weapons, while Claws/Talons are tested as modifier-only.",
+        "2026-06-18 parity review found several tactical dock physical commands still depend on requireActiveAndTarget instead of projected physical legality."
+      ],
+      "gaps": [
+        "Physical catalog support is not the same as universal command availability parity; command registry gating remains partial."
+      ]
+    },
+    {
+      "surfaceId": "ejection-lifecycle-regression",
+      "title": "Ejection Lifecycle Regression",
+      "level": "main",
+      "parentId": "simulation-combat-validation",
+      "riskTags": ["rules-parity", "terminal-state", "known-gap-honesty"],
+      "qualityLenses": ["functionality", "rules-parity", "test-quality"],
+      "coverageStatus": "ready-with-scope",
+      "claimIds": ["combat.ejection.lifecycle"],
+      "routes": ["/gameplay/[id]"],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/simulation/runner/CombatIntegrationSupport.ts",
+        "src/engine",
+        "src/stores/useGameplayStore.*"
+      ],
+      "submodules": [
+        "command intent",
+        "targetability removal",
+        "damage preservation",
+        "survivor/objective outcome",
+        "terminal state"
+      ],
+      "specRefs": ["openspec/specs/combat-resolution/spec.md"],
+      "activeChangeRefs": ["wire-interactive-turn-engine"],
+      "tests": ["src/simulation/**/__tests__", "src/engine/**/__tests__"],
+      "commands": [
+        "npm.cmd run validate:combat",
+        "npm.cmd run validate:combat:gaps -- --format=summary"
+      ],
+      "manualChecks": [
+        "Do not reopen ejection as an active BattleMech gap without fresh exporter or failing-test evidence"
+      ],
+      "evidence": [
+        "2026-06-18 integration review found ejection damage preservation, command intent, and outcome support integrated in CombatIntegrationSupport.",
+        "docs/audits/2026-06-13-combat-validation-gap-inventory-checkpoint.md"
+      ],
+      "gaps": [
+        "Future ejection semantics must be added as row-backed gaps or tests, not restored from stale 2026-06-11 audit wording."
+      ]
+    },
+    {
+      "surfaceId": "non-battlemech-combat-scope-matrix",
+      "title": "Non-BattleMech Combat Scope Matrix",
+      "level": "main",
+      "parentId": "simulation-combat-validation",
+      "riskTags": ["known-gap-honesty", "rules-parity", "catalog-drift"],
+      "qualityLenses": ["functionality", "rules-parity", "test-quality"],
+      "coverageStatus": "partial",
+      "claimIds": ["combat.scope.non-battlemech"],
+      "routes": [],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "scripts/print-combat-validation-gaps.ts",
+        "scripts/validate-combat-suite.mjs",
+        "src/simulation/runner/Combat*Support.ts"
+      ],
+      "submodules": [
+        "aerospace/capital",
+        "battle armor",
+        "ProtoMech",
+        "artillery/torpedo ammo",
+        "aquatic/sea mine variants",
+        "non-BattleMech supercharger paths"
+      ],
+      "specRefs": ["openspec/specs/combat-resolution/spec.md"],
+      "activeChangeRefs": [],
+      "tests": ["src/simulation/runner/**/__tests__"],
+      "commands": [
+        "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary",
+        "npm.cmd run validate:combat"
+      ],
+      "manualChecks": [
+        "Keep non-BattleMech matrices separate from BattleMech-compatible official row claims"
+      ],
+      "evidence": [
+        "2026-06-18 combat review confirmed validate:combat asserts 140 explicit non-BattleMech out-of-scope rows.",
+        "2026-06-18 parity review confirmed vehicle/VTOL movement coverage exists but should not be claimed as universal non-BattleMech preview/resolution parity."
+      ],
+      "gaps": [
+        "Non-BattleMech systems require separate support matrices before they can be described as fully rules-backed."
+      ]
+    },
+    {
+      "surfaceId": "known-gap-honesty-audit",
+      "title": "Known Gaps And Suppression Honesty",
+      "level": "main",
+      "parentId": "simulation-combat-validation",
+      "riskTags": ["known-gap-honesty", "test-quality", "roadmap-honesty"],
+      "qualityLenses": ["test-quality", "rules-parity", "functionality"],
+      "coverageStatus": "partial",
+      "claimIds": ["combat.gaps.honesty", "combat.known-limitations.bypass"],
+      "routes": [],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/simulation/core/knownLimitations.ts",
+        "scripts/print-combat-validation-gaps.ts",
+        "docs/audits"
+      ],
+      "submodules": [
+        "knownLimitations",
+        "unsupported inventory",
+        "out-of-scope split",
+        "audit wording freshness"
+      ],
+      "specRefs": ["openspec/specs/combat-resolution/spec.md"],
+      "activeChangeRefs": ["restore-ci-correctness-teeth"],
+      "tests": ["src/simulation/**/__tests__", "scripts/__tests__"],
+      "commands": [
+        "npx.cmd tsx scripts/print-combat-validation-gaps.ts --format=summary",
+        "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary",
+        "npm.cmd run validate:combat"
+      ],
+      "manualChecks": [
+        "Audit broad regex suppressions and stale gap wording before release notes or roadmap claims",
+        "Prefer the 2026-06-13 checkpoint and live validators over older 2026-06-11 unresolved helper/unsupported wording"
+      ],
+      "evidence": [
+        "docs/audits/2026-06-13-combat-validation-gap-inventory-checkpoint.md",
+        "2026-06-18 integration review found older 2026-06-11 helper/unsupported audit wording stale against current gap total 0."
+      ],
+      "gaps": [
+        "Some older gap statements are stale after ejection and physical targetability work; knownLimitations bypass drift and stale audit wording still need periodic audit."
+      ]
+    },
+    {
+      "surfaceId": "campaign-economy-progression",
+      "title": "Campaign Economy, Repair, Salvage, Progression",
+      "level": "top",
+      "parentId": null,
+      "riskTags": ["playability", "campaign-loop", "source-truth"],
+      "qualityLenses": ["functionality", "ux", "rules-parity"],
+      "coverageStatus": "partial",
+      "routes": ["/gameplay/campaigns"],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/lib/campaign",
+        "src/components/campaign",
+        "src/stores/campaign"
+      ],
+      "submodules": [
+        "repair queue",
+        "salvage",
+        "acquisitions",
+        "finance",
+        "personnel",
+        "progression"
+      ],
+      "specRefs": [
+        "openspec/specs/campaign-system/spec.md",
+        "openspec/specs/personnel-management/spec.md"
+      ],
+      "activeChangeRefs": ["close-campaign-economic-loop"],
+      "tests": [
+        "src/lib/campaign/**/__tests__",
+        "src/components/campaign/**/__tests__"
+      ],
+      "commands": ["npm.cmd test -- --watchAll=false --runInBand"],
+      "manualChecks": [
+        "Resolve a damaged post-battle unit through repair, acquisition, and salvage into usable assets"
+      ],
+      "evidence": ["docs/audits/2026-06-12-full-codebase-review.md"],
+      "gaps": [
+        "Recent audit identified repair/salvage/acquisition loops that need end-to-end proof."
+      ]
+    },
+    {
+      "surfaceId": "multiplayer-coop-sync",
+      "title": "Multiplayer, Co-op, P2P Sync",
+      "level": "top",
+      "parentId": null,
+      "riskTags": ["playability", "networking", "state-sync", "security"],
+      "qualityLenses": ["functionality", "ux", "security", "test-quality"],
+      "coverageStatus": "partial",
+      "routes": ["/gameplay/campaigns", "/gameplay/[id]"],
+      "apis": [
+        "/api/multiplayer/matches",
+        "/api/multiplayer/matches/[id]",
+        "/api/multiplayer/invites/[roomCode]"
+      ],
+      "desktopSurfaces": ["desktop packaged server/runtime"],
+      "modules": [
+        "server.js",
+        "src/lib/multiplayer",
+        "src/pages/api/multiplayer",
+        "src/components/campaign/coop"
+      ],
+      "submodules": [
+        "match host registry",
+        "invite lookup",
+        "fog permissions",
+        "co-op route surface",
+        "Yjs/P2P sync"
+      ],
+      "specRefs": ["openspec/specs/multiplayer-server/spec.md"],
+      "activeChangeRefs": [
+        "reconcile-multiplayer-coop-reality",
+        "harden-desktop-and-api-security"
+      ],
+      "tests": [
+        "src/__tests__/unit/api/multiplayerMatchesFog.test.ts",
+        "src/lib/multiplayer/**/__tests__"
+      ],
+      "commands": [
+        "npm.cmd test -- --watchAll=false --runTestsByPath src/__tests__/unit/api/multiplayerMatchesFog.test.ts"
+      ],
+      "manualChecks": [
+        "Create host match, join by invite code, verify fog-limited guest state, and package-runtime parity"
+      ],
+      "evidence": ["docs/audits/2026-06-12-full-codebase-review.md"],
+      "gaps": [
+        "Current dirty worktree includes multiplayer API/store edits; preserve them and validate before touching."
+      ]
+    },
+    {
+      "surfaceId": "replay-audit-history",
+      "title": "Replay, Audit History, Determinism",
+      "level": "top",
+      "parentId": null,
+      "riskTags": ["determinism", "auditability", "state-recovery"],
+      "qualityLenses": ["functionality", "test-quality", "ux"],
+      "coverageStatus": "partial",
+      "routes": ["/replays", "/gameplay/[id]"],
+      "apis": ["/api/replay-library/encounter"],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/engine",
+        "src/simulation",
+        "src/pages/api/replay-library"
+      ],
+      "submodules": [
+        "event log",
+        "replay recovery",
+        "determinism",
+        "history UI"
+      ],
+      "specRefs": ["openspec/specs/game-state-management/spec.md"],
+      "activeChangeRefs": [
+        "persist-and-recover-interactive-battles",
+        "restore-ci-correctness-teeth"
+      ],
+      "tests": [
+        "src/simulation/__tests__/replay-determinism.integration.test.ts",
+        "src/engine/__tests__"
+      ],
+      "commands": [
+        "npm.cmd test -- --watchAll=false --runTestsByPath src/simulation/__tests__/replay-determinism.integration.test.ts"
+      ],
+      "manualChecks": [
+        "Refresh/deep-link an active battle and recover from event log without losing state"
+      ],
+      "evidence": ["docs/audits/2026-06-12-full-codebase-review.md"],
+      "gaps": [
+        "Refresh/deep-link active session recovery remains a product-critical proof point."
+      ]
+    },
+    {
+      "surfaceId": "desktop-api-security",
+      "title": "Desktop, API, Security Boundaries",
+      "level": "top",
+      "parentId": null,
+      "riskTags": ["security", "desktop", "api-contract"],
+      "qualityLenses": ["security", "functionality", "test-quality"],
+      "coverageStatus": "partial",
+      "routes": [],
+      "apis": ["/api/*"],
+      "desktopSurfaces": [
+        "Electron IPC",
+        "packaged desktop runtime",
+        "auto-update"
+      ],
+      "modules": ["desktop", "src/pages/api", "server.js"],
+      "submodules": [
+        "IPC file access",
+        "external navigation",
+        "API authorization",
+        "runtime packaging"
+      ],
+      "specRefs": [
+        "openspec/specs/api-layer/spec.md",
+        "openspec/specs/desktop-experience/spec.md",
+        "openspec/specs/desktop-local-services/spec.md"
+      ],
+      "activeChangeRefs": [
+        "harden-desktop-and-api-security",
+        "reconcile-multiplayer-coop-reality"
+      ],
+      "tests": ["desktop/**/__tests__", "src/__tests__/unit/api"],
+      "commands": [
+        "npm.cmd run electron:test:build",
+        "npm.cmd run typecheck -- --pretty false"
+      ],
+      "manualChecks": [
+        "Package desktop build and verify no renderer-reachable arbitrary file reads/writes or unsafe external navigation"
+      ],
+      "evidence": ["docs/audits/2026-06-12-full-codebase-review.md"],
+      "gaps": [
+        "Security audit findings should block release until verified in packaged runtime, not only dev."
+      ]
+    },
+    {
+      "surfaceId": "openspec-ci-quality",
+      "title": "OpenSpec, CI, Quality Gates",
+      "level": "top",
+      "parentId": null,
+      "riskTags": ["roadmap-honesty", "ci", "test-quality"],
+      "qualityLenses": ["test-quality", "functionality", "rules-parity"],
+      "coverageStatus": "partial",
+      "routes": [],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "openspec",
+        ".github/workflows",
+        "jest.config.js",
+        "playwright.config.ts",
+        "scripts"
+      ],
+      "submodules": [
+        "active changes",
+        "strict spec validation",
+        "CI shards",
+        "combat/BV gates",
+        "browser smoke"
+      ],
+      "specRefs": ["openspec/README.md"],
+      "activeChangeRefs": [
+        "restore-ci-correctness-teeth",
+        "reconcile-spec-source-of-truth"
+      ],
+      "tests": ["all"],
+      "commands": [
+        "npx.cmd openspec validate --all --strict",
+        "npm.cmd run lint",
+        "npm.cmd run typecheck -- --pretty false",
+        "npm.cmd run format:check"
+      ],
+      "manualChecks": [
+        "Compare PR-required checks against local command list and active spec promises"
+      ],
+      "evidence": ["docs/audits/2026-06-12-full-codebase-review.md"],
+      "gaps": [
+        "Green CI must not rely on skipped suites, zero-coverage harnesses, or stale spec claims."
+      ]
+    },
+    {
+      "surfaceId": "maintenance-code-health",
+      "title": "Maintenance Code Health",
+      "level": "top",
+      "parentId": null,
+      "riskTags": ["maintainability", "velocity", "regression"],
+      "qualityLenses": ["maintainability", "test-quality", "functionality"],
+      "coverageStatus": "active-review",
+      "routes": [],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": ["src", "scripts", "desktop", "e2e"],
+      "submodules": [
+        "file bloat",
+        "type safety",
+        "dead code",
+        "imports",
+        "TODOs",
+        "lint/build",
+        "coverage gaps",
+        "complexity",
+        "smells",
+        "design violations",
+        "duplicates"
+      ],
+      "specRefs": [],
+      "activeChangeRefs": [],
+      "tests": ["maintenance scanner subagents", "qc:validate"],
+      "commands": [
+        "npm.cmd run qc:validate",
+        "npm.cmd run qc:select -- --status=partial",
+        "npm.cmd run maintain:scan:gate",
+        "npm.cmd run maintain:scan -- --scope=src --limit=80"
+      ],
+      "manualChecks": [
+        "Review scanner report before selecting mutation categories",
+        "Lower docs/qc/maintenance-baseline.json when a cleanup wave removes validated findings"
+      ],
+      "evidence": [
+        "Maintenance launched 2026-06-17.",
+        "Stale-TODO high findings reduced from 14 to 0 by aligning the scanner to comment text only.",
+        "Import-health public barrel findings are retained as warnings; circular imports remain the high-risk import-health lane.",
+        "Near-duplicate high findings now represent duplicate clusters rather than overlapping five-line windows.",
+        "CriticalSlotsTab slot-builder cleanup removed one critical code-smell finding and one critical complexity finding.",
+        "VersionDiffView cleanup split diff-content rendering from container state and removed one critical code-smell finding plus one critical complexity finding without adding high file-bloat.",
+        "Reviewed cleanup waves from scanner calibration through the grouped construction, repair, unit mounted-equipment, and HexCell invalid-badge cleanup reduced the raw scanner baseline to 1011 critical/high findings with focused tests preserved.",
+        "Scanner duplicate calibration now ignores block-comment delimiters and public index.ts barrels, reducing false-positive duplicate clusters while leaving barrel breadth visible through import-health warnings.",
+        "Construction, vehicle customizer, critical-slots, dialog, and armor-variant slices now report 0 critical/high findings after focused helper extraction, duplicate consolidation, and verified typecheck/test passes.",
+        "Battle armor, infantry, ProtoMech, and vehicle BV test suites were split into focused files, clearing construction test file-bloat while preserving focused BV validation.",
+        "Unit handler maintenance removed design-violation findings with shared parsing helpers while preserving 892 handler tests; remaining handler findings are file-bloat and near-duplicate remediation queues.",
+        "HexMapDisplay, movement, and physical-attack utility waves removed selected complexity/design findings while preserving focused tactical, movement, and physical attack tests.",
+        "The reviewed raw scanner baseline is now 932 critical/high findings, with qc:validate, maintain:scan:gate, typecheck, and focused maintenance slice tests passing at the checkpoint.",
+        "CriticalHitResolution now splits slot effect classification, predicate helpers, resolver state, and actuator lookup tables; the targeted critical-hit scanner slice reports 0 critical/high findings and 216 focused critical-hit/damage lifecycle tests pass.",
+        "Game-state damage replay now routes critical-hit component, equipment, electronic-warfare, and vehicle envelope updates through focused helpers; the gameState scanner slice dropped to 10 critical/high findings and 222 focused critical-hit/replay tests pass.",
+        "Game-state combatState initialization now delegates per-unit combat envelope construction to a focused helper module; the gameState scanner slice drops to 9 critical/high findings and 88 focused initialization/game-state tests pass.",
+        "Minefield replay now routes MinefieldChanged operations through table-driven handlers; the gameState scanner slice drops to 8 critical/high findings and 80 focused game-state/catalog tests pass.",
+        "Physical attack resolution replay now lives in a focused helper module; the gameState scanner slice drops to 7 critical/high findings, 590 focused physical/game-state tests pass, and 25 catalog-contract tests pass after source-reference repin.",
+        "Game-state event dispatch now lives in a focused registry module; the gameState scanner slice drops to 4 critical/high findings, 590 focused reducer/physical tests pass, and 36 catalog-contract tests pass after source-reference repin.",
+        "Extended combat replay now splits piloting, status, and unit-exit reducers behind the existing extendedCombat barrel; the gameState scanner slice drops to 2 critical/high findings, 131 focused replay/catalog tests pass, and the raw scanner baseline drops to 1090.",
+        "Runtime movement-state tests now split mount/altitude and conversion replay coverage through shared fixtures; 9 focused tests pass and the gameState scanner slice drops to 1 critical/high finding.",
+        "Combat-state initialization tests now split shared fixtures from mech/vehicle, aero/proto, and infantry/battle-armor behavior suites; 16 focused tests pass, the gameState scanner slice reports 0 critical/high findings, and the raw scanner baseline drops to 1088.",
+        "Post-combat runner phases now split PSR and heat resolution across focused PSR, heat accounting, heat lifecycle, and event helper modules; 158 focused PSR/heat tests and 83 catalog-contract tests pass, source refs are repinned, and the raw scanner baseline drops to 1083.",
+        "Movement terrain skid modifier logic now uses a table-driven threshold lookup; 94 movement behavior tests and 58 terrain/BattleMech catalog-contract tests pass, and the raw scanner baseline drops to 1082.",
+        "Engine phase and AI dispatch now use early-return phase branches and focused AI phase helpers; 25 GameEngine/phase-loop tests, 37 interactive phase tests, and 139 movement/attack-projection engine tests pass, the src/engine code-smell critical slice clears, and the raw scanner baseline drops to 1079.",
+        "UnitHydration active-probe classification now uses ordered fallback predicates; 139 active-probe hydration, catalog, and critical-event tests pass, active-probe source refs are repinned, and the raw scanner baseline drops to 1078.",
+        "SPA designation handoff now collects typed pilot designations through guard-return helpers; 166 focused SPA and pilot-modifier catalog tests pass, attacker SPA aggregation source refs are repinned, and the raw scanner baseline drops to 1077.",
+        "Award store specific-event matching now uses a focused companion helper module with flat predicates; 40 award store tests pass with existing React act warnings, the stores code-smell critical slice clears, and the raw scanner baseline drops to 1074.",
+        "Attack resolution hit handling now routes damage, critical, PSR, pilot, and destruction event emission through focused helpers; 72 focused attack/damage/ammo/arc and vehicle tests pass, the resolveAttack nesting/complexity criticals are removed, and the raw scanner baseline drops to 1072.",
+        "Heat phase resolution now routes per-unit source accounting, dissipation, startup/shutdown, ammo cookoff, pilot heat damage, and MaxTech heat critical handling through focused helpers with named heat cascade event factory inputs; 74 focused heat tests pass, the resolveHeatPhase nesting/complexity criticals and two high event-factory parameter findings are removed, and the raw scanner baseline drops to 1068.",
+        "Pending PSR resolution now lives in a focused gameSessionPSRResolution module re-exported by gameSessionPSR; 179 focused PSR tests pass, resolvePendingPSRs no longer appears in critical complexity output, and the raw scanner baseline drops to 1067.",
+        "PSR reason category classification now uses an exhaustive typed lookup table instead of a switch; 131 focused PSR taxonomy/resolution tests pass, getPSRReasonCategory no longer appears in critical complexity output, and the raw scanner baseline drops to 1065.",
+        "PSR modifier resolution now lives in a focused modifierResolution module behind compact resolver adapters; 155 focused PSR tests and 73 catalog-contract tests pass, calculatePSRModifiers no longer appears in critical complexity output, the pilotingSkillRolls scanner slice reports 0 critical/high findings, and the raw scanner baseline drops to 1060.",
+        "To-hit calculation now accepts named inputs behind positional-compatible adapters and routes modifier families through focused collectors; 721 focused to-hit/C3/SPA/quirk tests and 92 catalog-contract tests pass, the toHit scanner slice reports 0 critical/high findings, validate:combat remains green, and the raw scanner baseline drops to 1057.",
+        "Runner phase createGameEvent now accepts named event-envelope input behind a positional-compatible adapter; 12 focused event-envelope and replay-source tests pass, typecheck passes, the runner phases scanner slice drops to 25 critical/high findings, and the raw scanner baseline drops to 1056.",
+        "Ammo explosion critical handling now iterates criticalEvents through an empty-array default instead of a nested guard; 158 focused critical-hit, heat, and catalog tests pass, the runner phases scanner slice drops to 24 critical/high findings, and the raw scanner baseline drops to 1055.",
+        "Physical attack damage application now lives in a focused companion module with helper seams for critical context, critical state effects, and physical damage/destroyed event emission; 404 focused physical-combat and catalog tests pass, the runner phases scanner slice drops to 23 critical/high findings, and the raw scanner baseline drops to 1054.",
+        "Weapon attack critical event emission now lives in a focused helper module re-exported through weaponAttackHelpers; 200 focused critical-hit, damage lifecycle, weapon attack event, and catalog tests pass, the runner phases scanner slice drops to 21 critical/high findings, and the raw scanner baseline drops to 1052.",
+        "Movement terrain PSR collection now routes water, terrain, swamp, building, and skidding checks through focused collector helpers; 173 focused movement terrain and catalog tests pass, the runner phases scanner slice drops to 20 critical/high findings, and the raw scanner baseline drops to 1051.",
+        "Weapon hit resolution now routes zero-projectile, partial-cover, designator marker, plasma, Edge, damage adjustment, manifest, and equipment-critical state branches through focused helpers; 255 focused weapon-hit and catalog tests pass, the runner phases scanner slice drops to 19 critical/high findings, and the raw scanner baseline drops to 1050.",
+        "Movement phase execution now keeps runMovementPhase as a compact orchestrator and routes per-unit movement decisions plus committed movement side effects through focused helpers; 331 focused movement and catalog tests pass, the runner phases scanner slice drops to 17 critical/high findings, and the raw scanner baseline drops to 1048.",
+        "Weapon firing mode projectile resolution now lives in focused classifier and projectile helper modules while weaponAttackFiringModes remains the public import surface; 147 focused firing-mode, weapon-event, and catalog tests pass, the runner phases scanner slice drops to 16 critical/high findings, and the raw scanner baseline drops to 1047.",
+        "Weapon attack partial-cover tests now keep hit-resolution fixture construction in a sibling fixture module; 12 focused partial-cover tests pass, the runner phases scanner slice drops to 15 critical/high findings, and the raw scanner baseline drops to 1046.",
+        "Heat-induced ammo explosion cascade event emission now routes damage-applied, location-destroyed, and transfer-damage events through a named heat-event append helper; 69 focused heat tests pass, the runner phases scanner slice drops to 13 critical/high findings, and the raw scanner baseline drops to 1044.",
+        "Movement control PSR now uses a normalized BattleMech-like unit-type set and named PSR event append helper; 224 focused movement tests pass, the runner phases scanner slice drops to 11 critical/high findings, and the raw scanner baseline drops to 1042.",
+        "Runner phase UnitDestroyed event emission now uses a named append helper across heat, movement, physical, post-combat PSR, and weapon-hit destruction paths; 520 focused destruction-event tests pass, the runner phases scanner slice drops to 10 critical/high findings, and the raw scanner baseline drops to 1041.",
+        "Runner phase PSRTriggered event emission now uses a named append helper across heat, movement-enhancement, physical-critical, and weapon leg-damage PSR paths; 518 focused PSR event tests pass, the runner phases scanner slice drops to 9 critical/high findings, and the raw scanner baseline drops to 1040.",
+        "Runner phase AttackResolved event emission now uses a named append helper across weapon miss, hit, early-return, plasma, and designator paths; 113 focused weapon tests pass, the runner phases scanner slice drops to 8 critical/high findings, and the raw scanner baseline drops to 1039.",
+        "Weapon attack critical ammo explosion options now use named readonly option/result interfaces; 113 focused weapon tests pass, runner phase near-duplicate findings are now zero, the runner phases scanner slice drops to 7 critical/high findings, and the raw scanner baseline drops to 1038.",
+        "Movement minefield damage/event helpers now split BattleMech mine damage side effects from represented minefield selection; 251 focused movement, physical, terrain catalog, and tactical projection tests plus 99 focused catalog tests pass after source-reference repin.",
+        "Physical attack arm-weapon fired selection now lives behind a flat helper; 626 focused physical attack tests pass, the physical attack nesting critical is removed, and the runner phases scanner slice drops to 6 critical/high findings.",
+        "Weapon attack indirect-fire side events and miss handling now live in focused helpers; 109 focused weapon tests pass, runAttackPhase nesting is demoted from critical to high, and the raw scanner baseline drops to 1037.",
+        "gameSessionPhysical physical attack restriction dispatch now uses a typed resolver table; 158 focused physical declaration/resolution tests pass, the declarePhysicalAttack nesting critical is removed, and the raw scanner baseline drops to 1036.",
+        "gameSessionPhysical physical attack damage and PSR event emission now live in focused helper modules; 158 focused physical declaration/resolution tests pass, the resolveAllPhysicalAttacks nesting critical is removed, and the raw scanner baseline drops to 1035.",
+        "Equipment BV normalization now routes ordered catalog/name/alias/pattern candidates through focused lookup helpers; 83 focused equipment BV normalization/resolver tests pass, the targeted equipmentBV scanner slice has 0 critical/high findings, and the raw scanner baseline drops to 1034.",
+        "Record-sheet fixed slot content now uses fixed lookup tables and a compact center-torso band resolver; 53 focused record-sheet critical-slot rendering tests pass, the targeted record-sheet scanner slice has no critical findings, and the raw scanner baseline drops to 1033.",
+        "LocationMappings parseLocation now uses ordered rear/fuzzy location rules; 63 focused conversion location tests pass, conversion-service complexity findings are cleared, and the raw scanner baseline drops to 1032.",
+        "Random force generation now delegates budget bounds, affordable selection, chassis-cap eviction, and force assembly to focused helpers; 25 focused random-force and swarm unit-count tests pass, and the raw scanner baseline drops to 1031.",
+        "HexCell terrain badges now use a table-driven badge lookup instead of a switch; 8 focused terrain label tests pass, the HexMapDisplay scanner slice drops by two findings, and the raw scanner baseline drops to 1029.",
+        "EquipmentPlacement location restrictions now use an exhaustive predicate table instead of a switch; 16 focused location-restriction tests pass, the equipment-type scanner slice drops by two findings, and the raw scanner baseline drops to 1027.",
+        "VariableEquipment formula validation now uses formula-family validators instead of a switch; 29 focused formula registry/validation tests pass, the equipment-type scanner slice drops by two findings, and the raw scanner baseline drops to 1025.",
+        "Pilot designation helpers now use table-driven legacy designation and effect-parameter resolvers; 24 focused pilot type tests pass, the pilot-type scanner slice reports 0 critical/high findings, and the raw scanner baseline drops to 1023.",
+        "Force type helper metadata now uses slot-count and display-name lookup tables; 10 focused force helper tests pass, the force-type scanner slice reports 0 critical/high findings, and the raw scanner baseline drops to 1021.",
+        "Combat location helpers now use transfer and rear-front lookup tables; 25 focused combat location helper tests pass, the gameplay-type scanner slice has only file-bloat findings remaining, and the raw scanner baseline drops to 1020.",
+        "UnitLocation now uses a typed unit-location lookup table; 19 focused construction location helper tests pass, the construction-type scanner slice drops by one high switch-design finding, and the raw scanner baseline drops to 1019.",
+        "Construction configuration helpers now reduce the registry public-method surface and share location/slot metadata; 160 focused construction tests pass and the construction-type scanner slice reports 0 critical/high findings.",
+        "Repair assessment now accepts named damage-assessment input and the large repair test suite is split into focused files; focused repair tests pass and the repair-type scanner slice reports 0 critical/high findings.",
+        "Unit mounted-equipment interfaces now share a type-only identity base; the unit-type scanner slice reports 0 critical/high findings with typecheck coverage.",
+        "HexCell invalid badges now use resolver and lookup tables for movement/combat invalid labels; the HexMapDisplay slice drops by three critical/high findings.",
+        "CombatCriticalSlotSourceRefs now pins game-state replay evidence to the new component/equipment helper modules after the reducer split; the combat validation catalog contract passes.",
+        "QC registry validation now checks concrete module, spec, test, and path-like evidence refs against the repo, with glob support for broad lane anchors.",
+        "package.json verify scripts now include explicit verify:qc and verify:rules gates so maintenance and rules invariants are not skipped by top-level validation.",
+        "qc:select now supports structured --module and --submodule filters for on-demand QC routing.",
+        "2026-06-18 Metis organization pass gave a no-kill verdict for registry-as-source, map-as-navigation, and audit-as-dated-narrative structure.",
+        "docs/qc/maintenance-baseline.json"
+      ],
+      "gaps": [
+        "Scanner report is grouped as a regression baseline; avoid broad refactors until findings are selected as validated remediation waves.",
+        "Passing maintain:scan:gate does not satisfy the zero critical/high completion goal; raw maintain:scan must reach 0 critical/high before claiming maintenance complete."
+      ]
+    }
+  ]
+}

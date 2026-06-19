@@ -17,6 +17,8 @@
  * @spec openspec/changes/add-infantry-battle-value/specs/infantry-unit-system/spec.md
  */
 
+import type { IInfantryBVBreakdown } from '@/types/unit/BVBreakdownTypes';
+
 import { InfantryMotive } from '@/types/unit/InfantryInterfaces';
 import { InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
 import { getPilotSkillModifier } from '@/types/validation/BattleValue';
@@ -97,47 +99,7 @@ export interface InfantryBVInput {
   piloting?: number;
 }
 
-/**
- * Infantry BV breakdown — populated on unit state for the status bar.
- *
- * Keys called out in the spec delta: perTrooper, motiveMultiplier,
- * antiMechMultiplier, fieldGunBV, platoonBV, pilotMultiplier, final.
- */
-export interface IInfantryBVBreakdown {
-  /** Per-trooper BV (primary + secondary + armor-kit). */
-  perTrooper: number;
-  /** Motive-type multiplier (Foot 1.0, Jump 1.1, Motorized 1.05, Mechanized 1.15). */
-  motiveMultiplier: number;
-  /** Anti-mech training multiplier (1.1 when trained, 1.0 otherwise). */
-  antiMechMultiplier: number;
-  /** Aggregate field gun BV (weapons + ammo, capped per mech rules). */
-  fieldGunBV: number;
-  /**
-   * Platoon BV BEFORE the pilot multiplier — this is perTrooper × troopers ×
-   * motiveMult × antiMechMult + fieldGunBV. The spec phrases this as
-   * "platoon BV plus field-gun BV", and this is the sum used for the final
-   * multiplier.
-   */
-  platoonBV: number;
-  /** Pilot skill multiplier (shared 9×9 matrix). */
-  pilotMultiplier: number;
-  /** Final BV — rounded integer. */
-  final: number;
-
-  // Supporting fields for the breakdown dialog / tooling.
-  /** Raw primary-weapon contribution (bv / damageDivisor). */
-  primaryBV: number;
-  /** Raw secondary-weapon contribution (bv / damageDivisor × 1/ratio). */
-  secondaryBV: number;
-  /** Armor-kit flat add to per-trooper. */
-  armorKitBV: number;
-  /** Raw field gun weapon BV (pre-ammo-cap). */
-  fieldGunWeaponBV: number;
-  /** Raw field gun ammo BV (post-cap). */
-  fieldGunAmmoBV: number;
-  /** Total troopers actually counted. */
-  troopers: number;
-}
+export type { IInfantryBVBreakdown } from '@/types/unit/BVBreakdownTypes';
 
 // =============================================================================
 // Constant tables

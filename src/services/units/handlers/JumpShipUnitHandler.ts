@@ -8,12 +8,8 @@
  */
 
 import { CapitalShipLocation } from '@/types/construction/UnitLocation';
-import { TechBase, Era, WeightClass, RulesLevel } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
-import {
-  AerospaceMotionType,
-  IAerospaceMovement,
-} from '@/types/unit/BaseUnitInterfaces';
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
@@ -24,21 +20,30 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
+import { parseCapitalVesselBasics } from './capitalShipHandlerShared';
 import {
   validateJumpShip,
   calculateJumpShipBV,
   calculateJumpShipCost,
 } from './JumpShipUnitHandler.calculations';
 import {
-  parseArmorByArc,
-  parseKFDrive,
-  parseCrewConfiguration,
-  parseTransportBays,
-  parseQuarters,
-  parseEquipment,
-  parseNumericRaw,
   getBooleanFromRaw,
+  parseCrewConfiguration,
+  parseEquipment,
+  parseKFDrive,
+  parseNumericRaw,
+  parseQuarters,
+  parseTransportBays,
 } from './JumpShipUnitHandler.helpers';
+import {
+  UnitFieldParseMessages,
+  UnitValidationMessages,
+  combineAssaultUnitFields,
+  createParseMessages,
+  createValidationMessages,
+  parseRulesLevelThroughAdvancedFromType,
+  serializeConfigurationWithRulesLevel,
+} from './unitHandlerShared';
 
 // Re-export the handler-local interface so existing consumers can
 // still `import { IJumpShip } from './JumpShipUnitHandler'` (or via
@@ -70,39 +75,13 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
    */
   protected parseTypeSpecificFields(
     document: IBlkDocument,
-  ): Partial<IJumpShip> & {
-    errors: string[];
-    warnings: string[];
-  } {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  ): Partial<IJumpShip> & UnitFieldParseMessages {
+    const { errors, warnings } = createParseMessages();
 
     // JumpShips are always spheroid
     const motionType = AerospaceMotionType.SPHEROID;
 
-    // Movement - thrust values (JumpShips have minimal thrust)
-    const safeThrust = document.safeThrust || 0;
-    const maxThrust = Math.floor(safeThrust * 1.5);
-    const movement: IAerospaceMovement = { safeThrust, maxThrust };
-
-    // Fuel
-    const fuel = document.fuel || 0;
-
-    // Structural integrity
-    const structuralIntegrity = document.structuralIntegrity || 0;
-
-    // Heat sinks
-    const heatSinks = document.heatsinks || 0;
-    const heatSinkType = document.sinkType || 0;
-
-    // Engine and armor types
-    const engineType = document.engineType || 0;
-    const armorType = document.armorType || 0;
-
-    // Parse armor by arc
-    const armor = document.armor || [];
-    const armorByArc = parseArmorByArc(armor);
-    const totalArmorPoints = armor.reduce((sum, val) => sum + val, 0);
+    const basics = parseCapitalVesselBasics(document);
 
     // K-F Drive
     const rawTags = document.rawTags || {};
@@ -141,16 +120,7 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
     return {
       unitType: UnitType.JUMPSHIP,
       motionType,
-      movement,
-      fuel,
-      structuralIntegrity,
-      heatSinks,
-      heatSinkType,
-      engineType,
-      armorType,
-      armor,
-      armorByArc,
-      totalArmorPoints,
+      ...basics,
       kfDrive,
       dockingCollars,
       gravDecks,
@@ -163,7 +133,7 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
       lifeBoats,
       errors,
       warnings,
-    };
+    } satisfies Partial<IJumpShip> & UnitFieldParseMessages;
   }
 
   /**
@@ -173,77 +143,13 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<IJumpShip>,
   ): IJumpShip {
-    const techBase = this.parseTechBase(commonFields.techBase);
-    const rulesLevel = this.parseRulesLevel(commonFields.techBase);
-
-    return {
-      // Identity
-      id: `jumpship-${Date.now()}`,
-      name: `${commonFields.chassis} ${commonFields.model}`.trim(),
-
-      // Classification
+    return combineAssaultUnitFields<IJumpShip>({
+      commonFields,
+      typeSpecificFields,
+      idPrefix: 'jumpship',
       unitType: UnitType.JUMPSHIP,
-      tonnage: commonFields.tonnage,
-      weightClass: WeightClass.ASSAULT,
-
-      // Tech
-      techBase,
-      era: commonFields.era as Era,
-      rulesLevel,
-
-      // Metadata
-      metadata: {
-        chassis: commonFields.chassis,
-        model: commonFields.model,
-        year: commonFields.year,
-        rulesLevel,
-        techBase,
-        role: commonFields.role,
-      },
-
-      // Optional fields
-      source: commonFields.source,
-      role: commonFields.role,
-
-      // Calculated values
-      bv: 0,
-      cost: 0,
-      totalWeight: commonFields.tonnage,
-      remainingTonnage: 0,
-      isValid: true,
-      validationErrors: [],
-
-      // JumpShip-specific fields
-      ...typeSpecificFields,
-    } as IJumpShip;
-  }
-
-  /**
-   * Parse tech base from type string
-   */
-  private parseTechBase(typeStr: string): TechBase {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('clan') && !lower.includes('mixed')) {
-      return TechBase.CLAN;
-    }
-    return TechBase.INNER_SPHERE;
-  }
-
-  /**
-   * Parse rules level from type string
-   */
-  private parseRulesLevel(typeStr: string): RulesLevel {
-    const lower = typeStr.toLowerCase();
-    if (lower.includes('level 1') || lower.includes('introductory')) {
-      return RulesLevel.INTRODUCTORY;
-    }
-    if (lower.includes('level 2') || lower.includes('standard')) {
-      return RulesLevel.STANDARD;
-    }
-    if (lower.includes('level 3') || lower.includes('advanced')) {
-      return RulesLevel.ADVANCED;
-    }
-    return RulesLevel.STANDARD;
+      rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
+    });
   }
 
   /**
@@ -252,10 +158,7 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
   protected serializeTypeSpecificFields(
     unit: IJumpShip,
   ): Partial<ISerializedUnit> {
-    return {
-      configuration: 'JumpShip',
-      rulesLevel: String(unit.rulesLevel),
-    };
+    return serializeConfigurationWithRulesLevel('JumpShip', unit.rulesLevel);
   }
 
   /**
@@ -267,11 +170,7 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
     ]);
   }
 
-  protected validateTypeSpecificRules(unit: IJumpShip): {
-    errors: string[];
-    warnings: string[];
-    infos: string[];
-  } {
+  protected validateTypeSpecificRules(unit: IJumpShip): UnitValidationMessages {
     return validateJumpShip(unit);
   }
 

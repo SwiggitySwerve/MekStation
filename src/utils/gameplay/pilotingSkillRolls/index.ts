@@ -7,11 +7,12 @@
 export * from './types';
 
 // Resolution logic
+export { resolvePSR, resolveAllPSRs } from './resolution';
 export {
-  resolvePSR,
-  resolveAllPSRs,
   calculatePSRModifiers,
-} from './resolution';
+  type IPSRModifierCalculationInput,
+  type IPSRResolutionOptions,
+} from './modifierResolution';
 
 // Factory functions
 export {

@@ -18,24 +18,131 @@ import { UnitsTable } from '@/components/compendium/units/UnitsTable';
 import { PageLoading, PageError, PaginationButtons } from '@/components/ui';
 import { IUnitEntry } from '@/types/pages';
 
+const EMPTY_FILTERS: FilterState = {
+  search: '',
+  techBase: '',
+  weightClass: '',
+  rulesLevel: '',
+  yearMin: '',
+  yearMax: '',
+  tonnageMin: '',
+  tonnageMax: '',
+  bvMin: '',
+  bvMax: '',
+};
+
+function parseNumericFilter(value: string): number | null {
+  if (!value) return null;
+  const parsed = parseInt(value, 10);
+  return Number.isNaN(parsed) ? null : parsed;
+}
+
+interface NumericFilterValues {
+  readonly minYear: number | null;
+  readonly maxYear: number | null;
+  readonly minTon: number | null;
+  readonly maxTon: number | null;
+  readonly minBV: number | null;
+  readonly maxBV: number | null;
+}
+
+function numericFilterValues(filters: FilterState): NumericFilterValues {
+  return {
+    minYear: parseNumericFilter(filters.yearMin),
+    maxYear: parseNumericFilter(filters.yearMax),
+    minTon: parseNumericFilter(filters.tonnageMin),
+    maxTon: parseNumericFilter(filters.tonnageMax),
+    minBV: parseNumericFilter(filters.bvMin),
+    maxBV: parseNumericFilter(filters.bvMax),
+  };
+}
+
+function unitMatchesSearch(unit: IUnitEntry, searchLower: string): boolean {
+  return (
+    !searchLower ||
+    unit.name.toLowerCase().includes(searchLower) ||
+    unit.chassis.toLowerCase().includes(searchLower) ||
+    unit.variant.toLowerCase().includes(searchLower)
+  );
+}
+
+function unitMatchesSelectFilters(
+  unit: IUnitEntry,
+  filters: FilterState,
+): boolean {
+  if (filters.techBase && unit.techBase !== filters.techBase) return false;
+  if (filters.weightClass && unit.weightClass !== filters.weightClass) {
+    return false;
+  }
+  if (filters.rulesLevel && unit.rulesLevel !== filters.rulesLevel) {
+    return false;
+  }
+  return true;
+}
+
+function unitMatchesNumericFilters(
+  unit: IUnitEntry,
+  values: NumericFilterValues,
+): boolean {
+  if (values.minYear !== null && (unit.year ?? 0) < values.minYear) {
+    return false;
+  }
+  if (values.maxYear !== null && (unit.year ?? 9999) > values.maxYear) {
+    return false;
+  }
+  if (values.minTon !== null && unit.tonnage < values.minTon) return false;
+  if (values.maxTon !== null && unit.tonnage > values.maxTon) return false;
+  if (values.minBV !== null && (unit.bv ?? 0) < values.minBV) return false;
+  if (values.maxBV !== null && (unit.bv ?? 99999) > values.maxBV) {
+    return false;
+  }
+  return true;
+}
+
+function filterUnits(
+  units: readonly IUnitEntry[],
+  filters: FilterState,
+): IUnitEntry[] {
+  const searchLower = filters.search.toLowerCase();
+  const numericFilters = numericFilterValues(filters);
+
+  return units.filter(
+    (unit) =>
+      unitMatchesSearch(unit, searchLower) &&
+      unitMatchesSelectFilters(unit, filters) &&
+      unitMatchesNumericFilters(unit, numericFilters),
+  );
+}
+
+function hasAdvancedFilterValues(filters: FilterState): boolean {
+  return Boolean(
+    filters.yearMin ||
+    filters.yearMax ||
+    filters.tonnageMin ||
+    filters.tonnageMax ||
+    filters.bvMin ||
+    filters.bvMax,
+  );
+}
+
+function nextSortState(
+  sort: SortState,
+  column: SortState['column'],
+): SortState {
+  return {
+    column,
+    direction:
+      sort.column === column && sort.direction === 'asc' ? 'desc' : 'asc',
+  };
+}
+
 export default function CanonicalUnitsListPage(): React.ReactElement {
   const [units, setUnits] = useState<IUnitEntry[]>([]);
   const [filteredUnits, setFilteredUnits] = useState<IUnitEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [filters, setFilters] = useState<FilterState>({
-    search: '',
-    techBase: '',
-    weightClass: '',
-    rulesLevel: '',
-    yearMin: '',
-    yearMax: '',
-    tonnageMin: '',
-    tonnageMax: '',
-    bvMin: '',
-    bvMax: '',
-  });
+  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [sort, setSort] = useState<SortState>({
     column: 'chassis',
@@ -71,79 +178,7 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
 
   // Apply filters
   const applyFilters = useCallback(() => {
-    let result = [...units];
-
-    // Text search
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      result = result.filter(
-        (unit) =>
-          unit.name.toLowerCase().includes(searchLower) ||
-          unit.chassis.toLowerCase().includes(searchLower) ||
-          unit.variant.toLowerCase().includes(searchLower),
-      );
-    }
-
-    // Tech base filter
-    if (filters.techBase) {
-      result = result.filter((unit) => unit.techBase === filters.techBase);
-    }
-
-    // Weight class filter
-    if (filters.weightClass) {
-      result = result.filter(
-        (unit) => unit.weightClass === filters.weightClass,
-      );
-    }
-
-    // Rules level filter
-    if (filters.rulesLevel) {
-      result = result.filter((unit) => unit.rulesLevel === filters.rulesLevel);
-    }
-
-    // Year range filter
-    if (filters.yearMin) {
-      const minYear = parseInt(filters.yearMin, 10);
-      if (!isNaN(minYear)) {
-        result = result.filter((unit) => (unit.year ?? 0) >= minYear);
-      }
-    }
-    if (filters.yearMax) {
-      const maxYear = parseInt(filters.yearMax, 10);
-      if (!isNaN(maxYear)) {
-        result = result.filter((unit) => (unit.year ?? 9999) <= maxYear);
-      }
-    }
-
-    // Tonnage range filter
-    if (filters.tonnageMin) {
-      const minTon = parseInt(filters.tonnageMin, 10);
-      if (!isNaN(minTon)) {
-        result = result.filter((unit) => unit.tonnage >= minTon);
-      }
-    }
-    if (filters.tonnageMax) {
-      const maxTon = parseInt(filters.tonnageMax, 10);
-      if (!isNaN(maxTon)) {
-        result = result.filter((unit) => unit.tonnage <= maxTon);
-      }
-    }
-
-    // BV range filter
-    if (filters.bvMin) {
-      const minBV = parseInt(filters.bvMin, 10);
-      if (!isNaN(minBV)) {
-        result = result.filter((unit) => (unit.bv ?? 0) >= minBV);
-      }
-    }
-    if (filters.bvMax) {
-      const maxBV = parseInt(filters.bvMax, 10);
-      if (!isNaN(maxBV)) {
-        result = result.filter((unit) => (unit.bv ?? 99999) <= maxBV);
-      }
-    }
-
-    setFilteredUnits(result);
+    setFilteredUnits(filterUnits(units, filters));
     setCurrentPage(1);
   }, [units, filters]);
 
@@ -157,11 +192,7 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
   );
 
   const handleSort = (column: SortState['column']) => {
-    setSort((prev) => ({
-      column,
-      direction:
-        prev.column === column && prev.direction === 'asc' ? 'desc' : 'asc',
-    }));
+    setSort((prev) => nextSortState(prev, column));
     setCurrentPage(1);
   };
 
@@ -178,29 +209,11 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
   };
 
   const clearFilters = () => {
-    setFilters({
-      search: '',
-      techBase: '',
-      weightClass: '',
-      rulesLevel: '',
-      yearMin: '',
-      yearMax: '',
-      tonnageMin: '',
-      tonnageMax: '',
-      bvMin: '',
-      bvMax: '',
-    });
+    setFilters(EMPTY_FILTERS);
   };
 
   // Check if any advanced filters are active
-  const hasAdvancedFilters = Boolean(
-    filters.yearMin ||
-    filters.yearMax ||
-    filters.tonnageMin ||
-    filters.tonnageMax ||
-    filters.bvMin ||
-    filters.bvMax,
-  );
+  const hasAdvancedFilters = hasAdvancedFilterValues(filters);
 
   if (loading) {
     return <PageLoading message="Loading unit database..." />;

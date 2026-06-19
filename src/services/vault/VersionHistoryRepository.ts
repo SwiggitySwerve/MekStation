@@ -33,7 +33,7 @@ export class VersionHistoryRepository {
   /**
    * Initialize the repository (ensure tables exist)
    */
-  async initialize(): Promise<void> {
+  readonly initialize = async (): Promise<void> => {
     if (this.initialized) return;
 
     const db = getSQLiteService();
@@ -63,7 +63,7 @@ export class VersionHistoryRepository {
     `);
 
     this.initialized = true;
-  }
+  };
 
   // ===========================================================================
   // Create / Save Versions
@@ -72,14 +72,14 @@ export class VersionHistoryRepository {
   /**
    * Save a new version snapshot
    */
-  async saveVersion(
+  readonly saveVersion = async (
     contentType: ShareableContentType,
     itemId: string,
     content: string,
     contentHash: string,
     createdBy: string,
     message?: string,
-  ): Promise<IVersionSnapshot> {
+  ): Promise<IVersionSnapshot> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -125,7 +125,7 @@ export class VersionHistoryRepository {
       message: message ?? null,
       sizeBytes,
     };
-  }
+  };
 
   // ===========================================================================
   // Query Versions
@@ -134,11 +134,11 @@ export class VersionHistoryRepository {
   /**
    * Get all versions for an item (newest first)
    */
-  async getVersions(
+  readonly getVersions = async (
     itemId: string,
     contentType: ShareableContentType,
     limit = 50,
-  ): Promise<IVersionSnapshot[]> {
+  ): Promise<IVersionSnapshot[]> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -152,16 +152,16 @@ export class VersionHistoryRepository {
       .all(itemId, contentType, limit) as IStoredVersionSnapshot[];
 
     return rows.map((row) => this.rowToSnapshot(row));
-  }
+  };
 
   /**
    * Get a specific version
    */
-  async getVersion(
+  readonly getVersion = async (
     itemId: string,
     contentType: ShareableContentType,
     version: number,
-  ): Promise<IVersionSnapshot | null> {
+  ): Promise<IVersionSnapshot | null> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -172,15 +172,15 @@ export class VersionHistoryRepository {
       .get(itemId, contentType, version) as IStoredVersionSnapshot | undefined;
 
     return row ? this.rowToSnapshot(row) : null;
-  }
+  };
 
   /**
    * Get the latest version for an item
    */
-  async getLatestVersion(
+  readonly getLatestVersion = async (
     itemId: string,
     contentType: ShareableContentType,
-  ): Promise<IVersionSnapshot | null> {
+  ): Promise<IVersionSnapshot | null> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -194,12 +194,14 @@ export class VersionHistoryRepository {
       .get(itemId, contentType) as IStoredVersionSnapshot | undefined;
 
     return row ? this.rowToSnapshot(row) : null;
-  }
+  };
 
   /**
    * Get version by ID
    */
-  async getVersionById(id: string): Promise<IVersionSnapshot | null> {
+  readonly getVersionById = async (
+    id: string,
+  ): Promise<IVersionSnapshot | null> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -208,15 +210,15 @@ export class VersionHistoryRepository {
       .get(id) as IStoredVersionSnapshot | undefined;
 
     return row ? this.rowToSnapshot(row) : null;
-  }
+  };
 
   /**
    * Get current version number for an item
    */
-  async getCurrentVersionNumber(
+  readonly getCurrentVersionNumber = async (
     itemId: string,
     contentType: ShareableContentType,
-  ): Promise<number> {
+  ): Promise<number> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -227,15 +229,15 @@ export class VersionHistoryRepository {
       .get(itemId, contentType) as { max_version: number | null } | undefined;
 
     return row?.max_version ?? 0;
-  }
+  };
 
   /**
    * Get version count for an item
    */
-  async getVersionCount(
+  readonly getVersionCount = async (
     itemId: string,
     contentType: ShareableContentType,
-  ): Promise<number> {
+  ): Promise<number> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -246,15 +248,15 @@ export class VersionHistoryRepository {
       .get(itemId, contentType) as { count: number };
 
     return row.count;
-  }
+  };
 
   /**
    * Get total storage used by versions for an item
    */
-  async getStorageUsed(
+  readonly getStorageUsed = async (
     itemId: string,
     contentType: ShareableContentType,
-  ): Promise<number> {
+  ): Promise<number> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -265,17 +267,17 @@ export class VersionHistoryRepository {
       .get(itemId, contentType) as { total: number | null };
 
     return row.total ?? 0;
-  }
+  };
 
   /**
    * Get versions between two version numbers
    */
-  async getVersionRange(
+  readonly getVersionRange = async (
     itemId: string,
     contentType: ShareableContentType,
     fromVersion: number,
     toVersion: number,
-  ): Promise<IVersionSnapshot[]> {
+  ): Promise<IVersionSnapshot[]> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -294,7 +296,7 @@ export class VersionHistoryRepository {
       ) as IStoredVersionSnapshot[];
 
     return rows.map((row) => this.rowToSnapshot(row));
-  }
+  };
 
   // ===========================================================================
   // Delete Versions
@@ -303,7 +305,7 @@ export class VersionHistoryRepository {
   /**
    * Delete a specific version
    */
-  async deleteVersion(id: string): Promise<boolean> {
+  readonly deleteVersion = async (id: string): Promise<boolean> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -312,15 +314,15 @@ export class VersionHistoryRepository {
       .run(id);
 
     return result.changes > 0;
-  }
+  };
 
   /**
    * Delete all versions for an item
    */
-  async deleteAllVersions(
+  readonly deleteAllVersions = async (
     itemId: string,
     contentType: ShareableContentType,
-  ): Promise<number> {
+  ): Promise<number> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -331,16 +333,16 @@ export class VersionHistoryRepository {
       .run(itemId, contentType);
 
     return result.changes;
-  }
+  };
 
   /**
    * Delete versions older than a specific version (keep N most recent)
    */
-  async pruneOldVersions(
+  readonly pruneOldVersions = async (
     itemId: string,
     contentType: ShareableContentType,
     keepCount: number,
-  ): Promise<number> {
+  ): Promise<number> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -368,12 +370,12 @@ export class VersionHistoryRepository {
       .run(itemId, contentType, cutoffRow.version);
 
     return result.changes;
-  }
+  };
 
   /**
    * Delete versions older than a specific date
    */
-  async pruneByDate(olderThan: string): Promise<number> {
+  readonly pruneByDate = async (olderThan: string): Promise<number> => {
     await this.initialize();
     const db = getSQLiteService().getDatabase();
 
@@ -382,7 +384,7 @@ export class VersionHistoryRepository {
       .run(olderThan);
 
     return result.changes;
-  }
+  };
 
   // ===========================================================================
   // Helpers

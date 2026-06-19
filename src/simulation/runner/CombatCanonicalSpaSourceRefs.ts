@@ -1,38 +1,14 @@
 import type { ISPADefinition } from '@/types/spa/SPADefinition';
 
-import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
-
 import {
   MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
   MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
 } from './CombatEdgeSourceRefs';
-
-const MEGAMEK_CANONICAL_SPA_SOURCE_VERSION =
-  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';
-
-function megamekRef(
-  citation: string,
-  pathWithLines: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'megamek-source',
-    citation,
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_CANONICAL_SPA_SOURCE_VERSION}/${pathWithLines}`,
-    sourceVersion: MEGAMEK_CANONICAL_SPA_SOURCE_VERSION,
-  };
-}
-
-function mekstationDeviationRef(
-  citation: string,
-  pathWithLines: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'mekstation-deviation',
-    citation,
-    url: pathWithLines,
-    sourceVersion: 'MekStation working-tree',
-  };
-}
+import {
+  megamekSourceRef as megamekRef,
+  mekstationDeviationSourceRef as mekstationDeviationRef,
+  type ICombatFeatureSourceReference,
+} from './CombatFeatureSourceReference';
 
 const MEKSTATION_CANONICAL_SPA_CATALOG_SOURCE_REFS = [
   mekstationDeviationRef(
