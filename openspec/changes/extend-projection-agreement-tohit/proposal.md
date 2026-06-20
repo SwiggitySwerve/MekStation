@@ -124,8 +124,8 @@ the to-hit axis.
   — add the semi-guided-moving-target scenario and the absolute-anchor assertion;
   de-tautologize the existing `payload.toHitNumber === projection.toHitNumber`
   anchor.
-- No combat-resolution delta — does not conflict with the active
-  `add-battlemech-combat-validation-suite` change. No movement-system delta — that
+- No combat-resolution delta — does not change the archived
+  `add-battlemech-combat-validation-suite` baseline. No movement-system delta — that
   axis is owned by `fix-tactical-projection-agreement-gaps`.
 
 ## Non-goals
@@ -139,5 +139,6 @@ the to-hit axis.
 - No change to the semi-guided TAG *rule* itself (cancel positive TMM + indirect
   relief, ECM-nullified) — that behavior already exists in `calculateToHit`; this
   change only makes the projection and the forecast modal *use* it.
-- No expansion of the combat-validation catalog (owned by the active
-  validation-suite change) and no damage/crit parity work (Cluster A).
+- No expansion of the combat-validation catalog (tracked by the archived
+  `add-battlemech-combat-validation-suite` baseline and current validation scripts) and no
+  damage/crit parity work (Cluster A).

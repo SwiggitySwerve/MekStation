@@ -25,7 +25,9 @@ Isometric mode already ships discrete six-step camera rotation, depth sorting (`
 
 - `src/components/gameplay/HexMapDisplay/HexMapDisplay.isometric.ts` (scene items + depth keys), `HexCell` isometric render path (skirt polygons), `projection.ts` (no math changes expected — consumes existing transform), camera/rotation control components.
 - Isometric Jest suites, Storybook isometric stories, tactical-map visual smoke.
-- No engine/projection-data changes; no combat-resolution delta — does not conflict with the active validation-suite change.
+- No engine/projection-data changes; no combat-resolution delta — does not change the archived
+  `add-battlemech-combat-validation-suite` baseline or the current `validate:combat` /
+  `validate:combat:gaps` accounting.
 
 ## Non-goals
 

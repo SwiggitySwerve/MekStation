@@ -7,8 +7,8 @@
       record that 8000 vs 4000 BV yields exactly `2/3 ≈ 0.667`, contradicting
       `openspec/specs/combat-resolution/spec.md:25-27` (`>0.7`).
 - [ ] 1.2 Re-confirm the placeholder count: `grep -rl "TBD - created by archiving" openspec/specs/`
-      returns 125 of 199 capability spec.md files; capture the full list as the guard's initial
-      allowlist seed.
+      returns 125 live capability spec.md files across the current 207 spec directories; capture
+      the full list as the guard's initial allowlist seed.
 - [ ] 1.3 Re-confirm the duplicate-owner drift: `critical-hit-resolution/spec.md:121` says
       "7 actuator types" while enumerating 8 (lines 123-168); `critical-hit-system/spec.md:19`
       lists 8. Record both capabilities' code home.
@@ -48,6 +48,11 @@
       authoritative-owner rule + pointer mechanic).
 - [ ] 4.2 Extend the lint check to flag a code home claimed by >1 non-pointer capability, seeded
       from the duplicate-owner allowlist, so the allowlist must shrink to empty over time.
+- [ ] 4.3 Record the active-change ownership/order matrix for shared capabilities before
+      implementation begins: serialize the five `tactical-map-interface` changes as movement
+      agreement -> to-hit agreement -> perf/label pressure -> top-down badges -> isometric
+      extrusion, and sequence `wire-interactive-turn-engine` before
+      `persist-and-recover-interactive-battles` for shared `game-session-management` semantics.
 
 ## 5. Remediation backlog (driven by the guard, not hand-authored here)
 

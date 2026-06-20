@@ -4,8 +4,9 @@
 
 The OpenSpec archive flow seeds every newly-promoted capability's `## Purpose` with
 `TBD - created by archiving change <name>. Update Purpose after archive.` and relies on a
-human to come back and write the real Purpose. Nobody does: 125 of 199 capabilities
-(verified this session via `grep -rl "TBD - created by archiving"`) still carry the seed,
+human to come back and write the real Purpose. Nobody does: 125 live capability specs
+(re-verified 2026-06-20 via `grep -rl "TBD - created by archiving"` across 207 spec
+directories) still carry the seed,
 including high-traffic capabilities (`combat-resolution`, `movement-system`,
 `campaign-system`, `replay-library`, `multiplayer-server`). Because validation never inspects
 the Purpose body, the seed string is treated as valid spec content — the SoT is ratifying
@@ -67,6 +68,17 @@ Backfilling 125 Purposes inline would bury the two load-bearing edits (ACAR + gu
 mechanical sweep and invite a rubber-stamp review. The guard makes the 125 visible and
 blocking; the backfill is task group 5, executed as one mechanical commit once the guard is
 green, per-capability Purpose written from the originating change's proposal.
+
+### D5 - Active-change ownership order is part of source-of-truth hygiene
+
+The active change set currently has shared-capability overlap that can create planning drift
+without violating OpenSpec shape: `tactical-map-interface` is modified by five active changes,
+and `game-session-management` is modified by both `wire-interactive-turn-engine` and
+`persist-and-recover-interactive-battles`. The source-of-truth guard therefore also records an
+active-change ownership matrix before implementation begins. Rationale: the issue is not that
+these changes are duplicates; it is that their intended order must stay visible so future
+agents do not implement visual/perf work before movement and to-hit agreement, or recovery
+work before session mutation semantics are stable.
 
 ## Open Questions
 
