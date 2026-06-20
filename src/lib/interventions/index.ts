@@ -2,11 +2,14 @@ export {
   approveGmCascadePreview,
   cancelGmCascadePreview,
   createGmCascadePreview,
+  logGmDeferredInterventionAttempt,
 } from './GmCascadePreviewPipeline';
 
 export type {
+  GmDeferredInterventionLogger,
   IApproveGmCascadePreviewInput,
   ICreateGmCascadePreviewInput,
+  IGmDeferredInterventionAttemptLog,
 } from './GmCascadePreviewPipeline';
 
 export {

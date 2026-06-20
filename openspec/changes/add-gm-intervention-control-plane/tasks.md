@@ -53,10 +53,10 @@
 
 ## 7. Campaign Boundary and Deferred Cascades
 
-- [ ] 7.1 Add explicit deferred/unsupported results for post-combat, base/economy, repair/salvage, and time-cascade interventions in the first slice.
-- [ ] 7.2 Document future implementer seams for post-combat, campaign sync, co-op GM arbitration, finance/inventory reversal, repair/salvage correction, and time cascade phases.
-- [ ] 7.3 Add tests proving deferred campaign interventions do not silently mutate finances, inventory, repair queues, salvage, travel, or campaign time.
-- [ ] 7.4 Add safe logging for deferred domain attempts without leaking hidden scenario notes to player-visible output.
+- [x] 7.1 Add explicit deferred/unsupported results for post-combat, base/economy, repair/salvage, and time-cascade interventions in the first slice.
+- [x] 7.2 Document future implementer seams for post-combat, campaign sync, co-op GM arbitration, finance/inventory reversal, repair/salvage correction, and time cascade phases.
+- [x] 7.3 Add tests proving deferred campaign interventions do not silently mutate finances, inventory, repair queues, salvage, travel, or campaign time.
+- [x] 7.4 Add safe logging for deferred domain attempts without leaking hidden scenario notes to player-visible output.
 
 ## 8. Validation
 
