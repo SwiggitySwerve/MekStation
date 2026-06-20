@@ -29,6 +29,19 @@ export type {
 } from './GmCombatInterventionTypes';
 
 export type {
+  IGmUnitReloadCommandProjection,
+  IGmUnitReloadInterventionCommandPayload,
+  IGmUnitReloadInterventionDomainPayload,
+  IGmUnitReloadInterventionState,
+  IGmUnitReloadInterventionUnitState,
+  IGmUnitReloadManualResolution,
+  IGmUnitReloadPilotSnapshot,
+  IGmUnitReloadProjectedEffect,
+  IGmUnitReloadPublicEffect,
+  IGmUnitReloadSourceSnapshot,
+} from './GmUnitReloadInterventionTypes';
+
+export type {
   GmAuthorityDecision,
   GmInterventionActorRole,
   GmInterventionAuthorityRejectionCode,
