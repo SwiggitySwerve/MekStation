@@ -36,12 +36,12 @@
 
 ## 5. Unit Reload Implementer
 
-- [ ] 5.1 Register a unit-reload-domain implementer with the reusable intervention ledger.
-- [ ] 5.2 Implement active-encounter unit reload preview that rehydrates construction/loadout-derived fields from the source unit by `unitRef` and pilot data by `pilotRef`.
-- [ ] 5.3 Preserve compatible live overlays by default: position, facing, initiative/phase state, damage state, heat, ammo, pilot state, movement locks, and committed action state.
-- [ ] 5.4 Detect reload conflicts for removed components, incompatible armor/structure mapping, changed ammo bins, changed movement profile, or invalid target/queued effects.
-- [ ] 5.5 Add manual-takeover result support for reload conflicts and block commit until the GM resolves or accepts conflict handling.
-- [ ] 5.6 Add tests proving reload updates one active unit without resetting the encounter, unrelated units, or prior event history.
+- [x] 5.1 Register a unit-reload-domain implementer with the reusable intervention ledger.
+- [x] 5.2 Implement active-encounter unit reload preview that rehydrates construction/loadout-derived fields from the source unit by `unitRef` and pilot data by `pilotRef`.
+- [x] 5.3 Preserve compatible live overlays by default: position, facing, initiative/phase state, damage state, heat, ammo, pilot state, movement locks, and committed action state.
+- [x] 5.4 Detect reload conflicts for removed components, incompatible armor/structure mapping, changed ammo bins, changed movement profile, or invalid target/queued effects.
+- [x] 5.5 Add manual-takeover result support for reload conflicts and block commit until the GM resolves or accepts conflict handling.
+- [x] 5.6 Add tests proving reload updates one active unit without resetting the encounter, unrelated units, or prior event history.
 
 ## 6. Tactical Command Surface
 

@@ -20,6 +20,16 @@ export {
 } from './GmCombatInterventionProjection';
 
 export {
+  createGmUnitReloadInterventionImplementer,
+  registerGmUnitReloadInterventionImplementer,
+} from './GmUnitReloadInterventionImplementer';
+
+export {
+  applyGmUnitReloadProjectedEffects,
+  projectUnitReloadEffectsForRecord,
+} from './GmUnitReloadInterventionProjection';
+
+export {
   buildGmInterventionRedactionEnvelope,
   evaluateGmInterventionAuthority,
   logGmInterventionAuthorizationFailure,
