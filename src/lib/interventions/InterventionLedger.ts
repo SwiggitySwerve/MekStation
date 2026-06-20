@@ -1,0 +1,133 @@
+import type {
+  IInterventionLedgerCommand,
+  IInterventionLedgerImplementer,
+  IInterventionLedgerPreview,
+  IInterventionLedgerRecord,
+  InterventionApplyResult,
+  InterventionDomain,
+} from '@/types/interventions';
+
+export interface IInterventionLedgerOptions {
+  readonly unsupportedReason?: (domain: InterventionDomain) => string;
+}
+
+const defaultUnsupportedReason = (domain: InterventionDomain): string =>
+  `No intervention ledger implementer registered for domain "${domain}".`;
+
+export class InterventionLedger<TState = unknown> {
+  private readonly implementers = new Map<
+    InterventionDomain,
+    IInterventionLedgerImplementer<IInterventionLedgerCommand, TState>
+  >();
+
+  private readonly records: IInterventionLedgerRecord[] = [];
+
+  constructor(private readonly options: IInterventionLedgerOptions = {}) {}
+
+  register(
+    implementer: IInterventionLedgerImplementer<
+      IInterventionLedgerCommand,
+      TState
+    >,
+  ): this {
+    if (this.implementers.has(implementer.domain)) {
+      throw new Error(
+        `Intervention ledger implementer already registered for domain "${implementer.domain}".`,
+      );
+    }
+
+    this.implementers.set(implementer.domain, implementer);
+    return this;
+  }
+
+  hasImplementer(domain: InterventionDomain): boolean {
+    return this.implementers.has(domain);
+  }
+
+  preview(
+    command: IInterventionLedgerCommand,
+    state: TState,
+  ): IInterventionLedgerPreview {
+    const implementer = this.implementers.get(command.domain);
+    if (!implementer) {
+      return {
+        domain: command.domain,
+        kind: command.kind,
+        status: 'unsupported',
+        actorId: command.actorId,
+        targetRefs: command.targetRefs,
+        causedBy: command.causedBy,
+        supersedes: command.supersedes,
+        conflicts: [],
+        reason: this.unsupportedReason(command.domain),
+      };
+    }
+
+    return implementer.preview(command, state);
+  }
+
+  appendApprovedRecord(
+    record: IInterventionLedgerRecord,
+  ): IInterventionLedgerRecord {
+    if (record.status !== 'approved' && record.status !== 'manual') {
+      throw new Error(
+        `Cannot append intervention record "${record.id}" with status "${record.status}".`,
+      );
+    }
+
+    this.records.push(record);
+    return record;
+  }
+
+  apply(
+    record: IInterventionLedgerRecord,
+    state: TState,
+  ): InterventionApplyResult<TState> {
+    const implementer = this.implementers.get(record.domain);
+    if (!implementer) {
+      return {
+        status: 'unsupported',
+        domain: record.domain,
+        kind: record.kind,
+        reason: this.unsupportedReason(record.domain),
+        state,
+      };
+    }
+
+    return {
+      status: 'applied',
+      domain: record.domain,
+      record,
+      state: implementer.apply(record, state),
+    };
+  }
+
+  projectPublic<TPublic = unknown>(record: IInterventionLedgerRecord): TPublic {
+    const implementer = this.implementers.get(record.domain);
+    if (!implementer) {
+      return record.publicEffect as TPublic;
+    }
+
+    return implementer.projectPublic(record) as TPublic;
+  }
+
+  projectPrivate<TPrivate = unknown>(
+    record: IInterventionLedgerRecord,
+  ): TPrivate {
+    const implementer = this.implementers.get(record.domain);
+    if (!implementer) {
+      return record.privateMetadata as TPrivate;
+    }
+
+    return implementer.projectPrivate(record) as TPrivate;
+  }
+
+  getRecords(): readonly IInterventionLedgerRecord[] {
+    return [...this.records];
+  }
+
+  private unsupportedReason(domain: InterventionDomain): string {
+    const { unsupportedReason = defaultUnsupportedReason } = this.options;
+    return unsupportedReason(domain);
+  }
+}
