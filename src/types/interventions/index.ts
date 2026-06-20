@@ -6,6 +6,29 @@ export type {
 } from './GmCascadePreviewTypes';
 
 export type {
+  GmCombatCorrectionFamily,
+  GmCombatInterventionCorrection,
+  GmCombatLifecycleState,
+  GmCombatProjectedEffectType,
+  IGmCombatDamageCriticalCorrection,
+  IGmCombatDamageCriticalEffect,
+  IGmCombatHeatAmmoCorrection,
+  IGmCombatHeatAmmoEffect,
+  IGmCombatInterventionCommandPayload,
+  IGmCombatInterventionDomainPayload,
+  IGmCombatInterventionState,
+  IGmCombatInterventionUnitState,
+  IGmCombatLifecycleCorrection,
+  IGmCombatLifecycleEffect,
+  IGmCombatProjectedEffect,
+  IGmCombatPublicEffect,
+  IGmCombatRepositionFacingCorrection,
+  IGmCombatRepositionFacingEffect,
+  IGmCombatTurnOrderCorrection,
+  IGmCombatTurnOrderEffect,
+} from './GmCombatInterventionTypes';
+
+export type {
   GmAuthorityDecision,
   GmInterventionActorRole,
   GmInterventionAuthorityRejectionCode,
