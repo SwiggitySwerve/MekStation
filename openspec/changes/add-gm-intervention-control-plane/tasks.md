@@ -8,12 +8,12 @@
 
 ## 2. Authority and Redaction Envelope
 
-- [ ] 2.1 Add GM authority context for actor, game, optional campaign, owned-state refs, and role.
-- [ ] 2.2 Implement an authority guard that rejects non-GM or non-owner requests before preview generation.
-- [ ] 2.3 Implement redaction helpers that split GM-private metadata from player-public net effects.
-- [ ] 2.4 Add unit tests proving non-owner player requests are rejected before preview generation and append no records/events.
-- [ ] 2.5 Add unit tests proving player-visible payloads exclude private reason, hidden notes, default outcome, and manual takeover notes.
-- [ ] 2.6 Add safe internal logging for rejected authorization attempts.
+- [x] 2.1 Add GM authority context for actor, game, optional campaign, owned-state refs, and role.
+- [x] 2.2 Implement an authority guard that rejects non-GM or non-owner requests before preview generation.
+- [x] 2.3 Implement redaction helpers that split GM-private metadata from player-public net effects.
+- [x] 2.4 Add unit tests proving non-owner player requests are rejected before preview generation and append no records/events.
+- [x] 2.5 Add unit tests proving player-visible payloads exclude private reason, hidden notes, default outcome, and manual takeover notes.
+- [x] 2.6 Add safe internal logging for rejected authorization attempts.
 
 ## 3. Cascade Preview Pipeline
 
