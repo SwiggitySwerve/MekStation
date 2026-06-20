@@ -1,0 +1,456 @@
+{
+  "version": 1,
+  "title": "MekStation end-to-end journey validation scenarios",
+  "defaultTier": "standard",
+  "evidenceDir": ".sisyphus/evidence/qc-journeys",
+  "requiredJourneyIds": [
+    "character-build",
+    "mek-build",
+    "combat-1v1",
+    "combat-4v4",
+    "contract-campaign",
+    "campaign-short",
+    "campaign-long"
+  ],
+  "tiers": {
+    "smoke": "Fast deterministic proof that the journey can generate inputs and reach a terminal evidence state.",
+    "standard": "Default repeatable journey proof for local and PR review.",
+    "extended": "Longer matrix or campaign coverage for release-grade confidence."
+  },
+  "journeys": [
+    {
+      "id": "character-build",
+      "displayName": "Character build",
+      "module": "roster",
+      "surfaceIds": ["force-pilot-encounter-setup"],
+      "tiers": ["smoke", "standard"],
+      "defaultMode": "headless",
+      "expectedTerminalState": "character-exported",
+      "parameters": {
+        "pilot-count": { "type": "integer", "default": 1, "minimum": 1 },
+        "pilot-skill-band": {
+          "type": "enum",
+          "default": "regular",
+          "values": ["green", "regular", "veteran", "elite"]
+        },
+        "pilot-abilities": { "type": "string-list", "default": ["none"] },
+        "export-format": {
+          "type": "enum",
+          "default": "json",
+          "values": ["json", "markdown"]
+        }
+      },
+      "steps": [
+        {
+          "id": "generate-character",
+          "title": "Generate pilot or character input",
+          "kind": "character-generation",
+          "required": true,
+          "diagnosticEvent": "character.created",
+          "loggingPathId": "character-pilot-creation",
+          "produces": ["generated/character.json"]
+        },
+        {
+          "id": "validate-character-export",
+          "title": "Validate character export evidence",
+          "kind": "artifact-validation",
+          "required": true,
+          "diagnosticEvent": "character.exported",
+          "loggingPathId": "store-persistence-recovery",
+          "produces": ["artifacts/character-export.json"]
+        }
+      ],
+      "evidenceAssertions": [
+        "generated character exists",
+        "skill band is recorded",
+        "export artifact exists"
+      ],
+      "knownLimitations": []
+    },
+    {
+      "id": "mek-build",
+      "displayName": "BattleMech build",
+      "module": "construction",
+      "surfaceIds": ["customizer-construction-bv-export"],
+      "tiers": ["smoke", "standard"],
+      "defaultMode": "headless",
+      "expectedTerminalState": "battlemech-exported",
+      "parameters": {
+        "unit-type": {
+          "type": "enum",
+          "default": "BattleMech",
+          "values": ["BattleMech"]
+        },
+        "chassis": { "type": "string", "default": "Atlas" },
+        "variant": { "type": "string", "default": "AS7-D" },
+        "era": { "type": "integer", "default": 3025, "minimum": 2470 },
+        "unitTechBase": {
+          "type": "enum",
+          "default": "INNER_SPHERE",
+          "values": ["INNER_SPHERE", "CLAN", "MIXED"]
+        },
+        "weight-class": {
+          "type": "enum",
+          "default": "Assault",
+          "values": ["Light", "Medium", "Heavy", "Assault"]
+        },
+        "export-format": {
+          "type": "enum",
+          "default": "json",
+          "values": ["json", "mtf", "blk"]
+        }
+      },
+      "steps": [
+        {
+          "id": "resolve-construction-inputs",
+          "title": "Resolve BattleMech construction inputs",
+          "kind": "mek-input-generation",
+          "required": true,
+          "diagnosticEvent": "mek.construction.input_resolved",
+          "loggingPathId": "mek-construction-export",
+          "produces": ["generated/battlemech-input.json"]
+        },
+        {
+          "id": "validate-and-export",
+          "title": "Validate and export BattleMech evidence",
+          "kind": "mek-export",
+          "required": true,
+          "diagnosticEvent": "mek.exported",
+          "loggingPathId": "mek-construction-export",
+          "produces": ["artifacts/battlemech-export.json"]
+        }
+      ],
+      "evidenceAssertions": [
+        "unitTechBase is recorded",
+        "era is recorded",
+        "BattleMech export artifact exists"
+      ],
+      "knownLimitations": []
+    },
+    {
+      "id": "combat-1v1",
+      "displayName": "BattleMech 1v1 combat",
+      "module": "combat",
+      "surfaceIds": [
+        "gameplay-tactical-map-combat",
+        "simulation-combat-validation"
+      ],
+      "tiers": ["smoke", "standard"],
+      "defaultMode": "headless",
+      "expectedTerminalState": "combat-complete",
+      "parameters": {
+        "player-units": { "type": "integer", "default": 1, "minimum": 1 },
+        "opponent-units": { "type": "integer", "default": 1, "minimum": 1 },
+        "bv-budget": { "type": "integer", "default": 3000, "minimum": 500 },
+        "map-radius": { "type": "integer", "default": 5, "minimum": 3 },
+        "terrain": {
+          "type": "enum",
+          "default": "clear",
+          "values": ["clear", "forest", "urban", "hills"]
+        },
+        "turn-limit": { "type": "integer", "default": 6, "minimum": 1 },
+        "ai-side-a": { "type": "string", "default": "balanced" },
+        "ai-side-b": { "type": "string", "default": "balanced" }
+      },
+      "steps": [
+        {
+          "id": "launch-duel",
+          "title": "Generate and launch duel encounter",
+          "kind": "combat-encounter",
+          "required": true,
+          "diagnosticEvent": "encounter.launched",
+          "loggingPathId": "encounter-launch",
+          "produces": ["generated/encounter.json"]
+        },
+        {
+          "id": "preview-invalid-action",
+          "title": "Record tactical rejection explanation",
+          "kind": "tactical-rejection",
+          "required": true,
+          "diagnosticEvent": "tactical.action_rejected",
+          "loggingPathId": "tactical-action-rejection",
+          "produces": ["artifacts/tactical-rejection.json"]
+        },
+        {
+          "id": "resolve-combat",
+          "title": "Resolve combat terminal state",
+          "kind": "combat-resolution",
+          "required": true,
+          "diagnosticEvent": "combat.terminal_state",
+          "loggingPathId": "combat-simulation-terminal",
+          "produces": ["artifacts/combat-summary.json"]
+        }
+      ],
+      "evidenceAssertions": [
+        "encounter generated",
+        "tactical rejection reason recorded",
+        "combat terminal state recorded"
+      ],
+      "knownLimitations": []
+    },
+    {
+      "id": "combat-4v4",
+      "displayName": "BattleMech 4v4 combat",
+      "module": "combat",
+      "surfaceIds": [
+        "gameplay-tactical-map-combat",
+        "simulation-combat-validation"
+      ],
+      "tiers": ["smoke", "standard", "extended"],
+      "defaultMode": "headless",
+      "expectedTerminalState": "combat-complete",
+      "parameters": {
+        "player-units": { "type": "integer", "default": 4, "minimum": 1 },
+        "opponent-units": { "type": "integer", "default": 4, "minimum": 1 },
+        "bv-budget": { "type": "integer", "default": 12000, "minimum": 2000 },
+        "map-radius": { "type": "integer", "default": 7, "minimum": 3 },
+        "terrain": {
+          "type": "enum",
+          "default": "hills",
+          "values": ["clear", "forest", "urban", "hills"]
+        },
+        "turn-limit": { "type": "integer", "default": 10, "minimum": 1 },
+        "ai-side-a": { "type": "string", "default": "balanced" },
+        "ai-side-b": { "type": "string", "default": "balanced" }
+      },
+      "steps": [
+        {
+          "id": "launch-lance-battle",
+          "title": "Generate and launch lance-scale encounter",
+          "kind": "combat-encounter",
+          "required": true,
+          "diagnosticEvent": "encounter.launched",
+          "loggingPathId": "encounter-launch",
+          "produces": ["generated/encounter.json"]
+        },
+        {
+          "id": "resolve-lance-combat",
+          "title": "Resolve lance combat terminal state",
+          "kind": "combat-resolution",
+          "required": true,
+          "diagnosticEvent": "combat.terminal_state",
+          "loggingPathId": "combat-simulation-terminal",
+          "produces": [
+            "artifacts/combat-summary.json",
+            "artifacts/match-log.json"
+          ]
+        },
+        {
+          "id": "persist-replay-reference",
+          "title": "Persist replay and match-log references",
+          "kind": "replay-persistence",
+          "required": true,
+          "diagnosticEvent": "replay.persisted",
+          "loggingPathId": "match-replay-persistence",
+          "produces": ["artifacts/replay-reference.json"]
+        }
+      ],
+      "evidenceAssertions": [
+        "lance encounter generated",
+        "combat terminal state recorded",
+        "match or replay reference recorded"
+      ],
+      "knownLimitations": []
+    },
+    {
+      "id": "contract-campaign",
+      "displayName": "Contract campaign scenario",
+      "module": "campaign",
+      "surfaceIds": ["campaign-economy-progression"],
+      "tiers": ["smoke", "standard"],
+      "defaultMode": "headless",
+      "expectedTerminalState": "contract-resolved",
+      "parameters": {
+        "contracts": { "type": "integer", "default": 1, "minimum": 1 },
+        "contract-types": { "type": "string-list", "default": ["battle"] },
+        "outcome-pattern": {
+          "type": "enum",
+          "default": "mixed",
+          "values": ["win", "loss", "mixed"]
+        },
+        "start-funds": { "type": "integer", "default": 1000000, "minimum": 0 },
+        "repair-policy": {
+          "type": "enum",
+          "default": "field",
+          "values": ["none", "field", "full"]
+        },
+        "salvage-policy": {
+          "type": "enum",
+          "default": "standard",
+          "values": ["none", "standard", "generous"]
+        }
+      },
+      "steps": [
+        {
+          "id": "select-contract",
+          "title": "Select campaign contract",
+          "kind": "campaign-contract",
+          "required": true,
+          "diagnosticEvent": "campaign.contract_selected",
+          "loggingPathId": "campaign-contract-resolution",
+          "produces": ["generated/contract.json"]
+        },
+        {
+          "id": "resolve-contract",
+          "title": "Resolve contract outcome",
+          "kind": "campaign-resolution",
+          "required": true,
+          "diagnosticEvent": "campaign.contract_resolved",
+          "loggingPathId": "campaign-contract-resolution",
+          "produces": ["artifacts/contract-outcome.json"]
+        },
+        {
+          "id": "process-campaign-updates",
+          "title": "Process repair, salvage, and finance updates",
+          "kind": "campaign-economy",
+          "required": true,
+          "diagnosticEvent": "campaign.economy_updated",
+          "loggingPathId": "campaign-repair-salvage-finance",
+          "produces": ["artifacts/campaign-economy.json"]
+        }
+      ],
+      "evidenceAssertions": [
+        "contract selected",
+        "outcome resolved",
+        "campaign economy updated"
+      ],
+      "knownLimitations": []
+    },
+    {
+      "id": "campaign-short",
+      "displayName": "Short campaign",
+      "module": "campaign",
+      "surfaceIds": ["campaign-economy-progression"],
+      "tiers": ["smoke", "standard"],
+      "defaultMode": "headless",
+      "expectedTerminalState": "campaign-sequence-complete",
+      "parameters": {
+        "contracts": { "type": "integer", "default": 5, "minimum": 3 },
+        "advance-days-between": {
+          "type": "integer",
+          "default": 14,
+          "minimum": 0
+        },
+        "campaign-difficulty": {
+          "type": "enum",
+          "default": "regular",
+          "values": ["green", "regular", "veteran"]
+        },
+        "repair-policy": {
+          "type": "enum",
+          "default": "field",
+          "values": ["none", "field", "full"]
+        },
+        "salvage-policy": {
+          "type": "enum",
+          "default": "standard",
+          "values": ["none", "standard", "generous"]
+        }
+      },
+      "steps": [
+        {
+          "id": "generate-contract-sequence",
+          "title": "Generate short campaign contract sequence",
+          "kind": "campaign-sequence",
+          "required": true,
+          "diagnosticEvent": "campaign.sequence_generated",
+          "loggingPathId": "campaign-contract-resolution",
+          "produces": ["generated/campaign-sequence.json"]
+        },
+        {
+          "id": "resolve-short-campaign",
+          "title": "Resolve short campaign contracts",
+          "kind": "campaign-resolution",
+          "required": true,
+          "diagnosticEvent": "campaign.sequence_resolved",
+          "loggingPathId": "campaign-contract-resolution",
+          "produces": ["artifacts/campaign-result.json"]
+        },
+        {
+          "id": "process-short-economy",
+          "title": "Process short campaign economy updates",
+          "kind": "campaign-economy",
+          "required": true,
+          "diagnosticEvent": "campaign.economy_updated",
+          "loggingPathId": "campaign-repair-salvage-finance",
+          "produces": ["artifacts/campaign-economy.json"]
+        }
+      ],
+      "evidenceAssertions": [
+        "3 to 5 contracts generated",
+        "all generated contracts resolved",
+        "campaign terminal state recorded"
+      ],
+      "knownLimitations": []
+    },
+    {
+      "id": "campaign-long",
+      "displayName": "Long campaign",
+      "module": "campaign",
+      "surfaceIds": ["campaign-economy-progression"],
+      "tiers": ["smoke", "standard", "extended"],
+      "defaultMode": "headless",
+      "expectedTerminalState": "campaign-sequence-complete",
+      "parameters": {
+        "contracts": { "type": "integer", "default": 8, "minimum": 6 },
+        "advance-days-between": {
+          "type": "integer",
+          "default": 21,
+          "minimum": 0
+        },
+        "campaign-difficulty": {
+          "type": "enum",
+          "default": "veteran",
+          "values": ["regular", "veteran", "elite"]
+        },
+        "repair-policy": {
+          "type": "enum",
+          "default": "field",
+          "values": ["none", "field", "full"]
+        },
+        "salvage-policy": {
+          "type": "enum",
+          "default": "standard",
+          "values": ["none", "standard", "generous"]
+        }
+      },
+      "steps": [
+        {
+          "id": "generate-long-sequence",
+          "title": "Generate long campaign contract sequence",
+          "kind": "campaign-sequence",
+          "required": true,
+          "diagnosticEvent": "campaign.sequence_generated",
+          "loggingPathId": "campaign-contract-resolution",
+          "produces": ["generated/campaign-sequence.json"]
+        },
+        {
+          "id": "resolve-long-campaign",
+          "title": "Resolve long campaign contracts",
+          "kind": "campaign-resolution",
+          "required": true,
+          "diagnosticEvent": "campaign.sequence_resolved",
+          "loggingPathId": "campaign-contract-resolution",
+          "produces": ["artifacts/campaign-result.json"]
+        },
+        {
+          "id": "process-long-economy",
+          "title": "Process long campaign economy updates",
+          "kind": "campaign-economy",
+          "required": true,
+          "diagnosticEvent": "campaign.economy_updated",
+          "loggingPathId": "campaign-repair-salvage-finance",
+          "produces": ["artifacts/campaign-economy.json"]
+        }
+      ],
+      "evidenceAssertions": [
+        "6 to 10 contracts generated",
+        "all generated contracts resolved",
+        "campaign terminal state recorded"
+      ],
+      "knownLimitations": [
+        "standard tier is headless-first; browser campaign signoff remains a separate UI lane"
+      ]
+    }
+  ]
+}

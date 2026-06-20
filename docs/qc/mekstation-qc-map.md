@@ -9,6 +9,9 @@ requests can start from a stable lane instead of re-discovering the repo.
 The machine-readable source is `docs/qc/mekstation-qc-registry.json`. The
 repeatable pass/fail scenario layer for the 12 top-level QC surfaces is
 `docs/qc/mekstation-major-capability-scenarios.json`.
+The journey-level validation layer is `docs/qc/mekstation-journey-scenarios.json`,
+with graph lookup in `docs/qc/mekstation-qc-validation-graph.json` and logging
+coverage in `docs/qc/mekstation-logging-map.json`.
 
 ## Commands
 
@@ -26,7 +29,15 @@ npm.cmd run qc:run -- --surface=gameplay-tactical-map-combat --quick
 npm.cmd run qc:scenarios:validate
 npm.cmd run qc:scenarios -- --tier=core
 npm.cmd run qc:scenarios -- --surface=gameplay-tactical-map-combat --tier=standard
+npm.cmd run qc:journeys:validate
+npm.cmd run qc:logging:validate
+npm.cmd run qc:graph -- --query=mek-build
+npm.cmd run qc:journeys -- --journey=all --tier=smoke
+npm.cmd run qc:journeys:bugs -- --since=latest --min-severity=medium
+npm.cmd run qc:logs -- --run-id=latest --level=warn,error
+npm.cmd run qc:logs -- --run-id=latest --level=warn,error --exclude-probes
 npm.cmd run verify:qc:scenarios
+npm.cmd run verify:qc:journeys
 npm.cmd run verify:qc:partial:quick
 npm.cmd run verify:qc:tactical:quick
 npm.cmd run verify:qc:tactical:visual
@@ -37,6 +48,10 @@ npm.cmd run maintain:scan -- --scope=src --format=summary
 npm.cmd run verify:qc
 npm.cmd run verify:rules
 ```
+
+Use the plain `warn,error` log scan to audit every warning-class event,
+including harness controls. Use `--exclude-probes` for the operator view that
+omits expected negative-control probes such as `api.payload_rejected`.
 
 ## Graph
 

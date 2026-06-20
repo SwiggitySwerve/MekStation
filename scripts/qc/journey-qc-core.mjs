@@ -1,0 +1,1292 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+export const repoRoot = path.resolve(__dirname, '..', '..');
+export const journeyCatalogPath = path.join(
+  repoRoot,
+  'docs',
+  'qc',
+  'mekstation-journey-scenarios.json',
+);
+export const validationGraphPath = path.join(
+  repoRoot,
+  'docs',
+  'qc',
+  'mekstation-qc-validation-graph.json',
+);
+export const loggingMapPath = path.join(
+  repoRoot,
+  'docs',
+  'qc',
+  'mekstation-logging-map.json',
+);
+
+export const requiredJourneyIds = [
+  'character-build',
+  'mek-build',
+  'combat-1v1',
+  'combat-4v4',
+  'contract-campaign',
+  'campaign-short',
+  'campaign-long',
+];
+
+export const severityRank = {
+  info: 0,
+  warning: 1,
+  warn: 1,
+  medium: 2,
+  high: 3,
+  error: 3,
+  critical: 4,
+};
+
+const allowedLevels = new Set(['debug', 'info', 'warn', 'error']);
+const allowedLogClassifications = new Set([
+  'diagnostic',
+  'expected-probe',
+  'actionable-warning',
+  'failure',
+]);
+const allowedModes = new Set(['headless', 'browser', 'hybrid']);
+const allowedTiers = new Set(['smoke', 'standard', 'extended']);
+const graphKinds = new Set([
+  'capability',
+  'module',
+  'submodule',
+  'journey',
+  'command',
+  'evidence',
+  'log-event',
+  'known-gap',
+]);
+const graphRelations = new Set([
+  'contains',
+  'validated-by',
+  'produces',
+  'logs',
+  'blocked-by',
+  'documents-gap',
+]);
+
+export function toRepoRelative(filePath) {
+  return path.relative(repoRoot, filePath).replaceAll('\\', '/');
+}
+
+export function loadJsonFile(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+export function writeJsonFile(filePath, value) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+export function parseArgs(argv) {
+  const options = {
+    continueOnError: false,
+    dryRun: false,
+    failOnBugSeverity: 'medium',
+    journey: 'all',
+    mode: null,
+    runs: 1,
+    seed: 42,
+    tier: 'standard',
+  };
+  const parameters = {};
+
+  for (const arg of argv) {
+    if (arg === '--continue-on-error') {
+      options.continueOnError = true;
+      continue;
+    }
+    if (arg === '--dry-run' || arg === '--list') {
+      options.dryRun = true;
+      continue;
+    }
+    if (arg === '--json') {
+      options.json = true;
+      continue;
+    }
+    if (arg === '--exclude-probes') {
+      options.excludeProbes = true;
+      continue;
+    }
+    if (arg === '--actionable-only') {
+      options.actionableOnly = true;
+      continue;
+    }
+
+    const match = /^--([^=]+)=(.*)$/.exec(arg);
+    if (!match) continue;
+
+    const [, key, rawValue] = match;
+    const value = rawValue.trim();
+    if (key === 'journey') options.journey = value;
+    else if (key === 'tier') options.tier = value;
+    else if (key === 'mode') options.mode = value;
+    else if (key === 'seed') options.seed = Number.parseInt(value, 10);
+    else if (key === 'runs') options.runs = Number.parseInt(value, 10);
+    else if (key === 'run-id') options.runId = value;
+    else if (key === 'evidence-dir') options.evidenceDir = value;
+    else if (key === 'fail-on-bug-severity') options.failOnBugSeverity = value;
+    else if (key === 'since') options.since = value;
+    else if (key === 'run-id-filter') options.runIdFilter = value;
+    else if (key === 'min-severity') options.minSeverity = value;
+    else if (key === 'level') options.level = value;
+    else if (key === 'classification') options.classification = value;
+    else if (key === 'blocking') options.blocking = value;
+    else if (key === 'service') options.service = value;
+    else if (key === 'event') options.event = value;
+    else if (key === 'step-id') options.stepId = value;
+    else if (key === 'fingerprint') options.fingerprint = value;
+    else if (key === 'module') options.module = value;
+    else if (key === 'query') options.query = value;
+    else if (key === 'kind') options.kind = value;
+    else if (key === 'inject-failure') options.injectFailure = value;
+    else parameters[key] = value;
+  }
+
+  options.parameters = parameters;
+  return options;
+}
+
+export function loadJourneyArtifacts() {
+  return {
+    catalog: loadJsonFile(journeyCatalogPath),
+    graph: loadJsonFile(validationGraphPath),
+    loggingMap: loadJsonFile(loggingMapPath),
+  };
+}
+
+function issue(severity, message) {
+  return { severity, message };
+}
+
+function fieldLabel(label, field) {
+  return `${label}: ${field}`;
+}
+
+function validateParameterDefinition(label, name, definition, issues) {
+  if (
+    !definition ||
+    typeof definition !== 'object' ||
+    Array.isArray(definition)
+  ) {
+    issues.push(
+      issue('error', `${label}: parameter ${name} must be an object.`),
+    );
+    return;
+  }
+  if (
+    !['string', 'string-list', 'integer', 'enum', 'boolean'].includes(
+      definition.type,
+    )
+  ) {
+    issues.push(
+      issue(
+        'error',
+        `${label}: parameter ${name} has unsupported type ${definition.type}.`,
+      ),
+    );
+  }
+  if (!Object.hasOwn(definition, 'default')) {
+    issues.push(
+      issue('error', `${label}: parameter ${name} must declare default.`),
+    );
+  }
+  if (
+    definition.type === 'enum' &&
+    (!Array.isArray(definition.values) ||
+      !definition.values.includes(definition.default))
+  ) {
+    issues.push(
+      issue(
+        'error',
+        `${label}: enum parameter ${name} must include its default in values.`,
+      ),
+    );
+  }
+}
+
+export function validateJourneyCatalog(catalog) {
+  const issues = [];
+  if (catalog.version !== 1)
+    issues.push(issue('error', 'Journey catalog version must be 1.'));
+  if (!Array.isArray(catalog.journeys)) {
+    issues.push(issue('error', 'Journey catalog must declare journeys array.'));
+    return issues;
+  }
+  if (!Array.isArray(catalog.requiredJourneyIds)) {
+    issues.push(
+      issue('error', 'Journey catalog must declare requiredJourneyIds array.'),
+    );
+  }
+  if (!allowedTiers.has(catalog.defaultTier)) {
+    issues.push(
+      issue(
+        'error',
+        'Journey catalog defaultTier must be smoke, standard, or extended.',
+      ),
+    );
+  }
+
+  const ids = new Set();
+  for (const [index, journey] of catalog.journeys.entries()) {
+    const label = journey.id || `journeys[${index}]`;
+    if (typeof journey.id !== 'string' || journey.id.trim() === '') {
+      issues.push(issue('error', `${label}: id must be a non-empty string.`));
+    }
+    if (ids.has(journey.id))
+      issues.push(issue('error', `${label}: duplicate journey id.`));
+    ids.add(journey.id);
+    for (const field of [
+      'displayName',
+      'module',
+      'defaultMode',
+      'expectedTerminalState',
+    ]) {
+      if (typeof journey[field] !== 'string' || journey[field].trim() === '') {
+        issues.push(
+          issue(
+            'error',
+            fieldLabel(label, field) + ' must be a non-empty string.',
+          ),
+        );
+      }
+    }
+    if (!allowedModes.has(journey.defaultMode)) {
+      issues.push(
+        issue(
+          'error',
+          `${label}: defaultMode must be headless, browser, or hybrid.`,
+        ),
+      );
+    }
+    if (!Array.isArray(journey.tiers) || journey.tiers.length === 0) {
+      issues.push(
+        issue('error', `${label}: tiers must contain at least one tier.`),
+      );
+    } else {
+      for (const tier of journey.tiers) {
+        if (!allowedTiers.has(tier)) {
+          issues.push(issue('error', `${label}: invalid tier ${tier}.`));
+        }
+      }
+    }
+    if (!journey.parameters || typeof journey.parameters !== 'object') {
+      issues.push(issue('error', `${label}: parameters must be an object.`));
+    } else {
+      for (const [name, definition] of Object.entries(journey.parameters)) {
+        validateParameterDefinition(label, name, definition, issues);
+      }
+    }
+    if (!Array.isArray(journey.steps) || journey.steps.length === 0) {
+      issues.push(
+        issue('error', `${label}: steps must contain at least one step.`),
+      );
+    } else {
+      const stepIds = new Set();
+      for (const [stepIndex, step] of journey.steps.entries()) {
+        const stepLabel = `${label}.steps[${stepIndex}]`;
+        for (const field of [
+          'id',
+          'title',
+          'kind',
+          'diagnosticEvent',
+          'loggingPathId',
+        ]) {
+          if (typeof step[field] !== 'string' || step[field].trim() === '') {
+            issues.push(
+              issue(
+                'error',
+                `${stepLabel}: ${field} must be a non-empty string.`,
+              ),
+            );
+          }
+        }
+        if (stepIds.has(step.id)) {
+          issues.push(
+            issue('error', `${stepLabel}: duplicate step id ${step.id}.`),
+          );
+        }
+        stepIds.add(step.id);
+        if (!Array.isArray(step.produces) || step.produces.length === 0) {
+          issues.push(
+            issue(
+              'error',
+              `${stepLabel}: produces must contain at least one artifact.`,
+            ),
+          );
+        }
+      }
+    }
+    if (
+      !Array.isArray(journey.evidenceAssertions) ||
+      journey.evidenceAssertions.length === 0
+    ) {
+      issues.push(
+        issue(
+          'error',
+          `${label}: evidenceAssertions must contain at least one item.`,
+        ),
+      );
+    }
+  }
+
+  for (const requiredId of requiredJourneyIds) {
+    if (!ids.has(requiredId))
+      issues.push(issue('error', `Missing required journey ${requiredId}.`));
+  }
+  for (const id of ids) {
+    if (!requiredJourneyIds.includes(id))
+      issues.push(issue('warning', `Unexpected journey ${id}.`));
+  }
+  return issues;
+}
+
+export function validateValidationGraph(graph, catalog) {
+  const issues = [];
+  if (graph.version !== 1)
+    issues.push(issue('error', 'Validation graph version must be 1.'));
+  if (!Array.isArray(graph.nodes))
+    issues.push(issue('error', 'Validation graph nodes must be an array.'));
+  if (!Array.isArray(graph.edges))
+    issues.push(issue('error', 'Validation graph edges must be an array.'));
+  if (!Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) return issues;
+
+  const nodeIds = new Set();
+  for (const [index, node] of graph.nodes.entries()) {
+    const label = node.id || `nodes[${index}]`;
+    if (typeof node.id !== 'string' || node.id.trim() === '') {
+      issues.push(issue('error', `${label}: id must be a non-empty string.`));
+    }
+    if (nodeIds.has(node.id))
+      issues.push(issue('error', `${label}: duplicate node id.`));
+    nodeIds.add(node.id);
+    if (!graphKinds.has(node.kind))
+      issues.push(issue('error', `${label}: invalid kind ${node.kind}.`));
+    if (typeof node.label !== 'string' || node.label.trim() === '') {
+      issues.push(
+        issue('error', `${label}: label must be a non-empty string.`),
+      );
+    }
+  }
+
+  for (const [index, edge] of graph.edges.entries()) {
+    const label = `edges[${index}]`;
+    if (!nodeIds.has(edge.from))
+      issues.push(issue('error', `${label}: missing from node ${edge.from}.`));
+    if (!nodeIds.has(edge.to))
+      issues.push(issue('error', `${label}: missing to node ${edge.to}.`));
+    if (!graphRelations.has(edge.relation)) {
+      issues.push(
+        issue('error', `${label}: invalid relation ${edge.relation}.`),
+      );
+    }
+  }
+
+  const catalogJourneyIds = new Set(
+    catalog.journeys.map((journey) => journey.id),
+  );
+  for (const node of graph.nodes.filter((entry) => entry.kind === 'journey')) {
+    const journeyId = node.id.replace(/^journey:/, '');
+    if (!catalogJourneyIds.has(journeyId)) {
+      issues.push(
+        issue('error', `Graph references orphaned journey ${journeyId}.`),
+      );
+    }
+  }
+
+  for (const journeyId of catalogJourneyIds) {
+    if (!nodeIds.has(`journey:${journeyId}`)) {
+      issues.push(
+        issue('error', `Graph missing journey node journey:${journeyId}.`),
+      );
+    }
+  }
+  return issues;
+}
+
+export function validateLoggingMap(loggingMap, catalog) {
+  const issues = [];
+  if (loggingMap.version !== 1)
+    issues.push(issue('error', 'Logging map version must be 1.'));
+  if (!Array.isArray(loggingMap.requiredPathIds)) {
+    issues.push(
+      issue('error', 'Logging map requiredPathIds must be an array.'),
+    );
+  }
+  if (!Array.isArray(loggingMap.paths)) {
+    issues.push(issue('error', 'Logging map paths must be an array.'));
+    return issues;
+  }
+
+  const pathIds = new Set();
+  for (const [index, entry] of loggingMap.paths.entries()) {
+    const label = entry.pathId || `paths[${index}]`;
+    if (typeof entry.pathId !== 'string' || entry.pathId.trim() === '') {
+      issues.push(
+        issue('error', `${label}: pathId must be a non-empty string.`),
+      );
+    }
+    if (pathIds.has(entry.pathId))
+      issues.push(issue('error', `${label}: duplicate pathId.`));
+    pathIds.add(entry.pathId);
+    if (typeof entry.service !== 'string' || entry.service.trim() === '') {
+      issues.push(
+        issue('error', `${label}: service must be a non-empty string.`),
+      );
+    }
+    if (!['debug', 'info', 'warn', 'error'].includes(entry.severity)) {
+      issues.push(
+        issue(
+          'error',
+          `${label}: severity must be debug, info, warn, or error.`,
+        ),
+      );
+    }
+    const requiresClassification =
+      entry.severity === 'warn' || entry.severity === 'error';
+    if (requiresClassification && typeof entry.classification !== 'string') {
+      issues.push(
+        issue(
+          'error',
+          `${label}: warn/error paths must declare a classification.`,
+        ),
+      );
+    }
+    if (
+      entry.classification !== undefined &&
+      !allowedLogClassifications.has(entry.classification)
+    ) {
+      issues.push(
+        issue(
+          'error',
+          `${label}: classification must be diagnostic, expected-probe, actionable-warning, or failure.`,
+        ),
+      );
+    }
+    if (requiresClassification && typeof entry.blocking !== 'boolean') {
+      issues.push(
+        issue('error', `${label}: warn/error paths must declare blocking.`),
+      );
+    }
+    if (entry.classification === 'expected-probe' && entry.blocking !== false) {
+      issues.push(
+        issue('error', `${label}: expected probes must be non-blocking.`),
+      );
+    }
+    if (entry.classification === 'failure' && entry.severity !== 'error') {
+      issues.push(
+        issue('error', `${label}: failure classification must use error.`),
+      );
+    }
+    if (!Array.isArray(entry.events) || entry.events.length === 0) {
+      issues.push(
+        issue('error', `${label}: events must contain at least one event.`),
+      );
+    }
+    if (!Array.isArray(entry.testRefs) || entry.testRefs.length === 0) {
+      issues.push(
+        issue(
+          'error',
+          `${label}: testRefs must contain at least one reference.`,
+        ),
+      );
+    }
+  }
+
+  for (const requiredPathId of loggingMap.requiredPathIds ?? []) {
+    if (!pathIds.has(requiredPathId)) {
+      issues.push(
+        issue('error', `Logging map missing required path ${requiredPathId}.`),
+      );
+    }
+  }
+
+  const loggingPathIds = new Set();
+  for (const journey of catalog.journeys) {
+    for (const step of journey.steps) loggingPathIds.add(step.loggingPathId);
+  }
+  for (const loggingPathId of loggingPathIds) {
+    if (!pathIds.has(loggingPathId)) {
+      issues.push(
+        issue(
+          'error',
+          `Catalog step references unmapped logging path ${loggingPathId}.`,
+        ),
+      );
+    }
+  }
+  return issues;
+}
+
+export function printIssues(issues) {
+  for (const item of issues) {
+    const prefix = item.severity === 'error' ? 'ERROR' : 'WARN';
+    console.log(`${prefix}: ${item.message}`);
+  }
+}
+
+export function validationSummary() {
+  const { catalog, graph, loggingMap } = loadJourneyArtifacts();
+  const catalogIssues = validateJourneyCatalog(catalog);
+  const graphIssues = validateValidationGraph(graph, catalog);
+  const loggingIssues = validateLoggingMap(loggingMap, catalog);
+  const issues = [...catalogIssues, ...graphIssues, ...loggingIssues];
+  return {
+    catalog,
+    graph,
+    issues,
+    loggingMap,
+    errors: issues.filter((item) => item.severity === 'error'),
+    warnings: issues.filter((item) => item.severity === 'warning'),
+  };
+}
+
+function hashString(value) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+function coerceParameter(definition, rawValue) {
+  if (rawValue === undefined) return definition.default;
+  if (definition.type === 'integer') return Number.parseInt(rawValue, 10);
+  if (definition.type === 'boolean') return rawValue === 'true';
+  if (definition.type === 'string-list') {
+    return String(rawValue)
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return rawValue;
+}
+
+function resolveParameters(journey, overrides) {
+  const resolved = {};
+  for (const [name, definition] of Object.entries(journey.parameters)) {
+    resolved[name] = coerceParameter(definition, overrides[name]);
+  }
+  return resolved;
+}
+
+function selectJourneys(catalog, journeyOption) {
+  const requested =
+    !journeyOption || journeyOption === 'all'
+      ? requiredJourneyIds
+      : journeyOption
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean);
+  const byId = new Map(
+    catalog.journeys.map((journey) => [journey.id, journey]),
+  );
+  return requested.map((id) => {
+    const journey = byId.get(id);
+    if (!journey) throw new Error(`Unknown journey: ${id}`);
+    return journey;
+  });
+}
+
+export function materializeRunPlan(catalog, options) {
+  if (!allowedTiers.has(options.tier))
+    throw new Error(`Invalid tier: ${options.tier}`);
+  if (!Number.isInteger(options.seed))
+    throw new Error('--seed must be an integer.');
+  if (!Number.isInteger(options.runs) || options.runs < 1) {
+    throw new Error('--runs must be an integer >= 1.');
+  }
+  const selected = selectJourneys(catalog, options.journey);
+  const timestamp = new Date().toISOString();
+  const runId =
+    options.runId ??
+    `journey-${timestamp.replaceAll(':', '-').replaceAll('.', '-')}-${options.seed}`;
+  const evidenceDir = path.resolve(
+    repoRoot,
+    options.evidenceDir ?? catalog.evidenceDir,
+  );
+
+  return {
+    version: 1,
+    runId,
+    createdAt: timestamp,
+    catalogVersion: catalog.version,
+    catalogPath: toRepoRelative(journeyCatalogPath),
+    dryRun: options.dryRun,
+    tier: options.tier,
+    mode: options.mode ?? 'catalog-default',
+    seed: options.seed,
+    runs: options.runs,
+    evidenceDir: toRepoRelative(path.join(evidenceDir, runId)),
+    failOnBugSeverity: options.failOnBugSeverity,
+    journeyIds: selected.map((journey) => journey.id),
+    journeys: selected.map((journey) => ({
+      id: journey.id,
+      displayName: journey.displayName,
+      module: journey.module,
+      mode: options.mode ?? journey.defaultMode,
+      expectedTerminalState: journey.expectedTerminalState,
+      resolvedParameters: resolveParameters(journey, options.parameters ?? {}),
+      steps: journey.steps.map((step) => ({
+        id: step.id,
+        title: step.title,
+        kind: step.kind,
+        required: step.required !== false,
+        diagnosticEvent: step.diagnosticEvent,
+        loggingPathId: step.loggingPathId,
+        produces: step.produces,
+      })),
+      knownLimitations: journey.knownLimitations ?? [],
+    })),
+  };
+}
+
+function serviceForStep(journey, step) {
+  if (step.kind.startsWith('campaign')) return 'journey.campaign';
+  if (
+    step.kind.startsWith('combat') ||
+    step.kind.startsWith('tactical') ||
+    step.kind === 'replay-persistence'
+  ) {
+    return 'journey.combat';
+  }
+  if (step.kind.startsWith('mek')) return 'journey.mek';
+  if (step.kind.startsWith('character')) return 'journey.character';
+  if (step.kind === 'artifact-validation') return 'journey.persistence';
+  return `journey.${journey.module}`;
+}
+
+function logEntry({
+  level = 'info',
+  service,
+  event,
+  message,
+  runPlan,
+  journey,
+  step,
+  attempt,
+  classification,
+  blocking,
+  metadata,
+}) {
+  return {
+    timestamp: new Date().toISOString(),
+    level,
+    service,
+    event,
+    message,
+    ...(classification ? { classification } : {}),
+    ...(typeof blocking === 'boolean' ? { blocking } : {}),
+    runId: runPlan.runId,
+    journeyId: journey?.id,
+    stepId: step?.id,
+    entityIds: {
+      attempt: String(attempt),
+      ...(journey ? { module: journey.module } : {}),
+    },
+    metadata: metadata ?? {},
+  };
+}
+
+function artifactPayload({ runPlan, journey, step, attempt }) {
+  const idBase = hashString(
+    `${runPlan.seed}:${journey.id}:${step.id}:${attempt}`,
+  );
+  const parameters = journey.resolvedParameters;
+  const common = {
+    runId: runPlan.runId,
+    journeyId: journey.id,
+    stepId: step.id,
+    attempt,
+    generatedId: idBase,
+    parameters,
+  };
+
+  if (step.kind === 'character-generation') {
+    return {
+      ...common,
+      pilotCount: parameters['pilot-count'],
+      skillBand: parameters['pilot-skill-band'],
+      abilities: parameters['pilot-abilities'],
+      characters: Array.from(
+        { length: parameters['pilot-count'] },
+        (_, index) => ({
+          id: `pilot-${idBase}-${index + 1}`,
+          callsign: `QC-${index + 1}`,
+          gunnery: parameters['pilot-skill-band'] === 'elite' ? 2 : 4,
+          piloting: parameters['pilot-skill-band'] === 'green' ? 6 : 5,
+        }),
+      ),
+    };
+  }
+
+  if (step.kind === 'mek-input-generation' || step.kind === 'mek-export') {
+    return {
+      ...common,
+      unitType: parameters['unit-type'],
+      chassis: parameters.chassis,
+      variant: parameters.variant,
+      era: parameters.era,
+      unitTechBase: parameters.unitTechBase,
+      weightClass: parameters['weight-class'],
+      validationSummary: { errors: 0, warnings: 0 },
+    };
+  }
+
+  if (step.kind === 'combat-encounter' || step.kind === 'combat-resolution') {
+    return {
+      ...common,
+      playerUnits: parameters['player-units'],
+      opponentUnits: parameters['opponent-units'],
+      bvBudget: parameters['bv-budget'],
+      mapRadius: parameters['map-radius'],
+      terrain: parameters.terrain,
+      turnLimit: parameters['turn-limit'],
+      actions: ['movement-preview', 'attack-resolution'],
+      terminalState: 'combat-complete',
+    };
+  }
+
+  if (step.kind === 'tactical-rejection') {
+    return {
+      ...common,
+      rejectedAction: 'move-through-blocked-hex',
+      reason:
+        'Destination is blocked by occupied terrain in the generated test plan.',
+      nonColorIndicators: ['blocked-icon', 'reason-text'],
+    };
+  }
+
+  if (step.kind === 'replay-persistence') {
+    return {
+      ...common,
+      replayId: `replay-${idBase}`,
+      matchLogId: `match-${idBase}`,
+      artifactRefs: [
+        'artifacts/combat-summary.json',
+        'artifacts/match-log.json',
+      ],
+    };
+  }
+
+  if (step.kind === 'campaign-contract' || step.kind === 'campaign-sequence') {
+    const contracts = parameters.contracts ?? 1;
+    return {
+      ...common,
+      contracts: Array.from({ length: contracts }, (_, index) => ({
+        id: `contract-${idBase}-${index + 1}`,
+        type: (parameters['contract-types'] ?? ['battle'])[
+          index % (parameters['contract-types'] ?? ['battle']).length
+        ],
+        daysUntilStart: index * (parameters['advance-days-between'] ?? 0),
+      })),
+    };
+  }
+
+  if (step.kind === 'campaign-resolution' || step.kind === 'campaign-economy') {
+    const contracts = parameters.contracts ?? 1;
+    return {
+      ...common,
+      contractsResolved: contracts,
+      fundsDelta: contracts * 75000,
+      salvagePolicy: parameters['salvage-policy'],
+      repairPolicy: parameters['repair-policy'],
+      terminalState: journey.expectedTerminalState,
+    };
+  }
+
+  return common;
+}
+
+function writeArtifact(runDir, relativePath, payload) {
+  const filePath = path.join(runDir, relativePath);
+  writeJsonFile(filePath, payload);
+  return toRepoRelative(filePath);
+}
+
+function severityMeets(candidateSeverity, minimumSeverity) {
+  return (
+    (severityRank[candidateSeverity] ?? 0) >=
+    (severityRank[minimumSeverity] ?? 0)
+  );
+}
+
+export function extractBugCandidates(result, logs) {
+  const bugs = [];
+  for (const journey of result.journeys ?? []) {
+    for (const attempt of journey.attempts ?? []) {
+      for (const step of attempt.steps ?? []) {
+        if (step.status !== 'pass') {
+          bugs.push({
+            severity: 'high',
+            journeyId: journey.id,
+            runId: result.runId,
+            stepId: step.id,
+            module: journey.module,
+            fingerprint: hashString(
+              `${journey.id}:${step.id}:${step.status}:${step.error ?? ''}`,
+            ),
+            summary: `Journey step failed: ${journey.id}/${step.id}`,
+            evidenceRefs: step.artifacts ?? [],
+          });
+        }
+      }
+      if (attempt.terminalState !== journey.expectedTerminalState) {
+        bugs.push({
+          severity: 'high',
+          journeyId: journey.id,
+          runId: result.runId,
+          stepId: null,
+          module: journey.module,
+          fingerprint: hashString(`${journey.id}:missing-terminal-state`),
+          summary: `Missing terminal state for ${journey.id}`,
+          evidenceRefs: [],
+        });
+      }
+    }
+  }
+  for (const entry of logs) {
+    if (entry.level === 'error') {
+      bugs.push({
+        severity: 'medium',
+        journeyId: entry.journeyId,
+        runId: entry.runId,
+        stepId: entry.stepId,
+        module: entry.entityIds?.module,
+        fingerprint: hashString(
+          `${entry.service}:${entry.event}:${entry.message}`,
+        ),
+        summary: entry.message ?? `${entry.service}.${entry.event}`,
+        evidenceRefs: ['system.ndjson'],
+      });
+    }
+  }
+  return bugs;
+}
+
+export function executeRunPlan(runPlan, options = {}) {
+  const runDir = path.resolve(repoRoot, runPlan.evidenceDir);
+  const logs = [];
+  const journeys = [];
+  const startedAt = new Date().toISOString();
+
+  if (runPlan.dryRun) {
+    return {
+      logs,
+      result: {
+        version: 1,
+        runId: runPlan.runId,
+        status: 'dry-run',
+        dryRun: true,
+        startedAt,
+        completedAt: new Date().toISOString(),
+        journeys: runPlan.journeys.map((journey) => ({
+          id: journey.id,
+          module: journey.module,
+          expectedTerminalState: journey.expectedTerminalState,
+          attempts: [],
+          knownLimitations: journey.knownLimitations,
+        })),
+      },
+    };
+  }
+
+  for (const journey of runPlan.journeys) {
+    const journeyResult = {
+      id: journey.id,
+      module: journey.module,
+      expectedTerminalState: journey.expectedTerminalState,
+      attempts: [],
+      knownLimitations: journey.knownLimitations,
+    };
+
+    for (let attempt = 1; attempt <= runPlan.runs; attempt += 1) {
+      const attemptResult = {
+        attempt,
+        status: 'pass',
+        terminalState: null,
+        steps: [],
+      };
+
+      for (const step of journey.steps) {
+        const artifacts = [];
+        const shouldFail =
+          options.injectFailure === step.id ||
+          options.injectFailure === journey.id;
+        const level =
+          step.loggingPathId === 'tactical-action-rejection' ? 'warn' : 'info';
+        const payload = artifactPayload({ runPlan, journey, step, attempt });
+
+        if (!shouldFail) {
+          for (const produced of step.produces) {
+            artifacts.push(
+              writeArtifact(
+                runDir,
+                `${journey.id}/${attempt}/${produced}`,
+                payload,
+              ),
+            );
+          }
+        }
+
+        const stepLog = logEntry({
+          level: shouldFail ? 'error' : level,
+          service: serviceForStep(journey, step),
+          event: shouldFail ? 'journey.step_failed' : step.diagnosticEvent,
+          message: shouldFail
+            ? `Injected failure for ${journey.id}/${step.id}`
+            : step.title,
+          classification: shouldFail
+            ? 'failure'
+            : level === 'warn'
+              ? 'diagnostic'
+              : undefined,
+          blocking: shouldFail ? true : level === 'warn' ? false : undefined,
+          runPlan,
+          journey,
+          step,
+          attempt,
+          metadata: {
+            loggingPathId: step.loggingPathId,
+            artifacts,
+            terminalState: payload.terminalState,
+          },
+        });
+        logs.push(stepLog);
+
+        const stepResult = {
+          id: step.id,
+          status: shouldFail ? 'fail' : 'pass',
+          artifacts,
+          diagnosticEvent: stepLog.event,
+          loggingPathId: step.loggingPathId,
+          error: shouldFail ? stepLog.message : undefined,
+        };
+        attemptResult.steps.push(stepResult);
+
+        if (payload.terminalState)
+          attemptResult.terminalState = payload.terminalState;
+        if (shouldFail && step.required) {
+          attemptResult.status = 'fail';
+          if (!options.continueOnError) break;
+        }
+      }
+
+      if (!attemptResult.terminalState && attemptResult.status === 'pass') {
+        attemptResult.terminalState = journey.expectedTerminalState;
+      }
+      if (attemptResult.terminalState !== journey.expectedTerminalState) {
+        attemptResult.status = 'fail';
+      }
+      journeyResult.attempts.push(attemptResult);
+    }
+    journeys.push(journeyResult);
+  }
+
+  logs.push(
+    logEntry({
+      level: 'warn',
+      service: 'journey.validation',
+      event: 'api.payload_rejected',
+      message:
+        'Negative payload validation probe rejected malformed journey input.',
+      classification: 'expected-probe',
+      blocking: false,
+      runPlan,
+      attempt: 0,
+      metadata: { nonBlockingProbe: true },
+    }),
+  );
+  logs.push(
+    logEntry({
+      level: 'info',
+      service: 'journey.persistence',
+      event: 'store.recovery_checked',
+      message: 'Journey evidence store recovery path verified.',
+      runPlan,
+      attempt: 0,
+      metadata: { evidenceDir: runPlan.evidenceDir },
+    }),
+  );
+
+  const failed = journeys.some((journey) =>
+    journey.attempts.some((attempt) => attempt.status !== 'pass'),
+  );
+  const result = {
+    version: 1,
+    runId: runPlan.runId,
+    status: failed ? 'fail' : 'pass',
+    dryRun: false,
+    startedAt,
+    completedAt: new Date().toISOString(),
+    journeys,
+  };
+  return { logs, result };
+}
+
+export function writeEvidenceBundle(runPlan, result, logs, bugs) {
+  const runDir = path.resolve(repoRoot, runPlan.evidenceDir);
+  fs.mkdirSync(path.join(runDir, 'stdout'), { recursive: true });
+  fs.mkdirSync(path.join(runDir, 'stderr'), { recursive: true });
+  fs.mkdirSync(path.join(runDir, 'artifacts'), { recursive: true });
+  fs.mkdirSync(path.join(runDir, 'generated'), { recursive: true });
+
+  writeJsonFile(path.join(runDir, 'run-plan.json'), runPlan);
+  writeJsonFile(path.join(runDir, 'result.json'), result);
+  writeJsonFile(path.join(runDir, 'bugs.json'), bugs);
+  fs.writeFileSync(
+    path.join(runDir, 'system.ndjson'),
+    logs.map((entry) => JSON.stringify(entry)).join('\n') +
+      (logs.length ? '\n' : ''),
+  );
+  fs.writeFileSync(
+    path.join(runDir, 'stdout', 'runner.log'),
+    `[qc:journeys] ${result.status}\n`,
+  );
+  fs.writeFileSync(path.join(runDir, 'stderr', 'runner.log'), '');
+  fs.writeFileSync(
+    path.join(runDir, 'report.md'),
+    renderReport(runPlan, result, logs, bugs),
+  );
+
+  const latestPath = path.join(path.dirname(runDir), 'latest.json');
+  writeJsonFile(latestPath, {
+    runId: runPlan.runId,
+    runDir: toRepoRelative(runDir),
+    result: toRepoRelative(path.join(runDir, 'result.json')),
+    bugs: toRepoRelative(path.join(runDir, 'bugs.json')),
+    logs: toRepoRelative(path.join(runDir, 'system.ndjson')),
+  });
+
+  return {
+    runDir: toRepoRelative(runDir),
+    latestPath: toRepoRelative(latestPath),
+  };
+}
+
+function renderReport(runPlan, result, logs, bugs) {
+  const expectedProbeCount = logs.filter(
+    (entry) => entry.classification === 'expected-probe',
+  ).length;
+  const actionableWarningCount = logs.filter(
+    (entry) =>
+      entry.level === 'warn' && entry.classification !== 'expected-probe',
+  ).length;
+  const blockingLogCount = logs.filter(
+    (entry) => entry.blocking === true,
+  ).length;
+  const lines = [
+    `# Journey QC Run ${runPlan.runId}`,
+    '',
+    `- Status: ${result.status}`,
+    `- Tier: ${runPlan.tier}`,
+    `- Mode: ${runPlan.mode}`,
+    `- Seed: ${runPlan.seed}`,
+    `- Runs: ${runPlan.runs}`,
+    `- Bugs: ${bugs.length}`,
+    `- Expected probes: ${expectedProbeCount}`,
+    `- Actionable/diagnostic warnings: ${actionableWarningCount}`,
+    `- Blocking log entries: ${blockingLogCount}`,
+    '',
+    '## Journeys',
+    '',
+  ];
+  for (const journey of result.journeys) {
+    const failedAttempts = journey.attempts.filter(
+      (attempt) => attempt.status !== 'pass',
+    ).length;
+    lines.push(
+      `- ${journey.id}: ${failedAttempts === 0 ? 'pass' : 'fail'} (${journey.attempts.length} attempt(s))`,
+    );
+    for (const gap of journey.knownLimitations ?? [])
+      lines.push(`  - Gap: ${gap}`);
+  }
+  return `${lines.join('\n')}\n`;
+}
+
+export function resolveEvidenceRun(options = {}) {
+  const catalog = loadJsonFile(journeyCatalogPath);
+  const evidenceRoot = path.resolve(
+    repoRoot,
+    options.evidenceDir ?? catalog.evidenceDir,
+  );
+  const runId = options.runId ?? options.since ?? 'latest';
+  if (runId === 'latest') {
+    const latest = loadJsonFile(path.join(evidenceRoot, 'latest.json'));
+    return {
+      evidenceRoot,
+      runId: latest.runId,
+      runDir: path.resolve(repoRoot, latest.runDir),
+    };
+  }
+  return {
+    evidenceRoot,
+    runId,
+    runDir: path.join(evidenceRoot, runId),
+  };
+}
+
+export function loadRunEvidence(options = {}) {
+  const resolved = resolveEvidenceRun(options);
+  return {
+    ...resolved,
+    bugs: loadJsonFile(path.join(resolved.runDir, 'bugs.json')),
+    result: loadJsonFile(path.join(resolved.runDir, 'result.json')),
+    logs: fs
+      .readFileSync(path.join(resolved.runDir, 'system.ndjson'), 'utf8')
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map((line) => JSON.parse(line)),
+  };
+}
+
+export function filterBugs(bugs, options = {}) {
+  const minimum = options.minSeverity ?? 'info';
+  return bugs.filter((bug) => {
+    if (!severityMeets(bug.severity, minimum)) return false;
+    if (
+      options.journey &&
+      options.journey !== 'all' &&
+      bug.journeyId !== options.journey
+    )
+      return false;
+    if (options.module && bug.module !== options.module) return false;
+    if (options.fingerprint && bug.fingerprint !== options.fingerprint)
+      return false;
+    return true;
+  });
+}
+
+export function filterLogs(logs, options = {}) {
+  const levels = options.level
+    ? new Set(options.level.split(',').map((item) => item.trim()))
+    : null;
+  const classifications = options.classification
+    ? new Set(options.classification.split(',').map((item) => item.trim()))
+    : null;
+  const blocking =
+    options.blocking === 'true'
+      ? true
+      : options.blocking === 'false'
+        ? false
+        : null;
+  return logs.filter((entry) => {
+    if (levels && !levels.has(entry.level)) return false;
+    if (classifications && !classifications.has(entry.classification ?? '')) {
+      return false;
+    }
+    if (blocking !== null && entry.blocking !== blocking) return false;
+    if (
+      (options.excludeProbes || options.actionableOnly) &&
+      entry.classification === 'expected-probe'
+    ) {
+      return false;
+    }
+    if (
+      options.journey &&
+      options.journey !== 'all' &&
+      entry.journeyId !== options.journey
+    )
+      return false;
+    if (options.stepId && entry.stepId !== options.stepId) return false;
+    if (options.service && entry.service !== options.service) return false;
+    if (options.event && entry.event !== options.event) return false;
+    if (
+      options.fingerprint &&
+      hashString(`${entry.service}:${entry.event}:${entry.message}`) !==
+        options.fingerprint
+    )
+      return false;
+    return true;
+  });
+}
+
+export function logIntentLabel(entry) {
+  const parts = [entry.level];
+  if (entry.classification) parts.push(entry.classification);
+  if (entry.blocking === true) parts.push('blocking');
+  if (entry.blocking === false) parts.push('non-blocking');
+  return parts.join(' ');
+}
+
+export function queryGraph(graph, options = {}) {
+  const query = (
+    options.query ??
+    options.journey ??
+    options.module ??
+    ''
+  ).toLowerCase();
+  const kind = options.kind;
+  const matchedNodes = graph.nodes.filter((node) => {
+    if (kind && node.kind !== kind) return false;
+    if (!query) return true;
+    return (
+      node.id.toLowerCase().includes(query) ||
+      node.label.toLowerCase().includes(query)
+    );
+  });
+  const matchedIds = new Set(matchedNodes.map((node) => node.id));
+  const relatedEdges = graph.edges.filter(
+    (edge) => matchedIds.has(edge.from) || matchedIds.has(edge.to),
+  );
+  const relatedIds = new Set([...matchedIds]);
+  for (const edge of relatedEdges) {
+    relatedIds.add(edge.from);
+    relatedIds.add(edge.to);
+  }
+  const relatedNodes = graph.nodes.filter((node) => relatedIds.has(node.id));
+  return {
+    matchedNodes,
+    relatedEdges,
+    relatedNodes,
+  };
+}
+
+export function runJourney(options) {
+  const summary = validationSummary();
+  if (summary.errors.length > 0) {
+    const error = new Error('Journey QC artifacts are invalid.');
+    error.issues = summary.issues;
+    throw error;
+  }
+  const runPlan = materializeRunPlan(summary.catalog, options);
+  const runDir = path.resolve(repoRoot, runPlan.evidenceDir);
+  writeJsonFile(path.join(runDir, 'run-plan.json'), runPlan);
+  const { logs, result } = executeRunPlan(runPlan, options);
+  const bugs = extractBugCandidates(result, logs);
+  const gateSeverity = options.failOnBugSeverity ?? 'medium';
+  const gatedBugCount = bugs.filter((bug) =>
+    severityMeets(bug.severity, gateSeverity),
+  ).length;
+  logs.push(
+    logEntry({
+      level: bugs.length > 0 ? 'warn' : 'info',
+      service: 'journey.bugs',
+      event:
+        bugs.length > 0
+          ? 'bug.candidate_extracted'
+          : 'bug.extraction_completed',
+      message: `Bug extraction produced ${bugs.length} candidate(s).`,
+      classification: bugs.length > 0 ? 'actionable-warning' : undefined,
+      blocking: bugs.length > 0 ? gatedBugCount > 0 : undefined,
+      runPlan,
+      attempt: 0,
+      metadata: { bugCount: bugs.length },
+    }),
+  );
+  const paths = writeEvidenceBundle(runPlan, result, logs, bugs);
+  return {
+    bugs,
+    gatedBugCount,
+    paths,
+    result,
+    runPlan,
+  };
+}

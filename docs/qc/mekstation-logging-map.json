@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "title": "MekStation logging coverage map",
+  "requiredPathIds": [
+    "character-pilot-creation",
+    "mek-construction-export",
+    "encounter-launch",
+    "tactical-action-rejection",
+    "combat-simulation-terminal",
+    "match-replay-persistence",
+    "campaign-contract-resolution",
+    "campaign-repair-salvage-finance",
+    "api-payload-rejection",
+    "store-persistence-recovery",
+    "journey-runner-failure",
+    "bug-extraction"
+  ],
+  "paths": [
+    {
+      "pathId": "character-pilot-creation",
+      "service": "journey.character",
+      "events": ["character.created", "character.exported"],
+      "severity": "info",
+      "testRefs": [
+        "scripts/__tests__/journey-qc.test.ts",
+        "src/utils/__tests__/logger.test.ts"
+      ]
+    },
+    {
+      "pathId": "mek-construction-export",
+      "service": "journey.mek",
+      "events": ["mek.construction.input_resolved", "mek.exported"],
+      "severity": "info",
+      "testRefs": [
+        "scripts/__tests__/journey-qc.test.ts",
+        "src/utils/__tests__/logger.test.ts"
+      ]
+    },
+    {
+      "pathId": "encounter-launch",
+      "service": "journey.combat",
+      "events": ["encounter.launched"],
+      "severity": "info",
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    },
+    {
+      "pathId": "tactical-action-rejection",
+      "service": "journey.combat",
+      "events": ["tactical.action_rejected"],
+      "severity": "warn",
+      "classification": "diagnostic",
+      "blocking": false,
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    },
+    {
+      "pathId": "combat-simulation-terminal",
+      "service": "journey.combat",
+      "events": ["combat.terminal_state"],
+      "severity": "info",
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    },
+    {
+      "pathId": "match-replay-persistence",
+      "service": "journey.combat",
+      "events": ["replay.persisted"],
+      "severity": "info",
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    },
+    {
+      "pathId": "campaign-contract-resolution",
+      "service": "journey.campaign",
+      "events": [
+        "campaign.contract_selected",
+        "campaign.contract_resolved",
+        "campaign.sequence_resolved"
+      ],
+      "severity": "info",
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    },
+    {
+      "pathId": "campaign-repair-salvage-finance",
+      "service": "journey.campaign",
+      "events": ["campaign.economy_updated"],
+      "severity": "info",
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    },
+    {
+      "pathId": "api-payload-rejection",
+      "service": "journey.validation",
+      "events": ["api.payload_rejected"],
+      "severity": "warn",
+      "classification": "expected-probe",
+      "blocking": false,
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    },
+    {
+      "pathId": "store-persistence-recovery",
+      "service": "journey.persistence",
+      "events": ["store.recovery_checked"],
+      "severity": "info",
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    },
+    {
+      "pathId": "journey-runner-failure",
+      "service": "journey.runner",
+      "events": ["journey.step_failed", "journey.run_failed"],
+      "severity": "error",
+      "classification": "failure",
+      "blocking": true,
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    },
+    {
+      "pathId": "bug-extraction",
+      "service": "journey.bugs",
+      "events": ["bug.candidate_extracted"],
+      "severity": "warn",
+      "classification": "actionable-warning",
+      "blocking": true,
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    }
+  ]
+}
