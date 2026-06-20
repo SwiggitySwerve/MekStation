@@ -17,12 +17,12 @@
 
 ## 3. Cascade Preview Pipeline
 
-- [ ] 3.1 Implement pure preview generation for GM interventions that returns public net effect, private context, projected event effects, affected refs, and conflicts without mutating state.
-- [ ] 3.2 Implement approval flow that appends accepted intervention events only after GM approval.
-- [ ] 3.3 Implement blocked/deferred results for unsupported first-slice requests such as merchant reversal or accumulated time correction.
-- [ ] 3.4 Add tests proving preview does not mutate current game state or append events.
-- [ ] 3.5 Add tests proving approval appends the accepted intervention and updates derived state through normal event replay.
-- [ ] 3.6 Add regression coverage proving normal player undo remains separate from GM undo semantics.
+- [x] 3.1 Implement pure preview generation for GM interventions that returns public net effect, private context, projected event effects, affected refs, and conflicts without mutating state.
+- [x] 3.2 Implement approval flow that appends accepted intervention events only after GM approval.
+- [x] 3.3 Implement blocked/deferred results for unsupported first-slice requests such as merchant reversal or accumulated time correction.
+- [x] 3.4 Add tests proving preview does not mutate current game state or append events.
+- [x] 3.5 Add tests proving approval appends the accepted intervention and updates derived state through normal event replay.
+- [x] 3.6 Add regression coverage proving normal player undo remains separate from GM undo semantics.
 
 ## 4. Combat Intervention Implementer
 

@@ -1,4 +1,15 @@
 export {
+  approveGmCascadePreview,
+  cancelGmCascadePreview,
+  createGmCascadePreview,
+} from './GmCascadePreviewPipeline';
+
+export type {
+  IApproveGmCascadePreviewInput,
+  ICreateGmCascadePreviewInput,
+} from './GmCascadePreviewPipeline';
+
+export {
   buildGmInterventionRedactionEnvelope,
   evaluateGmInterventionAuthority,
   logGmInterventionAuthorizationFailure,

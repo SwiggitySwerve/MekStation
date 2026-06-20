@@ -1,4 +1,11 @@
 export type {
+  GmCascadePreviewStatus,
+  IGmCascadeApprovalResult,
+  IGmCascadeCancellationResult,
+  IGmCascadePreview,
+} from './GmCascadePreviewTypes';
+
+export type {
   GmAuthorityDecision,
   GmInterventionActorRole,
   GmInterventionAuthorityRejectionCode,
