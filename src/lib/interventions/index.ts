@@ -4,6 +4,13 @@ export {
   createGmCascadePreview,
   logGmDeferredInterventionAttempt,
 } from './GmCascadePreviewPipeline';
+export {
+  buildGmTacticalCommandIntent,
+  buildGmTacticalLedgerCommand,
+  createGmTacticalCommandPreview,
+  GM_TACTICAL_PREVIEW_ACTION_ID,
+  isGmTacticalCommandId,
+} from './GmTacticalCommandPreviewAdapter';
 
 export type {
   GmDeferredInterventionLogger,
@@ -11,6 +18,11 @@ export type {
   ICreateGmCascadePreviewInput,
   IGmDeferredInterventionAttemptLog,
 } from './GmCascadePreviewPipeline';
+export type {
+  GmTacticalCommandId,
+  ICreateGmTacticalCommandPreviewInput,
+  IGmTacticalCommandIntent,
+} from './GmTacticalCommandPreviewAdapter';
 
 export {
   createGmCombatInterventionImplementer,

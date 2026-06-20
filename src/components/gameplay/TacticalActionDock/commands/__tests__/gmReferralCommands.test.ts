@@ -8,6 +8,7 @@
  * @spec openspec/changes/add-tactical-action-menu-system/specs/tactical-map-interface/spec.md
  */
 
+import { GM_TACTICAL_PREVIEW_ACTION_ID } from '@/lib/interventions';
 import { GamePhase, type ITacticalCommandContext } from '@/types/gameplay';
 
 import { buildGmReferralCommands } from '../gmReferralCommands';
@@ -57,5 +58,28 @@ describe('gmReferralCommands', () => {
       available: true,
     });
     expect(cmd.requiresConfirmation).toBe(true);
+  });
+
+  it('commits structured GM intervention preview intents instead of legacy stubs', () => {
+    const advance = commands.find((c) => c.id === 'gm.advance-phase')!;
+    const damage = commands.find((c) => c.id === 'gm.set-damage')!;
+    const resource = commands.find((c) => c.id === 'gm.grant-resource')!;
+
+    expect(advance.commit(makeCtx())).toEqual({
+      actionId: GM_TACTICAL_PREVIEW_ACTION_ID,
+      payload: {
+        commandId: 'gm.advance-phase',
+        activeUnitId: 'unit-a',
+        selectedUnitId: 'unit-a',
+        targetUnitId: null,
+        phase: GamePhase.Movement,
+      },
+    });
+    expect(damage.commit(makeCtx()).actionId).toBe(
+      GM_TACTICAL_PREVIEW_ACTION_ID,
+    );
+    expect(resource.commit(makeCtx()).actionId).toBe(
+      GM_TACTICAL_PREVIEW_ACTION_ID,
+    );
   });
 });

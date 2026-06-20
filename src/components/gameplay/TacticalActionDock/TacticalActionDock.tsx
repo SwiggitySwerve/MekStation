@@ -32,9 +32,16 @@ import type {
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
+import { isGmTacticalCommandId } from '@/lib/interventions';
 import { GamePhase } from '@/types/gameplay';
 
 import { CommandTooltip } from './CommandTooltip';
+import {
+  GmInterventionConfirmationPanel,
+  GmInterventionPlayerLog,
+  type IGmPreviewState,
+  type IGmTacticalInterventionSurface,
+} from './TacticalActionDock.gmIntervention';
 import { CommandPreviewPanel } from './TacticalActionDock.preview';
 import {
   useCommandPreview,
@@ -62,6 +69,8 @@ export interface TacticalActionDockProps {
   readonly infoText?: string;
   /** Rules-backed projection inputs for the active command preview. */
   readonly previewInputs?: ICommandPreviewInputs;
+  /** Optional GM intervention service for command previews and approval. */
+  readonly gmIntervention?: IGmTacticalInterventionSurface;
   /** Optional className for styling. */
   readonly className?: string;
 }
@@ -251,8 +260,12 @@ export function TacticalActionDock({
   trailingActions,
   infoText,
   previewInputs,
+  gmIntervention,
   className = '',
 }: TacticalActionDockProps): React.ReactElement {
+  const [gmPreviewState, setGmPreviewState] = useState<IGmPreviewState | null>(
+    null,
+  );
   const effectiveCtx = useMemo<ITacticalCommandContext>(() => {
     if (
       !previewInputs?.movementInfo &&
@@ -300,6 +313,19 @@ export function TacticalActionDock({
         // tooltip is the explanation surface — no secondary toast.
         return;
       }
+      if (
+        command.category === 'gm' &&
+        gmIntervention &&
+        isGmTacticalCommandId(command.id)
+      ) {
+        const preview = gmIntervention.preview({
+          commandId: command.id,
+          command,
+          ctx: effectiveCtx,
+        });
+        setGmPreviewState({ commandLabel: command.label, preview });
+        return;
+      }
       if (command.requiresConfirmation) {
         // Spec `End phase distinguishes no-op from unresolved
         // actions` — irreversible commits route through the
@@ -320,8 +346,27 @@ export function TacticalActionDock({
         onAction(result.actionId, result.payload);
       }
     },
-    [effectiveCtx, onAction],
+    [effectiveCtx, gmIntervention, onAction],
   );
+
+  const approveGmPreview = useCallback(() => {
+    if (!gmPreviewState || gmPreviewState.preview.status !== 'ready') return;
+    gmIntervention?.approve?.(gmPreviewState.preview);
+    setGmPreviewState(null);
+  }, [gmIntervention, gmPreviewState]);
+
+  const cancelGmPreview = useCallback(() => {
+    if (gmPreviewState) {
+      gmIntervention?.cancel?.(gmPreviewState.preview);
+    }
+    setGmPreviewState(null);
+  }, [gmIntervention, gmPreviewState]);
+
+  const takeManualControl = useCallback(() => {
+    if (!gmPreviewState) return;
+    gmIntervention?.manualTakeover?.(gmPreviewState.preview);
+    setGmPreviewState(null);
+  }, [gmIntervention, gmPreviewState]);
 
   return (
     <div
@@ -351,6 +396,19 @@ export function TacticalActionDock({
       </div>
       <div className="flex items-center gap-3">
         {commandPreview && <CommandPreviewPanel preview={commandPreview} />}
+        {gmPreviewState && (
+          <GmInterventionConfirmationPanel
+            previewState={gmPreviewState}
+            onApprove={gmIntervention?.approve ? approveGmPreview : undefined}
+            onCancel={cancelGmPreview}
+            onManualTakeover={
+              gmIntervention?.manualTakeover ? takeManualControl : undefined
+            }
+          />
+        )}
+        {gmIntervention?.playerLog && (
+          <GmInterventionPlayerLog records={gmIntervention.playerLog} />
+        )}
         {infoText && (
           <div className="text-text-theme-secondary text-sm">{infoText}</div>
         )}
