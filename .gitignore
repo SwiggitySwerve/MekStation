@@ -44,6 +44,8 @@ scripts/**
 !scripts/jest/run-jest-lane.mjs
 !scripts/qc/
 !scripts/qc/**
+!scripts/__tests__/
+!scripts/__tests__/**
 
 # Development files (now organized in scripts/)
 /test-*

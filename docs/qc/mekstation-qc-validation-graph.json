@@ -1,0 +1,358 @@
+{
+  "version": 1,
+  "title": "MekStation QC validation graph",
+  "sourceCatalog": "docs/qc/mekstation-journey-scenarios.json",
+  "nodes": [
+    {
+      "id": "capability:journey-qc",
+      "kind": "capability",
+      "label": "Journey QC"
+    },
+    {
+      "id": "capability:logging-system",
+      "kind": "capability",
+      "label": "Logging System"
+    },
+    {
+      "id": "module:roster",
+      "kind": "module",
+      "label": "Roster and pilot setup",
+      "ownerPath": "src/services/forces"
+    },
+    {
+      "id": "module:construction",
+      "kind": "module",
+      "label": "BattleMech construction",
+      "ownerPath": "src/utils/construction"
+    },
+    {
+      "id": "module:combat",
+      "kind": "module",
+      "label": "Tactical combat and simulation",
+      "ownerPath": "src/utils/gameplay"
+    },
+    {
+      "id": "module:campaign",
+      "kind": "module",
+      "label": "Campaign economy and progression",
+      "ownerPath": "src/stores/campaign"
+    },
+    {
+      "id": "submodule:pilot-generation",
+      "kind": "submodule",
+      "label": "Pilot generation"
+    },
+    {
+      "id": "submodule:battlemech-export",
+      "kind": "submodule",
+      "label": "BattleMech validation and export"
+    },
+    {
+      "id": "submodule:combat-terminal-state",
+      "kind": "submodule",
+      "label": "Combat terminal state"
+    },
+    {
+      "id": "submodule:campaign-economy",
+      "kind": "submodule",
+      "label": "Campaign repair, salvage, and finance"
+    },
+    {
+      "id": "journey:character-build",
+      "kind": "journey",
+      "label": "Character build"
+    },
+    {
+      "id": "journey:mek-build",
+      "kind": "journey",
+      "label": "BattleMech build"
+    },
+    {
+      "id": "journey:combat-1v1",
+      "kind": "journey",
+      "label": "BattleMech 1v1 combat"
+    },
+    {
+      "id": "journey:combat-4v4",
+      "kind": "journey",
+      "label": "BattleMech 4v4 combat"
+    },
+    {
+      "id": "journey:contract-campaign",
+      "kind": "journey",
+      "label": "Contract campaign scenario"
+    },
+    {
+      "id": "journey:campaign-short",
+      "kind": "journey",
+      "label": "Short campaign"
+    },
+    {
+      "id": "journey:campaign-long",
+      "kind": "journey",
+      "label": "Long campaign"
+    },
+    {
+      "id": "command:qc-journeys",
+      "kind": "command",
+      "label": "npm.cmd run qc:journeys"
+    },
+    {
+      "id": "command:qc-journeys-validate",
+      "kind": "command",
+      "label": "npm.cmd run qc:journeys:validate"
+    },
+    {
+      "id": "command:qc-journeys-bugs",
+      "kind": "command",
+      "label": "npm.cmd run qc:journeys:bugs"
+    },
+    {
+      "id": "command:qc-logs",
+      "kind": "command",
+      "label": "npm.cmd run qc:logs"
+    },
+    {
+      "id": "command:qc-graph",
+      "kind": "command",
+      "label": "npm.cmd run qc:graph"
+    },
+    {
+      "id": "evidence:qc-journeys",
+      "kind": "evidence",
+      "label": ".sisyphus/evidence/qc-journeys"
+    },
+    {
+      "id": "log-event:character.created",
+      "kind": "log-event",
+      "label": "character.created"
+    },
+    {
+      "id": "log-event:mek.exported",
+      "kind": "log-event",
+      "label": "mek.exported"
+    },
+    {
+      "id": "log-event:encounter.launched",
+      "kind": "log-event",
+      "label": "encounter.launched"
+    },
+    {
+      "id": "log-event:tactical.action_rejected",
+      "kind": "log-event",
+      "label": "tactical.action_rejected"
+    },
+    {
+      "id": "log-event:combat.terminal_state",
+      "kind": "log-event",
+      "label": "combat.terminal_state"
+    },
+    {
+      "id": "log-event:campaign.contract_resolved",
+      "kind": "log-event",
+      "label": "campaign.contract_resolved"
+    },
+    {
+      "id": "log-event:campaign.economy_updated",
+      "kind": "log-event",
+      "label": "campaign.economy_updated"
+    },
+    {
+      "id": "known-gap:browser-campaign-standard",
+      "kind": "known-gap",
+      "label": "Standard campaign journey is headless-first"
+    }
+  ],
+  "edges": [
+    {
+      "from": "capability:journey-qc",
+      "to": "journey:character-build",
+      "relation": "contains"
+    },
+    {
+      "from": "capability:journey-qc",
+      "to": "journey:mek-build",
+      "relation": "contains"
+    },
+    {
+      "from": "capability:journey-qc",
+      "to": "journey:combat-1v1",
+      "relation": "contains"
+    },
+    {
+      "from": "capability:journey-qc",
+      "to": "journey:combat-4v4",
+      "relation": "contains"
+    },
+    {
+      "from": "capability:journey-qc",
+      "to": "journey:contract-campaign",
+      "relation": "contains"
+    },
+    {
+      "from": "capability:journey-qc",
+      "to": "journey:campaign-short",
+      "relation": "contains"
+    },
+    {
+      "from": "capability:journey-qc",
+      "to": "journey:campaign-long",
+      "relation": "contains"
+    },
+    {
+      "from": "module:roster",
+      "to": "submodule:pilot-generation",
+      "relation": "contains"
+    },
+    {
+      "from": "module:construction",
+      "to": "submodule:battlemech-export",
+      "relation": "contains"
+    },
+    {
+      "from": "module:combat",
+      "to": "submodule:combat-terminal-state",
+      "relation": "contains"
+    },
+    {
+      "from": "module:campaign",
+      "to": "submodule:campaign-economy",
+      "relation": "contains"
+    },
+    {
+      "from": "journey:character-build",
+      "to": "module:roster",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:mek-build",
+      "to": "module:construction",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:combat-1v1",
+      "to": "module:combat",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:combat-4v4",
+      "to": "module:combat",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:contract-campaign",
+      "to": "module:campaign",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:campaign-short",
+      "to": "module:campaign",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:campaign-long",
+      "to": "module:campaign",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:character-build",
+      "to": "command:qc-journeys",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:mek-build",
+      "to": "command:qc-journeys",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:combat-1v1",
+      "to": "command:qc-journeys",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:combat-4v4",
+      "to": "command:qc-journeys",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:contract-campaign",
+      "to": "command:qc-journeys",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:campaign-short",
+      "to": "command:qc-journeys",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:campaign-long",
+      "to": "command:qc-journeys",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:qc-journeys",
+      "to": "evidence:qc-journeys",
+      "relation": "produces"
+    },
+    {
+      "from": "command:qc-journeys-bugs",
+      "to": "evidence:qc-journeys",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:qc-logs",
+      "to": "evidence:qc-journeys",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:character-build",
+      "to": "log-event:character.created",
+      "relation": "logs"
+    },
+    {
+      "from": "journey:mek-build",
+      "to": "log-event:mek.exported",
+      "relation": "logs"
+    },
+    {
+      "from": "journey:combat-1v1",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "journey:combat-1v1",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "journey:combat-1v1",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "journey:combat-4v4",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "journey:contract-campaign",
+      "to": "log-event:campaign.contract_resolved",
+      "relation": "logs"
+    },
+    {
+      "from": "journey:campaign-short",
+      "to": "log-event:campaign.economy_updated",
+      "relation": "logs"
+    },
+    {
+      "from": "journey:campaign-long",
+      "to": "log-event:campaign.economy_updated",
+      "relation": "logs"
+    },
+    {
+      "from": "journey:campaign-long",
+      "to": "known-gap:browser-campaign-standard",
+      "relation": "documents-gap"
+    }
+  ]
+}
