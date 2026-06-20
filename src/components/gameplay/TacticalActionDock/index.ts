@@ -14,6 +14,11 @@ export {
   TacticalActionDock,
   type TacticalActionDockProps,
 } from './TacticalActionDock';
+export type {
+  IGmPreviewState,
+  IGmTacticalCommandPreviewRequest,
+  IGmTacticalInterventionSurface,
+} from './TacticalActionDock.gmIntervention';
 
 export {
   TokenContextMenu,

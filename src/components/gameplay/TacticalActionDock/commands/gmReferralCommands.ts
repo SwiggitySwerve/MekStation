@@ -2,14 +2,10 @@
  * GM / referee command family — advance phase by force, set damage,
  * grant resource.
  *
- * GM commands are filtered out of the registry for non-GM shellModes
- * (`combat`, `replay`, `spectator`). The registry hook reads
- * `shellMode` from the shell context and only includes this family
- * when `shellMode === 'gm'`.
- *
- * TODO(wave-8): when role-based gating lands the registry will gate
- * GM commands on `viewerPlayerId === matchOwnerId` AND `shellMode === 'gm'`,
- * not just shellMode.
+ * GM commands are filtered out of the registry for non-GM shellModes as an
+ * ergonomic visibility rule. Every command commits a GM intervention preview
+ * intent; the intervention service still owns authority, redaction, and
+ * approval.
  *
  * @spec openspec/changes/add-tactical-action-menu-system/specs/tactical-map-interface/spec.md
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.2
@@ -18,10 +14,12 @@
 import type { ITacticalCommand } from '@/types/gameplay';
 
 import {
-  ALL_GAME_PHASES,
-  alwaysAvailable,
-  commitStaticAction,
-} from './commandDescriptorHelpers';
+  buildGmTacticalCommandIntent,
+  GM_TACTICAL_PREVIEW_ACTION_ID,
+  type GmTacticalCommandId,
+} from '@/lib/interventions';
+
+import { ALL_GAME_PHASES, alwaysAvailable } from './commandDescriptorHelpers';
 
 export function buildGmReferralCommands(): readonly ITacticalCommand[] {
   return [GmAdvancePhaseCommand, GmSetDamageCommand, GmGrantResourceCommand];
@@ -35,7 +33,7 @@ const GmAdvancePhaseCommand: ITacticalCommand = {
   requiresConfirmation: true, // GM force-advance bypasses validation.
   undoable: false,
   availability: alwaysAvailable,
-  commit: commitStaticAction('gm-advance-phase'),
+  commit: commitGmPreviewIntent('gm.advance-phase'),
 };
 
 const GmSetDamageCommand: ITacticalCommand = {
@@ -55,7 +53,7 @@ const GmSetDamageCommand: ITacticalCommand = {
     }
     return { available: true };
   },
-  commit: commitStaticAction('gm-set-damage'),
+  commit: commitGmPreviewIntent('gm.set-damage'),
 };
 
 const GmGrantResourceCommand: ITacticalCommand = {
@@ -66,5 +64,12 @@ const GmGrantResourceCommand: ITacticalCommand = {
   requiresConfirmation: false,
   undoable: true,
   availability: alwaysAvailable,
-  commit: commitStaticAction('gm-grant-resource'),
+  commit: commitGmPreviewIntent('gm.grant-resource'),
 };
+
+function commitGmPreviewIntent(commandId: GmTacticalCommandId) {
+  return (ctx: Parameters<ITacticalCommand['commit']>[0]) => ({
+    actionId: GM_TACTICAL_PREVIEW_ACTION_ID,
+    payload: buildGmTacticalCommandIntent(commandId, ctx),
+  });
+}

@@ -45,11 +45,11 @@
 
 ## 6. Tactical Command Surface
 
-- [ ] 6.1 Replace TacticalActionDock GM command stubs with calls into the GM intervention preview pipeline.
-- [ ] 6.2 Ensure shell mode controls visibility/ergonomics only; service-level authority remains required for every GM command.
-- [ ] 6.3 Add confirmation UI that shows GM-private detail, player-public net effect, conflicts, and manual-takeover state before approval.
-- [ ] 6.4 Add player-facing log/replay UI coverage showing only resulting state and public net effect.
-- [ ] 6.5 Add accessibility coverage for the GM confirmation/manual takeover controls.
+- [x] 6.1 Replace TacticalActionDock GM command stubs with calls into the GM intervention preview pipeline.
+- [x] 6.2 Ensure shell mode controls visibility/ergonomics only; service-level authority remains required for every GM command.
+- [x] 6.3 Add confirmation UI that shows GM-private detail, player-public net effect, conflicts, and manual-takeover state before approval.
+- [x] 6.4 Add player-facing log/replay UI coverage showing only resulting state and public net effect.
+- [x] 6.5 Add accessibility coverage for the GM confirmation/manual takeover controls.
 
 ## 7. Campaign Boundary and Deferred Cascades
 
@@ -60,8 +60,16 @@
 
 ## 8. Validation
 
-- [ ] 8.1 Run targeted GM intervention unit tests and integration tests.
-- [ ] 8.2 Run relevant gameplay event/reducer, fog/redaction, encounter launch, and tactical command tests.
-- [ ] 8.3 Run LSP diagnostics or TypeScript checks over changed files.
-- [ ] 8.4 Run `cmd /c openspec validate add-gm-intervention-control-plane --strict`.
-- [ ] 8.5 Update the task checklist with completed verification evidence before archive or PR handoff.
+- [x] 8.1 Run targeted GM intervention unit tests and integration tests.
+- [x] 8.2 Run relevant gameplay event/reducer, fog/redaction, encounter launch, and tactical command tests.
+- [x] 8.3 Run LSP diagnostics or TypeScript checks over changed files.
+- [x] 8.4 Run `cmd /c openspec validate add-gm-intervention-control-plane --strict`.
+- [x] 8.5 Update the task checklist with completed verification evidence before archive or PR handoff.
+
+Verification evidence:
+
+- `npm.cmd test -- src/lib/interventions/__tests__ src/components/gameplay/TacticalActionDock src/lib/campaign/encounter/__tests__/launchCampaignEncounter.test.ts src/lib/multiplayer/server/__tests__/fogOfWar.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts src/components/gameplay/__tests__/GameplayLayout.viewModel.test.ts src/__tests__/unit/utils/gameplay/gameSession.test.ts src/utils/gameplay/gameState/__tests__/phaseManagement.test.ts`
+- `npx.cmd tsc --noEmit --skipLibCheck --pretty false`
+- `npx.cmd oxlint src/lib/interventions src/components/gameplay/TacticalActionDock src/types/interventions`
+- `npx.cmd oxfmt --check src/lib/interventions/GmTacticalCommandPreviewAdapter.ts src/lib/interventions/index.ts src/lib/interventions/__tests__/GmTacticalCommandPreviewAdapter.test.ts src/components/gameplay/TacticalActionDock/TacticalActionDock.tsx src/components/gameplay/TacticalActionDock/TacticalActionDock.gmIntervention.tsx src/components/gameplay/TacticalActionDock/index.ts src/components/gameplay/TacticalActionDock/commands/gmReferralCommands.ts src/components/gameplay/TacticalActionDock/commands/__tests__/gmReferralCommands.test.ts src/components/gameplay/TacticalActionDock/__tests__/TacticalActionDock.04.gmIntervention.test.tsx openspec/changes/add-gm-intervention-control-plane/specs/gm-tactical-command-surface/spec.md`
+- `cmd /c openspec validate add-gm-intervention-control-plane --strict`
