@@ -9,6 +9,8 @@ import type {
   InterventionDomain,
 } from '@/types/interventions';
 
+import { logger } from '@/utils/logger';
+
 import type { InterventionLedger } from './InterventionLedger';
 
 import { previewGmInterventionWithAuthority } from './GmInterventionAuthority';
@@ -23,6 +25,8 @@ export interface ICreateGmCascadePreviewInput<
   readonly authority: IGmAuthorityContext;
   readonly interventionId?: string;
   readonly now?: () => string;
+  readonly logDeferred?: boolean;
+  readonly emitDeferredLog?: GmDeferredInterventionLogger;
 }
 
 export interface IApproveGmCascadePreviewInput<
@@ -47,6 +51,23 @@ const DEFERRED_FIRST_SLICE_DOMAINS = new Set<InterventionDomain>([
 ]);
 
 let generatedIdSequence = 0;
+
+export interface IGmDeferredInterventionAttemptLog {
+  readonly level: 'warn';
+  readonly service: 'gm-intervention';
+  readonly event: 'domain-deferred';
+  readonly message: string;
+  readonly actorId: string;
+  readonly domain: string;
+  readonly kind: string;
+  readonly targetRefs: readonly string[];
+  readonly deferredReason: string;
+}
+
+export type GmDeferredInterventionLogger = (
+  message: string,
+  entry: IGmDeferredInterventionAttemptLog,
+) => void;
 
 export function createGmCascadePreview<TState, TCommandPayload>(
   input: ICreateGmCascadePreviewInput<TState, TCommandPayload>,
@@ -82,7 +103,7 @@ export function createGmCascadePreview<TState, TCommandPayload>(
       ? 'deferred'
       : normalizePreviewStatus(previewResult);
 
-  return {
+  const preview: IGmCascadePreview = {
     interventionId: resolvedInterventionId,
     status,
     domain: previewResult.domain,
@@ -99,6 +120,37 @@ export function createGmCascadePreview<TState, TCommandPayload>(
     supersedes: previewResult.supersedes,
     reason: previewResult.reason,
   };
+
+  if (preview.status === 'deferred' && input.logDeferred !== false) {
+    logGmDeferredInterventionAttempt(preview, input.emitDeferredLog);
+  }
+
+  return preview;
+}
+
+export function logGmDeferredInterventionAttempt(
+  preview: Pick<
+    IGmCascadePreview,
+    'actorId' | 'domain' | 'kind' | 'targetRefs' | 'reason'
+  >,
+  emit: GmDeferredInterventionLogger = logger.warn,
+): IGmDeferredInterventionAttemptLog {
+  const entry: IGmDeferredInterventionAttemptLog = {
+    level: 'warn',
+    service: 'gm-intervention',
+    event: 'domain-deferred',
+    message: 'Deferred GM intervention domain without mutation.',
+    actorId: preview.actorId,
+    domain: preview.domain,
+    kind: preview.kind,
+    targetRefs: preview.targetRefs,
+    deferredReason:
+      preview.reason ??
+      `GM intervention domain "${preview.domain}" is deferred in this slice.`,
+  };
+
+  emit('[gm-intervention:domain-deferred]', entry);
+  return entry;
 }
 
 export function approveGmCascadePreview<
