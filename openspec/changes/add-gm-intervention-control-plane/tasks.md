@@ -26,13 +26,13 @@
 
 ## 4. Combat Intervention Implementer
 
-- [ ] 4.1 Register a combat-domain implementer with the reusable intervention ledger.
-- [ ] 4.2 Implement preview/apply support for reposition and facing corrections.
-- [ ] 4.3 Implement preview/apply support for damage and critical state corrections.
-- [ ] 4.4 Implement preview/apply support for heat and ammo corrections.
-- [ ] 4.5 Implement preview/apply support for phase, initiative, and turn ownership corrections.
-- [ ] 4.6 Implement preview/apply support for ejection, withdrawal, disabled, destroyed, and rescued lifecycle corrections.
-- [ ] 4.7 Add reducer and replay tests for every first-slice combat intervention family.
+- [x] 4.1 Register a combat-domain implementer with the reusable intervention ledger.
+- [x] 4.2 Implement preview/apply support for reposition and facing corrections.
+- [x] 4.3 Implement preview/apply support for damage and critical state corrections.
+- [x] 4.4 Implement preview/apply support for heat and ammo corrections.
+- [x] 4.5 Implement preview/apply support for phase, initiative, and turn ownership corrections.
+- [x] 4.6 Implement preview/apply support for ejection, withdrawal, disabled, destroyed, and rescued lifecycle corrections.
+- [x] 4.7 Add reducer and replay tests for every first-slice combat intervention family.
 
 ## 5. Unit Reload Implementer
 

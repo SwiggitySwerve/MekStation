@@ -10,6 +10,16 @@ export type {
 } from './GmCascadePreviewPipeline';
 
 export {
+  createGmCombatInterventionImplementer,
+  registerGmCombatInterventionImplementer,
+} from './GmCombatInterventionImplementer';
+
+export {
+  applyGmCombatProjectedEffects,
+  projectCombatEffectsForRecord,
+} from './GmCombatInterventionProjection';
+
+export {
   buildGmInterventionRedactionEnvelope,
   evaluateGmInterventionAuthority,
   logGmInterventionAuthorizationFailure,
