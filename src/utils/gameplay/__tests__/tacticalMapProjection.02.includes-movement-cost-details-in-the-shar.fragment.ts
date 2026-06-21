@@ -47,8 +47,6 @@ describe('tacticalMapProjection', () => {
         standUpPsrModifierDetails: ['Careful stand -2'],
       }),
       combat: undefined,
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });
@@ -90,8 +88,6 @@ describe('tacticalMapProjection', () => {
         automaticLandingMinimumDistance: 3,
       }),
       combat: undefined,
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });
@@ -127,8 +123,6 @@ describe('tacticalMapProjection', () => {
         hullDownExitCost: 2,
       }),
       combat: undefined,
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });
@@ -160,8 +154,6 @@ describe('tacticalMapProjection', () => {
         heatGenerated: 0,
       }),
       combat: undefined,
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });
@@ -186,8 +178,6 @@ describe('tacticalMapProjection', () => {
         heatGenerated: 0,
       }),
       combat: undefined,
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });

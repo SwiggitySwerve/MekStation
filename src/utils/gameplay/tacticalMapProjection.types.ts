@@ -78,8 +78,6 @@ export interface ITacticalMapHexProjection {
   readonly movement?: IMovementRangeHex;
   readonly combat?: ICombatRangeHex;
   readonly combatLosBlockerFor: readonly ITacticalMapCombatLosBlockerReference[];
-  readonly isSelected: boolean;
-  readonly isHovered: boolean;
   readonly pathIndex?: number;
   readonly inAttackRange: boolean;
   readonly intent: TacticalMapHexProjectionIntent;
@@ -100,8 +98,6 @@ export interface BuildTacticalMapHexProjectionLookupInput {
   readonly terrainLookup: ReadonlyMap<string, IHexTerrain>;
   readonly movementRangeLookup: ReadonlyMap<string, IMovementRangeHex>;
   readonly combatRangeLookup: ReadonlyMap<string, ICombatRangeHex>;
-  readonly selectedHex?: IHexCoordinate | null;
-  readonly hoveredHex?: IHexCoordinate | null;
   readonly highlightPathIndexLookup?: ReadonlyMap<string, number>;
   readonly legacyAttackRangeLookup?: ReadonlySet<string>;
 }

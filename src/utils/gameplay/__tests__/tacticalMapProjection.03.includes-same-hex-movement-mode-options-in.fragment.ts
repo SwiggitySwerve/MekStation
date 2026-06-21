@@ -55,8 +55,6 @@ describe('tacticalMapProjection', () => {
         ],
       }),
       combat: undefined,
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });
@@ -129,8 +127,6 @@ describe('tacticalMapProjection', () => {
         ],
       }),
       combat: undefined,
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });
@@ -161,8 +157,6 @@ describe('tacticalMapProjection', () => {
         indirectFireToHitPenalty: 1,
         indirectFireReason: 'Indirect fire via spotter-1 adds +1',
       }),
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });

@@ -3,10 +3,12 @@ import { render, screen } from '@testing-library/react';
 
 import type { ICombatRangeHex, IHexCoordinate } from '@/types/gameplay';
 
+import { generateHexesInRadius } from '@/components/gameplay/HexMapDisplay/renderHelpers';
 import { Facing } from '@/types/gameplay';
 import { RangeBracket } from '@/types/gameplay/HexGridInterfaces';
 import { CoverLevel } from '@/types/gameplay/TerrainTypes';
 import { coordToKey, hexNeighbor } from '@/utils/gameplay/hexMath';
+import { classifyFiringArcHexes } from '@/utils/overlays/arcClassifier';
 
 import {
   FiringArcOverlay,
@@ -223,6 +225,63 @@ describe('FiringArcOverlay', () => {
       screen.getByTestId(`firing-arc-hex-0,-${range}`),
     ).toBeInTheDocument();
     expect(screen.queryByTestId(`firing-arc-hex-0,-${range + 1}`)).toBeNull();
+  });
+
+  it('bounds long-range wide-arc text labels while preserving shaded arc coverage', () => {
+    const longRangeHexes = generateHexesInRadius(23);
+    const expectedArcHexes = classifyFiringArcHexes(unit, longRangeHexes, {
+      maxRange: 23,
+      includeOrigin: false,
+      visibleArcs: ['front'],
+    }).filter((classification) => classification.arc !== 'out-of-arc');
+
+    expect(expectedArcHexes.length).toBeGreaterThan(100);
+
+    renderOverlay({
+      hexes: longRangeHexes,
+      maxRange: 23,
+      visibleArcs: ['front'],
+    });
+
+    expect(screen.getAllByTestId(/^firing-arc-hex-/)).toHaveLength(
+      expectedArcHexes.length,
+    );
+    expect(screen.getAllByTestId(/^firing-arc-fill-/)).toHaveLength(
+      expectedArcHexes.length,
+    );
+    expect(screen.getAllByTestId(/^firing-arc-shape-/)).toHaveLength(
+      expectedArcHexes.length,
+    );
+    expect(
+      screen.getAllByTestId(/^firing-arc-label-/).length,
+    ).toBeLessThanOrEqual(4);
+  });
+
+  it('suppresses arc text labels below the zoom threshold while preserving shaded coverage', () => {
+    const longRangeHexes = generateHexesInRadius(18);
+    const expectedArcHexes = classifyFiringArcHexes(unit, longRangeHexes, {
+      maxRange: 18,
+      includeOrigin: false,
+      visibleArcs: ['front'],
+    }).filter((classification) => classification.arc !== 'out-of-arc');
+
+    renderOverlay({
+      hexes: longRangeHexes,
+      maxRange: 18,
+      visibleArcs: ['front'],
+      zoom: 0.5,
+    });
+
+    expect(screen.getAllByTestId(/^firing-arc-hex-/)).toHaveLength(
+      expectedArcHexes.length,
+    );
+    expect(screen.getAllByTestId(/^firing-arc-fill-/)).toHaveLength(
+      expectedArcHexes.length,
+    );
+    expect(screen.getAllByTestId(/^firing-arc-shape-/)).toHaveLength(
+      expectedArcHexes.length,
+    );
+    expect(screen.queryAllByTestId(/^firing-arc-label-/)).toHaveLength(0);
   });
 
   it('exposes a memo comparator to avoid rerendering for semantically identical map props', () => {

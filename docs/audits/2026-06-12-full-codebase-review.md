@@ -105,9 +105,9 @@ Each line: severity/lens · finding · `file` · MegaMek/MekHQ ref where applica
 
 ### Cluster T — Tactical-map perf & legibility (`product`)
 
-- **T-1 (high)** **Every hover rebuilds the entire per-hex projection map** — `tacticalMapProjectionLookup` depends on `hoveredHex`; `buildTacticalMapHexProjectionLookup` mints fresh per-hex objects (incl. freshly-allocated arrays) for ~1000 hexes, defeating `HexCell`'s `React.memo`, so the whole board re-renders on every mouse-move. Uncovered by any active change. `HexMapDisplay/HexMapDisplay.state.tsx:183`.
+- **T-1 (high) — resolved by `fix-tactical-map-perf-and-legibility`** Hover/selection are now removed from the shared per-hex projection lookup and flow through scalar `HexCell` props, so pure hover changes no longer rebuild `tacticalMapProjectionLookup`; the render-stability suite asserts only the exited and entered hexes re-render on a ~1000-hex map and the projection builder is not re-invoked across hover moves. `HexMapDisplay.state.tsx` · `HexMapDisplay.renderHexCell.tsx` · `HexMapDisplay.renderStability.test.tsx`.
 - **T-2 (high)** **`ElevationBadge` renders on every hex unconditionally** including elevation-0 (white "0" on every flat tile), no zoom gate, no toggle, center-top anchor overlapping unit tokens. _The active `add-topdown-tactical-legibility` proposal's "Why" is factually wrong at HEAD_ — the badge exists; the work is to gate/anchor it, not add it. `HexCell.labels.tsx:359`.
-- **T-3 (high)** **`FiringArcOverlay` stamps a fill + shape + text badge ("FRONT"/"L ARC") on every in-arc hex** out to weapon max range — a wall of labels (a 120° arc at range 18-23 covers 340-550 hexes). No active change touches it. `overlays/FiringArcOverlay.tsx:276`.
+- **T-3 (high) — resolved by `fix-tactical-map-perf-and-legibility`** `FiringArcOverlay` still renders fill and shape coverage for every in-arc hex, but text labels are capped to representative per-arc positions and suppressed below the configured zoom threshold; tests pin long-range front-arc coverage against `classifyFiringArcHexes` while bounding label count. `overlays/FiringArcOverlay.tsx` · `FiringArcOverlay.test.tsx`.
 
 ### Cluster E — Interactive engine wiring & state integrity (`health`)
 

@@ -26,21 +26,18 @@ import {
 import { isRepresentedMinefieldTerrain } from './tacticalMapProjection.sourceReferences';
 
 export function deriveProjectionIntent({
-  isSelected,
   pathIndex,
   movement,
   combat,
   inAttackRange,
   combatLosBlockerFor,
 }: {
-  readonly isSelected: boolean;
   readonly pathIndex?: number;
   readonly movement?: IMovementRangeHex;
   readonly combat?: ICombatRangeHex;
   readonly inAttackRange: boolean;
   readonly combatLosBlockerFor: readonly ITacticalMapCombatLosBlockerReference[];
 }): TacticalMapHexProjectionIntent {
-  if (isSelected) return 'selected';
   if (pathIndex !== undefined) return 'path';
   if (movement && (combat?.hasTarget || inAttackRange)) {
     return 'movement-combat';

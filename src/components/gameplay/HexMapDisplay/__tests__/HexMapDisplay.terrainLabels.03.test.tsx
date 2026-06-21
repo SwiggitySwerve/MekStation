@@ -121,6 +121,15 @@ describe('HexMapDisplay terrain and elevation labels', () => {
       />,
     );
 
+    expect(screen.getByTestId('hex-overlay-0-0')).toHaveAttribute(
+      'data-hex-overlay-kind',
+      'selected',
+    );
+    expect(screen.getByTestId('hex-0-0')).toHaveAttribute(
+      'data-tactical-projection-intent',
+      'selected',
+    );
+
     fireEvent.click(screen.getByTestId('overlay-toggle-movement'));
     fireEvent.click(screen.getByTestId('overlay-toggle-cover'));
     fireEvent.click(screen.getByTestId('overlay-toggle-los'));

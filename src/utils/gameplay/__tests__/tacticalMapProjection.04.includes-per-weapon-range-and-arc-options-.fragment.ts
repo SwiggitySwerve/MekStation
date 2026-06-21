@@ -82,8 +82,6 @@ describe('tacticalMapProjection', () => {
         availableWeaponHeat: 3,
         availableWeaponDamage: 5,
       }),
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });
@@ -146,8 +144,6 @@ describe('tacticalMapProjection', () => {
         availableWeaponDamage: 9,
         expectedDamage: 4.2,
       }),
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });

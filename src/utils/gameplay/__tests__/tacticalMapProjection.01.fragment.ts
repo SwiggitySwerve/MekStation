@@ -27,15 +27,12 @@ describe('tacticalMapProjection', () => {
       terrain: terrain(2, TerrainType.Rough),
       movement: movement(),
       combat: combat(),
-      isSelected: false,
-      isHovered: true,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });
 
     expect(projection).toMatchObject({
       key: '1,0',
-      isHovered: true,
       inAttackRange: true,
       intent: 'movement-combat',
       status: 'legal',
@@ -126,8 +123,6 @@ describe('tacticalMapProjection', () => {
       },
       movement: undefined,
       combat: undefined,
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });
@@ -163,8 +158,6 @@ describe('tacticalMapProjection', () => {
       },
       movement: undefined,
       combat: undefined,
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });
@@ -201,8 +194,6 @@ describe('tacticalMapProjection', () => {
       combat: combat({
         attackable: true,
       }),
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });
