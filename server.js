@@ -21,11 +21,45 @@
  * @spec openspec/specs/multiplayer-server/spec.md
  */
 
+const { createPublicKey, verify: verifySignature } = require('node:crypto');
+const fs = require('node:fs');
 const { createServer } = require('node:http');
+const path = require('node:path');
 const { parse } = require('node:url');
-const { webcrypto } = require('node:crypto');
 const next = require('next');
 const { WebSocketServer } = require('ws');
+
+const STANDALONE_NEXT_CONFIG_PATH = path.join(
+  __dirname,
+  'server.next-config.json',
+);
+const isStandaloneRuntime =
+  fs.existsSync(path.join(__dirname, '.next')) &&
+  fs.existsSync(STANDALONE_NEXT_CONFIG_PATH);
+let standaloneNextConfig = null;
+const traceMultiplayerSocket = process.env.MULTIPLAYER_SOCKET_TRACE === '1';
+
+function traceSocket(message) {
+  if (!traceMultiplayerSocket) return;
+  // eslint-disable-next-line no-console
+  console.log(`[mp-socket:trace] ${message}`);
+}
+
+if (isStandaloneRuntime) {
+  process.env.NODE_ENV = 'production';
+  process.chdir(__dirname);
+  try {
+    standaloneNextConfig = JSON.parse(
+      fs.readFileSync(STANDALONE_NEXT_CONFIG_PATH, 'utf8'),
+    );
+    process.env.__NEXT_PRIVATE_STANDALONE_CONFIG =
+      JSON.stringify(standaloneNextConfig);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[mp-boot] failed to read standalone Next config', err);
+    process.exit(1);
+  }
+}
 
 // =============================================================================
 // Inlined Wave 2 token verification (mirror of src/lib/multiplayer/server/auth.ts)
@@ -42,6 +76,7 @@ const BASE58_ALPHABET =
 const PLAYER_ID_PREFIX = 'pid_';
 const PLAYER_ID_BYTES = 20;
 const CLOCK_DRIFT_MS = 10_000;
+const ED25519_SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
 
 function bytesToBase58(bytes) {
   if (bytes.length === 0) return '';
@@ -72,6 +107,14 @@ function deriveServerPlayerId(publicKeyBytes) {
 function canonicalPayload(playerId, issuedAt, expiresAt) {
   // Object key order MUST be alphabetical — matches TS auth.ts canonicalTokenPayload.
   return JSON.stringify({ expiresAt, issuedAt, playerId });
+}
+
+function createEd25519PublicKey(publicKeyBytes) {
+  return createPublicKey({
+    key: Buffer.concat([ED25519_SPKI_PREFIX, Buffer.from(publicKeyBytes)]),
+    format: 'der',
+    type: 'spki',
+  });
 }
 
 function decodeWireToken(wire) {
@@ -106,9 +149,11 @@ function decodeWireToken(wire) {
  * Verify a wire-format token. Returns `{ ok: true, playerId }` on
  * success, or `{ ok: false, reason }` on failure.
  */
-async function verifyWireToken(wire, nowMs = Date.now()) {
+function verifyWireToken(wire, nowMs = Date.now()) {
+  traceSocket('verify start');
   const token = decodeWireToken(wire);
   if (!token) return { ok: false, reason: 'malformed' };
+  traceSocket(`verify decoded playerId=${token.playerId}`);
 
   const expiresMs = Date.parse(token.expiresAt);
   if (!Number.isFinite(expiresMs)) return { ok: false, reason: 'malformed' };
@@ -128,6 +173,9 @@ async function verifyWireToken(wire, nowMs = Date.now()) {
   } catch {
     return { ok: false, reason: 'malformed' };
   }
+  traceSocket(
+    `verify bytes publicKey=${publicKeyBytes.length} signature=${signatureBytes.length}`,
+  );
   const derivedId = deriveServerPlayerId(publicKeyBytes);
   if (!derivedId || derivedId !== token.playerId) {
     return { ok: false, reason: 'pid-mismatch' };
@@ -138,25 +186,22 @@ async function verifyWireToken(wire, nowMs = Date.now()) {
     token.issuedAt,
     token.expiresAt,
   );
-  const payloadBytes = new TextEncoder().encode(payload);
+  const payloadBytes = Buffer.from(payload, 'utf8');
   let verified = false;
   try {
-    const key = await webcrypto.subtle.importKey(
-      'raw',
-      publicKeyBytes,
-      { name: 'Ed25519' },
-      false,
-      ['verify'],
-    );
-    verified = await webcrypto.subtle.verify(
-      'Ed25519',
-      key,
-      signatureBytes,
+    traceSocket('verify create public key');
+    const key = createEd25519PublicKey(publicKeyBytes);
+    traceSocket('verify signature');
+    verified = verifySignature(
+      null,
       payloadBytes,
+      key,
+      Buffer.from(signatureBytes),
     );
   } catch {
     return { ok: false, reason: 'bad-signature' };
   }
+  traceSocket(`verify complete ok=${verified}`);
   if (!verified) return { ok: false, reason: 'bad-signature' };
 
   return { ok: true, playerId: token.playerId };
@@ -166,11 +211,20 @@ async function verifyWireToken(wire, nowMs = Date.now()) {
 // Boot Next.js
 // =============================================================================
 
-const dev = process.env.NODE_ENV !== 'production';
+const dev =
+  process.env.NODE_ENV !== 'production' &&
+  !isStandaloneRuntime &&
+  process.env.npm_lifecycle_event !== 'start';
 const port = parseInt(process.env.PORT ?? '3600', 10);
 const hostname = process.env.HOSTNAME ?? 'localhost';
 
-const app = next({ dev, hostname, port });
+const app = next({
+  dev,
+  hostname,
+  port,
+  dir: isStandaloneRuntime ? __dirname : process.cwd(),
+  ...(standaloneNextConfig ? { conf: standaloneNextConfig } : {}),
+});
 const handle = app.getRequestHandler();
 
 // =============================================================================
@@ -194,15 +248,26 @@ function isE2EReadyRequest(parsedUrl) {
   );
 }
 
+function sendWebSocketUpgradeRequired(res) {
+  res.statusCode = 426;
+  res.setHeader('Connection', 'Upgrade');
+  res.setHeader('Upgrade', 'websocket');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.end(
+    JSON.stringify({
+      error: 'Upgrade Required',
+      hint: `Open a WebSocket connection to ${WS_UPGRADE_PATH}?matchId=...&token=...`,
+    }),
+  );
+}
+
 let multiplayerRuntime = null;
 
 /**
  * Lazily resolve the multiplayer runtime. `server.js` is CommonJS while
  * the authoritative host/registry live in TypeScript with `@/` aliases,
- * so the dev custom server installs the repo-local `tsx` require hook
- * before loading those modules. Packaged-build reachability remains
- * gated by the OpenSpec packaged-server task because standalone output
- * still uses a different server entrypoint.
+ * so the custom server installs the repo-local or hydrated standalone
+ * `tsx` require hook before loading those modules.
  */
 function loadMultiplayerRuntime() {
   if (multiplayerRuntime) return multiplayerRuntime;
@@ -274,6 +339,10 @@ app
           res.end();
           return;
         }
+        if (parsedUrl.pathname === WS_UPGRADE_PATH) {
+          sendWebSocketUpgradeRequired(res);
+          return;
+        }
         await handle(req, res, parsedUrl);
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -282,8 +351,18 @@ app
         res.end('Internal Server Error');
       }
     });
+    server.timeout = 0;
+    server.keepAliveTimeout = 0;
+    server.requestTimeout = 0;
+    server.headersTimeout = 0;
+    server.on('connection', (socket) => {
+      socket.setTimeout(0);
+    });
 
-    const wss = new WebSocketServer({ noServer: true });
+    const wss = new WebSocketServer({
+      noServer: true,
+      perMessageDeflate: false,
+    });
 
     wss.on('connection', (ws, req) => {
       const verifiedPlayerId = req._mpVerifiedPlayerId;
@@ -318,11 +397,27 @@ app
         console.log(
           `[mp-socket] socket closed matchId=${matchId} code=${code} reason=${reason.toString()}`,
         );
+        traceSocket(
+          `close details matchId=${matchId} closeFrameReceived=${ws._closeFrameReceived} closeFrameSent=${ws._closeFrameSent} socketDestroyed=${ws._socket?.destroyed}`,
+        );
       });
       ws.on('error', (err) => {
         // eslint-disable-next-line no-console
         console.error(`[mp-socket] socket error matchId=${matchId}`, err);
       });
+      if (ws._socket) {
+        ws._socket.on('end', () => {
+          traceSocket(`raw socket end matchId=${matchId}`);
+        });
+        ws._socket.on('close', (hadError) => {
+          traceSocket(
+            `raw socket close matchId=${matchId} hadError=${hadError} destroyed=${ws._socket?.destroyed}`,
+          );
+        });
+        ws._socket.on('error', (err) => {
+          traceSocket(`raw socket error matchId=${matchId} ${err.message}`);
+        });
+      }
       try {
         void loadMultiplayerRuntime()
           .bindMultiplayerSocketConnection({
@@ -417,6 +512,15 @@ app
         }
         const matchId = firstQueryValue(parsedUrl.query.matchId);
         const token = firstQueryValue(parsedUrl.query.token);
+        socket.setTimeout(0);
+        socket.setNoDelay(true);
+        socket.setKeepAlive(true, 30_000);
+        // eslint-disable-next-line no-console
+        console.log(
+          `[mp-socket] upgrade requested matchId=${
+            typeof matchId === 'string' ? matchId : ''
+          } hasToken=${typeof token === 'string' && token.length > 0}`,
+        );
         if (!matchId || !token) {
           // Missing either parameter — 400 over the raw socket so a
           // browser sees a meaningful error instead of a hung handshake.
@@ -429,7 +533,13 @@ app
         // client sees a clean rejection (the handshake never completes,
         // so there's no WS frame to send — this is the standard ws
         // server pattern).
-        const verification = await verifyWireToken(token);
+        const verification = verifyWireToken(token);
+        // eslint-disable-next-line no-console
+        console.log(
+          `[mp-socket] upgrade verification result matchId=${matchId} ok=${verification.ok}${
+            verification.ok ? '' : ` reason=${verification.reason}`
+          }`,
+        );
         if (!verification.ok) {
           // eslint-disable-next-line no-console
           console.warn(
@@ -441,6 +551,10 @@ app
           socket.destroy();
           return;
         }
+        // eslint-disable-next-line no-console
+        console.log(
+          `[mp-socket] upgrade verified matchId=${matchId} playerId=${verification.playerId}`,
+        );
         // Stash the verified id on the request so the connection
         // handler can attach it to the per-socket bookkeeping. Using a
         // private-prefixed property avoids collisions with existing
@@ -470,7 +584,6 @@ app
         }
       }
     });
-
     server.listen(port, () => {
       // eslint-disable-next-line no-console
       console.log(

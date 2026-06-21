@@ -7,10 +7,10 @@
 The system SHALL provide a bidirectional WebSocket channel for clients
 to exchange messages with the authoritative server during a networked
 match on server entrypoints that carry the multiplayer upgrade handler.
-The dev custom server (`npm run dev` → root `server.js`) SHALL dispatch
-authenticated socket connections through `MatchHostRegistry` and
-`ServerMatchHost`, while packaged-build reachability remains separately
-gated until the packaged server also carries an upgrade handler. The
+The dev custom server (`npm run dev` → root `server.js`) and the
+hydrated packaged-start server (`npm run build` → `.next/standalone`
+hydration → `npm run start`) SHALL dispatch authenticated socket
+connections through `MatchHostRegistry` and `ServerMatchHost`. The
 match-creation surface SHALL remain capacity-guarded so the exposed
 transport cannot be abused.
 
@@ -65,27 +65,26 @@ lastSeq: 0}`
 
 ## ADDED Requirements
 
-### Requirement: Packaged-Build Multiplayer Requires an Upgrade Handler
+### Requirement: Packaged-Build Multiplayer Reachability Is Smoke-Gated
 
 The system SHALL treat a WebSocket upgrade handler on the server that the
 packaged build actually runs as a prerequisite for multiplayer being
-reachable in a packaged (Docker/Electron) deployment. The spec SHALL NOT
-assert that multiplayer is reachable in a packaged build while the only
-server carrying an upgrade handler is the custom `server.js` booted by
-`npm run dev`, because the packaged build runs Next's `output: 'standalone'`
-server, which has no upgrade handler and shadows the custom server.
+reachable in a packaged (Docker/Electron) deployment. The packaged
+standalone output SHALL be hydrated with the root multiplayer-aware
+`server.js` and the generated Next config required by that standalone
+build. The spec SHALL NOT assert that packaged multiplayer is reachable
+unless the packaged-start smoke check proves socket upgrade and replay.
 
-#### Scenario: Dev-only transport is named, not assumed
+#### Scenario: Packaged server owns the socket path
 
-- **GIVEN** `npm run dev` boots `node server.js` (which carries the WebSocket
-  upgrade handler) while `npm run start` and the packaged build run the
-  `output: 'standalone'` server
-- **WHEN** the multiplayer reachability of a packaged build is evaluated
-- **THEN** the packaged build SHALL be treated as having no multiplayer
-  transport until a server with an upgrade handler is part of the packaged
-  build
-- **AND** the spec SHALL NOT claim packaged-build multiplayer works on the
-  strength of the dev-only `server.js`.
+- **GIVEN** the Next standalone build has been generated
+- **WHEN** the build is prepared for packaged runtime
+- **THEN** `.next/standalone/server.js` SHALL be hydrated with the root
+  multiplayer-aware custom server
+- **AND** the generated Next config SHALL be preserved for that server
+- **AND** no Next API route SHALL shadow `/api/multiplayer/socket`, because
+  ordinary HTTP fallback and WebSocket upgrade handling both belong to the
+  custom server.
 
 #### Scenario: Packaged-build smoke check gates the claim
 

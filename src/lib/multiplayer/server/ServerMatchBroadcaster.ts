@@ -78,10 +78,74 @@ export class ServerMatchBroadcaster {
    * of the upgrade handler.
    */
   safeSend = (socket: IMatchSocket, message: IServerMessage): void => {
+    let payload: string;
     try {
-      socket.send(JSON.stringify(message));
-    } catch {
-      // ignore
+      payload = JSON.stringify(message);
+    } catch (error) {
+      traceSendFailure(message, socket, error, 'serialize');
+      return;
+    }
+
+    try {
+      traceSendAttempt(message, socket, payload.length);
+      if (process.env.MULTIPLAYER_SOCKET_TRACE !== '1') {
+        socket.send(payload);
+        return;
+      }
+      const callbackSocket = socket as IMatchSocket & {
+        send(data: string, cb?: (error?: Error) => void): void;
+      };
+      callbackSocket.send(payload, (error?: Error) => {
+        traceSendResult(message, socket, error);
+      });
+    } catch (error) {
+      traceSendFailure(message, socket, error, 'send');
     }
   };
+}
+
+function traceSendAttempt(
+  message: IServerMessage,
+  socket: IMatchSocket,
+  byteLength: number,
+): void {
+  if (process.env.MULTIPLAYER_SOCKET_TRACE !== '1') return;
+  // eslint-disable-next-line no-console
+  console.log(
+    `[mp-socket:trace] send kind=${message.kind} readyState=${socket.readyState} bytes=${byteLength}`,
+  );
+}
+
+function traceSendFailure(
+  message: IServerMessage,
+  socket: IMatchSocket,
+  error: unknown,
+  stage: 'serialize' | 'send',
+): void {
+  if (process.env.MULTIPLAYER_SOCKET_TRACE !== '1') return;
+  // eslint-disable-next-line no-console
+  console.error(
+    `[mp-socket:trace] send ${stage} failed kind=${message.kind} readyState=${socket.readyState}`,
+    error,
+  );
+}
+
+function traceSendResult(
+  message: IServerMessage,
+  socket: IMatchSocket,
+  error: Error | undefined,
+): void {
+  if (process.env.MULTIPLAYER_SOCKET_TRACE !== '1') return;
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error(
+      `[mp-socket:trace] send callback failed kind=${message.kind} readyState=${socket.readyState}`,
+      error,
+    );
+    return;
+  }
+  // eslint-disable-next-line no-console
+  console.log(
+    `[mp-socket:trace] send flushed kind=${message.kind} readyState=${socket.readyState}`,
+  );
 }

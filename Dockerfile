@@ -35,7 +35,8 @@ RUN npm ci
 # Copy source files
 COPY . .
 
-# Build the application
+# Build the application and hydrate .next/standalone/server.js with the
+# multiplayer-aware custom server used by npm run start.
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 

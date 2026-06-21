@@ -3,7 +3,7 @@
 ## 1. Investigation and red-first evidence
 
 - [x] 1.1 Re-check the dev socket truth after the checkpoint: the `wave-2-stub` close path has been removed from `server.js`, `bindMultiplayerSocketConnection` now proves typed unknown-match close + `SessionJoin`/`Intent` dispatch, and a repo search finds no remaining stub marker in the server/lobby path.
-- [x] 1.2 Confirm C-6: `npm run validate:multiplayer:packaged-gap` inspects the built `.next/standalone/server.js`, confirms `npm run dev` boots root `server.js` with an upgrade handler, and confirms `npm run start` / `output: 'standalone'` use the generated Next server with no multiplayer upgrade handler.
+- [x] 1.2 Confirm C-6 red-first, then supersede it: the legacy packaged reachability probe proved the built `.next/standalone/server.js` was originally generated without the custom upgrade handler; the current `validate:multiplayer:packaged-socket` probe proves the hydrated packaged server now accepts upgrade + replay under `npm run start`.
 - [x] 1.3 Update the co-op create probe to current truth: `handleCreateCoopCampaign` no longer mints a dead local room code; `index.coop.test.tsx` asserts the host create path is unavailable and guest invite 404s do not mint a guest campaign. The future 5.1 expectation remains that host create calls `POST /api/multiplayer/matches` and the invite resolves server-side.
 - [x] 1.4 Update the C-8/MP-2 component probes to current truth: `GuestProposalSurface.test.tsx` proves the default route transport resolves to `mechanically-rejected`/`session-closed` instead of pending forever, and `mission-launch.coop.test.tsx` proves co-op launch stays disabled with the waiting state until `otherChoice` is synchronized from co-op state.
 
@@ -20,10 +20,10 @@
 - [x] 3.2 Remove the `wave-2-stub` close path once the host dispatch is wired; preserve the clean typed-close behavior for genuine error/unknown-match cases (`Error {code: 'UNKNOWN_MATCH'}` + close) the spec already mandates.
 - [x] 3.3 Wire `getDefaultMatchStore()` (durable in production, in-memory in dev) into the upgrade/connection path so a wired socket resolves a real match.
 
-## 4. Production-server upgrade handler (prerequisite — separate deploy-path PR)
+## 4. Production-server upgrade handler
 
-- [ ] 4.1 Decide and implement the packaged-build multiplayer story (Open Question in `design.md`): either run `server.js` as the container/Electron entrypoint instead of the standalone server, or add a WebSocket upgrade handler to the standalone server. Touches `next.config.ts:89` / `Dockerfile` / `main.window.ts` — gated on the deploy-build owner per `git-workflow` (devops-adjacent).
-- [ ] 4.2 Add a packaged-build smoke check asserting a WebSocket upgrade succeeds against `npm run start` (not just `npm run dev`), closing the C-6 gap.
+- [x] 4.1 Decide and implement the packaged-build multiplayer story: `npm run build` now hydrates `.next/standalone/server.js` with the root multiplayer-aware custom server, preserves the generated Next config in `server.next-config.json`, removes the shadowing Next API route for `/api/multiplayer/socket`, and keeps the ordinary HTTP 426 fallback inside `server.js` so upgrades are owned by the custom server. Docker/Electron rebuilds reuse the same hydration path.
+- [x] 4.2 Add a packaged-build smoke check asserting a WebSocket upgrade succeeds against `npm run start` (not just `npm run dev`), closing the C-6 gap via `npm run validate:multiplayer:packaged-socket`.
 
 ## 5. Wire co-op create + proposal transport + launch sync (staged build-out)
 
@@ -43,6 +43,6 @@
 
 ## 8. Verification and documentation
 
-- [ ] 8.1 Full verification: `npm run typecheck`, `npm run lint`, `npm run format:check`, the affected Jest suites (multiplayer client/server, co-op route surface, launch page), the red-first probes from group 1 now passing, and `npx openspec validate reconcile-multiplayer-coop-reality --strict`.
+- [x] 8.1 Full verification: `npm run typecheck`, `npm run lint`, `npm run format:check`, the affected Jest suites (multiplayer client/server, co-op route surface, launch page), the dev + packaged socket smoke probes, `npm run build`, `openspec validate reconcile-multiplayer-coop-reality --strict`, and `openspec validate --all --strict` passed. Note: `npm run lint` exits 0 but still reports the repo's existing warning backlog.
 - [ ] 8.2 When the transport-wiring groups (3, 5) land, author the follow-on spec deltas that restore the unconditional SHALLs (un-gate "WebSocket Transport" and "Co-op Campaign Route Surface") and run an authenticated live smoke test (per `verify-never-infer`: rebuild → boot → real socket join → real co-op proposal commit) before claiming multiplayer works.
 - [x] 8.3 Update `docs/audits/2026-06-12-full-codebase-review.md` Cluster MP rows: mark C-5/C-6/C-7/C-8/MP-1/MP-2 as "SoT honest; wiring staged" with links to the staged task groups.
