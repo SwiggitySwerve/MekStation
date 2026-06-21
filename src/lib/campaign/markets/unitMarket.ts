@@ -18,6 +18,7 @@ import {
   RARITY_VALUES,
   MARKET_TYPE_QUALITY,
 } from '@/types/campaign/markets/marketTypes';
+import { Money } from '@/types/campaign/Money';
 
 // =============================================================================
 // Types
@@ -201,13 +202,49 @@ export function generateUnitOffers(
  * Validates that the offer exists in the provided offers list.
  */
 export function purchaseUnit(
-  _campaign: ICampaign,
+  campaign: ICampaign,
   offerId: string,
   unitMarketOffers: readonly IUnitMarketOffer[],
-): { success: boolean; reason?: string } {
+): {
+  success: boolean;
+  reason?: string;
+  campaign?: ICampaign;
+  unitId?: string;
+  cost?: number;
+} {
   const offer = unitMarketOffers.find((o) => o.id === offerId);
   if (!offer) {
     return { success: false, reason: 'Offer not found' };
   }
-  return { success: true };
+
+  const cost = Math.round((offer.baseCost * offer.pricePercent) / 100);
+  const costMoney = new Money(cost);
+  if (campaign.finances.balance.compareTo(costMoney) < 0) {
+    return { success: false, reason: 'Insufficient funds' };
+  }
+
+  const rootForce = campaign.forces.get(campaign.rootForceId);
+  const nextForces = new Map(campaign.forces);
+  if (rootForce && !rootForce.unitIds.includes(offer.unitId)) {
+    nextForces.set(rootForce.id, {
+      ...rootForce,
+      unitIds: [...rootForce.unitIds, offer.unitId],
+      updatedAt: new Date().toISOString(),
+    });
+  }
+
+  return {
+    success: true,
+    unitId: offer.unitId,
+    cost,
+    campaign: {
+      ...campaign,
+      forces: nextForces,
+      finances: {
+        ...campaign.finances,
+        balance: campaign.finances.balance.subtract(costMoney),
+      },
+      updatedAt: new Date().toISOString(),
+    },
+  };
 }

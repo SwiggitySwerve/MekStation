@@ -19,15 +19,24 @@ import type {
   IPersonnelMarketOffer,
   IUnitMarketOffer,
 } from '@/types/campaign/markets/marketTypes';
+import type { IPartsInventoryItem } from '@/types/campaign/PartsInventory';
 import type {
   IMoraleTransition,
   IUnitPrestige,
   MoraleState,
 } from '@/types/campaign/Prestige';
 import type { IRefitOrder } from '@/types/campaign/Refit';
+import type { IRepairTicket } from '@/types/campaign/RepairTicket';
+import type {
+  ISalvageAllocation,
+  ISalvageReport,
+} from '@/types/campaign/Salvage';
 import type { ICombatTeam } from '@/types/campaign/scenario/scenarioTypes';
 import type { Transaction } from '@/types/campaign/Transaction';
-import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
+import type {
+  IUnitCombatState,
+  IUnitMaxState,
+} from '@/types/campaign/UnitCombatState';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
@@ -101,6 +110,12 @@ export interface SerializedCampaignState {
    * damage. Optional so pre-fix snapshots still load (defaults to `{}`).
    */
   unitCombatStates?: Readonly<Record<string, IUnitCombatState>>;
+  partsInventory?: readonly IPartsInventoryItem[];
+  repairQueue?: readonly IRepairTicket[];
+  unitMaxStates?: Readonly<Record<string, IUnitMaxState>>;
+  salvageAllocations?: Readonly<Record<string, ISalvageAllocation>>;
+  salvageReports?: Readonly<Record<string, ISalvageReport>>;
+  recentlyAppliedOutcomes?: readonly ICombatOutcome[];
   /**
    * Campaign command-tier loan ledger (`ICampaignCommandExtensions.loans`,
    * CP2b design D4). Before the D-1 fix a reload kept the borrowed cash
@@ -227,6 +242,12 @@ export function serializeCampaign(
     // dropping it here was the audit's headline data-loss finding. The map
     // is already JSON-safe (scalars, strings, plain records).
     unitCombatStates: campaign.unitCombatStates,
+    partsInventory: campaign.partsInventory,
+    repairQueue: campaign.repairQueue,
+    unitMaxStates: campaign.unitMaxStates,
+    salvageAllocations: campaign.salvageAllocations,
+    salvageReports: campaign.salvageReports,
+    recentlyAppliedOutcomes: campaign.recentlyAppliedOutcomes,
     // D-1 fix: the command-tier loan ledger. The borrowed cash is already
     // persisted as a finances transaction; the debt must travel with it.
     loans: extended.loans,
@@ -311,6 +332,12 @@ export function deserializeCampaign(
     // fresh-campaign empty map, which is the old (lossy) behavior for
     // saves that never carried the state in the first place.
     unitCombatStates: serialized.unitCombatStates ?? {},
+    partsInventory: serialized.partsInventory ?? [],
+    repairQueue: serialized.repairQueue,
+    unitMaxStates: serialized.unitMaxStates,
+    salvageAllocations: serialized.salvageAllocations,
+    salvageReports: serialized.salvageReports,
+    recentlyAppliedOutcomes: serialized.recentlyAppliedOutcomes,
     // D-1 fix + sweep: command-tier ledger/markets and the
     // refit/prestige/morale/starmap fields. All optional — absent on
     // pre-fix snapshots, in which case the campaign simply carries no

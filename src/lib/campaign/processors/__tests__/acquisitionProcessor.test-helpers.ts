@@ -435,6 +435,46 @@ describe('acquisitionProcessor', () => {
       expect(deliveryEvents.length).toBeGreaterThan(0);
     });
 
+    it('should materialize delivered parts into the campaign warehouse', () => {
+      const request = createInTransitRequest({
+        id: 'req-medium-laser',
+        partId: 'medium-laser',
+        partName: 'Medium Laser',
+        quantity: 2,
+        deliveryDate: new Date('3025-01-10').toISOString(),
+      });
+      const campaign = createTestCampaign({
+        currentDate: new Date('3025-01-15'),
+        shoppingList: {
+          items: [request],
+        },
+      });
+
+      const result = acquisitionProcessor.process(
+        campaign,
+        campaign.currentDate,
+      );
+      const updated = result.campaign as ICampaign & {
+        readonly partsInventory?: readonly {
+          readonly inventoryId: string;
+          readonly partId: string;
+          readonly partName: string;
+          readonly quantity: number;
+          readonly source: string;
+        }[];
+      };
+
+      expect(updated.partsInventory).toEqual([
+        expect.objectContaining({
+          inventoryId: 'acquisition-req-medium-laser',
+          partId: 'medium-laser',
+          partName: 'Medium Laser',
+          quantity: 2,
+          source: 'acquisition',
+        }),
+      ]);
+    });
+
     it('should not deliver items when deliveryDate is in future', () => {
       const futureDate = new Date('3025-02-15');
       const request = createInTransitRequest({

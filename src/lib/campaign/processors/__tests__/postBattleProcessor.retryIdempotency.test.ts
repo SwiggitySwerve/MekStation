@@ -309,6 +309,8 @@ describe('campaign kill/mission counters (D-8)', () => {
     const entry = rosterEntry('unit-A');
     expect(entry.campaignKills).toBe(2);
     expect(entry.campaignMissions).toBe(1);
+    expect(entry.xp).toBe(3);
+    expect(entry.campaignXpEarned).toBe(3);
   });
 
   it('a unit with no report row still counts the mission with zero kills', () => {

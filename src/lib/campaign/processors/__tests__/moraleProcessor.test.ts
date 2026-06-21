@@ -18,9 +18,13 @@ import { moraleProcessor } from '../moraleProcessor';
 const TEST_DATE = new Date('3025-02-01T00:00:00.000Z');
 
 /** A minimal win/loss outcome stub — only the fields the gatherer reads. */
-function outcomeStub(winner: 'player' | 'opponent' | 'draw'): ICombatOutcome {
+function outcomeStub(
+  winner: 'player' | 'opponent' | 'draw',
+  capturedAt: string = TEST_DATE.toISOString(),
+): ICombatOutcome {
   return {
     report: { winner },
+    capturedAt,
   } as unknown as ICombatOutcome;
 }
 
@@ -151,5 +155,23 @@ describe('moraleProcessor', () => {
     const result = moraleProcessor.process(campaign, TEST_DATE);
     expect(result.campaign.moraleTransitions).toHaveLength(1);
     expect(result.campaign.moraleTransitions?.[0].to).toBe(MoraleState.High);
+  });
+
+  it('ignores and prunes combat outcomes older than one campaign month', () => {
+    const campaign = makeCampaign({
+      moraleState: MoraleState.Steady,
+      recentlyAppliedOutcomes: [
+        outcomeStub('opponent', '3024-12-01T00:00:00.000Z'),
+        outcomeStub('opponent', '3024-12-15T00:00:00.000Z'),
+      ],
+    });
+
+    const result = moraleProcessor.process(campaign, TEST_DATE);
+    const updated = result.campaign as ICampaign & {
+      readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
+    };
+
+    expect(updated.moraleState).toBe(MoraleState.High);
+    expect(updated.recentlyAppliedOutcomes).toEqual([]);
   });
 });

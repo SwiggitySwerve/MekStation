@@ -10,15 +10,19 @@
 
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
+import type { ICombatOutcome } from '../combat/CombatOutcome';
 import type { IShoppingList } from './acquisition/acquisitionTypes';
 import type { ICampaignOptions } from './CampaignOptions';
 import type { ICoopSession } from './CoopSession';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
 import type { SalvageRights, CommandRights } from './Mission';
+import type { IPartsInventoryItem } from './PartsInventory';
 import type { IMoraleTransition, IUnitPrestige, MoraleState } from './Prestige';
 import type { IRefitOrder } from './Refit';
+import type { IRepairTicket } from './RepairTicket';
+import type { ISalvageAllocation, ISalvageReport } from './Salvage';
 import type { ICombatTeam } from './scenario/scenarioTypes';
-import type { IUnitCombatState } from './UnitCombatState';
+import type { IUnitCombatState, IUnitMaxState } from './UnitCombatState';
 
 import { CampaignType } from './CampaignType';
 import { createDefaultCampaignOptions } from './createDefaultCampaignOptions';
@@ -145,6 +149,30 @@ export interface ICampaign {
    * canonical shape contract and idempotency rules.
    */
   readonly unitCombatStates: Readonly<Record<string, IUnitCombatState>>;
+
+  /** Shared warehouse of owned parts from salvage, acquisition, and manual fixes. */
+  readonly partsInventory?: readonly IPartsInventoryItem[];
+
+  /** Repair queue generated after combat and drained by the repair-progress processor. */
+  readonly repairQueue?: readonly IRepairTicket[];
+
+  /** Full-health reference snapshots used to clamp repair completion. */
+  readonly unitMaxStates?: Readonly<Record<string, IUnitMaxState>>;
+
+  /** Salvage allocations awaiting or reflecting player accept/decline decisions. */
+  readonly salvageAllocations?: Readonly<Record<string, ISalvageAllocation>>;
+
+  /** UI/report summaries for generated salvage allocations. */
+  readonly salvageReports?: Readonly<Record<string, ISalvageReport>>;
+
+  /** Battle outcomes still awaiting campaign application. */
+  readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
+
+  /** Battle ids already applied to campaign state. */
+  readonly processedBattleIds?: readonly string[];
+
+  /** Applied outcomes retained for current morale/windowed processors. */
+  readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
 
   /**
    * Refit orders for owned campaign units (`add-campaign-refit-and-prestige`,
@@ -596,6 +624,7 @@ export function createCampaign(
     // canonical post-deploy combat-state map. Fresh campaigns start
     // empty; createInitialCombatState writes entries on first deploy.
     unitCombatStates: {},
+    partsInventory: [],
     // Audit D-10 (2026-06-09, W3.4): the only intentionally random step —
     // every daily outcome roll after creation derives deterministically
     // from this persisted seed (see lib/campaign/utils/campaignRng).
@@ -671,5 +700,6 @@ export function createCampaignWithData(params: {
     // useCampaignStore (deserializeCampaign) or as a post-construction
     // spread.
     unitCombatStates: {},
+    partsInventory: [],
   };
 }

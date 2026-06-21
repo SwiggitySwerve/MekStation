@@ -420,6 +420,17 @@ describe('calculatePersonSalary', () => {
     expect(salary.amount).toBe(4500);
   });
 
+  it('applies the roster rank pay multiplier', () => {
+    const entry = makeRosterEntry({
+      primaryRole: CampaignPersonnelRole.PILOT,
+      rankIndex: 31,
+    });
+    const pilot = makeVaultPilot(500); // regular
+    const salary = calculatePersonSalary(entry, pilot, DEFAULT_SALARY_OPTIONS);
+
+    expect(salary.amount).toBe(2100); // 1500 Ã— regular Ã— mercenary rank 31 (1.4)
+  });
+
   it('charges NPC entries (pilot === null) at ultra_green rate', () => {
     // NPC domain matrix: finance = PROCESS. NPCs cost money at floor XP rate.
     const entry = makeRosterEntry({ primaryRole: CampaignPersonnelRole.PILOT });

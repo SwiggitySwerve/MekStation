@@ -21,6 +21,7 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IRepairTicket } from '@/types/campaign/RepairTicket';
 import type { IUnitMaxState } from '@/types/campaign/UnitCombatState';
+import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
 import {
   DayPhase,
@@ -45,7 +46,7 @@ import {
  */
 interface IPendingBattleOutcome {
   readonly matchId: string;
-  readonly unitIds: readonly string[];
+  readonly unitIds?: readonly string[];
 }
 
 /**
@@ -60,7 +61,7 @@ interface IPendingBattleOutcome {
  * Consumers read it via the canonical `campaign.unitCombatStates` slot.
  */
 export interface ICampaignWithBattleState extends ICampaign {
-  readonly pendingBattleOutcomes?: readonly IPendingBattleOutcome[];
+  readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
   readonly processedBattleIds?: readonly string[];
   readonly unitMaxStates?: Record<string, IUnitMaxState>;
   readonly salvagePool?: ISalvagePool;
@@ -138,7 +139,10 @@ export const repairQueueBuilderProcessor: IDayProcessor = {
   process(campaign: ICampaign, date: Date): IDayProcessorResult {
     // Narrow to extended campaign (all extension fields are optional).
     const extended = campaign as ICampaignWithBattleState & {
-      readonly recentlyAppliedOutcomes?: readonly IPendingBattleOutcome[];
+      readonly recentlyAppliedOutcomes?: readonly (
+        | ICombatOutcome
+        | IPendingBattleOutcome
+      )[];
     };
     // Per `wire-encounter-to-campaign-round-trip`: the canonical source
     // is `recentlyAppliedOutcomes` (postBattleProcessor stages outcomes

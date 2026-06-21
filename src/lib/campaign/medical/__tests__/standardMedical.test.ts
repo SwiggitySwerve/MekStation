@@ -210,6 +210,59 @@ describe('standardMedicalCheck', () => {
       expect(result.targetNumber).toBeGreaterThan(7);
     });
 
+    it('should use the doctor roster medicine skill instead of a hardcoded target', () => {
+      const eliteDoctor = createTestEntry({
+        primaryRole: CampaignPersonnelRole.DOCTOR,
+        ...({ medicineSkill: 5 } as Partial<ICampaignRosterEntry> & {
+          readonly medicineSkill: number;
+        }),
+      });
+      const random = createMockRandom([0.4, 0.4]);
+
+      const result = standardMedicalCheck(
+        patient,
+        injury,
+        eliteDoctor,
+        null,
+        options,
+        random,
+      );
+
+      expect(result.targetNumber).toBe(5);
+      expect(result.outcome).toBe('healed');
+    });
+
+    it('should apply a shorthanded modifier when a doctor exceeds patient capacity', () => {
+      const overloadedDoctor = createTestEntry({
+        primaryRole: CampaignPersonnelRole.DOCTOR,
+        ...({
+          medicineSkill: 5,
+          patientCapacity: 1,
+          assignedPatientIds: ['p1', 'p2', 'p3'],
+        } as Partial<ICampaignRosterEntry> & {
+          readonly medicineSkill: number;
+          readonly patientCapacity: number;
+          readonly assignedPatientIds: readonly string[];
+        }),
+      });
+      const random = createMockRandom([0.4, 0.4]);
+
+      const result = standardMedicalCheck(
+        patient,
+        injury,
+        overloadedDoctor,
+        null,
+        options,
+        random,
+      );
+
+      expect(result.modifiers).toContainEqual({
+        name: 'Shorthanded',
+        value: 2,
+      });
+      expect(result.targetNumber).toBe(7);
+    });
+
     it('should be deterministic with seeded random', () => {
       const random1 = createMockRandom([0.5, 0.5]);
       const random2 = createMockRandom([0.5, 0.5]);

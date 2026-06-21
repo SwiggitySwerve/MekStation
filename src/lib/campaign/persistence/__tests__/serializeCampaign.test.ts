@@ -83,4 +83,72 @@ describe('serializeCampaign / deserializeCampaignBody', () => {
     expect(original.forces.size).toBe(beforeForces);
     expect(original.currentDate).toBeInstanceOf(Date);
   });
+
+  it('round-trips campaign economy and battle-afteraction extension fields', () => {
+    const original = {
+      ...buildPopulatedCampaign(),
+      partsInventory: [
+        {
+          inventoryId: 'part-bin-1',
+          partId: 'medium-laser',
+          partName: 'Medium Laser',
+          quantity: 2,
+          source: 'salvage',
+          acquiredAt: '3025-06-16T00:00:00.000Z',
+        },
+      ],
+      repairQueue: [
+        {
+          ticketId: 'repair-1',
+          unitId: 'unit-a',
+          kind: 'armor',
+          location: 'CT',
+          pointsToRestore: 3,
+          expectedHours: 2,
+          remainingHours: 2,
+          partsRequired: [],
+          source: 'combat',
+          matchId: 'match-1',
+          createdAt: '3025-06-16T00:00:00.000Z',
+          status: 'queued',
+        },
+      ],
+      salvageAllocations: { 'match-1': { marker: 'allocation' } },
+      salvageReports: { 'match-1': { marker: 'report' } },
+      pendingBattleOutcomes: [{ matchId: 'match-pending' }],
+      processedBattleIds: ['match-processed'],
+    } as unknown as ReturnType<typeof buildPopulatedCampaign>;
+
+    const restored = deserializeCampaignBody(
+      serializeCampaign(original),
+    ) as ReturnType<typeof buildPopulatedCampaign> & {
+      readonly partsInventory?: readonly unknown[];
+      readonly repairQueue?: readonly unknown[];
+      readonly salvageAllocations?: Record<string, unknown>;
+      readonly salvageReports?: Record<string, unknown>;
+      readonly pendingBattleOutcomes?: readonly unknown[];
+      readonly processedBattleIds?: readonly string[];
+    };
+
+    expect(restored.partsInventory).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ partId: 'medium-laser', quantity: 2 }),
+      ]),
+    );
+    expect(restored.repairQueue).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ ticketId: 'repair-1', remainingHours: 2 }),
+      ]),
+    );
+    expect(restored.salvageAllocations).toEqual({
+      'match-1': { marker: 'allocation' },
+    });
+    expect(restored.salvageReports).toEqual({
+      'match-1': { marker: 'report' },
+    });
+    expect(restored.pendingBattleOutcomes).toEqual([
+      { matchId: 'match-pending' },
+    ]);
+    expect(restored.processedBattleIds).toEqual(['match-processed']);
+  });
 });

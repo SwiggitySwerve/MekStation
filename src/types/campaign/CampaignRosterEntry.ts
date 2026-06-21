@@ -145,6 +145,22 @@ export interface ICampaignRosterEntry {
    */
   readonly injuries?: readonly IInjury[];
 
+  /**
+   * Standard medical-system Medicine skill target number. Lower is better,
+   * matching BattleTech skill checks. Optional entries fall back to the
+   * existing default target.
+   */
+  readonly medicineSkill?: number;
+
+  /**
+   * Current doctor assignment load. Used to apply shorthanded modifiers
+   * when one doctor carries more active patients than their capacity.
+   */
+  readonly assignedPatientIds?: readonly string[];
+
+  /** Maximum active patients this doctor can cover before overload. */
+  readonly patientCapacity?: number;
+
   // ===========================================================================
   // Personnel role + rank (PR1.5 — Tier 1 live bug fixes, Council #4)
   // ===========================================================================

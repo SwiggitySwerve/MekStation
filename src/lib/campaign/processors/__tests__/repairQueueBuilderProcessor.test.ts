@@ -8,6 +8,7 @@ import type {
   IUnitCombatState,
   IUnitMaxState,
 } from '@/types/campaign/UnitCombatState';
+import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { createDefaultCampaignOptions } from '@/types/campaign/createDefaultCampaignOptions';
@@ -66,6 +67,12 @@ function makeDamagedState(): IUnitCombatState {
   };
 }
 
+function makeLegacyPendingOutcome(
+  unitIds: readonly string[] = [UNIT_ID],
+): ICombatOutcome {
+  return { matchId: TEST_MATCH_ID, unitIds } as unknown as ICombatOutcome;
+}
+
 describe('repairQueueBuilderProcessor', () => {
   it("registers under id 'repair-queue-builder' in the battle-effects block", () => {
     expect(repairQueueBuilderProcessor.id).toBe('repair-queue-builder');
@@ -85,7 +92,7 @@ describe('repairQueueBuilderProcessor', () => {
   it('appends tickets for a damaged unit and emits a creation event', () => {
     const base: ICampaignWithBattleState = {
       ...makeBaseCampaign(),
-      pendingBattleOutcomes: [{ matchId: TEST_MATCH_ID, unitIds: [UNIT_ID] }],
+      pendingBattleOutcomes: [makeLegacyPendingOutcome()],
       unitCombatStates: { [UNIT_ID]: makeDamagedState() },
       unitMaxStates: { [UNIT_ID]: makeMaxState() },
     };
@@ -105,7 +112,7 @@ describe('repairQueueBuilderProcessor', () => {
   it('is idempotent on (matchId, ticketId) — second run adds no tickets', () => {
     const base: ICampaignWithBattleState = {
       ...makeBaseCampaign(),
-      pendingBattleOutcomes: [{ matchId: TEST_MATCH_ID, unitIds: [UNIT_ID] }],
+      pendingBattleOutcomes: [makeLegacyPendingOutcome()],
       unitCombatStates: { [UNIT_ID]: makeDamagedState() },
       unitMaxStates: { [UNIT_ID]: makeMaxState() },
     };
@@ -131,7 +138,7 @@ describe('repairQueueBuilderProcessor', () => {
     const base: ICampaignWithBattleState = {
       ...makeBaseCampaign(),
       pendingBattleOutcomes: [
-        { matchId: TEST_MATCH_ID, unitIds: [UNIT_ID, 'missing-unit'] },
+        makeLegacyPendingOutcome([UNIT_ID, 'missing-unit']),
       ],
       unitCombatStates: { [UNIT_ID]: makeDamagedState() },
       unitMaxStates: { [UNIT_ID]: makeMaxState() },
@@ -161,7 +168,7 @@ describe('repairQueueBuilderProcessor', () => {
     };
     const base: ICampaignWithBattleState = {
       ...makeBaseCampaign(),
-      pendingBattleOutcomes: [{ matchId: TEST_MATCH_ID, unitIds: [UNIT_ID] }],
+      pendingBattleOutcomes: [makeLegacyPendingOutcome()],
       unitCombatStates: { [UNIT_ID]: makeDamagedState() },
       unitMaxStates: { [UNIT_ID]: makeMaxState() },
       repairQueue: [priorTicket],

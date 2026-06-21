@@ -13,6 +13,7 @@
 
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
+import type { ICombatOutcome } from '../combat/CombatOutcome';
 import type { IShoppingList } from './acquisition/acquisitionTypes';
 import type { ICampaignContractMarket } from './CampaignCommandExtensions';
 import type { ICampaignLoan } from './CampaignLoan';
@@ -26,10 +27,13 @@ import type {
   IUnitMarketOffer,
 } from './markets/marketTypes';
 import type { IMission } from './Mission';
+import type { IPartsInventoryItem } from './PartsInventory';
 import type { IMoraleTransition, IUnitPrestige, MoraleState } from './Prestige';
 import type { IRefitOrder } from './Refit';
+import type { IRepairTicket } from './RepairTicket';
+import type { ISalvageAllocation, ISalvageReport } from './Salvage';
 import type { ICombatTeam } from './scenario/scenarioTypes';
-import type { IUnitCombatState } from './UnitCombatState';
+import type { IUnitCombatState, IUnitMaxState } from './UnitCombatState';
 
 // =============================================================================
 // Serialized campaign body
@@ -128,6 +132,14 @@ export interface SerializedCampaignBody {
   readonly createdAt: string;
   readonly updatedAt: string;
   readonly unitCombatStates: Readonly<Record<string, IUnitCombatState>>;
+  readonly partsInventory?: readonly IPartsInventoryItem[];
+  readonly repairQueue?: readonly IRepairTicket[];
+  readonly unitMaxStates?: Readonly<Record<string, IUnitMaxState>>;
+  readonly salvageAllocations?: Readonly<Record<string, ISalvageAllocation>>;
+  readonly salvageReports?: Readonly<Record<string, ISalvageReport>>;
+  readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
+  readonly processedBattleIds?: readonly string[];
+  readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
   /**
    * The campaign's loan ledger (CP2b — `add-campaign-command-ui`,
    * design D4). Optional and absent on pre-CP2b snapshots. Every

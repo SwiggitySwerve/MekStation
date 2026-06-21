@@ -15,6 +15,7 @@ import {
   createDefaultCampaignOptions,
 } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
+import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { IFinances } from '@/types/campaign/IFinances';
 import {
   UnitMarketRarity,
@@ -58,7 +59,7 @@ function createTestCampaign(
     missions: new Map(),
     finances: {
       transactions: [],
-      balance: new Money(1000000),
+      balance: new Money(12000000),
     } as IFinances,
     factionStandings: {},
     shoppingList: { items: [] },
@@ -430,6 +431,71 @@ describe('Unit Market', () => {
       const lastOffer = offers[offers.length - 1];
       const result = purchaseUnit(campaign, lastOffer.id, offers);
       expect(result.success).toBe(true);
+    });
+
+    it('should debit the offer price and add the unit to the root force', () => {
+      const campaign = {
+        ...createTestCampaign(),
+        forces: new Map([
+          [
+            'force-root',
+            {
+              id: 'force-root',
+              name: 'Root Force',
+              parentForceId: undefined,
+              subForceIds: [],
+              unitIds: [],
+              forceType: ForceRole.STANDARD,
+              formationLevel: FormationLevel.LANCE,
+              createdAt: '3025-01-01T00:00:00.000Z',
+              updatedAt: '3025-01-01T00:00:00.000Z',
+            },
+          ],
+        ]),
+        finances: {
+          transactions: [],
+          balance: new Money(2_000_000),
+        },
+      };
+      const offer = {
+        id: 'offer-locust',
+        unitId: 'unit-locust-lct1v',
+        unitName: 'Locust LCT-1V',
+        rarity: UnitMarketRarity.COMMON,
+        marketType: UnitMarketType.OPEN,
+        quality: 'C',
+        pricePercent: 100,
+        baseCost: 1_512_000,
+        expirationDate: '3025-06-30',
+      };
+
+      const result = purchaseUnit(campaign, offer.id, [offer]);
+
+      expect(result.success).toBe(true);
+      expect(result.campaign?.finances.balance.amount).toBe(488_000);
+      expect(result.campaign?.forces.get('force-root')?.unitIds).toContain(
+        'unit-locust-lct1v',
+      );
+    });
+
+    it('should reject purchases that exceed the campaign balance', () => {
+      const campaign = {
+        ...createTestCampaign(),
+        finances: {
+          transactions: [],
+          balance: new Money(100_000),
+        },
+      };
+      const offer = generateUnitOffers(
+        createTestCampaign(),
+        createSeededRandom(42),
+      )[0];
+
+      const result = purchaseUnit(campaign, offer.id, [offer]);
+
+      expect(result.success).toBe(false);
+      expect(result.reason).toBe('Insufficient funds');
+      expect(result.campaign).toBeUndefined();
     });
   });
 });

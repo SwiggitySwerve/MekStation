@@ -105,6 +105,12 @@ export interface IRepairTicket {
   /** Estimated tech-hours required to complete the work */
   readonly expectedHours: number;
 
+  /**
+   * Tech-hours still required. Absent means untouched and defaults to
+   * `expectedHours`; completed tickets carry `0`.
+   */
+  readonly remainingHours?: number;
+
   /** Parts required to complete the ticket */
   readonly partsRequired: ReadonlyArray<IRepairPartRequirement>;
 

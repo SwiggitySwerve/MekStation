@@ -28,6 +28,9 @@ import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { Money } from '@/types/campaign/Money';
 
+import { getRankPayMultiplier } from '../campaign/ranks/rankPay';
+import { getDefaultRankSystem } from '../campaign/ranks/rankSystems';
+
 // =============================================================================
 // Experience Level Types
 // =============================================================================
@@ -301,11 +304,12 @@ export function calculatePersonSalary(
   const baseSalary = getBaseSalaryForRole(entry.primaryRole);
   const xpLevel = getExperienceLevel(entry, pilot);
   const xpMult = XP_SALARY_MULTIPLIER[xpLevel] ?? 1.0;
+  const rankMult = getRankPayMultiplier(entry, pilot, getDefaultRankSystem());
 
   // ICampaignRosterEntry has no secondaryRole field — secondary role bonus is
   // not applicable at this layer. If secondaryRole support is added to the
   // roster entry in a future change, wire it here.
-  const salary = baseSalary * xpMult * options.salaryMultiplier;
+  const salary = baseSalary * xpMult * rankMult * options.salaryMultiplier;
 
   return new Money(salary);
 }
