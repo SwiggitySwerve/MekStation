@@ -122,20 +122,11 @@ export function normalizeEquipmentId(equipmentId: string): string {
   const compactId = firstCatalogMatch(catalog, [noSpaces, hyphenated]);
   if (compactId) return compactId;
 
-  const compactPatternId = firstPatternCatalogMatch(catalog, noSpaces);
-  if (compactPatternId) return compactPatternId;
-
   const withoutPrefix = noSpaces.replace(/^(is|cl)-?/, '');
   const withoutPrefixHyphenated = withoutPrefix.replace(
     /([a-z])(\d)/g,
     '$1-$2',
   );
-  const unprefixedId = firstCatalogMatch(catalog, [
-    withoutPrefix,
-    withoutPrefixHyphenated,
-  ]);
-  if (unprefixedId) return unprefixedId;
-
   const clanId = clanPrefixCatalogMatch(
     catalog,
     noSpaces,
@@ -143,6 +134,15 @@ export function normalizeEquipmentId(equipmentId: string): string {
     withoutPrefixHyphenated,
   );
   if (clanId) return clanId;
+
+  const compactPatternId = firstPatternCatalogMatch(catalog, noSpaces);
+  if (compactPatternId) return compactPatternId;
+
+  const unprefixedId = firstCatalogMatch(catalog, [
+    withoutPrefix,
+    withoutPrefixHyphenated,
+  ]);
+  if (unprefixedId) return unprefixedId;
 
   const unprefixedPatternId = firstPatternCatalogMatch(catalog, withoutPrefix);
   if (unprefixedPatternId) return unprefixedPatternId;

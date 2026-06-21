@@ -5,7 +5,11 @@
  * Extracted from HexMapDisplay.tsx for modularity.
  */
 
-import { HEX_SIZE, HEX_COLORS } from '@/constants/hexMap';
+import {
+  HEX_SIZE,
+  HEX_COLORS,
+  hexToPixel as layoutHexToPixel,
+} from '@/constants/hexMap';
 import {
   TERRAIN_COLORS,
   WATER_DEPTH_COLORS,
@@ -27,42 +31,7 @@ import { TERRAIN_PROPERTIES, CoverLevel } from '@/types/gameplay/TerrainTypes';
  * Convert axial hex coordinates to pixel position.
  */
 export function hexToPixel(hex: IHexCoordinate): { x: number; y: number } {
-  const x = HEX_SIZE * (3 / 2) * hex.q;
-  const y = HEX_SIZE * ((Math.sqrt(3) / 2) * hex.q + Math.sqrt(3) * hex.r);
-  return { x, y };
-}
-
-/**
- * Convert pixel position to axial hex coordinates.
- * @internal Reserved for future mouse interaction support
- */
-export function _pixelToHex(x: number, y: number): IHexCoordinate {
-  const q = ((2 / 3) * x) / HEX_SIZE;
-  const r = ((-1 / 3) * x + (Math.sqrt(3) / 3) * y) / HEX_SIZE;
-  return _roundHex(q, r);
-}
-
-/**
- * Round fractional hex coordinates to nearest hex.
- * @internal Used by _pixelToHex
- */
-export function _roundHex(q: number, r: number): IHexCoordinate {
-  const s = -q - r;
-  let rq = Math.round(q);
-  let rr = Math.round(r);
-  const rs = Math.round(s);
-
-  const qDiff = Math.abs(rq - q);
-  const rDiff = Math.abs(rr - r);
-  const sDiff = Math.abs(rs - s);
-
-  if (qDiff > rDiff && qDiff > sDiff) {
-    rq = -rr - rs;
-  } else if (rDiff > sDiff) {
-    rr = -rq - rs;
-  }
-
-  return { q: rq, r: rr };
+  return layoutHexToPixel(hex.q, hex.r);
 }
 
 /**

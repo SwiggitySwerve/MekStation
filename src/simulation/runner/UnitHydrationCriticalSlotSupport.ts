@@ -4,7 +4,7 @@ import type { IUnitEquipmentEntry } from './UnitHydrationTypes';
 import { artemisFcsKindFromNormalizedId } from './UnitHydrationArtemis';
 import {
   normalizeCriticalSlotText,
-  normalizeEquipmentId,
+  normalizeEquipmentSignalKey,
   normalizeEquipmentLocation,
   normalizedWithoutTechPrefix,
   runtimeWeaponCatalogId,
@@ -84,7 +84,7 @@ export function equipmentEntryForCriticalSlotWeapon(
   const matches = equipmentEntries.filter((entry) => {
     if (normalizeEquipmentLocation(entry.location) !== source) return false;
 
-    const normalizedEntryId = normalizeEquipmentId(entry.id);
+    const normalizedEntryId = normalizeEquipmentSignalKey(entry.id);
     const normalizedEntryIdWithoutPrefix =
       normalizedWithoutTechPrefix(normalizedEntryId);
     return (
@@ -128,7 +128,7 @@ export function equipmentExplosionMetadataForCriticalSlot(
     if (entry.explosionDamage === undefined) return false;
     if (normalizedEquipmentLocationKey(entry.location) !== source) return false;
 
-    const normalizedEntryId = normalizeEquipmentId(entry.id);
+    const normalizedEntryId = normalizeEquipmentSignalKey(entry.id);
     const normalizedEntryIdWithoutPrefix =
       normalizedWithoutTechPrefix(normalizedEntryId);
     return (
@@ -152,7 +152,7 @@ export function linkedWeaponForRiscLaserPulseModule(
   const normalizedSourceLocation = normalizeEquipmentLocation(sourceLocation);
   const moduleEntry = equipmentEntries.find((entry) => {
     return (
-      normalizeEquipmentId(entry.id) === 'risclaserpulsemodule' &&
+      normalizeEquipmentSignalKey(entry.id) === 'risclaserpulsemodule' &&
       normalizeEquipmentLocation(entry.location) === normalizedSourceLocation &&
       Array.isArray(entry.linkedEquipment) &&
       entry.linkedEquipment.length > 0
@@ -163,7 +163,8 @@ export function linkedWeaponForRiscLaserPulseModule(
   }
 
   const linkedIds = new Set(
-    moduleEntry.linkedEquipment?.map((id) => normalizeEquipmentId(id)) ?? [],
+    moduleEntry.linkedEquipment?.map((id) => normalizeEquipmentSignalKey(id)) ??
+      [],
   );
   const candidates = aiWeapons.filter((weapon) => {
     if (weapon.destroyed === true) return false;
@@ -176,9 +177,11 @@ export function linkedWeaponForRiscLaserPulseModule(
     if (!isLaserWeapon(weapon)) return false;
 
     return (
-      linkedIds.has(normalizeEquipmentId(weapon.name)) ||
-      linkedIds.has(normalizeEquipmentId(weapon.id)) ||
-      linkedIds.has(normalizeEquipmentId(runtimeWeaponCatalogId(weapon.id)))
+      linkedIds.has(normalizeEquipmentSignalKey(weapon.name)) ||
+      linkedIds.has(normalizeEquipmentSignalKey(weapon.id)) ||
+      linkedIds.has(
+        normalizeEquipmentSignalKey(runtimeWeaponCatalogId(weapon.id)),
+      )
     );
   });
   return candidates.length === 1 ? candidates[0] : undefined;
@@ -195,7 +198,7 @@ export function linkedWeaponForArtemisFcs(
 
   const moduleEntry = equipmentEntries.find((entry) => {
     return (
-      artemisFcsKindFromNormalizedId(normalizeEquipmentId(entry.id)) ===
+      artemisFcsKindFromNormalizedId(normalizeEquipmentSignalKey(entry.id)) ===
         fcsKind &&
       normalizeEquipmentLocation(entry.location) ===
         normalizeEquipmentLocation(sourceLocation) &&
@@ -206,13 +209,14 @@ export function linkedWeaponForArtemisFcs(
   if (!moduleEntry) return undefined;
 
   const linkedIds = new Set(
-    moduleEntry.linkedEquipment?.map((id) => normalizeEquipmentId(id)) ?? [],
+    moduleEntry.linkedEquipment?.map((id) => normalizeEquipmentSignalKey(id)) ??
+      [],
   );
   return aiWeapons.find((weapon) => {
     return (
       weapon.location === normalizeEquipmentLocation(sourceLocation) &&
-      (linkedIds.has(normalizeEquipmentId(weapon.name)) ||
-        linkedIds.has(normalizeEquipmentId(weapon.id)))
+      (linkedIds.has(normalizeEquipmentSignalKey(weapon.name)) ||
+        linkedIds.has(normalizeEquipmentSignalKey(weapon.id)))
     );
   });
 }
@@ -265,7 +269,7 @@ function criticalSlotMatchesWeapon(
 
 function isBlueShieldEquipmentEntry(entry: IUnitEquipmentEntry): boolean {
   return (
-    normalizedWithoutTechPrefix(normalizeEquipmentId(entry.id)) ===
+    normalizedWithoutTechPrefix(normalizeEquipmentSignalKey(entry.id)) ===
     'blueshieldparticlefielddamper'
   );
 }
@@ -299,14 +303,14 @@ function linkedAmmoExplosionDamageFromEquipmentEntry(
 
   const sourceLocation = normalizeEquipmentLocation(entry.location);
   const linkedIds = new Set(
-    entry.linkedEquipment.map((id) => normalizeEquipmentId(id)),
+    entry.linkedEquipment.map((id) => normalizeEquipmentSignalKey(id)),
   );
   const matches = equipmentEntries.filter((candidate) => {
     if (candidate.explosionDamage === undefined) return false;
     if (normalizeEquipmentLocation(candidate.location) !== sourceLocation) {
       return false;
     }
-    const normalizedId = normalizeEquipmentId(candidate.id);
+    const normalizedId = normalizeEquipmentSignalKey(candidate.id);
     return linkedIds.has(normalizedId) && isLinkedAmmoEquipmentId(normalizedId);
   });
 
@@ -345,7 +349,9 @@ function unambiguousSameLocationLaserWeapon(
 }
 
 function isLaserWeapon(weapon: IWeapon): boolean {
-  const normalizedName = normalizeEquipmentId(weapon.name);
-  const normalizedId = normalizeEquipmentId(runtimeWeaponCatalogId(weapon.id));
+  const normalizedName = normalizeEquipmentSignalKey(weapon.name);
+  const normalizedId = normalizeEquipmentSignalKey(
+    runtimeWeaponCatalogId(weapon.id),
+  );
   return normalizedName.includes('laser') || normalizedId.includes('laser');
 }

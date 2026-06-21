@@ -109,7 +109,7 @@ describe('UnitLoaderService Equipment Resolution', () => {
 
     it('should normalize LB X AC IDs', () => {
       expect(normalizeEquipmentId('LB-10-X-AC', TechBase.INNER_SPHERE)).toBe(
-        'lb-10x-ac',
+        'lb-10-x-ac',
       );
     });
 
@@ -140,7 +140,7 @@ describe('UnitLoaderService Equipment Resolution', () => {
       ).toBe('uac-5-ammo');
       expect(
         normalizeEquipmentId('LB-10-X-AC-Ammo', TechBase.INNER_SPHERE),
-      ).toBe('lb-10x-ac-ammo');
+      ).toBe('lb-10-x-ammo');
     });
   });
 

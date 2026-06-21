@@ -16,7 +16,7 @@ import {
 } from './UnitHydrationEquipment';
 import {
   normalizeCriticalSlotText,
-  normalizeEquipmentId,
+  normalizeEquipmentSignalKey,
   normalizedWithoutTechPrefix,
 } from './UnitHydrationText';
 
@@ -113,11 +113,11 @@ function movementEnhancementsContainSignal(
 }
 
 function isMASCSignal(id: string): boolean {
-  return normalizeEquipmentId(id).includes('masc');
+  return normalizeEquipmentSignalKey(id).includes('masc');
 }
 
 function isSuperchargerSignal(id: string): boolean {
-  return normalizeEquipmentId(id).includes('supercharger');
+  return normalizeEquipmentSignalKey(id).includes('supercharger');
 }
 
 export function hydrateHasMASCFromFullUnit(fullUnit: IFullUnit): boolean {
@@ -155,7 +155,7 @@ export function hydrateHasSuperchargerFromFullUnit(
 }
 
 function isTargetingComputerSignal(id: string): boolean {
-  const normalized = normalizeEquipmentId(id);
+  const normalized = normalizeEquipmentSignalKey(id);
   const withoutTechPrefix = normalizedWithoutTechPrefix(normalized);
   return (
     normalized === 'targetingcomputer' ||
@@ -239,7 +239,7 @@ function isBattleMechPartialWingHost(fullUnit: IFullUnit): boolean {
 }
 
 function isPartialWingSignal(id: string): boolean {
-  const normalized = normalizeEquipmentId(id);
+  const normalized = normalizeEquipmentSignalKey(id);
   return (
     normalized === 'partialwing' ||
     normalized === 'ispartialwing' ||

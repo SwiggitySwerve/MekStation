@@ -1,3 +1,12 @@
+/**
+ * Campaign Store
+ *
+ * Owns campaign-scoped state, including the nested `useForcesStore` campaign
+ * roster concern. Standalone deployment / force-builder state remains owned by
+ * `src/stores/useForceStore.ts`; this store references campaign forces through
+ * its nested forces store rather than duplicating that UI concern.
+ */
+
 import { create, StoreApi } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 

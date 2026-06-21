@@ -4,7 +4,7 @@ import type { IUnitGameState } from '@/types/gameplay';
 import { equipmentSignalsFromFullUnit } from './UnitHydrationEquipment';
 import { runnerCriticalLocationFromCatalogLocation } from './UnitHydrationLocations';
 import {
-  normalizeEquipmentId,
+  normalizeEquipmentSignalKey,
   normalizedWithoutTechPrefix,
 } from './UnitHydrationText';
 
@@ -22,7 +22,7 @@ function isStandardCASEEquipmentSignal(normalized: string): boolean {
 }
 
 function classifyCASEProtection(id: string): UnitCaseProtectionLevel | null {
-  const normalized = normalizeEquipmentId(id);
+  const normalized = normalizeEquipmentSignalKey(id);
   const withoutTechPrefix = normalizedWithoutTechPrefix(normalized);
   if (isCaseIIEquipmentSignal(withoutTechPrefix)) {
     return 'case_ii';

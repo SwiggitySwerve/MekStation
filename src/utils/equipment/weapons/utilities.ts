@@ -8,8 +8,7 @@
  * the original location pulled a runtime import
  * (`@/services/equipment/EquipmentLoaderService`) into the type layer,
  * violating the rule that `src/types/` should not depend on runtime
- * services. The barrel `src/types/equipment/weapons/index.ts` continues
- * to re-export these helpers for backward compatibility.
+ * services. Import these helpers from this runtime module directly.
  *
  * @spec openspec/specs/weapon-system/spec.md
  */

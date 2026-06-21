@@ -250,7 +250,7 @@ describe('MTFParser.mapping', () => {
 
     it('strips parentheses entirely', () => {
       expect(normalizeEquipmentId('Gauss Rifle (Clan)')).toBe(
-        'gauss-rifle-clan',
+        'clan-gauss-rifle',
       );
     });
 

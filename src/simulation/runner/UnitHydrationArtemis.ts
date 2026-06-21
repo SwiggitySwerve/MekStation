@@ -7,7 +7,7 @@ import type {
 
 import {
   normalizeCriticalSlotText,
-  normalizeEquipmentId,
+  normalizeEquipmentSignalKey,
   normalizeEquipmentLocation,
   normalizedWithoutTechPrefix,
 } from './UnitHydrationText';
@@ -70,7 +70,8 @@ function artemisFcsKindSystemCountForLocation(
     return (
       normalizeEquipmentLocation(entry.location) ===
         normalizeEquipmentLocation(options.location) &&
-      artemisFcsKindFromNormalizedId(normalizeEquipmentId(entry.id)) === kind
+      artemisFcsKindFromNormalizedId(normalizeEquipmentSignalKey(entry.id)) ===
+        kind
     );
   }).length;
 
@@ -122,7 +123,7 @@ export function catalogWeaponStatsForEquipmentEntry(
   entry: IUnitEquipmentEntry,
   weaponLookup: WeaponLookup,
 ): ICatalogWeaponStats | null {
-  const normalizedEntryId = normalizeEquipmentId(entry.id);
+  const normalizedEntryId = normalizeEquipmentSignalKey(entry.id);
   return (
     weaponLookup(entry.id) ??
     weaponLookup(normalizedEntryId) ??
@@ -170,7 +171,7 @@ function artemisLinkedFcsKindsForWeapon(options: {
       catalogWeapon.name,
     ]
       .filter((value): value is string => typeof value === 'string')
-      .map((value) => normalizeEquipmentId(value)),
+      .map((value) => normalizeEquipmentSignalKey(value)),
   );
 
   return equipmentEntries.flatMap((entry) => {
@@ -187,11 +188,13 @@ function artemisLinkedFcsKindsForWeapon(options: {
       return [];
     }
 
-    const kind = artemisFcsKindFromNormalizedId(normalizeEquipmentId(entry.id));
+    const kind = artemisFcsKindFromNormalizedId(
+      normalizeEquipmentSignalKey(entry.id),
+    );
     if (kind === undefined) return [];
 
     const linkedIds = new Set(
-      entry.linkedEquipment.map((id) => normalizeEquipmentId(id)),
+      entry.linkedEquipment.map((id) => normalizeEquipmentSignalKey(id)),
     );
     return Array.from(linkedCandidates).some((id) => linkedIds.has(id))
       ? [kind]
@@ -210,7 +213,7 @@ function hasExplicitLinkedArtemisFcsInLocation(options: {
         normalizeEquipmentLocation(location) &&
       Array.isArray(entry.linkedEquipment) &&
       entry.linkedEquipment.length > 0 &&
-      artemisFcsKindFromNormalizedId(normalizeEquipmentId(entry.id)) !==
+      artemisFcsKindFromNormalizedId(normalizeEquipmentSignalKey(entry.id)) !==
         undefined
     );
   });

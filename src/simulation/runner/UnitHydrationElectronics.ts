@@ -18,7 +18,7 @@ import { equipmentSignalsFromFullUnit } from './UnitHydrationEquipment';
 import { hydratePilotAbilitiesFromFullUnit } from './UnitHydrationMovement';
 import {
   normalizeCriticalSlotText,
-  normalizeEquipmentId,
+  normalizeEquipmentSignalKey,
 } from './UnitHydrationText';
 
 function normalizeECMMode(mode: string | undefined): ECMMode | undefined {
@@ -140,7 +140,7 @@ const C3_EQUIPMENT_BY_ID: Readonly<Record<string, IC3EquipmentClassification>> =
   };
 
 function isBattleArmorC3Equipment(id: string): boolean {
-  const normalized = normalizeEquipmentId(id);
+  const normalized = normalizeEquipmentSignalKey(id);
   return (
     normalized === 'bc3' ||
     normalized === 'bc3i' ||
@@ -165,7 +165,7 @@ function isBattleMechC3EquipmentHost(fullUnit: IFullUnit): boolean {
 function classifyC3Equipment(id: string): IC3EquipmentClassification | null {
   if (isBattleArmorC3Equipment(id)) return null;
 
-  const normalized = normalizeEquipmentId(id);
+  const normalized = normalizeEquipmentSignalKey(id);
   const mapped = C3_EQUIPMENT_BY_ID[normalized];
   if (mapped) return mapped;
 
@@ -198,7 +198,7 @@ function classifyC3Equipment(id: string): IC3EquipmentClassification | null {
 }
 
 function classifyECMSuiteEquipment(id: string): ECMType | null {
-  const normalized = normalizeEquipmentId(id);
+  const normalized = normalizeEquipmentSignalKey(id);
   return (
     ECM_TYPE_BY_EQUIPMENT_ID[normalized] ??
     (normalized.includes('guardianecm')
@@ -243,7 +243,7 @@ const ACTIVE_PROBE_FALLBACK_TYPES: readonly {
 ];
 
 function classifyActiveProbeEquipment(id: string): IActiveProbe['type'] | null {
-  const normalized = normalizeEquipmentId(id);
+  const normalized = normalizeEquipmentSignalKey(id);
   return (
     ACTIVE_PROBE_TYPE_BY_EQUIPMENT_ID[normalized] ??
     ACTIVE_PROBE_FALLBACK_TYPES.find((entry) => entry.matches(normalized))
@@ -262,7 +262,7 @@ export function hydrateECMSuitesFromFullUnit(
     const type = classifyECMSuiteEquipment(signal.id);
     if (!type) continue;
 
-    const key = `${type}:${normalizeEquipmentId(signal.id)}:${signal.sourceLocation ?? ''}`;
+    const key = `${type}:${normalizeEquipmentSignalKey(signal.id)}:${signal.sourceLocation ?? ''}`;
     if (seen.has(key)) continue;
     seen.add(key);
 
@@ -290,7 +290,7 @@ export function hydrateActiveProbesFromFullUnit(
     const type = classifyActiveProbeEquipment(signal.id);
     if (!type) continue;
 
-    const key = `${type}:${normalizeEquipmentId(signal.id)}:${signal.sourceLocation ?? ''}`;
+    const key = `${type}:${normalizeEquipmentSignalKey(signal.id)}:${signal.sourceLocation ?? ''}`;
     if (seen.has(key)) continue;
     seen.add(key);
 
@@ -318,7 +318,7 @@ export function hydrateC3EquipmentFromFullUnit(
     const classification = classifyC3Equipment(signal.id);
     if (!classification) continue;
 
-    const key = `${classification.role}:${classification.boosted === true}:${normalizeEquipmentId(signal.id)}:${signal.sourceLocation ?? ''}`;
+    const key = `${classification.role}:${classification.boosted === true}:${normalizeEquipmentSignalKey(signal.id)}:${signal.sourceLocation ?? ''}`;
     if (seen.has(key)) continue;
     seen.add(key);
 

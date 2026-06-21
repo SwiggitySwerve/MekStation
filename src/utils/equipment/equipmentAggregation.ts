@@ -30,7 +30,8 @@ import {
   PHYSICAL_WEAPON_DEFINITIONS,
   IPhysicalWeapon,
 } from '@/types/equipment/PhysicalWeaponTypes';
-import { ALL_STANDARD_WEAPONS, IWeapon } from '@/types/equipment/weapons';
+import { IWeapon } from '@/types/equipment/weapons';
+import { ALL_STANDARD_WEAPONS } from '@/utils/equipment/weapons/utilities';
 
 import { weaponCategoryToEquipmentCategory } from './categoryRegistry';
 

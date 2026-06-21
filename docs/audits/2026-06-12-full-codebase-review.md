@@ -141,7 +141,7 @@ Each line: severity/lens · finding · `file` · MegaMek/MekHQ ref where applica
 
 ### Cluster H-ARCH — Load-bearing duplication (`health`)
 
-- **H-1 (high)** **Four divergent `normalizeEquipmentId` implementations** produce different keys for the same input (`'Ultra AC/5'` → `ultra-ac-5` / `uac-5` / `ultraac5` / catalog-dependent), each on a distinct pipeline (MTF import, unit-loader, sim hydration, BV catalog). Equipment resolved on one path can mismatch the same item on another — the exact silent-BV-gap class. `utils/construction/equipmentBV/normalization.ts:20` + 3 others.
+- **[resolved 2026-06-21] H-1 (high)** **Four divergent `normalizeEquipmentId` implementations** were routed through the catalog-backed normalizer by `consolidate-equipment-and-hex-duplication`. MTF import, unit-loader resolution, sim-runner catalog hydration, and BV catalog normalization now agree on the ambiguous corpus (`'Ultra AC/5'`, `'Clan ER PPC'`, `'LB 10-X AC'`, `'Rotary AC/5'`, Streak SRM ammo), with `equipmentNormalizationAgreement.test.ts` pinning the shared catalog keys.
 
 ---
 
@@ -204,10 +204,10 @@ The full set is below, grouped by cluster (severity in brackets; `CONTESTED` = o
 
 ### Architecture health (cluster H-ARCH)
 
-- [med] Dead cube-rounding picker `_pixelToHex`/`_roundHex` — correct math, zero importers; the _naive_ `pixelToHex` is the live picker. `HexMapDisplay/renderHelpers.ts:39`.
-- [med] Runtime cross-layer violation: `types/equipment/weapons` barrel re-exports a runtime equipment service back into the type layer (half-done migration). `types/equipment/weapons/index.ts:25`.
-- [med] Zustand store proliferation (~55 stores) with `useForceStore` vs `useForcesStore` name collision + 3-way roster/forces ownership overlap. `stores/useForceStore.ts:31`.
-- [low] Three `hexToPixel` + three `hexDistance` copies. · [low] Accumulating backward-compat re-export shims. · [low] Runtime circular dep `brushOffEligibility ↔ damage` (textbook-safe function cycle). · [low] `GameplayLayout` 1068-line orchestrator, 45 hook calls. (passthrough)
+- [resolved 2026-06-21] Dead cube-rounding picker `_pixelToHex`/`_roundHex` removed; the live `pixelToHex` now uses cube rounding and is pinned by `hexMap.test.ts`.
+- [resolved 2026-06-21] Runtime cross-layer violation removed from `types/equipment/weapons`; runtime weapon utilities are imported from `@/utils/equipment/weapons/utilities` directly.
+- [resolved 2026-06-21] `useForceStore` vs `useForcesStore` ownership collision documented: deployment/force-builder state belongs to `useForceStore`, campaign roster state belongs to the campaign `useForcesStore`. Broader store-count reduction remains out of scope for this consolidation.
+- [resolved 2026-06-21] Three `hexToPixel` + three `hexDistance` copies consolidated into shared layout and axial-distance homes, with source-stable shims delegating to the canonical functions. [low] Accumulating backward-compat re-export shims. [low] Runtime circular dep `brushOffEligibility <-> damage` (textbook-safe function cycle). [low] `GameplayLayout` 1068-line orchestrator, 45 hook calls. (passthrough)
 
 ### Test / CI integrity (cluster CI)
 

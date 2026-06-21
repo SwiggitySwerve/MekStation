@@ -1,8 +1,10 @@
 /**
  * Force Store
  *
- * Zustand store for managing force state in the UI.
+ * Zustand store for managing deployment and force-builder force state in the UI.
  * Uses API routes for persistence to avoid bundling SQLite in the browser.
+ * Campaign roster ownership lives in the campaign `useForcesStore`; this store
+ * owns standalone force summaries, selection, validation, and force API actions.
  *
  * @spec openspec/changes/add-force-management/proposal.md
  */

@@ -7,7 +7,7 @@ import {
 } from './UnitHydrationEquipment';
 import {
   normalizeCriticalSlotText,
-  normalizeEquipmentId,
+  normalizeEquipmentSignalKey,
 } from './UnitHydrationText';
 
 function initiativeStringField(
@@ -133,7 +133,7 @@ function communicationsTonnageFromEquipmentEntries(
       continue;
     }
 
-    if (normalizeEquipmentId(id) !== 'communicationsequipment') continue;
+    if (normalizeEquipmentSignalKey(id) !== 'communicationsequipment') continue;
 
     const tonnage = initiativeNumberField(
       entry,
@@ -159,7 +159,9 @@ function communicationsTonnageFromCriticalSlots(
   for (const slots of Object.values(criticalSlotsFromFullUnit(fullUnit))) {
     for (const slot of slots) {
       if (typeof slot !== 'string') continue;
-      if (!normalizeEquipmentId(slot).startsWith('communicationsequipment')) {
+      if (
+        !normalizeEquipmentSignalKey(slot).startsWith('communicationsequipment')
+      ) {
         continue;
       }
 
@@ -216,7 +218,7 @@ function commandConsoleProducerEquipmentIdsFromFullUnit(
   for (const signal of equipmentSignalsFromFullUnit(fullUnit)) {
     if (
       INITIATIVE_COMMAND_CONSOLE_PRODUCER_IDS.has(
-        normalizeEquipmentId(signal.id),
+        normalizeEquipmentSignalKey(signal.id),
       )
     ) {
       ids.add(signal.id);

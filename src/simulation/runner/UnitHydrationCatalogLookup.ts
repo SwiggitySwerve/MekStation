@@ -1,3 +1,4 @@
+import { normalizeEquipmentId as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
 import { NAME_MAPPINGS_DATA } from '@/utils/construction/equipmentBVCatalogData';
 
 import type {
@@ -6,6 +7,12 @@ import type {
   ICatalogWeaponStats,
   WeaponLookup,
 } from './UnitHydrationTypes';
+
+import {
+  normalizeCriticalSlotText,
+  normalizeEquipmentSignalKey,
+  normalizedWithoutTechPrefix,
+} from './UnitHydrationText';
 
 const SOURCE_BACKED_WEAPON_LOOKUP_ALIASES = {
   'plasma-cannon': 'clan-plasma-cannon',
@@ -28,23 +35,8 @@ interface CatalogWeaponCandidate {
   readonly techBase?: unknown;
 }
 
-function normalizeCriticalSlotText(text: string): string {
-  return text.toLowerCase().replace(/[^a-z0-9]/g, '');
-}
-
-function normalizeEquipmentId(id: string): string {
-  return id
-    .replace(/^\d+-/, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '');
-}
-
 function normalizeAmmoLookupKey(idOrName: string): string {
   return normalizeCriticalSlotText(idOrName);
-}
-
-function normalizedWithoutTechPrefix(normalized: string): string {
-  return normalized.replace(/^(is|clan|cl)/, '');
 }
 
 function readCatalogWeaponCandidate(
@@ -162,9 +154,11 @@ export function buildWeaponLookupFromCatalogFiles(
   addSourceBackedWeaponAliases(map);
 
   return (id: string) => {
-    const normalized = normalizeEquipmentId(id);
+    const canonical = normalizeCatalogEquipmentId(id);
+    const normalized = normalizeEquipmentSignalKey(id);
     return (
       map.get(id) ??
+      map.get(canonical) ??
       map.get(normalizeCriticalSlotText(id)) ??
       map.get(normalized) ??
       map.get(normalizedWithoutTechPrefix(normalized)) ??
@@ -242,6 +236,7 @@ export function buildAmmoLookupFromCatalogFiles(
 
   return (idOrName: string) =>
     byAlias.get(idOrName) ??
+    byAlias.get(normalizeCatalogEquipmentId(idOrName)) ??
     byAlias.get(normalizeAmmoLookupKey(idOrName)) ??
     null;
 }
