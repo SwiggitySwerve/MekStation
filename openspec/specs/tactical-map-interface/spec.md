@@ -532,9 +532,14 @@ ring's visibility to `useGameplayStore.attackPlan.targetId`.
 The tactical map interface SHALL provide a modal surface that displays the
 breakdown of to-hit modifiers for each selected weapon and the final TN
 for each, based on the `forecastToHit` projection from
-`to-hit-resolution`.
-
-**Priority**: Critical
+`to-hit-resolution`. The modal SHALL source the attacker and target to-hit
+state from the SAME shared engine state builders the commit path uses
+(`buildWeaponAttackAttackerToHitState` / `buildWeaponAttackTargetToHitState`)
+rather than a hand-built state, so that pilot wounds, sensor hits, actuator
+damage, SPAs, quirks, target-immobile, and target-partial-cover all reach the
+forecast. The modal SHALL pass the same semi-guided TAG context the commit path
+passes, so that each displayed final TN equals the number the attack would
+resolve at.
 
 #### Scenario: Modal opens from Preview Forecast
 
@@ -565,6 +570,28 @@ for each, based on the `forecastToHit` projection from
 - **WHEN** the modal renders
 - **THEN** the footer SHALL display `"Expected hits: 1.5"` (sum of
   probabilities rounded to 1 decimal)
+
+#### Scenario: Modal honors full attacker state, not a lossy subset
+
+- **GIVEN** a selected attacker whose pilot has 2 wounds, 1 sensor hit, a
+  damaged actuator, and a relevant SPA, firing at a target in partial cover
+- **WHEN** the forecast modal renders the weapon rows
+- **THEN** the modal SHALL build the to-hit state via the shared engine state
+  builders
+- **AND** the displayed final TN SHALL include the wound, sensor, actuator,
+  SPA, and partial-cover contributions
+- **AND** the displayed final TN SHALL equal the number the engine would
+  record on commit for the same attack
+
+#### Scenario: Modal honors semi-guided TAG context for a moving target
+
+- **GIVEN** a semi-guided LRM selected against a TAG-designated target that
+  moved this turn, with no ECM protection
+- **WHEN** the forecast modal renders that weapon's row
+- **THEN** the displayed final TN SHALL reflect the cancelled target-movement
+  modifier
+- **AND** the displayed final TN SHALL equal the number the attack resolves at
+  on commit
 
 ### Requirement: Waiting-for-Opponent Banner
 
