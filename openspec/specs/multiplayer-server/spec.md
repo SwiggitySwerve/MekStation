@@ -10,6 +10,12 @@ Defines Multiplayer Server requirements for WebSocket Transport, Message Envelop
 The system SHALL provide a bidirectional WebSocket channel for clients
 to exchange messages with the authoritative server during a networked
 match.
+The dev custom server (`npm run dev` -> root `server.js`) and the
+hydrated packaged-start server (`npm run build` -> `.next/standalone`
+hydration -> `npm run start`) SHALL dispatch authenticated socket
+connections through `MatchHostRegistry` and `ServerMatchHost`. The
+match-creation surface SHALL remain capacity-guarded so the exposed
+transport cannot be abused.
 
 #### Scenario: Client connects and joins
 
@@ -39,6 +45,58 @@ lastSeq: 0}`
 - **AND** the client SHALL reply with a `Heartbeat`
 - **AND** if either side misses three heartbeats in a row, the
   connection SHALL be torn down
+
+#### Scenario: Terminal binding failures close the handshake cleanly
+
+- **GIVEN** an authenticated client completes the WebSocket handshake
+- **WHEN** the server cannot bind the socket to a live host because the
+  match is unknown or the runtime binding fails
+- **THEN** the server SHALL send a typed `Error`/`Close` envelope
+  identifying the terminal failure
+- **AND** the server SHALL close the socket cleanly rather than leaving a
+  half-open connection
+- **AND** the server SHALL NOT silently accept intents it cannot dispatch.
+
+#### Scenario: Match creation is capacity-guarded
+
+- **GIVEN** the match-creation REST surface `POST /api/multiplayer/matches`
+- **WHEN** a single host creates matches faster than the configured budget
+  or beyond a per-host cap
+- **THEN** over-budget creates SHALL be rejected with a typed error
+- **AND** expired lobby matches SHALL be reaped by a TTL so match storage
+  cannot grow unbounded.
+
+### Requirement: Packaged-Build Multiplayer Reachability Is Smoke-Gated
+
+The system SHALL treat a WebSocket upgrade handler on the server that the
+packaged build actually runs as a prerequisite for multiplayer being
+reachable in a packaged (Docker/Electron) deployment. The packaged
+standalone output SHALL be hydrated with the root multiplayer-aware
+`server.js` and the generated Next config required by that standalone
+build. The spec SHALL NOT assert that packaged multiplayer is reachable
+unless the packaged-start smoke check proves socket upgrade and replay.
+
+#### Scenario: Packaged server owns the socket path
+
+- **GIVEN** the Next standalone build has been generated
+- **WHEN** the build is prepared for packaged runtime
+- **THEN** `.next/standalone/server.js` SHALL be hydrated with the root
+  multiplayer-aware custom server
+- **AND** the generated Next config SHALL be preserved for that server
+- **AND** no Next API route SHALL shadow `/api/multiplayer/socket`, because
+  ordinary HTTP fallback and WebSocket upgrade handling both belong to the
+  custom server.
+
+#### Scenario: Packaged-build smoke check gates the claim
+
+- **GIVEN** a packaged build whose server is expected to accept WebSocket
+  upgrades
+- **WHEN** a smoke check performs a WebSocket upgrade against the
+  packaged-build server
+- **THEN** the upgrade SHALL succeed before multiplayer is claimed reachable
+  in a packaged build
+- **AND** a failed upgrade SHALL mean the packaged build is treated as
+  multiplayer-unavailable.
 
 ### Requirement: Message Envelopes
 
@@ -888,4 +946,3 @@ The server SHALL treat a spectator as a distinct fog audience. In a fog-on match
 **GIVEN** a session that is bootstrap-initialized (not recovered)
 **WHEN** the session runs through combat normally
 **THEN** the new `adaptedUnits` derivation path inside `fromSession` SHALL NOT affect the bootstrap behavior (the same derivation function is called from both code paths, but the bootstrap path's call is unchanged)
-
