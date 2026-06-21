@@ -12,7 +12,6 @@ import {
   MovementType,
   type PhysicalAttackINarcPodSelection,
 } from '@/types/gameplay';
-import { declarePhysicalAttack } from '@/utils/gameplay/gameSession';
 import { isZweihanderPhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
 
 import type { IPhysicalAttackPlan } from './useGameplayStore.combatFlowTypes';
@@ -22,6 +21,11 @@ export interface IPhysicalAttackPlanState {
   setPhysicalAttackTarget: (unitId: string | null) => void;
   setPhysicalAttackType: (
     attackType: PhysicalAttackType | null,
+    limb?: PhysicalAttackLimb | null,
+  ) => void;
+  stagePhysicalAttackCommand: (
+    targetUnitId: string | null,
+    attackType: PhysicalAttackType,
     limb?: PhysicalAttackLimb | null,
   ) => void;
   setPhysicalAttackTwoHandedZweihander: (enabled: boolean) => void;
@@ -98,6 +102,31 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
         return { physicalAttackPlan: nextPlan };
       }),
 
+    stagePhysicalAttackCommand: (targetUnitId, attackType, limb = null) =>
+      set((state) => {
+        const { selectedINarcPod, ...basePlan } = state.physicalAttackPlan;
+        const nextPlan: IPhysicalAttackPlan = {
+          ...basePlan,
+          targetUnitId,
+          attackType,
+          limb,
+          twoHandedZweihander: isZweihanderPhysicalAttackType(attackType)
+            ? state.physicalAttackPlan.twoHandedZweihander
+            : false,
+          forecastRequestId:
+            (state.physicalAttackPlan.forecastRequestId ?? 0) + 1,
+        };
+        if (attackType === 'brush-off' && selectedINarcPod !== undefined) {
+          return {
+            physicalAttackPlan: {
+              ...nextPlan,
+              selectedINarcPod,
+            },
+          };
+        }
+        return { physicalAttackPlan: nextPlan };
+      }),
+
     setPhysicalAttackTwoHandedZweihander: (enabled) =>
       set((state) => ({
         physicalAttackPlan: {
@@ -139,11 +168,11 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
       const hexesMoved =
         args.hexesMoved ?? attackerState?.hexesMovedThisTurn ?? 0;
 
-      const nextSession = declarePhysicalAttack(
-        baseSession,
+      args.interactiveSession.applyPhysicalAttack(
         args.attackerId,
         plan.targetUnitId,
         plan.attackType,
+        plan.limb ?? undefined,
         {
           attackerTonnage,
           targetTonnage,
@@ -153,7 +182,6 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
           attackerMovementMode: args.attackerMovementMode,
           optionalRules: args.optionalRules,
           targetUnitType: args.targetUnitType,
-          limb: plan.limb ?? undefined,
           arm: armForPhysicalLimb(plan.limb),
           twoHandedZweihander: plan.twoHandedZweihander,
           selectedINarcPod: plan.selectedINarcPod,
@@ -172,7 +200,7 @@ export const usePhysicalAttackPlanStore = create<IPhysicalAttackPlanState>(
       );
 
       set({ physicalAttackPlan: EMPTY_PHYSICAL_PLAN });
-      return nextSession;
+      return args.interactiveSession.getSession();
     },
   }),
 );

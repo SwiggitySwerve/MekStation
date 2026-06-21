@@ -23,6 +23,7 @@ import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   GameSide,
+  GameStatus,
   type IGameSession,
   type IGameConfig,
   type IGameUnit,
@@ -65,6 +66,7 @@ import {
   requestInteractiveSessionSpot,
   twistInteractiveSessionTorso,
   type ApplyMovementArgs,
+  type IInteractiveSessionPhysicalAttackOptions,
 } from './InteractiveSession.commands';
 import {
   abortInteractiveSession,
@@ -149,6 +151,7 @@ export class InteractiveSession {
    * `isGameOver`). Spec: "Event idempotent per session".
    */
   private outcomePublished = false;
+  private matchLogDiverged = false;
   private readonly linkage: IInteractiveSessionLinkage;
 
   constructor(...args: InteractiveSessionConstructorArgs) {
@@ -230,6 +233,10 @@ export class InteractiveSession {
       setOutcomePublished: (published) => {
         this.outcomePublished = published;
       },
+      markMatchLogDiverged: () => {
+        this.matchLogDiverged = true;
+      },
+      hasMatchLogDiverged: () => this.matchLogDiverged,
     };
   }
 
@@ -336,6 +343,12 @@ export class InteractiveSession {
     appendAndPersistInteractiveSessionEvent(this.runtimeContext, event);
   };
 
+  private assertActiveForAction = (): void => {
+    if (this.session.currentState.status !== GameStatus.Active) {
+      throw new Error('Game is not active');
+    }
+  };
+
   /**
    * Per `add-movement-phase-ui` § 2: surface the cached
    * `IMovementCapability` (walk/run/jump MP) for a unit so the
@@ -392,6 +405,7 @@ export class InteractiveSession {
   };
 
   applyMovement = (...args: ApplyMovementArgs): void => {
+    this.assertActiveForAction();
     applyInteractiveSessionMovementCommand(this.runtimeContext, ...args);
   };
 
@@ -422,6 +436,7 @@ export class InteractiveSession {
     unitId: string,
     patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
   ): void => {
+    this.assertActiveForAction();
     applyInteractiveSessionRuntimeMovementStateCommand(
       this.runtimeContext,
       unitId,
@@ -436,6 +451,7 @@ export class InteractiveSession {
     weaponModesByWeaponId?: Readonly<Record<string, WeaponFireMode>>,
     selectedAMSWeaponIds?: Readonly<Record<string, string>>,
   ): void => {
+    this.assertActiveForAction();
     applyInteractiveSessionAttackCommand(
       this.runtimeContext,
       attackerId,
@@ -451,13 +467,16 @@ export class InteractiveSession {
     targetId: string,
     attackType: PhysicalAttackType,
     limb?: PhysicalAttackLimb,
+    options?: IInteractiveSessionPhysicalAttackOptions,
   ): void => {
+    this.assertActiveForAction();
     applyInteractiveSessionPhysicalAttackCommand(
       this.runtimeContext,
       attackerId,
       targetId,
       attackType,
       limb,
+      options,
     );
   };
 
@@ -481,6 +500,7 @@ export class InteractiveSession {
     unitId: string,
     edge: 'north' | 'south' | 'east' | 'west',
   ): void => {
+    this.assertActiveForAction();
     declareInteractiveSessionWithdrawal(this.runtimeContext, unitId, edge);
   };
 
@@ -536,6 +556,14 @@ export class InteractiveSession {
    */
   hasPublishedOutcome = (): boolean => {
     return hasInteractiveSessionPublishedOutcome(this.runtimeContext);
+  };
+
+  hasMatchLogDiverged = (): boolean => {
+    return this.matchLogDiverged;
+  };
+
+  isMatchLogHealthy = (): boolean => {
+    return !this.matchLogDiverged;
   };
 
   isGameOver = (): boolean => {

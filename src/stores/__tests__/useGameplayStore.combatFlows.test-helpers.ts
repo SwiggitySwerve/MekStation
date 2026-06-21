@@ -16,6 +16,10 @@
  */
 
 import type { InteractiveSession } from '@/engine/GameEngine';
+import type {
+  PhysicalAttackLimb,
+  PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks/types';
 
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { useGameplayStore } from '@/stores/useGameplayStore';
@@ -32,6 +36,10 @@ import {
   type IINarcPodState,
   type IPhysicalAttackDeclaredPayload,
 } from '@/types/gameplay';
+import {
+  declarePhysicalAttack,
+  type IPhysicalAttackContext,
+} from '@/utils/gameplay/gameSession';
 
 interface FakeSessionCalls {
   movement: Array<{
@@ -589,6 +597,29 @@ function buildPhysicalFakeSession(
     concede: () => undefined,
     applyMovement: () => undefined,
     applyAttack: () => undefined,
+    applyPhysicalAttack: (
+      attackerId: string,
+      targetId: string,
+      attackType: PhysicalAttackType,
+      limb?: PhysicalAttackLimb,
+      options?: Partial<IPhysicalAttackContext>,
+    ) => {
+      const attackerState = snapshot.currentState.units[attackerId] ?? null;
+      snapshot = declarePhysicalAttack(
+        snapshot,
+        attackerId,
+        targetId,
+        attackType,
+        {
+          attackerTonnage: 50,
+          targetTonnage: 50,
+          pilotingSkill: 4,
+          hexesMoved: attackerState?.hexesMovedThisTurn ?? 0,
+          ...options,
+          limb,
+        },
+      );
+    },
     __setSession: (s: IGameSession) => {
       snapshot = s;
     },

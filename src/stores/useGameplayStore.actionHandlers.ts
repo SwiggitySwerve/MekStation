@@ -1,4 +1,8 @@
 import type { InteractiveSession } from '@/engine/GameEngine';
+import type {
+  PhysicalAttackLimb,
+  PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks/types';
 
 import {
   Facing,
@@ -25,13 +29,18 @@ import {
   rollInitiative,
   torsoTwist,
 } from '@/utils/gameplay/gameSession';
+import { isSupportedPhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
 import { logger } from '@/utils/logger';
+
+import { usePhysicalAttackPlanStore } from './useGameplayStore.physicalAttackPlan';
 
 export interface IGameplayActionPayload {
   readonly direction?: 'left' | 'right';
   readonly secondaryFacing?: Facing;
   readonly unitId?: string;
   readonly targetUnitId?: string;
+  readonly attackType?: PhysicalAttackType;
+  readonly limb?: PhysicalAttackLimb;
 }
 
 interface GameplayActionContext {
@@ -79,6 +88,7 @@ const GAMEPLAY_ACTION_HANDLERS: Readonly<
   clear: handleClearAction,
   'next-turn': handleNextTurnAction,
   concede: handleConcedeAction,
+  'physical-attack': handlePhysicalAttackAction,
 };
 
 export function handleActionLogic(
@@ -255,6 +265,26 @@ function handleRequestSpotAction(context: GameplayActionContext): void {
   }
 
   clearSelectedUnit(context, requestSpot(session, unitId, targetId));
+}
+
+function handlePhysicalAttackAction(context: GameplayActionContext): void {
+  const { phase, payload, selectedUnitId, ui } = context;
+  if (phase !== GamePhase.PhysicalAttack || !selectedUnitId) return;
+  if (!isSupportedPhysicalAttackType(payload?.attackType)) return;
+
+  const targetUnitId = payload?.targetUnitId ?? ui.targetUnitId;
+  if (!targetUnitId) return;
+
+  usePhysicalAttackPlanStore
+    .getState()
+    .stagePhysicalAttackCommand(
+      targetUnitId,
+      payload.attackType,
+      payload.limb ?? null,
+    );
+  context.set((state) => ({
+    ui: { ...state.ui, targetUnitId },
+  }));
 }
 
 function handleContinueAction(context: GameplayActionContext): void {

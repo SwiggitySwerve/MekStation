@@ -51,6 +51,7 @@ export function runOneSpectatorTurn(
   advanceIfPhase(interactiveSession, GamePhase.Initiative);
   runAiPhase(interactiveSession, GamePhase.Movement);
   runAiPhase(interactiveSession, GamePhase.WeaponAttack);
+  runAiPhase(interactiveSession, GamePhase.PhysicalAttack);
   advanceIfPhase(interactiveSession, GamePhase.Heat);
   advanceIfPhase(interactiveSession, GamePhase.End);
 

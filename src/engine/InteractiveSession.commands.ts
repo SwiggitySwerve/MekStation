@@ -57,6 +57,28 @@ export type ApplyMovementArgs = [
   },
 ];
 
+export type IInteractiveSessionPhysicalAttackOptions = Partial<
+  Pick<
+    IPhysicalAttackContext,
+    | 'attackerTonnage'
+    | 'targetTonnage'
+    | 'pilotingSkill'
+    | 'hexesMoved'
+    | 'attackerUnitType'
+    | 'attackerMovementMode'
+    | 'optionalRules'
+    | 'targetUnitType'
+    | 'arm'
+    | 'twoHandedZweihander'
+    | 'selectedINarcPod'
+    | 'weaponsFiredFromArm'
+    | 'attackerRanThisTurn'
+    | 'attackerJumpedThisTurn'
+    | 'elevationContext'
+    | 'terrainContext'
+  >
+>;
+
 export function applyInteractiveSessionMovementCommand(
   context: IInteractiveSessionRuntimeContext,
   ...args: ApplyMovementArgs
@@ -183,6 +205,7 @@ export function applyInteractiveSessionPhysicalAttackCommand(
   targetId: string,
   attackType: PhysicalAttackType,
   limb?: PhysicalAttackLimb,
+  options: IInteractiveSessionPhysicalAttackOptions = {},
 ): void {
   const baseContext =
     physicalContextByInteractiveSessionUnit(context).get(attackerId);
@@ -203,6 +226,7 @@ export function applyInteractiveSessionPhysicalAttackCommand(
       jumpMP: context.movementByUnit.get(attackerId)?.jumpMP ?? 0,
     }),
     elevationDifference,
+    ...options,
     limb,
     targetMovementComplete: true,
   };

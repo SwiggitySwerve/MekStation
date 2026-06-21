@@ -1,6 +1,7 @@
 import type { InteractiveSession } from '@/engine/GameEngine';
 
 import { InteractivePhase, useGameplayStore } from '@/stores/useGameplayStore';
+import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
 import {
   DEFAULT_UI_STATE,
   Facing,
@@ -97,6 +98,16 @@ function forceWeaponAttackState(session: IGameSession): IGameSession {
   };
 }
 
+function forcePhysicalAttackState(session: IGameSession): IGameSession {
+  return {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      phase: GamePhase.PhysicalAttack,
+    },
+  };
+}
+
 function forceHeatState(session: IGameSession): IGameSession {
   return {
     ...session,
@@ -159,6 +170,7 @@ function forceProneMovementState(session: IGameSession): IGameSession {
 describe('useGameplayStore utility actions', () => {
   beforeEach(() => {
     useGameplayStore.getState().reset();
+    usePhysicalAttackPlanStore.getState().clearPhysicalAttackPlan();
   });
 
   it('turns the eject action into UnitEjected state for local sessions', () => {
@@ -809,6 +821,32 @@ describe('useGameplayStore utility actions', () => {
     expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
     expect(useGameplayStore.getState().ui.targetUnitId).toBeNull();
     expect(useGameplayStore.getState().ui.queuedWeaponIds).toEqual([]);
+  });
+
+  it('stages a physical-attack dock command into the forecast commit flow', () => {
+    const session = forcePhysicalAttackState(makeSession());
+    useGameplayStore.setState({
+      session,
+      ui: {
+        ...DEFAULT_UI_STATE,
+        selectedUnitId: 'player-a',
+        targetUnitId: 'opponent-a',
+      },
+    });
+
+    useGameplayStore.getState().handleAction('physical-attack', {
+      attackType: 'kick',
+      limb: 'rightLeg',
+    });
+
+    expect(usePhysicalAttackPlanStore.getState().physicalAttackPlan).toEqual({
+      targetUnitId: 'opponent-a',
+      attackType: 'kick',
+      limb: 'rightLeg',
+      twoHandedZweihander: false,
+      forecastRequestId: 1,
+    });
+    expect(useGameplayStore.getState().ui.targetUnitId).toBe('opponent-a');
   });
 
   it('no-ops request-spot when the spotter is already spotting', () => {

@@ -22,6 +22,8 @@
 
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
+import { logger } from '@/utils/logger';
+
 // =============================================================================
 // Event Payload
 // =============================================================================
@@ -67,20 +69,21 @@ export function subscribeToCombatOutcome(
  * Synchronous — listeners run before this returns. Listener throws are
  * isolated so a buggy subscriber can't take down the engine.
  */
-export function publishCombatOutcome(event: ICombatOutcomeReadyEvent): void {
+export function publishCombatOutcome(event: ICombatOutcomeReadyEvent): boolean {
   // Snapshot the listeners before iterating so a subscriber that calls
   // `subscribeToCombatOutcome` / unsubscribe during dispatch can't mutate
   // the iteration set.
   const snapshot = Array.from(listeners);
+  let consumed = false;
   for (const listener of snapshot) {
     try {
       listener(event);
-    } catch {
-      // Swallowed by design — the engine cannot fail because of a bad
-      // subscriber. Production callers should attach their own error
-      // logging inside the listener body.
+      consumed = true;
+    } catch (error) {
+      logger.error('CombatOutcomeReady subscriber failed', error);
     }
   }
+  return consumed;
 }
 
 /**

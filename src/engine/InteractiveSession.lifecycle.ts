@@ -182,7 +182,11 @@ export function hasInteractiveSessionPublishedOutcome(
 export function isInteractiveSessionGameOver(
   context: IInteractiveSessionRuntimeContext,
 ): boolean {
-  return isGameEnded(context.getSession().currentState, context.gameConfig);
+  const state = context.getSession().currentState;
+  return (
+    state.status === GameStatus.Completed ||
+    isGameEnded(state, context.gameConfig)
+  );
 }
 
 export function getInteractiveSessionResult(
