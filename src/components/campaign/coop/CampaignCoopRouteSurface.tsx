@@ -215,7 +215,7 @@ export interface CampaignCoopRouteSurfaceProps {
  * decision when no live transport exists. Live transport replaces this
  * prop.
  */
-const defaultPendingTransport = async (
+const defaultUnavailableTransport = async (
   proposal: import('@/types/campaign/CoopCampaign').IGuestProposal,
 ): Promise<GuestProposalResult> => ({
   status: 'mechanically-rejected',
@@ -235,7 +235,7 @@ export function CampaignCoopRouteSurface(
     onDecide = () => {
       /* Wave 6.2 wires to CampaignGmArbiter.decide */
     },
-    proposalTransport = defaultPendingTransport,
+    proposalTransport = defaultUnavailableTransport,
     proposingPlayerId = 'co-op-guest',
   } = props;
 

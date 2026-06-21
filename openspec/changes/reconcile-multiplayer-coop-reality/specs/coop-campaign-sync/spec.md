@@ -68,7 +68,7 @@ to be in progress forever.
 
 #### Scenario: Not-yet-wired guest proposal does not pend forever
 
-**GIVEN** the live co-op transport is NOT yet wired (`CampaignCoopRouteSurface` mounts with the default `defaultPendingTransport`, `src/components/campaign/coop/CampaignCoopRouteSurface.tsx:216`)
+**GIVEN** the live co-op transport is NOT yet wired (`CampaignCoopRouteSurface` mounts with the default unavailable proposal transport, `src/components/campaign/coop/CampaignCoopRouteSurface.tsx:216`)
 **WHEN** a guest submits a campaign action
 **THEN** the action SHALL NOT be left in a `pending` state indefinitely with no path to resolution
 **AND** the surface SHALL communicate that co-op proposal transport is unavailable rather than appearing to be awaiting a host decision
@@ -104,8 +104,8 @@ both-forces encounter entry point rather than the single-player route.
 - **THEN** the proposal SHALL be delivered to the host via
   `CampaignSyncSession`/`CampaignGmArbiter`
 - **AND** the proposal SHALL resolve to committed, vetoed, or
-  mechanically-rejected rather than `defaultPendingTransport`'s permanent
-  `pending`.
+  mechanically-rejected through the real transport rather than the
+  default unavailable transport's `session-closed` rejection.
 
 #### Scenario: Co-op launch syncs participation and uses the composed encounter
 
