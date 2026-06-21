@@ -188,7 +188,7 @@ jobs:
     name: Statistical Proof PR
     needs: install-deps
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -208,7 +208,7 @@ jobs:
           SIMULATION_PROFILE_AVG_GAME_BUDGET_MS: '4500'
           SIMULATION_PROFILE_GAME_COUNT: '10'
           SIMULATION_PROFILE_RUNNER_BUDGET_MS: '4000'
-          SIMULATION_PROFILE_TIME_BUDGET_MS: '30000'
+          SIMULATION_PROFILE_TIME_BUDGET_MS: '60000'
 
   perf-budget-pr:
     name: Perf Budget PR

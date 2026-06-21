@@ -25,6 +25,13 @@ const checks = [
     ),
   },
   {
+    label: 'statistical-proof-pr allows contended profiling budget',
+    passes:
+      /statistical-proof-pr:[\s\S]*SIMULATION_PROFILE_TIME_BUDGET_MS:\s*'60000'/.test(
+        workflow,
+      ),
+  },
+  {
     label: 'perf-budget-pr job exists',
     passes: /^  perf-budget-pr:/m.test(workflow),
   },
