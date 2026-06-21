@@ -12,6 +12,8 @@
 
 import { test, expect, type Page } from '@playwright/test';
 
+import { seedCareerPilot } from './helpers/campaignSeeders';
+
 test.setTimeout(30000);
 
 // =============================================================================
@@ -128,19 +130,23 @@ test.describe('Pilot Career Timeline Tab', () => {
   test('pilot detail page has Career History tab', async ({ page }) => {
     await navigateToPilots(page);
 
-    const pilotCards = page.locator(
-      '[data-testid="pilot-card"], a[href*="/gameplay/pilots/"]',
-    );
-    const pilotCount = await pilotCards.count();
+    const seededPilot = await seedCareerPilot(page, {
+      name: 'E2E Career Pilot',
+      callsign: 'Ledger',
+      affiliation: 'E2E Test Command',
+    });
 
-    // Skip if no pilots exist - this test requires seed data
-    test.skip(
-      pilotCount === 0,
-      'No pilots available - test requires pilot data',
+    const pilotLink = page.locator(
+      `a[href="/gameplay/pilots/${seededPilot.id}"]`,
     );
-
-    await pilotCards.first().click();
+    await expect(pilotLink).toBeVisible({ timeout: 5000 });
+    await pilotLink.click();
     await page.waitForLoadState('networkidle');
+
+    await expect(
+      page.getByRole('heading', { name: seededPilot.name }),
+    ).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(`"${seededPilot.callsign}"`)).toBeVisible();
 
     // Check for Career History tab
     const careerTab = page.getByRole('button', { name: /Career History/i });
@@ -150,7 +156,13 @@ test.describe('Pilot Career Timeline Tab', () => {
     await careerTab.click();
 
     // Should show career history content
-    await expect(page.locator('text=Career History').first()).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Career History' }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(`Event timeline for ${seededPilot.name}`),
+    ).toBeVisible();
+    await expect(page.getByText('0 events')).toBeVisible();
   });
 });
 

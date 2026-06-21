@@ -73,19 +73,19 @@ export const KNOWN_LIMITATION_VALIDATION_TRAPS = [
   readonly message: string;
 }[];
 
-const KNOWN_LIMITATION_BYPASS_SOURCE_REFS = [
+const KNOWN_LIMITATION_OPT_IN_SOURCE_REFS = [
   mekstationDeviationSourceRef(
-    'MekStation knownLimitations declares the battlemech-combat-validation invariant as an evidence-generator bypass before broad limitation matching.',
+    'MekStation knownLimitations suppresses only legacy allowlisted detectors or explicit legacy markers, so BattleMech validation invariants are visible by default.',
     'src/simulation/core/knownLimitations.ts',
     'L148-L210',
   ),
   mekstationDeviationSourceRef(
-    'MekStation knownLimitations returns null categories for bypassing validation-suite invariants while preserving broad pattern audit lookup.',
+    'MekStation knownLimitations returns null suppression categories for non-legacy validation-suite invariants while preserving broad pattern audit lookup.',
     'src/simulation/core/knownLimitations.ts',
     'L230-L243',
   ),
   mekstationDeviationSourceRef(
-    'MekStation battlemechCombatCatalog.contract proves BattleMech validation traps are not filtered as known limitations.',
+    'MekStation battlemechCombatCatalog.contract proves BattleMech validation traps are not suppressed as known limitations.',
     'src/simulation/runner/__tests__/battlemechCombatCatalog.19.audits-known-limitation-traps-without-filtering-combat.fragment.ts',
     'L4-L24',
   ),
@@ -231,8 +231,8 @@ const UNRESOLVED_COMPLETION_BLOCKER_INVENTORY_SOURCE_REFS = [
 export const BATTLEMECH_VALIDATION_SCOPE_SUPPORT = {
   'known-limitation-bypass': integrated(
     'known-limitation-bypass',
-    'knownLimitations.ts bypasses the battlemech-combat-validation invariant before broad limitation detection, filtering, and partitioning',
-    KNOWN_LIMITATION_BYPASS_SOURCE_REFS,
+    'knownLimitations.ts suppresses only explicit legacy generic detector output; BattleMech validation invariants remain visible while broad pattern audit lookup stays available',
+    KNOWN_LIMITATION_OPT_IN_SOURCE_REFS,
   ),
   'known-limitation-pattern-audit': integrated(
     'known-limitation-pattern-audit',

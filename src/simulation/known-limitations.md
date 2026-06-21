@@ -19,11 +19,11 @@ catalog marks them integrated. Feature status lives in the honest ledgers:
   printable via `npx tsx scripts/print-combat-validation-gaps.ts`
 
 **Why the buckets survive after the features shipped:** the regex buckets only
-filter messages from _legacy generic detectors_. The BattleMech combat
-validation lane bypasses this filter entirely (the
-`battlemech-combat-validation` invariant is an explicit bypass in
-`knownLimitations.ts`, proven by `combatValidationScope.contract.test.ts`), so
-real validation evidence is never suppressed. Removing a bucket is safe only
+filter messages from _legacy generic detectors_. Suppression is explicit opt-in:
+`knownLimitations.ts` suppresses only allowlisted legacy detector invariants or
+violations carrying an explicit legacy marker. New validation invariants,
+including `battlemech-combat-validation`, are visible by default even when their
+message text matches one of the broad buckets. Removing a bucket is safe only
 after auditing that no legacy detector still emits matching messages.
 
 ---
@@ -34,7 +34,7 @@ after auditing that no legacy detector still emits matching messages.
 
 **Why**: The current BattleMech combat stack has runtime support for punch, kick, push, charge, death-from-above, and the supported melee weapon attack types (hatchet, sword, mace, lance, retractable blade, flail, wrecking ball). The broad `physicalAttacks` known-limitation bucket is retained only for older generic invariant reports whose messages do not distinguish implemented BattleMech mechanics from missing physical-combat families.
 
-**Catalog validation rule**: BattleMech combat validation invariants must not be filtered through this broad bucket. They bypass known-limitation filtering via `battlemech-combat-validation` and use the explicit support maps under `src/simulation/runner/` to classify integrated, helper-only, and unsupported physical behavior.
+**Catalog validation rule**: BattleMech combat validation invariants must not be filtered through this broad bucket. They are not on the suppressible legacy-detector allowlist, so `battlemech-combat-validation` failures remain visible while the explicit support maps under `src/simulation/runner/` classify integrated, helper-only, and unsupported physical behavior.
 
 **Current explicit boundaries** (see the gap inventory for the authoritative
 list):
@@ -101,9 +101,10 @@ Rotary AC/5 weapon rows. Keep RAC/10 and RAC/20 compatibility from silently
 falling back to arbitrary Rotary AC rows unless matching official BattleMech
 weapon rows exist in the imported catalog.
 
-**Hazard note**: a real ammo-tracking regression reported by a legacy generic
-detector would be filtered by this bucket. Catalog-lane invariants bypass the
-filter and are the enforcement surface for ammo behavior.
+**Hazard note**: a real ammo-tracking regression reported by an allowlisted
+legacy generic detector would be filtered by this bucket. Catalog-lane
+invariants are not suppressible by this filter and are the enforcement surface
+for ammo behavior.
 
 ---
 
@@ -120,8 +121,8 @@ fire (`phases/heatThresholdEvents.ts`, `phases/heatAmmoExplosions.ts`,
 `phases/heatCriticalDamage.ts`). The bucket survives only for legacy generic
 detectors with shutdown-themed messages.
 
-**Hazard note**: same as ammo — catalog-lane invariants bypass this filter and
-are the enforcement surface for heat behavior.
+**Hazard note**: same as ammo: catalog-lane invariants are not suppressible by
+this filter and are the enforcement surface for heat behavior.
 
 ---
 
@@ -378,9 +379,9 @@ subsystem remain stubbed (`@stub` markers in
 ### For Simulation Developers
 
 The exclusion buckets apply ONLY to legacy generic detectors. New invariants
-that produce validation evidence must register under (or alongside) the
-`battlemech-combat-validation` bypass so they are never filtered. Do not add
-new broad buckets for shipped features.
+that produce validation evidence should not be added to the suppressible
+legacy-detector allowlist; they surface by default even when their message text
+matches a broad bucket. Do not add new broad buckets for shipped features.
 
 ### For Game Engine Developers
 
@@ -395,17 +396,17 @@ When a feature listed here changes status:
 ### For Simulation Report Reviewers
 
 If a violation was filtered as a known limitation but the section above says
-the feature is implemented, treat it as a potential masked bug: re-run the
-catalog validation lane (which bypasses the filter) before dismissing it.
+the feature is implemented, treat it as a potential masked bug: confirm the
+emitting invariant is intentionally allowlisted as a legacy detector, then
+re-run the catalog validation lane before dismissing it.
 
 ---
 
 ## Maintenance
 
-**Last Updated**: 2026-06-10 (2026-06-09 audit finding E-10 — stale
-unimplemented claims for LOS / heat shutdown / critical effects / pilot
-checks / ammo consumption / terrain costs corrected against
-`CombatValidationCatalog` + `CombatValidationGapInventory`)
+**Last Updated**: 2026-06-21 (`restore-ci-correctness-teeth` inverted
+suppression from broad message-text matching to explicit legacy-detector
+opt-in, keeping new validation invariants visible by default)
 
 **Review Frequency**: Update this document whenever:
 
