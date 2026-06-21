@@ -17,6 +17,8 @@
 
 import type { Page } from '@playwright/test';
 
+import { createTestPilot, PILOT_SKILL_PRESETS } from '../fixtures/pilot';
+
 // =============================================================================
 // Helper input shapes
 // =============================================================================
@@ -61,9 +63,34 @@ export interface ISeedHiringCandidate {
   readonly hireBonus: number;
 }
 
+export interface ISeedCareerPilotOpts {
+  readonly name?: string;
+  readonly callsign?: string;
+  readonly affiliation?: string;
+}
+
+export interface ISeedCareerPilotResult {
+  readonly id: string;
+  readonly name: string;
+  readonly callsign: string;
+  readonly affiliation: string;
+}
+
 // =============================================================================
 // Internal: store accessor
 // =============================================================================
+
+async function waitForPilotStore(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () =>
+      Boolean(
+        (window as unknown as { __ZUSTAND_STORES__?: Record<string, unknown> })
+          .__ZUSTAND_STORES__?.pilot,
+      ),
+    undefined,
+    { timeout: 15_000 },
+  );
+}
 
 /**
  * Apply a campaign-store `updateCampaign(updates)` from the test side.
@@ -121,6 +148,70 @@ async function applyCampaignUpdate(
 // =============================================================================
 // Seeders
 // =============================================================================
+
+/**
+ * Seed a pilot that the roster and career-history navigation specs can assert
+ * against without relying on ambient local database state.
+ */
+export async function seedCareerPilot(
+  page: Page,
+  opts: ISeedCareerPilotOpts = {},
+): Promise<ISeedCareerPilotResult> {
+  await waitForPilotStore(page);
+
+  const seededPilot = {
+    name: opts.name ?? `E2E Career Pilot ${Date.now()}`,
+    callsign: opts.callsign ?? 'Ledger',
+    affiliation: opts.affiliation ?? 'E2E Test Command',
+  };
+  const id = await createTestPilot(page, {
+    ...seededPilot,
+    skills: PILOT_SKILL_PRESETS.veteran,
+    startingXp: 12,
+    rank: 'MechWarrior',
+  });
+
+  if (!id) {
+    throw new Error('Pilot seeder failed to create a career-history pilot');
+  }
+
+  await page.waitForFunction(
+    (pilotId) => {
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            pilot?: {
+              getState?: () => {
+                pilots?: unknown;
+              };
+            };
+          };
+        }
+      ).__ZUSTAND_STORES__;
+      const pilots = stores?.pilot?.getState?.().pilots;
+
+      if (pilots instanceof Map) {
+        return pilots.has(pilotId);
+      }
+
+      if (Array.isArray(pilots)) {
+        return pilots.some(
+          (pilot) =>
+            typeof pilot === 'object' &&
+            pilot !== null &&
+            'id' in pilot &&
+            pilot.id === pilotId,
+        );
+      }
+
+      return false;
+    },
+    id,
+    { timeout: 15_000 },
+  );
+
+  return { id, ...seededPilot };
+}
 
 /**
  * Seed an injured-pilot row on the medical bay. Surfaces in

@@ -377,6 +377,50 @@ describe('knownLimitations', () => {
 
         expect(isKnownLimitation(violation)).toBe(false);
       });
+
+      it('should surface new detector violations even when message text contains a legacy substring', () => {
+        const violation: IViolation = {
+          invariant: 'some-new-detector',
+          severity: 'error',
+          message: 'Capacitor discharge caused invalid thermal state',
+          context: {},
+        };
+
+        expect(isKnownLimitation(violation)).toBe(false);
+        expect(filterKnownLimitations([violation])).toEqual([violation]);
+        expect(partitionViolations([violation])).toEqual({
+          knownLimitations: [],
+          potentialBugs: [violation],
+        });
+      });
+
+      it('should still suppress explicitly allowlisted legacy detector violations', () => {
+        const violation: IViolation = {
+          invariant: 'checkPhysicalAttack',
+          severity: 'warning',
+          message: 'Unit should have charge option available',
+          context: {},
+        };
+
+        expect(isKnownLimitation(violation)).toBe(true);
+        expect(filterKnownLimitations([violation])).toEqual([]);
+        expect(partitionViolations([violation])).toEqual({
+          knownLimitations: [violation],
+          potentialBugs: [],
+        });
+      });
+
+      it('should suppress explicit legacy generic marker violations', () => {
+        const violation: IViolation = {
+          invariant: 'retired-generic-check',
+          severity: 'warning',
+          message: 'Physical attack not available in legacy generic scan',
+          context: { legacyGeneric: true },
+        };
+
+        expect(isKnownLimitation(violation)).toBe(true);
+        expect(getLimitationCategory(violation)).toBe('physicalAttacks');
+      });
     });
 
     describe('edge cases', () => {

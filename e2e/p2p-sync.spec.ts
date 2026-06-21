@@ -261,26 +261,18 @@ test.describe('P2P Sync - Multi-Peer Flow', () => {
   // The underlying sync logic is tested in unit tests:
   // - src/lib/p2p/__tests__/useSyncedVaultStore.test.ts
 
-  test.skip('two peers can connect via room code', async () => {
-    // This test would:
-    // 1. Create two browser contexts
-    // 2. Peer A creates room
-    // 3. Peer B joins with room code
-    // 4. Both see peer count = 1
+  test.fixme('two peers can connect via room code', async () => {
+    // Wave 2 `reconcile-multiplayer-coop-reality`: replace this explicit
+    // deferral with a two-context/WebRTC transport assertion.
   });
 
-  test.skip('data syncs between connected peers', async () => {
-    // This test would:
-    // 1. Connect two peers
-    // 2. Peer A adds item
-    // 3. Peer B sees item appear
+  test.fixme('data syncs between connected peers', async () => {
+    // Wave 2 `reconcile-multiplayer-coop-reality`: assert cross-peer item
+    // propagation once the e2e harness owns real multi-peer transport.
   });
 
-  test.skip('peer reconnects after network interruption', async () => {
-    // This test would:
-    // 1. Connect two peers
-    // 2. Simulate network interruption for Peer B
-    // 3. Peer A adds items while B offline
-    // 4. Peer B reconnects and receives missed items
+  test.fixme('peer reconnects after network interruption', async () => {
+    // Wave 2 `reconcile-multiplayer-coop-reality`: assert reconnect replay once
+    // network interruption simulation is supported by the harness.
   });
 });

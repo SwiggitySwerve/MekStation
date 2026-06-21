@@ -184,6 +184,90 @@ jobs:
           SWARM_THROUGHPUT_RUN_COUNT: '25'
           SWARM_THROUGHPUT_TIME_BUDGET_MS: '15000'
 
+  statistical-proof-pr:
+    name: Statistical Proof PR
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
+      - name: Run 100-game statistical combat proofs
+        run: >-
+          npx jest --selectProjects unit --ci --runInBand --runTestsByPath
+          src/simulation/__tests__/integration.test.ts
+        env:
+          SIMULATION_COUNT: '100'
+          SIMULATION_PROFILE_AVG_GAME_BUDGET_MS: '4500'
+          SIMULATION_PROFILE_GAME_COUNT: '10'
+          SIMULATION_PROFILE_RUNNER_BUDGET_MS: '4000'
+          SIMULATION_PROFILE_TIME_BUDGET_MS: '30000'
+
+  perf-budget-pr:
+    name: Perf Budget PR
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
+      - name: Run simulation wall-clock budgets
+        run: >-
+          npx jest --selectProjects unit --ci --runInBand --runTestsByPath
+          src/simulation/__tests__/simulation.test.ts
+        env:
+          SIMULATION_PERF_ASSERTIONS: 'true'
+          SIMULATION_COUNT: '10'
+
+  coverage-floor:
+    name: Coverage Floor
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
+      - name: Generate combat/simulation coverage summary
+        run: >-
+          npx jest --selectProjects unit --ci --coverage
+          --coverageDirectory=coverage/combat-simulation
+          --coverageReporters=json-summary
+          --coverageReporters=text-summary
+          --runInBand
+          --runTestsByPath
+          src/simulation/__tests__/knownLimitations.test.ts
+          src/simulation/__tests__/simulation.test.ts
+          src/simulation/runner/__tests__/combatValidationScope.contract.test.ts
+          --collectCoverageFrom='src/simulation/**/*.{ts,tsx}'
+          --collectCoverageFrom='src/utils/gameplay/**/*.{ts,tsx}'
+          --coverageThreshold='{}'
+        env:
+          SIMULATION_COUNT: '5'
+
+      - name: Enforce combat/simulation coverage floors
+        run: node scripts/qc/validate-combat-simulation-coverage.mjs --summary=coverage/combat-simulation/coverage-summary.json
+
   a11y-tests:
     name: A11y Tests
     needs: install-deps
@@ -450,6 +534,9 @@ jobs:
         typecheck,
         unit-test-shards,
         perf-smoke-tests,
+        statistical-proof-pr,
+        perf-budget-pr,
+        coverage-floor,
         a11y-tests,
         validate-bv,
         validate-combat,
