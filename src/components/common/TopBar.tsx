@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 
 import { useMobileSidebarSelector } from '@/stores/useNavigationStore';
 
+import { getGameplayNavItems } from './gameplayNavItems';
 import {
   MekStationIcon,
   HomeIcon,
@@ -17,14 +18,9 @@ import {
   GearIcon,
   CompareIcon,
   GithubIcon,
-  PilotIcon,
-  ForceIcon,
-  CampaignIcon,
-  EncounterIcon,
   GameIcon,
   TimelineIcon,
   GameplayIcon,
-  QuickGameIcon,
   HamburgerIcon,
 } from './icons/NavigationIcons';
 import { DropdownMenu, NavLink, type NavItemConfig } from './TopBarMenu';
@@ -67,18 +63,7 @@ const TopBar: React.FC = () => {
     { href: '/compare', icon: <CompareIcon />, label: 'Compare' },
   ];
 
-  const gameplayItems: NavItemConfig[] = [
-    { href: '/gameplay/quick', icon: <QuickGameIcon />, label: 'Quick Game' },
-    { href: '/gameplay/pilots', icon: <PilotIcon />, label: 'Pilots' },
-    { href: '/gameplay/forces', icon: <ForceIcon />, label: 'Forces' },
-    { href: '/gameplay/campaigns', icon: <CampaignIcon />, label: 'Campaigns' },
-    {
-      href: '/gameplay/encounters',
-      icon: <EncounterIcon />,
-      label: 'Encounters',
-    },
-    { href: '/gameplay/games', icon: <GameIcon />, label: 'Games' },
-  ];
+  const gameplayItems: NavItemConfig[] = getGameplayNavItems();
 
   const historyItems: NavItemConfig[] = [
     { href: '/audit/timeline', icon: <TimelineIcon />, label: 'Timeline' },

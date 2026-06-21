@@ -129,10 +129,10 @@ Each line: severity/lens · finding · `file` · MegaMek/MekHQ ref where applica
 
 ### Cluster U — Navigation & playability dead-ends (`product`)
 
-- **U-1 (high)** **`/gameplay` is a 404** — no index page, no redirect; the mobile bottom-nav "Gameplay" tab and 17 breadcrumbs route there. `components/common/MobileBottomNav.tsx:38`.
-- **U-2 (high)** **Multiplayer hub `/multiplayer` is orphaned** — no nav surface links to it; reachable only by typing the URL. `components/common/TopBar.tsx:70`.
-- **U-3 (high)** **Games list is a hardcoded DEMO stub** — renders `DEMO_GAMES` (1 fake entry); a real backend reader (`MatchLogService.listMatchLogs`) exists, unused. A player's real games never appear. `src/pages/gameplay/games/index.tsx:34`.
-- **U-4 (high)** **Quick Game is auto-resolve only** — the advertised "learn mechanics" path runs `runToCompletion` then shows a results table; the only interactive option is "Watch AI Battle" (spectator). A learner never touches the hex board. `components/quickgame/QuickGamePlay.tsx:100`.
+- **[resolved 2026-06-21] U-1 (high)** `/gameplay` now has a first-class hub linking Quick Game, Pilots, Forces, Campaigns, Encounters, Games, and Multiplayer; mobile and breadcrumb callers no longer land on a 404. `src/pages/gameplay/index.tsx`; `src/__tests__/pages/gameplay/index.hub.test.tsx`.
+- **[resolved 2026-06-21] U-2 (high)** Multiplayer is now reachable from the shared Gameplay menu and the mobile bottom nav. `src/components/common/gameplayNavItems.tsx`; `src/components/common/MobileBottomNav.tsx`; `src/__tests__/components/common/navigation.multiplayer.test.tsx`.
+- **[resolved 2026-06-21] U-3 (high)** Games list now reads persisted match logs via `listMatchLogs(50)` and renders an empty state when no logs exist; the demo-only row is gone. `src/pages/gameplay/games/index.tsx`; `src/__tests__/pages/gameplay/games/index.matchLogs.test.tsx`.
+- **[resolved 2026-06-21] U-4 (high)** Quick Game now labels the automated path as Auto-Resolve and exposes an Interactive Skirmish path that launches an interactive hex-board session. `src/components/quickgame/QuickGameReview.tsx`; `src/stores/useQuickGameStore.actions.ts`; `src/components/quickgame/__tests__/QuickGameReview.playOptions.test.tsx`.
 
 ### Cluster D — Construction / BV / data integrity (`health`/`roadmap`)
 
@@ -189,11 +189,11 @@ The full set is below, grouped by cluster (severity in brackets; `CONTESTED` = o
 
 ### UX / playability (cluster U)
 
-- [med] Campaign store holds only ONE campaign — the list can never show >1 and "New Campaign" swaps the active one (a backend multi-campaign layer exists, unused by the list UI). `stores/campaign/useCampaignStore.ts:95`.
-- [med] Campaign dashboard reads stores via `getState()` at render time — non-reactive; the list page already fixed this exact bug. `…/dashboard/CampaignDashboardPage.tsx:54`.
-- [med] Multiplayer entry blocked behind an unexplained "Vault password" with no setup path / guest option from that page. `multiplayer/index.tsx:216`.
+- [resolved 2026-06-21] Campaign list now reads `GET /api/campaigns`, can show multiple saved campaigns, and loads the selected summary into the active store without deleting the rest. `src/pages/gameplay/campaigns/index.tsx`; `src/stores/campaign/useCampaignStore.actions.ts`; `src/__tests__/pages/gameplay/campaigns/index.multiCampaign.test.tsx`; `src/stores/campaign/__tests__/useCampaignStore.multiCampaignSwitch.test.ts`.
+- [resolved 2026-06-21] Campaign dashboard now subscribes through Zustand selectors instead of render-time `getState()` snapshots, so store updates re-render the page. `src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx`; `src/lib/campaign/hooks/useCampaignDashboardSummary.ts`; `src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.reactivity.test.tsx`.
+- [resolved 2026-06-21] Multiplayer vault gate now explains the identity requirement and links directly to `/settings#vault`; auth/transport behavior is intentionally unchanged. `src/pages/multiplayer/index.tsx`; `src/__tests__/pages/multiplayer/index.vaultGate.test.tsx`.
 - [med] Two parallel multiplayer stacks (P2P `/gameplay/lobby` vs server `/multiplayer/lobby`) with different auth models, neither differentiated nor cross-linked. `gameplay/games/index.tsx:122`.
-- [med] No in-app onboarding/tutorial/first-run guidance; core jargon (BV, gunnery/piloting, heat, PSR) has no inline glossary. `src/pages/index.tsx:23`.
+- [resolved 2026-06-21] Home now links to an onboarding/glossary surface covering BV, Gunnery, Piloting, Heat, and PSR. `src/pages/index.tsx`; `src/pages/onboarding.tsx`; `src/__tests__/pages/index.onboarding-glossary.test.tsx`; `src/__tests__/pages/onboarding.glossary.test.tsx`.
 - [low] Home dashboard cards omit the entire gameplay/campaign/multiplayer surface. (passthrough)
 
 ### Construction / BV / data (cluster D)
@@ -280,7 +280,7 @@ The metrics that would tell you whether later waves regressed are themselves bro
 | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `reconcile-multiplayer-coop-reality`      | In progress: C-5/C-6 transport/deploy-path gaps are closed for dev and local packaged start; C-7/C-8 now fail honestly instead of dead-ending; MP-1 SoT is re-gated; MP-2 and the co-op create/proposal/launch flow remain staged through tasks 5.1-5.4; match-store cap, token KDF throttle, API Zod, and reconnect UX guardrails have landed. |
 | `close-campaign-economic-loop`            | C-4 repair completion, M-1 salvage convert, M-2 parts inventory, M-3 morale window, M-4 aftermath persistence, M-5 doctor skill, + meds (salary rank, kill XP, activity-log id, unit-market buy)                                                                                                                                                |
-| `fix-navigation-and-playability-deadends` | U-1 /gameplay 404, U-2 MP hub orphaned, U-3 games-list stub, U-4 quick-game interactive, + meds (single-campaign clobber, dashboard reactivity, onboarding, vault friction)                                                                                                                                                                     |
+| `fix-navigation-and-playability-deadends` | Closed 2026-06-21: U-1 `/gameplay` hub, U-2 Multiplayer nav, U-3 match-log-backed games list, U-4 Quick Game interactive skirmish / Auto-Resolve labeling, + meds (multi-campaign list/switcher, dashboard reactivity, onboarding/glossary, vault setup affordance).                                                                            |
 
 ### Wave 3 — Security + structural debt
 

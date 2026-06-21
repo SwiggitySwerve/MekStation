@@ -5,9 +5,13 @@
  * @spec openspec/changes/add-gameplay-ui/specs/gameplay-ui/spec.md
  */
 
+import type { GetServerSideProps } from 'next';
+
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useState } from 'react';
+
+import type { MatchLogSummary } from '@/services/matchLog/MatchLogService';
 
 import { PageLayout, Card, Button, EmptyState, Badge } from '@/components/ui';
 import { normalizeRoomCode, useSyncRoomSelector } from '@/lib/p2p';
@@ -16,7 +20,7 @@ import { normalizeRoomCode, useSyncRoomSelector } from '@/lib/p2p';
 // Types
 // =============================================================================
 
-interface GameSummary {
+export interface GameSummary {
   id: string;
   name: string;
   status: 'active' | 'completed' | 'abandoned';
@@ -27,22 +31,34 @@ interface GameSummary {
   updatedAt: string;
 }
 
-// =============================================================================
-// Demo Data
-// =============================================================================
+interface GamesListPageProps {
+  readonly games: readonly GameSummary[];
+}
 
-const DEMO_GAMES: GameSummary[] = [
-  {
-    id: 'demo',
-    name: 'Demo Battle',
-    status: 'active',
-    turn: 3,
-    playerForce: 'Atlas AS7-D',
-    opponentForce: 'Hunchback HBK-4G',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
+function mapMatchLogToGame(summary: MatchLogSummary): GameSummary {
+  const createdAt = new Date(summary.createdAt).toISOString();
+  return {
+    id: summary.id,
+    name: `Match ${summary.id}`,
+    status: 'completed',
+    turn: summary.turnCount,
+    playerForce: summary.winner ? `Winner: ${summary.winner}` : 'No winner',
+    opponentForce: summary.reason || 'Battle logged',
+    createdAt,
+    updatedAt: createdAt,
+  };
+}
+
+export const getServerSideProps: GetServerSideProps<
+  GamesListPageProps
+> = async () => {
+  const { listMatchLogs } = await import('@/services/matchLog/MatchLogService');
+  return {
+    props: {
+      games: listMatchLogs(50).map(mapMatchLogToGame),
+    },
+  };
+};
 
 // =============================================================================
 // Sub-Components
@@ -99,7 +115,9 @@ function GameCard({ game, onClick }: GameCardProps): React.ReactElement {
 // Main Page Component
 // =============================================================================
 
-export default function GamesListPage(): React.ReactElement {
+export default function GamesListPage({
+  games,
+}: GamesListPageProps): React.ReactElement {
   const router = useRouter();
   const [joinCode, setJoinCode] = useState('');
   const [networkError, setNetworkError] = useState<string | null>(null);
@@ -200,7 +218,7 @@ export default function GamesListPage(): React.ReactElement {
       </section>
 
       {/* Games Grid */}
-      {DEMO_GAMES.length === 0 ? (
+      {games.length === 0 ? (
         <EmptyState
           data-testid="games-empty-state"
           icon={
@@ -227,7 +245,7 @@ export default function GamesListPage(): React.ReactElement {
             </div>
           }
           title="No games yet"
-          message="Start a new game to begin playing"
+          message="Start a new game or complete a match to build your history"
           action={
             <Button variant="primary" onClick={handleNewGame}>
               Start Demo Game
@@ -236,7 +254,7 @@ export default function GamesListPage(): React.ReactElement {
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {DEMO_GAMES.map((game) => (
+          {games.map((game) => (
             <GameCard
               key={game.id}
               game={game}

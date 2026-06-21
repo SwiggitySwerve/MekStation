@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
+import { useStore } from 'zustand';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 
@@ -53,16 +54,17 @@ export default function CampaignDashboardPage(): React.ReactElement {
   const store = useCampaignStore();
   const rosterStore = useCampaignRosterStore;
 
-  const campaign = store
-    .getState()
-    .getCampaign() as CampaignDashboardCampaign | null;
-  const units = rosterStore
-    .getState()
-    .getUnitsWithReadiness() as CampaignRosterUnit[];
-  const missions = rosterStore
-    .getState()
-    .getMissionHistory() as CampaignMissionHistoryItem[];
-  const missionCount = rosterStore.getState().missionCount;
+  const campaign = useStore(
+    store,
+    (state) => state.campaign as CampaignDashboardCampaign | null,
+  );
+  const units = rosterStore(
+    (state) => state.getUnitsWithReadiness() as CampaignRosterUnit[],
+  );
+  const missions = rosterStore(
+    (state) => state.getMissionHistory() as CampaignMissionHistoryItem[],
+  );
+  const missionCount = rosterStore((state) => state.missionCount);
 
   const isClient = useClientReady();
 

@@ -222,6 +222,16 @@ export default function MultiplayerHubPage(): React.ReactElement {
             We mint a short-lived signing token from your vault identity so the
             multiplayer server can verify who you are.
           </p>
+          <p className="mt-2 text-xs text-amber-300/80">
+            Create or unlock a vault identity in Settings, then return here and
+            mint the short-lived token for this session.
+          </p>
+          <Link
+            href="/settings#vault"
+            className="mt-3 inline-flex rounded border border-amber-600 px-3 py-1.5 text-xs font-medium text-amber-100 transition-colors hover:bg-amber-800/40"
+          >
+            Set up vault identity
+          </Link>
           <input
             type="password"
             value={password}

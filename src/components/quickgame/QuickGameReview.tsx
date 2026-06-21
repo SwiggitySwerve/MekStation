@@ -205,10 +205,21 @@ export function QuickGameReview(): React.ReactElement {
   const startSpectatorMode = useQuickGameSelector(
     (state) => state.startSpectatorMode,
   );
+  const startInteractiveSkirmish = useQuickGameSelector(
+    (state) => state.startInteractiveSkirmish,
+  );
   const isLoading = useQuickGameSelector((state) => state.isLoading);
 
   const handleWatchAIBattle = async () => {
     await startSpectatorMode();
+    const session = useGameplayStore.getState().session;
+    if (session) {
+      router.push(`/gameplay/games/${session.id}`);
+    }
+  };
+
+  const handleInteractiveSkirmish = async () => {
+    await startInteractiveSkirmish();
     const session = useGameplayStore.getState().session;
     if (session) {
       router.push(`/gameplay/games/${session.id}`);
@@ -380,12 +391,20 @@ export function QuickGameReview(): React.ReactElement {
             Watch AI Battle
           </Button>
           <Button
+            variant="secondary"
+            onClick={handleInteractiveSkirmish}
+            disabled={isLoading}
+            data-testid="interactive-skirmish-btn"
+          >
+            Interactive Skirmish
+          </Button>
+          <Button
             variant="primary"
             onClick={startGame}
             disabled={isLoading}
             data-testid="start-game-btn"
           >
-            Start Battle
+            Auto-Resolve
           </Button>
         </div>
       </div>

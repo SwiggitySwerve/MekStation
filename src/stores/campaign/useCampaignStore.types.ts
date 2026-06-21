@@ -72,6 +72,7 @@ export interface CampaignActions {
     snapshot: IGuestMirrorSnapshot,
   ) => string;
   loadCampaign: (id: string) => boolean;
+  switchCampaign: (campaign: ICampaign) => void;
   saveCampaign: () => void;
   advanceDay: () => DayReport | null;
   advanceDays: (count: number) => DayReport[] | null;

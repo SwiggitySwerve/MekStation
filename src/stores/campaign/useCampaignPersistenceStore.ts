@@ -95,7 +95,7 @@ function readLiveCampaign(): ICampaign | null {
 
 function writeLiveCampaign(campaign: ICampaign): void {
   const store = getCampaignStoreForRoster();
-  store?.getState().updateCampaign(campaign);
+  store?.getState().switchCampaign(campaign);
 }
 
 function metadataFrom(record: SerializedCampaign): ICampaignSaveMetadata {

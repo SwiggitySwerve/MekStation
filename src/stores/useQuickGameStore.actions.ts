@@ -188,6 +188,7 @@ export function createBattleActions(
 ): {
   startBattle: () => Promise<void>;
   startSpectatorMode: () => Promise<void>;
+  startInteractiveSkirmish: () => Promise<void>;
   playAgain: (resetUnits: boolean) => void;
 } {
   return {
@@ -284,6 +285,48 @@ export function createBattleActions(
             error instanceof Error
               ? error.message
               : 'Failed to start spectator mode',
+          isLoading: false,
+        });
+      }
+    },
+
+    startInteractiveSkirmish: async (): Promise<void> => {
+      const { game } = get();
+      if (!game || !game.opponentForce) {
+        set({ error: 'No active game or opponent force' });
+        return;
+      }
+
+      set({ isLoading: true, error: null });
+
+      try {
+        const { playerAdapted, opponentAdapted, gameUnits } =
+          await prepareQuickGameBattle(game);
+        const engine = createEngineForQuickGame(game);
+        const interactiveSession = engine.createInteractiveSession(
+          playerAdapted,
+          opponentAdapted,
+          gameUnits,
+        );
+
+        useGameplayStore.getState().setInteractiveSession(interactiveSession);
+
+        set({
+          game: {
+            ...game,
+            status: GameStatus.Active,
+            step: QuickGameStep.Playing,
+            turn: 1,
+          },
+          isLoading: false,
+          isDirty: true,
+        });
+      } catch (error) {
+        set({
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to start interactive skirmish',
           isLoading: false,
         });
       }

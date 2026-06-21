@@ -5,6 +5,7 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 interface CampaignStoreForRosterState {
   campaign: ICampaign | null;
   updateCampaign: (updates: Partial<ICampaign>) => void;
+  switchCampaign: (campaign: ICampaign) => void;
 }
 
 type CampaignStoreForRoster = StoreApi<CampaignStoreForRosterState>;

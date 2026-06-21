@@ -183,7 +183,7 @@ function WelcomeScreen({ onStart }: WelcomeScreenProps): React.ReactElement {
                 Auto-generated opponents
               </p>
               <p className="text-xs text-gray-500">
-                Balanced forces created for you
+                Balanced forces created for auto-resolve or skirmish play
               </p>
             </div>
           </div>
@@ -219,7 +219,7 @@ function WelcomeScreen({ onStart }: WelcomeScreenProps): React.ReactElement {
           onClick={onStart}
           data-testid="start-quick-game-btn"
         >
-          Start Quick Game
+          Start Quick Game Setup
         </Button>
       </Card>
     </div>

@@ -26,7 +26,6 @@ import { createCampaignDayActions } from './useCampaignStore.dayActions';
 import {
   deserializeCampaign,
   persistCampaignRecord,
-  serializeCampaign,
   type SerializedCampaignState,
 } from './useCampaignStore.persistence';
 import { createForcesStore } from './useForcesStore';
@@ -53,6 +52,18 @@ function initializeChildStores(campaignId: string, rootForce: IForce) {
   const forcesStore = createForcesStore(campaignId);
   const missionsStore = createMissionsStore(campaignId);
   forcesStore.getState().addForce(rootForce);
+  return { forcesStore, missionsStore };
+}
+
+function initializeChildStoresFromCampaign(campaign: ICampaign) {
+  const forcesStore = createForcesStore(campaign.id);
+  const missionsStore = createMissionsStore(campaign.id);
+  campaign.forces.forEach((force) => {
+    forcesStore.getState().addForce(force);
+  });
+  campaign.missions.forEach((mission) => {
+    missionsStore.getState().addMission(mission);
+  });
   return { forcesStore, missionsStore };
 }
 
@@ -150,6 +161,16 @@ function loadCampaignAction(set: CampaignSet): CampaignStore['loadCampaign'] {
     } catch {
       return false;
     }
+  };
+}
+
+function switchCampaignAction(
+  set: CampaignSet,
+): CampaignStore['switchCampaign'] {
+  return (campaign) => {
+    const { forcesStore, missionsStore } =
+      initializeChildStoresFromCampaign(campaign);
+    set({ campaign, forcesStore, missionsStore });
   };
 }
 
@@ -254,6 +275,7 @@ export function createCampaignStoreActions(
   | 'createCampaign'
   | 'createGuestMirrorCampaign'
   | 'loadCampaign'
+  | 'switchCampaign'
   | 'saveCampaign'
   | 'advanceDay'
   | 'advanceDays'
@@ -265,6 +287,7 @@ export function createCampaignStoreActions(
     createCampaign: createCampaignAction(set),
     createGuestMirrorCampaign: createGuestMirrorCampaignAction(set),
     loadCampaign: loadCampaignAction(set),
+    switchCampaign: switchCampaignAction(set),
     saveCampaign: saveCampaignAction(set, get),
     ...createCampaignDayActions(set, get),
     updateCampaign: updateCampaignAction(set, get),

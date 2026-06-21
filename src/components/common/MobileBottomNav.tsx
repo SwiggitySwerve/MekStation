@@ -40,6 +40,12 @@ const navItems: NavItem[] = [
     matchPaths: ['/gameplay'],
   },
   {
+    label: 'Multiplayer',
+    href: '/multiplayer',
+    icon: <GameplayIcon />,
+    matchPaths: ['/multiplayer'],
+  },
+  {
     label: 'Settings',
     href: '/settings',
     icon: <GearIcon />,

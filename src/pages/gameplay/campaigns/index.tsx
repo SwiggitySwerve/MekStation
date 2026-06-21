@@ -9,14 +9,27 @@ import { useRouter } from 'next/router';
 import { useState, useCallback, useEffect } from 'react';
 import { useStore } from 'zustand';
 
+import type { ICampaignSummary } from '@/types/campaign/SerializedCampaign';
+
 import { PageLayout, Card, Button, EmptyState } from '@/components/ui';
 import { CampaignCoopEntryPanel } from '@/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { ICampaign } from '@/types/campaign/Campaign';
 
+interface CampaignListEntry {
+  readonly id: string;
+  readonly name: string;
+  readonly factionId: string;
+  readonly currentDate: Date;
+  readonly balance?: number;
+  readonly forcesCount?: number;
+  readonly missionsCount?: number;
+}
+
 interface CampaignCardProps {
-  campaign: ICampaign;
+  campaign: CampaignListEntry;
   onClick: () => void;
 }
 
@@ -47,11 +60,35 @@ function CampaignCard({
 
       <div className="text-text-theme-secondary flex gap-4 text-sm">
         <span>{personnelCount} Personnel</span>
-        <span>{campaign.forces.size} Forces</span>
-        <span>{campaign.missions.size} Missions</span>
+        <span>{campaign.forcesCount ?? 0} Forces</span>
+        <span>{campaign.missionsCount ?? 0} Missions</span>
+        {typeof campaign.balance === 'number' && (
+          <span>{campaign.balance.toLocaleString()} C-bills</span>
+        )}
       </div>
     </Card>
   );
+}
+
+function summaryToEntry(summary: ICampaignSummary): CampaignListEntry {
+  return {
+    id: summary.id,
+    name: summary.name,
+    factionId: summary.factionId,
+    currentDate: new Date(summary.currentDate),
+    balance: summary.balance,
+  };
+}
+
+function campaignToEntry(campaign: ICampaign): CampaignListEntry {
+  return {
+    id: campaign.id,
+    name: campaign.name,
+    factionId: campaign.factionId,
+    currentDate: campaign.currentDate,
+    forcesCount: campaign.forces.size,
+    missionsCount: campaign.missions.size,
+  };
 }
 
 export default function CampaignsListPage(): React.ReactElement {
@@ -63,8 +100,19 @@ export default function CampaignsListPage(): React.ReactElement {
   // action (create flow, e2e fixture) never surfaced a campaign-card
   // until a full reload (e2e triage RC4).
   const campaign = useStore(store, (s) => s.campaign);
-  const campaigns = campaign ? [campaign] : [];
+  const [campaignSummaries, setCampaignSummaries] = useState<
+    readonly ICampaignSummary[]
+  >([]);
+  const [campaignListError, setCampaignListError] = useState<string | null>(
+    null,
+  );
   const [isClient, setIsClient] = useState(false);
+  const campaigns =
+    campaignSummaries.length > 0
+      ? campaignSummaries.map(summaryToEntry)
+      : campaign
+        ? [campaignToEntry(campaign)]
+        : [];
 
   // Hydration fix: flip to client AFTER mount so SSR + first client
   // render both see the loading state.
@@ -72,15 +120,47 @@ export default function CampaignsListPage(): React.ReactElement {
     setIsClient(true);
   }, []);
 
+  useEffect(() => {
+    if (!isClient) return;
+    let cancelled = false;
+    async function loadCampaignSummaries(): Promise<void> {
+      try {
+        const response = await fetch('/api/campaigns');
+        if (!response.ok) {
+          throw new Error(`server responded ${response.status}`);
+        }
+        const summaries = (await response.json()) as ICampaignSummary[];
+        if (!cancelled) {
+          setCampaignSummaries(summaries);
+          setCampaignListError(null);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setCampaignListError(
+            error instanceof Error ? error.message : 'failed to load campaigns',
+          );
+        }
+      }
+    }
+    void loadCampaignSummaries();
+    return () => {
+      cancelled = true;
+    };
+  }, [isClient]);
+
   const handleCreateCampaign = useCallback(() => {
     router.push('/gameplay/campaigns/create');
   }, [router]);
 
   const handleCampaignClick = useCallback(
-    (campaign: ICampaign) => {
+    async (campaign: CampaignListEntry) => {
+      const isActiveCampaign = store.getState().campaign?.id === campaign.id;
+      if (!isActiveCampaign) {
+        await useCampaignPersistenceStore.getState().loadCampaign(campaign.id);
+      }
       router.push(`/gameplay/campaigns/${campaign.id}`);
     },
-    [router],
+    [router, store],
   );
 
   if (!isClient) {
@@ -137,6 +217,12 @@ export default function CampaignsListPage(): React.ReactElement {
       }
     >
       <CampaignCoopEntryPanel />
+
+      {campaignListError && campaigns.length > 0 && (
+        <p className="mb-4 rounded-lg border border-amber-700 bg-amber-900/20 p-3 text-sm text-amber-200">
+          Stored campaign list could not refresh: {campaignListError}
+        </p>
+      )}
 
       {campaigns.length === 0 ? (
         <EmptyState
