@@ -9,9 +9,11 @@
  */
 
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { IForce } from '@/types/campaign/Force';
 import type { IRepairTicket } from '@/types/campaign/RepairTicket';
 import type { ISalvageAllocation } from '@/types/campaign/Salvage';
 
+import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { DamageLevel } from '@/types/campaign/Salvage';
 
 import {
@@ -42,6 +44,20 @@ function makeRepairTicket(
     createdAt: '3025-01-01T00:00:00.000Z',
     status: 'queued',
     ...overrides,
+  };
+}
+
+function makeForce(id: string): IForce {
+  return {
+    id,
+    name: 'Root Force',
+    parentForceId: undefined,
+    subForceIds: [],
+    unitIds: [],
+    forceType: ForceRole.STANDARD,
+    formationLevel: FormationLevel.LANCE,
+    createdAt: '3025-01-01T00:00:00.000Z',
+    updatedAt: '3025-01-01T00:00:00.000Z',
   };
 }
 
@@ -86,6 +102,48 @@ function makeAllocation(): ISalvageAllocation {
   };
 }
 
+function makePartAllocation(): ISalvageAllocation {
+  const candidate = {
+    source: 'part' as const,
+    unitId: 'enemy-hunchback',
+    designation: 'AC/20',
+    destroyedFromBattle: 'match-2',
+    finalStatus: 'destroyed' as const,
+    damageLevel: DamageLevel.Moderate,
+    originalValue: 300_000,
+    recoveredValue: 150_000,
+    recoveryPercentage: 0.5,
+    repairCostEstimate: 0,
+    partId: 'ac20',
+    location: 'RT',
+    disposition: 'mercenary' as const,
+    status: 'pending' as const,
+  };
+  return {
+    pool: {
+      battleId: 'match-2',
+      contractId: 'contract-1',
+      candidates: [candidate],
+      totalEstimatedValue: 150_000,
+      hostileTerritory: false,
+    },
+    employerAward: {
+      side: 'employer',
+      candidates: [],
+      totalValue: 0,
+      estimatedRepairCost: 0,
+    },
+    mercenaryAward: {
+      side: 'mercenary',
+      candidates: [candidate],
+      totalValue: 150_000,
+      estimatedRepairCost: 0,
+    },
+    splitMethod: 'contract',
+    processed: false,
+  };
+}
+
 /**
  * Seed the live campaign store with a campaign carrying a repair queue
  * and a salvage allocation.
@@ -98,12 +156,16 @@ function seedCampaign(): ICampaign {
 
   const seeded = {
     ...base,
+    forces: new Map([[base.rootForceId, makeForce(base.rootForceId)]]),
     repairQueue: [
       makeRepairTicket({ ticketId: 'ticket-1' }),
       makeRepairTicket({ ticketId: 'ticket-2', expectedHours: 12 }),
       makeRepairTicket({ ticketId: 'ticket-3', expectedHours: 18 }),
     ],
-    salvageAllocations: { 'match-1': makeAllocation() },
+    salvageAllocations: {
+      'match-1': makeAllocation(),
+      'match-2': makePartAllocation(),
+    },
   } as Partial<ICampaign>;
 
   store.getState().updateCampaign(seeded);
@@ -117,6 +179,7 @@ function seedCampaign(): ICampaign {
 describe('campaignBayActions', () => {
   beforeEach(() => {
     jest.useFakeTimers();
+    window.localStorage.clear();
     resetCampaignStore();
     useCampaignRosterStore.getState().reset();
     useCampaignPersistenceStore.getState().reset();
@@ -204,6 +267,44 @@ describe('campaignBayActions', () => {
       expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
       setSalvageItemStatus('salvage-atlas', 'accepted');
       expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
+    });
+
+    it('adds an accepted salvage unit to the root force exactly once', () => {
+      seedCampaign();
+
+      setSalvageItemStatus('salvage-atlas', 'accepted');
+      setSalvageItemStatus('salvage-atlas', 'accepted');
+
+      const campaign = useCampaignStore().getState().getCampaign() as ICampaign;
+      const rootForce = campaign.forces.get(campaign.rootForceId);
+      expect(rootForce?.unitIds).toEqual(['enemy-atlas']);
+    });
+
+    it('adds an accepted salvage part into partsInventory', () => {
+      seedCampaign();
+
+      setSalvageItemStatus('ac20', 'accepted');
+
+      const campaign = useCampaignStore()
+        .getState()
+        .getCampaign() as ICampaign & {
+        readonly partsInventory?: readonly {
+          readonly inventoryId: string;
+          readonly partId: string;
+          readonly partName: string;
+          readonly quantity: number;
+          readonly source: string;
+        }[];
+      };
+      expect(campaign.partsInventory).toEqual([
+        expect.objectContaining({
+          inventoryId: 'salvage-match-2-ac20',
+          partId: 'ac20',
+          partName: 'AC/20',
+          quantity: 1,
+          source: 'salvage',
+        }),
+      ]);
     });
 
     it('re-projects the inventory so the bay reflects the change immediately', () => {

@@ -33,6 +33,22 @@ interface ICampaignWithRecentOutcomes extends ICampaign {
   readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
 }
 
+const MORALE_OUTCOME_WINDOW_DAYS = 31;
+
+export function filterRecentMoraleOutcomes(
+  campaign: ICampaign,
+  asOf: Date = campaign.currentDate,
+): readonly ICombatOutcome[] {
+  const extended = campaign as ICampaignWithRecentOutcomes;
+  const cutoff =
+    asOf.getTime() - MORALE_OUTCOME_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+  return (extended.recentlyAppliedOutcomes ?? []).filter((outcome) => {
+    const capturedAt = Date.parse(outcome.capturedAt);
+    if (Number.isNaN(capturedAt)) return true;
+    return capturedAt >= cutoff && capturedAt <= asOf.getTime();
+  });
+}
+
 /**
  * Gather the day's enumerated morale signals.
  *
@@ -44,8 +60,7 @@ export function gatherMoraleSignals(
   campaign: ICampaign,
   dayEvents: readonly IDayEvent[],
 ): IMoraleSignals {
-  const extended = campaign as ICampaignWithRecentOutcomes;
-  const outcomes = extended.recentlyAppliedOutcomes ?? [];
+  const outcomes = filterRecentMoraleOutcomes(campaign);
 
   // Victories / defeats — one per applied outcome by its winner.
   let recentVictories = 0;

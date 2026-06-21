@@ -48,6 +48,34 @@ function collectOutcomeErrors(
   return nextErrors;
 }
 
+function collectAppliedOutcomesForAudit(
+  queuedBeforeDay: readonly ICombatOutcome[],
+  recentlyApplied: readonly ICombatOutcome[],
+  events: readonly { readonly type: string; readonly data?: unknown }[],
+): readonly ICombatOutcome[] {
+  const appliedIds: string[] = [];
+  for (const event of events) {
+    if (event.type !== 'post_battle_applied') continue;
+    const matchId = (event.data as { matchId?: unknown } | undefined)?.matchId;
+    if (typeof matchId === 'string') {
+      appliedIds.push(matchId);
+    }
+  }
+
+  if (appliedIds.length === 0) {
+    return [];
+  }
+
+  const byMatchId = new Map<string, ICombatOutcome>();
+  for (const outcome of [...queuedBeforeDay, ...recentlyApplied]) {
+    byMatchId.set(outcome.matchId, outcome);
+  }
+
+  return appliedIds
+    .map((matchId) => byMatchId.get(matchId))
+    .filter((outcome): outcome is ICombatOutcome => Boolean(outcome));
+}
+
 function syncReportMissions(get: CampaignGet, campaign: ICampaign): void {
   const missionsStore = get().missionsStore;
   if (!missionsStore) {
@@ -64,12 +92,15 @@ function emitDailyActivityEntries(
   report: DayReport,
   postPipeline: { readonly dayNumber?: number },
 ): void {
-  const dayNumber = postPipeline.dayNumber ?? 0;
+  const dayNumber = postPipeline.dayNumber ?? campaignDayFor(report.campaign);
+  const dayId =
+    postPipeline.dayNumber?.toString() ??
+    report.date.toISOString().slice(0, 10);
   const append = get().appendActivityLogEntry;
   const isoNow = new Date().toISOString();
   for (const heal of report.healedPersonnel) {
     append({
-      id: `act-medical-${heal.personId}-${dayNumber}`,
+      id: `act-medical-${heal.personId}-${dayId}`,
       category: 'medical',
       timestamp: isoNow,
       campaignDay: dayNumber,
@@ -83,7 +114,7 @@ function emitDailyActivityEntries(
   }
   for (const exp of report.expiredContracts) {
     append({
-      id: `act-finances-contract-expiry-${exp.contractId}-${dayNumber}`,
+      id: `act-finances-contract-expiry-${exp.contractId}-${dayId}`,
       category: 'finances',
       timestamp: isoNow,
       campaignDay: dayNumber,
@@ -96,13 +127,14 @@ function emitDailyActivityEntries(
       },
     });
   }
-  emitDailyCostEntry(append, report, dayNumber, isoNow);
+  emitDailyCostEntry(append, report, dayNumber, dayId, isoNow);
 }
 
 function emitDailyCostEntry(
   append: CampaignStore['appendActivityLogEntry'],
   report: DayReport,
   dayNumber: number,
+  dayId: string,
   timestamp: string,
 ): void {
   const totalAmount = report.costs.total?.amount ?? 0;
@@ -110,7 +142,7 @@ function emitDailyCostEntry(
     return;
   }
   append({
-    id: `act-finances-daily-costs-${dayNumber}`,
+    id: `act-finances-daily-costs-${dayId}`,
     category: 'finances',
     timestamp,
     campaignDay: dayNumber,
@@ -152,7 +184,11 @@ function advanceDayAction(
       after: report.campaign as ICampaignWithBattleState,
       beforeRoster: beforeRosterPilots,
       afterRoster: snapshotRosterPilots(),
-      appliedOutcomes: postPipeline.recentlyAppliedOutcomes ?? [],
+      appliedOutcomes: collectAppliedOutcomesForAudit(
+        campaignWithOutcomes.pendingBattleOutcomes ?? [],
+        postPipeline.recentlyAppliedOutcomes ?? [],
+        pipelineResult.events,
+      ),
       events: pipelineResult.events,
       date: pipelineResult.date,
     });

@@ -29,7 +29,10 @@ import {
   type IDayProcessor,
   type IDayProcessorResult,
 } from '../dayPipeline';
-import { gatherMoraleSignals } from '../prestige/gatherMoraleSignals';
+import {
+  filterRecentMoraleOutcomes,
+  gatherMoraleSignals,
+} from '../prestige/gatherMoraleSignals';
 import { evaluateMoraleTransition } from '../prestige/moraleStateMachine';
 
 /**
@@ -46,7 +49,13 @@ export const moraleProcessor: IDayProcessor = {
   process(campaign: ICampaign, date: Date): IDayProcessorResult {
     const currentState = campaign.moraleState ?? MORALE_DEFAULT;
     const dayEvents = getDayEventsSoFar(campaign);
-    const signals = gatherMoraleSignals(campaign, dayEvents);
+    const prunedOutcomes = filterRecentMoraleOutcomes(campaign, date);
+    const originalOutcomeCount = campaign.recentlyAppliedOutcomes?.length ?? 0;
+    const campaignForSignals = {
+      ...campaign,
+      recentlyAppliedOutcomes: prunedOutcomes,
+    } as ICampaign;
+    const signals = gatherMoraleSignals(campaignForSignals, dayEvents);
 
     const evaluation = evaluateMoraleTransition(
       currentState,
@@ -56,7 +65,13 @@ export const moraleProcessor: IDayProcessor = {
 
     // No transition — morale held; return the campaign unchanged.
     if (!evaluation.transition) {
-      return { events: [], campaign };
+      return {
+        events: [],
+        campaign:
+          prunedOutcomes.length === originalOutcomeCount
+            ? campaign
+            : campaignForSignals,
+      };
     }
 
     const transitions = [
@@ -65,6 +80,7 @@ export const moraleProcessor: IDayProcessor = {
     ];
     const updatedCampaign: ICampaign = {
       ...campaign,
+      recentlyAppliedOutcomes: prunedOutcomes,
       moraleState: evaluation.to,
       moraleTransitions: transitions,
     };

@@ -3,7 +3,9 @@ import type {
   IShoppingList,
 } from '@/types/campaign/acquisition/acquisitionTypes';
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { IPartsInventoryItem } from '@/types/campaign/PartsInventory';
 
+import { addInventoryItem } from '@/lib/campaign/partsInventory';
 import { createDailyRandom } from '@/lib/campaign/utils/campaignRng';
 
 import {
@@ -126,9 +128,14 @@ function processPendingAcquisitions(
 function processDeliveries(
   shoppingList: IShoppingList,
   currentDate: Date,
-): { updatedList: IShoppingList; events: IDayEvent[] } {
+): {
+  updatedList: IShoppingList;
+  events: IDayEvent[];
+  deliveredItems: readonly IPartsInventoryItem[];
+} {
   const inTransit = getInTransitRequests(shoppingList);
   const events: IDayEvent[] = [];
+  const deliveredItems: IPartsInventoryItem[] = [];
   let updatedList = shoppingList;
 
   for (const request of inTransit) {
@@ -143,10 +150,18 @@ function processDeliveries(
       events.push(
         createAcquisitionEvent('delivery', request, request.deliveryDate),
       );
+      deliveredItems.push({
+        inventoryId: `acquisition-${request.id}`,
+        partId: request.partId,
+        partName: request.partName,
+        quantity: request.quantity,
+        source: 'acquisition',
+        acquiredAt: currentDate.toISOString(),
+      });
     }
   }
 
-  return { updatedList, events };
+  return { updatedList, events, deliveredItems };
 }
 
 export const acquisitionProcessor: IDayProcessor & {
@@ -194,10 +209,15 @@ export const acquisitionProcessor: IDayProcessor & {
     const deliveryResult = processDeliveries(updatedList, date);
     updatedList = deliveryResult.updatedList;
     allEvents.push(...deliveryResult.events);
+    let partsInventory = campaign.partsInventory ?? [];
+    for (const item of deliveryResult.deliveredItems) {
+      partsInventory = addInventoryItem(partsInventory, item);
+    }
 
     const updatedCampaign: ICampaign & { shoppingList: IShoppingList } = {
       ...campaign,
       shoppingList: updatedList,
+      partsInventory,
     };
 
     return { events: allEvents, campaign: updatedCampaign as ICampaign };

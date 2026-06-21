@@ -383,7 +383,22 @@ describe('postBattleProcessor', () => {
       });
 
       const outcome = createOutcome({
-        report: createTestReport('match-1', GameSide.Player),
+        report: {
+          ...createTestReport('match-1', GameSide.Player),
+          units: [
+            {
+              unitId: 'pilot-1',
+              side: GameSide.Player,
+              designation: 'Pilot pilot-1',
+              damageDealt: 0,
+              damageReceived: 0,
+              kills: 1,
+              heatProblems: 0,
+              physicalAttacks: 0,
+              xpPending: true,
+            },
+          ],
+        },
         unitDeltas: [createDelta('pilot-1', { side: GameSide.Player })],
       });
 

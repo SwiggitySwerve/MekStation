@@ -16,6 +16,7 @@ import { moraleProcessor } from './moraleProcessor';
 import { postBattleProcessor } from './postBattleProcessor';
 import { randomEventsProcessor } from './randomEventsProcessor';
 import { refitProcessor } from './refitProcessor';
+import { repairProgressProcessor } from './repairProgressProcessor';
 import { repairQueueBuilderProcessor } from './repairQueueBuilderProcessor';
 import { salvageProcessor } from './salvageProcessor';
 import { scenarioEncounterBridgeProcessor } from './scenarioEncounterBridgeProcessor';
@@ -65,6 +66,7 @@ export function registerBuiltinProcessors(): void {
   pipeline.register(postBattleProcessor);
   pipeline.register(salvageProcessor);
   pipeline.register(repairQueueBuilderProcessor);
+  pipeline.register(repairProgressProcessor);
   pipeline.register(healingProcessor);
   pipeline.register(contractProcessor);
   pipeline.register(dailyCostsProcessor);

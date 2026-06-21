@@ -25,10 +25,15 @@
 
 import type { IInventoryProjectionSources } from '@/lib/campaign/inventory/projectCampaignInventory';
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { IPartsInventoryItem } from '@/types/campaign/PartsInventory';
 import type { IRepairTicket } from '@/types/campaign/RepairTicket';
-import type { ISalvageAllocation } from '@/types/campaign/Salvage';
+import type {
+  ISalvageAllocation,
+  ISalvageCandidate,
+} from '@/types/campaign/Salvage';
 
 import { projectCampaignInventory } from '@/lib/campaign/inventory/projectCampaignInventory';
+import { addInventoryItem } from '@/lib/campaign/partsInventory';
 
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
 import { useCampaignPersistenceStore } from './useCampaignPersistenceStore';
@@ -172,6 +177,40 @@ function decisionToCandidateStatus(
   return decision === 'accepted' ? 'awarded' : 'declined';
 }
 
+function salvageInventoryItem(
+  candidate: ISalvageCandidate,
+): IPartsInventoryItem {
+  const partId = candidate.partId ?? candidate.unitId;
+  return {
+    inventoryId: `salvage-${candidate.destroyedFromBattle}-${partId}`,
+    partId,
+    partName: candidate.designation,
+    quantity: 1,
+    source: 'salvage',
+    acquiredAt: new Date().toISOString(),
+    unitId: candidate.unitId,
+    location: candidate.location,
+  };
+}
+
+function addUnitToRootForce(
+  campaign: ICampaign,
+  unitId: string,
+): ICampaign['forces'] {
+  const rootForce = campaign.forces.get(campaign.rootForceId);
+  if (!rootForce || rootForce.unitIds.includes(unitId)) {
+    return campaign.forces;
+  }
+
+  const nextForces = new Map(campaign.forces);
+  nextForces.set(rootForce.id, {
+    ...rootForce,
+    unitIds: [...rootForce.unitIds, unitId],
+    updatedAt: new Date().toISOString(),
+  });
+  return nextForces;
+}
+
 /**
  * Record the player's accept/decline decision on a salvage candidate.
  *
@@ -196,6 +235,8 @@ export function setSalvageItemStatus(
   applyCampaignMutation((campaign) => {
     const allocations = campaign.salvageAllocations ?? {};
     const nextAllocations: Record<string, ISalvageAllocation> = {};
+    let nextPartsInventory = campaign.partsInventory ?? [];
+    let nextForces = campaign.forces;
 
     for (const [battleId, allocation] of Object.entries(allocations)) {
       const nextCandidates = allocation.mercenaryAward.candidates.map(
@@ -206,6 +247,19 @@ export function setSalvageItemStatus(
           const candidateId = candidate.partId ?? candidate.unitId;
           if (candidateId !== partId) return candidate;
           applied = true;
+          if (nextStatus === 'awarded') {
+            if (candidate.source === 'part') {
+              nextPartsInventory = addInventoryItem(
+                nextPartsInventory,
+                salvageInventoryItem(candidate),
+              );
+            } else {
+              nextForces = addUnitToRootForce(
+                { ...campaign, forces: nextForces },
+                candidate.unitId,
+              );
+            }
+          }
           return { ...candidate, status: nextStatus };
         },
       );
@@ -221,6 +275,8 @@ export function setSalvageItemStatus(
 
     return {
       salvageAllocations: nextAllocations,
+      forces: nextForces,
+      partsInventory: nextPartsInventory,
     } as Partial<ICampaign>;
   });
 

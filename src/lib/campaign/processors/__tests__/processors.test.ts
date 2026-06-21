@@ -254,14 +254,15 @@ describe('registerBuiltinProcessors', () => {
     _resetBuiltinRegistration();
   });
 
-  it('should register all twenty-one builtin processors', () => {
+  it('should register all twenty-two builtin processors', () => {
     registerBuiltinProcessors();
     const processors = getDayPipeline().getProcessors();
 
-    // 21 = 17 prior + financial, turnover, faction-standing, and
+    // 22 = 17 prior + financial, turnover, faction-standing,
     // vocational-training (audit finding D-2, 2026-06-09 — these four
-    // were shipped and unit-tested but never registered in production).
-    expect(processors).toHaveLength(21);
+    // were shipped and unit-tested but never registered in production),
+    // plus repair-progress from close-campaign-economic-loop.
+    expect(processors).toHaveLength(22);
     expect(processors.map((p) => p.id).sort()).toEqual(
       [
         'healing',
@@ -274,6 +275,7 @@ describe('registerBuiltinProcessors', () => {
         'salvage',
         'contracts',
         'repair-queue-builder',
+        'repair-progress',
         'dailyCosts',
         'financial',
         'acquisition',
@@ -294,7 +296,7 @@ describe('registerBuiltinProcessors', () => {
     registerBuiltinProcessors();
 
     const processors = getDayPipeline().getProcessors();
-    expect(processors).toHaveLength(21);
+    expect(processors).toHaveLength(22);
   });
 
   it('should register processors in correct phase order', () => {
@@ -313,7 +315,8 @@ describe('registerBuiltinProcessors', () => {
     // shipped-but-unregistered processors: turnover (PERSONNEL=100,
     // after healing/auto-awards), financial (FINANCES=700, after
     // dailyCosts), vocational-training (EVENTS=800), faction-standing
-    // (EVENTS=800, last EVENTS step per MekHQ). Expected order:
+    // (EVENTS=800, last EVENTS step per MekHQ). close-campaign-economic-loop
+    // adds repair-progress (UNITS=500). Expected order:
     //   PERSONNEL × 3, MARKETS × 3, post-battle, salvage, repair,
     //   contracts, refit (UNITS), FINANCES × 2, EVENTS × 6, EVENTS+10,
     //   CLEANUP.
@@ -327,16 +330,17 @@ describe('registerBuiltinProcessors', () => {
     expect(processors[7].phase).toBe(DayPhase.MISSIONS - 25); // salvage
     expect(processors[8].phase).toBe(DayPhase.MISSIONS - 10); // repair
     expect(processors[9].phase).toBe(DayPhase.MISSIONS); // contracts
-    expect(processors[10].phase).toBe(DayPhase.UNITS); // refit
-    expect(processors[11].phase).toBe(DayPhase.FINANCES); // dailyCosts
-    expect(processors[12].phase).toBe(DayPhase.FINANCES); // financial (D-2)
-    expect(processors[13].phase).toBe(DayPhase.EVENTS);
+    expect(processors[10].phase).toBe(DayPhase.UNITS); // repair-progress
+    expect(processors[11].phase).toBe(DayPhase.UNITS); // refit
+    expect(processors[12].phase).toBe(DayPhase.FINANCES); // dailyCosts
+    expect(processors[13].phase).toBe(DayPhase.FINANCES); // financial (D-2)
     expect(processors[14].phase).toBe(DayPhase.EVENTS);
-    expect(processors[15].phase).toBe(DayPhase.EVENTS); // vocational (D-2)
-    expect(processors[16].phase).toBe(DayPhase.EVENTS);
+    expect(processors[15].phase).toBe(DayPhase.EVENTS);
+    expect(processors[16].phase).toBe(DayPhase.EVENTS); // vocational (D-2)
     expect(processors[17].phase).toBe(DayPhase.EVENTS);
-    expect(processors[18].phase).toBe(DayPhase.EVENTS); // faction-standing (D-2)
-    expect(processors[19].phase).toBe(DayPhase.EVENTS + 10); // bridge
-    expect(processors[20].phase).toBe(DayPhase.CLEANUP); // inventory
+    expect(processors[18].phase).toBe(DayPhase.EVENTS);
+    expect(processors[19].phase).toBe(DayPhase.EVENTS); // faction-standing (D-2)
+    expect(processors[20].phase).toBe(DayPhase.EVENTS + 10); // bridge
+    expect(processors[21].phase).toBe(DayPhase.CLEANUP); // inventory
   });
 });

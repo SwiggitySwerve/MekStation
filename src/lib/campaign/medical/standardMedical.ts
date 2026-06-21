@@ -45,11 +45,23 @@ export function roll2d6(random: RandomFn): number {
  * @returns Medicine skill value (default 7)
  */
 function getMedicineSkillValue(
-  _doctorEntry: ICampaignRosterEntry,
-  _pilot: IPilot | null,
+  doctorEntry: ICampaignRosterEntry,
+  pilot: IPilot | null,
 ): number {
-  // @stub Plan 7 - Replace with actual skill lookup
-  return 7;
+  const pilotSkills = pilot?.skills as
+    | { readonly medicine?: number }
+    | undefined;
+  const statblockSkills = (
+    doctorEntry.statblockData as
+      | { readonly skills?: { readonly medicine?: number } }
+      | undefined
+  )?.skills;
+  return (
+    doctorEntry.medicineSkill ??
+    statblockSkills?.medicine ??
+    pilotSkills?.medicine ??
+    7
+  );
 }
 
 /**
@@ -63,12 +75,13 @@ function getMedicineSkillValue(
  * @returns Shorthanded modifier (0 if not overloaded)
  */
 function getShorthandedModifier(
-  _doctorEntry: ICampaignRosterEntry,
+  doctorEntry: ICampaignRosterEntry,
   _pilot: IPilot | null,
   _options: ICampaignOptions,
 ): number {
-  // @stub Plan 7 - Replace with actual patient count lookup
-  return 0;
+  const patientCount = doctorEntry.assignedPatientIds?.length ?? 0;
+  const capacity = doctorEntry.patientCapacity ?? 6;
+  return Math.max(0, patientCount - capacity);
 }
 
 /**

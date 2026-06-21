@@ -120,7 +120,12 @@ export function applyPilotDelta(context: {
   // Kill XP only awarded to player-side survivors who fought (basic
   // heuristic; richer kill attribution will land in Wave 5 wiring).
   if (delta.side === GameSide.Player && outcomeWonByPlayer) {
-    const killEvent = awardKillXP(entry, pilot, 1, campaign.options);
+    const killEvent = awardKillXP(
+      entry,
+      pilot,
+      Math.max(0, killCount),
+      campaign.options,
+    );
     if (killEvent) {
       xpDelta += killEvent.amount;
       campaignXpDelta += killEvent.amount;
