@@ -30,8 +30,8 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import { D6Roller, defaultD6Roller } from './diceTypes';
 import {
-  applyMotionTypeAggravation,
   applyMotiveDamageToState,
+  motiveRollModifierForMotionType,
   requiresMotiveRollOnAnyHit,
   rollMotiveDamage,
 } from './motiveDamage';
@@ -235,6 +235,8 @@ export interface IVehicleResolveDamageOptions {
    * (Override for edge cases; normally derived from motion type.)
    */
   readonly forceMotiveRoll?: boolean;
+  /** Flat modifier applied to the motive 2d6 roll before table lookup. */
+  readonly motiveRollModifier?: number;
 }
 
 /**
@@ -278,15 +280,19 @@ export function vehicleResolveDamage(
   let stateWithMotive = stateAfter;
 
   if (motiveTriggered && damage > 0) {
-    const raw = options.forcedMotiveRoll ?? rollMotiveDamage(diceRoller);
-    motiveRoll = applyMotionTypeAggravation(raw, stateAfter.motionType);
+    const motiveRollModifier =
+      options.motiveRollModifier ??
+      motiveRollModifierForMotionType(stateAfter.motionType);
+    motiveRoll =
+      options.forcedMotiveRoll ??
+      rollMotiveDamage(diceRoller, motiveRollModifier);
 
     stateWithMotive = {
       ...stateAfter,
       motive: applyMotiveDamageToState(stateAfter.motive, motiveRoll),
     };
 
-    // Hover "heavy" aggravated to immobilized; Naval "heavy" sets sinking.
+    // Naval heavy motive damage additionally starts sinking.
     if (
       motiveRoll.severity === 'heavy' &&
       (stateAfter.motionType === GroundMotionType.NAVAL ||

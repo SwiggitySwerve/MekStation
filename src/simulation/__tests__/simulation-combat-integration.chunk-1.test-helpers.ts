@@ -121,7 +121,7 @@ describe('CombatResolver Pipeline', () => {
     }
   });
 
-  it('should apply head-capping rule (max 3 damage to head)', () => {
+  it('should preserve full damage values on head hits', () => {
     const config: ISimulationConfig = {
       ...STANDARD_LANCE,
       seed: 40003,
@@ -138,7 +138,7 @@ describe('CombatResolver Pipeline', () => {
 
     for (const evt of headDamageEvents) {
       const damage = (evt.payload as { damage: number }).damage;
-      expect(damage).toBeLessThanOrEqual(3);
+      expect(damage).toBeGreaterThan(0);
     }
   });
 

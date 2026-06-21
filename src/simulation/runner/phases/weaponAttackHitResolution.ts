@@ -2,6 +2,10 @@ import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolutio
 import type { ILOSDamageableCoverProvider } from '@/utils/gameplay/lineOfSight';
 
 import { IGameEvent, IGameState, IHexGrid } from '@/types/gameplay';
+import {
+  checkTACTrigger,
+  processTAC,
+} from '@/utils/gameplay/criticalHitResolution';
 import { resolveDamage } from '@/utils/gameplay/damage';
 import { buildDefaultComponentDamageState } from '@/utils/gameplay/gameSessionAttackResolutionHelpers';
 import { determineHitLocation } from '@/utils/gameplay/hitLocation';
@@ -208,6 +212,50 @@ export function resolveWeaponHit(options: {
     damage,
     d6Roller,
   );
+  let manifestAfterCriticals = damageResult.manifest ?? targetManifest;
+  let componentDamageAfterCriticals =
+    damageResult.componentDamage ?? targetComponentDamage;
+  const criticalEventsAfterDamage = [...(damageResult.criticalEvents ?? [])];
+  let damageStateAfterCriticals = damageResult.state;
+
+  const tacLocation = checkTACTrigger(hitLocationResult.roll.total, firingArc);
+  if (tacLocation) {
+    const tacResult = processTAC(
+      targetId,
+      tacLocation,
+      manifestAfterCriticals,
+      componentDamageAfterCriticals,
+      d6Roller,
+      undefined,
+      {
+        pilotAbilities: targetBefore.abilities ?? [],
+        edgePointsRemaining: damageStateAfterCriticals.edgePointsRemaining,
+        turn: currentState.turn,
+        unitId: targetId,
+        optionalRules,
+      },
+    );
+    manifestAfterCriticals = tacResult.updatedManifest;
+    componentDamageAfterCriticals = tacResult.updatedComponentDamage;
+    criticalEventsAfterDamage.push(...tacResult.events);
+    if (tacResult.edgePointsRemaining !== undefined) {
+      damageStateAfterCriticals = {
+        ...damageStateAfterCriticals,
+        edgePointsRemaining: tacResult.edgePointsRemaining,
+      };
+    }
+  }
+
+  const damageResultForCriticals = {
+    ...damageResult,
+    state: damageStateAfterCriticals,
+    manifest: manifestAfterCriticals,
+    componentDamage: componentDamageAfterCriticals,
+    criticalEvents:
+      criticalEventsAfterDamage.length > 0
+        ? criticalEventsAfterDamage
+        : undefined,
+  };
 
   // Persist the post-resolution manifest in the side table so the
   // next shot at this target sees already-destroyed slots and the
@@ -215,20 +263,20 @@ export function resolveWeaponHit(options: {
   persistDamageManifest({
     manifestsByUnit,
     targetId,
-    manifest: damageResult.manifest,
+    manifest: damageResultForCriticals.manifest,
   });
 
   currentState = applyDamageResultToState(
     currentState,
     targetId,
-    damageResult.state,
-    damageResult.result,
-    damageResult.componentDamage,
+    damageResultForCriticals.state,
+    damageResultForCriticals.result,
+    damageResultForCriticals.componentDamage,
   );
   currentState = applyEquipmentCriticalEventsToState(
     currentState,
     targetId,
-    damageResult.criticalEvents,
+    damageResultForCriticals.criticalEvents,
   );
   const targetAfter = currentState.units[targetId];
 
@@ -300,16 +348,17 @@ export function resolveWeaponHit(options: {
   // `LocationDestroyed` → `TransferDamage`. The side-torso → arm cascade
   // is detected off the pre/post-state `destroyedLocations` diff.
   const preDestroyedSet = new Set<string>(damageState.destroyedLocations);
-  const newlyDestroyed = damageResult.state.destroyedLocations.filter(
-    (loc) => !preDestroyedSet.has(loc),
-  );
+  const newlyDestroyed =
+    damageResultForCriticals.state.destroyedLocations.filter(
+      (loc) => !preDestroyedSet.has(loc),
+    );
   emitDamageChainEvents({
     events,
     gameId,
     turn: currentState.turn,
     attackerId: unitId,
     targetId,
-    damageResult,
+    damageResult: damageResultForCriticals,
     newlyDestroyed,
   });
 
@@ -320,14 +369,14 @@ export function resolveWeaponHit(options: {
   // event emitted below.
   let critUnitDestroyed = false;
   let critDestructionCause: DestructionCause | undefined = undefined;
-  if (damageResult.criticalEvents) {
+  if (damageResultForCriticals.criticalEvents) {
     const emitted = emitCritEvents({
       events,
       gameId,
       turn: currentState.turn,
       attackerId: unitId,
       targetId,
-      critEvents: damageResult.criticalEvents,
+      critEvents: damageResultForCriticals.criticalEvents,
       targetAlreadyDestroyed: targetBefore.destroyed,
       targetPilotingSkill: targetBefore.piloting,
     });
@@ -345,7 +394,7 @@ export function resolveWeaponHit(options: {
     gameId,
     unitId,
     targetId,
-    damageResult,
+    damageResult: damageResultForCriticals,
     d6Roller,
     weaponsByUnit,
     critUnitDestroyed,
@@ -357,14 +406,14 @@ export function resolveWeaponHit(options: {
 
   currentState = applyCriticalPSRTriggers(
     currentState,
-    damageResult.criticalEvents,
+    damageResultForCriticals.criticalEvents,
   );
   currentState = applyLegDamagePSR({
     currentState,
     events,
     gameId,
     targetId,
-    damageResult,
+    damageResult: damageResultForCriticals,
   });
 
   // Emit `PilotHit` for raw head-hit wounds (suppressed when a
@@ -375,7 +424,7 @@ export function resolveWeaponHit(options: {
     turn: currentState.turn,
     attackerId: unitId,
     targetId,
-    damageResult,
+    damageResult: damageResultForCriticals,
   });
 
   emitNeuralFeedbackPilotEvent({
@@ -384,7 +433,7 @@ export function resolveWeaponHit(options: {
     turn: currentState.turn,
     attackerId: unitId,
     targetId,
-    damageResult,
+    damageResult: damageResultForCriticals,
   });
 
   // Emit `UnitDestroyed` once if the shot killed the target, sourcing
@@ -397,7 +446,7 @@ export function resolveWeaponHit(options: {
     targetId,
     targetWasDestroyed: targetBefore.destroyed,
     targetIsDestroyed: currentState.units[targetId].destroyed,
-    damageResult,
+    damageResult: damageResultForCriticals,
     critUnitDestroyed,
     critDestructionCause,
   });

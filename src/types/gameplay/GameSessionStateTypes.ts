@@ -9,6 +9,7 @@ import type {
   IC3EquipmentMountState,
   IC3NetworkState,
 } from '@/utils/gameplay/c3Network';
+import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 import type { IElectronicWarfareState } from '@/utils/gameplay/electronicWarfare';
 import type { IInfantryCombatState } from '@/utils/gameplay/infantry/state';
 import type { IProtoMechCombatState } from '@/utils/gameplay/protomech/state';
@@ -545,6 +546,12 @@ export interface IUnitGameState {
   readonly empShutdownTurns?: number;
   /** Ammo bin state tracking */
   readonly ammoState?: Record<string, IAmmoSlotState>;
+  /**
+   * Optional catalog-hydrated critical-slot manifest. When present, combat
+   * critical resolution uses it instead of the synthetic default manifest so
+   * ammo/equipment slots are hittable and replayed slot destruction is stable.
+   */
+  readonly criticalSlotManifest?: CriticalSlotManifest;
   /**
    * Optional per-location armor type projected from construction data or test
    * fixtures. Missing keys are treated as standard armor for combat effects

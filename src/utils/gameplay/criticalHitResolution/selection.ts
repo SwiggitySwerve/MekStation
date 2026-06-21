@@ -102,19 +102,21 @@ export function selectCriticalSlotWithEdge(
   const slots = manifest[normalizedLocation];
   if (!slots || slots.length === 0) return { slot: null };
 
-  const availableSlots = slots.filter((slot) => isCriticalSlotAvailable(slot));
-  if (availableSlots.length === 0) return { slot: null };
+  if (!slots.some(isCriticalSlotAvailable)) return { slot: null };
 
-  const roll = diceRoller();
-  const firstSlot = selectSlotFromPool(availableSlots, roll);
+  const firstSlot = selectSlotFromLocation(
+    slots,
+    diceRoller,
+    isCriticalSlotAvailable,
+  );
+  if (!firstSlot) return { slot: null };
   if (!isExplosiveCriticalSlot(firstSlot)) {
     return { slot: firstSlot };
   }
 
-  const nonExplosiveSlots = availableSlots.filter(
-    (slot) => !isExplosiveCriticalSlot(slot),
-  );
-  if (nonExplosiveSlots.length === 0) {
+  const nonExplosiveAvailable = (slot: ICriticalSlotEntry) =>
+    isCriticalSlotAvailable(slot) && !isExplosiveCriticalSlot(slot);
+  if (!slots.some(nonExplosiveAvailable)) {
     return { slot: firstSlot };
   }
 
@@ -136,19 +138,48 @@ export function selectCriticalSlotWithEdge(
     return { slot: firstSlot };
   }
 
-  const reroll = diceRoller();
   return {
-    slot: selectSlotFromPool(nonExplosiveSlots, reroll),
+    slot:
+      selectSlotFromLocation(slots, diceRoller, nonExplosiveAvailable) ??
+      firstSlot,
     edgePointsRemaining: edgeResolution.edgePointsRemaining,
   };
 }
 
-function selectSlotFromPool(
+function selectSlotFromLocation(
   slots: readonly ICriticalSlotEntry[],
-  roll: number,
-): ICriticalSlotEntry {
-  const index = (roll - 1) % slots.length;
-  return slots[index];
+  diceRoller: D6Roller,
+  isCandidate: (slot: ICriticalSlotEntry) => boolean,
+): ICriticalSlotEntry | null {
+  if (slots.length === 0) return null;
+
+  const fairBucketSize = Math.floor(36 / slots.length) * slots.length;
+  const maxAttempts = Math.max(72, slots.length * 12);
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const rollValue = rollUniformD6PairValue(diceRoller);
+    if (fairBucketSize > 0 && rollValue >= fairBucketSize) {
+      continue;
+    }
+
+    const index = rollValue % slots.length;
+    const slot = slots[index];
+    if (isCandidate(slot)) {
+      return slot;
+    }
+  }
+
+  return slots.find(isCandidate) ?? null;
+}
+
+function rollUniformD6PairValue(diceRoller: D6Roller): number {
+  const first = normalizeD6(diceRoller());
+  const second = normalizeD6(diceRoller());
+  return (first - 1) * 6 + (second - 1);
+}
+
+function normalizeD6(value: number): number {
+  if (!Number.isFinite(value)) return 1;
+  return Math.max(1, Math.min(6, Math.trunc(value)));
 }
 
 function isExplosiveCriticalSlot(slot: ICriticalSlotEntry): boolean {

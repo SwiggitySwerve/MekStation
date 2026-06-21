@@ -22,6 +22,7 @@ import {
   createPSRTriggeredEvent,
   createTransferDamageEvent,
 } from './gameEvents';
+import { appendCritInducedAmmoExplosionEvents } from './gameSessionAttackResolution.ammoExplosions';
 import {
   appendUnitDestroyedEvent,
   buildDefaultComponentDamageState,
@@ -167,8 +168,10 @@ export function emitDamageCriticalEvents(input: {
   readonly buildTargetCriticalEdgeOptions: CriticalEdgeOptionsFactory;
 }): IGameSession {
   let currentSession = input.session;
-  const manifest = buildDefaultCriticalSlotManifest();
-  const targetComponentDamage =
+  let manifest =
+    input.targetStateForDamage.criticalSlotManifest ??
+    buildDefaultCriticalSlotManifest();
+  let targetComponentDamage =
     input.targetStateForDamage.componentDamage ??
     buildDefaultComponentDamageState();
 
@@ -190,6 +193,14 @@ export function emitDamageCriticalEvents(input: {
         input.turn,
         input.targetId,
       );
+      currentSession = appendCritInducedAmmoExplosionEvents({
+        session: currentSession,
+        criticalEvents: criticalResult.events,
+        targetId: input.targetId,
+        d6Roller: input.d6Roller,
+      });
+      manifest = criticalResult.updatedManifest;
+      targetComponentDamage = criticalResult.updatedComponentDamage;
     }
   }
 
@@ -211,6 +222,12 @@ export function emitDamageCriticalEvents(input: {
         input.turn,
         input.targetId,
       );
+      currentSession = appendCritInducedAmmoExplosionEvents({
+        session: currentSession,
+        criticalEvents: tacResult.events,
+        targetId: input.targetId,
+        d6Roller: input.d6Roller,
+      });
     }
   }
 

@@ -237,22 +237,13 @@ describe('wire-real-weapon-data — smoke test (Hunchback fixture)', () => {
       }),
     );
 
-    // Damage: AC/20 hit a non-head location should carry damage=20; head
-    // caps at 3. Assert both a damage value > 0 AND the catalog-sourced
-    // heat that accompanies it.
+    // Damage and heat should both come from the catalog.
     expect(byWeapon.get('ac20-1')?.heat).toBe(7);
     expect(byWeapon.get('ml-1')?.heat).toBe(3);
     expect(byWeapon.get('ml-2')?.heat).toBe(3);
 
-    // Damage is either the catalog value (20/5/5) or the head-cap of 3.
-    // Since we rolled a hit-location of 7 (= head per front-table in some
-    // configs), assert damage is either full or head-capped — both are
-    // valid per the head cap rule, both require real catalog damage to be
-    // meaningful (head cap would not fire if damage defaulted to 5).
     const ac20Damage = byWeapon.get('ac20-1')?.damage;
-    expect(ac20Damage).toBeGreaterThan(0);
-    // If hit-location was head, damage capped at 3. Otherwise damage 20.
-    expect([3, 20]).toContain(ac20Damage);
+    expect(ac20Damage).toBe(20);
   });
 
   it('total firing heat sums real catalog values, not weapons.length * 3', () => {

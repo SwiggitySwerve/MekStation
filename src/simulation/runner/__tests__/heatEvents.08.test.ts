@@ -220,17 +220,15 @@ describe('runAttackPhase ammo + pilot events (Phase 4)', () => {
   });
 
   it('PilotHit emits when a head-hit damages the pilot (no cockpit crit)', () => {
-    // Cap the head-hit damage at 3 → 1 wound applied. The crit-resolver
-    // path emits its own pilot_hit on cockpit hits; this test asserts
-    // the head-hit branch fires PilotHit independently.
+    // The crit-resolver path emits its own pilot_hit on cockpit hits; this
+    // test asserts the head-hit branch fires PilotHit independently.
     //
     // Strategy: strip the head armor + structure to 1, fire AC/20.
     // Most seed branches will roll non-head locations; we sweep until
     // a head hit lands.
     const scenario = buildAmmoCookoffScenario();
     // Force a head-only target: zero out everything else and put 9
-    // armor + 3 structure on head — head-hit (roll 12) will deliver
-    // 3 damage capped, applying 1 wound to the pilot.
+    // structure on head. A head hit applies one wound to the pilot.
     const target = scenario.state.units['opponent-1'];
     scenario.state.units['opponent-1'] = {
       ...target,

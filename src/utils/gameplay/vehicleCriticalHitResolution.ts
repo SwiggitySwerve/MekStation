@@ -4,7 +4,7 @@
  * 2d6 vehicle critical-hit table + effect application. Unlike mechs, vehicle
  * crits don't consume critical slots — they modify the combat state:
  *   - Crew Stunned: skip next movement + weapon phase.
- *   - Engine Hit: 1st disables for a turn, 2nd destroys the vehicle.
+ *   - Engine Hit: immobilizes the vehicle.
  *   - Driver/Commander: wound counter; 2 kills the crew (vehicle destroyed).
  *   - Fuel Tank: ICE/FuelCell only — vehicle destroyed by fuel explosion
  *     (MegaMek `Tank.CRIT_FUEL_TANK` → destroyEntity "fuel explosion");
@@ -325,15 +325,12 @@ function applyCommanderHit(state: IVehicleCombatState): IVehicleCombatState {
   };
 }
 
-/** Engine hit counter; the second hit destroys the vehicle. */
+/** Engine hit counter; each hit immobilizes but does not destroy the vehicle. */
 function applyEngineHit(state: IVehicleCombatState): IVehicleCombatState {
   const engineHits = state.motive.engineHits + 1;
   return {
     ...state,
-    motive: { ...state.motive, engineHits },
-    destroyed: engineHits >= 2 ? true : state.destroyed,
-    destructionCause:
-      engineHits >= 2 ? 'engine_destroyed' : state.destructionCause,
+    motive: { ...state.motive, engineHits, immobilized: true },
   };
 }
 

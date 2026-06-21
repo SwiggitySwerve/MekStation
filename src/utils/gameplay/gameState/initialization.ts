@@ -156,6 +156,9 @@ export function createInitialUnitState(
     empInterferenceTurns: 0,
     empShutdownTurns: 0,
     ammoState,
+    ...(unit.criticalSlotManifest !== undefined
+      ? { criticalSlotManifest: unit.criticalSlotManifest }
+      : {}),
     ...(unit.armorTypeByLocation !== undefined
       ? { armorTypeByLocation: unit.armorTypeByLocation }
       : {}),

@@ -11,7 +11,6 @@ export const DEFAULT_PILOTING = 5;
 export const DEFAULT_GUNNERY = 4;
 export const BASE_HEAT_SINKS = 10;
 export const ENGINE_HEAT_PER_CRITICAL = 5;
-export const HEAD_HIT_DAMAGE_CAP = 3;
 export const DAMAGE_PSR_THRESHOLD = 20;
 export const LETHAL_PILOT_WOUNDS = 6;
 export const WALK_HEAT = 1;

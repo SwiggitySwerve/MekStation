@@ -131,10 +131,10 @@ describe('calculateCASEEffects', () => {
     expect(result.pilotDamage).toBe(0);
   });
 
-  it('No CASE: full transfer, pilot takes 1 damage', () => {
+  it('No CASE: full transfer, pilot takes 2 damage', () => {
     const result = calculateCASEEffects(150, 'none');
     expect(result.transferDamage).toBe(150);
-    expect(result.pilotDamage).toBe(1);
+    expect(result.pilotDamage).toBe(2);
   });
 
   it('zero damage = no effects regardless of CASE', () => {
@@ -174,7 +174,7 @@ describe('resolveAmmoExplosion with CASE variants', () => {
     const result = resolveAmmoExplosion(ammoState, 'bin-1', 10, 'none');
     expect(result!.totalDamage).toBe(100);
     expect(result!.transferDamage).toBe(100);
-    expect(result!.pilotDamage).toBe(1);
+    expect(result!.pilotDamage).toBe(2);
   });
 });
 
@@ -185,10 +185,10 @@ describe('CASE-adjusted ammo explosion damage', () => {
     expect(caseProtectionForLocation(unit, 'right_torso')).toBe('none');
   });
 
-  it('caps standard CASE damage to 10 before local damage resolution', () => {
+  it('contains standard CASE damage to local internal structure before damage resolution', () => {
     const unit = makeCaseUnit({
       armor: { right_torso: 12 },
-      structure: { right_torso: 10 },
+      structure: { right_torso: 15 },
       caseProtection: { right_torso: 'case' },
     });
 
@@ -196,7 +196,7 @@ describe('CASE-adjusted ammo explosion damage', () => {
       resolveCaseAdjustedAmmoExplosionDamage(unit, 'right_torso', 100),
     ).toEqual({
       caseProtection: 'case',
-      damageToApply: 10,
+      damageToApply: 15,
     });
   });
 
@@ -351,7 +351,7 @@ describe('resolveGaussExplosion', () => {
   it('no CASE: transfers full 20 damage + pilot damage', () => {
     const noCase = resolveGaussExplosion('right_torso', 'none');
     expect(noCase.transferDamage).toBe(20);
-    expect(noCase.pilotDamage).toBe(1);
+    expect(noCase.pilotDamage).toBe(2);
   });
 
   it('CASE II: transfers only 1 point', () => {

@@ -419,8 +419,8 @@ describe('integrate-damage-pipeline — smoke test', () => {
     expect(laDestroyed).toBeDefined();
   });
 
-  it('AC/20 to head caps damage at 3 (head damage cap)', () => {
-    // Head: 9 armor, 3 structure. AC/20 (20 damage) capped at 3 applied.
+  it('AC/20 to head applies full damage and destroys the head', () => {
+    // Head: 9 armor, 3 structure. AC/20 (20 damage) applies in full.
     let session = setupAttackPhase();
     session = seedArmorStructure(
       session,
@@ -467,13 +467,15 @@ describe('integrate-damage-pipeline — smoke test', () => {
     );
     const resolvedPayload = resolved!.payload as IAttackResolvedPayload;
     expect(resolvedPayload.location).toBe('head');
-    // Head cap: damage field on AttackResolved reflects the capped 3
-    expect(resolvedPayload.damage).toBe(3);
+    expect(resolvedPayload.damage).toBe(20);
 
     const damageEvents = realDamageEvents(session);
     const damagePayload = damageEvents[0].payload as IDamageAppliedPayload;
     expect(damagePayload.location).toBe('head');
-    expect(damagePayload.damage).toBe(3);
+    expect(damagePayload.damage).toBe(20);
+    expect(damagePayload.armorRemaining).toBe(0);
+    expect(damagePayload.structureRemaining).toBe(0);
+    expect(damagePayload.locationDestroyed).toBe(true);
   });
 
   it('queues a 20+ damage PSR when a single AC/20 hit crosses the phase-damage threshold', () => {

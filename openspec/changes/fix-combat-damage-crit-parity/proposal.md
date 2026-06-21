@@ -81,9 +81,9 @@ Mediums confirmed in the same surface:
   is unchanged.
 - Make vehicle engine crits *immobilize* rather than auto-destroy on the second hit; keep
   deterministic destruction only where MegaMek does (it does not, under standard rules).
-- Route the resolver ammo-explosion crit (`applyAmmoHit`) through the ammo-explosion module so
-  a crit on a loaded bin produces explosion damage, CASE handling, and pilot damage on the live
-  `resolveAttack` path.
+- Route resolver ammo-explosion crit effects through the ammo-explosion module so a crit on a
+  loaded bin produces explosion damage, CASE handling, and pilot damage on the live
+  `resolveAttack` path while keeping `applyAmmoHit` as the pure critical-effect marker.
 - Apply TAC (roll-of-2 through-armor critical) in the simulation runner to match the
   interactive engine.
 - Replace motive-damage `heavy → immobilize` motion-type escalation with MegaMek's flat motive

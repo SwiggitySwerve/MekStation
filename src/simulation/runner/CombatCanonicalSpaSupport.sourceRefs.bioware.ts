@@ -315,8 +315,8 @@ export const CANONICAL_DERMAL_ARMOR_HEAD_HIT_SOURCE_REFS = [
   ),
   canonicalSpaSourceRef(
     'mekstation-deviation',
-    'MekStation head-damage-cap coverage proves Dermal Armor head hits damage the head but emit no pilot damage and leave pilot wounds unchanged.',
-    'src/utils/gameplay/damage/__tests__/headDamageCap.test.ts#L168-L188',
+    'MekStation head-hit coverage proves Dermal Armor head hits damage the head but emit no pilot damage and leave pilot wounds unchanged.',
+    'src/utils/gameplay/damage/__tests__/headDamageCap.test.ts#L151-L172',
     'MekStation working-tree',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];

@@ -291,7 +291,7 @@ describe('ammo explosion integration with CASE', () => {
     const result = resolveAmmoExplosion(ammoState, 'ac20-1', 20, caseLevel);
     expect(result!.totalDamage).toBe(100);
     expect(result!.transferDamage).toBe(100);
-    expect(result!.pilotDamage).toBe(1);
+    expect(result!.pilotDamage).toBe(2);
   });
 });
 
@@ -338,19 +338,18 @@ describe('resolveBattleMechAmmoExplosionPilotDamage', () => {
     ).toBe(0);
   });
 
-  it('only applies the optional CASE pilot-damage reduction when enabled', () => {
+  it('suppresses ammo-explosion pilot damage when CASE or CASE II protects the location', () => {
     expect(
       resolveBattleMechAmmoExplosionPilotDamage({
         totalDamage: 100,
         caseProtection: 'case',
       }),
-    ).toBe(2);
+    ).toBe(0);
     expect(
       resolveBattleMechAmmoExplosionPilotDamage({
         totalDamage: 100,
-        caseProtection: 'case',
-        advancedCasePilotDamage: true,
+        caseProtection: 'case_ii',
       }),
-    ).toBe(1);
+    ).toBe(0);
   });
 });

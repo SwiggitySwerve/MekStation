@@ -2,15 +2,12 @@ import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolutio
 import type { IResolveDamageResult } from '@/utils/gameplay/damage/types';
 
 import { IGameState, type CombatLocation } from '@/types/gameplay';
-import { isHeadHit } from '@/utils/gameplay/hitLocation';
 import { applyPhysicalEquipmentCriticalEvents } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 import {
   applyLowProfileGlancingDamage,
   getLowProfileGlancingCriticalHitModifier,
   isLowProfileGlancingBlow,
 } from '@/utils/gameplay/quirkModifiers';
-
-import { HEAD_HIT_DAMAGE_CAP } from '../SimulationRunnerConstants';
 
 export function applyHitLocationEdgePoints(
   currentState: IGameState,
@@ -54,10 +51,6 @@ export function resolveWeaponHitDamage(options: {
     toHitNumber,
   } = options;
   let damage = isINarcExplosiveAmmo ? 6 : baseDamage;
-
-  if (isHeadHit(location) && damage > HEAD_HIT_DAMAGE_CAP) {
-    damage = HEAD_HIT_DAMAGE_CAP;
-  }
 
   const lowProfileGlancingBlow = isLowProfileGlancingBlow(
     target?.unitQuirks,

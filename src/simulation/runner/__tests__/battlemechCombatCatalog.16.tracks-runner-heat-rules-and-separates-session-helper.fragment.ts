@@ -308,7 +308,7 @@ it('tracks damage, pilot injury, critical components, and destruction causes', (
     'case-ammo-explosion-containment',
     'damage-transfer',
     'destruction-cause-state-persistence',
-    'head-damage-cap',
+    'head-full-damage',
     'heat-ammo-explosion-damage-cascade',
     'internal-structure-damage',
     'location-destroyed-events',

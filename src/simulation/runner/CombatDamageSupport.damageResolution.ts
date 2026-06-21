@@ -94,9 +94,9 @@ export const DAMAGE_RESOLUTION_COMBAT_SUPPORT = {
     'applyDamageToLocation maps rear hit locations through rearArmor before structure',
     CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
   ),
-  'head-damage-cap': integrated(
-    'head-damage-cap',
-    'resolveDamage caps each head hit at HEAD_DAMAGE_CAP_PER_HIT before transfer',
+  'head-full-damage': integrated(
+    'head-full-damage',
+    'resolveDamage applies full head-hit damage while preserving one pilot wound per head hit',
     CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
   ),
   'damage-transfer': integrated(

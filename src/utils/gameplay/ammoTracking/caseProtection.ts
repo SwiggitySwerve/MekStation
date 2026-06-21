@@ -6,7 +6,6 @@ import { CombatLocation, getFrontCombatLocation } from '@/types/gameplay';
 
 import type { CASEProtectionLevel } from './types';
 
-const STANDARD_CASE_DAMAGE_CAP = 10;
 const CASE_II_DAMAGE_CAP = 1;
 
 function structureLocation(location: string): string {
@@ -44,7 +43,7 @@ export function resolveCaseAdjustedAmmoExplosionDamage(
   const cap =
     caseProtection === 'case_ii'
       ? CASE_II_DAMAGE_CAP
-      : STANDARD_CASE_DAMAGE_CAP;
+      : internalStructureRemaining(unit, location);
   const damageToApply = Math.min(
     totalDamage,
     cap,

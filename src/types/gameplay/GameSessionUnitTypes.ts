@@ -4,6 +4,7 @@
  */
 
 import type { IC3EquipmentMountState } from '@/utils/gameplay/c3Network';
+import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
 
 import type { EngineType } from '../construction/EngineType';
 import type {
@@ -263,6 +264,11 @@ export interface IGameUnit {
    * data per `wire-ammo-consumption`.
    */
   readonly ammoConstruction?: readonly IAmmoConstructionInit[];
+  /**
+   * Optional catalog-hydrated critical-slot manifest for interactive combat.
+   * Synthetic fixtures can omit it and keep the legacy default manifest.
+   */
+  readonly criticalSlotManifest?: CriticalSlotManifest;
   /**
    * Optional per-location armor type projected into combat state. Producers
    * may supply a single uniform armor type across all locations or a richer

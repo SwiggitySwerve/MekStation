@@ -11,11 +11,7 @@ export {
   resolvePilotWakeUpCheck,
 } from './pilot';
 export { checkUnitDestruction } from './destruction';
-export {
-  resolveDamage,
-  resolveInternalDamage,
-  HEAD_DAMAGE_CAP_PER_HIT,
-} from './resolve';
+export { resolveDamage, resolveInternalDamage } from './resolve';
 export { applyDamageWithTerrainEffects } from './terrain';
 export {
   createDamageState,

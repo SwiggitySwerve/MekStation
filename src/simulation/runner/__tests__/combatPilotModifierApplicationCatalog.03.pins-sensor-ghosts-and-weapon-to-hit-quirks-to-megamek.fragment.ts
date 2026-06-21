@@ -256,7 +256,7 @@ it('splits represented Dermal Armor head-hit suppression from broad implant hydr
       'MegaMek TWDamageManager suppresses BattleMech head-hit crew damage when the unit has MD_DERMAL_ARMOR.',
       'MegaMek TWDamageManagerModular suppresses BattleMech head-hit crew damage when the Mek has MD_DERMAL_ARMOR.',
       'MekStation resolveDamage consumes dermal_armor pilot ability state to suppress head-hit pilot damage while preserving head armor and structure damage.',
-      'MekStation head-damage-cap coverage proves Dermal Armor head hits damage the head but emit no pilot damage and leave pilot wounds unchanged.',
+      'MekStation head-hit coverage proves Dermal Armor head hits damage the head but emit no pilot damage and leave pilot wounds unchanged.',
     ]),
   );
   expect(CANONICAL_SPA_COMBAT_SCOPE_SUPPORT.dermal_armor).toMatchObject({

@@ -286,7 +286,7 @@ The system SHALL resolve attacks by rolling dice for each weapon, determining hi
 - **WHEN** `resolveAttack(session, attackEvent, diceRoller)` is called
 - **THEN** the system SHALL compute the firing arc from attacker/target positions via spatial-combat-system
 - **AND** roll for hit location via to-hit-resolution `determineHitLocationFromRoll`
-- **AND** apply head-capping rule (max 3 damage if head hit)
+- **AND** apply full damage if the hit location is the head
 - **AND** emit an AttackResolved event with hit=true, location, and damage
 - **AND** resolve damage via damage-system `resolveDamage` pipeline
 - **AND** emit DamageApplied events for each location damage result
@@ -334,11 +334,12 @@ The system SHALL resolve attacks by rolling dice for each weapon, determining hi
 - **WHEN** processing post-damage effects
 - **THEN** a UnitDestroyed event SHALL be emitted with cause="damage"
 
-#### Scenario: Head-capping rule limits damage to 3
+#### Scenario: Head hits preserve full weapon damage
 
 - **GIVEN** a weapon with damage 10 hits the head location
 - **WHEN** resolving damage
-- **THEN** the damage applied SHALL be capped at 3 (head-capping rule)
+- **THEN** the full 10 damage SHALL be passed into the damage-system pipeline
+- **AND** the head hit SHALL apply exactly one pilot wound when the head-hit pilot-damage rule is active
 
 ### Requirement: Ammo Consumption During Attack Resolution
 
@@ -1533,7 +1534,7 @@ The interactive session SHALL own and expose the canonical combat grid used by t
 
 - **game-event-system**: All 22+ event factory functions for creating typed game events
 - **game-state-management**: `deriveState` for state derivation, `allUnitsLocked` for phase guards
-- **to-hit-resolution**: `calculateToHit` for modifier aggregation, `determineHitLocationFromRoll` for hit locations, `isHeadHit` for head-capping
+- **to-hit-resolution**: `calculateToHit` for modifier aggregation, `determineHitLocationFromRoll` for hit locations, `isHeadHit` for head-hit pilot-damage classification
 - **spatial-combat-system**: `calculateFiringArc` for arc determination from positions
 - **damage-system**: `resolveDamage` pipeline for armor/structure/pilot damage resolution
 - **critical-hit-resolution**: `resolveCriticalHits`, `checkTACTrigger`, `processTAC`, `buildDefaultCriticalSlotManifest` for crit processing

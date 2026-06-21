@@ -371,12 +371,7 @@ describe('resolveHeatPhase', () => {
           event.phase === GamePhase.Heat &&
           (event.payload as IPilotHitPayload).source === 'ammo_explosion',
       );
-      expect(pilotHit?.payload as IPilotHitPayload).toMatchObject({
-        unitId: 'unit-2',
-        wounds: 2,
-        totalWounds: 2,
-        source: 'ammo_explosion',
-      });
+      expect(pilotHit).toBeUndefined();
 
       expect(
         session.events.some(

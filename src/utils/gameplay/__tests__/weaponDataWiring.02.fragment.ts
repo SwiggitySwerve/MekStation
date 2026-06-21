@@ -157,7 +157,7 @@ function advanceToWeaponAttack(session: IGameSession): IGameSession {
 
 /**
  * Creates a roller that alternates: odd calls hit (12), even calls target CT (7).
- * Avoids head location (roll 12) which triggers the 3-damage head-cap rule.
+ * Avoids head location (roll 12) so catalog damage assertions stay focused on weapon data rather than fatal head-destruction side effects.
  */
 function createAlwaysHitRoller(): DiceRoller {
   let callCount = 0;

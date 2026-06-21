@@ -1,3 +1,5 @@
+import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
+
 import {
   ICriticalHitResolvedPayload,
   IDamageAppliedPayload,
@@ -44,6 +46,29 @@ function getFrontTorsoLocation(location: string): string | null {
   if (location === 'left_torso_rear') return 'left_torso';
   if (location === 'right_torso_rear') return 'right_torso';
   return null;
+}
+
+function markCriticalSlotManifestEntryDestroyed(
+  manifest: CriticalSlotManifest | undefined,
+  payload: ICriticalHitResolvedPayload,
+): CriticalSlotManifest | undefined {
+  if (!manifest || !payload.destroyed) {
+    return manifest;
+  }
+
+  const slots = manifest[payload.location];
+  if (!slots) {
+    return manifest;
+  }
+
+  return {
+    ...manifest,
+    [payload.location]: slots.map((slot) =>
+      slot.slotIndex === payload.slotIndex
+        ? { ...slot, destroyed: true }
+        : slot,
+    ),
+  };
 }
 
 export function applyDamageApplied(
@@ -236,6 +261,10 @@ export function applyCriticalHitResolved(
     state.electronicWarfare,
     payload,
   );
+  const criticalSlotManifest = markCriticalSlotManifestEntryDestroyed(
+    unit.criticalSlotManifest,
+    payload,
+  );
 
   return {
     ...state,
@@ -245,6 +274,7 @@ export function applyCriticalHitResolved(
       [payload.unitId]: {
         ...updatedUnit,
         componentDamage: updatedDamage,
+        ...(criticalSlotManifest !== undefined ? { criticalSlotManifest } : {}),
         edgePointsRemaining:
           payload.edgePointsRemaining ?? updatedUnit.edgePointsRemaining,
         combatState: applyVehicleCriticalToCombatState(updatedUnit, payload),

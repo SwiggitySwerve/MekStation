@@ -31,7 +31,6 @@ export {
 } from './ammoTracking/caseProtection';
 export {
   BATTLEMECH_AMMO_EXPLOSION_PILOT_DAMAGE,
-  REDUCED_CASE_AMMO_EXPLOSION_PILOT_DAMAGE,
   resolveBattleMechAmmoExplosionPilotDamage,
 } from './ammoTracking/pilotDamage';
 export { getFireableWeapons, isEnergyWeapon } from './ammoTracking/weapons';

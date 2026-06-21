@@ -3,7 +3,6 @@ import { hasSPA } from '@/utils/gameplay/spaModifiers/canonicalize';
 import type { CASEProtectionLevel } from './types';
 
 export const BATTLEMECH_AMMO_EXPLOSION_PILOT_DAMAGE = 2;
-export const REDUCED_CASE_AMMO_EXPLOSION_PILOT_DAMAGE = 1;
 
 export interface IResolveBattleMechAmmoExplosionPilotDamageOptions {
   readonly totalDamage: number;
@@ -35,15 +34,14 @@ export function resolveBattleMechAmmoExplosionPilotDamage(
     return 0;
   }
 
-  let damage = BATTLEMECH_AMMO_EXPLOSION_PILOT_DAMAGE;
   if (
-    options.advancedCasePilotDamage === true &&
     options.caseProtection !== undefined &&
     options.caseProtection !== 'none'
   ) {
-    damage = REDUCED_CASE_AMMO_EXPLOSION_PILOT_DAMAGE;
+    return 0;
   }
 
+  let damage = BATTLEMECH_AMMO_EXPLOSION_PILOT_DAMAGE;
   if (
     hasSourceBackedPainResistance(pilotAbilities) ||
     hasSourceBackedIronMan(pilotAbilities)

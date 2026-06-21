@@ -321,4 +321,24 @@ describe('resolveWeaponHit — partial cover leg-hit conversion', () => {
     expect(result.units.target.armor.center_torso).toBe(47);
     expect(result.units.target.armor.right_torso).toBe(27);
   });
+
+  it('applies a TAC critical on natural hit-location roll 2 even when armor absorbs damage', () => {
+    const events: IGameEvent[] = [];
+    const result = resolveWeaponHit(resolveArgs(events, false, [1, 1, 1, 1]));
+
+    const resolved = events.find(
+      (e) => e.type === GameEventType.AttackResolved,
+    );
+    expect(resolved?.payload).toMatchObject({
+      hit: true,
+      location: 'center_torso',
+      damage: 5,
+    });
+    expect(result.units.target.armor.center_torso).toBe(42);
+    expect(result.units.target.structure.center_torso).toBe(31);
+    expect(result.units.target.componentDamage?.engineHits).toBe(1);
+    expect(
+      events.some((event) => event.type === GameEventType.CriticalHitResolved),
+    ).toBe(true);
+  });
 });

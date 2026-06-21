@@ -36,9 +36,10 @@ import { D6Roller, defaultD6Roller, roll2d6 } from './diceTypes';
  */
 export function rollMotiveDamage(
   diceRoller: D6Roller = defaultD6Roller,
+  modifier = 0,
 ): IMotiveDamageRollResult {
   const rolled = roll2d6(diceRoller);
-  return motiveDamageFromRoll([rolled.dice[0], rolled.dice[1]]);
+  return motiveDamageFromRoll([rolled.dice[0], rolled.dice[1]], modifier);
 }
 
 /**
@@ -46,9 +47,10 @@ export function rollMotiveDamage(
  */
 export function motiveDamageFromRoll(
   dice: readonly [number, number],
+  modifier = 0,
 ): IMotiveDamageRollResult {
   const [d1, d2] = dice;
-  const roll = d1 + d2;
+  const roll = d1 + d2 + modifier;
 
   let severity: MotiveDamageSeverity;
   let mpPenalty: number;
@@ -103,33 +105,38 @@ export function requiresMotiveRollOnAnyHit(
 }
 
 /**
- * Apply motion-type-specific aggravation to a motive roll.
- *
- *   - Wheeled: a "heavy" result immobilizes outright.
- *   - Hover: "heavy" causes sinking (on water) / bog (on land) — represented
- *       here by `immobilized = true`. The caller decides destruction based on
- *       terrain.
- *   - Naval: "heavy" begins sinking (destroyed in N turns).
- *   - Tracked / Rail / Maglev / VTOL / WiGE / Submarine: use the raw table.
+ * Flat movement-mode modifier applied before the motive-damage table lookup.
+ * Mirrors MegaMek TWGameManager.vehicleMotiveDamage lines 28241-28268 for
+ * non-jump motive damage.
+ */
+export function motiveRollModifierForMotionType(
+  motionType: GroundMotionType,
+  jumpDamage = false,
+): number {
+  switch (motionType) {
+    case GroundMotionType.HOVER:
+    case GroundMotionType.HYDROFOIL:
+      return jumpDamage ? -1 : 3;
+    case GroundMotionType.WHEELED:
+      return jumpDamage ? 1 : 2;
+    case GroundMotionType.WIGE:
+      return jumpDamage ? -2 : 4;
+    case GroundMotionType.TRACKED:
+      return jumpDamage ? 2 : 0;
+    default:
+      return 0;
+  }
+}
+
+/**
+ * Compatibility shim for older callers. Motive damage parity now applies flat
+ * roll modifiers before table lookup instead of mutating heavy outcomes.
  */
 export function applyMotionTypeAggravation(
   result: IMotiveDamageRollResult,
-  motionType: GroundMotionType,
+  _motionType: GroundMotionType,
 ): IMotiveDamageRollResult {
-  if (result.severity !== 'heavy') return result;
-
-  switch (motionType) {
-    case GroundMotionType.WHEELED:
-    case GroundMotionType.HOVER:
-      return { ...result, severity: 'immobilized', immobilized: true };
-    case GroundMotionType.NAVAL:
-    case GroundMotionType.HYDROFOIL:
-    case GroundMotionType.SUBMARINE:
-      // Heavy → sinking begins; upstream handler sets `sinking = true`.
-      return { ...result, severity: 'heavy' };
-    default:
-      return result;
-  }
+  return result;
 }
 
 // =============================================================================

@@ -156,7 +156,7 @@ export interface IMotiveDamageState {
   readonly sinking: boolean;
   /** Primary turret has been locked by a crit. */
   readonly turretLocked: boolean;
-  /** Engine-hit count (2 destroys the vehicle). */
+  /** Engine-hit count; engine hits immobilize but do not destroy the vehicle. */
   readonly engineHits: number;
   /** Driver-hit count (per TW, 2 kills the crew). */
   readonly driverHits: number;
