@@ -35,8 +35,8 @@ identical seeds produce identical outcomes.
 
 Critical hits SHALL trigger appropriate cascade effects such as ammo explosions and PSR triggers.
 An ammo critical SHALL route through the ammo-explosion module on EVERY resolution path
-(including the resolver `applyAmmoHit` path) so explosion damage, CASE handling, and pilot damage
-are applied rather than silently dropped.
+(including live resolver consumers of the `applyAmmoHit` effect marker) so explosion damage,
+CASE handling, and pilot damage are applied rather than silently dropped.
 
 #### Scenario: Ammo critical triggers explosion
 
@@ -47,7 +47,7 @@ are applied rather than silently dropped.
 #### Scenario: Resolver ammo critical applies explosion damage
 
 - **GIVEN** a critical hit lands on a LOADED ammo bin via the resolver path
-  (`processTAC → resolveCriticalHits → applyAmmoHit`)
+  (`processTAC → resolveCriticalHits → applyAmmoHit` effect consumption)
 - **WHEN** the critical is applied
 - **THEN** the ammo-explosion module SHALL apply internal-structure damage at the bin location,
   apply CASE/CASE-II handling, and apply pilot damage per the ammo-explosion-system rules

@@ -251,7 +251,7 @@ it('runner attack resolution does not reuse the same standard AMS after it fired
   const result = runPhaseWithResult({
     ...scenario,
     botPlayer: new ScriptedMultiWeaponAttackAI([firstLrm.id, secondLrm.id]),
-    random: new SequenceRandom([6, 6, 3, 4, 1, 1, 6, 6, 3, 4, 1, 1]),
+    random: new SequenceRandom([6, 6, 3, 4, 3, 4, 6, 6, 3, 4, 3, 4]),
   });
   const interceptions = result.events.filter(
     (event) => event.type === GameEventType.AMSInterception,

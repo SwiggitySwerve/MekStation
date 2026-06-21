@@ -235,7 +235,7 @@ describe('equipment slots in manifest', () => {
         },
       ],
     });
-    const roller = makeDiceRoller([1, 6]);
+    const roller = makeDiceRoller([1, 1, 1, 2]);
 
     const result = resolveCriticalHits(
       'unit-1',

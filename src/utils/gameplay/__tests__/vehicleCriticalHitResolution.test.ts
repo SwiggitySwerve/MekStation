@@ -281,13 +281,14 @@ describe('vehicleCriticalHitResolution', () => {
       expect(r2.state.destructionCause).toBe('crew_killed');
     });
 
-    it('engine_hit: first disables, second destroys', () => {
+    it('engine_hit immobilizes without destroying on repeated hits', () => {
       let state = mkState();
       state = applyVehicleCritEffect(state, vehicleCritFromRoll([5, 6]), {
         engineType: EngineType.STANDARD,
         hasAmmoInSlot: false,
       }).state;
       expect(state.motive.engineHits).toBe(1);
+      expect(state.motive.immobilized).toBe(true);
       expect(state.destroyed).toBe(false);
 
       const r2 = applyVehicleCritEffect(state, vehicleCritFromRoll([5, 6]), {
@@ -295,8 +296,9 @@ describe('vehicleCriticalHitResolution', () => {
         hasAmmoInSlot: false,
       });
       expect(r2.state.motive.engineHits).toBe(2);
-      expect(r2.state.destroyed).toBe(true);
-      expect(r2.state.destructionCause).toBe('engine_destroyed');
+      expect(r2.state.motive.immobilized).toBe(true);
+      expect(r2.state.destroyed).toBe(false);
+      expect(r2.state.destructionCause).toBeUndefined();
     });
 
     it('fuel_tank on ICE destroys the vehicle; on fusion rerolls to none', () => {

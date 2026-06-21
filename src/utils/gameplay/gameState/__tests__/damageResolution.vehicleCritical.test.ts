@@ -148,4 +148,40 @@ describe('applyCriticalHitResolved — vehicle critical replay', () => {
     const vehicle = vehicleStateOf(next, 'vtol-1');
     expect(vehicle.motive.immobilized).toBe(true);
   });
+
+  it('engine_hit criticals immobilize without destroying on replay', () => {
+    const state = makeGameState();
+    const payload = makeCritPayload('engine_hit', 'engine', 'Fusion Engine');
+
+    const afterFirst = applyCriticalHitResolved(state, payload);
+    const firstVehicle = vehicleStateOf(afterFirst, 'vtol-1');
+    expect(firstVehicle.motive.engineHits).toBe(1);
+    expect(firstVehicle.motive.immobilized).toBe(true);
+    expect(firstVehicle.destroyed).toBe(false);
+
+    const afterSecond = applyCriticalHitResolved(afterFirst, payload);
+    const secondVehicle = vehicleStateOf(afterSecond, 'vtol-1');
+    expect(secondVehicle.motive.engineHits).toBe(2);
+    expect(secondVehicle.motive.immobilized).toBe(true);
+    expect(secondVehicle.destroyed).toBe(false);
+    expect(secondVehicle.destructionCause).toBeUndefined();
+  });
+
+  it.each(['commander_hit', 'copilot_hit'])(
+    '%s critical replays as commander damage with crew stun',
+    (effect) => {
+      const state = makeGameState();
+
+      const next = applyCriticalHitResolved(
+        state,
+        makeCritPayload(effect, 'crew', effect),
+      );
+
+      const vehicle = vehicleStateOf(next, 'vtol-1');
+      expect(vehicle.motive.commanderHits).toBe(1);
+      expect(vehicle.motive.driverHits).toBe(0);
+      expect(vehicle.motive.crewStunnedPhases).toBe(2);
+      expect(vehicle.destroyed).toBe(false);
+    },
+  );
 });

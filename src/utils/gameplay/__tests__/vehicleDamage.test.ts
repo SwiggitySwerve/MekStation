@@ -63,6 +63,11 @@ function mkState() {
   });
 }
 
+function fixedDiceRoller(values: readonly number[]) {
+  let index = 0;
+  return () => values[index++] ?? 1;
+}
+
 describe('vehicleDamage', () => {
   describe('armor → structure transfer (tasks 3.1, 3.2)', () => {
     it('small damage to armor only — no structure exposure, no motive roll', () => {
@@ -182,17 +187,31 @@ describe('vehicleDamage', () => {
     });
   });
 
-  describe('aggravation (task 5)', () => {
-    it('wheeled heavy motive is aggravated to immobilized', () => {
+  describe('motive roll modifiers (task 5)', () => {
+    it('applies the wheeled modifier before the motive table lookup', () => {
       const state = {
         ...mkState(),
         motionType: GroundMotionType.WHEELED,
       };
       const result = vehicleResolveDamage(state, mkHit('front'), 12, {
-        forcedMotiveRoll: motiveDamageFromRoll([5, 5]), // heavy
+        diceRoller: fixedDiceRoller([5, 5]),
       });
+      expect(result.motiveRoll?.roll).toBe(12);
       expect(result.motiveRoll?.severity).toBe('immobilized');
       expect(result.state.motive.immobilized).toBe(true);
+    });
+
+    it('does not convert wheeled heavy results after table lookup', () => {
+      const state = {
+        ...mkState(),
+        motionType: GroundMotionType.WHEELED,
+      };
+      const result = vehicleResolveDamage(state, mkHit('front'), 12, {
+        diceRoller: fixedDiceRoller([4, 5]),
+      });
+      expect(result.motiveRoll?.roll).toBe(11);
+      expect(result.motiveRoll?.severity).toBe('heavy');
+      expect(result.state.motive.immobilized).toBe(false);
     });
 
     it('naval heavy sets sinking flag', () => {

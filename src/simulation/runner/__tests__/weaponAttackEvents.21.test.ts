@@ -103,11 +103,9 @@ import {
 } from './weaponAttackEvents.test-helpers';
 
 it('emits with viaTransfer:false on direct destruction (armor + structure both zeroed)', () => {
-  // Set target HD to 1/1 and feed AC/20 (damage capped at 3 on HD).
-  // 3 damage across 1 armor + 1 structure leaves residual that
-  // gets discarded per head-cap rule — HD destruction no transfer.
-  // But because hit-location is random, we use an alternate
-  // approach: zero ALL armor + leave structure at 1 everywhere.
+  // Because hit-location is random, use a target with zero armor and 1
+  // structure everywhere. The first successful hit directly destroys its
+  // location without transfer.
   // First successful hit produces a LocationDestroyed event.
   const { state, weaponsByUnit } = buildScenario({
     attackerWeapons: [createAC20()],

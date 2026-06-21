@@ -19,7 +19,7 @@ const VEHICLE_CRITICAL_EFFECT_HANDLERS: Readonly<
 > = {
   ammo_explosion: destroyVehicle('ammo_explosion'),
   commander_hit: applyCommanderHit,
-  copilot_hit: applyDriverHit,
+  copilot_hit: applyCommanderHit,
   crew_killed: destroyVehicle('crew_killed'),
   crew_stunned: applyCrewStun,
   driver_hit: applyDriverHit,
@@ -148,7 +148,11 @@ function applyCommanderHit(vehicle: IVehicleCombatState): IVehicleCombatState {
   const commanderHits = vehicle.motive.commanderHits + 1;
   return {
     ...vehicle,
-    motive: { ...vehicle.motive, commanderHits },
+    motive: {
+      ...vehicle.motive,
+      commanderHits,
+      crewStunnedPhases: vehicle.motive.crewStunnedPhases + 2,
+    },
     ...(commanderHits >= 2
       ? { destroyed: true as const, destructionCause: 'crew_killed' as const }
       : {}),
@@ -159,13 +163,7 @@ function applyEngineHit(vehicle: IVehicleCombatState): IVehicleCombatState {
   const engineHits = vehicle.motive.engineHits + 1;
   return {
     ...vehicle,
-    motive: { ...vehicle.motive, engineHits },
-    ...(engineHits >= 2
-      ? {
-          destroyed: true as const,
-          destructionCause: 'engine_destroyed' as const,
-        }
-      : {}),
+    motive: { ...vehicle.motive, engineHits, immobilized: true },
   };
 }
 

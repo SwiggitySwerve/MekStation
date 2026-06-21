@@ -13,13 +13,11 @@ import {
 } from '@/utils/gameplay/criticalHitResolution';
 import { resolveDamage } from '@/utils/gameplay/damage';
 import { buildDefaultComponentDamageState } from '@/utils/gameplay/gameSessionAttackResolutionHelpers';
-import { isHeadHit } from '@/utils/gameplay/hitLocation';
 import {
   applyPhysicalEquipmentCriticalEvents,
   physicalEquipmentLifecycleEventsFromManifest,
 } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
-import { HEAD_HIT_DAMAGE_CAP } from '../SimulationRunnerConstants';
 import {
   applyDamageResultToState,
   buildDamageState,
@@ -43,16 +41,6 @@ export interface IApplyPhysicalDamageOptions {
 
 type PhysicalDamageResult = ReturnType<typeof resolveDamage>;
 
-function capPhysicalDamageForLocation(
-  hitLocation: CombatLocation,
-  damage: number,
-): number {
-  if (isHeadHit(hitLocation) && damage > HEAD_HIT_DAMAGE_CAP) {
-    return HEAD_HIT_DAMAGE_CAP;
-  }
-  return damage;
-}
-
 export function getOrSeedPhysicalCriticalManifest(
   manifestsByUnit: Map<string, CriticalSlotManifest> | undefined,
   unitId: string,
@@ -74,10 +62,6 @@ function resolvePhysicalDamageResult(
   },
 ): PhysicalDamageResult {
   const damageState = buildDamageState(options.unitBefore);
-  const cappedDamage = capPhysicalDamageForLocation(
-    options.hitLocation,
-    options.damage,
-  );
   return resolveDamage(
     options.manifest === undefined
       ? damageState
@@ -94,7 +78,7 @@ function resolvePhysicalDamageResult(
           },
         },
     options.hitLocation,
-    cappedDamage,
+    options.damage,
     options.d6Roller,
   );
 }

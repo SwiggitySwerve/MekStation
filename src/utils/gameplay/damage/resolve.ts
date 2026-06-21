@@ -2,22 +2,12 @@ import { CombatLocation } from '@/types/gameplay';
 
 import type { D6Roller } from '../diceTypes';
 
-import { isHeadHit } from '../hitLocation';
 import { finalizeDamageResolution } from './finalize';
 import {
   applyDamageWithTransfer,
   applyInternalDamageWithTransfer,
 } from './location';
 import { IResolveDamageResult, IUnitDamageState } from './types';
-
-/**
- * Per Total Warfare p. 41 ("Head Damage"): any single hit that lands on
- * the head is capped at 3 points applied; overflow is discarded, NOT
- * transferred. Because cluster weapons (LRM, SRM, AC/LB-X, etc.) invoke
- * `resolveDamage` once per cluster group, applying the cap here also
- * satisfies the per-cluster-group independent cap.
- */
-export const HEAD_DAMAGE_CAP_PER_HIT = 3;
 
 /**
  * Resolve a damage application.
@@ -34,13 +24,8 @@ export function resolveDamage(
   roller?: D6Roller,
   options: { readonly rollCriticalHits?: boolean } = {},
 ): IResolveDamageResult {
-  const effectiveDamage =
-    isHeadHit(location) && damage > HEAD_DAMAGE_CAP_PER_HIT
-      ? HEAD_DAMAGE_CAP_PER_HIT
-      : damage;
-
   const { state: stateAfterDamage, results: locationDamages } =
-    applyDamageWithTransfer(state, location, effectiveDamage);
+    applyDamageWithTransfer(state, location, damage);
 
   return finalizeDamageResolution({
     initialState: state,

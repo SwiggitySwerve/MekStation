@@ -3,7 +3,7 @@
  *
  * Tests for Phase 3: Wire Damage Pipeline
  * Covers: armor absorption, structure penetration, transfer chain,
- * side torso cascade, head cap, damageThisPhase tracking
+ * side torso cascade, head full damage, damageThisPhase tracking
  */
 
 import { WeaponCategory } from '@/types/equipment/weapons/interfaces';
@@ -133,24 +133,25 @@ function createTestDamageState(
   };
 }
 
-describe('Damage Pipeline - Head Cap Rule', () => {
-  it('should cap head damage at 3 from standard weapon via resolveDamage', () => {
+describe('Damage Pipeline - head damage', () => {
+  it('should apply small head damage normally via resolveDamage', () => {
     const state = createTestDamageState();
-    // Head has 9 armor. 3 damage (capped from higher) should reduce to 6
     const result = resolveDamage(state, 'head', 3);
 
     expect(result.result.locationDamages[0].armorDamage).toBe(3);
     expect(result.result.locationDamages[0].armorRemaining).toBe(6);
   });
 
-  it('should apply full 3 damage even for weapons doing 20+ damage (head-capped)', () => {
-    // This tests that gameSession.ts caps before calling resolveDamage
-    // The spec says max 3 from single standard weapon
+  it('should apply full high-damage hits to head armor and structure', () => {
     const state = createTestDamageState();
-    const result = resolveDamage(state, 'head', 3);
+    const result = resolveDamage(state, 'head', 20);
 
-    expect(result.result.locationDamages[0].damage).toBe(3);
-    expect(result.result.locationDamages[0].armorRemaining).toBe(6);
+    expect(result.result.locationDamages[0].damage).toBe(20);
+    expect(result.result.locationDamages[0].armorDamage).toBe(9);
+    expect(result.result.locationDamages[0].structureDamage).toBe(3);
+    expect(result.result.locationDamages[0].armorRemaining).toBe(0);
+    expect(result.result.locationDamages[0].structureRemaining).toBe(0);
+    expect(result.result.locationDamages[0].destroyed).toBe(true);
   });
 
   it('should allow under-3 damage to head without modification', () => {

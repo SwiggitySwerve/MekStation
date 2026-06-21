@@ -22,7 +22,7 @@ const HEAT_EXPLOSION_TN_HIGH = 8;
 const HEAT_EXPLOSION_TN_MEDIUM = 6;
 const HEAT_EXPLOSION_TN_LOW = 4;
 const CASE_II_TRANSFER_DAMAGE = 1;
-const UNPROTECTED_EXPLOSION_PILOT_DAMAGE = 1;
+const UNPROTECTED_EXPLOSION_PILOT_DAMAGE = 2;
 
 /**
  * Resolve an ammo bin explosion from a critical hit.
@@ -85,7 +85,7 @@ export function resolveAmmoExplosion(
  *
  * - CASE: No transfer damage, no pilot damage. Location may be destroyed.
  * - CASE II: Only 1 point transfers, no pilot damage.
- * - No CASE: Full transfer, pilot takes 1 damage.
+ * - No CASE: Full transfer, pilot takes 2 damage.
  */
 export function calculateCASEEffects(
   totalDamage: number,

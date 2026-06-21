@@ -3,7 +3,7 @@
  *
  * Tests for Phase 3: Wire Damage Pipeline
  * Covers: armor absorption, structure penetration, transfer chain,
- * side torso cascade, head cap, damageThisPhase tracking
+ * side torso cascade, head full damage, damageThisPhase tracking
  */
 
 import { WeaponCategory } from '@/types/equipment/weapons/interfaces';

@@ -170,13 +170,32 @@ describe('selectCriticalSlot', () => {
   it('uses dice roller for random selection', () => {
     const manifest = buildDefaultCriticalSlotManifest();
     // CT has 7 slots (3 engine + 4 gyro). Roll 1 → index 0, Roll 4 → index 3
-    const roller1 = makeDiceRoller([1]);
+    const roller1 = makeDiceRoller([1, 1]);
     const slot1 = selectCriticalSlot(manifest, 'center_torso', roller1);
 
-    const roller4 = makeDiceRoller([4]);
+    const roller4 = makeDiceRoller([1, 4]);
     const slot4 = selectCriticalSlot(manifest, 'center_torso', roller4);
 
     expect(slot1!.slotIndex).not.toBe(slot4!.slotIndex);
+  });
+
+  it('can select represented slots above d6 index 5 using only d6 values', () => {
+    const manifest = buildCriticalSlotManifest({
+      right_torso: Array.from({ length: 12 }, (_, index) => ({
+        slotIndex: index,
+        componentType: 'equipment' as const,
+        componentName: `Slot ${index}`,
+        destroyed: false,
+      })),
+    });
+    const roller = makeDiceRoller([2, 2]);
+
+    const slot = selectCriticalSlot(manifest, 'right_torso', roller);
+
+    expect(slot).toMatchObject({
+      slotIndex: 7,
+      componentName: 'Slot 7',
+    });
   });
 });
 

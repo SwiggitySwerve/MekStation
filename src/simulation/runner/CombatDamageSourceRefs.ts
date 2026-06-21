@@ -31,7 +31,7 @@ export const MEGAMEK_BATTLEMECH_DAMAGE_SOURCE_REFS = [
 
 export const MEKSTATION_DAMAGE_RESOLUTION_SOURCE_REFS = [
   damageMekStationRef(
-    'MekStation resolveDamage caps head hits and delegates final pilot, critical, neural-feedback, and destruction processing through the damage finalizer.',
+    'MekStation resolveDamage applies full head-hit damage and delegates final pilot, critical, neural-feedback, and destruction processing through the damage finalizer.',
     'src/utils/gameplay/damage/resolve.ts#L30-L54',
   ),
   damageMekStationRef(

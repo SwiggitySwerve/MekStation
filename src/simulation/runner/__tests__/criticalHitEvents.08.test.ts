@@ -202,7 +202,7 @@ it('CASE-contained ammo critical cookoffs do not transfer into the center torso'
   ).toBe(0);
 });
 
-it('CASE-contained ammo critical cookoffs blow out rear torso armor when the location survives', () => {
+it('CASE-contained ammo critical cookoffs vent through remaining torso structure', () => {
   const loadedBin = createAmmoBin('right-torso-loaded-bin', 5);
   const scenario = buildPrimedRunnerScenario();
   const target = scenario.state.units['opponent-1'];
@@ -258,7 +258,7 @@ it('CASE-contained ammo critical cookoffs blow out rear torso armor when the loc
     toHitNumber: 2,
     firingArc: 'front',
     partialCover: false,
-    d6Roller: scriptedRoller([3, 3, 4, 4, 1]),
+    d6Roller: scriptedRoller([3, 3, 4, 4, 1, 1]),
     getOrSeedManifest: () => manifest,
     manifestsByUnit,
     weaponsByUnit: new Map<string, readonly IWeapon[]>([
@@ -277,25 +277,18 @@ it('CASE-contained ammo critical cookoffs blow out rear torso armor when the loc
 
   expect(postExplosionDamageEvents).toEqual([
     expect.objectContaining({
-      location: 'right_torso_rear',
-      damage: 6,
-      armorRemaining: 0,
-      structureRemaining: 15,
-      locationDestroyed: false,
-    }),
-    expect.objectContaining({
       location: 'right_torso',
-      damage: 10,
+      damage: 15,
       armorRemaining: 0,
-      structureRemaining: 5,
-      locationDestroyed: false,
+      structureRemaining: 0,
+      locationDestroyed: true,
     }),
   ]);
   expect(
     events.some((event) => event.type === GameEventType.TransferDamage),
   ).toBe(false);
   expect(next.units['opponent-1'].armor.right_torso).toBe(0);
-  expect(next.units['opponent-1'].armor.right_torso_rear).toBe(0);
-  expect(next.units['opponent-1'].structure.right_torso).toBe(5);
+  expect(next.units['opponent-1'].armor.right_torso_rear).toBe(6);
+  expect(next.units['opponent-1'].structure.right_torso).toBe(0);
   expect(next.units['opponent-1'].structure.center_torso).toBe(10);
 });

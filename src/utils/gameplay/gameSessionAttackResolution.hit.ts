@@ -22,7 +22,7 @@ import {
 } from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
 import { tryResolveVehicleAttackHit } from './gameSessionVehicleAttackResolution';
-import { determineHitLocationFromRoll, isHeadHit } from './hitLocation';
+import { determineHitLocationFromRoll } from './hitLocation';
 import {
   applyLowProfileGlancingDamage,
   getLowProfileGlancingCriticalHitModifier,
@@ -106,10 +106,6 @@ export function resolveWeaponHit(input: {
   );
   const location = hitLocationResult.location;
   let damage = resolvedWeaponData.damage;
-
-  if (isHeadHit(location) && damage > 3) {
-    damage = 3;
-  }
 
   const lowProfileGlancingBlow = isLowProfileGlancingBlow(
     input.targetState.unitQuirks,

@@ -131,7 +131,7 @@ it('does not treat helper-authored AMS bay metadata as supported same-phase reus
   const result = runPhaseWithResult({
     ...scenario,
     botPlayer: new ScriptedMultiWeaponAttackAI([firstLrm.id, secondLrm.id]),
-    random: new SequenceRandom([6, 6, 3, 4, 1, 1, 6, 6, 3, 4, 1, 1]),
+    random: new SequenceRandom([6, 6, 3, 4, 3, 4, 6, 6, 3, 4, 3, 4]),
   });
   const interceptions = result.events.filter(
     (event) => event.type === GameEventType.AMSInterception,
@@ -208,12 +208,12 @@ it('runner attack resolution respects target AMS mounted arc when resolving inte
   const frontArcResult = runPhaseWithResult({
     ...frontArcScenario,
     botPlayer: new ScriptedAttackAI(lrm.id),
-    random: new SequenceRandom([6, 6, 3, 4, 1, 1]),
+    random: new SequenceRandom([6, 6, 3, 4, 3, 4]),
   });
   const rearArcResult = runPhaseWithResult({
     ...rearArcScenario,
     botPlayer: new ScriptedAttackAI(lrm.id),
-    random: new SequenceRandom([6, 6, 3, 4, 1, 1]),
+    random: new SequenceRandom([6, 6, 3, 4, 3, 4]),
   });
 
   const frontArcInterception = frontArcResult.events.find(
@@ -268,7 +268,7 @@ it('laser AMS intercepts without ammo consumption and still enters heat accounti
   const result = runPhaseWithResult({
     ...laserAmsScenario,
     botPlayer: new ScriptedAttackAI(lrm.id),
-    random: new SequenceRandom([6, 6, 3, 4, 1, 1]),
+    random: new SequenceRandom([6, 6, 3, 4, 3, 4]),
   });
   const amsInterception = result.events.find(
     (event) => event.type === GameEventType.AMSInterception,
@@ -309,7 +309,9 @@ it('laser AMS intercepts without ammo consumption and still enters heat accounti
   const laserAmsHeat = heatEvents.find(
     (event) =>
       event.type === GameEventType.HeatGenerated &&
-      (event.payload as { unitId?: string }).unitId === 'opponent-1',
+      (event.payload as { unitId?: string; source?: string }).unitId ===
+        'opponent-1' &&
+      (event.payload as { source?: string }).source === 'firing',
   ) as
     | (IGameEvent & {
         payload: { amount: number; source: string };

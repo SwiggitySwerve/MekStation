@@ -81,9 +81,13 @@ handling, transfer/vent per D3, and pilot damage per D7 — and emits the `AmmoE
 already specified by `ammo-explosion-system`. An empty bin still just marks the slot destroyed
 with no explosion (existing "Empty ammo bin critical hit" scenario).
 
+Implementation note: `applyAmmoHit` remains the pure critical-effect marker. The live resolver
+consumers of that marker perform the ammo-explosion module call so the critical resolver does
+not need session ammo state or damage state.
+
 - This is the resolver-side counterpart to the already-specced
   `Ammo Explosion Triggered by Critical Hit on Loaded Bin` requirement; the gap is that the
-  *resolver* path drops it while the runner path honors it.
+  *resolver* path drops the marker while the runner path honors it.
 
 ### D6 — Apply TAC in the simulation runner
 

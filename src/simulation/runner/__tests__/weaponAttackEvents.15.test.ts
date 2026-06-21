@@ -118,7 +118,7 @@ it('runner attack resolution passes target AMS mounts into missile interception'
   const noAmsResult = runPhaseWithResult({
     ...scenario,
     botPlayer: new ScriptedAttackAI(lrm.id),
-    random: new SequenceRandom([6, 6, 3, 4, 1, 1]),
+    random: new SequenceRandom([6, 6, 3, 4, 3, 4]),
   });
   const withAmsScenario = buildScenario({
     attackerWeapons: [lrm],
@@ -132,7 +132,7 @@ it('runner attack resolution passes target AMS mounts into missile interception'
   const withAmsResult = runPhaseWithResult({
     ...withAmsScenario,
     botPlayer: new ScriptedAttackAI(lrm.id),
-    random: new SequenceRandom([6, 6, 3, 4, 1, 1]),
+    random: new SequenceRandom([6, 6, 3, 4, 3, 4]),
   });
 
   const noAmsResolved = noAmsResult.events.find(
@@ -231,7 +231,9 @@ it('runner attack resolution passes target AMS mounts into missile interception'
   const amsHeat = heatEvents.find(
     (event) =>
       event.type === GameEventType.HeatGenerated &&
-      (event.payload as { unitId?: string }).unitId === 'opponent-1',
+      (event.payload as { unitId?: string; source?: string }).unitId ===
+        'opponent-1' &&
+      (event.payload as { source?: string }).source === 'firing',
   ) as
     | (IGameEvent & {
         payload: { amount: number; source: string };

@@ -122,20 +122,21 @@ When a side torso is destroyed, the arm on that side SHALL also be destroyed.
 - **WHEN** the right torso is destroyed
 - **THEN** the right arm SHALL also be destroyed
 
-### Requirement: Head Damage Cap Rule
+### Requirement: Head Damage Application
 
-A single standard weapon hit to the head SHALL deal a maximum of 3 damage to the head, with excess damage discarded.
+A single standard weapon hit to the head SHALL apply full damage to head armor and then head internal structure. The head's internal structure value SHALL limit how much structure can be lost, but excess weapon damage SHALL NOT be discarded by a head-specific cap before armor and structure are resolved.
 
 #### Scenario: AC/20 hits head with standard rules
 
 - **WHEN** a standard weapon dealing 20 damage hits the head
-- **THEN** only 3 points of damage SHALL be applied to the head
-- **AND** the remaining 17 damage SHALL be discarded (not transferred)
+- **THEN** the full 20 damage SHALL be applied to head armor and internal structure
+- **AND** the head SHALL be destroyed if the hit exhausts its internal structure
+- **AND** the head hit SHALL apply exactly one pilot wound
 
-#### Scenario: Cluster weapons bypass head cap
+#### Scenario: Cluster weapons apply per-cluster head damage
 
 - **WHEN** cluster weapon damage hits the head (each cluster is a separate group)
-- **THEN** each cluster group SHALL be capped at 3 independently
+- **THEN** each cluster group SHALL apply its full damage to the head independently
 
 ### Requirement: 20+ Phase Damage Triggers PSR
 

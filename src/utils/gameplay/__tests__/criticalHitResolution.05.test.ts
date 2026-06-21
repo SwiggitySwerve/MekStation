@@ -240,7 +240,7 @@ describe('Through-Armor Critical', () => {
           },
         ],
       });
-      const roller = makeDiceRoller([1, 6]);
+      const roller = makeDiceRoller([1, 1, 1, 2]);
 
       const result = processTAC(
         'unit-1',

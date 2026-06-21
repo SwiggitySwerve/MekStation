@@ -23,7 +23,6 @@ export {
 } from './caseProtection';
 export {
   BATTLEMECH_AMMO_EXPLOSION_PILOT_DAMAGE,
-  REDUCED_CASE_AMMO_EXPLOSION_PILOT_DAMAGE,
   resolveBattleMechAmmoExplosionPilotDamage,
 } from './pilotDamage';
 export { getFireableWeapons, isEnergyWeapon } from './weapons';

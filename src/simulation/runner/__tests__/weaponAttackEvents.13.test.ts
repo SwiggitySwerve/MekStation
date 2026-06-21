@@ -122,7 +122,7 @@ it('uses Sandblaster UAC/RAC shot-count resolution for runner selected rate-of-f
     state,
     weaponsByUnit,
     botPlayer: new ScriptedAttackAI(weapon.id, 'rof-3'),
-    random: new SequenceRandom([1, 1, 6, 6, 1, 1, 6, 6, 1, 1]),
+    random: new SequenceRandom([1, 1, 6, 6, 3, 4, 6, 6, 3, 4]),
   });
 
   const playerDeclared = result.events.filter(
@@ -182,7 +182,7 @@ it('uses Sandblaster shot-count resolution for catalog-authored ordinary AC rapi
     state,
     weaponsByUnit,
     botPlayer: new ScriptedAttackAI(weapon.id, 'rapid-fire'),
-    random: new SequenceRandom([1, 1, 6, 6, 1, 1]),
+    random: new SequenceRandom([1, 1, 6, 6, 3, 4]),
   });
 
   const playerDeclared = result.events.filter(

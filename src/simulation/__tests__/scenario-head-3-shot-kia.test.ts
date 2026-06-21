@@ -128,19 +128,18 @@ describe('Scenario: head 3-shot KIA (P6b — task 6.8)', () => {
     expect(state.destructionCause).toBe('head_destroyed');
   });
 
-  it('damage cap of 3 per hit applies to head — large hits do not over-kill the pilot', () => {
-    // A single 20-damage head hit is capped to HEAD_DAMAGE_CAP_PER_HIT
-    // (= 3). The pilot still gets exactly 1 wound (the cap doesn't
-    // multiply wounds; one head hit = one wound regardless of damage).
-    // The 3 damage zeroes the head structure → unit destroyed.
+  it('large head hits apply one pilot wound and can destroy the head', () => {
+    // A single 20-damage head hit applies full damage to the head. Pilot
+    // damage remains one wound because the wound count is per head hit, not
+    // proportional to damage.
     const state0 = buildPrimedHeadStripped();
     const result = resolveDamage(state0, 'head' as CombatLocation, 20);
 
     // Pilot got exactly 1 wound from this single hit.
     expect(result.state.pilotWounds).toBe(1);
-    // Head structure zeroed by the capped 3-point hit.
+    // Head structure zeroed by the fatal head hit.
     expect(result.state.structure.head).toBe(0);
-    // Unit destroyed by the capped fatal head structure loss.
+    // Unit destroyed by fatal head structure loss.
     expect(result.state.destroyed).toBe(true);
     expect(result.state.destructionCause).toBe('head_destroyed');
     // Pilot wounds are well under the 6-wound pilot_death threshold —

@@ -1,23 +1,16 @@
 /**
- * Unit tests for the head-damage cap inside `resolveDamage`.
+ * Head damage parity tests for `resolveDamage`.
  *
- * Canonical OpenSpec change: `integrate-damage-pipeline` tasks 5.1–5.4.
- * Total Warfare p. 41: any single hit landing on the head is capped at
- * 3 points of applied damage; overflow is discarded (not transferred).
- * Cluster weapons invoke `resolveDamage` once per cluster group, so the
- * per-call cap also satisfies the per-cluster-group independent cap.
+ * MegaMek routes normal-cockpit BattleMech head hits through the same armor
+ * and internal-structure damage path as other locations. The head hit wounds
+ * the pilot once, but incoming damage is not capped to 3.
  *
- * @spec openspec/changes/integrate-damage-pipeline/specs/damage-system/spec.md
+ * @spec openspec/changes/fix-combat-damage-crit-parity/specs/combat-resolution/spec.md
  */
 
 import type { CombatLocation } from '@/types/gameplay';
 
-import {
-  IUnitDamageState,
-  resolveDamage,
-  HEAD_DAMAGE_CAP_PER_HIT,
-} from '../../damage';
-import * as hitLocation from '../../hitLocation';
+import { IUnitDamageState, resolveDamage } from '../../damage';
 
 jest.mock('../../hitLocation', () => {
   const actual =
@@ -76,12 +69,8 @@ function freshState(
   };
 }
 
-describe('resolveDamage — head damage cap (task 5.1–5.4)', () => {
-  it('exports the cap constant as 3', () => {
-    expect(HEAD_DAMAGE_CAP_PER_HIT).toBe(3);
-  });
-
-  it('caps an AC/20 hit (20 damage) at 3 damage applied; discards 17', () => {
+describe('resolveDamage head damage parity', () => {
+  it('applies full AC/20 damage to head armor/internal structure without a 3-point cap', () => {
     const state = freshState();
     const { state: after, result } = resolveDamage(
       state,
@@ -89,27 +78,26 @@ describe('resolveDamage — head damage cap (task 5.1–5.4)', () => {
       20,
     );
 
-    // Only the first 3 damage reaches the head: 3 armor, 0 structure.
     expect(result.locationDamages).toHaveLength(1);
     const [headResult] = result.locationDamages;
     expect(headResult.location).toBe('head');
-    expect(headResult.damage).toBe(3);
-    expect(headResult.armorDamage).toBe(3);
-    expect(headResult.structureDamage).toBe(0);
-    expect(headResult.armorRemaining).toBe(6);
-    expect(headResult.structureRemaining).toBe(3);
-
-    // Overflow is DISCARDED — no transfer event to any other location.
+    expect(headResult.damage).toBe(20);
+    expect(headResult.armorDamage).toBe(9);
+    expect(headResult.structureDamage).toBe(3);
+    expect(headResult.armorRemaining).toBe(0);
+    expect(headResult.structureRemaining).toBe(0);
+    expect(headResult.destroyed).toBe(true);
     expect(headResult.transferredDamage).toBe(0);
     expect(headResult.transferLocation).toBeUndefined();
 
-    // Head armor dropped by exactly 3, no structure loss.
-    expect(after.armor.head).toBe(6);
-    expect(after.structure.head).toBe(3);
-    expect(after.destroyedLocations).toEqual([]);
+    expect(after.armor.head).toBe(0);
+    expect(after.structure.head).toBe(0);
+    expect(after.destroyedLocations).toContain('head');
+    expect(result.unitDestroyed).toBe(true);
+    expect(result.destructionCause).toBe('head_destroyed');
   });
 
-  it('does not cap a hit at or below the threshold', () => {
+  it('applies low-damage head hits normally', () => {
     const state = freshState();
     const { result } = resolveDamage(state, 'head' as CombatLocation, 2);
     const [headResult] = result.locationDamages;
@@ -117,11 +105,7 @@ describe('resolveDamage — head damage cap (task 5.1–5.4)', () => {
     expect(headResult.armorDamage).toBe(2);
   });
 
-  it('caps each cluster-group call independently (LRM-20, 6 hits of 1 damage each to head)', () => {
-    // Cluster weapons invoke resolveDamage once per cluster group.
-    // Fire six single-point calls, each resolving to head. None should
-    // be capped because each call is under the 3-point threshold. The
-    // cap only kicks in when a SINGLE hit exceeds 3.
+  it('applies cluster-group calls independently without a head-specific cap', () => {
     let state = freshState();
     for (let i = 0; i < 6; i++) {
       const { state: next, result } = resolveDamage(
@@ -132,25 +116,24 @@ describe('resolveDamage — head damage cap (task 5.1–5.4)', () => {
       expect(result.locationDamages[0].damage).toBe(1);
       state = next;
     }
-    expect(state.armor.head).toBe(3); // 9 - 6
+    expect(state.armor.head).toBe(3);
   });
 
-  it('caps cluster hits with a single high-damage group (SRM/LB-X cluster of 5 to head)', () => {
-    // When a cluster group delivers more than 3 to head, THAT group is
-    // capped at 3 and the rest of the volley continues in separate calls.
+  it('lets a high-damage cluster group penetrate head structure', () => {
     const state = freshState({ armor: { ...freshState().armor, head: 4 } });
     const { state: after, result } = resolveDamage(
       state,
       'head' as CombatLocation,
       5,
     );
-    expect(result.locationDamages[0].damage).toBe(3);
-    expect(after.armor.head).toBe(1);
+    expect(result.locationDamages[0].damage).toBe(5);
+    expect(result.locationDamages[0].armorDamage).toBe(4);
+    expect(result.locationDamages[0].structureDamage).toBe(1);
+    expect(after.armor.head).toBe(0);
+    expect(after.structure.head).toBe(2);
   });
 
-  it('still applies pilot damage once when armor is penetrated even if capped', () => {
-    // Start with 2 armor on head so a capped 3-point hit strips armor
-    // and puts 1 point into structure.
+  it('still applies pilot damage once when armor is penetrated', () => {
     const state = freshState({ armor: { ...freshState().armor, head: 2 } });
     const { state: after, result } = resolveDamage(
       state,
@@ -158,14 +141,14 @@ describe('resolveDamage — head damage cap (task 5.1–5.4)', () => {
       20,
     );
 
-    expect(result.locationDamages[0].damage).toBe(3);
+    expect(result.locationDamages[0].damage).toBe(20);
     expect(result.locationDamages[0].armorDamage).toBe(2);
-    expect(result.locationDamages[0].structureDamage).toBe(1);
-    expect(after.structure.head).toBe(2);
+    expect(result.locationDamages[0].structureDamage).toBe(3);
+    expect(after.structure.head).toBe(0);
     expect(result.pilotDamage?.woundsInflicted).toBe(1);
   });
 
-  it('suppresses head-hit pilot damage for Dermal Armor', () => {
+  it('suppresses head-hit pilot damage for Dermal Armor without suppressing full damage', () => {
     const state = freshState({
       armor: { ...freshState().armor, head: 2 },
       pilotAbilities: ['dermal_armor'],
@@ -179,11 +162,11 @@ describe('resolveDamage — head damage cap (task 5.1–5.4)', () => {
 
     expect(result.locationDamages[0]).toMatchObject({
       location: 'head',
-      damage: 3,
+      damage: 20,
       armorDamage: 2,
-      structureDamage: 1,
+      structureDamage: 3,
     });
-    expect(after.structure.head).toBe(2);
+    expect(after.structure.head).toBe(0);
     expect(result.pilotDamage).toBeUndefined();
     expect(after.pilotWounds).toBe(0);
   });

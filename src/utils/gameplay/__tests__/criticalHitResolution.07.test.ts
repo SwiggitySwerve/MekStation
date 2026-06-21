@@ -10,8 +10,8 @@ import {
 describe('equipment slots in manifest', () => {
   it('weapon slot in torso can be critted', () => {
     const manifest = makeManifestWithWeapons();
-    // Force 1 crit, select slot index that maps to weapon
-    const roller = makeDiceRoller([4]); // 4th available slot → weapon at index 3
+    // Force 1 crit, select slot index that maps to weapon.
+    const roller = makeDiceRoller([1, 4]);
     const result = resolveCriticalHits(
       'unit-1',
       'right_torso',
@@ -30,7 +30,7 @@ describe('equipment slots in manifest', () => {
 
   it('heat sink slot can be critted', () => {
     const manifest = makeManifestWithWeapons();
-    const roller = makeDiceRoller([5]); // 5th slot → heat sink
+    const roller = makeDiceRoller([1, 5]);
     const result = resolveCriticalHits(
       'unit-1',
       'right_torso',
@@ -47,7 +47,7 @@ describe('equipment slots in manifest', () => {
 
   it('jump jet slot can be critted', () => {
     const manifest = makeManifestWithWeapons();
-    const roller = makeDiceRoller([6]); // 6th slot → jump jet
+    const roller = makeDiceRoller([1, 6]);
     const result = resolveCriticalHits(
       'unit-1',
       'right_torso',
@@ -64,7 +64,7 @@ describe('equipment slots in manifest', () => {
 
   it('ammo slot can be critted', () => {
     const manifest = makeManifestWithWeapons();
-    const roller = makeDiceRoller([7]); // 7th slot → ammo
+    const roller = makeDiceRoller([2, 1]);
     const result = resolveCriticalHits(
       'unit-1',
       'right_torso',
@@ -80,7 +80,7 @@ describe('equipment slots in manifest', () => {
 
   it('generic equipment slot resolves only as EquipmentDestroyed', () => {
     const manifest = makeManifestWithWeapons();
-    const roller = makeDiceRoller([8]);
+    const roller = makeDiceRoller([2, 2]);
     const result = resolveCriticalHits(
       'unit-1',
       'right_torso',
