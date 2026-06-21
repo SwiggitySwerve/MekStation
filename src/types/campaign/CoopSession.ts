@@ -57,6 +57,9 @@ export function isCoopSessionMode(value: unknown): value is CoopSessionMode {
  *   navigation badge reads it back to the user.
  * - `hostMatchId` is set on the guest side from the invite response and
  *   pins the guest's mirror to one specific host match.
+ * - `matchId` is set on the host side from `POST /api/multiplayer/matches`;
+ *   production route surfaces use it to bind the campaign to the registered
+ *   invite and campaign arbiter.
  *
  * The shape is JSON-safe so persistence round-trips it through the existing
  * `useCampaignStore` `partialize` path with no special handling.
@@ -71,6 +74,11 @@ export interface ICoopSession {
    * the navigation badge landed — new code SHOULD always set it.
    */
   readonly roomCode?: string;
+  /**
+   * The server-registered multiplayer match id for this host campaign.
+   * Optional for backward compatibility with older local-only co-op saves.
+   */
+  readonly matchId?: string;
   /**
    * The host's match id, captured from the multiplayer invite endpoint when
    * the guest joins. Pins this mirror to one specific host match so a stale
@@ -87,8 +95,11 @@ export interface ICoopSession {
  * Build a host-side co-op session — used by `createCampaign` when the user
  * clicks "Create co-op campaign" on the list page.
  */
-export function createHostCoopSession(roomCode?: string): ICoopSession {
-  return { mode: 'host', roomCode };
+export function createHostCoopSession(
+  roomCode?: string,
+  matchId?: string,
+): ICoopSession {
+  return { mode: 'host', roomCode, matchId };
 }
 
 /**

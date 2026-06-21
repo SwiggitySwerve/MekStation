@@ -3,9 +3,8 @@
  * Section 1).
  *
  * Pins the host-create + guest-join flows added in tasks 1.1 / 1.2:
- *   - "Create Co-op Campaign" mints a host-mode campaign with a fresh
- *     6-char room code stamped on `coopSession` and navigates to the
- *     dashboard.
+ *   - "Create Co-op Campaign" does not mint a dead local-only room code
+ *     while the live co-op transport is unavailable.
  *   - "Join Co-op Campaign" opens the room-code modal; submitting a
  *     valid code resolves it via `/api/multiplayer/invites/:roomCode`
  *     and mints a guest mirror campaign with `coopSession.mode = 'guest'`
@@ -17,7 +16,7 @@
  * Next.js TypeScript route validator doesn't treat the spec as a broken
  * route.
  *
- * @spec openspec/changes/wire-coop-campaign-route/specs/coop-campaign-sync/spec.md
+ * @spec openspec/specs/coop-campaign-sync/spec.md
  */
 
 import {
@@ -40,6 +39,24 @@ jest.mock('next/router', () => ({
     query: {},
     pathname: '/gameplay/campaigns',
   }),
+}));
+
+const mockOpenCoopRuntimeSession = jest.fn<Promise<null>, [unknown, unknown?]>(
+  async () => null,
+);
+jest.mock('@/lib/campaign/coop/coopRuntimeSession', () => ({
+  openCoopRuntimeSession: (campaign: unknown, options?: unknown) =>
+    mockOpenCoopRuntimeSession(campaign, options),
+}));
+
+jest.mock('@/types/multiplayer/Player', () => ({
+  decodeTokenFromWire: jest.fn(() => ({
+    playerId: 'pid_host',
+    issuedAt: '2026-06-21T00:00:00.000Z',
+    expiresAt: '2026-06-21T01:00:00.000Z',
+    publicKey: 'pub',
+    signature: 'sig',
+  })),
 }));
 
 // Deterministic room code so the test can assert what `coopSession.roomCode`
@@ -125,31 +142,89 @@ describe('CampaignsListPage — co-op entry points', () => {
       .mockReset()
       .mockReturnValue('campaign-guest-1');
     mockGetCampaign.mockReset().mockReturnValue(null);
+    mockOpenCoopRuntimeSession.mockClear();
   });
 
   // ===========================================================================
-  // Task 1.1 — host-mode create
+  // Task 1.1 — host-mode create, honest unavailable state
   // ===========================================================================
 
-  it('Create Co-op Campaign mints a host-mode campaign and routes to its dashboard', async () => {
+  it('Create Co-op Campaign registers a match and stamps room code plus match id onto the host campaign', async () => {
     await mountAndHydrate();
 
-    fireEvent.click(screen.getByTestId('create-coop-campaign-btn'));
+    const fetchSpy = jest.fn(async (url: string, init?: RequestInit) => {
+      if (url === '/api/multiplayer/auth/token') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            token: 'wire-token',
+            playerId: 'pid_host',
+            displayName: 'Host Player',
+          }),
+        };
+      }
+      if (url === '/api/multiplayer/matches') {
+        const body = JSON.parse(String(init?.body)) as {
+          layout?: string;
+          displayName?: string;
+          config?: { mapRadius?: number; turnLimit?: number };
+        };
+        expect(init?.headers).toMatchObject({
+          Authorization: 'Bearer wire-token',
+          'Content-Type': 'application/json',
+        });
+        expect(body).toMatchObject({
+          layout: '1v1',
+          displayName: 'Host Player',
+          config: { mapRadius: 8, turnLimit: 20 },
+        });
+        return {
+          ok: true,
+          status: 201,
+          json: async () => ({
+            matchId: 'match-host-1',
+            roomCode: 'ABC234',
+            meta: { matchId: 'match-host-1', roomCode: 'ABC234' },
+          }),
+        };
+      }
+      throw new Error(`unexpected fetch ${url}`);
+    });
+    (globalThis as { fetch: unknown }).fetch = fetchSpy;
 
-    expect(mockCreateCampaign).toHaveBeenCalledTimes(1);
-    const call = mockCreateCampaign.mock.calls[0] as unknown[];
-    const [name, factionId, options, coopOpts] = call;
-    expect(name).toBe('Co-op Campaign ABC234');
-    expect(factionId).toBe('mercenary');
-    expect(options).toBeUndefined();
-    expect(coopOpts).toEqual({
-      coopSession: { mode: 'host', roomCode: 'ABC234' },
+    fireEvent.change(screen.getByTestId('create-coop-password-input'), {
+      target: { value: 'vault-password' },
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('create-coop-campaign-btn'));
     });
 
-    expect(mockRouterPush).toHaveBeenCalledWith(
-      '/gameplay/campaigns/campaign-host-1',
+    await waitFor(() => {
+      expect(mockRouterPush).toHaveBeenCalledWith(
+        '/gameplay/campaigns/campaign-host-1',
+      );
+    });
+    expect(fetchSpy).toHaveBeenCalledWith(
+      '/api/multiplayer/auth/token',
+      expect.objectContaining({ method: 'POST' }),
     );
-    // Guest mirror MUST NOT be touched on the host-create path.
+    expect(fetchSpy).toHaveBeenCalledWith(
+      '/api/multiplayer/matches',
+      expect.objectContaining({ method: 'POST' }),
+    );
+    expect(mockCreateCampaign).toHaveBeenCalledWith(
+      'Co-op Campaign ABC234',
+      'mercenary',
+      undefined,
+      {
+        coopSession: {
+          mode: 'host',
+          roomCode: 'ABC234',
+          matchId: 'match-host-1',
+        },
+      },
+    );
     expect(mockCreateGuestMirrorCampaign).not.toHaveBeenCalled();
   });
 

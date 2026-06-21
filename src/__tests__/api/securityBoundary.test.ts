@@ -4,6 +4,8 @@ import { createMocks } from 'node-mocks-http';
 
 const mockAuthenticateRequest = jest.fn();
 const mockCreateMatch = jest.fn();
+const mockListMatches = jest.fn();
+const mockCloseMatch = jest.fn();
 const mockGetOrCreatePlayer = jest.fn();
 const mockGetActive = jest.fn();
 const mockUnlockIdentity = jest.fn();
@@ -21,7 +23,9 @@ jest.mock('@/lib/multiplayer/server/auth', () => {
 
 jest.mock('@/lib/multiplayer/server/getDefaultMatchStore', () => ({
   getDefaultMatchStore: () => ({
+    closeMatch: mockCloseMatch,
     createMatch: mockCreateMatch,
+    listMatches: mockListMatches,
   }),
 }));
 
@@ -103,6 +107,8 @@ describe('API security boundaries', () => {
       },
     });
     mockCreateMatch.mockResolvedValue('match-1');
+    mockListMatches.mockResolvedValue([]);
+    mockCloseMatch.mockResolvedValue(undefined);
     mockGetOrCreatePlayer.mockResolvedValue({ playerId: 'pid_host' });
     mockGetActive.mockResolvedValue(storedIdentity);
     mockUnlockIdentity.mockResolvedValue(unlockedIdentity);
@@ -201,6 +207,89 @@ describe('API security boundaries', () => {
     expect(lastRes?.statusCode).toBe(429);
     expect(lastRes?.getHeader('Retry-After')).toBeDefined();
     expect(mockCreateMatch).toHaveBeenCalledTimes(5);
+  });
+
+  it('rejects per-host match creation over the lobby capacity cap', async () => {
+    const now = new Date().toISOString();
+    mockListMatches.mockResolvedValue(
+      Array.from({ length: 5 }, (_, index) => ({
+        matchId: `match-${index}`,
+        hostPlayerId: 'pid_host',
+        playerIds: ['pid_host'],
+        sideAssignments: [{ playerId: 'pid_host', side: 'player' }],
+        status: 'lobby',
+        createdAt: now,
+        updatedAt: now,
+        config: { mapRadius: 8, turnLimit: 20 },
+        roomCode: `ABC23${index}`,
+      })),
+    );
+
+    const { req, res } = apiRequest(
+      {
+        config: { mapRadius: 8, turnLimit: 20 },
+        displayName: 'Host',
+        layout: '1v1',
+      },
+      forwardedFor(32),
+    );
+
+    await matchesHandler(req, res);
+
+    expect(res.statusCode).toBe(429);
+    expect(
+      (
+        (res as unknown as { _getJSONData: () => unknown })._getJSONData() as {
+          code?: string;
+        }
+      ).code,
+    ).toBe('MATCH_CAPACITY_EXCEEDED');
+    expect(mockCreateMatch).not.toHaveBeenCalled();
+  });
+
+  it('reaps expired lobby matches before enforcing per-host capacity', async () => {
+    const nowMs = Date.now();
+    const fresh = new Date(nowMs - 5 * 60 * 1000).toISOString();
+    const expired = new Date(nowMs - 25 * 60 * 60 * 1000).toISOString();
+    mockListMatches.mockResolvedValue([
+      {
+        matchId: 'expired-lobby',
+        hostPlayerId: 'pid_host',
+        playerIds: ['pid_host'],
+        sideAssignments: [{ playerId: 'pid_host', side: 'player' }],
+        status: 'lobby',
+        createdAt: expired,
+        updatedAt: expired,
+        config: { mapRadius: 8, turnLimit: 20 },
+        roomCode: 'OLD234',
+      },
+      {
+        matchId: 'fresh-lobby',
+        hostPlayerId: 'pid_host',
+        playerIds: ['pid_host'],
+        sideAssignments: [{ playerId: 'pid_host', side: 'player' }],
+        status: 'lobby',
+        createdAt: fresh,
+        updatedAt: fresh,
+        config: { mapRadius: 8, turnLimit: 20 },
+        roomCode: 'NEW234',
+      },
+    ]);
+
+    const { req, res } = apiRequest(
+      {
+        config: { mapRadius: 8, turnLimit: 20 },
+        displayName: 'Host',
+        layout: '1v1',
+      },
+      forwardedFor(33),
+    );
+
+    await matchesHandler(req, res);
+
+    expect(res.statusCode).toBe(201);
+    expect(mockCloseMatch).toHaveBeenCalledWith('expired-lobby');
+    expect(mockCreateMatch).toHaveBeenCalledTimes(1);
   });
 
   it('adds security headers on hardened route responses', async () => {

@@ -10,7 +10,7 @@ import {
   CommandLoading,
 } from '@/components/campaign/command/CommandStates';
 import {
-  CampaignCoopRouteSurface,
+  CampaignCoopRouteSurfaceConnected,
   type CampaignCoopRouteId,
 } from '@/components/campaign/coop';
 import { EmptyState, PageLayout } from '@/components/ui';
@@ -246,7 +246,10 @@ export function CampaignPageFrame({
         coopSession={campaign.coopSession}
       />
       {coopRouteId ? (
-        <CampaignCoopRouteSurface campaign={campaign} routeId={coopRouteId} />
+        <CampaignCoopRouteSurfaceConnected
+          campaign={campaign}
+          routeId={coopRouteId}
+        />
       ) : null}
       {children}
     </PageLayout>

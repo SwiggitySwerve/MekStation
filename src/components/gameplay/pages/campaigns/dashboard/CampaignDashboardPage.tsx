@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { ICampaign } from '@/types/campaign/Campaign';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
-import { CampaignCoopRouteSurface } from '@/components/campaign/coop';
+import { CampaignCoopRouteSurfaceConnected } from '@/components/campaign/coop';
 import { CampaignDashboard } from '@/components/campaign/dashboard/CampaignDashboard';
 import { DayReportPanel } from '@/components/campaign/DayReportPanel';
 import { PageLayout } from '@/components/ui';
@@ -200,10 +200,10 @@ export default function CampaignDashboardPage(): React.ReactElement {
        * is a host-mode co-op session with `host-review` arbitration.
        * Renders nothing on single-player or guest-mode (the guest sees
        * proposal overlays on mutation routes, not on the dashboard).
-       * Live CO1 broadcast wiring lands in a follow-up — the queue here
-       * is the empty placeholder until then.
+       * The connected co-op surface subscribes to the opened runtime
+       * session so host-review proposals are visible from the dashboard.
        */}
-      <CampaignCoopRouteSurface
+      <CampaignCoopRouteSurfaceConnected
         campaign={campaign as CampaignDashboardCampaign & ICampaign}
         routeId="dashboard"
         dashboardMount

@@ -25,12 +25,12 @@
  *
  * The component is presentational — the pending queue (host side) and
  * the proposal transport (guest side) are owned by the caller. For
- * Wave 6.1, the queue is a stub (empty) and the transport is a
- * pending-only stub; the live CO1 broadcast wiring lands in Wave 6.2.
+ * Wave 6.1, the queue is a stub (empty) and the transport resolves
+ * unavailable; the live CO1 broadcast wiring replaces the transport prop.
  * The seam is deliberate so the live wiring is a single replacement of
  * the transport prop, not a re-architecture.
  *
- * @spec openspec/changes/wire-coop-campaign-route/specs/coop-campaign-sync/spec.md
+ * @spec openspec/specs/coop-campaign-sync/spec.md
  */
 
 import React, { useMemo } from 'react';
@@ -42,6 +42,8 @@ import type {
   GmDecision,
   GuestProposalResult,
 } from '@/types/campaign/CoopCampaign';
+
+import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
 
 import {
   GuestProposalSurface,
@@ -188,10 +190,9 @@ export interface CampaignCoopRouteSurfaceProps {
    */
   readonly onDecide?: (proposalId: string, decision: GmDecision) => void;
   /**
-   * Guest-side: the submit transport. Default returns `pending` so the
-   * UI shows a pending indicator that never resolves — visible feedback
-   * that the action was raised. Wave 6.2 replaces with the live CO1
-   * proposal transport.
+   * Guest-side: the submit transport. Default resolves as unavailable
+   * so the UI never leaves a guest action pending forever while the
+   * live CO1 proposal transport is still being wired.
    */
   readonly proposalTransport?: (
     proposal: import('@/types/campaign/CoopCampaign').IGuestProposal,
@@ -209,15 +210,18 @@ export interface CampaignCoopRouteSurfaceProps {
 // =============================================================================
 
 /**
- * Default no-op transport — surfaces a pending indicator the user can
- * see and dismiss by submitting a different action. Live transport
- * lands in Wave 6.2.
+ * Default no-op transport — resolves immediately as a mechanical
+ * rejection so a guest proposal does not appear to be waiting on a GM
+ * decision when no live transport exists. Live transport replaces this
+ * prop.
  */
-const defaultPendingTransport = async (
+const defaultUnavailableTransport = async (
   proposal: import('@/types/campaign/CoopCampaign').IGuestProposal,
 ): Promise<GuestProposalResult> => ({
-  status: 'pending',
+  status: 'mechanically-rejected',
   proposalId: proposal.proposalId,
+  code: INVALID_CAMPAIGN_INTENT,
+  reason: 'session-closed',
 });
 
 export function CampaignCoopRouteSurface(
@@ -231,7 +235,7 @@ export function CampaignCoopRouteSurface(
     onDecide = () => {
       /* Wave 6.2 wires to CampaignGmArbiter.decide */
     },
-    proposalTransport = defaultPendingTransport,
+    proposalTransport = defaultUnavailableTransport,
     proposingPlayerId = 'co-op-guest',
   } = props;
 

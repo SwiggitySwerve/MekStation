@@ -6,19 +6,17 @@
 
 The system SHALL provide a bidirectional WebSocket channel for clients
 to exchange messages with the authoritative server during a networked
-match. Until the live transport is wired (the `server.js` `connection`
-handler dispatches to a `MatchHostRegistry`/`ServerMatchHost`), the spec
-SHALL NOT assert that any networked match can run: the requirement is
-re-gated so the full bidirectional behavior is mandated only WHEN the
-transport is wired, and the not-yet-wired runtime SHALL hold an honest
-interim contract — the socket handshake SHALL close cleanly with a typed
-stub-close envelope rather than leaving a half-open connection, and the
-match-creation surface SHALL be capacity-guarded so the dev-only
-transport cannot be abused once exposed.
+match.
+The dev custom server (`npm run dev` → root `server.js`) and the
+hydrated packaged-start server (`npm run build` → `.next/standalone`
+hydration → `npm run start`) SHALL dispatch authenticated socket
+connections through `MatchHostRegistry` and `ServerMatchHost`. The
+match-creation surface SHALL remain capacity-guarded so the exposed
+transport cannot be abused.
 
 #### Scenario: Client connects and joins
 
-- **GIVEN** the live transport is wired and a client wants to join match `sess_abc`
+- **GIVEN** a client wants to join match `sess_abc`
 - **WHEN** the client opens a WebSocket to the multiplayer endpoint and
   sends `{kind: 'SessionJoin', matchId: 'sess_abc', playerId,
 lastSeq: 0}`
@@ -31,27 +29,27 @@ lastSeq: 0}`
 
 #### Scenario: Server rejects unknown match
 
-- **GIVEN** the live transport is wired and a client sends `SessionJoin` with an unknown `matchId`
+- **GIVEN** a client sends `SessionJoin` with an unknown `matchId`
 - **WHEN** the server handles the message
 - **THEN** the server SHALL reply `Error {code: 'UNKNOWN_MATCH'}`
 - **AND** the server SHALL close the socket
 
 #### Scenario: Heartbeat keeps connection alive
 
-- **GIVEN** the live transport is wired and a connected client
+- **GIVEN** a connected client
 - **WHEN** 20 seconds pass with no other traffic
 - **THEN** the server SHALL send a `Heartbeat`
 - **AND** the client SHALL reply with a `Heartbeat`
 - **AND** if either side misses three heartbeats in a row, the
   connection SHALL be torn down
 
-#### Scenario: Not-yet-wired transport closes the handshake cleanly
+#### Scenario: Terminal binding failures close the handshake cleanly
 
-- **GIVEN** the live transport is NOT yet wired (the `connection` handler
-  is the stub at `server.js:242`)
-- **WHEN** an authenticated client completes the WebSocket handshake
-- **THEN** the server SHALL send a typed `Close` envelope identifying the
-  transport as not-yet-wired
+- **GIVEN** an authenticated client completes the WebSocket handshake
+- **WHEN** the server cannot bind the socket to a live host because the
+  match is unknown or the runtime binding fails
+- **THEN** the server SHALL send a typed `Error`/`Close` envelope
+  identifying the terminal failure
 - **AND** the server SHALL close the socket cleanly rather than leaving a
   half-open connection
 - **AND** the server SHALL NOT silently accept intents it cannot dispatch.
@@ -67,27 +65,26 @@ lastSeq: 0}`
 
 ## ADDED Requirements
 
-### Requirement: Packaged-Build Multiplayer Requires an Upgrade Handler
+### Requirement: Packaged-Build Multiplayer Reachability Is Smoke-Gated
 
 The system SHALL treat a WebSocket upgrade handler on the server that the
 packaged build actually runs as a prerequisite for multiplayer being
-reachable in a packaged (Docker/Electron) deployment. The spec SHALL NOT
-assert that multiplayer is reachable in a packaged build while the only
-server carrying an upgrade handler is the custom `server.js` booted by
-`npm run dev`, because the packaged build runs Next's `output: 'standalone'`
-server, which has no upgrade handler and shadows the custom server.
+reachable in a packaged (Docker/Electron) deployment. The packaged
+standalone output SHALL be hydrated with the root multiplayer-aware
+`server.js` and the generated Next config required by that standalone
+build. The spec SHALL NOT assert that packaged multiplayer is reachable
+unless the packaged-start smoke check proves socket upgrade and replay.
 
-#### Scenario: Dev-only transport is named, not assumed
+#### Scenario: Packaged server owns the socket path
 
-- **GIVEN** `npm run dev` boots `node server.js` (which carries the WebSocket
-  upgrade handler) while `npm run start` and the packaged build run the
-  `output: 'standalone'` server
-- **WHEN** the multiplayer reachability of a packaged build is evaluated
-- **THEN** the packaged build SHALL be treated as having no multiplayer
-  transport until a server with an upgrade handler is part of the packaged
-  build
-- **AND** the spec SHALL NOT claim packaged-build multiplayer works on the
-  strength of the dev-only `server.js`.
+- **GIVEN** the Next standalone build has been generated
+- **WHEN** the build is prepared for packaged runtime
+- **THEN** `.next/standalone/server.js` SHALL be hydrated with the root
+  multiplayer-aware custom server
+- **AND** the generated Next config SHALL be preserved for that server
+- **AND** no Next API route SHALL shadow `/api/multiplayer/socket`, because
+  ordinary HTTP fallback and WebSocket upgrade handling both belong to the
+  custom server.
 
 #### Scenario: Packaged-build smoke check gates the claim
 

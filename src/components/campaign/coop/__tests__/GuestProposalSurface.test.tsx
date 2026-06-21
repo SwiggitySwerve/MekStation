@@ -7,7 +7,7 @@
  * the indicator clears on resolution; a veto and a mechanical rejection
  * are visually distinct.
  *
- * @spec openspec/changes/add-coop-campaign-play/specs/coop-campaign-sync/spec.md
+ * @spec openspec/specs/coop-campaign-sync/spec.md
  */
 
 import { act, render, renderHook, screen } from '@testing-library/react';
@@ -19,6 +19,17 @@ import type {
   IGuestProposal,
 } from '@/types/campaign/CoopCampaign';
 
+import {
+  _resetCoopRuntimeSessions,
+  openCoopRuntimeSession,
+} from '@/lib/campaign/coop/coopRuntimeSession';
+import { createCampaign } from '@/types/campaign/Campaign';
+import {
+  createGuestCoopSession,
+  createHostCoopSession,
+} from '@/types/campaign/CoopSession';
+
+import { CampaignCoopRouteSurfaceConnected } from '../CampaignCoopRouteSurfaceConnected';
 import { GuestProposalSurface } from '../GuestProposalSurface';
 import { useGuestProposals } from '../useGuestProposals';
 
@@ -177,5 +188,46 @@ describe('GuestProposalSurface — rendering', () => {
     ).toBeInTheDocument();
     // The two outcomes use distinct testids → visually distinct.
     expect(screen.queryByTestId('guest-proposal-vetoed')).toBeNull();
+  });
+});
+
+describe('CampaignCoopRouteSurfaceConnected runtime proposal transport', () => {
+  beforeEach(() => {
+    _resetCoopRuntimeSessions();
+  });
+
+  it('submits guest proposals through the runtime arbiter and resolves committed', async () => {
+    const host = {
+      ...createCampaign('Host Campaign', 'mercenary', {
+        startingFunds: 1_000_000,
+      }),
+      id: 'campaign-1',
+      coopSession: createHostCoopSession('ABC234', 'match-1'),
+    };
+    await openCoopRuntimeSession(host, {
+      matchId: 'match-1',
+      roomCode: 'ABC234',
+      arbitrationMode: 'auto-approve',
+    });
+    const guest = {
+      ...createCampaign('Guest Mirror', 'mercenary'),
+      id: 'campaign-1',
+      coopSession: createGuestCoopSession('match-1', 'ABC234'),
+    };
+
+    render(
+      <CampaignCoopRouteSurfaceConnected campaign={guest} routeId="finances" />,
+    );
+
+    await act(async () => {
+      screen.getByTestId('guest-action-SpendFunds').click();
+    });
+
+    expect(
+      await screen.findByTestId('guest-proposal-committed'),
+    ).toHaveTextContent('Approved by the GM');
+    expect(
+      screen.queryByTestId('guest-action-SpendFunds-pending'),
+    ).not.toBeInTheDocument();
   });
 });

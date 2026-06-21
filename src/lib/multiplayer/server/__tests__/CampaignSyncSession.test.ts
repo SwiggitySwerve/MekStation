@@ -45,6 +45,13 @@ describe('CampaignSyncSession — host opens a shared campaign', () => {
     expect(code).not.toMatch(/[IO01]/);
   });
 
+  it('adopts a server-issued room code for invite-backed co-op sessions', async () => {
+    const { session } = newSession();
+    const code = await session.open('abc-234');
+    expect(code).toBe('ABC234');
+    expect(session.getRoomCode()).toBe('ABC234');
+  });
+
   it('open is idempotent — the same code is returned', async () => {
     const { session } = newSession();
     const first = await session.open();

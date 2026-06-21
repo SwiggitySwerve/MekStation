@@ -7,11 +7,9 @@
  * Keeps the Pages Router HMR + serverless-style API routes intact.
  *
  * Design notes:
- *   - Only `npm run dev` routes through this file. Production builds
- *     (`next build` / `next start`) keep using the standard server
- *     because we don't yet target a multiplayer-enabled production
- *     deploy in Phase 4. A later wave can add a `npm run mp-start`
- *     script that runs `node server.js` with NODE_ENV=production.
+ *   - `npm run dev` routes through this file. Production/package
+ *     reachability is tracked separately because `next start` and the
+ *     standalone build can still shadow this custom upgrade handler.
  *   - Upgrade routing: we parse the request URL once, dispatch
  *     /api/multiplayer/socket through the WS server, and call
  *     `socket.destroy()` for any other upgrade path so we don't keep
@@ -20,14 +18,48 @@
  *     param + a known `matchId`. Wave 2 adds Ed25519 signature
  *     verification.
  *
- * @spec openspec/changes/add-multiplayer-server-infrastructure/specs/multiplayer-server/spec.md
+ * @spec openspec/specs/multiplayer-server/spec.md
  */
 
+const { createPublicKey, verify: verifySignature } = require('node:crypto');
+const fs = require('node:fs');
 const { createServer } = require('node:http');
+const path = require('node:path');
 const { parse } = require('node:url');
-const { webcrypto } = require('node:crypto');
 const next = require('next');
 const { WebSocketServer } = require('ws');
+
+const STANDALONE_NEXT_CONFIG_PATH = path.join(
+  __dirname,
+  'server.next-config.json',
+);
+const isStandaloneRuntime =
+  fs.existsSync(path.join(__dirname, '.next')) &&
+  fs.existsSync(STANDALONE_NEXT_CONFIG_PATH);
+let standaloneNextConfig = null;
+const traceMultiplayerSocket = process.env.MULTIPLAYER_SOCKET_TRACE === '1';
+
+function traceSocket(message) {
+  if (!traceMultiplayerSocket) return;
+  // eslint-disable-next-line no-console
+  console.log(`[mp-socket:trace] ${message}`);
+}
+
+if (isStandaloneRuntime) {
+  process.env.NODE_ENV = 'production';
+  process.chdir(__dirname);
+  try {
+    standaloneNextConfig = JSON.parse(
+      fs.readFileSync(STANDALONE_NEXT_CONFIG_PATH, 'utf8'),
+    );
+    process.env.__NEXT_PRIVATE_STANDALONE_CONFIG =
+      JSON.stringify(standaloneNextConfig);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[mp-boot] failed to read standalone Next config', err);
+    process.exit(1);
+  }
+}
 
 // =============================================================================
 // Inlined Wave 2 token verification (mirror of src/lib/multiplayer/server/auth.ts)
@@ -44,6 +76,7 @@ const BASE58_ALPHABET =
 const PLAYER_ID_PREFIX = 'pid_';
 const PLAYER_ID_BYTES = 20;
 const CLOCK_DRIFT_MS = 10_000;
+const ED25519_SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
 
 function bytesToBase58(bytes) {
   if (bytes.length === 0) return '';
@@ -74,6 +107,14 @@ function deriveServerPlayerId(publicKeyBytes) {
 function canonicalPayload(playerId, issuedAt, expiresAt) {
   // Object key order MUST be alphabetical — matches TS auth.ts canonicalTokenPayload.
   return JSON.stringify({ expiresAt, issuedAt, playerId });
+}
+
+function createEd25519PublicKey(publicKeyBytes) {
+  return createPublicKey({
+    key: Buffer.concat([ED25519_SPKI_PREFIX, Buffer.from(publicKeyBytes)]),
+    format: 'der',
+    type: 'spki',
+  });
 }
 
 function decodeWireToken(wire) {
@@ -108,9 +149,11 @@ function decodeWireToken(wire) {
  * Verify a wire-format token. Returns `{ ok: true, playerId }` on
  * success, or `{ ok: false, reason }` on failure.
  */
-async function verifyWireToken(wire, nowMs = Date.now()) {
+function verifyWireToken(wire, nowMs = Date.now()) {
+  traceSocket('verify start');
   const token = decodeWireToken(wire);
   if (!token) return { ok: false, reason: 'malformed' };
+  traceSocket(`verify decoded playerId=${token.playerId}`);
 
   const expiresMs = Date.parse(token.expiresAt);
   if (!Number.isFinite(expiresMs)) return { ok: false, reason: 'malformed' };
@@ -130,6 +173,9 @@ async function verifyWireToken(wire, nowMs = Date.now()) {
   } catch {
     return { ok: false, reason: 'malformed' };
   }
+  traceSocket(
+    `verify bytes publicKey=${publicKeyBytes.length} signature=${signatureBytes.length}`,
+  );
   const derivedId = deriveServerPlayerId(publicKeyBytes);
   if (!derivedId || derivedId !== token.playerId) {
     return { ok: false, reason: 'pid-mismatch' };
@@ -140,25 +186,22 @@ async function verifyWireToken(wire, nowMs = Date.now()) {
     token.issuedAt,
     token.expiresAt,
   );
-  const payloadBytes = new TextEncoder().encode(payload);
+  const payloadBytes = Buffer.from(payload, 'utf8');
   let verified = false;
   try {
-    const key = await webcrypto.subtle.importKey(
-      'raw',
-      publicKeyBytes,
-      { name: 'Ed25519' },
-      false,
-      ['verify'],
-    );
-    verified = await webcrypto.subtle.verify(
-      'Ed25519',
-      key,
-      signatureBytes,
+    traceSocket('verify create public key');
+    const key = createEd25519PublicKey(publicKeyBytes);
+    traceSocket('verify signature');
+    verified = verifySignature(
+      null,
       payloadBytes,
+      key,
+      Buffer.from(signatureBytes),
     );
   } catch {
     return { ok: false, reason: 'bad-signature' };
   }
+  traceSocket(`verify complete ok=${verified}`);
   if (!verified) return { ok: false, reason: 'bad-signature' };
 
   return { ok: true, playerId: token.playerId };
@@ -168,11 +211,20 @@ async function verifyWireToken(wire, nowMs = Date.now()) {
 // Boot Next.js
 // =============================================================================
 
-const dev = process.env.NODE_ENV !== 'production';
+const dev =
+  process.env.NODE_ENV !== 'production' &&
+  !isStandaloneRuntime &&
+  process.env.npm_lifecycle_event !== 'start';
 const port = parseInt(process.env.PORT ?? '3600', 10);
 const hostname = process.env.HOSTNAME ?? 'localhost';
 
-const app = next({ dev, hostname, port });
+const app = next({
+  dev,
+  hostname,
+  port,
+  dir: isStandaloneRuntime ? __dirname : process.cwd(),
+  ...(standaloneNextConfig ? { conf: standaloneNextConfig } : {}),
+});
 const handle = app.getRequestHandler();
 
 // =============================================================================
@@ -196,26 +248,85 @@ function isE2EReadyRequest(parsedUrl) {
   );
 }
 
-/**
- * Lazily resolve the multiplayer registry. We use a dynamic import so
- * this server file doesn't fail to start when the multiplayer modules
- * are temporarily broken (e.g., during a partial check-out).
- */
-async function loadRegistry() {
-  // tsx isn't available in production; in dev Next.js compiles TS for
-  // us, but server.js runs as a plain CommonJS file. Node 20+ supports
-  // `--experimental-strip-types` but we don't rely on it. Instead, the
-  // upgrade handler uses the JSON wire format directly and routes
-  // intents into the registry via a fetch into the API layer when
-  // needed. For Wave 1 we keep the upgrade handler minimal.
-  return null;
+function sendWebSocketUpgradeRequired(res) {
+  res.statusCode = 426;
+  res.setHeader('Connection', 'Upgrade');
+  res.setHeader('Upgrade', 'websocket');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.end(
+    JSON.stringify({
+      error: 'Upgrade Required',
+      hint: `Open a WebSocket connection to ${WS_UPGRADE_PATH}?matchId=...&token=...`,
+    }),
+  );
 }
 
-void loadRegistry; // suppress unused-warning until Wave 2 wires it
+let multiplayerRuntime = null;
+
+/**
+ * Lazily resolve the multiplayer runtime. `server.js` is CommonJS while
+ * the authoritative host/registry live in TypeScript with `@/` aliases,
+ * so the custom server installs the repo-local or hydrated standalone
+ * `tsx` require hook before loading those modules.
+ */
+function loadMultiplayerRuntime() {
+  if (multiplayerRuntime) return multiplayerRuntime;
+  require('tsx/cjs');
+  const registryModule = require('./src/lib/multiplayer/server/MatchHostRegistry.ts');
+  const socketModule = require('./src/lib/multiplayer/server/bindMultiplayerSocketConnection.ts');
+  multiplayerRuntime = {
+    bootstrapMultiplayerServer: registryModule.bootstrapMultiplayerServer,
+    bindMultiplayerSocketConnection:
+      socketModule.bindMultiplayerSocketConnection,
+  };
+  return multiplayerRuntime;
+}
+
+function firstQueryValue(value) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function sendTerminalSocketFrame(ws, matchId, code, reason, closeCode = 1011) {
+  try {
+    ws.send(
+      JSON.stringify({
+        kind: 'Error',
+        matchId: matchId ?? '',
+        ts: new Date().toISOString(),
+        code,
+        reason,
+      }),
+    );
+    ws.send(
+      JSON.stringify({
+        kind: 'Close',
+        matchId: matchId ?? '',
+        ts: new Date().toISOString(),
+        code,
+        reason,
+      }),
+    );
+  } catch {
+    // Socket may already be half-closed.
+  } finally {
+    try {
+      ws.close(closeCode, reason);
+    } catch {
+      // already closed
+    }
+  }
+}
 
 app
   .prepare()
-  .then(() => {
+  .then(async () => {
+    try {
+      await loadMultiplayerRuntime().bootstrapMultiplayerServer();
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[mp-boot] runtime load failed', err);
+    }
+
     const server = createServer(async (req, res) => {
       try {
         const parsedUrl = parse(req.url ?? '/', true);
@@ -228,6 +339,10 @@ app
           res.end();
           return;
         }
+        if (parsedUrl.pathname === WS_UPGRADE_PATH) {
+          sendWebSocketUpgradeRequired(res);
+          return;
+        }
         await handle(req, res, parsedUrl);
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -236,45 +351,110 @@ app
         res.end('Internal Server Error');
       }
     });
+    server.timeout = 0;
+    server.keepAliveTimeout = 0;
+    server.requestTimeout = 0;
+    server.headersTimeout = 0;
+    server.on('connection', (socket) => {
+      socket.setTimeout(0);
+    });
 
-    const wss = new WebSocketServer({ noServer: true });
+    const wss = new WebSocketServer({
+      noServer: true,
+      perMessageDeflate: false,
+    });
 
     wss.on('connection', (ws, req) => {
-      // The upgrade handler attaches the verified playerId on the
-      // request object before emitting the connection. Wave 3 will wire
-      // a real ServerMatchHost lookup here; Wave 2 just confirms the
-      // handshake succeeded and closes with a Wave 2 marker so the
-      // existing Wave 1 client tests keep their close-on-handshake
-      // expectations.
-      //
-      // Wave 3a: the upgrade handler also parses an OPTIONAL `?seed=N`
-      // query param and stashes it on `req._mpDiceSeed`. When the host
-      // factory wires through to `MatchHostRegistry.getOrCreate`, this
-      // value flips the host's dice roller from `CryptoDiceRoller`
-      // (production) to a deterministic `SeededDiceRoller` (debug). It
-      // is intentionally OFF by default and used only for reproducing
-      // bug reports.
       const verifiedPlayerId = req._mpVerifiedPlayerId;
       const diceSeed = req._mpDiceSeed;
       const url = parse(req.url ?? '/', true);
-      const matchId = url.query.matchId;
+      const matchId = firstQueryValue(url.query.matchId);
+      if (typeof matchId !== 'string' || matchId.length === 0) {
+        sendTerminalSocketFrame(ws, '', 'UNKNOWN_MATCH', 'missing-match', 1008);
+        return;
+      }
+      if (
+        typeof verifiedPlayerId !== 'string' ||
+        verifiedPlayerId.length === 0
+      ) {
+        sendTerminalSocketFrame(
+          ws,
+          matchId,
+          'AUTH_REJECTED',
+          'missing-verified-player',
+          1008,
+        );
+        return;
+      }
       // eslint-disable-next-line no-console
       console.log(
         `[mp-socket] connection accepted matchId=${matchId} playerId=${verifiedPlayerId}${
           diceSeed != null ? ` diceSeed=${diceSeed}` : ''
         }`,
       );
-      ws.send(
-        JSON.stringify({
-          kind: 'Close',
-          matchId: matchId ?? '',
-          ts: new Date().toISOString(),
-          code: 'INTERNAL_ERROR',
-          reason:
-            'WebSocket handler is a Wave 2 stub; full intent dispatch lands in Wave 3',
-        }),
-      );
-      ws.close(1011, 'wave-2-stub');
+      ws.on('close', (code, reason) => {
+        // eslint-disable-next-line no-console
+        console.log(
+          `[mp-socket] socket closed matchId=${matchId} code=${code} reason=${reason.toString()}`,
+        );
+        traceSocket(
+          `close details matchId=${matchId} closeFrameReceived=${ws._closeFrameReceived} closeFrameSent=${ws._closeFrameSent} socketDestroyed=${ws._socket?.destroyed}`,
+        );
+      });
+      ws.on('error', (err) => {
+        // eslint-disable-next-line no-console
+        console.error(`[mp-socket] socket error matchId=${matchId}`, err);
+      });
+      if (ws._socket) {
+        ws._socket.on('end', () => {
+          traceSocket(`raw socket end matchId=${matchId}`);
+        });
+        ws._socket.on('close', (hadError) => {
+          traceSocket(
+            `raw socket close matchId=${matchId} hadError=${hadError} destroyed=${ws._socket?.destroyed}`,
+          );
+        });
+        ws._socket.on('error', (err) => {
+          traceSocket(`raw socket error matchId=${matchId} ${err.message}`);
+        });
+      }
+      try {
+        void loadMultiplayerRuntime()
+          .bindMultiplayerSocketConnection({
+            socket: ws,
+            matchId,
+            verifiedPlayerId,
+            ...(diceSeed != null ? { diceSeed } : {}),
+            logger: console,
+          })
+          .then((bound) => {
+            if (bound) {
+              // eslint-disable-next-line no-console
+              console.log(
+                `[mp-socket] bound matchId=${matchId} connection=${bound.connectionKey}`,
+              );
+            }
+          })
+          .catch((err) => {
+            // eslint-disable-next-line no-console
+            console.error('[mp-socket] bind failed', err);
+            sendTerminalSocketFrame(
+              ws,
+              matchId,
+              'INTERNAL_ERROR',
+              'bind-failed',
+            );
+          });
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('[mp-socket] runtime load failed', err);
+        sendTerminalSocketFrame(
+          ws,
+          matchId,
+          'INTERNAL_ERROR',
+          'runtime-unavailable',
+        );
+      }
     });
 
     // Cache Next.js's upgrade handler so we can delegate non-MP WS upgrades
@@ -330,8 +510,17 @@ app
           }
           return;
         }
-        const matchId = parsedUrl.query.matchId;
-        const token = parsedUrl.query.token;
+        const matchId = firstQueryValue(parsedUrl.query.matchId);
+        const token = firstQueryValue(parsedUrl.query.token);
+        socket.setTimeout(0);
+        socket.setNoDelay(true);
+        socket.setKeepAlive(true, 30_000);
+        // eslint-disable-next-line no-console
+        console.log(
+          `[mp-socket] upgrade requested matchId=${
+            typeof matchId === 'string' ? matchId : ''
+          } hasToken=${typeof token === 'string' && token.length > 0}`,
+        );
         if (!matchId || !token) {
           // Missing either parameter — 400 over the raw socket so a
           // browser sees a meaningful error instead of a hung handshake.
@@ -344,8 +533,13 @@ app
         // client sees a clean rejection (the handshake never completes,
         // so there's no WS frame to send — this is the standard ws
         // server pattern).
-        const wireToken = Array.isArray(token) ? token[0] : token;
-        const verification = await verifyWireToken(wireToken);
+        const verification = verifyWireToken(token);
+        // eslint-disable-next-line no-console
+        console.log(
+          `[mp-socket] upgrade verification result matchId=${matchId} ok=${verification.ok}${
+            verification.ok ? '' : ` reason=${verification.reason}`
+          }`,
+        );
         if (!verification.ok) {
           // eslint-disable-next-line no-console
           console.warn(
@@ -357,6 +551,10 @@ app
           socket.destroy();
           return;
         }
+        // eslint-disable-next-line no-console
+        console.log(
+          `[mp-socket] upgrade verified matchId=${matchId} playerId=${verification.playerId}`,
+        );
         // Stash the verified id on the request so the connection
         // handler can attach it to the per-socket bookkeeping. Using a
         // private-prefixed property avoids collisions with existing
@@ -386,7 +584,6 @@ app
         }
       }
     });
-
     server.listen(port, () => {
       // eslint-disable-next-line no-console
       console.log(

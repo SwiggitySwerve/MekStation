@@ -236,4 +236,69 @@ describe('multiplayer client', () => {
     f.lastSocket().fireClose();
     expect(reconnectAttempts.length).toBe(0);
   });
+
+  it('treats a server Close envelope as terminal and does not reconnect', () => {
+    const f = makeMockSocketFactory();
+    const reconnectAttempts: unknown[] = [];
+    const closeEvents: unknown[] = [];
+
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: true },
+    );
+    client.on('reconnect', (info) => reconnectAttempts.push(info));
+    client.on('close', (info) => closeEvents.push(info));
+
+    f.lastSocket().fireOpen();
+    f.lastSocket().inject({
+      kind: 'Close',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      code: 'INTERNAL_ERROR',
+      reason: 'runtime-unavailable',
+    });
+
+    expect(closeEvents).toEqual([
+      {
+        code: 'INTERNAL_ERROR',
+        reason: 'runtime-unavailable',
+      },
+    ]);
+    expect(reconnectAttempts).toHaveLength(0);
+    expect(f.socketsCreated).toBe(1);
+    client.close();
+  });
+
+  it('emits a terminal close when reconnect attempts exceed the configured bound', () => {
+    const f = makeMockSocketFactory();
+    const reconnectAttempts: unknown[] = [];
+    const closeEvents: unknown[] = [];
+
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      {
+        socketFactory: f.factory,
+        reconnect: true,
+        maxReconnectAttempts: 1,
+      },
+    );
+    client.on('reconnect', (info) => reconnectAttempts.push(info));
+    client.on('close', (info) => closeEvents.push(info));
+
+    f.lastSocket().fireClose();
+    expect(reconnectAttempts).toHaveLength(1);
+    jest.advanceTimersByTime(
+      (reconnectAttempts[0] as { delayMs: number }).delayMs,
+    );
+    f.lastSocket().fireClose();
+
+    expect(closeEvents).toContainEqual({
+      code: 'RECONNECT_LIMIT',
+      reason: 'Unable to reconnect to multiplayer session',
+    });
+  });
 });

@@ -67,6 +67,21 @@ async function main() {
     process.exit(1);
   }
 
+  execFileSync(
+    process.execPath,
+    [
+      path.join(
+        rootDir,
+        'scripts',
+        'hydrate-next-standalone-multiplayer-server.mjs',
+      ),
+    ],
+    {
+      cwd: rootDir,
+      stdio: 'inherit',
+    },
+  );
+
   // Resolve Electron version from the installed desktop devDependency.
   // This ensures we rebuild against the exact Electron version used for packaging.
   const electronVersion = require('electron/package.json').version;

@@ -23,7 +23,7 @@ import React, { useEffect, useState } from 'react';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
-import { CampaignCoopRouteSurface } from '@/components/campaign/coop';
+import { CampaignCoopRouteSurfaceConnected } from '@/components/campaign/coop';
 import { PersonnelSidePanel } from '@/components/campaign/personnel/PersonnelSidePanel';
 import { Card, EmptyState, PageLayout } from '@/components/ui';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
@@ -146,7 +146,10 @@ export default function PersonnelPage(): React.ReactElement {
         coopSession={campaign.coopSession}
       />
 
-      <CampaignCoopRouteSurface campaign={campaign} routeId="personnel" />
+      <CampaignCoopRouteSurfaceConnected
+        campaign={campaign}
+        routeId="personnel"
+      />
       {pilots.length === 0 ? (
         <EmptyState
           title="No pilots in this campaign roster"
