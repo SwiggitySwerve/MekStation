@@ -176,7 +176,7 @@ describe('Scenario: gyro destruction sequence (Phase 3, combat-resolution + pilo
       componentDamage,
       location: 'center_torso',
       damage: 5,
-      roller: scripted([4, 4, 4]),
+      roller: scripted([4, 4, 1, 4]),
       unitId: 'opponent-1',
     });
     state = shot1.state;
@@ -198,7 +198,7 @@ describe('Scenario: gyro destruction sequence (Phase 3, combat-resolution + pilo
       componentDamage,
       location: 'center_torso',
       damage: 5,
-      roller: scripted([5, 4, 4]),
+      roller: scripted([5, 4, 1, 5]),
       unitId: 'opponent-1',
     });
     componentDamage = shot2.componentDamage;
@@ -231,7 +231,7 @@ describe('Scenario: engine destruction sequence (Phase 3, combat-resolution)', (
       componentDamage,
       location: 'center_torso',
       damage: 5,
-      roller: scripted([4, 4, 1]),
+      roller: scripted([4, 4, 1, 1]),
       unitId: 'opponent-1',
     });
     state = shot1.state;
@@ -249,7 +249,7 @@ describe('Scenario: engine destruction sequence (Phase 3, combat-resolution)', (
       componentDamage,
       location: 'center_torso',
       damage: 5,
-      roller: scripted([5, 4, 1]),
+      roller: scripted([5, 4, 1, 2]),
       unitId: 'opponent-1',
     });
     state = shot2.state;
@@ -267,7 +267,7 @@ describe('Scenario: engine destruction sequence (Phase 3, combat-resolution)', (
       componentDamage,
       location: 'center_torso',
       damage: 5,
-      roller: scripted([4, 4, 1]),
+      roller: scripted([4, 4, 1, 3]),
       unitId: 'opponent-1',
     });
     expect(shot3.componentDamage.engineHits).toBe(3);
@@ -297,7 +297,7 @@ describe('Scenario: engine destruction sequence (Phase 3, combat-resolution)', (
       componentDamage,
       location: 'center_torso',
       damage: 5,
-      roller: scripted([4, 4, 1]),
+      roller: scripted([4, 4, 1, 1]),
       unitId: 'opponent-1',
     });
     expect(manifest.center_torso[0].destroyed).toBe(false);
@@ -312,7 +312,7 @@ describe('Scenario: engine destruction sequence (Phase 3, combat-resolution)', (
       componentDamage,
       location: 'center_torso',
       damage: 5,
-      roller: scripted([4, 4, 1]),
+      roller: scripted([4, 4, 1, 2]),
       unitId: 'opponent-1',
     });
 
@@ -351,7 +351,7 @@ describe('Scenario: crit-chain causal ordering invariant', () => {
       componentDamage,
       location: 'center_torso',
       damage: 5,
-      roller: scripted([4, 4, 4]),
+      roller: scripted([4, 4, 1, 4]),
       unitId: 'opponent-1',
     });
 

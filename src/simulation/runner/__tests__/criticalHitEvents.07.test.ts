@@ -235,8 +235,8 @@ it('spends edge_when_explosion to avoid a crit-induced ammo explosion', () => {
     firingArc: 'front',
     partialCover: false,
     // Hit location 3+3 = right_torso, crit trigger 4+4 = one crit,
-    // first slot roll hits ammo, Edge reroll redirects to the safe slot.
-    d6Roller: scriptedRoller([3, 3, 4, 4, 1, 6]),
+    // first slot pair hits ammo, Edge reroll redirects to the safe slot.
+    d6Roller: scriptedRoller([3, 3, 4, 4, 1, 1, 1, 2]),
     getOrSeedManifest: () => manifest,
     manifestsByUnit,
     weaponsByUnit: new Map<string, readonly IWeapon[]>([

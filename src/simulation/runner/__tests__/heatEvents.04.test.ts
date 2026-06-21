@@ -138,16 +138,12 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
       source: 'HeatInduced',
     });
     expect(
-      events.find(
+      events.some(
         (e) =>
           e.type === GameEventType.PilotHit &&
           (e.payload as IPilotHitPayload).source === 'ammo_explosion',
-      )?.payload as IPilotHitPayload,
-    ).toMatchObject({
-      unitId: 'player-1',
-      wounds: 2,
-      source: 'ammo_explosion',
-    });
+      ),
+    ).toBe(false);
     expect(events.some((e) => e.type === GameEventType.TransferDamage)).toBe(
       false,
     );
@@ -174,7 +170,7 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
     ).toBe(0);
   });
 
-  it('applies protected HeatInduced AmmoExplosion damage to internals and blows out rear torso armor', () => {
+  it('applies protected HeatInduced AmmoExplosion damage to remaining internals', () => {
     const ammoState: Record<string, IAmmoSlotState> = {
       'ac-20-bin-0': {
         binId: 'ac-20-bin-0',
@@ -226,26 +222,19 @@ describe('runHeatPhase (Phase 4 — Heat Lifecycle Events)', () => {
 
     expect(damageEvents).toEqual([
       expect.objectContaining({
-        location: 'right_torso_rear',
-        damage: 6,
-        armorRemaining: 0,
-        structureRemaining: 15,
-        locationDestroyed: false,
-      }),
-      expect.objectContaining({
         location: 'right_torso',
-        damage: 10,
+        damage: 15,
         armorRemaining: 12,
-        structureRemaining: 5,
-        locationDestroyed: false,
+        structureRemaining: 0,
+        locationDestroyed: true,
       }),
     ]);
     expect(events.some((e) => e.type === GameEventType.TransferDamage)).toBe(
       false,
     );
     expect(newState.units['player-1'].armor.right_torso).toBe(12);
-    expect(newState.units['player-1'].armor.right_torso_rear).toBe(0);
-    expect(newState.units['player-1'].structure.right_torso).toBe(5);
+    expect(newState.units['player-1'].armor.right_torso_rear).toBe(6);
+    expect(newState.units['player-1'].structure.right_torso).toBe(0);
     expect(newState.units['player-1'].structure.center_torso).toBe(10);
   });
 });

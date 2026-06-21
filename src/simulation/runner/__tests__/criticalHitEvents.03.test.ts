@@ -94,7 +94,7 @@ import {
 } from './criticalHitEvents.test-helpers';
 
 it('ammo criticals target the exact hydrated bin before same-location fallback', () => {
-  const runAmmoCrit = (slotSelectionRoll: number) => {
+  const runAmmoCrit = (slotSelectionDice: readonly [number, number]) => {
     const emptyBin = createAmmoBin('right-torso-empty-bin', 0);
     const loadedBin = createAmmoBin('right-torso-loaded-bin', 5);
     const scenario = buildPrimedRunnerScenario();
@@ -147,7 +147,7 @@ it('ammo criticals target the exact hydrated bin before same-location fallback',
       firingArc: 'front',
       partialCover: false,
       // Hit location 3+3 = right_torso, crit trigger 4+4 = one crit.
-      d6Roller: scriptedRoller([3, 3, 4, 4, slotSelectionRoll]),
+      d6Roller: scriptedRoller([3, 3, 4, 4, ...slotSelectionDice]),
       getOrSeedManifest: () => manifest,
       manifestsByUnit,
       weaponsByUnit: new Map<string, readonly IWeapon[]>([
@@ -159,7 +159,7 @@ it('ammo criticals target the exact hydrated bin before same-location fallback',
     return { events, next, emptyBin, loadedBin };
   };
 
-  const emptyTarget = runAmmoCrit(1);
+  const emptyTarget = runAmmoCrit([1, 1]);
   const emptyResolved = emptyTarget.events.find(
     (event) => event.type === GameEventType.CriticalHitResolved,
   ) as IGameEvent & { payload: ICriticalHitResolvedPayload };
@@ -185,7 +185,7 @@ it('ammo criticals target the exact hydrated bin before same-location fallback',
     ].remainingRounds,
   ).toBe(5);
 
-  const loadedTarget = runAmmoCrit(2);
+  const loadedTarget = runAmmoCrit([1, 2]);
   const explosion = loadedTarget.events.find(
     (event) => event.type === GameEventType.AmmoExplosion,
   ) as IGameEvent & { payload: IAmmoExplosionPayload };
