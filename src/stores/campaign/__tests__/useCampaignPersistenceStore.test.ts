@@ -34,6 +34,7 @@ import {
 interface MockCampaignStore {
   campaign: ICampaign | null;
   updateCampaign: (updates: Partial<ICampaign>) => void;
+  switchCampaign: (campaign: ICampaign) => void;
 }
 
 /** The accessor signature `registerCampaignStoreAccessor` expects. */
@@ -49,6 +50,9 @@ function makeMockCampaignStore(
       set({
         campaign: current ? { ...current, ...updates } : (updates as ICampaign),
       });
+    },
+    switchCampaign: (nextCampaign) => {
+      set({ campaign: nextCampaign });
     },
   }));
 }
