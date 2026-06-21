@@ -761,6 +761,60 @@ Vehicle units SHALL carry a motive-damage state struct updated by combat resolut
 - **THEN** penalty SHALL become −5
 - **AND** effective cruise MP SHALL not go below 0
 
+### Requirement: Vehicle Engine Critical Immobilizes (Not Destroys)
+
+A vehicle engine critical hit SHALL immobilize the vehicle rather than deterministically destroy it. Engine hits SHALL increment the engine-hit counter and force the vehicle immobilized, setting effective cruise and flank MP to zero. A second engine hit SHALL NOT set `destroyed`. Deterministic destruction on engine hit is removed; the MegaMek optional fusion-explosion destruction rule is out of scope and SHALL NOT be applied as a guaranteed outcome.
+
+#### Scenario: Second engine hit immobilizes but does not destroy
+
+- **GIVEN** a combat vehicle that has already taken one engine critical hit
+- **WHEN** the vehicle takes a second engine critical hit
+- **THEN** `motive.engineHits` SHALL increment to 2
+- **AND** the vehicle SHALL be immobilized, with effective cruise and flank MP equal to 0
+- **AND** the vehicle SHALL NOT be flagged `destroyed`
+- **AND** the vehicle SHALL NOT report `destructionCause: 'engine_destroyed'` from the engine-hit path alone
+
+#### Scenario: First engine hit immobilizes
+
+- **GIVEN** an undamaged combat vehicle
+- **WHEN** the vehicle takes its first engine critical hit
+- **THEN** `motive.engineHits` SHALL be 1
+- **AND** the vehicle SHALL be immobilized
+
+### Requirement: Motive Damage Roll Modifiers by Motion Type
+
+Vehicle motive damage SHALL apply a flat per-motion-type modifier to the motive-damage 2d6 roll, matching MegaMek, rather than escalating a heavy severity result directly to immobilized for specific motion types. The resulting motive severity SHALL be derived from the modified roll on the motive-damage table.
+
+#### Scenario: Motion-type modifier feeds the motive roll
+
+- **GIVEN** a hover vehicle with motive-roll modifier +3 and a wheeled vehicle with modifier +2
+- **WHEN** a motive-damage roll is resolved for each
+- **THEN** each vehicle's motive-damage 2d6 roll SHALL be adjusted by its motion-type modifier before the motive-damage table is consulted
+- **AND** the resulting severity SHALL be the table outcome of the modified roll, not a heavy-to-immobilized shortcut keyed on motion type
+
+#### Scenario: Tracked vehicle takes the unmodified table outcome
+
+- **GIVEN** a tracked vehicle with motive-roll modifier +0
+- **WHEN** a motive-damage roll is resolved
+- **THEN** the motive severity SHALL be the unmodified table outcome of the roll
+
+### Requirement: Single-Source Vehicle Crew Critical Effects
+
+Vehicle crew critical effects, including driver and commander hits, SHALL be resolved through a single authoritative crew-critical escalation shared with the production vehicle-critical table layer, so the BA-leg-attack-reachable helper and the table layer cannot diverge. The non-CASE ammo explosion crew-wound value SHALL be 2, consistent across all vehicle and mech critical paths.
+
+#### Scenario: Driver/commander helper matches the table layer
+
+- **GIVEN** a vehicle receives a driver or commander critical hit via the BA-leg-attack helper
+- **WHEN** the crew-critical effect is resolved
+- **THEN** the resulting crew state SHALL equal the state produced by the production vehicle-critical table layer for the same hit
+- **AND** a commander hit SHALL still apply its crew-stun side effect
+
+#### Scenario: Unprotected vehicle ammo explosion inflicts two crew wounds
+
+- **GIVEN** an ammo bin explodes in a vehicle location without CASE
+- **WHEN** crew damage is assessed
+- **THEN** the crew SHALL take 2 wounds, not 1, consistent with the mech non-CASE explosion rule
+
 ## Data Model
 
 ### IVehicle Interface

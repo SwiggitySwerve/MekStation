@@ -29,7 +29,7 @@ When an ammo bin receives a critical hit, the system SHALL calculate explosion d
 
 ### Requirement: CASE Protection
 
-CASE (Cellular Ammunition Storage Equipment) SHALL limit ammo explosion damage to the location containing the exploding ammo bin.
+CASE (Cellular Ammunition Storage Equipment) SHALL limit ammo explosion damage to the location containing the exploding ammo bin. Standard CASE SHALL apply up to the location's remaining internal structure and VENT all excess to the environment. There SHALL be no arbitrary fixed cap, and no transfer to the adjacent or parent location.
 
 #### Scenario: CASE limits explosion to single location
 
@@ -38,6 +38,14 @@ CASE (Cellular Ammunition Storage Equipment) SHALL limit ammo explosion damage t
 - **AND** excess damage SHALL NOT transfer to adjacent locations (center torso)
 - **AND** the pilot SHALL take no damage from the explosion
 - **AND** the side torso SHALL be destroyed if structure is exceeded
+
+#### Scenario: Standard CASE vents all excess beyond internal structure
+
+- **GIVEN** a side torso with CASE and 18 remaining internal structure
+- **WHEN** an ammo bin explodes for 40 damage in that location
+- **THEN** up to 18 damage SHALL be applied to that location's internal structure
+- **AND** the remaining 22 damage SHALL be vented to the environment, not capped at 10 and not transferred to the center torso
+- **AND** the side torso SHALL be destroyed because internal structure is exhausted
 
 #### Scenario: CASE does not prevent location destruction
 
@@ -58,14 +66,14 @@ CASE II SHALL provide superior protection, transferring only 1 point of damage t
 
 ### Requirement: No CASE Explosion Damage
 
-When ammo explodes in a location without CASE, damage SHALL transfer normally and the pilot SHALL take damage.
+When ammo explodes in a location without CASE, damage SHALL transfer normally and the pilot SHALL take 2 points of damage, the canonical unprotected ammo cook-off crew-wound value.
 
 #### Scenario: Unprotected ammo explosion
 
 - **WHEN** an ammo bin explodes in a location without CASE
 - **THEN** explosion damage SHALL apply to internal structure at that location
 - **AND** excess damage SHALL transfer to adjacent locations per standard damage transfer rules
-- **AND** the pilot SHALL take 1 point of damage
+- **AND** the pilot SHALL take 2 points of damage
 
 ### Requirement: Heat-Induced Ammo Explosion
 
@@ -177,17 +185,17 @@ When a unit's heat reaches 19+ on the post-attack heat phase, the engine SHALL r
 
 ### Requirement: CASE Confines Ammo Explosion Damage
 
-When an `AmmoExplosion` fires in a location that has CASE installed, the explosion damage MUST be confined to that location. NO `TransferDamage` event MUST follow. Standard CASE caps protected explosion damage before local runner damage resolution, so the source location is destroyed only when the capped damage exhausts its remaining local armor/structure in MekStation's current damage pipeline.
+When an `AmmoExplosion` fires in a location that has standard CASE installed, the explosion damage MUST be confined to that location. NO `TransferDamage` event MUST follow. Standard CASE SHALL apply explosion damage up to the location's remaining internal structure and SHALL vent all excess with no fixed cap, so the source location is destroyed exactly when the explosion exhausts its remaining internal structure.
 
 #### Scenario: AC/20 ammo cookoff in RT with CASE
 
-- **GIVEN** an Atlas with AC/20 ammo bin in RT (5 rounds)
+- **GIVEN** an Atlas with AC/20 ammo bin in RT (5 rounds = 100 damage)
 - **AND** CASE installed in the same RT location
 - **WHEN** the bin takes a critical hit triggering an explosion
 - **THEN** `AmmoExplosion { location: 'RT', damage: 100, caseProtection: 'case' }` MUST emit
-- **AND** local runner damage MUST be capped before transfer is considered
+- **AND** local runner damage MUST apply up to RT's remaining internal structure and vent the rest
 - **AND** NO `TransferDamage { from: 'RT', to: 'CT' }` MUST emit
-- **AND** the unit MUST survive (CT untouched)
+- **AND** the unit MUST survive (CT untouched), even though RT is destroyed
 
 ### Requirement: CASE-II Confines Ammo Damage Within Location Without Destroying
 
