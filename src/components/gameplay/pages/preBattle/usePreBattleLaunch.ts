@@ -15,6 +15,10 @@ import {
 } from '@/components/gameplay/pages/preBattleSessionBuilder';
 import { GameEngine } from '@/engine/GameEngine';
 import { createGridFromTerrainPreset } from '@/engine/GameEngine.helpers';
+import {
+  matchLogStorage,
+  type MatchLogStorage,
+} from '@/lib/p2p/matchLogStorage';
 import { logger } from '@/utils/logger';
 
 export type BattleMode = 'auto' | 'interactive' | 'spectator';
@@ -30,6 +34,34 @@ interface UsePreBattleLaunchOptions {
   setSpectatorMode: (session: InteractiveSession, mode: SpectatorMode) => void;
   setIsResolving: (isResolving: boolean) => void;
   showToast: (toast: { message: string; variant: 'success' | 'error' }) => void;
+}
+
+type InteractiveLaunchRecoveryStorage = Pick<
+  MatchLogStorage,
+  'appendEvent' | 'flushPendingWrites' | 'upsertMatchMetadata'
+>;
+
+export async function persistInteractiveLaunchRecoveryLog(
+  session: IGameSession,
+  storage: InteractiveLaunchRecoveryStorage = matchLogStorage,
+): Promise<boolean> {
+  let writes: Promise<unknown>[] = [];
+  try {
+    writes = session.events.map((event) =>
+      storage.appendEvent(session.id, event),
+    );
+    await storage.flushPendingWrites();
+    await Promise.all(writes);
+    await storage.upsertMatchMetadata({
+      matchId: session.id,
+      status: 'active',
+    });
+    return true;
+  } catch (error) {
+    await Promise.allSettled(writes);
+    logger.warn('Interactive match recovery seed failed', error);
+    return false;
+  }
 }
 
 function getLaunchErrorMessage(mode: BattleMode): string {
@@ -146,6 +178,7 @@ export function usePreBattleLaunch({
 
         if (mode === 'interactive') {
           setInteractiveSession(interactiveSession);
+          await persistInteractiveLaunchRecoveryLog(session);
           logger.info('Interactive session created', { sessionId: session.id });
           showToast({
             message: 'Launching interactive battle...',

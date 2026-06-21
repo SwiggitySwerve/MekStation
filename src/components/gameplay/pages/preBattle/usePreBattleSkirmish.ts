@@ -18,6 +18,8 @@ import { GameSide, type IGameUnit } from '@/types/gameplay';
 import { buildFromSkirmishConfig } from '@/utils/gameplay/preBattleSessionBuilder';
 import { logger } from '@/utils/logger';
 
+import { persistInteractiveLaunchRecoveryLog } from './usePreBattleLaunch';
+
 interface UsePreBattleSkirmishOptions {
   encounter: IEncounter | undefined;
   router: NextRouter;
@@ -265,6 +267,7 @@ export function usePreBattleSkirmish({
         const liveSession = interactiveSession.getSession();
 
         setInteractiveSession(interactiveSession);
+        await persistInteractiveLaunchRecoveryLog(liveSession);
         logger.info('Skirmish session launched', {
           sessionId: liveSession.id,
           encounterId: encounter.id,

@@ -21,6 +21,13 @@ import {
   createDemoUnitSpas,
   createDemoWeapons,
 } from '@/__fixtures__/gameplay';
+import { recoverInteractiveSession } from '@/engine/InteractiveSession';
+import {
+  INTERACTIVE_SESSION_STORAGE_UNAVAILABLE_MESSAGE,
+  InteractiveSessionRecoveryCorruptError,
+  InteractiveSessionRecoveryNotFoundError,
+} from '@/engine/InteractiveSession.persistence';
+import { MatchLogStorageUnavailableError } from '@/lib/p2p/matchLogStorage';
 import {
   GamePhase,
   IGameSession,
@@ -69,6 +76,9 @@ type SetFn = {
   (fn: (state: SessionSlice) => Partial<SessionSlice>): void;
 };
 type GetFn = () => SessionSlice;
+type RecoverInteractiveSessionFn = (
+  sessionId: string,
+) => Promise<InteractiveSession>;
 
 /**
  * Wire up a freshly minted demo session in the store. Replaces
@@ -100,6 +110,7 @@ export async function loadSessionLogic(
   get: GetFn,
   set: SetFn,
   loadDemo: () => void,
+  recoverSession: RecoverInteractiveSessionFn = recoverInteractiveSession,
 ): Promise<void> {
   // If session is already loaded (e.g. from setSession via auto-resolve), skip
   const existing = get().session;
@@ -113,14 +124,28 @@ export async function loadSessionLogic(
     if (sessionId === 'demo') {
       loadDemo();
     } else {
-      throw new Error('Session not found');
+      const recovered = await recoverSession(sessionId);
+      setInteractiveSessionLogic(recovered, set);
     }
   } catch (err) {
     set({
-      error: err instanceof Error ? err.message : 'Failed to load session',
+      error: getLoadSessionErrorMessage(err),
       isLoading: false,
     });
   }
+}
+
+function getLoadSessionErrorMessage(error: unknown): string {
+  if (error instanceof InteractiveSessionRecoveryNotFoundError) {
+    return error.message;
+  }
+  if (error instanceof InteractiveSessionRecoveryCorruptError) {
+    return error.message;
+  }
+  if (error instanceof MatchLogStorageUnavailableError) {
+    return INTERACTIVE_SESSION_STORAGE_UNAVAILABLE_MESSAGE;
+  }
+  return error instanceof Error ? error.message : 'Failed to load session';
 }
 
 /**
