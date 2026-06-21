@@ -72,6 +72,5 @@ export function finalizeSessionOutcome(
     matchId: outcome.matchId,
     outcome,
   };
-  publishCombatOutcome(event);
-  return { session, published: true };
+  return { session, published: publishCombatOutcome(event) };
 }

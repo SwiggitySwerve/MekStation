@@ -78,6 +78,11 @@ export function runAITurnLogic(
     interactiveSession.advancePhase();
   }
 
+  if (interactiveSession.getState().phase === GamePhase.PhysicalAttack) {
+    interactiveSession.runAITurn(GameSide.Opponent);
+    interactiveSession.advancePhase();
+  }
+
   if (interactiveSession.getState().phase === GamePhase.Heat) {
     interactiveSession.advancePhase();
   }

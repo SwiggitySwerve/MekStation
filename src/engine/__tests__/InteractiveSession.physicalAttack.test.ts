@@ -6,6 +6,7 @@ import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   Facing,
   GameEventType,
+  GamePhase,
   GameSide,
   LockState,
   MovementType,
@@ -113,6 +114,13 @@ function placeUnitsAdjacent(session: InteractiveSession): void {
   };
 }
 
+function advanceToPhysicalAttack(session: InteractiveSession): void {
+  session.advancePhase(); // Initiative -> Movement
+  session.advancePhase(); // Movement -> WeaponAttack
+  session.advancePhase(); // WeaponAttack -> PhysicalAttack
+  expect(session.getState().phase).toBe(GamePhase.PhysicalAttack);
+}
+
 describe('InteractiveSession.applyPhysicalAttack', () => {
   it('emits a PhysicalAttackDeclared event for first-class physical wire dispatch', () => {
     const session = makeSession();
@@ -134,6 +142,23 @@ describe('InteractiveSession.applyPhysicalAttack', () => {
       attackType: 'punch',
       toHitNumber: 5,
     });
+  });
+
+  it('resolves an engine-declared physical attack when advancing the PhysicalAttack phase', () => {
+    const session = makeSession();
+    advanceToPhysicalAttack(session);
+    placeUnitsAdjacent(session);
+
+    session.applyPhysicalAttack('unit-player', 'unit-opponent', 'punch');
+    session.advancePhase();
+
+    expect(
+      session
+        .getSession()
+        .events.some(
+          (entry) => entry.type === GameEventType.PhysicalAttackResolved,
+        ),
+    ).toBe(true);
   });
 
   it('hydrates Melee Specialist from unit abilities for physical declaration to-hit', () => {
@@ -240,5 +265,36 @@ describe('InteractiveSession.applyPhysicalAttack', () => {
       isUnderwater: true,
     });
     expect(context.get('unit-opponent')?.isUnderwater).toBe(false);
+  });
+
+  it('rejects public action mutations once the session is completed', () => {
+    const session = makeSession();
+    session.concede(GameSide.Player);
+
+    expect(() =>
+      session.applyMovement(
+        'unit-player',
+        { q: 0, r: MAP_RADIUS },
+        Facing.North,
+        MovementType.Walk,
+      ),
+    ).toThrow('Game is not active');
+    expect(() =>
+      session.applyRuntimeMovementState('unit-player', {
+        source: 'rules_correction',
+        unitHeight: 1,
+      }),
+    ).toThrow('Game is not active');
+    expect(() =>
+      session.applyAttack('unit-player', 'unit-opponent', [
+        'unit-player-medium-laser',
+      ]),
+    ).toThrow('Game is not active');
+    expect(() =>
+      session.applyPhysicalAttack('unit-player', 'unit-opponent', 'punch'),
+    ).toThrow('Game is not active');
+    expect(() => session.declareWithdrawal('unit-player', 'north')).toThrow(
+      'Game is not active',
+    );
   });
 });

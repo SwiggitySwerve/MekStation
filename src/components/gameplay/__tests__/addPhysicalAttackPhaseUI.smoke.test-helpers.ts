@@ -25,6 +25,7 @@ import '@testing-library/jest-dom';
 import type { InteractiveSession } from '@/engine/GameEngine';
 import type {
   IPhysicalAttackInput,
+  PhysicalAttackLimb,
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks/types';
 
@@ -42,6 +43,10 @@ import {
   type IINarcPodState,
   type IPhysicalAttackDeclaredPayload,
 } from '@/types/gameplay';
+import {
+  declarePhysicalAttack,
+  type IPhysicalAttackContext,
+} from '@/utils/gameplay/gameSession';
 
 // ---------------------------------------------------------------------------
 // Shared fixtures
@@ -170,6 +175,29 @@ function buildFakeInteractiveSession(
     concede: () => undefined,
     applyMovement: () => undefined,
     applyAttack: () => undefined,
+    applyPhysicalAttack: (
+      attackerId: string,
+      targetId: string,
+      attackType: PhysicalAttackType,
+      limb?: PhysicalAttackLimb,
+      options?: Partial<IPhysicalAttackContext>,
+    ) => {
+      const attackerState = session.currentState.units[attackerId] ?? null;
+      session = declarePhysicalAttack(
+        session,
+        attackerId,
+        targetId,
+        attackType,
+        {
+          attackerTonnage: 50,
+          targetTonnage: 50,
+          pilotingSkill: 4,
+          hexesMoved: attackerState?.hexesMovedThisTurn ?? 0,
+          ...options,
+          limb,
+        },
+      );
+    },
     __setSession: (nextSession: IGameSession) => {
       session = nextSession;
     },

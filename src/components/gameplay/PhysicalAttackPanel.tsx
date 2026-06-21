@@ -21,7 +21,7 @@
  *  5. Declare button on each eligible row opens the forecast modal
  *     seeded with that row's config. Confirm commits via
  *     `usePhysicalAttackPlanStore.commitPhysicalAttack`, which in turn
- *     calls the engine helper `declarePhysicalAttack` (task 5.3).
+ *     calls `InteractiveSession.applyPhysicalAttack` (task 5.3).
  *  6. After a successful commit the panel collapses to a summary line
  *     (task 5.4) until the player advances past the PhysicalAttack
  *     phase.
@@ -30,7 +30,7 @@
  * @spec openspec/changes/add-physical-attack-phase-ui/specs/physical-attack-system/spec.md
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type {
   IPhysicalAttackOption,
@@ -329,6 +329,21 @@ export function PhysicalAttackPanel({
       targetINarcPods,
     ],
   );
+
+  useEffect(() => {
+    if (
+      physicalAttackPlan.forecastRequestId === undefined ||
+      physicalAttackPlan.targetUnitId === null ||
+      physicalAttackPlan.attackType === null
+    ) {
+      return;
+    }
+    setForecastOpen(true);
+  }, [
+    physicalAttackPlan.attackType,
+    physicalAttackPlan.forecastRequestId,
+    physicalAttackPlan.targetUnitId,
+  ]);
 
   const handleConfirm = useCallback(() => {
     applyPhysicalAttackCommitResult(

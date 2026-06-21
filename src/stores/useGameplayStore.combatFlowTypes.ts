@@ -73,6 +73,7 @@ export interface IPhysicalAttackPlan {
   readonly attackType: PhysicalAttackType | null;
   readonly limb: PhysicalAttackLimb | null;
   readonly twoHandedZweihander: boolean;
+  readonly forecastRequestId?: number;
   readonly selectedINarcPod?: PhysicalAttackINarcPodSelection;
 }
 

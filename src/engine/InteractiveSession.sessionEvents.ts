@@ -65,6 +65,7 @@ function persistInteractiveSessionMatchLogEvent(
   void matchLogStorage
     .appendEvent(session.matchId ?? session.id, event)
     .catch((error: unknown) => {
+      context.markMatchLogDiverged();
       reportMatchLogDivergence(error);
     });
 }

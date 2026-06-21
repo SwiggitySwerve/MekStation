@@ -66,6 +66,8 @@ const MATCH_LOG_DIVERGENCE_MESSAGE =
 interface IAppendAndPersistHarness {
   session: IGameSession;
   appendEvent: (event: IGameEvent) => void;
+  hasMatchLogDiverged: () => boolean;
+  isMatchLogHealthy: () => boolean;
 }
 
 function installFreshIndexedDB(): void {
@@ -363,5 +365,25 @@ describe('InteractiveSession match log persistence wiring', () => {
       message: MATCH_LOG_DIVERGENCE_MESSAGE,
       variant: 'error',
     });
+  });
+
+  it('marks the session match log diverged when persistence rejects', async () => {
+    const error = new Error('IndexedDB write failed');
+    mockAppendMatchEvent.mockRejectedValueOnce(error);
+    const harness = makeAppendHarness();
+    const [event] = makeAppendEvents();
+
+    expect(harness.hasMatchLogDiverged()).toBe(false);
+    expect(harness.isMatchLogHealthy()).toBe(true);
+
+    harness.appendEvent(event);
+    await settlePersistenceRejection();
+
+    expect(harness.hasMatchLogDiverged()).toBe(true);
+    expect(harness.isMatchLogHealthy()).toBe(false);
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      MATCH_LOG_DIVERGENCE_MESSAGE,
+      error,
+    );
   });
 });

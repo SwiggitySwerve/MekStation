@@ -122,6 +122,35 @@ describe('usePhysicalAttackPlanStore', () => {
     expect(payload.limb).toBe('rightArm');
   });
 
+  it('commitPhysicalAttack updates the authoritative engine session', () => {
+    const fakeSession = buildFakeInteractiveSession();
+    const store = usePhysicalAttackPlanStore.getState();
+    store.setPhysicalAttackTarget('defender');
+    store.setPhysicalAttackType('kick', 'rightLeg');
+
+    const next = usePhysicalAttackPlanStore.getState().commitPhysicalAttack({
+      interactiveSession: fakeSession,
+      attackerId: 'attacker',
+      attackerPiloting: 4,
+      attackerTonnage: 50,
+      targetTonnage: 50,
+      hexesMoved: 0,
+    });
+
+    expect(next).toBe(fakeSession.getSession());
+    const declared = fakeSession
+      .getSession()
+      .events.find((e) => e.type === GameEventType.PhysicalAttackDeclared);
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IPhysicalAttackDeclaredPayload;
+    expect(payload).toMatchObject({
+      attackerId: 'attacker',
+      targetId: 'defender',
+      attackType: 'kick',
+      limb: 'rightLeg',
+    });
+  });
+
   it('commitPhysicalAttack emits explicit two-handed Zweihander state', () => {
     const fakeSession = buildFakeInteractiveSession(
       buildSession({ attackerAbilities: ['zweihander'] }),
