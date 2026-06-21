@@ -23,6 +23,15 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IVaultIdentity } from '@/types/vault';
 
+import {
+  API_KDF_RATE_LIMIT,
+  applySecurityHeaders,
+  clientRateLimitKey,
+  parseBody,
+  rateLimit,
+  rejectRateLimited,
+} from '@/lib/api/security';
+import { TokenIssueBodySchema } from '@/lib/api/securitySchemas';
 import { canonicalTokenPayload } from '@/lib/multiplayer/server/auth';
 import { derivePlayerId } from '@/lib/multiplayer/server/playerIdFromPublicKey';
 import { rejectUnexpectedMethod } from '@/pages-modules/api/routeHelpers';
@@ -47,12 +56,6 @@ const MAX_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours hard cap
 // =============================================================================
 // Types
 // =============================================================================
-
-interface IIssueRequestBody {
-  password?: unknown;
-  displayName?: unknown;
-  ttlMs?: unknown;
-}
 
 interface IIssueResponse {
   token: string;
@@ -94,19 +97,27 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<IIssueResponse | IErrorResponse>,
 ): Promise<void> {
+  applySecurityHeaders(res);
   if (rejectUnexpectedMethod(req, res, ['POST'])) return;
 
-  const body = (req.body ?? {}) as IIssueRequestBody;
+  const body = parseBody(
+    TokenIssueBodySchema,
+    req,
+    res,
+    'Password is required',
+  );
+  if (!body) return;
   const { password, displayName, ttlMs } = body;
 
-  if (typeof password !== 'string' || password.length === 0) {
-    res.status(400).json({ error: 'Password is required' });
+  const limit = rateLimit(
+    clientRateLimitKey(req, 'multiplayer-auth-token'),
+    API_KDF_RATE_LIMIT,
+  );
+  if (!limit.ok) {
+    rejectRateLimited(res, limit);
     return;
   }
-  const ttl =
-    typeof ttlMs === 'number' && Number.isFinite(ttlMs) && ttlMs > 0
-      ? Math.min(ttlMs, MAX_TTL_MS)
-      : DEFAULT_TTL_MS;
+  const ttl = ttlMs ? Math.min(ttlMs, MAX_TTL_MS) : DEFAULT_TTL_MS;
 
   // Load + unlock the active identity. We never persist the unlocked
   // identity beyond this request — the decrypted private key lives in
@@ -148,10 +159,7 @@ export default async function handler(
       signature: toBase64(signatureBytes),
     };
 
-    const finalDisplayName =
-      typeof displayName === 'string' && displayName.length > 0
-        ? displayName
-        : identity.displayName;
+    const finalDisplayName = displayName ?? identity.displayName;
 
     res.status(200).json({
       token: encodeTokenForWire(token),

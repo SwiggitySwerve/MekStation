@@ -88,6 +88,8 @@
     "electron:install": "cd desktop && npm install",
     "electron:dev": "cd desktop && npm run dev:full",
     "electron:build": "npm run build && cd desktop && npm run build",
+    "electron:typecheck": "cd desktop && npm run type-check",
+    "electron:test": "cd desktop && npm test",
     "electron:pack": "npm run electron:build && cd desktop && npm run pack",
     "electron:dist": "npm run electron:build && cd desktop && npm run dist",
     "electron:dist:win": "npm run electron:build && cd desktop && npm run dist:win",

@@ -523,6 +523,44 @@ jobs:
             test-results
           retention-days: 7
 
+  desktop-typecheck:
+    name: Desktop Type Check
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
+      - name: Run desktop type check
+        working-directory: desktop
+        run: npm run type-check
+
+  desktop-tests:
+    name: Desktop Tests
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
+      - name: Run desktop Jest suite
+        working-directory: desktop
+        run: npm test -- --runInBand
+
   # Aggregator that preserves the "Lint and Test" required-check name
   # from before the fan-out. Passes only if every fan-out job passed.
   lint-and-test:
@@ -544,6 +582,8 @@ jobs:
         schema-bridge,
         determinism-audit,
         e2e-smoke,
+        desktop-typecheck,
+        desktop-tests,
       ]
     runs-on: ubuntu-latest
     timeout-minutes: 1

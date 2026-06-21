@@ -1,11 +1,12 @@
 import { spawn } from 'child_process';
-import { app, BrowserWindow, dialog, screen, shell } from 'electron';
+import { app, BrowserWindow, dialog, screen, session, shell } from 'electron';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
 import { RecentFilesService } from '../services/local/RecentFilesService';
 import { SettingsService } from '../services/local/SettingsService';
 import { IDesktopAppConfig } from './main.config';
+import { buildSecurityHeaders } from './securityPolicy';
 
 interface ICreateMainWindowContext {
   readonly appPath: string;
@@ -19,6 +20,8 @@ interface ICreateMainWindowContext {
   readonly userDataPath: string;
 }
 
+let securityHeadersInstalled = false;
+
 export async function createMainWindow({
   appPath,
   config,
@@ -31,6 +34,11 @@ export async function createMainWindow({
   userDataPath,
 }: ICreateMainWindowContext): Promise<BrowserWindow> {
   console.log('Creating main window...');
+  const appOrigin = config.developmentMode
+    ? 'http://localhost:3600'
+    : 'http://127.0.0.1:3001';
+
+  installDesktopSecurityHeaders(config.developmentMode);
 
   const settings = settingsService?.getAll();
   const savedBounds = settings?.rememberWindowState
@@ -77,6 +85,7 @@ export async function createMainWindow({
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
+      sandbox: true,
       webSecurity: !config.developmentMode,
     },
     icon: getAppIcon(),
@@ -116,7 +125,7 @@ export async function createMainWindow({
   });
 
   if (config.developmentMode) {
-    await mainWindow.loadURL('http://localhost:3600');
+    await mainWindow.loadURL(appOrigin);
     mainWindow.webContents.openDevTools();
   } else {
     await loadPackagedUi(mainWindow, appPath, userDataPath);
@@ -142,13 +151,52 @@ export async function createMainWindow({
     }
   });
 
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (!isAllowedAppNavigation(url, appOrigin)) {
+      event.preventDefault();
+    }
+  });
+
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
+    if (isAllowedExternalUrl(url)) {
+      void shell.openExternal(url);
+    }
     return { action: 'deny' };
   });
 
   console.log('Main window created successfully');
   return mainWindow;
+}
+
+function installDesktopSecurityHeaders(developmentMode: boolean): void {
+  if (securityHeadersInstalled) return;
+  securityHeadersInstalled = true;
+
+  const headers = buildSecurityHeaders(developmentMode);
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    const responseHeaders = { ...details.responseHeaders };
+    for (const header of headers) {
+      responseHeaders[header.key] = [header.value];
+    }
+    callback({ responseHeaders });
+  });
+}
+
+function isAllowedAppNavigation(url: string, expectedOrigin: string): boolean {
+  try {
+    return new URL(url).origin === expectedOrigin;
+  } catch {
+    return false;
+  }
+}
+
+function isAllowedExternalUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' || parsed.protocol === 'mailto:';
+  } catch {
+    return false;
+  }
 }
 
 async function loadPackagedUi(

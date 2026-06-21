@@ -3,6 +3,6 @@
   "compilerOptions": {
     "types": ["node", "jest"]
   },
-  "include": ["services/**/*", "types/**/*"],
+  "include": ["electron/**/*", "services/**/*", "types/**/*"],
   "exclude": ["node_modules", "dist"]
 }

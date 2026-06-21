@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import * as fs from 'fs/promises';
+import * as path from 'path';
 
 import { LocalStorageService } from '../services/local/LocalStorageService';
 import {
@@ -15,6 +16,10 @@ import {
   SETTINGS_IPC_CHANNELS,
 } from '../types/BaseTypes';
 import { MenuManager } from './MenuManager';
+import {
+  PATH_OUTSIDE_SANDBOX_ERROR,
+  resolveWithinSandbox,
+} from './pathSandbox';
 
 interface IMainIpcContext {
   readonly checkForUpdates: () => Promise<void>;
@@ -42,6 +47,18 @@ export function setupIpcHandlers({
   userDataPath,
 }: IMainIpcContext): void {
   console.log('Setting up IPC handlers...');
+
+  const getDataRoots = (): readonly string[] => [
+    path.join(userDataPath, 'data'),
+    getBackupRoot(),
+  ];
+  const getBackupRoots = (): readonly string[] => [getBackupRoot()];
+  const getBackupRoot = (): string => {
+    const backupDirectory = getSettingsService()?.getAll().backupDirectory;
+    return backupDirectory && backupDirectory.trim().length > 0
+      ? backupDirectory
+      : path.join(userDataPath, 'backups');
+  };
 
   ipcMain.handle(SETTINGS_IPC_CHANNELS.GET, () => {
     return getSettingsService()?.getAll() ?? null;
@@ -157,7 +174,10 @@ export function setupIpcHandlers({
 
   ipcMain.handle('read-file', async (_event, filePath: string) => {
     try {
-      const data = await fs.readFile(filePath, 'utf-8');
+      const safePath = await resolveWithinSandbox(filePath, getDataRoots(), {
+        targetMustExist: true,
+      });
+      const data = await fs.readFile(safePath, 'utf-8');
       return { success: true, data };
     } catch (error) {
       return {
@@ -171,7 +191,8 @@ export function setupIpcHandlers({
     'write-file',
     async (_event, filePath: string, data: string) => {
       try {
-        await fs.writeFile(filePath, data, 'utf-8');
+        const safePath = await resolveWithinSandbox(filePath, getDataRoots());
+        await fs.writeFile(safePath, data, 'utf-8');
         return { success: true };
       } catch (error) {
         return {
@@ -239,7 +260,24 @@ export function setupIpcHandlers({
   });
 
   ipcMain.handle('restore-backup', async (_event, backupPath: string) => {
-    return await restoreBackup(backupPath);
+    try {
+      const safePath = await resolveWithinSandbox(
+        backupPath,
+        getBackupRoots(),
+        {
+          targetMustExist: true,
+        },
+      );
+      return await restoreBackup(safePath);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === PATH_OUTSIDE_SANDBOX_ERROR
+      ) {
+        return false;
+      }
+      return false;
+    }
   });
 
   console.log('IPC handlers setup complete');
