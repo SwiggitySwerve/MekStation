@@ -233,6 +233,8 @@ export interface IQuickGameActions {
   startBattle: () => Promise<void>;
   /** Launch spectator mode (AI vs AI) via InteractiveSession */
   startSpectatorMode: () => Promise<void>;
+  /** Launch a human-controlled skirmish via InteractiveSession */
+  startInteractiveSkirmish: () => Promise<void>;
   /** Record a game event */
   recordEvent: (event: IGameEvent) => void;
   /** End the game */

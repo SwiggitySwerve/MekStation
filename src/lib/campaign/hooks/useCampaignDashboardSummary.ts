@@ -17,6 +17,7 @@
  */
 
 import { useMemo } from 'react';
+import { useStore } from 'zustand';
 
 import type { IActivityLogEntry } from '@/types/campaign/ActivityLog';
 import type { ICampaign } from '@/types/campaign/Campaign';
@@ -273,9 +274,8 @@ function extractForceSnapshot(
  */
 export function useCampaignDashboardSummary(): IDashboardSummary | null {
   const store = useCampaignStore();
-  const state = store.getState();
-  const campaign = state.campaign;
-  const activityLog = state.activityLog;
+  const campaign = useStore(store, (state) => state.campaign);
+  const activityLog = useStore(store, (state) => state.activityLog);
 
   return useMemo<IDashboardSummary | null>(() => {
     if (!campaign) return null;

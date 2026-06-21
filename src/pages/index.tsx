@@ -22,6 +22,28 @@ interface NavigationCard {
 
 const navigationCards: NavigationCard[] = [
   {
+    href: '/onboarding',
+    title: 'Onboarding',
+    description: 'Learn the core flow and glossary before your first fight',
+    accent: 'from-sky-600 to-indigo-700',
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="h-8 w-8"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 18.75a6.75 6.75 0 100-13.5 6.75 6.75 0 000 13.5zM12 8.25v4.5l3 1.5M4.5 19.5h15"
+        />
+      </svg>
+    ),
+  },
+  {
     href: '/compendium',
     title: 'Compendium',
     description: 'Browse canonical units, equipment, and construction rules',
