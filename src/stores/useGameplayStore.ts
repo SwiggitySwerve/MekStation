@@ -23,6 +23,7 @@ import { create } from 'zustand';
 import type { InteractiveSession } from '@/engine/GameEngine';
 import type { IRuntimeMovementStateChangedPayload } from '@/types/gameplay/GameSessionMovementEvents';
 
+import { recoverInteractiveSession } from '@/engine/InteractiveSession';
 import {
   DEFAULT_UI_STATE,
   GamePhase,
@@ -301,7 +302,13 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   // Session lifecycle (delegated to useGameplayStore.session)
   // -------------------------------------------------------------------------
   loadSession: (sessionId) =>
-    loadSessionLogic(sessionId, get, set, () => get().createDemoSession()),
+    loadSessionLogic(
+      sessionId,
+      get,
+      set,
+      () => get().createDemoSession(),
+      recoverInteractiveSession,
+    ),
   createDemoSession: () => createDemoSessionLogic(set),
   setSession: (session) => {
     set({ session, isLoading: false, error: null });

@@ -79,6 +79,7 @@ import {
   runInteractiveSessionAI,
 } from './InteractiveSession.lifecycle';
 import {
+  hydrateRecoverableSessionFromMatchLog,
   hydrateSessionFromMatchLog,
   type MatchLogHydrationStorage,
 } from './InteractiveSession.persistence';
@@ -588,4 +589,12 @@ export class InteractiveSession {
   getOutcome = (options: IDeriveCombatOutcomeOptions = {}): ICombatOutcome => {
     return getInteractiveSessionOutcome(this.runtimeContext, options);
   };
+}
+
+export async function recoverInteractiveSession(
+  matchId: string,
+  storage: MatchLogHydrationStorage = matchLogStorage,
+): Promise<InteractiveSession> {
+  const session = await hydrateRecoverableSessionFromMatchLog(matchId, storage);
+  return InteractiveSession.fromSessionAsync(session);
 }

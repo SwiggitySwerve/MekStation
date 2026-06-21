@@ -2,12 +2,14 @@ import type { NextRouter } from 'next/router';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import type { InteractiveSession } from '@/engine/GameEngine';
 import type { IGameSession } from '@/types/gameplay';
 
 import {
   deriveReconnectRoomCode,
   useP2PReconnectSession,
 } from '@/hooks/useP2PReconnectSession';
+import { GameStatus } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
 
 interface GameSessionLifecycleParams {
@@ -15,10 +17,50 @@ interface GameSessionLifecycleParams {
   readonly routeId: string | string[] | undefined;
   readonly matchId: string | null;
   readonly session: IGameSession | null;
+  readonly interactiveSession: InteractiveSession | null;
+  readonly isSpectatorMode: boolean;
   readonly isCompletedForRedirect: boolean;
   readonly isCampaignBound: boolean;
   readonly loadSession: (id: string) => Promise<void>;
   readonly createDemoSession: () => void;
+}
+
+export const ACTIVE_INTERACTIVE_BATTLE_UNLOAD_MESSAGE =
+  'Leaving now interrupts the active battle. Your match is saved locally when possible, but recovery may be unavailable in this browser state.';
+
+export function shouldWarnBeforeInteractiveBattleUnload(params: {
+  readonly routeId: string | string[] | undefined;
+  readonly session: IGameSession | null;
+  readonly interactiveSession: InteractiveSession | null;
+  readonly isSpectatorMode: boolean;
+}): boolean {
+  return Boolean(
+    params.session &&
+    params.interactiveSession &&
+    typeof params.routeId === 'string' &&
+    params.routeId !== 'demo' &&
+    !params.isSpectatorMode &&
+    params.session.currentState.status !== GameStatus.Completed,
+  );
+}
+
+export function useInteractiveBattleBeforeUnloadWarning(
+  shouldWarn: boolean,
+): void {
+  useEffect(() => {
+    if (!shouldWarn) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent): string => {
+      event.preventDefault();
+      event.returnValue = ACTIVE_INTERACTIVE_BATTLE_UNLOAD_MESSAGE;
+      return ACTIVE_INTERACTIVE_BATTLE_UNLOAD_MESSAGE;
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [shouldWarn]);
 }
 
 function loadRouteSession(
@@ -126,6 +168,8 @@ export function useGameSessionLifecycle({
   routeId,
   matchId,
   session,
+  interactiveSession,
+  isSpectatorMode,
   isCompletedForRedirect,
   isCampaignBound,
   loadSession,
@@ -148,6 +192,15 @@ export function useGameSessionLifecycle({
   useP2PReconnectSession(matchId, {
     redirectToLobby: redirectReconnectToLobby,
   });
+
+  useInteractiveBattleBeforeUnloadWarning(
+    shouldWarnBeforeInteractiveBattleUnload({
+      routeId,
+      session,
+      interactiveSession,
+      isSpectatorMode,
+    }),
+  );
 
   useEffect(() => {
     loadRouteSession(routeId, loadSession, createDemoSession);

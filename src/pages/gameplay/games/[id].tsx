@@ -99,6 +99,8 @@ export default function GameSessionPage(): React.ReactElement {
     routeId: id,
     matchId: matchIdStr,
     session,
+    interactiveSession,
+    isSpectatorMode: Boolean(spectatorMode?.enabled),
     isCompletedForRedirect,
     isCampaignBound,
     loadSession,
