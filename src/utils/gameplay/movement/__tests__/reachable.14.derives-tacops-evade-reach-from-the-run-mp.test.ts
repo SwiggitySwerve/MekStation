@@ -59,8 +59,12 @@ it('derives TacOps Sprint reach from the sprint MP envelope using run terrain co
   expect(
     sprint.every((entry) => entry.movementType === MovementType.Sprint),
   ).toBe(true);
-  expect(sprint.every((entry) => entry.mpCost <= 10)).toBe(true);
-  expect(sprint.some((entry) => entry.mpCost > 8)).toBe(true);
+  const reachableSprint = sprint.filter((entry) => entry.reachable);
+  expect(reachableSprint.every((entry) => entry.mpCost <= 10)).toBe(true);
+  expect(reachableSprint.some((entry) => entry.mpCost > 8)).toBe(true);
+  expect(
+    sprint.some((entry) => !entry.reachable && (entry.turningCost ?? 0) > 0),
+  ).toBe(true);
 });
 
 it('uses heat-penalized MP for movement overlays', () => {

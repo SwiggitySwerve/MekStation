@@ -153,6 +153,7 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
     const mountaineer = { pilotAbilities: ['tm_mountaineer'] };
     const mountaineerUnit = {
       ...unitAtOrigin(),
+      facing: Facing.Southeast,
       abilities: ['tm_mountaineer'],
     };
     let grid = createHexGrid({ radius: 3 });

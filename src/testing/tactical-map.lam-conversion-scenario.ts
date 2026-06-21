@@ -17,6 +17,7 @@ import {
   createTacticalMapPlayerMechToken,
   createTacticalMapTerrainGrid,
   createTacticalMapUnitState,
+  facingForTacticalMapProjection,
   requireTacticalMapMovementProjection,
 } from './tactical-map.fixture-helpers';
 import { tacticalMapHexTerrain } from './tactical-map.fixtures';
@@ -59,7 +60,7 @@ const tacticalMapLamMekUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: tacticalMapLamConversionOrigin,
-  facing: Facing.Northeast,
+  facing: Facing.Southeast,
   conversionMode: 'mek',
 });
 
@@ -301,7 +302,10 @@ export function tacticalMapLamMekCommitInput(): ICommittedMovementValidationInpu
     grid: tacticalMapLamConversionGrid(),
     unit: tacticalMapLamMekUnit,
     to: tacticalMapLamConversionClimb,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      tacticalMapLamMekMovementRange[0],
+      tacticalMapLamMekUnit.facing,
+    ),
     movementType: MovementType.Walk,
     capability: tacticalMapLamCapability,
     path: tacticalMapLamConversionPath,
@@ -313,7 +317,10 @@ export function tacticalMapLamAirMekCommitInput(): ICommittedMovementValidationI
     grid: tacticalMapLamConversionGrid(),
     unit: tacticalMapLamAirMekUnit,
     to: tacticalMapLamConversionClimb,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      tacticalMapLamAirMekMovementRange[0],
+      tacticalMapLamAirMekUnit.facing,
+    ),
     movementType: MovementType.Walk,
     capability: tacticalMapLamCapability,
     path: tacticalMapLamConversionPath,
@@ -325,7 +332,10 @@ export function tacticalMapLamAirMekLongCruiseCommitInput(): ICommittedMovementV
     grid: tacticalMapLamAirMekLongCruiseGrid(),
     unit: tacticalMapLamAirMekUnit,
     to: tacticalMapLamAirMekLongCruiseDestination,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      tacticalMapLamAirMekLongCruiseMovementRange[0],
+      tacticalMapLamAirMekUnit.facing,
+    ),
     movementType: MovementType.Walk,
     capability: tacticalMapLamCapability,
     path: tacticalMapLamAirMekLongCruisePath,
@@ -337,7 +347,10 @@ export function tacticalMapLamFighterCommitInput(): ICommittedMovementValidation
     grid: tacticalMapLamFighterConversionGrid(),
     unit: tacticalMapLamFighterUnit,
     to: tacticalMapLamFighterConversionClimb,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      tacticalMapLamFighterMovementRange[0],
+      tacticalMapLamFighterUnit.facing,
+    ),
     movementType: MovementType.Walk,
     capability: tacticalMapLamCapability,
     path: [

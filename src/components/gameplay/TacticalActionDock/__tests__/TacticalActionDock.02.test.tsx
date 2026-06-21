@@ -188,9 +188,11 @@ describe('TacticalActionDock', () => {
     );
     expect(preview).toHaveAttribute('data-command-preview-mp-cost', '6');
     expect(preview).toHaveAttribute('data-command-preview-heat', '2');
+    expect(preview).toHaveAttribute('data-command-preview-turning-cost', '1');
     expect(preview).toHaveAttribute('data-command-preview-unreachable', 'true');
     expect(preview).toHaveTextContent('Blocked Move');
     expect(preview).toHaveTextContent('Terrain +1');
+    expect(preview).toHaveTextContent('Turning +1');
     expect(preview).toHaveTextContent('Elevation +2');
     expect(screen.getByTestId('command-preview-reason')).toHaveTextContent(
       'Destination is blocked by terrain',

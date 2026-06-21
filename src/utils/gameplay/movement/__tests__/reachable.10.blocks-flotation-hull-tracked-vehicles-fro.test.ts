@@ -40,7 +40,7 @@ it('blocks flotation-hull tracked vehicles from running into water after the fir
     terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const tracked = deriveReachableHexes(unit, MovementType.Run, grid, {
     walkMP: 4,
@@ -68,7 +68,7 @@ it('lets fully amphibious tracked vehicles run into water with amphibious MP cos
     terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const tracked = deriveReachableHexes(unit, MovementType.Run, grid, {
     walkMP: 4,
@@ -91,7 +91,7 @@ it('lets VTOL motive ignore abrupt elevation changes for reachability', () => {
   let grid = createHexGrid({ radius: 3 });
   grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
   grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 4);
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const cap: IMovementCapability = {
     walkMP: 3,
     runMP: 5,
@@ -115,7 +115,7 @@ it('lets WiGE motive ignore ground terrain and abrupt elevation like an airborne
   let grid = createHexGrid({ radius: 3 });
   grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
   grid = setHex(grid, { q: 1, r: 0 }, TerrainType.HeavyWoods, 4);
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const result = deriveReachableHexes(unit, MovementType.Walk, grid, {
     walkMP: 3,
@@ -145,7 +145,7 @@ it('charges WiGE climb-mode MP when entering a higher represented building top',
     terrainStringFromFeatures([{ type: TerrainType.Building, level: 3 }]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const capability: IMovementCapability = {
     walkMP: 3,
     runMP: 5,

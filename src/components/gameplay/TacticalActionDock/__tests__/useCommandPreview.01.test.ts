@@ -77,6 +77,7 @@ describe('buildCommandPreview', () => {
       hex: { q: 2, r: 0 },
       mpCost: 5,
       terrainCost: 2,
+      turningCost: 1,
       elevationDelta: 1,
       elevationCost: 1,
       path: [
@@ -108,6 +109,7 @@ describe('buildCommandPreview', () => {
       expect(preview.mode).toBe('run');
       expect(preview.movementMode).toBe('tracked');
       expect(preview.terrainCost).toBe(2);
+      expect(preview.turningCost).toBe(1);
       expect(preview.elevationDelta).toBe(1);
       expect(preview.elevationCost).toBe(1);
       expect(preview.heatGenerated).toBe(2);

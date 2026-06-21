@@ -18,6 +18,7 @@ import {
 } from '@/types/gameplay';
 import { createHexGrid } from '@/utils/gameplay/hexGrid';
 import { coordToKey } from '@/utils/gameplay/hexMath';
+import { facingForPathEnd } from '@/utils/gameplay/movement/eventPath';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
 type TacticalMapUnitStateInput = Pick<
@@ -222,4 +223,11 @@ export function requireTacticalMapMovementProjection(
   }
 
   return projection;
+}
+
+export function facingForTacticalMapProjection(
+  projection: IMovementRangeHex | null | undefined,
+  fallback: Facing,
+): Facing {
+  return facingForPathEnd(projection?.path ?? [], fallback);
 }

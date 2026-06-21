@@ -35,7 +35,14 @@ describe('deriveMovementRangeHexForDestination', () => {
     let grid = createHexGrid({ radius: 5 });
     grid = setHex(grid, { q: 1, r: 0 }, TerrainType.LightWoods, 0);
     grid = setHex(grid, { q: 0, r: 1 }, TerrainType.Clear, 1);
-    const unit = makeUnitAtOrigin();
+    const southeastFacingUnit = {
+      ...makeUnitAtOrigin(),
+      facing: Facing.Southeast,
+    };
+    const southFacingUnit = {
+      ...makeUnitAtOrigin(),
+      facing: Facing.South,
+    };
     const cap: IMovementCapability = {
       walkMP: 1,
       runMP: 1,
@@ -45,14 +52,14 @@ describe('deriveMovementRangeHexForDestination', () => {
     };
 
     const woodsProjection = deriveMovementRangeHexForDestination(
-      unit,
+      southeastFacingUnit,
       MovementType.Walk,
       grid,
       cap,
       { q: 1, r: 0 },
     );
     const elevationProjection = deriveMovementRangeHexForDestination(
-      unit,
+      southFacingUnit,
       MovementType.Walk,
       grid,
       cap,

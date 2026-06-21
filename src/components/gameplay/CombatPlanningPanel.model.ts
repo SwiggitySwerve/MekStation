@@ -5,21 +5,39 @@ import type {
 } from '@/stores/useGameplayStore.combatFlowTypes';
 import type { ISelectedUnitProjection } from '@/stores/useGameplayStore.selectors';
 import type {
+  ICombatRangeHex,
   IAttackerState,
   IGameSession,
+  IHexGrid,
   IHexCoordinate,
   ITargetState,
+  IUnitToken,
+  IWeaponStatus,
   WeaponFireMode,
 } from '@/types/gameplay';
 import type { IForecastInput } from '@/utils/gameplay/toHit/forecast';
 
+import { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
 import { MovementType } from '@/types/gameplay';
-import { hexDistance } from '@/utils/gameplay/hexMath';
+import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
+import { selectCombatProjectionWeapons } from '@/utils/gameplay/combatProjection.weaponSelection';
 
 interface MovementPlanMetrics {
   readonly movementType: MovementType;
   readonly mpCost: number;
   readonly jumpHexes?: number;
+}
+
+interface AttackTargetProjectionInput {
+  readonly selected: ISelectedUnitProjection | null;
+  readonly targetUnitId: string | null;
+  readonly session: IGameSession | null;
+  readonly grid: IHexGrid | null;
+  readonly unitWeaponStatuses: readonly IWeaponStatus[];
+  readonly selectedWeaponIds?: readonly string[];
+  readonly combatProjectionByTargetId?: Readonly<
+    Record<string, ICombatRangeHex>
+  >;
 }
 
 export function createMovementPlan(
@@ -66,20 +84,53 @@ export function selectedWeaponModesForUnit(
   return weaponModesByUnitId[selected.id] ?? {};
 }
 
-export function rangeToAttackTarget(
-  selected: ISelectedUnitProjection | null,
-  targetUnitId: string | null,
-  session: IGameSession | null,
-): number {
-  if (!selected || !targetUnitId || !session) return 0;
+export function combatProjectionForAttackTarget({
+  selected,
+  targetUnitId,
+  session,
+  grid,
+  unitWeaponStatuses,
+  selectedWeaponIds,
+  combatProjectionByTargetId,
+}: AttackTargetProjectionInput): ICombatRangeHex | null {
+  if (!targetUnitId) return null;
+
+  const lookupProjection = combatProjectionByTargetId?.[targetUnitId];
+  if (lookupProjection) return lookupProjection;
+
+  if (!selected || !session || !grid) return null;
 
   const targetState = session.currentState.units[targetUnitId];
-  if (!targetState) return 0;
+  if (!targetState) return null;
 
-  return hexDistance(
-    selected.state.position as IHexCoordinate,
-    targetState.position as IHexCoordinate,
+  const tokens = buildCombatProjectionTokens({
+    selectedUnitId: selected.id,
+    targetUnitId,
+    session,
+  });
+  const attacker = tokens.find((token) => token.unitId === selected.id);
+  if (!attacker) return null;
+
+  return (
+    deriveCombatRangeHexes({
+      attacker,
+      targetUnitId,
+      hexes: [targetState.position as IHexCoordinate],
+      grid,
+      tokens,
+      weapons: selectCombatProjectionWeapons(
+        unitWeaponStatuses,
+        selectedWeaponIds,
+      ),
+      combatState: session.currentState,
+    })[0] ?? null
   );
+}
+
+export function rangeToAttackTarget(
+  input: AttackTargetProjectionInput,
+): number {
+  return combatProjectionForAttackTarget(input)?.distance ?? 0;
 }
 
 export function attackerStateForSelected(
@@ -135,4 +186,31 @@ function weaponToForecastInput(weapon: IWeapon): IForecastInput {
 
 function sameHex(a: IHexCoordinate, b: IHexCoordinate): boolean {
   return a.q === b.q && a.r === b.r;
+}
+
+function buildCombatProjectionTokens({
+  selectedUnitId,
+  targetUnitId,
+  session,
+}: {
+  readonly selectedUnitId: string;
+  readonly targetUnitId: string;
+  readonly session: IGameSession;
+}): readonly IUnitToken[] {
+  return Object.entries(session.currentState.units).map(([unitId, state]) => {
+    const unit = session.units.find((candidate) => candidate.id === unitId);
+    return unitStateToToken(
+      unitId,
+      state,
+      {
+        name: unit?.name ?? unitId,
+        side: unit?.side ?? state.side,
+      },
+      {
+        isSelected: unitId === selectedUnitId,
+        isActiveTarget: unitId === targetUnitId,
+        isValidTarget: unitId === targetUnitId,
+      },
+    );
+  });
 }

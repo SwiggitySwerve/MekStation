@@ -19,6 +19,7 @@ import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/
 import {
   createTacticalMapTerrainGrid,
   createTacticalMapUnitState,
+  facingForTacticalMapProjection,
   overrideTacticalMapTokens,
   requireTacticalMapMovementProjection,
 } from './tactical-map.fixture-helpers';
@@ -35,7 +36,7 @@ const tacticalMapRunWaterFallbackUnit: IUnitGameState =
     id: 'attacker',
     side: GameSide.Player,
     position: tacticalMapRunWaterFallbackOrigin,
-    facing: Facing.Northeast,
+    facing: Facing.Southeast,
   });
 
 const tacticalMapRunWaterFallbackCapability: IMovementCapability = {
@@ -153,7 +154,10 @@ export function tacticalMapRunWaterFallbackCommitInput(): ICommittedMovementVali
     grid: tacticalMapRunWaterFallbackGrid(),
     unit: tacticalMapRunWaterFallbackUnit,
     to: plan.destination,
-    facing: plan.facing,
+    facing: facingForTacticalMapProjection(
+      projected,
+      tacticalMapRunWaterFallbackUnit.facing,
+    ),
     movementType: plan.movementType,
     capability: tacticalMapRunWaterFallbackCapability,
     path: plan.path,

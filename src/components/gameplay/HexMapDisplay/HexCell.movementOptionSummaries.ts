@@ -97,6 +97,7 @@ function movementRangeOptionFor(
     reachable: movementInfo.reachable,
     mpCost: movementInfo.mpCost,
     terrainCost: movementInfo.terrainCost,
+    turningCost: movementInfo.turningCost,
     elevationDelta: movementInfo.elevationDelta,
     elevationCost: movementInfo.elevationCost,
     heatGenerated: movementInfo.heatGenerated,
@@ -225,6 +226,12 @@ export function movementOptionTerrainCostsAttribute(
   return movementOptionAttribute(options, (option) => option.terrainCost);
 }
 
+export function movementOptionTurningCostsAttribute(
+  options: readonly IMovementRangeModeOption[],
+): string | undefined {
+  return movementOptionAttribute(options, (option) => option.turningCost);
+}
+
 export function movementOptionElevationDeltasAttribute(
   options: readonly IMovementRangeModeOption[],
 ): string | undefined {
@@ -344,6 +351,9 @@ function formatMovementOptionCostBreakdown(
   const parts: string[] = [];
   if (option.terrainCost !== undefined) {
     parts.push(`terrain ${formatSignedCost(option.terrainCost)}`);
+  }
+  if (option.turningCost !== undefined) {
+    parts.push(`turning ${formatSignedCost(option.turningCost)}`);
   }
   if (
     option.elevationDelta !== undefined ||

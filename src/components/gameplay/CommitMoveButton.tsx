@@ -32,6 +32,8 @@ export interface CommitMoveButtonProps {
   movementMode?: string;
   /** Terrain modifier paid on the final step into the destination hex. */
   terrainCost?: number;
+  /** MP charged for facing changes along the projected path. */
+  turningCost?: number;
   /** Elevation delta from the previous path hex into the destination hex. */
   elevationDelta?: number;
   /** Elevation MP paid on the final step into the destination hex. */
@@ -52,6 +54,7 @@ export function CommitMoveButton({
   movementHeatProfile,
   movementMode,
   terrainCost,
+  turningCost,
   elevationDelta,
   elevationCost,
   jumpHexes,
@@ -64,6 +67,7 @@ export function CommitMoveButton({
   const hasRulesSummary =
     movementMode !== undefined ||
     terrainCost !== undefined ||
+    turningCost !== undefined ||
     elevationDelta !== undefined ||
     elevationCost !== undefined;
 
@@ -82,6 +86,7 @@ export function CommitMoveButton({
         <MovementCommitSummary
           movementMode={movementMode}
           terrainCost={terrainCost}
+          turningCost={turningCost}
           elevationDelta={elevationDelta}
           elevationCost={elevationCost}
         />
@@ -102,6 +107,7 @@ export function CommitMoveButton({
 interface MovementCommitSummaryProps {
   readonly movementMode?: string;
   readonly terrainCost?: number;
+  readonly turningCost?: number;
   readonly elevationDelta?: number;
   readonly elevationCost?: number;
 }
@@ -130,12 +136,14 @@ function formatSigned(value: number): string {
 function MovementCommitSummary({
   movementMode,
   terrainCost,
+  turningCost,
   elevationDelta,
   elevationCost,
 }: MovementCommitSummaryProps): React.ReactElement {
   const summaryParts = [
     movementMode ? `mode ${movementMode}` : null,
     terrainCost !== undefined ? `terrain cost ${terrainCost}` : null,
+    turningCost !== undefined ? `turning cost ${turningCost}` : null,
     elevationDelta !== undefined
       ? `elevation delta ${formatSigned(elevationDelta)}`
       : null,
@@ -149,6 +157,7 @@ function MovementCommitSummary({
       data-testid="movement-commit-summary"
       data-movement-mode={movementMode}
       data-terrain-cost={terrainCost}
+      data-turning-cost={turningCost}
       data-elevation-delta={elevationDelta}
       data-elevation-cost={elevationCost}
     >
@@ -162,6 +171,12 @@ function MovementCommitSummary({
         <div>
           <dt className="font-semibold text-gray-500">Terrain</dt>
           <dd>{formatSigned(terrainCost)} MP</dd>
+        </div>
+      )}
+      {turningCost !== undefined && (
+        <div>
+          <dt className="font-semibold text-gray-500">Turning</dt>
+          <dd>{formatSigned(turningCost)} MP</dd>
         </div>
       )}
       {elevationDelta !== undefined && (

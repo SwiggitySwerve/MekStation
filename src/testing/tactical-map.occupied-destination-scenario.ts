@@ -131,6 +131,19 @@ export const tacticalMapOccupiedDestinationMovementRange: readonly IMovementRang
     ),
   ];
 
+export const tacticalMapOccupiedDestinationJumpMovementRange: readonly IMovementRangeHex[] =
+  [
+    requireOccupiedDestinationMovementProjection(
+      deriveMovementRangeHexForDestination(
+        tacticalMapOccupiedDestinationUnit,
+        MovementType.Jump,
+        tacticalMapOccupiedDestinationGrid(),
+        tacticalMapOccupiedDestinationCapability,
+        tacticalMapOccupiedDestinationHex,
+      ),
+    ),
+  ];
+
 export const tacticalMapOccupiedDestinationMpLegend: MapMovementPointLegendState =
   {
     active: 'walk',
@@ -148,6 +161,21 @@ export function tacticalMapOccupiedDestinationCommitInput(): ICommittedMovementV
     to: tacticalMapOccupiedDestinationHex,
     facing: Facing.Northeast,
     movementType: MovementType.Walk,
+    capability: tacticalMapOccupiedDestinationCapability,
+    path: [
+      tacticalMapOccupiedDestinationOrigin,
+      tacticalMapOccupiedDestinationHex,
+    ],
+  };
+}
+
+export function tacticalMapOccupiedDestinationJumpCommitInput(): ICommittedMovementValidationInput {
+  return {
+    grid: tacticalMapOccupiedDestinationGrid(),
+    unit: tacticalMapOccupiedDestinationUnit,
+    to: tacticalMapOccupiedDestinationHex,
+    facing: Facing.Northeast,
+    movementType: MovementType.Jump,
     capability: tacticalMapOccupiedDestinationCapability,
     path: [
       tacticalMapOccupiedDestinationOrigin,

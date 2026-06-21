@@ -34,7 +34,7 @@ it('marks ground destinations blocked when they require an illegal elevation cli
   let grid = createHexGrid({ radius: 3 });
   grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
   grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 3);
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const cap: IMovementCapability = { walkMP: 5, runMP: 8, jumpMP: 0 };
 
   const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
@@ -58,7 +58,7 @@ it('uses MegaMek vehicle elevation limits for tracked movement reachability', ()
   let grid = createHexGrid({ radius: 3 });
   grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
   grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 2);
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
     walkMP: 5,
@@ -96,7 +96,7 @@ it('uses MegaMek absolute elevation costs for downhill ground movement', () => {
   let grid = createHexGrid({ radius: 3 });
   grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 2);
   grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const downhill = deriveReachableHexes(unit, MovementType.Walk, grid, {
     walkMP: 3,
@@ -137,7 +137,7 @@ it('marks destinations over the MP budget with the engine insufficient-MP reason
   let grid = createHexGrid({ radius: 3 });
   grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
   grid = setHex(grid, { q: 1, r: 0 }, TerrainType.LightWoods, 0);
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const cap: IMovementCapability = { walkMP: 1, runMP: 1, jumpMP: 0 };
 
   const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
@@ -158,7 +158,7 @@ it('uses vehicle motive mode when pricing terrain for reachability', () => {
   let grid = createHexGrid({ radius: 3 });
   grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
   grid = setHex(grid, { q: 1, r: 0 }, TerrainType.LightWoods, 0);
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const cap: IMovementCapability = {
     walkMP: 3,
     runMP: 5,
@@ -184,7 +184,7 @@ it('allows walking through depth-1 water while blocking tracked entry', () => {
   let grid = createHexGrid({ radius: 3 });
   grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
   grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Water, 0);
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const walking = deriveReachableHexes(unit, MovementType.Walk, grid, {
     walkMP: 3,

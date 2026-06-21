@@ -21,6 +21,7 @@ import { terrainFeaturesFromString } from '@/utils/gameplay/terrainEncoding';
 
 import {
   createTacticalMapUnitState,
+  facingForTacticalMapProjection,
   overrideTacticalMapTokens,
   requireTacticalMapMovementProjection,
 } from './tactical-map.fixture-helpers';
@@ -40,7 +41,7 @@ const battlefieldWreckUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: battlefieldWreckOrigin,
-  facing: Facing.Northeast,
+  facing: Facing.Southeast,
 });
 
 export const tacticalMapBattlefieldWreckSelectedHex = battlefieldWreckOrigin;
@@ -112,7 +113,10 @@ export function tacticalMapBattlefieldWreckCommitInput(): ICommittedMovementVali
     grid: battlefieldWreckGrid,
     unit: battlefieldWreckUnit,
     to: tacticalMapBattlefieldWreckDestination,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      tacticalMapBattlefieldWreckMovementRange[0],
+      battlefieldWreckUnit.facing,
+    ),
     movementType: MovementType.Walk,
     capability: battlefieldWreckCapability,
     path: tacticalMapBattlefieldWreckMovementRange[0]?.path,

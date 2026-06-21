@@ -12,7 +12,10 @@ import { coordToKey } from '@/utils/gameplay/hexMath';
 import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/reachable';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
 
-import { createTacticalMapUnitState } from './tactical-map.fixture-helpers';
+import {
+  createTacticalMapUnitState,
+  facingForTacticalMapProjection,
+} from './tactical-map.fixture-helpers';
 
 const bridgeOrigin = { q: 0, r: 0 } as const;
 const bridgeDestination = { q: 1, r: 0 } as const;
@@ -48,7 +51,7 @@ const baseUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: bridgeOrigin,
-  facing: Facing.Northeast,
+  facing: Facing.Southeast,
 });
 
 const capability: IMovementCapability = {
@@ -111,7 +114,10 @@ export function tacticalMapInfantryMountStateCommitInputs(): readonly [
       grid: tacticalMapInfantryMountStateGrid(),
       unit: mountedUnit,
       to: bridgeDestination,
-      facing: Facing.Northeast,
+      facing: facingForTacticalMapProjection(
+        tacticalMapInfantryMountStateMovementRange[0],
+        mountedUnit.facing,
+      ),
       movementType: MovementType.Walk,
       capability,
       path: tacticalMapInfantryMountStateMovementRange[0].path,
@@ -120,7 +126,10 @@ export function tacticalMapInfantryMountStateCommitInputs(): readonly [
       grid: tacticalMapInfantryMountStateGrid(),
       unit: dismountedUnit,
       to: bridgeDestination,
-      facing: Facing.Northeast,
+      facing: facingForTacticalMapProjection(
+        tacticalMapInfantryMountStateMovementRange[1],
+        dismountedUnit.facing,
+      ),
       movementType: MovementType.Walk,
       capability,
       path: tacticalMapInfantryMountStateMovementRange[1].path,

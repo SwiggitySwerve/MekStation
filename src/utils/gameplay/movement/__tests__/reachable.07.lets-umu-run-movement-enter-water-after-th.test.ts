@@ -40,7 +40,7 @@ it('lets UMU run movement enter water after the first step', () => {
     terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const umu = deriveReachableHexes(unit, MovementType.Run, grid, {
     walkMP: 2,
@@ -76,7 +76,7 @@ it('keeps Mek swim movement in water and ignores represented elevation rises', (
     3,
   );
   grid = setHex(grid, { q: 0, r: 1 }, TerrainType.Clear, 0);
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const capability = {
     walkMP: 1,
     runMP: 1,
@@ -129,7 +129,7 @@ it('lets tracked movement cross ice-covered water as surface terrain', () => {
     ]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
     walkMP: 3,
@@ -162,7 +162,7 @@ it('lets tracked movement cross bridge-covered water as surface terrain', () => 
     ]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
     walkMP: 3,
@@ -192,7 +192,7 @@ it('lets tracked movement cross paved-road water as surface terrain', () => {
     ]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
     walkMP: 3,
@@ -224,7 +224,7 @@ it.each([3, 4] as const)(
       ]),
       0,
     );
-    const unit = makeUnitAtOrigin();
+    const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
     const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
       walkMP: 3,

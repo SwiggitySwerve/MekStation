@@ -143,6 +143,17 @@ function facingForHexTransition(
   return null;
 }
 
+export function facingForPathEnd(
+  path: readonly IHexCoordinate[],
+  fallback: Facing,
+): Facing {
+  if (path.length < 2) return fallback;
+  return (
+    facingForHexTransition(path[path.length - 2], path[path.length - 1]) ??
+    fallback
+  );
+}
+
 function shortestRotation(from: Facing, to: Facing): number {
   const diff = ((to - from) % 6) + 6;
   const cw = diff % 6;

@@ -68,10 +68,12 @@ it.each([
     });
     const airborneUnit = {
       ...makeUnitAtOrigin(),
+      facing: Facing.Southeast,
       combatState: vehicleCombatState(2),
     };
     const landedUnit = {
       ...makeUnitAtOrigin(),
+      facing: Facing.Southeast,
       combatState: vehicleCombatState(0),
     };
 
@@ -216,6 +218,7 @@ it('counts prior WiGE movement before showing automatic landing metadata', () =>
   };
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     hexesMovedThisTurn: 4,
     combatState: {
       kind: 'vehicle' as const,

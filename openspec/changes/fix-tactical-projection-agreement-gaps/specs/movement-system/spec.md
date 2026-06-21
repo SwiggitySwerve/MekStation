@@ -40,12 +40,14 @@ SHALL be a test-failing condition for represented movement modes.
 - **GIVEN** a represented unit previews jump movement
 - **WHEN** jump candidate hexes are derived for the projection
 - **THEN** every hex projected jump-reachable SHALL be accepted by committed
-  jump validation for the same unit state, including elevation-delta and
-  landing-terrain gates
+  jump validation for the same unit state, including represented elevation,
+  clearance, occupancy/stacking, posture, and availability gates
 - **AND** every hex rejected by committed jump validation SHALL NOT be projected
   jump-reachable
 - **AND** any distance pre-filter SHALL only ever exclude hexes that committed
-  validation would also reject.
+  validation would also reject
+- **AND** prohibited landing-terrain support SHALL be listed as not represented
+  unless and until committed jump validation implements that gate.
 
 #### Scenario: Validator disagreement is a failing condition in the agreement suite
 

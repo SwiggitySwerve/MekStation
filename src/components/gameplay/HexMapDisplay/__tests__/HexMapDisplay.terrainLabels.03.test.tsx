@@ -138,7 +138,7 @@ describe('HexMapDisplay terrain and elevation labels', () => {
     expect(movementCostOverlay).toHaveAttribute(
       'aria-label',
       expect.stringContaining(
-        'Projected movement: walk reachable; 3 MP; terrain +1; elevation delta 1; elevation cost +1; heat +1',
+        'Projected movement: walk reachable; 3 MP; terrain +1; turning +0; elevation delta 1; elevation cost +1; heat +1',
       ),
     );
     expect(movementCostOverlay).toHaveAttribute(

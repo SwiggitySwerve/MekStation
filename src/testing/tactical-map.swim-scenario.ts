@@ -15,6 +15,7 @@ import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/
 import {
   createTacticalMapTerrainGrid,
   createTacticalMapUnitState,
+  facingForTacticalMapProjection,
   overrideTacticalMapTokens,
   requireTacticalMapMovementProjection,
 } from './tactical-map.fixture-helpers';
@@ -30,7 +31,7 @@ const tacticalMapSwimUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: tacticalMapSwimOrigin,
-  facing: Facing.Northeast,
+  facing: Facing.Southeast,
 });
 
 const tacticalMapSwimCapability: IMovementCapability = {
@@ -108,7 +109,10 @@ export function tacticalMapSwimCommitInput(): ICommittedMovementValidationInput 
     grid: tacticalMapSwimGrid(),
     unit: tacticalMapSwimUnit,
     to: tacticalMapSwimDestination,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      tacticalMapSwimMovementRange[0],
+      tacticalMapSwimUnit.facing,
+    ),
     movementType: MovementType.Walk,
     capability: tacticalMapSwimCapability,
     path: [tacticalMapSwimOrigin, tacticalMapSwimDestination],

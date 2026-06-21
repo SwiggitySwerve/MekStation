@@ -24,6 +24,7 @@ import {
   movementOptionsForBadge,
   movementOptionStatesAttribute,
   movementOptionTerrainCostsAttribute,
+  movementOptionTurningCostsAttribute,
   movementOptionTypesAttribute,
 } from './HexCell.movementOptionSummaries';
 import {
@@ -64,6 +65,9 @@ export function MovementModeOptionRows({
       data-movement-option-costs={movementOptionCostsAttribute(movementInfo)}
       data-movement-option-states={movementOptionStatesAttribute(movementInfo)}
       data-movement-option-terrain-costs={movementOptionTerrainCostsAttribute(
+        options,
+      )}
+      data-movement-option-turning-costs={movementOptionTurningCostsAttribute(
         options,
       )}
       data-movement-option-elevation-deltas={movementOptionElevationDeltasAttribute(
@@ -115,6 +119,7 @@ export function MovementModeOptionRows({
             }
             data-movement-option-cost={option.mpCost}
             data-movement-option-terrain-cost={option.terrainCost}
+            data-movement-option-turning-cost={option.turningCost}
             data-movement-option-elevation-delta={option.elevationDelta}
             data-movement-option-elevation-cost={option.elevationCost}
             data-movement-option-heat={option.heatGenerated}

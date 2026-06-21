@@ -13,6 +13,7 @@ import type {
   ITargetState,
   MovementHeatProfile,
   MovementType,
+  RangeBracket,
   WeaponFireMode,
 } from '@/types/gameplay';
 import type { IForecastInput } from '@/utils/gameplay/toHit/forecast';
@@ -90,6 +91,7 @@ export function MovementPlanningSection({
         movementHeatProfile={movementHeatProfile}
         movementMode={plannedMovement?.movementMode}
         terrainCost={plannedMovement?.terrainCost}
+        turningCost={plannedMovement?.turningCost}
         elevationDelta={plannedMovement?.elevationDelta}
         elevationCost={plannedMovement?.elevationCost}
         jumpHexes={jumpHexes}
@@ -106,6 +108,7 @@ interface WeaponAttackPlanningSectionProps {
   readonly weapons: readonly IWeapon[];
   readonly selectedWeaponModes: Readonly<Record<string, WeaponFireMode>>;
   readonly rangeToTarget: number;
+  readonly combatProjectionRangeBracket?: RangeBracket | null;
   readonly attackerState: IAttackerState | null;
   readonly targetState: ITargetState | null;
   readonly forecastWeapons: readonly IForecastInput[];
@@ -128,6 +131,7 @@ export function WeaponAttackPlanningSection({
   weapons,
   selectedWeaponModes,
   rangeToTarget,
+  combatProjectionRangeBracket,
   attackerState,
   targetState,
   forecastWeapons,
@@ -166,6 +170,8 @@ export function WeaponAttackPlanningSection({
       aria-label="Attack planning"
       data-testid="combat-planning-panel-attack"
       data-attacker-locked={attackerLocked}
+      data-combat-projection-range={rangeToTarget}
+      data-combat-projection-range-bracket={combatProjectionRangeBracket}
     >
       {waitingForOpponent && <WaitingForOpponentBanner />}
       {attackerLocked && !waitingForOpponent && <AttackerLockedBanner />}
@@ -179,6 +185,7 @@ export function WeaponAttackPlanningSection({
         <WeaponSelector
           weapons={weapons}
           rangeToTarget={rangeToTarget}
+          activeRangeBracket={combatProjectionRangeBracket ?? null}
           selectedWeaponIds={attackPlan.selectedWeapons}
           weaponModesByWeaponId={selectedWeaponModes}
           weaponModeError={weaponModeError}

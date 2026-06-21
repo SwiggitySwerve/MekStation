@@ -161,6 +161,7 @@ function buildMovementPreview(
     ),
     movementMode: movementInfo?.movementMode,
     terrainCost: movementInfo?.terrainCost,
+    turningCost: movementInfo?.turningCost,
     elevationDelta: movementInfo?.elevationDelta,
     elevationCost: movementInfo?.elevationCost,
     heatGenerated: movementInfo?.heatGenerated,

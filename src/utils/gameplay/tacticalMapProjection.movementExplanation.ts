@@ -20,6 +20,7 @@ export function appendMovementProjectionExplanation(
   parts.push(formatMovementSummary(movement));
   appendIfPresent(parts, formatMovementModeDetail(movement));
   appendIfPresent(parts, formatMovementTerrainCost(movement));
+  appendIfPresent(parts, formatMovementTurningCost(movement));
   appendIfPresent(parts, formatMovementElevationDetail(movement));
   appendIfPresent(parts, formatMovementHeat(movement));
   appendIfPresent(parts, formatMovementConversion(movement));
@@ -59,6 +60,14 @@ function formatMovementTerrainCost(
   return movement.terrainCost === undefined
     ? undefined
     : `terrain cost ${formatSignedCost(movement.terrainCost)}`;
+}
+
+function formatMovementTurningCost(
+  movement: IMovementRangeHex,
+): string | undefined {
+  return movement.turningCost === undefined
+    ? undefined
+    : `turning cost ${formatSignedCost(movement.turningCost)}`;
 }
 
 function formatMovementElevationDetail(

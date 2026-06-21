@@ -76,9 +76,15 @@ function makeUnit(
   };
 }
 
+type MovementSessionUnitOverrides = Partial<IGameUnit> & {
+  facing?: Facing;
+};
+
 function setupSessionAtMovement(
-  m1Overrides: Partial<IGameUnit> = {},
+  m1Overrides: MovementSessionUnitOverrides = {},
 ): IGameSession {
+  const { facing: initialFacing = Facing.North, ...unitOverrides } =
+    m1Overrides;
   let session = createGameSession(
     {
       mapRadius: 6,
@@ -87,7 +93,7 @@ function setupSessionAtMovement(
       optionalRules: [],
     } as never,
     [
-      makeUnit('m1', GameSide.Player, m1Overrides),
+      makeUnit('m1', GameSide.Player, unitOverrides),
       makeUnit('blocker', GameSide.Opponent),
     ],
   );
@@ -96,7 +102,7 @@ function setupSessionAtMovement(
   session.currentState.units.m1 = {
     ...session.currentState.units.m1,
     position: { q: 0, r: 0 },
-    facing: Facing.North,
+    facing: initialFacing,
     heat: 0,
   };
   session.currentState.units.blocker = {
@@ -413,7 +419,7 @@ it('keeps movement preview and commit validation aligned for encoded terrain blo
 });
 
 it('keeps walking water entry legal between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -474,7 +480,7 @@ it('keeps walking water entry legal between preview and commit validation', () =
 });
 
 it('keeps Playtest2 deep-water MP aligned between preview and commit validation', () => {
-  const baseSession = setupSessionAtMovement();
+  const baseSession = setupSessionAtMovement({ facing: Facing.Southeast });
   const session: IGameSession = {
     ...baseSession,
     config: {
@@ -551,7 +557,7 @@ it('keeps Playtest2 deep-water MP aligned between preview and commit validation'
 });
 
 it('keeps Playtest2 Mek-style run into water aligned after the first step', () => {
-  const baseSession = setupSessionAtMovement();
+  const baseSession = setupSessionAtMovement({ facing: Facing.Southeast });
   const session: IGameSession = {
     ...baseSession,
     config: {
@@ -635,7 +641,7 @@ it('keeps Playtest2 Mek-style run into water aligned after the first step', () =
 });
 
 it('keeps UMU deep-water movement legal between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -706,7 +712,7 @@ it('keeps UMU deep-water movement legal between preview and commit validation', 
 });
 
 it('keeps Mek swim elevation movement legal between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -785,7 +791,7 @@ it('keeps Mek swim elevation movement legal between preview and commit validatio
 });
 
 it('keeps tracked ice-covered water movement legal between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -860,7 +866,7 @@ it('keeps tracked ice-covered water movement legal between preview and commit va
 });
 
 it('keeps tracked bridge-covered water movement legal between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -932,7 +938,7 @@ it('keeps tracked bridge-covered water movement legal between preview and commit
 });
 
 it('keeps tracked paved-road water movement legal between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -1081,7 +1087,7 @@ it.each([3, 4] as const)(
 );
 
 it('keeps tracked paved-road bonus movement legal between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -1156,7 +1162,7 @@ it('keeps tracked paved-road bonus movement legal between preview and commit val
 });
 
 it('keeps TacOps infantry pavement bonus aligned between preview and commit', () => {
-  const baseSession = setupSessionAtMovement();
+  const baseSession = setupSessionAtMovement({ facing: Facing.Southeast });
   const session: IGameSession = {
     ...baseSession,
     config: {
@@ -1459,7 +1465,7 @@ it('keeps runtime unit-height bridge clearance aligned between preview and commi
 });
 
 it('keeps flotation-hull tracked water movement aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -1529,7 +1535,7 @@ it('keeps flotation-hull tracked water movement aligned between preview and comm
 });
 
 it('keeps Frogman deep-water movement cost aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -1599,7 +1605,7 @@ it('keeps Frogman deep-water movement cost aligned between preview and commit va
 });
 
 it('keeps flotation-hull tracked first-step run into water aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -1741,7 +1747,7 @@ it('rejects flotation-hull tracked run into water after the first step in previe
 });
 
 it('commits a run-overlay walk fallback as walking when water blocks running', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -1826,7 +1832,7 @@ it('commits a run-overlay walk fallback as walking when water blocks running', (
 });
 
 it('keeps fully amphibious tracked run into water aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -1896,7 +1902,7 @@ it('keeps fully amphibious tracked run into water aligned between preview and co
 });
 
 it('keeps hover preview and commit validation aligned when crossing encoded water', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -2030,7 +2036,7 @@ it('keeps naval preview and commit validation aligned when leaving water is bloc
 });
 
 it('keeps VTOL preview and commit validation aligned for abrupt elevation changes', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -2091,7 +2097,7 @@ it('keeps VTOL preview and commit validation aligned for abrupt elevation change
 });
 
 it('keeps Battle Armor VTOL movement aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -2156,7 +2162,7 @@ it('keeps Battle Armor VTOL movement aligned between preview and commit validati
 });
 
 it('keeps ProtoMech explicit run MP aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: -5, r: 0 },
@@ -2299,7 +2305,7 @@ it('keeps tracked vehicle elevation limits aligned between preview and commit va
 });
 
 it('keeps downhill elevation costs aligned between preview and commit validation', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -2662,7 +2668,7 @@ it('keeps overheated jump hover and commit validation aligned (jump MP heat-immu
 });
 
 it('keeps prone stand-up movement preview, commit cost, and unit state aligned', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.South });
   session.currentState.units.m1 = {
     ...session.currentState.units.m1,
     prone: true,
@@ -3119,7 +3125,7 @@ it('rejects hull-down GO_PRONE for non-Mek-style movement profiles', () => {
 });
 
 it('keeps intact quad stand-up preview and commit aligned without rolling a PSR', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.South });
   session.currentState.units.m1 = {
     ...session.currentState.units.m1,
     prone: true,
@@ -3206,7 +3212,7 @@ it('keeps intact quad stand-up preview and commit aligned without rolling a PSR'
 });
 
 it('stops prone ground movement at the origin when the stand-up PSR fails', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.South });
   session.currentState.units.m1 = {
     ...session.currentState.units.m1,
     prone: true,
@@ -3242,7 +3248,7 @@ it('stops prone ground movement at the origin when the stand-up PSR fails', () =
     unitId: 'm1',
     from: { q: 0, r: 0 },
     to: { q: 0, r: 0 },
-    facing: Facing.North,
+    facing: Facing.South,
     movementType: MovementType.Walk,
     mpUsed: 2,
     heatGenerated: 1,
@@ -3536,7 +3542,7 @@ it('rejects standing non-tracked movement when the gyro is destroyed', () => {
 });
 
 it('allows tracked movement with a destroyed gyro through preview and commit', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.m1 = {
     ...session.currentState.units.m1,
     componentDamage: {
@@ -3606,7 +3612,7 @@ it('allows tracked movement with a destroyed gyro through preview and commit', (
 });
 
 it('keeps two-hit heavy-duty gyro stand-up projection and commit rollable', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.m1 = {
     ...session.currentState.units.m1,
     prone: true,
@@ -3693,7 +3699,7 @@ it('keeps two-hit heavy-duty gyro stand-up projection and commit rollable', () =
 });
 
 it('keeps Playtest3 three-hit heavy-duty gyro stand-up projection and commit rollable', () => {
-  const baseSession = setupSessionAtMovement();
+  const baseSession = setupSessionAtMovement({ facing: Facing.Southeast });
   const session: IGameSession = {
     ...baseSession,
     config: {
@@ -3777,7 +3783,7 @@ it('keeps Playtest3 three-hit heavy-duty gyro stand-up projection and commit rol
 });
 
 it('keeps TacOps destroyed-arm stand-up penalties aligned between preview and commit', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.m1 = {
     ...session.currentState.units.m1,
     prone: true,
@@ -3858,7 +3864,7 @@ it('keeps TacOps destroyed-arm stand-up penalties aligned between preview and co
 });
 
 it('keeps Playtest2 trying-to-stand bonus aligned between preview and commit', () => {
-  const baseSession = setupSessionAtMovement();
+  const baseSession = setupSessionAtMovement({ facing: Facing.Southeast });
   const session: IGameSession = {
     ...baseSession,
     config: {
@@ -3937,7 +3943,7 @@ it('keeps Playtest2 trying-to-stand bonus aligned between preview and commit', (
 });
 
 it('keeps TacOps arm-actuator stand-up penalties aligned between preview and commit', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.m1 = {
     ...session.currentState.units.m1,
     prone: true,
@@ -4018,7 +4024,7 @@ it('keeps TacOps arm-actuator stand-up penalties aligned between preview and com
 });
 
 it('keeps no-arms quirk stand-up penalties overriding TacOps arm checks', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.m1 = {
     ...session.currentState.units.m1,
     prone: true,
@@ -4412,7 +4418,7 @@ it('keeps non-Mek movement heat aligned between preview and commit', () => {
 });
 
 it('keeps infantry woods movement cost aligned between preview and commit', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },
@@ -4469,7 +4475,7 @@ it('keeps infantry woods movement cost aligned between preview and commit', () =
 });
 
 it('keeps TacOps fast infantry run movement aligned between preview and commit', () => {
-  const session = setupSessionAtMovement();
+  const session = setupSessionAtMovement({ facing: Facing.Southeast });
   session.currentState.units.blocker = {
     ...session.currentState.units.blocker,
     position: { q: 5, r: 0 },

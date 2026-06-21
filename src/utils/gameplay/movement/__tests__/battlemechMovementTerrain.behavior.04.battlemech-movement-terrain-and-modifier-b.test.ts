@@ -233,7 +233,7 @@ describe('BattleMech movement, terrain, and modifier behavior', () => {
     grid = setHex(grid, { q: 0, r: 1 }, { elevation: 3 });
 
     const reachable = deriveReachableHexes(
-      unitAtOrigin(),
+      { ...unitAtOrigin(), facing: Facing.Southeast },
       MovementType.Walk,
       grid,
       {

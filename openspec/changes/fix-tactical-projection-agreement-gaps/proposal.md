@@ -7,7 +7,7 @@ The 2026-06-09 audit remediation (PRs #801/#802) unified the combat projection w
 ## What Changes
 
 - Unify turning/facing MP between movement projection and committed movement validation: the reachability projection accounts for the same `calculateGroundPathTurningMpCost` charges that `validateMovement` enforces, and the `validatorDisagreement` diagnostic is promoted from advisory telemetry to a CI-failing assertion (zero disagreements on represented movement modes).
-- Replace the flat jump distance pre-gate in `deriveReachableHexes` with candidate selection that agrees with engine jump legality (elevation/clearance gates), or prove via agreement cases that the pre-gate cannot admit a hex the engine rejects.
+- Keep the flat jump distance pre-gate in `deriveReachableHexes` as a proven superset and prove each represented per-hex gate agrees with engine jump legality (elevation, clearance, occupancy/stacking, posture, and availability). Prohibited landing-terrain support remains not represented by the current runtime and is called out rather than claimed.
 - Consolidate `CombatPlanningPanel` range/bracket display onto the combat projection (`combat.distance` / `rangeBracket`) — removing the last UI-local range computation.
 - Extend the preview↔commit agreement suite with a parametrized movement channel: reachability, MP cost, terrain cost, elevation delta, heat, blocked reason, and destination legality compared between projection and commit across move modes (walk, run, jump, and represented vehicle/VTOL/WiGE modes) on fixed scenarios; unsupported modes are explicitly enumerated rather than silently skipped.
 

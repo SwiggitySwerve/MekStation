@@ -50,14 +50,14 @@ it('uses runtime unit height override for bridge-clearance movement projection',
   };
 
   const lowProfile = deriveMovementRangeHexForDestination(
-    makeUnitAtOrigin(),
+    { ...makeUnitAtOrigin(), facing: Facing.Southeast },
     MovementType.Walk,
     grid,
     capability,
     { q: 1, r: 0 },
   );
   const tallRuntimeState = deriveMovementRangeHexForDestination(
-    { ...makeUnitAtOrigin(), unitHeight: 1 },
+    { ...makeUnitAtOrigin(), facing: Facing.Southeast, unitHeight: 1 },
     MovementType.Walk,
     grid,
     capability,
@@ -99,14 +99,19 @@ it('lets infantry dismount state override stale mounted height for bridge-cleara
   };
 
   const mountedState = deriveMovementRangeHexForDestination(
-    { ...makeUnitAtOrigin(), infantryMounted: true },
+    { ...makeUnitAtOrigin(), facing: Facing.Southeast, infantryMounted: true },
     MovementType.Walk,
     grid,
     capability,
     { q: 1, r: 0 },
   );
   const dismountedState = deriveMovementRangeHexForDestination(
-    { ...makeUnitAtOrigin(), infantryMounted: false, unitHeight: 1 },
+    {
+      ...makeUnitAtOrigin(),
+      facing: Facing.Southeast,
+      infantryMounted: false,
+      unitHeight: 1,
+    },
     MovementType.Walk,
     grid,
     capability,
@@ -137,7 +142,7 @@ it('lets flotation-hull tracked vehicles enter water with water MP costs', () =>
     terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
     walkMP: 4,
@@ -165,7 +170,7 @@ it('applies Frogman deep-water movement cost reduction when represented', () => 
     terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const standard = deriveMovementRangeHexForDestination(
     unit,
@@ -218,7 +223,7 @@ it('lets flotation-hull tracked vehicles run one first step into water', () => {
     terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const tracked = deriveReachableHexes(unit, MovementType.Run, grid, {
     walkMP: 4,

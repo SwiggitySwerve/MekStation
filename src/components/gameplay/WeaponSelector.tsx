@@ -27,6 +27,7 @@ import type { IWeapon } from '@/simulation/ai/types';
 import type {
   IAttackerState,
   ITargetState,
+  RangeBracket,
   WeaponFireMode,
 } from '@/types/gameplay';
 
@@ -46,6 +47,8 @@ export interface WeaponSelectorProps {
   weapons: readonly IWeapon[];
   /** Distance in hexes from attacker to target */
   rangeToTarget: number;
+  /** Projection-derived range bracket. Undefined preserves legacy range inference. */
+  activeRangeBracket?: RangeBracket | null;
   /** Currently selected weapon ids */
   selectedWeaponIds: readonly string[];
   /** Resolved or requested per-weapon fire modes for the active attacker. */
@@ -129,6 +132,17 @@ function pickActiveBracket(
   if (range <= weapon.shortRange) return 'S';
   if (range <= weapon.mediumRange) return 'M';
   return 'L';
+}
+
+function bracketLabelForProjection(
+  rangeBracket: RangeBracket | null | undefined,
+): 'S' | 'M' | 'L' | null | undefined {
+  if (rangeBracket === undefined) return undefined;
+  if (rangeBracket === null) return null;
+  if (rangeBracket === 'short') return 'S';
+  if (rangeBracket === 'medium') return 'M';
+  if (rangeBracket === 'long') return 'L';
+  return null;
 }
 
 function minimumRangePenaltyForWeapon(range: number, weapon: IWeapon): number {
@@ -231,6 +245,8 @@ interface WeaponRowProps {
   preview: IAttackPreview | null;
   /** True if the parent has the toggle ON — controls column visibility. */
   showPreview: boolean;
+  /** Projection-derived bracket label. Undefined preserves range inference. */
+  activeRangeBracket?: 'S' | 'M' | 'L' | null;
 }
 
 /**
@@ -249,6 +265,7 @@ function WeaponRow({
   onModeChange,
   preview,
   showPreview,
+  activeRangeBracket,
 }: WeaponRowProps): React.ReactElement {
   const destroyed = weapon.destroyed;
   // Reasoning: ammoRemaining of -1 means energy weapon (unlimited).
@@ -265,7 +282,10 @@ function WeaponRow({
   const disabled = destroyed || noAmmo || outOfRange;
   // Per `add-attack-phase-ui` task 4.2: highlight the bracket that the
   // current range falls into (null only when out of range).
-  const activeBracket = pickActiveBracket(rangeToTarget, weapon);
+  const activeBracket =
+    activeRangeBracket === undefined
+      ? pickActiveBracket(rangeToTarget, weapon)
+      : activeRangeBracket;
 
   return (
     <li
@@ -376,6 +396,7 @@ export function WeaponSelector({
   previewEnabled = false,
   onTogglePreview,
   className = '',
+  activeRangeBracket,
 }: WeaponSelectorProps): React.ReactElement {
   const totalHeat = useMemo(() => {
     return weapons
@@ -485,6 +506,7 @@ export function WeaponSelector({
             const ammoRemaining = ammo[weapon.id] ?? -1;
             const preview = previews[weapon.id] ?? null;
             const mode = weaponModesByWeaponId[weapon.id] ?? 'Direct';
+            const activeBracket = bracketLabelForProjection(activeRangeBracket);
             return (
               <WeaponRow
                 key={weapon.id}
@@ -501,6 +523,7 @@ export function WeaponSelector({
                 }
                 preview={preview}
                 showPreview={previewEnabled && Boolean(attacker && target)}
+                activeRangeBracket={activeBracket}
               />
             );
           })}

@@ -64,6 +64,8 @@ export interface IMovementRangeModeOption {
   readonly mpCost: number;
   /** Terrain modifier paid on the final step for this option. */
   readonly terrainCost?: number;
+  /** MP charged for facing changes along the projected path. */
+  readonly turningCost?: number;
   /** Elevation delta from the previous path hex for this option. */
   readonly elevationDelta?: number;
   /** Elevation MP paid on the final step for this option. */
@@ -113,6 +115,8 @@ export interface IMovementRangeHex {
   readonly mpCost: number;
   /** Terrain modifier paid on the final step into this hex. */
   readonly terrainCost?: number;
+  /** MP charged for facing changes along the projected path. */
+  readonly turningCost?: number;
   /** Elevation delta from the previous path hex into this hex. */
   readonly elevationDelta?: number;
   /** Elevation MP paid on the final step into this hex. */

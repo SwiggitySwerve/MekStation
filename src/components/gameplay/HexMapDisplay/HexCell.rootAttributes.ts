@@ -52,6 +52,7 @@ import {
   movementOptionInvalidReasonsAttribute,
   movementOptionStatesAttribute,
   movementOptionTerrainCostsAttribute,
+  movementOptionTurningCostsAttribute,
   movementOptionTypesAttribute,
 } from './HexCell.movementOptionSummaries';
 
@@ -226,6 +227,8 @@ function buildMovementAttributes(
       movementOptionInvalidDetailsAttribute(movementOptions),
     'data-movement-option-terrain-costs':
       movementOptionTerrainCostsAttribute(movementOptions),
+    'data-movement-option-turning-costs':
+      movementOptionTurningCostsAttribute(movementOptions),
     'data-movement-option-elevation-deltas':
       movementOptionElevationDeltasAttribute(movementOptions),
     'data-movement-option-elevation-costs':
@@ -244,6 +247,7 @@ function buildMovementAttributes(
       movementOptionAutomaticLandingsAttribute(movementOptions),
     'data-mp-cost': movementInfo?.mpCost,
     'data-terrain-cost': movementInfo?.terrainCost,
+    'data-turning-cost': movementInfo?.turningCost,
     'data-heat-generated': movementInfo?.heatGenerated,
     'data-elevation': elevation,
   };

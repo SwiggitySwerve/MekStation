@@ -131,6 +131,51 @@ describe('movement heat and validator agreement (audit B-3/B-4)', () => {
     expect(commit.validatorDisagreement).toContain('max range');
   });
 
+  it('projects bent-path turning MP before commit validation can disagree', () => {
+    const grid = createHexGrid({ radius: 3 });
+    const unit = makeUnitAtOrigin(); // facing North
+    const capability: IMovementCapability = { walkMP: 2, runMP: 3, jumpMP: 0 };
+    const destination = { q: 1, r: -2 };
+
+    const projection = deriveMovementRangeHexForDestination(
+      unit,
+      MovementType.Walk,
+      grid,
+      capability,
+      destination,
+    );
+
+    expect(projection).toMatchObject({
+      reachable: false,
+      mpCost: 3,
+      turningCost: 1,
+      movementInvalidReason: 'InsufficientMP',
+    });
+    expect(projection?.path).toEqual([
+      { q: 0, r: 0 },
+      { q: 0, r: -1 },
+      destination,
+    ]);
+
+    const commit = validateCommittedMovement({
+      grid,
+      unit,
+      to: destination,
+      facing: Facing.Northeast,
+      movementType: MovementType.Walk,
+      capability,
+    });
+
+    expect(commit).toMatchObject({
+      valid: false,
+      reason: 'InsufficientMP',
+      mpCost: 3,
+    });
+    if (commit.valid) {
+      expect(commit.validatorDisagreement).toBeUndefined();
+    }
+  });
+
   it('reports no validator disagreement when both validators accept', () => {
     const grid = createHexGrid({ radius: 3 });
     const unit = makeUnitAtOrigin();

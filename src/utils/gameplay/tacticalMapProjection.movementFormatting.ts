@@ -15,6 +15,7 @@ export function movementOptionsForProjection(
       reachable: movement.reachable,
       mpCost: movement.mpCost,
       terrainCost: movement.terrainCost,
+      turningCost: movement.turningCost,
       elevationDelta: movement.elevationDelta,
       elevationCost: movement.elevationCost,
       heatGenerated: movement.heatGenerated,
@@ -72,7 +73,7 @@ export function formatMovementOption(option: IMovementRangeModeOption): string {
   const blockedDetail = movementOptionBlockedDetail(option);
   const blockedSuffix =
     option.reachable || !blockedDetail ? '' : `: ${blockedDetail}`;
-  return `${formatMovementOptionBase(option)}${formatMovementOptionTerrainCost(option)}${formatMovementOptionElevationDetail(option)}${formatMovementOptionHeat(option)}${formatMovementOptionConversion(option)}${formatMovementOptionAltitudeControl(option)}${formatMovementOptionAutomaticLanding(option)}${formatMovementOptionHullDownExit(option)}${blockedSuffix}`;
+  return `${formatMovementOptionBase(option)}${formatMovementOptionTerrainCost(option)}${formatMovementOptionTurningCost(option)}${formatMovementOptionElevationDetail(option)}${formatMovementOptionHeat(option)}${formatMovementOptionConversion(option)}${formatMovementOptionAltitudeControl(option)}${formatMovementOptionAutomaticLanding(option)}${formatMovementOptionHullDownExit(option)}${blockedSuffix}`;
 }
 
 function formatMovementOptionBase(option: IMovementRangeModeOption): string {
@@ -93,6 +94,14 @@ function formatMovementOptionTerrainCost(
   return option.terrainCost === undefined
     ? ''
     : ` terrain ${formatSignedCost(option.terrainCost)}`;
+}
+
+function formatMovementOptionTurningCost(
+  option: IMovementRangeModeOption,
+): string {
+  return option.turningCost === undefined
+    ? ''
+    : ` turning ${formatSignedCost(option.turningCost)}`;
 }
 
 function formatMovementOptionElevationDetail(

@@ -15,6 +15,7 @@ import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/
 import {
   createTacticalMapTerrainGrid,
   createTacticalMapUnitState,
+  facingForTacticalMapProjection,
   overrideTacticalMapTokens,
   requireTacticalMapMovementProjection,
 } from './tactical-map.fixture-helpers';
@@ -31,7 +32,7 @@ const tacticalMapStandUpUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: tacticalMapStandUpOrigin,
-  facing: Facing.Northeast,
+  facing: Facing.Southeast,
   piloting: 5,
   prone: true,
 });
@@ -148,7 +149,10 @@ export function tacticalMapStandUpCommitInput(): ICommittedMovementValidationInp
     grid: tacticalMapStandUpGrid(),
     unit: tacticalMapStandUpUnit,
     to: tacticalMapStandUpDestination,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      tacticalMapStandUpMovementRange[0],
+      tacticalMapStandUpUnit.facing,
+    ),
     movementType: MovementType.Walk,
     capability: tacticalMapStandUpCapability,
     path: [

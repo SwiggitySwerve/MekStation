@@ -168,6 +168,7 @@ export function overBudgetRangeHex({
   pathBudget,
   maxPathCost,
   standingCost,
+  turningCost = 0,
   reservedCostLabel = 'stand-up',
   costContext = {},
 }: {
@@ -179,6 +180,7 @@ export function overBudgetRangeHex({
   readonly pathBudget: number;
   readonly maxPathCost: number;
   readonly standingCost: number;
+  readonly turningCost?: number;
   readonly reservedCostLabel?: string;
   readonly costContext?: IMovementCostContext;
 }): IMovementRangeHex {
@@ -196,13 +198,15 @@ export function overBudgetRangeHex({
         hexHasPavementRoadBonusSurface(grid, step, movementMode),
       );
   const allowedPathCost = pathUsesPavementRoadBonus ? maxPathCost : pathBudget;
-  const cost = pathCost + standingCost;
+  const cost = pathCost + turningCost + standingCost;
   const allowedTotalCost = allowedPathCost + standingCost;
   const finalStep = finalStepCost(grid, path, movementMode, costContext);
+  const turningDetail =
+    turningCost > 0 ? ` including turning +${turningCost}` : '';
   const details =
     standingCost > 0
-      ? `Path costs ${cost} MP including ${reservedCostLabel}, but only ${allowedTotalCost} MP is available`
-      : `Path costs ${cost} MP, but only ${allowedPathCost} MP is available`;
+      ? `Path costs ${cost} MP${turningDetail} including ${reservedCostLabel}, but only ${allowedTotalCost} MP is available`
+      : `Path costs ${cost} MP${turningDetail}, but only ${allowedPathCost} MP is available`;
 
   return {
     hex,
@@ -210,6 +214,7 @@ export function overBudgetRangeHex({
     terrainCost: finalStep?.terrainCost,
     elevationDelta: finalStep?.elevationDelta,
     elevationCost: finalStep?.elevationCost,
+    turningCost: turningCost > 0 ? turningCost : undefined,
     path,
     heatGenerated: 0,
     movementMode,

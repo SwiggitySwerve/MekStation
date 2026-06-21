@@ -51,6 +51,7 @@ function hasMovementCostContext(
 ): boolean {
   return (
     movementInfo.terrainCost !== undefined ||
+    movementInfo.turningCost !== undefined ||
     movementInfo.elevationDelta !== undefined ||
     movementInfo.heatGenerated !== undefined ||
     movementInfo.conversionStepCount !== undefined ||
@@ -81,6 +82,25 @@ function TerrainCostContextRow({
       {...sourceAttributes}
     >
       Terrain cost: +{movementInfo.terrainCost}
+    </div>
+  );
+}
+
+function TurningCostContextRow({
+  movementInfo,
+  sourceAttributes,
+  testIdPrefix,
+}: MovementContextRowProps): React.ReactElement | null {
+  if (movementInfo.turningCost === undefined) return null;
+
+  return (
+    <div
+      data-testid={`${testIdPrefix}-turning`}
+      data-movement-context-kind="turning-cost"
+      data-movement-turning-cost={movementInfo.turningCost}
+      {...sourceAttributes}
+    >
+      Turning cost: +{movementInfo.turningCost}
     </div>
   );
 }
@@ -260,6 +280,11 @@ export function MovementCostContextRows({
   return (
     <>
       <TerrainCostContextRow
+        movementInfo={movementInfo}
+        sourceAttributes={sourceAttributes}
+        testIdPrefix={testIdPrefix}
+      />
+      <TurningCostContextRow
         movementInfo={movementInfo}
         sourceAttributes={sourceAttributes}
         testIdPrefix={testIdPrefix}

@@ -58,6 +58,8 @@ export {
   tacticalMapNavalLandfallMovementRange,
 } from '../tactical-map.naval-landfall-scenario';
 export {
+  tacticalMapOccupiedDestinationJumpCommitInput,
+  tacticalMapOccupiedDestinationJumpMovementRange,
   tacticalMapOccupiedDestinationCommitInput,
   tacticalMapOccupiedDestinationMovementRange,
 } from '../tactical-map.occupied-destination-scenario';

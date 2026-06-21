@@ -31,6 +31,9 @@ function formatPathPreviewTitle(
   if (movementInfo.terrainCost !== undefined) {
     details.push(`terrain ${formatSignedCost(movementInfo.terrainCost)}`);
   }
+  if (movementInfo.turningCost !== undefined) {
+    details.push(`turning ${formatSignedCost(movementInfo.turningCost)}`);
+  }
   if (
     movementInfo.elevationDelta !== undefined ||
     movementInfo.elevationCost !== undefined
@@ -93,6 +96,7 @@ export function MovementHoverCostBadge({
         'data-movement-badge-type': movementInfo?.movementType,
         'data-movement-badge-mode': movementInfo?.movementMode,
         'data-movement-badge-terrain-cost': movementInfo?.terrainCost,
+        'data-movement-badge-turning-cost': movementInfo?.turningCost,
         'data-movement-badge-elevation-delta': movementInfo?.elevationDelta,
         'data-movement-badge-elevation-cost': movementInfo?.elevationCost,
         'data-movement-badge-heat-generated': movementInfo?.heatGenerated,

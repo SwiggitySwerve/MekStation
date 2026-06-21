@@ -111,6 +111,7 @@ describe('runtime movement mount and altitude replay', () => {
   it('replays represented vehicle altitude controls into movement projection state', () => {
     const unit = runtimeMovementUnit({
       id: 'wige-1',
+      facing: Facing.Southeast,
       combatState: {
         kind: 'vehicle',
         state: createVehicleCombatState({
@@ -197,6 +198,7 @@ describe('runtime movement mount and altitude replay', () => {
   it('replays ProtoMek Glider altitude controls into movement projection state', () => {
     const unit = runtimeMovementUnit({
       id: 'proto-glider-1',
+      facing: Facing.Southeast,
       combatState: {
         kind: 'proto',
         state: createProtoMechCombatState({

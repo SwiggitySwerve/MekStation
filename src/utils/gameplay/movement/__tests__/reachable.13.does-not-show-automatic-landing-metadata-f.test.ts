@@ -36,6 +36,7 @@ it('does not show automatic landing metadata for represented hover-style WiGE mo
   grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     conversionMode: 'airmek' as const,
     lamAirMekAltitude: 2,
   };
@@ -67,6 +68,7 @@ it('reserves represented WiGE altitude-control MP before landed ground movement'
   const grid = createHexGrid({ radius: 3 });
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     pendingAltitudeControlStepCount: 1,
     pendingAltitudeControlMpCost: 1,
     combatState: {
@@ -147,7 +149,7 @@ it('requires naval motive movement to stay on water terrain', () => {
   grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Water, 0);
   grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Water, 0);
   grid = setHex(grid, { q: 0, r: 1 }, TerrainType.Clear, 0);
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const cap: IMovementCapability = {
     walkMP: 3,
     runMP: 5,
