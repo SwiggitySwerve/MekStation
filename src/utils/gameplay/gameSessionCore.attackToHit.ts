@@ -9,6 +9,7 @@ import type {
 } from './gameSessionCore.attack.types';
 
 import { hydrateC3NetworkStateFromGameState } from './c3Network';
+import { getECMProtectedFlag } from './electronicWarfare';
 import { isGroundToGroundGameAttack } from './groundToGround';
 import {
   strictestApplicableMinimumRange,
@@ -21,6 +22,10 @@ import {
   calculateToHit,
   calculateToHitWithC3,
 } from './toHit';
+
+type EcmAwareAttackTargetUnit = IAttackParticipants['targetUnit'] & {
+  readonly ecmProtected?: boolean;
+};
 
 function weaponRangeProfileFromAttack(
   weapon: IWeaponAttack | undefined,
@@ -47,20 +52,35 @@ function normalizeIndirectFireResolution(
 }
 
 function buildSemiGuidedTagContext(
+  context: IDeclareAttackContext,
+  participants: IAttackParticipants,
   primaryWeapon: IWeaponAttack | undefined,
-  targetUnit: IAttackParticipants['targetUnit'],
   indirectFireResolution: IIndirectFireResolution | undefined,
 ) {
   if (!primaryWeapon) return undefined;
+  const targetEcmProtected = context.session.currentState.electronicWarfare
+    ? getECMProtectedFlag(
+        participants.attackerUnit.position,
+        participants.attackerUnit.side as string,
+        context.attackerId,
+        participants.targetUnit.position,
+        participants.targetUnit.side as string,
+        context.targetId,
+        context.session.currentState.electronicWarfare,
+      )
+    : (participants.targetUnit as EcmAwareAttackTargetUnit).ecmProtected;
+
   return {
     isSemiGuided:
       isSemiGuidedLRM(primaryWeapon.ammoType ?? '') ||
       isSemiGuidedLRM(primaryWeapon.weaponId) ||
       isSemiGuidedLRM(primaryWeapon.weaponName),
-    targetTagDesignated: targetUnit.tagDesignated,
+    targetTagDesignated: participants.targetUnit.tagDesignated,
+    targetEcmProtected,
     isIndirectFire:
       indirectFireResolution?.permitted === true &&
       indirectFireResolution.isIndirect,
+    indirectFirePenalty: indirectFireResolution?.toHitPenalty ?? 0,
   };
 }
 
@@ -106,8 +126,9 @@ function buildBaseToHit(
   );
   const c3WeaponRangeProfile = weaponRangeProfileFromAttack(primaryWeapon);
   const semiGuidedTagContext = buildSemiGuidedTagContext(
+    context,
+    participants,
     primaryWeapon,
-    participants.targetUnit,
     indirectFireResolution,
   );
   const isDirectFire =

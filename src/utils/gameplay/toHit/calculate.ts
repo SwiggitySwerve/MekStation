@@ -270,6 +270,19 @@ function collectAttackContextModifiers({
   semiGuidedTagContext,
 }: IResolvedCalculateToHitInput): IToHitModifierDetail[] {
   const modifiers: IToHitModifierDetail[] = [];
+  const indirectFireModifier = attacker.indirectFire
+    ? calculateIndirectFireModifier(attacker.indirectFire)
+    : null;
+  const semiGuidedContextWithPenalty =
+    semiGuidedTagContext === undefined
+      ? undefined
+      : {
+          ...semiGuidedTagContext,
+          indirectFirePenalty:
+            semiGuidedTagContext.indirectFirePenalty ??
+            indirectFireModifier?.value ??
+            0,
+        };
 
   appendModifier(
     modifiers,
@@ -281,15 +294,10 @@ function collectAttackContextModifiers({
       ? calculateSecondaryTargetModifier(attacker.secondaryTarget)
       : null,
   );
+  appendModifier(modifiers, indirectFireModifier);
   appendModifier(
     modifiers,
-    attacker.indirectFire
-      ? calculateIndirectFireModifier(attacker.indirectFire)
-      : null,
-  );
-  appendModifier(
-    modifiers,
-    calculateSemiGuidedTagIndirectFireModifier(semiGuidedTagContext),
+    calculateSemiGuidedTagIndirectFireModifier(semiGuidedContextWithPenalty),
   );
   appendModifier(
     modifiers,

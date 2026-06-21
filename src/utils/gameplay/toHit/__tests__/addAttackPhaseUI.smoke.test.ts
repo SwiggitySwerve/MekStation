@@ -52,6 +52,15 @@ const ppc: IForecastInput = {
   longRange: 18,
 };
 
+const semiGuidedLrm: IForecastInput = {
+  weaponId: 'semi-guided-lrm-15',
+  weaponName: 'Semi-Guided LRM-15',
+  minRange: 0,
+  shortRange: 7,
+  mediumRange: 14,
+  longRange: 21,
+};
+
 describe('add-attack-phase-ui — to-hit forecast smoke test', () => {
   describe('getTwoD6HitProbability', () => {
     it('returns 100% for TN ≤ 2', () => {
@@ -134,6 +143,98 @@ describe('add-attack-phase-ui — to-hit forecast smoke test', () => {
       );
       expect(heatMod).toBeDefined();
       expect(heatMod!.value).toBe(2);
+    });
+
+    it('passes semi-guided TAG context into per-weapon forecasts', () => {
+      const movingTarget: ITargetState = {
+        ...baseTarget,
+        movementType: MovementType.Walk,
+        hexesMoved: 5,
+      };
+
+      const forecast = buildToHitForecast(
+        baseAttacker,
+        movingTarget,
+        [semiGuidedLrm],
+        7,
+        {
+          semiGuidedTagContext: {
+            isSemiGuided: true,
+            targetTagDesignated: true,
+          },
+        },
+      );
+
+      expect(forecast[0].finalToHit).toBe(4);
+      expect(forecast[0].modifiers).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'Target Movement (TMM)',
+            value: 2,
+          }),
+          expect.objectContaining({
+            name: 'Semi-guided TAG target movement',
+            value: -2,
+          }),
+        ]),
+      );
+    });
+
+    it.each([
+      ['non-TAG', { isSemiGuided: true, targetTagDesignated: false }],
+      [
+        'ECM-protected',
+        {
+          isSemiGuided: true,
+          targetTagDesignated: true,
+          targetEcmProtected: true,
+        },
+      ],
+    ])('does not over-cancel target movement for %s targets', (_, context) => {
+      const movingTarget: ITargetState = {
+        ...baseTarget,
+        movementType: MovementType.Walk,
+        hexesMoved: 5,
+      };
+
+      const forecast = buildToHitForecast(
+        baseAttacker,
+        movingTarget,
+        [semiGuidedLrm],
+        7,
+        { semiGuidedTagContext: context },
+      );
+
+      expect(forecast[0].finalToHit).toBe(6);
+      expect(forecast[0].modifiers).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: 'Semi-guided TAG target movement' }),
+        ]),
+      );
+    });
+
+    it('does not create indirect-fire relief when semi-guided TAG already has no indirect penalty', () => {
+      const forecast = buildToHitForecast(
+        baseAttacker,
+        baseTarget,
+        [semiGuidedLrm],
+        3,
+        {
+          semiGuidedTagContext: {
+            isSemiGuided: true,
+            targetTagDesignated: true,
+            isIndirectFire: true,
+            indirectFirePenalty: 0,
+          },
+        },
+      );
+
+      expect(forecast[0].finalToHit).toBe(4);
+      expect(forecast[0].modifiers).not.toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: 'Semi-guided TAG indirect fire' }),
+        ]),
+      );
     });
   });
 

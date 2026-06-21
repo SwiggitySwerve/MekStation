@@ -16,7 +16,10 @@ import type {
   RangeBracket,
   WeaponFireMode,
 } from '@/types/gameplay';
-import type { IForecastInput } from '@/utils/gameplay/toHit/forecast';
+import type {
+  IForecastInput,
+  IToHitForecastOptions,
+} from '@/utils/gameplay/toHit/forecast';
 
 import { GameEventType, LockState } from '@/types/gameplay';
 
@@ -112,6 +115,7 @@ interface WeaponAttackPlanningSectionProps {
   readonly attackerState: IAttackerState | null;
   readonly targetState: ITargetState | null;
   readonly forecastWeapons: readonly IForecastInput[];
+  readonly forecastOptions?: IToHitForecastOptions;
   readonly forecastOpen: boolean;
   readonly events: readonly IGameEvent[];
   readonly previewEnabled: boolean;
@@ -135,6 +139,7 @@ export function WeaponAttackPlanningSection({
   attackerState,
   targetState,
   forecastWeapons,
+  forecastOptions,
   forecastOpen,
   events,
   previewEnabled,
@@ -219,6 +224,7 @@ export function WeaponAttackPlanningSection({
           target={targetState}
           range={rangeToTarget}
           weapons={forecastWeapons}
+          forecastOptions={forecastOptions}
           previewEnabled={previewEnabled}
           attackerWeapons={weapons}
           onConfirm={onConfirmFire}

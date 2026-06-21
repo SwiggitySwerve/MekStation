@@ -40,6 +40,7 @@ import {
   attackerStateForSelected,
   combatProjectionForAttackTarget,
   createMovementPlan,
+  forecastOptionsForAttackPlan,
   forecastWeaponsForPlan,
   isMovementPlanReady,
   movementPlanMetrics,
@@ -215,12 +216,27 @@ export function CombatPlanningPanel({
   }, [selected]);
 
   const targetState: ITargetState | null = useMemo(() => {
-    return targetStateForAttackPlan(attackPlan.targetUnitId, session);
-  }, [attackPlan.targetUnitId, session]);
+    return targetStateForAttackPlan(
+      attackPlan.targetUnitId,
+      session,
+      targetCombatProjection?.targetPartialCover ?? false,
+    );
+  }, [attackPlan.targetUnitId, session, targetCombatProjection]);
 
   const forecastWeapons = useMemo(
     () => forecastWeaponsForPlan(weapons, attackPlan),
     [weapons, attackPlan],
+  );
+  const forecastOptions = useMemo(
+    () =>
+      forecastOptionsForAttackPlan({
+        isIndirectFire: targetCombatProjection?.indirectFireAvailable === true,
+        indirectFirePenalty: targetCombatProjection?.indirectFireToHitPenalty,
+        selected,
+        session,
+        targetUnitId: attackPlan.targetUnitId,
+      }),
+    [attackPlan.targetUnitId, selected, session, targetCombatProjection],
   );
 
   const handleConfirmFire = useCallback(() => {
@@ -269,6 +285,7 @@ export function CombatPlanningPanel({
         attackerState={attackerState}
         targetState={targetState}
         forecastWeapons={forecastWeapons}
+        forecastOptions={forecastOptions}
         forecastOpen={forecastOpen}
         events={session.events}
         previewEnabled={previewEnabled}

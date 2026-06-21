@@ -265,4 +265,28 @@ describe('calculateToHit', () => {
       }),
     );
   });
+
+  it('should not create semi-guided indirect-fire relief without an indirect penalty to cancel', () => {
+    const attacker = createTestAttackerState({ gunnery: 4 });
+    const target = createTestTargetState();
+    const result = calculateToHit(
+      attacker,
+      target,
+      RangeBracket.Short,
+      3,
+      0,
+      undefined,
+      {
+        isSemiGuided: true,
+        targetTagDesignated: true,
+        isIndirectFire: true,
+        indirectFirePenalty: 0,
+      },
+    );
+
+    expect(result.finalToHit).toBe(4);
+    expect(result.modifiers).not.toContainEqual(
+      expect.objectContaining({ name: 'Semi-guided TAG indirect fire' }),
+    );
+  });
 });

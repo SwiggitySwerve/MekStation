@@ -51,9 +51,19 @@ import {
   HULL_DOWN_FRONT_WEAPON_BLOCKED_REASON,
   HULL_DOWN_LEG_WEAPON_BLOCKED_REASON,
 } from '@/utils/gameplay/hullDownRestrictions';
+import { isSemiGuidedLRM } from '@/utils/gameplay/specialWeaponMechanics';
 import { terrainStringFromFeatures } from '@/utils/gameplay/terrainEncoding';
+import {
+  buildWeaponAttackAttackerToHitState,
+  buildWeaponAttackTargetToHitState,
+  calculateToHit,
+} from '@/utils/gameplay/toHit';
 
 import { applyInteractiveSessionAttack } from '../InteractiveSession.actions';
+
+type EcmAwareTestUnitState = IGameSession['currentState']['units'][string] & {
+  readonly ecmProtected?: boolean;
+};
 
 function makeHex(
   q: number,
@@ -954,6 +964,53 @@ function buildSemiGuidedWeaponsByUnit(): Map<string, readonly IWeapon[]> {
       ],
     ],
   ]);
+}
+
+function expectDeclaredToHitMatchesIndependentEngineToHit({
+  payload,
+  range,
+  rangeBracket,
+  session,
+  targetPartialCover = false,
+  weapon,
+}: {
+  readonly payload: IAttackDeclaredPayload;
+  readonly range: number;
+  readonly rangeBracket: RangeBracket;
+  readonly session: IGameSession;
+  readonly targetPartialCover?: boolean;
+  readonly weapon: IWeapon;
+}): void {
+  const attackerUnit = session.currentState.units.a1;
+  const targetUnit = session.currentState.units.t1;
+  const attacker = session.units.find((unit) => unit.id === 'a1');
+  expect(attackerUnit).toBeDefined();
+  expect(targetUnit).toBeDefined();
+  expect(attacker).toBeDefined();
+
+  const independent = calculateToHit(
+    buildWeaponAttackAttackerToHitState(
+      attackerUnit,
+      attacker!.gunnery,
+      { id: weapon.id, name: weapon.name },
+      't1',
+    ),
+    buildWeaponAttackTargetToHitState(targetUnit, targetPartialCover),
+    rangeBracket,
+    range,
+    weapon.minRange,
+    weapon.id,
+    {
+      isSemiGuided: isSemiGuidedLRM(weapon.id) || isSemiGuidedLRM(weapon.name),
+      targetTagDesignated: targetUnit.tagDesignated,
+      targetEcmProtected: (targetUnit as EcmAwareTestUnitState).ecmProtected,
+    },
+  );
+
+  // This is the agreement suite's absolute anchor. The projection-copy check
+  // alone is tautological because projection enrichment stamps the projection TN
+  // onto the recorded AttackDeclared payload.
+  expect(payload.toHitNumber).toBe(independent.finalToHit);
 }
 
 function buildMinimumRangeWeaponsByUnit(): Map<string, readonly IWeapon[]> {
@@ -4046,6 +4103,157 @@ it('keeps LOS-blocked semi-guided TAG preview aligned with a committed no-spotte
   ).toBe(false);
 });
 
+it('keeps moving-target semi-guided TAG to-hit anchored to an independent engine recomputation', () => {
+  const session = setupSessionAtWeaponAttack();
+  session.currentState.units.t1 = {
+    ...session.currentState.units.t1,
+    movementThisTurn: MovementType.Walk,
+    hexesMovedThisTurn: 5,
+    tagDesignated: true,
+  };
+  const grid = makeClearGrid(3);
+  const attackerToken = makeToken({
+    unitId: 'a1',
+    isSelected: true,
+    position: { q: 0, r: 0 },
+    facing: Facing.Southeast,
+  });
+  const targetToken = makeToken({
+    unitId: 't1',
+    side: GameSide.Opponent,
+    position: { q: 2, r: 0 },
+    facing: Facing.North,
+  });
+  const weaponsByUnit = buildSemiGuidedWeaponsByUnit();
+  const weapon = weaponsByUnit.get('a1')![0];
+
+  const projection = deriveCombatRangeHexes({
+    attacker: attackerToken,
+    hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+    grid,
+    tokens: [attackerToken, targetToken],
+    weapons: [
+      makeWeaponStatus({
+        id: 'semi-guided-lrm-15',
+        name: 'Semi-Guided LRM-15',
+        heat: 5,
+        damage: 9,
+        ranges: { short: 7, medium: 14, long: 21 },
+      }),
+    ],
+    combatState: session.currentState,
+  }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+  expect(projection).toBeDefined();
+  expect(projection?.attackable).toBe(true);
+
+  const result = applyInteractiveSessionAttack({
+    session,
+    weaponsByUnit,
+    attackerId: 'a1',
+    targetId: 't1',
+    weaponIds: ['semi-guided-lrm-15'],
+    grid,
+  });
+
+  expect(
+    result.events.some((event) => event.type === GameEventType.AttackInvalid),
+  ).toBe(false);
+  const declared = result.events.find(
+    (event) => event.type === GameEventType.AttackDeclared,
+  );
+  expect(declared).toBeDefined();
+  const payload = declared!.payload as IAttackDeclaredPayload;
+  expect(payload.toHitNumber).toBe(projection!.toHitNumber);
+  expectDeclaredToHitMatchesIndependentEngineToHit({
+    payload,
+    range: projection!.distance,
+    rangeBracket: projection!.rangeBracket,
+    session,
+    weapon,
+  });
+});
+
+it.each([
+  ['non-TAG target', false, false],
+  ['ECM-protected TAG target', true, true],
+])(
+  'keeps moving-target semi-guided attacks from over-cancelling TMM for a %s',
+  (_caseName, tagDesignated, ecmProtected) => {
+    const session = setupSessionAtWeaponAttack();
+    session.currentState.units.t1 = {
+      ...session.currentState.units.t1,
+      movementThisTurn: MovementType.Walk,
+      hexesMovedThisTurn: 5,
+      tagDesignated,
+      ecmProtected,
+    } as EcmAwareTestUnitState;
+    const grid = makeClearGrid(3);
+    const attackerToken = makeToken({
+      unitId: 'a1',
+      isSelected: true,
+      position: { q: 0, r: 0 },
+      facing: Facing.Southeast,
+    });
+    const targetToken = makeToken({
+      unitId: 't1',
+      side: GameSide.Opponent,
+      position: { q: 2, r: 0 },
+      facing: Facing.North,
+    });
+    const weaponsByUnit = buildSemiGuidedWeaponsByUnit();
+    const weapon = weaponsByUnit.get('a1')![0];
+
+    const projection = deriveCombatRangeHexes({
+      attacker: attackerToken,
+      hexes: Array.from(grid.hexes.values(), (hex) => hex.coord),
+      grid,
+      tokens: [attackerToken, targetToken],
+      weapons: [
+        makeWeaponStatus({
+          id: 'semi-guided-lrm-15',
+          name: 'Semi-Guided LRM-15',
+          heat: 5,
+          damage: 9,
+          ranges: { short: 7, medium: 14, long: 21 },
+        }),
+      ],
+      combatState: session.currentState,
+    }).find((hex) => hex.hex.q === 2 && hex.hex.r === 0);
+
+    expect(projection).toBeDefined();
+    expect(projection).toMatchObject({ attackable: true, toHitNumber: 6 });
+
+    const result = applyInteractiveSessionAttack({
+      session,
+      weaponsByUnit,
+      attackerId: 'a1',
+      targetId: 't1',
+      weaponIds: ['semi-guided-lrm-15'],
+      grid,
+    });
+
+    const declared = result.events.find(
+      (event) => event.type === GameEventType.AttackDeclared,
+    );
+    expect(declared).toBeDefined();
+    const payload = declared!.payload as IAttackDeclaredPayload;
+    expect(payload.toHitNumber).toBe(projection!.toHitNumber);
+    expectDeclaredToHitMatchesIndependentEngineToHit({
+      payload,
+      range: projection!.distance,
+      rangeBracket: projection!.rangeBracket,
+      session,
+      weapon,
+    });
+    expect(payload.modifiers).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'Semi-guided TAG target movement' }),
+      ]),
+    );
+  },
+);
+
 it('keeps airborne attacker indirect-fire rejection aligned with committed LOS rejection', () => {
   const session = setupIndirectSessionAtWeaponAttack();
   session.currentState.units.a1 = {
@@ -4367,6 +4575,13 @@ it('keeps attacker sensor hits and pilot wounds aligned between preview and comm
   expect(declared).toBeDefined();
   const payload = declared!.payload as IAttackDeclaredPayload;
   expect(payload.toHitNumber).toBe(7);
+  expectDeclaredToHitMatchesIndependentEngineToHit({
+    payload,
+    range: projection!.distance,
+    rangeBracket: projection!.rangeBracket,
+    session,
+    weapon: buildWeaponsByUnit().get('a1')![0],
+  });
   expect(payload.toHitNumber).toBe(projection!.toHitNumber);
   expect(payload.modifiers).toEqual(
     expect.arrayContaining([
@@ -4436,6 +4651,13 @@ it('keeps attacker arm actuator damage aligned between preview and committed att
   expect(declared).toBeDefined();
   const payload = declared!.payload as IAttackDeclaredPayload;
   expect(payload.toHitNumber).toBe(8);
+  expectDeclaredToHitMatchesIndependentEngineToHit({
+    payload,
+    range: projection!.distance,
+    rangeBracket: projection!.rangeBracket,
+    session,
+    weapon: buildWeaponsByUnit().get('a1')![0],
+  });
   expect(payload.toHitNumber).toBe(projection!.toHitNumber);
   expect(payload.modifiers).toEqual(
     expect.arrayContaining([
@@ -4501,6 +4723,13 @@ it('keeps target evasion bonus aligned between preview and committed attacks', (
   expect(declared).toBeDefined();
   const payload = declared!.payload as IAttackDeclaredPayload;
   expect(payload.toHitNumber).toBe(6);
+  expectDeclaredToHitMatchesIndependentEngineToHit({
+    payload,
+    range: projection!.distance,
+    rangeBracket: projection!.rangeBracket,
+    session,
+    weapon: buildWeaponsByUnit().get('a1')![0],
+  });
   expect(payload.toHitNumber).toBe(projection!.toHitNumber);
   expect(payload.modifiers).toEqual(
     expect.arrayContaining([
@@ -4572,6 +4801,13 @@ it('keeps attacker gunnery SPA and weapon quirk modifiers aligned between previe
   expect(declared).toBeDefined();
   const payload = declared!.payload as IAttackDeclaredPayload;
   expect(payload.toHitNumber).toBe(4);
+  expectDeclaredToHitMatchesIndependentEngineToHit({
+    payload,
+    range: projection!.distance,
+    rangeBracket: projection!.rangeBracket,
+    session,
+    weapon: buildWeaponsByUnit().get('a1')![0],
+  });
   expect(payload.toHitNumber).toBe(projection!.toHitNumber);
   expect(payload.modifiers).toEqual(
     expect.arrayContaining([
