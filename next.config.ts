@@ -6,6 +6,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
+import { buildSecurityHeaders } from './desktop/electron/securityPolicy';
+
 const FALLBACK_APP_VERSION = '0.0.0';
 const FALLBACK_BUILD_NUMBER = '0';
 
@@ -232,6 +234,15 @@ const nextConfig: NextConfig = {
 
   // Power-user settings
   poweredByHeader: false,
+
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: buildSecurityHeaders(process.env.NODE_ENV === 'development'),
+      },
+    ];
+  },
 
   // Generate build ID for cache busting
   generateBuildId: async () => {

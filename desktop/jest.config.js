@@ -2,7 +2,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/services'],
+  roots: ['<rootDir>/services', '<rootDir>/electron'],
   testMatch: ['**/__tests__/**/*.test.ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   transform: {
@@ -13,7 +13,12 @@ module.exports = {
       },
     ],
   },
-  collectCoverageFrom: ['services/**/*.ts', '!services/**/__tests__/**'],
+  collectCoverageFrom: [
+    'services/**/*.ts',
+    'electron/**/*.ts',
+    '!services/**/__tests__/**',
+    '!electron/**/__tests__/**',
+  ],
   coverageDirectory: 'coverage',
   verbose: true,
 };

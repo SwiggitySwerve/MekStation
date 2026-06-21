@@ -40,6 +40,7 @@ const sharedTransformIgnorePatterns = [
 
 const sharedTestPathIgnorePatterns = [
   '<rootDir>/.next/',
+  '<rootDir>/desktop/',
   '<rootDir>/node_modules/',
   '<rootDir>/e2e/',
   '/e2e/',

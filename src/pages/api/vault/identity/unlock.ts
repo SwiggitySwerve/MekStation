@@ -8,32 +8,46 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  API_KDF_RATE_LIMIT,
+  applySecurityHeaders,
+  clientRateLimitKey,
+  parseBody,
+  rateLimit,
+  rejectRateLimited,
+} from '@/lib/api/security';
+import { UnlockIdentityBodySchema } from '@/lib/api/securitySchemas';
 import { getIdentityRepository } from '@/services/vault/IdentityRepository';
 import { unlockIdentity } from '@/services/vault/IdentityService';
-
-// =============================================================================
-// Request Body Types
-// =============================================================================
-
-interface UnlockRequestBody {
-  password?: unknown;
-}
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<void> {
+  applySecurityHeaders(res);
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const body = req.body as UnlockRequestBody;
+    const body = parseBody(
+      UnlockIdentityBodySchema,
+      req,
+      res,
+      'Password is required',
+      { includeDetails: false },
+    );
+    if (!body) return;
     const { password } = body;
 
-    if (!password || typeof password !== 'string') {
-      return res.status(400).json({ error: 'Password is required' });
+    const limit = rateLimit(
+      clientRateLimitKey(req, 'vault-identity-unlock'),
+      API_KDF_RATE_LIMIT,
+    );
+    if (!limit.ok) {
+      rejectRateLimited(res, limit);
+      return;
     }
 
     const repository = getIdentityRepository();
