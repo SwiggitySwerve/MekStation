@@ -13,33 +13,120 @@
  * preserved — spec scenario "non-co-op mission skips the picker and
  * launches directly").
  *
- * Wave 6.1 ships the picker mount + the gating rule. The live CO1
- * intent transport that synchronizes the two players' choices across
- * the wire lands in a follow-up — for now the page tracks the local
- * player's choice in component state and surfaces a placeholder
- * "waiting for other player" affordance.
+ * The picker publishes the local participation choice into the co-op
+ * runtime session and subscribes to the other player's choice before
+ * allowing the composed co-op encounter launch.
  *
  * @spec openspec/changes/wire-coop-campaign-route/specs/coop-campaign-sync/spec.md
  */
 
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
+import type { ICampaign } from '@/types/campaign/Campaign';
 import type { CoopParticipationChoice } from '@/types/campaign/CoopCampaign';
+import type { IForce } from '@/types/campaign/Force';
+import type { IEncounter } from '@/types/encounter';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { CoopParticipationPicker } from '@/components/campaign/coop';
 import { EmptyState, PageLayout } from '@/components/ui';
+import {
+  getCoopLocalPlayerId,
+  getCoopMatchId,
+  getCoopOtherPlayerId,
+  type ICoopParticipationRecord,
+  publishCoopParticipation,
+  subscribeCoopParticipation,
+} from '@/lib/campaign/coop/coopRuntimeSession';
+import { launchCoopMission } from '@/lib/campaign/coop/launchCoopMission';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import { ForceRole, FormationLevel } from '@/types/campaign/enums';
+import { EncounterStatus, TerrainPreset } from '@/types/encounter';
+
+function routeParam(value: string | string[] | undefined): string | null {
+  if (Array.isArray(value)) return value[0] ?? null;
+  return value ?? null;
+}
+
+function fallbackRootForce(campaign: ICampaign): IForce {
+  return {
+    id: campaign.rootForceId,
+    name: `${campaign.name} Command`,
+    subForceIds: [],
+    unitIds: [],
+    forceType: ForceRole.STANDARD,
+    formationLevel: FormationLevel.REGIMENT,
+    createdAt: campaign.createdAt,
+    updatedAt: campaign.updatedAt,
+  };
+}
+
+function rootForceForCampaign(campaign: ICampaign): IForce {
+  return (
+    campaign.forces.get(campaign.rootForceId) ?? fallbackRootForce(campaign)
+  );
+}
+
+function buildLaunchEncounter(
+  campaign: ICampaign,
+  missionId: string,
+): IEncounter {
+  const mission = campaign.missions.get(missionId);
+  const rootForce = rootForceForCampaign(campaign);
+  return {
+    id: `enc-${missionId}`,
+    name: mission?.name ?? `Mission ${missionId}`,
+    description: mission?.description ?? `Co-op campaign mission ${missionId}.`,
+    status: EncounterStatus.Ready,
+    playerForce: {
+      forceId: rootForce.id,
+      forceName: rootForce.name,
+      totalBV: 0,
+      unitCount: rootForce.unitIds.length,
+    },
+    mapConfig: {
+      radius: 8,
+      terrain: TerrainPreset.Clear,
+      playerDeploymentZone: 'south',
+      opponentDeploymentZone: 'north',
+    },
+    victoryConditions: [],
+    optionalRules: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    campaignMeta: {
+      campaignId: campaign.id,
+      contractId: mission?.id ?? missionId,
+      scenarioId: mission?.scenarioIds[0] ?? missionId,
+    },
+  };
+}
 
 export default function CoopMissionLaunchPage(): React.ReactElement {
   const router = useRouter();
   const { id: campaignId, missionId } = router.query;
+  const missionKey = routeParam(missionId);
 
   const store = useCampaignStore();
   const campaign = store.getState().getCampaign();
+  const matchId = getCoopMatchId(campaign?.coopSession);
+  const localPlayerId = campaign?.coopSession
+    ? getCoopLocalPlayerId(campaign.coopSession)
+    : 'host';
+  const otherPlayerId = campaign?.coopSession
+    ? getCoopOtherPlayerId(campaign.coopSession)
+    : 'guest';
+  const localForce = useMemo(
+    () => (campaign ? rootForceForCampaign(campaign) : null),
+    [campaign],
+  );
 
   const [isClient, setIsClient] = useState(false);
+  const [participationRecords, setParticipationRecords] = useState<
+    readonly ICoopParticipationRecord[]
+  >([]);
+  const [launchError, setLaunchError] = useState<string | null>(null);
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -52,22 +139,103 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
   const [localChoice, setLocalChoice] =
     useState<CoopParticipationChoice>(localDefault);
 
-  // Other player's pick — surfaced from CO1 intent broadcast in a
-  // follow-up. For Wave 6.1 the placeholder is `undefined` so the
-  // launch stays gated until the other player commits.
-  const [otherChoice] = useState<CoopParticipationChoice | undefined>(
-    undefined,
+  useEffect(() => {
+    if (!campaign?.coopSession || !matchId || !missionKey || !localForce) {
+      return;
+    }
+    publishCoopParticipation({
+      matchId,
+      missionId: missionKey,
+      playerId: localPlayerId,
+      role: campaign.coopSession.mode,
+      choice: localChoice,
+      force: localForce,
+    });
+  }, [
+    campaign?.coopSession,
+    localChoice,
+    localForce,
+    localPlayerId,
+    matchId,
+    missionKey,
+  ]);
+
+  useEffect(() => {
+    if (!campaign?.coopSession || !matchId || !missionKey) {
+      setParticipationRecords([]);
+      return () => undefined;
+    }
+    return subscribeCoopParticipation(
+      matchId,
+      missionKey,
+      setParticipationRecords,
+    );
+  }, [campaign?.coopSession, matchId, missionKey]);
+
+  const otherRecord = useMemo(
+    () =>
+      participationRecords.find((entry) => entry.playerId === otherPlayerId),
+    [otherPlayerId, participationRecords],
   );
+  const otherChoice = otherRecord?.choice;
 
   const handleLaunch = useCallback(() => {
-    if (!campaignId || !missionId) {
+    if (!campaignId || !missionKey) {
+      return;
+    }
+    if (campaign?.coopSession) {
+      if (!matchId || !localForce || !otherRecord) {
+        return;
+      }
+      const localRecord: ICoopParticipationRecord = {
+        matchId,
+        missionId: missionKey,
+        playerId: localPlayerId,
+        role: campaign.coopSession.mode,
+        choice: localChoice,
+        force: localForce,
+      };
+      const contributions = [localRecord, otherRecord].map((entry) => ({
+        playerId: entry.playerId,
+        role: entry.role,
+        force: entry.force,
+        participation: entry.choice,
+      }));
+      const result = launchCoopMission(
+        buildLaunchEncounter(campaign, missionKey),
+        contributions,
+      );
+      if (!result.ok) {
+        setLaunchError(result.error);
+        return;
+      }
+      setLaunchError(null);
+      if (localChoice === 'deploy') {
+        void router.push(
+          `/gameplay/encounters/${encodeURIComponent(
+            result.encounterId ?? missionKey,
+          )}`,
+        );
+        return;
+      }
+      void router.push(`/gameplay/campaigns/${campaign.id}`);
       return;
     }
     // Re-enter the encounter URL so the player who chose `deploy` lands
     // on the tactical map; the `command-hq` chooser stays on the
     // campaign side (handled by the encounter page's own coop guard).
-    void router.push(`/gameplay/encounters/${String(missionId)}`);
-  }, [router, campaignId, missionId]);
+    void router.push(`/gameplay/encounters/${missionKey}`);
+  }, [
+    campaign,
+    campaignId,
+    localChoice,
+    localForce,
+    localPlayerId,
+    matchId,
+    missionKey,
+    otherRecord,
+    router,
+  ]);
 
   if (!isClient) {
     return (
@@ -148,7 +316,10 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
         <CoopParticipationPicker
           playerName={localPlayerName}
           value={localChoice}
-          onChange={setLocalChoice}
+          onChange={(choice) => {
+            setLaunchError(null);
+            setLocalChoice(choice);
+          }}
           otherPlayerChoice={otherChoice}
         />
 
@@ -169,6 +340,16 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
           >
             Neither player chose to deploy — the mission cannot launch (at least
             one player must take the field).
+          </p>
+        ) : null}
+
+        {launchError ? (
+          <p
+            role="alert"
+            data-testid="coop-launch-error"
+            className="text-sm text-rose-300"
+          >
+            {launchError}
           </p>
         ) : null}
 

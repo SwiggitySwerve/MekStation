@@ -41,6 +41,24 @@ jest.mock('next/router', () => ({
   }),
 }));
 
+const mockOpenCoopRuntimeSession = jest.fn<Promise<null>, [unknown, unknown?]>(
+  async () => null,
+);
+jest.mock('@/lib/campaign/coop/coopRuntimeSession', () => ({
+  openCoopRuntimeSession: (campaign: unknown, options?: unknown) =>
+    mockOpenCoopRuntimeSession(campaign, options),
+}));
+
+jest.mock('@/types/multiplayer/Player', () => ({
+  decodeTokenFromWire: jest.fn(() => ({
+    playerId: 'pid_host',
+    issuedAt: '2026-06-21T00:00:00.000Z',
+    expiresAt: '2026-06-21T01:00:00.000Z',
+    publicKey: 'pub',
+    signature: 'sig',
+  })),
+}));
+
 // Deterministic room code so the test can assert what `coopSession.roomCode`
 // gets stamped with. `generateRoomCode` is otherwise a real call into
 // `crypto.getRandomValues` — fine in unit tests but unstable for assertion.
@@ -124,22 +142,89 @@ describe('CampaignsListPage — co-op entry points', () => {
       .mockReset()
       .mockReturnValue('campaign-guest-1');
     mockGetCampaign.mockReset().mockReturnValue(null);
+    mockOpenCoopRuntimeSession.mockClear();
   });
 
   // ===========================================================================
   // Task 1.1 — host-mode create, honest unavailable state
   // ===========================================================================
 
-  it('Create Co-op Campaign surfaces transport unavailable instead of minting a dead room code', async () => {
+  it('Create Co-op Campaign registers a match and stamps room code plus match id onto the host campaign', async () => {
     await mountAndHydrate();
 
-    fireEvent.click(screen.getByTestId('create-coop-campaign-btn'));
+    const fetchSpy = jest.fn(async (url: string, init?: RequestInit) => {
+      if (url === '/api/multiplayer/auth/token') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            token: 'wire-token',
+            playerId: 'pid_host',
+            displayName: 'Host Player',
+          }),
+        };
+      }
+      if (url === '/api/multiplayer/matches') {
+        const body = JSON.parse(String(init?.body)) as {
+          layout?: string;
+          displayName?: string;
+          config?: { mapRadius?: number; turnLimit?: number };
+        };
+        expect(init?.headers).toMatchObject({
+          Authorization: 'Bearer wire-token',
+          'Content-Type': 'application/json',
+        });
+        expect(body).toMatchObject({
+          layout: '1v1',
+          displayName: 'Host Player',
+          config: { mapRadius: 8, turnLimit: 20 },
+        });
+        return {
+          ok: true,
+          status: 201,
+          json: async () => ({
+            matchId: 'match-host-1',
+            roomCode: 'ABC234',
+            meta: { matchId: 'match-host-1', roomCode: 'ABC234' },
+          }),
+        };
+      }
+      throw new Error(`unexpected fetch ${url}`);
+    });
+    (globalThis as { fetch: unknown }).fetch = fetchSpy;
 
-    expect(screen.getByTestId('create-coop-unavailable')).toHaveTextContent(
-      'Co-op campaign hosting is not available yet',
+    fireEvent.change(screen.getByTestId('create-coop-password-input'), {
+      target: { value: 'vault-password' },
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('create-coop-campaign-btn'));
+    });
+
+    await waitFor(() => {
+      expect(mockRouterPush).toHaveBeenCalledWith(
+        '/gameplay/campaigns/campaign-host-1',
+      );
+    });
+    expect(fetchSpy).toHaveBeenCalledWith(
+      '/api/multiplayer/auth/token',
+      expect.objectContaining({ method: 'POST' }),
     );
-    expect(mockCreateCampaign).not.toHaveBeenCalled();
-    expect(mockRouterPush).not.toHaveBeenCalled();
+    expect(fetchSpy).toHaveBeenCalledWith(
+      '/api/multiplayer/matches',
+      expect.objectContaining({ method: 'POST' }),
+    );
+    expect(mockCreateCampaign).toHaveBeenCalledWith(
+      'Co-op Campaign ABC234',
+      'mercenary',
+      undefined,
+      {
+        coopSession: {
+          mode: 'host',
+          roomCode: 'ABC234',
+          matchId: 'match-host-1',
+        },
+      },
+    );
     expect(mockCreateGuestMirrorCampaign).not.toHaveBeenCalled();
   });
 

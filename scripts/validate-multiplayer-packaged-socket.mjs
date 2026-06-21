@@ -93,7 +93,12 @@ async function issueWireToken() {
 }
 
 function assertHydratedStandaloneServer() {
-  const serverPath = path.join(process.cwd(), '.next', 'standalone', 'server.js');
+  const serverPath = path.join(
+    process.cwd(),
+    '.next',
+    'standalone',
+    'server.js',
+  );
   const configPath = path.join(
     process.cwd(),
     '.next',
@@ -125,7 +130,13 @@ function assertHydratedStandaloneServer() {
     'bindMultiplayerSocketConnection.ts',
   );
 
-  for (const filePath of [serverPath, configPath, tsxPath, wsPath, sourcePath]) {
+  for (const filePath of [
+    serverPath,
+    configPath,
+    tsxPath,
+    wsPath,
+    sourcePath,
+  ]) {
     if (!fs.existsSync(filePath)) {
       throw new Error(
         `Packaged multiplayer server is not hydrated; missing ${path.relative(
@@ -375,6 +386,33 @@ async function openAndJoin(wsUrl, wireToken, playerId, matchId, getOutput) {
   return kinds;
 }
 
+function runCoopRuntimeSmoke(match) {
+  const executable = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+  const result = spawnSync(
+    executable,
+    [
+      'tsx',
+      'scripts/validate-multiplayer-coop-runtime.ts',
+      '--match-id',
+      match.matchId,
+      '--room-code',
+      match.roomCode,
+    ],
+    {
+      cwd: process.cwd(),
+      encoding: 'utf8',
+      maxBuffer: 10 * 1024 * 1024,
+      shell: process.platform === 'win32',
+    },
+  );
+  if (result.status !== 0) {
+    throw new Error(
+      `Co-op runtime smoke failed (${result.status}). ${result.error?.message ?? ''}\nSTDOUT:\n${result.stdout ?? ''}\nSTDERR:\n${result.stderr ?? ''}`,
+    );
+  }
+  return JSON.parse(result.stdout);
+}
+
 function stopServer(child) {
   if (!child.pid) return;
   if (process.platform === 'win32') {
@@ -417,6 +455,7 @@ async function main() {
       match.matchId,
       getOutput,
     );
+    const coopRuntime = runCoopRuntimeSmoke(match);
     console.log(
       JSON.stringify(
         {
@@ -428,6 +467,7 @@ async function main() {
           matchId: match.matchId,
           roomCode: match.roomCode,
           frames: kinds,
+          coopRuntime,
         },
         null,
         2,

@@ -19,10 +19,17 @@ import type {
   IGuestProposal,
 } from '@/types/campaign/CoopCampaign';
 
+import {
+  _resetCoopRuntimeSessions,
+  openCoopRuntimeSession,
+} from '@/lib/campaign/coop/coopRuntimeSession';
 import { createCampaign } from '@/types/campaign/Campaign';
-import { createGuestCoopSession } from '@/types/campaign/CoopSession';
+import {
+  createGuestCoopSession,
+  createHostCoopSession,
+} from '@/types/campaign/CoopSession';
 
-import { CampaignCoopRouteSurface } from '../CampaignCoopRouteSurface';
+import { CampaignCoopRouteSurfaceConnected } from '../CampaignCoopRouteSurfaceConnected';
 import { GuestProposalSurface } from '../GuestProposalSurface';
 import { useGuestProposals } from '../useGuestProposals';
 
@@ -184,22 +191,41 @@ describe('GuestProposalSurface — rendering', () => {
   });
 });
 
-describe('CampaignCoopRouteSurface — not-yet-wired proposal transport', () => {
-  it('resolves the default transport as unavailable instead of pending forever', async () => {
-    const campaign = {
+describe('CampaignCoopRouteSurfaceConnected runtime proposal transport', () => {
+  beforeEach(() => {
+    _resetCoopRuntimeSessions();
+  });
+
+  it('submits guest proposals through the runtime arbiter and resolves committed', async () => {
+    const host = {
+      ...createCampaign('Host Campaign', 'mercenary', {
+        startingFunds: 1_000_000,
+      }),
+      id: 'campaign-1',
+      coopSession: createHostCoopSession('ABC234', 'match-1'),
+    };
+    await openCoopRuntimeSession(host, {
+      matchId: 'match-1',
+      roomCode: 'ABC234',
+      arbitrationMode: 'auto-approve',
+    });
+    const guest = {
       ...createCampaign('Guest Mirror', 'mercenary'),
+      id: 'campaign-1',
       coopSession: createGuestCoopSession('match-1', 'ABC234'),
     };
 
-    render(<CampaignCoopRouteSurface campaign={campaign} routeId="finances" />);
+    render(
+      <CampaignCoopRouteSurfaceConnected campaign={guest} routeId="finances" />,
+    );
 
     await act(async () => {
       screen.getByTestId('guest-action-SpendFunds').click();
     });
 
     expect(
-      await screen.findByTestId('guest-proposal-mechanically-rejected'),
-    ).toHaveTextContent('session-closed');
+      await screen.findByTestId('guest-proposal-committed'),
+    ).toHaveTextContent('Approved by the GM');
     expect(
       screen.queryByTestId('guest-action-SpendFunds-pending'),
     ).not.toBeInTheDocument();

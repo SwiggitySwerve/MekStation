@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { webcrypto } from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -252,6 +252,33 @@ async function openAndJoin(wsUrl, wireToken, playerId, matchId, getOutput) {
   return kinds;
 }
 
+function runCoopRuntimeSmoke(match) {
+  const executable = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+  const result = spawnSync(
+    executable,
+    [
+      'tsx',
+      'scripts/validate-multiplayer-coop-runtime.ts',
+      '--match-id',
+      match.matchId,
+      '--room-code',
+      match.roomCode,
+    ],
+    {
+      cwd: process.cwd(),
+      encoding: 'utf8',
+      maxBuffer: 10 * 1024 * 1024,
+      shell: process.platform === 'win32',
+    },
+  );
+  if (result.status !== 0) {
+    throw new Error(
+      `Co-op runtime smoke failed (${result.status}). ${result.error?.message ?? ''}\nSTDOUT:\n${result.stdout ?? ''}\nSTDERR:\n${result.stderr ?? ''}`,
+    );
+  }
+  return JSON.parse(result.stdout);
+}
+
 async function main() {
   const child = spawn('node', ['server.js'], {
     cwd: process.cwd(),
@@ -278,6 +305,7 @@ async function main() {
       match.matchId,
       getOutput,
     );
+    const coopRuntime = runCoopRuntimeSmoke(match);
     console.log(
       JSON.stringify(
         {
@@ -287,6 +315,7 @@ async function main() {
           matchId: match.matchId,
           roomCode: match.roomCode,
           frames: kinds,
+          coopRuntime,
         },
         null,
         2,

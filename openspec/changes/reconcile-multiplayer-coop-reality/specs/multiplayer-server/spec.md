@@ -6,7 +6,7 @@
 
 The system SHALL provide a bidirectional WebSocket channel for clients
 to exchange messages with the authoritative server during a networked
-match on server entrypoints that carry the multiplayer upgrade handler.
+match.
 The dev custom server (`npm run dev` → root `server.js`) and the
 hydrated packaged-start server (`npm run build` → `.next/standalone`
 hydration → `npm run start`) SHALL dispatch authenticated socket
@@ -16,7 +16,7 @@ transport cannot be abused.
 
 #### Scenario: Client connects and joins
 
-- **GIVEN** the live transport is wired and a client wants to join match `sess_abc`
+- **GIVEN** a client wants to join match `sess_abc`
 - **WHEN** the client opens a WebSocket to the multiplayer endpoint and
   sends `{kind: 'SessionJoin', matchId: 'sess_abc', playerId,
 lastSeq: 0}`
@@ -29,14 +29,14 @@ lastSeq: 0}`
 
 #### Scenario: Server rejects unknown match
 
-- **GIVEN** the live transport is wired and a client sends `SessionJoin` with an unknown `matchId`
+- **GIVEN** a client sends `SessionJoin` with an unknown `matchId`
 - **WHEN** the server handles the message
 - **THEN** the server SHALL reply `Error {code: 'UNKNOWN_MATCH'}`
 - **AND** the server SHALL close the socket
 
 #### Scenario: Heartbeat keeps connection alive
 
-- **GIVEN** the live transport is wired and a connected client
+- **GIVEN** a connected client
 - **WHEN** 20 seconds pass with no other traffic
 - **THEN** the server SHALL send a `Heartbeat`
 - **AND** the client SHALL reply with a `Heartbeat`

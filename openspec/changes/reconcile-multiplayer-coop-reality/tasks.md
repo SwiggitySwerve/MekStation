@@ -27,10 +27,10 @@
 
 ## 5. Wire co-op create + proposal transport + launch sync (staged build-out)
 
-- [ ] 5.1 In `handleCreateCoopCampaign` (`src/pages/gameplay/campaigns/index.tsx:150`), call `POST /api/multiplayer/matches` (or the co-op equivalent) so the room code resolves server-side, then stamp the returned match id onto `coopSession`; assert task 1.3's invite probe now returns `{matchId, status: 'lobby'}` instead of 404.
-- [ ] 5.2 Thread a real `proposalTransport` through the three direct `CampaignCoopRouteSurface` production mounts (covering six route IDs), replacing the default unavailable transport (`CampaignCoopRouteSurface.tsx:216`) with a transport that submits the `IGuestProposal` to the host via `CampaignSyncSession`/`CampaignGmArbiter`; assert task 1.4's unavailable probe now resolves to committed / vetoed / mechanically-rejected from the real transport.
-- [ ] 5.3 Sync `otherChoice` in `launch.tsx` from the CO1 participation broadcast (replace the hardcoded `undefined` at `:58` with state advanced by the other player's pick), so `bothChosen`/`canLaunch` (`:127`, `:130`) can become true.
-- [ ] 5.4 Route `handleLaunch` (`launch.tsx:62`) through `src/lib/campaign/coop/launchCoopMission.ts` for co-op campaigns (composed both-forces encounter per `coop-campaign-sync` "Co-op Mission Launch With Both Forces"), keeping the single-player `/gameplay/encounters/[id]` route only for non-co-op launches.
+- [x] 5.1 In `handleCreateCoopCampaign` (`src/pages/gameplay/campaigns/index.tsx:150`), call `POST /api/multiplayer/matches` (or the co-op equivalent) so the room code resolves server-side, then stamp the returned match id onto `coopSession`; assert task 1.3's invite probe now returns `{matchId, status: 'lobby'}` instead of 404.
+- [x] 5.2 Thread a real `proposalTransport` through the three direct `CampaignCoopRouteSurface` production mounts (covering six route IDs), replacing the default unavailable transport (`CampaignCoopRouteSurface.tsx:216`) with a transport that submits the `IGuestProposal` to the host via `CampaignSyncSession`/`CampaignGmArbiter`; assert task 1.4's unavailable probe now resolves to committed / vetoed / mechanically-rejected from the real transport.
+- [x] 5.3 Sync `otherChoice` in `launch.tsx` from the CO1 participation broadcast (replace the hardcoded `undefined` at `:58` with state advanced by the other player's pick), so `bothChosen`/`canLaunch` (`:127`, `:130`) can become true.
+- [x] 5.4 Route `handleLaunch` (`launch.tsx:62`) through `src/lib/campaign/coop/launchCoopMission.ts` for co-op campaigns (composed both-forces encounter per `coop-campaign-sync` "Co-op Mission Launch With Both Forces"), keeping the single-player `/gameplay/encounters/[id]` route only for non-co-op launches.
 
 ## 6. Capacity + KDF-throttle guardrails
 
@@ -43,6 +43,6 @@
 
 ## 8. Verification and documentation
 
-- [x] 8.1 Full verification: `npm run typecheck`, `npm run lint`, `npm run format:check`, the affected Jest suites (multiplayer client/server, co-op route surface, launch page), the dev + packaged socket smoke probes, `npm run build`, `openspec validate reconcile-multiplayer-coop-reality --strict`, and `openspec validate --all --strict` passed. Note: `npm run lint` exits 0 but still reports the repo's existing warning backlog.
-- [ ] 8.2 When the transport-wiring groups (3, 5) land, author the follow-on spec deltas that restore the unconditional SHALLs (un-gate "WebSocket Transport" and "Co-op Campaign Route Surface") and run an authenticated live smoke test (per `verify-never-infer`: rebuild → boot → real socket join → real co-op proposal commit) before claiming multiplayer works.
+- [x] 8.1 Full verification: `npm run typecheck`, `npm run lint`, `npm run format:check`, the affected Jest suites (multiplayer client/server, co-op route surface, launch page), the dev + packaged socket smoke probes, `npm run validate:multiplayer:coop-runtime`, `npm run build`, `openspec validate reconcile-multiplayer-coop-reality --strict`, and `openspec validate --all --strict` passed. Note: `npm run lint` exits 0 but still reports the repo's existing warning backlog.
+- [x] 8.2 When the transport-wiring groups (3, 5) land, author the follow-on spec deltas that restore the unconditional SHALLs (un-gate "WebSocket Transport" and "Co-op Campaign Route Surface") and run an authenticated live smoke test (per `verify-never-infer`: rebuild → boot → real socket join → real co-op proposal commit) before claiming multiplayer works.
 - [x] 8.3 Update `docs/audits/2026-06-12-full-codebase-review.md` Cluster MP rows: mark C-5/C-6/C-7/C-8/MP-1/MP-2 as "SoT honest; wiring staged" with links to the staged task groups.

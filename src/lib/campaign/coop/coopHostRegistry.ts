@@ -9,15 +9,10 @@
  * (see `useCampaignStore.outcomes.ts#enqueueCampaignOutcome`).
  *
  * Reconciliation needs the campaign's authoritative `CampaignMatchHost`
- * (CO1). Production code does NOT yet instantiate one anywhere — the
- * Wave 6.1 co-op route surfaces shipped with stub transports and the
- * planned "Wave 6.2 live CO1 transport" replacement never landed
- * (`CampaignMatchHost` / `CampaignSyncSession` are constructed only in
- * tests). This registry is therefore the SINGLE point the future
- * session-lifecycle wiring must call (`registerActiveCoopHost`) when it
- * opens a hosted co-op session. Until that wiring exists,
- * `getActiveCoopHost` returns undefined in a live app and the gate
- * below resolves null — a documented no-op, not a silent throw.
+ * (CO1). The co-op runtime adapter registers hosted sessions here when
+ * it opens a campaign. If no host is registered for a campaign,
+ * `getActiveCoopHost` returns undefined and the gate below resolves
+ * null - a documented no-op, not a silent throw.
  *
  * @module lib/campaign/coop/coopHostRegistry
  */
@@ -88,7 +83,7 @@ export function _resetActiveCoopHosts(): void {
  *    the host is CO1's single writer; a guest mirror receives the
  *    resulting events over the wire instead of reconciling locally;
  *  - no live `CampaignMatchHost` is registered for the campaign (the
- *    production state today — see the module docstring).
+ *    runtime session is not open; see the module docstring).
  *
  * Never throws: the caller is a synchronous store action firing this as
  * fire-and-forget, so a reconciliation failure is folded into the

@@ -27,3 +27,5 @@ export type {
   CampaignCoopRouteId,
   CampaignCoopRouteSurfaceProps,
 } from './CampaignCoopRouteSurface';
+export { CampaignCoopRouteSurfaceConnected } from './CampaignCoopRouteSurfaceConnected';
+export type { CampaignCoopRouteSurfaceConnectedProps } from './CampaignCoopRouteSurfaceConnected';

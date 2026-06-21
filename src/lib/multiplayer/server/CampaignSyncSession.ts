@@ -6,8 +6,9 @@
  * analogue of the combat replay path (`ReplayStart` / `ReplayChunk` /
  * `ReplayEnd` followed by live `Event`s):
  *
- *   - `open` registers the campaign for sharing and issues a 6-char
- *     room code (the `multiplayer-server` alphabet, excluding I/O/0/1).
+ *   - `open` registers the campaign for sharing and issues or adopts a
+ *     6-char room code (the `multiplayer-server` alphabet, excluding
+ *     I/O/0/1).
  *   - `joinGuest` accepts a guest with the room code, sends a
  *     `CampaignSnapshotPublished` baseline, streams the campaign event
  *     log from sequence 0, then delivers live events as the host
@@ -87,11 +88,11 @@ export class CampaignSyncSession {
 
   /**
    * Open the campaign for co-op. Commits the baseline snapshot through
-   * the host, registers the campaign for sharing, and issues a 6-char
-   * room code. Returns the issued code. Idempotent — a second `open`
-   * returns the already-issued code.
+   * the host, registers the campaign for sharing, and issues or adopts
+   * a 6-char room code. Returns the issued code. Idempotent — a second
+   * `open` returns the already-issued code.
    */
-  open = async (): Promise<string> => {
+  open = async (roomCode?: string): Promise<string> => {
     if (this.roomCode !== null) {
       return this.roomCode;
     }
@@ -100,7 +101,7 @@ export class CampaignSyncSession {
     await this.host.open();
     // Room code: same alphabet as `multiplayer-server` (I/O/0/1
     // excluded — `generateRoomCode` already enforces it).
-    this.roomCode = generateRoomCode();
+    this.roomCode = roomCode ? normalizeRoomCode(roomCode) : generateRoomCode();
     return this.roomCode;
   };
 
