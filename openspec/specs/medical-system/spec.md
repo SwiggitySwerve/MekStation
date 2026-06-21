@@ -3,9 +3,7 @@
 ## Purpose
 
 Defines Medical System requirements for Medical System Selection, Standard Medical System, Advanced Medical System, and Alternate Medical System, preserving the source-of-truth scope introduced by archived change add-medical-system.
-
 ## Requirements
-
 ### Requirement: Medical System Selection
 
 The system SHALL support three selectable medical systems: Standard (skill check), Advanced (d100), and Alternate (attribute-based).
@@ -30,7 +28,11 @@ The system SHALL support three selectable medical systems: Standard (skill check
 
 ### Requirement: Standard Medical System
 
-The system SHALL use doctor Medicine skill checks where success heals 1 hit and failure waits.
+The system SHALL use doctor Medicine skill checks where success heals 1 hit and
+failure waits. The Medicine skill value SHALL be read from the doctor's roster
+model rather than a hardcoded constant, so doctors of differing skill heal at
+materially different rates, and the shorthanded modifier SHALL be derived from
+the doctor's assigned patient load rather than always being zero.
 
 #### Scenario: Doctor success heals injury
 
@@ -49,6 +51,23 @@ The system SHALL use doctor Medicine skill checks where success heals 1 hit and 
 - **GIVEN** a patient with 4 injuries and tougherHealing enabled
 - **WHEN** medical check is performed
 - **THEN** target number increases by max(0, 4-2) = +2
+
+#### Scenario: Doctor skill is sourced from the roster model
+
+- **GIVEN** a green doctor and an elite doctor whose roster models record different
+  Medicine skill values
+- **WHEN** each treats the same injury on the same seed
+- **THEN** the Medicine skill value used SHALL be each doctor's recorded value, not a
+  shared hardcoded constant
+- **AND** the two doctors SHALL produce different heal outcomes.
+
+#### Scenario: Shorthanded doctor incurs a target-number penalty
+
+- **GIVEN** a doctor assigned more patients than their capacity
+- **WHEN** a medical check is performed
+- **THEN** the shorthanded modifier SHALL be a positive target-number penalty derived
+  from the patient load
+- **AND** it SHALL NOT be a flat zero.
 
 ### Requirement: Advanced Medical System
 

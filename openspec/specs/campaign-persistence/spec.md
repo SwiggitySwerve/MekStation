@@ -3,7 +3,6 @@
 ## Purpose
 
 Defines Campaign Persistence requirements for Serialized Campaign Envelope, Campaign Serialization Round-Trip, Schema Version and Migration Ladder, and Server-Side Campaign Persistence Contract, preserving the source-of-truth scope introduced by archived change add-campaign-persistence.
-
 ## Requirements
 ### Requirement: Serialized Campaign Envelope
 
@@ -30,7 +29,10 @@ id, and a monotonic write version. The envelope MUST be fully JSON-serializable.
 The system SHALL provide pure, total `serializeCampaign` and
 `deserializeCampaignBody` functions that share a single field-map constant so
 the two directions cannot drift, and a round-trip MUST reproduce the original
-campaign.
+campaign. The battle-aftermath state — `repairQueue`, `salvageAllocations` (and
+their reports), `pendingBattleOutcomes`, and `processedBattleIds` — SHALL be
+included in the shared field-map so it survives a serialize/deserialize
+round-trip on the server path and does not vanish on a server-fetch reload.
 
 #### Scenario: Round-trip preserves the campaign
 
@@ -45,6 +47,16 @@ campaign.
 - **GIVEN** an `ICampaign` field of type `Map` or `Date`
 - **WHEN** that field is not listed in the shared field-map constant
 - **THEN** a type-level test SHALL fail the build
+
+#### Scenario: Battle-aftermath fields survive the round-trip
+
+- **GIVEN** an `ICampaign` with a populated `repairQueue`, `salvageAllocations`,
+  `pendingBattleOutcomes`, and `processedBattleIds`
+- **WHEN** it is serialized and then deserialized
+- **THEN** the deserialized campaign SHALL carry the same `repairQueue`,
+  `salvageAllocations`, `pendingBattleOutcomes`, and `processedBattleIds`
+- **AND** `processedBattleIds` SHALL be restored to its runtime dedup-guard shape from its
+  serialized array form.
 
 ### Requirement: Schema Version and Migration Ladder
 
