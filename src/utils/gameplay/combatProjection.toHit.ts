@@ -11,6 +11,7 @@ import { DEFAULT_GUNNERY } from '@/constants/PilotConstants';
 import { RangeBracket } from '@/types/gameplay';
 
 import type { IIndirectFireProjection } from './combatProjection.indirectFire';
+import type { ISemiGuidedTagToHitContext } from './toHit/semiGuidedTagModifiers';
 
 import { calculateGroundToAirAltitudeModifier } from './aerospace/groundToAir';
 export {
@@ -18,7 +19,9 @@ export {
   deriveIndirectFireUnavailableReason,
 } from './combatProjection.indirectFire';
 import { minimumRangeForWeapons } from './combatProjection.targeting';
+import { getECMProtectedFlag } from './electronicWarfare';
 import { isGroundToGroundGameAttack } from './groundToGround';
+import { isSemiGuidedLRM } from './specialWeaponMechanics';
 import { calculateToHitWithC3, selectC3RangeBracket } from './toHit/c3';
 import { calculateToHit } from './toHit/calculate';
 import { calculateInterveningTerrainModifier } from './toHit/environmentModifiers';
@@ -53,6 +56,9 @@ interface IToHitProjectionResult {
 
 type ToHitCalculation = ReturnType<typeof calculateToHit>;
 type C3Result = ReturnType<typeof calculateToHitWithC3>['c3Result'];
+type EcmAwareUnitState = IGameState['units'][string] & {
+  readonly ecmProtected?: boolean;
+};
 
 function formatToHitReason(
   toHitNumber: number,
@@ -130,6 +136,69 @@ function weaponRangeProfiles(weapons: readonly IWeaponStatus[]) {
   }));
 }
 
+function targetEcmProtectedForProjection({
+  attacker,
+  attackerUnit,
+  combatState,
+  targetUnit,
+  targetUnitId,
+}: {
+  readonly attacker: IUnitToken;
+  readonly attackerUnit: IGameState['units'][string];
+  readonly combatState: IGameState;
+  readonly targetUnit: IGameState['units'][string];
+  readonly targetUnitId: string;
+}): boolean | undefined {
+  if (combatState.electronicWarfare) {
+    return getECMProtectedFlag(
+      attackerUnit.position,
+      attackerUnit.side as string,
+      attacker.unitId,
+      targetUnit.position,
+      targetUnit.side as string,
+      targetUnitId,
+      combatState.electronicWarfare,
+    );
+  }
+
+  return (targetUnit as EcmAwareUnitState).ecmProtected;
+}
+
+function buildProjectionSemiGuidedTagContext({
+  attacker,
+  attackerUnit,
+  combatState,
+  indirectFire,
+  primaryWeapon,
+  targetUnit,
+  targetUnitId,
+}: {
+  readonly attacker: IUnitToken;
+  readonly attackerUnit: IGameState['units'][string];
+  readonly combatState: IGameState;
+  readonly indirectFire?: IIndirectFireProjection;
+  readonly primaryWeapon?: IWeaponStatus;
+  readonly targetUnit: IGameState['units'][string];
+  readonly targetUnitId: string;
+}): ISemiGuidedTagToHitContext | undefined {
+  if (!primaryWeapon) return undefined;
+
+  return {
+    isSemiGuided:
+      isSemiGuidedLRM(primaryWeapon.id) || isSemiGuidedLRM(primaryWeapon.name),
+    targetTagDesignated: targetUnit.tagDesignated,
+    targetEcmProtected: targetEcmProtectedForProjection({
+      attacker,
+      attackerUnit,
+      combatState,
+      targetUnit,
+      targetUnitId,
+    }),
+    isIndirectFire: indirectFire?.available === true,
+    indirectFirePenalty: indirectFire?.toHitPenalty ?? 0,
+  };
+}
+
 function calculateProjectionToHit({
   attacker,
   combatState,
@@ -163,6 +232,15 @@ function calculateProjectionToHit({
     targetUnit,
     targetPartialCover,
   );
+  const semiGuidedTagContext = buildProjectionSemiGuidedTagContext({
+    attacker,
+    attackerUnit,
+    combatState,
+    indirectFire,
+    primaryWeapon,
+    targetUnit,
+    targetUnitId,
+  });
   const minimumRange = minimumRangeForWeapons(
     weapons,
     distance,
@@ -199,6 +277,7 @@ function calculateProjectionToHit({
       },
       minimumRange,
       primaryWeapon?.id,
+      semiGuidedTagContext,
     );
     return {
       toHitCalc: c3ToHit,
@@ -214,6 +293,7 @@ function calculateProjectionToHit({
       distance,
       minimumRange,
       primaryWeapon?.id,
+      semiGuidedTagContext,
     ),
   };
 }

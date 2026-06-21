@@ -16,11 +16,15 @@ import {
   MovementType,
   RangeBracket,
 } from '@/types/gameplay';
+import { buildDefaultComponentDamageState } from '@/utils/gameplay/gameSessionAttackResolutionHelpers';
 import { createHexGrid } from '@/utils/gameplay/hexGrid';
 
 import {
+  attackerStateForSelected,
   combatProjectionForAttackTarget,
+  forecastOptionsForAttackPlan,
   rangeToAttackTarget,
+  targetStateForAttackPlan,
 } from '../CombatPlanningPanel.model';
 
 const mediumLaserStatus: IWeaponStatus = {
@@ -163,6 +167,70 @@ describe('combatProjectionForAttackTarget', () => {
       rangeBracket: RangeBracket.Short,
       hasTarget: true,
       targetUnitIds: ['target'],
+    });
+  });
+});
+
+describe('to-hit forecast state hydration', () => {
+  it('builds modal attacker and target state with the shared engine builders', () => {
+    const session = makeSession();
+    session.currentState.units.attacker = {
+      ...session.currentState.units.attacker,
+      pilotWounds: 2,
+      componentDamage: {
+        ...buildDefaultComponentDamageState(),
+        sensorHits: 1,
+      },
+    };
+    session.currentState.units.target = {
+      ...session.currentState.units.target,
+      movementThisTurn: MovementType.Walk,
+      hexesMovedThisTurn: 5,
+      shutdown: true,
+      tagDesignated: true,
+    };
+    const selected = selectedFromSession(session);
+
+    const attackerState = attackerStateForSelected(selected, {
+      weaponId: 'semi-guided-lrm-15',
+      weaponName: 'Semi-Guided LRM-15',
+    });
+    const targetState = targetStateForAttackPlan('target', session, true);
+    const forecastOptions = forecastOptionsForAttackPlan({
+      isIndirectFire: true,
+      indirectFirePenalty: 1,
+      selected,
+      session,
+      targetUnitId: 'target',
+    });
+
+    expect(attackerState).toMatchObject({
+      pilotWounds: 2,
+      sensorHits: 1,
+      targetId: undefined,
+      weaponType: 'Semi-Guided LRM-15',
+    });
+    expect(targetState).toMatchObject({
+      hexesMoved: 5,
+      immobile: true,
+      partialCover: true,
+    });
+    expect(
+      forecastOptions?.semiGuidedTagContext instanceof Function
+        ? forecastOptions.semiGuidedTagContext({
+            weaponId: 'semi-guided-lrm-15',
+            weaponName: 'Semi-Guided LRM-15',
+            minRange: 0,
+            shortRange: 7,
+            mediumRange: 14,
+            longRange: 21,
+          })
+        : undefined,
+    ).toMatchObject({
+      isIndirectFire: true,
+      indirectFirePenalty: 1,
+      isSemiGuided: true,
+      targetTagDesignated: true,
     });
   });
 });

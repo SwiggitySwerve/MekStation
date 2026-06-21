@@ -71,6 +71,43 @@ describe('ToHitForecastModal', () => {
     expect(screen.getByTestId('expected-hits-total')).toBeInTheDocument();
   });
 
+  it('displays semi-guided TAG target-movement cancellation when forecast options provide full context', () => {
+    render(
+      <ToHitForecastModal
+        open={true}
+        attacker={baseAttacker}
+        target={{
+          ...baseTarget,
+          movementType: MovementType.Walk,
+          hexesMoved: 5,
+        }}
+        range={7}
+        weapons={[
+          {
+            weaponId: 'semi-guided-lrm-15',
+            weaponName: 'Semi-Guided LRM-15',
+            minRange: 0,
+            shortRange: 7,
+            mediumRange: 14,
+            longRange: 21,
+          },
+        ]}
+        forecastOptions={{
+          semiGuidedTagContext: {
+            isSemiGuided: true,
+            targetTagDesignated: true,
+          },
+        }}
+        onConfirm={jest.fn()}
+        onClose={jest.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByTestId('forecast-tn-semi-guided-lrm-15'),
+    ).toHaveTextContent('TN 4+');
+  });
+
   it('shows Out-of-range row for weapons beyond long range', () => {
     render(
       <ToHitForecastModal

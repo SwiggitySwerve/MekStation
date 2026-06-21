@@ -29,6 +29,7 @@ import {
   buildToHitForecast,
   expectedHitsTotal,
   type IForecastInput,
+  type IToHitForecastOptions,
   type IWeaponForecastRow,
 } from '@/utils/gameplay/toHit/forecast';
 import {
@@ -60,6 +61,8 @@ export interface ToHitForecastModalProps {
    * don't care about the preview can still render the modal.
    */
   attackerWeapons?: readonly IWeapon[];
+  /** Optional per-row forecast parity inputs sourced from shared engine builders. */
+  forecastOptions?: IToHitForecastOptions;
   /** Callback when Confirm Fire is pressed (parent should call commitAttack) */
   onConfirm: () => void;
   /** Callback when Back is pressed or modal background is clicked */
@@ -257,12 +260,19 @@ export function ToHitForecastModal({
   weapons,
   previewEnabled = false,
   attackerWeapons = [],
+  forecastOptions,
   onConfirm,
   onClose,
 }: ToHitForecastModalProps): React.ReactElement | null {
   if (!open) return null;
 
-  const forecast = buildToHitForecast(attacker, target, weapons, range);
+  const forecast = buildToHitForecast(
+    attacker,
+    target,
+    weapons,
+    range,
+    forecastOptions,
+  );
   const expected = expectedHitsTotal(forecast);
 
   /**

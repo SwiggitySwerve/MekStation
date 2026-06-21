@@ -5,6 +5,7 @@ export interface ISemiGuidedTagToHitContext {
   readonly targetTagDesignated?: boolean;
   readonly targetEcmProtected?: boolean;
   readonly isIndirectFire?: boolean;
+  readonly indirectFirePenalty?: number;
 }
 
 function isSemiGuidedTagActive(
@@ -37,11 +38,14 @@ export function calculateSemiGuidedTagIndirectFireModifier(
 ): IToHitModifierDetail | null {
   if (!isSemiGuidedTagActive(context)) return null;
   if (context?.isIndirectFire !== true) return null;
+  const indirectPenalty = Math.max(0, context.indirectFirePenalty ?? 0);
+  if (indirectPenalty <= 0) return null;
+  const relief = Math.min(1, indirectPenalty);
 
   return {
     name: 'Semi-guided TAG indirect fire',
-    value: -1,
+    value: -relief,
     source: 'equipment',
-    description: 'Semi-guided TAG indirect-fire relief: -1',
+    description: `Semi-guided TAG indirect-fire relief: -${relief}`,
   };
 }

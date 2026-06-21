@@ -209,6 +209,7 @@ export function buildWeaponAttackShotContext(options: {
       targetTagDesignated: options.targetNow.tagDesignated,
       targetEcmProtected,
       isIndirectFire,
+      indirectFirePenalty,
     },
   });
   const iNarcHomingModifier = iNarcHomingToHitModifier({

@@ -15,12 +15,21 @@ import type {
   IWeaponStatus,
   WeaponFireMode,
 } from '@/types/gameplay';
-import type { IForecastInput } from '@/utils/gameplay/toHit/forecast';
+import type {
+  IForecastInput,
+  IToHitForecastOptions,
+} from '@/utils/gameplay/toHit/forecast';
 
 import { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
 import { MovementType } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
 import { selectCombatProjectionWeapons } from '@/utils/gameplay/combatProjection.weaponSelection';
+import { getECMProtectedFlag } from '@/utils/gameplay/electronicWarfare';
+import { isSemiGuidedLRM } from '@/utils/gameplay/specialWeaponMechanics';
+import {
+  buildWeaponAttackAttackerToHitState,
+  buildWeaponAttackTargetToHitState,
+} from '@/utils/gameplay/toHit/stateHydration';
 
 interface MovementPlanMetrics {
   readonly movementType: MovementType;
@@ -39,6 +48,10 @@ interface AttackTargetProjectionInput {
     Record<string, ICombatRangeHex>
   >;
 }
+
+type EcmAwareTargetState = IGameSession['currentState']['units'][string] & {
+  readonly ecmProtected?: boolean;
+};
 
 export function createMovementPlan(
   movementType: MovementType,
@@ -135,32 +148,81 @@ export function rangeToAttackTarget(
 
 export function attackerStateForSelected(
   selected: ISelectedUnitProjection | null,
+  weapon?: Pick<IForecastInput, 'weaponId' | 'weaponName'>,
 ): IAttackerState | null {
   if (!selected) return null;
 
-  return {
-    gunnery: selected.unit.gunnery,
-    movementType: selected.state.movementThisTurn,
-    heat: selected.state.heat,
-    damageModifiers: [],
-  };
+  return buildWeaponAttackAttackerToHitState(
+    selected.state,
+    selected.unit.gunnery,
+    weapon
+      ? {
+          id: weapon.weaponId,
+          name: weapon.weaponName,
+        }
+      : undefined,
+    undefined,
+  );
 }
 
 export function targetStateForAttackPlan(
   targetUnitId: string | null,
   session: IGameSession | null,
+  targetPartialCover = false,
 ): ITargetState | null {
   if (!targetUnitId || !session) return null;
 
   const targetState = session.currentState.units[targetUnitId];
   if (!targetState) return null;
 
+  return buildWeaponAttackTargetToHitState(targetState, targetPartialCover);
+}
+
+export function forecastOptionsForAttackPlan({
+  isIndirectFire,
+  indirectFirePenalty,
+  selected,
+  session,
+  targetUnitId,
+}: {
+  readonly isIndirectFire: boolean;
+  readonly indirectFirePenalty?: number;
+  readonly selected: ISelectedUnitProjection | null;
+  readonly session: IGameSession | null;
+  readonly targetUnitId: string | null;
+}): IToHitForecastOptions | undefined {
+  if (!selected || !session || !targetUnitId) return undefined;
+  const targetUnit = session.currentState.units[targetUnitId];
+  if (!targetUnit) return undefined;
+
+  const targetEcmProtected = session.currentState.electronicWarfare
+    ? getECMProtectedFlag(
+        selected.state.position,
+        selected.state.side as string,
+        selected.id,
+        targetUnit.position,
+        targetUnit.side as string,
+        targetUnitId,
+        session.currentState.electronicWarfare,
+      )
+    : (targetUnit as EcmAwareTargetState).ecmProtected;
+
   return {
-    movementType: targetState.movementThisTurn,
-    hexesMoved: targetState.hexesMovedThisTurn,
-    prone: targetState.prone ?? false,
-    immobile: false,
-    partialCover: false,
+    attackerForWeapon: (weapon) =>
+      buildWeaponAttackAttackerToHitState(
+        selected.state,
+        selected.unit.gunnery,
+        { id: weapon.weaponId, name: weapon.weaponName },
+        targetUnitId,
+      ),
+    semiGuidedTagContext: (weapon) => ({
+      isSemiGuided:
+        isSemiGuidedLRM(weapon.weaponId) || isSemiGuidedLRM(weapon.weaponName),
+      targetTagDesignated: targetUnit.tagDesignated,
+      targetEcmProtected,
+      isIndirectFire,
+      indirectFirePenalty: indirectFirePenalty ?? 0,
+    }),
   };
 }
 

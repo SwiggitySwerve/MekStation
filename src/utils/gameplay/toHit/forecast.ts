@@ -20,6 +20,8 @@ import type {
 
 import { RangeBracket } from '@/types/gameplay';
 
+import type { ISemiGuidedTagToHitContext } from './semiGuidedTagModifiers';
+
 import { calculateToHit } from './calculate';
 
 /**
@@ -69,6 +71,24 @@ export interface IForecastInput {
   readonly longRange: number;
 }
 
+export interface IToHitForecastOptions {
+  readonly attackerForWeapon?: (weapon: IForecastInput) => IAttackerState;
+  readonly semiGuidedTagContext?:
+    | ISemiGuidedTagToHitContext
+    | ((weapon: IForecastInput) => ISemiGuidedTagToHitContext | undefined);
+}
+
+function semiGuidedTagContextForWeapon(
+  options: IToHitForecastOptions,
+  weapon: IForecastInput,
+): ISemiGuidedTagToHitContext | undefined {
+  if (typeof options.semiGuidedTagContext === 'function') {
+    return options.semiGuidedTagContext(weapon);
+  }
+
+  return options.semiGuidedTagContext;
+}
+
 /**
  * Get the 2d6 hit probability (percentage 0-100) for a target number.
  * Out-of-bounds TNs cap at the limits.
@@ -105,6 +125,7 @@ export function buildToHitForecast(
   target: ITargetState,
   weapons: readonly IForecastInput[],
   range: number,
+  options: IToHitForecastOptions = {},
 ): readonly IWeaponForecastRow[] {
   return weapons.map((weapon) => {
     const bracket = pickRangeBracket(range, weapon);
@@ -119,11 +140,13 @@ export function buildToHitForecast(
       };
     }
     const calc = calculateToHit(
-      attacker,
+      options.attackerForWeapon?.(weapon) ?? attacker,
       target,
       bracket,
       range,
       weapon.minRange,
+      weapon.weaponId,
+      semiGuidedTagContextForWeapon(options, weapon),
     );
     return {
       weaponId: weapon.weaponId,
