@@ -152,6 +152,14 @@ function formatMovementTerrainCostLabel(
     : '';
 }
 
+function formatMovementTurningCostLabel(
+  movementInfo: IMovementRangeHex,
+): string {
+  return movementInfo.turningCost !== undefined
+    ? `, turning +${movementInfo.turningCost}`
+    : '';
+}
+
 function formatMovementElevationLabel(movementInfo: IMovementRangeHex): string {
   const elevationParts = [
     movementInfo.elevationDelta !== undefined &&
@@ -246,6 +254,8 @@ export function formatMovementLabel(movementInfo: IMovementRangeHex): string {
   )} ${movementInfo.reachable ? 'reachable' : 'blocked'}: ${
     movementInfo.mpCost
   } MP${formatMovementTerrainCostLabel(
+    movementInfo,
+  )}${formatMovementTurningCostLabel(
     movementInfo,
   )}${formatMovementElevationLabel(movementInfo)}${formatMovementHeatLabel(
     movementInfo,

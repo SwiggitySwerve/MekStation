@@ -26,9 +26,15 @@ function formatMovementStepCostLabel(
   movementInfo: IMovementRangeHex,
 ): string | null {
   const labels: string[] = [];
-  const { elevationCost, elevationDelta = 0, terrainCost } = movementInfo;
+  const {
+    elevationCost,
+    elevationDelta = 0,
+    terrainCost,
+    turningCost,
+  } = movementInfo;
   const hasElevationDelta = elevationDelta !== 0;
   if (terrainCost && terrainCost > 0) labels.push(`T+${terrainCost}`);
+  if (turningCost && turningCost > 0) labels.push(`TURN+${turningCost}`);
   if (elevationCost !== undefined && (elevationCost > 0 || hasElevationDelta)) {
     labels.push(`E+${elevationCost}`);
   }
@@ -38,9 +44,15 @@ function formatMovementStepCostLabel(
 
 function formatMovementStepCostTitle(movementInfo: IMovementRangeHex): string {
   const labels: string[] = [];
-  const { elevationCost, elevationDelta = 0, terrainCost } = movementInfo;
+  const {
+    elevationCost,
+    elevationDelta = 0,
+    terrainCost,
+    turningCost,
+  } = movementInfo;
   const hasElevationDelta = elevationDelta !== 0;
   if (terrainCost && terrainCost > 0) labels.push(`terrain +${terrainCost}`);
+  if (turningCost && turningCost > 0) labels.push(`turning +${turningCost}`);
   if (elevationCost !== undefined && (elevationCost > 0 || hasElevationDelta)) {
     labels.push(`elevation cost +${elevationCost}`);
   }
@@ -203,6 +215,7 @@ export function MovementStepCostBadge({
       dataAttributes={{
         ...tacticalProjectionDataAttributes(source),
         'data-movement-step-terrain-cost': movementInfo.terrainCost,
+        'data-movement-step-turning-cost': movementInfo.turningCost,
         'data-movement-step-elevation-cost': movementInfo.elevationCost,
         'data-movement-step-elevation-delta': movementInfo.elevationDelta,
         'data-movement-step-source-refs': source.sourceRefs,

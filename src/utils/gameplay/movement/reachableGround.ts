@@ -18,6 +18,10 @@ import {
   calculatePathMovementCost,
   type IMovementCostContext,
 } from './calculations';
+import {
+  calculateGroundPathTurningMpCost,
+  facingForPathEnd,
+} from './eventPath';
 import { findPath } from './pathfinding';
 import {
   blockedRangeHex,
@@ -56,10 +60,17 @@ export function deriveGroundRangeHex(
     input.movementMode,
     input.costContext,
   );
-  const cost = pathCost + input.reservedCost;
+  const turningCost = calculateGroundProjectionTurningCost(input, path);
+  const cost = pathCost + turningCost + input.reservedCost;
   const maxTotalCost = input.maxPathCost + input.reservedCost;
   if (cost > maxTotalCost) {
-    return deriveGroundOverMaxTotalRangeHex(input, path, cost, maxTotalCost);
+    return deriveGroundOverMaxTotalRangeHex(
+      input,
+      path,
+      cost,
+      maxTotalCost,
+      turningCost,
+    );
   }
 
   const finalStep = finalStepCost(
@@ -76,6 +87,7 @@ export function deriveGroundRangeHex(
         terrainCost: finalStep?.terrainCost,
         elevationDelta: finalStep?.elevationDelta,
         elevationCost: finalStep?.elevationCost,
+        turningCost: turningCost > 0 ? turningCost : undefined,
         path,
         heatGenerated: input.heatGenerated,
         movementMode: input.movementMode,
@@ -172,6 +184,10 @@ function deriveOverBudgetGroundRangeHex(
         pathBudget: input.pathBudget,
         maxPathCost: input.maxPathCost,
         standingCost: input.reservedCost,
+        turningCost: calculateGroundProjectionTurningCost(
+          input,
+          diagnosticPath,
+        ),
         reservedCostLabel: input.reservedNoun,
         costContext: input.costContext,
       }),
@@ -186,6 +202,7 @@ function deriveGroundOverMaxTotalRangeHex(
   path: readonly IHexCoordinate[],
   cost: number,
   maxTotalCost: number,
+  turningCost: number,
 ): IMovementRangeHex {
   const finalStep = finalStepCost(
     input.grid,
@@ -195,14 +212,15 @@ function deriveGroundOverMaxTotalRangeHex(
   );
   const details =
     input.reservedCost > 0
-      ? `Path costs ${cost} MP including ${input.reservedNoun}, but only ${maxTotalCost} MP is available`
-      : `Path costs ${cost} MP, but only ${input.maxPathCost} MP is available`;
+      ? `Path costs ${cost} MP${turningCostDetail(turningCost)} including ${input.reservedNoun}, but only ${maxTotalCost} MP is available`
+      : `Path costs ${cost} MP${turningCostDetail(turningCost)}, but only ${input.maxPathCost} MP is available`;
   return input.withReservedProjection({
     hex: input.hex,
     mpCost: cost,
     terrainCost: finalStep?.terrainCost,
     elevationDelta: finalStep?.elevationDelta,
     elevationCost: finalStep?.elevationCost,
+    turningCost: turningCost > 0 ? turningCost : undefined,
     path,
     heatGenerated: 0,
     movementMode: input.movementMode,
@@ -214,4 +232,19 @@ function deriveGroundOverMaxTotalRangeHex(
     ...input.standUpProjection,
     ...input.hullDownExitProjection,
   });
+}
+
+function calculateGroundProjectionTurningCost(
+  input: IGroundRangeHexInput,
+  path: readonly IHexCoordinate[],
+): number {
+  return calculateGroundPathTurningMpCost({
+    path,
+    fromFacing: input.unit.facing,
+    toFacing: facingForPathEnd(path, input.unit.facing),
+  });
+}
+
+function turningCostDetail(turningCost: number): string {
+  return turningCost > 0 ? ` including turning +${turningCost}` : '';
 }

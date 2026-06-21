@@ -149,6 +149,9 @@ function formatReachableMovementCostReasons(
   if (hasPositiveCost(option.terrainCost)) {
     reasons.push(`terrain ${formatSignedCost(option.terrainCost)}`);
   }
+  if (hasPositiveCost(option.turningCost)) {
+    reasons.push(`turning ${formatSignedCost(option.turningCost)}`);
+  }
   if (hasElevationCostConsequence(option)) {
     reasons.push(`elevation ${formatMovementOptionElevation(option)}`);
   }

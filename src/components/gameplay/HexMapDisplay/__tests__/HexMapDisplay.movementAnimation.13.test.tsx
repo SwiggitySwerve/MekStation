@@ -198,8 +198,9 @@ describe('HexMapDisplay tactical visual layers', () => {
         movementRange={[
           {
             hex: { q: 1, r: 0 },
-            mpCost: 3,
+            mpCost: 4,
             terrainCost: 1,
+            turningCost: 1,
             elevationDelta: 2,
             elevationCost: 2,
             movementMode: 'tracked',
@@ -212,17 +213,22 @@ describe('HexMapDisplay tactical visual layers', () => {
 
     const movementHex = screen.getByTestId('hex-1-0');
     expect(movementHex).toHaveAttribute('data-terrain-cost', '1');
+    expect(movementHex).toHaveAttribute('data-turning-cost', '1');
     expect(movementHex).toHaveAttribute('data-elevation-delta', '2');
     expect(movementHex).toHaveAttribute('data-elevation-cost', '2');
     expect(screen.getByTestId('hex-movement-badge-1-0')).toHaveTextContent(
-      'W/TRK 3MP',
+      'W/TRK 4MP',
     );
     expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveTextContent(
-      'T+1 E+2 UP2',
+      'T+1 TURN+1 E+2 UP2',
     );
     expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
       'aria-label',
-      'Movement step cost: terrain +1; elevation cost +2; elevation delta +2',
+      'Movement step cost: terrain +1; turning +1; elevation cost +2; elevation delta +2',
+    );
+    expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
+      'data-movement-step-turning-cost',
+      '1',
     );
     expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
       'data-movement-step-elevation-cost',
@@ -239,7 +245,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
       'data-movement-step-source-refs',
       expect.stringContaining(
-        'movement:megamek:MegaMek movement rules projection:walk/tracked projection: walk via tracked reachable 3 MP terrain +1 elevation delta +2 cost +2',
+        'movement:megamek:MegaMek movement rules projection:walk/tracked projection: walk via tracked reachable 4 MP terrain +1 turning +1 elevation delta +2 cost +2',
       ),
     );
     expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
@@ -251,7 +257,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveAttribute(
       'data-movement-step-projection-explanation',
       expect.stringContaining(
-        'Walk reachable 3 MP; mode tracked; terrain cost +1; elevation delta +2 cost +2',
+        'Walk reachable 4 MP; mode tracked; terrain cost +1; turning cost +1; elevation delta +2 cost +2',
       ),
     );
 

@@ -86,6 +86,7 @@ describe('CommitMoveButton', () => {
         movementType={MovementType.Run}
         movementMode="tracked"
         terrainCost={1}
+        turningCost={1}
         elevationDelta={2}
         elevationCost={2}
         onCommit={jest.fn()}
@@ -95,10 +96,11 @@ describe('CommitMoveButton', () => {
     const summary = screen.getByTestId('movement-commit-summary');
     expect(summary).toHaveAttribute('data-movement-mode', 'tracked');
     expect(summary).toHaveAttribute('data-terrain-cost', '1');
+    expect(summary).toHaveAttribute('data-turning-cost', '1');
     expect(summary).toHaveAttribute('data-elevation-delta', '2');
     expect(summary).toHaveAttribute('data-elevation-cost', '2');
     expect(summary).toHaveAccessibleName(
-      'Movement rules summary: mode tracked; terrain cost 1; elevation delta +2; elevation cost 2',
+      'Movement rules summary: mode tracked; terrain cost 1; turning cost 1; elevation delta +2; elevation cost 2',
     );
     expect(summary).toHaveTextContent('Tracked');
     expect(summary).toHaveTextContent('+1 MP');

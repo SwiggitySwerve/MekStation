@@ -34,6 +34,7 @@ it('preserves tracked and wheeled destroyed-gyro movement exceptions', () => {
   const grid = createHexGrid({ radius: 5 });
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     componentDamage: makeComponentDamage({ gyroHits: 2 }),
   };
 
@@ -68,6 +69,7 @@ it('keeps Playtest3 three-hit heavy-duty gyro ground movement unblocked', () => 
   const grid = createHexGrid({ radius: 5 });
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     gyroType: GyroType.HEAVY_DUTY,
     componentDamage: makeComponentDamage({ gyroHits: 3 }),
   };
@@ -93,6 +95,7 @@ it('keeps a two-hit heavy-duty gyro stand-up rollable instead of destroyed', () 
   const grid = createHexGrid({ radius: 5 });
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     prone: true,
     gyroType: GyroType.HEAVY_DUTY,
     componentDamage: makeComponentDamage({ gyroHits: 2 }),
@@ -125,6 +128,7 @@ it('blocks prone ground projection when a heavy-duty gyro reaches three hits', (
   const grid = createHexGrid({ radius: 5 });
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     prone: true,
     gyroType: GyroType.HEAVY_DUTY,
     componentDamage: makeComponentDamage({ gyroHits: 3 }),
@@ -159,6 +163,7 @@ it('keeps a three-hit heavy-duty gyro rollable under Playtest3 rules', () => {
   const grid = createHexGrid({ radius: 5 });
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     prone: true,
     gyroType: GyroType.HEAVY_DUTY,
     componentDamage: makeComponentDamage({ gyroHits: 3 }),
@@ -193,6 +198,7 @@ it('blocks Playtest3 heavy-duty gyro stand-up at four hits', () => {
   const grid = createHexGrid({ radius: 5 });
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     prone: true,
     gyroType: GyroType.HEAVY_DUTY,
     componentDamage: makeComponentDamage({ gyroHits: 4 }),
@@ -229,6 +235,7 @@ it('projects stand-up PSR modifier details from represented pilot and gyro state
   const grid = createHexGrid({ radius: 5 });
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     prone: true,
     piloting: 4,
     pilotWounds: 1,

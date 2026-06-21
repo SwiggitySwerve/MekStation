@@ -116,6 +116,7 @@ function makeMovementInfo(
     hex: { q: 4, r: 0 },
     mpCost: 6,
     terrainCost: 1,
+    turningCost: 1,
     elevationDelta: 2,
     elevationCost: 2,
     heatGenerated: 2,

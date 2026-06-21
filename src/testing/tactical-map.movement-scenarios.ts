@@ -25,6 +25,7 @@ import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/
 import {
   createTacticalMapTerrainGrid,
   createTacticalMapUnitState,
+  facingForTacticalMapProjection,
   overrideTacticalMapTokens,
   requireTacticalMapMovementProjection,
 } from './tactical-map.fixture-helpers';
@@ -49,12 +50,13 @@ const tacticalMapMovementUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: { q: -1, r: 0 },
-  facing: Facing.Northeast,
+  facing: Facing.Southeast,
 });
 
 const tacticalMapBipedOptionUnit: IUnitGameState = {
   ...tacticalMapMovementUnit,
   position: tacticalMapBipedOptionOrigin,
+  facing: Facing.South,
 };
 
 export const tacticalMapBipedOptionSelectedHex = tacticalMapBipedOptionOrigin;
@@ -148,7 +150,10 @@ export function tacticalMapBipedOptionCommitInputs(): readonly ICommittedMovemen
     grid: tacticalMapMovementGrid(),
     unit: tacticalMapBipedOptionUnit,
     to: tacticalMapBipedOptionDestination,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      projection,
+      tacticalMapBipedOptionUnit.facing,
+    ),
     movementType: projection.movementType,
     capability: tacticalMapBipedCapability,
     path: projection.path,
@@ -200,7 +205,10 @@ export function tacticalMapJumpElevationCommitInput(): ICommittedMovementValidat
     grid: tacticalMapMovementGrid(),
     unit: tacticalMapMovementUnit,
     to: tacticalMapJumpElevationDestination,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      tacticalMapJumpElevationMovementRange[0],
+      tacticalMapMovementUnit.facing,
+    ),
     movementType: MovementType.Jump,
     capability: tacticalMapBipedCapability,
     path: tacticalMapJumpElevationMovementRange[0]?.path,
@@ -223,7 +231,10 @@ export function tacticalMapVtolElevationCommitInput(): ICommittedMovementValidat
     grid: tacticalMapMovementGrid(),
     unit: tacticalMapMovementUnit,
     to: tacticalMapVtolElevationDestination,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      tacticalMapVtolElevationMovementRange[0],
+      tacticalMapMovementUnit.facing,
+    ),
     movementType: MovementType.Run,
     capability: tacticalMapVtolCapability,
     path: tacticalMapVtolElevationMovementRange[0]?.path,
@@ -315,7 +326,10 @@ export function tacticalMapRuntimeHeightCommitInput(): ICommittedMovementValidat
     grid: tacticalMapMovementGrid(tacticalMapRuntimeHeightBridgeHexTerrain),
     unit: tacticalMapRuntimeHeightUnit,
     to: tacticalMapRuntimeHeightBridgeDestination,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      tacticalMapRuntimeHeightMovementRange[0],
+      tacticalMapRuntimeHeightUnit.facing,
+    ),
     movementType: MovementType.Walk,
     capability: tacticalMapRuntimeHeightCapability,
     path: tacticalMapRuntimeHeightMovementRange[0]?.path,

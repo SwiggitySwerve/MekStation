@@ -230,6 +230,7 @@ function movementRangeModeOptionFor(
     reachable: movementRangeHex.reachable,
     mpCost: movementRangeHex.mpCost,
     terrainCost: movementRangeHex.terrainCost,
+    turningCost: movementRangeHex.turningCost,
     elevationDelta: movementRangeHex.elevationDelta,
     elevationCost: movementRangeHex.elevationCost,
     heatGenerated: movementRangeHex.heatGenerated,
@@ -377,6 +378,7 @@ export function buildMovementPlan({
     altitudeControlMpCost: projectedMovement.altitudeControlMpCost,
     movementMode: projectedMovement.movementMode,
     terrainCost: projectedMovement.terrainCost,
+    turningCost: projectedMovement.turningCost,
     elevationDelta: projectedMovement.elevationDelta,
     elevationCost: projectedMovement.elevationCost,
   };

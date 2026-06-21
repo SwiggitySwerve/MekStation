@@ -38,6 +38,7 @@ function MovementCommandPreview({
       data-command-preview-mode={preview.mode}
       data-command-preview-movement-mode={preview.movementMode}
       data-command-preview-heat={preview.heatGenerated}
+      data-command-preview-turning-cost={preview.turningCost}
       data-command-preview-unreachable={preview.unreachable ? 'true' : 'false'}
     >
       <div className="font-semibold">
@@ -50,12 +51,21 @@ function MovementCommandPreview({
           : ''}
       </div>
       {(preview.terrainCost !== undefined ||
+        preview.turningCost !== undefined ||
         preview.elevationCost !== undefined) && (
         <div className="text-text-theme-secondary">
           {preview.terrainCost !== undefined
             ? `Terrain +${preview.terrainCost}`
             : ''}
           {preview.terrainCost !== undefined &&
+          (preview.turningCost !== undefined ||
+            preview.elevationCost !== undefined)
+            ? ' - '
+            : ''}
+          {preview.turningCost !== undefined
+            ? `Turning +${preview.turningCost}`
+            : ''}
+          {preview.turningCost !== undefined &&
           preview.elevationCost !== undefined
             ? ' - '
             : ''}

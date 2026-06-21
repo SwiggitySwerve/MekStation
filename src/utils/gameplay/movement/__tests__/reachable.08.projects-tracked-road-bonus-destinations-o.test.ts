@@ -40,7 +40,7 @@ it('projects tracked road-bonus destinations one MP beyond base walking MP', () 
       0,
     );
   }
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const tracked = deriveReachableHexes(unit, MovementType.Walk, grid, {
     walkMP: 2,
@@ -68,7 +68,7 @@ it('gates represented infantry pavement bonus behind the TacOps option', () => {
       0,
     );
   }
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const mechanizedInfantry: IMovementCapability = {
     walkMP: 2,
     runMP: 2,
@@ -127,7 +127,7 @@ it('requires dirt and gravel road bonus paths to match MegaMek motive eligibilit
       0,
     );
   }
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const baseCapability = { walkMP: 2, runMP: 3, jumpMP: 0 } as const;
 
   const hoverDirt = deriveReachableHexes(unit, MovementType.Walk, dirtGrid, {
@@ -185,7 +185,7 @@ it('blocks naval movement under low bridges while letting submarines pass with d
     ]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const naval = deriveReachableHexes(unit, MovementType.Walk, grid, {
     walkMP: 3,

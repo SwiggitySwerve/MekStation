@@ -14,6 +14,7 @@ import {
   movementOptionInvalidDetailsAttribute,
   movementOptionInvalidReasonsAttribute,
   movementOptionTerrainCostsAttribute,
+  movementOptionTurningCostsAttribute,
   movementOptionsForBadge,
 } from './HexCell.movementOptionSummaries';
 
@@ -50,6 +51,7 @@ function formatMovementProjectionTitle(
     `${formatMovementModeTitle(movementInfo)} ${status}`,
     `${movementInfo.mpCost} MP`,
     `terrain +${movementInfo.terrainCost ?? 0}`,
+    `turning +${movementInfo.turningCost ?? 0}`,
     `elevation delta ${movementInfo.elevationDelta ?? 0}`,
     `elevation cost +${movementInfo.elevationCost ?? 0}`,
     `heat +${movementInfo.heatGenerated ?? 0}`,
@@ -112,6 +114,7 @@ export function movementProjectionOverlayAttributes(
       : undefined,
     'data-movement-projection-mp-cost': movementInfo?.mpCost,
     'data-movement-projection-terrain-cost': movementInfo?.terrainCost,
+    'data-movement-projection-turning-cost': movementInfo?.turningCost,
     'data-movement-projection-elevation-delta': movementInfo?.elevationDelta,
     'data-movement-projection-elevation-cost': movementInfo?.elevationCost,
     'data-movement-projection-heat-generated': movementInfo?.heatGenerated,
@@ -141,6 +144,9 @@ export function movementProjectionOverlayAttributes(
       : undefined,
     'data-movement-projection-option-terrain-costs': hasMultipleOptions
       ? movementOptionTerrainCostsAttribute(movementOptions)
+      : undefined,
+    'data-movement-projection-option-turning-costs': hasMultipleOptions
+      ? movementOptionTurningCostsAttribute(movementOptions)
       : undefined,
     'data-movement-projection-option-elevation-deltas': hasMultipleOptions
       ? movementOptionElevationDeltasAttribute(movementOptions)

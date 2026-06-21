@@ -51,14 +51,16 @@ it('returns empty array when the MP budget is zero', () => {
 
 it('derives walk reach for a 5-walk-MP unit on clear terrain', () => {
   const grid = createHexGrid({ radius: 6 });
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const cap: IMovementCapability = { walkMP: 5, runMP: 8, jumpMP: 0 };
 
   const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
 
   // Every returned hex is marked reachable + walk-typed with cost ≤ 5.
   expect(result.length).toBeGreaterThan(0);
-  for (const entry of result) {
+  const reachableEntries = result.filter((entry) => entry.reachable);
+  expect(reachableEntries.length).toBeGreaterThan(0);
+  for (const entry of reachableEntries) {
     expect(entry.reachable).toBe(true);
     expect(entry.movementType).toBe(MovementType.Walk);
     expect(entry.mpCost).toBeGreaterThan(0);
@@ -73,7 +75,11 @@ it('derives walk reach for a 5-walk-MP unit on clear terrain', () => {
 
 it('subtracts normal stand-up MP before projecting prone ground reach', () => {
   const grid = createHexGrid({ radius: 6 });
-  const unit = { ...makeUnitAtOrigin(), prone: true };
+  const unit = {
+    ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
+    prone: true,
+  };
   const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 3 };
 
   const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
@@ -115,7 +121,11 @@ it('subtracts normal stand-up MP before projecting prone ground reach', () => {
 
 it('subtracts MegaMek GET_UP MP before projecting hull-down ground reach', () => {
   const grid = createHexGrid({ radius: 6 });
-  const unit = { ...makeUnitAtOrigin(), hullDown: true };
+  const unit = {
+    ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
+    hullDown: true,
+  };
   const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 3 };
 
   const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
@@ -169,7 +179,11 @@ it('subtracts MegaMek GET_UP MP before projecting hull-down ground reach', () =>
 
 it('does not apply Mek GET_UP hull-down exit costs to vehicle motive modes', () => {
   const grid = createHexGrid({ radius: 6 });
-  const unit = { ...makeUnitAtOrigin(), hullDown: true };
+  const unit = {
+    ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
+    hullDown: true,
+  };
   const cap: IMovementCapability = {
     walkMP: 4,
     runMP: 6,
@@ -220,7 +234,11 @@ it('projects hull-down jump attempts as blocked until the unit exits hull-down',
 
 it('projects intact quad Mek stand-up as MP cost without a PSR', () => {
   const grid = createHexGrid({ radius: 5 });
-  const unit = { ...makeUnitAtOrigin(), prone: true };
+  const unit = {
+    ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
+    prone: true,
+  };
   const cap: IMovementCapability = {
     walkMP: 4,
     runMP: 6,

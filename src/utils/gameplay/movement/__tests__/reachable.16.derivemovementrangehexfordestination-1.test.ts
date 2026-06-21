@@ -33,7 +33,7 @@ import {
 describe('deriveMovementRangeHexForDestination', () => {
   it('projects an on-map destination beyond MP with an engine-aligned insufficient-MP reason', () => {
     const grid = createHexGrid({ radius: 5 });
-    const unit = makeUnitAtOrigin();
+    const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
     const cap: IMovementCapability = { walkMP: 2, runMP: 3, jumpMP: 0 };
 
     const projected = deriveMovementRangeHexForDestination(
@@ -62,7 +62,7 @@ describe('deriveMovementRangeHexForDestination', () => {
     grid = setHex(grid, { q: 1, r: 0 }, TerrainType.Clear, 0);
     grid = setHex(grid, { q: 2, r: 0 }, TerrainType.Clear, 0);
     grid = setHex(grid, { q: 3, r: 0 }, TerrainType.Clear, 2);
-    const unit = makeUnitAtOrigin();
+    const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
     const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
 
     const projected = deriveMovementRangeHexForDestination(
@@ -184,7 +184,7 @@ describe('deriveMovementRangeHexForDestination', () => {
 
   it('projects AirMek walk and run heat from used movement points', () => {
     const grid = createHexGrid({ radius: 6 });
-    const unit = makeUnitAtOrigin();
+    const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
     const cap: IMovementCapability = {
       walkMP: 6,
       runMP: 9,

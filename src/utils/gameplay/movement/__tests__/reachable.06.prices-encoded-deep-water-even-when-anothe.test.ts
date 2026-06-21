@@ -42,7 +42,7 @@ it('prices encoded deep water even when another feature is primary', () => {
     ]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const walking = deriveReachableHexes(unit, MovementType.Walk, grid, {
     walkMP: 4,
@@ -91,7 +91,7 @@ it('uses the Playtest2 deep-water movement surcharge when enabled', () => {
     terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const cap: IMovementCapability = {
     walkMP: 3,
     runMP: 5,
@@ -140,7 +140,7 @@ it('lets Playtest2 Mek-style running enter water after the first step', () => {
     terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const cap: IMovementCapability = {
     walkMP: 3,
     runMP: 5,
@@ -194,7 +194,7 @@ it('lets UMU movement cross deep water without water-depth MP surcharges', () =>
     terrainStringFromFeatures([{ type: TerrainType.Water, level: 2 }]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const baseCapability = { walkMP: 1, runMP: 1, jumpMP: 0 } as const;
 
   const walking = deriveMovementRangeHexForDestination(

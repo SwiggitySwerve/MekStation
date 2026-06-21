@@ -17,6 +17,7 @@ import {
   createTacticalMapPlayerMechToken,
   createTacticalMapTerrainGrid,
   createTacticalMapUnitState,
+  facingForTacticalMapProjection,
   requireTacticalMapMovementProjection,
 } from './tactical-map.fixture-helpers';
 import { tacticalMapHexTerrain } from './tactical-map.fixtures';
@@ -37,7 +38,7 @@ const tacticalMapQuadveeMekUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: tacticalMapQuadveeConversionOrigin,
-  facing: Facing.Northeast,
+  facing: Facing.Southeast,
   conversionMode: 'mek',
 });
 
@@ -162,7 +163,10 @@ export function tacticalMapQuadveeMekCommitInput(): ICommittedMovementValidation
     grid: tacticalMapQuadveeConversionGrid(),
     unit: tacticalMapQuadveeMekUnit,
     to: tacticalMapQuadveeConversionClimb,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      tacticalMapQuadveeMekMovementRange[0],
+      tacticalMapQuadveeMekUnit.facing,
+    ),
     movementType: MovementType.Walk,
     capability: tacticalMapQuadveeCapability,
     path: tacticalMapQuadveeMekMovementRange[0]?.path,
@@ -174,7 +178,10 @@ export function tacticalMapQuadveeVehicleCommitInput(): ICommittedMovementValida
     grid: tacticalMapQuadveeConversionGrid(),
     unit: tacticalMapQuadveeVehicleUnit,
     to: tacticalMapQuadveeConversionClimb,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      tacticalMapQuadveeVehicleMovementRange[0],
+      tacticalMapQuadveeVehicleUnit.facing,
+    ),
     movementType: MovementType.Walk,
     capability: tacticalMapQuadveeCapability,
     path: [

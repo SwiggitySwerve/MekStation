@@ -36,6 +36,7 @@ it.each(['left_arm', 'front_left_leg'] as const)(
     const grid = createHexGrid({ radius: 5 });
     const unit = {
       ...makeUnitAtOrigin(),
+      facing: Facing.Southeast,
       prone: true,
       destroyedLocations: [destroyedLocation],
     };

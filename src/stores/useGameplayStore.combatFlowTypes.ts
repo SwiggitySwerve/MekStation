@@ -42,6 +42,8 @@ export interface IPlannedMovement {
   readonly movementMode?: string;
   /** Terrain modifier paid on the final step into the destination hex. */
   readonly terrainCost?: number;
+  /** MP charged for facing changes along the projected path. */
+  readonly turningCost?: number;
   /** Elevation delta from the previous path hex into the destination hex. */
   readonly elevationDelta?: number;
   /** Elevation MP paid on the final step into the destination hex. */

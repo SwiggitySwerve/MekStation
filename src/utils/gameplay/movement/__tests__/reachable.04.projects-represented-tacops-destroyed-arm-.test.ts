@@ -34,6 +34,7 @@ it('projects represented TacOps destroyed-arm stand-up penalties', () => {
   const grid = createHexGrid({ radius: 5 });
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     prone: true,
     destroyedLocations: ['right_arm'],
   };
@@ -64,6 +65,7 @@ it('projects represented Playtest2 trying-to-stand bonus', () => {
   const grid = createHexGrid({ radius: 5 });
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     prone: true,
   };
   const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
@@ -90,6 +92,7 @@ it('projects represented TacOps arm-actuator stand-up penalties per arm', () => 
   const grid = createHexGrid({ radius: 5 });
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     prone: true,
   };
   const cap: IMovementCapability = {
@@ -125,6 +128,7 @@ it('uses destroyed arm before represented TacOps arm-actuator checks', () => {
   const grid = createHexGrid({ radius: 5 });
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     prone: true,
     destroyedLocations: ['right_arm'],
   };
@@ -158,6 +162,7 @@ it('projects represented no-arms stand-up quirk before TacOps arm checks', () =>
   const grid = createHexGrid({ radius: 5 });
   const unit = {
     ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
     prone: true,
     destroyedLocations: ['right_arm', 'left_arm'],
   };
@@ -191,7 +196,7 @@ it('reports terrain and elevation costs for reachable ground movement', () => {
   let grid = createHexGrid({ radius: 3 });
   grid = setHex(grid, { q: 0, r: 0 }, TerrainType.Clear, 0);
   grid = setHex(grid, { q: 1, r: 0 }, TerrainType.LightWoods, 1);
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const cap: IMovementCapability = { walkMP: 3, runMP: 5, jumpMP: 0 };
 
   const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);
@@ -224,7 +229,7 @@ it('prices encoded multi-feature terrain consistently with grid terrain projecti
     ]),
     0,
   );
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
   const cap: IMovementCapability = { walkMP: 4, runMP: 6, jumpMP: 0 };
 
   const result = deriveReachableHexes(unit, MovementType.Walk, grid, cap);

@@ -93,6 +93,40 @@ it('keeps occupied destination blocking aligned between browser projection and c
   expect(result.heatGenerated).toBe(projection.heatGenerated);
 });
 
+it('keeps occupied jump landing blocking aligned between browser projection and commit validation', () => {
+  const projection =
+    movementScenario.tacticalMapOccupiedDestinationJumpMovementRange[0];
+
+  expect(projection).toMatchObject({
+    hex: { q: 1, r: 0 },
+    reachable: false,
+    mpCost: 1,
+    terrainCost: 0,
+    elevationDelta: 0,
+    elevationCost: 0,
+    heatGenerated: 0,
+    movementMode: 'jump',
+    movementType: 'jump',
+    blockedReason: 'Destination hex is occupied',
+    movementInvalidReason: 'DestinationOccupied',
+    movementInvalidDetails: 'Destination hex is occupied',
+  });
+
+  const result = movementScenario.validateCommittedMovement(
+    movementScenario.tacticalMapOccupiedDestinationJumpCommitInput(),
+  );
+
+  expect(result.valid).toBe(false);
+  if (result.valid) {
+    throw new Error('Expected occupied jump landing to be blocked');
+  }
+
+  expect(result.reason).toBe(projection.movementInvalidReason);
+  expect(result.details).toBe(projection.movementInvalidDetails);
+  expect(result.mpCost).toBe(projection.mpCost);
+  expect(result.heatGenerated).toBe(projection.heatGenerated);
+});
+
 it('keeps QuadVee runtime conversion mode aligned between browser projection and commit validation', () => {
   const mekProjection = movementScenario.tacticalMapQuadveeMekMovementRange[0];
   const vehicleProjection =

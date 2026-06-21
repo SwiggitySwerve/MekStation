@@ -38,11 +38,11 @@ import type { PhysicalAttackIntent } from './PhysicalAttackPanel';
 
 import {
   attackerStateForSelected,
+  combatProjectionForAttackTarget,
   createMovementPlan,
   forecastWeaponsForPlan,
   isMovementPlanReady,
   movementPlanMetrics,
-  rangeToAttackTarget,
   selectedWeaponModesForUnit,
   targetStateForAttackPlan,
 } from './CombatPlanningPanel.model';
@@ -102,7 +102,9 @@ export function CombatPlanningPanel({
   const session = useGameplaySelector((s) => s.session);
   const plannedMovement = useGameplaySelector((s) => s.plannedMovement);
   const attackPlan = useGameplaySelector((s) => s.attackPlan);
+  const unitWeaponStatusesByUnitId = useGameplaySelector((s) => s.unitWeapons);
   const weaponModesByUnitId = useGameplaySelector((s) => s.weaponModesByUnitId);
+  const interactiveSession = useGameplaySelector((s) => s.interactiveSession);
   const setPlannedMovement = useGameplaySelector((s) => s.setPlannedMovement);
   const clearPlannedMovement = useGameplaySelector(
     (s) => s.clearPlannedMovement,
@@ -130,6 +132,10 @@ export function CombatPlanningPanel({
   const selectedWeaponModes = selectedWeaponModesForUnit(
     weaponModesByUnitId,
     selected,
+  );
+  const combatGrid = useMemo(
+    () => interactiveSession?.getGrid() ?? null,
+    [interactiveSession],
   );
 
   const phase = session?.currentState.phase;
@@ -178,9 +184,27 @@ export function CombatPlanningPanel({
    * when either side is missing — out-of-range badges then fall back
    * to inert defaults.
    */
-  const rangeToTarget = useMemo(() => {
-    return rangeToAttackTarget(selected, attackPlan.targetUnitId, session);
-  }, [selected, attackPlan.targetUnitId, session]);
+  const targetCombatProjection = useMemo(() => {
+    return combatProjectionForAttackTarget({
+      selected,
+      targetUnitId: attackPlan.targetUnitId,
+      session,
+      grid: combatGrid,
+      unitWeaponStatuses: selected?.id
+        ? (unitWeaponStatusesByUnitId[selected.id] ?? [])
+        : [],
+      selectedWeaponIds: attackPlan.selectedWeapons,
+    });
+  }, [
+    attackPlan.selectedWeapons,
+    attackPlan.targetUnitId,
+    combatGrid,
+    selected,
+    session,
+    unitWeaponStatusesByUnitId,
+  ]);
+
+  const rangeToTarget = targetCombatProjection?.distance ?? 0;
 
   /**
    * Build the IAttackerState the forecast modal needs from the
@@ -241,6 +265,7 @@ export function CombatPlanningPanel({
         weapons={weapons}
         selectedWeaponModes={selectedWeaponModes}
         rangeToTarget={rangeToTarget}
+        combatProjectionRangeBracket={targetCombatProjection?.rangeBracket}
         attackerState={attackerState}
         targetState={targetState}
         forecastWeapons={forecastWeapons}

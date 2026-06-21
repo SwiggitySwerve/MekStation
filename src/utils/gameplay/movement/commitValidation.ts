@@ -22,6 +22,7 @@ import {
   validateSuppliedMovementPath,
   type ISuppliedMovementPathValidation,
 } from './commitValidationPath';
+import { movementCostContextForCapability } from './costContext';
 import { buildMovementEventPath } from './eventPath';
 import { deriveMovementRangeHexForDestination } from './reachable';
 import { validateMovement } from './validation';
@@ -144,10 +145,15 @@ export function validateCommittedMovement(
     context.movementCapability,
     input.unit.heat,
     input.environmentalConditions,
-    {
-      environmentalConditions: input.environmentalConditions,
-      pilotAbilities: input.unit.abilities,
-    },
+    movementCostContextForCapability(
+      input.movementType,
+      context.movementCapability,
+      {
+        environmentalConditions: input.environmentalConditions,
+        optionalRules: input.optionalRules,
+        pilotAbilities: input.unit.abilities,
+      },
+    ),
   );
 
   if (!validation.valid) {

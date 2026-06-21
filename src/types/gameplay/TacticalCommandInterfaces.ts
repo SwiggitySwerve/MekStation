@@ -244,6 +244,8 @@ export interface IMovementCommandPreview {
   readonly movementMode?: string;
   /** Terrain modifier paid on the final step into the destination hex. */
   readonly terrainCost?: number;
+  /** MP charged for facing changes along the previewed path. */
+  readonly turningCost?: number;
   /** Elevation delta from the previous path hex into the destination hex. */
   readonly elevationDelta?: number;
   /** Elevation MP paid on the final step into the destination hex. */

@@ -101,6 +101,7 @@ describe('runtime movement conversion replay', () => {
   it('replays conversion MP as pending movement cost consumed by projection and commit validation', () => {
     const unit = runtimeMovementUnit({
       id: 'quadvee-1',
+      facing: Facing.Southeast,
       conversionMode: 'mek',
     });
     const conversion = createRuntimeMovementStateChangedEvent(
@@ -158,6 +159,7 @@ describe('runtime movement conversion replay', () => {
   it('replays LAM AirMek-to-Mek conversion as two pending zero-MP steps', () => {
     const unit = runtimeMovementUnit({
       id: 'lam-1',
+      facing: Facing.Southeast,
       conversionMode: 'airmek',
       lamAirMekAltitude: 2,
     });

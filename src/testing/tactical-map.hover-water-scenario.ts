@@ -22,6 +22,7 @@ import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/
 import {
   createTacticalMapTerrainGrid,
   createTacticalMapUnitState,
+  facingForTacticalMapProjection,
   overrideTacticalMapTokens,
   requireTacticalMapMovementProjection,
 } from './tactical-map.fixture-helpers';
@@ -37,7 +38,7 @@ const tacticalMapHoverWaterUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: tacticalMapHoverWaterOrigin,
-  facing: Facing.Northeast,
+  facing: Facing.Southeast,
 });
 
 const tacticalMapHoverWaterCapability: IMovementCapability = {
@@ -124,7 +125,10 @@ export function tacticalMapHoverWaterCommitInput(): ICommittedMovementValidation
     grid: tacticalMapHoverWaterGrid(),
     unit: tacticalMapHoverWaterUnit,
     to: tacticalMapHoverWaterDestination,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      tacticalMapHoverWaterMovementRange[0],
+      tacticalMapHoverWaterUnit.facing,
+    ),
     movementType: MovementType.Walk,
     capability: tacticalMapHoverWaterCapability,
     path: [tacticalMapHoverWaterOrigin, tacticalMapHoverWaterDestination],

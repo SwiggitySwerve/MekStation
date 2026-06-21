@@ -53,10 +53,17 @@ it('uses explicit directional cliff metadata for WiGE and vehicle ascent project
     ]),
     1,
   );
-  const unit = makeUnitAtOrigin();
+  const westFacingUnit = {
+    ...makeUnitAtOrigin(),
+    facing: Facing.Northwest,
+  };
+  const eastFacingUnit = {
+    ...makeUnitAtOrigin(),
+    facing: Facing.Southeast,
+  };
 
   const ordinaryTrackedRise = deriveMovementRangeHexForDestination(
-    unit,
+    westFacingUnit,
     MovementType.Walk,
     grid,
     {
@@ -82,7 +89,7 @@ it('uses explicit directional cliff metadata for WiGE and vehicle ascent project
     movementMode: 'wige',
   };
   const wigePreview = deriveReachableHexes(
-    unit,
+    eastFacingUnit,
     MovementType.Walk,
     grid,
     wigeCapability,
@@ -98,7 +105,7 @@ it('uses explicit directional cliff metadata for WiGE and vehicle ascent project
 
   const wigeCommit = validateCommittedMovement({
     grid,
-    unit,
+    unit: eastFacingUnit,
     to: { q: 1, r: 0 },
     facing: Facing.Southeast,
     movementType: MovementType.Walk,
@@ -115,7 +122,7 @@ it('uses explicit directional cliff metadata for WiGE and vehicle ascent project
   });
 
   const trackedPreview = deriveMovementRangeHexForDestination(
-    unit,
+    eastFacingUnit,
     MovementType.Walk,
     grid,
     {
@@ -136,7 +143,7 @@ it('uses explicit directional cliff metadata for WiGE and vehicle ascent project
 
   const trackedCommit = validateCommittedMovement({
     grid,
-    unit,
+    unit: eastFacingUnit,
     to: { q: 1, r: 0 },
     facing: Facing.Southeast,
     movementType: MovementType.Walk,
@@ -165,7 +172,7 @@ it('uses parsed MegaMek cliff_top exits for movement projection', () => {
 hex 0101 0 "" ""
 hex 0201 1 "cliff_top:1:32" ""
 end`);
-  const unit = makeUnitAtOrigin();
+  const unit = { ...makeUnitAtOrigin(), facing: Facing.Southeast };
 
   const wigePreview = deriveMovementRangeHexForDestination(
     unit,

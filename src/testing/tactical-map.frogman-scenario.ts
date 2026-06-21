@@ -15,6 +15,7 @@ import { deriveMovementRangeHexForDestination } from '@/utils/gameplay/movement/
 import {
   createTacticalMapTerrainGrid,
   createTacticalMapUnitState,
+  facingForTacticalMapProjection,
   overrideTacticalMapTokens,
   requireTacticalMapMovementProjection,
 } from './tactical-map.fixture-helpers';
@@ -30,7 +31,7 @@ const tacticalMapFrogmanUnit: IUnitGameState = createTacticalMapUnitState({
   id: 'attacker',
   side: GameSide.Player,
   position: tacticalMapFrogmanOrigin,
-  facing: Facing.Northeast,
+  facing: Facing.Southeast,
 });
 
 const tacticalMapFrogmanCapability: IMovementCapability = {
@@ -112,7 +113,10 @@ export function tacticalMapFrogmanCommitInput(): ICommittedMovementValidationInp
     grid: tacticalMapFrogmanGrid(),
     unit: tacticalMapFrogmanUnit,
     to: tacticalMapFrogmanDestination,
-    facing: Facing.Northeast,
+    facing: facingForTacticalMapProjection(
+      tacticalMapFrogmanMovementRange[0],
+      tacticalMapFrogmanUnit.facing,
+    ),
     movementType: MovementType.Walk,
     capability: tacticalMapFrogmanCapability,
     path: [tacticalMapFrogmanOrigin, tacticalMapFrogmanDestination],
