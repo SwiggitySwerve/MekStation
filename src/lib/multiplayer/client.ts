@@ -20,7 +20,7 @@
  *     dropped silently with a console warn (not surfaced to the
  *     consumer to avoid drowning the UI in malformed-frame noise).
  *
- * @spec openspec/changes/add-multiplayer-server-infrastructure/specs/multiplayer-server/spec.md
+ * @spec openspec/specs/multiplayer-server/spec.md
  */
 
 import {
@@ -94,6 +94,8 @@ export interface IConnectOptions {
   socketFactory?: WebSocketFactory;
   /** Disable auto-reconnect (tests, controlled shutdown). */
   reconnect?: boolean;
+  /** Optional cap for consecutive reconnect attempts before terminal close. */
+  maxReconnectAttempts?: number;
   /** Last sequence to resume from (Wave 4 reconnect path). */
   lastSeq?: number;
 }
@@ -114,6 +116,7 @@ interface IClientState {
   lastSeq: number;
   reconnectAttempt: number;
   reconnectTimer: ReturnType<typeof setTimeout> | null;
+  suppressNextSocketCloseEvent: boolean;
 }
 
 type ClientEmit = (name: IClientEventName, payload: unknown) => void;
@@ -171,6 +174,8 @@ const SERVER_MESSAGE_HANDLERS: Record<
   },
   Close: ({ message, state, emit }) => {
     const close = message as Extract<IServerMessage, { kind: 'Close' }>;
+    state.closedByCaller = true;
+    state.suppressNextSocketCloseEvent = true;
     emit('close', { code: close.code, reason: close.reason });
     try {
       state.socket?.close();
@@ -254,6 +259,7 @@ export function connect(
     lastSeq: options.lastSeq ?? -1,
     reconnectAttempt: 0,
     reconnectTimer: null,
+    suppressNextSocketCloseEvent: false,
   };
 
   const factory = options.socketFactory ?? defaultWebSocketFactory();
@@ -363,7 +369,11 @@ function handleSocketMessage(
 }
 
 function handleSocketClose(runtime: IClientRuntime): void {
-  emitClientEvent(runtime, 'close', null);
+  if (runtime.state.suppressNextSocketCloseEvent) {
+    runtime.state.suppressNextSocketCloseEvent = false;
+  } else {
+    emitClientEvent(runtime, 'close', null);
+  }
   if (!runtime.state.closedByCaller && (runtime.options.reconnect ?? true)) {
     scheduleReconnect(runtime);
   }
@@ -394,7 +404,18 @@ function updateLastSeq(state: IClientState, event: unknown): void {
 }
 
 function scheduleReconnect(runtime: IClientRuntime): void {
-  runtime.state.reconnectAttempt += 1;
+  const nextAttempt = runtime.state.reconnectAttempt + 1;
+  const maxAttempts = runtime.options.maxReconnectAttempts;
+  if (maxAttempts != null && nextAttempt > maxAttempts) {
+    runtime.state.closedByCaller = true;
+    emitClientEvent(runtime, 'close', {
+      code: 'RECONNECT_LIMIT',
+      reason: 'Unable to reconnect to multiplayer session',
+    });
+    return;
+  }
+
+  runtime.state.reconnectAttempt = nextAttempt;
   const baseDelay =
     RECONNECT_INITIAL_MS *
     Math.pow(RECONNECT_MULTIPLIER, runtime.state.reconnectAttempt - 1);

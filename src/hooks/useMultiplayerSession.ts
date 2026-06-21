@@ -28,7 +28,7 @@
  * All real work runs inside the `useEffect` branch so SSR sees a stable
  * initial state.
  *
- * @spec openspec/changes/complete-multiplayer-game-surface/specs/multiplayer-game-surface/spec.md
+ * @spec openspec/specs/multiplayer-game-surface/spec.md
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -107,6 +107,8 @@ export interface IUseMultiplayerSessionOptions {
    * set this to `false` for deterministic teardown.
    */
   readonly reconnect?: boolean;
+  /** Optional reconnect-attempt cap before surfacing a terminal close. */
+  readonly maxReconnectAttempts?: number;
   /**
    * Override the WebSocket factory (tests inject a mock socket here so
    * the React hook doesn't need a real WS server).

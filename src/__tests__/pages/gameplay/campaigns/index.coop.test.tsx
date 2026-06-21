@@ -3,9 +3,8 @@
  * Section 1).
  *
  * Pins the host-create + guest-join flows added in tasks 1.1 / 1.2:
- *   - "Create Co-op Campaign" mints a host-mode campaign with a fresh
- *     6-char room code stamped on `coopSession` and navigates to the
- *     dashboard.
+ *   - "Create Co-op Campaign" does not mint a dead local-only room code
+ *     while the live co-op transport is unavailable.
  *   - "Join Co-op Campaign" opens the room-code modal; submitting a
  *     valid code resolves it via `/api/multiplayer/invites/:roomCode`
  *     and mints a guest mirror campaign with `coopSession.mode = 'guest'`
@@ -17,7 +16,7 @@
  * Next.js TypeScript route validator doesn't treat the spec as a broken
  * route.
  *
- * @spec openspec/changes/wire-coop-campaign-route/specs/coop-campaign-sync/spec.md
+ * @spec openspec/specs/coop-campaign-sync/spec.md
  */
 
 import {
@@ -128,28 +127,19 @@ describe('CampaignsListPage — co-op entry points', () => {
   });
 
   // ===========================================================================
-  // Task 1.1 — host-mode create
+  // Task 1.1 — host-mode create, honest unavailable state
   // ===========================================================================
 
-  it('Create Co-op Campaign mints a host-mode campaign and routes to its dashboard', async () => {
+  it('Create Co-op Campaign surfaces transport unavailable instead of minting a dead room code', async () => {
     await mountAndHydrate();
 
     fireEvent.click(screen.getByTestId('create-coop-campaign-btn'));
 
-    expect(mockCreateCampaign).toHaveBeenCalledTimes(1);
-    const call = mockCreateCampaign.mock.calls[0] as unknown[];
-    const [name, factionId, options, coopOpts] = call;
-    expect(name).toBe('Co-op Campaign ABC234');
-    expect(factionId).toBe('mercenary');
-    expect(options).toBeUndefined();
-    expect(coopOpts).toEqual({
-      coopSession: { mode: 'host', roomCode: 'ABC234' },
-    });
-
-    expect(mockRouterPush).toHaveBeenCalledWith(
-      '/gameplay/campaigns/campaign-host-1',
+    expect(screen.getByTestId('create-coop-unavailable')).toHaveTextContent(
+      'Co-op campaign hosting is not available yet',
     );
-    // Guest mirror MUST NOT be touched on the host-create path.
+    expect(mockCreateCampaign).not.toHaveBeenCalled();
+    expect(mockRouterPush).not.toHaveBeenCalled();
     expect(mockCreateGuestMirrorCampaign).not.toHaveBeenCalled();
   });
 

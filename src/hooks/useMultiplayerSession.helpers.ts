@@ -80,6 +80,7 @@ export function connectMultiplayerSession(
 ): () => void {
   const client = connect(params.url, params.matchId, params.auth, {
     reconnect: params.options.reconnect ?? true,
+    maxReconnectAttempts: params.options.maxReconnectAttempts,
     socketFactory: params.options.socketFactory,
     lastSeq: params.options.lastSeq,
   });

@@ -1,3 +1,8 @@
+/**
+ * Multiplayer lobby room-code surface.
+ *
+ * @spec openspec/specs/multiplayer-game-surface/spec.md
+ */
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
@@ -172,6 +177,49 @@ function LobbyJoiningState({
   );
 }
 
+function LobbyUnavailableState({
+  reason,
+}: {
+  readonly reason?: string;
+}): React.ReactElement {
+  return (
+    <div
+      data-testid="multiplayer-unavailable-panel"
+      className="mx-auto max-w-2xl px-4 py-8 text-slate-200"
+    >
+      <BackToMultiplayerLink />
+      <h1 className="mt-2 text-2xl font-bold">Multiplayer unavailable</h1>
+      <p className="mt-2 text-sm text-slate-400">
+        This lobby cannot accept live multiplayer connections yet. The invite
+        has not been joined to the live transport.
+      </p>
+      {reason && (
+        <p className="mt-2 text-xs text-amber-300" role="status">
+          {reason}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function multiplayerUnavailableReason(
+  session: ReturnType<typeof useMultiplayerSession>,
+): string | null {
+  const reason = session.closedInfo?.reason ?? session.error?.reason ?? '';
+  const normalizedReason = reason.toLowerCase();
+  if (
+    reason === 'wave-2-stub' ||
+    normalizedReason.includes('wave 2 stub') ||
+    normalizedReason.includes('not-yet-wired')
+  ) {
+    return 'The server reported the current WebSocket handler is not wired.';
+  }
+  if (session.closedInfo?.code === 'RECONNECT_LIMIT') {
+    return 'The client reached the reconnect limit without establishing a live session.';
+  }
+  return null;
+}
+
 export default function LobbyPage(): React.ReactElement {
   const router = useRouter();
   const roomCode =
@@ -199,6 +247,7 @@ export default function LobbyPage(): React.ReactElement {
     wsUrl,
     resolution?.matchId ?? null,
     auth,
+    { maxReconnectAttempts: 2 },
   );
   useAutoOccupySeat(session, tokenState);
 
@@ -236,6 +285,11 @@ export default function LobbyPage(): React.ReactElement {
         }}
       />
     );
+  }
+
+  const unavailableReason = multiplayerUnavailableReason(session);
+  if (unavailableReason) {
+    return <LobbyUnavailableState reason={unavailableReason} />;
   }
 
   if (!resolution || !session.lobbyState) {

@@ -8,7 +8,7 @@
  * Lives under `src/__tests__/pages/` (not `src/pages/__tests__/`) so the
  * Next.js route validator does not treat the spec as a broken route.
  *
- * @spec openspec/changes/complete-multiplayer-game-surface/specs/multiplayer-game-surface/spec.md
+ * @spec openspec/specs/multiplayer-game-surface/spec.md
  */
 
 import {
@@ -241,6 +241,31 @@ describe('Multiplayer lobby page — surface swap on status', () => {
     for (const link of links) {
       expect(link).not.toHaveAttribute('href', '/gameplay');
     }
+  });
+
+  it('renders multiplayer unavailable when the socket closes with the stub marker', async () => {
+    mockSession = {
+      ...baseSession('lobby'),
+      status: 'closed',
+      lobbyState: null,
+      error: {
+        code: 'INTERNAL_ERROR',
+        reason:
+          'WebSocket handler is a Wave 2 stub; full intent dispatch lands in Wave 3',
+      },
+      closedInfo: {
+        code: 'INTERNAL_ERROR',
+        reason:
+          'WebSocket handler is a Wave 2 stub; full intent dispatch lands in Wave 3',
+      },
+    };
+    render(<LobbyPage />);
+    await unlockVault();
+
+    expect(
+      await screen.findByTestId('multiplayer-unavailable-panel'),
+    ).toHaveTextContent('Multiplayer unavailable');
+    expect(screen.queryByText('Joining lobby...')).not.toBeInTheDocument();
   });
 
   it('no longer references the single-player gameplay placeholder copy', () => {

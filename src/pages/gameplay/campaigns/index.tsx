@@ -3,18 +3,17 @@ import { useRouter } from 'next/router';
  * Campaigns List Page
  * Browse, search, and manage campaign configurations.
  *
- * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
- * @spec openspec/changes/wire-coop-campaign-route/specs/coop-campaign-sync/spec.md
+ * @spec openspec/specs/campaign-system/spec.md
+ * @spec openspec/specs/coop-campaign-sync/spec.md
  */
 import { useState, useCallback, useEffect } from 'react';
 import { useStore } from 'zustand';
 
 import { PageLayout, Card, Button, EmptyState } from '@/components/ui';
-import { generateRoomCode, parseRoomCode } from '@/lib/p2p/roomCodes';
+import { parseRoomCode } from '@/lib/p2p/roomCodes';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { ICampaign } from '@/types/campaign/Campaign';
-import { createHostCoopSession } from '@/types/campaign/CoopSession';
 
 // =============================================================================
 // Campaign Card Component
@@ -122,6 +121,7 @@ export default function CampaignsListPage(): React.ReactElement {
   const [joinCode, setJoinCode] = useState('');
   const [joinBusy, setJoinBusy] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
+  const [createCoopError, setCreateCoopError] = useState<string | null>(null);
 
   // Hydration fix — flip to client AFTER mount so the SSR pass + the
   // first client render both see `isClient = false` (loading state).
@@ -140,25 +140,17 @@ export default function CampaignsListPage(): React.ReactElement {
   }, [router]);
 
   /**
-   * Quick-create a co-op campaign with `coopSession.mode = 'host'`
-   * (task 1.1). We mint a 6-char room code locally, stamp it on the
-   * fresh campaign via the extended `createCampaign` action, then
-   * navigate straight to the dashboard so the co-op badge and the
-   * host-review surface render on first paint. The user can rename
-   * the campaign from the dashboard.
+   * Co-op host creation is intentionally disabled until the live
+   * multiplayer transport registers an invite server-side. Creating a
+   * local-only campaign with a room code would hand guests a code that
+   * resolves nowhere, so the honest interim state is an unavailable
+   * message.
    */
   const handleCreateCoopCampaign = useCallback(() => {
-    const roomCode = generateRoomCode();
-    const id = store
-      .getState()
-      .createCampaign(
-        defaultCoopCampaignName(roomCode),
-        DEFAULT_COOP_FACTION_ID,
-        undefined,
-        { coopSession: createHostCoopSession(roomCode) },
-      );
-    router.push(`/gameplay/campaigns/${id}`);
-  }, [router, store]);
+    setCreateCoopError(
+      'Co-op campaign hosting is not available yet. Multiplayer invite registration is still being wired, so no room code was created.',
+    );
+  }, []);
 
   /**
    * Open the join-coop modal. The room-code prompt lives inline on
@@ -166,6 +158,7 @@ export default function CampaignsListPage(): React.ReactElement {
    * the campaign list while joining.
    */
   const handleOpenJoinCoop = useCallback(() => {
+    setCreateCoopError(null);
     setJoinError(null);
     setJoinCode('');
     setJoinOpen(true);
@@ -302,6 +295,16 @@ export default function CampaignsListPage(): React.ReactElement {
         </div>
       }
     >
+      {createCoopError && (
+        <div
+          role="status"
+          data-testid="create-coop-unavailable"
+          className="mb-6 rounded-lg border border-amber-600 bg-amber-950/40 px-4 py-3 text-sm text-amber-100"
+        >
+          {createCoopError}
+        </div>
+      )}
+
       {/* Campaigns Grid */}
       {campaigns.length === 0 ? (
         <EmptyState

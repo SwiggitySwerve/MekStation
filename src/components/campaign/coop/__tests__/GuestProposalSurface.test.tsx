@@ -7,7 +7,7 @@
  * the indicator clears on resolution; a veto and a mechanical rejection
  * are visually distinct.
  *
- * @spec openspec/changes/add-coop-campaign-play/specs/coop-campaign-sync/spec.md
+ * @spec openspec/specs/coop-campaign-sync/spec.md
  */
 
 import { act, render, renderHook, screen } from '@testing-library/react';
@@ -19,6 +19,10 @@ import type {
   IGuestProposal,
 } from '@/types/campaign/CoopCampaign';
 
+import { createCampaign } from '@/types/campaign/Campaign';
+import { createGuestCoopSession } from '@/types/campaign/CoopSession';
+
+import { CampaignCoopRouteSurface } from '../CampaignCoopRouteSurface';
 import { GuestProposalSurface } from '../GuestProposalSurface';
 import { useGuestProposals } from '../useGuestProposals';
 
@@ -177,5 +181,27 @@ describe('GuestProposalSurface — rendering', () => {
     ).toBeInTheDocument();
     // The two outcomes use distinct testids → visually distinct.
     expect(screen.queryByTestId('guest-proposal-vetoed')).toBeNull();
+  });
+});
+
+describe('CampaignCoopRouteSurface — not-yet-wired proposal transport', () => {
+  it('resolves the default transport as unavailable instead of pending forever', async () => {
+    const campaign = {
+      ...createCampaign('Guest Mirror', 'mercenary'),
+      coopSession: createGuestCoopSession('match-1', 'ABC234'),
+    };
+
+    render(<CampaignCoopRouteSurface campaign={campaign} routeId="finances" />);
+
+    await act(async () => {
+      screen.getByTestId('guest-action-SpendFunds').click();
+    });
+
+    expect(
+      await screen.findByTestId('guest-proposal-mechanically-rejected'),
+    ).toHaveTextContent('session-closed');
+    expect(
+      screen.queryByTestId('guest-action-SpendFunds-pending'),
+    ).not.toBeInTheDocument();
   });
 });

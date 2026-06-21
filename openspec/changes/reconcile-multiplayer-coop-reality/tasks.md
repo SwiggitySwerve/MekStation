@@ -9,10 +9,10 @@
 
 ## 2. Honest source-of-truth (this change's deliverable — spec only)
 
-- [ ] 2.1 Land the `multiplayer-server` delta: re-gate "WebSocket Transport" to the not-yet-wired contract (handshake closes cleanly, capacity guard) and add the packaged-server upgrade-handler prerequisite requirement. (Authored in `specs/multiplayer-server/spec.md`.)
-- [ ] 2.2 Land the `coop-campaign-sync` delta: re-gate "Co-op Campaign Route Surface" so create / proposal transport is honestly gated, and add the staged create-registers-match + real-proposal-transport requirement. (Authored in `specs/coop-campaign-sync/spec.md`.)
-- [ ] 2.3 Land the `multiplayer-game-surface` delta: add the lobby terminal "multiplayer unavailable" state requirement. (Authored in `specs/multiplayer-game-surface/spec.md`.)
-- [ ] 2.4 Sweep `@spec` annotations cited by MP-1 that point at archived multiplayer/co-op changes "as if satisfied" and re-point or annotate them to the re-gated requirements so code comments stop implying the transport is wired.
+- [x] 2.1 Land the `multiplayer-server` delta: re-gate "WebSocket Transport" to the not-yet-wired contract (handshake closes cleanly, capacity guard) and add the packaged-server upgrade-handler prerequisite requirement. (Authored in `specs/multiplayer-server/spec.md`.)
+- [x] 2.2 Land the `coop-campaign-sync` delta: re-gate "Co-op Campaign Route Surface" so create / proposal transport is honestly gated, and add the staged create-registers-match + real-proposal-transport requirement. (Authored in `specs/coop-campaign-sync/spec.md`.)
+- [x] 2.3 Land the `multiplayer-game-surface` delta: add the lobby terminal "multiplayer unavailable" state requirement. (Authored in `specs/multiplayer-game-surface/spec.md`.)
+- [x] 2.4 Sweep `@spec` annotations cited by MP-1 that point at archived multiplayer/co-op changes "as if satisfied" and re-point or annotate them to the re-gated requirements so code comments stop implying the transport is wired.
 
 ## 3. Wire the live WebSocket transport (staged build-out)
 
@@ -34,15 +34,15 @@
 
 ## 6. Capacity + KDF-throttle guardrails
 
-- [ ] 6.1 Add a per-host match-creation cap + rate-limit + TTL to `POST /api/multiplayer/matches` (`src/pages/api/multiplayer/matches/index.ts:248`) before the `store.createMatch` call, rejecting over-budget creates with a typed error and reaping expired lobby matches.
-- [ ] 6.2 Add a throttle / rate-limit in front of the vault `unlockIdentity` KDF on `POST /api/multiplayer/auth/token` (`src/pages/api/multiplayer/auth/token.ts:126`) to close the KDF-cost DoS vector; add Zod (or equivalent) validation of the request body (currently hand-rolled type guards at `:105`, `:110`).
+- [x] 6.1 Add a per-host match-creation cap + rate-limit + TTL to `POST /api/multiplayer/matches` (`src/pages/api/multiplayer/matches/index.ts:248`) before the `store.createMatch` call, rejecting over-budget creates with a typed error and reaping expired lobby matches.
+- [x] 6.2 Add a throttle / rate-limit in front of the vault `unlockIdentity` KDF on `POST /api/multiplayer/auth/token` (`src/pages/api/multiplayer/auth/token.ts:126`) to close the KDF-cost DoS vector; add Zod (or equivalent) validation of the request body (currently hand-rolled type guards at `:105`, `:110`).
 
 ## 7. Lobby terminal state
 
-- [ ] 7.1 In `src/pages/multiplayer/lobby/[roomCode].tsx`, surface a terminal "multiplayer unavailable" panel (with a route back to the multiplayer hub) when the socket closes with the stub marker or after a bounded reconnect-failure count, and stop the auto-reconnect loop (`useMultiplayerSession` `reconnect` default `true`, `useMultiplayerSession.ts:235`).
+- [x] 7.1 In `src/pages/multiplayer/lobby/[roomCode].tsx`, surface a terminal "multiplayer unavailable" panel (with a route back to the multiplayer hub) when the socket closes with the stub marker or after a bounded reconnect-failure count, and stop the auto-reconnect loop (`useMultiplayerSession` `reconnect` default `true`, `useMultiplayerSession.ts:235`).
 
 ## 8. Verification and documentation
 
 - [ ] 8.1 Full verification: `npm run typecheck`, `npm run lint`, `npm run format:check`, the affected Jest suites (multiplayer client/server, co-op route surface, launch page), the red-first probes from group 1 now passing, and `npx openspec validate reconcile-multiplayer-coop-reality --strict`.
 - [ ] 8.2 When the transport-wiring groups (3, 5) land, author the follow-on spec deltas that restore the unconditional SHALLs (un-gate "WebSocket Transport" and "Co-op Campaign Route Surface") and run an authenticated live smoke test (per `verify-never-infer`: rebuild → boot → real socket join → real co-op proposal commit) before claiming multiplayer works.
-- [ ] 8.3 Update `docs/audits/2026-06-12-full-codebase-review.md` Cluster MP rows: mark C-5/C-6/C-7/C-8/MP-1/MP-2 as "SoT honest; wiring staged" with links to the staged task groups.
+- [x] 8.3 Update `docs/audits/2026-06-12-full-codebase-review.md` Cluster MP rows: mark C-5/C-6/C-7/C-8/MP-1/MP-2 as "SoT honest; wiring staged" with links to the staged task groups.
