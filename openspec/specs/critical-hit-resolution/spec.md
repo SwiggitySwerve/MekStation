@@ -35,7 +35,7 @@ When internal structure is exposed at a location, the system SHALL roll 2d6 on t
 
 ### Requirement: Critical Slot Selection
 
-The system SHALL select critical slots randomly from occupied, non-destroyed slots in the affected location.
+The system SHALL select critical slots by a uniform random draw across all slots in the affected location, rejecting already-destroyed and empty slots and re-drawing until a live slot is found. Every slot index SHALL be reachable with no modulo bias, and selection SHALL use the injected DiceRoller so identical seeds produce identical outcomes.
 
 #### Scenario: Random slot selection from occupied slots
 
@@ -49,6 +49,13 @@ The system SHALL select critical slots randomly from occupied, non-destroyed slo
 - **WHEN** a critical slot is selected that belongs to a multi-slot component (e.g., a weapon occupying 3 slots)
 - **THEN** only one critical hit SHALL be applied to that component per slot selection
 - **AND** additional slot selections on the same component SHALL count as additional hits
+
+#### Scenario: Every live slot index is reachable
+
+- **GIVEN** a 12-slot location with 8 live occupied slots, including slots at index 6 and 7
+- **WHEN** critical slots are selected across the full range of the dice source
+- **THEN** slots at index 6 and 7 SHALL be selectable with no high-index exclusion
+- **AND** last-placed equipment such as ammo or heat sinks SHALL NOT be unreachable
 
 ### Requirement: Engine Critical Hit Effects
 
@@ -220,13 +227,29 @@ When a hit location roll results in a TAC-eligible result (roll of 2), the syste
 
 ### Requirement: Cascade Effects
 
-Critical hits SHALL trigger appropriate cascade effects such as ammo explosions and PSR triggers.
+Critical hits SHALL trigger appropriate cascade effects such as ammo explosions and PSR triggers. An ammo critical SHALL route through the ammo-explosion module on every resolution path, including live resolver consumers of the `applyAmmoHit` effect marker, so explosion damage, CASE handling, and pilot damage are applied rather than silently dropped.
 
 #### Scenario: Ammo critical triggers explosion
 
 - **WHEN** an ammo bin receives a critical hit
 - **THEN** an ammo explosion SHALL be triggered immediately
 - **AND** the ammo-explosion-system SHALL handle damage resolution
+
+#### Scenario: Resolver ammo critical applies explosion damage
+
+- **GIVEN** a critical hit lands on a loaded ammo bin via the resolver path
+- **WHEN** the critical is applied
+- **THEN** the ammo-explosion module SHALL apply internal-structure damage at the bin location
+- **AND** CASE or CASE-II handling and pilot damage SHALL follow the ammo-explosion-system rules
+- **AND** an `AmmoExplosion` event SHALL be emitted
+- **AND** the slot SHALL NOT be merely marked destroyed with no damage
+
+#### Scenario: Resolver ammo critical on empty bin is destroy-only
+
+- **GIVEN** a critical hit lands on an ammo bin with 0 remaining rounds via the resolver path
+- **WHEN** the critical is applied
+- **THEN** the slot SHALL be marked destroyed
+- **AND** no explosion damage and no `AmmoExplosion` event SHALL be produced
 
 #### Scenario: Gyro or leg critical triggers PSR
 
