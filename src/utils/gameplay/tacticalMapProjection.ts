@@ -13,7 +13,7 @@ import type {
   ITacticalMapHexProjection,
 } from './tacticalMapProjection.types';
 
-import { coordToKey, hexEquals } from './hexMath';
+import { coordToKey } from './hexMath';
 import { formatProjectionExplanation } from './tacticalMapProjection.explanation';
 import { collectProjectionSourceReferences } from './tacticalMapProjection.sourceReferences';
 import {
@@ -55,8 +55,6 @@ interface BuildTacticalMapHexProjectionInput {
   readonly movement?: IMovementRangeHex;
   readonly combat?: ICombatRangeHex;
   readonly combatLosBlockerFor?: readonly ITacticalMapCombatLosBlockerReference[];
-  readonly isSelected: boolean;
-  readonly isHovered: boolean;
   readonly pathIndex?: number;
   readonly inLegacyAttackRange: boolean;
 }
@@ -66,8 +64,6 @@ export function buildTacticalMapHexProjectionLookup({
   terrainLookup,
   movementRangeLookup,
   combatRangeLookup,
-  selectedHex = null,
-  hoveredHex = null,
   highlightPathIndexLookup = new Map(),
   legacyAttackRangeLookup = new Set(),
 }: BuildTacticalMapHexProjectionLookupInput): ReadonlyMap<
@@ -88,8 +84,6 @@ export function buildTacticalMapHexProjectionLookup({
         movement: movementRangeLookup.get(key),
         combat: combatRangeLookup.get(key),
         combatLosBlockerFor: combatLosBlockerRefsByKey.get(key) ?? [],
-        isSelected: selectedHex ? hexEquals(hex, selectedHex) : false,
-        isHovered: hoveredHex ? hexEquals(hex, hoveredHex) : false,
         pathIndex: highlightPathIndexLookup.get(key),
         inLegacyAttackRange: legacyAttackRangeLookup.has(key),
       }),
@@ -105,8 +99,6 @@ export function buildTacticalMapHexProjection({
   movement,
   combat,
   combatLosBlockerFor = [],
-  isSelected,
-  isHovered,
   pathIndex,
   inLegacyAttackRange,
 }: BuildTacticalMapHexProjectionInput): ITacticalMapHexProjection {
@@ -136,7 +128,6 @@ export function buildTacticalMapHexProjection({
     combatLosBlockerFor,
   });
   const intent = deriveProjectionIntent({
-    isSelected,
     pathIndex,
     movement,
     combat,
@@ -163,8 +154,6 @@ export function buildTacticalMapHexProjection({
     movement,
     combat,
     combatLosBlockerFor,
-    isSelected,
-    isHovered,
     pathIndex,
     inAttackRange,
     intent,

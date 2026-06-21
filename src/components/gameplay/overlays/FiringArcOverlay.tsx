@@ -27,6 +27,8 @@ export interface FiringArcOverlayProps {
   readonly enabled?: boolean;
   readonly visibleArcs?: readonly UiFiringArc[];
   readonly combatProjectionLookup?: ReadonlyMap<string, ICombatRangeHex>;
+  readonly zoom?: number;
+  readonly labelZoomThreshold?: number;
   readonly testId?: string;
 }
 
@@ -68,6 +70,9 @@ const ARC_STYLES: Record<Exclude<UiFiringArc, 'out-of-arc'>, ArcStyle> = {
     shortLabel: 'REAR',
   },
 };
+
+const DEFAULT_LABEL_ZOOM_THRESHOLD = 0.75;
+const MAX_TEXT_LABELS_PER_ARC = 4;
 
 function coordsEqual(
   left: IHexCoordinate | null | undefined,
@@ -146,6 +151,8 @@ export function areFiringArcOverlayPropsEqual(
     previous.maxRange === next.maxRange &&
     previous.enabled === next.enabled &&
     previous.testId === next.testId &&
+    previous.zoom === next.zoom &&
+    previous.labelZoomThreshold === next.labelZoomThreshold &&
     previous.combatProjectionLookup === next.combatProjectionLookup &&
     mapBoundsEqual(previous.mapHexes, next.mapHexes) &&
     arcListEqual(previous.visibleArcs, next.visibleArcs)
@@ -246,6 +253,69 @@ function ArcTextBadge({
   );
 }
 
+function representativeLabelKeysForArc(
+  arcHexes: readonly {
+    readonly hex: IHexCoordinate;
+    readonly arc: UiFiringArc;
+    readonly distance: number;
+  }[],
+): readonly string[] {
+  if (arcHexes.length <= MAX_TEXT_LABELS_PER_ARC) {
+    return arcHexes.map(({ hex }) => coordToKey(hex));
+  }
+
+  const ordered = [...arcHexes].sort((left, right) => {
+    if (left.distance !== right.distance) return left.distance - right.distance;
+    return coordToKey(left.hex).localeCompare(coordToKey(right.hex));
+  });
+  const indexes = new Set<number>([
+    0,
+    Math.round((ordered.length - 1) / 3),
+    Math.round(((ordered.length - 1) * 2) / 3),
+    ordered.length - 1,
+  ]);
+
+  return Array.from(indexes)
+    .sort((left, right) => left - right)
+    .map((index) => coordToKey(ordered[index].hex));
+}
+
+function buildRepresentativeArcLabelKeySet({
+  arcHexes,
+  labelZoomThreshold,
+  zoom,
+}: {
+  readonly arcHexes: readonly {
+    readonly hex: IHexCoordinate;
+    readonly arc: UiFiringArc;
+    readonly distance: number;
+  }[];
+  readonly labelZoomThreshold: number;
+  readonly zoom: number;
+}): ReadonlySet<string> {
+  if (zoom < labelZoomThreshold) return new Set();
+
+  const labelsByArc = new Map<
+    Exclude<UiFiringArc, 'out-of-arc'>,
+    {
+      readonly hex: IHexCoordinate;
+      readonly arc: UiFiringArc;
+      readonly distance: number;
+    }[]
+  >();
+  for (const classification of arcHexes) {
+    if (classification.arc === 'out-of-arc') continue;
+    const arc = classification.arc;
+    const labels = labelsByArc.get(arc) ?? [];
+    labels.push(classification);
+    labelsByArc.set(arc, labels);
+  }
+
+  return new Set(
+    Array.from(labelsByArc.values()).flatMap(representativeLabelKeysForArc),
+  );
+}
+
 function FiringArcOverlayComponent({
   unit,
   hexes,
@@ -254,6 +324,8 @@ function FiringArcOverlayComponent({
   enabled = true,
   visibleArcs,
   combatProjectionLookup,
+  zoom = 1,
+  labelZoomThreshold = DEFAULT_LABEL_ZOOM_THRESHOLD,
   testId = 'firing-arc-overlay',
 }: FiringArcOverlayProps): React.ReactElement {
   const arcHexes = useMemo(() => {
@@ -266,6 +338,15 @@ function FiringArcOverlayComponent({
       visibleArcs,
     }).filter((classification) => classification.arc !== 'out-of-arc');
   }, [enabled, hexes, mapHexes, maxRange, unit, visibleArcs]);
+  const representativeLabelKeys = useMemo(
+    () =>
+      buildRepresentativeArcLabelKeySet({
+        arcHexes,
+        labelZoomThreshold,
+        zoom,
+      }),
+    [arcHexes, labelZoomThreshold, zoom],
+  );
 
   return (
     <g
@@ -311,7 +392,9 @@ function FiringArcOverlayComponent({
               hex={hex}
               testId={`firing-arc-shape-${typedArc}-${key}`}
             />
-            <ArcTextBadge hex={hex} style={style} />
+            {representativeLabelKeys.has(key) && (
+              <ArcTextBadge hex={hex} style={style} />
+            )}
           </g>
         );
       })}

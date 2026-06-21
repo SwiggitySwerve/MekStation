@@ -17,7 +17,7 @@
  *    wheel-zoom / touch-pan can actually cancel page scrolling.
  */
 
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import '@testing-library/jest-dom';
 import { GameSide, TokenUnitType, type IUnitToken } from '@/types/gameplay';
@@ -30,7 +30,24 @@ import { deriveIsometricTerrainOcclusionInfo } from '../projection';
 // is itself memoized with default shallow-prop comparison, so the count
 // only increases when HexMapDisplay hands the cell a fresh prop identity
 // — exactly the defect under test.
-const mockHexCellRenderCount = { count: 0 };
+const mockHexCellRenderCount = {
+  byKey: new Map<string, number>(),
+  count: 0,
+};
+
+function resetMockHexCellRenderCount(): void {
+  mockHexCellRenderCount.count = 0;
+  mockHexCellRenderCount.byKey.clear();
+}
+
+function hexRenderCountsSince(
+  before: ReadonlyMap<string, number>,
+): readonly string[] {
+  return Array.from(mockHexCellRenderCount.byKey.entries())
+    .filter(([key, count]) => count > (before.get(key) ?? 0))
+    .map(([key]) => key)
+    .sort();
+}
 
 jest.mock('../HexCell', () => {
   const ReactActual = jest.requireActual<typeof React>('react');
@@ -38,7 +55,13 @@ jest.mock('../HexCell', () => {
   const CountedHexCell = ReactActual.memo(function CountedHexCell(
     props: Record<string, unknown>,
   ) {
+    const hex = props.hex as { q: number; r: number };
+    const key = `${hex.q},${hex.r}`;
     mockHexCellRenderCount.count += 1;
+    mockHexCellRenderCount.byKey.set(
+      key,
+      (mockHexCellRenderCount.byKey.get(key) ?? 0) + 1,
+    );
     return ReactActual.createElement(actual.HexCell, props);
   });
   return { ...actual, HexCell: CountedHexCell };
@@ -54,10 +77,32 @@ jest.mock('../projection', () => {
   };
 });
 
+jest.mock('@/utils/gameplay/tacticalMapProjection', () => {
+  const actual = jest.requireActual('@/utils/gameplay/tacticalMapProjection');
+  return {
+    ...actual,
+    buildTacticalMapHexProjectionLookup: jest.fn(
+      actual.buildTacticalMapHexProjectionLookup,
+    ),
+  };
+});
+
 // Import AFTER the mocks so HexMapDisplay picks up the counted cell and
-// the spied occlusion sweep.
+// the spied projection/occlusion sweeps.
+// eslint-disable-next-line import/first
+import { buildTacticalMapHexProjectionLookup } from '@/utils/gameplay/tacticalMapProjection';
+
 // eslint-disable-next-line import/first
 import { HexMapDisplay } from '../HexMapDisplay';
+
+beforeEach(() => {
+  resetMockHexCellRenderCount();
+  (
+    buildTacticalMapHexProjectionLookup as jest.MockedFunction<
+      typeof buildTacticalMapHexProjectionLookup
+    >
+  ).mockClear();
+});
 
 function makeToken(overrides: Partial<IUnitToken> = {}): IUnitToken {
   return {
@@ -103,6 +148,49 @@ describe('HexCell memo stability across camera events', () => {
 
     // The grid geometry did not change — memoized cells must be skipped.
     expect(mockHexCellRenderCount.count).toBe(before);
+  });
+
+  it('re-renders only the exited and entered hexes when hover moves on a large map', () => {
+    render(<HexMapDisplay radius={18} tokens={[]} selectedHex={null} />);
+
+    const firstHoverTarget = screen.getByTestId('hex-0-0');
+    const secondHoverTarget = screen.getByTestId('hex-1-0');
+
+    act(() => {
+      fireEvent.mouseEnter(firstHoverTarget);
+    });
+    const countsAfterFirstHover = new Map(mockHexCellRenderCount.byKey);
+
+    act(() => {
+      fireEvent.mouseEnter(secondHoverTarget);
+    });
+
+    expect(hexRenderCountsSince(countsAfterFirstHover)).toEqual(['0,0', '1,0']);
+    expect(screen.queryByTestId('hex-overlay-0-0')).not.toBeInTheDocument();
+    expect(screen.getByTestId('hex-overlay-1-0')).toHaveAttribute(
+      'data-hex-overlay-kind',
+      'hover',
+    );
+  });
+
+  it('keeps the tactical projection lookup stable across pure hover moves', () => {
+    const projectionBuilder =
+      buildTacticalMapHexProjectionLookup as jest.MockedFunction<
+        typeof buildTacticalMapHexProjectionLookup
+      >;
+
+    render(<HexMapDisplay radius={18} tokens={[]} selectedHex={null} />);
+
+    expect(projectionBuilder).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      fireEvent.mouseEnter(screen.getByTestId('hex-0-0'));
+    });
+    act(() => {
+      fireEvent.mouseEnter(screen.getByTestId('hex-1-0'));
+    });
+
+    expect(projectionBuilder).toHaveBeenCalledTimes(1);
   });
 });
 

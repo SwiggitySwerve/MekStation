@@ -146,6 +146,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
                 maxRange={selectedWeaponMaxRange}
                 visibleArcs={visibleFiringArcs}
                 combatProjectionLookup={combatRangeLookup}
+                zoom={interaction.zoom}
                 enabled
                 testId="firing-arc-overlay"
               />

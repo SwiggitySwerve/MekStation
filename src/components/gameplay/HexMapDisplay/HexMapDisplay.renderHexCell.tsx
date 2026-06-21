@@ -7,7 +7,7 @@ import type {
 } from '@/types/gameplay';
 import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
 
-import { coordToKey } from '@/utils/gameplay/hexMath';
+import { coordToKey, hexEquals } from '@/utils/gameplay/hexMath';
 
 import type { IsometricTerrainOccluderInfo } from './projection';
 
@@ -19,11 +19,13 @@ export interface RenderHexCellInput {
   readonly handleHexLeave: () => void;
   readonly hoverMpCost: number | undefined;
   readonly hoverUnreachable: boolean;
+  readonly hoveredHex: IHexCoordinate | null;
   readonly isometricTerrainOccluderInfoByHex: ReadonlyMap<
     string,
     IsometricTerrainOccluderInfo
   >;
   readonly projectionMode: MapProjectionMode;
+  readonly selectedHex: IHexCoordinate | null;
   readonly showCoordinates: boolean;
   readonly tacticalMapProjectionLookup: ReadonlyMap<
     string,
@@ -40,8 +42,10 @@ export function renderHexCell(
     handleHexLeave,
     hoverMpCost,
     hoverUnreachable,
+    hoveredHex,
     isometricTerrainOccluderInfoByHex,
     projectionMode,
+    selectedHex,
     showCoordinates,
     tacticalMapProjectionLookup,
     terrainLookup,
@@ -52,6 +56,9 @@ export function renderHexCell(
   const movementInfo = projection?.movement;
   const pathIndex = projection?.pathIndex;
   const isometricOccluderInfo = isometricTerrainOccluderInfoByHex.get(key);
+  const isSelected = selectedHex ? hexEquals(hex, selectedHex) : false;
+  const isHovered = hoveredHex ? hexEquals(hex, hoveredHex) : false;
+  const tacticalProjectionIntent = isSelected ? 'selected' : projection?.intent;
 
   return (
     <HexCell
@@ -59,15 +66,15 @@ export function renderHexCell(
       hex={hex}
       terrain={projection?.terrain}
       terrainLookup={terrainLookup}
-      isSelected={projection?.isSelected ?? false}
-      isHovered={projection?.isHovered ?? false}
+      isSelected={isSelected}
+      isHovered={isHovered}
       movementInfo={movementInfo}
       combatInfo={projection?.combat}
       combatLosBlockerFor={projection?.combatLosBlockerFor}
       isInAttackRange={projection?.inAttackRange ?? false}
       isInPath={pathIndex !== undefined}
       pathIndex={pathIndex}
-      tacticalProjectionIntent={projection?.intent}
+      tacticalProjectionIntent={tacticalProjectionIntent}
       tacticalProjectionStatus={projection?.status}
       tacticalProjectionMovementStatus={projection?.movementStatus}
       tacticalProjectionMovementCostStatus={projection?.movementCostStatus}
@@ -84,14 +91,12 @@ export function renderHexCell(
       showCoordinate={showCoordinates}
       projectionMode={projectionMode}
       hoverMpCost={
-        projection?.isHovered &&
-        hoverMpCost !== undefined &&
-        movementInfo?.reachable
+        isHovered && hoverMpCost !== undefined && movementInfo?.reachable
           ? hoverMpCost
           : undefined
       }
       isUnreachableHover={
-        projection?.isHovered && hoverUnreachable && !movementInfo?.reachable
+        isHovered && hoverUnreachable && !movementInfo?.reachable
       }
       onClick={handleHexClick}
       onMouseEnter={handleHexHover}

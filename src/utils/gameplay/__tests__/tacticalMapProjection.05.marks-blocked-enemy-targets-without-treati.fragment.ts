@@ -32,8 +32,6 @@ describe('tacticalMapProjection', () => {
         blockedReason: 'Line of sight blocked',
       }),
       movement: undefined,
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });
@@ -51,8 +49,6 @@ describe('tacticalMapProjection', () => {
         validTargetUnitIds: [],
       }),
       movement: undefined,
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });
@@ -92,8 +88,6 @@ describe('tacticalMapProjection', () => {
           'Some contacts are hidden or last-known and cannot be targeted',
         attackable: true,
       }),
-      isSelected: false,
-      isHovered: false,
       pathIndex: undefined,
       inLegacyAttackRange: false,
     });
@@ -117,16 +111,13 @@ describe('tacticalMapProjection', () => {
       terrainLookup: new Map(),
       movementRangeLookup: new Map(),
       combatRangeLookup: new Map(),
-      selectedHex: { q: 0, r: 0 },
-      hoveredHex: { q: 1, r: 0 },
       highlightPathIndexLookup: new Map([['1,0', 1]]),
       legacyAttackRangeLookup: new Set(['1,0']),
     });
 
     expect(projectionLookup.get('0,0')).toMatchObject({
-      intent: 'selected',
+      intent: 'terrain',
       status: 'neutral',
-      isSelected: true,
       terrain: {
         elevation: 0,
         features: [{ type: TerrainType.Clear, level: 0 }],
@@ -136,7 +127,6 @@ describe('tacticalMapProjection', () => {
       intent: 'path',
       status: 'neutral',
       combatStatus: 'range-only',
-      isHovered: true,
       pathIndex: 1,
       inAttackRange: true,
       sourceReferences: expect.arrayContaining([
