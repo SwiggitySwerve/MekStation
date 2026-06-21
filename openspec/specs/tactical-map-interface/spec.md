@@ -2748,7 +2748,7 @@ The tactical map interface SHALL expose projected weapon heat and ammo impact fr
 
 ### Requirement: Weapon Command Preview Uses Combat Projection Impact
 
-The tactical command preview SHALL use shared combat projection weapon impact metadata for projected weapon attack heat and ammo usage.
+The tactical command preview SHALL use shared combat projection weapon impact metadata for projected weapon attack heat and ammo usage, and combat planning surfaces SHALL derive displayed range and range bracket values from the shared combat projection rather than independent distance computation.
 
 #### Scenario: Attack preview heat and ammo come from combat projection
 
@@ -2773,6 +2773,18 @@ The tactical command preview SHALL use shared combat projection weapon impact me
 **AND** weapon status data is available for those projected weapons
 **WHEN** the command preview is built
 **THEN** expected damage MAY be computed from weapon status damage values until combat projection carries damage envelope metadata.
+
+#### Scenario: Combat planning range display traces to the combat projection
+
+**GIVEN** the combat planning surface displays a range or range bracket for a
+selected target
+**WHEN** the displayed value is computed
+**THEN** it SHALL be read from the combat projection's distance and range
+bracket for that target hex
+**AND** when the target hex is absent from the current projection lookup the
+value SHALL be computed by the same exported helper the projection uses
+**AND** no combat planning surface SHALL compute range or bracket from
+independent inline distance math.
 
 ### Requirement: Combat Projection Damage Envelope
 
@@ -3607,6 +3619,16 @@ player commits them.
   terrain-blocked reason that committed movement validation would apply
 - **AND** ordinary elevation changes without cliff metadata SHALL continue to
   display as non-cliff movement.
+
+#### Scenario: Turning charges appear in the movement overlay cost
+
+- **GIVEN** a selected represented ground unit previews a destination whose
+  derived path includes facing changes that committed movement validation
+  charges as MP
+- **WHEN** the movement overlay renders that destination's MP cost
+- **THEN** the displayed MP cost SHALL include the turning charges
+- **AND** the per-hex movement explanation SHALL list the turning contribution
+  so the player can see why the destination costs more than its hex distance.
 
 ### Requirement: Integrated Rules-Backed Tactical Map Outcomes
 
