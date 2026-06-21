@@ -6,23 +6,23 @@
 
 The lobby surface SHALL render a terminal "multiplayer unavailable" state
 instead of reconnecting indefinitely when the WebSocket transport cannot
-serve a match. When the socket closes with the not-yet-wired stub marker,
-or after a bounded number of failed reconnect attempts, the lobby SHALL
-stop the auto-reconnect loop, render a terminal panel naming multiplayer
-as unavailable, and offer a route back. This prevents the lobby from
-hammering the stub server (which closes every socket) with no
-user-visible resolution.
+serve a match. When the socket closes with a terminal server binding
+error, or after a bounded number of failed reconnect attempts, the lobby
+SHALL stop the auto-reconnect loop, render a terminal panel naming
+multiplayer as unavailable, and offer a route back. This prevents the
+lobby from hammering an unavailable server path with no user-visible
+resolution.
 
-#### Scenario: Stub close yields a terminal panel, not a reconnect loop
+#### Scenario: Terminal server close yields a panel, not a reconnect loop
 
 - **GIVEN** a player on `/multiplayer/lobby/[roomCode]` whose socket closes
-  with the not-yet-wired stub marker (`server.js:277`, `code: 1011`,
-  `reason: 'wave-2-stub'`)
+  with a typed terminal binding error from the server (`runtime-unavailable`,
+  `bind-failed`, or `dispatch-failed`)
 - **WHEN** the lobby handles the close
 - **THEN** the lobby SHALL render a terminal "multiplayer unavailable"
   panel
 - **AND** the lobby SHALL stop the auto-reconnect loop rather than
-  re-opening a socket against the stub.
+  re-opening a socket against the unavailable server path.
 
 #### Scenario: Bounded reconnect failures resolve to the terminal state
 

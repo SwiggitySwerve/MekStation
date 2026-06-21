@@ -257,15 +257,13 @@ describe('multiplayer client', () => {
       matchId: 'm1',
       ts: new Date().toISOString(),
       code: 'INTERNAL_ERROR',
-      reason:
-        'WebSocket handler is a Wave 2 stub; full intent dispatch lands in Wave 3',
+      reason: 'runtime-unavailable',
     });
 
     expect(closeEvents).toEqual([
       {
         code: 'INTERNAL_ERROR',
-        reason:
-          'WebSocket handler is a Wave 2 stub; full intent dispatch lands in Wave 3',
+        reason: 'runtime-unavailable',
       },
     ]);
     expect(reconnectAttempts).toHaveLength(0);

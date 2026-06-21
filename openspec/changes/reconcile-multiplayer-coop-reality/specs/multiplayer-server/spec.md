@@ -6,15 +6,13 @@
 
 The system SHALL provide a bidirectional WebSocket channel for clients
 to exchange messages with the authoritative server during a networked
-match. Until the live transport is wired (the `server.js` `connection`
-handler dispatches to a `MatchHostRegistry`/`ServerMatchHost`), the spec
-SHALL NOT assert that any networked match can run: the requirement is
-re-gated so the full bidirectional behavior is mandated only WHEN the
-transport is wired, and the not-yet-wired runtime SHALL hold an honest
-interim contract — the socket handshake SHALL close cleanly with a typed
-stub-close envelope rather than leaving a half-open connection, and the
-match-creation surface SHALL be capacity-guarded so the dev-only
-transport cannot be abused once exposed.
+match on server entrypoints that carry the multiplayer upgrade handler.
+The dev custom server (`npm run dev` → root `server.js`) SHALL dispatch
+authenticated socket connections through `MatchHostRegistry` and
+`ServerMatchHost`, while packaged-build reachability remains separately
+gated until the packaged server also carries an upgrade handler. The
+match-creation surface SHALL remain capacity-guarded so the exposed
+transport cannot be abused.
 
 #### Scenario: Client connects and joins
 
@@ -45,13 +43,13 @@ lastSeq: 0}`
 - **AND** if either side misses three heartbeats in a row, the
   connection SHALL be torn down
 
-#### Scenario: Not-yet-wired transport closes the handshake cleanly
+#### Scenario: Terminal binding failures close the handshake cleanly
 
-- **GIVEN** the live transport is NOT yet wired (the `connection` handler
-  is the stub at `server.js:242`)
-- **WHEN** an authenticated client completes the WebSocket handshake
-- **THEN** the server SHALL send a typed `Close` envelope identifying the
-  transport as not-yet-wired
+- **GIVEN** an authenticated client completes the WebSocket handshake
+- **WHEN** the server cannot bind the socket to a live host because the
+  match is unknown or the runtime binding fails
+- **THEN** the server SHALL send a typed `Error`/`Close` envelope
+  identifying the terminal failure
 - **AND** the server SHALL close the socket cleanly rather than leaving a
   half-open connection
 - **AND** the server SHALL NOT silently accept intents it cannot dispatch.

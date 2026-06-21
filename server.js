@@ -7,11 +7,9 @@
  * Keeps the Pages Router HMR + serverless-style API routes intact.
  *
  * Design notes:
- *   - Only `npm run dev` routes through this file. Production builds
- *     (`next build` / `next start`) keep using the standard server
- *     because we don't yet target a multiplayer-enabled production
- *     deploy in Phase 4. A later wave can add a `npm run mp-start`
- *     script that runs `node server.js` with NODE_ENV=production.
+ *   - `npm run dev` routes through this file. Production/package
+ *     reachability is tracked separately because `next start` and the
+ *     standalone build can still shadow this custom upgrade handler.
  *   - Upgrade routing: we parse the request URL once, dispatch
  *     /api/multiplayer/socket through the WS server, and call
  *     `socket.destroy()` for any other upgrade path so we don't keep
@@ -20,7 +18,7 @@
  *     param + a known `matchId`. Wave 2 adds Ed25519 signature
  *     verification.
  *
- * @spec openspec/changes/add-multiplayer-server-infrastructure/specs/multiplayer-server/spec.md
+ * @spec openspec/specs/multiplayer-server/spec.md
  */
 
 const { createServer } = require('node:http');
@@ -196,26 +194,74 @@ function isE2EReadyRequest(parsedUrl) {
   );
 }
 
+let multiplayerRuntime = null;
+
 /**
- * Lazily resolve the multiplayer registry. We use a dynamic import so
- * this server file doesn't fail to start when the multiplayer modules
- * are temporarily broken (e.g., during a partial check-out).
+ * Lazily resolve the multiplayer runtime. `server.js` is CommonJS while
+ * the authoritative host/registry live in TypeScript with `@/` aliases,
+ * so the dev custom server installs the repo-local `tsx` require hook
+ * before loading those modules. Packaged-build reachability remains
+ * gated by the OpenSpec packaged-server task because standalone output
+ * still uses a different server entrypoint.
  */
-async function loadRegistry() {
-  // tsx isn't available in production; in dev Next.js compiles TS for
-  // us, but server.js runs as a plain CommonJS file. Node 20+ supports
-  // `--experimental-strip-types` but we don't rely on it. Instead, the
-  // upgrade handler uses the JSON wire format directly and routes
-  // intents into the registry via a fetch into the API layer when
-  // needed. For Wave 1 we keep the upgrade handler minimal.
-  return null;
+function loadMultiplayerRuntime() {
+  if (multiplayerRuntime) return multiplayerRuntime;
+  require('tsx/cjs');
+  const registryModule = require('./src/lib/multiplayer/server/MatchHostRegistry.ts');
+  const socketModule = require('./src/lib/multiplayer/server/bindMultiplayerSocketConnection.ts');
+  multiplayerRuntime = {
+    bootstrapMultiplayerServer: registryModule.bootstrapMultiplayerServer,
+    bindMultiplayerSocketConnection:
+      socketModule.bindMultiplayerSocketConnection,
+  };
+  return multiplayerRuntime;
 }
 
-void loadRegistry; // suppress unused-warning until Wave 2 wires it
+function firstQueryValue(value) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function sendTerminalSocketFrame(ws, matchId, code, reason, closeCode = 1011) {
+  try {
+    ws.send(
+      JSON.stringify({
+        kind: 'Error',
+        matchId: matchId ?? '',
+        ts: new Date().toISOString(),
+        code,
+        reason,
+      }),
+    );
+    ws.send(
+      JSON.stringify({
+        kind: 'Close',
+        matchId: matchId ?? '',
+        ts: new Date().toISOString(),
+        code,
+        reason,
+      }),
+    );
+  } catch {
+    // Socket may already be half-closed.
+  } finally {
+    try {
+      ws.close(closeCode, reason);
+    } catch {
+      // already closed
+    }
+  }
+}
 
 app
   .prepare()
-  .then(() => {
+  .then(async () => {
+    try {
+      await loadMultiplayerRuntime().bootstrapMultiplayerServer();
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[mp-boot] runtime load failed', err);
+    }
+
     const server = createServer(async (req, res) => {
       try {
         const parsedUrl = parse(req.url ?? '/', true);
@@ -240,41 +286,80 @@ app
     const wss = new WebSocketServer({ noServer: true });
 
     wss.on('connection', (ws, req) => {
-      // The upgrade handler attaches the verified playerId on the
-      // request object before emitting the connection. Wave 3 will wire
-      // a real ServerMatchHost lookup here; Wave 2 just confirms the
-      // handshake succeeded and closes with a Wave 2 marker so the
-      // existing Wave 1 client tests keep their close-on-handshake
-      // expectations.
-      //
-      // Wave 3a: the upgrade handler also parses an OPTIONAL `?seed=N`
-      // query param and stashes it on `req._mpDiceSeed`. When the host
-      // factory wires through to `MatchHostRegistry.getOrCreate`, this
-      // value flips the host's dice roller from `CryptoDiceRoller`
-      // (production) to a deterministic `SeededDiceRoller` (debug). It
-      // is intentionally OFF by default and used only for reproducing
-      // bug reports.
       const verifiedPlayerId = req._mpVerifiedPlayerId;
       const diceSeed = req._mpDiceSeed;
       const url = parse(req.url ?? '/', true);
-      const matchId = url.query.matchId;
+      const matchId = firstQueryValue(url.query.matchId);
+      if (typeof matchId !== 'string' || matchId.length === 0) {
+        sendTerminalSocketFrame(ws, '', 'UNKNOWN_MATCH', 'missing-match', 1008);
+        return;
+      }
+      if (
+        typeof verifiedPlayerId !== 'string' ||
+        verifiedPlayerId.length === 0
+      ) {
+        sendTerminalSocketFrame(
+          ws,
+          matchId,
+          'AUTH_REJECTED',
+          'missing-verified-player',
+          1008,
+        );
+        return;
+      }
       // eslint-disable-next-line no-console
       console.log(
         `[mp-socket] connection accepted matchId=${matchId} playerId=${verifiedPlayerId}${
           diceSeed != null ? ` diceSeed=${diceSeed}` : ''
         }`,
       );
-      ws.send(
-        JSON.stringify({
-          kind: 'Close',
-          matchId: matchId ?? '',
-          ts: new Date().toISOString(),
-          code: 'INTERNAL_ERROR',
-          reason:
-            'WebSocket handler is a Wave 2 stub; full intent dispatch lands in Wave 3',
-        }),
-      );
-      ws.close(1011, 'wave-2-stub');
+      ws.on('close', (code, reason) => {
+        // eslint-disable-next-line no-console
+        console.log(
+          `[mp-socket] socket closed matchId=${matchId} code=${code} reason=${reason.toString()}`,
+        );
+      });
+      ws.on('error', (err) => {
+        // eslint-disable-next-line no-console
+        console.error(`[mp-socket] socket error matchId=${matchId}`, err);
+      });
+      try {
+        void loadMultiplayerRuntime()
+          .bindMultiplayerSocketConnection({
+            socket: ws,
+            matchId,
+            verifiedPlayerId,
+            ...(diceSeed != null ? { diceSeed } : {}),
+            logger: console,
+          })
+          .then((bound) => {
+            if (bound) {
+              // eslint-disable-next-line no-console
+              console.log(
+                `[mp-socket] bound matchId=${matchId} connection=${bound.connectionKey}`,
+              );
+            }
+          })
+          .catch((err) => {
+            // eslint-disable-next-line no-console
+            console.error('[mp-socket] bind failed', err);
+            sendTerminalSocketFrame(
+              ws,
+              matchId,
+              'INTERNAL_ERROR',
+              'bind-failed',
+            );
+          });
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('[mp-socket] runtime load failed', err);
+        sendTerminalSocketFrame(
+          ws,
+          matchId,
+          'INTERNAL_ERROR',
+          'runtime-unavailable',
+        );
+      }
     });
 
     // Cache Next.js's upgrade handler so we can delegate non-MP WS upgrades
@@ -330,8 +415,8 @@ app
           }
           return;
         }
-        const matchId = parsedUrl.query.matchId;
-        const token = parsedUrl.query.token;
+        const matchId = firstQueryValue(parsedUrl.query.matchId);
+        const token = firstQueryValue(parsedUrl.query.token);
         if (!matchId || !token) {
           // Missing either parameter — 400 over the raw socket so a
           // browser sees a meaningful error instead of a hung handshake.
@@ -344,8 +429,7 @@ app
         // client sees a clean rejection (the handshake never completes,
         // so there's no WS frame to send — this is the standard ws
         // server pattern).
-        const wireToken = Array.isArray(token) ? token[0] : token;
-        const verification = await verifyWireToken(wireToken);
+        const verification = await verifyWireToken(token);
         if (!verification.ok) {
           // eslint-disable-next-line no-console
           console.warn(

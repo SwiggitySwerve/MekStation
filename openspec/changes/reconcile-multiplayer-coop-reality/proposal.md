@@ -4,7 +4,7 @@
 
 The 2026-06-12 full codebase review (`docs/audits/2026-06-12-full-codebase-review.md`, Cluster MP) found that the multiplayer and co-op specifications assert a working networked system the runtime cannot deliver, and that the only on-ramps a player can reach are permanently dead:
 
-- **C-5** — the WebSocket `connection` handler sends a `Close {code: 'INTERNAL_ERROR', reason: 'WebSocket handler is a Wave 2 stub…'}` and then `ws.close(1011, 'wave-2-stub')` for *every* socket; the fully-built `ServerMatchHost`/`MatchHostRegistry` are never wired to it (`server.js:242`, stub send at `server.js:267`, close at `server.js:277`). No networked match can run.
+- **C-5** — the audit originally found that the WebSocket `connection` handler closed every socket with a Wave-2 stub instead of dispatching through `ServerMatchHost`/`MatchHostRegistry`. This change has since wired the custom dev server path through `bindMultiplayerSocketConnection`; the remaining gap is packaged-build reachability and co-op route wiring, not the dev `server.js` connection handler.
 - **C-6** — only `npm run dev` boots the custom `server.js` (`package.json:12`); `npm run start` and the packaged Docker/Electron builds run Next's `output: 'standalone'` server (`next.config.ts:89`), which shadows the repo-root server and has no WebSocket upgrade handler. Multiplayer is dev-only by construction.
 - **C-7** — `handleCreateCoopCampaign` mints a room code in the browser and only writes local store state; nothing calls `POST /api/multiplayer/matches`, so a guest's `/api/multiplayer/invites/:roomCode` lookup always 404s (`src/pages/gameplay/campaigns/index.tsx:150`).
 - **C-8** — `CampaignCoopRouteSurface` mounts at all six co-op sites with no transport prop, so `proposalTransport` defaults to `defaultPendingTransport`, which returns `{status: 'pending'}` forever (`src/components/campaign/coop/CampaignCoopRouteSurface.tsx:216`). `CampaignGmArbiter`/`CampaignSyncSession` are instantiated only in tests.
@@ -15,14 +15,14 @@ Mediums that ride the same cluster: the composed co-op encounter logic in `src/l
 
 The well-built core (`ServerMatchHost`, `MatchHostRegistry`, `CampaignGmArbiter`, `CampaignSyncSession` in `src/lib/multiplayer/server/`) exists with full test suites — the gap is purely the live transport wiring and an honest source-of-truth.
 
-This is a **decision change** (audit recommendation: wire the live transport OR downgrade the specs to "not yet wired"). The decision is staged (design D1): **downgrade the source-of-truth to honest now AND scope the wiring as tasks**, so the spec stops asserting fiction immediately while the transport lands incrementally. See `design.md` for the full decision and rationale.
+This is a **decision change** (audit recommendation: wire the live transport OR downgrade the specs to "not yet wired"). The decision is staged (design D1): **downgrade the source-of-truth to honest AND scope the wiring as tasks**, so the spec stops asserting fiction while the transport lands incrementally. The current checkpoint has wired the custom dev WebSocket path; packaged-build reachability and co-op route wiring remain explicit open tasks. See `design.md` for the full decision and rationale.
 
 ## What Changes
 
-- **Honest spec gating now.** Re-anchor the named transport SHALLs to a "transport not yet wired" reality: the multiplayer-server WebSocket transport, the co-op route-surface live transport, and the co-op launch sync are downgraded from "the system SHALL provide / does X" to "WHEN the live transport is wired, the system SHALL X" with explicit `not-yet-wired` behavioral guarantees the runtime can actually honor today (handshake closes cleanly, co-op create no-ops loudly, launch stays gated honestly).
-- **Stage the wiring as tasks.** The build-out — wiring `MatchHostRegistry`/`ServerMatchHost` into the `server.js` `connection` handler, registering co-op matches server-side on create, threading a real `proposalTransport` through `CampaignCoopRouteSurface`, syncing `otherChoice` so co-op launch can enable and route to `launchCoopMission` — is captured in `tasks.md` as the incremental landing plan, not executed in this change.
+- **Honest spec gating now.** Re-anchor the named transport SHALLs to the real deployment boundaries: the custom dev WebSocket server now dispatches through the authoritative host, packaged-build multiplayer remains gated on a server entrypoint with an upgrade handler, and co-op route-surface live transport / launch sync stay gated until their wiring tasks land.
+- **Stage the remaining wiring as tasks.** The build-out — adding packaged-build upgrade reachability, registering co-op matches server-side on create, threading a real `proposalTransport` through `CampaignCoopRouteSurface`, syncing `otherChoice` so co-op launch can enable and route to `launchCoopMission` — is captured in `tasks.md` as the incremental landing plan.
 - **Production-server truth.** Capture (spec + tasks) that the packaged Docker/Electron `output: 'standalone'` server has no upgrade handler, so multiplayer being reachable in a packaged build is a named prerequisite, not an assumed capability.
-- **Honest dead-ends.** The lobby gains a required terminal "multiplayer unavailable" state instead of an infinite reconnect against the stub; the co-op launch button's permanent-disabled / single-player-route behavior is pinned as the honest current state until sync lands.
+- **Honest dead-ends.** The lobby gains a required terminal "multiplayer unavailable" state instead of an infinite reconnect against terminal server binding failures; the co-op launch button's permanent-disabled / single-player-route behavior is pinned as the honest current state until sync lands.
 - **Capacity + KDF-throttle guardrails** on match creation and the token route are scoped as tasks (per-host cap / rate-limit on `POST /api/multiplayer/matches`, throttle in front of the `unlockIdentity` KDF) so the dev-only transport cannot be abused once exposed.
 
 ## Capabilities
@@ -33,13 +33,13 @@ This is a **decision change** (audit recommendation: wire the live transport OR 
 
 ### Modified Capabilities
 
-- `multiplayer-server`: the "WebSocket Transport" requirement is tightened to acknowledge that the live transport is not yet wired and to mandate the honest stub-close + capacity-guard behavior the runtime must hold until wiring lands; a new requirement names the packaged-server upgrade-handler prerequisite.
+- `multiplayer-server`: the "WebSocket Transport" requirement is tightened to name the custom dev server as wired through the authoritative host, keep terminal binding failures typed/clean, preserve capacity guards, and add the packaged-server upgrade-handler prerequisite.
 - `coop-campaign-sync`: the "Co-op Campaign Route Surface" requirement is tightened so co-op create / proposal transport is honestly gated on the live transport rather than silently no-op'd; a new requirement captures the staged create-registers-match + real-proposal-transport contract.
-- `multiplayer-game-surface`: a new requirement adds a lobby terminal "multiplayer unavailable" state so the reconnect loop against the stub resolves instead of hammering forever.
+- `multiplayer-game-surface`: a new requirement adds a lobby terminal "multiplayer unavailable" state so terminal server binding failures and reconnect exhaustion resolve instead of hammering forever.
 
 ## Impact
 
-- `server.js` (the `connection` handler at `:242`; future wiring of `MatchHostRegistry`/`ServerMatchHost`).
+- `server.js` and `src/lib/multiplayer/server/bindMultiplayerSocketConnection.ts` (custom dev server upgrade/connection dispatch through `MatchHostRegistry`/`ServerMatchHost`).
 - `package.json:12` + `next.config.ts:89` (production-server upgrade-handler prerequisite — documentation/tasks only in this change).
 - `src/pages/gameplay/campaigns/index.tsx:150` (`handleCreateCoopCampaign` — staged server-side registration).
 - `src/components/campaign/coop/CampaignCoopRouteSurface.tsx:216` (`defaultPendingTransport` — staged real transport threading).
@@ -51,8 +51,8 @@ This is a **decision change** (audit recommendation: wire the live transport OR 
 
 ## Non-goals
 
-- This change does NOT itself wire the live transport, register co-op matches, or thread the real proposal transport — that work is scoped as tasks and lands incrementally. The change's deliverable is the honest source-of-truth plus the staged plan.
-- No edits to production source code (this is a remediation plan; `tasks.md` describes the work).
+- This change does NOT make packaged Docker/Electron multiplayer reachable; that remains gated on a packaged server entrypoint with a WebSocket upgrade handler.
+- This change does NOT register co-op matches, thread the real proposal transport, or sync co-op launch participation; that work is scoped as tasks and lands incrementally.
 - No removal or rewrite of `ServerMatchHost`/`MatchHostRegistry`/`CampaignGmArbiter`/`CampaignSyncSession` — they are correct and untouched; the gap is transport wiring only.
 - No new combat or campaign rules; no change to the event-log / intent / fog-of-war contracts the unwired core already implements.
 - The packaged-server upgrade-handler work is named as a prerequisite, not built here (it touches the deploy build path).

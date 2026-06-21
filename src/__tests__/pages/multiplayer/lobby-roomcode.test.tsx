@@ -243,20 +243,18 @@ describe('Multiplayer lobby page — surface swap on status', () => {
     }
   });
 
-  it('renders multiplayer unavailable when the socket closes with the stub marker', async () => {
+  it('renders multiplayer unavailable when the socket closes with a terminal server binding error', async () => {
     mockSession = {
       ...baseSession('lobby'),
       status: 'closed',
       lobbyState: null,
       error: {
         code: 'INTERNAL_ERROR',
-        reason:
-          'WebSocket handler is a Wave 2 stub; full intent dispatch lands in Wave 3',
+        reason: 'runtime-unavailable',
       },
       closedInfo: {
         code: 'INTERNAL_ERROR',
-        reason:
-          'WebSocket handler is a Wave 2 stub; full intent dispatch lands in Wave 3',
+        reason: 'runtime-unavailable',
       },
     };
     render(<LobbyPage />);

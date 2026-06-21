@@ -190,8 +190,8 @@ function LobbyUnavailableState({
       <BackToMultiplayerLink />
       <h1 className="mt-2 text-2xl font-bold">Multiplayer unavailable</h1>
       <p className="mt-2 text-sm text-slate-400">
-        This lobby cannot accept live multiplayer connections yet. The invite
-        has not been joined to the live transport.
+        This lobby is not connected to a live multiplayer session. Return to the
+        multiplayer hub and try the invite again.
       </p>
       {reason && (
         <p className="mt-2 text-xs text-amber-300" role="status">
@@ -208,11 +208,11 @@ function multiplayerUnavailableReason(
   const reason = session.closedInfo?.reason ?? session.error?.reason ?? '';
   const normalizedReason = reason.toLowerCase();
   if (
-    reason === 'wave-2-stub' ||
-    normalizedReason.includes('wave 2 stub') ||
-    normalizedReason.includes('not-yet-wired')
+    normalizedReason.includes('runtime-unavailable') ||
+    normalizedReason.includes('bind-failed') ||
+    normalizedReason.includes('dispatch-failed')
   ) {
-    return 'The server reported the current WebSocket handler is not wired.';
+    return 'The server could not attach this lobby to the live multiplayer host.';
   }
   if (session.closedInfo?.code === 'RECONNECT_LIMIT') {
     return 'The client reached the reconnect limit without establishing a live session.';
