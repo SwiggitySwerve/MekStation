@@ -1,3 +1,5 @@
+import { normalizeEquipmentId as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
+
 export function mapEraFromYear(year: number): string {
   if (year < 2005) return 'EARLY_SPACEFLIGHT';
   if (year < 2570) return 'AGE_OF_WAR';
@@ -72,12 +74,19 @@ export function mapArmorType(armorType: string): string {
   return 'STANDARD';
 }
 
-export function normalizeEquipmentId(name: string): string {
+function slugEquipmentId(name: string): string {
   return name
     .toLowerCase()
-    .replace(/\s+/g, '-')
     .replace(/[()]/g, '')
-    .replace(/\//g, '-');
+    .replace(/\//g, '-')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+export function normalizeEquipmentId(name: string): string {
+  const normalized = normalizeCatalogEquipmentId(name);
+  return /[\s()]/.test(normalized) ? slugEquipmentId(normalized) : normalized;
 }
 
 export function normalizeLocation(location: string): string {

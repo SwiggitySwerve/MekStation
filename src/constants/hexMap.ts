@@ -1,3 +1,5 @@
+import { hexDistance as axialHexDistance } from '@/utils/gameplay/hexMath';
+
 /**
  * Hex Map Constants
  *
@@ -80,9 +82,13 @@ export const HEX_COLORS: Record<string, string> = {
  * @param r - Axial r coordinate
  * @returns Pixel position {x, y}
  */
-export function hexToPixel(q: number, r: number): { x: number; y: number } {
-  const x = HEX_SIZE * (3 / 2) * q;
-  const y = HEX_SIZE * ((Math.sqrt(3) / 2) * q + Math.sqrt(3) * r);
+export function hexToPixel(
+  q: number,
+  r: number,
+  size = HEX_SIZE,
+): { x: number; y: number } {
+  const x = size * (3 / 2) * q;
+  const y = size * ((Math.sqrt(3) / 2) * q + Math.sqrt(3) * r);
   return { x, y };
 }
 
@@ -93,10 +99,33 @@ export function hexToPixel(q: number, r: number): { x: number; y: number } {
  * @param y - Pixel y position
  * @returns Axial coordinates {q, r}
  */
-export function pixelToHex(x: number, y: number): { q: number; r: number } {
-  const q = ((2 / 3) * x) / HEX_SIZE;
-  const r = ((-1 / 3) * x + (Math.sqrt(3) / 3) * y) / HEX_SIZE;
-  return { q: Math.round(q), r: Math.round(r) };
+export function pixelToHex(
+  x: number,
+  y: number,
+  size = HEX_SIZE,
+): { q: number; r: number } {
+  const q = ((2 / 3) * x) / size;
+  const r = ((-1 / 3) * x + (Math.sqrt(3) / 3) * y) / size;
+  return roundAxial(q, r);
+}
+
+function roundAxial(q: number, r: number): { q: number; r: number } {
+  const s = -q - r;
+  let rq = Math.round(q);
+  let rr = Math.round(r);
+  const rs = Math.round(s);
+
+  const qDiff = Math.abs(rq - q);
+  const rDiff = Math.abs(rr - r);
+  const sDiff = Math.abs(rs - s);
+
+  if (qDiff > rDiff && qDiff > sDiff) {
+    rq = -rr - rs;
+  } else if (rDiff > sDiff) {
+    rr = -rq - rs;
+  }
+
+  return { q: rq, r: rr };
 }
 
 /**
@@ -113,7 +142,5 @@ export function hexDistance(
   q2: number,
   r2: number,
 ): number {
-  return (
-    (Math.abs(q1 - q2) + Math.abs(q1 + r1 - q2 - r2) + Math.abs(r1 - r2)) / 2
-  );
+  return axialHexDistance({ q: q1, r: r1 }, { q: q2, r: r2 });
 }

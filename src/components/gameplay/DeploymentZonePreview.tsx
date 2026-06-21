@@ -19,6 +19,7 @@ import { useMemo, useState } from 'react';
 import type { IHexCoordinate } from '@/types/gameplay';
 
 import { Card } from '@/components/ui';
+import { hexToPixel as layoutHexToPixel } from '@/constants/hexMap';
 import { TERRAIN_COLORS } from '@/constants/terrain';
 import { TerrainPreset } from '@/types/encounter';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
@@ -91,13 +92,6 @@ function generateHexes(radius: number): IHexCoordinate[] {
   return hexes;
 }
 
-/** Convert axial coords to flat-top SVG pixel position. */
-function hexToPixel(hex: IHexCoordinate): { x: number; y: number } {
-  const x = HEX_SIZE * (3 / 2) * hex.q;
-  const y = HEX_SIZE * ((Math.sqrt(3) / 2) * hex.q + Math.sqrt(3) * hex.r);
-  return { x, y };
-}
-
 /** Generate the SVG `points` attribute for a flat-top hexagon. */
 function hexPolygonPoints(cx: number, cy: number): string {
   const points: string[] = [];
@@ -165,7 +159,7 @@ export function DeploymentZonePreview({
     let maxX = -Infinity;
     let maxY = -Infinity;
     for (const hex of hexes) {
-      const { x, y } = hexToPixel(hex);
+      const { x, y } = layoutHexToPixel(hex.q, hex.r, HEX_SIZE);
       minX = Math.min(minX, x - HEX_SIZE);
       minY = Math.min(minY, y - HEX_SIZE);
       maxX = Math.max(maxX, x + HEX_SIZE);
@@ -254,7 +248,7 @@ export function DeploymentZonePreview({
               data-testid="deployment-zone-svg"
             >
               {hexes.map((hex) => {
-                const { x, y } = hexToPixel(hex);
+                const { x, y } = layoutHexToPixel(hex.q, hex.r, HEX_SIZE);
                 const key = `${hex.q},${hex.r}`;
                 const inPlayerZone = zones.player.has(key);
                 const inOpponentZone = zones.opponent.has(key);

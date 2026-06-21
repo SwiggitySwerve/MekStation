@@ -841,11 +841,11 @@ describe('UnitLoaderService', () => {
       expect(state.equipment[0].criticalSlots).toBe(1);
     });
 
-    it('should resolve lb-10-x-ac to lb-10x-ac through normalization', () => {
+    it('should resolve lb-10-x-ac to the catalog LB-X AC id through normalization', () => {
       mockEquipmentLookupService.getById.mockImplementation((id: string) => {
-        if (id === 'lb-10x-ac') {
+        if (id === 'lb-10-x-ac') {
           return {
-            id: 'lb-10x-ac',
+            id: 'lb-10-x-ac',
             name: 'LB 10-X AC',
             category: EquipmentCategory.BALLISTIC_WEAPON,
             weight: 11,
@@ -868,7 +868,7 @@ describe('UnitLoaderService', () => {
       const state = service.mapToUnitState(serialized, true);
 
       expect(state.equipment).toHaveLength(1);
-      expect(state.equipment[0].equipmentId).toBe('lb-10x-ac');
+      expect(state.equipment[0].equipmentId).toBe('lb-10-x-ac');
       expect(state.equipment[0].name).toBe('LB 10-X AC');
     });
 

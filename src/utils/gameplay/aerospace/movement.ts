@@ -12,6 +12,8 @@
  * @spec openspec/changes/add-aerospace-combat-behavior/specs/movement-system/spec.md
  */
 
+import { hexDistance as axialHexDistance } from '@/utils/gameplay/hexMath';
+
 import {
   AerospaceEventType,
   type AerospaceEvent,
@@ -81,10 +83,7 @@ export interface IAerospaceMovementResult {
 
 /** Axial hex distance (cube-distance) between two hexes. */
 export function hexDistance(a: IHexLikeCoord, b: IHexLikeCoord): number {
-  const dq = a.q - b.q;
-  const dr = a.r - b.r;
-  const ds = -dq - dr;
-  return Math.max(Math.abs(dq), Math.abs(dr), Math.abs(ds));
+  return axialHexDistance(a, b);
 }
 
 /**

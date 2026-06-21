@@ -13,6 +13,7 @@ import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 import { IEquipmentItem } from '@/types/equipment';
+import { normalizeEquipmentId as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
 
 type TechHint = 'clan' | 'is';
 
@@ -251,67 +252,15 @@ export function inferPreferredTechBaseFromCriticalSlots(
 }
 
 /**
- * Normalize an equipment ID by converting legacy formats to canonical IDs.
- * Handles patterns like:
- * - 'ultra-ac-5' → 'uac-5'
- * - 'clan-ultra-ac-5' → 'clan-uac-5'
- * - 'lb-10-x-ac' → 'lb-10x-ac'
- * - 'rotary-ac-5' → 'rac-5'
+ * Normalize an equipment ID through the catalog-backed canonical resolver.
+ * Unit tech base remains in the adapter signature because callers use this
+ * module as the variant-resolution boundary.
  */
 export function normalizeEquipmentId(
   id: string,
   _unitTechBase: TechBase,
 ): string {
-  let normalized = id
-    .toLowerCase()
-    .trim()
-    .replace(/[ \-_]+/g, '-');
-
-  // Check for Clan prefix
-  const isClanPrefix = normalized.startsWith('clan-');
-  if (isClanPrefix) {
-    normalized = normalized.slice(5); // Remove 'clan-' prefix
-  }
-
-  // Ultra AC/x patterns: 'ultra-ac-5' → 'uac-5'
-  if (/^ultra-?ac-?\d+$/.test(normalized)) {
-    const num = normalized.match(/\d+$/)?.[0];
-    normalized = `uac-${num}`;
-  }
-
-  // Rotary AC patterns: 'rotary-ac-5' → 'rac-5'
-  if (/^rotary-?ac-?\d+$/.test(normalized)) {
-    const num = normalized.match(/\d+$/)?.[0];
-    normalized = `rac-${num}`;
-  }
-
-  // Light AC patterns: 'light-ac-5' → 'lac-5'
-  if (/^light-?ac-?\d+$/.test(normalized)) {
-    const num = normalized.match(/\d+$/)?.[0];
-    normalized = `lac-${num}`;
-  }
-
-  // LB X AC patterns: 'lb-10-x-ac' → 'lb-10x-ac'
-  normalized = normalized.replace(/^lb-(\d+)-x-ac$/, 'lb-$1x-ac');
-
-  // ER laser patterns
-  normalized = normalized.replace(/^extended-range-(.*)$/, 'er-$1');
-
-  // Handle ammo patterns
-  if (normalized.endsWith('-ammo') || normalized.includes('-ammo-')) {
-    // 'ultra-ac-5-ammo' → 'uac-5-ammo'
-    normalized = normalized.replace(/ultra-ac-(\d+)/, 'uac-$1');
-    normalized = normalized.replace(/rotary-ac-(\d+)/, 'rac-$1');
-    normalized = normalized.replace(/light-ac-(\d+)/, 'lac-$1');
-    normalized = normalized.replace(/lb-(\d+)-x-ac/, 'lb-$1x-ac');
-  }
-
-  // Re-add clan prefix if it was explicitly present in the source ID
-  if (isClanPrefix) {
-    normalized = `clan-${normalized}`;
-  }
-
-  return normalized;
+  return normalizeCatalogEquipmentId(id);
 }
 
 /**
