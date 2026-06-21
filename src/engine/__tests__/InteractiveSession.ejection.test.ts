@@ -2,6 +2,10 @@ import { describe, expect, it } from '@jest/globals';
 
 import type { IWeapon } from '@/simulation/ai/types';
 
+import {
+  _resetCombatOutcomeBus,
+  subscribeToCombatOutcome,
+} from '@/engine/combatOutcomeBus';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   Facing,
@@ -98,6 +102,10 @@ function makeSession(): InteractiveSession {
 }
 
 describe('InteractiveSession.ejectUnit', () => {
+  afterEach(() => {
+    _resetCombatOutcomeBus();
+  });
+
   it('emits UnitEjected and removes the unit from active combat', () => {
     const session = makeSession();
     const before = session.getState().units['unit-player'];
@@ -141,11 +149,16 @@ describe('InteractiveSession.ejectUnit', () => {
 
   it('finalizes the match once when the last active player unit ejects', () => {
     const session = makeSession();
+    const publishedMatchIds: string[] = [];
+    subscribeToCombatOutcome((event) => {
+      publishedMatchIds.push(event.matchId);
+    });
 
     session.ejectUnit('unit-player');
 
     expect(session.isGameOver()).toBe(true);
     expect(session.hasPublishedOutcome()).toBe(true);
+    expect(publishedMatchIds).toEqual([session.getSession().id]);
     expect(
       session
         .getSession()
@@ -155,5 +168,6 @@ describe('InteractiveSession.ejectUnit', () => {
     const eventCount = session.getSession().events.length;
     session.ejectUnit('unit-player');
     expect(session.getSession().events).toHaveLength(eventCount);
+    expect(publishedMatchIds).toHaveLength(1);
   });
 });
