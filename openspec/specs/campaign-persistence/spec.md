@@ -1,7 +1,9 @@
 # campaign-persistence Specification
 
 ## Purpose
-TBD - created by archiving change add-campaign-persistence. Update Purpose after archive.
+
+Defines Campaign Persistence requirements for Serialized Campaign Envelope, Campaign Serialization Round-Trip, Schema Version and Migration Ladder, and Server-Side Campaign Persistence Contract, preserving the source-of-truth scope introduced by archived change add-campaign-persistence.
+
 ## Requirements
 ### Requirement: Serialized Campaign Envelope
 

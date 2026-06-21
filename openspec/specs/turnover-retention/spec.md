@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-turnover-retention. Update Purpose after archive.
+Defines Turnover Retention requirements for 19-Modifier Turnover Check System, 2d6 Roll vs Target Number, Departure Type Determination, and Payout Calculation, preserving the source-of-truth scope introduced by archived change add-turnover-retention.
 
 ## Requirements
 

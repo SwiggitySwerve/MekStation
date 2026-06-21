@@ -27,11 +27,13 @@ The 2026-06-09 audit remediation (PRs #801/#802) unified the combat projection w
 - `src/utils/gameplay/movement/reachable.ts` (jump candidate gate, turning MP in projection), `src/utils/gameplay/movement/commitValidation.ts` (`validatorDisagreement` promotion), `src/utils/gameplay/movement/validation.ts` (shared turning-cost entry point).
 - `src/components/gameplay/CombatPlanningPanel.tsx` (consume projection range).
 - `src/engine/InteractiveSession.attackProjectionAgreement.scenario.test.ts` (or sibling movement agreement suite) — new parametrized movement agreement cases over the existing `src/testing/tactical-map.*` scenario fixtures.
-- No combat-resolution delta — does not conflict with the active `add-battlemech-combat-validation-suite` change.
+- No combat-resolution delta — does not change the archived
+  `add-battlemech-combat-validation-suite` baseline.
 
 ## Non-goals
 
 - No new projection layer or façade — PRs #801/#802 already routed projection through shared engine state builders; this change repairs the named residual sites only.
 - No isometric/legibility UI work (separate changes: `add-topdown-tactical-legibility`, `add-isometric-elevation-extrusion`).
-- No expansion of combat validation catalog rows (owned by the active validation-suite change).
+- No expansion of combat validation catalog rows (tracked by the archived combat-validation
+  baseline and current `validate:combat` / `validate:combat:gaps` accounting).
 - Full airborne VTOL/WiGE altitude pathing controls remain out of scope (existing spec boundary stands); their *agreement* status is enumerated, not implemented.

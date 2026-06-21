@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-storybook-component-library. Update Purpose after archive.
+Defines Storybook Component Library requirements for Storybook Development Server, Component Story Coverage, Design System Documentation, and Tailwind CSS Integration, preserving the source-of-truth scope introduced by archived change add-storybook-component-library.
 
 ## Requirements
 

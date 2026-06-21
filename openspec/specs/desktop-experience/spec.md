@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-desktop-qol-features. Update Purpose after archive.
+Defines Desktop Experience requirements for Desktop Settings Service, Recent Files Tracking, Native Application Menu, and Startup Behavior Configuration, preserving the source-of-truth scope introduced by archived change add-desktop-qol-features.
 
 ## Requirements
 

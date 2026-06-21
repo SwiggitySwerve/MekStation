@@ -1,7 +1,9 @@
 # aerospace-deployment Specification
 
 ## Purpose
-TBD - created by archiving change add-aerospace-deployment. Update Purpose after archive.
+
+Defines Aerospace Deployment requirements for Scenario Aerospace Mode Toggle, Scenario Environment Toggle, Altitude Bands, and Velocity in Thrust Points, preserving the source-of-truth scope introduced by archived change add-aerospace-deployment.
+
 ## Requirements
 ### Requirement: Scenario Aerospace Mode Toggle
 

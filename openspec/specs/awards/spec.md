@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-awards-system. Update Purpose after archive.
+Defines Awards requirements for Award Definitions, Award Earning, Pilot Award Display, and Award Notifications, preserving the source-of-truth scope introduced by archived change add-awards-system.
 
 ## Requirements
 

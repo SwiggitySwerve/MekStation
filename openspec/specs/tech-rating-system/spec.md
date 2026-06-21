@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase4-validation. Update Purpose after archive.
+Defines Tech Rating System requirements for Tech Rating Enumeration, Unit Tech Rating, and Era Availability, preserving the source-of-truth scope introduced by archived change implement-phase4-validation.
 
 ## Requirements
 

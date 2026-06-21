@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change add-spa-picker-component. Update Purpose after archive.
+Defines Pilot System requirements for Pilot-Facing SPA Browsing Surface, SPA Purchase from Pilot Detail, SPA Flaw XP Grant, and Origin-Only Gating, preserving the source-of-truth scope introduced by archived change add-spa-picker-component.
+
 ## Requirements
 ### Requirement: Pilot-Facing SPA Browsing Surface
 

@@ -24,7 +24,9 @@ The spec already requires elevation to be "visible as a readable number on or ne
 
 - `src/components/gameplay/HexMapDisplay/HexCell.labels.tsx`, `HexCell.tsx` (badge layer), `HexMapDisplay.layers.tsx` / `Overlays.tsx` (movement overlay encodings), overlay legend components.
 - Visual smoke (`tactical-map-visual-smoke`) and Storybook stories for HexMapDisplay states.
-- No engine, projection, or rules changes; no combat-resolution delta — does not conflict with the active validation-suite change.
+- No engine, projection, or rules changes; no combat-resolution delta — does not change the
+  archived `add-battlemech-combat-validation-suite` baseline or the current `validate:combat` /
+  `validate:combat:gaps` accounting.
 
 ## Non-goals
 

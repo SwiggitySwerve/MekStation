@@ -222,11 +222,11 @@ The full set is below, grouped by cluster (severity in brackets; `CONTESTED` = o
 
 ### Spec / SoT integrity (cluster SoT)
 
-- [med] **125 of 199 capabilities (63%) carry `TBD — Update Purpose after archive`**, including combat-resolution, movement-system, campaign-system, replay-library, multiplayer-server; combat-resolution's placeholder cites the wrong originating change. `openspec/specs/combat-resolution/spec.md:5`.
-- [med] ACAR victory-probability spec scenario contradicts code + its own test (spec says >0.7 for 2:1 BV; code/test produce exactly 2/3). `openspec/specs/combat-resolution/spec.md:27`.
-- [med] Two capabilities (`critical-hit-resolution` + `critical-hit-system`) own the same code home, and disagree (7 vs 8 actuator types) — concrete drift. `openspec/specs/critical-hit-system/spec.md:60`.
+- [resolved 2026-06-21] **125 of 199 capabilities (63%) carried `TBD - Update Purpose after archive`**, including combat-resolution, movement-system, campaign-system, replay-library, and multiplayer-server. The 125 canonical Purpose sections now have concrete capability-purpose text and `npm run spec:purpose:validate:strict` fails new placeholders.
+- [resolved 2026-06-21] ACAR victory-probability spec scenario contradicted code + its own test (spec said >0.7 for 2:1 BV; code/test produce exactly 2/3). `combat-resolution` now names the linear `playerBV / (playerBV + opponentBV)` model and the ACAR test pins 8000 vs 4000 to `8000 / 12000`.
+- [resolved 2026-06-21] Two capabilities (`critical-hit-resolution` + `critical-hit-system`) owned the same code home and disagreed (7 vs 8 actuator types). `critical-hit-resolution` is now canonical, the actuator count is 8, and `critical-hit-system` is an explicit pointer/compatibility summary.
 - [med] Shipped isometric-rotation engine has zero requirements in its owning `camera-controls` capability (tracked by the active extrusion change). `openspec/specs/camera-controls/spec.md:6`.
-- [low] Three overlapping validation capabilities with a stale "master" spec (2025-11-28). · [low] Referenced 2026-06-12 roadmap audit misfiled under `openspec/council-decisions/` not `docs/audits/`. · [low] Campaign dashboard spec enumerates 11 sub-routes; 13 are reachable. (passthrough)
+- [resolved 2026-06-21] Three overlapping validation capabilities with a stale "master" spec (2025-11-28): `unit-validation-framework` is now the authoritative runtime-validation owner, while `validation-rules-master` and `validation-patterns` explicitly point to it for the shared code-home claim. [low] Referenced 2026-06-12 roadmap audit misfiled under `openspec/council-decisions/` not `docs/audits/`. [low] Campaign dashboard spec enumerates 11 sub-routes; 13 are reachable. (passthrough)
 
 ---
 
@@ -259,11 +259,11 @@ Thirteen OpenSpec changes authored under `openspec/changes/` (this PR) cover all
 
 The metrics that would tell you whether later waves regressed are themselves broken. Fix them first.
 
-| Change                              | Covers                                                                                                            | Why first                                                                           |
-| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `restore-bv-parity-reproducibility` | D-1, BV harness green-on-zero                                                                                     | The 99.8% gate must fail loudly before any BV-adjacent change ships.                |
-| `restore-ci-correctness-teeth`      | CI cluster (statistical proofs, knownLimitations net, desktop tests, perf budgets, coverage gates)                | Move the real teeth back into the blocking lane so Waves 1-3 are actually verified. |
-| `reconcile-spec-source-of-truth`    | SoT cluster (125 TBD purposes, ACAR contradiction, duplicate capabilities, roadmap misfile) + openspec-lint guard | Stop the SoT from ratifying fiction; add the guard that prevents recurrence.        |
+| Change                              | Covers                                                                                                            | Why first                                                                              |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `restore-bv-parity-reproducibility` | D-1, BV harness green-on-zero                                                                                     | The 99.8% gate must fail loudly before any BV-adjacent change ships.                   |
+| `restore-ci-correctness-teeth`      | CI cluster (statistical proofs, knownLimitations net, desktop tests, perf budgets, coverage gates)                | Move the real teeth back into the blocking lane so Waves 1-3 are actually verified.    |
+| `reconcile-spec-source-of-truth`    | SoT cluster (125 TBD purposes, ACAR contradiction, duplicate capabilities, roadmap misfile) + openspec-lint guard | ACAR scenario corrected; Purpose backfill, duplicate-owner pointers, and guard landed. |
 
 ### Wave 1 — Stop active correctness damage (criticals + parity highs)
 

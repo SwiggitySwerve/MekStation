@@ -1,7 +1,9 @@
 # campaign-bay-ui Specification
 
 ## Purpose
-TBD - created by archiving change add-campaign-bay-ui. Update Purpose after archive.
+
+Defines Campaign Bay UI requirements for Bay Navigation Group, Mech Bay Page, Repair Bay Page, and Medical Bay Page, preserving the source-of-truth scope introduced by archived change add-campaign-bay-ui.
+
 ## Requirements
 ### Requirement: Bay Navigation Group
 

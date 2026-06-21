@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-customizer-ui-components. Update Purpose after archive.
+Defines Critical Slots Display requirements for Location-Based Slot Display, Slot Color Coding, Drag and Drop Equipment Placement, and Multi-Slot Equipment Visual Continuity, preserving the source-of-truth scope introduced by archived change add-customizer-ui-components.
 
 ## Requirements
 

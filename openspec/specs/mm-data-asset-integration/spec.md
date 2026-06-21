@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change integrate-mm-data-assets. Update Purpose after archive.
+Defines MegaMek Data Asset Integration requirements for MmData Asset Service, Asset Sync Script, Location Bounds Configuration, and Non-Mech Wave-1 Template Registration, preserving the source-of-truth scope introduced by archived change integrate-mm-data-assets.
 
 ## Requirements
 

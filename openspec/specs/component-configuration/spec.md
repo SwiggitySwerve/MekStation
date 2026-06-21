@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-customizer-ui-components. Update Purpose after archive.
+Defines Component Configuration requirements for Component Selection Persistence, Tech Base Filtering, Tech Base Change Validation, and Weight and Slot Recalculation, preserving the source-of-truth scope introduced by archived change add-customizer-ui-components.
 
 ## Requirements
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-customizer-ui-components. Update Purpose after archive.
+Defines Confirmation Dialogs requirements for Modal Overlay, Reset Confirmation Dialog, Detailed Impact Preview, and Two-Step Confirmation, preserving the source-of-truth scope introduced by archived change add-customizer-ui-components.
 
 ## Requirements
 

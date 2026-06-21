@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase4-validation. Update Purpose after archive.
+Pointer: `critical-hit-resolution` is the authoritative capability for critical-hit resolver behavior, slot selection, and actuator effects. This spec remains a historical compatibility summary for critical-hit tables, life-support hits, ammo explosions, and TAC wiring until its unique requirements are merged into `critical-hit-resolution` or split under a distinct code home.
 
 ## Requirements
 

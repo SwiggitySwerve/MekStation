@@ -1,7 +1,9 @@
 # fog-of-war Specification
 
 ## Purpose
-TBD - created by archiving change add-fog-of-war-event-filtering. Update Purpose after archive.
+
+Defines Fog Of War requirements for Visibility Model, Event Visibility Classes, Event Redaction Rules, and Fog Mode Opt-In Per Match, preserving the source-of-truth scope introduced by archived change add-fog-of-war-event-filtering.
+
 ## Requirements
 ### Requirement: Visibility Model
 

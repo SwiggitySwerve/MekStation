@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase1-foundation. Update Purpose after archive.
+Defines Core Entity Types requirements for Base Entity Interface, Tech Base Classification, Physical Properties, and Composition Pattern, preserving the source-of-truth scope introduced by archived change implement-phase1-foundation.
 
 ## Requirements
 

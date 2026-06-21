@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-comprehensive-unit-validation-framework. Update Purpose after archive.
+Defines Unit Validation Framework requirements for Validation Hierarchy, Unit Type Registry, Rule Inheritance, and Universal Validation Rules, preserving the source-of-truth scope introduced by archived change add-comprehensive-unit-validation-framework.
 
 ## Requirements
 

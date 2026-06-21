@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase2-construction. Update Purpose after archive.
+Defines Construction Rules Core requirements for Construction Sequence, Weight Budget, Minimum Requirements, and Maximum Limits, preserving the source-of-truth scope introduced by archived change implement-phase2-construction.
 
 ## Requirements
 

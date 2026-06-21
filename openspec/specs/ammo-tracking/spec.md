@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+Defines Ammo Tracking requirements for Per-Bin Ammo State, Ammo Consumption Per Firing, Prevent Firing Without Ammo, and Ammo Bin Destruction Tracking, preserving the source-of-truth scope introduced by archived change full-combat-parity.
+
 ## Requirements
 ### Requirement: Per-Bin Ammo State
 

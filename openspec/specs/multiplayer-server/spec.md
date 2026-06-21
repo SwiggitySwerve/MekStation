@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change add-multiplayer-server-infrastructure. Update Purpose after archive.
+Defines Multiplayer Server requirements for WebSocket Transport, Message Envelopes, Match Store Contract, and Server-Authoritative Session Host, preserving the source-of-truth scope introduced by archived change add-multiplayer-server-infrastructure.
+
 ## Requirements
 ### Requirement: WebSocket Transport
 

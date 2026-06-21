@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-repair-quality-cascade. Update Purpose after archive.
+Defines Repair Maintenance requirements for Part Quality Grades, Maintenance Check System, Quality Degradation, and Quality Improvement, preserving the source-of-truth scope introduced by archived change add-repair-quality-cascade.
 
 ## Requirements
 

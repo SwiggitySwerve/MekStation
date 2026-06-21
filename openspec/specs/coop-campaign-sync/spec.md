@@ -1,7 +1,9 @@
 # coop-campaign-sync Specification
 
 ## Purpose
-TBD - created by archiving change add-shared-campaign-state. Update Purpose after archive.
+
+Defines Coop Campaign Sync requirements for Campaign State Is Server-Authoritative, Not CRDT, Campaign Event Log, Campaign Event Payload Set, and CampaignMatchHost Validates Intents Against Authoritative State, preserving the source-of-truth scope introduced by archived change add-shared-campaign-state.
+
 ## Requirements
 ### Requirement: Campaign State Is Server-Authoritative, Not CRDT
 

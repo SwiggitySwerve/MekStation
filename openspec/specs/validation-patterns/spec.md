@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase1-foundation. Update Purpose after archive.
+Pointer: `unit-validation-framework` is the authoritative capability for runtime unit-validation execution under `src/utils/validation`. This spec owns reusable validation patterns only: type guards, boundary validation, compile-time safety guidance, and UI validation-navigation affordances that support but do not supersede the framework.
 
 ## Requirements
 

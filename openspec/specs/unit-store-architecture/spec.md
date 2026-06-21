@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-customizer-ui-components. Update Purpose after archive.
+Defines Unit Store Architecture requirements for Isolated Unit Stores, Tab Manager Store, Unit Store Context, and Simplified Component API, preserving the source-of-truth scope introduced by archived change add-customizer-ui-components.
 
 ## Requirements
 

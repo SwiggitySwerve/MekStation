@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase3-equipment. Update Purpose after archive.
+Defines Electronics System requirements for C3 Computer Systems, ECM Systems, and Targeting Systems, preserving the source-of-truth scope introduced by archived change implement-phase3-equipment.
 
 ## Requirements
 

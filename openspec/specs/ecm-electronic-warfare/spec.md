@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+Defines ECM Electronic Warfare requirements for Guardian ECM Suite, Angel ECM Suite, Clan ECM Suite, and ECCM Counter, preserving the source-of-truth scope introduced by archived change full-combat-parity.
 
 ## Requirements
 

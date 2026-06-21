@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-customizer-ui-components. Update Purpose after archive.
+Defines Customizer Tabs requirements for Tab Navigation, Tab Component Props, Unit Provider Integration, and Overview Tab, preserving the source-of-truth scope introduced by archived change add-customizer-ui-components.
 
 ## Requirements
 

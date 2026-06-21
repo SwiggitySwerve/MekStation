@@ -115,6 +115,6 @@ throws away the recorded game on reload because the load path does not read it.
   recovery on the same device).
 - No changes to the server-side `MatchRecovery` recovery sweep or
   `ServerMatchHost` — only the client load path is repaired.
-- No combat-resolution or movement-projection delta — does not touch the active
-  `add-battlemech-combat-validation-suite` or `fix-tactical-projection-agreement-gaps`
-  changes.
+- No combat-resolution or movement-projection delta — does not change the archived
+  `add-battlemech-combat-validation-suite` baseline or the active
+  `fix-tactical-projection-agreement-gaps` change.

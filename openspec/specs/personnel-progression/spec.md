@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-personnel-progression. Update Purpose after archive.
+Defines Personnel Progression requirements for XP Source Configuration, Trait Multiplier System, Aging Milestone System, and Special Ability Acquisition, preserving the source-of-truth scope introduced by archived change add-personnel-progression.
 
 ## Requirements
 

@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+Defines Piloting Skill Rolls requirements for PSR Resolution Mechanic, PSR Trigger - 20+ Phase Damage, PSR Trigger - Leg Damage, and PSR Trigger - Hip Actuator Damage, preserving the source-of-truth scope introduced by archived change full-combat-parity.
+
 ## Requirements
 ### Requirement: PSR Resolution Mechanic
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-campaign-system. Update Purpose after archive.
+Defines Campaign System requirements for Campaign Management, Mission Progression, Roster State Persistence, and Pilot Experience, preserving the source-of-truth scope introduced by archived change add-campaign-system.
 
 ## Requirements
 

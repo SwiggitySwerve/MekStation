@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+Defines Shutdown Startup System requirements for Shutdown Check, Automatic Shutdown, Shutdown Effects, and Startup Roll, preserving the source-of-truth scope introduced by archived change full-combat-parity.
 
 ## Requirements
 

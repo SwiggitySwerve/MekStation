@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase1-foundation. Update Purpose after archive.
+Defines Core Enumerations requirements for Tech Base Core Enumerations, Rules Level Enumerations, and Era Enumeration, preserving the source-of-truth scope introduced by archived change implement-phase1-foundation.
 
 ## Requirements
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase2-construction. Update Purpose after archive.
+Defines Heat Sink System requirements for Heat Sink Types, Engine Integration, Minimum Heat Sinks, and External Heat Sink Equipment, preserving the source-of-truth scope introduced by archived change implement-phase2-construction.
 
 ## Requirements
 

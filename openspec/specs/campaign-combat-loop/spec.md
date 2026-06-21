@@ -1,7 +1,9 @@
 # campaign-combat-loop Specification
 
 ## Purpose
-TBD - created by archiving change add-campaign-combat-loop. Update Purpose after archive.
+
+Defines Campaign Combat Loop requirements for Frozen Post-Battle Inventory Schema, Scenario-Event to Encounter Bridge, Scenario Bridge Idempotency, and Campaign-Linked Encounter Launch, preserving the source-of-truth scope introduced by archived change add-campaign-combat-loop.
+
 ## Requirements
 ### Requirement: Frozen Post-Battle Inventory Schema
 

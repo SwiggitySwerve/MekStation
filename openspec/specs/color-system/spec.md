@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-customizer-ui-components. Update Purpose after archive.
+Defines Color System requirements for Critical Slot Colors, Equipment Type Colors, Status Colors, and Tech Base Colors, preserving the source-of-truth scope introduced by archived change add-customizer-ui-components.
 
 ## Requirements
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-custom-unit-persistence. Update Purpose after archive.
+Defines Unit Versioning requirements for Version Increment on Save, Version Snapshot Storage, Version History Listing, and Version Restoration, preserving the source-of-truth scope introduced by archived change add-custom-unit-persistence.
 
 ## Requirements
 

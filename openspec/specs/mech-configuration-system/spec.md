@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-exotic-mech-support. Update Purpose after archive.
+Defines Mech Configuration System requirements for Configuration Registry, Mech Configuration Definition, Location Definition, and Actuator Definition, preserving the source-of-truth scope introduced by archived change add-exotic-mech-support.
 
 ## Requirements
 

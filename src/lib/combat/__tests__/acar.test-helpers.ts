@@ -19,6 +19,11 @@ describe('calculateVictoryProbability', () => {
     expect(result).toBeCloseTo(2 / 3, 5);
   });
 
+  it('should return the linear BV odds for the documented 8000 vs 4000 scenario', () => {
+    const result = calculateVictoryProbability(8000, 4000);
+    expect(result).toBe(8000 / (8000 + 4000));
+  });
+
   it('should return 3/4 for a 3:1 ratio (player advantage)', () => {
     const result = calculateVictoryProbability(6000, 2000);
     expect(result).toBeCloseTo(3 / 4, 5);

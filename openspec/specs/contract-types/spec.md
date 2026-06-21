@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change add-contract-types. Update Purpose after archive.
+Defines Contract Types requirements for 19 AtB Contract Types, Variable Contract Length, Contract Negotiation, and Contract Events, preserving the source-of-truth scope introduced by archived change add-contract-types.
+
 ## Requirements
 ### Requirement: 19 AtB Contract Types
 

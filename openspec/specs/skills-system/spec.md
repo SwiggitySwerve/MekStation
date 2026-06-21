@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-skills-expansion. Update Purpose after archive.
+Defines Skills System requirements for Skill Catalog with 40+ Types, Skill Check Resolution, Skill Progression with XP Costs, and Default Skills by Role and Experience Level, preserving the source-of-truth scope introduced by archived change add-skills-expansion.
 
 ## Requirements
 

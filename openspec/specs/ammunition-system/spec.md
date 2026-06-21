@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase3-equipment. Update Purpose after archive.
+Defines Ammunition System requirements for Ammunition Tracking, Ammunition Explosion, and Ammo Compatibility, preserving the source-of-truth scope introduced by archived change implement-phase3-equipment.
 
 ## Requirements
 

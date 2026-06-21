@@ -133,9 +133,9 @@ MekHQ-style data model already exists; the wires between its halves do not.
   `src/lib/campaign/markets/unitMarket.ts:203` (`purchaseUnit`).
 - New/extended Jest coverage under `src/lib/campaign/**/__tests__`,
   `src/lib/finances/__tests__`, `src/stores/campaign/__tests__`.
-- No combat-resolution or engine delta — does not conflict with the active
-  `add-battlemech-combat-validation-suite` or `fix-tactical-projection-agreement-gaps`
-  changes.
+- No combat-resolution or engine delta — does not change the archived
+  `add-battlemech-combat-validation-suite` baseline or the active
+  `fix-tactical-projection-agreement-gaps` change.
 
 ## Non-goals
 

@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase4-validation. Update Purpose after archive.
+Defines Damage System requirements for Damage Types, Hit Location Tables, Through Armor Critical (TAC), and Attack Direction Determination, preserving the source-of-truth scope introduced by archived change implement-phase4-validation.
+
 ## Requirements
 ### Requirement: Damage Types
 

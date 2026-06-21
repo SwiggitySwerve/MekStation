@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+Defines Simulation System requirements for Replace applySimpleDamage with Full CombatResolver Pipeline, Physical Attack AI Decisions, PSR Resolution in Simulation, and SeededRandom for All Combat Randomness, preserving the source-of-truth scope introduced by archived change full-combat-parity.
+
 ## Requirements
 ### Requirement: Replace applySimpleDamage with Full CombatResolver Pipeline
 

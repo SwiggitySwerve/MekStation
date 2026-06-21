@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-random-events. Update Purpose after archive.
+Defines Random Events requirements for Random Event Framework, Probability Engine, Prisoner Events, and Life Events, preserving the source-of-truth scope introduced by archived change add-random-events.
 
 ## Requirements
 

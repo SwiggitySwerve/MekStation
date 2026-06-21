@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-financial-system. Update Purpose after archive.
+Defines Financial Management requirements for Role-Based Salary Calculation, Loan Amortization, Tax Calculation, and Price Multipliers, preserving the source-of-truth scope introduced by archived change add-financial-system.
 
 ## Requirements
 

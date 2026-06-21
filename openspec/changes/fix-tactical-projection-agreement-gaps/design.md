@@ -22,7 +22,8 @@ The attack agreement suite has zero movement cases, so the existing `movement-sy
 **Non-Goals:**
 - No new projection layer/façade (council decision 2026-06-12: #801/#802 already delivered the shared-state unification; this is residual-site repair).
 - No new movement rules; no change to which modes are represented. Unsupported modes are enumerated, not implemented.
-- No catalog/validation-suite rows (owned by the active `add-battlemech-combat-validation-suite` change).
+- No catalog/validation-suite rows (tracked by the archived
+  `add-battlemech-combat-validation-suite` baseline and current validation accounting).
 
 ## Decisions
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-faction-standing. Update Purpose after archive.
+Defines Faction Standing requirements for Faction Standing Levels, Regard Adjustments, Daily Regard Decay, and Negotiation Effect, preserving the source-of-truth scope introduced by archived change add-faction-standing.
 
 ## Requirements
 

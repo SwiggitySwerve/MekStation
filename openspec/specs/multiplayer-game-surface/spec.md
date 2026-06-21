@@ -1,7 +1,9 @@
 # multiplayer-game-surface Specification
 
 ## Purpose
-TBD - created by archiving change complete-multiplayer-game-surface. Update Purpose after archive.
+
+Defines Multiplayer Game Surface requirements for Networked Game Surface, Client Mirror Session From Event Stream, Intent Emission Over the Server WebSocket, and Turn-Ownership Gate, preserving the source-of-truth scope introduced by archived change complete-multiplayer-game-surface.
+
 ## Requirements
 ### Requirement: Networked Game Surface
 

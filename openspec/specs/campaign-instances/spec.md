@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-campaign-instances. Update Purpose after archive.
+Defines Campaign Instances requirements for Campaign Unit Instance, Campaign Pilot Instance, Instance Damage Tracking, and Instance XP Tracking, preserving the source-of-truth scope introduced by archived change add-campaign-instances.
 
 ## Requirements
 

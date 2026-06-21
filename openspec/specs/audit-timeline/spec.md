@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-audit-timeline. Update Purpose after archive.
+Defines Audit Timeline requirements for Timeline View, State Diff View, Query Builder, and Replay Player, preserving the source-of-truth scope introduced by archived change add-audit-timeline.
 
 ## Requirements
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-medical-system. Update Purpose after archive.
+Defines Medical System requirements for Medical System Selection, Standard Medical System, Advanced Medical System, and Alternate Medical System, preserving the source-of-truth scope introduced by archived change add-medical-system.
 
 ## Requirements
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase1-foundation. Update Purpose after archive.
+Defines Rules Level System requirements for Rules Level Enumeration, Component Classification, and Rules Level Filtering, preserving the source-of-truth scope introduced by archived change implement-phase1-foundation.
 
 ## Requirements
 

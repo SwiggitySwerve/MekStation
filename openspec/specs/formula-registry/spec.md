@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase2-construction. Update Purpose after archive.
+Defines Formula Registry requirements for Centralized Formulas, Formula Documentation, and Formula Consistency, preserving the source-of-truth scope introduced by archived change implement-phase2-construction.
 
 ## Requirements
 

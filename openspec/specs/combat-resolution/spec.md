@@ -2,11 +2,12 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-comprehensive-campaign-system. Update Purpose after archive.
+Defines Combat Resolution requirements for ACAR System, Damage Distribution, Casualty Determination, and Scenario Resolution, preserving the source-of-truth scope introduced by archived change implement-comprehensive-campaign-system.
+
 ## Requirements
 ### Requirement: ACAR System
 
-The system SHALL provide Auto-Calculate and Resolve (ACAR) combat resolution for scenarios without tactical gameplay.
+The system SHALL provide Auto-Calculate and Resolve (ACAR) combat resolution for scenarios without tactical gameplay. ACAR victory probability SHALL be computed with the linear Battle-Value odds model `playerBV / (playerBV + opponentBV)`, and the spec SHALL NOT assert a victory probability the linear model cannot produce.
 
 #### Scenario: Calculate force BV
 
@@ -24,7 +25,8 @@ The system SHALL provide Auto-Calculate and Resolve (ACAR) combat resolution for
 
 - **GIVEN** player force BV 8000 and opponent force BV 4000 (2:1 ratio)
 - **WHEN** calculateVictoryProbability is called
-- **THEN** probability is greater than 0.7 (70%+ chance)
+- **THEN** probability SHALL equal `8000 / (8000 + 4000)`, i.e. approximately 0.667 (2/3)
+- **AND** the result SHALL be greater than 0.5 (higher BV favours the player) but SHALL NOT exceed the linear ceiling; the previously documented `> 0.7` claim is removed because the shipped linear model at `src/lib/combat/acar.ts` cannot produce it for a 2:1 ratio.
 
 ### Requirement: Damage Distribution
 

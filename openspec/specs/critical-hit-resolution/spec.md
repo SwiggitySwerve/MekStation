@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+Defines Critical Hit Resolution requirements for Critical Hit Roll Resolution, Critical Slot Selection, Engine Critical Hit Effects, and Gyro Critical Hit Effects, preserving the source-of-truth scope introduced by archived change full-combat-parity.
 
 ## Requirements
 
@@ -118,7 +118,7 @@ Sensor critical hits SHALL impose cumulative to-hit penalties.
 
 ### Requirement: Actuator Critical Hit Effects
 
-The system SHALL apply distinct effects for each of the 7 actuator types when critically hit.
+The system SHALL apply distinct effects for each of the 8 actuator types when critically hit.
 
 #### Scenario: Shoulder actuator destroyed
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase2-construction. Update Purpose after archive.
+Defines Engine System requirements for Engine Type Classification, Engine Rating System, Engine Weight Calculation, and Integral Heat Sinks, preserving the source-of-truth scope introduced by archived change implement-phase2-construction.
 
 ## Requirements
 

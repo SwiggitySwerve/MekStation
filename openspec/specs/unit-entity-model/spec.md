@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase5-data-models. Update Purpose after archive.
+Defines Unit Entity Model requirements for Unit Entity Structure, Component References, and Unit Calculations, preserving the source-of-truth scope introduced by archived change implement-phase5-data-models.
+
 ## Requirements
 ### Requirement: Unit Entity Structure
 

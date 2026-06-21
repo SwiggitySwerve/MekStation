@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase2-construction. Update Purpose after archive.
+Defines Gyro System requirements for Gyro Type Classification, Gyro Weight Calculation, and Gyro Placement, preserving the source-of-truth scope introduced by archived change implement-phase2-construction.
 
 ## Requirements
 

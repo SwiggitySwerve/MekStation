@@ -1,7 +1,9 @@
 # line-of-sight-visualization Specification
 
 ## Purpose
-TBD - created by archiving change add-los-and-firing-arc-overlays. Update Purpose after archive.
+
+Defines Line Of Sight Visualization requirements for LOS Line State, LOS Overlay Toggling, Blocker Annotations, and Accessibility Announcements, preserving the source-of-truth scope introduced by archived change add-los-and-firing-arc-overlays.
+
 ## Requirements
 ### Requirement: LOS Line State
 

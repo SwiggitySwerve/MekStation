@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change add-record-sheet-pdf-export. Update Purpose after archive.
+Defines Record Sheet Export requirements for Record Sheet Data Model, SVG Template Rendering, PDF Generation, and Preview Rendering, preserving the source-of-truth scope introduced by archived change add-record-sheet-pdf-export.
+
 ## Requirements
 ### Requirement: Record Sheet Data Model
 

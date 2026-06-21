@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-balanced-grid-component. Update Purpose after archive.
+Defines Balanced Grid requirements for Balanced Row Distribution Algorithm, Container Width Measurement, Child Counting Accuracy, and Fallback Grid Template, preserving the source-of-truth scope introduced by archived change add-balanced-grid-component.
 
 ## Requirements
 

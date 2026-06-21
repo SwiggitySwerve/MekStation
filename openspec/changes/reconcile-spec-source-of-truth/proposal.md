@@ -5,12 +5,13 @@
 The 2026-06-12 full codebase review (`docs/audits/2026-06-12-full-codebase-review.md`, SoT
 cluster) found the living spec tree has started ratifying fiction. Four concrete defects:
 
-- **125 of 199 capabilities (63%) carry a placeholder Purpose** of the form
+- **125 live capability specs carry a placeholder Purpose** of the form
   `TBD - created by archiving change … Update Purpose after archive`. The archive mechanic
   seeds this string and nothing ever fails when it survives. `combat-resolution/spec.md:5`
   even cites the *wrong* originating change (`implement-comprehensive-campaign-system`), so
   the placeholder is not merely empty — it is actively misleading provenance. (Audit SoT
-  finding: "125 of 199 capabilities (63%) carry `TBD — Update Purpose after archive`".)
+  finding: "125 of 199 capabilities (63%) carry `TBD — Update Purpose after archive`";
+  live 2026-06-20 recount: 125 placeholders across 207 canonical spec directories.)
 - **The ACAR victory-probability scenario contradicts the code and its own test.**
   `combat-resolution/spec.md:25-27` asserts probability is `greater than 0.7` for an 8000 vs
   4000 BV (2:1) matchup, but `calculateVictoryProbability` at `src/lib/combat/acar.ts:142-143`

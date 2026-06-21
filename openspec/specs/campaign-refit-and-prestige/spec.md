@@ -1,7 +1,9 @@
 # campaign-refit-and-prestige Specification
 
 ## Purpose
-TBD - created by archiving change add-campaign-refit-and-prestige. Update Purpose after archive.
+
+Defines Campaign Refit And Prestige requirements for Refit Order Model, Refit Classification, Refit Cost and Hours Estimation, and Refit Construction Validation Gate, preserving the source-of-truth scope introduced by archived change add-campaign-refit-and-prestige.
+
 ## Requirements
 ### Requirement: Refit Order Model
 

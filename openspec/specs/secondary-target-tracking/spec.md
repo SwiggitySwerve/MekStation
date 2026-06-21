@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+Defines Secondary Target Tracking requirements for Primary/Secondary Target Designation, Secondary Target Penalty - Front Arc, Secondary Target Penalty - Other Arcs, and Multi-Tasker SPA Interaction, preserving the source-of-truth scope introduced by archived change full-combat-parity.
 
 ## Requirements
 

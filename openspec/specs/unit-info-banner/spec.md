@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-customizer-ui-components. Update Purpose after archive.
+Defines Unit Info Banner requirements for Fixed Banner Layout, Unit Identity Display, Statistics Grid, and Stat Cell Styling, preserving the source-of-truth scope introduced by archived change add-customizer-ui-components.
 
 ## Requirements
 

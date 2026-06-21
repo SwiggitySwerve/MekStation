@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change add-customizer-ui-components. Update Purpose after archive.
+Defines Multi Unit Tabs requirements for Tab Bar Display, Tab Rendering, Tab Selection, and Tab Creation, preserving the source-of-truth scope introduced by archived change add-customizer-ui-components.
+
 ## Requirements
 ### Requirement: Tab Bar Display
 

@@ -12,7 +12,7 @@
 
 ### Purpose
 
-This document consolidates ALL validation rules from all MekStation specifications into a single, comprehensive reference. It provides a complete catalog of validation requirements, error messages, severity levels, and cross-references to source specifications.
+Pointer: `unit-validation-framework` is the authoritative capability for runtime unit-validation behavior under `src/utils/validation`. This document remains the historical validation-rule catalog and cross-reference for error messages, severity levels, and source specifications until the catalog is merged or split under a distinct code home.
 
 ### Scope
 
@@ -2064,3 +2064,34 @@ The system SHALL validate configuration changes.
 - **WHEN** equipment is allocated to locations
 - **THEN** validator SHALL check if equipment locations are valid in new config
 - **AND** equipment in invalid locations SHALL be unallocated
+
+### Requirement: Spec Source-of-Truth Integrity
+
+The spec-validation tooling SHALL enforce that every capability spec carries a real, non-placeholder Purpose and that every code home has exactly one authoritative capability. A spec-purpose lint check SHALL FAIL when an `openspec/specs/<capability>/spec.md` Purpose body contains the placeholder string `TBD - created by archiving`, is empty, or is a bare `TBD`. Each code home SHALL be owned by exactly one authoritative capability; any second capability describing the same code area SHALL either merge into the authoritative capability or declare its Purpose as an explicit pointer to it. Known legacy violations MAY be carried on an auditable, drainable allowlist that records the owning change, but a NEWLY introduced placeholder Purpose or undeclared duplicate owner SHALL fail the gate immediately.
+
+#### Scenario: Placeholder Purpose fails the lint gate
+
+- **GIVEN** a capability spec whose Purpose body contains `TBD - created by archiving`
+- **WHEN** the spec-purpose lint check runs and that capability is not on the legacy allowlist
+- **THEN** the check SHALL exit non-zero and name the offending capability
+- **AND** a real Purpose, or addition to the auditable allowlist with its owning change, SHALL be required before the gate passes
+
+#### Scenario: Real Purpose passes the lint gate
+
+- **GIVEN** a capability spec whose Purpose body is a non-empty sentence that is neither `TBD` nor the archive placeholder
+- **WHEN** the spec-purpose lint check runs
+- **THEN** the check SHALL accept that capability with no finding
+
+#### Scenario: Duplicate code-home owner is flagged
+
+- **GIVEN** two capabilities that describe the same code home and neither declares its Purpose as a pointer to the other
+- **WHEN** the one-spec-per-capability check runs and the pair is not on the duplicate-owner allowlist
+- **THEN** the check SHALL report a duplicate-authoritative-owner violation
+- **AND** the pair SHALL be resolved by merging the second capability or rewriting its Purpose as a pointer to the authoritative one before the allowlist entry is removed
+
+#### Scenario: Allowlisted legacy violations are tracked, not silently exempt
+
+- **GIVEN** the initial run after the guard lands, with legacy placeholder Purposes and known duplicate-owner pairs present
+- **WHEN** the lint check runs in tracking mode
+- **THEN** each allowlisted entry SHALL be reported as tracked source-of-truth debt with its owning change recorded
+- **AND** removing an entry from the allowlist while the violation remains SHALL fail the gate, so the allowlist can only shrink as real Purposes and merges land
