@@ -1,7 +1,9 @@
 # quick-game-ui Specification
 
 ## Purpose
-TBD - created by archiving change polish-wave-6.2-gaps. Update Purpose after archive.
+
+Defines Quick Game UI requirements for Scenario Type Selector and AI Tier Selector, preserving the source-of-truth scope introduced by archived change polish-wave-6.2-gaps.
+
 ## Requirements
 ### Requirement: Scenario Type Selector
 

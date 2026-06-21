@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase2-construction. Update Purpose after archive.
+Defines Movement System requirements for Walk/Run MP Calculation, Jump Jets, Movement Enhancements, and Variable Equipment Context, preserving the source-of-truth scope introduced by archived change implement-phase2-construction.
+
 ## Requirements
 ### Requirement: Walk/Run MP Calculation
 

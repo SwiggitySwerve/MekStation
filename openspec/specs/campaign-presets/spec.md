@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-campaign-presets. Update Purpose after archive.
+Defines Campaign Presets requirements for Preset Definitions, Option Metadata Registry, Preset Application Service, and Preset Export and Import, preserving the source-of-truth scope introduced by archived change add-campaign-presets.
 
 ## Requirements
 

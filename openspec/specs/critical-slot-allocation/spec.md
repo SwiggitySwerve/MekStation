@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase2-construction. Update Purpose after archive.
+Defines Critical Slot Allocation requirements for Location Slot Counts, Fixed Component Placement, Distributed Slot Components, and Actuator Requirements, preserving the source-of-truth scope introduced by archived change implement-phase2-construction.
 
 ## Requirements
 

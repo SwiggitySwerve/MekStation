@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change enhance-customizer-toolbar. Update Purpose after archive.
+Defines Customizer Toolbar requirements for Unit Load Dialog, Unit Naming Format, Canonical Unit Name Protection, and Custom Unit Conflict Resolution, preserving the source-of-truth scope introduced by archived change enhance-customizer-toolbar.
 
 ## Requirements
 

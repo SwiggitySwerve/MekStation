@@ -1,7 +1,9 @@
 # attack-effects-system Specification
 
 ## Purpose
-TBD - created by archiving change add-attack-visual-effects. Update Purpose after archive.
+
+Defines Attack Effects System requirements for Per-Category Effect Primitive, Weapon Color Mapping, Impact Flash, and Cluster and Multi-Shot Staggering, preserving the source-of-truth scope introduced by archived change add-attack-visual-effects.
+
 ## Requirements
 ### Requirement: Per-Category Effect Primitive
 

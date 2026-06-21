@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+Defines Physical Attack System requirements for Physical Attack Phase, Punch Attack Resolution, Kick Attack Resolution, and Charge Attack Resolution, preserving the source-of-truth scope introduced by archived change full-combat-parity.
+
 ## Requirements
 ### Requirement: Physical Attack Phase
 

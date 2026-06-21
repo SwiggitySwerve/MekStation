@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-acquisition-supply-chain. Update Purpose after archive.
+Defines Acquisition Supply Chain requirements for Availability Ratings, Acquisition Roll Calculation, Planetary Modifiers, and Delivery Time Calculation, preserving the source-of-truth scope introduced by archived change add-acquisition-supply-chain.
 
 ## Requirements
 

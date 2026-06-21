@@ -1,7 +1,9 @@
 # replay-library Specification
 
 ## Purpose
-TBD - created by archiving change add-replay-library. Update Purpose after archive.
+
+Defines Replay Library requirements for ReplaySource Enum, IReplayManifestEntry Discriminated Union, Filesystem Partition Layout, and Central Replay Index Reader, preserving the source-of-truth scope introduced by archived change add-replay-library.
+
 ## Requirements
 ### Requirement: ReplaySource Enum
 

@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-21T05:26:52.421Z",
+  "placeholderAllowlist": [],
+  "duplicateOwnerAllowlist": [],
+  "codeHomeClaims": [
+    {
+      "codeHome": "src/utils/criticalHitResolution",
+      "capabilities": [
+        "critical-hit-resolution",
+        "critical-hit-system"
+      ]
+    },
+    {
+      "codeHome": "src/utils/validation",
+      "capabilities": [
+        "validation-rules-master",
+        "unit-validation-framework",
+        "validation-patterns"
+      ]
+    }
+  ],
+  "activeChangeOwnershipOrder": [
+    {
+      "capability": "tactical-map-interface",
+      "order": [
+        {
+          "change": "fix-tactical-projection-agreement-gaps",
+          "sequence": 1,
+          "role": "Movement projection agreement owns base reachable/cost/blocked projection semantics."
+        },
+        {
+          "change": "extend-projection-agreement-tohit",
+          "sequence": 2,
+          "role": "To-hit projection agreement owns attack forecast and targetability semantics after movement projection is stable."
+        },
+        {
+          "change": "fix-tactical-map-perf-and-legibility",
+          "sequence": 3,
+          "role": "Performance and label pressure work follows the shared projection contracts."
+        },
+        {
+          "change": "add-topdown-tactical-legibility",
+          "sequence": 4,
+          "role": "Top-down badges and non-color-only overlays build on settled projection and legibility constraints."
+        },
+        {
+          "change": "add-isometric-elevation-extrusion",
+          "sequence": 5,
+          "role": "Isometric extrusion and occlusion work follows top-down/readability and projection contracts."
+        }
+      ]
+    },
+    {
+      "capability": "game-session-management",
+      "order": [
+        {
+          "change": "wire-interactive-turn-engine",
+          "sequence": 1,
+          "role": "Interactive turn mutation and outcome semantics land before persistence captures them."
+        },
+        {
+          "change": "persist-and-recover-interactive-battles",
+          "sequence": 2,
+          "role": "Recovery and replay semantics consume the stabilized interactive session state."
+        }
+      ]
+    }
+  ]
+}

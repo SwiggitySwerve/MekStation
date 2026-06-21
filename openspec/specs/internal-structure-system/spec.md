@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase2-construction. Update Purpose after archive.
+Defines Internal Structure System requirements for Structure Types, Structure Points Table, Structure Weight Calculation, and Individual Structure Slot Items, preserving the source-of-truth scope introduced by archived change implement-phase2-construction.
 
 ## Requirements
 

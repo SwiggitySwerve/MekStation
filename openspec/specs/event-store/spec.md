@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-unified-event-store. Update Purpose after archive.
+Defines Event Store requirements for Base Event Structure, Event Immutability, Chunked Storage, and State Derivation, preserving the source-of-truth scope introduced by archived change add-unified-event-store.
 
 ## Requirements
 

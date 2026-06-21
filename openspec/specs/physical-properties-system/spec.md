@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase1-foundation. Update Purpose after archive.
+Defines Physical Properties System requirements for Weight Property Standard, Critical Slots Property Standard, and Weight Rounding, preserving the source-of-truth scope introduced by archived change implement-phase1-foundation.
 
 ## Requirements
 

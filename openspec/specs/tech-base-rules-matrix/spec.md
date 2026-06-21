@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase2-construction. Update Purpose after archive.
+Defines Tech Base Rules Matrix requirements for Tech Base Restrictions and Matrix Lookup, preserving the source-of-truth scope introduced by archived change implement-phase2-construction.
 
 ## Requirements
 

@@ -1,7 +1,9 @@
 # multiplayer-matchmaking Specification
 
 ## Purpose
-TBD - created by archiving change add-matchmaking-and-spectator. Update Purpose after archive.
+
+Defines Multiplayer Matchmaking requirements for Joinable-Lobby Query, Joinable-Lobby Endpoint, and Match Browser, preserving the source-of-truth scope introduced by archived change add-matchmaking-and-spectator.
+
 ## Requirements
 ### Requirement: Joinable-Lobby Query
 

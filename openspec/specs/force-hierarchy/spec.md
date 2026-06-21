@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-comprehensive-campaign-system. Update Purpose after archive.
+Defines Force Hierarchy requirements for Force Entity, Force Tree Traversal, Unit Assignment, and Force Types and Formation Levels, preserving the source-of-truth scope introduced by archived change implement-comprehensive-campaign-system.
 
 ## Requirements
 

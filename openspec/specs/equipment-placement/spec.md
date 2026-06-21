@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase3-equipment. Update Purpose after archive.
+Defines Equipment Placement requirements for Location Restrictions, Split Equipment, Contiguous Placement, and OmniMech Pod Mounting, preserving the source-of-truth scope introduced by archived change implement-phase3-equipment.
 
 ## Requirements
 

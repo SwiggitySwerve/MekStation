@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-spa-picker-component. Update Purpose after archive.
+Defines SPA UI requirements for SPA Picker Layout, Search and Source Filtering, Entry Row Content, and Designation Prompt, preserving the source-of-truth scope introduced by archived change add-spa-picker-component.
 
 ## Requirements
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase3-equipment. Update Purpose after archive.
+Defines Physical Weapons System requirements for Physical Weapon Types, Actuator Requirements, Physical Weapon Combat To-Hit Modifiers, and Physical Weapon Damage in Combat, preserving the source-of-truth scope introduced by archived change implement-phase3-equipment.
 
 ## Requirements
 

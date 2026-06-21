@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase3-equipment. Update Purpose after archive.
+Defines Hardpoint System requirements for Hardpoint Types, Weapon-Hardpoint Compatibility, and Fixed vs Pod Equipment, preserving the source-of-truth scope introduced by archived change implement-phase3-equipment.
 
 ## Requirements
 

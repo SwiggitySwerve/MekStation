@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-comprehensive-campaign-system. Update Purpose after archive.
+Defines Campaign UI requirements for Campaign List Page, Campaign Dashboard, Personnel Roster Page, and Forces (TO&E) Page, preserving the source-of-truth scope introduced by archived change implement-comprehensive-campaign-system.
 
 ## Requirements
 

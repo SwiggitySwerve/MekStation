@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change add-scenario-generators. Update Purpose after archive.
+Defines Scenario Generation requirements for Scenario Template System, OpFor Generation, Battle Modifiers, and Terrain Selection, preserving the source-of-truth scope introduced by archived change add-scenario-generators.
+
 ## Requirements
 ### Requirement: Scenario Template System
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-comprehensive-campaign-system. Update Purpose after archive.
+Defines Personnel Management requirements for Person Entity, Personnel Status Management, Personnel Roles, and Injury Tracking, preserving the source-of-truth scope introduced by archived change implement-comprehensive-campaign-system.
 
 ## Requirements
 

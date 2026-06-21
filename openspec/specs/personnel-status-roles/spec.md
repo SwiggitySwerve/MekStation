@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-personnel-status-roles. Update Purpose after archive.
+Defines Personnel Status Roles requirements for Personnel Status Enum Expansion, Status Behavioral Rules, Status Transition Validation, and Personnel Role Enum Expansion, preserving the source-of-truth scope introduced by archived change add-personnel-status-roles.
 
 ## Requirements
 

@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change add-multiplayer-lobby-and-matchmaking-2-8. Update Purpose after archive.
+Defines Multiplayer Sync requirements for Lobby Update Broadcast, Room Code UI Contract, Redacted Event Shape, and Client Gracefully Handles Missing Events, preserving the source-of-truth scope introduced by archived change add-multiplayer-lobby-and-matchmaking-2-8.
+
 ## Requirements
 ### Requirement: Lobby Update Broadcast
 

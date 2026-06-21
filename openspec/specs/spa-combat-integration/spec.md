@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+Defines SPA Combat Integration requirements for Gunnery SPA - Weapon Specialist, Gunnery SPA - Gunnery Specialist, Gunnery SPA - Blood Stalker, and Gunnery SPA - Range Master, preserving the source-of-truth scope introduced by archived change full-combat-parity.
 
 ## Requirements
 

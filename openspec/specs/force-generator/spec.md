@@ -1,7 +1,9 @@
 # force-generator Specification
 
 ## Purpose
-TBD - created by archiving change polish-wave-6.2-gaps. Update Purpose after archive.
+
+Defines Force Generator requirements for UnitCount Fallback Retry at High BV, preserving the source-of-truth scope introduced by archived change polish-wave-6.2-gaps.
+
 ## Requirements
 ### Requirement: UnitCount Fallback Retry at High BV
 

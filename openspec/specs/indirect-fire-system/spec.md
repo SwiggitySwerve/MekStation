@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+Defines Indirect Fire System requirements for LRM Indirect Fire Mode, Indirect Fire To-Hit Penalty, Spotter Movement Penalty, and Indirect Fire Minimum Range, preserving the source-of-truth scope introduced by archived change full-combat-parity.
+
 ## Requirements
 ### Requirement: LRM Indirect Fire Mode
 

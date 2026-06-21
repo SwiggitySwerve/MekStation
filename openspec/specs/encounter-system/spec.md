@@ -1,7 +1,9 @@
 # encounter-system Specification
 
 ## Purpose
-TBD - created by archiving change sync-encounter-and-replay-source-of-truth. Update Purpose after archive.
+
+Defines Encounter System requirements for Encounter Entity Model, Encounter Status Lifecycle, Force-Reference Slot Semantics, and Force Configuration, preserving the source-of-truth scope introduced by archived change sync-encounter-and-replay-source-of-truth.
+
 ## Requirements
 ### Requirement: Encounter Entity Model
 

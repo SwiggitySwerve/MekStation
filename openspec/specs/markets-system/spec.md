@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-markets-system. Update Purpose after archive.
+Defines Markets System requirements for Unit Market System, Personnel Market System, Market Purchase Functions, and Faction Standing Integration, preserving the source-of-truth scope introduced by archived change add-markets-system.
 
 ## Requirements
 

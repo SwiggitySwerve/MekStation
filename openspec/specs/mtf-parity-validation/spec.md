@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-mtf-parity-validation. Update Purpose after archive.
+Defines MTF Parity Validation requirements for MTF Parsing from Raw Text, MTF Serialization from ISerializedUnit, Round-Trip Parity Validation, and Discrepancy Categorization, preserving the source-of-truth scope introduced by archived change add-mtf-parity-validation.
 
 ## Requirements
 

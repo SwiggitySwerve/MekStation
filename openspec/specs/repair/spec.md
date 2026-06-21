@@ -46,7 +46,7 @@ The Repair System manages post-battle damage assessment, repair job creation, re
 
 ## Purpose
 
-TBD - created by archiving change add-repair-system. Update Purpose after archive.
+Defines Repair requirements for Damage Assessment, Repair Execution, Repair Costs, and Repair Queue, preserving the source-of-truth scope introduced by archived change add-repair-system.
 
 ## Requirements
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+Defines Quirk Combat Integration requirements for Targeting Quirk - Improved Targeting, Targeting Quirk - Poor Targeting, Piloting Quirk - Easy to Pilot, and Piloting Quirk - Stable, preserving the source-of-truth scope introduced by archived change full-combat-parity.
 
 ## Requirements
 

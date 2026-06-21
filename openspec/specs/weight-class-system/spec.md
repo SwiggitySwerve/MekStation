@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase1-foundation. Update Purpose after archive.
+Defines Weight Class System requirements for Weight Class Enumeration, Weight Class Determination, and Weight Class Validation, preserving the source-of-truth scope introduced by archived change implement-phase1-foundation.
 
 ## Requirements
 

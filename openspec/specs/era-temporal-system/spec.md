@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase1-foundation. Update Purpose after archive.
+Defines Era Temporal System requirements for Canonical Era Definitions, Temporal Availability Tracking, and Era Determination, preserving the source-of-truth scope introduced by archived change implement-phase1-foundation.
 
 ## Requirements
 

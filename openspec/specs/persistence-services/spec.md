@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-service-layer. Update Purpose after archive.
+Defines Persistence Services requirements for Database Initialization, Generic Put Operation, Generic Get Operation, and Generic Delete Operation, preserving the source-of-truth scope introduced by archived change add-service-layer.
 
 ## Requirements
 

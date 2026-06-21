@@ -1,7 +1,9 @@
 # combat-morale-and-withdrawal Specification
 
 ## Purpose
-TBD - created by archiving change add-combat-morale-and-withdrawal. Update Purpose after archive.
+
+Defines Combat Morale And Withdrawal requirements for In-Battle Morale State, Morale Shift Rules, Player Withdrawal Declaration, and Forced Withdrawal Rule, preserving the source-of-truth scope introduced by archived change add-combat-morale-and-withdrawal.
+
 ## Requirements
 ### Requirement: In-Battle Morale State
 

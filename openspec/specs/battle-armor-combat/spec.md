@@ -1,7 +1,9 @@
 # battle-armor-combat Specification
 
 ## Purpose
-TBD - created by archiving change add-battle-armor-combat. Update Purpose after archive.
+
+Defines Battle Armor Combat requirements for BA Squad Combat State, Squad Damage Allocation, Swarm Attack - Declaration and Attach, and Swarm Fire While Attached, preserving the source-of-truth scope introduced by archived change add-battle-armor-combat.
+
 ## Requirements
 ### Requirement: BA Squad Combat State
 

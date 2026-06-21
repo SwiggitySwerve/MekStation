@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change add-customizer-ui-components. Update Purpose after archive.
+Defines Armor Diagram requirements for SVG-Based Mech Diagram, Location Click Interaction, Real-Time Armor Value Display, and Location Color Coding, preserving the source-of-truth scope introduced by archived change add-customizer-ui-components.
+
 ## Requirements
 ### Requirement: SVG-Based Mech Diagram
 

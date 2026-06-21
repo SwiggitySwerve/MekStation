@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase5-data-models. Update Purpose after archive.
+Defines Data Integrity Validation requirements for Referential Integrity, Data Consistency, and Version Compatibility, preserving the source-of-truth scope introduced by archived change implement-phase5-data-models.
 
 ## Requirements
 

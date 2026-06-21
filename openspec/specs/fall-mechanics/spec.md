@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+Defines Fall Mechanics requirements for Fall Damage Calculation, Fall Direction Determination, Prone State Management, and Pilot Damage from Falls, preserving the source-of-truth scope introduced by archived change full-combat-parity.
 
 ## Requirements
 

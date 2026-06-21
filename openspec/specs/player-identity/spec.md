@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-player-identity-and-auth. Update Purpose after archive.
+Defines Player Identity requirements for Player Reference Model, Token-Based Authentication, Player Store Contract, and Player Id Bound to WebSocket, preserving the source-of-truth scope introduced by archived change add-player-identity-and-auth.
 
 ## Requirements
 

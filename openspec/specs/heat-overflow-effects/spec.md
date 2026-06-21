@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change document-heat-overflow-effects. Update Purpose after archive.
+Defines Heat Overflow Effects requirements for Heat Scale Thresholds, Movement Penalty Application, Shutdown Risk Calculation, and Ammunition Explosion Risk, preserving the source-of-truth scope introduced by archived change document-heat-overflow-effects.
+
 ## Requirements
 ### Requirement: Heat Scale Thresholds
 

@@ -1,7 +1,9 @@
 # camera-controls Specification
 
 ## Purpose
-TBD - created by archiving change add-minimap-and-camera-controls. Update Purpose after archive.
+
+Defines Camera Controls requirements for Camera Pan, Camera Zoom, Unit Focus, and Hotkey Help Overlay, preserving the source-of-truth scope introduced by archived change add-minimap-and-camera-controls.
+
 ## Requirements
 ### Requirement: Camera Pan
 

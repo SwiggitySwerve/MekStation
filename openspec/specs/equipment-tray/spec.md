@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-customizer-ui-components. Update Purpose after archive.
+Defines Equipment Tray requirements for Summary Statistics Panel, Categorized Equipment List, Equipment Item Display, and Equipment Removal, preserving the source-of-truth scope introduced by archived change add-customizer-ui-components.
 
 ## Requirements
 

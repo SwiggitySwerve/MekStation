@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change enhance-mobile-loadout-tray. Update Purpose after archive.
+Defines Mobile Loadout Tray requirements for Mobile Loadout Status Bar, Mobile Equipment Row Display, Section Grouping with Headers, and Quick Assign via Link Button, preserving the source-of-truth scope introduced by archived change enhance-mobile-loadout-tray.
 
 ## Requirements
 

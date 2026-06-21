@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change add-quick-session-mode. Update Purpose after archive.
+Defines Quick Session requirements for Quick Game Entry, Temporary Unit Instances, Session Event Store, and Quick Game Results, preserving the source-of-truth scope introduced by archived change add-quick-session-mode.
+
 ## Requirements
 ### Requirement: Quick Game Entry
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-service-layer. Update Purpose after archive.
+Defines Construction Services requirements for Create Empty Mech, Create Mech from Template, Apply Changes, and Set Engine, preserving the source-of-truth scope introduced by archived change add-service-layer.
 
 ## Requirements
 

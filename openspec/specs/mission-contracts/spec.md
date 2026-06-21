@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-comprehensive-campaign-system. Update Purpose after archive.
+Defines Mission Contracts requirements for Mission Entity, Contract Entity, Scenario Entity, and Payment Terms, preserving the source-of-truth scope introduced by archived change implement-comprehensive-campaign-system.
 
 ## Requirements
 

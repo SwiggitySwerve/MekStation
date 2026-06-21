@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-comprehensive-campaign-system. Update Purpose after archive.
+Defines Campaign Management requirements for Campaign Creation, Campaign Persistence, Campaign Options, and Personnel Management, preserving the source-of-truth scope introduced by archived change implement-comprehensive-campaign-system.
 
 ## Requirements
 

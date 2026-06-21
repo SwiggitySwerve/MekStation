@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change enhance-customizer-toolbar. Update Purpose after archive.
+Defines Overview Basic Info requirements for Rules Level Dropdown and Unit Identity State, preserving the source-of-truth scope introduced by archived change enhance-customizer-toolbar.
 
 ## Requirements
 

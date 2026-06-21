@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change improve-customizer-mobile-responsiveness. Update Purpose after archive.
+Defines Customizer Responsive Layout requirements for Adaptive Tab Navigation, Responsive Loadout Sidebar, Responsive Content Layout, and Responsive Unit Info Banner, preserving the source-of-truth scope introduced by archived change improve-customizer-mobile-responsiveness.
 
 ## Requirements
 

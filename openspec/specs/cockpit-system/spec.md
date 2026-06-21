@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase2-construction. Update Purpose after archive.
+Defines Cockpit System requirements for Cockpit Types, Head Slot Layout, and Cockpit Compatibility, preserving the source-of-truth scope introduced by archived change implement-phase2-construction.
 
 ## Requirements
 

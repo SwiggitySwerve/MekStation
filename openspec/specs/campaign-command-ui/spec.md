@@ -1,7 +1,9 @@
 # campaign-command-ui Specification
 
 ## Purpose
-TBD - created by archiving change add-campaign-command-ui. Update Purpose after archive.
+
+Defines Campaign Command UI requirements for Command Navigation Group, Personnel and Hiring Page, Finances and Loans Page, and Contract Market Page, preserving the source-of-truth scope introduced by archived change add-campaign-command-ui.
+
 ## Requirements
 ### Requirement: Command Navigation Group
 

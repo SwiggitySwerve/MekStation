@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change full-combat-parity. Update Purpose after archive.
+Defines Ammo Explosion System requirements for Critical Hit Ammo Explosion, CASE Protection, CASE II Protection, and No CASE Explosion Damage, preserving the source-of-truth scope introduced by archived change full-combat-parity.
+
 ## Requirements
 ### Requirement: Critical Hit Ammo Explosion
 

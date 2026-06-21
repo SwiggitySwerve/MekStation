@@ -1,7 +1,9 @@
 # scenario-objectives Specification
 
 ## Purpose
-TBD - created by archiving change add-scenario-objective-engine. Update Purpose after archive.
+
+Defines Scenario Objectives requirements for Objective Marker Data Model, Objective Placement During Scenario Generation, Objective Control Detection, and Objective-Based Victory Evaluation, preserving the source-of-truth scope introduced by archived change add-scenario-objective-engine.
+
 ## Requirements
 ### Requirement: Objective Marker Data Model
 

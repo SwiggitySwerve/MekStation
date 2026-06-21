@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change add-force-management. Update Purpose after archive.
+Defines Force Management requirements for Force Entity Model, Pilot-Mech Assignment, Force CRUD Operations, and Force Validation, preserving the source-of-truth scope introduced by archived change add-force-management.
 
 ## Requirements
 

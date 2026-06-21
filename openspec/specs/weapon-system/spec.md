@@ -2,7 +2,8 @@
 
 ## Purpose
 
-TBD - created by archiving change implement-phase3-equipment. Update Purpose after archive.
+Defines Weapon System requirements for Weapon Classification, Range Brackets, Weapon Stats, and Weapon Range from IWeaponData, preserving the source-of-truth scope introduced by archived change implement-phase3-equipment.
+
 ## Requirements
 ### Requirement: Weapon Classification
 
