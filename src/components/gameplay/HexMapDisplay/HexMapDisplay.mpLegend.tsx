@@ -14,6 +14,8 @@ interface MapMovementPointLegendProps extends MapMovementPointLegendState {
 interface MovementLegendKindConfig {
   readonly kind: MapMovementKind;
   readonly label: string;
+  readonly nonColorEncoding?: string;
+  readonly nonColorEncodingLabel?: string;
   readonly swatchClassName: string;
 }
 
@@ -28,8 +30,20 @@ interface MovementLegendButtonProps {
 
 const MOVEMENT_LEGEND_KINDS: readonly MovementLegendKindConfig[] = [
   { kind: 'walk', label: 'Walk', swatchClassName: 'bg-cyan-400' },
-  { kind: 'run', label: 'Run', swatchClassName: 'bg-yellow-500' },
-  { kind: 'jump', label: 'Jump', swatchClassName: 'bg-red-500' },
+  {
+    kind: 'run',
+    label: 'Run',
+    nonColorEncoding: 'dashed-border',
+    nonColorEncodingLabel: 'dashed border for run-only tiles',
+    swatchClassName: 'bg-yellow-500',
+  },
+  {
+    kind: 'jump',
+    label: 'Jump',
+    nonColorEncoding: 'diagonal-hatch',
+    nonColorEncodingLabel: 'diagonal hatch',
+    swatchClassName: 'bg-red-500',
+  },
 ];
 
 function movementLegendDisabledReason(
@@ -44,12 +58,14 @@ function movementLegendStateLabel({
   isActive,
   label,
   movementModeLabel,
+  nonColorEncodingLabel,
   mp,
 }: {
   readonly disabledReason?: string;
   readonly isActive: boolean;
   readonly label: string;
   readonly movementModeLabel?: string;
+  readonly nonColorEncodingLabel?: string;
   readonly mp?: number;
 }): string {
   const stateParts = [
@@ -58,6 +74,9 @@ function movementLegendStateLabel({
   ];
   if (mp !== undefined) stateParts.push(`${mp} MP`);
   if (movementModeLabel) stateParts.push(`motive ${movementModeLabel}`);
+  if (nonColorEncodingLabel) {
+    stateParts.push(`non-color encoding ${nonColorEncodingLabel}`);
+  }
   if (disabledReason) stateParts.push(`disabled: ${disabledReason}`);
   return stateParts.join('; ');
 }
@@ -80,6 +99,7 @@ function MovementLegendButton({
     isActive,
     label,
     movementModeLabel,
+    nonColorEncodingLabel: config.nonColorEncodingLabel,
     mp,
   });
 
@@ -93,6 +113,7 @@ function MovementLegendButton({
       data-active={isActive ? 'true' : undefined}
       data-disabled={disabledReason ? 'true' : undefined}
       data-disabled-reason={disabledReason}
+      data-non-color-encoding={config.nonColorEncoding}
       data-selectable={isSelectable ? 'true' : undefined}
       data-mp={mp}
       aria-pressed={isActive}
@@ -132,6 +153,7 @@ export function MapMovementPointLegend({
     <div
       className="pointer-events-none absolute bottom-4 left-4 flex flex-col gap-1 rounded bg-white/90 p-2 text-xs shadow"
       data-testid="mp-legend"
+      data-non-color-encodings="blocked:cross-hatch|run:dashed-border|jump:diagonal-hatch"
       data-movement-mode={movementMode}
       data-walk-mp={walkMP}
       data-run-mp={runMP}
@@ -159,6 +181,15 @@ export function MapMovementPointLegend({
           onMovementModeSelect={onMovementModeSelect}
         />
       ))}
+      <div
+        className="pointer-events-auto flex items-center gap-2 rounded px-1 py-0.5 text-slate-700"
+        data-testid="mp-legend-blocked"
+        data-non-color-encoding="cross-hatch"
+        aria-label="Blocked movement projection; non-color encoding cross-hatch and blocked marker"
+      >
+        <span className="inline-block h-3 w-3 rounded-sm border border-slate-700 bg-slate-500" />
+        <span>Blocked</span>
+      </div>
     </div>
   );
 }

@@ -75,9 +75,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('hex-elevation-label-0-0')).toHaveTextContent(
       '+2',
     );
-    expect(screen.getByTestId('hex-elevation-label-1-0')).toHaveTextContent(
-      'Elevation 0',
-    );
+    expect(screen.queryByTestId('hex-elevation-label-1-0')).toBeNull();
     expect(movementHex).toHaveAttribute('data-elevation-delta', '-2');
     expect(movementHex).toHaveAttribute('data-elevation-cost', '2');
     expect(screen.getByTestId('hex-movement-cost-badge-1-0')).toHaveTextContent(

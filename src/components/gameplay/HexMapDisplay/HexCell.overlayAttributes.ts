@@ -78,6 +78,7 @@ export function buildOverlayAttributes({
     role: 'img',
     'aria-label': overlayLabel,
     'data-hex-overlay-kind': overlayState.kind ?? undefined,
+    'data-movement-non-color-encoding': overlayState.movementNonColorEncoding,
     'data-hex-overlay-status': tacticalProjectionStatus,
     'data-hex-overlay-movement-status': tacticalProjectionMovementStatus,
     'data-hex-overlay-movement-cost-status':

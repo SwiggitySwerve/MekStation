@@ -49,7 +49,7 @@ describe('HexMapDisplay terrain and elevation labels', () => {
     });
   });
 
-  it('renders the full terrain vocabulary with readable elevation labels in top-down and isometric modes', () => {
+  it('renders the full terrain vocabulary with readable top-down elevation badges and isometric stacks', () => {
     const terrainMatrix = buildTerrainMatrix();
     const tallHex = terrainMatrix.find((terrain) => terrain.elevation > 0);
 
@@ -114,7 +114,7 @@ describe('HexMapDisplay terrain and elevation labels', () => {
     ): void => {
       const hex = screen.getByTestId('hex-1-0');
       const terrainBadge = screen.getByTestId('hex-terrain-label-1-0');
-      const elevationBadge = screen.getByTestId('hex-elevation-label-1-0');
+      const elevationBadge = screen.queryByTestId('hex-elevation-label-1-0');
 
       expect(hex).toHaveAttribute(
         'aria-label',
@@ -148,7 +148,13 @@ describe('HexMapDisplay terrain and elevation labels', () => {
         'data-projection-mode',
         projectionMode,
       );
-      for (const badge of [terrainBadge, elevationBadge]) {
+      const projectionBadges =
+        projectionMode === 'topDown'
+          ? [terrainBadge, elevationBadge]
+          : [terrainBadge];
+      for (const badge of projectionBadges) {
+        expect(badge).not.toBeNull();
+        if (!badge) throw new Error('Expected terrain projection badge');
         assertTerrainElevationProjectionMetadata(badge, layeredTerrain);
         expect(badge).toHaveAttribute(
           'data-tactical-projection-sources',
@@ -162,6 +168,9 @@ describe('HexMapDisplay terrain and elevation labels', () => {
           'data-tactical-projection-sources',
           expect.stringContaining('building level 3'),
         );
+      }
+      if (projectionMode === 'isometric2d') {
+        expect(elevationBadge).toBeNull();
       }
     };
 

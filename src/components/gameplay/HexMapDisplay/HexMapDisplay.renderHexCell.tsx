@@ -27,6 +27,7 @@ export interface RenderHexCellInput {
   readonly projectionMode: MapProjectionMode;
   readonly selectedHex: IHexCoordinate | null;
   readonly showCoordinates: boolean;
+  readonly showElevationBadges: boolean;
   readonly tacticalMapProjectionLookup: ReadonlyMap<
     string,
     ITacticalMapHexProjection
@@ -47,6 +48,7 @@ export function renderHexCell(
     projectionMode,
     selectedHex,
     showCoordinates,
+    showElevationBadges,
     tacticalMapProjectionLookup,
     terrainLookup,
   }: RenderHexCellInput,
@@ -89,6 +91,7 @@ export function renderHexCell(
       tacticalProjectionExplanation={projection?.explanation}
       isometricOccluderInfo={isometricOccluderInfo || undefined}
       showCoordinate={showCoordinates}
+      showElevationBadge={showElevationBadges}
       projectionMode={projectionMode}
       hoverMpCost={
         isHovered && hoverMpCost !== undefined && movementInfo?.reachable

@@ -320,6 +320,32 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
         /terrain-elevation:mekstation:MekStation terrain\/elevation grid state/,
       );
     }
+    const elevationToggle = page.getByTestId('overlay-toggle-elevation');
+    await expect(elevationToggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(elevationToggle).toHaveAttribute(
+      'data-map-layer-id',
+      'elevation',
+    );
+    await expect(elevationToggle).toHaveAttribute(
+      'data-map-layer-projection-channel',
+      'terrain-elevation',
+    );
+    await expect(elevationToggle).toHaveAttribute(
+      'data-map-layer-rules-surface',
+      'terrain-elevation',
+    );
+    await elevationToggle.click();
+    await expect(elevationToggle).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.getByTestId('hex-elevation-label-1-0')).toHaveCount(0);
+    await expect(topDownTerrainLabel).toHaveAttribute(
+      'data-terrain-features',
+      'building',
+    );
+    await elevationToggle.click();
+    await expect(elevationToggle).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByTestId('hex-elevation-label-1-0')).toContainText(
+      '+4',
+    );
     const movementBadge = page.getByTestId('hex-movement-badge-0-1');
     await expect(movementBadge).toContainText('W3/R4/J3 MP');
     await expect(movementBadge).toHaveAttribute(
@@ -467,6 +493,17 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-invalid-badge-reason',
       'Jump elevation rise of 4 exceeds jump MP 3',
     );
+    await expect(page.getByTestId('hex-overlay-1-0')).toHaveAttribute(
+      'data-movement-non-color-encoding',
+      'blocked-cross-hatch',
+    );
+    await expect(
+      page.getByTestId('blocked-movement-pattern-1-0'),
+    ).toHaveAttribute('fill', 'url(#pattern-blocked-movement)');
+    await expect(page.getByTestId('blocked-movement-glyph-1-0')).toContainText(
+      '!',
+    );
+    await expect(page.getByTestId('jump-pattern-1-0')).toHaveCount(0);
     await expect(page.getByTestId('hex-combat-badge-0-0')).toHaveAttribute(
       'data-combat-badge-distance',
       '1',
@@ -1067,6 +1104,49 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-isometric-rotation-step',
       '0',
     );
+  });
+
+  test('keeps top-down elevation badges readable on a large board in browser', async ({
+    page,
+  }) => {
+    await page.goto('/e2e/tactical-map?scenario=large-topdown-legibility');
+
+    const projectionLayer = page.getByTestId('map-projection-layer');
+    const hexGrid = page.getByTestId('hex-grid');
+    await expect(projectionLayer).toHaveAttribute(
+      'data-projection-mode',
+      'topDown',
+    );
+    await expect(page.getByTestId('hex-17-0')).toBeAttached();
+    await expect(page.getByTestId('hex--17-0')).toBeAttached();
+
+    const centralElevationLabel = page.getByTestId('hex-elevation-label-1-0');
+    await expect(centralElevationLabel).toContainText('+4');
+    const defaultBadgeBox = await centralElevationLabel.boundingBox();
+    expect(
+      defaultBadgeBox?.height ?? 0,
+      'large-board default zoom should leave the central elevation badge measurable',
+    ).toBeGreaterThan(3);
+
+    const initialViewBox = await hexGrid.getAttribute('viewBox');
+    await dragMouseOnLocator(hexGrid, 80, -60);
+    await expect(hexGrid).not.toHaveAttribute('viewBox', initialViewBox ?? '');
+    await expectNonBlankRender(page, 'large top-down tactical map after pan');
+
+    await page.getByTestId('zoom-out-btn').click();
+    await page.getByTestId('zoom-out-btn').click();
+    await expect(page.getByTestId('hex-elevation-label-1-0')).toHaveCount(0);
+    await expectNonBlankRender(
+      page,
+      'large top-down tactical map below badge readability zoom',
+    );
+
+    await page.getByTestId('zoom-in-btn').click();
+    await page.getByTestId('zoom-in-btn').click();
+    await expect(page.getByTestId('hex-elevation-label-1-0')).toContainText(
+      '+4',
+    );
+    await expectNonBlankRender(page, 'large top-down tactical map after zoom');
   });
 
   test('renders every isometric occluder layer that may hide one unit in browser', async ({
@@ -1768,7 +1848,23 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'aria-pressed',
       'true',
     );
+    await expect(page.getByTestId('mp-legend')).toHaveAttribute(
+      'data-non-color-encodings',
+      'blocked:cross-hatch|run:dashed-border|jump:diagonal-hatch',
+    );
+    await expect(page.getByTestId('mp-legend-run')).toHaveAttribute(
+      'data-non-color-encoding',
+      'dashed-border',
+    );
     await expect(optionHex).toHaveAttribute('data-movement-type', 'run');
+    await expect(page.getByTestId('hex-overlay-0-1')).toHaveAttribute(
+      'data-movement-non-color-encoding',
+      'run-dashed-border',
+    );
+    await expect(page.getByTestId('run-range-outline-0-1')).toHaveAttribute(
+      'stroke-dasharray',
+      '5 3',
+    );
     await expect(optionHex).toHaveAttribute('data-mp-cost', '3');
     await expect(optionHex).toHaveAttribute('data-heat-generated', '2');
     await expect(movementBadge).toHaveAttribute(

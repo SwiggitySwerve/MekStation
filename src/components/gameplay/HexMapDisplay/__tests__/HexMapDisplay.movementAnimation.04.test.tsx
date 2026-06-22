@@ -49,6 +49,10 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
 
     expect(screen.getByTestId('mp-legend')).toHaveClass('pointer-events-none');
+    expect(screen.getByTestId('mp-legend')).toHaveAttribute(
+      'data-non-color-encodings',
+      'blocked:cross-hatch|run:dashed-border|jump:diagonal-hatch',
+    );
     expect(screen.getByTestId('mp-legend-walk')).toHaveAttribute(
       'aria-disabled',
       'true',
@@ -76,7 +80,7 @@ describe('HexMapDisplay tactical visual layers', () => {
     ).toHaveClass('bg-yellow-500');
     expect(screen.getByTestId('mp-legend-run')).toHaveAttribute(
       'aria-label',
-      'Run movement range; active',
+      'Run movement range; active; non-color encoding dashed border for run-only tiles',
     );
     expect(screen.getByTestId('mp-legend-jump')).toHaveClass(
       'pointer-events-auto',
@@ -98,7 +102,14 @@ describe('HexMapDisplay tactical visual layers', () => {
     );
     expect(screen.getByTestId('mp-legend-jump')).toHaveAttribute(
       'aria-label',
-      'Jump movement range; inactive; disabled: No jump capability',
+      'Jump movement range; inactive; non-color encoding diagonal hatch; disabled: No jump capability',
+    );
+    expect(screen.getByTestId('mp-legend-blocked')).toHaveAttribute(
+      'data-non-color-encoding',
+      'cross-hatch',
+    );
+    expect(screen.getByTestId('mp-legend-blocked')).toHaveTextContent(
+      'Blocked',
     );
 
     act(() => {
@@ -194,12 +205,12 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(screen.getByTestId('mp-legend-run')).toHaveAttribute('data-mp', '5');
     expect(screen.getByTestId('mp-legend-run')).toHaveAttribute(
       'aria-label',
-      'Run movement range; active; 5 MP; motive VTOL',
+      'Run movement range; active; 5 MP; motive VTOL; non-color encoding dashed border for run-only tiles',
     );
     expect(screen.getByTestId('mp-legend-jump')).toHaveTextContent('Jump 0MP');
     expect(screen.getByTestId('mp-legend-jump')).toHaveAttribute(
       'aria-label',
-      'Jump movement range; inactive; 0 MP; motive VTOL; disabled: No jump capability',
+      'Jump movement range; inactive; 0 MP; motive VTOL; non-color encoding diagonal hatch; disabled: No jump capability',
     );
 
     act(() => {

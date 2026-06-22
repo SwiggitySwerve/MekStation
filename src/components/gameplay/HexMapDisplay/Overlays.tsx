@@ -326,6 +326,26 @@ export function TerrainPatternDefs(): React.ReactElement {
         />
       </pattern>
       <pattern
+        id="pattern-blocked-movement"
+        patternUnits="userSpaceOnUse"
+        width="8"
+        height="8"
+      >
+        <rect width="8" height="8" fill="transparent" />
+        <path
+          d="M0 0 8 8 M8 0 0 8"
+          stroke="#0f172a"
+          strokeWidth="1.25"
+          opacity="0.65"
+        />
+        <path
+          d="M4 0v8 M0 4h8"
+          stroke="#f8fafc"
+          strokeWidth="0.75"
+          opacity="0.55"
+        />
+      </pattern>
+      <pattern
         id="pattern-light-woods"
         patternUnits="userSpaceOnUse"
         width="12"
