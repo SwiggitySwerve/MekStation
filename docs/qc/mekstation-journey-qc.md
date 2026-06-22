@@ -11,6 +11,7 @@ scenario catalog.
 - Journey catalog: `docs/qc/mekstation-journey-scenarios.json`
 - QC validation graph: `docs/qc/mekstation-qc-validation-graph.json`
 - Logging map: `docs/qc/mekstation-logging-map.json`
+- UI flow shell registry: `src/qc/gameplayUiFlowShell.json`
 - Evidence root: `.sisyphus/evidence/qc-journeys`
 
 ## Commands
@@ -31,6 +32,11 @@ npm.cmd run qc:logs -- --run-id=latest --level=warn,error --exclude-probes
 npm.cmd run verify:qc:journeys
 ```
 
+`qc:journeys:validate` also checks the gameplay UI flow shell. Each required
+journey must have a UI flow entry, every UI flow journey must exist in the
+catalog and validation graph, and every route checkpoint must map to a Next.js
+page template such as `/gameplay/campaigns/[id]/salvage`.
+
 ## Supported Journeys
 
 | Journey             | Default mode | Primary module | Default proof                                      |
@@ -42,6 +48,20 @@ npm.cmd run verify:qc:journeys
 | `contract-campaign` | headless     | campaign       | contract selection, outcome, economy update        |
 | `campaign-short`    | headless     | campaign       | 3 to 5 contract sequence                           |
 | `campaign-long`     | headless     | campaign       | 6 to 10 contract sequence                          |
+
+## UI Flow Shell
+
+The gameplay hub mounts the UI flow shell from `src/qc/gameplayUiFlowShell.json`.
+It maps each supported journey to:
+
+- player-visible launch and inspection routes
+- GM review or intervention checkpoints
+- the QC command that proves the journey
+- placeholder routes such as `:campaignId`, `:missionId`, and `:gameId`
+
+Route placeholders are validation targets, not generated runtime IDs. The
+validator normalizes them against the concrete Next.js page templates before
+accepting the registry.
 
 ## Common Parameters
 

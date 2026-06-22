@@ -1,0 +1,394 @@
+{
+  "version": 1,
+  "title": "MekStation gameplay UI flow shell",
+  "sourceCatalog": "docs/qc/mekstation-journey-scenarios.json",
+  "sourceGraph": "docs/qc/mekstation-qc-validation-graph.json",
+  "requiredJourneyIds": [
+    "character-build",
+    "mek-build",
+    "combat-1v1",
+    "combat-4v4",
+    "contract-campaign",
+    "campaign-short",
+    "campaign-long"
+  ],
+  "flows": [
+    {
+      "journeyId": "character-build",
+      "displayName": "Character build",
+      "module": "roster",
+      "roleIntent": ["player"],
+      "primaryAction": {
+        "label": "Create pilot",
+        "href": "/gameplay/pilots/create"
+      },
+      "qcCommand": "npm.cmd run qc:journeys -- --journey=character-build --tier=smoke",
+      "inspectionNotes": [
+        "Player-visible roster creation and export evidence",
+        "GM review is limited to roster readiness and force assignment"
+      ],
+      "checkpoints": [
+        {
+          "id": "pilot-create",
+          "label": "Pilot creation",
+          "href": "/gameplay/pilots/create",
+          "visibility": "player"
+        },
+        {
+          "id": "pilot-roster",
+          "label": "Roster inspection",
+          "href": "/gameplay/pilots",
+          "visibility": "both"
+        },
+        {
+          "id": "force-assignment",
+          "label": "Force assignment",
+          "href": "/gameplay/forces/create",
+          "visibility": "both"
+        }
+      ]
+    },
+    {
+      "journeyId": "mek-build",
+      "displayName": "BattleMech build",
+      "module": "construction",
+      "roleIntent": ["player", "gm"],
+      "primaryAction": {
+        "label": "Open customizer",
+        "href": "/customizer"
+      },
+      "qcCommand": "npm.cmd run qc:journeys -- --journey=mek-build --tier=smoke",
+      "inspectionNotes": [
+        "Player-visible BattleMech construction and export evidence",
+        "GM can inspect campaign Mech Bay state before encounter launch"
+      ],
+      "checkpoints": [
+        {
+          "id": "customizer",
+          "label": "BattleMech customizer",
+          "href": "/customizer",
+          "visibility": "player"
+        },
+        {
+          "id": "unit-catalog",
+          "label": "Unit catalog",
+          "href": "/units",
+          "visibility": "both"
+        },
+        {
+          "id": "force-roster",
+          "label": "Force roster",
+          "href": "/gameplay/forces",
+          "visibility": "both"
+        },
+        {
+          "id": "campaign-mech-bay",
+          "label": "Campaign Mech Bay",
+          "href": "/gameplay/campaigns/:campaignId/mech-bay",
+          "visibility": "gm"
+        }
+      ]
+    },
+    {
+      "journeyId": "combat-1v1",
+      "displayName": "BattleMech 1v1 combat",
+      "module": "combat",
+      "roleIntent": ["player", "gm"],
+      "primaryAction": {
+        "label": "Start duel",
+        "href": "/gameplay/quick"
+      },
+      "qcCommand": "npm.cmd run qc:journeys -- --journey=combat-1v1 --seed=42 --player-units=1 --opponent-units=1",
+      "inspectionNotes": [
+        "Player-visible duel setup, tactical combat, and post-battle outcome",
+        "GM inspection covers invalid action reasons and intervention review"
+      ],
+      "checkpoints": [
+        {
+          "id": "quick-setup",
+          "label": "Quick setup",
+          "href": "/gameplay/quick",
+          "visibility": "player"
+        },
+        {
+          "id": "encounter-create",
+          "label": "Encounter draft",
+          "href": "/gameplay/encounters/create",
+          "visibility": "both"
+        },
+        {
+          "id": "pre-battle",
+          "label": "Pre-battle launch",
+          "href": "/gameplay/encounters/:encounterId/pre-battle",
+          "visibility": "both"
+        },
+        {
+          "id": "tactical-combat",
+          "label": "Tactical combat",
+          "href": "/gameplay/games/:gameId",
+          "visibility": "player"
+        },
+        {
+          "id": "gm-review",
+          "label": "GM review",
+          "href": "/gameplay/games/:gameId/review",
+          "visibility": "gm"
+        },
+        {
+          "id": "victory",
+          "label": "Post-battle report",
+          "href": "/gameplay/games/:gameId/victory",
+          "visibility": "both"
+        }
+      ]
+    },
+    {
+      "journeyId": "combat-4v4",
+      "displayName": "BattleMech 4v4 combat",
+      "module": "combat",
+      "roleIntent": ["player", "gm"],
+      "primaryAction": {
+        "label": "Build lance encounter",
+        "href": "/gameplay/encounters/create"
+      },
+      "qcCommand": "npm.cmd run qc:journeys -- --journey=combat-4v4 --seed=42 --player-units=4 --opponent-units=4",
+      "inspectionNotes": [
+        "Player-visible lance setup, tactical combat, terminal outcome, and replay",
+        "GM inspection covers intervention review and replay reference checks"
+      ],
+      "checkpoints": [
+        {
+          "id": "force-build",
+          "label": "Lance force setup",
+          "href": "/gameplay/forces/create",
+          "visibility": "both"
+        },
+        {
+          "id": "encounter-create",
+          "label": "Encounter draft",
+          "href": "/gameplay/encounters/create",
+          "visibility": "both"
+        },
+        {
+          "id": "pre-battle",
+          "label": "Pre-battle launch",
+          "href": "/gameplay/encounters/:encounterId/pre-battle",
+          "visibility": "both"
+        },
+        {
+          "id": "tactical-combat",
+          "label": "Tactical combat",
+          "href": "/gameplay/games/:gameId",
+          "visibility": "player"
+        },
+        {
+          "id": "gm-review",
+          "label": "GM review",
+          "href": "/gameplay/games/:gameId/review",
+          "visibility": "gm"
+        },
+        {
+          "id": "replay",
+          "label": "Replay reference",
+          "href": "/gameplay/games/:gameId/replay",
+          "visibility": "both"
+        }
+      ]
+    },
+    {
+      "journeyId": "contract-campaign",
+      "displayName": "Contract campaign scenario",
+      "module": "campaign",
+      "roleIntent": ["player", "gm"],
+      "primaryAction": {
+        "label": "Open contracts",
+        "href": "/gameplay/campaigns"
+      },
+      "qcCommand": "npm.cmd run qc:journeys -- --journey=contract-campaign --tier=smoke",
+      "inspectionNotes": [
+        "Player-visible contract selection, encounter, post-combat, salvage, repair, and finance state",
+        "GM authority applies to approved net effects, not hidden rationale in player logs"
+      ],
+      "checkpoints": [
+        {
+          "id": "campaign-base",
+          "label": "Campaign base",
+          "href": "/gameplay/campaigns/:campaignId",
+          "visibility": "both"
+        },
+        {
+          "id": "contract-market",
+          "label": "Contract market",
+          "href": "/gameplay/campaigns/:campaignId/contract-market",
+          "visibility": "player"
+        },
+        {
+          "id": "mission-launch",
+          "label": "Mission launch",
+          "href": "/gameplay/campaigns/:campaignId/missions/:missionId/launch",
+          "visibility": "both"
+        },
+        {
+          "id": "tactical-combat",
+          "label": "Tactical combat",
+          "href": "/gameplay/games/:gameId",
+          "visibility": "player"
+        },
+        {
+          "id": "post-combat",
+          "label": "Post-combat report",
+          "href": "/gameplay/games/:gameId/victory",
+          "visibility": "both"
+        },
+        {
+          "id": "salvage",
+          "label": "Salvage",
+          "href": "/gameplay/campaigns/:campaignId/salvage",
+          "visibility": "both"
+        },
+        {
+          "id": "repair",
+          "label": "Repair bay",
+          "href": "/gameplay/campaigns/:campaignId/repair-bay",
+          "visibility": "both"
+        },
+        {
+          "id": "economy",
+          "label": "Finances",
+          "href": "/gameplay/campaigns/:campaignId/finances",
+          "visibility": "both"
+        },
+        {
+          "id": "gm-log",
+          "label": "Campaign log",
+          "href": "/gameplay/campaigns/:campaignId/log",
+          "visibility": "gm"
+        }
+      ]
+    },
+    {
+      "journeyId": "campaign-short",
+      "displayName": "Short campaign",
+      "module": "campaign",
+      "roleIntent": ["player", "gm"],
+      "primaryAction": {
+        "label": "Continue campaign",
+        "href": "/gameplay/campaigns"
+      },
+      "qcCommand": "npm.cmd run qc:journeys -- --journey=campaign-short --contracts=5",
+      "inspectionNotes": [
+        "Player-visible 3-5 contract loop with repair, salvage, personnel, and funds",
+        "GM inspection focuses on accumulated state between contracts"
+      ],
+      "checkpoints": [
+        {
+          "id": "campaign-base",
+          "label": "Campaign base",
+          "href": "/gameplay/campaigns/:campaignId",
+          "visibility": "both"
+        },
+        {
+          "id": "starmap",
+          "label": "Starmap",
+          "href": "/gameplay/campaigns/:campaignId/starmap",
+          "visibility": "both"
+        },
+        {
+          "id": "contracts",
+          "label": "Contracts",
+          "href": "/gameplay/campaigns/:campaignId/contract-market",
+          "visibility": "player"
+        },
+        {
+          "id": "missions",
+          "label": "Missions",
+          "href": "/gameplay/campaigns/:campaignId/missions",
+          "visibility": "both"
+        },
+        {
+          "id": "repair",
+          "label": "Repair bay",
+          "href": "/gameplay/campaigns/:campaignId/repair-bay",
+          "visibility": "both"
+        },
+        {
+          "id": "personnel",
+          "label": "Personnel",
+          "href": "/gameplay/campaigns/:campaignId/personnel",
+          "visibility": "both"
+        },
+        {
+          "id": "finances",
+          "label": "Finances",
+          "href": "/gameplay/campaigns/:campaignId/finances",
+          "visibility": "both"
+        },
+        {
+          "id": "campaign-log",
+          "label": "Campaign log",
+          "href": "/gameplay/campaigns/:campaignId/log",
+          "visibility": "gm"
+        }
+      ]
+    },
+    {
+      "journeyId": "campaign-long",
+      "displayName": "Long campaign",
+      "module": "campaign",
+      "roleIntent": ["player", "gm"],
+      "primaryAction": {
+        "label": "Inspect campaign",
+        "href": "/gameplay/campaigns"
+      },
+      "qcCommand": "npm.cmd run qc:journeys -- --journey=campaign-long --tier=extended --contracts=10",
+      "inspectionNotes": [
+        "Player-visible 6-10 contract loop with long-running campaign state",
+        "GM inspection focuses on time, recovery, market, and accumulated-economy drift"
+      ],
+      "checkpoints": [
+        {
+          "id": "campaign-base",
+          "label": "Campaign base",
+          "href": "/gameplay/campaigns/:campaignId",
+          "visibility": "both"
+        },
+        {
+          "id": "starmap",
+          "label": "Starmap",
+          "href": "/gameplay/campaigns/:campaignId/starmap",
+          "visibility": "both"
+        },
+        {
+          "id": "medical",
+          "label": "Medical bay",
+          "href": "/gameplay/campaigns/:campaignId/medical-bay",
+          "visibility": "both"
+        },
+        {
+          "id": "salvage",
+          "label": "Salvage",
+          "href": "/gameplay/campaigns/:campaignId/salvage",
+          "visibility": "both"
+        },
+        {
+          "id": "repair",
+          "label": "Repair bay",
+          "href": "/gameplay/campaigns/:campaignId/repair-bay",
+          "visibility": "both"
+        },
+        {
+          "id": "finances",
+          "label": "Finances",
+          "href": "/gameplay/campaigns/:campaignId/finances",
+          "visibility": "both"
+        },
+        {
+          "id": "campaign-log",
+          "label": "Campaign log",
+          "href": "/gameplay/campaigns/:campaignId/log",
+          "visibility": "gm"
+        }
+      ]
+    }
+  ]
+}
