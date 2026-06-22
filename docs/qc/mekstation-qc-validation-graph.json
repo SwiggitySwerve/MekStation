@@ -9,6 +9,11 @@
       "label": "Journey QC"
     },
     {
+      "id": "capability:ui-flow-shell",
+      "kind": "capability",
+      "label": "UI Flow Shell"
+    },
+    {
       "id": "capability:logging-system",
       "kind": "capability",
       "label": "Logging System"
@@ -123,6 +128,11 @@
       "label": ".sisyphus/evidence/qc-journeys"
     },
     {
+      "id": "evidence:gameplay-ui-flow-shell",
+      "kind": "evidence",
+      "label": "src/qc/gameplayUiFlowShell.json"
+    },
+    {
       "id": "log-event:character.created",
       "kind": "log-event",
       "label": "character.created"
@@ -198,6 +208,21 @@
       "from": "capability:journey-qc",
       "to": "journey:campaign-long",
       "relation": "contains"
+    },
+    {
+      "from": "capability:journey-qc",
+      "to": "capability:ui-flow-shell",
+      "relation": "contains"
+    },
+    {
+      "from": "capability:ui-flow-shell",
+      "to": "command:qc-journeys-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "capability:ui-flow-shell",
+      "to": "evidence:gameplay-ui-flow-shell",
+      "relation": "validated-by"
     },
     {
       "from": "module:roster",

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { getGameplayNavItems } from '@/components/common/gameplayNavItems';
+import { GameplayFlowShell } from '@/components/gameplay/GameplayFlowShell';
 import { PageLayout, Card } from '@/components/ui';
 
 export default function GameplayHubPage(): React.ReactElement {
@@ -12,6 +13,8 @@ export default function GameplayHubPage(): React.ReactElement {
       subtitle="Start battles, manage forces, and continue campaign operations."
       maxWidth="wide"
     >
+      <GameplayFlowShell />
+
       <div className="grid grid-cols-1 gap-4 pb-20 md:grid-cols-2 lg:grid-cols-3">
         {gameplayItems.map((item) => (
           <Link key={item.href} href={item.href} className="block h-full">

@@ -17,7 +17,7 @@ if (options.parameters['logging-only'] === 'true') {
 
 printIssues(issues);
 console.log(
-  `[qc:journeys:validate] catalog=${summary.catalog.journeys.length} journeys graph=${summary.graph.nodes.length} nodes errors=${summary.errors.length} warnings=${summary.warnings.length}`,
+  `[qc:journeys:validate] catalog=${summary.catalog.journeys.length} journeys graph=${summary.graph.nodes.length} nodes uiFlows=${summary.uiFlowShell.flows.length} errors=${summary.errors.length} warnings=${summary.warnings.length}`,
 );
 
 process.exit(summary.errors.length > 0 ? 1 : 0);

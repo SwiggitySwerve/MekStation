@@ -22,6 +22,9 @@ export const loggingMapPath = path.join(
   'qc',
   'mekstation-logging-map.json',
 );
+export const uiFlowShellPath = process.env.MEKSTATION_UI_FLOW_SHELL_PATH
+  ? path.resolve(repoRoot, process.env.MEKSTATION_UI_FLOW_SHELL_PATH)
+  : path.join(repoRoot, 'src', 'qc', 'gameplayUiFlowShell.json');
 
 export const requiredJourneyIds = [
   'character-build',
@@ -166,6 +169,7 @@ export function loadJourneyArtifacts() {
     catalog: loadJsonFile(journeyCatalogPath),
     graph: loadJsonFile(validationGraphPath),
     loggingMap: loadJsonFile(loggingMapPath),
+    uiFlowShell: loadJsonFile(uiFlowShellPath),
   };
 }
 
@@ -560,6 +564,304 @@ export function validateLoggingMap(loggingMap, catalog) {
   return issues;
 }
 
+function pageRouteSegments(filePath) {
+  const relative = toRepoRelative(filePath);
+  if (!relative.startsWith('src/pages/')) return null;
+  const withoutPrefix = relative
+    .replace(/^src\/pages\//, '')
+    .replace(/\.(tsx|ts|jsx|js)$/, '');
+  if (
+    withoutPrefix.startsWith('api/') ||
+    withoutPrefix === '_app' ||
+    withoutPrefix === '_document'
+  ) {
+    return null;
+  }
+  const segments = withoutPrefix.split('/').filter(Boolean);
+  if (segments.at(-1) === 'index') segments.pop();
+  return segments;
+}
+
+function collectPageRouteSegments(
+  directory = path.join(repoRoot, 'src', 'pages'),
+) {
+  const routes = [];
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) {
+      routes.push(...collectPageRouteSegments(entryPath));
+      continue;
+    }
+    if (!/\.(tsx|ts|jsx|js)$/.test(entry.name)) continue;
+    const segments = pageRouteSegments(entryPath);
+    if (segments) routes.push(segments);
+  }
+  return routes;
+}
+
+function routeSegments(route) {
+  return route.split(/[?#]/, 1)[0].split('/').filter(Boolean);
+}
+
+function segmentMatches(routeSegment, pageSegment) {
+  if (/^\[[^\]]+\]$/.test(pageSegment)) return true;
+  return routeSegment === pageSegment;
+}
+
+function routeMatchesPageSegments(route, pageSegments) {
+  const segments = routeSegments(route);
+  let routeIndex = 0;
+
+  for (let pageIndex = 0; pageIndex < pageSegments.length; pageIndex += 1) {
+    const pageSegment = pageSegments[pageIndex];
+    const isLastPageSegment = pageIndex === pageSegments.length - 1;
+
+    if (/^\[\[\.\.\.[^\]]+\]\]$/.test(pageSegment)) {
+      return isLastPageSegment;
+    }
+    if (/^\[\.\.\.[^\]]+\]$/.test(pageSegment)) {
+      return isLastPageSegment && routeIndex < segments.length;
+    }
+    if (routeIndex >= segments.length) return false;
+    if (!segmentMatches(segments[routeIndex], pageSegment)) return false;
+    routeIndex += 1;
+  }
+
+  return routeIndex === segments.length;
+}
+
+function routeMatchesAnyPage(route, pageRoutes) {
+  return pageRoutes.some((pageSegments) =>
+    routeMatchesPageSegments(route, pageSegments),
+  );
+}
+
+function validateFlowRoute(flowId, label, href, issues, pageRoutes) {
+  if (typeof href !== 'string' || href.trim() === '') {
+    issues.push(
+      issue('error', `UI flow ${flowId}: ${label} href is required.`),
+    );
+    return;
+  }
+  if (!href.startsWith('/')) {
+    issues.push(
+      issue(
+        'error',
+        `UI flow ${flowId}: ${label} route ${href} must start with /.`,
+      ),
+    );
+    return;
+  }
+  if (!routeMatchesAnyPage(href, pageRoutes)) {
+    issues.push(
+      issue(
+        'error',
+        `UI flow ${flowId}: ${label} route ${href} does not match a page template.`,
+      ),
+    );
+  }
+}
+
+export function validateUiFlowShell(uiFlowShell, catalog, graph) {
+  const issues = [];
+  const allowedVisibility = new Set(['player', 'gm', 'both']);
+  const allowedRoles = new Set(['player', 'gm']);
+  const pageRoutes = collectPageRouteSegments();
+
+  if (uiFlowShell.version !== 1) {
+    issues.push(issue('error', 'UI flow shell version must be 1.'));
+  }
+  if (!Array.isArray(uiFlowShell.requiredJourneyIds)) {
+    issues.push(
+      issue('error', 'UI flow shell must declare requiredJourneyIds array.'),
+    );
+  }
+  if (!Array.isArray(uiFlowShell.flows)) {
+    issues.push(issue('error', 'UI flow shell must declare flows array.'));
+    return issues;
+  }
+
+  const catalogJourneyIds = new Set(
+    catalog.journeys.map((journey) => journey.id),
+  );
+  const catalogById = new Map(
+    catalog.journeys.map((journey) => [journey.id, journey]),
+  );
+  const graphNodeIds = new Set(graph.nodes.map((node) => node.id));
+  const flowIds = new Set();
+
+  for (const [index, flow] of uiFlowShell.flows.entries()) {
+    const label = flow.journeyId || `flows[${index}]`;
+    if (typeof flow.journeyId !== 'string' || flow.journeyId.trim() === '') {
+      issues.push(
+        issue('error', `${label}: journeyId must be a non-empty string.`),
+      );
+      continue;
+    }
+    if (flowIds.has(flow.journeyId)) {
+      issues.push(
+        issue('error', `UI flow shell duplicates journey ${flow.journeyId}.`),
+      );
+    }
+    flowIds.add(flow.journeyId);
+
+    const catalogJourney = catalogById.get(flow.journeyId);
+    if (!catalogJourneyIds.has(flow.journeyId)) {
+      issues.push(
+        issue(
+          'error',
+          `UI flow shell references unknown journey ${flow.journeyId}.`,
+        ),
+      );
+    }
+    if (!graphNodeIds.has(`journey:${flow.journeyId}`)) {
+      issues.push(
+        issue(
+          'error',
+          `UI flow shell journey ${flow.journeyId} is missing from validation graph.`,
+        ),
+      );
+    }
+    if (catalogJourney && flow.module !== catalogJourney.module) {
+      issues.push(
+        issue(
+          'error',
+          `UI flow ${flow.journeyId}: module ${flow.module} does not match catalog module ${catalogJourney.module}.`,
+        ),
+      );
+    }
+    for (const field of ['displayName', 'module', 'qcCommand']) {
+      if (typeof flow[field] !== 'string' || flow[field].trim() === '') {
+        issues.push(
+          issue('error', `UI flow ${flow.journeyId}: ${field} is required.`),
+        );
+      }
+    }
+    if (
+      typeof flow.qcCommand === 'string' &&
+      !flow.qcCommand.includes(`--journey=${flow.journeyId}`)
+    ) {
+      issues.push(
+        issue(
+          'error',
+          `UI flow ${flow.journeyId}: qcCommand must include --journey=${flow.journeyId}.`,
+        ),
+      );
+    }
+    if (!Array.isArray(flow.roleIntent) || flow.roleIntent.length === 0) {
+      issues.push(
+        issue('error', `UI flow ${flow.journeyId}: roleIntent is required.`),
+      );
+    } else {
+      for (const role of flow.roleIntent) {
+        if (!allowedRoles.has(role)) {
+          issues.push(
+            issue('error', `UI flow ${flow.journeyId}: invalid role ${role}.`),
+          );
+        }
+      }
+    }
+    if (
+      !Array.isArray(flow.inspectionNotes) ||
+      flow.inspectionNotes.length === 0
+    ) {
+      issues.push(
+        issue(
+          'error',
+          `UI flow ${flow.journeyId}: inspectionNotes are required.`,
+        ),
+      );
+    }
+    if (!flow.primaryAction || typeof flow.primaryAction !== 'object') {
+      issues.push(
+        issue('error', `UI flow ${flow.journeyId}: primaryAction is required.`),
+      );
+    } else {
+      validateFlowRoute(
+        flow.journeyId,
+        'primary action',
+        flow.primaryAction.href,
+        issues,
+        pageRoutes,
+      );
+    }
+    if (!Array.isArray(flow.checkpoints) || flow.checkpoints.length === 0) {
+      issues.push(
+        issue('error', `UI flow ${flow.journeyId}: checkpoints are required.`),
+      );
+      continue;
+    }
+    const checkpointIds = new Set();
+    for (const checkpoint of flow.checkpoints) {
+      const checkpointLabel = checkpoint.id || 'checkpoint';
+      if (typeof checkpoint.id !== 'string' || checkpoint.id.trim() === '') {
+        issues.push(
+          issue(
+            'error',
+            `UI flow ${flow.journeyId}: checkpoint id is required.`,
+          ),
+        );
+      }
+      if (checkpointIds.has(checkpoint.id)) {
+        issues.push(
+          issue(
+            'error',
+            `UI flow ${flow.journeyId}: duplicate checkpoint ${checkpoint.id}.`,
+          ),
+        );
+      }
+      checkpointIds.add(checkpoint.id);
+      if (
+        typeof checkpoint.label !== 'string' ||
+        checkpoint.label.trim() === ''
+      ) {
+        issues.push(
+          issue(
+            'error',
+            `UI flow ${flow.journeyId}: checkpoint ${checkpointLabel} label is required.`,
+          ),
+        );
+      }
+      if (!allowedVisibility.has(checkpoint.visibility)) {
+        issues.push(
+          issue(
+            'error',
+            `UI flow ${flow.journeyId}: checkpoint ${checkpointLabel} has invalid visibility ${checkpoint.visibility}.`,
+          ),
+        );
+      }
+      validateFlowRoute(
+        flow.journeyId,
+        `checkpoint ${checkpointLabel}`,
+        checkpoint.href,
+        issues,
+        pageRoutes,
+      );
+    }
+  }
+
+  const requiredIds = catalog.requiredJourneyIds ?? requiredJourneyIds;
+  for (const requiredId of requiredIds) {
+    if (!flowIds.has(requiredId)) {
+      issues.push(
+        issue('error', `UI flow shell missing required journey ${requiredId}.`),
+      );
+    }
+  }
+  for (const requiredId of uiFlowShell.requiredJourneyIds ?? []) {
+    if (!flowIds.has(requiredId)) {
+      issues.push(
+        issue(
+          'error',
+          `UI flow shell requiredJourneyIds references unmapped journey ${requiredId}.`,
+        ),
+      );
+    }
+  }
+
+  return issues;
+}
+
 export function printIssues(issues) {
   for (const item of issues) {
     const prefix = item.severity === 'error' ? 'ERROR' : 'WARN';
@@ -568,16 +870,23 @@ export function printIssues(issues) {
 }
 
 export function validationSummary() {
-  const { catalog, graph, loggingMap } = loadJourneyArtifacts();
+  const { catalog, graph, loggingMap, uiFlowShell } = loadJourneyArtifacts();
   const catalogIssues = validateJourneyCatalog(catalog);
   const graphIssues = validateValidationGraph(graph, catalog);
   const loggingIssues = validateLoggingMap(loggingMap, catalog);
-  const issues = [...catalogIssues, ...graphIssues, ...loggingIssues];
+  const uiFlowIssues = validateUiFlowShell(uiFlowShell, catalog, graph);
+  const issues = [
+    ...catalogIssues,
+    ...graphIssues,
+    ...loggingIssues,
+    ...uiFlowIssues,
+  ];
   return {
     catalog,
     graph,
     issues,
     loggingMap,
+    uiFlowShell,
     errors: issues.filter((item) => item.severity === 'error'),
     warnings: issues.filter((item) => item.severity === 'warning'),
   };

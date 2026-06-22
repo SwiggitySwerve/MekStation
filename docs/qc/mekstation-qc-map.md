@@ -10,7 +10,8 @@ The machine-readable source is `docs/qc/mekstation-qc-registry.json`. The
 repeatable pass/fail scenario layer for the 12 top-level QC surfaces is
 `docs/qc/mekstation-major-capability-scenarios.json`.
 The journey-level validation layer is `docs/qc/mekstation-journey-scenarios.json`,
-with graph lookup in `docs/qc/mekstation-qc-validation-graph.json` and logging
+with graph lookup in `docs/qc/mekstation-qc-validation-graph.json`, gameplay UI
+flow shell mapping in `src/qc/gameplayUiFlowShell.json`, and logging
 coverage in `docs/qc/mekstation-logging-map.json`.
 
 ## Commands

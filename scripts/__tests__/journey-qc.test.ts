@@ -10,15 +10,24 @@ function makeTempDir(prefix: string): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
 }
 
-function runNodeScript(scriptPath: string, args: string[] = []) {
+function runNodeScript(
+  scriptPath: string,
+  args: string[] = [],
+  env: NodeJS.ProcessEnv = {},
+) {
   return spawnSync(NODE, [path.resolve(repoRoot, scriptPath), ...args], {
     cwd: repoRoot,
     encoding: 'utf-8',
+    env: { ...process.env, ...env },
   });
 }
 
 function readJson<T>(filePath: string): T {
   return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as T;
+}
+
+function writeJson(filePath: string, value: unknown): void {
+  fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
 }
 
 describe('journey QC scripts', () => {
@@ -37,7 +46,70 @@ describe('journey QC scripts', () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('catalog=7 journeys');
+    expect(result.stdout).toContain('uiFlows=7');
     expect(result.stdout).toContain('errors=0');
+  });
+
+  it('fails validation when a required journey lacks UI flow coverage', () => {
+    const shell = readJson<{
+      flows: Array<{ journeyId: string }>;
+    }>(path.join(repoRoot, 'src/qc/gameplayUiFlowShell.json'));
+    shell.flows = shell.flows.filter(
+      (flow) => flow.journeyId !== 'campaign-long',
+    );
+    const shellPath = path.join(evidenceDir, 'missing-ui-flow.json');
+    writeJson(shellPath, shell);
+
+    const result = runNodeScript('scripts/qc/validate-journey-qc.mjs', [], {
+      MEKSTATION_UI_FLOW_SHELL_PATH: shellPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'UI flow shell missing required journey campaign-long',
+    );
+  });
+
+  it('fails validation when a UI flow references an unknown journey', () => {
+    const shell = readJson<{
+      flows: Array<{ journeyId: string; qcCommand: string }>;
+    }>(path.join(repoRoot, 'src/qc/gameplayUiFlowShell.json'));
+    shell.flows[0] = {
+      ...shell.flows[0],
+      journeyId: 'unknown-journey',
+      qcCommand: 'npm.cmd run qc:journeys -- --journey=unknown-journey',
+    };
+    const shellPath = path.join(evidenceDir, 'unknown-ui-flow.json');
+    writeJson(shellPath, shell);
+
+    const result = runNodeScript('scripts/qc/validate-journey-qc.mjs', [], {
+      MEKSTATION_UI_FLOW_SHELL_PATH: shellPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'UI flow shell references unknown journey unknown-journey',
+    );
+  });
+
+  it('fails validation when a UI checkpoint route has no page template', () => {
+    const shell = readJson<{
+      flows: Array<{
+        checkpoints: Array<{ href: string }>;
+      }>;
+    }>(path.join(repoRoot, 'src/qc/gameplayUiFlowShell.json'));
+    shell.flows[0]!.checkpoints[0]!.href = '/gameplay/not-a-real-route';
+    const shellPath = path.join(evidenceDir, 'bad-route-ui-flow.json');
+    writeJson(shellPath, shell);
+
+    const result = runNodeScript('scripts/qc/validate-journey-qc.mjs', [], {
+      MEKSTATION_UI_FLOW_SHELL_PATH: shellPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'UI flow character-build: checkpoint pilot-create route /gameplay/not-a-real-route does not match a page template',
+    );
   });
 
   it('writes a dry-run plan without failing the command', () => {
