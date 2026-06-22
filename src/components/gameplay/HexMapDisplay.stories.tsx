@@ -364,6 +364,133 @@ export const BadgeDenseElevationBoard: Story = {
   },
 };
 
+const isometricAdjacentCliffTerrain: IHexTerrain[] = [
+  {
+    coordinate: { q: 0, r: 0 },
+    elevation: 5,
+    features: [{ type: TerrainType.Rough, level: 1 }],
+  },
+  {
+    coordinate: { q: 1, r: 0 },
+    elevation: 1,
+    features: [{ type: TerrainType.Clear, level: 0 }],
+  },
+  {
+    coordinate: { q: 0, r: 1 },
+    elevation: 4,
+    features: [{ type: TerrainType.HeavyWoods, level: 1 }],
+  },
+  {
+    coordinate: { q: -1, r: 1 },
+    elevation: -1,
+    features: [{ type: TerrainType.Water, level: 1 }],
+  },
+  {
+    coordinate: { q: 1, r: -1 },
+    elevation: 3,
+    features: [{ type: TerrainType.Rubble, level: 1 }],
+  },
+];
+
+const isometricPitTerrain: IHexTerrain[] = [
+  {
+    coordinate: { q: 0, r: 0 },
+    elevation: -2,
+    features: [{ type: TerrainType.Clear, level: 0 }],
+  },
+  {
+    coordinate: { q: 1, r: 0 },
+    elevation: 4,
+    features: [{ type: TerrainType.Building, level: 1 }],
+  },
+  {
+    coordinate: { q: 0, r: 1 },
+    elevation: 2,
+    features: [{ type: TerrainType.Rough, level: 1 }],
+  },
+  {
+    coordinate: { q: -1, r: 0 },
+    elevation: 1,
+    features: [{ type: TerrainType.LightWoods, level: 1 }],
+  },
+];
+
+const isometricPitToken: IUnitToken = {
+  ...overlayToken,
+  unitId: 'pit-shadow-hawk',
+  name: 'Shadow Hawk SHD-2H',
+  designation: 'SHD',
+  position: { q: 0, r: 0 },
+  facing: Facing.Northeast,
+  isSelected: true,
+};
+
+const isometricMountainTerrain: IHexTerrain[] = [
+  ...isometricAdjacentCliffTerrain,
+  {
+    coordinate: { q: -1, r: 0 },
+    elevation: 2,
+    features: [{ type: TerrainType.LightWoods, level: 1 }],
+  },
+  {
+    coordinate: { q: 2, r: -1 },
+    elevation: 6,
+    features: [{ type: TerrainType.Building, level: 2 }],
+  },
+  {
+    coordinate: { q: -2, r: 2 },
+    elevation: 3,
+    features: [{ type: TerrainType.HeavyIndustrial, level: 1 }],
+  },
+  {
+    coordinate: { q: 2, r: 0 },
+    elevation: 0,
+    features: [{ type: TerrainType.Road, level: 0 }],
+  },
+];
+
+export const IsometricAdjacentCliffs: Story = {
+  args: {
+    radius: 3,
+    tokens: [],
+    selectedHex: { q: 0, r: 0 },
+    hexTerrain: isometricAdjacentCliffTerrain,
+    showCoordinates: true,
+    projectionMode: 'isometric2d',
+  },
+};
+
+export const IsometricUnitInPitBehindWall: Story = {
+  args: {
+    radius: 3,
+    tokens: [isometricPitToken],
+    selectedHex: { q: 0, r: 0 },
+    hexTerrain: isometricPitTerrain,
+    showCoordinates: true,
+    projectionMode: 'isometric2d',
+  },
+};
+
+export const IsometricMountainRotationFixture: Story = {
+  args: {
+    radius: 4,
+    tokens: [
+      {
+        ...badgeDenseToken,
+        unitId: 'mountain-griffin',
+        name: 'Griffin GRF-1N',
+        designation: 'GRF',
+        position: { q: 1, r: -1 },
+        facing: Facing.Southeast,
+      },
+    ],
+    selectedHex: { q: 1, r: -1 },
+    hexTerrain: isometricMountainTerrain,
+    showCoordinates: true,
+    projectionMode: 'isometric2d',
+  },
+};
+
 const movementOverlayToken: IUnitToken = {
   ...overlayToken,
   unitId: 'griffin-move',

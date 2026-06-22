@@ -984,6 +984,47 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     const eastDepthBefore = await eastHex.getAttribute(
       'data-isometric-depth-key',
     );
+    const eastSoutheastFace = page.getByTestId(
+      'isometric-extrusion-face-1-0-southeast',
+    );
+    const eastSouthwestFace = page.getByTestId(
+      'isometric-extrusion-face-1-0-southwest',
+    );
+    await expect(eastSoutheastFace).toHaveAttribute(
+      'data-isometric-extrusion-owner-hex',
+      '1,0',
+    );
+    await expect(eastSoutheastFace).toHaveAttribute(
+      'data-isometric-extrusion-face',
+      'southeast',
+    );
+    await expect(eastSoutheastFace).toHaveAttribute(
+      'data-isometric-extrusion-effective-height',
+      '5',
+    );
+    await expect(eastSoutheastFace).toHaveAttribute(
+      'data-isometric-extrusion-terrain-elevation',
+      '4',
+    );
+    await expect(eastSoutheastFace).toHaveAttribute(
+      'data-isometric-extrusion-height',
+      '30',
+    );
+    await expect(eastSoutheastFace).toHaveAttribute(
+      'data-isometric-extrusion-pointer-events',
+      'none',
+    );
+    await expect(eastSoutheastFace).toHaveAttribute('pointer-events', 'none');
+    await expect(eastSouthwestFace).toHaveAttribute(
+      'data-isometric-extrusion-face',
+      'southwest',
+    );
+    const eastFaceDepth = Number(
+      await eastSoutheastFace.getAttribute('data-isometric-depth-key'),
+    );
+    const eastTopDepth = Number(eastDepthBefore);
+    expect(eastFaceDepth).toBeLessThan(eastTopDepth);
+    expect(eastFaceDepth).toBeGreaterThan(eastTopDepth - 10);
 
     await expectNonBlankRender(page, 'isometric tactical map');
     const rotateRight = page.getByTestId('projection-rotate-right');
@@ -1020,6 +1061,15 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-isometric-depth-key',
       eastDepthBefore ?? '',
     );
+    await expect(
+      page.getByTestId('isometric-extrusion-face-1-0-southwest'),
+    ).toHaveAttribute('data-isometric-extrusion-rotation-step', '1');
+    await expect(
+      page.getByTestId('isometric-extrusion-face-1-0-west'),
+    ).toHaveAttribute('data-isometric-extrusion-rotation-step', '1');
+    await expect(
+      page.getByTestId('isometric-extrusion-face-1-0-southeast'),
+    ).toHaveCount(0);
 
     await page.getByTestId('projection-rotate-right').click();
     await page.getByTestId('projection-rotate-right').click();
@@ -1200,6 +1250,12 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       'data-isometric-occludes-units',
       'occluded',
     );
+    await expect(
+      page.getByTestId('isometric-extrusion-face-1-0-southeast'),
+    ).toHaveAttribute('data-isometric-extrusion-effective-height', '5');
+    await expect(
+      page.getByTestId('isometric-extrusion-face-0-1-southwest'),
+    ).toHaveAttribute('data-isometric-extrusion-effective-height', '3');
 
     await page.getByTestId('projection-rotate-right').click();
     await page.getByTestId('projection-rotate-right').click();
@@ -1374,6 +1430,12 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(cap).toHaveAttribute('data-elevation-rendered-layers', '8');
     await expect(cap).toHaveAttribute('data-elevation-stack-overflow', '4');
     await expect(cap).toContainText('+12');
+    await expect(
+      page.getByTestId('isometric-extrusion-face-1-0-southeast'),
+    ).toHaveAttribute('data-isometric-extrusion-effective-height', '12');
+    await expect(
+      page.getByTestId('isometric-extrusion-face-1-0-southeast'),
+    ).toHaveAttribute('data-isometric-extrusion-height', '72');
 
     await expectNonBlankRender(page, 'capped isometric elevation stack');
   });

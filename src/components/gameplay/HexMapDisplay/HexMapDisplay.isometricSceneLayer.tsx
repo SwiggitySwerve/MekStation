@@ -50,6 +50,32 @@ export function IsometricSceneLayer({
   return (
     <g data-testid="isometric-scene-layer">
       {items.map((item) => {
+        if (item.kind === 'hexExtrusionFace') {
+          const ownerKey = coordToKey(item.ownerHex);
+          return (
+            <polygon
+              key={item.key}
+              data-testid={`isometric-extrusion-face-${item.ownerHex.q}-${item.ownerHex.r}-${item.face.id}`}
+              data-isometric-depth-key={item.depthKey}
+              data-isometric-extrusion-owner-hex={ownerKey}
+              data-isometric-extrusion-face={item.face.id}
+              data-isometric-extrusion-rotation-step={item.rotationStep}
+              data-isometric-extrusion-effective-height={item.effectiveHeight}
+              data-isometric-extrusion-terrain-elevation={item.terrainElevation}
+              data-isometric-extrusion-height={item.elevationHeight}
+              data-isometric-extrusion-pointer-events="none"
+              points={item.points}
+              fill={item.fill}
+              fillOpacity={0.92}
+              stroke="#0f172a"
+              strokeOpacity={0.38}
+              strokeWidth={0.8}
+              pointerEvents="none"
+              aria-hidden="true"
+            />
+          );
+        }
+
         if (item.kind === 'hex') {
           const projectionKey = coordToKey(item.hex);
           const projection = tacticalMapProjectionLookup.get(projectionKey);

@@ -87,6 +87,44 @@ describe('HexMapDisplay tactical visual layers', () => {
     expect(projectionLayer.getAttribute('transform')).toContain('rotate(0)');
     expect(projectionLayer.getAttribute('transform')).toContain('matrix(');
     expect(screen.getByTestId('hex-elevation-stack-1-0')).toBeInTheDocument();
+    const southeastExtrusionFace = screen.getByTestId(
+      'isometric-extrusion-face-1-0-southeast',
+    );
+    const southwestExtrusionFace = screen.getByTestId(
+      'isometric-extrusion-face-1-0-southwest',
+    );
+    const extrudedHex = screen.getByTestId('isometric-scene-hex-1-0');
+    expect(southeastExtrusionFace).toHaveAttribute(
+      'data-isometric-extrusion-owner-hex',
+      '1,0',
+    );
+    expect(southeastExtrusionFace).toHaveAttribute(
+      'data-isometric-extrusion-face',
+      'southeast',
+    );
+    expect(southeastExtrusionFace).toHaveAttribute(
+      'data-isometric-extrusion-effective-height',
+      '2',
+    );
+    expect(southeastExtrusionFace).toHaveAttribute(
+      'data-isometric-extrusion-height',
+      '12',
+    );
+    expect(southeastExtrusionFace).toHaveAttribute(
+      'data-isometric-extrusion-pointer-events',
+      'none',
+    );
+    expect(southeastExtrusionFace).toHaveAttribute('pointer-events', 'none');
+    expect(southwestExtrusionFace).toHaveAttribute(
+      'data-isometric-extrusion-face',
+      'southwest',
+    );
+    expect(southeastExtrusionFace.compareDocumentPosition(extrudedHex)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(southwestExtrusionFace.compareDocumentPosition(extrudedHex)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
     expect(
       screen.getByTestId('hex-elevation-stack-layer-1-0-2'),
     ).toHaveAttribute('data-elevation-layer', '2');
@@ -115,6 +153,15 @@ describe('HexMapDisplay tactical visual layers', () => {
       '60',
     );
     expect(projectionLayer.getAttribute('transform')).toContain('rotate(60)');
+    expect(
+      screen.queryByTestId('isometric-extrusion-face-1-0-southeast'),
+    ).toBeNull();
+    expect(
+      screen.getByTestId('isometric-extrusion-face-1-0-southwest'),
+    ).toHaveAttribute('data-isometric-extrusion-rotation-step', '1');
+    expect(
+      screen.getByTestId('isometric-extrusion-face-1-0-west'),
+    ).toHaveAttribute('data-isometric-extrusion-rotation-step', '1');
 
     fireEvent.click(screen.getByTestId('projection-rotate-left'));
 
@@ -262,6 +309,47 @@ describe('HexMapDisplay tactical visual layers', () => {
       Number(selectedToken.getAttribute('data-isometric-depth-key')),
     ).toBeGreaterThan(
       Number(foregroundHex.getAttribute('data-isometric-depth-key')),
+    );
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('restores the last isometric heading after returning from top-down mode', () => {
+    const { unmount } = render(
+      <HexMapDisplay mapId="map-1" radius={1} tokens={[]} selectedHex={null} />,
+    );
+
+    expect(screen.queryByTestId('isometric-rotation-controls')).toBeNull();
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+    fireEvent.click(screen.getByTestId('projection-rotate-right'));
+    fireEvent.click(screen.getByTestId('projection-rotate-right'));
+    fireEvent.click(screen.getByTestId('projection-rotate-right'));
+    fireEvent.click(screen.getByTestId('projection-rotate-right'));
+
+    expect(screen.getByTestId('map-projection-layer')).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '4',
+    );
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    expect(screen.getByTestId('map-projection-layer')).toHaveAttribute(
+      'data-projection-mode',
+      'topDown',
+    );
+    expect(screen.queryByTestId('isometric-rotation-controls')).toBeNull();
+
+    fireEvent.click(screen.getByTestId('projection-toggle'));
+
+    expect(screen.getByTestId('map-projection-layer')).toHaveAttribute(
+      'data-isometric-rotation-step',
+      '4',
+    );
+    expect(screen.getByTestId('isometric-rotation-heading')).toHaveAttribute(
+      'data-isometric-rotation-degrees',
+      '240',
     );
 
     act(() => {
