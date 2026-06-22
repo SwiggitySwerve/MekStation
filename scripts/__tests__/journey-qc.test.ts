@@ -129,6 +129,72 @@ describe('journey QC scripts', () => {
     });
     expect(probeEntries[0]?.metadata.nonBlockingProbe).toBe(true);
 
+    const tacticalLogs = runNodeScript('scripts/qc/search-journey-logs.mjs', [
+      '--run-id=latest',
+      '--event=tactical.action_rejected',
+      '--json',
+      `--evidence-dir=${evidenceDir}`,
+    ]);
+    expect(tacticalLogs.status).toBe(0);
+    const tacticalEntries = JSON.parse(tacticalLogs.stdout) as Array<{
+      fingerprint: string;
+      metadata: {
+        triage: {
+          actor: string;
+          action: string;
+          stateBefore: { journeyId: string; stepId: string };
+          stateAfter: { status: string; syntheticBacking: boolean };
+          ruleDecision: { outcome: string; reason: string };
+          validationResult: { status: string; event: string };
+          warnings: string[];
+          evidenceRefs: string[];
+          nextDebuggingHint: string;
+        };
+      };
+    }>;
+    expect(tacticalEntries[0]).toMatchObject({
+      metadata: {
+        triage: {
+          actor: 'player-side-a',
+          action: 'move-through-blocked-hex',
+          stateBefore: {
+            journeyId: 'combat-1v1',
+            stepId: 'preview-invalid-action',
+          },
+          stateAfter: {
+            status: 'pass',
+            syntheticBacking: true,
+          },
+          ruleDecision: {
+            outcome: 'rejected',
+          },
+          validationResult: {
+            status: 'pass',
+            event: 'tactical.action_rejected',
+          },
+        },
+      },
+    });
+    expect(tacticalEntries[0]?.fingerprint).toMatch(/^[a-f0-9]{8}$/);
+    expect(tacticalEntries[0]?.metadata.triage.warnings[0]).toContain(
+      'Destination is blocked',
+    );
+    expect(tacticalEntries[0]?.metadata.triage.evidenceRefs[0]).toContain(
+      'tactical-rejection.json',
+    );
+
+    const fingerprintLogs = runNodeScript(
+      'scripts/qc/search-journey-logs.mjs',
+      [
+        '--run-id=latest',
+        `--fingerprint=${tacticalEntries[0]?.fingerprint}`,
+        '--json',
+        `--evidence-dir=${evidenceDir}`,
+      ],
+    );
+    expect(fingerprintLogs.status).toBe(0);
+    expect(JSON.parse(fingerprintLogs.stdout)).toHaveLength(1);
+
     const nonProbeWarnings = runNodeScript(
       'scripts/qc/search-journey-logs.mjs',
       [
@@ -210,6 +276,12 @@ describe('journey QC scripts', () => {
     expect(bugs.stdout).toContain(
       'Journey step failed: combat-1v1/resolve-combat',
     );
+    expect(bugs.stdout).toContain('action: movement-preview,attack-resolution');
+    expect(bugs.stdout).toContain('validation: fail');
+    expect(bugs.stdout).toContain(
+      'failure cause: Injected failure for combat-1v1/resolve-combat',
+    );
+    expect(bugs.stdout).toContain('logs: ');
   });
 
   it('fails strict backing-required runs while preserving bug evidence', () => {
@@ -254,6 +326,44 @@ describe('journey QC scripts', () => {
     expect(bugs.status).toBe(0);
     expect(bugs.stdout).toContain(
       'Missing non-synthetic execution backing: combat-1v1/launch-duel',
+    );
+    expect(bugs.stdout).toContain(
+      'failure cause: Required non-synthetic execution backing missing for combat-1v1/launch-duel (synthetic-projection).',
+    );
+
+    const bugsJson = runNodeScript('scripts/qc/report-journey-bugs.mjs', [
+      '--since=latest',
+      '--min-severity=medium',
+      '--json',
+      `--evidence-dir=${evidenceDir}`,
+    ]);
+    expect(bugsJson.status).toBe(0);
+    const bugPackets = JSON.parse(bugsJson.stdout) as Array<{
+      stepId: string;
+      triage?: {
+        action: string;
+        failureCause: string;
+        logFingerprints: string[];
+        nextDebuggingHint: string;
+        validationResult: { status: string; failureKind: string };
+      };
+    }>;
+    const launchDuelBug = bugPackets.find(
+      (bug) => bug.stepId === 'launch-duel',
+    );
+    expect(launchDuelBug?.triage).toMatchObject({
+      action: 'movement-preview,attack-resolution',
+      validationResult: {
+        status: 'fail',
+        failureKind: 'missing-required-execution-backing',
+      },
+    });
+    expect(launchDuelBug?.triage?.failureCause).toContain(
+      'Required non-synthetic execution backing missing',
+    );
+    expect(launchDuelBug?.triage?.logFingerprints[0]).toMatch(/^[a-f0-9]{8}$/);
+    expect(launchDuelBug?.triage?.nextDebuggingHint).toContain(
+      '--require-domain-backed',
     );
   });
 

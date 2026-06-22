@@ -95,20 +95,43 @@ Use `--require-domain-backed` when you need the run to fail if selected
 required steps are still synthetic/catalog-backed. That strict mode is expected
 to fail until a journey step has a real domain, browser, or hybrid adapter.
 
+Structured diagnostic entries also include a stable `fingerprint` and
+`metadata.triage` packet for journey steps. The triage packet is intentionally
+bounded and includes:
+
+- `actor`
+- `action`
+- `stateBefore`
+- `stateAfter`
+- `ruleDecision`
+- `validationResult`
+- `warnings`
+- `failureCause`
+- `evidenceRefs`
+- `nextDebuggingHint`
+
+Bug candidates copy that packet into `bugs.json` and add `logFingerprints` so a
+bug can be traced back to the exact diagnostic entry.
+
 ## Bug And Log Workflow
 
 1. Run the narrow journey first, with explicit seed and parameters.
 2. Inspect `report.md` for the human-readable result.
 3. Use `qc:journeys:bugs` to list grouped failures by severity and fingerprint.
+   Medium-or-higher bugs print action, validation result, failure cause,
+   debugging hint, and related log fingerprints when available.
 4. Use `qc:logs` to filter structured diagnostic entries by level, journey,
    service, event, or step.
 5. Add `--exclude-probes` when scanning for non-probe warnings. The
    `api.payload_rejected` warning is an expected negative-control probe; it
    remains warning-level evidence but is classified as `expected-probe` and
    `blocking=false`.
-6. Use `--require-domain-backed` to distinguish real adapter coverage from
+6. Copy a bug packet log fingerprint into
+   `npm.cmd run qc:logs -- --run-id=latest --fingerprint=<fingerprint>` when
+   you need the exact structured diagnostic that caused or explains the bug.
+7. Use `--require-domain-backed` to distinguish real adapter coverage from
    synthetic projection coverage.
-7. Rerun the same journey with the same run-plan inputs after a fix.
+8. Rerun the same journey with the same run-plan inputs after a fix.
 
 Known gaps are recorded in journey output and the validation graph. They do not
 silently hide unrelated failures.

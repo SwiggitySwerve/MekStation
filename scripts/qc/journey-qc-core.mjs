@@ -422,10 +422,38 @@ export function validateLoggingMap(loggingMap, catalog) {
   const issues = [];
   if (loggingMap.version !== 1)
     issues.push(issue('error', 'Logging map version must be 1.'));
+  const requiredTriageFields = [
+    'actor',
+    'action',
+    'stateBefore',
+    'stateAfter',
+    'ruleDecision',
+    'validationResult',
+    'warnings',
+    'failureCause',
+    'evidenceRefs',
+    'nextDebuggingHint',
+  ];
   if (!Array.isArray(loggingMap.requiredPathIds)) {
     issues.push(
       issue('error', 'Logging map requiredPathIds must be an array.'),
     );
+  }
+  if (!Array.isArray(loggingMap.requiredTriageFields)) {
+    issues.push(
+      issue('error', 'Logging map requiredTriageFields must be an array.'),
+    );
+  } else {
+    for (const requiredField of requiredTriageFields) {
+      if (!loggingMap.requiredTriageFields.includes(requiredField)) {
+        issues.push(
+          issue(
+            'error',
+            `Logging map missing required triage field ${requiredField}.`,
+          ),
+        );
+      }
+    }
   }
   if (!Array.isArray(loggingMap.paths)) {
     issues.push(issue('error', 'Logging map paths must be an array.'));
@@ -564,6 +592,10 @@ function hashString(value) {
   return (hash >>> 0).toString(16).padStart(8, '0');
 }
 
+function diagnosticFingerprint(entry) {
+  return hashString(`${entry.service}:${entry.event}:${entry.message ?? ''}`);
+}
+
 function coerceParameter(definition, rawValue) {
   if (rawValue === undefined) return definition.default;
   if (definition.type === 'integer') return Number.parseInt(rawValue, 10);
@@ -695,7 +727,7 @@ function logEntry({
   blocking,
   metadata,
 }) {
-  return {
+  const entry = {
     timestamp: new Date().toISOString(),
     level,
     service,
@@ -711,6 +743,10 @@ function logEntry({
       ...(journey ? { module: journey.module } : {}),
     },
     metadata: metadata ?? {},
+  };
+  return {
+    ...entry,
+    fingerprint: diagnosticFingerprint(entry),
   };
 }
 
@@ -827,6 +863,126 @@ function artifactPayload({ runPlan, journey, step, attempt }) {
   return common;
 }
 
+function actorForStep(journey, step) {
+  if (step.kind === 'tactical-rejection') return 'player-side-a';
+  if (step.kind === 'combat-resolution') return 'combat-engine';
+  if (step.kind === 'combat-encounter') return 'encounter-generator';
+  if (step.kind.startsWith('campaign')) return 'campaign-runner';
+  if (step.kind.startsWith('mek')) return 'construction-runner';
+  if (step.kind.startsWith('character')) return 'roster-runner';
+  return `${journey.module}-journey-runner`;
+}
+
+function actionForStep(step, payload) {
+  if (payload.rejectedAction) return payload.rejectedAction;
+  if (Array.isArray(payload.actions) && payload.actions.length > 0) {
+    return payload.actions.join(',');
+  }
+  return step.kind;
+}
+
+function compactStateBefore(journey, step, payload, attempt) {
+  return {
+    journeyId: journey.id,
+    stepId: step.id,
+    attempt,
+    module: journey.module,
+    expectedTerminalState: journey.expectedTerminalState,
+    parameterHash: hashString(JSON.stringify(payload.parameters ?? {})),
+  };
+}
+
+function compactStateAfter(step, payload, artifacts, status) {
+  return {
+    status,
+    terminalState: payload.terminalState ?? null,
+    artifactCount: artifacts.length,
+    executionBacking: step.executionBacking,
+    syntheticBacking: step.syntheticBacking,
+    executionEvidenceSource: step.executionEvidenceSource,
+  };
+}
+
+function ruleDecisionForStep(step, payload, shouldFail, failureMessage) {
+  if (shouldFail) {
+    return {
+      outcome: 'blocked',
+      source: 'journey-qc',
+      reason: failureMessage,
+    };
+  }
+  if (step.kind === 'tactical-rejection') {
+    return {
+      outcome: 'rejected',
+      source: step.executionEvidenceSource,
+      reason: payload.reason,
+    };
+  }
+  return {
+    outcome: 'accepted',
+    source: step.executionEvidenceSource,
+    reason: 'Journey step satisfied its synthetic evidence assertion.',
+  };
+}
+
+function warningsForStep(step, payload, failureKind) {
+  if (failureKind === 'missing-required-execution-backing') {
+    return ['Synthetic backing does not satisfy --require-domain-backed.'];
+  }
+  if (step.kind === 'tactical-rejection' && payload.reason) {
+    return [payload.reason];
+  }
+  return [];
+}
+
+function nextDebuggingHintForStep(journey, step, failureKind) {
+  if (failureKind === 'missing-required-execution-backing') {
+    return `Replace ${journey.id}/${step.id} with a domain, browser, or hybrid adapter before using --require-domain-backed as a release gate.`;
+  }
+  if (failureKind) {
+    return `Inspect ${journey.id}/${step.id} artifacts and system.ndjson for the failing diagnostic.`;
+  }
+  if (step.kind === 'tactical-rejection') {
+    return `Inspect the tactical rejection artifact for ${journey.id}/${step.id} and compare it to the engine projection reason.`;
+  }
+  return `Inspect ${journey.id}/${step.id} artifacts for the generated evidence summary.`;
+}
+
+function triageContext({
+  journey,
+  step,
+  attempt,
+  payload,
+  artifacts,
+  status,
+  event,
+  failureKind,
+  failureMessage,
+}) {
+  return {
+    actor: actorForStep(journey, step),
+    action: actionForStep(step, payload),
+    stateBefore: compactStateBefore(journey, step, payload, attempt),
+    stateAfter: compactStateAfter(step, payload, artifacts, status),
+    ruleDecision: ruleDecisionForStep(
+      step,
+      payload,
+      status === 'fail',
+      failureMessage,
+    ),
+    validationResult: {
+      status,
+      event,
+      required: step.required !== false,
+      ...(failureKind ? { failureKind } : {}),
+    },
+    warnings: warningsForStep(step, payload, failureKind),
+    ...(failureMessage ? { failureCause: failureMessage } : {}),
+    evidenceRefs: artifacts,
+    nextDebuggingHint: nextDebuggingHintForStep(journey, step, failureKind),
+  };
+}
+
 function writeArtifact(runDir, relativePath, payload) {
   const filePath = path.join(runDir, relativePath);
   writeJsonFile(filePath, payload);
@@ -867,10 +1023,31 @@ function severityMeets(candidateSeverity, minimumSeverity) {
 
 export function extractBugCandidates(result, logs) {
   const bugs = [];
+  const logsByStep = new Map();
+  for (const entry of logs) {
+    if (!entry.journeyId || !entry.stepId) continue;
+    const key = `${entry.journeyId}/${entry.stepId}`;
+    const existing = logsByStep.get(key) ?? [];
+    existing.push(entry);
+    logsByStep.set(key, existing);
+  }
+  const bugTriageFromLogs = (journeyId, stepId) => {
+    const matchingLogs = logsByStep.get(`${journeyId}/${stepId}`) ?? [];
+    const triage = matchingLogs.find((entry) => entry.metadata?.triage)
+      ?.metadata?.triage;
+    if (!triage) return undefined;
+    return {
+      ...triage,
+      logFingerprints: matchingLogs.map(
+        (entry) => entry.fingerprint ?? diagnosticFingerprint(entry),
+      ),
+    };
+  };
   for (const journey of result.journeys ?? []) {
     for (const attempt of journey.attempts ?? []) {
       for (const step of attempt.steps ?? []) {
         if (step.status !== 'pass') {
+          const triage = bugTriageFromLogs(journey.id, step.id);
           const summary =
             step.failureKind === 'missing-required-execution-backing'
               ? `Missing non-synthetic execution backing: ${journey.id}/${step.id}`
@@ -885,7 +1062,13 @@ export function extractBugCandidates(result, logs) {
               `${journey.id}:${step.id}:${step.status}:${step.failureKind ?? ''}:${step.error ?? ''}`,
             ),
             summary,
-            evidenceRefs: step.artifacts ?? [],
+            evidenceRefs: [
+              ...(step.artifacts ?? []),
+              ...(triage?.logFingerprints ?? []).map(
+                (fingerprint) => `system.ndjson#${fingerprint}`,
+              ),
+            ],
+            ...(triage ? { triage } : {}),
           });
         }
       }
@@ -905,17 +1088,23 @@ export function extractBugCandidates(result, logs) {
   }
   for (const entry of logs) {
     if (entry.level === 'error') {
+      const fingerprint = entry.fingerprint ?? diagnosticFingerprint(entry);
+      const triage = entry.metadata?.triage
+        ? {
+            ...entry.metadata.triage,
+            logFingerprints: [fingerprint],
+          }
+        : undefined;
       bugs.push({
         severity: 'medium',
         journeyId: entry.journeyId,
         runId: entry.runId,
         stepId: entry.stepId,
         module: entry.entityIds?.module,
-        fingerprint: hashString(
-          `${entry.service}:${entry.event}:${entry.message}`,
-        ),
+        fingerprint,
         summary: entry.message ?? `${entry.service}.${entry.event}`,
-        evidenceRefs: ['system.ndjson'],
+        evidenceRefs: [`system.ndjson#${fingerprint}`],
+        ...(triage ? { triage } : {}),
       });
     }
   }
@@ -997,15 +1186,28 @@ export function executeRunPlan(runPlan, options = {}) {
             );
           }
         }
+        const event = missingRequiredBacking
+          ? 'journey.execution_backing_missing'
+          : shouldFail
+            ? 'journey.step_failed'
+            : step.diagnosticEvent;
+        const status = shouldFail ? 'fail' : 'pass';
+        const triage = triageContext({
+          journey,
+          step,
+          attempt,
+          payload,
+          artifacts,
+          status,
+          event,
+          failureKind,
+          failureMessage: shouldFail ? failureMessage : undefined,
+        });
 
         const stepLog = logEntry({
           level: shouldFail ? 'error' : level,
           service: serviceForStep(journey, step),
-          event: missingRequiredBacking
-            ? 'journey.execution_backing_missing'
-            : shouldFail
-              ? 'journey.step_failed'
-              : step.diagnosticEvent,
+          event,
           message: shouldFail ? failureMessage : step.title,
           classification: shouldFail
             ? 'failure'
@@ -1024,6 +1226,7 @@ export function executeRunPlan(runPlan, options = {}) {
             executionBacking: step.executionBacking,
             syntheticBacking: step.syntheticBacking,
             executionEvidenceSource: step.executionEvidenceSource,
+            triage,
             ...(failureKind ? { failureKind } : {}),
           },
         });
@@ -1031,7 +1234,7 @@ export function executeRunPlan(runPlan, options = {}) {
 
         const stepResult = {
           id: step.id,
-          status: shouldFail ? 'fail' : 'pass',
+          status,
           artifacts,
           diagnosticEvent: stepLog.event,
           loggingPathId: step.loggingPathId,
@@ -1277,7 +1480,7 @@ export function filterLogs(logs, options = {}) {
     if (options.event && entry.event !== options.event) return false;
     if (
       options.fingerprint &&
-      hashString(`${entry.service}:${entry.event}:${entry.message}`) !==
+      (entry.fingerprint ?? diagnosticFingerprint(entry)) !==
         options.fingerprint
     )
       return false;

@@ -15,6 +15,18 @@
     "journey-runner-failure",
     "bug-extraction"
   ],
+  "requiredTriageFields": [
+    "actor",
+    "action",
+    "stateBefore",
+    "stateAfter",
+    "ruleDecision",
+    "validationResult",
+    "warnings",
+    "failureCause",
+    "evidenceRefs",
+    "nextDebuggingHint"
+  ],
   "paths": [
     {
       "pathId": "character-pilot-creation",
