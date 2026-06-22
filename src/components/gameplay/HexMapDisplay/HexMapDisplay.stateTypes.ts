@@ -9,7 +9,10 @@ import type {
   IMovementRangeHex,
   IUnitToken,
 } from '@/types/gameplay';
-import type { ITacticalMapHexProjection } from '@/utils/gameplay/tacticalMapProjection';
+import type {
+  ITacticalMapHexProjection,
+  ITacticalMapProjectionFrame,
+} from '@/utils/gameplay/tacticalMapProjection';
 import type { UiFiringArc } from '@/utils/overlays/arcClassifier';
 
 import type { buildIsometricSceneItems } from './HexMapDisplay.isometric';
@@ -68,6 +71,9 @@ export interface HexMapDisplayState {
   readonly hoverTerrainInfo: IHexTerrain | undefined;
   readonly hoverProjectionInfo: ITacticalMapHexProjection | undefined;
   readonly hoverIsometricOccluderInfo: IsometricTerrainOccluderInfo | undefined;
+  readonly tacticalProjectionFrameSource: ITacticalMapProjectionFrame['source'];
+  readonly tacticalProjectionFrameHexCount: number;
+  readonly tacticalProjectionMissingHexKeys: readonly string[];
   readonly tacticalMapProjectionLookup: ReadonlyMap<
     string,
     ITacticalMapHexProjection
