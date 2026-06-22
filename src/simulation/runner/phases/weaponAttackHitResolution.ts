@@ -1,7 +1,12 @@
 import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution/types';
 import type { ILOSDamageableCoverProvider } from '@/utils/gameplay/lineOfSight';
 
-import { IGameEvent, IGameState, IHexGrid } from '@/types/gameplay';
+import {
+  IGameEvent,
+  IGameState,
+  IHexGrid,
+  type IAttackResolvedPayload,
+} from '@/types/gameplay';
 import {
   checkTACTrigger,
   processTAC,
@@ -295,42 +300,21 @@ export function resolveWeaponHit(options: {
   // Per `combat-resolution` delta: emit `AttackResolved` AFTER the
   // roll resolves. Hit-location is included only on hits per the
   // discriminated-union contract.
-  appendAttackResolvedEvent({
+  appendWeaponHitResolvedEvent({
     events,
     gameId,
     turn: currentState.turn,
-    payload: {
-      attackerId: unitId,
-      targetId,
-      weaponId,
-      roll: attackRoll,
-      toHitNumber,
-      hit: true,
-      location,
-      damage,
-      heat: weapon.heat,
-      ...(projectileCount !== undefined ? { projectileCount } : {}),
-      attackerArc: firingArc,
-      ...(hitLocationResult.edgeReroll !== undefined
-        ? { edgeReroll: hitLocationResult.edgeReroll }
-        : {}),
-      ...(hitLocationResult.edgeSuperseded !== undefined
-        ? { edgeSuperseded: hitLocationResult.edgeSuperseded }
-        : {}),
-      ...(hitLocationResult.edgeTrigger !== undefined
-        ? { edgeTrigger: hitLocationResult.edgeTrigger }
-        : {}),
-      ...(hitLocationResult.edgePointsRemaining !== undefined
-        ? { edgePointsRemaining: hitLocationResult.edgePointsRemaining }
-        : {}),
-      ...(hitLocationResult.supersededLocation !== undefined
-        ? { edgeSupersededLocation: hitLocationResult.supersededLocation }
-        : {}),
-      ...(hitLocationResult.supersededRoll !== undefined
-        ? { edgeSupersededRoll: hitLocationResult.supersededRoll.total }
-        : {}),
-    },
-    actorId: unitId,
+    unitId,
+    targetId,
+    weaponId,
+    attackRoll,
+    toHitNumber,
+    location,
+    damage,
+    heat: weapon.heat,
+    projectileCount,
+    firingArc,
+    hitLocationResult,
   });
 
   // Decrement the firing weapon's ammo bin and emit `AmmoConsumed`
@@ -455,4 +439,90 @@ export function resolveWeaponHit(options: {
   currentState = applyDamageThresholdPSR(currentState, targetId);
 
   return currentState;
+}
+
+type WeaponHitLocationResult = ReturnType<typeof determineHitLocation>;
+
+interface IAppendWeaponHitResolvedEventInput {
+  readonly events: IGameEvent[];
+  readonly gameId: string;
+  readonly turn: number;
+  readonly unitId: string;
+  readonly targetId: string;
+  readonly weaponId: string;
+  readonly attackRoll: number;
+  readonly toHitNumber: number;
+  readonly location: string;
+  readonly damage: number;
+  readonly heat: number;
+  readonly projectileCount: number | undefined;
+  readonly firingArc: 'front' | 'left' | 'right' | 'rear';
+  readonly hitLocationResult: WeaponHitLocationResult;
+}
+
+function appendWeaponHitResolvedEvent(
+  options: IAppendWeaponHitResolvedEventInput,
+): void {
+  appendAttackResolvedEvent({
+    events: options.events,
+    gameId: options.gameId,
+    turn: options.turn,
+    payload: buildWeaponHitResolvedPayload(options),
+    actorId: options.unitId,
+  });
+}
+
+function buildWeaponHitResolvedPayload(
+  options: IAppendWeaponHitResolvedEventInput,
+): IAttackResolvedPayload {
+  return {
+    attackerId: options.unitId,
+    targetId: options.targetId,
+    weaponId: options.weaponId,
+    roll: options.attackRoll,
+    toHitNumber: options.toHitNumber,
+    hit: true,
+    location: options.location,
+    damage: options.damage,
+    heat: options.heat,
+    attackerArc: options.firingArc,
+    ...optionalAttackResolvedField('projectileCount', options.projectileCount),
+    ...buildWeaponHitEdgePayload(options.hitLocationResult),
+  };
+}
+
+function buildWeaponHitEdgePayload(
+  hitLocationResult: WeaponHitLocationResult,
+): Partial<IAttackResolvedPayload> {
+  const edgeSupersededRoll = hitLocationResult.supersededRoll
+    ? hitLocationResult.supersededRoll.total
+    : undefined;
+  return {
+    ...optionalAttackResolvedField('edgeReroll', hitLocationResult.edgeReroll),
+    ...optionalAttackResolvedField(
+      'edgeSuperseded',
+      hitLocationResult.edgeSuperseded,
+    ),
+    ...optionalAttackResolvedField(
+      'edgeTrigger',
+      hitLocationResult.edgeTrigger,
+    ),
+    ...optionalAttackResolvedField(
+      'edgePointsRemaining',
+      hitLocationResult.edgePointsRemaining,
+    ),
+    ...optionalAttackResolvedField(
+      'edgeSupersededLocation',
+      hitLocationResult.supersededLocation,
+    ),
+    ...optionalAttackResolvedField('edgeSupersededRoll', edgeSupersededRoll),
+  };
+}
+
+function optionalAttackResolvedField<K extends keyof IAttackResolvedPayload>(
+  key: K,
+  value: IAttackResolvedPayload[K] | undefined,
+): Partial<IAttackResolvedPayload> {
+  if (value === undefined) return {};
+  return { [key]: value } as Pick<IAttackResolvedPayload, K>;
 }

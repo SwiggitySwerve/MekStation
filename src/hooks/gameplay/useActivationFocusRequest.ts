@@ -53,7 +53,8 @@ export interface IFocusRequest {
  * the active unit actually changes, so consumers can use it as a dependency
  * in their own effects without over-firing.
  *
- * TODO(wave-8): filter rail by viewerPlayerId for opponent fog
+ * Wave 8 visibility note: opponent-fog filtering will gate rail focus by
+ * viewerPlayerId once multi-viewer visibility lands.
  */
 export function useActivationFocusRequest(): IFocusRequest | null {
   const session = useGameplayStore((s) => s.session);

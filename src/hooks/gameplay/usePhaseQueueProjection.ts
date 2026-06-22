@@ -113,7 +113,8 @@ const EMPTY_PROJECTION: IPhaseQueueProjection = {
  * Selector memoised inside `useMemo` so component re-renders only on
  * structural changes to session state (phase, turn, unit lock states).
  *
- * TODO(wave-8): filter rail by viewerPlayerId for opponent fog
+ * Wave 8 visibility note: opponent-fog filtering will gate rail projection by
+ * viewerPlayerId once multi-viewer visibility lands.
  */
 export function usePhaseQueueProjection(): IPhaseQueueProjection {
   const session = useGameplayStore((s) => s.session);

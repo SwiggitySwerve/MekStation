@@ -33,9 +33,9 @@ import { buildRuntimeMovementStateCommands } from './runtimeMovementStateCommand
 /**
  * Build the movement-family command list for the current active unit.
  *
- * TODO(wave-8): gate by `viewerPlayerId === activeUnit.ownerId` once
- * multi-viewer command authorization lands. Today every movement
- * command is visible to the local viewer when an active unit exists.
+ * Wave 8 authorization note: gate by `viewerPlayerId === activeUnit.ownerId`
+ * once multi-viewer command authorization lands. Today every movement command
+ * is visible to the local viewer when an active unit exists.
  */
 export function buildMovementCommands(
   ctx?: ITacticalCommandContext,
