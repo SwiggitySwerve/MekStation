@@ -1,6 +1,7 @@
 import type {
   GamePhase,
   GameSide,
+  IAttackResolvedPayload,
   IAmmoSlotState,
   IComponentDamageState,
   IGameState,
@@ -11,6 +12,7 @@ import type {
   Facing,
   IHexCoordinate,
 } from '@/types/gameplay/HexGridInterfaces';
+import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 
 import type {
   IGmPrivateMetadata,
@@ -22,7 +24,9 @@ export type GmCombatCorrectionFamily =
   | 'damage-critical'
   | 'heat-ammo'
   | 'turn-order'
-  | 'lifecycle';
+  | 'lifecycle'
+  | 'attack-resolution'
+  | 'objective-state';
 
 export type GmCombatLifecycleState =
   | 'active'
@@ -37,10 +41,33 @@ export interface IGmCombatInterventionUnitState extends IUnitGameState {
   readonly rescued?: boolean;
 }
 
+export interface IGmCombatAttackResolutionCorrectionState extends Pick<
+  IAttackResolvedPayload,
+  | 'attackerId'
+  | 'targetId'
+  | 'weaponId'
+  | 'roll'
+  | 'toHitNumber'
+  | 'hit'
+  | 'location'
+  | 'damage'
+  | 'heat'
+  | 'attackerArc'
+  | 'ammoBinId'
+  | 'rolls'
+> {
+  readonly attackId: string;
+  readonly relatedEventIds?: readonly string[];
+  readonly supersededEventIds?: readonly string[];
+}
+
 export interface IGmCombatInterventionState extends Omit<IGameState, 'units'> {
   readonly units: Record<string, IGmCombatInterventionUnitState>;
   readonly initiativeOrder?: readonly string[];
   readonly activeUnitId?: string | null;
+  readonly attackResolutionCorrections?: Readonly<
+    Record<string, IGmCombatAttackResolutionCorrectionState>
+  >;
   readonly gmInterventionEvents?: readonly IGmCombatProjectedEffect[];
 }
 
@@ -88,12 +115,36 @@ export interface IGmCombatLifecycleCorrection {
   readonly destructionCause?: IUnitDestroyedPayload['cause'];
 }
 
+export interface IGmCombatAttackResolutionCorrection extends IGmCombatAttackResolutionCorrectionState {
+  readonly family: 'attack-resolution';
+}
+
+export interface IGmCombatObjectiveStateCorrection {
+  readonly family: 'objective-state';
+  readonly objectiveId?: string;
+  readonly hexKey?: string;
+  readonly marker?: IObjectiveMarker;
+  readonly patch?: Partial<
+    Pick<
+      IObjectiveMarker,
+      | 'objectiveType'
+      | 'owningSide'
+      | 'controlSide'
+      | 'controlRule'
+      | 'holdTurnsRequired'
+      | 'holdProgress'
+    >
+  >;
+}
+
 export type GmCombatInterventionCorrection =
   | IGmCombatRepositionFacingCorrection
   | IGmCombatDamageCriticalCorrection
   | IGmCombatHeatAmmoCorrection
   | IGmCombatTurnOrderCorrection
-  | IGmCombatLifecycleCorrection;
+  | IGmCombatLifecycleCorrection
+  | IGmCombatAttackResolutionCorrection
+  | IGmCombatObjectiveStateCorrection;
 
 export interface IGmCombatInterventionCommandPayload {
   readonly correction: GmCombatInterventionCorrection;
@@ -107,7 +158,9 @@ export type GmCombatProjectedEffectType =
   | 'gm.combat.damage_critical_corrected'
   | 'gm.combat.heat_ammo_corrected'
   | 'gm.combat.turn_order_corrected'
-  | 'gm.combat.lifecycle_corrected';
+  | 'gm.combat.lifecycle_corrected'
+  | 'gm.combat.attack_resolution_corrected'
+  | 'gm.combat.objective_state_corrected';
 
 export interface IGmCombatProjectedEffectBase<TType extends string> {
   readonly type: TType;
@@ -220,12 +273,28 @@ export interface IGmCombatLifecycleEffect extends IGmCombatProjectedEffectBase<'
   >;
 }
 
+export interface IGmCombatAttackResolutionEffect extends IGmCombatProjectedEffectBase<'gm.combat.attack_resolution_corrected'> {
+  readonly family: 'attack-resolution';
+  readonly attackId: string;
+  readonly before?: IGmCombatAttackResolutionCorrectionState;
+  readonly after: IGmCombatAttackResolutionCorrectionState;
+}
+
+export interface IGmCombatObjectiveStateEffect extends IGmCombatProjectedEffectBase<'gm.combat.objective_state_corrected'> {
+  readonly family: 'objective-state';
+  readonly objectiveId: string;
+  readonly before?: IObjectiveMarker;
+  readonly after: IObjectiveMarker;
+}
+
 export type IGmCombatProjectedEffect =
   | IGmCombatRepositionFacingEffect
   | IGmCombatDamageCriticalEffect
   | IGmCombatHeatAmmoEffect
   | IGmCombatTurnOrderEffect
-  | IGmCombatLifecycleEffect;
+  | IGmCombatLifecycleEffect
+  | IGmCombatAttackResolutionEffect
+  | IGmCombatObjectiveStateEffect;
 
 export interface IGmCombatInterventionDomainPayload {
   readonly correction: GmCombatInterventionCorrection;

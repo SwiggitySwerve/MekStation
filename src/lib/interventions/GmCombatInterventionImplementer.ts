@@ -157,7 +157,9 @@ function isCombatCommandPayload(
     payload.correction.family === 'damage-critical' ||
     payload.correction.family === 'heat-ammo' ||
     payload.correction.family === 'turn-order' ||
-    payload.correction.family === 'lifecycle'
+    payload.correction.family === 'lifecycle' ||
+    payload.correction.family === 'attack-resolution' ||
+    payload.correction.family === 'objective-state'
   );
 }
 
