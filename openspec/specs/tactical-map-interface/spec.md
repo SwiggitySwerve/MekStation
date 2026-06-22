@@ -3039,7 +3039,10 @@ existing coarse occupancy gate without guessing identity
 
 The tactical map interface SHALL render isometric mode as a presentation layer
 over the same axial battlefield state while keeping elevation stacks, camera
-rotation, and occlusion aids inspectable.
+rotation, and occlusion aids inspectable. Hexes with positive elevation SHALL
+render visible extrusion faces so stacked elevation reads as solid terrain
+height, depth-ordered correctly at every discrete camera heading, without
+changing occluder semantics, hover targets, or projection data.
 
 #### Scenario: Rotation updates active terrain occluder
 
@@ -3056,6 +3059,31 @@ rotation, and occlusion aids inspectable.
 - **THEN** the projection layer SHALL expose the original rotation step
 - **AND** scene depth metadata SHALL match the original heading
 - **AND** active occluder metadata and highlights SHALL return to the original terrain hex
+
+#### Scenario: Elevated hexes render camera-facing extrusion faces
+
+- **GIVEN** the tactical map is in isometric mode
+- **AND** a hex has positive elevation
+- **WHEN** the isometric scene renders at any discrete camera heading
+- **THEN** the hex SHALL render its camera-facing extrusion faces beneath its top face with height proportional to its elevation
+- **AND** the visible face selection SHALL correspond to the current rotation step
+- **AND** zero-elevation hexes SHALL render no extrusion faces
+
+#### Scenario: Extrusion faces depth-sort with their owner hex
+
+- **GIVEN** adjacent hexes of different elevations render in isometric mode
+- **WHEN** the scene depth-orders its items
+- **THEN** each hex's extrusion faces SHALL paint immediately beneath that hex's top face in the shared depth ordering
+- **AND** unit tokens SHALL keep their existing depth ordering relative to hex top faces
+- **AND** rotating through all six headings SHALL never produce a lower hex painting over a nearer higher hex's faces
+
+#### Scenario: Extrusion is visual-only and preserves interaction semantics
+
+- **GIVEN** isometric extrusion faces are rendered
+- **WHEN** the player hovers, clicks, or inspects occluder highlights
+- **THEN** extrusion faces SHALL NOT be hover or hit targets
+- **AND** occluder metadata, occluder highlights, and hover explanations SHALL be unchanged from the pre-extrusion contract
+- **AND** movement, combat, LOS, and fog projection data SHALL be byte-identical with extrusion enabled or absent
 
 ### Requirement: Top-Down and Isometric Tactical Map Rendering
 
