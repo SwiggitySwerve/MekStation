@@ -5,6 +5,7 @@ import type {
   IInterventionLedgerRecord,
   InterventionApplyResult,
   InterventionDomain,
+  InterventionProjectionVisibility,
 } from '@/types/interventions';
 
 export interface IInterventionLedgerOptions {
@@ -38,10 +39,6 @@ export class InterventionLedger<TState = unknown> {
 
     this.implementers.set(implementer.domain, implementer);
     return this;
-  }
-
-  hasImplementer(domain: InterventionDomain): boolean {
-    return this.implementers.has(domain);
   }
 
   preview(
@@ -102,24 +99,20 @@ export class InterventionLedger<TState = unknown> {
     };
   }
 
-  projectPublic<TPublic = unknown>(record: IInterventionLedgerRecord): TPublic {
-    const implementer = this.implementers.get(record.domain);
-    if (!implementer) {
-      return record.publicEffect as TPublic;
-    }
-
-    return implementer.projectPublic(record) as TPublic;
-  }
-
-  projectPrivate<TPrivate = unknown>(
+  project<TProjection = unknown>(
     record: IInterventionLedgerRecord,
-  ): TPrivate {
+    visibility: InterventionProjectionVisibility,
+  ): TProjection {
     const implementer = this.implementers.get(record.domain);
-    if (!implementer) {
-      return record.privateMetadata as TPrivate;
+    if (visibility === 'public') {
+      return (
+        implementer ? implementer.projectPublic(record) : record.publicEffect
+      ) as TProjection;
     }
 
-    return implementer.projectPrivate(record) as TPrivate;
+    return (
+      implementer ? implementer.projectPrivate(record) : record.privateMetadata
+    ) as TProjection;
   }
 
   getRecords(): readonly IInterventionLedgerRecord[] {

@@ -221,7 +221,6 @@ describe('GM combat intervention implementer', () => {
       state,
     );
 
-    expect(ledger.hasImplementer('combat')).toBe(true);
     expect(preview.status).toBe('ready');
     expect(unsupported.status).toBe('unsupported');
   });

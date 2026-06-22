@@ -18,7 +18,6 @@ import type {
   TacticalMapMovementProjectionStatus,
 } from '@/utils/gameplay/tacticalMapProjection';
 
-import { TerrainArtLayer } from '@/components/gameplay/terrain/TerrainArtLayer';
 import { HEX_COLORS } from '@/constants/hexMap';
 import { MovementType } from '@/types/gameplay';
 
@@ -28,6 +27,13 @@ import {
   getIsometricElevationStackMetrics,
 } from './HexCell.isometricStack';
 import { formatElevationLabel } from './HexCell.labels';
+import {
+  HexCellCoordinateLabel,
+  HexCellIsometricOccluderHighlight,
+  HexCellMovementEncodingLayers,
+  HexCellOverlayLayer,
+  HexCellTerrainArtLayer,
+} from './HexCell.layers';
 import { deriveHexOverlayState } from './HexCell.overlayModel';
 import { buildHexCellRenderModel } from './HexCell.renderModel';
 import {
@@ -35,17 +41,6 @@ import {
   type IsometricTerrainOccluderInfo,
 } from './projection';
 import { hexToPixel, hexPath, getTerrainFill } from './renderHelpers';
-
-/**
- * Per `add-movement-phase-ui` task 3.4: when jump-range tiles render
- * they need a distinct diagonal-hatch pattern on top of the blue
- * tint so the player can visually distinguish "land here by
- * jumping" from "walk/run here." The pattern id is defined in
- * `Overlays.tsx` under <TerrainPatternDefs> so every HexCell can
- * reference it by URL.
- */
-const JUMP_PATTERN_URL = 'url(#pattern-jump-range)';
-const BLOCKED_MOVEMENT_PATTERN_URL = 'url(#pattern-blocked-movement)';
 
 function isJumpRangeTile(movementInfo?: IMovementRangeHex): boolean {
   return (
@@ -300,13 +295,11 @@ export const HexCell = React.memo(function HexCell({
           isIsometricOccluder ? isometricOccluderInfo : undefined
         }
       />
-      {hasTerrainArt && terrainLookup && (
-        <TerrainArtLayer
-          hex={hex}
-          terrain={terrain}
-          terrainLookup={terrainLookup}
-        />
-      )}
+      <HexCellTerrainArtLayer
+        hex={hex}
+        terrain={terrain}
+        terrainLookup={terrainLookup}
+      />
       <path
         d={pathD}
         fill={polygonFill}
@@ -315,139 +308,42 @@ export const HexCell = React.memo(function HexCell({
         pointerEvents="all"
         data-terrain={terrainType}
       />
-      {hasOverlay && overlayFill && (
-        <path
-          d={pathD}
-          fill={overlayFill}
-          opacity={overlayOpacity}
-          pointerEvents="none"
-          data-testid={`hex-overlay-${hex.q}-${hex.r}`}
-          {...overlayAttributes}
-        />
-      )}
-      {isLegacyAttackRangeFallback && (
-        <path
-          d={pathD}
-          fill="none"
-          stroke="#334155"
-          strokeWidth={1.5}
-          strokeDasharray="4 3"
-          opacity={0.9}
-          pointerEvents="none"
-          data-testid={`hex-legacy-range-outline-${hex.q}-${hex.r}`}
-          aria-label={`Legacy range envelope for hex ${hex.q},${hex.r}; not weapon-backed`}
-        />
-      )}
-      {isJumpTile && !isInPath && (
-        <path
-          d={pathD}
-          fill={JUMP_PATTERN_URL}
-          opacity={0.6}
-          pointerEvents="none"
-          data-testid={`jump-pattern-${hex.q}-${hex.r}`}
-        />
-      )}
-      {isBlockedTile && !isInPath && (
-        <>
-          <path
-            d={pathD}
-            fill={BLOCKED_MOVEMENT_PATTERN_URL}
-            opacity={0.72}
-            pointerEvents="none"
-            data-testid={`blocked-movement-pattern-${hex.q}-${hex.r}`}
-          />
-          <g
-            pointerEvents="none"
-            data-testid={`blocked-movement-glyph-${hex.q}-${hex.r}`}
-            aria-label={`Blocked movement marker for hex ${hex.q},${hex.r}`}
-          >
-            <rect
-              x={x - 28}
-              y={y + 11}
-              width={16}
-              height={14}
-              rx={3}
-              fill="#0f172a"
-              fillOpacity={0.88}
-              stroke="#f8fafc"
-              strokeWidth={0.75}
-            />
-            <text
-              x={x - 20}
-              y={y + 21}
-              textAnchor="middle"
-              fontSize={10}
-              fontWeight="bold"
-              fill="#f8fafc"
-            >
-              !
-            </text>
-          </g>
-        </>
-      )}
-      {isRunTile && !isInPath && (
-        <path
-          d={pathD}
-          fill="none"
-          stroke="#854d0e"
-          strokeWidth={2}
-          strokeDasharray="5 3"
-          opacity={0.92}
-          pointerEvents="none"
-          data-testid={`run-range-outline-${hex.q}-${hex.r}`}
-          aria-label={`Run-only movement marker for hex ${hex.q},${hex.r}`}
-        />
-      )}
-      {isIsometricOccluder && (
-        <g
-          pointerEvents="none"
-          data-testid={`hex-isometric-occluder-highlight-${hex.q}-${hex.r}`}
-          data-isometric-occludes-units={occludedUnitIds}
-          data-isometric-occlusion-reasons={occlusionReasons}
-          data-isometric-occluder-rotation-step={
-            isometricOccluderInfo.rotationStep
-          }
-          aria-label={`Tall elevation ${occluderElevationLabel} may hide units ${occludedUnitIds}`}
-        >
-          <title>
-            {`Tall elevation ${occluderElevationLabel} may hide units ${occludedUnitIds}`}
-          </title>
-          <path
-            d={pathD}
-            fill="none"
-            stroke="#38bdf8"
-            strokeWidth={2.25}
-            strokeDasharray="5 3"
-            opacity={0.92}
-          />
-          <rect
-            x={x - 18}
-            y={y - 25}
-            width={36}
-            height={12}
-            rx={2}
-            fill="#0f172a"
-            fillOpacity={0.88}
-            stroke="#38bdf8"
-            strokeWidth={0.75}
-          />
-          <text
-            x={x}
-            y={y - 16}
-            textAnchor="middle"
-            fontSize={8}
-            fontWeight="bold"
-            fill="#e0f2fe"
-          >
-            OCC
-          </text>
-        </g>
-      )}
-      {showCoordinate && (
-        <text x={x} y={y + 4} textAnchor="middle" fontSize={10} fill="#64748b">
-          {hex.q},{hex.r}
-        </text>
-      )}
+      <HexCellOverlayLayer
+        hex={hex}
+        pathD={pathD}
+        hasOverlay={hasOverlay}
+        overlayFill={overlayFill}
+        overlayOpacity={overlayOpacity}
+        overlayAttributes={overlayAttributes}
+        isLegacyAttackRangeFallback={isLegacyAttackRangeFallback}
+      />
+      <HexCellMovementEncodingLayers
+        hex={hex}
+        x={x}
+        y={y}
+        pathD={pathD}
+        isJumpTile={isJumpTile}
+        isRunTile={isRunTile}
+        isBlockedTile={isBlockedTile}
+        isInPath={isInPath}
+      />
+      <HexCellIsometricOccluderHighlight
+        hex={hex}
+        x={x}
+        y={y}
+        pathD={pathD}
+        isIsometricOccluder={isIsometricOccluder}
+        isometricOccluderInfo={isometricOccluderInfo}
+        occludedUnitIds={occludedUnitIds}
+        occlusionReasons={occlusionReasons}
+        occluderElevationLabel={occluderElevationLabel}
+      />
+      <HexCellCoordinateLabel
+        hex={hex}
+        x={x}
+        y={y}
+        showCoordinate={showCoordinate}
+      />
       <HexCellBadgeStack
         x={x}
         y={y}

@@ -142,54 +142,95 @@ export function deriveMovementHazardProjectionReasons({
 function formatReachableMovementCostReasons(
   option: IMovementRangeModeOption,
 ): readonly string[] {
-  const reasons: string[] = [];
-  if (hasPositiveCost(option.terrainCost)) {
-    reasons.push(`terrain ${formatSignedCost(option.terrainCost)}`);
-  }
-  if (hasPositiveCost(option.turningCost)) {
-    reasons.push(`turning ${formatSignedCost(option.turningCost)}`);
-  }
-  if (hasElevationCostConsequence(option)) {
-    reasons.push(`elevation ${formatMovementOptionElevation(option)}`);
-  }
-  if (hasPositiveCost(option.heatGenerated)) {
-    reasons.push(`heat ${formatSignedCost(option.heatGenerated)}`);
-  }
-  if (
+  return [
+    formatPositiveMovementCostReason('terrain', option.terrainCost),
+    formatPositiveMovementCostReason('turning', option.turningCost),
+    formatElevationMovementCostReason(option),
+    formatPositiveMovementCostReason('heat', option.heatGenerated),
+    formatConversionMovementCostReason(option),
+    formatAltitudeControlMovementCostReason(option),
+    formatAutomaticLandingMovementCostReason(option),
+    formatHullDownExitMovementCostReason(option),
+  ].filter(isDefinedString);
+}
+
+function formatPositiveMovementCostReason(
+  label: string,
+  cost: number | undefined,
+): string | undefined {
+  return hasPositiveCost(cost)
+    ? `${label} ${formatSignedCost(cost)}`
+    : undefined;
+}
+
+function formatElevationMovementCostReason(
+  option: IMovementRangeModeOption,
+): string | undefined {
+  return hasElevationCostConsequence(option)
+    ? `elevation ${formatMovementOptionElevation(option)}`
+    : undefined;
+}
+
+function formatConversionMovementCostReason(
+  option: IMovementRangeModeOption,
+): string | undefined {
+  if (!hasMovementConversionCost(option)) return undefined;
+  return `conversion ${option.conversionStepCount ?? 0} steps ${
+    option.conversionMpCost ?? 0
+  } MP`;
+}
+
+function hasMovementConversionCost(option: IMovementRangeModeOption): boolean {
+  return (
     hasPositiveCost(option.conversionStepCount) ||
     hasPositiveCost(option.conversionMpCost)
-  ) {
-    reasons.push(
-      `conversion ${option.conversionStepCount ?? 0} steps ${
-        option.conversionMpCost ?? 0
-      } MP`,
-    );
-  }
-  if (
+  );
+}
+
+function formatAltitudeControlMovementCostReason(
+  option: IMovementRangeModeOption,
+): string | undefined {
+  if (!hasAltitudeControlCost(option)) return undefined;
+  return `altitude control ${option.altitudeControlStepCount ?? 0} steps ${
+    option.altitudeControlMpCost ?? 0
+  } MP`;
+}
+
+function hasAltitudeControlCost(option: IMovementRangeModeOption): boolean {
+  return (
     option.altitudeControlRequired ||
     hasPositiveCost(option.altitudeControlStepCount) ||
     hasPositiveCost(option.altitudeControlMpCost)
-  ) {
-    reasons.push(
-      `altitude control ${option.altitudeControlStepCount ?? 0} steps ${
-        option.altitudeControlMpCost ?? 0
-      } MP`,
-    );
-  }
-  if (option.automaticLandingRequired) {
-    const reason = option.automaticLandingReason
-      ? ` ${option.automaticLandingReason}`
-      : '';
-    reasons.push(
-      `automatic landing ${option.automaticLandingDistance ?? 0}/${
-        option.automaticLandingMinimumDistance ?? 0
-      } hexes${reason}`,
-    );
-  }
-  if (option.hullDownExitRequired || hasPositiveCost(option.hullDownExitCost)) {
-    reasons.push(`hull-down exit ${option.hullDownExitCost ?? 0} MP`);
-  }
-  return reasons;
+  );
+}
+
+function formatAutomaticLandingMovementCostReason(
+  option: IMovementRangeModeOption,
+): string | undefined {
+  if (!option.automaticLandingRequired) return undefined;
+  const reason = option.automaticLandingReason
+    ? ` ${option.automaticLandingReason}`
+    : '';
+  return `automatic landing ${option.automaticLandingDistance ?? 0}/${
+    option.automaticLandingMinimumDistance ?? 0
+  } hexes${reason}`;
+}
+
+function formatHullDownExitMovementCostReason(
+  option: IMovementRangeModeOption,
+): string | undefined {
+  if (!hasHullDownExitCost(option)) return undefined;
+  return `hull-down exit ${option.hullDownExitCost ?? 0} MP`;
+}
+
+function hasHullDownExitCost(option: IMovementRangeModeOption): boolean {
+  return (
+    option.hullDownExitRequired || hasPositiveCost(option.hullDownExitCost)
+  );
+}
+
+function isDefinedString(reason: string | undefined): reason is string {
+  return reason !== undefined;
 }
 
 function hasElevationCostConsequence(

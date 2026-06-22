@@ -67,6 +67,7 @@ export type {
   InterventionApplyResult,
   InterventionDomain,
   InterventionLedgerRecordStatus,
+  InterventionProjectionVisibility,
   InterventionPreviewStatus,
   IUnsupportedInterventionResult,
   KnownInterventionDomain,

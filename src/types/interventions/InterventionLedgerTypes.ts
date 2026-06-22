@@ -99,6 +99,8 @@ export type InterventionApplyResult<TState = unknown> =
   | IAppliedInterventionResult<TState>
   | IUnsupportedInterventionResult<TState>;
 
+export type InterventionProjectionVisibility = 'public' | 'private';
+
 export interface IInterventionLedgerImplementer<
   TCommand extends IInterventionLedgerCommand = IInterventionLedgerCommand,
   TState = unknown,

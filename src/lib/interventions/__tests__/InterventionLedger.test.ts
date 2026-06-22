@@ -212,11 +212,11 @@ describe('InterventionLedger', () => {
     );
     const record = makeRecord();
 
-    expect(ledger.projectPublic<TestPublicEffect>(record)).toEqual({
+    expect(ledger.project<TestPublicEffect>(record, 'public')).toEqual({
       summary: 'Unit armor corrected.',
       changedStateRefs: ['unit-1'],
     });
-    expect(ledger.projectPrivate<TestPrivateMetadata>(record)).toEqual({
+    expect(ledger.project<TestPrivateMetadata>(record, 'private')).toEqual({
       reason: 'Correct missed armor damage.',
       hiddenNotes: 'NPC ambush remains hidden.',
     });
