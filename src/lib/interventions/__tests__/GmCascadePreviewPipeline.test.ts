@@ -7,6 +7,7 @@ import type {
   IInterventionLedgerPreview,
 } from '@/types/interventions';
 
+import { ActionLedger } from '../ActionLedger';
 import {
   approveGmCascadePreview,
   cancelGmCascadePreview,
@@ -227,6 +228,62 @@ describe('GM cascade preview pipeline', () => {
     });
   });
 
+  it('appends approved GM interventions to the shared action ledger after normal actions', () => {
+    const ledger = makeLedger();
+    const actionLedger = new ActionLedger();
+    const state = makeState();
+    actionLedger.appendNormalAction({
+      id: 'player-attack-1',
+      actorId: 'player-1',
+      domain: 'combat',
+      action: 'declare-attack',
+      targetRefs: ['unit:atlas-1'],
+      publicEffect: {
+        summary: 'Player attack resolved.',
+        changedStateRefs: ['unit:atlas-1'],
+      },
+      createdAt: '2026-06-20T00:00:00.000Z',
+    });
+    const preview = createGmCascadePreview({
+      ledger,
+      command: makeCommand({ supersedes: ['player-attack-1'] }),
+      state,
+      authority: gmAuthority,
+      interventionId: 'gm-int-action-ledger',
+    });
+
+    const result = approveGmCascadePreview({
+      ledger,
+      actionLedger,
+      preview,
+      state,
+      createdAt: '2026-06-20T00:02:00.000Z',
+      approvedAt: '2026-06-20T00:03:00.000Z',
+    });
+
+    expect(result.status).toBe('approved');
+    expect(result.actionLedgerRecord).toMatchObject({
+      id: 'action:gm-int-action-ledger',
+      sequence: 2,
+      recordKind: 'gm-intervention',
+      interventionRecordId: 'gm-int-action-ledger',
+      causedBy: ['player-attack-1'],
+      supersedes: ['player-attack-1'],
+    });
+
+    const playerProjection = actionLedger.projectForPlayer();
+    const gmProjection = actionLedger.projectForGm();
+
+    expect(playerProjection.map((record) => record.id)).toEqual([
+      'player-attack-1',
+      'action:gm-int-action-ledger',
+    ]);
+    expect(JSON.stringify(playerProjection)).not.toContain(
+      'GM-only cascade reason',
+    );
+    expect(JSON.stringify(gmProjection)).toContain('GM-only cascade reason');
+  });
+
   it('cancels a preview without appending or changing derived state', () => {
     const ledger = makeLedger();
     const state = makeState();
@@ -250,6 +307,7 @@ describe('GM cascade preview pipeline', () => {
 
   it('requires manual takeover for unresolved conflicts and blocks approval', () => {
     const ledger = makeLedger();
+    const actionLedger = new ActionLedger();
     const state = makeState();
     const preview = createGmCascadePreview({
       ledger,
@@ -261,6 +319,7 @@ describe('GM cascade preview pipeline', () => {
 
     const result = approveGmCascadePreview({
       ledger,
+      actionLedger,
       preview,
       state,
     });
@@ -276,6 +335,7 @@ describe('GM cascade preview pipeline', () => {
       appended: false,
     });
     expect(ledger.getRecords()).toEqual([]);
+    expect(actionLedger.getRecords()).toEqual([]);
   });
 
   it('returns deferred previews for unsupported first-slice campaign domains without mutation', () => {
