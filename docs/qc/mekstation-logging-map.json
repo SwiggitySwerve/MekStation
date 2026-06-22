@@ -103,7 +103,11 @@
     {
       "pathId": "journey-runner-failure",
       "service": "journey.runner",
-      "events": ["journey.step_failed", "journey.run_failed"],
+      "events": [
+        "journey.step_failed",
+        "journey.run_failed",
+        "journey.execution_backing_missing"
+      ],
       "severity": "error",
       "classification": "failure",
       "blocking": true,

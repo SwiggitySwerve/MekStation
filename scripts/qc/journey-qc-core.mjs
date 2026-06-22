@@ -91,6 +91,7 @@ export function parseArgs(argv) {
     failOnBugSeverity: 'medium',
     journey: 'all',
     mode: null,
+    requireDomainBacked: false,
     runs: 1,
     seed: 42,
     tier: 'standard',
@@ -116,6 +117,13 @@ export function parseArgs(argv) {
     }
     if (arg === '--actionable-only') {
       options.actionableOnly = true;
+      continue;
+    }
+    if (
+      arg === '--require-domain-backed' ||
+      arg === '--require-non-synthetic-backing'
+    ) {
+      options.requireDomainBacked = true;
       continue;
     }
 
@@ -595,6 +603,15 @@ function selectJourneys(catalog, journeyOption) {
   });
 }
 
+function stepExecutionBacking(step) {
+  return {
+    executionBacking: step.executionBacking ?? 'synthetic-projection',
+    syntheticBacking: step.syntheticBacking !== false,
+    executionEvidenceSource:
+      step.executionEvidenceSource ?? 'journey-catalog-projection',
+  };
+}
+
 export function materializeRunPlan(catalog, options) {
   if (!allowedTiers.has(options.tier))
     throw new Error(`Invalid tier: ${options.tier}`);
@@ -622,6 +639,7 @@ export function materializeRunPlan(catalog, options) {
     dryRun: options.dryRun,
     tier: options.tier,
     mode: options.mode ?? 'catalog-default',
+    requireDomainBacked: options.requireDomainBacked,
     seed: options.seed,
     runs: options.runs,
     evidenceDir: toRepoRelative(path.join(evidenceDir, runId)),
@@ -642,6 +660,7 @@ export function materializeRunPlan(catalog, options) {
         diagnosticEvent: step.diagnosticEvent,
         loggingPathId: step.loggingPathId,
         produces: step.produces,
+        ...stepExecutionBacking(step),
       })),
       knownLimitations: journey.knownLimitations ?? [],
     })),
@@ -706,6 +725,9 @@ function artifactPayload({ runPlan, journey, step, attempt }) {
     stepId: step.id,
     attempt,
     generatedId: idBase,
+    executionBacking: step.executionBacking,
+    syntheticBacking: step.syntheticBacking,
+    executionEvidenceSource: step.executionEvidenceSource,
     parameters,
   };
 
@@ -811,6 +833,31 @@ function writeArtifact(runDir, relativePath, payload) {
   return toRepoRelative(filePath);
 }
 
+function backingSummary(journeys) {
+  let totalSteps = 0;
+  let syntheticSteps = 0;
+  let nonSyntheticSteps = 0;
+  let missingRequiredBacking = 0;
+  for (const journey of journeys) {
+    for (const attempt of journey.attempts ?? []) {
+      for (const step of attempt.steps ?? []) {
+        totalSteps += 1;
+        if (step.syntheticBacking) syntheticSteps += 1;
+        else nonSyntheticSteps += 1;
+        if (step.failureKind === 'missing-required-execution-backing') {
+          missingRequiredBacking += 1;
+        }
+      }
+    }
+  }
+  return {
+    totalSteps,
+    syntheticSteps,
+    nonSyntheticSteps,
+    missingRequiredBacking,
+  };
+}
+
 function severityMeets(candidateSeverity, minimumSeverity) {
   return (
     (severityRank[candidateSeverity] ?? 0) >=
@@ -824,6 +871,10 @@ export function extractBugCandidates(result, logs) {
     for (const attempt of journey.attempts ?? []) {
       for (const step of attempt.steps ?? []) {
         if (step.status !== 'pass') {
+          const summary =
+            step.failureKind === 'missing-required-execution-backing'
+              ? `Missing non-synthetic execution backing: ${journey.id}/${step.id}`
+              : `Journey step failed: ${journey.id}/${step.id}`;
           bugs.push({
             severity: 'high',
             journeyId: journey.id,
@@ -831,9 +882,9 @@ export function extractBugCandidates(result, logs) {
             stepId: step.id,
             module: journey.module,
             fingerprint: hashString(
-              `${journey.id}:${step.id}:${step.status}:${step.error ?? ''}`,
+              `${journey.id}:${step.id}:${step.status}:${step.failureKind ?? ''}:${step.error ?? ''}`,
             ),
-            summary: `Journey step failed: ${journey.id}/${step.id}`,
+            summary,
             evidenceRefs: step.artifacts ?? [],
           });
         }
@@ -917,9 +968,20 @@ export function executeRunPlan(runPlan, options = {}) {
 
       for (const step of journey.steps) {
         const artifacts = [];
-        const shouldFail =
+        const injectedFailure =
           options.injectFailure === step.id ||
           options.injectFailure === journey.id;
+        const missingRequiredBacking =
+          options.requireDomainBacked && step.syntheticBacking === true;
+        const shouldFail = injectedFailure || missingRequiredBacking;
+        const failureKind = missingRequiredBacking
+          ? 'missing-required-execution-backing'
+          : injectedFailure
+            ? 'injected-failure'
+            : null;
+        const failureMessage = missingRequiredBacking
+          ? `Required non-synthetic execution backing missing for ${journey.id}/${step.id} (${step.executionBacking}).`
+          : `Injected failure for ${journey.id}/${step.id}`;
         const level =
           step.loggingPathId === 'tactical-action-rejection' ? 'warn' : 'info';
         const payload = artifactPayload({ runPlan, journey, step, attempt });
@@ -939,10 +1001,12 @@ export function executeRunPlan(runPlan, options = {}) {
         const stepLog = logEntry({
           level: shouldFail ? 'error' : level,
           service: serviceForStep(journey, step),
-          event: shouldFail ? 'journey.step_failed' : step.diagnosticEvent,
-          message: shouldFail
-            ? `Injected failure for ${journey.id}/${step.id}`
-            : step.title,
+          event: missingRequiredBacking
+            ? 'journey.execution_backing_missing'
+            : shouldFail
+              ? 'journey.step_failed'
+              : step.diagnosticEvent,
+          message: shouldFail ? failureMessage : step.title,
           classification: shouldFail
             ? 'failure'
             : level === 'warn'
@@ -957,6 +1021,10 @@ export function executeRunPlan(runPlan, options = {}) {
             loggingPathId: step.loggingPathId,
             artifacts,
             terminalState: payload.terminalState,
+            executionBacking: step.executionBacking,
+            syntheticBacking: step.syntheticBacking,
+            executionEvidenceSource: step.executionEvidenceSource,
+            ...(failureKind ? { failureKind } : {}),
           },
         });
         logs.push(stepLog);
@@ -967,6 +1035,10 @@ export function executeRunPlan(runPlan, options = {}) {
           artifacts,
           diagnosticEvent: stepLog.event,
           loggingPathId: step.loggingPathId,
+          executionBacking: step.executionBacking,
+          syntheticBacking: step.syntheticBacking,
+          executionEvidenceSource: step.executionEvidenceSource,
+          failureKind: failureKind ?? undefined,
           error: shouldFail ? stepLog.message : undefined,
         };
         attemptResult.steps.push(stepResult);
@@ -1024,10 +1096,12 @@ export function executeRunPlan(runPlan, options = {}) {
     runId: runPlan.runId,
     status: failed ? 'fail' : 'pass',
     dryRun: false,
+    requireDomainBacked: runPlan.requireDomainBacked,
     startedAt,
     completedAt: new Date().toISOString(),
     journeys,
   };
+  result.executionBackingSummary = backingSummary(journeys);
   return { logs, result };
 }
 
@@ -1090,7 +1164,10 @@ function renderReport(runPlan, result, logs, bugs) {
     `- Mode: ${runPlan.mode}`,
     `- Seed: ${runPlan.seed}`,
     `- Runs: ${runPlan.runs}`,
+    `- Require domain-backed: ${runPlan.requireDomainBacked ? 'yes' : 'no'}`,
     `- Bugs: ${bugs.length}`,
+    `- Synthetic-backed steps: ${result.executionBackingSummary?.syntheticSteps ?? 0}/${result.executionBackingSummary?.totalSteps ?? 0}`,
+    `- Missing required backing: ${result.executionBackingSummary?.missingRequiredBacking ?? 0}`,
     `- Expected probes: ${expectedProbeCount}`,
     `- Actionable/diagnostic warnings: ${actionableWarningCount}`,
     `- Blocking log entries: ${blockingLogCount}`,

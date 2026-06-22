@@ -55,6 +55,7 @@ npm.cmd run verify:qc:journeys
 - `--dry-run`
 - `--continue-on-error`
 - `--fail-on-bug-severity=info|medium|high|critical`
+- `--require-domain-backed`
 
 Journey-specific parameters include `--pilot-count`,
 `--pilot-skill-band`, `--pilot-abilities`, `--unit-type`, `--chassis`,
@@ -83,6 +84,17 @@ Each run writes:
 
 `latest.json` points bug and log commands at the most recent run.
 
+Step results, diagnostic entries, and step artifacts include execution backing
+metadata:
+
+- `executionBacking`: backing type such as `synthetic-projection`
+- `syntheticBacking`: whether the step is still catalog/synthetic backed
+- `executionEvidenceSource`: where the backing evidence came from
+
+Use `--require-domain-backed` when you need the run to fail if selected
+required steps are still synthetic/catalog-backed. That strict mode is expected
+to fail until a journey step has a real domain, browser, or hybrid adapter.
+
 ## Bug And Log Workflow
 
 1. Run the narrow journey first, with explicit seed and parameters.
@@ -94,7 +106,9 @@ Each run writes:
    `api.payload_rejected` warning is an expected negative-control probe; it
    remains warning-level evidence but is classified as `expected-probe` and
    `blocking=false`.
-6. Rerun the same journey with the same run-plan inputs after a fix.
+6. Use `--require-domain-backed` to distinguish real adapter coverage from
+   synthetic projection coverage.
+7. Rerun the same journey with the same run-plan inputs after a fix.
 
 Known gaps are recorded in journey output and the validation graph. They do not
 silently hide unrelated failures.
