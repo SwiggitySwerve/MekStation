@@ -16,6 +16,22 @@ if (options.json) {
     console.log(`- [${bug.severity}] ${bug.journeyId}: ${bug.summary}`);
     console.log(`  fingerprint: ${bug.fingerprint}`);
     console.log(`  evidence: ${(bug.evidenceRefs ?? []).join(', ') || 'none'}`);
+    if (bug.triage) {
+      console.log(`  action: ${bug.triage.action ?? '-'}`);
+      console.log(
+        `  validation: ${bug.triage.validationResult?.status ?? '-'}`,
+      );
+      if (bug.triage.failureCause) {
+        console.log(`  failure cause: ${bug.triage.failureCause}`);
+      }
+      if (bug.triage.nextDebuggingHint) {
+        console.log(`  next: ${bug.triage.nextDebuggingHint}`);
+      }
+      const logFingerprints = bug.triage.logFingerprints ?? [];
+      if (logFingerprints.length > 0) {
+        console.log(`  logs: ${logFingerprints.join(', ')}`);
+      }
+    }
   }
 }
 
