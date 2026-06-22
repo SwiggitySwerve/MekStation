@@ -38,6 +38,7 @@ export type {
   BuildTacticalMapHexProjectionLookupInput,
   ITacticalMapCombatLosBlockerReference,
   ITacticalMapHexProjection,
+  ITacticalMapProjectionFrame,
   ITacticalMapProjectionSourceReference,
   TacticalMapCombatProjectionStatus,
   TacticalMapHexProjectionIntent,
@@ -45,6 +46,7 @@ export type {
   TacticalMapMovementCostProjectionStatus,
   TacticalMapMovementHazardProjectionStatus,
   TacticalMapMovementProjectionStatus,
+  TacticalMapProjectionFrameSource,
   TacticalMapProjectionSourceChannel,
   TacticalMapProjectionSourceKind,
 } from './tacticalMapProjection.types';

@@ -12,6 +12,7 @@ import type {
 } from '@/types/gameplay';
 import type { GameSide } from '@/types/gameplay';
 import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
+import type { ITacticalMapProjectionFrame } from '@/utils/gameplay/tacticalMapProjection';
 
 import type { MapInteractionState } from './useMapInteraction';
 
@@ -34,6 +35,7 @@ export interface HexMapDisplayProps {
   selectedHex: IHexCoordinate | null;
   hexTerrain?: readonly IHexTerrain[];
   movementRange?: readonly IMovementRangeHex[];
+  tacticalProjectionFrame?: ITacticalMapProjectionFrame;
   attackRange?: readonly IHexCoordinate[];
   targetUnitId?: string | null;
   unitWeapons?: Record<string, readonly IWeaponStatus[]>;

@@ -1,6 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type { IHexCoordinate } from '@/types/gameplay';
+import type {
+  ICombatRangeHex,
+  IHexCoordinate,
+  IHexTerrain,
+} from '@/types/gameplay';
+import type { ITacticalMapProjectionFrame } from '@/utils/gameplay/tacticalMapProjection';
 
 import { useScreenShake } from '@/hooks/useScreenShake';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
@@ -74,6 +79,7 @@ export function useHexMapDisplayState({
   selectedHex,
   hexTerrain = EMPTY_HEX_TERRAIN,
   movementRange = EMPTY_MOVEMENT_RANGE,
+  tacticalProjectionFrame: suppliedTacticalProjectionFrame,
   attackRange = EMPTY_ATTACK_RANGE,
   targetUnitId = null,
   unitWeapons = EMPTY_UNIT_WEAPONS,
@@ -105,10 +111,18 @@ export function useHexMapDisplayState({
     interaction.showElevationBadges &&
     interaction.zoom >= ELEVATION_BADGE_MIN_ZOOM;
   const hexes = useMemo(() => generateHexesInRadius(radius), [radius]);
-  const terrainLookup = useTerrainLookup(hexTerrain);
+  const effectiveHexTerrain = useMemo(
+    () =>
+      buildEffectiveHexTerrainFromProjectionFrame(
+        hexTerrain,
+        suppliedTacticalProjectionFrame,
+      ),
+    [hexTerrain, suppliedTacticalProjectionFrame],
+  );
+  const terrainLookup = useTerrainLookup(effectiveHexTerrain);
   const movementRangeLookup = useMovementRangeLookup(movementRange);
   const highlightPathIndexLookup = useHighlightPathLookup(highlightPath);
-  const hexGrid = useHexGrid(hexTerrain, hexes, radius);
+  const hexGrid = useHexGrid(effectiveHexTerrain, hexes, radius);
 
   const renderedHexes = useRenderedHexes({
     hexes,
@@ -145,7 +159,7 @@ export function useHexMapDisplayState({
     selectedWeaponIds,
     unitWeapons,
   });
-  const combatRangeLookup = useCombatRangeLookup({
+  const derivedCombatRangeLookup = useCombatRangeLookup({
     selectedToken,
     friendlySide,
     hasConfiguredWeaponList: isWeaponCombatProjectionEnabled,
@@ -156,33 +170,67 @@ export function useHexMapDisplayState({
     targetUnitId,
     combatState,
   });
-  const combatProjectionValidTargetUnitIds =
-    useCombatProjectionValidTargetUnitIds({
-      combatRangeLookup,
-      enabled: isWeaponCombatProjectionEnabled,
-    });
   const legacyAttackRangeLookup = useLegacyAttackRangeLookup({
     attackRange,
     enabled: !hasConfiguredWeaponList,
   });
-  const tacticalMapProjectionLookup = useMemo(
+  const derivedTacticalMapProjectionLookup = useMemo(
     () =>
       buildTacticalMapHexProjectionLookup({
         hexes,
         terrainLookup,
         movementRangeLookup,
-        combatRangeLookup,
+        combatRangeLookup: derivedCombatRangeLookup,
         highlightPathIndexLookup,
         legacyAttackRangeLookup,
       }),
     [
-      combatRangeLookup,
+      derivedCombatRangeLookup,
       hexes,
       highlightPathIndexLookup,
       legacyAttackRangeLookup,
       movementRangeLookup,
       terrainLookup,
     ],
+  );
+  const tacticalMapProjectionFrame = useMemo<ITacticalMapProjectionFrame>(
+    () =>
+      suppliedTacticalProjectionFrame ?? {
+        source: 'hex-map-derived-fallback',
+        lookup: derivedTacticalMapProjectionLookup,
+        label: 'HexMapDisplay locally derived projection fallback',
+      },
+    [derivedTacticalMapProjectionLookup, suppliedTacticalProjectionFrame],
+  );
+  const tacticalMapProjectionLookup = tacticalMapProjectionFrame.lookup;
+  const combatRangeLookup = useMemo<
+    ReadonlyMap<string, ICombatRangeHex>
+  >(() => {
+    if (!suppliedTacticalProjectionFrame) return derivedCombatRangeLookup;
+
+    const lookup = new Map<string, ICombatRangeHex>();
+    tacticalMapProjectionLookup.forEach((projection, key) => {
+      if (projection.combat) lookup.set(key, projection.combat);
+    });
+    return lookup;
+  }, [
+    derivedCombatRangeLookup,
+    suppliedTacticalProjectionFrame,
+    tacticalMapProjectionLookup,
+  ]);
+  const combatProjectionValidTargetUnitIds =
+    useCombatProjectionValidTargetUnitIds({
+      combatRangeLookup,
+      enabled:
+        isWeaponCombatProjectionEnabled ||
+        suppliedTacticalProjectionFrame !== undefined,
+    });
+  const tacticalProjectionMissingHexKeys = useMemo(
+    () =>
+      renderedHexes
+        .map(coordToKey)
+        .filter((key) => !tacticalMapProjectionLookup.has(key)),
+    [renderedHexes, tacticalMapProjectionLookup],
   );
   // Audit 2026-06-09 G (W5.1a): ONE occlusion sweep per render pass.
   // The list is derived first; the by-unit "first hit" map below is
@@ -372,9 +420,28 @@ export function useHexMapDisplayState({
     hoverTerrainInfo,
     hoverProjectionInfo,
     hoverIsometricOccluderInfo,
+    tacticalProjectionFrameSource: tacticalMapProjectionFrame.source,
+    tacticalProjectionFrameHexCount: tacticalMapProjectionLookup.size,
+    tacticalProjectionMissingHexKeys,
     tacticalMapProjectionLookup,
     renderHexCell,
     handleTokenClick,
     handleTokenDoubleClick,
   };
+}
+
+function buildEffectiveHexTerrainFromProjectionFrame(
+  hexTerrain: readonly IHexTerrain[],
+  tacticalProjectionFrame: ITacticalMapProjectionFrame | undefined,
+): readonly IHexTerrain[] {
+  if (!tacticalProjectionFrame) return hexTerrain;
+
+  const terrainByKey = new Map<string, IHexTerrain>();
+  for (const terrain of hexTerrain) {
+    terrainByKey.set(coordToKey(terrain.coordinate), terrain);
+  }
+  tacticalProjectionFrame.lookup.forEach((projection, key) => {
+    terrainByKey.set(key, projection.terrain);
+  });
+  return Array.from(terrainByKey.values());
 }

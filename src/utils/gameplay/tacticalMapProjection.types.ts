@@ -93,6 +93,17 @@ export interface ITacticalMapHexProjection {
   readonly explanation: string;
 }
 
+export type TacticalMapProjectionFrameSource =
+  | 'shared-engine-projection'
+  | 'hex-map-derived-fallback';
+
+export interface ITacticalMapProjectionFrame {
+  readonly source: TacticalMapProjectionFrameSource;
+  readonly lookup: ReadonlyMap<string, ITacticalMapHexProjection>;
+  readonly sourceId?: string;
+  readonly label?: string;
+}
+
 export interface BuildTacticalMapHexProjectionLookupInput {
   readonly hexes: readonly IHexCoordinate[];
   readonly terrainLookup: ReadonlyMap<string, IHexTerrain>;

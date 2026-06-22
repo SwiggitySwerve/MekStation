@@ -66,6 +66,9 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
     hoverTerrainInfo,
     hoverProjectionInfo,
     hoverIsometricOccluderInfo,
+    tacticalProjectionFrameSource,
+    tacticalProjectionFrameHexCount,
+    tacticalProjectionMissingHexKeys,
     tacticalMapProjectionLookup,
     renderHexCell,
     handleTokenClick,
@@ -78,6 +81,16 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
       data-testid="hex-map-container"
       data-screen-shake-active={screenShake.isShaking ? 'true' : undefined}
       data-screen-shake-transform={screenShake.transform}
+      data-tactical-projection-frame-source={tacticalProjectionFrameSource}
+      data-tactical-projection-frame-hex-count={tacticalProjectionFrameHexCount}
+      data-tactical-projection-missing-hexes={
+        tacticalProjectionMissingHexKeys.length > 0
+          ? tacticalProjectionMissingHexKeys.join('|')
+          : undefined
+      }
+      data-tactical-projection-coverage-status={
+        tacticalProjectionMissingHexKeys.length > 0 ? 'partial' : 'complete'
+      }
       style={screenShake.style}
     >
       <svg
@@ -109,6 +122,18 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
           data-testid="map-projection-layer"
           data-projection-mode={interaction.projectionMode}
           data-isometric-rotation-step={interaction.isometricRotationStep}
+          data-tactical-projection-frame-source={tacticalProjectionFrameSource}
+          data-tactical-projection-frame-hex-count={
+            tacticalProjectionFrameHexCount
+          }
+          data-tactical-projection-missing-hexes={
+            tacticalProjectionMissingHexKeys.length > 0
+              ? tacticalProjectionMissingHexKeys.join('|')
+              : undefined
+          }
+          data-tactical-projection-coverage-status={
+            tacticalProjectionMissingHexKeys.length > 0 ? 'partial' : 'complete'
+          }
           transform={projectionTransform}
         >
           {isIsometricView ? (
