@@ -18,6 +18,7 @@ import * as hoverWater from './tactical-map.hover-water-scenario';
 import * as immobileCombat from './tactical-map.immobile-combat-scenario';
 import * as lamAirborneFighter from './tactical-map.lam-airborne-fighter-scenario';
 import * as lamConversion from './tactical-map.lam-conversion-scenario';
+import * as largeTopdown from './tactical-map.large-topdown-legibility-scenario';
 import * as movementCombat from './tactical-map.movement-combat-scenario';
 import * as movement from './tactical-map.movement-scenarios';
 import * as multiOccluders from './tactical-map.multi-isometric-occluders-scenario';
@@ -211,6 +212,8 @@ export const selectedHexByScenario = {
   'frogman-deep-water': frogman.tacticalMapFrogmanSelectedHex,
   'prone-stand-up': standUp.tacticalMapStandUpSelectedHex,
   'impossible-stand-up': standUp.tacticalMapStandUpSelectedHex,
+  'large-topdown-legibility':
+    largeTopdown.tacticalMapLargeTopdownLegibilitySelectedHex,
 } satisfies Record<string, { readonly q: number; readonly r: number }>;
 
 export const hexTerrainByScenario = {
@@ -260,8 +263,12 @@ export const hexTerrainByScenario = {
     cappedStack.tacticalMapCappedIsometricStackHexTerrain,
   'multi-isometric-occluders':
     multiOccluders.tacticalMapMultiIsometricOccludersHexTerrain,
+  'large-topdown-legibility':
+    largeTopdown.tacticalMapLargeTopdownLegibilityHexTerrain,
 } satisfies Record<string, typeof tacticalMapHexTerrain>;
 
 export const mapRadiusByScenario = {
   'lam-airmek-long-cruise-heat': 6,
+  'large-topdown-legibility':
+    largeTopdown.tacticalMapLargeTopdownLegibilityRadius,
 } satisfies Record<string, number>;

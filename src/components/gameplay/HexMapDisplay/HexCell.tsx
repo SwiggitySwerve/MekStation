@@ -45,12 +45,26 @@ import { hexToPixel, hexPath, getTerrainFill } from './renderHelpers';
  * reference it by URL.
  */
 const JUMP_PATTERN_URL = 'url(#pattern-jump-range)';
+const BLOCKED_MOVEMENT_PATTERN_URL = 'url(#pattern-blocked-movement)';
 
 function isJumpRangeTile(movementInfo?: IMovementRangeHex): boolean {
   return (
     movementInfo?.reachable === true &&
     movementInfo.movementType === MovementType.Jump
   );
+}
+
+function isRunRangeTile(movementInfo?: IMovementRangeHex): boolean {
+  return (
+    movementInfo?.reachable === true &&
+    (movementInfo.movementType === MovementType.Run ||
+      movementInfo.movementType === MovementType.Sprint ||
+      movementInfo.movementType === MovementType.Evade)
+  );
+}
+
+function isBlockedMovementTile(movementInfo?: IMovementRangeHex): boolean {
+  return movementInfo !== undefined && movementInfo.reachable === false;
 }
 
 function hasRenderableIsometricOccluder(
@@ -100,6 +114,7 @@ export interface HexCellProps {
   tacticalProjectionExplanation?: string;
   isometricOccluderInfo?: IsometricTerrainOccluderInfo;
   showCoordinate: boolean;
+  showElevationBadge?: boolean;
   projectionMode?: MapProjectionMode;
   /**
    * Per `add-movement-phase-ui` § 4.3: when the user hovers a
@@ -157,6 +172,7 @@ export const HexCell = React.memo(function HexCell({
   tacticalProjectionExplanation,
   isometricOccluderInfo,
   showCoordinate,
+  showElevationBadge = true,
   projectionMode = 'topDown',
   hoverMpCost,
   isUnreachableHover,
@@ -194,6 +210,8 @@ export const HexCell = React.memo(function HexCell({
   const overlayKind = overlayState.kind;
   const isLegacyAttackRangeFallback = overlayState.isLegacyAttackRangeFallback;
   const isJumpTile = isJumpRangeTile(movementInfo);
+  const isRunTile = isRunRangeTile(movementInfo);
+  const isBlockedTile = isBlockedMovementTile(movementInfo);
   const isIsometricOccluder = hasRenderableIsometricOccluder(
     isIsometricTile,
     isometricOccluderInfo,
@@ -329,6 +347,57 @@ export const HexCell = React.memo(function HexCell({
           data-testid={`jump-pattern-${hex.q}-${hex.r}`}
         />
       )}
+      {isBlockedTile && !isInPath && (
+        <>
+          <path
+            d={pathD}
+            fill={BLOCKED_MOVEMENT_PATTERN_URL}
+            opacity={0.72}
+            pointerEvents="none"
+            data-testid={`blocked-movement-pattern-${hex.q}-${hex.r}`}
+          />
+          <g
+            pointerEvents="none"
+            data-testid={`blocked-movement-glyph-${hex.q}-${hex.r}`}
+            aria-label={`Blocked movement marker for hex ${hex.q},${hex.r}`}
+          >
+            <rect
+              x={x - 28}
+              y={y + 11}
+              width={16}
+              height={14}
+              rx={3}
+              fill="#0f172a"
+              fillOpacity={0.88}
+              stroke="#f8fafc"
+              strokeWidth={0.75}
+            />
+            <text
+              x={x - 20}
+              y={y + 21}
+              textAnchor="middle"
+              fontSize={10}
+              fontWeight="bold"
+              fill="#f8fafc"
+            >
+              !
+            </text>
+          </g>
+        </>
+      )}
+      {isRunTile && !isInPath && (
+        <path
+          d={pathD}
+          fill="none"
+          stroke="#854d0e"
+          strokeWidth={2}
+          strokeDasharray="5 3"
+          opacity={0.92}
+          pointerEvents="none"
+          data-testid={`run-range-outline-${hex.q}-${hex.r}`}
+          aria-label={`Run-only movement marker for hex ${hex.q},${hex.r}`}
+        />
+      )}
       {isIsometricOccluder && (
         <g
           pointerEvents="none"
@@ -386,6 +455,7 @@ export const HexCell = React.memo(function HexCell({
         elevation={elevation}
         elevationLabel={elevationLabel}
         terrainFeatures={terrainFeatures}
+        showElevationBadge={showElevationBadge}
         projectionMode={projectionMode}
         movementInfo={movementInfo}
         movementOptions={movementOptions}

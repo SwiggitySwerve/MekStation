@@ -46,6 +46,8 @@ import { getMapProjectionTransform, isIsometricProjection } from './projection';
 import { generateHexesInRadius } from './renderHelpers';
 import { useMapInteraction } from './useMapInteraction';
 
+const ELEVATION_BADGE_MIN_ZOOM = 0.75;
+
 // Stable empty defaults (audit 2026-06-09 G, W5.1a): inline `= []` /
 // `= {}` default parameters mint a FRESH identity on every render when
 // the prop is omitted, which invalidates every downstream useMemo
@@ -98,6 +100,10 @@ export function useHexMapDisplayState({
     interaction.isometricRotationStep,
   );
   const isIsometricView = isIsometricProjection(interaction.projectionMode);
+  const showElevationBadges =
+    !isIsometricView &&
+    interaction.showElevationBadges &&
+    interaction.zoom >= ELEVATION_BADGE_MIN_ZOOM;
   const hexes = useMemo(() => generateHexesInRadius(radius), [radius]);
   const terrainLookup = useTerrainLookup(hexTerrain);
   const movementRangeLookup = useMovementRangeLookup(movementRange);
@@ -307,6 +313,7 @@ export function useHexMapDisplayState({
         projectionMode: interaction.projectionMode,
         selectedHex,
         showCoordinates,
+        showElevationBadges,
         tacticalMapProjectionLookup,
         terrainLookup,
       });
@@ -322,6 +329,7 @@ export function useHexMapDisplayState({
       isometricTerrainOccluderInfoByHex,
       selectedHex,
       showCoordinates,
+      showElevationBadges,
       tacticalMapProjectionLookup,
       terrainLookup,
     ],

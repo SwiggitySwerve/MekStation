@@ -79,6 +79,18 @@ export function CoverIcon(): React.ReactElement {
   );
 }
 
+export function ElevationIcon(): React.ReactElement {
+  return (
+    <ControlIcon>
+      <path d="M5 17h14" />
+      <path d="M7 13h10" />
+      <path d="M9 9h6" />
+      <path d="M12 5v12" />
+      <path d="M9 8 12 5l3 3" />
+    </ControlIcon>
+  );
+}
+
 export function FiringArcIcon(): React.ReactElement {
   return (
     <ControlIcon>

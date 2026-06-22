@@ -28,6 +28,8 @@ export interface IMapLayerInteractionState {
   ) => void;
   showMovementOverlay: boolean;
   setShowMovementOverlay: React.Dispatch<React.SetStateAction<boolean>>;
+  showElevationBadges: boolean;
+  setShowElevationBadges: React.Dispatch<React.SetStateAction<boolean>>;
   showCoverOverlay: boolean;
   setShowCoverOverlay: React.Dispatch<React.SetStateAction<boolean>>;
   showFiringArcOverlay: boolean;
@@ -71,6 +73,10 @@ export function useMapLayerState(
     React.Dispatch<React.SetStateAction<boolean>>
   >((next) => setLayerVisibility('movement', next), [setLayerVisibility]);
 
+  const setShowElevationBadges = useCallback<
+    React.Dispatch<React.SetStateAction<boolean>>
+  >((next) => setLayerVisibility('elevation', next), [setLayerVisibility]);
+
   const setShowCoverOverlay = useCallback<
     React.Dispatch<React.SetStateAction<boolean>>
   >((next) => setLayerVisibility('cover', next), [setLayerVisibility]);
@@ -103,6 +109,8 @@ export function useMapLayerState(
       setLayerVisibility,
       showMovementOverlay: layerState.movement.visible,
       setShowMovementOverlay,
+      showElevationBadges: layerState.elevation.visible,
+      setShowElevationBadges,
       showCoverOverlay: layerState.cover.visible,
       setShowCoverOverlay,
       showFiringArcOverlay: layerState.firingArcs.visible,
@@ -118,6 +126,7 @@ export function useMapLayerState(
       rotateIsometricRight,
       setLayerVisibility,
       setShowMovementOverlay,
+      setShowElevationBadges,
       setShowCoverOverlay,
       setShowFiringArcOverlay,
       setShowLOSOverlay,

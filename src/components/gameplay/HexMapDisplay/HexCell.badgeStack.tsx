@@ -58,6 +58,7 @@ export function HexCellBadgeStack({
   movementOptions,
   pathIndex,
   projectionMode,
+  showElevationBadge,
   tacticalProjectionBlockedReasons,
   tacticalProjectionCombatStatus,
   tacticalProjectionExplanation,
@@ -85,6 +86,7 @@ export function HexCellBadgeStack({
   >[number][];
   readonly pathIndex?: number;
   readonly projectionMode: MapProjectionMode;
+  readonly showElevationBadge?: boolean;
   readonly tacticalProjectionBlockedReasons?: readonly string[];
   readonly tacticalProjectionCombatStatus?: TacticalMapCombatProjectionStatus;
   readonly tacticalProjectionExplanation?: string;
@@ -102,17 +104,21 @@ export function HexCellBadgeStack({
 }): React.ReactElement {
   return (
     <>
-      <ElevationBadge
-        x={x}
-        y={y}
-        hex={hex}
-        elevation={elevation}
-        label={elevationLabel}
-        projectionMode={projectionMode}
-        projectionIntent={tacticalProjectionIntent}
-        projectionStatus={tacticalProjectionStatus}
-        sourceReferences={tacticalProjectionSourceReferences}
-      />
+      {showElevationBadge &&
+        projectionMode === 'topDown' &&
+        elevation !== 0 && (
+          <ElevationBadge
+            x={x}
+            y={y}
+            hex={hex}
+            elevation={elevation}
+            label={elevationLabel}
+            projectionMode={projectionMode}
+            projectionIntent={tacticalProjectionIntent}
+            projectionStatus={tacticalProjectionStatus}
+            sourceReferences={tacticalProjectionSourceReferences}
+          />
+        )}
       <ProjectionStatusBadge
         x={x}
         y={y}

@@ -22,6 +22,9 @@ export interface HexOverlayState {
   readonly hasOverlay: boolean;
   readonly isLegacyAttackRangeFallback: boolean;
   readonly kind: HexOverlayKind | null;
+  readonly movementNonColorEncoding?:
+    | 'blocked-cross-hatch'
+    | 'run-dashed-border';
   readonly opacity: number;
 }
 
@@ -86,6 +89,7 @@ export function deriveHexOverlayState({
         : HEX_COLORS.movementRangeUnreachable,
       isLegacyAttackRangeFallback,
       kind: movementInfo.reachable ? 'movement-legal' : 'movement-blocked',
+      movementNonColorEncoding: movementNonColorEncodingFor(movementInfo),
       opacity: 0.5,
     });
   }
@@ -148,6 +152,20 @@ function colorForMovementType(type: MovementType): string {
       return HEX_COLORS.movementRangeJump;
     default:
       return HEX_COLORS.movementRange;
+  }
+}
+
+function movementNonColorEncodingFor(
+  movementInfo: IMovementRangeHex,
+): HexOverlayState['movementNonColorEncoding'] {
+  if (!movementInfo.reachable) return 'blocked-cross-hatch';
+  switch (movementInfo.movementType) {
+    case MovementType.Run:
+    case MovementType.Sprint:
+    case MovementType.Evade:
+      return 'run-dashed-border';
+    default:
+      return undefined;
   }
 }
 

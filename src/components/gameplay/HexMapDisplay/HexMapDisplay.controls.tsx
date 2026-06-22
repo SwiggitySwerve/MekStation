@@ -6,6 +6,7 @@ import type { MapInteractionState } from './useMapInteraction';
 
 import {
   CoverIcon,
+  ElevationIcon,
   FiringArcIcon,
   IsometricIcon,
   LosIcon,
@@ -32,12 +33,14 @@ interface MapControlsProps {
 
 type OverlayToggleProjectionChannel =
   | 'movement'
+  | 'terrain-elevation'
   | 'cover'
   | 'firing-arc'
   | 'line-of-sight';
 
 type OverlayToggleRulesSurface =
   | 'movement-cost'
+  | 'terrain-elevation'
   | 'cover-level'
   | 'firing-arc'
   | 'line-of-sight';
@@ -211,6 +214,32 @@ export function MapControls({
           )}
         >
           <MovementIcon />
+        </button>
+        <button
+          type="button"
+          onClick={() => interaction.setShowElevationBadges((v) => !v)}
+          className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-2 text-xs font-medium shadow transition-colors ${
+            interaction.showElevationBadges
+              ? 'bg-sky-600 text-white hover:bg-sky-700'
+              : 'bg-white text-slate-700 hover:bg-gray-100'
+          }`}
+          title="Toggle terrain elevation badges"
+          aria-label={formatLayerToggleLabel(
+            'Toggle terrain elevation badges',
+            interaction.showElevationBadges,
+            'terrain-elevation',
+            'terrain-elevation',
+          )}
+          aria-pressed={interaction.showElevationBadges}
+          data-testid="overlay-toggle-elevation"
+          {...layerToggleProjectionAttributes(
+            interaction,
+            'elevation',
+            'terrain-elevation',
+            'terrain-elevation',
+          )}
+        >
+          <ElevationIcon />
         </button>
         <button
           type="button"

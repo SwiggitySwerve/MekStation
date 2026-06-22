@@ -111,7 +111,7 @@ describe('HexMapDisplay terrain and elevation labels', () => {
     });
   });
 
-  it('keeps top-down terrain and elevation badges exposed across playable zoom levels', () => {
+  it('hides top-down elevation badges below the readability zoom threshold and restores them on zoom-in', () => {
     const roughRise: IHexTerrain = {
       coordinate: { q: 1, r: 0 },
       elevation: 2,
@@ -139,23 +139,83 @@ describe('HexMapDisplay terrain and elevation labels', () => {
       return interaction;
     };
 
-    const assertTopDownLabels = (): void => {
+    const assertTopDownMode = (): void => {
       expect(screen.getByTestId('map-projection-layer')).toHaveAttribute(
         'data-projection-mode',
         'topDown',
       );
-      assertTerrainAndElevationBadges([roughRise]);
+    };
+    const assertTerrainBadgeStillReadable = (): void => {
+      expect(screen.getByTestId('hex-terrain-label-1-0')).toHaveTextContent(
+        'RGH',
+      );
     };
 
-    assertTopDownLabels();
+    assertTopDownMode();
+    assertTerrainAndElevationBadges([roughRise]);
 
-    for (const zoom of [ZOOM_MIN, FOCUS_BUMP_ZOOM, ZOOM_MAX]) {
+    act(() => {
+      requireInteraction().setZoom(ZOOM_MIN);
+    });
+    expect(requireInteraction().zoom).toBe(ZOOM_MIN);
+    assertTopDownMode();
+    assertTerrainBadgeStillReadable();
+    expect(screen.queryByTestId('hex-elevation-label-1-0')).toBeNull();
+
+    for (const zoom of [FOCUS_BUMP_ZOOM, ZOOM_MAX]) {
       act(() => {
         requireInteraction().setZoom(zoom);
       });
       expect(requireInteraction().zoom).toBe(zoom);
-      assertTopDownLabels();
+      assertTopDownMode();
+      assertTerrainAndElevationBadges([roughRise]);
     }
+
+    act(() => {
+      unmount();
+    });
+  });
+
+  it('allows top-down elevation badges to be toggled off while preserving terrain hover elevation context', () => {
+    const roughRise: IHexTerrain = {
+      coordinate: { q: 1, r: 0 },
+      elevation: 2,
+      features: [{ type: TerrainType.Rough, level: 1 }],
+    };
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="terrain-elevation-toggle"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        hexTerrain={[roughRise]}
+      />,
+    );
+
+    const elevationToggle = screen.getByTestId('overlay-toggle-elevation');
+    expect(elevationToggle).toHaveAttribute('aria-pressed', 'true');
+    expect(elevationToggle).toHaveAttribute(
+      'data-map-layer-projection-channel',
+      'terrain-elevation',
+    );
+    expect(elevationToggle).toHaveAccessibleName(
+      expect.stringContaining('Toggle terrain elevation badges; visible'),
+    );
+    expect(screen.getByTestId('hex-elevation-label-1-0')).toHaveTextContent(
+      '+2',
+    );
+
+    fireEvent.click(elevationToggle);
+
+    expect(elevationToggle).toHaveAttribute('aria-pressed', 'false');
+    expect(elevationToggle).toHaveAttribute('data-map-layer-visible', 'false');
+    expect(screen.queryByTestId('hex-elevation-label-1-0')).toBeNull();
+
+    fireEvent.mouseEnter(screen.getByTestId('hex-1-0'));
+    expect(
+      screen.getByTestId('hex-terrain-tooltip-elevation'),
+    ).toHaveTextContent('Elevation: +2');
 
     act(() => {
       unmount();

@@ -36,6 +36,8 @@ export const noopInteraction: MapInteractionState = {
   setLayerVisibility: () => {},
   showMovementOverlay: false,
   setShowMovementOverlay: () => {},
+  showElevationBadges: true,
+  setShowElevationBadges: () => {},
   showCoverOverlay: false,
   setShowCoverOverlay: () => {},
   showFiringArcOverlay: true,

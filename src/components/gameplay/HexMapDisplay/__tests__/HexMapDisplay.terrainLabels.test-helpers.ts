@@ -231,37 +231,44 @@ function assertTerrainAndElevationBadges(
       screen.getByTestId(`hex-terrain-label-${q}-${r}`).querySelector('text'),
     ).toHaveAttribute('font-size', '7');
 
-    expect(
-      screen.getByTestId(`hex-elevation-label-${q}-${r}`),
-    ).toHaveTextContent(elevationLabel);
-    expect(screen.getByTestId(`hex-elevation-label-${q}-${r}`)).toHaveAttribute(
+    const elevationBadgeTestId = `hex-elevation-label-${q}-${r}`;
+    const shouldRenderElevationBadge =
+      projectionMode === 'topDown' && terrain.elevation !== 0;
+
+    if (!shouldRenderElevationBadge) {
+      expect(screen.queryByTestId(elevationBadgeTestId)).toBeNull();
+      continue;
+    }
+
+    const elevationBadge = screen.getByTestId(elevationBadgeTestId);
+    expect(elevationBadge).toHaveTextContent(elevationLabel);
+    expect(elevationBadge).toHaveAttribute(
       'aria-label',
       expect.stringContaining(
         `Elevation ${elevationLabel} (level ${terrain.elevation})`,
       ),
     );
-    expect(screen.getByTestId(`hex-elevation-label-${q}-${r}`)).toHaveAttribute(
+    expect(elevationBadge).toHaveAttribute(
       'data-elevation-value',
       `${terrain.elevation}`,
     );
-    expect(screen.getByTestId(`hex-elevation-label-${q}-${r}`)).toHaveAttribute(
+    expect(elevationBadge).toHaveAttribute(
       'data-elevation-sign',
       elevationSign,
     );
-    expect(screen.getByTestId(`hex-elevation-label-${q}-${r}`)).toHaveAttribute(
+    expect(elevationBadge).toHaveAttribute(
       'data-projection-mode',
       projectionMode,
     );
-    assertTerrainElevationProjectionMetadata(
-      screen.getByTestId(`hex-elevation-label-${q}-${r}`),
-      terrain,
+    assertTerrainElevationProjectionMetadata(elevationBadge, terrain);
+    expect(elevationBadge.querySelector('rect')).toHaveAttribute(
+      'height',
+      '14',
     );
-    expect(
-      screen.getByTestId(`hex-elevation-label-${q}-${r}`).querySelector('rect'),
-    ).toHaveAttribute('height', '14');
-    expect(
-      screen.getByTestId(`hex-elevation-label-${q}-${r}`).querySelector('text'),
-    ).toHaveAttribute('font-size', '10');
+    expect(elevationBadge.querySelector('text')).toHaveAttribute(
+      'font-size',
+      '10',
+    );
   }
 }
 

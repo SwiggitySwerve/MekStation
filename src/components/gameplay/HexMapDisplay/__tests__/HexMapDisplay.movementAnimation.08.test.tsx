@@ -334,4 +334,85 @@ describe('HexMapDisplay tactical visual layers', () => {
       unmount();
     });
   });
+
+  it('renders blocked and run movement states with non-color encodings', () => {
+    const blockedReason = 'Destination occupied by hostile unit';
+
+    const { unmount } = render(
+      <HexMapDisplay
+        mapId="movement-non-color-encodings"
+        radius={1}
+        tokens={[]}
+        selectedHex={null}
+        movementRange={[
+          {
+            hex: { q: -1, r: 0 },
+            mpCost: 1,
+            reachable: true,
+            movementType: MovementType.Walk,
+          },
+          {
+            hex: { q: 0, r: 1 },
+            mpCost: 4,
+            reachable: true,
+            movementType: MovementType.Run,
+          },
+          {
+            hex: { q: 1, r: 0 },
+            mpCost: 5,
+            reachable: false,
+            movementType: MovementType.Run,
+            blockedReason,
+            movementInvalidReason: 'DestinationOccupied',
+            movementInvalidDetails: blockedReason,
+          },
+        ]}
+      />,
+    );
+
+    const walkOverlay = screen.getByTestId('hex-overlay--1-0');
+    const runOverlay = screen.getByTestId('hex-overlay-0-1');
+    const blockedOverlay = screen.getByTestId('hex-overlay-1-0');
+
+    expect(walkOverlay).toHaveAttribute(
+      'data-hex-overlay-kind',
+      'movement-legal',
+    );
+    expect(walkOverlay).not.toHaveAttribute('data-movement-non-color-encoding');
+    expect(screen.queryByTestId('run-range-outline--1-0')).toBeNull();
+
+    expect(runOverlay).toHaveAttribute(
+      'data-hex-overlay-kind',
+      'movement-legal',
+    );
+    expect(runOverlay).toHaveAttribute(
+      'data-movement-non-color-encoding',
+      'run-dashed-border',
+    );
+    expect(screen.getByTestId('run-range-outline-0-1')).toHaveAttribute(
+      'stroke-dasharray',
+      '5 3',
+    );
+
+    expect(blockedOverlay).toHaveAttribute(
+      'data-hex-overlay-kind',
+      'movement-blocked',
+    );
+    expect(blockedOverlay).toHaveAttribute(
+      'data-movement-non-color-encoding',
+      'blocked-cross-hatch',
+    );
+    expect(screen.getByTestId('blocked-movement-pattern-1-0')).toHaveAttribute(
+      'fill',
+      'url(#pattern-blocked-movement)',
+    );
+    expect(screen.getByTestId('blocked-movement-glyph-1-0')).toHaveTextContent(
+      '!',
+    );
+    expect(screen.queryByTestId('jump-pattern-1-0')).toBeNull();
+
+    act(() => {
+      unmount();
+    });
+  });
 });

@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import {
   TerrainType,
   IHexTerrain,
+  IMovementRangeHex,
   Facing,
   GameSide,
   IUnitToken,
@@ -234,6 +235,98 @@ const overlayToken: IUnitToken = {
   unitType: TokenUnitType.Mech,
 };
 
+const badgeDenseTerrain: IHexTerrain[] = [
+  {
+    coordinate: { q: 0, r: 0 },
+    elevation: 0,
+    features: [{ type: TerrainType.Clear, level: 0 }],
+  },
+  {
+    coordinate: { q: 1, r: 0 },
+    elevation: 4,
+    features: [{ type: TerrainType.Building, level: 2 }],
+  },
+  {
+    coordinate: { q: 0, r: 1 },
+    elevation: -1,
+    features: [{ type: TerrainType.Water, level: 1 }],
+  },
+  {
+    coordinate: { q: -1, r: 1 },
+    elevation: -2,
+    features: [{ type: TerrainType.Water, level: 3 }],
+  },
+  {
+    coordinate: { q: 1, r: -1 },
+    elevation: 2,
+    features: [{ type: TerrainType.Rough, level: 1 }],
+  },
+  {
+    coordinate: { q: 2, r: -1 },
+    elevation: 3,
+    features: [{ type: TerrainType.HeavyWoods, level: 2 }],
+  },
+  {
+    coordinate: { q: -1, r: 0 },
+    elevation: 1,
+    features: [{ type: TerrainType.Rubble, level: 1 }],
+  },
+  {
+    coordinate: { q: 0, r: -1 },
+    elevation: -1,
+    features: [{ type: TerrainType.Swamp, level: 1 }],
+  },
+];
+
+const badgeDenseToken: IUnitToken = {
+  ...overlayToken,
+  unitId: 'shadow-hawk-badge-density',
+  name: 'Shadow Hawk SHD-2H',
+  designation: 'SHD',
+  position: { q: 1, r: 0 },
+  facing: Facing.Southwest,
+  isSelected: false,
+};
+
+const badgeDenseMovementRange: readonly IMovementRangeHex[] = [
+  {
+    hex: { q: 1, r: 0 },
+    mpCost: 3,
+    terrainCost: 0,
+    elevationDelta: 1,
+    elevationCost: 1,
+    heatGenerated: 0,
+    movementMode: 'biped',
+    reachable: true,
+    movementType: MovementType.Walk,
+  },
+  {
+    hex: { q: 2, r: -1 },
+    mpCost: 5,
+    terrainCost: 2,
+    elevationDelta: 1,
+    elevationCost: 1,
+    heatGenerated: 2,
+    movementMode: 'biped',
+    reachable: true,
+    movementType: MovementType.Run,
+  },
+  {
+    hex: { q: -1, r: 1 },
+    mpCost: 6,
+    terrainCost: 0,
+    elevationDelta: -2,
+    elevationCost: 0,
+    heatGenerated: 3,
+    movementMode: 'jump',
+    reachable: false,
+    movementType: MovementType.Jump,
+    blockedReason: 'Water depth exceeds safe landing profile',
+    movementInvalidReason: 'TerrainBlocked',
+    movementInvalidDetails: 'Water depth exceeds safe landing profile',
+  },
+];
+
 export const WithOverlays: Story = {
   args: {
     radius: 3,
@@ -252,6 +345,25 @@ export const WithOverlays: Story = {
   },
 };
 
+export const BadgeDenseElevationBoard: Story = {
+  args: {
+    radius: 3,
+    tokens: [badgeDenseToken],
+    selectedHex: { q: 0, r: 0 },
+    hexTerrain: badgeDenseTerrain,
+    movementRange: badgeDenseMovementRange,
+    showCoordinates: true,
+    mpLegend: {
+      active: 'run',
+      movementMode: 'biped',
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 3,
+      jumpAvailable: true,
+    },
+  },
+};
+
 const movementOverlayToken: IUnitToken = {
   ...overlayToken,
   unitId: 'griffin-move',
@@ -260,6 +372,84 @@ const movementOverlayToken: IUnitToken = {
   position: { q: -1, r: 0 },
   facing: Facing.Northeast,
 };
+
+const movementEncodingTerrain: IHexTerrain[] = [
+  {
+    coordinate: { q: -1, r: 0 },
+    elevation: 0,
+    features: [{ type: TerrainType.Clear, level: 0 }],
+  },
+  {
+    coordinate: { q: 0, r: 0 },
+    elevation: 0,
+    features: [{ type: TerrainType.Clear, level: 0 }],
+  },
+  {
+    coordinate: { q: 1, r: 0 },
+    elevation: 1,
+    features: [{ type: TerrainType.Rough, level: 1 }],
+  },
+  {
+    coordinate: { q: 2, r: 0 },
+    elevation: 2,
+    features: [{ type: TerrainType.Building, level: 1 }],
+  },
+  {
+    coordinate: { q: 0, r: 1 },
+    elevation: -1,
+    features: [{ type: TerrainType.Water, level: 2 }],
+  },
+];
+
+const movementEncodingRange: readonly IMovementRangeHex[] = [
+  {
+    hex: { q: 0, r: 0 },
+    mpCost: 1,
+    terrainCost: 0,
+    elevationDelta: 0,
+    elevationCost: 0,
+    heatGenerated: 0,
+    movementMode: 'biped',
+    reachable: true,
+    movementType: MovementType.Walk,
+  },
+  {
+    hex: { q: 1, r: 0 },
+    mpCost: 4,
+    terrainCost: 1,
+    elevationDelta: 1,
+    elevationCost: 1,
+    heatGenerated: 2,
+    movementMode: 'biped',
+    reachable: true,
+    movementType: MovementType.Run,
+  },
+  {
+    hex: { q: 2, r: 0 },
+    mpCost: 7,
+    terrainCost: 2,
+    elevationDelta: 2,
+    elevationCost: 2,
+    heatGenerated: 0,
+    movementMode: 'biped',
+    reachable: false,
+    movementType: MovementType.Run,
+    blockedReason: 'Destination exceeds remaining MP',
+    movementInvalidReason: 'InsufficientMP',
+    movementInvalidDetails: 'Destination exceeds remaining MP',
+  },
+  {
+    hex: { q: 0, r: 1 },
+    mpCost: 3,
+    terrainCost: 0,
+    elevationDelta: -1,
+    elevationCost: 0,
+    heatGenerated: 3,
+    movementMode: 'jump',
+    reachable: true,
+    movementType: MovementType.Jump,
+  },
+];
 
 const attackOverlayTokens: IUnitToken[] = [
   {
@@ -344,6 +534,25 @@ export const MovementAndPathOverlay: Story = {
     hoverMpCost: 4,
     mpLegend: {
       active: 'run',
+      jumpAvailable: true,
+    },
+  },
+};
+
+export const MovementEncodingCombinations: Story = {
+  args: {
+    radius: 3,
+    tokens: [movementOverlayToken],
+    selectedHex: { q: -1, r: 0 },
+    hexTerrain: movementEncodingTerrain,
+    movementRange: movementEncodingRange,
+    showCoordinates: true,
+    mpLegend: {
+      active: 'run',
+      movementMode: 'biped',
+      walkMP: 4,
+      runMP: 6,
+      jumpMP: 3,
       jumpAvailable: true,
     },
   },
