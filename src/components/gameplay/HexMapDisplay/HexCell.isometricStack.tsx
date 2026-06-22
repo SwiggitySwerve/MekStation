@@ -3,13 +3,13 @@ import React from 'react';
 import type { IHexCoordinate, ITerrainFeature } from '@/types/gameplay';
 
 import { formatElevationLabel } from './HexCell.labels';
+import { ISOMETRIC_ELEVATION_UNIT } from './HexMapDisplay.isometricGeometry';
 import {
   getIsometricTerrainEffectiveHeight,
   type IsometricTerrainOccluderInfo,
 } from './projection';
 import { hexPath } from './renderHelpers';
 
-const ISOMETRIC_ELEVATION_LAYER_OFFSET = 6;
 const MAX_RENDERED_ELEVATION_LAYERS = 8;
 
 export interface IsometricElevationStackMetrics {
@@ -128,7 +128,7 @@ export function IsometricElevationStack({
       <title>{occluderTitle ?? stackTitle}</title>
       {Array.from({ length: renderedLayerCount }, (_, i) => {
         const layer = renderedLayerCount - i;
-        const offset = layer * ISOMETRIC_ELEVATION_LAYER_OFFSET;
+        const offset = layer * ISOMETRIC_ELEVATION_UNIT;
         const layerLabel = formatElevationLabel(layer);
         const layerTitle = `Elevation layer ${layerLabel} of hex ${hex.q},${hex.r}`;
         return (
@@ -184,7 +184,7 @@ export function IsometricElevationStack({
           <title>{capTitle}</title>
           <rect
             x={x - 15}
-            y={y + renderedLayerCount * ISOMETRIC_ELEVATION_LAYER_OFFSET - 20}
+            y={y + renderedLayerCount * ISOMETRIC_ELEVATION_UNIT - 20}
             width={30}
             height={10}
             rx={2}
@@ -196,7 +196,7 @@ export function IsometricElevationStack({
           />
           <text
             x={x}
-            y={y + renderedLayerCount * ISOMETRIC_ELEVATION_LAYER_OFFSET - 12}
+            y={y + renderedLayerCount * ISOMETRIC_ELEVATION_UNIT - 12}
             textAnchor="middle"
             fontSize={7}
             fontWeight="bold"

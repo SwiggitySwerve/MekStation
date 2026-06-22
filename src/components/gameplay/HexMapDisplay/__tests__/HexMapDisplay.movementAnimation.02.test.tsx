@@ -217,6 +217,17 @@ describe('HexMapDisplay tactical visual layers', () => {
       'data-isometric-rotation-step',
       '1',
     );
+    for (const expectedStep of ['2', '3', '4', '5', '0']) {
+      fireEvent.click(rotateRight);
+      expect(projectionLayer).toHaveAttribute(
+        'data-isometric-rotation-step',
+        expectedStep,
+      );
+      expect(rotationHeading).toHaveAttribute(
+        'data-isometric-rotation-step',
+        expectedStep,
+      );
+    }
 
     act(() => {
       unmount();

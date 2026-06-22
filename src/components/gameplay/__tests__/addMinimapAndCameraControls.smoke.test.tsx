@@ -35,7 +35,10 @@ import {
   HotkeyHelpOverlay,
   HotkeyHintBadge,
 } from '@/components/gameplay/help/HotkeyHelpOverlay';
-import { useMapInteraction } from '@/components/gameplay/HexMapDisplay/useMapInteraction';
+import {
+  useMapInteraction,
+  type MapInteractionState,
+} from '@/components/gameplay/HexMapDisplay/useMapInteraction';
 import { Minimap } from '@/components/gameplay/minimap/Minimap';
 import {
   minimapPixelToWorld,
@@ -205,6 +208,53 @@ describe('centerOn (task 10.2)', () => {
       );
     });
     expect(result.current.zoom).toBeCloseTo(0.8, 5);
+  });
+
+  it('snaps camera focus when reduced motion is requested', () => {
+    const matchMediaMock = window.matchMedia as jest.MockedFunction<
+      typeof window.matchMedia
+    >;
+    const previousMatchMedia = matchMediaMock.getMockImplementation();
+    matchMediaMock.mockImplementation((query: string) => {
+      return {
+        matches: query === '(prefers-reduced-motion: reduce)',
+        media: query,
+        onchange: null,
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        addListener: jest.fn(),
+        removeListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      } as MediaQueryList;
+    });
+    const interaction = {
+      zoom: 1,
+      pan: { x: 0, y: 0 },
+      panBy: jest.fn(),
+      zoomTo: jest.fn(),
+      centerOn: jest.fn(),
+    } as unknown as MapInteractionState;
+
+    let unmount: (() => void) | undefined;
+
+    try {
+      const hook = renderHook(() => useCameraControls(interaction));
+      unmount = hook.unmount;
+
+      act(() => {
+        hook.result.current.centerOn({ q: 1, r: -1 });
+      });
+
+      expect(interaction.centerOn).toHaveBeenCalledWith(
+        { q: 1, r: -1 },
+        { animate: false },
+      );
+    } finally {
+      unmount?.();
+      if (previousMatchMedia) {
+        matchMediaMock.mockImplementation(previousMatchMedia);
+      }
+    }
   });
 });
 

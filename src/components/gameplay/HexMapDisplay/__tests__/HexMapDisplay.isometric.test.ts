@@ -8,6 +8,8 @@ import { Facing, GameSide, TerrainType, TokenUnitType } from '@/types/gameplay';
 
 import {
   buildIsometricSceneItems,
+  getCameraFacingExtrusionFaces,
+  ISOMETRIC_ELEVATION_UNIT,
   type IsometricSceneItem,
 } from '../HexMapDisplay.isometric';
 import {
@@ -69,6 +71,12 @@ function isTokenItem(
   item: IsometricSceneItem,
 ): item is Extract<IsometricSceneItem, { readonly kind: 'token' }> {
   return item.kind === 'token';
+}
+
+function isExtrusionFaceItem(
+  item: IsometricSceneItem,
+): item is Extract<IsometricSceneItem, { readonly kind: 'hexExtrusionFace' }> {
+  return item.kind === 'hexExtrusionFace';
 }
 
 /**
@@ -225,6 +233,139 @@ describe('HexMapDisplay isometric projection helpers', () => {
     expect(fullCycle.map((item) => item.depthKey)).toEqual(
       unrotated.map((item) => item.depthKey),
     );
+  });
+
+  it('selects the two camera-facing extrusion faces for every rotation heading', () => {
+    expect(
+      ([0, 1, 2, 3, 4, 5] as const).map((step) =>
+        getCameraFacingExtrusionFaces(step)
+          .map((face) => face.id)
+          .join('|'),
+      ),
+    ).toEqual([
+      'southeast|southwest',
+      'southwest|west',
+      'west|northwest',
+      'northwest|northeast',
+      'northeast|east',
+      'east|southeast',
+    ]);
+  });
+
+  it('emits elevated hex extrusion faces immediately below the owner top face', () => {
+    const terrainLookup = makeTerrainLookup([
+      makeTerrain(0, 0, 2, TerrainType.LightWoods),
+      makeTerrain(1, 0, 0, TerrainType.Clear),
+    ]);
+    const items = buildIsometricSceneItems({
+      isIsometricView: true,
+      renderedHexes: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+      tokens: [],
+      terrainLookup,
+      rotationStep: 0,
+      foregroundUnitIds: new Set(),
+    });
+    const faces = items.filter(isExtrusionFaceItem);
+    const ownerHex = items.find(
+      (item) => isHexItem(item) && item.hex.q === 0 && item.hex.r === 0,
+    );
+    const flatHex = items.find(
+      (item) => isHexItem(item) && item.hex.q === 1 && item.hex.r === 0,
+    );
+
+    expect(faces).toHaveLength(2);
+    expect(faces.map((face) => face.face.id)).toEqual([
+      'southeast',
+      'southwest',
+    ]);
+    expect(faces.map((face) => face.ownerHex)).toEqual([
+      { q: 0, r: 0 },
+      { q: 0, r: 0 },
+    ]);
+    expect(faces.map((face) => face.elevationHeight)).toEqual(
+      Array(2).fill(2 * ISOMETRIC_ELEVATION_UNIT),
+    );
+    expect(faces.every((face) => /^#[0-9a-f]{6}$/i.test(face.fill))).toBe(true);
+    expect(
+      faces.every((face) => face.depthKey < (ownerHex?.depthKey ?? 0)),
+    ).toBe(true);
+    expect(
+      faces.every((face) => face.depthKey > (ownerHex?.depthKey ?? 0) - 10),
+    ).toBe(true);
+    expect(items.findIndex((item) => item === flatHex)).toBeGreaterThan(-1);
+    expect(
+      Math.max(
+        ...faces.map((face) => items.findIndex((item) => item === face)),
+      ),
+    ).toBeLessThan(items.findIndex((item) => item === ownerHex));
+  });
+
+  it('keeps owner top face and token depth ordering stable with extrusion faces', () => {
+    const terrainLookup = makeTerrainLookup([
+      makeTerrain(0, 0, 3, TerrainType.Building),
+    ]);
+    const token = makeToken({ unitId: 'standing-on-wall' });
+    const items = buildIsometricSceneItems({
+      isIsometricView: true,
+      renderedHexes: [{ q: 0, r: 0 }],
+      tokens: [token],
+      terrainLookup,
+      rotationStep: 0,
+      foregroundUnitIds: new Set(),
+    });
+    const faces = items.filter(isExtrusionFaceItem);
+    const ownerHex = items.find(isHexItem);
+    const tokenItem = items.find(isTokenItem);
+
+    expect(faces).toHaveLength(2);
+    expect(ownerHex?.depthKey).toBe(30);
+    expect(tokenItem?.depthKey).toBe(35);
+    expect(
+      Math.max(
+        ...faces.map((face) => items.findIndex((item) => item === face)),
+      ),
+    ).toBeLessThan(items.findIndex((item) => item === ownerHex));
+    expect(items.findIndex((item) => item === ownerHex)).toBeLessThan(
+      items.findIndex((item) => item === tokenItem),
+    );
+  });
+
+  it('does not change occluder metadata when visual extrusion faces are built', () => {
+    const terrainLookup = makeTerrainLookup([
+      makeTerrain(1, 0, 4, TerrainType.Building),
+    ]);
+    const tokens = [
+      makeToken({ unitId: 'occluded', position: { q: 0, r: 0 } }),
+    ];
+    const before = JSON.stringify(
+      deriveIsometricTerrainOcclusionInfo({
+        tokens,
+        terrainLookup,
+        rotationStep: 0,
+      }),
+    );
+
+    buildIsometricSceneItems({
+      isIsometricView: true,
+      renderedHexes: [{ q: 1, r: 0 }],
+      tokens,
+      terrainLookup,
+      rotationStep: 0,
+      foregroundUnitIds: new Set(),
+    });
+
+    expect(
+      JSON.stringify(
+        deriveIsometricTerrainOcclusionInfo({
+          tokens,
+          terrainLookup,
+          rotationStep: 0,
+        }),
+      ),
+    ).toBe(before);
   });
 
   it('boosts highlighted units above tall terrain in the isometric scene', () => {
