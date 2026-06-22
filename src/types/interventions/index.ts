@@ -57,6 +57,22 @@ export type {
 } from './GmInterventionAuthorityTypes';
 
 export type {
+  ActionLedgerActorRole,
+  ActionLedgerInterventionRecordInput,
+  ActionLedgerProjection,
+  ActionLedgerProjectionVisibility,
+  ActionLedgerRecordKind,
+  ActionLedgerRecordStatus,
+  GmActionLedgerRecordFromIntervention,
+  IActionLedgerAppendInput,
+  IActionLedgerNormalActionInput,
+  IActionLedgerRecord,
+  IGmVisibleActionLedgerRecord,
+  IPlayerVisibleActionLedgerRecord,
+  NormalActionLedgerRecord,
+} from './ActionLedgerTypes';
+
+export type {
   GmInterventionKind,
   IAppliedInterventionResult,
   IInterventionConflict,

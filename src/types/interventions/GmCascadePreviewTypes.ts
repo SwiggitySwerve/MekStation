@@ -1,3 +1,4 @@
+import type { GmActionLedgerRecordFromIntervention } from './ActionLedgerTypes';
 import type {
   GmInterventionKind,
   IInterventionConflict,
@@ -40,6 +41,7 @@ export interface IGmCascadeApprovalResult<TState = unknown> {
   readonly state: TState;
   readonly appended: boolean;
   readonly record?: IInterventionLedgerRecord;
+  readonly actionLedgerRecord?: GmActionLedgerRecordFromIntervention;
   readonly reason?: string;
 }
 

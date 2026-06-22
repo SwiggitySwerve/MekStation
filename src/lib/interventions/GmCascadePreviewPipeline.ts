@@ -11,6 +11,7 @@ import type {
 
 import { logger } from '@/utils/logger';
 
+import type { ActionLedger } from './ActionLedger';
 import type { InterventionLedger } from './InterventionLedger';
 
 import { previewGmInterventionWithAuthority } from './GmInterventionAuthority';
@@ -36,6 +37,7 @@ export interface IApproveGmCascadePreviewInput<
   TDomainPayload = unknown,
 > {
   readonly ledger: InterventionLedger<TState>;
+  readonly actionLedger?: ActionLedger;
   readonly preview: IGmCascadePreview<TPrivate, TPublic, TDomainPayload>;
   readonly state: TState;
   readonly approvedAt?: string;
@@ -201,11 +203,15 @@ export function approveGmCascadePreview<
     };
   }
 
+  const actionLedgerRecord =
+    input.actionLedger?.appendGmInterventionRecord(record);
+
   return {
     status: 'approved',
     state: applyResult.state,
     appended: true,
     record,
+    actionLedgerRecord,
   };
 }
 
