@@ -68,6 +68,18 @@ function makeState(): IGmCombatInterventionState {
       'atlas-1': makeUnit('atlas-1', GameSide.Player),
       'locust-1': makeUnit('locust-1', GameSide.Opponent),
     },
+    objectives: {
+      '2,2': {
+        id: 'objective-1',
+        hexKey: '2,2',
+        objectiveType: 'capture',
+        owningSide: 'neutral',
+        controlSide: 'neutral',
+        controlRule: 'sole-occupancy',
+        holdTurnsRequired: 2,
+        holdProgress: 0,
+      },
+    },
     turnEvents: [],
   };
 }
@@ -135,10 +147,7 @@ function makeCommand(
     domain: 'combat',
     kind: 'fix',
     actorId: 'gm-1',
-    targetRefs:
-      payload.correction.family === 'turn-order'
-        ? ['game:game-1:turn-order']
-        : [`unit:${payload.correction.unitId}`],
+    targetRefs: targetRefsForCorrection(payload.correction),
     payload,
     causedBy: ['player-event-1'],
     ...overrides,
@@ -193,6 +202,62 @@ function approveCommand(
     state: result.state as IGmCombatInterventionState,
     record: result.record as CombatRecord,
   };
+}
+
+function targetRefsForCorrection(
+  correction: IGmCombatInterventionCommandPayload['correction'],
+): readonly string[] {
+  switch (correction.family) {
+    case 'turn-order':
+      return ['game:game-1:turn-order'];
+    case 'attack-resolution':
+      return targetRefsForAttackResolution(correction);
+    case 'objective-state':
+      return targetRefsForObjectiveState(correction);
+    default:
+      return [`unit:${correction.unitId}`];
+  }
+}
+
+function targetRefsForAttackResolution(
+  correction: Extract<
+    IGmCombatInterventionCommandPayload['correction'],
+    { readonly family: 'attack-resolution' }
+  >,
+): readonly string[] {
+  const refs = [
+    typeof correction.attackId === 'string'
+      ? `attack-resolution:${correction.attackId}`
+      : undefined,
+    typeof correction.attackerId === 'string'
+      ? `unit:${correction.attackerId}`
+      : undefined,
+    typeof correction.targetId === 'string'
+      ? `unit:${correction.targetId}`
+      : undefined,
+  ].filter((ref): ref is string => typeof ref === 'string');
+
+  return refs.length > 0 ? refs : ['game:game-1:attack-resolution'];
+}
+
+function targetRefsForObjectiveState(
+  correction: Extract<
+    IGmCombatInterventionCommandPayload['correction'],
+    { readonly family: 'objective-state' }
+  >,
+): readonly string[] {
+  if (typeof correction.objectiveId === 'string') {
+    return [`objective:${correction.objectiveId}`];
+  }
+
+  const markerHexKey =
+    typeof correction.marker?.hexKey === 'string'
+      ? correction.marker.hexKey
+      : undefined;
+  const hexKey =
+    typeof correction.hexKey === 'string' ? correction.hexKey : markerHexKey;
+
+  return hexKey ? [`objective-hex:${hexKey}`] : ['game:game-1:objectives'];
 }
 
 describe('GM combat intervention implementer', () => {
@@ -380,6 +445,232 @@ describe('GM combat intervention implementer', () => {
     },
   );
 
+  it('previews and applies attack-resolution corrections as GM override state', () => {
+    const result = approveCommand(
+      makeCommand(
+        payload(
+          {
+            family: 'attack-resolution',
+            attackId: 'attack-1',
+            attackerId: 'atlas-1',
+            targetId: 'locust-1',
+            weaponId: 'medium-laser-1',
+            roll: 8,
+            toHitNumber: 7,
+            hit: true,
+            location: 'centerTorso',
+            damage: 5,
+            relatedEventIds: ['attack-declared-1'],
+            supersededEventIds: ['attack-resolved-1'],
+          },
+          'Medium laser hit corrected to CT for 5 damage.',
+        ),
+      ),
+    );
+    const corrected = result.state.attackResolutionCorrections?.['attack-1'];
+    const playerRecord = projectInterventionRecordForPlayer(result.record);
+
+    expect(corrected).toMatchObject({
+      attackerId: 'atlas-1',
+      targetId: 'locust-1',
+      weaponId: 'medium-laser-1',
+      roll: 8,
+      toHitNumber: 7,
+      hit: true,
+      location: 'centerTorso',
+      damage: 5,
+      relatedEventIds: ['attack-declared-1'],
+      supersededEventIds: ['attack-resolved-1'],
+    });
+    expect(playerRecord.publicEffect.summary).toBe(
+      'Medium laser hit corrected to CT for 5 damage.',
+    );
+    expect(JSON.stringify(playerRecord)).not.toContain('Hidden GM');
+    expect(JSON.stringify(playerRecord)).not.toContain('Secret scenario');
+  });
+
+  it('blocks attack-resolution corrections that reference unknown units', () => {
+    const ledger = makeLedger();
+    const state = makeState();
+    const command = makeCommand(
+      payload({
+        family: 'attack-resolution',
+        attackId: 'attack-unknown',
+        attackerId: 'missing-attacker',
+        targetId: 'locust-1',
+        weaponId: 'medium-laser-1',
+        roll: 8,
+        toHitNumber: 7,
+        hit: false,
+      }),
+    );
+
+    const preview = createGmCascadePreview({
+      ledger,
+      command,
+      state,
+      authority: gmAuthority,
+      interventionId: 'gm-int-attack-resolution',
+    });
+
+    expect(preview.status).toBe('blocked');
+    expect(preview.conflicts).toContainEqual(
+      expect.objectContaining({
+        code: 'combat-attack-attacker-not-found',
+      }),
+    );
+  });
+
+  it('blocks malformed attack-resolution corrections before projection', () => {
+    const ledger = makeLedger();
+    const state = makeState();
+    const command = makeCommand(
+      payload({
+        family: 'attack-resolution',
+        attackerId: 'atlas-1',
+        targetId: 'locust-1',
+        weaponId: 'medium-laser-1',
+        roll: 8,
+        toHitNumber: 7,
+        hit: true,
+      } as unknown as IGmCombatInterventionCommandPayload['correction']),
+    );
+
+    const preview = createGmCascadePreview({
+      ledger,
+      command,
+      state,
+      authority: gmAuthority,
+      interventionId: 'gm-int-attack-resolution-malformed',
+    });
+
+    expect(preview.status).toBe('blocked');
+    expect(preview.conflicts).toContainEqual(
+      expect.objectContaining({
+        code: 'combat-attack-resolution-invalid',
+      }),
+    );
+    expect(JSON.stringify(preview)).not.toContain(
+      'attack-resolution:undefined',
+    );
+  });
+
+  it('previews and applies objective marker state corrections', () => {
+    const result = approveCommand(
+      makeCommand(
+        payload(
+          {
+            family: 'objective-state',
+            objectiveId: 'objective-1',
+            patch: {
+              controlSide: 'player',
+              holdProgress: 1,
+            },
+          },
+          'Objective 1 control corrected to the player.',
+        ),
+      ),
+    );
+    const objective = result.state.objectives?.['2,2'];
+    const playerRecord = projectInterventionRecordForPlayer(result.record);
+
+    expect(objective).toMatchObject({
+      id: 'objective-1',
+      controlSide: 'player',
+      holdProgress: 1,
+    });
+    expect(playerRecord.publicEffect.summary).toBe(
+      'Objective 1 control corrected to the player.',
+    );
+    expect(JSON.stringify(playerRecord)).not.toContain('Hidden GM');
+  });
+
+  it('adds a missing objective marker from a complete GM replacement marker', () => {
+    const result = approveCommand(
+      makeCommand(
+        payload({
+          family: 'objective-state',
+          hexKey: '5,5',
+          marker: {
+            id: 'objective-2',
+            hexKey: '5,5',
+            objectiveType: 'defend',
+            owningSide: 'player',
+            controlSide: 'player',
+            controlRule: 'sole-occupancy',
+            holdTurnsRequired: 1,
+            holdProgress: 1,
+          },
+        }),
+      ),
+    );
+
+    expect(result.state.objectives?.['5,5']).toMatchObject({
+      id: 'objective-2',
+      controlSide: 'player',
+      holdProgress: 1,
+    });
+    expect(result.record.publicEffect.changedStateRefs).toContain(
+      'objective:objective-2',
+    );
+  });
+
+  it('blocks incomplete objective replacement markers', () => {
+    const ledger = makeLedger();
+    const state = makeState();
+    const command = makeCommand(
+      payload({
+        family: 'objective-state',
+        marker: {},
+      } as unknown as IGmCombatInterventionCommandPayload['correction']),
+    );
+
+    const preview = createGmCascadePreview({
+      ledger,
+      command,
+      state,
+      authority: gmAuthority,
+      interventionId: 'gm-int-objective-state-malformed',
+    });
+
+    expect(preview.status).toBe('blocked');
+    expect(preview.conflicts).toContainEqual(
+      expect.objectContaining({
+        code: 'combat-objective-marker-not-found',
+      }),
+    );
+    expect(JSON.stringify(preview)).not.toContain('objective:undefined');
+    expect(JSON.stringify(preview)).not.toContain('objective-hex:undefined');
+  });
+
+  it('blocks objective corrections that cannot identify or create a marker', () => {
+    const ledger = makeLedger();
+    const state = makeState();
+    const command = makeCommand(
+      payload({
+        family: 'objective-state',
+        patch: {
+          holdProgress: 2,
+        },
+      }),
+    );
+
+    const preview = createGmCascadePreview({
+      ledger,
+      command,
+      state,
+      authority: gmAuthority,
+      interventionId: 'gm-int-objective-state',
+    });
+
+    expect(preview.status).toBe('blocked');
+    expect(preview.conflicts).toContainEqual(
+      expect.objectContaining({
+        code: 'combat-objective-marker-not-found',
+      }),
+    );
+  });
+
   it.each([
     payload({
       family: 'reposition-facing',
@@ -410,6 +701,26 @@ describe('GM combat intervention implementer', () => {
       family: 'lifecycle',
       unitId: 'atlas-1',
       lifecycle: 'rescued',
+    }),
+    payload({
+      family: 'attack-resolution',
+      attackId: 'attack-1',
+      attackerId: 'atlas-1',
+      targetId: 'locust-1',
+      weaponId: 'medium-laser-1',
+      roll: 8,
+      toHitNumber: 7,
+      hit: true,
+      location: 'centerTorso',
+      damage: 5,
+    }),
+    payload({
+      family: 'objective-state',
+      objectiveId: 'objective-1',
+      patch: {
+        controlSide: 'player',
+        holdProgress: 1,
+      },
     }),
   ])('replays projected effects for %s corrections', (commandPayload) => {
     const state = makeState();

@@ -19,6 +19,11 @@ type TurnOrderEffect = Extract<
   { readonly family: 'turn-order' }
 >;
 
+type ObjectiveStateEffect = Extract<
+  IGmCombatProjectedEffect,
+  { readonly family: 'objective-state' }
+>;
+
 export function projectCombatEffectsForRecord(
   record: CombatRecord,
 ): readonly IGmCombatProjectedEffect[] {
@@ -76,6 +81,16 @@ function applyGmCombatProjectedEffect(
         }),
         effect,
       );
+    case 'attack-resolution':
+      return appendGmCombatEvent(
+        applyAttackResolutionEffect(state, effect),
+        effect,
+      );
+    case 'objective-state':
+      return appendGmCombatEvent(
+        applyObjectiveStateEffect(state, effect),
+        effect,
+      );
   }
 }
 
@@ -101,6 +116,38 @@ function applyTurnOrderEffect(
     ...(effect.after.activeUnitId !== undefined
       ? { activeUnitId: effect.after.activeUnitId }
       : {}),
+  };
+}
+
+function applyAttackResolutionEffect(
+  state: IGmCombatInterventionState,
+  effect: Extract<
+    IGmCombatProjectedEffect,
+    { readonly family: 'attack-resolution' }
+  >,
+): IGmCombatInterventionState {
+  return {
+    ...state,
+    attackResolutionCorrections: {
+      ...(state.attackResolutionCorrections ?? {}),
+      [effect.attackId]: effect.after,
+    },
+  };
+}
+
+function applyObjectiveStateEffect(
+  state: IGmCombatInterventionState,
+  effect: ObjectiveStateEffect,
+): IGmCombatInterventionState {
+  const objectives = { ...(state.objectives ?? {}) };
+  if (effect.before?.hexKey && effect.before.hexKey !== effect.after.hexKey) {
+    delete objectives[effect.before.hexKey];
+  }
+  objectives[effect.after.hexKey] = effect.after;
+
+  return {
+    ...state,
+    objectives,
   };
 }
 

@@ -1,14 +1,21 @@
 import type {
+  IGmCombatAttackResolutionCorrection,
   IGmCombatDamageCriticalCorrection,
   IGmCombatHeatAmmoCorrection,
   IGmCombatInterventionCommandPayload,
   IGmCombatInterventionState,
   IGmCombatInterventionUnitState,
   IGmCombatLifecycleCorrection,
+  IGmCombatObjectiveStateCorrection,
   IGmCombatProjectedEffect,
   IGmCombatRepositionFacingCorrection,
   IGmCombatTurnOrderCorrection,
 } from '@/types/interventions';
+
+import {
+  isObjectiveMarker,
+  type IObjectiveMarker,
+} from '@/types/scenario/ScenarioInterfaces';
 
 type LifecycleEffect = Extract<
   IGmCombatProjectedEffect,
@@ -38,6 +45,18 @@ export function buildGmCombatProjectedEffect(
 
   if (correction.family === 'turn-order') {
     return buildTurnOrderEffect(correction, state, payload.publicSummary);
+  }
+
+  if (correction.family === 'attack-resolution') {
+    return buildAttackResolutionEffect(
+      correction,
+      state,
+      payload.publicSummary,
+    );
+  }
+
+  if (correction.family === 'objective-state') {
+    return buildObjectiveStateEffect(correction, state, payload.publicSummary);
   }
 
   const unit = state.units[correction.unitId];
@@ -300,6 +319,119 @@ function buildLifecycleEffect(
   };
 }
 
+function buildAttackResolutionEffect(
+  correction: IGmCombatAttackResolutionCorrection,
+  state: IGmCombatInterventionState,
+  summaryOverride?: string,
+): IGmCombatProjectedEffectResult | IGmCombatProjectedEffectFailure {
+  const invalidReason = validateAttackResolutionCorrection(correction);
+  if (invalidReason) {
+    return {
+      code: 'combat-attack-resolution-invalid',
+      reason: invalidReason,
+      affectedRefs: [gameFieldRef(state.gameId, 'attack-resolution')],
+    };
+  }
+
+  if (!state.units[correction.attackerId]) {
+    return {
+      code: 'combat-attack-attacker-not-found',
+      reason: `Attack-resolution correction references unknown attacker "${correction.attackerId}".`,
+      affectedRefs: [unitRef(correction.attackerId)],
+    };
+  }
+
+  if (!state.units[correction.targetId]) {
+    return {
+      code: 'combat-attack-target-not-found',
+      reason: `Attack-resolution correction references unknown target "${correction.targetId}".`,
+      affectedRefs: [unitRef(correction.targetId)],
+    };
+  }
+
+  const before = state.attackResolutionCorrections?.[correction.attackId];
+  const after = {
+    attackId: correction.attackId,
+    attackerId: correction.attackerId,
+    targetId: correction.targetId,
+    weaponId: correction.weaponId,
+    roll: correction.roll,
+    toHitNumber: correction.toHitNumber,
+    hit: correction.hit,
+    location: correction.location,
+    damage: correction.damage,
+    heat: correction.heat,
+    attackerArc: correction.attackerArc,
+    ammoBinId: correction.ammoBinId,
+    rolls: correction.rolls,
+    relatedEventIds: correction.relatedEventIds,
+    supersededEventIds: correction.supersededEventIds,
+  };
+  const changedStateRefs = [
+    gameRef(state.gameId),
+    attackResolutionRef(correction.attackId),
+    unitRef(correction.attackerId),
+    unitRef(correction.targetId),
+  ];
+  const summary =
+    summaryOverride ??
+    `Attack ${correction.attackId} result corrected by the GM.`;
+
+  return {
+    summary,
+    changedStateRefs,
+    effect: {
+      type: 'gm.combat.attack_resolution_corrected',
+      family: 'attack-resolution',
+      attackId: correction.attackId,
+      before,
+      after,
+      changedStateRefs,
+      publicSummary: summary,
+    },
+  };
+}
+
+function buildObjectiveStateEffect(
+  correction: IGmCombatObjectiveStateCorrection,
+  state: IGmCombatInterventionState,
+  summaryOverride?: string,
+): IGmCombatProjectedEffectResult | IGmCombatProjectedEffectFailure {
+  const before = findObjectiveMarker(state, correction);
+  const after = buildObjectiveMarkerAfter(correction, before);
+
+  if (!after) {
+    return {
+      code: 'combat-objective-marker-not-found',
+      reason:
+        'Objective correction requires an existing marker by objective id or hex key, or a complete replacement marker.',
+      affectedRefs: [gameFieldRef(state.gameId, 'objectives')],
+    };
+  }
+
+  const changedStateRefs = [
+    gameRef(state.gameId),
+    objectiveRef(after.id),
+    objectiveHexRef(after.hexKey),
+  ];
+  const summary =
+    summaryOverride ?? `Objective ${after.id} state corrected by the GM.`;
+
+  return {
+    summary,
+    changedStateRefs,
+    effect: {
+      type: 'gm.combat.objective_state_corrected',
+      family: 'objective-state',
+      objectiveId: after.id,
+      before,
+      after,
+      changedStateRefs,
+      publicSummary: summary,
+    },
+  };
+}
+
 function lifecyclePatch(
   correction: IGmCombatLifecycleCorrection,
 ): LifecyclePatch {
@@ -377,4 +509,95 @@ function gameRef(gameId: string): string {
 
 function gameFieldRef(gameId: string, field: string): string {
   return `game:${gameId}:${field}`;
+}
+
+function attackResolutionRef(attackId: string): string {
+  return `attack-resolution:${attackId}`;
+}
+
+function objectiveRef(objectiveId: string): string {
+  return `objective:${objectiveId}`;
+}
+
+function objectiveHexRef(hexKey: string): string {
+  return `objective-hex:${hexKey}`;
+}
+
+function findObjectiveMarker(
+  state: IGmCombatInterventionState,
+  correction: IGmCombatObjectiveStateCorrection,
+): IObjectiveMarker | undefined {
+  const objectives = state.objectives ?? {};
+
+  if (correction.hexKey && objectives[correction.hexKey]) {
+    return objectives[correction.hexKey];
+  }
+
+  if (correction.objectiveId) {
+    return Object.values(objectives).find(
+      (marker) => marker.id === correction.objectiveId,
+    );
+  }
+
+  if (correction.marker && objectives[correction.marker.hexKey]) {
+    return objectives[correction.marker.hexKey];
+  }
+
+  return undefined;
+}
+
+function buildObjectiveMarkerAfter(
+  correction: IGmCombatObjectiveStateCorrection,
+  before: IObjectiveMarker | undefined,
+): IObjectiveMarker | undefined {
+  if (correction.marker) {
+    const marker = {
+      ...correction.marker,
+      ...definedObjectPatch(correction.patch ?? {}),
+    };
+    return isObjectiveMarker(marker) ? marker : undefined;
+  }
+
+  if (!before || !correction.patch) return undefined;
+
+  const marker = {
+    ...before,
+    ...definedObjectPatch(correction.patch),
+  };
+  return isObjectiveMarker(marker) ? marker : undefined;
+}
+
+function definedObjectPatch<T extends Record<string, unknown>>(
+  value: T,
+): Partial<T> {
+  const entries = Object.entries(value).filter(
+    ([, entryValue]) => entryValue !== undefined,
+  );
+  return Object.fromEntries(entries) as Partial<T>;
+}
+
+function validateAttackResolutionCorrection(
+  correction: IGmCombatAttackResolutionCorrection,
+): string | undefined {
+  if (
+    !isNonEmptyString(correction.attackId) ||
+    !isNonEmptyString(correction.attackerId) ||
+    !isNonEmptyString(correction.targetId) ||
+    !isNonEmptyString(correction.weaponId) ||
+    !isFiniteNumber(correction.roll) ||
+    !isFiniteNumber(correction.toHitNumber) ||
+    typeof correction.hit !== 'boolean'
+  ) {
+    return 'Attack-resolution correction requires attackId, attackerId, targetId, weaponId, numeric roll/toHitNumber, and hit.';
+  }
+
+  return undefined;
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
 }
