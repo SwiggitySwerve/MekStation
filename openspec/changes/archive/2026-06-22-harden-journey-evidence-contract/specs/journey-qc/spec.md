@@ -1,18 +1,4 @@
-# journey-qc Specification
-
-## Purpose
-Defines repeatable journey-level QC for major MekStation user flows, including scenario catalogs, configurable run commands, evidence bundles, bug extraction, log search, validation graph lookup, and explicit known-gap accounting.
-## Requirements
-### Requirement: Required Journey Scenario Catalog
-The system SHALL define a versioned journey scenario catalog for the required player journeys: `character-build`, `mek-build`, `combat-1v1`, `combat-4v4`, `contract-campaign`, `campaign-short`, and `campaign-long`. Each scenario entry MUST declare its supported tiers, execution mode, configurable parameters, required steps, expected terminal state, evidence assertions, and explicit known limitation references when applicable.
-
-#### Scenario: Catalog contains all required journeys
-- **WHEN** the journey catalog validator runs
-- **THEN** it confirms that all seven required journey IDs are present exactly once
-
-#### Scenario: Catalog exposes BattleMech construction parameters
-- **WHEN** the `mek-build` journey is validated
-- **THEN** the scenario exposes era, unitTechBase, chassis, variant, weight class, and equipment-selection parameters needed to generate a repeatable BattleMech construction flow
+## MODIFIED Requirements
 
 ### Requirement: Configurable Journey Command Surface
 The system SHALL provide a single journey runner command that can execute one journey or all journeys with configurable major parameters. The command MUST support journey selection, tier, mode, seed, run count, run ID, evidence directory, dry-run, continue-on-error, failure severity gate options, and an opt-in gate that requires non-synthetic execution backing.
@@ -29,31 +15,6 @@ The system SHALL provide a single journey runner command that can execute one jo
 - **WHEN** the user runs `npm.cmd run qc:journeys -- --journey=combat-1v1 --require-domain-backed`
 - **THEN** the runner fails any required step that only has synthetic/catalog-backed execution evidence
 - **AND** the evidence bundle records the missing non-synthetic backing as bug and log evidence
-
-### Requirement: QC Validation Graph
-The system SHALL define a versioned QC validation graph that maps top-level capabilities, main modules, submodules, journey scenarios, validation commands, evidence artifacts, structured diagnostic events, and known gaps. The graph MUST support on-demand lookup of which commands validate a given capability, module, submodule, or journey.
-
-#### Scenario: Graph maps combat journey coverage
-- **WHEN** the validation graph is queried for the combat module
-- **THEN** it identifies the `combat-1v1` and `combat-4v4` journeys, their runnable commands, produced evidence artifacts, and related structured diagnostic events
-
-#### Scenario: Graph validator rejects orphaned journey
-- **WHEN** the validation graph references a journey ID that is not present in the journey scenario catalog
-- **THEN** the graph validator fails and names the orphaned journey ID
-
-### Requirement: QC Graph Query Command
-The system SHALL provide a local command that queries the QC validation graph by capability, module, submodule, journey, command, or known gap. Query output MUST include matched graph nodes, related validation commands, evidence artifacts, logging events, and gap references.
-
-#### Scenario: Query Mek build validation
-- **WHEN** the user queries the QC validation graph for `mek-build`
-- **THEN** the command returns the Mek build journey, related construction modules, runnable validation command, produced evidence, and logging events
-
-### Requirement: Deterministic Run Plan Materialization
-The system SHALL materialize a run plan before executing journey steps. The run plan MUST include run ID, timestamp, selected journeys, tier, mode, seed, run count, evidence directory, resolved parameters, step list, and expected terminal states. Re-running with the same catalog version, seed, and parameters MUST produce equivalent generated inputs.
-
-#### Scenario: Repeatable campaign input generation
-- **WHEN** the user runs the `campaign-short` journey twice with the same seed and parameter set
-- **THEN** generated contract order, selected opposing forces, and expected terminal state inputs are equivalent across both run plans
 
 ### Requirement: Journey Execution Proves Generated Sequences
 The system SHALL verify that generated journey sequences are carried out, not merely generated. Each journey MUST assert the required terminal state and at least one domain or UI evidence point that proves the sequence completed. Each executed step MUST also record its execution backing, whether that backing is synthetic, and the backing evidence source so callers can distinguish catalog-shaped projections from domain-backed or UI-backed execution.
@@ -92,17 +53,3 @@ The system SHALL extract bug candidates from journey failures, structured logs, 
 #### Scenario: Missing required backing becomes a bug
 - **WHEN** a strict backing-required run encounters a synthetic-only required step
 - **THEN** the bug reporter lists a missing non-synthetic backing candidate for that journey step
-
-### Requirement: Structured Log Search
-The system SHALL provide a local log-search command for journey evidence. The command MUST filter structured diagnostic logs by run ID, journey ID, step ID, level, service, event, fingerprint, and time window.
-
-#### Scenario: Search warnings for latest run
-- **WHEN** the user runs `npm.cmd run qc:logs -- --run-id=latest --level=warn,error`
-- **THEN** the command returns warning and error diagnostic entries from the latest journey evidence
-
-### Requirement: Known Gap Accounting
-The system SHALL report unsupported mechanics, non-BattleMech exclusions, or implementation limitations as explicit gaps in journey results. Known gaps MUST NOT suppress failures unless the catalog marks the exact assertion as non-gating and links the gap reference.
-
-#### Scenario: Unsupported mechanic remains visible
-- **WHEN** a journey touches an unsupported combat mechanic
-- **THEN** the run result records the unsupported mechanic as a gap and preserves any unrelated failed assertions as failures
