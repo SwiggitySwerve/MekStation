@@ -1438,6 +1438,85 @@ function severityMeets(candidateSeverity, minimumSeverity) {
   );
 }
 
+function uniqueList(values) {
+  return [...new Set((values ?? []).filter(Boolean))];
+}
+
+function triageCompletenessScore(triage) {
+  if (!triage) return 0;
+  return [
+    'actor',
+    'action',
+    'stateBefore',
+    'stateAfter',
+    'ruleDecision',
+    'validationResult',
+    'failureCause',
+    'nextDebuggingHint',
+  ].reduce((score, field) => score + (triage[field] ? 1 : 0), 0);
+}
+
+function bugDedupeKey(bug) {
+  return [
+    bug.runId ?? '-',
+    bug.journeyId ?? '-',
+    bug.stepId ?? '-',
+    bug.triage?.failureCause ?? bug.summary ?? bug.fingerprint ?? '-',
+  ].join('|');
+}
+
+function mergeTriage(existing, incoming) {
+  if (!existing) return incoming;
+  if (!incoming) return existing;
+  const preferred =
+    triageCompletenessScore(incoming) > triageCompletenessScore(existing)
+      ? incoming
+      : existing;
+  const secondary = preferred === incoming ? existing : incoming;
+  return {
+    ...secondary,
+    ...preferred,
+    warnings: uniqueList([
+      ...(secondary.warnings ?? []),
+      ...(preferred.warnings ?? []),
+    ]),
+    evidenceRefs: uniqueList([
+      ...(secondary.evidenceRefs ?? []),
+      ...(preferred.evidenceRefs ?? []),
+    ]),
+    logFingerprints: uniqueList([
+      ...(secondary.logFingerprints ?? []),
+      ...(preferred.logFingerprints ?? []),
+    ]),
+  };
+}
+
+function mergeBugCandidates(existing, incoming) {
+  const existingRank = severityRank[existing.severity] ?? 0;
+  const incomingRank = severityRank[incoming.severity] ?? 0;
+  const preferred = incomingRank > existingRank ? incoming : existing;
+  const secondary = preferred === incoming ? existing : incoming;
+  return {
+    ...secondary,
+    ...preferred,
+    evidenceRefs: uniqueList([
+      ...(secondary.evidenceRefs ?? []),
+      ...(preferred.evidenceRefs ?? []),
+    ]),
+    triage: mergeTriage(secondary.triage, preferred.triage),
+  };
+}
+
+function dedupeBugCandidates(bugs) {
+  const byKey = new Map();
+  for (const bug of bugs) {
+    const key = bugDedupeKey(bug);
+    const existing = byKey.get(key);
+    byKey.set(key, existing ? mergeBugCandidates(existing, bug) : bug);
+  }
+  return [...byKey.values()];
+}
+
 export function extractBugCandidates(result, logs) {
   const bugs = [];
   const logsByStep = new Map();
@@ -1525,7 +1604,7 @@ export function extractBugCandidates(result, logs) {
       });
     }
   }
-  return bugs;
+  return dedupeBugCandidates(bugs);
 }
 
 export function executeRunPlan(runPlan, options = {}) {
@@ -1808,6 +1887,58 @@ function renderReport(runPlan, result, logs, bugs) {
   return `${lines.join('\n')}\n`;
 }
 
+function bugExtractionTriage({
+  runPlan,
+  bugs,
+  gatedBugCount,
+  gateSeverity,
+  bugPacketPath,
+  reportPath,
+}) {
+  const evidenceRefs = [bugPacketPath, reportPath].filter(Boolean);
+  return {
+    actor: 'journey-bug-extractor',
+    action: 'extract-bug-candidates',
+    stateBefore: {
+      runId: runPlan.runId,
+      journeyIds: runPlan.journeyIds,
+      severityGate: gateSeverity,
+    },
+    stateAfter: {
+      bugCount: bugs.length,
+      gatedBugCount,
+      highestSeverity:
+        bugs
+          .map((bug) => bug.severity)
+          .sort(
+            (left, right) =>
+              (severityRank[right] ?? 0) - (severityRank[left] ?? 0),
+          )[0] ?? null,
+    },
+    ruleDecision: {
+      outcome: gatedBugCount > 0 ? 'blocked' : 'accepted',
+      source: 'journey-qc',
+      reason:
+        gatedBugCount > 0
+          ? `${gatedBugCount} bug candidate(s) met severity gate ${gateSeverity}.`
+          : `No bug candidates met severity gate ${gateSeverity}.`,
+    },
+    validationResult: {
+      status: gatedBugCount > 0 ? 'fail' : 'pass',
+      event:
+        bugs.length > 0
+          ? 'bug.candidate_extracted'
+          : 'bug.extraction_completed',
+      severityGate: gateSeverity,
+    },
+    warnings: bugs.map((bug) => `${bug.severity}:${bug.summary}`),
+    evidenceRefs,
+    nextDebuggingHint:
+      `Run npm.cmd run qc:journeys:bugs -- --since=${runPlan.runId} ` +
+      `--min-severity=${gateSeverity} to inspect the bug packet.`,
+  };
+}
+
 export function resolveEvidenceRun(options = {}) {
   const catalog = loadJsonFile(journeyCatalogPath);
   const evidenceRoot = path.resolve(
@@ -1962,6 +2093,12 @@ export function runJourney(options) {
   const gatedBugCount = bugs.filter((bug) =>
     severityMeets(bug.severity, gateSeverity),
   ).length;
+  const bugPacketPath = toRepoRelative(
+    path.join(path.resolve(repoRoot, runPlan.evidenceDir), 'bugs.json'),
+  );
+  const reportPath = toRepoRelative(
+    path.join(path.resolve(repoRoot, runPlan.evidenceDir), 'report.md'),
+  );
   logs.push(
     logEntry({
       level: bugs.length > 0 ? 'warn' : 'info',
@@ -1975,7 +2112,19 @@ export function runJourney(options) {
       blocking: bugs.length > 0 ? gatedBugCount > 0 : undefined,
       runPlan,
       attempt: 0,
-      metadata: { bugCount: bugs.length },
+      metadata: {
+        bugCount: bugs.length,
+        gatedBugCount,
+        severityGate: gateSeverity,
+        triage: bugExtractionTriage({
+          runPlan,
+          bugs,
+          gatedBugCount,
+          gateSeverity,
+          bugPacketPath,
+          reportPath,
+        }),
+      },
     }),
   );
   const paths = writeEvidenceBundle(runPlan, result, logs, bugs);

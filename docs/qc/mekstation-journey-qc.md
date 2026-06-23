@@ -150,15 +150,18 @@ bounded and includes:
 - `nextDebuggingHint`
 
 Bug candidates copy that packet into `bugs.json` and add `logFingerprints` so a
-bug can be traced back to the exact diagnostic entry.
+bug can be traced back to the exact diagnostic entry. Result-derived failures
+and matching error diagnostics are deduplicated into one canonical bug packet,
+so the report count should reflect issues rather than logging sources.
 
 ## Bug And Log Workflow
 
 1. Run the narrow journey first, with explicit seed and parameters.
 2. Inspect `report.md` for the human-readable result.
 3. Use `qc:journeys:bugs` to list grouped failures by severity and fingerprint.
-   Medium-or-higher bugs print action, validation result, failure cause,
-   debugging hint, and related log fingerprints when available.
+   Medium-or-higher bugs print actor, action, compact state before/after,
+   rule decision, validation result, failure cause, debugging hint, and related
+   log fingerprints when available.
 4. Use `qc:logs` to filter structured diagnostic entries by level, journey,
    service, event, or step.
 5. Add `--exclude-probes` when scanning for non-probe warnings. The
@@ -168,9 +171,12 @@ bug can be traced back to the exact diagnostic entry.
 6. Copy a bug packet log fingerprint into
    `npm.cmd run qc:logs -- --run-id=latest --fingerprint=<fingerprint>` when
    you need the exact structured diagnostic that caused or explains the bug.
-7. Use `--require-domain-backed` to distinguish real adapter coverage from
+7. Search `--event=bug.candidate_extracted` when you need the extraction
+   diagnostic that records bug count, gated count, severity gate, `bugs.json`,
+   and `report.md`.
+8. Use `--require-domain-backed` to distinguish real adapter coverage from
    synthetic projection coverage.
-8. Rerun the same journey with the same run-plan inputs after a fix.
+9. Rerun the same journey with the same run-plan inputs after a fix.
 
 Known gaps are recorded in journey output and the validation graph. They do not
 silently hide unrelated failures.
