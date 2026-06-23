@@ -675,15 +675,119 @@ describe('journey QC scripts', () => {
     ]);
 
     expect(bugs.status).toBe(0);
+    expect(bugs.stdout).toContain('# Journey bugs (1)');
     expect(bugs.stdout).toContain(
       'Journey step failed: combat-1v1/resolve-combat',
     );
+    expect(bugs.stdout).not.toContain(
+      '- [medium] combat-1v1: Injected failure for combat-1v1/resolve-combat',
+    );
+    expect(bugs.stdout).toContain('actor: combat-engine');
     expect(bugs.stdout).toContain('action: movement-preview,attack-resolution');
-    expect(bugs.stdout).toContain('validation: fail');
+    expect(bugs.stdout).toContain(
+      'state before: journey=combat-1v1 step=resolve-combat attempt=1 module=combat expected=combat-complete',
+    );
+    expect(bugs.stdout).toContain(
+      'state after: status=fail terminal=combat-complete artifacts=0 backing=synthetic-projection',
+    );
+    expect(bugs.stdout).toContain(
+      'rule: blocked via journey-qc - Injected failure for combat-1v1/resolve-combat',
+    );
+    expect(bugs.stdout).toContain(
+      'validation: fail event=journey.step_failed required=true failureKind=injected-failure',
+    );
     expect(bugs.stdout).toContain(
       'failure cause: Injected failure for combat-1v1/resolve-combat',
     );
     expect(bugs.stdout).toContain('logs: ');
+
+    const bugsJson = runNodeScript('scripts/qc/report-journey-bugs.mjs', [
+      '--since=latest',
+      '--min-severity=medium',
+      '--json',
+      `--evidence-dir=${evidenceDir}`,
+    ]);
+    expect(bugsJson.status).toBe(0);
+    const bugPackets = JSON.parse(bugsJson.stdout) as Array<{
+      severity: string;
+      summary: string;
+      triage?: {
+        logFingerprints: string[];
+      };
+    }>;
+    expect(bugPackets).toHaveLength(1);
+    expect(bugPackets[0]).toMatchObject({
+      severity: 'high',
+      summary: 'Journey step failed: combat-1v1/resolve-combat',
+    });
+    expect(bugPackets[0]?.triage?.logFingerprints[0]).toMatch(/^[a-f0-9]{8}$/);
+
+    const extractionLogs = runNodeScript('scripts/qc/search-journey-logs.mjs', [
+      '--run-id=latest',
+      '--event=bug.candidate_extracted',
+      '--json',
+      `--evidence-dir=${evidenceDir}`,
+    ]);
+    expect(extractionLogs.status).toBe(0);
+    const extractionEntries = JSON.parse(extractionLogs.stdout) as Array<{
+      fingerprint: string;
+      metadata: {
+        bugCount: number;
+        gatedBugCount: number;
+        severityGate: string;
+        triage: {
+          actor: string;
+          action: string;
+          stateAfter: { bugCount: number; gatedBugCount: number };
+          ruleDecision: { outcome: string };
+          evidenceRefs: string[];
+          nextDebuggingHint: string;
+        };
+      };
+    }>;
+    expect(extractionEntries).toHaveLength(1);
+    expect(extractionEntries[0]).toMatchObject({
+      metadata: {
+        bugCount: 1,
+        gatedBugCount: 1,
+        severityGate: 'medium',
+        triage: {
+          actor: 'journey-bug-extractor',
+          action: 'extract-bug-candidates',
+          stateAfter: { bugCount: 1, gatedBugCount: 1 },
+          ruleDecision: { outcome: 'blocked' },
+        },
+      },
+    });
+    expect(extractionEntries[0]?.metadata.triage.evidenceRefs).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('bugs.json'),
+        expect.stringContaining('report.md'),
+      ]),
+    );
+    expect(extractionEntries[0]?.metadata.triage.nextDebuggingHint).toContain(
+      'qc:journeys:bugs',
+    );
+
+    const extractionFingerprint = extractionEntries[0]?.fingerprint;
+    const extractionByFingerprint = runNodeScript(
+      'scripts/qc/search-journey-logs.mjs',
+      [
+        '--run-id=latest',
+        `--fingerprint=${extractionFingerprint}`,
+        '--json',
+        `--evidence-dir=${evidenceDir}`,
+      ],
+    );
+    expect(extractionByFingerprint.status).toBe(0);
+    const fingerprintEntries = JSON.parse(
+      extractionByFingerprint.stdout,
+    ) as Array<{ event: string; metadata: { triage?: { actor: string } } }>;
+    expect(fingerprintEntries).toHaveLength(1);
+    expect(fingerprintEntries[0]).toMatchObject({
+      event: 'bug.candidate_extracted',
+      metadata: { triage: { actor: 'journey-bug-extractor' } },
+    });
   });
 
   it('fails strict backing-required runs while preserving bug evidence', () => {
