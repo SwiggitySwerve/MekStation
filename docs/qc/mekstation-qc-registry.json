@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-18",
+  "generatedAt": "2026-06-23",
   "surfaces": [
     {
       "surfaceId": "app-shell-navigation",
@@ -958,11 +958,82 @@
       ],
       "evidence": [
         "scripts/qc/validate-gm-campaign-ledger.mjs",
+        "scripts/qc/gm-ledger-qc-core.mjs",
         "scripts/__tests__/gm-campaign-ledger-qc.test.ts",
         "src/lib/interventions/__tests__/GmCampaignInterventionImplementer.test.ts"
       ],
       "gaps": [
-        "Accumulated time cascades remain Wave 9; this surface proves post-combat/base-economy corrections only."
+        "Accumulated time cascades are validated by the separate time-cascade GM ledger lane."
+      ]
+    },
+    {
+      "surfaceId": "time-cascade-gm-ledger",
+      "title": "Time Cascade GM Ledger",
+      "level": "main",
+      "parentId": "campaign-economy-progression",
+      "riskTags": [
+        "campaign-loop",
+        "auditability",
+        "state-recovery",
+        "time-cascade",
+        "source-truth"
+      ],
+      "qualityLenses": ["functionality", "ux", "rules-parity", "test-quality"],
+      "coverageStatus": "partial",
+      "claimIds": ["campaign.gm-ledger.time-cascade"],
+      "routes": ["/gameplay/campaigns"],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": [
+        "src/lib/interventions",
+        "src/types/interventions",
+        "src/lib/campaign/processors"
+      ],
+      "submodules": [
+        "time advancement",
+        "travel destination",
+        "repair progression",
+        "contract windows",
+        "market refresh",
+        "finance upkeep",
+        "external-effect manual takeover",
+        "public/private ledger projection"
+      ],
+      "specRefs": [
+        "openspec/specs/time-cascade-system/spec.md",
+        "openspec/specs/day-progression/spec.md",
+        "openspec/specs/intervention-ledger-abstraction/spec.md",
+        "openspec/specs/gm-cascade-preview/spec.md",
+        "openspec/specs/gm-campaign-intervention-boundaries/spec.md"
+      ],
+      "activeChangeRefs": [],
+      "tests": [
+        "scripts/__tests__/gm-time-cascade-qc.test.ts",
+        "src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts",
+        "src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts",
+        "src/lib/campaign/processors/__tests__/processors.test.ts",
+        "src/lib/campaign/processors/__tests__/repairProgressProcessor.test.ts",
+        "src/lib/campaign/processors/__tests__/marketProcessors.test.ts"
+      ],
+      "commands": [
+        "npm.cmd run qc:gm:time-cascade:validate",
+        "npm.cmd run verify:qc:gm:time-cascade",
+        "npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/gm-time-cascade-qc.test.ts src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts src/lib/campaign/processors/__tests__/processors.test.ts src/lib/campaign/processors/__tests__/repairProgressProcessor.test.ts src/lib/campaign/processors/__tests__/marketProcessors.test.ts",
+        "npm.cmd run qc:campaign-long:stability -- --journey=campaign-long --seed=42 --contracts=10 --runs=2"
+      ],
+      "manualChecks": [
+        "Review a GM-approved time jump with travel, repair, market, and external-effect context and confirm player logs show only the approved net effect."
+      ],
+      "evidence": [
+        "scripts/qc/gm-ledger-qc-core.mjs",
+        "scripts/qc/validate-gm-time-cascade-ledger.mjs",
+        "scripts/__tests__/gm-time-cascade-qc.test.ts",
+        "src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts",
+        "src/lib/campaign/processors/__tests__/marketProcessors.test.ts"
+      ],
+      "gaps": [
+        "Pilot recovery, roster progression, and vault-owned effects remain external to campaign-owned time projection; the time-cascade validator requires explicit projected external effects or manual-takeover anchors.",
+        "Browser UI controls are validated through the broader gameplay UI flow shell rather than this command-only ledger proof."
       ]
     },
     {

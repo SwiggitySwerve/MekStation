@@ -1,7 +1,7 @@
 # maintenance-code-health Specification
 
 ## Purpose
-TBD - created by archiving change wave-12-maintenance-debt-housekeeping. Update Purpose after archive.
+Defines the maintenance code-health gate, scanner evidence, and reviewed warning ledger used to keep stale TODO, file-bloat, near-duplicate, import-health, and design-violation findings accountable without hiding accepted debt.
 ## Requirements
 ### Requirement: Maintenance scan evidence
 
@@ -61,4 +61,3 @@ The maintenance code-health QC surface SHALL link its OpenSpec requirement, ledg
 - **WHEN** a maintainer queries or validates the QC registry for `maintenance-code-health`
 - **THEN** the surface SHALL reference the `maintenance-code-health` spec
 - **AND** it SHALL list the maintenance warning ledger and validator command as evidence
-
