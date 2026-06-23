@@ -22,7 +22,7 @@
     "verify": "npm run typecheck && npm run lint && npm run format:check && npm run verify:qc && npm run test:stable",
     "verify:full": "npm run verify && npm run test:perf-sensitive && npm run verify:rules && npm run build",
     "verify:qc": "npm run qc:validate && npm run qc:journeys:validate && npm run qc:logging:validate && npm run maintain:scan:gate",
-    "verify:rules": "npm run validate:combat:gaps -- --format=summary && npm run validate:combat && npm run spec:purpose:validate:strict && npx openspec validate --all --strict",
+    "verify:rules": "npm run validate:combat:gaps -- --format=summary --expect-total=0 && npm run validate:combat && npm run spec:purpose:validate:strict && npx openspec validate --all --strict",
     "test": "jest",
     "test:stable": "node scripts/jest/run-jest-lane.mjs stable",
     "test:perf-sensitive": "node scripts/jest/run-jest-lane.mjs perf-sensitive",
