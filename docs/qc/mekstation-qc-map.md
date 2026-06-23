@@ -37,6 +37,8 @@ npm.cmd run qc:scenarios -- --surface=gameplay-tactical-map-combat --tier=standa
 npm.cmd run qc:journeys:validate
 npm.cmd run qc:ui-flow-shell:validate
 npm.cmd run qc:ui-flow-shell -- --journey=contract-campaign
+npm.cmd run qc:tactical:projection:validate
+npm.cmd run qc:tactical:projection
 npm.cmd run qc:logging:validate
 npm.cmd run qc:graph -- --query=mek-build
 npm.cmd run qc:journeys -- --journey=all --tier=smoke
@@ -49,6 +51,7 @@ npm.cmd run verify:qc:journeys
 npm.cmd run verify:qc:ui-flow-shell
 npm.cmd run verify:qc:campaign-long
 npm.cmd run verify:qc:partial:quick
+npm.cmd run verify:qc:tactical:projection
 npm.cmd run verify:qc:tactical:quick
 npm.cmd run verify:qc:tactical:visual
 npm.cmd run verify:qc:combat
@@ -118,12 +121,16 @@ flowchart TD
 ## Current Hot Lanes
 
 1. `gameplay-tactical-map-combat`
-   - Tactical map is the primary explanation layer, but active projection
-     agreement and legibility changes remain open.
+   - Tactical map is the primary explanation layer; Wave 7 adds a fast
+     projection parity manifest that validates required tactical surfaces,
+     commands, source anchors, browser-boundary coverage, and stale
+     active-change refs.
    - Claim IDs route exact QC asks such as `ui.tactical.rules-explanation`,
      `ui.tactical.movement-preview`, `ui.tactical.combat-preview`,
      `ui.tactical.topdown-legibility`, and `ui.tactical.isometric-25d`.
-   - Validate with tactical-map unit scenarios and Playwright visual smoke.
+   - Validate first with `qc:tactical:projection:validate`, then tactical-map
+     unit scenarios and Playwright visual smoke for deeper behavior/visual
+     signoff.
 
 2. `simulation-combat-validation`
    - BattleMech unresolved validation gaps are currently 0 by

@@ -214,13 +214,7 @@
         "openspec/specs/tactical-map-interface/spec.md",
         "openspec/specs/combat-resolution/spec.md"
       ],
-      "activeChangeRefs": [
-        "fix-tactical-projection-agreement-gaps",
-        "extend-projection-agreement-tohit",
-        "add-topdown-tactical-legibility",
-        "add-isometric-elevation-extrusion",
-        "wire-interactive-turn-engine"
-      ],
+      "activeChangeRefs": [],
       "tests": [
         "src/components/gameplay/HexMapDisplay/__tests__",
         "src/testing/__tests__/tactical-map.*.test.ts",
@@ -228,7 +222,8 @@
       ],
       "commands": [
         "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/testing/__tests__/tactical-map.movement-scenarios.test.ts src/testing/__tests__/tactical-map.combat-scenarios.test.ts --no-coverage",
-        "npx.cmd playwright test e2e/tactical-map-visual-smoke.spec.ts --project=chromium"
+        "npx.cmd playwright test e2e/tactical-map-visual-smoke.spec.ts --project=chromium",
+        "node scripts/qc/validate-tactical-projection-parity.mjs"
       ],
       "manualChecks": [
         "Verify every invalid movement/combat preview explains why before commit",
@@ -238,10 +233,11 @@
         "docs/audits/2026-05-22-tactical-map-rules-source-matrix.md",
         "2026-06-18 tactical review: targeted tactical-map Jest passed 9 suites / 250 tests against movement, combat, projection, terrain labels, camera, and interaction paths.",
         "2026-06-18 subagent review found shared tacticalMapProjectionLookup routing for terrain, movement, combat, selection, path, and LOS overlays.",
-        "2026-06-18 Playwright tactical-map visual smoke passed 60 Chromium tests across top-down labels, isometric occlusion/rotation, movement constraints, LOS blockers, and combat-preview evidence."
+        "2026-06-18 Playwright tactical-map visual smoke passed 60 Chromium tests across top-down labels, isometric occlusion/rotation, movement constraints, LOS blockers, and combat-preview evidence.",
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
       ],
       "gaps": [
-        "Preview/engine agreement is represented but legacy preview fallbacks, visual readability, physical command availability, facing/turn MP agreement, and phase-driver paths remain high-risk checks."
+        "Wave 7 adds a fast tactical projection parity manifest for required surfaces, source anchors, and stale refs; deeper behavior/visual signoff remains in tactical-map Jest and Playwright lanes."
       ]
     },
     {
@@ -268,10 +264,7 @@
         "terrain/elevation/LOS metadata"
       ],
       "specRefs": ["openspec/specs/tactical-map-interface/spec.md"],
-      "activeChangeRefs": [
-        "fix-tactical-projection-agreement-gaps",
-        "extend-projection-agreement-tohit"
-      ],
+      "activeChangeRefs": [],
       "tests": [
         "src/testing/__tests__/tactical-map.movement-scenarios.test.ts",
         "src/testing/__tests__/tactical-map.combat-scenarios.test.ts"
@@ -284,10 +277,11 @@
       ],
       "evidence": [
         "2026-06-18 tactical review found tacticalMapProjectionLookup drives terrain, movement, combat, selection, path, and LOS overlays.",
-        "2026-06-18 verification passed 9 tactical UI/projection Jest suites / 157 tests and 2 movement/combat scenario suites / 56 tests."
+        "2026-06-18 verification passed 9 tactical UI/projection Jest suites / 157 tests and 2 movement/combat scenario suites / 56 tests.",
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
       ],
       "gaps": [
-        "Some consumers can still drift from shared projection data when callers fall back outside weapon-backed combat projection."
+        "Projection source anchors and movement/combat scenario commands are now manifest-guarded; future projection file moves must update the Wave 7 manifest."
       ]
     },
     {
@@ -313,10 +307,7 @@
         "reachable/blocked/costly/tactical overlays"
       ],
       "specRefs": ["openspec/specs/tactical-map-interface/spec.md"],
-      "activeChangeRefs": [
-        "add-topdown-tactical-legibility",
-        "fix-tactical-map-perf-and-legibility"
-      ],
+      "activeChangeRefs": [],
       "tests": [
         "src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.terrainLabels.01.test.tsx",
         "src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.terrainLabels.02.test.tsx",
@@ -333,10 +324,11 @@
       ],
       "evidence": [
         "2026-06-18 Playwright tactical-map visual smoke passed 60 Chromium tests.",
-        "2026-06-18 tactical review found terrain/elevation badges, ARIA labels, text badges, dash/pattern overlays, and non-color-only projection status indicators."
+        "2026-06-18 tactical review found terrain/elevation badges, ARIA labels, text badges, dash/pattern overlays, and non-color-only projection status indicators.",
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
       ],
       "gaps": [
-        "Browser smoke now covers the critical overlap and readability lanes; manual visual review is still useful before release-grade UX signoff."
+        "Browser smoke remains the release-grade readability check; the Wave 7 manifest guards discoverability of the legibility proof surface."
       ]
     },
     {
@@ -373,7 +365,7 @@
         "legality reasons"
       ],
       "specRefs": ["openspec/specs/tactical-map-interface/spec.md"],
-      "activeChangeRefs": ["fix-tactical-projection-agreement-gaps"],
+      "activeChangeRefs": [],
       "tests": [
         "src/testing/__tests__/tactical-map.movement-scenarios.test.ts"
       ],
@@ -385,10 +377,11 @@
       ],
       "evidence": [
         "2026-06-18 tactical review found UI and commit validation share deriveMovementRangeHexForDestination for map-driven movement legality.",
-        "2026-06-18 parity review passed movement/combat/attack-projection agreement Jest: 3 suites / 105 tests."
+        "2026-06-18 parity review passed movement/combat/attack-projection agreement Jest: 3 suites / 105 tests.",
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
       ],
       "gaps": [
-        "Projection-vs-legacy validateMovement divergence around turn/facing MP is intentional and covered, but remains a fragile contract."
+        "Projection-vs-legacy validateMovement divergence around turn/facing MP is intentional and covered; the Wave 7 manifest now guards the shared-source contract."
       ]
     },
     {
@@ -421,10 +414,7 @@
         "openspec/specs/combat-resolution/spec.md",
         "openspec/specs/tactical-map-interface/spec.md"
       ],
-      "activeChangeRefs": [
-        "extend-projection-agreement-tohit",
-        "fix-tactical-projection-agreement-gaps"
-      ],
+      "activeChangeRefs": [],
       "tests": [
         "src/testing/__tests__/tactical-map.combat-scenarios.test.ts",
         "src/engine/__tests__/InteractiveSession.attackProjectionAgreement.scenario.test.ts"
@@ -437,10 +427,11 @@
       ],
       "evidence": [
         "2026-06-18 tactical review found represented ranged attack previews cover range, arcs, LOS, visibility, cover, min range, to-hit, invalid reasons, and weapon options.",
-        "2026-06-18 parity review found deriveCombatRangeHexes centralizes ranged preview facts and command previews consume projection heat, ammo, and expected damage."
+        "2026-06-18 parity review found deriveCombatRangeHexes centralizes ranged preview facts and command previews consume projection heat, ammo, and expected damage.",
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
       ],
       "gaps": [
-        "Combat preview parity is partial where callers fall back outside shared combat projection, use local planning math, or expose physical commands without shared projected legality."
+        "Combat preview parity is partial where callers fall back outside shared combat projection; the Wave 7 manifest now guards the shared preview proof surface."
       ]
     },
     {
@@ -466,7 +457,7 @@
         "occluded unit outlines/ghosting"
       ],
       "specRefs": ["openspec/specs/tactical-map-interface/spec.md"],
-      "activeChangeRefs": ["add-isometric-elevation-extrusion"],
+      "activeChangeRefs": [],
       "tests": [
         "src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.isometric.test.ts",
         "e2e/tactical-map-visual-smoke.spec.ts"
@@ -480,10 +471,11 @@
       ],
       "evidence": [
         "Prior review found rotation/depth/occlusion tests present and passing.",
-        "2026-06-18 tactical review found discrete camera rotation, depth keys, elevated terrain stacks, and visibility halo/badge signaling in the isometric path."
+        "2026-06-18 tactical review found discrete camera rotation, depth keys, elevated terrain stacks, and visibility halo/badge signaling in the isometric path.",
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
       ],
       "gaps": [
-        "Hidden-unit outlines/ghosting are implemented as visibility signaling, but screenshot evidence is still needed for tall-elevation occlusion quality."
+        "Hidden-unit outlines/ghosting still need screenshot-quality review for tall-elevation release signoff; the Wave 7 manifest guards isometric proof discoverability."
       ]
     },
     {
