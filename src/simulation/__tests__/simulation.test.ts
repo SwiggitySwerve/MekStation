@@ -22,8 +22,10 @@ const BASE_SEED = 1000;
 //
 // Execution matrix:
 //   - Default local run (no env vars):                       RUN
-//   - CI unit shards (JEST_EXCLUDE_PERF_SENSITIVE=true):     SKIP — sharded
-//     runners are heavily contended; wall-clock budgets there are noise.
+//   - CI unit shards / coverage floor
+//     (JEST_EXCLUDE_PERF_SENSITIVE=true):                    SKIP — sharded or
+//     instrumented runners are heavily contended; wall-clock budgets there are
+//     noise.
 //   - Nightly full-size lane (tracker W4.4): RUN — the lane sets
 //     SIMULATION_PERF_ASSERTIONS=true, which overrides the shard exclusion
 //     so the perf budgets actually execute in CI.

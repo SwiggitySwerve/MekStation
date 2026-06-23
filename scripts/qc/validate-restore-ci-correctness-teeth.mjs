@@ -52,6 +52,12 @@ const checks = [
         workflow,
       ),
   },
+  {
+    label: 'coverage-floor excludes perf-sensitive assertions',
+    passes: /coverage-floor:[\s\S]*JEST_EXCLUDE_PERF_SENSITIVE:\s*'true'/.test(
+      workflow,
+    ),
+  },
 ];
 
 const aggregatorMatch = workflow.match(
