@@ -392,7 +392,12 @@
       "defaultMode": "headless",
       "expectedTerminalState": "campaign-sequence-complete",
       "parameters": {
-        "contracts": { "type": "integer", "default": 8, "minimum": 6 },
+        "contracts": {
+          "type": "integer",
+          "default": 8,
+          "minimum": 6,
+          "maximum": 10
+        },
         "advance-days-between": {
           "type": "integer",
           "default": 21,

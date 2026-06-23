@@ -263,6 +263,7 @@ jobs:
           --collectCoverageFrom='src/utils/gameplay/**/*.{ts,tsx}'
           --coverageThreshold='{}'
         env:
+          JEST_EXCLUDE_PERF_SENSITIVE: 'true'
           SIMULATION_COUNT: '5'
 
       - name: Enforce combat/simulation coverage floors

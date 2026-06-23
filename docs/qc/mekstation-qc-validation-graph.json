@@ -119,6 +119,16 @@
       "label": "npm.cmd run qc:campaign-long:stability"
     },
     {
+      "id": "command:qc-campaign-long-validate",
+      "kind": "command",
+      "label": "npm.cmd run qc:campaign-long:validate"
+    },
+    {
+      "id": "command:verify-qc-campaign-long",
+      "kind": "command",
+      "label": "npm.cmd run verify:qc:campaign-long"
+    },
+    {
       "id": "command:qc-journeys-validate",
       "kind": "command",
       "label": "npm.cmd run qc:journeys:validate"
@@ -399,6 +409,26 @@
       "from": "journey:campaign-long",
       "to": "command:qc-campaign-long-stability",
       "relation": "validated-by"
+    },
+    {
+      "from": "journey:campaign-long",
+      "to": "command:qc-campaign-long-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:campaign-long",
+      "to": "command:verify-qc-campaign-long",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:verify-qc-campaign-long",
+      "to": "command:qc-campaign-long-validate",
+      "relation": "contains"
+    },
+    {
+      "from": "command:verify-qc-campaign-long",
+      "to": "command:qc-campaign-long-stability",
+      "relation": "contains"
     },
     {
       "from": "command:qc-journeys",
