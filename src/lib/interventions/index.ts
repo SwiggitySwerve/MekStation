@@ -31,9 +31,20 @@ export {
 } from './GmCombatInterventionImplementer';
 
 export {
+  createGmCampaignInterventionImplementer,
+  registerGmCampaignInterventionImplementer,
+  registerGmCampaignInterventionImplementers,
+} from './GmCampaignInterventionImplementer';
+
+export {
   applyGmCombatProjectedEffects,
   projectCombatEffectsForRecord,
 } from './GmCombatInterventionProjection';
+
+export {
+  applyGmCampaignProjectedEffects,
+  projectCampaignEffectsForRecord,
+} from './GmCampaignInterventionProjection';
 
 export {
   createGmUnitReloadInterventionImplementer,

@@ -34,6 +34,30 @@ export type {
 } from './GmCombatInterventionTypes';
 
 export type {
+  GmCampaignCorrectionFamily,
+  GmCampaignInterventionCorrection,
+  GmCampaignInterventionDomain,
+  GmCampaignProjectedEffectType,
+  IGmCampaignBaseUnitStateCorrection,
+  IGmCampaignBaseUnitStateEffect,
+  IGmCampaignFundsTransactionCorrection,
+  IGmCampaignFundsTransactionEffect,
+  IGmCampaignInterventionCommandPayload,
+  IGmCampaignInterventionConflictInput,
+  IGmCampaignInterventionDomainPayload,
+  IGmCampaignInterventionState,
+  IGmCampaignInventoryLotCorrection,
+  IGmCampaignInventoryLotEffect,
+  IGmCampaignProjectedEffect,
+  IGmCampaignProjectedTransaction,
+  IGmCampaignPublicEffect,
+  IGmCampaignRepairTicketCorrection,
+  IGmCampaignRepairTicketEffect,
+  IGmCampaignSalvageAllocationCorrection,
+  IGmCampaignSalvageAllocationEffect,
+} from './GmCampaignInterventionTypes';
+
+export type {
   IGmUnitReloadCommandProjection,
   IGmUnitReloadInterventionCommandPayload,
   IGmUnitReloadInterventionDomainPayload,
