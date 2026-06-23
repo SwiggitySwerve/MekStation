@@ -1,68 +1,30 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-18",
+  "generatedAt": "2026-06-23",
   "scope": ["src"],
   "purpose": "Regression baseline for the uncalibrated maintenance scanner. Raw audit output remains visible; the gate fails only when current critical/high debt exceeds this reviewed baseline.",
-  "criticalHigh": 932,
+  "criticalHigh": 0,
   "summary": {
-    "code-smell": {
-      "critical": 0,
-      "high": 46,
-      "medium": 0,
-      "low": 0,
-      "warn": 0,
-      "info": 0
-    },
-    "complexity": {
-      "critical": 59,
-      "high": 116,
-      "medium": 0,
-      "low": 0,
-      "warn": 0,
-      "info": 0
-    },
-    "design-violation": {
-      "critical": 57,
-      "high": 95,
-      "medium": 0,
-      "low": 0,
-      "warn": 0,
-      "info": 0
-    },
     "file-bloat": {
-      "critical": 183,
-      "high": 153,
-      "medium": 0,
-      "low": 0,
-      "warn": 374,
-      "info": 0
-    },
-    "import-health": {
       "critical": 0,
       "high": 0,
       "medium": 0,
       "low": 0,
-      "warn": 5,
-      "info": 0
+      "warn": 0,
+      "info": 306
     },
     "near-duplicate": {
       "critical": 0,
-      "high": 223,
+      "high": 0,
       "medium": 0,
       "low": 0,
       "warn": 0,
-      "info": 0
-    },
-    "stale-todo": {
-      "critical": 0,
-      "high": 0,
-      "medium": 36,
-      "low": 0,
-      "warn": 0,
-      "info": 6
+      "info": 64
     }
   },
   "calibrationNotes": [
+    "Wave 12 lowered the reviewed src regression baseline to 0 critical/high findings; maintain:scan:gate currently reports only file-bloat info=306 and near-duplicate info=64 under src.",
+    "Repo-wide non-src Wave 12 findings are tracked separately in docs/qc/maintenance-warning-ledger.json so the src regression gate is not confused with full-repo advisory debt.",
     "type-safety, dead-code, and test-gap are immediate blocker lanes and currently have zero critical/high findings under src.",
     "complexity, file-bloat, and near-duplicate are audit lanes until each is split into deliberate remediation waves.",
     "Stale-todo now scans comment text only; test fixture values such as temp no longer count as TODO-like comments, and the high lane is zero under src.",

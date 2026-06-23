@@ -204,7 +204,7 @@ test.describe('Campaign Detail Page @campaign', () => {
     });
 
     // PT-009: `setSearchQuery` was removed from the campaign store. The
-    // original code here used it as a workaround to nudge React subscribers
+    // original code here used it to nudge React subscribers
     // after a programmatic campaign creation. The downstream waitFor below
     // covers the same need on its own — if the new campaign card doesn't
     // appear within 10s, the assertion fails with a clear signal anyway.

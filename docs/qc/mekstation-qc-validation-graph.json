@@ -19,6 +19,11 @@
       "label": "Logging System"
     },
     {
+      "id": "capability:maintenance-code-health",
+      "kind": "capability",
+      "label": "Maintenance Code Health"
+    },
+    {
       "id": "module:roster",
       "kind": "module",
       "label": "Roster and pilot setup",
@@ -41,6 +46,12 @@
       "kind": "module",
       "label": "Campaign economy and progression",
       "ownerPath": "src/stores/campaign"
+    },
+    {
+      "id": "module:maintenance-tooling",
+      "kind": "module",
+      "label": "Maintenance scanner and QC tooling",
+      "ownerPath": "scripts/maintenance"
     },
     {
       "id": "submodule:pilot-generation",
@@ -128,6 +139,16 @@
       "label": "npm.cmd run qc:graph"
     },
     {
+      "id": "command:maintenance-ledger-validate",
+      "kind": "command",
+      "label": "node scripts/qc/validate-maintenance-warning-ledger.mjs"
+    },
+    {
+      "id": "command:maintain-scan-gate",
+      "kind": "command",
+      "label": "npm.cmd run maintain:scan:gate"
+    },
+    {
       "id": "evidence:qc-journeys",
       "kind": "evidence",
       "label": ".sisyphus/evidence/qc-journeys"
@@ -136,6 +157,16 @@
       "id": "evidence:gameplay-ui-flow-shell",
       "kind": "evidence",
       "label": "src/qc/gameplayUiFlowShell.json"
+    },
+    {
+      "id": "evidence:maintenance-warning-ledger",
+      "kind": "evidence",
+      "label": "docs/qc/maintenance-warning-ledger.json"
+    },
+    {
+      "id": "evidence:maintenance-baseline",
+      "kind": "evidence",
+      "label": "docs/qc/maintenance-baseline.json"
     },
     {
       "id": "log-event:character.created",
@@ -186,6 +217,11 @@
       "id": "known-gap:browser-campaign-standard",
       "kind": "known-gap",
       "label": "Standard campaign journey is headless-first"
+    },
+    {
+      "id": "known-gap:maintenance-non-src-followups",
+      "kind": "known-gap",
+      "label": "Repo-wide non-src maintenance debt remains follow-up tracked"
     }
   ],
   "edges": [
@@ -238,6 +274,36 @@
       "from": "capability:ui-flow-shell",
       "to": "evidence:gameplay-ui-flow-shell",
       "relation": "validated-by"
+    },
+    {
+      "from": "capability:maintenance-code-health",
+      "to": "module:maintenance-tooling",
+      "relation": "contains"
+    },
+    {
+      "from": "capability:maintenance-code-health",
+      "to": "command:maintain-scan-gate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "capability:maintenance-code-health",
+      "to": "command:maintenance-ledger-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:maintenance-ledger-validate",
+      "to": "evidence:maintenance-warning-ledger",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:maintain-scan-gate",
+      "to": "evidence:maintenance-baseline",
+      "relation": "validated-by"
+    },
+    {
+      "from": "capability:maintenance-code-health",
+      "to": "known-gap:maintenance-non-src-followups",
+      "relation": "documents-gap"
     },
     {
       "from": "module:roster",

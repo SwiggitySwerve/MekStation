@@ -47,6 +47,7 @@ npm.cmd run verify:qc:tactical:visual
 npm.cmd run verify:qc:combat
 npm.cmd run verify:qc:maintenance
 npm.cmd run maintain:scan:gate
+node scripts/qc/validate-maintenance-warning-ledger.mjs
 npm.cmd run maintain:scan -- --scope=src --format=summary
 npm.cmd run verify:qc
 npm.cmd run verify:rules
@@ -141,14 +142,17 @@ flowchart TD
    - Treat those edits as external work until validated.
 
 5. `maintenance-code-health`
-   - Full maintenance scanner pass is active with a reviewed regression
-     baseline; the current raw scanner count is 0 critical/high findings.
-   - Use `maintain:scan:gate` to block new unbaselined critical/high findings,
-     and use raw `maintain:scan -- --scope=src` for audit planning.
-   - The regression gate is not the zero-debt completion gate; the active
-     maintenance goal stays open until raw critical/high findings reach 0.
-   - Stale TODOs are currently zero critical/high after the scanner was aligned
-     to inspect comment text only.
+   - Full maintenance scanner pass is active with a reviewed `src` regression
+     baseline; the current `src` scanner gate has 0 critical/high findings.
+   - Use `maintain:scan:gate` to block new `src` critical/high findings, and
+     use `node scripts/qc/validate-maintenance-warning-ledger.mjs` to confirm
+     repo-wide Wave 12 findings are fixed, accepted, or follow-up tracked.
+   - Repo-wide non-`src` script, desktop, and e2e page-object findings remain
+     in `docs/qc/maintenance-warning-ledger.json` instead of being treated as
+     hidden pass/fail suppressions.
+   - Stale TODOs are currently zero actionable findings after explanatory e2e
+     comments were rewritten and recent skipped-test `fixme` trackers stayed
+     explicit.
    - Broad public barrels remain import-health warnings; circular import chains
      are the next high-risk import-health remediation wave.
    - Near-duplicate findings are cluster-level now; overlapping 5-line windows
