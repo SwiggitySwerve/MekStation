@@ -13,6 +13,10 @@ The journey-level validation layer is `docs/qc/mekstation-journey-scenarios.json
 with graph lookup in `docs/qc/mekstation-qc-validation-graph.json`, gameplay UI
 flow shell mapping in `src/qc/gameplayUiFlowShell.json`, and logging
 coverage in `docs/qc/mekstation-logging-map.json`.
+Use `qc:ui-flow-shell` when the question is how a journey maps to the
+player/GM route checkpoints on the gameplay hub, and use
+`qc:ui-flow-shell:validate` to fail fast when a checkpoint no longer maps to a
+Next.js page template or required journey sequence.
 
 ## Commands
 
@@ -31,6 +35,8 @@ npm.cmd run qc:scenarios:validate
 npm.cmd run qc:scenarios -- --tier=core
 npm.cmd run qc:scenarios -- --surface=gameplay-tactical-map-combat --tier=standard
 npm.cmd run qc:journeys:validate
+npm.cmd run qc:ui-flow-shell:validate
+npm.cmd run qc:ui-flow-shell -- --journey=contract-campaign
 npm.cmd run qc:logging:validate
 npm.cmd run qc:graph -- --query=mek-build
 npm.cmd run qc:journeys -- --journey=all --tier=smoke
@@ -40,6 +46,7 @@ npm.cmd run qc:logs -- --run-id=latest --level=warn,error
 npm.cmd run qc:logs -- --run-id=latest --level=warn,error --exclude-probes
 npm.cmd run verify:qc:scenarios
 npm.cmd run verify:qc:journeys
+npm.cmd run verify:qc:ui-flow-shell
 npm.cmd run verify:qc:campaign-long
 npm.cmd run verify:qc:partial:quick
 npm.cmd run verify:qc:tactical:quick

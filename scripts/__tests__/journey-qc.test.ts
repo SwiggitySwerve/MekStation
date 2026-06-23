@@ -112,6 +112,88 @@ describe('journey QC scripts', () => {
     );
   });
 
+  it('fails validation when a required UI flow checkpoint is missing', () => {
+    const shell = readJson<{
+      flows: Array<{
+        journeyId: string;
+        checkpoints: Array<{ id: string }>;
+      }>;
+    }>(path.join(repoRoot, 'src/qc/gameplayUiFlowShell.json'));
+    const contractFlow = shell.flows.find(
+      (flow) => flow.journeyId === 'contract-campaign',
+    );
+    expect(contractFlow).toBeDefined();
+    contractFlow!.checkpoints = contractFlow!.checkpoints.filter(
+      (checkpoint) => checkpoint.id !== 'salvage',
+    );
+    const shellPath = path.join(evidenceDir, 'missing-checkpoint-ui-flow.json');
+    writeJson(shellPath, shell);
+
+    const result = runNodeScript('scripts/qc/validate-journey-qc.mjs', [], {
+      MEKSTATION_UI_FLOW_SHELL_PATH: shellPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'UI flow contract-campaign: missing required checkpoint salvage in the expected route order.',
+    );
+  });
+
+  it('fails validation when a UI flow primary action label is missing', () => {
+    const shell = readJson<{
+      flows: Array<{
+        journeyId: string;
+        primaryAction: { label: string };
+      }>;
+    }>(path.join(repoRoot, 'src/qc/gameplayUiFlowShell.json'));
+    shell.flows[0]!.primaryAction.label = '';
+    const shellPath = path.join(evidenceDir, 'bad-primary-action-ui-flow.json');
+    writeJson(shellPath, shell);
+
+    const result = runNodeScript('scripts/qc/validate-journey-qc.mjs', [], {
+      MEKSTATION_UI_FLOW_SHELL_PATH: shellPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'UI flow character-build: primaryAction label is required.',
+    );
+  });
+
+  it('prints a focused UI flow shell inspection for one journey', () => {
+    const result = runNodeScript('scripts/qc/inspect-ui-flow-shell.mjs', [
+      '--journey=contract-campaign',
+    ]);
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('# Gameplay UI flow shell');
+    expect(result.stdout).toContain('Contract campaign scenario');
+    expect(result.stdout).toContain('QC command: npm.cmd run qc:journeys');
+    expect(result.stdout).toContain('Salvage [both]');
+  });
+
+  it('emits JSON UI flow shell inspection for automation', () => {
+    const result = runNodeScript('scripts/qc/inspect-ui-flow-shell.mjs', [
+      '--journey=campaign-long',
+      '--json',
+    ]);
+
+    expect(result.status).toBe(0);
+    const inspection = JSON.parse(result.stdout) as {
+      status: string;
+      selectedFlowCount: number;
+      flows: Array<{ checkpointIds: string[]; qcCommand: string }>;
+    };
+    expect(inspection.status).toBe('pass');
+    expect(inspection.selectedFlowCount).toBe(1);
+    expect(inspection.flows[0]?.qcCommand).toContain(
+      'qc:campaign-long:stability',
+    );
+    expect(inspection.flows[0]?.checkpointIds).toEqual(
+      expect.arrayContaining(['campaign-base', 'starmap', 'campaign-log']),
+    );
+  });
+
   it('rejects malformed integer journey parameter overrides before writing evidence', () => {
     const result = runNodeScript('scripts/qc/run-journey-scenarios.mjs', [
       '--journey=campaign-short',

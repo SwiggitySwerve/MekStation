@@ -34,6 +34,16 @@ export const GM_TACTICAL_COMMAND_IDS = [
 ] as const;
 
 export type GmTacticalCommandId = (typeof GM_TACTICAL_COMMAND_IDS)[number];
+type CombatGmTacticalCommandId = Exclude<
+  GmTacticalCommandId,
+  'gm.reload-unit' | 'gm.grant-resource'
+>;
+type CombatCorrectionBuilder = <TState>(
+  input: ICreateGmTacticalCommandPreviewInput<TState>,
+) => GmCombatInterventionCorrection;
+type PublicSummaryBuilder = (
+  correction: GmCombatInterventionCorrection,
+) => string;
 
 export interface IGmTacticalCommandIntent {
   readonly commandId: GmTacticalCommandId;
@@ -69,6 +79,92 @@ const PHASE_ORDER: readonly GamePhase[] = [
   GamePhase.Heat,
   GamePhase.End,
 ];
+const NON_COMBAT_COMMAND_IDS = new Set<GmTacticalCommandId>([
+  'gm.reload-unit',
+  'gm.grant-resource',
+]);
+const DEFAULT_COMBAT_CORRECTION_BUILDERS: Record<
+  CombatGmTacticalCommandId,
+  CombatCorrectionBuilder
+> = {
+  'gm.advance-phase': (input) => ({
+    family: 'turn-order',
+    phase: nextPhase(input.ctx.phase),
+    activeUnitId: input.ctx.activeUnitId,
+  }),
+  'gm.set-position-facing': (input) => ({
+    family: 'reposition-facing',
+    unitId: selectedOrActiveUnitId(input.ctx),
+    position: input.ctx.hoveredHex ?? undefined,
+  }),
+  'gm.set-damage': (input) => ({
+    family: 'damage-critical',
+    unitId: selectedOrActiveUnitId(input.ctx),
+  }),
+  'gm.set-heat-ammo': (input) => ({
+    family: 'heat-ammo',
+    unitId: selectedOrActiveUnitId(input.ctx),
+  }),
+  'gm.set-initiative': (input) => ({
+    family: 'turn-order',
+    activeUnitId: input.ctx.activeUnitId,
+  }),
+  'gm.set-lifecycle': (input) => ({
+    family: 'lifecycle',
+    unitId: selectedOrActiveUnitId(input.ctx),
+    lifecycle: 'rescued',
+  }),
+  'gm.correct-attack': (input) => ({
+    family: 'attack-resolution',
+    attackId: '',
+    attackerId: input.ctx.activeUnitId ?? '',
+    targetId: input.ctx.targetUnitId ?? '',
+    weaponId: '',
+    roll: Number.NaN,
+    toHitNumber: Number.NaN,
+    hit: false,
+  }),
+  'gm.set-objective': () => ({
+    family: 'objective-state',
+  }),
+};
+const DEFAULT_REASON_BY_COMMAND: Record<GmTacticalCommandId, string> = {
+  'gm.advance-phase': 'GM requested a tactical phase correction.',
+  'gm.set-position-facing':
+    'GM requested a tactical position or facing correction.',
+  'gm.set-damage': 'GM requested a tactical damage correction.',
+  'gm.set-heat-ammo': 'GM requested a tactical heat or ammunition correction.',
+  'gm.set-initiative':
+    'GM requested a tactical initiative or turn-order correction.',
+  'gm.set-lifecycle': 'GM requested a tactical unit lifecycle correction.',
+  'gm.correct-attack': 'GM requested a tactical attack-resolution correction.',
+  'gm.set-objective': 'GM requested a tactical objective-state correction.',
+  'gm.reload-unit': 'GM requested an active-unit source data reload.',
+  'gm.grant-resource': 'GM requested a tactical resource correction.',
+};
+const DEFAULT_PUBLIC_SUMMARY_BY_COMMAND: Record<
+  GmTacticalCommandId,
+  PublicSummaryBuilder
+> = {
+  'gm.advance-phase': () =>
+    'GM preview requested for a combat phase correction.',
+  'gm.set-position-facing': (correction) =>
+    `GM preview requested for a position/facing correction on ${unitIdForSummary(correction)}.`,
+  'gm.set-damage': (correction) =>
+    `GM preview requested for a damage correction on ${unitIdForSummary(correction)}.`,
+  'gm.set-heat-ammo': (correction) =>
+    `GM preview requested for a heat/ammo correction on ${unitIdForSummary(correction)}.`,
+  'gm.set-initiative': () =>
+    'GM preview requested for an initiative or turn-order correction.',
+  'gm.set-lifecycle': (correction) =>
+    `GM preview requested for a lifecycle correction on ${unitIdForSummary(correction)}.`,
+  'gm.correct-attack': () =>
+    'GM preview requested for an attack-resolution correction.',
+  'gm.set-objective': () =>
+    'GM preview requested for an objective-state correction.',
+  'gm.reload-unit': () => 'GM preview requested for a tactical correction.',
+  'gm.grant-resource': () => 'GM preview requested for a tactical correction.',
+};
 
 export function buildGmTacticalCommandIntent(
   commandId: GmTacticalCommandId,
@@ -198,62 +294,11 @@ function buildEconomyCommand<TState>(
 function buildDefaultCombatCorrection<TState>(
   input: ICreateGmTacticalCommandPreviewInput<TState>,
 ): GmCombatInterventionCorrection {
-  const { commandId, ctx } = input;
-  const unitId = selectedOrActiveUnitId(ctx);
-
-  switch (commandId) {
-    case 'gm.advance-phase':
-      return {
-        family: 'turn-order',
-        phase: nextPhase(ctx.phase),
-        activeUnitId: ctx.activeUnitId,
-      };
-    case 'gm.set-position-facing':
-      return {
-        family: 'reposition-facing',
-        unitId,
-        position: ctx.hoveredHex ?? undefined,
-      };
-    case 'gm.set-damage':
-      return {
-        family: 'damage-critical',
-        unitId,
-      };
-    case 'gm.set-heat-ammo':
-      return {
-        family: 'heat-ammo',
-        unitId,
-      };
-    case 'gm.set-initiative':
-      return {
-        family: 'turn-order',
-        activeUnitId: ctx.activeUnitId,
-      };
-    case 'gm.set-lifecycle':
-      return {
-        family: 'lifecycle',
-        unitId,
-        lifecycle: 'rescued',
-      };
-    case 'gm.correct-attack':
-      return {
-        family: 'attack-resolution',
-        attackId: '',
-        attackerId: ctx.activeUnitId ?? '',
-        targetId: ctx.targetUnitId ?? '',
-        weaponId: '',
-        roll: Number.NaN,
-        toHitNumber: Number.NaN,
-        hit: false,
-      };
-    case 'gm.set-objective':
-      return {
-        family: 'objective-state',
-      };
-    case 'gm.grant-resource':
-    case 'gm.reload-unit':
-      throw new Error(`${commandId} does not map to a combat correction.`);
+  const { commandId } = input;
+  if (isNonCombatCommandId(commandId)) {
+    throw new Error(`${commandId} does not map to a combat correction.`);
   }
+  return DEFAULT_COMBAT_CORRECTION_BUILDERS[commandId](input);
 }
 
 function targetRefsForCombatCorrection(
@@ -297,55 +342,14 @@ function buildPrivateMetadata<TState>(
 }
 
 function defaultReason(commandId: GmTacticalCommandId): string {
-  switch (commandId) {
-    case 'gm.advance-phase':
-      return 'GM requested a tactical phase correction.';
-    case 'gm.set-position-facing':
-      return 'GM requested a tactical position or facing correction.';
-    case 'gm.set-damage':
-      return 'GM requested a tactical damage correction.';
-    case 'gm.set-heat-ammo':
-      return 'GM requested a tactical heat or ammunition correction.';
-    case 'gm.set-initiative':
-      return 'GM requested a tactical initiative or turn-order correction.';
-    case 'gm.set-lifecycle':
-      return 'GM requested a tactical unit lifecycle correction.';
-    case 'gm.correct-attack':
-      return 'GM requested a tactical attack-resolution correction.';
-    case 'gm.set-objective':
-      return 'GM requested a tactical objective-state correction.';
-    case 'gm.reload-unit':
-      return 'GM requested an active-unit source data reload.';
-    case 'gm.grant-resource':
-      return 'GM requested a tactical resource correction.';
-  }
+  return DEFAULT_REASON_BY_COMMAND[commandId];
 }
 
 function defaultPublicSummary(
   commandId: GmTacticalCommandId,
   correction: GmCombatInterventionCorrection,
 ): string {
-  switch (commandId) {
-    case 'gm.advance-phase':
-      return 'GM preview requested for a combat phase correction.';
-    case 'gm.set-position-facing':
-      return `GM preview requested for a position/facing correction on ${unitIdForSummary(correction)}.`;
-    case 'gm.set-damage':
-      return `GM preview requested for a damage correction on ${unitIdForSummary(correction)}.`;
-    case 'gm.set-heat-ammo':
-      return `GM preview requested for a heat/ammo correction on ${unitIdForSummary(correction)}.`;
-    case 'gm.set-initiative':
-      return 'GM preview requested for an initiative or turn-order correction.';
-    case 'gm.set-lifecycle':
-      return `GM preview requested for a lifecycle correction on ${unitIdForSummary(correction)}.`;
-    case 'gm.correct-attack':
-      return 'GM preview requested for an attack-resolution correction.';
-    case 'gm.set-objective':
-      return 'GM preview requested for an objective-state correction.';
-    case 'gm.reload-unit':
-    case 'gm.grant-resource':
-      return 'GM preview requested for a tactical correction.';
-  }
+  return DEFAULT_PUBLIC_SUMMARY_BY_COMMAND[commandId](correction);
 }
 
 function unitIdForSummary(correction: GmCombatInterventionCorrection): string {
@@ -354,6 +358,12 @@ function unitIdForSummary(correction: GmCombatInterventionCorrection): string {
 
 function selectedOrActiveUnitId(ctx: ITacticalCommandContext): string {
   return ctx.selectedUnitId ?? ctx.activeUnitId ?? 'unselected';
+}
+
+function isNonCombatCommandId(
+  commandId: GmTacticalCommandId,
+): commandId is Exclude<GmTacticalCommandId, CombatGmTacticalCommandId> {
+  return NON_COMBAT_COMMAND_IDS.has(commandId);
 }
 
 function nextPhase(phase: GamePhase): GamePhase {
