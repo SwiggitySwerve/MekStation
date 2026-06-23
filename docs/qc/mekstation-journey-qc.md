@@ -18,6 +18,8 @@ scenario catalog.
 
 ```powershell
 npm.cmd run qc:journeys:validate
+npm.cmd run qc:ui-flow-shell:validate
+npm.cmd run qc:ui-flow-shell -- --journey=contract-campaign
 npm.cmd run qc:logging:validate
 npm.cmd run qc:graph -- --query=mek-build
 npm.cmd run qc:journeys -- --journey=all --tier=smoke
@@ -31,6 +33,7 @@ npm.cmd run qc:journeys:bugs -- --since=latest --min-severity=medium
 npm.cmd run qc:logs -- --run-id=latest --level=warn,error
 npm.cmd run qc:logs -- --run-id=latest --level=warn,error --exclude-probes
 npm.cmd run verify:qc:journeys
+npm.cmd run verify:qc:ui-flow-shell
 npm.cmd run verify:qc:campaign-long
 ```
 
@@ -38,6 +41,9 @@ npm.cmd run verify:qc:campaign-long
 journey must have a UI flow entry, every UI flow journey must exist in the
 catalog and validation graph, and every route checkpoint must map to a Next.js
 page template such as `/gameplay/campaigns/[id]/salvage`.
+`qc:ui-flow-shell` prints the player/GM route sequence for a selected journey,
+while `qc:ui-flow-shell:validate` checks the dedicated shell contract,
+including required checkpoint order for the major journey flows.
 
 ## Supported Journeys
 
@@ -64,6 +70,8 @@ It maps each supported journey to:
 Route placeholders are validation targets, not generated runtime IDs. The
 validator normalizes them against the concrete Next.js page templates before
 accepting the registry.
+The inspector can be filtered with `--journey=<id>` and can emit automation
+JSON with `--json`.
 
 ## Common Parameters
 

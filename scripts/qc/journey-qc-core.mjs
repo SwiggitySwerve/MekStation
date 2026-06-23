@@ -73,6 +73,74 @@ const graphRelations = new Set([
   'blocked-by',
   'documents-gap',
 ]);
+const requiredCheckpointIdsByJourney = new Map([
+  ['character-build', ['pilot-create', 'pilot-roster', 'force-assignment']],
+  [
+    'mek-build',
+    ['customizer', 'unit-catalog', 'force-roster', 'campaign-mech-bay'],
+  ],
+  [
+    'combat-1v1',
+    [
+      'quick-setup',
+      'encounter-create',
+      'pre-battle',
+      'tactical-combat',
+      'gm-review',
+      'victory',
+    ],
+  ],
+  [
+    'combat-4v4',
+    [
+      'force-build',
+      'encounter-create',
+      'pre-battle',
+      'tactical-combat',
+      'gm-review',
+      'replay',
+    ],
+  ],
+  [
+    'contract-campaign',
+    [
+      'campaign-base',
+      'contract-market',
+      'mission-launch',
+      'tactical-combat',
+      'post-combat',
+      'salvage',
+      'repair',
+      'economy',
+      'gm-log',
+    ],
+  ],
+  [
+    'campaign-short',
+    [
+      'campaign-base',
+      'starmap',
+      'contracts',
+      'missions',
+      'repair',
+      'personnel',
+      'finances',
+      'campaign-log',
+    ],
+  ],
+  [
+    'campaign-long',
+    [
+      'campaign-base',
+      'starmap',
+      'medical',
+      'salvage',
+      'repair',
+      'finances',
+      'campaign-log',
+    ],
+  ],
+]);
 
 export function toRepoRelative(filePath) {
   return path.relative(repoRoot, filePath).replaceAll('\\', '/');
@@ -112,6 +180,10 @@ export function parseArgs(argv) {
     }
     if (arg === '--json') {
       options.json = true;
+      continue;
+    }
+    if (arg === '--validate-only') {
+      options.validateOnly = true;
       continue;
     }
     if (arg === '--exclude-probes') {
@@ -664,6 +736,34 @@ function validateFlowRoute(flowId, label, href, issues, pageRoutes) {
   }
 }
 
+function validateRequiredCheckpointOrder(flow, issues) {
+  const requiredCheckpointIds = requiredCheckpointIdsByJourney.get(
+    flow.journeyId,
+  );
+  if (!requiredCheckpointIds) return;
+
+  const actualCheckpointIds = flow.checkpoints.map(
+    (checkpoint) => checkpoint.id,
+  );
+  let cursor = -1;
+  for (const requiredCheckpointId of requiredCheckpointIds) {
+    const nextIndex = actualCheckpointIds.indexOf(
+      requiredCheckpointId,
+      cursor + 1,
+    );
+    if (nextIndex === -1) {
+      issues.push(
+        issue(
+          'error',
+          `UI flow ${flow.journeyId}: missing required checkpoint ${requiredCheckpointId} in the expected route order.`,
+        ),
+      );
+      continue;
+    }
+    cursor = nextIndex;
+  }
+}
+
 export function validateUiFlowShell(uiFlowShell, catalog, graph) {
   const issues = [];
   const allowedVisibility = new Set(['player', 'gm', 'both']);
@@ -779,6 +879,17 @@ export function validateUiFlowShell(uiFlowShell, catalog, graph) {
         issue('error', `UI flow ${flow.journeyId}: primaryAction is required.`),
       );
     } else {
+      if (
+        typeof flow.primaryAction.label !== 'string' ||
+        flow.primaryAction.label.trim() === ''
+      ) {
+        issues.push(
+          issue(
+            'error',
+            `UI flow ${flow.journeyId}: primaryAction label is required.`,
+          ),
+        );
+      }
       validateFlowRoute(
         flow.journeyId,
         'primary action',
@@ -840,6 +951,7 @@ export function validateUiFlowShell(uiFlowShell, catalog, graph) {
         pageRoutes,
       );
     }
+    validateRequiredCheckpointOrder(flow, issues);
   }
 
   const requiredIds = catalog.requiredJourneyIds ?? requiredJourneyIds;
@@ -862,6 +974,62 @@ export function validateUiFlowShell(uiFlowShell, catalog, graph) {
   }
 
   return issues;
+}
+
+export function buildUiFlowShellInspection(
+  uiFlowShell,
+  catalog,
+  graph,
+  options,
+) {
+  const issues = validateUiFlowShell(uiFlowShell, catalog, graph);
+  const selectedJourneyId = options?.journey ?? 'all';
+  const selectedFlows =
+    selectedJourneyId === 'all'
+      ? uiFlowShell.flows
+      : uiFlowShell.flows.filter(
+          (flow) => flow.journeyId === selectedJourneyId,
+        );
+  if (selectedJourneyId !== 'all' && selectedFlows.length === 0) {
+    issues.push(
+      issue(
+        'error',
+        `UI flow shell has no flow for requested journey ${selectedJourneyId}.`,
+      ),
+    );
+  }
+
+  const errors = issues.filter((item) => item.severity === 'error');
+  const warnings = issues.filter((item) => item.severity === 'warning');
+  return {
+    version: 1,
+    status: errors.length > 0 ? 'fail' : 'pass',
+    selectedJourneyId,
+    sourceCatalog: uiFlowShell.sourceCatalog,
+    sourceGraph: uiFlowShell.sourceGraph,
+    flowCount: uiFlowShell.flows.length,
+    selectedFlowCount: selectedFlows.length,
+    issues,
+    errors,
+    warnings,
+    flows: selectedFlows.map((flow) => ({
+      journeyId: flow.journeyId,
+      displayName: flow.displayName,
+      module: flow.module,
+      roleIntent: flow.roleIntent,
+      primaryAction: flow.primaryAction,
+      qcCommand: flow.qcCommand,
+      checkpointCount: flow.checkpoints.length,
+      checkpointIds: flow.checkpoints.map((checkpoint) => checkpoint.id),
+      checkpoints: flow.checkpoints.map((checkpoint) => ({
+        id: checkpoint.id,
+        label: checkpoint.label,
+        href: checkpoint.href,
+        visibility: checkpoint.visibility,
+      })),
+      inspectionNotes: flow.inspectionNotes,
+    })),
+  };
 }
 
 export function printIssues(issues) {
