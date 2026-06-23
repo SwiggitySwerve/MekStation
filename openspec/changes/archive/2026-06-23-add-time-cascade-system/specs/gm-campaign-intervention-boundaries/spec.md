@@ -1,9 +1,5 @@
-# gm-campaign-intervention-boundaries Specification
+## MODIFIED Requirements
 
-## Purpose
-
-Defines the campaign boundary for GM interventions, including ledger-backed post-combat, economy, repair, salvage, and accumulated time-cascade domains once each implementer declares safe mutable roots and public projections.
-## Requirements
 ### Requirement: First Slice Defers Campaign Cascades
 
 The campaign intervention boundary SHALL support ledger-backed post-combat amendments, base/economy corrections, repair corrections, salvage corrections, and accumulated time cascades through registered domain implementers. Registered time-cascade implementers SHALL declare safe mutable roots, public projections, and manual-takeover conflict handling before applying any campaign time mutation.
@@ -42,38 +38,7 @@ The system SHALL document and preserve extension seams for intervention ledger i
 - **THEN** the preview SHALL identify the affected travel, repair progress, contract window, market refresh, pilot recovery, upkeep, and campaign date roots
 - **AND** the preview SHALL explicitly mark external-store effects as projected or manual-takeover conflicts
 
-### Requirement: Deferred Domain Logging
-
-The system SHALL log deferred domain intervention attempts so missing campaign support is visible during testing without applying unsupported state changes.
-
-#### Scenario: Deferred request is logged safely
-- **GIVEN** a GM requests a deferred time cascade intervention
-- **WHEN** the intervention pipeline returns a deferred result
-- **THEN** the system SHALL log the domain, actor, target refs, and deferred reason
-- **AND** the log SHALL NOT include hidden scenario notes in any player-visible output
-
-### Requirement: Ledger-Backed Campaign Correction Domains
-
-The system SHALL provide campaign intervention implementers for `post-combat`, `economy`, `repair`, and `salvage`. These implementers SHALL support targeted corrections for salvage allocations, repair tickets, funds transactions, parts inventory lots, and base unit state or configuration roots.
-
-#### Scenario: GM previews targeted campaign correction
-- **GIVEN** the owning GM requests a targeted campaign correction
-- **WHEN** the correction references an existing supported campaign root or provides a complete replacement for that root
-- **THEN** the preview SHALL be ready
-- **AND** the preview SHALL include changed state references for only the affected campaign roots
-- **AND** no campaign state SHALL be mutated before approval
-
-#### Scenario: Ambiguous campaign cascade requires manual takeover
-- **GIVEN** a campaign correction declares unresolved cascading conflicts
-- **WHEN** the GM requests a preview
-- **THEN** the preview SHALL require manual takeover
-- **AND** the approval pipeline SHALL NOT append the intervention automatically
-
-#### Scenario: Approved campaign correction replays from ledger record
-- **GIVEN** a ready campaign correction preview
-- **WHEN** the GM approves it
-- **THEN** the intervention ledger SHALL append an approved campaign intervention record
-- **AND** replaying the record's projected effects SHALL derive the same corrected campaign state
+## ADDED Requirements
 
 ### Requirement: Ledger-Backed Time Cascade Domain
 

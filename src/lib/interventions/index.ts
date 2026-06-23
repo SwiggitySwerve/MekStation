@@ -37,6 +37,11 @@ export {
 } from './GmCampaignInterventionImplementer';
 
 export {
+  createGmTimeCascadeInterventionImplementer,
+  registerGmTimeCascadeInterventionImplementer,
+} from './GmTimeCascadeInterventionImplementer';
+
+export {
   applyGmCombatProjectedEffects,
   projectCombatEffectsForRecord,
 } from './GmCombatInterventionProjection';
@@ -45,6 +50,11 @@ export {
   applyGmCampaignProjectedEffects,
   projectCampaignEffectsForRecord,
 } from './GmCampaignInterventionProjection';
+
+export {
+  applyGmTimeCascadeProjectedEffects,
+  projectTimeCascadeEffectsForRecord,
+} from './GmTimeCascadeProjection';
 
 export {
   createGmUnitReloadInterventionImplementer,
