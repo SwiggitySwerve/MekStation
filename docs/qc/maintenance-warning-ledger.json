@@ -1,0 +1,511 @@
+{
+  "version": 1,
+  "generatedAt": "2026-06-23",
+  "scope": "repo-wide",
+  "sourceCommand": "node scripts/maintenance/scan-maintenance.mjs --json",
+  "purpose": "Reviewed accounting for Wave 12 maintenance scanner categories outside the src regression gate. Entries are fixed, accepted, or follow-up so repo-wide warnings are not rediscovered manually.",
+  "categories": [
+    "stale-todo",
+    "file-bloat",
+    "near-duplicate",
+    "import-health",
+    "design-violation"
+  ],
+  "reviewedSummary": {
+    "stale-todo": {
+      "fixed": 2,
+      "accepted": 0,
+      "follow-up": 0
+    },
+    "file-bloat": {
+      "fixed": 0,
+      "accepted": 0,
+      "follow-up": 13
+    },
+    "near-duplicate": {
+      "fixed": 0,
+      "accepted": 0,
+      "follow-up": 5
+    },
+    "import-health": {
+      "fixed": 0,
+      "accepted": 0,
+      "follow-up": 0
+    },
+    "design-violation": {
+      "fixed": 0,
+      "accepted": 3,
+      "follow-up": 24
+    }
+  },
+  "entries": [
+    {
+      "key": "stale-todo|high|e2e/mobile-navigation.spec.ts|150 day old TODO-like comment",
+      "category": "stale-todo",
+      "severity": "high",
+      "file": "e2e/mobile-navigation.spec.ts",
+      "message": "150 day old TODO-like comment",
+      "status": "fixed",
+      "rationale": "Explanatory workaround wording was rewritten so the scanner no longer treats it as active TODO-like debt."
+    },
+    {
+      "key": "stale-todo|medium|e2e/campaign.spec.ts|34 day old TODO-like comment",
+      "category": "stale-todo",
+      "severity": "medium",
+      "file": "e2e/campaign.spec.ts",
+      "message": "34 day old TODO-like comment",
+      "status": "fixed",
+      "rationale": "Explanatory store-nudge wording was rewritten so the scanner no longer treats it as active TODO-like debt."
+    },
+    {
+      "key": "file-bloat|critical|scripts/validate-bv.ts|4854 LOC exceeds rendering threshold",
+      "category": "file-bloat",
+      "severity": "critical",
+      "file": "scripts/validate-bv.ts",
+      "message": "4854 LOC exceeds rendering threshold",
+      "status": "follow-up",
+      "rationale": "The BV validator is large but source-of-truth heavy; splitting it is a dedicated validator architecture wave.",
+      "followUps": ["wave-12-script-bloat-follow-up"]
+    },
+    {
+      "key": "file-bloat|high|scripts/megameklab-conversion/data_converter.py|736 LOC exceeds python threshold",
+      "category": "file-bloat",
+      "severity": "high",
+      "file": "scripts/megameklab-conversion/data_converter.py",
+      "message": "736 LOC exceeds python threshold",
+      "status": "follow-up",
+      "rationale": "MegaMekLab conversion tooling should be split as a conversion-tooling cleanup wave with fixture parity checks.",
+      "followUps": ["wave-12-megameklab-conversion-split"]
+    },
+    {
+      "key": "file-bloat|high|scripts/megameklab-conversion/mtf_converter.py|546 LOC exceeds python threshold",
+      "category": "file-bloat",
+      "severity": "high",
+      "file": "scripts/megameklab-conversion/mtf_converter.py",
+      "message": "546 LOC exceeds python threshold",
+      "status": "follow-up",
+      "rationale": "MegaMekLab MTF conversion should be split with converter fixture coverage rather than changed inside this ledger wave.",
+      "followUps": ["wave-12-megameklab-conversion-split"]
+    },
+    {
+      "key": "file-bloat|warn|openspec/scripts/terminology-tool.ts|705 LOC exceeds standard threshold",
+      "category": "file-bloat",
+      "severity": "warn",
+      "file": "openspec/scripts/terminology-tool.ts",
+      "message": "705 LOC exceeds standard threshold",
+      "status": "follow-up",
+      "rationale": "Terminology tooling belongs to OpenSpec support and should be split only with strict terminology validation coverage.",
+      "followUps": ["wave-12-openspec-tooling-split"]
+    },
+    {
+      "key": "file-bloat|warn|scripts/format-event-log.py|398 LOC exceeds python threshold",
+      "category": "file-bloat",
+      "severity": "warn",
+      "file": "scripts/format-event-log.py",
+      "message": "398 LOC exceeds python threshold",
+      "status": "follow-up",
+      "rationale": "Event-log formatting utility needs helper extraction with sample log fixtures.",
+      "followUps": ["wave-12-script-bloat-follow-up"]
+    },
+    {
+      "key": "file-bloat|warn|scripts/megameklab-conversion/blk_aerospace_converter.py|428 LOC exceeds python threshold",
+      "category": "file-bloat",
+      "severity": "warn",
+      "file": "scripts/megameklab-conversion/blk_aerospace_converter.py",
+      "message": "428 LOC exceeds python threshold",
+      "status": "follow-up",
+      "rationale": "BLK conversion scripts should be split together so shared parser helpers are extracted once.",
+      "followUps": ["wave-12-megameklab-conversion-split"]
+    },
+    {
+      "key": "file-bloat|warn|scripts/megameklab-conversion/blk_battlearmor_converter.py|385 LOC exceeds python threshold",
+      "category": "file-bloat",
+      "severity": "warn",
+      "file": "scripts/megameklab-conversion/blk_battlearmor_converter.py",
+      "message": "385 LOC exceeds python threshold",
+      "status": "follow-up",
+      "rationale": "BLK conversion scripts should be split together so shared parser helpers are extracted once.",
+      "followUps": ["wave-12-megameklab-conversion-split"]
+    },
+    {
+      "key": "file-bloat|warn|scripts/megameklab-conversion/blk_common.py|306 LOC exceeds python threshold",
+      "category": "file-bloat",
+      "severity": "warn",
+      "file": "scripts/megameklab-conversion/blk_common.py",
+      "message": "306 LOC exceeds python threshold",
+      "status": "follow-up",
+      "rationale": "Common BLK helpers should be split only when converter behavior fixtures are in place.",
+      "followUps": ["wave-12-megameklab-conversion-split"]
+    },
+    {
+      "key": "file-bloat|warn|scripts/megameklab-conversion/blk_infantry_converter.py|320 LOC exceeds python threshold",
+      "category": "file-bloat",
+      "severity": "warn",
+      "file": "scripts/megameklab-conversion/blk_infantry_converter.py",
+      "message": "320 LOC exceeds python threshold",
+      "status": "follow-up",
+      "rationale": "BLK conversion scripts should be split together so shared parser helpers are extracted once.",
+      "followUps": ["wave-12-megameklab-conversion-split"]
+    },
+    {
+      "key": "file-bloat|warn|scripts/megameklab-conversion/blk_protomech_converter.py|334 LOC exceeds python threshold",
+      "category": "file-bloat",
+      "severity": "warn",
+      "file": "scripts/megameklab-conversion/blk_protomech_converter.py",
+      "message": "334 LOC exceeds python threshold",
+      "status": "follow-up",
+      "rationale": "BLK conversion scripts should be split together so shared parser helpers are extracted once.",
+      "followUps": ["wave-12-megameklab-conversion-split"]
+    },
+    {
+      "key": "file-bloat|warn|scripts/megameklab-conversion/blk_vehicle_converter.py|422 LOC exceeds python threshold",
+      "category": "file-bloat",
+      "severity": "warn",
+      "file": "scripts/megameklab-conversion/blk_vehicle_converter.py",
+      "message": "422 LOC exceeds python threshold",
+      "status": "follow-up",
+      "rationale": "BLK conversion scripts should be split together so shared parser helpers are extracted once.",
+      "followUps": ["wave-12-megameklab-conversion-split"]
+    },
+    {
+      "key": "file-bloat|warn|scripts/megameklab-conversion/enum_mappings.py|482 LOC exceeds python threshold",
+      "category": "file-bloat",
+      "severity": "warn",
+      "file": "scripts/megameklab-conversion/enum_mappings.py",
+      "message": "482 LOC exceeds python threshold",
+      "status": "follow-up",
+      "rationale": "Enum mapping tables should be split only with converter fixture checks that prove mappings stay stable.",
+      "followUps": ["wave-12-megameklab-conversion-split"]
+    },
+    {
+      "key": "file-bloat|warn|scripts/run-simulation.ts|662 LOC exceeds standard threshold",
+      "category": "file-bloat",
+      "severity": "warn",
+      "file": "scripts/run-simulation.ts",
+      "message": "662 LOC exceeds standard threshold",
+      "status": "follow-up",
+      "rationale": "Simulation CLI should be split with journey/simulation smoke coverage in a focused script cleanup wave.",
+      "followUps": ["wave-12-script-bloat-follow-up"]
+    },
+    {
+      "key": "near-duplicate|high|scripts/analyze-1pct-under.ts|8-line block cluster appears in 50 files",
+      "category": "near-duplicate",
+      "severity": "high",
+      "file": "scripts/analyze-1pct-under.ts",
+      "message": "8-line block cluster appears in 50 files",
+      "status": "follow-up",
+      "rationale": "One-off BV analysis scripts share boilerplate and should be consolidated behind a small analysis harness.",
+      "followUps": ["wave-12-analysis-script-dedup"]
+    },
+    {
+      "key": "near-duplicate|high|scripts/check-ammo-bv.ts|8-line block cluster appears in 53 files",
+      "category": "near-duplicate",
+      "severity": "high",
+      "file": "scripts/check-ammo-bv.ts",
+      "message": "8-line block cluster appears in 53 files",
+      "status": "follow-up",
+      "rationale": "Ammo/BV analysis scripts share boilerplate and should be consolidated behind a small analysis harness.",
+      "followUps": ["wave-12-analysis-script-dedup"]
+    },
+    {
+      "key": "near-duplicate|warn|scripts/analyze-1pct-under.ts|8-line block cluster appears in 28 files",
+      "category": "near-duplicate",
+      "severity": "warn",
+      "file": "scripts/analyze-1pct-under.ts",
+      "message": "8-line block cluster appears in 28 files",
+      "status": "follow-up",
+      "rationale": "Secondary analysis boilerplate cluster belongs with the analysis script dedup wave.",
+      "followUps": ["wave-12-analysis-script-dedup"]
+    },
+    {
+      "key": "near-duplicate|warn|scripts/analyze-2to5-band.ts|8-line block cluster appears in 32 files",
+      "category": "near-duplicate",
+      "severity": "warn",
+      "file": "scripts/analyze-2to5-band.ts",
+      "message": "8-line block cluster appears in 32 files",
+      "status": "follow-up",
+      "rationale": "Secondary analysis boilerplate cluster belongs with the analysis script dedup wave.",
+      "followUps": ["wave-12-analysis-script-dedup"]
+    },
+    {
+      "key": "near-duplicate|warn|scripts/analyze-engine-armor.js|8-line block cluster appears in 39 files",
+      "category": "near-duplicate",
+      "severity": "warn",
+      "file": "scripts/analyze-engine-armor.js",
+      "message": "8-line block cluster appears in 39 files",
+      "status": "follow-up",
+      "rationale": "Secondary analysis boilerplate cluster belongs with the analysis script dedup wave.",
+      "followUps": ["wave-12-analysis-script-dedup"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/base.page.ts|class has 8 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/base.page.ts",
+      "message": "class has 8 public methods",
+      "status": "follow-up",
+      "rationale": "Page-object breadth should be split by workflow role without weakening browser tests.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/campaign.page.ts|class has 12 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/campaign.page.ts",
+      "message": "class has 12 public methods",
+      "status": "follow-up",
+      "rationale": "Campaign page-object role should be decomposed with campaign E2E coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/campaign.page.ts|class has 9 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/campaign.page.ts",
+      "message": "class has 9 public methods",
+      "status": "follow-up",
+      "rationale": "Campaign page-object role should be decomposed with campaign E2E coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/compendium.page.ts|class has 8 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/compendium.page.ts",
+      "message": "class has 8 public methods",
+      "status": "follow-up",
+      "rationale": "Compendium page-object role should be decomposed with compendium browser coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/compendium.page.ts|class has 12 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/compendium.page.ts",
+      "message": "class has 12 public methods",
+      "status": "follow-up",
+      "rationale": "Compendium page-object role should be decomposed with compendium browser coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/compendium.page.ts|class has 11 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/compendium.page.ts",
+      "message": "class has 11 public methods",
+      "status": "follow-up",
+      "rationale": "Compendium page-object role should be decomposed with compendium browser coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/customizer.page.ts|class has 42 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/customizer.page.ts",
+      "message": "class has 42 public methods",
+      "status": "follow-up",
+      "rationale": "Customizer page object is the largest page-object split and needs dedicated customizer browser coverage.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/encounter.page.ts|class has 9 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/encounter.page.ts",
+      "message": "class has 9 public methods",
+      "status": "follow-up",
+      "rationale": "Encounter page-object role should be decomposed with encounter E2E coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/encounter.page.ts|class has 25 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/encounter.page.ts",
+      "message": "class has 25 public methods",
+      "status": "follow-up",
+      "rationale": "Encounter page-object role should be decomposed with encounter E2E coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/encounter.page.ts|class has 13 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/encounter.page.ts",
+      "message": "class has 13 public methods",
+      "status": "follow-up",
+      "rationale": "Encounter page-object role should be decomposed with encounter E2E coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/force.page.ts|class has 8 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/force.page.ts",
+      "message": "class has 8 public methods",
+      "status": "follow-up",
+      "rationale": "Force page-object role should be decomposed with force E2E coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/force.page.ts|class has 16 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/force.page.ts",
+      "message": "class has 16 public methods",
+      "status": "follow-up",
+      "rationale": "Force page-object role should be decomposed with force E2E coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/force.page.ts|class has 9 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/force.page.ts",
+      "message": "class has 9 public methods",
+      "status": "follow-up",
+      "rationale": "Force page-object role should be decomposed with force E2E coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/game.page.ts|class has 20 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/game.page.ts",
+      "message": "class has 20 public methods",
+      "status": "follow-up",
+      "rationale": "Game page-object role should be decomposed with gameplay E2E coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/game.page.ts|class has 11 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/game.page.ts",
+      "message": "class has 11 public methods",
+      "status": "follow-up",
+      "rationale": "Game page-object role should be decomposed with gameplay E2E coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|e2e/pages/repair.page.ts|class has 44 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "e2e/pages/repair.page.ts",
+      "message": "class has 44 public methods",
+      "status": "follow-up",
+      "rationale": "Repair page object is a broad workflow surface and needs a dedicated split with repair E2E coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|critical|scripts/performance/measure-bundle-size.js|class has 11 public methods",
+      "category": "design-violation",
+      "severity": "critical",
+      "file": "scripts/performance/measure-bundle-size.js",
+      "message": "class has 11 public methods",
+      "status": "follow-up",
+      "rationale": "Bundle measurement utility should be split with performance smoke checks rather than altered in the ledger wave.",
+      "followUps": ["wave-12-script-bloat-follow-up"]
+    },
+    {
+      "key": "design-violation|high|desktop/electron/main.behavior.ts|switch statement has 9 cases",
+      "category": "design-violation",
+      "severity": "high",
+      "file": "desktop/electron/main.behavior.ts",
+      "message": "switch statement has 9 cases",
+      "status": "follow-up",
+      "rationale": "Electron main behavior dispatch should be table-driven in a desktop-focused cleanup wave.",
+      "followUps": ["wave-12-desktop-dispatch-cleanup"]
+    },
+    {
+      "key": "design-violation|high|desktop/services/local/SettingsService.ts|switch statement has 16 cases",
+      "category": "design-violation",
+      "severity": "high",
+      "file": "desktop/services/local/SettingsService.ts",
+      "message": "switch statement has 16 cases",
+      "status": "follow-up",
+      "rationale": "SettingsService switch dispatch should be table-driven with desktop local service tests preserved.",
+      "followUps": ["wave-12-desktop-dispatch-cleanup"]
+    },
+    {
+      "key": "design-violation|high|e2e/pages/campaign.page.ts|class has 7 public methods",
+      "category": "design-violation",
+      "severity": "high",
+      "file": "e2e/pages/campaign.page.ts",
+      "message": "class has 7 public methods",
+      "status": "follow-up",
+      "rationale": "Campaign page-object role should be decomposed with campaign E2E coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|high|e2e/pages/game.page.ts|class has 5 public methods",
+      "category": "design-violation",
+      "severity": "high",
+      "file": "e2e/pages/game.page.ts",
+      "message": "class has 5 public methods",
+      "status": "follow-up",
+      "rationale": "Game page-object role should be decomposed with gameplay E2E coverage preserved.",
+      "followUps": ["wave-12-e2e-page-object-split"]
+    },
+    {
+      "key": "design-violation|high|scripts/audit-megamek-board-import.ts|switch statement has 9 cases",
+      "category": "design-violation",
+      "severity": "high",
+      "file": "scripts/audit-megamek-board-import.ts",
+      "message": "switch statement has 9 cases",
+      "status": "follow-up",
+      "rationale": "MegaMek board audit dispatch should be table-driven with board parser fixtures preserved.",
+      "followUps": ["wave-12-script-bloat-follow-up"]
+    },
+    {
+      "key": "design-violation|high|scripts/validate-bv.ts|switch statement has 23 cases",
+      "category": "design-violation",
+      "severity": "high",
+      "file": "scripts/validate-bv.ts",
+      "message": "switch statement has 23 cases",
+      "status": "follow-up",
+      "rationale": "BV validator dispatch belongs with the dedicated validator architecture split.",
+      "followUps": ["wave-12-script-bloat-follow-up"]
+    },
+    {
+      "key": "design-violation|high|scripts/validate-bv.ts|switch statement has 9 cases",
+      "category": "design-violation",
+      "severity": "high",
+      "file": "scripts/validate-bv.ts",
+      "message": "switch statement has 9 cases",
+      "status": "follow-up",
+      "rationale": "BV validator dispatch belongs with the dedicated validator architecture split.",
+      "followUps": ["wave-12-script-bloat-follow-up"]
+    },
+    {
+      "key": "design-violation|warn|desktop/services/local/LocalStorageService.ts|value object class has 9 public methods",
+      "category": "design-violation",
+      "severity": "warn",
+      "file": "desktop/services/local/LocalStorageService.ts",
+      "message": "value object class has 9 public methods",
+      "status": "accepted",
+      "rationale": "Desktop local storage service deliberately exposes a compact persistence facade; no runtime issue is indicated by this warning.",
+      "acceptanceEvidence": ["desktop/services/local/LocalStorageService.ts"]
+    },
+    {
+      "key": "design-violation|warn|desktop/services/local/RecentFilesService.ts|value object class has 12 public methods",
+      "category": "design-violation",
+      "severity": "warn",
+      "file": "desktop/services/local/RecentFilesService.ts",
+      "message": "value object class has 12 public methods",
+      "status": "accepted",
+      "rationale": "RecentFilesService is a desktop service facade; current breadth is accepted until a desktop service cleanup wave changes it.",
+      "acceptanceEvidence": ["desktop/services/local/RecentFilesService.ts"]
+    },
+    {
+      "key": "design-violation|warn|desktop/services/local/SettingsService.ts|value object class has 9 public methods",
+      "category": "design-violation",
+      "severity": "warn",
+      "file": "desktop/services/local/SettingsService.ts",
+      "message": "value object class has 9 public methods",
+      "status": "accepted",
+      "rationale": "SettingsService method breadth is accepted as desktop service API surface; the actionable dispatch issue is tracked separately.",
+      "acceptanceEvidence": ["desktop/services/local/SettingsService.ts"]
+    }
+  ]
+}

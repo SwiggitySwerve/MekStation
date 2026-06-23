@@ -488,10 +488,11 @@
       "id": "MC-12-maintenance-code-health",
       "surfaceId": "maintenance-code-health",
       "title": "Maintenance code-health gates stay triageable on demand",
-      "realisticFlow": "A maintainer validates that the maintenance scanner has not regressed past baseline and can still list partial QC lanes for the next cleanup wave.",
+      "realisticFlow": "A maintainer validates that the maintenance scanner has not regressed past baseline, that Wave 12 repo-wide findings are ledger-accounted, and that partial QC lanes remain available for the next cleanup wave.",
       "qualityLenses": ["maintainability", "test-quality", "functionality"],
       "successCriteria": [
         "Maintenance scan gate passes against docs/qc/maintenance-baseline.json.",
+        "The maintenance warning ledger accounts for every actionable repo-wide Wave 12 finding as fixed, accepted, or follow-up.",
         "QC partial-lane selection remains available for planning the next remediation wave.",
         "Raw maintenance inventory can be captured as diagnostic evidence without being mistaken for a pass/fail release gate."
       ],
@@ -504,6 +505,17 @@
           "evidence": [
             "docs/qc/maintenance-baseline.json",
             "scripts/maintenance/scan-maintenance.mjs"
+          ]
+        },
+        {
+          "id": "maintenance-warning-ledger",
+          "tier": "core",
+          "required": true,
+          "command": "node scripts/qc/validate-maintenance-warning-ledger.mjs",
+          "evidence": [
+            "docs/qc/maintenance-warning-ledger.json",
+            "scripts/qc/validate-maintenance-warning-ledger.mjs",
+            "scripts/__tests__/maintenance-warning-ledger.test.ts"
           ]
         },
         {
@@ -525,7 +537,7 @@
         }
       ],
       "notes": [
-        "Passing the baseline gate does not mean every raw scanner warning is gone; use the diagnostic inventory when planning cleanup waves."
+        "Passing the baseline gate proves the src regression gate; the warning ledger validator proves Wave 12 repo-wide accounting."
       ]
     }
   ]

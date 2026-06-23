@@ -21,7 +21,7 @@
     "typecheck": "tsc --noEmit --skipLibCheck",
     "verify": "npm run typecheck && npm run lint && npm run format:check && npm run verify:qc && npm run test:stable",
     "verify:full": "npm run verify && npm run test:perf-sensitive && npm run verify:rules && npm run build",
-    "verify:qc": "npm run qc:validate && npm run qc:journeys:validate && npm run qc:logging:validate && npm run maintain:scan:gate",
+    "verify:qc": "npm run qc:validate && npm run qc:journeys:validate && npm run qc:logging:validate && npm run maintain:scan:gate && node scripts/qc/validate-maintenance-warning-ledger.mjs",
     "verify:rules": "npm run validate:combat:gaps -- --format=summary --expect-total=0 && npm run validate:combat && npm run spec:purpose:validate:strict && npx openspec validate --all --strict",
     "test": "jest",
     "test:stable": "node scripts/jest/run-jest-lane.mjs stable",
@@ -134,7 +134,7 @@
     "verify:qc:tactical:quick": "npm run qc:run -- --claim=ui.tactical --quick",
     "verify:qc:tactical:visual": "npm run qc:run -- --claim=ui.tactical --only-browser",
     "verify:qc:combat": "npm run qc:run -- --surface=simulation-combat-validation",
-    "verify:qc:maintenance": "npm run qc:run -- --surface=maintenance-code-health --quick",
+    "verify:qc:maintenance": "npm run qc:run -- --surface=maintenance-code-health --quick && node scripts/qc/validate-maintenance-warning-ledger.mjs",
     "simulate": "npx tsx scripts/run-simulation.ts",
     "simulate:batch": "npx tsx scripts/run-simulation.ts --count=100"
   },

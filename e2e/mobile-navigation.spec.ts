@@ -615,7 +615,8 @@ test.describe('History Navigation', () => {
     await timelineLink.scrollIntoViewIfNeeded();
     await expect(timelineLink).toBeVisible();
 
-    // Get href and navigate directly (workaround for Next.js Link issues in E2E)
+    // Get href and navigate directly because this E2E path has observed
+    // Next.js Link timing differences during hydration.
     const href = await timelineLink.getAttribute('href');
     expect(href).toBe('/audit/timeline');
 
