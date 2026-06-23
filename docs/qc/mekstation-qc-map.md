@@ -37,6 +37,8 @@ npm.cmd run qc:scenarios -- --surface=gameplay-tactical-map-combat --tier=standa
 npm.cmd run qc:journeys:validate
 npm.cmd run qc:ui-flow-shell:validate
 npm.cmd run qc:ui-flow-shell -- --journey=contract-campaign
+npm.cmd run qc:gm:campaign-ledger:validate
+npm.cmd run qc:gm:campaign-ledger
 npm.cmd run qc:tactical:projection:validate
 npm.cmd run qc:tactical:projection
 npm.cmd run qc:logging:validate
@@ -49,6 +51,7 @@ npm.cmd run qc:logs -- --run-id=latest --level=warn,error --exclude-probes
 npm.cmd run verify:qc:scenarios
 npm.cmd run verify:qc:journeys
 npm.cmd run verify:qc:ui-flow-shell
+npm.cmd run verify:qc:gm:campaign-ledger
 npm.cmd run verify:qc:campaign-long
 npm.cmd run verify:qc:partial:quick
 npm.cmd run verify:qc:tactical:projection
@@ -102,6 +105,7 @@ flowchart TD
   G --> G5["Physical Weapon Runtime Boundary"]
   G --> G6["Ejection Lifecycle Regression"]
   G --> G7["Non-BattleMech Scope Matrix"]
+  H --> H1["Post-Combat Base Economy GM Ledger"]
 ```
 
 ## QC Lenses
@@ -147,15 +151,27 @@ flowchart TD
      `combat.physical-boundary`, `combat.gaps.honesty`, and
      `combat.scope.non-battlemech`.
 
-3. `integration-runner-interactive-parity`
+3. `post-combat-base-economy-gm-ledger`
+   - Wave 8 lives under `campaign-economy-progression` and proves the
+     ledger-backed GM correction layer for post-combat, salvage, repair,
+     merchant reversals, inventory, funds, and base unit state roots.
+   - Validate first with `qc:gm:campaign-ledger:validate`; use
+     `verify:qc:gm:campaign-ledger` when you also want the focused
+     intervention tests that prove approval, replay, public/GM redaction, and
+     manual-takeover blocking.
+   - Escalate to `qc:journeys -- --journey=contract-campaign --tier=standard`
+     or `qc:campaign-long:stability` when the question is full campaign flow
+     or repeatability rather than ledger contract wiring.
+
+4. `integration-runner-interactive-parity`
    - Runner/interactive parity is still the highest-risk combat integration
      lane, especially physical attack commit and phase-driver behavior.
 
-4. `multiplayer-coop-sync`
+5. `multiplayer-coop-sync`
    - Current dirty worktree includes multiplayer API and fog test edits.
    - Treat those edits as external work until validated.
 
-5. `maintenance-code-health`
+6. `maintenance-code-health`
    - Full maintenance scanner pass is active with a reviewed `src` regression
      baseline; the current `src` scanner gate has 0 critical/high findings.
    - Use `maintain:scan:gate` to block new `src` critical/high findings, and
