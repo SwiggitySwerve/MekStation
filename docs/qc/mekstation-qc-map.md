@@ -1,6 +1,6 @@
 # MekStation QC Map
 
-Date: 2026-06-19
+Date: 2026-06-23
 
 This map is the durable review surface for post-merge quality control. It is
 organized by user/risk surface first, then module and submodule, so future QC
@@ -39,6 +39,8 @@ npm.cmd run qc:ui-flow-shell:validate
 npm.cmd run qc:ui-flow-shell -- --journey=contract-campaign
 npm.cmd run qc:gm:campaign-ledger:validate
 npm.cmd run qc:gm:campaign-ledger
+npm.cmd run qc:gm:time-cascade:validate
+npm.cmd run qc:gm:time-cascade
 npm.cmd run qc:tactical:projection:validate
 npm.cmd run qc:tactical:projection
 npm.cmd run qc:logging:validate
@@ -52,6 +54,7 @@ npm.cmd run verify:qc:scenarios
 npm.cmd run verify:qc:journeys
 npm.cmd run verify:qc:ui-flow-shell
 npm.cmd run verify:qc:gm:campaign-ledger
+npm.cmd run verify:qc:gm:time-cascade
 npm.cmd run verify:qc:campaign-long
 npm.cmd run verify:qc:partial:quick
 npm.cmd run verify:qc:tactical:projection
@@ -106,6 +109,7 @@ flowchart TD
   G --> G6["Ejection Lifecycle Regression"]
   G --> G7["Non-BattleMech Scope Matrix"]
   H --> H1["Post-Combat Base Economy GM Ledger"]
+  H --> H2["Time Cascade GM Ledger"]
 ```
 
 ## QC Lenses
@@ -163,15 +167,28 @@ flowchart TD
      or `qc:campaign-long:stability` when the question is full campaign flow
      or repeatability rather than ledger contract wiring.
 
-4. `integration-runner-interactive-parity`
+4. `time-cascade-gm-ledger`
+   - Wave 9 lives under `campaign-economy-progression` and proves the
+     ledger-backed GM time-cascade layer for date advancement, optional
+     travel, repair progression, contract windows, market refreshes, finance
+     upkeep, external-effect manual takeover, and public/private redaction.
+   - Validate first with `qc:gm:time-cascade:validate`; use
+     `verify:qc:gm:time-cascade` when you also want focused intervention and
+     day-processor tests that prove approval, replay, market processor anchors,
+     and blocked/manual-takeover handling.
+   - Escalate to `qc:campaign-long:stability` when the question is accumulated
+     campaign drift across multiple contracts rather than ledger contract
+     wiring.
+
+5. `integration-runner-interactive-parity`
    - Runner/interactive parity is still the highest-risk combat integration
      lane, especially physical attack commit and phase-driver behavior.
 
-5. `multiplayer-coop-sync`
+6. `multiplayer-coop-sync`
    - Current dirty worktree includes multiplayer API and fog test edits.
    - Treat those edits as external work until validated.
 
-6. `maintenance-code-health`
+7. `maintenance-code-health`
    - Full maintenance scanner pass is active with a reviewed `src` regression
      baseline; the current `src` scanner gate has 0 critical/high findings.
    - Use `maintain:scan:gate` to block new `src` critical/high findings, and
