@@ -46,6 +46,7 @@ npm.cmd run qc:tactical:projection
 npm.cmd run qc:logging:validate
 npm.cmd run qc:graph -- --query=mek-build
 npm.cmd run qc:journeys -- --journey=all --tier=smoke
+npm.cmd run qc:campaign-long:validate
 npm.cmd run qc:campaign-long:stability -- --journey=campaign-long --seed=42 --contracts=10 --runs=2
 npm.cmd run qc:journeys:bugs -- --since=latest --min-severity=medium
 npm.cmd run qc:logs -- --run-id=latest --level=warn,error
@@ -77,6 +78,9 @@ Use `qc:campaign-long:stability` when the question is whether a deterministic
 6-10 contract campaign repeats cleanly, survives JSON save/load evidence
 round-trips, and exposes drift through `stability-manifest.json`, `bugs.json`,
 and searchable stability logs.
+Use `qc:campaign-long:validate` when the question is whether that long-campaign
+gate is still wired into the global QC path, registry, graph, UI flow shell,
+and catalog bounds.
 
 ## Graph
 
@@ -111,6 +115,7 @@ flowchart TD
   G --> G7["Non-BattleMech Scope Matrix"]
   H --> H1["Post-Combat Base Economy GM Ledger"]
   H --> H2["Time Cascade GM Ledger"]
+  H --> H3["Long Campaign Stability"]
 ```
 
 ## QC Lenses
@@ -184,15 +189,24 @@ flowchart TD
      campaign drift across multiple contracts rather than ledger contract
      wiring.
 
-5. `integration-runner-interactive-parity`
+5. `long-campaign-stability`
+   - `long-campaign-stability` is the Wave 11 guard for deterministic 6-10
+     contract campaign repeatability. Validate metadata wiring first with
+     `qc:campaign-long:validate`; use `verify:qc:campaign-long` when you also
+     want the 10-contract, 2-run stability proof with save round trips and
+     drift bug packet checks.
+   - `verify:qc` now includes `verify:qc:campaign-long`, so the global QC lane
+     cannot silently skip the long-campaign stability proof.
+
+6. `integration-runner-interactive-parity`
    - Runner/interactive parity is still the highest-risk combat integration
      lane, especially physical attack commit and phase-driver behavior.
 
-6. `multiplayer-coop-sync`
+7. `multiplayer-coop-sync`
    - Current dirty worktree includes multiplayer API and fog test edits.
    - Treat those edits as external work until validated.
 
-7. `maintenance-code-health`
+8. `maintenance-code-health`
    - Full maintenance scanner pass is active with a reviewed `src` regression
      baseline; the current `src` scanner gate has 0 critical/high findings.
    - Use `maintain:scan:gate` to block new `src` critical/high findings, and

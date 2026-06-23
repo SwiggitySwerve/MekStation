@@ -896,18 +896,78 @@
         "openspec/specs/campaign-system/spec.md",
         "openspec/specs/personnel-management/spec.md"
       ],
-      "activeChangeRefs": ["close-campaign-economic-loop"],
+      "activeChangeRefs": [],
       "tests": [
         "src/lib/campaign/**/__tests__",
         "src/components/campaign/**/__tests__"
       ],
-      "commands": ["npm.cmd test -- --watchAll=false --runInBand"],
+      "commands": [
+        "npm.cmd test -- --watchAll=false --runInBand",
+        "npm.cmd run verify:qc:campaign-long"
+      ],
       "manualChecks": [
         "Resolve a damaged post-battle unit through repair, acquisition, and salvage into usable assets"
       ],
-      "evidence": ["docs/audits/2026-06-12-full-codebase-review.md"],
+      "evidence": [
+        "docs/audits/2026-06-12-full-codebase-review.md",
+        "scripts/qc/validate-long-campaign-qc.mjs"
+      ],
       "gaps": [
-        "Recent audit identified repair/salvage/acquisition loops that need end-to-end proof."
+        "Recent audit identified repair/salvage/acquisition loops that need end-to-end proof.",
+        "Long-campaign stability is now protected by a dedicated QC surface; browser campaign signoff remains a separate UI lane."
+      ]
+    },
+    {
+      "surfaceId": "long-campaign-stability",
+      "title": "Long Campaign Stability",
+      "level": "main",
+      "parentId": "campaign-economy-progression",
+      "riskTags": [
+        "campaign-loop",
+        "state-drift",
+        "persistence",
+        "playability"
+      ],
+      "qualityLenses": ["functionality", "ux", "test-quality"],
+      "coverageStatus": "partial",
+      "claimIds": ["campaign.long-stability"],
+      "routes": ["/gameplay/campaigns"],
+      "apis": [],
+      "desktopSurfaces": [],
+      "modules": ["scripts/qc", "docs/qc", "src/qc"],
+      "submodules": [
+        "6-10 contract sequence",
+        "repeatability digest comparison",
+        "save round-trip checks",
+        "UI flow checkpoint boundary",
+        "stability bug packets"
+      ],
+      "specRefs": [
+        "openspec/specs/journey-qc/spec.md",
+        "openspec/specs/ui-flow-shell/spec.md"
+      ],
+      "activeChangeRefs": [],
+      "tests": [
+        "scripts/__tests__/long-campaign-qc.test.ts",
+        "scripts/__tests__/journey-qc.test.ts"
+      ],
+      "commands": [
+        "npm.cmd run qc:campaign-long:validate",
+        "npm.cmd run verify:qc:campaign-long",
+        "npm.cmd run qc:campaign-long:stability -- --seed=42 --contracts=10 --runs=2"
+      ],
+      "manualChecks": [
+        "Inspect the latest long-campaign stability manifest and confirm it names UI checkpoints while recording browserExecuted=false."
+      ],
+      "evidence": [
+        "scripts/qc/validate-long-campaign-qc.mjs",
+        "scripts/qc/validate-long-campaign-stability.mjs",
+        "scripts/__tests__/long-campaign-qc.test.ts",
+        "docs/qc/mekstation-journey-scenarios.json",
+        "src/qc/gameplayUiFlowShell.json"
+      ],
+      "gaps": [
+        "The stability gate proves headless repeatability, save round trips, drift detection, and UI checkpoint linkage; browser-driven 6-10 contract signoff remains a separate UI lane."
       ]
     },
     {
