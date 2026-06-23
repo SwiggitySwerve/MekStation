@@ -13,6 +13,7 @@
  * @spec openspec/changes/add-tactical-action-menu-system/specs/tactical-map-interface/spec.md
  */
 
+import { GM_TACTICAL_COMMAND_IDS } from '@/lib/interventions';
 import { GamePhase, type ITacticalCommandContext } from '@/types/gameplay';
 
 import {
@@ -102,9 +103,9 @@ describe('buildCommandRegistry', () => {
   it('GM family is included when shellMode === "gm"', () => {
     const commands = buildCommandRegistry(makeCtx(), 'gm');
     const ids = commands.map((c) => c.id);
-    expect(ids).toContain('gm.advance-phase');
-    expect(ids).toContain('gm.set-damage');
-    expect(ids).toContain('gm.grant-resource');
+    for (const commandId of GM_TACTICAL_COMMAND_IDS) {
+      expect(ids).toContain(commandId);
+    }
   });
 });
 

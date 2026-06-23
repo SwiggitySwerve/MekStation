@@ -34,16 +34,17 @@ it('covers every player tactical command and excludes GM referee tools', () => {
   expect(supportGaps(GM_COMMAND_EXCLUSION_SUPPORT)).toEqual([]);
   expect(
     supportIdsByLevel(GM_COMMAND_EXCLUSION_SUPPORT, 'out-of-scope'),
-  ).toEqual(['gm.advance-phase', 'gm.grant-resource', 'gm.set-damage']);
+  ).toEqual(gmCommandIds);
   expect(
     supportIdsByLevel(GM_COMMAND_EXCLUSION_SUPPORT, 'unsupported'),
   ).toEqual([]);
-  for (const id of [
-    'gm.advance-phase',
-    'gm.set-damage',
-    'gm.grant-resource',
-  ] as const) {
-    expect(GM_COMMAND_EXCLUSION_SUPPORT[id].sourceRefs).toEqual([
+  for (const id of gmCommandIds) {
+    const entry =
+      GM_COMMAND_EXCLUSION_SUPPORT[
+        id as keyof typeof GM_COMMAND_EXCLUSION_SUPPORT
+      ];
+
+    expect(entry.sourceRefs).toEqual([
       expect.objectContaining({
         kind: 'mekstation-deviation',
         citation: expect.stringContaining(id),

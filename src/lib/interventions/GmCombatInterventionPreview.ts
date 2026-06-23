@@ -88,7 +88,20 @@ function buildRepositionFacingEffect(
   correction: IGmCombatRepositionFacingCorrection,
   unit: IGmCombatInterventionUnitState,
   summaryOverride?: string,
-): IGmCombatProjectedEffectResult {
+): IGmCombatProjectedEffectResult | IGmCombatProjectedEffectFailure {
+  if (
+    !correction.position &&
+    correction.facing === undefined &&
+    correction.secondaryFacing === undefined
+  ) {
+    return {
+      code: 'combat-reposition-facing-empty',
+      reason:
+        'Reposition/facing correction requires a position, facing, or secondary facing value.',
+      affectedRefs: [unitRef(unit.id)],
+    };
+  }
+
   const after = {
     position: correction.position,
     facing: correction.facing,
@@ -130,7 +143,22 @@ function buildDamageCriticalEffect(
   correction: IGmCombatDamageCriticalCorrection,
   unit: IGmCombatInterventionUnitState,
   summaryOverride?: string,
-): IGmCombatProjectedEffectResult {
+): IGmCombatProjectedEffectResult | IGmCombatProjectedEffectFailure {
+  if (
+    !hasObjectKeys(correction.armor) &&
+    !hasObjectKeys(correction.structure) &&
+    correction.componentDamage === undefined &&
+    correction.destroyedLocations === undefined &&
+    correction.destroyedEquipment === undefined
+  ) {
+    return {
+      code: 'combat-damage-critical-empty',
+      reason:
+        'Damage/critical correction requires armor, structure, component damage, destroyed location, or destroyed equipment detail.',
+      affectedRefs: [unitRef(unit.id)],
+    };
+  }
+
   const after = {
     armor: correction.armor
       ? { ...unit.armor, ...correction.armor }
@@ -178,7 +206,19 @@ function buildHeatAmmoEffect(
   correction: IGmCombatHeatAmmoCorrection,
   unit: IGmCombatInterventionUnitState,
   summaryOverride?: string,
-): IGmCombatProjectedEffectResult {
+): IGmCombatProjectedEffectResult | IGmCombatProjectedEffectFailure {
+  if (
+    correction.heat === undefined &&
+    !hasObjectKeys(correction.ammo) &&
+    !hasObjectKeys(correction.ammoState)
+  ) {
+    return {
+      code: 'combat-heat-ammo-empty',
+      reason: 'Heat/ammo correction requires heat, ammo, or ammo state detail.',
+      affectedRefs: [unitRef(unit.id)],
+    };
+  }
+
   const after = {
     heat: correction.heat,
     ammo: correction.ammo ? { ...unit.ammo, ...correction.ammo } : undefined,
@@ -219,6 +259,22 @@ function buildTurnOrderEffect(
   state: IGmCombatInterventionState,
   summaryOverride?: string,
 ): IGmCombatProjectedEffectResult | IGmCombatProjectedEffectFailure {
+  if (
+    !hasOwn(correction, 'phase') &&
+    !hasOwn(correction, 'initiativeWinner') &&
+    !hasOwn(correction, 'firstMover') &&
+    !hasOwn(correction, 'activationIndex') &&
+    !hasOwn(correction, 'initiativeOrder') &&
+    !hasOwn(correction, 'activeUnitId')
+  ) {
+    return {
+      code: 'combat-turn-order-empty',
+      reason:
+        'Turn-order correction requires phase, initiative, activation, initiative order, or active-unit detail.',
+      affectedRefs: [gameFieldRef(state.gameId, 'turn-order')],
+    };
+  }
+
   const unknownOrderUnit = correction.initiativeOrder?.find(
     (unitId) => !state.units[unitId],
   );
@@ -600,4 +656,12 @@ function isNonEmptyString(value: unknown): value is string {
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
+}
+
+function hasObjectKeys(value: object | undefined): boolean {
+  return value !== undefined && Object.keys(value).length > 0;
+}
+
+function hasOwn(value: object, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(value, key);
 }

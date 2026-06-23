@@ -9,6 +9,7 @@ export {
   buildGmTacticalCommandIntent,
   buildGmTacticalLedgerCommand,
   createGmTacticalCommandPreview,
+  GM_TACTICAL_COMMAND_IDS,
   GM_TACTICAL_PREVIEW_ACTION_ID,
   isGmTacticalCommandId,
 } from './GmTacticalCommandPreviewAdapter';

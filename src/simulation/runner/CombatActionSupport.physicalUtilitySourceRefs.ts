@@ -202,14 +202,10 @@ export const MEKSTATION_REQUEST_SPOT_COMMAND_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
-function mekstationGmCommandSourceRefs(
-  id: string,
-  actionId: string,
-  lineRange: string,
-) {
+function mekstationGmCommandSourceRefs(id: string, lineRange: string) {
   return [
     mekstationDeviationSourceRef(
-      `MekStation buildGmReferralCommands exposes ${id} as a GM shell-mode command that commits the local ${actionId} action id outside player BattleMech combat action handling.`,
+      `MekStation buildGmReferralCommands exposes ${id} as a GM shell-mode command that commits a gm-intervention.preview intent outside player BattleMech combat action handling.`,
       'src/components/gameplay/TacticalActionDock/commands/gmReferralCommands.ts',
       lineRange,
     ),
@@ -219,17 +215,39 @@ function mekstationGmCommandSourceRefs(
 export const MEKSTATION_GM_COMMAND_SOURCE_REFS = {
   'gm.advance-phase': mekstationGmCommandSourceRefs(
     'gm.advance-phase',
-    'gm-advance-phase',
-    'L30-L39',
+    'L37-L46',
   ),
-  'gm.set-damage': mekstationGmCommandSourceRefs(
-    'gm.set-damage',
-    'gm-set-damage',
-    'L41-L59',
+  'gm.set-position-facing': mekstationGmCommandSourceRefs(
+    'gm.set-position-facing',
+    'L48-L57',
+  ),
+  'gm.set-damage': mekstationGmCommandSourceRefs('gm.set-damage', 'L59-L68'),
+  'gm.set-heat-ammo': mekstationGmCommandSourceRefs(
+    'gm.set-heat-ammo',
+    'L70-L79',
+  ),
+  'gm.set-initiative': mekstationGmCommandSourceRefs(
+    'gm.set-initiative',
+    'L81-L90',
+  ),
+  'gm.set-lifecycle': mekstationGmCommandSourceRefs(
+    'gm.set-lifecycle',
+    'L92-L101',
+  ),
+  'gm.correct-attack': mekstationGmCommandSourceRefs(
+    'gm.correct-attack',
+    'L103-L112',
+  ),
+  'gm.set-objective': mekstationGmCommandSourceRefs(
+    'gm.set-objective',
+    'L114-L123',
+  ),
+  'gm.reload-unit': mekstationGmCommandSourceRefs(
+    'gm.reload-unit',
+    'L125-L134',
   ),
   'gm.grant-resource': mekstationGmCommandSourceRefs(
     'gm.grant-resource',
-    'gm-grant-resource',
-    'L61-L70',
+    'L136-L145',
   ),
 } satisfies Record<string, readonly ICombatFeatureSourceReference[]>;

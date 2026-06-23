@@ -86,7 +86,7 @@ it('exposes the unresolved inventory through combat validation tooling', () => {
     'Assert reviewer-readable unresolved leaf gap report',
   );
   expect(validateCombatSuite).toContain('--expect-total=0');
-  expect(validateCombatSuite).toContain('--expect-total=140');
+  expect(validateCombatSuite).toContain('--expect-total=147');
   expect(validateCombatSuite).toContain('--expect-level=helper-only:0');
   expect(validateCombatSuite).toContain('--expect-level=unsupported:0');
   expect(validateCombatSuite).toContain('--expect-scope=aggregate:0');
