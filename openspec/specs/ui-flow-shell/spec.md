@@ -1,7 +1,7 @@
 # ui-flow-shell Specification
 
 ## Purpose
-TBD - created by archiving change add-ui-flow-shell. Update Purpose after archive.
+Defines the gameplay UI flow shell that maps required journey QC IDs to player and GM route checkpoints, validation commands, and inspection intent so top-level gameplay flows remain discoverable, auditable, and tied to repeatable evidence.
 ## Requirements
 ### Requirement: Journey-backed gameplay flow registry
 The system SHALL define a typed gameplay UI flow registry that maps every required journey QC ID to an ordered player and GM flow through gameplay UI routes. Each flow entry MUST include journey ID, display name, module, role intent, ordered route checkpoints, primary action route, QC command, and inspection notes.
