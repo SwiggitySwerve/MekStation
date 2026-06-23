@@ -130,8 +130,15 @@ it('keeps non-BattleMech scope rows auditable without making them BattleMech blo
       'validationScope.objectiveRequirements.non-battlemech-scope',
       'ruleSupport.physicalLegalityGates.shared.displacement-domino-dropship-secondary-hex',
       'actions.gmCommandExclusions.gm.advance-phase',
+      'actions.gmCommandExclusions.gm.correct-attack',
       'actions.gmCommandExclusions.gm.grant-resource',
+      'actions.gmCommandExclusions.gm.reload-unit',
       'actions.gmCommandExclusions.gm.set-damage',
+      'actions.gmCommandExclusions.gm.set-heat-ammo',
+      'actions.gmCommandExclusions.gm.set-initiative',
+      'actions.gmCommandExclusions.gm.set-lifecycle',
+      'actions.gmCommandExclusions.gm.set-objective',
+      'actions.gmCommandExclusions.gm.set-position-facing',
       'actions.tacticalCommands.movement.cancel',
       'actions.tacticalCommands.movement.stabilize',
       'actions.tacticalCommands.utility.withdraw',
@@ -148,7 +155,7 @@ it('keeps non-BattleMech scope rows auditable without making them BattleMech blo
       'actions.wireIntents.SetReady',
     ]),
   );
-  expect(outOfScopeRows).toHaveLength(140);
+  expect(outOfScopeRows).toHaveLength(147);
   expect(
     outOfScopeRows.find(
       (row) =>
@@ -456,8 +463,15 @@ it('keeps non-BattleMech scope rows auditable without making them BattleMech blo
     ),
   ).toEqual([
     'actions.gmCommandExclusions.gm.advance-phase',
+    'actions.gmCommandExclusions.gm.correct-attack',
     'actions.gmCommandExclusions.gm.grant-resource',
+    'actions.gmCommandExclusions.gm.reload-unit',
     'actions.gmCommandExclusions.gm.set-damage',
+    'actions.gmCommandExclusions.gm.set-heat-ammo',
+    'actions.gmCommandExclusions.gm.set-initiative',
+    'actions.gmCommandExclusions.gm.set-lifecycle',
+    'actions.gmCommandExclusions.gm.set-objective',
+    'actions.gmCommandExclusions.gm.set-position-facing',
   ]);
   expect(
     outOfScopeRefs.filter((ref) => ref.startsWith('actions.tacticalCommands.')),

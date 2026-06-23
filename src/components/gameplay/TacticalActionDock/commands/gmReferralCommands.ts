@@ -1,17 +1,15 @@
 /**
- * GM / referee command family — advance phase by force, set damage,
- * grant resource.
+ * GM / referee command family for tactical intervention previews.
  *
  * GM commands are filtered out of the registry for non-GM shellModes as an
  * ergonomic visibility rule. Every command commits a GM intervention preview
  * intent; the intervention service still owns authority, redaction, and
  * approval.
  *
- * @spec openspec/changes/add-tactical-action-menu-system/specs/tactical-map-interface/spec.md
- * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.2
+ * @spec openspec/changes/wave-05-gm-combat-intervention-controls/specs/gm-tactical-command-surface/spec.md
  */
 
-import type { ITacticalCommand } from '@/types/gameplay';
+import type { CommandAvailability, ITacticalCommand } from '@/types/gameplay';
 
 import {
   buildGmTacticalCommandIntent,
@@ -22,7 +20,18 @@ import {
 import { ALL_GAME_PHASES, alwaysAvailable } from './commandDescriptorHelpers';
 
 export function buildGmReferralCommands(): readonly ITacticalCommand[] {
-  return [GmAdvancePhaseCommand, GmSetDamageCommand, GmGrantResourceCommand];
+  return [
+    GmAdvancePhaseCommand,
+    GmSetPositionFacingCommand,
+    GmSetDamageCommand,
+    GmSetHeatAmmoCommand,
+    GmSetInitiativeCommand,
+    GmSetLifecycleCommand,
+    GmCorrectAttackCommand,
+    GmSetObjectiveCommand,
+    GmReloadUnitCommand,
+    GmGrantResourceCommand,
+  ];
 }
 
 const GmAdvancePhaseCommand: ITacticalCommand = {
@@ -30,10 +39,21 @@ const GmAdvancePhaseCommand: ITacticalCommand = {
   category: 'gm',
   label: 'Advance Phase (GM)',
   phaseConstraints: ALL_GAME_PHASES,
-  requiresConfirmation: true, // GM force-advance bypasses validation.
+  requiresConfirmation: true,
   undoable: false,
   availability: alwaysAvailable,
   commit: commitGmPreviewIntent('gm.advance-phase'),
+};
+
+const GmSetPositionFacingCommand: ITacticalCommand = {
+  id: 'gm.set-position-facing',
+  category: 'gm',
+  label: 'Set Position/Facing (GM)',
+  phaseConstraints: ALL_GAME_PHASES,
+  requiresConfirmation: true,
+  undoable: true,
+  availability: selectedOrActiveUnitAvailability,
+  commit: commitGmPreviewIntent('gm.set-position-facing'),
 };
 
 const GmSetDamageCommand: ITacticalCommand = {
@@ -43,17 +63,74 @@ const GmSetDamageCommand: ITacticalCommand = {
   phaseConstraints: ALL_GAME_PHASES,
   requiresConfirmation: true,
   undoable: true,
-  availability(ctx) {
-    // GM set-damage requires SOMETHING to target. The shell exposes
-    // selectedUnit (map cursor) as the natural pick — GM workflow is
-    // "click the unit you want to mod, hit GM Set Damage". If nothing
-    // is selected we surface the disabled-reason so the GM learns.
-    if (!ctx.selectedUnitId) {
-      return { available: false, reason: 'Select a unit first.' };
-    }
-    return { available: true };
-  },
+  availability: selectedOrActiveUnitAvailability,
   commit: commitGmPreviewIntent('gm.set-damage'),
+};
+
+const GmSetHeatAmmoCommand: ITacticalCommand = {
+  id: 'gm.set-heat-ammo',
+  category: 'gm',
+  label: 'Set Heat/Ammo (GM)',
+  phaseConstraints: ALL_GAME_PHASES,
+  requiresConfirmation: true,
+  undoable: true,
+  availability: selectedOrActiveUnitAvailability,
+  commit: commitGmPreviewIntent('gm.set-heat-ammo'),
+};
+
+const GmSetInitiativeCommand: ITacticalCommand = {
+  id: 'gm.set-initiative',
+  category: 'gm',
+  label: 'Set Initiative (GM)',
+  phaseConstraints: ALL_GAME_PHASES,
+  requiresConfirmation: true,
+  undoable: true,
+  availability: alwaysAvailable,
+  commit: commitGmPreviewIntent('gm.set-initiative'),
+};
+
+const GmSetLifecycleCommand: ITacticalCommand = {
+  id: 'gm.set-lifecycle',
+  category: 'gm',
+  label: 'Mark Rescued (GM)',
+  phaseConstraints: ALL_GAME_PHASES,
+  requiresConfirmation: true,
+  undoable: true,
+  availability: selectedOrActiveUnitAvailability,
+  commit: commitGmPreviewIntent('gm.set-lifecycle'),
+};
+
+const GmCorrectAttackCommand: ITacticalCommand = {
+  id: 'gm.correct-attack',
+  category: 'gm',
+  label: 'Correct Attack (GM)',
+  phaseConstraints: ALL_GAME_PHASES,
+  requiresConfirmation: true,
+  undoable: true,
+  availability: activeUnitAvailability,
+  commit: commitGmPreviewIntent('gm.correct-attack'),
+};
+
+const GmSetObjectiveCommand: ITacticalCommand = {
+  id: 'gm.set-objective',
+  category: 'gm',
+  label: 'Set Objective (GM)',
+  phaseConstraints: ALL_GAME_PHASES,
+  requiresConfirmation: true,
+  undoable: true,
+  availability: alwaysAvailable,
+  commit: commitGmPreviewIntent('gm.set-objective'),
+};
+
+const GmReloadUnitCommand: ITacticalCommand = {
+  id: 'gm.reload-unit',
+  category: 'gm',
+  label: 'Reload Unit (GM)',
+  phaseConstraints: ALL_GAME_PHASES,
+  requiresConfirmation: true,
+  undoable: true,
+  availability: selectedOrActiveUnitAvailability,
+  commit: commitGmPreviewIntent('gm.reload-unit'),
 };
 
 const GmGrantResourceCommand: ITacticalCommand = {
@@ -66,6 +143,24 @@ const GmGrantResourceCommand: ITacticalCommand = {
   availability: alwaysAvailable,
   commit: commitGmPreviewIntent('gm.grant-resource'),
 };
+
+function selectedOrActiveUnitAvailability(
+  ctx: Parameters<ITacticalCommand['availability']>[0],
+): CommandAvailability {
+  if (!ctx.selectedUnitId && !ctx.activeUnitId) {
+    return { available: false, reason: 'Select a unit first.' };
+  }
+  return { available: true };
+}
+
+function activeUnitAvailability(
+  ctx: Parameters<ITacticalCommand['availability']>[0],
+): CommandAvailability {
+  if (!ctx.activeUnitId) {
+    return { available: false, reason: 'No unit is active.' };
+  }
+  return { available: true };
+}
 
 function commitGmPreviewIntent(commandId: GmTacticalCommandId) {
   return (ctx: Parameters<ITacticalCommand['commit']>[0]) => ({

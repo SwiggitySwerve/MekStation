@@ -56,6 +56,19 @@ function makeState(): IGmCombatInterventionState {
     activeUnitId: 'atlas-1',
     units: {
       'atlas-1': makeUnit('atlas-1'),
+      'locust-1': makeUnit('locust-1'),
+    },
+    objectives: {
+      '2,2': {
+        id: 'objective-1',
+        hexKey: '2,2',
+        objectiveType: 'capture',
+        owningSide: 'neutral',
+        controlSide: 'neutral',
+        controlRule: 'sole-occupancy',
+        holdTurnsRequired: 2,
+        holdProgress: 0,
+      },
     },
     turnEvents: [],
   };
@@ -101,8 +114,8 @@ function makeLedger(): InterventionLedger<IGmCombatInterventionState> {
 
 describe('GmTacticalCommandPreviewAdapter', () => {
   it('builds structured preview intents for command descriptors', () => {
-    expect(buildGmTacticalCommandIntent('gm.set-damage', makeCtx())).toEqual({
-      commandId: 'gm.set-damage',
+    expect(buildGmTacticalCommandIntent('gm.reload-unit', makeCtx())).toEqual({
+      commandId: 'gm.reload-unit',
       activeUnitId: 'atlas-1',
       selectedUnitId: 'atlas-1',
       targetUnitId: null,
@@ -129,6 +142,122 @@ describe('GmTacticalCommandPreviewAdapter', () => {
       'Fix phase after table adjudication.',
     );
     expect(preview.publicEffect?.summary).toContain('phase correction');
+  });
+
+  it.each([
+    [
+      'gm.set-position-facing',
+      { family: 'reposition-facing', unitId: 'atlas-1', facing: Facing.South },
+      'reposition-facing',
+    ],
+    [
+      'gm.set-damage',
+      {
+        family: 'damage-critical',
+        unitId: 'atlas-1',
+        armor: { centerTorso: 24 },
+      },
+      'damage-critical',
+    ],
+    [
+      'gm.set-heat-ammo',
+      { family: 'heat-ammo', unitId: 'atlas-1', heat: 8 },
+      'heat-ammo',
+    ],
+    [
+      'gm.set-initiative',
+      {
+        family: 'turn-order',
+        initiativeOrder: ['locust-1', 'atlas-1'],
+        activeUnitId: 'locust-1',
+      },
+      'turn-order',
+    ],
+    [
+      'gm.set-lifecycle',
+      { family: 'lifecycle', unitId: 'atlas-1', lifecycle: 'rescued' },
+      'lifecycle',
+    ],
+    [
+      'gm.correct-attack',
+      {
+        family: 'attack-resolution',
+        attackId: 'attack-1',
+        attackerId: 'atlas-1',
+        targetId: 'locust-1',
+        weaponId: 'medium-laser-1',
+        roll: 8,
+        toHitNumber: 7,
+        hit: true,
+      },
+      'attack-resolution',
+    ],
+    [
+      'gm.set-objective',
+      {
+        family: 'objective-state',
+        objectiveId: 'objective-1',
+        patch: { controlSide: 'player', holdProgress: 1 },
+      },
+      'objective-state',
+    ],
+  ] as const)(
+    'routes %s through a meaningful combat correction override',
+    (commandId, combatCorrection, family) => {
+      const preview = createGmTacticalCommandPreview({
+        ledger: makeLedger(),
+        state: makeState(),
+        authority: gmAuthority,
+        commandId,
+        ctx: makeCtx({ targetUnitId: 'locust-1' }),
+        combatCorrection,
+      });
+
+      expect(preview.status).toBe('ready');
+      expect(preview.domain).toBe('combat');
+      expect(preview.publicEffect).toMatchObject({ family });
+      expect(preview.domainPayload).toMatchObject({
+        correction: expect.objectContaining({ family }),
+      });
+    },
+  );
+
+  it.each([
+    ['gm.set-position-facing', 'combat-reposition-facing-empty'],
+    ['gm.set-damage', 'combat-damage-critical-empty'],
+    ['gm.set-heat-ammo', 'combat-heat-ammo-empty'],
+    ['gm.correct-attack', 'combat-attack-resolution-invalid'],
+    ['gm.set-objective', 'combat-objective-marker-not-found'],
+  ] as const)(
+    'blocks incomplete default payloads for %s before approval',
+    (commandId, conflictCode) => {
+      const preview = createGmTacticalCommandPreview({
+        ledger: makeLedger(),
+        state: makeState(),
+        authority: gmAuthority,
+        commandId,
+        ctx: makeCtx({ targetUnitId: 'locust-1' }),
+      });
+
+      expect(preview.status).toBe('blocked');
+      expect(preview.conflicts).toContainEqual(
+        expect.objectContaining({ code: conflictCode }),
+      );
+    },
+  );
+
+  it('routes tactical unit reload to the unit-reload intervention boundary', () => {
+    const preview = createGmTacticalCommandPreview({
+      ledger: makeLedger(),
+      state: makeState(),
+      authority: gmAuthority,
+      commandId: 'gm.reload-unit',
+      ctx: makeCtx(),
+    });
+
+    expect(preview.status).toBe('unsupported');
+    expect(preview.domain).toBe('unit-reload');
+    expect(preview.reason).toContain('unit-reload');
   });
 
   it('rejects shell-visible commands when service authority is not GM', () => {

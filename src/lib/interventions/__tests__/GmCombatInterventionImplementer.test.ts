@@ -290,6 +290,37 @@ describe('GM combat intervention implementer', () => {
     expect(unsupported.status).toBe('unsupported');
   });
 
+  it.each([
+    [
+      { family: 'reposition-facing', unitId: 'atlas-1' },
+      'combat-reposition-facing-empty',
+    ],
+    [
+      { family: 'damage-critical', unitId: 'atlas-1' },
+      'combat-damage-critical-empty',
+    ],
+    [{ family: 'heat-ammo', unitId: 'atlas-1' }, 'combat-heat-ammo-empty'],
+    [{ family: 'turn-order' }, 'combat-turn-order-empty'],
+  ] as const)(
+    'blocks incomplete no-op correction payload %#',
+    (correction, conflictCode) => {
+      const preview = makeLedger().preview(
+        makeCommand(
+          payload(
+            correction as Parameters<typeof payload>[0],
+            'No-op correction should not be approvable.',
+          ),
+        ),
+        makeState(),
+      );
+
+      expect(preview.status).toBe('blocked');
+      expect(preview.conflicts).toContainEqual(
+        expect.objectContaining({ code: conflictCode }),
+      );
+    },
+  );
+
   it('previews and applies reposition/facing corrections with public-only player output', () => {
     const command = makeCommand(
       payload(
