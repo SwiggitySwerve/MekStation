@@ -1,5 +1,6 @@
 import type {
   IGmAuthorityContext,
+  IGmCascadePreview,
   IGmPrivateMetadata,
   IGmPublicEffect,
   IInterventionLedgerCommand,
@@ -334,6 +335,56 @@ describe('GM cascade preview pipeline', () => {
       state,
       appended: false,
     });
+    expect(ledger.getRecords()).toEqual([]);
+    expect(actionLedger.getRecords()).toEqual([]);
+  });
+
+  it('blocks stale unsupported approval without appending intervention or action records', () => {
+    const ledger = new InterventionLedger<TestState>();
+    const actionLedger = new ActionLedger();
+    const state = makeState();
+    const preview: IGmCascadePreview<
+      IGmPrivateMetadata,
+      IGmPublicEffect,
+      TestDomainPayload
+    > = {
+      interventionId: 'gm-int-stale-unsupported',
+      status: 'ready',
+      domain: 'combat',
+      kind: 'fix',
+      actorId: 'gm-1',
+      targetRefs: ['unit:atlas-1'],
+      affectedStateRefs: ['unit:atlas-1', 'state:value'],
+      privateMetadata: {
+        reason: 'GM-only stale preview reason.',
+      },
+      publicEffect: {
+        summary: 'Value corrected.',
+        changedStateRefs: ['state:value', 'unit:atlas-1'],
+      },
+      domainPayload: {
+        delta: 3,
+        projectedEvents: [],
+      },
+      projectedEvents: [],
+      conflicts: [],
+      causedBy: ['player-attack-1'],
+      supersedes: ['player-attack-1'],
+    };
+
+    const result = approveGmCascadePreview({
+      ledger,
+      actionLedger,
+      preview,
+      state,
+    });
+
+    expect(result).toMatchObject({
+      status: 'blocked',
+      appended: false,
+      state,
+    });
+    expect(result.reason).toContain('combat');
     expect(ledger.getRecords()).toEqual([]);
     expect(actionLedger.getRecords()).toEqual([]);
   });

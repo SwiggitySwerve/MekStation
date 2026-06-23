@@ -155,5 +155,69 @@ describe('ActionLedger', () => {
     records.pop();
 
     expect(ledger.getRecords()).toHaveLength(1);
+
+    const [record] = ledger.getRecords() as IActionLedgerRecord[];
+    expect(Object.isFrozen(record)).toBe(true);
+    expect(Object.isFrozen(record.targetRefs)).toBe(true);
+
+    try {
+      (record as { action: string }).action = 'mutated-action';
+    } catch {
+      // Frozen records may throw in strict mode.
+    }
+    try {
+      (record.targetRefs as string[]).push('phase:combat');
+    } catch {
+      // Frozen arrays may throw in strict mode.
+    }
+
+    expect(ledger.getRecords()[0]).toMatchObject({
+      action: 'phase-started',
+      targetRefs: ['phase:movement'],
+    });
+  });
+
+  it('returns immutable player and GM projections that cannot mutate canonical records', () => {
+    const ledger = new ActionLedger();
+    ledger.appendNormalAction({
+      id: 'normal-action-1',
+      actorId: 'player-1',
+      domain: 'combat',
+      action: 'move',
+      targetRefs: ['unit:atlas-1'],
+      publicEffect: {
+        summary: 'Atlas moved.',
+        changedStateRefs: ['unit:atlas-1'],
+      },
+      createdAt: '2026-06-22T00:00:00.000Z',
+    });
+    ledger.appendGmInterventionRecord(makeGmInterventionRecord());
+
+    const playerProjection = ledger.projectForPlayer<IGmPublicEffect>();
+    const gmProjection = ledger.projectForGm<
+      IGmPublicEffect,
+      IGmPrivateMetadata,
+      TestDomainPayload
+    >();
+
+    expect(Object.isFrozen(playerProjection[1])).toBe(true);
+    expect(Object.isFrozen(playerProjection[1].targetRefs)).toBe(true);
+    expect(Object.isFrozen(gmProjection[1])).toBe(true);
+
+    try {
+      (playerProjection[1] as { action: string }).action = 'mutated-action';
+    } catch {
+      // Frozen projection mutation may throw.
+    }
+    try {
+      (gmProjection[1] as { action: string }).action = 'gm-mutated-action';
+    } catch {
+      // Frozen projection mutation may throw.
+    }
+
+    expect(ledger.getRecords()[1]).toMatchObject({
+      action: 'fix',
+      targetRefs: ['unit:atlas-1'],
+    });
   });
 });

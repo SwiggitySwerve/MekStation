@@ -106,10 +106,13 @@ export class ActionLedger {
   private append<TPublic, TPrivate, TDomainPayload>(
     input: IActionLedgerAppendInput<TPublic, TPrivate, TDomainPayload>,
   ): IActionLedgerRecord<TPublic, TPrivate, TDomainPayload> {
-    const record: IActionLedgerRecord<TPublic, TPrivate, TDomainPayload> = {
+    const record = freezeRecord({
       ...input,
+      targetRefs: freezeRefs(input.targetRefs),
+      causedBy: freezeOptionalRefs(input.causedBy),
+      supersedes: freezeOptionalRefs(input.supersedes),
       sequence: this.nextSequence,
-    };
+    });
 
     this.nextSequence += 1;
     this.records.push(record);
@@ -119,7 +122,7 @@ export class ActionLedger {
   private toPlayerProjection<TPublic>(
     record: IActionLedgerRecord,
   ): IPlayerVisibleActionLedgerRecord<TPublic> {
-    return {
+    return freezeRecord({
       id: record.id,
       sequence: record.sequence,
       recordKind: record.recordKind,
@@ -128,23 +131,37 @@ export class ActionLedger {
       domain: record.domain,
       action: record.action,
       status: record.status,
-      targetRefs: record.targetRefs,
+      targetRefs: freezeRefs(record.targetRefs),
       publicEffect: record.publicEffect as TPublic,
-      causedBy: record.causedBy,
-      supersedes: record.supersedes,
+      causedBy: freezeOptionalRefs(record.causedBy),
+      supersedes: freezeOptionalRefs(record.supersedes),
       interventionRecordId: record.interventionRecordId,
       createdAt: record.createdAt,
       approvedAt: record.approvedAt,
-    };
+    });
   }
 
   private toGmProjection<TPublic, TPrivate, TDomainPayload>(
     record: IActionLedgerRecord,
   ): IGmVisibleActionLedgerRecord<TPublic, TPrivate, TDomainPayload> {
-    return {
+    return freezeRecord({
       ...this.toPlayerProjection<TPublic>(record),
       privateMetadata: record.privateMetadata as TPrivate | undefined,
       domainPayload: record.domainPayload as TDomainPayload | undefined,
-    };
+    });
   }
+}
+
+function freezeRefs(refs: readonly string[]): readonly string[] {
+  return Object.freeze([...refs]);
+}
+
+function freezeOptionalRefs(
+  refs?: readonly string[],
+): readonly string[] | undefined {
+  return refs ? freezeRefs(refs) : undefined;
+}
+
+function freezeRecord<TRecord extends object>(record: TRecord): TRecord {
+  return Object.freeze(record);
 }
