@@ -200,27 +200,26 @@ export function approveGmCascadePreview<
   }
 
   const record = buildApprovedRecord(input);
-  ledger.appendApprovedRecord(record);
   const applyResult = ledger.apply(record, state);
 
   if (applyResult.status === 'unsupported') {
     return {
       status: 'blocked',
       state,
-      appended: true,
-      record,
+      appended: false,
       reason: applyResult.reason,
     };
   }
 
+  const appendedRecord = ledger.appendApprovedRecord(record);
   const actionLedgerRecord =
-    input.actionLedger?.appendGmInterventionRecord(record);
+    input.actionLedger?.appendGmInterventionRecord(appendedRecord);
 
   return {
     status: 'approved',
     state: applyResult.state,
     appended: true,
-    record,
+    record: appendedRecord,
     actionLedgerRecord,
   };
 }

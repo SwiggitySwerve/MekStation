@@ -193,7 +193,35 @@ describe('InterventionLedger', () => {
       causedBy: ['event-prior'],
       supersedes: ['event-old-damage'],
     });
-    expect(records[0]).toBe(record);
+    expect(records[0]).toEqual(record);
+  });
+
+  it('returns immutable read snapshots so callers cannot mutate canonical record fields', () => {
+    const ledger = new InterventionLedger<CounterState>();
+    const record = makeRecord();
+
+    ledger.appendApprovedRecord(record);
+    const records = ledger.getRecords() as IInterventionLedgerRecord[];
+
+    expect(Object.isFrozen(records[0])).toBe(true);
+    expect(Object.isFrozen(records[0].targetRefs)).toBe(true);
+
+    try {
+      (records[0] as { id: string }).id = 'mutated-id';
+    } catch {
+      // Strict-mode runtimes throw for frozen assignment; either way,
+      // canonical ledger state must remain unchanged.
+    }
+    try {
+      (records[0].targetRefs as string[]).push('unit-2');
+    } catch {
+      // Frozen array mutation may throw.
+    }
+
+    expect(ledger.getRecords()[0]).toMatchObject({
+      id: 'gm-int-1',
+      targetRefs: ['unit-1'],
+    });
   });
 
   it('rejects non-approved records from the append-only approved ledger path', () => {

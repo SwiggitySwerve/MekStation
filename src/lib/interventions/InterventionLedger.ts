@@ -72,8 +72,9 @@ export class InterventionLedger<TState = unknown> {
       );
     }
 
-    this.records.push(record);
-    return record;
+    const immutableRecord = freezeInterventionRecord(record);
+    this.records.push(immutableRecord);
+    return immutableRecord;
   }
 
   apply(
@@ -123,4 +124,25 @@ export class InterventionLedger<TState = unknown> {
     const { unsupportedReason = defaultUnsupportedReason } = this.options;
     return unsupportedReason(domain);
   }
+}
+
+function freezeInterventionRecord(
+  record: IInterventionLedgerRecord,
+): IInterventionLedgerRecord {
+  return Object.freeze({
+    ...record,
+    targetRefs: freezeRefs(record.targetRefs),
+    causedBy: freezeOptionalRefs(record.causedBy),
+    supersedes: freezeOptionalRefs(record.supersedes),
+  });
+}
+
+function freezeRefs(refs: readonly string[]): readonly string[] {
+  return Object.freeze([...refs]);
+}
+
+function freezeOptionalRefs(
+  refs?: readonly string[],
+): readonly string[] | undefined {
+  return refs ? freezeRefs(refs) : undefined;
 }

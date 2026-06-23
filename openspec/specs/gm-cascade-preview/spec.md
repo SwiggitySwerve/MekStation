@@ -17,11 +17,11 @@ The system SHALL compute a cascade preview before applying any GM intervention. 
 
 ### Requirement: Approval and Cancellation
 
-The system SHALL append an intervention record only after GM approval. Cancelling a preview SHALL append no intervention and SHALL leave state unchanged.
+The system SHALL append an intervention record only after GM approval and successful application by the registered domain implementer. Cancelling a preview, blocking a preview, or failing to apply an approved preview SHALL append no intervention and SHALL leave state unchanged.
 
 #### Scenario: Approval appends accepted intervention
 - **GIVEN** a ready GM intervention preview
-- **WHEN** the GM approves the preview
+- **WHEN** the GM approves the preview and the registered domain implementer applies it
 - **THEN** the system SHALL append the approved intervention to canonical history
 - **AND** the derived game state SHALL reflect the approved net effect
 
@@ -29,6 +29,14 @@ The system SHALL append an intervention record only after GM approval. Cancellin
 - **GIVEN** a ready GM intervention preview
 - **WHEN** the GM cancels the preview
 - **THEN** no intervention record SHALL be appended
+- **AND** derived game state SHALL remain unchanged
+
+#### Scenario: Unsupported approval appends nothing
+- **GIVEN** a ready GM intervention preview whose domain cannot be applied by a registered implementer
+- **WHEN** the GM attempts to approve the preview
+- **THEN** the approval result SHALL be blocked
+- **AND** no intervention ledger record SHALL be appended
+- **AND** no action ledger record SHALL be appended
 - **AND** derived game state SHALL remain unchanged
 
 ### Requirement: Conflict and Manual Takeover Result
@@ -78,7 +86,6 @@ The preview pipeline SHALL represent post-combat and base-economy corrections wi
 - **WHEN** the GM attempts normal preview approval
 - **THEN** the approval pipeline SHALL return blocked
 - **AND** no intervention ledger record or action ledger record SHALL be appended
-
 ### Requirement: Time Cascade Preview Shape
 
 The preview pipeline SHALL represent accumulated time cascades with public net effect, GM-private context, affected campaign state references, projected time effects, generated day summaries, and conflicts before commit.
