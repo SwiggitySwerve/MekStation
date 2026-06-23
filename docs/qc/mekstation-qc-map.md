@@ -60,6 +60,7 @@ npm.cmd run verify:qc:partial:quick
 npm.cmd run verify:qc:tactical:projection
 npm.cmd run verify:qc:tactical:quick
 npm.cmd run verify:qc:tactical:visual
+npm.cmd run verify:qc:combat:catalog-rules
 npm.cmd run verify:qc:combat
 npm.cmd run verify:qc:maintenance
 npm.cmd run maintain:scan:gate
@@ -143,10 +144,13 @@ flowchart TD
 2. `simulation-combat-validation`
    - BattleMech unresolved validation gaps are currently 0 by
      `validate:combat:gaps -- --format=summary`.
-   - Current out-of-scope combat rows are 140 by
+   - Current out-of-scope combat rows are 147 by
      `validate:combat:gaps -- --level=out-of-scope --format=summary`; keep
      non-BattleMech systems and unsupported runtime boundaries split into
      separate matrices.
+   - Wave 10 adds `qc:combat:catalog-rules:validate` as the fast manifest
+     gate for catalog/rules surfaces, source anchors, stale active-change refs,
+     and the expected 147-row out-of-scope split before deeper suite runs.
    - Physical weapon runtime boundaries and ejection lifecycle regressions are
      now first-class QC sublanes so stale gap wording does not override live
      validators.
