@@ -18,6 +18,8 @@ export type GmCampaignInterventionDomain =
   | 'repair'
   | 'salvage';
 
+export type GmCampaignLedgerDomain = GmCampaignInterventionDomain | 'time';
+
 export type GmCampaignCorrectionFamily =
   | 'salvage-allocation'
   | 'repair-ticket'

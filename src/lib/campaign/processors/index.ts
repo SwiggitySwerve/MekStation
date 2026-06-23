@@ -11,6 +11,7 @@ export type {
   ICampaignWithBattleState,
 } from './postBattleProcessor';
 export { dailyCostsProcessor } from './dailyCostsProcessor';
+export { repairProgressProcessor } from './repairProgressProcessor';
 export { registerAcquisitionProcessor } from './acquisitionProcessor';
 export { autoAwardsProcessor } from './autoAwardsProcessor';
 export { randomEventsProcessor } from './randomEventsProcessor';

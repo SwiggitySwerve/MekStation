@@ -37,6 +37,7 @@ export type {
   GmCampaignCorrectionFamily,
   GmCampaignInterventionCorrection,
   GmCampaignInterventionDomain,
+  GmCampaignLedgerDomain,
   GmCampaignProjectedEffectType,
   IGmCampaignBaseUnitStateCorrection,
   IGmCampaignBaseUnitStateEffect,
@@ -56,6 +57,23 @@ export type {
   IGmCampaignSalvageAllocationCorrection,
   IGmCampaignSalvageAllocationEffect,
 } from './GmCampaignInterventionTypes';
+
+export type {
+  GmTimeCascadeCorrectionFamily,
+  GmTimeCascadeInterventionCorrection,
+  GmTimeCascadeInterventionDomain,
+  GmTimeCascadeProjectedEffectType,
+  IGmTimeCascadeAdvanceCorrection,
+  IGmTimeCascadeDaySummary,
+  IGmTimeCascadeExternalEffectProjection,
+  IGmTimeCascadeInterventionCommandPayload,
+  IGmTimeCascadeInterventionConflictInput,
+  IGmTimeCascadeInterventionDomainPayload,
+  IGmTimeCascadeInterventionState,
+  IGmTimeCascadeProjectedEffect,
+  IGmTimeCascadePublicEffect,
+  IGmTimeCascadeStateSnapshot,
+} from './GmTimeCascadeInterventionTypes';
 
 export type {
   IGmUnitReloadCommandProjection,

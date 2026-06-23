@@ -1,9 +1,14 @@
 import type {
   IGmAuthorityContext,
+  IGmTimeCascadeInterventionCommandPayload,
+  IGmTimeCascadeInterventionState,
   IGmPrivateMetadata,
   IInterventionLedgerCommand,
   InterventionDomain,
 } from '@/types/interventions';
+
+import { createCampaign } from '@/types/campaign/Campaign';
+import { Money } from '@/types/campaign/Money';
 
 import type { IGmDeferredInterventionAttemptLog } from '../index';
 
@@ -11,6 +16,7 @@ import {
   approveGmCascadePreview,
   createGmCascadePreview,
   InterventionLedger,
+  registerGmTimeCascadeInterventionImplementer,
 } from '../index';
 
 interface CampaignBoundaryState {
@@ -84,6 +90,47 @@ function makeCommand(
         reason: 'GM wants to adjust a campaign cascade.',
         defaultOutcome: 'The campaign state would remain unchanged.',
         hiddenNotes: 'secret merchant inventory branch',
+      },
+    },
+  };
+}
+
+function makeRegisteredTimeState(): IGmTimeCascadeInterventionState {
+  const campaign = createCampaign('Boundary Time Campaign', 'mercenary', {
+    useRoleBasedSalaries: true,
+  });
+
+  return {
+    ...campaign,
+    id: 'campaign-1',
+    currentDate: new Date('3025-02-02T00:00:00.000Z'),
+    updatedAt: '2026-06-22T00:00:00.000Z',
+    currentSystemId: 'terra',
+    finances: {
+      balance: new Money(1_000_000),
+      transactions: [],
+    },
+    timeCascadeEvents: [],
+  };
+}
+
+function makeRegisteredTimeCommand(): IInterventionLedgerCommand<IGmTimeCascadeInterventionCommandPayload> {
+  return {
+    domain: 'time',
+    kind: 'fix',
+    actorId: 'gm-1',
+    targetRefs: ['campaign:campaign-1:currentDate'],
+    payload: {
+      correction: {
+        family: 'time-advance',
+        days: 1,
+        baseUpdatedAt: '2026-06-22T00:00:00.000Z',
+        baseCurrentDate: '3025-02-02T00:00:00.000Z',
+        generatedAt: '2026-06-22T00:05:00.000Z',
+      },
+      privateMetadata: {
+        reason: 'Hidden time correction reason.',
+        defaultOutcome: 'The campaign state would remain unchanged.',
       },
     },
   };
@@ -176,5 +223,36 @@ describe('GM campaign intervention boundaries', () => {
       deferredReason:
         'No intervention ledger implementer registered for domain "time".',
     });
+  });
+
+  it('executes time interventions when the time cascade implementer is registered', () => {
+    const state = makeRegisteredTimeState();
+    const ledger = registerGmTimeCascadeInterventionImplementer(
+      new InterventionLedger<IGmTimeCascadeInterventionState>(),
+    );
+
+    const preview = createGmCascadePreview({
+      ledger,
+      command: makeRegisteredTimeCommand(),
+      state,
+      authority: gmAuthority,
+      interventionId: 'gm-int-time-registered',
+    });
+    const result = approveGmCascadePreview({
+      ledger,
+      preview,
+      state,
+    });
+
+    expect(preview).toMatchObject({
+      status: 'ready',
+      domain: 'time',
+      affectedStateRefs: ['campaign:campaign-1:currentDate'],
+    });
+    expect(result.status).toBe('approved');
+    expect(result.state.currentDate.toISOString()).toBe(
+      '3025-02-03T00:00:00.000Z',
+    );
+    expect(result.state.timeCascadeEvents).toHaveLength(1);
   });
 });
