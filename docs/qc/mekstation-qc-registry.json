@@ -507,18 +507,16 @@
         "non-BattleMech scope split"
       ],
       "specRefs": ["openspec/specs/combat-resolution/spec.md"],
-      "activeChangeRefs": [
-        "fix-combat-damage-crit-parity",
-        "wire-interactive-turn-engine"
-      ],
+      "activeChangeRefs": [],
       "tests": [
         "src/simulation/**/__tests__",
         "src/engine/**/__tests__",
         "src/utils/gameplay/**/__tests__"
       ],
       "commands": [
+        "npm.cmd run qc:combat:catalog-rules:validate",
         "npm.cmd run validate:combat",
-        "npx.cmd tsx scripts/print-combat-validation-gaps.ts --format=summary",
+        "npm.cmd run validate:combat:gaps -- --format=summary --expect-total=0",
         "npx.cmd openspec validate --all --strict"
       ],
       "manualChecks": [
@@ -527,12 +525,13 @@
       "evidence": [
         "docs/audits/2026-06-13-combat-validation-gap-inventory-checkpoint.md",
         "docs/audits/2026-05-22-combat-validation-source-truth.md",
-        "2026-06-18 combat review: validate:combat passed 76 suites / 2648 tests; gap summary total 0; non-BattleMech out-of-scope split 140.",
+        "2026-06-18 combat review: validate:combat passed 76 suites / 2648 tests; gap summary total 0.",
+        "2026-06-23 Wave 10 catalog/rules QC gate validates current combat parity surfaces, source anchors, stale active-change refs, zero unresolved BattleMech gaps, and the explicit 147-row non-BattleMech out-of-scope split.",
         "2026-06-18 damage source refs were repinned after the damage finalizer/location helper split; validate:combat reran green at 76 suites / 2648 tests.",
         "2026-06-18 integration review confirmed older unresolved BattleMech helper/unsupported audit wording is stale against current live validators."
       ],
       "gaps": [
-        "BattleMech validation is green with explicit non-BattleMech scope splits; interactive physical command availability and phase-driver parity remain under active changes."
+        "BattleMech validation is green with explicit non-BattleMech scope splits; remaining interactive physical command availability and phase-driver parity concerns should be tracked as concrete failing evidence, not stale active-change refs."
       ]
     },
     {
@@ -561,24 +560,26 @@
         "fallback guards"
       ],
       "specRefs": ["openspec/specs/combat-resolution/spec.md"],
-      "activeChangeRefs": ["fix-combat-damage-crit-parity"],
+      "activeChangeRefs": [],
       "tests": [
         "src/simulation/runner/**/__tests__",
         "src/types/contracts/__tests__"
       ],
       "commands": [
+        "npm.cmd run qc:combat:catalog-rules:validate",
         "npm.cmd run validate:combat",
         "npx.cmd tsx scripts/print-combat-validation-gaps.ts --format=summary",
-        "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary"
+        "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=147 --expect-level=out-of-scope:147 --expect-scope=aggregate:3 --expect-scope=leaf:144"
       ],
       "manualChecks": [
         "Review out-of-scope split before claiming all official ammo or non-BattleMech support"
       ],
       "evidence": [
-        "Current review context: validate:combat passed 76 suites / 2648 tests; gap summary total 0.",
+        "Current review context: validate:combat passed 76 suites / 2648 tests; unresolved BattleMech gap summary total 0; out-of-scope split total 147.",
         "2026-06-18 source-reference validation was repaired after the damage split by moving stale resolve.ts pins to finalize.ts and locationApplication.ts.",
         "2026-06-18 catalog review confirmed ranged/physical/ammo mapping, special-mode behavior, fallback guards, MML hazard classification, knownLimitations bypass, and ejection lifecycle coverage in the BattleMech lane.",
-        "2026-06-18 catalog review confirmed unsupported non-BattleMech and non-compatible ammo rows remain classified rather than silently ignored."
+        "2026-06-18 catalog review confirmed unsupported non-BattleMech and non-compatible ammo rows remain classified rather than silently ignored.",
+        "2026-06-23 Wave 10 validator pins the catalog/rules parity command surface and source anchors so stale gap totals or inactive OpenSpec refs fail QC."
       ],
       "gaps": [
         "Use 'BattleMech-compatible official rows' wording; broader official catalog support belongs in separate matrices."
@@ -612,13 +613,16 @@
         "ammo explosions"
       ],
       "specRefs": ["openspec/specs/combat-resolution/spec.md"],
-      "activeChangeRefs": ["fix-combat-damage-crit-parity"],
+      "activeChangeRefs": [],
       "tests": [
         "src/utils/gameplay/**/__tests__",
         "src/simulation/**/__tests__",
         "src/engine/**/__tests__"
       ],
-      "commands": ["npm.cmd test -- --watchAll=false"],
+      "commands": [
+        "npm.cmd run validate:combat",
+        "npm.cmd test -- --watchAll=false"
+      ],
       "manualChecks": [
         "Spot-check behavior-class coverage against exported catalog rows, not helper names only"
       ],
@@ -666,7 +670,7 @@
         "openspec/specs/combat-resolution/spec.md",
         "openspec/specs/game-state-management/spec.md"
       ],
-      "activeChangeRefs": ["wire-interactive-turn-engine"],
+      "activeChangeRefs": [],
       "tests": [
         "src/engine/__tests__",
         "src/stores/__tests__",
@@ -715,7 +719,7 @@
         "openspec/specs/combat-resolution/spec.md",
         "openspec/specs/tactical-map-interface/spec.md"
       ],
-      "activeChangeRefs": ["wire-interactive-turn-engine"],
+      "activeChangeRefs": [],
       "tests": [
         "src/simulation/runner/__tests__/physicalWeaponCatalogBoundary.behavior.test.ts",
         "src/simulation/__tests__/wireBotAiHelpersAndCapstone.smoke.test.ts"
@@ -760,7 +764,7 @@
         "terminal state"
       ],
       "specRefs": ["openspec/specs/combat-resolution/spec.md"],
-      "activeChangeRefs": ["wire-interactive-turn-engine"],
+      "activeChangeRefs": [],
       "tests": ["src/simulation/**/__tests__", "src/engine/**/__tests__"],
       "commands": [
         "npm.cmd run validate:combat",
@@ -806,14 +810,14 @@
       "activeChangeRefs": [],
       "tests": ["src/simulation/runner/**/__tests__"],
       "commands": [
-        "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary",
+        "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=147 --expect-level=out-of-scope:147 --expect-scope=aggregate:3 --expect-scope=leaf:144 --expect-section=actions:29 --expect-section=damageAndDeath:6 --expect-section=eventStream:15 --expect-section=featureSupport:75 --expect-section=lifecycleAndPsr:2 --expect-section=pilotSkills:9 --expect-section=ruleSupport:6 --expect-section=validationScope:5",
         "npm.cmd run validate:combat"
       ],
       "manualChecks": [
         "Keep non-BattleMech matrices separate from BattleMech-compatible official row claims"
       ],
       "evidence": [
-        "2026-06-18 combat review confirmed validate:combat asserts 140 explicit non-BattleMech out-of-scope rows.",
+        "2026-06-23 Wave 10 review confirmed validate:combat and the gap exporter assert 147 explicit non-BattleMech out-of-scope rows.",
         "2026-06-18 parity review confirmed vehicle/VTOL movement coverage exists but should not be claimed as universal non-BattleMech preview/resolution parity."
       ],
       "gaps": [
@@ -844,10 +848,11 @@
         "audit wording freshness"
       ],
       "specRefs": ["openspec/specs/combat-resolution/spec.md"],
-      "activeChangeRefs": ["restore-ci-correctness-teeth"],
+      "activeChangeRefs": [],
       "tests": ["src/simulation/**/__tests__", "scripts/__tests__"],
       "commands": [
-        "npx.cmd tsx scripts/print-combat-validation-gaps.ts --format=summary",
+        "npm.cmd run qc:combat:catalog-rules:validate",
+        "npm.cmd run validate:combat:gaps -- --format=summary --expect-total=0",
         "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary",
         "npm.cmd run validate:combat"
       ],
