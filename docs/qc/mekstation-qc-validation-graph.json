@@ -103,6 +103,11 @@
       "label": "npm.cmd run qc:journeys"
     },
     {
+      "id": "command:qc-campaign-long-stability",
+      "kind": "command",
+      "label": "npm.cmd run qc:campaign-long:stability"
+    },
+    {
       "id": "command:qc-journeys-validate",
       "kind": "command",
       "label": "npm.cmd run qc:journeys:validate"
@@ -166,6 +171,16 @@
       "id": "log-event:campaign.economy_updated",
       "kind": "log-event",
       "label": "campaign.economy_updated"
+    },
+    {
+      "id": "log-event:campaign.stability_checked",
+      "kind": "log-event",
+      "label": "campaign.stability_checked"
+    },
+    {
+      "id": "log-event:campaign.stability_drift_detected",
+      "kind": "log-event",
+      "label": "campaign.stability_drift_detected"
     },
     {
       "id": "known-gap:browser-campaign-standard",
@@ -315,7 +330,17 @@
       "relation": "validated-by"
     },
     {
+      "from": "journey:campaign-long",
+      "to": "command:qc-campaign-long-stability",
+      "relation": "validated-by"
+    },
+    {
       "from": "command:qc-journeys",
+      "to": "evidence:qc-journeys",
+      "relation": "produces"
+    },
+    {
+      "from": "command:qc-campaign-long-stability",
       "to": "evidence:qc-journeys",
       "relation": "produces"
     },
@@ -372,6 +397,16 @@
     {
       "from": "journey:campaign-long",
       "to": "log-event:campaign.economy_updated",
+      "relation": "logs"
+    },
+    {
+      "from": "journey:campaign-long",
+      "to": "log-event:campaign.stability_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "journey:campaign-long",
+      "to": "log-event:campaign.stability_drift_detected",
       "relation": "logs"
     },
     {

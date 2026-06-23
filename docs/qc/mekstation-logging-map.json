@@ -97,6 +97,27 @@
       "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
     },
     {
+      "pathId": "campaign-long-stability",
+      "service": "journey.campaign",
+      "events": ["campaign.stability_checked"],
+      "severity": "info",
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    },
+    {
+      "pathId": "campaign-long-stability-failure",
+      "service": "journey.campaign",
+      "events": [
+        "campaign.stability_drift_detected",
+        "campaign.save_round_trip_failed",
+        "campaign.ui_flow_linkage_failed",
+        "campaign.terminal_state_failed"
+      ],
+      "severity": "error",
+      "classification": "failure",
+      "blocking": true,
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    },
+    {
       "pathId": "api-payload-rejection",
       "service": "journey.validation",
       "events": ["api.payload_rejected"],
