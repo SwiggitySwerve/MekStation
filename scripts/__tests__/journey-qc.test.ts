@@ -328,6 +328,203 @@ describe('journey QC scripts', () => {
     ).toBe(true);
   });
 
+  it('rejects long-campaign stability runs outside the supported contract range', () => {
+    const runResult = runNodeScript(
+      'scripts/qc/validate-long-campaign-stability.mjs',
+      [
+        '--seed=42',
+        '--contracts=5',
+        '--runs=2',
+        '--run-id=test-long-campaign-bad-contracts',
+        `--evidence-dir=${evidenceDir}`,
+      ],
+    );
+
+    expect(runResult.status).toBe(1);
+    expect(runResult.stderr).toContain(
+      'Long-campaign stability requires --contracts between 6 and 10',
+    );
+  });
+
+  it('writes long-campaign stability evidence with stable digests and save round trips', () => {
+    const runResult = runNodeScript(
+      'scripts/qc/validate-long-campaign-stability.mjs',
+      [
+        '--seed=42',
+        '--contracts=10',
+        '--runs=2',
+        '--run-id=test-long-campaign-stability',
+        `--evidence-dir=${evidenceDir}`,
+      ],
+    );
+
+    expect(runResult.status).toBe(0);
+    expect(runResult.stdout).toContain(
+      '[qc:campaign-long:stability] status: pass',
+    );
+
+    const manifest = readJson<{
+      status: string;
+      contracts: number;
+      runs: number;
+      drift: unknown[];
+      artifactComparisons: Array<{
+        role: string;
+        attempts: Array<{
+          status: string;
+          digest: string;
+          baselineDigest: string;
+        }>;
+      }>;
+      saveRoundTrips: Array<{ label: string; status: string }>;
+      uiFlow: {
+        status: string;
+        browserExecuted: boolean;
+        qcCommand: string;
+        checkpoints: Array<{ id: string }>;
+      };
+    }>(
+      path.join(
+        evidenceDir,
+        'test-long-campaign-stability',
+        'stability-manifest.json',
+      ),
+    );
+    expect(manifest).toMatchObject({
+      status: 'pass',
+      contracts: 10,
+      runs: 2,
+      drift: [],
+      uiFlow: {
+        status: 'pass',
+        browserExecuted: false,
+      },
+    });
+    expect(manifest.artifactComparisons.map((entry) => entry.role)).toEqual([
+      'campaign-sequence',
+      'campaign-result',
+      'campaign-economy',
+    ]);
+    expect(
+      manifest.artifactComparisons.every((comparison) =>
+        comparison.attempts.every(
+          (attempt) =>
+            attempt.status === 'pass' &&
+            attempt.digest === attempt.baselineDigest,
+        ),
+      ),
+    ).toBe(true);
+    expect(manifest.saveRoundTrips).toHaveLength(8);
+    expect(
+      manifest.saveRoundTrips.every((roundTrip) => roundTrip.status === 'pass'),
+    ).toBe(true);
+    expect(manifest.uiFlow.qcCommand).toContain('qc:campaign-long:stability');
+    expect(
+      manifest.uiFlow.checkpoints.map((checkpoint) => checkpoint.id),
+    ).toEqual([
+      'campaign-base',
+      'starmap',
+      'medical',
+      'salvage',
+      'repair',
+      'finances',
+      'campaign-log',
+    ]);
+
+    const bugs = readJson<unknown[]>(
+      path.join(evidenceDir, 'test-long-campaign-stability', 'bugs.json'),
+    );
+    expect(bugs).toEqual([]);
+
+    const logs = runNodeScript('scripts/qc/search-journey-logs.mjs', [
+      '--run-id=latest',
+      '--event=campaign.stability_checked',
+      `--evidence-dir=${evidenceDir}`,
+    ]);
+    expect(logs.status).toBe(0);
+    expect(logs.stdout).toContain('campaign.stability_checked');
+  });
+
+  it('fails long-campaign stability when normalized artifact drift is detected', () => {
+    const runResult = runNodeScript(
+      'scripts/qc/validate-long-campaign-stability.mjs',
+      [
+        '--seed=42',
+        '--contracts=10',
+        '--runs=2',
+        '--run-id=test-long-campaign-drift',
+        '--inject-stability-drift=campaign-economy:2',
+        `--evidence-dir=${evidenceDir}`,
+      ],
+    );
+
+    expect(runResult.status).toBe(1);
+    expect(runResult.stdout).toContain(
+      '[qc:campaign-long:stability] status: fail',
+    );
+
+    const manifest = readJson<{
+      status: string;
+      drift: Array<{
+        type: string;
+        role: string;
+        attempt: number;
+        baselineDigest: string;
+        actualDigest: string;
+      }>;
+    }>(
+      path.join(
+        evidenceDir,
+        'test-long-campaign-drift',
+        'stability-manifest.json',
+      ),
+    );
+    expect(manifest.status).toBe('fail');
+    expect(manifest.drift).toHaveLength(1);
+    expect(manifest.drift[0]).toMatchObject({
+      type: 'digest-mismatch',
+      role: 'campaign-economy',
+      attempt: 2,
+    });
+    expect(manifest.drift[0]?.actualDigest).not.toBe(
+      manifest.drift[0]?.baselineDigest,
+    );
+
+    const bugs = readJson<
+      Array<{
+        severity: string;
+        summary: string;
+        triage?: { failureCause: string };
+      }>
+    >(path.join(evidenceDir, 'test-long-campaign-drift', 'bugs.json'));
+    expect(bugs).toHaveLength(1);
+    expect(bugs[0]).toMatchObject({
+      severity: 'high',
+      summary: 'campaign-economy digest drifted on attempt 2.',
+    });
+    expect(bugs[0]?.triage?.failureCause).toContain(
+      'campaign-economy digest drifted',
+    );
+
+    const logs = runNodeScript('scripts/qc/search-journey-logs.mjs', [
+      '--run-id=latest',
+      '--event=campaign.stability_drift_detected',
+      `--evidence-dir=${evidenceDir}`,
+    ]);
+    expect(logs.status).toBe(0);
+    expect(logs.stdout).toContain('campaign.stability_drift_detected');
+
+    const reportedBugs = runNodeScript('scripts/qc/report-journey-bugs.mjs', [
+      '--since=latest',
+      '--min-severity=medium',
+      `--evidence-dir=${evidenceDir}`,
+    ]);
+    expect(reportedBugs.status).toBe(0);
+    expect(reportedBugs.stdout).toContain(
+      'campaign-economy digest drifted on attempt 2.',
+    );
+  });
+
   it('extracts bug candidates from failed journey steps', () => {
     const runResult = runNodeScript('scripts/qc/run-journey-scenarios.mjs', [
       '--journey=combat-1v1',

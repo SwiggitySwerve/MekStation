@@ -34,11 +34,13 @@ npm.cmd run qc:journeys:validate
 npm.cmd run qc:logging:validate
 npm.cmd run qc:graph -- --query=mek-build
 npm.cmd run qc:journeys -- --journey=all --tier=smoke
+npm.cmd run qc:campaign-long:stability -- --journey=campaign-long --seed=42 --contracts=10 --runs=2
 npm.cmd run qc:journeys:bugs -- --since=latest --min-severity=medium
 npm.cmd run qc:logs -- --run-id=latest --level=warn,error
 npm.cmd run qc:logs -- --run-id=latest --level=warn,error --exclude-probes
 npm.cmd run verify:qc:scenarios
 npm.cmd run verify:qc:journeys
+npm.cmd run verify:qc:campaign-long
 npm.cmd run verify:qc:partial:quick
 npm.cmd run verify:qc:tactical:quick
 npm.cmd run verify:qc:tactical:visual
@@ -53,6 +55,10 @@ npm.cmd run verify:rules
 Use the plain `warn,error` log scan to audit every warning-class event,
 including harness controls. Use `--exclude-probes` for the operator view that
 omits expected negative-control probes such as `api.payload_rejected`.
+Use `qc:campaign-long:stability` when the question is whether a deterministic
+6-10 contract campaign repeats cleanly, survives JSON save/load evidence
+round-trips, and exposes drift through `stability-manifest.json`, `bugs.json`,
+and searchable stability logs.
 
 ## Graph
 

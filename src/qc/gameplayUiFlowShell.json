@@ -340,7 +340,7 @@
         "label": "Inspect campaign",
         "href": "/gameplay/campaigns"
       },
-      "qcCommand": "npm.cmd run qc:journeys -- --journey=campaign-long --tier=extended --contracts=10",
+      "qcCommand": "npm.cmd run qc:campaign-long:stability -- --journey=campaign-long --seed=42 --contracts=10 --runs=2",
       "inspectionNotes": [
         "Player-visible 6-10 contract loop with long-running campaign state",
         "GM inspection focuses on time, recovery, market, and accumulated-economy drift"

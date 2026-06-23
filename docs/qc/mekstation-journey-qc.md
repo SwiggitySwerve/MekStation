@@ -26,10 +26,12 @@ npm.cmd run qc:journeys -- --journey=combat-1v1 --seed=42 --player-units=1 --opp
 npm.cmd run qc:journeys -- --journey=combat-4v4 --seed=42 --player-units=4 --opponent-units=4
 npm.cmd run qc:journeys -- --journey=campaign-short --contracts=5
 npm.cmd run qc:journeys -- --journey=campaign-long --tier=extended --contracts=10
+npm.cmd run qc:campaign-long:stability -- --journey=campaign-long --seed=42 --contracts=10 --runs=2
 npm.cmd run qc:journeys:bugs -- --since=latest --min-severity=medium
 npm.cmd run qc:logs -- --run-id=latest --level=warn,error
 npm.cmd run qc:logs -- --run-id=latest --level=warn,error --exclude-probes
 npm.cmd run verify:qc:journeys
+npm.cmd run verify:qc:campaign-long
 ```
 
 `qc:journeys:validate` also checks the gameplay UI flow shell. Each required
@@ -47,7 +49,7 @@ page template such as `/gameplay/campaigns/[id]/salvage`.
 | `combat-4v4`        | headless     | combat         | lance encounter, terminal combat, replay reference |
 | `contract-campaign` | headless     | campaign       | contract selection, outcome, economy update        |
 | `campaign-short`    | headless     | campaign       | 3 to 5 contract sequence                           |
-| `campaign-long`     | headless     | campaign       | 6 to 10 contract sequence                          |
+| `campaign-long`     | headless     | campaign       | 6 to 10 contract sequence plus stability gate      |
 
 ## UI Flow Shell
 
@@ -93,6 +95,7 @@ Each run writes:
 .sisyphus/evidence/qc-journeys/<runId>/
   run-plan.json
   result.json
+  stability-manifest.json (long-campaign stability runs)
   system.ndjson
   bugs.json
   report.md
@@ -103,6 +106,14 @@ Each run writes:
 ```
 
 `latest.json` points bug and log commands at the most recent run.
+
+`qc:campaign-long:stability` wraps the `campaign-long` journey, defaults to
+extended tier, 10 contracts, and two repeated attempts, then writes
+`stability-manifest.json`. The manifest records normalized artifact digests,
+save round-trip checks, execution backing summary, UI flow checkpoints, the
+headless/browser boundary, drift entries, and evidence references. Detected
+drift adds `campaign.stability_drift_detected` diagnostics and bug candidates
+that are visible through `qc:logs` and `qc:journeys:bugs`.
 
 Step results, diagnostic entries, and step artifacts include execution backing
 metadata:
