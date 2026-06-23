@@ -112,6 +112,139 @@ describe('journey QC scripts', () => {
     );
   });
 
+  it('rejects malformed integer journey parameter overrides before writing evidence', () => {
+    const result = runNodeScript('scripts/qc/run-journey-scenarios.mjs', [
+      '--journey=campaign-short',
+      '--contracts=abc',
+      '--run-id=test-bad-contracts',
+      `--evidence-dir=${evidenceDir}`,
+    ]);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(
+      '[qc:journeys] campaign-short: invalid parameter contracts=abc; expected an integer.',
+    );
+    expect(
+      fs.existsSync(
+        path.join(evidenceDir, 'test-bad-contracts', 'result.json'),
+      ),
+    ).toBe(false);
+  });
+
+  it('rejects out-of-range integer journey parameter overrides before writing evidence', () => {
+    const result = runNodeScript('scripts/qc/run-journey-scenarios.mjs', [
+      '--journey=campaign-short',
+      '--contracts=1',
+      '--run-id=test-short-campaign-too-short',
+      `--evidence-dir=${evidenceDir}`,
+    ]);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(
+      '[qc:journeys] campaign-short: invalid parameter contracts=1; expected an integer >= 3.',
+    );
+    expect(
+      fs.existsSync(
+        path.join(evidenceDir, 'test-short-campaign-too-short', 'result.json'),
+      ),
+    ).toBe(false);
+  });
+
+  it('rejects invalid enum journey parameter overrides before writing evidence', () => {
+    const result = runNodeScript('scripts/qc/run-journey-scenarios.mjs', [
+      '--journey=mek-build',
+      '--unitTechBase=NOT_REAL',
+      '--run-id=test-bad-tech-base',
+      `--evidence-dir=${evidenceDir}`,
+    ]);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(
+      '[qc:journeys] mek-build: invalid parameter unitTechBase=NOT_REAL; expected one of INNER_SPHERE, CLAN, MIXED.',
+    );
+    expect(
+      fs.existsSync(
+        path.join(evidenceDir, 'test-bad-tech-base', 'result.json'),
+      ),
+    ).toBe(false);
+  });
+
+  it('rejects unknown journey parameter overrides before writing evidence', () => {
+    const result = runNodeScript('scripts/qc/run-journey-scenarios.mjs', [
+      '--journey=mek-build',
+      '--unitTechBaseTypo=CLAN',
+      '--run-id=test-unknown-parameter',
+      `--evidence-dir=${evidenceDir}`,
+    ]);
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(
+      '[qc:journeys] Unknown journey parameter unitTechBaseTypo for selected journey(s): mek-build.',
+    );
+    expect(
+      fs.existsSync(
+        path.join(evidenceDir, 'test-unknown-parameter', 'result.json'),
+      ),
+    ).toBe(false);
+  });
+
+  it('preserves valid journey parameter overrides in run-plan and generated evidence', () => {
+    const result = runNodeScript('scripts/qc/run-journey-scenarios.mjs', [
+      '--journey=mek-build',
+      '--era=3050',
+      '--unitTechBase=CLAN',
+      '--weight-class=Heavy',
+      '--run-id=test-mek-valid-overrides',
+      `--evidence-dir=${evidenceDir}`,
+    ]);
+
+    expect(result.status).toBe(0);
+    const runPlan = readJson<{
+      journeys: Array<{
+        resolvedParameters: {
+          era: number;
+          unitTechBase: string;
+          'weight-class': string;
+        };
+      }>;
+    }>(path.join(evidenceDir, 'test-mek-valid-overrides', 'run-plan.json'));
+    const generatedInput = readJson<{
+      era: number;
+      unitTechBase: string;
+      weightClass: string;
+      parameters: {
+        era: number;
+        unitTechBase: string;
+        'weight-class': string;
+      };
+    }>(
+      path.join(
+        evidenceDir,
+        'test-mek-valid-overrides',
+        'mek-build',
+        '1',
+        'generated',
+        'battlemech-input.json',
+      ),
+    );
+
+    expect(runPlan.journeys[0]?.resolvedParameters).toMatchObject({
+      era: 3050,
+      unitTechBase: 'CLAN',
+      'weight-class': 'Heavy',
+    });
+    expect(generatedInput).toMatchObject({
+      era: 3050,
+      unitTechBase: 'CLAN',
+      weightClass: 'Heavy',
+      parameters: {
+        era: 3050,
+        unitTechBase: 'CLAN',
+        'weight-class': 'Heavy',
+      },
+    });
+  });
+
   it('writes a dry-run plan without failing the command', () => {
     const result = runNodeScript('scripts/qc/run-journey-scenarios.mjs', [
       '--journey=mek-build',

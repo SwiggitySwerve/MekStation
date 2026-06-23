@@ -87,6 +87,14 @@ Journey-specific parameters include `--pilot-count`,
 `--start-funds`, `--repair-policy`, `--salvage-policy`,
 `--advance-days-between`, and `--campaign-difficulty`.
 
+The runner validates overrides against the selected journey catalog before it
+writes trusted evidence. Unknown journey parameters, malformed integers,
+ambiguous booleans, unsupported enum values, empty explicit string lists, and
+numeric min/max violations fail before `run-plan.json`, `result.json`, or
+diagnostic logs are claimed for the run. Failure messages name the journey ID,
+parameter name, received value, and expected constraint so a bad command can be
+fixed without digging through artifacts.
+
 ## Evidence Bundle
 
 Each run writes:
