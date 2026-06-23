@@ -157,7 +157,9 @@ export function parseArgs(argv) {
     else if (key === 'query') options.query = value;
     else if (key === 'kind') options.kind = value;
     else if (key === 'inject-failure') options.injectFailure = value;
-    else parameters[key] = value;
+    else if (key === 'inject-stability-drift' || key === 'inject-drift') {
+      options.injectStabilityDrift = value;
+    } else parameters[key] = value;
   }
 
   options.parameters = parameters;
@@ -918,10 +920,115 @@ function coerceParameter(definition, rawValue) {
   return rawValue;
 }
 
+function formatParameterValue(value) {
+  if (Array.isArray(value)) return value.join(',');
+  return String(value);
+}
+
+function parameterError(journey, name, rawValue, expected) {
+  return new Error(
+    `${journey.id}: invalid parameter ${name}=${formatParameterValue(rawValue)}; expected ${expected}.`,
+  );
+}
+
+function validateAndCoerceParameter(journey, name, definition, rawValue) {
+  const value = coerceParameter(definition, rawValue);
+  const rawLabel = rawValue === undefined ? definition.default : rawValue;
+
+  if (definition.type === 'integer') {
+    if (rawValue !== undefined && !/^-?\d+$/.test(String(rawValue).trim())) {
+      throw parameterError(journey, name, rawValue, 'an integer');
+    }
+    if (!Number.isInteger(value)) {
+      throw parameterError(journey, name, rawLabel, 'an integer');
+    }
+    if (definition.minimum !== undefined && value < definition.minimum) {
+      throw parameterError(
+        journey,
+        name,
+        rawLabel,
+        `an integer >= ${definition.minimum}`,
+      );
+    }
+    if (definition.maximum !== undefined && value > definition.maximum) {
+      throw parameterError(
+        journey,
+        name,
+        rawLabel,
+        `an integer <= ${definition.maximum}`,
+      );
+    }
+  }
+
+  if (definition.type === 'boolean') {
+    if (rawValue !== undefined && rawValue !== 'true' && rawValue !== 'false') {
+      throw parameterError(journey, name, rawValue, 'true or false');
+    }
+    if (typeof value !== 'boolean') {
+      throw parameterError(journey, name, rawLabel, 'true or false');
+    }
+  }
+
+  if (definition.type === 'enum') {
+    if (
+      !Array.isArray(definition.values) ||
+      !definition.values.includes(value)
+    ) {
+      throw parameterError(
+        journey,
+        name,
+        rawLabel,
+        `one of ${definition.values.join(', ')}`,
+      );
+    }
+  }
+
+  if (definition.type === 'string-list') {
+    if (!Array.isArray(value)) {
+      throw parameterError(journey, name, rawLabel, 'a comma-separated list');
+    }
+    if (rawValue !== undefined && value.length === 0) {
+      throw parameterError(
+        journey,
+        name,
+        rawValue,
+        'a non-empty comma-separated list',
+      );
+    }
+  }
+
+  if (definition.type === 'string' && typeof value !== 'string') {
+    throw parameterError(journey, name, rawLabel, 'a string');
+  }
+
+  return value;
+}
+
+function validateKnownParameterOverrides(selectedJourneys, overrides) {
+  const knownNames = new Set(
+    selectedJourneys.flatMap((journey) => Object.keys(journey.parameters)),
+  );
+  for (const name of Object.keys(overrides ?? {})) {
+    if (!knownNames.has(name)) {
+      const journeyIds = selectedJourneys
+        .map((journey) => journey.id)
+        .join(', ');
+      throw new Error(
+        `Unknown journey parameter ${name} for selected journey(s): ${journeyIds}.`,
+      );
+    }
+  }
+}
+
 function resolveParameters(journey, overrides) {
   const resolved = {};
   for (const [name, definition] of Object.entries(journey.parameters)) {
-    resolved[name] = coerceParameter(definition, overrides[name]);
+    resolved[name] = validateAndCoerceParameter(
+      journey,
+      name,
+      definition,
+      overrides[name],
+    );
   }
   return resolved;
 }
@@ -962,6 +1069,7 @@ export function materializeRunPlan(catalog, options) {
     throw new Error('--runs must be an integer >= 1.');
   }
   const selected = selectJourneys(catalog, options.journey);
+  validateKnownParameterOverrides(selected, options.parameters);
   const timestamp = new Date().toISOString();
   const runId =
     options.runId ??
