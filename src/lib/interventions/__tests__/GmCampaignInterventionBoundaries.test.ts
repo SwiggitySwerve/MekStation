@@ -38,10 +38,6 @@ interface DeferredCommandPayload {
 }
 
 const deferredDomains = [
-  'post-combat',
-  'economy',
-  'repair',
-  'salvage',
   'time',
 ] as const satisfies readonly InterventionDomain[];
 
@@ -153,7 +149,7 @@ describe('GM campaign intervention boundaries', () => {
     },
   );
 
-  it('logs deferred attempts without exposing hidden scenario notes', () => {
+  it('logs deferred time attempts without exposing hidden scenario notes', () => {
     const state = makeState();
     const ledger = new InterventionLedger<CampaignBoundaryState>();
     const logs: Array<{
@@ -163,7 +159,7 @@ describe('GM campaign intervention boundaries', () => {
 
     const preview = createGmCascadePreview({
       ledger,
-      command: makeCommand('economy'),
+      command: makeCommand('time'),
       state,
       authority: gmAuthority,
       interventionId: 'gm-int-safe-log',
@@ -176,9 +172,9 @@ describe('GM campaign intervention boundaries', () => {
     expect(JSON.stringify(preview)).not.toContain('secret merchant');
     expect(JSON.stringify(logs)).not.toContain('secret merchant');
     expect(logs[0]?.entry).toMatchObject({
-      domain: 'economy',
+      domain: 'time',
       deferredReason:
-        'No intervention ledger implementer registered for domain "economy".',
+        'No intervention ledger implementer registered for domain "time".',
     });
   });
 });

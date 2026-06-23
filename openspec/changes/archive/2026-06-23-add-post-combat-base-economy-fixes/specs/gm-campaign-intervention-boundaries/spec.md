@@ -1,9 +1,5 @@
-# gm-campaign-intervention-boundaries Specification
+## MODIFIED Requirements
 
-## Purpose
-
-Defines the first-slice campaign boundary for GM interventions, explicitly deferring post-combat, economy, repair, salvage, and time cascades until domain implementers declare safe mutable roots and public projections.
-## Requirements
 ### Requirement: First Slice Defers Campaign Cascades
 
 The campaign intervention boundary SHALL now support ledger-backed post-combat amendments, base/economy corrections, repair corrections, and salvage corrections through registered domain implementers. Accumulated time cascades SHALL remain explicitly deferred until the time-cascade phase declares safe mutable roots and conflict handling.
@@ -42,15 +38,7 @@ The system SHALL document and preserve extension seams for intervention ledger i
 - **THEN** the preview SHALL identify the domain as unsupported or deferred
 - **AND** the preview SHALL NOT imply that travel, repair progress, contract windows, market refreshes, pilot recovery, upkeep, or campaign dates were mutated
 
-### Requirement: Deferred Domain Logging
-
-The system SHALL log deferred domain intervention attempts so missing campaign support is visible during testing without applying unsupported state changes.
-
-#### Scenario: Deferred request is logged safely
-- **GIVEN** a GM requests a deferred time cascade intervention
-- **WHEN** the intervention pipeline returns a deferred result
-- **THEN** the system SHALL log the domain, actor, target refs, and deferred reason
-- **AND** the log SHALL NOT include hidden scenario notes in any player-visible output
+## ADDED Requirements
 
 ### Requirement: Ledger-Backed Campaign Correction Domains
 
