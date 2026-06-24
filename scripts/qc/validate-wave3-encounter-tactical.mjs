@@ -12,6 +12,9 @@ const packageJsonPath =
 const registryPath =
   process.env.MEKSTATION_QC_REGISTRY_PATH ??
   path.join(repoRoot, 'docs', 'qc', 'mekstation-qc-registry.json');
+const majorScenariosPath =
+  process.env.MEKSTATION_MAJOR_SCENARIOS_PATH ??
+  path.join(repoRoot, 'docs', 'qc', 'mekstation-major-capability-scenarios.json');
 const sourceAnchorsPath =
   process.env.MEKSTATION_WAVE3_SOURCE_ANCHORS_PATH ?? null;
 
@@ -110,6 +113,15 @@ const requiredSurfaces = [
 
 const legacyPermissiveSmokePaths = ['e2e/encounter-flow.spec.ts'];
 
+const requiredMajorScenarioContracts = [
+  {
+    id: 'MC-04-force-pilot-encounter-setup',
+    commandIncludes: ['verify:qc:encounter-combat-continuity'],
+    evidenceIncludes: ['e2e/encounter-combat-continuity.spec.ts'],
+    forbiddenIncludes: legacyPermissiveSmokePaths,
+  },
+];
+
 const defaultSourceAnchors = [
   {
     id: 'strict-encounter-continuity-proof',
@@ -178,6 +190,20 @@ function allSurfaceText(surface) {
       ...(surface.evidence ?? []),
       ...(surface.gaps ?? []),
       ...(surface.manualChecks ?? []),
+    ].join('\n'),
+  );
+}
+
+function allMajorScenarioText(scenario) {
+  return normalizeSlash(
+    [
+      scenario.realisticFlow ?? '',
+      ...(scenario.successCriteria ?? []),
+      ...(scenario.notes ?? []),
+      ...(scenario.checks ?? []).flatMap((check) => [
+        check.command ?? '',
+        ...(check.evidence ?? []),
+      ]),
     ].join('\n'),
   );
 }
@@ -341,16 +367,86 @@ function validateSourceAnchor(anchor, issues) {
   };
 }
 
+function validateMajorScenario(contract, scenarioById, issues) {
+  const scenario = scenarioById.get(contract.id);
+  if (!scenario) {
+    issues.push(
+      issue(
+        'error',
+        'major-scenario-missing',
+        `Required Wave 3 major scenario ${contract.id} is missing.`,
+        { scenarioId: contract.id },
+      ),
+    );
+    return null;
+  }
+
+  for (const token of contract.commandIncludes ?? []) {
+    if (!scenario.checks?.some((check) => check.command?.includes(token))) {
+      issues.push(
+        issue(
+          'error',
+          'major-scenario-command-missing',
+          `${contract.id} must include a check command containing ${token}.`,
+          { scenarioId: contract.id, token },
+        ),
+      );
+    }
+  }
+
+  for (const token of contract.evidenceIncludes ?? []) {
+    if (
+      !scenario.checks?.some((check) =>
+        check.evidence?.some((evidencePath) => evidencePath.includes(token)),
+      )
+    ) {
+      issues.push(
+        issue(
+          'error',
+          'major-scenario-evidence-missing',
+          `${contract.id} must include scenario evidence ${token}.`,
+          { scenarioId: contract.id, token },
+        ),
+      );
+    }
+  }
+
+  const text = allMajorScenarioText(scenario);
+  const legacySmokeLeaks = (contract.forbiddenIncludes ?? []).filter((token) =>
+    text.includes(token),
+  );
+  for (const legacyPath of legacySmokeLeaks) {
+    issues.push(
+      issue(
+        'error',
+        'major-scenario-legacy-smoke-leak',
+        `${contract.id} must not use permissive ${legacyPath} as major capability proof.`,
+        { scenarioId: contract.id, legacyPath },
+      ),
+    );
+  }
+
+  return {
+    scenarioId: contract.id,
+    checkCount: scenario.checks?.length ?? 0,
+    legacySmokeLeaks,
+  };
+}
+
 function buildManifest() {
   const issues = [];
   const packageJson = readJson(packageJsonPath);
   const registry = readJson(registryPath);
+  const majorScenarios = readJson(majorScenariosPath);
   const sourceAnchors = sourceAnchorsPath
     ? readJson(sourceAnchorsPath)
     : defaultSourceAnchors;
   const scripts = packageJson.scripts ?? {};
   const surfaceById = new Map(
     registry.surfaces.map((surface) => [surface.surfaceId, surface]),
+  );
+  const scenarioById = new Map(
+    (majorScenarios.scenarios ?? []).map((scenario) => [scenario.id, scenario]),
   );
 
   const packageScripts = requiredPackageScripts.map((contract) =>
@@ -362,8 +458,14 @@ function buildManifest() {
   const anchors = sourceAnchors.map((anchor) =>
     validateSourceAnchor(anchor, issues),
   );
+  const majorScenarioContracts = requiredMajorScenarioContracts
+    .map((contract) => validateMajorScenario(contract, scenarioById, issues))
+    .filter(Boolean);
   const legacySmokeLeakCount = surfaces.reduce(
     (total, surface) => total + surface.legacySmokeLeaks.length,
+    0,
+  ) + majorScenarioContracts.reduce(
+    (total, scenario) => total + scenario.legacySmokeLeaks.length,
     0,
   );
   const errors = issues.filter((item) => item.severity === 'error');
@@ -374,12 +476,17 @@ function buildManifest() {
     status: errors.length > 0 ? 'fail' : 'pass',
     packageJsonPath: normalizeSlash(path.relative(repoRoot, packageJsonPath)),
     registryPath: normalizeSlash(path.relative(repoRoot, registryPath)),
+    majorScenariosPath: normalizeSlash(
+      path.relative(repoRoot, majorScenariosPath),
+    ),
     requiredPackageScriptCount: requiredPackageScripts.length,
     requiredSurfaceCount: requiredSurfaces.length,
+    requiredMajorScenarioCount: requiredMajorScenarioContracts.length,
     sourceAnchorCount: sourceAnchors.length,
     legacySmokeLeakCount,
     packageScripts,
     surfaces,
+    majorScenarioContracts,
     anchors,
     errors,
     warnings,

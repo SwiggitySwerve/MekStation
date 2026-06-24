@@ -179,11 +179,19 @@
           "id": "force-encounter-browser-flow",
           "tier": "standard",
           "required": true,
-          "command": "npx.cmd playwright test e2e/force.spec.ts e2e/encounter.spec.ts e2e/encounter-flow.spec.ts --project=chromium",
+          "command": "npx.cmd playwright test e2e/force.spec.ts e2e/encounter.spec.ts --project=chromium",
+          "evidence": ["e2e/force.spec.ts", "e2e/encounter.spec.ts"]
+        },
+        {
+          "id": "strict-encounter-combat-continuity",
+          "tier": "standard",
+          "required": true,
+          "command": "npm.cmd run verify:qc:encounter-combat-continuity",
           "evidence": [
-            "e2e/force.spec.ts",
-            "e2e/encounter.spec.ts",
-            "e2e/encounter-flow.spec.ts"
+            "src/components/gameplay/pages/preBattle/__tests__/usePreBattleLaunch.test.ts",
+            "src/components/gameplay/pages/preBattle/__tests__/preBattleLaunchLinkage.test.ts",
+            "src/__tests__/integration/campaignCombatLoop.test.ts",
+            "e2e/encounter-combat-continuity.spec.ts"
           ]
         },
         {
@@ -199,7 +207,7 @@
         }
       ],
       "notes": [
-        "The previous single EncounterService command is retained as part of this wider continuity scenario."
+        "The previous permissive encounter-flow smoke is historical context only; strict continuity must launch a campaign encounter, reach combat, queue post-battle outcome state, reload review, and apply the outcome."
       ]
     },
     {

@@ -60,12 +60,14 @@ describe('Wave 3 encounter/tactical QC validator', () => {
       status: string;
       packageScripts: unknown[];
       surfaces: unknown[];
+      majorScenarioContracts: unknown[];
       anchors: unknown[];
       legacySmokeLeakCount: number;
     };
     expect(manifest.status).toBe('pass');
     expect(manifest.packageScripts).toHaveLength(5);
     expect(manifest.surfaces).toHaveLength(8);
+    expect(manifest.majorScenarioContracts).toHaveLength(1);
     expect(manifest.anchors).toHaveLength(3);
     expect(manifest.legacySmokeLeakCount).toBe(0);
   });
@@ -116,6 +118,48 @@ describe('Wave 3 encounter/tactical QC validator', () => {
     };
     expect(manifest.errors).toContainEqual(
       expect.objectContaining({ code: 'legacy-smoke-release-leak' }),
+    );
+    expect(result.stdout).toContain('e2e/encounter-flow.spec.ts');
+  });
+
+  it('rejects permissive encounter smoke in the major capability scenario', () => {
+    const majorScenarios = readJson<{
+      scenarios: Array<{
+        id: string;
+        checks?: Array<{
+          command?: string;
+          evidence?: string[];
+        }>;
+      }>;
+    }>(
+      path.join(repoRoot, 'docs/qc/mekstation-major-capability-scenarios.json'),
+    );
+    const forceScenario = majorScenarios.scenarios.find(
+      (entry) => entry.id === 'MC-04-force-pilot-encounter-setup',
+    );
+    expect(forceScenario).toBeDefined();
+    forceScenario!.checks = [
+      ...(forceScenario!.checks ?? []),
+      {
+        command:
+          'npx.cmd playwright test e2e/encounter-flow.spec.ts --project=chromium',
+        evidence: ['e2e/encounter-flow.spec.ts'],
+      },
+    ];
+
+    const majorScenariosPath = path.join(tempDir, 'major-scenarios.json');
+    writeJson(majorScenariosPath, majorScenarios);
+
+    const result = runValidator(['--json'], {
+      MEKSTATION_MAJOR_SCENARIOS_PATH: majorScenariosPath,
+    });
+
+    expect(result.status).toBe(1);
+    const manifest = JSON.parse(result.stdout) as {
+      errors: Array<{ code: string }>;
+    };
+    expect(manifest.errors).toContainEqual(
+      expect.objectContaining({ code: 'major-scenario-legacy-smoke-leak' }),
     );
     expect(result.stdout).toContain('e2e/encounter-flow.spec.ts');
   });
