@@ -38,6 +38,13 @@ export interface ReplayEventOverlayProps {
   className?: string;
 }
 
+const positionClassByPosition: Record<OverlayPosition, string> = {
+  'bottom-left': 'bottom-4 left-4',
+  'bottom-right': 'bottom-4 right-4',
+  'top-left': 'top-4 left-4',
+  'top-right': 'top-4 right-4',
+};
+
 // =============================================================================
 // Category Configuration
 // =============================================================================
@@ -232,16 +239,7 @@ function generatePayloadSummary(
  * Get position classes for overlay.
  */
 function getPositionClasses(position: OverlayPosition): string {
-  switch (position) {
-    case 'top-left':
-      return 'top-4 left-4';
-    case 'top-right':
-      return 'top-4 right-4';
-    case 'bottom-left':
-      return 'bottom-4 left-4';
-    case 'bottom-right':
-      return 'bottom-4 right-4';
-  }
+  return positionClassByPosition[position];
 }
 
 // =============================================================================

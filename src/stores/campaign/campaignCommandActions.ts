@@ -38,8 +38,16 @@ import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry'
 import type { IPersonnelMarketOffer } from '@/types/campaign/markets/marketTypes';
 import type { IContract, IMission } from '@/types/campaign/Mission';
 
+import {
+  addRequest,
+  removeRequest,
+} from '@/lib/campaign/acquisition/shoppingList';
 import { acceptContract as acceptContractEngine } from '@/lib/campaign/contractMarket';
 import { hirePerson } from '@/lib/campaign/markets/personnelMarket';
+import {
+  AvailabilityRating,
+  type IAcquisitionRequest,
+} from '@/types/campaign/acquisition/acquisitionTypes';
 import { createCampaignLoan } from '@/types/campaign/CampaignLoan';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
@@ -112,6 +120,138 @@ export interface ICommandActionResult {
   readonly applied: boolean;
   /** Human-readable failure reason when `applied` is false. */
   readonly reason?: string;
+}
+
+// =============================================================================
+// Acquisitions - Shopping List
+// =============================================================================
+
+/** Inputs for adding an acquisition request to the campaign shopping list. */
+export interface IAddAcquisitionRequestParams {
+  /** Human-readable part name, e.g. "Medium Laser". */
+  readonly partName: string;
+  /** Quantity to acquire. */
+  readonly quantity: number;
+  /** Campaign availability rating. */
+  readonly availability: AvailabilityRating;
+  /** True for ammo/consumables, false for durable parts. */
+  readonly isConsumable: boolean;
+  /** Optional stable part id. Defaults to a slug from the part name. */
+  readonly partId?: string;
+}
+
+/** Result of adding an acquisition request. */
+export interface IAddAcquisitionRequestResult extends ICommandActionResult {
+  /** The request id that was appended when applied. */
+  readonly requestId?: string;
+}
+
+function slugPartName(value: string): string {
+  const slug = value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return slug || 'part';
+}
+
+function isAvailabilityRating(value: unknown): value is AvailabilityRating {
+  return Object.values(AvailabilityRating).includes(
+    value as AvailabilityRating,
+  );
+}
+
+function createAcquisitionRequest(
+  campaign: ICampaign,
+  params: IAddAcquisitionRequestParams,
+): IAcquisitionRequest {
+  const partId = params.partId?.trim() || slugPartName(params.partName);
+  const sequence = campaign.shoppingList?.items.length ?? 0;
+  const requestId = `req-${campaign.id}-${partId}-${sequence}`;
+  return {
+    id: requestId,
+    partId,
+    partName: params.partName.trim(),
+    quantity: params.quantity,
+    availability: params.availability,
+    isConsumable: params.isConsumable,
+    status: 'pending',
+    attempts: 0,
+  };
+}
+
+/**
+ * Add a player-requested part acquisition to the shopping list.
+ *
+ * This is intentionally a thin UI mutation over the existing shopping-list
+ * helper. The acquisition day processor remains responsible for rolls,
+ * transit, delivery, and parts inventory materialization.
+ */
+export function addAcquisitionRequest(
+  params: IAddAcquisitionRequestParams,
+): IAddAcquisitionRequestResult {
+  const partName = params.partName.trim();
+  if (!partName) {
+    return { applied: false, reason: 'Part name is required' };
+  }
+  if (!Number.isInteger(params.quantity) || params.quantity <= 0) {
+    return { applied: false, reason: 'Quantity must be a positive integer' };
+  }
+  if (!isAvailabilityRating(params.availability)) {
+    return { applied: false, reason: 'Availability rating is invalid' };
+  }
+
+  let result: IAddAcquisitionRequestResult = {
+    applied: false,
+    reason: 'No campaign loaded',
+  };
+
+  applyCampaignMutation((campaign) => {
+    const request = createAcquisitionRequest(campaign, {
+      ...params,
+      partName,
+    });
+    result = { applied: true, requestId: request.id };
+    return {
+      shoppingList: addRequest(campaign.shoppingList ?? { items: [] }, request),
+    } as Partial<ICampaign>;
+  });
+
+  return result;
+}
+
+/**
+ * Remove an acquisition request from the shopping list.
+ *
+ * The UI uses this for completed/failed cleanup and stale entry removal. It
+ * does not mutate inventory; deliveries have already materialized through the
+ * acquisition processor.
+ */
+export function removeAcquisitionRequest(
+  requestId: string,
+): ICommandActionResult {
+  if (!requestId) {
+    return { applied: false, reason: 'Request id is required' };
+  }
+
+  let result: ICommandActionResult = {
+    applied: false,
+    reason: 'No campaign loaded',
+  };
+
+  applyCampaignMutation((campaign) => {
+    const shoppingList = campaign.shoppingList ?? { items: [] };
+    if (!shoppingList.items.some((item) => item.id === requestId)) {
+      result = { applied: false, reason: 'Acquisition request not found' };
+      return null;
+    }
+    result = { applied: true };
+    return {
+      shoppingList: removeRequest(shoppingList, requestId),
+    } as Partial<ICampaign>;
+  });
+
+  return result;
 }
 
 // =============================================================================

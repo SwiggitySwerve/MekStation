@@ -1152,6 +1152,7 @@
         "docs/audits/2026-06-12-full-codebase-review.md",
         "scripts/qc/validate-long-campaign-qc.mjs",
         "e2e/campaign-economy-browser.spec.ts",
+        "e2e/campaign-acquisition-browser.spec.ts",
         "src/stores/campaign/__tests__/campaignBaySelectors.test.ts",
         "src/stores/campaign/__tests__/campaignBayActions.test.ts"
       ]
@@ -1169,8 +1170,7 @@
       "kind": "known-gap",
       "label": "Campaign Economy, Repair, Salvage, Progression known gaps",
       "entries": [
-        "Strict browser proof covers organic campaign creation -> rostered contract acceptance -> accepted mission reload, and seeded browser proof covers post-battle repair, salvage, finances, and day advance after route reloads; tactical launch -> post-combat save/load remains separate release signoff.",
-        "Acquisition contracts and processors are covered by focused tests; true shopping/acquisition browser UI remains a follow-up lane.",
+        "Strict browser proof covers organic campaign creation -> rostered contract acceptance -> accepted mission reload, seeded post-battle repair, salvage, finances, day advance, and acquisition shopping after route reloads, plus campaign encounter launch through auto-resolve, interactive concession, and attack-driven weapon destruction into post-battle review reload/application.",
         "Long-campaign stability is now protected by a dedicated QC surface; browser-driven 6-10 contract campaign signoff remains a separate UI lane."
       ]
     },

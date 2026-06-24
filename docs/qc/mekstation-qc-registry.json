@@ -919,6 +919,7 @@
         "/gameplay/campaigns/:id/repair-bay",
         "/gameplay/campaigns/:id/salvage",
         "/gameplay/campaigns/:id/finances",
+        "/gameplay/campaigns/:id/acquisitions",
         "/gameplay/campaigns/:id/gm-ledger"
       ],
       "apis": [],
@@ -948,6 +949,7 @@
         "src/stores/campaign/__tests__/campaignBayActions.test.ts",
         "e2e/campaign-organic-contract.spec.ts",
         "e2e/campaign-economy-browser.spec.ts",
+        "e2e/campaign-acquisition-browser.spec.ts",
         "e2e/campaign-flow.spec.ts"
       ],
       "commands": [
@@ -963,13 +965,13 @@
         "docs/audits/2026-06-12-full-codebase-review.md",
         "scripts/qc/validate-long-campaign-qc.mjs",
         "2026-06-23 Chromium browser smoke passed 9 campaign-flow tests for create, roster, mission generation, damage carry-forward UI, and campaign store state.",
-        "2026-06-24 `npm.cmd run verify:qc:campaign-economy:contracts` passed 9 focused Jest suites / 111 tests for campaign outcomes, bay selectors/actions, command actions, salvage, repair queue/progress, acquisition, and market processors.",
+        "2026-06-24 `npm.cmd run verify:qc:campaign-economy:contracts` passed 9 focused Jest suites / 115 tests for campaign outcomes, bay selectors/actions, command actions, salvage, repair queue/progress, acquisition, shopping-list UI actions, and market processors.",
         "2026-06-24 `npx.cmd playwright test --project=chromium e2e/campaign-organic-contract.spec.ts --workers=1` passed the strict organic campaign contract proof: browser-created campaign, roster readiness, market contract acceptance, accepted mission rendering, mission route reload, and persisted mission map agreement.",
-        "2026-06-24 `npm.cmd run verify:qc:campaign-economy:browser` passed 11 Chromium tests: strict organic contract acceptance, strict post-battle economy browser route proof, and campaign-flow smoke, covering accepted mission reload plus dashboard, repair bay, salvage, finances, and day advance after full route reloads."
+        "2026-06-24 `npm.cmd run verify:qc:campaign-economy:browser` passed 12 Chromium tests: strict organic contract acceptance, strict acquisition shopping proof, strict post-battle economy browser route proof, and campaign-flow smoke, covering accepted mission reload plus dashboard, repair bay, salvage, finances, acquisitions, and day advance after full route reloads.",
+        "2026-06-24 `npx.cmd playwright test --project=chromium e2e/campaign-acquisition-browser.spec.ts --workers=1` passed the strict acquisition browser proof: player adds a shopping-list request, route reload preserves queue state, due delivery processes through the day pipeline, acquisition inventory persists, and cleanup removes only the request row."
       ],
       "gaps": [
-        "Strict browser proof now covers organic campaign creation -> rostered contract acceptance -> accepted mission reload, seeded post-battle repair/salvage/finances/day-advance route reloads, and campaign encounter launch through auto-resolve, interactive concession, and attack-driven weapon destruction into post-battle review reload/application.",
-        "Acquisition contracts and processors are covered by focused tests; true shopping/acquisition browser UI remains a follow-up lane.",
+        "Strict browser proof now covers organic campaign creation -> rostered contract acceptance -> accepted mission reload, seeded post-battle repair/salvage/finances/day-advance/acquisition-shopping route reloads, and campaign encounter launch through auto-resolve, interactive concession, and attack-driven weapon destruction into post-battle review reload/application.",
         "Long-campaign stability is now protected by a dedicated QC surface; browser-driven 6-10 contract campaign signoff remains a separate UI lane."
       ]
     },
