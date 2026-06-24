@@ -250,8 +250,12 @@ flowchart TD
      phase advancement, and utility eject coverage.
 
 1. `multiplayer-coop-sync`
-   - Current dirty worktree includes multiplayer API and fog test edits.
-   - Treat those edits as external work until validated.
+   - `verify:qc:multiplayer-reliability` is the current on-demand gate for
+     multiplayer route smoke, mock P2P sync, co-op campaign route mounting,
+     API fog/spectate contracts, server reconnect/spectator/fog behavior, turn
+     ownership, and the Phase 4 capstone host/join/reconnect/outcome flow.
+   - True two-window vault-auth live play and packaged-runtime kill/reconnect
+     remain release-signoff checks, not dirty-worktree blockers.
 
 1. `desktop-api-security`
    - The 2026-06-23 desktop lane now proves the packaged runtime path with
