@@ -14,7 +14,12 @@ const registryPath =
   path.join(repoRoot, 'docs', 'qc', 'mekstation-qc-registry.json');
 const majorScenariosPath =
   process.env.MEKSTATION_MAJOR_SCENARIOS_PATH ??
-  path.join(repoRoot, 'docs', 'qc', 'mekstation-major-capability-scenarios.json');
+  path.join(
+    repoRoot,
+    'docs',
+    'qc',
+    'mekstation-major-capability-scenarios.json',
+  );
 const sourceAnchorsPath =
   process.env.MEKSTATION_WAVE3_SOURCE_ANCHORS_PATH ?? null;
 
@@ -461,13 +466,15 @@ function buildManifest() {
   const majorScenarioContracts = requiredMajorScenarioContracts
     .map((contract) => validateMajorScenario(contract, scenarioById, issues))
     .filter(Boolean);
-  const legacySmokeLeakCount = surfaces.reduce(
-    (total, surface) => total + surface.legacySmokeLeaks.length,
-    0,
-  ) + majorScenarioContracts.reduce(
-    (total, scenario) => total + scenario.legacySmokeLeaks.length,
-    0,
-  );
+  const legacySmokeLeakCount =
+    surfaces.reduce(
+      (total, surface) => total + surface.legacySmokeLeaks.length,
+      0,
+    ) +
+    majorScenarioContracts.reduce(
+      (total, scenario) => total + scenario.legacySmokeLeaks.length,
+      0,
+    );
   const errors = issues.filter((item) => item.severity === 'error');
   const warnings = issues.filter((item) => item.severity === 'warning');
 
