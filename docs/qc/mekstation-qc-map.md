@@ -260,10 +260,10 @@ flowchart TD
    - Strict browser proof now covers organic campaign creation -> rostered
      contract acceptance -> accepted mission reload, seeded post-battle repair,
      salvage, finances, and day advance after route reloads, plus campaign
-     encounter launch through auto-resolve and interactive concession into
-     post-battle review reload/application. Remaining signoff is narrower now:
-     true attack-driven tactical completion save/load, true acquisition
-     shopping UI, and browser-driven 6-10 contract campaign play.
+     encounter launch through auto-resolve, interactive concession, and
+     attack-driven weapon destruction into post-battle review
+     reload/application. Remaining signoff is narrower now: true acquisition
+     shopping UI and browser-driven 6-10 contract campaign play.
 
 1. `integration-runner-interactive-parity`
    - Runner/interactive parity is still the highest-risk combat integration
