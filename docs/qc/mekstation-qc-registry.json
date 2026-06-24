@@ -1231,9 +1231,12 @@
       "activeChangeRefs": [],
       "tests": [
         "src/simulation/__tests__/replay-determinism.integration.test.ts",
-        "src/engine/__tests__"
+        "src/stores/__tests__/useGameplayStore.recover.test.ts",
+        "src/engine/__tests__/InteractiveSession.recovery.test.ts",
+        "e2e/active-session-recovery.spec.ts"
       ],
       "commands": [
+        "npm.cmd run verify:qc:replay-recovery",
         "npm.cmd test -- --watchAll=false --runTestsByPath src/simulation/__tests__/replay-determinism.integration.test.ts"
       ],
       "manualChecks": [
@@ -1242,11 +1245,12 @@
       "evidence": [
         "docs/audits/2026-06-12-full-codebase-review.md",
         "2026-06-23 Chromium browser smoke passed replay/timeline checks in `e2e/replay-player.spec.ts`: audit timeline filters load, timeline refresh remains functional, and nonexistent game replay shows user feedback.",
+        "2026-06-24 `verify:qc:replay-recovery` adds deterministic browser proof that `/gameplay/games/:id` deep-links and refreshes a generated non-demo match from local match-log IndexedDB into a drivable interactive session.",
         "Archived OpenSpec change 2026-06-21-persist-and-recover-interactive-battles retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-restore-ci-correctness-teeth retired from activeChangeRefs on 2026-06-23."
       ],
       "gaps": [
-        "Refresh/deep-link active session recovery remains a product-critical proof point."
+        "Replay library upload/export and broader replay UI shortcut release signoff remain separate from active-battle route recovery."
       ]
     },
     {
