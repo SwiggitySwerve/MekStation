@@ -13,7 +13,10 @@
     "api-payload-rejection",
     "store-persistence-recovery",
     "journey-runner-failure",
-    "bug-extraction"
+    "bug-extraction",
+    "qc-lifecycle-status",
+    "qc-lifecycle-warning",
+    "qc-lifecycle-blocker"
   ],
   "requiredTriageFields": [
     "actor",
@@ -84,6 +87,7 @@
       "events": [
         "campaign.contract_selected",
         "campaign.contract_resolved",
+        "campaign.sequence_generated",
         "campaign.sequence_resolved"
       ],
       "severity": "info",
@@ -152,6 +156,31 @@
       "events": ["bug.candidate_extracted"],
       "severity": "warn",
       "classification": "actionable-warning",
+      "blocking": true,
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    },
+    {
+      "pathId": "qc-lifecycle-status",
+      "service": "qc.lifecycle",
+      "events": ["qc.lifecycle_surface_checked", "qc.lifecycle_surface_ok"],
+      "severity": "info",
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    },
+    {
+      "pathId": "qc-lifecycle-warning",
+      "service": "qc.lifecycle",
+      "events": ["qc.lifecycle_surface_warned"],
+      "severity": "warn",
+      "classification": "diagnostic",
+      "blocking": false,
+      "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
+    },
+    {
+      "pathId": "qc-lifecycle-blocker",
+      "service": "qc.lifecycle",
+      "events": ["qc.lifecycle_surface_blocked"],
+      "severity": "error",
+      "classification": "failure",
       "blocking": true,
       "testRefs": ["scripts/__tests__/journey-qc.test.ts"]
     }

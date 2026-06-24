@@ -21,10 +21,7 @@
         "settings persistence"
       ],
       "specRefs": ["openspec/specs/game-state-management/spec.md"],
-      "activeChangeRefs": [
-        "fix-navigation-and-playability-deadends",
-        "harden-desktop-and-api-security"
-      ],
+      "activeChangeRefs": [],
       "tests": ["src/__tests__", "e2e"],
       "commands": [
         "npm.cmd run lint",
@@ -36,7 +33,12 @@
         "Refresh/deep-link active gameplay routes",
         "Check keyboard and screen-reader reachable navigation"
       ],
-      "evidence": ["docs/audits/2026-06-12-full-codebase-review.md"],
+      "evidence": [
+        "docs/audits/2026-06-12-full-codebase-review.md",
+        "2026-06-23 Chromium browser smoke passed `npx.cmd playwright test --project=chromium e2e/game.spec.ts --grep \"Game List Page\"`: `/gameplay/games` returned 200 and game-list navigation/new-game/empty-state checks passed after MatchLogService initializes SQLite on first server-side read.",
+        "Archived OpenSpec change 2026-06-21-fix-navigation-and-playability-deadends retired from activeChangeRefs on 2026-06-23.",
+        "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23."
+      ],
       "gaps": [
         "Recent audit called out navigation/playability dead ends and refresh-loss risks."
       ]
@@ -64,7 +66,7 @@
         "search/indexing"
       ],
       "specRefs": ["openspec/specs/unit-services/spec.md"],
-      "activeChangeRefs": ["reconcile-spec-source-of-truth"],
+      "activeChangeRefs": [],
       "tests": ["src/engine/__tests__", "src/services/**/__tests__"],
       "commands": [
         "npm.cmd run validate:assets:strict",
@@ -73,7 +75,11 @@
       "manualChecks": [
         "Inspect representative BattleMech, vehicle, aerospace, battle armor, infantry, and ProtoMech records"
       ],
-      "evidence": ["docs/audits/2026-05-22-combat-validation-source-truth.md"],
+      "evidence": [
+        "docs/audits/2026-05-22-combat-validation-source-truth.md",
+        "2026-06-23 Chromium browser smoke passed `npx.cmd playwright test --project=chromium e2e/compendium.spec.ts e2e/customizer.spec.ts e2e/campaign-flow.spec.ts e2e/playtest-coop-route-smoke.spec.ts e2e/replay-player.spec.ts --grep \"@smoke|timeline page loads|game replay page shows error|refresh button\"`: compendium hub, units, equipment, rules links, search/filter, and quick-reference checks passed.",
+        "Archived OpenSpec change 2026-06-21-reconcile-spec-source-of-truth retired from activeChangeRefs on 2026-06-23."
+      ],
       "gaps": [
         "Non-BattleMech systems need separate matrices where BattleMech combat validation excludes them."
       ]
@@ -103,10 +109,7 @@
         "BLK/MTF conversion"
       ],
       "specRefs": ["openspec/specs/unit-services/spec.md"],
-      "activeChangeRefs": [
-        "restore-bv-parity-reproducibility",
-        "consolidate-equipment-and-hex-duplication"
-      ],
+      "activeChangeRefs": [],
       "tests": [
         "src/components/customizer/**/__tests__",
         "src/utils/construction/**/__tests__",
@@ -124,7 +127,10 @@
         "Create and export one representative unit per supported family"
       ],
       "evidence": [
-        "docs/audits/2026-05-13-customizer-armor-megameklab-parity.md"
+        "docs/audits/2026-05-13-customizer-armor-megameklab-parity.md",
+        "2026-06-23 Chromium browser smoke passed customizer navigation checks for aerospace and vehicle entry routes via the bounded Playwright smoke command; deeper representative family export remains tracked by the validator/manual lanes.",
+        "Archived OpenSpec change 2026-06-20-restore-bv-parity-reproducibility retired from activeChangeRefs on 2026-06-23.",
+        "Archived OpenSpec change 2026-06-21-consolidate-equipment-and-hex-duplication retired from activeChangeRefs on 2026-06-23."
       ],
       "gaps": [
         "BV reproducibility needs to stay tied to live reference assets instead of stale caches."
@@ -157,7 +163,7 @@
         "openspec/specs/encounter-system/spec.md",
         "openspec/specs/personnel-management/spec.md"
       ],
-      "activeChangeRefs": ["fix-navigation-and-playability-deadends"],
+      "activeChangeRefs": [],
       "tests": [
         "src/services/encounter/__tests__",
         "src/types/encounter/__tests__"
@@ -168,7 +174,11 @@
       "manualChecks": [
         "Start from encounter creation and reach a playable battle without hidden state assumptions"
       ],
-      "evidence": ["docs/audits/2026-06-12-full-codebase-review.md"],
+      "evidence": [
+        "docs/audits/2026-06-12-full-codebase-review.md",
+        "2026-06-23 Chromium browser smoke passed `npx.cmd playwright test --project=chromium e2e/encounter-flow.spec.ts --grep \"@smoke\"`: force creation, encounter creation/configuration, launch affordances, auto-resolve, and game-session creation checks passed.",
+        "Archived OpenSpec change 2026-06-21-fix-navigation-and-playability-deadends retired from activeChangeRefs on 2026-06-23."
+      ],
       "gaps": [
         "Setup routes must prove playable continuity into tactical combat and campaign post-battle flows."
       ]
@@ -685,7 +695,8 @@
       ],
       "evidence": [
         "2026-06-18 behavior review found runner vs interactive agreement covered for heat environment, attack and movement projection, objective scenarios, and terminal state slices.",
-        "2026-06-18 integration review passed validate:combat and a 49-test attack projection agreement slice; objective and physical-dispatch lanes still need dedicated on-demand commands."
+        "2026-06-18 integration review passed validate:combat and a 49-test attack projection agreement slice; objective and physical-dispatch lanes still need dedicated on-demand commands.",
+        "2026-06-23 `npm.cmd run validate:combat` passed 76 suites / 2034 tests with 0 unresolved BattleMech gaps and the expected 147 explicit non-BattleMech out-of-scope rows; the runner/interactive parity slice passed 3 suites / 109 tests. Manual review of the focused interactive slice confirmed `InteractiveSession.applyPhysicalAttack`, physical phase advancement, tactical dock physical commands, and ejection utility commands are covered by `npx.cmd jest --selectProjects unit --ci --runTestsByPath ...` passing 11 suites / 78 tests."
       ],
       "gaps": [
         "Objective agreement is integration-tested but not folded into validate:combat; phase queue warning noise and physical command availability should be cleaned before treating UI regression guards as high-confidence."
@@ -733,7 +744,8 @@
       ],
       "evidence": [
         "2026-06-18 integration review found runtime supports core attacks plus official standalone physical weapons, while Claws/Talons are tested as modifier-only.",
-        "2026-06-18 parity review found several tactical dock physical commands still depend on requireActiveAndTarget instead of projected physical legality."
+        "2026-06-18 parity review found several tactical dock physical commands still depend on requireActiveAndTarget instead of projected physical legality.",
+        "2026-06-23 `npx.cmd jest --selectProjects unit --ci --runTestsByPath src/simulation/runner/__tests__/physicalWeaponCatalogBoundary.behavior.test.ts src/simulation/__tests__/wireBotAiHelpersAndCapstone.smoke.test.ts --no-coverage` passed 2 suites / 17 tests. Manual review of the companion UI command slice confirmed tactical dock physical commands expose shared projected restriction reasons for punch, club, and charge paths, with the broader focused physical/ejection UI run passing 11 suites / 78 tests."
       ],
       "gaps": [
         "Physical catalog support is not the same as universal command availability parity; command registry gating remains partial."
@@ -775,7 +787,8 @@
       ],
       "evidence": [
         "2026-06-18 integration review found ejection damage preservation, command intent, and outcome support integrated in CombatIntegrationSupport.",
-        "docs/audits/2026-06-13-combat-validation-gap-inventory-checkpoint.md"
+        "docs/audits/2026-06-13-combat-validation-gap-inventory-checkpoint.md",
+        "2026-06-23 `npm.cmd run validate:combat:gaps -- --format=summary` reported total=0 unresolved rows, and `npm.cmd run validate:combat` passed the ejection lifecycle integration lane. Manual review of `InteractiveSession.ejection.test.ts`, `ejectionLifecycle.integration.test.ts`, and utility eject command coverage confirmed eject intent/event/state/removal outcomes are represented in current tests rather than reopened from stale gap wording."
       ],
       "gaps": [
         "Future ejection semantics must be added as row-backed gaps or tests, not restored from stale 2026-06-11 audit wording."
@@ -910,7 +923,8 @@
       ],
       "evidence": [
         "docs/audits/2026-06-12-full-codebase-review.md",
-        "scripts/qc/validate-long-campaign-qc.mjs"
+        "scripts/qc/validate-long-campaign-qc.mjs",
+        "2026-06-23 Chromium browser smoke passed 9 campaign-flow tests for create, roster, mission generation, damage carry-forward UI, and campaign store state; repair/salvage/acquisition remains an explicit deeper gap."
       ],
       "gaps": [
         "Recent audit identified repair/salvage/acquisition loops that need end-to-end proof.",
@@ -964,7 +978,8 @@
         "scripts/qc/validate-long-campaign-stability.mjs",
         "scripts/__tests__/long-campaign-qc.test.ts",
         "docs/qc/mekstation-journey-scenarios.json",
-        "src/qc/gameplayUiFlowShell.json"
+        "src/qc/gameplayUiFlowShell.json",
+        "2026-06-23 `npm.cmd run verify:qc:campaign-long` passed: long-campaign QC wiring reported surfaces=1/1, packageScripts=3/3, journey=1/1, uiFlow=1/1, graphNodes=6, anchors=4, errors=0, warnings=0; stability run `journey-2026-06-23T19-33-36-495Z-42` used seed=42, contracts=10, runs=2, status=pass, drift=0, stability bug candidates=0, save round trips=8/8. Manual inspection of the generated stability manifest confirmed UI checkpoint linkage and `browserExecuted=false`, so browser campaign signoff remains a separate UI lane."
       ],
       "gaps": [
         "The stability gate proves headless repeatability, save round trips, drift detection, and UI checkpoint linkage; browser-driven 6-10 contract signoff remains a separate UI lane."
@@ -1025,7 +1040,8 @@
         "scripts/qc/validate-gm-campaign-ledger.mjs",
         "scripts/qc/gm-ledger-qc-core.mjs",
         "scripts/__tests__/gm-campaign-ledger-qc.test.ts",
-        "src/lib/interventions/__tests__/GmCampaignInterventionImplementer.test.ts"
+        "src/lib/interventions/__tests__/GmCampaignInterventionImplementer.test.ts",
+        "2026-06-23 `npm.cmd run verify:qc:gm:campaign-ledger` passed: validator reported surfaces=1/1, domains=4/4, families=5/5, anchors=8, errors=0, warnings=0; focused Jest passed 3 suites / 20 tests. Manual review of the covered cases confirmed merchant reversal/funds correction, inventory/base-unit corrections, GM approval, public net-effect projection, private metadata redaction, and manual-takeover blocking for ambiguous merchant cascades."
       ],
       "gaps": [
         "Accumulated time cascades are validated by the separate time-cascade GM ledger lane."
@@ -1094,7 +1110,8 @@
         "scripts/qc/validate-gm-time-cascade-ledger.mjs",
         "scripts/__tests__/gm-time-cascade-qc.test.ts",
         "src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts",
-        "src/lib/campaign/processors/__tests__/marketProcessors.test.ts"
+        "src/lib/campaign/processors/__tests__/marketProcessors.test.ts",
+        "2026-06-23 `npm.cmd run verify:qc:gm:time-cascade` passed: validator reported surfaces=1/1, domains=1/1, families=1/1, processors=6/6, roots=11/11, anchors=10, errors=0, warnings=0; focused Jest passed 6 suites / 51 tests. Manual review of the covered cases confirmed travel, repair progression/completion, market/upkeep processors, public/private log redaction, external-effect projection, and manual takeover when external effects are named without projections."
       ],
       "gaps": [
         "Pilot recovery, roster progression, and vault-owned effects remain external to campaign-owned time projection; the time-cascade validator requires explicit projected external effects or manual-takeover anchors.",
@@ -1130,10 +1147,7 @@
         "Yjs/P2P sync"
       ],
       "specRefs": ["openspec/specs/multiplayer-server/spec.md"],
-      "activeChangeRefs": [
-        "reconcile-multiplayer-coop-reality",
-        "harden-desktop-and-api-security"
-      ],
+      "activeChangeRefs": [],
       "tests": [
         "src/__tests__/unit/api/multiplayerMatchesFog.test.ts",
         "src/lib/multiplayer/**/__tests__"
@@ -1144,7 +1158,12 @@
       "manualChecks": [
         "Create host match, join by invite code, verify fog-limited guest state, and package-runtime parity"
       ],
-      "evidence": ["docs/audits/2026-06-12-full-codebase-review.md"],
+      "evidence": [
+        "docs/audits/2026-06-12-full-codebase-review.md",
+        "2026-06-23 Chromium browser smoke passed `npx.cmd playwright test --project=chromium e2e/playtest-coop-route-smoke.spec.ts`: host co-op campaign mounts dashboard/personnel/mech-bay/hiring/contract-market/finances with co-op badge, and single-player campaign hides co-op surfaces.",
+        "Archived OpenSpec change 2026-06-21-reconcile-multiplayer-coop-reality retired from activeChangeRefs on 2026-06-23.",
+        "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23."
+      ],
       "gaps": [
         "Current dirty worktree includes multiplayer API/store edits; preserve them and validate before touching."
       ]
@@ -1172,10 +1191,7 @@
         "history UI"
       ],
       "specRefs": ["openspec/specs/game-state-management/spec.md"],
-      "activeChangeRefs": [
-        "persist-and-recover-interactive-battles",
-        "restore-ci-correctness-teeth"
-      ],
+      "activeChangeRefs": [],
       "tests": [
         "src/simulation/__tests__/replay-determinism.integration.test.ts",
         "src/engine/__tests__"
@@ -1186,7 +1202,12 @@
       "manualChecks": [
         "Refresh/deep-link an active battle and recover from event log without losing state"
       ],
-      "evidence": ["docs/audits/2026-06-12-full-codebase-review.md"],
+      "evidence": [
+        "docs/audits/2026-06-12-full-codebase-review.md",
+        "2026-06-23 Chromium browser smoke passed replay/timeline checks in `e2e/replay-player.spec.ts`: audit timeline filters load, timeline refresh remains functional, and nonexistent game replay shows user feedback.",
+        "Archived OpenSpec change 2026-06-21-persist-and-recover-interactive-battles retired from activeChangeRefs on 2026-06-23.",
+        "Archived OpenSpec change 2026-06-21-restore-ci-correctness-teeth retired from activeChangeRefs on 2026-06-23."
+      ],
       "gaps": [
         "Refresh/deep-link active session recovery remains a product-critical proof point."
       ]
@@ -1218,10 +1239,7 @@
         "openspec/specs/desktop-experience/spec.md",
         "openspec/specs/desktop-local-services/spec.md"
       ],
-      "activeChangeRefs": [
-        "harden-desktop-and-api-security",
-        "reconcile-multiplayer-coop-reality"
-      ],
+      "activeChangeRefs": [],
       "tests": ["desktop/**/__tests__", "src/__tests__/unit/api"],
       "commands": [
         "npm.cmd run electron:test:build",
@@ -1230,7 +1248,12 @@
       "manualChecks": [
         "Package desktop build and verify no renderer-reachable arbitrary file reads/writes or unsafe external navigation"
       ],
-      "evidence": ["docs/audits/2026-06-12-full-codebase-review.md"],
+      "evidence": [
+        "docs/audits/2026-06-12-full-codebase-review.md",
+        "2026-06-23 `npm.cmd run electron:test:build` passed: Next.js production build, Electron TypeScript build, standalone native rebuild via `@electron/rebuild`, Electron better-sqlite3 runtime check, build-output verification, and Windows electron-builder packaging all completed.",
+        "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23.",
+        "Archived OpenSpec change 2026-06-21-reconcile-multiplayer-coop-reality retired from activeChangeRefs on 2026-06-23."
+      ],
       "gaps": [
         "Security audit findings should block release until verified in packaged runtime, not only dev."
       ]
@@ -1261,10 +1284,7 @@
         "browser smoke"
       ],
       "specRefs": ["openspec/README.md"],
-      "activeChangeRefs": [
-        "restore-ci-correctness-teeth",
-        "reconcile-spec-source-of-truth"
-      ],
+      "activeChangeRefs": [],
       "tests": ["all"],
       "commands": [
         "npx.cmd openspec validate --all --strict",
@@ -1275,7 +1295,11 @@
       "manualChecks": [
         "Compare PR-required checks against local command list and active spec promises"
       ],
-      "evidence": ["docs/audits/2026-06-12-full-codebase-review.md"],
+      "evidence": [
+        "docs/audits/2026-06-12-full-codebase-review.md",
+        "Archived OpenSpec change 2026-06-21-restore-ci-correctness-teeth retired from activeChangeRefs on 2026-06-23.",
+        "Archived OpenSpec change 2026-06-21-reconcile-spec-source-of-truth retired from activeChangeRefs on 2026-06-23."
+      ],
       "gaps": [
         "Green CI must not rely on skipped suites, zero-coverage harnesses, or stale spec claims."
       ]

@@ -29,6 +29,8 @@ const skipDirs = new Set([
   'build',
   'node_modules',
   'playwright-report',
+  'release',
+  'release-test',
   'storybook-static',
   'test-results',
 ]);

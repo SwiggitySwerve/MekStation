@@ -13,6 +13,11 @@ The journey-level validation layer is `docs/qc/mekstation-journey-scenarios.json
 with graph lookup in `docs/qc/mekstation-qc-validation-graph.json`, gameplay UI
 flow shell mapping in `src/qc/gameplayUiFlowShell.json`, and logging
 coverage in `docs/qc/mekstation-logging-map.json`.
+The validation graph also models every QC registry surface as a first-class
+`surface:*` node with a paired `state:*:lifecycle` node. Each lifecycle state
+links to its proof commands, registry/manual evidence, known-gap records, and
+available diagnostic log events, so a graph query can trace from module surface
+to validation evidence without relying on stale OpenSpec change labels.
 Use `qc:ui-flow-shell` when the question is how a journey maps to the
 player/GM route checkpoints on the gameplay hub, and use
 `qc:ui-flow-shell:validate` to fail fast when a checkpoint no longer maps to a
@@ -45,6 +50,8 @@ npm.cmd run qc:tactical:projection:validate
 npm.cmd run qc:tactical:projection
 npm.cmd run qc:logging:validate
 npm.cmd run qc:graph -- --query=mek-build
+npm.cmd run qc:graph -- --kind=surface --query=tactical
+npm.cmd run qc:graph -- --query=desktop-api-security:lifecycle
 npm.cmd run qc:journeys -- --journey=all --tier=smoke
 npm.cmd run qc:campaign-long:validate
 npm.cmd run qc:campaign-long:stability -- --journey=campaign-long --seed=42 --contracts=10 --runs=2
@@ -163,6 +170,10 @@ flowchart TD
      `combat.behavior-class`, `combat.integration.parity`,
      `combat.physical-boundary`, `combat.gaps.honesty`, and
      `combat.scope.non-battlemech`.
+   - 2026-06-23 `validate:combat` passed 76 suites / 2034 tests with 0
+     unresolved BattleMech gaps and the expected 147 explicit non-BattleMech
+     out-of-scope rows; the focused physical/ejection UI command slice passed
+     11 suites / 78 tests.
 
 3. `post-combat-base-economy-gm-ledger`
    - Wave 8 lives under `campaign-economy-progression` and proves the
@@ -175,6 +186,10 @@ flowchart TD
    - Escalate to `qc:journeys -- --journey=contract-campaign --tier=standard`
      or `qc:campaign-long:stability` when the question is full campaign flow
      or repeatability rather than ledger contract wiring.
+   - 2026-06-23 `verify:qc:gm:campaign-ledger` passed with 3 Jest suites /
+     20 tests after manual review of the covered merchant-reversal,
+     inventory/base-unit, net-effect projection, redaction, and manual-takeover
+     cases.
 
 4. `time-cascade-gm-ledger`
    - Wave 9 lives under `campaign-economy-progression` and proves the
@@ -188,6 +203,10 @@ flowchart TD
    - Escalate to `qc:campaign-long:stability` when the question is accumulated
      campaign drift across multiple contracts rather than ledger contract
      wiring.
+   - 2026-06-23 `verify:qc:gm:time-cascade` passed with 6 Jest suites / 51
+     tests after manual review of travel, repair, market/upkeep,
+     public/private redaction, external-effect projection, and manual-takeover
+     cases.
 
 5. `long-campaign-stability`
    - `long-campaign-stability` is the Wave 11 guard for deterministic 6-10
@@ -197,16 +216,32 @@ flowchart TD
      drift bug packet checks.
    - `verify:qc` now includes `verify:qc:campaign-long`, so the global QC lane
      cannot silently skip the long-campaign stability proof.
+   - 2026-06-23 `verify:qc:campaign-long` passed with seed 42, 10 contracts,
+     2 runs, 0 drift, 0 stability bug candidates, 8/8 save round trips, and
+     manifest-confirmed UI checkpoint linkage with `browserExecuted=false`.
 
 6. `integration-runner-interactive-parity`
    - Runner/interactive parity is still the highest-risk combat integration
      lane, especially physical attack commit and phase-driver behavior.
+   - 2026-06-23 runner/interactive parity passed 3 suites / 109 tactical
+     movement/combat/attack-projection tests, plus the focused interactive
+     physical/ejection command slice proving physical declaration/resolution,
+     phase advancement, and utility eject coverage.
 
 7. `multiplayer-coop-sync`
    - Current dirty worktree includes multiplayer API and fog test edits.
    - Treat those edits as external work until validated.
 
-8. `maintenance-code-health`
+8. `desktop-api-security`
+   - The 2026-06-23 desktop lane now proves the packaged runtime path with
+     `npm.cmd run electron:test:build`: Next production build, Electron
+     TypeScript, standalone native rebuild, Electron `better-sqlite3` runtime
+     load, output verification, and Windows electron-builder packaging all pass.
+   - The standalone rebuild uses `@electron/rebuild` for the copied
+     `.next/standalone` native modules so the package no longer ships a
+     host-Node ABI binding into Electron's Node runtime.
+
+9. `maintenance-code-health`
    - Full maintenance scanner pass is active with a reviewed `src` regression
      baseline; the current `src` scanner gate has 0 critical/high findings.
    - Use `maintain:scan:gate` to block new `src` critical/high findings, and
@@ -603,6 +638,24 @@ flowchart TD
   and maintenance validations on demand. `verify` runs the stable unit/a11y
   surface, while `verify:full` also runs perf-sensitive simulation proofs
   before rules and build.
+- `qc:lifecycle:status` summarizes every registry surface as
+  state-to-command/evidence/log/gap proof, fails on structural lifecycle
+  blockers, and reports warning-level weak proof such as missing browser/manual
+  evidence or missing log edges; use `--only=weak` to triage the remaining
+  surfaces before claiming UI/UX or lifecycle green. Its
+  `qc.lifecycle_surface_*` diagnostic events are registered in the logging map
+  and linked from every lifecycle state so log coverage can be queried through
+  the graph.
+- The 2026-06-23 app-shell browser triage fixed the `/gameplay/games` SSR
+  match-log failure by initializing SQLite at the match-log service boundary;
+  focused Jest and Chromium `Game List Page` smoke now prove the route returns
+  200 and the navigation/new-game/empty-state checks pass.
+- The same 2026-06-23 browser pass added current Chromium evidence for
+  compendium hub/unit/equipment/rules smoke, customizer entry routes,
+  encounter force/create/launch/session smoke, campaign
+  creation/roster/mission/damage-flow smoke, co-op route mounting, and
+  replay/timeline feedback; deeper family export, campaign economy, host/join,
+  and active-battle recovery claims remain separate validator/manual lanes.
 - `qc:scenarios` runs the 12 top-level major-capability scenarios with a
   consistent pass/fail method and timestamped evidence under
   `.sisyphus/evidence/qc-scenarios`; use `--tier=core` for quick section checks,
