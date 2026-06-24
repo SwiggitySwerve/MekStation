@@ -5,12 +5,12 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..');
-const registryPath = path.join(
-  repoRoot,
-  'docs',
-  'qc',
-  'mekstation-qc-registry.json',
-);
+const registryPath = process.env.MEKSTATION_QC_REGISTRY_PATH
+  ? path.resolve(repoRoot, process.env.MEKSTATION_QC_REGISTRY_PATH)
+  : path.join(repoRoot, 'docs', 'qc', 'mekstation-qc-registry.json');
+const openspecChangesDir = process.env.MEKSTATION_OPENSPEC_CHANGES_DIR
+  ? path.resolve(repoRoot, process.env.MEKSTATION_OPENSPEC_CHANGES_DIR)
+  : path.join(repoRoot, 'openspec', 'changes');
 
 const requiredStringFields = ['surfaceId', 'title', 'level', 'coverageStatus'];
 const requiredArrayFields = [
@@ -160,6 +160,40 @@ function validatePathReference(label, field, index, value, issues) {
   }
 }
 
+function archivedChangeMatches(changeRef) {
+  const archiveDir = path.join(openspecChangesDir, 'archive');
+  if (!fs.existsSync(archiveDir)) return [];
+  return fs
+    .readdirSync(archiveDir, { withFileTypes: true })
+    .filter(
+      (entry) => entry.isDirectory() && entry.name.endsWith(`-${changeRef}`),
+    )
+    .map((entry) => entry.name);
+}
+
+function validateActiveChangeReference(label, index, changeRef, issues) {
+  if (typeof changeRef !== 'string' || changeRef.trim() === '') {
+    issues.push(
+      fail(`${label}: activeChangeRefs[${index}] must be a non-empty string.`),
+    );
+    return;
+  }
+
+  const activePath = path.join(openspecChangesDir, changeRef);
+  if (fs.existsSync(activePath)) return;
+
+  const archivedMatches = archivedChangeMatches(changeRef);
+  const archiveNote =
+    archivedMatches.length > 0
+      ? ` Found archived match(es): ${archivedMatches.join(', ')}.`
+      : '';
+  issues.push(
+    fail(
+      `${label}: activeChangeRefs[${index}] does not resolve to an active OpenSpec change: ${changeRef}.${archiveNote}`,
+    ),
+  );
+}
+
 function hasParentCycle(surface, byId) {
   const seen = new Set([surface.surfaceId]);
   let cursor = surface.parentId;
@@ -277,6 +311,15 @@ function validate(registry) {
             ),
           );
         }
+      }
+    }
+
+    if (Array.isArray(surface.activeChangeRefs)) {
+      for (const [
+        changeRefIndex,
+        changeRef,
+      ] of surface.activeChangeRefs.entries()) {
+        validateActiveChangeReference(label, changeRefIndex, changeRef, issues);
       }
     }
 

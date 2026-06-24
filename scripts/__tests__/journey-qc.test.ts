@@ -50,6 +50,73 @@ describe('journey QC scripts', () => {
     expect(result.stdout).toContain('errors=0');
   });
 
+  it('fails validation when a registry surface lacks lifecycle graph coverage', () => {
+    const graph = readJson<{
+      nodes: Array<{ id: string }>;
+    }>(path.join(repoRoot, 'docs/qc/mekstation-qc-validation-graph.json'));
+    graph.nodes = graph.nodes.filter(
+      (node) => node.id !== 'state:maintenance-code-health:lifecycle',
+    );
+    const graphPath = path.join(evidenceDir, 'missing-lifecycle-state.json');
+    writeJson(graphPath, graph);
+
+    const result = runNodeScript('scripts/qc/validate-journey-qc.mjs', [], {
+      MEKSTATION_QC_VALIDATION_GRAPH_PATH: graphPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'Graph missing lifecycle state node state:maintenance-code-health:lifecycle',
+    );
+  });
+
+  it('fails validation when a catalog diagnostic event is missing from the logging map', () => {
+    const loggingMap = readJson<{
+      paths: Array<{ events: string[] }>;
+    }>(path.join(repoRoot, 'docs/qc/mekstation-logging-map.json'));
+    for (const loggingPath of loggingMap.paths) {
+      loggingPath.events = loggingPath.events.filter(
+        (eventName) => eventName !== 'campaign.sequence_generated',
+      );
+    }
+    const loggingMapPath = path.join(evidenceDir, 'missing-event-logging.json');
+    writeJson(loggingMapPath, loggingMap);
+
+    const result = runNodeScript('scripts/qc/validate-journey-qc.mjs', [], {
+      MEKSTATION_QC_LOGGING_MAP_PATH: loggingMapPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'Catalog diagnostic event campaign.sequence_generated is missing from logging map events',
+    );
+  });
+
+  it('fails validation when a graph log event is missing from the logging map', () => {
+    const loggingMap = readJson<{
+      paths: Array<{ events: string[] }>;
+    }>(path.join(repoRoot, 'docs/qc/mekstation-logging-map.json'));
+    for (const loggingPath of loggingMap.paths) {
+      loggingPath.events = loggingPath.events.filter(
+        (eventName) => eventName !== 'qc.lifecycle_surface_checked',
+      );
+    }
+    const loggingMapPath = path.join(
+      evidenceDir,
+      'missing-graph-event-logging.json',
+    );
+    writeJson(loggingMapPath, loggingMap);
+
+    const result = runNodeScript('scripts/qc/validate-journey-qc.mjs', [], {
+      MEKSTATION_QC_LOGGING_MAP_PATH: loggingMapPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'Graph log event qc.lifecycle_surface_checked is missing from logging map events',
+    );
+  });
+
   it('fails validation when a required journey lacks UI flow coverage', () => {
     const shell = readJson<{
       flows: Array<{ journeyId: string }>;
@@ -191,6 +258,42 @@ describe('journey QC scripts', () => {
     );
     expect(inspection.flows[0]?.checkpointIds).toEqual(
       expect.arrayContaining(['campaign-base', 'starmap', 'campaign-log']),
+    );
+  });
+
+  it('reports lifecycle QC proof status for every registry surface', () => {
+    const result = runNodeScript('scripts/qc/report-lifecycle-qc-status.mjs', [
+      '--json',
+    ]);
+
+    expect(result.status).toBe(0);
+    const report = JSON.parse(result.stdout) as {
+      surfaceCount: number;
+      blockerCount: number;
+      surfaces: Array<{
+        surfaceId: string;
+        diagnosticEvents: string[];
+        graph: { validatedBy: number; produces: number };
+      }>;
+    };
+    expect(report.surfaceCount).toBe(27);
+    expect(report.blockerCount).toBe(0);
+    expect(report.surfaces).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          surfaceId: 'app-shell-navigation',
+          diagnosticEvents: expect.arrayContaining([
+            'qc.lifecycle_surface_checked',
+          ]),
+          graph: expect.objectContaining({
+            produces: expect.any(Number),
+            validatedBy: expect.any(Number),
+          }),
+        }),
+        expect.objectContaining({
+          surfaceId: 'maintenance-code-health',
+        }),
+      ]),
     );
   });
 

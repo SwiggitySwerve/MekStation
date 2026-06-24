@@ -232,6 +232,1411 @@
       "id": "known-gap:maintenance-non-src-followups",
       "kind": "known-gap",
       "label": "Repo-wide non-src maintenance debt remains follow-up tracked"
+    },
+    {
+      "id": "capability:registry-lifecycle",
+      "kind": "capability",
+      "label": "Registry Surface Lifecycle QC"
+    },
+    {
+      "id": "log-event:character.exported",
+      "kind": "log-event",
+      "label": "character.exported"
+    },
+    {
+      "id": "log-event:mek.construction.input_resolved",
+      "kind": "log-event",
+      "label": "mek.construction.input_resolved"
+    },
+    {
+      "id": "log-event:replay.persisted",
+      "kind": "log-event",
+      "label": "replay.persisted"
+    },
+    {
+      "id": "log-event:campaign.contract_selected",
+      "kind": "log-event",
+      "label": "campaign.contract_selected"
+    },
+    {
+      "id": "log-event:campaign.sequence_generated",
+      "kind": "log-event",
+      "label": "campaign.sequence_generated"
+    },
+    {
+      "id": "log-event:campaign.sequence_resolved",
+      "kind": "log-event",
+      "label": "campaign.sequence_resolved"
+    },
+    {
+      "id": "log-event:campaign.save_round_trip_failed",
+      "kind": "log-event",
+      "label": "campaign.save_round_trip_failed"
+    },
+    {
+      "id": "log-event:campaign.ui_flow_linkage_failed",
+      "kind": "log-event",
+      "label": "campaign.ui_flow_linkage_failed"
+    },
+    {
+      "id": "log-event:campaign.terminal_state_failed",
+      "kind": "log-event",
+      "label": "campaign.terminal_state_failed"
+    },
+    {
+      "id": "log-event:api.payload_rejected",
+      "kind": "log-event",
+      "label": "api.payload_rejected"
+    },
+    {
+      "id": "log-event:store.recovery_checked",
+      "kind": "log-event",
+      "label": "store.recovery_checked"
+    },
+    {
+      "id": "log-event:journey.step_failed",
+      "kind": "log-event",
+      "label": "journey.step_failed"
+    },
+    {
+      "id": "log-event:journey.run_failed",
+      "kind": "log-event",
+      "label": "journey.run_failed"
+    },
+    {
+      "id": "log-event:journey.execution_backing_missing",
+      "kind": "log-event",
+      "label": "journey.execution_backing_missing"
+    },
+    {
+      "id": "log-event:bug.candidate_extracted",
+      "kind": "log-event",
+      "label": "bug.candidate_extracted"
+    },
+    {
+      "id": "surface:app-shell-navigation",
+      "kind": "surface",
+      "label": "App Shell, Navigation, Settings, PWA",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:app-shell-navigation:lifecycle",
+      "kind": "state",
+      "label": "App Shell, Navigation, Settings, PWA lifecycle QC state"
+    },
+    {
+      "id": "evidence:app-shell-navigation:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for App Shell, Navigation, Settings, PWA",
+      "entries": [
+        "docs/audits/2026-06-12-full-codebase-review.md",
+        "Archived OpenSpec change 2026-06-21-fix-navigation-and-playability-deadends retired from activeChangeRefs on 2026-06-23.",
+        "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23."
+      ]
+    },
+    {
+      "id": "evidence:app-shell-navigation:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for App Shell, Navigation, Settings, PWA",
+      "entries": [
+        "Launch from first screen to each primary workflow",
+        "Refresh/deep-link active gameplay routes",
+        "Check keyboard and screen-reader reachable navigation"
+      ]
+    },
+    {
+      "id": "known-gap:app-shell-navigation",
+      "kind": "known-gap",
+      "label": "App Shell, Navigation, Settings, PWA known gaps",
+      "entries": [
+        "Recent audit called out navigation/playability dead ends and refresh-loss risks."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-run-lint",
+      "kind": "command",
+      "label": "npm.cmd run lint"
+    },
+    {
+      "id": "command:npm-cmd-run-typecheck-pretty-false",
+      "kind": "command",
+      "label": "npm.cmd run typecheck -- --pretty false"
+    },
+    {
+      "id": "command:npx-cmd-playwright-test-project-chromium",
+      "kind": "command",
+      "label": "npx.cmd playwright test --project=chromium"
+    },
+    {
+      "id": "surface:compendium-unit-data",
+      "kind": "surface",
+      "label": "Compendium And Official Unit Data",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:compendium-unit-data:lifecycle",
+      "kind": "state",
+      "label": "Compendium And Official Unit Data lifecycle QC state"
+    },
+    {
+      "id": "evidence:compendium-unit-data:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Compendium And Official Unit Data",
+      "entries": [
+        "docs/audits/2026-05-22-combat-validation-source-truth.md",
+        "Archived OpenSpec change 2026-06-21-reconcile-spec-source-of-truth retired from activeChangeRefs on 2026-06-23."
+      ]
+    },
+    {
+      "id": "evidence:compendium-unit-data:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Compendium And Official Unit Data",
+      "entries": [
+        "Inspect representative BattleMech, vehicle, aerospace, battle armor, infantry, and ProtoMech records"
+      ]
+    },
+    {
+      "id": "known-gap:compendium-unit-data",
+      "kind": "known-gap",
+      "label": "Compendium And Official Unit Data known gaps",
+      "entries": [
+        "Non-BattleMech systems need separate matrices where BattleMech combat validation excludes them."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-run-validate-assets-strict",
+      "kind": "command",
+      "label": "npm.cmd run validate:assets:strict"
+    },
+    {
+      "id": "command:npm-cmd-run-schema-gen-check",
+      "kind": "command",
+      "label": "npm.cmd run schema:gen-check"
+    },
+    {
+      "id": "surface:customizer-construction-bv-export",
+      "kind": "surface",
+      "label": "Customizer, Construction, BV, Export",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:customizer-construction-bv-export:lifecycle",
+      "kind": "state",
+      "label": "Customizer, Construction, BV, Export lifecycle QC state"
+    },
+    {
+      "id": "evidence:customizer-construction-bv-export:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Customizer, Construction, BV, Export",
+      "entries": [
+        "docs/audits/2026-05-13-customizer-armor-megameklab-parity.md",
+        "Archived OpenSpec change 2026-06-20-restore-bv-parity-reproducibility retired from activeChangeRefs on 2026-06-23.",
+        "Archived OpenSpec change 2026-06-21-consolidate-equipment-and-hex-duplication retired from activeChangeRefs on 2026-06-23."
+      ]
+    },
+    {
+      "id": "evidence:customizer-construction-bv-export:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Customizer, Construction, BV, Export",
+      "entries": [
+        "Create and export one representative unit per supported family"
+      ]
+    },
+    {
+      "id": "known-gap:customizer-construction-bv-export",
+      "kind": "known-gap",
+      "label": "Customizer, Construction, BV, Export known gaps",
+      "entries": [
+        "BV reproducibility needs to stay tied to live reference assets instead of stale caches."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-run-validate-bv",
+      "kind": "command",
+      "label": "npm.cmd run validate:bv"
+    },
+    {
+      "id": "command:npm-cmd-run-validate-vehicle",
+      "kind": "command",
+      "label": "npm.cmd run validate:vehicle"
+    },
+    {
+      "id": "command:npm-cmd-run-validate-aerospace",
+      "kind": "command",
+      "label": "npm.cmd run validate:aerospace"
+    },
+    {
+      "id": "command:npm-cmd-run-validate-ba-bv",
+      "kind": "command",
+      "label": "npm.cmd run validate:ba-bv"
+    },
+    {
+      "id": "command:npm-cmd-run-validate-proto",
+      "kind": "command",
+      "label": "npm.cmd run validate:proto"
+    },
+    {
+      "id": "command:npm-cmd-run-validate-infantry",
+      "kind": "command",
+      "label": "npm.cmd run validate:infantry"
+    },
+    {
+      "id": "surface:force-pilot-encounter-setup",
+      "kind": "surface",
+      "label": "Force, Pilot, Scenario, Encounter Setup",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:force-pilot-encounter-setup:lifecycle",
+      "kind": "state",
+      "label": "Force, Pilot, Scenario, Encounter Setup lifecycle QC state"
+    },
+    {
+      "id": "evidence:force-pilot-encounter-setup:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Force, Pilot, Scenario, Encounter Setup",
+      "entries": [
+        "docs/audits/2026-06-12-full-codebase-review.md",
+        "Archived OpenSpec change 2026-06-21-fix-navigation-and-playability-deadends retired from activeChangeRefs on 2026-06-23."
+      ]
+    },
+    {
+      "id": "evidence:force-pilot-encounter-setup:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Force, Pilot, Scenario, Encounter Setup",
+      "entries": [
+        "Start from encounter creation and reach a playable battle without hidden state assumptions"
+      ]
+    },
+    {
+      "id": "known-gap:force-pilot-encounter-setup",
+      "kind": "known-gap",
+      "label": "Force, Pilot, Scenario, Encounter Setup known gaps",
+      "entries": [
+        "Setup routes must prove playable continuity into tactical combat and campaign post-battle flows."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-test-watchall-false-runtestsbypath-src-services-encounter-tests-encounterservice-test-ts",
+      "kind": "command",
+      "label": "npm.cmd test -- --watchAll=false --runTestsByPath src/services/encounter/__tests__/EncounterService.test.ts"
+    },
+    {
+      "id": "surface:gameplay-tactical-map-combat",
+      "kind": "surface",
+      "label": "Gameplay Tactical Map And Combat UI",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:gameplay-tactical-map-combat:lifecycle",
+      "kind": "state",
+      "label": "Gameplay Tactical Map And Combat UI lifecycle QC state"
+    },
+    {
+      "id": "evidence:gameplay-tactical-map-combat:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Gameplay Tactical Map And Combat UI",
+      "entries": [
+        "docs/audits/2026-05-22-tactical-map-rules-source-matrix.md",
+        "2026-06-18 tactical review: targeted tactical-map Jest passed 9 suites / 250 tests against movement, combat, projection, terrain labels, camera, and interaction paths.",
+        "2026-06-18 subagent review found shared tacticalMapProjectionLookup routing for terrain, movement, combat, selection, path, and LOS overlays.",
+        "2026-06-18 Playwright tactical-map visual smoke passed 60 Chromium tests across top-down labels, isometric occlusion/rotation, movement constraints, LOS blockers, and combat-preview evidence.",
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
+      ]
+    },
+    {
+      "id": "evidence:gameplay-tactical-map-combat:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Gameplay Tactical Map And Combat UI",
+      "entries": [
+        "Verify every invalid movement/combat preview explains why before commit",
+        "Verify overlays use symbols/text/shape, not color alone"
+      ]
+    },
+    {
+      "id": "known-gap:gameplay-tactical-map-combat",
+      "kind": "known-gap",
+      "label": "Gameplay Tactical Map And Combat UI known gaps",
+      "entries": [
+        "Wave 7 adds a fast tactical projection parity manifest for required surfaces, source anchors, and stale refs; deeper behavior/visual signoff remains in tactical-map Jest and Playwright lanes."
+      ]
+    },
+    {
+      "id": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-testing-tests-tactical-map-movement-scena",
+      "kind": "command",
+      "label": "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/testing/__tests__/tactical-map.movement-scenarios.test.ts src/testing/__tests__/tactical-map.combat-scenarios.test.ts --no-coverage"
+    },
+    {
+      "id": "command:npx-cmd-playwright-test-e2e-tactical-map-visual-smoke-spec-ts-project-chromium",
+      "kind": "command",
+      "label": "npx.cmd playwright test e2e/tactical-map-visual-smoke.spec.ts --project=chromium"
+    },
+    {
+      "id": "command:node-scripts-qc-validate-tactical-projection-parity-mjs",
+      "kind": "command",
+      "label": "node scripts/qc/validate-tactical-projection-parity.mjs"
+    },
+    {
+      "id": "surface:tactical-map-rules-explanation",
+      "kind": "surface",
+      "label": "Tactical Map As Rules Explanation Layer",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:tactical-map-rules-explanation:lifecycle",
+      "kind": "state",
+      "label": "Tactical Map As Rules Explanation Layer lifecycle QC state"
+    },
+    {
+      "id": "evidence:tactical-map-rules-explanation:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Tactical Map As Rules Explanation Layer",
+      "entries": [
+        "2026-06-18 tactical review found tacticalMapProjectionLookup drives terrain, movement, combat, selection, path, and LOS overlays.",
+        "2026-06-18 verification passed 9 tactical UI/projection Jest suites / 157 tests and 2 movement/combat scenario suites / 56 tests.",
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
+      ]
+    },
+    {
+      "id": "evidence:tactical-map-rules-explanation:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Tactical Map As Rules Explanation Layer",
+      "entries": [
+        "Hover legal, costly, blocked, and invalid destinations and confirm reasons match commit validation"
+      ]
+    },
+    {
+      "id": "known-gap:tactical-map-rules-explanation",
+      "kind": "known-gap",
+      "label": "Tactical Map As Rules Explanation Layer known gaps",
+      "entries": [
+        "Projection source anchors and movement/combat scenario commands are now manifest-guarded; future projection file moves must update the Wave 7 manifest."
+      ]
+    },
+    {
+      "id": "surface:topdown-hex-legibility",
+      "kind": "surface",
+      "label": "Top-Down Hex Legibility",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:topdown-hex-legibility:lifecycle",
+      "kind": "state",
+      "label": "Top-Down Hex Legibility lifecycle QC state"
+    },
+    {
+      "id": "evidence:topdown-hex-legibility:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Top-Down Hex Legibility",
+      "entries": [
+        "2026-06-18 Playwright tactical-map visual smoke passed 60 Chromium tests.",
+        "2026-06-18 tactical review found terrain/elevation badges, ARIA labels, text badges, dash/pattern overlays, and non-color-only projection status indicators.",
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
+      ]
+    },
+    {
+      "id": "evidence:topdown-hex-legibility:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Top-Down Hex Legibility",
+      "entries": [
+        "Zoom out/in and verify terrain and elevation remain readable without obscuring units"
+      ]
+    },
+    {
+      "id": "known-gap:topdown-hex-legibility",
+      "kind": "known-gap",
+      "label": "Top-Down Hex Legibility known gaps",
+      "entries": [
+        "Browser smoke remains the release-grade readability check; the Wave 7 manifest guards discoverability of the legibility proof surface."
+      ]
+    },
+    {
+      "id": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-components-gameplay-hexmapdisplay-tests-h",
+      "kind": "command",
+      "label": "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.terrainLabels.01.test.tsx src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.terrainLabels.02.test.tsx src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.terrainLabels.03.test.tsx src/components/gameplay/HexMapDisplay/__tests__/HexMapDisplay.terrainLabels.04.test.tsx --no-coverage"
+    },
+    {
+      "id": "surface:movement-preview-engine-agreement",
+      "kind": "surface",
+      "label": "Movement Preview And Engine Agreement",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:movement-preview-engine-agreement:lifecycle",
+      "kind": "state",
+      "label": "Movement Preview And Engine Agreement lifecycle QC state"
+    },
+    {
+      "id": "evidence:movement-preview-engine-agreement:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Movement Preview And Engine Agreement",
+      "entries": [
+        "2026-06-18 tactical review found UI and commit validation share deriveMovementRangeHexForDestination for map-driven movement legality.",
+        "2026-06-18 parity review passed movement/combat/attack-projection agreement Jest: 3 suites / 105 tests.",
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
+      ]
+    },
+    {
+      "id": "evidence:movement-preview-engine-agreement:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Movement Preview And Engine Agreement",
+      "entries": [
+        "Compare projected MP, heat, TMM, and blocked reason to committed movement event for representative unit families"
+      ]
+    },
+    {
+      "id": "known-gap:movement-preview-engine-agreement",
+      "kind": "known-gap",
+      "label": "Movement Preview And Engine Agreement known gaps",
+      "entries": [
+        "Projection-vs-legacy validateMovement divergence around turn/facing MP is intentional and covered; the Wave 7 manifest now guards the shared-source contract."
+      ]
+    },
+    {
+      "id": "surface:combat-preview-engine-agreement",
+      "kind": "surface",
+      "label": "Combat Preview And Engine Agreement",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:combat-preview-engine-agreement:lifecycle",
+      "kind": "state",
+      "label": "Combat Preview And Engine Agreement lifecycle QC state"
+    },
+    {
+      "id": "evidence:combat-preview-engine-agreement:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Combat Preview And Engine Agreement",
+      "entries": [
+        "2026-06-18 tactical review found represented ranged attack previews cover range, arcs, LOS, visibility, cover, min range, to-hit, invalid reasons, and weapon options.",
+        "2026-06-18 parity review found deriveCombatRangeHexes centralizes ranged preview facts and command previews consume projection heat, ammo, and expected damage.",
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
+      ]
+    },
+    {
+      "id": "evidence:combat-preview-engine-agreement:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Combat Preview And Engine Agreement",
+      "entries": [
+        "Compare previewed legal/invalid reasons with actual attack declaration and resolution for representative targets"
+      ]
+    },
+    {
+      "id": "known-gap:combat-preview-engine-agreement",
+      "kind": "known-gap",
+      "label": "Combat Preview And Engine Agreement known gaps",
+      "entries": [
+        "Combat preview parity is partial where callers fall back outside shared combat projection; the Wave 7 manifest now guards the shared preview proof surface."
+      ]
+    },
+    {
+      "id": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-testing-tests-tactical-map-combat-scenari",
+      "kind": "command",
+      "label": "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/testing/__tests__/tactical-map.combat-scenarios.test.ts src/engine/__tests__/InteractiveSession.attackProjectionAgreement.scenario.test.ts --no-coverage"
+    },
+    {
+      "id": "surface:isometric-rotatable-25d",
+      "kind": "surface",
+      "label": "Rotatable Isometric 2.5D Battlefield",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:isometric-rotatable-25d:lifecycle",
+      "kind": "state",
+      "label": "Rotatable Isometric 2.5D Battlefield lifecycle QC state"
+    },
+    {
+      "id": "evidence:isometric-rotatable-25d:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Rotatable Isometric 2.5D Battlefield",
+      "entries": [
+        "Prior review found rotation/depth/occlusion tests present and passing.",
+        "2026-06-18 tactical review found discrete camera rotation, depth keys, elevated terrain stacks, and visibility halo/badge signaling in the isometric path.",
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
+      ]
+    },
+    {
+      "id": "evidence:isometric-rotatable-25d:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Rotatable Isometric 2.5D Battlefield",
+      "entries": [
+        "Rotate camera through discrete steps and confirm occlusion/depth order shifts correctly"
+      ]
+    },
+    {
+      "id": "known-gap:isometric-rotatable-25d",
+      "kind": "known-gap",
+      "label": "Rotatable Isometric 2.5D Battlefield known gaps",
+      "entries": [
+        "Hidden-unit outlines/ghosting still need screenshot-quality review for tall-elevation release signoff; the Wave 7 manifest guards isometric proof discoverability."
+      ]
+    },
+    {
+      "id": "surface:simulation-combat-validation",
+      "kind": "surface",
+      "label": "Simulation And Combat Validation",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:simulation-combat-validation:lifecycle",
+      "kind": "state",
+      "label": "Simulation And Combat Validation lifecycle QC state"
+    },
+    {
+      "id": "evidence:simulation-combat-validation:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Simulation And Combat Validation",
+      "entries": [
+        "docs/audits/2026-06-13-combat-validation-gap-inventory-checkpoint.md",
+        "docs/audits/2026-05-22-combat-validation-source-truth.md",
+        "2026-06-18 combat review: validate:combat passed 76 suites / 2648 tests; gap summary total 0.",
+        "2026-06-23 Wave 10 catalog/rules QC gate validates current combat parity surfaces, source anchors, stale active-change refs, zero unresolved BattleMech gaps, and the explicit 147-row non-BattleMech out-of-scope split.",
+        "2026-06-18 damage source refs were repinned after the damage finalizer/location helper split; validate:combat reran green at 76 suites / 2648 tests.",
+        "2026-06-18 integration review confirmed older unresolved BattleMech helper/unsupported audit wording is stale against current live validators."
+      ]
+    },
+    {
+      "id": "evidence:simulation-combat-validation:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Simulation And Combat Validation",
+      "entries": [
+        "Inspect unsupported rows and ensure every suppressed failure remains visible as a named gap"
+      ]
+    },
+    {
+      "id": "known-gap:simulation-combat-validation",
+      "kind": "known-gap",
+      "label": "Simulation And Combat Validation known gaps",
+      "entries": [
+        "BattleMech validation is green with explicit non-BattleMech scope splits; remaining interactive physical command availability and phase-driver parity concerns should be tracked as concrete failing evidence, not stale active-change refs."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-run-qc-combat-catalog-rules-validate",
+      "kind": "command",
+      "label": "npm.cmd run qc:combat:catalog-rules:validate"
+    },
+    {
+      "id": "command:npm-cmd-run-validate-combat",
+      "kind": "command",
+      "label": "npm.cmd run validate:combat"
+    },
+    {
+      "id": "command:npm-cmd-run-validate-combat-gaps-format-summary-expect-total-0",
+      "kind": "command",
+      "label": "npm.cmd run validate:combat:gaps -- --format=summary --expect-total=0"
+    },
+    {
+      "id": "command:npx-cmd-openspec-validate-all-strict",
+      "kind": "command",
+      "label": "npx.cmd openspec validate --all --strict"
+    },
+    {
+      "id": "surface:battlemech-combat-catalog-validation",
+      "kind": "surface",
+      "label": "BattleMech Catalog-Driven Combat Validation",
+      "coverageStatus": "ready-with-scope"
+    },
+    {
+      "id": "state:battlemech-combat-catalog-validation:lifecycle",
+      "kind": "state",
+      "label": "BattleMech Catalog-Driven Combat Validation lifecycle QC state"
+    },
+    {
+      "id": "evidence:battlemech-combat-catalog-validation:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for BattleMech Catalog-Driven Combat Validation",
+      "entries": [
+        "Current review context: validate:combat passed 76 suites / 2648 tests; unresolved BattleMech gap summary total 0; out-of-scope split total 147.",
+        "2026-06-18 source-reference validation was repaired after the damage split by moving stale resolve.ts pins to finalize.ts and locationApplication.ts.",
+        "2026-06-18 catalog review confirmed ranged/physical/ammo mapping, special-mode behavior, fallback guards, MML hazard classification, knownLimitations bypass, and ejection lifecycle coverage in the BattleMech lane.",
+        "2026-06-18 catalog review confirmed unsupported non-BattleMech and non-compatible ammo rows remain classified rather than silently ignored.",
+        "2026-06-23 Wave 10 validator pins the catalog/rules parity command surface and source anchors so stale gap totals or inactive OpenSpec refs fail QC."
+      ]
+    },
+    {
+      "id": "evidence:battlemech-combat-catalog-validation:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for BattleMech Catalog-Driven Combat Validation",
+      "entries": [
+        "Review out-of-scope split before claiming all official ammo or non-BattleMech support"
+      ]
+    },
+    {
+      "id": "known-gap:battlemech-combat-catalog-validation",
+      "kind": "known-gap",
+      "label": "BattleMech Catalog-Driven Combat Validation known gaps",
+      "entries": [
+        "Use 'BattleMech-compatible official rows' wording; broader official catalog support belongs in separate matrices."
+      ]
+    },
+    {
+      "id": "command:npx-cmd-tsx-scripts-print-combat-validation-gaps-ts-format-summary",
+      "kind": "command",
+      "label": "npx.cmd tsx scripts/print-combat-validation-gaps.ts --format=summary"
+    },
+    {
+      "id": "command:npm-cmd-run-validate-combat-gaps-level-out-of-scope-format-summary-expect-total-147-expect-level",
+      "kind": "command",
+      "label": "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=147 --expect-level=out-of-scope:147 --expect-scope=aggregate:3 --expect-scope=leaf:144"
+    },
+    {
+      "id": "surface:behavior-class-combat-rules",
+      "kind": "surface",
+      "label": "Behavior-Class Combat Rule Tests",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:behavior-class-combat-rules:lifecycle",
+      "kind": "state",
+      "label": "Behavior-Class Combat Rule Tests lifecycle QC state"
+    },
+    {
+      "id": "evidence:behavior-class-combat-rules:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Behavior-Class Combat Rule Tests",
+      "entries": [
+        "docs/audits/2026-05-22-combat-validation-source-truth.md",
+        "2026-06-18 behavior review: validate:combat passed and an additional 15-suite integration slice passed 260 tests for session, objective, and UI-projection paths."
+      ]
+    },
+    {
+      "id": "evidence:behavior-class-combat-rules:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Behavior-Class Combat Rule Tests",
+      "entries": [
+        "Spot-check behavior-class coverage against exported catalog rows, not helper names only"
+      ]
+    },
+    {
+      "id": "known-gap:behavior-class-combat-rules",
+      "kind": "known-gap",
+      "label": "Behavior-Class Combat Rule Tests known gaps",
+      "entries": [
+        "Known limitations and skipped tests must be audited so green suites do not hide missing mechanics; phase queue tests still emit non-failing React act warning noise."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-test-watchall-false",
+      "kind": "command",
+      "label": "npm.cmd test -- --watchAll=false"
+    },
+    {
+      "id": "surface:integration-runner-interactive-parity",
+      "kind": "surface",
+      "label": "Runner And Interactive Parity",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:integration-runner-interactive-parity:lifecycle",
+      "kind": "state",
+      "label": "Runner And Interactive Parity lifecycle QC state"
+    },
+    {
+      "id": "evidence:integration-runner-interactive-parity:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Runner And Interactive Parity",
+      "entries": [
+        "2026-06-18 behavior review found runner vs interactive agreement covered for heat environment, attack and movement projection, objective scenarios, and terminal state slices.",
+        "2026-06-18 integration review passed validate:combat and a 49-test attack projection agreement slice; objective and physical-dispatch lanes still need dedicated on-demand commands."
+      ]
+    },
+    {
+      "id": "evidence:integration-runner-interactive-parity:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Runner And Interactive Parity",
+      "entries": [
+        "Commit a physical attack interactively and confirm engine state, store state, and phase advancement agree"
+      ]
+    },
+    {
+      "id": "known-gap:integration-runner-interactive-parity",
+      "kind": "known-gap",
+      "label": "Runner And Interactive Parity known gaps",
+      "entries": [
+        "Objective agreement is integration-tested but not folded into validate:combat; phase queue warning noise and physical command availability should be cleaned before treating UI regression guards as high-confidence."
+      ]
+    },
+    {
+      "id": "surface:physical-weapon-runtime-boundary",
+      "kind": "surface",
+      "label": "Physical Weapon Runtime Boundary",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:physical-weapon-runtime-boundary:lifecycle",
+      "kind": "state",
+      "label": "Physical Weapon Runtime Boundary lifecycle QC state"
+    },
+    {
+      "id": "evidence:physical-weapon-runtime-boundary:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Physical Weapon Runtime Boundary",
+      "entries": [
+        "2026-06-18 integration review found runtime supports core attacks plus official standalone physical weapons, while Claws/Talons are tested as modifier-only.",
+        "2026-06-18 parity review found several tactical dock physical commands still depend on requireActiveAndTarget instead of projected physical legality."
+      ]
+    },
+    {
+      "id": "evidence:physical-weapon-runtime-boundary:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Physical Weapon Runtime Boundary",
+      "entries": [
+        "Confirm physical commands are hidden or disabled using shared projected restriction reasons, not only active-unit/target presence"
+      ]
+    },
+    {
+      "id": "known-gap:physical-weapon-runtime-boundary",
+      "kind": "known-gap",
+      "label": "Physical Weapon Runtime Boundary known gaps",
+      "entries": [
+        "Physical catalog support is not the same as universal command availability parity; command registry gating remains partial."
+      ]
+    },
+    {
+      "id": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-simulation-runner-tests-physicalweaponcat",
+      "kind": "command",
+      "label": "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/simulation/runner/__tests__/physicalWeaponCatalogBoundary.behavior.test.ts src/simulation/__tests__/wireBotAiHelpersAndCapstone.smoke.test.ts --no-coverage"
+    },
+    {
+      "id": "surface:ejection-lifecycle-regression",
+      "kind": "surface",
+      "label": "Ejection Lifecycle Regression",
+      "coverageStatus": "ready-with-scope"
+    },
+    {
+      "id": "state:ejection-lifecycle-regression:lifecycle",
+      "kind": "state",
+      "label": "Ejection Lifecycle Regression lifecycle QC state"
+    },
+    {
+      "id": "evidence:ejection-lifecycle-regression:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Ejection Lifecycle Regression",
+      "entries": [
+        "2026-06-18 integration review found ejection damage preservation, command intent, and outcome support integrated in CombatIntegrationSupport.",
+        "docs/audits/2026-06-13-combat-validation-gap-inventory-checkpoint.md"
+      ]
+    },
+    {
+      "id": "evidence:ejection-lifecycle-regression:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Ejection Lifecycle Regression",
+      "entries": [
+        "Do not reopen ejection as an active BattleMech gap without fresh exporter or failing-test evidence"
+      ]
+    },
+    {
+      "id": "known-gap:ejection-lifecycle-regression",
+      "kind": "known-gap",
+      "label": "Ejection Lifecycle Regression known gaps",
+      "entries": [
+        "Future ejection semantics must be added as row-backed gaps or tests, not restored from stale 2026-06-11 audit wording."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-run-validate-combat-gaps-format-summary",
+      "kind": "command",
+      "label": "npm.cmd run validate:combat:gaps -- --format=summary"
+    },
+    {
+      "id": "surface:non-battlemech-combat-scope-matrix",
+      "kind": "surface",
+      "label": "Non-BattleMech Combat Scope Matrix",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:non-battlemech-combat-scope-matrix:lifecycle",
+      "kind": "state",
+      "label": "Non-BattleMech Combat Scope Matrix lifecycle QC state"
+    },
+    {
+      "id": "evidence:non-battlemech-combat-scope-matrix:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Non-BattleMech Combat Scope Matrix",
+      "entries": [
+        "2026-06-23 Wave 10 review confirmed validate:combat and the gap exporter assert 147 explicit non-BattleMech out-of-scope rows.",
+        "2026-06-18 parity review confirmed vehicle/VTOL movement coverage exists but should not be claimed as universal non-BattleMech preview/resolution parity."
+      ]
+    },
+    {
+      "id": "evidence:non-battlemech-combat-scope-matrix:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Non-BattleMech Combat Scope Matrix",
+      "entries": [
+        "Keep non-BattleMech matrices separate from BattleMech-compatible official row claims"
+      ]
+    },
+    {
+      "id": "known-gap:non-battlemech-combat-scope-matrix",
+      "kind": "known-gap",
+      "label": "Non-BattleMech Combat Scope Matrix known gaps",
+      "entries": [
+        "Non-BattleMech systems require separate support matrices before they can be described as fully rules-backed."
+      ]
+    },
+    {
+      "id": "surface:known-gap-honesty-audit",
+      "kind": "surface",
+      "label": "Known Gaps And Suppression Honesty",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:known-gap-honesty-audit:lifecycle",
+      "kind": "state",
+      "label": "Known Gaps And Suppression Honesty lifecycle QC state"
+    },
+    {
+      "id": "evidence:known-gap-honesty-audit:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Known Gaps And Suppression Honesty",
+      "entries": [
+        "docs/audits/2026-06-13-combat-validation-gap-inventory-checkpoint.md",
+        "2026-06-18 integration review found older 2026-06-11 helper/unsupported audit wording stale against current gap total 0."
+      ]
+    },
+    {
+      "id": "evidence:known-gap-honesty-audit:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Known Gaps And Suppression Honesty",
+      "entries": [
+        "Audit broad regex suppressions and stale gap wording before release notes or roadmap claims",
+        "Prefer the 2026-06-13 checkpoint and live validators over older 2026-06-11 unresolved helper/unsupported wording"
+      ]
+    },
+    {
+      "id": "known-gap:known-gap-honesty-audit",
+      "kind": "known-gap",
+      "label": "Known Gaps And Suppression Honesty known gaps",
+      "entries": [
+        "Some older gap statements are stale after ejection and physical targetability work; knownLimitations bypass drift and stale audit wording still need periodic audit."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-run-validate-combat-gaps-level-out-of-scope-format-summary",
+      "kind": "command",
+      "label": "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary"
+    },
+    {
+      "id": "surface:campaign-economy-progression",
+      "kind": "surface",
+      "label": "Campaign Economy, Repair, Salvage, Progression",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:campaign-economy-progression:lifecycle",
+      "kind": "state",
+      "label": "Campaign Economy, Repair, Salvage, Progression lifecycle QC state"
+    },
+    {
+      "id": "evidence:campaign-economy-progression:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Campaign Economy, Repair, Salvage, Progression",
+      "entries": [
+        "docs/audits/2026-06-12-full-codebase-review.md",
+        "scripts/qc/validate-long-campaign-qc.mjs"
+      ]
+    },
+    {
+      "id": "evidence:campaign-economy-progression:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Campaign Economy, Repair, Salvage, Progression",
+      "entries": [
+        "Resolve a damaged post-battle unit through repair, acquisition, and salvage into usable assets"
+      ]
+    },
+    {
+      "id": "known-gap:campaign-economy-progression",
+      "kind": "known-gap",
+      "label": "Campaign Economy, Repair, Salvage, Progression known gaps",
+      "entries": [
+        "Recent audit identified repair/salvage/acquisition loops that need end-to-end proof.",
+        "Long-campaign stability is now protected by a dedicated QC surface; browser campaign signoff remains a separate UI lane."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-test-watchall-false-runinband",
+      "kind": "command",
+      "label": "npm.cmd test -- --watchAll=false --runInBand"
+    },
+    {
+      "id": "surface:long-campaign-stability",
+      "kind": "surface",
+      "label": "Long Campaign Stability",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:long-campaign-stability:lifecycle",
+      "kind": "state",
+      "label": "Long Campaign Stability lifecycle QC state"
+    },
+    {
+      "id": "evidence:long-campaign-stability:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Long Campaign Stability",
+      "entries": [
+        "scripts/qc/validate-long-campaign-qc.mjs",
+        "scripts/qc/validate-long-campaign-stability.mjs",
+        "scripts/__tests__/long-campaign-qc.test.ts",
+        "docs/qc/mekstation-journey-scenarios.json",
+        "src/qc/gameplayUiFlowShell.json"
+      ]
+    },
+    {
+      "id": "evidence:long-campaign-stability:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Long Campaign Stability",
+      "entries": [
+        "Inspect the latest long-campaign stability manifest and confirm it names UI checkpoints while recording browserExecuted=false."
+      ]
+    },
+    {
+      "id": "known-gap:long-campaign-stability",
+      "kind": "known-gap",
+      "label": "Long Campaign Stability known gaps",
+      "entries": [
+        "The stability gate proves headless repeatability, save round trips, drift detection, and UI checkpoint linkage; browser-driven 6-10 contract signoff remains a separate UI lane."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-run-qc-campaign-long-stability-seed-42-contracts-10-runs-2",
+      "kind": "command",
+      "label": "npm.cmd run qc:campaign-long:stability -- --seed=42 --contracts=10 --runs=2"
+    },
+    {
+      "id": "surface:post-combat-base-economy-gm-ledger",
+      "kind": "surface",
+      "label": "Post-Combat Base Economy GM Ledger",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "kind": "state",
+      "label": "Post-Combat Base Economy GM Ledger lifecycle QC state"
+    },
+    {
+      "id": "evidence:post-combat-base-economy-gm-ledger:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Post-Combat Base Economy GM Ledger",
+      "entries": [
+        "scripts/qc/validate-gm-campaign-ledger.mjs",
+        "scripts/qc/gm-ledger-qc-core.mjs",
+        "scripts/__tests__/gm-campaign-ledger-qc.test.ts",
+        "src/lib/interventions/__tests__/GmCampaignInterventionImplementer.test.ts"
+      ]
+    },
+    {
+      "id": "evidence:post-combat-base-economy-gm-ledger:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Post-Combat Base Economy GM Ledger",
+      "entries": [
+        "Review a GM-approved merchant reversal or post-combat correction and confirm player logs show only the approved net effect."
+      ]
+    },
+    {
+      "id": "known-gap:post-combat-base-economy-gm-ledger",
+      "kind": "known-gap",
+      "label": "Post-Combat Base Economy GM Ledger known gaps",
+      "entries": [
+        "Accumulated time cascades are validated by the separate time-cascade GM ledger lane."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-run-qc-gm-campaign-ledger-validate",
+      "kind": "command",
+      "label": "npm.cmd run qc:gm:campaign-ledger:validate"
+    },
+    {
+      "id": "command:npm-cmd-run-verify-qc-gm-campaign-ledger",
+      "kind": "command",
+      "label": "npm.cmd run verify:qc:gm:campaign-ledger"
+    },
+    {
+      "id": "command:npm-cmd-test-watchall-false-runtestsbypath-src-lib-interventions-tests-gmcampaigninterventionimp",
+      "kind": "command",
+      "label": "npm.cmd test -- --watchAll=false --runTestsByPath src/lib/interventions/__tests__/GmCampaignInterventionImplementer.test.ts src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts"
+    },
+    {
+      "id": "command:npm-cmd-run-qc-journeys-journey-contract-campaign-tier-standard",
+      "kind": "command",
+      "label": "npm.cmd run qc:journeys -- --journey=contract-campaign --tier=standard"
+    },
+    {
+      "id": "command:npm-cmd-run-qc-campaign-long-stability-journey-campaign-long-seed-42-contracts-10-runs-2",
+      "kind": "command",
+      "label": "npm.cmd run qc:campaign-long:stability -- --journey=campaign-long --seed=42 --contracts=10 --runs=2"
+    },
+    {
+      "id": "surface:time-cascade-gm-ledger",
+      "kind": "surface",
+      "label": "Time Cascade GM Ledger",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:time-cascade-gm-ledger:lifecycle",
+      "kind": "state",
+      "label": "Time Cascade GM Ledger lifecycle QC state"
+    },
+    {
+      "id": "evidence:time-cascade-gm-ledger:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Time Cascade GM Ledger",
+      "entries": [
+        "scripts/qc/gm-ledger-qc-core.mjs",
+        "scripts/qc/validate-gm-time-cascade-ledger.mjs",
+        "scripts/__tests__/gm-time-cascade-qc.test.ts",
+        "src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts",
+        "src/lib/campaign/processors/__tests__/marketProcessors.test.ts"
+      ]
+    },
+    {
+      "id": "evidence:time-cascade-gm-ledger:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Time Cascade GM Ledger",
+      "entries": [
+        "Review a GM-approved time jump with travel, repair, market, and external-effect context and confirm player logs show only the approved net effect."
+      ]
+    },
+    {
+      "id": "known-gap:time-cascade-gm-ledger",
+      "kind": "known-gap",
+      "label": "Time Cascade GM Ledger known gaps",
+      "entries": [
+        "Pilot recovery, roster progression, and vault-owned effects remain external to campaign-owned time projection; the time-cascade validator requires explicit projected external effects or manual-takeover anchors.",
+        "Browser UI controls are validated through the broader gameplay UI flow shell rather than this command-only ledger proof."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-run-qc-gm-time-cascade-validate",
+      "kind": "command",
+      "label": "npm.cmd run qc:gm:time-cascade:validate"
+    },
+    {
+      "id": "command:npm-cmd-run-verify-qc-gm-time-cascade",
+      "kind": "command",
+      "label": "npm.cmd run verify:qc:gm:time-cascade"
+    },
+    {
+      "id": "command:npm-cmd-test-watchall-false-runtestsbypath-scripts-tests-gm-time-cascade-qc-test-ts-src-lib-inte",
+      "kind": "command",
+      "label": "npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/gm-time-cascade-qc.test.ts src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts src/lib/campaign/processors/__tests__/processors.test.ts src/lib/campaign/processors/__tests__/repairProgressProcessor.test.ts src/lib/campaign/processors/__tests__/marketProcessors.test.ts"
+    },
+    {
+      "id": "surface:multiplayer-coop-sync",
+      "kind": "surface",
+      "label": "Multiplayer, Co-op, P2P Sync",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:multiplayer-coop-sync:lifecycle",
+      "kind": "state",
+      "label": "Multiplayer, Co-op, P2P Sync lifecycle QC state"
+    },
+    {
+      "id": "evidence:multiplayer-coop-sync:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Multiplayer, Co-op, P2P Sync",
+      "entries": [
+        "docs/audits/2026-06-12-full-codebase-review.md",
+        "Archived OpenSpec change 2026-06-21-reconcile-multiplayer-coop-reality retired from activeChangeRefs on 2026-06-23.",
+        "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23."
+      ]
+    },
+    {
+      "id": "evidence:multiplayer-coop-sync:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Multiplayer, Co-op, P2P Sync",
+      "entries": [
+        "Create host match, join by invite code, verify fog-limited guest state, and package-runtime parity"
+      ]
+    },
+    {
+      "id": "known-gap:multiplayer-coop-sync",
+      "kind": "known-gap",
+      "label": "Multiplayer, Co-op, P2P Sync known gaps",
+      "entries": [
+        "Current dirty worktree includes multiplayer API/store edits; preserve them and validate before touching."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-test-watchall-false-runtestsbypath-src-tests-unit-api-multiplayermatchesfog-test-ts",
+      "kind": "command",
+      "label": "npm.cmd test -- --watchAll=false --runTestsByPath src/__tests__/unit/api/multiplayerMatchesFog.test.ts"
+    },
+    {
+      "id": "surface:replay-audit-history",
+      "kind": "surface",
+      "label": "Replay, Audit History, Determinism",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:replay-audit-history:lifecycle",
+      "kind": "state",
+      "label": "Replay, Audit History, Determinism lifecycle QC state"
+    },
+    {
+      "id": "evidence:replay-audit-history:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Replay, Audit History, Determinism",
+      "entries": [
+        "docs/audits/2026-06-12-full-codebase-review.md",
+        "Archived OpenSpec change 2026-06-21-persist-and-recover-interactive-battles retired from activeChangeRefs on 2026-06-23.",
+        "Archived OpenSpec change 2026-06-21-restore-ci-correctness-teeth retired from activeChangeRefs on 2026-06-23."
+      ]
+    },
+    {
+      "id": "evidence:replay-audit-history:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Replay, Audit History, Determinism",
+      "entries": [
+        "Refresh/deep-link an active battle and recover from event log without losing state"
+      ]
+    },
+    {
+      "id": "known-gap:replay-audit-history",
+      "kind": "known-gap",
+      "label": "Replay, Audit History, Determinism known gaps",
+      "entries": [
+        "Refresh/deep-link active session recovery remains a product-critical proof point."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-test-watchall-false-runtestsbypath-src-simulation-tests-replay-determinism-integration-t",
+      "kind": "command",
+      "label": "npm.cmd test -- --watchAll=false --runTestsByPath src/simulation/__tests__/replay-determinism.integration.test.ts"
+    },
+    {
+      "id": "surface:desktop-api-security",
+      "kind": "surface",
+      "label": "Desktop, API, Security Boundaries",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:desktop-api-security:lifecycle",
+      "kind": "state",
+      "label": "Desktop, API, Security Boundaries lifecycle QC state"
+    },
+    {
+      "id": "evidence:desktop-api-security:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Desktop, API, Security Boundaries",
+      "entries": [
+        "docs/audits/2026-06-12-full-codebase-review.md",
+        "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23.",
+        "Archived OpenSpec change 2026-06-21-reconcile-multiplayer-coop-reality retired from activeChangeRefs on 2026-06-23."
+      ]
+    },
+    {
+      "id": "evidence:desktop-api-security:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Desktop, API, Security Boundaries",
+      "entries": [
+        "Package desktop build and verify no renderer-reachable arbitrary file reads/writes or unsafe external navigation"
+      ]
+    },
+    {
+      "id": "known-gap:desktop-api-security",
+      "kind": "known-gap",
+      "label": "Desktop, API, Security Boundaries known gaps",
+      "entries": [
+        "Security audit findings should block release until verified in packaged runtime, not only dev."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-run-electron-test-build",
+      "kind": "command",
+      "label": "npm.cmd run electron:test:build"
+    },
+    {
+      "id": "surface:openspec-ci-quality",
+      "kind": "surface",
+      "label": "OpenSpec, CI, Quality Gates",
+      "coverageStatus": "partial"
+    },
+    {
+      "id": "state:openspec-ci-quality:lifecycle",
+      "kind": "state",
+      "label": "OpenSpec, CI, Quality Gates lifecycle QC state"
+    },
+    {
+      "id": "evidence:openspec-ci-quality:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for OpenSpec, CI, Quality Gates",
+      "entries": [
+        "docs/audits/2026-06-12-full-codebase-review.md",
+        "Archived OpenSpec change 2026-06-21-restore-ci-correctness-teeth retired from activeChangeRefs on 2026-06-23.",
+        "Archived OpenSpec change 2026-06-21-reconcile-spec-source-of-truth retired from activeChangeRefs on 2026-06-23."
+      ]
+    },
+    {
+      "id": "evidence:openspec-ci-quality:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for OpenSpec, CI, Quality Gates",
+      "entries": [
+        "Compare PR-required checks against local command list and active spec promises"
+      ]
+    },
+    {
+      "id": "known-gap:openspec-ci-quality",
+      "kind": "known-gap",
+      "label": "OpenSpec, CI, Quality Gates known gaps",
+      "entries": [
+        "Green CI must not rely on skipped suites, zero-coverage harnesses, or stale spec claims."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-run-format-check",
+      "kind": "command",
+      "label": "npm.cmd run format:check"
+    },
+    {
+      "id": "surface:maintenance-code-health",
+      "kind": "surface",
+      "label": "Maintenance Code Health",
+      "coverageStatus": "active-review"
+    },
+    {
+      "id": "state:maintenance-code-health:lifecycle",
+      "kind": "state",
+      "label": "Maintenance Code Health lifecycle QC state"
+    },
+    {
+      "id": "evidence:maintenance-code-health:registry",
+      "kind": "evidence",
+      "label": "Registry evidence for Maintenance Code Health",
+      "entries": [
+        "Maintenance launched 2026-06-17.",
+        "Stale-TODO high findings reduced from 14 to 0 by aligning the scanner to comment text only.",
+        "Import-health public barrel findings are retained as warnings; circular imports remain the high-risk import-health lane.",
+        "Near-duplicate high findings now represent duplicate clusters rather than overlapping five-line windows.",
+        "CriticalSlotsTab slot-builder cleanup removed one critical code-smell finding and one critical complexity finding.",
+        "VersionDiffView cleanup split diff-content rendering from container state and removed one critical code-smell finding plus one critical complexity finding without adding high file-bloat.",
+        "Reviewed cleanup waves from scanner calibration through the grouped construction, repair, unit mounted-equipment, and HexCell invalid-badge cleanup reduced the raw scanner baseline to 1011 critical/high findings with focused tests preserved.",
+        "Scanner duplicate calibration now ignores block-comment delimiters and public index.ts barrels, reducing false-positive duplicate clusters while leaving barrel breadth visible through import-health warnings.",
+        "Construction, vehicle customizer, critical-slots, dialog, and armor-variant slices now report 0 critical/high findings after focused helper extraction, duplicate consolidation, and verified typecheck/test passes.",
+        "Battle armor, infantry, ProtoMech, and vehicle BV test suites were split into focused files, clearing construction test file-bloat while preserving focused BV validation.",
+        "Unit handler maintenance removed design-violation findings with shared parsing helpers while preserving 892 handler tests; remaining handler findings are file-bloat and near-duplicate remediation queues.",
+        "HexMapDisplay, movement, and physical-attack utility waves removed selected complexity/design findings while preserving focused tactical, movement, and physical attack tests.",
+        "The reviewed src scanner baseline is now 0 critical/high findings, while repo-wide non-src Wave 12 findings are accounted for in the checked maintenance warning ledger.",
+        "CriticalHitResolution now splits slot effect classification, predicate helpers, resolver state, and actuator lookup tables; the targeted critical-hit scanner slice reports 0 critical/high findings and 216 focused critical-hit/damage lifecycle tests pass.",
+        "Game-state damage replay now routes critical-hit component, equipment, electronic-warfare, and vehicle envelope updates through focused helpers; the gameState scanner slice dropped to 10 critical/high findings and 222 focused critical-hit/replay tests pass.",
+        "Game-state combatState initialization now delegates per-unit combat envelope construction to a focused helper module; the gameState scanner slice drops to 9 critical/high findings and 88 focused initialization/game-state tests pass.",
+        "Minefield replay now routes MinefieldChanged operations through table-driven handlers; the gameState scanner slice drops to 8 critical/high findings and 80 focused game-state/catalog tests pass.",
+        "Physical attack resolution replay now lives in a focused helper module; the gameState scanner slice drops to 7 critical/high findings, 590 focused physical/game-state tests pass, and 25 catalog-contract tests pass after source-reference repin.",
+        "Game-state event dispatch now lives in a focused registry module; the gameState scanner slice drops to 4 critical/high findings, 590 focused reducer/physical tests pass, and 36 catalog-contract tests pass after source-reference repin.",
+        "Extended combat replay now splits piloting, status, and unit-exit reducers behind the existing extendedCombat barrel; the gameState scanner slice drops to 2 critical/high findings, 131 focused replay/catalog tests pass, and the raw scanner baseline drops to 1090.",
+        "Runtime movement-state tests now split mount/altitude and conversion replay coverage through shared fixtures; 9 focused tests pass and the gameState scanner slice drops to 1 critical/high finding.",
+        "Combat-state initialization tests now split shared fixtures from mech/vehicle, aero/proto, and infantry/battle-armor behavior suites; 16 focused tests pass, the gameState scanner slice reports 0 critical/high findings, and the raw scanner baseline drops to 1088.",
+        "Post-combat runner phases now split PSR and heat resolution across focused PSR, heat accounting, heat lifecycle, and event helper modules; 158 focused PSR/heat tests and 83 catalog-contract tests pass, source refs are repinned, and the raw scanner baseline drops to 1083.",
+        "Movement terrain skid modifier logic now uses a table-driven threshold lookup; 94 movement behavior tests and 58 terrain/BattleMech catalog-contract tests pass, and the raw scanner baseline drops to 1082.",
+        "Engine phase and AI dispatch now use early-return phase branches and focused AI phase helpers; 25 GameEngine/phase-loop tests, 37 interactive phase tests, and 139 movement/attack-projection engine tests pass, the src/engine code-smell critical slice clears, and the raw scanner baseline drops to 1079.",
+        "UnitHydration active-probe classification now uses ordered fallback predicates; 139 active-probe hydration, catalog, and critical-event tests pass, active-probe source refs are repinned, and the raw scanner baseline drops to 1078.",
+        "SPA designation handoff now collects typed pilot designations through guard-return helpers; 166 focused SPA and pilot-modifier catalog tests pass, attacker SPA aggregation source refs are repinned, and the raw scanner baseline drops to 1077.",
+        "Award store specific-event matching now uses a focused companion helper module with flat predicates; 40 award store tests pass with existing React act warnings, the stores code-smell critical slice clears, and the raw scanner baseline drops to 1074.",
+        "Attack resolution hit handling now routes damage, critical, PSR, pilot, and destruction event emission through focused helpers; 72 focused attack/damage/ammo/arc and vehicle tests pass, the resolveAttack nesting/complexity criticals are removed, and the raw scanner baseline drops to 1072.",
+        "Heat phase resolution now routes per-unit source accounting, dissipation, startup/shutdown, ammo cookoff, pilot heat damage, and MaxTech heat critical handling through focused helpers with named heat cascade event factory inputs; 74 focused heat tests pass, the resolveHeatPhase nesting/complexity criticals and two high event-factory parameter findings are removed, and the raw scanner baseline drops to 1068.",
+        "Pending PSR resolution now lives in a focused gameSessionPSRResolution module re-exported by gameSessionPSR; 179 focused PSR tests pass, resolvePendingPSRs no longer appears in critical complexity output, and the raw scanner baseline drops to 1067.",
+        "PSR reason category classification now uses an exhaustive typed lookup table instead of a switch; 131 focused PSR taxonomy/resolution tests pass, getPSRReasonCategory no longer appears in critical complexity output, and the raw scanner baseline drops to 1065.",
+        "PSR modifier resolution now lives in a focused modifierResolution module behind compact resolver adapters; 155 focused PSR tests and 73 catalog-contract tests pass, calculatePSRModifiers no longer appears in critical complexity output, the pilotingSkillRolls scanner slice reports 0 critical/high findings, and the raw scanner baseline drops to 1060.",
+        "To-hit calculation now accepts named inputs behind positional-compatible adapters and routes modifier families through focused collectors; 721 focused to-hit/C3/SPA/quirk tests and 92 catalog-contract tests pass, the toHit scanner slice reports 0 critical/high findings, validate:combat remains green, and the raw scanner baseline drops to 1057.",
+        "Runner phase createGameEvent now accepts named event-envelope input behind a positional-compatible adapter; 12 focused event-envelope and replay-source tests pass, typecheck passes, the runner phases scanner slice drops to 25 critical/high findings, and the raw scanner baseline drops to 1056.",
+        "Ammo explosion critical handling now iterates criticalEvents through an empty-array default instead of a nested guard; 158 focused critical-hit, heat, and catalog tests pass, the runner phases scanner slice drops to 24 critical/high findings, and the raw scanner baseline drops to 1055.",
+        "Physical attack damage application now lives in a focused companion module with helper seams for critical context, critical state effects, and physical damage/destroyed event emission; 404 focused physical-combat and catalog tests pass, the runner phases scanner slice drops to 23 critical/high findings, and the raw scanner baseline drops to 1054.",
+        "Weapon attack critical event emission now lives in a focused helper module re-exported through weaponAttackHelpers; 200 focused critical-hit, damage lifecycle, weapon attack event, and catalog tests pass, the runner phases scanner slice drops to 21 critical/high findings, and the raw scanner baseline drops to 1052.",
+        "Movement terrain PSR collection now routes water, terrain, swamp, building, and skidding checks through focused collector helpers; 173 focused movement terrain and catalog tests pass, the runner phases scanner slice drops to 20 critical/high findings, and the raw scanner baseline drops to 1051.",
+        "Weapon hit resolution now routes zero-projectile, partial-cover, designator marker, plasma, Edge, damage adjustment, manifest, and equipment-critical state branches through focused helpers; 255 focused weapon-hit and catalog tests pass, the runner phases scanner slice drops to 19 critical/high findings, and the raw scanner baseline drops to 1050.",
+        "Movement phase execution now keeps runMovementPhase as a compact orchestrator and routes per-unit movement decisions plus committed movement side effects through focused helpers; 331 focused movement and catalog tests pass, the runner phases scanner slice drops to 17 critical/high findings, and the raw scanner baseline drops to 1048.",
+        "Weapon firing mode projectile resolution now lives in focused classifier and projectile helper modules while weaponAttackFiringModes remains the public import surface; 147 focused firing-mode, weapon-event, and catalog tests pass, the runner phases scanner slice drops to 16 critical/high findings, and the raw scanner baseline drops to 1047.",
+        "Weapon attack partial-cover tests now keep hit-resolution fixture construction in a sibling fixture module; 12 focused partial-cover tests pass, the runner phases scanner slice drops to 15 critical/high findings, and the raw scanner baseline drops to 1046.",
+        "Heat-induced ammo explosion cascade event emission now routes damage-applied, location-destroyed, and transfer-damage events through a named heat-event append helper; 69 focused heat tests pass, the runner phases scanner slice drops to 13 critical/high findings, and the raw scanner baseline drops to 1044.",
+        "Movement control PSR now uses a normalized BattleMech-like unit-type set and named PSR event append helper; 224 focused movement tests pass, the runner phases scanner slice drops to 11 critical/high findings, and the raw scanner baseline drops to 1042.",
+        "Runner phase UnitDestroyed event emission now uses a named append helper across heat, movement, physical, post-combat PSR, and weapon-hit destruction paths; 520 focused destruction-event tests pass, the runner phases scanner slice drops to 10 critical/high findings, and the raw scanner baseline drops to 1041.",
+        "Runner phase PSRTriggered event emission now uses a named append helper across heat, movement-enhancement, physical-critical, and weapon leg-damage PSR paths; 518 focused PSR event tests pass, the runner phases scanner slice drops to 9 critical/high findings, and the raw scanner baseline drops to 1040.",
+        "Runner phase AttackResolved event emission now uses a named append helper across weapon miss, hit, early-return, plasma, and designator paths; 113 focused weapon tests pass, the runner phases scanner slice drops to 8 critical/high findings, and the raw scanner baseline drops to 1039.",
+        "Weapon attack critical ammo explosion options now use named readonly option/result interfaces; 113 focused weapon tests pass, runner phase near-duplicate findings are now zero, the runner phases scanner slice drops to 7 critical/high findings, and the raw scanner baseline drops to 1038.",
+        "Movement minefield damage/event helpers now split BattleMech mine damage side effects from represented minefield selection; 251 focused movement, physical, terrain catalog, and tactical projection tests plus 99 focused catalog tests pass after source-reference repin.",
+        "Physical attack arm-weapon fired selection now lives behind a flat helper; 626 focused physical attack tests pass, the physical attack nesting critical is removed, and the runner phases scanner slice drops to 6 critical/high findings.",
+        "Weapon attack indirect-fire side events and miss handling now live in focused helpers; 109 focused weapon tests pass, runAttackPhase nesting is demoted from critical to high, and the raw scanner baseline drops to 1037.",
+        "gameSessionPhysical physical attack restriction dispatch now uses a typed resolver table; 158 focused physical declaration/resolution tests pass, the declarePhysicalAttack nesting critical is removed, and the raw scanner baseline drops to 1036.",
+        "gameSessionPhysical physical attack damage and PSR event emission now live in focused helper modules; 158 focused physical declaration/resolution tests pass, the resolveAllPhysicalAttacks nesting critical is removed, and the raw scanner baseline drops to 1035.",
+        "Equipment BV normalization now routes ordered catalog/name/alias/pattern candidates through focused lookup helpers; 83 focused equipment BV normalization/resolver tests pass, the targeted equipmentBV scanner slice has 0 critical/high findings, and the raw scanner baseline drops to 1034.",
+        "Record-sheet fixed slot content now uses fixed lookup tables and a compact center-torso band resolver; 53 focused record-sheet critical-slot rendering tests pass, the targeted record-sheet scanner slice has no critical findings, and the raw scanner baseline drops to 1033.",
+        "LocationMappings parseLocation now uses ordered rear/fuzzy location rules; 63 focused conversion location tests pass, conversion-service complexity findings are cleared, and the raw scanner baseline drops to 1032.",
+        "Random force generation now delegates budget bounds, affordable selection, chassis-cap eviction, and force assembly to focused helpers; 25 focused random-force and swarm unit-count tests pass, and the raw scanner baseline drops to 1031.",
+        "HexCell terrain badges now use a table-driven badge lookup instead of a switch; 8 focused terrain label tests pass, the HexMapDisplay scanner slice drops by two findings, and the raw scanner baseline drops to 1029.",
+        "EquipmentPlacement location restrictions now use an exhaustive predicate table instead of a switch; 16 focused location-restriction tests pass, the equipment-type scanner slice drops by two findings, and the raw scanner baseline drops to 1027.",
+        "VariableEquipment formula validation now uses formula-family validators instead of a switch; 29 focused formula registry/validation tests pass, the equipment-type scanner slice drops by two findings, and the raw scanner baseline drops to 1025.",
+        "Pilot designation helpers now use table-driven legacy designation and effect-parameter resolvers; 24 focused pilot type tests pass, the pilot-type scanner slice reports 0 critical/high findings, and the raw scanner baseline drops to 1023.",
+        "Force type helper metadata now uses slot-count and display-name lookup tables; 10 focused force helper tests pass, the force-type scanner slice reports 0 critical/high findings, and the raw scanner baseline drops to 1021.",
+        "Combat location helpers now use transfer and rear-front lookup tables; 25 focused combat location helper tests pass, the gameplay-type scanner slice has only file-bloat findings remaining, and the raw scanner baseline drops to 1020.",
+        "UnitLocation now uses a typed unit-location lookup table; 19 focused construction location helper tests pass, the construction-type scanner slice drops by one high switch-design finding, and the raw scanner baseline drops to 1019.",
+        "Construction configuration helpers now reduce the registry public-method surface and share location/slot metadata; 160 focused construction tests pass and the construction-type scanner slice reports 0 critical/high findings.",
+        "Repair assessment now accepts named damage-assessment input and the large repair test suite is split into focused files; focused repair tests pass and the repair-type scanner slice reports 0 critical/high findings.",
+        "Unit mounted-equipment interfaces now share a type-only identity base; the unit-type scanner slice reports 0 critical/high findings with typecheck coverage.",
+        "HexCell invalid badges now use resolver and lookup tables for movement/combat invalid labels; the HexMapDisplay slice drops by three critical/high findings.",
+        "CombatCriticalSlotSourceRefs now pins game-state replay evidence to the new component/equipment helper modules after the reducer split; the combat validation catalog contract passes.",
+        "QC registry validation now checks concrete module, spec, test, and path-like evidence refs against the repo, with glob support for broad lane anchors.",
+        "package.json verify scripts now include explicit verify:qc and verify:rules gates so maintenance and rules invariants are not skipped by top-level validation.",
+        "qc:select now supports structured --module and --submodule filters for on-demand QC routing.",
+        "2026-06-18 Metis organization pass gave a no-kill verdict for registry-as-source, map-as-navigation, and audit-as-dated-narrative structure.",
+        "docs/qc/maintenance-baseline.json",
+        "docs/qc/maintenance-warning-ledger.json",
+        "scripts/qc/validate-maintenance-warning-ledger.mjs"
+      ]
+    },
+    {
+      "id": "evidence:maintenance-code-health:manual",
+      "kind": "evidence",
+      "label": "Manual/browser evidence for Maintenance Code Health",
+      "entries": [
+        "Review scanner report before selecting mutation categories",
+        "Lower docs/qc/maintenance-baseline.json when a cleanup wave removes validated findings"
+      ]
+    },
+    {
+      "id": "known-gap:maintenance-code-health",
+      "kind": "known-gap",
+      "label": "Maintenance Code Health known gaps",
+      "entries": [
+        "Scanner report is grouped as a regression baseline; avoid broad refactors until findings are selected as validated remediation waves.",
+        "Repo-wide non-src script, desktop, and e2e page-object findings remain ledger-tracked as accepted or follow-up debt.",
+        "Passing maintain:scan:gate only proves the src regression gate; use the maintenance warning ledger validator for Wave 12 repo-wide accounting."
+      ]
+    },
+    {
+      "id": "command:npm-cmd-run-qc-validate",
+      "kind": "command",
+      "label": "npm.cmd run qc:validate"
+    },
+    {
+      "id": "command:npm-cmd-run-qc-select-status-partial",
+      "kind": "command",
+      "label": "npm.cmd run qc:select -- --status=partial"
+    },
+    {
+      "id": "command:npm-cmd-run-maintain-scan-scope-src-limit-80",
+      "kind": "command",
+      "label": "npm.cmd run maintain:scan -- --scope=src --limit=80"
+    },
+    {
+      "id": "log-event:qc.lifecycle_surface_checked",
+      "kind": "log-event",
+      "label": "qc.lifecycle_surface_checked"
+    },
+    {
+      "id": "log-event:qc.lifecycle_surface_ok",
+      "kind": "log-event",
+      "label": "qc.lifecycle_surface_ok"
+    },
+    {
+      "id": "log-event:qc.lifecycle_surface_warned",
+      "kind": "log-event",
+      "label": "qc.lifecycle_surface_warned"
+    },
+    {
+      "id": "log-event:qc.lifecycle_surface_blocked",
+      "kind": "log-event",
+      "label": "qc.lifecycle_surface_blocked"
     }
   ],
   "edges": [
@@ -509,6 +1914,1946 @@
       "from": "journey:campaign-long",
       "to": "known-gap:browser-campaign-standard",
       "relation": "documents-gap"
+    },
+    {
+      "from": "capability:registry-lifecycle",
+      "to": "surface:app-shell-navigation",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:app-shell-navigation",
+      "to": "state:app-shell-navigation:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:app-shell-navigation:lifecycle",
+      "to": "evidence:app-shell-navigation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:app-shell-navigation:lifecycle",
+      "to": "evidence:app-shell-navigation:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:app-shell-navigation:lifecycle",
+      "to": "known-gap:app-shell-navigation",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:app-shell-navigation:lifecycle",
+      "to": "command:npm-cmd-run-lint",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-lint",
+      "to": "evidence:app-shell-navigation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:app-shell-navigation:lifecycle",
+      "to": "command:npm-cmd-run-typecheck-pretty-false",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-typecheck-pretty-false",
+      "to": "evidence:app-shell-navigation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:app-shell-navigation:lifecycle",
+      "to": "command:npx-cmd-playwright-test-project-chromium",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-playwright-test-project-chromium",
+      "to": "evidence:app-shell-navigation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:app-shell-navigation:lifecycle",
+      "to": "log-event:store.recovery_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "capability:registry-lifecycle",
+      "to": "surface:compendium-unit-data",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:compendium-unit-data",
+      "to": "state:compendium-unit-data:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:compendium-unit-data:lifecycle",
+      "to": "evidence:compendium-unit-data:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:compendium-unit-data:lifecycle",
+      "to": "evidence:compendium-unit-data:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:compendium-unit-data:lifecycle",
+      "to": "known-gap:compendium-unit-data",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:compendium-unit-data:lifecycle",
+      "to": "command:npm-cmd-run-validate-assets-strict",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-assets-strict",
+      "to": "evidence:compendium-unit-data:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:compendium-unit-data:lifecycle",
+      "to": "command:npm-cmd-run-schema-gen-check",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-schema-gen-check",
+      "to": "evidence:compendium-unit-data:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "capability:registry-lifecycle",
+      "to": "surface:customizer-construction-bv-export",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:customizer-construction-bv-export",
+      "to": "state:customizer-construction-bv-export:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:customizer-construction-bv-export:lifecycle",
+      "to": "evidence:customizer-construction-bv-export:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:customizer-construction-bv-export:lifecycle",
+      "to": "evidence:customizer-construction-bv-export:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:customizer-construction-bv-export:lifecycle",
+      "to": "known-gap:customizer-construction-bv-export",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:customizer-construction-bv-export:lifecycle",
+      "to": "command:npm-cmd-run-validate-bv",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-bv",
+      "to": "evidence:customizer-construction-bv-export:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:customizer-construction-bv-export:lifecycle",
+      "to": "command:npm-cmd-run-validate-vehicle",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-vehicle",
+      "to": "evidence:customizer-construction-bv-export:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:customizer-construction-bv-export:lifecycle",
+      "to": "command:npm-cmd-run-validate-aerospace",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-aerospace",
+      "to": "evidence:customizer-construction-bv-export:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:customizer-construction-bv-export:lifecycle",
+      "to": "command:npm-cmd-run-validate-ba-bv",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-ba-bv",
+      "to": "evidence:customizer-construction-bv-export:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:customizer-construction-bv-export:lifecycle",
+      "to": "command:npm-cmd-run-validate-proto",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-proto",
+      "to": "evidence:customizer-construction-bv-export:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:customizer-construction-bv-export:lifecycle",
+      "to": "command:npm-cmd-run-validate-infantry",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-infantry",
+      "to": "evidence:customizer-construction-bv-export:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:customizer-construction-bv-export:lifecycle",
+      "to": "log-event:mek.construction.input_resolved",
+      "relation": "logs"
+    },
+    {
+      "from": "state:customizer-construction-bv-export:lifecycle",
+      "to": "log-event:mek.exported",
+      "relation": "logs"
+    },
+    {
+      "from": "capability:registry-lifecycle",
+      "to": "surface:force-pilot-encounter-setup",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:force-pilot-encounter-setup",
+      "to": "state:force-pilot-encounter-setup:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:force-pilot-encounter-setup:lifecycle",
+      "to": "evidence:force-pilot-encounter-setup:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:force-pilot-encounter-setup:lifecycle",
+      "to": "evidence:force-pilot-encounter-setup:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:force-pilot-encounter-setup:lifecycle",
+      "to": "known-gap:force-pilot-encounter-setup",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:force-pilot-encounter-setup:lifecycle",
+      "to": "command:npm-cmd-test-watchall-false-runtestsbypath-src-services-encounter-tests-encounterservice-test-ts",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-test-watchall-false-runtestsbypath-src-services-encounter-tests-encounterservice-test-ts",
+      "to": "evidence:force-pilot-encounter-setup:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:force-pilot-encounter-setup:lifecycle",
+      "to": "log-event:character.created",
+      "relation": "logs"
+    },
+    {
+      "from": "state:force-pilot-encounter-setup:lifecycle",
+      "to": "log-event:character.exported",
+      "relation": "logs"
+    },
+    {
+      "from": "capability:registry-lifecycle",
+      "to": "surface:gameplay-tactical-map-combat",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:gameplay-tactical-map-combat",
+      "to": "state:gameplay-tactical-map-combat:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:gameplay-tactical-map-combat:lifecycle",
+      "to": "evidence:gameplay-tactical-map-combat:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:gameplay-tactical-map-combat:lifecycle",
+      "to": "evidence:gameplay-tactical-map-combat:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:gameplay-tactical-map-combat:lifecycle",
+      "to": "known-gap:gameplay-tactical-map-combat",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:gameplay-tactical-map-combat:lifecycle",
+      "to": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-testing-tests-tactical-map-movement-scena",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-testing-tests-tactical-map-movement-scena",
+      "to": "evidence:gameplay-tactical-map-combat:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:gameplay-tactical-map-combat:lifecycle",
+      "to": "command:npx-cmd-playwright-test-e2e-tactical-map-visual-smoke-spec-ts-project-chromium",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-playwright-test-e2e-tactical-map-visual-smoke-spec-ts-project-chromium",
+      "to": "evidence:gameplay-tactical-map-combat:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:gameplay-tactical-map-combat:lifecycle",
+      "to": "command:node-scripts-qc-validate-tactical-projection-parity-mjs",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:node-scripts-qc-validate-tactical-projection-parity-mjs",
+      "to": "evidence:gameplay-tactical-map-combat:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:gameplay-tactical-map-combat:lifecycle",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "state:gameplay-tactical-map-combat:lifecycle",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:gameplay-tactical-map-combat:lifecycle",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "state:gameplay-tactical-map-combat:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:gameplay-tactical-map-combat",
+      "to": "surface:tactical-map-rules-explanation",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:tactical-map-rules-explanation",
+      "to": "state:tactical-map-rules-explanation:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:tactical-map-rules-explanation:lifecycle",
+      "to": "evidence:tactical-map-rules-explanation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:tactical-map-rules-explanation:lifecycle",
+      "to": "evidence:tactical-map-rules-explanation:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:tactical-map-rules-explanation:lifecycle",
+      "to": "known-gap:tactical-map-rules-explanation",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:tactical-map-rules-explanation:lifecycle",
+      "to": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-testing-tests-tactical-map-movement-scena",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-testing-tests-tactical-map-movement-scena",
+      "to": "evidence:tactical-map-rules-explanation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:tactical-map-rules-explanation:lifecycle",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "state:tactical-map-rules-explanation:lifecycle",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:tactical-map-rules-explanation:lifecycle",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "state:tactical-map-rules-explanation:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:gameplay-tactical-map-combat",
+      "to": "surface:topdown-hex-legibility",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:topdown-hex-legibility",
+      "to": "state:topdown-hex-legibility:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:topdown-hex-legibility:lifecycle",
+      "to": "evidence:topdown-hex-legibility:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:topdown-hex-legibility:lifecycle",
+      "to": "evidence:topdown-hex-legibility:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:topdown-hex-legibility:lifecycle",
+      "to": "known-gap:topdown-hex-legibility",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:topdown-hex-legibility:lifecycle",
+      "to": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-components-gameplay-hexmapdisplay-tests-h",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-components-gameplay-hexmapdisplay-tests-h",
+      "to": "evidence:topdown-hex-legibility:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:topdown-hex-legibility:lifecycle",
+      "to": "command:npx-cmd-playwright-test-e2e-tactical-map-visual-smoke-spec-ts-project-chromium",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-playwright-test-e2e-tactical-map-visual-smoke-spec-ts-project-chromium",
+      "to": "evidence:topdown-hex-legibility:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:topdown-hex-legibility:lifecycle",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "state:topdown-hex-legibility:lifecycle",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:topdown-hex-legibility:lifecycle",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "state:topdown-hex-legibility:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:gameplay-tactical-map-combat",
+      "to": "surface:movement-preview-engine-agreement",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:movement-preview-engine-agreement",
+      "to": "state:movement-preview-engine-agreement:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:movement-preview-engine-agreement:lifecycle",
+      "to": "evidence:movement-preview-engine-agreement:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:movement-preview-engine-agreement:lifecycle",
+      "to": "evidence:movement-preview-engine-agreement:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:movement-preview-engine-agreement:lifecycle",
+      "to": "known-gap:movement-preview-engine-agreement",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:movement-preview-engine-agreement:lifecycle",
+      "to": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-testing-tests-tactical-map-movement-scena",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-testing-tests-tactical-map-movement-scena",
+      "to": "evidence:movement-preview-engine-agreement:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:movement-preview-engine-agreement:lifecycle",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "state:movement-preview-engine-agreement:lifecycle",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:movement-preview-engine-agreement:lifecycle",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "state:movement-preview-engine-agreement:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:gameplay-tactical-map-combat",
+      "to": "surface:combat-preview-engine-agreement",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:combat-preview-engine-agreement",
+      "to": "state:combat-preview-engine-agreement:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:combat-preview-engine-agreement:lifecycle",
+      "to": "evidence:combat-preview-engine-agreement:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:combat-preview-engine-agreement:lifecycle",
+      "to": "evidence:combat-preview-engine-agreement:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:combat-preview-engine-agreement:lifecycle",
+      "to": "known-gap:combat-preview-engine-agreement",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:combat-preview-engine-agreement:lifecycle",
+      "to": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-testing-tests-tactical-map-combat-scenari",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-testing-tests-tactical-map-combat-scenari",
+      "to": "evidence:combat-preview-engine-agreement:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:combat-preview-engine-agreement:lifecycle",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "state:combat-preview-engine-agreement:lifecycle",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:combat-preview-engine-agreement:lifecycle",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "state:combat-preview-engine-agreement:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:gameplay-tactical-map-combat",
+      "to": "surface:isometric-rotatable-25d",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:isometric-rotatable-25d",
+      "to": "state:isometric-rotatable-25d:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:isometric-rotatable-25d:lifecycle",
+      "to": "evidence:isometric-rotatable-25d:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:isometric-rotatable-25d:lifecycle",
+      "to": "evidence:isometric-rotatable-25d:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:isometric-rotatable-25d:lifecycle",
+      "to": "known-gap:isometric-rotatable-25d",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:isometric-rotatable-25d:lifecycle",
+      "to": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-components-gameplay-hexmapdisplay-tests-h",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-components-gameplay-hexmapdisplay-tests-h",
+      "to": "evidence:isometric-rotatable-25d:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:isometric-rotatable-25d:lifecycle",
+      "to": "command:npx-cmd-playwright-test-e2e-tactical-map-visual-smoke-spec-ts-project-chromium",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-playwright-test-e2e-tactical-map-visual-smoke-spec-ts-project-chromium",
+      "to": "evidence:isometric-rotatable-25d:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:isometric-rotatable-25d:lifecycle",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "state:isometric-rotatable-25d:lifecycle",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:isometric-rotatable-25d:lifecycle",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "state:isometric-rotatable-25d:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "capability:registry-lifecycle",
+      "to": "surface:simulation-combat-validation",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:simulation-combat-validation",
+      "to": "state:simulation-combat-validation:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:simulation-combat-validation:lifecycle",
+      "to": "evidence:simulation-combat-validation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:simulation-combat-validation:lifecycle",
+      "to": "evidence:simulation-combat-validation:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:simulation-combat-validation:lifecycle",
+      "to": "known-gap:simulation-combat-validation",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:simulation-combat-validation:lifecycle",
+      "to": "command:npm-cmd-run-qc-combat-catalog-rules-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-qc-combat-catalog-rules-validate",
+      "to": "evidence:simulation-combat-validation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:simulation-combat-validation:lifecycle",
+      "to": "command:npm-cmd-run-validate-combat",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-combat",
+      "to": "evidence:simulation-combat-validation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:simulation-combat-validation:lifecycle",
+      "to": "command:npm-cmd-run-validate-combat-gaps-format-summary-expect-total-0",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-combat-gaps-format-summary-expect-total-0",
+      "to": "evidence:simulation-combat-validation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:simulation-combat-validation:lifecycle",
+      "to": "command:npx-cmd-openspec-validate-all-strict",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-openspec-validate-all-strict",
+      "to": "evidence:simulation-combat-validation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:simulation-combat-validation:lifecycle",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "state:simulation-combat-validation:lifecycle",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:simulation-combat-validation:lifecycle",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "state:simulation-combat-validation:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:simulation-combat-validation",
+      "to": "surface:battlemech-combat-catalog-validation",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:battlemech-combat-catalog-validation",
+      "to": "state:battlemech-combat-catalog-validation:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:battlemech-combat-catalog-validation:lifecycle",
+      "to": "evidence:battlemech-combat-catalog-validation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:battlemech-combat-catalog-validation:lifecycle",
+      "to": "evidence:battlemech-combat-catalog-validation:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:battlemech-combat-catalog-validation:lifecycle",
+      "to": "known-gap:battlemech-combat-catalog-validation",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:battlemech-combat-catalog-validation:lifecycle",
+      "to": "command:npm-cmd-run-qc-combat-catalog-rules-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-qc-combat-catalog-rules-validate",
+      "to": "evidence:battlemech-combat-catalog-validation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:battlemech-combat-catalog-validation:lifecycle",
+      "to": "command:npm-cmd-run-validate-combat",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-combat",
+      "to": "evidence:battlemech-combat-catalog-validation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:battlemech-combat-catalog-validation:lifecycle",
+      "to": "command:npx-cmd-tsx-scripts-print-combat-validation-gaps-ts-format-summary",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-tsx-scripts-print-combat-validation-gaps-ts-format-summary",
+      "to": "evidence:battlemech-combat-catalog-validation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:battlemech-combat-catalog-validation:lifecycle",
+      "to": "command:npm-cmd-run-validate-combat-gaps-level-out-of-scope-format-summary-expect-total-147-expect-level",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-combat-gaps-level-out-of-scope-format-summary-expect-total-147-expect-level",
+      "to": "evidence:battlemech-combat-catalog-validation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:battlemech-combat-catalog-validation:lifecycle",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "state:battlemech-combat-catalog-validation:lifecycle",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:battlemech-combat-catalog-validation:lifecycle",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "state:battlemech-combat-catalog-validation:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:simulation-combat-validation",
+      "to": "surface:behavior-class-combat-rules",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:behavior-class-combat-rules",
+      "to": "state:behavior-class-combat-rules:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:behavior-class-combat-rules:lifecycle",
+      "to": "evidence:behavior-class-combat-rules:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:behavior-class-combat-rules:lifecycle",
+      "to": "evidence:behavior-class-combat-rules:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:behavior-class-combat-rules:lifecycle",
+      "to": "known-gap:behavior-class-combat-rules",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:behavior-class-combat-rules:lifecycle",
+      "to": "command:npm-cmd-run-validate-combat",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-combat",
+      "to": "evidence:behavior-class-combat-rules:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:behavior-class-combat-rules:lifecycle",
+      "to": "command:npm-cmd-test-watchall-false",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-test-watchall-false",
+      "to": "evidence:behavior-class-combat-rules:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:behavior-class-combat-rules:lifecycle",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "state:behavior-class-combat-rules:lifecycle",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:behavior-class-combat-rules:lifecycle",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "state:behavior-class-combat-rules:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:simulation-combat-validation",
+      "to": "surface:integration-runner-interactive-parity",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:integration-runner-interactive-parity",
+      "to": "state:integration-runner-interactive-parity:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:integration-runner-interactive-parity:lifecycle",
+      "to": "evidence:integration-runner-interactive-parity:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:integration-runner-interactive-parity:lifecycle",
+      "to": "evidence:integration-runner-interactive-parity:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:integration-runner-interactive-parity:lifecycle",
+      "to": "known-gap:integration-runner-interactive-parity",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:integration-runner-interactive-parity:lifecycle",
+      "to": "command:npm-cmd-run-validate-combat",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-combat",
+      "to": "evidence:integration-runner-interactive-parity:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:integration-runner-interactive-parity:lifecycle",
+      "to": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-testing-tests-tactical-map-movement-scena",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-testing-tests-tactical-map-movement-scena",
+      "to": "evidence:integration-runner-interactive-parity:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:integration-runner-interactive-parity:lifecycle",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "state:integration-runner-interactive-parity:lifecycle",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:integration-runner-interactive-parity:lifecycle",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "state:integration-runner-interactive-parity:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:simulation-combat-validation",
+      "to": "surface:physical-weapon-runtime-boundary",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:physical-weapon-runtime-boundary",
+      "to": "state:physical-weapon-runtime-boundary:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:physical-weapon-runtime-boundary:lifecycle",
+      "to": "evidence:physical-weapon-runtime-boundary:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:physical-weapon-runtime-boundary:lifecycle",
+      "to": "evidence:physical-weapon-runtime-boundary:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:physical-weapon-runtime-boundary:lifecycle",
+      "to": "known-gap:physical-weapon-runtime-boundary",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:physical-weapon-runtime-boundary:lifecycle",
+      "to": "command:npm-cmd-run-validate-combat",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-combat",
+      "to": "evidence:physical-weapon-runtime-boundary:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:physical-weapon-runtime-boundary:lifecycle",
+      "to": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-simulation-runner-tests-physicalweaponcat",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-jest-selectprojects-unit-ci-runtestsbypath-src-simulation-runner-tests-physicalweaponcat",
+      "to": "evidence:physical-weapon-runtime-boundary:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:physical-weapon-runtime-boundary:lifecycle",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "state:physical-weapon-runtime-boundary:lifecycle",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:physical-weapon-runtime-boundary:lifecycle",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "state:physical-weapon-runtime-boundary:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:simulation-combat-validation",
+      "to": "surface:ejection-lifecycle-regression",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:ejection-lifecycle-regression",
+      "to": "state:ejection-lifecycle-regression:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:ejection-lifecycle-regression:lifecycle",
+      "to": "evidence:ejection-lifecycle-regression:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:ejection-lifecycle-regression:lifecycle",
+      "to": "evidence:ejection-lifecycle-regression:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:ejection-lifecycle-regression:lifecycle",
+      "to": "known-gap:ejection-lifecycle-regression",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:ejection-lifecycle-regression:lifecycle",
+      "to": "command:npm-cmd-run-validate-combat",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-combat",
+      "to": "evidence:ejection-lifecycle-regression:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:ejection-lifecycle-regression:lifecycle",
+      "to": "command:npm-cmd-run-validate-combat-gaps-format-summary",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-combat-gaps-format-summary",
+      "to": "evidence:ejection-lifecycle-regression:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:ejection-lifecycle-regression:lifecycle",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "state:ejection-lifecycle-regression:lifecycle",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:ejection-lifecycle-regression:lifecycle",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "state:ejection-lifecycle-regression:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:simulation-combat-validation",
+      "to": "surface:non-battlemech-combat-scope-matrix",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:non-battlemech-combat-scope-matrix",
+      "to": "state:non-battlemech-combat-scope-matrix:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:non-battlemech-combat-scope-matrix:lifecycle",
+      "to": "evidence:non-battlemech-combat-scope-matrix:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:non-battlemech-combat-scope-matrix:lifecycle",
+      "to": "evidence:non-battlemech-combat-scope-matrix:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:non-battlemech-combat-scope-matrix:lifecycle",
+      "to": "known-gap:non-battlemech-combat-scope-matrix",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:non-battlemech-combat-scope-matrix:lifecycle",
+      "to": "command:npm-cmd-run-validate-combat-gaps-level-out-of-scope-format-summary-expect-total-147-expect-level",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-combat-gaps-level-out-of-scope-format-summary-expect-total-147-expect-level",
+      "to": "evidence:non-battlemech-combat-scope-matrix:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:non-battlemech-combat-scope-matrix:lifecycle",
+      "to": "command:npm-cmd-run-validate-combat",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-combat",
+      "to": "evidence:non-battlemech-combat-scope-matrix:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:non-battlemech-combat-scope-matrix:lifecycle",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "state:non-battlemech-combat-scope-matrix:lifecycle",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:non-battlemech-combat-scope-matrix:lifecycle",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "state:non-battlemech-combat-scope-matrix:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:simulation-combat-validation",
+      "to": "surface:known-gap-honesty-audit",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:known-gap-honesty-audit",
+      "to": "state:known-gap-honesty-audit:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:known-gap-honesty-audit:lifecycle",
+      "to": "evidence:known-gap-honesty-audit:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:known-gap-honesty-audit:lifecycle",
+      "to": "evidence:known-gap-honesty-audit:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:known-gap-honesty-audit:lifecycle",
+      "to": "known-gap:known-gap-honesty-audit",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:known-gap-honesty-audit:lifecycle",
+      "to": "command:npm-cmd-run-qc-combat-catalog-rules-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-qc-combat-catalog-rules-validate",
+      "to": "evidence:known-gap-honesty-audit:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:known-gap-honesty-audit:lifecycle",
+      "to": "command:npm-cmd-run-validate-combat-gaps-format-summary-expect-total-0",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-combat-gaps-format-summary-expect-total-0",
+      "to": "evidence:known-gap-honesty-audit:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:known-gap-honesty-audit:lifecycle",
+      "to": "command:npm-cmd-run-validate-combat-gaps-level-out-of-scope-format-summary",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-combat-gaps-level-out-of-scope-format-summary",
+      "to": "evidence:known-gap-honesty-audit:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:known-gap-honesty-audit:lifecycle",
+      "to": "command:npm-cmd-run-validate-combat",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-validate-combat",
+      "to": "evidence:known-gap-honesty-audit:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:known-gap-honesty-audit:lifecycle",
+      "to": "log-event:encounter.launched",
+      "relation": "logs"
+    },
+    {
+      "from": "state:known-gap-honesty-audit:lifecycle",
+      "to": "log-event:tactical.action_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:known-gap-honesty-audit:lifecycle",
+      "to": "log-event:combat.terminal_state",
+      "relation": "logs"
+    },
+    {
+      "from": "state:known-gap-honesty-audit:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "capability:registry-lifecycle",
+      "to": "surface:campaign-economy-progression",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:campaign-economy-progression",
+      "to": "state:campaign-economy-progression:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:campaign-economy-progression:lifecycle",
+      "to": "evidence:campaign-economy-progression:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:campaign-economy-progression:lifecycle",
+      "to": "evidence:campaign-economy-progression:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:campaign-economy-progression:lifecycle",
+      "to": "known-gap:campaign-economy-progression",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:campaign-economy-progression:lifecycle",
+      "to": "command:npm-cmd-test-watchall-false-runinband",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-test-watchall-false-runinband",
+      "to": "evidence:campaign-economy-progression:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:campaign-economy-progression:lifecycle",
+      "to": "command:verify-qc-campaign-long",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:verify-qc-campaign-long",
+      "to": "evidence:campaign-economy-progression:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:campaign-economy-progression:lifecycle",
+      "to": "log-event:campaign.contract_selected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:campaign-economy-progression:lifecycle",
+      "to": "log-event:campaign.contract_resolved",
+      "relation": "logs"
+    },
+    {
+      "from": "state:campaign-economy-progression:lifecycle",
+      "to": "log-event:campaign.economy_updated",
+      "relation": "logs"
+    },
+    {
+      "from": "state:campaign-economy-progression:lifecycle",
+      "to": "log-event:campaign.sequence_generated",
+      "relation": "logs"
+    },
+    {
+      "from": "state:campaign-economy-progression:lifecycle",
+      "to": "log-event:campaign.sequence_resolved",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:campaign-economy-progression",
+      "to": "surface:long-campaign-stability",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:long-campaign-stability",
+      "to": "state:long-campaign-stability:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:long-campaign-stability:lifecycle",
+      "to": "evidence:long-campaign-stability:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:long-campaign-stability:lifecycle",
+      "to": "evidence:long-campaign-stability:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:long-campaign-stability:lifecycle",
+      "to": "known-gap:long-campaign-stability",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:long-campaign-stability:lifecycle",
+      "to": "command:qc-campaign-long-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:qc-campaign-long-validate",
+      "to": "evidence:long-campaign-stability:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:long-campaign-stability:lifecycle",
+      "to": "command:verify-qc-campaign-long",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:verify-qc-campaign-long",
+      "to": "evidence:long-campaign-stability:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:long-campaign-stability:lifecycle",
+      "to": "command:npm-cmd-run-qc-campaign-long-stability-seed-42-contracts-10-runs-2",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-qc-campaign-long-stability-seed-42-contracts-10-runs-2",
+      "to": "evidence:long-campaign-stability:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:long-campaign-stability:lifecycle",
+      "to": "log-event:campaign.contract_selected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:long-campaign-stability:lifecycle",
+      "to": "log-event:campaign.contract_resolved",
+      "relation": "logs"
+    },
+    {
+      "from": "state:long-campaign-stability:lifecycle",
+      "to": "log-event:campaign.economy_updated",
+      "relation": "logs"
+    },
+    {
+      "from": "state:long-campaign-stability:lifecycle",
+      "to": "log-event:campaign.sequence_generated",
+      "relation": "logs"
+    },
+    {
+      "from": "state:long-campaign-stability:lifecycle",
+      "to": "log-event:campaign.sequence_resolved",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:campaign-economy-progression",
+      "to": "surface:post-combat-base-economy-gm-ledger",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:post-combat-base-economy-gm-ledger",
+      "to": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "evidence:post-combat-base-economy-gm-ledger:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "evidence:post-combat-base-economy-gm-ledger:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "known-gap:post-combat-base-economy-gm-ledger",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "command:npm-cmd-run-qc-gm-campaign-ledger-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-qc-gm-campaign-ledger-validate",
+      "to": "evidence:post-combat-base-economy-gm-ledger:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "command:npm-cmd-run-verify-qc-gm-campaign-ledger",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-verify-qc-gm-campaign-ledger",
+      "to": "evidence:post-combat-base-economy-gm-ledger:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "command:npm-cmd-test-watchall-false-runtestsbypath-src-lib-interventions-tests-gmcampaigninterventionimp",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-test-watchall-false-runtestsbypath-src-lib-interventions-tests-gmcampaigninterventionimp",
+      "to": "evidence:post-combat-base-economy-gm-ledger:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "command:npm-cmd-run-qc-journeys-journey-contract-campaign-tier-standard",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-qc-journeys-journey-contract-campaign-tier-standard",
+      "to": "evidence:post-combat-base-economy-gm-ledger:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "command:npm-cmd-run-qc-campaign-long-stability-journey-campaign-long-seed-42-contracts-10-runs-2",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-qc-campaign-long-stability-journey-campaign-long-seed-42-contracts-10-runs-2",
+      "to": "evidence:post-combat-base-economy-gm-ledger:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "log-event:campaign.contract_selected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "log-event:campaign.contract_resolved",
+      "relation": "logs"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "log-event:campaign.economy_updated",
+      "relation": "logs"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "log-event:campaign.sequence_generated",
+      "relation": "logs"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "log-event:campaign.sequence_resolved",
+      "relation": "logs"
+    },
+    {
+      "from": "surface:campaign-economy-progression",
+      "to": "surface:time-cascade-gm-ledger",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:time-cascade-gm-ledger",
+      "to": "state:time-cascade-gm-ledger:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:time-cascade-gm-ledger:lifecycle",
+      "to": "evidence:time-cascade-gm-ledger:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:time-cascade-gm-ledger:lifecycle",
+      "to": "evidence:time-cascade-gm-ledger:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:time-cascade-gm-ledger:lifecycle",
+      "to": "known-gap:time-cascade-gm-ledger",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:time-cascade-gm-ledger:lifecycle",
+      "to": "command:npm-cmd-run-qc-gm-time-cascade-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-qc-gm-time-cascade-validate",
+      "to": "evidence:time-cascade-gm-ledger:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:time-cascade-gm-ledger:lifecycle",
+      "to": "command:npm-cmd-run-verify-qc-gm-time-cascade",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-verify-qc-gm-time-cascade",
+      "to": "evidence:time-cascade-gm-ledger:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:time-cascade-gm-ledger:lifecycle",
+      "to": "command:npm-cmd-test-watchall-false-runtestsbypath-scripts-tests-gm-time-cascade-qc-test-ts-src-lib-inte",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-test-watchall-false-runtestsbypath-scripts-tests-gm-time-cascade-qc-test-ts-src-lib-inte",
+      "to": "evidence:time-cascade-gm-ledger:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:time-cascade-gm-ledger:lifecycle",
+      "to": "command:npm-cmd-run-qc-campaign-long-stability-journey-campaign-long-seed-42-contracts-10-runs-2",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-qc-campaign-long-stability-journey-campaign-long-seed-42-contracts-10-runs-2",
+      "to": "evidence:time-cascade-gm-ledger:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:time-cascade-gm-ledger:lifecycle",
+      "to": "log-event:campaign.contract_selected",
+      "relation": "logs"
+    },
+    {
+      "from": "state:time-cascade-gm-ledger:lifecycle",
+      "to": "log-event:campaign.contract_resolved",
+      "relation": "logs"
+    },
+    {
+      "from": "state:time-cascade-gm-ledger:lifecycle",
+      "to": "log-event:campaign.economy_updated",
+      "relation": "logs"
+    },
+    {
+      "from": "state:time-cascade-gm-ledger:lifecycle",
+      "to": "log-event:campaign.sequence_generated",
+      "relation": "logs"
+    },
+    {
+      "from": "state:time-cascade-gm-ledger:lifecycle",
+      "to": "log-event:campaign.sequence_resolved",
+      "relation": "logs"
+    },
+    {
+      "from": "capability:registry-lifecycle",
+      "to": "surface:multiplayer-coop-sync",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:multiplayer-coop-sync",
+      "to": "state:multiplayer-coop-sync:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:multiplayer-coop-sync:lifecycle",
+      "to": "evidence:multiplayer-coop-sync:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:multiplayer-coop-sync:lifecycle",
+      "to": "evidence:multiplayer-coop-sync:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:multiplayer-coop-sync:lifecycle",
+      "to": "known-gap:multiplayer-coop-sync",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:multiplayer-coop-sync:lifecycle",
+      "to": "command:npm-cmd-test-watchall-false-runtestsbypath-src-tests-unit-api-multiplayermatchesfog-test-ts",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-test-watchall-false-runtestsbypath-src-tests-unit-api-multiplayermatchesfog-test-ts",
+      "to": "evidence:multiplayer-coop-sync:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "capability:registry-lifecycle",
+      "to": "surface:replay-audit-history",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:replay-audit-history",
+      "to": "state:replay-audit-history:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:replay-audit-history:lifecycle",
+      "to": "evidence:replay-audit-history:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:replay-audit-history:lifecycle",
+      "to": "evidence:replay-audit-history:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:replay-audit-history:lifecycle",
+      "to": "known-gap:replay-audit-history",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:replay-audit-history:lifecycle",
+      "to": "command:npm-cmd-test-watchall-false-runtestsbypath-src-simulation-tests-replay-determinism-integration-t",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-test-watchall-false-runtestsbypath-src-simulation-tests-replay-determinism-integration-t",
+      "to": "evidence:replay-audit-history:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:replay-audit-history:lifecycle",
+      "to": "log-event:replay.persisted",
+      "relation": "logs"
+    },
+    {
+      "from": "capability:registry-lifecycle",
+      "to": "surface:desktop-api-security",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:desktop-api-security",
+      "to": "state:desktop-api-security:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:desktop-api-security:lifecycle",
+      "to": "evidence:desktop-api-security:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:desktop-api-security:lifecycle",
+      "to": "evidence:desktop-api-security:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:desktop-api-security:lifecycle",
+      "to": "known-gap:desktop-api-security",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:desktop-api-security:lifecycle",
+      "to": "command:npm-cmd-run-electron-test-build",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-electron-test-build",
+      "to": "evidence:desktop-api-security:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:desktop-api-security:lifecycle",
+      "to": "command:npm-cmd-run-typecheck-pretty-false",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-typecheck-pretty-false",
+      "to": "evidence:desktop-api-security:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:desktop-api-security:lifecycle",
+      "to": "log-event:api.payload_rejected",
+      "relation": "logs"
+    },
+    {
+      "from": "capability:registry-lifecycle",
+      "to": "surface:openspec-ci-quality",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:openspec-ci-quality",
+      "to": "state:openspec-ci-quality:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:openspec-ci-quality:lifecycle",
+      "to": "evidence:openspec-ci-quality:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:openspec-ci-quality:lifecycle",
+      "to": "evidence:openspec-ci-quality:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:openspec-ci-quality:lifecycle",
+      "to": "known-gap:openspec-ci-quality",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:openspec-ci-quality:lifecycle",
+      "to": "command:npx-cmd-openspec-validate-all-strict",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-openspec-validate-all-strict",
+      "to": "evidence:openspec-ci-quality:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:openspec-ci-quality:lifecycle",
+      "to": "command:npm-cmd-run-lint",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-lint",
+      "to": "evidence:openspec-ci-quality:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:openspec-ci-quality:lifecycle",
+      "to": "command:npm-cmd-run-typecheck-pretty-false",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-typecheck-pretty-false",
+      "to": "evidence:openspec-ci-quality:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:openspec-ci-quality:lifecycle",
+      "to": "command:npm-cmd-run-format-check",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-format-check",
+      "to": "evidence:openspec-ci-quality:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "capability:registry-lifecycle",
+      "to": "surface:maintenance-code-health",
+      "relation": "contains"
+    },
+    {
+      "from": "surface:maintenance-code-health",
+      "to": "state:maintenance-code-health:lifecycle",
+      "relation": "contains"
+    },
+    {
+      "from": "state:maintenance-code-health:lifecycle",
+      "to": "evidence:maintenance-code-health:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:maintenance-code-health:lifecycle",
+      "to": "evidence:maintenance-code-health:manual",
+      "relation": "produces"
+    },
+    {
+      "from": "state:maintenance-code-health:lifecycle",
+      "to": "known-gap:maintenance-code-health",
+      "relation": "documents-gap"
+    },
+    {
+      "from": "state:maintenance-code-health:lifecycle",
+      "to": "command:npm-cmd-run-qc-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-qc-validate",
+      "to": "evidence:maintenance-code-health:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:maintenance-code-health:lifecycle",
+      "to": "command:npm-cmd-run-qc-select-status-partial",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-qc-select-status-partial",
+      "to": "evidence:maintenance-code-health:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:maintenance-code-health:lifecycle",
+      "to": "command:maintain-scan-gate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:maintain-scan-gate",
+      "to": "evidence:maintenance-code-health:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:maintenance-code-health:lifecycle",
+      "to": "command:maintenance-ledger-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:maintenance-ledger-validate",
+      "to": "evidence:maintenance-code-health:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:maintenance-code-health:lifecycle",
+      "to": "command:npm-cmd-run-maintain-scan-scope-src-limit-80",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-maintain-scan-scope-src-limit-80",
+      "to": "evidence:maintenance-code-health:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:maintenance-code-health:lifecycle",
+      "to": "log-event:bug.candidate_extracted",
+      "relation": "logs"
+    },
+    {
+      "from": "state:app-shell-navigation:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:compendium-unit-data:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:customizer-construction-bv-export:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:force-pilot-encounter-setup:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:gameplay-tactical-map-combat:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:tactical-map-rules-explanation:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:topdown-hex-legibility:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:movement-preview-engine-agreement:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:combat-preview-engine-agreement:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:isometric-rotatable-25d:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:simulation-combat-validation:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:battlemech-combat-catalog-validation:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:behavior-class-combat-rules:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:integration-runner-interactive-parity:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:physical-weapon-runtime-boundary:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:ejection-lifecycle-regression:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:non-battlemech-combat-scope-matrix:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:known-gap-honesty-audit:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:campaign-economy-progression:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:long-campaign-stability:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:time-cascade-gm-ledger:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:multiplayer-coop-sync:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:replay-audit-history:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:desktop-api-security:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:openspec-ci-quality:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
+    },
+    {
+      "from": "state:maintenance-code-health:lifecycle",
+      "to": "log-event:qc.lifecycle_surface_checked",
+      "relation": "logs"
     }
   ]
 }

@@ -94,27 +94,30 @@ async function main() {
 
   hydrateStandaloneBuildSources(rootDir, nextStandaloneDir);
 
-  // Rebuild native modules for Electron by running `npm rebuild` with Electron-specific env vars.
-  // This ensures `better-sqlite3` is compiled against Electron's NODE_MODULE_VERSION.
-  const npmCliPath = process.env.npm_execpath;
-  if (!npmCliPath) {
-    console.error(
-      '[rebuild-next-standalone] Missing npm_execpath; run this script via an npm script.',
-    );
-    process.exit(1);
-  }
-  execFileSync(process.execPath, [npmCliPath, 'rebuild', 'better-sqlite3'], {
-    cwd: nextStandaloneDir,
-    env: {
-      ...process.env,
-      npm_config_runtime: 'electron',
-      npm_config_target: electronVersion,
-      npm_config_disturl: 'https://electronjs.org/headers',
-      npm_config_arch: process.arch,
-      npm_config_target_arch: process.arch,
+  // Rebuild native modules for Electron with the same rebuilder electron-builder uses.
+  // `npm rebuild` can silently leave host-Node ABI bindings in the standalone tree.
+  const electronRebuildCliPath = require.resolve('@electron/rebuild/lib/cli');
+  execFileSync(
+    process.execPath,
+    [
+      electronRebuildCliPath,
+      '--version',
+      electronVersion,
+      '--module-dir',
+      nextStandaloneDir,
+      '--only',
+      'better-sqlite3',
+      '--force',
+      '--arch',
+      process.arch,
+      '--dist-url',
+      'https://electronjs.org/headers',
+    ],
+    {
+      cwd: path.join(rootDir, 'desktop'),
+      stdio: 'inherit',
     },
-    stdio: 'inherit',
-  });
+  );
 
   // Sanity check: ensure the rebuilt native binding actually loads under Electron's ABI.
   execFileSync(

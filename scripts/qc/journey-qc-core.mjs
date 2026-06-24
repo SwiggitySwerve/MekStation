@@ -10,18 +10,16 @@ export const journeyCatalogPath = path.join(
   'qc',
   'mekstation-journey-scenarios.json',
 );
-export const validationGraphPath = path.join(
-  repoRoot,
-  'docs',
-  'qc',
-  'mekstation-qc-validation-graph.json',
-);
-export const loggingMapPath = path.join(
-  repoRoot,
-  'docs',
-  'qc',
-  'mekstation-logging-map.json',
-);
+export const validationGraphPath = process.env
+  .MEKSTATION_QC_VALIDATION_GRAPH_PATH
+  ? path.resolve(repoRoot, process.env.MEKSTATION_QC_VALIDATION_GRAPH_PATH)
+  : path.join(repoRoot, 'docs', 'qc', 'mekstation-qc-validation-graph.json');
+export const loggingMapPath = process.env.MEKSTATION_QC_LOGGING_MAP_PATH
+  ? path.resolve(repoRoot, process.env.MEKSTATION_QC_LOGGING_MAP_PATH)
+  : path.join(repoRoot, 'docs', 'qc', 'mekstation-logging-map.json');
+export const qcRegistryPath = process.env.MEKSTATION_QC_REGISTRY_PATH
+  ? path.resolve(repoRoot, process.env.MEKSTATION_QC_REGISTRY_PATH)
+  : path.join(repoRoot, 'docs', 'qc', 'mekstation-qc-registry.json');
 export const uiFlowShellPath = process.env.MEKSTATION_UI_FLOW_SHELL_PATH
   ? path.resolve(repoRoot, process.env.MEKSTATION_UI_FLOW_SHELL_PATH)
   : path.join(repoRoot, 'src', 'qc', 'gameplayUiFlowShell.json');
@@ -57,8 +55,10 @@ const allowedModes = new Set(['headless', 'browser', 'hybrid']);
 const allowedTiers = new Set(['smoke', 'standard', 'extended']);
 const graphKinds = new Set([
   'capability',
+  'surface',
   'module',
   'submodule',
+  'state',
   'journey',
   'command',
   'evidence',
@@ -243,6 +243,7 @@ export function loadJourneyArtifacts() {
     catalog: loadJsonFile(journeyCatalogPath),
     graph: loadJsonFile(validationGraphPath),
     loggingMap: loadJsonFile(loggingMapPath),
+    registry: loadJsonFile(qcRegistryPath),
     uiFlowShell: loadJsonFile(uiFlowShellPath),
   };
 }
@@ -433,7 +434,7 @@ export function validateJourneyCatalog(catalog) {
   return issues;
 }
 
-export function validateValidationGraph(graph, catalog) {
+export function validateValidationGraph(graph, catalog, registry = null) {
   const issues = [];
   if (graph.version !== 1)
     issues.push(issue('error', 'Validation graph version must be 1.'));
@@ -493,10 +494,85 @@ export function validateValidationGraph(graph, catalog) {
       );
     }
   }
+
+  if (registry?.surfaces) {
+    const edgeKey = (from, to, relation) =>
+      `${from}\u0000${to}\u0000${relation}`;
+    const edgeSet = new Set(
+      graph.edges.map((edge) => edgeKey(edge.from, edge.to, edge.relation)),
+    );
+    const outgoingByFromAndRelation = new Map();
+    for (const edge of graph.edges) {
+      const key = `${edge.from}\u0000${edge.relation}`;
+      const entries = outgoingByFromAndRelation.get(key) ?? [];
+      entries.push(edge.to);
+      outgoingByFromAndRelation.set(key, entries);
+    }
+
+    for (const surface of registry.surfaces) {
+      const surfaceNodeId = `surface:${surface.surfaceId}`;
+      const stateNodeId = `state:${surface.surfaceId}:lifecycle`;
+      if (!nodeIds.has(surfaceNodeId)) {
+        issues.push(
+          issue(
+            'error',
+            `Graph missing registry surface node ${surfaceNodeId}.`,
+          ),
+        );
+      }
+      if (!nodeIds.has(stateNodeId)) {
+        issues.push(
+          issue('error', `Graph missing lifecycle state node ${stateNodeId}.`),
+        );
+      }
+      if (!edgeSet.has(edgeKey(surfaceNodeId, stateNodeId, 'contains'))) {
+        issues.push(
+          issue(
+            'error',
+            `Graph missing lifecycle contains edge ${surfaceNodeId} -> ${stateNodeId}.`,
+          ),
+        );
+      }
+      if ((surface.commands ?? []).length > 0) {
+        const commandTargets =
+          outgoingByFromAndRelation.get(`${stateNodeId}\u0000validated-by`) ??
+          [];
+        if (commandTargets.length === 0) {
+          issues.push(
+            issue(
+              'error',
+              `Graph lifecycle state ${stateNodeId} must be validated by at least one command.`,
+            ),
+          );
+        }
+      }
+      const evidenceTargets =
+        outgoingByFromAndRelation.get(`${stateNodeId}\u0000produces`) ?? [];
+      if (evidenceTargets.length === 0) {
+        issues.push(
+          issue(
+            'error',
+            `Graph lifecycle state ${stateNodeId} must produce evidence.`,
+          ),
+        );
+      }
+      const gapTargets =
+        outgoingByFromAndRelation.get(`${stateNodeId}\u0000documents-gap`) ??
+        [];
+      if ((surface.gaps ?? []).length > 0 && gapTargets.length === 0) {
+        issues.push(
+          issue(
+            'error',
+            `Graph lifecycle state ${stateNodeId} must document known gaps.`,
+          ),
+        );
+      }
+    }
+  }
   return issues;
 }
 
-export function validateLoggingMap(loggingMap, catalog) {
+export function validateLoggingMap(loggingMap, catalog, graph = null) {
   const issues = [];
   if (loggingMap.version !== 1)
     issues.push(issue('error', 'Logging map version must be 1.'));
@@ -622,8 +698,18 @@ export function validateLoggingMap(loggingMap, catalog) {
   }
 
   const loggingPathIds = new Set();
+  const mappedEvents = new Set();
+  for (const entry of loggingMap.paths) {
+    for (const event of entry.events ?? []) mappedEvents.add(event);
+  }
+  const diagnosticEvents = new Set();
   for (const journey of catalog.journeys) {
-    for (const step of journey.steps) loggingPathIds.add(step.loggingPathId);
+    for (const step of journey.steps) {
+      loggingPathIds.add(step.loggingPathId);
+      if (typeof step.diagnosticEvent === 'string') {
+        diagnosticEvents.add(step.diagnosticEvent);
+      }
+    }
   }
   for (const loggingPathId of loggingPathIds) {
     if (!pathIds.has(loggingPathId)) {
@@ -631,6 +717,28 @@ export function validateLoggingMap(loggingMap, catalog) {
         issue(
           'error',
           `Catalog step references unmapped logging path ${loggingPathId}.`,
+        ),
+      );
+    }
+  }
+  for (const diagnosticEvent of diagnosticEvents) {
+    if (!mappedEvents.has(diagnosticEvent)) {
+      issues.push(
+        issue(
+          'error',
+          `Catalog diagnostic event ${diagnosticEvent} is missing from logging map events.`,
+        ),
+      );
+    }
+  }
+  for (const node of graph?.nodes ?? []) {
+    if (node.kind !== 'log-event') continue;
+    const eventId = node.id.replace(/^log-event:/, '');
+    if (!mappedEvents.has(eventId)) {
+      issues.push(
+        issue(
+          'error',
+          `Graph log event ${eventId} is missing from logging map events.`,
         ),
       );
     }
@@ -1040,10 +1148,11 @@ export function printIssues(issues) {
 }
 
 export function validationSummary() {
-  const { catalog, graph, loggingMap, uiFlowShell } = loadJourneyArtifacts();
+  const { catalog, graph, loggingMap, registry, uiFlowShell } =
+    loadJourneyArtifacts();
   const catalogIssues = validateJourneyCatalog(catalog);
-  const graphIssues = validateValidationGraph(graph, catalog);
-  const loggingIssues = validateLoggingMap(loggingMap, catalog);
+  const graphIssues = validateValidationGraph(graph, catalog, registry);
+  const loggingIssues = validateLoggingMap(loggingMap, catalog, graph);
   const uiFlowIssues = validateUiFlowShell(uiFlowShell, catalog, graph);
   const issues = [
     ...catalogIssues,
@@ -1056,6 +1165,7 @@ export function validationSummary() {
     graph,
     issues,
     loggingMap,
+    registry,
     uiFlowShell,
     errors: issues.filter((item) => item.severity === 'error'),
     warnings: issues.filter((item) => item.severity === 'warning'),

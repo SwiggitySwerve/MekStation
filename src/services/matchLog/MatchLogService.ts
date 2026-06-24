@@ -16,6 +16,8 @@
  * @spec openspec/changes/add-victory-and-post-battle-summary/design.md (D4, D10)
  */
 
+import type Database from 'better-sqlite3';
+
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import {
   POST_BATTLE_REPORT_VERSION,
@@ -55,6 +57,14 @@ export interface MatchLogSummary {
 // Service
 // =============================================================================
 
+function getMatchLogDatabase(): Database.Database {
+  const service = getSQLiteService();
+  if (!service.isInitialized()) {
+    service.initialize();
+  }
+  return service.getDatabase();
+}
+
 /**
  * Persist a derived report to `match_logs`. Idempotent: a second
  * insert for the same `matchId` REPLACEs the row. Returns the
@@ -72,7 +82,7 @@ export function persistMatchLog(report: IPostBattleReport): string {
       `unsupported report version ${report.version}, this build supports ${POST_BATTLE_REPORT_VERSION}`,
     );
   }
-  const db = getSQLiteService().getDatabase();
+  const db = getMatchLogDatabase();
   const stmt = db.prepare(
     `INSERT OR REPLACE INTO match_logs
        (id, version, winner, reason, turn_count, payload, created_at)
@@ -102,7 +112,7 @@ export function persistMatchLog(report: IPostBattleReport): string {
  * type-narrowing the spec demands.
  */
 export function readMatchLog(id: string): MatchLogReadResult {
-  const db = getSQLiteService().getDatabase();
+  const db = getMatchLogDatabase();
   const row = db
     .prepare('SELECT payload FROM match_logs WHERE id = ?')
     .get(id) as { payload: string } | undefined;
@@ -133,7 +143,7 @@ export function readMatchLog(id: string): MatchLogReadResult {
  * drawer.
  */
 export function listMatchLogs(limit = 50): readonly MatchLogSummary[] {
-  const db = getSQLiteService().getDatabase();
+  const db = getMatchLogDatabase();
   const rows = db
     .prepare(
       `SELECT id, version, winner, reason, turn_count AS turnCount, created_at AS createdAt
