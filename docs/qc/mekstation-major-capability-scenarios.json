@@ -289,36 +289,42 @@
       "qualityLenses": ["functionality", "ux", "rules-parity"],
       "successCriteria": [
         "Campaign flow and round-trip browser specs pass.",
-        "Repair bay browser coverage passes for selection, assessment, queue, costs, and errors.",
-        "Campaign outcome queue and repair assessment unit tests preserve post-battle state transitions."
+        "Campaign economy browser coverage proves dashboard, repair, salvage, finances, and day advance after post-battle state reloads.",
+        "Campaign outcome, bay, acquisition, market, salvage, and repair processor unit tests preserve post-battle state transitions."
       ],
       "checks": [
         {
-          "id": "campaign-repair-browser-flow",
+          "id": "campaign-economy-browser-flow",
           "tier": "standard",
           "required": true,
-          "command": "npx.cmd playwright test e2e/campaign-flow.spec.ts e2e/campaign-round-trip.spec.ts e2e/repair.spec.ts --project=chromium",
+          "command": "npm.cmd run verify:qc:campaign-economy:browser",
           "evidence": [
+            "e2e/campaign-economy-browser.spec.ts",
             "e2e/campaign-flow.spec.ts",
-            "e2e/campaign-round-trip.spec.ts",
-            "e2e/repair.spec.ts"
+            "src/stores/campaign/campaignBaySelectors.ts",
+            "src/pages/gameplay/campaigns/[id]/medical-bay.tsx"
           ]
         },
         {
-          "id": "campaign-outcome-repair-contracts",
+          "id": "campaign-economy-contracts",
           "tier": "core",
           "required": true,
-          "command": "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/stores/campaign/__tests__/useCampaignStore.outcomes.test.ts src/stores/campaign/__tests__/campaignCombatLoopEnqueue.test.ts src/types/repair/__tests__/repairAssessment.test.ts src/types/repair/__tests__/qualityRepairIntegration.test.ts --no-coverage",
+          "command": "npm.cmd run verify:qc:campaign-economy:contracts",
           "evidence": [
             "src/stores/campaign/__tests__/useCampaignStore.outcomes.test.ts",
-            "src/stores/campaign/__tests__/campaignCombatLoopEnqueue.test.ts",
-            "src/types/repair/__tests__/repairAssessment.test.ts",
-            "src/types/repair/__tests__/qualityRepairIntegration.test.ts"
+            "src/stores/campaign/__tests__/campaignBaySelectors.test.ts",
+            "src/stores/campaign/__tests__/campaignBayActions.test.ts",
+            "src/stores/campaign/__tests__/campaignCommandActions.test.ts",
+            "src/lib/campaign/processors/__tests__/salvageProcessor.test.ts",
+            "src/lib/campaign/processors/__tests__/repairQueueBuilderProcessor.test.ts",
+            "src/lib/campaign/processors/__tests__/repairProgressProcessor.test.ts",
+            "src/lib/campaign/processors/__tests__/acquisitionProcessor.test.ts",
+            "src/lib/campaign/processors/__tests__/marketProcessors.test.ts"
           ]
         }
       ],
       "notes": [
-        "The broad npm.cmd test -- --runInBand lane is intentionally replaced here by focused campaign and repair flows."
+        "The broad npm.cmd test -- --runInBand lane is intentionally replaced here by focused campaign economy contracts and a strict Chromium browser flow."
       ]
     },
     {

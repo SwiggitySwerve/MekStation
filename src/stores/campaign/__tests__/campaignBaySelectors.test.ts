@@ -10,6 +10,9 @@
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignInventory } from '@/types/campaign/CampaignInventory';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IRepairTicket } from '@/types/campaign/RepairTicket';
+import type { ISalvageAllocation } from '@/types/campaign/Salvage';
 
 import {
   SAMPLE_MEDICAL_BAY,
@@ -17,6 +20,8 @@ import {
   SAMPLE_SALVAGE_BAY,
 } from '@/components/campaign/bays/__fixtures__/bayFixtures';
 import { createCampaign } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
+import { DamageLevel } from '@/types/campaign/Salvage';
 
 import {
   computeAcceptedSalvageValue,
@@ -55,6 +60,82 @@ function populatedCampaign(): ICampaign {
 function battleFreeCampaign(): ICampaign {
   return createCampaign('Fresh', 'mercenary');
 }
+
+function makeRepairTicket(): IRepairTicket {
+  return {
+    ticketId: 'ticket-reload-ct',
+    unitId: 'unit-atlas',
+    kind: 'armor',
+    location: 'CT',
+    expectedHours: 6,
+    partsRequired: [],
+    source: 'combat',
+    matchId: 'match-reload-1',
+    createdAt: '3025-01-01T00:00:00.000Z',
+    status: 'queued',
+  };
+}
+
+function makeSalvageAllocation(): ISalvageAllocation {
+  const candidate = {
+    source: 'unit' as const,
+    unitId: 'enemy-atlas',
+    designation: 'Atlas AS7-D',
+    destroyedFromBattle: 'match-reload-1',
+    finalStatus: 'destroyed' as const,
+    damageLevel: DamageLevel.Heavy,
+    originalValue: 8_000_000,
+    recoveredValue: 2_000_000,
+    recoveryPercentage: 0.25,
+    repairCostEstimate: 500_000,
+    partId: 'salvage-atlas',
+    disposition: 'mercenary' as const,
+    status: 'pending' as const,
+  };
+
+  return {
+    pool: {
+      battleId: 'match-reload-1',
+      contractId: 'contract-reload-1',
+      candidates: [candidate],
+      totalEstimatedValue: 2_000_000,
+      hostileTerritory: false,
+    },
+    employerAward: {
+      side: 'employer',
+      candidates: [],
+      totalValue: 0,
+      estimatedRepairCost: 0,
+    },
+    mercenaryAward: {
+      side: 'mercenary',
+      candidates: [candidate],
+      totalValue: 2_000_000,
+      estimatedRepairCost: 500_000,
+    },
+    splitMethod: 'contract',
+    processed: false,
+  };
+}
+
+function postBattleWithoutAttachedInventory(): ICampaign {
+  return {
+    ...createCampaign('Reloaded', 'mercenary'),
+    repairQueue: [makeRepairTicket()],
+    salvageAllocations: { 'match-reload-1': makeSalvageAllocation() },
+  } as ICampaign;
+}
+
+const RELOADED_ROSTER_PILOTS: readonly ICampaignRosterEntry[] = [
+  {
+    pilotId: 'pilot-reload-1',
+    pilotName: 'Morgan Kell',
+    status: CampaignPilotStatus.Wounded,
+    wounds: 3,
+    recoveryTime: 8,
+    xp: 0,
+  } as ICampaignRosterEntry,
+];
 
 describe('campaignBaySelectors', () => {
   describe('populated campaign', () => {
@@ -109,6 +190,50 @@ describe('campaignBaySelectors', () => {
         totalRepairHours: 0,
         salvageValueTotal: 0,
         pilotsInMedical: 0,
+      });
+    });
+  });
+
+  describe('post-battle state without attached inventory', () => {
+    const campaign = postBattleWithoutAttachedInventory();
+
+    it('re-projects repair and salvage from persisted canonical state', () => {
+      expect(selectCampaignInventory(campaign)).toBeNull();
+      expect(selectRepairBay(campaign)).toMatchObject([
+        {
+          ticketId: 'ticket-reload-ct',
+          unitId: 'unit-atlas',
+          expectedHours: 6,
+          status: 'queued',
+        },
+      ]);
+      expect(selectSalvageBay(campaign)).toMatchObject([
+        {
+          partId: 'salvage-atlas',
+          designation: 'Atlas AS7-D',
+          recoveredValue: 2_000_000,
+          status: 'pending',
+        },
+      ]);
+    });
+
+    it('re-projects medical state when roster pilots are supplied', () => {
+      expect(selectMedicalBay(campaign, RELOADED_ROSTER_PILOTS)).toMatchObject([
+        {
+          pilotId: 'pilot-reload-1',
+          injuryLevel: 'serious',
+          daysToRecover: 8,
+          status: 'recovering',
+        },
+      ]);
+    });
+
+    it('summarizes the re-projected bays', () => {
+      expect(selectInventorySummary(campaign, RELOADED_ROSTER_PILOTS)).toEqual({
+        repairTicketCount: 1,
+        totalRepairHours: 6,
+        salvageValueTotal: 2_000_000,
+        pilotsInMedical: 1,
       });
     });
   });

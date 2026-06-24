@@ -27,6 +27,9 @@ import type {
   IRepairBayItem,
   ISalvageBayItem,
 } from '@/types/campaign/CampaignInventory';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+
+import { projectCampaignInventory } from '@/lib/campaign/inventory/projectCampaignInventory';
 
 // =============================================================================
 // Empty Projection Constants
@@ -66,6 +69,21 @@ export function selectCampaignInventory(
   return extended.campaignInventory ?? null;
 }
 
+function projectInventoryForDisplay(
+  campaign: ICampaign | null,
+  rosterPilots: readonly ICampaignRosterEntry[] = [],
+): ICampaignInventory | null {
+  if (!campaign) return null;
+  return (
+    selectCampaignInventory(campaign) ??
+    projectCampaignInventory(
+      campaign,
+      rosterPilots,
+      campaign.currentDate.toISOString(),
+    )
+  );
+}
+
 // =============================================================================
 // Bay Selectors
 // =============================================================================
@@ -77,7 +95,7 @@ export function selectCampaignInventory(
 export function selectRepairBay(
   campaign: ICampaign | null,
 ): readonly IRepairBayItem[] {
-  return selectCampaignInventory(campaign)?.repairBay ?? EMPTY_REPAIR_BAY;
+  return projectInventoryForDisplay(campaign)?.repairBay ?? EMPTY_REPAIR_BAY;
 }
 
 /**
@@ -87,7 +105,7 @@ export function selectRepairBay(
 export function selectSalvageBay(
   campaign: ICampaign | null,
 ): readonly ISalvageBayItem[] {
-  return selectCampaignInventory(campaign)?.salvageBay ?? EMPTY_SALVAGE_BAY;
+  return projectInventoryForDisplay(campaign)?.salvageBay ?? EMPTY_SALVAGE_BAY;
 }
 
 /**
@@ -96,8 +114,12 @@ export function selectSalvageBay(
  */
 export function selectMedicalBay(
   campaign: ICampaign | null,
+  rosterPilots: readonly ICampaignRosterEntry[] = [],
 ): readonly IMedicalBayItem[] {
-  return selectCampaignInventory(campaign)?.medicalBay ?? EMPTY_MEDICAL_BAY;
+  return (
+    projectInventoryForDisplay(campaign, rosterPilots)?.medicalBay ??
+    EMPTY_MEDICAL_BAY
+  );
 }
 
 /**
@@ -106,8 +128,11 @@ export function selectMedicalBay(
  */
 export function selectInventorySummary(
   campaign: ICampaign | null,
+  rosterPilots: readonly ICampaignRosterEntry[] = [],
 ): IInventorySummary {
-  return selectCampaignInventory(campaign)?.summary ?? EMPTY_SUMMARY;
+  return (
+    projectInventoryForDisplay(campaign, rosterPilots)?.summary ?? EMPTY_SUMMARY
+  );
 }
 
 // =============================================================================

@@ -913,7 +913,14 @@
       "riskTags": ["playability", "campaign-loop", "source-truth"],
       "qualityLenses": ["functionality", "ux", "rules-parity"],
       "coverageStatus": "partial",
-      "routes": ["/gameplay/campaigns", "/gameplay/campaigns/:id/gm-ledger"],
+      "routes": [
+        "/gameplay/campaigns",
+        "/gameplay/campaigns/:id",
+        "/gameplay/campaigns/:id/repair-bay",
+        "/gameplay/campaigns/:id/salvage",
+        "/gameplay/campaigns/:id/finances",
+        "/gameplay/campaigns/:id/gm-ledger"
+      ],
       "apis": [],
       "desktopSurfaces": [],
       "modules": [
@@ -936,10 +943,16 @@
       "activeChangeRefs": [],
       "tests": [
         "src/lib/campaign/**/__tests__",
-        "src/components/campaign/**/__tests__"
+        "src/components/campaign/**/__tests__",
+        "src/stores/campaign/__tests__/campaignBaySelectors.test.ts",
+        "src/stores/campaign/__tests__/campaignBayActions.test.ts",
+        "e2e/campaign-economy-browser.spec.ts",
+        "e2e/campaign-flow.spec.ts"
       ],
       "commands": [
-        "npm.cmd test -- --watchAll=false --runInBand",
+        "npm.cmd run verify:qc:campaign-economy",
+        "npm.cmd run verify:qc:campaign-economy:contracts",
+        "npm.cmd run verify:qc:campaign-economy:browser",
         "npm.cmd run verify:qc:campaign-long"
       ],
       "manualChecks": [
@@ -948,11 +961,14 @@
       "evidence": [
         "docs/audits/2026-06-12-full-codebase-review.md",
         "scripts/qc/validate-long-campaign-qc.mjs",
-        "2026-06-23 Chromium browser smoke passed 9 campaign-flow tests for create, roster, mission generation, damage carry-forward UI, and campaign store state; repair/salvage/acquisition remains an explicit deeper gap."
+        "2026-06-23 Chromium browser smoke passed 9 campaign-flow tests for create, roster, mission generation, damage carry-forward UI, and campaign store state.",
+        "2026-06-24 `npm.cmd run verify:qc:campaign-economy:contracts` passed 9 focused Jest suites / 111 tests for campaign outcomes, bay selectors/actions, command actions, salvage, repair queue/progress, acquisition, and market processors.",
+        "2026-06-24 `npm.cmd run verify:qc:campaign-economy:browser` passed 10 Chromium tests: strict post-battle economy browser route proof plus campaign-flow smoke, covering dashboard, repair bay, salvage, finances, and day advance after full route reloads."
       ],
       "gaps": [
-        "Recent audit identified repair/salvage/acquisition loops that need end-to-end proof.",
-        "Long-campaign stability is now protected by a dedicated QC surface; browser campaign signoff remains a separate UI lane."
+        "Seeded browser proof now covers post-battle repair, salvage, finances, and day advance after route reloads; true organic campaign creation -> contract acceptance -> tactical launch -> post-combat save/load remains a separate release-signoff lane.",
+        "Acquisition contracts and processors are covered by focused tests; true shopping/acquisition browser UI remains a follow-up lane.",
+        "Long-campaign stability is now protected by a dedicated QC surface; browser-driven 6-10 contract campaign signoff remains a separate UI lane."
       ]
     },
     {
