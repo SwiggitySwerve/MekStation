@@ -77,4 +77,27 @@ describe('QC registry validator', () => {
     );
     expect(result.stdout).toContain('2026-06-23-retired-change');
   });
+
+  it('rejects registry routes that no longer resolve to Next pages', () => {
+    const registry = readJson<{
+      surfaces: Array<{ surfaceId: string; routes: string[] }>;
+    }>(path.join(repoRoot, 'docs/qc/mekstation-qc-registry.json'));
+    const surface = registry.surfaces.find(
+      (entry) => entry.surfaceId === 'app-shell-navigation',
+    );
+    expect(surface).toBeDefined();
+    surface!.routes = ['/replays'];
+
+    const registryPath = path.join(tempDir, 'registry.json');
+    writeJson(registryPath, registry);
+
+    const result = runValidator({
+      MEKSTATION_QC_REGISTRY_PATH: registryPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'app-shell-navigation: routes[0] does not resolve to a Next.js page route: /replays',
+    );
+  });
 });
