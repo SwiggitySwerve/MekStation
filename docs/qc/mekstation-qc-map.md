@@ -27,6 +27,8 @@ Next.js page template or required journey sequence.
 
 ```powershell
 npm.cmd run qc:validate
+npm.cmd run qc:app-completion
+npm.cmd run qc:app-completion:release
 npm.cmd run qc:select -- --status=partial
 npm.cmd run qc:select -- --risk=rules-parity
 npm.cmd run qc:select -- --lens=ux
@@ -78,6 +80,8 @@ node scripts/qc/validate-maintenance-warning-ledger.mjs
 npm.cmd run maintain:scan -- --scope=src --format=summary
 npm.cmd run verify:qc
 npm.cmd run verify:rules
+npm.cmd run verify:app-completion
+npm.cmd run verify:app-completion:release
 ```
 
 Use the plain `warn,error` log scan to audit every warning-class event,
@@ -90,6 +94,11 @@ and searchable stability logs.
 Use `qc:campaign-long:validate` when the question is whether that long-campaign
 gate is still wired into the global QC path, registry, graph, UI flow shell,
 and catalog bounds.
+Use `qc:app-completion` for the release-readiness inventory across OpenSpec,
+QC registry, lifecycle wiring, logging, combat gap gates, Electron package
+proof, and the maintenance warning ledger. Use `qc:app-completion:release` or
+`verify:app-completion:release` when the intent is to fail while any
+release-signoff gap remains.
 
 ## Graph
 
