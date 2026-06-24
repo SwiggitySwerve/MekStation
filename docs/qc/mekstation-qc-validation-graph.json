@@ -330,6 +330,7 @@
       "label": "Registry evidence for App Shell, Navigation, Settings, PWA",
       "entries": [
         "docs/audits/2026-06-12-full-codebase-review.md",
+        "2026-06-24 `npm.cmd run verify:qc:app-shell` passed 17 Chromium route/deep-link/refresh checks across dashboard, gameplay hub, quick game, pilots, forces, campaigns, encounters, games, compendium, custom units, customizer, compare, multiplayer, audit timeline, replay library, settings hash deep link, and desktop History -> Replay Library navigation. The proof caught and fixed `/units` browser SQLite leakage through the unit-card barrel import and `/compare` reload-abort logging.",
         "Archived OpenSpec change 2026-06-21-fix-navigation-and-playability-deadends retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23."
       ]
@@ -349,7 +350,7 @@
       "kind": "known-gap",
       "label": "App Shell, Navigation, Settings, PWA known gaps",
       "entries": [
-        "Recent audit called out navigation/playability dead ends and refresh-loss risks."
+        "Generated-ID active-session recovery remains out of scope for the static/list route sweep and is tracked by the campaign, combat continuity, and replay recovery lanes."
       ]
     },
     {
@@ -363,9 +364,9 @@
       "label": "npm.cmd run typecheck -- --pretty false"
     },
     {
-      "id": "command:npx-cmd-playwright-test-project-chromium",
+      "id": "command:verify-qc-app-shell",
       "kind": "command",
-      "label": "npx.cmd playwright test --project=chromium"
+      "label": "npm.cmd run verify:qc:app-shell"
     },
     {
       "id": "surface:compendium-unit-data",
@@ -1962,11 +1963,11 @@
     },
     {
       "from": "state:app-shell-navigation:lifecycle",
-      "to": "command:npx-cmd-playwright-test-project-chromium",
+      "to": "command:verify-qc-app-shell",
       "relation": "validated-by"
     },
     {
-      "from": "command:npx-cmd-playwright-test-project-chromium",
+      "from": "command:verify-qc-app-shell",
       "to": "evidence:app-shell-navigation:registry",
       "relation": "produces"
     },
