@@ -175,6 +175,10 @@ flowchart TD
      projection parity manifest that validates required tactical surfaces,
      commands, source anchors, browser-boundary coverage, and stale
      active-change refs.
+   - Wave 3 uses `qc:wave3:validate` for fast checkpoint wiring and
+     `verify:qc:wave3` for the strict encounter continuity plus tactical
+     projection/visual/rules gate. This keeps permissive encounter smoke out of
+     release-grade proof while broader setup variants remain tracked.
    - Claim IDs route exact QC asks such as `ui.tactical.rules-explanation`,
      `ui.tactical.movement-preview`, `ui.tactical.combat-preview`,
      `ui.tactical.topdown-legibility`, and `ui.tactical.isometric-25d`.

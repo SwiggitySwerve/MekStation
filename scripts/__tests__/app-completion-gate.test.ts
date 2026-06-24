@@ -75,6 +75,9 @@ function writeFixtureSet(tempDir: string, hasReleaseGap: boolean) {
         'npm run qc:campaign-long:stability && npm run qc:campaign-long:browser',
       'verify:qc:gm:campaign-ledger': 'npm run qc:gm:campaign-ledger:validate',
       'verify:qc:gm:time-cascade': 'npm run qc:gm:time-cascade:validate',
+      'qc:wave3:validate':
+        'node scripts/qc/validate-wave3-encounter-tactical.mjs',
+      'verify:qc:wave3': 'npm run qc:wave3:validate',
       'verify:qc:multiplayer-reliability':
         'npm run verify:qc:multiplayer:browser',
       'verify:qc:journeys': 'npm run qc:journeys',
