@@ -41,6 +41,11 @@ import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IGmCampaignProjectedEffect } from '@/types/interventions';
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
+import {
+  rehydrateCampaignMission,
+  rehydrateContractMarket,
+  rehydrateMissionMap,
+} from '@/lib/campaign/persistence/missionSerialization';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
@@ -74,7 +79,9 @@ export interface SerializedCampaignState {
   name: string;
   currentDate: string; // ISO 8601 string
   factionId: string;
+  forces: ReadonlyArray<readonly [string, IForce]>;
   rootForceId: string;
+  missions: ReadonlyArray<readonly [string, IMission]>;
   finances: {
     transactions: Array<{
       id: string;
@@ -174,6 +181,26 @@ export function withBattleQueueAttached(
     readonly processedBattleIds: readonly string[];
   };
 }
+function mergeSerializedMap<K, V>(
+  serializedEntries: ReadonlyArray<readonly [K, V]> | undefined,
+  liveEntries: Map<K, V>,
+): Map<K, V> {
+  const merged = new Map<K, V>(serializedEntries ?? []);
+  liveEntries.forEach((value, key) => {
+    merged.set(key, value);
+  });
+  return merged;
+}
+function mergeSerializedMissionMap(
+  serializedEntries: ReadonlyArray<readonly [string, IMission]> | undefined,
+  liveEntries: Map<string, IMission>,
+): Map<string, IMission> {
+  const merged = rehydrateMissionMap(serializedEntries);
+  liveEntries.forEach((value, key) => {
+    merged.set(key, rehydrateCampaignMission(value));
+  });
+  return merged;
+}
 export function snapshotRosterPilots(): readonly ICampaignRosterEntry[] {
   return [...useCampaignRosterStore.getState().pilots];
 }
@@ -200,7 +227,9 @@ export function serializeCampaign(
     name: campaign.name,
     currentDate: campaign.currentDate.toISOString(),
     factionId: campaign.factionId,
+    forces: Array.from(campaign.forces.entries()),
     rootForceId: campaign.rootForceId,
+    missions: Array.from(campaign.missions.entries()),
     finances: {
       transactions: campaign.finances.transactions.map((t) => ({
         id: t.id,
@@ -288,9 +317,9 @@ export function deserializeCampaign(
     name: serialized.name,
     currentDate: new Date(serialized.currentDate),
     factionId: serialized.factionId,
-    forces,
+    forces: mergeSerializedMap(serialized.forces, forces),
     rootForceId: serialized.rootForceId,
-    missions,
+    missions: mergeSerializedMissionMap(serialized.missions, missions),
     finances: {
       transactions: serialized.finances.transactions.map(
         (t): Transaction => ({
@@ -348,7 +377,7 @@ export function deserializeCampaign(
     // such field (every consumer already defaults to an empty projection).
     loans: serialized.loans,
     personnelMarket: serialized.personnelMarket,
-    contractMarket: serialized.contractMarket,
+    contractMarket: rehydrateContractMarket(serialized.contractMarket),
     unitMarket: serialized.unitMarket,
     combatTeams: serialized.combatTeams,
     refitOrders: serialized.refitOrders,

@@ -28,6 +28,11 @@ import { CampaignType } from '@/types/campaign/CampaignType';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { Money } from '@/types/campaign/Money';
 
+import {
+  rehydrateContractMarket,
+  rehydrateMissionMap,
+} from './missionSerialization';
+
 // =============================================================================
 // Finances (nested Money + Date)
 // =============================================================================
@@ -199,7 +204,7 @@ export function deserializeCampaignBody(
     factionId: body.factionId,
     forces: new Map(body.forces),
     rootForceId: body.rootForceId,
-    missions: new Map(body.missions),
+    missions: rehydrateMissionMap(body.missions),
     finances: deserializeFinances(body.finances),
     factionStandings: body.factionStandings,
     shoppingList: body.shoppingList,
@@ -242,7 +247,7 @@ export function deserializeCampaignBody(
     currentSystemId: body.currentSystemId,
     coopSession: body.coopSession,
     personnelMarket: body.personnelMarket,
-    contractMarket: body.contractMarket,
+    contractMarket: rehydrateContractMarket(body.contractMarket),
     unitMarket: body.unitMarket,
   } as ICampaign;
 }

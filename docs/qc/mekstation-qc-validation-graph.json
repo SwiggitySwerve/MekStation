@@ -1169,7 +1169,7 @@
       "kind": "known-gap",
       "label": "Campaign Economy, Repair, Salvage, Progression known gaps",
       "entries": [
-        "Seeded browser proof covers post-battle repair, salvage, finances, and day advance after route reloads; true organic campaign creation -> contract acceptance -> tactical launch -> post-combat save/load remains separate release signoff.",
+        "Strict browser proof covers organic campaign creation -> rostered contract acceptance -> accepted mission reload, and seeded browser proof covers post-battle repair, salvage, finances, and day advance after route reloads; tactical launch -> post-combat save/load remains separate release signoff.",
         "Acquisition contracts and processors are covered by focused tests; true shopping/acquisition browser UI remains a follow-up lane.",
         "Long-campaign stability is now protected by a dedicated QC surface; browser-driven 6-10 contract campaign signoff remains a separate UI lane."
       ]

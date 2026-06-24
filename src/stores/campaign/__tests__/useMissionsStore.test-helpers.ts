@@ -13,6 +13,7 @@ import {
   createMission,
   createContract,
 } from '@/types/campaign/Mission';
+import { Money } from '@/types/campaign/Money';
 import { IScenario, createScenario } from '@/types/campaign/Scenario';
 
 import { createMissionsStore } from '../useMissionsStore';
@@ -826,6 +827,29 @@ describe('useMissionsStore', () => {
       expect(retrieved).toBeDefined();
       expect(retrieved?.id).toBe(mission.id);
       expect(retrieved?.name).toBe(mission.name);
+    });
+
+    it('should rehydrate persisted contract payment terms as Money values', () => {
+      const contract = createTestContract({ name: 'Reloaded Contract' });
+      store.getState().addMission(contract);
+
+      const stored = localStorageMock.getItem('missions-test-campaign');
+      const raw = JSON.parse(stored!) as {
+        state?: { missions?: [string, IContract][] };
+      };
+      expect(
+        raw.state?.missions?.[0]?.[1].paymentTerms.basePayment,
+      ).not.toBeInstanceOf(Money);
+
+      const newStore = createMissionsStore('test-campaign');
+      const retrieved = newStore
+        .getState()
+        .getMission(contract.id) as IContract;
+
+      expect(retrieved.paymentTerms.basePayment).toBeInstanceOf(Money);
+      expect(retrieved.paymentTerms.basePayment.format()).toContain('C-bills');
+      expect(retrieved.paymentTerms.successPayment).toBeInstanceOf(Money);
+      expect(retrieved.paymentTerms.transportPayment).toBeInstanceOf(Money);
     });
 
     it('should load persisted data correctly', () => {

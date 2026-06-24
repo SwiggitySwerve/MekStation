@@ -254,9 +254,12 @@ flowchart TD
      `campaignInventory` is derived and intentionally not persisted, so bay
      selectors now re-project from persisted `repairQueue` and
      `salvageAllocations` when the attached projection is absent.
-   - Remaining signoff is narrower now: true organic campaign creation ->
-     contract acceptance -> tactical launch -> post-combat save/load, true
-     acquisition shopping UI, and browser-driven 6-10 contract campaign play.
+   - Strict browser proof now covers organic campaign creation -> rostered
+     contract acceptance -> accepted mission reload, and seeded browser proof
+     covers post-battle repair, salvage, finances, and day advance after route
+     reloads. Remaining signoff is narrower now: tactical launch ->
+     post-combat save/load, true acquisition shopping UI, and browser-driven
+     6-10 contract campaign play.
 
 1. `integration-runner-interactive-parity`
    - Runner/interactive parity is still the highest-risk combat integration
