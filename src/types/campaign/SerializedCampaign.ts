@@ -16,7 +16,10 @@ import type { MechBuildConfig } from '@/utils/construction/constructionRules/typ
 import type { ICombatOutcome } from '../combat/CombatOutcome';
 import type { IGmCampaignProjectedEffect } from '../interventions';
 import type { IShoppingList } from './acquisition/acquisitionTypes';
-import type { ICampaignContractMarket } from './CampaignCommandExtensions';
+import type {
+  ICampaignActiveContract,
+  ICampaignContractMarket,
+} from './CampaignCommandExtensions';
 import type { ICampaignLoan } from './CampaignLoan';
 import type { ICampaignOptions } from './CampaignOptions';
 import type { CampaignType } from './CampaignType';
@@ -187,6 +190,8 @@ export interface SerializedCampaignBody {
   readonly personnelMarket?: readonly IPersonnelMarketOffer[];
   /** Contract-market offers + declined ids (CP2b design D5). */
   readonly contractMarket?: ICampaignContractMarket;
+  /** Active contract progress shown by the dashboard command card. */
+  readonly activeContract?: ICampaignActiveContract;
   /** Unit-market offers stored by unitMarketProcessor (audit D-7, W3.4). */
   readonly unitMarket?: readonly IUnitMarketOffer[];
 }

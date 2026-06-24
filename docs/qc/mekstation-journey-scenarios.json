@@ -453,9 +453,7 @@
         "all generated contracts resolved",
         "campaign terminal state recorded"
       ],
-      "knownLimitations": [
-        "standard tier is headless-first; browser campaign signoff remains a separate UI lane"
-      ]
+      "knownLimitations": []
     }
   ]
 }

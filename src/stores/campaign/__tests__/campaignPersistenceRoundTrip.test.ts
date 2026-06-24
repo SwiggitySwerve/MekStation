@@ -15,7 +15,8 @@
  *    `finances.loans` (ILoan amortization ledger), `activePreset`,
  *    `currentSystemId`, `combatTeams`, `refitOrders`,
  *    `unitConfigurations`, `unitPrestige`, `moraleState`,
- *    `moraleTransitions`, `personnelMarket`, `contractMarket`.
+ *    `moraleTransitions`, `personnelMarket`, `contractMarket`,
+ *    `activeContract`.
  *
  * These tests exercise the WIRING (store action → clientSafeStorage →
  * fresh store → reload), not the module in isolation:
@@ -412,6 +413,14 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
         offers: [makeContractMission(MissionStatus.PENDING)],
         declinedOfferIds: ['contract-77'],
       },
+      activeContract: {
+        id: 'contract-active-001',
+        name: 'Active Round Trip Contract',
+        employerFactionId: 'davion',
+        deadlineDay: 18,
+        objectivesCompleted: 2,
+        objectivesTotal: 4,
+      },
       finances: {
         transactions: base.finances.transactions,
         balance: base.finances.balance,
@@ -459,6 +468,14 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     expect(
       reloaded.contractMarket?.offers[0].paymentTerms.basePayment.format(),
     ).toContain('500,000.00 C-bills');
+    expect(reloaded.activeContract).toMatchObject({
+      id: 'contract-active-001',
+      name: 'Active Round Trip Contract',
+      employerFactionId: 'davion',
+      deadlineDay: 18,
+      objectivesCompleted: 2,
+      objectivesTotal: 4,
+    });
 
     // The amortization ledger must rehydrate with live Money / Date
     // instances — financialProcessor.processLoanPayments calls

@@ -9,7 +9,7 @@
  * `buildSerializedCampaign`) still dropped: `combatTeams`, `refitOrders`,
  * `unitConfigurations`, `unitPrestige`, `moraleState`, `moraleTransitions`,
  * `currentSystemId`, `coopSession`, the command-extension fields
- * (`personnelMarket`, `contractMarket`, `unitMarket`), and
+ * (`personnelMarket`, `contractMarket`, `activeContract`, `unitMarket`), and
  * `finances.loans` (the amortization ledger — Money + Date instances that
  * need the same flattening the store path applies via
  * `SerializedAmortizedLoan`).
@@ -207,6 +207,14 @@ function buildExtendedCampaign(): ICampaignWithCommand {
       },
     ],
     contractMarket: { offers: [], declinedOfferIds: ['contract-77'] },
+    activeContract: {
+      id: 'contract-active-001',
+      name: 'Active Server Contract',
+      employerFactionId: 'davion',
+      deadlineDay: 18,
+      objectivesCompleted: 2,
+      objectivesTotal: 4,
+    },
     unitMarket: [
       {
         id: 'umo-001',
@@ -275,6 +283,14 @@ describe('T3 — server-side campaign serialization field mirror', () => {
       offers: [],
       declinedOfferIds: ['contract-77'],
     });
+    expect(restored.activeContract).toMatchObject({
+      id: 'contract-active-001',
+      name: 'Active Server Contract',
+      employerFactionId: 'davion',
+      deadlineDay: 18,
+      objectivesCompleted: 2,
+      objectivesTotal: 4,
+    });
     expect(restored.unitMarket).toHaveLength(1);
     expect(restored.unitMarket![0].unitName).toBe('Atlas AS7-D');
   });
@@ -336,6 +352,7 @@ describe('T3 — server-side campaign serialization field mirror', () => {
     expect(restored.gmInterventionEvents).toBeUndefined();
     expect(restored.personnelMarket).toBeUndefined();
     expect(restored.contractMarket).toBeUndefined();
+    expect(restored.activeContract).toBeUndefined();
     expect(restored.unitMarket).toBeUndefined();
   });
 
