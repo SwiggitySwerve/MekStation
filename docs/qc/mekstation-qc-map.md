@@ -261,10 +261,14 @@ flowchart TD
      `salvageAllocations` when the attached projection is absent.
    - Strict browser proof now covers organic campaign creation -> rostered
      contract acceptance -> accepted mission reload, seeded post-battle repair,
-     salvage, finances, and day advance after route reloads, plus campaign
-     encounter launch through auto-resolve, interactive concession, and
-     attack-driven weapon destruction into post-battle review
-     reload/application.
+     salvage, finances, day advance, and acquisition shopping after route
+     reloads, plus strict campaign-flow creation/roster/contract/damage
+     carry-forward without ambient-card fallbacks. The generated-mission
+     browser path now proves the linked encounter and its explicit force
+     configuration block reasons instead of accepting a disabled launch button
+     silently. Encounter launch through auto-resolve, interactive concession,
+     and attack-driven weapon destruction remains covered by the focused
+     continuity lane into post-battle review reload/application.
    - 2026-06-24 focused Playwright proof
      `e2e/campaign-acquisition-browser.spec.ts` passed 1 strict Chromium
      acquisition-shopping test covering add request, route reload, due delivery
