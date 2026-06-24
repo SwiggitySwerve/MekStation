@@ -146,12 +146,15 @@ flowchart TD
 1. `app-shell-navigation`
    - Wave 1 adds `verify:qc:app-shell` as the focused Chromium gate for
      primary route deep links, refresh recovery, shell chrome, route anchors,
-     critical console/page/network failures, settings hash navigation, and the
-     desktop History -> Replay Library route contract.
+     route-specific controls, empty/list state affordances, critical
+     console/page/network failures, settings hash navigation, and the desktop
+     History -> Replay Library route contract.
    - 2026-06-24 `verify:qc:app-shell` passed 17 checks and caught two real
      app-shell regressions before this lane moved forward: `/units` imported
      the unit-card barrel and leaked SQLite code into the browser, and
-     `/compare` logged reload-aborted catalog fetches as failures.
+     `/compare` logged reload-aborted catalog fetches as failures. The strict
+     route proof now also asserts each primary page exposes its expected
+     controls or empty/list recovery state after direct navigation and refresh.
    - Dynamic generated-ID session recovery is intentionally left to the
      campaign, combat continuity, multiplayer, and replay lanes where seeded
      state can prove recovery without weakening this static route sweep.
