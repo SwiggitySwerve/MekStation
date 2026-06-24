@@ -17,11 +17,14 @@ import {
   SAMPLE_CANDIDATES,
   SAMPLE_OFFERS,
 } from '@/components/campaign/command/__fixtures__/commandFixtures';
+import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
 
 import {
   acceptContractOffer,
+  addAcquisitionRequest,
   declineContractOffer,
   hireCandidate,
+  removeAcquisitionRequest,
   takeLoan,
 } from '../campaignCommandActions';
 import {
@@ -69,6 +72,92 @@ describe('campaignCommandActions', () => {
   afterEach(() => {
     jest.useRealTimers();
     resetCampaignStore();
+  });
+
+  // ===========================================================================
+  // acquisition requests
+  // ===========================================================================
+
+  describe('acquisition requests', () => {
+    it('adds a pending request to the campaign shopping list', () => {
+      seedCampaign();
+      const result = addAcquisitionRequest({
+        partName: 'PPC',
+        quantity: 2,
+        availability: AvailabilityRating.E,
+        isConsumable: false,
+      });
+
+      expect(result.applied).toBe(true);
+      expect(result.requestId).toBeDefined();
+      expect(currentCampaign().shoppingList?.items).toEqual([
+        expect.objectContaining({
+          id: result.requestId,
+          partId: 'ppc',
+          partName: 'PPC',
+          quantity: 2,
+          availability: AvailabilityRating.E,
+          isConsumable: false,
+          status: 'pending',
+        }),
+      ]);
+    });
+
+    it('marks the campaign dirty when adding an acquisition request', () => {
+      seedCampaign();
+      expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
+      addAcquisitionRequest({
+        partName: 'Medium Laser',
+        quantity: 1,
+        availability: AvailabilityRating.D,
+        isConsumable: false,
+      });
+      expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
+    });
+
+    it('rejects invalid acquisition request input', () => {
+      seedCampaign();
+      const result = addAcquisitionRequest({
+        partName: '',
+        quantity: 1,
+        availability: AvailabilityRating.D,
+        isConsumable: false,
+      });
+
+      expect(result.applied).toBe(false);
+      expect(currentCampaign().shoppingList?.items ?? []).toHaveLength(0);
+    });
+
+    it('removes a request without mutating delivered inventory', () => {
+      seedCampaign();
+      const addResult = addAcquisitionRequest({
+        partName: 'SRM Ammo',
+        quantity: 2,
+        availability: AvailabilityRating.C,
+        isConsumable: true,
+      });
+      useCampaignStore()
+        .getState()
+        .updateCampaign({
+          partsInventory: [
+            {
+              acquiredAt: '3025-02-01T00:00:00.000Z',
+              inventoryId: 'inv-srm-ammo',
+              partId: 'srm-ammo',
+              partName: 'SRM Ammo',
+              quantity: 2,
+              source: 'acquisition',
+            },
+          ],
+        } as Partial<ICampaign>);
+
+      const removeResult = removeAcquisitionRequest(addResult.requestId ?? '');
+
+      expect(removeResult.applied).toBe(true);
+      expect(currentCampaign().shoppingList?.items ?? []).toHaveLength(0);
+      expect(currentCampaign().partsInventory).toHaveLength(1);
+      expect(currentCampaign().partsInventory?.[0].quantity).toBe(2);
+    });
   });
 
   // ===========================================================================

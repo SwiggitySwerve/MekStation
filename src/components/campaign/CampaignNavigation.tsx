@@ -46,6 +46,7 @@ export type CampaignPageId =
   | 'hiring'
   | 'finances'
   | 'contract-market'
+  | 'acquisitions'
   | 'prestige-morale'
   | 'gm-ledger';
 
@@ -144,6 +145,11 @@ export function CampaignNavigation({
       id: 'contract-market',
       label: 'Contract Market',
       href: `/gameplay/campaigns/${campaignId}/contract-market`,
+    },
+    {
+      id: 'acquisitions',
+      label: 'Acquisitions',
+      href: `/gameplay/campaigns/${campaignId}/acquisitions`,
     },
     // The Prestige & Morale surface (CP3 — `add-campaign-refit-and-prestige`,
     // design D10) — a company-level read-only surface, grouped with the

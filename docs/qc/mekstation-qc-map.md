@@ -251,8 +251,8 @@ flowchart TD
      processors, and bay selector/action recovery.
    - Use `verify:qc:campaign-economy:contracts` when you only need the Jest
      contract layer, and `verify:qc:campaign-economy:browser` when you need the
-     Chromium route proof through dashboard, repair bay, salvage, finances, and
-     day advance.
+     Chromium route proof through dashboard, repair bay, salvage, finances,
+     acquisitions, and day advance.
    - 2026-06-24 the browser proof found and fixed a real reload boundary:
      `campaignInventory` is derived and intentionally not persisted, so bay
      selectors now re-project from persisted `repairQueue` and
@@ -262,8 +262,14 @@ flowchart TD
      salvage, finances, and day advance after route reloads, plus campaign
      encounter launch through auto-resolve, interactive concession, and
      attack-driven weapon destruction into post-battle review
-     reload/application. Remaining signoff is narrower now: true acquisition
-     shopping UI and browser-driven 6-10 contract campaign play.
+     reload/application.
+   - 2026-06-24 focused Playwright proof
+     `e2e/campaign-acquisition-browser.spec.ts` passed 1 strict Chromium
+     acquisition-shopping test covering add request, route reload, due delivery
+     processing, persisted acquisition inventory, and request cleanup without
+     losing delivered parts.
+   - Remaining signoff is narrower now: browser-driven 6-10 contract campaign
+     play.
 
 1. `integration-runner-interactive-parity`
    - Runner/interactive parity is still the highest-risk combat integration
