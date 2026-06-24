@@ -66,6 +66,7 @@ npm.cmd run verify:qc:journeys
 npm.cmd run verify:qc:ui-flow-shell
 npm.cmd run verify:qc:gm:campaign-ledger
 npm.cmd run verify:qc:gm:time-cascade
+npm.cmd run verify:qc:campaign-operations
 npm.cmd run verify:qc:campaign-economy
 npm.cmd run verify:qc:campaign-long
 npm.cmd run verify:qc:partial:quick
@@ -275,6 +276,10 @@ flowchart TD
    - `verify:qc:campaign-economy` is the focused on-demand gate for post-battle
      repair, salvage, finances, day advance, acquisition contracts, market
      processors, and bay selector/action recovery.
+   - `verify:qc:campaign-operations` is the focused command-center guard for
+     the dashboard operations queue: pending battle outcomes, salvage review,
+     repairs, medical attention, low finance runway, active/absent contracts,
+     and GM audit handoffs must stay visible with direct route links.
    - Use `verify:qc:campaign-economy:contracts` when you only need the Jest
      contract layer, and `verify:qc:campaign-economy:browser` when you need the
      Chromium route proof through dashboard, repair bay, salvage, finances,

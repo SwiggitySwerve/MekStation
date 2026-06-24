@@ -8,11 +8,13 @@
 export {
   ActivityLogCard,
   DayAdvanceCard,
+  OperationsQueueCard,
   QuickActionsCard,
 } from './CampaignDashboardActivityCards';
 export type {
   IActivityLogCardProps,
   IDayAdvanceCardProps,
+  IOperationsQueueCardProps,
   IQuickActionsCardProps,
 } from './CampaignDashboardActivityCards';
 export {

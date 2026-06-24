@@ -296,6 +296,7 @@
       "qualityLenses": ["functionality", "ux", "rules-parity"],
       "successCriteria": [
         "Campaign flow and round-trip browser specs pass.",
+        "Campaign dashboard operations queue exposes unresolved battle, salvage, repair, medical, finance, contract, and GM audit handoffs.",
         "Campaign economy browser coverage proves dashboard, repair, salvage, finances, and day advance after post-battle state reloads.",
         "Campaign outcome, bay, acquisition, market, salvage, and repair processor unit tests preserve post-battle state transitions."
       ],
@@ -327,6 +328,17 @@
             "src/lib/campaign/processors/__tests__/repairProgressProcessor.test.ts",
             "src/lib/campaign/processors/__tests__/acquisitionProcessor.test.ts",
             "src/lib/campaign/processors/__tests__/marketProcessors.test.ts"
+          ]
+        },
+        {
+          "id": "campaign-operations-queue",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run verify:qc:campaign-operations",
+          "evidence": [
+            "src/components/campaign/dashboard/__tests__/CampaignOperationsQueueCard.test.tsx",
+            "src/components/campaign/dashboard/CampaignDashboardActivityCards.tsx",
+            "src/lib/campaign/hooks/useCampaignDashboardSummary.ts"
           ]
         }
       ],
