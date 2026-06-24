@@ -48,6 +48,7 @@ const requiredScripts = new Map([
   ['validate:combat:gaps', 'scripts/print-combat-validation-gaps.ts'],
   ['verify:qc:app-shell', 'e2e/app-shell-route-proof.spec.ts'],
   ['verify:qc:campaign-economy', 'verify:qc:campaign-economy:browser'],
+  ['verify:qc:campaign-operations', 'CampaignOperationsQueueCard.test.tsx'],
   ['qc:campaign-long:browser', 'e2e/campaign-long-browser-signoff.spec.ts'],
   ['verify:qc:campaign-long', 'qc:campaign-long:browser'],
   ['verify:qc:gm:campaign-ledger', 'qc:gm:campaign-ledger:validate'],

@@ -87,6 +87,27 @@ export interface IDayAdvanceSummary {
   readonly pendingEventPreview: string | null;
 }
 
+export type CampaignOperationPriority =
+  | 'critical'
+  | 'warning'
+  | 'ready'
+  | 'routine';
+
+export interface ICampaignOperationItem {
+  readonly id: string;
+  readonly title: string;
+  readonly detail: string;
+  readonly href: string;
+  readonly ctaLabel: string;
+  readonly priority: CampaignOperationPriority;
+}
+
+export interface ICampaignOperationsSummary {
+  readonly unresolvedCount: number;
+  readonly statusLabel: string;
+  readonly items: readonly ICampaignOperationItem[];
+}
+
 /** Aggregate summary the dashboard consumes. */
 export interface IDashboardSummary {
   readonly campaignId: string;
@@ -96,6 +117,7 @@ export interface IDashboardSummary {
   readonly finances: IFinancesSummary;
   readonly dayAdvance: IDayAdvanceSummary;
   readonly activityLog: readonly IActivityLogEntry[];
+  readonly operations: ICampaignOperationsSummary;
 }
 
 // =============================================================================
@@ -258,6 +280,142 @@ function extractForceSnapshot(
   };
 }
 
+function countOpenSalvageAllocations(campaign: ICampaign | null): number {
+  if (!campaign?.salvageAllocations) {
+    return 0;
+  }
+
+  return Object.values(campaign.salvageAllocations).filter(
+    (allocation) => allocation && !allocation.processed,
+  ).length;
+}
+
+function buildCampaignOperationsSummary(
+  campaign: ICampaign,
+  forceSnapshot: IForceSnapshotSummary,
+  activeContract: IActiveContractSummary,
+  finances: IFinancesSummary,
+  pendingBattleCount: number,
+): ICampaignOperationsSummary {
+  const campaignHref = `/gameplay/campaigns/${campaign.id}`;
+  const salvageCount = countOpenSalvageAllocations(campaign);
+  const gmEventCount = campaign.gmInterventionEvents?.length ?? 0;
+  const items: ICampaignOperationItem[] = [];
+
+  if (pendingBattleCount > 0) {
+    items.push({
+      id: 'pending-battle-outcomes',
+      title: 'Battle outcome waiting',
+      detail: `${pendingBattleCount} result${
+        pendingBattleCount === 1 ? '' : 's'
+      } need campaign application before the next clean day advance.`,
+      href: `${campaignHref}/gm-ledger`,
+      ctaLabel: 'Open GM ledger',
+      priority: 'critical',
+    });
+  }
+
+  if (salvageCount > 0) {
+    items.push({
+      id: 'salvage-review',
+      title: 'Salvage review',
+      detail: `${salvageCount} allocation${
+        salvageCount === 1 ? '' : 's'
+      } still need accept, decline, or GM correction.`,
+      href: `${campaignHref}/salvage`,
+      ctaLabel: 'Review salvage',
+      priority: 'warning',
+    });
+  }
+
+  if (forceSnapshot.repairQueueDepth > 0) {
+    items.push({
+      id: 'repair-queue',
+      title: 'Repair queue active',
+      detail: `${forceSnapshot.repairQueueDepth} repair ticket${
+        forceSnapshot.repairQueueDepth === 1 ? '' : 's'
+      } can affect mission readiness and operating cost.`,
+      href: `${campaignHref}/repair-bay`,
+      ctaLabel: 'Open repair bay',
+      priority: 'warning',
+    });
+  }
+
+  if (forceSnapshot.injuredPilotCount > 0) {
+    items.push({
+      id: 'medical-attention',
+      title: 'Pilots need medical attention',
+      detail: `${forceSnapshot.injuredPilotCount} injured pilot${
+        forceSnapshot.injuredPilotCount === 1 ? '' : 's'
+      } may block assignments or require recovery time.`,
+      href: `${campaignHref}/medical-bay`,
+      ctaLabel: 'Open medical bay',
+      priority: 'warning',
+    });
+  }
+
+  if (Number.isFinite(finances.runwayDays) && finances.runwayDays <= 14) {
+    items.push({
+      id: 'finance-runway',
+      title: 'Finance runway low',
+      detail: `${finances.runwayDays} day${
+        finances.runwayDays === 1 ? '' : 's'
+      } of runway at the current daily cost estimate.`,
+      href: `${campaignHref}/finances`,
+      ctaLabel: 'Review finances',
+      priority: finances.runwayDays <= 7 ? 'critical' : 'warning',
+    });
+  }
+
+  if (activeContract.contract) {
+    items.push({
+      id: 'active-contract',
+      title: 'Mission track ready',
+      detail: `${activeContract.contract.name} has ${activeContract.contract.daysRemaining} day${
+        activeContract.contract.daysRemaining === 1 ? '' : 's'
+      } remaining.`,
+      href: `${campaignHref}/missions`,
+      ctaLabel: 'Open missions',
+      priority: 'ready',
+    });
+  } else {
+    items.push({
+      id: 'choose-contract',
+      title: 'Choose a contract',
+      detail: 'No active contract is attached to this campaign.',
+      href: `${campaignHref}/contract-market`,
+      ctaLabel: 'Browse contracts',
+      priority: 'ready',
+    });
+  }
+
+  if (gmEventCount > 0) {
+    items.push({
+      id: 'gm-audit-review',
+      title: 'GM audit trail available',
+      detail: `${gmEventCount} approved correction${
+        gmEventCount === 1 ? '' : 's'
+      } can be reviewed without exposing private GM reasoning.`,
+      href: `${campaignHref}/gm-ledger`,
+      ctaLabel: 'Review ledger',
+      priority: 'routine',
+    });
+  }
+
+  const unresolvedCount = items.filter(
+    (item) => item.priority === 'critical' || item.priority === 'warning',
+  ).length;
+
+  return {
+    unresolvedCount,
+    statusLabel:
+      unresolvedCount === 0
+        ? 'No blockers'
+        : `${unresolvedCount} attention item${unresolvedCount === 1 ? '' : 's'}`,
+    items,
+  };
+}
+
 // =============================================================================
 // Hook
 // =============================================================================
@@ -276,15 +434,23 @@ export function useCampaignDashboardSummary(): IDashboardSummary | null {
   const store = useCampaignStore();
   const campaign = useStore(store, (state) => state.campaign);
   const activityLog = useStore(store, (state) => state.activityLog);
+  const pendingBattleOutcomes = useStore(
+    store,
+    (state) => state.pendingBattleOutcomes,
+  );
 
   return useMemo<IDashboardSummary | null>(() => {
     if (!campaign) return null;
+    const forceSnapshot = extractForceSnapshot(campaign);
+    const activeContract = extractActiveContractSummary(campaign);
+    const finances = extractFinancesSummary(campaign);
+
     return {
       campaignId: campaign.id,
       campaignName: campaign.name,
-      forceSnapshot: extractForceSnapshot(campaign),
-      activeContract: extractActiveContractSummary(campaign),
-      finances: extractFinancesSummary(campaign),
+      forceSnapshot,
+      activeContract,
+      finances,
       dayAdvance: {
         currentDate: campaign.currentDate,
         // Day-of-campaign is currently derived from currentDate vs createdAt
@@ -295,9 +461,16 @@ export function useCampaignDashboardSummary(): IDashboardSummary | null {
         pendingEventPreview: null,
       },
       activityLog,
+      operations: buildCampaignOperationsSummary(
+        campaign,
+        forceSnapshot,
+        activeContract,
+        finances,
+        pendingBattleOutcomes.length,
+      ),
     };
     // The memo key is the identity of the campaign + log — re-runs only when
     // those change. Day-advance mutates both, so the dashboard sees fresh
     // numbers immediately after an advance.
-  }, [campaign, activityLog]);
+  }, [campaign, activityLog, pendingBattleOutcomes]);
 }

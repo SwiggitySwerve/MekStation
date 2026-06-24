@@ -26,6 +26,7 @@ import {
   DayAdvanceCard,
   FinancesCard,
   ForceSnapshotCard,
+  OperationsQueueCard,
   QuickActionsCard,
 } from './CampaignDashboardCards';
 
@@ -83,6 +84,10 @@ export function CampaignDashboard({
       <ActivityLogCard
         campaignId={summary.campaignId}
         entries={summary.activityLog}
+      />
+      <OperationsQueueCard
+        campaignId={summary.campaignId}
+        summary={summary.operations}
       />
       <QuickActionsCard campaignId={summary.campaignId} />
     </section>

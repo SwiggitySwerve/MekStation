@@ -69,6 +69,8 @@ function writeFixtureSet(tempDir: string, hasReleaseGap: boolean) {
         'npx playwright test --project=chromium e2e/app-shell-route-proof.spec.ts',
       'verify:qc:campaign-economy':
         'npm run verify:qc:campaign-economy:browser',
+      'verify:qc:campaign-operations':
+        'npm test CampaignOperationsQueueCard.test.tsx',
       'qc:campaign-long:browser':
         'npx playwright test e2e/campaign-long-browser-signoff.spec.ts',
       'verify:qc:campaign-long':
