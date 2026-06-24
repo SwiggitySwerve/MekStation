@@ -11,8 +11,11 @@ const requiredSurface = {
   claimId: 'campaign.gm-ledger.time-cascade',
   commandIncludes: [
     'qc:gm:time-cascade:validate',
+    'verify:qc:gm:campaign-browser',
+    'gm-campaign-ledger-control-plane.spec.ts',
     'GmTimeCascadeInterventionImplementer.test.ts',
     'GmCampaignInterventionBoundaries.test.ts',
+    'GmCampaignInterventionControlPlane.test.tsx',
     'marketProcessors.test.ts',
   ],
   specIncludes: [
@@ -199,6 +202,49 @@ const defaultSourceAnchors = [
       'unit market refresh stores the generated offers on campaign.unitMarket',
       'personnel market refresh appends the day offers and prunes expired ones',
       'contract market refresh replaces offers and clears declined ids',
+    ],
+  },
+  {
+    id: 'time-cascade-gm-ledger-route',
+    path: 'src/pages/gameplay/campaigns/[id]/gm-ledger.tsx',
+    tokens: [
+      'GmCampaignInterventionControlPlane',
+      "currentPage: 'gm-ledger'",
+      'onApplyCampaignUpdate',
+    ],
+  },
+  {
+    id: 'time-cascade-gm-ledger-control-plane',
+    path: 'src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx',
+    tokens: [
+      'registerGmTimeCascadeInterventionImplementer',
+      'buildTimeCascadeCommand',
+      'gm-ledger-time-preview-btn',
+      'gm-ledger-time-conflict-preview-btn',
+      'TIME_CASCADE_ID',
+      'TIME_CASCADE_MANUAL_ID',
+    ],
+  },
+  {
+    id: 'time-cascade-gm-ledger-component-tests',
+    path: 'src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.test.tsx',
+    tokens: [
+      'previews and approves a time cascade with player-safe output',
+      'gm-ledger-time-preview-btn',
+      'gm-ledger-preview-time-effect',
+      'Hidden time cascade',
+      'timeCascadeEvents',
+    ],
+  },
+  {
+    id: 'time-cascade-gm-ledger-browser-proof',
+    path: 'e2e/gm-campaign-ledger-control-plane.spec.ts',
+    tokens: [
+      'previews and approves an accumulated time cascade',
+      'blocks unprojected external time effects until manual takeover',
+      'gm-ledger-time-preview-btn',
+      'gm-ledger-time-conflict-preview-btn',
+      'not.toContainText',
     ],
   },
 ];

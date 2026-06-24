@@ -82,7 +82,7 @@ describe('GM time cascade QC validator', () => {
     ]);
     expect(manifest.requiredCampaignRoots).toContain('currentDate');
     expect(manifest.requiredCampaignRoots).toContain('contractMarket');
-    expect(manifest.anchors).toHaveLength(10);
+    expect(manifest.anchors).toHaveLength(14);
     expect(manifest.surface).toMatchObject({
       surfaceId: 'time-cascade-gm-ledger',
       parentId: 'campaign-economy-progression',

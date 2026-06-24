@@ -99,4 +99,92 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       }
     }
   });
+
+  test('previews and approves an accumulated time cascade', async ({
+    page,
+  }) => {
+    let campaignId = '';
+
+    await page.goto('/gameplay/campaigns', { waitUntil: 'domcontentloaded' });
+    campaignId = await createTestCampaign(page, {
+      name: 'GM Time Cascade Browser Proof',
+      cBills: 1_000_000,
+    });
+
+    try {
+      await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
+        waitUntil: 'domcontentloaded',
+      });
+
+      await page.getByTestId('gm-ledger-time-preview-btn').click();
+      await expect(page.getByTestId('gm-ledger-preview-status')).toContainText(
+        'ready',
+      );
+      await expect(
+        page.getByTestId('gm-ledger-preview-time-effect'),
+      ).toContainText('2 days');
+
+      await page.getByTestId('gm-ledger-approve-btn').click();
+
+      await expect(page.getByTestId('gm-ledger-approval-status')).toContainText(
+        'Approved and applied',
+      );
+      await expect(page.getByTestId('gm-ledger-player-log')).toContainText(
+        'Campaign time corrected by 2 days.',
+      );
+      await expect(page.getByTestId('gm-ledger-player-log')).not.toContainText(
+        /Hidden time|Secret employer|GM-only/i,
+      );
+      await expect(page.getByTestId('gm-ledger-private-log')).toContainText(
+        'Hidden time cascade correction',
+      );
+    } finally {
+      if (campaignId) {
+        await deleteCampaign(page, campaignId);
+      }
+    }
+  });
+
+  test('blocks unprojected external time effects until manual takeover', async ({
+    page,
+  }) => {
+    let campaignId = '';
+
+    await page.goto('/gameplay/campaigns', { waitUntil: 'domcontentloaded' });
+    campaignId = await createTestCampaign(page, {
+      name: 'GM Time Cascade Manual Browser Proof',
+      cBills: 1_000_000,
+    });
+
+    try {
+      await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
+        waitUntil: 'domcontentloaded',
+      });
+
+      await page.getByTestId('gm-ledger-time-conflict-preview-btn').click();
+      await expect(page.getByTestId('gm-ledger-preview-status')).toContainText(
+        'requires-manual-takeover',
+      );
+      await expect(page.getByTestId('gm-ledger-approve-btn')).toBeDisabled();
+
+      await page.getByTestId('gm-ledger-manual-btn').click();
+
+      await expect(page.getByTestId('gm-ledger-manual-status')).toContainText(
+        'no campaign state changed',
+      );
+      await expect(page.getByTestId('gm-ledger-player-log')).toContainText(
+        'No campaign state changed',
+      );
+      await expect(page.getByTestId('gm-ledger-player-log')).not.toContainText(
+        /Hidden time|Secret employer|GM-only/i,
+      );
+      await expect(page.getByTestId('gm-ledger-private-log')).toContainText(
+        'Manual takeover selected',
+      );
+    } finally {
+      if (campaignId) {
+        await deleteCampaign(page, campaignId);
+      }
+    }
+  });
 });

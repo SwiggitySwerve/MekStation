@@ -6,6 +6,9 @@ import type {
   IGmCampaignInterventionState,
   IGmCampaignPublicEffect,
   IGmPrivateMetadata,
+  IGmTimeCascadeInterventionDomainPayload,
+  IGmTimeCascadeInterventionState,
+  IGmTimeCascadePublicEffect,
 } from '@/types/interventions';
 
 import { Button, Card } from '@/components/ui';
@@ -15,16 +18,23 @@ import {
   approveGmCascadePreview,
   createGmCascadePreview,
 } from '@/lib/interventions/GmCascadePreviewPipeline';
+import { registerGmTimeCascadeInterventionImplementer } from '@/lib/interventions/GmTimeCascadeInterventionImplementer';
 import { InterventionLedger } from '@/lib/interventions/InterventionLedger';
 
 import {
   buildMerchantReversalCommand,
+  buildTimeCascadeCommand,
   GM_ACTOR_ID,
   MERCHANT_REVERSAL_ID,
+  TIME_CASCADE_ID,
+  TIME_CASCADE_MANUAL_ID,
   refreshLedgerRows,
   type GmCampaignPreview,
   type GmCampaignUpdate,
+  type GmLedgerPreview,
+  type GmLedgerPublicEffect,
   type GmLedgerRow,
+  type GmTimeCascadePreview,
   type PlayerLedgerRow,
 } from './GmCampaignInterventionControlPlane.helpers';
 import {
@@ -50,13 +60,18 @@ export function GmCampaignInterventionControlPlane({
   actorId = GM_ACTOR_ID,
   now = () => new Date().toISOString(),
 }: GmCampaignInterventionControlPlaneProps): React.ReactElement {
-  const ledger = useMemo(() => {
+  const campaignLedger = useMemo(() => {
     const next = new InterventionLedger<IGmCampaignInterventionState>();
     registerGmCampaignInterventionImplementers(next);
     return next;
   }, []);
+  const timeLedger = useMemo(() => {
+    const next = new InterventionLedger<IGmTimeCascadeInterventionState>();
+    registerGmTimeCascadeInterventionImplementer(next);
+    return next;
+  }, []);
   const actionLedger = useMemo(() => new ActionLedger(), []);
-  const [preview, setPreview] = useState<GmCampaignPreview | null>(null);
+  const [preview, setPreview] = useState<GmLedgerPreview | null>(null);
   const [approvalStatus, setApprovalStatus] = useState<string>(
     'No approved GM corrections yet.',
   );
@@ -69,9 +84,9 @@ export function GmCampaignInterventionControlPlane({
   const canApprove = preview?.status === 'ready';
   const canTakeManualControl = preview?.status === 'requires-manual-takeover';
 
-  const handlePreview = (conflicted: boolean): void => {
+  const handleMerchantPreview = (conflicted: boolean): void => {
     const nextPreview = createGmCascadePreview({
-      ledger,
+      ledger: campaignLedger,
       command: buildMerchantReversalCommand({
         actorId,
         campaign,
@@ -91,28 +106,75 @@ export function GmCampaignInterventionControlPlane({
       now,
     }) as GmCampaignPreview;
 
-    setPreview(nextPreview);
-    setManualTakeover(null);
-    setApprovalReason(null);
-    setApprovalStatus(
-      nextPreview.status === 'ready'
-        ? 'Ready for GM approval.'
-        : `Preview status: ${nextPreview.status}`,
-    );
+    setNextPreview(nextPreview);
+  };
+
+  const handleTimePreview = (conflicted: boolean): void => {
+    const nextPreview = createGmCascadePreview({
+      ledger: timeLedger,
+      command: buildTimeCascadeCommand({
+        actorId,
+        campaign,
+        conflicted,
+        now,
+      }),
+      state: campaign as IGmTimeCascadeInterventionState,
+      authority: {
+        actorId,
+        role: 'gm',
+        gameId: `campaign:${campaign.id}:gm-ledger`,
+        campaignId: campaign.id,
+        ownedStateRefs: [`campaign:${campaign.id}`],
+      },
+      interventionId: conflicted ? TIME_CASCADE_MANUAL_ID : TIME_CASCADE_ID,
+      now,
+    }) as GmLedgerPreview;
+
+    setNextPreview(nextPreview);
   };
 
   const handleApprove = (): void => {
     if (!preview) return;
     const approvedAt = now();
+    if (preview.domain === 'time') {
+      const result = approveGmCascadePreview<
+        IGmTimeCascadeInterventionState,
+        IGmPrivateMetadata,
+        IGmTimeCascadePublicEffect,
+        IGmTimeCascadeInterventionDomainPayload
+      >({
+        ledger: timeLedger,
+        actionLedger,
+        preview: preview as GmTimeCascadePreview,
+        state: campaign as IGmTimeCascadeInterventionState,
+        approvedAt,
+        createdAt: approvedAt,
+      });
+
+      if (result.status !== 'approved') {
+        setApprovalStatus('Approval blocked.');
+        setApprovalReason(
+          result.reason ?? 'The time-cascade preview could not be approved.',
+        );
+        return;
+      }
+
+      onApplyCampaignUpdate(result.state);
+      setApprovalStatus('Approved and applied to campaign state.');
+      setApprovalReason(null);
+      refreshLedgerRows(actionLedger, setPlayerRows, setGmRows);
+      return;
+    }
+
     const result = approveGmCascadePreview<
       IGmCampaignInterventionState,
       IGmPrivateMetadata,
       IGmCampaignPublicEffect,
       IGmCampaignInterventionDomainPayload
     >({
-      ledger,
+      ledger: campaignLedger,
       actionLedger,
-      preview,
+      preview: preview as GmCampaignPreview,
       state: campaign as IGmCampaignInterventionState,
       approvedAt,
       createdAt: approvedAt,
@@ -136,12 +198,10 @@ export function GmCampaignInterventionControlPlane({
   const handleManualTakeover = (): void => {
     if (!preview || !preview.privateMetadata) return;
     const createdAt = now();
-    const manualPublicEffect: IGmCampaignPublicEffect = {
-      summary: 'GM manual review opened. No campaign state changed.',
-      family: 'funds-transaction',
-      changedStateRefs: [],
-    };
-    const manualRecord = ledger.appendApprovedRecord({
+    const manualPublicEffect = buildManualPublicEffect(preview, campaign);
+    const targetLedger =
+      preview.domain === 'time' ? timeLedger : campaignLedger;
+    const manualRecord = targetLedger.appendApprovedRecord({
       id: `${preview.interventionId}:manual`,
       domain: preview.domain,
       kind: preview.kind,
@@ -153,7 +213,7 @@ export function GmCampaignInterventionControlPlane({
       privateMetadata: {
         ...preview.privateMetadata,
         manualTakeoverNotes:
-          'Manual takeover selected because projected effects conflict with merchant cascade state.',
+          'Manual takeover selected because projected effects conflict with the current cascade state.',
       },
       publicEffect: manualPublicEffect,
       domainPayload: preview.domainPayload,
@@ -169,6 +229,17 @@ export function GmCampaignInterventionControlPlane({
     setApprovalStatus('Manual takeover recorded.');
     setApprovalReason(null);
     refreshLedgerRows(actionLedger, setPlayerRows, setGmRows);
+  };
+
+  const setNextPreview = (nextPreview: GmLedgerPreview): void => {
+    setPreview(nextPreview);
+    setManualTakeover(null);
+    setApprovalReason(null);
+    setApprovalStatus(
+      nextPreview.status === 'ready'
+        ? 'Ready for GM approval.'
+        : `Preview status: ${nextPreview.status}`,
+    );
   };
 
   return (
@@ -209,7 +280,7 @@ export function GmCampaignInterventionControlPlane({
         <Button
           type="button"
           variant="primary"
-          onClick={() => handlePreview(false)}
+          onClick={() => handleMerchantPreview(false)}
           data-testid="gm-ledger-preview-btn"
         >
           Preview merchant reversal
@@ -226,10 +297,26 @@ export function GmCampaignInterventionControlPlane({
         <Button
           type="button"
           variant="secondary"
-          onClick={() => handlePreview(true)}
+          onClick={() => handleMerchantPreview(true)}
           data-testid="gm-ledger-conflict-preview-btn"
         >
           Preview conflicted cascade
+        </Button>
+        <Button
+          type="button"
+          variant="primary"
+          onClick={() => handleTimePreview(false)}
+          data-testid="gm-ledger-time-preview-btn"
+        >
+          Preview time cascade
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => handleTimePreview(true)}
+          data-testid="gm-ledger-time-conflict-preview-btn"
+        >
+          Preview external time conflict
         </Button>
         <Button
           type="button"
@@ -258,4 +345,29 @@ export function GmCampaignInterventionControlPlane({
       </div>
     </section>
   );
+}
+
+function buildManualPublicEffect(
+  preview: GmLedgerPreview,
+  campaign: ICampaign,
+): GmLedgerPublicEffect {
+  if (preview.domain === 'time') {
+    const currentDate = campaign.currentDate.toISOString();
+    return {
+      summary: 'GM manual review opened. No campaign state changed.',
+      family: 'time-advance',
+      days: 0,
+      fromDate: currentDate,
+      toDate: currentDate,
+      fromSystemId: campaign.currentSystemId,
+      toSystemId: campaign.currentSystemId,
+      changedStateRefs: [],
+    };
+  }
+
+  return {
+    summary: 'GM manual review opened. No campaign state changed.',
+    family: 'funds-transaction',
+    changedStateRefs: [],
+  };
 }
