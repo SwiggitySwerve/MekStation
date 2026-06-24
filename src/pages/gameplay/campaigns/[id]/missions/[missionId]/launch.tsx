@@ -26,6 +26,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { CoopParticipationChoice } from '@/types/campaign/CoopCampaign';
 import type { IForce } from '@/types/campaign/Force';
+import type { IMission } from '@/types/campaign/Mission';
 import type { IEncounter } from '@/types/encounter';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
@@ -39,7 +40,8 @@ import {
   publishCoopParticipation,
   subscribeCoopParticipation,
 } from '@/lib/campaign/coop/coopRuntimeSession';
-import { launchCoopMission } from '@/lib/campaign/coop/launchCoopMission';
+import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { EncounterStatus, TerrainPreset } from '@/types/encounter';
@@ -47,6 +49,21 @@ import { EncounterStatus, TerrainPreset } from '@/types/encounter';
 function routeParam(value: string | string[] | undefined): string | null {
   if (Array.isArray(value)) return value[0] ?? null;
   return value ?? null;
+}
+
+function campaignEncounterHref({
+  encounterId,
+  campaignId,
+  missionId,
+}: {
+  readonly encounterId: string;
+  readonly campaignId: string;
+  readonly missionId: string;
+}): string {
+  const params = new URLSearchParams({ campaignId, missionId });
+  return `/gameplay/encounters/${encodeURIComponent(
+    encounterId,
+  )}?${params.toString()}`;
 }
 
 function fallbackRootForce(campaign: ICampaign): IForce {
@@ -103,9 +120,21 @@ function buildLaunchEncounter(
   };
 }
 
+function withMissionScenario(mission: IMission, encounterId: string): IMission {
+  if (mission.scenarioIds.includes(encounterId)) {
+    return mission;
+  }
+  return {
+    ...mission,
+    scenarioIds: [encounterId, ...mission.scenarioIds],
+    updatedAt: new Date().toISOString(),
+  };
+}
+
 export default function CoopMissionLaunchPage(): React.ReactElement {
   const router = useRouter();
   const { id: campaignId, missionId } = router.query;
+  const campaignKey = routeParam(campaignId);
   const missionKey = routeParam(missionId);
 
   const store = useCampaignStore();
@@ -127,6 +156,7 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
     readonly ICoopParticipationRecord[]
   >([]);
   const [launchError, setLaunchError] = useState<string | null>(null);
+  const [isLaunching, setIsLaunching] = useState(false);
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -179,8 +209,8 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
   );
   const otherChoice = otherRecord?.choice;
 
-  const handleLaunch = useCallback(() => {
-    if (!campaignId || !missionKey) {
+  const handleLaunch = useCallback(async () => {
+    if (!campaignKey || !missionKey) {
       return;
     }
     if (campaign?.coopSession) {
@@ -201,10 +231,22 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
         force: entry.force,
         participation: entry.choice,
       }));
-      const result = launchCoopMission(
-        buildLaunchEncounter(campaign, missionKey),
-        contributions,
-      );
+      let result;
+      try {
+        const { launchCoopMission } =
+          await import('@/lib/campaign/coop/launchCoopMission');
+        result = launchCoopMission(
+          buildLaunchEncounter(campaign, missionKey),
+          contributions,
+        );
+      } catch (error) {
+        setLaunchError(
+          error instanceof Error
+            ? error.message
+            : 'Failed to load co-op launch runtime',
+        );
+        return;
+      }
       if (!result.ok) {
         setLaunchError(result.error);
         return;
@@ -212,22 +254,56 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
       setLaunchError(null);
       if (localChoice === 'deploy') {
         void router.push(
-          `/gameplay/encounters/${encodeURIComponent(
-            result.encounterId ?? missionKey,
-          )}`,
+          campaignEncounterHref({
+            encounterId: result.encounterId ?? missionKey,
+            campaignId: campaign.id,
+            missionId: missionKey,
+          }),
         );
         return;
       }
       void router.push(`/gameplay/campaigns/${campaign.id}`);
       return;
     }
-    // Re-enter the encounter URL so the player who chose `deploy` lands
-    // on the tactical map; the `command-hq` chooser stays on the
-    // campaign side (handled by the encounter page's own coop guard).
-    void router.push(`/gameplay/encounters/${missionKey}`);
+
+    if (!campaign) {
+      return;
+    }
+
+    setIsLaunching(true);
+    setLaunchError(null);
+    try {
+      const result = await materializeCampaignMissionEncounter({
+        campaign,
+        missionId: missionKey,
+        rosterUnits: useCampaignRosterStore.getState().getDeployableUnits(),
+      });
+      const mission = campaign.missions.get(missionKey);
+      if (mission) {
+        const nextMission = withMissionScenario(mission, result.encounterId);
+        const missions = new Map(campaign.missions);
+        missions.set(missionKey, nextMission);
+        store.getState().updateCampaign({ missions });
+        store.getState().getMissionsStore()?.getState().addMission(nextMission);
+        store.getState().saveCampaign();
+      }
+      await router.push(
+        campaignEncounterHref({
+          encounterId: result.encounterId,
+          campaignId: campaignKey,
+          missionId: missionKey,
+        }),
+      );
+    } catch (error) {
+      setLaunchError(
+        error instanceof Error ? error.message : 'Failed to launch mission',
+      );
+    } finally {
+      setIsLaunching(false);
+    }
   }, [
     campaign,
-    campaignId,
+    campaignKey,
     localChoice,
     localForce,
     localPlayerId,
@@ -235,6 +311,7 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
     missionKey,
     otherRecord,
     router,
+    store,
   ]);
 
   if (!isClient) {
@@ -276,13 +353,27 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
           coopSession={campaign.coopSession}
         />
         <div className="mt-6">
+          {launchError ? (
+            <p
+              role="alert"
+              data-testid="mission-launch-error"
+              className="mb-3 text-sm text-rose-300"
+            >
+              {launchError}
+            </p>
+          ) : null}
           <button
             type="button"
             data-testid="launch-mission-direct"
+            disabled={isLaunching}
             onClick={handleLaunch}
-            className="rounded-lg border border-sky-500/60 bg-sky-600/20 px-4 py-2 font-semibold text-sky-100"
+            className={
+              isLaunching
+                ? 'cursor-wait rounded-lg border border-slate-700 bg-slate-900/40 px-4 py-2 font-semibold text-slate-500'
+                : 'rounded-lg border border-sky-500/60 bg-sky-600/20 px-4 py-2 font-semibold text-sky-100'
+            }
           >
-            Launch mission
+            {isLaunching ? 'Launching mission...' : 'Launch mission'}
           </button>
         </div>
       </PageLayout>

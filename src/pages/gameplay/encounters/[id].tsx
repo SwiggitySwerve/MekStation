@@ -32,9 +32,45 @@ import { usePilotSelector } from '@/stores/usePilotStore';
 import { EncounterStatus } from '@/types/encounter';
 import { logger } from '@/utils/logger';
 
+type RouteQueryValue = string | string[] | undefined;
+
+function routeQueryValue(value: RouteQueryValue): string | null {
+  const candidate = Array.isArray(value) ? value[0] : value;
+  if (typeof candidate !== 'string') {
+    return null;
+  }
+  const trimmed = candidate.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+export function buildEncounterPreBattleHref(
+  encounterId: string,
+  query: {
+    readonly campaignId?: RouteQueryValue;
+    readonly missionId?: RouteQueryValue;
+  },
+): string {
+  const params = new URLSearchParams();
+  const campaignId = routeQueryValue(query.campaignId);
+  const missionId = routeQueryValue(query.missionId);
+
+  if (campaignId) {
+    params.set('campaignId', campaignId);
+  }
+  if (missionId) {
+    params.set('missionId', missionId);
+  }
+
+  const suffix = params.toString();
+  const path = `/gameplay/encounters/${encodeURIComponent(
+    encounterId,
+  )}/pre-battle`;
+  return suffix ? `${path}?${suffix}` : path;
+}
+
 export default function EncounterDetailPage(): React.ReactElement {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, campaignId, missionId } = router.query;
   const { showToast } = useToast();
 
   const getEncounter = useEncounterSelector((state) => state.getEncounter);
@@ -89,8 +125,10 @@ export default function EncounterDetailPage(): React.ReactElement {
       return;
     }
 
-    void router.push(`/gameplay/encounters/${id}/pre-battle`);
-  }, [id, router]);
+    void router.push(
+      buildEncounterPreBattleHref(id, { campaignId, missionId }),
+    );
+  }, [campaignId, id, missionId, router]);
 
   const handleDelete = useCallback(async () => {
     if (!id || typeof id !== 'string') {
