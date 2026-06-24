@@ -445,6 +445,7 @@ export function validateValidationGraph(graph, catalog, registry = null) {
   if (!Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) return issues;
 
   const nodeIds = new Set();
+  const nodesById = new Map();
   for (const [index, node] of graph.nodes.entries()) {
     const label = node.id || `nodes[${index}]`;
     if (typeof node.id !== 'string' || node.id.trim() === '') {
@@ -453,6 +454,7 @@ export function validateValidationGraph(graph, catalog, registry = null) {
     if (nodeIds.has(node.id))
       issues.push(issue('error', `${label}: duplicate node id.`));
     nodeIds.add(node.id);
+    nodesById.set(node.id, node);
     if (!graphKinds.has(node.kind))
       issues.push(issue('error', `${label}: invalid kind ${node.kind}.`));
     if (typeof node.label !== 'string' || node.label.trim() === '') {
@@ -517,6 +519,18 @@ export function validateValidationGraph(graph, catalog, registry = null) {
           issue(
             'error',
             `Graph missing registry surface node ${surfaceNodeId}.`,
+          ),
+        );
+      }
+      const surfaceNode = nodesById.get(surfaceNodeId);
+      if (
+        surfaceNode &&
+        surfaceNode.coverageStatus !== surface.coverageStatus
+      ) {
+        issues.push(
+          issue(
+            'error',
+            `Graph surface node ${surfaceNodeId} coverageStatus=${surfaceNode.coverageStatus} does not match registry coverageStatus=${surface.coverageStatus}.`,
           ),
         );
       }

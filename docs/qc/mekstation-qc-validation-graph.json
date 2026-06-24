@@ -332,7 +332,7 @@
       "id": "surface:app-shell-navigation",
       "kind": "surface",
       "label": "App Shell, Navigation, Settings, PWA",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:app-shell-navigation:lifecycle",
@@ -633,7 +633,7 @@
       "id": "surface:topdown-hex-legibility",
       "kind": "surface",
       "label": "Top-Down Hex Legibility",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:topdown-hex-legibility:lifecycle",
@@ -1137,7 +1137,7 @@
       "id": "surface:campaign-economy-progression",
       "kind": "surface",
       "label": "Campaign Economy, Repair, Salvage, Progression",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:campaign-economy-progression:lifecycle",
@@ -1183,7 +1183,7 @@
       "id": "surface:long-campaign-stability",
       "kind": "surface",
       "label": "Long Campaign Stability",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:long-campaign-stability:lifecycle",
@@ -1227,7 +1227,7 @@
       "id": "surface:post-combat-base-economy-gm-ledger",
       "kind": "surface",
       "label": "Post-Combat Base Economy GM Ledger",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:post-combat-base-economy-gm-ledger:lifecycle",
@@ -1290,7 +1290,7 @@
       "id": "surface:time-cascade-gm-ledger",
       "kind": "surface",
       "label": "Time Cascade GM Ledger",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:time-cascade-gm-ledger:lifecycle",

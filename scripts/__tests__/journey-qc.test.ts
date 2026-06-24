@@ -70,6 +70,28 @@ describe('journey QC scripts', () => {
     );
   });
 
+  it('fails validation when a graph surface coverage status drifts from the registry', () => {
+    const graph = readJson<{
+      nodes: Array<{ id: string; coverageStatus?: string }>;
+    }>(path.join(repoRoot, 'docs/qc/mekstation-qc-validation-graph.json'));
+    const appShellNode = graph.nodes.find(
+      (node) => node.id === 'surface:app-shell-navigation',
+    );
+    expect(appShellNode).toBeDefined();
+    appShellNode!.coverageStatus = 'partial';
+    const graphPath = path.join(evidenceDir, 'drifted-surface-status.json');
+    writeJson(graphPath, graph);
+
+    const result = runNodeScript('scripts/qc/validate-journey-qc.mjs', [], {
+      MEKSTATION_QC_VALIDATION_GRAPH_PATH: graphPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'Graph surface node surface:app-shell-navigation coverageStatus=partial does not match registry coverageStatus=ready-with-scope',
+    );
+  });
+
   it('fails validation when a catalog diagnostic event is missing from the logging map', () => {
     const loggingMap = readJson<{
       paths: Array<{ events: string[] }>;
