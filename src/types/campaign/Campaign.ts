@@ -11,6 +11,7 @@
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
 import type { ICombatOutcome } from '../combat/CombatOutcome';
+import type { IGmCampaignProjectedEffect } from '../interventions/GmCampaignInterventionTypes';
 import type { IShoppingList } from './acquisition/acquisitionTypes';
 import type { ICampaignOptions } from './CampaignOptions';
 import type { ICoopSession } from './CoopSession';
@@ -170,6 +171,13 @@ export interface ICampaign {
 
   /** Battle ids already applied to campaign state. */
   readonly processedBattleIds?: readonly string[];
+
+  /**
+   * Approved GM campaign intervention effects retained for audit/replay
+   * surfaces. The player-facing action log projects only public summaries;
+   * GM-only metadata stays in the intervention/action ledger records.
+   */
+  readonly gmInterventionEvents?: readonly IGmCampaignProjectedEffect[];
 
   /** Applied outcomes retained for current morale/windowed processors. */
   readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];

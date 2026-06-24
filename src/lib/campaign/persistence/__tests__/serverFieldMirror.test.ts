@@ -39,6 +39,7 @@ import type { MechBuildConfig } from '@/utils/construction/constructionRules/typ
 
 import { createCampaignLoan } from '@/types/campaign/CampaignLoan';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import {
   MarketExperienceLevel,
   UnitMarketRarity,
@@ -161,6 +162,30 @@ function buildExtendedCampaign(): ICampaignWithCommand {
     ],
     currentSystemId: 'new-avalon',
     coopSession: { mode: 'host', roomCode: 'ROOM-42' },
+    gmInterventionEvents: [
+      {
+        type: 'gm.campaign.funds_transaction_corrected',
+        domain: 'economy',
+        family: 'funds-transaction',
+        transactionId: 'gm-event-001',
+        changedStateRefs: ['campaign:campaign-001:finances'],
+        publicSummary: 'Merchant charge corrected by -2,500.00 C-bills.',
+        before: {
+          balanceCents: 38_000_000,
+          transactionIds: ['tx-1'],
+        },
+        after: {
+          balanceCents: 37_750_000,
+          transaction: {
+            id: 'gm-event-001',
+            type: TransactionType.PartPurchase,
+            amountCents: -250_000,
+            date: '3025-02-01T00:00:00.000Z',
+            description: 'GM merchant charge reversal',
+          },
+        },
+      },
+    ],
     loans: [
       createCampaignLoan({
         id: 'loan-1',
@@ -238,6 +263,12 @@ describe('T3 — server-side campaign serialization field mirror', () => {
     expect(restored.moraleTransitions![0].to).toBe(MoraleState.High);
     expect(restored.currentSystemId).toBe('new-avalon');
     expect(restored.coopSession).toEqual({ mode: 'host', roomCode: 'ROOM-42' });
+    expect(restored.gmInterventionEvents).toHaveLength(1);
+    expect(restored.gmInterventionEvents![0]).toMatchObject({
+      type: 'gm.campaign.funds_transaction_corrected',
+      family: 'funds-transaction',
+      transactionId: 'gm-event-001',
+    });
     expect(restored.personnelMarket).toHaveLength(1);
     expect(restored.personnelMarket![0].hireCost).toBe(25_000);
     expect(restored.contractMarket).toEqual({
@@ -302,6 +333,7 @@ describe('T3 — server-side campaign serialization field mirror', () => {
     expect(restored.moraleState).toBeUndefined();
     expect(restored.currentSystemId).toBeUndefined();
     expect(restored.coopSession).toBeUndefined();
+    expect(restored.gmInterventionEvents).toBeUndefined();
     expect(restored.personnelMarket).toBeUndefined();
     expect(restored.contractMarket).toBeUndefined();
     expect(restored.unitMarket).toBeUndefined();

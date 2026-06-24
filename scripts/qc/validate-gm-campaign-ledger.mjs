@@ -11,8 +11,11 @@ const requiredSurface = {
   claimId: 'campaign.gm-ledger.post-combat-economy',
   commandIncludes: [
     'qc:gm:campaign-ledger:validate',
+    'verify:qc:gm:campaign-browser',
+    'gm-campaign-ledger-control-plane.spec.ts',
     'GmCampaignInterventionImplementer.test.ts',
     'GmCampaignInterventionBoundaries.test.ts',
+    'GmCampaignInterventionControlPlane.test.tsx',
   ],
   specIncludes: [
     'intervention-ledger-abstraction',
@@ -125,6 +128,69 @@ const defaultSourceAnchors = [
       'projectForPlayer',
       'projectForGm',
       "status: record.status === 'manual' ? 'manual' : 'approved'",
+    ],
+  },
+  {
+    id: 'campaign-gm-ledger-route',
+    path: 'src/pages/gameplay/campaigns/[id]/gm-ledger.tsx',
+    tokens: [
+      'GmCampaignInterventionControlPlane',
+      "currentPage: 'gm-ledger'",
+      'onApplyCampaignUpdate',
+    ],
+  },
+  {
+    id: 'campaign-gm-ledger-control-plane',
+    path: 'src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx',
+    tokens: [
+      'gm-ledger-preview-btn',
+      'gm-ledger-approve-btn',
+      'gm-ledger-player-log',
+      'createGmCascadePreview',
+      'approveGmCascadePreview',
+      'requires-manual-takeover',
+      'No campaign state changed',
+    ],
+  },
+  {
+    id: 'campaign-gm-ledger-control-plane-helpers',
+    path: 'src/components/campaign/gm/GmCampaignInterventionControlPlane.helpers.ts',
+    tokens: [
+      'buildMerchantReversalCommand',
+      'MERCHANT_REVERSAL_ID',
+      'projectForPlayer',
+      'projectForGm',
+      'Hidden campaign merchant reversal',
+    ],
+  },
+  {
+    id: 'campaign-gm-ledger-projections',
+    path: 'src/components/campaign/gm/GmCampaignLedgerProjection.tsx',
+    tokens: [
+      'gm-ledger-private-log',
+      'publicEffect.summary',
+      'privateMetadata',
+    ],
+  },
+  {
+    id: 'campaign-gm-ledger-browser-proof',
+    path: 'e2e/gm-campaign-ledger-control-plane.spec.ts',
+    tokens: [
+      'previews, approves, and redacts a merchant reversal',
+      'blocks conflicted cascades until the GM takes manual control',
+      'gm-ledger-player-log',
+      'gm-ledger-private-log',
+      'not.toContainText',
+    ],
+  },
+  {
+    id: 'campaign-gm-ledger-control-plane-tests',
+    path: 'src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.test.tsx',
+    tokens: [
+      'previews and approves a funds correction with player-safe output',
+      'blocks conflicted approval and records manual takeover without mutating state',
+      'Hidden campaign',
+      'No campaign state changed',
     ],
   },
   {

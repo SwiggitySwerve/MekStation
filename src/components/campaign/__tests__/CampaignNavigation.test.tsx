@@ -84,7 +84,7 @@ describe('CampaignNavigation — Command group', () => {
     expect(screen.getByRole('group', { name: 'Command' })).toBeInTheDocument();
   });
 
-  it('links to all three command surfaces', () => {
+  it('links to all command surfaces', () => {
     render(
       <CampaignNavigation campaignId="campaign-1" currentPage="dashboard" />,
     );
@@ -100,6 +100,10 @@ describe('CampaignNavigation — Command group', () => {
       'href',
       '/gameplay/campaigns/campaign-1/contract-market',
     );
+    expect(screen.getByText('GM Ledger')).toHaveAttribute(
+      'href',
+      '/gameplay/campaigns/campaign-1/gm-ledger',
+    );
   });
 
   it('marks the active command page with aria-current', () => {
@@ -112,6 +116,16 @@ describe('CampaignNavigation — Command group', () => {
     );
     expect(screen.getByText('Personnel & Hiring')).not.toHaveAttribute(
       'aria-current',
+    );
+  });
+
+  it('marks the GM ledger command page with aria-current', () => {
+    render(
+      <CampaignNavigation campaignId="campaign-1" currentPage="gm-ledger" />,
+    );
+    expect(screen.getByText('GM Ledger')).toHaveAttribute(
+      'aria-current',
+      'page',
     );
   });
 });

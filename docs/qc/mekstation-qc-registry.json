@@ -907,7 +907,7 @@
       "riskTags": ["playability", "campaign-loop", "source-truth"],
       "qualityLenses": ["functionality", "ux", "rules-parity"],
       "coverageStatus": "partial",
-      "routes": ["/gameplay/campaigns"],
+      "routes": ["/gameplay/campaigns", "/gameplay/campaigns/:id/gm-ledger"],
       "apis": [],
       "desktopSurfaces": [],
       "modules": [
@@ -1020,7 +1020,11 @@
       "routes": ["/gameplay/campaigns"],
       "apis": [],
       "desktopSurfaces": [],
-      "modules": ["src/lib/interventions", "src/types/interventions"],
+      "modules": [
+        "src/components/campaign/gm",
+        "src/lib/interventions",
+        "src/types/interventions"
+      ],
       "submodules": [
         "post-combat corrections",
         "merchant reversal",
@@ -1041,12 +1045,17 @@
       "activeChangeRefs": [],
       "tests": [
         "scripts/__tests__/gm-campaign-ledger-qc.test.ts",
+        "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.test.tsx",
         "src/lib/interventions/__tests__/GmCampaignInterventionImplementer.test.ts",
-        "src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts"
+        "src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts",
+        "e2e/gm-campaign-ledger-control-plane.spec.ts"
       ],
       "commands": [
         "npm.cmd run qc:gm:campaign-ledger:validate",
         "npm.cmd run verify:qc:gm:campaign-ledger",
+        "npm.cmd run verify:qc:gm:campaign-browser",
+        "npx.cmd playwright test --project=chromium e2e/gm-campaign-ledger-control-plane.spec.ts --workers=1",
+        "npm.cmd test -- --watchAll=false --runTestsByPath src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.test.tsx src/components/campaign/__tests__/CampaignNavigation.test.tsx",
         "npm.cmd test -- --watchAll=false --runTestsByPath src/lib/interventions/__tests__/GmCampaignInterventionImplementer.test.ts src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts",
         "npm.cmd run qc:journeys -- --journey=contract-campaign --tier=standard",
         "npm.cmd run qc:campaign-long:stability -- --journey=campaign-long --seed=42 --contracts=10 --runs=2"
@@ -1058,8 +1067,12 @@
         "scripts/qc/validate-gm-campaign-ledger.mjs",
         "scripts/qc/gm-ledger-qc-core.mjs",
         "scripts/__tests__/gm-campaign-ledger-qc.test.ts",
+        "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+        "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+        "e2e/gm-campaign-ledger-control-plane.spec.ts",
         "src/lib/interventions/__tests__/GmCampaignInterventionImplementer.test.ts",
-        "2026-06-23 `npm.cmd run verify:qc:gm:campaign-ledger` passed: validator reported surfaces=1/1, domains=4/4, families=5/5, anchors=8, errors=0, warnings=0; focused Jest passed 3 suites / 20 tests. Manual review of the covered cases confirmed merchant reversal/funds correction, inventory/base-unit corrections, GM approval, public net-effect projection, private metadata redaction, and manual-takeover blocking for ambiguous merchant cascades."
+        "2026-06-23 `npm.cmd run verify:qc:gm:campaign-ledger` passed: validator reported surfaces=1/1, domains=4/4, families=5/5, anchors=8, errors=0, warnings=0; focused Jest passed 3 suites / 20 tests. Manual review of the covered cases confirmed merchant reversal/funds correction, inventory/base-unit corrections, GM approval, public net-effect projection, private metadata redaction, and manual-takeover blocking for ambiguous merchant cascades.",
+        "2026-06-24 Wave 2 browser slice added `/gameplay/campaigns/:id/gm-ledger`, `GmCampaignInterventionControlPlane`, focused component tests, and `e2e/gm-campaign-ledger-control-plane.spec.ts` so merchant reversal preview/approval, player-safe redaction, and manual-takeover conflict handling are browser-checkable."
       ],
       "gaps": [
         "Accumulated time cascades are validated by the separate time-cascade GM ledger lane."

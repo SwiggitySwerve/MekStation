@@ -38,6 +38,7 @@ import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { MarketExperienceLevel } from '@/types/campaign/markets/marketTypes';
 import { Money } from '@/types/campaign/Money';
 import { MoraleState } from '@/types/campaign/Prestige';
@@ -271,6 +272,32 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     store.getState().updateCampaign({
       activePreset: 'pirate',
       currentSystemId: 'new-avalon',
+      gmInterventionEvents: [
+        {
+          type: 'gm.campaign.funds_transaction_corrected',
+          domain: 'economy',
+          family: 'funds-transaction',
+          transactionId: 'gm-event-001',
+          changedStateRefs: ['campaign:round-trip:finances'],
+          publicSummary: 'Merchant charge corrected by -2,500.00 C-bills.',
+          before: {
+            balanceCents: base.finances.balance.amount * 100,
+            transactionIds: base.finances.transactions.map(
+              (transaction) => transaction.id,
+            ),
+          },
+          after: {
+            balanceCents: base.finances.balance.amount * 100 - 250_000,
+            transaction: {
+              id: 'gm-event-001',
+              type: TransactionType.PartPurchase,
+              amountCents: -250_000,
+              date: '3025-02-01T00:00:00.000Z',
+              description: 'GM merchant charge reversal',
+            },
+          },
+        },
+      ],
       combatTeams: [
         { forceId: 'force-1', role: CombatRole.PATROL, battleChance: 60 },
       ],
@@ -346,6 +373,12 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
 
     expect(reloaded.activePreset).toBe('pirate');
     expect(reloaded.currentSystemId).toBe('new-avalon');
+    expect(reloaded.gmInterventionEvents).toHaveLength(1);
+    expect(reloaded.gmInterventionEvents![0]).toMatchObject({
+      type: 'gm.campaign.funds_transaction_corrected',
+      family: 'funds-transaction',
+      transactionId: 'gm-event-001',
+    });
     expect(reloaded.combatTeams).toEqual([
       { forceId: 'force-1', role: CombatRole.PATROL, battleChance: 60 },
     ]);
@@ -433,6 +466,7 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     expect(loaded.unitCombatStates).toEqual({});
     expect(loaded.loans).toBeUndefined();
     expect(loaded.finances.loans).toBeUndefined();
+    expect(loaded.gmInterventionEvents).toBeUndefined();
     expect(loaded.refitOrders).toBeUndefined();
     expect(loaded.moraleState).toBeUndefined();
     expect(loaded.currentSystemId).toBeUndefined();
