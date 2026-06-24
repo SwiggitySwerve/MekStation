@@ -1,6 +1,6 @@
 # MekStation QC Map
 
-Date: 2026-06-23
+Date: 2026-06-24
 
 This map is the durable review surface for post-merge quality control. It is
 organized by user/risk surface first, then module and submodule, so future QC
@@ -64,6 +64,7 @@ npm.cmd run verify:qc:journeys
 npm.cmd run verify:qc:ui-flow-shell
 npm.cmd run verify:qc:gm:campaign-ledger
 npm.cmd run verify:qc:gm:time-cascade
+npm.cmd run verify:qc:campaign-economy
 npm.cmd run verify:qc:campaign-long
 npm.cmd run verify:qc:partial:quick
 npm.cmd run verify:qc:tactical:projection
@@ -240,6 +241,22 @@ flowchart TD
    - 2026-06-23 `verify:qc:campaign-long` passed with seed 42, 10 contracts,
      2 runs, 0 drift, 0 stability bug candidates, 8/8 save round trips, and
      manifest-confirmed UI checkpoint linkage with `browserExecuted=false`.
+
+1. `campaign-economy-progression`
+   - `verify:qc:campaign-economy` is the focused on-demand gate for post-battle
+     repair, salvage, finances, day advance, acquisition contracts, market
+     processors, and bay selector/action recovery.
+   - Use `verify:qc:campaign-economy:contracts` when you only need the Jest
+     contract layer, and `verify:qc:campaign-economy:browser` when you need the
+     Chromium route proof through dashboard, repair bay, salvage, finances, and
+     day advance.
+   - 2026-06-24 the browser proof found and fixed a real reload boundary:
+     `campaignInventory` is derived and intentionally not persisted, so bay
+     selectors now re-project from persisted `repairQueue` and
+     `salvageAllocations` when the attached projection is absent.
+   - Remaining signoff is narrower now: true organic campaign creation ->
+     contract acceptance -> tactical launch -> post-combat save/load, true
+     acquisition shopping UI, and browser-driven 6-10 contract campaign play.
 
 1. `integration-runner-interactive-parity`
    - Runner/interactive parity is still the highest-risk combat integration

@@ -309,16 +309,19 @@ describe('campaignBayActions', () => {
 
     it('re-projects the inventory so the bay reflects the change immediately', () => {
       seedCampaign();
-      // Before: no inventory has been projected yet (the day-advancement
-      // processor has not run), so the selector yields an empty bay.
+      // Before: no inventory has been attached yet, but the render-facing
+      // selector re-projects from persisted salvage state so a reload still
+      // shows the bay.
       let salvageBay = selectSalvageBay(
         useCampaignStore().getState().getCampaign(),
       );
-      expect(salvageBay).toEqual([]);
+      expect(salvageBay.find((s) => s.partId === 'salvage-atlas')?.status).toBe(
+        'pending',
+      );
 
       setSalvageItemStatus('salvage-atlas', 'accepted');
 
-      // After: the bay action re-projected the inventory off the mutated
+      // After: the bay action re-projects the inventory off the mutated
       // salvage state — the candidate now shows as accepted without
       // waiting for the next day advancement (design D5).
       salvageBay = selectSalvageBay(

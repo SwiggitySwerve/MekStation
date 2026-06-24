@@ -306,12 +306,34 @@ test.describe('Campaign Flow - Damage Carry-Forward', () => {
       const hasDamaged = await damagedIndicators.count();
       const hasArmorReduced = await armorReduced.count();
       const hasDamageStatus = await damageStatus.isVisible().catch(() => false);
+      const hasDamageIndicator =
+        hasDamaged + hasArmorReduced > 0 || hasDamageStatus;
+      const hasPostBattleState = await page.evaluate(() => {
+        const campaign = (
+          window as unknown as {
+            __ZUSTAND_STORES__?: {
+              campaign?: { getState: () => { getCampaign?: () => any } };
+            };
+          }
+        ).__ZUSTAND_STORES__?.campaign
+          ?.getState()
+          .getCampaign?.();
 
-      // This is a verification test - damage indicators exist if missions were completed
-      // In a fresh campaign, no damage is expected (which is also valid)
-      expect(hasDamaged + hasArmorReduced >= 0 || hasDamageStatus || true).toBe(
-        true,
-      );
+        return Boolean(
+          (campaign?.dailyBattleAudit?.length ?? 0) > 0 ||
+          (campaign?.repairQueue?.length ?? 0) > 0 ||
+          Object.keys(campaign?.salvageReports ?? {}).length > 0,
+        );
+      });
+
+      // Damage indicators are required only once post-battle state exists.
+      // Fresh campaigns are still valid, but they must at least reach the
+      // campaign detail route instead of passing via a tautology.
+      if (hasPostBattleState) {
+        expect(hasDamageIndicator).toBe(true);
+      } else {
+        await expect(page).toHaveURL(/\/gameplay\/campaigns\/[^/]+/);
+      }
     },
   );
 
@@ -351,9 +373,15 @@ test.describe('Campaign Flow - Damage Carry-Forward', () => {
         const hasArmor = await armorBar.isVisible().catch(() => false);
         const hasHealth = await healthBar.isVisible().catch(() => false);
         const hasStatus = await statusIndicator.isVisible().catch(() => false);
+        const unitText = (await firstUnit.textContent())?.trim() ?? '';
 
-        // At least one status indicator should be present
-        expect(hasArmor || hasHealth || hasStatus || true).toBe(true);
+        // A roster entry must expose either a dedicated status indicator or
+        // enough unit text for the operator to identify the readiness row.
+        expect(hasArmor || hasHealth || hasStatus || unitText.length > 0).toBe(
+          true,
+        );
+      } else {
+        await expect(page).toHaveURL(/\/gameplay\/campaigns\/[^/]+/);
       }
     },
   );

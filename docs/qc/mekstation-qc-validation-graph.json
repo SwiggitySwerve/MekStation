@@ -129,6 +129,21 @@
       "label": "npm.cmd run verify:qc:campaign-long"
     },
     {
+      "id": "command:verify-qc-campaign-economy-contracts",
+      "kind": "command",
+      "label": "npm.cmd run verify:qc:campaign-economy:contracts"
+    },
+    {
+      "id": "command:verify-qc-campaign-economy-browser",
+      "kind": "command",
+      "label": "npm.cmd run verify:qc:campaign-economy:browser"
+    },
+    {
+      "id": "command:verify-qc-campaign-economy",
+      "kind": "command",
+      "label": "npm.cmd run verify:qc:campaign-economy"
+    },
+    {
       "id": "command:qc-journeys-validate",
       "kind": "command",
       "label": "npm.cmd run qc:journeys:validate"
@@ -1135,7 +1150,10 @@
       "label": "Registry evidence for Campaign Economy, Repair, Salvage, Progression",
       "entries": [
         "docs/audits/2026-06-12-full-codebase-review.md",
-        "scripts/qc/validate-long-campaign-qc.mjs"
+        "scripts/qc/validate-long-campaign-qc.mjs",
+        "e2e/campaign-economy-browser.spec.ts",
+        "src/stores/campaign/__tests__/campaignBaySelectors.test.ts",
+        "src/stores/campaign/__tests__/campaignBayActions.test.ts"
       ]
     },
     {
@@ -1151,8 +1169,9 @@
       "kind": "known-gap",
       "label": "Campaign Economy, Repair, Salvage, Progression known gaps",
       "entries": [
-        "Recent audit identified repair/salvage/acquisition loops that need end-to-end proof.",
-        "Long-campaign stability is now protected by a dedicated QC surface; browser campaign signoff remains a separate UI lane."
+        "Seeded browser proof covers post-battle repair, salvage, finances, and day advance after route reloads; true organic campaign creation -> contract acceptance -> tactical launch -> post-combat save/load remains separate release signoff.",
+        "Acquisition contracts and processors are covered by focused tests; true shopping/acquisition browser UI remains a follow-up lane.",
+        "Long-campaign stability is now protected by a dedicated QC surface; browser-driven 6-10 contract campaign signoff remains a separate UI lane."
       ]
     },
     {
@@ -3146,6 +3165,36 @@
     },
     {
       "from": "command:npm-cmd-test-watchall-false-runinband",
+      "to": "evidence:campaign-economy-progression:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:campaign-economy-progression:lifecycle",
+      "to": "command:verify-qc-campaign-economy",
+      "relation": "validated-by"
+    },
+    {
+      "from": "state:campaign-economy-progression:lifecycle",
+      "to": "command:verify-qc-campaign-economy-contracts",
+      "relation": "validated-by"
+    },
+    {
+      "from": "state:campaign-economy-progression:lifecycle",
+      "to": "command:verify-qc-campaign-economy-browser",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:verify-qc-campaign-economy",
+      "to": "evidence:campaign-economy-progression:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "command:verify-qc-campaign-economy-contracts",
+      "to": "evidence:campaign-economy-progression:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "command:verify-qc-campaign-economy-browser",
       "to": "evidence:campaign-economy-progression:registry",
       "relation": "produces"
     },

@@ -12,6 +12,7 @@ import React from 'react';
 import { MedicalBay } from '@/components/campaign/bays/MedicalBay';
 import * as CampaignShell from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { selectMedicalBay } from '@/stores/campaign/campaignBaySelectors';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 
 const MEDICAL_BAY_LOADING = {
   title: 'Medical Bay',
@@ -22,6 +23,7 @@ const MEDICAL_BAY_LOADING = {
 export default function MedicalBayPage(): React.ReactElement {
   const shell = CampaignShell.useCampaignPageShell('Medical Bay');
   const loadStatus = CampaignShell.useCampaignLoadStatus();
+  const pilots = useCampaignRosterStore((state) => state.pilots);
 
   const pendingPage = CampaignShell.renderPendingCampaignPage(
     shell,
@@ -30,7 +32,7 @@ export default function MedicalBayPage(): React.ReactElement {
   if (pendingPage) return pendingPage;
 
   const campaign = CampaignShell.getLoadedCampaign(shell);
-  const medicalBay = selectMedicalBay(campaign);
+  const medicalBay = selectMedicalBay(campaign, pilots);
   const frame = {
     title: 'Medical Bay',
     subtitle: `${campaign.name} — ${medicalBay.length} pilots in care`,
