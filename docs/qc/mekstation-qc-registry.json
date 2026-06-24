@@ -200,7 +200,7 @@
       "evidence": [
         "docs/audits/2026-06-12-full-codebase-review.md",
         "2026-06-23 Chromium browser smoke passed `npx.cmd playwright test --project=chromium e2e/encounter-flow.spec.ts --grep \"@smoke\"`: force creation, encounter creation/configuration, launch affordances, auto-resolve, and game-session creation checks passed.",
-        "2026-06-24 `npm.cmd run verify:qc:encounter-combat-continuity` passed 16 focused Jest checks plus Chromium proof that a routed campaign encounter auto-resolves, preserves campaign/mission/session linkage, queues a post-battle outcome, and applies it through the review screen into `processedBattleIds`.",
+        "2026-06-24 `npm.cmd run verify:qc:encounter-combat-continuity` passed 16 focused Jest checks plus 2 Chromium proofs: routed campaign encounter auto-resolve preserves campaign/mission/session linkage, and interactive pre-battle launch reaches the tactical session, concedes through the UI, survives post-battle review reload, applies the queued outcome, and keeps `processedBattleIds` after campaign route reload.",
         "Archived OpenSpec change 2026-06-21-fix-navigation-and-playability-deadends retired from activeChangeRefs on 2026-06-23."
       ],
       "gaps": [
@@ -968,7 +968,7 @@
         "2026-06-24 `npm.cmd run verify:qc:campaign-economy:browser` passed 11 Chromium tests: strict organic contract acceptance, strict post-battle economy browser route proof, and campaign-flow smoke, covering accepted mission reload plus dashboard, repair bay, salvage, finances, and day advance after full route reloads."
       ],
       "gaps": [
-        "Strict browser proof now covers organic campaign creation -> rostered contract acceptance -> accepted mission reload, and seeded browser proof covers post-battle repair, salvage, finances, and day advance after route reloads; tactical launch -> post-combat save/load remains a separate release-signoff lane.",
+        "Strict browser proof now covers organic campaign creation -> rostered contract acceptance -> accepted mission reload, seeded post-battle repair/salvage/finances/day-advance route reloads, and campaign encounter launch through auto-resolve plus interactive concession into post-battle review reload/application; true attack-driven tactical completion save/load remains a separate release-signoff lane.",
         "Acquisition contracts and processors are covered by focused tests; true shopping/acquisition browser UI remains a follow-up lane.",
         "Long-campaign stability is now protected by a dedicated QC surface; browser-driven 6-10 contract campaign signoff remains a separate UI lane."
       ]

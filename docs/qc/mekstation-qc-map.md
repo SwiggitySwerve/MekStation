@@ -258,11 +258,12 @@ flowchart TD
      selectors now re-project from persisted `repairQueue` and
      `salvageAllocations` when the attached projection is absent.
    - Strict browser proof now covers organic campaign creation -> rostered
-     contract acceptance -> accepted mission reload, and seeded browser proof
-     covers post-battle repair, salvage, finances, and day advance after route
-     reloads. Remaining signoff is narrower now: tactical launch ->
-     post-combat save/load, true acquisition shopping UI, and browser-driven
-     6-10 contract campaign play.
+     contract acceptance -> accepted mission reload, seeded post-battle repair,
+     salvage, finances, and day advance after route reloads, plus campaign
+     encounter launch through auto-resolve and interactive concession into
+     post-battle review reload/application. Remaining signoff is narrower now:
+     true attack-driven tactical completion save/load, true acquisition
+     shopping UI, and browser-driven 6-10 contract campaign play.
 
 1. `integration-runner-interactive-parity`
    - Runner/interactive parity is still the highest-risk combat integration
