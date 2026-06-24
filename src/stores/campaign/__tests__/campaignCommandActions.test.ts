@@ -184,6 +184,13 @@ describe('campaignCommandActions', () => {
       expect(result.applied).toBe(true);
       // The existing mission-contracts acceptance logic added it to missions.
       expect(currentCampaign().missions.has(offer.id)).toBe(true);
+      expect(
+        useCampaignStore()
+          .getState()
+          .getMissionsStore()
+          ?.getState()
+          .getMission(offer.id)?.name,
+      ).toBe(offer.name);
       // The offer is gone from the market pool.
       expect(
         currentCampaign().contractMarket?.offers.some((o) => o.id === offer.id),

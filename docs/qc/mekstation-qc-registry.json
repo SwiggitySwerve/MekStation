@@ -946,6 +946,7 @@
         "src/components/campaign/**/__tests__",
         "src/stores/campaign/__tests__/campaignBaySelectors.test.ts",
         "src/stores/campaign/__tests__/campaignBayActions.test.ts",
+        "e2e/campaign-organic-contract.spec.ts",
         "e2e/campaign-economy-browser.spec.ts",
         "e2e/campaign-flow.spec.ts"
       ],
@@ -963,10 +964,11 @@
         "scripts/qc/validate-long-campaign-qc.mjs",
         "2026-06-23 Chromium browser smoke passed 9 campaign-flow tests for create, roster, mission generation, damage carry-forward UI, and campaign store state.",
         "2026-06-24 `npm.cmd run verify:qc:campaign-economy:contracts` passed 9 focused Jest suites / 111 tests for campaign outcomes, bay selectors/actions, command actions, salvage, repair queue/progress, acquisition, and market processors.",
-        "2026-06-24 `npm.cmd run verify:qc:campaign-economy:browser` passed 10 Chromium tests: strict post-battle economy browser route proof plus campaign-flow smoke, covering dashboard, repair bay, salvage, finances, and day advance after full route reloads."
+        "2026-06-24 `npx.cmd playwright test --project=chromium e2e/campaign-organic-contract.spec.ts --workers=1` passed the strict organic campaign contract proof: browser-created campaign, roster readiness, market contract acceptance, accepted mission rendering, mission route reload, and persisted mission map agreement.",
+        "2026-06-24 `npm.cmd run verify:qc:campaign-economy:browser` passed 11 Chromium tests: strict organic contract acceptance, strict post-battle economy browser route proof, and campaign-flow smoke, covering accepted mission reload plus dashboard, repair bay, salvage, finances, and day advance after full route reloads."
       ],
       "gaps": [
-        "Seeded browser proof now covers post-battle repair, salvage, finances, and day advance after route reloads; true organic campaign creation -> contract acceptance -> tactical launch -> post-combat save/load remains a separate release-signoff lane.",
+        "Strict browser proof now covers organic campaign creation -> rostered contract acceptance -> accepted mission reload, and seeded browser proof covers post-battle repair, salvage, finances, and day advance after route reloads; tactical launch -> post-combat save/load remains a separate release-signoff lane.",
         "Acquisition contracts and processors are covered by focused tests; true shopping/acquisition browser UI remains a follow-up lane.",
         "Long-campaign stability is now protected by a dedicated QC surface; browser-driven 6-10 contract campaign signoff remains a separate UI lane."
       ]

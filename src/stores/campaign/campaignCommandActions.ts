@@ -36,7 +36,7 @@ import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExten
 import type { ICampaignLoan } from '@/types/campaign/CampaignLoan';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPersonnelMarketOffer } from '@/types/campaign/markets/marketTypes';
-import type { IContract } from '@/types/campaign/Mission';
+import type { IContract, IMission } from '@/types/campaign/Mission';
 
 import { acceptContract as acceptContractEngine } from '@/lib/campaign/contractMarket';
 import { hirePerson } from '@/lib/campaign/markets/personnelMarket';
@@ -53,6 +53,17 @@ import { useCampaignRosterStore } from './useCampaignRosterStore';
 // module calling the `useCampaignStore` hook (forbidden outside a
 // component). Same pattern as `campaignBayActions`.
 import './useCampaignStore';
+
+function syncMissionsStore(missions: Map<string, IMission>): void {
+  const store = getCampaignStoreForRoster();
+  const missionsStore = store?.getState().getMissionsStore?.();
+  if (!missionsStore) return;
+
+  const missionState = missionsStore.getState();
+  missions.forEach((mission) => {
+    missionState.addMission(mission);
+  });
+}
 
 // =============================================================================
 // Campaign Mutation Surface
@@ -82,6 +93,9 @@ function applyCampaignMutation(
   if (!updates) return false;
 
   store.getState().updateCampaign(updates);
+  if (updates.missions instanceof Map) {
+    syncMissionsStore(updates.missions);
+  }
   // Route through the persistence store so the debounced auto-save picks
   // up the change (design D6). No direct server write.
   useCampaignPersistenceStore.getState().markDirty();

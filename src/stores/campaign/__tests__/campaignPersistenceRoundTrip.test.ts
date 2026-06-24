@@ -31,13 +31,14 @@
  *     by `SerializedCampaignState` or named as separately persisted.
  */
 
-import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ICampaign, IContract } from '@/types/campaign/Campaign';
 import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
 import type { ILoan } from '@/types/campaign/Loan';
 import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { MarketExperienceLevel } from '@/types/campaign/markets/marketTypes';
 import { Money } from '@/types/campaign/Money';
@@ -91,10 +92,8 @@ Object.defineProperty(window, 'localStorage', {
 // its CAMPAIGN_MAP_FIELDS / CAMPAIGN_DATE_FIELDS constants.
 // =============================================================================
 
-/** Keys persisted OUTSIDE SerializedCampaignState, with their owner. */
-type SeparatelyPersistedKey =
-  | 'forces' // useForcesStore (own zustand persist, keyed per campaign)
-  | 'missions'; // useMissionsStore (own zustand persist, keyed per campaign)
+/** Keys persisted outside SerializedCampaignState, with their owner. */
+type SeparatelyPersistedKey = never;
 
 type DroppedCampaignKeys = Exclude<
   keyof ICampaign,
@@ -157,6 +156,32 @@ function makeAmortizedLoan(): ILoan {
   };
 }
 
+function makeContractMission(status = MissionStatus.ACTIVE): IContract {
+  return {
+    id: 'mission-round-trip',
+    name: 'Round Trip Contract',
+    status,
+    type: 'contract',
+    systemId: 'new-avalon',
+    scenarioIds: ['scenario-round-trip'],
+    employerId: 'davion',
+    targetId: 'liao',
+    paymentTerms: {
+      basePayment: new Money(500_000),
+      successPayment: new Money(250_000),
+      partialPayment: new Money(100_000),
+      failurePayment: Money.ZERO,
+      salvagePercent: 35,
+      transportPayment: new Money(50_000),
+      supportPayment: new Money(25_000),
+    },
+    salvageRights: 'Integrated',
+    commandRights: 'Independent',
+    createdAt: '3025-02-01T00:00:00.000Z',
+    updatedAt: '3025-02-01T00:00:00.000Z',
+  };
+}
+
 /** Seed a campaign through the real store and return its id. */
 function seedCampaign(): string {
   const store = useCampaignStore();
@@ -192,9 +217,12 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
 
     // Damage a unit the way the post-battle pipeline does — by writing
     // the canonical unitCombatStates map onto the campaign.
+    const mission = makeContractMission();
     store.getState().updateCampaign({
       unitCombatStates: { 'unit-alpha': makeDamagedCombatState() },
+      missions: new Map([[mission.id, mission]]),
     });
+    store.getState().getMissionsStore()?.getState().addMission(mission);
 
     // Take a loan through the REAL command action: credits the cash as a
     // finances transaction AND appends to the campaign.loans ledger.
@@ -237,6 +265,14 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     expect(combatState.ammoRemaining).toEqual({ 'bin-lrm10': 2 });
     expect(combatState.heatEnd).toBe(4);
     expect(combatState.lastCombatOutcomeId).toBe('match-001');
+
+    const reloadedMission = reloaded.missions.get(
+      'mission-round-trip',
+    ) as IContract;
+    expect(reloadedMission.paymentTerms.basePayment).toBeInstanceOf(Money);
+    expect(reloadedMission.paymentTerms.basePayment.format()).toContain(
+      'C-bills',
+    );
   });
 
   it('unit battle damage and the loan ledger survive the zustand partialize → merge rehydrate (page-reload path)', () => {
@@ -246,7 +282,13 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     store.getState().updateCampaign({
       unitCombatStates: { 'unit-alpha': makeDamagedCombatState() },
     });
+    store
+      .getState()
+      .getMissionsStore()
+      ?.getState()
+      .addMission(makeContractMission());
     takeLoan({ principal: 250_000, interestRate: 0.2, termDays: 50 });
+    store.getState().saveCampaign();
 
     // The persist middleware auto-writes 'campaign-store' on every set();
     // a page reload re-creates the store, which rehydrates via merge().
@@ -262,6 +304,15 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     ).toEqual({ CT: 5, LT: 0 });
     expect(rehydrated.loans).toHaveLength(1);
     expect(rehydrated.loans![0].remainingBalance).toBeCloseTo(300_000);
+    expect(rehydrated.forces.size).toBe(1);
+    expect(rehydrated.missions.get('mission-round-trip')?.name).toBe(
+      'Round Trip Contract',
+    );
+    const mission = rehydrated.missions.get('mission-round-trip') as IContract;
+    expect(mission.paymentTerms.basePayment).toBeInstanceOf(Money);
+    expect(mission.paymentTerms.basePayment.format()).toContain(
+      '500,000.00 C-bills',
+    );
   });
 
   it('every other silently-dropped campaign field survives the round-trip (full-shape sweep)', () => {
@@ -357,7 +408,10 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
           expirationDate: '3025-03-01T00:00:00.000Z',
         },
       ],
-      contractMarket: { offers: [], declinedOfferIds: ['contract-77'] },
+      contractMarket: {
+        offers: [makeContractMission(MissionStatus.PENDING)],
+        declinedOfferIds: ['contract-77'],
+      },
       finances: {
         transactions: base.finances.transactions,
         balance: base.finances.balance,
@@ -397,10 +451,14 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     expect(reloaded.moraleTransitions![0].to).toBe(MoraleState.High);
     expect(reloaded.personnelMarket).toHaveLength(1);
     expect(reloaded.personnelMarket![0].hireCost).toBe(25_000);
-    expect(reloaded.contractMarket).toEqual({
-      offers: [],
-      declinedOfferIds: ['contract-77'],
-    });
+    expect(reloaded.contractMarket?.declinedOfferIds).toEqual(['contract-77']);
+    expect(reloaded.contractMarket?.offers).toHaveLength(1);
+    expect(
+      reloaded.contractMarket?.offers[0].paymentTerms.basePayment,
+    ).toBeInstanceOf(Money);
+    expect(
+      reloaded.contractMarket?.offers[0].paymentTerms.basePayment.format(),
+    ).toContain('500,000.00 C-bills');
 
     // The amortization ledger must rehydrate with live Money / Date
     // instances — financialProcessor.processLoanPayments calls

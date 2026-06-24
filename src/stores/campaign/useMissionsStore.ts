@@ -12,6 +12,7 @@
 import { create, StoreApi } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+import { rehydrateMissionMap } from '@/lib/campaign/persistence/missionSerialization';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { MissionStatus } from '@/types/campaign/enums';
 import { IMission, IContract, isContract } from '@/types/campaign/Mission';
@@ -233,7 +234,7 @@ export function createMissionsStore(
           };
           return {
             ...current,
-            missions: new Map(persistedData?.missions || []),
+            missions: rehydrateMissionMap(persistedData?.missions),
             scenarios: new Map(persistedData?.scenarios || []),
           };
         },

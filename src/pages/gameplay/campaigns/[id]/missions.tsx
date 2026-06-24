@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
  * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
  */
 import { useState, useEffect } from 'react';
+import { useStore } from 'zustand';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { PageLayout, Card, EmptyState, Badge } from '@/components/ui';
@@ -42,7 +43,7 @@ function MissionCard({ mission }: MissionCardProps): React.ReactElement {
   const contract = isContract(mission) ? (mission as IContract) : null;
 
   return (
-    <Card className="p-4">
+    <Card className="p-4" data-testid={`mission-card-${mission.id}`}>
       <div className="mb-3 flex items-start justify-between">
         <div className="flex-1">
           <div className="mb-1 flex items-center gap-2">
@@ -59,7 +60,10 @@ function MissionCard({ mission }: MissionCardProps): React.ReactElement {
             </p>
           )}
         </div>
-        <Badge className={getStatusColor(mission.status)}>
+        <Badge
+          className={getStatusColor(mission.status)}
+          data-testid={`mission-status-${mission.id}`}
+        >
           {mission.status}
         </Badge>
       </div>
@@ -143,7 +147,7 @@ export default function MissionsPage(): React.ReactElement {
   const router = useRouter();
   const { id } = router.query;
   const store = useCampaignStore();
-  const campaign = store.getState().getCampaign();
+  const campaign = useStore(store, (state) => state.campaign);
   const [isClient, setIsClient] = useState(false);
   const [filter, setFilter] = useState<'all' | MissionStatus>('all');
 

@@ -1,5 +1,6 @@
 import { useRouter, type NextRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
+import { useStore } from 'zustand';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 
@@ -99,7 +100,7 @@ export function useCampaignPageShell(pageLabel: string): CampaignPageShell {
   const router = useRouter();
   const { id } = router.query;
   const store = useCampaignStore();
-  const campaign = store.getState().getCampaign();
+  const campaign = useStore(store, (state) => state.campaign);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
