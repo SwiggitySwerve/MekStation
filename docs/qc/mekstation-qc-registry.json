@@ -100,7 +100,8 @@
       "tests": ["src/engine/__tests__", "src/services/**/__tests__"],
       "commands": [
         "npm.cmd run validate:assets:strict",
-        "npm.cmd run schema:gen-check"
+        "npm.cmd run schema:gen-check",
+        "npm.cmd run qc:wave4:validate"
       ],
       "manualChecks": [
         "Inspect representative BattleMech, vehicle, aerospace, battle armor, infantry, and ProtoMech records"
@@ -108,6 +109,7 @@
       "evidence": [
         "docs/audits/2026-05-22-combat-validation-source-truth.md",
         "2026-06-23 Chromium browser smoke passed `npx.cmd playwright test --project=chromium e2e/compendium.spec.ts e2e/customizer.spec.ts e2e/campaign-flow.spec.ts e2e/playtest-coop-route-smoke.spec.ts e2e/replay-player.spec.ts --grep \"@smoke|timeline page loads|game replay page shows error|refresh button\"`: compendium hub, units, equipment, rules links, search/filter, and quick-reference checks passed.",
+        "2026-06-24 Wave 4 validator requires asset/schema validators and representative family review scope to keep compendium data proof separated from non-BattleMech runtime support claims.",
         "Archived OpenSpec change 2026-06-21-reconcile-spec-source-of-truth retired from activeChangeRefs on 2026-06-23."
       ],
       "gaps": [
@@ -151,7 +153,8 @@
         "npm.cmd run validate:aerospace",
         "npm.cmd run validate:ba-bv",
         "npm.cmd run validate:proto",
-        "npm.cmd run validate:infantry"
+        "npm.cmd run validate:infantry",
+        "npm.cmd run qc:wave4:validate"
       ],
       "manualChecks": [
         "Create and export one representative unit per supported family"
@@ -159,6 +162,7 @@
       "evidence": [
         "docs/audits/2026-05-13-customizer-armor-megameklab-parity.md",
         "2026-06-23 Chromium browser smoke passed customizer navigation checks for aerospace and vehicle entry routes via the bounded Playwright smoke command; deeper representative family export remains tracked by the validator/manual lanes.",
+        "2026-06-24 Wave 4 validator binds representative family BV/data validators into one checkpoint while keeping export and round-trip browser coverage as separate tracked work.",
         "Archived OpenSpec change 2026-06-20-restore-bv-parity-reproducibility retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-consolidate-equipment-and-hex-duplication retired from activeChangeRefs on 2026-06-23."
       ],
@@ -866,14 +870,16 @@
       "tests": ["src/simulation/runner/**/__tests__"],
       "commands": [
         "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=147 --expect-level=out-of-scope:147 --expect-scope=aggregate:3 --expect-scope=leaf:144 --expect-section=actions:29 --expect-section=damageAndDeath:6 --expect-section=eventStream:15 --expect-section=featureSupport:75 --expect-section=lifecycleAndPsr:2 --expect-section=pilotSkills:9 --expect-section=ruleSupport:6 --expect-section=validationScope:5",
-        "npm.cmd run validate:combat"
+        "npm.cmd run validate:combat",
+        "npm.cmd run qc:wave4:validate"
       ],
       "manualChecks": [
         "Keep non-BattleMech matrices separate from BattleMech-compatible official row claims"
       ],
       "evidence": [
         "2026-06-23 Wave 10 review confirmed validate:combat and the gap exporter assert 147 explicit non-BattleMech out-of-scope rows.",
-        "2026-06-18 parity review confirmed vehicle/VTOL movement coverage exists but should not be claimed as universal non-BattleMech preview/resolution parity."
+        "2026-06-18 parity review confirmed vehicle/VTOL movement coverage exists but should not be claimed as universal non-BattleMech preview/resolution parity.",
+        "2026-06-24 Wave 4 validator requires the 147-row out-of-scope split and separate matrix language before the broader Wave 4 aggregate can pass."
       ],
       "gaps": [
         "Non-BattleMech systems require separate support matrices before they can be described as fully rules-backed."
@@ -1258,12 +1264,15 @@
         "src/__tests__/unit/api/multiplayerSpectate.test.ts",
         "src/__tests__/integration/phase4Multiplayer.test.ts",
         "src/lib/multiplayer/__tests__/turnOwnership.test.ts",
+        "src/lib/multiplayer/server/__tests__/reconnectionFlow.test.ts",
+        "src/lib/multiplayer/server/__tests__/fogOfWar.test.ts",
         "src/lib/multiplayer/**/__tests__"
       ],
       "commands": [
         "npm.cmd run verify:qc:multiplayer-reliability",
         "npm.cmd run verify:qc:multiplayer:contracts",
-        "npm.cmd run verify:qc:multiplayer:browser"
+        "npm.cmd run verify:qc:multiplayer:browser",
+        "npm.cmd run qc:wave4:validate"
       ],
       "manualChecks": [
         "Run a true two-window/vault-auth host and guest session, join by invite code, and verify live turn handoff plus fog-limited guest state.",
@@ -1273,6 +1282,7 @@
         "docs/audits/2026-06-12-full-codebase-review.md",
         "2026-06-23 Chromium browser smoke passed `npx.cmd playwright test --project=chromium e2e/playtest-coop-route-smoke.spec.ts`: host co-op campaign mounts dashboard/personnel/mech-bay/hiring/contract-market/finances with co-op badge, and single-player campaign hides co-op surfaces.",
         "2026-06-24 `verify:qc:multiplayer-reliability` groups browser route smoke, mock P2P sync, co-op route mounting, API fog/spectate contracts, server host/reconnect/spectator/fog behavior, turn ownership, and the Phase 4 capstone host/join/reconnect/outcome flow.",
+        "2026-06-24 Wave 4 validator requires multiplayer aggregate scripts plus route, contract, and capstone source anchors while leaving two-browser and packaged runtime boundaries in their existing gap fields.",
         "Archived OpenSpec change 2026-06-21-reconcile-multiplayer-coop-reality retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23."
       ],
@@ -1312,7 +1322,8 @@
       ],
       "commands": [
         "npm.cmd run verify:qc:replay-recovery",
-        "npm.cmd test -- --watchAll=false --runTestsByPath src/simulation/__tests__/replay-determinism.integration.test.ts"
+        "npm.cmd test -- --watchAll=false --runTestsByPath src/simulation/__tests__/replay-determinism.integration.test.ts",
+        "npm.cmd run qc:wave4:validate"
       ],
       "manualChecks": [
         "Refresh/deep-link an active battle and recover from event log without losing state"
@@ -1321,6 +1332,7 @@
         "docs/audits/2026-06-12-full-codebase-review.md",
         "2026-06-23 Chromium browser smoke passed replay/timeline checks in `e2e/replay-player.spec.ts`: audit timeline filters load, timeline refresh remains functional, and nonexistent game replay shows user feedback.",
         "2026-06-24 `verify:qc:replay-recovery` adds deterministic browser proof that `/gameplay/games/:id` deep-links and refreshes a generated non-demo match from local match-log IndexedDB into a drivable interactive session.",
+        "2026-06-24 Wave 4 validator requires replay recovery scripts and deterministic active-session recovery source anchors while keeping replay library upload/export tracked separately.",
         "Archived OpenSpec change 2026-06-21-persist-and-recover-interactive-battles retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-restore-ci-correctness-teeth retired from activeChangeRefs on 2026-06-23."
       ],

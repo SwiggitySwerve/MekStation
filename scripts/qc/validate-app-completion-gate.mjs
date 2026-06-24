@@ -54,6 +54,8 @@ const requiredScripts = new Map([
   ['verify:qc:gm:time-cascade', 'qc:gm:time-cascade:validate'],
   ['qc:wave3:validate', 'validate-wave3-encounter-tactical.mjs'],
   ['verify:qc:wave3', 'qc:wave3:validate'],
+  ['qc:wave4:validate', 'validate-wave4-scope-recovery.mjs'],
+  ['verify:qc:wave4', 'qc:wave4:validate'],
   ['verify:qc:multiplayer-reliability', 'verify:qc:multiplayer:browser'],
   ['verify:qc:journeys', 'qc:journeys'],
   ['verify:qc:ui-flow-shell', 'qc:ui-flow-shell'],
