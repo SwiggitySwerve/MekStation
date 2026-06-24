@@ -22,6 +22,7 @@ interface PageLayoutProps {
   onBack?: () => void;
   headerContent?: React.ReactNode;
   gradient?: boolean;
+  'data-testid'?: string;
 }
 
 const maxWidthClasses: Record<string, string> = {
@@ -42,6 +43,7 @@ export function PageLayout({
   onBack,
   headerContent,
   gradient = false,
+  'data-testid': testId,
 }: PageLayoutProps): React.ReactElement {
   const bgClasses = gradient
     ? 'min-h-screen bg-gradient-to-br from-surface-deep via-surface-base to-surface-deep'
@@ -73,7 +75,7 @@ export function PageLayout({
   const showBackLink = !breadcrumbs && (normalizedBackLink || onBack);
 
   return (
-    <div className={`${bgClasses} p-6`}>
+    <div className={`${bgClasses} p-6`} data-testid={testId}>
       <div className={`${maxWidthClasses[maxWidth]} mx-auto`}>
         {/* Breadcrumb navigation - replaces backLink when provided */}
         {breadcrumbs && breadcrumbs.length > 0 && (

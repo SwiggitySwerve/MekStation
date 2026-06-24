@@ -186,10 +186,26 @@ test.describe('encounter-combat campaign continuity', () => {
         playerForceId,
         opponentForceId,
       );
-      expect(encounterId).toBeTruthy();
+      if (!encounterId) {
+        throw new Error('Failed to create continuity encounter');
+      }
 
       await page.goto(
-        `/gameplay/encounters/${encounterId}/pre-battle?campaignId=${campaignId}&missionId=${missionId}`,
+        `/gameplay/encounters/${encounterId}?campaignId=${campaignId}&missionId=${missionId}`,
+      );
+      await expect(page.getByTestId('encounter-detail-page')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId('launch-encounter-btn')).toBeEnabled({
+        timeout: 20_000,
+      });
+      await page.getByTestId('launch-encounter-btn').click();
+      await page.waitForURL(
+        (url) =>
+          url.pathname === `/gameplay/encounters/${encounterId}/pre-battle` &&
+          url.searchParams.get('campaignId') === campaignId &&
+          url.searchParams.get('missionId') === missionId,
+        { timeout: 20_000 },
       );
       await expect(
         page.getByRole('heading', {

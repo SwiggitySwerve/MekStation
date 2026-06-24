@@ -24,6 +24,10 @@ import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 
 const mockRouterPush = jest.fn();
 const mockLaunchCoopMission = jest.fn();
+const mockMaterializeCampaignMissionEncounter = jest.fn();
+const mockUpdateCampaign = jest.fn();
+const mockSaveCampaign = jest.fn();
+const mockAddMission = jest.fn();
 
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -41,9 +45,26 @@ jest.mock('@/lib/campaign/coop/launchCoopMission', () => ({
   launchCoopMission: (...args: unknown[]) => mockLaunchCoopMission(...args),
 }));
 
+jest.mock(
+  '@/lib/campaign/encounter/materializeCampaignMissionEncounter',
+  () => ({
+    materializeCampaignMissionEncounter: (...args: unknown[]) =>
+      mockMaterializeCampaignMissionEncounter(...args),
+  }),
+);
+
 const mockGetCampaign = jest.fn();
 const mockCampaignStoreApi = {
-  getState: () => ({ getCampaign: mockGetCampaign }),
+  getState: () => ({
+    getCampaign: mockGetCampaign,
+    updateCampaign: mockUpdateCampaign,
+    saveCampaign: mockSaveCampaign,
+    getMissionsStore: () => ({
+      getState: () => ({
+        addMission: mockAddMission,
+      }),
+    }),
+  }),
 };
 
 jest.mock('@/stores/campaign/useCampaignStore', () => ({
@@ -69,6 +90,14 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
   beforeEach(() => {
     mockRouterPush.mockReset();
     mockGetCampaign.mockReset();
+    mockMaterializeCampaignMissionEncounter.mockReset().mockResolvedValue({
+      encounterId: 'encounter-solo-1',
+      reused: false,
+      missionScenarioIds: ['encounter-solo-1'],
+    });
+    mockUpdateCampaign.mockReset();
+    mockSaveCampaign.mockReset();
+    mockAddMission.mockReset();
     mockLaunchCoopMission.mockReset().mockReturnValue({
       ok: true,
       gameSessionId: 'game-session-coop-1',
@@ -166,11 +195,11 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
       ]),
     );
     expect(mockRouterPush).toHaveBeenCalledWith(
-      '/gameplay/encounters/encounter-coop-1',
+      '/gameplay/encounters/encounter-coop-1?campaignId=campaign-coop-1&missionId=mission-alpha',
     );
   });
 
-  it('keeps non-co-op launch on the direct encounter route', async () => {
+  it('materializes non-co-op mission launch before routing to the encounter', async () => {
     const campaign = {
       ...createCampaign('Solo Launch Probe', 'mercenary'),
       id: 'campaign-coop-1',
@@ -186,8 +215,16 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
     });
 
     expect(mockLaunchCoopMission).not.toHaveBeenCalled();
-    expect(mockRouterPush).toHaveBeenCalledWith(
-      '/gameplay/encounters/mission-alpha',
-    );
+    await waitFor(() => {
+      expect(mockMaterializeCampaignMissionEncounter).toHaveBeenCalledWith(
+        expect.objectContaining({
+          campaign,
+          missionId: 'mission-alpha',
+        }),
+      );
+      expect(mockRouterPush).toHaveBeenCalledWith(
+        '/gameplay/encounters/encounter-solo-1?campaignId=campaign-coop-1&missionId=mission-alpha',
+      );
+    });
   });
 });

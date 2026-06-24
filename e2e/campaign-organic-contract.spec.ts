@@ -16,6 +16,7 @@ interface CampaignContractSnapshot {
   readonly missionIds: readonly string[];
   readonly missionNames: readonly string[];
   readonly missionStatuses: readonly string[];
+  readonly missionScenarioIds: readonly string[];
   readonly contractMarketOfferIds: readonly string[];
   readonly rosterUnitNames: readonly string[];
   readonly rosterPilotNames: readonly string[];
@@ -136,6 +137,14 @@ async function getCampaignContractSnapshot(
       missionStatuses: missions
         .map((mission) => mission.status)
         .filter((status): status is string => typeof status === 'string'),
+      missionScenarioIds: missions.flatMap((mission) =>
+        Array.isArray((mission as { scenarioIds?: unknown }).scenarioIds)
+          ? ((mission as { scenarioIds: unknown[] }).scenarioIds.filter(
+              (scenarioId): scenarioId is string =>
+                typeof scenarioId === 'string',
+            ) ?? [])
+          : [],
+      ),
       contractMarketOfferIds:
         campaign?.contractMarket?.offers
           ?.map((offer) => offer.id)
@@ -224,6 +233,37 @@ test.describe('organic campaign contract acceptance', () => {
       expect(reloaded.missionIds).toContain(offerId);
       expect(reloaded.missionNames).toContain(offerName);
       expect(reloaded.contractMarketOfferIds).not.toContain(offerId);
+
+      await page.goto(
+        `/gameplay/campaigns/${campaignId}/missions/${offerId}/launch`,
+      );
+      await waitForE2EHydration(page);
+      await expect(page.getByTestId('launch-mission-direct')).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.getByTestId('launch-mission-direct').click();
+      await page.waitForURL(
+        (url) =>
+          url.pathname.startsWith('/gameplay/encounters/') &&
+          url.searchParams.get('campaignId') === campaignId &&
+          url.searchParams.get('missionId') === offerId,
+        { timeout: 30_000 },
+      );
+      await expect(page.getByTestId('encounter-detail-page')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId('launch-encounter-btn')).toBeEnabled({
+        timeout: 20_000,
+      });
+
+      const encounterId = page
+        .url()
+        .match(/\/gameplay\/encounters\/([^/?#]+)/)?.[1];
+      expect(encounterId).toBeTruthy();
+      expect(encounterId).not.toBe(offerId);
+
+      const materialized = await getCampaignContractSnapshot(page);
+      expect(materialized.missionScenarioIds).toContain(encounterId);
     },
   );
 });
