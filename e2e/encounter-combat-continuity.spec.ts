@@ -2,9 +2,9 @@
  * Strict encounter -> combat -> campaign continuity proof.
  *
  * This supplements the broader encounter smoke tests with a non-optional path:
- * a seeded campaign mission launches through the real pre-battle UI, auto
- * resolves, queues a campaign outcome, and applies that outcome from the
- * post-battle review screen.
+ * seeded campaign missions launch through the real pre-battle UI, queue
+ * campaign outcomes from both auto-resolve and interactive play, and apply
+ * those outcomes from the post-battle review screen.
  *
  * @tags @campaign @encounter @combat @smoke
  */
@@ -37,6 +37,13 @@ interface ContinuityProof {
     readonly scenarioId: string;
   }[];
   readonly processedBattleIds: readonly string[];
+}
+
+interface CampaignEncounterContext {
+  readonly campaignId: string;
+  readonly missionId: string;
+  readonly encounterId: string;
+  readonly encounterName: string;
 }
 
 test.setTimeout(90_000);
@@ -116,6 +123,40 @@ async function createAssignedLance({
   return forceId!;
 }
 
+async function createCampaignEncounter(
+  page: Page,
+  label: string,
+): Promise<CampaignEncounterContext> {
+  const campaignId = await createMinimalCampaign(page);
+  const missionId = `mission-${Date.now()}-${label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')}`;
+  const playerForceId = await createAssignedLance({
+    page,
+    forceName: `${label} Player Lance`,
+    pilotName: `${label} Player Pilot`,
+    unitId: PLAYER_UNIT_ID,
+  });
+  const opponentForceId = await createAssignedLance({
+    page,
+    forceName: `${label} Opponent Lance`,
+    pilotName: `${label} Opponent Pilot`,
+    unitId: OPPONENT_UNIT_ID,
+  });
+  const encounterName = `${label} Encounter`;
+  const encounterId = await createEncounterWithForces(
+    page,
+    encounterName,
+    playerForceId,
+    opponentForceId,
+  );
+  if (!encounterId) {
+    throw new Error(`Failed to create ${label} encounter`);
+  }
+
+  return { campaignId, missionId, encounterId, encounterName };
+}
+
 async function getContinuityProof(page: Page): Promise<ContinuityProof> {
   return page.evaluate(() => {
     const stores = (
@@ -166,29 +207,8 @@ test.describe('encounter-combat campaign continuity', () => {
       await page.goto('/gameplay');
       await waitForE2EStores(page);
 
-      const campaignId = await createMinimalCampaign(page);
-      const missionId = `mission-${Date.now()}`;
-      const playerForceId = await createAssignedLance({
-        page,
-        forceName: 'Continuity Player Lance',
-        pilotName: 'Continuity Player Pilot',
-        unitId: PLAYER_UNIT_ID,
-      });
-      const opponentForceId = await createAssignedLance({
-        page,
-        forceName: 'Continuity Opponent Lance',
-        pilotName: 'Continuity Opponent Pilot',
-        unitId: OPPONENT_UNIT_ID,
-      });
-      const encounterId = await createEncounterWithForces(
-        page,
-        'Continuity Mission Encounter',
-        playerForceId,
-        opponentForceId,
-      );
-      if (!encounterId) {
-        throw new Error('Failed to create continuity encounter');
-      }
+      const { campaignId, missionId, encounterId, encounterName } =
+        await createCampaignEncounter(page, 'Continuity Auto');
 
       await page.goto(
         `/gameplay/encounters/${encounterId}?campaignId=${campaignId}&missionId=${missionId}`,
@@ -209,7 +229,7 @@ test.describe('encounter-combat campaign continuity', () => {
       );
       await expect(
         page.getByRole('heading', {
-          name: 'Pre-Battle: Continuity Mission Encounter',
+          name: `Pre-Battle: ${encounterName}`,
         }),
       ).toBeVisible({
         timeout: 20_000,
@@ -241,7 +261,7 @@ test.describe('encounter-combat campaign continuity', () => {
       expect(queued.pendingBattleOutcomes).toContainEqual({
         matchId: queued.sessionId!,
         contractId: missionId,
-        scenarioId: encounterId!,
+        scenarioId: encounterId,
       });
 
       await page.goto(`/gameplay/games/${queued.sessionId}/review`);
@@ -261,6 +281,131 @@ test.describe('encounter-combat campaign continuity', () => {
         expect.objectContaining({ matchId: queued.sessionId }),
       );
       expect(applied.processedBattleIds).toContain(queued.sessionId);
+    },
+  );
+
+  test(
+    'interactive pre-battle launch queues, reloads, and applies a campaign outcome',
+    { tag: ['@campaign', '@encounter', '@combat', '@smoke'] },
+    async ({ page }) => {
+      await page.goto('/gameplay');
+      await waitForE2EStores(page);
+
+      const { campaignId, missionId, encounterId, encounterName } =
+        await createCampaignEncounter(page, 'Continuity Interactive');
+
+      await page.goto(
+        `/gameplay/encounters/${encounterId}?campaignId=${campaignId}&missionId=${missionId}`,
+      );
+      await expect(page.getByTestId('encounter-detail-page')).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.getByTestId('launch-encounter-btn').click();
+      await page.waitForURL(
+        (url) =>
+          url.pathname === `/gameplay/encounters/${encounterId}/pre-battle` &&
+          url.searchParams.get('campaignId') === campaignId &&
+          url.searchParams.get('missionId') === missionId,
+        { timeout: 20_000 },
+      );
+      await expect(
+        page.getByRole('heading', {
+          name: `Pre-Battle: ${encounterName}`,
+        }),
+      ).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId('play-manually-btn')).toBeEnabled();
+
+      await page.getByTestId('play-manually-btn').click();
+      await page.waitForURL(
+        new RegExp(
+          `/gameplay/games/[^?]+\\?campaignId=${campaignId}&missionId=${missionId}`,
+        ),
+        { timeout: 30_000 },
+      );
+      await expect(page.getByTestId('game-session')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId('tactical-action-dock')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      const launched = await getContinuityProof(page);
+      expect(launched.sessionId).toBeTruthy();
+      expect(launched.config).toMatchObject({
+        campaignId,
+        contractId: missionId,
+        scenarioId: encounterId,
+        encounterId,
+      });
+      expect(launched.pendingBattleOutcomes).not.toContainEqual(
+        expect.objectContaining({ matchId: launched.sessionId }),
+      );
+
+      await expect(page.getByTestId('concede-button')).toBeEnabled();
+      await page.getByTestId('concede-button').click();
+      await expect(page.getByTestId('concede-confirm-text')).toContainText(
+        'Concede match?',
+      );
+      await page.getByTestId('concede-confirm').click();
+      await page.waitForURL(
+        new RegExp(`/gameplay/games/${launched.sessionId}/victory`),
+        { timeout: 20_000 },
+      );
+
+      await expect
+        .poll(async () => {
+          const queued = await getContinuityProof(page);
+          return queued.pendingBattleOutcomes.some(
+            (outcome) =>
+              outcome.matchId === launched.sessionId &&
+              outcome.contractId === missionId &&
+              outcome.scenarioId === encounterId,
+          );
+        })
+        .toBe(true);
+
+      await page.goto(`/gameplay/games/${launched.sessionId}/review`);
+      await expect(page.getByTestId('post-battle-review-screen')).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.reload();
+      await waitForE2EStores(page);
+      await expect(page.getByTestId('post-battle-review-screen')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      const queuedAfterReload = await getContinuityProof(page);
+      expect(queuedAfterReload.pendingBattleOutcomes).toContainEqual({
+        matchId: launched.sessionId!,
+        contractId: missionId,
+        scenarioId: encounterId,
+      });
+
+      await page.getByTestId('apply-outcome-cta').click();
+      await page.waitForURL(
+        new RegExp(
+          `/gameplay/campaigns/${campaignId}\\?pendingBattle=${launched.sessionId}`,
+        ),
+        { timeout: 20_000 },
+      );
+
+      const applied = await getContinuityProof(page);
+      expect(applied.pendingBattleOutcomes).not.toContainEqual(
+        expect.objectContaining({ matchId: launched.sessionId }),
+      );
+      expect(applied.processedBattleIds).toContain(launched.sessionId);
+
+      await page.reload();
+      await waitForE2EStores(page);
+      const appliedAfterReload = await getContinuityProof(page);
+      expect(appliedAfterReload.pendingBattleOutcomes).not.toContainEqual(
+        expect.objectContaining({ matchId: launched.sessionId }),
+      );
+      expect(appliedAfterReload.processedBattleIds).toContain(
+        launched.sessionId!,
+      );
     },
   );
 });
