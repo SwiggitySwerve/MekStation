@@ -170,6 +170,14 @@ flowchart TD
      campaign, combat continuity, multiplayer, and replay lanes where seeded
      state can prove recovery without weakening this static route sweep.
 
+1. `customizer-construction-bv-export`
+   - Wave 4 uses `qc:wave4:validate` for fast checkpoint wiring and
+     `verify:qc:wave4` for the full customizer/data, non-BattleMech scope,
+     multiplayer reliability, and replay recovery aggregate gate.
+   - The checkpoint keeps family BV/data validators discoverable while
+     preserving representative export and round-trip browser signoff as an
+     explicit release gap.
+
 1. `gameplay-tactical-map-combat`
    - Tactical map is the primary explanation layer; Wave 7 adds a fast
      projection parity manifest that validates required tactical surfaces,
@@ -196,6 +204,9 @@ flowchart TD
    - Wave 10 adds `qc:combat:catalog-rules:validate` as the fast manifest
      gate for catalog/rules surfaces, source anchors, stale active-change refs,
      and the expected 147-row out-of-scope split before deeper suite runs.
+   - Wave 4 also requires `qc:wave4:validate` for the non-BattleMech matrix
+     slice so customizer/data proof cannot blur into runtime combat support
+     claims.
    - Physical weapon runtime boundaries and ejection lifecycle regressions are
      now first-class QC sublanes so stale gap wording does not override live
      validators.
@@ -303,8 +314,9 @@ flowchart TD
      multiplayer route smoke, mock P2P sync, co-op campaign route mounting,
      API fog/spectate contracts, server reconnect/spectator/fog behavior, turn
      ownership, and the Phase 4 capstone host/join/reconnect/outcome flow.
-   - True two-window vault-auth live play and packaged-runtime kill/reconnect
-     remain release-signoff checks, not dirty-worktree blockers.
+   - Wave 4 folds this multiplayer gate plus `verify:qc:replay-recovery` into
+     `verify:qc:wave4`; true two-window vault-auth and packaged-runtime
+     kill/reconnect remain release-signoff checks rather than hidden blockers.
 
 1. `desktop-api-security`
    - The 2026-06-23 desktop lane now proves the packaged runtime path with
