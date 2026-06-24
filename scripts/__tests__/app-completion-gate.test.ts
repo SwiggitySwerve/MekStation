@@ -69,7 +69,10 @@ function writeFixtureSet(tempDir: string, hasReleaseGap: boolean) {
         'npx playwright test --project=chromium e2e/app-shell-route-proof.spec.ts',
       'verify:qc:campaign-economy':
         'npm run verify:qc:campaign-economy:browser',
-      'verify:qc:campaign-long': 'npm run qc:campaign-long:stability',
+      'qc:campaign-long:browser':
+        'npx playwright test e2e/campaign-long-browser-signoff.spec.ts',
+      'verify:qc:campaign-long':
+        'npm run qc:campaign-long:stability && npm run qc:campaign-long:browser',
       'verify:qc:gm:campaign-ledger': 'npm run qc:gm:campaign-ledger:validate',
       'verify:qc:gm:time-cascade': 'npm run qc:gm:time-cascade:validate',
       'verify:qc:multiplayer-reliability':

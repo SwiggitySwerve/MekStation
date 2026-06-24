@@ -5,6 +5,7 @@ import type {
   IMission,
 } from '@/types/campaign/Campaign';
 import type {
+  ICampaignActiveContract,
   ICampaignCommandExtensions,
   ICampaignContractMarket,
 } from '@/types/campaign/CampaignCommandExtensions';
@@ -136,6 +137,8 @@ export interface SerializedCampaignState {
   personnelMarket?: readonly IPersonnelMarketOffer[];
   /** Contract-market offers + declined ids (CP2b design D5; D-1 sweep). */
   contractMarket?: ICampaignContractMarket;
+  /** Active contract progress shown by the dashboard command card. */
+  activeContract?: ICampaignActiveContract;
   /** Unit-market offers stored by unitMarketProcessor (audit D-7, W3.4). */
   unitMarket?: readonly IUnitMarketOffer[];
   /**
@@ -287,6 +290,7 @@ export function serializeCampaign(
     // pre-fix serializer silently dropped. All JSON-safe shapes.
     personnelMarket: extended.personnelMarket,
     contractMarket: extended.contractMarket,
+    activeContract: extended.activeContract,
     unitMarket: extended.unitMarket,
     combatTeams: campaign.combatTeams,
     refitOrders: campaign.refitOrders,
@@ -378,6 +382,7 @@ export function deserializeCampaign(
     loans: serialized.loans,
     personnelMarket: serialized.personnelMarket,
     contractMarket: rehydrateContractMarket(serialized.contractMarket),
+    activeContract: serialized.activeContract,
     unitMarket: serialized.unitMarket,
     combatTeams: serialized.combatTeams,
     refitOrders: serialized.refitOrders,

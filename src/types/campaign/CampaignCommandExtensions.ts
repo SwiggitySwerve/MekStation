@@ -44,6 +44,22 @@ export interface ICampaignContractMarket {
 }
 
 /**
+ * Active contract snapshot shown by the campaign dashboard command cards.
+ *
+ * This is intentionally a compact status projection instead of a full
+ * `IContract`: the dashboard only needs the contract identity, employer,
+ * deadline, and objective progress for recovery after route reloads.
+ */
+export interface ICampaignActiveContract {
+  readonly id: string;
+  readonly name?: string;
+  readonly employerFactionId?: string;
+  readonly deadlineDay?: number;
+  readonly objectivesCompleted?: number;
+  readonly objectivesTotal?: number;
+}
+
+/**
  * Optional command-tier fields attached to the campaign. Every field is
  * optional so a campaign that has never opened a command surface still
  * type-checks; selectors default each to an empty projection.
@@ -57,6 +73,9 @@ export interface ICampaignCommandExtensions {
 
   /** Current contract-market state (design D5). */
   readonly contractMarket?: ICampaignContractMarket;
+
+  /** Active contract progress snapshot for the command dashboard. */
+  readonly activeContract?: ICampaignActiveContract;
 
   /**
    * Current unit-market offers (audit D-7, 2026-06-09 remediation W3.4).

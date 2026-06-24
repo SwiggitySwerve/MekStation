@@ -183,6 +183,7 @@ export function serializeCampaign(campaign: ICampaign): SerializedCampaignBody {
     coopSession: campaign.coopSession,
     personnelMarket: extended.personnelMarket,
     contractMarket: extended.contractMarket,
+    activeContract: extended.activeContract,
     unitMarket: extended.unitMarket,
   };
 }
@@ -248,6 +249,7 @@ export function deserializeCampaignBody(
     coopSession: body.coopSession,
     personnelMarket: body.personnelMarket,
     contractMarket: rehydrateContractMarket(body.contractMarket),
+    activeContract: body.activeContract,
     unitMarket: body.unitMarket,
   } as ICampaign;
 }
