@@ -80,6 +80,7 @@ const requiredSurfaces = [
   {
     id: 'topdown-hex-legibility',
     claimId: 'ui.tactical.topdown-legibility',
+    allowedCoverageStatuses: ['ready-with-scope'],
     commandIncludes: [
       'HexMapDisplay.terrainLabels.01.test.tsx',
       'tactical-map-visual-smoke.spec.ts',
@@ -264,6 +265,24 @@ function validateSurface(contract, surfaceById, issues) {
         'surface-claim-missing',
         `${contract.id} must include claim ${contract.claimId}.`,
         { surfaceId: contract.id, claimId: contract.claimId },
+      ),
+    );
+  }
+
+  if (
+    contract.allowedCoverageStatuses &&
+    !contract.allowedCoverageStatuses.includes(surface.coverageStatus)
+  ) {
+    issues.push(
+      issue(
+        'error',
+        'surface-coverage-status-regressed',
+        `${contract.id} must keep coverageStatus in ${contract.allowedCoverageStatuses.join(', ')}.`,
+        {
+          surfaceId: contract.id,
+          coverageStatus: surface.coverageStatus,
+          allowedCoverageStatuses: contract.allowedCoverageStatuses,
+        },
       ),
     );
   }

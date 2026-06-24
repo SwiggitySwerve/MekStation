@@ -345,7 +345,7 @@
       "parentId": "gameplay-tactical-map-combat",
       "riskTags": ["visual-legibility", "accessibility", "playability"],
       "qualityLenses": ["ui", "ux", "accessibility"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "claimIds": ["ui.tactical.topdown-legibility"],
       "routes": ["/e2e/tactical-map"],
       "apis": [],
@@ -379,10 +379,11 @@
       "evidence": [
         "2026-06-18 Playwright tactical-map visual smoke passed 60 Chromium tests.",
         "2026-06-18 tactical review found terrain/elevation badges, ARIA labels, text badges, dash/pattern overlays, and non-color-only projection status indicators.",
-        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs.",
+        "2026-06-24 top-down legibility proof is guarded by Wave 3 QC: terrain-label Jest and tactical-map Playwright visual smoke cover terrain labels, elevation badges, non-color overlay/status encodings, blocked/costly movement indicators, combat status badges, and screenshot contrast."
       ],
       "gaps": [
-        "Browser smoke remains the release-grade readability check; the Wave 7 manifest guards discoverability of the legibility proof surface."
+        "Keep tactical-map visual smoke and terrain-label Jest as the repeatable readability proof whenever terrain label, elevation badge, or overlay ownership changes."
       ]
     },
     {

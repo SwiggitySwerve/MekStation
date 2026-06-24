@@ -122,6 +122,37 @@ describe('Wave 3 encounter/tactical QC validator', () => {
     expect(result.stdout).toContain('e2e/encounter-flow.spec.ts');
   });
 
+  it('rejects top-down legibility coverage status regression', () => {
+    const registry = readJson<{
+      surfaces: Array<{
+        surfaceId: string;
+        coverageStatus?: string;
+      }>;
+    }>(path.join(repoRoot, 'docs/qc/mekstation-qc-registry.json'));
+    const topDownSurface = registry.surfaces.find(
+      (entry) => entry.surfaceId === 'topdown-hex-legibility',
+    );
+    expect(topDownSurface).toBeDefined();
+    topDownSurface!.coverageStatus = 'partial';
+
+    const registryPath = path.join(tempDir, 'registry.json');
+    writeJson(registryPath, registry);
+
+    const result = runValidator(['--json'], {
+      MEKSTATION_QC_REGISTRY_PATH: registryPath,
+    });
+
+    expect(result.status).toBe(1);
+    const manifest = JSON.parse(result.stdout) as {
+      errors: Array<{ code: string }>;
+    };
+    expect(manifest.errors).toContainEqual(
+      expect.objectContaining({
+        code: 'surface-coverage-status-regressed',
+      }),
+    );
+  });
+
   it('rejects permissive encounter smoke in the major capability scenario', () => {
     const majorScenarios = readJson<{
       scenarios: Array<{
