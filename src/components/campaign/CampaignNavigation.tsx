@@ -16,6 +16,10 @@
  * local user's role (Host / Guest) and the session's room code so it's
  * legible at a glance across every campaign sub-route.
  *
+ * The GM Ledger tab exposes the campaign intervention control plane added by
+ * `browser-campaign-gm-ledger`, where GM-only corrections can be previewed and
+ * approved without exposing private reasoning to player-facing logs.
+ *
  * @spec openspec/changes/add-campaign-bay-ui/specs/campaign-bay-ui/spec.md
  * @spec openspec/changes/add-campaign-command-ui/specs/campaign-command-ui/spec.md
  * @spec openspec/changes/wire-coop-campaign-route/specs/coop-campaign-sync/spec.md
@@ -42,7 +46,8 @@ export type CampaignPageId =
   | 'hiring'
   | 'finances'
   | 'contract-market'
-  | 'prestige-morale';
+  | 'prestige-morale'
+  | 'gm-ledger';
 
 interface CampaignNavigationProps {
   campaignId: string;
@@ -147,6 +152,11 @@ export function CampaignNavigation({
       id: 'prestige-morale',
       label: 'Prestige & Morale',
       href: `/gameplay/campaigns/${campaignId}/prestige-morale`,
+    },
+    {
+      id: 'gm-ledger',
+      label: 'GM Ledger',
+      href: `/gameplay/campaigns/${campaignId}/gm-ledger`,
     },
   ];
 

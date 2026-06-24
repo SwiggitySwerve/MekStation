@@ -156,6 +156,7 @@ export function serializeCampaign(campaign: ICampaign): SerializedCampaignBody {
     salvageReports: campaign.salvageReports,
     pendingBattleOutcomes: campaign.pendingBattleOutcomes,
     processedBattleIds: campaign.processedBattleIds,
+    gmInterventionEvents: campaign.gmInterventionEvents,
     recentlyAppliedOutcomes: campaign.recentlyAppliedOutcomes,
     // The loan ledger (CP2b — `add-campaign-command-ui`, design D4) is
     // a campaign-extension field; every `ICampaignLoan` field is already
@@ -220,6 +221,7 @@ export function deserializeCampaignBody(
     salvageReports: body.salvageReports,
     pendingBattleOutcomes: body.pendingBattleOutcomes,
     processedBattleIds: body.processedBattleIds,
+    gmInterventionEvents: body.gmInterventionEvents,
     recentlyAppliedOutcomes: body.recentlyAppliedOutcomes,
     // Restore the loan ledger (design D4). Absent on pre-CP2b snapshots,
     // in which case the campaign simply carries no `loans` field.

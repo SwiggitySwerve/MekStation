@@ -197,6 +197,10 @@ flowchart TD
      `verify:qc:gm:campaign-ledger` when you also want the focused
      intervention tests that prove approval, replay, public/GM redaction, and
      manual-takeover blocking.
+   - Use `verify:qc:gm:campaign-browser` when the question is whether the
+     browser control plane at `/gameplay/campaigns/:id/gm-ledger` previews,
+     approves, redacts, and records manual takeover correctly for a generated
+     campaign route.
    - Escalate to `qc:journeys -- --journey=contract-campaign --tier=standard`
      or `qc:campaign-long:stability` when the question is full campaign flow
      or repeatability rather than ledger contract wiring.
@@ -204,6 +208,9 @@ flowchart TD
      20 tests after manual review of the covered merchant-reversal,
      inventory/base-unit, net-effect projection, redaction, and manual-takeover
      cases.
+   - 2026-06-24 Wave 2 added the browser GM Ledger route and focused
+     Playwright/component proof for merchant reversal approval, player-safe
+     action-log projection, GM-private details, and conflicted manual takeover.
 
 1. `time-cascade-gm-ledger`
    - Wave 9 lives under `campaign-economy-progression` and proves the

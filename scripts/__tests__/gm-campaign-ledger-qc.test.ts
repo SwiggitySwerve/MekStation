@@ -79,7 +79,7 @@ describe('GM campaign ledger QC validator', () => {
       'inventory-lot',
       'base-unit-state',
     ]);
-    expect(manifest.anchors).toHaveLength(8);
+    expect(manifest.anchors).toHaveLength(14);
     expect(manifest.surface).toMatchObject({
       surfaceId: 'post-combat-base-economy-gm-ledger',
       parentId: 'campaign-economy-progression',
