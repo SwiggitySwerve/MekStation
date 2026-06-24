@@ -52,6 +52,8 @@ const requiredScripts = new Map([
   ['verify:qc:campaign-long', 'qc:campaign-long:browser'],
   ['verify:qc:gm:campaign-ledger', 'qc:gm:campaign-ledger:validate'],
   ['verify:qc:gm:time-cascade', 'qc:gm:time-cascade:validate'],
+  ['qc:wave3:validate', 'validate-wave3-encounter-tactical.mjs'],
+  ['verify:qc:wave3', 'qc:wave3:validate'],
   ['verify:qc:multiplayer-reliability', 'verify:qc:multiplayer:browser'],
   ['verify:qc:journeys', 'qc:journeys'],
   ['verify:qc:ui-flow-shell', 'qc:ui-flow-shell'],

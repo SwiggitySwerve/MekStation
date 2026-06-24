@@ -204,15 +204,17 @@
       ],
       "commands": [
         "npm.cmd test -- --watchAll=false --runTestsByPath src/services/encounter/__tests__/EncounterService.test.ts",
-        "npm.cmd run verify:qc:encounter-combat-continuity"
+        "npm.cmd run verify:qc:encounter-combat-continuity",
+        "npm.cmd run qc:wave3:validate"
       ],
       "manualChecks": [
         "Start from encounter creation and reach a playable battle without hidden state assumptions"
       ],
       "evidence": [
         "docs/audits/2026-06-12-full-codebase-review.md",
-        "2026-06-23 Chromium browser smoke passed `npx.cmd playwright test --project=chromium e2e/encounter-flow.spec.ts --grep \"@smoke\"`: force creation, encounter creation/configuration, launch affordances, auto-resolve, and game-session creation checks passed.",
+        "2026-06-23 legacy encounter smoke passed force creation, encounter creation/configuration, launch affordances, auto-resolve, and game-session creation checks; this is superseded by strict continuity proof and is not sufficient for Wave 3 proof.",
         "2026-06-24 `npm.cmd run verify:qc:encounter-combat-continuity` passed 16 focused Jest checks plus 3 Chromium proofs: routed campaign encounter auto-resolve preserves campaign/mission/session linkage; interactive pre-battle launch reaches the tactical session, concedes through the UI, survives post-battle review reload, applies the queued outcome, and keeps `processedBattleIds` after campaign route reload; and attack-driven weapon destruction completes a tactical session through real engine resolution into queued post-battle review reload/application.",
+        "2026-06-24 Wave 3 validator requires strict encounter continuity proof and rejects permissive encounter smoke as Wave 3 proof.",
         "Archived OpenSpec change 2026-06-21-fix-navigation-and-playability-deadends retired from activeChangeRefs on 2026-06-23."
       ],
       "gaps": [
@@ -269,7 +271,8 @@
       "commands": [
         "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/testing/__tests__/tactical-map.movement-scenarios.test.ts src/testing/__tests__/tactical-map.combat-scenarios.test.ts --no-coverage",
         "npx.cmd playwright test e2e/tactical-map-visual-smoke.spec.ts --project=chromium",
-        "node scripts/qc/validate-tactical-projection-parity.mjs"
+        "node scripts/qc/validate-tactical-projection-parity.mjs",
+        "npm.cmd run qc:wave3:validate"
       ],
       "manualChecks": [
         "Verify every invalid movement/combat preview explains why before commit",
@@ -280,7 +283,8 @@
         "2026-06-18 tactical review: targeted tactical-map Jest passed 9 suites / 250 tests against movement, combat, projection, terrain labels, camera, and interaction paths.",
         "2026-06-18 subagent review found shared tacticalMapProjectionLookup routing for terrain, movement, combat, selection, path, and LOS overlays.",
         "2026-06-18 Playwright tactical-map visual smoke passed 60 Chromium tests across top-down labels, isometric occlusion/rotation, movement constraints, LOS blockers, and combat-preview evidence.",
-        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs.",
+        "2026-06-24 Wave 3 validator binds encounter continuity, tactical projection parity, tactical visual smoke, and combat rules gates into one on-demand checkpoint."
       ],
       "gaps": [
         "Wave 7 adds a fast tactical projection parity manifest for required surfaces, source anchors, and stale refs; deeper behavior/visual signoff remains in tactical-map Jest and Playwright lanes."
@@ -563,7 +567,8 @@
         "npm.cmd run qc:combat:catalog-rules:validate",
         "npm.cmd run validate:combat",
         "npm.cmd run validate:combat:gaps -- --format=summary --expect-total=0",
-        "npx.cmd openspec validate --all --strict"
+        "npx.cmd openspec validate --all --strict",
+        "npm.cmd run qc:wave3:validate"
       ],
       "manualChecks": [
         "Inspect unsupported rows and ensure every suppressed failure remains visible as a named gap"
@@ -574,7 +579,8 @@
         "2026-06-18 combat review: validate:combat passed 76 suites / 2648 tests; gap summary total 0.",
         "2026-06-23 Wave 10 catalog/rules QC gate validates current combat parity surfaces, source anchors, stale active-change refs, zero unresolved BattleMech gaps, and the explicit 147-row non-BattleMech out-of-scope split.",
         "2026-06-18 damage source refs were repinned after the damage finalizer/location helper split; validate:combat reran green at 76 suites / 2648 tests.",
-        "2026-06-18 integration review confirmed older unresolved BattleMech helper/unsupported audit wording is stale against current live validators."
+        "2026-06-18 integration review confirmed older unresolved BattleMech helper/unsupported audit wording is stale against current live validators.",
+        "2026-06-24 Wave 3 validator requires combat rules gates alongside encounter continuity and tactical UX checkpoint commands."
       ],
       "gaps": [
         "BattleMech validation is green with explicit non-BattleMech scope splits; remaining interactive physical command availability and phase-driver parity concerns should be tracked as concrete failing evidence, not stale active-change refs."
