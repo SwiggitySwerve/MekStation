@@ -2,11 +2,13 @@ import React from 'react';
 
 import { Badge } from '@/components/ui';
 
-import type { GmCampaignPreview } from './GmCampaignInterventionControlPlane.helpers';
+import type { GmLedgerPreview } from './GmCampaignInterventionControlPlane.helpers';
 
 import {
   findFundsEffect,
+  findTimeEffect,
   formatCents,
+  formatDate,
   formatSignedCents,
 } from './GmCampaignInterventionControlPlane.helpers';
 
@@ -18,9 +20,10 @@ export interface ManualTakeoverState {
 export function GmPreviewPanel({
   preview,
 }: {
-  readonly preview: GmCampaignPreview;
+  readonly preview: GmLedgerPreview;
 }): React.ReactElement {
   const fundsEffect = findFundsEffect(preview.projectedEvents);
+  const timeEffect = findTimeEffect(preview.projectedEvents);
 
   return (
     <div
@@ -49,6 +52,15 @@ export function GmPreviewPanel({
             fundsEffect.after.balanceCents - fundsEffect.before.balanceCents,
           )}
           )
+        </p>
+      ) : null}
+      {timeEffect ? (
+        <p
+          className="text-text-theme-secondary mt-2 font-mono text-sm"
+          data-testid="gm-ledger-preview-time-effect"
+        >
+          {formatDate(timeEffect.before.currentDate)} -&gt;{' '}
+          {formatDate(timeEffect.after.currentDate)} ({timeEffect.days} days)
         </p>
       ) : null}
       {preview.privateMetadata ? (

@@ -1053,9 +1053,9 @@
         "source-truth"
       ],
       "qualityLenses": ["functionality", "ux", "rules-parity", "test-quality"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "claimIds": ["campaign.gm-ledger.post-combat-economy"],
-      "routes": ["/gameplay/campaigns"],
+      "routes": ["/gameplay/campaigns/:id/gm-ledger"],
       "apis": [],
       "desktopSurfaces": [],
       "modules": [
@@ -1110,10 +1110,11 @@
         "e2e/gm-campaign-ledger-control-plane.spec.ts",
         "src/lib/interventions/__tests__/GmCampaignInterventionImplementer.test.ts",
         "2026-06-23 `npm.cmd run verify:qc:gm:campaign-ledger` passed: validator reported surfaces=1/1, domains=4/4, families=5/5, anchors=8, errors=0, warnings=0; focused Jest passed 3 suites / 20 tests. Manual review of the covered cases confirmed merchant reversal/funds correction, inventory/base-unit corrections, GM approval, public net-effect projection, private metadata redaction, and manual-takeover blocking for ambiguous merchant cascades.",
-        "2026-06-24 Wave 2 browser slice added `/gameplay/campaigns/:id/gm-ledger`, `GmCampaignInterventionControlPlane`, focused component tests, and `e2e/gm-campaign-ledger-control-plane.spec.ts` so merchant reversal preview/approval, player-safe redaction, and manual-takeover conflict handling are browser-checkable."
+        "2026-06-24 Wave 2 browser slice added `/gameplay/campaigns/:id/gm-ledger`, `GmCampaignInterventionControlPlane`, focused component tests, and `e2e/gm-campaign-ledger-control-plane.spec.ts` so merchant reversal preview/approval, player-safe redaction, and manual-control conflict handling are browser-checkable.",
+        "2026-06-24 `npm.cmd run verify:qc:gm:campaign-ledger` keeps the post-combat/economy GM ledger route, component, redaction, and browser checks wired while accumulated time corrections are covered by `time-cascade-gm-ledger`."
       ],
       "gaps": [
-        "Accumulated time cascades are validated by the separate time-cascade GM ledger lane."
+        "Accumulated time cascades are covered by the separate time-cascade GM ledger lane."
       ]
     },
     {
@@ -1129,9 +1130,9 @@
         "source-truth"
       ],
       "qualityLenses": ["functionality", "ux", "rules-parity", "test-quality"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "claimIds": ["campaign.gm-ledger.time-cascade"],
-      "routes": ["/gameplay/campaigns"],
+      "routes": ["/gameplay/campaigns/:id/gm-ledger"],
       "apis": [],
       "desktopSurfaces": [],
       "modules": [
@@ -1159,16 +1160,20 @@
       "activeChangeRefs": [],
       "tests": [
         "scripts/__tests__/gm-time-cascade-qc.test.ts",
+        "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.test.tsx",
         "src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts",
         "src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts",
         "src/lib/campaign/processors/__tests__/processors.test.ts",
         "src/lib/campaign/processors/__tests__/repairProgressProcessor.test.ts",
-        "src/lib/campaign/processors/__tests__/marketProcessors.test.ts"
+        "src/lib/campaign/processors/__tests__/marketProcessors.test.ts",
+        "e2e/gm-campaign-ledger-control-plane.spec.ts"
       ],
       "commands": [
         "npm.cmd run qc:gm:time-cascade:validate",
         "npm.cmd run verify:qc:gm:time-cascade",
-        "npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/gm-time-cascade-qc.test.ts src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts src/lib/campaign/processors/__tests__/processors.test.ts src/lib/campaign/processors/__tests__/repairProgressProcessor.test.ts src/lib/campaign/processors/__tests__/marketProcessors.test.ts",
+        "npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/gm-time-cascade-qc.test.ts src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts src/lib/campaign/processors/__tests__/processors.test.ts src/lib/campaign/processors/__tests__/repairProgressProcessor.test.ts src/lib/campaign/processors/__tests__/marketProcessors.test.ts src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.test.tsx",
+        "npm.cmd run verify:qc:gm:campaign-browser",
+        "npx.cmd playwright test --project=chromium e2e/gm-campaign-ledger-control-plane.spec.ts --workers=1",
         "npm.cmd run qc:campaign-long:stability -- --journey=campaign-long --seed=42 --contracts=10 --runs=2"
       ],
       "manualChecks": [
@@ -1178,13 +1183,16 @@
         "scripts/qc/gm-ledger-qc-core.mjs",
         "scripts/qc/validate-gm-time-cascade-ledger.mjs",
         "scripts/__tests__/gm-time-cascade-qc.test.ts",
+        "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+        "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
+        "e2e/gm-campaign-ledger-control-plane.spec.ts",
         "src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts",
         "src/lib/campaign/processors/__tests__/marketProcessors.test.ts",
-        "2026-06-23 `npm.cmd run verify:qc:gm:time-cascade` passed: validator reported surfaces=1/1, domains=1/1, families=1/1, processors=6/6, roots=11/11, anchors=10, errors=0, warnings=0; focused Jest passed 6 suites / 51 tests. Manual review of the covered cases confirmed travel, repair progression/completion, market/upkeep processors, public/private log redaction, external-effect projection, and manual takeover when external effects are named without projections."
+        "2026-06-23 `npm.cmd run verify:qc:gm:time-cascade` passed: validator reported surfaces=1/1, domains=1/1, families=1/1, processors=6/6, roots=11/11, anchors=10, errors=0, warnings=0; focused Jest passed 6 suites / 51 tests. Manual review of the covered cases confirmed travel, repair progression/completion, market/upkeep processors, public/private log redaction, external-effect projection, and GM manual control when external effects are named without projections.",
+        "2026-06-24 `npm.cmd run verify:qc:gm:time-cascade` covers the routed GM ledger page, time-cascade preview/approval, player-safe redaction, private GM context, and unprojected external-effect manual-control handling through component and Chromium checks."
       ],
       "gaps": [
-        "Pilot recovery, roster progression, and vault-owned effects remain external to campaign-owned time projection; the time-cascade validator requires explicit projected external effects or manual-takeover anchors.",
-        "Browser UI controls are validated through the broader gameplay UI flow shell rather than this command-only ledger proof."
+        "Pilot recovery, roster progression, and vault-owned effects remain external to campaign-owned time projection; the time-cascade validator requires explicit projected external effects or GM manual-control anchors."
       ]
     },
     {

@@ -6,7 +6,13 @@ import type {
   IGmCampaignInterventionState,
   IGmCampaignProjectedEffect,
   IGmCampaignPublicEffect,
+  IGmCascadePreview,
   IGmPrivateMetadata,
+  IGmTimeCascadeInterventionCommandPayload,
+  IGmTimeCascadeInterventionDomainPayload,
+  IGmTimeCascadeInterventionState,
+  IGmTimeCascadeProjectedEffect,
+  IGmTimeCascadePublicEffect,
   IGmVisibleActionLedgerRecord,
   IInterventionLedgerCommand,
   IPlayerVisibleActionLedgerRecord,
@@ -16,23 +22,44 @@ import { Money } from '@/types/campaign/Money';
 import { TransactionType } from '@/types/campaign/Transaction';
 
 export const MERCHANT_REVERSAL_ID = 'gm-ledger-merchant-reversal';
+export const TIME_CASCADE_ID = 'gm-ledger-time-cascade';
+export const TIME_CASCADE_MANUAL_ID = 'gm-ledger-time-cascade-manual';
 const MERCHANT_REVERSAL_AMOUNT_CENTS = -250_000;
 export const GM_ACTOR_ID = 'gm-browser-control-plane';
 
-export type GmCampaignPreview =
-  import('@/types/interventions').IGmCascadePreview<
-    IGmPrivateMetadata,
-    IGmCampaignPublicEffect,
-    IGmCampaignInterventionDomainPayload
-  >;
+export type GmLedgerPublicEffect =
+  | IGmCampaignPublicEffect
+  | IGmTimeCascadePublicEffect;
+
+export type GmLedgerDomainPayload =
+  | IGmCampaignInterventionDomainPayload
+  | IGmTimeCascadeInterventionDomainPayload;
+
+export type GmCampaignPreview = IGmCascadePreview<
+  IGmPrivateMetadata,
+  IGmCampaignPublicEffect,
+  IGmCampaignInterventionDomainPayload
+>;
+
+export type GmTimeCascadePreview = IGmCascadePreview<
+  IGmPrivateMetadata,
+  IGmTimeCascadePublicEffect,
+  IGmTimeCascadeInterventionDomainPayload
+>;
+
+export type GmLedgerPreview = IGmCascadePreview<
+  IGmPrivateMetadata,
+  GmLedgerPublicEffect,
+  GmLedgerDomainPayload
+>;
 
 export type PlayerLedgerRow =
-  IPlayerVisibleActionLedgerRecord<IGmCampaignPublicEffect>;
+  IPlayerVisibleActionLedgerRecord<GmLedgerPublicEffect>;
 
 export type GmLedgerRow = IGmVisibleActionLedgerRecord<
-  IGmCampaignPublicEffect,
+  GmLedgerPublicEffect,
   IGmPrivateMetadata,
-  IGmCampaignInterventionDomainPayload
+  GmLedgerDomainPayload
 >;
 
 export function buildMerchantReversalCommand({
@@ -87,17 +114,65 @@ export function buildMerchantReversalCommand({
   };
 }
 
+export function buildTimeCascadeCommand({
+  actorId,
+  campaign,
+  conflicted,
+  now,
+}: {
+  readonly actorId: string;
+  readonly campaign: ICampaign;
+  readonly conflicted: boolean;
+  readonly now: () => string;
+}): IInterventionLedgerCommand<IGmTimeCascadeInterventionCommandPayload> {
+  const currentDate = campaign.currentDate.toISOString();
+  const generatedAt = now();
+
+  return {
+    domain: 'time',
+    kind: 'fix',
+    actorId,
+    targetRefs: [
+      `campaign:${campaign.id}:currentDate`,
+      `campaign:${campaign.id}:repairQueue`,
+    ],
+    payload: {
+      correction: {
+        family: 'time-advance',
+        days: 2,
+        baseUpdatedAt: campaign.updatedAt,
+        baseCurrentDate: currentDate,
+        generatedAt,
+        externalEffectRefs: conflicted
+          ? [`campaign:${campaign.id}:roster:pilot-fatigue`]
+          : undefined,
+      },
+      privateMetadata: {
+        reason:
+          'Hidden time cascade correction: GM needs to reconcile accumulated downtime before the next contract.',
+        defaultOutcome:
+          'Without this GM action the campaign date, repairs, markets, and upkeep stay on their previous timeline.',
+        hiddenNotes:
+          'Secret employer deadline pressure remains GM-only until the contract clock matters in play.',
+      },
+      publicSummary: conflicted
+        ? 'GM opened a time-cascade review. No campaign state changed.'
+        : 'Campaign time corrected by 2 days.',
+    },
+  };
+}
+
 export function refreshLedgerRows(
   actionLedger: ActionLedger,
   setPlayerRows: (rows: readonly PlayerLedgerRow[]) => void,
   setGmRows: (rows: readonly GmLedgerRow[]) => void,
 ): void {
-  setPlayerRows(actionLedger.projectForPlayer<IGmCampaignPublicEffect>());
+  setPlayerRows(actionLedger.projectForPlayer<GmLedgerPublicEffect>());
   setGmRows(
     actionLedger.projectForGm<
-      IGmCampaignPublicEffect,
+      GmLedgerPublicEffect,
       IGmPrivateMetadata,
-      IGmCampaignInterventionDomainPayload
+      GmLedgerDomainPayload
     >(),
   );
 }
@@ -123,6 +198,21 @@ export function findFundsEffect(
   return null;
 }
 
+export function findTimeEffect(
+  events: readonly unknown[],
+): IGmTimeCascadeProjectedEffect | null {
+  for (const event of events) {
+    if (
+      event &&
+      typeof event === 'object' &&
+      (event as { family?: unknown }).family === 'time-advance'
+    ) {
+      return event as IGmTimeCascadeProjectedEffect;
+    }
+  }
+  return null;
+}
+
 export function formatCents(cents: number): string {
   return Money.fromCents(cents).format();
 }
@@ -132,4 +222,10 @@ export function formatSignedCents(cents: number): string {
   return cents < 0 ? `-${formatted}` : `+${formatted}`;
 }
 
-export type GmCampaignUpdate = Partial<IGmCampaignInterventionState>;
+export function formatDate(value: string): string {
+  return value.slice(0, 10);
+}
+
+export type GmCampaignUpdate = Partial<
+  IGmCampaignInterventionState & IGmTimeCascadeInterventionState
+>;
