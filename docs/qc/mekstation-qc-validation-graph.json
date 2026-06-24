@@ -1339,6 +1339,8 @@
       "label": "Registry evidence for Multiplayer, Co-op, P2P Sync",
       "entries": [
         "docs/audits/2026-06-12-full-codebase-review.md",
+        "2026-06-23 Chromium browser smoke passed `npx.cmd playwright test --project=chromium e2e/playtest-coop-route-smoke.spec.ts`: host co-op campaign mounts dashboard/personnel/mech-bay/hiring/contract-market/finances with co-op badge, and single-player campaign hides co-op surfaces.",
+        "2026-06-24 `verify:qc:multiplayer-reliability` groups browser route smoke, mock P2P sync, co-op route mounting, API fog/spectate contracts, server host/reconnect/spectator/fog behavior, turn ownership, and the Phase 4 capstone host/join/reconnect/outcome flow.",
         "Archived OpenSpec change 2026-06-21-reconcile-multiplayer-coop-reality retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23."
       ]
@@ -1348,7 +1350,8 @@
       "kind": "evidence",
       "label": "Manual/browser evidence for Multiplayer, Co-op, P2P Sync",
       "entries": [
-        "Create host match, join by invite code, verify fog-limited guest state, and package-runtime parity"
+        "Run a true two-window/vault-auth host and guest session, join by invite code, and verify live turn handoff plus fog-limited guest state.",
+        "Kill/restart the packaged runtime during an active match and verify reconnect durability against the persistent match store."
       ]
     },
     {
@@ -1356,13 +1359,13 @@
       "kind": "known-gap",
       "label": "Multiplayer, Co-op, P2P Sync known gaps",
       "entries": [
-        "Current dirty worktree includes multiplayer API/store edits; preserve them and validate before touching."
+        "Automated coverage proves route/mock harness, server/API contracts, reconnect, spectator, fog, turn-authority, and capstone host/join recovery; true two-window vault-auth live play and packaged-runtime kill/reconnect remain release-signoff checks."
       ]
     },
     {
-      "id": "command:npm-cmd-test-watchall-false-runtestsbypath-src-tests-unit-api-multiplayermatchesfog-test-ts",
+      "id": "command:npm-cmd-run-verify-qc-multiplayer-reliability",
       "kind": "command",
-      "label": "npm.cmd test -- --watchAll=false --runTestsByPath src/__tests__/unit/api/multiplayerMatchesFog.test.ts"
+      "label": "npm.cmd run verify:qc:multiplayer-reliability"
     },
     {
       "id": "surface:replay-audit-history",
@@ -3478,11 +3481,11 @@
     },
     {
       "from": "state:multiplayer-coop-sync:lifecycle",
-      "to": "command:npm-cmd-test-watchall-false-runtestsbypath-src-tests-unit-api-multiplayermatchesfog-test-ts",
+      "to": "command:npm-cmd-run-verify-qc-multiplayer-reliability",
       "relation": "validated-by"
     },
     {
-      "from": "command:npm-cmd-test-watchall-false-runtestsbypath-src-tests-unit-api-multiplayermatchesfog-test-ts",
+      "from": "command:npm-cmd-run-verify-qc-multiplayer-reliability",
       "to": "evidence:multiplayer-coop-sync:registry",
       "relation": "produces"
     },

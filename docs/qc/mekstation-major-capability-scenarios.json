@@ -330,14 +330,14 @@
       "successCriteria": [
         "P2P harness and multiplayer playtest route smoke specs pass.",
         "Fog-of-war match API tests preserve visibility boundaries.",
-        "Server reconnection and fog tests preserve co-op state assumptions."
+        "Server reconnection, spectate, turn authority, and capstone host/join/recovery tests preserve co-op state assumptions."
       ],
       "checks": [
         {
           "id": "multiplayer-browser-route-flow",
           "tier": "standard",
           "required": true,
-          "command": "npx.cmd playwright test e2e/p2p-sync.spec.ts e2e/playtest-mp-smoke.spec.ts e2e/playtest-coop-route-smoke.spec.ts --project=chromium",
+          "command": "npm.cmd run verify:qc:multiplayer:browser",
           "evidence": [
             "e2e/p2p-sync.spec.ts",
             "e2e/playtest-mp-smoke.spec.ts",
@@ -348,16 +348,22 @@
           "id": "multiplayer-fog-reconnect-contracts",
           "tier": "core",
           "required": true,
-          "command": "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/__tests__/unit/api/multiplayerMatchesFog.test.ts src/lib/multiplayer/server/__tests__/fogOfWar.test.ts src/lib/multiplayer/server/__tests__/reconnectionFlow.test.ts --no-coverage",
+          "command": "npm.cmd run verify:qc:multiplayer:contracts",
           "evidence": [
             "src/__tests__/unit/api/multiplayerMatchesFog.test.ts",
+            "src/__tests__/unit/api/multiplayerSpectate.test.ts",
+            "src/__tests__/integration/phase4Multiplayer.test.ts",
+            "src/lib/multiplayer/__tests__/turnOwnership.test.ts",
+            "src/lib/multiplayer/server/__tests__/ServerMatchHost.test.ts",
+            "src/lib/multiplayer/server/__tests__/ServerMatchHost.spectator.test.ts",
             "src/lib/multiplayer/server/__tests__/fogOfWar.test.ts",
             "src/lib/multiplayer/server/__tests__/reconnectionFlow.test.ts"
           ]
         }
       ],
       "notes": [
-        "True multi-peer BroadcastChannel sharing remains skipped in Playwright; this scenario records route, mock harness, fog, and server contract coverage instead."
+        "`verify:qc:multiplayer-reliability` runs the browser route harness plus these server/API contracts as one on-demand gate.",
+        "True multi-peer BroadcastChannel sharing remains skipped in Playwright; this scenario records route, mock harness, fog, reconnect, spectate, turn-authority, and server contract coverage instead."
       ]
     },
     {
