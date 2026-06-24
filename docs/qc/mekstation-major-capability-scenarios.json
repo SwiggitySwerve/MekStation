@@ -390,6 +390,17 @@
           "evidence": [
             "src/simulation/__tests__/replay-determinism.integration.test.ts"
           ]
+        },
+        {
+          "id": "active-session-recovery-browser",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run verify:qc:replay-recovery",
+          "evidence": [
+            "e2e/active-session-recovery.spec.ts",
+            "src/stores/__tests__/useGameplayStore.recover.test.ts",
+            "src/engine/__tests__/InteractiveSession.recovery.test.ts"
+          ]
         }
       ],
       "notes": [
