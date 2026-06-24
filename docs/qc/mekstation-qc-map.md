@@ -59,6 +59,7 @@ npm.cmd run qc:journeys:bugs -- --since=latest --min-severity=medium
 npm.cmd run qc:logs -- --run-id=latest --level=warn,error
 npm.cmd run qc:logs -- --run-id=latest --level=warn,error --exclude-probes
 npm.cmd run verify:qc:scenarios
+npm.cmd run verify:qc:app-shell
 npm.cmd run verify:qc:journeys
 npm.cmd run verify:qc:ui-flow-shell
 npm.cmd run verify:qc:gm:campaign-ledger
@@ -141,6 +142,19 @@ flowchart TD
 
 ## Current Hot Lanes
 
+1. `app-shell-navigation`
+   - Wave 1 adds `verify:qc:app-shell` as the focused Chromium gate for
+     primary route deep links, refresh recovery, shell chrome, route anchors,
+     critical console/page/network failures, settings hash navigation, and the
+     desktop History -> Replay Library route contract.
+   - 2026-06-24 `verify:qc:app-shell` passed 17 checks and caught two real
+     app-shell regressions before this lane moved forward: `/units` imported
+     the unit-card barrel and leaked SQLite code into the browser, and
+     `/compare` logged reload-aborted catalog fetches as failures.
+   - Dynamic generated-ID session recovery is intentionally left to the
+     campaign, combat continuity, multiplayer, and replay lanes where seeded
+     state can prove recovery without weakening this static route sweep.
+
 1. `gameplay-tactical-map-combat`
    - Tactical map is the primary explanation layer; Wave 7 adds a fast
      projection parity manifest that validates required tactical surfaces,
@@ -153,7 +167,7 @@ flowchart TD
      unit scenarios and Playwright visual smoke for deeper behavior/visual
      signoff.
 
-2. `simulation-combat-validation`
+1. `simulation-combat-validation`
    - BattleMech unresolved validation gaps are currently 0 by
      `validate:combat:gaps -- --format=summary`.
    - Current out-of-scope combat rows are 147 by
@@ -175,7 +189,7 @@ flowchart TD
      out-of-scope rows; the focused physical/ejection UI command slice passed
      11 suites / 78 tests.
 
-3. `post-combat-base-economy-gm-ledger`
+1. `post-combat-base-economy-gm-ledger`
    - Wave 8 lives under `campaign-economy-progression` and proves the
      ledger-backed GM correction layer for post-combat, salvage, repair,
      merchant reversals, inventory, funds, and base unit state roots.
@@ -191,7 +205,7 @@ flowchart TD
      inventory/base-unit, net-effect projection, redaction, and manual-takeover
      cases.
 
-4. `time-cascade-gm-ledger`
+1. `time-cascade-gm-ledger`
    - Wave 9 lives under `campaign-economy-progression` and proves the
      ledger-backed GM time-cascade layer for date advancement, optional
      travel, repair progression, contract windows, market refreshes, finance
@@ -208,7 +222,7 @@ flowchart TD
      public/private redaction, external-effect projection, and manual-takeover
      cases.
 
-5. `long-campaign-stability`
+1. `long-campaign-stability`
    - `long-campaign-stability` is the Wave 11 guard for deterministic 6-10
      contract campaign repeatability. Validate metadata wiring first with
      `qc:campaign-long:validate`; use `verify:qc:campaign-long` when you also
@@ -220,7 +234,7 @@ flowchart TD
      2 runs, 0 drift, 0 stability bug candidates, 8/8 save round trips, and
      manifest-confirmed UI checkpoint linkage with `browserExecuted=false`.
 
-6. `integration-runner-interactive-parity`
+1. `integration-runner-interactive-parity`
    - Runner/interactive parity is still the highest-risk combat integration
      lane, especially physical attack commit and phase-driver behavior.
    - 2026-06-23 runner/interactive parity passed 3 suites / 109 tactical
@@ -228,11 +242,11 @@ flowchart TD
      physical/ejection command slice proving physical declaration/resolution,
      phase advancement, and utility eject coverage.
 
-7. `multiplayer-coop-sync`
+1. `multiplayer-coop-sync`
    - Current dirty worktree includes multiplayer API and fog test edits.
    - Treat those edits as external work until validated.
 
-8. `desktop-api-security`
+1. `desktop-api-security`
    - The 2026-06-23 desktop lane now proves the packaged runtime path with
      `npm.cmd run electron:test:build`: Next production build, Electron
      TypeScript, standalone native rebuild, Electron `better-sqlite3` runtime
@@ -241,7 +255,7 @@ flowchart TD
      `.next/standalone` native modules so the package no longer ships a
      host-Node ABI binding into Electron's Node runtime.
 
-9. `maintenance-code-health`
+1. `maintenance-code-health`
    - Full maintenance scanner pass is active with a reviewed `src` regression
      baseline; the current `src` scanner gate has 0 critical/high findings.
    - Use `maintain:scan:gate` to block new `src` critical/high findings, and

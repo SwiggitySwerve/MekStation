@@ -23,9 +23,13 @@ export default function ComparePage(): React.ReactElement {
   const [catalogLoading, setCatalogLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fetchCatalog() {
       try {
-        const response = await fetch('/api/catalog');
+        const response = await fetch('/api/catalog', {
+          signal: controller.signal,
+        });
         const data = (await response.json()) as {
           success: boolean;
           data?: IUnitEntry[];
@@ -34,12 +38,16 @@ export default function ComparePage(): React.ReactElement {
           setCatalog(data.data || []);
         }
       } catch (err) {
+        if (controller.signal.aborted) return;
         logger.error('Failed to fetch catalog:', err);
       } finally {
+        if (controller.signal.aborted) return;
         setCatalogLoading(false);
       }
     }
     fetchCatalog();
+
+    return () => controller.abort();
   }, []);
 
   const filteredCatalog = catalog

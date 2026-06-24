@@ -137,6 +137,7 @@
     "qc:lifecycle:status": "node scripts/qc/report-lifecycle-qc-status.mjs",
     "qc:logging:validate": "node scripts/qc/validate-journey-qc.mjs --logging-only=true",
     "verify:qc:scenarios": "npm run qc:scenarios -- --tier=standard",
+    "verify:qc:app-shell": "npx playwright test --project=chromium e2e/app-shell-route-proof.spec.ts --workers=1",
     "verify:qc:journeys": "npm run qc:journeys:validate && npm run qc:journeys -- --journey=all --tier=smoke",
     "verify:qc:ui-flow-shell": "npm run qc:ui-flow-shell:validate && npm run qc:ui-flow-shell -- --journey=all --json",
     "verify:qc:gm:campaign-ledger": "npm run qc:gm:campaign-ledger:validate && npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/gm-campaign-ledger-qc.test.ts src/lib/interventions/__tests__/GmCampaignInterventionImplementer.test.ts src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts",

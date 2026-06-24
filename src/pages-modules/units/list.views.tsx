@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import type { UnitEntry } from '@/pages-modules/units/list.types';
 
 import { Badge, TechBaseBadge } from '@/components/ui';
-import { UnitCardCompact } from '@/components/unit-card';
+import { UnitCardCompact } from '@/components/unit-card/UnitCardCompact';
 import {
   getUnitTypeDisplay,
   getWeightClassDisplay,
