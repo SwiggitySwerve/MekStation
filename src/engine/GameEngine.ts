@@ -75,6 +75,7 @@ export class GameEngine {
     playerUnits: readonly IAdaptedUnit[],
     opponentUnits: readonly IAdaptedUnit[],
     gameUnits: readonly IGameUnit[],
+    linkage: IInteractiveSessionLinkage = {},
   ): IGameSession {
     const weaponsByUnit = new Map<string, readonly IWeapon[]>();
     const movementByUnit = new Map<string, IMovementCapability>();
@@ -97,6 +98,10 @@ export class GameEngine {
       turnLimit: this.turnLimit,
       victoryConditions: ['elimination'],
       optionalRules: [...this.optionalRules],
+      encounterId: linkage.encounterId ?? null,
+      campaignId: linkage.campaignId ?? null,
+      contractId: linkage.contractId ?? null,
+      scenarioId: linkage.scenarioId ?? null,
     };
 
     let session = createGameSession(gameConfig, gameUnits);

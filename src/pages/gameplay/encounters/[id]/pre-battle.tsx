@@ -17,6 +17,7 @@ import type { IPilot } from '@/types/pilot';
 import type { IForceSummary } from '@/utils/gameplay/forceSummary';
 
 import { ForceComparisonPanel } from '@/components/gameplay/ForceComparisonPanel';
+import { buildPreBattleLaunchLinkage } from '@/components/gameplay/pages/preBattle/preBattleLaunchLinkage';
 import {
   PreBattleLoading,
   PreBattleNotFound,
@@ -153,7 +154,7 @@ function useNetworked1v1Launch({
 
 export default function PreBattlePage(): React.ReactElement {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, campaignId, missionId } = router.query;
   const { showToast } = useToast();
 
   const getEncounter = useEncounterSelector((state) => state.getEncounter);
@@ -191,6 +192,9 @@ export default function PreBattlePage(): React.ReactElement {
   const opponentForce = encounter?.opponentForce
     ? forces.find((force) => force.id === encounter.opponentForce?.forceId)
     : undefined;
+  const launchLinkage = encounter
+    ? buildPreBattleLaunchLinkage({ encounter, campaignId, missionId })
+    : undefined;
 
   const {
     playerUnits: skirmishPlayerUnits,
@@ -220,6 +224,7 @@ export default function PreBattlePage(): React.ReactElement {
     playerForce,
     opponentForce,
     mapConfig: encounter?.mapConfig,
+    linkage: launchLinkage,
     pilots,
     router,
     setSession,

@@ -184,10 +184,15 @@
       "activeChangeRefs": [],
       "tests": [
         "src/services/encounter/__tests__",
-        "src/types/encounter/__tests__"
+        "src/types/encounter/__tests__",
+        "src/components/gameplay/pages/preBattle/__tests__/preBattleLaunchLinkage.test.ts",
+        "src/components/gameplay/pages/preBattle/__tests__/usePreBattleLaunch.test.ts",
+        "src/__tests__/integration/campaignCombatLoop.test.ts",
+        "e2e/encounter-combat-continuity.spec.ts"
       ],
       "commands": [
-        "npm.cmd test -- --watchAll=false --runTestsByPath src/services/encounter/__tests__/EncounterService.test.ts"
+        "npm.cmd test -- --watchAll=false --runTestsByPath src/services/encounter/__tests__/EncounterService.test.ts",
+        "npm.cmd run verify:qc:encounter-combat-continuity"
       ],
       "manualChecks": [
         "Start from encounter creation and reach a playable battle without hidden state assumptions"
@@ -195,10 +200,11 @@
       "evidence": [
         "docs/audits/2026-06-12-full-codebase-review.md",
         "2026-06-23 Chromium browser smoke passed `npx.cmd playwright test --project=chromium e2e/encounter-flow.spec.ts --grep \"@smoke\"`: force creation, encounter creation/configuration, launch affordances, auto-resolve, and game-session creation checks passed.",
+        "2026-06-24 `npm.cmd run verify:qc:encounter-combat-continuity` passed 16 focused Jest checks plus Chromium proof that a routed campaign encounter auto-resolves, preserves campaign/mission/session linkage, queues a post-battle outcome, and applies it through the review screen into `processedBattleIds`.",
         "Archived OpenSpec change 2026-06-21-fix-navigation-and-playability-deadends retired from activeChangeRefs on 2026-06-23."
       ],
       "gaps": [
-        "Setup routes must prove playable continuity into tactical combat and campaign post-battle flows."
+        "Broader setup continuity still needs authored multi-unit, custom-scenario, and non-1v1 campaign variants beyond the seeded 1v1 browser proof."
       ]
     },
     {
