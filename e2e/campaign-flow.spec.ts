@@ -1,9 +1,11 @@
 /**
- * Campaign Flow E2E Tests
+ * Strict Campaign Flow E2E Tests
  *
- * Tests for the full campaign lifecycle: creation, roster management,
- * mission generation, battle execution, and damage carry-forward between
- * missions.
+ * Browser-drives campaign creation, roster readiness, mission generation,
+ * contract acceptance, and post-battle carry-forward with explicit
+ * preconditions. These checks intentionally avoid ambient campaign cards and
+ * tautological pass paths so the campaign browser lane catches route/state
+ * regressions.
  *
  * @tags @campaign @smoke
  */
@@ -12,303 +14,530 @@ import { test, expect, type Page } from '@playwright/test';
 
 import { getStoreState } from './helpers/store';
 
-// =============================================================================
-// Types
-// =============================================================================
-
 interface CampaignStoreState {
-  readonly campaigns: Record<
-    string,
-    {
-      readonly id: string;
-      readonly name: string;
-      readonly status: string;
-      readonly roster?: readonly {
-        readonly unitId: string;
-        readonly name: string;
-        readonly currentArmor?: Record<string, number>;
-        readonly maxArmor?: Record<string, number>;
-        readonly damaged?: boolean;
-      }[];
-      readonly missions?: readonly {
-        readonly id: string;
-        readonly name: string;
-        readonly status: string;
-        readonly encounterId?: string;
-      }[];
-    }
-  >;
-}
-
-interface GameplayStoreState {
-  readonly session: {
+  readonly campaign: {
     readonly id: string;
-    readonly currentState: {
-      readonly status: string;
-      readonly result?: {
-        readonly winner: string;
-        readonly reason: string;
-      };
-      readonly units: Record<
-        string,
-        {
-          readonly id: string;
-          readonly side: 'player' | 'opponent';
-          readonly destroyed: boolean;
-          readonly armor: Record<string, number>;
-        }
-      >;
-    };
+    readonly name: string;
+    readonly status: string;
   } | null;
 }
 
-// =============================================================================
-// Test Configuration
-// =============================================================================
+interface CampaignContractSnapshot {
+  readonly campaignId: string | null;
+  readonly missionIds: readonly string[];
+  readonly missionNames: readonly string[];
+  readonly missionStatuses: readonly string[];
+  readonly missionScenarioIds: readonly string[];
+  readonly contractMarketOfferIds: readonly string[];
+  readonly rosterUnitNames: readonly string[];
+  readonly rosterPilotNames: readonly string[];
+}
 
-test.setTimeout(60000);
+interface SeededDamagedCampaign {
+  readonly campaignId: string;
+  readonly auditDate: string;
+  readonly matchId: string;
+}
 
-async function waitForStoreReady(page: Page): Promise<void> {
+test.setTimeout(90_000);
+
+async function waitForE2EHydration(page: Page): Promise<void> {
   await page.waitForFunction(
-    () => {
-      const win = window as unknown as {
-        __ZUSTAND_STORES__?: { campaign?: unknown };
-      };
-      return win.__ZUSTAND_STORES__?.campaign !== undefined;
-    },
-    { timeout: 15000 },
+    () => (window as { __E2E_MODE__?: boolean }).__E2E_MODE__ === true,
+    undefined,
+    { timeout: 15_000 },
   );
 }
 
-// =============================================================================
-// Campaign Creation
-// =============================================================================
+async function waitForCampaignStoresReady(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () => {
+      const win = window as unknown as {
+        __ZUSTAND_STORES__?: { campaign?: unknown; campaignRoster?: unknown };
+      };
+      return Boolean(
+        win.__ZUSTAND_STORES__?.campaign &&
+        win.__ZUSTAND_STORES__?.campaignRoster,
+      );
+    },
+    undefined,
+    { timeout: 15_000 },
+  );
+}
+
+async function createRosteredCampaignViaWizard(page: Page): Promise<string> {
+  const campaignName = `E2E Campaign Flow ${Date.now()}`;
+
+  await page.goto('/gameplay/campaigns/create');
+  await waitForE2EHydration(page);
+
+  await expect(page.getByTestId('campaign-name-input')).toBeVisible();
+  await page.getByTestId('campaign-name-input').fill(campaignName);
+  await page
+    .getByTestId('campaign-description-input')
+    .fill('Strict browser proof for campaign flow coverage.');
+
+  await page.getByTestId('wizard-next-btn').click();
+  await expect(page.getByText('Campaign Type')).toBeVisible();
+
+  await page.getByTestId('wizard-next-btn').click();
+  await expect(page.getByText('Campaign Preset')).toBeVisible();
+
+  await page.getByTestId('wizard-next-btn').click();
+  await expect(page.getByText('Configure Roster')).toBeVisible();
+  await page.getByTestId('add-unit-light-mech').click();
+  await page.getByTestId('add-pilot-btn').click();
+  await page.locator('select').first().selectOption({ index: 1 });
+
+  await page.getByTestId('wizard-next-btn').click();
+  await expect(page.getByText('Review Campaign')).toBeVisible();
+
+  await page.getByTestId('wizard-submit-btn').click();
+  await page.waitForURL(/\/gameplay\/campaigns\/[^/]+$/, {
+    timeout: 20_000,
+  });
+  await expect(page.getByTestId('campaign-dashboard')).toBeVisible({
+    timeout: 20_000,
+  });
+  await expect(page.getByTestId('roster-unit-card')).toContainText(
+    'Light Mech',
+  );
+  await expect(page.getByTestId('roster-unit-card')).toContainText('Ready');
+
+  const campaignId = page.url().match(/\/gameplay\/campaigns\/([^/?#]+)/)?.[1];
+  expect(campaignId).toBeTruthy();
+  return campaignId!;
+}
+
+async function getCampaignContractSnapshot(
+  page: Page,
+): Promise<CampaignContractSnapshot> {
+  return page.evaluate(() => {
+    type StoreApi = {
+      getState: () => Record<string, unknown>;
+    };
+    type ExposedStore = StoreApi | (() => StoreApi);
+    type MissionRecord = {
+      id?: unknown;
+      name?: unknown;
+      status?: unknown;
+      scenarioIds?: unknown;
+    };
+    type CampaignRecord = {
+      id?: unknown;
+      missions?: unknown;
+      contractMarket?: {
+        offers?: readonly { id?: unknown }[];
+      };
+    };
+    type RosterState = {
+      units?: readonly { unitName?: unknown }[];
+      pilots?: readonly { pilotName?: unknown }[];
+    };
+
+    const resolveStore = (raw: ExposedStore | undefined): StoreApi => {
+      if (!raw) {
+        throw new Error('Expected E2E store to be exposed');
+      }
+      return 'getState' in raw ? raw : raw();
+    };
+
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          campaign?: ExposedStore;
+          campaignRoster?: ExposedStore;
+        };
+      }
+    ).__ZUSTAND_STORES__;
+    const campaignState = resolveStore(stores?.campaign).getState() as {
+      getCampaign?: () => CampaignRecord | null;
+    };
+    const rosterState = resolveStore(stores?.campaignRoster).getState() as
+      | RosterState
+      | undefined;
+    const campaign = campaignState.getCampaign?.() ?? null;
+    const missions =
+      campaign?.missions instanceof Map
+        ? (Array.from(campaign.missions.values()) as MissionRecord[])
+        : [];
+
+    return {
+      campaignId: typeof campaign?.id === 'string' ? campaign.id : null,
+      missionIds: missions
+        .map((mission) => mission.id)
+        .filter((id): id is string => typeof id === 'string'),
+      missionNames: missions
+        .map((mission) => mission.name)
+        .filter((name): name is string => typeof name === 'string'),
+      missionStatuses: missions
+        .map((mission) => mission.status)
+        .filter((status): status is string => typeof status === 'string'),
+      missionScenarioIds: missions.flatMap((mission) =>
+        Array.isArray(mission.scenarioIds)
+          ? mission.scenarioIds.filter(
+              (scenarioId): scenarioId is string =>
+                typeof scenarioId === 'string',
+            )
+          : [],
+      ),
+      contractMarketOfferIds:
+        campaign?.contractMarket?.offers
+          ?.map((offer) => offer.id)
+          .filter((id): id is string => typeof id === 'string') ?? [],
+      rosterUnitNames:
+        rosterState?.units
+          ?.map((unit) => unit.unitName)
+          .filter((name): name is string => typeof name === 'string') ?? [],
+      rosterPilotNames:
+        rosterState?.pilots
+          ?.map((pilot) => pilot.pilotName)
+          .filter((name): name is string => typeof name === 'string') ?? [],
+    };
+  });
+}
+
+async function acceptFirstMarketContract(
+  page: Page,
+  campaignId: string,
+): Promise<{ offerId: string; offerName: string }> {
+  await page.goto(`/gameplay/campaigns/${campaignId}`);
+  await expect(page.getByTestId('quick-action-browse-contracts')).toBeVisible({
+    timeout: 20_000,
+  });
+  await page.getByTestId('quick-action-browse-contracts').click();
+  await page.waitForURL(
+    new RegExp(`/gameplay/campaigns/${campaignId}/contract-market$`),
+    { timeout: 20_000 },
+  );
+  await expect(page.getByTestId('contract-market-grid')).toBeVisible({
+    timeout: 20_000,
+  });
+
+  const firstOffer = page.locator('[data-testid^="offer-card-"]').first();
+  await expect(firstOffer).toBeVisible();
+  const offerTestId = await firstOffer.getAttribute('data-testid');
+  const offerName = (await firstOffer.locator('h3').textContent())?.trim();
+  const offerId = offerTestId?.replace(/^offer-card-/, '');
+
+  expect(offerId).toBeTruthy();
+  expect(offerName).toBeTruthy();
+
+  await page.getByTestId(`offer-accept-${offerId}`).click();
+  await expect(page.getByTestId(`offer-card-${offerId}`)).toHaveCount(0);
+
+  return { offerId: offerId!, offerName: offerName! };
+}
+
+async function seedDamagedPostBattleCampaign(
+  page: Page,
+): Promise<SeededDamagedCampaign> {
+  await page.goto('/gameplay/campaigns');
+  await waitForCampaignStoresReady(page);
+
+  return page.evaluate(() => {
+    type StoreApi = {
+      getState: () => Record<string, any>;
+      setState?: (state: Record<string, any>) => void;
+    };
+    type ExposedStore = StoreApi | (() => StoreApi);
+    const resolveStore = (store: ExposedStore): StoreApi =>
+      typeof (store as StoreApi).getState === 'function'
+        ? (store as StoreApi)
+        : (store as () => StoreApi)();
+
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          campaign?: ExposedStore;
+          campaignRoster?: StoreApi;
+        };
+      }
+    ).__ZUSTAND_STORES__;
+
+    if (!stores?.campaign || !stores.campaignRoster) {
+      throw new Error('Campaign E2E stores are not exposed');
+    }
+
+    const campaignStore = resolveStore(stores.campaign);
+    const campaignState = campaignStore.getState();
+    const campaignId = campaignState.createCampaign(
+      'E2E Damage Carry Forward Co.',
+      'mercenary',
+      { startingFunds: 2_500_000 },
+    );
+    const currentDate = '3025-01-01T00:00:00.000Z';
+    const auditDate = '3025-01-01';
+    const matchId = 'match-campaign-flow-damage';
+    const unitId = 'unit-damaged-atlas';
+
+    stores.campaignRoster.setState?.({
+      campaignId,
+      units: [
+        {
+          unitId,
+          unitName: 'Atlas AS7-D',
+          chassis: 'Atlas',
+          model: 'AS7-D',
+          pilotId: 'pilot-damaged-atlas',
+          readiness: 'Damaged',
+        },
+      ],
+      pilots: [
+        {
+          pilotId: 'pilot-damaged-atlas',
+          pilotName: 'Morgan Kell',
+          status: 'active',
+          wounds: 1,
+          recoveryTime: 0,
+          xp: 0,
+          campaignXpEarned: 2,
+          campaignKills: 1,
+          campaignMissions: 1,
+          primaryRole: 'Pilot',
+          rankIndex: 0,
+          hireDate: new Date(currentDate),
+          assignedUnitId: unitId,
+        },
+      ],
+      missions: [
+        {
+          id: 'mission-damage-carry-forward',
+          missionNumber: 1,
+          name: 'Damage Carry Forward',
+          result: 'victory',
+          encounterId: 'encounter-damage-carry-forward',
+          campaignId,
+          deployedUnitIds: [unitId],
+          completedAt: currentDate,
+          turnsPlayed: 5,
+        },
+      ],
+      activeMissionId: null,
+      missionCount: 1,
+    });
+
+    campaignState.updateCampaign({
+      currentDate: new Date(currentDate),
+      repairQueue: [
+        {
+          ticketId: 'ticket-damage-carry-forward-ct',
+          unitId,
+          kind: 'armor',
+          location: 'CT',
+          expectedHours: 6,
+          remainingHours: 6,
+          partsRequired: [],
+          source: 'combat',
+          matchId,
+          createdAt: currentDate,
+          status: 'queued',
+        },
+      ],
+      dailyBattleAudit: [
+        {
+          date: auditDate,
+          matchesProcessed: 1,
+          matches: [
+            {
+              matchId,
+              contractId: 'contract-damage-carry-forward',
+              summary: 'Victory - damage carry-forward proof',
+            },
+          ],
+          totalXpAwarded: 2,
+          pilotsWounded: 1,
+          pilotsKia: 0,
+          pilotsMia: 0,
+          salvageValueSecured: 250_000,
+          repairTicketsCreated: 1,
+          contractsClosed: ['contract-damage-carry-forward'],
+        },
+      ],
+      salvageReports: {
+        [matchId]: {
+          battleId: matchId,
+          contractId: 'contract-damage-carry-forward',
+          totalCandidates: 1,
+          totalValue: 250_000,
+        },
+      },
+      unitCombatStates: {
+        [unitId]: {
+          unitId,
+          currentArmorPerLocation: {
+            CT: 20,
+            LT: 10,
+            RT: 12,
+          },
+          currentStructurePerLocation: {
+            CT: 30,
+            LT: 16,
+            RT: 18,
+          },
+          destroyedLocations: [],
+          destroyedComponents: [
+            {
+              location: 'RA',
+              slot: 2,
+              componentType: 'weapon',
+              name: 'Medium Laser',
+              destroyedAt: matchId,
+            },
+          ],
+          heatEnd: 0,
+          ammoRemaining: {},
+          combatReady: true,
+          lastCombatOutcomeId: matchId,
+          lastUpdated: currentDate,
+        },
+      },
+    });
+
+    return { campaignId, auditDate, matchId };
+  });
+}
 
 test.describe('Campaign Flow - Creation', () => {
   test(
-    'should navigate to campaign create page',
+    'creates a rostered campaign through the wizard',
+    { tag: ['@campaign', '@smoke'] },
+    async ({ page }) => {
+      const campaignId = await createRosteredCampaignViaWizard(page);
+      expect(campaignId).toBeTruthy();
+      await expect(page).toHaveURL(
+        new RegExp(`/gameplay/campaigns/${campaignId}$`),
+      );
+    },
+  );
+
+  test(
+    'requires a campaign name before leaving the first wizard step',
     { tag: ['@campaign', '@smoke'] },
     async ({ page }) => {
       await page.goto('/gameplay/campaigns/create');
+      await waitForE2EHydration(page);
+
+      await expect(page.getByTestId('campaign-name-input')).toBeVisible();
+      await page.getByTestId('wizard-next-btn').click();
+
       await expect(page).toHaveURL(/\/gameplay\/campaigns\/create/);
-    },
-  );
-
-  test(
-    'should create campaign with name and roster',
-    { tag: ['@campaign', '@smoke'] },
-    async ({ page }) => {
-      await page.goto('/gameplay/campaigns/create');
-
-      // Step 1: Basic Info
-      const nameInput = page.getByTestId('campaign-name-input');
-      if (await nameInput.isVisible().catch(() => false)) {
-        await nameInput.fill('E2E Campaign Flow Test');
-      }
-
-      const descInput = page.getByTestId('campaign-description-input');
-      if (await descInput.isVisible().catch(() => false)) {
-        await descInput.fill('Testing full campaign flow');
-      }
-
-      // Advance wizard
-      const nextBtn = page.getByTestId('wizard-next-btn');
-      if (await nextBtn.isVisible().catch(() => false)) {
-        await nextBtn.click();
-      }
-
-      // Step 2: Template selection
-      const customTemplate = page.getByTestId('template-custom');
-      if (await customTemplate.isVisible().catch(() => false)) {
-        await customTemplate.click();
-      }
-
-      if (await nextBtn.isVisible().catch(() => false)) {
-        await nextBtn.click();
-      }
-
-      // Step 3: Roster (skip or add units)
-      if (await nextBtn.isVisible().catch(() => false)) {
-        await nextBtn.click();
-      }
-
-      // Step 4: Review and submit
-      const submitBtn = page.getByTestId('wizard-submit-btn');
-      if (await submitBtn.isVisible().catch(() => false)) {
-        await submitBtn.click();
-      }
-
-      // Should redirect to campaign detail
-      await expect(page).toHaveURL(/\/gameplay\/campaigns\/[^/]+$/, {
-        timeout: 10000,
-      });
-    },
-  );
-
-  test(
-    'should validate campaign name is required',
-    { tag: ['@campaign', '@smoke'] },
-    async ({ page }) => {
-      await page.goto('/gameplay/campaigns/create');
-
-      // Try to advance without filling name
-      const nextBtn = page.getByTestId('wizard-next-btn');
-      if (await nextBtn.isVisible().catch(() => false)) {
-        await nextBtn.click();
-      }
-
-      // Should show validation error or remain on same step
-      const stillOnCreate = page.url().includes('/create');
-      expect(stillOnCreate).toBe(true);
+      await expect(page.getByTestId('campaign-name-input')).toBeVisible();
     },
   );
 });
-
-// =============================================================================
-// Campaign Roster Management
-// =============================================================================
 
 test.describe('Campaign Flow - Roster', () => {
   test(
-    'should display roster section on campaign detail',
+    'displays the rostered unit on campaign detail',
     { tag: ['@campaign', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/campaigns');
-      await waitForStoreReady(page);
+      const campaignId = await createRosteredCampaignViaWizard(page);
 
-      // Click first campaign card
-      const campaignCard = page
-        .locator('[data-testid^="campaign-card-"]')
-        .first();
-      if (await campaignCard.isVisible().catch(() => false)) {
-        await campaignCard.click();
-        await page.waitForLoadState('networkidle');
-
-        // Roster section should be visible
-        const rosterSection = page.getByTestId('roster-section');
-        const rosterCard = page.getByTestId('roster-card');
-        const unitsSection = page.getByTestId('campaign-units');
-
-        const hasRoster = await rosterSection.isVisible().catch(() => false);
-        const hasRosterCard = await rosterCard.isVisible().catch(() => false);
-        const hasUnits = await unitsSection.isVisible().catch(() => false);
-
-        expect(hasRoster || hasRosterCard || hasUnits).toBe(true);
-      }
+      await page.reload({ waitUntil: 'networkidle' });
+      await waitForE2EHydration(page);
+      await expect(page).toHaveURL(
+        new RegExp(`/gameplay/campaigns/${campaignId}$`),
+      );
+      await expect(page.getByTestId('roster-unit-card')).toContainText(
+        'Light Mech',
+      );
+      await expect(page.getByTestId('roster-unit-card')).toContainText('Ready');
     },
   );
 });
-
-// =============================================================================
-// Campaign Mission Generation
-// =============================================================================
 
 test.describe('Campaign Flow - Mission Generation', () => {
   test(
-    'should show generate mission button',
+    'generates a mission and opens the linked encounter',
     { tag: ['@campaign', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/campaigns');
-      await waitForStoreReady(page);
+      const campaignId = await createRosteredCampaignViaWizard(page);
 
-      const campaignCard = page
-        .locator('[data-testid^="campaign-card-"]')
-        .first();
-      if (await campaignCard.isVisible().catch(() => false)) {
-        await campaignCard.click();
-        await page.waitForLoadState('networkidle');
+      await expect(page.getByTestId('generate-mission-btn')).toBeEnabled();
+      await page.getByTestId('generate-mission-btn').click();
 
-        // Generate mission button should be visible
-        const generateBtn = page.getByTestId('generate-mission-btn');
-        const newMissionBtn = page.getByTestId('new-mission-btn');
-        const addMissionBtn = page.getByRole('button', {
-          name: /generate mission|new mission/i,
-        });
-
-        const hasGenerate = await generateBtn.isVisible().catch(() => false);
-        const hasNewMission = await newMissionBtn
-          .isVisible()
-          .catch(() => false);
-        const hasAddMission = await addMissionBtn
-          .isVisible()
-          .catch(() => false);
-
-        expect(hasGenerate || hasNewMission || hasAddMission).toBe(true);
-      }
+      await page.waitForURL(
+        (url) =>
+          url.pathname.startsWith('/gameplay/encounters/') &&
+          url.searchParams.get('campaignId') === campaignId &&
+          Boolean(url.searchParams.get('missionId')),
+        { timeout: 30_000 },
+      );
+      await expect(page.getByTestId('encounter-detail-page')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByText('Configuration Required')).toBeVisible();
+      await expect(
+        page.getByText('Player force must be selected'),
+      ).toBeVisible();
+      await expect(
+        page.getByText('Opponent force or OpFor configuration is required'),
+      ).toBeVisible();
+      await expect(page.getByTestId('launch-encounter-btn')).toBeDisabled();
     },
   );
 
   test(
-    'should generate a mission and create encounter',
+    'accepts a market contract and reloads the accepted mission',
     { tag: ['@campaign', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/campaigns');
-      await waitForStoreReady(page);
+      const campaignId = await createRosteredCampaignViaWizard(page);
+      const { offerId, offerName } = await acceptFirstMarketContract(
+        page,
+        campaignId,
+      );
 
-      const campaignCard = page
-        .locator('[data-testid^="campaign-card-"]')
-        .first();
-      if (await campaignCard.isVisible().catch(() => false)) {
-        await campaignCard.click();
-        await page.waitForLoadState('networkidle');
+      const accepted = await getCampaignContractSnapshot(page);
+      expect(accepted.campaignId).toBe(campaignId);
+      expect(accepted.rosterUnitNames).toContain('Light Mech');
+      expect(accepted.rosterPilotNames).toContain('MechWarrior 1');
+      expect(accepted.missionIds).toContain(offerId);
+      expect(accepted.missionNames).toContain(offerName);
+      expect(accepted.missionStatuses).toContain('Active');
+      expect(accepted.contractMarketOfferIds).not.toContain(offerId);
 
-        // Click generate mission
-        const generateBtn = page.getByTestId('generate-mission-btn');
-        const newMissionBtn = page.getByTestId('new-mission-btn');
-
-        if (await generateBtn.isVisible().catch(() => false)) {
-          await generateBtn.click();
-        } else if (await newMissionBtn.isVisible().catch(() => false)) {
-          await newMissionBtn.click();
-        }
-
-        await page.waitForTimeout(2000);
-
-        // Mission should appear in the mission list/tree
-        const missionNodes = page.locator('[data-testid^="mission-node-"]');
-        const missionCards = page.locator('[data-testid^="mission-card-"]');
-        const missionCount =
-          (await missionNodes.count()) + (await missionCards.count());
-
-        expect(missionCount).toBeGreaterThanOrEqual(0);
-      }
+      await page.goto(`/gameplay/campaigns/${campaignId}/missions`);
+      await expect(page.getByTestId(`mission-card-${offerId}`)).toContainText(
+        offerName,
+        { timeout: 20_000 },
+      );
+      await page.reload({ waitUntil: 'networkidle' });
+      await waitForE2EHydration(page);
+      await expect(page.getByTestId(`mission-card-${offerId}`)).toContainText(
+        offerName,
+        { timeout: 20_000 },
+      );
     },
   );
 });
 
-// =============================================================================
-// Campaign Battle and Damage Carry-Forward
-// =============================================================================
-
 test.describe('Campaign Flow - Damage Carry-Forward', () => {
   test(
-    'should carry damage forward between missions',
+    'shows damaged roster state, audit entry, repair queue, and salvage report',
     { tag: ['@campaign', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/campaigns');
-      await waitForStoreReady(page);
+      const seeded = await seedDamagedPostBattleCampaign(page);
 
-      const campaignCard = page
-        .locator('[data-testid^="campaign-card-"]')
-        .first();
-      if (!(await campaignCard.isVisible().catch(() => false))) {
-        return;
-      }
+      await page.goto(`/gameplay/campaigns/${seeded.campaignId}`);
+      await expect(page.getByTestId('campaign-dashboard')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId('roster-unit-card')).toContainText(
+        'Atlas AS7-D',
+      );
+      await expect(page.getByTestId('roster-unit-card')).toContainText(
+        'Damaged',
+      );
+      await expect(page.getByTestId('daily-battle-audit-feed')).toBeVisible();
+      await expect(
+        page.getByTestId(`audit-entry-${seeded.auditDate}`),
+      ).toContainText('Repairs: 1');
+      await expect(
+        page.getByTestId(`audit-match-link-${seeded.matchId}`),
+      ).toBeVisible();
 
-      await campaignCard.click();
-      await page.waitForLoadState('networkidle');
-
-      // Check for damaged unit indicators after a completed mission
-      const damagedIndicators = page.locator('[data-testid^="unit-damaged-"]');
-      const armorReduced = page.locator('[data-testid^="armor-reduced-"]');
-      const damageStatus = page.getByText(/damaged|reduced armor/i);
-
-      const hasDamaged = await damagedIndicators.count();
-      const hasArmorReduced = await armorReduced.count();
-      const hasDamageStatus = await damageStatus.isVisible().catch(() => false);
-      const hasDamageIndicator =
-        hasDamaged + hasArmorReduced > 0 || hasDamageStatus;
-      const hasPostBattleState = await page.evaluate(() => {
+      const postBattleState = await page.evaluate(() => {
         const campaign = (
           window as unknown as {
             __ZUSTAND_STORES__?: {
@@ -319,94 +548,34 @@ test.describe('Campaign Flow - Damage Carry-Forward', () => {
           ?.getState()
           .getCampaign?.();
 
-        return Boolean(
-          (campaign?.dailyBattleAudit?.length ?? 0) > 0 ||
-          (campaign?.repairQueue?.length ?? 0) > 0 ||
-          Object.keys(campaign?.salvageReports ?? {}).length > 0,
-        );
+        return {
+          repairTicketCount: campaign?.repairQueue?.length ?? 0,
+          salvageReportCount: Object.keys(campaign?.salvageReports ?? {})
+            .length,
+          auditEntryCount: campaign?.dailyBattleAudit?.length ?? 0,
+        };
       });
 
-      // Damage indicators are required only once post-battle state exists.
-      // Fresh campaigns are still valid, but they must at least reach the
-      // campaign detail route instead of passing via a tautology.
-      if (hasPostBattleState) {
-        expect(hasDamageIndicator).toBe(true);
-      } else {
-        await expect(page).toHaveURL(/\/gameplay\/campaigns\/[^/]+/);
-      }
-    },
-  );
-
-  test(
-    'should show unit armor status in roster after battle',
-    { tag: ['@campaign', '@smoke'] },
-    async ({ page }) => {
-      await page.goto('/gameplay/campaigns');
-      await waitForStoreReady(page);
-
-      const campaignCard = page
-        .locator('[data-testid^="campaign-card-"]')
-        .first();
-      if (!(await campaignCard.isVisible().catch(() => false))) {
-        return;
-      }
-
-      await campaignCard.click();
-      await page.waitForLoadState('networkidle');
-
-      // Look for unit status in roster showing armor values
-      const rosterUnits = page.locator('[data-testid^="roster-unit-"]');
-      const unitCount = await rosterUnits.count();
-
-      if (unitCount > 0) {
-        // Each roster unit should show armor status
-        const firstUnit = rosterUnits.first();
-        await expect(firstUnit).toBeVisible();
-
-        // Unit should display armor or health indicator
-        const armorBar = firstUnit.locator('[data-testid="armor-bar"]');
-        const healthBar = firstUnit.locator('[data-testid="health-bar"]');
-        const statusIndicator = firstUnit.locator(
-          '[data-testid="unit-status"]',
-        );
-
-        const hasArmor = await armorBar.isVisible().catch(() => false);
-        const hasHealth = await healthBar.isVisible().catch(() => false);
-        const hasStatus = await statusIndicator.isVisible().catch(() => false);
-        const unitText = (await firstUnit.textContent())?.trim() ?? '';
-
-        // A roster entry must expose either a dedicated status indicator or
-        // enough unit text for the operator to identify the readiness row.
-        expect(hasArmor || hasHealth || hasStatus || unitText.length > 0).toBe(
-          true,
-        );
-      } else {
-        await expect(page).toHaveURL(/\/gameplay\/campaigns\/[^/]+/);
-      }
+      expect(postBattleState).toEqual({
+        repairTicketCount: 1,
+        salvageReportCount: 1,
+        auditEntryCount: 1,
+      });
     },
   );
 });
 
-// =============================================================================
-// Campaign Store Verification
-// =============================================================================
-
 test.describe('Campaign Flow - Store State', () => {
   test(
-    'should have campaign data in store',
+    'exposes the created campaign in the campaign store',
     { tag: ['@campaign', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/campaigns');
-      await waitForStoreReady(page);
+      const campaignId = await createRosteredCampaignViaWizard(page);
+      const state = await getStoreState<CampaignStoreState>(page, 'campaign');
 
-      try {
-        const state = await getStoreState<CampaignStoreState>(page, 'campaign');
-        expect(state).toBeTruthy();
-        expect(state.campaigns).toBeDefined();
-      } catch {
-        // Store structure may differ - verify page loaded successfully instead
-        await expect(page).toHaveURL(/\/gameplay\/campaigns/);
-      }
+      expect(state).toBeTruthy();
+      expect(state.campaign).toBeDefined();
+      expect(state.campaign?.id).toBe(campaignId);
     },
   );
 });
