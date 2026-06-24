@@ -58,10 +58,17 @@
             "e2e/mobile-navigation.spec.ts",
             "e2e/pwa.spec.ts"
           ]
+        },
+        {
+          "id": "strict-app-shell-route-recovery-browser",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run verify:qc:app-shell",
+          "evidence": ["e2e/app-shell-route-proof.spec.ts"]
         }
       ],
       "notes": [
-        "Full Chromium E2E remains available through npm.cmd run test:e2e; this scenario uses the focused route, mobile, and PWA shell specs."
+        "Full Chromium E2E remains available through npm.cmd run test:e2e; this scenario uses the focused route, mobile, and PWA shell specs plus the strict app-shell route/deep-link/refresh proof."
       ]
     },
     {

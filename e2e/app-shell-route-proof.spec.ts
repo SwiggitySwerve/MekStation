@@ -41,6 +41,15 @@ const primaryRoutes: readonly RouteProof[] = [
     ],
   },
   {
+    path: '/onboarding',
+    label: 'onboarding',
+    heading: 'Onboarding',
+    affordances: [
+      { label: 'dashboard backlink', role: 'link', name: /Back to dashboard/i },
+      { label: 'glossary section', role: 'heading', name: /Glossary/i },
+    ],
+  },
+  {
     path: '/gameplay',
     label: 'gameplay hub',
     pageTitle: 'Gameplay',
@@ -138,6 +147,21 @@ const primaryRoutes: readonly RouteProof[] = [
     ],
   },
   {
+    path: '/gameplay/repair',
+    label: 'repair bay',
+    pageTitle: 'Repair Bay',
+    affordances: [
+      { label: 'repair search', testId: 'repair-search-input' },
+      { label: 'repair stats', testId: 'repair-stats' },
+      { label: 'field repair action', testId: 'repair-field-btn' },
+    ],
+    stateAffordances: [
+      { label: 'all operational state', testId: 'repair-all-operational' },
+      { label: 'repair empty state', testId: 'repair-empty-state' },
+      { label: 'repair workspace', testId: 'repair-unit-list' },
+    ],
+  },
+  {
     path: '/compendium',
     label: 'compendium',
     heading: 'COMPENDIUM',
@@ -146,6 +170,56 @@ const primaryRoutes: readonly RouteProof[] = [
       { label: 'units section', testId: 'compendium-units-section' },
       { label: 'equipment section', testId: 'compendium-equipment-section' },
       { label: 'rules section', testId: 'compendium-rules-section' },
+    ],
+  },
+  {
+    path: '/compendium/units',
+    label: 'compendium units',
+    heading: 'Unit Database',
+    affordances: [
+      { label: 'unit database search', role: 'textbox', name: /Search units/i },
+      {
+        label: 'unit tech-base filter',
+        role: 'combobox',
+        name: /Filter by tech base/i,
+      },
+      { label: 'unit filters toggle', role: 'button', name: /Filters/i },
+    ],
+    stateAffordances: [
+      { label: 'unit table', role: 'table' },
+      { label: 'unit results counter', text: /Showing \d+ of \d+ results/i },
+    ],
+  },
+  {
+    path: '/compendium/equipment',
+    label: 'compendium equipment',
+    heading: 'Equipment Catalog',
+    affordances: [
+      { label: 'equipment search', role: 'textbox', name: /Search equipment/i },
+      { label: 'equipment filters', role: 'button', name: /Filters/i },
+      {
+        label: 'equipment view mode selector',
+        role: 'group',
+        name: /View mode selection/i,
+      },
+    ],
+    stateAffordances: [
+      { label: 'equipment table', role: 'table' },
+      { label: 'equipment empty state', text: /No equipment found/i },
+    ],
+  },
+  {
+    path: '/compendium/rules',
+    label: 'compendium rules',
+    heading: 'CONSTRUCTION RULES',
+    affordances: [
+      {
+        label: 'internal structure anchor',
+        role: 'button',
+        name: /Internal Structure/i,
+      },
+      { label: 'engine anchor', role: 'button', name: /^Engine$/i },
+      { label: 'armor anchor', role: 'button', name: /^Armor$/i },
     ],
   },
   {
@@ -161,6 +235,46 @@ const primaryRoutes: readonly RouteProof[] = [
       { label: 'custom unit empty state', text: /No custom units yet/i },
       { label: 'custom unit card or row', selector: '[data-testid^="unit-"]' },
       { label: 'custom unit table', role: 'table' },
+    ],
+  },
+  {
+    path: '/gameplay/pilots/create',
+    label: 'create pilot',
+    pageTitle: 'Create Pilot',
+    affordances: [
+      { label: 'pilot creation dialog', role: 'dialog' },
+      { label: 'pilot wizard heading', role: 'heading', name: /Create Pilot/i },
+      { label: 'pilot wizard close', role: 'button', name: /Close/i },
+    ],
+  },
+  {
+    path: '/gameplay/forces/create',
+    label: 'create force',
+    pageTitle: 'Create Force',
+    affordances: [
+      { label: 'force name input', testId: 'force-name-input' },
+      { label: 'lance force type', testId: 'force-type-lance' },
+      { label: 'submit force action', testId: 'submit-force-btn' },
+    ],
+  },
+  {
+    path: '/gameplay/campaigns/create',
+    label: 'create campaign',
+    pageTitle: 'New Campaign',
+    affordances: [
+      { label: 'campaign name input', testId: 'campaign-name-input' },
+      { label: 'campaign wizard next', testId: 'wizard-next-btn' },
+      { label: 'campaign wizard cancel', testId: 'wizard-cancel-btn' },
+    ],
+  },
+  {
+    path: '/gameplay/encounters/create',
+    label: 'create encounter',
+    pageTitle: 'New Encounter',
+    affordances: [
+      { label: 'encounter name input', testId: 'encounter-name-input' },
+      { label: 'battle scenario template', testId: 'template-battle' },
+      { label: 'submit encounter action', testId: 'submit-encounter-btn' },
     ],
   },
   {
@@ -240,7 +354,69 @@ const primaryRoutes: readonly RouteProof[] = [
       },
     ],
   },
+  {
+    path: '/settings',
+    label: 'settings',
+    pageTitle: 'Settings',
+    affordances: [
+      {
+        label: 'appearance settings panel',
+        role: 'button',
+        name: /Appearance/i,
+      },
+      { label: 'vault settings panel', role: 'button', name: /Vault/i },
+      {
+        label: 'accessibility settings panel',
+        role: 'button',
+        name: /Accessibility/i,
+      },
+    ],
+  },
 ];
+
+const desktopDropdowns = [
+  {
+    label: 'Browse',
+    items: [
+      { label: 'My Units', path: '/units' },
+      { label: 'Compendium', path: '/compendium' },
+    ],
+  },
+  {
+    label: 'Tools',
+    items: [
+      { label: 'Customizer', path: '/customizer' },
+      { label: 'Compare', path: '/compare' },
+    ],
+  },
+  {
+    label: 'Gameplay',
+    items: [
+      { label: 'Quick Game', path: '/gameplay/quick' },
+      { label: 'Pilots', path: '/gameplay/pilots' },
+      { label: 'Forces', path: '/gameplay/forces' },
+      { label: 'Campaigns', path: '/gameplay/campaigns' },
+      { label: 'Encounters', path: '/gameplay/encounters' },
+      { label: 'Games', path: '/gameplay/games' },
+      { label: 'Multiplayer', path: '/multiplayer' },
+    ],
+  },
+  {
+    label: 'History',
+    items: [
+      { label: 'Timeline', path: '/audit/timeline' },
+      { label: 'Replay Library', path: '/replay-library' },
+    ],
+  },
+] as const;
+
+const mobileNavItems = [
+  { label: 'Home', path: '/' },
+  { label: 'Browse', path: '/compendium' },
+  { label: 'Gameplay', path: '/gameplay' },
+  { label: 'Multiplayer', path: '/multiplayer' },
+  { label: 'Settings', path: '/settings' },
+] as const;
 
 function isBenignConsoleError(text: string): boolean {
   return [
@@ -328,7 +504,10 @@ async function expectCurrentPath(
     .toBe(expectedPath);
 }
 
-async function expectRouteAnchor(page: Page, route: RouteProof): Promise<void> {
+async function expectRouteIdentity(
+  page: Page,
+  route: RouteProof,
+): Promise<void> {
   if (route.pageTitle) {
     await expect(page.getByTestId('page-title')).toContainText(route.pageTitle);
   }
@@ -353,6 +532,10 @@ async function expectRouteAnchor(page: Page, route: RouteProof): Promise<void> {
       })
       .toBe(true);
   }
+}
+
+async function expectRouteAnchor(page: Page, route: RouteProof): Promise<void> {
+  await expectRouteIdentity(page, route);
 
   for (const affordance of route.affordances ?? []) {
     await expectRouteAffordance(page, affordance);
@@ -441,6 +624,41 @@ async function expectShellAndRoute(
   await expectRouteAnchor(page, route);
 }
 
+function routeByPath(path: string): RouteProof {
+  const route = primaryRoutes.find((candidate) => candidate.path === path);
+  if (!route) {
+    throw new Error(`No primary route proof registered for ${path}`);
+  }
+  return route;
+}
+
+async function openDesktopDropdown(page: Page, label: string): Promise<void> {
+  const button = page.getByRole('button', { name: label }).first();
+  await expect(button).toBeVisible();
+  await button.click();
+}
+
+function mobileNavLink(page: Page, label: string) {
+  return page
+    .getByRole('navigation', { name: /Mobile navigation/i })
+    .getByRole('link', { name: label });
+}
+
+async function expectMobileShellAndRoute(
+  page: Page,
+  route: RouteProof,
+): Promise<void> {
+  await expect(page.locator('header').first()).toBeVisible();
+  await expect(
+    page.getByRole('navigation', { name: /Mobile navigation/i }),
+  ).toBeVisible();
+  await expect(page.locator('body')).not.toContainText(
+    /This page could not be found|Application error/i,
+  );
+  await expectCurrentPath(page, route.path);
+  await expectRouteIdentity(page, route);
+}
+
 test.describe('App shell route proof @app-shell', () => {
   test.describe.configure({ mode: 'serial' });
 
@@ -459,30 +677,70 @@ test.describe('App shell route proof @app-shell', () => {
     });
   }
 
-  test('desktop history navigation routes to replay library', async ({
+  test('desktop dropdown navigation exposes and reaches primary routes', async ({
     page,
   }) => {
     const monitor = installRouteMonitor(page);
-    const replayLibraryRoute = primaryRoutes.find(
-      (route) => route.path === '/replay-library',
-    );
 
-    expect(replayLibraryRoute).toBeDefined();
+    for (const dropdown of desktopDropdowns) {
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      await openDesktopDropdown(page, dropdown.label);
 
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await page.getByRole('button', { name: 'History' }).click();
+      for (const item of dropdown.items) {
+        const link = page.getByRole('menuitem', { name: item.label });
+        await expect(link).toBeVisible();
+        await expect(link).toHaveAttribute('href', item.path);
+      }
 
-    const replayLink = page.getByRole('menuitem', { name: 'Replay Library' });
-    await expect(replayLink).toBeVisible();
-    await expect(replayLink).toHaveAttribute('href', '/replay-library');
+      const representative = dropdown.items[dropdown.items.length - 1];
+      await page.getByRole('menuitem', { name: representative.label }).click();
+      await expectShellAndRoute(page, routeByPath(representative.path));
 
-    await replayLink.click();
-    await expectShellAndRoute(page, replayLibraryRoute!);
-
-    await page.reload({ waitUntil: 'domcontentloaded' });
-    await expectShellAndRoute(page, replayLibraryRoute!);
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await expectShellAndRoute(page, routeByPath(representative.path));
+    }
 
     await page.waitForTimeout(250);
-    monitor.assertClean('replay library nav alignment');
+    monitor.assertClean('desktop dropdown route alignment');
+  });
+
+  test('mobile bottom navigation reaches primary routes and marks active item', async ({
+    page,
+  }) => {
+    const monitor = installRouteMonitor(page);
+    await page.setViewportSize({ width: 375, height: 667 });
+
+    for (const item of mobileNavItems) {
+      const startPath = item.path === '/' ? '/gameplay' : '/';
+
+      await page.goto(startPath, { waitUntil: 'domcontentloaded' });
+      const mobileNav = page.getByRole('navigation', {
+        name: /Mobile navigation/i,
+      });
+      await expect(mobileNav).toBeVisible();
+
+      const link = mobileNavLink(page, item.label);
+      await expect(link).toBeVisible();
+      await expect(link).toHaveAttribute('href', item.path);
+      await link.focus();
+      await expect(link).toBeFocused();
+      await link.press('Enter');
+
+      await expectMobileShellAndRoute(page, routeByPath(item.path));
+      await expect(mobileNavLink(page, item.label)).toHaveAttribute(
+        'aria-current',
+        'page',
+      );
+
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await expectMobileShellAndRoute(page, routeByPath(item.path));
+      await expect(mobileNavLink(page, item.label)).toHaveAttribute(
+        'aria-current',
+        'page',
+      );
+    }
+
+    await page.waitForTimeout(250);
+    monitor.assertClean('mobile bottom navigation route alignment');
   });
 });
