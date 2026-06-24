@@ -133,6 +133,7 @@ function collectRepoEntries(dir = repoRoot, prefix = '') {
 
 const repoEntries = collectRepoEntries();
 const repoEntrySet = new Set(repoEntries);
+const pageRoutePatterns = collectPageRoutePatterns();
 
 function repoReferenceExists(reference) {
   const normalized = toRepoRelativePath(reference.trim());
@@ -143,6 +144,92 @@ function repoReferenceExists(reference) {
   }
 
   return repoEntrySet.has(normalized);
+}
+
+function pathWithoutExtension(filePath) {
+  return filePath.replace(/\.(?:tsx?|jsx?)$/, '');
+}
+
+function pageRouteFromFile(filePath) {
+  const normalized = toRepoRelativePath(filePath);
+  if (!normalized.startsWith('src/pages/')) return null;
+  if (normalized.startsWith('src/pages/api/')) return null;
+  if (!/\.(?:tsx?|jsx?)$/.test(normalized)) return null;
+
+  const pagePath = pathWithoutExtension(normalized.slice('src/pages/'.length));
+  const segments = pagePath.split('/').filter(Boolean);
+  const lastSegment = segments.at(-1);
+
+  if (lastSegment === '_app' || lastSegment === '_document') return null;
+  if (lastSegment === 'index') {
+    segments.pop();
+  }
+
+  return segments.length === 0 ? '/' : `/${segments.join('/')}`;
+}
+
+function routePatternToRegex(routePattern) {
+  if (routePattern === '/') return /^\/$/;
+
+  const segments = routePattern.split('/').filter(Boolean);
+  let pattern = '^';
+
+  for (const segment of segments) {
+    if (/^\[\[\.\.\.[^\]]+\]\]$/.test(segment)) {
+      pattern += '(?:/.*)?';
+      continue;
+    }
+    if (/^\[\.\.\.[^\]]+\]$/.test(segment)) {
+      pattern += '/.+';
+      continue;
+    }
+    if (/^\[[^\]]+\]$/.test(segment)) {
+      pattern += '/[^/]+';
+      continue;
+    }
+    pattern += `/${escapeRegExp(segment)}`;
+  }
+
+  return new RegExp(`${pattern}$`);
+}
+
+function collectPageRoutePatterns() {
+  return repoEntries
+    .map(pageRouteFromFile)
+    .filter(Boolean)
+    .map((routePattern) => ({
+      routePattern,
+      matcher: routePatternToRegex(routePattern),
+    }));
+}
+
+function normalizeRouteReference(route) {
+  return route.split(/[?#]/)[0] || '/';
+}
+
+function routeReferenceExists(route) {
+  const normalized = normalizeRouteReference(route.trim());
+  return pageRoutePatterns.some(({ matcher }) => matcher.test(normalized));
+}
+
+function validateRouteReference(label, index, value, issues) {
+  if (typeof value !== 'string' || value.trim() === '') {
+    issues.push(fail(`${label}: routes[${index}] must be a non-empty string.`));
+    return;
+  }
+
+  if (!value.startsWith('/')) {
+    issues.push(fail(`${label}: routes[${index}] must start with "/".`));
+    return;
+  }
+
+  if (!routeReferenceExists(value)) {
+    issues.push(
+      fail(
+        `${label}: routes[${index}] does not resolve to a Next.js page route: ${value}`,
+      ),
+    );
+  }
 }
 
 function validatePathReference(label, field, index, value, issues) {
@@ -259,6 +346,12 @@ function validate(registry) {
 
       for (const [pathIndex, value] of surface[field].entries()) {
         validatePathReference(label, field, pathIndex, value, issues);
+      }
+    }
+
+    if (Array.isArray(surface.routes)) {
+      for (const [routeIndex, value] of surface.routes.entries()) {
+        validateRouteReference(label, routeIndex, value, issues);
       }
     }
 
