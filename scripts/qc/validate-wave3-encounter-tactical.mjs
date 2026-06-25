@@ -63,6 +63,7 @@ const requiredSurfaces = [
   {
     id: 'gameplay-tactical-map-combat',
     claimId: 'ui.tactical',
+    allowedCoverageStatuses: ['ready-with-scope'],
     commandIncludes: [
       'tactical-map.movement-scenarios.test.ts',
       'tactical-map.combat-scenarios.test.ts',
@@ -73,6 +74,7 @@ const requiredSurfaces = [
   {
     id: 'tactical-map-rules-explanation',
     claimId: 'ui.tactical.rules-explanation',
+    allowedCoverageStatuses: ['ready-with-scope'],
     commandIncludes: [
       'tactical-map.movement-scenarios.test.ts',
       'tactical-map.combat-scenarios.test.ts',
@@ -90,11 +92,13 @@ const requiredSurfaces = [
   {
     id: 'movement-preview-engine-agreement',
     claimId: 'ui.tactical.movement-preview',
+    allowedCoverageStatuses: ['ready-with-scope'],
     commandIncludes: ['tactical-map.movement-scenarios.test.ts'],
   },
   {
     id: 'combat-preview-engine-agreement',
     claimId: 'ui.tactical.combat-preview',
+    allowedCoverageStatuses: ['ready-with-scope'],
     commandIncludes: [
       'tactical-map.combat-scenarios.test.ts',
       'InteractiveSession.attackProjectionAgreement.scenario.test.ts',

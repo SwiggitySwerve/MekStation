@@ -244,7 +244,7 @@
         "rules-parity",
         "accessibility"
       ],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "claimIds": ["ui.tactical"],
       "routes": ["/gameplay/games/[id]", "/e2e/tactical-map"],
       "apis": [],
@@ -289,10 +289,11 @@
         "2026-06-18 subagent review found shared tacticalMapProjectionLookup routing for terrain, movement, combat, selection, path, and LOS overlays.",
         "2026-06-18 Playwright tactical-map visual smoke passed 60 Chromium tests across top-down labels, isometric occlusion/rotation, movement constraints, LOS blockers, and combat-preview evidence.",
         "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs.",
-        "2026-06-24 Wave 3 validator binds encounter continuity, tactical projection parity, tactical visual smoke, and combat rules gates into one on-demand checkpoint."
+        "2026-06-24 Wave 3 validator binds encounter continuity, tactical projection parity, tactical visual smoke, and combat rules gates into one on-demand checkpoint.",
+        "2026-06-25 focused tactical preview proof passed movement/rules quick QC (23 movement scenario tests, 57 combined rules tests), combat preview agreement quick QC (86 tests), tactical projection parity validation, and 61-test Chromium tactical visual smoke."
       ],
       "gaps": [
-        "Wave 7 adds a fast tactical projection parity manifest for required surfaces, source anchors, and stale refs; deeper behavior/visual signoff remains in tactical-map Jest and Playwright lanes."
+        "Future map overlay or preview changes must keep tactical projection, rules scenario, and visual smoke commands green for non-color overlay meaning, invalid reasons, LOS/elevation blockers, and preview-to-commit agreement."
       ]
     },
     {
@@ -302,7 +303,7 @@
       "parentId": "gameplay-tactical-map-combat",
       "riskTags": ["preview-resolution-drift", "source-truth", "user-trust"],
       "qualityLenses": ["usability", "ux", "rules-parity"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "claimIds": ["ui.tactical.rules-explanation"],
       "routes": ["/gameplay/games/[id]", "/e2e/tactical-map"],
       "apis": [],
@@ -333,10 +334,11 @@
       "evidence": [
         "2026-06-18 tactical review found tacticalMapProjectionLookup drives terrain, movement, combat, selection, path, and LOS overlays.",
         "2026-06-18 verification passed 9 tactical UI/projection Jest suites / 157 tests and 2 movement/combat scenario suites / 56 tests.",
-        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs.",
+        "2026-06-25 focused rules-explanation proof passed quick QC: movement and combat projection scenario suites covered legal, costly, blocked, invalid, LOS, terrain, elevation, and targetability reasons across 57 tests."
       ],
       "gaps": [
-        "Projection source anchors and movement/combat scenario commands are now manifest-guarded; future projection file moves must update the Wave 7 manifest."
+        "Future projection file moves must keep the Wave 3 manifest and quick rules QC aligned with shared movement, combat, terrain, elevation, and LOS explanation anchors."
       ]
     },
     {
@@ -398,7 +400,7 @@
         "engine-agreement"
       ],
       "qualityLenses": ["functionality", "rules-parity", "ux"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "claimIds": ["ui.tactical.movement-preview"],
       "routes": ["/gameplay/games/[id]", "/e2e/tactical-map"],
       "apis": [],
@@ -434,10 +436,11 @@
       "evidence": [
         "2026-06-18 tactical review found UI and commit validation share deriveMovementRangeHexForDestination for map-driven movement legality.",
         "2026-06-18 parity review passed movement/combat/attack-projection agreement Jest: 3 suites / 105 tests.",
-        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs.",
+        "2026-06-25 focused movement preview proof passed 23 scenario tests covering biped walk/run/jump, legend mode switching, VTOL elevation, infantry mount height, occupancy, QuadVee/LAM conversion, water, naval, prone stand-up, and blocked reason agreement with commit validation."
       ],
       "gaps": [
-        "Projection-vs-legacy validateMovement divergence around turn/facing MP is intentional and covered; the Wave 7 manifest now guards the shared-source contract."
+        "Future movement projection changes must keep scenario coverage green for MP, heat, TMM, elevation, occupancy, unit-mode, and blocked/destination legality agreement."
       ]
     },
     {
@@ -447,7 +450,7 @@
       "parentId": "gameplay-tactical-map-combat",
       "riskTags": ["rules-parity", "preview-resolution-drift", "targetability"],
       "qualityLenses": ["functionality", "rules-parity", "ux"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "claimIds": ["ui.tactical.combat-preview"],
       "routes": ["/gameplay/games/[id]", "/e2e/tactical-map"],
       "apis": [],
@@ -484,10 +487,11 @@
       "evidence": [
         "2026-06-18 tactical review found represented ranged attack previews cover range, arcs, LOS, visibility, cover, min range, to-hit, invalid reasons, and weapon options.",
         "2026-06-18 parity review found deriveCombatRangeHexes centralizes ranged preview facts and command previews consume projection heat, ammo, and expected damage.",
-        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs.",
+        "2026-06-25 focused combat preview proof passed 86 scenario/agreement tests covering range bands, C3, firing arcs, LOS, cover, visibility, targetability, invalid reasons, and interactive attack projection agreement."
       ],
       "gaps": [
-        "Combat preview parity is partial where callers fall back outside shared combat projection; the Wave 7 manifest now guards the shared preview proof surface."
+        "Future combat preview changes must keep scenario and interactive agreement coverage green for range, arcs, LOS, cover, visibility, targetability, invalid reasons, and attack commit."
       ]
     },
     {
