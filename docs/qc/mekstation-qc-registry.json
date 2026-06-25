@@ -907,13 +907,14 @@
       "parentId": "simulation-combat-validation",
       "riskTags": ["known-gap-honesty", "test-quality", "roadmap-honesty"],
       "qualityLenses": ["test-quality", "rules-parity", "functionality"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "claimIds": ["combat.gaps.honesty", "combat.known-limitations.bypass"],
       "routes": [],
       "apis": [],
       "desktopSurfaces": [],
       "modules": [
         "src/simulation/core/knownLimitations.ts",
+        "scripts/qc/validate-known-gap-honesty.mjs",
         "scripts/print-combat-validation-gaps.ts",
         "docs/audits"
       ],
@@ -925,23 +926,25 @@
       ],
       "specRefs": ["openspec/specs/combat-resolution/spec.md"],
       "activeChangeRefs": [],
-      "tests": ["src/simulation/**/__tests__", "scripts/__tests__"],
+      "tests": [
+        "scripts/__tests__/known-gap-honesty-qc.test.ts",
+        "src/simulation/**/__tests__",
+        "scripts/__tests__"
+      ],
       "commands": [
+        "npm.cmd run qc:known-gaps:validate",
         "npm.cmd run qc:combat:catalog-rules:validate",
         "npm.cmd run validate:combat:gaps -- --format=summary --expect-total=0",
         "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary",
         "npm.cmd run validate:combat"
       ],
-      "manualChecks": [
-        "Audit broad regex suppressions and stale gap wording before release notes or roadmap claims",
-        "Prefer the 2026-06-13 checkpoint and live validators over older 2026-06-11 unresolved helper/unsupported wording"
-      ],
+      "manualChecks": [],
       "evidence": [
         "docs/audits/2026-06-13-combat-validation-gap-inventory-checkpoint.md",
-        "2026-06-18 integration review found older 2026-06-11 helper/unsupported audit wording stale against current gap total 0."
+        "2026-06-25 `npm.cmd run qc:known-gaps:validate` proves knownLimitations stays legacy-detector-only, trap coverage remains in validate:combat, and current QC docs avoid stale suppression wording."
       ],
       "gaps": [
-        "Some older gap statements are stale after ejection and physical targetability work; knownLimitations bypass drift and stale audit wording still need periodic audit."
+        "Historical audit docs remain preserved as dated evidence; current roadmap claims are guarded by qc:known-gaps:validate and live combat gap exporters."
       ]
     },
     {
