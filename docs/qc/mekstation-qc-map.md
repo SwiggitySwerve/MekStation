@@ -179,6 +179,14 @@ flowchart TD
      preserving representative export and round-trip browser signoff as an
      explicit release gap.
 
+1. `replay-audit-history`
+   - `verify:qc:replay-recovery` now includes deterministic event replay,
+     active-session deep-link/refresh recovery, replay-library watch/back
+     navigation, uploaded NDJSON playback, timeline controls, and keyboard
+     shortcut browser proof.
+   - Timeline export download and data-dependent campaign/completed-game replay
+     entry flows remain explicit release-signoff checks.
+
 1. `gameplay-tactical-map-combat`
    - Tactical map is the primary explanation layer; Wave 7 adds a fast
      projection parity manifest that validates required tactical surfaces,

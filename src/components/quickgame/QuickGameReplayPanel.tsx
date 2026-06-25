@@ -176,6 +176,7 @@ export function QuickGameReplayPanel({
             onPlay={replay.play}
             onPause={replay.pause}
             onStop={replay.stop}
+            onGoToEnd={() => replay.jumpToIndex(replay.totalEvents - 1)}
             onStepForward={replay.stepForward}
             onStepBackward={replay.stepBackward}
           />

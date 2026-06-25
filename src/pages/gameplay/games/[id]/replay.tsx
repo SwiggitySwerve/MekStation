@@ -257,15 +257,6 @@ export default function GameReplayPage(): React.ReactElement {
     );
   }
 
-  if (allEvents.length === 0 && !isUploadActive) {
-    return (
-      <ReplayError
-        message="No events found for this game. You can drop a swarm-produced .jsonl event-log file to load one from disk."
-        gameId={gameId || undefined}
-      />
-    );
-  }
-
   const activeEvents = activeReplayEvents({
     allEvents,
     isUploadActive,

@@ -204,6 +204,23 @@ export function ReplayVisualization({
   replay,
   uploadedEvents,
 }: ReplayVisualizationProps): React.ReactElement {
+  if (replay.totalEvents === 0) {
+    return (
+      <Card className="max-w-lg p-8 text-center">
+        <div className="bg-surface-raised mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl">
+          <PlayCircleIcon />
+        </div>
+        <h2 className="text-text-theme-primary mb-3 text-xl font-bold">
+          No replay loaded
+        </h2>
+        <p className="text-text-theme-secondary text-sm">
+          Drop a <code>.jsonl</code> event log on the left to inspect replay
+          playback, scrub the timeline, and validate keyboard controls.
+        </p>
+      </Card>
+    );
+  }
+
   if (isUploadActive && hexMapState.tokens.length > 0) {
     return (
       <HexMapDisplay
@@ -396,6 +413,7 @@ function replayControlProps(replay: ReplayProjection): ReplayControlsProps {
     onPlay: replay.play,
     onPause: replay.pause,
     onStop: replay.stop,
+    onGoToEnd: () => replay.jumpToIndex(replay.totalEvents - 1),
     onStepForward: replay.stepForward,
     onStepBackward: replay.stepBackward,
   };

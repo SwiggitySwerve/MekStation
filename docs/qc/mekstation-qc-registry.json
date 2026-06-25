@@ -1330,26 +1330,29 @@
         "src/simulation/__tests__/replay-determinism.integration.test.ts",
         "src/stores/__tests__/useGameplayStore.recover.test.ts",
         "src/engine/__tests__/InteractiveSession.recovery.test.ts",
-        "e2e/active-session-recovery.spec.ts"
+        "e2e/active-session-recovery.spec.ts",
+        "e2e/replay-player.spec.ts"
       ],
       "commands": [
         "npm.cmd run verify:qc:replay-recovery",
         "npm.cmd test -- --watchAll=false --runTestsByPath src/simulation/__tests__/replay-determinism.integration.test.ts",
+        "npx.cmd playwright test --project=chromium e2e/replay-player.spec.ts --workers=1",
         "npm.cmd run qc:wave4:validate"
       ],
       "manualChecks": [
-        "Refresh/deep-link an active battle and recover from event log without losing state"
+        "Timeline export download and data-dependent campaign/completed-game replay entry flows remain release-signoff checks"
       ],
       "evidence": [
         "docs/audits/2026-06-12-full-codebase-review.md",
         "2026-06-23 Chromium browser smoke passed replay/timeline checks in `e2e/replay-player.spec.ts`: audit timeline filters load, timeline refresh remains functional, and nonexistent game replay shows user feedback.",
         "2026-06-24 `verify:qc:replay-recovery` adds deterministic browser proof that `/gameplay/games/:id` deep-links and refreshes a generated non-demo match from local match-log IndexedDB into a drivable interactive session.",
-        "2026-06-24 Wave 4 validator requires replay recovery scripts and deterministic active-session recovery source anchors while keeping replay library upload/export tracked separately.",
+        "2026-06-24 Wave 4 validator requires replay recovery scripts and deterministic active-session recovery source anchors while keeping replay library upload/export tracked separately until browser proof exists.",
+        "2026-06-25 `e2e/replay-player.spec.ts` now proves deterministic replay-library watch/back navigation plus NDJSON upload, timeline controls, and keyboard shortcut behavior; empty DB timelines keep the upload shell available instead of blocking on a hard error.",
         "Archived OpenSpec change 2026-06-21-persist-and-recover-interactive-battles retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-restore-ci-correctness-teeth retired from activeChangeRefs on 2026-06-23."
       ],
       "gaps": [
-        "Replay library upload/export and broader replay UI shortcut release signoff remain separate from active-battle route recovery."
+        "Replay library export and data-dependent campaign/completed-game replay entry release signoff remain separate from active-battle route recovery."
       ]
     },
     {
