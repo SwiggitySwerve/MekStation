@@ -76,7 +76,9 @@ const requiredSurfaces = [
   {
     id: 'non-battlemech-combat-scope-matrix',
     claimIds: ['combat.scope.non-battlemech'],
+    allowedCoverageStatuses: ['ready-with-scope'],
     commandIncludes: [
+      'qc:nonbattlemech:scope:validate',
       'validate:combat:gaps -- --level=out-of-scope --format=summary',
       `--expect-total=${expectedOutOfScopeSummary.total}`,
       ...expectedOutOfScopeSummary.levels,
@@ -178,6 +180,30 @@ const defaultSourceAnchors = [
       'stale-release-claim',
       'known-gap-honesty-audit must be ready-with-scope',
       'qc:known-gaps:validate',
+    ],
+  },
+  {
+    id: 'non-battlemech-scope-matrix-release-guard',
+    path: 'docs/qc/non-battlemech-combat-scope-matrix.json',
+    tokens: [
+      '"releaseClaim": "ready-with-scope"',
+      '"ground-vehicles"',
+      '"vtol"',
+      '"aerospace-capital-lam"',
+      '"battle-armor"',
+      '"infantry"',
+      '"protomech"',
+      '"rowCoverageBuckets"',
+    ],
+  },
+  {
+    id: 'non-battlemech-scope-validator-release-guard',
+    path: 'scripts/qc/validate-nonbattlemech-scope-matrix.ts',
+    tokens: [
+      'validateExpectedSummary',
+      'validateFamilyMatrices',
+      'validateRowCoverageBuckets',
+      'out-of-scope-row-uncovered',
     ],
   },
   {

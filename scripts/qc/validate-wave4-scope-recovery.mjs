@@ -52,7 +52,15 @@ const requiredPackageScripts = [
   },
   {
     id: 'verify:qc:wave4:nonbattlemech-scope',
-    tokens: [...nonBattleMechGapTokens, 'validate:combat'],
+    tokens: [
+      'qc:nonbattlemech:scope:validate',
+      ...nonBattleMechGapTokens,
+      'validate:combat',
+    ],
+  },
+  {
+    id: 'qc:nonbattlemech:scope:validate',
+    tokens: ['validate-nonbattlemech-scope-matrix.ts'],
   },
   {
     id: 'verify:qc:multiplayer-reliability',
@@ -119,12 +127,11 @@ const requiredSurfaces = [
     id: 'non-battlemech-combat-scope-matrix',
     claimId: 'combat.scope.non-battlemech',
     commandIncludes: [
+      'qc:nonbattlemech:scope:validate',
       ...nonBattleMechGapTokens,
       'validate:combat',
       'qc:wave4:validate',
     ],
-    manualIncludes: ['separate from BattleMech-compatible official row claims'],
-    gapIncludes: ['separate support matrices'],
   },
   {
     id: 'multiplayer-coop-sync',
@@ -218,6 +225,31 @@ const defaultSourceAnchors = [
       '--expect-total',
       '--expect-level',
       '--expect-section',
+    ],
+  },
+  {
+    id: 'non-battlemech-scope-matrix',
+    path: 'docs/qc/non-battlemech-combat-scope-matrix.json',
+    tokens: [
+      '"requiredFamilyIds"',
+      '"ground-vehicles"',
+      '"vtol"',
+      '"aerospace-capital-lam"',
+      '"battle-armor"',
+      '"infantry"',
+      '"protomech"',
+      '"rowCoverageBuckets"',
+      '"expectedOutOfScopeSummary"',
+    ],
+  },
+  {
+    id: 'non-battlemech-scope-validator',
+    path: 'scripts/qc/validate-nonbattlemech-scope-matrix.ts',
+    tokens: [
+      'getCombatValidationOutOfScopeRows',
+      'requiredFamilyIds',
+      'validateRowCoverageBuckets',
+      'out-of-scope-row-uncovered',
     ],
   },
   {

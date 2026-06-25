@@ -52,7 +52,7 @@ describe('combat catalog rules parity QC validator', () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('surfaces=7/7');
-    expect(result.stdout).toContain('anchors=10');
+    expect(result.stdout).toContain('anchors=12');
     expect(result.stdout).toContain('expectedOutOfScope=147');
     expect(result.stdout).toContain('staleRefs=0');
     expect(result.stdout).toContain('errors=0');
@@ -74,7 +74,7 @@ describe('combat catalog rules parity QC validator', () => {
     };
     expect(manifest.status).toBe('pass');
     expect(manifest.requiredSurfaceCount).toBe(7);
-    expect(manifest.sourceAnchorCount).toBe(10);
+    expect(manifest.sourceAnchorCount).toBe(12);
     expect(manifest.expectedOutOfScopeSummary.total).toBe(147);
     expect(manifest.expectedOutOfScopeSummary.sections).toContain(
       '--expect-section=featureSupport:75',
@@ -163,6 +163,32 @@ describe('combat catalog rules parity QC validator', () => {
     expect(result.status).toBe(1);
     expect(result.stdout).toContain(
       'physical-weapon-runtime-boundary must keep coverageStatus in ready-with-scope.',
+    );
+  });
+
+  it('rejects non-BattleMech scope matrices that drift back to partial', () => {
+    const registry = readJson<{
+      surfaces: Array<{
+        surfaceId: string;
+        coverageStatus: string;
+      }>;
+    }>(path.join(repoRoot, 'docs/qc/mekstation-qc-registry.json'));
+    const surface = registry.surfaces.find(
+      (entry) => entry.surfaceId === 'non-battlemech-combat-scope-matrix',
+    );
+    expect(surface).toBeDefined();
+    surface!.coverageStatus = 'partial';
+
+    const registryPath = path.join(tempDir, 'qc-registry.json');
+    writeJson(registryPath, registry);
+
+    const result = runValidator([], {
+      MEKSTATION_QC_REGISTRY_PATH: registryPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'non-battlemech-combat-scope-matrix must keep coverageStatus in ready-with-scope.',
     );
   });
 
