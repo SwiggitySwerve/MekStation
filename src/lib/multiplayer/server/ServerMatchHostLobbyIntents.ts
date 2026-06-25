@@ -10,7 +10,7 @@ import type {
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
-import type { IMatchMeta, IMatchStore } from './IMatchStore';
+import type { IMatchMeta, IMatchStore, ISideAssignment } from './IMatchStore';
 import type { PendingPeerTracker } from './reconnection/PendingPeerTracker';
 import type { IServerMatchHostCaptureContext } from './ServerMatchHostCaptureContext';
 
@@ -188,6 +188,8 @@ export async function handleLobbyIntent(
   try {
     await ctx.store.updateMatchMeta(ctx.matchId, {
       seats: nextSeats,
+      playerIds: lobbyPlayerIds(nextSeats),
+      sideAssignments: lobbySideAssignments(nextSeats),
       status: nextStatus,
       ...(mutation.clearRoomCode ? { roomCode: null } : {}),
     });
@@ -313,6 +315,40 @@ function handleSetReady(
     );
   }
   return setReady(seats, slotId, ready);
+}
+
+function lobbyPlayerIds(seats: readonly IMatchSeat[]): string[] {
+  return Array.from(
+    new Set(
+      seats
+        .filter((seat) => seat.kind === 'human')
+        .map((seat) => seat.occupant?.playerId)
+        .filter((playerId): playerId is string => Boolean(playerId)),
+    ),
+  );
+}
+
+function lobbySideAssignments(seats: readonly IMatchSeat[]): ISideAssignment[] {
+  const sideNames = Array.from(new Set(seats.map((seat) => seat.side))).sort(
+    (left, right) => left.localeCompare(right),
+  );
+  const assignments: ISideAssignment[] = [];
+  const assigned = new Set<string>();
+
+  for (const seat of seats) {
+    const playerId = seat.kind === 'human' ? seat.occupant?.playerId : null;
+    if (!playerId || assigned.has(playerId)) continue;
+    assigned.add(playerId);
+    assignments.push({
+      playerId,
+      side:
+        sideNames.indexOf(seat.side) <= 0
+          ? ('player' as const)
+          : ('opponent' as const),
+    });
+  }
+
+  return assignments;
 }
 
 function logAiSeats(matchId: string, seats: readonly IMatchSeat[]): void {

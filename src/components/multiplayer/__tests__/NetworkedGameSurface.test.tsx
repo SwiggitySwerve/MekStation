@@ -73,6 +73,41 @@ function buildAuthoritativeSession(): IGameSession {
   return session;
 }
 
+function buildServerPhaseSession(): IGameSession {
+  return startGame(
+    createGameSession(
+      {
+        mapRadius: 6,
+        turnLimit: 0,
+        victoryConditions: ['elimination'],
+        optionalRules: [],
+      },
+      [
+        {
+          id: 'player-1',
+          name: 'Atlas',
+          side: GameSide.Player,
+          unitRef: 'atlas-as7-d',
+          pilotRef: 'pilot-1',
+          gunnery: 4,
+          piloting: 5,
+        },
+        {
+          id: 'opponent-1',
+          name: 'Marauder',
+          side: GameSide.Opponent,
+          unitRef: 'marauder-mad-3r',
+          pilotRef: 'pilot-2',
+          gunnery: 4,
+          piloting: 5,
+        },
+      ],
+      { id: 'match-fixture', createdAt: '2026-05-19T00:00:00.000Z' },
+    ),
+    GameSide.Player,
+  );
+}
+
 const SEATS: readonly IMatchSeat[] = [
   {
     slotId: 'alpha-1',
@@ -171,6 +206,27 @@ describe('NetworkedGameSurface — turn-ownership gate', () => {
     // Player so it is NOT the guest's turn.
     renderSurface({ playerId: 'pid_guest' });
     expect(screen.getByTestId('waiting-for-opponent')).toBeInTheDocument();
+  });
+
+  it('allows a seated player to advance a server-owned phase', () => {
+    const authoritative = buildServerPhaseSession();
+    const onSendGameIntent = jest.fn(() => true);
+    renderSurface({
+      session: buildMirrorSession(authoritative.events),
+      events: authoritative.events,
+      playerId: 'pid_host',
+      onSendGameIntent,
+    });
+
+    expect(
+      screen.queryByTestId('waiting-for-opponent'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('advance-phase-button')).not.toBeDisabled();
+
+    fireEvent.click(screen.getByTestId('advance-phase-button'));
+    expect(onSendGameIntent).toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'endPhase' }),
+    );
   });
 });
 

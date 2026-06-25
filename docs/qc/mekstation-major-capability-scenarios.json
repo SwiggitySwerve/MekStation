@@ -358,10 +358,11 @@
       "id": "MC-08-multiplayer-coop-sync",
       "surfaceId": "multiplayer-coop-sync",
       "title": "Multiplayer and co-op sync preserve match visibility and route continuity",
-      "realisticFlow": "A host and players exercise multiplayer route smoke, P2P harness behavior, fog visibility, and reconnection contracts.",
+      "realisticFlow": "A host and players exercise multiplayer route smoke, P2P harness behavior, vault-auth invite join, fog visibility, and reconnection contracts.",
       "qualityLenses": ["functionality", "ux", "security", "test-quality"],
       "successCriteria": [
         "P2P harness and multiplayer playtest route smoke specs pass.",
+        "Two browser contexts can seed locked E2E vault identities, host a fog-enabled lobby, join by invite code, launch, and advance the first server-owned phase through the real WebSocket path.",
         "Fog-of-war match API tests preserve visibility boundaries.",
         "Server reconnection, spectate, turn authority, and capstone host/join/recovery tests preserve co-op state assumptions."
       ],
@@ -374,7 +375,8 @@
           "evidence": [
             "e2e/p2p-sync.spec.ts",
             "e2e/playtest-mp-smoke.spec.ts",
-            "e2e/playtest-coop-route-smoke.spec.ts"
+            "e2e/playtest-coop-route-smoke.spec.ts",
+            "e2e/multiplayer-live-vault-auth.spec.ts"
           ]
         },
         {

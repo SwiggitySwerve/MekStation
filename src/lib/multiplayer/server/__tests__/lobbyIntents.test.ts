@@ -111,7 +111,7 @@ function lastLobbyUpdate(broadcasts: readonly IServerMessage[]): IMatchSeat[] {
 
 describe('ServerMatchHost lobby intents', () => {
   it('OccupySeat seats the joiner and broadcasts LobbyUpdated', async () => {
-    const { host, matchId } = await makeLobbyHost();
+    const { host, store, matchId } = await makeLobbyHost();
     const sock = makeMockSocket();
     host.attachSocket(sock, 'pid_join');
     host.registerPlayerRef({
@@ -129,6 +129,12 @@ describe('ServerMatchHost lobby intents', () => {
     const target = seats.find((s) => s.slotId === 'bravo-1');
     expect(target?.occupant?.playerId).toBe('pid_join');
     expect(target?.occupant?.displayName).toBe('Joiner');
+    const meta = await store.getMatchMeta(matchId);
+    expect(meta.playerIds).toEqual(['pid_host', 'pid_join']);
+    expect(meta.sideAssignments).toEqual([
+      { playerId: 'pid_host', side: 'player' },
+      { playerId: 'pid_join', side: 'opponent' },
+    ]);
     // The watching socket got the LobbyUpdated too.
     const kinds = sock.sent.map((s) => s.parsed.kind);
     expect(kinds).toContain('LobbyUpdated');
@@ -202,7 +208,7 @@ describe('ServerMatchHost lobby intents', () => {
   });
 
   it('LeaveSeat clears occupancy + ready', async () => {
-    const { host, matchId } = await makeLobbyHost();
+    const { host, store, matchId } = await makeLobbyHost();
     await host.handleIntent(
       intent(matchId, 'pid_host', {
         kind: 'SetReady',
@@ -220,5 +226,8 @@ describe('ServerMatchHost lobby intents', () => {
     const target = seats.find((s) => s.slotId === 'alpha-1');
     expect(target?.occupant).toBeNull();
     expect(target?.ready).toBe(false);
+    const meta = await store.getMatchMeta(matchId);
+    expect(meta.playerIds).toEqual([]);
+    expect(meta.sideAssignments).toEqual([]);
   });
 });

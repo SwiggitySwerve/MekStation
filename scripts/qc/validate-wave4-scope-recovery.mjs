@@ -146,6 +146,7 @@ const requiredSurfaces = [
       'e2e/p2p-sync.spec.ts',
       'e2e/playtest-mp-smoke.spec.ts',
       'e2e/playtest-coop-route-smoke.spec.ts',
+      'e2e/multiplayer-live-vault-auth.spec.ts',
       'multiplayerMatchesFog.test.ts',
       'multiplayerSpectate.test.ts',
       'phase4Multiplayer.test.ts',
@@ -153,9 +154,13 @@ const requiredSurfaces = [
       'reconnectionFlow.test.ts',
       'fogOfWar.test.ts',
     ],
-    manualIncludes: ['true two-window/vault-auth'],
+    manualIncludes: [
+      'unit-backed two-window/vault-auth',
+      'fog-limited guest tactical state',
+    ],
     gapIncludes: [
-      'true two-window vault-auth live play',
+      'true two-window vault-auth live launch/turn handoff',
+      'unit-backed fog-limited guest tactical state',
       'packaged runtime kill/reconnect against the durable match store',
     ],
   },
@@ -280,6 +285,17 @@ const defaultSourceAnchors = [
       'single-context',
       'coop-session-badge',
       'vault-auth two-identity follow-up',
+    ],
+  },
+  {
+    id: 'multiplayer-live-vault-auth-proof',
+    path: 'e2e/multiplayer-live-vault-auth.spec.ts',
+    tokens: [
+      'Multiplayer live vault-auth proof',
+      'two browser contexts',
+      'locked E2E-only seam',
+      'advances the initial server-owned phase',
+      'placeholder units',
     ],
   },
   {

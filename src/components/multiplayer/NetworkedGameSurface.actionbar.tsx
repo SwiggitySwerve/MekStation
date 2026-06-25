@@ -97,11 +97,18 @@ export function NetworkedActionBar({
   const authorPeerId = session.sideOwners?.[localSide] ?? localSide;
 
   // Controls are live only when the turn-ownership gate is open and the
-  // match is not paused.
+  // match is not paused. Server-owned phases (Initiative / Heat / End)
+  // have no active side, but a seated participant must still be able to
+  // advance them or a launched match can stall before the first turn.
   const enabled = ownership.canAct && !paused;
+  const canAdvanceServerPhase =
+    ownership.localSide !== null && ownership.activeSide === null;
+  const canAdvancePhase =
+    !paused && (ownership.canAct || canAdvanceServerPhase);
   const controlContext: IActionControlContext = {
     session,
     enabled,
+    canAdvancePhase,
     authorPeerId,
     selectedUnitId,
     selectedHex,
@@ -111,7 +118,11 @@ export function NetworkedActionBar({
 
   // When the gate is closed and the match is live, show the passive
   // indicator instead of dead controls (D4).
-  if (!ownership.canAct && ownership.waitingForOpponent) {
+  if (
+    !ownership.canAct &&
+    ownership.waitingForOpponent &&
+    ownership.activeSide !== null
+  ) {
     return (
       <div
         data-testid="networked-action-bar"
@@ -160,6 +171,7 @@ export function NetworkedActionBar({
 interface IActionControlContext {
   readonly session: IGameSession;
   readonly enabled: boolean;
+  readonly canAdvancePhase: boolean;
   readonly authorPeerId: string;
   readonly selectedUnitId: string | null;
   readonly selectedHex: { readonly q: number; readonly r: number } | null;
@@ -253,8 +265,8 @@ function CommonPhaseControls({
       <button
         type="button"
         data-testid="advance-phase-button"
-        className={controlClass(context.enabled)}
-        disabled={!context.enabled}
+        className={controlClass(context.canAdvancePhase)}
+        disabled={!context.canAdvancePhase}
         onClick={() =>
           context.onSendIntent(endPhaseIntent(context.authorPeerId))
         }
