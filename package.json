@@ -95,6 +95,7 @@
     "electron:build": "npm run build && cd desktop && npm run build",
     "electron:typecheck": "cd desktop && npm run type-check",
     "electron:test": "cd desktop && npm test",
+    "electron:test:security": "cd desktop && npm run test:packaged-security --",
     "electron:pack": "npm run electron:build && cd desktop && npm run pack",
     "electron:dist": "npm run electron:build && cd desktop && npm run dist",
     "electron:dist:win": "npm run electron:build && cd desktop && npm run dist:win",

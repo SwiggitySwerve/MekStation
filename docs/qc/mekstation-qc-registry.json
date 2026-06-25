@@ -1351,7 +1351,7 @@
       "parentId": null,
       "riskTags": ["security", "desktop", "api-contract"],
       "qualityLenses": ["security", "functionality", "test-quality"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "routes": [],
       "apis": ["/api/*"],
       "desktopSurfaces": [
@@ -1375,19 +1375,23 @@
       "tests": ["desktop/**/__tests__", "src/__tests__/unit/api"],
       "commands": [
         "npm.cmd run electron:test:build",
+        "npm.cmd run electron:test:security -- --json",
+        "cd desktop && npm.cmd test -- --runTestsByPath electron/__tests__/main.window.security.test.ts electron/__tests__/main.ipc.security.test.ts services/local/__tests__/RecentFilesService.test.ts services/local/__tests__/SettingsService.test.ts",
+        "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/__tests__/api/vault/vault.test.ts src/__tests__/api/vault/unlock.test.ts src/__tests__/api/vault/sign.test.ts src/__tests__/api/vault/share.test.ts src/__tests__/api/vault/identity.test.ts --no-coverage",
         "npm.cmd run typecheck -- --pretty false"
       ],
       "manualChecks": [
-        "Package desktop build and verify no renderer-reachable arbitrary file reads/writes or unsafe external navigation"
+        "Run the packaged artifact audit after electron-builder output is created and inspect any failed app.asar, IPC, navigation, CSP, or standalone-server assertion."
       ],
       "evidence": [
         "docs/audits/2026-06-12-full-codebase-review.md",
         "2026-06-23 `npm.cmd run electron:test:build` passed: Next.js production build, Electron TypeScript build, standalone native rebuild via `@electron/rebuild`, Electron better-sqlite3 runtime check, build-output verification, and Windows electron-builder packaging all completed.",
+        "2026-06-24 `npm.cmd run electron:test:security -- --json` passed 38/38 packaged artifact checks covering app.asar Electron entries, BrowserWindow hardening, external navigation limits, preload API exposure, IPC path sandboxing, CSP headers, loopback Next standalone loading, and Electron-ABI better-sqlite3 placement.",
         "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-reconcile-multiplayer-coop-reality retired from activeChangeRefs on 2026-06-23."
       ],
       "gaps": [
-        "Security audit findings should block release until verified in packaged runtime, not only dev."
+        "Auto-update channel signing and distribution hosting remain tracked as future desktop delivery scope; current proof covers local build output, app.asar hardening, IPC path sandboxing, loopback server packaging, and vault API contracts."
       ]
     },
     {

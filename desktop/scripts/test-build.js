@@ -15,7 +15,7 @@
  * Platforms: win, mac, linux, all (defaults to 'all')
  */
 
-const { execSync } = require('child_process');
+const { execFileSync, execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
@@ -39,6 +39,11 @@ const rootDir = path.join(desktopDir, '..');
 const OUTPUT_DIR =
   process.env.MEKSTATION_TEST_BUILD_OUTPUT_DIR || 'release-test';
 const OUTPUT_FLAG = `--config.directories.output=${OUTPUT_DIR}`;
+const packagedSecurityScript = path.join(
+  desktopDir,
+  'scripts',
+  'validate-packaged-security.js',
+);
 
 // Step 1: Build Next.js application
 console.log('📦 Step 1: Building Next.js application...');
@@ -179,6 +184,15 @@ for (const platform of PLATFORMS) {
     if (fs.existsSync(releaseDir)) {
       const files = fs.readdirSync(releaseDir);
       if (files.length > 0) {
+        console.log('\nRunning packaged security audit...');
+        execFileSync(
+          process.execPath,
+          [packagedSecurityScript, `--output-dir=${OUTPUT_DIR}`],
+          {
+            cwd: desktopDir,
+            stdio: 'inherit',
+          },
+        );
         console.log(`\n✅ ${platform} build test successful!`);
         console.log(`   Output: ${releaseDir}`);
         results[platform].success = true;

@@ -1432,7 +1432,7 @@
       "id": "surface:desktop-api-security",
       "kind": "surface",
       "label": "Desktop, API, Security Boundaries",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:desktop-api-security:lifecycle",
@@ -1445,6 +1445,7 @@
       "label": "Registry evidence for Desktop, API, Security Boundaries",
       "entries": [
         "docs/audits/2026-06-12-full-codebase-review.md",
+        "2026-06-24 `npm.cmd run electron:test:security -- --json` passed 38/38 packaged artifact checks covering app.asar Electron entries, BrowserWindow hardening, external navigation limits, preload API exposure, IPC path sandboxing, CSP headers, loopback Next standalone loading, and Electron-ABI better-sqlite3 placement.",
         "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-reconcile-multiplayer-coop-reality retired from activeChangeRefs on 2026-06-23."
       ]
@@ -1454,7 +1455,7 @@
       "kind": "evidence",
       "label": "Manual/browser evidence for Desktop, API, Security Boundaries",
       "entries": [
-        "Package desktop build and verify no renderer-reachable arbitrary file reads/writes or unsafe external navigation"
+        "Run the packaged artifact audit after electron-builder output is created and inspect any failed app.asar, IPC, navigation, CSP, or standalone-server assertion."
       ]
     },
     {
@@ -1462,13 +1463,18 @@
       "kind": "known-gap",
       "label": "Desktop, API, Security Boundaries known gaps",
       "entries": [
-        "Security audit findings should block release until verified in packaged runtime, not only dev."
+        "Auto-update channel signing and distribution hosting remain tracked as future desktop delivery scope; current proof covers local build output, app.asar hardening, IPC path sandboxing, loopback server packaging, and vault API contracts."
       ]
     },
     {
       "id": "command:npm-cmd-run-electron-test-build",
       "kind": "command",
       "label": "npm.cmd run electron:test:build"
+    },
+    {
+      "id": "command:npm-cmd-run-electron-test-security-json",
+      "kind": "command",
+      "label": "npm.cmd run electron:test:security -- --json"
     },
     {
       "id": "surface:openspec-ci-quality",
@@ -3610,6 +3616,16 @@
     },
     {
       "from": "command:npm-cmd-run-electron-test-build",
+      "to": "evidence:desktop-api-security:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:desktop-api-security:lifecycle",
+      "to": "command:npm-cmd-run-electron-test-security-json",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-electron-test-security-json",
       "to": "evidence:desktop-api-security:registry",
       "relation": "produces"
     },

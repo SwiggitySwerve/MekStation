@@ -466,6 +466,13 @@
           "evidence": ["desktop/scripts/test-build.js"]
         },
         {
+          "id": "desktop-packaged-artifact-audit",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run electron:test:security -- --json",
+          "evidence": ["desktop/scripts/validate-packaged-security.js"]
+        },
+        {
           "id": "desktop-local-service-contracts",
           "tier": "standard",
           "required": true,
@@ -490,7 +497,7 @@
         }
       ],
       "notes": [
-        "Packaged-runtime security audit remains stronger than dev-only checks; this scenario is the repeatable local gate."
+        "Artifact audit checks app.asar window hardening, IPC path sandboxing, CSP headers, loopback server payload, and Electron-ABI native module placement."
       ]
     },
     {
