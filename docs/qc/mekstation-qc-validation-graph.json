@@ -761,7 +761,7 @@
       "id": "surface:isometric-rotatable-25d",
       "kind": "surface",
       "label": "Rotatable Isometric 2.5D Battlefield",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:isometric-rotatable-25d:lifecycle",
@@ -775,7 +775,8 @@
       "entries": [
         "Prior review found rotation/depth/occlusion tests present and passing.",
         "2026-06-18 tactical review found discrete camera rotation, depth keys, elevated terrain stacks, and visibility halo/badge signaling in the isometric path.",
-        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs."
+        "2026-06-23 Wave 7 tactical projection parity manifest validates required tactical surfaces, commands, source anchors, browser-boundary coverage, and stale active-change refs.",
+        "2026-06-25 focused isometric proof passed helper-level depth/rotation/occlusion checks plus Chromium visual smoke assertions for hidden/last-known contacts, foreground boost, occluder metadata, depth-key changes, elevated extrusion faces, and camera rotation."
       ]
     },
     {
@@ -791,7 +792,7 @@
       "kind": "known-gap",
       "label": "Rotatable Isometric 2.5D Battlefield known gaps",
       "entries": [
-        "Hidden-unit outlines/ghosting still need screenshot-quality review for tall-elevation release signoff; the Wave 7 manifest guards isometric proof discoverability."
+        "Future camera or elevation changes must keep browser visual smoke and isometric helper tests covering hidden contacts, foreground boost, occluder metadata, depth-key changes, and extrusion faces."
       ]
     },
     {

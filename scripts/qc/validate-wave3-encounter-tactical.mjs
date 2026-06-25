@@ -103,6 +103,7 @@ const requiredSurfaces = [
   {
     id: 'isometric-rotatable-25d',
     claimId: 'ui.tactical.isometric-25d',
+    allowedCoverageStatuses: ['ready-with-scope'],
     commandIncludes: [
       'HexMapDisplay.isometric.test.ts',
       'tactical-map-visual-smoke.spec.ts',
@@ -152,6 +153,10 @@ const defaultSourceAnchors = [
       'data-combat-invalid-reason',
       'data-isometric-visibility-rule',
       'data-isometric-camera-current-step',
+      'isometric-visibility-halo-occluded',
+      'isometric-scene-token-occluded',
+      'data-isometric-occluder-hex',
+      'fog-marker-hidden-contact',
       'shows selected weapon out of arc as blocked in browser',
     ],
   },
