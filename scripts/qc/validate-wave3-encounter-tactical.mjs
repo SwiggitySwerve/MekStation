@@ -55,6 +55,7 @@ const requiredPackageScripts = [
 const requiredSurfaces = [
   {
     id: 'force-pilot-encounter-setup',
+    allowedCoverageStatuses: ['ready-with-scope'],
     commandIncludes: ['verify:qc:encounter-combat-continuity'],
     testIncludes: ['e2e/encounter-combat-continuity.spec.ts'],
     gapIncludes: ['multi-unit', 'custom-scenario', 'non-1v1'],
