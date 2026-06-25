@@ -2,10 +2,13 @@ import { defineConfig, devices } from '@playwright/test';
 
 const e2ePort = 3600;
 const e2eBaseURL = `http://localhost:${e2ePort}`;
-const e2eRunId = `pw-${process.pid}-${Date.now()}`;
+const e2eRunId =
+  process.env.PLAYWRIGHT_E2E_RUN_ID ?? `pw-${process.pid}-${Date.now()}`;
+process.env.PLAYWRIGHT_E2E_RUN_ID = e2eRunId;
 const e2eReadyURL = `${e2eBaseURL}/__playwright_e2e_ready__?runId=${encodeURIComponent(
   e2eRunId,
 )}`;
+const e2eRuntimeDir = `./.sisyphus/e2e-runtime/${e2eRunId}`;
 
 /**
  * Playwright configuration for MekStation E2E tests
@@ -142,6 +145,13 @@ export default defineConfig({
     env: {
       NEXT_PUBLIC_E2E_MODE: 'true',
       PLAYWRIGHT_E2E_RUN_ID: e2eRunId,
+      // The custom WebSocket runtime is loaded through the dev server while
+      // Pages API routes are loaded by Next. A per-run durable store gives
+      // E2E the production storage boundary and avoids split in-memory match
+      // state between those module graphs.
+      MULTIPLAYER_STORE: 'durable',
+      MULTIPLAYER_DB_PATH: `${e2eRuntimeDir}/multiplayer-matches.db`,
+      DATABASE_PATH: `${e2eRuntimeDir}/mekstation.db`,
     },
   },
 });

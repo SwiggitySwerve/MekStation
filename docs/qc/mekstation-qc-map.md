@@ -329,9 +329,11 @@ flowchart TD
      ownership, and the Phase 4 capstone host/join/reconnect/outcome flow.
    - Wave 4 folds this multiplayer gate plus `verify:qc:replay-recovery` into
      `verify:qc:wave4`; `validate:multiplayer:packaged-socket` now proves
-     packaged-runtime kill/reconnect against the durable match store, while
-     true two-window vault-auth remains a release-signoff check rather than a
-     hidden blocker.
+     packaged-runtime kill/reconnect against the durable match store. A true
+     two-window vault-auth launch/turn-handoff browser proof now runs in the
+     multiplayer lane; the remaining release-signoff check is unit-backed
+     fog-limited guest tactical state once lobby bootstrap carries configured
+     units.
 
 1. `desktop-api-security`
    - The 2026-06-23 desktop lane now proves the packaged runtime path with
