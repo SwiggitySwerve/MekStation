@@ -116,6 +116,7 @@ const requiredSurfaces = [
   {
     id: 'simulation-combat-validation',
     claimId: 'combat.validation',
+    allowedCoverageStatuses: ['ready-with-scope'],
     commandIncludes: [
       'validate:combat:gaps -- --format=summary --expect-total=0',
       'openspec validate --all --strict',
