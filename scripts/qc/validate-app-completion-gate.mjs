@@ -73,13 +73,18 @@ const requiredSurfaceIds = [
   'gameplay-tactical-map-combat',
   'simulation-combat-validation',
   'battlemech-combat-catalog-validation',
+  'behavior-class-combat-rules',
+  'integration-runner-interactive-parity',
+  'physical-weapon-runtime-boundary',
   'non-battlemech-combat-scope-matrix',
+  'compendium-unit-data',
   'customizer-construction-bv-export',
   'multiplayer-coop-sync',
   'replay-audit-history',
   'desktop-api-security',
   'maintenance-code-health',
   'openspec-ci-quality',
+  'known-gap-honesty-audit',
 ];
 
 const priorityWaves = [
@@ -110,6 +115,9 @@ const priorityWaves = [
       'combat-preview-engine-agreement',
       'isometric-rotatable-25d',
       'simulation-combat-validation',
+      'behavior-class-combat-rules',
+      'integration-runner-interactive-parity',
+      'physical-weapon-runtime-boundary',
     ],
   },
   {
@@ -137,6 +145,9 @@ const priorityWaves = [
 
 const releaseGapPattern =
   /release|release-grade|signoff|browser-driven|browserExecuted=false|true two-window|packaged-runtime|security audit|explicit skips|separate UI lane|screenshot-quality|manual takeover|knownLimitations bypass/i;
+
+const evidenceReleaseGapPattern =
+  /release|release-grade|signoff|browser-driven|browserExecuted=false|true two-window|packaged-runtime|security audit|explicit skips|separate UI lane|screenshot-quality|manual takeover/i;
 
 function parseArgs(argv) {
   const options = {
@@ -377,7 +388,9 @@ function releaseGapsForSurface(surface) {
 
   for (const field of ['gaps', 'manualChecks', 'evidence']) {
     for (const value of surface[field] ?? []) {
-      if (!releaseGapPattern.test(String(value))) continue;
+      const pattern =
+        field === 'evidence' ? evidenceReleaseGapPattern : releaseGapPattern;
+      if (!pattern.test(String(value))) continue;
       gaps.push({
         surfaceId: surface.surfaceId,
         kind: field,

@@ -20,13 +20,18 @@ const requiredSurfaceIds = [
   'gameplay-tactical-map-combat',
   'simulation-combat-validation',
   'battlemech-combat-catalog-validation',
+  'behavior-class-combat-rules',
+  'integration-runner-interactive-parity',
+  'physical-weapon-runtime-boundary',
   'non-battlemech-combat-scope-matrix',
+  'compendium-unit-data',
   'customizer-construction-bv-export',
   'multiplayer-coop-sync',
   'replay-audit-history',
   'desktop-api-security',
   'maintenance-code-health',
   'openspec-ci-quality',
+  'known-gap-honesty-audit',
 ];
 
 function makeTempDir(prefix: string): string {
@@ -218,5 +223,64 @@ describe('app completion gate validator', () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('Release signoff gaps: 0');
     expect(result.stderr).toBe('');
+  });
+
+  it('buckets child combat partials into the priority release summary', () => {
+    const env = writeFixtureSet(tempDir, false);
+    const registry = JSON.parse(
+      fs.readFileSync(env.MEKSTATION_QC_REGISTRY_PATH, 'utf-8'),
+    );
+    const behaviorSurface = registry.surfaces.find(
+      (surface: { surfaceId: string }) =>
+        surface.surfaceId === 'behavior-class-combat-rules',
+    );
+    behaviorSurface.coverageStatus = 'partial';
+    writeJson(env.MEKSTATION_QC_REGISTRY_PATH, registry);
+
+    const result = runValidator(['--json'], env);
+    const report = JSON.parse(result.stdout);
+    const wave3 = report.priority.find(
+      (wave: { wave: string }) => wave.wave === 'Wave 3',
+    );
+
+    expect(result.status).toBe(0);
+    expect(report.releaseGaps).toEqual([
+      {
+        surfaceId: 'behavior-class-combat-rules',
+        kind: 'coverage-status',
+        detail: 'coverageStatus=partial',
+      },
+    ]);
+    expect(wave3.releaseGapCount).toBe(1);
+    expect(wave3.surfaces).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          surfaceId: 'behavior-class-combat-rules',
+          gapCount: 1,
+        }),
+      ]),
+    );
+  });
+
+  it('does not count positive knownLimitations evidence as a release gap', () => {
+    const env = writeFixtureSet(tempDir, false);
+    const registry = JSON.parse(
+      fs.readFileSync(env.MEKSTATION_QC_REGISTRY_PATH, 'utf-8'),
+    );
+    const catalogSurface = registry.surfaces.find(
+      (surface: { surfaceId: string }) =>
+        surface.surfaceId === 'battlemech-combat-catalog-validation',
+    );
+    catalogSurface.evidence = [
+      'Catalog review confirmed knownLimitations bypass coverage in the BattleMech lane.',
+    ];
+    writeJson(env.MEKSTATION_QC_REGISTRY_PATH, registry);
+
+    const result = runValidator(['--json'], env);
+    const report = JSON.parse(result.stdout);
+
+    expect(result.status).toBe(0);
+    expect(report.releaseGaps).toEqual([]);
+    expect(report.summary.releaseSignoff.gaps).toBe(0);
   });
 });
