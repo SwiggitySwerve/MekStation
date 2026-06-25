@@ -500,7 +500,7 @@
       "id": "surface:force-pilot-encounter-setup",
       "kind": "surface",
       "label": "Force, Pilot, Scenario, Encounter Setup",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:force-pilot-encounter-setup:lifecycle",
@@ -513,6 +513,8 @@
       "label": "Registry evidence for Force, Pilot, Scenario, Encounter Setup",
       "entries": [
         "docs/audits/2026-06-12-full-codebase-review.md",
+        "2026-06-24 `npm.cmd run verify:qc:encounter-combat-continuity` passed 16 focused Jest checks plus 3 Chromium proofs: routed campaign encounter auto-resolve preserves campaign/mission/session linkage; interactive pre-battle launch reaches the tactical session, concedes through the UI, survives post-battle review reload, applies the queued outcome, and keeps `processedBattleIds` after campaign route reload; and attack-driven weapon destruction completes a tactical session through real engine resolution into queued post-battle review reload/application.",
+        "2026-06-24 `npm.cmd run qc:wave3:validate` passed with force-pilot-encounter-setup bound to ready-with-scope, strict encounter continuity command/test coverage, and zero legacy encounter-flow smoke leaks.",
         "Archived OpenSpec change 2026-06-21-fix-navigation-and-playability-deadends retired from activeChangeRefs on 2026-06-23."
       ]
     },
@@ -529,13 +531,18 @@
       "kind": "known-gap",
       "label": "Force, Pilot, Scenario, Encounter Setup known gaps",
       "entries": [
-        "Setup routes must prove playable continuity into tactical combat and campaign post-battle flows."
+        "Broader setup continuity still needs authored multi-unit, custom-scenario, and non-1v1 campaign variants beyond the seeded 1v1 browser proof."
       ]
     },
     {
       "id": "command:npm-cmd-test-watchall-false-runtestsbypath-src-services-encounter-tests-encounterservice-test-ts",
       "kind": "command",
       "label": "npm.cmd test -- --watchAll=false --runTestsByPath src/services/encounter/__tests__/EncounterService.test.ts"
+    },
+    {
+      "id": "command:npm-cmd-run-verify-qc-encounter-combat-continuity",
+      "kind": "command",
+      "label": "npm.cmd run verify:qc:encounter-combat-continuity"
     },
     {
       "id": "surface:gameplay-tactical-map-combat",
@@ -2176,6 +2183,16 @@
     },
     {
       "from": "command:npm-cmd-test-watchall-false-runtestsbypath-src-services-encounter-tests-encounterservice-test-ts",
+      "to": "evidence:force-pilot-encounter-setup:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:force-pilot-encounter-setup:lifecycle",
+      "to": "command:npm-cmd-run-verify-qc-encounter-combat-continuity",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-verify-qc-encounter-combat-continuity",
       "to": "evidence:force-pilot-encounter-setup:registry",
       "relation": "produces"
     },
