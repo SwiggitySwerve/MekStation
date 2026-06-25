@@ -1416,6 +1416,7 @@
       "label": "Registry evidence for Replay, Audit History, Determinism",
       "entries": [
         "docs/audits/2026-06-12-full-codebase-review.md",
+        "2026-06-25 `e2e/replay-player.spec.ts` now proves deterministic replay-library watch/back navigation plus NDJSON upload, timeline controls, and keyboard shortcut behavior; empty DB timelines keep the upload shell available instead of blocking on a hard error.",
         "Archived OpenSpec change 2026-06-21-persist-and-recover-interactive-battles retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-restore-ci-correctness-teeth retired from activeChangeRefs on 2026-06-23."
       ]
@@ -1425,7 +1426,7 @@
       "kind": "evidence",
       "label": "Manual/browser evidence for Replay, Audit History, Determinism",
       "entries": [
-        "Refresh/deep-link an active battle and recover from event log without losing state"
+        "Timeline export download and data-dependent campaign/completed-game replay entry flows remain release-signoff checks"
       ]
     },
     {
@@ -1433,8 +1434,13 @@
       "kind": "known-gap",
       "label": "Replay, Audit History, Determinism known gaps",
       "entries": [
-        "Refresh/deep-link active session recovery remains a product-critical proof point."
+        "Replay library export and data-dependent campaign/completed-game replay entry release signoff remain separate from active-battle route recovery."
       ]
+    },
+    {
+      "id": "command:npx-cmd-playwright-test-project-chromium-e2e-replay-player-spec-ts-workers-1",
+      "kind": "command",
+      "label": "npx.cmd playwright test --project=chromium e2e/replay-player.spec.ts --workers=1"
     },
     {
       "id": "command:npm-cmd-test-watchall-false-runtestsbypath-src-simulation-tests-replay-determinism-integration-t",
@@ -3596,6 +3602,16 @@
       "from": "state:replay-audit-history:lifecycle",
       "to": "command:npm-cmd-test-watchall-false-runtestsbypath-src-simulation-tests-replay-determinism-integration-t",
       "relation": "validated-by"
+    },
+    {
+      "from": "state:replay-audit-history:lifecycle",
+      "to": "command:npx-cmd-playwright-test-project-chromium-e2e-replay-player-spec-ts-workers-1",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npx-cmd-playwright-test-project-chromium-e2e-replay-player-spec-ts-workers-1",
+      "to": "evidence:replay-audit-history:registry",
+      "relation": "produces"
     },
     {
       "from": "command:npm-cmd-test-watchall-false-runtestsbypath-src-simulation-tests-replay-determinism-integration-t",

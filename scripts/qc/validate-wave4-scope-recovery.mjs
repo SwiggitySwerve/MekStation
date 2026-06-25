@@ -68,6 +68,7 @@ const requiredPackageScripts = [
       'useGameplayStore.recover.test.ts',
       'InteractiveSession.recovery.test.ts',
       'active-session-recovery.spec.ts',
+      'e2e/replay-player.spec.ts',
     ],
   },
   {
@@ -159,9 +160,10 @@ const requiredSurfaces = [
       'useGameplayStore.recover.test.ts',
       'InteractiveSession.recovery.test.ts',
       'e2e/active-session-recovery.spec.ts',
+      'e2e/replay-player.spec.ts',
     ],
-    manualIncludes: ['Refresh/deep-link an active battle'],
-    gapIncludes: ['Replay library upload/export'],
+    manualIncludes: ['Timeline export download'],
+    gapIncludes: ['Replay library export'],
   },
 ];
 
@@ -256,6 +258,16 @@ const defaultSourceAnchors = [
       'generated non-demo match id',
       'without falling back to demo state',
       'MATCH_LOG_DB_NAME',
+    ],
+  },
+  {
+    id: 'replay-library-browser-proof',
+    path: 'e2e/replay-player.spec.ts',
+    tokens: [
+      'Replay Library Browser Round-Trip',
+      'jsonl-loader-file-input',
+      'Show keyboard shortcuts',
+      'buildReplayFixtureEvents',
     ],
   },
 ];

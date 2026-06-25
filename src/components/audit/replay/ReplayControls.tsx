@@ -23,6 +23,8 @@ export interface ReplayControlsProps {
   onPause: () => void;
   /** Stop/reset handler */
   onStop: () => void;
+  /** Skip to the final event handler */
+  onGoToEnd: () => void;
   /** Step forward handler */
   onStepForward: () => void;
   /** Step backward handler */
@@ -137,6 +139,7 @@ export function ReplayControls({
   onPlay,
   onPause,
   onStop,
+  onGoToEnd,
   onStepForward,
   onStepBackward,
   canStepForward,
@@ -219,13 +222,7 @@ export function ReplayControls({
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => {
-          // Seek to end by stepping forward while possible
-          // This will be handled by the parent component
-          while (canStepForward) {
-            onStepForward();
-          }
-        }}
+        onClick={onGoToEnd}
         disabled={!canStepForward}
         title="Go to end (End)"
         className="min-w-touch min-h-touch"
