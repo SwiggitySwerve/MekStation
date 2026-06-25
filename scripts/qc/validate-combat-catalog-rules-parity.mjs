@@ -55,16 +55,19 @@ const requiredSurfaces = [
   {
     id: 'behavior-class-combat-rules',
     claimIds: ['combat.behavior-class'],
+    allowedCoverageStatuses: ['ready-with-scope'],
     commandIncludes: ['validate:combat'],
   },
   {
     id: 'integration-runner-interactive-parity',
     claimIds: ['combat.integration.parity'],
+    allowedCoverageStatuses: ['ready-with-scope'],
     commandIncludes: ['validate:combat'],
   },
   {
     id: 'physical-weapon-runtime-boundary',
     claimIds: ['combat.physical-boundary'],
+    allowedCoverageStatuses: ['ready-with-scope'],
     commandIncludes: [
       'validate:combat',
       'physicalWeaponCatalogBoundary.behavior.test.ts',
@@ -101,6 +104,9 @@ const defaultSourceAnchors = [
       'battlemechCombatCatalog.contract.test.ts',
       'combatValidationRequirementCatalog.contract.test.ts',
       'physicalWeaponCatalogBoundary.behavior.test.ts',
+      'scenarioObjectiveEngine.integration.test.ts',
+      'physicalAttackCommands.test.ts',
+      'usePhaseQueueProjection.test.ts',
       '--expect-total=0',
       `--expect-level=out-of-scope:${expectedOutOfScopeSummary.total}`,
       '--expect-section=featureSupport:75',
@@ -248,6 +254,24 @@ function validateSurface(contract, surfaceById, issues) {
         ),
       );
     }
+  }
+
+  if (
+    contract.allowedCoverageStatuses &&
+    !contract.allowedCoverageStatuses.includes(surface.coverageStatus)
+  ) {
+    issues.push(
+      issue(
+        'error',
+        'coverage-status-not-ready',
+        `${contract.id} must keep coverageStatus in ${contract.allowedCoverageStatuses.join(', ')}.`,
+        {
+          surfaceId: contract.id,
+          coverageStatus: surface.coverageStatus,
+          allowedCoverageStatuses: contract.allowedCoverageStatuses,
+        },
+      ),
+    );
   }
 
   const commands = joinedCommands(surface);

@@ -656,7 +656,7 @@
       "parentId": "simulation-combat-validation",
       "riskTags": ["rules-parity", "mechanics-regression", "known-gap-honesty"],
       "qualityLenses": ["functionality", "rules-parity", "test-quality"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "claimIds": ["combat.behavior-class"],
       "routes": [],
       "apis": [],
@@ -685,17 +685,19 @@
       ],
       "commands": [
         "npm.cmd run validate:combat",
-        "npm.cmd test -- --watchAll=false"
+        "npm.cmd test -- --watchAll=false",
+        "npm.cmd test -- --watchAll=false --runTestsByPath src/hooks/gameplay/__tests__/usePhaseQueueProjection.test.ts src/components/gameplay/TacticalActionDock/commands/__tests__/physicalAttackCommands.test.ts src/simulation/__tests__/scenarioObjectiveEngine.integration.test.ts --runInBand"
       ],
       "manualChecks": [
         "Spot-check behavior-class coverage against exported catalog rows, not helper names only"
       ],
       "evidence": [
         "docs/audits/2026-05-22-combat-validation-source-truth.md",
-        "2026-06-18 behavior review: validate:combat passed and an additional 15-suite integration slice passed 260 tests for session, objective, and UI-projection paths."
+        "2026-06-18 behavior review: validate:combat passed and an additional 15-suite integration slice passed 260 tests for session, objective, and UI-projection paths.",
+        "2026-06-25 Wave 3 child closure: validate:combat now includes scenario objective engine, tactical physical command gating, and phase queue projection tests; focused phase queue projection passed 5 tests without React act warnings after act-wrapped store seeding; focused physical command gating passed 37 tests across every supported command."
       ],
       "gaps": [
-        "Known limitations and skipped tests must be audited so green suites do not hide missing mechanics; phase queue tests still emit non-failing React act warning noise."
+        "No unresolved BattleMech behavior-class combat rule gaps are known in this lane; non-BattleMech combat scope stays tracked in non-battlemech-combat-scope-matrix."
       ]
     },
     {
@@ -705,7 +707,7 @@
       "parentId": "simulation-combat-validation",
       "riskTags": ["engine-agreement", "phase-driver", "integration"],
       "qualityLenses": ["functionality", "rules-parity", "test-quality"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "claimIds": [
         "combat.integration.parity",
         "combat.integration.objectives",
@@ -742,7 +744,8 @@
       ],
       "commands": [
         "npm.cmd run validate:combat",
-        "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/testing/__tests__/tactical-map.movement-scenarios.test.ts src/testing/__tests__/tactical-map.combat-scenarios.test.ts src/engine/__tests__/InteractiveSession.attackProjectionAgreement.scenario.test.ts --no-coverage"
+        "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/testing/__tests__/tactical-map.movement-scenarios.test.ts src/testing/__tests__/tactical-map.combat-scenarios.test.ts src/engine/__tests__/InteractiveSession.attackProjectionAgreement.scenario.test.ts --no-coverage",
+        "npm.cmd test -- --watchAll=false --runTestsByPath src/simulation/__tests__/scenarioObjectiveEngine.integration.test.ts src/hooks/gameplay/__tests__/usePhaseQueueProjection.test.ts src/components/gameplay/TacticalActionDock/commands/__tests__/physicalAttackCommands.test.ts --runInBand"
       ],
       "manualChecks": [
         "Commit a physical attack interactively and confirm engine state, store state, and phase advancement agree"
@@ -750,10 +753,11 @@
       "evidence": [
         "2026-06-18 behavior review found runner vs interactive agreement covered for heat environment, attack and movement projection, objective scenarios, and terminal state slices.",
         "2026-06-18 integration review passed validate:combat and a 49-test attack projection agreement slice; objective and physical-dispatch lanes still need dedicated on-demand commands.",
-        "2026-06-23 `npm.cmd run validate:combat` passed 76 suites / 2034 tests with 0 unresolved BattleMech gaps and the expected 147 explicit non-BattleMech out-of-scope rows; the runner/interactive parity slice passed 3 suites / 109 tests. Manual review of the focused interactive slice confirmed `InteractiveSession.applyPhysicalAttack`, physical phase advancement, tactical dock physical commands, and ejection utility commands are covered by `npx.cmd jest --selectProjects unit --ci --runTestsByPath ...` passing 11 suites / 78 tests."
+        "2026-06-23 `npm.cmd run validate:combat` passed 76 suites / 2034 tests with 0 unresolved BattleMech gaps and the expected 147 explicit non-BattleMech out-of-scope rows; the runner/interactive parity slice passed 3 suites / 109 tests. Manual review of the focused interactive slice confirmed `InteractiveSession.applyPhysicalAttack`, physical phase advancement, tactical dock physical commands, and ejection utility commands are covered by `npx.cmd jest --selectProjects unit --ci --runTestsByPath ...` passing 11 suites / 78 tests.",
+        "2026-06-25 objective agreement, phase queue projection, and physical command gating are folded into validate:combat; the 109-test runner/interactive projection slice, 5-test phase queue projection slice, and 37-test physical command slice passed as focused proof."
       ],
       "gaps": [
-        "Objective agreement is integration-tested but not folded into validate:combat; phase queue warning noise and physical command availability should be cleaned before treating UI regression guards as high-confidence."
+        "No unresolved BattleMech runner/interactive parity gaps are known in this lane; broader browser UX continuity stays tracked by the Wave 3 encounter and tactical map lanes."
       ]
     },
     {
@@ -763,7 +767,7 @@
       "parentId": "simulation-combat-validation",
       "riskTags": ["rules-parity", "known-gap-honesty", "targetability"],
       "qualityLenses": ["functionality", "rules-parity", "test-quality"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "claimIds": ["combat.physical-boundary"],
       "routes": ["/gameplay/games/[id]"],
       "apis": [],
@@ -787,22 +791,25 @@
       "activeChangeRefs": [],
       "tests": [
         "src/simulation/runner/__tests__/physicalWeaponCatalogBoundary.behavior.test.ts",
-        "src/simulation/__tests__/wireBotAiHelpersAndCapstone.smoke.test.ts"
+        "src/simulation/__tests__/wireBotAiHelpersAndCapstone.smoke.test.ts",
+        "src/components/gameplay/TacticalActionDock/commands/__tests__/physicalAttackCommands.test.ts"
       ],
       "commands": [
         "npm.cmd run validate:combat",
-        "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/simulation/runner/__tests__/physicalWeaponCatalogBoundary.behavior.test.ts src/simulation/__tests__/wireBotAiHelpersAndCapstone.smoke.test.ts --no-coverage"
+        "npx.cmd jest --selectProjects unit --ci --runTestsByPath src/simulation/runner/__tests__/physicalWeaponCatalogBoundary.behavior.test.ts src/simulation/__tests__/wireBotAiHelpersAndCapstone.smoke.test.ts --no-coverage",
+        "npm.cmd test -- --watchAll=false --runTestsByPath src/components/gameplay/TacticalActionDock/commands/__tests__/physicalAttackCommands.test.ts --runInBand"
       ],
       "manualChecks": [
         "Confirm physical commands are hidden or disabled using shared projected restriction reasons, not only active-unit/target presence"
       ],
       "evidence": [
         "2026-06-18 integration review found runtime supports core attacks plus official standalone physical weapons, while Claws/Talons are tested as modifier-only.",
-        "2026-06-18 parity review found several tactical dock physical commands still depend on requireActiveAndTarget instead of projected physical legality.",
-        "2026-06-23 `npx.cmd jest --selectProjects unit --ci --runTestsByPath src/simulation/runner/__tests__/physicalWeaponCatalogBoundary.behavior.test.ts src/simulation/__tests__/wireBotAiHelpersAndCapstone.smoke.test.ts --no-coverage` passed 2 suites / 17 tests. Manual review of the companion UI command slice confirmed tactical dock physical commands expose shared projected restriction reasons for punch, club, and charge paths, with the broader focused physical/ejection UI run passing 11 suites / 78 tests."
+        "2026-06-18 parity review previously found several tactical dock physical commands depended on requireActiveAndTarget instead of projected physical legality.",
+        "2026-06-23 `npx.cmd jest --selectProjects unit --ci --runTestsByPath src/simulation/runner/__tests__/physicalWeaponCatalogBoundary.behavior.test.ts src/simulation/__tests__/wireBotAiHelpersAndCapstone.smoke.test.ts --no-coverage` passed 2 suites / 17 tests. Manual review of the companion UI command slice confirmed tactical dock physical commands expose shared projected restriction reasons for punch, club, and charge paths, with the broader focused physical/ejection UI run passing 11 suites / 78 tests.",
+        "2026-06-25 all tactical dock physical commands route availability through shared target physical projections when projection rows exist; the focused 37-test command suite proves every supported command disables with projected restriction reasons and dispatches its runtime attack type."
       ],
       "gaps": [
-        "Physical catalog support is not the same as universal command availability parity; command registry gating remains partial."
+        "No unresolved command-gating gap is known for supported BattleMech physical attack commands; non-BattleMech and modifier-only physical rows remain scoped in their separate matrices."
       ]
     },
     {

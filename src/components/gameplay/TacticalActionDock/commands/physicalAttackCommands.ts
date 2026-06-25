@@ -154,7 +154,9 @@ const PhysicalPushCommand: ITacticalCommand = {
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
-  availability: requireActiveAndTarget,
+  availability(ctx) {
+    return requireProjectedPhysicalAttack(ctx, ['push']);
+  },
   commit() {
     return { actionId: 'physical-attack', payload: { attackType: 'push' } };
   },
@@ -168,7 +170,9 @@ const PhysicalTripCommand: ITacticalCommand = {
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
-  availability: requireActiveAndTarget,
+  availability(ctx) {
+    return requireProjectedPhysicalAttack(ctx, ['trip']);
+  },
   commit() {
     return { actionId: 'physical-attack', payload: { attackType: 'trip' } };
   },
@@ -182,7 +186,9 @@ const PhysicalThrashCommand: ITacticalCommand = {
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
-  availability: requireActiveAndTarget,
+  availability(ctx) {
+    return requireProjectedPhysicalAttack(ctx, ['thrash']);
+  },
   commit() {
     return { actionId: 'physical-attack', payload: { attackType: 'thrash' } };
   },
@@ -196,7 +202,9 @@ const PhysicalJumpJetAttackCommand: ITacticalCommand = {
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
-  availability: requireActiveAndTarget,
+  availability(ctx) {
+    return requireProjectedPhysicalAttack(ctx, ['jump-jet-attack']);
+  },
   commit() {
     return {
       actionId: 'physical-attack',
@@ -213,7 +221,9 @@ const PhysicalBrushOffCommand: ITacticalCommand = {
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
-  availability: requireActiveAndTarget,
+  availability(ctx) {
+    return requireProjectedPhysicalAttack(ctx, ['brush-off']);
+  },
   commit() {
     return {
       actionId: 'physical-attack',
@@ -230,7 +240,9 @@ const PhysicalGrappleCommand: ITacticalCommand = {
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
-  availability: requireActiveAndTarget,
+  availability(ctx) {
+    return requireProjectedPhysicalAttack(ctx, ['grapple']);
+  },
   commit() {
     return { actionId: 'physical-attack', payload: { attackType: 'grapple' } };
   },
@@ -244,7 +256,9 @@ const PhysicalBreakGrappleCommand: ITacticalCommand = {
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
-  availability: requireActiveAndTarget,
+  availability(ctx) {
+    return requireProjectedPhysicalAttack(ctx, ['break-grapple']);
+  },
   commit() {
     return {
       actionId: 'physical-attack',
@@ -323,7 +337,9 @@ const PhysicalSwordCommand: ITacticalCommand = {
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
-  availability: requireActiveAndTarget,
+  availability(ctx) {
+    return requireProjectedPhysicalAttack(ctx, ['sword']);
+  },
   commit() {
     return { actionId: 'physical-attack', payload: { attackType: 'sword' } };
   },
@@ -337,7 +353,9 @@ const PhysicalMaceCommand: ITacticalCommand = {
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
-  availability: requireActiveAndTarget,
+  availability(ctx) {
+    return requireProjectedPhysicalAttack(ctx, ['mace']);
+  },
   commit() {
     return { actionId: 'physical-attack', payload: { attackType: 'mace' } };
   },
@@ -351,7 +369,9 @@ const PhysicalLanceCommand: ITacticalCommand = {
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
-  availability: requireActiveAndTarget,
+  availability(ctx) {
+    return requireProjectedPhysicalAttack(ctx, ['lance']);
+  },
   commit() {
     return { actionId: 'physical-attack', payload: { attackType: 'lance' } };
   },
@@ -365,7 +385,9 @@ const PhysicalRetractableBladeCommand: ITacticalCommand = {
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
-  availability: requireActiveAndTarget,
+  availability(ctx) {
+    return requireProjectedPhysicalAttack(ctx, ['retractable-blade']);
+  },
   commit() {
     return {
       actionId: 'physical-attack',
@@ -382,7 +404,9 @@ const PhysicalFlailCommand: ITacticalCommand = {
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
-  availability: requireActiveAndTarget,
+  availability(ctx) {
+    return requireProjectedPhysicalAttack(ctx, ['flail']);
+  },
   commit() {
     return { actionId: 'physical-attack', payload: { attackType: 'flail' } };
   },
@@ -396,7 +420,9 @@ const PhysicalWreckingBallCommand: ITacticalCommand = {
   requiresConfirmation: true,
   undoable: false,
   targetsEnemy: true,
-  availability: requireActiveAndTarget,
+  availability(ctx) {
+    return requireProjectedPhysicalAttack(ctx, ['wrecking-ball']);
+  },
   commit() {
     return {
       actionId: 'physical-attack',

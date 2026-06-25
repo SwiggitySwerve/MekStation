@@ -140,6 +140,32 @@ describe('combat catalog rules parity QC validator', () => {
     expect(result.stdout).toContain('--expect-total=147');
   });
 
+  it('rejects combat child surfaces that drift back to partial', () => {
+    const registry = readJson<{
+      surfaces: Array<{
+        surfaceId: string;
+        coverageStatus: string;
+      }>;
+    }>(path.join(repoRoot, 'docs/qc/mekstation-qc-registry.json'));
+    const surface = registry.surfaces.find(
+      (entry) => entry.surfaceId === 'physical-weapon-runtime-boundary',
+    );
+    expect(surface).toBeDefined();
+    surface!.coverageStatus = 'partial';
+
+    const registryPath = path.join(tempDir, 'qc-registry.json');
+    writeJson(registryPath, registry);
+
+    const result = runValidator([], {
+      MEKSTATION_QC_REGISTRY_PATH: registryPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'physical-weapon-runtime-boundary must keep coverageStatus in ready-with-scope.',
+    );
+  });
+
   it('rejects missing combat catalog source anchor tokens', () => {
     const anchorsPath = path.join(tempDir, 'anchors.json');
     writeJson(anchorsPath, [

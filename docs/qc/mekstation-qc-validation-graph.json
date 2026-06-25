@@ -913,7 +913,7 @@
       "id": "surface:behavior-class-combat-rules",
       "kind": "surface",
       "label": "Behavior-Class Combat Rule Tests",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:behavior-class-combat-rules:lifecycle",
@@ -926,7 +926,8 @@
       "label": "Registry evidence for Behavior-Class Combat Rule Tests",
       "entries": [
         "docs/audits/2026-05-22-combat-validation-source-truth.md",
-        "2026-06-18 behavior review: validate:combat passed and an additional 15-suite integration slice passed 260 tests for session, objective, and UI-projection paths."
+        "2026-06-18 behavior review: validate:combat passed and an additional 15-suite integration slice passed 260 tests for session, objective, and UI-projection paths.",
+        "2026-06-25 Wave 3 child closure: validate:combat now includes scenario objective engine, tactical physical command gating, and phase queue projection tests; focused phase queue projection passed 5 tests without React act warnings after act-wrapped store seeding; focused physical command gating passed 37 tests across every supported command."
       ]
     },
     {
@@ -942,7 +943,7 @@
       "kind": "known-gap",
       "label": "Behavior-Class Combat Rule Tests known gaps",
       "entries": [
-        "Known limitations and skipped tests must be audited so green suites do not hide missing mechanics; phase queue tests still emit non-failing React act warning noise."
+        "No unresolved BattleMech behavior-class combat rule gaps are known in this lane; non-BattleMech combat scope stays tracked in non-battlemech-combat-scope-matrix."
       ]
     },
     {
@@ -954,7 +955,7 @@
       "id": "surface:integration-runner-interactive-parity",
       "kind": "surface",
       "label": "Runner And Interactive Parity",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:integration-runner-interactive-parity:lifecycle",
@@ -967,7 +968,8 @@
       "label": "Registry evidence for Runner And Interactive Parity",
       "entries": [
         "2026-06-18 behavior review found runner vs interactive agreement covered for heat environment, attack and movement projection, objective scenarios, and terminal state slices.",
-        "2026-06-18 integration review passed validate:combat and a 49-test attack projection agreement slice; objective and physical-dispatch lanes still need dedicated on-demand commands."
+        "2026-06-18 integration review passed validate:combat and a 49-test attack projection agreement slice; objective and physical-dispatch lanes still need dedicated on-demand commands.",
+        "2026-06-25 objective agreement, phase queue projection, and physical command gating are folded into validate:combat; the 109-test runner/interactive projection slice, 5-test phase queue projection slice, and 37-test physical command slice passed as focused proof."
       ]
     },
     {
@@ -983,14 +985,14 @@
       "kind": "known-gap",
       "label": "Runner And Interactive Parity known gaps",
       "entries": [
-        "Objective agreement is integration-tested but not folded into validate:combat; phase queue warning noise and physical command availability should be cleaned before treating UI regression guards as high-confidence."
+        "No unresolved BattleMech runner/interactive parity gaps are known in this lane; broader browser UX continuity stays tracked by the Wave 3 encounter and tactical map lanes."
       ]
     },
     {
       "id": "surface:physical-weapon-runtime-boundary",
       "kind": "surface",
       "label": "Physical Weapon Runtime Boundary",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:physical-weapon-runtime-boundary:lifecycle",
@@ -1003,7 +1005,8 @@
       "label": "Registry evidence for Physical Weapon Runtime Boundary",
       "entries": [
         "2026-06-18 integration review found runtime supports core attacks plus official standalone physical weapons, while Claws/Talons are tested as modifier-only.",
-        "2026-06-18 parity review found several tactical dock physical commands still depend on requireActiveAndTarget instead of projected physical legality."
+        "2026-06-18 parity review previously found several tactical dock physical commands depended on requireActiveAndTarget instead of projected physical legality.",
+        "2026-06-25 all tactical dock physical commands route availability through shared target physical projections when projection rows exist; the focused 37-test command suite proves every supported command disables with projected restriction reasons and dispatches its runtime attack type."
       ]
     },
     {
@@ -1019,7 +1022,7 @@
       "kind": "known-gap",
       "label": "Physical Weapon Runtime Boundary known gaps",
       "entries": [
-        "Physical catalog support is not the same as universal command availability parity; command registry gating remains partial."
+        "No unresolved command-gating gap is known for supported BattleMech physical attack commands; non-BattleMech and modifier-only physical rows remain scoped in their separate matrices."
       ]
     },
     {
