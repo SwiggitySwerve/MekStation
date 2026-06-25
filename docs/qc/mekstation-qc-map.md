@@ -320,8 +320,10 @@ flowchart TD
      API fog/spectate contracts, server reconnect/spectator/fog behavior, turn
      ownership, and the Phase 4 capstone host/join/reconnect/outcome flow.
    - Wave 4 folds this multiplayer gate plus `verify:qc:replay-recovery` into
-     `verify:qc:wave4`; true two-window vault-auth and packaged-runtime
-     kill/reconnect remain release-signoff checks rather than hidden blockers.
+     `verify:qc:wave4`; `validate:multiplayer:packaged-socket` now proves
+     packaged-runtime kill/reconnect against the durable match store, while
+     true two-window vault-auth remains a release-signoff check rather than a
+     hidden blocker.
 
 1. `desktop-api-security`
    - The 2026-06-23 desktop lane now proves the packaged runtime path with

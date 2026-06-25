@@ -131,6 +131,7 @@ const requiredSurfaces = [
       'verify:qc:multiplayer-reliability',
       'verify:qc:multiplayer:contracts',
       'verify:qc:multiplayer:browser',
+      'validate:multiplayer:packaged-socket',
       'qc:wave4:validate',
     ],
     testIncludes: [
@@ -144,10 +145,10 @@ const requiredSurfaces = [
       'reconnectionFlow.test.ts',
       'fogOfWar.test.ts',
     ],
-    manualIncludes: ['true two-window/vault-auth', 'packaged runtime'],
+    manualIncludes: ['true two-window/vault-auth'],
     gapIncludes: [
       'true two-window vault-auth live play',
-      'packaged-runtime kill/reconnect',
+      'packaged runtime kill/reconnect against the durable match store',
     ],
   },
   {

@@ -1283,22 +1283,23 @@
         "npm.cmd run verify:qc:multiplayer-reliability",
         "npm.cmd run verify:qc:multiplayer:contracts",
         "npm.cmd run verify:qc:multiplayer:browser",
+        "npm.cmd run validate:multiplayer:packaged-socket",
         "npm.cmd run qc:wave4:validate"
       ],
       "manualChecks": [
-        "Run a true two-window/vault-auth host and guest session, join by invite code, and verify live turn handoff plus fog-limited guest state.",
-        "Kill/restart the packaged runtime during an active match and verify reconnect durability against the persistent match store."
+        "Run a true two-window/vault-auth host and guest session, join by invite code, and verify live turn handoff plus fog-limited guest state."
       ],
       "evidence": [
         "docs/audits/2026-06-12-full-codebase-review.md",
         "2026-06-23 Chromium browser smoke passed `npx.cmd playwright test --project=chromium e2e/playtest-coop-route-smoke.spec.ts`: host co-op campaign mounts dashboard/personnel/mech-bay/hiring/contract-market/finances with co-op badge, and single-player campaign hides co-op surfaces.",
         "2026-06-24 `verify:qc:multiplayer-reliability` groups browser route smoke, mock P2P sync, co-op route mounting, API fog/spectate contracts, server host/reconnect/spectator/fog behavior, turn ownership, and the Phase 4 capstone host/join/reconnect/outcome flow.",
-        "2026-06-24 Wave 4 validator requires multiplayer aggregate scripts plus route, contract, and capstone source anchors while leaving two-browser and packaged runtime boundaries in their existing gap fields.",
+        "2026-06-25 `npm.cmd run validate:multiplayer:packaged-socket` passed after `npm.cmd run build`: packaged server socket upgrade/replay succeeded, the process restarted against the same durable SQLite match store, the same match replayed after reconnect, and the co-op runtime proposal committed.",
+        "2026-06-25 Wave 4 validator requires multiplayer aggregate scripts plus route, contract, capstone source anchors, and the packaged socket command while keeping live host/guest identity play tracked separately.",
         "Archived OpenSpec change 2026-06-21-reconcile-multiplayer-coop-reality retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23."
       ],
       "gaps": [
-        "Automated coverage proves route/mock harness, server/API contracts, reconnect, spectator, fog, turn-authority, and capstone host/join recovery; true two-window vault-auth live play and packaged-runtime kill/reconnect remain release-signoff checks."
+        "Automated coverage proves route/mock harness, server/API contracts, reconnect, spectator, fog, turn-authority, capstone host/join recovery, and packaged runtime kill/reconnect against the durable match store; true two-window vault-auth live play remains the release-signoff check."
       ]
     },
     {
