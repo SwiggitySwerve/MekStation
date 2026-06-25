@@ -1,8 +1,21 @@
 {
   "schemaVersion": 1,
-  "status": "deferred",
-  "reason": "aerospace MUL cache not yet available — checked: E:\\Projects\\MekStation\\.claude\\worktrees\\agent-aero-bv\\public\\data\\units\\aerospace_units, E:\\Projects\\MekStation\\.claude\\worktrees\\agent-aero-bv\\public\\data\\units\\aerospacefighters, E:\\Projects\\MekStation\\.claude\\worktrees\\agent-aero-bv\\public\\data\\units\\aerospace",
+  "status": "ok",
+  "reason": "Loaded 612 aerospace units; none expose a canonical BV.",
   "coverage": "no_mul_data",
-  "generatedAt": "2026-04-24T22:30:56.577Z",
-  "units": []
+  "generatedAt": "1970-01-01T00:00:00.000Z",
+  "source": "E:\\Projects\\MekStation\\public\\data\\units\\aerospace",
+  "units": [],
+  "omittedUnreferencedUnits": 612,
+  "unparseableUnits": 0,
+  "stats": {
+    "total": 612,
+    "compared": 0,
+    "exact": 0,
+    "within1pct": 0,
+    "within5pct": 0,
+    "unparseableUnits": 0,
+    "omittedUnreferencedUnits": 612,
+    "outliers": []
+  }
 }
