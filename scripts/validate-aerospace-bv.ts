@@ -51,6 +51,8 @@ interface CLIOptions {
   help: boolean;
 }
 
+const STABLE_GENERATED_AT = '1970-01-01T00:00:00.000Z';
+
 /**
  * Default search locations for canonical aerospace unit JSON files.
  * The harness probes each path in order; the first one that exists and
@@ -159,6 +161,10 @@ interface AerospaceParityReport {
   readonly source?: string;
   /** Individual aerospace parity rows (empty when status === 'deferred'). */
   readonly units: ReadonlyArray<AerospaceParityRow>;
+  /** Number of loaded rows omitted because they had no canonical BV reference. */
+  readonly omittedUnreferencedUnits?: number;
+  /** Number of JSON files skipped because they could not be parsed. */
+  readonly unparseableUnits?: number;
   /** Aggregate stats (populated only when status === 'ok'). */
   readonly stats?: {
     readonly total: number;
@@ -166,6 +172,8 @@ interface AerospaceParityReport {
     readonly exact: number;
     readonly within1pct: number;
     readonly within5pct: number;
+    readonly unparseableUnits: number;
+    readonly omittedUnreferencedUnits: number;
     readonly outliers: ReadonlyArray<AerospaceParityRow>;
   };
 }
@@ -303,7 +311,7 @@ function computeUnitParity(
     // equipment / armor fields default to safe zero values so a partial
     // unit JSON still produces a structured (but small) BV.
     const breakdown = calculateAerospaceBVFromUnit(
-      unit as Parameters<typeof calculateAerospaceBVFromUnit>[0],
+      unit as unknown as Parameters<typeof calculateAerospaceBVFromUnit>[0],
     );
     computedBV = breakdown.final;
   } catch {
@@ -328,21 +336,36 @@ function computeUnitParity(
 function writeReport(outputPath: string, report: AerospaceParityReport): void {
   const outDir = path.dirname(outputPath);
   fs.mkdirSync(outDir, { recursive: true });
-  fs.writeFileSync(outputPath, JSON.stringify(report, null, 2), 'utf8');
+  fs.writeFileSync(outputPath, JSON.stringify(report, null, 2) + '\n', 'utf8');
+}
+
+function generatedAtTimestamp(): string {
+  return process.env.MEKSTATION_VALIDATION_GENERATED_AT ?? STABLE_GENERATED_AT;
+}
+
+function reportRowsForReferenceCoverage(
+  rows: readonly AerospaceParityRow[],
+): readonly AerospaceParityRow[] {
+  return rows.filter((row) => row.canonicalBV !== null);
 }
 
 // =============================================================================
 // Main
 // =============================================================================
 
-function main(): void {
-  const options = parseArgs();
+function buildReport(options: CLIOptions): AerospaceParityReport {
   if (options.help) {
     printHelp();
-    return;
+    return {
+      schemaVersion: 1,
+      status: 'deferred',
+      reason: 'help requested',
+      generatedAt: generatedAtTimestamp(),
+      units: [],
+    };
   }
 
-  const generatedAt = new Date().toISOString();
+  const generatedAt = generatedAtTimestamp();
   const cacheRoot = locateCache(options.aeroCachePaths);
 
   if (!cacheRoot) {
@@ -359,13 +382,7 @@ function main(): void {
       generatedAt,
       units: [],
     };
-    writeReport(options.outputPath, report);
-    // eslint-disable-next-line no-console
-    console.log(
-      `[validate-aerospace-bv] Emitted deferred report at ${options.outputPath} ` +
-        `(no aerospace MUL cache found).`,
-    );
-    return;
+    return report;
   }
 
   // Cache present — walk it and compute parity rows.
@@ -401,8 +418,10 @@ function main(): void {
       : compared.length === rows.length
         ? 'full'
         : 'partial';
+  const referencedRows = reportRowsForReferenceCoverage(rows);
+  const omittedUnreferencedUnits = rows.length - referencedRows.length;
 
-  const report: AerospaceParityReport = {
+  return {
     schemaVersion: 1,
     status: 'ok',
     reason:
@@ -412,24 +431,51 @@ function main(): void {
     coverage,
     generatedAt,
     source: cacheRoot,
-    units: rows,
+    units: referencedRows,
+    omittedUnreferencedUnits,
+    unparseableUnits: skipped,
     stats: {
       total: rows.length,
       compared: compared.length,
       exact,
       within1pct,
       within5pct,
+      unparseableUnits: skipped,
+      omittedUnreferencedUnits,
       outliers,
     },
   };
+}
+
+function main(): void {
+  const options = parseArgs();
+  if (options.help) {
+    printHelp();
+    return;
+  }
+
+  const report = buildReport(options);
   writeReport(options.outputPath, report);
+
   // eslint-disable-next-line no-console
-  console.log(
-    `[validate-aerospace-bv] Loaded ${rows.length} units from ${cacheRoot} ` +
-      `(${compared.length} with canonical BV, ${skipped} unparseable).`,
-  );
+  if (report.status === 'deferred') {
+    console.log(
+      `[validate-aerospace-bv] Emitted deferred report at ${options.outputPath} ` +
+        `(no aerospace MUL cache found).`,
+    );
+  } else {
+    console.log(
+      `[validate-aerospace-bv] Loaded ${report.stats?.total ?? 0} units ` +
+        `(${report.stats?.compared ?? 0} with canonical BV, ` +
+        `${report.omittedUnreferencedUnits ?? 0} omitted from row output).`,
+    );
+  }
   // eslint-disable-next-line no-console
   console.log(`[validate-aerospace-bv] Report: ${options.outputPath}`);
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+export { buildReport, parseArgs, reportRowsForReferenceCoverage };

@@ -73,8 +73,17 @@ interface InfantryBVReport {
     readonly reason: string;
     readonly trackedBy: string;
   };
+  /** Number of platoons scanned but omitted because they have no MUL BV. */
+  readonly omittedWithoutMulBV: number;
   readonly platoons: readonly PlatoonReportEntry[];
 }
+
+interface CLIOptions {
+  readonly outputPath: string;
+  readonly help: boolean;
+}
+
+const STABLE_GENERATED_AT = '1970-01-01T00:00:00.000Z';
 
 // =============================================================================
 // Fixture loading
@@ -87,6 +96,52 @@ const INFANTRY_DATA_DIR = path.resolve(
   'units',
   'infantry',
 );
+
+function parseArgs(): CLIOptions {
+  const args = process.argv.slice(2);
+  const defaultOutputPath = path.resolve(
+    process.cwd(),
+    'validation-output',
+    'infantry-bv-validation-report.json',
+  );
+  let outputPath = defaultOutputPath;
+  let help = false;
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    switch (arg) {
+      case '--output':
+        outputPath = path.resolve(args[++i] || defaultOutputPath);
+        break;
+      case '--help':
+      case '-h':
+        help = true;
+        break;
+      default:
+        break;
+    }
+  }
+
+  return { outputPath, help };
+}
+
+function printHelp(): void {
+  // eslint-disable-next-line no-console
+  console.log(`
+Infantry BV Parity Validation
+
+Usage:
+  npx tsx scripts/validate-infantry-bv.ts [options]
+
+Options:
+  --output <path>      Output JSON report path
+  --help, -h           Show this help message
+`);
+}
+
+function generatedAtTimestamp(): string {
+  return process.env.MEKSTATION_VALIDATION_GENERATED_AT ?? STABLE_GENERATED_AT;
+}
 
 /**
  * Recursively gather every `*.json` under `public/data/units/infantry/`.
@@ -162,7 +217,10 @@ function fixtureName(data: InfantryFixtureFile, filePath: string): string {
   if (typeof data.name === 'string' && data.name.trim()) return data.name;
 
   const fromChassisModel = [data.chassis, data.model]
-    .filter((part): part is string => typeof part === 'string' && part.trim())
+    .filter(
+      (part): part is string =>
+        typeof part === 'string' && part.trim().length > 0,
+    )
     .join(' ');
   return fromChassisModel || path.basename(filePath, '.json');
 }
@@ -391,10 +449,11 @@ function buildReport(): InfantryBVReport {
   const withinFive = platoons.filter(
     (p) => p.deltaPct !== null && Math.abs(p.deltaPct) <= 5,
   ).length;
+  const referencedPlatoons = platoons.filter((p) => p.mulBV !== null);
 
   return {
     version: '1',
-    generatedAt: new Date().toISOString(),
+    generatedAt: generatedAtTimestamp(),
     totalPlatoons: platoons.length,
     parityCoverage: {
       withMulBV,
@@ -407,7 +466,8 @@ function buildReport(): InfantryBVReport {
       trackedBy:
         'openspec/changes/add-infantry-battle-value/tasks.md (task 7.2 deferred)',
     },
-    platoons,
+    omittedWithoutMulBV: platoons.length - referencedPlatoons.length,
+    platoons: referencedPlatoons,
   };
 }
 
@@ -415,17 +475,27 @@ function buildReport(): InfantryBVReport {
  * Entry point — writes the report to `validation-output/infantry-bv-validation-report.json`.
  */
 function main(): void {
+  const options = parseArgs();
+  if (options.help) {
+    printHelp();
+    return;
+  }
+
   const report = buildReport();
-  const outDir = path.resolve(process.cwd(), 'validation-output');
+  const outDir = path.dirname(options.outputPath);
   if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir, { recursive: true });
   }
-  const outPath = path.join(outDir, 'infantry-bv-validation-report.json');
+  const outPath = options.outputPath;
   fs.writeFileSync(outPath, JSON.stringify(report, null, 2) + '\n', 'utf-8');
 
   // Minimal summary on stdout — mirrors existing BV harness ergonomics.
   console.log('[validate-infantry-bv] Report written: ' + outPath);
   console.log('[validate-infantry-bv] Platoons: ' + report.totalPlatoons);
+  console.log(
+    '[validate-infantry-bv] Omitted without MUL BV: ' +
+      report.omittedWithoutMulBV,
+  );
   console.log(
     '[validate-infantry-bv] With MUL BV: ' +
       report.parityCoverage.withMulBV +
@@ -452,4 +522,4 @@ if (require.main === module) {
   main();
 }
 
-export { buildReport, loadFixture, gatherInfantryFixtureFiles };
+export { buildReport, loadFixture, gatherInfantryFixtureFiles, parseArgs };
