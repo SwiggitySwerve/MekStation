@@ -12,7 +12,7 @@
  * and assert the returned IPhaseQueueProjection shape.
  */
 
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 
 import type { IGameSession } from '@/types/gameplay/GameSessionStateTypes';
 import type { IGameUnit } from '@/types/gameplay/GameSessionUnitTypes';
@@ -78,11 +78,15 @@ function buildSession({
 
 describe('usePhaseQueueProjection', () => {
   afterEach(() => {
-    useGameplayStore.setState({ session: null });
+    act(() => {
+      useGameplayStore.setState({ session: null });
+    });
   });
 
   it('returns an empty projection when no session is loaded', () => {
-    useGameplayStore.setState({ session: null });
+    act(() => {
+      useGameplayStore.setState({ session: null });
+    });
     const { result } = renderHook(() => usePhaseQueueProjection());
     expect(result.current.initiativeOrder).toEqual([]);
     expect(result.current.unresolvedUnits).toEqual([]);
@@ -94,12 +98,14 @@ describe('usePhaseQueueProjection', () => {
   // Spec: "Movement phase projection lists unresolved units"
   // -------------------------------------------------------------------------
   it('lists unresolved units during Movement phase', () => {
-    useGameplayStore.setState({
-      session: buildSession({
-        phase: GamePhase.Movement,
-        // Both units pending (haven't moved yet).
-        unitLockStates: { p1: LockState.Pending, o1: LockState.Pending },
-      }),
+    act(() => {
+      useGameplayStore.setState({
+        session: buildSession({
+          phase: GamePhase.Movement,
+          // Both units pending (haven't moved yet).
+          unitLockStates: { p1: LockState.Pending, o1: LockState.Pending },
+        }),
+      });
     });
 
     const { result } = renderHook(() => usePhaseQueueProjection());
@@ -114,12 +120,14 @@ describe('usePhaseQueueProjection', () => {
   });
 
   it('drops resolved units from unresolvedUnits', () => {
-    useGameplayStore.setState({
-      session: buildSession({
-        phase: GamePhase.Movement,
-        // Player has moved; opponent still pending.
-        unitLockStates: { p1: LockState.Resolved, o1: LockState.Pending },
-      }),
+    act(() => {
+      useGameplayStore.setState({
+        session: buildSession({
+          phase: GamePhase.Movement,
+          // Player has moved; opponent still pending.
+          unitLockStates: { p1: LockState.Resolved, o1: LockState.Pending },
+        }),
+      });
     });
 
     const { result } = renderHook(() => usePhaseQueueProjection());
@@ -133,11 +141,13 @@ describe('usePhaseQueueProjection', () => {
   // Spec: "Phase blocker names unresolved work"
   // -------------------------------------------------------------------------
   it('emits blocker entries naming unit id, side, phase, and missing action', () => {
-    useGameplayStore.setState({
-      session: buildSession({
-        phase: GamePhase.WeaponAttack,
-        unitLockStates: { p1: LockState.Pending, o1: LockState.Pending },
-      }),
+    act(() => {
+      useGameplayStore.setState({
+        session: buildSession({
+          phase: GamePhase.WeaponAttack,
+          unitLockStates: { p1: LockState.Pending, o1: LockState.Pending },
+        }),
+      });
     });
 
     const { result } = renderHook(() => usePhaseQueueProjection());
@@ -164,11 +174,13 @@ describe('usePhaseQueueProjection', () => {
   });
 
   it('does not emit blockers for non-alternating phases (Heat/End/Initiative)', () => {
-    useGameplayStore.setState({
-      session: buildSession({
-        phase: GamePhase.Heat,
-        unitLockStates: { p1: LockState.Pending, o1: LockState.Pending },
-      }),
+    act(() => {
+      useGameplayStore.setState({
+        session: buildSession({
+          phase: GamePhase.Heat,
+          unitLockStates: { p1: LockState.Pending, o1: LockState.Pending },
+        }),
+      });
     });
 
     const { result } = renderHook(() => usePhaseQueueProjection());

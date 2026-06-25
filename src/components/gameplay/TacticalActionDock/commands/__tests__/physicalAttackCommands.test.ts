@@ -5,7 +5,10 @@
  * @spec openspec/changes/add-tactical-action-menu-system/specs/tactical-map-interface/spec.md
  */
 
-import type { IPhysicalAttackOption } from '@/utils/gameplay/physicalAttacks/types';
+import type {
+  IPhysicalAttackOption,
+  PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks/types';
 
 import { GamePhase, type ITacticalCommandContext } from '@/types/gameplay';
 
@@ -224,6 +227,55 @@ describe('physicalAttackCommands', () => {
 
     expect(result).toEqual({ available: true });
   });
+
+  it.each<[string, PhysicalAttackType]>([
+    ['physical.punch', 'punch'],
+    ['physical.kick', 'kick'],
+    ['physical.push', 'push'],
+    ['physical.trip', 'trip'],
+    ['physical.thrash', 'thrash'],
+    ['physical.jump-jet-attack', 'jump-jet-attack'],
+    ['physical.brush-off', 'brush-off'],
+    ['physical.grapple', 'grapple'],
+    ['physical.break-grapple', 'break-grapple'],
+    ['physical.charge', 'charge'],
+    ['physical.dfa', 'dfa'],
+    ['physical.club', 'hatchet'],
+    ['physical.sword', 'sword'],
+    ['physical.mace', 'mace'],
+    ['physical.lance', 'lance'],
+    ['physical.retractable-blade', 'retractable-blade'],
+    ['physical.flail', 'flail'],
+    ['physical.wrecking-ball', 'wrecking-ball'],
+  ])(
+    '%s is disabled by the shared projected restriction for %s',
+    (commandId, attackType) => {
+      const command = commands.find((item) => item.id === commandId)!;
+      const result = command.availability(
+        makeCtx({
+          targetPhysicalAttackOptions: [
+            makePhysicalOption({
+              attackType,
+              toHit: {
+                baseToHit: 5,
+                finalToHit: Number.POSITIVE_INFINITY,
+                modifiers: [],
+                allowed: false,
+                restrictionReason: `${attackType} blocked by projection`,
+                restrictionReasonCode: 'TargetNotAdjacent',
+              },
+              restrictionsFailed: ['TargetNotAdjacent'],
+            }),
+          ],
+        }),
+      );
+
+      expect(result).toEqual({
+        available: false,
+        reason: `${attackType} blocked by projection`,
+      });
+    },
+  );
 
   it('charge dispatches physical-attack actionId with attackType=charge', () => {
     const charge = commands.find((c) => c.id === 'physical.charge')!;
