@@ -33,17 +33,34 @@ interface InfantryReport {
   readonly platoons: readonly { readonly mulBV: number | null }[];
 }
 
+function makeTempDir(prefix = 'wave4-bv-report-'): string {
+  return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+}
+
 function makeTempFile(name: string): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'wave4-bv-report-'));
+  const dir = makeTempDir();
   return path.join(dir, name);
 }
 
-function runScript(scriptPath: string, outputPath: string) {
-  return spawnSync(NPX, ['tsx', scriptPath, '--output', outputPath], {
-    cwd: process.cwd(),
-    encoding: 'utf-8',
-    shell: process.platform === 'win32',
-  });
+function runScript(
+  scriptPath: string,
+  outputPath: string,
+  extraArgs: readonly string[] = [],
+) {
+  return spawnSync(
+    NPX,
+    ['tsx', scriptPath, ...extraArgs, '--output', outputPath],
+    {
+      cwd: process.cwd(),
+      encoding: 'utf-8',
+      shell: process.platform === 'win32',
+    },
+  );
+}
+
+function writeJson(filePath: string, data: unknown): void {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
 }
 
 function readJson<T>(outputPath: string): T {
@@ -55,18 +72,35 @@ describe('Wave 4 BV report output', () => {
 
   it('keeps aerospace reports compact while retaining coverage counts', () => {
     const outputPath = makeTempFile('aerospace-report.json');
-    const result = runScript(AEROSPACE_SCRIPT, outputPath);
+    const cacheDir = makeTempDir('wave4-aero-cache-');
+    writeJson(path.join(cacheDir, 'referenced-aero.json'), {
+      bv: 42,
+      id: 'referenced-aero',
+      name: 'Referenced Aero',
+    });
+    writeJson(path.join(cacheDir, 'unreferenced-aero.json'), {
+      id: 'unreferenced-aero',
+      name: 'Unreferenced Aero',
+    });
+
+    const result = runScript(AEROSPACE_SCRIPT, outputPath, [
+      '--aero-cache',
+      cacheDir,
+    ]);
 
     expect(result.status).toBe(0);
     expect(result.stderr).toBe('');
 
     const report = readJson<AerospaceReport>(outputPath);
     expect(report.generatedAt).toBe('1970-01-01T00:00:00.000Z');
-    expect(report.stats.total).toBeGreaterThan(0);
+    expect(report.stats.total).toBe(2);
+    expect(report.stats.compared).toBe(1);
+    expect(report.omittedUnreferencedUnits).toBe(1);
     expect(report.units).toHaveLength(report.stats.compared);
     expect(report.omittedUnreferencedUnits + report.units.length).toBe(
       report.stats.total,
     );
+    expect(report.units[0]?.canonicalBV).toBe(42);
     expect(
       report.units.every((unit) => {
         return unit.canonicalBV !== null;

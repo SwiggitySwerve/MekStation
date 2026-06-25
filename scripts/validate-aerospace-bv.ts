@@ -336,7 +336,7 @@ function computeUnitParity(
 function writeReport(outputPath: string, report: AerospaceParityReport): void {
   const outDir = path.dirname(outputPath);
   fs.mkdirSync(outDir, { recursive: true });
-  fs.writeFileSync(outputPath, JSON.stringify(report, null, 2), 'utf8');
+  fs.writeFileSync(outputPath, JSON.stringify(report, null, 2) + '\n', 'utf8');
 }
 
 function generatedAtTimestamp(): string {
