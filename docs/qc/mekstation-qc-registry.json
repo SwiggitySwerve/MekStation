@@ -862,7 +862,7 @@
       "parentId": "simulation-combat-validation",
       "riskTags": ["known-gap-honesty", "rules-parity", "catalog-drift"],
       "qualityLenses": ["functionality", "rules-parity", "test-quality"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "claimIds": ["combat.scope.non-battlemech"],
       "routes": [],
       "apis": [],
@@ -870,7 +870,9 @@
       "modules": [
         "scripts/print-combat-validation-gaps.ts",
         "scripts/validate-combat-suite.mjs",
-        "src/simulation/runner/Combat*Support.ts"
+        "src/simulation/runner/Combat*Support.ts",
+        "docs/qc/non-battlemech-combat-scope-matrix.json",
+        "scripts/qc/validate-nonbattlemech-scope-matrix.ts"
       ],
       "submodules": [
         "aerospace/capital",
@@ -878,26 +880,37 @@
         "ProtoMech",
         "artillery/torpedo ammo",
         "aquatic/sea mine variants",
-        "non-BattleMech supercharger paths"
+        "non-BattleMech supercharger paths",
+        "ground vehicle matrix",
+        "VTOL matrix",
+        "aerospace/capital/LAM matrix",
+        "battle armor matrix",
+        "infantry matrix",
+        "ProtoMech matrix",
+        "cross-cutting out-of-scope buckets"
       ],
       "specRefs": ["openspec/specs/combat-resolution/spec.md"],
       "activeChangeRefs": [],
-      "tests": ["src/simulation/runner/**/__tests__"],
+      "tests": [
+        "src/simulation/runner/**/__tests__",
+        "scripts/__tests__/nonbattlemech-scope-matrix-qc.test.ts"
+      ],
       "commands": [
         "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=147 --expect-level=out-of-scope:147 --expect-scope=aggregate:3 --expect-scope=leaf:144 --expect-section=actions:29 --expect-section=damageAndDeath:6 --expect-section=eventStream:15 --expect-section=featureSupport:75 --expect-section=lifecycleAndPsr:2 --expect-section=pilotSkills:9 --expect-section=ruleSupport:6 --expect-section=validationScope:5",
         "npm.cmd run validate:combat",
-        "npm.cmd run qc:wave4:validate"
+        "npm.cmd run qc:wave4:validate",
+        "npm.cmd run qc:nonbattlemech:scope:validate"
       ],
-      "manualChecks": [
-        "Keep non-BattleMech matrices separate from BattleMech-compatible official row claims"
-      ],
+      "manualChecks": [],
       "evidence": [
         "2026-06-23 Wave 10 review confirmed validate:combat and the gap exporter assert 147 explicit non-BattleMech out-of-scope rows.",
         "2026-06-18 parity review confirmed vehicle/VTOL movement coverage exists but should not be claimed as universal non-BattleMech preview/resolution parity.",
-        "2026-06-24 Wave 4 validator requires the 147-row out-of-scope split and separate matrix language before the broader Wave 4 aggregate can pass."
+        "2026-06-24 Wave 4 validator requires the 147-row out-of-scope split and separate matrix language before the broader Wave 4 aggregate can pass.",
+        "2026-06-25 non-BattleMech scope matrix adds per-family ground vehicle, VTOL, aerospace/capital/LAM, battle armor, infantry, and ProtoMech capability matrices, plus cross-cutting buckets covering all 147 explicit out-of-scope rows.",
+        "2026-06-25 `qc:nonbattlemech:scope:validate` imports the live combat gap inventory, verifies total/scope/section counts, checks every out-of-scope row is covered by a matrix bucket, and rejects missing required family matrices."
       ],
       "gaps": [
-        "Non-BattleMech systems require separate support matrices before they can be described as fully rules-backed."
+        "Scope boundary: non-BattleMech rows remain out-of-scope and matrix-guarded until promoted by family runtime validators."
       ]
     },
     {

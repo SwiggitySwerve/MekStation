@@ -1,0 +1,412 @@
+{
+  "version": 1,
+  "surfaceId": "non-battlemech-combat-scope-matrix",
+  "title": "Non-BattleMech Combat Scope Matrix",
+  "releaseClaim": "ready-with-scope",
+  "scopeStatement": "BattleMech combat validation is release-backed for the supported BattleMech runtime only. Non-BattleMech systems remain explicitly split into per-family matrices below; these rows are audited out-of-scope until a family-specific runtime matrix promotes them.",
+  "sourceCommand": "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=json",
+  "expectedOutOfScopeSummary": {
+    "total": 147,
+    "byScope": {
+      "aggregate": 3,
+      "leaf": 144
+    },
+    "bySection": {
+      "actions": 29,
+      "damageAndDeath": 6,
+      "eventStream": 15,
+      "featureSupport": 75,
+      "lifecycleAndPsr": 2,
+      "pilotSkills": 9,
+      "ruleSupport": 6,
+      "validationScope": 5
+    }
+  },
+  "requiredFamilyIds": [
+    "ground-vehicles",
+    "vtol",
+    "aerospace-capital-lam",
+    "battle-armor",
+    "infantry",
+    "protomech"
+  ],
+  "requiredCapabilityAreas": [
+    "catalog-and-construction-data",
+    "movement-preview",
+    "combat-actions",
+    "damage-and-lifecycle",
+    "equipment-and-ammo",
+    "pilot-spa-and-quirks"
+  ],
+  "families": [
+    {
+      "familyId": "ground-vehicles",
+      "label": "Ground vehicles and support vehicles",
+      "unitFamilies": ["Combat Vehicle", "Support Vehicle"],
+      "runtimeCombatClaim": "out-of-scope",
+      "currentBoundary": "Vehicle data, construction, BV, and selected movement helper coverage exist in separate lanes, but vehicle combat resolution is not claimed by the BattleMech combat suite.",
+      "requiredOutOfScopeRefs": [
+        "eventStream.nonBattleMechEventScope.motive_damaged",
+        "eventStream.nonBattleMechEventScope.motive_penalty_applied",
+        "eventStream.nonBattleMechEventScope.turret_locked",
+        "eventStream.nonBattleMechEventScope.vehicle_crew_stunned",
+        "eventStream.nonBattleMechEventScope.vehicle_immobilized",
+        "pilotSkills.pilotModifierResolvers.vehicle-movement-application",
+        "ruleSupport.movementEnhancements.supercharger-non-battlemech-side-paths"
+      ],
+      "capabilityMatrix": [
+        {
+          "area": "catalog-and-construction-data",
+          "status": "partial-helper-only",
+          "releaseClaim": "Vehicle construction/BV validators are separate from combat runtime support."
+        },
+        {
+          "area": "movement-preview",
+          "status": "partial-helper-only",
+          "releaseClaim": "Vehicle movement helpers are not universal vehicle combat parity."
+        },
+        {
+          "area": "combat-actions",
+          "status": "out-of-scope",
+          "releaseClaim": "Vehicle attack declarations and motive combat resolution require a vehicle matrix."
+        },
+        {
+          "area": "damage-and-lifecycle",
+          "status": "out-of-scope",
+          "releaseClaim": "Motive damage, turret locks, crew stun, and immobilization events are tracked as vehicle-family rows."
+        },
+        {
+          "area": "equipment-and-ammo",
+          "status": "out-of-scope",
+          "releaseClaim": "Vehicle-specific equipment branches are not BattleMech combat blockers."
+        },
+        {
+          "area": "pilot-spa-and-quirks",
+          "status": "out-of-scope",
+          "releaseClaim": "Vehicle movement pilot modifiers require a vehicle runtime matrix."
+        }
+      ]
+    },
+    {
+      "familyId": "vtol",
+      "label": "VTOL vehicles",
+      "unitFamilies": ["VTOL", "Support VTOL"],
+      "runtimeCombatClaim": "out-of-scope",
+      "currentBoundary": "VTOL construction and selected movement preview behavior exist in separate lanes, but rotor/crash and vehicle-specific combat branches are not BattleMech runtime coverage.",
+      "requiredOutOfScopeRefs": [
+        "eventStream.nonBattleMechEventScope.vtol_crash_check",
+        "ruleSupport.movementEnhancements.supercharger-non-battlemech-side-paths",
+        "pilotSkills.pilotModifierResolvers.vehicle-movement-application"
+      ],
+      "capabilityMatrix": [
+        {
+          "area": "catalog-and-construction-data",
+          "status": "partial-helper-only",
+          "releaseClaim": "VTOL data is covered by vehicle-family construction lanes, not combat parity."
+        },
+        {
+          "area": "movement-preview",
+          "status": "partial-helper-only",
+          "releaseClaim": "VTOL preview support is not full VTOL combat validation."
+        },
+        {
+          "area": "combat-actions",
+          "status": "out-of-scope",
+          "releaseClaim": "VTOL attack/targetability rules need their own matrix."
+        },
+        {
+          "area": "damage-and-lifecycle",
+          "status": "out-of-scope",
+          "releaseClaim": "VTOL crash checks and rotor-specific consequences are tracked outside BattleMech validation."
+        },
+        {
+          "area": "equipment-and-ammo",
+          "status": "out-of-scope",
+          "releaseClaim": "SupportVTOL supercharger and equipment side paths are explicit out-of-scope rows."
+        },
+        {
+          "area": "pilot-spa-and-quirks",
+          "status": "out-of-scope",
+          "releaseClaim": "Vehicle movement pilot modifiers also cover VTOL follow-up work."
+        }
+      ]
+    },
+    {
+      "familyId": "aerospace-capital-lam",
+      "label": "Aerospace, capital, and LAM/AirMek",
+      "unitFamilies": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Capital",
+        "LAM",
+        "AirMek"
+      ],
+      "runtimeCombatClaim": "out-of-scope",
+      "currentBoundary": "Aerospace construction/BV lanes are separate from aerospace combat, capital weapons, control rolls, Aero Edge triggers, AirMek ram, and LAM-specific runtime behavior.",
+      "requiredOutOfScopeRefs": [
+        "actions.physicalActionClassScope.airmek-ram",
+        "actions.physicalActionClassScope.ram",
+        "featureSupport.ammunitionCompatibility.non-battlemech-aerospace-capital-ammo",
+        "featureSupport.canonicalPilotAbilityScope.edge_when_aero_alt_loss",
+        "featureSupport.canonicalPilotAbilityScope.edge_when_aero_explosion",
+        "featureSupport.canonicalPilotAbilityScope.edge_when_aero_ko",
+        "featureSupport.canonicalPilotAbilityScope.edge_when_aero_lucky_crit",
+        "featureSupport.canonicalPilotAbilityScope.edge_when_aero_nuke_crit",
+        "featureSupport.canonicalPilotAbilityScope.edge_when_aero_unit_cargo_lost",
+        "pilotSkills.pilotModifierResolvers.aerospace-maneuvering-ace-movement-application",
+        "pilotSkills.pilotModifierResolvers.maneuvering-ace-out-of-control-producer-application"
+      ],
+      "capabilityMatrix": [
+        {
+          "area": "catalog-and-construction-data",
+          "status": "partial-helper-only",
+          "releaseClaim": "Aerospace data/BV checks do not imply aerospace combat support."
+        },
+        {
+          "area": "movement-preview",
+          "status": "out-of-scope",
+          "releaseClaim": "Aerospace movement/control-roll behavior needs an aerospace matrix."
+        },
+        {
+          "area": "combat-actions",
+          "status": "out-of-scope",
+          "releaseClaim": "Aerospace/capital ramming and AirMek ram are not BattleMech physical attacks."
+        },
+        {
+          "area": "damage-and-lifecycle",
+          "status": "out-of-scope",
+          "releaseClaim": "Aero crash, cargo, explosion, and control-roll fallout remain split from BattleMech lifecycle validation."
+        },
+        {
+          "area": "equipment-and-ammo",
+          "status": "out-of-scope",
+          "releaseClaim": "Aerospace/capital ammo compatibility requires a family-specific matrix."
+        },
+        {
+          "area": "pilot-spa-and-quirks",
+          "status": "out-of-scope",
+          "releaseClaim": "Maneuvering Ace and Aero Edge trigger rows are separately tracked."
+        }
+      ]
+    },
+    {
+      "familyId": "battle-armor",
+      "label": "Battle armor",
+      "unitFamilies": ["Battle Armor"],
+      "runtimeCombatClaim": "out-of-scope",
+      "currentBoundary": "Battle armor construction/BV/export support is separate from swarm, leg attack, trooper, stealth, mimetic, and battle-armor weapon combat behavior.",
+      "requiredOutOfScopeRefs": [
+        "actions.physicalActionClassScope.battle-armor-vibro-claw",
+        "eventStream.nonBattleMechEventScope.leg_attack",
+        "eventStream.nonBattleMechEventScope.leg_attack_resolved",
+        "eventStream.nonBattleMechEventScope.mimetic_bonus",
+        "eventStream.nonBattleMechEventScope.squad_eliminated",
+        "eventStream.nonBattleMechEventScope.stealth_bonus",
+        "eventStream.nonBattleMechEventScope.swarm_attached",
+        "eventStream.nonBattleMechEventScope.swarm_damage",
+        "eventStream.nonBattleMechEventScope.swarm_dismounted",
+        "eventStream.nonBattleMechEventScope.trooper_killed",
+        "featureSupport.ammunitionCompatibility.non-battlemech-battle-armor",
+        "pilotSkills.pilotModifierResolvers.anti-mek-actuator-application"
+      ],
+      "capabilityMatrix": [
+        {
+          "area": "catalog-and-construction-data",
+          "status": "partial-helper-only",
+          "releaseClaim": "Battle armor construction and BV proof stays outside combat runtime parity."
+        },
+        {
+          "area": "movement-preview",
+          "status": "out-of-scope",
+          "releaseClaim": "Battle armor movement and mount behavior require a battle-armor tactical matrix."
+        },
+        {
+          "area": "combat-actions",
+          "status": "out-of-scope",
+          "releaseClaim": "Swarm, leg attacks, and vibro-claw attacks are battle-armor matrix work."
+        },
+        {
+          "area": "damage-and-lifecycle",
+          "status": "out-of-scope",
+          "releaseClaim": "Trooper kills, squad elimination, and swarm lifecycle events are tracked as battle-armor rows."
+        },
+        {
+          "area": "equipment-and-ammo",
+          "status": "out-of-scope",
+          "releaseClaim": "Battle armor weapon/ammo compatibility stays separate."
+        },
+        {
+          "area": "pilot-spa-and-quirks",
+          "status": "out-of-scope",
+          "releaseClaim": "Anti-Mek actuator and stealth/mimetic modifiers require battle-armor validation."
+        }
+      ]
+    },
+    {
+      "familyId": "infantry",
+      "label": "Conventional infantry",
+      "unitFamilies": ["Conventional Infantry"],
+      "runtimeCombatClaim": "out-of-scope",
+      "currentBoundary": "Infantry data/rendering support is separate from infantry explosive actions, personnel-origin SPAs, and infantry-vs-BattleMech combat resolution.",
+      "requiredOutOfScopeRefs": [
+        "actions.physicalActionClassScope.lay-explosives",
+        "featureSupport.canonicalPilotAbilityScope.foot_cav",
+        "featureSupport.canonicalPilotAbilityScope.urban_guerrilla",
+        "featureSupport.canonicalPilotAbilityScope.human_tro",
+        "pilotSkills.pilotModifierResolvers.anti-mek-actuator-application"
+      ],
+      "capabilityMatrix": [
+        {
+          "area": "catalog-and-construction-data",
+          "status": "partial-helper-only",
+          "releaseClaim": "Infantry data/rendering proof does not imply combat validation."
+        },
+        {
+          "area": "movement-preview",
+          "status": "out-of-scope",
+          "releaseClaim": "Infantry movement and transport interactions need a family matrix."
+        },
+        {
+          "area": "combat-actions",
+          "status": "out-of-scope",
+          "releaseClaim": "Explosive-laying and Anti-Mek interactions are infantry/battle-armor family work."
+        },
+        {
+          "area": "damage-and-lifecycle",
+          "status": "out-of-scope",
+          "releaseClaim": "Infantry casualty and building-demolition effects are not BattleMech runtime rows."
+        },
+        {
+          "area": "equipment-and-ammo",
+          "status": "out-of-scope",
+          "releaseClaim": "Infantry weapon/ammo support needs an infantry matrix."
+        },
+        {
+          "area": "pilot-spa-and-quirks",
+          "status": "out-of-scope",
+          "releaseClaim": "Foot Cavalry, Urban Guerrilla, and personnel-origin ability rows remain source-pinned scope splits."
+        }
+      ]
+    },
+    {
+      "familyId": "protomech",
+      "label": "ProtoMechs",
+      "unitFamilies": ["ProtoMech"],
+      "runtimeCombatClaim": "out-of-scope",
+      "currentBoundary": "ProtoMech data/BV lanes are separate from ProtoMech physical attacks, ammo compatibility, and ProtoMech runtime combat resolution.",
+      "requiredOutOfScopeRefs": [
+        "actions.physicalActionClassScope.protomek-physical",
+        "featureSupport.ammunitionCompatibility.non-battlemech-protomech",
+        "validationScope.objectiveRequirements.non-battlemech-scope"
+      ],
+      "capabilityMatrix": [
+        {
+          "area": "catalog-and-construction-data",
+          "status": "partial-helper-only",
+          "releaseClaim": "ProtoMech data/BV support is not runtime combat parity."
+        },
+        {
+          "area": "movement-preview",
+          "status": "out-of-scope",
+          "releaseClaim": "ProtoMech movement needs a ProtoMech tactical matrix."
+        },
+        {
+          "area": "combat-actions",
+          "status": "out-of-scope",
+          "releaseClaim": "ProtoMech combo physical attacks stay outside BattleMech physical validation."
+        },
+        {
+          "area": "damage-and-lifecycle",
+          "status": "out-of-scope",
+          "releaseClaim": "ProtoMech damage and death states need a family runtime matrix."
+        },
+        {
+          "area": "equipment-and-ammo",
+          "status": "out-of-scope",
+          "releaseClaim": "ProtoMech ammo compatibility has an explicit out-of-scope row."
+        },
+        {
+          "area": "pilot-spa-and-quirks",
+          "status": "out-of-scope",
+          "releaseClaim": "ProtoMech pilot/SPA behavior is not claimed by BattleMech validation."
+        }
+      ]
+    }
+  ],
+  "rowCoverageBuckets": [
+    {
+      "bucketId": "product-control-plane",
+      "label": "GM, lobby, reconnect, and local command shell rows",
+      "rowPatterns": [
+        "actions.gmCommandExclusions.*",
+        "actions.tacticalCommands.*",
+        "actions.wireIntents.*"
+      ]
+    },
+    {
+      "bucketId": "non-battlemech-physical-actions",
+      "label": "Family-specific non-BattleMech physical actions",
+      "rowPatterns": ["actions.physicalActionClassScope.*"]
+    },
+    {
+      "bucketId": "non-battlemech-events",
+      "label": "Vehicle, VTOL, battle armor, and other family event rows",
+      "rowPatterns": ["eventStream.nonBattleMechEventScope.*"]
+    },
+    {
+      "bucketId": "equipment-ammo-and-special-weapons",
+      "label": "Non-BattleMech, experimental, unofficial, artillery, aquatic, and authoring-only weapon rows",
+      "rowPatterns": [
+        "featureSupport.ammunitionCompatibility.*",
+        "featureSupport.specialWeaponFamilies.*",
+        "featureSupport.specialWeaponMechanics.*"
+      ]
+    },
+    {
+      "bucketId": "pilot-spa-and-authority-boundaries",
+      "label": "Pilot ability, SPA, and pilot-modifier resolver rows not claimed by BattleMech runtime validation",
+      "rowPatterns": [
+        "featureSupport.canonicalPilotAbilityScope.*",
+        "featureSupport.pilotAbilities.*",
+        "pilotSkills.pilotModifierResolvers.*"
+      ]
+    },
+    {
+      "bucketId": "quirks-and-campaign-maintenance",
+      "label": "Quirk and MekHQ campaign-maintenance rows",
+      "rowPatterns": [
+        "featureSupport.mechQuirks.*",
+        "validationScope.objectiveRequirements.campaign-quirk-behavior"
+      ]
+    },
+    {
+      "bucketId": "damage-lifecycle-and-psr-side-paths",
+      "label": "Damage, critical, physical-equipment lifecycle, and local PSR fallback rows",
+      "rowPatterns": [
+        "damageAndDeath.criticalComponents.*",
+        "damageAndDeath.criticalSlotEffects.*",
+        "lifecycleAndPsr.psrTriggers.*",
+        "ruleSupport.physicalDamageModifiers.*"
+      ]
+    },
+    {
+      "bucketId": "rule-side-paths",
+      "label": "Movement, terrain, C3 authoring, dropship displacement, and other non-BattleMech rule side paths",
+      "rowPatterns": [
+        "ruleSupport.movementEnhancements.*",
+        "ruleSupport.physicalLegalityGates.*",
+        "ruleSupport.terrainEnvironment.*",
+        "ruleSupport.toHitModifiers.*"
+      ]
+    },
+    {
+      "bucketId": "validation-scope-boundaries",
+      "label": "Aggregate validation-scope rows that keep non-BattleMech claims separate",
+      "rowPatterns": [
+        "validationScope.knownLimitationsAndScope.*",
+        "validationScope.objectiveRequirements.non-battlemech-scope",
+        "validationScope.objectiveRequirements.physical-weapon-actions"
+      ]
+    }
+  ]
+}

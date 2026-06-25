@@ -1080,7 +1080,7 @@
       "id": "surface:non-battlemech-combat-scope-matrix",
       "kind": "surface",
       "label": "Non-BattleMech Combat Scope Matrix",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:non-battlemech-combat-scope-matrix:lifecycle",
@@ -1093,23 +1093,23 @@
       "label": "Registry evidence for Non-BattleMech Combat Scope Matrix",
       "entries": [
         "2026-06-23 Wave 10 review confirmed validate:combat and the gap exporter assert 147 explicit non-BattleMech out-of-scope rows.",
-        "2026-06-18 parity review confirmed vehicle/VTOL movement coverage exists but should not be claimed as universal non-BattleMech preview/resolution parity."
+        "2026-06-18 parity review confirmed vehicle/VTOL movement coverage exists but should not be claimed as universal non-BattleMech preview/resolution parity.",
+        "2026-06-25 non-BattleMech scope matrix adds per-family ground vehicle, VTOL, aerospace/capital/LAM, battle armor, infantry, and ProtoMech capability matrices, plus cross-cutting buckets covering all 147 explicit out-of-scope rows.",
+        "2026-06-25 `qc:nonbattlemech:scope:validate` imports the live combat gap inventory, verifies total/scope/section counts, checks every out-of-scope row is covered by a matrix bucket, and rejects missing required family matrices."
       ]
     },
     {
       "id": "evidence:non-battlemech-combat-scope-matrix:manual",
       "kind": "evidence",
       "label": "Manual/browser evidence for Non-BattleMech Combat Scope Matrix",
-      "entries": [
-        "Keep non-BattleMech matrices separate from BattleMech-compatible official row claims"
-      ]
+      "entries": []
     },
     {
       "id": "known-gap:non-battlemech-combat-scope-matrix",
       "kind": "known-gap",
       "label": "Non-BattleMech Combat Scope Matrix known gaps",
       "entries": [
-        "Non-BattleMech systems require separate support matrices before they can be described as fully rules-backed."
+        "Scope boundary: non-BattleMech rows remain out-of-scope and matrix-guarded until promoted by family runtime validators."
       ]
     },
     {
@@ -1690,6 +1690,17 @@
       "id": "log-event:qc.lifecycle_surface_blocked",
       "kind": "log-event",
       "label": "qc.lifecycle_surface_blocked"
+    },
+    {
+      "id": "command:npm-cmd-run-qc-nonbattlemech-scope-validate",
+      "kind": "command",
+      "label": "npm.cmd run qc:nonbattlemech:scope:validate"
+    },
+    {
+      "id": "evidence:non-battlemech-combat-scope-matrix:matrix-json",
+      "kind": "evidence",
+      "label": "Machine-readable Non-BattleMech combat scope matrix JSON",
+      "entries": ["docs/qc/non-battlemech-combat-scope-matrix.json"]
     }
   ],
   "edges": [
@@ -3977,6 +3988,26 @@
       "from": "state:maintenance-code-health:lifecycle",
       "to": "log-event:qc.lifecycle_surface_checked",
       "relation": "logs"
+    },
+    {
+      "from": "state:non-battlemech-combat-scope-matrix:lifecycle",
+      "to": "command:npm-cmd-run-qc-nonbattlemech-scope-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-qc-nonbattlemech-scope-validate",
+      "to": "evidence:non-battlemech-combat-scope-matrix:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:non-battlemech-combat-scope-matrix:lifecycle",
+      "to": "evidence:non-battlemech-combat-scope-matrix:matrix-json",
+      "relation": "produces"
+    },
+    {
+      "from": "command:npm-cmd-run-qc-nonbattlemech-scope-validate",
+      "to": "evidence:non-battlemech-combat-scope-matrix:matrix-json",
+      "relation": "produces"
     }
   ]
 }

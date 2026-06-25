@@ -56,6 +56,7 @@ const requiredScripts = new Map([
   ['qc:wave3:validate', 'validate-wave3-encounter-tactical.mjs'],
   ['verify:qc:wave3', 'qc:wave3:validate'],
   ['qc:wave4:validate', 'validate-wave4-scope-recovery.mjs'],
+  ['qc:nonbattlemech:scope:validate', 'validate-nonbattlemech-scope-matrix.ts'],
   ['verify:qc:wave4', 'qc:wave4:validate'],
   ['verify:qc:multiplayer-reliability', 'verify:qc:multiplayer:browser'],
   ['qc:known-gaps:validate', 'validate-known-gap-honesty.mjs'],
