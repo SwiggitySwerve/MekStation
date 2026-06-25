@@ -58,6 +58,8 @@ const requiredScripts = new Map([
   ['qc:wave4:validate', 'validate-wave4-scope-recovery.mjs'],
   ['verify:qc:wave4', 'qc:wave4:validate'],
   ['verify:qc:multiplayer-reliability', 'verify:qc:multiplayer:browser'],
+  ['qc:known-gaps:validate', 'validate-known-gap-honesty.mjs'],
+  ['verify:qc:known-gaps', 'qc:known-gaps:validate'],
   ['verify:qc:journeys', 'qc:journeys'],
   ['verify:qc:ui-flow-shell', 'qc:ui-flow-shell'],
   ['verify:qc:maintenance', 'validate-maintenance-warning-ledger.mjs'],

@@ -87,9 +87,12 @@ const requiredSurfaces = [
   {
     id: 'known-gap-honesty-audit',
     claimIds: ['combat.gaps.honesty', 'combat.known-limitations.bypass'],
+    allowedCoverageStatuses: ['ready-with-scope'],
     commandIncludes: [
+      'qc:known-gaps:validate',
       'qc:combat:catalog-rules:validate',
       'validate:combat:gaps -- --format=summary --expect-total=0',
+      'validate:combat:gaps -- --level=out-of-scope --format=summary',
       'validate:combat',
     ],
   },
@@ -165,6 +168,16 @@ const defaultSourceAnchors = [
       'audits known-limitation traps without filtering combat validation failures',
       'prevents known-limitation filtering from gating the catalog validation lane',
       'KNOWN_LIMITATION_VALIDATION_TRAPS',
+    ],
+  },
+  {
+    id: 'known-gap-honesty-release-guard',
+    path: 'scripts/qc/validate-known-gap-honesty.mjs',
+    tokens: [
+      'legacy-only-suppression-code',
+      'stale-release-claim',
+      'known-gap-honesty-audit must be ready-with-scope',
+      'qc:known-gaps:validate',
     ],
   },
   {

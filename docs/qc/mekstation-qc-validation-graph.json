@@ -846,6 +846,11 @@
       "label": "npm.cmd run qc:combat:catalog-rules:validate"
     },
     {
+      "id": "command:npm-cmd-run-qc-known-gaps-validate",
+      "kind": "command",
+      "label": "npm.cmd run qc:known-gaps:validate"
+    },
+    {
       "id": "command:npm-cmd-run-validate-combat",
       "kind": "command",
       "label": "npm.cmd run validate:combat"
@@ -1111,7 +1116,7 @@
       "id": "surface:known-gap-honesty-audit",
       "kind": "surface",
       "label": "Known Gaps And Suppression Honesty",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:known-gap-honesty-audit:lifecycle",
@@ -1124,24 +1129,21 @@
       "label": "Registry evidence for Known Gaps And Suppression Honesty",
       "entries": [
         "docs/audits/2026-06-13-combat-validation-gap-inventory-checkpoint.md",
-        "2026-06-18 integration review found older 2026-06-11 helper/unsupported audit wording stale against current gap total 0."
+        "2026-06-25 `npm.cmd run qc:known-gaps:validate` proves knownLimitations stays legacy-detector-only, trap coverage remains in validate:combat, and current QC docs avoid stale suppression wording."
       ]
     },
     {
       "id": "evidence:known-gap-honesty-audit:manual",
       "kind": "evidence",
       "label": "Manual/browser evidence for Known Gaps And Suppression Honesty",
-      "entries": [
-        "Audit broad regex suppressions and stale gap wording before release notes or roadmap claims",
-        "Prefer the 2026-06-13 checkpoint and live validators over older 2026-06-11 unresolved helper/unsupported wording"
-      ]
+      "entries": []
     },
     {
       "id": "known-gap:known-gap-honesty-audit",
       "kind": "known-gap",
       "label": "Known Gaps And Suppression Honesty known gaps",
       "entries": [
-        "Some older gap statements are stale after ejection and physical targetability work; knownLimitations bypass drift and stale audit wording still need periodic audit."
+        "Historical audit docs remain preserved as dated evidence; current roadmap claims are guarded by qc:known-gaps:validate and live combat gap exporters."
       ]
     },
     {
@@ -3110,6 +3112,16 @@
       "from": "state:known-gap-honesty-audit:lifecycle",
       "to": "known-gap:known-gap-honesty-audit",
       "relation": "documents-gap"
+    },
+    {
+      "from": "state:known-gap-honesty-audit:lifecycle",
+      "to": "command:npm-cmd-run-qc-known-gaps-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-qc-known-gaps-validate",
+      "to": "evidence:known-gap-honesty-audit:registry",
+      "relation": "produces"
     },
     {
       "from": "state:known-gap-honesty-audit:lifecycle",

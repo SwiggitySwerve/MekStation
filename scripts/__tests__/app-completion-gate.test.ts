@@ -89,6 +89,9 @@ function writeFixtureSet(tempDir: string, hasReleaseGap: boolean) {
       'verify:qc:wave4': 'npm run qc:wave4:validate',
       'verify:qc:multiplayer-reliability':
         'npm run verify:qc:multiplayer:browser',
+      'qc:known-gaps:validate':
+        'node scripts/qc/validate-known-gap-honesty.mjs',
+      'verify:qc:known-gaps': 'npm run qc:known-gaps:validate',
       'verify:qc:journeys': 'npm run qc:journeys',
       'verify:qc:ui-flow-shell': 'npm run qc:ui-flow-shell',
       'verify:qc:maintenance':
