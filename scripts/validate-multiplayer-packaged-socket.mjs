@@ -386,6 +386,26 @@ async function openAndJoin(wsUrl, wireToken, playerId, matchId, getOutput) {
   return kinds;
 }
 
+async function startPackagedServer(npmExecutable) {
+  const child = spawn(npmExecutable, ['run', 'start'], {
+    cwd: process.cwd(),
+    env: {
+      ...process.env,
+      PORT: String(port),
+      HOSTNAME: host,
+      NODE_ENV: 'production',
+      MULTIPLAYER_SOCKET_TRACE: '1',
+      MULTIPLAYER_STORE: process.env.MULTIPLAYER_STORE ?? 'durable',
+      MULTIPLAYER_DB_PATH: dbPath,
+    },
+    shell: process.platform === 'win32',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  const getOutput = captureServerOutput(child);
+  await waitForServer(child, getOutput);
+  return { child, getOutput };
+}
+
 function runCoopRuntimeSmoke(match) {
   const executable = process.platform === 'win32' ? 'npx.cmd' : 'npx';
   const result = spawnSync(
@@ -428,45 +448,50 @@ async function main() {
   assertHydratedStandaloneServer();
 
   const npmExecutable = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  const child = spawn(npmExecutable, ['run', 'start'], {
-    cwd: process.cwd(),
-    env: {
-      ...process.env,
-      PORT: String(port),
-      HOSTNAME: host,
-      NODE_ENV: 'production',
-      MULTIPLAYER_SOCKET_TRACE: '1',
-      MULTIPLAYER_STORE: process.env.MULTIPLAYER_STORE ?? 'durable',
-      MULTIPLAYER_DB_PATH: dbPath,
-    },
-    shell: process.platform === 'win32',
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-  const getOutput = captureServerOutput(child);
+  let child = null;
 
   try {
-    await waitForServer(child, getOutput);
+    const firstServer = await startPackagedServer(npmExecutable);
+    child = firstServer.child;
     const { wireToken, playerId } = await issueWireToken();
-    const match = await createMatch(wireToken, playerId, getOutput);
+    const match = await createMatch(wireToken, playerId, firstServer.getOutput);
     const kinds = await openAndJoin(
       match.wsUrl,
       wireToken,
       playerId,
       match.matchId,
-      getOutput,
+      firstServer.getOutput,
     );
     const coopRuntime = runCoopRuntimeSmoke(match);
+
+    stopServer(child);
+    child = null;
+    await delay(500);
+
+    const restartedServer = await startPackagedServer(npmExecutable);
+    child = restartedServer.child;
+    const reconnectFrames = await openAndJoin(
+      match.wsUrl,
+      wireToken,
+      playerId,
+      match.matchId,
+      restartedServer.getOutput,
+    );
+
     console.log(
       JSON.stringify(
         {
           ok: true,
           packagedMultiplayerReachability: 'socket-upgrade-and-replay-ok',
+          packagedRestartReconnect:
+            'same-match-replay-after-process-restart-ok',
           startScript: 'npm run start',
           baseUrl,
           dbPath,
           matchId: match.matchId,
           roomCode: match.roomCode,
           frames: kinds,
+          reconnectFrames,
           coopRuntime,
         },
         null,
@@ -474,7 +499,7 @@ async function main() {
       ),
     );
   } finally {
-    stopServer(child);
+    if (child) stopServer(child);
     await delay(100);
     for (const suffix of ['', '-wal', '-shm']) {
       try {
