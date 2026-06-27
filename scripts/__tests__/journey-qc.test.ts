@@ -1043,6 +1043,63 @@ describe('journey QC scripts', () => {
     ).toBe(true);
   });
 
+  it('passes strict backing-required runs for promoted campaign proofs', () => {
+    for (const journeyId of [
+      'contract-campaign',
+      'campaign-short',
+      'campaign-long',
+    ]) {
+      const runId = `test-${journeyId}-domain-backed`;
+      const args = [
+        `--journey=${journeyId}`,
+        `--run-id=${runId}`,
+        '--require-domain-backed',
+        `--evidence-dir=${evidenceDir}`,
+      ];
+      if (journeyId === 'campaign-long') {
+        args.splice(2, 0, '--contracts=10');
+      }
+
+      const runResult = runNodeScript(
+        'scripts/qc/run-journey-scenarios.mjs',
+        args,
+      );
+      expect(runResult.status).toBe(0);
+
+      const result = readJson<{
+        status: string;
+        executionBackingSummary: {
+          missingRequiredBacking: number;
+          syntheticSteps: number;
+          totalSteps: number;
+        };
+        journeys: Array<{
+          attempts: Array<{
+            steps: Array<{
+              syntheticBacking: boolean;
+              executionBacking: string;
+              executionProofCommands: string[];
+            }>;
+          }>;
+        }>;
+      }>(path.join(evidenceDir, runId, 'result.json'));
+      expect(result.status).toBe('pass');
+      expect(result.executionBackingSummary).toMatchObject({
+        missingRequiredBacking: 0,
+        syntheticSteps: 0,
+        totalSteps: 3,
+      });
+      expect(
+        result.journeys[0]?.attempts[0]?.steps.every(
+          (step) =>
+            step.syntheticBacking === false &&
+            step.executionBacking !== 'synthetic-projection' &&
+            step.executionProofCommands.length > 0,
+        ),
+      ).toBe(true);
+    }
+  });
+
   it('fails strict backing-required runs while preserving bug evidence', () => {
     const runResult = runNodeScript('scripts/qc/run-journey-scenarios.mjs', [
       '--journey=character-build',

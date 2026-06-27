@@ -29,6 +29,7 @@ npm.cmd run qc:journeys -- --journey=combat-4v4 --seed=42 --player-units=4 --opp
 npm.cmd run qc:journeys -- --journey=campaign-short --contracts=5
 npm.cmd run qc:journeys -- --journey=campaign-long --tier=extended --contracts=10
 npm.cmd run qc:campaign-long:stability -- --journey=campaign-long --seed=42 --contracts=10 --runs=2
+npm.cmd run verify:qc:campaign-journeys
 npm.cmd run qc:journeys:bugs -- --since=latest --min-severity=medium
 npm.cmd run qc:logs -- --run-id=latest --level=warn,error
 npm.cmd run qc:logs -- --run-id=latest --level=warn,error --exclude-probes
@@ -53,9 +54,9 @@ including required checkpoint order for the major journey flows.
 | `mek-build`         | headless     | construction   | BattleMech construction input and export                      |
 | `combat-1v1`        | headless     | combat         | command-backed encounter, tactical rejection, terminal combat |
 | `combat-4v4`        | headless     | combat         | lance encounter, terminal combat, replay reference            |
-| `contract-campaign` | headless     | campaign       | contract selection, outcome, economy update                   |
-| `campaign-short`    | headless     | campaign       | 3 to 5 contract sequence                                      |
-| `campaign-long`     | headless     | campaign       | 6 to 10 contract sequence plus stability gate                 |
+| `contract-campaign` | headless     | campaign       | command-backed contract selection, outcome, economy update    |
+| `campaign-short`    | headless     | campaign       | command-backed 3 to 5 contract sequence                       |
+| `campaign-long`     | headless     | campaign       | command-backed 6 to 10 contract sequence plus stability gate  |
 
 ## UI Flow Shell
 
@@ -145,6 +146,12 @@ to fail until a journey step has a real domain, browser, or hybrid adapter.
 existing command-backed proofs (`verify:qc:encounter-combat-continuity`,
 `verify:qc:tactical:projection`, and `validate:combat`) and pass strict backing
 mode while the remaining synthetic journeys still fail honestly.
+
+The campaign journeys are the second promoted family. `verify:qc:campaign-journeys`
+keeps `contract-campaign`, `campaign-short`, and `campaign-long` strict-backed
+with their existing campaign economy, long-campaign stability, and browser
+proof commands. It is intentionally separate from `qc:journeys:validate`, which
+only proves catalog shape.
 
 Structured diagnostic entries also include a stable `fingerprint` and
 `metadata.triage` packet for journey steps. The triage packet is intentionally
