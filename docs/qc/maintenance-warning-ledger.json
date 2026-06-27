@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-23",
+  "generatedAt": "2026-06-27",
   "scope": "repo-wide",
   "sourceCommand": "node scripts/maintenance/scan-maintenance.mjs --json",
   "purpose": "Reviewed accounting for Wave 12 maintenance scanner categories outside the src regression gate. Entries are fixed, accepted, or follow-up so repo-wide warnings are not rediscovered manually.",
@@ -642,13 +642,13 @@
       "followUps": ["wave-12-validate-bv-architecture-split"]
     },
     {
-      "key": "file-bloat|high|scripts/validate-bv-crit-scan.ts|1146 LOC exceeds standard threshold",
+      "key": "file-bloat|warn|scripts/validate-bv-crit-scan.ts|886 LOC exceeds standard threshold",
       "category": "file-bloat",
-      "severity": "high",
+      "severity": "warn",
       "file": "scripts/validate-bv-crit-scan.ts",
-      "message": "1146 LOC exceeds standard threshold",
+      "message": "886 LOC exceeds standard threshold",
       "status": "follow-up",
-      "rationale": "Critical-slot scanning is now isolated from the CLI and calculator, but it still needs a focused scanner-helper split guarded by BV parity and crit-slot fixture coverage.",
+      "rationale": "Critical-slot scanning now delegates weapon mount counting and derived armor/gyro/heat-sink detection to focused helpers, dropping from high to advisory warn. A broader parser-handler split still needs BV parity and crit-slot fixture coverage.",
       "followUps": ["wave-12-validate-bv-architecture-split"]
     },
     {
