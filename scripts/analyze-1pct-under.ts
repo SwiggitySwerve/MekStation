@@ -1,20 +1,21 @@
 /**
  * Deep analysis of 1-2% undercalculated units to find common fixable patterns.
  */
-import * as fs from 'fs';
-import * as path from 'path';
+import {
+  createBattleMechUnitLoader,
+  hasBvBreakdown,
+  loadBattleMechIndex,
+  loadBvValidationReport,
+} from './bv-analysis-helpers';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const report = loadBvValidationReport();
+const idx = loadBattleMechIndex();
+const loadUnit = createBattleMechUnitLoader(idx);
 
-function loadUnit(unitId: string): any {
-  const ie = idx.units.find((e: any) => e.id === unitId);
-  if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
-}
-
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null);
-const under1to2 = valid.filter((x: any) => x.percentDiff >= -2 && x.percentDiff < -1 && x.breakdown);
+const valid = report.allResults.filter(hasBvBreakdown);
+const under1to2 = valid.filter(
+  (x) => x.percentDiff >= -2 && x.percentDiff < -1,
+);
 
 console.log(`=== 1-2% UNDERCALCULATED: ${under1to2.length} units ===\n`);
 
@@ -45,7 +46,12 @@ for (const u of under1to2) {
   const refBase = u.indexBV / cockpit;
   const neededOff = refBase - b.defensiveBV;
   const neededBase = neededOff / b.speedFactor;
-  const currentBase = b.weaponBV + b.ammoBV + b.weightBonus + (b.physicalWeaponBV ?? 0) + (b.offEquipBV ?? 0);
+  const currentBase =
+    b.weaponBV +
+    b.ammoBV +
+    b.weightBonus +
+    (b.physicalWeaponBV ?? 0) +
+    (b.offEquipBV ?? 0);
   const baseGap = neededBase - currentBase;
 
   gaps.push({
@@ -72,7 +78,9 @@ gaps.sort((a, b) => b.baseGap - a.baseGap);
 
 // Show all
 for (const g of gaps) {
-  console.log(`  ${g.unitId.padEnd(40)} diff=${g.diff} (${g.pct.toFixed(1)}%) baseGap=${g.baseGap.toFixed(0)} tech=${g.techBase} SF=${g.speedFactor} HE=${g.heatEfficiency} DF=${g.defensiveFactor.toFixed(2)} cockpit=${g.cockpit}`);
+  console.log(
+    `  ${g.unitId.padEnd(40)} diff=${g.diff} (${g.pct.toFixed(1)}%) baseGap=${g.baseGap.toFixed(0)} tech=${g.techBase} SF=${g.speedFactor} HE=${g.heatEfficiency} DF=${g.defensiveFactor.toFixed(2)} cockpit=${g.cockpit}`,
+  );
 }
 
 // Check: how many have the gap in defensive vs offensive
@@ -104,7 +112,9 @@ for (const g of gaps) {
   heDistrib[he] = (heDistrib[he] || 0) + 1;
 }
 console.log('  HE distribution:');
-const sortedHE = Object.entries(heDistrib).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+const sortedHE = Object.entries(heDistrib).sort(
+  (a, b) => parseInt(a[0]) - parseInt(b[0]),
+);
 for (const [he, count] of sortedHE) {
   console.log(`    HE=${he}: ${count} units`);
 }
@@ -138,28 +148,18 @@ for (const [mod, count] of Object.entries(cockpitCounts)) {
 }
 
 // Check how many would be fixed if defensive BV was lower by various amounts
-console.log('\n=== IF DEFENSIVE BV REDUCED BY X ===');
-for (const reduction of [5, 10, 15, 20]) {
+console.log('\n=== IF DEFENSIVE BV INCREASED BY X ===');
+// If undercalculated, either defensive or offensive BV is too low.
+for (const increase of [5, 10, 15, 20, 25]) {
   let fixed = 0;
   for (const u of under1to2) {
     const b = u.breakdown;
     const cockpit = b.cockpitModifier ?? 1;
-    const newCalc = Math.round((b.defensiveBV - reduction + b.offensiveBV) * cockpit);
-    // We want to fix undercalculation: our BV is too LOW. Reducing def BV makes it worse!
-    // Actually, the question is: is our defensive BV too HIGH or too LOW?
-    // If undercalculated, our total is too low. So either defensive or offensive is too low.
-    // Reducing defensive further makes it worse. Let me flip this.
+    const newCalc = Math.round(
+      (b.defensiveBV + increase + b.offensiveBV) * cockpit,
+    );
+    const newPct = ((newCalc - u.indexBV) / u.indexBV) * 100;
+    if (Math.abs(newPct) <= 1) fixed++;
   }
-  // Actually let me check: if def was HIGHER by X, would it fix?
-  for (const increase of [5, 10, 15, 20, 25]) {
-    let fixed = 0;
-    for (const u of under1to2) {
-      const b = u.breakdown;
-      const cockpit = b.cockpitModifier ?? 1;
-      const newCalc = Math.round((b.defensiveBV + increase + b.offensiveBV) * cockpit);
-      const newPct = ((newCalc - u.indexBV) / u.indexBV) * 100;
-      if (Math.abs(newPct) <= 1) fixed++;
-    }
-    console.log(`  DefBV + ${increase}: ${fixed}/${under1to2.length} fixed`);
-  }
+  console.log(`  DefBV + ${increase}: ${fixed}/${under1to2.length} fixed`);
 }

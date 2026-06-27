@@ -2,20 +2,19 @@
  * Systematic analysis of the 323 units outside 1% accuracy.
  * Group by pattern to find the highest-impact fixes.
  */
-import * as fs from 'fs';
-import * as path from 'path';
+import {
+  createBattleMechUnitLoader,
+  hasBvBreakdown,
+  loadBattleMechIndex,
+  loadBvValidationReport,
+} from './bv-analysis-helpers';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const report = loadBvValidationReport();
+const idx = loadBattleMechIndex();
+const loadUnit = createBattleMechUnitLoader(idx);
 
-function loadUnit(unitId: string): any {
-  const ie = idx.units.find((e: any) => e.id === unitId);
-  if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
-}
-
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null);
-const outside1 = valid.filter((x: any) => Math.abs(x.percentDiff) > 1 && x.breakdown);
+const valid = report.allResults.filter(hasBvBreakdown);
+const outside1 = valid.filter((x) => Math.abs(x.percentDiff) > 1);
 
 console.log(`=== ${outside1.length} UNITS OUTSIDE 1% ===\n`);
 
@@ -35,14 +34,17 @@ function addToPattern(name: string, unitId: string, diff: number) {
 
 for (const u of outside1) {
   const unit = loadUnit(u.unitId);
-  if (!unit) { addToPattern('unit-not-found', u.unitId, u.difference); continue; }
+  if (!unit) {
+    addToPattern('unit-not-found', u.unitId, u.difference);
+    continue;
+  }
   const b = u.breakdown;
   const isOver = u.percentDiff > 0;
   const isUnder = u.percentDiff < 0;
   const pctAbs = Math.abs(u.percentDiff);
 
   // Check for unresolved weapons
-  const unresolvedWeapons = (b.unresolvedWeapons || []);
+  const unresolvedWeapons = b.unresolvedWeapons || [];
   if (unresolvedWeapons.length > 0 && isUnder) {
     addToPattern('unresolved-weapons', u.unitId, u.difference);
   }
@@ -81,7 +83,10 @@ for (const u of outside1) {
       if (!Array.isArray(slots)) continue;
       for (const s of slots) {
         if (!s || typeof s !== 'string') continue;
-        const lo = (s as string).replace(/\s*\(omnipod\)/gi, '').trim().toLowerCase();
+        const lo = (s as string)
+          .replace(/\s*\(omnipod\)/gi, '')
+          .trim()
+          .toLowerCase();
         if (lo.includes('atm')) hasATM = true;
         if (lo.includes('hag')) hasHAG = true;
         if (lo.includes('mrm')) hasMRM = true;
@@ -91,18 +96,41 @@ for (const u of outside1) {
         if (lo.includes('b-pod')) hasBPod = true;
         if (lo.includes('streak')) hasStreak = true;
         if (lo.includes('a-pod')) hasAPod = true;
-        if (lo.includes('torpedo') || lo.includes('srt') || lo.includes('lrt')) hasTorpedo = true;
+        if (lo.includes('torpedo') || lo.includes('srt') || lo.includes('lrt'))
+          hasTorpedo = true;
         if (lo.includes('taser')) hasTaser = true;
         if (lo.includes('plasma')) hasPlasma = true;
         if (lo.includes('masc') && !lo.includes('ammo')) hasMASC = true;
-        if (lo.includes('supercharger') || lo.includes('super charger')) hasSC = true;
-        if (lo === 'tsm' || lo.includes('triple strength') || lo.includes('triple-strength')) hasTSM = true;
+        if (lo.includes('supercharger') || lo.includes('super charger'))
+          hasSC = true;
+        if (
+          lo === 'tsm' ||
+          lo.includes('triple strength') ||
+          lo.includes('triple-strength')
+        )
+          hasTSM = true;
         if (lo.includes('targeting computer')) hasTC = true;
         if (lo.includes('blue shield')) hasBlueshield = true;
         if (lo.includes('artemis')) hasArtemis = true;
-        if (lo.includes('light auto cannon') || lo.includes('lac/') || lo.includes('light ac/')) hasAPWeapon = true;
-        if (lo.includes('lb ') || lo.includes('lb-') || lo.includes('lbx') || lo.includes('lb x')) hasLBX = true;
-        if (lo.includes('ultra ac') || lo.includes('uac') || lo.includes('u-ac')) hasUAC = true;
+        if (
+          lo.includes('light auto cannon') ||
+          lo.includes('lac/') ||
+          lo.includes('light ac/')
+        )
+          hasAPWeapon = true;
+        if (
+          lo.includes('lb ') ||
+          lo.includes('lb-') ||
+          lo.includes('lbx') ||
+          lo.includes('lb x')
+        )
+          hasLBX = true;
+        if (
+          lo.includes('ultra ac') ||
+          lo.includes('uac') ||
+          lo.includes('u-ac')
+        )
+          hasUAC = true;
         if (lo.includes('rotary ac') || lo.includes('rac')) hasRAC = true;
       }
     }
@@ -128,7 +156,8 @@ for (const u of outside1) {
   addToPattern(`${isOver ? 'over' : 'under'}-${band}`, u.unitId, u.difference);
 
   // Check Clan tech base
-  if (unit.techBase === 'CLAN') addToPattern('clan-tech', u.unitId, u.difference);
+  if (unit.techBase === 'CLAN')
+    addToPattern('clan-tech', u.unitId, u.difference);
   if (unit.techBase === 'IS') addToPattern('is-tech', u.unitId, u.difference);
 
   // Check for specific ammo issues
@@ -139,12 +168,18 @@ for (const u of outside1) {
       for (const slots of Object.values(unit.criticalSlots)) {
         if (!Array.isArray(slots)) continue;
         for (const s of slots) {
-          if (s && typeof s === 'string' && (s as string).toLowerCase().includes('ammo') &&
-              !(s as string).toLowerCase().includes('ams')) hasAmmo = true;
+          if (
+            s &&
+            typeof s === 'string' &&
+            (s as string).toLowerCase().includes('ammo') &&
+            !(s as string).toLowerCase().includes('ams')
+          )
+            hasAmmo = true;
         }
       }
     }
-    if (hasAmmo && isUnder) addToPattern('zero-ammo-bv-but-has-ammo', u.unitId, u.difference);
+    if (hasAmmo && isUnder)
+      addToPattern('zero-ammo-bv-but-has-ammo', u.unitId, u.difference);
   }
 
   // Check explosive penalty -- overcalculated units that should have penalty but don't
@@ -155,16 +190,21 @@ for (const u of outside1) {
       for (const [loc, slots] of Object.entries(unit.criticalSlots)) {
         if (!Array.isArray(slots)) continue;
         for (const s of slots) {
-          if (s && typeof s === 'string' && (s as string).toLowerCase().includes('ammo') &&
-              !(s as string).toLowerCase().includes('ams')) {
+          if (
+            s &&
+            typeof s === 'string' &&
+            (s as string).toLowerCase().includes('ammo') &&
+            !(s as string).toLowerCase().includes('ams')
+          ) {
             ammoLocs.add(loc.toUpperCase());
           }
         }
       }
     }
     for (const loc of ammoLocs) {
-      const hasCase = unit.criticalSlots?.[loc]?.some?.((s: any) =>
-        s && typeof s === 'string' && s.toLowerCase().includes('case'));
+      const hasCase = unit.criticalSlots?.[loc]?.some?.(
+        (s) => s && typeof s === 'string' && s.toLowerCase().includes('case'),
+      );
       if (!hasCase) {
         addToPattern('missing-explosive-penalty', u.unitId, u.difference);
         break;
@@ -179,26 +219,32 @@ for (const u of outside1) {
 }
 
 // Sort patterns by unit count
-const sorted = Object.values(patterns).sort((a, b) => b.units.length - a.units.length);
+const sorted = Object.values(patterns).sort(
+  (a, b) => b.units.length - a.units.length,
+);
 
 console.log('=== PATTERNS BY FREQUENCY ===\n');
 for (const p of sorted) {
-  const overCount = p.units.filter(uid => {
-    const r = outside1.find((x: any) => x.unitId === uid);
+  const overCount = p.units.filter((uid) => {
+    const r = outside1.find((x) => x.unitId === uid);
     return r && r.percentDiff > 0;
   }).length;
   const underCount = p.units.length - overCount;
-  console.log(`${p.name.padEnd(35)} ${p.units.length} units (${overCount} over, ${underCount} under) totalDiff=${p.totalDiff.toFixed(0)}`);
+  console.log(
+    `${p.name.padEnd(35)} ${p.units.length} units (${overCount} over, ${underCount} under) totalDiff=${p.totalDiff.toFixed(0)}`,
+  );
 }
 
 // Now focus on the 1-2% band which is easiest to fix
 console.log('\n=== 1-2% BAND DETAIL (easiest to bring within 1%) ===');
-const band1to2 = outside1.filter((x: any) => Math.abs(x.percentDiff) > 1 && Math.abs(x.percentDiff) <= 2);
+const band1to2 = outside1.filter(
+  (x) => Math.abs(x.percentDiff) > 1 && Math.abs(x.percentDiff) <= 2,
+);
 
 // For these units, compute the exact BV gap needed
 let totalGapNeeded = 0;
-const under1to2 = band1to2.filter((x: any) => x.percentDiff < -1);
-const over1to2 = band1to2.filter((x: any) => x.percentDiff > 1);
+const under1to2 = band1to2.filter((x) => x.percentDiff < -1);
+const over1to2 = band1to2.filter((x) => x.percentDiff > 1);
 console.log(`\n  Undercalculated 1-2%: ${under1to2.length} units`);
 console.log(`  Overcalculated 1-2%: ${over1to2.length} units`);
 
@@ -209,14 +255,25 @@ for (const u of under1to2) {
   const b = u.breakdown;
   const cockpit = b.cockpitModifier ?? 1;
   const refBase = u.indexBV / cockpit;
-  const baseOff = (b.weaponBV ?? 0) + (b.ammoBV ?? 0) + (b.weightBonus ?? 0) + (b.physicalWeaponBV ?? 0) + (b.offEquipBV ?? 0);
+  const baseOff =
+    (b.weaponBV ?? 0) +
+    (b.ammoBV ?? 0) +
+    (b.weightBonus ?? 0) +
+    (b.physicalWeaponBV ?? 0) +
+    (b.offEquipBV ?? 0);
   const neededBaseOff = (refBase - b.defensiveBV) / b.speedFactor;
   const gap = neededBaseOff - baseOff;
-  offGaps.push({ unitId: u.unitId, gap, details: `weapBV=${b.weaponBV?.toFixed(0)} ammoBV=${b.ammoBV} wt=${b.weightBonus?.toFixed(0)} SF=${b.speedFactor}` });
+  offGaps.push({
+    unitId: u.unitId,
+    gap,
+    details: `weapBV=${b.weaponBV?.toFixed(0)} ammoBV=${b.ammoBV} wt=${b.weightBonus?.toFixed(0)} SF=${b.speedFactor}`,
+  });
 }
 offGaps.sort((a, b) => b.gap - a.gap);
 for (const g of offGaps.slice(0, 20)) {
-  console.log(`  ${g.unitId.padEnd(40)} baseGap=${g.gap.toFixed(1)} ${g.details}`);
+  console.log(
+    `  ${g.unitId.padEnd(40)} baseGap=${g.gap.toFixed(1)} ${g.details}`,
+  );
 }
 
 // For overcalculated: what's the excess in base offensive BV?
@@ -226,14 +283,25 @@ for (const u of over1to2) {
   const b = u.breakdown;
   const cockpit = b.cockpitModifier ?? 1;
   const refBase = u.indexBV / cockpit;
-  const baseOff = (b.weaponBV ?? 0) + (b.ammoBV ?? 0) + (b.weightBonus ?? 0) + (b.physicalWeaponBV ?? 0) + (b.offEquipBV ?? 0);
+  const baseOff =
+    (b.weaponBV ?? 0) +
+    (b.ammoBV ?? 0) +
+    (b.weightBonus ?? 0) +
+    (b.physicalWeaponBV ?? 0) +
+    (b.offEquipBV ?? 0);
   const neededBaseOff = (refBase - b.defensiveBV) / b.speedFactor;
   const excess = baseOff - neededBaseOff;
-  offExcesses.push({ unitId: u.unitId, excess, details: `weapBV=${b.weaponBV?.toFixed(0)} ammoBV=${b.ammoBV} wt=${b.weightBonus?.toFixed(0)} SF=${b.speedFactor} expl=${b.explosivePenalty}` });
+  offExcesses.push({
+    unitId: u.unitId,
+    excess,
+    details: `weapBV=${b.weaponBV?.toFixed(0)} ammoBV=${b.ammoBV} wt=${b.weightBonus?.toFixed(0)} SF=${b.speedFactor} expl=${b.explosivePenalty}`,
+  });
 }
 offExcesses.sort((a, b) => b.excess - a.excess);
 for (const e of offExcesses.slice(0, 20)) {
-  console.log(`  ${e.unitId.padEnd(40)} baseExcess=${e.excess.toFixed(1)} ${e.details}`);
+  console.log(
+    `  ${e.unitId.padEnd(40)} baseExcess=${e.excess.toFixed(1)} ${e.details}`,
+  );
 }
 
 // Check: how many 1-2% undercalculated have unresolved weapons?

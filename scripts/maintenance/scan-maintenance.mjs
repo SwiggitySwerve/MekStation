@@ -174,11 +174,18 @@ function isJsxPropOrTagLine(line) {
   );
 }
 
+function isLiteralConsoleLine(line) {
+  return /^console\.(log|warn|error)\(\s*(?:'[^']*'|"[^"]*"|`[^`]*`)\s*\);?$/.test(
+    line,
+  );
+}
+
 function isLowSignalDuplicateBlock(lines) {
   return (
     lines.every(isImportClauseLine) ||
     lines.every(isDataOrDeclarationLine) ||
-    lines.every(isJsxPropOrTagLine)
+    lines.every(isJsxPropOrTagLine) ||
+    lines.every(isLiteralConsoleLine)
   );
 }
 

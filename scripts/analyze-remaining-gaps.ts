@@ -1,36 +1,47 @@
 /**
  * Analyze remaining units outside 1% to identify fixable patterns.
  */
-import * as fs from 'fs';
-import * as path from 'path';
+import {
+  createBattleMechUnitLoader,
+  hasBvPercentDiff,
+  loadBattleMechIndex,
+  loadBvValidationReport,
+} from './bv-analysis-helpers';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const report = loadBvValidationReport();
+const idx = loadBattleMechIndex();
+const loadUnit = createBattleMechUnitLoader(idx);
 
-function loadUnit(unitId: string): any {
-  const ie = idx.units.find((e: any) => e.id === unitId);
-  if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
-}
-
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null);
-const outside1 = valid.filter((x: any) => Math.abs(x.percentDiff) > 1);
-const under = outside1.filter((x: any) => x.percentDiff < -1);
-const over = outside1.filter((x: any) => x.percentDiff > 1);
+const valid = report.allResults.filter(hasBvPercentDiff);
+const outside1 = valid.filter((x) => Math.abs(x.percentDiff) > 1);
+const under = outside1.filter((x) => x.percentDiff < -1);
+const over = outside1.filter((x) => x.percentDiff > 1);
 
 console.log(`=== REMAINING OUTSIDE 1%: ${outside1.length} ===`);
 console.log(`  Under: ${under.length}, Over: ${over.length}\n`);
 
 // Bucket by percent range
-for (const [label, min, max] of [['1-2%', 1, 2], ['2-3%', 2, 3], ['3-5%', 3, 5], ['5-10%', 5, 10], ['10%+', 10, 200]] as [string, number, number][]) {
-  const uc = under.filter((x: any) => Math.abs(x.percentDiff) >= min && Math.abs(x.percentDiff) < max).length;
-  const oc = over.filter((x: any) => Math.abs(x.percentDiff) >= min && Math.abs(x.percentDiff) < max).length;
-  console.log(`  ${label}: under=${uc} over=${oc} total=${uc+oc}`);
+for (const [label, min, max] of [
+  ['1-2%', 1, 2],
+  ['2-3%', 2, 3],
+  ['3-5%', 3, 5],
+  ['5-10%', 5, 10],
+  ['10%+', 10, 200],
+] as [string, number, number][]) {
+  const uc = under.filter(
+    (x) => Math.abs(x.percentDiff) >= min && Math.abs(x.percentDiff) < max,
+  ).length;
+  const oc = over.filter(
+    (x) => Math.abs(x.percentDiff) >= min && Math.abs(x.percentDiff) < max,
+  ).length;
+  console.log(`  ${label}: under=${uc} over=${oc} total=${uc + oc}`);
 }
 
 // For the 1-2% band (most fixable), check common patterns
 console.log('\n=== 1-2% UNDERCALCULATED BAND ===');
-const under1to2 = under.filter((x: any) => Math.abs(x.percentDiff) >= 1 && Math.abs(x.percentDiff) < 2);
+const under1to2 = under.filter(
+  (x) => Math.abs(x.percentDiff) >= 1 && Math.abs(x.percentDiff) < 2,
+);
 const techCounts: Record<string, number> = {};
 const weaponGaps: number[] = [];
 let noHalvedCount = 0;
@@ -45,7 +56,7 @@ for (const u of under1to2) {
     if ((b.halvedWeaponBV ?? 0) === 0) noHalvedCount++;
     const cockpit = b.cockpitModifier ?? 1;
     const refBase = u.indexBV / cockpit;
-    const offGap = (refBase - b.defensiveBV) - b.offensiveBV;
+    const offGap = refBase - b.defensiveBV - b.offensiveBV;
     const baseGap = offGap / b.speedFactor;
     weaponGaps.push(baseGap);
   }
@@ -63,7 +74,9 @@ if (weaponGaps.length > 0) {
 
 // For 1-2% overcalculated band
 console.log('\n=== 1-2% OVERCALCULATED BAND ===');
-const over1to2 = over.filter((x: any) => Math.abs(x.percentDiff) >= 1 && Math.abs(x.percentDiff) < 2);
+const over1to2 = over.filter(
+  (x) => Math.abs(x.percentDiff) >= 1 && Math.abs(x.percentDiff) < 2,
+);
 const overTech: Record<string, number> = {};
 
 for (const u of over1to2) {
@@ -84,14 +97,27 @@ let tcWithin = 0;
 for (const u of valid) {
   const unit = loadUnit(u.unitId);
   if (!unit) continue;
-  const hasTC = (unit.equipment || []).some((eq: any) => {
-    const id = eq.id.toLowerCase();
-    return id.includes('targeting-computer') || id === 'istc' || id === 'cltc' ||
-           id.includes('targetingcomputer');
-  }) || (unit.criticalSlots && Object.values(unit.criticalSlots).some((slots: any) =>
-    Array.isArray(slots) && slots.some((s: any) => s && typeof s === 'string' &&
-      s.toLowerCase().includes('targeting computer'))
-  ));
+  const hasTC =
+    (unit.equipment || []).some((eq) => {
+      const id = eq.id.toLowerCase();
+      return (
+        id.includes('targeting-computer') ||
+        id === 'istc' ||
+        id === 'cltc' ||
+        id.includes('targetingcomputer')
+      );
+    }) ||
+    (unit.criticalSlots &&
+      Object.values(unit.criticalSlots).some(
+        (slots) =>
+          Array.isArray(slots) &&
+          slots.some(
+            (s) =>
+              s &&
+              typeof s === 'string' &&
+              s.toLowerCase().includes('targeting computer'),
+          ),
+      ));
 
   if (hasTC) {
     if (Math.abs(u.percentDiff) <= 1) tcWithin++;
@@ -109,17 +135,28 @@ let caseIIWithin = 0;
 for (const u of valid) {
   const unit = loadUnit(u.unitId);
   if (!unit) continue;
-  const hasCaseII = unit.criticalSlots && Object.values(unit.criticalSlots).some((slots: any) =>
-    Array.isArray(slots) && slots.some((s: any) => s && typeof s === 'string' &&
-      (s.toLowerCase().includes('case ii') || s.toLowerCase().includes('caseii')))
-  );
+  const hasCaseII =
+    unit.criticalSlots &&
+    Object.values(unit.criticalSlots).some(
+      (slots) =>
+        Array.isArray(slots) &&
+        slots.some(
+          (s) =>
+            s &&
+            typeof s === 'string' &&
+            (s.toLowerCase().includes('case ii') ||
+              s.toLowerCase().includes('caseii')),
+        ),
+    );
   if (hasCaseII) {
     if (Math.abs(u.percentDiff) <= 1) caseIIWithin++;
     else if (u.percentDiff < -1) caseIIUnder++;
     else caseIIOver++;
   }
 }
-console.log(`  CASE II units: within1%=${caseIIWithin} under=${caseIIUnder} over=${caseIIOver}`);
+console.log(
+  `  CASE II units: within1%=${caseIIWithin} under=${caseIIUnder} over=${caseIIOver}`,
+);
 
 // Check for Blue Shield impact
 console.log('\n=== BLUE SHIELD ANALYSIS ===');
@@ -129,22 +166,36 @@ let bsWithin = 0;
 for (const u of valid) {
   const unit = loadUnit(u.unitId);
   if (!unit) continue;
-  const hasBS = (unit.equipment || []).some((eq: any) => eq.id.toLowerCase().includes('blue-shield')) ||
-    (unit.criticalSlots && Object.values(unit.criticalSlots).some((slots: any) =>
-      Array.isArray(slots) && slots.some((s: any) => s && typeof s === 'string' &&
-        s.toLowerCase().includes('blue shield'))
-    ));
+  const hasBS =
+    (unit.equipment || []).some((eq) =>
+      eq.id.toLowerCase().includes('blue-shield'),
+    ) ||
+    (unit.criticalSlots &&
+      Object.values(unit.criticalSlots).some(
+        (slots) =>
+          Array.isArray(slots) &&
+          slots.some(
+            (s) =>
+              s &&
+              typeof s === 'string' &&
+              s.toLowerCase().includes('blue shield'),
+          ),
+      ));
   if (hasBS) {
     if (Math.abs(u.percentDiff) <= 1) bsWithin++;
     else if (u.percentDiff < -1) bsUnder++;
     else bsOver++;
   }
 }
-console.log(`  Blue Shield units: within1%=${bsWithin} under=${bsUnder} over=${bsOver}`);
+console.log(
+  `  Blue Shield units: within1%=${bsWithin} under=${bsUnder} over=${bsOver}`,
+);
 
 // Check for common unresolved weapon types in undercalculated units
 console.log('\n=== WEAPON PATTERNS IN UNDERCALCULATED 1-5% ===');
-const under1to5 = under.filter((x: any) => Math.abs(x.percentDiff) >= 1 && Math.abs(x.percentDiff) < 5);
+const under1to5 = under.filter(
+  (x) => Math.abs(x.percentDiff) >= 1 && Math.abs(x.percentDiff) < 5,
+);
 const equipPatterns: Record<string, number> = {};
 
 for (const u of under1to5) {
@@ -157,48 +208,72 @@ for (const u of under1to5) {
       for (const s of slots) {
         if (!s || typeof s !== 'string') continue;
         const lo = (s as string).toLowerCase();
-        if (lo.includes('m-pod') || lo.includes('mpod')) equipPatterns['M-Pod'] = (equipPatterns['M-Pod'] || 0) + 1;
-        if (lo.includes('fluid gun')) equipPatterns['Fluid Gun'] = (equipPatterns['Fluid Gun'] || 0) + 1;
-        if (lo.includes('nail') || lo.includes('rivet gun')) equipPatterns['Nail/Rivet'] = (equipPatterns['Nail/Rivet'] || 0) + 1;
-        if (lo.includes('one-shot') || lo.includes('(os)')) equipPatterns['One-Shot'] = (equipPatterns['One-Shot'] || 0) + 1;
-        if (lo.includes('targeting computer')) equipPatterns['TC-crit'] = (equipPatterns['TC-crit'] || 0) + 1;
-        if (lo.includes('blue shield')) equipPatterns['BlueShield-crit'] = (equipPatterns['BlueShield-crit'] || 0) + 1;
-        if (lo.includes('plasma')) equipPatterns['Plasma'] = (equipPatterns['Plasma'] || 0) + 1;
-        if (lo.includes('mml')) equipPatterns['MML'] = (equipPatterns['MML'] || 0) + 1;
-        if (lo.includes('atm')) equipPatterns['ATM'] = (equipPatterns['ATM'] || 0) + 1;
-        if (lo.includes('rac') || lo.includes('rotary')) equipPatterns['RAC/Rotary'] = (equipPatterns['RAC/Rotary'] || 0) + 1;
-        if (lo.includes('snub') && lo.includes('ppc')) equipPatterns['Snub-PPC'] = (equipPatterns['Snub-PPC'] || 0) + 1;
-        if (lo.includes('thunderbolt')) equipPatterns['Thunderbolt'] = (equipPatterns['Thunderbolt'] || 0) + 1;
+        if (lo.includes('m-pod') || lo.includes('mpod'))
+          equipPatterns['M-Pod'] = (equipPatterns['M-Pod'] || 0) + 1;
+        if (lo.includes('fluid gun'))
+          equipPatterns['Fluid Gun'] = (equipPatterns['Fluid Gun'] || 0) + 1;
+        if (lo.includes('nail') || lo.includes('rivet gun'))
+          equipPatterns['Nail/Rivet'] = (equipPatterns['Nail/Rivet'] || 0) + 1;
+        if (lo.includes('one-shot') || lo.includes('(os)'))
+          equipPatterns['One-Shot'] = (equipPatterns['One-Shot'] || 0) + 1;
+        if (lo.includes('targeting computer'))
+          equipPatterns['TC-crit'] = (equipPatterns['TC-crit'] || 0) + 1;
+        if (lo.includes('blue shield'))
+          equipPatterns['BlueShield-crit'] =
+            (equipPatterns['BlueShield-crit'] || 0) + 1;
+        if (lo.includes('plasma'))
+          equipPatterns['Plasma'] = (equipPatterns['Plasma'] || 0) + 1;
+        if (lo.includes('mml'))
+          equipPatterns['MML'] = (equipPatterns['MML'] || 0) + 1;
+        if (lo.includes('atm'))
+          equipPatterns['ATM'] = (equipPatterns['ATM'] || 0) + 1;
+        if (lo.includes('rac') || lo.includes('rotary'))
+          equipPatterns['RAC/Rotary'] = (equipPatterns['RAC/Rotary'] || 0) + 1;
+        if (lo.includes('snub') && lo.includes('ppc'))
+          equipPatterns['Snub-PPC'] = (equipPatterns['Snub-PPC'] || 0) + 1;
+        if (lo.includes('thunderbolt'))
+          equipPatterns['Thunderbolt'] =
+            (equipPatterns['Thunderbolt'] || 0) + 1;
       }
     }
   }
 }
 
 console.log('  Crit patterns in under 1-5%:');
-for (const [name, count] of Object.entries(equipPatterns).sort((a, b) => b[1] - a[1])) {
+for (const [name, count] of Object.entries(equipPatterns).sort(
+  (a, b) => b[1] - a[1],
+)) {
   console.log(`    ${name}: ${count}`);
 }
 
 // List the 15 biggest undercalculated units outside 1% with their issues field
 console.log('\n=== TOP 15 UNDERCALCULATED (sorted by absolute gap) ===');
-const sortedUnder = [...under].sort((a: any, b: any) => a.difference - b.difference);
+const sortedUnder = [...under].sort((a, b) => a.difference - b.difference);
 for (const u of sortedUnder.slice(0, 15)) {
   const unit = loadUnit(u.unitId);
   const b = u.breakdown;
-  console.log(`  ${u.unitId.padEnd(45)} diff=${u.difference} (${u.percentDiff.toFixed(1)}%) tech=${unit?.techBase} wt=${unit?.tonnage}`);
+  console.log(
+    `  ${u.unitId.padEnd(45)} diff=${u.difference} (${u.percentDiff.toFixed(1)}%) tech=${unit?.techBase} wt=${unit?.tonnage}`,
+  );
   if (b) {
-    console.log(`    defBV=${b.defensiveBV?.toFixed(0)} offBV=${b.offensiveBV?.toFixed(0)} SF=${b.speedFactor} cockpit=${b.cockpitModifier}`);
+    console.log(
+      `    defBV=${b.defensiveBV?.toFixed(0)} offBV=${b.offensiveBV?.toFixed(0)} SF=${b.speedFactor} cockpit=${b.cockpitModifier}`,
+    );
   }
 }
 
 // List the 15 biggest overcalculated units
 console.log('\n=== TOP 15 OVERCALCULATED (sorted by absolute gap) ===');
-const sortedOver = [...over].sort((a: any, b: any) => b.difference - a.difference);
+const sortedOver = [...over].sort((a, b) => b.difference - a.difference);
 for (const u of sortedOver.slice(0, 15)) {
   const unit = loadUnit(u.unitId);
   const b = u.breakdown;
-  console.log(`  ${u.unitId.padEnd(45)} diff=+${u.difference} (+${u.percentDiff.toFixed(1)}%) tech=${unit?.techBase} wt=${unit?.tonnage}`);
+  console.log(
+    `  ${u.unitId.padEnd(45)} diff=+${u.difference} (+${u.percentDiff.toFixed(1)}%) tech=${unit?.techBase} wt=${unit?.tonnage}`,
+  );
   if (b) {
-    console.log(`    defBV=${b.defensiveBV?.toFixed(0)} offBV=${b.offensiveBV?.toFixed(0)} SF=${b.speedFactor} cockpit=${b.cockpitModifier}`);
+    console.log(
+      `    defBV=${b.defensiveBV?.toFixed(0)} offBV=${b.offensiveBV?.toFixed(0)} SF=${b.speedFactor} cockpit=${b.cockpitModifier}`,
+    );
   }
 }

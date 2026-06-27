@@ -213,8 +213,8 @@
       "severity": "high",
       "file": "scripts/analyze-1pct-under.ts",
       "message": "8-line block cluster appears in 50 files",
-      "status": "follow-up",
-      "rationale": "One-off BV analysis scripts share boilerplate and should be consolidated behind a small analysis harness.",
+      "status": "fixed",
+      "rationale": "One-off BV analysis scripts now share report, BattleMech index, and unit JSON loading through scripts/bv-analysis-helpers.ts, dropping this duplicate cluster below actionable severity.",
       "followUps": ["wave-12-analysis-script-dedup"]
     },
     {
@@ -223,8 +223,8 @@
       "severity": "high",
       "file": "scripts/check-ammo-bv.ts",
       "message": "8-line block cluster appears in 53 files",
-      "status": "follow-up",
-      "rationale": "Ammo/BV analysis scripts share boilerplate and should be consolidated behind a small analysis harness.",
+      "status": "fixed",
+      "rationale": "Ammo catalog flattening now uses scripts/bv-analysis-helpers.ts, and the scanner ignores literal console-output banners as low-signal duplicate blocks; no high ammo/BV duplicate cluster remains live.",
       "followUps": ["wave-12-analysis-script-dedup"]
     },
     {
@@ -233,18 +233,28 @@
       "severity": "warn",
       "file": "scripts/analyze-1pct-under.ts",
       "message": "8-line block cluster appears in 28 files",
-      "status": "follow-up",
-      "rationale": "Secondary analysis boilerplate cluster belongs with the analysis script dedup wave.",
+      "status": "fixed",
+      "rationale": "The secondary analyze-1pct-under duplicate cluster dropped to informational scope after shared BV analysis loading helpers replaced the repeated setup.",
       "followUps": ["wave-12-analysis-script-dedup"]
     },
     {
-      "key": "near-duplicate|warn|scripts/analyze-2to5-band.ts|8-line block cluster appears in 32 files",
+      "key": "near-duplicate|warn|scripts/analyze-2to5-band.ts|8-line block cluster appears in 30 files",
       "category": "near-duplicate",
       "severity": "warn",
       "file": "scripts/analyze-2to5-band.ts",
-      "message": "8-line block cluster appears in 32 files",
+      "message": "8-line block cluster appears in 30 files",
       "status": "follow-up",
-      "rationale": "Secondary analysis boilerplate cluster belongs with the analysis script dedup wave.",
+      "rationale": "The analysis script helper pass reduced this cluster from 32 to 30 copies; remaining TypeScript analysis scripts should be handled in a later focused dedup pass.",
+      "followUps": ["wave-12-analysis-script-dedup"]
+    },
+    {
+      "key": "near-duplicate|warn|scripts/check-cockpit-fixes.ts|8-line block cluster appears in 42 files",
+      "category": "near-duplicate",
+      "severity": "warn",
+      "file": "scripts/check-cockpit-fixes.ts",
+      "message": "8-line block cluster appears in 42 files",
+      "status": "follow-up",
+      "rationale": "This cockpit-analysis setup cluster became visible after the high-severity BV analysis clusters were removed; it belongs with the remaining analysis script dedup wave.",
       "followUps": ["wave-12-analysis-script-dedup"]
     },
     {

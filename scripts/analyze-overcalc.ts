@@ -1,20 +1,20 @@
 /**
  * Analyze overcalculated units to find systematic patterns.
  */
-import * as fs from 'fs';
-import * as path from 'path';
+import {
+  createBattleMechUnitLoader,
+  hasBvBreakdown,
+  loadBattleMechIndex,
+  loadBvValidationReport,
+} from './bv-analysis-helpers';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const report = loadBvValidationReport();
+const idx = loadBattleMechIndex();
+const loadUnit = createBattleMechUnitLoader(idx);
 
-function loadUnit(unitId: string): any {
-  const ie = idx.units.find((e: any) => e.id === unitId);
-  if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
-}
-
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null);
-const over = valid.filter((x: any) => x.percentDiff > 1 && x.breakdown);
+const valid = report.allResults.filter(hasBvBreakdown);
+const over = valid.filter((x) => x.percentDiff > 1);
+const isNumber = (value: unknown): value is number => typeof value === 'number';
 
 // For each overcalculated unit, determine if the excess is from defensive or offensive
 console.log('=== OVERCALCULATED: DEFENSIVE vs OFFENSIVE BREAKDOWN ===');
@@ -56,9 +56,9 @@ for (const u of over) {
   if (detailSamples.length < 30) {
     detailSamples.push(
       `${u.unitId.padEnd(35)} ref=${u.indexBV} calc=${u.calculatedBV} diff=+${u.difference} (${u.percentDiff.toFixed(1)}%) ` +
-      `def=${b.defensiveBV.toFixed(0)} off=${b.offensiveBV.toFixed(0)} cockpit=${cockpit} ` +
-      `offExcess=${offExcess.toFixed(0)} defExcess=${defExcess.toFixed(0)} ` +
-      `tech=${unit.techBase} tonnage=${unit.tonnage}`
+        `def=${b.defensiveBV.toFixed(0)} off=${b.offensiveBV.toFixed(0)} cockpit=${cockpit} ` +
+        `offExcess=${offExcess.toFixed(0)} defExcess=${defExcess.toFixed(0)} ` +
+        `tech=${unit.techBase} tonnage=${unit.tonnage}`,
     );
   }
 }
@@ -67,7 +67,9 @@ console.log(`  Defensive too high: ${defensiveExcess}`);
 console.log(`  Both too high: ${bothExcess}`);
 
 // Show samples sorted by diff
-detailSamples.sort((a, b) => parseInt(b.split('diff=+')[1]) - parseInt(a.split('diff=+')[1]));
+detailSamples.sort(
+  (a, b) => parseInt(b.split('diff=+')[1]) - parseInt(a.split('diff=+')[1]),
+);
 console.log('\n=== OVERCALCULATED SAMPLES ===');
 for (const s of detailSamples) console.log(`  ${s}`);
 
@@ -84,20 +86,30 @@ for (const u of over) {
   if (b.cockpitModifier < 1 && unitCockpit === 'STANDARD') {
     scFalsePositive++;
     if (scFalsePositive <= 5) {
-      console.log(`  ${u.unitId}: cockpit=${unitCockpit} detected=${b.cockpitModifier} diff=+${u.difference} (${u.percentDiff.toFixed(1)}%)`);
+      console.log(
+        `  ${u.unitId}: cockpit=${unitCockpit} detected=${b.cockpitModifier} diff=+${u.difference} (${u.percentDiff.toFixed(1)}%)`,
+      );
     }
   }
 }
-console.log(`  Small cockpit false positives in overcalculated: ${scFalsePositive}/${over.length}`);
+console.log(
+  `  Small cockpit false positives in overcalculated: ${scFalsePositive}/${over.length}`,
+);
 
 // Check: what fraction of the ENTIRE dataset has detected small cockpit?
-const allWithCockpit = valid.filter((x: any) => x.breakdown?.cockpitModifier && x.breakdown.cockpitModifier < 1);
-console.log(`  Total units with cockpitModifier < 1: ${allWithCockpit.length}/${valid.length}`);
+const allWithCockpit = valid.filter(
+  (x) => x.breakdown.cockpitModifier && x.breakdown.cockpitModifier < 1,
+);
+console.log(
+  `  Total units with cockpitModifier < 1: ${allWithCockpit.length}/${valid.length}`,
+);
 
 // Specifically check overcalculated units that DON'T have small cockpit
 // What's causing their overcalculation?
 console.log('\n=== OVERCALCULATED WITHOUT SMALL COCKPIT: TOP ISSUES ===');
-const overNoSC = over.filter((u: any) => !u.breakdown?.cockpitModifier || u.breakdown.cockpitModifier >= 1);
+const overNoSC = over.filter(
+  (u) => !u.breakdown.cockpitModifier || u.breakdown.cockpitModifier >= 1,
+);
 console.log(`  Count: ${overNoSC.length}`);
 
 // Check if explosive ammo penalties are missing
@@ -108,27 +120,43 @@ for (const u of overNoSC) {
     const unit = loadUnit(u.unitId);
     if (!unit) continue;
     // Check if unit has explosive equipment
-    const hasExplosive = unit.equipment?.some((eq: any) => {
+    const hasExplosive = unit.equipment?.some((eq) => {
       const lo = eq.id.toLowerCase();
-      return lo.includes('gauss') || lo.includes('ammo') || lo.includes('ppc-capacitor');
+      return (
+        lo.includes('gauss') ||
+        lo.includes('ammo') ||
+        lo.includes('ppc-capacitor')
+      );
     });
     if (hasExplosive) missingExplosive++;
   }
 }
-console.log(`  Missing explosive penalty (has ammo/gauss but penalty=0): ${missingExplosive}/${overNoSC.length}`);
+console.log(
+  `  Missing explosive penalty (has ammo/gauss but penalty=0): ${missingExplosive}/${overNoSC.length}`,
+);
 
 // Check speed factor distribution
-const overSFs = overNoSC.map((u: any) => u.breakdown?.speedFactor).filter(Boolean);
-const avgOverSF = overSFs.reduce((s: number, f: number) => s + f, 0) / overSFs.length;
-const exactSFs = valid.filter((x: any) => Math.abs(x.percentDiff) <= 0.5 && x.breakdown)
-  .map((u: any) => u.breakdown?.speedFactor).filter(Boolean);
-const avgExactSF = exactSFs.reduce((s: number, f: number) => s + f, 0) / exactSFs.length;
-console.log(`  Avg speed factor: over=${avgOverSF.toFixed(2)} exact=${avgExactSF.toFixed(2)}`);
+const overSFs = overNoSC.map((u) => u.breakdown.speedFactor).filter(isNumber);
+const avgOverSF = overSFs.reduce((s, f) => s + f, 0) / overSFs.length;
+const exactSFs = valid
+  .filter((x) => Math.abs(x.percentDiff) <= 0.5)
+  .map((u) => u.breakdown.speedFactor)
+  .filter(isNumber);
+const avgExactSF = exactSFs.reduce((s, f) => s + f, 0) / exactSFs.length;
+console.log(
+  `  Avg speed factor: over=${avgOverSF.toFixed(2)} exact=${avgExactSF.toFixed(2)}`,
+);
 
 // Check defensive factor
-const overDFs = overNoSC.map((u: any) => u.breakdown?.defensiveFactor).filter(Boolean);
-const avgOverDF = overDFs.reduce((s: number, f: number) => s + f, 0) / overDFs.length;
-const exactDFs = valid.filter((x: any) => Math.abs(x.percentDiff) <= 0.5 && x.breakdown)
-  .map((u: any) => u.breakdown?.defensiveFactor).filter(Boolean);
-const avgExactDF = exactDFs.reduce((s: number, f: number) => s + f, 0) / exactDFs.length;
-console.log(`  Avg defensive factor: over=${avgOverDF.toFixed(3)} exact=${avgExactDF.toFixed(3)}`);
+const overDFs = overNoSC
+  .map((u) => u.breakdown.defensiveFactor)
+  .filter(isNumber);
+const avgOverDF = overDFs.reduce((s, f) => s + f, 0) / overDFs.length;
+const exactDFs = valid
+  .filter((x) => Math.abs(x.percentDiff) <= 0.5)
+  .map((u) => u.breakdown.defensiveFactor)
+  .filter(isNumber);
+const avgExactDF = exactDFs.reduce((s, f) => s + f, 0) / exactDFs.length;
+console.log(
+  `  Avg defensive factor: over=${avgOverDF.toFixed(3)} exact=${avgExactDF.toFixed(3)}`,
+);
