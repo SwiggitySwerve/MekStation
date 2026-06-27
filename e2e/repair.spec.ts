@@ -140,7 +140,7 @@ test.describe('Repair Unit List @repair', () => {
   test('shows results count', async ({ page }) => {
     // Results count should show
     await expect(page.getByTestId('repair-results-count')).toBeVisible();
-    const countText = await repairPage.getResultsCount();
+    const countText = await repairPage.filters.getResultsCount();
     expect(countText).toContain('unit');
   });
 
@@ -149,13 +149,14 @@ test.describe('Repair Unit List @repair', () => {
 
     if (jobs.length > 0) {
       // Click first unit card
-      await repairPage.selectUnit(jobs[0].id);
+      await repairPage.list.selectUnit(jobs[0].id);
 
       // Damage assessment panel should appear
       await expect(page.getByTestId('damage-assessment-panel')).toBeVisible();
 
       // Should show unit name
-      const unitName = await repairPage.getDamageAssessmentUnitName();
+      const unitName =
+        await repairPage.assessment.getDamageAssessmentUnitName();
       expect(unitName).toBe(jobs[0].unitName);
     }
   });
@@ -165,11 +166,11 @@ test.describe('Repair Unit List @repair', () => {
 
     if (jobs.length > 0) {
       // Click first unit card
-      await repairPage.selectUnit(jobs[0].id);
+      await repairPage.list.selectUnit(jobs[0].id);
       await expect(page.getByTestId('damage-assessment-panel')).toBeVisible();
 
       // Click same card again to deselect
-      await repairPage.selectUnit(jobs[0].id);
+      await repairPage.list.selectUnit(jobs[0].id);
 
       // Should show select prompt instead
       await expect(page.getByTestId('repair-select-prompt')).toBeVisible();
@@ -199,10 +200,10 @@ test.describe('Repair Search and Filters @repair', () => {
       const firstUnitName = jobs[0].unitName;
 
       // Search for a unit name
-      await repairPage.searchUnits(firstUnitName.substring(0, 3));
+      await repairPage.filters.searchUnits(firstUnitName.substring(0, 3));
 
       // Results should update
-      const countText = await repairPage.getResultsCount();
+      const countText = await repairPage.filters.getResultsCount();
       expect(countText).toContain('filtered');
     }
   });
@@ -212,13 +213,13 @@ test.describe('Repair Search and Filters @repair', () => {
 
     if (jobs.length > 0) {
       // Search first
-      await repairPage.searchUnits('xyz');
+      await repairPage.filters.searchUnits('xyz');
 
       // Clear search
-      await repairPage.clearSearch();
+      await repairPage.filters.clearSearch();
 
       // Should not show filtered indicator
-      const countText = await repairPage.getResultsCount();
+      const countText = await repairPage.filters.getResultsCount();
       // Only shows "(filtered)" when filter is active
       const isFiltered = countText.includes('filtered');
       // After clearing, should not be filtered (unless status filter is active)
@@ -228,16 +229,16 @@ test.describe('Repair Search and Filters @repair', () => {
 
   test('status filter shows pending jobs', async () => {
     // Click pending filter
-    await repairPage.filterByStatus('pending');
+    await repairPage.filters.filterByStatus('pending');
 
     // Results should show filtered
-    const countText = await repairPage.getResultsCount();
+    const countText = await repairPage.filters.getResultsCount();
     expect(countText).toContain('unit');
   });
 
   test('status filter shows in-progress jobs', async ({ page }) => {
     // Click in-progress filter
-    await repairPage.filterByStatus('in-progress');
+    await repairPage.filters.filterByStatus('in-progress');
 
     // Results should update
     await expect(page.getByTestId('repair-results-count')).toBeVisible();
@@ -245,13 +246,13 @@ test.describe('Repair Search and Filters @repair', () => {
 
   test('all filter shows all jobs', async () => {
     // First apply a filter
-    await repairPage.filterByStatus('pending');
+    await repairPage.filters.filterByStatus('pending');
 
     // Then click all
-    await repairPage.filterByStatus('all');
+    await repairPage.filters.filterByStatus('all');
 
     // Should not show filtered indicator (unless search is active)
-    const countText = await repairPage.getResultsCount();
+    const countText = await repairPage.filters.getResultsCount();
     expect(countText).not.toContain('filtered');
   });
 });
@@ -275,7 +276,7 @@ test.describe('Damage Assessment Panel @repair', () => {
     const jobs = await getRepairJobs(page, DEMO_CAMPAIGN_ID);
 
     if (jobs.length > 0) {
-      await repairPage.selectUnit(jobs[0].id);
+      await repairPage.list.selectUnit(jobs[0].id);
 
       // Panel should be visible
       await expect(page.getByTestId('damage-assessment-panel')).toBeVisible();
@@ -290,7 +291,7 @@ test.describe('Damage Assessment Panel @repair', () => {
     const jobs = await getRepairJobs(page, DEMO_CAMPAIGN_ID);
 
     if (jobs.length > 0) {
-      await repairPage.selectUnit(jobs[0].id);
+      await repairPage.list.selectUnit(jobs[0].id);
 
       // Cost summary should be visible
       await expect(page.getByTestId('repair-cost-summary')).toBeVisible();
@@ -304,7 +305,7 @@ test.describe('Damage Assessment Panel @repair', () => {
     const jobs = await getRepairJobs(page, DEMO_CAMPAIGN_ID);
 
     if (jobs.length > 0) {
-      await repairPage.selectUnit(jobs[0].id);
+      await repairPage.list.selectUnit(jobs[0].id);
 
       // Action buttons should be visible for pending jobs
       const job = await getRepairJob(page, DEMO_CAMPAIGN_ID, jobs[0].id);
@@ -319,13 +320,13 @@ test.describe('Damage Assessment Panel @repair', () => {
     const jobs = await getRepairJobs(page, DEMO_CAMPAIGN_ID);
 
     if (jobs.length > 0) {
-      await repairPage.selectUnit(jobs[0].id);
+      await repairPage.list.selectUnit(jobs[0].id);
 
       // Click select all
-      await repairPage.selectAllItems();
+      await repairPage.selection.selectAllItems();
 
       // Selected count should match total items
-      const countText = await repairPage.getSelectedItemsCount();
+      const countText = await repairPage.selection.getSelectedItemsCount();
       // Format is "X / Y"
       const parts = countText.split('/').map((s) => s.trim());
       expect(parts[0]).toBe(parts[1]);
@@ -336,16 +337,16 @@ test.describe('Damage Assessment Panel @repair', () => {
     const jobs = await getRepairJobs(page, DEMO_CAMPAIGN_ID);
 
     if (jobs.length > 0) {
-      await repairPage.selectUnit(jobs[0].id);
+      await repairPage.list.selectUnit(jobs[0].id);
 
       // First select all
-      await repairPage.selectAllItems();
+      await repairPage.selection.selectAllItems();
 
       // Then deselect all
-      await repairPage.deselectAllItems();
+      await repairPage.selection.deselectAllItems();
 
       // Selected count should be 0
-      const countText = await repairPage.getSelectedItemsCount();
+      const countText = await repairPage.selection.getSelectedItemsCount();
       expect(countText.startsWith('0')).toBe(true);
     }
   });
@@ -370,7 +371,7 @@ test.describe('Repair Cost Breakdown @repair', () => {
     const jobs = await getRepairJobs(page, DEMO_CAMPAIGN_ID);
 
     if (jobs.length > 0) {
-      await repairPage.selectUnit(jobs[0].id);
+      await repairPage.list.selectUnit(jobs[0].id);
 
       // Cost breakdown should be visible
       await expect(page.getByTestId('repair-cost-breakdown')).toBeVisible();
@@ -381,7 +382,7 @@ test.describe('Repair Cost Breakdown @repair', () => {
     const jobs = await getRepairJobs(page, DEMO_CAMPAIGN_ID);
 
     if (jobs.length > 0) {
-      await repairPage.selectUnit(jobs[0].id);
+      await repairPage.list.selectUnit(jobs[0].id);
 
       // Cost items section should be visible
       await expect(page.getByTestId('repair-cost-items')).toBeVisible();
@@ -441,7 +442,7 @@ test.describe('Repair Queue @repair', () => {
 
     if (activeOrPending.length > 0) {
       // Click queue item
-      await repairPage.clickQueueJob(activeOrPending[0].id);
+      await repairPage.queue.clickQueueJob(activeOrPending[0].id);
 
       // Should select that job
       const selectedId = await getSelectedJobId(page);
@@ -486,13 +487,13 @@ test.describe('Repair Actions @repair', () => {
 
     if (pendingJobs.length > 0) {
       // Select a pending job
-      await repairPage.selectUnit(pendingJobs[0].id);
+      await repairPage.list.selectUnit(pendingJobs[0].id);
 
       // Deselect all items
-      await repairPage.deselectAllItems();
+      await repairPage.selection.deselectAllItems();
 
       // Start button should be disabled
-      const isDisabled = await repairPage.isStartRepairDisabled();
+      const isDisabled = await repairPage.costSummary.isStartRepairDisabled();
       expect(isDisabled).toBe(true);
     }
   });
@@ -503,13 +504,13 @@ test.describe('Repair Actions @repair', () => {
 
     if (pendingJobs.length > 0) {
       // Select a pending job
-      await repairPage.selectUnit(pendingJobs[0].id);
+      await repairPage.list.selectUnit(pendingJobs[0].id);
 
       // Select all items
-      await repairPage.selectAllItems();
+      await repairPage.selection.selectAllItems();
 
       // Start button should be enabled
-      const isDisabled = await repairPage.isStartRepairDisabled();
+      const isDisabled = await repairPage.costSummary.isStartRepairDisabled();
       expect(isDisabled).toBe(false);
     }
   });
@@ -543,10 +544,10 @@ test.describe('Repair Error States @repair', () => {
     // For now, just verify error dismiss button exists when error is shown
 
     // Check if error is visible (it may not be in normal flow)
-    const hasError = await repairPage.hasError();
+    const hasError = await repairPage.errors.hasError();
 
     if (hasError) {
-      await repairPage.dismissError();
+      await repairPage.errors.dismissError();
 
       // Error should no longer be visible
       await expect(page.getByTestId('repair-error')).not.toBeVisible();

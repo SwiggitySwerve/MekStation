@@ -50,6 +50,22 @@ export {
   EncounterCreateSubmitPage,
 } from './encounter.page';
 
+// Game pages
+export {
+  GameListPage,
+  GameListReadPage,
+  GameReplayControlsPage,
+  GameReplayPage,
+  GameReplayReadPage,
+  GameReplayTimelinePage,
+  GameSessionCommandPage,
+  GameSessionMapPage,
+  GameSessionPage,
+  GameSessionStatusPage,
+  GameSessionTurnPage,
+  GameSessionUnitPage,
+} from './game.page';
+
 // Customizer pages
 export { CustomizerPage, AerospaceCustomizerPage } from './customizer.page';
 
@@ -63,4 +79,19 @@ export {
 } from './compendium.page';
 
 // Repair pages
-export { RepairBayPage } from './repair.page';
+export {
+  RepairActionPage,
+  RepairAssessmentPage,
+  RepairBayPage,
+  RepairCostBreakdownPage,
+  RepairCostSummaryPage,
+  RepairErrorPage,
+  RepairFilterPage,
+  RepairHeaderPage,
+  RepairItemSelectionPage,
+  RepairQueueActionsPage,
+  RepairQueuePage,
+  RepairStatsReadPage,
+  RepairUnitListPage,
+  RepairUnitListStatePage,
+} from './repair.page';

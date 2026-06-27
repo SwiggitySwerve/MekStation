@@ -21,6 +21,7 @@ import {
 } from './fixtures/game';
 import {
   GameListPage,
+  GameListReadPage,
   GameSessionPage,
   GameReplayPage,
 } from './pages/game.page';
@@ -50,9 +51,11 @@ async function waitForStoreReady(page: Page): Promise<void> {
 
 test.describe('Game List Page @smoke @game', () => {
   let listPage: GameListPage;
+  let listReadPage: GameListReadPage;
 
   test.beforeEach(async ({ page }) => {
     listPage = new GameListPage(page);
+    listReadPage = new GameListReadPage(page);
     await listPage.navigate();
     await waitForStoreReady(page);
   });
@@ -67,10 +70,10 @@ test.describe('Game List Page @smoke @game', () => {
 
   test('shows games or empty state correctly', async ({ page }) => {
     // Either show game cards or empty state
-    const cardCount = await listPage.getCardCount();
+    const cardCount = await listReadPage.getCardCount();
 
     if (cardCount === 0) {
-      const emptyVisible = await listPage.isEmptyStateVisible();
+      const emptyVisible = await listReadPage.isEmptyStateVisible();
       // Empty state or just no cards
       expect(cardCount).toBe(0);
       // We don't strictly require empty state - page may just be empty
@@ -103,8 +106,8 @@ test.describe('Demo Game Session @smoke @game', () => {
     await sessionPage.waitForGameLoaded();
 
     // Should not show loading or error state
-    const isLoading = await sessionPage.isLoading();
-    const hasError = await sessionPage.hasError();
+    const isLoading = await sessionPage.status.isLoading();
+    const hasError = await sessionPage.status.hasError();
 
     expect(isLoading).toBe(false);
     expect(hasError).toBe(false);
@@ -127,7 +130,7 @@ test.describe('Demo Game Session @smoke @game', () => {
     await expect(page.getByTestId('tactical-turn-rail')).toBeVisible();
 
     // Demo starts at weapon attack phase
-    const phaseName = await sessionPage.getPhaseName();
+    const phaseName = await sessionPage.turn.getPhaseName();
     expect(phaseName.toLowerCase()).toContain('weapon');
   });
 
@@ -135,7 +138,7 @@ test.describe('Demo Game Session @smoke @game', () => {
     await sessionPage.waitForGameLoaded();
 
     // Turn number should be visible
-    const turnNumber = await sessionPage.getTurnNumber();
+    const turnNumber = await sessionPage.turn.getTurnNumber();
     // Demo starts at turn 3
     expect(turnNumber).toContain('3');
   });
@@ -144,7 +147,7 @@ test.describe('Demo Game Session @smoke @game', () => {
     await sessionPage.waitForGameLoaded();
 
     // Hex map should be visible
-    const mapVisible = await sessionPage.isHexMapVisible();
+    const mapVisible = await sessionPage.map.isHexMapVisible();
     expect(mapVisible).toBe(true);
 
     // Map panel should exist
@@ -155,7 +158,7 @@ test.describe('Demo Game Session @smoke @game', () => {
     await sessionPage.waitForGameLoaded();
 
     // The tactical action dock (Wave 7.2 command surface) should be visible
-    const actionBarVisible = await sessionPage.isActionBarVisible();
+    const actionBarVisible = await sessionPage.commands.isActionBarVisible();
     expect(actionBarVisible).toBe(true);
   });
 
@@ -163,10 +166,10 @@ test.describe('Demo Game Session @smoke @game', () => {
     await sessionPage.waitForGameLoaded();
 
     // Both demo units should have tokens visible
-    const playerUnitVisible = await sessionPage.isUnitTokenVisible(
+    const playerUnitVisible = await sessionPage.units.isUnitTokenVisible(
       DEMO_UNITS.PLAYER.id,
     );
-    const opponentUnitVisible = await sessionPage.isUnitTokenVisible(
+    const opponentUnitVisible = await sessionPage.units.isUnitTokenVisible(
       DEMO_UNITS.OPPONENT.id,
     );
 
@@ -216,7 +219,7 @@ test.describe('Unit Selection @game', () => {
     await expect
       .poll(
         async () => {
-          await sessionPage.clickUnitToken(DEMO_UNITS.PLAYER.id);
+          await sessionPage.units.clickUnitToken(DEMO_UNITS.PLAYER.id);
           const state = await getGameplayState(page);
           return state?.ui.selectedUnitId ?? null;
         },
@@ -227,7 +230,7 @@ test.describe('Unit Selection @game', () => {
 
   test('record sheet panel shows no unit selected initially', async () => {
     // Initially no unit should be selected
-    const noUnitVisible = await sessionPage.isNoUnitSelectedVisible();
+    const noUnitVisible = await sessionPage.units.isNoUnitSelectedVisible();
     expect(noUnitVisible).toBe(true);
   });
 });
@@ -260,12 +263,12 @@ test.describe('Zoom Controls @game', () => {
 
   test('can click zoom buttons without error', async () => {
     // Just verify they're clickable without errors
-    await sessionPage.clickZoomIn();
-    await sessionPage.clickZoomOut();
-    await sessionPage.clickResetView();
+    await sessionPage.map.clickZoomIn();
+    await sessionPage.map.clickZoomOut();
+    await sessionPage.map.clickResetView();
 
     // Map should still be visible
-    const mapVisible = await sessionPage.isHexMapVisible();
+    const mapVisible = await sessionPage.map.isHexMapVisible();
     expect(mapVisible).toBe(true);
   });
 });
@@ -294,14 +297,17 @@ test.describe('Action Bar @game', () => {
   test('end-phase command is available', async () => {
     // The legacy 'skip' action maps to the dock's End Phase command
     // (heatEndCommands.ts: phaseConstraints include WeaponAttack).
-    const isVisible = await sessionPage.isActionVisible('heat-end.end-phase');
+    const isVisible =
+      await sessionPage.commands.isActionVisible('heat-end.end-phase');
     expect(isVisible).toBe(true);
   });
 
   test('clear-attacks command is available in weapon attack phase', async () => {
     // Demo starts at weapon_attack phase; the dock surfaces the weapon
     // family there (weaponAttackCommands.ts).
-    const isVisible = await sessionPage.isActionVisible('weapon.clear-attacks');
+    const isVisible = await sessionPage.commands.isActionVisible(
+      'weapon.clear-attacks',
+    );
     expect(isVisible).toBe(true);
   });
 
@@ -444,7 +450,7 @@ test.describe('Game Replay Page @game', () => {
     await replayPage.navigate('demo');
     await replayPage.waitForReplayLoaded();
 
-    const controlsVisible = await replayPage.areControlsVisible();
+    const controlsVisible = await replayPage.read.areControlsVisible();
     expect(controlsVisible).toBe(true);
   });
 
@@ -597,7 +603,7 @@ test.describe('Phase Transitions @game', () => {
 
     // Verify at least one expected action is available
     for (const action of expectedActions) {
-      const isVisible = await sessionPage.isActionVisible(action);
+      const isVisible = await sessionPage.commands.isActionVisible(action);
       expect(isVisible).toBe(true);
     }
   });
@@ -636,7 +642,7 @@ test.describe('Game Error Handling @game', () => {
     await page.waitForTimeout(1000);
 
     // Should show error state
-    const hasError = await sessionPage.hasError();
+    const hasError = await sessionPage.status.hasError();
     expect(hasError).toBe(true);
   });
 
