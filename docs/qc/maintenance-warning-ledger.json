@@ -18,7 +18,7 @@
       "follow-up": 0
     },
     "file-bloat": {
-      "fixed": 0,
+      "fixed": 2,
       "accepted": 0,
       "follow-up": 13
     },
@@ -73,8 +73,18 @@
       "severity": "high",
       "file": "scripts/megameklab-conversion/data_converter.py",
       "message": "736 LOC exceeds python threshold",
+      "status": "fixed",
+      "rationale": "Metadata/type helpers and UnitVerifierOptions XML conversion were extracted to focused helper modules, dropping data_converter.py below the high Python file-bloat threshold while preserving converter imports.",
+      "followUps": ["wave-12-megameklab-conversion-split"]
+    },
+    {
+      "key": "file-bloat|warn|scripts/megameklab-conversion/data_converter.py|499 LOC exceeds python threshold",
+      "category": "file-bloat",
+      "severity": "warn",
+      "file": "scripts/megameklab-conversion/data_converter.py",
+      "message": "499 LOC exceeds python threshold",
       "status": "follow-up",
-      "rationale": "MegaMekLab conversion tooling should be split as a conversion-tooling cleanup wave with fixture parity checks.",
+      "rationale": "The data converter remains just above the advisory Python size threshold after helper extraction; further parser-loop splits should wait for converter fixture parity coverage.",
       "followUps": ["wave-12-megameklab-conversion-split"]
     },
     {
