@@ -43,8 +43,11 @@ export {
 // Encounter pages
 export {
   EncounterListPage,
+  EncounterListReadPage,
   EncounterDetailPage,
   EncounterCreatePage,
+  EncounterCreateReadPage,
+  EncounterCreateSubmitPage,
 } from './encounter.page';
 
 // Customizer pages

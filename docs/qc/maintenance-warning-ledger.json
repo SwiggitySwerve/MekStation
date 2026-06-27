@@ -33,9 +33,9 @@
       "follow-up": 0
     },
     "design-violation": {
-      "fixed": 11,
+      "fixed": 14,
       "accepted": 3,
-      "follow-up": 13
+      "follow-up": 10
     }
   },
   "entries": [
@@ -341,9 +341,13 @@
       "severity": "critical",
       "file": "e2e/pages/encounter.page.ts",
       "message": "class has 9 public methods",
-      "status": "follow-up",
-      "rationale": "Encounter page-object role should be decomposed with encounter E2E coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Encounter list page-object reads were split from workflow actions so the public browser-action surface stays narrow while preserving encounter coverage.",
+      "fixedEvidence": [
+        "2026-06-27 `node scripts/maintenance/scan-maintenance.mjs --json` reported no findings for e2e/pages/encounter.page.ts and design-violation counts dropped from critical=7/high=6 to critical=4/high=6.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 full Chromium `npx.cmd playwright test e2e/encounter.spec.ts --project=chromium --workers=1` passed 22 checks with the existing clone test skipped."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/encounter.page.ts|class has 25 public methods",
@@ -351,9 +355,13 @@
       "severity": "critical",
       "file": "e2e/pages/encounter.page.ts",
       "message": "class has 25 public methods",
-      "status": "follow-up",
-      "rationale": "Encounter page-object role should be decomposed with encounter E2E coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Unused encounter detail scaffolding was removed so the page object exposes only the tested delete-dialog actions.",
+      "fixedEvidence": [
+        "2026-06-27 `node scripts/maintenance/scan-maintenance.mjs --json` reported no findings for e2e/pages/encounter.page.ts and design-violation counts dropped from critical=7/high=6 to critical=4/high=6.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 full Chromium `npx.cmd playwright test e2e/encounter.spec.ts --project=chromium --workers=1` passed 22 checks with the existing clone test skipped."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/encounter.page.ts|class has 13 public methods",
@@ -361,9 +369,13 @@
       "severity": "critical",
       "file": "e2e/pages/encounter.page.ts",
       "message": "class has 13 public methods",
-      "status": "follow-up",
-      "rationale": "Encounter page-object role should be decomposed with encounter E2E coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Encounter create form filling, submission, and read-only validation helpers were split into narrow classes.",
+      "fixedEvidence": [
+        "2026-06-27 `node scripts/maintenance/scan-maintenance.mjs --json` reported no findings for e2e/pages/encounter.page.ts and design-violation counts dropped from critical=7/high=6 to critical=4/high=6.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 full Chromium `npx.cmd playwright test e2e/encounter.spec.ts --project=chromium --workers=1` passed 22 checks with the existing clone test skipped."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/force.page.ts|class has 8 public methods",
