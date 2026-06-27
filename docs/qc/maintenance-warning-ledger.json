@@ -33,9 +33,9 @@
       "follow-up": 0
     },
     "design-violation": {
-      "fixed": 8,
+      "fixed": 11,
       "accepted": 3,
-      "follow-up": 16
+      "follow-up": 13
     }
   },
   "entries": [
@@ -371,9 +371,13 @@
       "severity": "critical",
       "file": "e2e/pages/force.page.ts",
       "message": "class has 8 public methods",
-      "status": "follow-up",
-      "rationale": "Force page-object role should be decomposed with force E2E coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Force list page object now keeps only navigation/search/browser actions; list assertions moved to ForceListReadPage.",
+      "fixedEvidence": [
+        "2026-06-27 `node scripts/maintenance/scan-maintenance.mjs --json` reported no findings for e2e/pages/force.page.ts and design-violation counts dropped from critical=10/high=6 to critical=7/high=6.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 full Chromium `npx.cmd playwright test e2e/force.spec.ts --project=chromium --workers=1` passed 23 checks."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/force.page.ts|class has 16 public methods",
@@ -381,9 +385,13 @@
       "severity": "critical",
       "file": "e2e/pages/force.page.ts",
       "message": "class has 16 public methods",
-      "status": "follow-up",
-      "rationale": "Force page-object role should be decomposed with force E2E coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Force detail page object now keeps only the edit/delete actions exercised by force E2E coverage; obsolete detail-read and tab helpers were removed.",
+      "fixedEvidence": [
+        "2026-06-27 `node scripts/maintenance/scan-maintenance.mjs --json` reported no findings for e2e/pages/force.page.ts and design-violation counts dropped from critical=10/high=6 to critical=7/high=6.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 full Chromium `npx.cmd playwright test e2e/force.spec.ts --project=chromium --workers=1` passed 23 checks."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/force.page.ts|class has 9 public methods",
@@ -391,9 +399,13 @@
       "severity": "critical",
       "file": "e2e/pages/force.page.ts",
       "message": "class has 9 public methods",
-      "status": "follow-up",
-      "rationale": "Force page-object role should be decomposed with force E2E coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Force create page object now separates form input, submission, and read-only validation helpers so each public surface stays narrow.",
+      "fixedEvidence": [
+        "2026-06-27 `node scripts/maintenance/scan-maintenance.mjs --json` reported no findings for e2e/pages/force.page.ts and design-violation counts dropped from critical=10/high=6 to critical=7/high=6.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 full Chromium `npx.cmd playwright test e2e/force.spec.ts --project=chromium --workers=1` passed 23 checks."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/game.page.ts|class has 20 public methods",
