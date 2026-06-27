@@ -1004,43 +1004,56 @@ describe('journey QC scripts', () => {
   });
 
   it('passes strict backing-required runs for command-backed combat proof', () => {
-    const runResult = runNodeScript('scripts/qc/run-journey-scenarios.mjs', [
-      '--journey=combat-1v1',
-      '--run-id=test-combat-domain-backed',
-      '--require-domain-backed',
-      `--evidence-dir=${evidenceDir}`,
-    ]);
-    expect(runResult.status).toBe(0);
+    for (const journeyId of ['combat-1v1', 'combat-4v4']) {
+      const runId = `test-${journeyId}-domain-backed`;
+      const args = [
+        `--journey=${journeyId}`,
+        `--run-id=${runId}`,
+        '--require-domain-backed',
+        `--evidence-dir=${evidenceDir}`,
+      ];
+      if (journeyId === 'combat-4v4') {
+        args.splice(2, 0, '--player-units=4', '--opponent-units=4');
+      }
 
-    const result = readJson<{
-      status: string;
-      executionBackingSummary: {
-        missingRequiredBacking: number;
-        syntheticSteps: number;
-        totalSteps: number;
-      };
-      journeys: Array<{
-        attempts: Array<{
-          steps: Array<{
-            syntheticBacking: boolean;
-            executionProofCommands: string[];
+      const runResult = runNodeScript(
+        'scripts/qc/run-journey-scenarios.mjs',
+        args,
+      );
+      expect(runResult.status).toBe(0);
+
+      const result = readJson<{
+        status: string;
+        executionBackingSummary: {
+          missingRequiredBacking: number;
+          syntheticSteps: number;
+          totalSteps: number;
+        };
+        journeys: Array<{
+          attempts: Array<{
+            steps: Array<{
+              syntheticBacking: boolean;
+              executionBacking: string;
+              executionProofCommands: string[];
+            }>;
           }>;
         }>;
-      }>;
-    }>(path.join(evidenceDir, 'test-combat-domain-backed', 'result.json'));
-    expect(result.status).toBe('pass');
-    expect(result.executionBackingSummary).toMatchObject({
-      missingRequiredBacking: 0,
-      syntheticSteps: 0,
-      totalSteps: 3,
-    });
-    expect(
-      result.journeys[0]?.attempts[0]?.steps.every(
-        (step) =>
-          step.syntheticBacking === false &&
-          step.executionProofCommands.length > 0,
-      ),
-    ).toBe(true);
+      }>(path.join(evidenceDir, runId, 'result.json'));
+      expect(result.status).toBe('pass');
+      expect(result.executionBackingSummary).toMatchObject({
+        missingRequiredBacking: 0,
+        syntheticSteps: 0,
+        totalSteps: 3,
+      });
+      expect(
+        result.journeys[0]?.attempts[0]?.steps.every(
+          (step) =>
+            step.syntheticBacking === false &&
+            step.executionBacking !== 'synthetic-projection' &&
+            step.executionProofCommands.length > 0,
+        ),
+      ).toBe(true);
+    }
   });
 
   it('passes strict backing-required runs for promoted campaign proofs', () => {

@@ -52,6 +52,8 @@ const requiredScripts = new Map([
   ['verify:qc:campaign-operations', 'CampaignOperationsQueueCard.test.tsx'],
   ['qc:campaign-long:browser', 'e2e/campaign-long-browser-signoff.spec.ts'],
   ['verify:qc:campaign-long', 'qc:campaign-long:browser'],
+  ['qc:combat-4v4:validate', 'validate-combat-4v4-qc.mjs'],
+  ['verify:qc:combat-4v4', 'combat4v4JourneyProof.test.ts'],
   ['verify:qc:gm:campaign-ledger', 'qc:gm:campaign-ledger:validate'],
   ['verify:qc:gm:time-cascade', 'qc:gm:time-cascade:validate'],
   ['qc:wave3:validate', 'validate-wave3-encounter-tactical.mjs'],
@@ -432,6 +434,29 @@ function releaseGapsForScenarios(scenarios, journeys) {
         surfaceId: journey.id,
         kind: 'journey-limitation',
         detail: String(value).replace(/\s+/g, ' ').slice(0, 240),
+      });
+    }
+
+    for (const step of journey.steps ?? []) {
+      if (step.required === false) continue;
+      const proofCommands = step.executionProofCommands ?? [];
+      const missingBacking =
+        step.syntheticBacking !== false ||
+        !step.executionBacking ||
+        step.executionBacking === 'synthetic-projection';
+      const missingProof =
+        !Array.isArray(proofCommands) ||
+        proofCommands.length === 0 ||
+        proofCommands.some((command) => typeof command !== 'string');
+
+      if (!missingBacking && !missingProof) continue;
+
+      gaps.push({
+        surfaceId: journey.surfaceIds?.[0] ?? journey.id,
+        kind: 'journey-execution-backing',
+        detail:
+          `${journey.id}/${step.id} is required but release backing is incomplete ` +
+          `(syntheticBacking=${String(step.syntheticBacking)} executionBacking=${String(step.executionBacking ?? 'missing')} proofCommands=${proofCommands.length}).`,
       });
     }
   }

@@ -26,6 +26,7 @@ npm.cmd run qc:journeys -- --journey=all --tier=smoke
 npm.cmd run qc:journeys -- --journey=mek-build --dry-run
 npm.cmd run qc:journeys -- --journey=combat-1v1 --seed=42 --player-units=1 --opponent-units=1
 npm.cmd run qc:journeys -- --journey=combat-4v4 --seed=42 --player-units=4 --opponent-units=4
+npm.cmd run verify:qc:combat-4v4
 npm.cmd run qc:journeys -- --journey=campaign-short --contracts=5
 npm.cmd run qc:journeys -- --journey=campaign-long --tier=extended --contracts=10
 npm.cmd run qc:campaign-long:stability -- --journey=campaign-long --seed=42 --contracts=10 --runs=2
@@ -53,7 +54,7 @@ including required checkpoint order for the major journey flows.
 | `character-build`   | headless     | roster         | pilot generation and export evidence                          |
 | `mek-build`         | headless     | construction   | BattleMech construction input and export                      |
 | `combat-1v1`        | headless     | combat         | command-backed encounter, tactical rejection, terminal combat |
-| `combat-4v4`        | headless     | combat         | lance encounter, terminal combat, replay reference            |
+| `combat-4v4`        | headless     | combat         | command-backed 4v4 terminal combat plus replay reference      |
 | `contract-campaign` | headless     | campaign       | command-backed contract selection, outcome, economy update    |
 | `campaign-short`    | headless     | campaign       | command-backed 3 to 5 contract sequence                       |
 | `campaign-long`     | headless     | campaign       | command-backed 6 to 10 contract sequence plus stability gate  |
