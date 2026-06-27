@@ -10,7 +10,11 @@
 import { test, expect, type Page } from '@playwright/test';
 
 import { createTestCampaign, deleteCampaign } from './fixtures/campaign';
-import { CampaignListPage, CampaignCreatePage } from './pages/campaign.page';
+import {
+  CampaignCreatePage,
+  CampaignListPage,
+  CampaignListReadPage,
+} from './pages/campaign.page';
 
 // =============================================================================
 // Test Configuration
@@ -37,9 +41,11 @@ async function waitForStoreReady(page: Page): Promise<void> {
 
 test.describe('Campaign List Page @smoke @campaign', () => {
   let listPage: CampaignListPage;
+  let listReadPage: CampaignListReadPage;
 
   test.beforeEach(async ({ page }) => {
     listPage = new CampaignListPage(page);
+    listReadPage = new CampaignListReadPage(page);
     await listPage.navigate();
     await waitForStoreReady(page);
   });
@@ -54,9 +60,9 @@ test.describe('Campaign List Page @smoke @campaign', () => {
 
   test('displays empty state when no campaigns exist', async () => {
     // Should show empty state or no campaign cards
-    const cardCount = await listPage.getCardCount();
+    const cardCount = await listReadPage.getCardCount();
     if (cardCount === 0) {
-      const emptyVisible = await listPage.isEmptyStateVisible();
+      const emptyVisible = await listReadPage.isEmptyStateVisible();
       expect(emptyVisible).toBe(true);
     }
   });
@@ -77,7 +83,7 @@ test.describe('Campaign List Page @smoke @campaign', () => {
     await listPage.navigate();
 
     // Campaign should appear in list
-    const names = await listPage.getCampaignNames();
+    const names = await listReadPage.getCampaignNames();
     expect(names).toContain('Test Campaign Alpha');
 
     // Cleanup
@@ -93,14 +99,14 @@ test.describe('Campaign List Page @smoke @campaign', () => {
 
     await listPage.navigate();
 
-    let names = await listPage.getCampaignNames();
+    let names = await listReadPage.getCampaignNames();
     expect(names).toContain('Alpha Strike Force');
 
     const id = await createTestCampaign(page, { name: 'Beta Recon Unit' });
 
     await listPage.navigate();
 
-    names = await listPage.getCampaignNames();
+    names = await listReadPage.getCampaignNames();
     expect(names).toContain('Beta Recon Unit');
     expect(names).not.toContain('Alpha Strike Force');
 
