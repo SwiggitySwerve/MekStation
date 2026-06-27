@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "primaryRoutes": [
+    { "path": "/", "label": "dashboard" },
+    { "path": "/onboarding", "label": "onboarding" },
+    { "path": "/gameplay", "label": "gameplay hub" },
+    { "path": "/gameplay/quick", "label": "quick game" },
+    { "path": "/gameplay/pilots", "label": "pilot roster" },
+    { "path": "/gameplay/pilots/create", "label": "create pilot" },
+    { "path": "/gameplay/forces", "label": "force roster" },
+    { "path": "/gameplay/forces/create", "label": "create force" },
+    { "path": "/gameplay/campaigns", "label": "campaigns" },
+    { "path": "/gameplay/campaigns/create", "label": "create campaign" },
+    { "path": "/gameplay/encounters", "label": "encounters" },
+    { "path": "/gameplay/encounters/create", "label": "create encounter" },
+    { "path": "/gameplay/games", "label": "games" },
+    { "path": "/gameplay/repair", "label": "repair bay" },
+    { "path": "/compendium", "label": "compendium" },
+    { "path": "/compendium/units", "label": "compendium units" },
+    { "path": "/compendium/equipment", "label": "compendium equipment" },
+    { "path": "/compendium/rules", "label": "compendium rules" },
+    { "path": "/units", "label": "custom units" },
+    { "path": "/customizer", "label": "customizer" },
+    { "path": "/compare", "label": "unit comparison" },
+    { "path": "/multiplayer", "label": "multiplayer" },
+    { "path": "/audit/timeline", "label": "event timeline" },
+    { "path": "/replay-library", "label": "replay library" },
+    { "path": "/settings#vault", "label": "settings vault hash" },
+    { "path": "/settings", "label": "settings" }
+  ],
+  "desktopDropdowns": [
+    {
+      "label": "Browse",
+      "items": [
+        { "label": "My Units", "path": "/units" },
+        { "label": "Compendium", "path": "/compendium" }
+      ]
+    },
+    {
+      "label": "Tools",
+      "items": [
+        { "label": "Customizer", "path": "/customizer" },
+        { "label": "Compare", "path": "/compare" }
+      ]
+    },
+    {
+      "label": "Gameplay",
+      "items": [
+        { "label": "Quick Game", "path": "/gameplay/quick" },
+        { "label": "Pilots", "path": "/gameplay/pilots" },
+        { "label": "Forces", "path": "/gameplay/forces" },
+        { "label": "Campaigns", "path": "/gameplay/campaigns" },
+        { "label": "Encounters", "path": "/gameplay/encounters" },
+        { "label": "Games", "path": "/gameplay/games" },
+        { "label": "Multiplayer", "path": "/multiplayer" }
+      ]
+    },
+    {
+      "label": "History",
+      "items": [
+        { "label": "Timeline", "path": "/audit/timeline" },
+        { "label": "Replay Library", "path": "/replay-library" }
+      ]
+    }
+  ],
+  "mobileNavItems": [
+    { "label": "Home", "path": "/" },
+    { "label": "Browse", "path": "/compendium" },
+    { "label": "Gameplay", "path": "/gameplay" },
+    { "label": "Multiplayer", "path": "/multiplayer" },
+    { "label": "Settings", "path": "/settings" }
+  ]
+}
