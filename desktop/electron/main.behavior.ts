@@ -25,6 +25,41 @@ interface IMenuCommandContext {
   readonly showAboutDialog: () => void;
 }
 
+type MenuCommandAction = (context: IMenuCommandContext) => void;
+
+const menuCommandActions: Partial<Record<MenuCommand, MenuCommandAction>> = {
+  'file:quit': () => app.quit(),
+  'file:preferences': ({ sendToRenderer }) => {
+    sendToRenderer(APP_IPC_CHANNELS.OPEN_SETTINGS);
+  },
+  'file:clear-recent': ({ menuManager, recentFilesService }) => {
+    recentFilesService?.clear();
+    menuManager?.updateRecentFiles([]);
+  },
+  'view:fullscreen': ({ mainWindow }) => {
+    mainWindow?.setFullScreen(!mainWindow.isFullScreen());
+  },
+  'view:dev-tools': ({ mainWindow }) => {
+    mainWindow?.webContents.toggleDevTools();
+  },
+  'help:documentation': () => {
+    void shell.openExternal(
+      'https://github.com/SwiggitySwerve/MekStation/wiki',
+    );
+  },
+  'help:report-issue': () => {
+    void shell.openExternal(
+      'https://github.com/SwiggitySwerve/MekStation/issues/new',
+    );
+  },
+  'help:check-updates': ({ checkForUpdates }) => {
+    void checkForUpdates();
+  },
+  'help:about': ({ showAboutDialog }) => {
+    showAboutDialog();
+  },
+};
+
 export function handleMenuCommand({
   args,
   checkForUpdates,
@@ -37,39 +72,16 @@ export function handleMenuCommand({
 }: IMenuCommandContext): void {
   console.log(`Menu command: ${command}`);
   sendToRenderer(MENU_IPC_CHANNELS.COMMAND, command, ...args);
-
-  switch (command) {
-    case 'file:quit':
-      app.quit();
-      break;
-    case 'file:preferences':
-      sendToRenderer(APP_IPC_CHANNELS.OPEN_SETTINGS);
-      break;
-    case 'file:clear-recent':
-      recentFilesService?.clear();
-      menuManager?.updateRecentFiles([]);
-      break;
-    case 'view:fullscreen':
-      mainWindow?.setFullScreen(!mainWindow.isFullScreen());
-      break;
-    case 'view:dev-tools':
-      mainWindow?.webContents.toggleDevTools();
-      break;
-    case 'help:documentation':
-      shell.openExternal('https://github.com/SwiggitySwerve/MekStation/wiki');
-      break;
-    case 'help:report-issue':
-      shell.openExternal(
-        'https://github.com/SwiggitySwerve/MekStation/issues/new',
-      );
-      break;
-    case 'help:check-updates':
-      void checkForUpdates();
-      break;
-    case 'help:about':
-      showAboutDialog();
-      break;
-  }
+  menuCommandActions[command]?.({
+    args,
+    checkForUpdates,
+    command,
+    mainWindow,
+    menuManager,
+    recentFilesService,
+    sendToRenderer,
+    showAboutDialog,
+  });
 }
 
 interface ISettingsChangeContext {
@@ -83,6 +95,19 @@ interface ISettingsChangeContext {
   readonly settingsService: SettingsService | null;
 }
 
+type SettingsChangeAction = (context: ISettingsChangeContext) => void;
+
+const settingsChangeActions: Partial<
+  Record<keyof IDesktopSettings, SettingsChangeAction>
+> = {
+  launchAtLogin: ({ event, settingsService }) => {
+    updateLaunchAtLogin(event.newValue as boolean, settingsService);
+  },
+  maxRecentFiles: ({ event, recentFilesService }) => {
+    recentFilesService?.setMaxRecentFiles(event.newValue as number);
+  },
+};
+
 export function handleSettingsChange({
   event,
   recentFilesService,
@@ -90,19 +115,12 @@ export function handleSettingsChange({
   settingsService,
 }: ISettingsChangeContext): void {
   console.log(`Setting changed: ${event.key}`);
-
-  switch (event.key) {
-    case 'launchAtLogin':
-      updateLaunchAtLogin(event.newValue as boolean, settingsService);
-      break;
-    case 'maxRecentFiles':
-      recentFilesService?.setMaxRecentFiles(event.newValue as number);
-      break;
-    case 'enableAutoBackup':
-    case 'backupIntervalMinutes':
-      break;
-  }
-
+  settingsChangeActions[event.key]?.({
+    event,
+    recentFilesService,
+    sendToRenderer,
+    settingsService,
+  });
   sendToRenderer(SETTINGS_IPC_CHANNELS.ON_CHANGE, event);
 }
 

@@ -40,6 +40,56 @@ interface ISettingsServiceConfig {
   readonly localStorage: LocalStorageService;
 }
 
+type SettingValidator = (value: unknown) => ResultType<void, string>;
+type SettingsValidatorMap = {
+  readonly [K in keyof IDesktopSettings]: SettingValidator;
+};
+
+function validatePositiveVersion(value: unknown): ResultType<void, string> {
+  if (typeof value !== 'number' || value < 1) {
+    return Result.error('Version must be a positive number');
+  }
+  return Result.success(undefined);
+}
+
+function validateBooleanSetting(key: keyof IDesktopSettings): SettingValidator {
+  return (value) => {
+    if (typeof value !== 'boolean') {
+      return Result.error(`${key} must be a boolean`);
+    }
+    return Result.success(undefined);
+  };
+}
+
+function validateStringSetting(key: keyof IDesktopSettings): SettingValidator {
+  return (value) => {
+    if (typeof value !== 'string') {
+      return Result.error(`${key} must be a string`);
+    }
+    return Result.success(undefined);
+  };
+}
+
+function validateNumberRange(
+  message: string,
+  min: number,
+  max: number,
+): SettingValidator {
+  return (value) => {
+    if (typeof value !== 'number' || value < min || value > max) {
+      return Result.error(message);
+    }
+    return Result.success(undefined);
+  };
+}
+
+function validateUpdateChannel(value: unknown): ResultType<void, string> {
+  if (!['stable', 'beta'].includes(value as string)) {
+    return Result.error('Update channel must be "stable" or "beta"');
+  }
+  return Result.success(undefined);
+}
+
 /**
  * Settings service implementation
  *
@@ -48,6 +98,42 @@ interface ISettingsServiceConfig {
  */
 export class SettingsService extends EventEmitter implements IService {
   private readonly localStorage: LocalStorageService;
+  private readonly settingValidators: SettingsValidatorMap = {
+    version: validatePositiveVersion,
+    launchAtLogin: validateBooleanSetting('launchAtLogin'),
+    startMinimized: validateBooleanSetting('startMinimized'),
+    reopenLastUnit: validateBooleanSetting('reopenLastUnit'),
+    defaultSaveDirectory: validateStringSetting('defaultSaveDirectory'),
+    rememberWindowState: validateBooleanSetting('rememberWindowState'),
+    windowBounds: (value) =>
+      this.isValidWindowBounds(value)
+        ? Result.success(undefined)
+        : Result.error('Invalid window bounds structure'),
+    enableAutoBackup: validateBooleanSetting('enableAutoBackup'),
+    backupIntervalMinutes: validateNumberRange(
+      'Backup interval must be between 1 and 1440 minutes',
+      1,
+      1440,
+    ),
+    maxBackupCount: validateNumberRange(
+      'Max backup count must be between 1 and 100',
+      1,
+      100,
+    ),
+    backupDirectory: validateStringSetting('backupDirectory'),
+    checkForUpdatesAutomatically: validateBooleanSetting(
+      'checkForUpdatesAutomatically',
+    ),
+    updateChannel: validateUpdateChannel,
+    maxRecentFiles: validateNumberRange(
+      'Max recent files must be between 5 and 50',
+      5,
+      50,
+    ),
+    dataDirectory: validateStringSetting('dataDirectory'),
+    enableDevTools: validateBooleanSetting('enableDevTools'),
+  };
+
   private settings: IDesktopSettings;
   private initialized = false;
 
@@ -302,67 +388,7 @@ export class SettingsService extends EventEmitter implements IService {
     key: K,
     value: unknown,
   ): ResultType<void, string> {
-    switch (key) {
-      case 'version':
-        if (typeof value !== 'number' || value < 1) {
-          return Result.error('Version must be a positive number');
-        }
-        break;
-
-      case 'launchAtLogin':
-      case 'startMinimized':
-      case 'reopenLastUnit':
-      case 'rememberWindowState':
-      case 'enableAutoBackup':
-      case 'checkForUpdatesAutomatically':
-      case 'enableDevTools':
-        if (typeof value !== 'boolean') {
-          return Result.error(`${key} must be a boolean`);
-        }
-        break;
-
-      case 'defaultSaveDirectory':
-      case 'backupDirectory':
-      case 'dataDirectory':
-        if (typeof value !== 'string') {
-          return Result.error(`${key} must be a string`);
-        }
-        break;
-
-      case 'backupIntervalMinutes':
-        if (typeof value !== 'number' || value < 1 || value > 1440) {
-          return Result.error(
-            'Backup interval must be between 1 and 1440 minutes',
-          );
-        }
-        break;
-
-      case 'maxBackupCount':
-        if (typeof value !== 'number' || value < 1 || value > 100) {
-          return Result.error('Max backup count must be between 1 and 100');
-        }
-        break;
-
-      case 'maxRecentFiles':
-        if (typeof value !== 'number' || value < 5 || value > 50) {
-          return Result.error('Max recent files must be between 5 and 50');
-        }
-        break;
-
-      case 'updateChannel':
-        if (!['stable', 'beta'].includes(value as string)) {
-          return Result.error('Update channel must be "stable" or "beta"');
-        }
-        break;
-
-      case 'windowBounds':
-        if (!this.isValidWindowBounds(value)) {
-          return Result.error('Invalid window bounds structure');
-        }
-        break;
-    }
-
-    return Result.success(undefined);
+    return this.settingValidators[key](value);
   }
 
   /**
