@@ -529,6 +529,119 @@ test.describe('Replay Library Browser Round-Trip', () => {
     await page.getByTestId('back-to-library').click();
     await expect(page.getByTestId(`replay-row-${gameId}`)).toBeVisible();
   });
+
+  test('opens campaign and encounter replay entries with source metadata', async ({
+    context,
+    page,
+  }) => {
+    const campaignGameId = 'campaign-library-e2e';
+    const encounterGameId = 'encounter-library-e2e';
+    const campaignEvents = buildReplayFixtureEvents(campaignGameId);
+    const encounterEvents = buildReplayFixtureEvents(encounterGameId);
+
+    await context.route('**/api/replay-library**', async (route) => {
+      const pathname = new URL(route.request().url()).pathname;
+      if (pathname === '/api/replay-library') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            entries: [
+              {
+                id: campaignGameId,
+                replaySource: 'campaign',
+                path: `campaign/${campaignGameId}.jsonl`,
+                createdAt: '2026-06-27T00:00:00.000Z',
+                turns: 3,
+                winner: 'player',
+                bvTotal: 9600,
+                campaignId: 'campaign-release-proof',
+                missionId: 'mission-release-proof',
+                difficulty: 'Veteran',
+              },
+              {
+                id: encounterGameId,
+                replaySource: 'encounter',
+                path: `encounter/${encounterGameId}.jsonl`,
+                createdAt: '2026-06-27T00:05:00.000Z',
+                turns: 2,
+                winner: 'opponent',
+                bvTotal: 8400,
+                encounterId: 'encounter-release-proof',
+                encounterName: 'Depot Defense',
+                templateType: 'defense',
+                playerForceSummary: 'Northwind Irregulars (4200 BV, 2 units)',
+                opponentSummary: 'Pirate raiders (4200 BV, 2 units)',
+              },
+            ],
+            total: 2,
+          }),
+        });
+        return;
+      }
+      if (pathname === `/api/replay-library/campaign/${campaignGameId}`) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ events: campaignEvents }),
+        });
+        return;
+      }
+      if (pathname === `/api/replay-library/encounter/${encounterGameId}`) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ events: encounterEvents }),
+        });
+        return;
+      }
+      await route.continue();
+    });
+
+    await page.goto('/replay-library');
+    await page.waitForLoadState('networkidle');
+
+    await page.getByTestId('source-filter-campaign').click();
+    await expect(
+      page.getByTestId(`replay-row-${campaignGameId}`),
+    ).toBeVisible();
+    await expect(page.getByTestId('replay-meta-campaign')).toBeVisible();
+    await expect(page.getByTestId('replay-campaign-id')).toContainText(
+      'campaign-release-proof',
+    );
+    await expect(page.getByTestId('replay-mission-id')).toContainText(
+      'mission-release-proof',
+    );
+    await expect(page.getByTestId('replay-difficulty')).toContainText(
+      'Veteran',
+    );
+    await page.getByTestId(`replay-watch-${campaignGameId}`).click();
+    await expect(page.getByTestId('back-to-library')).toBeVisible();
+    await expect(page.getByTestId('quickgame-replay-panel')).toBeVisible();
+    await expect(page.getByText('Seq #0')).toBeVisible();
+
+    await page.getByTestId('back-to-library').click();
+    await page.getByTestId('source-filter-encounter').click();
+    await expect(
+      page.getByTestId(`replay-row-${encounterGameId}`),
+    ).toBeVisible();
+    await expect(page.getByTestId('replay-meta-encounter')).toBeVisible();
+    await expect(page.getByTestId('replay-encounter-name')).toContainText(
+      'Depot Defense',
+    );
+    await expect(page.getByTestId('replay-template-type')).toContainText(
+      'defense',
+    );
+    await expect(page.getByTestId('replay-player-force-summary')).toContainText(
+      'Northwind Irregulars',
+    );
+    await expect(page.getByTestId('replay-opponent-summary')).toContainText(
+      'Pirate raiders',
+    );
+    await page.getByTestId(`replay-watch-${encounterGameId}`).click();
+    await expect(page.getByTestId('quickgame-replay-panel')).toBeVisible();
+    await expect(page.getByText('Seq #0')).toBeVisible();
+  });
 });
 
 // =============================================================================

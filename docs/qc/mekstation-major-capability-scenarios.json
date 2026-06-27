@@ -426,7 +426,7 @@
         "Replay player and simulation viewer browser flows pass.",
         "Event log replay determinism passes.",
         "Replay-library watch/back navigation, uploaded replay playback, and keyboard shortcuts pass without relying on skipped browser checks.",
-        "Timeline export and data-dependent campaign/completed-game replay entry checks remain visible as release-signoff gaps instead of being counted as proof."
+        "Timeline export, persisted completed-game replay entry, and data-dependent campaign/encounter replay-library entry checks pass without relying on skipped browser checks."
       ],
       "checks": [
         {
@@ -461,7 +461,7 @@
         }
       ],
       "notes": [
-        "Replay Library watch/back and upload keyboard flows are browser-proved in `e2e/replay-player.spec.ts`; timeline export plus data-dependent campaign/completed-game entry checks stay tracked in the replay surface gap."
+        "Replay Library watch/back, upload keyboard flows, seeded timeline export, persisted completed-match replay, and campaign/encounter replay-library metadata flows are browser-proved in `e2e/replay-player.spec.ts`."
       ]
     },
     {
