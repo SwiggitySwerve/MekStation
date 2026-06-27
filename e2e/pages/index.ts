@@ -31,7 +31,14 @@ export {
 } from './campaign.page';
 
 // Force pages
-export { ForceListPage, ForceDetailPage, ForceCreatePage } from './force.page';
+export {
+  ForceCreatePage,
+  ForceCreateReadPage,
+  ForceCreateSubmissionPage,
+  ForceDetailPage,
+  ForceListPage,
+  ForceListReadPage,
+} from './force.page';
 
 // Encounter pages
 export {

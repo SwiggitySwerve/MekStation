@@ -1,11 +1,4 @@
-import type { Page as _Page } from '@playwright/test';
-
-import { expect as _expect } from '@playwright/test';
-
 import { BasePage } from './base.page';
-
-// Re-export to silence unused warnings (types kept for documentation)
-void _expect;
 
 /**
  * Page object for the force list page (/gameplay/forces).
@@ -20,15 +13,6 @@ export class ForceListPage extends BasePage {
   async navigate(): Promise<void> {
     await this.page.goto(this.url);
     await this.waitForReady();
-  }
-
-  /**
-   * Get the count of force cards displayed.
-   */
-  async getCardCount(): Promise<number> {
-    // Cards use testid pattern: force-card-{id}
-    const cards = this.page.locator('[data-testid^="force-card-"]');
-    return cards.count();
   }
 
   /**
@@ -54,22 +38,19 @@ export class ForceListPage extends BasePage {
     await this.fillByTestId('force-search', query);
     await this.page.waitForTimeout(300);
   }
+}
 
+/**
+ * Read-only helpers for the force list page.
+ */
+export class ForceListReadPage extends BasePage {
   /**
-   * Get all force names displayed.
+   * Get the count of force cards displayed.
    */
-  async getForceNames(): Promise<string[]> {
-    const names = this.getByTestId('force-name');
-    return names.allTextContents();
-  }
-
-  /**
-   * Filter forces by faction.
-   * @param faction - The faction to filter by
-   */
-  async filterByFaction(faction: string): Promise<void> {
-    await this.clickByTestId('faction-filter');
-    await this.clickByTestId(`faction-option-${faction}`);
+  async getCardCount(): Promise<number> {
+    // Cards use testid pattern: force-card-{id}
+    const cards = this.page.locator('[data-testid^="force-card-"]');
+    return cards.count();
   }
 
   /**
@@ -85,89 +66,6 @@ export class ForceListPage extends BasePage {
  * Provides methods to interact with force details.
  */
 export class ForceDetailPage extends BasePage {
-  /**
-   * Navigate to a specific force's detail page.
-   * @param id - The force ID
-   */
-  async navigate(id: string): Promise<void> {
-    await this.page.goto(`/gameplay/forces/${id}`);
-    await this.waitForReady();
-  }
-
-  /**
-   * Get the force name.
-   */
-  async getName(): Promise<string> {
-    return this.getTextByTestId('force-name');
-  }
-
-  /**
-   * Get the force faction.
-   */
-  async getFaction(): Promise<string> {
-    return this.getTextByTestId('force-faction');
-  }
-
-  /**
-   * Get the total battle value (BV).
-   */
-  async getTotalBV(): Promise<string> {
-    return this.getTextByTestId('force-total-bv');
-  }
-
-  /**
-   * Get the unit count.
-   */
-  async getUnitCount(): Promise<number> {
-    const countText = await this.getTextByTestId('force-unit-count');
-    return parseInt(countText, 10);
-  }
-
-  /**
-   * Click the units tab.
-   */
-  async clickUnitsTab(): Promise<void> {
-    await this.clickByTestId('tab-units');
-  }
-
-  /**
-   * Click the roster tab.
-   */
-  async clickRosterTab(): Promise<void> {
-    await this.clickByTestId('tab-roster');
-  }
-
-  /**
-   * Click the statistics tab.
-   */
-  async clickStatisticsTab(): Promise<void> {
-    await this.clickByTestId('tab-statistics');
-  }
-
-  /**
-   * Click a specific unit in the force.
-   * @param unitId - The unit ID
-   */
-  async clickUnit(unitId: string): Promise<void> {
-    await this.clickByTestId(`unit-${unitId}`);
-  }
-
-  /**
-   * Add a unit to the force.
-   */
-  async clickAddUnit(): Promise<void> {
-    await this.clickByTestId('add-unit-btn');
-  }
-
-  /**
-   * Remove a unit from the force.
-   * @param unitId - The unit ID to remove
-   */
-  async removeUnit(unitId: string): Promise<void> {
-    await this.clickByTestId(`remove-unit-${unitId}`);
-    await this.clickByTestId('confirm-remove-btn');
-  }
-
   /**
    * Click the delete force button.
    */
@@ -195,15 +93,6 @@ export class ForceDetailPage extends BasePage {
    */
   async clickEdit(): Promise<void> {
     await this.clickByTestId('edit-force-btn');
-  }
-
-  /**
-   * Export the force.
-   * @param format - The export format (e.g., 'json', 'pdf')
-   */
-  async exportForce(format: string): Promise<void> {
-    await this.clickByTestId('export-force-btn');
-    await this.clickByTestId(`export-format-${format}`);
   }
 }
 
@@ -239,23 +128,18 @@ export class ForceCreatePage extends BasePage {
   }
 
   /**
-   * Fill the description field.
-   * @param description - The force description
-   */
-  async fillDescription(description: string): Promise<void> {
-    await this.page
-      .locator('[data-testid="force-description-input"]')
-      .fill(description);
-  }
-
-  /**
    * Select a force type.
    * @param forceType - The force type (lance, star, level_ii, company, binary, custom)
    */
   async selectForceType(forceType: string): Promise<void> {
     await this.clickByTestId(`force-type-${forceType}`);
   }
+}
 
+/**
+ * Submission helpers for the force create page.
+ */
+export class ForceCreateSubmissionPage extends BasePage {
   /**
    * Submit the create force form.
    */
@@ -269,31 +153,17 @@ export class ForceCreatePage extends BasePage {
   async cancel(): Promise<void> {
     await this.clickAndWaitForNavigation(this.getByTestId('cancel-btn'));
   }
+}
 
+/**
+ * Read-only helpers for the force create page.
+ */
+export class ForceCreateReadPage extends BasePage {
   /**
    * Check if submit button is enabled.
    */
   async isSubmitEnabled(): Promise<boolean> {
     const btn = this.getByTestId('submit-force-btn');
     return !(await btn.isDisabled());
-  }
-
-  /**
-   * Create a force with the given details (convenience method).
-   * @param name - The force name
-   * @param forceType - The force type (defaults to 'lance')
-   * @param affiliation - Optional affiliation
-   */
-  async createForce(
-    name: string,
-    forceType: string = 'lance',
-    affiliation?: string,
-  ): Promise<void> {
-    await this.fillName(name);
-    await this.selectForceType(forceType);
-    if (affiliation) {
-      await this.fillAffiliation(affiliation);
-    }
-    await this.submit();
   }
 }

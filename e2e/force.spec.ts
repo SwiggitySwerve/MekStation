@@ -18,8 +18,11 @@ import {
 } from './fixtures/force';
 import {
   ForceListPage,
+  ForceListReadPage,
   ForceDetailPage,
   ForceCreatePage,
+  ForceCreateReadPage,
+  ForceCreateSubmissionPage,
 } from './pages/force.page';
 
 // =============================================================================
@@ -47,9 +50,11 @@ async function waitForStoreReady(page: Page): Promise<void> {
 
 test.describe('Force List Page @smoke @force', () => {
   let listPage: ForceListPage;
+  let listReadPage: ForceListReadPage;
 
   test.beforeEach(async ({ page }) => {
     listPage = new ForceListPage(page);
+    listReadPage = new ForceListReadPage(page);
     await listPage.navigate();
     await waitForStoreReady(page);
   });
@@ -65,11 +70,11 @@ test.describe('Force List Page @smoke @force', () => {
   test('shows forces or empty state correctly', async ({ page }) => {
     // Note: This test verifies UI consistency - either cards OR empty state should show
     // We can't guarantee empty state in parallel test runs
-    const cardCount = await listPage.getCardCount();
+    const cardCount = await listReadPage.getCardCount();
 
     if (cardCount === 0) {
       // When there are no forces, empty state should be visible
-      const emptyVisible = await listPage.isEmptyStateVisible();
+      const emptyVisible = await listReadPage.isEmptyStateVisible();
       const showingZero = await page.getByText(/Showing 0 force/i).isVisible();
       expect(emptyVisible || showingZero).toBe(true);
     } else {
@@ -130,7 +135,7 @@ test.describe('Force List Page @smoke @force', () => {
     await listPage.searchForces('Alpha');
 
     // Should only show Alpha forces
-    const cardCount = await listPage.getCardCount();
+    const cardCount = await listReadPage.getCardCount();
     expect(cardCount).toBeGreaterThanOrEqual(2);
 
     // Beta Star should not be visible
@@ -151,10 +156,14 @@ test.describe('Force List Page @smoke @force', () => {
 test.describe('Force Creation @smoke @force', () => {
   let listPage: ForceListPage;
   let createPage: ForceCreatePage;
+  let createReadPage: ForceCreateReadPage;
+  let createSubmissionPage: ForceCreateSubmissionPage;
 
   test.beforeEach(async ({ page }) => {
     listPage = new ForceListPage(page);
     createPage = new ForceCreatePage(page);
+    createReadPage = new ForceCreateReadPage(page);
+    createSubmissionPage = new ForceCreateSubmissionPage(page);
     await listPage.navigate();
     await waitForStoreReady(page);
   });
@@ -174,7 +183,7 @@ test.describe('Force Creation @smoke @force', () => {
     await expect(page.getByTestId('force-type-lance')).toBeVisible();
 
     // Submit
-    await createPage.submit();
+    await createSubmissionPage.submit();
 
     // Should redirect to force detail
     await expect(page).toHaveURL(/\/gameplay\/forces\/[^/]+$/);
@@ -193,7 +202,7 @@ test.describe('Force Creation @smoke @force', () => {
     await createPage.fillAffiliation('Clan Wolf');
 
     // Submit
-    await createPage.submit();
+    await createSubmissionPage.submit();
 
     // Should redirect to force detail
     await expect(page).toHaveURL(/\/gameplay\/forces\/[^/]+$/);
@@ -209,7 +218,7 @@ test.describe('Force Creation @smoke @force', () => {
     await createPage.selectForceType('company');
 
     // Submit
-    await createPage.submit();
+    await createSubmissionPage.submit();
 
     // Should redirect to force detail
     await expect(page).toHaveURL(/\/gameplay\/forces\/[^/]+$/);
@@ -222,14 +231,14 @@ test.describe('Force Creation @smoke @force', () => {
     await createPage.fillName('X');
 
     // Submit button should be disabled (name < 2 chars)
-    const isEnabled = await createPage.isSubmitEnabled();
+    const isEnabled = await createReadPage.isSubmitEnabled();
     expect(isEnabled).toBe(false);
 
     // Add another character
     await createPage.fillName('XY');
 
     // Now submit should be enabled
-    const isEnabledAfter = await createPage.isSubmitEnabled();
+    const isEnabledAfter = await createReadPage.isSubmitEnabled();
     expect(isEnabledAfter).toBe(true);
   });
 
@@ -238,7 +247,7 @@ test.describe('Force Creation @smoke @force', () => {
     await createPage.fillName('Force to Cancel');
 
     // Click cancel
-    await createPage.cancel();
+    await createSubmissionPage.cancel();
 
     // Should return to list
     await expect(page).toHaveURL(/\/gameplay\/forces$/);
@@ -450,11 +459,13 @@ test.describe('Force Edit @force', () => {
 
 test.describe('Force Type Variations @force', () => {
   let createPage: ForceCreatePage;
+  let createSubmissionPage: ForceCreateSubmissionPage;
   let listPage: ForceListPage;
   const createdForceIds: string[] = [];
 
   test.beforeEach(async ({ page }) => {
     createPage = new ForceCreatePage(page);
+    createSubmissionPage = new ForceCreateSubmissionPage(page);
     listPage = new ForceListPage(page);
     await listPage.navigate();
     await waitForStoreReady(page);
@@ -479,7 +490,7 @@ test.describe('Force Type Variations @force', () => {
     await createPage.selectForceType('level_ii');
     await createPage.fillAffiliation('ComStar');
 
-    await createPage.submit();
+    await createSubmissionPage.submit();
 
     // Should redirect to force detail
     await expect(page).toHaveURL(/\/gameplay\/forces\/[^/]+$/);
@@ -499,7 +510,7 @@ test.describe('Force Type Variations @force', () => {
     await createPage.selectForceType('binary');
     await createPage.fillAffiliation('Clan Wolf');
 
-    await createPage.submit();
+    await createSubmissionPage.submit();
 
     // Should redirect to force detail
     await expect(page).toHaveURL(/\/gameplay\/forces\/[^/]+$/);
@@ -519,7 +530,7 @@ test.describe('Force Type Variations @force', () => {
     await createPage.selectForceType('custom');
     await createPage.fillAffiliation('Mercenary');
 
-    await createPage.submit();
+    await createSubmissionPage.submit();
 
     // Should redirect to force detail
     await expect(page).toHaveURL(/\/gameplay\/forces\/[^/]+$/);
