@@ -46,7 +46,7 @@ describe('Wave 4 scope and recovery QC validator', () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('surfaces=5/5');
-    expect(result.stdout).toContain('packageScripts=7/7');
+    expect(result.stdout).toContain('packageScripts=8/8');
     expect(result.stdout).toContain('errors=0');
     expect(result.stderr).toBe('');
   });
@@ -63,7 +63,7 @@ describe('Wave 4 scope and recovery QC validator', () => {
       sourceAnchorCount: number;
     };
     expect(manifest.status).toBe('pass');
-    expect(manifest.packageScripts).toHaveLength(7);
+    expect(manifest.packageScripts).toHaveLength(8);
     expect(manifest.surfaces).toHaveLength(5);
     expect(manifest.anchors).toHaveLength(manifest.sourceAnchorCount);
     expect(manifest.sourceAnchorCount).toBeGreaterThanOrEqual(10);

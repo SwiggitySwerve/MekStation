@@ -50,6 +50,7 @@ npm.cmd run qc:gm:time-cascade:validate
 npm.cmd run qc:gm:time-cascade
 npm.cmd run qc:tactical:projection:validate
 npm.cmd run qc:tactical:projection
+npm.cmd run qc:wave4:family-data:validate
 npm.cmd run qc:logging:validate
 npm.cmd run qc:graph -- --query=mek-build
 npm.cmd run qc:graph -- --kind=surface --query=tactical
@@ -175,9 +176,14 @@ flowchart TD
    - Wave 4 uses `qc:wave4:validate` for fast checkpoint wiring and
      `verify:qc:wave4` for the full customizer/data, non-BattleMech scope,
      multiplayer reliability, and replay recovery aggregate gate.
-   - The checkpoint keeps family BV/data validators discoverable while
-     preserving representative export and round-trip browser signoff as an
-     explicit release gap.
+   - `qc:wave4:family-data:validate` is the focused release checkpoint for
+     representative BattleMech, vehicle/VTOL, aerospace, battle armor,
+     infantry, and ProtoMech data/customizer/export wiring. It fails if a
+     family loses catalog/handler/browser/customizer anchors or if the
+     compendium/customizer surfaces drift back to partial release status.
+   - The scope remains data, BV, customizer, and record-sheet/export wiring;
+     non-BattleMech combat runtime parity stays guarded by the separate scope
+     matrix.
 
 1. `replay-audit-history`
    - `verify:qc:replay-recovery` now includes deterministic event replay,
