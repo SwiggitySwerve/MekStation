@@ -622,13 +622,13 @@
       "acceptanceEvidence": ["desktop/services/local/SettingsService.ts"]
     },
     {
-      "key": "file-bloat|high|scripts/validate-bv.ts|963 LOC exceeds rendering threshold",
+      "key": "file-bloat|warn|scripts/validate-bv.ts|775 LOC exceeds rendering threshold",
       "category": "file-bloat",
-      "severity": "high",
+      "severity": "warn",
       "file": "scripts/validate-bv.ts",
-      "message": "963 LOC exceeds rendering threshold",
+      "message": "775 LOC exceeds rendering threshold",
       "status": "follow-up",
-      "rationale": "The CLI/reporting orchestrator is now below critical size but still above the high rendering threshold; split report serialization and console rendering in the next validator architecture wave.",
+      "rationale": "The CLI/reporting orchestrator now delegates metrics, console output, and JSON artifact writing to validate-bv-reporting.ts, dropping from high to advisory warn. Remaining size is mostly reference/override loading and should move with BV parity coverage.",
       "followUps": ["wave-12-validate-bv-architecture-split"]
     },
     {
