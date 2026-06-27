@@ -172,6 +172,12 @@ flowchart TD
      controls or empty/list recovery state after direct navigation and refresh,
      including onboarding, repair, compendium leaf pages, and gameplay create
      routes.
+   - 2026-06-27 Wave 1 route ownership classifies every non-API Next.js page
+     as primary app-shell, generated-state delegated, recovery, known route
+     gap, or development/test harness. `qc:validate` passed with 0 errors / 0
+     warnings after adding `/share`, invalid share-token recovery, and explicit
+     `/e2e/*` harness ownership; `verify:qc:app-shell` passed 30 Chromium
+     checks.
    - Dynamic generated-ID session recovery is intentionally left to the
      campaign, combat continuity, multiplayer, and replay lanes where seeded
      state can prove recovery without weakening this static route sweep.

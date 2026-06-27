@@ -19,6 +19,7 @@ interface RouteProof {
   readonly pageTitle?: string;
   readonly heading?: string | RegExp;
   readonly text?: string | RegExp;
+  readonly allowedConsoleErrors?: readonly (string | RegExp)[];
   readonly affordances?: readonly RouteAffordance[];
   readonly stateAffordances?: readonly RouteAffordance[];
 }
@@ -344,6 +345,27 @@ const routeProofs: readonly RouteProof[] = [
     ],
   },
   {
+    path: '/share',
+    label: 'share links',
+    pageTitle: 'Share Links',
+    affordances: [
+      { label: 'share links empty state', text: /No share links yet/i },
+    ],
+  },
+  {
+    path: '/share/e2e-missing-token',
+    label: 'invalid share token',
+    heading: 'Share Link Not Found',
+    text: /This share link does not exist or has been deleted/i,
+    allowedConsoleErrors: [
+      'Failed to load resource: the server responded with a status of 404 (Not Found)',
+    ],
+    affordances: [
+      { label: 'retry share token action', role: 'button', name: /Try Again/i },
+      { label: 'go home action', role: 'button', name: /Go Home/i },
+    ],
+  },
+  {
     path: '/settings#vault',
     label: 'settings vault hash',
     pageTitle: 'Settings',
@@ -382,9 +404,15 @@ const routeProofByPath = new Map(
 const appShellRoutePaths = new Set(
   appShellRouteManifest.primaryRoutes.map((route) => route.path),
 );
+const recoveryRoutePaths = new Set(
+  appShellRouteManifest.recoveryRoutes.map((route) => route.path),
+);
 
 for (const proof of routeProofs) {
-  if (!appShellRoutePaths.has(proof.path)) {
+  if (
+    !appShellRoutePaths.has(proof.path) &&
+    !recoveryRoutePaths.has(proof.path)
+  ) {
     throw new Error(
       `Route proof ${proof.path} is not registered in app-shell-route-manifest.json`,
     );
@@ -406,11 +434,39 @@ const primaryRoutes: readonly RouteProof[] =
     }
     return proof;
   });
+const recoveryRoutes: readonly RouteProof[] =
+  appShellRouteManifest.recoveryRoutes.map((manifestRoute) => {
+    const proof = routeProofByPath.get(manifestRoute.path);
+    if (!proof) {
+      throw new Error(
+        `Missing browser route proof details for ${manifestRoute.path}`,
+      );
+    }
+    if (proof.label !== manifestRoute.label) {
+      throw new Error(
+        `Route proof label mismatch for ${manifestRoute.path}: manifest="${manifestRoute.label}" proof="${proof.label}"`,
+      );
+    }
+    return proof;
+  });
 
 const desktopDropdowns = appShellRouteManifest.desktopDropdowns;
 const mobileNavItems = appShellRouteManifest.mobileNavItems;
 
-function isBenignConsoleError(text: string): boolean {
+function matchesPattern(text: string, pattern: string | RegExp): boolean {
+  return typeof pattern === 'string'
+    ? text.includes(pattern)
+    : pattern.test(text);
+}
+
+function isBenignConsoleError(
+  text: string,
+  allowedErrors: readonly (string | RegExp)[] = [],
+): boolean {
+  if (allowedErrors.some((pattern) => matchesPattern(text, pattern))) {
+    return true;
+  }
+
   return [
     'favicon',
     'service-worker',
@@ -429,7 +485,10 @@ function isIgnoredRequestFailure(url: string, errorText: string): boolean {
   return false;
 }
 
-function installRouteMonitor(page: Page): RouteMonitor {
+function installRouteMonitor(
+  page: Page,
+  route: RouteProof | null = null,
+): RouteMonitor {
   const consoleErrors: string[] = [];
   const pageErrors: string[] = [];
   const failedRequests: string[] = [];
@@ -439,7 +498,7 @@ function installRouteMonitor(page: Page): RouteMonitor {
     if (message.type() !== 'error') return;
 
     const text = message.text();
-    if (!isBenignConsoleError(text)) {
+    if (!isBenignConsoleError(text, route?.allowedConsoleErrors)) {
       consoleErrors.push(text);
     }
   });
@@ -656,7 +715,24 @@ test.describe('App shell route proof @app-shell', () => {
 
   for (const route of primaryRoutes) {
     test(`${route.label} deep-links and survives refresh`, async ({ page }) => {
-      const monitor = installRouteMonitor(page);
+      const monitor = installRouteMonitor(page, route);
+
+      await page.goto(route.path, { waitUntil: 'domcontentloaded' });
+      await expectShellAndRoute(page, route);
+
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await expectShellAndRoute(page, route);
+
+      await page.waitForTimeout(250);
+      monitor.assertClean(route.label);
+    });
+  }
+
+  for (const route of recoveryRoutes) {
+    test(`${route.label} deep-links, explains recovery, and survives refresh`, async ({
+      page,
+    }) => {
+      const monitor = installRouteMonitor(page, route);
 
       await page.goto(route.path, { waitUntil: 'domcontentloaded' });
       await expectShellAndRoute(page, route);

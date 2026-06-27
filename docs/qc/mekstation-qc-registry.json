@@ -35,6 +35,7 @@
         "/multiplayer",
         "/audit/timeline",
         "/replay-library",
+        "/share",
         "/settings",
         "/settings#vault"
       ],
@@ -68,7 +69,8 @@
         "Archived OpenSpec change 2026-06-21-fix-navigation-and-playability-deadends retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23.",
         "2026-06-24 `npm.cmd run qc:validate` now resolves every QC registry route against `src/pages`, including dynamic and hash routes, so stale route names such as `/replays` and `/gameplay/[id]` fail before app-completion accounting.",
-        "2026-06-27 `e2e/app-shell-route-manifest.json` became the shared browser route-proof manifest; `npm.cmd run qc:validate` now fails when app-shell registry routes and the browser proof manifest drift, and `npm.cmd run verify:qc:app-shell` passed all 28 Chromium route/deep-link/refresh checks from that manifest."
+        "2026-06-27 `e2e/app-shell-route-manifest.json` became the shared browser route-proof manifest; `npm.cmd run qc:validate` now fails when app-shell registry routes and the browser proof manifest drift, and the original manifest-backed proof passed 28 Chromium route/deep-link/refresh checks.",
+        "2026-06-27 Wave 1 route coverage now classifies every non-API Next.js page as primary app-shell, generated-state delegated, recovery, known route gap, or development/test harness so public routes, dynamic routes, and `/e2e/*` harnesses cannot drift without `qc:validate` failing. Current proof: `npm.cmd run qc:validate` passed with 0 errors / 0 warnings, and `npm.cmd run verify:qc:app-shell` passed 30 Chromium checks including `/share`, invalid share-token recovery, desktop dropdowns, and mobile bottom navigation."
       ],
       "gaps": [
         "Generated-ID active-session recovery is intentionally covered by campaign, combat continuity, and replay recovery surfaces; app-shell scope is route identity, refresh, deep-link, empty/error states, and route-name manifest validation."
