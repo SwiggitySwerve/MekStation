@@ -1,6 +1,3 @@
-import * as fs from 'fs';
-import * as path from 'path';
-
 import type { UnitData } from './validate-bv-types';
 
 import {
@@ -12,8 +9,14 @@ import {
   resolveAmmoByPattern,
   normalizeWeaponKey,
 } from './validate-bv-ammo-resolution';
+import {
+  countCritHeatSinks,
+  detectCritArmorType,
+  detectCritGyroType,
+} from './validate-bv-crit-derived';
+import { countCritWeaponMounts } from './validate-bv-crit-weapon-mounts';
 import { CLAN_CHASSIS_MIXED_UNITS } from './validate-bv-known-units';
-import { normalizeCritName, toMechLoc } from './validate-bv-normalizers';
+import { toMechLoc } from './validate-bv-normalizers';
 import { classifyPhysicalWeapon } from './validate-bv-physical-weapons';
 import { resolveWeaponForUnit } from './validate-bv-weapon-resolution';
 
@@ -91,75 +94,6 @@ export interface CritScan {
   riscLPMLocs: string[];
 }
 
-let _weaponSlotCache: Map<string, number> | null = null;
-function getWeaponSlotCounts(): Map<string, number> {
-  if (_weaponSlotCache) return _weaponSlotCache;
-  _weaponSlotCache = new Map();
-  // Load weapon catalogs data-driven from index.json
-  let catalogs: string[] = [];
-  try {
-    const idx = JSON.parse(
-      fs.readFileSync(
-        path.resolve(
-          process.cwd(),
-          'public/data/equipment/official/index.json',
-        ),
-        'utf-8',
-      ),
-    );
-    if (idx?.files?.weapons && typeof idx.files.weapons === 'object') {
-      catalogs = (Object.values(idx.files.weapons) as string[]).map(
-        (f) => '../' + f,
-      );
-    }
-  } catch {
-    /* fallback */
-  }
-  if (catalogs.length === 0)
-    catalogs = [
-      'energy-laser.json',
-      'energy-ppc.json',
-      'energy-other.json',
-      'ballistic-autocannon.json',
-      'ballistic-gauss.json',
-      'ballistic-machinegun.json',
-      'ballistic-other.json',
-      'missile-atm.json',
-      'missile-lrm.json',
-      'missile-mrm.json',
-      'missile-other.json',
-      'missile-srm.json',
-      'physical.json',
-    ];
-  for (const cat of catalogs) {
-    try {
-      const d = JSON.parse(
-        fs.readFileSync(
-          path.resolve(
-            process.cwd(),
-            'public/data/equipment/official/weapons/' + cat,
-          ),
-          'utf-8',
-        ),
-      );
-      for (const item of d.items || []) {
-        if (item.criticalSlots && item.criticalSlots > 0) {
-          const norm = item.id.toLowerCase().replace(/[^a-z0-9]/g, '');
-          _weaponSlotCache.set(norm, item.criticalSlots);
-          const clanNorm = ('clan' + item.id)
-            .toLowerCase()
-            .replace(/[^a-z0-9]/g, '');
-          if (!_weaponSlotCache.has(clanNorm))
-            _weaponSlotCache.set(clanNorm, item.criticalSlots);
-        }
-      }
-    } catch {
-      /* ignore */
-    }
-  }
-  return _weaponSlotCache;
-}
-
 export function scanCrits(unit: UnitData, unitId?: string): CritScan {
   const r: CritScan = {
     hasTC: false,
@@ -228,7 +162,6 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
     riscLPMLocs: [],
   };
   if (!unit.criticalSlots) return r;
-  const rearSlotsByLoc = new Map<string, Map<string, number>>();
 
   for (const [loc, slots] of Object.entries(unit.criticalSlots)) {
     const ml = toMechLoc(loc);
@@ -983,240 +916,19 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
     .flat()
     .filter((s): s is string => !!s && typeof s === 'string');
   const allSlotsLo = allSlots.map((s) => s.toLowerCase());
-  if (allSlotsLo.some((s) => s.includes('ferro-lamellor')))
-    r.detectedArmorType = 'ferro-lamellor';
-  else if (
-    allSlotsLo.some(
-      (s) =>
-        s.includes('ballistic-reinforced') ||
-        s.includes('ballistic reinforced'),
-    )
-  )
-    r.detectedArmorType = 'ballistic-reinforced';
-  else if (
-    allSlotsLo.some((s) => s.includes('reactive') && !s.includes('ferro'))
-  )
-    r.detectedArmorType = 'reactive';
-  else if (
-    allSlotsLo.some(
-      (s) =>
-        (s.includes('reflective') || s.includes('laser-reflective')) &&
-        !s.includes('ferro'),
-    )
-  )
-    r.detectedArmorType = 'reflective';
-  else if (
-    allSlotsLo.some(
-      (s) => s.includes('hardened armor') || s.includes('is hardened'),
-    )
-  )
-    r.detectedArmorType = 'hardened';
-  else if (
-    allSlotsLo.some(
-      (s) => s.includes('anti-penetrative') || s.includes('ablation'),
-    )
-  )
-    r.detectedArmorType = 'anti-penetrative';
-  else if (allSlotsLo.some((s) => s.includes('heat-dissipating')))
-    r.detectedArmorType = 'heat-dissipating';
+  r.detectedArmorType = detectCritArmorType(allSlotsLo);
+  r.detectedGyroType = detectCritGyroType(unit);
 
-  // Detect gyro type from CT crit slot count: Standard/HD=4, XL=6, Compact=2, None=0
-  const ctSlots =
-    unit.criticalSlots['CENTER_TORSO'] || unit.criticalSlots['CT'] || [];
-  const gyroSlotCount = (ctSlots as string[]).filter(
-    (s: string) =>
-      s && typeof s === 'string' && s.toLowerCase().includes('gyro'),
-  ).length;
-  if (gyroSlotCount === 6) r.detectedGyroType = 'xl';
-  else if (gyroSlotCount === 2) r.detectedGyroType = 'compact';
-  // Note: HD gyro also has 4 slots like Standard, so we can't distinguish them by crit count alone.
-  // HD gyro detection is done via KNOWN_HD_GYRO_UNITS set in calculateUnitBV.
+  const { rearWeaponCountByLoc, turretWeaponCountByLoc } =
+    countCritWeaponMounts(unit);
+  r.rearWeaponCountByLoc = rearWeaponCountByLoc;
+  r.turretWeaponCountByLoc = turretWeaponCountByLoc;
 
-  // Count rear weapons per location using (R) crit slots and weapon slot sizes
-  const weaponSlotCounts = getWeaponSlotCounts();
-  for (const [loc, slots] of Object.entries(unit.criticalSlots || {})) {
-    if (!Array.isArray(slots)) continue;
-    const locKey = loc.toUpperCase();
-    let prevRearNorm: string | null = null;
-    let runLength = 0;
-
-    const flushRun = () => {
-      if (prevRearNorm && runLength > 0) {
-        const slotsPerWeapon = weaponSlotCounts.get(prevRearNorm) ?? 1;
-        const weaponCount = Math.max(1, Math.round(runLength / slotsPerWeapon));
-        if (!rearSlotsByLoc.has(locKey)) rearSlotsByLoc.set(locKey, new Map());
-        const locMap = rearSlotsByLoc.get(locKey)!;
-        locMap.set(prevRearNorm, (locMap.get(prevRearNorm) ?? 0) + weaponCount);
-      }
-    };
-
-    for (const slot of slots) {
-      if (!slot || typeof slot !== 'string') {
-        flushRun();
-        prevRearNorm = null;
-        runLength = 0;
-        continue;
-      }
-      const slotClean = slot.replace(/\s*\(omnipod\)/gi, '').trim();
-      const slotLo = slotClean.toLowerCase();
-      if (
-        !/\(R\)/i.test(slotClean) ||
-        slotLo.includes('ammo') ||
-        slotLo.includes('heat sink') ||
-        slotLo.includes('engine') ||
-        slotLo.includes('gyro') ||
-        slotLo.includes('case') ||
-        slotLo.includes('lift hoist')
-      ) {
-        flushRun();
-        prevRearNorm = null;
-        runLength = 0;
-        continue;
-      }
-      const weapNorm = normalizeCritName(slotClean);
-      if (weapNorm === prevRearNorm) {
-        runLength++;
-      } else {
-        flushRun();
-        prevRearNorm = weapNorm;
-        runLength = 1;
-      }
-    }
-    flushRun();
-  }
-  r.rearWeaponCountByLoc = rearSlotsByLoc;
-
-  // Count turret weapons per location using (T) crit slots — same pattern as rear weapons
-  // MegaMek: turret-mounted weapons are excluded from determineFront and never penalized as rear
-  const turretSlotsByLoc = new Map<string, Map<string, number>>();
-  for (const [loc, slots] of Object.entries(unit.criticalSlots || {})) {
-    if (!Array.isArray(slots)) continue;
-    const locKey = loc.toUpperCase();
-    let prevTurretNorm: string | null = null;
-    let tRunLength = 0;
-
-    const flushTurretRun = () => {
-      if (prevTurretNorm && tRunLength > 0) {
-        const slotsPerWeapon = weaponSlotCounts.get(prevTurretNorm) ?? 1;
-        const weaponCount = Math.max(
-          1,
-          Math.round(tRunLength / slotsPerWeapon),
-        );
-        if (!turretSlotsByLoc.has(locKey))
-          turretSlotsByLoc.set(locKey, new Map());
-        const locMap = turretSlotsByLoc.get(locKey)!;
-        locMap.set(
-          prevTurretNorm,
-          (locMap.get(prevTurretNorm) ?? 0) + weaponCount,
-        );
-      }
-    };
-
-    for (const slot of slots) {
-      if (!slot || typeof slot !== 'string') {
-        flushTurretRun();
-        prevTurretNorm = null;
-        tRunLength = 0;
-        continue;
-      }
-      const slotClean = slot.replace(/\s*\(omnipod\)/gi, '').trim();
-      const slotLo = slotClean.toLowerCase();
-      if (
-        !/\(T\)/i.test(slotClean) ||
-        slotLo.includes('ammo') ||
-        slotLo.includes('heat sink') ||
-        slotLo.includes('engine') ||
-        slotLo.includes('gyro') ||
-        slotLo.includes('case')
-      ) {
-        flushTurretRun();
-        prevTurretNorm = null;
-        tRunLength = 0;
-        continue;
-      }
-      const weapNorm = normalizeCritName(slotClean);
-      if (weapNorm === prevTurretNorm) {
-        tRunLength++;
-      } else {
-        flushTurretRun();
-        prevTurretNorm = weapNorm;
-        tRunLength = 1;
-      }
-    }
-    flushTurretRun();
-  }
-  r.turretWeaponCountByLoc = turretSlotsByLoc;
-
-  // Count DHS from crit slots — OmniMech pod-mounted DHS may not be reflected in heatSinks.count
-  // Also track prototype DHS separately (they dissipate 2 heat each but unit.heatSinks.type may be "SINGLE")
-  {
-    let dhsCritSlots = 0;
-    let protoDHSCritSlots = 0;
-    const isClanTech = unit.techBase === 'CLAN';
-    for (const [, slots] of Object.entries(unit.criticalSlots)) {
-      if (!Array.isArray(slots)) continue;
-      for (const s of slots) {
-        if (!s || typeof s !== 'string') continue;
-        const lo = s
-          .replace(/\s*\(omnipod\)/gi, '')
-          .trim()
-          .toLowerCase();
-        const isProto =
-          lo === 'isdoubleheatsinkprototype' ||
-          lo === 'cldoubleheatsinkprototype' ||
-          lo === 'freezers' ||
-          lo === 'isdoubleheatsinkfreezer' ||
-          lo.includes('double heat sink prototype') ||
-          lo.includes('double heat sink (freezer');
-        if (
-          isProto ||
-          lo.includes('double heat sink') ||
-          lo === 'isdoubleheatsink' ||
-          lo === 'cldoubleheatsink'
-        ) {
-          dhsCritSlots++;
-          if (isProto) protoDHSCritSlots++;
-        }
-      }
-    }
-    let slotsPerDHS = 3; // IS default
-    if (isClanTech) {
-      slotsPerDHS = 2;
-    } else if (unit.techBase === 'MIXED') {
-      const hasClanDHS = Object.values(unit.criticalSlots).some(
-        (slots) =>
-          Array.isArray(slots) &&
-          slots.some(
-            (s) =>
-              s &&
-              typeof s === 'string' &&
-              (s.startsWith('CLDouble') || s.includes('Clan Double Heat Sink')),
-          ),
-      );
-      if (hasClanDHS) slotsPerDHS = 2;
-    }
-    r.critDHSCount = Math.round(dhsCritSlots / slotsPerDHS);
-    // Prototype DHS are always IS (3 crit slots each)
-    r.critProtoDHSCount = Math.round(protoDHSCritSlots / 3);
-
-    // Count Laser Heat Sinks (2 crit slots each, Clan, F_DOUBLE_HEAT_SINK in MegaMek)
-    let laserHSCritSlots = 0;
-    for (const [, lhsSlots] of Object.entries(unit.criticalSlots)) {
-      if (!Array.isArray(lhsSlots)) continue;
-      for (const s of lhsSlots) {
-        if (!s || typeof s !== 'string') continue;
-        if (
-          s
-            .toLowerCase()
-            .replace(/\s*\(omnipod\)/gi, '')
-            .trim()
-            .includes('laser heat sink')
-        )
-          laserHSCritSlots++;
-      }
-    }
-    r.critLaserHSCount = Math.round(laserHSCritSlots / 2);
-  }
+  const { critDHSCount, critProtoDHSCount, critLaserHSCount } =
+    countCritHeatSinks(unit);
+  r.critDHSCount = critDHSCount;
+  r.critProtoDHSCount = critProtoDHSCount;
+  r.critLaserHSCount = critLaserHSCount;
 
   // Clan mechs have built-in CASE in all non-head locations (torsos, arms, legs, CT).
   // Per MegaMek: Mek.addClanCase() auto-adds explicit CASE equipment to every location
