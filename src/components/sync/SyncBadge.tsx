@@ -7,7 +7,7 @@
  */
 import React, { useState, useCallback } from 'react';
 
-import { SyncState } from '@/lib/p2p';
+import { SyncState } from '@/lib/p2p/types';
 
 // =============================================================================
 // Types

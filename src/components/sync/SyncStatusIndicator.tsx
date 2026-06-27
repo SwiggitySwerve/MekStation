@@ -7,7 +7,7 @@
  */
 import React from 'react';
 
-import { ConnectionState } from '@/lib/p2p';
+import { ConnectionState } from '@/lib/p2p/types';
 
 // =============================================================================
 // Types

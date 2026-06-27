@@ -6,7 +6,7 @@
  */
 import React from 'react';
 
-import type { IPeer } from '@/lib/p2p';
+import type { IPeer } from '@/lib/p2p/types';
 
 // =============================================================================
 // Types

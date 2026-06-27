@@ -5,6 +5,8 @@ const e2eBaseURL = `http://localhost:${e2ePort}`;
 const e2eRunId =
   process.env.PLAYWRIGHT_E2E_RUN_ID ?? `pw-${process.pid}-${Date.now()}`;
 process.env.PLAYWRIGHT_E2E_RUN_ID = e2eRunId;
+process.env.BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA ??= 'true';
+process.env.BROWSERSLIST_IGNORE_OLD_DATA ??= 'true';
 const e2eReadyURL = `${e2eBaseURL}/__playwright_e2e_ready__?runId=${encodeURIComponent(
   e2eRunId,
 )}`;
@@ -145,6 +147,8 @@ export default defineConfig({
     env: {
       NEXT_PUBLIC_E2E_MODE: 'true',
       PLAYWRIGHT_E2E_RUN_ID: e2eRunId,
+      BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA: 'true',
+      BROWSERSLIST_IGNORE_OLD_DATA: 'true',
       // The custom WebSocket runtime is loaded through the dev server while
       // Pages API routes are loaded by Next. A per-run durable store gives
       // E2E the production storage boundary and avoids split in-memory match

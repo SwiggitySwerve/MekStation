@@ -157,7 +157,7 @@ for (const platform of PLATFORMS) {
     // signAndEditExecutable: false should prevent winCodeSign download
     const packCommand =
       platform === 'win'
-        ? `npx electron-builder --win --dir ${OUTPUT_FLAG} --config.win.sign=false --config.win.signAndEditExecutable=false`
+        ? `npx electron-builder --win --x64 --dir ${OUTPUT_FLAG} --config.win.sign=false --config.win.signAndEditExecutable=false`
         : platform === 'mac'
           ? `npx electron-builder --mac --dir ${OUTPUT_FLAG} --config.mac.sign=false`
           : `npx electron-builder --linux --dir ${OUTPUT_FLAG}`;
@@ -173,8 +173,6 @@ for (const platform of PLATFORMS) {
         CSC_IDENTITY_AUTO_DISCOVERY: 'false',
         // Skip code signing completely
         SKIP_NOTARIZATION: 'true',
-        // Override platform for testing
-        ...(platform === 'win' && { npm_config_target_arch: 'x64' }),
         ELECTRON_BUILDER_CACHE: path.join(desktopDir, '.electron-cache'),
       },
     });

@@ -35,7 +35,7 @@ import {
 } from '@/components/gameplay/pages/PreBattlePage.sections';
 import { useToast } from '@/components/shared/Toast';
 import { PageLayout } from '@/components/ui';
-import { useSyncRoomSelector } from '@/lib/p2p';
+import { useSyncRoomSelector } from '@/lib/p2p/useSyncRoomStore';
 import { useEncounterSelector } from '@/stores/useEncounterStore';
 import { useForceSelector } from '@/stores/useForceStore';
 import { useGameplaySelector } from '@/stores/useGameplayStore';

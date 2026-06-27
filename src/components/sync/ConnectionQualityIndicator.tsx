@@ -6,7 +6,7 @@
  */
 import React, { useState, useEffect } from 'react';
 
-import { ConnectionState, getRetryState } from '@/lib/p2p';
+import { ConnectionState } from '@/lib/p2p/types';
 
 // =============================================================================
 // Types
@@ -36,6 +36,23 @@ interface QualityInfo {
   color: string;
   bgColor: string;
   bars: number; // 0-4
+}
+
+interface RetryState {
+  readonly isRetrying: boolean;
+  readonly attempts: number;
+  readonly maxAttempts: number;
+}
+
+const disconnectedRetryState: RetryState = {
+  isRetrying: false,
+  attempts: 0,
+  maxAttempts: 5,
+};
+
+async function readRetryState(): Promise<RetryState> {
+  const { getRetryState } = await import('@/lib/p2p/SyncProvider');
+  return getRetryState();
 }
 
 // =============================================================================
@@ -153,19 +170,25 @@ export function ConnectionQualityIndicator({
   showDetails = true,
   className = '',
 }: ConnectionQualityIndicatorProps): React.ReactElement {
-  const [retryState, setRetryState] = useState(getRetryState());
+  const [retryState, setRetryState] = useState(disconnectedRetryState);
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Poll retry state when connecting or in error
   useEffect(() => {
-    if (connectionState !== ConnectionState.Connected) {
+    if (
+      connectionState === ConnectionState.Connecting ||
+      connectionState === ConnectionState.Error
+    ) {
       const interval = setInterval(() => {
-        setRetryState(getRetryState());
+        void readRetryState()
+          .then(setRetryState)
+          .catch(() => {
+            setRetryState(disconnectedRetryState);
+          });
       }, 1000);
       return () => clearInterval(interval);
     }
-    // Reset when connected
-    setRetryState({ isRetrying: false, attempts: 0, maxAttempts: 5 });
+    setRetryState(disconnectedRetryState);
   }, [connectionState]);
 
   const qualityInfo = assessQuality(

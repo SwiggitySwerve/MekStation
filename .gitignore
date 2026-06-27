@@ -42,6 +42,10 @@ scripts/**
 !scripts/maintenance/scan-maintenance.mjs
 !scripts/jest/
 !scripts/jest/run-jest-lane.mjs
+!scripts/lib/
+!scripts/lib/**
+!scripts/next/
+!scripts/next/**
 !scripts/qc/
 !scripts/qc/**
 !scripts/__tests__/

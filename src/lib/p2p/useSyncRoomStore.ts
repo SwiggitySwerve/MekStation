@@ -12,15 +12,6 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 
 import { isValidRoomCode, normalizeRoomCode } from './roomCodes';
 import {
-  createSyncRoom,
-  joinSyncRoom,
-  leaveCurrentRoom,
-  getActiveRoom,
-  getLocalPeerId,
-  setLocalAwareness,
-  onSyncEvent,
-} from './SyncProvider';
-import {
   ISyncRoomState,
   ISyncRoomActions,
   ConnectionState,
@@ -33,6 +24,14 @@ import {
 // =============================================================================
 
 type SyncRoomStore = ISyncRoomState & ISyncRoomActions;
+type SyncProviderModule = typeof import('./SyncProvider');
+
+let syncProviderPromise: Promise<SyncProviderModule> | null = null;
+
+function loadSyncProvider(): Promise<SyncProviderModule> {
+  syncProviderPromise ??= import('./SyncProvider');
+  return syncProviderPromise;
+}
 
 // =============================================================================
 // Store Implementation
@@ -41,47 +40,57 @@ type SyncRoomStore = ISyncRoomState & ISyncRoomActions;
 export const useSyncRoomStore = create<SyncRoomStore>()(
   persist(
     (set, get) => {
-      // Subscribe to sync events
-      onSyncEvent((event) => {
-        switch (event.type) {
-          case 'connected':
-            set({
-              connectionState: ConnectionState.Connected,
-              localPeerId: getLocalPeerId(),
-            });
-            // Update awareness with local name
-            setLocalAwareness({ name: get().localPeerName });
-            break;
+      let syncEventsSubscribed = false;
 
-          case 'disconnected':
-            set({
-              activeRoom: null,
-              connectionState: ConnectionState.Disconnected,
-              peers: [],
-              localPeerId: null,
-            });
-            break;
-
-          case 'peer-joined':
-            set((state) => ({
-              peers: [...state.peers, event.peer],
-            }));
-            break;
-
-          case 'peer-left':
-            set((state) => ({
-              peers: state.peers.filter((p) => p.id !== event.peerId),
-            }));
-            break;
-
-          case 'error':
-            set({
-              connectionState: ConnectionState.Error,
-              error: event.message,
-            });
-            break;
+      async function ensureSyncProvider(): Promise<SyncProviderModule> {
+        const syncProvider = await loadSyncProvider();
+        if (syncEventsSubscribed) {
+          return syncProvider;
         }
-      });
+
+        syncEventsSubscribed = true;
+        syncProvider.onSyncEvent((event) => {
+          switch (event.type) {
+            case 'connected':
+              set({
+                connectionState: ConnectionState.Connected,
+                localPeerId: syncProvider.getLocalPeerId(),
+              });
+              // Update awareness with local name
+              syncProvider.setLocalAwareness({ name: get().localPeerName });
+              break;
+
+            case 'disconnected':
+              set({
+                activeRoom: null,
+                connectionState: ConnectionState.Disconnected,
+                peers: [],
+                localPeerId: null,
+              });
+              break;
+
+            case 'peer-joined':
+              set((state) => ({
+                peers: [...state.peers, event.peer],
+              }));
+              break;
+
+            case 'peer-left':
+              set((state) => ({
+                peers: state.peers.filter((p) => p.id !== event.peerId),
+              }));
+              break;
+
+            case 'error':
+              set({
+                connectionState: ConnectionState.Error,
+                error: event.message,
+              });
+              break;
+          }
+        });
+        return syncProvider;
+      }
 
       return {
         // State
@@ -97,12 +106,13 @@ export const useSyncRoomStore = create<SyncRoomStore>()(
           try {
             set({ connectionState: ConnectionState.Connecting, error: null });
 
-            const room = createSyncRoom(options);
+            const syncProvider = await ensureSyncProvider();
+            const room = syncProvider.createSyncRoom(options);
 
             set({
               activeRoom: room,
               connectionState: ConnectionState.Connecting,
-              localPeerId: getLocalPeerId(),
+              localPeerId: syncProvider.getLocalPeerId(),
             });
 
             return room.roomCode;
@@ -127,12 +137,13 @@ export const useSyncRoomStore = create<SyncRoomStore>()(
           try {
             set({ connectionState: ConnectionState.Connecting, error: null });
 
-            const room = joinSyncRoom(normalized, password);
+            const syncProvider = await ensureSyncProvider();
+            const room = syncProvider.joinSyncRoom(normalized, password);
 
             set({
               activeRoom: room,
               connectionState: ConnectionState.Connecting,
-              localPeerId: getLocalPeerId(),
+              localPeerId: syncProvider.getLocalPeerId(),
             });
           } catch (error) {
             const message =
@@ -146,7 +157,19 @@ export const useSyncRoomStore = create<SyncRoomStore>()(
         },
 
         leaveRoom: () => {
-          leaveCurrentRoom();
+          if (get().activeRoom) {
+            void ensureSyncProvider()
+              .then((syncProvider) => syncProvider.leaveCurrentRoom())
+              .catch((error: unknown) => {
+                set({
+                  connectionState: ConnectionState.Error,
+                  error:
+                    error instanceof Error
+                      ? error.message
+                      : 'Failed to leave room',
+                });
+              });
+          }
           set({
             activeRoom: null,
             connectionState: ConnectionState.Disconnected,
@@ -158,8 +181,18 @@ export const useSyncRoomStore = create<SyncRoomStore>()(
         setLocalPeerName: (name: string) => {
           set({ localPeerName: name });
           // Update awareness if connected
-          if (getActiveRoom()) {
-            setLocalAwareness({ name });
+          if (get().activeRoom) {
+            void ensureSyncProvider()
+              .then((syncProvider) => syncProvider.setLocalAwareness({ name }))
+              .catch((error: unknown) => {
+                set({
+                  connectionState: ConnectionState.Error,
+                  error:
+                    error instanceof Error
+                      ? error.message
+                      : 'Failed to update local awareness',
+                });
+              });
           }
         },
 

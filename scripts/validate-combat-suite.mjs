@@ -1,5 +1,7 @@
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
+
+import { pipeFilteredOutput } from './lib/known-validation-output.mjs';
 
 const CHANGE_ID = 'add-battlemech-combat-validation-suite';
 const CHANGE_PATH = `openspec/changes/${CHANGE_ID}`;
@@ -92,28 +94,47 @@ function run(label, command, args, options = {}) {
   console.log(`\n[combat-validation] ${label}`);
 
   const useShell = options.shellOnWindows && process.platform === 'win32';
-  const result = spawnSync(command, args, {
+  const child = spawn(command, args, {
+    env: {
+      ...process.env,
+      BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA: 'true',
+      BROWSERSLIST_IGNORE_OLD_DATA: 'true',
+    },
     shell: useShell,
-    stdio: 'inherit',
+    stdio: ['inherit', 'pipe', 'pipe'],
   });
 
-  if (result.error) {
-    console.error(result.error);
-    process.exit(1);
-  }
+  pipeFilteredOutput(child.stdout, process.stdout);
+  pipeFilteredOutput(child.stderr, process.stderr);
 
-  if (result.status !== 0) {
-    process.exit(result.status ?? 1);
-  }
+  return new Promise((resolve) => {
+    child.on('error', (error) => {
+      console.error(error);
+      process.exit(1);
+    });
+
+    child.on('exit', (code, signal) => {
+      if (signal) {
+        process.kill(process.pid, signal);
+        return;
+      }
+
+      if (code !== 0) {
+        process.exit(code ?? 1);
+      }
+
+      resolve();
+    });
+  });
 }
 
-run('Jest catalog and behavior coverage', process.execPath, [
+await run('Jest catalog and behavior coverage', process.execPath, [
   'node_modules/jest/bin/jest.js',
   '--runTestsByPath',
   ...COMBAT_VALIDATION_TESTS,
 ]);
 
-run(
+await run(
   'Assert unresolved gap inventory baseline',
   'npx',
   [
@@ -133,7 +154,7 @@ run(
   { shellOnWindows: true },
 );
 
-run(
+await run(
   'Assert exact unresolved leaf gap refs',
   'npx',
   [
@@ -206,7 +227,7 @@ run(
   { shellOnWindows: true },
 );
 
-run(
+await run(
   'Assert explicit non-BattleMech out-of-scope split',
   'npx',
   [
@@ -248,7 +269,7 @@ run(
   { shellOnWindows: true },
 );
 
-run(
+await run(
   'Assert reviewer-readable unresolved leaf gap report',
   'npx',
   [
@@ -317,14 +338,14 @@ run(
 );
 
 if (existsSync(CHANGE_PATH)) {
-  run(
+  await run(
     'OpenSpec strict validation',
     'npx',
     [...OPENSPEC_NPX_ARGS, 'validate', CHANGE_ID, '--strict'],
     { shellOnWindows: true },
   );
 } else {
-  run(
+  await run(
     'OpenSpec strict validation',
     'npx',
     [...OPENSPEC_NPX_ARGS, 'validate', SPEC_ID, '--type', 'spec', '--strict'],

@@ -57,17 +57,17 @@ export function MobileMenu({
         </span>
       </div>
       {items.map((item) => (
-        <Link key={item.href} href={item.href} legacyBehavior>
-          <a
-            className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors duration-150 ${
-              isPathActive(item.href)
-                ? 'text-accent bg-accent/10'
-                : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
-            } `}
-          >
-            <span className="h-5 w-5 flex-shrink-0">{item.icon}</span>
-            <span>{item.label}</span>
-          </a>
+        <Link
+          key={item.href}
+          href={item.href}
+          className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors duration-150 ${
+            isPathActive(item.href)
+              ? 'text-accent bg-accent/10'
+              : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
+          } `}
+        >
+          <span className="h-5 w-5 flex-shrink-0">{item.icon}</span>
+          <span>{item.label}</span>
         </Link>
       ))}
     </div>
@@ -107,19 +107,18 @@ export function MobileMenu({
         </div>
 
         <nav className="flex-1 overflow-y-auto py-2">
-          <Link href="/" legacyBehavior>
-            <a
-              className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors duration-150 ${
-                isPathActive('/')
-                  ? 'text-accent bg-accent/10'
-                  : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
-              } `}
-            >
-              <span className="h-5 w-5">
-                <HomeIcon />
-              </span>
-              <span>Dashboard</span>
-            </a>
+          <Link
+            href="/"
+            className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors duration-150 ${
+              isPathActive('/')
+                ? 'text-accent bg-accent/10'
+                : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
+            } `}
+          >
+            <span className="h-5 w-5">
+              <HomeIcon />
+            </span>
+            <span>Dashboard</span>
           </Link>
 
           <div className="border-border-theme-subtle mx-4 my-2 border-t" />
@@ -140,19 +139,18 @@ export function MobileMenu({
 
           <div className="border-border-theme-subtle mx-4 my-2 border-t" />
 
-          <Link href="/settings" legacyBehavior>
-            <a
-              className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors duration-150 ${
-                isPathActive('/settings')
-                  ? 'text-accent bg-accent/10'
-                  : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
-              } `}
-            >
-              <span className="h-5 w-5">
-                <GearIcon />
-              </span>
-              <span>Settings</span>
-            </a>
+          <Link
+            href="/settings"
+            className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors duration-150 ${
+              isPathActive('/settings')
+                ? 'text-accent bg-accent/10'
+                : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
+            } `}
+          >
+            <span className="h-5 w-5">
+              <GearIcon />
+            </span>
+            <span>Settings</span>
           </Link>
         </nav>
 
