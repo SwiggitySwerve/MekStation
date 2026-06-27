@@ -80,7 +80,7 @@
       "parentId": null,
       "riskTags": ["source-truth", "data-integrity", "catalog-drift"],
       "qualityLenses": ["functionality", "rules-parity", "data-quality"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "routes": ["/compendium"],
       "apis": [],
       "desktopSurfaces": [],
@@ -99,21 +99,21 @@
       "activeChangeRefs": [],
       "tests": ["src/engine/__tests__", "src/services/**/__tests__"],
       "commands": [
+        "npm.cmd run qc:wave4:family-data:validate",
         "npm.cmd run validate:assets:strict",
         "npm.cmd run schema:gen-check",
         "npm.cmd run qc:wave4:validate"
       ],
-      "manualChecks": [
-        "Inspect representative BattleMech, vehicle, aerospace, battle armor, infantry, and ProtoMech records"
-      ],
+      "manualChecks": [],
       "evidence": [
         "docs/audits/2026-05-22-combat-validation-source-truth.md",
         "2026-06-23 Chromium browser smoke passed `npx.cmd playwright test --project=chromium e2e/compendium.spec.ts e2e/customizer.spec.ts e2e/campaign-flow.spec.ts e2e/playtest-coop-route-smoke.spec.ts e2e/replay-player.spec.ts --grep \"@smoke|timeline page loads|game replay page shows error|refresh button\"`: compendium hub, units, equipment, rules links, search/filter, and quick-reference checks passed.",
         "2026-06-24 Wave 4 validator requires asset/schema validators and representative family review scope to keep compendium data proof separated from non-BattleMech runtime support claims.",
+        "2026-06-27 representative family data gate covers BattleMech, vehicle/VTOL, aerospace, battle armor, infantry, and ProtoMech catalog/handler/browser/customizer anchors with `qc:wave4:family-data:validate`, replacing the prior human-only family inspection checkpoint.",
         "Archived OpenSpec change 2026-06-21-reconcile-spec-source-of-truth retired from activeChangeRefs on 2026-06-23."
       ],
       "gaps": [
-        "Non-BattleMech systems need separate matrices where BattleMech combat validation excludes them."
+        "Non-BattleMech combat runtime support remains matrix-scoped separately; this surface covers data/catalog/customizer visibility, not runtime combat parity."
       ]
     },
     {
@@ -123,7 +123,7 @@
       "parentId": null,
       "riskTags": ["bv-parity", "source-truth", "user-workflow"],
       "qualityLenses": ["functionality", "usability", "rules-parity"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "routes": ["/customizer"],
       "apis": [],
       "desktopSurfaces": ["desktop export/open flows"],
@@ -148,6 +148,7 @@
         "scripts/__tests__"
       ],
       "commands": [
+        "npm.cmd run qc:wave4:family-data:validate",
         "npm.cmd run validate:bv",
         "npm.cmd run validate:vehicle",
         "npm.cmd run validate:aerospace",
@@ -156,18 +157,17 @@
         "npm.cmd run validate:infantry",
         "npm.cmd run qc:wave4:validate"
       ],
-      "manualChecks": [
-        "Create and export one representative unit per supported family"
-      ],
+      "manualChecks": [],
       "evidence": [
         "docs/audits/2026-05-13-customizer-armor-megameklab-parity.md",
         "2026-06-23 Chromium browser smoke passed customizer navigation checks for aerospace and vehicle entry routes via the bounded Playwright smoke command; deeper representative family export remains tracked by the validator/manual lanes.",
         "2026-06-24 Wave 4 validator binds representative family BV/data validators into one checkpoint while keeping export and round-trip browser coverage as separate tracked work.",
+        "2026-06-27 representative family data gate requires each supported family to keep customizer descriptor routing, record-sheet/export builder anchors, family BV/catalog validators, handler coverage, and browser/customizer proof discoverable through `qc:wave4:family-data:validate`.",
         "Archived OpenSpec change 2026-06-20-restore-bv-parity-reproducibility retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-consolidate-equipment-and-hex-duplication retired from activeChangeRefs on 2026-06-23."
       ],
       "gaps": [
-        "BV reproducibility needs to stay tied to live reference assets instead of stale caches."
+        "Future export/import changes must keep family builders tied to live reference validators and record-sheet dispatch anchors instead of stale cached expectations."
       ]
     },
     {

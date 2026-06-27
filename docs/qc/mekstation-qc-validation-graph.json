@@ -387,7 +387,7 @@
       "id": "surface:compendium-unit-data",
       "kind": "surface",
       "label": "Compendium And Official Unit Data",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:compendium-unit-data:lifecycle",
@@ -433,7 +433,7 @@
       "id": "surface:customizer-construction-bv-export",
       "kind": "surface",
       "label": "Customizer, Construction, BV, Export",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:customizer-construction-bv-export:lifecycle",
@@ -1703,6 +1703,11 @@
       "kind": "evidence",
       "label": "Machine-readable Non-BattleMech combat scope matrix JSON",
       "entries": ["docs/qc/non-battlemech-combat-scope-matrix.json"]
+    },
+    {
+      "id": "command:npm-cmd-run-qc-wave4-family-data-validate",
+      "kind": "command",
+      "label": "npm.cmd run qc:wave4:family-data:validate"
     }
   ],
   "edges": [
@@ -4010,6 +4015,16 @@
       "from": "command:npm-cmd-run-qc-nonbattlemech-scope-validate",
       "to": "evidence:non-battlemech-combat-scope-matrix:matrix-json",
       "relation": "produces"
+    },
+    {
+      "from": "state:compendium-unit-data:lifecycle",
+      "to": "command:npm-cmd-run-qc-wave4-family-data-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "state:customizer-construction-bv-export:lifecycle",
+      "to": "command:npm-cmd-run-qc-wave4-family-data-validate",
+      "relation": "validated-by"
     }
   ]
 }

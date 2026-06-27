@@ -98,6 +98,13 @@
           "evidence": ["scripts/generate-zod-schemas.mjs"]
         },
         {
+          "id": "representative-family-data-gate",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run qc:wave4:family-data:validate",
+          "evidence": ["scripts/qc/validate-wave4-family-data-gate.mjs"]
+        },
+        {
           "id": "compendium-browser-flow",
           "tier": "standard",
           "required": true,
@@ -150,6 +157,13 @@
             "scripts/validate-proto-bv.ts",
             "scripts/validate-infantry-bv.ts"
           ]
+        },
+        {
+          "id": "representative-family-data-gate",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run qc:wave4:family-data:validate",
+          "evidence": ["scripts/qc/validate-wave4-family-data-gate.mjs"]
         },
         {
           "id": "customizer-browser-flow",

@@ -40,6 +40,7 @@ const requiredPackageScripts = [
   {
     id: 'verify:qc:wave4:customizer-data',
     tokens: [
+      'qc:wave4:family-data:validate',
       'validate:assets:strict',
       'schema:gen-check',
       'validate:bv',
@@ -49,6 +50,10 @@ const requiredPackageScripts = [
       'validate:proto',
       'validate:infantry',
     ],
+  },
+  {
+    id: 'qc:wave4:family-data:validate',
+    tokens: ['validate-wave4-family-data-gate.mjs'],
   },
   {
     id: 'verify:qc:wave4:nonbattlemech-scope',
@@ -95,6 +100,7 @@ const requiredSurfaces = [
   {
     id: 'customizer-construction-bv-export',
     commandIncludes: [
+      'qc:wave4:family-data:validate',
       'validate:bv',
       'validate:vehicle',
       'validate:aerospace',
@@ -103,25 +109,17 @@ const requiredSurfaces = [
       'validate:infantry',
       'qc:wave4:validate',
     ],
-    manualIncludes: ['representative unit per supported family'],
-    gapIncludes: ['live reference assets'],
+    gapIncludes: ['live reference validators'],
   },
   {
     id: 'compendium-unit-data',
     commandIncludes: [
+      'qc:wave4:family-data:validate',
       'validate:assets:strict',
       'schema:gen-check',
       'qc:wave4:validate',
     ],
-    manualIncludes: [
-      'BattleMech',
-      'vehicle',
-      'aerospace',
-      'battle armor',
-      'infantry',
-      'ProtoMech',
-    ],
-    gapIncludes: ['Non-BattleMech systems need separate matrices'],
+    gapIncludes: ['Non-BattleMech combat runtime support'],
   },
   {
     id: 'non-battlemech-combat-scope-matrix',
@@ -171,6 +169,20 @@ const requiredSurfaces = [
 ];
 
 const defaultSourceAnchors = [
+  {
+    id: 'representative-family-data-gate',
+    path: 'scripts/qc/validate-wave4-family-data-gate.mjs',
+    tokens: [
+      'familyContracts',
+      'battlemech',
+      'vehicle-vtol',
+      'aerospace',
+      'battle-armor',
+      'infantry',
+      'protomech',
+      'representative-family-data-gate',
+    ],
+  },
   {
     id: 'family-bv-validator-battlemech',
     path: 'scripts/validate-bv.ts',
