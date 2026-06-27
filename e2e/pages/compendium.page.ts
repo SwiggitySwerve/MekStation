@@ -64,7 +64,7 @@ export class CompendiumPage extends BasePage {
     await this.waitForPageLoad();
   }
 
-  async waitForPageLoad(): Promise<void> {
+  protected async waitForPageLoad(): Promise<void> {
     // Wait for page content to load - use heading as indicator
     await this.page
       .getByRole('heading', { name: /compendium/i })
@@ -75,39 +75,6 @@ export class CompendiumPage extends BasePage {
   async search(query: string): Promise<void> {
     const searchInput = this.page.getByPlaceholder(/search/i);
     await searchInput.fill(query);
-  }
-
-  async clearSearch(): Promise<void> {
-    const clearButton = this.page.getByRole('button', {
-      name: /clear search/i,
-    });
-    if (await clearButton.isVisible()) {
-      await clearButton.click();
-    }
-  }
-
-  async navigateToUnits(): Promise<void> {
-    await this.unitDatabaseCard.click();
-    // Wait for navigation to complete
-    await this.page.waitForURL(/\/compendium\/units/, { timeout: 10000 });
-  }
-
-  async navigateToEquipment(): Promise<void> {
-    await this.equipmentCatalogCard.click();
-    // Wait for navigation to complete
-    await this.page.waitForURL(/\/compendium\/equipment/, { timeout: 10000 });
-  }
-
-  async navigateToRuleSection(sectionId: string): Promise<void> {
-    // Find the card by its title text
-    const ruleCard = this.page
-      .locator('a')
-      .filter({ hasText: new RegExp(sectionId, 'i') })
-      .first();
-    await ruleCard.click();
-    await this.page.waitForURL(new RegExp(`/compendium/rules/${sectionId}`), {
-      timeout: 10000,
-    });
   }
 
   async getRuleSectionCount(): Promise<number> {
@@ -186,7 +153,7 @@ export class UnitBrowserPage extends BasePage {
     await this.waitForPageLoad();
   }
 
-  async waitForPageLoad(): Promise<void> {
+  protected async waitForPageLoad(): Promise<void> {
     // Wait for the page to load - use heading as indicator
     await this.page
       .getByRole('heading', { name: /unit database/i })
@@ -203,51 +170,18 @@ export class UnitBrowserPage extends BasePage {
   async openFilters(): Promise<void> {
     await this.filterButton.click();
   }
+}
 
-  async filterByUnitType(type: string): Promise<void> {
-    await this.openFilters();
-    await this.unitTypeFilter.selectOption({ label: type });
-  }
-
-  async filterByTechBase(techBase: string): Promise<void> {
-    await this.openFilters();
-    await this.techBaseFilter.selectOption({ label: techBase });
-  }
-
-  async filterByWeightClass(weightClass: string): Promise<void> {
-    await this.openFilters();
-    await this.weightClassFilter.selectOption({ label: weightClass });
-  }
-
-  async clearFilters(): Promise<void> {
-    if (await this.clearFiltersButton.isVisible()) {
-      await this.clearFiltersButton.click();
-    }
-  }
-
-  async setViewMode(mode: 'grid' | 'list' | 'table'): Promise<void> {
-    const button = this.page.getByRole('button', {
-      name: new RegExp(mode, 'i'),
-    });
-    await button.click();
-  }
-
+/**
+ * Read-only helpers for the unit browser page.
+ */
+export class UnitBrowserReadPage extends BasePage {
   async getDisplayedUnitCount(): Promise<number> {
     // Try table rows first (default view), then cards
-    const tableCount = await this.unitTableRows.count();
+    const tableCount = await this.page.locator('table tbody tr').count();
     if (tableCount > 0) return tableCount;
 
-    return await this.unitCards.count();
-  }
-
-  async clickUnit(index: number = 0): Promise<void> {
-    // Click a unit in the list (works for table or card view)
-    const tableRows = this.unitTableRows;
-    if ((await tableRows.count()) > 0) {
-      await tableRows.nth(index).click();
-    } else {
-      await this.unitCards.nth(index).click();
-    }
+    return await this.page.locator('[data-testid^="unit-card-"]').count();
   }
 
   async getSubtitleText(): Promise<string> {
@@ -319,7 +253,7 @@ export class EquipmentBrowserPage extends BasePage {
     await this.waitForPageLoad();
   }
 
-  async waitForPageLoad(): Promise<void> {
+  protected async waitForPageLoad(): Promise<void> {
     // Wait for the page to load - use heading as indicator
     await this.page
       .getByRole('heading', { name: /equipment catalog/i })
@@ -337,45 +271,26 @@ export class EquipmentBrowserPage extends BasePage {
     await this.filterButton.click();
   }
 
-  async filterByCategory(category: string): Promise<void> {
-    await this.openFilters();
-    await this.categoryFilter.selectOption({ label: category });
-  }
-
-  async filterByTechBase(techBase: string): Promise<void> {
-    await this.openFilters();
-    await this.techBaseFilter.selectOption({ label: techBase });
-  }
-
-  async clearFilters(): Promise<void> {
-    if (await this.clearFiltersButton.isVisible()) {
-      await this.clearFiltersButton.click();
-    }
-  }
-
-  async setViewMode(mode: 'grid' | 'list' | 'table'): Promise<void> {
-    const button = this.page.getByRole('button', {
-      name: new RegExp(mode, 'i'),
-    });
-    await button.click();
-  }
-
-  async getDisplayedEquipmentCount(): Promise<number> {
-    // Try table rows first (default view), then cards
-    const tableCount = await this.equipmentTableRows.count();
-    if (tableCount > 0) return tableCount;
-
-    return await this.equipmentCards.count();
-  }
-
   async clickEquipment(index: number = 0): Promise<void> {
-    // Click an equipment item in the list
     const tableRows = this.equipmentTableRows;
     if ((await tableRows.count()) > 0) {
       await tableRows.nth(index).click();
     } else {
       await this.equipmentCards.nth(index).click();
     }
+  }
+}
+
+/**
+ * Read-only helpers for the equipment browser page.
+ */
+export class EquipmentBrowserReadPage extends BasePage {
+  async getDisplayedEquipmentCount(): Promise<number> {
+    // Try table rows first (default view), then cards
+    const tableCount = await this.page.locator('table tbody tr').count();
+    if (tableCount > 0) return tableCount;
+
+    return await this.page.locator('[data-testid^="equipment-card-"]').count();
   }
 
   async getSubtitleText(): Promise<string> {
@@ -385,149 +300,5 @@ export class EquipmentBrowserPage extends BasePage {
       .filter({ hasText: /items?$/i })
       .first();
     return (await subtitleElement.textContent()) || '';
-  }
-}
-
-/**
- * Rules Reference Page
- * View construction rules for a specific section.
- */
-export class RulesReferencePage extends BasePage {
-  // Page elements
-  readonly title: Locator;
-  readonly breadcrumbs: Locator;
-  readonly backButton: Locator;
-  readonly content: Locator;
-
-  constructor(page: Page) {
-    super(page);
-
-    this.title = page.getByTestId('rules-page-title');
-    this.breadcrumbs = page.getByTestId('rules-breadcrumbs');
-    this.backButton = page.getByRole('link', { name: /back/i });
-    this.content = page.getByTestId('rules-content');
-  }
-
-  async goto(sectionId: string): Promise<void> {
-    await this.page.goto(`/compendium/rules/${sectionId}`);
-    await this.waitForPageLoad();
-  }
-
-  async waitForPageLoad(): Promise<void> {
-    // Wait for page content
-    await this.page.locator('main').first().waitFor();
-  }
-
-  async goBack(): Promise<void> {
-    await this.page.goBack();
-  }
-}
-
-/**
- * Unit Detail Page
- * View full specifications for a single unit.
- */
-export class UnitDetailPage extends BasePage {
-  readonly title: Locator;
-  readonly breadcrumbs: Locator;
-  readonly unitTypeBadge: Locator;
-  readonly techBaseBadge: Locator;
-  readonly weightClassBadge: Locator;
-  readonly editButton: Locator;
-
-  // Stats sections
-  readonly physicalPropertiesCard: Locator;
-  readonly movementCard: Locator;
-  readonly armorCard: Locator;
-  readonly heatManagementCard: Locator;
-  readonly equipmentTable: Locator;
-  readonly quirksSection: Locator;
-  readonly unitInfoCard: Locator;
-
-  constructor(page: Page) {
-    super(page);
-
-    this.title = page.getByTestId('unit-detail-title');
-    this.breadcrumbs = page.getByTestId('unit-detail-breadcrumbs');
-    this.unitTypeBadge = page.getByTestId('unit-type-badge');
-    this.techBaseBadge = page.getByTestId('tech-base-badge');
-    this.weightClassBadge = page.getByTestId('weight-class-badge');
-    this.editButton = page.getByRole('link', { name: /edit/i });
-
-    // Stats sections
-    this.physicalPropertiesCard = page.getByTestId('unit-physical-properties');
-    this.movementCard = page.getByTestId('unit-movement');
-    this.armorCard = page.getByTestId('unit-armor');
-    this.heatManagementCard = page.getByTestId('unit-heat-management');
-    this.equipmentTable = page.getByTestId('unit-equipment-table');
-    this.quirksSection = page.getByTestId('unit-quirks');
-    this.unitInfoCard = page.getByTestId('unit-info');
-  }
-
-  async goto(unitId: string): Promise<void> {
-    await this.page.goto(`/compendium/units/${encodeURIComponent(unitId)}`);
-    await this.waitForPageLoad();
-  }
-
-  async waitForPageLoad(): Promise<void> {
-    // Wait for page to load
-    await this.page.locator('main').first().waitFor();
-  }
-
-  async clickEdit(): Promise<void> {
-    await this.editButton.click();
-    await this.page.waitForURL(/\/customizer/);
-  }
-}
-
-/**
- * Equipment Detail Page
- * View full specifications for a single equipment item.
- */
-export class EquipmentDetailPage extends BasePage {
-  readonly title: Locator;
-  readonly breadcrumbs: Locator;
-  readonly categoryBadge: Locator;
-  readonly techBaseBadge: Locator;
-  readonly rulesLevelBadge: Locator;
-
-  // Stats sections
-  readonly physicalPropertiesCard: Locator;
-  readonly availabilityCard: Locator;
-  readonly combatStatsCard: Locator;
-  readonly rangeProfileCard: Locator;
-  readonly specialRulesSection: Locator;
-  readonly descriptionSection: Locator;
-
-  constructor(page: Page) {
-    super(page);
-
-    this.title = page.getByTestId('equipment-detail-title');
-    this.breadcrumbs = page.getByTestId('equipment-detail-breadcrumbs');
-    this.categoryBadge = page.getByTestId('equipment-category-badge');
-    this.techBaseBadge = page.getByTestId('tech-base-badge');
-    this.rulesLevelBadge = page.getByTestId('rules-level-badge');
-
-    // Stats sections
-    this.physicalPropertiesCard = page.getByTestId(
-      'equipment-physical-properties',
-    );
-    this.availabilityCard = page.getByTestId('equipment-availability');
-    this.combatStatsCard = page.getByTestId('equipment-combat-stats');
-    this.rangeProfileCard = page.getByTestId('equipment-range-profile');
-    this.specialRulesSection = page.getByTestId('equipment-special-rules');
-    this.descriptionSection = page.getByTestId('equipment-description');
-  }
-
-  async goto(equipmentId: string): Promise<void> {
-    await this.page.goto(
-      `/compendium/equipment/${encodeURIComponent(equipmentId)}`,
-    );
-    await this.waitForPageLoad();
-  }
-
-  async waitForPageLoad(): Promise<void> {
-    // Wait for page to load
-    await this.page.locator('main').first().waitFor();
   }
 }

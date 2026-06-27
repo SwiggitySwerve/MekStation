@@ -12,7 +12,13 @@
 
 import { test, expect } from '@playwright/test';
 
-import { CompendiumPage, UnitBrowserPage, EquipmentBrowserPage } from './pages';
+import {
+  CompendiumPage,
+  EquipmentBrowserPage,
+  EquipmentBrowserReadPage,
+  UnitBrowserPage,
+  UnitBrowserReadPage,
+} from './pages';
 
 // ============================================================================
 // Compendium Hub Tests
@@ -137,10 +143,11 @@ test.describe('Unit Browser @compendium', () => {
 
   test('search filters units', async ({ page }) => {
     const unitBrowser = new UnitBrowserPage(page);
+    const unitBrowserRead = new UnitBrowserReadPage(page);
     await unitBrowser.goto();
 
     // Get initial count (shown in subtitle)
-    const _initialSubtitle = await unitBrowser.getSubtitleText();
+    const _initialSubtitle = await unitBrowserRead.getSubtitleText();
 
     // Search for something specific
     await unitBrowser.search('atlas');
@@ -149,12 +156,13 @@ test.describe('Unit Browser @compendium', () => {
     await page.waitForTimeout(500);
 
     // The count should change (or stay same if no units match)
-    const _filteredSubtitle = await unitBrowser.getSubtitleText();
+    const _filteredSubtitle = await unitBrowserRead.getSubtitleText();
     // We can't guarantee results, but the search should work without errors
   });
 
   test('filter button toggles filter panel', async ({ page }) => {
     const unitBrowser = new UnitBrowserPage(page);
+    const unitBrowserRead = new UnitBrowserReadPage(page);
     await unitBrowser.goto();
 
     // Filter panel should be hidden initially
@@ -175,13 +183,14 @@ test.describe('Unit Browser @compendium', () => {
 
   test('view mode toggle works', async ({ page }) => {
     const unitBrowser = new UnitBrowserPage(page);
+    const unitBrowserRead = new UnitBrowserReadPage(page);
     await unitBrowser.goto();
 
     // Default should be table view
     const table = page.locator('table');
 
     // If there are units, table should be visible
-    const hasUnits = await unitBrowser.getDisplayedUnitCount();
+    const hasUnits = await unitBrowserRead.getDisplayedUnitCount();
     if (hasUnits > 0) {
       await expect(table).toBeVisible();
     }
@@ -189,10 +198,11 @@ test.describe('Unit Browser @compendium', () => {
 
   test('empty state displays when no units', async ({ page }) => {
     const unitBrowser = new UnitBrowserPage(page);
+    const unitBrowserRead = new UnitBrowserReadPage(page);
     await unitBrowser.goto();
 
     // Check if empty state or units are displayed
-    const hasUnits = await unitBrowser.getDisplayedUnitCount();
+    const hasUnits = await unitBrowserRead.getDisplayedUnitCount();
 
     if (hasUnits === 0) {
       // Empty state should be visible
@@ -208,10 +218,11 @@ test.describe('Unit Browser @compendium', () => {
 
   test('pagination displays when many units', async ({ page }) => {
     const unitBrowser = new UnitBrowserPage(page);
+    const unitBrowserRead = new UnitBrowserReadPage(page);
     await unitBrowser.goto();
 
     // Check the subtitle for total count
-    const subtitleText = await unitBrowser.getSubtitleText();
+    const subtitleText = await unitBrowserRead.getSubtitleText();
     const match = subtitleText.match(/(\d+)/);
 
     if (match) {
@@ -231,6 +242,7 @@ test.describe('Unit Browser @compendium', () => {
 test.describe('Equipment Browser @compendium', () => {
   test('equipment page loads', async ({ page }) => {
     const equipmentBrowser = new EquipmentBrowserPage(page);
+    const equipmentBrowserRead = new EquipmentBrowserReadPage(page);
     await equipmentBrowser.goto();
 
     // Verify page title
@@ -244,13 +256,14 @@ test.describe('Equipment Browser @compendium', () => {
 
   test('equipment is loaded from API', async ({ page }) => {
     const equipmentBrowser = new EquipmentBrowserPage(page);
+    const equipmentBrowserRead = new EquipmentBrowserReadPage(page);
     await equipmentBrowser.goto();
 
     // Wait for API response
     await page.waitForTimeout(500);
 
     // Check subtitle for item count
-    const subtitleText = await equipmentBrowser.getSubtitleText();
+    const subtitleText = await equipmentBrowserRead.getSubtitleText();
     const match = subtitleText.match(/(\d+)/);
 
     // Should have some equipment items
@@ -262,6 +275,7 @@ test.describe('Equipment Browser @compendium', () => {
 
   test('search filters equipment', async ({ page }) => {
     const equipmentBrowser = new EquipmentBrowserPage(page);
+    const equipmentBrowserRead = new EquipmentBrowserReadPage(page);
     await equipmentBrowser.goto();
 
     // Search for "laser"
@@ -269,7 +283,8 @@ test.describe('Equipment Browser @compendium', () => {
     await page.waitForTimeout(500);
 
     // Get the count of displayed items
-    const displayedCount = await equipmentBrowser.getDisplayedEquipmentCount();
+    const displayedCount =
+      await equipmentBrowserRead.getDisplayedEquipmentCount();
 
     // Should have some laser-related equipment
     // (The exact count depends on the catalog data)
@@ -280,12 +295,13 @@ test.describe('Equipment Browser @compendium', () => {
     await page.waitForTimeout(500);
 
     // Should show all items again
-    const allCount = await equipmentBrowser.getDisplayedEquipmentCount();
+    const allCount = await equipmentBrowserRead.getDisplayedEquipmentCount();
     expect(allCount).toBeGreaterThanOrEqual(displayedCount);
   });
 
   test('filter button toggles filter panel', async ({ page }) => {
     const equipmentBrowser = new EquipmentBrowserPage(page);
+    const equipmentBrowserRead = new EquipmentBrowserReadPage(page);
     await equipmentBrowser.goto();
 
     // Click filter button
@@ -299,6 +315,7 @@ test.describe('Equipment Browser @compendium', () => {
 
   test('category filter works', async ({ page }) => {
     const equipmentBrowser = new EquipmentBrowserPage(page);
+    const equipmentBrowserRead = new EquipmentBrowserReadPage(page);
     await equipmentBrowser.goto();
 
     // Open filters
@@ -311,7 +328,8 @@ test.describe('Equipment Browser @compendium', () => {
     const categorySelect = page.getByLabel(/filter by category/i);
     if (await categorySelect.isVisible()) {
       // Get count before filtering
-      const _countBefore = await equipmentBrowser.getDisplayedEquipmentCount();
+      const _countBefore =
+        await equipmentBrowserRead.getDisplayedEquipmentCount();
 
       // Filter by Energy Weapon (if option exists)
       try {
@@ -319,7 +337,8 @@ test.describe('Equipment Browser @compendium', () => {
         await page.waitForTimeout(300);
 
         // Results should change or stay same, but no errors should occur
-        const countAfter = await equipmentBrowser.getDisplayedEquipmentCount();
+        const countAfter =
+          await equipmentBrowserRead.getDisplayedEquipmentCount();
         // Count may be same, less, or zero - all valid
         expect(countAfter).toBeGreaterThanOrEqual(0);
       } catch {
@@ -330,6 +349,7 @@ test.describe('Equipment Browser @compendium', () => {
 
   test('empty state displays when no results', async ({ page }) => {
     const equipmentBrowser = new EquipmentBrowserPage(page);
+    const equipmentBrowserRead = new EquipmentBrowserReadPage(page);
     await equipmentBrowser.goto();
 
     // Wait for initial load
@@ -343,7 +363,8 @@ test.describe('Equipment Browser @compendium', () => {
     const emptyStateVisible = await page
       .getByText(/no equipment found/i)
       .isVisible();
-    const displayCount = await equipmentBrowser.getDisplayedEquipmentCount();
+    const displayCount =
+      await equipmentBrowserRead.getDisplayedEquipmentCount();
 
     // Either empty state is shown or no items are displayed
     expect(emptyStateVisible || displayCount === 0).toBeTruthy();
@@ -351,12 +372,13 @@ test.describe('Equipment Browser @compendium', () => {
 
   test('clicking equipment row navigates to detail', async ({ page }) => {
     const equipmentBrowser = new EquipmentBrowserPage(page);
+    const equipmentBrowserRead = new EquipmentBrowserReadPage(page);
     await equipmentBrowser.goto();
 
     // Wait for equipment to load
     await page.waitForTimeout(500);
 
-    const itemCount = await equipmentBrowser.getDisplayedEquipmentCount();
+    const itemCount = await equipmentBrowserRead.getDisplayedEquipmentCount();
     if (itemCount > 0) {
       // Click first equipment item
       await equipmentBrowser.clickEquipment(0);
