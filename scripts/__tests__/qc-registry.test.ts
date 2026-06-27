@@ -151,4 +151,120 @@ describe('QC registry validator', () => {
       'e2e/app-shell-route-manifest.json routes missing from app-shell-navigation registry: /settings',
     );
   });
+
+  it('rejects unclassified Next.js page routes in the app-shell coverage manifest', () => {
+    const manifest = readJson<{
+      delegatedRoutes: Array<{ patterns: string[] }>;
+    }>(path.join(repoRoot, 'e2e/app-shell-route-manifest.json'));
+
+    manifest.delegatedRoutes = manifest.delegatedRoutes.map((group) => ({
+      ...group,
+      patterns: group.patterns.filter(
+        (pattern) => pattern !== '/gameplay/campaigns/[id]/finances',
+      ),
+    }));
+
+    const manifestPath = path.join(tempDir, 'app-shell-route-manifest.json');
+    writeJson(manifestPath, manifest);
+
+    const result = runValidator({
+      MEKSTATION_APP_SHELL_ROUTE_MANIFEST_PATH: manifestPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'Next.js page routes missing from app-shell coverage manifest: /gameplay/campaigns/[id]/finances',
+    );
+  });
+
+  it('rejects stale delegated route patterns in the app-shell coverage manifest', () => {
+    const manifest = readJson<{
+      delegatedRoutes: Array<{ patterns: string[] }>;
+    }>(path.join(repoRoot, 'e2e/app-shell-route-manifest.json'));
+    manifest.delegatedRoutes[0].patterns.push('/missing/[id]');
+
+    const manifestPath = path.join(tempDir, 'app-shell-route-manifest.json');
+    writeJson(manifestPath, manifest);
+
+    const result = runValidator({
+      MEKSTATION_APP_SHELL_ROUTE_MANIFEST_PATH: manifestPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'delegatedRoutes[0].patterns[3] does not match a Next.js page route pattern: /missing/[id]',
+    );
+  });
+
+  it('rejects unclassified test harness routes in the app-shell coverage manifest', () => {
+    const manifest = readJson<{
+      testHarnessRoutes: Array<{ patterns: string[] }>;
+    }>(path.join(repoRoot, 'e2e/app-shell-route-manifest.json'));
+
+    manifest.testHarnessRoutes = manifest.testHarnessRoutes.map((group) => ({
+      ...group,
+      patterns: group.patterns.filter(
+        (pattern) => pattern !== '/e2e/sync-test',
+      ),
+    }));
+
+    const manifestPath = path.join(tempDir, 'app-shell-route-manifest.json');
+    writeJson(manifestPath, manifest);
+
+    const result = runValidator({
+      MEKSTATION_APP_SHELL_ROUTE_MANIFEST_PATH: manifestPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'Next.js page routes missing from app-shell coverage manifest: /e2e/sync-test',
+    );
+  });
+
+  it('rejects test harness route groups without browser proof context', () => {
+    const manifest = readJson<{
+      testHarnessRoutes: Array<{ proofCommand: string; proofTests: string[] }>;
+    }>(path.join(repoRoot, 'e2e/app-shell-route-manifest.json'));
+
+    manifest.testHarnessRoutes[0].proofCommand = '';
+    manifest.testHarnessRoutes[0].proofTests = [];
+
+    const manifestPath = path.join(tempDir, 'app-shell-route-manifest.json');
+    writeJson(manifestPath, manifest);
+
+    const result = runValidator({
+      MEKSTATION_APP_SHELL_ROUTE_MANIFEST_PATH: manifestPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'testHarnessRoutes[0].proofCommand must be a non-empty string.',
+    );
+    expect(result.stdout).toContain(
+      'testHarnessRoutes[0].proofTests must contain at least one path.',
+    );
+  });
+
+  it('rejects known app-shell route gaps without tracking context', () => {
+    const manifest = readJson<{
+      knownGapRoutes: Array<{ reason: string; tracking: string }>;
+    }>(path.join(repoRoot, 'e2e/app-shell-route-manifest.json'));
+    manifest.knownGapRoutes[0].reason = '';
+    manifest.knownGapRoutes[0].tracking = '';
+
+    const manifestPath = path.join(tempDir, 'app-shell-route-manifest.json');
+    writeJson(manifestPath, manifest);
+
+    const result = runValidator({
+      MEKSTATION_APP_SHELL_ROUTE_MANIFEST_PATH: manifestPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'knownGapRoutes[0].reason must be a non-empty string.',
+    );
+    expect(result.stdout).toContain(
+      'knownGapRoutes[0].tracking must be a non-empty string.',
+    );
+  });
 });

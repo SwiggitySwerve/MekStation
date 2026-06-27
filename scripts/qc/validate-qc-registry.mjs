@@ -304,6 +304,39 @@ function routePathList(values) {
     .map((value) => value.trim());
 }
 
+function requireNonEmptyString(label, value, issues) {
+  if (typeof value !== 'string' || value.trim() === '') {
+    issues.push(fail(`${label} must be a non-empty string.`));
+    return false;
+  }
+  return true;
+}
+
+function pageRoutePatternSet() {
+  return new Set(pageRoutePatterns.map(({ routePattern }) => routePattern));
+}
+
+function pageRoutePatternForPath(routePath) {
+  const normalized = normalizeRouteReference(routePath.trim());
+  return (
+    pageRoutePatterns.find(({ matcher }) => matcher.test(normalized))
+      ?.routePattern ?? null
+  );
+}
+
+function claimRoutePattern(claims, pattern, owner, issues) {
+  const previousOwner = claims.get(pattern);
+  if (previousOwner) {
+    issues.push(
+      fail(
+        `app-shell route coverage pattern ${pattern} is claimed by both ${previousOwner} and ${owner}.`,
+      ),
+    );
+    return;
+  }
+  claims.set(pattern, owner);
+}
+
 function appShellManifestRoutePaths(issues) {
   if (appShellRouteManifest.version !== 1) {
     issues.push(fail('app-shell route manifest version must be 1.'));
@@ -341,6 +374,14 @@ function appShellManifestRoutePaths(issues) {
     }
 
     const normalizedPath = pathValue.trim();
+    if (!routeReferenceExists(normalizedPath)) {
+      issues.push(
+        fail(
+          `app-shell route manifest primaryRoutes[${index}].path does not resolve to a Next.js page route: ${normalizedPath}`,
+        ),
+      );
+    }
+
     if (seen.has(normalizedPath)) {
       issues.push(
         fail(
@@ -355,6 +396,185 @@ function appShellManifestRoutePaths(issues) {
   }
 
   return routePaths;
+}
+
+function appShellRecoveryRoutePatterns(issues) {
+  if (!Array.isArray(appShellRouteManifest.recoveryRoutes)) {
+    issues.push(
+      fail('app-shell route manifest recoveryRoutes must be an array.'),
+    );
+    return [];
+  }
+
+  const patterns = [];
+  const seenPaths = new Set();
+  const knownPatterns = pageRoutePatternSet();
+
+  for (const [index, route] of appShellRouteManifest.recoveryRoutes.entries()) {
+    const label = `app-shell route manifest recoveryRoutes[${index}]`;
+    const pathValue = route?.path;
+    const patternValue = route?.pattern;
+
+    if (
+      !requireNonEmptyString(`${label}.path`, pathValue, issues) ||
+      !requireNonEmptyString(`${label}.pattern`, patternValue, issues)
+    ) {
+      continue;
+    }
+    requireNonEmptyString(`${label}.label`, route?.label, issues);
+
+    const normalizedPath = pathValue.trim();
+    const normalizedPattern = patternValue.trim();
+    if (seenPaths.has(normalizedPath)) {
+      issues.push(
+        fail(
+          `app-shell route manifest recoveryRoutes contains duplicate path: ${normalizedPath}`,
+        ),
+      );
+    }
+    seenPaths.add(normalizedPath);
+
+    if (!routeReferenceExists(normalizedPath)) {
+      issues.push(
+        fail(
+          `${label}.path does not resolve to a Next.js page route: ${normalizedPath}`,
+        ),
+      );
+    }
+
+    if (!knownPatterns.has(normalizedPattern)) {
+      issues.push(
+        fail(
+          `${label}.pattern does not match a Next.js page route pattern: ${normalizedPattern}`,
+        ),
+      );
+      continue;
+    }
+
+    const actualPattern = pageRoutePatternForPath(normalizedPath);
+    if (actualPattern !== normalizedPattern) {
+      issues.push(
+        fail(
+          `${label}.path ${normalizedPath} resolves to ${actualPattern ?? 'no route'}, not declared pattern ${normalizedPattern}`,
+        ),
+      );
+    }
+    patterns.push(normalizedPattern);
+  }
+
+  return patterns;
+}
+
+function appShellCoverageGroupPatterns(field, issues) {
+  if (!Array.isArray(appShellRouteManifest[field])) {
+    issues.push(fail(`app-shell route manifest ${field} must be an array.`));
+    return [];
+  }
+
+  const patterns = [];
+  const knownPatterns = pageRoutePatternSet();
+
+  for (const [groupIndex, group] of appShellRouteManifest[field].entries()) {
+    const label = `app-shell route manifest ${field}[${groupIndex}]`;
+    requireNonEmptyString(`${label}.label`, group?.label, issues);
+    requireNonEmptyString(`${label}.reason`, group?.reason, issues);
+
+    if (field === 'delegatedRoutes' || field === 'testHarnessRoutes') {
+      requireNonEmptyString(
+        `${label}.proofCommand`,
+        group?.proofCommand,
+        issues,
+      );
+      if (!Array.isArray(group?.proofTests) || group.proofTests.length === 0) {
+        issues.push(
+          fail(`${label}.proofTests must contain at least one path.`),
+        );
+      } else {
+        for (const [testIndex, value] of group.proofTests.entries()) {
+          validatePathReference(label, 'proofTests', testIndex, value, issues);
+        }
+      }
+    }
+
+    if (field === 'knownGapRoutes') {
+      requireNonEmptyString(`${label}.tracking`, group?.tracking, issues);
+    }
+
+    if (!Array.isArray(group?.patterns) || group.patterns.length === 0) {
+      issues.push(
+        fail(`${label}.patterns must contain at least one route pattern.`),
+      );
+      continue;
+    }
+
+    for (const [patternIndex, rawPattern] of group.patterns.entries()) {
+      const patternLabel = `${label}.patterns[${patternIndex}]`;
+      if (!requireNonEmptyString(patternLabel, rawPattern, issues)) continue;
+
+      const pattern = rawPattern.trim();
+      if (!knownPatterns.has(pattern)) {
+        issues.push(
+          fail(
+            `${patternLabel} does not match a Next.js page route pattern: ${pattern}`,
+          ),
+        );
+        continue;
+      }
+      patterns.push(pattern);
+    }
+  }
+
+  return patterns;
+}
+
+function validateAppShellPageRouteCoverage(manifestRoutes, issues) {
+  const claims = new Map();
+  const primaryPatterns = new Set(
+    manifestRoutes
+      .map((routePath) => pageRoutePatternForPath(routePath))
+      .filter(Boolean),
+  );
+  const recoveryPatterns = appShellRecoveryRoutePatterns(issues);
+  const delegatedPatterns = appShellCoverageGroupPatterns(
+    'delegatedRoutes',
+    issues,
+  );
+  const knownGapPatterns = appShellCoverageGroupPatterns(
+    'knownGapRoutes',
+    issues,
+  );
+  const testHarnessPatterns = appShellCoverageGroupPatterns(
+    'testHarnessRoutes',
+    issues,
+  );
+
+  for (const pattern of primaryPatterns) {
+    claimRoutePattern(claims, pattern, 'primaryRoutes', issues);
+  }
+  for (const pattern of recoveryPatterns) {
+    claimRoutePattern(claims, pattern, 'recoveryRoutes', issues);
+  }
+  for (const pattern of delegatedPatterns) {
+    claimRoutePattern(claims, pattern, 'delegatedRoutes', issues);
+  }
+  for (const pattern of knownGapPatterns) {
+    claimRoutePattern(claims, pattern, 'knownGapRoutes', issues);
+  }
+  for (const pattern of testHarnessPatterns) {
+    claimRoutePattern(claims, pattern, 'testHarnessRoutes', issues);
+  }
+
+  const missingPatterns = pageRoutePatterns
+    .map(({ routePattern }) => routePattern)
+    .filter((pattern) => !claims.has(pattern));
+
+  if (missingPatterns.length > 0) {
+    issues.push(
+      fail(
+        `Next.js page routes missing from app-shell coverage manifest: ${missingPatterns.join(', ')}`,
+      ),
+    );
+  }
 }
 
 function validateAppShellRouteProofAlignment(byId, issues) {
@@ -388,6 +608,8 @@ function validateAppShellRouteProofAlignment(byId, issues) {
       ),
     );
   }
+
+  validateAppShellPageRouteCoverage(manifestRoutes, issues);
 }
 
 function hasParentCycle(surface, byId) {
