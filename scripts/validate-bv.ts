@@ -6,6 +6,7 @@ import type { UnitData, ValidationResult } from './validate-bv-types';
 
 import { calculateUnitBV } from './validate-bv-calculator';
 import { parseValidateBvArgs, VALIDATE_BV_USAGE } from './validate-bv-cli';
+import { writeValidationReportArtifacts } from './validate-bv-reporting';
 
 interface IndexUnit {
   id: string;
@@ -25,43 +26,6 @@ interface IndexFile {
   generatedAt: string;
   totalUnits: number;
   units: IndexUnit[];
-}
-
-interface ParetoCategory {
-  name: string;
-  count: number;
-  units: string[];
-  avgAbsPercentDiff: number;
-}
-interface ParetoAnalysis {
-  generatedAt: string;
-  totalFailures: number;
-  categories: ParetoCategory[];
-}
-interface ValidationReport {
-  generatedAt: string;
-  summary: {
-    totalUnits: number;
-    excludedAllowlist: number;
-    validatedUnits: number;
-    calculated: number;
-    failedToCalculate: number;
-    exactMatch: number;
-    within1Percent: number;
-    within2Percent: number;
-    within3Percent: number;
-    over3Percent: number;
-    within1PercentPct: number;
-    within2PercentPct: number;
-    within3PercentPct: number;
-  };
-  accuracyGates: {
-    within1Percent: { target: number; actual: number; passed: boolean };
-    within2Percent: { target: number; actual: number; passed: boolean };
-    within3Percent: { target: number; actual: number; passed: boolean };
-  };
-  topDiscrepancies: ValidationResult[];
-  allResults: ValidationResult[];
 }
 
 const DEFAULT_REFERENCE_DIR = 'scripts/data-migration';
@@ -144,36 +108,6 @@ function classifyRootCause(result: ValidationResult, unit: UnitData): string {
   }
   if (absPct <= 1) return 'rounding';
   return 'minor-discrepancy';
-}
-
-// === PARETO ===
-function buildPareto(results: ValidationResult[]): ParetoAnalysis {
-  const fails = results.filter(
-    (r) =>
-      r.status !== 'exact' &&
-      r.status !== 'within1' &&
-      r.status !== 'within2' &&
-      r.status !== 'error',
-  );
-  const cats: Record<string, { units: string[]; diffs: number[] }> = {};
-  for (const r of fails) {
-    const c = r.rootCause || 'unknown';
-    if (!cats[c]) cats[c] = { units: [], diffs: [] };
-    cats[c].units.push(`${r.chassis} ${r.model}`);
-    cats[c].diffs.push(Math.abs(r.percentDiff || 0));
-  }
-  return {
-    generatedAt: new Date().toISOString(),
-    totalFailures: fails.length,
-    categories: Object.entries(cats)
-      .map(([n, d]) => ({
-        name: n,
-        count: d.units.length,
-        units: d.units.slice(0, 10),
-        avgAbsPercentDiff: d.diffs.reduce((a, b) => a + b, 0) / d.diffs.length,
-      }))
-      .sort((a, b) => b.count - a.count),
-  };
 }
 
 // === MAIN ===
@@ -880,155 +814,25 @@ async function main(): Promise<void> {
   console.warn = origWarn;
   if (!verbose) console.log('');
 
-  const calc = results.filter((r) => r.status !== 'error').length;
-  const fail = results.filter((r) => r.status === 'error').length;
-  const exact = results.filter((r) => r.status === 'exact').length;
-  const w1 = results.filter(
-    (r) => r.status === 'exact' || r.status === 'within1',
-  ).length;
-  const w2 = results.filter((r) =>
-    ['exact', 'within1', 'within2'].includes(r.status),
-  ).length;
-  const w3 = results.filter((r) =>
-    ['exact', 'within1', 'within2', 'within3'].includes(r.status),
-  ).length;
-  const o3 = results.filter((r) => r.status === 'over3').length;
-  const w1p = calc > 0 ? (w1 / calc) * 100 : 0;
-  const w2p = calc > 0 ? (w2 / calc) * 100 : 0;
-  const w3p = calc > 0 ? (w3 / calc) * 100 : 0;
-  const g1 = w1p >= 95.0,
-    g2 = w2p >= 99.0,
-    g3 = w3p >= 99.5;
   const effectiveCoverageFloor =
     !minimumCoverageFloorWasExplicit && (filter || (limit && limit > 0))
       ? 1
       : minimumCoverageFloor;
-  const coverageFloorPassed = calc >= effectiveCoverageFloor;
 
-  console.log(
-    `\n=== SUMMARY ===\nTotal: ${units.length}  Excluded: ${excluded.length}  Validated: ${calc + fail}  Calculated: ${calc}  Failed: ${fail}`,
-  );
-  console.log(
-    `\nExact: ${exact} (${((exact / calc) * 100).toFixed(1)}%)\nWithin 1%: ${w1} (${w1p.toFixed(1)}%)\nWithin 2%: ${w2} (${w2p.toFixed(1)}%)\nWithin 3%: ${w3} (${w3p.toFixed(1)}%)\nOver 3%: ${o3} (${((o3 / calc) * 100).toFixed(1)}%)`,
-  );
-  console.log(
-    `\n=== ACCURACY GATES ===\nWithin 1%:  ${w1p.toFixed(1)}% (target: 95.0%) ${g1 ? '✅ PASS' : '❌ FAIL'}\nWithin 2%:  ${w2p.toFixed(1)}% (target: 99.0%) ${g2 ? '✅ PASS' : '❌ FAIL'}\nWithin 3%:  ${w3p.toFixed(1)}% (target: 99.5%) ${g3 ? '✅ PASS' : '❌ FAIL'}`,
-  );
-  console.log(
-    `\nCoverage floor: ${calc}/${effectiveCoverageFloor} ${coverageFloorPassed ? '✅ PASS' : '❌ FAIL'}`,
-  );
-
-  if (excluded.length > 0) {
-    console.log(`\n=== EXCLUDED (${excluded.length}) ===`);
-    const br: Record<string, number> = {};
-    for (const e of excluded) {
-      const k = e.reason.replace(/\s*\(\d+t\)/, '');
-      br[k] = (br[k] || 0) + 1;
-    }
-    for (const [r, c] of Object.entries(br).sort((a, b) => b[1] - a[1]))
-      console.log(`  ${r}: ${c}`);
-  }
-
-  const top = results
-    .filter((r) => r.status !== 'error' && r.percentDiff !== null)
-    .sort((a, b) => Math.abs(b.percentDiff!) - Math.abs(a.percentDiff!))
-    .slice(0, 20);
-  console.log('\n=== TOP 20 DISCREPANCIES ===\n' + '-'.repeat(102));
-  for (const d of top)
-    console.log(
-      `${`${d.chassis} ${d.model}`.padEnd(40).slice(0, 40)}${String(d.indexBV).padStart(8)}${String(d.calculatedBV).padStart(9)}${((d.difference! >= 0 ? '+' : '') + d.difference!).padStart(8)}${((d.percentDiff! >= 0 ? '+' : '') + d.percentDiff!.toFixed(1) + '%').padStart(8)}  ${d.rootCause || 'unknown'}`,
-    );
-
-  const pareto = buildPareto(results);
-  console.log('\n=== PARETO ANALYSIS ===');
-  for (const c of pareto.categories)
-    console.log(
-      `  ${c.name}: ${c.count} units (avg ${c.avgAbsPercentDiff.toFixed(1)}% off)`,
-    );
-
-  if (!fs.existsSync(outputPath)) fs.mkdirSync(outputPath, { recursive: true });
-  const report: ValidationReport = {
-    generatedAt: new Date().toISOString(),
-    summary: {
-      totalUnits: units.length,
-      excludedAllowlist: excluded.length,
-      validatedUnits: calc + fail,
-      calculated: calc,
-      failedToCalculate: fail,
-      exactMatch: exact,
-      within1Percent: w1,
-      within2Percent: w2,
-      within3Percent: w3,
-      over3Percent: o3,
-      within1PercentPct: Math.round(w1p * 10) / 10,
-      within2PercentPct: Math.round(w2p * 10) / 10,
-      within3PercentPct: Math.round(w3p * 10) / 10,
-    },
-    accuracyGates: {
-      within1Percent: {
-        target: 95.0,
-        actual: Math.round(w1p * 10) / 10,
-        passed: g1,
-      },
-      within2Percent: {
-        target: 99.0,
-        actual: Math.round(w2p * 10) / 10,
-        passed: g2,
-      },
-      within3Percent: {
-        target: 99.5,
-        actual: Math.round(w3p * 10) / 10,
-        passed: g3,
-      },
-    },
-    topDiscrepancies: top,
-    allResults: results,
-  };
-  fs.writeFileSync(
-    path.join(outputPath, 'bv-validation-report.json'),
-    JSON.stringify(report, null, 2),
-  );
-  // Write compact results for analysis (without breakdowns to keep file size manageable)
-  const compactResults = results.map((r) => ({
-    id: r.unitId,
-    name: `${r.chassis} ${r.model}`,
-    ton: r.tonnage,
-    ref: r.indexBV,
-    calc: r.calculatedBV,
-    diff: r.difference,
-    pct: r.percentDiff != null ? Math.round(r.percentDiff * 10) / 10 : null,
-    status: r.status,
-    cause: r.rootCause || null,
-    defBV: r.breakdown?.defensiveBV,
-    offBV: r.breakdown?.offensiveBV,
-    weapBV: r.breakdown?.weaponBV,
-    ammoBV: r.breakdown?.ammoBV,
-    sf: r.breakdown?.speedFactor,
-    explPen: r.breakdown?.explosivePenalty,
-    defEqBV: r.breakdown?.defensiveEquipBV,
-    physBV: r.breakdown?.physicalWeaponBV,
-    weight: r.breakdown?.weightBonus,
-    armorBV: r.breakdown?.armorBV,
-    isBV: r.breakdown?.structureBV,
-    gyroBV: r.breakdown?.gyroBV,
-    defFactor: r.breakdown?.defensiveFactor,
-  }));
-  fs.writeFileSync(
-    path.join(outputPath, 'bv-all-results.json'),
-    JSON.stringify(compactResults),
-  );
-  fs.writeFileSync(
-    path.join(outputPath, 'bv-pareto-analysis.json'),
-    JSON.stringify(pareto, null, 2),
-  );
-  console.log(`\nReports: ${outputPath}/`);
-  if (!coverageFloorPassed) {
+  const reportOutcome = writeValidationReportArtifacts({
+    totalUnits: units.length,
+    excluded,
+    results,
+    outputPath,
+    coverageFloor: effectiveCoverageFloor,
+  });
+  if (!reportOutcome.coverageFloorPassed) {
     console.error(
-      `\nBV validation coverage below minimum floor: calculated ${calc}, required ${effectiveCoverageFloor}.`,
+      `\nBV validation coverage below minimum floor: calculated ${reportOutcome.calculated}, required ${reportOutcome.coverageFloor}.`,
     );
     process.exit(VALIDATE_BV_EXIT_CODES.belowCoverageFloor);
   }
-  if (!g1 || !g2 || !g3) {
+  if (!reportOutcome.accuracyGatesPassed) {
     console.error('\nBV validation accuracy gate failed.');
     process.exit(VALIDATE_BV_EXIT_CODES.accuracyGateFailure);
   }
