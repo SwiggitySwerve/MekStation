@@ -62,8 +62,19 @@ const requiredPackageScripts = [
     ],
   },
   {
+    id: 'verify:qc:campaign-journeys',
+    tokens: [
+      'qc:journeys:validate',
+      '--journey=contract-campaign',
+      '--journey=campaign-short',
+      '--journey=campaign-long',
+      '--contracts=10',
+      '--require-domain-backed',
+    ],
+  },
+  {
     id: 'verify:qc',
-    tokens: ['verify:qc:campaign-long'],
+    tokens: ['verify:qc:campaign-journeys', 'verify:qc:campaign-long'],
   },
 ];
 
@@ -110,6 +121,12 @@ const defaultSourceAnchors = [
       '"expectedTerminalState": "campaign-sequence-complete"',
       '"minimum": 6',
       '"maximum": 10',
+      '"executionBacking": "domain-command"',
+      '"executionBacking": "hybrid-command"',
+      '"syntheticBacking": false',
+      '"executionEvidenceSource": "package:qc:campaign-long:stability"',
+      '"executionEvidenceSource": "package:verify:qc:campaign-long"',
+      '"executionProofCommands"',
       '"knownLimitations": []',
     ],
   },

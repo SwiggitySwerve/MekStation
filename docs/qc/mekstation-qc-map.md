@@ -291,8 +291,9 @@ flowchart TD
      `qc:campaign-long:validate`; use `verify:qc:campaign-long` when you also
      want the 10-contract, 2-run stability proof with save round trips and
      drift bug packet checks.
-   - `verify:qc` now includes `verify:qc:campaign-long`, so the global QC lane
-     cannot silently skip the long-campaign stability proof.
+   - `verify:qc` now includes both `verify:qc:campaign-journeys` and
+     `verify:qc:campaign-long`, so the global QC lane cannot silently skip
+     promoted campaign journey backing or the long-campaign stability proof.
    - 2026-06-23 `verify:qc:campaign-long` passed with seed 42, 10 contracts,
      2 runs, 0 drift, 0 stability bug candidates, 8/8 save round trips, and
      manifest-confirmed UI checkpoint linkage with `browserExecuted=false`.
@@ -309,6 +310,9 @@ flowchart TD
      contract layer, and `verify:qc:campaign-economy:browser` when you need the
      Chromium route proof through dashboard, repair bay, salvage, finances,
      acquisitions, and day advance.
+   - Use `verify:qc:campaign-journeys` when the question is whether
+     `contract-campaign`, `campaign-short`, and `campaign-long` still pass
+     strict non-synthetic journey backing against those focused proof commands.
    - 2026-06-24 the browser proof found and fixed a real reload boundary:
      `campaignInventory` is derived and intentionally not persisted, so bay
      selectors now re-project from persisted `repairQueue` and
@@ -328,8 +332,10 @@ flowchart TD
      acquisition-shopping test covering add request, route reload, due delivery
      processing, persisted acquisition inventory, and request cleanup without
      losing delivered parts.
-   - Remaining signoff is narrower now: browser-driven 6-10 contract campaign
-     play.
+   - Campaign journey signoff is now split: `verify:qc:campaign-journeys`
+     guards promoted non-synthetic backing, while `verify:qc:campaign-long`
+     owns repeatability, save/load round trips, and the 10-contract Chromium
+     checkpoint route proof.
 
 1. `integration-runner-interactive-parity`
    - Runner/interactive parity is still the highest-risk combat integration

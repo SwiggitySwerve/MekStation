@@ -304,6 +304,12 @@
           "required": true,
           "diagnosticEvent": "campaign.contract_selected",
           "loggingPathId": "campaign-contract-resolution",
+          "executionBacking": "browser-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:campaign-economy:browser",
+          "executionProofCommands": [
+            "npm.cmd run verify:qc:campaign-economy:browser"
+          ],
           "produces": ["generated/contract.json"]
         },
         {
@@ -313,6 +319,10 @@
           "required": true,
           "diagnosticEvent": "campaign.contract_resolved",
           "loggingPathId": "campaign-contract-resolution",
+          "executionBacking": "hybrid-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:campaign-economy",
+          "executionProofCommands": ["npm.cmd run verify:qc:campaign-economy"],
           "produces": ["artifacts/contract-outcome.json"]
         },
         {
@@ -322,6 +332,10 @@
           "required": true,
           "diagnosticEvent": "campaign.economy_updated",
           "loggingPathId": "campaign-repair-salvage-finance",
+          "executionBacking": "hybrid-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:campaign-economy",
+          "executionProofCommands": ["npm.cmd run verify:qc:campaign-economy"],
           "produces": ["artifacts/campaign-economy.json"]
         }
       ],
@@ -371,6 +385,12 @@
           "required": true,
           "diagnosticEvent": "campaign.sequence_generated",
           "loggingPathId": "campaign-contract-resolution",
+          "executionBacking": "domain-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:campaign-economy:contracts",
+          "executionProofCommands": [
+            "npm.cmd run verify:qc:campaign-economy:contracts"
+          ],
           "produces": ["generated/campaign-sequence.json"]
         },
         {
@@ -380,6 +400,10 @@
           "required": true,
           "diagnosticEvent": "campaign.sequence_resolved",
           "loggingPathId": "campaign-contract-resolution",
+          "executionBacking": "hybrid-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:campaign-economy",
+          "executionProofCommands": ["npm.cmd run verify:qc:campaign-economy"],
           "produces": ["artifacts/campaign-result.json"]
         },
         {
@@ -389,6 +413,10 @@
           "required": true,
           "diagnosticEvent": "campaign.economy_updated",
           "loggingPathId": "campaign-repair-salvage-finance",
+          "executionBacking": "hybrid-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:campaign-economy",
+          "executionProofCommands": ["npm.cmd run verify:qc:campaign-economy"],
           "produces": ["artifacts/campaign-economy.json"]
         }
       ],
@@ -443,6 +471,12 @@
           "required": true,
           "diagnosticEvent": "campaign.sequence_generated",
           "loggingPathId": "campaign-contract-resolution",
+          "executionBacking": "domain-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:qc:campaign-long:stability",
+          "executionProofCommands": [
+            "npm.cmd run qc:campaign-long:stability -- --seed=42 --contracts=10 --runs=2"
+          ],
           "produces": ["generated/campaign-sequence.json"]
         },
         {
@@ -452,6 +486,10 @@
           "required": true,
           "diagnosticEvent": "campaign.sequence_resolved",
           "loggingPathId": "campaign-contract-resolution",
+          "executionBacking": "hybrid-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:campaign-long",
+          "executionProofCommands": ["npm.cmd run verify:qc:campaign-long"],
           "produces": ["artifacts/campaign-result.json"]
         },
         {
@@ -461,6 +499,10 @@
           "required": true,
           "diagnosticEvent": "campaign.economy_updated",
           "loggingPathId": "campaign-repair-salvage-finance",
+          "executionBacking": "hybrid-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:campaign-long",
+          "executionProofCommands": ["npm.cmd run verify:qc:campaign-long"],
           "produces": ["artifacts/campaign-economy.json"]
         }
       ],

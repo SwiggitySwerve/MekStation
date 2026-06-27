@@ -1020,6 +1020,7 @@
         "npm.cmd run verify:qc:campaign-operations",
         "npm.cmd run verify:qc:campaign-economy:contracts",
         "npm.cmd run verify:qc:campaign-economy:browser",
+        "npm.cmd run verify:qc:campaign-journeys",
         "npm.cmd run verify:qc:campaign-long",
         "npm.cmd run qc:campaign-long:browser"
       ],
@@ -1036,7 +1037,8 @@
         "2026-06-24 `npm.cmd run verify:qc:campaign-economy:browser` passed 10 Chromium tests: strict organic contract acceptance, strict acquisition shopping proof, strict post-battle economy browser route proof, and strict campaign-flow proof, covering accepted mission reload plus dashboard, repair bay, salvage, finances, acquisitions, day advance, generated encounter validation reasons, and damaged roster/audit carry-forward after full route reloads.",
         "2026-06-24 `npx.cmd playwright test --project=chromium e2e/campaign-acquisition-browser.spec.ts --workers=1` passed the strict acquisition browser proof: player adds a shopping-list request, route reload preserves queue state, due delivery processes through the day pipeline, acquisition inventory persists, and cleanup removes only the request row.",
         "2026-06-24 `npm.cmd run qc:campaign-long:browser` passed 1 strict Chromium check: seeded 10-contract campaign reloads dashboard mission history and active contract, advances one day, and inspects starmap, medical, repair, salvage, finances, and log routes with persisted activity entries.",
-        "2026-06-24 `npm.cmd run verify:qc:campaign-long` passed: QC wiring reported surfaces=1/1, packageScripts=4/4, journey=1/1, uiFlow=1/1, graphNodes=6, anchors=5, errors=0, warnings=0; stability run `journey-2026-06-24T20-46-33-549Z-42` used seed=42, contracts=10, runs=2, status=pass, drift=0, stability bug candidates=0, then the browser checkpoint passed 1 Chromium test."
+        "2026-06-24 `npm.cmd run verify:qc:campaign-long` passed: QC wiring reported surfaces=1/1, packageScripts=4/4, journey=1/1, uiFlow=1/1, graphNodes=6, anchors=5, errors=0, warnings=0; stability run `journey-2026-06-24T20-46-33-549Z-42` used seed=42, contracts=10, runs=2, status=pass, drift=0, stability bug candidates=0, then the browser checkpoint passed 1 Chromium test.",
+        "2026-06-27 `npm.cmd run verify:qc:campaign-journeys` passed strict non-synthetic backing for `contract-campaign`, `campaign-short`, and `campaign-long`: runs `journey-2026-06-27T22-43-43-116Z-42`, `journey-2026-06-27T22-43-43-405Z-42`, and `journey-2026-06-27T22-43-43-694Z-42` each reported status=pass, synthetic-backed steps=0/3, missing required backing=0, and bug candidates=0."
       ],
       "gaps": [
         "Strict browser proof now covers organic campaign creation -> rostered contract acceptance -> accepted mission reload, seeded post-battle repair/salvage/finances/day-advance/acquisition-shopping route reloads, strict campaign-flow creation/roster/contract/damage carry-forward without ambient-card fallbacks, campaign encounter launch through post-battle application, and the 10-contract long-campaign checkpoint route set."
@@ -1088,6 +1090,7 @@
       ],
       "commands": [
         "npm.cmd run qc:campaign-long:validate",
+        "npm.cmd run verify:qc:campaign-journeys",
         "npm.cmd run verify:qc:campaign-long",
         "npm.cmd run qc:campaign-long:stability -- --seed=42 --contracts=10 --runs=2",
         "npm.cmd run qc:campaign-long:browser"
@@ -1103,7 +1106,8 @@
         "src/qc/gameplayUiFlowShell.json",
         "2026-06-23 `npm.cmd run verify:qc:campaign-long` passed: long-campaign QC wiring reported surfaces=1/1, packageScripts=3/3, journey=1/1, uiFlow=1/1, graphNodes=6, anchors=4, errors=0, warnings=0; stability run `journey-2026-06-23T19-33-36-495Z-42` used seed=42, contracts=10, runs=2, status=pass, drift=0, stability bug candidates=0, save round trips=8/8. Manual inspection confirmed the generated stability manifest names UI checkpoints.",
         "2026-06-24 `npm.cmd run qc:campaign-long:browser` passed 1 strict Chromium check: seeded 10-contract campaign reloads dashboard mission history and active contract, advances one day, and inspects starmap, medical, repair, salvage, finances, and log routes with persisted activity entries.",
-        "2026-06-24 `npm.cmd run verify:qc:campaign-long` passed: QC wiring reported surfaces=1/1, packageScripts=4/4, journey=1/1, uiFlow=1/1, graphNodes=6, anchors=5, errors=0, warnings=0; stability run `journey-2026-06-24T20-46-33-549Z-42` used seed=42, contracts=10, runs=2, status=pass, drift=0, stability bug candidates=0, then the browser checkpoint passed 1 Chromium test."
+        "2026-06-24 `npm.cmd run verify:qc:campaign-long` passed: QC wiring reported surfaces=1/1, packageScripts=4/4, journey=1/1, uiFlow=1/1, graphNodes=6, anchors=5, errors=0, warnings=0; stability run `journey-2026-06-24T20-46-33-549Z-42` used seed=42, contracts=10, runs=2, status=pass, drift=0, stability bug candidates=0, then the browser checkpoint passed 1 Chromium test.",
+        "2026-06-27 `npm.cmd run verify:qc:campaign-journeys` passed strict non-synthetic backing for the promoted campaign journeys, including `campaign-long` run `journey-2026-06-27T22-43-43-694Z-42` with synthetic-backed steps=0/3, missing required backing=0, and bug candidates=0."
       ],
       "gaps": [
         "The stability gate owns repeatability, save round trips, and drift detection; `qc:campaign-long:browser` owns the 10-contract checkpoint route proof."

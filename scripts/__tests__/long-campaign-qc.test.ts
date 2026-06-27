@@ -49,7 +49,7 @@ describe('long campaign QC validator', () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('surfaces=1/1');
-    expect(result.stdout).toContain('packageScripts=4/4');
+    expect(result.stdout).toContain('packageScripts=5/5');
     expect(result.stdout).toContain('journey=1/1');
     expect(result.stdout).toContain('uiFlow=1/1');
     expect(result.stdout).toContain('errors=0');
@@ -79,6 +79,7 @@ describe('long campaign QC validator', () => {
       'qc:campaign-long:validate',
       'qc:campaign-long:browser',
       'verify:qc:campaign-long',
+      'verify:qc:campaign-journeys',
       'verify:qc',
     ]);
     expect(manifest.journey.contracts).toMatchObject({
