@@ -18,6 +18,7 @@ import type {
 import type { IBaseEvent } from '@/types/events';
 import type { IGameEvent } from '@/types/gameplay';
 import type { ReducerMap } from '@/utils/events/stateDerivation';
+import type { IPostBattleReport } from '@/utils/gameplay/postBattleReport';
 
 import { useReplayKeyboardShortcuts } from '@/components/audit/replay';
 import {
@@ -52,6 +53,7 @@ interface UploadSummary {
 }
 
 type UploadReplayPlayer = ReturnType<typeof useSharedReplayPlayer>;
+type MatchLogLoadState = 'idle' | 'loading' | 'loaded' | 'missing' | 'error';
 
 function adaptGameEventToBase(event: IGameEvent): IBaseEvent {
   return {
@@ -67,12 +69,12 @@ function adaptGameEventToBase(event: IGameEvent): IBaseEvent {
 
 function useReplayProjection({
   gameId,
-  uploadedEvents,
+  directEvents,
 }: {
   readonly gameId: string;
-  readonly uploadedEvents: readonly IGameEvent[] | null;
+  readonly directEvents: readonly IGameEvent[] | null;
 }): ReplayProjection {
-  const isUploadActive = uploadedEvents !== null;
+  const isDirectReplayActive = directEvents !== null;
   const dbReplay = useReplayPlayer<Record<string, unknown>>({
     gameId,
     reducers: EMPTY_REDUCERS,
@@ -82,15 +84,15 @@ function useReplayProjection({
   });
   const uploadReplay = useSharedReplayPlayer({
     gameId,
-    events: uploadedEvents ?? [],
+    events: directEvents ?? [],
     autoPlay: false,
     baseInterval: 1000,
   });
 
   return useMemo<ReplayProjection>(() => {
-    if (!isUploadActive) return dbReplay;
+    if (!isDirectReplayActive) return dbReplay;
     return uploadReplayProjection(uploadReplay);
-  }, [isUploadActive, uploadReplay, dbReplay]);
+  }, [isDirectReplayActive, uploadReplay, dbReplay]);
 }
 
 function uploadReplayProjection(
@@ -199,11 +201,53 @@ export default function GameReplayPage(): React.ReactElement {
     readonly IGameEvent[] | null
   >(null);
   const [uploadedFilename, setUploadedFilename] = useState<string | null>(null);
+  const [persistedEvents, setPersistedEvents] = useState<
+    readonly IGameEvent[] | null
+  >(null);
+  const [matchLogLoadState, setMatchLogLoadState] =
+    useState<MatchLogLoadState>('idle');
   const isUploadActive = uploadedEvents !== null;
+  const directEvents = uploadedEvents ?? persistedEvents;
+  const isDirectReplayActive = directEvents !== null;
+  const activeReplayName =
+    uploadedFilename ??
+    (persistedEvents !== null ? `match-log:${gameId}` : null);
+  const replaySourceLabel =
+    uploadedEvents !== null
+      ? 'loaded from file'
+      : persistedEvents !== null
+        ? 'loaded from match log'
+        : null;
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    if (!isClient || !gameId) return;
+    let cancelled = false;
+    setMatchLogLoadState('loading');
+    setPersistedEvents(null);
+    void fetch(`/api/matches/${encodeURIComponent(gameId)}`)
+      .then(async (res) => {
+        if (cancelled) return;
+        if (res.ok) {
+          const report = (await res.json()) as IPostBattleReport;
+          setPersistedEvents(report.log);
+          setMatchLogLoadState('loaded');
+          return;
+        }
+        setMatchLogLoadState(res.status === 404 ? 'missing' : 'error');
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setMatchLogLoadState('error');
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [gameId, isClient]);
 
   const {
     allEvents,
@@ -216,15 +260,15 @@ export default function GameReplayPage(): React.ReactElement {
     infiniteScroll: false,
   });
 
-  const replay = useReplayProjection({ gameId, uploadedEvents });
+  const replay = useReplayProjection({ gameId, directEvents });
   const hexMapState = useHexMapStateFromEvents(
-    uploadedEvents ?? [],
+    directEvents ?? [],
     replay.currentSequence,
   );
-  useReplayMovementAnimations(uploadedEvents ?? [], replay.currentSequence, {
+  useReplayMovementAnimations(directEvents ?? [], replay.currentSequence, {
     mapId: 'replay',
   });
-  const uploadSummary = useUploadSummary(uploadedEvents);
+  const uploadSummary = useUploadSummary(directEvents);
   useReplayKeyboardBindings({ replay, showKeyboardHelp });
 
   const handleEventClick = useCallback(
@@ -243,15 +287,26 @@ export default function GameReplayPage(): React.ReactElement {
     },
     [],
   );
-  const handleClearUpload = useCallback(() => {
-    setUploadedEvents(null);
-    setUploadedFilename(null);
+  const handleClearActiveReplay = useCallback(() => {
+    if (uploadedEvents !== null) {
+      setUploadedEvents(null);
+      setUploadedFilename(null);
+    } else {
+      setPersistedEvents(null);
+      setMatchLogLoadState('idle');
+    }
     setSelectedEventId(null);
-  }, []);
+  }, [uploadedEvents]);
 
-  if (!isClient || eventsLoading) return <ReplayLoading />;
+  if (
+    !isClient ||
+    eventsLoading ||
+    (matchLogLoadState === 'loading' && directEvents === null)
+  ) {
+    return <ReplayLoading />;
+  }
 
-  if (eventsError && !isUploadActive) {
+  if (eventsError && !isDirectReplayActive) {
     return (
       <ReplayError message={eventsError.message} gameId={gameId || undefined} />
     );
@@ -259,8 +314,8 @@ export default function GameReplayPage(): React.ReactElement {
 
   const activeEvents = activeReplayEvents({
     allEvents,
-    isUploadActive,
-    uploadedEvents,
+    isUploadActive: isDirectReplayActive,
+    uploadedEvents: directEvents,
   });
 
   return (
@@ -274,7 +329,7 @@ export default function GameReplayPage(): React.ReactElement {
       >
         <ReplayHeader
           gameId={gameId}
-          isUploadActive={isUploadActive}
+          replaySourceLabel={replaySourceLabel}
           replay={replay}
           showKeyboardHelp={showKeyboardHelp}
           onToggleKeyboardHelp={() => setShowKeyboardHelp(!showKeyboardHelp)}
@@ -285,12 +340,13 @@ export default function GameReplayPage(): React.ReactElement {
             activeEvents={activeEvents}
             eventsLoading={eventsLoading}
             hasMore={pagination.hasMore}
-            isUploadActive={isUploadActive}
+            isDirectReplayActive={isDirectReplayActive}
+            isUploadedReplayActive={isUploadActive}
             replay={replay}
             selectedEventId={selectedEventId}
             uploadSummary={uploadSummary}
-            uploadedFilename={uploadedFilename}
-            onClearUpload={handleClearUpload}
+            uploadedFilename={activeReplayName}
+            onClearUpload={handleClearActiveReplay}
             onEventsLoaded={handleEventsLoaded}
             onEventClick={handleEventClick}
             onLoadMore={loadMore}
@@ -300,15 +356,15 @@ export default function GameReplayPage(): React.ReactElement {
             <div className="bg-surface-base/30 flex flex-1 items-center justify-center overflow-hidden">
               <ReplayVisualization
                 hexMapState={hexMapState}
-                isUploadActive={isUploadActive}
+                isUploadActive={isDirectReplayActive}
                 replay={replay}
-                uploadedEvents={uploadedEvents}
+                uploadedEvents={directEvents}
               />
             </div>
             <ReplayFooter
-              isUploadActive={isUploadActive}
+              isUploadActive={isDirectReplayActive}
               replay={replay}
-              uploadedEvents={uploadedEvents}
+              uploadedEvents={directEvents}
             />
           </div>
         </div>

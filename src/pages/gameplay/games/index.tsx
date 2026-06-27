@@ -6,6 +6,7 @@
  */
 
 import type { GetServerSideProps } from 'next';
+import type { MouseEvent } from 'react';
 
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -69,6 +70,10 @@ interface GameCardProps {
   onClick: () => void;
 }
 
+function stopCardNavigation(event: MouseEvent<HTMLElement>): void {
+  event.stopPropagation();
+}
+
 function GameCard({ game, onClick }: GameCardProps): React.ReactElement {
   const statusVariant = {
     active: 'success',
@@ -107,6 +112,29 @@ function GameCard({ game, onClick }: GameCardProps): React.ReactElement {
       <div className="border-border-theme-subtle text-text-theme-muted mt-4 border-t pt-3 text-xs">
         Last played: {new Date(game.updatedAt).toLocaleDateString()}
       </div>
+      {game.status === 'completed' && (
+        <div
+          className="border-border-theme-subtle mt-4 flex flex-wrap gap-2 border-t pt-3"
+          data-testid={`game-actions-${game.id}`}
+        >
+          <Link
+            href={`/gameplay/matches/${encodeURIComponent(game.id)}`}
+            onClick={stopCardNavigation}
+            className="inline-flex min-h-[36px] items-center rounded-md border border-slate-700 px-3 text-xs font-medium text-slate-200 hover:border-slate-500 hover:bg-slate-800"
+            data-testid={`game-report-${game.id}`}
+          >
+            Report
+          </Link>
+          <Link
+            href={`/gameplay/games/${encodeURIComponent(game.id)}/replay`}
+            onClick={stopCardNavigation}
+            className="inline-flex min-h-[36px] items-center rounded-md border border-cyan-700 px-3 text-xs font-medium text-cyan-100 hover:border-cyan-500 hover:bg-cyan-950"
+            data-testid={`game-replay-${game.id}`}
+          >
+            Replay
+          </Link>
+        </div>
+      )}
     </Card>
   );
 }

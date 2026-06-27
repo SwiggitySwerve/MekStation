@@ -182,10 +182,11 @@ flowchart TD
 1. `replay-audit-history`
    - `verify:qc:replay-recovery` now includes deterministic event replay,
      active-session deep-link/refresh recovery, replay-library watch/back
-     navigation, uploaded NDJSON playback, timeline controls, and keyboard
-     shortcut browser proof.
-   - Timeline export download and data-dependent campaign/completed-game replay
-     entry flows remain explicit release-signoff checks.
+     navigation, uploaded NDJSON playback, timeline controls, keyboard
+     shortcut browser proof, persisted completed-match replay entry, and seeded
+     timeline JSON export.
+   - Future replay/history changes must keep those flows in the automated
+     recovery gate instead of relying on data-dependent ad hoc checks.
 
 1. `gameplay-tactical-map-combat`
    - Tactical map is the primary explanation layer; Wave 7 adds a fast

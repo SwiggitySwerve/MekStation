@@ -167,8 +167,6 @@ const requiredSurfaces = [
       'e2e/active-session-recovery.spec.ts',
       'e2e/replay-player.spec.ts',
     ],
-    manualIncludes: ['Timeline export download'],
-    gapIncludes: ['Replay library export'],
   },
 ];
 
@@ -308,9 +306,13 @@ const defaultSourceAnchors = [
     path: 'e2e/replay-player.spec.ts',
     tokens: [
       'Replay Library Browser Round-Trip',
+      'games page opens replay for a persisted completed match',
+      'downloads a seeded timeline export as JSON',
       'jsonl-loader-file-input',
       'Show keyboard shortcuts',
       'buildReplayFixtureEvents',
+      'buildTimelineFixtureEvents',
+      'seedCompletedMatchLog',
     ],
   },
 ];

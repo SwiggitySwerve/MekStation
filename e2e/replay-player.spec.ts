@@ -10,7 +10,13 @@
  * @spec openspec/changes/add-audit-timeline/specs/audit-timeline/spec.md
  */
 
-import { test, expect, type Page } from '@playwright/test';
+import {
+  test,
+  expect,
+  type APIRequestContext,
+  type Page,
+} from '@playwright/test';
+import { promises as fs } from 'node:fs';
 
 import { seedCareerPilot } from './helpers/campaignSeeders';
 
@@ -27,15 +33,6 @@ async function navigateToTimeline(page: Page): Promise<void> {
   await page.goto('/audit/timeline');
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(500); // React hydration
-}
-
-/**
- * Navigate to campaign page and check for audit tab
- */
-async function navigateToCampaigns(page: Page): Promise<void> {
-  await page.goto('/gameplay/campaigns');
-  await page.waitForLoadState('networkidle');
-  await page.waitForTimeout(500);
 }
 
 /**
@@ -139,6 +136,131 @@ function buildReplayUploadFixture(gameId: string): string {
   return buildReplayFixtureEvents(gameId)
     .map((event) => JSON.stringify(event))
     .join('\n');
+}
+
+function buildTimelineFixtureEvents(runId: string): readonly unknown[] {
+  const gameId = `timeline-export-${runId}`;
+  const campaignId = `campaign-${runId}`;
+  return [
+    {
+      id: `${runId}-timeline-1`,
+      sequence: 1,
+      timestamp: '2026-06-25T00:00:00.000Z',
+      category: 'game',
+      type: 'game_created',
+      payload: { message: 'Timeline export seed created' },
+      context: { gameId, campaignId },
+    },
+    {
+      id: `${runId}-timeline-2`,
+      sequence: 2,
+      timestamp: '2026-06-25T00:01:00.000Z',
+      category: 'campaign',
+      type: 'PendingOutcomeAdded',
+      payload: {
+        campaignId,
+        matchId: gameId,
+        contractId: 'contract-export-proof',
+        scenarioId: 'scenario-export-proof',
+        queueLength: 1,
+      },
+      context: { gameId, campaignId },
+    },
+    {
+      id: `${runId}-timeline-3`,
+      sequence: 3,
+      timestamp: '2026-06-25T00:02:00.000Z',
+      category: 'game',
+      type: 'game_ended',
+      payload: { winner: 'player', reason: 'destruction' },
+      context: { gameId, campaignId },
+    },
+  ];
+}
+
+async function seedAuditTimelineEvents(
+  page: Page,
+  events: readonly unknown[],
+): Promise<void> {
+  await page.waitForFunction(
+    () =>
+      Boolean(
+        (
+          window as unknown as {
+            __EVENT_STORE__?: {
+              clear?: unknown;
+              appendBatch?: unknown;
+            };
+          }
+        ).__EVENT_STORE__?.appendBatch,
+      ),
+    undefined,
+    { timeout: 15_000 },
+  );
+  await page.evaluate((seedEvents) => {
+    const store = (
+      window as unknown as {
+        __EVENT_STORE__?: {
+          clear: () => void;
+          appendBatch: (events: readonly unknown[]) => void;
+        };
+      }
+    ).__EVENT_STORE__;
+    if (!store) {
+      throw new Error('E2E event store is not exposed');
+    }
+    store.clear();
+    store.appendBatch(seedEvents);
+  }, events);
+}
+
+function buildPostBattleReport(matchId: string): Record<string, unknown> {
+  return {
+    version: 1,
+    matchId,
+    winner: 'player',
+    reason: 'destruction',
+    turnCount: 1,
+    units: [
+      {
+        unitId: 'player-1',
+        side: 'player',
+        designation: 'Atlas',
+        damageDealt: 18,
+        damageReceived: 0,
+        kills: 1,
+        heatProblems: 0,
+        physicalAttacks: 0,
+        xpPending: true,
+      },
+      {
+        unitId: 'opponent-1',
+        side: 'opponent',
+        designation: 'Marauder',
+        damageDealt: 0,
+        damageReceived: 18,
+        kills: 0,
+        heatProblems: 0,
+        physicalAttacks: 0,
+        xpPending: true,
+      },
+    ],
+    mvpUnitId: 'player-1',
+    log: buildReplayFixtureEvents(matchId),
+  };
+}
+
+async function seedCompletedMatchLog(
+  request: APIRequestContext,
+  matchId: string,
+): Promise<void> {
+  const response = await request.post('/api/matches', {
+    data: buildPostBattleReport(matchId),
+  });
+  expect(response.status()).toBe(201);
+  await expect(response).toBeOK();
+  const body = (await response.json()) as { matchId?: string };
+  expect(body.matchId).toBe(matchId);
 }
 
 // =============================================================================
@@ -269,40 +391,6 @@ test.describe('Pilot Career Timeline Tab', () => {
 });
 
 // =============================================================================
-// Test Suite: Campaign Audit Tab
-// =============================================================================
-
-test.describe('Campaign Audit Timeline Tab', () => {
-  test('campaign detail page has Audit Timeline tab', async ({ page }) => {
-    await navigateToCampaigns(page);
-
-    const campaignCards = page.locator(
-      '[data-testid="campaign-card"], a[href*="/gameplay/campaigns/"]',
-    );
-    const campaignCount = await campaignCards.count();
-
-    // Skip if no campaigns exist - this test requires seed data
-    test.skip(
-      campaignCount === 0,
-      'No campaigns available - test requires campaign data',
-    );
-
-    await campaignCards.first().click();
-    await page.waitForLoadState('networkidle');
-
-    // Check for Audit Timeline tab
-    const auditTab = page.getByRole('button', { name: /Audit Timeline/i });
-    await expect(auditTab).toBeVisible({ timeout: 5000 });
-
-    // Click audit tab
-    await auditTab.click();
-
-    // Should show campaign timeline content
-    await expect(page.locator('text=Campaign Timeline').first()).toBeVisible();
-  });
-});
-
-// =============================================================================
 // Test Suite: Replay Page Navigation
 // =============================================================================
 
@@ -339,31 +427,36 @@ test.describe('Game Replay Page', () => {
     ).toBeTruthy();
   });
 
-  test('games page shows replay button for completed games', async ({
+  test('games page opens replay for a persisted completed match', async ({
     page,
-  }) => {
+    request,
+  }, testInfo) => {
+    const matchId = `completed-replay-${testInfo.workerIndex}-${Date.now()}`;
+    await seedCompletedMatchLog(request, matchId);
+
     await page.goto('/gameplay/games');
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(500);
 
-    // Look for any completed game with replay button. Scope to <main> —
-    // the TopBar's History dropdown carries a hidden /replay-library
-    // menuitem (TopBar.tsx historyItems) that `a[href*="/replay"]` would
-    // first-match otherwise (deterministic failure since the Replay
-    // Library nav entry landed).
-    const replayButtons = page.locator(
-      'main a[href*="/replay"], main button:has-text("Replay")',
+    // The seeded completed match must surface direct report and replay actions.
+    await expect(page.getByTestId(`game-card-${matchId}`)).toBeVisible({
+      timeout: 10000,
+    });
+    await expect(page.getByTestId(`game-report-${matchId}`)).toBeVisible();
+    await page.getByTestId(`game-replay-${matchId}`).click();
+
+    await expect(page).toHaveURL(
+      new RegExp(`/gameplay/games/${matchId}/replay$`),
     );
-    const replayCount = await replayButtons.count();
-
-    // Skip if no completed games with replay buttons exist
-    test.skip(
-      replayCount === 0,
-      'No completed games with replay buttons - test requires game data',
+    await expect(page.getByTestId('replay-loaded-source')).toContainText(
+      'loaded from match log',
     );
-
-    const firstReplay = replayButtons.first();
-    await expect(firstReplay).toBeVisible();
+    await expect(page.getByTestId('jsonl-loader-status')).toContainText(
+      `match-log:${matchId}`,
+    );
+    await expect(page.getByTestId('replay-event-count')).toContainText(
+      '3 events',
+    );
+    await expect(page.getByText('Seq #0')).toBeVisible({ timeout: 10000 });
   });
 });
 
@@ -511,25 +604,48 @@ test.describe('Replay Keyboard Shortcuts', () => {
 // =============================================================================
 
 test.describe('Timeline Export Functionality', () => {
-  test('export button is visible on timeline page', async ({ page }) => {
+  test('downloads a seeded timeline export as JSON', async ({
+    page,
+  }, testInfo) => {
     await navigateToTimeline(page);
+    const runId = `${testInfo.workerIndex}-${Date.now()}`;
+    const events = buildTimelineFixtureEvents(runId);
+    await seedAuditTimelineEvents(page, events);
 
-    // Export button should be present - this is a core UI element
-    const exportButton = page.locator(
-      'button:has-text("Export"), [aria-label*="Export"]',
+    await page.getByRole('button', { name: 'Refresh timeline' }).click();
+    await expect(page.getByRole('button', { name: 'Export (3)' })).toBeVisible({
+      timeout: 5000,
+    });
+
+    await page.getByRole('button', { name: 'Export (3)' }).click();
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByRole('button', { name: 'Export as JSON' }).click(),
+    ]);
+
+    expect(download.suggestedFilename()).toMatch(
+      /^event-timeline-\d{4}-\d{2}-\d{2}\.json$/,
     );
+    const downloadPath = testInfo.outputPath('timeline-export.json');
+    await download.saveAs(downloadPath);
+    const exported = JSON.parse(
+      await fs.readFile(downloadPath, 'utf8'),
+    ) as Array<{
+      id: string;
+      context?: { campaignId?: string };
+    }>;
+    const exportedIds = exported.map((event) => event.id).sort();
+    const expectedIds = events
+      .map((event) => (event as { id: string }).id)
+      .sort();
 
-    // Allow export to be optional for now, but track if it's missing
-    const hasExport = await exportButton
-      .first()
-      .isVisible({ timeout: 3000 })
-      .catch(() => false);
-    if (!hasExport) {
-      console.warn(
-        'Export button not found on timeline page - may need implementation',
-      );
-    }
-    // Test passes - export is optional until fully implemented
+    expect(exported).toHaveLength(3);
+    expect(exportedIds).toEqual(expectedIds);
+    expect(
+      exported.every(
+        (event) => event.context?.campaignId === `campaign-${runId}`,
+      ),
+    ).toBe(true);
   });
 
   test('refresh button works on timeline', async ({ page }) => {

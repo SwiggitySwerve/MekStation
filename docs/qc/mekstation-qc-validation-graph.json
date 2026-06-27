@@ -1409,7 +1409,7 @@
       "id": "surface:replay-audit-history",
       "kind": "surface",
       "label": "Replay, Audit History, Determinism",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:replay-audit-history:lifecycle",
@@ -1423,6 +1423,7 @@
       "entries": [
         "docs/audits/2026-06-12-full-codebase-review.md",
         "2026-06-25 `e2e/replay-player.spec.ts` now proves deterministic replay-library watch/back navigation plus NDJSON upload, timeline controls, and keyboard shortcut behavior; empty DB timelines keep the upload shell available instead of blocking on a hard error.",
+        "2026-06-27 `verify:qc:replay-recovery` passed with replay-player at 11 Chromium checks and no skipped cases; it covers persisted completed-match replay entry, replay-library watch/back, NDJSON upload playback, keyboard shortcuts, active-session recovery, and seeded timeline JSON export.",
         "Archived OpenSpec change 2026-06-21-persist-and-recover-interactive-battles retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-restore-ci-correctness-teeth retired from activeChangeRefs on 2026-06-23."
       ]
@@ -1432,7 +1433,7 @@
       "kind": "evidence",
       "label": "Manual/browser evidence for Replay, Audit History, Determinism",
       "entries": [
-        "Timeline export download and data-dependent campaign/completed-game replay entry flows remain release-signoff checks"
+        "Automated Chromium coverage exercises timeline JSON export and persisted completed-match replay entry flows."
       ]
     },
     {
@@ -1440,7 +1441,7 @@
       "kind": "known-gap",
       "label": "Replay, Audit History, Determinism known gaps",
       "entries": [
-        "Replay library export and data-dependent campaign/completed-game replay entry release signoff remain separate from active-battle route recovery."
+        "Future replay/history changes must keep persisted match-log replay, replay-library watch/back, NDJSON upload playback, keyboard shortcuts, active-session recovery, and timeline JSON export in the automated recovery gate."
       ]
     },
     {

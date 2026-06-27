@@ -5,6 +5,7 @@
  * Only active when NEXT_PUBLIC_E2E_MODE=true
  */
 
+import { getEventStore, type EventStoreService } from '@/services/events';
 import * as aerospaceRegistry from '@/stores/aerospaceStoreRegistry';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
@@ -52,6 +53,7 @@ declare global {
     __VEHICLE_REGISTRY__?: typeof vehicleRegistry;
     __UNIT_REGISTRY__?: typeof unitRegistry;
     __UNIT_TEMPLATES__?: typeof UNIT_TEMPLATES;
+    __EVENT_STORE__?: EventStoreService;
     __E2E_MODE__?: boolean;
   }
 }
@@ -83,6 +85,7 @@ export function exposeStoresForE2E(): void {
   window.__VEHICLE_REGISTRY__ = vehicleRegistry;
   window.__UNIT_REGISTRY__ = unitRegistry;
   window.__UNIT_TEMPLATES__ = UNIT_TEMPLATES;
+  window.__EVENT_STORE__ = getEventStore();
 
   logger.debug('[E2E] Stores exposed for testing');
 }
