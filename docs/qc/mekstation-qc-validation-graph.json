@@ -1653,7 +1653,8 @@
         "2026-06-27 MegaMekLab data converter helper extraction moved metadata/type derivation and UnitVerifierOptions XML conversion into focused helper modules; data_converter.py drops from high file-bloat to warn, data_converter_xml.py has no scanner findings, and data_converter_helpers.py is advisory-only.",
         "docs/qc/maintenance-baseline.json",
         "docs/qc/maintenance-warning-ledger.json",
-        "scripts/qc/validate-maintenance-warning-ledger.mjs"
+        "scripts/qc/validate-maintenance-warning-ledger.mjs",
+        "2026-06-27 validate-bv architecture split moved the BattleMech BV calculation engine into focused calculator, crit-scan, ammo-resolution, weapon-resolution, known-unit, normalizer, and type modules; the original validate-bv.ts critical file-bloat finding is fixed, with three high file-bloat follow-ups tracked for the remaining validator submodules."
       ]
     },
     {
@@ -1683,7 +1684,7 @@
     {
       "id": "command:npm-cmd-run-qc-select-status-partial",
       "kind": "command",
-      "label": "npm.cmd run qc:select -- --status=partial"
+      "label": "npm.cmd run qc:select -- --status=active-review"
     },
     {
       "id": "command:npm-cmd-run-maintain-scan-scope-src-limit-80",

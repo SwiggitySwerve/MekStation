@@ -18,9 +18,9 @@
       "follow-up": 0
     },
     "file-bloat": {
-      "fixed": 2,
+      "fixed": 3,
       "accepted": 0,
-      "follow-up": 13
+      "follow-up": 16
     },
     "near-duplicate": {
       "fixed": 0,
@@ -63,9 +63,9 @@
       "severity": "critical",
       "file": "scripts/validate-bv.ts",
       "message": "4727 LOC exceeds rendering threshold",
-      "status": "follow-up",
-      "rationale": "The BV validator is large but source-of-truth heavy; CLI parsing and physical weapon BV tables have been extracted, and the remaining split is a dedicated validator architecture wave.",
-      "followUps": ["wave-12-script-bloat-follow-up"]
+      "status": "fixed",
+      "rationale": "BV calculation, crit-slot scanning, ammo resolution, weapon resolution, known-unit data, normalizers, and shared types were split into focused validator modules. The original critical monolith is gone; remaining high/warn file-bloat is tracked as follow-up validator architecture debt.",
+      "followUps": ["wave-12-validate-bv-architecture-split"]
     },
     {
       "key": "file-bloat|high|scripts/megameklab-conversion/data_converter.py|736 LOC exceeds python threshold",
@@ -620,6 +620,46 @@
       "status": "accepted",
       "rationale": "SettingsService method breadth is accepted as desktop service API surface; the actionable dispatch issue is tracked separately.",
       "acceptanceEvidence": ["desktop/services/local/SettingsService.ts"]
+    },
+    {
+      "key": "file-bloat|high|scripts/validate-bv.ts|963 LOC exceeds rendering threshold",
+      "category": "file-bloat",
+      "severity": "high",
+      "file": "scripts/validate-bv.ts",
+      "message": "963 LOC exceeds rendering threshold",
+      "status": "follow-up",
+      "rationale": "The CLI/reporting orchestrator is now below critical size but still above the high rendering threshold; split report serialization and console rendering in the next validator architecture wave.",
+      "followUps": ["wave-12-validate-bv-architecture-split"]
+    },
+    {
+      "key": "file-bloat|high|scripts/validate-bv-calculator.ts|1152 LOC exceeds standard threshold",
+      "category": "file-bloat",
+      "severity": "high",
+      "file": "scripts/validate-bv-calculator.ts",
+      "message": "1152 LOC exceeds standard threshold",
+      "status": "follow-up",
+      "rationale": "The unit BV calculator now owns the calculation core only; additional extraction should split defensive/offensive correction helpers with full BV parity coverage.",
+      "followUps": ["wave-12-validate-bv-architecture-split"]
+    },
+    {
+      "key": "file-bloat|high|scripts/validate-bv-crit-scan.ts|1146 LOC exceeds standard threshold",
+      "category": "file-bloat",
+      "severity": "high",
+      "file": "scripts/validate-bv-crit-scan.ts",
+      "message": "1146 LOC exceeds standard threshold",
+      "status": "follow-up",
+      "rationale": "Critical-slot scanning is now isolated from the CLI and calculator, but it still needs a focused scanner-helper split guarded by BV parity and crit-slot fixture coverage.",
+      "followUps": ["wave-12-validate-bv-architecture-split"]
+    },
+    {
+      "key": "file-bloat|warn|scripts/validate-bv-ammo-resolution.ts|830 LOC exceeds standard threshold",
+      "category": "file-bloat",
+      "severity": "warn",
+      "file": "scripts/validate-bv-ammo-resolution.ts",
+      "message": "830 LOC exceeds standard threshold",
+      "status": "follow-up",
+      "rationale": "Ammo resolution is separated from the validator core; the remaining size is mostly pattern tables and should move only with ammo fixture parity coverage.",
+      "followUps": ["wave-12-validate-bv-architecture-split"]
     }
   ]
 }

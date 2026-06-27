@@ -605,10 +605,10 @@
           ]
         },
         {
-          "id": "partial-qc-lane-selection",
+          "id": "active-review-qc-lane-selection",
           "tier": "standard",
           "required": true,
-          "command": "npm.cmd run qc:select -- --status=partial",
+          "command": "npm.cmd run qc:select -- --status=active-review",
           "evidence": [
             "docs/qc/mekstation-qc-registry.json",
             "scripts/qc/select-qc-lanes.mjs"
