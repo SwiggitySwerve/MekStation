@@ -33,9 +33,9 @@
       "follow-up": 0
     },
     "design-violation": {
-      "fixed": 20,
+      "fixed": 21,
       "accepted": 3,
-      "follow-up": 4
+      "follow-up": 3
     }
   },
   "entries": [
@@ -467,9 +467,12 @@
       "severity": "critical",
       "file": "scripts/performance/measure-bundle-size.js",
       "message": "class has 11 public methods",
-      "status": "follow-up",
-      "rationale": "Bundle measurement utility should be split with performance smoke checks rather than altered in the ledger wave.",
-      "followUps": ["wave-12-script-bloat-follow-up"]
+      "status": "fixed",
+      "rationale": "Bundle measurement utility is now a thin orchestrator over testable module helpers, and the chunk walker no longer double-counts app/pages chunks.",
+      "fixedEvidence": [
+        "2026-06-27 `npm.cmd run maintain:scan -- --scope=scripts/performance/measure-bundle-size.js --json` reported 0 findings.",
+        "2026-06-27 `npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/measure-bundle-size.test.ts --runInBand` passed 4 checks."
+      ]
     },
     {
       "key": "design-violation|high|desktop/electron/main.behavior.ts|switch statement has 9 cases",
