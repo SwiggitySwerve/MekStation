@@ -49,6 +49,12 @@ export interface JsonlFileLoaderProps {
   readonly onClearUpload: () => void;
   /** When set, indicates uploaded events are currently active. */
   readonly uploadedFilename?: string | null;
+  /** Status prefix shown before the active replay source name. */
+  readonly loadedLabel?: string;
+  /** Button text for clearing the active replay source. */
+  readonly clearLabel?: string;
+  /** Accessible label for clearing the active replay source. */
+  readonly clearAriaLabel?: string;
   /** Total event count of the currently-loaded file (for the status pill). */
   readonly eventCount?: number;
   /** Min turn from the loaded file (for the status pill). */
@@ -125,6 +131,9 @@ export function JsonlFileLoader({
   onEventsLoaded,
   onClearUpload,
   uploadedFilename,
+  loadedLabel = 'loaded',
+  clearLabel = 'clear upload',
+  clearAriaLabel = 'Clear uploaded file',
   eventCount,
   minTurn,
   maxTurn,
@@ -220,7 +229,7 @@ export function JsonlFileLoader({
         className="border-border-theme-subtle bg-surface-raised flex items-center justify-between gap-3 rounded-lg border px-3 py-2"
       >
         <div className="text-text-theme-secondary truncate text-sm">
-          <span className="text-text-theme-muted">loaded</span>{' '}
+          <span className="text-text-theme-muted">{loadedLabel}</span>{' '}
           <span className="text-text-theme-primary font-mono">
             {uploadedFilename}
           </span>{' '}
@@ -236,10 +245,10 @@ export function JsonlFileLoader({
           type="button"
           onClick={handleClearClick}
           className="text-text-theme-secondary hover:text-text-theme-primary rounded-md px-2 py-1 text-xs transition-colors"
-          aria-label="Clear uploaded file"
+          aria-label={clearAriaLabel}
           data-testid="jsonl-loader-clear"
         >
-          clear upload
+          {clearLabel}
         </button>
       </div>
     );

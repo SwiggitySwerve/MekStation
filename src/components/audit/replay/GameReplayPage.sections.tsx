@@ -48,7 +48,7 @@ export interface ReplayProjection {
 
 interface ReplayHeaderProps {
   readonly gameId: string;
-  readonly isUploadActive: boolean;
+  readonly replaySourceLabel: string | null;
   readonly replay: ReplayProjection;
   readonly showKeyboardHelp: boolean;
   readonly onToggleKeyboardHelp: () => void;
@@ -56,7 +56,7 @@ interface ReplayHeaderProps {
 
 export function ReplayHeader({
   gameId,
-  isUploadActive,
+  replaySourceLabel,
   replay,
   showKeyboardHelp,
   onToggleKeyboardHelp,
@@ -80,12 +80,12 @@ export function ReplayHeader({
         >
           Game Replay
         </h1>
-        {isUploadActive && (
+        {replaySourceLabel !== null && (
           <span
             className="bg-accent/20 text-accent rounded-full px-2 py-0.5 text-xs font-medium"
-            data-testid="replay-loaded-from-file"
+            data-testid="replay-loaded-source"
           >
-            loaded from file
+            {replaySourceLabel}
           </span>
         )}
         <span
@@ -124,7 +124,8 @@ interface ReplaySidebarProps {
   readonly activeEvents: readonly IBaseEvent[];
   readonly eventsLoading: boolean;
   readonly hasMore: boolean;
-  readonly isUploadActive: boolean;
+  readonly isDirectReplayActive: boolean;
+  readonly isUploadedReplayActive: boolean;
   readonly replay: ReplayProjection;
   readonly selectedEventId: string | null;
   readonly uploadSummary: {
@@ -148,7 +149,8 @@ export function ReplaySidebar({
   activeEvents,
   eventsLoading,
   hasMore,
-  isUploadActive,
+  isDirectReplayActive,
+  isUploadedReplayActive,
   replay,
   selectedEventId,
   uploadSummary,
@@ -166,6 +168,15 @@ export function ReplaySidebar({
           onEventsLoaded={onEventsLoaded}
           onClearUpload={onClearUpload}
           uploadedFilename={uploadedFilename}
+          loadedLabel={
+            isUploadedReplayActive ? 'loaded' : 'loaded from match log'
+          }
+          clearLabel={isUploadedReplayActive ? 'clear upload' : 'clear replay'}
+          clearAriaLabel={
+            isUploadedReplayActive
+              ? 'Clear uploaded file'
+              : 'Clear match-log replay'
+          }
           eventCount={uploadSummary.count}
           minTurn={uploadSummary.minTurn}
           maxTurn={uploadSummary.maxTurn}
@@ -179,8 +190,8 @@ export function ReplaySidebar({
           <EventTimeline
             events={activeEvents}
             onEventClick={onEventClick}
-            onLoadMore={isUploadActive ? () => {} : onLoadMore}
-            hasMore={isUploadActive ? false : hasMore}
+            onLoadMore={isDirectReplayActive ? () => {} : onLoadMore}
+            hasMore={isDirectReplayActive ? false : hasMore}
             isLoading={eventsLoading}
             selectedEventId={selectedEventId || replay.currentEvent?.id}
             maxHeight="calc(100vh - 200px)"
