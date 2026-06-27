@@ -29,6 +29,22 @@ function writeReferenceCache(referenceDir: string, entries: object): void {
 describe('validate-bv fail-loud exits', () => {
   jest.setTimeout(60_000);
 
+  it('exits with usage text for the short help alias', () => {
+    const result = runValidateBv(['-h']);
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('Usage: npx tsx scripts/validate-bv.ts');
+    expect(result.stdout).not.toContain('Processing:');
+  });
+
+  it('rejects invalid minimum coverage before loading validation data', () => {
+    const result = runValidateBv(['--min-coverage', 'invalid']);
+
+    expect(result.status).toBe(3);
+    expect(result.stderr).toContain('Invalid BV minimum coverage floor: NaN');
+    expect(result.stdout).not.toContain('Processing:');
+  });
+
   it('exits distinctly when the committed reference dataset is missing', () => {
     const referenceDir = makeTempDir('validate-bv-empty-ref-');
     const outputDir = makeTempDir('validate-bv-empty-out-');
