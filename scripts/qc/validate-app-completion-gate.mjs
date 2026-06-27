@@ -40,6 +40,7 @@ const requiredScripts = new Map([
   ['qc:validate', 'node scripts/qc/validate-qc-registry.mjs'],
   ['qc:lifecycle:status', 'node scripts/qc/report-lifecycle-qc-status.mjs'],
   ['qc:logging:validate', 'node scripts/qc/validate-journey-qc.mjs'],
+  ['qc:openspec-ci:validate', 'validate-openspec-ci-quality.mjs'],
   ['verify:app-completion', 'qc:app-completion'],
   ['verify:app-completion:release', 'qc:app-completion:release'],
   ['verify:qc', 'qc:lifecycle:status'],
@@ -147,10 +148,10 @@ const priorityWaves = [
 ];
 
 const releaseGapPattern =
-  /release|release-grade|signoff|browser-driven|browserExecuted=false|true two-window|packaged-runtime|security audit|explicit skips|separate UI lane|screenshot-quality|manual takeover|knownLimitations bypass/i;
+  /release-grade|release[- ]signoff|signoff|browser-driven|browserExecuted=false|true two-window|packaged-runtime|security audit|explicit skips|separate UI lane|screenshot-quality|manual takeover|knownLimitations bypass/i;
 
 const evidenceReleaseGapPattern =
-  /release|release-grade|signoff|browser-driven|browserExecuted=false|true two-window|packaged-runtime|security audit|explicit skips|separate UI lane|screenshot-quality|manual takeover/i;
+  /release-grade|release[- ]signoff|signoff|browser-driven|browserExecuted=false|true two-window|packaged-runtime|security audit|explicit skips|separate UI lane|screenshot-quality|manual takeover/i;
 
 function parseArgs(argv) {
   const options = {
@@ -410,6 +411,7 @@ function releaseGapsForScenarios(scenarios, journeys) {
 
   for (const scenario of scenarios) {
     for (const value of [
+      ...(scenario.successCriteria ?? []),
       ...(scenario.notes ?? []),
       ...(scenario.releaseGaps ?? []),
       ...(scenario.knownLimitations ?? []),

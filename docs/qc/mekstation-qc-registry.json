@@ -1437,7 +1437,7 @@
       "parentId": null,
       "riskTags": ["roadmap-honesty", "ci", "test-quality"],
       "qualityLenses": ["test-quality", "functionality", "rules-parity"],
-      "coverageStatus": "partial",
+      "coverageStatus": "ready-with-scope",
       "routes": [],
       "apis": [],
       "desktopSurfaces": [],
@@ -1459,21 +1459,22 @@
       "activeChangeRefs": [],
       "tests": ["all"],
       "commands": [
+        "npm.cmd run qc:openspec-ci:validate",
         "npx.cmd openspec validate --all --strict",
         "npm.cmd run lint",
         "npm.cmd run typecheck -- --pretty false",
         "npm.cmd run format:check"
       ],
-      "manualChecks": [
-        "Compare PR-required checks against local command list and active spec promises"
-      ],
+      "manualChecks": [],
       "evidence": [
         "docs/audits/2026-06-12-full-codebase-review.md",
+        "2026-06-27 `qc:openspec-ci:validate` makes PR workflow, branch-protection required contexts, top-level verify:qc wiring, strict OpenSpec status, combat/BV gates, schema bridge, tactical browser smoke, and desktop build matrix coverage machine-checkable.",
+        "2026-06-27 PR #917 ran the protected CI contract green: Lint and Test plus Build Test / win, mac, and linux all passed before merge.",
         "Archived OpenSpec change 2026-06-21-restore-ci-correctness-teeth retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-reconcile-spec-source-of-truth retired from activeChangeRefs on 2026-06-23."
       ],
       "gaps": [
-        "Green CI must not rely on skipped suites, zero-coverage harnesses, or stale spec claims."
+        "Future CI edits must keep branch-protection required contexts, lint/test aggregation, strict schema/OpenSpec/rules gates, and platform build checks in the machine-checked contract."
       ]
     },
     {

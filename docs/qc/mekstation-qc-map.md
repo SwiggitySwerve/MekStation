@@ -51,6 +51,7 @@ npm.cmd run qc:gm:time-cascade
 npm.cmd run qc:tactical:projection:validate
 npm.cmd run qc:tactical:projection
 npm.cmd run qc:wave4:family-data:validate
+npm.cmd run qc:openspec-ci:validate
 npm.cmd run qc:logging:validate
 npm.cmd run qc:graph -- --query=mek-build
 npm.cmd run qc:graph -- --kind=surface --query=tactical
@@ -101,6 +102,9 @@ QC registry, lifecycle wiring, logging, combat gap gates, Electron package
 proof, and the maintenance warning ledger. Use `qc:app-completion:release` or
 `verify:app-completion:release` when the intent is to fail while any
 release-signoff gap remains.
+Use `qc:openspec-ci:validate` when the question is whether the PR workflow,
+branch-protection required contexts, strict OpenSpec/rules/schema gates,
+browser smoke, and desktop build matrix remain wired into reviewable CI.
 
 ## Graph
 
