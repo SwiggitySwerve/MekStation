@@ -15,6 +15,10 @@ import { logger } from '@/utils/logger';
 
 const MAX_COMPARE = 4;
 
+function isAbortError(err: unknown): boolean {
+  return err instanceof Error && err.name === 'AbortError';
+}
+
 export default function ComparePage(): React.ReactElement {
   const [catalog, setCatalog] = useState<IUnitEntry[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,6 +28,15 @@ export default function ComparePage(): React.ReactElement {
 
   useEffect(() => {
     const controller = new AbortController();
+    let disposed = false;
+
+    const abortCatalogFetch = () => {
+      disposed = true;
+      controller.abort();
+    };
+
+    window.addEventListener('beforeunload', abortCatalogFetch);
+    window.addEventListener('pagehide', abortCatalogFetch);
 
     async function fetchCatalog() {
       try {
@@ -38,16 +51,20 @@ export default function ComparePage(): React.ReactElement {
           setCatalog(data.data || []);
         }
       } catch (err) {
-        if (controller.signal.aborted) return;
+        if (disposed || controller.signal.aborted || isAbortError(err)) return;
         logger.error('Failed to fetch catalog:', err);
       } finally {
-        if (controller.signal.aborted) return;
+        if (disposed || controller.signal.aborted) return;
         setCatalogLoading(false);
       }
     }
     fetchCatalog();
 
-    return () => controller.abort();
+    return () => {
+      window.removeEventListener('beforeunload', abortCatalogFetch);
+      window.removeEventListener('pagehide', abortCatalogFetch);
+      abortCatalogFetch();
+    };
   }, []);
 
   const filteredCatalog = catalog
