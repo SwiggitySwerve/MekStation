@@ -1363,7 +1363,7 @@
       "id": "surface:multiplayer-coop-sync",
       "kind": "surface",
       "label": "Multiplayer, Co-op, P2P Sync",
-      "coverageStatus": "partial"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:multiplayer-coop-sync:lifecycle",
@@ -1379,6 +1379,7 @@
         "2026-06-23 Chromium browser smoke passed `npx.cmd playwright test --project=chromium e2e/playtest-coop-route-smoke.spec.ts`: host co-op campaign mounts dashboard/personnel/mech-bay/hiring/contract-market/finances with co-op badge, and single-player campaign hides co-op surfaces.",
         "2026-06-24 `verify:qc:multiplayer-reliability` groups browser route smoke, mock P2P sync, co-op route mounting, API fog/spectate contracts, server host/reconnect/spectator/fog behavior, turn ownership, and the Phase 4 capstone host/join/reconnect/outcome flow.",
         "2026-06-25 `npm.cmd run validate:multiplayer:packaged-socket` passed after `npm.cmd run build`: packaged server socket upgrade/replay succeeded, the process restarted against the same durable SQLite match store, the same match replayed after reconnect, and the co-op runtime proposal committed.",
+        "2026-06-26 `npx.cmd playwright test --project=chromium e2e/multiplayer-live-vault-auth.spec.ts --workers=1` passed: REST-created fog-enabled matches returned real Atlas/Marauder unit bootstrap metadata, both vault-auth browser contexts launched over signed sockets, host and guest rendered side-owned tactical unit tokens, and the host advanced Initiative to Movement over WebSocket.",
         "Archived OpenSpec change 2026-06-21-reconcile-multiplayer-coop-reality retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23."
       ]
@@ -1388,7 +1389,7 @@
       "kind": "evidence",
       "label": "Manual/browser evidence for Multiplayer, Co-op, P2P Sync",
       "entries": [
-        "Run a true two-window/vault-auth host and guest session, join by invite code, and verify live turn handoff plus fog-limited guest state."
+        "During exploratory QA, confirm each player's tactical view shows side-owned units and no hidden GM/private fields leak through the multiplayer surface."
       ]
     },
     {
@@ -1396,7 +1397,7 @@
       "kind": "known-gap",
       "label": "Multiplayer, Co-op, P2P Sync known gaps",
       "entries": [
-        "Automated coverage proves route/mock harness, server/API contracts, reconnect, spectator, fog, turn-authority, capstone host/join recovery, and packaged runtime kill/reconnect against the durable match store; true two-window vault-auth live play remains the release-signoff check."
+        "Room-created unit selection is metadata/API-driven; the lobby UI does not yet expose user-selectable roster configuration."
       ]
     },
     {

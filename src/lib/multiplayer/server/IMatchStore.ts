@@ -20,6 +20,7 @@
  */
 
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
 import type { IMatchSeat, TeamLayout } from '@/types/multiplayer/Lobby';
 
 // =============================================================================
@@ -60,6 +61,22 @@ export interface IMatchConfig {
 }
 
 /**
+ * Compact, durable unit bootstrap for live multiplayer hosts. Stores unit
+ * references and pilot-side choices, not full adapted unit blobs; the registry
+ * adapts these through the catalog when the authoritative host starts.
+ */
+export interface IMatchUnitBootstrapEntry {
+  readonly unitId: string;
+  readonly unitRef: string;
+  readonly side: ISideAssignment['side'];
+  readonly name?: string;
+  readonly pilotRef?: string;
+  readonly gunnery?: number;
+  readonly piloting?: number;
+  readonly startHex?: IHexCoordinate;
+}
+
+/**
  * `IMatchMeta` — durable description of a match. Anything a server
  * restart would need to rebuild the `ServerMatchHost` belongs here.
  */
@@ -82,6 +99,7 @@ export interface IMatchMeta {
   readonly roomCode?: string;
   readonly layout?: TeamLayout;
   readonly seats?: readonly IMatchSeat[];
+  readonly unitBootstrap?: readonly IMatchUnitBootstrapEntry[];
 }
 
 /**
@@ -105,6 +123,7 @@ export type IMatchMetaPatch = Partial<
     | 'config'
     | 'seats'
     | 'layout'
+    | 'unitBootstrap'
   >
 > & {
   readonly roomCode?: string | null;

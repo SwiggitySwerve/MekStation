@@ -48,6 +48,26 @@ const SideAssignmentSchema = z
   })
   .strict();
 
+const HexCoordinateSchema = z
+  .object({
+    q: z.number().finite().int().min(-50).max(50),
+    r: z.number().finite().int().min(-50).max(50),
+  })
+  .strict();
+
+const MatchUnitBootstrapEntrySchema = z
+  .object({
+    unitId: z.string().trim().min(1).max(ID_MAX_LENGTH),
+    unitRef: z.string().trim().min(1).max(ID_MAX_LENGTH),
+    side: z.enum(['player', 'opponent']),
+    name: z.string().trim().min(1).max(128).optional(),
+    pilotRef: z.string().trim().min(1).max(ID_MAX_LENGTH).optional(),
+    gunnery: z.number().finite().int().min(0).max(8).optional(),
+    piloting: z.number().finite().int().min(0).max(8).optional(),
+    startHex: HexCoordinateSchema.optional(),
+  })
+  .strict();
+
 const MatchConfigSchema = z
   .object({
     mapRadius: z.number().finite().int().min(1).max(50),
@@ -71,6 +91,11 @@ export const CreateMultiplayerMatchBodySchema = z
       .optional(),
     playerIds: z.array(PlayerIdSchema).min(1).max(8).optional(),
     sideAssignments: z.array(SideAssignmentSchema).min(1).max(8).optional(),
+    unitBootstrap: z
+      .array(MatchUnitBootstrapEntrySchema)
+      .min(1)
+      .max(8)
+      .optional(),
     layout: TeamLayoutSchema.optional(),
     aiSlots: z.array(z.string().trim().min(1).max(64)).max(8).optional(),
   })

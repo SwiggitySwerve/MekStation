@@ -9,9 +9,9 @@
  *     networked surface
  *   - advances the initial server-owned phase through the real WebSocket path
  *
- * Honest boundary: REST-created matches still bootstrap the active host with
- * placeholder units, so this is a release-equivalent transport/control-plane
- * proof, not a full tactical unit-combat parity proof.
+ * Release proof: REST-created matches now bootstrap the active host with a
+ * real unit roster, so the launched browser surface renders unit-backed
+ * tactical state through the same signed WebSocket path the players use.
  *
  * @tags @game @smoke @playtest @multiplayer
  */
@@ -45,6 +45,11 @@ interface ICreateMatchResponse {
   readonly meta: {
     readonly roomCode?: string;
     readonly config: { readonly fogOfWar?: boolean };
+    readonly unitBootstrap?: readonly {
+      readonly unitId: string;
+      readonly unitRef: string;
+      readonly side: 'player' | 'opponent';
+    }[];
   };
 }
 
@@ -186,6 +191,20 @@ test.describe('multiplayer live vault-auth flow', () => {
       roomCode = created.roomCode ?? created.meta.roomCode ?? null;
       expect(roomCode).toMatch(/^[A-Z0-9]{6}$/);
       expect(created.meta.config.fogOfWar).toBe(true);
+      expect(created.meta.unitBootstrap).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            unitId: 'player-1-atlas-as7-d',
+            unitRef: 'atlas-as7-d',
+            side: 'player',
+          }),
+          expect.objectContaining({
+            unitId: 'opponent-1-marauder-mad-3r',
+            unitRef: 'marauder-mad-3r',
+            side: 'opponent',
+          }),
+        ]),
+      );
 
       await connectLobby(hostPage, HOST_PASSWORD);
       await expectSeatOccupied(hostPage, 'alpha-1');
@@ -254,6 +273,12 @@ test.describe('multiplayer live vault-auth flow', () => {
       await expect(guestPage.getByTestId('networked-game-surface')).toBeVisible(
         { timeout: 30_000 },
       );
+      await expect(
+        hostPage.getByTestId('unit-token-player-1-atlas-as7-d'),
+      ).toBeVisible({ timeout: 20_000 });
+      await expect(
+        guestPage.getByTestId('unit-token-opponent-1-marauder-mad-3r'),
+      ).toBeVisible({ timeout: 20_000 });
 
       await expect(hostPage.getByTestId('phase-name')).toContainText(
         /Initiative/i,

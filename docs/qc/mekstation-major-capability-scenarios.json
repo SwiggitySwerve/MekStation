@@ -358,11 +358,11 @@
       "id": "MC-08-multiplayer-coop-sync",
       "surfaceId": "multiplayer-coop-sync",
       "title": "Multiplayer and co-op sync preserve match visibility and route continuity",
-      "realisticFlow": "A host and players exercise multiplayer route smoke, P2P harness behavior, vault-auth invite join, fog visibility, and reconnection contracts.",
+      "realisticFlow": "A host and players exercise multiplayer route smoke, P2P harness behavior, vault-auth invite join, real unit bootstrap, fog visibility, and reconnection contracts.",
       "qualityLenses": ["functionality", "ux", "security", "test-quality"],
       "successCriteria": [
         "P2P harness and multiplayer playtest route smoke specs pass.",
-        "Two browser contexts can seed locked E2E vault identities, host a fog-enabled lobby, join by invite code, launch, and advance the first server-owned phase through the real WebSocket path.",
+        "Two browser contexts can seed locked E2E vault identities, host a fog-enabled real-unit lobby, join by invite code, launch, render side-owned tactical unit tokens, and advance the first server-owned phase through the real WebSocket path.",
         "Fog-of-war match API tests preserve visibility boundaries.",
         "Server reconnection, spectate, turn authority, and capstone host/join/recovery tests preserve co-op state assumptions."
       ],
@@ -398,6 +398,7 @@
       ],
       "notes": [
         "`verify:qc:multiplayer-reliability` runs the browser route harness plus these server/API contracts as one on-demand gate.",
+        "The vault-auth browser proof now verifies REST-created match unit bootstrap metadata and launched tactical unit tokens for both sides.",
         "True multi-peer BroadcastChannel sharing remains skipped in Playwright; this scenario records route, mock harness, fog, reconnect, spectate, turn-authority, and server contract coverage instead."
       ]
     },
