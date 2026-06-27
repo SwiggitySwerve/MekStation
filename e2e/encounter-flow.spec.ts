@@ -10,26 +10,22 @@
 
 import { test, expect, type Page } from '@playwright/test';
 
-import { getStoreState } from './helpers/store';
+import {
+  createEncounterWithForces,
+  createTestEncounter,
+} from './fixtures/encounter';
+import { assignPilotAndUnit, createTestLance } from './fixtures/force';
+import { createRegularPilot } from './fixtures/pilot';
 
 // =============================================================================
 // Types
 // =============================================================================
 
-interface EncounterStoreState {
-  readonly encounters: Record<
-    string,
-    {
-      readonly id: string;
-      readonly name: string;
-      readonly status: string;
-      readonly playerForceId?: string;
-      readonly opponentForceId?: string;
-    }
-  >;
+interface AssignmentSlot {
+  readonly id: string;
 }
 
-interface GameplayStoreState {
+interface GameplaySessionProof {
   readonly session: {
     readonly id: string;
     readonly currentState: {
@@ -56,13 +52,29 @@ interface CreateEncounterResponse {
 
 test.setTimeout(60000);
 
-async function waitForStoreReady(page: Page): Promise<void> {
+const PLAYER_UNIT_ID = 'atlas-as7-d';
+const OPPONENT_UNIT_ID = 'marauder-mad-3r';
+
+async function waitForE2EStores(page: Page): Promise<void> {
   await page.waitForFunction(
     () => {
       const win = window as unknown as {
-        __ZUSTAND_STORES__?: { encounter?: unknown };
+        __E2E_MODE__?: boolean;
+        __ZUSTAND_STORES__?: {
+          encounter?: unknown;
+          force?: unknown;
+          gameplay?: unknown;
+          pilot?: unknown;
+        };
       };
-      return win.__ZUSTAND_STORES__?.encounter !== undefined;
+      const stores = win.__ZUSTAND_STORES__;
+      return Boolean(
+        win.__E2E_MODE__ &&
+        stores?.encounter &&
+        stores.force &&
+        stores.gameplay &&
+        stores.pilot,
+      );
     },
     { timeout: 15000 },
   );
@@ -99,6 +111,128 @@ async function submitEncounterCreateForm(page: Page): Promise<string> {
   return body.id!;
 }
 
+async function firstAssignmentId(page: Page, forceId: string): Promise<string> {
+  return page.evaluate((id) => {
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          force?: {
+            getState: () => {
+              forces: Array<{
+                id: string;
+                assignments: readonly AssignmentSlot[];
+              }>;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
+
+    const force = stores?.force
+      ?.getState()
+      .forces.find((candidate) => candidate.id === id);
+    const assignmentId = force?.assignments[0]?.id;
+    if (!assignmentId) {
+      throw new Error(`Force ${id} has no assignment slot`);
+    }
+    return assignmentId;
+  }, forceId);
+}
+
+async function createAssignedLance({
+  page,
+  forceName,
+  pilotName,
+  unitId,
+}: {
+  readonly page: Page;
+  readonly forceName: string;
+  readonly pilotName: string;
+  readonly unitId: string;
+}): Promise<string> {
+  const forceId = await createTestLance(page, forceName, 'Mercenary');
+  expect(forceId).toBeTruthy();
+
+  const pilotId = await createRegularPilot(page, pilotName);
+  expect(pilotId).toBeTruthy();
+
+  const assignmentId = await firstAssignmentId(page, forceId!);
+  await expect(
+    assignPilotAndUnit(page, assignmentId, pilotId!, unitId),
+  ).resolves.toBe(true);
+
+  return forceId!;
+}
+
+async function createConfiguredEncounter(
+  page: Page,
+  label: string,
+): Promise<{ encounterId: string; encounterName: string }> {
+  await page.goto('/gameplay');
+  await waitForE2EStores(page);
+
+  const stamp = `${Date.now()}-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  const playerForceId = await createAssignedLance({
+    page,
+    forceName: `${label} Player Lance ${stamp}`,
+    pilotName: `${label} Player Pilot ${stamp}`,
+    unitId: PLAYER_UNIT_ID,
+  });
+  const opponentForceId = await createAssignedLance({
+    page,
+    forceName: `${label} Opponent Lance ${stamp}`,
+    pilotName: `${label} Opponent Pilot ${stamp}`,
+    unitId: OPPONENT_UNIT_ID,
+  });
+  const encounterName = `${label} Encounter ${stamp}`;
+  const encounterId = await createEncounterWithForces(
+    page,
+    encounterName,
+    playerForceId,
+    opponentForceId,
+  );
+
+  expect(encounterId).toBeTruthy();
+  return { encounterId: encounterId!, encounterName };
+}
+
+async function createUnconfiguredEncounter(
+  page: Page,
+  label: string,
+): Promise<string> {
+  await page.goto('/gameplay');
+  await waitForE2EStores(page);
+
+  const encounterId = await createTestEncounter(page, {
+    name: `${label} Encounter ${Date.now()}`,
+    template: 'skirmish',
+  });
+  expect(encounterId).toBeTruthy();
+  return encounterId!;
+}
+
+async function readGameplaySessionProof(
+  page: Page,
+): Promise<GameplaySessionProof> {
+  return page.evaluate(() => {
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          gameplay?: {
+            getState: () => GameplaySessionProof;
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
+
+    if (!stores?.gameplay) {
+      throw new Error('Gameplay store not exposed');
+    }
+
+    return { session: stores.gameplay.getState().session };
+  });
+}
+
 // =============================================================================
 // Force Creation
 // =============================================================================
@@ -108,7 +242,7 @@ test.describe('Encounter Flow - Force Creation', () => {
     'should create a player force',
     { tag: ['@encounter', '@smoke'] },
     async ({ page }) => {
-      // RC7: the old flow guarded every step with `isVisible().catch(false)`
+      // RC7: the old flow guarded every step with optional visibility checks
       // — on a slow CI page compile the name fill silently skipped, the
       // submit button stayed disabled (`isValid = name.trim().length >= 2`,
       // forces/create.tsx:139), and the test timed out. Hard-wait every
@@ -187,41 +321,18 @@ test.describe('Encounter Flow - Encounter Creation', () => {
     'should configure encounter with forces',
     { tag: ['@encounter', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/encounters/create');
-      await waitForPageReady(page);
-
-      // Fill encounter details
-      const nameInput = page.getByTestId('encounter-name-input');
-      await expect(nameInput).toBeVisible();
-      await nameInput.fill('Configured Encounter');
-      await expect(nameInput).toHaveValue('Configured Encounter');
-
-      // Select template
-      const template = page.getByTestId('template-skirmish');
-      await expect(template).toBeVisible();
-      await template.click();
-
-      // Submit to create encounter
-      const encounterId = await submitEncounterCreateForm(page);
+      const { encounterId } = await createConfiguredEncounter(
+        page,
+        'Configured Flow',
+      );
 
       await page.goto(`/gameplay/encounters/${encounterId}`);
       await expect(page.getByTestId('forces-card')).toBeVisible({
         timeout: 15000,
       });
-
-      // On detail page, look for force selection options
-      const selectPlayerForce = page.getByTestId('select-player-force-link');
-      const playerForceEmpty = page.getByTestId('player-force-empty');
-
-      const hasForceLink = await selectPlayerForce
-        .isVisible()
-        .catch(() => false);
-      const hasEmptyState = await playerForceEmpty
-        .isVisible()
-        .catch(() => false);
-
-      // Encounter should show force configuration options
-      expect(hasForceLink || hasEmptyState).toBe(true);
+      await expect(page.getByTestId('player-force-info')).toBeVisible();
+      await expect(page.getByTestId('opponent-force-info')).toBeVisible();
+      await expect(page.getByTestId('launch-encounter-btn')).toBeEnabled();
     },
   );
 });
@@ -235,21 +346,17 @@ test.describe('Encounter Flow - Launch', () => {
     'should show launch button on encounter detail',
     { tag: ['@encounter', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/encounters');
-      await waitForStoreReady(page);
+      const { encounterId } = await createConfiguredEncounter(
+        page,
+        'Launch Button Flow',
+      );
 
-      // Look for existing encounter or create one
-      const encounterCard = page
-        .locator('[data-testid^="encounter-card-"]')
-        .first();
-      if (await encounterCard.isVisible().catch(() => false)) {
-        await encounterCard.click();
-        await page.waitForLoadState('networkidle');
-
-        // Launch button should exist (may be disabled without forces)
-        const launchBtn = page.getByTestId('launch-encounter-btn');
-        await expect(launchBtn).toBeVisible();
-      }
+      await page.goto(`/gameplay/encounters/${encounterId}`);
+      await expect(page.getByTestId('encounter-detail-page')).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(page.getByTestId('launch-encounter-btn')).toBeVisible();
+      await expect(page.getByTestId('launch-encounter-btn')).toBeEnabled();
     },
   );
 
@@ -257,25 +364,20 @@ test.describe('Encounter Flow - Launch', () => {
     'should disable launch without forces configured',
     { tag: ['@encounter', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/encounters');
-      await waitForStoreReady(page);
+      const encounterId = await createUnconfiguredEncounter(
+        page,
+        'Blocked Launch Flow',
+      );
 
-      // Navigate to first encounter
-      const encounterCard = page
-        .locator('[data-testid^="encounter-card-"]')
-        .first();
-      if (await encounterCard.isVisible().catch(() => false)) {
-        await encounterCard.click();
-        await page.waitForLoadState('networkidle');
-
-        // Launch should be disabled without forces
-        const launchBtn = page.getByTestId('launch-encounter-btn');
-        if (await launchBtn.isVisible().catch(() => false)) {
-          const isDisabled = await launchBtn.isDisabled();
-          // Button should be disabled when forces aren't assigned
-          expect(isDisabled).toBe(true);
-        }
-      }
+      await page.goto(`/gameplay/encounters/${encounterId}`);
+      await expect(page.getByTestId('encounter-detail-page')).toBeVisible({
+        timeout: 15000,
+      });
+      await expect(page.getByTestId('player-force-empty')).toBeVisible();
+      await expect(page.getByTestId('opponent-force-empty')).toBeVisible();
+      await expect(page.getByText('Configuration Required')).toBeVisible();
+      await expect(page.getByTestId('launch-encounter-btn')).toBeVisible();
+      await expect(page.getByTestId('launch-encounter-btn')).toBeDisabled();
     },
   );
 });
@@ -289,46 +391,33 @@ test.describe('Encounter Flow - Auto-Resolve', () => {
     'should auto-resolve encounter when launched',
     { tag: ['@encounter', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/encounters');
-      await waitForStoreReady(page);
+      const { encounterId, encounterName } = await createConfiguredEncounter(
+        page,
+        'Auto Resolve Flow',
+      );
 
-      // Find a ready encounter (with forces assigned)
-      const encounterCards = page.locator('[data-testid^="encounter-card-"]');
-      const cardCount = await encounterCards.count();
+      await page.goto(`/gameplay/encounters/${encounterId}`);
+      await expect(page.getByTestId('launch-encounter-btn')).toBeEnabled({
+        timeout: 15000,
+      });
+      await page.getByTestId('launch-encounter-btn').click();
+      await page.waitForURL(`/gameplay/encounters/${encounterId}/pre-battle`, {
+        timeout: 20000,
+      });
+      await expect(
+        page.getByRole('heading', { name: `Pre-Battle: ${encounterName}` }),
+      ).toBeVisible({ timeout: 20000 });
+      await expect(page.getByTestId('mode-selection')).toBeVisible();
+      await expect(page.getByTestId('auto-resolve-btn')).toBeEnabled();
 
-      if (cardCount > 0) {
-        await encounterCards.first().click();
-        await page.waitForLoadState('networkidle');
+      await page.getByTestId('auto-resolve-btn').click();
 
-        // Try to launch
-        const launchBtn = page.getByTestId('launch-encounter-btn');
-        if (await launchBtn.isVisible().catch(() => false)) {
-          const isEnabled = await launchBtn.isEnabled();
-
-          if (isEnabled) {
-            await launchBtn.click();
-
-            // Should transition to pre-battle or battle screen
-            await page.waitForTimeout(2000);
-
-            // Look for auto-resolve option
-            const autoResolveBtn = page.getByTestId('auto-resolve-btn');
-            if (await autoResolveBtn.isVisible().catch(() => false)) {
-              await autoResolveBtn.click();
-
-              // Wait for results
-              await page.waitForTimeout(10000);
-
-              // Verify game completed
-              const resultsVisible = await page
-                .getByText(/complete|over|victory|defeat/i)
-                .isVisible()
-                .catch(() => false);
-              expect(resultsVisible).toBe(true);
-            }
-          }
-        }
-      }
+      await page.waitForURL(/\/gameplay\/games\/[^/?]+$/, {
+        timeout: 30000,
+      });
+      await expect(page.getByTestId('game-completed')).toBeVisible({
+        timeout: 20000,
+      });
     },
   );
 });
@@ -342,37 +431,37 @@ test.describe('Encounter Flow - Game Session', () => {
     'should create game session from encounter launch',
     { tag: ['@encounter', '@smoke'] },
     async ({ page }) => {
-      await page.goto('/gameplay/encounters');
-      await waitForStoreReady(page);
+      const { encounterId, encounterName } = await createConfiguredEncounter(
+        page,
+        'Manual Session Flow',
+      );
 
-      // Find and click a ready encounter
-      const encounterCards = page.locator('[data-testid^="encounter-card-"]');
-      if ((await encounterCards.count()) > 0) {
-        await encounterCards.first().click();
-        await page.waitForLoadState('networkidle');
+      await page.goto(`/gameplay/encounters/${encounterId}`);
+      await expect(page.getByTestId('launch-encounter-btn')).toBeEnabled({
+        timeout: 15000,
+      });
+      await page.getByTestId('launch-encounter-btn').click();
+      await page.waitForURL(`/gameplay/encounters/${encounterId}/pre-battle`, {
+        timeout: 20000,
+      });
+      await expect(
+        page.getByRole('heading', { name: `Pre-Battle: ${encounterName}` }),
+      ).toBeVisible({ timeout: 20000 });
+      await expect(page.getByTestId('play-manually-btn')).toBeEnabled();
 
-        const launchBtn = page.getByTestId('launch-encounter-btn');
-        if (await launchBtn.isVisible().catch(() => false)) {
-          if (await launchBtn.isEnabled()) {
-            await launchBtn.click();
-            await page.waitForTimeout(3000);
+      await page.getByTestId('play-manually-btn').click();
+      await page.waitForURL(/\/gameplay\/games\/[^/?]+$/, {
+        timeout: 30000,
+      });
+      await expect(page.getByTestId('game-session')).toBeVisible({
+        timeout: 20000,
+      });
 
-            // Check that gameplay store has a session
-            try {
-              const state = await getStoreState<GameplayStoreState>(
-                page,
-                'gameplayStore',
-              );
-              if (state.session) {
-                expect(state.session.id).toBeTruthy();
-                expect(state.session.currentState).toBeTruthy();
-              }
-            } catch {
-              // Store may not be available on results page
-            }
-          }
-        }
-      }
+      const state = await readGameplaySessionProof(page);
+      expect(state.session?.id).toBeTruthy();
+      expect(state.session?.currentState.status).toBe('active');
+      expect(state.session?.currentState.turn).toBeGreaterThanOrEqual(1);
+      expect(state.session?.currentState.phase).toBeTruthy();
     },
   );
 });
