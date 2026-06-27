@@ -73,12 +73,6 @@ export default function Document(): React.ReactElement {
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="MekStation" />
         <meta name="mobile-web-app-capable" content="yes" />
-
-        {/* Viewport */}
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
-        />
       </Head>
       <body>
         <div id="__splash">

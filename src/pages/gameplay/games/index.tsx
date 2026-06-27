@@ -15,7 +15,8 @@ import { useCallback, useState } from 'react';
 import type { MatchLogSummary } from '@/services/matchLog/MatchLogService';
 
 import { PageLayout, Card, Button, EmptyState, Badge } from '@/components/ui';
-import { normalizeRoomCode, useSyncRoomSelector } from '@/lib/p2p';
+import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
+import { useSyncRoomSelector } from '@/lib/p2p/useSyncRoomStore';
 
 // =============================================================================
 // Types

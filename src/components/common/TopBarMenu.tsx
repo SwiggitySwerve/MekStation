@@ -101,18 +101,18 @@ export function DropdownMenu({
         onMouseLeave={onClose}
       >
         {items.map((item) => (
-          <Link key={item.href} href={item.href} legacyBehavior>
-            <a
-              className={`flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors duration-150 ${
-                isPathActive(item.href)
-                  ? 'text-accent bg-accent/10'
-                  : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
-              } `}
-              role="menuitem"
-            >
-              <span className="h-5 w-5 flex-shrink-0">{item.icon}</span>
-              <span>{item.label}</span>
-            </a>
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors duration-150 ${
+              isPathActive(item.href)
+                ? 'text-accent bg-accent/10'
+                : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
+            } `}
+            role="menuitem"
+          >
+            <span className="h-5 w-5 flex-shrink-0">{item.icon}</span>
+            <span>{item.label}</span>
           </Link>
         ))}
       </div>
@@ -134,23 +134,22 @@ export function NavLink({
   iconOnly?: boolean;
 }): ReactElement {
   return (
-    <Link href={href} legacyBehavior>
-      <a
-        className={`group relative flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 ${
-          isActive
-            ? 'text-accent bg-accent/10'
-            : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
-        } `}
-        title={iconOnly ? label : undefined}
-      >
-        <span className="h-5 w-5">{icon}</span>
-        {!iconOnly && <span>{label}</span>}
-        {iconOnly && (
-          <div className="bg-surface-raised text-text-theme-primary border-border-theme-subtle invisible absolute top-full z-50 mt-2 rounded border px-2 py-1 text-xs whitespace-nowrap opacity-0 shadow-lg transition-all group-hover:visible group-hover:opacity-100">
-            {label}
-          </div>
-        )}
-      </a>
+    <Link
+      href={href}
+      className={`group relative flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 ${
+        isActive
+          ? 'text-accent bg-accent/10'
+          : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
+      } `}
+      title={iconOnly ? label : undefined}
+    >
+      <span className="h-5 w-5">{icon}</span>
+      {!iconOnly && <span>{label}</span>}
+      {iconOnly && (
+        <div className="bg-surface-raised text-text-theme-primary border-border-theme-subtle invisible absolute top-full z-50 mt-2 rounded border px-2 py-1 text-xs whitespace-nowrap opacity-0 shadow-lg transition-all group-hover:visible group-hover:opacity-100">
+          {label}
+        </div>
+      )}
     </Link>
   );
 }

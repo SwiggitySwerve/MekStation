@@ -7,7 +7,7 @@
  */
 import React, { useState, useCallback, useEffect } from 'react';
 
-import type { IPeer } from '@/lib/p2p';
+import type { IPeer } from '@/lib/p2p/types';
 
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -15,7 +15,7 @@ import {
   formatRoomCode,
   getRoomCodePlaceholder,
   isValidRoomCode,
-} from '@/lib/p2p';
+} from '@/lib/p2p/roomCodes';
 
 import { PeerList } from './PeerList';
 

@@ -85,17 +85,18 @@ const TopBar: React.FC = () => {
       <header className="bg-surface-base border-border-theme-subtle sticky top-0 z-40 h-14 border-b print:hidden">
         <div className="flex h-full items-center px-4">
           {/* Left: Logo + Brand */}
-          <Link href="/" legacyBehavior>
-            <a className="flex flex-shrink-0 items-center gap-3 transition-opacity hover:opacity-90">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg border-b-2 border-cyan-400/60 bg-[#3a3a3c] shadow-lg shadow-cyan-900/30">
-                <MekStationIcon />
-              </div>
-              <div className="hidden sm:block">
-                <span className="text-text-theme-primary text-base font-bold tracking-tight">
-                  MekStation
-                </span>
-              </div>
-            </a>
+          <Link
+            href="/"
+            className="flex flex-shrink-0 items-center gap-3 transition-opacity hover:opacity-90"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg border-b-2 border-cyan-400/60 bg-[#3a3a3c] shadow-lg shadow-cyan-900/30">
+              <MekStationIcon />
+            </div>
+            <div className="hidden sm:block">
+              <span className="text-text-theme-primary text-base font-bold tracking-tight">
+                MekStation
+              </span>
+            </div>
           </Link>
 
           {/* Center: Desktop Navigation (with labels) */}
@@ -207,17 +208,16 @@ const TopBar: React.FC = () => {
           <div className="ml-auto flex flex-shrink-0 items-center gap-1">
             {/* Desktop/Tablet: Settings and GitHub */}
             <div className="hidden items-center gap-1 md:flex">
-              <Link href="/settings" legacyBehavior>
-                <a
-                  className={`rounded-lg p-2 transition-colors duration-150 ${
-                    isPathActive('/settings')
-                      ? 'text-accent bg-accent/10'
-                      : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
-                  } `}
-                  aria-label="Settings"
-                >
-                  <GearIcon />
-                </a>
+              <Link
+                href="/settings"
+                className={`rounded-lg p-2 transition-colors duration-150 ${
+                  isPathActive('/settings')
+                    ? 'text-accent bg-accent/10'
+                    : 'text-text-theme-secondary hover:text-text-theme-primary hover:bg-surface-raised/50'
+                } `}
+                aria-label="Settings"
+              >
+                <GearIcon />
               </Link>
               <a
                 href="https://github.com/SwiggitySwerve/MekStation"

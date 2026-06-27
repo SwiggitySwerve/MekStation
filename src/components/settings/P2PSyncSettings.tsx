@@ -6,7 +6,7 @@ import {
   RoomCodeDialog,
 } from '@/components/sync';
 import { Input } from '@/components/ui';
-import { ConnectionState } from '@/lib/p2p';
+import { ConnectionState } from '@/lib/p2p/types';
 import {
   useSyncRoomSelector,
   useConnectionState,

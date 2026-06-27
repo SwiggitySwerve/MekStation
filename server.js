@@ -26,6 +26,10 @@ const fs = require('node:fs');
 const { createServer } = require('node:http');
 const path = require('node:path');
 const { parse } = require('node:url');
+
+process.env.BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA ??= 'true';
+process.env.BROWSERSLIST_IGNORE_OLD_DATA ??= 'true';
+
 const next = require('next');
 const { WebSocketServer } = require('ws');
 

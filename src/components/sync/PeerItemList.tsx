@@ -6,7 +6,7 @@
  */
 import React, { useState, useCallback } from 'react';
 
-import type { ISyncableVaultItem, SyncableItemType } from '@/lib/p2p';
+import type { ISyncableVaultItem, SyncableItemType } from '@/lib/p2p/types';
 
 import { Button } from '@/components/ui/Button';
 

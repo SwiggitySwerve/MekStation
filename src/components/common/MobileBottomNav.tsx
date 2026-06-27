@@ -78,23 +78,23 @@ export function MobileBottomNav(): ReactElement {
         {navItems.map((item) => {
           const active = isActive(item);
           return (
-            <Link key={item.href} href={item.href} legacyBehavior>
-              <a
-                className={`relative flex min-h-[56px] flex-1 flex-col items-center justify-center px-1 py-2 transition-colors duration-150 ${
-                  active
-                    ? 'text-accent'
-                    : 'text-text-theme-secondary active:text-text-theme-primary'
-                } `}
-                aria-current={active ? 'page' : undefined}
-              >
-                {active && (
-                  <div className="bg-accent absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full" />
-                )}
-                <div className="mb-1 h-6 w-6">{item.icon}</div>
-                <span className="max-w-full truncate text-[10px] leading-tight font-medium">
-                  {item.label}
-                </span>
-              </a>
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`relative flex min-h-[56px] flex-1 flex-col items-center justify-center px-1 py-2 transition-colors duration-150 ${
+                active
+                  ? 'text-accent'
+                  : 'text-text-theme-secondary active:text-text-theme-primary'
+              } `}
+              aria-current={active ? 'page' : undefined}
+            >
+              {active && (
+                <div className="bg-accent absolute top-0 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full" />
+              )}
+              <div className="mb-1 h-6 w-6">{item.icon}</div>
+              <span className="max-w-full truncate text-[10px] leading-tight font-medium">
+                {item.label}
+              </span>
             </Link>
           );
         })}

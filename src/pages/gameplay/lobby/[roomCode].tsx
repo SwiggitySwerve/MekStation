@@ -4,7 +4,8 @@ import { useMemo } from 'react';
 
 import { GameplayLobbyPanel } from '@/components/gameplay/lobby';
 import { useToast } from '@/components/shared/Toast';
-import { normalizeRoomCode, useSyncRoomSelector } from '@/lib/p2p';
+import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
+import { useSyncRoomSelector } from '@/lib/p2p/useSyncRoomStore';
 import {
   launchLobbyMatch,
   LobbyShell,
