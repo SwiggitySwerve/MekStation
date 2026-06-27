@@ -46,11 +46,10 @@ export { CustomizerPage, AerospaceCustomizerPage } from './customizer.page';
 // Compendium pages
 export {
   CompendiumPage,
-  UnitBrowserPage,
   EquipmentBrowserPage,
-  RulesReferencePage,
-  UnitDetailPage,
-  EquipmentDetailPage,
+  EquipmentBrowserReadPage,
+  UnitBrowserPage,
+  UnitBrowserReadPage,
 } from './compendium.page';
 
 // Repair pages

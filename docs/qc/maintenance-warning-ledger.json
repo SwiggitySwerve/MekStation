@@ -33,9 +33,9 @@
       "follow-up": 0
     },
     "design-violation": {
-      "fixed": 5,
+      "fixed": 8,
       "accepted": 3,
-      "follow-up": 19
+      "follow-up": 16
     }
   },
   "entries": [
@@ -285,9 +285,13 @@
       "severity": "critical",
       "file": "e2e/pages/compendium.page.ts",
       "message": "class has 8 public methods",
-      "status": "follow-up",
-      "rationale": "Compendium page-object role should be decomposed with compendium browser coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Compendium hub helpers were reduced to used behavior and protected page-load plumbing while preserving full compendium browser coverage.",
+      "fixedEvidence": [
+        "2026-06-27 `node scripts/maintenance/scan-maintenance.mjs --json` reported no findings for e2e/pages/compendium.page.ts and design-violation counts dropped from critical=13/high=6 to critical=10/high=6.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 full Chromium `npx.cmd playwright test e2e/compendium.spec.ts --project=chromium --workers=1` passed 32 checks."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/compendium.page.ts|class has 12 public methods",
@@ -295,9 +299,13 @@
       "severity": "critical",
       "file": "e2e/pages/compendium.page.ts",
       "message": "class has 12 public methods",
-      "status": "follow-up",
-      "rationale": "Compendium page-object role should be decomposed with compendium browser coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Unit browser action helpers now keep only used navigation/search/filter behavior; read-only assertions moved to UnitBrowserReadPage.",
+      "fixedEvidence": [
+        "2026-06-27 `node scripts/maintenance/scan-maintenance.mjs --json` reported no findings for e2e/pages/compendium.page.ts and design-violation counts dropped from critical=13/high=6 to critical=10/high=6.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 full Chromium `npx.cmd playwright test e2e/compendium.spec.ts --project=chromium --workers=1` passed 32 checks."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/compendium.page.ts|class has 11 public methods",
@@ -305,9 +313,13 @@
       "severity": "critical",
       "file": "e2e/pages/compendium.page.ts",
       "message": "class has 11 public methods",
-      "status": "follow-up",
-      "rationale": "Compendium page-object role should be decomposed with compendium browser coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Equipment browser action helpers now keep only used navigation/search/filter/click behavior; read-only assertions moved to EquipmentBrowserReadPage.",
+      "fixedEvidence": [
+        "2026-06-27 `node scripts/maintenance/scan-maintenance.mjs --json` reported no findings for e2e/pages/compendium.page.ts and design-violation counts dropped from critical=13/high=6 to critical=10/high=6.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 full Chromium `npx.cmd playwright test e2e/compendium.spec.ts --project=chromium --workers=1` passed 32 checks."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/customizer.page.ts|class has 42 public methods",
