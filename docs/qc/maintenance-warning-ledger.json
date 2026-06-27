@@ -33,9 +33,9 @@
       "follow-up": 0
     },
     "design-violation": {
-      "fixed": 21,
+      "fixed": 22,
       "accepted": 3,
-      "follow-up": 3
+      "follow-up": 2
     }
   },
   "entries": [
@@ -536,9 +536,12 @@
       "severity": "high",
       "file": "scripts/audit-megamek-board-import.ts",
       "message": "switch statement has 9 cases",
-      "status": "follow-up",
-      "rationale": "MegaMek board audit dispatch should be table-driven with board parser fixtures preserved.",
-      "followUps": ["wave-12-script-bloat-follow-up"]
+      "status": "fixed",
+      "rationale": "MegaMek board audit option dispatch is now table-driven, while board parser fixture coverage and CLI helper tests preserve corpus-audit behavior.",
+      "fixedEvidence": [
+        "2026-06-27 `npm.cmd run maintain:scan -- --scope=scripts/audit-megamek-board-import.ts --json` reported 0 critical/high findings.",
+        "2026-06-27 `npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/audit-megamek-board-import.test.ts src/__tests__/unit/lib/parsers/megaMekBoard.test-helpers.ts --runInBand` passed focused board audit and parser fixture coverage."
+      ]
     },
     {
       "key": "design-violation|high|scripts/validate-bv.ts|switch statement has 23 cases",

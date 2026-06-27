@@ -43,7 +43,93 @@ interface AuditSummary {
   readonly failures: readonly BoardAuditResult[];
 }
 
-function parseArgs(argv: readonly string[]): AuditOptions {
+type ArgParseResult = {
+  readonly options: AuditOptions;
+  readonly nextIndex: number;
+};
+
+type ArgHandler = (
+  options: AuditOptions,
+  argv: readonly string[],
+  index: number,
+) => ArgParseResult;
+
+function readArgValue(
+  argv: readonly string[],
+  index: number,
+  optionName: string,
+): string {
+  const value = argv[index + 1];
+  if (!value) {
+    throw new Error(`${optionName} requires a value`);
+  }
+
+  return value;
+}
+
+function pathOptionHandler(field: 'megamekRoot' | 'boardsRoot'): ArgHandler {
+  return (options, argv, index) => ({
+    options: {
+      ...options,
+      [field]: path.resolve(readArgValue(argv, index, argv[index])),
+    },
+    nextIndex: index + 1,
+  });
+}
+
+function valueOptionHandler(field: 'filter'): ArgHandler {
+  return (options, argv, index) => ({
+    options: { ...options, [field]: readArgValue(argv, index, argv[index]) },
+    nextIndex: index + 1,
+  });
+}
+
+function limitOptionHandler(
+  options: AuditOptions,
+  argv: readonly string[],
+  index: number,
+): ArgParseResult {
+  return {
+    options: {
+      ...options,
+      limit: Number(readArgValue(argv, index, argv[index])),
+    },
+    nextIndex: index + 1,
+  };
+}
+
+function booleanOptionHandler(field: 'requireCliff' | 'json' | 'help') {
+  return (options: AuditOptions, _argv: readonly string[], index: number) => ({
+    options: { ...options, [field]: true },
+    nextIndex: index,
+  });
+}
+
+const ARG_ALIASES: Readonly<Record<string, string>> = {
+  '-h': '--help',
+};
+
+const ARG_HANDLERS: Readonly<Record<string, ArgHandler>> = {
+  '--megamek': pathOptionHandler('megamekRoot'),
+  '--boards': pathOptionHandler('boardsRoot'),
+  '--filter': valueOptionHandler('filter'),
+  '--limit': limitOptionHandler,
+  '--require-cliff': booleanOptionHandler('requireCliff'),
+  '--json': booleanOptionHandler('json'),
+  '--help': booleanOptionHandler('help'),
+};
+
+function resolveArgHandler(arg: string): ArgHandler {
+  const canonicalArg = ARG_ALIASES[arg] ?? arg;
+  const handler = ARG_HANDLERS[canonicalArg];
+  if (!handler) {
+    throw new Error(`Unknown argument: ${arg}`);
+  }
+
+  return handler;
+}
+
+export function parseArgs(argv: readonly string[]): AuditOptions {
   const options: AuditOptions = {
     megamekRoot: process.env.MEGAMEK_ROOT ?? DEFAULT_MEGAMEK_ROOT,
     requireCliff: false,
@@ -54,39 +140,9 @@ function parseArgs(argv: readonly string[]): AuditOptions {
   let current: AuditOptions = options;
 
   for (let index = 0; index < argv.length; index++) {
-    const arg = argv[index];
-    switch (arg) {
-      case '--megamek':
-        current = {
-          ...current,
-          megamekRoot: path.resolve(argv[++index] ?? ''),
-        };
-        break;
-      case '--boards':
-        current = {
-          ...current,
-          boardsRoot: path.resolve(argv[++index] ?? ''),
-        };
-        break;
-      case '--filter':
-        current = { ...current, filter: argv[++index] ?? '' };
-        break;
-      case '--limit':
-        current = { ...current, limit: Number(argv[++index] ?? '') };
-        break;
-      case '--require-cliff':
-        current = { ...current, requireCliff: true };
-        break;
-      case '--json':
-        current = { ...current, json: true };
-        break;
-      case '--help':
-      case '-h':
-        current = { ...current, help: true };
-        break;
-      default:
-        throw new Error(`Unknown argument: ${arg}`);
-    }
+    const result = resolveArgHandler(argv[index])(current, argv, index);
+    current = result.options;
+    index = result.nextIndex;
   }
 
   return current;
@@ -110,7 +166,7 @@ Options:
 `);
 }
 
-function collectBoardFiles(root: string): string[] {
+export function collectBoardFiles(root: string): string[] {
   const files: string[] = [];
   const entries = fs
     .readdirSync(root, { withFileTypes: true })
@@ -135,7 +191,10 @@ function countMatches(content: string, pattern: RegExp): number {
   return content.match(pattern)?.length ?? 0;
 }
 
-function auditBoard(filePath: string, boardsRoot: string): BoardAuditResult {
+export function auditBoard(
+  filePath: string,
+  boardsRoot: string,
+): BoardAuditResult {
   const relativePath = path.relative(boardsRoot, filePath);
   const content = fs.readFileSync(filePath, 'utf-8');
   const hexRows = countMatches(content, /^hex\s+\S+/gm);
@@ -184,7 +243,7 @@ function auditBoard(filePath: string, boardsRoot: string): BoardAuditResult {
   }
 }
 
-function summarize(
+export function summarize(
   boardsRoot: string,
   results: readonly BoardAuditResult[],
 ): AuditSummary {
@@ -236,7 +295,7 @@ function printSummary(summary: AuditSummary): void {
   }
 }
 
-function main(): void {
+export function main(): void {
   const options = parseArgs(process.argv.slice(2));
   if (options.help) {
     showHelp();
@@ -303,9 +362,11 @@ function main(): void {
   }
 }
 
-try {
-  main();
-} catch (error) {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exitCode = 1;
+if (require.main === module) {
+  try {
+    main();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
 }
