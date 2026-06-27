@@ -33,9 +33,9 @@
       "follow-up": 0
     },
     "design-violation": {
-      "fixed": 14,
+      "fixed": 18,
       "accepted": 3,
-      "follow-up": 10
+      "follow-up": 6
     }
   },
   "entries": [
@@ -425,9 +425,13 @@
       "severity": "critical",
       "file": "e2e/pages/game.page.ts",
       "message": "class has 20 public methods",
-      "status": "follow-up",
-      "rationale": "Game page-object role should be decomposed with gameplay E2E coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Game session page-object helpers were split into status, turn, map, command, and unit roles so the tactical browser surface remains readable without a broad public method class.",
+      "fixedEvidence": [
+        "2026-06-27 `npm.cmd run maintain:scan -- --scope=e2e/pages/game.page.ts --json` reported no findings.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 affected Chromium `npx.cmd playwright test e2e/game.spec.ts e2e/combat.spec.ts e2e/repair.spec.ts e2e/gameplay-layout-slots.spec.ts e2e/tactical-action-menu.spec.ts --project=chromium --workers=1` passed 121 checks."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/game.page.ts|class has 11 public methods",
@@ -435,9 +439,13 @@
       "severity": "critical",
       "file": "e2e/pages/game.page.ts",
       "message": "class has 11 public methods",
-      "status": "follow-up",
-      "rationale": "Game page-object role should be decomposed with gameplay E2E coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Game replay helpers were split into replay navigation, read-only assertions, transport controls, and timeline jump controls.",
+      "fixedEvidence": [
+        "2026-06-27 `npm.cmd run maintain:scan -- --scope=e2e/pages/game.page.ts --json` reported no findings.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 affected Chromium `npx.cmd playwright test e2e/game.spec.ts e2e/combat.spec.ts e2e/repair.spec.ts e2e/gameplay-layout-slots.spec.ts e2e/tactical-action-menu.spec.ts --project=chromium --workers=1` passed 121 checks."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/repair.page.ts|class has 44 public methods",
@@ -445,9 +453,13 @@
       "severity": "critical",
       "file": "e2e/pages/repair.page.ts",
       "message": "class has 44 public methods",
-      "status": "follow-up",
-      "rationale": "Repair page object is a broad workflow surface and needs a dedicated split with repair E2E coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Repair bay helpers were split into stats, filters, list, assessment, item selection, cost, queue, header, and error roles while preserving repair E2E coverage.",
+      "fixedEvidence": [
+        "2026-06-27 `npm.cmd run maintain:scan -- --scope=e2e/pages/repair.page.ts --json` reported no findings.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 affected Chromium `npx.cmd playwright test e2e/game.spec.ts e2e/combat.spec.ts e2e/repair.spec.ts e2e/gameplay-layout-slots.spec.ts e2e/tactical-action-menu.spec.ts --project=chromium --workers=1` passed 121 checks."
+      ]
     },
     {
       "key": "design-violation|critical|scripts/performance/measure-bundle-size.js|class has 11 public methods",
@@ -499,9 +511,13 @@
       "severity": "high",
       "file": "e2e/pages/game.page.ts",
       "message": "class has 5 public methods",
-      "status": "follow-up",
-      "rationale": "Game page-object role should be decomposed with gameplay E2E coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Game list page-object reads were split from list navigation and card actions, clearing the remaining high-severity page-object method-count finding.",
+      "fixedEvidence": [
+        "2026-06-27 `npm.cmd run maintain:scan -- --scope=e2e/pages/game.page.ts --json` reported no findings.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 affected Chromium `npx.cmd playwright test e2e/game.spec.ts e2e/combat.spec.ts e2e/repair.spec.ts e2e/gameplay-layout-slots.spec.ts e2e/tactical-action-menu.spec.ts --project=chromium --workers=1` passed 121 checks."
+      ]
     },
     {
       "key": "design-violation|high|scripts/audit-megamek-board-import.ts|switch statement has 9 cases",

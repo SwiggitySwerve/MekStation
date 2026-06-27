@@ -361,9 +361,10 @@ flowchart TD
    - Use `maintain:scan:gate` to block new `src` critical/high findings, and
      use `node scripts/qc/validate-maintenance-warning-ledger.mjs` to confirm
      repo-wide Wave 12 findings are fixed, accepted, or follow-up tracked.
-   - Repo-wide non-`src` script, desktop, and e2e page-object findings remain
-     in `docs/qc/maintenance-warning-ledger.json` instead of being treated as
-     hidden pass/fail suppressions.
+   - Repo-wide non-`src` script and desktop findings remain in
+     `docs/qc/maintenance-warning-ledger.json` instead of being treated as
+     hidden pass/fail suppressions; current e2e page-object design findings
+     are cleared.
    - Stale TODOs are currently zero actionable findings after explanatory e2e
      comments were rewritten and recent skipped-test `fixme` trackers stayed
      explicit.
@@ -385,6 +386,10 @@ flowchart TD
    - Encounter page-object design-violation findings are cleared after the list,
      detail, and create helpers were split into narrow read/submission/action
      surfaces; full Chromium encounter E2E coverage still passes.
+   - Game and repair page-object design findings are cleared after tactical
+     session, replay, and repair bay helpers were split into narrow role
+     classes; 121 affected Chromium game/combat/repair/layout/action-menu
+     checks pass.
    - HexMapDisplay, movement utilities, and physical attack utilities have
      had first-pass complexity/design cleanup, but each still has active
      raw critical/high queues.

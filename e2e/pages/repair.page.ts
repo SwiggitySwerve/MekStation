@@ -1,79 +1,86 @@
+import type { Page } from '@playwright/test';
+
 import { BasePage } from './base.page';
 
 /**
  * Page object for the repair bay page (/gameplay/repair).
- * Provides methods to interact with the repair management interface.
+ * Provides navigation plus role-specific helper groups.
  */
 export class RepairBayPage extends BasePage {
   readonly url = '/gameplay/repair';
+  readonly stats: RepairStatsReadPage;
+  readonly filters: RepairFilterPage;
+  readonly list: RepairUnitListPage;
+  readonly listState: RepairUnitListStatePage;
+  readonly assessment: RepairAssessmentPage;
+  readonly selection: RepairItemSelectionPage;
+  readonly costSummary: RepairCostSummaryPage;
+  readonly actions: RepairActionPage;
+  readonly costBreakdown: RepairCostBreakdownPage;
+  readonly queue: RepairQueuePage;
+  readonly queueActions: RepairQueueActionsPage;
+  readonly header: RepairHeaderPage;
+  readonly errors: RepairErrorPage;
 
-  /**
-   * Navigate to the repair bay page.
-   * @param campaignId - Optional campaign ID to pass as query param
-   */
+  constructor(page: Page) {
+    super(page);
+    this.stats = new RepairStatsReadPage(page);
+    this.filters = new RepairFilterPage(page);
+    this.list = new RepairUnitListPage(page);
+    this.listState = new RepairUnitListStatePage(page);
+    this.assessment = new RepairAssessmentPage(page);
+    this.selection = new RepairItemSelectionPage(page);
+    this.costSummary = new RepairCostSummaryPage(page);
+    this.actions = new RepairActionPage(page);
+    this.costBreakdown = new RepairCostBreakdownPage(page);
+    this.queue = new RepairQueuePage(page);
+    this.queueActions = new RepairQueueActionsPage(page);
+    this.header = new RepairHeaderPage(page);
+    this.errors = new RepairErrorPage(page);
+  }
+
   async navigate(campaignId?: string): Promise<void> {
     const url = campaignId ? `${this.url}?campaignId=${campaignId}` : this.url;
     await this.page.goto(url);
     await this.waitForReady();
   }
+}
 
-  // =============================================================================
-  // Stats Cards
-  // =============================================================================
-
-  /**
-   * Get the active jobs count from stats.
-   */
+/**
+ * Repair overview stats readers.
+ */
+export class RepairStatsReadPage extends BasePage {
   async getActiveCount(): Promise<string> {
     return this.getTextByTestId('repair-stats-active');
   }
 
-  /**
-   * Get the pending jobs count from stats.
-   */
   async getPendingCount(): Promise<string> {
     return this.getTextByTestId('repair-stats-pending');
   }
 
-  /**
-   * Get the completed jobs count from stats.
-   */
   async getCompletedCount(): Promise<string> {
     return this.getTextByTestId('repair-stats-completed');
   }
 
-  /**
-   * Get the estimated cost from stats.
-   */
   async getEstimatedCost(): Promise<string> {
     return this.getTextByTestId('repair-stats-cost');
   }
+}
 
-  // =============================================================================
-  // Search & Filtering
-  // =============================================================================
-
-  /**
-   * Search for units by query string.
-   * @param query - The search query
-   */
+/**
+ * Search and status-filter helpers.
+ */
+export class RepairFilterPage extends BasePage {
   async searchUnits(query: string): Promise<void> {
     await this.fillByTestId('repair-search-input', query);
-    await this.page.waitForTimeout(300); // Debounce
+    await this.page.waitForTimeout(300);
   }
 
-  /**
-   * Clear the search input.
-   */
   async clearSearch(): Promise<void> {
     await this.fillByTestId('repair-search-input', '');
     await this.page.waitForTimeout(300);
   }
 
-  /**
-   * Filter by status.
-   * @param status - 'all' | 'pending' | 'in-progress' | 'complete'
-   */
   async filterByStatus(
     status: 'all' | 'pending' | 'in-progress' | 'complete',
   ): Promise<void> {
@@ -81,297 +88,212 @@ export class RepairBayPage extends BasePage {
     await this.page.waitForTimeout(200);
   }
 
-  /**
-   * Get current filter results count text.
-   */
   async getResultsCount(): Promise<string> {
     return this.getTextByTestId('repair-results-count');
   }
+}
 
-  // =============================================================================
-  // Unit Cards
-  // =============================================================================
-
-  /**
-   * Get the count of unit repair cards displayed.
-   */
+/**
+ * Unit-card list helpers.
+ */
+export class RepairUnitListPage extends BasePage {
   async getUnitCardCount(): Promise<number> {
     const cards = this.getByTestId('repair-unit-card');
     return cards.count();
   }
 
-  /**
-   * Click a specific unit repair card.
-   * @param unitId - The unit ID
-   */
   async selectUnit(unitId: string): Promise<void> {
     await this.clickByTestId(`repair-unit-card-${unitId}`);
     await this.page.waitForTimeout(200);
   }
 
-  /**
-   * Check if a unit card is selected.
-   * @param unitId - The unit ID
-   */
   async isUnitSelected(unitId: string): Promise<boolean> {
     const card = this.getByTestId(`repair-unit-card-${unitId}`);
     const classList = await card.getAttribute('class');
     return classList?.includes('border-accent') ?? false;
   }
 
-  /**
-   * Get unit names from all visible unit cards.
-   */
   async getUnitNames(): Promise<string[]> {
     const names = this.getByTestId('repair-unit-name');
     return names.allTextContents();
   }
+}
 
-  /**
-   * Check if the unit list is empty.
-   */
+/**
+ * Empty and all-operational unit-list states.
+ */
+export class RepairUnitListStatePage extends BasePage {
   async isUnitListEmpty(): Promise<boolean> {
     return this.isVisibleByTestId('repair-empty-state');
   }
 
-  /**
-   * Check if "All Units Operational" empty state is shown.
-   */
   async isAllOperational(): Promise<boolean> {
     return this.isVisibleByTestId('repair-all-operational');
   }
+}
 
-  // =============================================================================
-  // Damage Assessment Panel
-  // =============================================================================
-
-  /**
-   * Check if the damage assessment panel is visible.
-   */
+/**
+ * Damage assessment panel helpers.
+ */
+export class RepairAssessmentPage extends BasePage {
   async isDamageAssessmentVisible(): Promise<boolean> {
     return this.isVisibleByTestId('damage-assessment-panel');
   }
 
-  /**
-   * Get the unit name from the damage assessment panel.
-   */
   async getDamageAssessmentUnitName(): Promise<string> {
     return this.getTextByTestId('damage-assessment-unit-name');
   }
 
-  /**
-   * Toggle a specific repair item selection.
-   * @param itemId - The repair item ID
-   */
   async toggleRepairItem(itemId: string): Promise<void> {
     await this.clickByTestId(`repair-item-checkbox-${itemId}`);
   }
+}
 
-  /**
-   * Click "Select All" items button.
-   */
+/**
+ * Repair-item selection helpers.
+ */
+export class RepairItemSelectionPage extends BasePage {
   async selectAllItems(): Promise<void> {
     await this.clickByTestId('repair-select-all-btn');
   }
 
-  /**
-   * Click "Deselect All" items button.
-   */
   async deselectAllItems(): Promise<void> {
     await this.clickByTestId('repair-deselect-all-btn');
   }
 
-  /**
-   * Get the selected items count text.
-   */
   async getSelectedItemsCount(): Promise<string> {
     return this.getTextByTestId('repair-selected-count');
   }
+}
 
-  /**
-   * Get the estimated repair time.
-   */
+/**
+ * Cost summary and repair action state helpers.
+ */
+export class RepairCostSummaryPage extends BasePage {
   async getEstimatedTime(): Promise<string> {
     return this.getTextByTestId('repair-estimated-time');
   }
 
-  /**
-   * Get the total repair cost from the panel.
-   */
   async getTotalCost(): Promise<string> {
     return this.getTextByTestId('repair-total-cost');
   }
 
-  /**
-   * Click the "Start Full Repair" button.
-   */
-  async startFullRepair(): Promise<void> {
-    await this.clickByTestId('repair-start-full-btn');
-    await this.page.waitForTimeout(300);
-  }
-
-  /**
-   * Click the "Partial Repair" button.
-   */
-  async startPartialRepair(): Promise<void> {
-    await this.clickByTestId('repair-partial-btn');
-    await this.page.waitForTimeout(300);
-  }
-
-  /**
-   * Check if the start repair button is disabled.
-   */
   async isStartRepairDisabled(): Promise<boolean> {
     const btn = this.getByTestId('repair-start-full-btn');
     return btn.isDisabled();
   }
 
-  /**
-   * Check if insufficient funds warning is shown.
-   */
   async hasInsufficientFundsWarning(): Promise<boolean> {
     return this.isVisibleByTestId('repair-insufficient-funds');
   }
+}
 
-  // =============================================================================
-  // Cost Breakdown
-  // =============================================================================
+/**
+ * Repair execution actions.
+ */
+export class RepairActionPage extends BasePage {
+  async startFullRepair(): Promise<void> {
+    await this.clickByTestId('repair-start-full-btn');
+    await this.page.waitForTimeout(300);
+  }
 
-  /**
-   * Check if cost breakdown panel is visible.
-   */
+  async startPartialRepair(): Promise<void> {
+    await this.clickByTestId('repair-partial-btn');
+    await this.page.waitForTimeout(300);
+  }
+}
+
+/**
+ * Cost breakdown helpers.
+ */
+export class RepairCostBreakdownPage extends BasePage {
   async isCostBreakdownVisible(): Promise<boolean> {
     return this.isVisibleByTestId('repair-cost-breakdown');
   }
 
-  /**
-   * Get the armor repair cost.
-   */
   async getArmorRepairCost(): Promise<string> {
     return this.getTextByTestId('repair-cost-armor');
   }
 
-  /**
-   * Get the structure repair cost.
-   */
   async getStructureRepairCost(): Promise<string> {
     return this.getTextByTestId('repair-cost-structure');
   }
+}
 
-  // =============================================================================
-  // Repair Queue
-  // =============================================================================
-
-  /**
-   * Check if repair queue section is visible.
-   */
+/**
+ * Repair queue readers and selection helpers.
+ */
+export class RepairQueuePage extends BasePage {
   async isRepairQueueVisible(): Promise<boolean> {
     return this.isVisibleByTestId('repair-queue');
   }
 
-  /**
-   * Get count of jobs in the queue.
-   */
   async getQueueJobCount(): Promise<number> {
     const items = this.getByTestId('repair-queue-item');
     return items.count();
   }
 
-  /**
-   * Get queue job details by job ID.
-   * @param jobId - The job ID
-   */
   async getQueueJobStatus(jobId: string): Promise<string> {
     return this.getTextByTestId(`repair-queue-status-${jobId}`);
   }
 
-  /**
-   * Click a job in the queue.
-   * @param jobId - The job ID
-   */
   async clickQueueJob(jobId: string): Promise<void> {
     await this.clickByTestId(`repair-queue-item-${jobId}`);
   }
+}
 
-  /**
-   * Move a job up in the queue.
-   * @param jobId - The job ID
-   */
+/**
+ * Repair queue mutation helpers.
+ */
+export class RepairQueueActionsPage extends BasePage {
   async moveJobUp(jobId: string): Promise<void> {
     await this.clickByTestId(`repair-queue-up-${jobId}`);
   }
 
-  /**
-   * Move a job down in the queue.
-   * @param jobId - The job ID
-   */
   async moveJobDown(jobId: string): Promise<void> {
     await this.clickByTestId(`repair-queue-down-${jobId}`);
   }
 
-  /**
-   * Cancel a job in the queue.
-   * @param jobId - The job ID
-   */
   async cancelQueueJob(jobId: string): Promise<void> {
     await this.clickByTestId(`repair-queue-cancel-${jobId}`);
   }
 
-  /**
-   * Expand the completed jobs section.
-   */
   async expandCompletedJobs(): Promise<void> {
     await this.clickByTestId('repair-queue-completed-toggle');
   }
+}
 
-  // =============================================================================
-  // Header Actions
-  // =============================================================================
-
-  /**
-   * Click the "Field Repair" button.
-   */
+/**
+ * Header-level repair actions.
+ */
+export class RepairHeaderPage extends BasePage {
   async clickFieldRepair(): Promise<void> {
     await this.clickByTestId('repair-field-btn');
   }
 
-  /**
-   * Click the "Repair All" button.
-   */
   async clickRepairAll(): Promise<void> {
     await this.clickByTestId('repair-all-btn');
     await this.page.waitForTimeout(300);
   }
 
-  /**
-   * Check if the "Repair All" button is disabled.
-   */
   async isRepairAllDisabled(): Promise<boolean> {
     const btn = this.getByTestId('repair-all-btn');
     return btn.isDisabled();
   }
+}
 
-  // =============================================================================
-  // Error State
-  // =============================================================================
-
-  /**
-   * Check if error message is displayed.
-   */
+/**
+ * Repair error state helpers.
+ */
+export class RepairErrorPage extends BasePage {
   async hasError(): Promise<boolean> {
     return this.isVisibleByTestId('repair-error');
   }
 
-  /**
-   * Get the error message text.
-   */
   async getErrorMessage(): Promise<string> {
     return this.getTextByTestId('repair-error');
   }
 
-  /**
-   * Dismiss the error message.
-   */
   async dismissError(): Promise<void> {
     await this.clickByTestId('repair-error-dismiss');
   }

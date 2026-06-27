@@ -60,7 +60,7 @@ test.describe('Record Sheet Display @smoke @combat', () => {
 
   test('shows no unit selected initially', async () => {
     // Initially no unit should be selected
-    const noUnitVisible = await sessionPage.isNoUnitSelectedVisible();
+    const noUnitVisible = await sessionPage.units.isNoUnitSelectedVisible();
     expect(noUnitVisible).toBe(true);
   });
 
