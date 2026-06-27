@@ -100,4 +100,55 @@ describe('QC registry validator', () => {
       'app-shell-navigation: routes[0] does not resolve to a Next.js page route: /replays',
     );
   });
+
+  it('rejects app-shell registry routes missing from browser proof manifest', () => {
+    const registry = readJson<{
+      surfaces: Array<{ surfaceId: string; routes: string[] }>;
+    }>(path.join(repoRoot, 'docs/qc/mekstation-qc-registry.json'));
+    const manifest = readJson<{
+      primaryRoutes: Array<{ path: string; label: string }>;
+    }>(path.join(repoRoot, 'e2e/app-shell-route-manifest.json'));
+
+    manifest.primaryRoutes = manifest.primaryRoutes.filter(
+      (route) => route.path !== '/settings',
+    );
+
+    const registryPath = path.join(tempDir, 'registry.json');
+    const manifestPath = path.join(tempDir, 'app-shell-route-manifest.json');
+    writeJson(registryPath, registry);
+    writeJson(manifestPath, manifest);
+
+    const result = runValidator({
+      MEKSTATION_QC_REGISTRY_PATH: registryPath,
+      MEKSTATION_APP_SHELL_ROUTE_MANIFEST_PATH: manifestPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'app-shell-navigation routes missing from e2e/app-shell-route-manifest.json: /settings',
+    );
+  });
+
+  it('rejects app-shell browser proof routes missing from the registry', () => {
+    const registry = readJson<{
+      surfaces: Array<{ surfaceId: string; routes: string[] }>;
+    }>(path.join(repoRoot, 'docs/qc/mekstation-qc-registry.json'));
+    const surface = registry.surfaces.find(
+      (entry) => entry.surfaceId === 'app-shell-navigation',
+    );
+    expect(surface).toBeDefined();
+    surface!.routes = surface!.routes.filter((route) => route !== '/settings');
+
+    const registryPath = path.join(tempDir, 'registry.json');
+    writeJson(registryPath, registry);
+
+    const result = runValidator({
+      MEKSTATION_QC_REGISTRY_PATH: registryPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'e2e/app-shell-route-manifest.json routes missing from app-shell-navigation registry: /settings',
+    );
+  });
 });

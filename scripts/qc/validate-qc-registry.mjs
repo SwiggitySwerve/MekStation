@@ -8,6 +8,10 @@ const repoRoot = path.resolve(__dirname, '..', '..');
 const registryPath = process.env.MEKSTATION_QC_REGISTRY_PATH
   ? path.resolve(repoRoot, process.env.MEKSTATION_QC_REGISTRY_PATH)
   : path.join(repoRoot, 'docs', 'qc', 'mekstation-qc-registry.json');
+const appShellRouteManifestPath = process.env
+  .MEKSTATION_APP_SHELL_ROUTE_MANIFEST_PATH
+  ? path.resolve(repoRoot, process.env.MEKSTATION_APP_SHELL_ROUTE_MANIFEST_PATH)
+  : path.join(repoRoot, 'e2e', 'app-shell-route-manifest.json');
 const openspecChangesDir = process.env.MEKSTATION_OPENSPEC_CHANGES_DIR
   ? path.resolve(repoRoot, process.env.MEKSTATION_OPENSPEC_CHANGES_DIR)
   : path.join(repoRoot, 'openspec', 'changes');
@@ -59,6 +63,17 @@ function loadRegistry() {
     return JSON.parse(fs.readFileSync(registryPath, 'utf8'));
   } catch (error) {
     console.error(`Failed to read ${registryPath}: ${error.message}`);
+    process.exit(1);
+  }
+}
+
+function loadAppShellRouteManifest() {
+  try {
+    return JSON.parse(fs.readFileSync(appShellRouteManifestPath, 'utf8'));
+  } catch (error) {
+    console.error(
+      `Failed to read ${appShellRouteManifestPath}: ${error.message}`,
+    );
     process.exit(1);
   }
 }
@@ -134,6 +149,7 @@ function collectRepoEntries(dir = repoRoot, prefix = '') {
 const repoEntries = collectRepoEntries();
 const repoEntrySet = new Set(repoEntries);
 const pageRoutePatterns = collectPageRoutePatterns();
+const appShellRouteManifest = loadAppShellRouteManifest();
 
 function repoReferenceExists(reference) {
   const normalized = toRepoRelativePath(reference.trim());
@@ -281,6 +297,99 @@ function validateActiveChangeReference(label, index, changeRef, issues) {
   );
 }
 
+function routePathList(values) {
+  if (!Array.isArray(values)) return [];
+  return values
+    .filter((value) => typeof value === 'string' && value.trim() !== '')
+    .map((value) => value.trim());
+}
+
+function appShellManifestRoutePaths(issues) {
+  if (appShellRouteManifest.version !== 1) {
+    issues.push(fail('app-shell route manifest version must be 1.'));
+  }
+
+  if (!Array.isArray(appShellRouteManifest.primaryRoutes)) {
+    issues.push(
+      fail('app-shell route manifest primaryRoutes must be an array.'),
+    );
+    return [];
+  }
+
+  const routePaths = [];
+  const seen = new Set();
+
+  for (const [index, route] of appShellRouteManifest.primaryRoutes.entries()) {
+    const pathValue = route?.path;
+    const labelValue = route?.label;
+
+    if (typeof pathValue !== 'string' || pathValue.trim() === '') {
+      issues.push(
+        fail(
+          `app-shell route manifest primaryRoutes[${index}].path must be a non-empty string.`,
+        ),
+      );
+      continue;
+    }
+
+    if (typeof labelValue !== 'string' || labelValue.trim() === '') {
+      issues.push(
+        fail(
+          `app-shell route manifest primaryRoutes[${index}].label must be a non-empty string.`,
+        ),
+      );
+    }
+
+    const normalizedPath = pathValue.trim();
+    if (seen.has(normalizedPath)) {
+      issues.push(
+        fail(
+          `app-shell route manifest primaryRoutes contains duplicate path: ${normalizedPath}`,
+        ),
+      );
+      continue;
+    }
+
+    seen.add(normalizedPath);
+    routePaths.push(normalizedPath);
+  }
+
+  return routePaths;
+}
+
+function validateAppShellRouteProofAlignment(byId, issues) {
+  const surface = byId.get('app-shell-navigation');
+  if (!surface) return;
+
+  const registryRoutes = routePathList(surface.routes);
+  const manifestRoutes = appShellManifestRoutePaths(issues);
+  const registryRouteSet = new Set(registryRoutes);
+  const manifestRouteSet = new Set(manifestRoutes);
+
+  const missingFromManifest = registryRoutes.filter(
+    (route) => !manifestRouteSet.has(route),
+  );
+  const missingFromRegistry = manifestRoutes.filter(
+    (route) => !registryRouteSet.has(route),
+  );
+
+  if (missingFromManifest.length > 0) {
+    issues.push(
+      fail(
+        `app-shell-navigation routes missing from e2e/app-shell-route-manifest.json: ${missingFromManifest.join(', ')}`,
+      ),
+    );
+  }
+
+  if (missingFromRegistry.length > 0) {
+    issues.push(
+      fail(
+        `e2e/app-shell-route-manifest.json routes missing from app-shell-navigation registry: ${missingFromRegistry.join(', ')}`,
+      ),
+    );
+  }
+}
+
 function hasParentCycle(surface, byId) {
   const seen = new Set([surface.surfaceId]);
   let cursor = surface.parentId;
@@ -422,6 +531,8 @@ function validate(registry) {
     ids.add(surface.surfaceId);
     byId.set(surface.surfaceId, surface);
   }
+
+  validateAppShellRouteProofAlignment(byId, issues);
 
   for (const surface of registry.surfaces) {
     if (surface.parentId && !byId.has(surface.parentId)) {

@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import appShellRouteManifest from './app-shell-route-manifest.json';
+
 type RouteRole = Parameters<Page['getByRole']>[0];
 
 interface RouteAffordance {
@@ -25,7 +27,7 @@ interface RouteMonitor {
   readonly assertClean: (routeLabel: string) => void;
 }
 
-const primaryRoutes: readonly RouteProof[] = [
+const routeProofs: readonly RouteProof[] = [
   {
     path: '/',
     label: 'dashboard',
@@ -374,49 +376,39 @@ const primaryRoutes: readonly RouteProof[] = [
   },
 ];
 
-const desktopDropdowns = [
-  {
-    label: 'Browse',
-    items: [
-      { label: 'My Units', path: '/units' },
-      { label: 'Compendium', path: '/compendium' },
-    ],
-  },
-  {
-    label: 'Tools',
-    items: [
-      { label: 'Customizer', path: '/customizer' },
-      { label: 'Compare', path: '/compare' },
-    ],
-  },
-  {
-    label: 'Gameplay',
-    items: [
-      { label: 'Quick Game', path: '/gameplay/quick' },
-      { label: 'Pilots', path: '/gameplay/pilots' },
-      { label: 'Forces', path: '/gameplay/forces' },
-      { label: 'Campaigns', path: '/gameplay/campaigns' },
-      { label: 'Encounters', path: '/gameplay/encounters' },
-      { label: 'Games', path: '/gameplay/games' },
-      { label: 'Multiplayer', path: '/multiplayer' },
-    ],
-  },
-  {
-    label: 'History',
-    items: [
-      { label: 'Timeline', path: '/audit/timeline' },
-      { label: 'Replay Library', path: '/replay-library' },
-    ],
-  },
-] as const;
+const routeProofByPath = new Map(
+  routeProofs.map((route) => [route.path, route]),
+);
+const appShellRoutePaths = new Set(
+  appShellRouteManifest.primaryRoutes.map((route) => route.path),
+);
 
-const mobileNavItems = [
-  { label: 'Home', path: '/' },
-  { label: 'Browse', path: '/compendium' },
-  { label: 'Gameplay', path: '/gameplay' },
-  { label: 'Multiplayer', path: '/multiplayer' },
-  { label: 'Settings', path: '/settings' },
-] as const;
+for (const proof of routeProofs) {
+  if (!appShellRoutePaths.has(proof.path)) {
+    throw new Error(
+      `Route proof ${proof.path} is not registered in app-shell-route-manifest.json`,
+    );
+  }
+}
+
+const primaryRoutes: readonly RouteProof[] =
+  appShellRouteManifest.primaryRoutes.map((manifestRoute) => {
+    const proof = routeProofByPath.get(manifestRoute.path);
+    if (!proof) {
+      throw new Error(
+        `Missing browser route proof details for ${manifestRoute.path}`,
+      );
+    }
+    if (proof.label !== manifestRoute.label) {
+      throw new Error(
+        `Route proof label mismatch for ${manifestRoute.path}: manifest="${manifestRoute.label}" proof="${proof.label}"`,
+      );
+    }
+    return proof;
+  });
+
+const desktopDropdowns = appShellRouteManifest.desktopDropdowns;
+const mobileNavItems = appShellRouteManifest.mobileNavItems;
 
 function isBenignConsoleError(text: string): boolean {
   return [
