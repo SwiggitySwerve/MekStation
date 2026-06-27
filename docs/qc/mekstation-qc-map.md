@@ -382,6 +382,9 @@ flowchart TD
      BV assertions.
    - Unit handler design-violation findings are cleared; remaining handler
      work is test file-bloat and near-duplicate extraction.
+   - Encounter page-object design-violation findings are cleared after the list,
+     detail, and create helpers were split into narrow read/submission/action
+     surfaces; full Chromium encounter E2E coverage still passes.
    - HexMapDisplay, movement utilities, and physical attack utilities have
      had first-pass complexity/design cleanup, but each still has active
      raw critical/high queues.

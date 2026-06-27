@@ -20,8 +20,11 @@ import {
 import { createTestForce, deleteForce } from './fixtures/force';
 import {
   EncounterListPage,
+  EncounterListReadPage,
   EncounterDetailPage,
   EncounterCreatePage,
+  EncounterCreateReadPage,
+  EncounterCreateSubmitPage,
 } from './pages/encounter.page';
 
 // =============================================================================
@@ -49,9 +52,11 @@ async function waitForStoreReady(page: Page): Promise<void> {
 
 test.describe('Encounter List Page @smoke @encounter', () => {
   let listPage: EncounterListPage;
+  let listReadPage: EncounterListReadPage;
 
   test.beforeEach(async ({ page }) => {
     listPage = new EncounterListPage(page);
+    listReadPage = new EncounterListReadPage(page);
     await listPage.navigate();
     await waitForStoreReady(page);
   });
@@ -67,11 +72,11 @@ test.describe('Encounter List Page @smoke @encounter', () => {
   test('shows encounters or empty state correctly', async ({ page }) => {
     // Note: This test verifies UI consistency - either cards OR empty state should show
     // We can't guarantee empty state in parallel test runs
-    const cardCount = await listPage.getCardCount();
+    const cardCount = await listReadPage.getCardCount();
 
     if (cardCount === 0) {
       // When there are no encounters, empty state should be visible
-      const emptyVisible = await listPage.isEmptyStateVisible();
+      const emptyVisible = await listReadPage.isEmptyStateVisible();
       const showingZero = await page
         .getByText(/Showing 0 encounter/i)
         .isVisible();
@@ -110,7 +115,7 @@ test.describe('Encounter List Page @smoke @encounter', () => {
       .waitFor({ state: 'visible', timeout: 10000 });
 
     // Encounter should appear in list
-    const names = await listPage.getEncounterNames();
+    const names = await listReadPage.getEncounterNames();
     expect(names).toContain('Test Encounter Alpha');
 
     // Cleanup
@@ -137,7 +142,7 @@ test.describe('Encounter List Page @smoke @encounter', () => {
     await listPage.searchEncounters('Alpha');
 
     // Should only show Alpha encounters
-    const names = await listPage.getEncounterNames();
+    const names = await listReadPage.getEncounterNames();
     expect(names).toContain('Alpha Engagement');
     expect(names).toContain('Alpha Duel');
     expect(names).not.toContain('Beta Skirmish');
@@ -164,7 +169,7 @@ test.describe('Encounter List Page @smoke @encounter', () => {
     await page.getByTestId('status-option-draft').click();
 
     // Should still show the encounter
-    const names = await listPage.getEncounterNames();
+    const names = await listReadPage.getEncounterNames();
     expect(names).toContain('Filter Test Encounter');
 
     // Click Ready filter - encounter should disappear (it's in Draft)
@@ -173,7 +178,7 @@ test.describe('Encounter List Page @smoke @encounter', () => {
     // Wait for UI to update
     await page.waitForTimeout(300);
 
-    const namesAfterFilter = await listPage.getEncounterNames();
+    const namesAfterFilter = await listReadPage.getEncounterNames();
     expect(namesAfterFilter).not.toContain('Filter Test Encounter');
 
     // Cleanup
@@ -188,10 +193,14 @@ test.describe('Encounter List Page @smoke @encounter', () => {
 test.describe('Encounter Creation @smoke @encounter', () => {
   let listPage: EncounterListPage;
   let createPage: EncounterCreatePage;
+  let createReadPage: EncounterCreateReadPage;
+  let createSubmitPage: EncounterCreateSubmitPage;
 
   test.beforeEach(async ({ page }) => {
     listPage = new EncounterListPage(page);
     createPage = new EncounterCreatePage(page);
+    createReadPage = new EncounterCreateReadPage(page);
+    createSubmitPage = new EncounterCreateSubmitPage(page);
     await listPage.navigate();
     await waitForStoreReady(page);
   });
@@ -208,7 +217,7 @@ test.describe('Encounter Creation @smoke @encounter', () => {
     await createPage.fillName('Simple E2E Encounter');
 
     // Submit
-    await createPage.submit();
+    await createSubmitPage.submit();
 
     // Should redirect to encounter detail
     await expect(page).toHaveURL(/\/gameplay\/encounters\/[^/]+$/);
@@ -225,7 +234,7 @@ test.describe('Encounter Creation @smoke @encounter', () => {
     await page.getByTestId('template-skirmish').click();
 
     // Submit
-    await createPage.submit();
+    await createSubmitPage.submit();
 
     // Should redirect to encounter detail
     await expect(page).toHaveURL(/\/gameplay\/encounters\/[^/]+$/);
@@ -244,7 +253,7 @@ test.describe('Encounter Creation @smoke @encounter', () => {
     await expect(page).toHaveURL(/\/gameplay\/encounters\/create$/);
 
     // Check for error message or that we're still on the page
-    const hasError = await createPage.hasFieldError('name');
+    const hasError = await createReadPage.hasFieldError('name');
     const stillOnCreatePage = await page
       .getByText(/Encounter Name/i)
       .isVisible();
@@ -256,7 +265,7 @@ test.describe('Encounter Creation @smoke @encounter', () => {
     await createPage.fillName('Encounter to Cancel');
 
     // Click cancel
-    await createPage.cancel();
+    await createSubmitPage.cancel();
 
     // Should return to list
     await expect(page).toHaveURL(/\/gameplay\/encounters$/);
@@ -268,12 +277,10 @@ test.describe('Encounter Creation @smoke @encounter', () => {
 // =============================================================================
 
 test.describe('Encounter Detail Page @encounter', () => {
-  let _detailPage: EncounterDetailPage;
   let listPage: EncounterListPage;
   let encounterId: string | null;
 
   test.beforeEach(async ({ page }) => {
-    _detailPage = new EncounterDetailPage(page);
     listPage = new EncounterListPage(page);
 
     // Navigate to list first to ensure store is initialized
@@ -459,12 +466,10 @@ test.describe('Encounter Deletion @encounter', () => {
 
 test.describe('Encounter Validation @encounter', () => {
   let listPage: EncounterListPage;
-  let _detailPage: EncounterDetailPage;
   let encounterId: string | null;
 
   test.beforeEach(async ({ page }) => {
     listPage = new EncounterListPage(page);
-    _detailPage = new EncounterDetailPage(page);
     await listPage.navigate();
     await waitForStoreReady(page);
 

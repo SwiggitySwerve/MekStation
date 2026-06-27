@@ -1647,6 +1647,7 @@
         "2026-06-27 campaign page-object maintenance slice removed obsolete CampaignDetailPage helpers, split campaign list reads from navigation, and reduced repo-wide design-violation findings from critical=15/high=7 to critical=13/high=6; typecheck and the full Chromium campaign spec passed.",
         "2026-06-27 compendium page-object maintenance slice removed unused detail-page scaffolds, split unit/equipment read helpers from browser actions, and reduced repo-wide design-violation findings from critical=13/high=6 to critical=10/high=6; typecheck and the full Chromium compendium spec passed.",
         "2026-06-27 force page-object maintenance slice removed unused force detail/list/create helpers, split list/create read and submission helpers from browser actions, and reduced repo-wide design-violation findings from critical=10/high=6 to critical=7/high=6; typecheck and the full Chromium force spec passed.",
+        "2026-06-27 encounter page-object maintenance slice removed unused encounter detail scaffolds, split list reads and create-page submission/read helpers from browser actions, and reduced repo-wide design-violation findings from critical=7/high=6 to critical=4/high=6; typecheck and the full Chromium encounter spec passed.",
         "docs/qc/maintenance-baseline.json",
         "docs/qc/maintenance-warning-ledger.json",
         "scripts/qc/validate-maintenance-warning-ledger.mjs"

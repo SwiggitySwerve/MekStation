@@ -1,11 +1,4 @@
-import type { Page as _Page } from '@playwright/test';
-
-import { expect as _expect } from '@playwright/test';
-
 import { BasePage } from './base.page';
-
-// Re-export to silence unused warnings (types kept for documentation)
-void _expect;
 
 /**
  * Page object for the encounter list page (/gameplay/encounters).
@@ -20,15 +13,6 @@ export class EncounterListPage extends BasePage {
   async navigate(): Promise<void> {
     await this.page.goto(this.url);
     await this.waitForReady();
-  }
-
-  /**
-   * Get the count of encounter cards displayed.
-   */
-  async getCardCount(): Promise<number> {
-    // Cards use testid pattern: encounter-card-{id}
-    const cards = this.page.locator('[data-testid^="encounter-card-"]');
-    return cards.count();
   }
 
   /**
@@ -58,31 +42,24 @@ export class EncounterListPage extends BasePage {
     await this.fillByTestId('encounter-search', query);
     await this.page.waitForTimeout(300);
   }
+}
+
+/**
+ * Read-only assertions for the encounter list page.
+ */
+export class EncounterListReadPage extends BasePage {
+  /**
+   * Get the count of encounter cards displayed.
+   */
+  async getCardCount(): Promise<number> {
+    return this.page.locator('[data-testid^="encounter-card-"]').count();
+  }
 
   /**
    * Get all encounter names displayed.
    */
   async getEncounterNames(): Promise<string[]> {
-    const names = this.getByTestId('encounter-name');
-    return names.allTextContents();
-  }
-
-  /**
-   * Filter encounters by status.
-   * @param status - The status to filter by (e.g., 'active', 'completed', 'pending')
-   */
-  async filterByStatus(status: string): Promise<void> {
-    await this.clickByTestId('status-filter');
-    await this.clickByTestId(`status-option-${status}`);
-  }
-
-  /**
-   * Filter encounters by type.
-   * @param type - The encounter type
-   */
-  async filterByType(type: string): Promise<void> {
-    await this.clickByTestId('type-filter');
-    await this.clickByTestId(`type-option-${type}`);
+    return this.getByTestId('encounter-name').allTextContents();
   }
 
   /**
@@ -95,167 +72,9 @@ export class EncounterListPage extends BasePage {
 
 /**
  * Page object for the encounter detail page (/gameplay/encounters/[id]).
- * Provides methods to interact with encounter details.
+ * Provides methods for currently tested encounter detail actions.
  */
 export class EncounterDetailPage extends BasePage {
-  /**
-   * Navigate to a specific encounter's detail page.
-   * @param id - The encounter ID
-   */
-  async navigate(id: string): Promise<void> {
-    await this.page.goto(`/gameplay/encounters/${id}`);
-    await this.waitForReady();
-  }
-
-  /**
-   * Get the encounter name.
-   */
-  async getName(): Promise<string> {
-    return this.getTextByTestId('encounter-name');
-  }
-
-  /**
-   * Get the encounter status.
-   */
-  async getStatus(): Promise<string> {
-    return this.getTextByTestId('encounter-status');
-  }
-
-  /**
-   * Get the encounter type.
-   */
-  async getType(): Promise<string> {
-    return this.getTextByTestId('encounter-type');
-  }
-
-  /**
-   * Get the current turn number.
-   */
-  async getCurrentTurn(): Promise<number> {
-    const turnText = await this.getTextByTestId('encounter-turn');
-    return parseInt(turnText, 10);
-  }
-
-  /**
-   * Get the current phase.
-   */
-  async getCurrentPhase(): Promise<string> {
-    return this.getTextByTestId('encounter-phase');
-  }
-
-  /**
-   * Click the map tab.
-   */
-  async clickMapTab(): Promise<void> {
-    await this.clickByTestId('tab-map');
-  }
-
-  /**
-   * Click the units tab.
-   */
-  async clickUnitsTab(): Promise<void> {
-    await this.clickByTestId('tab-units');
-  }
-
-  /**
-   * Click the log tab.
-   */
-  async clickLogTab(): Promise<void> {
-    await this.clickByTestId('tab-log');
-  }
-
-  /**
-   * Click the objectives tab.
-   */
-  async clickObjectivesTab(): Promise<void> {
-    await this.clickByTestId('tab-objectives');
-  }
-
-  /**
-   * Select a unit on the battlefield.
-   * @param unitId - The unit ID
-   */
-  async selectUnit(unitId: string): Promise<void> {
-    await this.clickByTestId(`unit-${unitId}`);
-  }
-
-  /**
-   * Click a hex on the map.
-   * @param hexId - The hex coordinates (e.g., '1203')
-   */
-  async clickHex(hexId: string): Promise<void> {
-    await this.clickByTestId(`hex-${hexId}`);
-  }
-
-  /**
-   * End the current phase.
-   */
-  async endPhase(): Promise<void> {
-    await this.clickByTestId('end-phase-btn');
-  }
-
-  /**
-   * End the current turn.
-   */
-  async endTurn(): Promise<void> {
-    await this.clickByTestId('end-turn-btn');
-    await this.clickByTestId('confirm-end-turn-btn');
-  }
-
-  /**
-   * Open the action menu for a unit.
-   * @param unitId - The unit ID
-   */
-  async openUnitActionMenu(unitId: string): Promise<void> {
-    await this.clickByTestId(`unit-actions-${unitId}`);
-  }
-
-  /**
-   * Execute a movement action.
-   * @param unitId - The unit ID
-   * @param targetHex - The target hex coordinates
-   */
-  async moveUnit(unitId: string, targetHex: string): Promise<void> {
-    await this.selectUnit(unitId);
-    await this.clickByTestId('action-move');
-    await this.clickHex(targetHex);
-    await this.clickByTestId('confirm-move-btn');
-  }
-
-  /**
-   * Execute an attack action.
-   * @param attackerId - The attacking unit ID
-   * @param targetId - The target unit ID
-   */
-  async attackUnit(attackerId: string, targetId: string): Promise<void> {
-    await this.selectUnit(attackerId);
-    await this.clickByTestId('action-attack');
-    await this.selectUnit(targetId);
-    await this.clickByTestId('confirm-attack-btn');
-  }
-
-  /**
-   * Click the pause encounter button.
-   */
-  async pauseEncounter(): Promise<void> {
-    await this.clickByTestId('pause-encounter-btn');
-  }
-
-  /**
-   * Click the resume encounter button.
-   */
-  async resumeEncounter(): Promise<void> {
-    await this.clickByTestId('resume-encounter-btn');
-  }
-
-  /**
-   * Click the end encounter button.
-   */
-  async endEncounter(): Promise<void> {
-    await this.clickByTestId('end-encounter-btn');
-    await this.clickByTestId('confirm-end-encounter-btn');
-  }
-
   /**
    * Click the delete encounter button.
    */
@@ -277,25 +96,11 @@ export class EncounterDetailPage extends BasePage {
   async cancelDelete(): Promise<void> {
     await this.clickByTestId('cancel-delete-btn');
   }
-
-  /**
-   * Open the replay controls.
-   */
-  async openReplayControls(): Promise<void> {
-    await this.clickByTestId('replay-controls-btn');
-  }
-
-  /**
-   * Save the encounter state.
-   */
-  async saveEncounter(): Promise<void> {
-    await this.clickByTestId('save-encounter-btn');
-  }
 }
 
 /**
  * Page object for the encounter create page (/gameplay/encounters/create).
- * Provides methods to create a new encounter.
+ * Provides methods to fill the encounter creation form.
  */
 export class EncounterCreatePage extends BasePage {
   readonly url = '/gameplay/encounters/create';
@@ -323,62 +128,12 @@ export class EncounterCreatePage extends BasePage {
   async fillDescription(description: string): Promise<void> {
     await this.fillByTestId('encounter-description-input', description);
   }
+}
 
-  /**
-   * Select an encounter type.
-   * @param type - The encounter type (e.g., 'skirmish', 'campaign', 'scenario')
-   */
-  async selectType(type: string): Promise<void> {
-    await this.clickByTestId('type-select');
-    await this.clickByTestId(`type-option-${type}`);
-  }
-
-  /**
-   * Select a map for the encounter.
-   * @param mapId - The map ID
-   */
-  async selectMap(mapId: string): Promise<void> {
-    await this.clickByTestId('map-select');
-    await this.clickByTestId(`map-option-${mapId}`);
-  }
-
-  /**
-   * Add a force to the encounter.
-   * @param forceId - The force ID to add
-   * @param team - The team to assign (e.g., 'attacker', 'defender')
-   */
-  async addForce(forceId: string, team: string): Promise<void> {
-    await this.clickByTestId('add-force-btn');
-    await this.clickByTestId(`force-option-${forceId}`);
-    await this.clickByTestId(`team-option-${team}`);
-    await this.clickByTestId('confirm-add-force-btn');
-  }
-
-  /**
-   * Remove a force from the encounter.
-   * @param forceId - The force ID to remove
-   */
-  async removeForce(forceId: string): Promise<void> {
-    await this.clickByTestId(`remove-force-${forceId}`);
-  }
-
-  /**
-   * Set victory conditions.
-   * @param condition - The victory condition type
-   */
-  async setVictoryCondition(condition: string): Promise<void> {
-    await this.clickByTestId('victory-condition-select');
-    await this.clickByTestId(`victory-option-${condition}`);
-  }
-
-  /**
-   * Set the turn limit.
-   * @param turns - The maximum number of turns
-   */
-  async setTurnLimit(turns: number): Promise<void> {
-    await this.fillByTestId('turn-limit-input', turns.toString());
-  }
-
+/**
+ * Submission controls for the encounter create page.
+ */
+export class EncounterCreateSubmitPage extends BasePage {
   /**
    * Submit the create encounter form.
    */
@@ -394,29 +149,17 @@ export class EncounterCreatePage extends BasePage {
   async cancel(): Promise<void> {
     await this.clickAndWaitForNavigation(this.getByTestId('cancel-btn'));
   }
+}
 
+/**
+ * Read-only validation helpers for the encounter create page.
+ */
+export class EncounterCreateReadPage extends BasePage {
   /**
    * Check if form validation error is displayed.
    * @param field - The field name to check for errors
    */
   async hasFieldError(field: string): Promise<boolean> {
     return this.isVisibleByTestId(`${field}-error`);
-  }
-
-  /**
-   * Create an encounter with the given details (convenience method).
-   * @param name - The encounter name
-   * @param type - The encounter type
-   * @param mapId - The map ID
-   */
-  async createEncounter(
-    name: string,
-    type: string,
-    mapId: string,
-  ): Promise<void> {
-    await this.fillName(name);
-    await this.selectType(type);
-    await this.selectMap(mapId);
-    await this.submit();
   }
 }
