@@ -33,9 +33,9 @@
       "follow-up": 0
     },
     "design-violation": {
-      "fixed": 23,
+      "fixed": 24,
       "accepted": 3,
-      "follow-up": 1
+      "follow-up": 0
     }
   },
   "entries": [
@@ -58,13 +58,13 @@
       "rationale": "Explanatory store-nudge wording was rewritten so the scanner no longer treats it as active TODO-like debt."
     },
     {
-      "key": "file-bloat|critical|scripts/validate-bv.ts|4825 LOC exceeds rendering threshold",
+      "key": "file-bloat|critical|scripts/validate-bv.ts|4727 LOC exceeds rendering threshold",
       "category": "file-bloat",
       "severity": "critical",
       "file": "scripts/validate-bv.ts",
-      "message": "4825 LOC exceeds rendering threshold",
+      "message": "4727 LOC exceeds rendering threshold",
       "status": "follow-up",
-      "rationale": "The BV validator is large but source-of-truth heavy; CLI parsing has been extracted, and the remaining split is a dedicated validator architecture wave.",
+      "rationale": "The BV validator is large but source-of-truth heavy; CLI parsing and physical weapon BV tables have been extracted, and the remaining split is a dedicated validator architecture wave.",
       "followUps": ["wave-12-script-bloat-follow-up"]
     },
     {
@@ -549,9 +549,13 @@
       "severity": "high",
       "file": "scripts/validate-bv.ts",
       "message": "switch statement has 23 cases",
-      "status": "follow-up",
-      "rationale": "BV validator dispatch belongs with the dedicated validator architecture split.",
-      "followUps": ["wave-12-script-bloat-follow-up"]
+      "status": "fixed",
+      "rationale": "Physical weapon BV dispatch is now a table-driven helper with focused formula coverage, while broader validate-bv architecture work remains tracked by file-bloat and complexity findings.",
+      "fixedEvidence": [
+        "2026-06-27 `npm.cmd run maintain:scan -- --scope=scripts/validate-bv.ts --json` reduced validate-bv critical/high findings from 16 to 13 and removed the 23-case physical weapon switch finding.",
+        "2026-06-27 `npm.cmd run maintain:scan -- --scope=scripts/validate-bv-physical-weapons.ts --json` reported 0 critical/high findings for the extracted helper.",
+        "2026-06-27 `npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/validate-bv-physical-weapons.test.ts scripts/__tests__/validate-bv-fail-loud.test.ts --runInBand` passed focused physical BV and CLI fail-loud coverage."
+      ]
     },
     {
       "key": "design-violation|high|scripts/validate-bv.ts|switch statement has 9 cases",
