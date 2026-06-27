@@ -33,9 +33,9 @@
       "follow-up": 0
     },
     "design-violation": {
-      "fixed": 0,
+      "fixed": 2,
       "accepted": 3,
-      "follow-up": 24
+      "follow-up": 22
     }
   },
   "entries": [
@@ -243,9 +243,13 @@
       "severity": "critical",
       "file": "e2e/pages/base.page.ts",
       "message": "class has 8 public methods",
-      "status": "follow-up",
-      "rationale": "Page-object breadth should be split by workflow role without weakening browser tests.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Shared page-object utilities are now protected superclass helpers rather than public workflow methods.",
+      "fixedEvidence": [
+        "2026-06-27 `npm.cmd run maintain:scan -- --json` reported no findings for e2e/pages/base.page.ts and design-violation critical count dropped from 16 to 15 after the base helper visibility change.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 focused Chromium `npx.cmd playwright test e2e/customizer.spec.ts --project=chromium --workers=1 --grep '@smoke|Aerospace Structure Tab|Aerospace Tab Navigation'` passed 10 checks through inherited page-object helpers."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/campaign.page.ts|class has 12 public methods",
@@ -303,9 +307,13 @@
       "severity": "critical",
       "file": "e2e/pages/customizer.page.ts",
       "message": "class has 42 public methods",
-      "status": "follow-up",
-      "rationale": "Customizer page object is the largest page-object split and needs dedicated customizer browser coverage.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Unused aerospace customizer scaffold methods were removed so the page object only exposes browser-tested interactions.",
+      "fixedEvidence": [
+        "2026-06-27 `npm.cmd run maintain:scan -- --json` reported no findings for e2e/pages/customizer.page.ts and design-violation critical count dropped from 17 to 16.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 focused Chromium `npx.cmd playwright test e2e/customizer.spec.ts --project=chromium --workers=1 --grep '@smoke|Aerospace Structure Tab|Aerospace Tab Navigation'` passed 10 checks."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/encounter.page.ts|class has 9 public methods",
