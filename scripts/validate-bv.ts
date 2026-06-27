@@ -25,6 +25,7 @@ import {
   resolveAmmoBV,
   normalizeEquipmentId,
 } from '../src/utils/construction/equipmentBVResolver';
+import { parseValidateBvArgs, VALIDATE_BV_USAGE } from './validate-bv-cli';
 
 interface IndexUnit {
   id: string;
@@ -4617,54 +4618,24 @@ function buildPareto(results: ValidationResult[]): ParetoAnalysis {
 
 // === MAIN ===
 async function main(): Promise<void> {
-  const args = process.argv.slice(2);
-  let outputPath = path.resolve(process.cwd(), './validation-output');
-  let referenceDir = path.resolve(
-    process.cwd(),
-    process.env.MEKSTATION_BV_REFERENCE_DIR || DEFAULT_REFERENCE_DIR,
-  );
-  let minimumCoverageFloor = Number.parseInt(
-    process.env.MEKSTATION_BV_MIN_COVERAGE || '',
-    10,
-  );
-  let minimumCoverageFloorWasExplicit = Boolean(
-    process.env.MEKSTATION_BV_MIN_COVERAGE,
-  );
-  if (!Number.isFinite(minimumCoverageFloor) || minimumCoverageFloor <= 0) {
-    minimumCoverageFloor = MINIMUM_BV_COVERAGE_FLOOR;
-  }
-  let filter: string | undefined,
-    limit: number | undefined,
-    verbose = false;
-  for (let i = 0; i < args.length; i++) {
-    switch (args[i]) {
-      case '--output':
-        outputPath = path.resolve(args[++i] || './validation-output');
-        break;
-      case '--filter':
-        filter = args[++i];
-        break;
-      case '--limit':
-        limit = parseInt(args[++i] || '0', 10);
-        break;
-      case '--reference-dir':
-        referenceDir = path.resolve(args[++i] || DEFAULT_REFERENCE_DIR);
-        break;
-      case '--min-coverage':
-        minimumCoverageFloor = Number.parseInt(args[++i] || '0', 10);
-        minimumCoverageFloorWasExplicit = true;
-        break;
-      case '--verbose':
-      case '-v':
-        verbose = true;
-        break;
-      case '--help':
-      case '-h':
-        console.log(
-          'Usage: npx tsx scripts/validate-bv.ts [--output path] [--filter pat] [--limit n] [--reference-dir path] [--min-coverage n] [--verbose]',
-        );
-        process.exit(0);
-    }
+  const {
+    outputPath,
+    referenceDir,
+    minimumCoverageFloor,
+    minimumCoverageFloorWasExplicit,
+    filter,
+    limit,
+    verbose,
+    help,
+  } = parseValidateBvArgs(process.argv.slice(2), {
+    cwd: process.cwd(),
+    env: process.env,
+    defaultReferenceDir: DEFAULT_REFERENCE_DIR,
+    defaultMinimumCoverageFloor: MINIMUM_BV_COVERAGE_FLOOR,
+  });
+  if (help) {
+    console.log(VALIDATE_BV_USAGE);
+    process.exit(0);
   }
 
   if (!Number.isFinite(minimumCoverageFloor) || minimumCoverageFloor <= 0) {
