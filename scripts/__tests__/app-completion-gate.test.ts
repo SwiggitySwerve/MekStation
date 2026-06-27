@@ -61,11 +61,14 @@ function writeFixtureSet(tempDir: string, hasReleaseGap: boolean) {
       'qc:lifecycle:status': 'node scripts/qc/report-lifecycle-qc-status.mjs',
       'qc:logging:validate':
         'node scripts/qc/validate-journey-qc.mjs --logging-only=true',
+      'qc:openspec-ci:validate':
+        'node scripts/qc/validate-openspec-ci-quality.mjs',
       'verify:app-completion':
         'npm run qc:app-completion && npm run verify:qc && npm run verify:rules && npm run electron:test:build',
       'verify:app-completion:release':
         'npm run qc:app-completion:release && npm run verify:app-completion',
-      'verify:qc': 'npm run qc:lifecycle:status',
+      'verify:qc':
+        'npm run qc:openspec-ci:validate && npm run qc:lifecycle:status',
       'verify:rules':
         'npm run validate:combat:gaps -- --format=summary --expect-total=0 && npm run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=147 && npx openspec validate --all --strict',
       'electron:test:build': 'cd desktop && npm run test:build',
@@ -123,6 +126,7 @@ function writeFixtureSet(tempDir: string, hasReleaseGap: boolean) {
       {
         id: 'MC-01-app-shell-navigation',
         surfaceId: 'app-shell-navigation',
+        successCriteria: [],
         checks: [{ id: 'strict-app-shell', required: true }],
         notes: [],
       },
@@ -280,6 +284,49 @@ describe('app completion gate validator', () => {
       'Catalog review confirmed knownLimitations bypass coverage in the BattleMech lane.',
     ];
     writeJson(env.MEKSTATION_QC_REGISTRY_PATH, registry);
+
+    const result = runValidator(['--json'], env);
+    const report = JSON.parse(result.stdout);
+
+    expect(result.status).toBe(0);
+    expect(report.releaseGaps).toEqual([]);
+    expect(report.summary.releaseSignoff.gaps).toBe(0);
+  });
+
+  it('counts release-signoff wording in major scenario success criteria', () => {
+    const env = writeFixtureSet(tempDir, false);
+    const majorScenarios = JSON.parse(
+      fs.readFileSync(env.MEKSTATION_MAJOR_SCENARIOS_PATH, 'utf-8'),
+    );
+    majorScenarios.scenarios[0].successCriteria = [
+      'Timeline export remains visible as a release-signoff gap until browser proof lands.',
+    ];
+    writeJson(env.MEKSTATION_MAJOR_SCENARIOS_PATH, majorScenarios);
+
+    const result = runValidator(['--json'], env);
+    const report = JSON.parse(result.stdout);
+
+    expect(result.status).toBe(0);
+    expect(report.releaseGaps).toEqual([
+      {
+        surfaceId: 'app-shell-navigation',
+        kind: 'major-scenario',
+        detail:
+          'Timeline export remains visible as a release-signoff gap until browser proof lands.',
+      },
+    ]);
+    expect(report.summary.releaseSignoff.gaps).toBe(1);
+  });
+
+  it('does not count release gate explanations that are not signoff gaps', () => {
+    const env = writeFixtureSet(tempDir, false);
+    const majorScenarios = JSON.parse(
+      fs.readFileSync(env.MEKSTATION_MAJOR_SCENARIOS_PATH, 'utf-8'),
+    );
+    majorScenarios.scenarios[0].successCriteria = [
+      'Raw maintenance inventory can be captured as diagnostic evidence without being mistaken for a pass/fail release gate.',
+    ];
+    writeJson(env.MEKSTATION_MAJOR_SCENARIOS_PATH, majorScenarios);
 
     const result = runValidator(['--json'], env);
     const report = JSON.parse(result.stdout);

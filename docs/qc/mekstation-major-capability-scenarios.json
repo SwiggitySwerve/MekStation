@@ -531,6 +531,17 @@
       ],
       "checks": [
         {
+          "id": "ci-required-check-contract",
+          "tier": "core",
+          "required": true,
+          "command": "npm.cmd run qc:openspec-ci:validate",
+          "evidence": [
+            "scripts/qc/validate-openspec-ci-quality.mjs",
+            ".github/workflows/pr-checks.yml",
+            ".github/scripts/setup-branch-protection.sh"
+          ]
+        },
+        {
           "id": "openspec-strict",
           "tier": "core",
           "required": true,
