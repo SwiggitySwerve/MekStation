@@ -494,6 +494,7 @@ describe('journey QC scripts', () => {
           steps: Array<{
             executionBacking: string;
             syntheticBacking: boolean;
+            executionProofCommands: string[];
           }>;
         }>;
       }>;
@@ -502,11 +503,14 @@ describe('journey QC scripts', () => {
     expect(result.journeys[0]?.attempts[0]?.terminalState).toBe(
       'combat-complete',
     );
-    expect(result.executionBackingSummary.syntheticSteps).toBe(3);
+    expect(result.executionBackingSummary.syntheticSteps).toBe(0);
     expect(result.executionBackingSummary.totalSteps).toBe(3);
     expect(result.journeys[0]?.attempts[0]?.steps[0]).toMatchObject({
-      executionBacking: 'synthetic-projection',
-      syntheticBacking: true,
+      executionBacking: 'browser-command',
+      syntheticBacking: false,
+      executionProofCommands: [
+        'npm.cmd run verify:qc:encounter-combat-continuity',
+      ],
     });
 
     const logs = runNodeScript('scripts/qc/search-journey-logs.mjs', [
@@ -575,10 +579,12 @@ describe('journey QC scripts', () => {
           },
           stateAfter: {
             status: 'pass',
-            syntheticBacking: true,
+            syntheticBacking: false,
           },
           ruleDecision: {
             outcome: 'rejected',
+            reason:
+              'Destination is blocked by occupied terrain in the generated test plan.',
           },
           validationResult: {
             status: 'pass',
@@ -624,7 +630,7 @@ describe('journey QC scripts', () => {
       path.join(evidenceDir, 'test-combat', 'report.md'),
       'utf-8',
     );
-    expect(report).toContain('- Synthetic-backed steps: 3/3');
+    expect(report).toContain('- Synthetic-backed steps: 0/3');
     expect(report).toContain('- Expected probes: 1');
 
     const bugs = runNodeScript('scripts/qc/report-journey-bugs.mjs', [
@@ -895,7 +901,7 @@ describe('journey QC scripts', () => {
       'state before: journey=combat-1v1 step=resolve-combat attempt=1 module=combat expected=combat-complete',
     );
     expect(bugs.stdout).toContain(
-      'state after: status=fail terminal=combat-complete artifacts=0 backing=synthetic-projection',
+      'state after: status=fail terminal=combat-complete artifacts=0 backing=domain-command',
     );
     expect(bugs.stdout).toContain(
       'rule: blocked via journey-qc - Injected failure for combat-1v1/resolve-combat',
@@ -997,9 +1003,49 @@ describe('journey QC scripts', () => {
     });
   });
 
-  it('fails strict backing-required runs while preserving bug evidence', () => {
+  it('passes strict backing-required runs for command-backed combat proof', () => {
     const runResult = runNodeScript('scripts/qc/run-journey-scenarios.mjs', [
       '--journey=combat-1v1',
+      '--run-id=test-combat-domain-backed',
+      '--require-domain-backed',
+      `--evidence-dir=${evidenceDir}`,
+    ]);
+    expect(runResult.status).toBe(0);
+
+    const result = readJson<{
+      status: string;
+      executionBackingSummary: {
+        missingRequiredBacking: number;
+        syntheticSteps: number;
+        totalSteps: number;
+      };
+      journeys: Array<{
+        attempts: Array<{
+          steps: Array<{
+            syntheticBacking: boolean;
+            executionProofCommands: string[];
+          }>;
+        }>;
+      }>;
+    }>(path.join(evidenceDir, 'test-combat-domain-backed', 'result.json'));
+    expect(result.status).toBe('pass');
+    expect(result.executionBackingSummary).toMatchObject({
+      missingRequiredBacking: 0,
+      syntheticSteps: 0,
+      totalSteps: 3,
+    });
+    expect(
+      result.journeys[0]?.attempts[0]?.steps.every(
+        (step) =>
+          step.syntheticBacking === false &&
+          step.executionProofCommands.length > 0,
+      ),
+    ).toBe(true);
+  });
+
+  it('fails strict backing-required runs while preserving bug evidence', () => {
+    const runResult = runNodeScript('scripts/qc/run-journey-scenarios.mjs', [
+      '--journey=character-build',
       '--run-id=test-domain-backed-required',
       '--require-domain-backed',
       '--continue-on-error',
@@ -1017,7 +1063,7 @@ describe('journey QC scripts', () => {
       }>;
     }>(path.join(evidenceDir, 'test-domain-backed-required', 'result.json'));
     expect(result.status).toBe('fail');
-    expect(result.executionBackingSummary.missingRequiredBacking).toBe(3);
+    expect(result.executionBackingSummary.missingRequiredBacking).toBe(2);
     expect(result.journeys[0]?.attempts[0]?.steps[0]).toMatchObject({
       failureKind: 'missing-required-execution-backing',
       syntheticBacking: true,
@@ -1038,10 +1084,10 @@ describe('journey QC scripts', () => {
     ]);
     expect(bugs.status).toBe(0);
     expect(bugs.stdout).toContain(
-      'Missing non-synthetic execution backing: combat-1v1/launch-duel',
+      'Missing non-synthetic execution backing: character-build/generate-character',
     );
     expect(bugs.stdout).toContain(
-      'failure cause: Required non-synthetic execution backing missing for combat-1v1/launch-duel (synthetic-projection).',
+      'failure cause: Required non-synthetic execution backing missing for character-build/generate-character (synthetic-projection).',
     );
 
     const bugsJson = runNodeScript('scripts/qc/report-journey-bugs.mjs', [
@@ -1061,21 +1107,23 @@ describe('journey QC scripts', () => {
         validationResult: { status: string; failureKind: string };
       };
     }>;
-    const launchDuelBug = bugPackets.find(
-      (bug) => bug.stepId === 'launch-duel',
+    const generateCharacterBug = bugPackets.find(
+      (bug) => bug.stepId === 'generate-character',
     );
-    expect(launchDuelBug?.triage).toMatchObject({
-      action: 'movement-preview,attack-resolution',
+    expect(generateCharacterBug?.triage).toMatchObject({
+      action: 'character-generation',
       validationResult: {
         status: 'fail',
         failureKind: 'missing-required-execution-backing',
       },
     });
-    expect(launchDuelBug?.triage?.failureCause).toContain(
+    expect(generateCharacterBug?.triage?.failureCause).toContain(
       'Required non-synthetic execution backing missing',
     );
-    expect(launchDuelBug?.triage?.logFingerprints[0]).toMatch(/^[a-f0-9]{8}$/);
-    expect(launchDuelBug?.triage?.nextDebuggingHint).toContain(
+    expect(generateCharacterBug?.triage?.logFingerprints[0]).toMatch(
+      /^[a-f0-9]{8}$/,
+    );
+    expect(generateCharacterBug?.triage?.nextDebuggingHint).toContain(
       '--require-domain-backed',
     );
   });

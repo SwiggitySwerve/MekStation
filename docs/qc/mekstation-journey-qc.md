@@ -47,15 +47,15 @@ including required checkpoint order for the major journey flows.
 
 ## Supported Journeys
 
-| Journey             | Default mode | Primary module | Default proof                                      |
-| ------------------- | ------------ | -------------- | -------------------------------------------------- |
-| `character-build`   | headless     | roster         | pilot generation and export evidence               |
-| `mek-build`         | headless     | construction   | BattleMech construction input and export           |
-| `combat-1v1`        | headless     | combat         | encounter, tactical rejection, terminal combat     |
-| `combat-4v4`        | headless     | combat         | lance encounter, terminal combat, replay reference |
-| `contract-campaign` | headless     | campaign       | contract selection, outcome, economy update        |
-| `campaign-short`    | headless     | campaign       | 3 to 5 contract sequence                           |
-| `campaign-long`     | headless     | campaign       | 6 to 10 contract sequence plus stability gate      |
+| Journey             | Default mode | Primary module | Default proof                                                 |
+| ------------------- | ------------ | -------------- | ------------------------------------------------------------- |
+| `character-build`   | headless     | roster         | pilot generation and export evidence                          |
+| `mek-build`         | headless     | construction   | BattleMech construction input and export                      |
+| `combat-1v1`        | headless     | combat         | command-backed encounter, tactical rejection, terminal combat |
+| `combat-4v4`        | headless     | combat         | lance encounter, terminal combat, replay reference            |
+| `contract-campaign` | headless     | campaign       | contract selection, outcome, economy update                   |
+| `campaign-short`    | headless     | campaign       | 3 to 5 contract sequence                                      |
+| `campaign-long`     | headless     | campaign       | 6 to 10 contract sequence plus stability gate                 |
 
 ## UI Flow Shell
 
@@ -141,6 +141,10 @@ metadata:
 Use `--require-domain-backed` when you need the run to fail if selected
 required steps are still synthetic/catalog-backed. That strict mode is expected
 to fail until a journey step has a real domain, browser, or hybrid adapter.
+`combat-1v1` is the first promoted journey: its required steps name the
+existing command-backed proofs (`verify:qc:encounter-combat-continuity`,
+`verify:qc:tactical:projection`, and `validate:combat`) and pass strict backing
+mode while the remaining synthetic journeys still fail honestly.
 
 Structured diagnostic entries also include a stable `fingerprint` and
 `metadata.triage` packet for journey steps. The triage packet is intentionally
