@@ -632,13 +632,13 @@
       "followUps": ["wave-12-validate-bv-architecture-split"]
     },
     {
-      "key": "file-bloat|high|scripts/validate-bv-calculator.ts|1152 LOC exceeds standard threshold",
+      "key": "file-bloat|warn|scripts/validate-bv-calculator.ts|891 LOC exceeds standard threshold",
       "category": "file-bloat",
-      "severity": "high",
+      "severity": "warn",
       "file": "scripts/validate-bv-calculator.ts",
-      "message": "1152 LOC exceeds standard threshold",
+      "message": "891 LOC exceeds standard threshold",
       "status": "follow-up",
-      "rationale": "The unit BV calculator now owns the calculation core only; additional extraction should split defensive/offensive correction helpers with full BV parity coverage.",
+      "rationale": "Unit mapping, structure/armor totaling, known unit overrides, and heat/movement derivation now live in focused helpers, dropping the calculator from high file-bloat to advisory warn while preserving BV parity. Remaining work should target defensive/offensive correction complexity with full BV parity coverage.",
       "followUps": ["wave-12-validate-bv-architecture-split"]
     },
     {

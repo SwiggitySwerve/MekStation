@@ -4,7 +4,6 @@ import {
   EngineType,
   getEngineDefinition,
 } from '../src/types/construction/EngineType';
-import { STRUCTURE_POINTS_TABLE } from '../src/types/construction/InternalStructureType';
 import {
   getArmorBVMultiplier,
   GYRO_BV_MULTIPLIERS,
@@ -23,303 +22,34 @@ import {
 import { normalizeWeaponKey } from './validate-bv-ammo-resolution';
 import { scanCrits } from './validate-bv-crit-scan';
 import { CLAN_CHASSIS_MIXED_UNITS } from './validate-bv-known-units';
+import { deriveBvHeatAndMovement } from './validate-bv-movement-derived';
 import {
   isRearLoc,
-  normalizeCritName,
   normalizeEquipId,
   toMechLoc,
 } from './validate-bv-normalizers';
 import { calculatePhysicalWeaponBV } from './validate-bv-physical-weapons';
 import {
+  calcTotalArmor,
+  calcTotalStructure,
+  getArmorBAR,
+  isArmLoc,
+  isClanEquipAtLocation,
+  mapArmorType,
+  mapCockpitType,
+  mapEngineType,
+  mapGyroType,
+  mapStructureType,
+} from './validate-bv-unit-derived';
+import {
+  KNOWN_HD_GYRO_UNITS,
+  KNOWN_RISC_OVERRIDE_KIT_UNITS,
+} from './validate-bv-unit-overrides';
+import {
   isDefEquip,
   isWeaponEquip,
   resolveWeaponForUnit,
 } from './validate-bv-weapon-resolution';
-
-function mapEngineType(s: string, tb: string): EngineType {
-  const u = s.toUpperCase().replace(/[_\s-]+/g, '');
-  if (u === 'XL' || u === 'XLENGINE')
-    return tb === 'CLAN' ? EngineType.XL_CLAN : EngineType.XL_IS;
-  if (u === 'CLANXL' || u === 'CLAN_XL' || u === 'XLCLAN')
-    return EngineType.XL_CLAN;
-  if (u === 'LIGHT' || u === 'LIGHTENGINE') return EngineType.LIGHT;
-  if (u === 'XXL' || u === 'XXLENGINE') return EngineType.XXL;
-  if (u === 'COMPACT' || u === 'COMPACTENGINE') return EngineType.COMPACT;
-  if (u === 'ICE' || u === 'INTERNALCOMBUSTION') return EngineType.ICE;
-  if (u === 'FUELCELL' || u === 'FUEL_CELL') return EngineType.FUEL_CELL;
-  if (u === 'FISSION') return EngineType.FISSION;
-  return EngineType.STANDARD;
-}
-function mapArmorType(s: string): string {
-  const u = s.toUpperCase().replace(/[_\s-]+/g, '');
-  if (u.includes('COMMERCIAL')) return 'commercial';
-  if (u.includes('HARDENED')) return 'hardened';
-  if (u.includes('REACTIVE')) return 'reactive';
-  if (u.includes('REFLECTIVE') || u.includes('LASERREFLECTIVE'))
-    return 'reflective';
-  if (u.includes('BALLISTICREINFORCED')) return 'ballistic-reinforced';
-  if (u.includes('FERROLAMELLOR')) return 'ferro-lamellor';
-  if (u.includes('STEALTH')) return 'stealth';
-  if (u.includes('ANTIPENETRATIVE') || u.includes('ABLATION'))
-    return 'anti-penetrative';
-  if (u.includes('HEATDISSIPATING')) return 'heat-dissipating';
-  if (u.includes('IMPACTRESISTANT')) return 'impact-resistant';
-  // Industrial/Heavy Industrial armor: distinct types for correct BAR ratings
-  if (u.includes('HEAVYINDUSTRIAL')) return 'heavy-industrial';
-  if (u.includes('INDUSTRIAL')) return 'industrial';
-  return 'standard';
-}
-
-/**
- * Get BAR (Barrier Armor Rating) for armor type.
- * Per MegaMek Mek.getBARRating() (Mek.java:5341):
- *   Commercial = BAR 5, ALL other armor types = BAR 10 for BattleMechs.
- *   Industrial and Heavy Industrial armor still use BAR 10 in MegaMek's BV calculation.
- * BAR is applied as barRating / 10.0 to armor BV.
- */
-function getArmorBAR(armorType: string): number {
-  return armorType === 'commercial' ? 5 : 10;
-}
-function mapStructureType(s: string): string {
-  const u = s.toUpperCase().replace(/[_\s-]+/g, '');
-  if (u.includes('INDUSTRIAL')) return 'industrial';
-  if (u.includes('ENDOCOMPOSITE')) return 'endo-composite';
-  if (u.includes('COMPOSITE')) return 'composite';
-  if (u.includes('REINFORCED')) return 'reinforced';
-  return 'standard';
-}
-function mapGyroType(s: string): string {
-  const u = s.toUpperCase().replace(/[_\s-]+/g, '');
-  if (u.includes('SUPERHEAVY')) return 'superheavy';
-  if (u.includes('HEAVYDUTY') || u.includes('HEAVY')) return 'heavy-duty';
-  if (u.includes('XL')) return 'xl';
-  if (u.includes('COMPACT')) return 'compact';
-  return 'standard';
-}
-function mapCockpitType(s: string): CockpitType {
-  const u = s.toUpperCase().replace(/[_\s-]+/g, '');
-  if (u.includes('SMALL') && u.includes('COMMAND'))
-    return 'small-command-console';
-  if (u.includes('SMALL')) return 'small';
-  if (u.includes('TORSOMOUNTED') || u.includes('TORSO')) return 'torso-mounted';
-  if (u.includes('COMMANDCONSOLE') || u.includes('COMMAND'))
-    return 'command-console';
-  if (u.includes('INTERFACE')) return 'interface';
-  if (u.includes('DRONE')) return 'drone-operating-system';
-  return 'standard';
-}
-
-// === STRUCTURE/ARMOR ===
-function calcTotalStructure(ton: number, config?: string): number {
-  const cfgLower = config?.toLowerCase() ?? '';
-  const isQuad = cfgLower === 'quad' || cfgLower === 'quadvee';
-  const isTripod = cfgLower === 'tripod';
-  // Biped: 2 arms + 2 legs; Quad/QuadVee: 4 legs; Tripod: 2 arms + 3 legs
-  const limbIS = (t: { arm: number; leg: number }) =>
-    isQuad
-      ? t.leg * 4
-      : isTripod
-        ? t.arm * 2 + t.leg * 3
-        : t.arm * 2 + t.leg * 2;
-  const t = STRUCTURE_POINTS_TABLE[ton];
-  if (!t) {
-    const k = Object.keys(STRUCTURE_POINTS_TABLE)
-      .map(Number)
-      .sort((a, b) => a - b)
-      .filter((x) => x <= ton)
-      .pop();
-    if (k) {
-      const t2 = STRUCTURE_POINTS_TABLE[k] as {
-        head: number;
-        centerTorso: number;
-        sideTorso: number;
-        arm: number;
-        leg: number;
-      };
-      return t2.head + t2.centerTorso + t2.sideTorso * 2 + limbIS(t2);
-    }
-    return 0;
-  }
-  const st = t as {
-    head: number;
-    centerTorso: number;
-    sideTorso: number;
-    arm: number;
-    leg: number;
-  };
-  return st.head + st.centerTorso + st.sideTorso * 2 + limbIS(st);
-}
-function calcTotalArmor(a: ArmorAllocation): number {
-  let t = 0;
-  for (const v of Object.values(a)) {
-    if (typeof v === 'number') t += v;
-    else if (v && typeof v === 'object') t += (v.front || 0) + (v.rear || 0);
-  }
-  return t;
-}
-function calcHeatDissipation(hs: { type: string; count: number }): number {
-  const t = hs.type.toUpperCase();
-  return hs.count * (t.includes('DOUBLE') || t.includes('LASER') ? 2 : 1);
-}
-
-// === LOCATION HELPERS ===
-
-function isWeaponRearMounted(
-  equipId: string,
-  locSlots: (string | null)[],
-): boolean {
-  const eqNorm = normalizeEquipId(equipId);
-  const eqCanonical = normalizeEquipmentId(equipId);
-  for (const slot of locSlots) {
-    if (!slot || typeof slot !== 'string' || !/\(R\)/i.test(slot)) continue;
-    const slotNorm = normalizeCritName(slot);
-    if (slotNorm === eqNorm) return true;
-    if (slotNorm.includes(eqNorm) || eqNorm.includes(slotNorm)) return true;
-    if (normalizeEquipmentId(slotNorm) === eqCanonical) return true;
-  }
-  return false;
-}
-function isArmLoc(l: string): boolean {
-  const lo = l.toLowerCase();
-  return lo.includes('left_arm') || lo.includes('right_arm');
-}
-
-/**
- * Detect if equipment at a given location is Clan-tech by checking critical slot names.
- * MegaMek crit names use 'CL' prefix for Clan equipment (e.g., CLERMediumLaser, CLStreakSRM6).
- * For MIXED tech units, this disambiguates IS vs Clan variants that share generic equipment IDs.
- */
-function isClanEquipAtLocation(
-  equipId: string,
-  location: string,
-  criticalSlots?: Record<string, (string | null)[]>,
-): boolean {
-  if (!criticalSlots) return false;
-  const locKey = location.split(',')[0].toUpperCase();
-  // Also check the raw location key as-is (e.g., "LEFT_ARM")
-  const locVariants = [locKey, location];
-  const eqNorm = normalizeEquipId(equipId);
-
-  // If the equipment ID explicitly starts with "is" prefix (e.g., "isermediumlaser"),
-  // it is definitively Inner Sphere tech and should NEVER match Clan crit slots.
-  // This prevents false positives where "isermediumlaser".includes("ermediumlaser")
-  // caused IS ER Medium Lasers to be resolved as Clan (BV 108 instead of 62).
-  const strippedId = equipId.replace(/^\d+-/, '').toLowerCase();
-  if (/^is[a-z]/.test(strippedId)) return false;
-
-  for (const lk of locVariants) {
-    const slots = criticalSlots[lk];
-    if (!Array.isArray(slots)) continue;
-    for (const slot of slots) {
-      if (!slot || typeof slot !== 'string') continue;
-      const clean = slot
-        .replace(/\s*\(omnipod\)/gi, '')
-        .replace(/\s*\(R\)/g, '')
-        .trim();
-      // Check if this crit slot starts with CL or "Clan " (Clan equipment marker)
-      if (!/^CL/i.test(clean) && !/^Clan\s/i.test(clean)) continue;
-      // Normalize after stripping CL prefix to compare with equipment ID
-      const slotNorm = clean
-        .toLowerCase()
-        .replace(/^(cl|clan)\s*/i, '')
-        .replace(/[^a-z0-9]/g, '');
-      if (
-        slotNorm === eqNorm ||
-        slotNorm.includes(eqNorm) ||
-        eqNorm.includes(slotNorm)
-      )
-        return true;
-      // LBX/Ultra/Rotary AC canonicalization: normalize number position
-      // Equipment ID: lb-5-x-ac → lb5xac, Crit: CLLBXAC5 → lbxac5
-      // Canonicalize by extracting weapon type letters and appending number at end
-      const canonicalize = (s: string) =>
-        s.replace(/(\d+)/g, '').replace(/[^a-z]/g, '') +
-        (s.match(/\d+/)?.[0] ?? '');
-      if (canonicalize(slotNorm) === canonicalize(eqNorm)) return true;
-    }
-  }
-  return false;
-}
-
-// Hardcoded BV/heat for weapons missing from the equipment catalog.
-// Values from MegaMek data files and TechManual.
-
-// === CRIT SLOT SCANNER ===
-
-// === RISC HEAT SINK OVERRIDE KIT UNITS (from MegaMek mm-data MTF files) ===
-// The RISC Heat Sink Override Kit applies a 1.01x multiplier to base BV.
-// It's stored as "heat sink kit:RISC Heat Sink Override Kit" in MTF files,
-// which is not exported to our JSON data format.
-// Per MekBVCalculator.processSummarize() lines 479-501.
-const KNOWN_RISC_OVERRIDE_KIT_UNITS = new Set([
-  'battleaxe-bkx-risc',
-  'emperor-emp-6x',
-  'mad-cat-mk-iv-pr-risc',
-  'malice-mal-y-sh-risc',
-]);
-
-// === KNOWN HEAVY DUTY GYRO UNITS (from MegaMek mm-data MTF files) ===
-// HD gyro has 4 crit slots (same as Standard), so it can't be detected by crit count.
-// These units have "Gyro:Heavy Duty Gyro" in their MTF source files.
-const KNOWN_HD_GYRO_UNITS = new Set([
-  'albatross-alb-5u',
-  'albatross-alb-5w',
-  'albatross-alb-5w-dantalion',
-  'atlas-as8-k',
-  'atlas-as8-ke',
-  'atlas-ii-as7-d-h-devlin',
-  'battlemaster-blr-10s',
-  'battlemaster-blr-10s2',
-  'battlemaster-blr-k4',
-  'cougar-x-3',
-  'deva-c-dva-o-achilleus',
-  'deva-c-dva-o-invictus',
-  'deva-c-dva-oa-dominus',
-  'deva-c-dva-ob-infernus',
-  'deva-c-dva-oc-comminus',
-  'deva-c-dva-od-luminos',
-  'deva-c-dva-oe-eminus',
-  'deva-c-dva-os-caelestis',
-  'deva-c-dva-ou-exanimus',
-  'grand-titan-t-it-n13m',
-  'griffin-grf-4n',
-  'griffin-grf-5k',
-  'hunchback-hbk-5ss',
-  'jade-hawk-jhk-04',
-  'king-crab-kgc-008',
-  'king-crab-kgc-008b',
-  'king-crab-kgc-009',
-  'king-crab-kgc-009c',
-  'marauder-mad-9w',
-  'marauder-mad-9w2',
-  'ostroc-osr-4k',
-  'ostsol-otl-9r',
-  'patriot-pkm-2c',
-  'patriot-pkm-2d',
-  'patriot-pkm-2e',
-  'phoenix-hawk-pxh-4w',
-  'phoenix-hawk-pxh-99',
-  'scourge-scg-wx1',
-  'sentry-snt-w5',
-  'tai-sho-tsh-8s',
-  'templar-iii-tlr2-j-arthur',
-  'templar-iii-tlr2-o',
-  'templar-iii-tlr2-oa',
-  'templar-iii-tlr2-ob',
-  'templar-iii-tlr2-oc',
-  'templar-iii-tlr2-od',
-  'thunderbolt-iic-2',
-  'thunderbolt-tdr-11s',
-  'thunderbolt-tdr-17s',
-  'thunderbolt-tdr-7s',
-  'vanquisher-vqr-5v',
-  'vanquisher-vqr-7v',
-  'victor-vtr-12d',
-  'warhammer-whd-10ct',
-  'warhammer-whm-x7-the-lich',
-  'white-flame-whf-3c',
-  'xanthos-xnt-4o',
-]);
 
 // === MAIN BV CALCULATION ===
 export function calculateUnitBV(
@@ -453,76 +183,15 @@ export function calculateUnitBV(
     else if (cs.detectedGyroType) gyroType = cs.detectedGyroType;
   }
 
-  const engineIntegratedHS = Math.min(10, Math.floor(unit.engine.rating / 25));
-  const critBasedHSCount = engineIntegratedHS + cs.critDHSCount;
-  const effectiveHSCount = Math.max(unit.heatSinks.count, critBasedHSCount);
-  const isDHS =
-    unit.heatSinks.type.toUpperCase().includes('DOUBLE') ||
-    unit.heatSinks.type.toUpperCase().includes('LASER');
-  // Prototype DHS and Laser HS dissipate 2 heat each (F_DOUBLE_HEAT_SINK in MegaMek).
-  // When unit.heatSinks.type is "SINGLE" but crits contain double-dissipation HS,
-  // we need mixed calculation: (totalHS - doubleHS) * 1 + doubleHS * 2
-  let heatDiss: number;
-  if (isDHS) {
-    heatDiss = effectiveHSCount * 2;
-  } else if (cs.critLaserHSCount > 0 || cs.critProtoDHSCount > 0) {
-    const doubleHSCount = cs.critLaserHSCount + cs.critProtoDHSCount;
-    const singleHS = effectiveHSCount - doubleHSCount;
-    heatDiss = singleHS * 1 + doubleHSCount * 2;
-  } else {
-    heatDiss = effectiveHSCount * 1;
-  }
-
-  if (cs.hasRadicalHS) heatDiss += Math.ceil(effectiveHSCount * 0.4);
-  if (cs.hasPartialWing) heatDiss += 3;
-
   const armorType = cs.detectedArmorType || mapArmorType(unit.armor.type);
-
-  const walkMP = unit.movement.walk;
-
-  let bvWalk = walkMP;
-  if (cs.hasTSM) bvWalk = walkMP + 1;
-  // Medium/Large Shield: -1 walk MP per TechManual (applied before run calculation)
-  if (cs.hasMediumShield || cs.hasLargeShield) bvWalk = Math.max(0, bvWalk - 1);
-
-  let runMP =
-    cs.hasMASC && cs.hasSupercharger
-      ? Math.ceil(bvWalk * 2.5)
-      : cs.hasMASC || cs.hasSupercharger
-        ? bvWalk * 2
-        : Math.ceil(bvWalk * 1.5);
-  if (armorType === 'hardened') runMP = Math.max(0, runMP - 1);
-  // Compute effective jump MP matching MegaMek's Mek.getJumpMP():
-  // getJumpMP() = count(F_JUMP_JET mounts) + partial_wing_bonus
-  //
-  // movement.jump from MTF stores the base JJ count for most units (no PW bonus),
-  // but some IJJ+PW units have movement.jump that already includes PW bonus.
-  // We detect this by comparing with crit-counted JJ mounts.
-  const baseJumpMP = unit.movement.jump || 0;
-  const jjMountsFromCrits =
-    cs.standardJJCrits +
-    Math.floor(cs.improvedJJCrits / 2) +
-    cs.prototypeIJJCrits;
-  const partialWingJumpBonus =
-    cs.hasPartialWing && baseJumpMP > 0 ? (unit.tonnage <= 55 ? 2 : 1) : 0;
-  // If crit count is reliable (matches or exceeds stored value), use it.
-  // Otherwise fall back to movement.jump + PW bonus.
-  // Detect PW double-counting: if movement.jump already equals crits+PW, don't add PW again.
-  let jumpMP: number;
-  if (jjMountsFromCrits > 0 && jjMountsFromCrits >= baseJumpMP) {
-    // Crit data is complete; use crit count + PW
-    jumpMP = jjMountsFromCrits + partialWingJumpBonus;
-  } else if (
-    cs.hasPartialWing &&
-    jjMountsFromCrits > 0 &&
-    baseJumpMP === jjMountsFromCrits + partialWingJumpBonus
-  ) {
-    // movement.jump already includes PW bonus (matches crits+PW exactly)
-    jumpMP = baseJumpMP;
-  } else {
-    // Incomplete crit data or no JJ in crits; use movement.jump + PW bonus
-    jumpMP = baseJumpMP + partialWingJumpBonus;
-  }
+  const {
+    effectiveHSCount,
+    heatDiss,
+    bvWalk,
+    runMP,
+    jumpMP,
+    partialWingJumpBonus,
+  } = deriveBvHeatAndMovement(unit, cs, armorType);
   const hasStealth = armorType === 'stealth';
 
   // Weapons
