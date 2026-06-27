@@ -160,6 +160,12 @@
           "required": true,
           "diagnosticEvent": "encounter.launched",
           "loggingPathId": "encounter-launch",
+          "executionBacking": "browser-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:encounter-combat-continuity",
+          "executionProofCommands": [
+            "npm.cmd run verify:qc:encounter-combat-continuity"
+          ],
           "produces": ["generated/encounter.json"]
         },
         {
@@ -169,6 +175,12 @@
           "required": true,
           "diagnosticEvent": "tactical.action_rejected",
           "loggingPathId": "tactical-action-rejection",
+          "executionBacking": "domain-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:tactical:projection",
+          "executionProofCommands": [
+            "npm.cmd run verify:qc:tactical:projection"
+          ],
           "produces": ["artifacts/tactical-rejection.json"]
         },
         {
@@ -178,6 +190,10 @@
           "required": true,
           "diagnosticEvent": "combat.terminal_state",
           "loggingPathId": "combat-simulation-terminal",
+          "executionBacking": "domain-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:validate:combat",
+          "executionProofCommands": ["npm.cmd run validate:combat"],
           "produces": ["artifacts/combat-summary.json"]
         }
       ],

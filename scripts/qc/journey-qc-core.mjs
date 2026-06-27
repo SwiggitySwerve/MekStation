@@ -408,6 +408,46 @@ export function validateJourneyCatalog(catalog) {
             ),
           );
         }
+        if (step.syntheticBacking === false) {
+          if (
+            typeof step.executionBacking !== 'string' ||
+            step.executionBacking.trim() === '' ||
+            step.executionBacking === 'synthetic-projection'
+          ) {
+            issues.push(
+              issue(
+                'error',
+                `${stepLabel}: non-synthetic steps must declare executionBacking other than synthetic-projection.`,
+              ),
+            );
+          }
+          if (
+            typeof step.executionEvidenceSource !== 'string' ||
+            step.executionEvidenceSource.trim() === '' ||
+            step.executionEvidenceSource === 'journey-catalog-projection'
+          ) {
+            issues.push(
+              issue(
+                'error',
+                `${stepLabel}: non-synthetic steps must declare a real executionEvidenceSource.`,
+              ),
+            );
+          }
+          if (
+            !Array.isArray(step.executionProofCommands) ||
+            step.executionProofCommands.length === 0 ||
+            step.executionProofCommands.some(
+              (command) => typeof command !== 'string' || command.trim() === '',
+            )
+          ) {
+            issues.push(
+              issue(
+                'error',
+                `${stepLabel}: non-synthetic steps must declare executionProofCommands.`,
+              ),
+            );
+          }
+        }
       }
     }
     if (
@@ -1349,6 +1389,7 @@ function stepExecutionBacking(step) {
     syntheticBacking: step.syntheticBacking !== false,
     executionEvidenceSource:
       step.executionEvidenceSource ?? 'journey-catalog-projection',
+    executionProofCommands: step.executionProofCommands ?? [],
   };
 }
 
@@ -1473,6 +1514,7 @@ function artifactPayload({ runPlan, journey, step, attempt }) {
     executionBacking: step.executionBacking,
     syntheticBacking: step.syntheticBacking,
     executionEvidenceSource: step.executionEvidenceSource,
+    executionProofCommands: step.executionProofCommands,
     parameters,
   };
 
@@ -1630,7 +1672,9 @@ function ruleDecisionForStep(step, payload, shouldFail, failureMessage) {
   return {
     outcome: 'accepted',
     source: step.executionEvidenceSource,
-    reason: 'Journey step satisfied its synthetic evidence assertion.',
+    reason: step.syntheticBacking
+      ? 'Journey step satisfied its synthetic evidence assertion.'
+      : 'Journey step satisfied its command-backed evidence contract.',
   };
 }
 
@@ -2014,6 +2058,7 @@ export function executeRunPlan(runPlan, options = {}) {
             executionBacking: step.executionBacking,
             syntheticBacking: step.syntheticBacking,
             executionEvidenceSource: step.executionEvidenceSource,
+            executionProofCommands: step.executionProofCommands,
             triage,
             ...(failureKind ? { failureKind } : {}),
           },
@@ -2029,6 +2074,7 @@ export function executeRunPlan(runPlan, options = {}) {
           executionBacking: step.executionBacking,
           syntheticBacking: step.syntheticBacking,
           executionEvidenceSource: step.executionEvidenceSource,
+          executionProofCommands: step.executionProofCommands,
           failureKind: failureKind ?? undefined,
           error: shouldFail ? stepLog.message : undefined,
         };
