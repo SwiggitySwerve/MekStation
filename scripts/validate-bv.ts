@@ -26,6 +26,10 @@ import {
   normalizeEquipmentId,
 } from '../src/utils/construction/equipmentBVResolver';
 import { parseValidateBvArgs, VALIDATE_BV_USAGE } from './validate-bv-cli';
+import {
+  calculatePhysicalWeaponBV,
+  classifyPhysicalWeapon,
+} from './validate-bv-physical-weapons';
 
 interface IndexUnit {
   id: string;
@@ -989,112 +993,6 @@ interface CritScan {
   hasSCM: boolean;
   /** RISC Laser Pulse Module locations: linked lasers get BV × 1.15 and heat + 2 */
   riscLPMLocs: string[];
-}
-
-function classifyPhysicalWeapon(slotLower: string): string | null {
-  const s = slotLower.replace(/\s*\(omnipod\)/gi, '').trim();
-  if (s === 'hatchet') return 'hatchet';
-  if (s === 'sword') return 'sword';
-  if (s === 'mace') return 'mace';
-  if (s === 'is lance' || s === 'lance') return 'lance';
-  if (s.startsWith('retractable blade')) return 'retractable-blade';
-  if (s === 'isclaw' || s === 'clclaw' || s === 'claw' || s === 'claws')
-    return 'claw';
-  if (s === 'talons') return 'talon';
-  if (s === 'is flail' || s === 'flail') return 'flail';
-  if (s === 'is wrecking ball' || s === 'wrecking ball') return 'wrecking-ball';
-  if (s === 'chain whip') return 'chain-whip';
-  if (
-    s === 'buzzsaw' ||
-    s === 'is buzzsaw' ||
-    s === 'clan buzzsaw' ||
-    s === 'clbuzzsaw'
-  )
-    return 'buzzsaw';
-  if (s === 'dual saw' || s === 'is dual saw') return 'dual-saw';
-  if (s === 'miningdrill' || s === 'mining drill' || s === 'is mining drill')
-    return 'mining-drill';
-  // Industrial physical weapons — flat BV per MegaMek MiscType.java
-  if (s === 'chainsaw' || s === 'is chainsaw') return 'chainsaw';
-  if (s === 'backhoe' || s === 'is backhoe') return 'backhoe';
-  if (s === 'combine') return 'combine';
-  if (s === 'spot welder' || s === 'is spot welder') return 'spot-welder';
-  if (s === 'rock cutter' || s === 'is rock cutter') return 'rock-cutter';
-  if (
-    s === 'pile driver' ||
-    s === 'is pile driver' ||
-    s === 'heavy-duty pile driver' ||
-    s === 'heavy duty pile driver'
-  )
-    return 'pile-driver';
-  if (
-    s.includes('vibroblade') ||
-    s === 'islargevibroblade' ||
-    s === 'ismediumvibroblade' ||
-    s === 'issmallvibroblade'
-  ) {
-    if (s.includes('large')) return 'vibroblade-large';
-    if (s.includes('small')) return 'vibroblade-small';
-    return 'vibroblade-medium';
-  }
-  return null;
-}
-
-function calculatePhysicalWeaponBV(
-  type: string,
-  tonnage: number,
-  hasTSM: boolean,
-): number {
-  const tsmMod = hasTSM ? 2 : 1;
-  switch (type) {
-    case 'hatchet':
-      return Math.ceil(tonnage / 5.0) * 1.5 * tsmMod;
-    case 'sword':
-      return Math.ceil(tonnage / 10.0 + 1) * 1.725 * tsmMod;
-    case 'lance':
-      return Math.ceil(tonnage / 5.0) * tsmMod;
-    case 'mace':
-      return Math.ceil(tonnage / 4.0) * tsmMod;
-    case 'retractable-blade':
-      return Math.ceil(tonnage / 10.0) * 1.725 * tsmMod;
-    case 'claw':
-      return Math.ceil(tonnage / 7.0) * 1.275 * tsmMod;
-    case 'talon':
-      return Math.round(Math.floor(tonnage / 5.0) * 0.5) * tsmMod;
-    case 'flail':
-      return 11;
-    case 'wrecking-ball':
-      return 8;
-    case 'chain-whip':
-      return 5.175;
-    case 'buzzsaw':
-      return 67;
-    case 'dual-saw':
-      return 9; // Flat BV per MegaMek MiscType.java
-    case 'mining-drill':
-      return 6; // Flat BV per MegaMek MiscType.java
-    // Industrial physical weapons — flat BV per MegaMek MiscType.java
-    case 'chainsaw':
-      return 7;
-    case 'backhoe':
-      return 8;
-    case 'combine':
-      return 5;
-    case 'spot-welder':
-      return 5;
-    case 'rock-cutter':
-      return 6;
-    case 'pile-driver':
-      return 5;
-    case 'vibroblade-large':
-      return 24; // Flat BV per MegaMek MiscType.java (not tonnage-based)
-    case 'vibroblade-medium':
-      return 17; // Flat BV per MegaMek MiscType.java
-    case 'vibroblade-small':
-      return 12; // Flat BV per MegaMek MiscType.java
-    default:
-      return 0;
-  }
 }
 
 let _weaponSlotCache: Map<string, number> | null = null;
