@@ -10,35 +10,17 @@
  * @spec openspec/changes/add-multiplayer-server-infrastructure/specs/multiplayer-server/spec.md
  */
 
-import type { IGameUnit } from '@/types/gameplay/GameSessionInterfaces';
-import type { IHex, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
-
-import { SeededRandom } from '@/simulation/core/SeededRandom';
-
 import type { IMatchStore } from './IMatchStore';
 
 import { getDefaultMatchStore } from './getDefaultMatchStore';
 import { recoverActiveMatches } from './MatchRecovery';
+import { buildMatchHostBootstrapFromMeta } from './matchUnitBootstrap';
 import { ServerMatchHost } from './ServerMatchHost';
 
 // =============================================================================
-// Minimal stub hex grid + units for Wave 1 hosts created from REST
+// Unit-bootstrap creation lives in `matchUnitBootstrap`; the registry
+// only owns host lookup and lifecycle.
 // =============================================================================
-
-/**
- * Wave 1 stub grid — Phase 4's REST `POST /matches` doesn't yet have a
- * pipeline that hands the host a real grid + adapted units (that's a
- * Wave 2/3 concern). For Wave 1 the registry creates a placeholder grid
- * just so a host can boot and accept `Concede` / `AdvancePhase` intents
- * without crashing. Real matches will replace this once Wave 3b's lobby
- * provides the proper bootstrap blob.
- */
-function makeStubHexGrid(radius: number): IHexGrid {
-  return {
-    config: { radius },
-    hexes: new Map<string, IHex>(),
-  };
-}
 
 // =============================================================================
 // Registry
@@ -66,8 +48,8 @@ export class MatchHostRegistry {
    * doesn't exist in the store — the caller MUST create the meta via
    * the REST `POST /matches` route before opening a WebSocket.
    *
-   * The registry boots the host with stub data Wave 1; later waves can
-   * inject a richer bootstrap factory.
+   * The registry boots the host from durable unit metadata rather than
+   * inventing placeholder units at socket-connection time.
    *
    * Per `add-authoritative-roll-arbitration` (Wave 3a): an optional
    * `diceSeed` lets the WebSocket upgrade handler propagate the
@@ -89,23 +71,17 @@ export class MatchHostRegistry {
       return null;
     }
 
-    // Wave 1 stub bootstrap. The session boots in Setup phase so any
-    // immediate intent landing here will surface as INVALID_INTENT
-    // until the host is reconstructed with real units (Wave 3b).
-    const grid = makeStubHexGrid(meta.config.mapRadius);
-    const random = new SeededRandom(0xc0ffee);
-    const gameUnits: readonly IGameUnit[] = [];
-
-    const host = ServerMatchHost.create(matchId, this.store, {
-      mapRadius: meta.config.mapRadius,
-      turnLimit: meta.config.turnLimit,
-      random,
-      grid,
-      playerUnits: [],
-      opponentUnits: [],
-      gameUnits,
-      diceSeed: options.diceSeed,
-    });
+    let host: ServerMatchHost;
+    try {
+      const bootstrap = await buildMatchHostBootstrapFromMeta(meta, {
+        diceSeed: options.diceSeed,
+      });
+      host = ServerMatchHost.create(matchId, this.store, bootstrap);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn(`[MatchHostRegistry] failed to bootstrap ${matchId}`, e);
+      return null;
+    }
     this.hosts.set(matchId, host);
     return host;
   };

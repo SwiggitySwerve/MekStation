@@ -35,6 +35,7 @@ import { authenticateRequest } from '@/lib/multiplayer/server/auth';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import { getDefaultPlayerStore } from '@/lib/multiplayer/server/InMemoryPlayerStore';
 import { setAiSlot } from '@/lib/multiplayer/server/lobby/lobbyStateMachine';
+import { buildDefaultMatchUnitBootstrap } from '@/lib/multiplayer/server/matchUnitBootstrap';
 import { generateRoomCode } from '@/lib/p2p/roomCodes';
 import { rejectUnexpectedMethod } from '@/pages-modules/api/routeHelpers';
 import { defaultSeats, type IMatchSeat } from '@/types/multiplayer/Lobby';
@@ -200,6 +201,9 @@ function buildMatchMeta(
     layout: body.layout,
     seats: presentation.seats,
     roomCode: presentation.roomCode,
+    unitBootstrap:
+      body.unitBootstrap ??
+      buildDefaultMatchUnitBootstrap(body.layout, body.config.mapRadius),
   };
 }
 

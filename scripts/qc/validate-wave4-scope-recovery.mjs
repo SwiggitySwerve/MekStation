@@ -154,15 +154,8 @@ const requiredSurfaces = [
       'reconnectionFlow.test.ts',
       'fogOfWar.test.ts',
     ],
-    manualIncludes: [
-      'unit-backed two-window/vault-auth',
-      'fog-limited guest tactical state',
-    ],
-    gapIncludes: [
-      'true two-window vault-auth live launch/turn handoff',
-      'unit-backed fog-limited guest tactical state',
-      'packaged runtime kill/reconnect against the durable match store',
-    ],
+    manualIncludes: ['side-owned units', 'hidden GM/private fields'],
+    gapIncludes: ['user-selectable roster configuration'],
   },
   {
     id: 'replay-audit-history',
@@ -295,7 +288,9 @@ const defaultSourceAnchors = [
       'two browser contexts',
       'locked E2E-only seam',
       'advances the initial server-owned phase',
-      'placeholder units',
+      'real unit roster',
+      'unit-backed',
+      'tactical state',
     ],
   },
   {
