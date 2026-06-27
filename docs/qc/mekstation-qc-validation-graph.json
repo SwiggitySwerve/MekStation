@@ -1650,6 +1650,7 @@
         "2026-06-27 encounter page-object maintenance slice removed unused encounter detail scaffolds, split list reads and create-page submission/read helpers from browser actions, and reduced repo-wide design-violation findings from critical=7/high=6 to critical=4/high=6; typecheck and the full Chromium encounter spec passed.",
         "2026-06-27 game/repair page-object maintenance slice split tactical session, replay, and repair bay helpers into narrow role classes, clearing the remaining e2e page-object design findings and reducing repo-wide design-violation findings from critical=4/high=6 to critical=1/high=5; typecheck and 121 affected Chromium checks passed.",
         "2026-06-27 MegaMekLab MTF converter DTO extraction moved serialized output dataclasses into mtf_serialized_models.py; mtf_converter.py drops from high file-bloat to warn and the new DTO module has no scanner findings.",
+        "2026-06-27 MegaMekLab data converter helper extraction moved metadata/type derivation and UnitVerifierOptions XML conversion into focused helper modules; data_converter.py drops from high file-bloat to warn, data_converter_xml.py has no scanner findings, and data_converter_helpers.py is advisory-only.",
         "docs/qc/maintenance-baseline.json",
         "docs/qc/maintenance-warning-ledger.json",
         "scripts/qc/validate-maintenance-warning-ledger.mjs"
