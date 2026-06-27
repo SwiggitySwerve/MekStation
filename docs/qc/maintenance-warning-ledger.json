@@ -33,9 +33,9 @@
       "follow-up": 0
     },
     "design-violation": {
-      "fixed": 18,
+      "fixed": 20,
       "accepted": 3,
-      "follow-up": 6
+      "follow-up": 4
     }
   },
   "entries": [
@@ -477,9 +477,13 @@
       "severity": "high",
       "file": "desktop/electron/main.behavior.ts",
       "message": "switch statement has 9 cases",
-      "status": "follow-up",
-      "rationale": "Electron main behavior dispatch should be table-driven in a desktop-focused cleanup wave.",
-      "followUps": ["wave-12-desktop-dispatch-cleanup"]
+      "status": "fixed",
+      "rationale": "Electron main behavior dispatch is now table-driven while preserving renderer forwarding and local menu side effects.",
+      "fixedEvidence": [
+        "2026-06-27 `npm.cmd run maintain:scan -- --scope=desktop/electron/main.behavior.ts,desktop/services/local/SettingsService.ts --json` reported 0 critical/high findings for the desktop dispatch slice.",
+        "2026-06-27 `npm.cmd --prefix desktop test -- --runInBand --runTestsByPath electron/__tests__/main.behavior.test.ts services/local/__tests__/SettingsService.test.ts` passed 22 checks.",
+        "2026-06-27 `npm.cmd --prefix desktop run type-check` passed."
+      ]
     },
     {
       "key": "design-violation|high|desktop/services/local/SettingsService.ts|switch statement has 16 cases",
@@ -487,9 +491,13 @@
       "severity": "high",
       "file": "desktop/services/local/SettingsService.ts",
       "message": "switch statement has 16 cases",
-      "status": "follow-up",
-      "rationale": "SettingsService switch dispatch should be table-driven with desktop local service tests preserved.",
-      "followUps": ["wave-12-desktop-dispatch-cleanup"]
+      "status": "fixed",
+      "rationale": "Settings validation now uses a typed validator map instead of switch dispatch, which also clears the validateSetting complexity finding.",
+      "fixedEvidence": [
+        "2026-06-27 `npm.cmd run maintain:scan -- --scope=desktop/electron/main.behavior.ts,desktop/services/local/SettingsService.ts --json` reported 0 critical/high findings for the desktop dispatch slice.",
+        "2026-06-27 `npm.cmd --prefix desktop test -- --runInBand --runTestsByPath electron/__tests__/main.behavior.test.ts services/local/__tests__/SettingsService.test.ts` passed 22 checks.",
+        "2026-06-27 `npm.cmd --prefix desktop run type-check` passed."
+      ]
     },
     {
       "key": "design-violation|high|e2e/pages/campaign.page.ts|class has 7 public methods",
