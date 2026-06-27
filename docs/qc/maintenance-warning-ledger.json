@@ -33,9 +33,9 @@
       "follow-up": 0
     },
     "design-violation": {
-      "fixed": 2,
+      "fixed": 5,
       "accepted": 3,
-      "follow-up": 22
+      "follow-up": 19
     }
   },
   "entries": [
@@ -257,9 +257,13 @@
       "severity": "critical",
       "file": "e2e/pages/campaign.page.ts",
       "message": "class has 12 public methods",
-      "status": "follow-up",
-      "rationale": "Campaign page-object role should be decomposed with campaign E2E coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Obsolete campaign detail page-object helpers were removed after the active dashboard-route browser spec confirmed they are not part of current campaign E2E coverage.",
+      "fixedEvidence": [
+        "2026-06-27 `node scripts/maintenance/scan-maintenance.mjs --json` reported no findings for e2e/pages/campaign.page.ts and design-violation counts dropped from critical=15/high=7 to critical=13/high=6.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 full Chromium `npx.cmd playwright test e2e/campaign.spec.ts --project=chromium --workers=1` passed 12 checks with 3 existing skipped mission-tree cases."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/campaign.page.ts|class has 9 public methods",
@@ -267,9 +271,13 @@
       "severity": "critical",
       "file": "e2e/pages/campaign.page.ts",
       "message": "class has 9 public methods",
-      "status": "follow-up",
-      "rationale": "Campaign page-object role should be decomposed with campaign E2E coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Unused campaign creation helpers were removed so the create page object exposes only browser-tested wizard interactions.",
+      "fixedEvidence": [
+        "2026-06-27 `node scripts/maintenance/scan-maintenance.mjs --json` reported no findings for e2e/pages/campaign.page.ts and design-violation counts dropped from critical=15/high=7 to critical=13/high=6.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 full Chromium `npx.cmd playwright test e2e/campaign.spec.ts --project=chromium --workers=1` passed 12 checks with 3 existing skipped mission-tree cases."
+      ]
     },
     {
       "key": "design-violation|critical|e2e/pages/compendium.page.ts|class has 8 public methods",
@@ -441,9 +449,13 @@
       "severity": "high",
       "file": "e2e/pages/campaign.page.ts",
       "message": "class has 7 public methods",
-      "status": "follow-up",
-      "rationale": "Campaign page-object role should be decomposed with campaign E2E coverage preserved.",
-      "followUps": ["wave-12-e2e-page-object-split"]
+      "status": "fixed",
+      "rationale": "Campaign list navigation and read helpers are now separate page objects so each class has a narrow public workflow surface.",
+      "fixedEvidence": [
+        "2026-06-27 `node scripts/maintenance/scan-maintenance.mjs --json` reported no findings for e2e/pages/campaign.page.ts and design-violation counts dropped from critical=15/high=7 to critical=13/high=6.",
+        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
+        "2026-06-27 full Chromium `npx.cmd playwright test e2e/campaign.spec.ts --project=chromium --workers=1` passed 12 checks with 3 existing skipped mission-tree cases."
+      ]
     },
     {
       "key": "design-violation|high|e2e/pages/game.page.ts|class has 5 public methods",

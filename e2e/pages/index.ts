@@ -7,16 +7,15 @@
  *
  * @example
  * ```typescript
- * import { CampaignListPage, CampaignDetailPage } from './pages';
+ * import { CampaignListPage, CampaignListReadPage } from './pages';
  *
- * test('view campaign details', async ({ page }) => {
+ * test('view campaigns', async ({ page }) => {
  *   const listPage = new CampaignListPage(page);
+ *   const listReadPage = new CampaignListReadPage(page);
  *   await listPage.navigate();
- *   await listPage.clickCampaignCard('campaign-123');
  *
- *   const detailPage = new CampaignDetailPage(page);
- *   const name = await detailPage.getName();
- *   expect(name).toBe('My Campaign');
+ *   const names = await listReadPage.getCampaignNames();
+ *   expect(names).toContain('My Campaign');
  * });
  * ```
  */
@@ -26,9 +25,9 @@ export { BasePage } from './base.page';
 
 // Campaign pages
 export {
-  CampaignListPage,
-  CampaignDetailPage,
   CampaignCreatePage,
+  CampaignListPage,
+  CampaignListReadPage,
 } from './campaign.page';
 
 // Force pages

@@ -1643,6 +1643,7 @@
         "qc:select now supports structured --module and --submodule filters for on-demand QC routing.",
         "2026-06-18 Metis organization pass gave a no-kill verdict for registry-as-source, map-as-navigation, and audit-as-dated-narrative structure.",
         "2026-06-27 e2e page-object maintenance slice reduced repo-wide design-violation critical findings from 17 to 15 by protecting BasePage helper methods and pruning unused AerospaceCustomizerPage scaffold methods; typecheck and 10 focused Chromium customizer checks passed.",
+        "2026-06-27 campaign page-object maintenance slice removed obsolete CampaignDetailPage helpers, split campaign list reads from navigation, and reduced repo-wide design-violation findings from critical=15/high=7 to critical=13/high=6; typecheck and the full Chromium campaign spec passed.",
         "docs/qc/maintenance-baseline.json",
         "docs/qc/maintenance-warning-ledger.json",
         "scripts/qc/validate-maintenance-warning-ledger.mjs"
