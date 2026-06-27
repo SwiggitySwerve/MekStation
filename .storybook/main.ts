@@ -22,6 +22,7 @@ const config: StorybookConfig = {
   viteFinal: async (config) => {
     return mergeConfig(config, {
       plugins: [tailwindcss()],
+      publicDir: false,
       resolve: {
         alias: {
           '@': resolve(process.cwd(), 'src'),
