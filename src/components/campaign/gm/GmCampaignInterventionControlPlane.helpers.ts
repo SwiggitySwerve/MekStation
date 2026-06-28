@@ -177,6 +177,40 @@ export function refreshLedgerRows(
   );
 }
 
+export function buildPersistedCampaignEventRows(
+  events: readonly IGmCampaignProjectedEffect[] | undefined,
+  createdAt: string,
+  actorId: string = GM_ACTOR_ID,
+): {
+  readonly playerRows: readonly PlayerLedgerRow[];
+  readonly gmRows: readonly GmLedgerRow[];
+} {
+  const playerRows: PlayerLedgerRow[] = (events ?? []).map((event, index) => ({
+    id: `persisted:${event.interventionId ?? event.type}:${index}`,
+    sequence: index + 1,
+    recordKind: 'gm-intervention',
+    actorId,
+    actorRole: 'gm',
+    domain: event.domain,
+    action: 'fix',
+    status: 'approved',
+    targetRefs: event.changedStateRefs,
+    publicEffect: {
+      summary: event.publicSummary,
+      family: event.family,
+      changedStateRefs: event.changedStateRefs,
+    },
+    interventionRecordId: event.interventionId,
+    createdAt,
+    approvedAt: createdAt,
+  }));
+
+  return {
+    playerRows,
+    gmRows: playerRows.map((row) => ({ ...row })),
+  };
+}
+
 export function findFundsEffect(
   events: readonly unknown[],
 ): Extract<

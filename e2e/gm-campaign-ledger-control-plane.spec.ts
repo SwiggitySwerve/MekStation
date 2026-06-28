@@ -51,6 +51,24 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       await expect(page.getByTestId('gm-ledger-private-log')).toContainText(
         'Hidden campaign merchant reversal',
       );
+
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await expect(page.getByTestId('page-title')).toContainText('GM Ledger');
+      await expect(page.getByTestId('gm-ledger-balance')).toContainText(
+        '997,500.00 C-bills',
+      );
+      await expect(page.getByTestId('gm-ledger-player-log')).toContainText(
+        'Merchant charge corrected by -2,500.00 C-bills.',
+      );
+      await expect(page.getByTestId('gm-ledger-player-log')).not.toContainText(
+        /Hidden campaign|black-market|GM-only/i,
+      );
+      await expect(page.getByTestId('gm-ledger-private-log')).toContainText(
+        'Merchant charge corrected by -2,500.00 C-bills.',
+      );
+      await expect(page.getByTestId('gm-ledger-private-log')).not.toContainText(
+        /Hidden campaign|black-market|GM-only/i,
+      );
     } finally {
       if (campaignId) {
         await deleteCampaign(page, campaignId);

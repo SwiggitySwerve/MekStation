@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type {
@@ -28,6 +28,7 @@ import {
   MERCHANT_REVERSAL_ID,
   TIME_CASCADE_ID,
   TIME_CASCADE_MANUAL_ID,
+  buildPersistedCampaignEventRows,
   refreshLedgerRows,
   type GmCampaignPreview,
   type GmCampaignUpdate,
@@ -71,15 +72,34 @@ export function GmCampaignInterventionControlPlane({
     return next;
   }, []);
   const actionLedger = useMemo(() => new ActionLedger(), []);
+  const persistedRows = useMemo(
+    () =>
+      buildPersistedCampaignEventRows(
+        campaign.gmInterventionEvents,
+        campaign.updatedAt,
+        actorId,
+      ),
+    [actorId, campaign.gmInterventionEvents, campaign.updatedAt],
+  );
   const [preview, setPreview] = useState<GmLedgerPreview | null>(null);
   const [approvalStatus, setApprovalStatus] = useState<string>(
     'No approved GM corrections yet.',
   );
   const [approvalReason, setApprovalReason] = useState<string | null>(null);
-  const [playerRows, setPlayerRows] = useState<readonly PlayerLedgerRow[]>([]);
-  const [gmRows, setGmRows] = useState<readonly GmLedgerRow[]>([]);
+  const [playerRows, setPlayerRows] = useState<readonly PlayerLedgerRow[]>(
+    () => persistedRows.playerRows,
+  );
+  const [gmRows, setGmRows] = useState<readonly GmLedgerRow[]>(
+    () => persistedRows.gmRows,
+  );
   const [manualTakeover, setManualTakeover] =
     useState<ManualTakeoverState | null>(null);
+
+  useEffect(() => {
+    if (actionLedger.getRecords().length > 0) return;
+    setPlayerRows(persistedRows.playerRows);
+    setGmRows(persistedRows.gmRows);
+  }, [actionLedger, persistedRows]);
 
   const canApprove = preview?.status === 'ready';
   const canTakeManualControl = preview?.status === 'requires-manual-takeover';
