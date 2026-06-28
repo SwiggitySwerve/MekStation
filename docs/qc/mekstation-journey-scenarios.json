@@ -237,6 +237,10 @@
           "required": true,
           "diagnosticEvent": "encounter.launched",
           "loggingPathId": "encounter-launch",
+          "executionBacking": "domain-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:combat-4v4",
+          "executionProofCommands": ["npm.cmd run verify:qc:combat-4v4"],
           "produces": ["generated/encounter.json"]
         },
         {
@@ -246,6 +250,10 @@
           "required": true,
           "diagnosticEvent": "combat.terminal_state",
           "loggingPathId": "combat-simulation-terminal",
+          "executionBacking": "domain-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:combat-4v4",
+          "executionProofCommands": ["npm.cmd run verify:qc:combat-4v4"],
           "produces": [
             "artifacts/combat-summary.json",
             "artifacts/match-log.json"
@@ -258,6 +266,10 @@
           "required": true,
           "diagnosticEvent": "replay.persisted",
           "loggingPathId": "match-replay-persistence",
+          "executionBacking": "domain-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:combat-4v4",
+          "executionProofCommands": ["npm.cmd run verify:qc:combat-4v4"],
           "produces": ["artifacts/replay-reference.json"]
         }
       ],

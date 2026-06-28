@@ -59,6 +59,7 @@ npm.cmd run qc:graph -- --query=desktop-api-security:lifecycle
 npm.cmd run qc:journeys -- --journey=all --tier=smoke
 npm.cmd run qc:campaign-long:validate
 npm.cmd run qc:campaign-long:stability -- --journey=campaign-long --seed=42 --contracts=10 --runs=2
+npm.cmd run qc:combat-4v4:validate
 npm.cmd run qc:journeys:bugs -- --since=latest --min-severity=medium
 npm.cmd run qc:logs -- --run-id=latest --level=warn,error
 npm.cmd run qc:logs -- --run-id=latest --level=warn,error --exclude-probes
@@ -71,6 +72,7 @@ npm.cmd run verify:qc:gm:time-cascade
 npm.cmd run verify:qc:campaign-operations
 npm.cmd run verify:qc:campaign-economy
 npm.cmd run verify:qc:campaign-long
+npm.cmd run verify:qc:combat-4v4
 npm.cmd run verify:qc:partial:quick
 npm.cmd run verify:qc:tactical:projection
 npm.cmd run verify:qc:tactical:quick
@@ -230,6 +232,10 @@ flowchart TD
    - Wave 10 adds `qc:combat:catalog-rules:validate` as the fast manifest
      gate for catalog/rules surfaces, source anchors, stale active-change refs,
      and the expected 147-row out-of-scope split before deeper suite runs.
+   - `verify:qc:combat-4v4` is the focused 4v4 journey backing gate: it runs
+     a real four-BattleMech-per-side engine match to terminal state, persists
+     a swarm event log and replay manifest entry, then runs the strict
+     `combat-4v4` journey with non-synthetic backing required.
    - Wave 4 also requires `qc:wave4:validate` for the non-BattleMech matrix
      slice so customizer/data proof cannot blur into runtime combat support
      claims.

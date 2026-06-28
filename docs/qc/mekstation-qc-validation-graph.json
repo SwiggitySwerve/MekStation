@@ -129,6 +129,16 @@
       "label": "npm.cmd run verify:qc:campaign-long"
     },
     {
+      "id": "command:qc-combat-4v4-validate",
+      "kind": "command",
+      "label": "npm.cmd run qc:combat-4v4:validate"
+    },
+    {
+      "id": "command:verify-qc-combat-4v4",
+      "kind": "command",
+      "label": "npm.cmd run verify:qc:combat-4v4"
+    },
+    {
       "id": "command:verify-qc-campaign-economy-contracts",
       "kind": "command",
       "label": "npm.cmd run verify:qc:campaign-economy:contracts"
@@ -1886,6 +1896,16 @@
       "relation": "validated-by"
     },
     {
+      "from": "journey:combat-4v4",
+      "to": "command:qc-combat-4v4-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "journey:combat-4v4",
+      "to": "command:verify-qc-combat-4v4",
+      "relation": "validated-by"
+    },
+    {
       "from": "journey:contract-campaign",
       "to": "command:qc-journeys",
       "relation": "validated-by"
@@ -1923,6 +1943,11 @@
     {
       "from": "command:verify-qc-campaign-long",
       "to": "command:qc-campaign-long-stability",
+      "relation": "contains"
+    },
+    {
+      "from": "command:verify-qc-combat-4v4",
+      "to": "command:qc-combat-4v4-validate",
       "relation": "contains"
     },
     {

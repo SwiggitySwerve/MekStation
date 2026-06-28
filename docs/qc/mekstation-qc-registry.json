@@ -558,6 +558,7 @@
         "src/simulation",
         "src/engine",
         "src/utils/gameplay",
+        "src/__tests__/integration/combat4v4JourneyProof.test.ts",
         "scripts/validate-combat-suite.mjs"
       ],
       "submodules": [
@@ -568,6 +569,7 @@
         "integration scenarios",
         "physical runtime boundaries",
         "ejection lifecycle",
+        "4v4 terminal replay proof",
         "non-BattleMech scope split"
       ],
       "specRefs": ["openspec/specs/combat-resolution/spec.md"],
@@ -581,6 +583,7 @@
         "npm.cmd run qc:combat:catalog-rules:validate",
         "npm.cmd run validate:combat",
         "npm.cmd run validate:combat:gaps -- --format=summary --expect-total=0",
+        "npm.cmd run verify:qc:combat-4v4",
         "npx.cmd openspec validate --all --strict",
         "npm.cmd run qc:wave3:validate"
       ],
@@ -595,7 +598,8 @@
         "2026-06-18 damage source refs were repinned after the damage finalizer/location helper split; validate:combat reran green at 76 suites / 2648 tests.",
         "2026-06-18 integration review confirmed older unresolved BattleMech helper/unsupported audit wording is stale against current live validators.",
         "2026-06-24 Wave 3 validator requires combat rules gates alongside encounter continuity and tactical UX checkpoint commands.",
-        "2026-06-25 focused simulation combat proof passed `qc:run -- --surface=simulation-combat-validation --quick`: catalog/rules parity, `validate:combat` at 76 suites / 2034 tests, zero unresolved BattleMech gaps, strict OpenSpec 211/211, and Wave 3 gate validation."
+        "2026-06-25 focused simulation combat proof passed `qc:run -- --surface=simulation-combat-validation --quick`: catalog/rules parity, `validate:combat` at 76 suites / 2034 tests, zero unresolved BattleMech gaps, strict OpenSpec 211/211, and Wave 3 gate validation.",
+        "2026-06-27 `verify:qc:combat-4v4` is the focused 4v4 journey backing gate: validator wiring, a real four-unit-per-side engine run, terminal GameEnded report derivation, swarm event-log persistence, replay-index manifest persistence, and strict non-synthetic journey backing."
       ],
       "gaps": [
         "Future simulation combat validation changes must keep catalog/rules parity, `validate:combat`, zero unresolved BattleMech gaps, strict OpenSpec, and Wave 3 gates green; remaining narrower concerns stay tracked on child surfaces."

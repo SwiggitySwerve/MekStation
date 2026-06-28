@@ -83,6 +83,9 @@ function writeFixtureSet(tempDir: string, hasReleaseGap: boolean) {
         'npx playwright test e2e/campaign-long-browser-signoff.spec.ts',
       'verify:qc:campaign-long':
         'npm run qc:campaign-long:stability && npm run qc:campaign-long:browser',
+      'qc:combat-4v4:validate': 'node scripts/qc/validate-combat-4v4-qc.mjs',
+      'verify:qc:combat-4v4':
+        'npm run qc:combat-4v4:validate && npm test combat4v4JourneyProof.test.ts',
       'verify:qc:gm:campaign-ledger': 'npm run qc:gm:campaign-ledger:validate',
       'verify:qc:gm:time-cascade': 'npm run qc:gm:time-cascade:validate',
       'qc:wave3:validate':
@@ -313,6 +316,41 @@ describe('app completion gate validator', () => {
         kind: 'major-scenario',
         detail:
           'Timeline export remains visible as a release-signoff gap until browser proof lands.',
+      },
+    ]);
+    expect(report.summary.releaseSignoff.gaps).toBe(1);
+  });
+
+  it('counts required journey steps without proof backing as release gaps', () => {
+    const env = writeFixtureSet(tempDir, false);
+    const journeyScenarios = JSON.parse(
+      fs.readFileSync(env.MEKSTATION_JOURNEY_SCENARIOS_PATH, 'utf-8'),
+    );
+    journeyScenarios.requiredJourneyIds.push('character-build');
+    journeyScenarios.journeys.push({
+      id: 'character-build',
+      surfaceIds: ['force-pilot-encounter-setup'],
+      knownLimitations: [],
+      steps: [
+        {
+          id: 'generate-character',
+          required: true,
+          syntheticBacking: true,
+        },
+      ],
+    });
+    writeJson(env.MEKSTATION_JOURNEY_SCENARIOS_PATH, journeyScenarios);
+
+    const result = runValidator(['--json'], env);
+    const report = JSON.parse(result.stdout);
+
+    expect(result.status).toBe(0);
+    expect(report.releaseGaps).toEqual([
+      {
+        surfaceId: 'force-pilot-encounter-setup',
+        kind: 'journey-execution-backing',
+        detail:
+          'character-build/generate-character is required but release backing is incomplete (syntheticBacking=true executionBacking=missing proofCommands=0).',
       },
     ]);
     expect(report.summary.releaseSignoff.gaps).toBe(1);

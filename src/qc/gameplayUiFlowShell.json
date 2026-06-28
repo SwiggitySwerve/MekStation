@@ -151,7 +151,7 @@
         "label": "Build lance encounter",
         "href": "/gameplay/encounters/create"
       },
-      "qcCommand": "npm.cmd run qc:journeys -- --journey=combat-4v4 --seed=42 --player-units=4 --opponent-units=4",
+      "qcCommand": "npm.cmd run verify:qc:combat-4v4 -- --journey=combat-4v4",
       "inspectionNotes": [
         "Player-visible lance setup, tactical combat, terminal outcome, and replay",
         "GM inspection covers intervention review and replay reference checks"
