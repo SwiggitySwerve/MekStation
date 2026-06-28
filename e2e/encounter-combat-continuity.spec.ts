@@ -3,8 +3,9 @@
  *
  * This supplements the broader encounter smoke tests with a non-optional path:
  * seeded campaign missions launch through the real pre-battle UI, queue
- * campaign outcomes from both auto-resolve and interactive play, and apply
- * those outcomes from the post-battle review screen.
+ * campaign outcomes from auto-resolve, interactive 1v1, and multi-unit
+ * interactive play, and apply those outcomes from the post-battle review
+ * screen.
  *
  * @tags @campaign @encounter @combat @smoke
  */
@@ -18,6 +19,8 @@ import { createRegularPilot } from './fixtures/pilot';
 
 const PLAYER_UNIT_ID = 'atlas-as7-d';
 const OPPONENT_UNIT_ID = 'marauder-mad-3r';
+const PLAYER_MULTI_UNIT_IDS = [PLAYER_UNIT_ID, 'locust-lct-1v'] as const;
+const OPPONENT_MULTI_UNIT_IDS = [OPPONENT_UNIT_ID, 'warhammer-whm-6r'] as const;
 
 interface AssignmentSlot {
   readonly id: string;
@@ -46,6 +49,11 @@ interface CampaignEncounterContext {
   readonly encounterName: string;
 }
 
+interface CampaignEncounterOptions {
+  readonly playerUnitIds?: readonly string[];
+  readonly opponentUnitIds?: readonly string[];
+}
+
 interface AttackResolutionProof {
   readonly sessionId: string;
   readonly phaseBefore: string;
@@ -64,6 +72,18 @@ interface AttackResolutionProof {
     readonly hasEjected: boolean;
     readonly side: string | null;
   }[];
+}
+
+interface LaunchedRosterProof {
+  readonly sessionId: string;
+  readonly unitIds: readonly string[];
+  readonly playerUnitIds: readonly string[];
+  readonly opponentUnitIds: readonly string[];
+  readonly sideCounts: {
+    readonly player: number;
+    readonly opponent: number;
+  };
+  readonly config: ContinuityProof['config'];
 }
 
 test.setTimeout(90_000);
@@ -90,55 +110,77 @@ async function waitForE2EStores(page: Page): Promise<void> {
   );
 }
 
-async function firstAssignmentId(page: Page, forceId: string): Promise<string> {
-  return page.evaluate((id) => {
-    const stores = (
-      window as unknown as {
-        __ZUSTAND_STORES__?: {
-          force?: {
-            getState: () => {
-              forces: Array<{
-                id: string;
-                assignments: readonly AssignmentSlot[];
-              }>;
+async function assignmentIdsForForce(
+  page: Page,
+  forceId: string,
+  count: number,
+): Promise<string[]> {
+  return page.evaluate(
+    ({ id, requestedCount }) => {
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            force?: {
+              getState: () => {
+                forces: Array<{
+                  id: string;
+                  assignments: readonly AssignmentSlot[];
+                }>;
+              };
             };
           };
-        };
-      }
-    ).__ZUSTAND_STORES__;
+        }
+      ).__ZUSTAND_STORES__;
 
-    const force = stores?.force
-      ?.getState()
-      .forces.find((candidate) => candidate.id === id);
-    const assignmentId = force?.assignments[0]?.id;
-    if (!assignmentId) {
-      throw new Error(`Force ${id} has no assignment slot`);
-    }
-    return assignmentId;
-  }, forceId);
+      const force = stores?.force
+        ?.getState()
+        .forces.find((candidate) => candidate.id === id);
+      const assignmentIds =
+        force?.assignments.slice(0, requestedCount).map((slot) => slot.id) ??
+        [];
+      if (assignmentIds.length < requestedCount) {
+        throw new Error(
+          `Force ${id} only has ${assignmentIds.length} assignment slots; ${requestedCount} required`,
+        );
+      }
+      return assignmentIds;
+    },
+    { id: forceId, requestedCount: count },
+  );
 }
 
 async function createAssignedLance({
   page,
   forceName,
   pilotName,
-  unitId,
+  unitId = PLAYER_UNIT_ID,
+  unitIds,
 }: {
   readonly page: Page;
   readonly forceName: string;
   readonly pilotName: string;
-  readonly unitId: string;
+  readonly unitId?: string;
+  readonly unitIds?: readonly string[];
 }): Promise<string> {
   const forceId = await createTestLance(page, forceName, 'Mercenary');
   expect(forceId).toBeTruthy();
 
-  const pilotId = await createRegularPilot(page, pilotName);
-  expect(pilotId).toBeTruthy();
+  const selectedUnitIds = unitIds ?? [unitId];
+  const assignmentIds = await assignmentIdsForForce(
+    page,
+    forceId!,
+    selectedUnitIds.length,
+  );
 
-  const assignmentId = await firstAssignmentId(page, forceId!);
-  await expect(
-    assignPilotAndUnit(page, assignmentId, pilotId!, unitId),
-  ).resolves.toBe(true);
+  for (let index = 0; index < selectedUnitIds.length; index += 1) {
+    const selectedUnitId = selectedUnitIds[index]!;
+    const pilotId = await createRegularPilot(page, `${pilotName} ${index + 1}`);
+    expect(pilotId).toBeTruthy();
+
+    await expect(
+      assignPilotAndUnit(page, assignmentIds[index]!, pilotId!, selectedUnitId),
+    ).resolves.toBe(true);
+  }
 
   return forceId!;
 }
@@ -146,6 +188,7 @@ async function createAssignedLance({
 async function createCampaignEncounter(
   page: Page,
   label: string,
+  options: CampaignEncounterOptions = {},
 ): Promise<CampaignEncounterContext> {
   const campaignId = await createMinimalCampaign(page);
   const missionId = `mission-${Date.now()}-${label
@@ -155,13 +198,13 @@ async function createCampaignEncounter(
     page,
     forceName: `${label} Player Lance`,
     pilotName: `${label} Player Pilot`,
-    unitId: PLAYER_UNIT_ID,
+    unitIds: options.playerUnitIds ?? [PLAYER_UNIT_ID],
   });
   const opponentForceId = await createAssignedLance({
     page,
     forceName: `${label} Opponent Lance`,
     pilotName: `${label} Opponent Pilot`,
-    unitId: OPPONENT_UNIT_ID,
+    unitIds: options.opponentUnitIds ?? [OPPONENT_UNIT_ID],
   });
   const encounterName = `${label} Encounter`;
   const encounterId = await createEncounterWithForces(
@@ -215,6 +258,61 @@ async function getContinuityProof(page: Page): Promise<ContinuityProof> {
           scenarioId: outcome.scenarioId,
         })) ?? [],
       processedBattleIds: campaign?.processedBattleIds ?? [],
+    };
+  });
+}
+
+async function getLaunchedRosterProof(
+  page: Page,
+): Promise<LaunchedRosterProof> {
+  return page.evaluate(() => {
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          gameplay?: {
+            getState: () => {
+              session: {
+                id: string;
+                config: ContinuityProof['config'];
+                currentState: {
+                  units: Record<
+                    string,
+                    {
+                      side?: string;
+                    }
+                  >;
+                };
+              } | null;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
+    const session = stores?.gameplay?.getState().session;
+    if (!session) {
+      throw new Error('Gameplay session not available for roster proof');
+    }
+
+    const entries = Object.entries(session.currentState.units);
+    const playerUnitIds = entries
+      .filter(([, unit]) => unit.side === 'player')
+      .map(([id]) => id)
+      .sort();
+    const opponentUnitIds = entries
+      .filter(([, unit]) => unit.side === 'opponent')
+      .map(([id]) => id)
+      .sort();
+
+    return {
+      sessionId: session.id,
+      unitIds: entries.map(([id]) => id).sort(),
+      playerUnitIds,
+      opponentUnitIds,
+      sideCounts: {
+        player: playerUnitIds.length,
+        opponent: opponentUnitIds.length,
+      },
+      config: session.config,
     };
   });
 }
@@ -692,6 +790,123 @@ test.describe('encounter-combat campaign continuity', () => {
       expect(appliedAfterReload.processedBattleIds).toContain(
         launched.sessionId!,
       );
+    },
+  );
+
+  test(
+    'multi-unit campaign pre-battle launch preserves both side rosters through post-battle application',
+    { tag: ['@campaign', '@encounter', '@combat', '@smoke'] },
+    async ({ page }) => {
+      await page.goto('/gameplay');
+      await waitForE2EStores(page);
+
+      const { campaignId, missionId, encounterId, encounterName } =
+        await createCampaignEncounter(page, 'Continuity Multi Unit', {
+          playerUnitIds: PLAYER_MULTI_UNIT_IDS,
+          opponentUnitIds: OPPONENT_MULTI_UNIT_IDS,
+        });
+
+      await page.goto(
+        `/gameplay/encounters/${encounterId}?campaignId=${campaignId}&missionId=${missionId}`,
+      );
+      await expect(page.getByTestId('encounter-detail-page')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId('launch-encounter-btn')).toBeEnabled({
+        timeout: 20_000,
+      });
+      await page.getByTestId('launch-encounter-btn').click();
+      await page.waitForURL(
+        (url) =>
+          url.pathname === `/gameplay/encounters/${encounterId}/pre-battle` &&
+          url.searchParams.get('campaignId') === campaignId &&
+          url.searchParams.get('missionId') === missionId,
+        { timeout: 20_000 },
+      );
+      await expect(
+        page.getByRole('heading', {
+          name: `Pre-Battle: ${encounterName}`,
+        }),
+      ).toBeVisible({
+        timeout: 20_000,
+      });
+
+      await expect(page.getByTestId('play-manually-btn')).toBeEnabled();
+      await page.getByTestId('play-manually-btn').click();
+      await page.waitForURL(
+        new RegExp(
+          `/gameplay/games/[^?]+\\?campaignId=${campaignId}&missionId=${missionId}`,
+        ),
+        { timeout: 30_000 },
+      );
+      await expect(page.getByTestId('game-session')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId('tactical-action-dock')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      const launched = await getLaunchedRosterProof(page);
+      expect(launched.config).toMatchObject({
+        campaignId,
+        contractId: missionId,
+        scenarioId: encounterId,
+        encounterId,
+      });
+      expect(launched.sideCounts).toEqual({ player: 2, opponent: 2 });
+      expect(launched.unitIds).toEqual(
+        expect.arrayContaining([
+          ...PLAYER_MULTI_UNIT_IDS,
+          ...OPPONENT_MULTI_UNIT_IDS,
+        ]),
+      );
+      expect(launched.playerUnitIds).toEqual(
+        expect.arrayContaining([...PLAYER_MULTI_UNIT_IDS]),
+      );
+      expect(launched.opponentUnitIds).toEqual(
+        expect.arrayContaining([...OPPONENT_MULTI_UNIT_IDS]),
+      );
+
+      await expect(page.getByTestId('concede-button')).toBeEnabled();
+      await page.getByTestId('concede-button').click();
+      await expect(page.getByTestId('concede-confirm-text')).toContainText(
+        'Concede match?',
+      );
+      await page.getByTestId('concede-confirm').click();
+      await page.waitForURL(
+        new RegExp(`/gameplay/games/${launched.sessionId}/victory`),
+        { timeout: 20_000 },
+      );
+
+      await expect
+        .poll(async () => {
+          const queued = await getContinuityProof(page);
+          return queued.pendingBattleOutcomes.some(
+            (outcome) =>
+              outcome.matchId === launched.sessionId &&
+              outcome.contractId === missionId &&
+              outcome.scenarioId === encounterId,
+          );
+        })
+        .toBe(true);
+
+      await page.goto(`/gameplay/games/${launched.sessionId}/review`);
+      await expect(page.getByTestId('post-battle-review-screen')).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.getByTestId('apply-outcome-cta').click();
+      await page.waitForURL(
+        new RegExp(
+          `/gameplay/campaigns/${campaignId}\\?pendingBattle=${launched.sessionId}`,
+        ),
+        { timeout: 20_000 },
+      );
+
+      const applied = await getContinuityProof(page);
+      expect(applied.pendingBattleOutcomes).not.toContainEqual(
+        expect.objectContaining({ matchId: launched.sessionId }),
+      );
+      expect(applied.processedBattleIds).toContain(launched.sessionId);
     },
   );
 

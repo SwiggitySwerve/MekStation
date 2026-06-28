@@ -526,6 +526,7 @@
       "entries": [
         "docs/audits/2026-06-12-full-codebase-review.md",
         "2026-06-24 `npm.cmd run verify:qc:encounter-combat-continuity` passed 16 focused Jest checks plus 3 Chromium proofs: routed campaign encounter auto-resolve preserves campaign/mission/session linkage; interactive pre-battle launch reaches the tactical session, concedes through the UI, survives post-battle review reload, applies the queued outcome, and keeps `processedBattleIds` after campaign route reload; and attack-driven weapon destruction completes a tactical session through real engine resolution into queued post-battle review reload/application.",
+        "2026-06-28 `npm.cmd run verify:qc:encounter-combat-continuity` passed 16 focused Jest checks plus 4 Chromium proofs, including a non-1v1 2v2 campaign encounter proof that assigns distinct player/opponent rosters, launches through the real pre-battle manual path, verifies both side rosters in the gameplay session, concedes, queues the campaign battle outcome, and applies it from post-battle review.",
         "2026-06-24 `npm.cmd run qc:wave3:validate` passed with force-pilot-encounter-setup bound to ready-with-scope, strict encounter continuity command/test coverage, and zero legacy encounter-flow smoke leaks.",
         "Archived OpenSpec change 2026-06-21-fix-navigation-and-playability-deadends retired from activeChangeRefs on 2026-06-23."
       ]
@@ -543,7 +544,7 @@
       "kind": "known-gap",
       "label": "Force, Pilot, Scenario, Encounter Setup known gaps",
       "entries": [
-        "Broader setup continuity still needs authored multi-unit, custom-scenario, and non-1v1 campaign variants beyond the seeded 1v1 browser proof."
+        "Broader setup continuity still needs authored custom-scenario variants beyond the seeded 1v1 and 2v2 campaign browser proofs."
       ]
     },
     {
