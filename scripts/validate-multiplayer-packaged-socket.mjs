@@ -13,6 +13,12 @@ const BASE58_ALPHABET =
 const PLAYER_ID_PREFIX = 'pid_';
 const PLAYER_ID_BYTES = 20;
 
+function getArg(name) {
+  const prefix = `--${name}=`;
+  const arg = process.argv.find((value) => value.startsWith(prefix));
+  return arg ? arg.slice(prefix.length) : null;
+}
+
 const defaultPort = 3700 + (process.pid % 1000);
 const port = Number.parseInt(process.env.PORT ?? String(defaultPort), 10);
 const host =
@@ -20,6 +26,21 @@ const host =
     ? process.env.HOSTNAME
     : '127.0.0.1';
 const baseUrl = `http://${host}:${port}`;
+const repoRoot = path.resolve(
+  getArg('repo-root') ?? process.env.MEKSTATION_REPO_ROOT ?? process.cwd(),
+);
+const standaloneDirArg =
+  getArg('standalone-dir') ?? process.env.MEKSTATION_STANDALONE_DIR ?? null;
+const standaloneDir = standaloneDirArg
+  ? path.resolve(standaloneDirArg)
+  : path.join(repoRoot, '.next', 'standalone');
+const electronNodeExe =
+  getArg('electron-node-exe') ?? process.env.MEKSTATION_ELECTRON_NODE_EXE ?? '';
+const startMode = standaloneDirArg
+  ? electronNodeExe
+    ? 'electron-node-standalone'
+    : 'node-standalone'
+  : 'npm-run-start';
 const dbPath =
   process.env.MULTIPLAYER_DB_PATH ??
   path.join(os.tmpdir(), `mekstation-mp-packaged-${process.pid}.db`);
@@ -93,41 +114,25 @@ async function issueWireToken() {
 }
 
 function assertHydratedStandaloneServer() {
-  const serverPath = path.join(
-    process.cwd(),
-    '.next',
-    'standalone',
-    'server.js',
-  );
-  const configPath = path.join(
-    process.cwd(),
-    '.next',
-    'standalone',
-    'server.next-config.json',
-  );
-  const tsxPath = path.join(
-    process.cwd(),
-    '.next',
-    'standalone',
-    'node_modules',
-    'tsx',
-  );
-  const wsPath = path.join(
-    process.cwd(),
-    '.next',
-    'standalone',
-    'node_modules',
-    'ws',
-  );
+  const serverPath = path.join(standaloneDir, 'server.js');
+  const configPath = path.join(standaloneDir, 'server.next-config.json');
+  const tsxPath = path.join(standaloneDir, 'node_modules', 'tsx');
+  const wsPath = path.join(standaloneDir, 'node_modules', 'ws');
   const sourcePath = path.join(
-    process.cwd(),
-    '.next',
-    'standalone',
+    standaloneDir,
     'src',
     'lib',
     'multiplayer',
     'server',
     'bindMultiplayerSocketConnection.ts',
+  );
+  const battleMechCatalogPath = path.join(
+    standaloneDir,
+    'public',
+    'data',
+    'units',
+    'battlemechs',
+    'index.json',
   );
 
   for (const filePath of [
@@ -136,13 +141,14 @@ function assertHydratedStandaloneServer() {
     tsxPath,
     wsPath,
     sourcePath,
+    battleMechCatalogPath,
   ]) {
     if (!fs.existsSync(filePath)) {
       throw new Error(
         `Packaged multiplayer server is not hydrated; missing ${path.relative(
-          process.cwd(),
+          repoRoot,
           filePath,
-        )}. Run npm run build first.`,
+        )}. Run npm run build first or package the Electron app before validating unpacked resources.`,
       );
     }
   }
@@ -159,7 +165,7 @@ function assertHydratedStandaloneServer() {
   }
 }
 
-function captureServerOutput(child) {
+function captureServerOutput(child, label) {
   let output = '';
   const onData = (chunk) => {
     output += chunk.toString();
@@ -167,7 +173,7 @@ function captureServerOutput(child) {
   child.stdout.on('data', onData);
   child.stderr.on('data', onData);
   child.on('exit', (code, signal) => {
-    output += `\n[validate] npm run start exited code=${code} signal=${signal}\n`;
+    output += `\n[validate] ${label} exited code=${code} signal=${signal}\n`;
   });
   return () => output;
 }
@@ -225,7 +231,18 @@ async function createMatch(wireToken, playerId, getOutput) {
       }\nServer output:\n${getOutput()}`,
     );
   }
-  const body = await response.json();
+  const responseText = await response.text();
+  let body;
+  try {
+    body = JSON.parse(responseText);
+  } catch (error) {
+    throw new Error(
+      `Match create returned malformed JSON (${response.status}): ${responseText.slice(
+        0,
+        500,
+      )}\nServer output:\n${getOutput()}`,
+    );
+  }
   if (!response.ok) {
     throw new Error(
       `Match create failed (${response.status}): ${JSON.stringify(body)}`,
@@ -386,22 +403,56 @@ async function openAndJoin(wsUrl, wireToken, playerId, matchId, getOutput) {
   return kinds;
 }
 
+function resolveServerStart(npmExecutable) {
+  if (!standaloneDirArg) {
+    return {
+      command: npmExecutable,
+      args: ['run', 'start'],
+      cwd: repoRoot,
+      label: 'npm run start',
+      shell: process.platform === 'win32',
+    };
+  }
+
+  const serverPath = path.join(standaloneDir, 'server.js');
+  if (electronNodeExe) {
+    return {
+      command: electronNodeExe,
+      args: [serverPath],
+      cwd: standaloneDir,
+      label: `Electron Node standalone ${serverPath}`,
+      shell: false,
+    };
+  }
+
+  return {
+    command: process.execPath,
+    args: [serverPath],
+    cwd: standaloneDir,
+    label: `Node standalone ${serverPath}`,
+    shell: false,
+  };
+}
+
 async function startPackagedServer(npmExecutable) {
-  const child = spawn(npmExecutable, ['run', 'start'], {
-    cwd: process.cwd(),
+  const start = resolveServerStart(npmExecutable);
+  const child = spawn(start.command, start.args, {
+    cwd: start.cwd,
     env: {
       ...process.env,
       PORT: String(port),
       HOSTNAME: host,
       NODE_ENV: 'production',
+      ...(electronNodeExe ? { ELECTRON_RUN_AS_NODE: '1' } : {}),
       MULTIPLAYER_SOCKET_TRACE: '1',
       MULTIPLAYER_STORE: process.env.MULTIPLAYER_STORE ?? 'durable',
       MULTIPLAYER_DB_PATH: dbPath,
+      DATABASE_PATH: dbPath,
     },
-    shell: process.platform === 'win32',
+    shell: start.shell,
     stdio: ['ignore', 'pipe', 'pipe'],
   });
-  const getOutput = captureServerOutput(child);
+  const getOutput = captureServerOutput(child, start.label);
   await waitForServer(child, getOutput);
   return { child, getOutput };
 }
@@ -419,7 +470,7 @@ function runCoopRuntimeSmoke(match) {
       match.roomCode,
     ],
     {
-      cwd: process.cwd(),
+      cwd: repoRoot,
       encoding: 'utf8',
       maxBuffer: 10 * 1024 * 1024,
       shell: process.platform === 'win32',
@@ -485,7 +536,13 @@ async function main() {
           packagedMultiplayerReachability: 'socket-upgrade-and-replay-ok',
           packagedRestartReconnect:
             'same-match-replay-after-process-restart-ok',
-          startScript: 'npm run start',
+          startMode,
+          startScript: standaloneDirArg
+            ? electronNodeExe
+              ? `${electronNodeExe} ${path.join(standaloneDir, 'server.js')}`
+              : `${process.execPath} ${path.join(standaloneDir, 'server.js')}`
+            : 'npm run start',
+          standaloneDir,
           baseUrl,
           dbPath,
           matchId: match.matchId,

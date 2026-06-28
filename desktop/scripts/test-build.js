@@ -44,6 +44,109 @@ const packagedSecurityScript = path.join(
   'scripts',
   'validate-packaged-security.js',
 );
+const packagedSocketScript = path.join(
+  rootDir,
+  'scripts',
+  'validate-multiplayer-packaged-socket.mjs',
+);
+
+function resolvePackagedRuntime(platform, releaseDir) {
+  const candidates =
+    platform === 'win'
+      ? [path.join(releaseDir, 'win-unpacked', 'MekStation.exe')]
+      : platform === 'mac'
+        ? [
+            path.join(
+              releaseDir,
+              'mac',
+              'MekStation.app',
+              'Contents',
+              'MacOS',
+              'MekStation',
+            ),
+            path.join(
+              releaseDir,
+              'mac-arm64',
+              'MekStation.app',
+              'Contents',
+              'MacOS',
+              'MekStation',
+            ),
+            path.join(
+              releaseDir,
+              'mac-universal',
+              'MekStation.app',
+              'Contents',
+              'MacOS',
+              'MekStation',
+            ),
+          ]
+        : [
+            path.join(releaseDir, 'linux-unpacked', 'mekstation'),
+            path.join(releaseDir, 'linux-unpacked', 'MekStation'),
+          ];
+
+  const runtimePath = candidates.find((candidate) => fs.existsSync(candidate));
+  if (!runtimePath) {
+    throw new Error(
+      `Packaged Electron runtime not found. Checked: ${candidates.join(', ')}`,
+    );
+  }
+  return runtimePath;
+}
+
+function resolvePackagedStandaloneDir(platform, releaseDir) {
+  const candidates =
+    platform === 'win'
+      ? [path.join(releaseDir, 'win-unpacked', 'resources', 'next-standalone')]
+      : platform === 'mac'
+        ? [
+            path.join(
+              releaseDir,
+              'mac',
+              'MekStation.app',
+              'Contents',
+              'Resources',
+              'next-standalone',
+            ),
+            path.join(
+              releaseDir,
+              'mac-arm64',
+              'MekStation.app',
+              'Contents',
+              'Resources',
+              'next-standalone',
+            ),
+            path.join(
+              releaseDir,
+              'mac-universal',
+              'MekStation.app',
+              'Contents',
+              'Resources',
+              'next-standalone',
+            ),
+          ]
+        : [
+            path.join(
+              releaseDir,
+              'linux-unpacked',
+              'resources',
+              'next-standalone',
+            ),
+          ];
+
+  const standaloneDir = candidates.find((candidate) =>
+    fs.existsSync(candidate),
+  );
+  if (!standaloneDir) {
+    throw new Error(
+      `Packaged Next standalone resources not found. Checked: ${candidates.join(
+        ', ',
+      )}`,
+    );
+  }
+  return standaloneDir;
+}
 
 // Step 1: Build Next.js application
 console.log('📦 Step 1: Building Next.js application...');
@@ -72,19 +175,19 @@ try {
   process.exit(1);
 }
 
-// Step 3: Rebuild native modules in Next.js standalone output for Electron
-// (The packaged desktop app runs Next server under Electron's Node runtime)
+// Step 3: Prepare an Electron-only Next.js standalone copy and rebuild native modules
+// there. Root `.next/standalone` must stay plain-Node compatible for `npm run start`.
 console.log(
-  '🧩 Step 3: Rebuilding Next.js standalone native modules (Electron ABI)...',
+  '🧩 Step 3: Preparing Electron standalone native modules (isolated ABI copy)...',
 );
 try {
   execSync('npm run rebuild:next-standalone', {
     cwd: desktopDir,
     stdio: 'inherit',
   });
-  console.log('✅ Next.js standalone native rebuild complete\n');
+  console.log('✅ Electron standalone native rebuild complete\n');
 } catch (error) {
-  console.error('❌ Next.js standalone native rebuild failed');
+  console.error('❌ Electron standalone native rebuild failed');
   process.exit(1);
 }
 
@@ -188,6 +291,25 @@ for (const platform of PLATFORMS) {
           [packagedSecurityScript, `--output-dir=${OUTPUT_DIR}`],
           {
             cwd: desktopDir,
+            stdio: 'inherit',
+          },
+        );
+        console.log('\nRunning packaged multiplayer socket smoke...');
+        const packagedRuntime = resolvePackagedRuntime(platform, releaseDir);
+        const packagedStandaloneDir = resolvePackagedStandaloneDir(
+          platform,
+          releaseDir,
+        );
+        execFileSync(
+          process.execPath,
+          [
+            packagedSocketScript,
+            `--repo-root=${rootDir}`,
+            `--standalone-dir=${packagedStandaloneDir}`,
+            `--electron-node-exe=${packagedRuntime}`,
+          ],
+          {
+            cwd: rootDir,
             stdio: 'inherit',
           },
         );

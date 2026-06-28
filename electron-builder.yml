@@ -24,8 +24,9 @@ files:
 
 # Extra resources to include (outside of app.asar)
 extraResources:
-  # Next.js standalone output (self-contained server + deps)
-  - from: '../.next/standalone'
+  # Electron-ABI standalone output (prepared by desktop/scripts/rebuild-next-standalone.js).
+  # Keep this separate from ../.next/standalone so `npm run start` remains plain-Node compatible.
+  - from: '.tmp/next-standalone-electron'
     to: 'next-standalone'
   # Next.js static assets (CSS/JS) for standalone server
   - from: '../.next/static'

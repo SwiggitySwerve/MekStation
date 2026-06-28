@@ -367,11 +367,18 @@ flowchart TD
 1. `desktop-api-security`
    - The 2026-06-23 desktop lane now proves the packaged runtime path with
      `npm.cmd run electron:test:build`: Next production build, Electron
-     TypeScript, standalone native rebuild, Electron `better-sqlite3` runtime
-     load, output verification, and Windows electron-builder packaging all pass.
-   - The standalone rebuild uses `@electron/rebuild` for the copied
-     `.next/standalone` native modules so the package no longer ships a
-     host-Node ABI binding into Electron's Node runtime.
+     TypeScript, isolated Electron-ABI standalone rebuild, Electron
+     `better-sqlite3` runtime load, root Node standalone runtime load, output
+     verification, Windows electron-builder packaging, packaged security audit,
+     and packaged-resource multiplayer socket/replay/reconnect smoke all pass.
+   - The standalone rebuild uses `@electron/rebuild` in
+     `desktop/.tmp/next-standalone-electron` so the package no longer ships a
+     host-Node ABI binding into Electron's Node runtime and root
+     `.next/standalone` remains usable by `npm run start`.
+   - `scripts/validate-multiplayer-packaged-socket.mjs` can now target either
+     the root service standalone output or the unpacked Electron
+     `resources/next-standalone` payload, preventing the desktop package proof
+     from accidentally testing only the root service path.
 
 1. `maintenance-code-health`
    - Full maintenance scanner pass is active with a reviewed `src` regression

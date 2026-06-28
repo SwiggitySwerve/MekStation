@@ -58,11 +58,27 @@ function copyRuntimeLoaders() {
   }
 }
 
+function copyPublicAssets() {
+  copyDir(path.join(root, 'public'), path.join(standaloneDir, 'public'));
+  assertExists(
+    path.join(
+      standaloneDir,
+      'public',
+      'data',
+      'units',
+      'battlemechs',
+      'index.json',
+    ),
+    'standalone BattleMech unit catalog',
+  );
+}
+
 function main() {
   assertExists(standaloneDir, 'Next standalone output');
   assertExists(generatedServerPath, 'generated Next standalone server');
   assertExists(path.join(root, 'server.js'), 'custom multiplayer server');
   assertExists(path.join(root, 'tsconfig.json'), 'TypeScript config');
+  assertExists(path.join(root, 'public'), 'public assets');
   assertExists(path.join(root, 'src'), 'source tree');
   assertExists(path.join(root, 'node_modules', 'tsx'), 'tsx runtime loader');
   assertExists(path.join(root, 'node_modules', 'esbuild'), 'esbuild runtime');
@@ -76,10 +92,10 @@ function main() {
   const nextConfigJson =
     generatedServer.includes('const nextConfig =') &&
     generatedServer.includes('startServer')
-    ? extractNextConfig(generatedServer)
-    : fs.existsSync(standaloneConfigPath)
-      ? fs.readFileSync(standaloneConfigPath, 'utf8').trim()
-      : null;
+      ? extractNextConfig(generatedServer)
+      : fs.existsSync(standaloneConfigPath)
+        ? fs.readFileSync(standaloneConfigPath, 'utf8').trim()
+        : null;
   if (!nextConfigJson) {
     throw new Error(
       'Unable to extract or reuse the resolved Next standalone config.',
@@ -97,6 +113,7 @@ function main() {
   );
   copyDir(path.join(root, 'src'), path.join(standaloneDir, 'src'));
   copyRuntimeLoaders();
+  copyPublicAssets();
 
   const hydratedServer = fs.readFileSync(generatedServerPath, 'utf8');
   if (
@@ -115,6 +132,7 @@ function main() {
         hydratedStandaloneServer: rel(generatedServerPath),
         nextConfig: rel(standaloneConfigPath),
         runtimeLoaders: [...runtimeModuleDirs, ...runtimeScopedDirs],
+        publicAssets: rel(path.join(standaloneDir, 'public')),
         sourceTree: rel(path.join(standaloneDir, 'src')),
       },
       null,
