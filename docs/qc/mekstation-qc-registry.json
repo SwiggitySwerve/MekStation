@@ -1290,6 +1290,7 @@
         "server.js",
         "src/lib/multiplayer",
         "src/pages/api/multiplayer",
+        "src/components/multiplayer",
         "src/components/campaign/coop"
       ],
       "submodules": [
@@ -1306,6 +1307,7 @@
         "e2e/playtest-mp-smoke.spec.ts",
         "e2e/playtest-coop-route-smoke.spec.ts",
         "e2e/multiplayer-live-vault-auth.spec.ts",
+        "src/components/multiplayer/__tests__/CreateMatchForm.test.tsx",
         "src/__tests__/unit/api/multiplayerMatchesFog.test.ts",
         "src/__tests__/unit/api/multiplayerSpectate.test.ts",
         "src/__tests__/integration/phase4Multiplayer.test.ts",
@@ -1331,12 +1333,13 @@
         "2026-06-25 `npm.cmd run validate:multiplayer:packaged-socket` passed after `npm.cmd run build`: packaged server socket upgrade/replay succeeded, the process restarted against the same durable SQLite match store, the same match replayed after reconnect, and the co-op runtime proposal committed.",
         "2026-06-25 `npx.cmd playwright test --project=chromium e2e/multiplayer-live-vault-auth.spec.ts --workers=1` passed: two browser contexts seeded real E2E-locked vault identities, host created a fog-enabled lobby, guest joined by invite, both connected through signed tokens, both readied, host launched, both rendered the networked game surface, and the host advanced the server-owned Initiative phase to Movement over the real WebSocket path.",
         "2026-06-26 `npx.cmd playwright test --project=chromium e2e/multiplayer-live-vault-auth.spec.ts --workers=1` passed: REST-created fog-enabled matches returned real Atlas/Marauder unit bootstrap metadata, both vault-auth browser contexts launched over signed sockets, host and guest rendered side-owned tactical unit tokens, and the host advanced Initiative to Movement over WebSocket.",
+        "2026-06-28 multiplayer create-match UI now exposes unit roster presets and submits explicit unitBootstrap metadata; focused Jest coverage proves the form emits selected Atlas/Marauder presets, the API preserves explicit bootstrap rows, and MatchHostRegistry still boots stored units.",
         "2026-06-25 Wave 4 validator requires multiplayer aggregate scripts plus route, contract, capstone source anchors, and the packaged socket command while keeping live host/guest identity play tracked separately.",
         "Archived OpenSpec change 2026-06-21-reconcile-multiplayer-coop-reality retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23."
       ],
       "gaps": [
-        "Room-created unit selection is metadata/API-driven; the lobby UI does not yet expose user-selectable roster configuration."
+        "Create-match roster presets are UI-backed; fully custom per-seat unit/pilot roster configuration remains future multiplayer product scope."
       ]
     },
     {

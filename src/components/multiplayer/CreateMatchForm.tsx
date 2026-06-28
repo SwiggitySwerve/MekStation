@@ -12,7 +12,15 @@
 
 import { useState } from 'react';
 
+import type { MatchRosterPresetId } from '@/lib/multiplayer/matchRosterPresets';
+import type { IMatchUnitBootstrapEntry } from '@/lib/multiplayer/server/IMatchStore';
 import type { TeamLayout } from '@/types/multiplayer/Lobby';
+
+import {
+  buildMatchUnitBootstrapForPreset,
+  DEFAULT_MATCH_ROSTER_PRESET_ID,
+  MATCH_ROSTER_PRESETS,
+} from '@/lib/multiplayer/matchRosterPresets';
 
 // =============================================================================
 // Props
@@ -24,6 +32,8 @@ export interface ICreateMatchFormValue {
   readonly mapRadius: number;
   readonly turnLimit: number;
   readonly fogOfWar: boolean;
+  readonly rosterPresetId: MatchRosterPresetId;
+  readonly unitBootstrap: readonly IMatchUnitBootstrapEntry[];
 }
 
 export interface ICreateMatchFormProps {
@@ -66,6 +76,9 @@ export function CreateMatchForm(
   const [mapRadius, setMapRadius] = useState<number>(8);
   const [turnLimit, setTurnLimit] = useState<number>(20);
   const [fogOfWar, setFogOfWar] = useState<boolean>(false);
+  const [rosterPresetId, setRosterPresetId] = useState<MatchRosterPresetId>(
+    DEFAULT_MATCH_ROSTER_PRESET_ID,
+  );
 
   return (
     <form
@@ -77,6 +90,12 @@ export function CreateMatchForm(
           mapRadius,
           turnLimit,
           fogOfWar,
+          rosterPresetId,
+          unitBootstrap: buildMatchUnitBootstrapForPreset(
+            layout,
+            rosterPresetId,
+            mapRadius,
+          ),
         });
       }}
       className="space-y-4"
@@ -114,6 +133,28 @@ export function CreateMatchForm(
           {LAYOUT_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label
+          htmlFor="cm-rosterPreset"
+          className="block text-xs font-medium tracking-wide text-slate-300 uppercase"
+        >
+          Unit roster preset
+        </label>
+        <select
+          id="cm-rosterPreset"
+          value={rosterPresetId}
+          onChange={(e) =>
+            setRosterPresetId(e.target.value as MatchRosterPresetId)
+          }
+          className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 focus:border-emerald-500 focus:outline-none"
+        >
+          {MATCH_ROSTER_PRESETS.map((preset) => (
+            <option key={preset.id} value={preset.id}>
+              {preset.label}
             </option>
           ))}
         </select>
