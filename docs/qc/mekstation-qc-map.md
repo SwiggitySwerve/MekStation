@@ -29,7 +29,7 @@ Next.js page template or required journey sequence.
 npm.cmd run qc:validate
 npm.cmd run qc:app-completion
 npm.cmd run qc:app-completion:release
-npm.cmd run qc:select -- --status=active-review
+npm.cmd run qc:select -- --surface=maintenance-code-health
 npm.cmd run qc:select -- --risk=rules-parity
 npm.cmd run qc:select -- --lens=ux
 npm.cmd run qc:select -- --claim=ui.tactical.movement-preview

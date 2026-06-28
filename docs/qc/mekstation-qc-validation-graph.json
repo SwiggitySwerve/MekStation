@@ -1568,7 +1568,7 @@
       "id": "surface:maintenance-code-health",
       "kind": "surface",
       "label": "Maintenance Code Health",
-      "coverageStatus": "active-review"
+      "coverageStatus": "ready-with-scope"
     },
     {
       "id": "state:maintenance-code-health:lifecycle",
@@ -1665,7 +1665,8 @@
         "docs/qc/maintenance-baseline.json",
         "docs/qc/maintenance-warning-ledger.json",
         "scripts/qc/validate-maintenance-warning-ledger.mjs",
-        "2026-06-27 validate-bv architecture split moved the BattleMech BV calculation engine into focused calculator, crit-scan, ammo-resolution, weapon-resolution, known-unit, normalizer, and type modules; the original validate-bv.ts critical file-bloat finding is fixed, with three high file-bloat follow-ups tracked for the remaining validator submodules."
+        "2026-06-27 validate-bv architecture split moved the BattleMech BV calculation engine into focused calculator, crit-scan, ammo-resolution, weapon-resolution, known-unit, normalizer, and type modules; the original validate-bv.ts critical file-bloat finding is fixed, with three high file-bloat follow-ups tracked for the remaining validator submodules.",
+        "2026-06-28 maintenance release scope promoted to ready-with-scope after `verify:qc:maintenance` and `qc:app-completion -- --json` proved the src critical/high regression gate, repo-wide warning ledger accounting, and remaining follow-up/accepted warning debt are machine-checkable instead of hidden release blockers."
       ]
     },
     {
@@ -1693,9 +1694,9 @@
       "label": "npm.cmd run qc:validate"
     },
     {
-      "id": "command:npm-cmd-run-qc-select-status-partial",
+      "id": "command:npm-cmd-run-qc-select-maintenance-surface",
       "kind": "command",
-      "label": "npm.cmd run qc:select -- --status=active-review"
+      "label": "npm.cmd run qc:select -- --surface=maintenance-code-health"
     },
     {
       "id": "command:npm-cmd-run-maintain-scan-scope-src-limit-80",
@@ -3872,11 +3873,11 @@
     },
     {
       "from": "state:maintenance-code-health:lifecycle",
-      "to": "command:npm-cmd-run-qc-select-status-partial",
+      "to": "command:npm-cmd-run-qc-select-maintenance-surface",
       "relation": "validated-by"
     },
     {
-      "from": "command:npm-cmd-run-qc-select-status-partial",
+      "from": "command:npm-cmd-run-qc-select-maintenance-surface",
       "to": "evidence:maintenance-code-health:registry",
       "relation": "produces"
     },
