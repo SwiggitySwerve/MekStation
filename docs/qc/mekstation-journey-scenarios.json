@@ -48,6 +48,10 @@
           "required": true,
           "diagnosticEvent": "character.created",
           "loggingPathId": "character-pilot-creation",
+          "executionBacking": "hybrid-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:character-build",
+          "executionProofCommands": ["npm.cmd run verify:qc:character-build"],
           "produces": ["generated/character.json"]
         },
         {
@@ -57,6 +61,10 @@
           "required": true,
           "diagnosticEvent": "character.exported",
           "loggingPathId": "store-persistence-recovery",
+          "executionBacking": "hybrid-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:character-build",
+          "executionProofCommands": ["npm.cmd run verify:qc:character-build"],
           "produces": ["artifacts/character-export.json"]
         }
       ],
@@ -108,6 +116,10 @@
           "required": true,
           "diagnosticEvent": "mek.construction.input_resolved",
           "loggingPathId": "mek-construction-export",
+          "executionBacking": "hybrid-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:mek-build",
+          "executionProofCommands": ["npm.cmd run verify:qc:mek-build"],
           "produces": ["generated/battlemech-input.json"]
         },
         {
@@ -117,6 +129,10 @@
           "required": true,
           "diagnosticEvent": "mek.exported",
           "loggingPathId": "mek-construction-export",
+          "executionBacking": "hybrid-command",
+          "syntheticBacking": false,
+          "executionEvidenceSource": "package:verify:qc:mek-build",
+          "executionProofCommands": ["npm.cmd run verify:qc:mek-build"],
           "produces": ["artifacts/battlemech-export.json"]
         }
       ],

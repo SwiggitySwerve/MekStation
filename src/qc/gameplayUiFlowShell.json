@@ -22,7 +22,7 @@
         "label": "Create pilot",
         "href": "/gameplay/pilots/create"
       },
-      "qcCommand": "npm.cmd run qc:journeys -- --journey=character-build --tier=smoke",
+      "qcCommand": "npm.cmd run verify:qc:character-build && npm.cmd run qc:journeys -- --journey=character-build --tier=smoke --require-domain-backed",
       "inspectionNotes": [
         "Player-visible roster creation and export evidence",
         "GM review is limited to roster readiness and force assignment"
@@ -57,7 +57,7 @@
         "label": "Open customizer",
         "href": "/customizer"
       },
-      "qcCommand": "npm.cmd run qc:journeys -- --journey=mek-build --tier=smoke",
+      "qcCommand": "npm.cmd run verify:qc:mek-build && npm.cmd run qc:journeys -- --journey=mek-build --tier=smoke --require-domain-backed",
       "inspectionNotes": [
         "Player-visible BattleMech construction and export evidence",
         "GM can inspect campaign Mech Bay state before encounter launch"

@@ -1113,14 +1113,107 @@ describe('journey QC scripts', () => {
     }
   });
 
+  it('passes strict backing-required runs for promoted build journey proofs', () => {
+    const promotedJourneys = [
+      {
+        journeyId: 'character-build',
+        expectedSteps: 2,
+        proofCommand: 'npm.cmd run verify:qc:character-build',
+      },
+      {
+        journeyId: 'mek-build',
+        expectedSteps: 2,
+        proofCommand: 'npm.cmd run verify:qc:mek-build',
+      },
+    ];
+
+    for (const { journeyId, expectedSteps, proofCommand } of promotedJourneys) {
+      const runId = `test-${journeyId}-domain-backed`;
+      const runResult = runNodeScript('scripts/qc/run-journey-scenarios.mjs', [
+        `--journey=${journeyId}`,
+        `--run-id=${runId}`,
+        '--require-domain-backed',
+        `--evidence-dir=${evidenceDir}`,
+      ]);
+      expect(runResult.status).toBe(0);
+
+      const result = readJson<{
+        status: string;
+        executionBackingSummary: {
+          missingRequiredBacking: number;
+          syntheticSteps: number;
+          totalSteps: number;
+        };
+        journeys: Array<{
+          attempts: Array<{
+            steps: Array<{
+              syntheticBacking: boolean;
+              executionBacking: string;
+              executionProofCommands: string[];
+            }>;
+          }>;
+        }>;
+      }>(path.join(evidenceDir, runId, 'result.json'));
+      const steps = result.journeys[0]?.attempts[0]?.steps ?? [];
+
+      expect(result.status).toBe('pass');
+      expect(result.executionBackingSummary).toMatchObject({
+        missingRequiredBacking: 0,
+        syntheticSteps: 0,
+        totalSteps: expectedSteps,
+      });
+      expect(
+        steps.every(
+          (step) =>
+            step.syntheticBacking === false &&
+            step.executionBacking === 'hybrid-command' &&
+            step.executionProofCommands.includes(proofCommand),
+        ),
+      ).toBe(true);
+    }
+  });
+
   it('fails strict backing-required runs while preserving bug evidence', () => {
-    const runResult = runNodeScript('scripts/qc/run-journey-scenarios.mjs', [
-      '--journey=character-build',
-      '--run-id=test-domain-backed-required',
-      '--require-domain-backed',
-      '--continue-on-error',
-      `--evidence-dir=${evidenceDir}`,
-    ]);
+    const catalog = readJson<{
+      journeys: Array<{
+        id: string;
+        steps: Array<{
+          syntheticBacking?: boolean;
+          executionBacking?: string;
+          executionEvidenceSource?: string;
+          executionProofCommands?: string[];
+        }>;
+      }>;
+    }>(path.join(repoRoot, 'docs/qc/mekstation-journey-scenarios.json'));
+    const characterJourney = catalog.journeys.find(
+      (journey) => journey.id === 'character-build',
+    );
+    expect(characterJourney).toBeDefined();
+    for (const step of characterJourney!.steps) {
+      delete step.syntheticBacking;
+      delete step.executionBacking;
+      delete step.executionEvidenceSource;
+      delete step.executionProofCommands;
+    }
+    const syntheticCatalogPath = path.join(
+      evidenceDir,
+      'synthetic-character-catalog.json',
+    );
+    writeJson(syntheticCatalogPath, catalog);
+
+    const runResult = runNodeScript(
+      'scripts/qc/run-journey-scenarios.mjs',
+      [
+        '--journey=character-build',
+        '--run-id=test-domain-backed-required',
+        '--require-domain-backed',
+        '--continue-on-error',
+        `--evidence-dir=${evidenceDir}`,
+      ],
+      {
+        MEKSTATION_JOURNEY_CATALOG_PATH: syntheticCatalogPath,
+      },
+    );
     expect(runResult.status).toBe(1);
 
     const result = readJson<{
