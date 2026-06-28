@@ -18,9 +18,9 @@
       "follow-up": 0
     },
     "file-bloat": {
-      "fixed": 3,
+      "fixed": 4,
       "accepted": 0,
-      "follow-up": 16
+      "follow-up": 15
     },
     "near-duplicate": {
       "fixed": 0,
@@ -123,9 +123,8 @@
       "severity": "warn",
       "file": "scripts/format-event-log.py",
       "message": "398 LOC exceeds python threshold",
-      "status": "follow-up",
-      "rationale": "Event-log formatting utility needs helper extraction with sample log fixtures.",
-      "followUps": ["wave-12-script-bloat-follow-up"]
+      "status": "fixed",
+      "rationale": "Event-log summary and prefix helpers were split into tracked scripts/lib modules, and a sample NDJSON fixture test now locks readable output plus empty-log failure behavior."
     },
     {
       "key": "file-bloat|warn|scripts/megameklab-conversion/blk_aerospace_converter.py|428 LOC exceeds python threshold",
