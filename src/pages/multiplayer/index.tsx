@@ -19,7 +19,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-import type { IMatchConfig } from '@/lib/multiplayer/server/IMatchStore';
+import type {
+  IMatchConfig,
+  IMatchUnitBootstrapEntry,
+} from '@/lib/multiplayer/server/IMatchStore';
 import type { IPlayerToken } from '@/types/multiplayer/Player';
 
 import { CreateMatchForm } from '@/components/multiplayer/CreateMatchForm';
@@ -136,6 +139,7 @@ export default function MultiplayerHubPage(): React.ReactElement {
     mapRadius: number;
     turnLimit: number;
     fogOfWar: boolean;
+    unitBootstrap: readonly IMatchUnitBootstrapEntry[];
   }): Promise<void> {
     await withAuth('create', async (auth) => {
       const config: IMatchConfig = {
@@ -153,6 +157,7 @@ export default function MultiplayerHubPage(): React.ReactElement {
           config,
           layout: value.layout,
           displayName: value.displayName,
+          unitBootstrap: value.unitBootstrap,
         }),
       });
       if (!res.ok) {

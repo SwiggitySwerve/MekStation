@@ -118,4 +118,49 @@ describe('POST /api/multiplayer/matches fog config', () => {
       fogOfWar: true,
     });
   });
+
+  it('preserves explicit unit bootstrap selected by the create-match UI', async () => {
+    const { req, res, result } = mockReqRes({
+      config: { mapRadius: 8, turnLimit: 20, fogOfWar: true },
+      layout: '1v1',
+      displayName: 'Host',
+      unitBootstrap: [
+        {
+          unitId: 'host-selected-atlas',
+          unitRef: 'atlas-as7-d',
+          side: 'player',
+          name: 'Atlas AS7-D 1',
+          pilotRef: 'host-selected-pilot',
+          gunnery: 3,
+          piloting: 4,
+          startHex: { q: -2, r: 0 },
+        },
+        {
+          unitId: 'guest-selected-marauder',
+          unitRef: 'marauder-mad-3r',
+          side: 'opponent',
+          name: 'Marauder MAD-3R 1',
+          pilotRef: 'guest-selected-pilot',
+          gunnery: 4,
+          piloting: 5,
+          startHex: { q: 2, r: 0 },
+        },
+      ],
+    });
+
+    await handler(req, res);
+
+    expect(createdMeta(result).unitBootstrap).toEqual([
+      expect.objectContaining({
+        unitId: 'host-selected-atlas',
+        unitRef: 'atlas-as7-d',
+        side: 'player',
+      }),
+      expect.objectContaining({
+        unitId: 'guest-selected-marauder',
+        unitRef: 'marauder-mad-3r',
+        side: 'opponent',
+      }),
+    ]);
+  });
 });
