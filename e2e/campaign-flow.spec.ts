@@ -39,6 +39,12 @@ interface SeededDamagedCampaign {
   readonly matchId: string;
 }
 
+interface SavedCampaignSnapshot {
+  readonly campaignId: string;
+  readonly name: string;
+  readonly version: number;
+}
+
 test.setTimeout(90_000);
 
 async function waitForE2EHydration(page: Page): Promise<void> {
@@ -227,6 +233,95 @@ async function acceptFirstMarketContract(
   await expect(page.getByTestId(`offer-card-${offerId}`)).toHaveCount(0);
 
   return { offerId: offerId!, offerName: offerName! };
+}
+
+async function saveCampaignThroughDashboard(
+  page: Page,
+  campaignId: string,
+): Promise<SavedCampaignSnapshot> {
+  await expect(page.getByTestId('campaign-save-status-card')).toBeVisible({
+    timeout: 20_000,
+  });
+
+  const [saveResponse] = await Promise.all([
+    page.waitForResponse(
+      (response) =>
+        response.request().method() === 'PUT' &&
+        response.url().includes(`/api/campaigns/${campaignId}`) &&
+        response.status() === 200,
+      { timeout: 20_000 },
+    ),
+    page.getByTestId('campaign-save-now-btn').click(),
+  ]);
+  const saved = (await saveResponse.json()) as {
+    campaignId?: unknown;
+    version?: unknown;
+    body?: { name?: unknown };
+  };
+
+  expect(saved.campaignId).toBe(campaignId);
+  expect(typeof saved.version).toBe('number');
+  expect(typeof saved.body?.name).toBe('string');
+  await expect(page.getByTestId('campaign-last-saved')).not.toContainText(
+    'Never saved',
+  );
+
+  return {
+    campaignId,
+    name: saved.body!.name as string,
+    version: saved.version as number,
+  };
+}
+
+async function clearLiveCampaignClientState(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          campaign?: {
+            getState: () => unknown;
+            setState: (state: Record<string, unknown>) => void;
+          };
+          campaignRoster?: {
+            getState: () => { reset?: () => void };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
+
+    if (!stores?.campaign) {
+      throw new Error('Campaign E2E store is not exposed');
+    }
+
+    stores.campaign.setState({
+      campaign: null,
+      forcesStore: null,
+      missionsStore: null,
+      pendingBattleOutcomes: [],
+      processedBattleIds: [],
+      reviewedBattleIds: {},
+      outcomeApplyErrors: {},
+      activityLog: [],
+    });
+    stores.campaignRoster?.getState().reset?.();
+  });
+
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const stores = (
+          window as unknown as {
+            __ZUSTAND_STORES__?: {
+              campaign?: {
+                getState: () => { campaign?: unknown };
+              };
+            };
+          }
+        ).__ZUSTAND_STORES__;
+        return stores?.campaign?.getState().campaign ?? null;
+      }),
+    )
+    .toBeNull();
 }
 
 async function seedDamagedPostBattleCampaign(
@@ -576,6 +671,73 @@ test.describe('Campaign Flow - Store State', () => {
       expect(state).toBeTruthy();
       expect(state.campaign).toBeDefined();
       expect(state.campaign?.id).toBe(campaignId);
+    },
+  );
+
+  test(
+    'saves a wizard campaign and reloads it from the server campaign list',
+    { tag: ['@campaign', '@smoke', '@strict'] },
+    async ({ page }) => {
+      const campaignId = await createRosteredCampaignViaWizard(page);
+      const saved = await saveCampaignThroughDashboard(page, campaignId);
+
+      await clearLiveCampaignClientState(page);
+      await page.goto('/gameplay/campaigns');
+      await waitForE2EHydration(page);
+
+      const serverBackedCard = page.getByTestId(`campaign-card-${campaignId}`);
+      await expect(serverBackedCard).toContainText(saved.name, {
+        timeout: 20_000,
+      });
+      await expect(serverBackedCard).toContainText('Faction: mercenary');
+
+      await serverBackedCard.click();
+      await page.waitForURL(new RegExp(`/gameplay/campaigns/${campaignId}$`), {
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId('campaign-dashboard')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId('campaign-save-status-card')).toBeVisible();
+
+      const reloaded = await page.evaluate(() => {
+        const stores = (
+          window as unknown as {
+            __ZUSTAND_STORES__?: {
+              campaign?: {
+                getState: () => {
+                  campaign?: { id?: unknown; name?: unknown };
+                };
+              };
+            };
+          }
+        ).__ZUSTAND_STORES__;
+        const campaign = stores?.campaign?.getState().campaign;
+        return {
+          id: typeof campaign?.id === 'string' ? campaign.id : null,
+          name: typeof campaign?.name === 'string' ? campaign.name : null,
+        };
+      });
+      expect(reloaded).toEqual({ id: campaignId, name: saved.name });
+
+      const serverRecord = await page.evaluate(async (id) => {
+        const response = await fetch(`/api/campaigns/${id}`);
+        if (!response.ok) {
+          throw new Error(`server responded ${response.status}`);
+        }
+        const record = (await response.json()) as {
+          campaignId?: unknown;
+          version?: unknown;
+        };
+        return {
+          campaignId: record.campaignId,
+          version: record.version,
+        };
+      }, campaignId);
+      expect(serverRecord).toEqual({
+        campaignId,
+        version: saved.version,
+      });
     },
   );
 });
