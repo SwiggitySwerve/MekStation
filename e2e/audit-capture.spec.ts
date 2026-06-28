@@ -139,10 +139,9 @@ test.describe('UX Audit Capture Suite @audit', () => {
       });
     });
 
-    // fixme(RC2 / tracker T2-F1): /contacts fetches /api/vault/contacts
-    // (src/pages/contacts.tsx:40) but src/pages/api/vault/ has no contacts
-    // route — the page can only render its error state. Implement-or-descope
-    // decision tracked in docs/audits/2026-06-09-remediation-tracker.md.
+    // fixme(RC2 / tracker T2-F1): screenshot-baseline ownership remains
+    // under audit-capture; primary route behavior is covered by
+    // e2e/app-shell-route-proof.spec.ts and the vault contacts API route tests.
     test.fixme('Contacts page', async ({ page }) => {
       await page.goto('/contacts');
       await waitForPageReady(page);
@@ -317,11 +316,9 @@ test.describe('UX Audit Capture Suite @audit', () => {
       });
     });
 
-    // fixme(RC2 / tracker T2-F1): /shared fetches /api/vault/shared and
-    // /api/vault/sync (src/pages/shared.tsx:37,61) — neither route exists
-    // under src/pages/api/vault/, so the page can only render its error
-    // state. Implement-or-descope decision tracked in
-    // docs/audits/2026-06-09-remediation-tracker.md.
+    // fixme(RC2 / tracker T2-F1): screenshot-baseline ownership remains
+    // under audit-capture; primary route behavior is covered by
+    // e2e/app-shell-route-proof.spec.ts and the vault shared/sync API tests.
     test.fixme('Shared items - received', async ({ page }) => {
       await page.goto('/shared');
       await waitForPageReady(page);
@@ -335,8 +332,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
     test.fixme('Shared items - sent', async ({ page }) => {
       await page.goto('/shared');
       await waitForPageReady(page);
-      // Click "Shared by me" tab if available
-      const sentTab = await page.$('button:has-text("Shared by me")');
+      const sentTab = await page.$('button:has-text("My Shared Items")');
       if (sentTab) {
         await sentTab.click();
         await page.waitForTimeout(300);

@@ -36,6 +36,8 @@
         "/audit/timeline",
         "/replay-library",
         "/share",
+        "/contacts",
+        "/shared",
         "/settings",
         "/settings#vault"
       ],

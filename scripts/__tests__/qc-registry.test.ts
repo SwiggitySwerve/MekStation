@@ -247,10 +247,25 @@ describe('QC registry validator', () => {
 
   it('rejects known app-shell route gaps without tracking context', () => {
     const manifest = readJson<{
-      knownGapRoutes: Array<{ reason: string; tracking: string }>;
+      knownGapRoutes: Array<{
+        label: string;
+        patterns: string[];
+        reason: string;
+        tracking: string;
+      }>;
+      primaryRoutes: Array<{ path: string; label: string }>;
     }>(path.join(repoRoot, 'e2e/app-shell-route-manifest.json'));
-    manifest.knownGapRoutes[0].reason = '';
-    manifest.knownGapRoutes[0].tracking = '';
+    manifest.primaryRoutes = manifest.primaryRoutes.filter(
+      (route) => route.path !== '/contacts',
+    );
+    manifest.knownGapRoutes = [
+      {
+        label: 'synthetic known route gap',
+        patterns: ['/contacts'],
+        reason: '',
+        tracking: '',
+      },
+    ];
 
     const manifestPath = path.join(tempDir, 'app-shell-route-manifest.json');
     writeJson(manifestPath, manifest);

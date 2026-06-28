@@ -353,6 +353,39 @@ const routeProofs: readonly RouteProof[] = [
     ],
   },
   {
+    path: '/contacts',
+    label: 'vault contacts',
+    pageTitle: 'Contacts',
+    affordances: [
+      { label: 'add contact action', role: 'button', name: /Add Contact/i },
+    ],
+    stateAffordances: [
+      { label: 'contacts empty state', text: /No contacts yet/i },
+      {
+        label: 'first contact action',
+        role: 'button',
+        name: /Add Your First Contact/i,
+      },
+    ],
+  },
+  {
+    path: '/shared',
+    label: 'shared items',
+    pageTitle: 'Shared Items',
+    affordances: [
+      { label: 'sync action', role: 'button', name: /Sync Now/i },
+      { label: 'received tab', role: 'button', name: /Shared with Me/i },
+      { label: 'owned shares tab', role: 'button', name: /My Shared Items/i },
+    ],
+    stateAffordances: [
+      { label: 'shared empty state', text: /Nothing shared with you yet/i },
+      {
+        label: 'owned shares empty state',
+        text: /You haven't shared anything yet/i,
+      },
+    ],
+  },
+  {
     path: '/share/e2e-missing-token',
     label: 'invalid share token',
     heading: 'Share Link Not Found',

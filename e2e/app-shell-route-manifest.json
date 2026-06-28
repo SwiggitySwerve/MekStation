@@ -26,6 +26,8 @@
     { "path": "/audit/timeline", "label": "event timeline" },
     { "path": "/replay-library", "label": "replay library" },
     { "path": "/share", "label": "share links" },
+    { "path": "/contacts", "label": "vault contacts" },
+    { "path": "/shared", "label": "shared items" },
     { "path": "/settings#vault", "label": "settings vault hash" },
     { "path": "/settings", "label": "settings" }
   ],
@@ -152,14 +154,7 @@
       "reason": "Custom unit detail routes need a generated saved unit before page identity and action recovery are meaningful."
     }
   ],
-  "knownGapRoutes": [
-    {
-      "label": "vault contacts and shared inbox routes",
-      "patterns": ["/contacts", "/shared"],
-      "tracking": "e2e/audit-capture.spec.ts RC2 / tracker T2-F1 fixme notes",
-      "reason": "The pages currently request missing /api/vault/contacts, /api/vault/shared, and /api/vault/sync endpoints, so they are tracked as known route gaps instead of green app-shell proof."
-    }
-  ],
+  "knownGapRoutes": [],
   "testHarnessRoutes": [
     {
       "label": "development and E2E-only harness routes",
