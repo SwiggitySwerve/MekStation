@@ -1496,7 +1496,7 @@
       "parentId": null,
       "riskTags": ["maintainability", "velocity", "regression"],
       "qualityLenses": ["maintainability", "test-quality", "functionality"],
-      "coverageStatus": "active-review",
+      "coverageStatus": "ready-with-scope",
       "routes": [],
       "apis": [],
       "desktopSurfaces": [],
@@ -1523,7 +1523,7 @@
       ],
       "commands": [
         "npm.cmd run qc:validate",
-        "npm.cmd run qc:select -- --status=active-review",
+        "npm.cmd run qc:select -- --surface=maintenance-code-health",
         "npm.cmd run maintain:scan:gate",
         "node scripts/qc/validate-maintenance-warning-ledger.mjs",
         "npm.cmd run maintain:scan -- --scope=src --limit=80"
@@ -1618,7 +1618,8 @@
         "docs/qc/maintenance-baseline.json",
         "docs/qc/maintenance-warning-ledger.json",
         "scripts/qc/validate-maintenance-warning-ledger.mjs",
-        "2026-06-27 validate-bv architecture split moved the BattleMech BV calculation engine into focused calculator, crit-scan, ammo-resolution, weapon-resolution, known-unit, normalizer, and type modules; the original validate-bv.ts critical file-bloat finding is fixed, with three high file-bloat follow-ups tracked for the remaining validator submodules."
+        "2026-06-27 validate-bv architecture split moved the BattleMech BV calculation engine into focused calculator, crit-scan, ammo-resolution, weapon-resolution, known-unit, normalizer, and type modules; the original validate-bv.ts critical file-bloat finding is fixed, with three high file-bloat follow-ups tracked for the remaining validator submodules.",
+        "2026-06-28 maintenance release scope promoted to ready-with-scope after `verify:qc:maintenance` and `qc:app-completion -- --json` proved the src critical/high regression gate, repo-wide warning ledger accounting, and remaining follow-up/accepted warning debt are machine-checkable instead of hidden release blockers."
       ],
       "gaps": [
         "Scanner report is grouped as a regression baseline; avoid broad refactors until findings are selected as validated remediation waves.",
