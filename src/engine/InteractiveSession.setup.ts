@@ -244,11 +244,12 @@ export function buildInteractiveSessionGameConfig(
   turnLimit: number,
   linkage: IInteractiveSessionLinkage,
   optionalRules: readonly string[] = [],
+  victoryConditions: readonly string[] = ['elimination'],
 ): IGameConfig {
   return {
     mapRadius,
     turnLimit,
-    victoryConditions: ['elimination'],
+    victoryConditions: [...victoryConditions],
     optionalRules: [...optionalRules],
     encounterId: linkage.encounterId ?? null,
     campaignId: linkage.campaignId ?? null,

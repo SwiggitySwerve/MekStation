@@ -36,6 +36,7 @@ import {
 import { useToast } from '@/components/shared/Toast';
 import { PageLayout } from '@/components/ui';
 import { useSyncRoomSelector } from '@/lib/p2p/useSyncRoomStore';
+import { buildGameConfigFromEncounter } from '@/services/encounter/encounterToGameSession';
 import { useEncounterSelector } from '@/stores/useEncounterStore';
 import { useForceSelector } from '@/stores/useForceStore';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
@@ -195,6 +196,9 @@ export default function PreBattlePage(): React.ReactElement {
   const launchLinkage = encounter
     ? buildPreBattleLaunchLinkage({ encounter, campaignId, missionId })
     : undefined;
+  const launchGameConfig = encounter
+    ? buildGameConfigFromEncounter(encounter, launchLinkage)
+    : undefined;
 
   const {
     playerUnits: skirmishPlayerUnits,
@@ -224,6 +228,7 @@ export default function PreBattlePage(): React.ReactElement {
     playerForce,
     opponentForce,
     mapConfig: encounter?.mapConfig,
+    gameConfig: launchGameConfig,
     linkage: launchLinkage,
     pilots,
     router,

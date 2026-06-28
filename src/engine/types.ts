@@ -23,6 +23,8 @@ export interface IGameEngineConfig {
   readonly mapRadius?: number;
   /** Maximum turns before draw (default: 30) */
   readonly turnLimit?: number;
+  /** Victory conditions carried into the game session (default: elimination) */
+  readonly victoryConditions?: readonly string[];
   /** Random seed for deterministic playback (default: Date.now()) */
   readonly seed?: number;
   /**

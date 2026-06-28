@@ -116,6 +116,7 @@ type InteractiveSessionConstructorArgs = [
   linkage?: IInteractiveSessionLinkage,
   d6Roller?: D6Roller,
   optionalRules?: readonly string[],
+  victoryConditions?: readonly string[],
 ];
 
 export class InteractiveSession {
@@ -167,6 +168,7 @@ export class InteractiveSession {
       linkage = {},
       d6Roller,
       optionalRules = [],
+      victoryConditions = ['elimination'],
     ] = args;
     this.random = random;
     this.grid = grid;
@@ -192,6 +194,7 @@ export class InteractiveSession {
       turnLimit,
       linkage,
       optionalRules,
+      victoryConditions,
     );
     this.linkage = linkage;
 
@@ -277,6 +280,7 @@ export class InteractiveSession {
       {},
       undefined,
       session.config.optionalRules,
+      session.config.victoryConditions,
     );
     // Replace the fresh Setup-phase session with the replayed one so
     // `currentState` (status / turn / phase / board) matches history.
@@ -325,6 +329,7 @@ export class InteractiveSession {
       {},
       undefined,
       session.config.optionalRules,
+      session.config.victoryConditions,
     );
     // Replace the fresh Setup-phase session with the replayed one so
     // `currentState` (status / turn / phase / board) matches history.

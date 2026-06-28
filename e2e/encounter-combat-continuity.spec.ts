@@ -2,10 +2,10 @@
  * Strict encounter -> combat -> campaign continuity proof.
  *
  * This supplements the broader encounter smoke tests with a non-optional path:
- * seeded campaign missions launch through the real pre-battle UI, queue
- * campaign outcomes from auto-resolve, interactive 1v1, and multi-unit
- * interactive play, and apply those outcomes from the post-battle review
- * screen.
+ * seeded and authored campaign missions launch through the real pre-battle UI,
+ * queue campaign outcomes from auto-resolve, interactive 1v1, Custom-template
+ * map authoring, and multi-unit interactive play, and apply those outcomes
+ * from the post-battle review screen.
  *
  * @tags @campaign @encounter @combat @smoke
  */
@@ -13,7 +13,10 @@
 import { expect, test, type Page } from '@playwright/test';
 
 import { createMinimalCampaign } from './fixtures/campaign';
-import { createEncounterWithForces } from './fixtures/encounter';
+import {
+  createEncounterWithForces,
+  type ScenarioTemplateType,
+} from './fixtures/encounter';
 import { assignPilotAndUnit, createTestLance } from './fixtures/force';
 import { createRegularPilot } from './fixtures/pilot';
 
@@ -33,6 +36,9 @@ interface ContinuityProof {
     readonly contractId?: string | null;
     readonly scenarioId?: string | null;
     readonly encounterId?: string | null;
+    readonly mapRadius?: number;
+    readonly turnLimit?: number;
+    readonly victoryConditions?: readonly string[];
   } | null;
   readonly pendingBattleOutcomes: readonly {
     readonly matchId: string;
@@ -52,6 +58,7 @@ interface CampaignEncounterContext {
 interface CampaignEncounterOptions {
   readonly playerUnitIds?: readonly string[];
   readonly opponentUnitIds?: readonly string[];
+  readonly template?: ScenarioTemplateType;
 }
 
 interface AttackResolutionProof {
@@ -212,6 +219,10 @@ async function createCampaignEncounter(
     encounterName,
     playerForceId,
     opponentForceId,
+    {
+      description: `${label} strict continuity encounter`,
+      template: options.template,
+    },
   );
   if (!encounterId) {
     throw new Error(`Failed to create ${label} encounter`);
@@ -790,6 +801,149 @@ test.describe('encounter-combat campaign continuity', () => {
       expect(appliedAfterReload.processedBattleIds).toContain(
         launched.sessionId!,
       );
+    },
+  );
+
+  test(
+    'custom-template pre-battle map authoring persists into campaign combat resolution',
+    { tag: ['@campaign', '@encounter', '@combat', '@smoke'] },
+    async ({ page }) => {
+      await page.goto('/gameplay');
+      await waitForE2EStores(page);
+
+      const { campaignId, missionId, encounterId, encounterName } =
+        await createCampaignEncounter(page, 'Continuity Custom Scenario', {
+          template: 'custom',
+        });
+
+      await page.goto(
+        `/gameplay/encounters/${encounterId}?campaignId=${campaignId}&missionId=${missionId}`,
+      );
+      await expect(page.getByTestId('encounter-detail-page')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId('encounter-template')).toContainText(
+        'Custom',
+      );
+      await expect(page.getByTestId('map-size')).toContainText('13x13');
+      await expect(page.getByTestId('map-terrain')).toContainText('clear');
+      await expect(page.getByTestId('victory-condition-0')).toContainText(
+        'Destroy All Enemies',
+      );
+
+      await page.getByTestId('launch-encounter-btn').click();
+      await page.waitForURL(
+        (url) =>
+          url.pathname === `/gameplay/encounters/${encounterId}/pre-battle` &&
+          url.searchParams.get('campaignId') === campaignId &&
+          url.searchParams.get('missionId') === missionId,
+        { timeout: 20_000 },
+      );
+      await expect(
+        page.getByRole('heading', {
+          name: `Pre-Battle: ${encounterName}`,
+        }),
+      ).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId('scenario-template-card')).toContainText(
+        'Custom',
+      );
+      await expect(page.getByTestId('map-config-editor')).toBeVisible();
+      await expect(page.getByTestId('map-info-card')).toContainText('13x13');
+
+      await page.getByTestId('map-radius-select').selectOption('12');
+      await page.getByTestId('terrain-preset-select').selectOption('rough');
+      await expect(page.getByTestId('map-radius-select')).toHaveValue('12');
+      await expect(page.getByTestId('terrain-preset-select')).toHaveValue(
+        'rough',
+      );
+      await expect(page.getByTestId('map-info-card')).toContainText('25x25');
+      await expect(page.getByTestId('map-info-card')).toContainText('rough');
+
+      await expect(page.getByTestId('play-manually-btn')).toBeEnabled();
+      await page.getByTestId('play-manually-btn').click();
+      await page.waitForURL(
+        new RegExp(
+          `/gameplay/games/[^?]+\\?campaignId=${campaignId}&missionId=${missionId}`,
+        ),
+        { timeout: 30_000 },
+      );
+      await expect(page.getByTestId('game-session')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId('tactical-action-dock')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      const launched = await getContinuityProof(page);
+      expect(launched.sessionId).toBeTruthy();
+      expect(launched.config).toMatchObject({
+        campaignId,
+        contractId: missionId,
+        scenarioId: encounterId,
+        encounterId,
+        mapRadius: 12,
+        turnLimit: 0,
+        victoryConditions: ['destroy_all'],
+      });
+      expect(launched.pendingBattleOutcomes).not.toContainEqual(
+        expect.objectContaining({ matchId: launched.sessionId }),
+      );
+
+      await expect(page.getByTestId('concede-button')).toBeEnabled();
+      await page.getByTestId('concede-button').click();
+      await expect(page.getByTestId('concede-confirm-text')).toContainText(
+        'Concede match?',
+      );
+      await page.getByTestId('concede-confirm').click();
+      await page.waitForURL(
+        new RegExp(`/gameplay/games/${launched.sessionId}/victory`),
+        { timeout: 20_000 },
+      );
+
+      await expect
+        .poll(async () => {
+          const queued = await getContinuityProof(page);
+          return queued.pendingBattleOutcomes.some(
+            (outcome) =>
+              outcome.matchId === launched.sessionId &&
+              outcome.contractId === missionId &&
+              outcome.scenarioId === encounterId,
+          );
+        })
+        .toBe(true);
+
+      await page.goto(`/gameplay/games/${launched.sessionId}/review`);
+      await expect(page.getByTestId('post-battle-review-screen')).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.reload();
+      await waitForE2EStores(page);
+      await expect(page.getByTestId('post-battle-review-screen')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      const queuedAfterReload = await getContinuityProof(page);
+      expect(queuedAfterReload.pendingBattleOutcomes).toContainEqual({
+        matchId: launched.sessionId!,
+        contractId: missionId,
+        scenarioId: encounterId,
+      });
+
+      await page.getByTestId('apply-outcome-cta').click();
+      await page.waitForURL(
+        new RegExp(
+          `/gameplay/campaigns/${campaignId}\\?pendingBattle=${launched.sessionId}`,
+        ),
+        { timeout: 20_000 },
+      );
+
+      const applied = await getContinuityProof(page);
+      expect(applied.pendingBattleOutcomes).not.toContainEqual(
+        expect.objectContaining({ matchId: launched.sessionId }),
+      );
+      expect(applied.processedBattleIds).toContain(launched.sessionId);
     },
   );
 

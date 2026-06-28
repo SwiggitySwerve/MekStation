@@ -7,7 +7,7 @@ import type { IInteractiveSessionLinkage } from '@/engine/InteractiveSession.typ
 import type { SpectatorMode } from '@/stores/useGameplayStore';
 import type { IMapConfiguration } from '@/types/encounter';
 import type { IForce } from '@/types/force';
-import type { IGameSession } from '@/types/gameplay';
+import type { IGameConfig, IGameSession } from '@/types/gameplay';
 import type { IPilot } from '@/types/pilot';
 
 import {
@@ -33,6 +33,10 @@ interface UsePreBattleLaunchOptions {
   playerForce: IForce | undefined;
   opponentForce: IForce | undefined;
   mapConfig: IMapConfiguration | undefined;
+  gameConfig?: Pick<
+    IGameConfig,
+    'mapRadius' | 'turnLimit' | 'victoryConditions' | 'optionalRules'
+  >;
   linkage?: IPreBattleLaunchLinkage;
   pilots: readonly IPilot[];
   router: NextRouter;
@@ -167,6 +171,7 @@ export function usePreBattleLaunch({
   playerForce,
   opponentForce,
   mapConfig,
+  gameConfig,
   linkage,
   pilots,
   router,
@@ -214,10 +219,13 @@ export function usePreBattleLaunch({
           return;
         }
 
-        const mapRadius = mapConfig?.radius ?? 7;
+        const mapRadius = gameConfig?.mapRadius ?? mapConfig?.radius ?? 7;
         const engine = new GameEngine({
           seed: Date.now(),
           mapRadius,
+          turnLimit: gameConfig?.turnLimit,
+          victoryConditions: gameConfig?.victoryConditions,
+          optionalRules: gameConfig?.optionalRules,
           grid: createGridFromTerrainPreset(mapRadius, mapConfig?.terrain),
         });
 
@@ -300,6 +308,7 @@ export function usePreBattleLaunch({
       playerForce,
       opponentForce,
       mapConfig,
+      gameConfig,
       linkage,
       pilots,
       router,
