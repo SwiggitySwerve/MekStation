@@ -5,10 +5,11 @@ import { useStore } from 'zustand';
 import type { ICampaign } from '@/types/campaign/Campaign';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
+import { DeleteCampaignDialog } from '@/components/campaign/CampaignOverviewTab.sections';
 import { CampaignCoopRouteSurfaceConnected } from '@/components/campaign/coop';
 import { CampaignDashboard } from '@/components/campaign/dashboard/CampaignDashboard';
 import { DayReportPanel } from '@/components/campaign/DayReportPanel';
-import { PageLayout } from '@/components/ui';
+import { Button, PageLayout } from '@/components/ui';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   ScenarioGenerator,
@@ -16,6 +17,7 @@ import {
   createDefaultTerrainWeights,
 } from '@/simulation/generator';
 import { installCampaignPersistenceWiring } from '@/stores/campaign/campaignPersistenceWiring';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
@@ -81,6 +83,8 @@ export default function CampaignDashboardPage(): React.ReactElement {
   const auditEntries = useDailyBattleAudit();
   const applyErrors = useOutcomeApplyErrors();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const {
     dayReports,
@@ -163,6 +167,41 @@ export default function CampaignDashboardPage(): React.ReactElement {
     },
     [router],
   );
+
+  const handleDeleteCampaign = useCallback(async () => {
+    if (!campaign) {
+      return;
+    }
+
+    setDeleteError(null);
+    try {
+      const response = await fetch(
+        `/api/campaigns/${encodeURIComponent(campaign.id)}`,
+        { method: 'DELETE' },
+      );
+      if (!response.ok) {
+        throw new Error(`server responded ${response.status}`);
+      }
+
+      store.setState({
+        campaign: null,
+        forcesStore: null,
+        missionsStore: null,
+        pendingBattleOutcomes: [],
+        processedBattleIds: [],
+        reviewedBattleIds: {},
+        outcomeApplyErrors: {},
+        activityLog: [],
+      });
+      useCampaignPersistenceStore.getState().reset();
+      setShowDeleteConfirm(false);
+      await router.push('/gameplay/campaigns');
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'failed to delete campaign';
+      setDeleteError(`Campaign could not be deleted: ${message}`);
+    }
+  }, [campaign, router, store]);
 
   if (!isClient) {
     return <CampaignLoadingState />;
@@ -256,6 +295,31 @@ export default function CampaignDashboardPage(): React.ReactElement {
         onNavigate={handleNavigate}
       />
       <CampaignInformationCard campaign={campaign} />
+
+      {deleteError && (
+        <p
+          className="mt-4 rounded-lg border border-red-700 bg-red-950/40 p-3 text-sm text-red-200"
+          data-testid="delete-campaign-error"
+        >
+          {deleteError}
+        </p>
+      )}
+
+      <div className="border-border-theme-subtle mt-6 flex justify-end border-t pt-6">
+        <Button
+          variant="danger"
+          onClick={() => setShowDeleteConfirm(true)}
+          data-testid="delete-campaign-btn"
+        >
+          Delete Campaign
+        </Button>
+      </div>
+      <DeleteCampaignDialog
+        open={showDeleteConfirm}
+        campaignName={campaign.name}
+        onCancel={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDeleteCampaign}
+      />
     </PageLayout>
   );
 }
