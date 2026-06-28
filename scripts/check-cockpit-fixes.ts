@@ -2,19 +2,15 @@
  * Find overcalculated units that would be fixed by 0.95 cockpit modifier.
  * Analyze their HEAD crit layout to find a reliable detection pattern.
  */
-import * as fs from 'fs';
-import * as path from 'path';
+import * as bvAnalysis from './bv-analysis-helpers';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const report = bvAnalysis.loadBvValidationReport();
+const idx = bvAnalysis.loadBattleMechIndex();
+const loadUnit = bvAnalysis.createBattleMechUnitLoader(idx);
 
-function loadUnit(unitId: string): any {
-  const ie = idx.units.find((e: any) => e.id === unitId);
-  if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
-}
-
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null);
+const valid = report.allResults.filter(
+  (x: any) => x.status !== 'error' && x.percentDiff !== null,
+);
 const outside1 = valid.filter((x: any) => Math.abs(x.percentDiff) > 1);
 
 // Find overcalculated units fixed by 0.95 cockpit
@@ -35,14 +31,25 @@ for (const u of fixableUnits) {
   const unit = loadUnit(u.unitId);
   if (!unit) continue;
   const headSlots = unit.criticalSlots?.HEAD;
-  const lsCount = headSlots?.filter((s: string | null) => s && s.includes('Life Support')).length ?? 0;
-  const sensorCount = headSlots?.filter((s: string | null) => s && s.includes('Sensors')).length ?? 0;
-  const cockpitStr = headSlots?.filter((s: string | null) => s && s.toLowerCase().includes('cockpit')).length ?? 0;
+  const lsCount =
+    headSlots?.filter((s: string | null) => s && s.includes('Life Support'))
+      .length ?? 0;
+  const sensorCount =
+    headSlots?.filter((s: string | null) => s && s.includes('Sensors'))
+      .length ?? 0;
+  const cockpitStr =
+    headSlots?.filter(
+      (s: string | null) => s && s.toLowerCase().includes('cockpit'),
+    ).length ?? 0;
   const slot4 = headSlots?.[3];
 
-  console.log(`  ${u.unitId.padEnd(40)} diff=+${u.difference} (${u.percentDiff.toFixed(1)}%) cockpit=${unit.cockpit || 'STANDARD'}`);
+  console.log(
+    `  ${u.unitId.padEnd(40)} diff=+${u.difference} (${u.percentDiff.toFixed(1)}%) cockpit=${unit.cockpit || 'STANDARD'}`,
+  );
   console.log(`    HEAD: [${headSlots?.join(', ')}]`);
-  console.log(`    LS=${lsCount} Sensors=${sensorCount} CockpitSlots=${cockpitStr} slot4=${slot4}`);
+  console.log(
+    `    LS=${lsCount} Sensors=${sensorCount} CockpitSlots=${cockpitStr} slot4=${slot4}`,
+  );
   console.log(`    Would become: ${u.recalcBV} (${u.recalcPct.toFixed(1)}%)`);
   console.log('');
 }
@@ -55,10 +62,13 @@ for (const u of fixableUnits) {
   const unit = loadUnit(u.unitId);
   if (!unit) continue;
   const headSlots = unit.criticalSlots?.HEAD;
-  const lsCount = headSlots?.filter((s: string | null) => s && s.includes('Life Support')).length ?? 0;
+  const lsCount =
+    headSlots?.filter((s: string | null) => s && s.includes('Life Support'))
+      .length ?? 0;
   const slot4 = headSlots?.[3];
   if (lsCount !== 1) allHaveLsCount1 = false;
-  if (!slot4 || typeof slot4 !== 'string' || !slot4.includes('Sensors')) allHaveSlot4Sensors = false;
+  if (!slot4 || typeof slot4 !== 'string' || !slot4.includes('Sensors'))
+    allHaveSlot4Sensors = false;
 }
 console.log(`  All have lsCount=1: ${allHaveLsCount1}`);
 console.log(`  All have slot4=Sensors: ${allHaveSlot4Sensors}`);
@@ -73,14 +83,17 @@ for (const u of valid) {
   const unit = loadUnit(u.unitId);
   if (!unit) continue;
   const headSlots = unit.criticalSlots?.HEAD;
-  const lsCount = headSlots?.filter((s: string | null) => s && s.includes('Life Support')).length ?? 0;
+  const lsCount =
+    headSlots?.filter((s: string | null) => s && s.includes('Life Support'))
+      .length ?? 0;
   const b = u.breakdown;
   if (!b) continue;
 
   // Currently detected as small?
   const currentlySmall = b.cockpitModifier < 1;
   // Would be detected as small with lsCount=1?
-  const wouldBeSmall = lsCount === 1 && (unit.cockpit || 'STANDARD').toUpperCase() === 'STANDARD';
+  const wouldBeSmall =
+    lsCount === 1 && (unit.cockpit || 'STANDARD').toUpperCase() === 'STANDARD';
 
   if (wouldBeSmall && !currentlySmall) {
     // New detection
@@ -111,14 +124,20 @@ for (const u of valid) {
 
   const currentlySmall = b.cockpitModifier < 1;
   const unitCockpit = (unit.cockpit || 'STANDARD').toUpperCase();
-  const wouldBeSmall = unitCockpit.includes('SMALL') || unitCockpit.includes('TORSO') || unitCockpit.includes('DRONE') || unitCockpit.includes('INTERFACE');
+  const wouldBeSmall =
+    unitCockpit.includes('SMALL') ||
+    unitCockpit.includes('TORSO') ||
+    unitCockpit.includes('DRONE') ||
+    unitCockpit.includes('INTERFACE');
 
   if (currentlySmall && !wouldBeSmall) {
     // Removing heuristic: would set this to 1.0 instead of 0.95
     const recalcBV = Math.round((b.defensiveBV + b.offensiveBV) * 1.0);
     const recalcPct = ((recalcBV - u.indexBV) / u.indexBV) * 100;
-    if (Math.abs(recalcPct) <= 1 && Math.abs(u.percentDiff) > 1) noHeuristicFix++;
-    if (Math.abs(recalcPct) > 1 && Math.abs(u.percentDiff) <= 1) noHeuristicBreak++;
+    if (Math.abs(recalcPct) <= 1 && Math.abs(u.percentDiff) > 1)
+      noHeuristicFix++;
+    if (Math.abs(recalcPct) > 1 && Math.abs(u.percentDiff) <= 1)
+      noHeuristicBreak++;
   }
 }
 console.log(`  Would fix: ${noHeuristicFix}`);

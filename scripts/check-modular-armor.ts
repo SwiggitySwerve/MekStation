@@ -1,24 +1,25 @@
 /**
  * Count units with Modular Armor and check impact.
  */
-import * as fs from 'fs';
-import * as path from 'path';
+import * as bvAnalysis from './bv-analysis-helpers';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const report = bvAnalysis.loadBvValidationReport();
+const idx = bvAnalysis.loadBattleMechIndex();
+const loadUnit = bvAnalysis.createBattleMechUnitLoader(idx);
 
-function loadUnit(unitId: string): any {
-  const ie = idx.units.find((e: any) => e.id === unitId);
-  if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
-}
-
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null);
+const valid = report.allResults.filter(
+  (x: any) => x.status !== 'error' && x.percentDiff !== null,
+);
 
 let totalWithModArmor = 0;
 let underWithModArmor = 0;
 let exactWithModArmor = 0;
-const modArmorUnits: Array<{ id: string; count: number; status: string; pctDiff: number }> = [];
+const modArmorUnits: Array<{
+  id: string;
+  count: number;
+  status: string;
+  pctDiff: number;
+}> = [];
 
 for (const u of valid) {
   const unit = loadUnit(u.unitId);
@@ -28,7 +29,10 @@ for (const u of valid) {
     if (!Array.isArray(slots)) continue;
     for (const s of slots as string[]) {
       if (!s || typeof s !== 'string') continue;
-      if (s.toLowerCase().includes('modulararmor') || s.toLowerCase().includes('modular armor')) {
+      if (
+        s.toLowerCase().includes('modulararmor') ||
+        s.toLowerCase().includes('modular armor')
+      ) {
         modCount++;
       }
     }
@@ -37,7 +41,12 @@ for (const u of valid) {
     totalWithModArmor++;
     if (u.status === 'exact') exactWithModArmor++;
     if (u.percentDiff < -1) underWithModArmor++;
-    modArmorUnits.push({ id: u.unitId, count: modCount, status: u.status, pctDiff: u.percentDiff || 0 });
+    modArmorUnits.push({
+      id: u.unitId,
+      count: modCount,
+      status: u.status,
+      pctDiff: u.percentDiff || 0,
+    });
   }
 }
 
@@ -48,5 +57,7 @@ console.log(`Undercalculated >1%: ${underWithModArmor}`);
 console.log('');
 
 for (const u of modArmorUnits.sort((a, b) => a.pctDiff - b.pctDiff)) {
-  console.log(`  ${u.id.padEnd(40)} slots=${u.count} pct=${u.pctDiff.toFixed(1)}% status=${u.status}`);
+  console.log(
+    `  ${u.id.padEnd(40)} slots=${u.count} pct=${u.pctDiff.toFixed(1)}% status=${u.status}`,
+  );
 }

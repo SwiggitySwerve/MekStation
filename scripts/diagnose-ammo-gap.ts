@@ -4,26 +4,45 @@
  * Also check for "data quality" issues: units with ammo-consuming weapons
  * but zero ammo entries.
  */
-import * as fs from 'fs';
-import * as path from 'path';
+import * as bvAnalysis from './bv-analysis-helpers';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const report = bvAnalysis.loadBvValidationReport();
+const idx = bvAnalysis.loadBattleMechIndex();
+const loadUnit = bvAnalysis.createBattleMechUnitLoader(idx);
 
-function loadUnit(unitId: string): any {
-  const ie = idx.units.find((e: any) => e.id === unitId);
-  if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
-}
-
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null);
+const valid = report.allResults.filter(
+  (x: any) => x.status !== 'error' && x.percentDiff !== null,
+);
 const under = valid.filter((x: any) => x.percentDiff < -1 && x.breakdown);
 
 // Check for units with ballistic/missile weapons that need ammo but have zero ammo
 console.log('=== MISSING AMMO CHECK ===');
-const ammoNeeding = ['ac-', 'uac-', 'lb-', 'lrm-', 'srm-', 'mrm-', 'mml-', 'atm-', 'iatm-', 'streak-', 'hag-',
-  'gauss', 'rac-', 'thunderbolt', 'arrow-iv', 'narc', 'sniper', 'long-tom', 'thumper',
-  'rotary-ac', 'hvac-', 'light-ac-', 'machine-gun', 'mg'];
+const ammoNeeding = [
+  'ac-',
+  'uac-',
+  'lb-',
+  'lrm-',
+  'srm-',
+  'mrm-',
+  'mml-',
+  'atm-',
+  'iatm-',
+  'streak-',
+  'hag-',
+  'gauss',
+  'rac-',
+  'thunderbolt',
+  'arrow-iv',
+  'narc',
+  'sniper',
+  'long-tom',
+  'thumper',
+  'rotary-ac',
+  'hvac-',
+  'light-ac-',
+  'machine-gun',
+  'mg',
+];
 let missingAmmoUnits = 0;
 const missingAmmoExamples: string[] = [];
 
@@ -36,19 +55,30 @@ for (const u of under) {
     const lo = eq.id.toLowerCase().replace(/^\d+-/, '');
     if (lo.includes('ammo')) continue;
     for (const pat of ammoNeeding) {
-      if (lo.includes(pat) || lo.replace(/^(?:is|cl|clan)-?/, '').includes(pat)) {
+      if (
+        lo.includes(pat) ||
+        lo.replace(/^(?:is|cl|clan)-?/, '').includes(pat)
+      ) {
         ammoWeapons.push(eq.id);
         break;
       }
     }
   }
 
-  const hasAmmo = unit.equipment.some((eq: any) => eq.id.toLowerCase().includes('ammo'));
+  const hasAmmo = unit.equipment.some((eq: any) =>
+    eq.id.toLowerCase().includes('ammo'),
+  );
 
   let critAmmo = false;
   if (unit.criticalSlots) {
     for (const [, slots] of Object.entries(unit.criticalSlots)) {
-      if (Array.isArray(slots) && slots.some((s: any) => s && typeof s === 'string' && s.toLowerCase().includes('ammo'))) {
+      if (
+        Array.isArray(slots) &&
+        slots.some(
+          (s: any) =>
+            s && typeof s === 'string' && s.toLowerCase().includes('ammo'),
+        )
+      ) {
         critAmmo = true;
         break;
       }
@@ -62,14 +92,23 @@ for (const u of under) {
     const neededTotal = u.indexBV / cockpit;
     const neededOff = neededTotal - b.defensiveBV;
     const neededBase = neededOff / b.speedFactor;
-    const currentBase = b.weaponBV + b.ammoBV + b.weightBonus + (b.physicalWeaponBV ?? 0) + (b.offEquipBV ?? 0);
+    const currentBase =
+      b.weaponBV +
+      b.ammoBV +
+      b.weightBonus +
+      (b.physicalWeaponBV ?? 0) +
+      (b.offEquipBV ?? 0);
     const baseGap = neededBase - currentBase;
     if (missingAmmoExamples.length < 20) {
-      missingAmmoExamples.push(`${u.unitId}: weapons=[${ammoWeapons.join(', ')}] ammo=NONE gap=${Math.round(baseGap)}`);
+      missingAmmoExamples.push(
+        `${u.unitId}: weapons=[${ammoWeapons.join(', ')}] ammo=NONE gap=${Math.round(baseGap)}`,
+      );
     }
   }
 }
-console.log(`Units with ammo-needing weapons but NO ammo: ${missingAmmoUnits}/${under.length}`);
+console.log(
+  `Units with ammo-needing weapons but NO ammo: ${missingAmmoUnits}/${under.length}`,
+);
 for (const e of missingAmmoExamples) console.log(`  ${e}`);
 
 // Check for units where ammoBV is 0 but they have ammo in crits
@@ -100,14 +139,23 @@ for (const u of under) {
     const neededTotal = u.indexBV / cockpit;
     const neededOff = neededTotal - b.defensiveBV;
     const neededBase = neededOff / b.speedFactor;
-    const currentBase = b.weaponBV + b.ammoBV + b.weightBonus + (b.physicalWeaponBV ?? 0) + (b.offEquipBV ?? 0);
+    const currentBase =
+      b.weaponBV +
+      b.ammoBV +
+      b.weightBonus +
+      (b.physicalWeaponBV ?? 0) +
+      (b.offEquipBV ?? 0);
     const baseGap = neededBase - currentBase;
     if (zeroBVExamples.length < 20) {
-      zeroBVExamples.push(`${u.unitId}: ammoBV=0 critAmmoSlots=${critAmmoCount} types=[${ammoTypes.slice(0, 3).join('; ')}] gap=${Math.round(baseGap)}`);
+      zeroBVExamples.push(
+        `${u.unitId}: ammoBV=0 critAmmoSlots=${critAmmoCount} types=[${ammoTypes.slice(0, 3).join('; ')}] gap=${Math.round(baseGap)}`,
+      );
     }
   }
 }
-console.log(`Units with ammoBV=0 but ammo in crits: ${zeroBVWithAmmo}/${under.length}`);
+console.log(
+  `Units with ammoBV=0 but ammo in crits: ${zeroBVWithAmmo}/${under.length}`,
+);
 for (const e of zeroBVExamples) console.log(`  ${e}`);
 
 // Check ammo BV as fraction of gap
@@ -122,12 +170,23 @@ for (const u of under) {
   const neededTotal = u.indexBV / cockpit;
   const neededOff = neededTotal - b.defensiveBV;
   const neededBase = neededOff / b.speedFactor;
-  const currentBase = b.weaponBV + b.ammoBV + b.weightBonus + (b.physicalWeaponBV ?? 0) + (b.offEquipBV ?? 0);
+  const currentBase =
+    b.weaponBV +
+    b.ammoBV +
+    b.weightBonus +
+    (b.physicalWeaponBV ?? 0) +
+    (b.offEquipBV ?? 0);
   const baseGap = neededBase - currentBase;
 
-  if (baseGap <= 0) { ammoExplainsNone++; continue; }
+  if (baseGap <= 0) {
+    ammoExplainsNone++;
+    continue;
+  }
 
-  if (b.ammoBV === 0) { ammoExplainsNone++; continue; }
+  if (b.ammoBV === 0) {
+    ammoExplainsNone++;
+    continue;
+  }
 
   const ammoPctOfGap = b.ammoBV / baseGap;
   if (ammoPctOfGap >= 1.0) ammoExplainsAll++;
@@ -149,12 +208,19 @@ for (const pctIncrease of [2, 5, 10, 15, 20]) {
     const b = u.breakdown;
     const cockpit = b.cockpitModifier ?? 1.0;
     const newWeaponBV = b.weaponBV * (1 + pctIncrease / 100);
-    const newBase = newWeaponBV + b.ammoBV + b.weightBonus + (b.physicalWeaponBV ?? 0) + (b.offEquipBV ?? 0);
+    const newBase =
+      newWeaponBV +
+      b.ammoBV +
+      b.weightBonus +
+      (b.physicalWeaponBV ?? 0) +
+      (b.offEquipBV ?? 0);
     const newOff = newBase * b.speedFactor;
     const newBV = Math.round((b.defensiveBV + newOff) * cockpit);
-    if (Math.abs(newBV - u.indexBV) / u.indexBV * 100 <= 1) fixed++;
+    if ((Math.abs(newBV - u.indexBV) / u.indexBV) * 100 <= 1) fixed++;
   }
-  console.log(`  +${pctIncrease}% weaponBV: ${fixed}/${under.length} units fixed`);
+  console.log(
+    `  +${pctIncrease}% weaponBV: ${fixed}/${under.length} units fixed`,
+  );
 }
 
 // Check how many units have ammo in crits but NOT in equipment list
@@ -185,9 +251,13 @@ for (const u of under) {
   if (critAmmoTypes.size > 0 && equipAmmoIds.size === 0) {
     critOnlyAmmo++;
     if (critOnlyExamples.length < 15) {
-      critOnlyExamples.push(`${u.unitId}: critAmmo=[${[...critAmmoTypes].slice(0, 3).join(', ')}] equipAmmo=NONE`);
+      critOnlyExamples.push(
+        `${u.unitId}: critAmmo=[${[...critAmmoTypes].slice(0, 3).join(', ')}] equipAmmo=NONE`,
+      );
     }
   }
 }
-console.log(`Units with ammo in crits but NOT in equipment: ${critOnlyAmmo}/${under.length}`);
+console.log(
+  `Units with ammo in crits but NOT in equipment: ${critOnlyAmmo}/${under.length}`,
+);
 for (const e of critOnlyExamples) console.log(`  ${e}`);

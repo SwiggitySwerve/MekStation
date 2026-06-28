@@ -2,19 +2,15 @@
  * Check how MASC/SC heat change affects BV accuracy.
  * Compare units with MASC/SC in the validation report.
  */
-import * as fs from 'fs';
-import * as path from 'path';
+import * as bvAnalysis from './bv-analysis-helpers';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const report = bvAnalysis.loadBvValidationReport();
+const idx = bvAnalysis.loadBattleMechIndex();
+const loadUnit = bvAnalysis.createBattleMechUnitLoader(idx);
 
-function loadUnit(unitId: string): any {
-  const ie = idx.units.find((e: any) => e.id === unitId);
-  if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
-}
-
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null);
+const valid = report.allResults.filter(
+  (x: any) => x.status !== 'error' && x.percentDiff !== null,
+);
 
 // Find all units where the breakdown shows MASC or SC
 let mascCount = 0;
@@ -38,9 +34,13 @@ for (const u of valid) {
       if (!Array.isArray(slots)) continue;
       for (const s of slots) {
         if (!s || typeof s !== 'string') continue;
-        const lo = (s as string).replace(/\s*\(omnipod\)/gi, '').trim().toLowerCase();
+        const lo = (s as string)
+          .replace(/\s*\(omnipod\)/gi, '')
+          .trim()
+          .toLowerCase();
         if (lo.includes('masc') && !lo.includes('ammo')) hasMASC = true;
-        if (lo.includes('supercharger') || lo.includes('super charger')) hasSC = true;
+        if (lo.includes('supercharger') || lo.includes('super charger'))
+          hasSC = true;
       }
     }
   }
@@ -61,7 +61,9 @@ for (const u of valid) {
   if (pct > 1) {
     const walk = unit.movement?.walk || 0;
     const normalRun = Math.ceil(walk * 1.5);
-    console.log(`${u.unitId.padEnd(45)} ${u.percentDiff > 0 ? '+' : ''}${u.percentDiff.toFixed(1)}% walk=${walk} run=${b.runMP} normalRun=${normalRun} MASC=${hasMASC} SC=${hasSC} HE=${b.heatEfficiency} SF=${b.speedFactor}`);
+    console.log(
+      `${u.unitId.padEnd(45)} ${u.percentDiff > 0 ? '+' : ''}${u.percentDiff.toFixed(1)}% walk=${walk} run=${b.runMP} normalRun=${normalRun} MASC=${hasMASC} SC=${hasSC} HE=${b.heatEfficiency} SF=${b.speedFactor}`,
+    );
   }
 }
 
