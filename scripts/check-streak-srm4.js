@@ -1,19 +1,7 @@
-const fs = require('fs');
-const path = require('path');
-const r = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const bvAnalysis = require('./bv-analysis-helpers.cjs');
+const r = bvAnalysis.loadBvValidationReport();
 
-function findJsonFiles(dir) {
-  const results = [];
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) results.push(...findJsonFiles(full));
-    else if (entry.name.endsWith('.json') && entry.name !== 'index.json') results.push(full);
-  }
-  return results;
-}
-const files = findJsonFiles('public/data/units/battlemechs');
-const unitMap = new Map();
-for (const f of files) { try { const d = JSON.parse(fs.readFileSync(f, 'utf8')); unitMap.set(d.id, d); } catch {} }
+const unitMap = bvAnalysis.loadBattleMechUnitMap();
 
 // Find all units with IS Streak SRM-4 (not clan)
 console.log('=== Units with IS Streak SRM-4 ===\n');
@@ -27,9 +15,11 @@ for (const u of r.allResults) {
   if (!data) continue;
 
   // Count IS streak-srm-4 weapons
-  const isStreak4 = data.equipment.filter(e => {
+  const isStreak4 = data.equipment.filter((e) => {
     const id = e.id.toLowerCase();
-    return id === 'streak-srm-4' || id === 'isstreaksrm4' || id === '1-isstreaksrm4';
+    return (
+      id === 'streak-srm-4' || id === 'isstreaksrm4' || id === '1-isstreaksrm4'
+    );
   });
   // Also check crits for SSRM4 that might not be in equipment list
   const crits = JSON.stringify(data.criticalSlots || {}).toLowerCase();
@@ -51,24 +41,34 @@ for (const u of r.allResults) {
 
   streakCount++;
   const estNewBV = u.calculatedBV + Math.round(bvDelta * sf * cockpitMod);
-  const newDiff = ((estNewBV - u.indexBV) / u.indexBV * 100);
+  const newDiff = ((estNewBV - u.indexBV) / u.indexBV) * 100;
   const wasOutside = Math.abs(u.percentDiff) > 1;
   const nowInside = Math.abs(newDiff) <= 1;
 
   if (wasOutside) affectedOutside++;
   if (wasOutside && nowInside) wouldFix++;
 
-  const label = wasOutside ? (nowInside ? '[FIX]' : '[STILL OUT]') : (Math.abs(newDiff) > 1 ? '[REGRESS]' : '[OK]');
+  const label = wasOutside
+    ? nowInside
+      ? '[FIX]'
+      : '[STILL OUT]'
+    : Math.abs(newDiff) > 1
+      ? '[REGRESS]'
+      : '[OK]';
   affected.push({ ...u, numWeapons, bvDelta, estNewBV, newDiff, label });
 }
 
 // Sort by impact
 affected.sort((a, b) => a.percentDiff - b.percentDiff);
 for (const u of affected) {
-  console.log(`${u.label} ${u.chassis} ${u.model}: ${u.numWeapons}x SSRM4 | cur=${u.percentDiff.toFixed(2)}% new=${u.newDiff.toFixed(2)}% | ref=${u.indexBV} cur=${u.calculatedBV} est=${u.estNewBV}`);
+  console.log(
+    `${u.label} ${u.chassis} ${u.model}: ${u.numWeapons}x SSRM4 | cur=${u.percentDiff.toFixed(2)}% new=${u.newDiff.toFixed(2)}% | ref=${u.indexBV} cur=${u.calculatedBV} est=${u.estNewBV}`,
+  );
 }
 
 console.log(`\nTotal IS units with Streak SRM-4: ${streakCount}`);
 console.log(`Currently outside 1%: ${affectedOutside}`);
 console.log(`Would fix (bring within 1%): ${wouldFix}`);
-console.log(`Would regress: ${affected.filter(u => u.label === '[REGRESS]').length}`);
+console.log(
+  `Would regress: ${affected.filter((u) => u.label === '[REGRESS]').length}`,
+);

@@ -1,30 +1,18 @@
-const fs = require('fs');
-const path = require('path');
-const r = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const bvAnalysis = require('./bv-analysis-helpers.cjs');
+const r = bvAnalysis.loadBvValidationReport();
 
-function findJsonFiles(dir) {
-  const results = [];
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) results.push(...findJsonFiles(full));
-    else if (entry.name.endsWith('.json') && entry.name !== 'index.json') results.push(full);
-  }
-  return results;
-}
+const unitMap = bvAnalysis.loadBattleMechUnitMap();
 
-const files = findJsonFiles('public/data/units/battlemechs');
-const unitMap = new Map();
-for (const f of files) {
-  try { const d = JSON.parse(fs.readFileSync(f, 'utf8')); unitMap.set(d.id, d); } catch {}
-}
-
-const outside1 = r.allResults.filter(u => Math.abs(u.percentDiff) > 1)
+const outside1 = r.allResults
+  .filter((u) => Math.abs(u.percentDiff) > 1)
   .sort((a, b) => a.percentDiff - b.percentDiff);
 
-const under = outside1.filter(u => u.percentDiff < -1);
-const over = outside1.filter(u => u.percentDiff > 1);
+const under = outside1.filter((u) => u.percentDiff < -1);
+const over = outside1.filter((u) => u.percentDiff > 1);
 
-console.log(`Total outside 1%: ${outside1.length} (under: ${under.length}, over: ${over.length})\n`);
+console.log(
+  `Total outside 1%: ${outside1.length} (under: ${under.length}, over: ${over.length})\n`,
+);
 
 // Categorize by features
 const categories = {
@@ -54,18 +42,24 @@ for (const u of outside1) {
 
   const cockpit = data.cockpit || 'UNKNOWN';
   categories.cockpit[cockpit] = (categories.cockpit[cockpit] || 0) + 1;
-  categories.techBase[b.techBase || 'UNKNOWN'] = (categories.techBase[b.techBase || 'UNKNOWN'] || 0) + 1;
+  categories.techBase[b.techBase || 'UNKNOWN'] =
+    (categories.techBase[b.techBase || 'UNKNOWN'] || 0) + 1;
 
   const crits = JSON.stringify(data.criticalSlots || {}).toLowerCase();
-  if (crits.includes('targeting computer') || crits.includes('targcomp')) categories.hasTC++;
+  if (crits.includes('targeting computer') || crits.includes('targcomp'))
+    categories.hasTC++;
   if (crits.includes('artemis')) categories.hasArtemis++;
-  if (crits.includes('mga') || crits.includes('machine gun array')) categories.hasMGA++;
+  if (crits.includes('mga') || crits.includes('machine gun array'))
+    categories.hasMGA++;
   if (crits.includes('insulator')) categories.hasLaserInsulator++;
   if (crits.includes('apollo')) categories.hasApollo++;
   if (crits.includes('bombast')) categories.hasBombast++;
-  if (crits.includes('streaklrm') || crits.includes('streak lrm')) categories.hasStreakLRM++;
+  if (crits.includes('streaklrm') || crits.includes('streak lrm'))
+    categories.hasStreakLRM++;
 
-  const hasQuadLegs = data.criticalSlots && (data.criticalSlots.FRONT_LEFT_LEG || data.criticalSlots.REAR_LEFT_LEG);
+  const hasQuadLegs =
+    data.criticalSlots &&
+    (data.criticalSlots.FRONT_LEFT_LEG || data.criticalSlots.REAR_LEFT_LEG);
   if (hasQuadLegs) categories.isQuad++;
 
   if (cockpit === 'COMMAND_CONSOLE') categories.hasCommandConsole++;
@@ -87,30 +81,43 @@ console.log('Overcalculated by cockpit:', JSON.stringify(overByCockpit));
 
 // Check pattern: for overcalculated, what's the ratio calc/ref?
 console.log('\n=== Overcalculated ratio analysis ===');
-for (const u of over.sort((a,b) => b.percentDiff - a.percentDiff).slice(0, 20)) {
+for (const u of over
+  .sort((a, b) => b.percentDiff - a.percentDiff)
+  .slice(0, 20)) {
   const data = unitMap.get(u.unitId);
   const cockpit = data ? data.cockpit : '?';
   const ratio = (u.calculatedBV / u.indexBV).toFixed(4);
-  const crits = data ? JSON.stringify(data.criticalSlots || {}).toLowerCase() : '';
+  const crits = data
+    ? JSON.stringify(data.criticalSlots || {}).toLowerCase()
+    : '';
   const hasMGA = crits.includes('mga') || crits.includes('machine gun array');
-  const hasTC = crits.includes('targeting computer') || crits.includes('targcomp');
-  console.log(`  ${u.chassis} ${u.model}: +${u.percentDiff.toFixed(2)}% ratio=${ratio} cockpit=${cockpit}${hasMGA ? ' [MGA]' : ''}${hasTC ? ' [TC]' : ''}`);
+  const hasTC =
+    crits.includes('targeting computer') || crits.includes('targcomp');
+  console.log(
+    `  ${u.chassis} ${u.model}: +${u.percentDiff.toFixed(2)}% ratio=${ratio} cockpit=${cockpit}${hasMGA ? ' [MGA]' : ''}${hasTC ? ' [TC]' : ''}`,
+  );
 }
 
 // Check: how many overcalculated units have both MGA and TC?
-let mgaTCover = 0, mgaOnlyOver = 0, tcOnlyOver = 0, neitherOver = 0;
+let mgaTCover = 0,
+  mgaOnlyOver = 0,
+  tcOnlyOver = 0,
+  neitherOver = 0;
 for (const u of over) {
   const data = unitMap.get(u.unitId);
   if (!data) continue;
   const crits = JSON.stringify(data.criticalSlots || {}).toLowerCase();
   const hasMGA = crits.includes('mga') || crits.includes('machine gun array');
-  const hasTC = crits.includes('targeting computer') || crits.includes('targcomp');
+  const hasTC =
+    crits.includes('targeting computer') || crits.includes('targcomp');
   if (hasMGA && hasTC) mgaTCover++;
   else if (hasMGA) mgaOnlyOver++;
   else if (hasTC) tcOnlyOver++;
   else neitherOver++;
 }
-console.log(`\nOvercalc: MGA+TC=${mgaTCover}, MGA-only=${mgaOnlyOver}, TC-only=${tcOnlyOver}, neither=${neitherOver}`);
+console.log(
+  `\nOvercalc: MGA+TC=${mgaTCover}, MGA-only=${mgaOnlyOver}, TC-only=${tcOnlyOver}, neither=${neitherOver}`,
+);
 
 // Check Revenant cockpit source — read its MTF-derived data
 const rev = unitMap.get('revenant-ubm-1a');

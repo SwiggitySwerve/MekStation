@@ -21,7 +21,10 @@
     {
       "id": "capability:maintenance-code-health",
       "kind": "capability",
-      "label": "Maintenance Code Health"
+      "label": "Maintenance Code Health",
+      "evidence": [
+        "2026-06-28 JavaScript BV analysis scripts now reuse `scripts/bv-analysis-helpers.cjs` for validation report, JSON corpus discovery, and BattleMech unit-map loading; representative Node scripts pass and the repo-wide near-duplicate warning count drops from one to zero."
+      ]
     },
     {
       "id": "module:roster",
@@ -1570,7 +1573,10 @@
       "id": "surface:maintenance-code-health",
       "kind": "surface",
       "label": "Maintenance Code Health",
-      "coverageStatus": "ready-with-scope"
+      "coverageStatus": "ready-with-scope",
+      "evidence": [
+        "2026-06-28 JavaScript BV analysis scripts now reuse `scripts/bv-analysis-helpers.cjs` for validation report, JSON corpus discovery, and BattleMech unit-map loading; representative Node scripts pass and the repo-wide near-duplicate warning count drops from one to zero."
+      ]
     },
     {
       "id": "state:maintenance-code-health:lifecycle",
