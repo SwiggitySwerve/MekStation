@@ -4,12 +4,9 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const repoRoot = path.resolve(__dirname, '..', '..');
-export const journeyCatalogPath = path.join(
-  repoRoot,
-  'docs',
-  'qc',
-  'mekstation-journey-scenarios.json',
-);
+export const journeyCatalogPath = process.env.MEKSTATION_JOURNEY_CATALOG_PATH
+  ? path.resolve(repoRoot, process.env.MEKSTATION_JOURNEY_CATALOG_PATH)
+  : path.join(repoRoot, 'docs', 'qc', 'mekstation-journey-scenarios.json');
 export const validationGraphPath = process.env
   .MEKSTATION_QC_VALIDATION_GRAPH_PATH
   ? path.resolve(repoRoot, process.env.MEKSTATION_QC_VALIDATION_GRAPH_PATH)

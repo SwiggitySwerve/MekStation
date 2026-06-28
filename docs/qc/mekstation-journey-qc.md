@@ -24,6 +24,9 @@ npm.cmd run qc:logging:validate
 npm.cmd run qc:graph -- --query=mek-build
 npm.cmd run qc:journeys -- --journey=all --tier=smoke
 npm.cmd run qc:journeys -- --journey=mek-build --dry-run
+npm.cmd run verify:qc:character-build
+npm.cmd run verify:qc:mek-build
+npm.cmd run verify:qc:build-journeys
 npm.cmd run qc:journeys -- --journey=combat-1v1 --seed=42 --player-units=1 --opponent-units=1
 npm.cmd run qc:journeys -- --journey=combat-4v4 --seed=42 --player-units=4 --opponent-units=4
 npm.cmd run verify:qc:combat-4v4
@@ -49,15 +52,15 @@ including required checkpoint order for the major journey flows.
 
 ## Supported Journeys
 
-| Journey             | Default mode | Primary module | Default proof                                                 |
-| ------------------- | ------------ | -------------- | ------------------------------------------------------------- |
-| `character-build`   | headless     | roster         | pilot generation and export evidence                          |
-| `mek-build`         | headless     | construction   | BattleMech construction input and export                      |
-| `combat-1v1`        | headless     | combat         | command-backed encounter, tactical rejection, terminal combat |
-| `combat-4v4`        | headless     | combat         | command-backed 4v4 terminal combat plus replay reference      |
-| `contract-campaign` | headless     | campaign       | command-backed contract selection, outcome, economy update    |
-| `campaign-short`    | headless     | campaign       | command-backed 3 to 5 contract sequence                       |
-| `campaign-long`     | headless     | campaign       | command-backed 6 to 10 contract sequence plus stability gate  |
+| Journey             | Default mode | Primary module | Default proof                                                  |
+| ------------------- | ------------ | -------------- | -------------------------------------------------------------- |
+| `character-build`   | headless     | roster         | command-backed pilot generation, route shell, and export proof |
+| `mek-build`         | headless     | construction   | command-backed customizer, BV, and export proof                |
+| `combat-1v1`        | headless     | combat         | command-backed encounter, tactical rejection, terminal combat  |
+| `combat-4v4`        | headless     | combat         | command-backed 4v4 terminal combat plus replay reference       |
+| `contract-campaign` | headless     | campaign       | command-backed contract selection, outcome, economy update     |
+| `campaign-short`    | headless     | campaign       | command-backed 3 to 5 contract sequence                        |
+| `campaign-long`     | headless     | campaign       | command-backed 6 to 10 contract sequence plus stability gate   |
 
 ## UI Flow Shell
 
@@ -141,12 +144,17 @@ metadata:
 - `executionEvidenceSource`: where the backing evidence came from
 
 Use `--require-domain-backed` when you need the run to fail if selected
-required steps are still synthetic/catalog-backed. That strict mode is expected
-to fail until a journey step has a real domain, browser, or hybrid adapter.
-`combat-1v1` is the first promoted journey: its required steps name the
-existing command-backed proofs (`verify:qc:encounter-combat-continuity`,
-`verify:qc:tactical:projection`, and `validate:combat`) and pass strict backing
-mode while the remaining synthetic journeys still fail honestly.
+required steps are still synthetic/catalog-backed. That strict mode fails until
+a journey step has a real domain, browser, or hybrid adapter. `character-build`
+and `mek-build` are promoted through `verify:qc:character-build` and
+`verify:qc:mek-build`, then aggregated by `verify:qc:build-journeys` so pilot
+creation/export and BattleMech customizer/BV/export proof cannot drift back to
+catalog projection.
+
+`combat-1v1` names the existing command-backed proofs
+(`verify:qc:encounter-combat-continuity`, `verify:qc:tactical:projection`, and
+`validate:combat`) and passes strict backing mode alongside the 4v4 and campaign
+journeys.
 
 The campaign journeys are the second promoted family. `verify:qc:campaign-journeys`
 keeps `contract-campaign`, `campaign-short`, and `campaign-long` strict-backed
