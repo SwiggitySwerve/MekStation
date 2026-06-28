@@ -1,24 +1,14 @@
+const bvAnalysis = require('./bv-analysis-helpers.cjs');
 // Trace the heat tracking BV calculation for a specific unit
-const fs = require('fs');
-const path = require('path');
-const r = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const r = bvAnalysis.loadBvValidationReport();
 
-function findJsonFiles(dir) {
-  const results = [];
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) results.push(...findJsonFiles(full));
-    else if (entry.name.endsWith('.json') && entry.name !== 'index.json') results.push(full);
-  }
-  return results;
-}
-const files = findJsonFiles('public/data/units/battlemechs');
-const unitMap = new Map();
-for (const f of files) { try { const d = JSON.parse(fs.readFileSync(f, 'utf8')); unitMap.set(d.id, d); } catch {} }
+const unitMap = bvAnalysis.loadBattleMechUnitMap();
 
 // Focus on overcalculated units with halvedWeaponBV=0 but high total weapon heat
-const outside = r.allResults.filter(u => u.percentDiff > 1);
-console.log('=== Overcalculated units where no weapons are halved but total heat > heat efficiency ===\n');
+const outside = r.allResults.filter((u) => u.percentDiff > 1);
+console.log(
+  '=== Overcalculated units where no weapons are halved but total heat > heat efficiency ===\n',
+);
 
 for (const u of outside) {
   const b = u.breakdown || {};
@@ -34,14 +24,22 @@ for (const u of outside) {
   // This could mean: total heat is less than heatEfficiency
   // OR: there's a bug
 
-  console.log(`${u.chassis} ${u.model}: +${u.percentDiff.toFixed(2)}% gap=+${u.difference}`);
-  console.log(`  weaponBV=${b.weaponBV} rawWeaponBV=${b.rawWeaponBV} halved=${b.halvedWeaponBV}`);
-  console.log(`  heatEff=${b.heatEfficiency} heatDiss=${b.heatDissipation} moveHeat=${b.moveHeat}`);
-  console.log(`  weapons=${b.weaponCount} walkMP=${b.walkMP} runMP=${b.runMP} jumpMP=${b.jumpMP} sf=${b.speedFactor}`);
+  console.log(
+    `${u.chassis} ${u.model}: +${u.percentDiff.toFixed(2)}% gap=+${u.difference}`,
+  );
+  console.log(
+    `  weaponBV=${b.weaponBV} rawWeaponBV=${b.rawWeaponBV} halved=${b.halvedWeaponBV}`,
+  );
+  console.log(
+    `  heatEff=${b.heatEfficiency} heatDiss=${b.heatDissipation} moveHeat=${b.moveHeat}`,
+  );
+  console.log(
+    `  weapons=${b.weaponCount} walkMP=${b.walkMP} runMP=${b.runMP} jumpMP=${b.jumpMP} sf=${b.speedFactor}`,
+  );
 
   const data = unitMap.get(u.unitId);
   if (data) {
-    console.log(`  equipment: ${data.equipment.map(e => e.id).join(', ')}`);
+    console.log(`  equipment: ${data.equipment.map((e) => e.id).join(', ')}`);
   }
   console.log('');
 }

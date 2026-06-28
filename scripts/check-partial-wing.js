@@ -1,19 +1,7 @@
-const fs = require('fs');
-const path = require('path');
-const r = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const bvAnalysis = require('./bv-analysis-helpers.cjs');
+const r = bvAnalysis.loadBvValidationReport();
 
-function findJsonFiles(dir) {
-  const results = [];
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) results.push(...findJsonFiles(full));
-    else if (entry.name.endsWith('.json') && entry.name !== 'index.json') results.push(full);
-  }
-  return results;
-}
-const files = findJsonFiles('public/data/units/battlemechs');
-const unitMap = new Map();
-for (const f of files) { try { const d = JSON.parse(fs.readFileSync(f, 'utf8')); unitMap.set(d.id, d); } catch {} }
+const unitMap = bvAnalysis.loadBattleMechUnitMap();
 
 // Find all units with partial wing
 console.log('=== All Partial Wing units ===\n');
@@ -27,18 +15,22 @@ for (const u of r.allResults) {
 
   const crits = data.criticalSlots || {};
   const allCrits = Object.values(crits).flat().filter(Boolean);
-  const hasPartialWing = allCrits.some(s =>
-    s.toLowerCase().includes('partial') && s.toLowerCase().includes('wing') ||
-    s.toLowerCase().includes('partialwing')
+  const hasPartialWing = allCrits.some(
+    (s) =>
+      (s.toLowerCase().includes('partial') &&
+        s.toLowerCase().includes('wing')) ||
+      s.toLowerCase().includes('partialwing'),
   );
   if (!hasPartialWing) continue;
 
   pwTotal++;
 
   // Count actual JJ slots
-  const jjCount = allCrits.filter(s => {
+  const jjCount = allCrits.filter((s) => {
     const lo = s.toLowerCase();
-    return lo === 'jump jet' || lo === 'improved jump jet' || lo.includes('jumpjet');
+    return (
+      lo === 'jump jet' || lo === 'improved jump jet' || lo.includes('jumpjet')
+    );
   }).length;
 
   const dataJump = data.movement?.jump || 0;
@@ -62,14 +54,24 @@ for (const u of r.allResults) {
     pwDoubleCount++;
     // Estimate fix: what would BV be with correct jumpMP?
     // This affects both speedFactor and defensiveFactor (TMM)
-    console.log(`${u.chassis} ${u.model}: ${u.percentDiff.toFixed(2)}% ref=${u.indexBV} calc=${u.calculatedBV} gap=${u.difference}`);
-    console.log(`  JJ slots: ${jjCount}, data.jump: ${dataJump}, tonnage: ${tonnage}, pwBonus: ${pwBonus}`);
-    console.log(`  Expected with PW: ${expectedWithPW}, jumpUsed: ${actualJumpUsed}, doubleCount: ${doubleCounted}`);
-    console.log(`  jumpIncludesPW: ${jumpIncludesPW}, jumpIsBase: ${jumpIsBase}`);
+    console.log(
+      `${u.chassis} ${u.model}: ${u.percentDiff.toFixed(2)}% ref=${u.indexBV} calc=${u.calculatedBV} gap=${u.difference}`,
+    );
+    console.log(
+      `  JJ slots: ${jjCount}, data.jump: ${dataJump}, tonnage: ${tonnage}, pwBonus: ${pwBonus}`,
+    );
+    console.log(
+      `  Expected with PW: ${expectedWithPW}, jumpUsed: ${actualJumpUsed}, doubleCount: ${doubleCounted}`,
+    );
+    console.log(
+      `  jumpIncludesPW: ${jumpIncludesPW}, jumpIsBase: ${jumpIsBase}`,
+    );
     console.log(`  sf=${b.speedFactor} runMP=${b.runMP} jumpMP=${b.jumpMP}`);
     console.log('');
   } else {
-    console.log(`${u.chassis} ${u.model}: ${u.percentDiff.toFixed(2)}% JJ=${jjCount} data.jump=${dataJump} used=${actualJumpUsed} [NOT DOUBLE-COUNTED]`);
+    console.log(
+      `${u.chassis} ${u.model}: ${u.percentDiff.toFixed(2)}% JJ=${jjCount} data.jump=${dataJump} used=${actualJumpUsed} [NOT DOUBLE-COUNTED]`,
+    );
   }
 }
 

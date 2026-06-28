@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-27",
+  "generatedAt": "2026-06-28",
   "scope": "repo-wide",
   "sourceCommand": "node scripts/maintenance/scan-maintenance.mjs --json",
   "purpose": "Reviewed accounting for Wave 12 maintenance scanner categories outside the src regression gate. Entries are fixed, accepted, or follow-up so repo-wide warnings are not rediscovered manually.",
@@ -23,9 +23,9 @@
       "follow-up": 15
     },
     "near-duplicate": {
-      "fixed": 5,
+      "fixed": 6,
       "accepted": 0,
-      "follow-up": 1
+      "follow-up": 0
     },
     "import-health": {
       "fixed": 0,
@@ -260,9 +260,8 @@
       "severity": "warn",
       "file": "scripts/analyze-engine-armor.js",
       "message": "8-line block cluster appears in 39 files",
-      "status": "follow-up",
-      "rationale": "Secondary analysis boilerplate cluster belongs with the analysis script dedup wave.",
-      "followUps": ["wave-12-analysis-script-dedup"]
+      "status": "fixed",
+      "rationale": "JavaScript BV analysis scripts now share CommonJS validation-report, recursive JSON discovery, and BattleMech unit-map helpers through scripts/bv-analysis-helpers.cjs; the live scanner reports zero near-duplicate warnings."
     },
     {
       "key": "design-violation|critical|e2e/pages/base.page.ts|class has 8 public methods",

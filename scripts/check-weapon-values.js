@@ -1,33 +1,26 @@
-const fs = require('fs');
-const path = require('path');
-const r = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-
-function findJsonFiles(dir) {
-  const results = [];
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) results.push(...findJsonFiles(full));
-    else if (entry.name.endsWith('.json') && entry.name !== 'index.json') results.push(full);
-  }
-  return results;
-}
+const bvAnalysis = require('./bv-analysis-helpers.cjs');
+const r = bvAnalysis.loadBvValidationReport();
 
 // Load all weapon catalogs
 const weaponMap = new Map();
-for (const f of findJsonFiles('public/data/equipment/official/weapons')) {
+for (const f of bvAnalysis.findJsonFiles(
+  'public/data/equipment/official/weapons',
+)) {
   try {
-    const data = JSON.parse(fs.readFileSync(f, 'utf8'));
-    for (const item of (data.items || [])) {
+    const data = bvAnalysis.readJson(f);
+    for (const item of data.items || []) {
       weaponMap.set(item.id, item);
     }
   } catch {}
 }
 
 // Load misc catalog
-for (const f of findJsonFiles('public/data/equipment/official/miscellaneous')) {
+for (const f of bvAnalysis.findJsonFiles(
+  'public/data/equipment/official/miscellaneous',
+)) {
   try {
-    const data = JSON.parse(fs.readFileSync(f, 'utf8'));
-    for (const item of (data.items || [])) {
+    const data = bvAnalysis.readJson(f);
+    for (const item of data.items || []) {
       weaponMap.set(item.id, item);
     }
   } catch {}
@@ -54,7 +47,7 @@ const expected = {
   'light-machine-gun': { bv: 5, heat: 0 },
   'clan-light-machine-gun': { bv: 5, heat: 0 },
   // Magshot
-  'magshot': { bv: 15, heat: 1 },
+  magshot: { bv: 15, heat: 1 },
   // Medium Pulse
   'medium-pulse-laser': { bv: 48, heat: 4 },
   'clan-medium-pulse-laser': { bv: 111, heat: 4 },
@@ -106,7 +99,9 @@ for (const [id, exp] of Object.entries(expected)) {
   const heatMatch = entry.heat === exp.heat;
   if (!bvMatch || !heatMatch) {
     mismatchCount++;
-    console.log(`  ${id}: catalog BV=${entry.battleValue} heat=${entry.heat} | expected BV=${exp.bv} heat=${exp.heat} ${!bvMatch ? '[BV MISMATCH]' : ''} ${!heatMatch ? '[HEAT MISMATCH]' : ''}`);
+    console.log(
+      `  ${id}: catalog BV=${entry.battleValue} heat=${entry.heat} | expected BV=${exp.bv} heat=${exp.heat} ${!bvMatch ? '[BV MISMATCH]' : ''} ${!heatMatch ? '[HEAT MISMATCH]' : ''}`,
+    );
   }
 }
 console.log(`\nMismatches: ${mismatchCount}/${Object.keys(expected).length}`);
