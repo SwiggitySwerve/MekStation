@@ -1336,13 +1336,13 @@
         "2026-06-25 `npm.cmd run validate:multiplayer:packaged-socket` passed after `npm.cmd run build`: packaged server socket upgrade/replay succeeded, the process restarted against the same durable SQLite match store, the same match replayed after reconnect, and the co-op runtime proposal committed.",
         "2026-06-25 `npx.cmd playwright test --project=chromium e2e/multiplayer-live-vault-auth.spec.ts --workers=1` passed: two browser contexts seeded real E2E-locked vault identities, host created a fog-enabled lobby, guest joined by invite, both connected through signed tokens, both readied, host launched, both rendered the networked game surface, and the host advanced the server-owned Initiative phase to Movement over the real WebSocket path.",
         "2026-06-26 `npx.cmd playwright test --project=chromium e2e/multiplayer-live-vault-auth.spec.ts --workers=1` passed: REST-created fog-enabled matches returned real Atlas/Marauder unit bootstrap metadata, both vault-auth browser contexts launched over signed sockets, host and guest rendered side-owned tactical unit tokens, and the host advanced Initiative to Movement over WebSocket.",
-        "2026-06-28 multiplayer create-match UI now exposes unit roster presets and submits explicit unitBootstrap metadata; focused Jest coverage proves the form emits selected Atlas/Marauder presets, the API preserves explicit bootstrap rows, and MatchHostRegistry still boots stored units.",
+        "2026-06-28 multiplayer create-match UI now exposes unit roster presets plus supported custom per-seat unit/pilot/skill overrides and submits explicit unitBootstrap metadata; focused Jest coverage proves the form emits selected Atlas/Marauder presets, custom Awesome/Locust bootstrap rows, the API preserves explicit bootstrap rows, and MatchHostRegistry still boots stored units.",
         "2026-06-25 Wave 4 validator requires multiplayer aggregate scripts plus route, contract, capstone source anchors, and the packaged socket command while keeping live host/guest identity play tracked separately.",
         "Archived OpenSpec change 2026-06-21-reconcile-multiplayer-coop-reality retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23."
       ],
       "gaps": [
-        "Create-match roster presets are UI-backed; fully custom per-seat unit/pilot roster configuration remains future multiplayer product scope."
+        "Create-match custom roster controls are UI-backed for the supported bootstrap unit set and pilot name/skill overrides; broader compendium search/import and true multi-side FFA ownership semantics remain future multiplayer product scope."
       ]
     },
     {

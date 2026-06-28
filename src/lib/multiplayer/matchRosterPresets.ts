@@ -1,7 +1,7 @@
 import type { IMatchUnitBootstrapEntry } from '@/lib/multiplayer/server/IMatchStore';
 import type { TeamLayout } from '@/types/multiplayer/Lobby';
 
-import { seatLayoutSpec } from '@/types/multiplayer/Lobby';
+import { buildSlotId, seatLayoutSpec } from '@/types/multiplayer/Lobby';
 
 export type MatchRosterPresetId =
   | 'assault-vs-heavy'
@@ -49,6 +49,36 @@ export const MATCH_ROSTER_PRESETS: readonly IMatchRosterPreset[] = [
   },
 ];
 
+export interface IMatchRosterUnitOption {
+  readonly unitRef: string;
+  readonly unitName: string;
+}
+
+export const MATCH_ROSTER_UNIT_OPTIONS: readonly IMatchRosterUnitOption[] = [
+  { unitRef: 'atlas-as7-d', unitName: 'Atlas AS7-D' },
+  { unitRef: 'marauder-mad-3r', unitName: 'Marauder MAD-3R' },
+  { unitRef: 'awesome-aws-8q', unitName: 'Awesome AWS-8Q' },
+  { unitRef: 'catapult-cplt-c1', unitName: 'Catapult CPLT-C1' },
+  { unitRef: 'hunchback-hbk-4g', unitName: 'Hunchback HBK-4G' },
+  { unitRef: 'locust-lct-1v', unitName: 'Locust LCT-1V' },
+];
+
+export interface IMatchCustomRosterSeatInput {
+  readonly slotId: string;
+  readonly unitRef: string;
+  readonly pilotName: string;
+  readonly gunnery: number;
+  readonly piloting: number;
+}
+
+export interface IMatchCustomRosterSeatRow extends IMatchCustomRosterSeatInput {
+  readonly side: BootstrapSide;
+  readonly sideLabel: string;
+  readonly seatNumber: number;
+  readonly sideSeatIndex: number;
+  readonly unitName: string;
+}
+
 export function matchRosterPresetById(
   id: MatchRosterPresetId,
 ): IMatchRosterPreset {
@@ -78,6 +108,17 @@ function unitNameForSide(
   side: BootstrapSide,
 ): string {
   return side === 'player' ? preset.playerUnitName : preset.opponentUnitName;
+}
+
+function defaultUnitRefForSide(side: BootstrapSide): string {
+  return side === 'player' ? 'atlas-as7-d' : 'marauder-mad-3r';
+}
+
+function unitOptionByRef(unitRef: string): IMatchRosterUnitOption {
+  return (
+    MATCH_ROSTER_UNIT_OPTIONS.find((option) => option.unitRef === unitRef) ??
+    MATCH_ROSTER_UNIT_OPTIONS[0]
+  );
 }
 
 function startHexFor(
@@ -127,4 +168,58 @@ export function buildMatchUnitBootstrapForPreset(
   });
 
   return entries;
+}
+
+export function buildCustomRosterSeatRows(
+  layout: TeamLayout,
+  inputs: Readonly<Record<string, Partial<IMatchCustomRosterSeatInput>>> = {},
+): readonly IMatchCustomRosterSeatRow[] {
+  const spec = seatLayoutSpec(layout);
+  const sideCounts = new Map<BootstrapSide, number>();
+  const rows: IMatchCustomRosterSeatRow[] = [];
+
+  spec.sides.forEach((sideLabel, sideIndex) => {
+    const side = sideForSeatSide(sideIndex);
+    for (let seatNumber = 1; seatNumber <= spec.seatsPerSide; seatNumber += 1) {
+      const sideSeatIndex = (sideCounts.get(side) ?? 0) + 1;
+      sideCounts.set(side, sideSeatIndex);
+      const slotId = buildSlotId(sideLabel, seatNumber);
+      const input = inputs[slotId] ?? {};
+      const unitRef = input.unitRef ?? defaultUnitRefForSide(side);
+      const unitOption = unitOptionByRef(unitRef);
+      rows.push({
+        slotId,
+        side,
+        sideLabel,
+        seatNumber,
+        sideSeatIndex,
+        unitRef: unitOption.unitRef,
+        unitName: unitOption.unitName,
+        pilotName:
+          input.pilotName ??
+          `${sideLabel} ${seatNumber} ${side === 'player' ? 'Pilot' : 'OPFOR'}`,
+        gunnery: input.gunnery ?? 4,
+        piloting: input.piloting ?? 5,
+      });
+    }
+  });
+
+  return rows;
+}
+
+export function buildMatchUnitBootstrapForCustomRoster(
+  layout: TeamLayout,
+  inputs: Readonly<Record<string, Partial<IMatchCustomRosterSeatInput>>>,
+  mapRadius: number,
+): readonly IMatchUnitBootstrapEntry[] {
+  return buildCustomRosterSeatRows(layout, inputs).map((row) => ({
+    unitId: `${row.slotId}-${row.unitRef}`,
+    unitRef: row.unitRef,
+    side: row.side,
+    name: `${row.unitName} ${row.sideSeatIndex}`,
+    pilotRef: row.pilotName.trim() || `${row.slotId}-pilot`,
+    gunnery: row.gunnery,
+    piloting: row.piloting,
+    startHex: startHexFor(row.side, row.sideSeatIndex, mapRadius),
+  }));
 }

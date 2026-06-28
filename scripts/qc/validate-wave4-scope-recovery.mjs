@@ -153,7 +153,11 @@ const requiredSurfaces = [
       'fogOfWar.test.ts',
     ],
     manualIncludes: ['side-owned units', 'hidden GM/private fields'],
-    gapIncludes: ['fully custom per-seat unit/pilot roster configuration'],
+    gapIncludes: [
+      'supported bootstrap unit set',
+      'broader compendium search/import',
+      'true multi-side FFA ownership semantics',
+    ],
   },
   {
     id: 'replay-audit-history',
