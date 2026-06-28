@@ -1,7 +1,10 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
+import type { IGmCampaignProjectedEffect } from '@/types/interventions';
+
 import { createCampaign } from '@/types/campaign/Campaign';
+import { TransactionType } from '@/types/campaign/Transaction';
 
 import { GmCampaignInterventionControlPlane } from '../GmCampaignInterventionControlPlane';
 
@@ -10,6 +13,62 @@ function fixedNow(): string {
 }
 
 describe('GmCampaignInterventionControlPlane', () => {
+  it('hydrates player-safe rows from persisted campaign intervention events', () => {
+    const campaign = {
+      ...createCampaign('GM Ledger Reload Test', 'mercenary', {
+        startingFunds: 1_000_000,
+      }),
+      id: 'campaign-gm-reload',
+      updatedAt: '3025-01-03T00:00:00.000Z',
+      gmInterventionEvents: [
+        {
+          type: 'gm.campaign.funds_transaction_corrected',
+          domain: 'economy',
+          family: 'funds-transaction',
+          interventionId: 'gm-ledger-merchant-reversal',
+          transactionId: 'gm-ledger-merchant-reversal',
+          changedStateRefs: ['campaign:campaign-gm-reload:finances'],
+          publicSummary: 'Merchant charge corrected by -2,500.00 C-bills.',
+          before: {
+            balanceCents: 100_000_000,
+            transactionIds: [],
+          },
+          after: {
+            balanceCents: 99_750_000,
+            transaction: {
+              id: 'gm-ledger-merchant-reversal',
+              type: TransactionType.PartPurchase,
+              amountCents: -250_000,
+              date: '3025-01-03T00:00:00.000Z',
+              description: 'GM merchant charge reversal',
+            },
+          },
+        } satisfies IGmCampaignProjectedEffect,
+      ],
+    };
+
+    render(
+      <GmCampaignInterventionControlPlane
+        campaign={campaign}
+        onApplyCampaignUpdate={jest.fn()}
+        now={fixedNow}
+      />,
+    );
+
+    expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
+      'Merchant charge corrected by -2,500.00 C-bills.',
+    );
+    expect(screen.getByTestId('gm-ledger-player-log')).not.toHaveTextContent(
+      /Hidden campaign|black-market|GM-only/i,
+    );
+    expect(screen.getByTestId('gm-ledger-private-log')).toHaveTextContent(
+      'Merchant charge corrected by -2,500.00 C-bills.',
+    );
+    expect(screen.getByTestId('gm-ledger-private-log')).not.toHaveTextContent(
+      /Hidden campaign|black-market|GM-only/i,
+    );
+  });
+
   it('previews and approves a funds correction with player-safe output', () => {
     const campaign = createCampaign('GM Ledger Test', 'mercenary', {
       startingFunds: 1_000_000,
