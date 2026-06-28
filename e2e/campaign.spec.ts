@@ -294,20 +294,29 @@ test.describe('Campaign Detail Page @campaign', () => {
     await expect(page.getByTestId('campaign-dashboard')).toBeVisible();
     await expect(page.getByTestId('daily-battle-audit-feed')).toHaveCount(0);
   });
-});
 
-// =============================================================================
-// Campaign Deletion Tests — RETIRED (obsolete surface)
-//
-// The UI deletion flow (delete-campaign-btn + delete-confirm-dialog) lived
-// on CampaignOverviewTab, which is no longer mounted anywhere — the
-// campaign detail route renders CampaignDashboardPage, which has NO
-// delete affordance. There is currently no UI surface for deleting a
-// campaign at all; that product gap is tracked as T2-F3 in
-// docs/audits/2026-06-09-remediation-tracker.md. Store-level deletion
-// behavior stays covered by playtest-campaign-smoke.spec.ts
-// ("deletes a campaign cleanly and leaves the campaign store empty").
-// =============================================================================
+  test('deletes campaign from routed dashboard after confirmation', async ({
+    page,
+  }) => {
+    await listPage.clickCampaignCard(campaignId);
+    await page.waitForLoadState('networkidle');
+
+    await expect(page.getByTestId('delete-campaign-btn')).toBeVisible();
+    await page.getByTestId('delete-campaign-btn').click();
+    await expect(page.getByTestId('delete-confirm-dialog')).toBeVisible();
+
+    await page.getByTestId('cancel-delete-btn').click();
+    await expect(page.getByTestId('delete-confirm-dialog')).toHaveCount(0);
+
+    await page.getByTestId('delete-campaign-btn').click();
+    await page.getByTestId('confirm-delete-btn').click();
+
+    await expect(page).toHaveURL(/\/gameplay\/campaigns$/);
+    await expect(page.getByTestId(`campaign-card-${campaignId}`)).toHaveCount(
+      0,
+    );
+  });
+});
 
 // =============================================================================
 // Campaign Mission Tests

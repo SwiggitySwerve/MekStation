@@ -41,11 +41,7 @@ test.describe('Mobile Navigation Header', () => {
 
   test('should display mobile header on units page', async ({ page }) => {
     await page.goto('/units');
-    // NO hydration wait here: this test's contract is header PRESENCE
-    // (server-rendered), and /units currently never finishes hydrating —
-    // a client-bundled better-sqlite3 module crashes at module eval
-    // (`promisify(fs.access)` against the emptyModule fs stub). Tracked
-    // as T2-F2 in docs/audits/2026-06-09-remediation-tracker.md.
+    await waitForHydration(page);
 
     // Should have hamburger menu button
     const menuButton = page.getByRole('button', {
