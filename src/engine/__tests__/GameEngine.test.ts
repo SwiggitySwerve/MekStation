@@ -162,6 +162,29 @@ describe('GameEngine', () => {
       expect(session.events.length).toBeGreaterThan(2);
     });
 
+    it('threads configured victory conditions into auto-resolved sessions', () => {
+      const engine = new GameEngine({
+        seed: 1234,
+        turnLimit: 4,
+        mapRadius: 5,
+        victoryConditions: ['custom:extract'],
+      });
+      const p1 = createTestUnit('player-1', GameSide.Player, { q: 0, r: -2 });
+      const o1 = createTestUnit('opponent-1', GameSide.Opponent, {
+        q: 0,
+        r: 2,
+      });
+      const gameUnits = [
+        createGameUnit('player-1', GameSide.Player),
+        createGameUnit('opponent-1', GameSide.Opponent),
+      ];
+
+      const session = engine.runToCompletion([p1], [o1], gameUnits);
+
+      expect(session.config.turnLimit).toBe(4);
+      expect(session.config.victoryConditions).toEqual(['custom:extract']);
+    });
+
     it('should complete with same seed without errors', () => {
       const makeSession = () => {
         const engine = new GameEngine({
@@ -264,6 +287,31 @@ describe('GameEngine', () => {
       expect(configured.getSession().config.mapRadius).toBe(5);
       expect(center?.terrain).toBe(TerrainType.HeavyWoods);
       expect(center?.elevation).toBe(2);
+    });
+
+    it('threads configured victory conditions into interactive sessions', () => {
+      const engine = new GameEngine({
+        seed: 42,
+        turnLimit: 0,
+        mapRadius: 5,
+        victoryConditions: ['destroy_all'],
+      });
+      const p1 = createTestUnit('player-1', GameSide.Player, { q: 0, r: -3 });
+      const o1 = createTestUnit('opponent-1', GameSide.Opponent, {
+        q: 0,
+        r: 3,
+      });
+      const gameUnits = [
+        createGameUnit('player-1', GameSide.Player),
+        createGameUnit('opponent-1', GameSide.Opponent),
+      ];
+
+      const configured = engine.createInteractiveSession([p1], [o1], gameUnits);
+
+      expect(configured.getSession().config.turnLimit).toBe(0);
+      expect(configured.getSession().config.victoryConditions).toEqual([
+        'destroy_all',
+      ]);
     });
 
     it('creates deterministic preset terrain grids for encounter launches', () => {

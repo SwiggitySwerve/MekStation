@@ -183,9 +183,10 @@ export async function createEncounterWithForces(
   name: string,
   playerForceId: string,
   opponentForceId: string,
+  options: Omit<TestEncounterOptions, 'name'> = {},
 ): Promise<string | null> {
   // First create the encounter
-  const encounterId = await createTestEncounter(page, { name });
+  const encounterId = await createTestEncounter(page, { ...options, name });
 
   if (!encounterId) {
     return null;
