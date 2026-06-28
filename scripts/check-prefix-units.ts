@@ -2,19 +2,15 @@
  * Find units with "1-" or other numeric prefix in equipment IDs
  * and check if ammo is missing for gauss-type weapons.
  */
-import * as fs from 'fs';
-import * as path from 'path';
+import * as bvAnalysis from './bv-analysis-helpers';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const report = bvAnalysis.loadBvValidationReport();
+const idx = bvAnalysis.loadBattleMechIndex();
+const loadUnit = bvAnalysis.createBattleMechUnitLoader(idx);
 
-function loadUnit(unitId: string): any {
-  const ie = idx.units.find((e: any) => e.id === unitId);
-  if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
-}
-
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null);
+const valid = report.allResults.filter(
+  (x: any) => x.status !== 'error' && x.percentDiff !== null,
+);
 
 // Check for numeric prefix equipment IDs
 let prefixCount = 0;
@@ -38,7 +34,30 @@ if (prefixUnits.length <= 20) {
 
 // Check for ammo-needing weapons with ammoBV=0
 console.log('\n=== WEAPONS NEEDING AMMO BUT ammoBV=0 ===');
-const ammoWeapons = ['gauss', 'ac/', 'ac-', 'autocannon', 'lrm', 'srm', 'lbx', 'lb-', 'uac', 'ultra', 'rotary', 'rac-', 'atm', 'narc', 'mml', 'streak', 'thunderbolt', 'arrow', 'mortar', 'thumper', 'sniper', 'long-tom'];
+const ammoWeapons = [
+  'gauss',
+  'ac/',
+  'ac-',
+  'autocannon',
+  'lrm',
+  'srm',
+  'lbx',
+  'lb-',
+  'uac',
+  'ultra',
+  'rotary',
+  'rac-',
+  'atm',
+  'narc',
+  'mml',
+  'streak',
+  'thunderbolt',
+  'arrow',
+  'mortar',
+  'thumper',
+  'sniper',
+  'long-tom',
+];
 
 let ammoMissingCount = 0;
 const ammoMissingUnits: any[] = [];
@@ -49,7 +68,9 @@ for (const u of valid) {
   if (!unit) continue;
 
   const eqs = (unit.equipment || []).map((e: any) => e.id.toLowerCase());
-  const hasAmmoWeapon = eqs.some((eq: string) => ammoWeapons.some(aw => eq.includes(aw)));
+  const hasAmmoWeapon = eqs.some((eq: string) =>
+    ammoWeapons.some((aw) => eq.includes(aw)),
+  );
 
   if (hasAmmoWeapon) {
     // Check if there's actually ammo in crits
@@ -67,15 +88,21 @@ for (const u of valid) {
 
     if (hasAmmoInCrits) {
       ammoMissingCount++;
-      const weapons = eqs.filter(eq => ammoWeapons.some(aw => eq.includes(aw)));
+      const weapons = eqs.filter((eq) =>
+        ammoWeapons.some((aw) => eq.includes(aw)),
+      );
       ammoMissingUnits.push({ unitId: u.unitId, diff: u.percentDiff, weapons });
     }
   }
 }
 
-console.log(`Units with ammo weapons + crit ammo but ammoBV=0: ${ammoMissingCount}`);
+console.log(
+  `Units with ammo weapons + crit ammo but ammoBV=0: ${ammoMissingCount}`,
+);
 for (const u of ammoMissingUnits.sort((a, b) => a.diff - b.diff)) {
-  console.log(`  ${u.unitId.padEnd(45)} diff=${u.diff?.toFixed(1).padStart(6)}%  weapons: ${u.weapons.join(', ')}`);
+  console.log(
+    `  ${u.unitId.padEnd(45)} diff=${u.diff?.toFixed(1).padStart(6)}%  weapons: ${u.weapons.join(', ')}`,
+  );
 }
 
 // Check for named variants with potentially wrong reference BV
@@ -83,12 +110,23 @@ console.log('\n=== POSSIBLE NAMED VARIANT BV MISMATCHES ===');
 const namedPatterns = /\(.*\)$|-[a-z]+$/;
 const bigOverNamed: any[] = [];
 for (const u of valid.filter((x: any) => x.percentDiff > 5)) {
-  if (u.unitId.includes('-') && (u.unitId.includes('webster') || u.unitId.includes('lowenbrau') || u.unitId.includes('grace') || u.unitId.includes('stacy') || u.unitId.includes('wendall') || u.unitId.includes('ian') || u.unitId.includes('austin'))) {
+  if (
+    u.unitId.includes('-') &&
+    (u.unitId.includes('webster') ||
+      u.unitId.includes('lowenbrau') ||
+      u.unitId.includes('grace') ||
+      u.unitId.includes('stacy') ||
+      u.unitId.includes('wendall') ||
+      u.unitId.includes('ian') ||
+      u.unitId.includes('austin'))
+  ) {
     bigOverNamed.push(u);
   }
 }
 for (const u of bigOverNamed) {
-  console.log(`  ${u.unitId.padEnd(45)} ref=${u.indexBV} calc=${u.calculatedBV} diff=${u.percentDiff?.toFixed(1)}%`);
+  console.log(
+    `  ${u.unitId.padEnd(45)} ref=${u.indexBV} calc=${u.calculatedBV} diff=${u.percentDiff?.toFixed(1)}%`,
+  );
 }
 
 // Count how many overcalculated >5% units have named-variant patterns in their IDs

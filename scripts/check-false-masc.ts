@@ -2,27 +2,36 @@
  * Check for false MASC/Supercharger detection by comparing
  * equipment list, crit slots, and runMP calculation.
  */
-import * as fs from 'fs';
-import * as path from 'path';
+import * as bvAnalysis from './bv-analysis-helpers';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const report = bvAnalysis.loadBvValidationReport();
+const idx = bvAnalysis.loadBattleMechIndex();
+const loadUnit = bvAnalysis.createBattleMechUnitLoader(idx);
 
-function loadUnit(unitId: string): any {
-  const ie = idx.units.find((e: any) => e.id === unitId);
-  if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
-}
-
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null);
+const valid = report.allResults.filter(
+  (x: any) => x.status !== 'error' && x.percentDiff !== null,
+);
 const suspectUnits = [
-  'alpha-wolf-a', 'berserker-brz-c3', 'black-knight-bl-6-knt-ian',
-  'black-lanner-f', 'cadaver-cvr-t1', 'celerity-clr-03-ob',
-  'celerity-clr-03-od', 'celerity-clr-03-oe', 'charger-c',
-  'charger-cgr-1x1', 'daedalus-dad-4a', 'doloire-dlr-od',
-  'gladiator-gld-1r-keller', 'hatamoto-chi-htm-27t-lowenbrau',
-  'hitman-hm-2', 'jade-hawk-jhk-03', 'linebacker-i',
-  'mantis-mts-l', 'raptor-ii-rpt-2x2', 'raptor-ii-rpt-3x',
+  'alpha-wolf-a',
+  'berserker-brz-c3',
+  'black-knight-bl-6-knt-ian',
+  'black-lanner-f',
+  'cadaver-cvr-t1',
+  'celerity-clr-03-ob',
+  'celerity-clr-03-od',
+  'celerity-clr-03-oe',
+  'charger-c',
+  'charger-cgr-1x1',
+  'daedalus-dad-4a',
+  'doloire-dlr-od',
+  'gladiator-gld-1r-keller',
+  'hatamoto-chi-htm-27t-lowenbrau',
+  'hitman-hm-2',
+  'jade-hawk-jhk-03',
+  'linebacker-i',
+  'mantis-mts-l',
+  'raptor-ii-rpt-2x2',
+  'raptor-ii-rpt-3x',
 ];
 
 console.log('=== CHECKING MASC/SC IN CRIT SLOTS ===\n');
@@ -31,7 +40,10 @@ let truePositives = 0;
 
 for (const uid of suspectUnits) {
   const unit = loadUnit(uid);
-  if (!unit) { console.log(`${uid}: NOT FOUND`); continue; }
+  if (!unit) {
+    console.log(`${uid}: NOT FOUND`);
+    continue;
+  }
   const r = valid.find((x: any) => x.unitId === uid);
 
   // Check crits for MASC/SC
@@ -65,7 +77,10 @@ for (const uid of suspectUnits) {
       if (!Array.isArray(slots)) continue;
       for (const s of slots) {
         if (!s || typeof s !== 'string') continue;
-        const lo = (s as string).replace(/\s*\(omnipod\)/gi, '').trim().toLowerCase();
+        const lo = (s as string)
+          .replace(/\s*\(omnipod\)/gi, '')
+          .trim()
+          .toLowerCase();
         if (lo.includes('masc') && !lo.includes('ammo')) {
           allCritMatches.push(`[${loc}] ${s}`);
         }
@@ -80,8 +95,11 @@ for (const uid of suspectUnits) {
   if (isFalse) trueFalsePositives++;
   else truePositives++;
 
-  console.log(`${uid}: walk=${walk} normalRun=${normalRun} runMP=${r?.breakdown?.runMP || '?'} MASC_crit=${critMASC} SC_crit=${critSC} ${isFalse ? '*** FALSE POSITIVE ***' : 'CORRECT'}`);
-  if (allCritMatches.length > 0) console.log(`  MASC matches: ${allCritMatches.join(', ')}`);
+  console.log(
+    `${uid}: walk=${walk} normalRun=${normalRun} runMP=${r?.breakdown?.runMP || '?'} MASC_crit=${critMASC} SC_crit=${critSC} ${isFalse ? '*** FALSE POSITIVE ***' : 'CORRECT'}`,
+  );
+  if (allCritMatches.length > 0)
+    console.log(`  MASC matches: ${allCritMatches.join(', ')}`);
   if (scSlots.length > 0) console.log(`  SC matches: ${scSlots.join(', ')}`);
   if (isFalse) {
     // Find what's causing the inflated runMP
@@ -98,7 +116,10 @@ for (const uid of suspectUnits) {
         if (!Array.isArray(slots)) continue;
         for (const s of slots) {
           if (!s || typeof s !== 'string') continue;
-          const lo = (s as string).replace(/\s*\(omnipod\)/gi, '').trim().toLowerCase();
+          const lo = (s as string)
+            .replace(/\s*\(omnipod\)/gi, '')
+            .trim()
+            .toLowerCase();
           if (lo.includes('supercharger') || lo.includes('super charger')) {
             console.log(`  SC CRIT HIT: [${loc}] ${s}`);
           }
@@ -108,7 +129,9 @@ for (const uid of suspectUnits) {
   }
 }
 
-console.log(`\nSummary: ${trueFalsePositives} true false positives, ${truePositives} correct detections`);
+console.log(
+  `\nSummary: ${trueFalsePositives} true false positives, ${truePositives} correct detections`,
+);
 
 // Now check ALL overcalculated units for false MASC/SC
 console.log('\n=== FULL SCAN: ALL OVERCALCULATED UNITS ===');
@@ -138,9 +161,13 @@ for (const u of over) {
       if (!Array.isArray(slots)) continue;
       for (const s of slots) {
         if (!s || typeof s !== 'string') continue;
-        const lo = (s as string).replace(/\s*\(omnipod\)/gi, '').trim().toLowerCase();
+        const lo = (s as string)
+          .replace(/\s*\(omnipod\)/gi, '')
+          .trim()
+          .toLowerCase();
         if (lo.includes('masc') && !lo.includes('ammo')) critMASC = true;
-        if (lo.includes('supercharger') || lo.includes('super charger')) critSC = true;
+        if (lo.includes('supercharger') || lo.includes('super charger'))
+          critSC = true;
       }
     }
   }
@@ -148,8 +175,12 @@ for (const u of over) {
   if (detectedMASC && !critMASC && !critSC) {
     totalFalseMASC++;
     if (u.percentDiff > 3) {
-      console.log(`  FALSE: ${u.unitId.padEnd(45)} +${u.percentDiff.toFixed(1)}% walk=${walk} normalRun=${normalRun} run=${b.runMP}`);
+      console.log(
+        `  FALSE: ${u.unitId.padEnd(45)} +${u.percentDiff.toFixed(1)}% walk=${walk} normalRun=${normalRun} run=${b.runMP}`,
+      );
     }
   }
 }
-console.log(`\n  Total false MASC/SC detections in overcalculated: ${totalFalseMASC}`);
+console.log(
+  `\n  Total false MASC/SC detections in overcalculated: ${totalFalseMASC}`,
+);

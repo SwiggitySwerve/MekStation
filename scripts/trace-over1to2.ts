@@ -2,20 +2,18 @@
  * Trace overcalculated 1-2% units to find systematic patterns.
  * Focus on what makes us calculate too high.
  */
-import * as fs from 'fs';
-import * as path from 'path';
+import * as bvAnalysis from './bv-analysis-helpers';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const report = bvAnalysis.loadBvValidationReport();
+const idx = bvAnalysis.loadBattleMechIndex();
+const loadUnit = bvAnalysis.createBattleMechUnitLoader(idx);
 
-function loadUnit(unitId: string): any {
-  const ie = idx.units.find((e: any) => e.id === unitId);
-  if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
-}
-
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null);
-const over1to2 = valid.filter((x: any) => x.percentDiff > 1 && x.percentDiff <= 2 && x.breakdown);
+const valid = report.allResults.filter(
+  (x: any) => x.status !== 'error' && x.percentDiff !== null,
+);
+const over1to2 = valid.filter(
+  (x: any) => x.percentDiff > 1 && x.percentDiff <= 2 && x.breakdown,
+);
 
 console.log(`=== OVERCALCULATED 1-2%: ${over1to2.length} units ===\n`);
 
@@ -44,13 +42,37 @@ for (const u of over1to2) {
 
   if (offExcessBV > 5) {
     offExcess++;
-    excessDetails.push({ unitId: u.unitId, type: 'off', excess: offExcessBV, diff: u.difference, pct: u.percentDiff, b, unit });
+    excessDetails.push({
+      unitId: u.unitId,
+      type: 'off',
+      excess: offExcessBV,
+      diff: u.difference,
+      pct: u.percentDiff,
+      b,
+      unit,
+    });
   } else if (defExcessBV > 5) {
     defExcess++;
-    excessDetails.push({ unitId: u.unitId, type: 'def', excess: defExcessBV, diff: u.difference, pct: u.percentDiff, b, unit });
+    excessDetails.push({
+      unitId: u.unitId,
+      type: 'def',
+      excess: defExcessBV,
+      diff: u.difference,
+      pct: u.percentDiff,
+      b,
+      unit,
+    });
   } else {
     mixedExcess++;
-    excessDetails.push({ unitId: u.unitId, type: 'mixed', excess: offExcessBV + defExcessBV, diff: u.difference, pct: u.percentDiff, b, unit });
+    excessDetails.push({
+      unitId: u.unitId,
+      type: 'mixed',
+      excess: offExcessBV + defExcessBV,
+      diff: u.difference,
+      pct: u.percentDiff,
+      b,
+      unit,
+    });
   }
 }
 
@@ -81,8 +103,12 @@ for (const u of over1to2) {
       for (const [loc, slots] of Object.entries(unit.criticalSlots)) {
         if (!Array.isArray(slots)) continue;
         for (const s of slots) {
-          if (s && typeof s === 'string' && (s as string).toLowerCase().includes('ammo') &&
-              !(s as string).toLowerCase().includes('ams')) {
+          if (
+            s &&
+            typeof s === 'string' &&
+            (s as string).toLowerCase().includes('ammo') &&
+            !(s as string).toLowerCase().includes('ams')
+          ) {
             ammoLocs.add(loc.toUpperCase());
           }
         }
@@ -90,10 +116,20 @@ for (const u of over1to2) {
     }
     // For each ammo location, check if it has CASE
     for (const loc of ammoLocs) {
-      const hasCaseII = unit.criticalSlots?.[loc]?.some?.((s: any) =>
-        s && typeof s === 'string' && (s.toLowerCase().includes('case ii') || s.toLowerCase().includes('caseii')));
-      const hasCase = unit.criticalSlots?.[loc]?.some?.((s: any) =>
-        s && typeof s === 'string' && s.toLowerCase().includes('case') && !s.toLowerCase().includes('case ii'));
+      const hasCaseII = unit.criticalSlots?.[loc]?.some?.(
+        (s: any) =>
+          s &&
+          typeof s === 'string' &&
+          (s.toLowerCase().includes('case ii') ||
+            s.toLowerCase().includes('caseii')),
+      );
+      const hasCase = unit.criticalSlots?.[loc]?.some?.(
+        (s: any) =>
+          s &&
+          typeof s === 'string' &&
+          s.toLowerCase().includes('case') &&
+          !s.toLowerCase().includes('case ii'),
+      );
       if (!hasCaseII && !hasCase) {
         allProtected = false;
       }
@@ -124,8 +160,16 @@ console.log('\n=== TOP 20 OVERCALCULATED 1-2% ===');
 const sorted = [...excessDetails].sort((a: any, b: any) => b.diff - a.diff);
 for (const u of sorted.slice(0, 20)) {
   const b = u.b;
-  console.log(`${u.unitId.padEnd(45)} +${u.diff} (+${u.pct.toFixed(1)}%) ${u.type} excess=${u.excess.toFixed(0)} tech=${u.unit?.techBase}`);
-  console.log(`  defBV=${b.defensiveBV?.toFixed(0)} offBV=${b.offensiveBV?.toFixed(0)} SF=${b.speedFactor} cockpit=${b.cockpitModifier}`);
-  console.log(`  weapBV=${b.weaponBV?.toFixed(0)} ammoBV=${b.ammoBV} wt=${b.weightBonus?.toFixed(0)} halved=${b.halvedWeaponCount}/${b.weaponCount}`);
-  console.log(`  expl=${b.explosivePenalty} armorBV=${b.armorBV?.toFixed(0)} structBV=${b.structureBV?.toFixed(0)} gyroBV=${b.gyroBV?.toFixed(0)} DF=${b.defensiveFactor} TMM=${b.maxTMM}`);
+  console.log(
+    `${u.unitId.padEnd(45)} +${u.diff} (+${u.pct.toFixed(1)}%) ${u.type} excess=${u.excess.toFixed(0)} tech=${u.unit?.techBase}`,
+  );
+  console.log(
+    `  defBV=${b.defensiveBV?.toFixed(0)} offBV=${b.offensiveBV?.toFixed(0)} SF=${b.speedFactor} cockpit=${b.cockpitModifier}`,
+  );
+  console.log(
+    `  weapBV=${b.weaponBV?.toFixed(0)} ammoBV=${b.ammoBV} wt=${b.weightBonus?.toFixed(0)} halved=${b.halvedWeaponCount}/${b.weaponCount}`,
+  );
+  console.log(
+    `  expl=${b.explosivePenalty} armorBV=${b.armorBV?.toFixed(0)} structBV=${b.structureBV?.toFixed(0)} gyroBV=${b.gyroBV?.toFixed(0)} DF=${b.defensiveFactor} TMM=${b.maxTMM}`,
+  );
 }

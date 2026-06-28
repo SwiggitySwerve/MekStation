@@ -23,9 +23,9 @@
       "follow-up": 15
     },
     "near-duplicate": {
-      "fixed": 0,
+      "fixed": 5,
       "accepted": 0,
-      "follow-up": 5
+      "follow-up": 1
     },
     "import-health": {
       "fixed": 0,
@@ -242,9 +242,8 @@
       "severity": "warn",
       "file": "scripts/analyze-2to5-band.ts",
       "message": "8-line block cluster appears in 30 files",
-      "status": "follow-up",
-      "rationale": "The analysis script helper pass reduced this cluster from 32 to 30 copies; remaining TypeScript analysis scripts should be handled in a later focused dedup pass.",
-      "followUps": ["wave-12-analysis-script-dedup"]
+      "status": "fixed",
+      "rationale": "The repeated BV report/index/unit-loading prelude was replaced across the TypeScript analysis and trace scripts with shared bv-analysis-helpers access, clearing this warning while preserving script typecheck coverage."
     },
     {
       "key": "near-duplicate|warn|scripts/check-cockpit-fixes.ts|8-line block cluster appears in 42 files",
@@ -252,9 +251,8 @@
       "severity": "warn",
       "file": "scripts/check-cockpit-fixes.ts",
       "message": "8-line block cluster appears in 42 files",
-      "status": "follow-up",
-      "rationale": "This cockpit-analysis setup cluster became visible after the high-severity BV analysis clusters were removed; it belongs with the remaining analysis script dedup wave.",
-      "followUps": ["wave-12-analysis-script-dedup"]
+      "status": "fixed",
+      "rationale": "The repeated BV report/index/unit-loading prelude was replaced across the TypeScript analysis and trace scripts with shared bv-analysis-helpers access, reducing near-duplicate warnings from three to one without changing analysis outputs."
     },
     {
       "key": "near-duplicate|warn|scripts/analyze-engine-armor.js|8-line block cluster appears in 39 files",

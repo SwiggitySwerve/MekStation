@@ -2,20 +2,17 @@
  * Deep trace of defensive BV components for 1-2% undercalculated units.
  * Goal: find the ~10-15 BV systematic shortfall source.
  */
-import * as fs from 'fs';
-import * as path from 'path';
+import * as bvAnalysis from './bv-analysis-helpers';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
-
-function loadUnit(unitId: string): any {
-  const ie = idx.units.find((e: any) => e.id === unitId);
-  if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
-}
+const report = bvAnalysis.loadBvValidationReport();
+const idx = bvAnalysis.loadBattleMechIndex();
+const loadUnit = bvAnalysis.createBattleMechUnitLoader(idx);
 
 // Standard structure table from TechManual
-const STANDARD_STRUCTURE: Record<number, { head: number; ct: number; st: number; arm: number; leg: number }> = {
+const STANDARD_STRUCTURE: Record<
+  number,
+  { head: number; ct: number; st: number; arm: number; leg: number }
+> = {
   20: { head: 3, ct: 6, st: 5, arm: 3, leg: 4 },
   25: { head: 3, ct: 8, st: 6, arm: 4, leg: 6 },
   30: { head: 3, ct: 10, st: 7, arm: 5, leg: 7 },
@@ -46,7 +43,8 @@ function getTotalArmor(unit: any): number {
   let total = 0;
   for (const [loc, val] of Object.entries(unit.armor.allocation)) {
     if (typeof val === 'number') total += val;
-    else if (val && typeof val === 'object') total += ((val as any).front || 0) + ((val as any).rear || 0);
+    else if (val && typeof val === 'object')
+      total += ((val as any).front || 0) + ((val as any).rear || 0);
   }
   return total;
 }
@@ -68,10 +66,16 @@ function getGyroMultiplier(gyroType: string): number {
   return 0.5; // STANDARD, XL, COMPACT
 }
 
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null);
-const under1to2 = valid.filter((x: any) => x.percentDiff >= -2 && x.percentDiff < -1 && x.breakdown);
+const valid = report.allResults.filter(
+  (x: any) => x.status !== 'error' && x.percentDiff !== null,
+);
+const under1to2 = valid.filter(
+  (x: any) => x.percentDiff >= -2 && x.percentDiff < -1 && x.breakdown,
+);
 
-console.log(`=== TRACING ${under1to2.length} UNITS AT 1-2% UNDERCALCULATED ===\n`);
+console.log(
+  `=== TRACING ${under1to2.length} UNITS AT 1-2% UNDERCALCULATED ===\n`,
+);
 
 // For each unit, independently compute defensive components and compare
 let armorDiffs: number[] = [];
@@ -82,15 +86,28 @@ let totalBaseDiffs: number[] = [];
 let offGaps: number[] = [];
 
 const detailed: Array<{
-  id: string; tonnage: number; diff: number; pct: number;
-  reportArmorBV: number; calcArmorBV: number; armorDiff: number;
-  reportStructBV: number; calcStructBV: number; structDiff: number;
-  reportGyroBV: number; calcGyroBV: number; gyroDiff: number;
+  id: string;
+  tonnage: number;
+  diff: number;
+  pct: number;
+  reportArmorBV: number;
+  calcArmorBV: number;
+  armorDiff: number;
+  reportStructBV: number;
+  calcStructBV: number;
+  structDiff: number;
+  reportGyroBV: number;
+  calcGyroBV: number;
+  gyroDiff: number;
   reportDefFactor: number;
-  reportDefEquip: number; reportExplosive: number;
+  reportDefEquip: number;
+  reportExplosive: number;
   baseDefDiff: number;
   offGap: number;
-  engineType: string; armorType: string; structType: string; gyroType: string;
+  engineType: string;
+  armorType: string;
+  structType: string;
+  gyroType: string;
 }> = [];
 
 for (const u of under1to2) {
@@ -108,19 +125,31 @@ for (const u of under1to2) {
 
   // Armor BV: totalArmorPoints * 2.5 * armorMultiplier * BAR/10
   // For standard armor (mult=1, BAR=10): armorBV = totalArmor * 2.5
-  const armorMult = armorType.includes('hardened') ? 2.0 :
-    armorType.includes('reactive') ? 1.5 :
-    armorType.includes('reflective') || armorType.includes('laser-reflective') ? 1.5 :
-    armorType.includes('ballistic') ? 1.5 :
-    armorType.includes('ferro-lamellor') ? 1.2 :
-    armorType.includes('anti-penetrative') ? 1.2 :
-    armorType.includes('heat-dissipating') ? 1.1 : 1.0;
+  const armorMult = armorType.includes('hardened')
+    ? 2.0
+    : armorType.includes('reactive')
+      ? 1.5
+      : armorType.includes('reflective') ||
+          armorType.includes('laser-reflective')
+        ? 1.5
+        : armorType.includes('ballistic')
+          ? 1.5
+          : armorType.includes('ferro-lamellor')
+            ? 1.2
+            : armorType.includes('anti-penetrative')
+              ? 1.2
+              : armorType.includes('heat-dissipating')
+                ? 1.1
+                : 1.0;
   // Compute as the code does: round(pts * 2.5 * mult * BAR) / 10 where BAR=10 for normal
   const calcArmorBV = Math.round(totalArmor * 2.5 * armorMult * 10) / 10;
 
   // Structure BV
-  const structMult = structType.includes('reinforced') ? 2.0 :
-    structType.includes('composite') || structType.includes('industrial') ? 0.5 : 1.0;
+  const structMult = structType.includes('reinforced')
+    ? 2.0
+    : structType.includes('composite') || structType.includes('industrial')
+      ? 0.5
+      : 1.0;
   const engMult = getEngineMultiplier(engineType);
   const calcStructBV = totalStruct * 1.5 * structMult * engMult;
 
@@ -148,16 +177,28 @@ for (const u of under1to2) {
   offGaps.push(offGap);
 
   detailed.push({
-    id: u.unitId, tonnage: unit.tonnage, diff: u.difference, pct: u.percentDiff,
-    reportArmorBV: b.armorBV, calcArmorBV, armorDiff,
-    reportStructBV: b.structureBV, calcStructBV, structDiff,
-    reportGyroBV: b.gyroBV, calcGyroBV, gyroDiff,
+    id: u.unitId,
+    tonnage: unit.tonnage,
+    diff: u.difference,
+    pct: u.percentDiff,
+    reportArmorBV: b.armorBV,
+    calcArmorBV,
+    armorDiff,
+    reportStructBV: b.structureBV,
+    calcStructBV,
+    structDiff,
+    reportGyroBV: b.gyroBV,
+    calcGyroBV,
+    gyroDiff,
     reportDefFactor: b.defensiveFactor,
-    reportDefEquip: b.defensiveEquipBV ?? (b.defEquipBV ?? 0),
+    reportDefEquip: b.defensiveEquipBV ?? b.defEquipBV ?? 0,
     reportExplosive: b.explosivePenalty,
     baseDefDiff,
     offGap,
-    engineType, armorType, structType, gyroType,
+    engineType,
+    armorType,
+    structType,
+    gyroType,
   });
 }
 
@@ -166,25 +207,37 @@ detailed.sort((a, b) => Math.abs(b.offGap) - Math.abs(a.offGap));
 
 // Summary stats
 console.log('=== COMPONENT VERIFICATION ===');
-const nonZeroArmorDiff = armorDiffs.filter(d => Math.abs(d) > 0.1);
-const nonZeroStructDiff = structDiffs.filter(d => Math.abs(d) > 0.1);
-const nonZeroGyroDiff = gyroDiffs.filter(d => Math.abs(d) > 0.1);
-console.log(`  Armor BV mismatches (>0.1): ${nonZeroArmorDiff.length}/${detailed.length}`);
-console.log(`  Structure BV mismatches: ${nonZeroStructDiff.length}/${detailed.length}`);
-console.log(`  Gyro BV mismatches: ${nonZeroGyroDiff.length}/${detailed.length}`);
+const nonZeroArmorDiff = armorDiffs.filter((d) => Math.abs(d) > 0.1);
+const nonZeroStructDiff = structDiffs.filter((d) => Math.abs(d) > 0.1);
+const nonZeroGyroDiff = gyroDiffs.filter((d) => Math.abs(d) > 0.1);
+console.log(
+  `  Armor BV mismatches (>0.1): ${nonZeroArmorDiff.length}/${detailed.length}`,
+);
+console.log(
+  `  Structure BV mismatches: ${nonZeroStructDiff.length}/${detailed.length}`,
+);
+console.log(
+  `  Gyro BV mismatches: ${nonZeroGyroDiff.length}/${detailed.length}`,
+);
 
 if (nonZeroArmorDiff.length > 0) {
-  const avg = nonZeroArmorDiff.reduce((s, d) => s + d, 0) / nonZeroArmorDiff.length;
+  const avg =
+    nonZeroArmorDiff.reduce((s, d) => s + d, 0) / nonZeroArmorDiff.length;
   console.log(`    Armor avg diff: ${avg.toFixed(1)}`);
 }
 if (nonZeroStructDiff.length > 0) {
-  const avg = nonZeroStructDiff.reduce((s, d) => s + d, 0) / nonZeroStructDiff.length;
+  const avg =
+    nonZeroStructDiff.reduce((s, d) => s + d, 0) / nonZeroStructDiff.length;
   console.log(`    Structure avg diff: ${avg.toFixed(1)}`);
 }
 
 // Check: is the gap purely on the offensive side?
-const pureOffGap = detailed.filter(d => Math.abs(d.baseDefDiff) < 1 && d.offGap > 0);
-console.log(`\n  Pure offensive gap (def matches, off short): ${pureOffGap.length}/${detailed.length}`);
+const pureOffGap = detailed.filter(
+  (d) => Math.abs(d.baseDefDiff) < 1 && d.offGap > 0,
+);
+console.log(
+  `\n  Pure offensive gap (def matches, off short): ${pureOffGap.length}/${detailed.length}`,
+);
 
 // Offensive gap stats
 const avgOffGap = offGaps.reduce((s, g) => s + g, 0) / offGaps.length;
@@ -193,13 +246,27 @@ console.log(`  Average offensive gap: ${avgOffGap.toFixed(1)} BV`);
 // Distribution of offensive gap sources
 console.log('\n=== TOP 20 UNIT TRACES ===');
 for (const d of detailed.slice(0, 20)) {
-  console.log(`\n  ${d.id} (${d.tonnage}t) diff=${d.diff} (${d.pct.toFixed(1)}%)`);
-  console.log(`    armor:  report=${d.reportArmorBV.toFixed(1)} calc=${d.calcArmorBV.toFixed(1)} diff=${d.armorDiff.toFixed(1)}`);
-  console.log(`    struct: report=${d.reportStructBV.toFixed(1)} calc=${d.calcStructBV.toFixed(1)} diff=${d.structDiff.toFixed(1)}`);
-  console.log(`    gyro:   report=${d.reportGyroBV.toFixed(1)} calc=${d.calcGyroBV.toFixed(1)} diff=${d.gyroDiff.toFixed(1)}`);
-  console.log(`    defEquip=${d.reportDefEquip} explosive=${d.reportExplosive} defFactor=${d.reportDefFactor.toFixed(2)}`);
-  console.log(`    engine=${d.engineType} armor=${d.armorType} struct=${d.structType} gyro=${d.gyroType}`);
-  console.log(`    offGap=${d.offGap.toFixed(1)} (positive means offensive BV too low)`);
+  console.log(
+    `\n  ${d.id} (${d.tonnage}t) diff=${d.diff} (${d.pct.toFixed(1)}%)`,
+  );
+  console.log(
+    `    armor:  report=${d.reportArmorBV.toFixed(1)} calc=${d.calcArmorBV.toFixed(1)} diff=${d.armorDiff.toFixed(1)}`,
+  );
+  console.log(
+    `    struct: report=${d.reportStructBV.toFixed(1)} calc=${d.calcStructBV.toFixed(1)} diff=${d.structDiff.toFixed(1)}`,
+  );
+  console.log(
+    `    gyro:   report=${d.reportGyroBV.toFixed(1)} calc=${d.calcGyroBV.toFixed(1)} diff=${d.gyroDiff.toFixed(1)}`,
+  );
+  console.log(
+    `    defEquip=${d.reportDefEquip} explosive=${d.reportExplosive} defFactor=${d.reportDefFactor.toFixed(2)}`,
+  );
+  console.log(
+    `    engine=${d.engineType} armor=${d.armorType} struct=${d.structType} gyro=${d.gyroType}`,
+  );
+  console.log(
+    `    offGap=${d.offGap.toFixed(1)} (positive means offensive BV too low)`,
+  );
 }
 
 // Check: what's the breakdown of where the shortfall comes from?
@@ -227,11 +294,21 @@ for (const u of under1to2) {
 
   // Another approach: check the speed factor sensitivity
   // If speed factor is off by 0.01, how much does that affect?
-  const baseOff = (b.weaponBV ?? 0) + (b.ammoBV ?? 0) + (b.weightBonus ?? 0) + (b.physicalWeaponBV ?? 0) + (b.offEquipBV ?? 0);
+  const baseOff =
+    (b.weaponBV ?? 0) +
+    (b.ammoBV ?? 0) +
+    (b.weightBonus ?? 0) +
+    (b.physicalWeaponBV ?? 0) +
+    (b.offEquipBV ?? 0);
   const sfSensitivity = baseOff * 0.01; // BV change per 0.01 SF change
 
   // If defensive factor is off by 0.01...
-  const baseDef = (b.armorBV ?? 0) + (b.structureBV ?? 0) + (b.gyroBV ?? 0) + (b.defensiveEquipBV ?? 0) - (b.explosivePenalty ?? 0);
+  const baseDef =
+    (b.armorBV ?? 0) +
+    (b.structureBV ?? 0) +
+    (b.gyroBV ?? 0) +
+    (b.defensiveEquipBV ?? 0) -
+    (b.explosivePenalty ?? 0);
   const dfSensitivity = baseDef * 0.01;
 
   if (sfSensitivity > dfSensitivity) offShortCount++;
@@ -257,7 +334,9 @@ for (const u of under1to2) {
   const sf = u.breakdown?.speedFactor?.toFixed(2) || 'unknown';
   sfCounts[sf] = (sfCounts[sf] || 0) + 1;
 }
-for (const [sf, count] of Object.entries(sfCounts).sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))) {
+for (const [sf, count] of Object.entries(sfCounts).sort(
+  (a, b) => parseFloat(a[0]) - parseFloat(b[0]),
+)) {
   console.log(`  SF=${sf}: ${count} units`);
 }
 
@@ -266,5 +345,7 @@ console.log('\n=== HEAT EFFICIENCY vs WEAPON BV ===');
 for (const u of under1to2.slice(0, 10)) {
   const b = u.breakdown;
   if (!b) continue;
-  console.log(`  ${u.unitId.substring(0, 35).padEnd(35)} HE=${b.heatEfficiency} weapBV=${b.weaponBV?.toFixed(0)} rawWeapBV=${b.rawWeaponBV?.toFixed(0)} halvedBV=${b.halvedWeaponBV?.toFixed(0)} halvedCt=${b.halvedWeaponCount}/${b.weaponCount}`);
+  console.log(
+    `  ${u.unitId.substring(0, 35).padEnd(35)} HE=${b.heatEfficiency} weapBV=${b.weaponBV?.toFixed(0)} rawWeapBV=${b.rawWeaponBV?.toFixed(0)} halvedBV=${b.halvedWeaponBV?.toFixed(0)} halvedCt=${b.halvedWeaponCount}/${b.weaponCount}`,
+  );
 }
