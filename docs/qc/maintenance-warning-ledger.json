@@ -18,9 +18,9 @@
       "follow-up": 0
     },
     "file-bloat": {
-      "fixed": 4,
+      "fixed": 5,
       "accepted": 0,
-      "follow-up": 15
+      "follow-up": 14
     },
     "near-duplicate": {
       "fixed": 6,
@@ -633,9 +633,12 @@
       "severity": "warn",
       "file": "scripts/validate-bv.ts",
       "message": "775 LOC exceeds rendering threshold",
-      "status": "follow-up",
-      "rationale": "The CLI/reporting orchestrator now delegates metrics, console output, and JSON artifact writing to validate-bv-reporting.ts, dropping from high to advisory warn. Remaining size is mostly reference/override loading and should move with BV parity coverage.",
-      "followUps": ["wave-12-validate-bv-architecture-split"]
+      "status": "fixed",
+      "rationale": "Legacy MUL fallback BV override data moved to validate-bv-mul-overrides.ts, leaving validate-bv.ts as a CLI/reference orchestration file below warning threshold while preserving BV parity behavior.",
+      "fixedEvidence": [
+        "2026-06-28 `npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/validate-bv.ts,scripts/validate-bv-mul-overrides.ts --json` reported warn=0 and validate-bv.ts at info-only 385 LOC.",
+        "2026-06-28 `npm.cmd run validate:bv` passed 4196/4196 coverage floor and all accuracy gates."
+      ]
     },
     {
       "key": "file-bloat|warn|scripts/validate-bv-calculator.ts|891 LOC exceeds standard threshold",
