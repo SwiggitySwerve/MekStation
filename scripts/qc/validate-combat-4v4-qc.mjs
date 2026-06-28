@@ -137,7 +137,10 @@ function validatePackageScripts(packageJson, issues) {
       }
     }
 
-    validated.push({ scriptId: contract.id, tokenCount: contract.tokens.length });
+    validated.push({
+      scriptId: contract.id,
+      tokenCount: contract.tokens.length,
+    });
   }
 
   return validated;
@@ -344,7 +347,11 @@ function validateGraph(graph, issues) {
   const requiredEdges = [
     ['journey:combat-4v4', 'command:qc-combat-4v4-validate', 'validated-by'],
     ['journey:combat-4v4', 'command:verify-qc-combat-4v4', 'validated-by'],
-    ['command:verify-qc-combat-4v4', 'command:qc-combat-4v4-validate', 'contains'],
+    [
+      'command:verify-qc-combat-4v4',
+      'command:qc-combat-4v4-validate',
+      'contains',
+    ],
   ];
   for (const [from, to, relation] of requiredEdges) {
     if (!edgeSet.has(edgeKey(from, to, relation))) {
@@ -376,7 +383,11 @@ function validateSourceAnchor(anchor, issues) {
         { anchorId: anchor.id, path: anchor.path },
       ),
     );
-    return { id: anchor.id, path: anchor.path, tokenCount: anchor.tokens.length };
+    return {
+      id: anchor.id,
+      path: anchor.path,
+      tokenCount: anchor.tokens.length,
+    };
   }
 
   const text = fs.readFileSync(absolutePath, 'utf8');
