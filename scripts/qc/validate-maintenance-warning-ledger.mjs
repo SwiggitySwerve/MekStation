@@ -28,9 +28,7 @@ const waveCategories = new Set([
 ]);
 const actionableSeverities = new Set(['critical', 'high', 'medium', 'warn']);
 const validStatuses = new Set(['fixed', 'accepted', 'follow-up']);
-const generatedFindingPathPrefixes = [
-  'desktop/.tmp/',
-];
+const generatedFindingPathPrefixes = ['desktop/.tmp/'];
 
 function parseArgs(argv) {
   const options = {
