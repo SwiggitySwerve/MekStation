@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import '@testing-library/jest-dom';
@@ -15,10 +15,9 @@ jest.mock('next/router', () => ({
 }));
 
 // Save the original (jest.setup.js) fetch polyfill so per-suite overrides
-// can be restored cleanly. The default polyfill returns empty arrays for
-// `.json` URLs and throws for everything else, which is fine for the
-// existing tab/keyboard/summary tests but inadequate for asserting the
-// persist effect's POST shape — those tests install a typed jest.fn().
+// can be restored cleanly. Most tests do not assert the persist effect, so
+// they install a pending fetch stub and the persist-specific suite replaces
+// it with a typed jest.fn().
 const originalFetch = global.fetch;
 
 function createMockGame() {
@@ -157,23 +156,29 @@ function createMockGame() {
 }
 
 function setMockGameState(game: ReturnType<typeof createMockGame> | null) {
-  // Test mock data - bypass strict typing for scenario field
-  useQuickGameStore.setState({
-    // @ts-expect-error - Mock scenario doesn't need full IGeneratedScenario type
-    game,
-    isLoading: false,
-    error: null,
-    isDirty: false,
+  act(() => {
+    // Test mock data - bypass strict typing for scenario field
+    useQuickGameStore.setState({
+      // @ts-expect-error - Mock scenario doesn't need full IGeneratedScenario type
+      game,
+      isLoading: false,
+      error: null,
+      isDirty: false,
+    });
   });
 }
 
 describe('QuickGameResults', () => {
   beforeEach(() => {
+    global.fetch = jest.fn(
+      () => new Promise<Response>(() => {}),
+    ) as typeof fetch;
     setMockGameState(createMockGame());
   });
 
   afterEach(() => {
     setMockGameState(null);
+    global.fetch = originalFetch;
   });
 
   describe('Tab Navigation', () => {
@@ -444,7 +449,7 @@ describe('QuickGameResults', () => {
     });
 
     it('does NOT fire when the game is null (no game terminal state)', async () => {
-      useQuickGameStore.setState({ game: null });
+      setMockGameState(null);
 
       render(<QuickGameResults />);
 
@@ -456,6 +461,37 @@ describe('QuickGameResults', () => {
 
     it('renders the saved status copy after a successful persist', async () => {
       render(<QuickGameResults />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByTestId('quick-game-persist-status'),
+        ).toHaveTextContent(/saved to/i);
+      });
+    });
+
+    it('renders the saved status copy after StrictMode replays the persist effect', async () => {
+      let resolveFetch: ((response: Response) => void) | undefined;
+      fetchMock.mockImplementation(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveFetch = resolve;
+          }),
+      );
+
+      render(
+        <React.StrictMode>
+          <QuickGameResults />
+        </React.StrictMode>,
+      );
+
+      await waitFor(() => {
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+      });
+
+      expect(resolveFetch).toBeDefined();
+      await act(async () => {
+        resolveFetch?.({ ok: true, status: 200 } as Response);
+      });
 
       await waitFor(() => {
         expect(

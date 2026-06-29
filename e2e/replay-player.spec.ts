@@ -20,17 +20,29 @@ import { promises as fs } from 'node:fs';
 
 import { seedCareerPilot } from './helpers/campaignSeeders';
 
-test.setTimeout(30000);
+const COLD_NAVIGATION_TIMEOUT_MS = 60_000;
+
+test.setTimeout(120_000);
 
 // =============================================================================
 // Test Helpers
 // =============================================================================
 
 /**
+ * Navigate to an app route with enough budget for first-load Next compiles.
+ */
+async function gotoAppRoute(page: Page, path: string): Promise<void> {
+  await page.goto(path, {
+    waitUntil: 'domcontentloaded',
+    timeout: COLD_NAVIGATION_TIMEOUT_MS,
+  });
+}
+
+/**
  * Navigate to audit timeline page
  */
 async function navigateToTimeline(page: Page): Promise<void> {
-  await page.goto('/audit/timeline');
+  await gotoAppRoute(page, '/audit/timeline');
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(500); // React hydration
 }
@@ -39,7 +51,7 @@ async function navigateToTimeline(page: Page): Promise<void> {
  * Navigate to pilots page
  */
 async function navigateToPilots(page: Page): Promise<void> {
-  await page.goto('/gameplay/pilots');
+  await gotoAppRoute(page, '/gameplay/pilots');
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(500);
 }
@@ -399,7 +411,7 @@ test.describe('Game Replay Page', () => {
     page,
   }) => {
     // Navigate to replay for a non-existent game
-    await page.goto('/gameplay/games/non-existent-game/replay');
+    await gotoAppRoute(page, '/gameplay/games/non-existent-game/replay');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(500);
 
@@ -434,7 +446,7 @@ test.describe('Game Replay Page', () => {
     const matchId = `completed-replay-${testInfo.workerIndex}-${Date.now()}`;
     await seedCompletedMatchLog(request, matchId);
 
-    await page.goto('/gameplay/games');
+    await gotoAppRoute(page, '/gameplay/games');
     await page.waitForLoadState('networkidle');
 
     // The seeded completed match must surface direct report and replay actions.
@@ -508,7 +520,7 @@ test.describe('Replay Library Browser Round-Trip', () => {
       await route.continue();
     });
 
-    await page.goto('/replay-library');
+    await gotoAppRoute(page, '/replay-library');
     await page.waitForLoadState('networkidle');
 
     await expect(
@@ -598,7 +610,7 @@ test.describe('Replay Library Browser Round-Trip', () => {
       await route.continue();
     });
 
-    await page.goto('/replay-library');
+    await gotoAppRoute(page, '/replay-library');
     await page.waitForLoadState('networkidle');
 
     await page.getByTestId('source-filter-campaign').click();
@@ -652,7 +664,7 @@ test.describe('Replay Keyboard Shortcuts', () => {
   test('uploaded replay exposes controls and responds to keyboard shortcuts', async ({
     page,
   }) => {
-    await page.goto('/gameplay/games/upload-e2e/replay');
+    await gotoAppRoute(page, '/gameplay/games/upload-e2e/replay');
     await page.waitForLoadState('networkidle');
 
     await expect(page.getByTestId('replay-page')).toBeVisible();

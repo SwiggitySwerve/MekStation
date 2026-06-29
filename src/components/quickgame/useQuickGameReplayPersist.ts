@@ -14,6 +14,14 @@ export function useQuickGameReplayPersist(
   const [persistStatus, setPersistStatus] =
     useState<QuickGamePersistStatus>('idle');
   const persistFiredRef = useRef(false);
+  const isMountedRef = useRef(false);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!game?.endedAt || persistFiredRef.current) return;
@@ -21,14 +29,13 @@ export function useQuickGameReplayPersist(
     persistFiredRef.current = true;
     setPersistStatus('saving');
 
-    let cancelled = false;
     void fetch('/api/replay-library/quick', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: buildReplayLibraryPayload(game),
     })
       .then((res) => {
-        if (cancelled) return;
+        if (!isMountedRef.current) return;
 
         if (res.ok) {
           setPersistStatus('saved');
@@ -41,15 +48,11 @@ export function useQuickGameReplayPersist(
         setPersistStatus('failed');
       })
       .catch((err) => {
-        if (cancelled) return;
+        if (!isMountedRef.current) return;
 
         logger.error('[quick-game] replay-library persist threw', { err });
         setPersistStatus('failed');
       });
-
-    return () => {
-      cancelled = true;
-    };
   }, [game]);
 
   return persistStatus;

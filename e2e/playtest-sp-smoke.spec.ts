@@ -139,7 +139,10 @@ async function setQuickGameScenarioType(
 }
 
 async function gotoQuickGame(page: Page): Promise<void> {
-  await page.goto('/gameplay/quick', { waitUntil: 'domcontentloaded' });
+  await page.goto('/gameplay/quick', {
+    waitUntil: 'domcontentloaded',
+    timeout: 60_000,
+  });
   await expect(page).toHaveURL(/\/gameplay\/quick/);
   await waitForQuickGameStoreReady(page);
 }
@@ -177,6 +180,10 @@ async function generateAndStart(page: Page): Promise<void> {
   await expect(page.getByRole('tab', { name: /summary/i })).toBeVisible({
     timeout: 45_000,
   });
+  await expect(page.getByTestId('quick-game-persist-status')).toContainText(
+    /saved to/i,
+    { timeout: 15_000 },
+  );
 }
 
 async function walkPostBattleTabs(page: Page): Promise<void> {
@@ -207,33 +214,23 @@ async function walkPostBattleTabs(page: Page): Promise<void> {
 }
 
 async function openReplayLibraryAndFindLatest(page: Page): Promise<void> {
-  // Give the persistQuickGame POST a moment to land before navigating.
-  await page.waitForTimeout(500);
   await page.goto('/replay-library', { waitUntil: 'domcontentloaded' });
   await expect(
     page.getByRole('heading', { name: /replay library/i }),
   ).toBeVisible({ timeout: 15_000 });
 
-  // Either an entry shows up, or the "empty" state — both are visible
-  // states. Phase 2 contract: persistence wired correctly, so we expect
-  // at least one quick-game row after this matrix runs at least once.
+  // Phase 2 contract: the results screen reported a saved quick replay, so
+  // the replay library must expose at least one quick-game row.
   const filterQuick = page.getByTestId('source-filter-quick');
   if (await filterQuick.isVisible().catch(() => false)) {
     await filterQuick.click();
   }
-  const anyRow = page.locator('[data-testid^="replay-row-"]');
-  const emptyState = page.getByTestId('replay-library-empty');
-  // After a successful auto-resolve + 500ms, persistQuickGame's POST should
-  // have landed. If not, the empty state is also valid — but we surface
-  // that as a console-log so the matrix triage can spot it.
-  await expect(anyRow.first().or(emptyState)).toBeVisible({ timeout: 15_000 });
-  if (await emptyState.isVisible().catch(() => false)) {
-    test.info().annotations.push({
-      type: 'note',
-      description:
-        'Replay Library empty after auto-resolve; persistQuickGame may have failed or completed before navigation. Worth tracking if it recurs.',
-    });
-  }
+  const firstQuickRow = page.locator('[data-testid^="replay-row-"]').first();
+  await expect(
+    firstQuickRow,
+    'Expected a quick-game replay row after the results screen reported a saved replay.',
+  ).toBeVisible({ timeout: 15_000 });
+  await expect(firstQuickRow.getByTestId('replay-meta-quick')).toBeVisible();
 }
 
 // =============================================================================
@@ -301,7 +298,6 @@ test.describe('Phase 2 — replay viewer', { tag: ['@playtest', '@sp'] }, () => 
       await addUnitsAndProceed(page);
       await setQuickGameScenarioType(page, 'destroy');
       await generateAndStart(page);
-      await page.waitForTimeout(750); // let persistQuickGame land
 
       // Replay Library
       await page.goto('/replay-library', { waitUntil: 'domcontentloaded' });
@@ -315,17 +311,13 @@ test.describe('Phase 2 — replay viewer', { tag: ['@playtest', '@sp'] }, () => 
         await filterQuick.click();
       }
 
-      // Watch the first row. If none, that's a deferred check (logged
-      // earlier); skip the rest gracefully.
+      // Watch the first row. `generateAndStart` waits for the saved status, so
+      // an empty quick replay list is now a real persistence or routing defect.
       const watchBtn = page.locator('[data-testid^="replay-watch-"]').first();
-      if (!(await watchBtn.isVisible().catch(() => false))) {
-        test.info().annotations.push({
-          type: 'note',
-          description:
-            'No quick-game replays in library; cannot exercise viewer in this run.',
-        });
-        return;
-      }
+      await expect(
+        watchBtn,
+        'Expected a quick-game replay watch button after seeding a saved quick replay.',
+      ).toBeVisible({ timeout: 15_000 });
       await watchBtn.click();
 
       // QuickGameReplayPanel mounts. The key contract: timeline + back-to-library.
