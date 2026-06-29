@@ -1,5 +1,6 @@
 import type { ActionLedger } from '@/lib/interventions/ActionLedger';
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type {
   IGmCampaignInterventionCommandPayload,
   IGmCampaignInterventionDomainPayload,
@@ -18,6 +19,7 @@ import type {
   IPlayerVisibleActionLedgerRecord,
 } from '@/types/interventions';
 
+import { projectRosterRecoveryExternalEffects } from '@/lib/interventions/GmRosterRecoveryProjection';
 import { Money } from '@/types/campaign/Money';
 import { TransactionType } from '@/types/campaign/Transaction';
 
@@ -119,14 +121,25 @@ export function buildTimeCascadeCommand({
   campaign,
   conflicted,
   now,
+  rosterEntries = [],
 }: {
   readonly actorId: string;
   readonly campaign: ICampaign;
   readonly conflicted: boolean;
   readonly now: () => string;
+  readonly rosterEntries?: readonly ICampaignRosterEntry[];
 }): IInterventionLedgerCommand<IGmTimeCascadeInterventionCommandPayload> {
   const currentDate = campaign.currentDate.toISOString();
   const generatedAt = now();
+  const projectedExternalEffects = projectRosterRecoveryExternalEffects({
+    campaignId: campaign.id,
+    days: 2,
+    rosterEntries,
+  });
+  const externalEffectRefs = [
+    ...projectedExternalEffects.map((effect) => effect.ref),
+    ...(conflicted ? [`campaign:${campaign.id}:roster:pilot-fatigue`] : []),
+  ];
 
   return {
     domain: 'time',
@@ -135,6 +148,7 @@ export function buildTimeCascadeCommand({
     targetRefs: [
       `campaign:${campaign.id}:currentDate`,
       `campaign:${campaign.id}:repairQueue`,
+      ...projectedExternalEffects.map((effect) => effect.ref),
     ],
     payload: {
       correction: {
@@ -143,9 +157,12 @@ export function buildTimeCascadeCommand({
         baseUpdatedAt: campaign.updatedAt,
         baseCurrentDate: currentDate,
         generatedAt,
-        externalEffectRefs: conflicted
-          ? [`campaign:${campaign.id}:roster:pilot-fatigue`]
-          : undefined,
+        externalEffectRefs:
+          externalEffectRefs.length > 0 ? externalEffectRefs : undefined,
+        projectedExternalEffects:
+          projectedExternalEffects.length > 0
+            ? projectedExternalEffects
+            : undefined,
       },
       privateMetadata: {
         reason:

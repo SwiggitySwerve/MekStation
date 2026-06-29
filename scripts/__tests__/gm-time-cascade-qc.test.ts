@@ -66,7 +66,7 @@ describe('GM time cascade QC validator', () => {
       requiredFamilies: string[];
       requiredProcessors: string[];
       requiredCampaignRoots: string[];
-      anchors: unknown[];
+      anchors: Array<{ id: string }>;
       surface: { surfaceId: string; parentId: string };
     };
     expect(manifest.status).toBe('pass');
@@ -82,7 +82,13 @@ describe('GM time cascade QC validator', () => {
     ]);
     expect(manifest.requiredCampaignRoots).toContain('currentDate');
     expect(manifest.requiredCampaignRoots).toContain('contractMarket');
-    expect(manifest.anchors).toHaveLength(14);
+    expect(manifest.anchors).toHaveLength(16);
+    expect(manifest.anchors.map((anchor) => anchor.id)).toEqual(
+      expect.arrayContaining([
+        'time-cascade-roster-recovery-projection',
+        'time-cascade-roster-recovery-tests',
+      ]),
+    );
     expect(manifest.surface).toMatchObject({
       surfaceId: 'time-cascade-gm-ledger',
       parentId: 'campaign-economy-progression',

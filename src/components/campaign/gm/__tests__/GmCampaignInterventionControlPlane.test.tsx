@@ -1,12 +1,17 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type {
   IGmCampaignProjectedEffect,
   IGmTimeCascadeProjectedEffect,
 } from '@/types/interventions';
 
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { createCampaign } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { createInjury } from '@/types/campaign/Person';
 import { TransactionType } from '@/types/campaign/Transaction';
 
 import { GmCampaignInterventionControlPlane } from '../GmCampaignInterventionControlPlane';
@@ -17,6 +22,16 @@ function fixedNow(): string {
 }
 
 describe('GmCampaignInterventionControlPlane', () => {
+  beforeEach(() => {
+    useCampaignRosterStore.getState().reset();
+  });
+
+  afterEach(() => {
+    act(() => {
+      useCampaignRosterStore.getState().reset();
+    });
+  });
+
   it('hydrates player-safe rows from persisted campaign and time intervention events', () => {
     const campaign = {
       ...createCampaign('GM Ledger Reload Test', 'mercenary', {
@@ -220,6 +235,84 @@ describe('GmCampaignInterventionControlPlane', () => {
     expect(gmLog.getByText(/previous timeline/)).toBeInTheDocument();
   });
 
+  it('previews and applies roster recovery external effects on time approval', () => {
+    const campaign = {
+      ...createCampaign('GM Roster Recovery Test', 'mercenary', {
+        startingFunds: 1_000_000,
+      }),
+      id: 'campaign-roster-recovery',
+      currentDate: new Date('3025-02-02T00:00:00.000Z'),
+      updatedAt: '2026-06-22T00:00:00.000Z',
+      currentSystemId: 'terra',
+    };
+    const onApplyCampaignUpdate = jest.fn();
+    useCampaignRosterStore.getState().initRoster(campaign.id);
+    useCampaignRosterStore.getState().addPilot(
+      makeRosterEntry({
+        pilotId: 'pilot-recovery',
+        pilotName: 'Mira Holt',
+        recoveryTime: 2,
+        injuries: [
+          createInjury({
+            id: 'injury-1',
+            type: 'Concussion',
+            location: 'Head',
+            severity: 2,
+            daysToHeal: 2,
+            acquired: new Date('3025-01-31T00:00:00.000Z'),
+          }),
+        ],
+      }),
+    );
+
+    render(
+      <GmCampaignInterventionControlPlane
+        campaign={campaign}
+        onApplyCampaignUpdate={onApplyCampaignUpdate}
+        now={fixedNow}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('gm-ledger-time-preview-btn'));
+
+    expect(screen.getByTestId('gm-ledger-preview-status')).toHaveTextContent(
+      'ready',
+    );
+    expect(
+      screen.getByTestId('gm-ledger-preview-external-effects'),
+    ).toHaveTextContent(
+      'Mira Holt recovery advanced 2 days: 2 -> 0 days remaining.',
+    );
+
+    fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+
+    const rosterPilot = useCampaignRosterStore
+      .getState()
+      .pilots.find((pilot) => pilot.pilotId === 'pilot-recovery');
+    expect(rosterPilot).toMatchObject({
+      status: CampaignPilotStatus.Active,
+      recoveryTime: 0,
+      injuries: [],
+    });
+    expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(1);
+    const updates = onApplyCampaignUpdate.mock.calls[0][0];
+    expect(updates.timeCascadeEvents?.[0].externalEffects).toEqual([
+      expect.objectContaining({
+        ref: 'campaign:campaign-roster-recovery:roster:pilot-recovery:recovery',
+        summary: expect.stringContaining('Mira Holt recovery advanced 2 days'),
+      }),
+    ]);
+
+    const playerLog = within(screen.getByTestId('gm-ledger-player-log'));
+    expect(
+      playerLog.getByText(/Campaign time corrected by 2 days/),
+    ).toBeInTheDocument();
+    expect(playerLog.queryByText(/Mira Holt recovery/)).not.toBeInTheDocument();
+    expect(
+      playerLog.queryByText(/Hidden time cascade/),
+    ).not.toBeInTheDocument();
+  });
+
   it('blocks conflicted approval and records manual takeover without mutating state', () => {
     const campaign = createCampaign('GM Ledger Manual Test', 'mercenary', {
       startingFunds: 1_000_000,
@@ -259,6 +352,27 @@ describe('GmCampaignInterventionControlPlane', () => {
     );
   });
 });
+
+function makeRosterEntry(
+  overrides: Partial<ICampaignRosterEntry> = {},
+): ICampaignRosterEntry {
+  return {
+    pilotId: 'pilot-1',
+    pilotName: 'Alex Mason',
+    status: CampaignPilotStatus.Wounded,
+    wounds: 1,
+    recoveryTime: 2,
+    xp: 0,
+    campaignXpEarned: 0,
+    campaignKills: 0,
+    campaignMissions: 0,
+    hireDate: new Date('3025-01-01T00:00:00.000Z'),
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
+    injuries: [],
+    ...overrides,
+  };
+}
 
 describe('GmCampaignPlayerLedgerView', () => {
   it('renders only player-safe persisted ledger rows', () => {

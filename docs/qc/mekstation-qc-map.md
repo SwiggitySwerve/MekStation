@@ -282,7 +282,8 @@ flowchart TD
    - Wave 9 lives under `campaign-economy-progression` and proves the
      ledger-backed GM time-cascade layer for date advancement, optional
      travel, repair progression, contract windows, market refreshes, finance
-     upkeep, external-effect manual takeover, and public/private redaction.
+     upkeep, pilot recovery external effects, external-effect manual takeover,
+     and public/private redaction.
    - Validate first with `qc:gm:time-cascade:validate`; use
      `verify:qc:gm:time-cascade` when you also want focused intervention and
      day-processor tests that prove approval, replay, market processor anchors,
@@ -298,6 +299,11 @@ flowchart TD
      roots=12/12 and anchors=14, 7 Jest suites / 56 tests, repeated-cascade
      bounded audit-event storage, and 4 Chromium GM ledger checks that poll
      canonical `timeCascadeEvents` after approval and reload.
+   - 2026-06-29 `verify:qc:gm:time-cascade` passed with validator
+     roots=12/12 and anchors=16, 8 Jest suites / 62 tests, and 6 Chromium GM
+     ledger checks after pilot recovery became a projected external effect with
+     GM preview display, approval-gated roster patches, and player-log
+     redaction.
 
 1. `long-campaign-stability`
    - `long-campaign-stability` is the Wave 11 guard for deterministic 6-10

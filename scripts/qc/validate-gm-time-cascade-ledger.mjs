@@ -13,6 +13,7 @@ const requiredSurface = {
     'qc:gm:time-cascade:validate',
     'verify:qc:gm:campaign-browser',
     'gm-campaign-ledger-control-plane.spec.ts',
+    'GmRosterRecoveryProjection.test.ts',
     'GmTimeCascadeInterventionImplementer.test.ts',
     'GmCampaignInterventionBoundaries.test.ts',
     'GmCampaignInterventionControlPlane.test.tsx',
@@ -123,6 +124,19 @@ const defaultSourceAnchors = [
     ],
   },
   {
+    id: 'time-cascade-roster-recovery-projection',
+    path: 'src/lib/interventions/GmRosterRecoveryProjection.ts',
+    tokens: [
+      'projectRosterRecoveryExternalEffects',
+      'buildRosterRecoveryPatchesFromExternalEffects',
+      'gm.roster.recovery',
+      'CampaignPilotStatus.Wounded',
+      'CampaignPilotStatus.Active',
+      ':recovery',
+      'recovery advanced',
+    ],
+  },
+  {
     id: 'time-cascade-focused-tests',
     path: 'src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts',
     tokens: [
@@ -141,6 +155,16 @@ const defaultSourceAnchors = [
       'projectForGm',
       'new-avalon',
       'roster:pilot-1:fatigue',
+    ],
+  },
+  {
+    id: 'time-cascade-roster-recovery-tests',
+    path: 'src/lib/interventions/__tests__/GmRosterRecoveryProjection.test.ts',
+    tokens: [
+      'projects wounded pilot recovery as a time-cascade external effect',
+      'returns wounded pilots to active duty when recovery and injuries clear',
+      'skips active pilots without recovery state',
+      'builds roster patches from approved external effects',
     ],
   },
   {
@@ -220,6 +244,9 @@ const defaultSourceAnchors = [
     path: 'src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx',
     tokens: [
       'registerGmTimeCascadeInterventionImplementer',
+      'buildRosterRecoveryPatchesFromExternalEffects',
+      'useCampaignRosterStore',
+      'applyPilotPatches',
       'buildTimeCascadeCommand',
       'gm-ledger-time-preview-btn',
       'gm-ledger-time-conflict-preview-btn',
@@ -232,8 +259,11 @@ const defaultSourceAnchors = [
     path: 'src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.test.tsx',
     tokens: [
       'previews and approves a time cascade with player-safe output',
+      'previews and applies roster recovery external effects on time approval',
       'gm-ledger-time-preview-btn',
       'gm-ledger-preview-time-effect',
+      'gm-ledger-preview-external-effects',
+      'Mira Holt recovery advanced 2 days',
       'Hidden time cascade',
       'timeCascadeEvents',
     ],

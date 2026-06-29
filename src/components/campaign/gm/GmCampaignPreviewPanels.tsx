@@ -55,13 +55,25 @@ export function GmPreviewPanel({
         </p>
       ) : null}
       {timeEffect ? (
-        <p
-          className="text-text-theme-secondary mt-2 font-mono text-sm"
-          data-testid="gm-ledger-preview-time-effect"
-        >
-          {formatDate(timeEffect.before.currentDate)} -&gt;{' '}
-          {formatDate(timeEffect.after.currentDate)} ({timeEffect.days} days)
-        </p>
+        <>
+          <p
+            className="text-text-theme-secondary mt-2 font-mono text-sm"
+            data-testid="gm-ledger-preview-time-effect"
+          >
+            {formatDate(timeEffect.before.currentDate)} -&gt;{' '}
+            {formatDate(timeEffect.after.currentDate)} ({timeEffect.days} days)
+          </p>
+          {timeEffect.externalEffects.length > 0 ? (
+            <ul
+              className="text-text-theme-secondary mt-2 list-disc space-y-1 pl-5 text-sm"
+              data-testid="gm-ledger-preview-external-effects"
+            >
+              {timeEffect.externalEffects.map((effect) => (
+                <li key={effect.ref}>{effect.summary}</li>
+              ))}
+            </ul>
+          ) : null}
+        </>
       ) : null}
       {preview.privateMetadata ? (
         <div

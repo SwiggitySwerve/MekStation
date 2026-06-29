@@ -1346,9 +1346,12 @@
         "scripts/qc/validate-gm-time-cascade-ledger.mjs",
         "scripts/__tests__/gm-time-cascade-qc.test.ts",
         "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+        "src/lib/interventions/GmRosterRecoveryProjection.ts",
         "e2e/gm-campaign-ledger-control-plane.spec.ts",
+        "src/lib/interventions/__tests__/GmRosterRecoveryProjection.test.ts",
         "src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts",
-        "src/lib/campaign/processors/__tests__/marketProcessors.test.ts"
+        "src/lib/campaign/processors/__tests__/marketProcessors.test.ts",
+        "2026-06-29 pilot recovery external effects are projected, displayed to the GM before approval, applied to roster state only after approval, and redacted from player logs."
       ]
     },
     {
@@ -1364,7 +1367,7 @@
       "kind": "known-gap",
       "label": "Time Cascade GM Ledger known gaps",
       "entries": [
-        "Pilot recovery, roster progression, and vault-owned effects remain external to campaign-owned time projection; the time-cascade validator requires explicit projected external effects or manual-takeover anchors."
+        "Roster progression and vault-owned effects remain external to campaign-owned time projection; the time-cascade validator requires explicit projected external effects or manual-takeover anchors for any non-campaign state."
       ]
     },
     {
@@ -1385,7 +1388,7 @@
     {
       "id": "command:npm-cmd-test-watchall-false-runtestsbypath-scripts-tests-gm-time-cascade-qc-test-ts-src-lib-inte",
       "kind": "command",
-      "label": "npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/gm-time-cascade-qc.test.ts src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts src/lib/campaign/processors/__tests__/processors.test.ts src/lib/campaign/processors/__tests__/repairProgressProcessor.test.ts src/lib/campaign/processors/__tests__/marketProcessors.test.ts"
+      "label": "npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/gm-time-cascade-qc.test.ts src/lib/interventions/__tests__/GmRosterRecoveryProjection.test.ts src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts src/lib/campaign/processors/__tests__/processors.test.ts src/lib/campaign/processors/__tests__/repairProgressProcessor.test.ts src/lib/campaign/processors/__tests__/marketProcessors.test.ts"
     },
     {
       "id": "surface:multiplayer-coop-sync",
