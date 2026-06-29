@@ -22,8 +22,6 @@ import { logger } from '@/utils/logger';
 
 import type { IReplayManifestEntry } from './types';
 
-import { scanReplayDirectory } from './backfill-scan';
-
 /**
  * Backfill scan invoked when `replay-index.json` is missing. PR 3 wires the
  * real on-disk scan as the default; tests may still inject a stub through
@@ -41,8 +39,12 @@ export type BackfillScan = (
  * from the on-disk `simulation-reports/` tree. Exported so callers can wrap
  * or compose it without depending on `backfill-scan` directly.
  */
-export const defaultBackfillScan: BackfillScan = (cwd) =>
-  scanReplayDirectory({ cwd });
+export const defaultBackfillScan: BackfillScan = async (cwd) => {
+  // Keep the scanner lazy so normal replay API bundles do not trace the
+  // developer's entire simulation-reports/ tree during standalone builds.
+  const { scanReplayDirectory } = await import('./backfill-scan');
+  return scanReplayDirectory({ cwd });
+};
 
 /**
  * Options for the reader. `cwd` lets tests inject a tmpdir without polluting
@@ -100,7 +102,7 @@ function hasRecognizedReplaySource(
  *   - If `replay-index.json` exists and parses, returns the recognized
  *     entries (skips + debug-logs forward-compat ones).
  *   - If `replay-index.json` does not exist (`ENOENT`), invokes the
- *     `backfillScan` option (default: empty-array stub) and returns its
+ *     `backfillScan` option (default: real on-disk scan) and returns its
  *     result.
  *   - Any other read/parse error propagates — the caller decides whether
  *     to surface it.
