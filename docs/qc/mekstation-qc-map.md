@@ -180,6 +180,10 @@ flowchart TD
      warnings after adding `/share`, invalid share-token recovery, and explicit
      `/e2e/*` harness ownership; `verify:qc:app-shell` passed 30 Chromium
      checks.
+   - 2026-06-29 Wave 1 route ownership is also available on demand through
+     `npm.cmd run qc:app-shell-routes:validate`, which reports primary,
+     recovery, delegated, known-gap, and test-harness route counts before the
+     slower Chromium refresh/deep-link proof runs.
    - Dynamic generated-ID session recovery is intentionally left to the
      campaign, combat continuity, multiplayer, and replay lanes where seeded
      state can prove recovery without weakening this static route sweep.

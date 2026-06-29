@@ -361,6 +361,7 @@
         "2026-06-24 `npm.cmd run verify:qc:app-shell` passed 28 Chromium checks across dashboard, onboarding, gameplay hub, quick game, pilots, forces, campaigns, encounters, games, repair, compendium hub/units/equipment/rules, custom units, create routes for pilots/forces/campaigns/encounters, customizer, compare, multiplayer, audit timeline, replay library, settings, settings hash deep link, desktop dropdown route alignment, and mobile bottom navigation active-state alignment. The proof caught and fixed `/units` browser SQLite leakage through the unit-card barrel import and `/compare` reload-abort logging.",
         "2026-06-27 `e2e/app-shell-route-manifest.json` became the shared browser route-proof manifest; `npm.cmd run qc:validate` now fails when app-shell registry routes and the browser proof manifest drift, and the original manifest-backed proof passed 28 Chromium route/deep-link/refresh checks.",
         "2026-06-27 Wave 1 route ownership classifies every non-API Next.js page as primary app-shell, generated-state delegated, recovery, known route gap, or development/test harness. Current proof: `npm.cmd run qc:validate` passed with 0 errors / 0 warnings, and `npm.cmd run verify:qc:app-shell` passed 30 Chromium checks including `/share`, invalid share-token recovery, desktop dropdowns, and mobile bottom navigation.",
+        "2026-06-29 `npm.cmd run qc:app-shell-routes:validate` became the on-demand Wave 1 route-ownership slice: it reports primary/recovery/delegated/test-harness coverage and fails when any non-API Next.js page route is unclassified before the Chromium refresh/deep-link proof runs.",
         "Archived OpenSpec change 2026-06-21-fix-navigation-and-playability-deadends retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23."
       ]
@@ -392,6 +393,11 @@
       "id": "command:npm-cmd-run-typecheck-pretty-false",
       "kind": "command",
       "label": "npm.cmd run typecheck -- --pretty false"
+    },
+    {
+      "id": "command:qc-app-shell-routes-validate",
+      "kind": "command",
+      "label": "npm.cmd run qc:app-shell-routes:validate"
     },
     {
       "id": "command:verify-qc-app-shell",
@@ -2098,6 +2104,16 @@
     },
     {
       "from": "command:npm-cmd-run-typecheck-pretty-false",
+      "to": "evidence:app-shell-navigation:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:app-shell-navigation:lifecycle",
+      "to": "command:qc-app-shell-routes-validate",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:qc-app-shell-routes-validate",
       "to": "evidence:app-shell-navigation:registry",
       "relation": "produces"
     },
