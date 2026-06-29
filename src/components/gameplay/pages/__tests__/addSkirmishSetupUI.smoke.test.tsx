@@ -8,20 +8,24 @@
  * @spec openspec/changes/add-skirmish-setup-ui/tasks.md § 4-5
  */
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import {
   MAP_RADIUS_OPTIONS,
   MapConfigEditor,
   SCENARIO_OPTIONAL_RULES,
+  ScenarioTemplateCard,
   ScenarioRulesEditor,
 } from '@/components/gameplay/pages/PreBattlePage.sections';
 import {
+  SCENARIO_TEMPLATES,
+  ScenarioTemplateType,
   TerrainPreset,
   VictoryConditionType,
   type IMapConfiguration,
   type IVictoryCondition,
+  type IScenarioTemplate,
 } from '@/types/encounter';
 
 const baseConfig: IMapConfiguration = {
@@ -209,5 +213,63 @@ describe('authored scenario rules editor smoke test', () => {
     expect(onChange).toHaveBeenNthCalledWith(2, {
       optionalRules: [],
     });
+  });
+});
+
+function getScenarioTemplate(
+  templateType: ScenarioTemplateType,
+): IScenarioTemplate {
+  const template = SCENARIO_TEMPLATES.find(({ type }) => type === templateType);
+  if (!template) {
+    throw new Error(`Missing scenario template: ${templateType}`);
+  }
+  return template;
+}
+
+describe('scenario template explanation card', () => {
+  it('summarizes built-in battle defaults before authoring changes are made', () => {
+    render(
+      <ScenarioTemplateCard
+        template={getScenarioTemplate(ScenarioTemplateType.Battle)}
+      />,
+    );
+
+    expect(screen.getByTestId('scenario-template-card')).toHaveTextContent(
+      'Scenario: Battle',
+    );
+    expect(
+      within(screen.getByTestId('scenario-template-objective')).getByText(
+        'Cripple enemy force at 60% + 20 turn limit',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId('scenario-template-map-default')).getByText(
+        'Radius 12 (25x25), Clear',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId('scenario-template-unit-target')).getByText(
+        '12 units per side',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId('scenario-template-bv-band')).getByText(
+        '12,000 - 24,000 BV',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('uses singular force target copy for duel-sized templates', () => {
+    render(
+      <ScenarioTemplateCard
+        template={getScenarioTemplate(ScenarioTemplateType.Duel)}
+      />,
+    );
+
+    expect(
+      within(screen.getByTestId('scenario-template-unit-target')).getByText(
+        '1 unit per side',
+      ),
+    ).toBeInTheDocument();
   });
 });
