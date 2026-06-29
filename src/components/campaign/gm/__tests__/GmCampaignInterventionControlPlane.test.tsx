@@ -10,6 +10,7 @@ import { createCampaign } from '@/types/campaign/Campaign';
 import { TransactionType } from '@/types/campaign/Transaction';
 
 import { GmCampaignInterventionControlPlane } from '../GmCampaignInterventionControlPlane';
+import { GmCampaignPlayerLedgerView } from '../GmCampaignPlayerLedgerView';
 
 function fixedNow(): string {
   return '3025-01-01T00:00:00.000Z';
@@ -255,6 +256,108 @@ describe('GmCampaignInterventionControlPlane', () => {
     );
     expect(screen.getByTestId('gm-ledger-private-log')).toHaveTextContent(
       'Manual takeover selected',
+    );
+  });
+});
+
+describe('GmCampaignPlayerLedgerView', () => {
+  it('renders only player-safe persisted ledger rows', () => {
+    const campaign = {
+      ...createCampaign('GM Ledger Guest Mirror Test', 'mercenary', {
+        startingFunds: 1_000_000,
+      }),
+      id: 'campaign-gm-guest',
+      updatedAt: '3025-01-03T00:00:00.000Z',
+      gmInterventionEvents: [
+        {
+          type: 'gm.campaign.funds_transaction_corrected',
+          domain: 'economy',
+          family: 'funds-transaction',
+          interventionId: 'gm-ledger-merchant-reversal',
+          transactionId: 'gm-ledger-merchant-reversal',
+          changedStateRefs: ['campaign:campaign-gm-guest:finances'],
+          publicSummary: 'Merchant charge corrected by -2,500.00 C-bills.',
+          before: {
+            balanceCents: 100_000_000,
+            transactionIds: [],
+          },
+          after: {
+            balanceCents: 99_750_000,
+            transaction: {
+              id: 'gm-ledger-merchant-reversal',
+              type: TransactionType.PartPurchase,
+              amountCents: -250_000,
+              date: '3025-01-03T00:00:00.000Z',
+              description: 'GM merchant charge reversal',
+            },
+          },
+        } satisfies IGmCampaignProjectedEffect,
+      ],
+      timeCascadeEvents: [
+        {
+          type: 'gm.campaign.time_cascade_applied',
+          domain: 'time',
+          family: 'time-advance',
+          interventionId: 'gm-ledger-time-cascade',
+          days: 2,
+          before: {
+            currentDate: '3025-01-03T00:00:00.000Z',
+            updatedAt: '3025-01-03T00:00:00.000Z',
+            currentSystemId: 'terra',
+          },
+          after: {
+            currentDate: '3025-01-05T00:00:00.000Z',
+            updatedAt: '3025-01-05T00:00:00.000Z',
+            currentSystemId: 'terra',
+          },
+          afterCampaign: {
+            ...createCampaign('GM Ledger Guest Mirror Test', 'mercenary', {
+              startingFunds: 1_000_000,
+            }),
+            id: 'campaign-gm-guest',
+            currentDate: new Date('3025-01-05T00:00:00.000Z'),
+            updatedAt: '3025-01-05T00:00:00.000Z',
+            currentSystemId: 'terra',
+          },
+          daySummaries: [],
+          generatedEvents: [],
+          changedStateRefs: [
+            'campaign:campaign-gm-guest:currentDate',
+            'campaign:campaign-gm-guest:repairQueue',
+          ],
+          externalEffects: [],
+          publicSummary: 'Campaign time corrected by 2 days.',
+        } satisfies IGmTimeCascadeProjectedEffect,
+      ],
+    };
+
+    render(<GmCampaignPlayerLedgerView campaign={campaign} />);
+
+    expect(
+      screen.getByTestId('gm-ledger-player-only-notice'),
+    ).toHaveTextContent(
+      'GM controls are available only to the campaign owner or co-op host',
+    );
+    expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
+      'Merchant charge corrected by -2,500.00 C-bills.',
+    );
+    expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
+      'Campaign time corrected by 2 days.',
+    );
+    expect(
+      screen.queryByTestId('gm-ledger-private-log'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('gm-ledger-preview-btn'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('gm-ledger-approve-btn'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('gm-ledger-manual-btn'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('gm-ledger-player-log')).not.toHaveTextContent(
+      /Hidden campaign|Hidden time|black-market|GM-only|default outcome/i,
     );
   });
 });

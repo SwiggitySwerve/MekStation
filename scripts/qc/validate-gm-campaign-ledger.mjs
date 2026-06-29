@@ -135,8 +135,22 @@ const defaultSourceAnchors = [
     path: 'src/pages/gameplay/campaigns/[id]/gm-ledger.tsx',
     tokens: [
       'GmCampaignInterventionControlPlane',
+      'GmCampaignPlayerLedgerView',
+      'resolveCampaignAuthorityFromSession',
       "currentPage: 'gm-ledger'",
       'onApplyCampaignUpdate',
+    ],
+  },
+  {
+    id: 'campaign-gm-ledger-authority-helper',
+    path: 'src/lib/campaign/campaignAuthority.ts',
+    tokens: [
+      'resolveCampaignAuthorityFromSession',
+      'canUseCampaignGmControls',
+      'single-player-owner',
+      'coop-host',
+      'coop-guest',
+      'canViewGmPrivateLedger',
     ],
   },
   {
@@ -164,6 +178,16 @@ const defaultSourceAnchors = [
     ],
   },
   {
+    id: 'campaign-gm-ledger-player-view',
+    path: 'src/components/campaign/gm/GmCampaignPlayerLedgerView.tsx',
+    tokens: [
+      'gm-ledger-player-only-view',
+      'gm-ledger-player-only-notice',
+      'buildPersistedCampaignEventRows',
+      'GM controls are available only to the campaign owner or co-op host',
+    ],
+  },
+  {
     id: 'campaign-gm-ledger-projections',
     path: 'src/components/campaign/gm/GmCampaignLedgerProjection.tsx',
     tokens: [
@@ -177,9 +201,12 @@ const defaultSourceAnchors = [
     path: 'e2e/gm-campaign-ledger-control-plane.spec.ts',
     tokens: [
       'previews, approves, and redacts a merchant reversal',
+      'guest direct route shows only player-safe ledger projection',
       'blocks conflicted cascades until the GM takes manual control',
       'gm-ledger-player-log',
       'gm-ledger-private-log',
+      'gm-ledger-player-only-notice',
+      "getByRole('navigation', { name: 'Campaign sections' })",
       'not.toContainText',
     ],
   },
@@ -188,6 +215,8 @@ const defaultSourceAnchors = [
     path: 'src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.test.tsx',
     tokens: [
       'previews and approves a funds correction with player-safe output',
+      'GmCampaignPlayerLedgerView',
+      'renders only player-safe persisted ledger rows',
       'blocks conflicted approval and records manual takeover without mutating state',
       'Hidden campaign',
       'No campaign state changed',

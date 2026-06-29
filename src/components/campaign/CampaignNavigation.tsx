@@ -28,6 +28,8 @@ import Link from 'next/link';
 
 import type { ICoopSession } from '@/types/campaign/CoopSession';
 
+import { canUseCampaignGmControls } from '@/lib/campaign/campaignAuthority';
+
 /**
  * Identifier of the currently-active campaign page. The bay pages
  * (`mech-bay`, `repair-bay`, `medical-bay`, `salvage`) were added by CP2a;
@@ -73,6 +75,8 @@ export function CampaignNavigation({
   currentPage,
   coopSession,
 }: CampaignNavigationProps): React.ReactElement {
+  const canUseGmLedger = canUseCampaignGmControls(coopSession);
+
   const tabs: readonly NavTab[] = [
     {
       id: 'dashboard',
@@ -159,11 +163,15 @@ export function CampaignNavigation({
       label: 'Prestige & Morale',
       href: `/gameplay/campaigns/${campaignId}/prestige-morale`,
     },
-    {
-      id: 'gm-ledger',
-      label: 'GM Ledger',
-      href: `/gameplay/campaigns/${campaignId}/gm-ledger`,
-    },
+    ...(canUseGmLedger
+      ? [
+          {
+            id: 'gm-ledger',
+            label: 'GM Ledger',
+            href: `/gameplay/campaigns/${campaignId}/gm-ledger`,
+          } satisfies NavTab,
+        ]
+      : []),
   ];
 
   const renderTab = (tab: NavTab): React.ReactElement => (

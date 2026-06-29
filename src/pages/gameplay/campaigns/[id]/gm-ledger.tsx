@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 
-import { GmCampaignInterventionControlPlane } from '@/components/campaign/gm';
+import {
+  GmCampaignInterventionControlPlane,
+  GmCampaignPlayerLedgerView,
+} from '@/components/campaign/gm';
+import { resolveCampaignAuthorityFromSession } from '@/lib/campaign/campaignAuthority';
 import {
   CampaignPageFrameFromShell,
   getLoadedCampaign,
@@ -20,21 +24,28 @@ export default function GmLedgerPage(): React.ReactElement {
   if (pendingPage) return pendingPage;
 
   const campaign = getLoadedCampaign(shell);
+  const authority = resolveCampaignAuthorityFromSession(campaign.coopSession);
   const frame = {
     title: 'GM Ledger',
-    subtitle: `${campaign.name} - intervention control plane`,
+    subtitle: authority.canUseGmControls
+      ? `${campaign.name} - intervention control plane`
+      : `${campaign.name} - player-visible ledger`,
     currentPage: 'gm-ledger',
   } as const;
 
   return (
     <CampaignPageFrameFromShell shell={shell} frame={frame}>
-      <GmCampaignInterventionControlPlane
-        campaign={campaign}
-        onApplyCampaignUpdate={(updates) => {
-          shell.store.getState().updateCampaign(updates);
-          setActionTick((tick) => tick + 1);
-        }}
-      />
+      {authority.canUseGmControls ? (
+        <GmCampaignInterventionControlPlane
+          campaign={campaign}
+          onApplyCampaignUpdate={(updates) => {
+            shell.store.getState().updateCampaign(updates);
+            setActionTick((tick) => tick + 1);
+          }}
+        />
+      ) : (
+        <GmCampaignPlayerLedgerView campaign={campaign} />
+      )}
     </CampaignPageFrameFromShell>
   );
 }

@@ -133,7 +133,11 @@ export default function CampaignStarmapPage(): React.ReactElement {
       maxWidth="wide"
       breadcrumbs={breadcrumbs}
     >
-      <CampaignNavigation campaignId={campaign.id} currentPage="starmap" />
+      <CampaignNavigation
+        campaignId={campaign.id}
+        currentPage="starmap"
+        coopSession={campaign.coopSession}
+      />
 
       {/* Selection / travel control strip. Sits above the canvas so
        * the operator can read the destination + commit a jump
