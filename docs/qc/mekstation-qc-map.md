@@ -273,6 +273,10 @@ flowchart TD
    - 2026-06-24 Wave 2 added the browser GM Ledger route and focused
      Playwright/component proof for merchant reversal approval, player-safe
      action-log projection, GM-private details, and conflicted manual takeover.
+   - 2026-06-28 `verify:qc:gm:campaign-ledger` passed with validator
+     anchors=14, 5 Jest suites / 32 tests, and 4 Chromium GM ledger checks
+     proving merchant reversal reload, manual-control blocking, approved
+     time-cascade reload, and external-effect manual-control flow.
 
 1. `time-cascade-gm-ledger`
    - Wave 9 lives under `campaign-economy-progression` and proves the
@@ -290,6 +294,10 @@ flowchart TD
      tests after manual review of travel, repair, market/upkeep,
      public/private redaction, external-effect projection, and manual-takeover
      cases.
+   - 2026-06-28 `verify:qc:gm:time-cascade` passed with validator
+     roots=12/12 and anchors=14, 7 Jest suites / 56 tests, repeated-cascade
+     bounded audit-event storage, and 4 Chromium GM ledger checks that poll
+     canonical `timeCascadeEvents` after approval and reload.
 
 1. `long-campaign-stability`
    - `long-campaign-stability` is the Wave 11 guard for deterministic 6-10

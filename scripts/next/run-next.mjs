@@ -18,6 +18,24 @@ const nextCli = path.join(
   'next',
 );
 const nextArgs = process.argv.slice(2);
+const defaultNextBuildOldSpaceMb = '8192';
+
+function hasExplicitOldSpaceLimit(nodeOptions) {
+  return /(?:^|\s)--max-old-space-size(?:=|\s)\S*/.test(nodeOptions ?? '');
+}
+
+function resolveNodeOptions(env, args) {
+  const nodeOptions = env.NODE_OPTIONS ?? '';
+  if (args[0] !== 'build' || hasExplicitOldSpaceLimit(nodeOptions)) {
+    return nodeOptions;
+  }
+
+  const oldSpaceMb =
+    env.MEKSTATION_NEXT_BUILD_OLD_SPACE_MB ?? defaultNextBuildOldSpaceMb;
+  return [nodeOptions.trim(), `--max-old-space-size=${oldSpaceMb}`]
+    .filter(Boolean)
+    .join(' ');
+}
 
 const child = spawn(process.execPath, [nextCli, ...nextArgs], {
   cwd: repoRoot,
@@ -25,6 +43,7 @@ const child = spawn(process.execPath, [nextCli, ...nextArgs], {
     ...process.env,
     BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA: 'true',
     BROWSERSLIST_IGNORE_OLD_DATA: 'true',
+    NODE_OPTIONS: resolveNodeOptions(process.env, nextArgs),
   },
   stdio: ['inherit', 'pipe', 'pipe'],
 });

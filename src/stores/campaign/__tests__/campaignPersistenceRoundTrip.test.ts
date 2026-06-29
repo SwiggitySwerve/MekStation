@@ -350,6 +350,39 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
           },
         },
       ],
+      timeCascadeEvents: [
+        {
+          type: 'gm.campaign.time_cascade_applied',
+          domain: 'time',
+          family: 'time-advance',
+          interventionId: 'gm-time-event-001',
+          days: 2,
+          before: {
+            currentDate: '3025-02-01T00:00:00.000Z',
+            updatedAt: base.updatedAt,
+            currentSystemId: 'new-avalon',
+          },
+          after: {
+            currentDate: '3025-02-03T00:00:00.000Z',
+            updatedAt: '3025-02-03T00:00:00.000Z',
+            currentSystemId: 'new-avalon',
+          },
+          afterCampaign: {
+            ...base,
+            currentDate: new Date('3025-02-03T00:00:00.000Z'),
+            updatedAt: '3025-02-03T00:00:00.000Z',
+            currentSystemId: 'new-avalon',
+          },
+          daySummaries: [],
+          generatedEvents: [],
+          changedStateRefs: [
+            'campaign:round-trip:currentDate',
+            'campaign:round-trip:repairQueue',
+          ],
+          externalEffects: [],
+          publicSummary: 'Campaign time corrected by 2 days.',
+        },
+      ],
       combatTeams: [
         { forceId: 'force-1', role: CombatRole.PATROL, battleChance: 60 },
       ],
@@ -441,6 +474,13 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
       type: 'gm.campaign.funds_transaction_corrected',
       family: 'funds-transaction',
       transactionId: 'gm-event-001',
+    });
+    expect(reloaded.timeCascadeEvents).toHaveLength(1);
+    expect(reloaded.timeCascadeEvents![0]).toMatchObject({
+      type: 'gm.campaign.time_cascade_applied',
+      family: 'time-advance',
+      interventionId: 'gm-time-event-001',
+      days: 2,
     });
     expect(reloaded.combatTeams).toEqual([
       { forceId: 'force-1', role: CombatRole.PATROL, battleChance: 60 },
@@ -542,6 +582,7 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     expect(loaded.loans).toBeUndefined();
     expect(loaded.finances.loans).toBeUndefined();
     expect(loaded.gmInterventionEvents).toBeUndefined();
+    expect(loaded.timeCascadeEvents).toBeUndefined();
     expect(loaded.refitOrders).toBeUndefined();
     expect(loaded.moraleState).toBeUndefined();
     expect(loaded.currentSystemId).toBeUndefined();

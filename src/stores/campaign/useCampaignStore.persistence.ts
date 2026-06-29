@@ -39,7 +39,10 @@ import type {
   IUnitMaxState,
 } from '@/types/campaign/UnitCombatState';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
-import type { IGmCampaignProjectedEffect } from '@/types/interventions';
+import type {
+  IGmCampaignProjectedEffect,
+  IGmTimeCascadeProjectedEffect,
+} from '@/types/interventions';
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
 import {
@@ -125,6 +128,7 @@ export interface SerializedCampaignState {
   salvageAllocations?: Readonly<Record<string, ISalvageAllocation>>;
   salvageReports?: Readonly<Record<string, ISalvageReport>>;
   gmInterventionEvents?: readonly IGmCampaignProjectedEffect[];
+  timeCascadeEvents?: readonly IGmTimeCascadeProjectedEffect[];
   recentlyAppliedOutcomes?: readonly ICombatOutcome[];
   /**
    * Campaign command-tier loan ledger (`ICampaignCommandExtensions.loans`,
@@ -282,6 +286,7 @@ export function serializeCampaign(
     salvageAllocations: campaign.salvageAllocations,
     salvageReports: campaign.salvageReports,
     gmInterventionEvents: campaign.gmInterventionEvents,
+    timeCascadeEvents: campaign.timeCascadeEvents,
     recentlyAppliedOutcomes: campaign.recentlyAppliedOutcomes,
     // D-1 fix: the command-tier loan ledger. The borrowed cash is already
     // persisted as a finances transaction; the debt must travel with it.
@@ -374,6 +379,7 @@ export function deserializeCampaign(
     salvageAllocations: serialized.salvageAllocations,
     salvageReports: serialized.salvageReports,
     gmInterventionEvents: serialized.gmInterventionEvents,
+    timeCascadeEvents: serialized.timeCascadeEvents,
     recentlyAppliedOutcomes: serialized.recentlyAppliedOutcomes,
     // D-1 fix + sweep: command-tier ledger/markets and the
     // refit/prestige/morale/starmap fields. All optional — absent on

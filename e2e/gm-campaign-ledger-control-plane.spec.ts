@@ -1,6 +1,44 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 import { createTestCampaign, deleteCampaign } from './fixtures/campaign';
+
+type CampaignTimeState = {
+  readonly currentDate: string | null;
+  readonly timeCascadeEventCount: number;
+};
+
+async function readCampaignTimeState(page: Page): Promise<CampaignTimeState> {
+  return page.evaluate(() => {
+    function toIsoDate(value: unknown): string | null {
+      if (value instanceof Date) return value.toISOString();
+      if (typeof value === 'string') {
+        const parsed = new Date(value);
+        return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+      }
+      return null;
+    }
+
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          campaign?: {
+            getState: () => {
+              getCampaign?: () => {
+                currentDate?: Date | string;
+                timeCascadeEvents?: readonly unknown[];
+              } | null;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
+    const campaign = stores?.campaign?.getState().getCampaign?.();
+    return {
+      currentDate: toIsoDate(campaign?.currentDate),
+      timeCascadeEventCount: campaign?.timeCascadeEvents?.length ?? 0,
+    };
+  });
+}
 
 test.describe('GM campaign ledger control plane @gm-ledger', () => {
   test('previews, approves, and redacts a merchant reversal', async ({
@@ -134,6 +172,21 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
         waitUntil: 'domcontentloaded',
       });
 
+      await expect(page.getByTestId('page-title')).toContainText('GM Ledger');
+      await expect(page.getByTestId('gm-ledger-balance')).toContainText(
+        '1,000,000.00 C-bills',
+      );
+
+      const initialState = await readCampaignTimeState(page);
+      if (!initialState.currentDate) {
+        throw new Error(
+          'Campaign currentDate did not hydrate before time-cascade preview.',
+        );
+      }
+      const expectedDate = new Date(
+        new Date(initialState.currentDate).getTime() + 2 * 24 * 60 * 60 * 1000,
+      ).toISOString();
+
       await page.getByTestId('gm-ledger-time-preview-btn').click();
       await expect(page.getByTestId('gm-ledger-preview-status')).toContainText(
         'ready',
@@ -155,6 +208,34 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       );
       await expect(page.getByTestId('gm-ledger-private-log')).toContainText(
         'Hidden time cascade correction',
+      );
+
+      await expect
+        .poll(async () => readCampaignTimeState(page))
+        .toEqual({
+          currentDate: expectedDate,
+          timeCascadeEventCount: 1,
+        });
+
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await expect(page.getByTestId('page-title')).toContainText('GM Ledger');
+      await expect
+        .poll(async () => readCampaignTimeState(page))
+        .toEqual({
+          currentDate: expectedDate,
+          timeCascadeEventCount: 1,
+        });
+      await expect(page.getByTestId('gm-ledger-player-log')).toContainText(
+        'Campaign time corrected by 2 days.',
+      );
+      await expect(page.getByTestId('gm-ledger-player-log')).not.toContainText(
+        /Hidden time|Secret employer|GM-only/i,
+      );
+      await expect(page.getByTestId('gm-ledger-private-log')).toContainText(
+        'Campaign time corrected by 2 days.',
+      );
+      await expect(page.getByTestId('gm-ledger-private-log')).not.toContainText(
+        /Hidden time|Secret employer|GM-only/i,
       );
     } finally {
       if (campaignId) {

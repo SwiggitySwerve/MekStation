@@ -56,6 +56,13 @@ describe('maintenance warning ledger validator', () => {
           line: 1,
           message: '8-line block cluster appears in 2 files',
         },
+        {
+          category: 'near-duplicate',
+          severity: 'warn',
+          file: 'desktop/.tmp/next-standalone-electron/src/components/common/icons/NavigationIcons.tsx',
+          line: 1,
+          message: '12-line block cluster appears in 2 files',
+        },
       ],
     });
   });

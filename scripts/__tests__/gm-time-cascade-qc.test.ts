@@ -52,7 +52,7 @@ describe('GM time cascade QC validator', () => {
     expect(result.stdout).toContain('domains=1/1');
     expect(result.stdout).toContain('families=1/1');
     expect(result.stdout).toContain('processors=6/6');
-    expect(result.stdout).toContain('roots=11/11');
+    expect(result.stdout).toContain('roots=12/12');
     expect(result.stdout).toContain('errors=0');
   });
 

@@ -1191,7 +1191,8 @@
         "src/lib/interventions/__tests__/GmCampaignInterventionImplementer.test.ts",
         "2026-06-23 `npm.cmd run verify:qc:gm:campaign-ledger` passed: validator reported surfaces=1/1, domains=4/4, families=5/5, anchors=8, errors=0, warnings=0; focused Jest passed 3 suites / 20 tests. Manual review of the covered cases confirmed merchant reversal/funds correction, inventory/base-unit corrections, GM approval, public net-effect projection, private metadata redaction, and manual-takeover blocking for ambiguous merchant cascades.",
         "2026-06-24 Wave 2 browser slice added `/gameplay/campaigns/:id/gm-ledger`, `GmCampaignInterventionControlPlane`, focused component tests, and `e2e/gm-campaign-ledger-control-plane.spec.ts` so merchant reversal preview/approval, player-safe redaction, and manual-control conflict handling are browser-checkable.",
-        "2026-06-24 `npm.cmd run verify:qc:gm:campaign-ledger` keeps the post-combat/economy GM ledger route, component, redaction, and browser checks wired while accumulated time corrections are covered by `time-cascade-gm-ledger`."
+        "2026-06-24 `npm.cmd run verify:qc:gm:campaign-ledger` keeps the post-combat/economy GM ledger route, component, redaction, and browser checks wired while accumulated time corrections are covered by `time-cascade-gm-ledger`.",
+        "2026-06-28 `npm.cmd run verify:qc:gm:campaign-ledger` passed: validator reported surfaces=1/1, domains=4/4, families=5/5, anchors=14, errors=0, warnings=0; focused Jest passed 5 suites / 32 tests, and Chromium passed 4 GM ledger tests for merchant reversal reload, manual-control blocking, approved time-cascade reload, and external-effect manual-control flow."
       ],
       "gaps": [
         "Accumulated time cascades are covered by the separate time-cascade GM ledger lane."
@@ -1268,8 +1269,8 @@
         "e2e/gm-campaign-ledger-control-plane.spec.ts",
         "src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts",
         "src/lib/campaign/processors/__tests__/marketProcessors.test.ts",
-        "2026-06-23 `npm.cmd run verify:qc:gm:time-cascade` passed: validator reported surfaces=1/1, domains=1/1, families=1/1, processors=6/6, roots=11/11, anchors=10, errors=0, warnings=0; focused Jest passed 6 suites / 51 tests. Manual review of the covered cases confirmed travel, repair progression/completion, market/upkeep processors, public/private log redaction, external-effect projection, and GM manual control when external effects are named without projections.",
-        "2026-06-24 `npm.cmd run verify:qc:gm:time-cascade` covers the routed GM ledger page, time-cascade preview/approval, player-safe redaction, private GM context, and unprojected external-effect manual-control handling through component and Chromium checks."
+        "2026-06-24 `npm.cmd run verify:qc:gm:time-cascade` covers the routed GM ledger page, time-cascade preview/approval, player-safe redaction, private GM context, and unprojected external-effect manual-control handling through component and Chromium checks.",
+        "2026-06-28 `npm.cmd run verify:qc:gm:time-cascade` passed: validator reported surfaces=1/1, domains=1/1, families=1/1, processors=6/6, roots=12/12, anchors=14, errors=0, warnings=0; focused Jest passed 7 suites / 56 tests, including repeated-cascade bounded audit-event storage, and Chromium passed 4 GM ledger tests with canonical `timeCascadeEvents` store polling after approval and reload."
       ],
       "gaps": [
         "Pilot recovery, roster progression, and vault-owned effects remain external to campaign-owned time projection; the time-cascade validator requires explicit projected external effects or GM manual-control anchors."

@@ -40,6 +40,7 @@ const requiredProcessors = [
 const requiredCampaignRoots = [
   'currentDate',
   'currentSystemId',
+  'timeCascadeEvents',
   'repairQueue',
   'partsInventory',
   'unitCombatStates',
@@ -127,6 +128,7 @@ const defaultSourceAnchors = [
     tokens: [
       'previews and applies one day without mutating the source campaign',
       'replays stored projected effects for multi-day repair completion',
+      'stores repeated cascades without recursively nesting prior event history',
       'records action-ledger projections while redacting GM-private context',
       'supports optional travel in the same projected cascade',
       'blocks invalid day counts before approval',
@@ -244,6 +246,8 @@ const defaultSourceAnchors = [
       'blocks unprojected external time effects until manual takeover',
       'gm-ledger-time-preview-btn',
       'gm-ledger-time-conflict-preview-btn',
+      'timeCascadeEventCount',
+      'Campaign time corrected by 2 days.',
       'not.toContainText',
     ],
   },

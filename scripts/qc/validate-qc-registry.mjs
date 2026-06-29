@@ -49,6 +49,12 @@ const ignoredIndexDirs = new Set([
   'dist',
   'node_modules',
 ]);
+const ignoredIndexPathPrefixes = [
+  'desktop/.electron-cache/',
+  'desktop/.tmp/',
+  'desktop/release/',
+  'desktop/release-test/',
+];
 
 function fail(message) {
   return { severity: 'error', message };
@@ -127,19 +133,41 @@ function isPathLikeEvidence(value) {
   return repoPrefixPattern.test(normalized);
 }
 
-function collectRepoEntries(dir = repoRoot, prefix = '') {
+function shouldIgnoreIndexEntry(dirent, relativePath) {
+  if (dirent.isSymbolicLink()) return true;
+  if (ignoredIndexDirs.has(dirent.name)) return true;
+
+  const normalized = toRepoRelativePath(relativePath);
+  return ignoredIndexPathPrefixes.some(
+    (ignoredPrefix) =>
+      normalized === ignoredPrefix.replace(/\/$/, '') ||
+      normalized.startsWith(ignoredPrefix),
+  );
+}
+
+function collectRepoEntries() {
   const entries = [];
+  const pendingDirs = [{ absolutePath: repoRoot, prefix: '' }];
 
-  for (const dirent of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (ignoredIndexDirs.has(dirent.name)) continue;
+  while (pendingDirs.length > 0) {
+    const currentDir = pendingDirs.pop();
+    const dirents = fs.readdirSync(currentDir.absolutePath, {
+      withFileTypes: true,
+    });
 
-    const absolutePath = path.join(dir, dirent.name);
-    const relativePath = prefix ? `${prefix}/${dirent.name}` : dirent.name;
+    for (const dirent of dirents) {
+      const absolutePath = path.join(currentDir.absolutePath, dirent.name);
+      const relativePath = currentDir.prefix
+        ? `${currentDir.prefix}/${dirent.name}`
+        : dirent.name;
 
-    entries.push(toRepoRelativePath(relativePath));
+      if (shouldIgnoreIndexEntry(dirent, relativePath)) continue;
 
-    if (dirent.isDirectory()) {
-      entries.push(...collectRepoEntries(absolutePath, relativePath));
+      entries.push(toRepoRelativePath(relativePath));
+
+      if (dirent.isDirectory()) {
+        pendingDirs.push({ absolutePath, prefix: relativePath });
+      }
     }
   }
 

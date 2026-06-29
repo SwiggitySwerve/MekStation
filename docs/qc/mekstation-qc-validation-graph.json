@@ -1277,6 +1277,8 @@
         "scripts/qc/validate-gm-campaign-ledger.mjs",
         "scripts/qc/gm-ledger-qc-core.mjs",
         "scripts/__tests__/gm-campaign-ledger-qc.test.ts",
+        "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+        "e2e/gm-campaign-ledger-control-plane.spec.ts",
         "src/lib/interventions/__tests__/GmCampaignInterventionImplementer.test.ts"
       ]
     },
@@ -1340,6 +1342,8 @@
         "scripts/qc/gm-ledger-qc-core.mjs",
         "scripts/qc/validate-gm-time-cascade-ledger.mjs",
         "scripts/__tests__/gm-time-cascade-qc.test.ts",
+        "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+        "e2e/gm-campaign-ledger-control-plane.spec.ts",
         "src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts",
         "src/lib/campaign/processors/__tests__/marketProcessors.test.ts"
       ]
@@ -1357,8 +1361,7 @@
       "kind": "known-gap",
       "label": "Time Cascade GM Ledger known gaps",
       "entries": [
-        "Pilot recovery, roster progression, and vault-owned effects remain external to campaign-owned time projection; the time-cascade validator requires explicit projected external effects or manual-takeover anchors.",
-        "Browser UI controls are validated through the broader gameplay UI flow shell rather than this command-only ledger proof."
+        "Pilot recovery, roster progression, and vault-owned effects remain external to campaign-owned time projection; the time-cascade validator requires explicit projected external effects or manual-takeover anchors."
       ]
     },
     {
@@ -1370,6 +1373,11 @@
       "id": "command:npm-cmd-run-verify-qc-gm-time-cascade",
       "kind": "command",
       "label": "npm.cmd run verify:qc:gm:time-cascade"
+    },
+    {
+      "id": "command:npm-cmd-run-verify-qc-gm-campaign-browser",
+      "kind": "command",
+      "label": "npm.cmd run verify:qc:gm:campaign-browser"
     },
     {
       "id": "command:npm-cmd-test-watchall-false-runtestsbypath-scripts-tests-gm-time-cascade-qc-test-ts-src-lib-inte",
@@ -3484,6 +3492,16 @@
     },
     {
       "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
+      "to": "command:npm-cmd-run-verify-qc-gm-campaign-browser",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-verify-qc-gm-campaign-browser",
+      "to": "evidence:post-combat-base-economy-gm-ledger:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:post-combat-base-economy-gm-ledger:lifecycle",
       "to": "command:npm-cmd-test-watchall-false-runtestsbypath-src-lib-interventions-tests-gmcampaigninterventionimp",
       "relation": "validated-by"
     },
@@ -3579,6 +3597,16 @@
     },
     {
       "from": "command:npm-cmd-run-verify-qc-gm-time-cascade",
+      "to": "evidence:time-cascade-gm-ledger:registry",
+      "relation": "produces"
+    },
+    {
+      "from": "state:time-cascade-gm-ledger:lifecycle",
+      "to": "command:npm-cmd-run-verify-qc-gm-campaign-browser",
+      "relation": "validated-by"
+    },
+    {
+      "from": "command:npm-cmd-run-verify-qc-gm-campaign-browser",
       "to": "evidence:time-cascade-gm-ledger:registry",
       "relation": "produces"
     },

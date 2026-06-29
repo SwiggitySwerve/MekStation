@@ -12,6 +12,7 @@ import type { MechBuildConfig } from '@/utils/construction/constructionRules/typ
 
 import type { ICombatOutcome } from '../combat/CombatOutcome';
 import type { IGmCampaignProjectedEffect } from '../interventions/GmCampaignInterventionTypes';
+import type { IGmTimeCascadeProjectedEffect } from '../interventions/GmTimeCascadeInterventionTypes';
 import type { IShoppingList } from './acquisition/acquisitionTypes';
 import type { ICampaignOptions } from './CampaignOptions';
 import type { ICoopSession } from './CoopSession';
@@ -178,6 +179,13 @@ export interface ICampaign {
    * GM-only metadata stays in the intervention/action ledger records.
    */
   readonly gmInterventionEvents?: readonly IGmCampaignProjectedEffect[];
+
+  /**
+   * Approved GM time-cascade effects retained for audit/replay surfaces.
+   * Player projections expose only the public summary; GM-private metadata
+   * stays in intervention/action ledger records.
+   */
+  readonly timeCascadeEvents?: readonly IGmTimeCascadeProjectedEffect[];
 
   /** Applied outcomes retained for current morale/windowed processors. */
   readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];

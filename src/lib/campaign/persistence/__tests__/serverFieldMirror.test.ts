@@ -186,6 +186,39 @@ function buildExtendedCampaign(): ICampaignWithCommand {
         },
       },
     ],
+    timeCascadeEvents: [
+      {
+        type: 'gm.campaign.time_cascade_applied',
+        domain: 'time',
+        family: 'time-advance',
+        interventionId: 'gm-time-event-001',
+        days: 2,
+        before: {
+          currentDate: '3025-02-01T00:00:00.000Z',
+          updatedAt: base.updatedAt,
+          currentSystemId: 'new-avalon',
+        },
+        after: {
+          currentDate: '3025-02-03T00:00:00.000Z',
+          updatedAt: '3025-02-03T00:00:00.000Z',
+          currentSystemId: 'new-avalon',
+        },
+        afterCampaign: {
+          ...base,
+          currentDate: new Date('3025-02-03T00:00:00.000Z'),
+          updatedAt: '3025-02-03T00:00:00.000Z',
+          currentSystemId: 'new-avalon',
+        },
+        daySummaries: [],
+        generatedEvents: [],
+        changedStateRefs: [
+          'campaign:campaign-001:currentDate',
+          'campaign:campaign-001:repairQueue',
+        ],
+        externalEffects: [],
+        publicSummary: 'Campaign time corrected by 2 days.',
+      },
+    ],
     loans: [
       createCampaignLoan({
         id: 'loan-1',
@@ -277,6 +310,13 @@ describe('T3 — server-side campaign serialization field mirror', () => {
       family: 'funds-transaction',
       transactionId: 'gm-event-001',
     });
+    expect(restored.timeCascadeEvents).toHaveLength(1);
+    expect(restored.timeCascadeEvents![0]).toMatchObject({
+      type: 'gm.campaign.time_cascade_applied',
+      family: 'time-advance',
+      interventionId: 'gm-time-event-001',
+      days: 2,
+    });
     expect(restored.personnelMarket).toHaveLength(1);
     expect(restored.personnelMarket![0].hireCost).toBe(25_000);
     expect(restored.contractMarket).toEqual({
@@ -350,6 +390,7 @@ describe('T3 — server-side campaign serialization field mirror', () => {
     expect(restored.currentSystemId).toBeUndefined();
     expect(restored.coopSession).toBeUndefined();
     expect(restored.gmInterventionEvents).toBeUndefined();
+    expect(restored.timeCascadeEvents).toBeUndefined();
     expect(restored.personnelMarket).toBeUndefined();
     expect(restored.contractMarket).toBeUndefined();
     expect(restored.activeContract).toBeUndefined();

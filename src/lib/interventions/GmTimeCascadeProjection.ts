@@ -35,9 +35,22 @@ function applyGmTimeCascadeProjectedEffect(
   state: IGmTimeCascadeInterventionState,
   effect: IGmTimeCascadeProjectedEffect,
 ): IGmTimeCascadeInterventionState {
+  const storedEffect = sanitizeStoredTimeCascadeEffect(effect);
+
   return {
     ...state,
     ...effect.afterCampaign,
-    timeCascadeEvents: [...(state.timeCascadeEvents ?? []), effect],
+    timeCascadeEvents: [...(state.timeCascadeEvents ?? []), storedEffect],
+  };
+}
+
+function sanitizeStoredTimeCascadeEffect(
+  effect: IGmTimeCascadeProjectedEffect,
+): IGmTimeCascadeProjectedEffect {
+  const { timeCascadeEvents, ...afterCampaign } = effect.afterCampaign;
+  void timeCascadeEvents;
+  return {
+    ...effect,
+    afterCampaign,
   };
 }
