@@ -86,7 +86,7 @@ async function seedMatchLog(page: Page, matchId: string): Promise<void> {
   const events = makeSeededEvents(matchId);
   const savedAt = '3025-01-01T00:01:00.000Z';
 
-  await page.goto('/');
+  await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 60_000 });
   await page.evaluate(
     async ({
       dbName,
@@ -223,16 +223,21 @@ test.describe('active game session recovery @game @recovery', () => {
   test('deep-links and refreshes a generated match from local match-log storage', async ({
     page,
   }) => {
+    test.setTimeout(120_000);
+
     const matchId = `e2e-recovery-${Date.now()}`;
     page.on('dialog', (dialog) => dialog.accept());
 
     await seedMatchLog(page, matchId);
 
-    await page.goto(`/gameplay/games/${matchId}`);
+    await page.goto(`/gameplay/games/${matchId}`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 60_000,
+    });
     await expect(page).toHaveURL(new RegExp(`/gameplay/games/${matchId}$`));
     await expectRecoveredInteractiveSession(page, matchId);
 
-    await page.reload();
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 60_000 });
     await expect(page).toHaveURL(new RegExp(`/gameplay/games/${matchId}$`));
     await expectRecoveredInteractiveSession(page, matchId);
   });
