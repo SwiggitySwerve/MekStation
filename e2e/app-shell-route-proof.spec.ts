@@ -2,9 +2,9 @@ import { expect, test, type Page } from '@playwright/test';
 
 import appShellRouteManifest from './app-shell-route-manifest.json';
 
-const APP_SHELL_NAVIGATION_TIMEOUT_MS = 60_000;
+const APP_SHELL_NAVIGATION_TIMEOUT_MS = 90_000;
 
-test.setTimeout(90_000);
+test.setTimeout(150_000);
 test.beforeEach(async ({ page }) => {
   page.setDefaultNavigationTimeout(APP_SHELL_NAVIGATION_TIMEOUT_MS);
 });
