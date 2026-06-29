@@ -18,7 +18,7 @@ const nextCli = path.join(
   'next',
 );
 const nextArgs = process.argv.slice(2);
-const defaultNextBuildOldSpaceMb = '8192';
+const defaultNextBuildOldSpaceMb = '12288';
 
 function hasExplicitOldSpaceLimit(nodeOptions) {
   return /(?:^|\s)--max-old-space-size(?:=|\s)\S*/.test(nodeOptions ?? '');
