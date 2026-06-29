@@ -1278,6 +1278,7 @@
         "scripts/qc/gm-ledger-qc-core.mjs",
         "scripts/__tests__/gm-campaign-ledger-qc.test.ts",
         "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+        "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
         "e2e/gm-campaign-ledger-control-plane.spec.ts",
         "src/lib/interventions/__tests__/GmCampaignInterventionImplementer.test.ts"
       ]
@@ -1287,7 +1288,8 @@
       "kind": "evidence",
       "label": "Manual/browser evidence for Post-Combat Base Economy GM Ledger",
       "entries": [
-        "Review a GM-approved merchant reversal or post-combat correction and confirm player logs show only the approved net effect."
+        "Review a GM-approved merchant reversal or post-combat correction and confirm player logs show only the approved net effect.",
+        "2026-06-29 `npm.cmd run verify:qc:gm:campaign-browser` passed 6 Chromium GM ledger tests including server save/list reload of the player-safe merchant reversal."
       ]
     },
     {

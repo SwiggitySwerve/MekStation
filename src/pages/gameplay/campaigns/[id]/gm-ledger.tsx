@@ -11,6 +11,7 @@ import {
   renderPendingCampaignPage,
   useCampaignPageShell,
 } from '@/pages-modules/gameplay/campaigns/campaignPageShell';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 
 const GM_LEDGER_LOADING = {
   title: 'GM Ledger',
@@ -40,6 +41,7 @@ export default function GmLedgerPage(): React.ReactElement {
           campaign={campaign}
           onApplyCampaignUpdate={(updates) => {
             shell.store.getState().updateCampaign(updates);
+            useCampaignPersistenceStore.getState().markDirty();
             setActionTick((tick) => tick + 1);
           }}
         />
