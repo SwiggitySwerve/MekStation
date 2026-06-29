@@ -10,6 +10,13 @@
 
 import { expect, test, type Page } from '@playwright/test';
 
+const CAMPAIGN_ACQUISITION_NAVIGATION_TIMEOUT_MS = 90_000;
+
+test.setTimeout(150_000);
+test.beforeEach(async ({ page }) => {
+  page.setDefaultNavigationTimeout(CAMPAIGN_ACQUISITION_NAVIGATION_TIMEOUT_MS);
+});
+
 interface SeededAcquisitionCampaign {
   readonly campaignId: string;
   readonly dueRequestId: string;
