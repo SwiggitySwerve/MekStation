@@ -179,6 +179,13 @@ const repoEntrySet = new Set(repoEntries);
 const pageRoutePatterns = collectPageRoutePatterns();
 const appShellRouteManifest = loadAppShellRouteManifest();
 
+function parseArgs(argv) {
+  return {
+    appShellRoutesOnly: argv.includes('--app-shell-routes-only'),
+    json: argv.includes('--json'),
+  };
+}
+
 function repoReferenceExists(reference) {
   const normalized = toRepoRelativePath(reference.trim());
 
@@ -210,6 +217,37 @@ function pageRouteFromFile(filePath) {
   }
 
   return segments.length === 0 ? '/' : `/${segments.join('/')}`;
+}
+
+function routePatternSpecificity(routePattern) {
+  const segments = routePattern.split('/').filter(Boolean);
+  const dynamicSegments = segments.filter((segment) =>
+    /^\[.*\]$/.test(segment),
+  ).length;
+  const catchAllSegments = segments.filter((segment) =>
+    /^\[\[?\.\.\..*\]?\]$/.test(segment),
+  ).length;
+  const staticSegments = segments.length - dynamicSegments;
+
+  return {
+    staticSegments,
+    dynamicSegments,
+    catchAllSegments,
+    totalSegments: segments.length,
+  };
+}
+
+function compareRoutePatternSpecificity(left, right) {
+  const leftSpecificity = routePatternSpecificity(left.routePattern);
+  const rightSpecificity = routePatternSpecificity(right.routePattern);
+
+  return (
+    rightSpecificity.staticSegments - leftSpecificity.staticSegments ||
+    leftSpecificity.dynamicSegments - rightSpecificity.dynamicSegments ||
+    leftSpecificity.catchAllSegments - rightSpecificity.catchAllSegments ||
+    rightSpecificity.totalSegments - leftSpecificity.totalSegments ||
+    left.routePattern.localeCompare(right.routePattern)
+  );
 }
 
 function routePatternToRegex(routePattern) {
@@ -244,7 +282,8 @@ function collectPageRoutePatterns() {
     .map((routePattern) => ({
       routePattern,
       matcher: routePatternToRegex(routePattern),
-    }));
+    }))
+    .sort(compareRoutePatternSpecificity);
 }
 
 function normalizeRouteReference(route) {
@@ -555,6 +594,30 @@ function appShellCoverageGroupPatterns(field, issues) {
   return patterns;
 }
 
+function appShellCoverageGroupPatternCount(field) {
+  if (!Array.isArray(appShellRouteManifest[field])) return 0;
+  return appShellRouteManifest[field].reduce(
+    (total, group) =>
+      total + (Array.isArray(group?.patterns) ? group.patterns.length : 0),
+    0,
+  );
+}
+
+function buildAppShellRouteSummary(manifestRoutes) {
+  return {
+    pageRoutePatterns: pageRoutePatterns.length,
+    primaryRoutes: manifestRoutes.length,
+    recoveryRoutes: Array.isArray(appShellRouteManifest.recoveryRoutes)
+      ? appShellRouteManifest.recoveryRoutes.length
+      : 0,
+    delegatedRoutePatterns:
+      appShellCoverageGroupPatternCount('delegatedRoutes'),
+    knownGapRoutePatterns: appShellCoverageGroupPatternCount('knownGapRoutes'),
+    testHarnessRoutePatterns:
+      appShellCoverageGroupPatternCount('testHarnessRoutes'),
+  };
+}
+
 function validateAppShellPageRouteCoverage(manifestRoutes, issues) {
   const claims = new Map();
   const primaryPatterns = new Set(
@@ -607,7 +670,10 @@ function validateAppShellPageRouteCoverage(manifestRoutes, issues) {
 
 function validateAppShellRouteProofAlignment(byId, issues) {
   const surface = byId.get('app-shell-navigation');
-  if (!surface) return;
+  if (!surface) {
+    issues.push(fail('app-shell-navigation surface is missing.'));
+    return null;
+  }
 
   const registryRoutes = routePathList(surface.routes);
   const manifestRoutes = appShellManifestRoutePaths(issues);
@@ -638,6 +704,8 @@ function validateAppShellRouteProofAlignment(byId, issues) {
   }
 
   validateAppShellPageRouteCoverage(manifestRoutes, issues);
+
+  return buildAppShellRouteSummary(manifestRoutes);
 }
 
 function hasParentCycle(surface, byId) {
@@ -825,19 +893,76 @@ function validate(registry) {
   return issues;
 }
 
+function validateAppShellRoutes(registry) {
+  const issues = [];
+  const surfaceById = new Map(
+    Array.isArray(registry.surfaces)
+      ? registry.surfaces.map((surface) => [surface.surfaceId, surface])
+      : [],
+  );
+  const summary =
+    validateAppShellRouteProofAlignment(surfaceById, issues) ??
+    buildAppShellRouteSummary([]);
+
+  return { issues, summary };
+}
+
+function printIssues(issues) {
+  for (const issue of issues) {
+    const prefix = issue.severity === 'error' ? 'ERROR' : 'WARN';
+    console.log(`${prefix}: ${issue.message}`);
+  }
+}
+
+function printJsonReport(label, issues, summary) {
+  const errors = issues.filter((issue) => issue.severity === 'error');
+  const warnings = issues.filter((issue) => issue.severity === 'warning');
+  console.log(
+    JSON.stringify(
+      {
+        label,
+        status: errors.length > 0 ? 'fail' : 'pass',
+        summary,
+        errors,
+        warnings,
+      },
+      null,
+      2,
+    ),
+  );
+}
+
+const options = parseArgs(process.argv.slice(2));
 const registry = loadRegistry();
-const issues = validate(registry);
+const appShellRouteReport = options.appShellRoutesOnly
+  ? validateAppShellRoutes(registry)
+  : null;
+const issues = appShellRouteReport?.issues ?? validate(registry);
 const errors = issues.filter((issue) => issue.severity === 'error');
 const warnings = issues.filter((issue) => issue.severity === 'warning');
 
-for (const issue of issues) {
-  const prefix = issue.severity === 'error' ? 'ERROR' : 'WARN';
-  console.log(`${prefix}: ${issue.message}`);
-}
+if (options.json) {
+  printJsonReport(
+    options.appShellRoutesOnly ? 'app-shell-routes' : 'qc-registry',
+    issues,
+    options.appShellRoutesOnly
+      ? appShellRouteReport.summary
+      : { surfaces: registry.surfaces.length },
+  );
+} else {
+  printIssues(issues);
 
-console.log(
-  `QC registry: ${registry.surfaces.length} surfaces, ${errors.length} errors, ${warnings.length} warnings.`,
-);
+  if (options.appShellRoutesOnly) {
+    const summary = appShellRouteReport.summary;
+    console.log(
+      `App-shell route coverage: pageRoutes=${summary.pageRoutePatterns} primary=${summary.primaryRoutes} recovery=${summary.recoveryRoutes} delegated=${summary.delegatedRoutePatterns} knownGaps=${summary.knownGapRoutePatterns} testHarness=${summary.testHarnessRoutePatterns} errors=${errors.length} warnings=${warnings.length}.`,
+    );
+  } else {
+    console.log(
+      `QC registry: ${registry.surfaces.length} surfaces, ${errors.length} errors, ${warnings.length} warnings.`,
+    );
+  }
+}
 
 if (errors.length > 0) {
   process.exit(1);

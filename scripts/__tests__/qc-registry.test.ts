@@ -10,10 +10,10 @@ function makeTempDir(prefix: string): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
 }
 
-function runValidator(env: NodeJS.ProcessEnv = {}) {
+function runValidator(env: NodeJS.ProcessEnv = {}, args: string[] = []) {
   return spawnSync(
     NODE,
-    [path.resolve(repoRoot, 'scripts/qc/validate-qc-registry.mjs')],
+    [path.resolve(repoRoot, 'scripts/qc/validate-qc-registry.mjs'), ...args],
     {
       cwd: repoRoot,
       encoding: 'utf-8',
@@ -283,5 +283,60 @@ describe('QC registry validator', () => {
     expect(result.stdout).toContain(
       'knownGapRoutes[0].tracking must be a non-empty string.',
     );
+  });
+
+  it('reports app-shell route coverage as an on-demand QC slice', () => {
+    const result = runValidator({}, ['--app-shell-routes-only', '--json']);
+
+    expect(result.status).toBe(0);
+    const report = JSON.parse(result.stdout) as {
+      label: string;
+      status: string;
+      summary: {
+        pageRoutePatterns: number;
+        primaryRoutes: number;
+        delegatedRoutePatterns: number;
+        testHarnessRoutePatterns: number;
+      };
+      errors: unknown[];
+      warnings: unknown[];
+    };
+    expect(report.label).toBe('app-shell-routes');
+    expect(report.status).toBe('pass');
+    expect(report.summary.pageRoutePatterns).toBeGreaterThan(0);
+    expect(report.summary.primaryRoutes).toBeGreaterThan(0);
+    expect(report.summary.delegatedRoutePatterns).toBeGreaterThan(0);
+    expect(report.summary.testHarnessRoutePatterns).toBeGreaterThan(0);
+    expect(report.errors).toEqual([]);
+    expect(report.warnings).toEqual([]);
+  });
+
+  it('route-only QC rejects unclassified Next.js page routes', () => {
+    const manifest = readJson<{
+      delegatedRoutes: Array<{ patterns: string[] }>;
+    }>(path.join(repoRoot, 'e2e/app-shell-route-manifest.json'));
+
+    manifest.delegatedRoutes = manifest.delegatedRoutes.map((group) => ({
+      ...group,
+      patterns: group.patterns.filter(
+        (pattern) => pattern !== '/gameplay/campaigns/[id]/finances',
+      ),
+    }));
+
+    const manifestPath = path.join(tempDir, 'app-shell-route-manifest.json');
+    writeJson(manifestPath, manifest);
+
+    const result = runValidator(
+      {
+        MEKSTATION_APP_SHELL_ROUTE_MANIFEST_PATH: manifestPath,
+      },
+      ['--app-shell-routes-only'],
+    );
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'Next.js page routes missing from app-shell coverage manifest:',
+    );
+    expect(result.stdout).toContain('/gameplay/campaigns/[id]/finances');
   });
 });

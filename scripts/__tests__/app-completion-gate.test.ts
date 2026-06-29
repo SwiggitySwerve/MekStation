@@ -58,6 +58,8 @@ function writeFixtureSet(tempDir: string, hasReleaseGap: boolean) {
       'qc:app-completion:release':
         'node scripts/qc/validate-app-completion-gate.mjs --fail-on-release-gaps',
       'qc:validate': 'node scripts/qc/validate-qc-registry.mjs',
+      'qc:app-shell-routes:validate':
+        'node scripts/qc/validate-qc-registry.mjs --app-shell-routes-only',
       'qc:lifecycle:status': 'node scripts/qc/report-lifecycle-qc-status.mjs',
       'qc:logging:validate':
         'node scripts/qc/validate-journey-qc.mjs --logging-only=true',
@@ -82,7 +84,7 @@ function writeFixtureSet(tempDir: string, hasReleaseGap: boolean) {
       'electron:test:build': 'cd desktop && npm run test:build',
       'validate:combat:gaps': 'npx tsx scripts/print-combat-validation-gaps.ts',
       'verify:qc:app-shell':
-        'npx playwright test --project=chromium e2e/app-shell-route-proof.spec.ts',
+        'npm run qc:app-shell-routes:validate && npx playwright test --project=chromium e2e/app-shell-route-proof.spec.ts',
       'verify:qc:campaign-economy':
         'npm run verify:qc:campaign-economy:browser',
       'verify:qc:campaign-operations':
