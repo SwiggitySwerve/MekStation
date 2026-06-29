@@ -18,8 +18,10 @@ import {
   approveGmCascadePreview,
   createGmCascadePreview,
 } from '@/lib/interventions/GmCascadePreviewPipeline';
+import { buildRosterRecoveryPatchesFromExternalEffects } from '@/lib/interventions/GmRosterRecoveryProjection';
 import { registerGmTimeCascadeInterventionImplementer } from '@/lib/interventions/GmTimeCascadeInterventionImplementer';
 import { InterventionLedger } from '@/lib/interventions/InterventionLedger';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 
 import {
   buildMerchantReversalCommand,
@@ -100,6 +102,10 @@ export function GmCampaignInterventionControlPlane({
   );
   const [manualTakeover, setManualTakeover] =
     useState<ManualTakeoverState | null>(null);
+  const rosterEntries = useCampaignRosterStore((state) => state.pilots);
+  const applyPilotPatches = useCampaignRosterStore(
+    (state) => state.applyPilotPatches,
+  );
 
   useEffect(() => {
     if (actionLedger.getRecords().length > 0) return;
@@ -143,6 +149,7 @@ export function GmCampaignInterventionControlPlane({
         campaign,
         conflicted,
         now,
+        rosterEntries,
       }),
       state: campaign as IGmTimeCascadeInterventionState,
       authority: {
@@ -185,6 +192,15 @@ export function GmCampaignInterventionControlPlane({
         return;
       }
 
+      const timePayload = result.record?.domainPayload as
+        | IGmTimeCascadeInterventionDomainPayload
+        | undefined;
+      const rosterPatches = buildRosterRecoveryPatchesFromExternalEffects(
+        timePayload?.projectedEffects.flatMap(
+          (effect) => effect.externalEffects,
+        ) ?? [],
+      );
+      applyPilotPatches(rosterPatches);
       onApplyCampaignUpdate(result.state);
       setApprovalStatus('Approved and applied to campaign state.');
       setApprovalReason(null);

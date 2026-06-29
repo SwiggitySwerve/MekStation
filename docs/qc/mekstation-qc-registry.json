@@ -1230,6 +1230,7 @@
         "contract windows",
         "market refresh",
         "finance upkeep",
+        "pilot recovery external effects",
         "external-effect manual takeover",
         "public/private ledger projection"
       ],
@@ -1244,6 +1245,7 @@
       "tests": [
         "scripts/__tests__/gm-time-cascade-qc.test.ts",
         "src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.test.tsx",
+        "src/lib/interventions/__tests__/GmRosterRecoveryProjection.test.ts",
         "src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts",
         "src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts",
         "src/lib/campaign/processors/__tests__/processors.test.ts",
@@ -1254,7 +1256,7 @@
       "commands": [
         "npm.cmd run qc:gm:time-cascade:validate",
         "npm.cmd run verify:qc:gm:time-cascade",
-        "npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/gm-time-cascade-qc.test.ts src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts src/lib/campaign/processors/__tests__/processors.test.ts src/lib/campaign/processors/__tests__/repairProgressProcessor.test.ts src/lib/campaign/processors/__tests__/marketProcessors.test.ts src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.test.tsx",
+        "npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/gm-time-cascade-qc.test.ts src/lib/interventions/__tests__/GmRosterRecoveryProjection.test.ts src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts src/lib/interventions/__tests__/GmCampaignInterventionBoundaries.test.ts src/lib/campaign/processors/__tests__/processors.test.ts src/lib/campaign/processors/__tests__/repairProgressProcessor.test.ts src/lib/campaign/processors/__tests__/marketProcessors.test.ts src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.test.tsx",
         "npm.cmd run verify:qc:gm:campaign-browser",
         "npx.cmd playwright test --project=chromium e2e/gm-campaign-ledger-control-plane.spec.ts --workers=1",
         "npm.cmd run qc:campaign-long:stability -- --journey=campaign-long --seed=42 --contracts=10 --runs=2"
@@ -1267,15 +1269,18 @@
         "scripts/qc/validate-gm-time-cascade-ledger.mjs",
         "scripts/__tests__/gm-time-cascade-qc.test.ts",
         "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+        "src/lib/interventions/GmRosterRecoveryProjection.ts",
         "src/pages/gameplay/campaigns/[id]/gm-ledger.tsx",
         "e2e/gm-campaign-ledger-control-plane.spec.ts",
+        "src/lib/interventions/__tests__/GmRosterRecoveryProjection.test.ts",
         "src/lib/interventions/__tests__/GmTimeCascadeInterventionImplementer.test.ts",
         "src/lib/campaign/processors/__tests__/marketProcessors.test.ts",
         "2026-06-24 `npm.cmd run verify:qc:gm:time-cascade` covers the routed GM ledger page, time-cascade preview/approval, player-safe redaction, private GM context, and unprojected external-effect manual-control handling through component and Chromium checks.",
-        "2026-06-28 `npm.cmd run verify:qc:gm:time-cascade` passed: validator reported surfaces=1/1, domains=1/1, families=1/1, processors=6/6, roots=12/12, anchors=14, errors=0, warnings=0; focused Jest passed 7 suites / 56 tests, including repeated-cascade bounded audit-event storage, and Chromium passed 4 GM ledger tests with canonical `timeCascadeEvents` store polling after approval and reload."
+        "2026-06-28 `npm.cmd run verify:qc:gm:time-cascade` passed: validator reported surfaces=1/1, domains=1/1, families=1/1, processors=6/6, roots=12/12, anchors=14, errors=0, warnings=0; focused Jest passed 7 suites / 56 tests, including repeated-cascade bounded audit-event storage, and Chromium passed 4 GM ledger tests with canonical `timeCascadeEvents` store polling after approval and reload.",
+        "2026-06-29 pilot recovery external effects became projected and approval-gated: focused Jest covers recovery projection, GM preview display, roster-store patch application after approval, and player-log redaction."
       ],
       "gaps": [
-        "Pilot recovery, roster progression, and vault-owned effects remain external to campaign-owned time projection; the time-cascade validator requires explicit projected external effects or GM manual-control anchors."
+        "Roster progression and vault-owned effects remain external to campaign-owned time projection; the time-cascade validator requires explicit projected external effects or GM manual-control anchors for any non-campaign state."
       ]
     },
     {
