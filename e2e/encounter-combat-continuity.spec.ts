@@ -39,6 +39,7 @@ interface ContinuityProof {
     readonly mapRadius?: number;
     readonly turnLimit?: number;
     readonly victoryConditions?: readonly string[];
+    readonly optionalRules?: readonly string[];
   } | null;
   readonly pendingBattleOutcomes: readonly {
     readonly matchId: string;
@@ -805,7 +806,7 @@ test.describe('encounter-combat campaign continuity', () => {
   );
 
   test(
-    'custom-template pre-battle map authoring persists into campaign combat resolution',
+    'custom-template pre-battle scenario authoring persists into campaign combat resolution',
     { tag: ['@campaign', '@encounter', '@combat', '@smoke'] },
     async ({ page }) => {
       await page.goto('/gameplay');
@@ -860,6 +861,21 @@ test.describe('encounter-combat campaign continuity', () => {
       );
       await expect(page.getByTestId('map-info-card')).toContainText('25x25');
       await expect(page.getByTestId('map-info-card')).toContainText('rough');
+      await expect(page.getByTestId('scenario-rules-editor')).toBeVisible();
+      await page
+        .getByTestId('victory-condition-select')
+        .selectOption('cripple');
+      await page.getByTestId('cripple-threshold-input').fill('65');
+      await page.getByTestId('turn-limit-input').fill('10');
+      await page.getByTestId('optional-rule-tacops_los1').check();
+      await expect(page.getByTestId('victory-condition-select')).toHaveValue(
+        'cripple',
+      );
+      await expect(page.getByTestId('cripple-threshold-input')).toHaveValue(
+        '65',
+      );
+      await expect(page.getByTestId('turn-limit-input')).toHaveValue('10');
+      await expect(page.getByTestId('optional-rule-tacops_los1')).toBeChecked();
 
       await expect(page.getByTestId('play-manually-btn')).toBeEnabled();
       await page.getByTestId('play-manually-btn').click();
@@ -884,8 +900,9 @@ test.describe('encounter-combat campaign continuity', () => {
         scenarioId: encounterId,
         encounterId,
         mapRadius: 12,
-        turnLimit: 0,
-        victoryConditions: ['destroy_all'],
+        turnLimit: 10,
+        victoryConditions: ['cripple:65', 'turn_limit:10'],
+        optionalRules: ['tacops_los1'],
       });
       expect(launched.pendingBattleOutcomes).not.toContainEqual(
         expect.objectContaining({ matchId: launched.sessionId }),

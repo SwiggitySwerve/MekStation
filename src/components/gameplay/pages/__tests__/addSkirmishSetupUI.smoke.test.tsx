@@ -14,8 +14,15 @@ import React from 'react';
 import {
   MAP_RADIUS_OPTIONS,
   MapConfigEditor,
+  SCENARIO_OPTIONAL_RULES,
+  ScenarioRulesEditor,
 } from '@/components/gameplay/pages/PreBattlePage.sections';
-import { TerrainPreset, type IMapConfiguration } from '@/types/encounter';
+import {
+  TerrainPreset,
+  VictoryConditionType,
+  type IMapConfiguration,
+  type IVictoryCondition,
+} from '@/types/encounter';
 
 const baseConfig: IMapConfiguration = {
   radius: 8,
@@ -98,5 +105,109 @@ describe('add-skirmish-setup-ui — MapConfigEditor smoke test', () => {
       (screen.getByTestId('terrain-preset-select') as HTMLSelectElement)
         .disabled,
     ).toBe(true);
+  });
+});
+
+describe('authored scenario rules editor smoke test', () => {
+  const victoryConditions: readonly IVictoryCondition[] = [
+    { type: VictoryConditionType.Cripple, threshold: 50 },
+    { type: VictoryConditionType.TurnLimit, turnLimit: 15 },
+  ];
+
+  it('renders the primary objective, turn limit, and represented optional rules', () => {
+    const onChange = jest.fn();
+    render(
+      <ScenarioRulesEditor
+        victoryConditions={victoryConditions}
+        optionalRules={['tacops_los1']}
+        onChange={onChange}
+      />,
+    );
+
+    expect(screen.getByTestId('victory-condition-select')).toHaveValue(
+      VictoryConditionType.Cripple,
+    );
+    expect(screen.getByTestId('turn-limit-input')).toHaveValue(15);
+    expect(screen.getByTestId('cripple-threshold-input')).toHaveValue(50);
+    for (const rule of SCENARIO_OPTIONAL_RULES) {
+      expect(
+        screen.getByTestId(`optional-rule-${rule.id}`),
+      ).toBeInTheDocument();
+    }
+    expect(screen.getByTestId('optional-rule-tacops_los1')).toBeChecked();
+  });
+
+  it('emits a primary victory change while preserving the authored turn limit', () => {
+    const onChange = jest.fn();
+    render(
+      <ScenarioRulesEditor
+        victoryConditions={victoryConditions}
+        optionalRules={[]}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId('victory-condition-select'), {
+      target: { value: VictoryConditionType.Retreat },
+    });
+
+    expect(onChange).toHaveBeenCalledWith({
+      victoryConditions: [
+        { type: VictoryConditionType.Retreat },
+        { type: VictoryConditionType.TurnLimit, turnLimit: 15 },
+      ],
+    });
+  });
+
+  it('emits clamped turn-limit and cripple-threshold updates', () => {
+    const onChange = jest.fn();
+    render(
+      <ScenarioRulesEditor
+        victoryConditions={victoryConditions}
+        optionalRules={[]}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.change(screen.getByTestId('turn-limit-input'), {
+      target: { value: '120' },
+    });
+    fireEvent.change(screen.getByTestId('cripple-threshold-input'), {
+      target: { value: '0' },
+    });
+
+    expect(onChange).toHaveBeenNthCalledWith(1, {
+      victoryConditions: [
+        { type: VictoryConditionType.Cripple, threshold: 50 },
+        { type: VictoryConditionType.TurnLimit, turnLimit: 99 },
+      ],
+    });
+    expect(onChange).toHaveBeenNthCalledWith(2, {
+      victoryConditions: [
+        { type: VictoryConditionType.Cripple, threshold: 1 },
+        { type: VictoryConditionType.TurnLimit, turnLimit: 15 },
+      ],
+    });
+  });
+
+  it('emits optional rule toggles as launch-config ready keys', () => {
+    const onChange = jest.fn();
+    render(
+      <ScenarioRulesEditor
+        victoryConditions={victoryConditions}
+        optionalRules={['tacops_los1']}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('optional-rule-tacops_grappling'));
+    fireEvent.click(screen.getByTestId('optional-rule-tacops_los1'));
+
+    expect(onChange).toHaveBeenNthCalledWith(1, {
+      optionalRules: ['tacops_los1', 'tacops_grappling'],
+    });
+    expect(onChange).toHaveBeenNthCalledWith(2, {
+      optionalRules: [],
+    });
   });
 });
