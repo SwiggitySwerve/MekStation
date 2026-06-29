@@ -30,6 +30,7 @@ import {
   ForceCard,
   MapConfigEditor,
   ModeSelection,
+  ScenarioRulesEditor,
   ScenarioTemplateCard,
   SkirmishLauncher,
 } from '@/components/gameplay/pages/PreBattlePage.sections';
@@ -336,6 +337,15 @@ export default function PreBattlePage(): React.ReactElement {
             void updateEncounter(encounter.id, {
               mapConfig: { ...encounter.mapConfig, ...next },
             });
+          }}
+        />
+
+        <ScenarioRulesEditor
+          victoryConditions={encounter.victoryConditions}
+          optionalRules={encounter.optionalRules}
+          disabled={isResolving || isSkirmishLaunching}
+          onChange={(next) => {
+            void updateEncounter(encounter.id, next);
           }}
         />
 

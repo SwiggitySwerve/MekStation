@@ -531,6 +531,7 @@
         "2026-06-24 `npm.cmd run verify:qc:encounter-combat-continuity` passed 16 focused Jest checks plus 3 Chromium proofs: routed campaign encounter auto-resolve preserves campaign/mission/session linkage; interactive pre-battle launch reaches the tactical session, concedes through the UI, survives post-battle review reload, applies the queued outcome, and keeps `processedBattleIds` after campaign route reload; and attack-driven weapon destruction completes a tactical session through real engine resolution into queued post-battle review reload/application.",
         "2026-06-28 `npm.cmd run verify:qc:encounter-combat-continuity` passed 16 focused Jest checks plus 4 Chromium proofs, including a non-1v1 2v2 campaign encounter proof that assigns distinct player/opponent rosters, launches through the real pre-battle manual path, verifies both side rosters in the gameplay session, concedes, queues the campaign battle outcome, and applies it from post-battle review.",
         "2026-06-28 `npm.cmd run verify:qc:encounter-combat-continuity` passed 16 focused Jest checks plus 5 Chromium proofs after adding authored custom-scenario continuity: a Custom-template campaign encounter shows default battle settings, edits pre-battle map radius/terrain through the UI, launches manual combat with authored `mapRadius` and victory-condition linkage in session config, queues the outcome, survives post-battle review reload, and applies to the campaign ledger.",
+        "2026-06-29 `npm.cmd run verify:qc:encounter-combat-continuity` passed 16 focused Jest checks plus 5 Chromium proofs after adding Scenario Rules authoring: the Custom-template pre-battle route edits map radius, terrain, primary objective, cripple threshold, turn limit, and a represented optional rule through the UI, then launches manual combat with `mapRadius: 12`, `victoryConditions: ['cripple:65', 'turn_limit:10']`, `turnLimit: 10`, and `optionalRules: ['tacops_los1']` in session config.",
         "2026-06-24 `npm.cmd run qc:wave3:validate` passed with force-pilot-encounter-setup bound to ready-with-scope, strict encounter continuity command/test coverage, and zero legacy encounter-flow smoke leaks.",
         "Archived OpenSpec change 2026-06-21-fix-navigation-and-playability-deadends retired from activeChangeRefs on 2026-06-23."
       ]
@@ -548,7 +549,7 @@
       "kind": "known-gap",
       "label": "Force, Pilot, Scenario, Encounter Setup known gaps",
       "entries": [
-        "Authored custom-scenario map radius/terrain continuity is browser-proved; richer setup-depth scope still needs victory-condition editing and non-map authored scenario parameters beyond the current Custom-template proof."
+        "Authored custom-scenario map radius, terrain, primary objective, turn limit, and represented optional-rule continuity are browser-proved; richer setup-depth scope still needs force/pilot scenario constraints and broader objective-template authoring beyond the current Custom-template proof."
       ]
     },
     {
