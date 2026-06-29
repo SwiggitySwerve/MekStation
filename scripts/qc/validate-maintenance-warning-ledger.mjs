@@ -28,6 +28,7 @@ const waveCategories = new Set([
 ]);
 const actionableSeverities = new Set(['critical', 'high', 'medium', 'warn']);
 const validStatuses = new Set(['fixed', 'accepted', 'follow-up']);
+const generatedFindingPathPrefixes = ['desktop/.tmp/'];
 
 function parseArgs(argv) {
   const options = {
@@ -75,6 +76,11 @@ function findingKey(finding) {
     normalizeFile(finding.file),
     finding.message,
   ].join('|');
+}
+
+function isGeneratedFinding(finding) {
+  const file = normalizeFile(finding.file);
+  return generatedFindingPathPrefixes.some((prefix) => file.startsWith(prefix));
 }
 
 function runScanner() {
@@ -216,7 +222,9 @@ function validate(options) {
   const ledgerPath = path.resolve(repoRoot, options.ledgerPath);
   const ledger = loadJson(ledgerPath);
   const scan = liveScan(options);
-  const findings = Array.isArray(scan.findings) ? scan.findings : [];
+  const findings = Array.isArray(scan.findings)
+    ? scan.findings.filter((finding) => !isGeneratedFinding(finding))
+    : [];
   const liveActionable = findings.filter(isActionableWaveFinding);
   const liveByKey = new Map(
     liveActionable.map((finding) => [findingKey(finding), finding]),

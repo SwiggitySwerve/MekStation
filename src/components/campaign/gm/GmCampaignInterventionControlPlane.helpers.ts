@@ -179,31 +179,61 @@ export function refreshLedgerRows(
 
 export function buildPersistedCampaignEventRows(
   events: readonly IGmCampaignProjectedEffect[] | undefined,
+  timeEvents: readonly IGmTimeCascadeProjectedEffect[] | undefined,
   createdAt: string,
   actorId: string = GM_ACTOR_ID,
 ): {
   readonly playerRows: readonly PlayerLedgerRow[];
   readonly gmRows: readonly GmLedgerRow[];
 } {
-  const playerRows: PlayerLedgerRow[] = (events ?? []).map((event, index) => ({
-    id: `persisted:${event.interventionId ?? event.type}:${index}`,
-    sequence: index + 1,
-    recordKind: 'gm-intervention',
-    actorId,
-    actorRole: 'gm',
-    domain: event.domain,
-    action: 'fix',
-    status: 'approved',
-    targetRefs: event.changedStateRefs,
-    publicEffect: {
-      summary: event.publicSummary,
-      family: event.family,
-      changedStateRefs: event.changedStateRefs,
-    },
-    interventionRecordId: event.interventionId,
-    createdAt,
-    approvedAt: createdAt,
-  }));
+  const campaignRows: PlayerLedgerRow[] = (events ?? []).map(
+    (event, index) => ({
+      id: `persisted:${event.interventionId ?? event.type}:${index}`,
+      sequence: index + 1,
+      recordKind: 'gm-intervention',
+      actorId,
+      actorRole: 'gm',
+      domain: event.domain,
+      action: 'fix',
+      status: 'approved',
+      targetRefs: event.changedStateRefs,
+      publicEffect: {
+        summary: event.publicSummary,
+        family: event.family,
+        changedStateRefs: event.changedStateRefs,
+      },
+      interventionRecordId: event.interventionId,
+      createdAt,
+      approvedAt: createdAt,
+    }),
+  );
+  const timeRows: PlayerLedgerRow[] = (timeEvents ?? []).map(
+    (event, index) => ({
+      id: `persisted:${event.interventionId ?? event.type}:time:${index}`,
+      sequence: campaignRows.length + index + 1,
+      recordKind: 'gm-intervention',
+      actorId,
+      actorRole: 'gm',
+      domain: event.domain,
+      action: 'fix',
+      status: 'approved',
+      targetRefs: event.changedStateRefs,
+      publicEffect: {
+        summary: event.publicSummary,
+        family: event.family,
+        days: event.days,
+        fromDate: event.before.currentDate,
+        toDate: event.after.currentDate,
+        fromSystemId: event.before.currentSystemId,
+        toSystemId: event.after.currentSystemId,
+        changedStateRefs: event.changedStateRefs,
+      },
+      interventionRecordId: event.interventionId,
+      createdAt,
+      approvedAt: createdAt,
+    }),
+  );
+  const playerRows = [...campaignRows, ...timeRows];
 
   return {
     playerRows,

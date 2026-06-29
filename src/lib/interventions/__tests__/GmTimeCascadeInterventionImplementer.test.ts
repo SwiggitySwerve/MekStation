@@ -262,6 +262,48 @@ describe('GM time cascade intervention implementer', () => {
     expect(replayed.timeCascadeEvents).toHaveLength(1);
   });
 
+  it('stores repeated cascades without recursively nesting prior event history', () => {
+    const first = approveCommand({
+      command: makeCommand(makePayload({ days: 1 })),
+      state: makeState(),
+      interventionId: 'gm-int-time-first-day',
+    });
+    const second = approveCommand({
+      command: makeCommand(
+        makePayload({
+          days: 1,
+          baseUpdatedAt: first.state.updatedAt,
+          baseCurrentDate: first.state.currentDate.toISOString(),
+          generatedAt: '2026-06-22T00:10:00.000Z',
+        }),
+      ),
+      state: first.state,
+      interventionId: 'gm-int-time-second-day',
+    });
+
+    const events = second.state.timeCascadeEvents ?? [];
+    expect(events).toHaveLength(2);
+    expect(events.map((event) => event.interventionId)).toEqual([
+      'gm-int-time-first-day',
+      'gm-int-time-second-day',
+    ]);
+    for (const event of events) {
+      expect(
+        Object.prototype.hasOwnProperty.call(
+          event.afterCampaign,
+          'timeCascadeEvents',
+        ),
+      ).toBe(false);
+    }
+
+    const firstEventBytes = JSON.stringify(
+      first.state.timeCascadeEvents,
+    ).length;
+    const secondEventBytes = JSON.stringify(events).length;
+    expect(JSON.stringify(events)).not.toContain('"timeCascadeEvents":');
+    expect(secondEventBytes).toBeLessThan(firstEventBytes * 2.5);
+  });
+
   it('records action-ledger projections while redacting GM-private context', () => {
     const actionLedger = new ActionLedger();
     actionLedger.appendNormalAction({

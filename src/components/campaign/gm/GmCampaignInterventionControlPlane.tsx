@@ -76,10 +76,16 @@ export function GmCampaignInterventionControlPlane({
     () =>
       buildPersistedCampaignEventRows(
         campaign.gmInterventionEvents,
+        campaign.timeCascadeEvents,
         campaign.updatedAt,
         actorId,
       ),
-    [actorId, campaign.gmInterventionEvents, campaign.updatedAt],
+    [
+      actorId,
+      campaign.gmInterventionEvents,
+      campaign.timeCascadeEvents,
+      campaign.updatedAt,
+    ],
   );
   const [preview, setPreview] = useState<GmLedgerPreview | null>(null);
   const [approvalStatus, setApprovalStatus] = useState<string>(

@@ -173,8 +173,9 @@ describe('QC registry validator', () => {
 
     expect(result.status).toBe(1);
     expect(result.stdout).toContain(
-      'Next.js page routes missing from app-shell coverage manifest: /gameplay/campaigns/[id]/finances',
+      'Next.js page routes missing from app-shell coverage manifest:',
     );
+    expect(result.stdout).toContain('/gameplay/campaigns/[id]/finances');
   });
 
   it('rejects stale delegated route patterns in the app-shell coverage manifest', () => {
@@ -217,8 +218,9 @@ describe('QC registry validator', () => {
 
     expect(result.status).toBe(1);
     expect(result.stdout).toContain(
-      'Next.js page routes missing from app-shell coverage manifest: /e2e/sync-test',
+      'Next.js page routes missing from app-shell coverage manifest:',
     );
+    expect(result.stdout).toContain('/e2e/sync-test');
   });
 
   it('rejects test harness route groups without browser proof context', () => {

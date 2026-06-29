@@ -14,7 +14,10 @@
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
 import type { ICombatOutcome } from '../combat/CombatOutcome';
-import type { IGmCampaignProjectedEffect } from '../interventions';
+import type {
+  IGmCampaignProjectedEffect,
+  IGmTimeCascadeProjectedEffect,
+} from '../interventions';
 import type { IShoppingList } from './acquisition/acquisitionTypes';
 import type {
   ICampaignActiveContract,
@@ -144,6 +147,7 @@ export interface SerializedCampaignBody {
   readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
   readonly processedBattleIds?: readonly string[];
   readonly gmInterventionEvents?: readonly IGmCampaignProjectedEffect[];
+  readonly timeCascadeEvents?: readonly IGmTimeCascadeProjectedEffect[];
   readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
   /**
    * The campaign's loan ledger (CP2b — `add-campaign-command-ui`,

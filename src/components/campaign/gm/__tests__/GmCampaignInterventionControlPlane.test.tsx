@@ -1,7 +1,10 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
-import type { IGmCampaignProjectedEffect } from '@/types/interventions';
+import type {
+  IGmCampaignProjectedEffect,
+  IGmTimeCascadeProjectedEffect,
+} from '@/types/interventions';
 
 import { createCampaign } from '@/types/campaign/Campaign';
 import { TransactionType } from '@/types/campaign/Transaction';
@@ -13,12 +16,13 @@ function fixedNow(): string {
 }
 
 describe('GmCampaignInterventionControlPlane', () => {
-  it('hydrates player-safe rows from persisted campaign intervention events', () => {
+  it('hydrates player-safe rows from persisted campaign and time intervention events', () => {
     const campaign = {
       ...createCampaign('GM Ledger Reload Test', 'mercenary', {
         startingFunds: 1_000_000,
       }),
       id: 'campaign-gm-reload',
+      currentDate: new Date('3025-01-03T00:00:00.000Z'),
       updatedAt: '3025-01-03T00:00:00.000Z',
       gmInterventionEvents: [
         {
@@ -45,6 +49,42 @@ describe('GmCampaignInterventionControlPlane', () => {
           },
         } satisfies IGmCampaignProjectedEffect,
       ],
+      timeCascadeEvents: [
+        {
+          type: 'gm.campaign.time_cascade_applied',
+          domain: 'time',
+          family: 'time-advance',
+          interventionId: 'gm-ledger-time-cascade',
+          days: 2,
+          before: {
+            currentDate: '3025-01-03T00:00:00.000Z',
+            updatedAt: '3025-01-03T00:00:00.000Z',
+            currentSystemId: 'terra',
+          },
+          after: {
+            currentDate: '3025-01-05T00:00:00.000Z',
+            updatedAt: '3025-01-05T00:00:00.000Z',
+            currentSystemId: 'terra',
+          },
+          afterCampaign: {
+            ...createCampaign('GM Ledger Reload Test', 'mercenary', {
+              startingFunds: 1_000_000,
+            }),
+            id: 'campaign-gm-reload',
+            currentDate: new Date('3025-01-05T00:00:00.000Z'),
+            updatedAt: '3025-01-05T00:00:00.000Z',
+            currentSystemId: 'terra',
+          },
+          daySummaries: [],
+          generatedEvents: [],
+          changedStateRefs: [
+            'campaign:campaign-gm-reload:currentDate',
+            'campaign:campaign-gm-reload:repairQueue',
+          ],
+          externalEffects: [],
+          publicSummary: 'Campaign time corrected by 2 days.',
+        } satisfies IGmTimeCascadeProjectedEffect,
+      ],
     };
 
     render(
@@ -58,14 +98,20 @@ describe('GmCampaignInterventionControlPlane', () => {
     expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
       'Merchant charge corrected by -2,500.00 C-bills.',
     );
+    expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
+      'Campaign time corrected by 2 days.',
+    );
     expect(screen.getByTestId('gm-ledger-player-log')).not.toHaveTextContent(
-      /Hidden campaign|black-market|GM-only/i,
+      /Hidden campaign|Hidden time|black-market|GM-only/i,
     );
     expect(screen.getByTestId('gm-ledger-private-log')).toHaveTextContent(
       'Merchant charge corrected by -2,500.00 C-bills.',
     );
+    expect(screen.getByTestId('gm-ledger-private-log')).toHaveTextContent(
+      'Campaign time corrected by 2 days.',
+    );
     expect(screen.getByTestId('gm-ledger-private-log')).not.toHaveTextContent(
-      /Hidden campaign|black-market|GM-only/i,
+      /Hidden campaign|Hidden time|black-market|GM-only/i,
     );
   });
 
