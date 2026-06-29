@@ -56,6 +56,7 @@ jest.mock(
 const mockGetCampaign = jest.fn();
 const mockCampaignStoreApi = {
   getState: () => ({
+    campaign: mockGetCampaign(),
     getCampaign: mockGetCampaign,
     updateCampaign: mockUpdateCampaign,
     saveCampaign: mockSaveCampaign,
@@ -65,6 +66,7 @@ const mockCampaignStoreApi = {
       }),
     }),
   }),
+  subscribe: () => () => {},
 };
 
 jest.mock('@/stores/campaign/useCampaignStore', () => ({

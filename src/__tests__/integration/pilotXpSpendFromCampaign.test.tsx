@@ -69,11 +69,14 @@ jest.mock('@/components/shared/Toast', () => {
 // ICampaign (Date objects, Money, nested Maps, etc.). The page only
 // reads `getState().getCampaign()` for breadcrumbs + the not-found
 // guard, so a minimal stub is sufficient for this integration test.
+const mockCampaign = { id: 'campaign-test-1', name: 'Test Campaign' };
 jest.mock('@/stores/campaign/useCampaignStore', () => ({
   useCampaignStore: () => ({
     getState: () => ({
-      getCampaign: () => ({ id: 'campaign-test-1', name: 'Test Campaign' }),
+      campaign: mockCampaign,
+      getCampaign: () => mockCampaign,
     }),
+    subscribe: () => () => {},
   }),
 }));
 
