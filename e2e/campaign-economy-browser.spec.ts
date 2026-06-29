@@ -12,6 +12,8 @@
 
 import { expect, test, type Page } from '@playwright/test';
 
+import { withBrowserDiagnostics } from './helpers';
+
 interface SeededCampaign {
   campaignId: string;
   currentDate: string;
@@ -375,166 +377,164 @@ test.describe('Campaign economy browser proof', () => {
   test(
     'routes post-battle state through dashboard, repair, salvage, finances, and day advance',
     { tag: ['@campaign', '@economy', '@strict'] },
-    async ({ page }) => {
-      const pageErrors: string[] = [];
-      page.on('pageerror', (error) => pageErrors.push(error.message));
+    async ({ page }, testInfo) =>
+      withBrowserDiagnostics(page, testInfo, async () => {
+        await page.goto('/gameplay/campaigns');
+        const seeded = await seedPostBattleCampaign(page);
 
-      await page.goto('/gameplay/campaigns');
-      const seeded = await seedPostBattleCampaign(page);
-
-      await page.goto(`/gameplay/campaigns/${seeded.campaignId}`);
-      await waitForLoadedCampaign(page, seeded.campaignId);
-      await expect(page.getByTestId('dashboard-card-finances')).toBeVisible();
-      await expect(
-        page.getByTestId('dashboard-card-day-advance'),
-      ).toBeVisible();
-      await expect(page.getByTestId('finances-balance')).toContainText(
-        '2,500,000.00 C-bills',
-      );
-      const dateBefore = await page
-        .getByTestId('day-advance-current-date')
-        .textContent();
-      expect(dateBefore).toBe('3025-01-01');
-
-      await page.goto(`/gameplay/campaigns/${seeded.campaignId}/repair-bay`);
-      await waitForLoadedCampaign(page, seeded.campaignId);
-      await expect(page.getByTestId('repair-bay-queue')).toBeVisible();
-      await expect(
-        page.getByTestId('repair-ticket-ticket-armor-ct'),
-      ).toContainText('6h');
-      await page.getByTestId('repair-ticket-down-ticket-armor-ct').click();
-      const repairPriorities = await page.evaluate(() => {
-        type StoreApi = { getState: () => Record<string, any> };
-        type ExposedStore = StoreApi | (() => StoreApi);
-        const resolveStore = (store: ExposedStore): StoreApi =>
-          typeof (store as StoreApi).getState === 'function'
-            ? (store as StoreApi)
-            : (store as () => StoreApi)();
-        const stores = (
-          window as unknown as {
-            __ZUSTAND_STORES__?: { campaign?: ExposedStore };
-          }
-        ).__ZUSTAND_STORES__;
-        if (!stores?.campaign) {
-          throw new Error('Campaign E2E store is not exposed');
-        }
-        const campaign = resolveStore(stores.campaign).getState().getCampaign();
-        return (campaign?.repairQueue ?? []).map(
-          (ticket: { ticketId: string; priority?: number }) => [
-            ticket.ticketId,
-            ticket.priority ?? null,
-          ],
+        await page.goto(`/gameplay/campaigns/${seeded.campaignId}`);
+        await waitForLoadedCampaign(page, seeded.campaignId);
+        await expect(page.getByTestId('dashboard-card-finances')).toBeVisible();
+        await expect(
+          page.getByTestId('dashboard-card-day-advance'),
+        ).toBeVisible();
+        await expect(page.getByTestId('finances-balance')).toContainText(
+          '2,500,000.00 C-bills',
         );
-      });
-      expect(repairPriorities).toEqual([
-        ['ticket-armor-ct', 1],
-        ['ticket-structure-lt', 0],
-      ]);
-      const repairSnapshot = await readCampaignEconomySnapshot(page);
-      expect(repairSnapshot.repairPriorities).toEqual(repairPriorities);
+        const dateBefore = await page
+          .getByTestId('day-advance-current-date')
+          .textContent();
+        expect(dateBefore).toBe('3025-01-01');
 
-      await page.reload({ waitUntil: 'networkidle' });
-      await waitForLoadedCampaign(page, seeded.campaignId);
-      await expect(page.getByTestId('repair-bay-queue')).toBeVisible();
-      await expect(readCampaignEconomySnapshot(page)).resolves.toMatchObject({
-        repairPriorities,
-      });
+        await page.goto(`/gameplay/campaigns/${seeded.campaignId}/repair-bay`);
+        await waitForLoadedCampaign(page, seeded.campaignId);
+        await expect(page.getByTestId('repair-bay-queue')).toBeVisible();
+        await expect(
+          page.getByTestId('repair-ticket-ticket-armor-ct'),
+        ).toContainText('6h');
+        await page.getByTestId('repair-ticket-down-ticket-armor-ct').click();
+        const repairPriorities = await page.evaluate(() => {
+          type StoreApi = { getState: () => Record<string, any> };
+          type ExposedStore = StoreApi | (() => StoreApi);
+          const resolveStore = (store: ExposedStore): StoreApi =>
+            typeof (store as StoreApi).getState === 'function'
+              ? (store as StoreApi)
+              : (store as () => StoreApi)();
+          const stores = (
+            window as unknown as {
+              __ZUSTAND_STORES__?: { campaign?: ExposedStore };
+            }
+          ).__ZUSTAND_STORES__;
+          if (!stores?.campaign) {
+            throw new Error('Campaign E2E store is not exposed');
+          }
+          const campaign = resolveStore(stores.campaign)
+            .getState()
+            .getCampaign();
+          return (campaign?.repairQueue ?? []).map(
+            (ticket: { ticketId: string; priority?: number }) => [
+              ticket.ticketId,
+              ticket.priority ?? null,
+            ],
+          );
+        });
+        expect(repairPriorities).toEqual([
+          ['ticket-armor-ct', 1],
+          ['ticket-structure-lt', 0],
+        ]);
+        const repairSnapshot = await readCampaignEconomySnapshot(page);
+        expect(repairSnapshot.repairPriorities).toEqual(repairPriorities);
 
-      await page.goto(`/gameplay/campaigns/${seeded.campaignId}/salvage`);
-      await waitForLoadedCampaign(page, seeded.campaignId);
-      await expect(page.getByTestId('salvage-panel')).toBeVisible();
-      await expect(page.getByTestId('salvage-row-salvage-atlas')).toContainText(
-        'Atlas AS7-D',
-      );
-      await expect(page.getByTestId('salvage-value-total')).toContainText(
-        '0 C-Bills',
-      );
-      await page.getByTestId('salvage-accept-salvage-atlas').click();
-      await expect(page.getByTestId('salvage-value-total')).toContainText(
-        '2,000,000 C-Bills',
-      );
-      const salvageSnapshot = await readCampaignEconomySnapshot(page);
-      expect(salvageSnapshot).toMatchObject({
-        acceptedSalvageValue: 2_000_000,
-        salvageStatuses: [['salvage-atlas', 'accepted']],
-      });
+        await page.reload({ waitUntil: 'networkidle' });
+        await waitForLoadedCampaign(page, seeded.campaignId);
+        await expect(page.getByTestId('repair-bay-queue')).toBeVisible();
+        await expect(readCampaignEconomySnapshot(page)).resolves.toMatchObject({
+          repairPriorities,
+        });
 
-      await page.reload({ waitUntil: 'networkidle' });
-      await waitForLoadedCampaign(page, seeded.campaignId);
-      await expect(page.getByTestId('salvage-panel')).toBeVisible();
-      await expect(page.getByTestId('salvage-value-total')).toContainText(
-        '2,000,000 C-Bills',
-      );
-      await expect(readCampaignEconomySnapshot(page)).resolves.toMatchObject({
-        acceptedSalvageValue: 2_000_000,
-        salvageStatuses: [['salvage-atlas', 'accepted']],
-      });
+        await page.goto(`/gameplay/campaigns/${seeded.campaignId}/salvage`);
+        await waitForLoadedCampaign(page, seeded.campaignId);
+        await expect(page.getByTestId('salvage-panel')).toBeVisible();
+        await expect(
+          page.getByTestId('salvage-row-salvage-atlas'),
+        ).toContainText('Atlas AS7-D');
+        await expect(page.getByTestId('salvage-value-total')).toContainText(
+          '0 C-Bills',
+        );
+        await page.getByTestId('salvage-accept-salvage-atlas').click();
+        await expect(page.getByTestId('salvage-value-total')).toContainText(
+          '2,000,000 C-Bills',
+        );
+        const salvageSnapshot = await readCampaignEconomySnapshot(page);
+        expect(salvageSnapshot).toMatchObject({
+          acceptedSalvageValue: 2_000_000,
+          salvageStatuses: [['salvage-atlas', 'accepted']],
+        });
 
-      await page.goto(`/gameplay/campaigns/${seeded.campaignId}/finances`);
-      await waitForLoadedCampaign(page, seeded.campaignId);
-      await expect(page.getByTestId('finances-panel')).toBeVisible();
-      await expect(page.getByTestId('finances-balance')).toContainText(
-        '2,500,000.00 C-bills',
-      );
-      await page.getByTestId('loan-submit').click();
-      await expect(page.getByTestId('finances-balance')).toContainText(
-        '3,500,000.00 C-bills',
-      );
-      await expect(page.getByTestId('finances-ledger')).toBeVisible();
-      await expect(page.getByTestId('finances-loan-list')).toBeVisible();
-      const financeSnapshot = await readCampaignEconomySnapshot(page);
-      expect(financeSnapshot).toMatchObject({
-        balance: 3_500_000,
-        loanCount: 1,
-      });
-      expect(financeSnapshot.ledgerDescriptions).toContain(
-        'Loan disbursement: 1,000,000.00 C-bills',
-      );
+        await page.reload({ waitUntil: 'networkidle' });
+        await waitForLoadedCampaign(page, seeded.campaignId);
+        await expect(page.getByTestId('salvage-panel')).toBeVisible();
+        await expect(page.getByTestId('salvage-value-total')).toContainText(
+          '2,000,000 C-Bills',
+        );
+        await expect(readCampaignEconomySnapshot(page)).resolves.toMatchObject({
+          acceptedSalvageValue: 2_000_000,
+          salvageStatuses: [['salvage-atlas', 'accepted']],
+        });
 
-      await page.reload({ waitUntil: 'networkidle' });
-      await waitForLoadedCampaign(page, seeded.campaignId);
-      await expect(page.getByTestId('finances-panel')).toBeVisible();
-      await expect(page.getByTestId('finances-balance')).toContainText(
-        '3,500,000.00 C-bills',
-      );
-      await expect(page.getByTestId('finances-loan-list')).toBeVisible();
-      const reloadedFinanceSnapshot = await readCampaignEconomySnapshot(page);
-      expect(reloadedFinanceSnapshot).toMatchObject({
-        balance: 3_500_000,
-        loanCount: 1,
-      });
-      expect(reloadedFinanceSnapshot.ledgerDescriptions).toContain(
-        'Loan disbursement: 1,000,000.00 C-bills',
-      );
+        await page.goto(`/gameplay/campaigns/${seeded.campaignId}/finances`);
+        await waitForLoadedCampaign(page, seeded.campaignId);
+        await expect(page.getByTestId('finances-panel')).toBeVisible();
+        await expect(page.getByTestId('finances-balance')).toContainText(
+          '2,500,000.00 C-bills',
+        );
+        await page.getByTestId('loan-submit').click();
+        await expect(page.getByTestId('finances-balance')).toContainText(
+          '3,500,000.00 C-bills',
+        );
+        await expect(page.getByTestId('finances-ledger')).toBeVisible();
+        await expect(page.getByTestId('finances-loan-list')).toBeVisible();
+        const financeSnapshot = await readCampaignEconomySnapshot(page);
+        expect(financeSnapshot).toMatchObject({
+          balance: 3_500_000,
+          loanCount: 1,
+        });
+        expect(financeSnapshot.ledgerDescriptions).toContain(
+          'Loan disbursement: 1,000,000.00 C-bills',
+        );
 
-      await page.goto(`/gameplay/campaigns/${seeded.campaignId}`);
-      await waitForLoadedCampaign(page, seeded.campaignId);
-      await page.getByTestId('day-advance-one-day').click();
-      await expect(page.getByTestId('day-advance-current-date')).not.toHaveText(
-        '3025-01-01',
-      );
-      await expect(page.getByTestId('day-advance-current-date')).toHaveText(
-        '3025-01-02',
-      );
-      const advancedSnapshot = await readCampaignEconomySnapshot(page);
-      expect(advancedSnapshot.currentDate).toBe('3025-01-02');
-      expect(advancedSnapshot.balance).toBeLessThan(financeSnapshot.balance);
+        await page.reload({ waitUntil: 'networkidle' });
+        await waitForLoadedCampaign(page, seeded.campaignId);
+        await expect(page.getByTestId('finances-panel')).toBeVisible();
+        await expect(page.getByTestId('finances-balance')).toContainText(
+          '3,500,000.00 C-bills',
+        );
+        await expect(page.getByTestId('finances-loan-list')).toBeVisible();
+        const reloadedFinanceSnapshot = await readCampaignEconomySnapshot(page);
+        expect(reloadedFinanceSnapshot).toMatchObject({
+          balance: 3_500_000,
+          loanCount: 1,
+        });
+        expect(reloadedFinanceSnapshot.ledgerDescriptions).toContain(
+          'Loan disbursement: 1,000,000.00 C-bills',
+        );
 
-      await page.reload({ waitUntil: 'networkidle' });
-      await waitForLoadedCampaign(page, seeded.campaignId);
-      await expect(page.getByTestId('day-advance-current-date')).toHaveText(
-        '3025-01-02',
-      );
-      await expect(readCampaignEconomySnapshot(page)).resolves.toMatchObject({
-        acceptedSalvageValue: 2_000_000,
-        balance: advancedSnapshot.balance,
-        currentDate: '3025-01-02',
-        loanCount: 1,
-        repairPriorities,
-        salvageStatuses: [['salvage-atlas', 'accepted']],
-      });
+        await page.goto(`/gameplay/campaigns/${seeded.campaignId}`);
+        await waitForLoadedCampaign(page, seeded.campaignId);
+        await page.getByTestId('day-advance-one-day').click();
+        await expect(
+          page.getByTestId('day-advance-current-date'),
+        ).not.toHaveText('3025-01-01');
+        await expect(page.getByTestId('day-advance-current-date')).toHaveText(
+          '3025-01-02',
+        );
+        const advancedSnapshot = await readCampaignEconomySnapshot(page);
+        expect(advancedSnapshot.currentDate).toBe('3025-01-02');
+        expect(advancedSnapshot.balance).toBeLessThan(financeSnapshot.balance);
 
-      expect(pageErrors).toEqual([]);
-    },
+        await page.reload({ waitUntil: 'networkidle' });
+        await waitForLoadedCampaign(page, seeded.campaignId);
+        await expect(page.getByTestId('day-advance-current-date')).toHaveText(
+          '3025-01-02',
+        );
+        await expect(readCampaignEconomySnapshot(page)).resolves.toMatchObject({
+          acceptedSalvageValue: 2_000_000,
+          balance: advancedSnapshot.balance,
+          currentDate: '3025-01-02',
+          loanCount: 1,
+          repairPriorities,
+          salvageStatuses: [['salvage-atlas', 'accepted']],
+        });
+      }),
   );
 });

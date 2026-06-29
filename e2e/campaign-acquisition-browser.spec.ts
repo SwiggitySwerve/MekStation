@@ -10,6 +10,8 @@
 
 import { expect, test, type Page } from '@playwright/test';
 
+import { withBrowserDiagnostics } from './helpers';
+
 const CAMPAIGN_ACQUISITION_NAVIGATION_TIMEOUT_MS = 90_000;
 
 test.setTimeout(150_000);
@@ -107,84 +109,82 @@ test.describe('campaign acquisition browser proof', () => {
   test(
     'adds, reloads, processes, and persists acquisition shopping-list delivery',
     { tag: ['@campaign', '@economy', '@strict'] },
-    async ({ page }) => {
-      const pageErrors: string[] = [];
-      page.on('pageerror', (error) => pageErrors.push(error.message));
+    async ({ page }, testInfo) =>
+      withBrowserDiagnostics(page, testInfo, async () => {
+        await page.goto('/gameplay/campaigns');
+        const seeded = await seedAcquisitionCampaign(page);
 
-      await page.goto('/gameplay/campaigns');
-      const seeded = await seedAcquisitionCampaign(page);
+        await page.goto(
+          `/gameplay/campaigns/${seeded.campaignId}/acquisitions`,
+        );
+        await expect(page.getByTestId('acquisitions-panel')).toBeVisible({
+          timeout: 20_000,
+        });
+        await expect(
+          page.getByRole('link', { name: 'Acquisitions' }),
+        ).toHaveAttribute('aria-current', 'page');
+        await expect(
+          page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
+        ).toContainText('in transit');
+        await expect(
+          page.getByTestId('acquisitions-transit-count'),
+        ).toContainText('1');
 
-      await page.goto(`/gameplay/campaigns/${seeded.campaignId}/acquisitions`);
-      await expect(page.getByTestId('acquisitions-panel')).toBeVisible({
-        timeout: 20_000,
-      });
-      await expect(
-        page.getByRole('link', { name: 'Acquisitions' }),
-      ).toHaveAttribute('aria-current', 'page');
-      await expect(
-        page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
-      ).toContainText('in transit');
-      await expect(
-        page.getByTestId('acquisitions-transit-count'),
-      ).toContainText('1');
+        await page.getByTestId('acquisition-part-name').fill('PPC');
+        await page.getByTestId('acquisition-quantity').fill('2');
+        await page.getByTestId('acquisition-availability').selectOption('E');
+        await page.getByTestId('acquisition-add-request').click();
+        await expect(
+          page.getByTestId(`acquisition-request-${seeded.addedRequestId}`),
+        ).toContainText('PPC');
+        await expect(
+          page.getByTestId(`acquisition-status-${seeded.addedRequestId}`),
+        ).toContainText('pending');
+        await expect(
+          page.getByTestId('acquisitions-pending-count'),
+        ).toContainText('1');
 
-      await page.getByTestId('acquisition-part-name').fill('PPC');
-      await page.getByTestId('acquisition-quantity').fill('2');
-      await page.getByTestId('acquisition-availability').selectOption('E');
-      await page.getByTestId('acquisition-add-request').click();
-      await expect(
-        page.getByTestId(`acquisition-request-${seeded.addedRequestId}`),
-      ).toContainText('PPC');
-      await expect(
-        page.getByTestId(`acquisition-status-${seeded.addedRequestId}`),
-      ).toContainText('pending');
-      await expect(
-        page.getByTestId('acquisitions-pending-count'),
-      ).toContainText('1');
+        await page.reload({ waitUntil: 'networkidle' });
+        await waitForCampaignStoresReady(page);
+        await expect(
+          page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
+        ).toContainText('in transit');
+        await expect(
+          page.getByTestId(`acquisition-status-${seeded.addedRequestId}`),
+        ).toContainText('pending');
 
-      await page.reload({ waitUntil: 'networkidle' });
-      await waitForCampaignStoresReady(page);
-      await expect(
-        page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
-      ).toContainText('in transit');
-      await expect(
-        page.getByTestId(`acquisition-status-${seeded.addedRequestId}`),
-      ).toContainText('pending');
+        await page.getByTestId('acquisitions-advance-day').click();
+        await expect(
+          page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
+        ).toContainText('delivered');
+        await expect(
+          page.getByTestId(`acquisition-inventory-${seeded.duePartId}`),
+        ).toContainText('SRM Ammo');
+        await expect(
+          page.getByTestId(`acquisition-inventory-qty-${seeded.duePartId}`),
+        ).toContainText('x2');
+        await expect(
+          page.getByTestId('acquisition-current-date'),
+        ).toContainText('3025-02-02');
 
-      await page.getByTestId('acquisitions-advance-day').click();
-      await expect(
-        page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
-      ).toContainText('delivered');
-      await expect(
-        page.getByTestId(`acquisition-inventory-${seeded.duePartId}`),
-      ).toContainText('SRM Ammo');
-      await expect(
-        page.getByTestId(`acquisition-inventory-qty-${seeded.duePartId}`),
-      ).toContainText('x2');
-      await expect(page.getByTestId('acquisition-current-date')).toContainText(
-        '3025-02-02',
-      );
+        await page.reload({ waitUntil: 'networkidle' });
+        await waitForCampaignStoresReady(page);
+        await expect(
+          page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
+        ).toContainText('delivered');
+        await expect(
+          page.getByTestId(`acquisition-inventory-qty-${seeded.duePartId}`),
+        ).toContainText('x2');
 
-      await page.reload({ waitUntil: 'networkidle' });
-      await waitForCampaignStoresReady(page);
-      await expect(
-        page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
-      ).toContainText('delivered');
-      await expect(
-        page.getByTestId(`acquisition-inventory-qty-${seeded.duePartId}`),
-      ).toContainText('x2');
-
-      await page
-        .getByTestId(`acquisition-remove-${seeded.dueRequestId}`)
-        .click();
-      await expect(
-        page.getByTestId(`acquisition-request-${seeded.dueRequestId}`),
-      ).toHaveCount(0);
-      await expect(
-        page.getByTestId(`acquisition-inventory-qty-${seeded.duePartId}`),
-      ).toContainText('x2');
-
-      expect(pageErrors).toEqual([]);
-    },
+        await page
+          .getByTestId(`acquisition-remove-${seeded.dueRequestId}`)
+          .click();
+        await expect(
+          page.getByTestId(`acquisition-request-${seeded.dueRequestId}`),
+        ).toHaveCount(0);
+        await expect(
+          page.getByTestId(`acquisition-inventory-qty-${seeded.duePartId}`),
+        ).toContainText('x2');
+      }),
   );
 });

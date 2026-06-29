@@ -242,6 +242,16 @@ describe('Turnover Personal Modifiers', () => {
       });
       expect(getRecentPromotionModifier(entry, null, campaign)).toBe(-1);
     });
+
+    it('should accept persisted ISO promotion dates', () => {
+      const campaign = createTestCampaign({
+        currentDate: new Date('3025-06-15'),
+      });
+      const entry = createTestEntry({
+        lastPromotionDate: '3025-03-01T00:00:00.000Z' as unknown as Date,
+      });
+      expect(getRecentPromotionModifier(entry, null, campaign)).toBe(-1);
+    });
   });
 
   describe('getAgeModifier', () => {
@@ -259,6 +269,16 @@ describe('Turnover Personal Modifiers', () => {
         currentDate: new Date('3025-06-15'),
       });
       const entry = createTestEntry({ hireDate: new Date('3000-01-01') });
+      expect(getAgeModifier(entry, null, campaign)).toBe(0);
+    });
+
+    it('should accept persisted ISO hire dates', () => {
+      const campaign = createTestCampaign({
+        currentDate: new Date('3025-06-15'),
+      });
+      const entry = createTestEntry({
+        hireDate: '3000-01-01T00:00:00.000Z' as unknown as Date,
+      });
       expect(getAgeModifier(entry, null, campaign)).toBe(0);
     });
 
