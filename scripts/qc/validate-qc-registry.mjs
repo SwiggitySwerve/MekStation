@@ -492,6 +492,9 @@ function appShellRecoveryRoutePatterns(issues) {
 
     const normalizedPath = pathValue.trim();
     const normalizedPattern = patternValue.trim();
+    if (!normalizedPath.startsWith('/')) {
+      issues.push(fail(`${label}.path must start with "/": ${normalizedPath}`));
+    }
     if (seenPaths.has(normalizedPath)) {
       issues.push(
         fail(
@@ -501,7 +504,12 @@ function appShellRecoveryRoutePatterns(issues) {
     }
     seenPaths.add(normalizedPath);
 
-    if (!routeReferenceExists(normalizedPath)) {
+    const isNotFoundFallback =
+      normalizedPattern === '/404' &&
+      knownPatterns.has('/404') &&
+      !routeReferenceExists(normalizedPath);
+
+    if (!routeReferenceExists(normalizedPath) && !isNotFoundFallback) {
       issues.push(
         fail(
           `${label}.path does not resolve to a Next.js page route: ${normalizedPath}`,
@@ -519,7 +527,7 @@ function appShellRecoveryRoutePatterns(issues) {
     }
 
     const actualPattern = pageRoutePatternForPath(normalizedPath);
-    if (actualPattern !== normalizedPattern) {
+    if (!isNotFoundFallback && actualPattern !== normalizedPattern) {
       issues.push(
         fail(
           `${label}.path ${normalizedPath} resolves to ${actualPattern ?? 'no route'}, not declared pattern ${normalizedPattern}`,

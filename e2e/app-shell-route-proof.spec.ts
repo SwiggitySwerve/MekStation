@@ -406,6 +406,32 @@ const routeProofs: readonly RouteProof[] = [
     ],
   },
   {
+    path: '/app-shell-e2e-missing-route',
+    label: 'global not found',
+    pageTitle: 'Page Not Found',
+    text: /This route does not exist or has moved/i,
+    allowedConsoleErrors: [
+      'Failed to load resource: the server responded with a status of 404 (Not Found)',
+    ],
+    affordances: [
+      {
+        label: 'global not found recovery panel',
+        testId: 'global-not-found-recovery',
+      },
+      {
+        label: 'dashboard recovery link',
+        role: 'link',
+        name: /Go to Dashboard/i,
+      },
+      { label: 'gameplay recovery link', role: 'link', name: /Open Gameplay/i },
+      {
+        label: 'replay library recovery link',
+        role: 'link',
+        name: /Open Replay Library/i,
+      },
+    ],
+  },
+  {
     path: '/settings#vault',
     label: 'settings vault hash',
     pageTitle: 'Settings',
