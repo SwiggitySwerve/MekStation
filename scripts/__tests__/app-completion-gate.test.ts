@@ -61,14 +61,22 @@ function writeFixtureSet(tempDir: string, hasReleaseGap: boolean) {
       'qc:lifecycle:status': 'node scripts/qc/report-lifecycle-qc-status.mjs',
       'qc:logging:validate':
         'node scripts/qc/validate-journey-qc.mjs --logging-only=true',
+      'qc:manual-automation-gaps:validate':
+        'node scripts/qc/validate-manual-automation-gaps.mjs',
+      'qc:surface-browser:validate':
+        'node scripts/qc/validate-surface-browser-proof.mjs',
       'qc:openspec-ci:validate':
         'node scripts/qc/validate-openspec-ci-quality.mjs',
       'verify:app-completion':
         'npm run qc:app-completion && npm run verify:qc && npm run verify:rules && npm run electron:test:build',
       'verify:app-completion:release':
         'npm run qc:app-completion:release && npm run verify:app-completion',
+      'verify:app-completion:release-full':
+        'npm run verify:qc:roadmap && npm run verify:qc && npm run verify:qc:scenarios && npm run electron:test:build',
       'verify:qc':
         'npm run qc:openspec-ci:validate && npm run qc:lifecycle:status',
+      'verify:qc:roadmap':
+        'npm run qc:manual-automation-gaps:validate && npm run qc:surface-browser:validate',
       'verify:rules':
         'npm run validate:combat:gaps -- --format=summary --expect-total=0 && npm run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=147 && npx openspec validate --all --strict',
       'electron:test:build': 'cd desktop && npm run test:build',
