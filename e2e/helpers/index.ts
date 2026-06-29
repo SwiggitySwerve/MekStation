@@ -47,3 +47,14 @@ export {
   setStoreValue,
   waitForStoreState,
 } from './store';
+
+// Browser diagnostics
+export {
+  formatBrowserDiagnosticEvents,
+  installBrowserDiagnostics,
+  isFatalBrowserDiagnosticEvent,
+  shouldCaptureRequestFailure,
+  withBrowserDiagnostics,
+  type BrowserDiagnosticEvent,
+  type BrowserDiagnostics,
+} from './browserDiagnostics';

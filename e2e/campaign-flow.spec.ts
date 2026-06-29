@@ -12,6 +12,7 @@
 
 import { test, expect, type Page } from '@playwright/test';
 
+import { withBrowserDiagnostics } from './helpers';
 import { getStoreState } from './helpers/store';
 
 interface CampaignStoreState {
@@ -677,67 +678,75 @@ test.describe('Campaign Flow - Store State', () => {
   test(
     'saves a wizard campaign and reloads it from the server campaign list',
     { tag: ['@campaign', '@smoke', '@strict'] },
-    async ({ page }) => {
-      const campaignId = await createRosteredCampaignViaWizard(page);
-      const saved = await saveCampaignThroughDashboard(page, campaignId);
+    async ({ page }, testInfo) =>
+      withBrowserDiagnostics(page, testInfo, async () => {
+        const campaignId = await createRosteredCampaignViaWizard(page);
+        const saved = await saveCampaignThroughDashboard(page, campaignId);
 
-      await clearLiveCampaignClientState(page);
-      await page.goto('/gameplay/campaigns');
-      await waitForE2EHydration(page);
+        await clearLiveCampaignClientState(page);
+        await page.goto('/gameplay/campaigns');
+        await waitForE2EHydration(page);
 
-      const serverBackedCard = page.getByTestId(`campaign-card-${campaignId}`);
-      await expect(serverBackedCard).toContainText(saved.name, {
-        timeout: 20_000,
-      });
-      await expect(serverBackedCard).toContainText('Faction: mercenary');
+        const serverBackedCard = page.getByTestId(
+          `campaign-card-${campaignId}`,
+        );
+        await expect(serverBackedCard).toContainText(saved.name, {
+          timeout: 20_000,
+        });
+        await expect(serverBackedCard).toContainText('Faction: mercenary');
 
-      await serverBackedCard.click();
-      await page.waitForURL(new RegExp(`/gameplay/campaigns/${campaignId}$`), {
-        timeout: 20_000,
-      });
-      await expect(page.getByTestId('campaign-dashboard')).toBeVisible({
-        timeout: 20_000,
-      });
-      await expect(page.getByTestId('campaign-save-status-card')).toBeVisible();
+        await serverBackedCard.click();
+        await page.waitForURL(
+          new RegExp(`/gameplay/campaigns/${campaignId}$`),
+          {
+            timeout: 20_000,
+          },
+        );
+        await expect(page.getByTestId('campaign-dashboard')).toBeVisible({
+          timeout: 20_000,
+        });
+        await expect(
+          page.getByTestId('campaign-save-status-card'),
+        ).toBeVisible();
 
-      const reloaded = await page.evaluate(() => {
-        const stores = (
-          window as unknown as {
-            __ZUSTAND_STORES__?: {
-              campaign?: {
-                getState: () => {
-                  campaign?: { id?: unknown; name?: unknown };
+        const reloaded = await page.evaluate(() => {
+          const stores = (
+            window as unknown as {
+              __ZUSTAND_STORES__?: {
+                campaign?: {
+                  getState: () => {
+                    campaign?: { id?: unknown; name?: unknown };
+                  };
                 };
               };
-            };
-          }
-        ).__ZUSTAND_STORES__;
-        const campaign = stores?.campaign?.getState().campaign;
-        return {
-          id: typeof campaign?.id === 'string' ? campaign.id : null,
-          name: typeof campaign?.name === 'string' ? campaign.name : null,
-        };
-      });
-      expect(reloaded).toEqual({ id: campaignId, name: saved.name });
+            }
+          ).__ZUSTAND_STORES__;
+          const campaign = stores?.campaign?.getState().campaign;
+          return {
+            id: typeof campaign?.id === 'string' ? campaign.id : null,
+            name: typeof campaign?.name === 'string' ? campaign.name : null,
+          };
+        });
+        expect(reloaded).toEqual({ id: campaignId, name: saved.name });
 
-      const serverRecord = await page.evaluate(async (id) => {
-        const response = await fetch(`/api/campaigns/${id}`);
-        if (!response.ok) {
-          throw new Error(`server responded ${response.status}`);
-        }
-        const record = (await response.json()) as {
-          campaignId?: unknown;
-          version?: unknown;
-        };
-        return {
-          campaignId: record.campaignId,
-          version: record.version,
-        };
-      }, campaignId);
-      expect(serverRecord).toEqual({
-        campaignId,
-        version: saved.version,
-      });
-    },
+        const serverRecord = await page.evaluate(async (id) => {
+          const response = await fetch(`/api/campaigns/${id}`);
+          if (!response.ok) {
+            throw new Error(`server responded ${response.status}`);
+          }
+          const record = (await response.json()) as {
+            campaignId?: unknown;
+            version?: unknown;
+          };
+          return {
+            campaignId: record.campaignId,
+            version: record.version,
+          };
+        }, campaignId);
+        expect(serverRecord).toEqual({
+          campaignId,
+          version: saved.version,
+        });
+      }),
   );
 });

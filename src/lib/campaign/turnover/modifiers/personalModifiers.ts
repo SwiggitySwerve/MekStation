@@ -20,6 +20,12 @@ const FOUNDER_MODIFIER = -2;
 const OFFICER_MODIFIER = -1;
 const RECENT_PROMOTION_MODIFIER = -1;
 
+function toDate(value: Date | string | undefined): Date | null {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 /**
  * Returns -2 if the roster entry is a founder, 0 otherwise.
  *
@@ -45,10 +51,12 @@ export function getRecentPromotionModifier(
   _pilot: IPilot | null,
   campaign: ICampaign,
 ): number {
-  if (!entry.lastPromotionDate) return 0;
+  const now = toDate(campaign.currentDate);
+  const promotionDate = toDate(
+    entry.lastPromotionDate as Date | string | undefined,
+  );
 
-  const now = campaign.currentDate;
-  const promotionDate = entry.lastPromotionDate;
+  if (!now || !promotionDate) return 0;
 
   const monthsDiff =
     (now.getFullYear() - promotionDate.getFullYear()) * 12 +
@@ -71,9 +79,11 @@ function getPersonAge(
   _pilot: IPilot | null,
   campaign: ICampaign,
 ): number {
-  const now = campaign.currentDate;
+  const now = toDate(campaign.currentDate);
+  const birth = toDate(entry.hireDate as Date | string);
+  if (!now || !birth) return 0;
+
   // Use hireDate as birth-date proxy.
-  const birth = entry.hireDate;
   let age = now.getFullYear() - birth.getFullYear();
   const monthDiff = now.getMonth() - birth.getMonth();
   if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birth.getDate())) {
