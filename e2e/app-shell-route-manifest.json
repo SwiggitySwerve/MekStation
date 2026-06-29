@@ -79,6 +79,7 @@
       "proofCommand": "npm.cmd run verify:qc:campaign-economy:browser && npm.cmd run qc:campaign-long:browser && node scripts/playwright/run-playwright.mjs test --project=chromium e2e/playtest-campaign-smoke.spec.ts e2e/playtest-subsystem-contracts.spec.ts e2e/playtest-subsystem-hiring.spec.ts e2e/playtest-subsystem-loans.spec.ts --workers=1",
       "proofTests": [
         "e2e/campaign-flow.spec.ts",
+        "e2e/campaign-subroute-recovery.spec.ts",
         "e2e/campaign-economy-browser.spec.ts",
         "e2e/campaign-acquisition-browser.spec.ts",
         "e2e/campaign-long-browser-signoff.spec.ts",

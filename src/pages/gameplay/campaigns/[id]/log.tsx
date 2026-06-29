@@ -16,8 +16,8 @@
  * @spec openspec/changes/add-campaign-command-center/specs/campaign-system/spec.md
  */
 
-import { useRouter } from 'next/router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useStore } from 'zustand';
 
 import type {
   ActivityLogCategory,
@@ -25,8 +25,12 @@ import type {
 } from '@/types/campaign/ActivityLog';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
-import { EmptyState, PageLayout } from '@/components/ui';
-import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import { PageLayout } from '@/components/ui';
+import {
+  getLoadedCampaign,
+  renderPendingCampaignPage,
+  useCampaignPageShell,
+} from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { ACTIVITY_LOG_CATEGORIES } from '@/types/campaign/ActivityLog';
 
 const CATEGORY_LABELS: Record<ActivityLogCategory, string> = {
@@ -40,19 +44,8 @@ const CATEGORY_LABELS: Record<ActivityLogCategory, string> = {
 };
 
 export default function CampaignActivityLogPage(): React.ReactElement {
-  const router = useRouter();
-  const { id } = router.query;
-
-  const store = useCampaignStore();
-  const campaign = store.getState().campaign;
-  const entries = store.getState().activityLog;
-
-  // PT-102 lesson: NEVER setIsClient inside useState initializer; use useEffect.
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
+  const shell = useCampaignPageShell('Activity Log');
+  const entries = useStore(shell.store, (state) => state.activityLog);
   const [category, setCategory] = useState<ActivityLogCategory | 'all'>('all');
   const [search, setSearch] = useState('');
 
@@ -69,37 +62,23 @@ export default function CampaignActivityLogPage(): React.ReactElement {
       .reverse();
   }, [entries, category, search]);
 
-  if (!isClient) {
-    return (
-      <PageLayout title="Activity Log" subtitle="Loading…" maxWidth="wide">
-        <EmptyState title="Loading activity log…" message="" />
-      </PageLayout>
-    );
-  }
+  const pending = renderPendingCampaignPage(shell, {
+    title: 'Activity Log',
+    subtitle: 'Loading activity log...',
+  });
+  if (pending) return pending;
 
-  if (!campaign) {
-    return (
-      <PageLayout
-        title="Activity Log"
-        subtitle="Campaign not found"
-        maxWidth="wide"
-      >
-        <EmptyState
-          title="Campaign not found"
-          message="Return to the campaigns list to select a campaign."
-        />
-      </PageLayout>
-    );
-  }
+  const campaign = getLoadedCampaign(shell);
 
   return (
     <PageLayout
       title="Activity Log"
       subtitle={`${campaign.name} — ${entries.length} entries`}
       maxWidth="wide"
+      breadcrumbs={shell.breadcrumbs}
     >
       <CampaignNavigation
-        campaignId={String(id)}
+        campaignId={campaign.id}
         currentPage="dashboard"
         coopSession={campaign.coopSession}
       />

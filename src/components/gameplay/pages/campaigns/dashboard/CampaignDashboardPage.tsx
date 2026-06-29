@@ -10,6 +10,7 @@ import { CampaignCoopRouteSurfaceConnected } from '@/components/campaign/coop';
 import { CampaignDashboard } from '@/components/campaign/dashboard/CampaignDashboard';
 import { DayReportPanel } from '@/components/campaign/DayReportPanel';
 import { Button, PageLayout } from '@/components/ui';
+import { useCampaignRouteLoader } from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   ScenarioGenerator,
@@ -56,7 +57,7 @@ export default function CampaignDashboardPage(): React.ReactElement {
   const store = useCampaignStore();
   const rosterStore = useCampaignRosterStore;
 
-  const campaign = useStore(
+  const liveCampaign = useStore(
     store,
     (state) => state.campaign as CampaignDashboardCampaign | null,
   );
@@ -69,6 +70,12 @@ export default function CampaignDashboardPage(): React.ReactElement {
   const missionCount = rosterStore((state) => state.missionCount);
 
   const isClient = useClientReady();
+  const routeLoader = useCampaignRouteLoader({
+    id: router.query.id,
+    campaign: liveCampaign as ICampaign | null,
+    isClient,
+  });
+  const campaign = routeLoader.campaign as CampaignDashboardCampaign | null;
 
   // Install the campaign-store -> persistence-store dirty bridge once the
   // client is hydrated. Idempotent — a remount is a no-op. This is what
@@ -203,7 +210,7 @@ export default function CampaignDashboardPage(): React.ReactElement {
     }
   }, [campaign, router, store]);
 
-  if (!isClient) {
+  if (!isClient || routeLoader.isLoadingCampaign) {
     return <CampaignLoadingState />;
   }
 

@@ -15,6 +15,7 @@ import {
   type CampaignCoopRouteId,
 } from '@/components/campaign/coop';
 import { EmptyState, PageLayout } from '@/components/ui';
+import { installCampaignPersistenceWiring } from '@/stores/campaign/campaignPersistenceWiring';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
@@ -30,6 +31,8 @@ interface CampaignPageShell {
   readonly campaign: ICampaign | null;
   readonly store: ReturnType<typeof useCampaignStore>;
   readonly isClient: boolean;
+  readonly routeCampaignId: string | null;
+  readonly isLoadingCampaign: boolean;
   readonly breadcrumbs: Array<{ label: string; href?: string }>;
 }
 
@@ -76,6 +79,7 @@ interface CampaignPageGateProps extends LoadingStateProps {
   readonly campaign: ICampaign | null;
   readonly breadcrumbs: Array<{ label: string; href?: string }>;
   readonly isClient: boolean;
+  readonly isLoadingCampaign?: boolean;
 }
 
 interface CampaignPageFrameConfig {
@@ -96,12 +100,79 @@ interface CampaignCommandFeedbackProps extends CampaignLoadErrorProps {
   readonly onClearActionError?: () => void;
 }
 
+interface CampaignRouteLoaderInput {
+  readonly id: CampaignPageId;
+  readonly campaign: ICampaign | null;
+  readonly isClient: boolean;
+}
+
+interface CampaignRouteLoaderState {
+  readonly campaign: ICampaign | null;
+  readonly routeCampaignId: string | null;
+  readonly isLoadingCampaign: boolean;
+}
+
+export function campaignRouteIdFrom(id: CampaignPageId): string | null {
+  if (Array.isArray(id)) return id[0] ?? null;
+  return typeof id === 'string' && id.trim().length > 0 ? id : null;
+}
+
+export function useCampaignRouteLoader({
+  campaign,
+  id,
+  isClient,
+}: CampaignRouteLoaderInput): CampaignRouteLoaderState {
+  const routeCampaignId = campaignRouteIdFrom(id);
+  const loadCampaign = useCampaignPersistenceStore(
+    (state) => state.loadCampaign,
+  );
+  const saveState = useCampaignPersistenceStore((state) => state.saveState);
+  const [requestedCampaignId, setRequestedCampaignId] = useState<string | null>(
+    null,
+  );
+
+  useEffect(() => {
+    if (!isClient) return;
+    installCampaignPersistenceWiring();
+  }, [isClient]);
+
+  useEffect(() => {
+    if (!isClient || !routeCampaignId) return;
+    if (campaign?.id === routeCampaignId) return;
+    if (requestedCampaignId === routeCampaignId && saveState !== 'error') {
+      return;
+    }
+
+    setRequestedCampaignId(routeCampaignId);
+    void loadCampaign(routeCampaignId);
+  }, [
+    campaign?.id,
+    isClient,
+    loadCampaign,
+    requestedCampaignId,
+    routeCampaignId,
+    saveState,
+  ]);
+
+  const routeMatches = !routeCampaignId || campaign?.id === routeCampaignId;
+  const needsRouteLoad = Boolean(isClient && routeCampaignId && !routeMatches);
+
+  return {
+    campaign: routeMatches ? campaign : null,
+    routeCampaignId,
+    isLoadingCampaign:
+      needsRouteLoad &&
+      (requestedCampaignId !== routeCampaignId || saveState === 'saving'),
+  };
+}
+
 export function useCampaignPageShell(pageLabel: string): CampaignPageShell {
   const router = useRouter();
   const { id } = router.query;
   const store = useCampaignStore();
   const campaign = useStore(store, (state) => state.campaign);
   const [isClient, setIsClient] = useState(false);
+  const routeLoader = useCampaignRouteLoader({ campaign, id, isClient });
 
   useEffect(() => {
     setIsClient(true);
@@ -110,16 +181,20 @@ export function useCampaignPageShell(pageLabel: string): CampaignPageShell {
   return {
     id,
     query: router.query,
-    campaign,
+    campaign: routeLoader.campaign,
     store,
     isClient,
+    routeCampaignId: routeLoader.routeCampaignId,
+    isLoadingCampaign: routeLoader.isLoadingCampaign,
     breadcrumbs: [
       { label: 'Home', href: '/' },
       { label: 'Gameplay', href: '/gameplay' },
       { label: 'Campaigns', href: '/gameplay/campaigns' },
       {
-        label: campaign?.name || 'Campaign',
-        href: `/gameplay/campaigns/${id}`,
+        label: routeLoader.campaign?.name || 'Campaign',
+        href: routeLoader.routeCampaignId
+          ? `/gameplay/campaigns/${routeLoader.routeCampaignId}`
+          : '/gameplay/campaigns',
       },
       { label: pageLabel },
     ],
@@ -154,12 +229,13 @@ export function CampaignLoadingState({
 export function renderCampaignPageGate({
   campaign,
   breadcrumbs,
+  isLoadingCampaign = false,
   isClient,
   subtitle,
   title,
   variant,
 }: CampaignPageGateProps): React.ReactElement | null {
-  if (!isClient) {
+  if (!isClient || isLoadingCampaign) {
     return (
       <CampaignLoadingState
         title={title}
@@ -184,6 +260,7 @@ export function renderCampaignPageGateForShell(
     renderCampaignPageGate({
       campaign: shell.campaign,
       breadcrumbs: shell.breadcrumbs,
+      isLoadingCampaign: shell.isLoadingCampaign,
       isClient: shell.isClient,
       ...loading,
     }) ?? <></>

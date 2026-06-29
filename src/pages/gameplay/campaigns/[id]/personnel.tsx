@@ -17,8 +17,7 @@
  * @spec openspec/council-decisions/2026-05-01-personnel-architecture-path.md
  */
 
-import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
@@ -26,8 +25,12 @@ import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { CampaignCoopRouteSurfaceConnected } from '@/components/campaign/coop';
 import { PersonnelSidePanel } from '@/components/campaign/personnel/PersonnelSidePanel';
 import { Card, EmptyState, PageLayout } from '@/components/ui';
+import {
+  getLoadedCampaign,
+  renderPendingCampaignPage,
+  useCampaignPageShell,
+} from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
-import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
 // =============================================================================
 // Pilot Roster Row
@@ -76,69 +79,24 @@ function PilotRosterRow({
 // =============================================================================
 
 export default function PersonnelPage(): React.ReactElement {
-  const router = useRouter();
-  const { id } = router.query;
-  const store = useCampaignStore();
-  const campaign = store.getState().getCampaign();
+  const shell = useCampaignPageShell('Personnel');
   const pilots = useCampaignRosterStore((state) => state.pilots);
   const [selectedPilotId, setSelectedPilotId] = useState<string | null>(null);
-  const [isClient, setIsClient] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const pending = renderPendingCampaignPage(shell, {
+    title: 'Personnel',
+    subtitle: 'Loading personnel...',
+  });
+  if (pending) return pending;
 
-  const breadcrumbs = [
-    { label: 'Home', href: '/' },
-    { label: 'Gameplay', href: '/gameplay' },
-    { label: 'Campaigns', href: '/gameplay/campaigns' },
-    { label: campaign?.name || 'Campaign', href: `/gameplay/campaigns/${id}` },
-    { label: 'Personnel' },
-  ];
-
-  // SSR loading state
-  if (!isClient) {
-    return (
-      <PageLayout
-        title="Personnel"
-        subtitle="Loading personnel..."
-        maxWidth="wide"
-      >
-        <div className="animate-pulse">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Card key={i} className="h-32">
-                <div className="h-full" />
-              </Card>
-            ))}
-          </div>
-        </div>
-      </PageLayout>
-    );
-  }
-
-  if (!campaign) {
-    return (
-      <PageLayout
-        title="Personnel"
-        subtitle="Campaign not found"
-        maxWidth="wide"
-        breadcrumbs={breadcrumbs}
-      >
-        <EmptyState
-          title="Campaign not found"
-          message="Return to campaigns list to select a campaign."
-        />
-      </PageLayout>
-    );
-  }
+  const campaign = getLoadedCampaign(shell);
 
   return (
     <PageLayout
       title="Personnel"
       subtitle={`${campaign.name} — ${pilots.length} pilots`}
       maxWidth="wide"
-      breadcrumbs={breadcrumbs}
+      breadcrumbs={shell.breadcrumbs}
     >
       <CampaignNavigation
         campaignId={campaign.id}

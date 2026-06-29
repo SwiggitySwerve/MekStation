@@ -19,40 +19,44 @@
  * @spec openspec/changes/wire-starmap-into-campaign/specs/campaign-system/spec.md
  */
 
-import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { StarmapDisplay } from '@/components/campaign/StarmapDisplay';
-import { EmptyState, PageLayout } from '@/components/ui';
+import { PageLayout } from '@/components/ui';
 import {
   findSystemById,
   loadInnerSphereSeed,
 } from '@/lib/starmap/loadInnerSphereSeed';
-import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import {
+  getLoadedCampaign,
+  renderPendingCampaignPage,
+  useCampaignPageShell,
+} from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 
 export default function CampaignStarmapPage(): React.ReactElement {
-  const router = useRouter();
-  const { id } = router.query;
-
-  const store = useCampaignStore();
-  const campaign = store.getState().getCampaign();
+  const shell = useCampaignPageShell('Starmap');
+  const campaign = shell.campaign;
+  const store = shell.store;
 
   // PT-102 lesson: ALWAYS setIsClient inside useEffect, never useState
   // initializer — the latter throws a hydration mismatch in SSR.
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   // Local selection state — independent of the campaign's
   // `currentSystemId` so the operator can click around the map
   // without committing a jump. Defaults to the current-system pin
   // (or Terra as the canonical legacy-campaign fallback) so the
   // viewport has an obvious starting anchor.
-  const initialSelection = campaign?.currentSystemId ?? 'terra';
+  const campaignCurrentSystemId = campaign?.currentSystemId;
+  const initialSelection = campaignCurrentSystemId ?? 'terra';
   const [selectedSystemId, setSelectedSystemId] =
     useState<string>(initialSelection);
+  useEffect(() => {
+    if (!campaignCurrentSystemId) return;
+    setSelectedSystemId((current) =>
+      current === 'terra' ? campaignCurrentSystemId : current,
+    );
+  }, [campaignCurrentSystemId]);
 
   // Load the seed dataset once — loadInnerSphereSeed is synchronous
   // (build-time JSON import) so this is safe inside useMemo.
@@ -64,47 +68,17 @@ export default function CampaignStarmapPage(): React.ReactElement {
   );
 
   const currentSystem = useMemo(
-    () => findSystemById(campaign?.currentSystemId ?? 'terra'),
-    [campaign?.currentSystemId],
+    () => findSystemById(campaignCurrentSystemId ?? 'terra'),
+    [campaignCurrentSystemId],
   );
 
-  const breadcrumbs = [
-    { label: 'Home', href: '/' },
-    { label: 'Gameplay', href: '/gameplay' },
-    { label: 'Campaigns', href: '/gameplay/campaigns' },
-    { label: campaign?.name || 'Campaign', href: `/gameplay/campaigns/${id}` },
-    { label: 'Starmap' },
-  ];
+  const pending = renderPendingCampaignPage(shell, {
+    title: 'Starmap',
+    subtitle: 'Loading Inner Sphere map...',
+  });
+  if (pending) return pending;
 
-  if (!isClient) {
-    return (
-      <PageLayout
-        title="Starmap"
-        subtitle="Loading Inner Sphere map…"
-        maxWidth="wide"
-      >
-        <div className="text-text-theme-secondary p-8 text-center">
-          Loading…
-        </div>
-      </PageLayout>
-    );
-  }
-
-  if (!campaign) {
-    return (
-      <PageLayout
-        title="Starmap"
-        subtitle="Campaign not found"
-        maxWidth="wide"
-        breadcrumbs={breadcrumbs}
-      >
-        <EmptyState
-          title="Campaign not found"
-          message="Return to the campaigns list to select a campaign."
-        />
-      </PageLayout>
-    );
-  }
+  const loadedCampaign = getLoadedCampaign(shell);
 
   // Travel CTA handler — calls the campaign store action which
   // owns both the campaign mutation and the activity-log emit.
@@ -117,26 +91,27 @@ export default function CampaignStarmapPage(): React.ReactElement {
   };
 
   const isSameAsCurrent =
-    !!campaign.currentSystemId && campaign.currentSystemId === selectedSystemId;
+    !!loadedCampaign.currentSystemId &&
+    loadedCampaign.currentSystemId === selectedSystemId;
   // Fallback: legacy campaigns without a currentSystemId default to
   // Terra — so 'terra' should ALSO be considered "same system" when
   // the campaign has no recorded location yet.
   const isLegacyTerraSelf =
-    !campaign.currentSystemId && selectedSystemId === 'terra';
+    !loadedCampaign.currentSystemId && selectedSystemId === 'terra';
   const travelDisabled =
     isSameAsCurrent || isLegacyTerraSelf || !selectedSystem;
 
   return (
     <PageLayout
       title="Starmap"
-      subtitle={campaign.name}
+      subtitle={loadedCampaign.name}
       maxWidth="wide"
-      breadcrumbs={breadcrumbs}
+      breadcrumbs={shell.breadcrumbs}
     >
       <CampaignNavigation
-        campaignId={campaign.id}
+        campaignId={loadedCampaign.id}
         currentPage="starmap"
-        coopSession={campaign.coopSession}
+        coopSession={loadedCampaign.coopSession}
       />
 
       {/* Selection / travel control strip. Sits above the canvas so
@@ -156,7 +131,7 @@ export default function CampaignStarmapPage(): React.ReactElement {
             className="text-text-theme-primary font-mono"
             data-testid="starmap-current-system"
           >
-            {currentSystem?.name ?? campaign.currentSystemId ?? 'Terra'}
+            {currentSystem?.name ?? loadedCampaign.currentSystemId ?? 'Terra'}
           </div>
         </div>
 
