@@ -234,7 +234,11 @@ export default function MissionsPage(): React.ReactElement {
       breadcrumbs={breadcrumbs}
     >
       {/* Navigation Tabs */}
-      <CampaignNavigation campaignId={campaign.id} currentPage="missions" />
+      <CampaignNavigation
+        campaignId={campaign.id}
+        currentPage="missions"
+        coopSession={campaign.coopSession}
+      />
 
       {/* Filter Tabs */}
       {allMissions.length > 0 && (

@@ -11,6 +11,11 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
+import {
+  createGuestCoopSession,
+  createHostCoopSession,
+} from '@/types/campaign/CoopSession';
+
 import { CampaignNavigation } from '../CampaignNavigation';
 
 describe('CampaignNavigation — Bays group', () => {
@@ -103,6 +108,37 @@ describe('CampaignNavigation — Command group', () => {
     expect(screen.getByText('GM Ledger')).toHaveAttribute(
       'href',
       '/gameplay/campaigns/campaign-1/gm-ledger',
+    );
+  });
+
+  it('shows GM Ledger for co-op hosts', () => {
+    render(
+      <CampaignNavigation
+        campaignId="campaign-1"
+        currentPage="dashboard"
+        coopSession={createHostCoopSession('HOST1', 'match-host')}
+      />,
+    );
+    expect(screen.getByText('GM Ledger')).toHaveAttribute(
+      'href',
+      '/gameplay/campaigns/campaign-1/gm-ledger',
+    );
+    expect(screen.getByTestId('coop-session-badge')).toHaveTextContent(
+      'Co-op session: Host',
+    );
+  });
+
+  it('hides GM Ledger for co-op guests', () => {
+    render(
+      <CampaignNavigation
+        campaignId="campaign-1"
+        currentPage="dashboard"
+        coopSession={createGuestCoopSession('match-host', 'GUEST1')}
+      />,
+    );
+    expect(screen.queryByText('GM Ledger')).not.toBeInTheDocument();
+    expect(screen.getByTestId('coop-session-badge')).toHaveTextContent(
+      'Co-op session: Guest',
     );
   });
 

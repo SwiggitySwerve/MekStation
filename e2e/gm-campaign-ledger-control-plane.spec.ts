@@ -2,10 +2,45 @@ import { expect, test, type Page } from '@playwright/test';
 
 import { createTestCampaign, deleteCampaign } from './fixtures/campaign';
 
+test.setTimeout(120_000);
+
 type CampaignTimeState = {
   readonly currentDate: string | null;
   readonly timeCascadeEventCount: number;
 };
+
+async function stampGuestCoopSession(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    type CampaignStoreApi = {
+      getState: () => {
+        updateCampaign: (updates: Record<string, unknown>) => void;
+      };
+    };
+    type ExposedCampaignStore = CampaignStoreApi | (() => CampaignStoreApi);
+
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          campaign?: ExposedCampaignStore;
+        };
+      }
+    ).__ZUSTAND_STORES__;
+
+    if (!stores?.campaign) {
+      throw new Error('Campaign store not exposed');
+    }
+
+    const exposed = stores.campaign;
+    const store = 'getState' in exposed ? exposed : exposed();
+    store.getState().updateCampaign({
+      coopSession: {
+        mode: 'guest',
+        roomCode: 'GUESTGM',
+        hostMatchId: 'match-gm-ledger-host',
+      },
+    });
+  });
+}
 
 async function readCampaignTimeState(page: Page): Promise<CampaignTimeState> {
   return page.evaluate(() => {
@@ -107,6 +142,63 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       await expect(page.getByTestId('gm-ledger-private-log')).not.toContainText(
         /Hidden campaign|black-market|GM-only/i,
       );
+    } finally {
+      if (campaignId) {
+        await deleteCampaign(page, campaignId);
+      }
+    }
+  });
+
+  test('guest direct route shows only player-safe ledger projection', async ({
+    page,
+  }) => {
+    let campaignId = '';
+
+    await page.goto('/gameplay/campaigns', { waitUntil: 'domcontentloaded' });
+    campaignId = await createTestCampaign(page, {
+      name: 'GM Ledger Guest Direct Proof',
+      cBills: 1_000_000,
+    });
+
+    try {
+      await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
+        waitUntil: 'domcontentloaded',
+      });
+      await page.getByTestId('gm-ledger-preview-btn').click();
+      await page.getByTestId('gm-ledger-approve-btn').click();
+      await expect(page.getByTestId('gm-ledger-approval-status')).toContainText(
+        'Approved and applied',
+      );
+
+      await stampGuestCoopSession(page);
+      await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
+        waitUntil: 'domcontentloaded',
+      });
+
+      await expect(page.getByTestId('page-title')).toContainText('GM Ledger');
+      await expect(page.getByTestId('coop-session-badge')).toContainText(
+        'Co-op session: Guest',
+      );
+      await expect(
+        page.getByTestId('gm-ledger-player-only-notice'),
+      ).toContainText(
+        'GM controls are available only to the campaign owner or co-op host',
+      );
+      await expect(page.getByTestId('gm-ledger-player-log')).toContainText(
+        'Merchant charge corrected by -2,500.00 C-bills.',
+      );
+      await expect(page.getByTestId('gm-ledger-player-log')).not.toContainText(
+        /Hidden campaign|black-market|GM-only|default outcome/i,
+      );
+      await expect(page.getByTestId('gm-ledger-preview-btn')).toHaveCount(0);
+      await expect(page.getByTestId('gm-ledger-approve-btn')).toHaveCount(0);
+      await expect(page.getByTestId('gm-ledger-manual-btn')).toHaveCount(0);
+      await expect(page.getByTestId('gm-ledger-private-log')).toHaveCount(0);
+      await expect(
+        page
+          .getByRole('navigation', { name: 'Campaign sections' })
+          .getByRole('link', { name: 'GM Ledger' }),
+      ).toHaveCount(0);
     } finally {
       if (campaignId) {
         await deleteCampaign(page, campaignId);

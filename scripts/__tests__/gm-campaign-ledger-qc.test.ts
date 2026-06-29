@@ -62,7 +62,7 @@ describe('GM campaign ledger QC validator', () => {
       status: string;
       requiredDomains: string[];
       requiredFamilies: string[];
-      anchors: unknown[];
+      anchors: Array<{ id: string }>;
       surface: { surfaceId: string; parentId: string };
     };
     expect(manifest.status).toBe('pass');
@@ -79,7 +79,13 @@ describe('GM campaign ledger QC validator', () => {
       'inventory-lot',
       'base-unit-state',
     ]);
-    expect(manifest.anchors).toHaveLength(14);
+    expect(manifest.anchors).toHaveLength(16);
+    expect(manifest.anchors.map((anchor) => anchor.id)).toEqual(
+      expect.arrayContaining([
+        'campaign-gm-ledger-authority-helper',
+        'campaign-gm-ledger-player-view',
+      ]),
+    );
     expect(manifest.surface).toMatchObject({
       surfaceId: 'post-combat-base-economy-gm-ledger',
       parentId: 'campaign-economy-progression',
