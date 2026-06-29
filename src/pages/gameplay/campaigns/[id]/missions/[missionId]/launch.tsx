@@ -31,7 +31,7 @@ import type { IEncounter } from '@/types/encounter';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { CoopParticipationPicker } from '@/components/campaign/coop';
-import { EmptyState, PageLayout } from '@/components/ui';
+import { PageLayout } from '@/components/ui';
 import {
   getCoopLocalPlayerId,
   getCoopMatchId,
@@ -41,8 +41,12 @@ import {
   subscribeCoopParticipation,
 } from '@/lib/campaign/coop/coopRuntimeSession';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
+import {
+  getLoadedCampaign,
+  renderPendingCampaignPage,
+  useCampaignPageShell,
+} from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
-import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { EncounterStatus, TerrainPreset } from '@/types/encounter';
 
@@ -133,12 +137,13 @@ function withMissionScenario(mission: IMission, encounterId: string): IMission {
 
 export default function CoopMissionLaunchPage(): React.ReactElement {
   const router = useRouter();
-  const { id: campaignId, missionId } = router.query;
-  const campaignKey = routeParam(campaignId);
+  const { missionId } = router.query;
+  const shell = useCampaignPageShell('Mission Launch');
+  const campaignKey = shell.routeCampaignId;
   const missionKey = routeParam(missionId);
 
-  const store = useCampaignStore();
-  const campaign = store.getState().getCampaign();
+  const store = shell.store;
+  const campaign = shell.campaign;
   const matchId = getCoopMatchId(campaign?.coopSession);
   const localPlayerId = campaign?.coopSession
     ? getCoopLocalPlayerId(campaign.coopSession)
@@ -151,15 +156,11 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
     [campaign],
   );
 
-  const [isClient, setIsClient] = useState(false);
   const [participationRecords, setParticipationRecords] = useState<
     readonly ICoopParticipationRecord[]
   >([]);
   const [launchError, setLaunchError] = useState<string | null>(null);
   const [isLaunching, setIsLaunching] = useState(false);
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   // Local player's pick — `deploy` is the canonical default so a host who
   // never opens the picker still launches. Guests start at `command-hq` so
@@ -314,43 +315,29 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
     store,
   ]);
 
-  if (!isClient) {
-    return (
-      <PageLayout title="Mission Launch" subtitle="Loading…" maxWidth="wide">
-        <EmptyState title="Loading mission launch surface…" message="" />
-      </PageLayout>
-    );
-  }
+  const pending = renderPendingCampaignPage(shell, {
+    title: 'Mission Launch',
+    subtitle: 'Loading mission launch surface...',
+  });
+  if (pending) return pending;
 
-  if (!campaign) {
-    return (
-      <PageLayout
-        title="Mission Launch"
-        subtitle="Campaign not found"
-        maxWidth="wide"
-      >
-        <EmptyState
-          title="Campaign not found"
-          message="Return to the campaigns list to select a campaign."
-        />
-      </PageLayout>
-    );
-  }
+  const loadedCampaign = getLoadedCampaign(shell);
 
   // Non-co-op mission — skip the picker and launch directly, preserving
   // the existing single-player behavior. Spec scenario "Single-player
   // campaign mounts neither co-op surface" + the launch-direct expectation.
-  if (!campaign.coopSession) {
+  if (!loadedCampaign.coopSession) {
     return (
       <PageLayout
         title="Mission Launch"
-        subtitle={`${campaign.name} — single-player mission ${String(missionId)}`}
+        subtitle={`${loadedCampaign.name} — single-player mission ${String(missionId)}`}
         maxWidth="wide"
+        breadcrumbs={shell.breadcrumbs}
       >
         <CampaignNavigation
-          campaignId={campaign.id}
+          campaignId={loadedCampaign.id}
           currentPage="missions"
-          coopSession={campaign.coopSession}
+          coopSession={loadedCampaign.coopSession}
         />
         <div className="mt-6">
           {launchError ? (
@@ -389,18 +376,19 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
   const canLaunch = bothChosen && !noDeploy;
 
   const localPlayerName =
-    campaign.coopSession.mode === 'host' ? 'You (Host)' : 'You (Guest)';
+    loadedCampaign.coopSession.mode === 'host' ? 'You (Host)' : 'You (Guest)';
 
   return (
     <PageLayout
       title="Co-op Mission Launch"
-      subtitle={`${campaign.name} — mission ${String(missionId)}`}
+      subtitle={`${loadedCampaign.name} — mission ${String(missionId)}`}
       maxWidth="wide"
+      breadcrumbs={shell.breadcrumbs}
     >
       <CampaignNavigation
-        campaignId={campaign.id}
+        campaignId={loadedCampaign.id}
         currentPage="missions"
-        coopSession={campaign.coopSession}
+        coopSession={loadedCampaign.coopSession}
       />
 
       <div className="mt-6 space-y-4">

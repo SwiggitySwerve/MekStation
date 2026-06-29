@@ -188,6 +188,12 @@ flowchart TD
      an unmatched deep-link proof path, so stale external links land on a
      recoverable dashboard/gameplay/replay handoff instead of the framework
      default 404.
+   - 2026-06-29 generated campaign subroutes have a focused server-backed
+     recovery proof in `e2e/campaign-subroute-recovery.spec.ts`. It saves a
+     seeded campaign through the dashboard API, clears live/local campaign
+     state, then deep-links and refreshes dashboard, finances, GM ledger,
+     starmap, log, missions, personnel, and mission-launch URLs while asserting
+     the loaded campaign id matches the persisted record.
    - Dynamic generated-ID session recovery is intentionally left to the
      campaign, combat continuity, multiplayer, and replay lanes where seeded
      state can prove recovery without weakening this static route sweep.

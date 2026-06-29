@@ -1,16 +1,18 @@
-import { useRouter } from 'next/router';
 /**
  * Campaign Missions Page
  * View and manage contracts and missions.
  *
  * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
  */
-import { useState, useEffect } from 'react';
-import { useStore } from 'zustand';
+import { useState } from 'react';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { PageLayout, Card, EmptyState, Badge } from '@/components/ui';
-import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import {
+  getLoadedCampaign,
+  renderPendingCampaignPage,
+  useCampaignPageShell,
+} from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { MissionStatus } from '@/types/campaign/enums';
 import { IMission, IContract } from '@/types/campaign/Mission';
 import { isContract } from '@/types/campaign/Mission';
@@ -144,80 +146,18 @@ function MissionCard({ mission }: MissionCardProps): React.ReactElement {
 // =============================================================================
 
 export default function MissionsPage(): React.ReactElement {
-  const router = useRouter();
-  const { id } = router.query;
-  const store = useCampaignStore();
-  const campaign = useStore(store, (state) => state.campaign);
-  const [isClient, setIsClient] = useState(false);
+  const shell = useCampaignPageShell('Missions');
   const [filter, setFilter] = useState<'all' | MissionStatus>('all');
 
-  // Breadcrumbs
-  const breadcrumbs = [
-    { label: 'Home', href: '/' },
-    { label: 'Gameplay', href: '/gameplay' },
-    { label: 'Campaigns', href: '/gameplay/campaigns' },
-    { label: campaign?.name || 'Campaign', href: `/gameplay/campaigns/${id}` },
-    { label: 'Missions' },
-  ];
-
   // Hydration fix — see PT-102 (`src/pages/gameplay/campaigns/index.tsx`).
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   // Show loading state during SSR/hydration
-  if (!isClient) {
-    return (
-      <PageLayout
-        title="Missions"
-        subtitle="Loading missions..."
-        maxWidth="wide"
-      >
-        <div className="animate-pulse">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {[1, 2, 3, 4].map((i) => (
-              <Card key={i} className="h-48">
-                <div className="h-full" />
-              </Card>
-            ))}
-          </div>
-        </div>
-      </PageLayout>
-    );
-  }
+  const pending = renderPendingCampaignPage(shell, {
+    title: 'Missions',
+    subtitle: 'Loading missions...',
+  });
+  if (pending) return pending;
 
-  // Handle campaign not found
-  if (!campaign) {
-    return (
-      <PageLayout
-        title="Missions"
-        subtitle="Campaign not found"
-        maxWidth="wide"
-      >
-        <EmptyState
-          icon={
-            <div className="bg-surface-raised/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
-              <svg
-                className="text-text-theme-muted h-8 w-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-            </div>
-          }
-          title="Campaign not found"
-          message="Return to campaigns list to select a campaign."
-        />
-      </PageLayout>
-    );
-  }
+  const campaign = getLoadedCampaign(shell);
 
   // Convert Map to array and filter
   const allMissions = Array.from(campaign.missions.values());
@@ -231,7 +171,7 @@ export default function MissionsPage(): React.ReactElement {
       title="Missions"
       subtitle={`${campaign.name} - ${allMissions.length} total missions`}
       maxWidth="wide"
-      breadcrumbs={breadcrumbs}
+      breadcrumbs={shell.breadcrumbs}
     >
       {/* Navigation Tabs */}
       <CampaignNavigation

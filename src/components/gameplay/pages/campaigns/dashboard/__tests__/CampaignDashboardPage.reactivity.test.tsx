@@ -2,11 +2,12 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 const mockRouterPush = jest.fn();
+let mockRouteCampaignId = 'campaign-alpha';
 jest.mock('next/router', () => ({
   useRouter: () => ({
     push: mockRouterPush,
     pathname: '/gameplay/campaigns/[id]',
-    query: { id: 'campaign-alpha' },
+    query: { id: mockRouteCampaignId },
     events: { on: jest.fn(), off: jest.fn() },
   }),
 }));
@@ -134,6 +135,8 @@ describe('CampaignDashboardPage reactivity', () => {
     act(() => {
       mockCampaignStore.getState().createCampaign('Alpha Lance', 'mercenary');
     });
+    mockRouteCampaignId =
+      mockCampaignStore.getState().campaign?.id ?? 'campaign-alpha';
   });
 
   it('re-renders when the active campaign changes in the store', async () => {
