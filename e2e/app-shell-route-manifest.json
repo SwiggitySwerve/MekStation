@@ -36,6 +36,11 @@
       "path": "/share/e2e-missing-token",
       "pattern": "/share/[token]",
       "label": "invalid share token"
+    },
+    {
+      "path": "/app-shell-e2e-missing-route",
+      "pattern": "/404",
+      "label": "global not found"
     }
   ],
   "delegatedRoutes": [

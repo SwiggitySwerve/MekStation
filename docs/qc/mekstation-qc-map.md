@@ -184,6 +184,10 @@ flowchart TD
      `npm.cmd run qc:app-shell-routes:validate`, which reports primary,
      recovery, delegated, known-gap, and test-harness route counts before the
      slower Chromium refresh/deep-link proof runs.
+   - 2026-06-29 global not-found recovery now has a MekStation shell page and
+     an unmatched deep-link proof path, so stale external links land on a
+     recoverable dashboard/gameplay/replay handoff instead of the framework
+     default 404.
    - Dynamic generated-ID session recovery is intentionally left to the
      campaign, combat continuity, multiplayer, and replay lanes where seeded
      state can prove recovery without weakening this static route sweep.
