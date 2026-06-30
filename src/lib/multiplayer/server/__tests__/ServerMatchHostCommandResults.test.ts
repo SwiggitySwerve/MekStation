@@ -10,6 +10,11 @@ import {
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { GameEventType, GamePhase, GameSide } from '@/types/gameplay';
 import { nowIso, type IIntent } from '@/types/multiplayer/Protocol';
+import {
+  disableDiagnosticCapture,
+  enableDiagnosticCapture,
+  getCapturedDiagnostics,
+} from '@/utils/logger';
 
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
@@ -116,6 +121,14 @@ function eventMessages(socket: { readonly sent: readonly IRecordedSend[] }) {
 }
 
 describe('ServerMatchHost command-result publication', () => {
+  beforeEach(() => {
+    enableDiagnosticCapture();
+  });
+
+  afterEach(() => {
+    disableDiagnosticCapture(true);
+  });
+
   it('persists, broadcasts, and replays host GM results as player-safe public events', async () => {
     const { host, store, matchId } = await makeHost(true);
     const hostSocket = makeSocket();
@@ -159,6 +172,37 @@ describe('ServerMatchHost command-result publication', () => {
       );
     expect(replayed.map((entry) => entry.id)).toEqual([event.id]);
     expect(JSON.stringify(replayed)).not.toContain('Hidden GM');
+    expect(getCapturedDiagnostics()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          service: 'command-screen',
+          event: 'command_gm_intervention_committed',
+          metadata: expect.objectContaining({
+            domain: 'combat',
+            commandId: 'gm.tactical.correct-heat',
+            persistenceRef: event.id,
+            userVisibleStateChanged: true,
+          }),
+        }),
+        expect.objectContaining({
+          service: 'command-screen',
+          event: 'command_reload_validated',
+          metadata: expect.objectContaining({
+            domain: 'combat',
+            commandId: 'gm.tactical.correct-heat',
+            persistenceRef: event.id,
+            resultCount: 1,
+          }),
+        }),
+      ]),
+    );
+    expect(JSON.stringify(getCapturedDiagnostics())).not.toContain('Hidden GM');
+    expect(JSON.stringify(getCapturedDiagnostics())).not.toContain(
+      'Secret ambush',
+    );
+    expect(JSON.stringify(getCapturedDiagnostics())).not.toContain(
+      'privateMetadata',
+    );
   });
 
   it('advances the host cursor so later engine intents do not re-broadcast the GM result', async () => {

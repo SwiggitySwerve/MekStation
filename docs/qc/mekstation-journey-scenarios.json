@@ -26,6 +26,35 @@
       "tiers": ["smoke", "standard"],
       "defaultMode": "headless",
       "expectedTerminalState": "character-exported",
+      "commandScreenCheckpoints": [
+        {
+          "id": "pilot-create-command",
+          "uiCheckpointId": "pilot-create",
+          "label": "Pilot creation command",
+          "role": "player",
+          "assertions": [
+            "Pilot validation blockers and export intent are visible before creation commits."
+          ]
+        },
+        {
+          "id": "pilot-roster-review",
+          "uiCheckpointId": "pilot-roster",
+          "label": "Pilot roster review",
+          "role": "player",
+          "assertions": [
+            "Created pilots are visible in the roster before assignment."
+          ]
+        },
+        {
+          "id": "force-assignment-command",
+          "uiCheckpointId": "force-assignment",
+          "label": "Force assignment command",
+          "role": "player",
+          "assertions": [
+            "Pilot assignment decisions can be checked before combat or campaign use."
+          ]
+        }
+      ],
       "parameters": {
         "pilot-count": { "type": "integer", "default": 1, "minimum": 1 },
         "pilot-skill-band": {
@@ -83,6 +112,44 @@
       "tiers": ["smoke", "standard"],
       "defaultMode": "headless",
       "expectedTerminalState": "battlemech-exported",
+      "commandScreenCheckpoints": [
+        {
+          "id": "customizer-validation",
+          "uiCheckpointId": "customizer",
+          "label": "Customizer validation",
+          "role": "player",
+          "assertions": [
+            "Construction blockers are visible before the BattleMech export command commits."
+          ]
+        },
+        {
+          "id": "unit-catalog-selection",
+          "uiCheckpointId": "unit-catalog",
+          "label": "Unit catalog selection",
+          "role": "player",
+          "assertions": [
+            "Catalog identity and canonical variant data are visible before customization."
+          ]
+        },
+        {
+          "id": "force-roster-handoff",
+          "uiCheckpointId": "force-roster",
+          "label": "Force roster handoff",
+          "role": "player",
+          "assertions": [
+            "Exported units can be reviewed in roster context before deployment."
+          ]
+        },
+        {
+          "id": "campaign-mech-bay-readiness",
+          "uiCheckpointId": "campaign-mech-bay",
+          "label": "Campaign Mech Bay readiness",
+          "role": "player",
+          "assertions": [
+            "Campaign-owned units surface repair, refit, and readiness blockers before launch."
+          ]
+        }
+      ],
       "parameters": {
         "unit-type": {
           "type": "enum",
@@ -154,6 +221,53 @@
       "tiers": ["smoke", "standard"],
       "defaultMode": "headless",
       "expectedTerminalState": "combat-complete",
+      "commandScreenCheckpoints": [
+        {
+          "id": "quick-setup-command",
+          "uiCheckpointId": "quick-setup",
+          "label": "Quick setup command",
+          "role": "player",
+          "assertions": [
+            "Duel setup inputs are visible before encounter creation."
+          ]
+        },
+        {
+          "id": "pre-battle-command",
+          "uiCheckpointId": "pre-battle",
+          "label": "Pre-battle command",
+          "role": "player",
+          "assertions": [
+            "Selected units and deployment blockers are visible before tactical launch."
+          ]
+        },
+        {
+          "id": "tactical-preview-command",
+          "uiCheckpointId": "tactical-combat",
+          "label": "Tactical preview command",
+          "role": "player",
+          "assertions": [
+            "Movement, combat, LOS, heat, and invalid-action reasons are visible before commit."
+          ]
+        },
+        {
+          "id": "gm-review-command",
+          "uiCheckpointId": "gm-review",
+          "label": "GM review command",
+          "role": "gm",
+          "assertions": [
+            "GM intervention previews separate private rationale from player-safe net effects."
+          ]
+        },
+        {
+          "id": "victory-command",
+          "uiCheckpointId": "victory",
+          "label": "Victory command",
+          "role": "both",
+          "assertions": [
+            "Terminal combat outcome and player-visible log effects are inspectable after resolution."
+          ]
+        }
+      ],
       "parameters": {
         "player-units": { "type": "integer", "default": 1, "minimum": 1 },
         "opponent-units": { "type": "integer", "default": 1, "minimum": 1 },
@@ -231,6 +345,53 @@
       "tiers": ["smoke", "standard", "extended"],
       "defaultMode": "headless",
       "expectedTerminalState": "combat-complete",
+      "commandScreenCheckpoints": [
+        {
+          "id": "force-build-command",
+          "uiCheckpointId": "force-build",
+          "label": "Force build command",
+          "role": "player",
+          "assertions": [
+            "Lance composition and readiness can be checked before encounter creation."
+          ]
+        },
+        {
+          "id": "pre-battle-command",
+          "uiCheckpointId": "pre-battle",
+          "label": "Pre-battle command",
+          "role": "player",
+          "assertions": [
+            "Deployment and target-force blockers are visible before tactical launch."
+          ]
+        },
+        {
+          "id": "tactical-lance-command",
+          "uiCheckpointId": "tactical-combat",
+          "label": "Tactical lance command",
+          "role": "player",
+          "assertions": [
+            "Lance-scale movement, attacks, objectives, and invalid reasons are previewed before commit."
+          ]
+        },
+        {
+          "id": "gm-review-command",
+          "uiCheckpointId": "gm-review",
+          "label": "GM review command",
+          "role": "gm",
+          "assertions": [
+            "Host GM corrections produce player-safe replayable results."
+          ]
+        },
+        {
+          "id": "replay-command",
+          "uiCheckpointId": "replay",
+          "label": "Replay command",
+          "role": "both",
+          "assertions": [
+            "Replay and match-log references remain available after 4v4 resolution."
+          ]
+        }
+      ],
       "parameters": {
         "player-units": { "type": "integer", "default": 4, "minimum": 1 },
         "opponent-units": { "type": "integer", "default": 4, "minimum": 1 },
@@ -304,6 +465,80 @@
       "tiers": ["smoke", "standard"],
       "defaultMode": "headless",
       "expectedTerminalState": "contract-resolved",
+      "commandScreenCheckpoints": [
+        {
+          "id": "contract-selection-command",
+          "uiCheckpointId": "contract-market",
+          "label": "Contract selection command",
+          "role": "player",
+          "assertions": [
+            "Contract terms, risk, and acceptance consequences are visible before selection."
+          ]
+        },
+        {
+          "id": "mission-launch-command",
+          "uiCheckpointId": "mission-launch",
+          "label": "Mission launch command",
+          "role": "both",
+          "assertions": [
+            "Roster eligibility and launch blockers are visible before encounter materialization."
+          ]
+        },
+        {
+          "id": "tactical-command",
+          "uiCheckpointId": "tactical-combat",
+          "label": "Tactical command",
+          "role": "player",
+          "assertions": [
+            "Combat previews and committed actions agree during the contract battle."
+          ]
+        },
+        {
+          "id": "post-combat-command",
+          "uiCheckpointId": "post-combat",
+          "label": "Post-combat command",
+          "role": "both",
+          "assertions": [
+            "Battle outcome, injuries, losses, and rewards are visible before campaign updates."
+          ]
+        },
+        {
+          "id": "salvage-command",
+          "uiCheckpointId": "salvage",
+          "label": "Salvage command",
+          "role": "both",
+          "assertions": [
+            "Salvage choices and inventory effects are visible before commit."
+          ]
+        },
+        {
+          "id": "repair-command",
+          "uiCheckpointId": "repair",
+          "label": "Repair command",
+          "role": "both",
+          "assertions": [
+            "Repair queues, blockers, and costs are visible before time advances."
+          ]
+        },
+        {
+          "id": "economy-command",
+          "uiCheckpointId": "economy",
+          "label": "Economy command",
+          "role": "both",
+          "assertions": [
+            "Finance deltas and ledger effects are inspectable after contract resolution."
+          ]
+        },
+        {
+          "id": "gm-log-redaction",
+          "uiCheckpointId": "gm-log",
+          "label": "GM log redaction",
+          "role": "gm",
+          "assertions": [
+            "GM-only rationale stays private while player logs show public net effects."
+          ]
+        }
+      ],
       "parameters": {
         "contracts": { "type": "integer", "default": 1, "minimum": 1 },
         "contract-types": { "type": "string-list", "default": ["battle"] },
@@ -382,6 +617,71 @@
       "tiers": ["smoke", "standard"],
       "defaultMode": "headless",
       "expectedTerminalState": "campaign-sequence-complete",
+      "commandScreenCheckpoints": [
+        {
+          "id": "starmap-route-command",
+          "uiCheckpointId": "starmap",
+          "label": "Starmap route command",
+          "role": "both",
+          "assertions": [
+            "Jump distance, time, cost, upkeep, and blocked route reasons are visible before travel."
+          ]
+        },
+        {
+          "id": "contract-sequence-command",
+          "uiCheckpointId": "contracts",
+          "label": "Contract sequence command",
+          "role": "player",
+          "assertions": [
+            "Short-campaign contract sequence and constraints are inspectable before each launch."
+          ]
+        },
+        {
+          "id": "mission-loop-command",
+          "uiCheckpointId": "missions",
+          "label": "Mission loop command",
+          "role": "both",
+          "assertions": [
+            "Mission readiness, combat handoff, and post-combat effects remain linked across contracts."
+          ]
+        },
+        {
+          "id": "repair-queue-command",
+          "uiCheckpointId": "repair",
+          "label": "Repair queue command",
+          "role": "both",
+          "assertions": [
+            "Repair queue effects persist across the 3 to 5 contract campaign loop."
+          ]
+        },
+        {
+          "id": "personnel-command",
+          "uiCheckpointId": "personnel",
+          "label": "Personnel command",
+          "role": "both",
+          "assertions": [
+            "Pilot availability and injury state are visible before the next mission."
+          ]
+        },
+        {
+          "id": "finance-command",
+          "uiCheckpointId": "finances",
+          "label": "Finance command",
+          "role": "both",
+          "assertions": [
+            "Funds, upkeep, travel, contract pay, and repair costs remain balanced over the short run."
+          ]
+        },
+        {
+          "id": "campaign-log-command",
+          "uiCheckpointId": "campaign-log",
+          "label": "Campaign log command",
+          "role": "both",
+          "assertions": [
+            "Player-visible log effects summarize the campaign sequence without GM-only rationale."
+          ]
+        }
+      ],
       "parameters": {
         "contracts": { "type": "integer", "default": 5, "minimum": 3 },
         "advance-days-between": {
@@ -463,6 +763,62 @@
       "tiers": ["smoke", "standard", "extended"],
       "defaultMode": "headless",
       "expectedTerminalState": "campaign-sequence-complete",
+      "commandScreenCheckpoints": [
+        {
+          "id": "starmap-route-command",
+          "uiCheckpointId": "starmap",
+          "label": "Starmap route command",
+          "role": "both",
+          "assertions": [
+            "Long-route travel preview explains distance, time, upkeep, and cascade effects before approval."
+          ]
+        },
+        {
+          "id": "medical-cascade-command",
+          "uiCheckpointId": "medical",
+          "label": "Medical cascade command",
+          "role": "both",
+          "assertions": [
+            "Medical availability and recovery state are carried through accumulated time."
+          ]
+        },
+        {
+          "id": "salvage-drift-command",
+          "uiCheckpointId": "salvage",
+          "label": "Salvage drift command",
+          "role": "both",
+          "assertions": [
+            "Salvage inventory effects remain stable across 6 to 10 contracts."
+          ]
+        },
+        {
+          "id": "repair-drift-command",
+          "uiCheckpointId": "repair",
+          "label": "Repair drift command",
+          "role": "both",
+          "assertions": [
+            "Repair queues and completion events remain stable across long campaign time advancement."
+          ]
+        },
+        {
+          "id": "finance-drift-command",
+          "uiCheckpointId": "finances",
+          "label": "Finance drift command",
+          "role": "both",
+          "assertions": [
+            "Funds do not drift after repeated contract, repair, upkeep, and travel cascades."
+          ]
+        },
+        {
+          "id": "campaign-log-drift-command",
+          "uiCheckpointId": "campaign-log",
+          "label": "Campaign log drift command",
+          "role": "both",
+          "assertions": [
+            "Campaign log and replayable evidence remain consistent after the long run."
+          ]
+        }
+      ],
       "parameters": {
         "contracts": {
           "type": "integer",

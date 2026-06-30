@@ -3,6 +3,12 @@ import type { IMission } from '@/types/campaign/Mission';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 import type { IForce } from '@/types/force';
 
+import {
+  isRosterPreflightFailure,
+  logLaunchRosterPreflightDiagnostics,
+  logMissionLaunchCommitRejected,
+  logMissionLaunchCommitSucceeded,
+} from '@/lib/campaign/encounter/missionLaunchCommandDiagnostics';
 import { TerrainPreset, VictoryConditionType } from '@/types/encounter';
 import { ForceType } from '@/types/force';
 import { logger } from '@/utils/logger';
@@ -269,6 +275,7 @@ export async function materializeCampaignMissionEncounter({
   fetchImpl = fetch,
 }: MaterializeCampaignMissionEncounterInput): Promise<MaterializeCampaignMissionEncounterResult> {
   try {
+    logLaunchRosterPreflightDiagnostics(campaign, missionId, rosterUnits);
     assertLaunchRoster(rosterUnits);
     const mission = campaign.missions.get(missionId);
     for (const scenarioId of mission?.scenarioIds ?? []) {
@@ -286,6 +293,13 @@ export async function materializeCampaignMissionEncounter({
           metadata: {
             missionScenarioIds: mission?.scenarioIds ?? [scenarioId],
           },
+        });
+        logMissionLaunchCommitSucceeded({
+          campaign,
+          missionId,
+          rosterUnits,
+          encounterId: scenarioId,
+          reused: true,
         });
         return {
           encounterId: scenarioId,
@@ -343,6 +357,15 @@ export async function materializeCampaignMissionEncounter({
         missionScenarioIds: [encounterId, ...(mission?.scenarioIds ?? [])],
       },
     });
+    logMissionLaunchCommitSucceeded({
+      campaign,
+      missionId,
+      rosterUnits,
+      encounterId,
+      reused: false,
+      playerForceId,
+      opponentForceId,
+    });
 
     return {
       encounterId,
@@ -364,6 +387,14 @@ export async function materializeCampaignMissionEncounter({
       },
       error,
     });
+    if (!isRosterPreflightFailure(rosterUnits)) {
+      logMissionLaunchCommitRejected({
+        campaign,
+        missionId,
+        rosterUnits,
+        error,
+      });
+    }
     throw error;
   }
 }

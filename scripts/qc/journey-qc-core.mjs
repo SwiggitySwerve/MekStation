@@ -50,6 +50,7 @@ const allowedLogClassifications = new Set([
 ]);
 const allowedModes = new Set(['headless', 'browser', 'hybrid']);
 const allowedTiers = new Set(['smoke', 'standard', 'extended']);
+const allowedCommandCheckpointRoles = new Set(['player', 'gm', 'both']);
 const graphKinds = new Set([
   'capability',
   'surface',
@@ -295,6 +296,64 @@ function validateParameterDefinition(label, name, definition, issues) {
   }
 }
 
+function validateCommandScreenCheckpoints(label, checkpoints, issues) {
+  if (!Array.isArray(checkpoints) || checkpoints.length === 0) {
+    issues.push(
+      issue(
+        'error',
+        `${label}: commandScreenCheckpoints must contain at least one checkpoint.`,
+      ),
+    );
+    return;
+  }
+
+  const checkpointIds = new Set();
+  for (const [checkpointIndex, checkpoint] of checkpoints.entries()) {
+    const checkpointLabel = `${label}.commandScreenCheckpoints[${checkpointIndex}]`;
+    for (const field of ['id', 'uiCheckpointId', 'label', 'role']) {
+      if (
+        typeof checkpoint[field] !== 'string' ||
+        checkpoint[field].trim() === ''
+      ) {
+        issues.push(
+          issue(
+            'error',
+            `${checkpointLabel}: ${field} must be a non-empty string.`,
+          ),
+        );
+      }
+    }
+    if (checkpointIds.has(checkpoint.id)) {
+      issues.push(
+        issue(
+          'error',
+          `${checkpointLabel}: duplicate command checkpoint ${checkpoint.id}.`,
+        ),
+      );
+    }
+    checkpointIds.add(checkpoint.id);
+    if (!allowedCommandCheckpointRoles.has(checkpoint.role)) {
+      issues.push(
+        issue('error', `${checkpointLabel}: role must be player, gm, or both.`),
+      );
+    }
+    if (
+      !Array.isArray(checkpoint.assertions) ||
+      checkpoint.assertions.length === 0 ||
+      checkpoint.assertions.some(
+        (assertion) => typeof assertion !== 'string' || assertion.trim() === '',
+      )
+    ) {
+      issues.push(
+        issue(
+          'error',
+          `${checkpointLabel}: assertions must contain at least one non-empty item.`,
+        ),
+      );
+    }
+  }
+}
+
 export function validateJourneyCatalog(catalog) {
   const issues = [];
   if (catalog.version !== 1)
@@ -367,6 +426,11 @@ export function validateJourneyCatalog(catalog) {
         validateParameterDefinition(label, name, definition, issues);
       }
     }
+    validateCommandScreenCheckpoints(
+      label,
+      journey.commandScreenCheckpoints,
+      issues,
+    );
     if (!Array.isArray(journey.steps) || journey.steps.length === 0) {
       issues.push(
         issue('error', `${label}: steps must contain at least one step.`),
@@ -468,6 +532,36 @@ export function validateJourneyCatalog(catalog) {
     if (!requiredJourneyIds.includes(id))
       issues.push(issue('warning', `Unexpected journey ${id}.`));
   }
+  return issues;
+}
+
+export function validateCommandScreenCheckpointCoverage(catalog, uiFlowShell) {
+  const issues = [];
+  if (!Array.isArray(catalog.journeys) || !Array.isArray(uiFlowShell.flows)) {
+    return issues;
+  }
+
+  const flowByJourneyId = new Map(
+    uiFlowShell.flows.map((flow) => [flow.journeyId, flow]),
+  );
+  for (const journey of catalog.journeys) {
+    const flow = flowByJourneyId.get(journey.id);
+    if (!flow || !Array.isArray(journey.commandScreenCheckpoints)) continue;
+    const uiCheckpointIds = new Set(
+      (flow.checkpoints ?? []).map((checkpoint) => checkpoint.id),
+    );
+    for (const checkpoint of journey.commandScreenCheckpoints) {
+      if (!uiCheckpointIds.has(checkpoint.uiCheckpointId)) {
+        issues.push(
+          issue(
+            'error',
+            `Journey ${journey.id}: command checkpoint ${checkpoint.id} references missing UI checkpoint ${checkpoint.uiCheckpointId}.`,
+          ),
+        );
+      }
+    }
+  }
+
   return issues;
 }
 
@@ -1149,6 +1243,9 @@ export function buildUiFlowShellInspection(
       : uiFlowShell.flows.filter(
           (flow) => flow.journeyId === selectedJourneyId,
         );
+  const journeyById = new Map(
+    catalog.journeys.map((journey) => [journey.id, journey]),
+  );
   if (selectedJourneyId !== 'all' && selectedFlows.length === 0) {
     issues.push(
       issue(
@@ -1186,6 +1283,8 @@ export function buildUiFlowShellInspection(
         href: checkpoint.href,
         visibility: checkpoint.visibility,
       })),
+      commandScreenCheckpoints:
+        journeyById.get(flow.journeyId)?.commandScreenCheckpoints ?? [],
       inspectionNotes: flow.inspectionNotes,
     })),
   };
@@ -1205,11 +1304,16 @@ export function validationSummary() {
   const graphIssues = validateValidationGraph(graph, catalog, registry);
   const loggingIssues = validateLoggingMap(loggingMap, catalog, graph);
   const uiFlowIssues = validateUiFlowShell(uiFlowShell, catalog, graph);
+  const commandScreenIssues = validateCommandScreenCheckpointCoverage(
+    catalog,
+    uiFlowShell,
+  );
   const issues = [
     ...catalogIssues,
     ...graphIssues,
     ...loggingIssues,
     ...uiFlowIssues,
+    ...commandScreenIssues,
   ];
   return {
     catalog,

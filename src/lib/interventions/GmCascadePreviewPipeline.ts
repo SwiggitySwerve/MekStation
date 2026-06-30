@@ -9,6 +9,11 @@ import type {
   InterventionDomain,
 } from '@/types/interventions';
 
+import {
+  logGmCascadeCommitSucceeded,
+  logGmCascadeInvalidApproval,
+  logGmCascadePreviewDiagnostic,
+} from '@/lib/interventions/GmCascadeCommandDiagnostics';
 import { logger } from '@/utils/logger';
 
 import type { ActionLedger } from './ActionLedger';
@@ -89,7 +94,7 @@ export function createGmCascadePreview<TState, TCommandPayload>(
     interventionId ?? createDefaultInterventionId(input.now);
 
   if (previewResult.status === 'rejected') {
-    return {
+    const preview: IGmCascadePreview = {
       interventionId: resolvedInterventionId,
       status: 'rejected',
       domain: previewResult.domain,
@@ -101,6 +106,8 @@ export function createGmCascadePreview<TState, TCommandPayload>(
       conflicts: [],
       reason: previewResult.reason,
     };
+    logGmCascadePreviewDiagnostic(preview);
+    return preview;
   }
 
   const status =
@@ -132,6 +139,7 @@ export function createGmCascadePreview<TState, TCommandPayload>(
   if (preview.status === 'deferred' && input.logDeferred !== false) {
     logGmDeferredInterventionAttempt(preview, input.emitDeferredLog);
   }
+  logGmCascadePreviewDiagnostic(preview);
 
   return preview;
 }
@@ -177,26 +185,31 @@ export function approveGmCascadePreview<
   const { ledger, preview, state } = input;
 
   if (preview.status !== 'ready') {
+    const reason = `Cannot approve GM cascade preview with status "${preview.status}".`;
+    logGmCascadeInvalidApproval(preview, reason);
     return {
       status: 'blocked',
       state,
       appended: false,
-      reason: `Cannot approve GM cascade preview with status "${preview.status}".`,
+      reason,
     };
   }
 
   if (!preview.privateMetadata || !preview.publicEffect) {
+    const reason =
+      'Cannot approve GM cascade preview without private metadata and public effect.';
+    logGmCascadeInvalidApproval(preview, reason);
     return {
       status: 'blocked',
       state,
       appended: false,
-      reason:
-        'Cannot approve GM cascade preview without private metadata and public effect.',
+      reason,
     };
   }
 
   const freshnessFailure = validatePreviewFreshness(preview, state);
   if (freshnessFailure) {
+    logGmCascadeInvalidApproval(preview, freshnessFailure);
     return {
       status: 'blocked',
       state,
@@ -209,6 +222,7 @@ export function approveGmCascadePreview<
   const applyResult = ledger.apply(record, state);
 
   if (applyResult.status === 'unsupported') {
+    logGmCascadeInvalidApproval(preview, applyResult.reason);
     return {
       status: 'blocked',
       state,
@@ -220,6 +234,11 @@ export function approveGmCascadePreview<
   const appendedRecord = ledger.appendApprovedRecord(record);
   const actionLedgerRecord =
     input.actionLedger?.appendGmInterventionRecord(appendedRecord);
+  logGmCascadeCommitSucceeded(
+    preview,
+    appendedRecord.id,
+    actionLedgerRecord?.id,
+  );
 
   return {
     status: 'approved',

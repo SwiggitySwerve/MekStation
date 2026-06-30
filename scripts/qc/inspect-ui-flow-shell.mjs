@@ -40,6 +40,15 @@ if (options.json) {
         `- ${index + 1}. ${checkpoint.label} [${checkpoint.visibility}] ${checkpoint.href}`,
       );
     }
+    console.log(`Command-screen checkpoints:`);
+    for (const checkpoint of flow.commandScreenCheckpoints) {
+      console.log(
+        `- ${checkpoint.label} [${checkpoint.role}] -> ${checkpoint.uiCheckpointId}`,
+      );
+      for (const assertion of checkpoint.assertions) {
+        console.log(`  - ${assertion}`);
+      }
+    }
   }
 }
 

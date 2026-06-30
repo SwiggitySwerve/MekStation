@@ -82,8 +82,10 @@ export type CommandCostCategory =
   | (string & {});
 
 export type CommandDiagnosticEvent =
+  | 'command_malformed_payload_rejected'
   | 'command_preview_created'
   | 'command_preview_rejected'
+  | 'command_invalid_action_rejected'
   | 'command_commit_rejected'
   | 'command_commit_succeeded'
   | 'command_commit_drift_detected'

@@ -14,6 +14,13 @@ import {
 import { getDayPipeline } from '@/lib/campaign/dayPipeline';
 import { registerBuiltinProcessors } from '@/lib/campaign/processors';
 import {
+  logTravelCommitSucceeded,
+  logTravelInvalidAction,
+  logTravelMalformedDestination,
+  logTravelNoCampaign,
+  logTravelPreview,
+} from '@/lib/starmap/starmapTravelCommandDiagnostics';
+import {
   buildStarmapTravelPreview,
   type IStarmapTravelPreview,
 } from '@/lib/starmap/starmapTravelPreview';
@@ -252,11 +259,13 @@ function travelToSystemAction(
   return (systemId: string) => {
     const preview = get().previewTravelToSystem(systemId);
     if (!preview || preview.status !== 'ready' || !preview.afterCampaign) {
+      logTravelInvalidAction(get().campaign, systemId, preview);
       return false;
     }
     set({ campaign: preview.afterCampaign });
     emitTravelActivityEntries(get, preview);
     get().saveCampaign();
+    logTravelCommitSucceeded(preview);
     return true;
   };
 }
@@ -266,8 +275,18 @@ function previewTravelToSystemAction(
 ): CampaignStore['previewTravelToSystem'] {
   return (systemId: string) => {
     const { campaign } = get();
-    if (!campaign || !systemId) return null;
-    return buildStarmapTravelPreview(campaign, systemId);
+    if (!campaign) {
+      logTravelNoCampaign(systemId);
+      return null;
+    }
+    if (!systemId) {
+      logTravelMalformedDestination(campaign);
+      return null;
+    }
+
+    const preview = buildStarmapTravelPreview(campaign, systemId);
+    logTravelPreview(campaign, systemId, preview);
+    return preview;
   };
 }
 
