@@ -24,11 +24,11 @@
 
 ## 4. Campaign Customizer Handoff
 
-- [ ] 4.1 Add campaign-origin customizer route state for `campaignId`, `unitId`, optional `missionId`, `returnTo`, campaign date, budget, rules level, and refit constraints.
-- [ ] 4.2 Load campaign-owned unit identity and canonical state in customizer campaign refit mode without mutating free-build sessions.
-- [ ] 4.3 Save valid campaign-origin edits as campaign refit orders or explicit campaign unit updates, and block invalid edits with tab-level resolution links.
-- [ ] 4.4 Return from save/cancel to mission readiness or Mek stable and refresh deployment validation against canonical campaign state.
-- [ ] 4.5 Add tests and a browser journey for stable/readiness -> customizer -> return -> refreshed eligibility.
+- [x] 4.1 Add campaign-origin customizer route state for `campaignId`, `unitId`, optional `missionId`, `returnTo`, campaign date, budget, rules level, and refit constraints.
+- [x] 4.2 Load campaign-owned unit identity and canonical state in customizer campaign refit mode without mutating free-build sessions.
+- [x] 4.3 Save valid campaign-origin edits as campaign refit orders or explicit campaign unit updates, and block invalid edits with tab-level resolution links.
+- [x] 4.4 Return from save/cancel to mission readiness or Mek stable and refresh deployment validation against canonical campaign state.
+- [x] 4.5 Add tests and a browser journey for stable/readiness -> customizer -> return -> refreshed eligibility.
 
 ## 5. Campaign Starmap Logistics
 
@@ -94,3 +94,9 @@
 - 2026-06-30 PR CI repair: added `openspec/active-change-ledger.json` so active staged specs are explicitly accounted until archive, while unaccounted active changes and stale ledger entries still fail `validate-openspec-ci-quality`.
 - Tactical map regression repair: combat projection target overrides now apply only when a supplied tactical projection frame contains combat entries, preserving physical attack target rings during the physical attack phase.
 - PR repair validation: `scripts/__tests__/openspec-ci-quality-qc.test.ts` and `addInteractiveCombatCoreUI.smoke.03.test.tsx` passed together; local CI shards `npx.cmd jest --selectProjects unit --ci --shard=4/6` and `--shard=5/6` passed; `npm.cmd run typecheck`, targeted `npx.cmd oxlint`, targeted `npx.cmd oxfmt --check`, `node scripts/qc/validate-openspec-ci-quality.mjs`, `openspec.cmd validate add-playable-command-screens --strict`, `npm.cmd run maintain:scan:gate`, and `npm.cmd run test:e2e -- e2e/tactical-command-journey.spec.ts` passed.
+- 2026-06-30 Wave 4 campaign customizer handoff slice: added campaign-origin refit route state, editor-session isolation, campaign customizer context, save/cancel command bar, Mech Bay and mission readiness refit entry points, query-preserving customizer tab routing, and stable/readiness return links that request deployment-validation refresh.
+- Campaign customizer proof: route/session unit tests prove campaign refit query round trips and campaign-owned roster identity becomes a separate editor unit; command-bar component tests prove valid refit-order save/return and invalid construction blockers with tab-level resolution links; mission readiness page tests prove per-unit refit editor links preserve campaign/mission context.
+- Browser E2E proof: `npm.cmd run test:e2e -- e2e/campaign-customizer-handoff.spec.ts` passed 4 projects / 4 tests (`chromium`, `Mobile Chrome`, `Tablet Portrait`, `Tablet Landscape`) and validates Mech Bay -> campaign customizer -> save refit order -> Mech Bay return with canonical campaign `refitOrders` updated.
+- Focused Wave 4 regression proof: `npm.cmd test -- --watchAll=false --runTestsByPath src/lib/campaign/customizer/__tests__/campaignCustomizerRoute.test.ts src/lib/campaign/customizer/__tests__/campaignCustomizerSession.test.ts src/components/customizer/campaign/__tests__/CampaignRefitCommandBar.test.tsx src/hooks/__tests__/useCustomizerRouter.test.ts src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx --runInBand` passed 5 suites / 11 tests; Jest still reports the pre-existing stale `baseline-browser-mapping` warning.
+- Static/spec/maintenance gates for Wave 4: `npm.cmd run typecheck`, targeted `npx.cmd oxlint`, targeted `npx.cmd oxfmt --check`, `git diff --check`, `node scripts/maintenance/scan-maintenance.mjs --scope=... --limit=120`, `npm.cmd run maintain:scan:gate`, `node scripts/qc/validate-openspec-ci-quality.mjs`, and `openspec.cmd validate add-playable-command-screens --strict` passed; scoped maintenance found 0 critical/high findings and only 2 info-level file-bloat advisories.
+- UI/UX evaluation for campaign customizer handoff: Mech Bay and mission readiness expose refit affordances where the player already evaluates blockers; the customizer gains a compact campaign refit command bar instead of a modal detour; invalid edits are blocked before commit with tab-level repair links; save/cancel returns to the originating campaign screen with result/refit id context while free-build customizer sessions stay separate.

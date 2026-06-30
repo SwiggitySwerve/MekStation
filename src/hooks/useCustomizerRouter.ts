@@ -12,6 +12,8 @@
  * @spec openspec/specs/customizer-tabs/spec.md
  */
 
+import type { ParsedUrlQuery } from 'querystring';
+
 import { useRouter } from 'next/router';
 import { useCallback, useMemo, useRef } from 'react';
 
@@ -53,6 +55,8 @@ export const VALID_TAB_IDS: readonly CustomizerTabId[] = [
  * Default tab when none specified
  */
 export const DEFAULT_TAB: CustomizerTabId = 'structure';
+
+type CustomizerRouteQuery = ParsedUrlQuery | undefined;
 
 /**
  * Parsed route parameters
@@ -150,6 +154,24 @@ function parseUnitId(rawUnitId: string | string[] | undefined): string | null {
   return null;
 }
 
+function appendQuery(path: string, query: CustomizerRouteQuery): string {
+  const params = new URLSearchParams();
+  if (query) {
+    for (const [key, value] of Object.entries(query)) {
+      if (key === 'slug' || value === undefined) continue;
+      if (Array.isArray(value)) {
+        for (const entry of value) {
+          params.append(key, entry);
+        }
+      } else {
+        params.set(key, value);
+      }
+    }
+  }
+  const serialized = params.toString();
+  return serialized ? `${path}?${serialized}` : path;
+}
+
 // =============================================================================
 // Hook Implementation
 // =============================================================================
@@ -236,7 +258,7 @@ export function useCustomizerRouter(
       }
 
       isNavigatingRef.current = true;
-      router.push(`/customizer/${unitId}/${tabId}`, undefined, {
+      router.push(buildCustomizerUrl(unitId, tabId, router.query), undefined, {
         shallow: true,
       });
     },
@@ -263,16 +285,22 @@ export function useCustomizerRouter(
       }
 
       isNavigatingRef.current = true;
-      router.push(`/customizer/${effectiveUnitId}/${tabId}`, undefined, {
-        shallow: true,
-      });
+      router.push(
+        buildCustomizerUrl(effectiveUnitId, tabId, router.query),
+        undefined,
+        {
+          shallow: true,
+        },
+      );
     },
     [router, params.unitId, fallbackUnitId],
   );
 
   const navigateToIndex = useCallback(() => {
     isNavigatingRef.current = true;
-    router.push('/customizer', undefined, { shallow: true });
+    router.push(buildCustomizerIndexUrl(router.query), undefined, {
+      shallow: true,
+    });
   }, [router]);
 
   const syncUrl = useCallback(
@@ -287,9 +315,13 @@ export function useCustomizerRouter(
       }
 
       isNavigatingRef.current = true;
-      router.replace(`/customizer/${unitId}/${tabId}`, undefined, {
-        shallow: true,
-      });
+      router.replace(
+        buildCustomizerUrl(unitId, tabId, router.query),
+        undefined,
+        {
+          shallow: true,
+        },
+      );
     },
     [router, params.unitId, params.tabId],
   );
@@ -309,11 +341,16 @@ export function useCustomizerRouter(
 export function buildCustomizerUrl(
   unitId: string,
   tabId?: CustomizerTabId,
+  query?: CustomizerRouteQuery,
 ): string {
   if (tabId && isValidTabId(tabId)) {
-    return `/customizer/${unitId}/${tabId}`;
+    return appendQuery(`/customizer/${unitId}/${tabId}`, query);
   }
-  return `/customizer/${unitId}`;
+  return appendQuery(`/customizer/${unitId}`, query);
+}
+
+export function buildCustomizerIndexUrl(query?: CustomizerRouteQuery): string {
+  return appendQuery('/customizer', query);
 }
 
 /**

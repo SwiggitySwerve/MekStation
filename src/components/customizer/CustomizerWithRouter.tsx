@@ -8,6 +8,7 @@
  * @spec openspec/specs/unit-store-architecture/spec.md
  */
 
+import { useRouter as useNextRouter } from 'next/router';
 import React, {
   useCallback,
   useEffect,
@@ -20,6 +21,9 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import { ErrorBoundary } from '@/components/common';
+import { CampaignCustomizerSessionProvider } from '@/components/customizer/campaign/CampaignCustomizerSessionContext';
+import { CampaignUnitUnavailableState } from '@/components/customizer/campaign/CampaignUnitUnavailableState';
+import { useCampaignCustomizerRouting } from '@/components/customizer/campaign/useCampaignCustomizerRouting';
 // Components
 import { MultiUnitTabs } from '@/components/customizer/tabs';
 // Hooks
@@ -252,6 +256,7 @@ function InvalidUnitState({
  * Runs only on client side (dynamically imported with SSR disabled)
  */
 export default function CustomizerWithRouter(): React.ReactElement {
+  const nextRouter = useNextRouter();
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Tab manager store (for multi-unit tabs)
@@ -259,6 +264,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
   const activeTabId = useTabManagerStore((s) => s.activeTabId);
   const isLoading = useTabManagerStore((s) => s.isLoading);
   const selectTab = useTabManagerStore((s) => s.selectTab);
+  const addTab = useTabManagerStore((s) => s.addTab);
   const setLastSubTab = useTabManagerStore((s) => s.setLastSubTab);
   const getLastSubTab = useTabManagerStore((s) => s.getLastSubTab);
 
@@ -285,6 +291,23 @@ export default function CustomizerWithRouter(): React.ReactElement {
   const routerSyncUrl = router.syncUrl;
   const routerNavigateToIndex = router.navigateToIndex;
   const routerNavigateToTab = router.navigateToTab;
+  const {
+    campaignSession,
+    isCampaignLoading,
+    isCampaignSyncPending,
+    returnToCampaign,
+    unavailableUnitId,
+  } = useCampaignCustomizerRouting({
+    activeTabId,
+    addTab,
+    isHydrated,
+    nextRouter,
+    routerIsReady,
+    routerTabId,
+    selectTab,
+    setLastSubTab,
+    tabs,
+  });
 
   // Get effective tab ID: URL tab takes precedence, then stored lastSubTab, then default
   const effectiveUnitId = routerUnitId || activeTabId;
@@ -314,6 +337,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
   useEffect(() => {
     // Wait for the Next router to parse the URL — before `isReady`,
     // `routerUnitId` is null even for a deep link (e2e triage RC15).
+    if (isCampaignSyncPending) return;
     syncUrlToState({
       routerIsReady,
       isHydrated,
@@ -334,6 +358,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
     routerUnitId,
     routerIsValid,
     activeTabId,
+    isCampaignSyncPending,
     tabs,
     selectTab,
     routerNavigateToIndex,
@@ -350,6 +375,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
     // clobbering `/customizer/<id>[/<tab>]` deep links (e2e triage RC15).
     // Deep links must win; the URL->State effect above handles them once
     // `routerIsReady` flips.
+    if (isCampaignSyncPending) return;
     syncStateToUrl({
       routerIsReady,
       isHydrated,
@@ -366,6 +392,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
     isHydrated,
     isLoading,
     activeTabId,
+    isCampaignSyncPending,
     routerUnitId,
     routerSyncUrl,
     getLastSubTab,
@@ -389,6 +416,19 @@ export default function CustomizerWithRouter(): React.ReactElement {
     return <LoadingCustomizerState />;
   }
 
+  if (isCampaignLoading) {
+    return <LoadingCustomizerState />;
+  }
+
+  if (unavailableUnitId) {
+    return (
+      <CampaignUnitUnavailableState
+        unitId={unavailableUnitId}
+        onReturn={returnToCampaign}
+      />
+    );
+  }
+
   // Invalid unit ID in URL
   if (!routerIsValid && !routerIsIndex) {
     return <InvalidUnitState onNavigateToIndex={routerNavigateToIndex} />;
@@ -397,17 +437,19 @@ export default function CustomizerWithRouter(): React.ReactElement {
   return (
     <ErrorBoundary componentName="CustomizerWithRouter">
       <DndProvider backend={HTML5Backend}>
-        <div className="bg-surface-deep flex min-h-screen flex-col">
-          <MultiUnitTabs>
-            <ErrorBoundary componentName="UnitTypeRouter">
-              <UnitTypeRouter
-                activeTab={activeTab}
-                activeTabId={effectiveTabId}
-                onTabChange={handleTabChange}
-              />
-            </ErrorBoundary>
-          </MultiUnitTabs>
-        </div>
+        <CampaignCustomizerSessionProvider session={campaignSession}>
+          <div className="bg-surface-deep flex min-h-screen flex-col">
+            <MultiUnitTabs>
+              <ErrorBoundary componentName="UnitTypeRouter">
+                <UnitTypeRouter
+                  activeTab={activeTab}
+                  activeTabId={effectiveTabId}
+                  onTabChange={handleTabChange}
+                />
+              </ErrorBoundary>
+            </MultiUnitTabs>
+          </div>
+        </CampaignCustomizerSessionProvider>
       </DndProvider>
     </ErrorBoundary>
   );

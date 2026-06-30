@@ -7,6 +7,8 @@ import type { IExportableUnit, IImportHandlers } from '@/types/vault';
 import { useToast } from '@/components/shared/Toast';
 import {
   DEFAULT_TAB,
+  buildCustomizerIndexUrl,
+  buildCustomizerUrl,
   isValidTabId,
   type CustomizerTabId,
 } from '@/hooks/useCustomizerRouter';
@@ -100,9 +102,13 @@ export function useMultiUnitTabsController(): UseMultiUnitTabsControllerResult {
 
   const navigateToTab = useCallback(
     (tabId: string) => {
-      router.push(`/customizer/${tabId}/${DEFAULT_TAB}`, undefined, {
-        shallow: true,
-      });
+      router.push(
+        buildCustomizerUrl(tabId, DEFAULT_TAB, router.query),
+        undefined,
+        {
+          shallow: true,
+        },
+      );
     },
     [router],
   );
@@ -113,9 +119,13 @@ export function useMultiUnitTabsController(): UseMultiUnitTabsControllerResult {
       const lastSubTab = getLastSubTab(tabId);
       const tabToNavigate: CustomizerTabId =
         lastSubTab && isValidTabId(lastSubTab) ? lastSubTab : DEFAULT_TAB;
-      router.push(`/customizer/${tabId}/${tabToNavigate}`, undefined, {
-        shallow: true,
-      });
+      router.push(
+        buildCustomizerUrl(tabId, tabToNavigate, router.query),
+        undefined,
+        {
+          shallow: true,
+        },
+      );
     },
     [storeSelectTab, router, getLastSubTab],
   );
@@ -126,10 +136,12 @@ export function useMultiUnitTabsController(): UseMultiUnitTabsControllerResult {
 
       const newState = useTabManagerStore.getState();
       if (newState.tabs.length === 0) {
-        router.push('/customizer', undefined, { shallow: true });
+        router.push(buildCustomizerIndexUrl(router.query), undefined, {
+          shallow: true,
+        });
       } else if (newState.activeTabId && newState.activeTabId !== tabId) {
         router.push(
-          `/customizer/${newState.activeTabId}/${DEFAULT_TAB}`,
+          buildCustomizerUrl(newState.activeTabId, DEFAULT_TAB, router.query),
           undefined,
           {
             shallow: true,
