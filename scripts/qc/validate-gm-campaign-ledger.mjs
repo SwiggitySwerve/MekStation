@@ -159,13 +159,25 @@ const defaultSourceAnchors = [
     id: 'campaign-gm-ledger-control-plane',
     path: 'src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx',
     tokens: [
-      'gm-ledger-preview-btn',
-      'gm-ledger-approve-btn',
+      'GmCampaignInterventionActions',
       'gm-ledger-player-log',
       'createGmCascadePreview',
       'approveGmCascadePreview',
       'requires-manual-takeover',
       'No campaign state changed',
+    ],
+  },
+  {
+    id: 'campaign-gm-ledger-actions',
+    path: 'src/components/campaign/gm/GmCampaignInterventionActions.tsx',
+    tokens: [
+      'gm-ledger-preview-btn',
+      'gm-ledger-approve-btn',
+      'gm-ledger-conflict-preview-btn',
+      'gm-ledger-repair-preview-btn',
+      'gm-ledger-salvage-preview-btn',
+      'gm-ledger-unit-reload-preview-btn',
+      'gm-ledger-manual-btn',
     ],
   },
   {
