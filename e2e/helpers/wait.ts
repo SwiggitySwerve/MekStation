@@ -31,6 +31,23 @@ export async function waitForPageReady(
   await page.waitForTimeout(500);
 }
 
+export async function assertNoMekStationLoading(
+  page: Page,
+  timeout = DEFAULT_TIMEOUT,
+): Promise<void> {
+  await expect(async () => {
+    const loadingText = page.getByText(/Loading MekStation/i);
+    const count = await loadingText.count();
+    let visibleCount = 0;
+    for (let index = 0; index < count; index += 1) {
+      if (await loadingText.nth(index).isVisible()) {
+        visibleCount += 1;
+      }
+    }
+    expect(visibleCount).toBe(0);
+  }).toPass({ timeout });
+}
+
 /**
  * Wait for a list to contain at least the specified number of items.
  *

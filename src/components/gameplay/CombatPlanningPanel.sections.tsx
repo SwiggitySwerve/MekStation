@@ -12,7 +12,6 @@ import type {
   IAttackerState,
   ITargetState,
   MovementHeatProfile,
-  MovementType,
   RangeBracket,
   WeaponFireMode,
 } from '@/types/gameplay';
@@ -21,7 +20,7 @@ import type {
   IToHitForecastOptions,
 } from '@/utils/gameplay/toHit/forecast';
 
-import { GameEventType, LockState } from '@/types/gameplay';
+import { GameEventType, LockState, MovementType } from '@/types/gameplay';
 
 import {
   AttackerLockedBanner,
@@ -30,7 +29,6 @@ import {
 } from './CombatPlanningPanel.banners';
 import { CommitMoveButton } from './CommitMoveButton';
 import { FacingPicker } from './FacingPicker';
-import { MovementTypeSwitcher } from './MovementTypeSwitcher';
 import {
   PhysicalAttackPanel,
   type PhysicalAttackIntent,
@@ -65,7 +63,6 @@ export function MovementPlanningSection({
   mpCost,
   jumpHexes,
   movementHeatProfile,
-  onTypeChange,
   onFacingSelect,
   onCommit,
 }: MovementPlanningSectionProps): React.ReactElement {
@@ -75,12 +72,11 @@ export function MovementPlanningSection({
       aria-label="Movement planning"
       data-testid="combat-planning-panel-movement"
     >
-      <MovementTypeSwitcher
-        active={movementType}
+      <MovementModeReadout
+        movementType={movementType}
         walkMP={walkMP}
         runMP={runMP}
         jumpMP={jumpMP}
-        onChange={onTypeChange}
       />
       <FacingPicker
         selected={plannedMovement?.facing ?? null}
@@ -102,6 +98,52 @@ export function MovementPlanningSection({
       />
     </section>
   );
+}
+
+function MovementModeReadout({
+  movementType,
+  walkMP,
+  runMP,
+  jumpMP,
+}: {
+  readonly movementType: MovementType;
+  readonly walkMP: number;
+  readonly runMP: number;
+  readonly jumpMP: number;
+}): React.ReactElement {
+  return (
+    <div
+      className="rounded border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700"
+      data-testid="movement-mode-readout"
+    >
+      <span className="font-semibold text-slate-900">Mode:</span>{' '}
+      <span data-testid="movement-mode-readout-active">
+        {formatMovementMode(movementType)}
+      </span>
+      <span className="ml-3 text-slate-500">
+        Walk {walkMP} MP / Run {runMP} MP / Jump {jumpMP} MP
+      </span>
+    </div>
+  );
+}
+
+function formatMovementMode(movementType: MovementType): string {
+  switch (movementType) {
+    case MovementType.Walk:
+      return 'Walk';
+    case MovementType.Run:
+      return 'Run';
+    case MovementType.Sprint:
+      return 'Sprint';
+    case MovementType.Evade:
+      return 'Evade';
+    case MovementType.Jump:
+      return 'Jump';
+    case MovementType.Stationary:
+      return 'Stationary';
+    default:
+      return movementType;
+  }
 }
 
 interface WeaponAttackPlanningSectionProps {

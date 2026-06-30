@@ -54,6 +54,11 @@ describe('facingCommands', () => {
     expect(cmd.commit(makeCtx()).actionId).toBe('facing-right');
   });
 
+  it('uses D for rotate-right so E remains Evade', () => {
+    const cmd = commands.find((c) => c.id === 'facing.rotate-right')!;
+    expect(cmd.hotkey).toBe('D');
+  });
+
   it('rotate-left commit dispatches facing-left actionId', () => {
     const cmd = commands.find((c) => c.id === 'facing.rotate-left')!;
     expect(cmd.commit(makeCtx()).actionId).toBe('facing-left');

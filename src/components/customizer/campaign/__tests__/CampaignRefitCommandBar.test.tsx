@@ -27,7 +27,10 @@ const mockCommitRefitOrder = commitRefitOrder as jest.MockedFunction<
   typeof commitRefitOrder
 >;
 
-function renderCommandBar(options?: { readonly invalid?: boolean }) {
+function renderCommandBar(options?: {
+  readonly invalid?: boolean;
+  readonly changed?: boolean;
+}) {
   const unit = {
     unitId: 'campaign-unit-atlas',
     unitName: 'Atlas',
@@ -55,6 +58,9 @@ function renderCommandBar(options?: { readonly invalid?: boolean }) {
   const store = createUnitStore({
     ...state,
     engineRating: options?.invalid ? 9999 : state.engineRating,
+    heatSinkCount: options?.changed
+      ? state.heatSinkCount + 1
+      : state.heatSinkCount,
   });
   const onTabChange = jest.fn();
   render(
@@ -95,10 +101,25 @@ describe('CampaignRefitCommandBar', () => {
   });
 
   it('commits a valid campaign-origin edit as a refit order and returns to readiness', () => {
-    renderCommandBar();
+    renderCommandBar({ changed: true });
 
     expect(screen.getByTestId('campaign-refit-command-bar')).toHaveTextContent(
       'Campaign refit: Atlas',
+    );
+    expect(screen.getByTestId('campaign-refit-context')).toHaveTextContent(
+      '1 build field changed',
+    );
+    expect(screen.getByTestId('campaign-refit-context')).toHaveTextContent(
+      '3025-01-03',
+    );
+    expect(screen.getByTestId('campaign-refit-context')).toHaveTextContent(
+      'Campaign refit limits',
+    );
+    expect(screen.getByTestId('campaign-refit-context')).not.toHaveTextContent(
+      '3025-01-03T00:00:00.000Z',
+    );
+    expect(screen.getByTestId('campaign-refit-context')).not.toHaveTextContent(
+      'campaign-owned-refit',
     );
 
     fireEvent.click(screen.getByTestId('campaign-refit-save'));
@@ -112,6 +133,23 @@ describe('CampaignRefitCommandBar', () => {
     expect(mockPush).toHaveBeenCalledWith(
       '/gameplay/campaigns/campaign-1/missions/mission-1/launch?unit=campaign-unit-atlas&refresh=deployment-validation&customizerResult=saved&refitOrderId=refit-1',
     );
+  });
+
+  it('keeps no-delta refit saves disabled', () => {
+    renderCommandBar();
+
+    expect(screen.getByTestId('campaign-refit-context')).toHaveTextContent(
+      '0 build fields changed',
+    );
+    expect(screen.getByTestId('campaign-refit-no-delta')).toHaveTextContent(
+      'No refit order will be created',
+    );
+    expect(screen.getByTestId('campaign-refit-save')).toBeDisabled();
+
+    fireEvent.click(screen.getByTestId('campaign-refit-save'));
+
+    expect(mockCommitRefitOrder).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   it('blocks invalid refit targets with tab-level resolution controls', () => {

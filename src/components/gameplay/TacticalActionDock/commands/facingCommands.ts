@@ -41,7 +41,7 @@ const FacingRotateRightCommand: ITacticalCommand = {
   id: 'facing.rotate-right',
   category: 'facing',
   label: 'Rotate Right',
-  hotkey: 'E',
+  hotkey: 'D',
   phaseConstraints: [GamePhase.Movement],
   requiresConfirmation: false,
   undoable: true,

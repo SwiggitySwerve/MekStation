@@ -72,6 +72,14 @@ function repairDetailHref(
   return `${baseCampaignHref}/repair-bay?unit=${encodeURIComponent(unitId)}`;
 }
 
+function pilotAssignmentHref(
+  baseCampaignHref: string | undefined,
+  unitId: string,
+): string | undefined {
+  if (!baseCampaignHref) return undefined;
+  return `${baseCampaignHref}/personnel?intent=assign-pilot&unit=${encodeURIComponent(unitId)}`;
+}
+
 function isPilotDeployable(
   status: ICampaignRosterEntry['status'],
 ): status is CampaignPilotStatus.Active {
@@ -154,7 +162,9 @@ function buildUnitProjection({
       severity: 'warning',
       subjectId: unit.unitId,
       message:
-        'No pilot is assigned; assign one before stricter pilot rules apply.',
+        'No pilot is assigned; assign one before launch if pilot rules apply.',
+      actionLabel: 'Assign pilot',
+      actionHref: pilotAssignmentHref(baseCampaignHref, unit.unitId),
     });
   }
 
@@ -312,9 +322,7 @@ export function buildMissionReadinessProjection({
         selectedUnits.length === 1 ? '' : 's'
       }`,
       `${warnings.length} readiness warning${warnings.length === 1 ? '' : 's'}`,
-      canLaunch
-        ? 'Encounter materialization may proceed'
-        : 'Encounter materialization is blocked',
+      canLaunch ? 'Ready to launch' : 'Launch blocked until blockers clear',
     ],
   };
 }

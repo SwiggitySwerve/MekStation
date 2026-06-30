@@ -12,7 +12,10 @@ import {
   RangeBracket,
 } from '@/types/gameplay';
 
-import { WeaponAttackPlanningSection } from '../CombatPlanningPanel.sections';
+import {
+  MovementPlanningSection,
+  WeaponAttackPlanningSection,
+} from '../CombatPlanningPanel.sections';
 import { mediumLaser } from './addCombatPhaseUIFlows.smoke.test-helpers';
 
 const selected: ISelectedUnitProjection = {
@@ -138,5 +141,33 @@ describe('WeaponAttackPlanningSection combat projection range display', () => {
       'false',
     );
     expect(screen.getByTestId('preview-forecast-button')).toBeDisabled();
+  });
+});
+
+describe('MovementPlanningSection command surface', () => {
+  it('uses a readout instead of duplicating the movement mode buttons', () => {
+    render(
+      <MovementPlanningSection
+        className=""
+        movementType={MovementType.Run}
+        walkMP={4}
+        runMP={6}
+        jumpMP={0}
+        plannedMovement={null}
+        planReady={false}
+        mpCost={0}
+        onTypeChange={jest.fn()}
+        onFacingSelect={jest.fn()}
+        onCommit={jest.fn()}
+      />,
+    );
+
+    expect(screen.queryByTestId('movement-type-switcher')).toBeNull();
+    expect(screen.getByTestId('movement-mode-readout')).toHaveTextContent(
+      'Mode: Run',
+    );
+    expect(screen.getByTestId('movement-mode-readout')).toHaveTextContent(
+      'Walk 4 MP / Run 6 MP / Jump 0 MP',
+    );
   });
 });

@@ -29,9 +29,9 @@ export interface ILayoutConfig {
  * Default layout configuration.
  */
 export const DEFAULT_LAYOUT_CONFIG: ILayoutConfig = {
-  emphasis: 'balanced',
-  mapPanelWidth: 50,
-  eventLogCollapsed: false,
+  emphasis: 'map',
+  mapPanelWidth: 70,
+  eventLogCollapsed: true,
   minPanelWidth: 300,
 };
 
@@ -127,14 +127,14 @@ export function setMapLayerVisibility(
 export function getLayoutForPhase(phase: GamePhase): Partial<ILayoutConfig> {
   switch (phase) {
     case GamePhase.Movement:
-      return { emphasis: 'map', mapPanelWidth: 60 };
+      return { emphasis: 'map', mapPanelWidth: 74 };
     case GamePhase.WeaponAttack:
     case GamePhase.PhysicalAttack:
-      return { emphasis: 'recordSheet', mapPanelWidth: 40 };
+      return { emphasis: 'map', mapPanelWidth: 68 };
     case GamePhase.Heat:
-      return { emphasis: 'recordSheet', mapPanelWidth: 35 };
+      return { emphasis: 'map', mapPanelWidth: 64 };
     default:
-      return { emphasis: 'balanced', mapPanelWidth: 50 };
+      return { emphasis: 'map', mapPanelWidth: 70 };
   }
 }
 

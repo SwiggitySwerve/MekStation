@@ -72,6 +72,15 @@ const styles = {
   box: 'flex flex-col items-center px-2 sm:px-3 py-0.5 sm:py-1 bg-surface-raised/50 rounded',
 } as const;
 
+function statTestId(label: string): string {
+  const normalized = label
+    .toLowerCase()
+    .replace(/\+/g, 'plus')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  return `unit-info-stat-${normalized}`;
+}
+
 // =============================================================================
 // Stat Box Components
 // =============================================================================
@@ -84,7 +93,7 @@ interface SimpleStatProps {
 
 function SimpleStat({ label, value, status = 'normal' }: SimpleStatProps) {
   return (
-    <div className={styles.box}>
+    <div className={styles.box} data-testid={statTestId(label)}>
       <span className={styles.label}>{label}</span>
       <span
         className={`text-sm font-bold sm:text-base ${styles.value[status]}`}
@@ -111,7 +120,7 @@ function CapacityStat({
   status = 'normal',
 }: CapacityStatProps) {
   return (
-    <div className={styles.box}>
+    <div className={styles.box} data-testid={statTestId(label)}>
       <span className={styles.label}>{label}</span>
       <div className="flex items-baseline gap-0.5">
         <span
