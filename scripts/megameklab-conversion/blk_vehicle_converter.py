@@ -16,14 +16,27 @@ Usage:
 Skips WarShip / DropShip / JumpShip unit types with a warning log.
 """
 
-import argparse
-import json
 import logging
 import math
-import re
-import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+from blk_conversion_runner import (
+    BlkConversionConfig,
+    run_blk_conversion,
+    run_manifest_range_parity,
+    strict_safe_unit_filename,
+)
+from blk_unit_fields import parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks
+from blk_vehicle_tables import (
+    ARMOR_CODE_MAP,
+    ENGINE_CODE_EXT,
+    MOTION_TYPE_MAP,
+    UNSUPPORTED_UNIT_TYPES,
+    VEHICLE_ARMOR_LOCATIONS,
+    VEHICLE_LOCATION_MAP,
+    VEHICLE_UNIT_TYPES,
+)
 
 # Shared BLK helpers + enum_mappings re-exports — see blk_common.py for the
 # extraction rationale (2026-04-25 maintenance sweep).
@@ -37,14 +50,9 @@ from blk_common import (
     map_rules_level,
     map_tech_base,
     map_year_to_era,
-    normalize_equipment_id,
     parse_armor_array,
     parse_number,
     remove_comments,
-    setup_logger,
-    write_manifest,
-    write_parity_report,
-    write_run_log,
 )
 
 
@@ -53,95 +61,18 @@ from blk_common import (
 # ---------------------------------------------------------------------------
 
 # BLK unit type strings considered ground vehicles
-VEHICLE_UNIT_TYPES = {
-    "Tank", "VTOL", "SupportTank", "SupportVTOL", "Naval",
-    "Hover", "Wheeled", "Tracked", "Hydrofoil", "Submarine", "WiGE",
-}
 
 # BLK unit types to skip
-UNSUPPORTED_UNIT_TYPES = {
-    "Warship", "WarShip", "Dropship", "DropShip", "JumpShip", "Jumpship",
-    "SpaceStation", "LAM", "QuadVee", "MobileStructure",
-}
 
 # Vehicle armor location order in BLK files: Front, Right, Left, Rear, Turret (optional)
-VEHICLE_ARMOR_LOCATIONS = ["FRONT", "RIGHT", "LEFT", "REAR", "TURRET"]
 
 # BLK equipment section tag → canonical location key
-VEHICLE_LOCATION_MAP: Dict[str, str] = {
-    "Front Equipment": "FRONT",
-    "Right Equipment": "RIGHT",
-    "Left Equipment": "LEFT",
-    "Rear Equipment": "REAR",
-    "Turret Equipment": "TURRET",
-    "Body Equipment": "BODY",
-    "Secondary Turret Equipment": "TURRET_2",
-    "Front Turret Equipment": "TURRET",
-    "Sponson Turret Equipment": "SPONSON",
-}
 
 # Motion type mapping: BLK motion_type value → IVehicle motionType
-MOTION_TYPE_MAP: Dict[str, str] = {
-    "Tracked": "Tracked",
-    "Wheeled": "Wheeled",
-    "Hover": "Hover",
-    "VTOL": "VTOL",
-    "Naval": "Naval",
-    "Hydrofoil": "Hydrofoil",
-    "Submarine": "Submarine",
-    "WiGE": "WiGE",
-    "Rail": "Rail",
-    "Maglev": "Maglev",
-    # BLK sometimes uses these
-    "Leg": "Tracked",
-    "Jump": "VTOL",
-}
 
 # Engine type code numeric → string (supplements enum_mappings for codes 6+)
-ENGINE_CODE_EXT: Dict[str, str] = {
-    "6": "ICE",
-    "7": "FUEL_CELL",
-    "8": "FISSION",
-    "9": "SOLAR",
-    "10": "BATTERY",
-    "11": "FLYWHEEL",
-    "12": "STEAM",
-    "13": "MAGLEV",
-    "14": "NONE",
-    "15": "EXTERNAL",
-}
 
 # Armor type code numeric → string (commonly seen in BLK armor_type tag)
-ARMOR_CODE_MAP: Dict[int, str] = {
-    0: "STANDARD",
-    1: "FERRO_FIBROUS",
-    2: "REACTIVE",
-    3: "REFLECTIVE",
-    4: "HARDENED",
-    5: "LIGHT_FERRO_FIBROUS",
-    6: "HEAVY_FERRO_FIBROUS",
-    7: "PATCHWORK",
-    8: "STEALTH",
-    31: "COMMERCIAL",
-    32: "INDUSTRIAL",
-    33: "HEAVY_INDUSTRIAL",
-    34: "FERRO_FIBROUS_CLAN",
-    35: "REFLECTIVE_CLAN",
-    36: "REACTIVE_CLAN",
-    37: "FERRO_LAMELLOR",
-    38: "ANTI_PENETRATIVE_ABLATION",
-    39: "PRIMITIVE",
-    40: "IMPACT_RESISTANT",
-    41: "BAR_2",
-    42: "BAR_3",
-    43: "BAR_4",
-    44: "BAR_5",
-    45: "BAR_6",
-    46: "BAR_7",
-    47: "BAR_8",
-    48: "BAR_9",
-    49: "BAR_10",
-}
 
 
 # ---------------------------------------------------------------------------
@@ -278,45 +209,18 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
             armor_by_location[loc] = armor_values[i]
 
     # --- Equipment ---
-    equipment: List[Dict[str, str]] = []
-    for blk_tag, loc_key in VEHICLE_LOCATION_MAP.items():
-        items = tags.get(blk_tag) or []
-        if isinstance(items, str):
-            items = [ln.strip() for ln in items.splitlines() if ln.strip()]
-        for item in items:
-            if item:
-                equipment.append({
-                    "id": normalize_equipment_id(item),
-                    "name": item,
-                    "location": loc_key,
-                })
+    equipment = parse_location_equipment(tags, VEHICLE_LOCATION_MAP)
 
     # --- Misc ---
-    mul_id_raw = get_string(tags, "mul id:", "mulId")
-    mul_id = int(parse_number(mul_id_raw)) if mul_id_raw and parse_number(mul_id_raw) is not None else None
-
+    mul_id = parse_mul_id(tags)
     role = get_string(tags, "role")
     source = get_string(tags, "source")
-    quirks_raw = get_string(tags, "quirks")
-    quirks = [q.strip() for q in quirks_raw.splitlines() if q.strip()] if quirks_raw else []
+    quirks = parse_quirks(tags)
 
     weight_class = get_weight_class(float(tonnage), motion_type)
 
     # --- Fluff ---
-    fluff: Dict[str, str] = {}
-    for fluff_field in ("overview", "capabilities", "deployment", "history", "manufacturer", "primaryFactory"):
-        val = get_string(tags, fluff_field)
-        if val:
-            fluff[fluff_field] = val
-    sys_mfr_raw = get_string(tags, "systemManufacturers")
-    if sys_mfr_raw:
-        sys_mfr: Dict[str, str] = {}
-        for line in sys_mfr_raw.splitlines():
-            if ":" in line:
-                k, _, v = line.partition(":")
-                sys_mfr[k.strip()] = v.strip()
-        if sys_mfr:
-            fluff["systemManufacturer"] = sys_mfr  # type: ignore[assignment]
+    fluff = parse_fluff(tags, include_system_manufacturers=True)
 
     # --- Assemble output ---
     unit_id = generate_id_from_name(name, model)
@@ -394,42 +298,19 @@ def run_parity_checks(
     Note: BV / equipment-list-length parity is deferred until per-type BV
     calculators land — see add-vehicle-construction wave 5.
     """
-    failures = 0
-    index: Dict[str, Dict[str, Any]] = {}
-    for entry in manifest:
-        key = entry.get("chassis", "").lower()
-        index[key] = entry
-
-    records: List[Dict[str, Any]] = []
-    for target in PARITY_TARGETS:
-        chassis_key = target["chassis"].lower()
-        entry = index.get(chassis_key)
-        record: Dict[str, Any] = {
-            "chassis": target["chassis"],
-            "expected_min_tons": target["min_tons"],
-            "expected_max_tons": target["max_tons"],
-        }
-        if entry is None:
-            logger.warning(f"Parity: '{target['chassis']}' not found in output")
-            record["status"] = "missing"
-            failures += 1
-            records.append(record)
-            continue
-        tonnage = entry.get("tonnage", 0)
-        record["actual_tons"] = tonnage
-        record["actual_equipment_count"] = len(entry.get("equipment", []) or [])
-        if not (target["min_tons"] <= tonnage <= target["max_tons"]):
-            logger.error(
-                f"Parity FAIL: {target['chassis']} tonnage={tonnage} "
-                f"expected [{target['min_tons']},{target['max_tons']}]"
-            )
-            record["status"] = "fail"
-            failures += 1
-        else:
-            logger.info(f"Parity OK: {target['chassis']} tonnage={tonnage}")
-            record["status"] = "ok"
-        records.append(record)
-    return failures, records
+    return run_manifest_range_parity(
+        manifest,
+        PARITY_TARGETS,
+        logger,
+        value_field="tonnage",
+        min_target_key="min_tons",
+        max_target_key="max_tons",
+        expected_min_record_key="expected_min_tons",
+        expected_max_record_key="expected_max_tons",
+        actual_record_key="actual_tons",
+        log_label="tonnage",
+        index_overwrite=True,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -460,106 +341,25 @@ def build_manifest_entry(unit: Dict[str, Any]) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Convert BLK vehicle files to MekStation JSON")
-    parser.add_argument(
-        "--source",
-        default=str(Path(default_mm_data_root()) / "mekfiles" / "vehicles"),
-        help="Path to mm-data vehicles directory",
+    return run_blk_conversion(
+        BlkConversionConfig(
+            converter="blk_vehicle_converter",
+            description="Convert BLK vehicle files to MekStation JSON",
+            source_default=str(Path(default_mm_data_root()) / "mekfiles" / "vehicles"),
+            source_help="Path to mm-data vehicles directory",
+            output_default=str(Path(__file__).parent.parent.parent / "public/data/units/vehicles"),
+            output_help="Output directory for vehicle JSON files",
+            type_name="vehicles",
+            parity_report_filename="blk-vehicle-parity.json",
+            run_log_filename="blk-vehicle-run-log.json",
+            convert_unit=convert_vehicle_blk,
+            build_manifest_entry=build_manifest_entry,
+            run_parity_checks=run_parity_checks,
+            unsupported_unit_types=UNSUPPORTED_UNIT_TYPES,
+            filename_builder=strict_safe_unit_filename,
+        )
     )
-    parser.add_argument(
-        "--output",
-        default=str(Path(__file__).parent.parent.parent / "public/data/units/vehicles"),
-        help="Output directory for vehicle JSON files",
-    )
-    parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
-    args = parser.parse_args()
-
-    logger = setup_logger("blk_vehicle_converter", args.verbose)
-
-    source_dir = Path(args.source)
-    output_dir = Path(args.output)
-
-    if not source_dir.exists():
-        logger.error(f"Source directory not found: {source_dir}")
-        return 1
-
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # --- Scan and convert ---
-    blk_files = list(source_dir.rglob("*.blk"))
-    logger.info(f"Found {len(blk_files)} BLK files under {source_dir}")
-
-    converted = 0
-    skipped_unsupported = 0
-    skipped_other = 0
-    errors = 0
-    manifest: List[Dict[str, Any]] = []
-
-    for blk_path in sorted(blk_files):
-        unit = convert_vehicle_blk(blk_path, logger)
-        if unit is None:
-            # Check why: peek at unit type
-            try:
-                raw = blk_path.read_text(encoding="utf-8", errors="replace")
-                clean = remove_comments(raw)
-                tags = extract_tags(clean)
-                ut = get_string(tags, "UnitType") or ""
-                if ut in UNSUPPORTED_UNIT_TYPES:
-                    skipped_unsupported += 1
-                else:
-                    skipped_other += 1
-            except Exception:
-                skipped_other += 1
-            continue
-
-        # Sanitize filename: BLK chassis/model can contain '/' (e.g. "AC/2 Carrier")
-        # which Path interprets as a directory separator. Replace with '-'.
-        raw_name = f"{unit['chassis']} {unit['model']}".strip()
-        safe_name = re.sub(r"[\\/:*?\"<>|]", "-", raw_name)
-        out_path = output_dir / f"{safe_name}.json"
-        try:
-            out_path.write_text(json.dumps(unit, indent=2, ensure_ascii=False), encoding="utf-8")
-            converted += 1
-            manifest.append(build_manifest_entry(unit))
-        except OSError as e:
-            logger.error(f"Failed to write {out_path}: {e}")
-            errors += 1
-
-    # --- Manifest + budget check ---
-    manifest_path = output_dir / "units-manifest.json"
-    errors += write_manifest(manifest, manifest_path, "vehicles", logger)
-
-    # --- Parity checks ---
-    parity_failures, parity_records = run_parity_checks(manifest, logger)
-
-    # Write the parity report referenced by the unit-data-import spec scenario.
-    parity_report_path = (
-        Path(__file__).parent.parent.parent / "validation-output" / "blk-vehicle-parity.json"
-    )
-    write_parity_report("vehicles", parity_records, parity_failures, parity_report_path, logger)
-
-    # --- Summary ---
-    logger.info(
-        f"Done. converted={converted} skipped_unsupported={skipped_unsupported} "
-        f"skipped_other={skipped_other} errors={errors} parity_failures={parity_failures}"
-    )
-
-    # Persist the run-log for CI / parity-regression auditing (task 7.3).
-    run_log = {
-        "converter": "blk_vehicle_converter",
-        "source": str(source_dir),
-        "output": str(output_dir),
-        "converted": converted,
-        "skipped_unsupported": skipped_unsupported,
-        "skipped_other": skipped_other,
-        "errors": errors,
-        "parity_failures": parity_failures,
-    }
-    log_path = Path(__file__).parent.parent.parent / "validation-output" / "blk-vehicle-run-log.json"
-    write_run_log(run_log, log_path, logger)
-
-    return 1 if (errors > 0 or parity_failures > 0) else 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

@@ -1,0 +1,122 @@
+"""Builder helpers for mtf_parser.py."""
+
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional
+
+from enum_mappings import map_mech_location, normalize_equipment_id
+from mtf_serialized_models import SerializedEquipment
+
+def build_armor_allocation(raw_allocation: Dict[str, int]) -> Dict[str, Any]:
+    """Build armor allocation with proper location names and front/rear handling."""
+    allocation: Dict[str, Any] = {}
+
+    # Location mapping
+    loc_map = {
+        'LA': 'LEFT_ARM',
+        'RA': 'RIGHT_ARM',
+        'LT': 'LEFT_TORSO',
+        'RT': 'RIGHT_TORSO',
+        'CT': 'CENTER_TORSO',
+        'HD': 'HEAD',
+        'LL': 'LEFT_LEG',
+        'RL': 'RIGHT_LEG',
+        'RTL': 'LEFT_TORSO_REAR',
+        'RTR': 'RIGHT_TORSO_REAR',
+        'RTC': 'CENTER_TORSO_REAR',
+    }
+
+    # First pass: collect front armor
+    for key, value in raw_allocation.items():
+        mapped_loc = loc_map.get(key, key)
+        if 'REAR' not in mapped_loc:
+            allocation[mapped_loc] = value
+
+    # Second pass: merge rear armor into torso locations
+    for key, value in raw_allocation.items():
+        mapped_loc = loc_map.get(key, key)
+        if 'REAR' in mapped_loc:
+            # Get the front location name
+            front_loc = mapped_loc.replace('_REAR', '')
+            if front_loc in allocation:
+                # Convert to front/rear object
+                front_value = allocation[front_loc]
+                if isinstance(front_value, int):
+                    allocation[front_loc] = {
+                        'front': front_value,
+                        'rear': value
+                    }
+
+    return allocation
+
+def build_equipment_list(weapons: List[Dict[str, str]]) -> List[SerializedEquipment]:
+    """Build equipment list from weapons data."""
+    equipment: List[SerializedEquipment] = []
+
+    for weapon in weapons:
+        name = weapon.get('name', '')
+        location = weapon.get('location', '')
+
+        # Check for rear-mounted
+        is_rear = '(R)' in name or '(Rear)' in name.lower()
+        clean_name = name.replace('(R)', '').replace('(r)', '').strip()
+
+        # Generate equipment ID
+        equip_id = normalize_equipment_id(clean_name)
+
+        # Map location
+        mapped_location = map_mech_location(location)
+
+        equipment.append(SerializedEquipment(
+            id=equip_id,
+            location=mapped_location,
+            isRearMounted=is_rear if is_rear else None
+        ))
+
+    return equipment
+
+def build_critical_slots(criticals: Dict[str, List[str]]) -> Dict[str, List[Optional[str]]]:
+    """Build critical slots dictionary with proper slot counts per location."""
+    slots: Dict[str, List[Optional[str]]] = {}
+
+    # BattleTech critical slot counts per location
+    # Head: 6 slots, Legs: 6 slots each, Arms and Torsos: 12 slots each
+    slot_counts = {
+        'HEAD': 6,
+        'CENTER_TORSO': 12,
+        'LEFT_TORSO': 12,
+        'RIGHT_TORSO': 12,
+        'LEFT_ARM': 12,
+        'RIGHT_ARM': 12,
+        'LEFT_LEG': 6,
+        'RIGHT_LEG': 6,
+        # Quad mech legs
+        'FRONT_LEFT_LEG': 6,
+        'FRONT_RIGHT_LEG': 6,
+        'REAR_LEFT_LEG': 6,
+        'REAR_RIGHT_LEG': 6,
+    }
+
+    for location, items in criticals.items():
+        mapped_location = map_mech_location(location)
+        max_slots = slot_counts.get(mapped_location, 12)
+
+        slot_list: List[Optional[str]] = []
+
+        for item in items:
+            if item == '-Empty-' or not item:
+                slot_list.append(None)
+            else:
+                slot_list.append(item)
+
+        # Normalize to correct slot count
+        if len(slot_list) > max_slots:
+            # Trim excess slots (usually trailing nulls from MTF format)
+            slot_list = slot_list[:max_slots]
+        elif len(slot_list) < max_slots:
+            # Pad with nulls if needed
+            slot_list.extend([None] * (max_slots - len(slot_list)))
+
+        slots[mapped_location] = slot_list
+
+    return slots

@@ -18,13 +18,33 @@ Source directories scanned: fighters/, convfighter/, smallcraft/
 Skips DropShips, JumpShips, WarShips with a log entry.
 """
 
-import argparse
-import json
 import logging
 import math
-import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+from blk_aerospace_tables import (
+    AERO_ARMOR_ARCS,
+    AERO_LOCATION_MAP,
+    AEROSPACE_UNIT_TYPES,
+    ARMOR_CODE_MAP,
+    ASF_TYPES,
+    CF_TYPES,
+    COCKPIT_CODE_MAP,
+    DEFAULT_SOURCE_SUBDIRS,
+    MOTION_MAP,
+    SC_ARMOR_ARCS,
+    SC_LOCATION_MAP,
+    SC_TYPES,
+    UNSUPPORTED_UNIT_TYPES,
+)
+from blk_conversion_runner import (
+    BlkConversionConfig,
+    collect_subdir_blk_files,
+    run_blk_conversion,
+    run_manifest_range_parity,
+)
+from blk_unit_fields import parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks
 
 # Shared BLK helpers + enum_mappings re-exports — see blk_common.py for the
 # extraction rationale (2026-04-25 maintenance sweep).
@@ -38,14 +58,9 @@ from blk_common import (
     map_rules_level,
     map_tech_base,
     map_year_to_era,
-    normalize_equipment_id,
     parse_armor_array,
     parse_number,
     remove_comments,
-    setup_logger,
-    write_manifest,
-    write_parity_report,
-    write_run_log,
 )
 
 
@@ -54,79 +69,22 @@ from blk_common import (
 # ---------------------------------------------------------------------------
 
 # Unit types handled by this converter
-AEROSPACE_UNIT_TYPES = {
-    "Aero", "AeroSpaceFighter",                     # Standard aerospace fighters
-    "ConvFighter", "FixedWingSupport",               # Conventional fighters / support aircraft
-    "SmallCraft",                                    # Small craft (assault boats, shuttles)
-}
 
 # Unit types to skip with warning
-UNSUPPORTED_UNIT_TYPES = {
-    "Dropship", "DropShip", "Jumpship", "JumpShip", "Warship", "WarShip",
-    "SpaceStation", "Tank", "VTOL", "BattleArmor", "Infantry", "ProtoMech",
-}
 
 # Sub-type classification
-ASF_TYPES = {"Aero", "AeroSpaceFighter"}
-CF_TYPES = {"ConvFighter", "FixedWingSupport"}
-SC_TYPES = {"SmallCraft"}
 
 # Armor arc order in BLK: Nose, Left Wing, Right Wing, Aft
-AERO_ARMOR_ARCS = ["NOSE", "LEFT_WING", "RIGHT_WING", "AFT"]
-SC_ARMOR_ARCS = ["NOSE", "LEFT_SIDE", "RIGHT_SIDE", "AFT"]
 
 # Equipment location tag → output key
-AERO_LOCATION_MAP: Dict[str, str] = {
-    "Nose Equipment": "NOSE",
-    "Left Wing Equipment": "LEFT_WING",
-    "Right Wing Equipment": "RIGHT_WING",
-    "Aft Equipment": "AFT",
-    "Wings Equipment": "WINGS",
-    "Fuselage Equipment": "FUSELAGE",
-    "Body Equipment": "FUSELAGE",
-    "Front Equipment": "NOSE",
-    "Left Equipment": "LEFT_WING",
-    "Right Equipment": "RIGHT_WING",
-    "Rear Equipment": "AFT",
-}
 
 # Small craft use "side" instead of "wing"
-SC_LOCATION_MAP: Dict[str, str] = {
-    "Nose Equipment": "NOSE",
-    "Left Side Equipment": "LEFT_SIDE",
-    "Right Side Equipment": "RIGHT_SIDE",
-    "Left Wing Equipment": "LEFT_SIDE",
-    "Right Wing Equipment": "RIGHT_SIDE",
-    "Aft Equipment": "AFT",
-    "Fuselage Equipment": "FUSELAGE",
-    "Body Equipment": "FUSELAGE",
-}
 
 # Armor type code → string (same as vehicle converter)
-ARMOR_CODE_MAP: Dict[int, str] = {
-    0: "STANDARD", 1: "FERRO_FIBROUS", 2: "REACTIVE", 3: "REFLECTIVE",
-    4: "HARDENED", 5: "LIGHT_FERRO_FIBROUS", 6: "HEAVY_FERRO_FIBROUS",
-    8: "STEALTH", 31: "COMMERCIAL", 32: "INDUSTRIAL", 33: "HEAVY_INDUSTRIAL",
-    34: "FERRO_FIBROUS_CLAN", 39: "PRIMITIVE", 40: "IMPACT_RESISTANT",
-    41: "BAR_2", 42: "BAR_3", 43: "BAR_4", 44: "BAR_5",
-}
 
 # Cockpit code → string
-COCKPIT_CODE_MAP: Dict[int, str] = {
-    0: "STANDARD",
-    1: "SMALL",
-    2: "COMMAND_CONSOLE",
-    3: "PRIMITIVE",
-    4: "STANDARD_AERO",
-    5: "PRIMITIVE_AERO",
-    6: "CLAN",
-}
 
 # Motion type for aerospace
-MOTION_MAP: Dict[str, str] = {
-    "Aerodyne": "AERODYNE",
-    "Spheroid": "SPHEROID",
-}
 
 
 # ---------------------------------------------------------------------------
@@ -263,18 +221,7 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
 
     # --- Equipment ---
     loc_map = SC_LOCATION_MAP if is_small_craft else AERO_LOCATION_MAP
-    equipment: List[Dict[str, str]] = []
-    for blk_tag, loc_key in loc_map.items():
-        items = tags.get(blk_tag) or []
-        if isinstance(items, str):
-            items = [ln.strip() for ln in items.splitlines() if ln.strip()]
-        for item in items:
-            if item:
-                equipment.append({
-                    "id": normalize_equipment_id(item),
-                    "name": item,
-                    "location": loc_key,
-                })
+    equipment = parse_location_equipment(tags, loc_map)
 
     # Detect bomb bay — BLK marks it via "Bomb Bay" equipment or bombcount tag
     bomb_bay_items = [e for e in equipment if "bomb" in e["id"].lower() or "bomb" in e["name"].lower()]
@@ -302,22 +249,15 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
                         pass
 
     # --- Misc ---
-    mul_id_raw = get_string(tags, "mul id:", "mulId")
-    mul_id = int(parse_number(mul_id_raw)) if mul_id_raw and parse_number(mul_id_raw) is not None else None
-
+    mul_id = parse_mul_id(tags)
     role = get_string(tags, "role")
     source = get_string(tags, "source")
-    quirks_raw = get_string(tags, "quirks")
-    quirks = [q.strip() for q in quirks_raw.splitlines() if q.strip()] if quirks_raw else []
+    quirks = parse_quirks(tags)
 
     weight_class = get_weight_class(float(tonnage))
 
     # --- Fluff ---
-    fluff: Dict[str, Any] = {}
-    for ff in ("overview", "capabilities", "deployment", "history", "manufacturer", "primaryFactory"):
-        val = get_string(tags, ff)
-        if val:
-            fluff[ff] = val
+    fluff = parse_fluff(tags)
 
     # --- Assemble ---
     unit_id = generate_id_from_name(name, model)
@@ -407,39 +347,19 @@ def run_parity_checks(
     logger: logging.Logger,
 ) -> Tuple[int, List[Dict[str, Any]]]:
     """Returns (failures, parity_records). BV parity deferred to wave 5."""
-    failures = 0
-    index: Dict[str, Dict[str, Any]] = {}
-    for entry in manifest:
-        key = entry.get("chassis", "").lower()
-        index[key] = entry
-
-    records: List[Dict[str, Any]] = []
-    for target in PARITY_TARGETS:
-        key = target["chassis"].lower()
-        entry = index.get(key)
-        record: Dict[str, Any] = {
-            "chassis": target["chassis"],
-            "expected_min_tons": target["min_tons"],
-            "expected_max_tons": target["max_tons"],
-        }
-        if entry is None:
-            logger.warning(f"Parity: '{target['chassis']}' not found in output")
-            record["status"] = "missing"
-            failures += 1
-            records.append(record)
-            continue
-        tonnage = entry.get("tonnage", 0)
-        record["actual_tons"] = tonnage
-        record["actual_equipment_count"] = len(entry.get("equipment", []) or [])
-        if not (target["min_tons"] <= tonnage <= target["max_tons"]):
-            logger.error(f"Parity FAIL: {target['chassis']} tonnage={tonnage} expected [{target['min_tons']},{target['max_tons']}]")
-            record["status"] = "fail"
-            failures += 1
-        else:
-            logger.info(f"Parity OK: {target['chassis']} tonnage={tonnage}")
-            record["status"] = "ok"
-        records.append(record)
-    return failures, records
+    return run_manifest_range_parity(
+        manifest,
+        PARITY_TARGETS,
+        logger,
+        value_field="tonnage",
+        min_target_key="min_tons",
+        max_target_key="max_tons",
+        expected_min_record_key="expected_min_tons",
+        expected_max_record_key="expected_max_tons",
+        actual_record_key="actual_tons",
+        log_label="tonnage",
+        index_overwrite=True,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -469,106 +389,28 @@ def build_manifest_entry(unit: Dict[str, Any]) -> Dict[str, Any]:
 # Main
 # ---------------------------------------------------------------------------
 
-# Default source sub-directories to scan
-DEFAULT_SOURCE_SUBDIRS = ["fighters", "convfighter", "smallcraft"]
-
-
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Convert BLK aerospace files to MekStation JSON")
-    parser.add_argument(
-        "--source",
-        default=str(Path(default_mm_data_root()) / "mekfiles"),
-        help="Path to mm-data mekfiles root (contains fighters/, convfighter/, smallcraft/)",
+    return run_blk_conversion(
+        BlkConversionConfig(
+            converter="blk_aerospace_converter",
+            description="Convert BLK aerospace files to MekStation JSON",
+            source_default=str(Path(default_mm_data_root()) / "mekfiles"),
+            source_help="Path to mm-data mekfiles root (contains fighters/, convfighter/, smallcraft/)",
+            output_default=str(Path(__file__).parent.parent.parent / "public/data/units/aerospace"),
+            output_help="Output directory for aerospace JSON files",
+            type_name="aerospace",
+            parity_report_filename="blk-aerospace-parity.json",
+            run_log_filename="blk-aerospace-run-log.json",
+            convert_unit=convert_aerospace_blk,
+            build_manifest_entry=build_manifest_entry,
+            run_parity_checks=run_parity_checks,
+            collect_files=lambda source, logger: collect_subdir_blk_files(
+                source, logger, DEFAULT_SOURCE_SUBDIRS
+            ),
+            unsupported_unit_types=UNSUPPORTED_UNIT_TYPES,
+        )
     )
-    parser.add_argument(
-        "--output",
-        default=str(Path(__file__).parent.parent.parent / "public/data/units/aerospace"),
-        help="Output directory for aerospace JSON files",
-    )
-    parser.add_argument("--verbose", "-v", action="store_true")
-    args = parser.parse_args()
-
-    logger = setup_logger("blk_aerospace_converter", args.verbose)
-
-    source_root = Path(args.source)
-    output_dir = Path(args.output)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Collect all BLK files from the relevant subdirs
-    blk_files: List[Path] = []
-    for sub in DEFAULT_SOURCE_SUBDIRS:
-        sub_dir = source_root / sub
-        if sub_dir.exists():
-            blk_files.extend(sorted(sub_dir.rglob("*.blk")))
-        else:
-            logger.warning(f"Source subdir not found: {sub_dir}")
-
-    logger.info(f"Found {len(blk_files)} BLK files in aerospace subdirs")
-
-    converted = 0
-    skipped_unsupported = 0
-    skipped_other = 0
-    errors = 0
-    manifest: List[Dict[str, Any]] = []
-
-    for blk_path in blk_files:
-        unit = convert_aerospace_blk(blk_path, logger)
-        if unit is None:
-            try:
-                raw = blk_path.read_text(encoding="utf-8", errors="replace")
-                tags = extract_tags(remove_comments(raw))
-                ut = get_string(tags, "UnitType") or ""
-                if ut in UNSUPPORTED_UNIT_TYPES:
-                    skipped_unsupported += 1
-                else:
-                    skipped_other += 1
-            except Exception:
-                skipped_other += 1
-            continue
-
-        # Sanitize filename
-        safe_name = f"{unit['chassis']} {unit['model']}".strip().replace("/", "-").replace(":", "-")
-        out_path = output_dir / f"{safe_name}.json"
-        try:
-            out_path.write_text(json.dumps(unit, indent=2, ensure_ascii=False), encoding="utf-8")
-            converted += 1
-            manifest.append(build_manifest_entry(unit))
-        except OSError as e:
-            logger.error(f"Failed to write {out_path}: {e}")
-            errors += 1
-
-    # --- Manifest + budget check ---
-    manifest_path = output_dir / "units-manifest.json"
-    errors += write_manifest(manifest, manifest_path, "aerospace", logger)
-
-    # --- Parity checks ---
-    parity_failures, parity_records = run_parity_checks(manifest, logger)
-
-    parity_report_path = (
-        Path(__file__).parent.parent.parent / "validation-output" / "blk-aerospace-parity.json"
-    )
-    write_parity_report("aerospace", parity_records, parity_failures, parity_report_path, logger)
-
-    logger.info(
-        f"Done. converted={converted} skipped_unsupported={skipped_unsupported} "
-        f"skipped_other={skipped_other} errors={errors} parity_failures={parity_failures}"
-    )
-
-    run_log = {
-        "converter": "blk_aerospace_converter",
-        "source": str(source_root),
-        "output": str(output_dir),
-        "converted": converted,
-        "skipped_unsupported": skipped_unsupported,
-        "skipped_other": skipped_other,
-        "errors": errors,
-        "parity_failures": parity_failures,
-    }
-    log_path = Path(__file__).parent.parent.parent / "validation-output" / "blk-aerospace-run-log.json"
-    write_run_log(run_log, log_path, logger)
-
-    return 1 if (errors > 0 or parity_failures > 0) else 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

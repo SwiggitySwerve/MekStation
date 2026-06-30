@@ -18,9 +18,9 @@
       "follow-up": 0
     },
     "file-bloat": {
-      "fixed": 10,
+      "fixed": 19,
       "accepted": 0,
-      "follow-up": 9
+      "follow-up": 0
     },
     "near-duplicate": {
       "fixed": 6,
@@ -83,9 +83,13 @@
       "severity": "warn",
       "file": "scripts/megameklab-conversion/data_converter.py",
       "message": "499 LOC exceeds python threshold",
-      "status": "follow-up",
-      "rationale": "The data converter remains just above the advisory Python size threshold after helper extraction; further parser-loop splits should wait for converter fixture parity coverage.",
-      "followUps": ["wave-12-megameklab-conversion-split"]
+      "status": "fixed",
+      "rationale": "Legacy BLK and MTF parsing bodies were split into focused data_converter_blk.py and data_converter_mtf.py helpers, leaving the orchestrator below the warn threshold.",
+      "followUps": ["wave-12-megameklab-conversion-split"],
+      "fixedEvidence": [
+        "2026-06-30 npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/megameklab-conversion --json reported file-bloat warn=0 for the MegaMekLab conversion cluster.",
+        "2026-06-30 python -B -m py_compile passed for all scripts/megameklab-conversion/*.py with bytecode disabled."
+      ]
     },
     {
       "key": "file-bloat|high|scripts/megameklab-conversion/mtf_converter.py|546 LOC exceeds python threshold",
@@ -103,9 +107,13 @@
       "severity": "warn",
       "file": "scripts/megameklab-conversion/mtf_converter.py",
       "message": "487 LOC exceeds python threshold",
-      "status": "follow-up",
-      "rationale": "The MTF converter remains above the advisory Python size threshold after DTO extraction; finish the split only with converter fixture parity coverage.",
-      "followUps": ["wave-12-megameklab-conversion-split"]
+      "status": "fixed",
+      "rationale": "MTFParser and serialized builder helpers were split into mtf_parser.py and mtf_parser_builders.py, leaving the CLI/conversion wrapper below the warn threshold.",
+      "followUps": ["wave-12-megameklab-conversion-split"],
+      "fixedEvidence": [
+        "2026-06-30 npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/megameklab-conversion --json reported file-bloat warn=0 for the MegaMekLab conversion cluster.",
+        "2026-06-30 python -B -m py_compile passed for all scripts/megameklab-conversion/*.py with bytecode disabled."
+      ]
     },
     {
       "key": "file-bloat|warn|openspec/scripts/terminology-tool.ts|705 LOC exceeds standard threshold",
@@ -136,9 +144,13 @@
       "severity": "warn",
       "file": "scripts/megameklab-conversion/blk_aerospace_converter.py",
       "message": "428 LOC exceeds python threshold",
-      "status": "follow-up",
-      "rationale": "BLK conversion scripts should be split together so shared parser helpers are extracted once.",
-      "followUps": ["wave-12-megameklab-conversion-split"]
+      "status": "fixed",
+      "rationale": "Shared BLK runner, unit field parsing, and aerospace lookup tables removed the duplicated conversion and table bulk.",
+      "followUps": ["wave-12-megameklab-conversion-split"],
+      "fixedEvidence": [
+        "2026-06-30 npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/megameklab-conversion --json reported file-bloat warn=0 for the MegaMekLab conversion cluster.",
+        "2026-06-30 python -B -m py_compile passed for all scripts/megameklab-conversion/*.py with bytecode disabled."
+      ]
     },
     {
       "key": "file-bloat|warn|scripts/megameklab-conversion/blk_battlearmor_converter.py|385 LOC exceeds python threshold",
@@ -146,9 +158,13 @@
       "severity": "warn",
       "file": "scripts/megameklab-conversion/blk_battlearmor_converter.py",
       "message": "385 LOC exceeds python threshold",
-      "status": "follow-up",
-      "rationale": "BLK conversion scripts should be split together so shared parser helpers are extracted once.",
-      "followUps": ["wave-12-megameklab-conversion-split"]
+      "status": "fixed",
+      "rationale": "Shared BLK runner plus battle armor field helpers removed duplicated conversion and point-equipment parsing bulk.",
+      "followUps": ["wave-12-megameklab-conversion-split"],
+      "fixedEvidence": [
+        "2026-06-30 npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/megameklab-conversion --json reported file-bloat warn=0 for the MegaMekLab conversion cluster.",
+        "2026-06-30 python -B -m py_compile passed for all scripts/megameklab-conversion/*.py with bytecode disabled."
+      ]
     },
     {
       "key": "file-bloat|warn|scripts/megameklab-conversion/blk_common.py|306 LOC exceeds python threshold",
@@ -156,9 +172,13 @@
       "severity": "warn",
       "file": "scripts/megameklab-conversion/blk_common.py",
       "message": "306 LOC exceeds python threshold",
-      "status": "follow-up",
-      "rationale": "Common BLK helpers should be split only when converter behavior fixtures are in place.",
-      "followUps": ["wave-12-megameklab-conversion-split"]
+      "status": "fixed",
+      "rationale": "Schema writer helpers moved to blk_schema_writers.py while blk_common continues to re-export the public writer functions.",
+      "followUps": ["wave-12-megameklab-conversion-split"],
+      "fixedEvidence": [
+        "2026-06-30 npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/megameklab-conversion --json reported file-bloat warn=0 for the MegaMekLab conversion cluster.",
+        "2026-06-30 python -B -m py_compile passed for all scripts/megameklab-conversion/*.py with bytecode disabled."
+      ]
     },
     {
       "key": "file-bloat|warn|scripts/megameklab-conversion/blk_infantry_converter.py|320 LOC exceeds python threshold",
@@ -166,9 +186,13 @@
       "severity": "warn",
       "file": "scripts/megameklab-conversion/blk_infantry_converter.py",
       "message": "320 LOC exceeds python threshold",
-      "status": "follow-up",
-      "rationale": "BLK conversion scripts should be split together so shared parser helpers are extracted once.",
-      "followUps": ["wave-12-megameklab-conversion-split"]
+      "status": "fixed",
+      "rationale": "Shared BLK runner removed duplicated manifest/conversion plumbing and kept the infantry converter below the warn threshold.",
+      "followUps": ["wave-12-megameklab-conversion-split"],
+      "fixedEvidence": [
+        "2026-06-30 npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/megameklab-conversion --json reported file-bloat warn=0 for the MegaMekLab conversion cluster.",
+        "2026-06-30 python -B -m py_compile passed for all scripts/megameklab-conversion/*.py with bytecode disabled."
+      ]
     },
     {
       "key": "file-bloat|warn|scripts/megameklab-conversion/blk_protomech_converter.py|334 LOC exceeds python threshold",
@@ -176,9 +200,13 @@
       "severity": "warn",
       "file": "scripts/megameklab-conversion/blk_protomech_converter.py",
       "message": "334 LOC exceeds python threshold",
-      "status": "follow-up",
-      "rationale": "BLK conversion scripts should be split together so shared parser helpers are extracted once.",
-      "followUps": ["wave-12-megameklab-conversion-split"]
+      "status": "fixed",
+      "rationale": "Shared BLK runner removed duplicated manifest/conversion plumbing and kept the ProtoMech converter below the warn threshold.",
+      "followUps": ["wave-12-megameklab-conversion-split"],
+      "fixedEvidence": [
+        "2026-06-30 npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/megameklab-conversion --json reported file-bloat warn=0 for the MegaMekLab conversion cluster.",
+        "2026-06-30 python -B -m py_compile passed for all scripts/megameklab-conversion/*.py with bytecode disabled."
+      ]
     },
     {
       "key": "file-bloat|warn|scripts/megameklab-conversion/blk_vehicle_converter.py|422 LOC exceeds python threshold",
@@ -186,9 +214,13 @@
       "severity": "warn",
       "file": "scripts/megameklab-conversion/blk_vehicle_converter.py",
       "message": "422 LOC exceeds python threshold",
-      "status": "follow-up",
-      "rationale": "BLK conversion scripts should be split together so shared parser helpers are extracted once.",
-      "followUps": ["wave-12-megameklab-conversion-split"]
+      "status": "fixed",
+      "rationale": "Shared BLK runner, unit field parsing, and vehicle lookup tables removed duplicated conversion and table bulk.",
+      "followUps": ["wave-12-megameklab-conversion-split"],
+      "fixedEvidence": [
+        "2026-06-30 npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/megameklab-conversion --json reported file-bloat warn=0 for the MegaMekLab conversion cluster.",
+        "2026-06-30 python -B -m py_compile passed for all scripts/megameklab-conversion/*.py with bytecode disabled."
+      ]
     },
     {
       "key": "file-bloat|warn|scripts/megameklab-conversion/enum_mappings.py|482 LOC exceeds python threshold",
@@ -196,9 +228,13 @@
       "severity": "warn",
       "file": "scripts/megameklab-conversion/enum_mappings.py",
       "message": "482 LOC exceeds python threshold",
-      "status": "follow-up",
-      "rationale": "Enum mapping tables should be split only with converter fixture checks that prove mappings stay stable.",
-      "followUps": ["wave-12-megameklab-conversion-split"]
+      "status": "fixed",
+      "rationale": "Large catalog lookup dictionaries were moved to enum_mapping_tables.py while preserving the mapping API surface.",
+      "followUps": ["wave-12-megameklab-conversion-split"],
+      "fixedEvidence": [
+        "2026-06-30 npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/megameklab-conversion --json reported file-bloat warn=0 for the MegaMekLab conversion cluster.",
+        "2026-06-30 python -B -m py_compile passed for all scripts/megameklab-conversion/*.py with bytecode disabled."
+      ]
     },
     {
       "key": "file-bloat|warn|scripts/run-simulation.ts|662 LOC exceeds standard threshold",

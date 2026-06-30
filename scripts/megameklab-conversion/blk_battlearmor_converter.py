@@ -21,12 +21,16 @@ Usage:
         --output /path/to/public/data/units/battlearmor
 """
 
-import argparse
-import json
 import logging
-import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+from blk_battlearmor_fields import (
+    extract_manipulators as shared_extract_manipulators,
+    parse_point_equipment as shared_parse_point_equipment,
+)
+from blk_conversion_runner import BlkConversionConfig, run_blk_conversion, run_manifest_range_parity
+from blk_unit_fields import parse_fluff, parse_mul_id, parse_quirks
 
 # Shared BLK helpers + enum_mappings re-exports — see blk_common.py for the
 # extraction rationale (2026-04-25 maintenance sweep).
@@ -39,13 +43,8 @@ from blk_common import (
     map_rules_level,
     map_tech_base,
     map_year_to_era,
-    normalize_equipment_id,
     parse_number,
     remove_comments,
-    setup_logger,
-    write_manifest,
-    write_parity_report,
-    write_run_log,
 )
 
 
@@ -88,114 +87,8 @@ ARMOR_CODE_MAP: Dict[int, str] = {
     39: "PRIMITIVE", 40: "IMPACT_RESISTANT",
 }
 
-# BA equipment location suffixes
-BA_LOCATION_SUFFIX_MAP: Dict[str, str] = {
-    ":RA": "RIGHT_ARM",
-    ":LA": "LEFT_ARM",
-    ":Body": "BODY",
-    ":BODY": "BODY",
-    ":Torso": "TORSO",
-    ":TORSO": "TORSO",
-    ":Legs": "LEGS",
-    ":LEGS": "LEGS",
-    ":Head": "HEAD",
-    ":HEAD": "HEAD",
-}
-
-# Manipulator keywords
-MANIPULATOR_KEYWORDS = {
-    "BABattleClaw", "BattleClaw", "BABasicManipulator", "BasicManipulator",
-    "BAArmoredGlove", "ArmoredGlove", "BAHeavyManipulator", "HeavyManipulator",
-    "BAIndustrialDrill", "IndustrialDrill", "BACargoLifter", "CargoLifter",
-    "BASalvageArm", "SalvageArm",
-}
-
-# Anti-personnel mount keywords
-AP_MOUNT_KEYWORDS = {"BAAPMount", "APMount"}
-
-# Modular weapon mount keywords
-MWM_KEYWORDS = {"BAMWM", "MWM", "ModularWeaponMount"}
-
-
-# ---------------------------------------------------------------------------
-# BA-specific parsing helpers
-# ---------------------------------------------------------------------------
-
-def parse_point_equipment(items: List[str]) -> Tuple[List[Dict[str, str]], List[str], bool, bool]:
-    """
-    Parse <Point Equipment> lines for BA.
-    Each line may have a location suffix: ISBAFlamer:RA → item=ISBAFlamer, loc=RIGHT_ARM
-    Some lines have no location suffix (squad-level abilities like SwarmMek).
-    Returns: (equipment_list, abilities_list, has_ap_mount, has_mwm)
-    """
-    equipment: List[Dict[str, str]] = []
-    abilities: List[str] = []
-    has_ap_mount = False
-    has_mwm = False
-
-    for line in items:
-        if not line.strip():
-            continue
-
-        # Determine location suffix
-        location = "BODY"  # default
-        item_name = line
-        for suffix, loc in BA_LOCATION_SUFFIX_MAP.items():
-            if line.endswith(suffix) or (":" + suffix.lstrip(":") + ":") in line or line.count(":") > 0:
-                break
-
-        # Split on colons — format: ItemName:Location or ItemName:Location:Subtype or ItemName
-        parts = line.split(":")
-        item_id = parts[0].strip()
-
-        if len(parts) >= 2:
-            # Try to find a location part
-            for part in parts[1:]:
-                part = part.strip()
-                mapped = BA_LOCATION_SUFFIX_MAP.get(":" + part)
-                if mapped:
-                    location = mapped
-                    break
-
-        # Classify
-        if item_id in AP_MOUNT_KEYWORDS:
-            has_ap_mount = True
-            continue  # don't add mount hardware as equipment item
-        if item_id in MWM_KEYWORDS:
-            has_mwm = True
-            continue
-        if item_id in MANIPULATOR_KEYWORDS:
-            equipment.append({
-                "id": normalize_equipment_id(item_id),
-                "name": item_id,
-                "location": location,
-                "type": "MANIPULATOR",
-            })
-            continue
-        # Squad abilities (no location)
-        if item_id in ("SwarmMek", "SwarmWeaponMek", "StopSwarm", "LegAttack", "SwarmInfantry"):
-            abilities.append(item_id)
-            continue
-        # Regular equipment
-        if item_id:
-            equipment.append({
-                "id": normalize_equipment_id(item_id),
-                "name": item_id,
-                "location": location,
-            })
-
-    return equipment, abilities, has_ap_mount, has_mwm
-
-
-def extract_manipulators(equipment: List[Dict[str, str]]) -> Dict[str, Optional[str]]:
-    """Extract manipulator types for left and right arms."""
-    manipulators: Dict[str, Optional[str]] = {"RIGHT_ARM": None, "LEFT_ARM": None}
-    for item in equipment:
-        if item.get("type") == "MANIPULATOR":
-            loc = item.get("location", "")
-            if loc in manipulators:
-                manipulators[loc] = item["name"]
-    return manipulators
+parse_point_equipment = shared_parse_point_equipment
+extract_manipulators = shared_extract_manipulators
 
 
 # ---------------------------------------------------------------------------
@@ -275,20 +168,11 @@ def convert_battlearmor_blk(blk_path: Path, logger: logging.Logger) -> Optional[
     clean_equipment = [e for e in equipment if e.get("type") != "MANIPULATOR"]
 
     # --- Misc ---
-    mul_id_raw = get_string(tags, "mul id:", "mulId")
-    mul_id = int(parse_number(mul_id_raw)) if mul_id_raw and parse_number(mul_id_raw) is not None else None
-
+    mul_id = parse_mul_id(tags)
     role = get_string(tags, "role")
     source = get_string(tags, "source")
-    quirks_raw = get_string(tags, "quirks")
-    quirks = [q.strip() for q in quirks_raw.splitlines() if q.strip()] if quirks_raw else []
-
-    # --- Fluff ---
-    fluff: Dict[str, Any] = {}
-    for ff in ("overview", "capabilities", "deployment", "history", "manufacturer", "primaryFactory"):
-        val = get_string(tags, ff)
-        if val:
-            fluff[ff] = val
+    quirks = parse_quirks(tags)
+    fluff = parse_fluff(tags)
 
     # --- Squad size defaults by tech base ---
     # Clan = 5, IS = 4, Star League = 6 — but always use explicit Trooper Count from file
@@ -367,42 +251,18 @@ def run_parity_checks(
     logger: logging.Logger,
 ) -> Tuple[int, List[Dict[str, Any]]]:
     """Returns (failures, parity_records). BV parity deferred to wave 5."""
-    failures = 0
-    index: Dict[str, Dict[str, Any]] = {}
-    for entry in manifest:
-        key = entry.get("chassis", "").lower()
-        index.setdefault(key, entry)
-
-    records: List[Dict[str, Any]] = []
-    for target in PARITY_TARGETS:
-        key = target["chassis"].lower()
-        entry = index.get(key)
-        record: Dict[str, Any] = {
-            "chassis": target["chassis"],
-            "expected_min_squad": target["min_squad"],
-            "expected_max_squad": target["max_squad"],
-        }
-        if entry is None:
-            logger.warning(f"Parity: '{target['chassis']}' not found in output")
-            record["status"] = "missing"
-            failures += 1
-            records.append(record)
-            continue
-        squad_size = entry.get("squadSize", 0)
-        record["actual_squad"] = squad_size
-        record["actual_equipment_count"] = len(entry.get("equipment", []) or [])
-        if not (target["min_squad"] <= squad_size <= target["max_squad"]):
-            logger.error(
-                f"Parity FAIL: {target['chassis']} squadSize={squad_size} "
-                f"expected [{target['min_squad']},{target['max_squad']}]"
-            )
-            record["status"] = "fail"
-            failures += 1
-        else:
-            logger.info(f"Parity OK: {target['chassis']} squadSize={squad_size}")
-            record["status"] = "ok"
-        records.append(record)
-    return failures, records
+    return run_manifest_range_parity(
+        manifest,
+        PARITY_TARGETS,
+        logger,
+        value_field="squadSize",
+        min_target_key="min_squad",
+        max_target_key="max_squad",
+        expected_min_record_key="expected_min_squad",
+        expected_max_record_key="expected_max_squad",
+        actual_record_key="actual_squad",
+        log_label="squadSize",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -433,85 +293,23 @@ def build_manifest_entry(unit: Dict[str, Any]) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Convert BLK Battle Armor files to MekStation JSON")
-    parser.add_argument(
-        "--source",
-        default=str(Path(default_mm_data_root()) / "mekfiles" / "battlearmor"),
-        help="Path to mm-data battlearmor directory",
+    return run_blk_conversion(
+        BlkConversionConfig(
+            converter="blk_battlearmor_converter",
+            description="Convert BLK Battle Armor files to MekStation JSON",
+            source_default=str(Path(default_mm_data_root()) / "mekfiles" / "battlearmor"),
+            source_help="Path to mm-data battlearmor directory",
+            output_default=str(Path(__file__).parent.parent.parent / "public/data/units/battlearmor"),
+            output_help="Output directory for battle armor JSON files",
+            type_name="battlearmor",
+            parity_report_filename="blk-battlearmor-parity.json",
+            run_log_filename="blk-battlearmor-run-log.json",
+            convert_unit=convert_battlearmor_blk,
+            build_manifest_entry=build_manifest_entry,
+            run_parity_checks=run_parity_checks,
+        )
     )
-    parser.add_argument(
-        "--output",
-        default=str(Path(__file__).parent.parent.parent / "public/data/units/battlearmor"),
-        help="Output directory for battle armor JSON files",
-    )
-    parser.add_argument("--verbose", "-v", action="store_true")
-    args = parser.parse_args()
-
-    logger = setup_logger("blk_battlearmor_converter", args.verbose)
-
-    source_dir = Path(args.source)
-    output_dir = Path(args.output)
-
-    if not source_dir.exists():
-        logger.error(f"Source directory not found: {source_dir}")
-        return 1
-
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    blk_files = sorted(source_dir.rglob("*.blk"))
-    logger.info(f"Found {len(blk_files)} BLK files under {source_dir}")
-
-    converted = 0
-    skipped = 0
-    errors = 0
-    manifest: List[Dict[str, Any]] = []
-
-    for blk_path in blk_files:
-        unit = convert_battlearmor_blk(blk_path, logger)
-        if unit is None:
-            skipped += 1
-            continue
-
-        safe_name = f"{unit['chassis']} {unit['model']}".strip().replace("/", "-").replace(":", "-")
-        out_path = output_dir / f"{safe_name}.json"
-        try:
-            out_path.write_text(json.dumps(unit, indent=2, ensure_ascii=False), encoding="utf-8")
-            converted += 1
-            manifest.append(build_manifest_entry(unit))
-        except OSError as e:
-            logger.error(f"Failed to write {out_path}: {e}")
-            errors += 1
-
-    # --- Manifest + budget check ---
-    manifest_path = output_dir / "units-manifest.json"
-    errors += write_manifest(manifest, manifest_path, "battlearmor", logger)
-
-    # --- Parity checks ---
-    parity_failures, parity_records = run_parity_checks(manifest, logger)
-
-    parity_report_path = (
-        Path(__file__).parent.parent.parent / "validation-output" / "blk-battlearmor-parity.json"
-    )
-    write_parity_report("battlearmor", parity_records, parity_failures, parity_report_path, logger)
-
-    logger.info(
-        f"Done. converted={converted} skipped={skipped} errors={errors} parity_failures={parity_failures}"
-    )
-
-    run_log = {
-        "converter": "blk_battlearmor_converter",
-        "source": str(source_dir),
-        "output": str(output_dir),
-        "converted": converted,
-        "skipped": skipped,
-        "errors": errors,
-        "parity_failures": parity_failures,
-    }
-    log_path = Path(__file__).parent.parent.parent / "validation-output" / "blk-battlearmor-run-log.json"
-    write_run_log(run_log, log_path, logger)
-
-    return 1 if (errors > 0 or parity_failures > 0) else 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())
