@@ -166,13 +166,15 @@
       "label": "development and E2E-only harness routes",
       "patterns": [
         "/e2e/intel-tier-projection",
+        "/e2e/networked-command-proof",
         "/e2e/simulation-viewer",
         "/e2e/sync-test",
         "/e2e/tactical-map"
       ],
-      "proofCommand": "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/intel-tier-projection.spec.ts e2e/simulation-viewer.spec.ts e2e/p2p-sync.spec.ts e2e/tactical-map-visual-smoke.spec.ts --workers=1",
+      "proofCommand": "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/intel-tier-projection.spec.ts e2e/networked-command-proof.spec.ts e2e/simulation-viewer.spec.ts e2e/p2p-sync.spec.ts e2e/tactical-map-visual-smoke.spec.ts --workers=1",
       "proofTests": [
         "e2e/intel-tier-projection.spec.ts",
+        "e2e/networked-command-proof.spec.ts",
         "e2e/simulation-viewer.spec.ts",
         "e2e/p2p-sync.spec.ts",
         "e2e/tactical-map-visual-smoke.spec.ts"

@@ -12,7 +12,14 @@ async function waitForCampaignStores(page: Page): Promise<void> {
   });
 }
 
-async function seedCampaignWithRoster(page: Page): Promise<string> {
+interface SeededCustomizerCampaign {
+  readonly campaignId: string;
+  readonly missionId: string;
+}
+
+async function seedCampaignWithRoster(
+  page: Page,
+): Promise<SeededCustomizerCampaign> {
   return page.evaluate(() => {
     type StoreApi = {
       getState: () => Record<string, unknown>;
@@ -44,6 +51,11 @@ async function seedCampaignWithRoster(page: Page): Promise<string> {
       ) => string;
       getCampaign: () => Record<string, unknown>;
       updateCampaign: (updates: Record<string, unknown>) => void;
+      getMissionsStore?: () => {
+        getState: () => {
+          addMission?: (mission: Record<string, unknown>) => void;
+        };
+      };
     };
     const campaignId = campaignState.createCampaign(
       'E2E Customizer Handoff',
@@ -53,10 +65,26 @@ async function seedCampaignWithRoster(page: Page): Promise<string> {
       },
     );
     const campaign = campaignState.getCampaign();
+    const missionId = 'mission-alpha';
+    const mission = {
+      id: missionId,
+      name: 'Mission Readiness Browser Proof',
+      status: 'Active',
+      type: 'mission',
+      systemId: 'terra',
+      scenarioIds: [],
+      description: 'Browser proof mission for readiness customizer handoff.',
+      briefing: 'Verify readiness refit returns without resetting deployment.',
+      startDate: '3025-01-03',
+      createdAt: '3025-01-03T00:00:00.000Z',
+      updatedAt: '3025-01-03T00:00:00.000Z',
+    };
     campaignState.updateCampaign({
       ...campaign,
       currentDate: new Date('3025-01-03T00:00:00.000Z'),
+      missions: new Map([[missionId, mission]]),
     });
+    campaignState.getMissionsStore?.().getState().addMission?.(mission);
     stores.campaignRoster.setState?.({
       campaignId,
       units: [
@@ -70,9 +98,9 @@ async function seedCampaignWithRoster(page: Page): Promise<string> {
       pilots: [],
       missions: [],
       activeMissionId: null,
-      missionCount: 0,
+      missionCount: 1,
     });
-    return campaignId;
+    return { campaignId, missionId };
   });
 }
 
@@ -82,7 +110,7 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
   }) => {
     await page.goto('/gameplay/campaigns');
     await waitForCampaignStores(page);
-    const campaignId = await seedCampaignWithRoster(page);
+    const { campaignId } = await seedCampaignWithRoster(page);
 
     await page.goto(`/gameplay/campaigns/${campaignId}/mech-bay`);
     await expect(page.getByTestId('mech-bay-grid')).toBeVisible();
@@ -131,5 +159,74 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
       unitId: 'unit-atlas-e2e',
       status: 'in-progress',
     });
+  });
+
+  test('returns from campaign customizer into mission readiness with deployment validation refresh', async ({
+    page,
+  }) => {
+    await page.goto('/gameplay/campaigns');
+    await waitForCampaignStores(page);
+    const { campaignId, missionId } = await seedCampaignWithRoster(page);
+
+    await page.goto(
+      `/gameplay/campaigns/${campaignId}/missions/${missionId}/launch`,
+    );
+    await expect(page.getByTestId('mission-readiness-panel')).toBeVisible();
+    await expect(page.getByTestId('mission-readiness-status')).toContainText(
+      'Launch ready',
+    );
+    await page
+      .getByTestId('mission-readiness-customize-unit-atlas-e2e')
+      .click();
+
+    await expect(page).toHaveURL(/\/customizer.*returnTo=mission-readiness/);
+    await expect(page.getByTestId('campaign-refit-command-bar')).toBeVisible();
+    await expect(page.getByTestId('campaign-refit-context')).toContainText(
+      'campaign-owned-refit',
+    );
+
+    await page.getByTestId('campaign-refit-save').click();
+
+    await expect(page).toHaveURL(
+      new RegExp(
+        `/gameplay/campaigns/${campaignId}/missions/${missionId}/launch\\?.*refresh=deployment-validation.*customizerResult=saved`,
+      ),
+    );
+    await expect(page.getByTestId('mission-readiness-panel')).toBeVisible();
+    await expect(page.getByTestId('mission-readiness-status')).toContainText(
+      'Launch ready',
+    );
+    await expect(page.getByTestId('launch-mission-direct')).toBeEnabled();
+
+    const refitOrders = await page.evaluate(() => {
+      type StoreApi = {
+        getState: () => Record<string, unknown>;
+      };
+      const resolveStore = (store: StoreApi | (() => StoreApi)): StoreApi =>
+        typeof (store as StoreApi).getState === 'function'
+          ? (store as StoreApi)
+          : (store as () => StoreApi)();
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            campaign?: StoreApi | (() => StoreApi);
+          };
+        }
+      ).__ZUSTAND_STORES__;
+      const campaignState = stores?.campaign
+        ? (resolveStore(stores.campaign).getState() as {
+            getCampaign: () => { refitOrders?: readonly unknown[] } | null;
+          })
+        : null;
+      return campaignState?.getCampaign()?.refitOrders ?? [];
+    });
+    expect(refitOrders).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          unitId: 'unit-atlas-e2e',
+          status: 'in-progress',
+        }),
+      ]),
+    );
   });
 });

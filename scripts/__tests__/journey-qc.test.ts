@@ -114,6 +114,63 @@ describe('journey QC scripts', () => {
     );
   });
 
+  it('fails validation when a required journey lacks command-screen checkpoints', () => {
+    const catalog = readJson<{
+      journeys: Array<{
+        id: string;
+        commandScreenCheckpoints?: unknown[];
+      }>;
+    }>(path.join(repoRoot, 'docs/qc/mekstation-journey-scenarios.json'));
+    const combatJourney = catalog.journeys.find(
+      (journey) => journey.id === 'combat-1v1',
+    );
+    expect(combatJourney).toBeDefined();
+    delete combatJourney!.commandScreenCheckpoints;
+    const catalogPath = path.join(
+      evidenceDir,
+      'missing-command-screen-checkpoints.json',
+    );
+    writeJson(catalogPath, catalog);
+
+    const result = runNodeScript('scripts/qc/validate-journey-qc.mjs', [], {
+      MEKSTATION_JOURNEY_CATALOG_PATH: catalogPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'combat-1v1: commandScreenCheckpoints must contain at least one checkpoint.',
+    );
+  });
+
+  it('fails validation when a command-screen checkpoint is not mapped to the UI flow shell', () => {
+    const catalog = readJson<{
+      journeys: Array<{
+        id: string;
+        commandScreenCheckpoints: Array<{ id: string; uiCheckpointId: string }>;
+      }>;
+    }>(path.join(repoRoot, 'docs/qc/mekstation-journey-scenarios.json'));
+    const campaignJourney = catalog.journeys.find(
+      (journey) => journey.id === 'campaign-long',
+    );
+    expect(campaignJourney).toBeDefined();
+    campaignJourney!.commandScreenCheckpoints[0]!.uiCheckpointId =
+      'missing-starmap';
+    const catalogPath = path.join(
+      evidenceDir,
+      'bad-command-screen-checkpoint-map.json',
+    );
+    writeJson(catalogPath, catalog);
+
+    const result = runNodeScript('scripts/qc/validate-journey-qc.mjs', [], {
+      MEKSTATION_JOURNEY_CATALOG_PATH: catalogPath,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain(
+      'Journey campaign-long: command checkpoint starmap-route-command references missing UI checkpoint missing-starmap.',
+    );
+  });
+
   it('fails validation when a graph log event is missing from the logging map', () => {
     const loggingMap = readJson<{
       paths: Array<{ events: string[] }>;
@@ -259,6 +316,8 @@ describe('journey QC scripts', () => {
     expect(result.stdout).toContain('Contract campaign scenario');
     expect(result.stdout).toContain('QC command: npm.cmd run qc:journeys');
     expect(result.stdout).toContain('Salvage [both]');
+    expect(result.stdout).toContain('Command-screen checkpoints:');
+    expect(result.stdout).toContain('GM log redaction [gm] -> gm-log');
   });
 
   it('emits JSON UI flow shell inspection for automation', () => {
@@ -271,7 +330,11 @@ describe('journey QC scripts', () => {
     const inspection = JSON.parse(result.stdout) as {
       status: string;
       selectedFlowCount: number;
-      flows: Array<{ checkpointIds: string[]; qcCommand: string }>;
+      flows: Array<{
+        checkpointIds: string[];
+        commandScreenCheckpoints: Array<{ id: string; uiCheckpointId: string }>;
+        qcCommand: string;
+      }>;
     };
     expect(inspection.status).toBe('pass');
     expect(inspection.selectedFlowCount).toBe(1);
@@ -280,6 +343,14 @@ describe('journey QC scripts', () => {
     );
     expect(inspection.flows[0]?.checkpointIds).toEqual(
       expect.arrayContaining(['campaign-base', 'starmap', 'campaign-log']),
+    );
+    expect(inspection.flows[0]?.commandScreenCheckpoints).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'finance-drift-command',
+          uiCheckpointId: 'finances',
+        }),
+      ]),
     );
   });
 

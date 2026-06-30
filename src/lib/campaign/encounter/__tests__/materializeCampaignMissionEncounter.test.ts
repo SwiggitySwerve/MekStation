@@ -117,6 +117,16 @@ describe('materializeCampaignMissionEncounter', () => {
             encounterId: 'enc-existing',
           }),
         }),
+        expect.objectContaining({
+          service: 'command-screen',
+          event: 'command_commit_succeeded',
+          metadata: expect.objectContaining({
+            domain: 'mission-readiness',
+            commandId: 'mission-readiness.launch.campaign-1.contract-1',
+            persistenceRef: 'encounter:enc-existing',
+            userVisibleStateChanged: true,
+          }),
+        }),
       ]),
     );
   });
@@ -212,6 +222,17 @@ describe('materializeCampaignMissionEncounter', () => {
             missionScenarioIds: ['enc-organic'],
           }),
         }),
+        expect.objectContaining({
+          service: 'command-screen',
+          event: 'command_commit_succeeded',
+          metadata: expect.objectContaining({
+            domain: 'mission-readiness',
+            commandId: 'mission-readiness.launch.campaign-1.contract-1',
+            ledgerRef: 'mission:contract-1:encounter:enc-organic',
+            persistenceRef: 'encounter:enc-organic',
+            userVisibleStateChanged: true,
+          }),
+        }),
       ]),
     );
   });
@@ -245,6 +266,16 @@ describe('materializeCampaignMissionEncounter', () => {
           }),
           error: expect.objectContaining({
             message: 'Force creation rejected',
+          }),
+        }),
+        expect.objectContaining({
+          service: 'command-screen',
+          event: 'command_commit_rejected',
+          level: 'error',
+          metadata: expect.objectContaining({
+            domain: 'mission-readiness',
+            reasonCodes: ['campaign-mission-encounter-failed'],
+            userVisibleStateChanged: false,
           }),
         }),
       ]),
@@ -288,6 +319,23 @@ describe('materializeCampaignMissionEncounter', () => {
           level: 'error',
           metadata: expect.objectContaining({
             rosterUnitCount: 1,
+          }),
+        }),
+        expect.objectContaining({
+          service: 'command-screen',
+          event: 'command_malformed_payload_rejected',
+          metadata: expect.objectContaining({
+            payloadKind: 'mission-launch-roster',
+            reasonCodes: ['empty-roster'],
+            userVisibleStateChanged: false,
+          }),
+        }),
+        expect.objectContaining({
+          service: 'command-screen',
+          event: 'command_invalid_action_rejected',
+          metadata: expect.objectContaining({
+            reasonCodes: ['destroyed-roster'],
+            userVisibleStateChanged: false,
           }),
         }),
       ]),

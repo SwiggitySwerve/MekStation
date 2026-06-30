@@ -8,6 +8,12 @@ import type {
   IInterventionLedgerPreview,
 } from '@/types/interventions';
 
+import {
+  disableDiagnosticCapture,
+  enableDiagnosticCapture,
+  getCapturedDiagnostics,
+} from '@/utils/logger';
+
 import { ActionLedger } from '../ActionLedger';
 import {
   approveGmCascadePreview,
@@ -150,6 +156,14 @@ function makeLedger(): InterventionLedger<TestState> {
 }
 
 describe('GM cascade preview pipeline', () => {
+  beforeEach(() => {
+    enableDiagnosticCapture();
+  });
+
+  afterEach(() => {
+    disableDiagnosticCapture(true);
+  });
+
   it('generates a pure preview without mutating state or appending records', () => {
     const ledger = makeLedger();
     const state = makeState();
@@ -191,6 +205,21 @@ describe('GM cascade preview pipeline', () => {
     });
     expect(state).toEqual(originalState);
     expect(ledger.getRecords()).toEqual([]);
+    expect(getCapturedDiagnostics()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          service: 'command-screen',
+          event: 'command_preview_created',
+          metadata: expect.objectContaining({
+            domain: 'combat',
+            commandId: 'gm.combat.fix',
+            previewId: 'gm-int-preview',
+            userVisibleStateChanged: false,
+            publicSummary: 'Value corrected.',
+          }),
+        }),
+      ]),
+    );
   });
 
   it('approves a ready preview by appending a record and deriving state through the implementer', () => {
@@ -235,6 +264,24 @@ describe('GM cascade preview pipeline', () => {
       resultingStateSummary: 'Value corrected.',
       redactionPolicy: 'gm-private-metadata',
     });
+    expect(getCapturedDiagnostics()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          service: 'command-screen',
+          event: 'command_gm_intervention_committed',
+          metadata: expect.objectContaining({
+            domain: 'combat',
+            commandId: 'gm.combat.fix',
+            ledgerRef: 'gm-int-approved',
+            userVisibleStateChanged: true,
+            publicSummary: 'Value corrected.',
+          }),
+        }),
+      ]),
+    );
+    expect(JSON.stringify(getCapturedDiagnostics())).not.toContain(
+      'GM-only cascade reason',
+    );
   });
 
   it('appends approved GM interventions to the shared action ledger after normal actions', () => {
@@ -349,6 +396,20 @@ describe('GM cascade preview pipeline', () => {
     });
     expect(ledger.getRecords()).toEqual([]);
     expect(actionLedger.getRecords()).toEqual([]);
+    expect(getCapturedDiagnostics()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          service: 'command-screen',
+          event: 'command_invalid_action_rejected',
+          metadata: expect.objectContaining({
+            domain: 'combat',
+            commandId: 'gm.combat.fix',
+            reasonCodes: expect.arrayContaining(['manual-review']),
+            userVisibleStateChanged: false,
+          }),
+        }),
+      ]),
+    );
   });
 
   it('blocks stale unsupported approval without appending intervention or action records', () => {
