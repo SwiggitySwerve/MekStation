@@ -119,6 +119,7 @@ const StarSystemNode = React.memo(function StarSystemNode({
     Boolean(annotation) ||
     isSelected ||
     isHovered ||
+    lod === 'close' ||
     (lod === 'medium' && isMajorSystem(system));
   const showFactionIndicator = lod === 'close';
 
@@ -371,20 +372,18 @@ export function StarmapDisplay({
           </button>
         </div>
 
-        <div className="absolute bottom-4 left-4 rounded bg-slate-800/90 p-3 text-xs text-slate-300 shadow-lg">
-          <div className="mb-2 font-semibold text-slate-200">Factions</div>
+        <div className="absolute top-3 right-3 rounded border border-slate-700/80 bg-slate-900/90 p-3 text-xs text-slate-200 shadow-lg">
+          <div className="mb-2 font-semibold text-slate-100">Factions</div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-            {Object.entries(FACTION_COLORS)
-              .slice(0, 6)
-              .map(([faction, color]) => (
-                <div key={faction} className="flex items-center gap-2">
-                  <div
-                    className="h-3 w-3 rounded-full"
-                    style={{ backgroundColor: color }}
-                  />
-                  <span>{faction}</span>
-                </div>
-              ))}
+            {Object.entries(FACTION_COLORS).map(([faction, color]) => (
+              <div key={faction} className="flex items-center gap-2">
+                <div
+                  className="h-3 w-3 rounded-full"
+                  style={{ backgroundColor: color }}
+                />
+                <span>{faction}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

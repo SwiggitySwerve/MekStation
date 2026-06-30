@@ -109,7 +109,7 @@ export function GameplayMainContentArea({
   return (
     <div
       ref={containerRef}
-      className="flex flex-1 overflow-hidden"
+      className="flex min-h-[60vh] flex-1 overflow-hidden"
       data-testid="gameplay-main-content"
     >
       {!isNarrow && <LeftTray lensState={lensState} />}
