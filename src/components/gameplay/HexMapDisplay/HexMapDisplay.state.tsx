@@ -1,10 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type {
-  ICombatRangeHex,
-  IHexCoordinate,
-  IHexTerrain,
-} from '@/types/gameplay';
+import type { ICombatRangeHex, IHexCoordinate } from '@/types/gameplay';
 import type { ITacticalMapProjectionFrame } from '@/utils/gameplay/tacticalMapProjection';
 
 import { useScreenShake } from '@/hooks/useScreenShake';
@@ -27,6 +23,16 @@ import {
 } from './HexMapDisplay.derivedStateHooks';
 import { buildIsometricSceneItems } from './HexMapDisplay.isometric';
 import { renderHexCell as renderHexCellElement } from './HexMapDisplay.renderHexCell';
+import {
+  buildEffectiveHexTerrainFromProjectionFrame,
+  EMPTY_ATTACK_RANGE,
+  EMPTY_EVENTS,
+  EMPTY_HEX_TERRAIN,
+  EMPTY_HIGHLIGHT_PATH,
+  EMPTY_MOVEMENT_RANGE,
+  EMPTY_SELECTED_WEAPON_IDS,
+  EMPTY_UNIT_WEAPONS,
+} from './HexMapDisplay.stateDefaults';
 import {
   useCombatRangeLookup,
   useCombatProjectionValidTargetUnitIds,
@@ -52,24 +58,6 @@ import { generateHexesInRadius } from './renderHelpers';
 import { useMapInteraction } from './useMapInteraction';
 
 const ELEVATION_BADGE_MIN_ZOOM = 0.75;
-
-// Stable empty defaults (audit 2026-06-09 G, W5.1a): inline `= []` /
-// `= {}` default parameters mint a FRESH identity on every render when
-// the prop is omitted, which invalidates every downstream useMemo
-// (terrainLookup, occlusion sweep, projection lookup) and defeats the
-// HexCell memo chain on every camera pan/zoom event. Module-level
-// constants keep omitted props referentially stable forever.
-const EMPTY_EVENTS: NonNullable<HexMapDisplayProps['events']> = [];
-const EMPTY_HEX_TERRAIN: NonNullable<HexMapDisplayProps['hexTerrain']> = [];
-const EMPTY_MOVEMENT_RANGE: NonNullable<HexMapDisplayProps['movementRange']> =
-  [];
-const EMPTY_ATTACK_RANGE: NonNullable<HexMapDisplayProps['attackRange']> = [];
-const EMPTY_UNIT_WEAPONS: NonNullable<HexMapDisplayProps['unitWeapons']> = {};
-const EMPTY_SELECTED_WEAPON_IDS: NonNullable<
-  HexMapDisplayProps['selectedWeaponIds']
-> = [];
-const EMPTY_HIGHLIGHT_PATH: NonNullable<HexMapDisplayProps['highlightPath']> =
-  [];
 
 export function useHexMapDisplayState({
   mapId = 'default-map',
@@ -223,7 +211,8 @@ export function useHexMapDisplayState({
       combatRangeLookup,
       enabled:
         isWeaponCombatProjectionEnabled ||
-        suppliedTacticalProjectionFrame !== undefined,
+        (suppliedTacticalProjectionFrame !== undefined &&
+          combatRangeLookup.size > 0),
     });
   const tacticalProjectionMissingHexKeys = useMemo(
     () =>
@@ -428,20 +417,4 @@ export function useHexMapDisplayState({
     handleTokenClick,
     handleTokenDoubleClick,
   };
-}
-
-function buildEffectiveHexTerrainFromProjectionFrame(
-  hexTerrain: readonly IHexTerrain[],
-  tacticalProjectionFrame: ITacticalMapProjectionFrame | undefined,
-): readonly IHexTerrain[] {
-  if (!tacticalProjectionFrame) return hexTerrain;
-
-  const terrainByKey = new Map<string, IHexTerrain>();
-  for (const terrain of hexTerrain) {
-    terrainByKey.set(coordToKey(terrain.coordinate), terrain);
-  }
-  tacticalProjectionFrame.lookup.forEach((projection, key) => {
-    terrainByKey.set(key, projection.terrain);
-  });
-  return Array.from(terrainByKey.values());
 }

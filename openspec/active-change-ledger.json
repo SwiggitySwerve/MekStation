@@ -1,0 +1,10 @@
+{
+  "allowedActiveChanges": [
+    {
+      "name": "add-playable-command-screens",
+      "status": "in-progress",
+      "reason": "Staged command-screen implementation: shared contract, tactical command loop, and mission readiness are complete; campaign customizer, starmap logistics, campaign authority, and long-run table proof remain tracked in the active goal.",
+      "lastReviewed": "2026-06-30"
+    }
+  ]
+}

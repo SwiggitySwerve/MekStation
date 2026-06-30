@@ -18,6 +18,9 @@ const packageJsonPath =
 const openspecChangesPath =
   process.env.MEKSTATION_OPENSPEC_CHANGES_DIR ??
   path.join(repoRoot, 'openspec', 'changes');
+const activeOpenSpecLedgerPath =
+  process.env.MEKSTATION_ACTIVE_OPENSPEC_LEDGER_PATH ??
+  path.join(repoRoot, 'openspec', 'active-change-ledger.json');
 
 const requiredProtectedContexts = [
   'Lint and Test',
@@ -145,6 +148,24 @@ function activeOpenSpecChanges(changesDir) {
     .sort();
 }
 
+function accountedActiveOpenSpecChanges(ledgerPath) {
+  if (!fs.existsSync(ledgerPath)) return [];
+  const ledger = readJson(ledgerPath);
+  const entries = Array.isArray(ledger.allowedActiveChanges)
+    ? ledger.allowedActiveChanges
+    : [];
+  return entries
+    .filter((entry) => typeof entry?.name === 'string')
+    .map((entry) => ({
+      name: entry.name,
+      status: typeof entry.status === 'string' ? entry.status : 'unknown',
+      reason: typeof entry.reason === 'string' ? entry.reason : '',
+      lastReviewed:
+        typeof entry.lastReviewed === 'string' ? entry.lastReviewed : '',
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
 function workflowJobBlock(workflow, jobId) {
   const escapedJobId = jobId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const match = new RegExp(
@@ -246,12 +267,34 @@ function main() {
   );
 
   const activeChanges = activeOpenSpecChanges(openspecChangesPath);
-  if (activeChanges.length > 0) {
+  const accountedActiveChanges = accountedActiveOpenSpecChanges(
+    activeOpenSpecLedgerPath,
+  );
+  const accountedActiveChangeNames = new Set(
+    accountedActiveChanges.map((entry) => entry.name),
+  );
+  const unaccountedActiveChanges = activeChanges.filter(
+    (change) => !accountedActiveChangeNames.has(change),
+  );
+  const staleAccountedActiveChanges = accountedActiveChanges
+    .map((entry) => entry.name)
+    .filter((change) => !activeChanges.includes(change));
+
+  if (unaccountedActiveChanges.length > 0) {
     errors.push(
       issue(
         'active-openspec-changes-present',
-        `OpenSpec changes must be archived or explicitly accounted before release signoff: ${activeChanges.join(', ')}`,
-        { activeChanges },
+        `OpenSpec changes must be archived or explicitly accounted before release signoff: ${unaccountedActiveChanges.join(', ')}`,
+        { activeChanges, unaccountedActiveChanges },
+      ),
+    );
+  }
+  if (staleAccountedActiveChanges.length > 0) {
+    errors.push(
+      issue(
+        'stale-active-openspec-ledger-entry',
+        `OpenSpec active-change ledger contains archived or missing changes: ${staleAccountedActiveChanges.join(', ')}`,
+        { staleAccountedActiveChanges },
       ),
     );
   }
@@ -260,6 +303,7 @@ function main() {
     status: errors.length === 0 ? 'pass' : 'fail',
     workflowPath: path.relative(repoRoot, workflowPath),
     branchProtectionPath: path.relative(repoRoot, branchProtectionPath),
+    activeOpenSpecLedgerPath: path.relative(repoRoot, activeOpenSpecLedgerPath),
     workflowContracts,
     aggregatorNeeds: {
       expected: requiredAggregatorNeeds,
@@ -268,6 +312,8 @@ function main() {
     protectedContexts: requiredProtectedContexts,
     packageScripts,
     activeOpenSpecChanges: activeChanges,
+    accountedActiveOpenSpecChanges: accountedActiveChanges,
+    unaccountedActiveOpenSpecChanges: unaccountedActiveChanges,
     errors,
   };
 
@@ -275,7 +321,7 @@ function main() {
     console.log(JSON.stringify(manifest, null, 2));
   } else {
     console.log(
-      `[qc:openspec-ci] workflowContracts=${workflowContracts.length}/${requiredWorkflowTokens.length} aggregatorNeeds=${aggregatorNeeds.length}/${requiredAggregatorNeeds.length} protectedContexts=${requiredProtectedContexts.length} packageScripts=${packageScripts.length}/${requiredPackageScripts.length} activeOpenSpecChanges=${activeChanges.length} errors=${errors.length}`,
+      `[qc:openspec-ci] workflowContracts=${workflowContracts.length}/${requiredWorkflowTokens.length} aggregatorNeeds=${aggregatorNeeds.length}/${requiredAggregatorNeeds.length} protectedContexts=${requiredProtectedContexts.length} packageScripts=${packageScripts.length}/${requiredPackageScripts.length} activeOpenSpecChanges=${activeChanges.length} accountedActiveOpenSpecChanges=${accountedActiveChanges.length} errors=${errors.length}`,
     );
     for (const entry of errors) {
       console.log(`ERROR ${entry.code}: ${entry.message}`);

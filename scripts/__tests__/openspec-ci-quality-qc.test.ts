@@ -48,7 +48,8 @@ describe('OpenSpec CI quality QC validator', () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('workflowContracts=8/8');
     expect(result.stdout).toContain('protectedContexts=4');
-    expect(result.stdout).toContain('activeOpenSpecChanges=0');
+    expect(result.stdout).toMatch(/activeOpenSpecChanges=\d+/);
+    expect(result.stdout).toMatch(/accountedActiveOpenSpecChanges=\d+/);
     expect(result.stdout).toContain('errors=0');
     expect(result.stderr).toBe('');
   });
@@ -61,9 +62,11 @@ describe('OpenSpec CI quality QC validator', () => {
       status: string;
       protectedContexts: string[];
       aggregatorNeeds: { expected: string[]; actual: string[] };
+      unaccountedActiveOpenSpecChanges: string[];
     };
 
     expect(manifest.status).toBe('pass');
+    expect(manifest.unaccountedActiveOpenSpecChanges).toEqual([]);
     expect(manifest.protectedContexts).toEqual([
       'Lint and Test',
       'Build Test / win',
@@ -72,6 +75,35 @@ describe('OpenSpec CI quality QC validator', () => {
     ]);
     expect(manifest.aggregatorNeeds.actual).toEqual(
       expect.arrayContaining(manifest.aggregatorNeeds.expected),
+    );
+  });
+
+  it('rejects active OpenSpec changes that are not in the active-change ledger', () => {
+    const changesDir = path.join(tempDir, 'changes');
+    fs.mkdirSync(path.join(changesDir, 'unaccounted-change'), {
+      recursive: true,
+    });
+    const ledgerPath = path.join(tempDir, 'active-change-ledger.json');
+    writeJson(ledgerPath, { allowedActiveChanges: [] });
+
+    const result = runValidator(['--json'], {
+      MEKSTATION_OPENSPEC_CHANGES_DIR: changesDir,
+      MEKSTATION_ACTIVE_OPENSPEC_LEDGER_PATH: ledgerPath,
+    });
+
+    expect(result.status).toBe(1);
+    const manifest = JSON.parse(result.stdout) as {
+      errors: Array<{ code: string; unaccountedActiveChanges?: string[] }>;
+      unaccountedActiveOpenSpecChanges: string[];
+    };
+    expect(manifest.unaccountedActiveOpenSpecChanges).toEqual([
+      'unaccounted-change',
+    ]);
+    expect(manifest.errors).toContainEqual(
+      expect.objectContaining({
+        code: 'active-openspec-changes-present',
+        unaccountedActiveChanges: ['unaccounted-change'],
+      }),
     );
   });
 
