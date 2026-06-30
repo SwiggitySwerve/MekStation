@@ -244,6 +244,7 @@ interface CampaignOperationsCardProps {
   missionCount: number;
   isGenerating: boolean;
   isGenerateDisabled: boolean;
+  readinessSummary?: string;
   onGenerateMission: () => void;
 }
 
@@ -251,6 +252,7 @@ export function CampaignOperationsCard({
   missionCount,
   isGenerating,
   isGenerateDisabled,
+  readinessSummary,
   onGenerateMission,
 }: CampaignOperationsCardProps): React.ReactElement {
   return (
@@ -273,6 +275,14 @@ export function CampaignOperationsCard({
           {isGenerating ? 'Generating...' : 'Generate Mission'}
         </Button>
       </div>
+      {readinessSummary ? (
+        <p
+          className="text-text-theme-secondary mt-3 text-sm"
+          data-testid="campaign-operations-readiness-summary"
+        >
+          {readinessSummary}
+        </p>
+      ) : null}
     </Card>
   );
 }

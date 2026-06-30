@@ -23,11 +23,7 @@
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type { ICampaign } from '@/types/campaign/Campaign';
 import type { CoopParticipationChoice } from '@/types/campaign/CoopCampaign';
-import type { IForce } from '@/types/campaign/Force';
-import type { IMission } from '@/types/campaign/Mission';
-import type { IEncounter } from '@/types/encounter';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { CoopParticipationPicker } from '@/components/campaign/coop';
@@ -42,97 +38,27 @@ import {
 } from '@/lib/campaign/coop/coopRuntimeSession';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
 import {
+  buildMissionReadinessProjection,
+  selectedRosterUnitsForLaunch,
+} from '@/lib/campaign/readiness/missionReadinessProjection';
+import {
   getLoadedCampaign,
   renderPendingCampaignPage,
   useCampaignPageShell,
 } from '@/pages-modules/gameplay/campaigns/campaignPageShell';
+import {
+  buildLaunchEncounter,
+  campaignEncounterHref,
+  rootForceForCampaign,
+  routeParam,
+  withMissionScenario,
+} from '@/pages-modules/gameplay/campaigns/missionLaunchPage.helpers';
+import { MissionReadinessPanel } from '@/pages-modules/gameplay/campaigns/missionLaunchReadinessPanel';
+import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
-import { ForceRole, FormationLevel } from '@/types/campaign/enums';
-import { EncounterStatus, TerrainPreset } from '@/types/encounter';
 
-function routeParam(value: string | string[] | undefined): string | null {
-  if (Array.isArray(value)) return value[0] ?? null;
-  return value ?? null;
-}
-
-function campaignEncounterHref({
-  encounterId,
-  campaignId,
-  missionId,
-}: {
-  readonly encounterId: string;
-  readonly campaignId: string;
-  readonly missionId: string;
-}): string {
-  const params = new URLSearchParams({ campaignId, missionId });
-  return `/gameplay/encounters/${encodeURIComponent(
-    encounterId,
-  )}?${params.toString()}`;
-}
-
-function fallbackRootForce(campaign: ICampaign): IForce {
-  return {
-    id: campaign.rootForceId,
-    name: `${campaign.name} Command`,
-    subForceIds: [],
-    unitIds: [],
-    forceType: ForceRole.STANDARD,
-    formationLevel: FormationLevel.REGIMENT,
-    createdAt: campaign.createdAt,
-    updatedAt: campaign.updatedAt,
-  };
-}
-
-function rootForceForCampaign(campaign: ICampaign): IForce {
-  return (
-    campaign.forces.get(campaign.rootForceId) ?? fallbackRootForce(campaign)
-  );
-}
-
-function buildLaunchEncounter(
-  campaign: ICampaign,
-  missionId: string,
-): IEncounter {
-  const mission = campaign.missions.get(missionId);
-  const rootForce = rootForceForCampaign(campaign);
-  return {
-    id: `enc-${missionId}`,
-    name: mission?.name ?? `Mission ${missionId}`,
-    description: mission?.description ?? `Co-op campaign mission ${missionId}.`,
-    status: EncounterStatus.Ready,
-    playerForce: {
-      forceId: rootForce.id,
-      forceName: rootForce.name,
-      totalBV: 0,
-      unitCount: rootForce.unitIds.length,
-    },
-    mapConfig: {
-      radius: 8,
-      terrain: TerrainPreset.Clear,
-      playerDeploymentZone: 'south',
-      opponentDeploymentZone: 'north',
-    },
-    victoryConditions: [],
-    optionalRules: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    campaignMeta: {
-      campaignId: campaign.id,
-      contractId: mission?.id ?? missionId,
-      scenarioId: mission?.scenarioIds[0] ?? missionId,
-    },
-  };
-}
-
-function withMissionScenario(mission: IMission, encounterId: string): IMission {
-  if (mission.scenarioIds.includes(encounterId)) {
-    return mission;
-  }
-  return {
-    ...mission,
-    scenarioIds: [encounterId, ...mission.scenarioIds],
-    updatedAt: new Date().toISOString(),
-  };
+function localPlayerNameForMode(mode: 'host' | 'guest'): string {
+  return mode === 'host' ? 'You (Host)' : 'You (Guest)';
 }
 
 export default function CoopMissionLaunchPage(): React.ReactElement {
@@ -155,6 +81,38 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
     () => (campaign ? rootForceForCampaign(campaign) : null),
     [campaign],
   );
+  const rosterUnits = useCampaignRosterStore((state) =>
+    state.getUnitsWithReadiness(),
+  );
+  const rosterPilots = useCampaignRosterStore((state) => state.pilots);
+  const mission =
+    campaign && missionKey ? campaign.missions.get(missionKey) : undefined;
+  const [selectedRosterUnitIds, setSelectedRosterUnitIds] = useState<
+    readonly string[] | null
+  >(null);
+  const readinessProjection = useMemo(
+    () =>
+      buildMissionReadinessProjection({
+        campaignId: campaign?.id ?? campaignKey ?? 'campaign-pending',
+        mission,
+        units: rosterUnits,
+        pilots: rosterPilots,
+        repairBay: selectRepairBay(campaign ?? null),
+        selectedRosterUnitIds: selectedRosterUnitIds ?? undefined,
+        maxUnits: 4,
+        baseCampaignHref: campaign
+          ? `/gameplay/campaigns/${encodeURIComponent(campaign.id)}`
+          : undefined,
+      }),
+    [
+      campaign,
+      campaignKey,
+      mission,
+      rosterPilots,
+      rosterUnits,
+      selectedRosterUnitIds,
+    ],
+  );
 
   const [participationRecords, setParticipationRecords] = useState<
     readonly ICoopParticipationRecord[]
@@ -169,6 +127,23 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
     campaign?.coopSession?.mode === 'host' ? 'deploy' : 'command-hq';
   const [localChoice, setLocalChoice] =
     useState<CoopParticipationChoice>(localDefault);
+
+  useEffect(() => {
+    setSelectedRosterUnitIds(null);
+  }, [campaignKey, missionKey]);
+
+  const handleToggleRosterUnit = useCallback(
+    (unitId: string) => {
+      setLaunchError(null);
+      const selected = readinessProjection.selectedRosterUnitIds;
+      setSelectedRosterUnitIds(
+        selected.includes(unitId)
+          ? selected.filter((candidate) => candidate !== unitId)
+          : [...selected, unitId],
+      );
+    },
+    [readinessProjection.selectedRosterUnitIds],
+  );
 
   useEffect(() => {
     if (!campaign?.coopSession || !matchId || !missionKey || !localForce) {
@@ -274,10 +249,18 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
     setIsLaunching(true);
     setLaunchError(null);
     try {
+      if (!readinessProjection.canLaunch) {
+        setLaunchError(
+          readinessProjection.unresolvedBlockers
+            .map((reason) => reason.message)
+            .join(' '),
+        );
+        return;
+      }
       const result = await materializeCampaignMissionEncounter({
         campaign,
         missionId: missionKey,
-        rosterUnits: useCampaignRosterStore.getState().getDeployableUnits(),
+        rosterUnits: selectedRosterUnitsForLaunch(readinessProjection),
       });
       const mission = campaign.missions.get(missionKey);
       if (mission) {
@@ -311,6 +294,7 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
     matchId,
     missionKey,
     otherRecord,
+    readinessProjection,
     router,
     store,
   ]);
@@ -339,12 +323,17 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
           currentPage="missions"
           coopSession={loadedCampaign.coopSession}
         />
-        <div className="mt-6">
+        <div className="mt-6 space-y-4">
+          <MissionReadinessPanel
+            projection={readinessProjection}
+            onToggleUnit={handleToggleRosterUnit}
+          />
+
           {launchError ? (
             <p
               role="alert"
               data-testid="mission-launch-error"
-              className="mb-3 text-sm text-rose-300"
+              className="text-sm text-rose-300"
             >
               {launchError}
             </p>
@@ -352,10 +341,10 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
           <button
             type="button"
             data-testid="launch-mission-direct"
-            disabled={isLaunching}
+            disabled={isLaunching || !readinessProjection.canLaunch}
             onClick={handleLaunch}
             className={
-              isLaunching
+              isLaunching || !readinessProjection.canLaunch
                 ? 'cursor-wait rounded-lg border border-slate-700 bg-slate-900/40 px-4 py-2 font-semibold text-slate-500'
                 : 'rounded-lg border border-sky-500/60 bg-sky-600/20 px-4 py-2 font-semibold text-sky-100'
             }
@@ -375,8 +364,9 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
     bothChosen && localChoice !== 'deploy' && otherChoice !== 'deploy';
   const canLaunch = bothChosen && !noDeploy;
 
-  const localPlayerName =
-    loadedCampaign.coopSession.mode === 'host' ? 'You (Host)' : 'You (Guest)';
+  const localPlayerName = localPlayerNameForMode(
+    loadedCampaign.coopSession.mode,
+  );
 
   return (
     <PageLayout

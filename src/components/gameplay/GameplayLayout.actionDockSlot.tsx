@@ -15,12 +15,14 @@ import { WithdrawalTrailingActions } from './GameplayLayout.sections';
 import {
   TacticalActionDock,
   type ICommandPreviewInputs,
+  type IGmTacticalInterventionSurface,
 } from './TacticalActionDock';
 import { ShellSlot } from './TacticalCommandShell';
 
 export function GameplayActionDockSlot({
   actionContext,
   shellMode,
+  gmIntervention,
   onAction,
   commandPreviewInputs,
   interactivePhase,
@@ -33,6 +35,7 @@ export function GameplayActionDockSlot({
 }: {
   readonly actionContext: ITacticalCommandContext;
   readonly shellMode: ShellMode;
+  readonly gmIntervention: IGmTacticalInterventionSurface | undefined;
   readonly onAction: TacticalActionHandler;
   readonly commandPreviewInputs: ICommandPreviewInputs;
   readonly interactivePhase: InteractivePhase | undefined;
@@ -48,6 +51,7 @@ export function GameplayActionDockSlot({
       <TacticalActionDock
         ctx={actionContext}
         shellMode={shellMode}
+        gmIntervention={gmIntervention}
         onAction={onAction}
         previewInputs={commandPreviewInputs}
         infoText={

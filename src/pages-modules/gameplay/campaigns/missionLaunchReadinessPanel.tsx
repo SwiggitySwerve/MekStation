@@ -1,0 +1,136 @@
+import React from 'react';
+
+import type {
+  IMissionReadinessProjection,
+  IMissionReadinessUnitProjection,
+} from '@/lib/campaign/readiness/missionReadinessProjection';
+
+import { Badge } from '@/components/ui';
+
+function readinessStatusVariant(
+  status: IMissionReadinessUnitProjection['status'],
+): 'success' | 'warning' | 'red' {
+  if (status === 'eligible') return 'success';
+  if (status === 'risky') return 'warning';
+  return 'red';
+}
+
+export function MissionReadinessPanel({
+  projection,
+  onToggleUnit,
+}: {
+  readonly projection: IMissionReadinessProjection;
+  readonly onToggleUnit: (unitId: string) => void;
+}): React.ReactElement {
+  return (
+    <section
+      className="border-border-theme-subtle bg-surface-base/70 rounded-lg border p-4"
+      data-testid="mission-readiness-panel"
+    >
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-text-theme-primary text-lg font-semibold">
+            Mission readiness
+          </h2>
+          <p className="text-text-theme-secondary text-sm">
+            {projection.missionName}: {projection.selectedUnits.length} selected
+            / {projection.units.length} available
+          </p>
+        </div>
+        <Badge
+          variant={projection.canLaunch ? 'success' : 'red'}
+          data-testid="mission-readiness-status"
+        >
+          {projection.canLaunch ? 'Launch ready' : 'Launch blocked'}
+        </Badge>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2">
+        {projection.units.map((unitProjection) => {
+          const unit = unitProjection.unit;
+          const disabled = unitProjection.status === 'blocked';
+          return (
+            <label
+              key={unit.unitId}
+              className="border-border-theme-subtle bg-surface-deep flex gap-3 rounded-lg border p-3"
+              data-testid={`mission-readiness-unit-${unit.unitId}`}
+            >
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4"
+                checked={unitProjection.selected}
+                disabled={disabled}
+                onChange={() => onToggleUnit(unit.unitId)}
+                aria-label={`Deploy ${unit.unitName}`}
+              />
+              <span className="min-w-0 flex-1">
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className="text-text-theme-primary truncate font-semibold">
+                    {unit.unitName}
+                  </span>
+                  <Badge
+                    variant={readinessStatusVariant(unitProjection.status)}
+                    size="sm"
+                  >
+                    {unitProjection.status}
+                  </Badge>
+                </span>
+                <span className="text-text-theme-secondary mt-1 block text-xs">
+                  {unit.chassisVariant} | Pilot:{' '}
+                  {unitProjection.pilotName ?? unit.pilotId ?? 'Unassigned'} |
+                  Repairs: {unitProjection.repairTicketCount}
+                </span>
+                {unitProjection.reasons.length > 0 ? (
+                  <ul className="mt-2 space-y-1">
+                    {unitProjection.reasons.map((reason) => (
+                      <li
+                        key={`${unit.unitId}-${reason.code}`}
+                        className={
+                          reason.severity === 'blocker'
+                            ? 'text-xs text-rose-300'
+                            : 'text-xs text-amber-300'
+                        }
+                      >
+                        {reason.message}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </span>
+            </label>
+          );
+        })}
+      </div>
+
+      {projection.unresolvedBlockers.length > 0 ? (
+        <div
+          className="mt-3 rounded border border-rose-700/60 bg-rose-950/30 p-3"
+          data-testid="mission-readiness-blockers"
+        >
+          <p className="text-sm font-semibold text-rose-200">
+            Resolve before launch
+          </p>
+          <ul className="mt-2 space-y-1">
+            {projection.unresolvedBlockers.map((reason, index) => (
+              <li
+                key={`${reason.code}-${reason.subjectId ?? index}`}
+                className="text-sm text-rose-100"
+              >
+                {reason.message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      <ul
+        className="text-text-theme-secondary mt-3 grid gap-1 text-xs md:grid-cols-3"
+        data-testid="mission-readiness-consequences"
+      >
+        {projection.launchConsequences.map((consequence) => (
+          <li key={consequence}>{consequence}</li>
+        ))}
+      </ul>
+    </section>
+  );
+}

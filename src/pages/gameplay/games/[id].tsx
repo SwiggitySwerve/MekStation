@@ -28,8 +28,12 @@ import {
   usePhysicalAttackIntentState,
   useSelectedPlanningWeapons,
 } from '@/pages-modules/gameplay/games/gameSessionPage.helpers';
+import {
+  resolveGameSessionShellMode,
+  useGmTacticalInterventionSurface,
+} from '@/pages-modules/gameplay/games/gmTacticalInterventionSurface';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
-import { GamePhase, GameSide, GameStatus } from '@/types/gameplay';
+import { GameSide, GameStatus } from '@/types/gameplay';
 
 export default function GameSessionPage(): React.ReactElement {
   const router = useRouter();
@@ -42,6 +46,7 @@ export default function GameSessionPage(): React.ReactElement {
   const isLoading = useGameplaySelector((state) => state.isLoading);
   const error = useGameplaySelector((state) => state.error);
   const loadSession = useGameplaySelector((state) => state.loadSession);
+  const setSession = useGameplaySelector((state) => state.setSession);
   const createDemoSession = useGameplaySelector(
     (state) => state.createDemoSession,
   );
@@ -145,6 +150,13 @@ export default function GameSessionPage(): React.ReactElement {
       clearError,
       loadSession,
     });
+  const shellMode = resolveGameSessionShellMode(router.query);
+  const gmIntervention = useGmTacticalInterventionSurface({
+    enabled: shellMode === 'gm',
+    session,
+    campaignId: campaignIdStr,
+    setSession,
+  });
 
   if (isLoading) return <GameLoading />;
   if (error) return <GameError message={error} onRetry={handleRetry} />;
@@ -216,6 +228,8 @@ export default function GameSessionPage(): React.ReactElement {
             interactiveSession={interactiveSession ?? undefined}
             physicalAttackIntent={physicalAttackIntent}
             playerSide={GameSide.Player}
+            shellMode={shellMode}
+            gmIntervention={gmIntervention}
           />
         </div>
         {showPlanningPanel && ui.selectedUnitId && (

@@ -3,6 +3,7 @@ import type {
   MapMovementPointLegendState,
 } from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
 import type { PhysicalAttackIntent } from '@/components/gameplay/PhysicalAttackPanel';
+import type { IGmTacticalInterventionSurface } from '@/components/gameplay/TacticalActionDock';
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { InteractivePhase } from '@/stores/useGameplayStore';
 import type {
@@ -76,6 +77,8 @@ export interface GameplayLayoutProps {
    * drives mode-aware slot owner selection.
    */
   shellMode?: ShellMode;
+  /** Optional GM intervention surface used by the tactical command dock. */
+  gmIntervention?: IGmTacticalInterventionSurface;
   /** Optional className for styling */
   className?: string;
 }

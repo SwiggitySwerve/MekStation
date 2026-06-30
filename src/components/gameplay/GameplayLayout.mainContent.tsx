@@ -13,6 +13,7 @@ import type {
   IUnitToken,
   IWeaponStatus,
 } from '@/types/gameplay';
+import type { ITacticalMapProjectionFrame } from '@/utils/gameplay/tacticalMapProjection';
 
 import type { GameplayLayoutControls } from './GameplayLayout.controls';
 import type {
@@ -42,6 +43,7 @@ export function GameplayMainContentArea({
   visibleEvents,
   selectedUnit,
   hexTerrain,
+  tacticalProjectionFrame,
   movementRange,
   activeTargetId,
   unitWeapons,
@@ -76,6 +78,7 @@ export function GameplayMainContentArea({
   readonly visibleEvents: readonly IGameEvent[];
   readonly selectedUnit: IUnitGameState | null;
   readonly hexTerrain: readonly IHexTerrain[];
+  readonly tacticalProjectionFrame: ITacticalMapProjectionFrame;
   readonly movementRange: readonly IMovementRangeHex[];
   readonly activeTargetId: string | null;
   readonly unitWeapons: Record<string, readonly IWeaponStatus[]>;
@@ -118,6 +121,7 @@ export function GameplayMainContentArea({
         visibleEvents={visibleEvents}
         selectedUnit={selectedUnit}
         hexTerrain={hexTerrain}
+        tacticalProjectionFrame={tacticalProjectionFrame}
         movementRange={movementRange}
         playerSide={playerSide as GameSide}
         activeTargetId={activeTargetId}

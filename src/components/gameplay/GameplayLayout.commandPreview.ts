@@ -11,6 +11,7 @@ import type {
   PhysicalAttackLimb,
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks/types';
+import type { ITacticalMapProjectionFrame } from '@/utils/gameplay/tacticalMapProjection';
 
 import { GamePhase, MovementType } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
@@ -44,6 +45,7 @@ export interface IBuildCommandPreviewInputsParams {
   readonly highlightPath?: readonly IHexCoordinate[];
   readonly hoverMpCost?: number;
   readonly hoverUnreachable?: boolean;
+  readonly tacticalProjectionFrame?: ITacticalMapProjectionFrame;
 }
 
 function buildCombatProjectionByTargetId(
@@ -66,6 +68,8 @@ function buildBaseCommandPreviewInputs({
   unitWeapons,
   hitChance,
   movementInfo,
+  hoveredHex,
+  tacticalProjectionFrame,
   highlightPath,
   hoverMpCost,
   hoverUnreachable,
@@ -75,6 +79,8 @@ function buildBaseCommandPreviewInputs({
   | 'unitWeapons'
   | 'hitChance'
   | 'movementInfo'
+  | 'hoveredHex'
+  | 'tacticalProjectionFrame'
   | 'highlightPath'
   | 'hoverMpCost'
   | 'hoverUnreachable'
@@ -82,11 +88,14 @@ function buildBaseCommandPreviewInputs({
   const weaponStatuses = selectedUnitId
     ? (unitWeapons[selectedUnitId] ?? [])
     : undefined;
+  const sharedMovementInfo =
+    movementInfo ??
+    movementProjectionFromFrame(tacticalProjectionFrame, hoveredHex);
 
   return {
     weaponStatuses,
     hitChance,
-    ...(movementInfo ? { movementInfo } : {}),
+    ...(sharedMovementInfo ? { movementInfo: sharedMovementInfo } : {}),
     ...(highlightPath ? { highlightPath } : {}),
     ...(hoverMpCost !== undefined ? { hoverMpCost } : {}),
     ...(hoverUnreachable !== undefined ? { hoverUnreachable } : {}),
@@ -178,7 +187,18 @@ function buildWeaponAttackPreviewInputs(
     unitWeapons,
     selectedWeaponIds,
     hoveredHex,
+    tacticalProjectionFrame,
   } = params;
+  if (tacticalProjectionFrame) {
+    return buildWeaponAttackPreviewInputsFromProjections({
+      activeTargetId,
+      tokens,
+      hoveredHex,
+      projections: combatProjectionsFromFrame(tacticalProjectionFrame),
+      baseInputs,
+    });
+  }
+
   const weaponStatuses = selectedUnitId
     ? (unitWeapons[selectedUnitId] ?? [])
     : undefined;
@@ -221,6 +241,64 @@ function buildWeaponAttackPreviewInputs(
   const combatInfoByTargetId = buildCombatProjectionByTargetId(projections);
 
   return { ...baseInputs, combatInfo, combatInfoByTargetId };
+}
+
+function buildWeaponAttackPreviewInputsFromProjections({
+  activeTargetId,
+  tokens,
+  hoveredHex,
+  projections,
+  baseInputs,
+}: {
+  readonly activeTargetId: string | null;
+  readonly tokens: readonly IUnitToken[];
+  readonly hoveredHex?: IHexCoordinate | null;
+  readonly projections: readonly NonNullable<
+    ICommandPreviewInputs['combatInfo']
+  >[];
+  readonly baseInputs: ICommandPreviewInputs;
+}): ICommandPreviewInputs {
+  const target = activeTargetId
+    ? tokens.find((token) => token.unitId === activeTargetId)
+    : undefined;
+  const targetKey = target ? coordToKey(target.position) : null;
+  const hoveredKey = hoveredHex ? coordToKey(hoveredHex) : null;
+  const targetCombatInfo = activeTargetId
+    ? projections.find(
+        (projection) =>
+          projection.targetUnitIds.includes(activeTargetId) ||
+          projection.validTargetUnitIds.includes(activeTargetId) ||
+          (targetKey !== null && coordToKey(projection.hex) === targetKey),
+      )
+    : undefined;
+  const hoverCombatInfo =
+    !targetCombatInfo && hoveredKey
+      ? projections.find(
+          (projection) => coordToKey(projection.hex) === hoveredKey,
+        )
+      : undefined;
+  const combatInfo = targetCombatInfo ?? hoverCombatInfo;
+  const combatInfoByTargetId = buildCombatProjectionByTargetId(projections);
+
+  return { ...baseInputs, combatInfo, combatInfoByTargetId };
+}
+
+function movementProjectionFromFrame(
+  frame: ITacticalMapProjectionFrame | undefined,
+  hoveredHex: IHexCoordinate | null | undefined,
+): IMovementRangeHex | undefined {
+  if (!frame || !hoveredHex) return undefined;
+  return frame.lookup.get(coordToKey(hoveredHex))?.movement;
+}
+
+function combatProjectionsFromFrame(
+  frame: ITacticalMapProjectionFrame,
+): readonly NonNullable<ICommandPreviewInputs['combatInfo']>[] {
+  const projections: NonNullable<ICommandPreviewInputs['combatInfo']>[] = [];
+  frame.lookup.forEach((projection) => {
+    if (projection.combat) projections.push(projection.combat);
+  });
+  return projections;
 }
 
 export function buildCommandPreviewInputs(

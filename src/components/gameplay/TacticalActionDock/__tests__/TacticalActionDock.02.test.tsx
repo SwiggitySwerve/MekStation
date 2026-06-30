@@ -166,6 +166,84 @@ describe('TacticalActionDock', () => {
     );
   });
 
+  it('commits a legal weapon preview through the same shared combat projection', () => {
+    const onAction = jest.fn();
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+    const combatInfo = makeCombatInfo({
+      targetUnitIds: ['enemy-x'],
+      validTargetUnitIds: ['enemy-x'],
+      availableWeaponHeat: 3,
+      expectedDamage: 2.1,
+    });
+
+    render(
+      <TacticalActionDock
+        ctx={makeCtx({
+          phase: GamePhase.WeaponAttack,
+          targetUnitId: 'enemy-x',
+        })}
+        shellMode="combat"
+        onAction={onAction}
+        previewInputs={{
+          combatInfo,
+          weaponStatuses: [makeWeapon()],
+        }}
+      />,
+    );
+
+    const preview = screen.getByTestId('command-preview-weapon');
+    expect(preview).toHaveAttribute('data-command-preview-target', 'enemy-x');
+    expect(preview).toHaveAttribute('data-command-preview-attackable', 'true');
+    expect(preview).toHaveAttribute('data-command-preview-heat', '3');
+
+    fireEvent.click(screen.getByTestId('command-btn-weapon.fire-volley'));
+
+    expect(confirmSpy).toHaveBeenCalledWith('Confirm: Fire Volley?');
+    expect(onAction).toHaveBeenCalledWith('lock', { volley: true });
+    confirmSpy.mockRestore();
+  });
+
+  it('rejects a blocked weapon commit with the same reason shown in preview', () => {
+    const onAction = jest.fn();
+    const blockedReason = 'Blocked by building at (1, 0)';
+
+    render(
+      <TacticalActionDock
+        ctx={makeCtx({
+          phase: GamePhase.WeaponAttack,
+          targetUnitId: 'enemy-x',
+        })}
+        shellMode="combat"
+        onAction={onAction}
+        previewInputs={{
+          combatInfo: makeCombatInfo({
+            attackable: false,
+            validTargetUnitIds: [],
+            attackInvalidReason: 'NoLineOfSight',
+            attackInvalidDetails: blockedReason,
+            blockedReason,
+            toHitNumber: undefined,
+          }),
+          weaponStatuses: [makeWeapon()],
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId('command-preview-reason')).toHaveTextContent(
+      blockedReason,
+    );
+
+    const fireVolley = screen.getByTestId('command-btn-weapon.fire-volley');
+    expect(fireVolley).toBeDisabled();
+    fireEvent.mouseEnter(fireVolley.parentElement!);
+    expect(
+      screen.getByTestId('command-disabled-reason-weapon.fire-volley'),
+    ).toHaveTextContent(blockedReason);
+    fireEvent.click(fireVolley);
+
+    expect(onAction).not.toHaveBeenCalled();
+  });
+
   it('renders a blocked movement preview from shared movement projection inputs', () => {
     const onAction = jest.fn();
     render(
@@ -197,6 +275,46 @@ describe('TacticalActionDock', () => {
     expect(screen.getByTestId('command-preview-reason')).toHaveTextContent(
       'Destination is blocked by terrain',
     );
+  });
+
+  it('commits a legal movement preview using the same projected movement mode', () => {
+    const onAction = jest.fn();
+
+    render(
+      <TacticalActionDock
+        ctx={makeCtx({ phase: GamePhase.Movement })}
+        shellMode="combat"
+        onAction={onAction}
+        previewInputs={{
+          movementInfo: makeMovementInfo({
+            mpCost: 4,
+            reachable: true,
+            movementType: MovementType.Run,
+            movementMode: 'run',
+            terrainCost: 1,
+            turningCost: 0,
+            elevationDelta: 0,
+            elevationCost: 0,
+            heatGenerated: 2,
+            blockedReason: undefined,
+            movementInvalidReason: undefined,
+            movementInvalidDetails: undefined,
+          }),
+        }}
+      />,
+    );
+
+    const preview = screen.getByTestId('command-preview-movement');
+    expect(preview).toHaveAttribute('data-command-preview-mode', 'run');
+    expect(preview).toHaveAttribute('data-command-preview-mp-cost', '4');
+    expect(preview).toHaveAttribute(
+      'data-command-preview-unreachable',
+      'false',
+    );
+
+    fireEvent.click(screen.getByTestId('command-btn-movement.run'));
+
+    expect(onAction).toHaveBeenCalledWith('lock', { mode: 'run' });
   });
 
   it('uses shared movement projection inputs to disable blocked movement commits', () => {

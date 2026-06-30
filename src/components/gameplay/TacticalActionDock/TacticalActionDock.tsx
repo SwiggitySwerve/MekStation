@@ -269,6 +269,8 @@ export function TacticalActionDock({
   const effectiveCtx = useMemo<ITacticalCommandContext>(() => {
     if (
       !previewInputs?.movementInfo &&
+      !previewInputs?.combatInfo &&
+      !previewInputs?.combatInfoByTargetId &&
       !previewInputs?.physicalAttackOption &&
       !previewInputs?.physicalTargetUnitId
     ) {
@@ -278,6 +280,12 @@ export function TacticalActionDock({
       ...ctx,
       ...(previewInputs.movementInfo
         ? { targetMovementProjection: previewInputs.movementInfo }
+        : {}),
+      ...(previewInputs.combatInfo
+        ? { targetCombatProjection: previewInputs.combatInfo }
+        : {}),
+      ...(previewInputs.combatInfoByTargetId
+        ? { combatProjectionByTargetId: previewInputs.combatInfoByTargetId }
         : {}),
       ...(previewInputs.physicalTargetUnitId
         ? { targetUnitId: previewInputs.physicalTargetUnitId }
@@ -289,6 +297,8 @@ export function TacticalActionDock({
   }, [
     ctx,
     previewInputs?.movementInfo,
+    previewInputs?.combatInfo,
+    previewInputs?.combatInfoByTargetId,
     previewInputs?.physicalAttackOption,
     previewInputs?.physicalTargetUnitId,
   ]);

@@ -63,6 +63,17 @@ function makeRoster(): readonly IRosterUnitProjection[] {
   ];
 }
 
+function makeDestroyedRoster(): readonly IRosterUnitProjection[] {
+  return [
+    {
+      unitId: 'unit-destroyed',
+      unitName: 'Destroyed Mech',
+      chassisVariant: 'LCT-1V',
+      readiness: 'Destroyed',
+    },
+  ];
+}
+
 describe('materializeCampaignMissionEncounter', () => {
   beforeEach(() => {
     enableDiagnosticCapture();
@@ -234,6 +245,49 @@ describe('materializeCampaignMissionEncounter', () => {
           }),
           error: expect.objectContaining({
             message: 'Force creation rejected',
+          }),
+        }),
+      ]),
+    );
+  });
+
+  it('rejects empty or blocked launch rosters before stock force assignment', async () => {
+    const fetchImpl = jest.fn() as unknown as typeof fetch;
+
+    await expect(
+      materializeCampaignMissionEncounter({
+        campaign: makeCampaign(),
+        missionId: 'contract-1',
+        rosterUnits: [],
+        fetchImpl,
+      }),
+    ).rejects.toThrow('refusing stock fallback');
+    await expect(
+      materializeCampaignMissionEncounter({
+        campaign: makeCampaign(),
+        missionId: 'contract-1',
+        rosterUnits: makeDestroyedRoster(),
+        fetchImpl,
+      }),
+    ).rejects.toThrow('resolve readiness before materialization');
+
+    expect(fetchImpl).not.toHaveBeenCalled();
+    expect(getCapturedDiagnostics()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          service: 'campaign-encounter-materializer',
+          event: 'campaign_mission_encounter_failed',
+          level: 'error',
+          metadata: expect.objectContaining({
+            rosterUnitCount: 0,
+          }),
+        }),
+        expect.objectContaining({
+          service: 'campaign-encounter-materializer',
+          event: 'campaign_mission_encounter_failed',
+          level: 'error',
+          metadata: expect.objectContaining({
+            rosterUnitCount: 1,
           }),
         }),
       ]),
