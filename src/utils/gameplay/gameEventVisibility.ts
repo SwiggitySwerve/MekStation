@@ -13,6 +13,7 @@ const PUBLIC_EVENTS = new Set<GameEventType>([
   GameEventType.InitiativeRolled,
   GameEventType.InitiativeOrderSet,
   GameEventType.AttacksRevealed,
+  GameEventType.CommandResultPublished,
 ]);
 
 const ACTOR_ONLY_EVENTS = new Set<GameEventType>([

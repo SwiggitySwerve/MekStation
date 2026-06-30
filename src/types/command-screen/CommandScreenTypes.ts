@@ -26,6 +26,32 @@ export type CommandScreenAuthority =
   | 'host-gm'
   | 'system';
 
+export type CommandScreenViewerRole =
+  | 'solo-player'
+  | 'owner-gm'
+  | 'host-gm'
+  | 'guest-player'
+  | 'spectator';
+
+export type CommandAuthorityPath =
+  | 'direct-commit'
+  | 'host-authoritative'
+  | 'host-approved-proposal'
+  | 'host-validated-intent'
+  | 'public-mirror'
+  | 'read-only';
+
+export type CommandAuthorityControl =
+  | 'preview'
+  | 'commit'
+  | 'approve'
+  | 'veto'
+  | 'manual-takeover'
+  | 'gm-correction'
+  | 'submit-proposal'
+  | 'send-intent'
+  | 'view-public-result';
+
 export type CommandPreviewStatus =
   | 'ready'
   | 'blocked'
@@ -161,4 +187,18 @@ export interface ICommandDiagnosticMetadata {
   readonly subjectRefIds: readonly string[];
   readonly reasonCodes: readonly string[];
   readonly userVisibleStateChanged: boolean;
+}
+
+export interface ICommandAuthorityProjection {
+  readonly screenId: string;
+  readonly domain: CommandScreenDomain;
+  readonly viewerRole: CommandScreenViewerRole;
+  readonly authority: CommandScreenAuthority;
+  readonly commandPath: CommandAuthorityPath;
+  readonly enabledControls: readonly CommandAuthorityControl[];
+  readonly hiddenControls: readonly CommandAuthorityControl[];
+  readonly canViewPrivateGmMetadata: boolean;
+  readonly publicResultOnly: boolean;
+  readonly summary: string;
+  readonly details: readonly string[];
 }

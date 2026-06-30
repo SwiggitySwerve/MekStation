@@ -29,6 +29,7 @@ import type { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker
 import type { IntentRateLimiter } from './reconnection/IntentRateLimiter';
 import type { PendingPeerTracker } from './reconnection/PendingPeerTracker';
 import type { IServerMatchHostCaptureContext } from './ServerMatchHostCaptureContext';
+import type { IPublishNetworkedCommandResultContext } from './ServerMatchHostCommandResults';
 import type { IServerMatchHostIntentContext } from './ServerMatchHostIntent';
 import type { IServerMatchHostLobbyContext } from './ServerMatchHostLobbyIntents';
 import type { IServerMatchHostReconnectContext } from './ServerMatchHostReconnectLifecycle';
@@ -136,6 +137,17 @@ export function buildIntentContext(
     tryPublishOutcome: host.tryPublishOutcome,
     rateLimiter: host.rateLimiter,
     acceptedIntents: host.acceptedIntents,
+  };
+}
+
+export function buildCommandResultContext(
+  host: IServerMatchHostInternals,
+): IPublishNetworkedCommandResultContext {
+  return {
+    matchId: host.matchId,
+    store: host.store,
+    session: host.session,
+    broadcastEvent: host.broadcastEvent,
   };
 }
 

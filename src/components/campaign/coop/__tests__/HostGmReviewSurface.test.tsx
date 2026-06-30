@@ -13,6 +13,8 @@ import React from 'react';
 
 import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbiter';
 
+import { buildCoopCampaignAuthorityProjection } from '@/lib/command-screen';
+
 import { HostGmReviewSurface } from '../HostGmReviewSurface';
 
 function pendingSpend(id: string): IPendingProposal {
@@ -62,6 +64,44 @@ function pendingContract(id: string): IPendingProposal {
 }
 
 describe('HostGmReviewSurface — pending list', () => {
+  it('shows host-GM command authority and full decision controls', () => {
+    const onPreview = jest.fn();
+    const onManualTakeover = jest.fn();
+    const onGmCorrection = jest.fn();
+    render(
+      <HostGmReviewSurface
+        pending={[pendingSpend('p1')]}
+        onDecide={() => {}}
+        onPreview={onPreview}
+        onManualTakeover={onManualTakeover}
+        onGmCorrection={onGmCorrection}
+        authorityProjection={buildCoopCampaignAuthorityProjection({
+          mode: 'host',
+          routeId: 'dashboard',
+          pendingProposalCount: 1,
+        })}
+      />,
+    );
+
+    expect(
+      screen.getByTestId('host-command-authority-projection'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId('host-command-authority-summary'),
+    ).toHaveTextContent('Host GM authority');
+    expect(
+      screen.getByTestId('host-command-authority-private'),
+    ).toHaveTextContent('GM-private');
+
+    screen.getByTestId('preview-p1').click();
+    screen.getByTestId('manual-takeover-p1').click();
+    screen.getByTestId('gm-correction-p1').click();
+
+    expect(onPreview).toHaveBeenCalledWith('p1');
+    expect(onManualTakeover).toHaveBeenCalledWith('p1');
+    expect(onGmCorrection).toHaveBeenCalledWith('p1');
+  });
+
   it('lists pending proposals with balance and effect context', () => {
     render(
       <HostGmReviewSurface

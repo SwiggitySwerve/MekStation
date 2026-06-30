@@ -213,6 +213,7 @@ export default function SpectatePage(): React.ReactElement {
         mirrorEvents={session.mirrorEvents}
         seats={session.lobbyState?.seats ?? []}
         playerId={tokenState.token.playerId}
+        hostPlayerId={session.lobbyState?.hostPlayerId}
         status={session.status}
         pausedInfo={session.pausedInfo}
         closedInfo={session.closedInfo}

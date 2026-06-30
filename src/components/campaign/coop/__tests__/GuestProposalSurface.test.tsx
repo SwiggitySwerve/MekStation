@@ -23,6 +23,7 @@ import {
   _resetCoopRuntimeSessions,
   openCoopRuntimeSession,
 } from '@/lib/campaign/coop/coopRuntimeSession';
+import { buildCoopCampaignAuthorityProjection } from '@/lib/command-screen';
 import { createCampaign } from '@/types/campaign/Campaign';
 import {
   createGuestCoopSession,
@@ -122,6 +123,10 @@ describe('GuestProposalSurface — rendering', () => {
     return (
       <GuestProposalSurface
         api={api}
+        authorityProjection={buildCoopCampaignAuthorityProjection({
+          mode: 'guest',
+          routeId: 'finances',
+        })}
         actions={[
           {
             kind: 'SpendFunds',
@@ -146,6 +151,25 @@ describe('GuestProposalSurface — rendering', () => {
       screen.getByTestId('guest-action-SpendFunds-pending'),
     ).toBeInTheDocument();
     expect(screen.getByTestId('guest-action-SpendFunds')).toBeDisabled();
+  });
+
+  it('shows proposal authority without host-only GM controls', () => {
+    const { transport } = deferredTransport();
+    render(<ProbeSurface transport={transport} />);
+
+    expect(
+      screen.getByTestId('guest-command-authority-projection'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId('guest-command-authority-summary'),
+    ).toHaveTextContent('Guest proposal path');
+    expect(
+      screen.getByTestId('guest-command-authority-public-only'),
+    ).toHaveTextContent('Public results');
+    expect(screen.queryByTestId('approve-proposal')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('gm-correction-proposal'),
+    ).not.toBeInTheDocument();
   });
 
   it('renders a veto distinctly from a mechanical rejection', async () => {

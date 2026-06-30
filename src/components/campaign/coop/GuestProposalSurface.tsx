@@ -27,6 +27,7 @@
 import React from 'react';
 
 import type { ICampaignIntent } from '@/types/campaign/CampaignSync';
+import type { ICommandAuthorityProjection } from '@/types/command-screen';
 
 import type { IGuestProposalsApi } from './useGuestProposals';
 
@@ -49,6 +50,7 @@ export interface GuestProposalSurfaceProps {
   readonly api: IGuestProposalsApi;
   /** The campaign actions the guest may propose. */
   readonly actions: readonly IGuestActionDescriptor[];
+  readonly authorityProjection?: ICommandAuthorityProjection;
   /** Optional class override for the surface container. */
   readonly className?: string;
 }
@@ -80,6 +82,7 @@ const STATUS_STYLES: Record<string, string> = {
 export function GuestProposalSurface({
   api,
   actions,
+  authorityProjection,
   className = '',
 }: GuestProposalSurfaceProps): React.ReactElement {
   return (
@@ -90,6 +93,34 @@ export function GuestProposalSurface({
       <h3 className="mb-3 text-sm font-semibold tracking-wide text-slate-400 uppercase">
         Campaign Actions (Guest)
       </h3>
+
+      {authorityProjection && (
+        <div
+          data-testid="guest-command-authority-projection"
+          className="mb-3 flex flex-wrap gap-2 text-xs"
+        >
+          <span
+            data-testid="guest-command-authority-summary"
+            className="rounded border border-sky-700/70 bg-sky-950/50 px-2 py-1 text-sky-200"
+          >
+            {authorityProjection.summary}
+          </span>
+          <span
+            data-testid="guest-command-authority-path"
+            className="rounded border border-slate-700 bg-slate-950/60 px-2 py-1 text-slate-300"
+          >
+            {authorityProjection.commandPath}
+          </span>
+          {authorityProjection.publicResultOnly && (
+            <span
+              data-testid="guest-command-authority-public-only"
+              className="rounded border border-emerald-700/70 bg-emerald-950/40 px-2 py-1 text-emerald-200"
+            >
+              Public results
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Action controls — each raises a proposal, not a direct commit. */}
       <div className="flex flex-wrap gap-2">

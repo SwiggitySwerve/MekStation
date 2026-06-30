@@ -27,6 +27,10 @@ import type {
   IMultiplayerError,
 } from '@/hooks/useMultiplayerSession';
 import type {
+  ICommandAuthorityProjection,
+  IPlayerCommandResult,
+} from '@/types/command-screen';
+import type {
   IGameEvent,
   IGameIntent,
   IGameSession,
@@ -37,6 +41,10 @@ import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 import { HexMapDisplay } from '@/components/gameplay/HexMapDisplay/HexMapDisplay';
 import { PhaseBanner } from '@/components/gameplay/PhaseBanner';
 import { deriveHexMapStateFromEvents } from '@/hooks/replay/useHexMapStateFromEvents';
+import {
+  buildNetworkedTacticalAuthorityProjection,
+  extractPlayerSafeCommandResults,
+} from '@/lib/command-screen';
 import {
   deriveTurnOwnership,
   localSideFromSeats,
@@ -88,6 +96,9 @@ export interface INetworkedGameSurfaceProps {
   readonly onClearIntentError: () => void;
   /** Forward a player action to the server (D3). */
   readonly onSendGameIntent: (intent: IGameIntent) => boolean;
+  readonly hostPlayerId?: string | null;
+  readonly onPreviewHostGmCorrection?: () => void;
+  readonly onApproveHostGmCorrection?: () => void;
   /**
    * M3 (add-matchmaking-and-spectator) — render the surface in
    * read-only spectator mode. When `true` the intent-emit action bar is
@@ -120,6 +131,9 @@ export function NetworkedGameSurface({
   intentError,
   onClearIntentError,
   onSendGameIntent,
+  hostPlayerId,
+  onPreviewHostGmCorrection = () => {},
+  onApproveHostGmCorrection = () => {},
   spectator = false,
 }: INetworkedGameSurfaceProps): React.ReactElement {
   // Map-selection state owned here so the action bar stays a controlled
@@ -137,6 +151,29 @@ export function NetworkedGameSurface({
     () => deriveTurnOwnership(mirrorSession, localSide),
     [mirrorSession, localSide],
   );
+  const resolvedHostPlayerId = useMemo(
+    () => hostPlayerId ?? firstOccupiedHumanPlayerId(seats),
+    [hostPlayerId, seats],
+  );
+  const authorityProjection = useMemo(
+    () =>
+      buildNetworkedTacticalAuthorityProjection({
+        playerId,
+        hostPlayerId: resolvedHostPlayerId,
+        canAct: ownership.canAct,
+        waitingForOpponent: ownership.waitingForOpponent,
+        paused: status === 'paused',
+        spectator,
+      }),
+    [
+      ownership.canAct,
+      ownership.waitingForOpponent,
+      playerId,
+      resolvedHostPlayerId,
+      spectator,
+      status,
+    ],
+  );
 
   // Project the mirror's event log into hex-map tokens. The projection
   // walks every event up to the highest sequence, so an omitted fog
@@ -153,6 +190,10 @@ export function NetworkedGameSurface({
   const hexMapState = useMemo(
     () => deriveHexMapStateFromEvents(mirrorEvents, highestSeq),
     [mirrorEvents, highestSeq],
+  );
+  const commandResults = useMemo(
+    () => extractPlayerSafeCommandResults(mirrorEvents),
+    [mirrorEvents],
   );
 
   // Token-click selection: a token the local side owns becomes the
@@ -229,6 +270,8 @@ export function NetworkedGameSurface({
         }
       />
 
+      <NetworkedAuthorityStrip projection={authorityProjection} />
+
       {intentError && (
         <IntentErrorToast
           code={intentError.code}
@@ -283,7 +326,127 @@ export function NetworkedGameSurface({
           phase={state.phase}
         />
       </div>
+
+      {authorityProjection.viewerRole === 'host-gm' && !spectator && (
+        <NetworkedHostGmControls
+          onPreview={onPreviewHostGmCorrection}
+          onApprove={onApproveHostGmCorrection}
+        />
+      )}
+
+      <NetworkedCommandResultFeed results={commandResults} />
     </section>
+  );
+}
+
+function firstOccupiedHumanPlayerId(
+  seats: readonly IMatchSeat[],
+): string | null {
+  return (
+    seats.find((seat) => seat.kind === 'human' && seat.occupant)?.occupant
+      ?.playerId ?? null
+  );
+}
+
+function NetworkedAuthorityStrip({
+  projection,
+}: {
+  readonly projection: ICommandAuthorityProjection;
+}): React.ReactElement {
+  return (
+    <div
+      data-testid="network-command-authority-projection"
+      className="flex flex-wrap gap-2 rounded-lg border border-slate-700 bg-slate-900/50 p-2 text-xs"
+    >
+      <span
+        data-testid="network-command-authority-summary"
+        className="rounded border border-sky-700/70 bg-sky-950/50 px-2 py-1 text-sky-200"
+      >
+        {projection.summary}
+      </span>
+      <span
+        data-testid="network-command-authority-path"
+        className="rounded border border-slate-700 bg-slate-950/60 px-2 py-1 text-slate-300"
+      >
+        {projection.commandPath}
+      </span>
+      {projection.publicResultOnly && (
+        <span
+          data-testid="network-command-authority-public-only"
+          className="rounded border border-emerald-700/70 bg-emerald-950/40 px-2 py-1 text-emerald-200"
+        >
+          Public results
+        </span>
+      )}
+      {projection.canViewPrivateGmMetadata && (
+        <span
+          data-testid="network-command-authority-private"
+          className="rounded border border-violet-700/70 bg-violet-950/40 px-2 py-1 text-violet-200"
+        >
+          GM-private
+        </span>
+      )}
+    </div>
+  );
+}
+
+function NetworkedHostGmControls({
+  onPreview,
+  onApprove,
+}: {
+  readonly onPreview: () => void;
+  readonly onApprove: () => void;
+}): React.ReactElement {
+  return (
+    <div
+      data-testid="networked-host-gm-controls"
+      className="flex flex-wrap gap-2 rounded-lg border border-violet-700/60 bg-violet-950/30 p-2"
+    >
+      <button
+        type="button"
+        data-testid="networked-gm-preview-btn"
+        onClick={onPreview}
+        className="rounded border border-sky-500/50 bg-sky-600/20 px-3 py-1.5 text-sm font-medium text-sky-200 hover:bg-sky-600/30"
+      >
+        Preview GM Fix
+      </button>
+      <button
+        type="button"
+        data-testid="networked-gm-approve-btn"
+        onClick={onApprove}
+        className="rounded border border-violet-500/50 bg-violet-600/20 px-3 py-1.5 text-sm font-medium text-violet-200 hover:bg-violet-600/30"
+      >
+        Approve GM Fix
+      </button>
+    </div>
+  );
+}
+
+function NetworkedCommandResultFeed({
+  results,
+}: {
+  readonly results: readonly {
+    readonly publicSummary: string;
+    readonly result: IPlayerCommandResult;
+  }[];
+}): React.ReactElement | null {
+  if (results.length === 0) return null;
+  return (
+    <ul
+      data-testid="network-command-result-feed"
+      className="space-y-2 rounded-lg border border-slate-700 bg-slate-900/50 p-3 text-xs text-slate-200"
+    >
+      {results.map((entry, index) => (
+        <li
+          key={`${entry.result.commandId}-${entry.result.previewId ?? index}`}
+          data-testid="network-command-result-entry"
+          className="rounded border border-slate-700 bg-slate-950/40 px-3 py-2"
+        >
+          <span className="font-medium">{entry.publicSummary}</span>
+          <span className="ml-2 text-slate-400">{entry.result.status}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
