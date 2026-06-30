@@ -48,6 +48,18 @@ scripts/**
 !scripts/next/**
 !scripts/qc/
 !scripts/qc/**
+!scripts/megameklab-conversion/
+!scripts/megameklab-conversion/blk_aerospace_tables.py
+!scripts/megameklab-conversion/blk_battlearmor_fields.py
+!scripts/megameklab-conversion/blk_conversion_runner.py
+!scripts/megameklab-conversion/blk_schema_writers.py
+!scripts/megameklab-conversion/blk_unit_fields.py
+!scripts/megameklab-conversion/blk_vehicle_tables.py
+!scripts/megameklab-conversion/data_converter_blk.py
+!scripts/megameklab-conversion/data_converter_mtf.py
+!scripts/megameklab-conversion/enum_mapping_tables.py
+!scripts/megameklab-conversion/mtf_parser.py
+!scripts/megameklab-conversion/mtf_parser_builders.py
 !scripts/__tests__/
 !scripts/__tests__/**
 

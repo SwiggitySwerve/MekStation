@@ -26,12 +26,11 @@ Usage:
         --output /path/to/public/data/units/infantry
 """
 
-import argparse
-import json
 import logging
-import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+from blk_conversion_runner import BlkConversionConfig, run_blk_conversion, run_manifest_range_parity
 
 # Shared BLK helpers + enum_mappings re-exports — see blk_common.py for the
 # extraction rationale (2026-04-25 maintenance sweep).
@@ -46,10 +45,6 @@ from blk_common import (
     normalize_equipment_id,
     parse_number,
     remove_comments,
-    setup_logger,
-    write_manifest,
-    write_parity_report,
-    write_run_log,
 )
 
 
@@ -269,43 +264,18 @@ def run_parity_checks(
     logger: logging.Logger,
 ) -> Tuple[int, List[Dict[str, Any]]]:
     """Returns (failures, parity_records). BV parity deferred to wave 5."""
-    failures = 0
-    index: Dict[str, Dict[str, Any]] = {}
-    for entry in manifest:
-        key = entry.get("chassis", "").lower()
-        index.setdefault(key, entry)
-
-    records: List[Dict[str, Any]] = []
-    for target in PARITY_TARGETS:
-        key = target["chassis"].lower()
-        entry = index.get(key)
-        record: Dict[str, Any] = {
-            "chassis": target["chassis"],
-            "field": target["field"],
-            "expected_min": target["min_squad"],
-            "expected_max": target["max_squad"],
-        }
-        if entry is None:
-            logger.warning(f"Parity: '{target['chassis']}' not found in output")
-            record["status"] = "missing"
-            failures += 1
-            records.append(record)
-            continue
-        val = entry.get(target["field"], 0)
-        record["actual"] = val
-        record["actual_equipment_count"] = len(entry.get("equipment", []) or [])
-        if not (target["min_squad"] <= val <= target["max_squad"]):
-            logger.error(
-                f"Parity FAIL: {target['chassis']} {target['field']}={val} "
-                f"expected [{target['min_squad']},{target['max_squad']}]"
-            )
-            record["status"] = "fail"
-            failures += 1
-        else:
-            logger.info(f"Parity OK: {target['chassis']} {target['field']}={val}")
-            record["status"] = "ok"
-        records.append(record)
-    return failures, records
+    return run_manifest_range_parity(
+        manifest,
+        PARITY_TARGETS,
+        logger,
+        target_value_field_key="field",
+        min_target_key="min_squad",
+        max_target_key="max_squad",
+        expected_min_record_key="expected_min",
+        expected_max_record_key="expected_max",
+        actual_record_key="actual",
+        log_label="field",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -339,88 +309,23 @@ def build_manifest_entry(unit: Dict[str, Any]) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Convert BLK infantry files to MekStation JSON")
-    parser.add_argument(
-        "--source",
-        default=str(Path(default_mm_data_root()) / "mekfiles" / "infantry"),
-        help="Path to mm-data infantry directory",
+    return run_blk_conversion(
+        BlkConversionConfig(
+            converter="blk_infantry_converter",
+            description="Convert BLK infantry files to MekStation JSON",
+            source_default=str(Path(default_mm_data_root()) / "mekfiles" / "infantry"),
+            source_help="Path to mm-data infantry directory",
+            output_default=str(Path(__file__).parent.parent.parent / "public/data/units/infantry"),
+            output_help="Output directory for infantry JSON files",
+            type_name="infantry",
+            parity_report_filename="blk-infantry-parity.json",
+            run_log_filename="blk-infantry-run-log.json",
+            convert_unit=convert_infantry_blk,
+            build_manifest_entry=build_manifest_entry,
+            run_parity_checks=run_parity_checks,
+        )
     )
-    parser.add_argument(
-        "--output",
-        default=str(Path(__file__).parent.parent.parent / "public/data/units/infantry"),
-        help="Output directory for infantry JSON files",
-    )
-    parser.add_argument("--verbose", "-v", action="store_true")
-    args = parser.parse_args()
-
-    logger = setup_logger("blk_infantry_converter", args.verbose)
-
-    source_dir = Path(args.source)
-    output_dir = Path(args.output)
-
-    if not source_dir.exists():
-        logger.error(f"Source directory not found: {source_dir}")
-        return 1
-
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    blk_files = sorted(source_dir.rglob("*.blk"))
-    logger.info(f"Found {len(blk_files)} BLK files under {source_dir}")
-
-    converted = 0
-    skipped = 0
-    errors = 0
-    manifest: List[Dict[str, Any]] = []
-
-    # Track unsupported sub-types for post-run summary
-    unsupported_counts: Dict[str, int] = {}
-
-    for blk_path in blk_files:
-        unit = convert_infantry_blk(blk_path, logger)
-        if unit is None:
-            skipped += 1
-            continue
-
-        safe_name = f"{unit['chassis']} {unit['model']}".strip().replace("/", "-").replace(":", "-")
-        out_path = output_dir / f"{safe_name}.json"
-        try:
-            out_path.write_text(json.dumps(unit, indent=2, ensure_ascii=False), encoding="utf-8")
-            converted += 1
-            manifest.append(build_manifest_entry(unit))
-        except OSError as e:
-            logger.error(f"Failed to write {out_path}: {e}")
-            errors += 1
-
-    # --- Manifest + budget check ---
-    manifest_path = output_dir / "units-manifest.json"
-    errors += write_manifest(manifest, manifest_path, "infantry", logger)
-
-    # --- Parity checks ---
-    parity_failures, parity_records = run_parity_checks(manifest, logger)
-
-    parity_report_path = (
-        Path(__file__).parent.parent.parent / "validation-output" / "blk-infantry-parity.json"
-    )
-    write_parity_report("infantry", parity_records, parity_failures, parity_report_path, logger)
-
-    logger.info(
-        f"Done. converted={converted} skipped={skipped} errors={errors} parity_failures={parity_failures}"
-    )
-
-    run_log = {
-        "converter": "blk_infantry_converter",
-        "source": str(source_dir),
-        "output": str(output_dir),
-        "converted": converted,
-        "skipped": skipped,
-        "errors": errors,
-        "parity_failures": parity_failures,
-    }
-    log_path = Path(__file__).parent.parent.parent / "validation-output" / "blk-infantry-run-log.json"
-    write_run_log(run_log, log_path, logger)
-
-    return 1 if (errors > 0 or parity_failures > 0) else 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())
