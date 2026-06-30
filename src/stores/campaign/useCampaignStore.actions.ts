@@ -281,6 +281,7 @@ export function createCampaignStoreActions(
   | 'advanceDays'
   | 'updateCampaign'
   | 'appendActivityLogEntry'
+  | 'previewTravelToSystem'
   | 'travelToSystem'
 > {
   return {

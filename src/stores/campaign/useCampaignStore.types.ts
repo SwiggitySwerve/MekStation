@@ -1,6 +1,7 @@
 import type { StoreApi } from 'zustand';
 
 import type { DayReport } from '@/lib/campaign/dayAdvancement';
+import type { IStarmapTravelPreview } from '@/lib/starmap/starmapTravelPreview';
 import type { IActivityLogEntry } from '@/types/campaign/ActivityLog';
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import type { ICoopSession } from '@/types/campaign/CoopSession';
@@ -100,13 +101,21 @@ export interface CampaignActions {
   /** Read the current activity log (newest last). */
   getActivityLog: () => readonly IActivityLogEntry[];
   /**
-   * Travel the campaign force to a different star system
-   * (`wire-starmap-into-campaign` Wave 6.4).
+   * Preview campaign travel to a different star system.
    *
-   * Validates `systemId` against the Inner Sphere seed dataset and
-   * updates `campaign.currentSystemId` + emits a `'travel'` activity-log
-   * entry. Returns `true` on a successful travel; `false` on no-op
-   * (same system) or invalid systemId.
+   * The preview is pure: it validates route legality, computes jump legs,
+   * fees, elapsed days, deadline warnings, projected daily costs, and the
+   * after-campaign state without mutating the store.
+   */
+  previewTravelToSystem: (systemId: string) => IStarmapTravelPreview | null;
+  /**
+   * Approve and commit the current travel preview.
+   *
+   * Validates `systemId` against the Inner Sphere seed dataset, builds a
+   * starmap logistics preview, and commits only when the preview is ready.
+   * A successful commit applies the projected campaign date, destination,
+   * finance ledger, day progression, and travel activity entries through
+   * one path. Returns `false` on blocked/no-op/invalid previews.
    */
   travelToSystem: (systemId: string) => boolean;
 }
