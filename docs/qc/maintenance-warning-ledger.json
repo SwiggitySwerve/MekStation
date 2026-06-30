@@ -18,9 +18,9 @@
       "follow-up": 0
     },
     "file-bloat": {
-      "fixed": 7,
+      "fixed": 10,
       "accepted": 0,
-      "follow-up": 12
+      "follow-up": 9
     },
     "near-duplicate": {
       "fixed": 6,
@@ -663,9 +663,12 @@
       "severity": "warn",
       "file": "scripts/validate-bv-calculator.ts",
       "message": "891 LOC exceeds standard threshold",
-      "status": "follow-up",
-      "rationale": "Unit mapping, structure/armor totaling, known unit overrides, and heat/movement derivation now live in focused helpers, dropping the calculator from high file-bloat to advisory warn while preserving BV parity. Remaining work should target defensive/offensive correction complexity with full BV parity coverage.",
-      "followUps": ["wave-12-validate-bv-architecture-split"]
+      "status": "fixed",
+      "rationale": "Calculator preflight derivation and weapon post-scan modifiers now live in focused helper modules, dropping the calculator below warning threshold while preserving BV parity.",
+      "fixedEvidence": [
+        "2026-06-30 `npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/validate-bv-calculator.ts,scripts/validate-bv-calculator-setup.ts,scripts/validate-bv-calculator-weapons.ts --json` was included in the BV validator cluster scan and reported no warnings for the calculator cluster.",
+        "2026-06-30 `npm.cmd run validate:bv` passed 4196/4196 coverage floor and all accuracy gates."
+      ]
     },
     {
       "key": "file-bloat|warn|scripts/validate-bv-crit-scan.ts|886 LOC exceeds standard threshold",
@@ -673,9 +676,12 @@
       "severity": "warn",
       "file": "scripts/validate-bv-crit-scan.ts",
       "message": "886 LOC exceeds standard threshold",
-      "status": "follow-up",
-      "rationale": "Critical-slot scanning now delegates weapon mount counting and derived armor/gyro/heat-sink detection to focused helpers, dropping from high to advisory warn. A broader parser-handler split still needs BV parity and crit-slot fixture coverage.",
-      "followUps": ["wave-12-validate-bv-architecture-split"]
+      "status": "fixed",
+      "rationale": "Crit scan default state, finalization, and ammo-slot handling now live in focused helper modules, dropping crit scanning below warning threshold while preserving BV parity.",
+      "fixedEvidence": [
+        "2026-06-30 `npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/validate-bv-crit-scan.ts,scripts/validate-bv-crit-scan-types.ts,scripts/validate-bv-crit-scan-finalize.ts,scripts/validate-bv-crit-scan-ammo.ts --json` was included in the BV validator cluster scan and reported no warnings for the crit-scan cluster.",
+        "2026-06-30 `npm.cmd run validate:bv` passed 4196/4196 coverage floor and all accuracy gates."
+      ]
     },
     {
       "key": "file-bloat|warn|scripts/validate-bv-ammo-resolution.ts|830 LOC exceeds standard threshold",
@@ -683,9 +689,12 @@
       "severity": "warn",
       "file": "scripts/validate-bv-ammo-resolution.ts",
       "message": "830 LOC exceeds standard threshold",
-      "status": "follow-up",
-      "rationale": "Ammo resolution is separated from the validator core; the remaining size is mostly pattern tables and should move only with ammo fixture parity coverage.",
-      "followUps": ["wave-12-validate-bv-architecture-split"]
+      "status": "fixed",
+      "rationale": "Ammo fallback data and regex resolution rules now live in focused modules, dropping ammo resolution below warning threshold while preserving BV parity.",
+      "fixedEvidence": [
+        "2026-06-30 `npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/validate-bv-ammo-resolution.ts,scripts/validate-bv-ammo-overrides.ts,scripts/validate-bv-ammo-rules.ts --json` was included in the BV validator cluster scan and reported no warnings for the ammo-resolution cluster.",
+        "2026-06-30 `npm.cmd run validate:bv` passed 4196/4196 coverage floor and all accuracy gates."
+      ]
     }
   ]
 }

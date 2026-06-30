@@ -1,166 +1,19 @@
 import type { UnitData } from './validate-bv-types';
 
+import { processCritAmmoSlot } from './validate-bv-crit-scan-ammo';
+import { finalizeCritScan } from './validate-bv-crit-scan-finalize';
 import {
-  type ExplosiveEquipmentEntry,
-  type MechLocation,
-} from '../src/utils/construction/battleValueCalculations';
-import { resolveAmmoBV } from '../src/utils/construction/equipmentBVResolver';
-import {
-  resolveAmmoByPattern,
-  normalizeWeaponKey,
-} from './validate-bv-ammo-resolution';
-import {
-  countCritHeatSinks,
-  detectCritArmorType,
-  detectCritGyroType,
-} from './validate-bv-crit-derived';
-import { countCritWeaponMounts } from './validate-bv-crit-weapon-mounts';
-import { CLAN_CHASSIS_MIXED_UNITS } from './validate-bv-known-units';
+  createEmptyCritScan,
+  type CritScan,
+} from './validate-bv-crit-scan-types';
 import { toMechLoc } from './validate-bv-normalizers';
 import { classifyPhysicalWeapon } from './validate-bv-physical-weapons';
 import { resolveWeaponForUnit } from './validate-bv-weapon-resolution';
 
-export interface CritScan {
-  hasTC: boolean;
-  hasTSM: boolean;
-  /** Industrial Triple-Strength Myomer: weight ×1.15, no walk MP bonus, no physical TSM mod */
-  hasIndustrialTSM: boolean;
-  hasMASC: boolean;
-  hasSupercharger: boolean;
-  hasECM: boolean;
-  hasAngelECM: boolean;
-  hasActiveProbe: boolean;
-  hasBloodhound: boolean;
-  hasPartialWing: boolean;
-  hasNullSig: boolean;
-  hasVoidSig: boolean;
-  hasChameleon: boolean;
-  hasImprovedJJ: boolean;
-  hasPrototypeIJJ: boolean;
-  standardJJCrits: number;
-  improvedJJCrits: number;
-  prototypeIJJCrits: number;
-  hasWatchdog: boolean;
-  detectedSmallCockpit: boolean;
-  detectedInterfaceCockpit: boolean;
-  detectedDroneOS: boolean;
-  coolantPods: number;
-  heatSinkCount: number;
-  hasRadicalHS: boolean;
-  critDHSCount: number;
-  critProtoDHSCount: number;
-  hasLargeShield: boolean;
-  hasMediumShield: boolean;
-  shieldArms: string[];
-  riscAPDS: number;
-  aesLocs: string[];
-  mgaLocs: Array<{ location: string; type: 'light' | 'standard' | 'heavy' }>;
-  harjelIILocs: MechLocation[];
-  harjelIIILocs: MechLocation[];
-  caseLocs: MechLocation[];
-  caseIILocs: MechLocation[];
-  artemisIVLocs: string[];
-  artemisVLocs: string[];
-  apollo: number;
-  ppcCapLocs: string[];
-  armoredPPCCapLocs: string[];
-  ammo: Array<{ id: string; bv: number; weaponType: string; location: string }>;
-  explosive: ExplosiveEquipmentEntry[];
-  defEquipIds: string[];
-  detectedArmorType: string | null;
-  physicalWeapons: Array<{ type: string; location: string }>;
-  rearWeaponCountByLoc: Map<string, Map<string, number>>;
-  turretWeaponCountByLoc: Map<string, Map<string, number>>;
-  amsAmmoBV: number;
-  armoredComponentBV: number;
-  armoredGyroSlots: number;
-  umuMP: number;
-  detectedGyroType: string | null;
-  modularArmorSlots: number;
-  spikeCount: number;
-  mineDispenserCount: number;
-  /** RISC Viral Jammer (Decoy or Homing): BV=284 each, defensive equipment */
-  riscViralJammerCount: number;
-  /** Blue Shield Particle Field Damper: +0.2 to armor and structure multipliers */
-  hasBlueShield: boolean;
-  /** Accumulated BV from misc (non-weapon, non-physical) equipment with offensive BV
-   *  (e.g., Bridge Layers: Light=5, Medium=10, Heavy=20) */
-  miscEquipBV: number;
-  hasRamPlate: boolean;
-  critLaserHSCount: number;
-  /** Super-Cooled Myomer: moveHeat = 0 per MegaMek MekBVCalculator heatEfficiency() */
-  hasSCM: boolean;
-  /** RISC Laser Pulse Module locations: linked lasers get BV × 1.15 and heat + 2 */
-  riscLPMLocs: string[];
-}
+export type { CritScan } from './validate-bv-crit-scan-types';
 
 export function scanCrits(unit: UnitData, unitId?: string): CritScan {
-  const r: CritScan = {
-    hasTC: false,
-    hasTSM: false,
-    hasIndustrialTSM: false,
-    hasMASC: false,
-    hasSupercharger: false,
-    hasECM: false,
-    hasAngelECM: false,
-    hasActiveProbe: false,
-    hasBloodhound: false,
-    hasPartialWing: false,
-    hasNullSig: false,
-    hasVoidSig: false,
-    hasChameleon: false,
-    hasImprovedJJ: false,
-    hasPrototypeIJJ: false,
-    standardJJCrits: 0,
-    improvedJJCrits: 0,
-    prototypeIJJCrits: 0,
-    hasWatchdog: false,
-    detectedSmallCockpit: false,
-    detectedInterfaceCockpit: false,
-    detectedDroneOS: false,
-    coolantPods: 0,
-    heatSinkCount: 0,
-    hasRadicalHS: false,
-    critDHSCount: 0,
-    critProtoDHSCount: 0,
-    aesLocs: [],
-    mgaLocs: [],
-    harjelIILocs: [],
-    harjelIIILocs: [],
-    caseLocs: [],
-    caseIILocs: [],
-    artemisIVLocs: [],
-    artemisVLocs: [],
-    apollo: 0,
-    ppcCapLocs: [],
-    armoredPPCCapLocs: [],
-    ammo: [],
-    explosive: [],
-    defEquipIds: [],
-    detectedArmorType: null,
-    physicalWeapons: [],
-    rearWeaponCountByLoc: new Map(),
-    turretWeaponCountByLoc: new Map(),
-    amsAmmoBV: 0,
-    armoredComponentBV: 0,
-    armoredGyroSlots: 0,
-    umuMP: 0,
-    detectedGyroType: null,
-    modularArmorSlots: 0,
-    hasLargeShield: false,
-    hasMediumShield: false,
-    shieldArms: [],
-    riscAPDS: 0,
-    spikeCount: 0,
-    mineDispenserCount: 0,
-    riscViralJammerCount: 0,
-    hasBlueShield: false,
-    miscEquipBV: 0,
-    hasRamPlate: false,
-    critLaserHSCount: 0,
-    hasSCM: false,
-    riscLPMLocs: [],
-  };
+  const r = createEmptyCritScan();
   if (!unit.criticalSlots) return r;
 
   for (const [loc, slots] of Object.entries(unit.criticalSlots)) {
@@ -484,80 +337,14 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
           if (ml) r.artemisIVLocs.push(ml);
         }
 
-        // Ammo
-        if (lo.includes('ammo') && !lo.includes('ammo feed')) {
-          // Per MegaMek AmmoType.java: Gauss-type ammo (including HAG) is non-explosive.
-          // HAG crit names like "CLHAG20 Ammo" don't contain "gauss", so check 'hag' separately.
-          // SB Gauss abbreviated crit name "ISSBGR Ammo" also lacks "gauss".
-          const isNonExplosiveAmmo =
-            lo.includes('gauss') ||
-            lo.includes('hag') ||
-            lo.includes('sbgr') ||
-            lo.includes('magshot') ||
-            lo.includes('plasma') ||
-            lo.includes('fluid') ||
-            lo.includes('nail') ||
-            lo.includes('rivet') ||
-            lo.includes('c3') ||
-            lo.includes('sensor') ||
-            lo.includes('rail gun');
-          if (ml && !isNonExplosiveAmmo)
-            r.explosive.push({
-              location: ml,
-              slots: 1,
-              penaltyCategory: 'standard',
-            });
-          // Half-ton ammo bins (crit names like "IS Machine Gun Ammo - Half") get half BV.
-          // The lookup/pattern resolution returns the full-ton BV; we halve it here for half-ton bins.
-          const isHalfTonAmmo = lo.includes('half');
-          const pr = resolveAmmoByPattern(clean, unit.techBase);
-          if (pr && pr.bv > 0) {
-            r.ammo.push({
-              id: clean,
-              bv: isHalfTonAmmo ? pr.bv * 0.5 : pr.bv,
-              weaponType: pr.weaponType,
-              location: loc,
-            });
-          } else {
-            const ar = resolveAmmoBV(clean);
-            if (ar.resolved && ar.battleValue > 0) {
-              r.ammo.push({
-                id: clean,
-                bv: isHalfTonAmmo ? ar.battleValue * 0.5 : ar.battleValue,
-                weaponType: normalizeWeaponKey(ar.weaponType),
-                location: loc,
-              });
-            } else if (pr) {
-              r.ammo.push({
-                id: clean,
-                bv: isHalfTonAmmo ? pr.bv * 0.5 : pr.bv,
-                weaponType: pr.weaponType,
-                location: loc,
-              });
-            }
-          }
-          // AMS/APDS ammo — accumulate BV for defensive equipment (capped at AMS weapon BV)
-          const isAmsAmmo =
-            (lo.includes('ams') ||
-              lo.includes('anti-missile') ||
-              lo.includes('antimissile')) &&
-            lo.includes('ammo');
-          const isApdsAmmo = lo.includes('apds') && lo.includes('ammo');
-          if (isAmsAmmo || isApdsAmmo) {
-            // IS AMS ammo = 11 BV, Clan AMS ammo = 22 BV, APDS ammo = 22 BV
-            let amsAmmoVal: number;
-            if (isApdsAmmo) {
-              amsAmmoVal = 22;
-            } else if (lo.includes('cl') || unit.techBase === 'CLAN') {
-              amsAmmoVal = 22;
-            } else {
-              amsAmmoVal = 11;
-            }
-            // Half-ton AMS/APDS ammo bins also get half BV
-            if (isHalfTonAmmo) amsAmmoVal *= 0.5;
-            r.amsAmmoBV += amsAmmoVal;
-          }
-        }
+        processCritAmmoSlot({
+          r,
+          clean,
+          lo,
+          loc,
+          ml,
+          unitTechBase: unit.techBase,
+        });
 
         // ISC3Sensors — ammo for C3 Remote Sensor Launcher (crit name "ISC3Sensors",
         // doesn't contain "ammo" keyword). BV=6 per slot, non-explosive.
@@ -912,153 +699,6 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
     }
   }
 
-  const allSlots = Object.values(unit.criticalSlots)
-    .flat()
-    .filter((s): s is string => !!s && typeof s === 'string');
-  const allSlotsLo = allSlots.map((s) => s.toLowerCase());
-  r.detectedArmorType = detectCritArmorType(allSlotsLo);
-  r.detectedGyroType = detectCritGyroType(unit);
-
-  const { rearWeaponCountByLoc, turretWeaponCountByLoc } =
-    countCritWeaponMounts(unit);
-  r.rearWeaponCountByLoc = rearWeaponCountByLoc;
-  r.turretWeaponCountByLoc = turretWeaponCountByLoc;
-
-  const { critDHSCount, critProtoDHSCount, critLaserHSCount } =
-    countCritHeatSinks(unit);
-  r.critDHSCount = critDHSCount;
-  r.critProtoDHSCount = critProtoDHSCount;
-  r.critLaserHSCount = critLaserHSCount;
-
-  // Clan mechs have built-in CASE in all non-head locations (torsos, arms, legs, CT).
-  // Per MegaMek: Mek.addClanCase() auto-adds explicit CASE equipment to every location
-  // with explosive equipment, but ONLY when Entity.isClan() returns true.
-  //
-  // Entity.isClan() depends on the techLevel field:
-  //   - Pure Clan (T_CLAN_*): isClan() = true
-  //   - Mixed (Clan Chassis): also T_CLAN_* → isClan() = true
-  //   - Mixed (IS Chassis): T_IS_* → isClan() = false
-  //
-  // For BV explosive penalty, MegaMek uses Entity.locationHasCase() which ONLY checks
-  // for explicitly-mounted CASE/CASEP equipment. Since addClanCase() auto-adds CASE
-  // for units where isClan()=true, the net effect is:
-  //   - Pure Clan → implicit CASE everywhere → no explosive penalty
-  //   - Mixed (Clan Chassis) → implicit CASE everywhere → no explosive penalty
-  //   - Mixed (IS Chassis) → NO implicit CASE → explosive penalty applies
-  //
-  // Our JSON stores techBase="MIXED" for both Clan and IS chassis variants.
-  // The CLAN_CHASSIS_MIXED_UNITS set identifies the Clan-chassis mixed units
-  // (derived from MegaMek's "Mixed (Clan Chassis)" TechBase designation).
-  const ALL_NON_HEAD_LOCS: MechLocation[] = [
-    'LT',
-    'RT',
-    'LA',
-    'RA',
-    'CT',
-    'LL',
-    'RL',
-  ];
-  const isClanChassis =
-    unit.techBase === 'CLAN' ||
-    (unit.techBase === 'MIXED' &&
-      unitId !== undefined &&
-      CLAN_CHASSIS_MIXED_UNITS.has(unitId));
-  if (isClanChassis) {
-    // Pure Clan and Mixed (Clan Chassis) units: addClanCase() auto-adds explicit
-    // CASE to all locations with explosive equipment. Grant CASE to all non-head locs.
-    for (const loc of ALL_NON_HEAD_LOCS) {
-      if (!r.caseLocs.includes(loc) && !r.caseIILocs.includes(loc))
-        r.caseLocs.push(loc);
-    }
-  }
-  // For Mixed (IS Chassis) units: no implicit CASE. Only explicitly-mounted
-  // CASE/CASEII from crit scanning provides protection.
-
-  // Small cockpit detection:
-  // 1. Prefer unit.cockpit field if it says SMALL
-  // 2. Crit-based: Small cockpit HEAD layout = [LS, Sensors, Cockpit, Sensors, ?, ?]
-  //    (Sensors in slot 4) vs standard = [LS, Sensors, Cockpit, ?, Sensors, LS]
-  //    (Sensors in slot 5, LS in slots 1 and 6)
-  if (unit.cockpit && unit.cockpit.toUpperCase().includes('SMALL'))
-    r.detectedSmallCockpit = true;
-  const headSlots = unit.criticalSlots?.HEAD;
-  if (
-    !r.detectedSmallCockpit &&
-    Array.isArray(headSlots) &&
-    headSlots.length >= 4
-  ) {
-    const slot4 = headSlots[3]; // 0-indexed
-    const lsCount = headSlots.filter(
-      (s: string | null) => s && s.includes('Life Support'),
-    ).length;
-    if (
-      slot4 &&
-      typeof slot4 === 'string' &&
-      slot4.includes('Sensors') &&
-      lsCount === 1
-    ) {
-      r.detectedSmallCockpit = true;
-    }
-  }
-
-  // Interface Cockpit detection: HEAD has 2 "Cockpit" entries AND no "Gyro" anywhere in crits.
-  // Command Console mechs also have 2 cockpit entries in HEAD but DO have Gyro entries.
-  if (Array.isArray(headSlots)) {
-    let cockpitCount = 0;
-    for (const hs of headSlots) {
-      if (hs && typeof hs === 'string' && hs.toLowerCase().includes('cockpit'))
-        cockpitCount++;
-    }
-    if (cockpitCount >= 2) {
-      const hasGyroAnywhere = allSlotsLo.some((s) => s.includes('gyro'));
-      if (!hasGyroAnywhere) r.detectedInterfaceCockpit = true;
-    }
-  }
-
-  // Drone Operating System detection: cockpit field says STANDARD but crits have ISDroneOperatingSystem
-  if (
-    allSlotsLo.some(
-      (s) =>
-        s.includes('droneoperatingsystem') ||
-        s.includes('drone operating system'),
-    )
-  ) {
-    r.detectedDroneOS = true;
-  }
-
-  // PPC weapons with linked PPC Capacitor: MegaMek treats the PPC weapon itself as
-  // explosive (PPCWeapon → 1 BV per slot) in addition to the PPC Capacitor (1 slot).
-  // Per MekBVCalculator.processExplosiveEquipment() lines 235-237.
-  if (r.ppcCapLocs.length > 0 && unit.criticalSlots) {
-    // Deduplicate: scan PPC weapon slots once per unique location, not per capacitor
-    const uniqueCapLocs = [...new Set(r.ppcCapLocs)];
-    for (const capLoc of uniqueCapLocs) {
-      const locSlots =
-        unit.criticalSlots[capLoc] || unit.criticalSlots[capLoc.toUpperCase()];
-      if (!Array.isArray(locSlots)) continue;
-      const ml = toMechLoc(capLoc);
-      if (!ml) continue;
-      for (const s of locSlots) {
-        if (!s || typeof s !== 'string') continue;
-        const slo = s
-          .toLowerCase()
-          .replace(/\s*\(omnipod\)/gi, '')
-          .trim();
-        // Match PPC weapon slots (not capacitors or ammo)
-        if (
-          slo.includes('ppc') &&
-          !slo.includes('capacitor') &&
-          !slo.includes('ammo')
-        ) {
-          r.explosive.push({
-            location: ml,
-            slots: 1,
-            penaltyCategory: 'reduced',
-          });
-        }
-      }
-    }
-  }
-
+  finalizeCritScan(unit, unitId, r);
   return r;
 }
