@@ -38,6 +38,8 @@ describe('12.3 Damage event adds an entry to the event log', () => {
     const session = createDemoSession();
     const initial = renderLayout({ session });
 
+    fireEvent.click(screen.getByTestId('event-log-toggle'));
+
     // Baseline: two demo events (TurnStarted + PhaseChanged).
     const baselineCount = screen.getAllByTestId('event-row').length;
     expect(baselineCount).toBe(session.events.length);
