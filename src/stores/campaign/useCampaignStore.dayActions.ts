@@ -13,7 +13,10 @@ import {
 } from '@/lib/campaign/dayAdvancement';
 import { getDayPipeline } from '@/lib/campaign/dayPipeline';
 import { registerBuiltinProcessors } from '@/lib/campaign/processors';
-import { findSystemById } from '@/lib/starmap/loadInnerSphereSeed';
+import {
+  buildStarmapTravelPreview,
+  type IStarmapTravelPreview,
+} from '@/lib/starmap/starmapTravelPreview';
 import { ICampaign } from '@/types/campaign/Campaign';
 
 import type { CampaignStore } from './useCampaignStore.types';
@@ -247,43 +250,114 @@ function travelToSystemAction(
   get: CampaignGet,
 ): CampaignStore['travelToSystem'] {
   return (systemId: string) => {
-    const { campaign } = get();
-    if (!campaign || !systemId) return false;
-    const destination = findSystemById(systemId);
-    if (!destination) return false;
-    const fromSystemId = campaign.currentSystemId ?? 'terra';
-    if (fromSystemId === systemId) return false;
-    const updatedCampaign: ICampaign = {
-      ...campaign,
-      currentSystemId: systemId,
-      updatedAt: new Date().toISOString(),
-    };
-    set({ campaign: updatedCampaign });
-    const campaignDay = campaignDayFor(updatedCampaign);
-    get().appendActivityLogEntry({
-      id: `travel-${campaign.id}-${campaignDay}-${systemId}`,
-      timestamp: new Date().toISOString(),
-      campaignDay,
-      category: 'travel',
-      message: `Jumped to ${destination.name}.`,
-      payload: {
-        event: 'jump',
-        fromSystemId,
-        toSystemId: systemId,
-        toSystemName: destination.name,
-      },
-    });
+    const preview = get().previewTravelToSystem(systemId);
+    if (!preview || preview.status !== 'ready' || !preview.afterCampaign) {
+      return false;
+    }
+    set({ campaign: preview.afterCampaign });
+    emitTravelActivityEntries(get, preview);
+    get().saveCampaign();
     return true;
   };
+}
+
+function previewTravelToSystemAction(
+  get: CampaignGet,
+): CampaignStore['previewTravelToSystem'] {
+  return (systemId: string) => {
+    const { campaign } = get();
+    if (!campaign || !systemId) return null;
+    return buildStarmapTravelPreview(campaign, systemId);
+  };
+}
+
+function emitTravelActivityEntries(
+  get: CampaignGet,
+  preview: IStarmapTravelPreview,
+): void {
+  const campaign = preview.afterCampaign;
+  const destination = preview.destinationSystem;
+  if (!campaign || !destination) return;
+
+  const campaignDay = campaignDayFor(campaign);
+  const append = get().appendActivityLogEntry;
+  append({
+    id: `travel-${campaign.id}-${preview.generatedAt}-${destination.id}`,
+    timestamp: preview.generatedAt,
+    campaignDay,
+    category: 'travel',
+    message: `Jumped to ${destination.name} over ${preview.elapsedDays} days.`,
+    payload: {
+      event: 'jump',
+      fromSystemId: preview.fromSystem.id,
+      toSystemId: destination.id,
+      toSystemName: destination.name,
+    },
+  });
+
+  if (!preview.travelFees.isZero()) {
+    append({
+      id: `act-finances-travel-fee-${campaign.id}-${preview.generatedAt}-${destination.id}`,
+      timestamp: preview.generatedAt,
+      campaignDay,
+      category: 'finances',
+      message: `Travel fees: ${preview.travelFees.format()}`,
+      payload: {
+        event: 'spend',
+        amount: -preview.travelFees.amount,
+        currency: 'C-bills',
+        memo: `${preview.fromSystem.name} to ${destination.name}`,
+      },
+    });
+  }
+
+  if (!preview.dailyCosts.isZero()) {
+    append({
+      id: `act-finances-travel-daily-costs-${campaign.id}-${preview.generatedAt}-${destination.id}`,
+      timestamp: preview.generatedAt,
+      campaignDay,
+      category: 'finances',
+      message: `Travel upkeep: ${preview.dailyCosts.format()}`,
+      payload: {
+        event: 'daily-costs',
+        amount: -preview.dailyCosts.amount,
+        currency: 'C-bills',
+        memo: `${preview.elapsedDays} travel days`,
+      },
+    });
+  }
+
+  preview.generatedEvents
+    .filter((event) => event.type === 'repair_completed')
+    .forEach((event, index) => {
+      const unitId =
+        typeof event.data?.unitId === 'string' ? event.data.unitId : 'unit';
+      append({
+        id: `act-technical-travel-repair-${campaign.id}-${preview.generatedAt}-${unitId}-${index}`,
+        timestamp: preview.generatedAt,
+        campaignDay,
+        category: 'technical',
+        message: event.description,
+        payload: {
+          event: 'repair-complete',
+          unitId,
+          unitName: unitId,
+        },
+      });
+    });
 }
 
 export function createCampaignDayActions(
   set: CampaignSet,
   get: CampaignGet,
-): Pick<CampaignStore, 'advanceDay' | 'advanceDays' | 'travelToSystem'> {
+): Pick<
+  CampaignStore,
+  'advanceDay' | 'advanceDays' | 'previewTravelToSystem' | 'travelToSystem'
+> {
   return {
     advanceDay: advanceDayAction(set, get),
     advanceDays: advanceDaysAction(get),
+    previewTravelToSystem: previewTravelToSystemAction(get),
     travelToSystem: travelToSystemAction(set, get),
   };
 }

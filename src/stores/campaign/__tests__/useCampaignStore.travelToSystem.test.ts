@@ -1,23 +1,3 @@
-/**
- * useCampaignStore.travelToSystem tests
- *
- * Per `wire-starmap-into-campaign` (Wave 6.4): the travel action mutates
- * `campaign.currentSystemId` and emits a 'travel' activity-log entry.
- * These tests cover the four behaviour contracts spelled out in
- * the spec:
- *
- *   1. Happy path — known seed id, different from current
- *   2. Same-system no-op — selected id == campaign.currentSystemId
- *   3. Unknown id — silently rejected, no mutation, no log entry
- *   4. Legacy-campaign default — undefined currentSystemId treated as Terra
- *
- * The activity-log dedup behaviour (FIFO + last-write-wins on id
- * collision) is already covered by the appendActivityLogEntry suite —
- * this file focuses on the action's wiring + invariants.
- *
- * @spec openspec/changes/wire-starmap-into-campaign/specs/starmap-interface/spec.md
- */
-
 import { createCampaignStore } from '../useCampaignStore';
 
 describe('useCampaignStore.travelToSystem', () => {
@@ -47,30 +27,48 @@ describe('useCampaignStore.travelToSystem', () => {
     expect(store.getState().travelToSystem('')).toBe(false);
   });
 
-  it('travels to a known system on happy path and emits one travel log entry', () => {
+  it('previews travel without mutating state', () => {
+    const store = freshStoreWithCampaign();
+    const before = store.getState().campaign;
+
+    const preview = store.getState().previewTravelToSystem('luthien');
+
+    expect(preview?.status).toBe('ready');
+    expect(preview?.afterCampaign?.currentSystemId).toBe('luthien');
+    expect(store.getState().campaign?.currentSystemId).toBe(
+      before?.currentSystemId,
+    );
+    expect(store.getState().activityLog).toHaveLength(0);
+  });
+
+  it('commits the approved preview and emits travel plus finance log entries', () => {
     const store = freshStoreWithCampaign();
     const beforeLog = store.getState().activityLog.length;
+    const preview = store.getState().previewTravelToSystem('luthien');
+
     const result = store.getState().travelToSystem('luthien');
+
     expect(result).toBe(true);
     expect(store.getState().campaign?.currentSystemId).toBe('luthien');
+    expect(store.getState().campaign?.currentDate.toISOString()).toBe(
+      preview?.arrivalDate,
+    );
     const log = store.getState().activityLog;
-    expect(log.length).toBe(beforeLog + 1);
-    const last = log[log.length - 1];
-    expect(last.category).toBe('travel');
-    // Discriminated union narrows on the category check above.
-    if (last.category === 'travel') {
-      expect(last.payload.event).toBe('jump');
-      expect(last.payload.toSystemId).toBe('luthien');
-      expect(last.payload.toSystemName).toBe('Luthien');
-      // Legacy-default: untravelled campaigns leave from Terra.
-      expect(last.payload.fromSystemId).toBe('terra');
+    expect(log.length).toBe(beforeLog + 2);
+    expect(log.some((entry) => entry.category === 'finances')).toBe(true);
+    const travel = log.find((entry) => entry.category === 'travel');
+    expect(travel).toBeDefined();
+    if (travel?.category === 'travel') {
+      expect(travel.payload.event).toBe('jump');
+      expect(travel.payload.toSystemId).toBe('luthien');
+      expect(travel.payload.toSystemName).toBe('Luthien');
+      expect(travel.payload.fromSystemId).toBe('terra');
     }
   });
 
   it('treats undefined currentSystemId as Terra (legacy no-op)', () => {
     const store = freshStoreWithCampaign();
     expect(store.getState().campaign?.currentSystemId).toBeUndefined();
-    // Travel to Terra from the implicit Terra default should no-op.
     const result = store.getState().travelToSystem('terra');
     expect(result).toBe(false);
   });
@@ -81,22 +79,22 @@ describe('useCampaignStore.travelToSystem', () => {
     const beforeLog = store.getState().activityLog.length;
     const result = store.getState().travelToSystem('luthien');
     expect(result).toBe(false);
-    // No additional log entry — dedup or not, the action should not
-    // even emit when the destination is the current system.
     expect(store.getState().activityLog.length).toBe(beforeLog);
   });
 
   it('emits fromSystemId reflecting the previous location across two jumps', () => {
     const store = freshStoreWithCampaign();
-    store.getState().travelToSystem('luthien'); // terra → luthien
-    store.getState().travelToSystem('sian'); // luthien → sian
-    const log = store.getState().activityLog;
-    const last = log[log.length - 1];
-    if (last.category === 'travel') {
+    store.getState().travelToSystem('luthien');
+    store.getState().travelToSystem('sian');
+    const travelEntries = store
+      .getState()
+      .activityLog.filter((entry) => entry.category === 'travel');
+    const last = travelEntries[travelEntries.length - 1];
+    if (last?.category === 'travel') {
       expect(last.payload.fromSystemId).toBe('luthien');
       expect(last.payload.toSystemId).toBe('sian');
     } else {
-      throw new Error('Last entry should be a travel entry');
+      throw new Error('Last travel entry should be a travel entry');
     }
   });
 });

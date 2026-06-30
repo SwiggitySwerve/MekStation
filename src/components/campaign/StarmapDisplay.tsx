@@ -25,9 +25,15 @@ export interface IStarSystem {
 export interface StarmapDisplayProps {
   systems: IStarSystem[];
   selectedSystem?: string;
+  systemAnnotations?: Readonly<Record<string, IStarmapSystemAnnotation>>;
   onSystemClick?: (id: string) => void;
   onSystemHover?: (id: string | null) => void;
   className?: string;
+}
+
+export interface IStarmapSystemAnnotation {
+  readonly label: string;
+  readonly tone: 'safe' | 'warn' | 'risk';
 }
 
 export const FACTION_COLORS: Record<string, string> = {
@@ -89,6 +95,7 @@ interface StarSystemNodeProps {
   lod: LODLevel;
   isSelected: boolean;
   isHovered: boolean;
+  annotation?: IStarmapSystemAnnotation;
   onClick: () => void;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
@@ -99,6 +106,7 @@ const StarSystemNode = React.memo(function StarSystemNode({
   lod,
   isSelected,
   isHovered,
+  annotation,
   onClick,
   onMouseEnter,
   onMouseLeave,
@@ -107,6 +115,12 @@ const StarSystemNode = React.memo(function StarSystemNode({
   const hoverScale = isHovered ? 1.3 : 1;
   const displaySize = baseSize * hoverScale;
   const factionColor = getFactionColor(system.faction);
+  const annotationColor =
+    annotation?.tone === 'risk'
+      ? '#f97316'
+      : annotation?.tone === 'warn'
+        ? '#facc15'
+        : '#22c55e';
   const showLabel =
     lod === 'close' || (lod === 'medium' && isMajorSystem(system));
   const showFactionIndicator = lod === 'close';
@@ -179,6 +193,19 @@ const StarSystemNode = React.memo(function StarSystemNode({
           listening={false}
         />
       )}
+
+      {annotation && lod !== 'far' && (
+        <Text
+          text={annotation.label}
+          x={-displaySize - 8}
+          y={displaySize + 8}
+          fontSize={10}
+          fontFamily="system-ui, -apple-system, sans-serif"
+          fill={annotationColor}
+          fontStyle="bold"
+          listening={false}
+        />
+      )}
     </Group>
   );
 });
@@ -186,6 +213,7 @@ const StarSystemNode = React.memo(function StarSystemNode({
 export function StarmapDisplay({
   systems,
   selectedSystem,
+  systemAnnotations,
   onSystemClick,
   onSystemHover,
   className = '',
@@ -304,6 +332,7 @@ export function StarmapDisplay({
               lod={lod}
               isSelected={selectedSystem === system.id}
               isHovered={hoveredSystem === system.id}
+              annotation={systemAnnotations?.[system.id]}
               onClick={() => handleSystemClick(system.id)}
               onMouseEnter={() => handleSystemHover(system.id)}
               onMouseLeave={() => handleSystemHover(null)}
@@ -332,7 +361,7 @@ export function StarmapDisplay({
           title="Zoom out"
           data-testid="zoom-out-btn"
         >
-          −
+          -
         </button>
         <button
           type="button"
@@ -341,7 +370,7 @@ export function StarmapDisplay({
           title="Reset view"
           data-testid="reset-view-btn"
         >
-          ⟲
+          O
         </button>
       </div>
 
