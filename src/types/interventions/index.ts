@@ -125,6 +125,7 @@ export type {
   IInterventionConflict,
   IInterventionLedgerCommand,
   IInterventionLedgerImplementer,
+  IInterventionLedgerMetadata,
   IInterventionLedgerPreview,
   IInterventionLedgerRecord,
   InterventionApplyResult,
@@ -132,6 +133,7 @@ export type {
   InterventionLedgerRecordStatus,
   InterventionProjectionVisibility,
   InterventionPreviewStatus,
+  InterventionRedactionPolicy,
   IUnsupportedInterventionResult,
   KnownInterventionDomain,
 } from './InterventionLedgerTypes';

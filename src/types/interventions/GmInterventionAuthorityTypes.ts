@@ -1,5 +1,6 @@
 import type {
   GmInterventionKind,
+  IInterventionLedgerMetadata,
   IInterventionLedgerRecord,
   InterventionDomain,
 } from './InterventionLedgerTypes';
@@ -71,7 +72,7 @@ export interface IGmInterventionRedactionEnvelope<
 
 export interface IPlayerVisibleInterventionRecord<
   TPublic extends IGmPublicEffect = IGmPublicEffect,
-> {
+> extends IInterventionLedgerMetadata {
   readonly id: string;
   readonly domain: InterventionDomain;
   readonly kind: GmInterventionKind;

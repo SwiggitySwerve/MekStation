@@ -82,9 +82,10 @@ describe('GM time cascade QC validator', () => {
     ]);
     expect(manifest.requiredCampaignRoots).toContain('currentDate');
     expect(manifest.requiredCampaignRoots).toContain('contractMarket');
-    expect(manifest.anchors).toHaveLength(16);
+    expect(manifest.anchors).toHaveLength(17);
     expect(manifest.anchors.map((anchor) => anchor.id)).toEqual(
       expect.arrayContaining([
+        'time-cascade-gm-ledger-actions',
         'time-cascade-roster-recovery-projection',
         'time-cascade-roster-recovery-tests',
       ]),

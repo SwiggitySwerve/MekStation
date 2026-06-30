@@ -248,10 +248,18 @@ const defaultSourceAnchors = [
       'useCampaignRosterStore',
       'applyPilotPatches',
       'buildTimeCascadeCommand',
-      'gm-ledger-time-preview-btn',
-      'gm-ledger-time-conflict-preview-btn',
+      'GmCampaignInterventionActions',
       'TIME_CASCADE_ID',
       'TIME_CASCADE_MANUAL_ID',
+    ],
+  },
+  {
+    id: 'time-cascade-gm-ledger-actions',
+    path: 'src/components/campaign/gm/GmCampaignInterventionActions.tsx',
+    tokens: [
+      'gm-ledger-time-preview-btn',
+      'gm-ledger-time-conflict-preview-btn',
+      'onTimePreview',
     ],
   },
   {

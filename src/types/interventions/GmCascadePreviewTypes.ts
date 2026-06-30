@@ -2,6 +2,7 @@ import type { GmActionLedgerRecordFromIntervention } from './ActionLedgerTypes';
 import type {
   GmInterventionKind,
   IInterventionConflict,
+  IInterventionLedgerMetadata,
   IInterventionLedgerRecord,
   InterventionDomain,
 } from './InterventionLedgerTypes';
@@ -18,7 +19,7 @@ export interface IGmCascadePreview<
   TPrivate = unknown,
   TPublic = unknown,
   TDomainPayload = unknown,
-> {
+> extends IInterventionLedgerMetadata {
   readonly interventionId: string;
   readonly status: GmCascadePreviewStatus;
   readonly domain: InterventionDomain;

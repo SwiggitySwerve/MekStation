@@ -134,6 +134,7 @@ function freezeInterventionRecord(
     targetRefs: freezeRefs(record.targetRefs),
     causedBy: freezeOptionalRefs(record.causedBy),
     supersedes: freezeOptionalRefs(record.supersedes),
+    subjectIds: freezeOptionalRefs(record.subjectIds),
   });
 }
 

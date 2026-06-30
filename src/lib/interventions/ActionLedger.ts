@@ -64,6 +64,12 @@ export class ActionLedger {
       causedBy: record.causedBy,
       supersedes: record.supersedes,
       interventionRecordId: record.id,
+      previewId: record.previewId ?? record.id,
+      subjectIds: record.subjectIds ?? record.targetRefs,
+      beforeSummary: record.beforeSummary,
+      afterSummary: record.afterSummary,
+      resultingStateSummary: record.resultingStateSummary,
+      redactionPolicy: record.redactionPolicy ?? 'gm-private-metadata',
       createdAt: record.createdAt,
       approvedAt: record.approvedAt,
     }) as GmActionLedgerRecordFromIntervention<
@@ -111,6 +117,7 @@ export class ActionLedger {
       targetRefs: freezeRefs(input.targetRefs),
       causedBy: freezeOptionalRefs(input.causedBy),
       supersedes: freezeOptionalRefs(input.supersedes),
+      subjectIds: freezeOptionalRefs(input.subjectIds),
       sequence: this.nextSequence,
     });
 
@@ -136,6 +143,12 @@ export class ActionLedger {
       causedBy: freezeOptionalRefs(record.causedBy),
       supersedes: freezeOptionalRefs(record.supersedes),
       interventionRecordId: record.interventionRecordId,
+      previewId: record.previewId,
+      subjectIds: freezeOptionalRefs(record.subjectIds),
+      beforeSummary: record.beforeSummary,
+      afterSummary: record.afterSummary,
+      resultingStateSummary: record.resultingStateSummary,
+      redactionPolicy: record.redactionPolicy,
       createdAt: record.createdAt,
       approvedAt: record.approvedAt,
     });

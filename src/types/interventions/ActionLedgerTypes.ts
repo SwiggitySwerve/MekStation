@@ -1,5 +1,6 @@
 import type {
   GmInterventionKind,
+  IInterventionLedgerMetadata,
   IInterventionLedgerRecord,
   InterventionDomain,
 } from './InterventionLedgerTypes';
@@ -16,7 +17,7 @@ export interface IActionLedgerAppendInput<
   TPublic = unknown,
   TPrivate = unknown,
   TDomainPayload = unknown,
-> {
+> extends IInterventionLedgerMetadata {
   readonly id: string;
   readonly recordKind: ActionLedgerRecordKind;
   readonly actorId: string;
@@ -64,6 +65,12 @@ export interface IPlayerVisibleActionLedgerRecord<TPublic = unknown> {
   readonly causedBy?: readonly string[];
   readonly supersedes?: readonly string[];
   readonly interventionRecordId?: string;
+  readonly previewId?: string;
+  readonly subjectIds?: readonly string[];
+  readonly beforeSummary?: string;
+  readonly afterSummary?: string;
+  readonly resultingStateSummary?: string;
+  readonly redactionPolicy?: IInterventionLedgerMetadata['redactionPolicy'];
   readonly createdAt: string;
   readonly approvedAt?: string;
 }
