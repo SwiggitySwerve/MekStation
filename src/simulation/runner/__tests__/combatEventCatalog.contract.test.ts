@@ -161,6 +161,13 @@ describe('BattleMech combat event support catalog', () => {
         'src/utils/gameplay/gameState/eventDispatch.ts#L224-L225',
       ]),
     );
+    expect(urlsFor(GameEventType.CommandResultPublished)).toEqual(
+      expect.arrayContaining([
+        'src/lib/command-screen/networkedCommandResultSync.ts#L26-L60',
+        'src/lib/multiplayer/server/ServerMatchHostCommandResults.ts#L25-L52',
+        'src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts#L119-L199',
+      ]),
+    );
     expect(urlsFor(GameEventType.InitiativeOrderSet)).toEqual(
       expect.arrayContaining([
         'src/utils/gameplay/gameEvents/initiative.ts#L47-L146',
@@ -271,6 +278,7 @@ describe('BattleMech combat event support catalog', () => {
         GameEventType.FacingChanged,
         GameEventType.AttackDeclared,
         GameEventType.AttacksRevealed,
+        GameEventType.CommandResultPublished,
         GameEventType.AttackInvalid,
         GameEventType.AttackResolved,
         GameEventType.DamageApplied,

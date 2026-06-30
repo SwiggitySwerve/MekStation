@@ -94,6 +94,10 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
     GameEventType.AttacksRevealed,
     'lockAttack emits AttacksRevealed after every active unit has locked weapon attacks, and applyAttacksRevealed replays the reveal boundary',
   ),
+  [GameEventType.CommandResultPublished]: integrated(
+    GameEventType.CommandResultPublished,
+    'networked host GM command results emit CommandResultPublished through the match event stream with player-safe redaction, replay, and sequence safety',
+  ),
   [GameEventType.AttackResolved]: integrated(
     GameEventType.AttackResolved,
     'weapon attack resolution emits AttackResolved for hit, miss, and special projectile outcomes',

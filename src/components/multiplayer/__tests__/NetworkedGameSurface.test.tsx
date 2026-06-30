@@ -14,14 +14,16 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 
+import type { ICommandCommitResult } from '@/types/command-screen';
 import type {
   IGameEvent,
   IGameSession,
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 
+import { buildPlayerSafeCommandResultEvent } from '@/lib/command-screen';
 import { buildMirrorSession } from '@/lib/multiplayer/mirrorMatchSession';
-import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
+import { GamePhase, GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import {
   advancePhase,
   createGameSession,
@@ -140,6 +142,9 @@ interface IRenderOptions {
   } | null;
   readonly closedInfo?: { code?: string; reason?: string } | null;
   readonly onSendGameIntent?: jest.Mock;
+  readonly hostPlayerId?: string | null;
+  readonly onPreviewHostGmCorrection?: jest.Mock;
+  readonly onApproveHostGmCorrection?: jest.Mock;
 }
 
 function renderSurface(opts: IRenderOptions = {}) {
@@ -156,15 +161,53 @@ function renderSurface(opts: IRenderOptions = {}) {
       mirrorEvents={opts.events ?? authoritative.events}
       seats={SEATS}
       playerId={opts.playerId ?? 'pid_host'}
+      hostPlayerId={opts.hostPlayerId ?? 'pid_host'}
       status={opts.status ?? 'ready'}
       pausedInfo={opts.pausedInfo ?? null}
       closedInfo={opts.closedInfo ?? null}
       intentError={opts.intentError ?? null}
       onClearIntentError={onClearIntentError}
       onSendGameIntent={onSendGameIntent}
+      onPreviewHostGmCorrection={opts.onPreviewHostGmCorrection}
+      onApproveHostGmCorrection={opts.onApproveHostGmCorrection}
     />,
   );
   return { onSendGameIntent, onClearIntentError };
+}
+
+function makePublicGmCommandResultEvent(sequence: number): IGameEvent {
+  const result: ICommandCommitResult<
+    { summary: string; changedStateRefs: readonly string[] },
+    { reason: string; hiddenNotes: string }
+  > = {
+    commandId: 'gm.tactical.correct-damage',
+    previewId: 'preview-damage',
+    domain: 'combat',
+    status: 'committed',
+    authority: 'host-gm',
+    subjectRefs: [{ id: 'player-1', type: 'unit', label: 'Atlas' }],
+    publicEffect: {
+      summary: 'Atlas armor corrected by the host GM.',
+      changedStateRefs: ['unit:player-1:armor'],
+    },
+    privateMetadata: {
+      reason: 'Hidden GM adjudication reason.',
+      hiddenNotes: 'Secret objective branch remains private.',
+    },
+    diagnosticEvent: 'command_gm_intervention_committed',
+    committedAt: '2026-06-30T12:00:00.000Z',
+  };
+
+  return buildPlayerSafeCommandResultEvent({
+    gameId: 'match-fixture',
+    sequence,
+    turn: 3,
+    phase: GamePhase.Movement,
+    actorId: 'pid_host',
+    source: 'host-gm-intervention',
+    result,
+    timestamp: '2026-06-30T12:00:01.000Z',
+  });
 }
 
 // =============================================================================
@@ -227,6 +270,80 @@ describe('NetworkedGameSurface — turn-ownership gate', () => {
     expect(onSendGameIntent).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'endPhase' }),
     );
+  });
+});
+
+// =============================================================================
+// Command authority projection
+// =============================================================================
+
+describe('NetworkedGameSurface — command authority projection', () => {
+  it('shows host GM authority controls for the match host', () => {
+    const onPreviewHostGmCorrection = jest.fn();
+    const onApproveHostGmCorrection = jest.fn();
+    renderSurface({
+      playerId: 'pid_host',
+      hostPlayerId: 'pid_host',
+      onPreviewHostGmCorrection,
+      onApproveHostGmCorrection,
+    });
+
+    expect(
+      screen.getByTestId('network-command-authority-summary'),
+    ).toHaveTextContent('Host tactical authority');
+    expect(
+      screen.getByTestId('network-command-authority-private'),
+    ).toHaveTextContent('GM-private');
+    expect(
+      screen.getByTestId('networked-host-gm-controls'),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('networked-gm-preview-btn'));
+    fireEvent.click(screen.getByTestId('networked-gm-approve-btn'));
+
+    expect(onPreviewHostGmCorrection).toHaveBeenCalledTimes(1);
+    expect(onApproveHostGmCorrection).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows guest validated intent authority without GM controls', () => {
+    renderSurface({
+      playerId: 'pid_guest',
+      hostPlayerId: 'pid_host',
+    });
+
+    expect(
+      screen.getByTestId('network-command-authority-summary'),
+    ).toHaveTextContent('Guest public mirror');
+    expect(
+      screen.getByTestId('network-command-authority-public-only'),
+    ).toHaveTextContent('Public results');
+    expect(
+      screen.queryByTestId('networked-host-gm-controls'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('GM-private')).not.toBeInTheDocument();
+  });
+
+  it('renders replayed GM correction results without private metadata', () => {
+    const authoritative = buildAuthoritativeSession();
+    const commandResult = makePublicGmCommandResultEvent(
+      authoritative.events.length,
+    );
+    const events = authoritative.events.concat([commandResult]);
+
+    renderSurface({
+      session: buildMirrorSession(events),
+      events,
+      playerId: 'pid_guest',
+      hostPlayerId: 'pid_host',
+    });
+
+    expect(screen.getByTestId('network-command-result-feed')).toHaveTextContent(
+      'Atlas armor corrected by the host GM.',
+    );
+    expect(
+      screen.getByTestId('network-command-result-feed'),
+    ).not.toHaveTextContent('Hidden GM adjudication');
+    expect(screen.queryByText(/Secret objective/)).not.toBeInTheDocument();
   });
 });
 

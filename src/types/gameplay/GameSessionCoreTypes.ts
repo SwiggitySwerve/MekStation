@@ -101,6 +101,7 @@ export enum GameEventType {
   HeatGenerated = 'heat_generated',
   HeatDissipated = 'heat_dissipated',
   HeatEffectApplied = 'heat_effect_applied',
+  CommandResultPublished = 'command_result_published',
   PilotHit = 'pilot_hit',
   UnitDestroyed = 'unit_destroyed',
   TerrainChanged = 'terrain_changed',

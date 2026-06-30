@@ -161,6 +161,12 @@ export interface IStartupAttemptPayload {
   readonly rolls?: readonly number[];
 }
 
+export interface ICommandResultPublishedPayload {
+  readonly source: 'host-command' | 'host-gm-intervention';
+  readonly result: unknown;
+  readonly publicSummary: string;
+}
+
 export interface IAmmoConsumedPayload {
   readonly unitId: string;
   readonly binId: string;
@@ -549,6 +555,7 @@ export type GameEventPayload =
   | IDamageAppliedPayload
   | IHeatPayload
   | IPilotHitPayload
+  | ICommandResultPublishedPayload
   | IAmmoExplosionPayload
   | IUnitDestroyedPayload
   | IRedactedUnitDestroyedPayload

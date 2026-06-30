@@ -41,10 +41,12 @@
  * @spec openspec/changes/add-authoritative-roll-arbitration/specs/multiplayer-server/spec.md
  */
 
-import type { WebSocket as WsWebSocket } from 'ws';
+export type { WebSocket as WsWebSocket } from 'ws';
 
-import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
-import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
+import type {
+  IGameEvent,
+  IGameSession,
+} from '@/types/gameplay/GameSessionInterfaces';
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 
 import { InteractiveSession } from '@/engine/InteractiveSession';
@@ -64,6 +66,7 @@ import {
 } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
+import type { IPublishNetworkedCommandResultInput } from './ServerMatchHostCommandResults';
 import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import { type IServerDiceRoller } from './CryptoDiceRoller';
@@ -81,7 +84,9 @@ import {
   type IMatchHostBootstrap,
 } from './ServerMatchHostBootstrap';
 import { ServerMatchHostCapture } from './ServerMatchHostCapture';
+import { publishNetworkedCommandResult } from './ServerMatchHostCommandResults';
 import {
+  buildCommandResultContext,
   buildIntentContext,
   buildLobbyContext,
   buildReconnectContext,
@@ -110,6 +115,10 @@ import {
 import { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
 
 type ReconnectMetadataReader = Pick<MatchLogStorage, 'getMatchMetadata'>;
+type PendingPeerSnapshot = {
+  readonly playerId: string;
+  readonly slotId: string;
+};
 
 // =============================================================================
 // Socket abstraction
@@ -524,19 +533,34 @@ export class ServerMatchHost {
     );
   };
 
+  publishHostCommandResult = async (
+    input: IPublishNetworkedCommandResultInput,
+  ): Promise<IEventMessage> => {
+    if (this.closed) {
+      throw new Error('Match is closed');
+    }
+
+    const message = await publishNetworkedCommandResult(
+      buildCommandResultContext(this.internals()),
+      input,
+    );
+    this.lastBroadcastSeq = Math.max(
+      this.lastBroadcastSeq,
+      (message.event as IGameEvent).sequence,
+    );
+    return message;
+  };
+
   /**
    * harden-multiplayer-transport (M2) test/observability: drop a
    * connection's rate-limit bucket. The WebSocket upgrade handler calls
    * this on socket detach so per-socket state is not retained forever.
    */
-  releaseConnection = (connectionKey: string): void => {
-    this.rateLimiter.release(connectionKey);
-  };
+  releaseConnection = (connectionKey: string): void =>
+    void this.rateLimiter.release(connectionKey);
 
   /** Test/observability: number of accepted intent ids retained. */
-  acceptedIntentCount = (): number => {
-    return this.acceptedIntents.size();
-  };
+  acceptedIntentCount = (): number => this.acceptedIntents.size();
 
   // ---------------------------------------------------------------------------
   // Lifecycle
@@ -578,45 +602,30 @@ export class ServerMatchHost {
    * Wave 5: delegate to the outcome-publisher safety net. Kept as a
    * host method so the context builders can pass a stable callback.
    */
-  private tryPublishOutcome(): void {
-    this.outcomePublisher.tryPublish();
-  }
+  private tryPublishOutcome = (): void =>
+    void this.outcomePublisher.tryPublish();
 
   /** Test/observability: number of currently-connected sockets. */
-  socketCount = (): number => {
-    return this.lifecycle.count();
-  };
+  socketCount = (): number => this.lifecycle.count();
 
   /** Test/observability: most recent broadcast sequence (or -1). */
-  highestSeq = (): number => {
-    return this.lastBroadcastSeq;
-  };
+  highestSeq = (): number => this.lastBroadcastSeq;
 
   /** Test/observability: pull the live session (for assertions). */
-  getSessionForTests = (): IGameSession => {
-    return this.session.getSession();
-  };
+  getSessionForTests = (): IGameSession => this.session.getSession();
 
   /** Whether `closeMatch` has run. */
-  isClosed = (): boolean => {
-    return this.closed;
-  };
+  isClosed = (): boolean => this.closed;
 
   /** Wave 4 test/observability: is the match currently paused? */
-  isPausedForReconnect = (): boolean => {
-    return this.isPaused;
-  };
+  isPausedForReconnect = (): boolean => this.isPaused;
 
   /** Wave 4 test/observability: snapshot pending peers (slot+player). */
-  getPendingPeersForTests = (): ReadonlyArray<{
-    readonly playerId: string;
-    readonly slotId: string;
-  }> => {
-    return this.pendingPeers.getAllPending().map((p) => ({
+  getPendingPeersForTests = (): ReadonlyArray<PendingPeerSnapshot> =>
+    this.pendingPeers.getAllPending().map((p) => ({
       playerId: p.playerId,
       slotId: p.slotId,
     }));
-  };
 
   // ---------------------------------------------------------------------------
   // Internals
@@ -675,20 +684,16 @@ export class ServerMatchHost {
    * the next engine call's consumed rolls land in a clean buffer.
    * Delegates to the capture collaborator.
    */
-  private installFreshCapture(): void {
-    this.capture.installFresh();
-  }
+  private installFreshCapture = (): void => void this.capture.installFresh();
 
   /**
    * Per Wave 3a: stamp the captured d6 sequence onto every fresh event
    * before persistence + broadcast. Delegates to the capture
    * collaborator (first-event attribution strategy documented there).
    */
-  private stampRollsOnNewEvents(
+  private stampRollsOnNewEvents = (
     events: readonly IGameEvent[],
-  ): readonly IGameEvent[] {
-    return this.capture.stampRollsOnNewEvents(events);
-  }
+  ): readonly IGameEvent[] => this.capture.stampRollsOnNewEvents(events);
 
   /**
    * Persist whatever events the session emitted at construction time
@@ -714,9 +719,8 @@ export class ServerMatchHost {
    * Send to every attached socket. Failures (closed socket, etc.) are
    * swallowed — the heartbeat timer will reap dead sockets.
    */
-  private broadcast(message: IServerMessage): void {
-    this.broadcaster.broadcast(message);
-  }
+  private broadcast = (message: IServerMessage): void =>
+    void this.broadcaster.broadcast(message);
 
   /**
    * Broadcast one live game event. With fog disabled this is the same
@@ -741,9 +745,8 @@ export class ServerMatchHost {
    * replay paths where we don't want a single bad socket to throw out
    * of the upgrade handler.
    */
-  private safeSend(socket: IMatchSocket, message: IServerMessage): void {
-    this.broadcaster.safeSend(socket, message);
-  }
+  private safeSend = (socket: IMatchSocket, message: IServerMessage): void =>
+    void this.broadcaster.safeSend(socket, message);
 
   // ---------------------------------------------------------------------------
   // Wave 3b — lobby intent handlers
@@ -755,9 +758,8 @@ export class ServerMatchHost {
    * REST + auth path. Production wiring sets the ref on first
    * SessionJoin so subsequent OccupySeat intents have a name to use.
    */
-  registerPlayerRef = (ref: IPlayerRef): void => {
-    this.playerRefs.set(ref.playerId, ref);
-  };
+  registerPlayerRef = (ref: IPlayerRef): void =>
+    void this.playerRefs.set(ref.playerId, ref);
 
   /**
    * Top-level lobby intent dispatcher. Loads the current meta, routes
@@ -783,7 +785,3 @@ export class ServerMatchHost {
     return messages;
   }
 }
-
-// Re-export the WebSocket type for the upgrade handler so it doesn't
-// need a direct `ws` import alongside the host.
-export type { WsWebSocket };

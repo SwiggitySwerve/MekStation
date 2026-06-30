@@ -1,5 +1,7 @@
 export type {
   CommandCommitStatus,
+  CommandAuthorityControl,
+  CommandAuthorityPath,
   CommandCostCategory,
   CommandDiagnosticEvent,
   CommandPreviewStatus,
@@ -7,6 +9,8 @@ export type {
   CommandReasonSeverity,
   CommandScreenAuthority,
   CommandScreenDomain,
+  CommandScreenViewerRole,
+  ICommandAuthorityProjection,
   ICommandCommitResult,
   ICommandCost,
   ICommandDiagnosticMetadata,

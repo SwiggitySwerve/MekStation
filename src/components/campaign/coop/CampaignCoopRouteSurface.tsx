@@ -43,6 +43,7 @@ import type {
   GuestProposalResult,
 } from '@/types/campaign/CoopCampaign';
 
+import { buildCoopCampaignAuthorityProjection } from '@/lib/command-screen';
 import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
 
 import {
@@ -246,6 +247,20 @@ export function CampaignCoopRouteSurface(
     [routeId, campaign?.id],
   );
   const proposalsApi = useGuestProposals(proposalTransport, proposingPlayerId);
+  const authorityProjection = useMemo(
+    () =>
+      buildCoopCampaignAuthorityProjection({
+        mode:
+          campaign?.coopSession?.mode === 'host'
+            ? 'host'
+            : campaign?.coopSession?.mode === 'guest'
+              ? 'guest'
+              : 'single-player',
+        routeId,
+        pendingProposalCount: pendingProposals.length,
+      }),
+    [campaign?.coopSession?.mode, pendingProposals.length, routeId],
+  );
 
   // Single-player campaigns mount neither co-op surface.
   if (!campaign?.coopSession) {
@@ -260,7 +275,11 @@ export function CampaignCoopRouteSurface(
     }
     return (
       <div data-testid="campaign-coop-route-surface-host" className="mb-6">
-        <HostGmReviewSurface pending={pendingProposals} onDecide={onDecide} />
+        <HostGmReviewSurface
+          pending={pendingProposals}
+          onDecide={onDecide}
+          authorityProjection={authorityProjection}
+        />
       </div>
     );
   }
@@ -283,7 +302,11 @@ export function CampaignCoopRouteSurface(
     }
     return (
       <div data-testid="campaign-coop-route-surface-guest" className="mb-6">
-        <GuestProposalSurface api={proposalsApi} actions={guestActions} />
+        <GuestProposalSurface
+          api={proposalsApi}
+          actions={guestActions}
+          authorityProjection={authorityProjection}
+        />
       </div>
     );
   }
