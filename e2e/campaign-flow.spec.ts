@@ -38,6 +38,8 @@ interface SeededDamagedCampaign {
   readonly campaignId: string;
   readonly auditDate: string;
   readonly matchId: string;
+  readonly repairTicketId: string;
+  readonly unitId: string;
 }
 
 interface SavedCampaignSnapshot {
@@ -325,6 +327,83 @@ async function clearLiveCampaignClientState(page: Page): Promise<void> {
     .toBeNull();
 }
 
+async function readPostBattleCarryForwardSnapshot(
+  page: Page,
+  seeded: SeededDamagedCampaign,
+): Promise<{
+  readonly campaignId: string | null;
+  readonly repairTicketIds: readonly string[];
+  readonly salvageReportCount: number;
+  readonly salvageReportValue: number | null;
+  readonly auditEntryCount: number;
+  readonly auditMatchIds: readonly string[];
+  readonly balance: number | null;
+  readonly centerTorsoArmor: number | null;
+  readonly destroyedComponentNames: readonly string[];
+}> {
+  return page.evaluate(({ matchId, unitId }) => {
+    const campaign = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          campaign?: { getState: () => { getCampaign?: () => any } };
+        };
+      }
+    ).__ZUSTAND_STORES__?.campaign
+      ?.getState()
+      .getCampaign?.();
+
+    const salvageReport = campaign?.salvageReports?.[matchId];
+    const unitCombatState = campaign?.unitCombatStates?.[unitId];
+
+    return {
+      campaignId: typeof campaign?.id === 'string' ? campaign.id : null,
+      repairTicketIds: Array.isArray(campaign?.repairQueue)
+        ? campaign.repairQueue
+            .map((ticket: { ticketId?: unknown }) => ticket.ticketId)
+            .filter((id: unknown): id is string => typeof id === 'string')
+        : [],
+      salvageReportCount: Object.keys(campaign?.salvageReports ?? {}).length,
+      salvageReportValue:
+        typeof salvageReport?.totalValueMercenary === 'number'
+          ? salvageReport.totalValueMercenary
+          : typeof salvageReport?.totalValue === 'number'
+            ? salvageReport.totalValue
+            : null,
+      auditEntryCount: Array.isArray(campaign?.dailyBattleAudit)
+        ? campaign.dailyBattleAudit.length
+        : 0,
+      auditMatchIds: Array.isArray(campaign?.dailyBattleAudit)
+        ? campaign.dailyBattleAudit.flatMap(
+            (entry: { matches?: readonly { matchId?: unknown }[] }) =>
+              Array.isArray(entry.matches)
+                ? entry.matches
+                    .map((match) => match.matchId)
+                    .filter(
+                      (matchId: unknown): matchId is string =>
+                        typeof matchId === 'string',
+                    )
+                : [],
+          )
+        : [],
+      balance:
+        typeof campaign?.finances?.balance?.amount === 'number'
+          ? campaign.finances.balance.amount
+          : null,
+      centerTorsoArmor:
+        typeof unitCombatState?.currentArmorPerLocation?.CT === 'number'
+          ? unitCombatState.currentArmorPerLocation.CT
+          : null,
+      destroyedComponentNames: Array.isArray(
+        unitCombatState?.destroyedComponents,
+      )
+        ? unitCombatState.destroyedComponents
+            .map((component: { name?: unknown }) => component.name)
+            .filter((name: unknown): name is string => typeof name === 'string')
+        : [],
+    };
+  }, seeded);
+}
+
 async function seedDamagedPostBattleCampaign(
   page: Page,
 ): Promise<SeededDamagedCampaign> {
@@ -366,6 +445,22 @@ async function seedDamagedPostBattleCampaign(
     const auditDate = '3025-01-01';
     const matchId = 'match-campaign-flow-damage';
     const unitId = 'unit-damaged-atlas';
+    const salvageCandidate = {
+      source: 'part',
+      unitId: 'enemy-locust',
+      designation: 'Medium Laser',
+      destroyedFromBattle: matchId,
+      finalStatus: 'destroyed',
+      damageLevel: 'heavy',
+      originalValue: 1_000_000,
+      recoveredValue: 250_000,
+      recoveryPercentage: 0.25,
+      repairCostEstimate: 25_000,
+      partId: 'salvage-medium-laser',
+      location: 'RA',
+      disposition: 'mercenary',
+      status: 'awarded',
+    };
 
     stores.campaignRoster.setState?.({
       campaignId,
@@ -452,10 +547,38 @@ async function seedDamagedPostBattleCampaign(
       ],
       salvageReports: {
         [matchId]: {
-          battleId: matchId,
+          matchId,
           contractId: 'contract-damage-carry-forward',
-          totalCandidates: 1,
-          totalValue: 250_000,
+          candidates: [salvageCandidate],
+          totalValueEmployer: 0,
+          totalValueMercenary: 250_000,
+          hostileTerritoryPenalty: 1,
+          auctionRequired: false,
+        },
+      },
+      salvageAllocations: {
+        [matchId]: {
+          pool: {
+            battleId: matchId,
+            contractId: 'contract-damage-carry-forward',
+            candidates: [salvageCandidate],
+            totalEstimatedValue: 250_000,
+            hostileTerritory: false,
+          },
+          employerAward: {
+            side: 'employer',
+            candidates: [],
+            totalValue: 0,
+            estimatedRepairCost: 0,
+          },
+          mercenaryAward: {
+            side: 'mercenary',
+            candidates: [salvageCandidate],
+            totalValue: 250_000,
+            estimatedRepairCost: 25_000,
+          },
+          splitMethod: 'contract',
+          processed: true,
         },
       },
       unitCombatStates: {
@@ -490,7 +613,13 @@ async function seedDamagedPostBattleCampaign(
       },
     });
 
-    return { campaignId, auditDate, matchId };
+    return {
+      campaignId,
+      auditDate,
+      matchId,
+      repairTicketId: 'ticket-damage-carry-forward-ct',
+      unitId,
+    };
   });
 }
 
@@ -610,54 +739,184 @@ test.describe('Campaign Flow - Mission Generation', () => {
 
 test.describe('Campaign Flow - Damage Carry-Forward', () => {
   test(
-    'shows damaged roster state, audit entry, repair queue, and salvage report',
-    { tag: ['@campaign', '@smoke'] },
-    async ({ page }) => {
-      const seeded = await seedDamagedPostBattleCampaign(page);
+    'persists damaged roster state, audit entry, repair queue, and salvage report after reload',
+    { tag: ['@campaign', '@smoke', '@strict'] },
+    async ({ page }, testInfo) =>
+      withBrowserDiagnostics(page, testInfo, async () => {
+        const seeded = await seedDamagedPostBattleCampaign(page);
 
-      await page.goto(`/gameplay/campaigns/${seeded.campaignId}`);
-      await expect(page.getByTestId('campaign-dashboard')).toBeVisible({
-        timeout: 20_000,
-      });
-      await expect(page.getByTestId('roster-unit-card')).toContainText(
-        'Atlas AS7-D',
-      );
-      await expect(page.getByTestId('roster-unit-card')).toContainText(
-        'Damaged',
-      );
-      await expect(page.getByTestId('daily-battle-audit-feed')).toBeVisible();
-      await expect(
-        page.getByTestId(`audit-entry-${seeded.auditDate}`),
-      ).toContainText('Repairs: 1');
-      await expect(
-        page.getByTestId(`audit-match-link-${seeded.matchId}`),
-      ).toBeVisible();
+        await page.goto(`/gameplay/campaigns/${seeded.campaignId}`);
+        await expect(page.getByTestId('campaign-dashboard')).toBeVisible({
+          timeout: 20_000,
+        });
+        await expect(page.getByTestId('roster-unit-card')).toContainText(
+          'Atlas AS7-D',
+        );
+        await expect(page.getByTestId('roster-unit-card')).toContainText(
+          'Damaged',
+        );
+        await expect(page.getByTestId('daily-battle-audit-feed')).toBeVisible();
+        await expect(
+          page.getByTestId(`audit-entry-${seeded.auditDate}`),
+        ).toContainText('Repairs: 1');
+        await expect(
+          page.getByTestId(`audit-match-link-${seeded.matchId}`),
+        ).toBeVisible();
 
-      const postBattleState = await page.evaluate(() => {
-        const campaign = (
-          window as unknown as {
-            __ZUSTAND_STORES__?: {
-              campaign?: { getState: () => { getCampaign?: () => any } };
-            };
+        const postBattleState = await page.evaluate(() => {
+          const campaign = (
+            window as unknown as {
+              __ZUSTAND_STORES__?: {
+                campaign?: { getState: () => { getCampaign?: () => any } };
+              };
+            }
+          ).__ZUSTAND_STORES__?.campaign
+            ?.getState()
+            .getCampaign?.();
+
+          return {
+            repairTicketCount: campaign?.repairQueue?.length ?? 0,
+            salvageReportCount: Object.keys(campaign?.salvageReports ?? {})
+              .length,
+            auditEntryCount: campaign?.dailyBattleAudit?.length ?? 0,
+          };
+        });
+
+        expect(postBattleState).toEqual({
+          repairTicketCount: 1,
+          salvageReportCount: 1,
+          auditEntryCount: 1,
+        });
+
+        const saved = await saveCampaignThroughDashboard(
+          page,
+          seeded.campaignId,
+        );
+        await clearLiveCampaignClientState(page);
+
+        await page.goto(`/gameplay/campaigns/${seeded.campaignId}`);
+        await waitForE2EHydration(page);
+        await expect(page.getByTestId('campaign-dashboard')).toBeVisible({
+          timeout: 20_000,
+        });
+        await expect(page.getByTestId('roster-unit-card')).toContainText(
+          'Atlas AS7-D',
+        );
+        await expect(page.getByTestId('roster-unit-card')).toContainText(
+          'Damaged',
+        );
+        await expect(page.getByTestId('daily-battle-audit-feed')).toBeVisible();
+        await expect(
+          page.getByTestId(`audit-entry-${seeded.auditDate}`),
+        ).toContainText('Repairs: 1');
+        await expect(
+          page.getByTestId(`audit-match-link-${seeded.matchId}`),
+        ).toBeVisible();
+
+        await page.goto(`/gameplay/campaigns/${seeded.campaignId}/repair-bay`);
+        await waitForE2EHydration(page);
+        await expect(page.getByTestId('repair-bay-queue')).toBeVisible({
+          timeout: 20_000,
+        });
+        await expect(
+          page.getByTestId(`repair-ticket-${seeded.repairTicketId}`),
+        ).toContainText('6h');
+        await expect(
+          page.getByTestId(`repair-ticket-${seeded.repairTicketId}`),
+        ).toContainText('queued');
+
+        await page.goto(`/gameplay/campaigns/${seeded.campaignId}/salvage`);
+        await waitForE2EHydration(page);
+        await expect(page.getByTestId('salvage-panel')).toBeVisible({
+          timeout: 20_000,
+        });
+        await expect(page.getByTestId('salvage-value-total')).toContainText(
+          '250,000 C-Bills',
+        );
+
+        await page.goto(`/gameplay/campaigns/${seeded.campaignId}/finances`);
+        await waitForE2EHydration(page);
+        await expect(page.getByTestId('finances-panel')).toBeVisible({
+          timeout: 20_000,
+        });
+        await expect(page.getByTestId('finances-balance')).toContainText(
+          '2,500,000.00 C-bills',
+        );
+
+        const reloadedState = await readPostBattleCarryForwardSnapshot(
+          page,
+          seeded,
+        );
+        expect(reloadedState).toMatchObject({
+          campaignId: seeded.campaignId,
+          repairTicketIds: [seeded.repairTicketId],
+          salvageReportCount: 1,
+          salvageReportValue: 250_000,
+          auditEntryCount: 1,
+          auditMatchIds: [seeded.matchId],
+          balance: 2_500_000,
+          centerTorsoArmor: 20,
+          destroyedComponentNames: ['Medium Laser'],
+        });
+
+        const serverRecord = await page.evaluate(async (id) => {
+          const response = await fetch(`/api/campaigns/${id}`);
+          if (!response.ok) {
+            throw new Error(`server responded ${response.status}`);
           }
-        ).__ZUSTAND_STORES__?.campaign
-          ?.getState()
-          .getCampaign?.();
-
-        return {
-          repairTicketCount: campaign?.repairQueue?.length ?? 0,
-          salvageReportCount: Object.keys(campaign?.salvageReports ?? {})
-            .length,
-          auditEntryCount: campaign?.dailyBattleAudit?.length ?? 0,
-        };
-      });
-
-      expect(postBattleState).toEqual({
-        repairTicketCount: 1,
-        salvageReportCount: 1,
-        auditEntryCount: 1,
-      });
-    },
+          const record = (await response.json()) as {
+            campaignId?: unknown;
+            version?: unknown;
+            body?: {
+              dailyBattleAudit?: unknown[];
+              repairQueue?: unknown[];
+              salvageReports?: Record<
+                string,
+                { totalValue?: unknown; totalValueMercenary?: unknown }
+              >;
+              unitCombatStates?: Record<
+                string,
+                { destroyedComponents?: unknown[] }
+              >;
+            };
+          };
+          const body = record.body;
+          return {
+            campaignId: record.campaignId,
+            version: record.version,
+            repairTicketCount: Array.isArray(body?.repairQueue)
+              ? body.repairQueue.length
+              : 0,
+            salvageReportValue:
+              typeof body?.salvageReports?.['match-campaign-flow-damage']
+                ?.totalValueMercenary === 'number'
+                ? body.salvageReports['match-campaign-flow-damage']
+                    .totalValueMercenary
+                : typeof body?.salvageReports?.['match-campaign-flow-damage']
+                      ?.totalValue === 'number'
+                  ? body.salvageReports['match-campaign-flow-damage'].totalValue
+                  : null,
+            auditEntryCount: Array.isArray(body?.dailyBattleAudit)
+              ? body.dailyBattleAudit.length
+              : 0,
+            destroyedComponentCount: Array.isArray(
+              body?.unitCombatStates?.['unit-damaged-atlas']
+                ?.destroyedComponents,
+            )
+              ? body.unitCombatStates['unit-damaged-atlas'].destroyedComponents
+                  .length
+              : 0,
+          };
+        }, seeded.campaignId);
+        expect(serverRecord).toEqual({
+          campaignId: seeded.campaignId,
+          version: saved.version,
+          repairTicketCount: 1,
+          salvageReportValue: 250_000,
+          auditEntryCount: 1,
+          destroyedComponentCount: 1,
+        });
+      }),
   );
 });
 

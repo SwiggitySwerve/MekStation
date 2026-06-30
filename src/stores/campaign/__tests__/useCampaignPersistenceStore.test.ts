@@ -20,12 +20,15 @@ import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 
 import { registerCampaignStoreAccessor } from '../campaignStoreAccessor';
 import {
   AUTO_SAVE_DEBOUNCE_MS,
   useCampaignPersistenceStore,
 } from '../useCampaignPersistenceStore';
+import { useCampaignRosterStore } from '../useCampaignRosterStore';
 
 // =============================================================================
 // Minimal mock campaign store for the live-campaign seam
@@ -69,6 +72,53 @@ function jsonResponse(status: number, body: unknown): Response {
   } as Response;
 }
 
+function seedRosterProjection(campaignId: string): void {
+  useCampaignRosterStore.setState({
+    campaignId,
+    units: [
+      {
+        unitId: 'unit-atlas-as7d',
+        unitName: 'Atlas AS7-D',
+        pilotId: 'pilot-morgan-kell',
+        chassisVariant: 'AS7-D',
+        readiness: 'Damaged',
+      },
+    ],
+    pilots: [
+      {
+        pilotId: 'pilot-morgan-kell',
+        pilotName: 'Morgan Kell',
+        status: CampaignPilotStatus.Active,
+        wounds: 1,
+        xp: 2,
+        campaignXpEarned: 2,
+        campaignKills: 1,
+        campaignMissions: 1,
+        recoveryTime: 0,
+        hireDate: new Date('3025-01-01T00:00:00.000Z'),
+        primaryRole: CampaignPersonnelRole.PILOT,
+        rankIndex: 0,
+        assignedUnitId: 'unit-atlas-as7d',
+      },
+    ],
+    missions: [
+      {
+        id: 'mission-damage-carry-forward',
+        missionNumber: 1,
+        name: 'Damage Carry Forward',
+        result: 'victory',
+        encounterId: 'encounter-damage-carry-forward',
+        campaignId,
+        deployedUnitIds: ['unit-atlas-as7d'],
+        completedAt: '3025-01-02T00:00:00.000Z',
+        turnsPlayed: 5,
+      },
+    ],
+    activeMissionId: null,
+    missionCount: 1,
+  });
+}
+
 // =============================================================================
 // Setup
 // =============================================================================
@@ -84,6 +134,7 @@ describe('useCampaignPersistenceStore', () => {
       () => mockStore as unknown as ReturnType<MockAccessor>,
     );
     useCampaignPersistenceStore.getState().reset();
+    useCampaignRosterStore.getState().reset();
   });
 
   afterEach(() => {
@@ -151,6 +202,73 @@ describe('useCampaignPersistenceStore', () => {
     expect(ok).toBe(true);
     expect(useCampaignPersistenceStore.getState().baseVersion).toBe(3);
     expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
+  });
+
+  it('loadCampaign rehydrates the server roster projection', async () => {
+    const envelope = buildSerializedCampaign(campaign, 'device-y', 3, {
+      campaignId: campaign.id,
+      units: [
+        {
+          unitId: 'unit-atlas-as7d',
+          unitName: 'Atlas AS7-D',
+          pilotId: 'pilot-morgan-kell',
+          chassisVariant: 'AS7-D',
+          readiness: 'Damaged',
+        },
+      ],
+      pilots: [
+        {
+          pilotId: 'pilot-morgan-kell',
+          pilotName: 'Morgan Kell',
+          status: CampaignPilotStatus.Active,
+          wounds: 1,
+          xp: 2,
+          campaignXpEarned: 2,
+          campaignKills: 1,
+          campaignMissions: 1,
+          recoveryTime: 0,
+          hireDate: '3025-01-01T00:00:00.000Z',
+          primaryRole: CampaignPersonnelRole.PILOT,
+          rankIndex: 0,
+          assignedUnitId: 'unit-atlas-as7d',
+        },
+      ],
+      missions: [
+        {
+          id: 'mission-damage-carry-forward',
+          missionNumber: 1,
+          name: 'Damage Carry Forward',
+          result: 'victory',
+          encounterId: 'encounter-damage-carry-forward',
+          campaignId: campaign.id,
+          deployedUnitIds: ['unit-atlas-as7d'],
+          completedAt: '3025-01-02T00:00:00.000Z',
+          turnsPlayed: 5,
+        },
+      ],
+      activeMissionId: null,
+      missionCount: 1,
+    });
+    jest.spyOn(global, 'fetch').mockResolvedValue(jsonResponse(200, envelope));
+
+    const ok = await useCampaignPersistenceStore
+      .getState()
+      .loadCampaign(campaign.id);
+
+    expect(ok).toBe(true);
+    const roster = useCampaignRosterStore.getState();
+    expect(roster.campaignId).toBe(campaign.id);
+    expect(roster.units[0]).toMatchObject({
+      unitId: 'unit-atlas-as7d',
+      unitName: 'Atlas AS7-D',
+      readiness: 'Damaged',
+    });
+    expect(roster.pilots[0].hireDate).toBeInstanceOf(Date);
+    expect(roster.pilots[0].hireDate.toISOString()).toBe(
+      '3025-01-01T00:00:00.000Z',
+    );
+    expect(roster.missions[0].deployedUnitIds).toEqual(['unit-atlas-as7d']);
+    expect(roster.missionCount).toBe(1);
   });
 
   it('loadCampaign returns false on a 404', async () => {
@@ -257,5 +375,45 @@ describe('useCampaignPersistenceStore', () => {
 
     // Issued immediately — no timer advance needed.
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('saveCampaign includes the matching roster projection in the server envelope', async () => {
+    seedRosterProjection(campaign.id);
+    const putBodies: Array<{
+      envelope: SerializedCampaign;
+      baseVersion: number;
+    }> = [];
+    const fetchMock = jest
+      .spyOn(global, 'fetch')
+      .mockImplementation(async (_input, init) => {
+        const putBody = JSON.parse(
+          String((init as RequestInit).body),
+        ) as (typeof putBodies)[number];
+        putBodies.push(putBody);
+        return jsonResponse(200, putBody.envelope);
+      });
+
+    await useCampaignPersistenceStore.getState().saveCampaign();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(putBodies).toHaveLength(1);
+    const savedPutBody = putBodies[0];
+    expect(savedPutBody.envelope.body.rosterProjection).toBeDefined();
+    expect(savedPutBody.envelope.body.rosterProjection?.campaignId).toBe(
+      campaign.id,
+    );
+    expect(savedPutBody.envelope.body.rosterProjection?.units[0]).toMatchObject(
+      {
+        unitId: 'unit-atlas-as7d',
+        unitName: 'Atlas AS7-D',
+        readiness: 'Damaged',
+      },
+    );
+    expect(
+      savedPutBody.envelope.body.rosterProjection?.pilots[0].hireDate,
+    ).toBe('3025-01-01T00:00:00.000Z');
+    expect(
+      savedPutBody.envelope.body.rosterProjection?.missions[0].deployedUnitIds,
+    ).toEqual(['unit-atlas-as7d']);
   });
 });

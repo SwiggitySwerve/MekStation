@@ -25,10 +25,12 @@ import type {
 } from './CampaignCommandExtensions';
 import type { ICampaignLoan } from './CampaignLoan';
 import type { ICampaignOptions } from './CampaignOptions';
+import type { ICampaignRosterEntry } from './CampaignRosterEntry';
 import type { CampaignType } from './CampaignType';
 import type { ICoopSession } from './CoopSession';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
 import type { IForce } from './Force';
+import type { IDailyBattleAuditEntry } from './IDailyBattleAuditEntry';
 import type {
   IPersonnelMarketOffer,
   IUnitMarketOffer,
@@ -38,6 +40,7 @@ import type { IPartsInventoryItem } from './PartsInventory';
 import type { IMoraleTransition, IUnitPrestige, MoraleState } from './Prestige';
 import type { IRefitOrder } from './Refit';
 import type { IRepairTicket } from './RepairTicket';
+import type { IRosterUnitProjection } from './RosterUnitProjection';
 import type { ISalvageAllocation, ISalvageReport } from './Salvage';
 import type { ICombatTeam } from './scenario/scenarioTypes';
 import type { IUnitCombatState, IUnitMaxState } from './UnitCombatState';
@@ -106,6 +109,52 @@ export interface SerializedFinances {
 }
 
 /**
+ * JSON-safe roster entry carried beside the campaign body. Campaign roster
+ * state lives outside `ICampaign`, but server-backed load/reload flows need
+ * this projection to rebuild the dashboard roster and personnel surfaces.
+ */
+export interface SerializedCampaignRosterEntry extends Omit<
+  ICampaignRosterEntry,
+  'hireDate' | 'lastPromotionDate' | 'salary'
+> {
+  /** ISO 8601 string. */
+  readonly hireDate: string;
+  /** Salary in C-bills (the `Money.amount` scalar). */
+  readonly salary?: number;
+  /** ISO 8601 string. */
+  readonly lastPromotionDate?: string;
+}
+
+/** JSON-safe campaign mission-history projection from the roster store. */
+export interface SerializedCampaignRosterMissionRecord {
+  readonly id: string;
+  readonly missionNumber: number;
+  readonly name: string;
+  readonly result: 'victory' | 'defeat' | 'draw' | 'pending';
+  readonly encounterId?: string;
+  readonly gameSessionId?: string;
+  readonly campaignId: string;
+  readonly deployedUnitIds: readonly string[];
+  readonly completedAt?: string;
+  readonly turnsPlayed?: number;
+}
+
+/**
+ * Thin server snapshot of `useCampaignRosterStore`. Damage remains canonical
+ * on `SerializedCampaignBody.unitCombatStates`; this snapshot is only the
+ * display/personnel/mission projection required to recover campaign UI after
+ * local client state is cleared.
+ */
+export interface SerializedCampaignRosterState {
+  readonly campaignId: string;
+  readonly units: readonly IRosterUnitProjection[];
+  readonly pilots: readonly SerializedCampaignRosterEntry[];
+  readonly missions: readonly SerializedCampaignRosterMissionRecord[];
+  readonly activeMissionId: string | null;
+  readonly missionCount: number;
+}
+
+/**
  * `ICampaign` with every `Map` field replaced by an array of
  * `[key, value]` pairs and every `Date` field replaced by an ISO 8601
  * string. This is the JSON-safe campaign body wrapped by the envelope.
@@ -149,6 +198,8 @@ export interface SerializedCampaignBody {
   readonly gmInterventionEvents?: readonly IGmCampaignProjectedEffect[];
   readonly timeCascadeEvents?: readonly IGmTimeCascadeProjectedEffect[];
   readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
+  /** Daily post-battle audit entries shown on the campaign dashboard. */
+  readonly dailyBattleAudit?: readonly IDailyBattleAuditEntry[];
   /**
    * The campaign's loan ledger (CP2b — `add-campaign-command-ui`,
    * design D4). Optional and absent on pre-CP2b snapshots. Every
@@ -198,6 +249,8 @@ export interface SerializedCampaignBody {
   readonly activeContract?: ICampaignActiveContract;
   /** Unit-market offers stored by unitMarketProcessor (audit D-7, W3.4). */
   readonly unitMarket?: readonly IUnitMarketOffer[];
+  /** Server-backed projection of the separate campaign roster store. */
+  readonly rosterProjection?: SerializedCampaignRosterState;
 }
 
 // =============================================================================
