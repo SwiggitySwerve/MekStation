@@ -15,6 +15,9 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 import type {
   ICampaignSaveMetadata,
   SerializedCampaign,
+  SerializedCampaignRosterEntry,
+  SerializedCampaignRosterMissionRecord,
+  SerializedCampaignRosterState,
 } from '@/types/campaign/SerializedCampaign';
 
 import {
@@ -24,8 +27,10 @@ import {
   getDeviceId,
   migrateSerializedCampaign,
 } from '@/lib/campaign/persistence';
+import { Money } from '@/types/campaign/Money';
 
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
+import { useCampaignRosterStore } from './useCampaignRosterStore';
 
 export const AUTO_SAVE_DEBOUNCE_MS = 2000;
 
@@ -98,6 +103,105 @@ function writeLiveCampaign(campaign: ICampaign): void {
   store?.getState().switchCampaign(campaign);
 }
 
+function dateToIso(value: Date | string | undefined): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+}
+
+function deserializeOptionalDate(value: string | undefined): Date | undefined {
+  if (!value) {
+    return undefined;
+  }
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date;
+}
+
+function serializeRosterEntry(
+  entry: ReturnType<typeof useCampaignRosterStore.getState>['pilots'][number],
+): SerializedCampaignRosterEntry {
+  const { hireDate, lastPromotionDate, salary, ...rest } = entry;
+  const serialized: SerializedCampaignRosterEntry = {
+    ...rest,
+    hireDate: dateToIso(hireDate) ?? new Date(0).toISOString(),
+  };
+  const promotionDate = dateToIso(lastPromotionDate);
+  return {
+    ...serialized,
+    ...(salary ? { salary: salary.amount } : {}),
+    ...(promotionDate ? { lastPromotionDate: promotionDate } : {}),
+  };
+}
+
+function deserializeRosterEntry(
+  entry: SerializedCampaignRosterEntry,
+): ReturnType<typeof useCampaignRosterStore.getState>['pilots'][number] {
+  const { hireDate, lastPromotionDate, salary, ...rest } = entry;
+  return {
+    ...rest,
+    hireDate: deserializeOptionalDate(hireDate) ?? new Date(0),
+    ...(salary !== undefined ? { salary: new Money(salary) } : {}),
+    ...(lastPromotionDate
+      ? { lastPromotionDate: deserializeOptionalDate(lastPromotionDate) }
+      : {}),
+  };
+}
+
+function cloneRosterMission(
+  mission: ReturnType<
+    typeof useCampaignRosterStore.getState
+  >['missions'][number],
+): SerializedCampaignRosterMissionRecord {
+  return {
+    ...mission,
+    deployedUnitIds: [...mission.deployedUnitIds],
+  };
+}
+
+function readLiveRosterSnapshot(
+  campaignId: string,
+): SerializedCampaignRosterState | undefined {
+  const roster = useCampaignRosterStore.getState();
+  if (roster.campaignId !== campaignId) {
+    return undefined;
+  }
+  return {
+    campaignId,
+    units: roster.units.map((unit) => ({ ...unit })),
+    pilots: roster.pilots.map(serializeRosterEntry),
+    missions: roster.missions.map(cloneRosterMission),
+    activeMissionId: roster.activeMissionId,
+    missionCount: roster.missionCount,
+  };
+}
+
+function restoreRosterProjection(
+  campaignId: string,
+  rosterProjection: SerializedCampaignRosterState | undefined,
+): void {
+  if (!rosterProjection) {
+    const roster = useCampaignRosterStore.getState();
+    if (roster.campaignId !== campaignId) {
+      roster.initRoster(campaignId);
+    }
+    return;
+  }
+
+  useCampaignRosterStore.setState({
+    campaignId,
+    units: rosterProjection.units.map((unit) => ({ ...unit })),
+    pilots: rosterProjection.pilots.map(deserializeRosterEntry),
+    missions: rosterProjection.missions.map((mission) => ({
+      ...mission,
+      deployedUnitIds: [...mission.deployedUnitIds],
+    })),
+    activeMissionId: rosterProjection.activeMissionId,
+    missionCount: rosterProjection.missionCount,
+  });
+}
+
 function metadataFrom(record: SerializedCampaign): ICampaignSaveMetadata {
   return {
     lastSavedAt: record.savedAt,
@@ -122,6 +226,7 @@ async function performSave(
     campaign,
     getDeviceId(),
     baseVersion + 1,
+    readLiveRosterSnapshot(campaign.id),
   );
   set({ saveState: 'saving', errorMessage: null });
 
@@ -182,6 +287,7 @@ function loadCampaignAction(
         (await response.json()) as SerializedCampaign,
       );
       writeLiveCampaign(deserializeCampaignBody(migrated.body));
+      restoreRosterProjection(id, migrated.body.rosterProjection);
       set({
         campaignId: id,
         dirty: false,
@@ -256,6 +362,10 @@ function resolveConflictTakeServerAction(
     }
     const migrated = migrateSerializedCampaign(serverRecord);
     writeLiveCampaign(deserializeCampaignBody(migrated.body));
+    restoreRosterProjection(
+      migrated.campaignId,
+      migrated.body.rosterProjection,
+    );
     set({
       campaignId: migrated.campaignId,
       dirty: false,

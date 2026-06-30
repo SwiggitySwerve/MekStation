@@ -13,6 +13,7 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 import type {
   ICampaignSummary,
   SerializedCampaign,
+  SerializedCampaignRosterState,
 } from '@/types/campaign/SerializedCampaign';
 
 import { CURRENT_CAMPAIGN_SCHEMA_VERSION } from './campaignMigration';
@@ -32,14 +33,16 @@ export function buildSerializedCampaign(
   campaign: ICampaign,
   originDeviceId: string,
   version: number,
+  rosterProjection?: SerializedCampaignRosterState,
 ): SerializedCampaign {
+  const body = serializeCampaign(campaign);
   return {
     schemaVersion: CURRENT_CAMPAIGN_SCHEMA_VERSION,
     campaignId: campaign.id,
     savedAt: new Date().toISOString(),
     originDeviceId,
     version,
-    body: serializeCampaign(campaign),
+    body: rosterProjection ? { ...body, rosterProjection } : body,
   };
 }
 

@@ -14,6 +14,7 @@
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
+import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
 import type { IFinances } from '@/types/campaign/IFinances';
 import type { ILoan } from '@/types/campaign/Loan';
 import type {
@@ -128,6 +129,12 @@ export function serializeCampaign(campaign: ICampaign): SerializedCampaignBody {
   // sees them (same convention as the store-path serializer in
   // stores/campaign/useCampaignStore.persistence.ts).
   const extended = campaign as ICampaignWithCommand;
+  const dailyBattleAudit =
+    (
+      campaign as ICampaign & {
+        dailyBattleAudit?: readonly IDailyBattleAuditEntry[];
+      }
+    ).dailyBattleAudit ?? undefined;
   return {
     id: campaign.id,
     name: campaign.name,
@@ -164,6 +171,7 @@ export function serializeCampaign(campaign: ICampaign): SerializedCampaignBody {
     gmInterventionEvents: campaign.gmInterventionEvents,
     timeCascadeEvents: campaign.timeCascadeEvents,
     recentlyAppliedOutcomes: campaign.recentlyAppliedOutcomes,
+    dailyBattleAudit,
     // The loan ledger (CP2b — `add-campaign-command-ui`, design D4) is
     // a campaign-extension field; every `ICampaignLoan` field is already
     // a JSON-safe scalar so it serializes directly. Omitted when absent.
@@ -231,6 +239,7 @@ export function deserializeCampaignBody(
     gmInterventionEvents: body.gmInterventionEvents,
     timeCascadeEvents: body.timeCascadeEvents,
     recentlyAppliedOutcomes: body.recentlyAppliedOutcomes,
+    dailyBattleAudit: body.dailyBattleAudit,
     // Restore the loan ledger (design D4). Absent on pre-CP2b snapshots,
     // in which case the campaign simply carries no `loans` field.
     ...(body.loans !== undefined ? { loans: body.loans } : {}),

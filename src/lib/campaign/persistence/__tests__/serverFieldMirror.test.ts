@@ -33,6 +33,7 @@
  */
 
 import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
+import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
 import type { ILoan } from '@/types/campaign/Loan';
 import type { SerializedCampaignBody } from '@/types/campaign/SerializedCampaign';
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
@@ -107,7 +108,9 @@ function makeAmortizedLoan(): ILoan {
  * Extend the populated fixture campaign with every field the pre-fix
  * server serializer dropped — the full-shape sweep input.
  */
-function buildExtendedCampaign(): ICampaignWithCommand {
+function buildExtendedCampaign(): ICampaignWithCommand & {
+  readonly dailyBattleAudit: readonly IDailyBattleAuditEntry[];
+} {
   const base = buildPopulatedCampaign();
   return {
     ...base,
@@ -217,6 +220,26 @@ function buildExtendedCampaign(): ICampaignWithCommand {
         ],
         externalEffects: [],
         publicSummary: 'Campaign time corrected by 2 days.',
+      },
+    ],
+    dailyBattleAudit: [
+      {
+        date: '3025-02-01',
+        matchesProcessed: 1,
+        matches: [
+          {
+            matchId: 'match-001',
+            contractId: 'contract-77',
+            summary: 'Victory - damage carry-forward proof',
+          },
+        ],
+        totalXpAwarded: 2,
+        pilotsWounded: 1,
+        pilotsKia: 0,
+        pilotsMia: 0,
+        salvageValueSecured: 250_000,
+        repairTicketsCreated: 1,
+        contractsClosed: ['contract-77'],
       },
     ],
     loans: [
@@ -333,6 +356,19 @@ describe('T3 — server-side campaign serialization field mirror', () => {
     });
     expect(restored.unitMarket).toHaveLength(1);
     expect(restored.unitMarket![0].unitName).toBe('Atlas AS7-D');
+    const auditRestored = restored as ICampaignWithCommand & {
+      readonly dailyBattleAudit?: readonly IDailyBattleAuditEntry[];
+    };
+    expect(auditRestored.dailyBattleAudit).toHaveLength(1);
+    expect(auditRestored.dailyBattleAudit![0]).toMatchObject({
+      date: '3025-02-01',
+      matchesProcessed: 1,
+      repairTicketsCreated: 1,
+      salvageValueSecured: 250_000,
+    });
+    expect(auditRestored.dailyBattleAudit![0].matches[0].matchId).toBe(
+      'match-001',
+    );
   });
 
   it('the amortization ledger rehydrates with live Money / Date instances', () => {
@@ -395,6 +431,13 @@ describe('T3 — server-side campaign serialization field mirror', () => {
     expect(restored.contractMarket).toBeUndefined();
     expect(restored.activeContract).toBeUndefined();
     expect(restored.unitMarket).toBeUndefined();
+    expect(
+      (
+        restored as ICampaignWithCommand & {
+          readonly dailyBattleAudit?: readonly IDailyBattleAuditEntry[];
+        }
+      ).dailyBattleAudit,
+    ).toBeUndefined();
   });
 
   it('compile-time: SerializedCampaignBody covers every ICampaignWithCommand field (drift guard)', () => {
