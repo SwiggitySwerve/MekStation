@@ -16,11 +16,10 @@
  * @module lib/finances/loanService
  */
 
-import { randomUUID } from 'crypto';
-
 import type { ILoan } from '@/types/campaign/Loan';
 
 import { Money } from '@/types/campaign/Money';
+import { generateUUID } from '@/utils/uuid';
 
 /**
  * Payment breakdown for a single loan payment
@@ -110,7 +109,7 @@ export function createLoan(
   nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
 
   return {
-    id: randomUUID(),
+    id: generateUUID(),
     principal,
     annualRate,
     termMonths,
