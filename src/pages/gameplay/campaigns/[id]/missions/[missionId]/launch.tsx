@@ -36,6 +36,7 @@ import {
   publishCoopParticipation,
   subscribeCoopParticipation,
 } from '@/lib/campaign/coop/coopRuntimeSession';
+import { buildCampaignCustomizerHref } from '@/lib/campaign/customizer/campaignCustomizerRoute';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
 import {
   buildMissionReadinessProjection,
@@ -56,6 +57,7 @@ import {
 import { MissionReadinessPanel } from '@/pages-modules/gameplay/campaigns/missionLaunchReadinessPanel';
 import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { RulesLevel } from '@/types/enums/RulesLevel';
 
 function localPlayerNameForMode(mode: 'host' | 'guest'): string {
   return mode === 'host' ? 'You (Host)' : 'You (Guest)';
@@ -327,6 +329,18 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
           <MissionReadinessPanel
             projection={readinessProjection}
             onToggleUnit={handleToggleRosterUnit}
+            buildCustomizeHref={(unitId) =>
+              buildCampaignCustomizerHref({
+                campaignId: loadedCampaign.id,
+                unitId,
+                missionId: missionKey ?? undefined,
+                returnTo: 'mission-readiness',
+                campaignDate: loadedCampaign.currentDate.toISOString(),
+                budget: loadedCampaign.finances.balance.amount,
+                rulesLevel: RulesLevel.STANDARD,
+                refitConstraints: 'campaign-owned-refit',
+              })
+            }
           />
 
           {launchError ? (

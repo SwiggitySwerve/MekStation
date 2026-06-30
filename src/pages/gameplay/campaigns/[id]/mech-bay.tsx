@@ -8,16 +8,16 @@
  * @spec openspec/changes/add-campaign-bay-ui/specs/campaign-bay-ui/spec.md
  */
 
-import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import React from 'react';
 
 import { MechBay } from '@/components/campaign/bays/MechBay';
-import { RefitLaunchPanel } from '@/components/campaign/bays/RefitLaunchPanel';
+import { buildCampaignCustomizerHref } from '@/lib/campaign/customizer/campaignCustomizerRoute';
 import { buildMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
-import { resolveUnitConfiguration } from '@/lib/campaign/refit/unitConfiguration';
 import * as CampaignShell from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
-import { commitRefitOrder } from '@/stores/campaign/campaignRefitActions';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { RulesLevel } from '@/types/enums/RulesLevel';
 
 const MECH_BAY_LOADING = {
   title: 'Mech Bay',
@@ -26,6 +26,7 @@ const MECH_BAY_LOADING = {
 } as const;
 
 export default function MechBayPage(): React.ReactElement {
+  const router = useRouter();
   const shell = CampaignShell.useCampaignPageShell('Mech Bay');
   const units = useCampaignRosterStore((state) => state.units);
   const pilots = useCampaignRosterStore((state) => state.pilots);
@@ -33,8 +34,6 @@ export default function MechBayPage(): React.ReactElement {
     state.getActiveMission(),
   );
   const loadStatus = CampaignShell.useCampaignLoadStatus();
-  // The unit currently selected for the refit launch flow (CP3, design D6).
-  const [refitUnitId, setRefitUnitId] = useState<string | null>(null);
 
   const pendingPage = CampaignShell.renderPendingCampaignPage(
     shell,
@@ -75,45 +74,32 @@ export default function MechBayPage(): React.ReactElement {
     loadStatus,
   );
 
-  // The unit selected for refit, and its current configuration.
-  const refitUnit = refitUnitId
-    ? (units.find((u) => u.unitId === refitUnitId) ?? null)
-    : null;
-  const refitCurrentConfig = refitUnit
-    ? resolveUnitConfiguration(campaign, refitUnit.unitId)
-    : null;
-
   return (
     <CampaignShell.CampaignPageFrameFromShell shell={shell} frame={frame}>
       {saveError ?? (
         <>
           {/* Refit launch flow (CP3, design D6) — opens above the grid
               when the player picks a unit's Refit affordance. */}
-          {refitUnit && refitCurrentConfig ? (
-            <div className="mb-6">
-              <RefitLaunchPanel
-                unitId={refitUnit.unitId}
-                unitName={refitUnit.unitName}
-                currentConfiguration={refitCurrentConfig}
-                onCommit={(target) =>
-                  commitRefitOrder({
-                    unitId: refitUnit.unitId,
-                    currentConfiguration: refitCurrentConfig,
-                    targetConfiguration: target,
-                  })
-                }
-                onCancel={() => setRefitUnitId(null)}
-              />
-            </div>
-          ) : null}
-
           <MechBay
             units={units}
             readinessByUnitId={readinessByUnitId}
             unitTonnageById={unitTonnageById}
             repairBay={repairBay}
             campaignId={campaign.id}
-            onLaunchRefit={(unitId) => setRefitUnitId(unitId)}
+            onLaunchRefit={(unitId) => {
+              void router.push(
+                buildCampaignCustomizerHref({
+                  campaignId: campaign.id,
+                  unitId,
+                  missionId: activeMissionRecord?.id,
+                  returnTo: 'mek-stable',
+                  campaignDate: campaign.currentDate.toISOString(),
+                  budget: campaign.finances.balance.amount,
+                  rulesLevel: RulesLevel.STANDARD,
+                  refitConstraints: 'campaign-owned-refit',
+                }),
+              );
+            }}
           />
         </>
       )}

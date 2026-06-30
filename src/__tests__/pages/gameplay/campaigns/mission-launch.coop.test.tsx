@@ -242,6 +242,15 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
       render(<CoopMissionLaunchPage />);
     });
 
+    expect(
+      screen.getByTestId('mission-readiness-customize-atlas-as7-d'),
+    ).toHaveAttribute(
+      'href',
+      expect.stringContaining(
+        '/customizer?mode=campaign-refit&campaignId=campaign-coop-1&unitId=atlas-as7-d',
+      ),
+    );
+
     await act(async () => {
       screen.getByTestId('launch-mission-direct').click();
     });

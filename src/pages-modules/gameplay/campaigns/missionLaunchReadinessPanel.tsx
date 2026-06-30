@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React from 'react';
 
 import type {
@@ -16,9 +17,11 @@ function readinessStatusVariant(
 }
 
 export function MissionReadinessPanel({
+  buildCustomizeHref,
   projection,
   onToggleUnit,
 }: {
+  readonly buildCustomizeHref?: (unitId: string) => string;
   readonly projection: IMissionReadinessProjection;
   readonly onToggleUnit: (unitId: string) => void;
 }): React.ReactElement {
@@ -95,6 +98,15 @@ export function MissionReadinessPanel({
                       </li>
                     ))}
                   </ul>
+                ) : null}
+                {buildCustomizeHref ? (
+                  <Link
+                    href={buildCustomizeHref(unit.unitId)}
+                    className="text-accent hover:text-accent/80 mt-2 inline-flex text-xs font-medium"
+                    data-testid={`mission-readiness-customize-${unit.unitId}`}
+                  >
+                    Open refit editor
+                  </Link>
                 ) : null}
               </span>
             </label>

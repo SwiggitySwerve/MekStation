@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 
 import { ErrorBoundary } from '@/components/common';
+import { CampaignRefitCommandBar } from '@/components/customizer/campaign/CampaignRefitCommandBar';
 import { ResponsiveLoadoutTray } from '@/components/customizer/equipment/ResponsiveLoadoutTray';
 import { UnitInfoBanner } from '@/components/customizer/shared/UnitInfoBanner';
 import {
@@ -128,6 +129,8 @@ export function UnitEditorWithRouting({
 
   return (
     <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <CampaignRefitCommandBar onTabChange={handleTabChange} />
+
       <div className="bg-surface-deep border-border-theme flex-shrink-0 border-b p-2">
         <UnitInfoBanner
           stats={unitStats}
