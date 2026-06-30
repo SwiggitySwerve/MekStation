@@ -74,28 +74,37 @@ describe('D10 sequential-execution guard: no worker_threads', () => {
     }
   });
 
-  it('scripts/run-simulation.ts does not import worker_threads', () => {
-    const scriptPath = path.resolve(process.cwd(), 'scripts/run-simulation.ts');
-    // Skip gracefully when the script does not exist (e.g. different cwd).
-    if (!fs.existsSync(scriptPath)) {
+  it('scripts/run-simulation modules do not import worker_threads', () => {
+    const scriptsDir = path.resolve(process.cwd(), 'scripts');
+    if (!fs.existsSync(scriptsDir)) {
       return;
     }
 
-    const content = fs.readFileSync(scriptPath, 'utf-8');
-    const lines = content.split('\n');
+    const files = fs
+      .readdirSync(scriptsDir)
+      .filter(
+        (name) =>
+          name === 'run-simulation.ts' || /^run-simulation-.+\.ts$/.test(name),
+      )
+      .map((name) => path.join(scriptsDir, name));
+    expect(files.length).toBeGreaterThan(0);
+
     const violations: string[] = [];
 
-    lines.forEach((line, idx) => {
-      for (const pattern of WORKER_THREADS_PATTERNS) {
-        if (pattern.test(line)) {
-          violations.push(`${scriptPath}:${idx + 1}: ${line.trim()}`);
+    for (const file of files) {
+      const lines = fs.readFileSync(file, 'utf-8').split('\n');
+      lines.forEach((line, idx) => {
+        for (const pattern of WORKER_THREADS_PATTERNS) {
+          if (pattern.test(line)) {
+            violations.push(`${file}:${idx + 1}: ${line.trim()}`);
+          }
         }
-      }
-    });
+      });
+    }
 
     if (violations.length > 0) {
       throw new Error(
-        `D10 violation: worker_threads usage found in run-simulation.ts:\n` +
+        `D10 violation: worker_threads usage found in run-simulation modules:\n` +
           violations.join('\n'),
       );
     }

@@ -18,9 +18,9 @@
       "follow-up": 0
     },
     "file-bloat": {
-      "fixed": 6,
+      "fixed": 7,
       "accepted": 0,
-      "follow-up": 13
+      "follow-up": 12
     },
     "near-duplicate": {
       "fixed": 6,
@@ -206,8 +206,12 @@
       "severity": "warn",
       "file": "scripts/run-simulation.ts",
       "message": "662 LOC exceeds standard threshold",
-      "status": "follow-up",
-      "rationale": "Simulation CLI should be split with journey/simulation smoke coverage in a focused script cleanup wave.",
+      "status": "fixed",
+      "rationale": "Simulation CLI parsing, preset execution, and swarm execution were split into focused modules, leaving the entrypoint as a dispatcher while preserving invariant-runner and no-worker-thread guards.",
+      "fixedEvidence": [
+        "2026-06-30 `npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/run-simulation.ts,scripts/run-simulation-cli.ts,scripts/run-simulation-preset.ts,scripts/run-simulation-swarm.ts --json` reported warn=0 with only run-simulation-swarm.ts as info-only 354 LOC.",
+        "2026-06-30 `npm.cmd test -- --watchAll=false --runTestsByPath src/simulation/__tests__/cli-invariant-wiring.test.ts src/simulation/__tests__/no-worker-threads.test.ts --runInBand` passed 10 focused CLI wiring and worker-thread guard tests."
+      ],
       "followUps": ["wave-12-script-bloat-follow-up"]
     },
     {
