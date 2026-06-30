@@ -1,9 +1,6 @@
-import { GameEventType } from '@/types/gameplay';
-
 import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
 
 import { remappedMekStationDeviationSourceRef as mekstationDeviationSourceRef } from './CombatRemappedSourceReference';
-import { BATTLEMECH_SPOTTING_EVENT_SOURCE_REFS } from './CombatSpottingSourceRefs';
 
 export const BATTLEMECH_LIFECYCLE_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
@@ -76,6 +73,24 @@ export const BATTLEMECH_ATTACK_REVEAL_EVENT_SOURCE_REFS = [
     'MekStation event dispatch routes AttacksRevealed events into the action-locking replay helper.',
     'src/utils/gameplay/gameState/eventDispatch.ts',
     'L224-L225',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
+export const BATTLEMECH_COMMAND_RESULT_EVENT_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation command result sync creates player-safe CommandResultPublished events from redacted command results.',
+    'src/lib/command-screen/networkedCommandResultSync.ts',
+    'L26-L60',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation server match host appends, persists, and broadcasts host GM command results through the live match event stream.',
+    'src/lib/multiplayer/server/ServerMatchHostCommandResults.ts',
+    'L25-L52',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation network command-result tests prove persistence, broadcast, replay, redaction, and sequence safety.',
+    'src/lib/multiplayer/server/__tests__/ServerMatchHostCommandResults.test.ts',
+    'L119-L199',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
