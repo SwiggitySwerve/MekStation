@@ -55,6 +55,7 @@ import {
   withMissionScenario,
 } from '@/pages-modules/gameplay/campaigns/missionLaunchPage.helpers';
 import { MissionReadinessPanel } from '@/pages-modules/gameplay/campaigns/missionLaunchReadinessPanel';
+import { MissionRefitReturnStatus } from '@/pages-modules/gameplay/campaigns/MissionRefitReturnStatus';
 import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { RulesLevel } from '@/types/enums/RulesLevel';
@@ -63,12 +64,45 @@ function localPlayerNameForMode(mode: 'host' | 'guest'): string {
   return mode === 'host' ? 'You (Host)' : 'You (Guest)';
 }
 
+function directLaunchButtonLabel({
+  isLaunching,
+  warningCount,
+}: {
+  readonly isLaunching: boolean;
+  readonly warningCount: number;
+}): string {
+  if (isLaunching) return 'Launching mission...';
+  return warningCount > 0 ? 'Launch with warnings' : 'Launch mission';
+}
+
+function directLaunchButtonClass({
+  canLaunch,
+  isLaunching,
+  warningCount,
+}: {
+  readonly canLaunch: boolean;
+  readonly isLaunching: boolean;
+  readonly warningCount: number;
+}): string {
+  if (isLaunching) {
+    return 'cursor-wait rounded-lg border border-slate-700 bg-slate-900/40 px-4 py-2 font-semibold text-slate-500';
+  }
+  if (!canLaunch) {
+    return 'cursor-not-allowed rounded-lg border border-slate-700 bg-slate-900/40 px-4 py-2 font-semibold text-slate-500';
+  }
+  if (warningCount > 0) {
+    return 'rounded-lg border border-amber-500/70 bg-amber-500/15 px-4 py-2 font-semibold text-amber-100';
+  }
+  return 'rounded-lg border border-sky-500/60 bg-sky-600/20 px-4 py-2 font-semibold text-sky-100';
+}
+
 export default function CoopMissionLaunchPage(): React.ReactElement {
   const router = useRouter();
   const { missionId } = router.query;
   const shell = useCampaignPageShell('Mission Launch');
   const campaignKey = shell.routeCampaignId;
   const missionKey = routeParam(missionId);
+  const customizerResult = routeParam(router.query.customizerResult);
 
   const store = shell.store;
   const campaign = shell.campaign;
@@ -308,6 +342,7 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
   if (pending) return pending;
 
   const loadedCampaign = getLoadedCampaign(shell);
+  const missionDisplayName = mission?.name ?? 'Selected mission';
 
   // Non-co-op mission — skip the picker and launch directly, preserving
   // the existing single-player behavior. Spec scenario "Single-player
@@ -316,7 +351,7 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
     return (
       <PageLayout
         title="Mission Launch"
-        subtitle={`${loadedCampaign.name} — single-player mission ${String(missionId)}`}
+        subtitle={`${loadedCampaign.name} - ${missionDisplayName}`}
         maxWidth="wide"
         breadcrumbs={shell.breadcrumbs}
       >
@@ -326,6 +361,8 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
           coopSession={loadedCampaign.coopSession}
         />
         <div className="mt-6 space-y-4">
+          <MissionRefitReturnStatus customizerResult={customizerResult} />
+
           <MissionReadinessPanel
             projection={readinessProjection}
             onToggleUnit={handleToggleRosterUnit}
@@ -357,13 +394,16 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
             data-testid="launch-mission-direct"
             disabled={isLaunching || !readinessProjection.canLaunch}
             onClick={handleLaunch}
-            className={
-              isLaunching || !readinessProjection.canLaunch
-                ? 'cursor-wait rounded-lg border border-slate-700 bg-slate-900/40 px-4 py-2 font-semibold text-slate-500'
-                : 'rounded-lg border border-sky-500/60 bg-sky-600/20 px-4 py-2 font-semibold text-sky-100'
-            }
+            className={directLaunchButtonClass({
+              canLaunch: readinessProjection.canLaunch,
+              isLaunching,
+              warningCount: readinessProjection.warnings.length,
+            })}
           >
-            {isLaunching ? 'Launching mission...' : 'Launch mission'}
+            {directLaunchButtonLabel({
+              isLaunching,
+              warningCount: readinessProjection.warnings.length,
+            })}
           </button>
         </div>
       </PageLayout>
@@ -385,7 +425,7 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
   return (
     <PageLayout
       title="Co-op Mission Launch"
-      subtitle={`${loadedCampaign.name} — mission ${String(missionId)}`}
+      subtitle={`${loadedCampaign.name} - ${missionDisplayName}`}
       maxWidth="wide"
       breadcrumbs={shell.breadcrumbs}
     >

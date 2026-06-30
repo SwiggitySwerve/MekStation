@@ -301,7 +301,7 @@ function buildProgressSummary(
     ).length,
     medicalProjection: 'external-roster',
     medicalSummary:
-      'Medical recovery is roster-owned; this starmap preview shows travel time but leaves exact pilot recovery to the Medical Bay or GM time cascade.',
+      'Pilot recovery is handled in the Medical Bay; this preview shows travel time and upkeep only.',
   };
 }
 

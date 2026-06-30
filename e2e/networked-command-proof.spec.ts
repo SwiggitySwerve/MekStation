@@ -1,10 +1,13 @@
 import { expect, test } from '@playwright/test';
 
+import { assertNoMekStationLoading } from './helpers/wait';
+
 test.describe('Networked command browser proof', () => {
   test('keeps host GM intervention, guest intent, redacted result, reconnect, and replay consistent', async ({
     page,
   }) => {
     await page.goto('/e2e/networked-command-proof');
+    await assertNoMekStationLoading(page);
     await page.getByTestId('network-proof-reset').click();
 
     await expect(page.getByTestId('networked-game-surface')).toBeVisible();
@@ -54,6 +57,7 @@ test.describe('Networked command browser proof', () => {
     );
 
     await page.reload();
+    await assertNoMekStationLoading(page);
     await expect(page.getByTestId('networked-game-surface')).toBeVisible();
     await expect(
       page.getByTestId('network-command-authority-summary'),

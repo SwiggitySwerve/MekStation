@@ -160,6 +160,9 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
       expect(screen.getByTestId('coop-launch-mission')).toBeInTheDocument();
     });
 
+    expect(
+      screen.getByText('Co-op Launch Probe - Selected mission'),
+    ).toBeInTheDocument();
     expect(screen.getByTestId('campaign-navigation')).toBeInTheDocument();
     expect(screen.getByTestId('coop-launch-waiting')).toHaveTextContent(
       "Waiting for the other player's pick",
@@ -242,6 +245,9 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
       render(<CoopMissionLaunchPage />);
     });
 
+    expect(
+      screen.getByText('Solo Launch Probe - Selected mission'),
+    ).toBeInTheDocument();
     expect(
       screen.getByTestId('mission-readiness-customize-atlas-as7-d'),
     ).toHaveAttribute(

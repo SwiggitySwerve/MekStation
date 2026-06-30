@@ -90,6 +90,15 @@ describe('starmap travel preview', () => {
     expect(preview.status).toBe('ready');
     expect(preview.progressSummary.repairProgressEvents).toBeGreaterThan(0);
     expect(preview.progressSummary.repairCompletedEvents).toBe(1);
+    expect(preview.progressSummary.medicalSummary).toBe(
+      'Pilot recovery is handled in the Medical Bay; this preview shows travel time and upkeep only.',
+    );
+    expect(preview.progressSummary.medicalSummary).not.toContain(
+      'roster-owned',
+    );
+    expect(preview.progressSummary.medicalSummary).not.toContain(
+      'GM time cascade',
+    );
     expect(preview.afterCampaign?.repairQueue?.[0]).toMatchObject({
       ticketId: 'repair-rt',
       status: 'completed',
@@ -140,6 +149,25 @@ describe('starmap travel preview', () => {
     expect(preview.reasons.join(' ')).toContain('above the 1-jump');
   });
 
+  it('blocks current-system destinations with a zero-day same-date preview', () => {
+    const campaign = makeCampaign();
+    const preview = buildStarmapTravelPreview(campaign, 'terra', {
+      generatedAt: '3025-01-01T12:00:00.000Z',
+    });
+
+    expect(preview.status).toBe('blocked');
+    expect(preview.afterCampaign).toBeUndefined();
+    expect(preview.jumpCount).toBe(0);
+    expect(preview.elapsedDays).toBe(0);
+    expect(preview.departureDate).toBe('3025-01-01T00:00:00.000Z');
+    expect(preview.arrivalDate).toBe(preview.departureDate);
+    expect(preview.travelFees.isZero()).toBe(true);
+    expect(preview.dailyCosts.isZero()).toBe(true);
+    expect(preview.reasons).toEqual([
+      'destination-current-system: Terra is already the campaign location.',
+    ]);
+  });
+
   it('builds starmap lenses for range, contracts, market quality, and risk', () => {
     const contract = createContract({
       id: 'contract-luthien',
@@ -169,6 +197,9 @@ describe('starmap travel preview', () => {
       riskLevel: 'high',
       marketQuality: 'capital',
     });
-    expect(luthien?.badges).toEqual(expect.arrayContaining(['1C', 'DL']));
+    expect(luthien?.badges).toEqual(
+      expect.arrayContaining(['1 contract', 'deadline']),
+    );
+    expect(luthien?.badges.join(' ')).not.toMatch(/\b(1C|DL|R!)\b/);
   });
 });

@@ -1,6 +1,5 @@
 import React from 'react';
 
-import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { InteractivePhase } from '@/stores/useGameplayStore';
 import type {
   GameSide,
@@ -100,7 +99,6 @@ interface GameplayLayoutViewProps {
   readonly isPlayerTurn: boolean;
   readonly onAction: TacticalActionHandler;
   readonly commandPreviewInputs: ICommandPreviewInputs;
-  readonly interactiveSession: InteractiveSession | undefined;
   readonly onEventLogCollapsedChange: (collapsed: boolean) => void;
 }
 
@@ -153,7 +151,6 @@ export function GameplayLayoutView({
   isPlayerTurn,
   onAction,
   commandPreviewInputs,
-  interactiveSession,
   onEventLogCollapsedChange,
 }: GameplayLayoutViewProps): React.ReactElement {
   const recordSheetBody = (
@@ -243,10 +240,6 @@ export function GameplayLayoutView({
           onAction={onAction}
           commandPreviewInputs={commandPreviewInputs}
           interactivePhase={interactivePhase}
-          interactiveSession={interactiveSession}
-          sessionId={session.id}
-          playerSide={playerSide}
-          selectedUnit={selectedUnitModel.selectedUnit}
           isPlayerTurn={isPlayerTurn}
           canUndo={canUndo}
         />

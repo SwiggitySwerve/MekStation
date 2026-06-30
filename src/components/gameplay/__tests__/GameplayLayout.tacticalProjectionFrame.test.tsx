@@ -58,6 +58,10 @@ describe('GameplayLayout shared tactical projection frame', () => {
       'data-tactical-projection-coverage-status',
       'complete',
     );
+    expect(screen.getByTestId('map-panel')).toHaveAttribute(
+      'data-map-panel-width',
+      '74',
+    );
 
     const blockedHex = screen.getByTestId('hex-1-0');
     expect(blockedHex).toHaveAttribute('data-reachable', 'false');

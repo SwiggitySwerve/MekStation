@@ -1,17 +1,13 @@
 import React from 'react';
 
-import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { InteractivePhase } from '@/stores/useGameplayStore';
 import type {
-  GameSide,
   ITacticalCommandContext,
-  IUnitGameState,
   TacticalActionHandler,
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
 import { ActionBar } from './ActionBar';
-import { WithdrawalTrailingActions } from './GameplayLayout.sections';
 import {
   TacticalActionDock,
   type ICommandPreviewInputs,
@@ -26,10 +22,6 @@ export function GameplayActionDockSlot({
   onAction,
   commandPreviewInputs,
   interactivePhase,
-  interactiveSession,
-  sessionId,
-  playerSide,
-  selectedUnit,
   isPlayerTurn,
   canUndo,
 }: {
@@ -39,10 +31,6 @@ export function GameplayActionDockSlot({
   readonly onAction: TacticalActionHandler;
   readonly commandPreviewInputs: ICommandPreviewInputs;
   readonly interactivePhase: InteractivePhase | undefined;
-  readonly interactiveSession: InteractiveSession | undefined;
-  readonly sessionId: string;
-  readonly playerSide: GameSide;
-  readonly selectedUnit: IUnitGameState | null;
   readonly isPlayerTurn: boolean;
   readonly canUndo: boolean;
 }): React.ReactElement {
@@ -55,18 +43,9 @@ export function GameplayActionDockSlot({
         onAction={onAction}
         previewInputs={commandPreviewInputs}
         infoText={
-          interactivePhase ? `Interactive: ${interactivePhase}` : undefined
-        }
-        trailingActions={
-          interactiveSession ? (
-            <WithdrawalTrailingActions
-              interactiveSession={interactiveSession}
-              sessionId={sessionId}
-              playerSide={playerSide}
-              selectedUnit={selectedUnit}
-              isPlayerTurn={isPlayerTurn}
-            />
-          ) : undefined
+          interactivePhase
+            ? formatInteractivePhaseLabel(interactivePhase)
+            : undefined
         }
       />
       <div className="hidden" data-testid="legacy-action-bar-mount">
@@ -79,4 +58,17 @@ export function GameplayActionDockSlot({
       </div>
     </ShellSlot>
   );
+}
+
+function formatInteractivePhaseLabel(phase: InteractivePhase): string {
+  const labelByPhase: Readonly<Record<string, string>> = {
+    none: 'Awaiting tactical command',
+    select_unit: 'Select a unit',
+    select_movement: 'Pick a movement path',
+    select_target: 'Select a target',
+    select_weapons: 'Choose weapons',
+    ai_turn: 'Opponent turn',
+    game_over: 'Battle complete',
+  };
+  return labelByPhase[phase] ?? 'Tactical command active';
 }

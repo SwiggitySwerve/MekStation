@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 
 /**
  * Waits for the campaign store to be exposed on `window.__ZUSTAND_STORES__`.
@@ -44,6 +44,12 @@ export interface TestCampaignOptions {
   morale?: number;
   /** Difficulty modifier. Defaults to 0 */
   difficultyModifier?: number;
+  /** Persist the created campaign through the product dashboard save flow. */
+  persist?: boolean;
+}
+
+export interface PersistedCampaignRecord {
+  readonly version: number;
 }
 
 /**
@@ -120,7 +126,49 @@ export async function createTestCampaign(
     return campaignId;
   }, options);
 
+  if (options.persist) {
+    await persistCampaignThroughDashboard(page, campaignId);
+  }
+
   return campaignId;
+}
+
+export async function persistCampaignThroughDashboard(
+  page: Page,
+  campaignId: string,
+): Promise<PersistedCampaignRecord> {
+  await page.goto(`/gameplay/campaigns/${campaignId}`, {
+    waitUntil: 'domcontentloaded',
+  });
+  await expect(page.getByTestId('campaign-save-status-card')).toBeVisible({
+    timeout: 20_000,
+  });
+  await expect(page.getByTestId('campaign-save-now-btn')).toBeEnabled({
+    timeout: 20_000,
+  });
+
+  const [saveResponse] = await Promise.all([
+    page.waitForResponse(
+      (response) =>
+        response.request().method() === 'PUT' &&
+        response.url().includes(`/api/campaigns/${campaignId}`) &&
+        response.status() === 200,
+      { timeout: 20_000 },
+    ),
+    page.getByTestId('campaign-save-now-btn').click(),
+  ]);
+  const saved = (await saveResponse.json()) as {
+    campaignId?: unknown;
+    version?: unknown;
+  };
+
+  if (saved.campaignId !== campaignId || typeof saved.version !== 'number') {
+    throw new Error(
+      'Campaign dashboard save did not return the persisted campaign',
+    );
+  }
+
+  return { version: saved.version };
 }
 
 /**
@@ -294,4 +342,13 @@ export async function deleteCampaign(
     await waitForCampaignStoreExposure(page);
     await evaluateDelete();
   }
+
+  await page.evaluate(async (id) => {
+    const response = await fetch(`/api/campaigns/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok && response.status !== 404) {
+      throw new Error(`Failed to delete server campaign: ${response.status}`);
+    }
+  }, campaignId);
 }

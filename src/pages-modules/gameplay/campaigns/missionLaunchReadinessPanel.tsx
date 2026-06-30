@@ -16,6 +16,19 @@ function readinessStatusVariant(
   return 'red';
 }
 
+function launchReadinessVariant(
+  projection: IMissionReadinessProjection,
+): 'success' | 'warning' | 'red' {
+  if (!projection.canLaunch) return 'red';
+  return projection.warnings.length > 0 ? 'warning' : 'success';
+}
+
+function launchReadinessLabel(projection: IMissionReadinessProjection): string {
+  if (!projection.canLaunch) return 'Launch blocked';
+  if (projection.warnings.length === 0) return 'Launch ready';
+  return `Ready with warnings (${projection.warnings.length})`;
+}
+
 export function MissionReadinessPanel({
   buildCustomizeHref,
   projection,
@@ -41,10 +54,10 @@ export function MissionReadinessPanel({
           </p>
         </div>
         <Badge
-          variant={projection.canLaunch ? 'success' : 'red'}
+          variant={launchReadinessVariant(projection)}
           data-testid="mission-readiness-status"
         >
-          {projection.canLaunch ? 'Launch ready' : 'Launch blocked'}
+          {launchReadinessLabel(projection)}
         </Badge>
       </div>
 
@@ -90,11 +103,20 @@ export function MissionReadinessPanel({
                         key={`${unit.unitId}-${reason.code}`}
                         className={
                           reason.severity === 'blocker'
-                            ? 'text-xs text-rose-300'
-                            : 'text-xs text-amber-300'
+                            ? 'flex flex-wrap items-center gap-2 text-xs text-rose-300'
+                            : 'flex flex-wrap items-center gap-2 text-xs text-amber-300'
                         }
                       >
-                        {reason.message}
+                        <span>{reason.message}</span>
+                        {reason.actionHref ? (
+                          <Link
+                            href={reason.actionHref}
+                            className="text-accent hover:text-accent/80 font-semibold underline underline-offset-2"
+                            data-testid={`mission-readiness-action-${unit.unitId}-${reason.code}`}
+                          >
+                            {reason.actionLabel ?? 'Resolve'}
+                          </Link>
+                        ) : null}
                       </li>
                     ))}
                   </ul>
@@ -102,7 +124,7 @@ export function MissionReadinessPanel({
                 {buildCustomizeHref ? (
                   <Link
                     href={buildCustomizeHref(unit.unitId)}
-                    className="text-accent hover:text-accent/80 mt-2 inline-flex text-xs font-medium"
+                    className="mt-2 inline-flex rounded border border-sky-400/70 bg-sky-500/10 px-2 py-1 text-xs font-semibold text-sky-100 hover:border-sky-300 hover:bg-sky-500/20"
                     data-testid={`mission-readiness-customize-${unit.unitId}`}
                   >
                     Open refit editor

@@ -48,6 +48,67 @@ describe('TacticalActionDock', () => {
     expect(screen.queryByTestId('command-btn-weapon.fire-volley')).toBeNull();
   });
 
+  it('keeps movement and facing hotkeys unique in the visible command set', () => {
+    const onAction = jest.fn();
+    render(
+      <TacticalActionDock
+        ctx={makeCtx()}
+        shellMode="combat"
+        onAction={onAction}
+      />,
+    );
+
+    expect(screen.getByTestId('command-btn-movement.evade')).toHaveTextContent(
+      '(E)',
+    );
+    expect(
+      screen.getByTestId('command-btn-facing.rotate-right'),
+    ).toHaveTextContent('(D)');
+  });
+
+  it('separates dangerous utility actions with a danger contract', () => {
+    const onAction = jest.fn();
+    render(
+      <TacticalActionDock
+        ctx={makeCtx()}
+        shellMode="combat"
+        onAction={onAction}
+      />,
+    );
+
+    expect(screen.getByTestId('command-group-utility-danger')).toBeVisible();
+    for (const commandId of [
+      'utility.eject',
+      'utility.withdraw',
+      'utility.concede',
+    ]) {
+      const button = screen.getByTestId(`command-btn-${commandId}`);
+      expect(button).toHaveAttribute('data-command-danger', 'true');
+      expect(button).toHaveAccessibleName(/requires confirmation/i);
+    }
+  });
+
+  it('returns focus to a dangerous command when confirmation is cancelled', () => {
+    const onAction = jest.fn();
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false);
+    render(
+      <TacticalActionDock
+        ctx={makeCtx()}
+        shellMode="combat"
+        onAction={onAction}
+      />,
+    );
+
+    const concede = screen.getByTestId('command-btn-utility.concede');
+    fireEvent.focus(concede);
+    fireEvent.click(concede);
+
+    expect(confirmSpy).toHaveBeenCalledWith('Confirm: Concede?');
+    expect(onAction).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(concede);
+    confirmSpy.mockRestore();
+  });
+
   it('dispatches actionId and structured payload through onAction on click', () => {
     const onAction = jest.fn();
     render(

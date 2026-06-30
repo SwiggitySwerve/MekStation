@@ -97,6 +97,10 @@ test.describe('Tactical Action Menu @smoke @game @wave-7-2', () => {
     await expect(concede).toBeVisible();
     await expect(concede).toHaveAttribute('data-command-id', 'utility.concede');
     await expect(concede).toHaveAttribute('data-command-category', 'utility');
+    await expect(concede).toHaveAttribute('data-command-danger', 'true');
+    await expect(
+      page.getByTestId('command-group-utility-danger'),
+    ).toBeVisible();
   });
 
   test('confirm-gated commands carry aria-disabled when canAct=false would lock them', async ({

@@ -1,6 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import { persistCampaignThroughDashboard } from './fixtures/campaign';
 import { withBrowserDiagnostics } from './helpers';
+import { assertNoMekStationLoading } from './helpers/wait';
 
 interface SeededCampaign {
   readonly campaignId: string;
@@ -126,8 +128,10 @@ test.describe('campaign starmap logistics', () => {
     async ({ page }, testInfo) =>
       withBrowserDiagnostics(page, testInfo, async () => {
         const seeded = await seedTravelCampaign(page);
+        await persistCampaignThroughDashboard(page, seeded.campaignId);
 
         await page.goto(`/gameplay/campaigns/${seeded.campaignId}/starmap`);
+        await assertNoMekStationLoading(page);
         await expect(page.getByTestId('starmap-travel-controls')).toBeVisible({
           timeout: 20_000,
         });
@@ -156,6 +160,24 @@ test.describe('campaign starmap logistics', () => {
         await expect(page.getByTestId('starmap-lens-risk')).toContainText(
           'high',
         );
+        await expect(page.getByTestId('starmap-detail-status')).toContainText(
+          'Detail',
+        );
+        await expect(page.getByTestId('starmap-map-toolbar')).toContainText(
+          'Detail',
+        );
+        await expect(
+          page.getByTestId('starmap-detail-status'),
+        ).not.toContainText('LOD');
+        await expect(
+          page.getByTestId('starmap-annotation-legend'),
+        ).toBeVisible();
+        await expect(
+          page.getByTestId('starmap-travel-preview'),
+        ).not.toContainText('roster-owned');
+        await expect(
+          page.getByTestId('starmap-travel-preview'),
+        ).not.toContainText('GM time cascade');
 
         await page.getByTestId('starmap-travel-btn').click();
         await expect(page.getByTestId('starmap-current-system')).toContainText(
@@ -163,6 +185,25 @@ test.describe('campaign starmap logistics', () => {
         );
         await expect(page.getByTestId('starmap-route-status')).toContainText(
           'blocked',
+        );
+        await expect(page.getByTestId('starmap-arrival-date')).toContainText(
+          '3025-03-14 (now)',
+        );
+        await expect(page.getByTestId('starmap-travel-btn')).toBeDisabled();
+        await expect(page.getByTestId('starmap-travel-btn')).toContainText(
+          'Already at Luthien',
+        );
+        await expect(
+          page.getByTestId('starmap-travel-action-reason'),
+        ).toContainText('Luthien is already the campaign location.');
+        await expect(
+          page.getByTestId('starmap-travel-action-reason'),
+        ).not.toContainText('destination-current-system');
+        await expect(page.getByTestId('starmap-lens-panel')).toContainText(
+          'Current campaign location',
+        );
+        await expect(page.getByTestId('starmap-lens-panel')).not.toContainText(
+          'Single-jump reachable',
         );
 
         const afterTravel = await readTravelState(page);
@@ -177,6 +218,7 @@ test.describe('campaign starmap logistics', () => {
         );
 
         await page.reload({ waitUntil: 'networkidle' });
+        await assertNoMekStationLoading(page);
         await waitForCampaignStoresReady(page);
         await expect(page.getByTestId('starmap-current-system')).toContainText(
           'Luthien',

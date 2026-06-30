@@ -66,19 +66,23 @@ export default function CampaignStarmapPage(): React.ReactElement {
     [selectedSystemId, systemLenses],
   );
 
-  const systemAnnotations = useMemo(
-    () =>
-      Object.fromEntries(
-        systemLenses.map((lens) => [
+  const systemAnnotations = useMemo(() => {
+    const annotatedSystemIds = new Set([
+      selectedSystemId,
+      campaignCurrentSystemId ?? 'terra',
+    ]);
+    return Object.fromEntries(
+      systemLenses
+        .filter((lens) => annotatedSystemIds.has(lens.systemId))
+        .map((lens) => [
           lens.systemId,
           {
-            label: lens.badges.slice(0, 2).join(' '),
+            label: formatSystemAnnotationLabel(lens),
             tone: annotationToneForLens(lens),
           },
         ]),
-      ),
-    [systemLenses],
-  );
+    );
+  }, [campaignCurrentSystemId, selectedSystemId, systemLenses]);
 
   const pending = renderPendingCampaignPage(shell, {
     title: 'Starmap',
@@ -87,13 +91,32 @@ export default function CampaignStarmapPage(): React.ReactElement {
   if (pending) return pending;
 
   const loadedCampaign = getLoadedCampaign(shell);
+  const selectedIsCurrentSystem =
+    selectedSystemId === (loadedCampaign.currentSystemId ?? 'terra');
+  const selectedIsBlockedCurrentSystem =
+    selectedIsCurrentSystem &&
+    travelPreview?.status === 'blocked' &&
+    travelPreview.reasons.some((reason) =>
+      reason.startsWith('destination-current-system:'),
+    );
 
   const handleTravel = (): void => {
     if (!selectedSystemId) return;
     store.getState().travelToSystem(selectedSystemId);
   };
 
-  const travelDisabled = travelPreview?.status !== 'ready';
+  const canApproveTravel =
+    travelPreview?.status === 'ready' && Boolean(travelPreview.afterCampaign);
+  const travelDisabled = !canApproveTravel;
+  const travelButtonLabel = canApproveTravel
+    ? 'Approve travel'
+    : selectedIsCurrentSystem
+      ? `Already at ${selectedSystem?.name ?? 'current system'}`
+      : 'Travel unavailable';
+  const travelActionReason =
+    travelPreview?.status === 'blocked'
+      ? formatTravelReason(travelPreview.reasons[0])
+      : null;
 
   return (
     <PageLayout
@@ -164,8 +187,13 @@ export default function CampaignStarmapPage(): React.ReactElement {
               testId="starmap-elapsed-days"
             />
             <Metric
-              label="Arrival"
-              value={formatDate(travelPreview?.arrivalDate)}
+              label={
+                selectedIsBlockedCurrentSystem ? 'Current date' : 'Arrival'
+              }
+              value={formatTravelTimingMetric(
+                travelPreview,
+                selectedIsBlockedCurrentSystem,
+              )}
               testId="starmap-arrival-date"
             />
           </div>
@@ -174,16 +202,30 @@ export default function CampaignStarmapPage(): React.ReactElement {
         </div>
 
         <div className="border-border-theme-subtle border-l-0 pt-0 lg:border-l lg:pl-4">
-          {renderLensDetails(selectedLens, selectedSystem)}
+          {renderLensDetails(selectedLens, selectedSystem, {
+            isCurrentSystem: selectedIsCurrentSystem,
+          })}
           <button
             type="button"
             onClick={handleTravel}
             disabled={travelDisabled}
-            className="bg-accent text-text-on-accent mt-4 w-full rounded px-4 py-2 text-sm font-semibold transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            className={
+              canApproveTravel
+                ? 'bg-accent text-text-on-accent mt-4 w-full rounded px-4 py-2 text-sm font-semibold transition-colors hover:opacity-90'
+                : 'border-border-theme-subtle bg-surface-raised text-text-theme-secondary mt-4 w-full cursor-not-allowed rounded border px-4 py-2 text-sm font-semibold'
+            }
             data-testid="starmap-travel-btn"
           >
-            Approve travel
+            {travelButtonLabel}
           </button>
+          {travelActionReason ? (
+            <p
+              className="text-text-theme-secondary mt-2 text-xs"
+              data-testid="starmap-travel-action-reason"
+            >
+              {travelActionReason}
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -208,6 +250,13 @@ export default function CampaignStarmapPage(): React.ReactElement {
       <div className="text-text-theme-secondary mt-4 text-xs">
         Inner Sphere snapshot - year {seed.meta.snapshotYear}. Coordinates in
         light-years from Terra (+x spinward, +y rimward).
+      </div>
+      <div
+        className="text-text-theme-secondary mt-2 text-xs"
+        data-testid="starmap-annotation-legend"
+      >
+        Map tags show jump distance, active contracts, deadlines, and risk in
+        words.
       </div>
     </PageLayout>
   );
@@ -271,7 +320,7 @@ function renderPreviewDetails(
       {preview.reasons.length > 0 ? (
         <ul className="text-danger space-y-1" data-testid="starmap-blockers">
           {preview.reasons.map((reason) => (
-            <li key={reason}>{reason}</li>
+            <li key={reason}>{formatTravelReason(reason)}</li>
           ))}
         </ul>
       ) : null}
@@ -319,6 +368,7 @@ function renderPreviewDetails(
 function renderLensDetails(
   lens: IStarmapSystemLens | undefined,
   selectedSystem: { readonly name: string } | undefined,
+  options: { readonly isCurrentSystem: boolean },
 ): React.ReactElement {
   if (!lens) {
     return (
@@ -367,9 +417,11 @@ function renderLensDetails(
         />
       </div>
       <div className="text-text-theme-secondary text-xs">
-        {lens.inSingleJumpRange
-          ? 'Single-jump reachable.'
-          : `${lens.jumpsRequired} jump route.`}{' '}
+        {options.isCurrentSystem
+          ? 'Current campaign location. Select another system to plan travel.'
+          : lens.inSingleJumpRange
+            ? 'Single-jump reachable.'
+            : `${lens.jumpsRequired} jump route.`}{' '}
         {lens.nearestDeadlineDate
           ? `Nearest deadline ${formatDate(lens.nearestDeadlineDate)}.`
           : 'No local deadline pressure.'}
@@ -384,10 +436,41 @@ function annotationToneForLens(lens: IStarmapSystemLens): SystemAnnotationTone {
   return 'safe';
 }
 
+function formatSystemAnnotationLabel(lens: IStarmapSystemLens): string {
+  const routeLabel =
+    lens.jumpsRequired === 1 ? '1 jump' : `${lens.jumpsRequired} jumps`;
+  if (lens.contractCount > 0) {
+    return `${routeLabel} / ${lens.contractCount} contract${
+      lens.contractCount === 1 ? '' : 's'
+    }`;
+  }
+  if (lens.riskLevel !== 'low') {
+    return `${routeLabel} / ${lens.riskLevel} risk`;
+  }
+  return routeLabel;
+}
+
 function formatDate(value: string | undefined): string {
   return value ? value.slice(0, 10) : '--';
 }
 
+function formatTravelTimingMetric(
+  preview: IStarmapTravelPreview | null,
+  isCurrentSystemBlocker: boolean,
+): string {
+  if (!preview) return '--';
+  const date = formatDate(
+    isCurrentSystemBlocker ? preview.departureDate : preview.arrivalDate,
+  );
+  return isCurrentSystemBlocker ? `${date} (now)` : date;
+}
+
 function formatDistance(value: number): string {
   return value.toFixed(1);
+}
+
+function formatTravelReason(reason: string | undefined): string {
+  if (!reason) return 'Travel is not available for this destination.';
+  const separator = reason.indexOf(':');
+  return separator >= 0 ? reason.slice(separator + 1).trim() : reason;
 }

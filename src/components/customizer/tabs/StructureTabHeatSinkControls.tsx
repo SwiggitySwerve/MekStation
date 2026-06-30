@@ -91,6 +91,7 @@ function HeatSinkCountControl({
         disabled={readOnly}
         value={heatSinkType}
         onChange={handleHeatSinkTypeChange}
+        data-testid="structure-heat-sink-type"
       >
         {heatSinkOptions.map((hs) => (
           <option key={hs.type} value={hs.type}>
@@ -103,6 +104,7 @@ function HeatSinkCountControl({
           onClick={() => handleHeatSinkCountChange(heatSinkCount - 1)}
           disabled={readOnly || heatSinkCount <= 10}
           className={cs.button.stepperLeft}
+          data-testid="structure-heat-sink-decrement"
         >
           -
         </button>
@@ -115,11 +117,13 @@ function HeatSinkCountControl({
           disabled={readOnly}
           min={10}
           className={`w-12 ${cs.input.number} border-y ${cs.input.noSpinners}`}
+          data-testid="structure-heat-sink-count"
         />
         <button
           onClick={() => handleHeatSinkCountChange(heatSinkCount + 1)}
           disabled={readOnly}
           className={cs.button.stepperRight}
+          data-testid="structure-heat-sink-increment"
         >
           +
         </button>

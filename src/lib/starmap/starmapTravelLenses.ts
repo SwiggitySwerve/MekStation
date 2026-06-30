@@ -56,10 +56,16 @@ export function buildStarmapSystemLenses(
     const marketQuality = marketQualityFor(system);
     const riskLevel = riskLevelFor(campaign, system, contracts.length);
     const badges = [
-      jumpsRequired <= 1 ? '1J' : `${jumpsRequired}J`,
-      contracts.length > 0 ? `${contracts.length}C` : null,
-      nearestDeadlineDate ? 'DL' : null,
-      riskLevel === 'high' ? 'R!' : riskLevel === 'medium' ? 'R' : null,
+      jumpsRequired === 1 ? '1 jump' : `${jumpsRequired} jumps`,
+      contracts.length > 0
+        ? `${contracts.length} contract${contracts.length === 1 ? '' : 's'}`
+        : null,
+      nearestDeadlineDate ? 'deadline' : null,
+      riskLevel === 'high'
+        ? 'high risk'
+        : riskLevel === 'medium'
+          ? 'medium risk'
+          : null,
     ].filter((badge): badge is string => Boolean(badge));
 
     return {

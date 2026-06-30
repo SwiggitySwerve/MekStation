@@ -108,6 +108,7 @@ export function CampaignRefitCommandBar({
         : 0,
     [session, targetConfiguration],
   );
+  const canSaveRefit = validation.isValid && changeCount > 0;
 
   const handleCancel = useCallback(() => {
     if (!session) return;
@@ -126,6 +127,14 @@ export function CampaignRefitCommandBar({
     const latestValidation = validateConstruction(latestTarget);
     if (!latestValidation.isValid) {
       setSaveError('Resolve construction blockers before saving this refit.');
+      return;
+    }
+    const latestChangeCount = countConfigurationChanges(
+      session.currentConfiguration,
+      latestTarget,
+    );
+    if (latestChangeCount === 0) {
+      setSaveError('Make at least one refit change before saving an order.');
       return;
     }
 
@@ -173,9 +182,11 @@ export function CampaignRefitCommandBar({
           className="text-text-theme-secondary mt-1 text-xs"
           data-testid="campaign-refit-context"
         >
-          {session.campaignName} | {session.route.campaignDate} | Budget{' '}
+          {session.campaignName} |{' '}
+          {formatCampaignDate(session.route.campaignDate)} | Budget{' '}
           {session.route.budget.toLocaleString()} C-bills |{' '}
-          {session.route.rulesLevel} rules | {session.route.refitConstraints} |{' '}
+          {session.route.rulesLevel} rules |{' '}
+          {formatRefitConstraintLabel(session.route.refitConstraints)} |{' '}
           {changeCount} build field{changeCount === 1 ? '' : 's'} changed
         </p>
 
@@ -212,6 +223,15 @@ export function CampaignRefitCommandBar({
             {saveError}
           </p>
         ) : null}
+        {validation.isValid && changeCount === 0 ? (
+          <p
+            className="text-text-theme-secondary mt-2 text-xs"
+            data-testid="campaign-refit-no-delta"
+          >
+            No refit order will be created until at least one build field
+            changes.
+          </p>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap justify-end gap-2">
@@ -226,9 +246,9 @@ export function CampaignRefitCommandBar({
         <button
           type="button"
           onClick={handleSave}
-          disabled={!validation.isValid}
+          disabled={!canSaveRefit}
           className={
-            validation.isValid
+            canSaveRefit
               ? 'rounded border border-sky-500/60 bg-sky-600/20 px-3 py-2 text-sm font-semibold text-sky-100'
               : 'cursor-not-allowed rounded border border-slate-700 bg-slate-900/40 px-3 py-2 text-sm font-semibold text-slate-500'
           }
@@ -239,4 +259,13 @@ export function CampaignRefitCommandBar({
       </div>
     </section>
   );
+}
+
+function formatCampaignDate(value: string): string {
+  return value.includes('T') ? value.slice(0, 10) : value;
+}
+
+function formatRefitConstraintLabel(value: string): string {
+  if (value === 'campaign-owned-refit') return 'Campaign refit limits';
+  return value.replace(/[-_]+/g, ' ');
 }

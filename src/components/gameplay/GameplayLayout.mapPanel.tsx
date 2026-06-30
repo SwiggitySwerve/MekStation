@@ -82,9 +82,10 @@ export function GameplayMapPanel({
   return (
     <ShellSlot id="map-center" ownerId="HexMapDisplay">
       <div
-        className="relative"
+        className="relative flex-shrink-0"
         style={{ width: isNarrow ? '100%' : `${mapPanelWidth}%` }}
         data-testid="map-panel"
+        data-map-panel-width={mapPanelWidth}
       >
         <HexMapDisplay
           radius={session.config.mapRadius}

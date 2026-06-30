@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 import { createTestCampaign, deleteCampaign } from './fixtures/campaign';
+import { assertNoMekStationLoading } from './helpers/wait';
 
 test.setTimeout(120_000);
 
@@ -216,12 +217,17 @@ async function saveCampaignThroughDashboard(
       (response) =>
         response.request().method() === 'PUT' &&
         response.url().includes(`/api/campaigns/${campaignId}`) &&
-        response.status() === 200,
+        [200, 409].includes(response.status()),
       { timeout: 20_000 },
     ),
     page.getByTestId('campaign-save-now-btn').click(),
   ]);
-  const saved = (await saveResponse.json()) as {
+
+  const finalSaveResponse =
+    saveResponse.status() === 409
+      ? await resolveSaveConflictKeepLocal(page, campaignId)
+      : saveResponse;
+  const saved = (await finalSaveResponse.json()) as {
     version?: unknown;
   };
 
@@ -233,6 +239,25 @@ async function saveCampaignThroughDashboard(
   return {
     version: saved.version as number,
   };
+}
+
+async function resolveSaveConflictKeepLocal(page: Page, campaignId: string) {
+  await expect(
+    page.getByTestId('campaign-conflict-keep-local-btn'),
+  ).toBeVisible({
+    timeout: 20_000,
+  });
+  const [saveResponse] = await Promise.all([
+    page.waitForResponse(
+      (response) =>
+        response.request().method() === 'PUT' &&
+        response.url().includes(`/api/campaigns/${campaignId}`) &&
+        response.status() === 200,
+      { timeout: 20_000 },
+    ),
+    page.getByTestId('campaign-conflict-keep-local-btn').click(),
+  ]);
+  return saveResponse;
 }
 
 async function stampGuestCoopSession(page: Page): Promise<void> {
@@ -476,12 +501,14 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
     campaignId = await createTestCampaign(page, {
       name: 'GM Ledger Browser Proof',
       cBills: 1_000_000,
+      persist: true,
     });
 
     try {
       await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
         waitUntil: 'domcontentloaded',
       });
+      await assertNoMekStationLoading(page);
 
       await expect(page.getByTestId('page-title')).toContainText('GM Ledger');
       await expect(page.getByTestId('gm-ledger-balance')).toContainText(
@@ -517,6 +544,7 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       );
 
       await page.reload({ waitUntil: 'domcontentloaded' });
+      await assertNoMekStationLoading(page);
       await expect(page.getByTestId('page-title')).toContainText('GM Ledger');
       await expect(page.getByTestId('gm-ledger-balance')).toContainText(
         '997,500.00 C-bills',
@@ -549,12 +577,14 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
     campaignId = await createTestCampaign(page, {
       name: 'GM Ledger Guest Direct Proof',
       cBills: 1_000_000,
+      persist: true,
     });
 
     try {
       await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
         waitUntil: 'domcontentloaded',
       });
+      await assertNoMekStationLoading(page);
       await page.getByTestId('gm-ledger-preview-btn').click();
       await page.getByTestId('gm-ledger-approve-btn').click();
       await expect(page.getByTestId('gm-ledger-approval-status')).toContainText(
@@ -565,6 +595,7 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
         waitUntil: 'domcontentloaded',
       });
+      await assertNoMekStationLoading(page);
 
       await expect(page.getByTestId('page-title')).toContainText('GM Ledger');
       await expect(page.getByTestId('coop-session-badge')).toContainText(
@@ -607,12 +638,14 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
     campaignId = await createTestCampaign(page, {
       name: campaignName,
       cBills: 1_000_000,
+      persist: true,
     });
 
     try {
       await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
         waitUntil: 'domcontentloaded',
       });
+      await assertNoMekStationLoading(page);
 
       await page.getByTestId('gm-ledger-preview-btn').click();
       await page.getByTestId('gm-ledger-approve-btn').click();
@@ -653,6 +686,7 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
         waitUntil: 'domcontentloaded',
       });
+      await assertNoMekStationLoading(page);
       await expect(page.getByTestId('page-title')).toContainText('GM Ledger');
       await expect(page.getByTestId('gm-ledger-balance')).toContainText(
         '997,500.00 C-bills',
@@ -693,12 +727,14 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
     campaignId = await createTestCampaign(page, {
       name: 'GM Ledger Manual Proof',
       cBills: 1_000_000,
+      persist: true,
     });
 
     try {
       await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
         waitUntil: 'domcontentloaded',
       });
+      await assertNoMekStationLoading(page);
 
       await page.getByTestId('gm-ledger-conflict-preview-btn').click();
       await expect(page.getByTestId('gm-ledger-preview-status')).toContainText(
@@ -735,12 +771,14 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
     campaignId = await createTestCampaign(page, {
       name: 'GM Base Fix Browser Proof',
       cBills: 1_000_000,
+      persist: true,
     });
 
     try {
       await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
         waitUntil: 'domcontentloaded',
       });
+      await assertNoMekStationLoading(page);
       await seedCampaignBaseFixState(page);
 
       await page.getByTestId('gm-ledger-repair-preview-btn').click();
@@ -832,12 +870,14 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
     campaignId = await createTestCampaign(page, {
       name: 'GM Time Cascade Browser Proof',
       cBills: 1_000_000,
+      persist: true,
     });
 
     try {
       await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
         waitUntil: 'domcontentloaded',
       });
+      await assertNoMekStationLoading(page);
 
       await expect(page.getByTestId('page-title')).toContainText('GM Ledger');
       await expect(page.getByTestId('gm-ledger-balance')).toContainText(
@@ -885,6 +925,7 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
         });
 
       await page.reload({ waitUntil: 'domcontentloaded' });
+      await assertNoMekStationLoading(page);
       await expect(page.getByTestId('page-title')).toContainText('GM Ledger');
       await expect
         .poll(async () => readCampaignTimeState(page))
@@ -920,12 +961,14 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
     campaignId = await createTestCampaign(page, {
       name: 'GM Time Cascade Manual Browser Proof',
       cBills: 1_000_000,
+      persist: true,
     });
 
     try {
       await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
         waitUntil: 'domcontentloaded',
       });
+      await assertNoMekStationLoading(page);
 
       await page.getByTestId('gm-ledger-time-conflict-preview-btn').click();
       await expect(page.getByTestId('gm-ledger-preview-status')).toContainText(

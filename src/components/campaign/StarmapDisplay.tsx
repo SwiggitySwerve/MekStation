@@ -1,9 +1,9 @@
 /**
  * Starmap Display Component
- * Canvas-based starmap with faction colors, pan/zoom, and Level of Detail (LOD).
+ * Canvas-based starmap with faction colors, pan/zoom, and detail scaling.
  * Uses react-konva for performant rendering of large star systems.
  *
- * LOD Thresholds:
+ * Detail thresholds:
  * - Far (zoom < 0.3): Dots only (5px), no labels
  * - Medium (0.3-0.7): Dots (8px) + major system labels (pop > 1B)
  * - Close (zoom > 0.7): Dots (12px) + all labels + faction indicators
@@ -55,6 +55,7 @@ const MAJOR_SYSTEM_POPULATION = 1_000_000_000;
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 3;
 const ZOOM_STEP = 1.1;
+const INITIAL_POSITION = { x: 160, y: 64 };
 
 type LODLevel = 'far' | 'medium' | 'close';
 
@@ -81,13 +82,6 @@ function isMajorSystem(system: IStarSystem): boolean {
 
 function getFactionColor(faction: string): string {
   return FACTION_COLORS[faction] ?? FACTION_COLORS.Independent;
-}
-
-function formatPopulation(pop: number): string {
-  if (pop >= 1_000_000_000) return `${(pop / 1_000_000_000).toFixed(1)}B`;
-  if (pop >= 1_000_000) return `${(pop / 1_000_000).toFixed(1)}M`;
-  if (pop >= 1_000) return `${(pop / 1_000).toFixed(0)}K`;
-  return String(pop);
 }
 
 interface StarSystemNodeProps {
@@ -122,7 +116,10 @@ const StarSystemNode = React.memo(function StarSystemNode({
         ? '#facc15'
         : '#22c55e';
   const showLabel =
-    lod === 'close' || (lod === 'medium' && isMajorSystem(system));
+    Boolean(annotation) ||
+    isSelected ||
+    isHovered ||
+    (lod === 'medium' && isMajorSystem(system));
   const showFactionIndicator = lod === 'close';
 
   return (
@@ -182,18 +179,6 @@ const StarSystemNode = React.memo(function StarSystemNode({
         />
       )}
 
-      {lod === 'close' && system.population && (
-        <Text
-          text={formatPopulation(system.population)}
-          x={displaySize + 6}
-          y={8}
-          fontSize={9}
-          fontFamily="system-ui, -apple-system, sans-serif"
-          fill="#94a3b8"
-          listening={false}
-        />
-      )}
-
       {annotation && lod !== 'far' && (
         <Text
           text={annotation.label}
@@ -221,7 +206,7 @@ export function StarmapDisplay({
   const containerRef = useRef<HTMLDivElement>(null);
   const [stageSize, setStageSize] = useState({ width: 800, height: 600 });
   const [zoom, setZoom] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState(INITIAL_POSITION);
   const [hoveredSystem, setHoveredSystem] = useState<string | null>(null);
 
   const lod = useMemo(() => getLODLevel(zoom), [zoom]);
@@ -303,95 +288,104 @@ export function StarmapDisplay({
 
   const handleResetView = useCallback(() => {
     setZoom(1);
-    setPosition({ x: 0, y: 0 });
+    setPosition(INITIAL_POSITION);
   }, []);
 
   return (
     <div
-      ref={containerRef}
-      className={`relative overflow-hidden bg-slate-900 ${className}`}
+      className={`flex flex-col overflow-hidden bg-slate-900 ${className}`}
       style={{ width: '100%', height: '100%' }}
     >
-      <Stage
-        width={stageSize.width}
-        height={stageSize.height}
-        draggable
-        x={position.x}
-        y={position.y}
-        scaleX={zoom}
-        scaleY={zoom}
-        onWheel={handleWheel}
-        onDragEnd={handleDragEnd}
-        data-testid="starmap-canvas"
-      >
-        <Layer>
-          {systems.map((system) => (
-            <StarSystemNode
-              key={system.id}
-              system={system}
-              lod={lod}
-              isSelected={selectedSystem === system.id}
-              isHovered={hoveredSystem === system.id}
-              annotation={systemAnnotations?.[system.id]}
-              onClick={() => handleSystemClick(system.id)}
-              onMouseEnter={() => handleSystemHover(system.id)}
-              onMouseLeave={() => handleSystemHover(null)}
-            />
-          ))}
-        </Layer>
-      </Stage>
-
       <div
-        className="absolute right-4 bottom-4 flex flex-col gap-1"
-        data-testid="zoom-controls"
+        className="border-b border-slate-700/80 bg-slate-950/80 px-3 py-2 text-xs text-slate-100"
+        data-testid="starmap-map-toolbar"
       >
-        <button
-          type="button"
-          onClick={handleZoomIn}
-          className="rounded bg-slate-800 p-2 text-white shadow-lg transition-colors hover:bg-slate-700"
-          title="Zoom in"
-          data-testid="zoom-in-btn"
+        <span
+          className="rounded bg-slate-800/80 px-2 py-1"
+          data-testid="starmap-detail-status"
         >
-          +
-        </button>
-        <button
-          type="button"
-          onClick={handleZoomOut}
-          className="rounded bg-slate-800 p-2 text-white shadow-lg transition-colors hover:bg-slate-700"
-          title="Zoom out"
-          data-testid="zoom-out-btn"
-        >
-          -
-        </button>
-        <button
-          type="button"
-          onClick={handleResetView}
-          className="rounded bg-slate-800 p-2 text-white shadow-lg transition-colors hover:bg-slate-700"
-          title="Reset view"
-          data-testid="reset-view-btn"
-        >
-          O
-        </button>
+          Zoom {(zoom * 100).toFixed(0)}% | Detail {detailLabel(lod)}
+        </span>
       </div>
 
-      <div className="absolute top-4 left-4 rounded bg-slate-800/80 px-2 py-1 text-xs text-slate-300">
-        Zoom: {(zoom * 100).toFixed(0)}% | LOD: {lod}
-      </div>
-
-      <div className="absolute bottom-4 left-4 rounded bg-slate-800/90 p-3 text-xs text-slate-300 shadow-lg">
-        <div className="mb-2 font-semibold text-slate-200">Factions</div>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-          {Object.entries(FACTION_COLORS)
-            .slice(0, 6)
-            .map(([faction, color]) => (
-              <div key={faction} className="flex items-center gap-2">
-                <div
-                  className="h-3 w-3 rounded-full"
-                  style={{ backgroundColor: color }}
-                />
-                <span>{faction}</span>
-              </div>
+      <div ref={containerRef} className="relative min-h-0 flex-1">
+        <Stage
+          width={stageSize.width}
+          height={stageSize.height}
+          draggable
+          x={position.x}
+          y={position.y}
+          scaleX={zoom}
+          scaleY={zoom}
+          onWheel={handleWheel}
+          onDragEnd={handleDragEnd}
+          data-testid="starmap-canvas"
+        >
+          <Layer>
+            {systems.map((system) => (
+              <StarSystemNode
+                key={system.id}
+                system={system}
+                lod={lod}
+                isSelected={selectedSystem === system.id}
+                isHovered={hoveredSystem === system.id}
+                annotation={systemAnnotations?.[system.id]}
+                onClick={() => handleSystemClick(system.id)}
+                onMouseEnter={() => handleSystemHover(system.id)}
+                onMouseLeave={() => handleSystemHover(null)}
+              />
             ))}
+          </Layer>
+        </Stage>
+
+        <div
+          className="absolute right-4 bottom-4 flex flex-col gap-1"
+          data-testid="zoom-controls"
+        >
+          <button
+            type="button"
+            onClick={handleZoomIn}
+            className="rounded bg-slate-800 p-2 text-white shadow-lg transition-colors hover:bg-slate-700"
+            title="Zoom in"
+            data-testid="zoom-in-btn"
+          >
+            +
+          </button>
+          <button
+            type="button"
+            onClick={handleZoomOut}
+            className="rounded bg-slate-800 p-2 text-white shadow-lg transition-colors hover:bg-slate-700"
+            title="Zoom out"
+            data-testid="zoom-out-btn"
+          >
+            -
+          </button>
+          <button
+            type="button"
+            onClick={handleResetView}
+            className="rounded bg-slate-800 p-2 text-white shadow-lg transition-colors hover:bg-slate-700"
+            title="Reset view"
+            data-testid="reset-view-btn"
+          >
+            O
+          </button>
+        </div>
+
+        <div className="absolute bottom-4 left-4 rounded bg-slate-800/90 p-3 text-xs text-slate-300 shadow-lg">
+          <div className="mb-2 font-semibold text-slate-200">Factions</div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+            {Object.entries(FACTION_COLORS)
+              .slice(0, 6)
+              .map(([faction, color]) => (
+                <div key={faction} className="flex items-center gap-2">
+                  <div
+                    className="h-3 w-3 rounded-full"
+                    style={{ backgroundColor: color }}
+                  />
+                  <span>{faction}</span>
+                </div>
+              ))}
+          </div>
         </div>
       </div>
     </div>
@@ -399,3 +393,14 @@ export function StarmapDisplay({
 }
 
 export default StarmapDisplay;
+
+function detailLabel(lod: LODLevel): string {
+  switch (lod) {
+    case 'far':
+      return 'far';
+    case 'medium':
+      return 'medium';
+    case 'close':
+      return 'close';
+  }
+}

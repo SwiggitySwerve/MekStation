@@ -388,7 +388,6 @@ export function GameplayLayout({
       isPlayerTurn={isPlayerTurn}
       onAction={onAction}
       commandPreviewInputs={commandPreviewInputs}
-      interactiveSession={interactiveSession}
       onEventLogCollapsedChange={handleEventLogCollapsedChange}
     />
   );

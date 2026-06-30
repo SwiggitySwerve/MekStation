@@ -88,7 +88,7 @@ const CATEGORY_LABELS: Record<ITacticalCommand['category'], string> = {
 interface CommandButtonProps {
   readonly command: ITacticalCommand;
   readonly availability: CommandAvailability;
-  readonly onActivate: () => void;
+  readonly onActivate: (trigger: HTMLButtonElement) => void;
 }
 
 function CommandButton({
@@ -98,13 +98,16 @@ function CommandButton({
 }: CommandButtonProps): React.ReactElement {
   const [hover, setHover] = useState(false);
   const disabled = !availability.available;
+  const danger = isDangerCommand(command);
 
   const baseClasses =
-    'relative px-3 py-2 min-h-[44px] rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
-  const enabledClasses =
-    'bg-surface-raised hover:bg-surface-deep text-text-theme-primary focus:ring-border-theme cursor-pointer';
-  const disabledClasses =
-    'bg-surface-base text-text-theme-secondary opacity-50 cursor-not-allowed';
+    'relative px-3 py-2 min-h-[40px] whitespace-nowrap rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const enabledClasses = danger
+    ? 'border border-red-500 bg-red-950/80 text-red-50 hover:bg-red-900 focus:ring-red-400 cursor-pointer'
+    : 'bg-surface-raised hover:bg-surface-deep text-text-theme-primary focus:ring-border-theme cursor-pointer';
+  const disabledClasses = danger
+    ? 'border border-red-800 bg-red-950/30 text-red-200/60 opacity-60 cursor-not-allowed'
+    : 'bg-surface-base text-text-theme-secondary opacity-50 cursor-not-allowed';
 
   return (
     <div
@@ -117,20 +120,28 @@ function CommandButton({
       <button
         type="button"
         disabled={disabled}
-        onClick={onActivate}
+        onClick={(event) => onActivate(event.currentTarget)}
         className={`${baseClasses} ${disabled ? disabledClasses : enabledClasses}`}
         data-testid={`command-btn-${command.id}`}
         data-command-id={command.id}
         data-command-category={command.category}
+        data-command-danger={danger ? 'true' : 'false'}
         aria-disabled={disabled}
         aria-describedby={
           disabled ? `command-disabled-reason-${command.id}` : undefined
+        }
+        aria-label={
+          danger ? `${command.label} (requires confirmation)` : command.label
         }
         title={command.label}
       >
         {command.label}
         {command.hotkey && (
-          <span className="text-text-theme-secondary ml-2 text-xs opacity-75">
+          <span
+            className={`ml-2 text-xs opacity-75 ${
+              danger ? 'text-red-100' : 'text-text-theme-secondary'
+            }`}
+          >
             ({command.hotkey})
           </span>
         )}
@@ -142,6 +153,15 @@ function CommandButton({
   );
 }
 
+function isDangerCommand(command: ITacticalCommand): boolean {
+  return (
+    command.requiresConfirmation &&
+    (command.id === 'utility.eject' ||
+      command.id === 'utility.withdraw' ||
+      command.id === 'utility.concede')
+  );
+}
+
 /**
  * Group of commands sharing a category.
  */
@@ -149,7 +169,10 @@ interface CommandGroupProps {
   readonly category: ITacticalCommand['category'];
   readonly commands: readonly ITacticalCommand[];
   readonly ctx: ITacticalCommandContext;
-  readonly onDispatch: (command: ITacticalCommand) => void;
+  readonly onDispatch: (
+    command: ITacticalCommand,
+    trigger?: HTMLButtonElement,
+  ) => void;
 }
 
 function CommandGroup({
@@ -158,25 +181,52 @@ function CommandGroup({
   ctx,
   onDispatch,
 }: CommandGroupProps): React.ReactElement {
+  const regularCommands = commands.filter(
+    (command) => !isDangerCommand(command),
+  );
+  const dangerCommands = commands.filter(isDangerCommand);
+
   return (
     <div
       data-testid={`command-group-${category}`}
       data-command-category={category}
-      className="flex items-center gap-2"
+      className="flex min-w-0 flex-wrap items-center gap-2"
     >
       <span className="text-text-theme-secondary text-xs font-semibold uppercase">
         {CATEGORY_LABELS[category]}
       </span>
-      <div className="flex items-center gap-2">
-        {commands.map((command) => (
-          <CommandButton
-            key={command.id}
-            command={command}
-            availability={command.availability(ctx)}
-            onActivate={() => onDispatch(command)}
-          />
-        ))}
-      </div>
+      {regularCommands.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          {regularCommands.map((command) => (
+            <CommandButton
+              key={command.id}
+              command={command}
+              availability={command.availability(ctx)}
+              onActivate={(trigger) => onDispatch(command, trigger)}
+            />
+          ))}
+        </div>
+      )}
+      {dangerCommands.length > 0 && (
+        <div
+          className="flex flex-wrap items-center gap-2 border-l border-red-500/50 pl-2"
+          data-testid={`command-group-${category}-danger`}
+        >
+          <span className="text-xs font-semibold text-red-200 uppercase">
+            Critical
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            {dangerCommands.map((command) => (
+              <CommandButton
+                key={command.id}
+                command={command}
+                availability={command.availability(ctx)}
+                onActivate={(trigger) => onDispatch(command, trigger)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -316,11 +366,12 @@ export function TacticalActionDock({
   );
 
   const dispatchCommand = useCallback(
-    (command: ITacticalCommand) => {
+    (command: ITacticalCommand, trigger?: HTMLButtonElement) => {
       const availability = command.availability(effectiveCtx);
       if (!availability.available) {
         // Disabled-with-reason: refuse the click silently. The
         // tooltip is the explanation surface — no secondary toast.
+        trigger?.focus();
         return;
       }
       if (
@@ -334,6 +385,7 @@ export function TacticalActionDock({
           ctx: effectiveCtx,
         });
         setGmPreviewState({ commandLabel: command.label, preview });
+        trigger?.focus();
         return;
       }
       if (command.requiresConfirmation) {
@@ -347,6 +399,7 @@ export function TacticalActionDock({
           typeof window === 'undefined'
             ? true
             : window.confirm(`Confirm: ${command.label}?`);
+        trigger?.focus();
         if (!ok) return;
       }
       const result = command.commit(effectiveCtx);
@@ -380,12 +433,12 @@ export function TacticalActionDock({
 
   return (
     <div
-      className={`bg-surface-base border-border-theme flex items-center justify-between border-t px-4 py-3 ${className}`}
+      className={`bg-surface-base border-border-theme flex min-h-[80px] flex-wrap items-center justify-between gap-3 border-t px-4 py-2 ${className}`}
       role="toolbar"
       aria-label="Tactical action dock"
       data-testid="tactical-action-dock"
     >
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
         {groups.length === 0 && (
           <span
             className="text-text-theme-secondary text-sm"
@@ -404,7 +457,7 @@ export function TacticalActionDock({
           />
         ))}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3">
         {commandPreview && <CommandPreviewPanel preview={commandPreview} />}
         {gmPreviewState && (
           <GmInterventionConfirmationPanel

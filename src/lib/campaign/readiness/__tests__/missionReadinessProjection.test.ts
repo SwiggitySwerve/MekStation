@@ -97,6 +97,12 @@ describe('buildMissionReadinessProjection', () => {
       'pilot_unassigned',
     ]);
     expect(projection.launchConsequences).toContain('Deploy 2 selected units');
+    expect(projection.launchConsequences).toContain('Ready to launch');
+    expect(projection.warnings[1]).toMatchObject({
+      actionLabel: 'Assign pilot',
+      actionHref:
+        '/gameplay/campaigns/campaign-1/personnel?intent=assign-pilot&unit=unit-damaged',
+    });
   });
 
   it('blocks launch when the selected unit is destroyed or under blocking repair', () => {
