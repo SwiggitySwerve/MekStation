@@ -60,7 +60,7 @@ The system SHALL calculate defensive BV from armor, structure, gyro, and defensi
 
 - **WHEN** calculating explosive equipment penalties
 - **THEN** CASE II SHALL eliminate all penalties in the protected location
-- **AND** standard CASE SHALL protect side torsos (if engine has <3 side torso crit slots)
+- **AND** standard CASE SHALL protect side torsos (if engine has <3 side torso critical slots)
 - **AND** standard CASE SHALL protect arms (non-quad; otherwise check transfer torso)
 - **AND** standard CASE SHALL NOT protect CT, HD, or Legs — only CASE II does
 - **AND** Clan mechs SHALL have implicit CASE in all non-head locations (LT, RT, LA, RA, CT, LL, RL)
@@ -217,9 +217,9 @@ The system SHALL correctly resolve prototype weapon and equipment BV/heat values
 #### Scenario: Prototype Double Heat Sink dissipation
 
 - **WHEN** calculating heat dissipation
-- **AND** unit has Prototype DHS (detected from crit slot names)
+- **AND** unit has Prototype DHS (detected from critical slot names)
 - **THEN** each Prototype DHS SHALL dissipate 2 heat (same as regular DHS)
-- **AND** Prototype DHS SHALL always use IS sizing (3 crit slots each)
+- **AND** Prototype DHS SHALL always use IS sizing (3 critical slots each)
 - **AND** unit's `heatSinks.type` MAY still be "SINGLE" even with Prototype DHS present
 
 #### Scenario: Prototype Improved Jump Jets are explosive

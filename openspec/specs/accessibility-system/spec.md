@@ -743,7 +743,7 @@ if (columns !== undefined && (!Number.isInteger(columns) || columns <= 0)) {
 
 ---
 
-## Technology Base Variants
+## Tech Base Variants
 
 N/A - This is a UI infrastructure specification with no tech base variants.
 

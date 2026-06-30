@@ -155,7 +155,7 @@ The system SHALL provide a hook for filtering component options based on tech ba
 - **AND** gyros filtered by componentTechBases.gyro
 - **AND** structures filtered by componentTechBases.chassis
 - **AND** cockpits filtered by componentTechBases.chassis
-- **AND** heat sinks filtered by componentTechBases.heatsink
+- **AND** heat sinks filtered by the componentTechBases heat sink entry
 - **AND** armors filtered by componentTechBases.armor
 
 #### Scenario: Component defaults
@@ -248,8 +248,8 @@ The system SHALL provide a hook for automatically updating component selections 
 #### Scenario: Heat sink tech base change
 
 - **GIVEN** heat sink type is Double (IS)
-- **AND** heatsink tech base is Inner Sphere
-- **WHEN** heatsink tech base changes to Clan
+- **AND** heat sink tech base is Inner Sphere
+- **WHEN** heat sink tech base changes to Clan
 - **THEN** isHeatSinkValid(DOUBLE_IS) returns false
 - **AND** setHeatSinkType is called with defaults.heatSinkType
 - **AND** new heat sink type is Clan-compatible

@@ -136,6 +136,11 @@ function isExcluded(filePath: string, excludePatterns: string[]): boolean {
     if (pattern.includes('build') && normalized.includes('/build/'))
       return true;
     if (
+      pattern.includes('openspec/changes/archive') &&
+      normalized.includes('/openspec/changes/archive/')
+    )
+      return true;
+    if (
       pattern.includes('openspec/scripts') &&
       normalized.includes('/openspec/scripts/')
     )
@@ -262,6 +267,7 @@ function shouldSkipViolation(
     for (const skipContext of term.skipContexts) {
       if (skipContext === 'rule-descriptions' && context.isRuleDescription)
         return true;
+      if (skipContext === 'code-block' && context.inCodeBlock) return true;
       if (skipContext === 'rationale' && context.isRationale) return true;
       if (skipContext === 'changelog' && context.isChangelog) return true;
       if (skipContext === 'comparisons' && context.isComparison) return true;

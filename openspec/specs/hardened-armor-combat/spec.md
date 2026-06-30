@@ -398,7 +398,7 @@ if (isHardenedArmor(armorType) && forceCrits === undefined) {
 
 ---
 
-## Technology Base Variants
+## Tech Base Variants
 
 ### Inner Sphere Implementation
 
@@ -560,7 +560,7 @@ const hitLocationRoll = 2; // TAC trigger
 
 ### Related Documentation
 
-- `openspec/specs/armor-system/spec.md` — Hardened armor type definition (8 pts/ton, 0 crit slots, IS only)
+- `openspec/specs/armor-system/spec.md` — Hardened armor type definition (8 pts/ton, 0 critical slots, IS only)
 - `openspec/specs/critical-hit-resolution/spec.md` — Base critical hit determination flow and component effects
 - `src/utils/gameplay/criticalHitResolution.ts` — Implementation of double-roll and TAC prevention
 - `src/types/construction/ArmorType.ts` — `ArmorTypeEnum.HARDENED` and `ARMOR_DEFINITIONS`

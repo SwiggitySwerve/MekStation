@@ -482,7 +482,7 @@ The system SHALL support exporting ISerializedUnit to MegaMekLab .mtf format.
 
 - **GIVEN** ISerializedUnit with critical slot assignments
 - **WHEN** exporting to MTF format
-- **THEN** each location section SHALL list slots in order
+- **THEN** each location block SHALL list slots in order
 - **AND** empty slots SHALL be represented as "-Empty-"
 - **AND** location headers SHALL match MegaMek format (e.g., "Left Arm:")
 
