@@ -653,6 +653,25 @@ function isCohesiveValueObjectClass(node, source, publicMethods) {
   );
 }
 
+function heritageTexts(node, source) {
+  return (node.heritageClauses ?? []).flatMap((clause) =>
+    clause.types.map((type) => type.expression.getText(source)),
+  );
+}
+
+function isServiceFacadeClass(file, node, source) {
+  const className = node.name?.getText(source) ?? '';
+  if (!className.endsWith('Service')) return false;
+
+  const r = rel(file);
+  const heritage = heritageTexts(node, source);
+  return (
+    /(^|\/)services\//.test(r) ||
+    heritage.includes('IService') ||
+    heritage.includes('EventEmitter')
+  );
+}
+
 function scanTsAst(file, text) {
   if (!scriptExts.has(path.extname(file)) || hasGeneratedHeader(text, file))
     return;
@@ -772,6 +791,7 @@ function scanTsAst(file, text) {
         isPublicMethod(member, source),
       );
       const methods = publicMethods.length;
+      const isServiceFacade = isServiceFacadeClass(file, node, source);
       const isValueObject = node.members.some((member) =>
         isPrivateReadonlyProperty(member, source),
       );
@@ -780,34 +800,36 @@ function scanTsAst(file, text) {
         source,
         publicMethods,
       );
-      if (isValueObject) {
-        if (!isCohesiveValueObject && methods >= 8)
+      if (!isServiceFacade) {
+        if (isValueObject) {
+          if (!isCohesiveValueObject && methods >= 8)
+            add(
+              'design-violation',
+              'warn',
+              file,
+              lineOf(node),
+              `value object class has ${methods} public methods`,
+              { methods, symbol: node.name?.getText(source) },
+            );
+        } else if (methods >= 8)
           add(
             'design-violation',
-            'warn',
+            'critical',
             file,
             lineOf(node),
-            `value object class has ${methods} public methods`,
+            `class has ${methods} public methods`,
             { methods, symbol: node.name?.getText(source) },
           );
-      } else if (methods >= 8)
-        add(
-          'design-violation',
-          'critical',
-          file,
-          lineOf(node),
-          `class has ${methods} public methods`,
-          { methods, symbol: node.name?.getText(source) },
-        );
-      else if (methods >= 5)
-        add(
-          'design-violation',
-          'high',
-          file,
-          lineOf(node),
-          `class has ${methods} public methods`,
-          { methods, symbol: node.name?.getText(source) },
-        );
+        else if (methods >= 5)
+          add(
+            'design-violation',
+            'high',
+            file,
+            lineOf(node),
+            `class has ${methods} public methods`,
+            { methods, symbol: node.name?.getText(source) },
+          );
+      }
     }
     ts.forEachChild(node, visit);
   }

@@ -32,6 +32,18 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
+import { c, formatJson, formatSummary, formatViolation, showHelp } from './terminology-tool.output.js';
+import type {
+  CapitalizationRule,
+  CliOptions,
+  DeprecatedTerm,
+  FileResult,
+  LineContext,
+  RunResult,
+  TerminologyConfig,
+  Violation,
+} from './terminology-tool.types';
+
 // Get __dirname equivalent for ES modules
 const __filename_local =
   typeof __filename !== 'undefined'
@@ -39,140 +51,6 @@ const __filename_local =
     : fileURLToPath(import.meta.url);
 const __dirname_local =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(__filename_local);
-
-// ============================================================================
-// Types
-// ============================================================================
-
-interface DeprecatedTerm {
-  id: string;
-  deprecated: string;
-  canonical: string;
-  severity: 'error' | 'warning';
-  category: string;
-  pattern: string;
-  flags?: string;
-  preserveCase?: boolean;
-  context?: string;
-  note?: string;
-  skipContexts?: string[];
-}
-
-interface PropertyViolation {
-  id: string;
-  pattern: string;
-  canonical: string;
-  severity: 'error' | 'warning';
-  context?: string;
-}
-
-interface CapitalizationRule {
-  id: string;
-  pattern: string;
-  canonical: string;
-  severity: 'error' | 'warning';
-  context?: string;
-}
-
-interface SkipPatterns {
-  lines: string[];
-  contexts: Record<string, string[]>;
-}
-
-interface FilePatterns {
-  specs: string[];
-  source: string[];
-  exclude: string[];
-}
-
-interface SmartReplacements {
-  [key: string]: Record<string, string>;
-}
-
-interface TerminologyConfig {
-  version: string;
-  description: string;
-  lastUpdated: string;
-  deprecatedTerms: DeprecatedTerm[];
-  propertyViolations: PropertyViolation[];
-  capitalizationRules: CapitalizationRule[];
-  skipPatterns: SkipPatterns;
-  filePatterns: FilePatterns;
-  smartReplacements: SmartReplacements;
-}
-
-interface Violation {
-  file: string;
-  line: number;
-  column: number;
-  type: 'deprecated-term' | 'property-naming' | 'capitalization';
-  severity: 'error' | 'warning';
-  ruleId: string;
-  found: string;
-  canonical: string;
-  context?: string;
-  lineText: string;
-  fixable: boolean;
-}
-
-interface FileResult {
-  file: string;
-  violations: Violation[];
-  fixed: number;
-  wasModified: boolean;
-}
-
-interface RunResult {
-  filesScanned: number;
-  filesWithViolations: number;
-  totalViolations: number;
-  totalErrors: number;
-  totalWarnings: number;
-  totalFixed: number;
-  results: FileResult[];
-}
-
-interface CliOptions {
-  command: 'validate' | 'fix' | 'report';
-  fix: boolean;
-  dryRun: boolean;
-  json: boolean;
-  changedOnly: boolean;
-  source: boolean;
-  specsOnly: boolean;
-  strict: boolean;
-  verbose: boolean;
-  configPath?: string;
-  targetPath?: string;
-}
-
-// ============================================================================
-// Colors (ANSI)
-// ============================================================================
-
-const colors = {
-  reset: '\x1b[0m',
-  bold: '\x1b[1m',
-  dim: '\x1b[2m',
-  red: '\x1b[31m',
-  green: '\x1b[32m',
-  yellow: '\x1b[33m',
-  blue: '\x1b[34m',
-  magenta: '\x1b[35m',
-  cyan: '\x1b[36m',
-  white: '\x1b[37m',
-};
-
-const c = {
-  error: (s: string) => `${colors.red}${s}${colors.reset}`,
-  warn: (s: string) => `${colors.yellow}${s}${colors.reset}`,
-  success: (s: string) => `${colors.green}${s}${colors.reset}`,
-  info: (s: string) => `${colors.blue}${s}${colors.reset}`,
-  bold: (s: string) => `${colors.bold}${s}${colors.reset}`,
-  dim: (s: string) => `${colors.dim}${s}${colors.reset}`,
-  file: (s: string) => `${colors.cyan}${s}${colors.reset}`,
-  lineNum: (s: string) => `${colors.magenta}${s}${colors.reset}`,
-};
 
 // ============================================================================
 // Configuration Loader
@@ -313,19 +191,6 @@ function matchesPatterns(
 // ============================================================================
 // Context Detection
 // ============================================================================
-
-interface LineContext {
-  inCodeBlock: boolean;
-  inTypeScriptBlock: boolean;
-  isComment: boolean;
-  isDeprecatedExample: boolean;
-  isComparison: boolean;
-  isRuleDescription: boolean;
-  isRationale: boolean;
-  isChangelog: boolean;
-  isWhenClause: boolean;
-  isUserAction: boolean;
-}
 
 function analyzeLineContext(
   line: string,
@@ -660,58 +525,6 @@ function processFile(
 }
 
 // ============================================================================
-// Output Formatting
-// ============================================================================
-
-function formatViolation(v: Violation, rootDir: string): string {
-  const relPath = path.relative(rootDir, v.file).replace(/\\/g, '/');
-  const severity = v.severity === 'error' ? c.error('ERROR') : c.warn('WARN');
-  const location = `${c.file(relPath)}:${c.lineNum(String(v.line))}:${v.column}`;
-
-  let output = `${severity} ${location}\n`;
-  output += `  ${c.bold('Found:')} "${v.found}"\n`;
-  output += `  ${c.bold('Should be:')} "${v.canonical}"`;
-
-  if (v.context) {
-    output += `\n  ${c.bold('Context:')} ${v.context}`;
-  }
-
-  output += `\n  ${c.dim(v.lineText)}\n`;
-
-  return output;
-}
-
-function formatSummary(result: RunResult): string {
-  const lines: string[] = [];
-
-  lines.push('');
-  lines.push(c.bold('═'.repeat(50)));
-  lines.push(c.bold('Summary'));
-  lines.push(c.bold('═'.repeat(50)));
-  lines.push(
-    `  Files scanned:          ${c.info(String(result.filesScanned))}`,
-  );
-  lines.push(
-    `  Files with violations:  ${c.warn(String(result.filesWithViolations))}`,
-  );
-  lines.push(`  ${c.error('Errors:')}                ${result.totalErrors}`);
-  lines.push(`  ${c.warn('Warnings:')}              ${result.totalWarnings}`);
-  lines.push(`  Total violations:       ${result.totalViolations}`);
-
-  if (result.totalFixed > 0) {
-    lines.push(`  ${c.success('Fixed:')}                 ${result.totalFixed}`);
-  }
-
-  lines.push('');
-
-  return lines.join('\n');
-}
-
-function formatJson(result: RunResult): string {
-  return JSON.stringify(result, null, 2);
-}
-
-// ============================================================================
 // CLI
 // ============================================================================
 
@@ -757,38 +570,6 @@ function parseArgs(args: string[]): CliOptions {
   }
 
   return options;
-}
-
-function showHelp(): void {
-  console.log(`
-${c.bold('OpenSpec Terminology Tool')} - Validate and fix terminology violations
-
-${c.bold('Usage:')}
-  npx ts-node terminology-tool.ts <command> [options] [path]
-
-${c.bold('Commands:')}
-  validate    Check for terminology violations (default)
-  fix         Fix violations automatically
-  report      Generate detailed report
-
-${c.bold('Options:')}
-  --fix           Apply fixes automatically (with validate command)
-  --dry-run       Show what would be fixed without making changes
-  --json          Output results as JSON
-  --changed-only  Only check files changed in git
-  --source        Include TypeScript source files
-  --specs-only    Only check spec.md files
-  --strict        Exit with error code on any violation
-  --verbose, -v   Show detailed output
-  --config PATH   Use custom config file
-
-${c.bold('Examples:')}
-  npx ts-node terminology-tool.ts validate
-  npx ts-node terminology-tool.ts validate --strict
-  npx ts-node terminology-tool.ts fix --dry-run
-  npx ts-node terminology-tool.ts fix
-  npx ts-node terminology-tool.ts validate --source --changed-only
-`);
 }
 
 // ============================================================================

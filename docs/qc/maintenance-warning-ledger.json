@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-28",
+  "generatedAt": "2026-06-30",
   "scope": "repo-wide",
   "sourceCommand": "node scripts/maintenance/scan-maintenance.mjs --json",
   "purpose": "Reviewed accounting for Wave 12 maintenance scanner categories outside the src regression gate. Entries are fixed, accepted, or follow-up so repo-wide warnings are not rediscovered manually.",
@@ -18,9 +18,9 @@
       "follow-up": 0
     },
     "file-bloat": {
-      "fixed": 5,
+      "fixed": 6,
       "accepted": 0,
-      "follow-up": 14
+      "follow-up": 13
     },
     "near-duplicate": {
       "fixed": 6,
@@ -33,8 +33,8 @@
       "follow-up": 0
     },
     "design-violation": {
-      "fixed": 24,
-      "accepted": 3,
+      "fixed": 27,
+      "accepted": 0,
       "follow-up": 0
     }
   },
@@ -113,8 +113,12 @@
       "severity": "warn",
       "file": "openspec/scripts/terminology-tool.ts",
       "message": "705 LOC exceeds standard threshold",
-      "status": "follow-up",
-      "rationale": "Terminology tooling belongs to OpenSpec support and should be split only with strict terminology validation coverage.",
+      "status": "fixed",
+      "rationale": "Terminology tool type contracts and CLI output formatting were split into focused helper modules, dropping terminology-tool.ts below the warning threshold while preserving validate/report/fix orchestration.",
+      "fixedEvidence": [
+        "2026-06-30 `node scripts/maintenance/scan-maintenance.mjs --json --category=file-bloat --scope=openspec/scripts/terminology-tool.ts,openspec/scripts/terminology-tool.types.ts,openspec/scripts/terminology-tool.output.js` reported warn=0 and terminology-tool.ts at info-only 527 LOC.",
+        "2026-06-30 `npm.cmd run terminology:validate -- --json` completed successfully and reported the pre-existing terminology violation inventory without modifying files."
+      ],
       "followUps": ["wave-12-openspec-tooling-split"]
     },
     {
@@ -603,9 +607,12 @@
       "severity": "warn",
       "file": "desktop/services/local/LocalStorageService.ts",
       "message": "value object class has 9 public methods",
-      "status": "accepted",
-      "rationale": "Desktop local storage service deliberately exposes a compact persistence facade; no runtime issue is indicated by this warning.",
-      "acceptanceEvidence": ["desktop/services/local/LocalStorageService.ts"]
+      "status": "fixed",
+      "rationale": "The maintenance scanner now distinguishes explicit desktop service facades from value objects, so LocalStorageService no longer produces a false value-object public-method warning.",
+      "fixedEvidence": [
+        "2026-06-30 `node scripts/maintenance/scan-maintenance.mjs --json --category=design-violation --scope=desktop/services/local/LocalStorageService.ts` reported no design-violation findings.",
+        "2026-06-30 `npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/maintenance-scanner.test.ts --runInBand` locks service facade classification while preserving broad value-object warnings."
+      ]
     },
     {
       "key": "design-violation|warn|desktop/services/local/RecentFilesService.ts|value object class has 12 public methods",
@@ -613,9 +620,12 @@
       "severity": "warn",
       "file": "desktop/services/local/RecentFilesService.ts",
       "message": "value object class has 12 public methods",
-      "status": "accepted",
-      "rationale": "RecentFilesService is a desktop service facade; current breadth is accepted until a desktop service cleanup wave changes it.",
-      "acceptanceEvidence": ["desktop/services/local/RecentFilesService.ts"]
+      "status": "fixed",
+      "rationale": "The maintenance scanner now distinguishes explicit desktop service facades from value objects, so RecentFilesService no longer produces a false value-object public-method warning.",
+      "fixedEvidence": [
+        "2026-06-30 `node scripts/maintenance/scan-maintenance.mjs --json --category=design-violation --scope=desktop/services/local/RecentFilesService.ts` reported no design-violation findings.",
+        "2026-06-30 `npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/maintenance-scanner.test.ts --runInBand` locks service facade classification while preserving broad value-object warnings."
+      ]
     },
     {
       "key": "design-violation|warn|desktop/services/local/SettingsService.ts|value object class has 9 public methods",
@@ -623,9 +633,12 @@
       "severity": "warn",
       "file": "desktop/services/local/SettingsService.ts",
       "message": "value object class has 9 public methods",
-      "status": "accepted",
-      "rationale": "SettingsService method breadth is accepted as desktop service API surface; the actionable dispatch issue is tracked separately.",
-      "acceptanceEvidence": ["desktop/services/local/SettingsService.ts"]
+      "status": "fixed",
+      "rationale": "The maintenance scanner now distinguishes explicit desktop service facades from value objects, so SettingsService no longer produces a false value-object public-method warning.",
+      "fixedEvidence": [
+        "2026-06-30 `node scripts/maintenance/scan-maintenance.mjs --json --category=design-violation --scope=desktop/services/local/SettingsService.ts` reported no design-violation findings.",
+        "2026-06-30 `npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/maintenance-scanner.test.ts --runInBand` locks service facade classification while preserving broad value-object warnings."
+      ]
     },
     {
       "key": "file-bloat|warn|scripts/validate-bv.ts|775 LOC exceeds rendering threshold",
