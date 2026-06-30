@@ -62,8 +62,8 @@
 - [x] 8.1 For each implementation wave, keep tasks/spec status current before creating the wave PR.
 - [x] 8.2 Run UI/UX evaluation against the affected playable screens before marking a wave ready for PR.
 - [x] 8.3 Run relevant maintenance checks for touched files before marking a wave ready for PR.
-- [ ] 8.4 Merge each wave only after validation evidence is recorded, then reset/prune local state.
-- [ ] 8.5 Archive completed OpenSpec work only after implemented requirements are validated and no active downstream wave still depends on unarchived deltas.
+- [x] 8.4 Merge each wave only after validation evidence is recorded, then reset/prune local state.
+- [x] 8.5 Archive completed OpenSpec work only after implemented requirements are validated and no active downstream wave still depends on unarchived deltas.
 
 ## Evidence
 
@@ -146,3 +146,5 @@
 - 7.6 registry/spec/maintenance closeout: `npm.cmd run qc:command-slices:validate` passed 6/6 slices with 0 warnings; `npm.cmd run qc:journeys:validate` and `npm.cmd run qc:logging:validate` passed 7 journeys / 259 graph nodes / 0 warnings; `npm.cmd run maintain:scan:gate` passed with 0 critical/high findings and 0 baseline regressions; `openspec.cmd validate add-playable-command-screens --strict`, `node scripts/qc/validate-openspec-ci-quality.mjs`, targeted `npx.cmd oxfmt --check`, targeted `npx.cmd oxlint`, and `git diff --check` passed.
 - 7.6 PR CI repair: classified the dev-only `/e2e/networked-command-proof` route in `e2e/app-shell-route-manifest.json`; `npm.cmd test -- --watchAll=false --runTestsByPath scripts/__tests__/qc-registry.test.ts --runInBand`, `node scripts/qc/validate-qc-registry.mjs --app-shell-routes-only --json`, and `npm.cmd run qc:validate` now pass with 0 warnings.
 - UI/UX and bookkeeping closeout: Wave 7 adds no clutter to production play screens; command diagnostics and QC scripts stay behind automation, the browser proof is dev-only under `/e2e`, and the player-facing changes continue to preserve public-only guest results, compact GM controls, and map-first tactical interaction. The OpenSpec task ledger is current through 7.6 and ready for PR/merge/archive bookkeeping.
+- 2026-06-30 PR/merge bookkeeping: PR #988 (`codex/playable-command-logging-qc`) passed all GitHub PR checks on commit `c1837e01b4198630270ede31c8c5ea2b3a6d26f9`, including lint, format, type check, unit shards 1-6, E2E smoke, a11y, Storybook, coverage, performance, combat suite, BV parity, desktop, and build checks; the PR was squash-merged to `main` as `bf1e1b0d67c1995c4a7a03e02c6049de0564eefa`, and the deleted remote branch was pruned locally.
+- 2026-06-30 OpenSpec sync/archive bookkeeping: delta requirements from `add-playable-command-screens` were synced into canonical specs for campaign bay UI, command UI, finances, campaign system, co-op sync, customizer routing, day progression, GM redaction/boundaries/tactical command surface, intervention ledger, journey QC, logging, mission contracts, multiplayer game surface/sync, starmap, tactical map, plus a new canonical `playable-command-screens` spec before archive.

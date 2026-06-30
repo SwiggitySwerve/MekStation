@@ -352,3 +352,14 @@ Campaign finances SHALL remain covered by the Wave 8 campaign ledger QC proof fo
 - **GIVEN** a GM reverses or corrects a campaign funds transaction
 - **WHEN** the campaign ledger QC validator runs
 - **THEN** it SHALL validate focused test anchors proving the resulting balance and transaction history are projected before approval and applied only after approval
+
+### Requirement: Travel and time cost projection
+Campaign finances SHALL project travel fees, daily upkeep, payroll, loan, maintenance, repair, and other configured time-passage costs before travel or time cascade commands are committed.
+
+#### Scenario: Travel preview shows funds delta
+- **WHEN** a travel preview spans one or more days
+- **THEN** the preview SHALL show itemized expected costs and the projected funds balance after arrival
+
+#### Scenario: Committed ledger matches preview
+- **WHEN** travel or time passage is committed
+- **THEN** the finance ledger and activity entries SHALL match the previewed cost categories or record an explicit drift/reconciliation warning
