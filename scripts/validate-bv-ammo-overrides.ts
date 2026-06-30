@@ -1,0 +1,172 @@
+export type AmmoOverrideEntry = readonly [
+  id: string,
+  bv: number,
+  weaponType: string,
+];
+
+export const AMMO_BV_FALLBACKS: AmmoOverrideEntry[] = [
+  ['mml-3-lrm-ammo', 4, 'mml-3'],
+  ['mml-3-srm-ammo', 4, 'mml-3'],
+  ['mml-5-lrm-ammo', 6, 'mml-5'],
+  ['mml-5-srm-ammo', 6, 'mml-5'],
+  ['mml-7-lrm-ammo', 8, 'mml-7'],
+  ['mml-7-srm-ammo', 8, 'mml-7'],
+  ['mml-9-lrm-ammo', 11, 'mml-9'],
+  ['mml-9-srm-ammo', 11, 'mml-9'],
+  ['plasma-rifle-ammo', 26, 'plasma-rifle'],
+  ['isplasmarifleammo', 26, 'plasma-rifle'],
+  ['heavy-rifle-ammo', 11, 'heavy-rifle'],
+  ['medium-rifle-ammo', 6, 'medium-rifle'],
+  ['light-rifle-ammo', 3, 'light-rifle'],
+  ['clan-plasma-cannon-ammo', 21, 'plasma-cannon'],
+  ['clplasmacannonammo', 21, 'plasma-cannon'],
+  ['streak-srm-ammo', 17, 'streak-srm-2'],
+  // Clan Streak SRM (higher BV than IS)
+  ['clan-streak-srm-2-ammo', 5, 'streak-srm-2'],
+  ['clan-streak-srm-4-ammo', 10, 'streak-srm-4'],
+  ['clan-streak-srm-6-ammo', 15, 'streak-srm-6'],
+  // IS Streak SRM (lower BV than Clan)
+  ['streak-srm-2-ammo', 4, 'streak-srm-2'],
+  ['streak-srm-4-ammo', 7, 'streak-srm-4'],
+  ['streak-srm-6-ammo', 11, 'streak-srm-6'],
+  ['is-streak-srm-2-ammo', 4, 'streak-srm-2'],
+  ['is-streak-srm-4-ammo', 7, 'streak-srm-4'],
+  ['is-streak-srm-6-ammo', 11, 'streak-srm-6'],
+  // Clan LRM per-size (higher BV than IS: 7/14/21/27 vs 6/11/17/23)
+  ['clan-ammo-lrm-5', 7, 'lrm-5'],
+  ['clan-ammo-lrm-10', 14, 'lrm-10'],
+  ['clan-ammo-lrm-15', 21, 'lrm-15'],
+  ['clan-ammo-lrm-20', 27, 'lrm-20'],
+  // Clan SRM per-size (same BV as IS: 3/5/7)
+  ['clan-ammo-srm-2', 3, 'srm-2'],
+  ['clan-ammo-srm-4', 5, 'srm-4'],
+  ['clan-ammo-srm-6', 7, 'srm-6'],
+  // MRM per-size (7/14/21/28 per MegaMek)
+  ['mrm-10-ammo', 7, 'mrm-10'],
+  ['mrm-20-ammo', 14, 'mrm-20'],
+  ['mrm-30-ammo', 21, 'mrm-30'],
+  ['mrm-40-ammo', 28, 'mrm-40'],
+  ['ammo-mrm-10', 7, 'mrm-10'],
+  ['ammo-mrm-20', 14, 'mrm-20'],
+  ['ammo-mrm-30', 21, 'mrm-30'],
+  ['ammo-mrm-40', 28, 'mrm-40'],
+  // IS UAC ammo (correct IS values - catalog has Clan values for some)
+  ['is-uac-2-ammo', 7, 'uac-2'],
+  ['is-uac-5-ammo', 14, 'uac-5'],
+  // Clan UAC ammo (where different from IS)
+  ['clan-uac-2-ammo', 8, 'uac-2'],
+  ['clan-uac-5-ammo', 15, 'uac-5'],
+  ['clan-uac-20-ammo', 42, 'uac-20'],
+  // IS LB-X ammo (correct IS values)
+  ['is-lb-2-x-ammo', 5, 'lb-2-x-ac'],
+  ['is-lb-5-x-ammo', 10, 'lb-5-x-ac'],
+  // Clan LB-X ammo (where different from IS)
+  ['clan-lb-2-x-ammo', 6, 'lb-2-x-ac'],
+  ['clan-lb-5-x-ammo', 12, 'lb-5-x-ac'],
+  ['clan-lb-2-x-cluster-ammo', 6, 'lb-2-x-ac'],
+  ['clan-lb-5-x-cluster-ammo', 12, 'lb-5-x-ac'],
+  ['hag-20-ammo', 33, 'hag-20'],
+  ['hag-30-ammo', 50, 'hag-30'],
+  ['hag-40-ammo', 67, 'hag-40'],
+  ['rac-2-ammo', 15, 'rac-2'],
+  ['rac-5-ammo', 31, 'rac-5'],
+  ['clan-rac-2-ammo', 20, 'rac-2'],
+  ['clan-rac-5-ammo', 43, 'rac-5'],
+  ['clan-rac-20-ammo', 59, 'rac-20'],
+  ['clanrotaryac2', 20, 'rac-2'],
+  ['clanrotaryac5', 43, 'rac-5'],
+  ['hvac-2-ammo', 7, 'hvac-2'],
+  ['hvac-5-ammo', 11, 'hvac-5'],
+  ['hvac-10-ammo', 20, 'hvac-10'],
+  ['thunderbolt-5-ammo', 8, 'thunderbolt-5'],
+  ['thunderbolt-10-ammo', 16, 'thunderbolt-10'],
+  ['thunderbolt-15-ammo', 29, 'thunderbolt-15'],
+  ['thunderbolt-20-ammo', 38, 'thunderbolt-20'],
+  // Clan Improved LRM uses IS-equivalent BV (not Clan LRM BV — it's an experimental
+  // Clan weapon with IS performance: min range 6, weapon BV matches IS LRM, MegaMek LRM_IMP type)
+  ['clan-improved-lrm-5-ammo', 6, 'improved-lrm-5'],
+  ['clan-improved-lrm-10-ammo', 11, 'improved-lrm-10'],
+  ['clan-improved-lrm-15-ammo', 17, 'improved-lrm-15'],
+  ['clan-improved-lrm-20-ammo', 23, 'improved-lrm-20'],
+  // Fluid Gun
+  ['fluid-gun-ammo', 1, 'fluid-gun'],
+  // Clan Streak LRM per-size
+  ['clan-streak-lrm-5-ammo', 11, 'streak-lrm-5'],
+  ['clan-streak-lrm-10-ammo', 22, 'streak-lrm-10'],
+  ['clan-streak-lrm-15-ammo', 32, 'streak-lrm-15'],
+  ['clan-streak-lrm-20-ammo', 43, 'streak-lrm-20'],
+  // Clan ProtoMech AC
+  ['clan-protomech-ac-2-ammo', 4, 'protomech-ac-2'],
+  ['clan-protomech-ac-4-ammo', 6, 'protomech-ac-4'],
+  ['clan-protomech-ac-8-ammo', 8, 'protomech-ac-8'],
+  // Long Tom Cannon
+  ['longtomcannonammo', 41, 'long-tom'],
+  ['islongtomcannonammo', 41, 'long-tom'],
+  ['snipercannonammo', 10, 'sniper'],
+  ['issnipercannonammo', 10, 'sniper'],
+  ['thumpercannonammo', 5, 'thumper'],
+  ['isthumpercannonammo', 5, 'thumper'],
+  // Magshot
+  ['magshotgr-ammo', 2, 'magshot'],
+  // Taser
+  ['taser-ammo', 5, 'mech-taser'],
+  // Improved Gauss (Clan)
+  ['impgaussammo', 40, 'improved-gauss-rifle'],
+  ['climpgaussammo', 40, 'improved-gauss-rifle'],
+  // LR/SR Torpedo (IS values)
+  ['ammo-lrtorpedo-5', 6, 'lrm-5'],
+  ['ammo-lrtorpedo-10', 11, 'lrm-10'],
+  ['ammo-lrtorpedo-15', 17, 'lrm-15'],
+  ['ammo-lrtorpedo-20', 23, 'lrm-20'],
+  ['ammo-srtorpedo-2', 3, 'srm-2'],
+  ['ammo-srtorpedo-4', 5, 'srm-4'],
+  ['ammo-srtorpedo-6', 7, 'srm-6'],
+  // Clan LRT ammo has higher BV than IS (per MegaMek AmmoType.java)
+  ['clan-ammo-lrtorpedo-5', 7, 'lrm-5'],
+  ['clan-ammo-lrtorpedo-10', 14, 'lrm-10'],
+  ['clan-ammo-lrtorpedo-15', 21, 'lrm-15'],
+  ['clan-ammo-lrtorpedo-20', 27, 'lrm-20'],
+  ['clan-sc-mortar-1-ammo', 1, 'mortar-1'],
+  ['clan-sc-mortar-2-ammo', 2, 'mortar-2'],
+  ['clan-sc-mortar-4-ammo', 4, 'mortar-4'],
+  ['clan-sc-mortar-8-ammo', 8, 'mortar-8'],
+  ['is-sc-mortar-1-ammo', 1, 'mortar-1'],
+  ['is-sc-mortar-2-ammo', 2, 'mortar-2'],
+  ['is-sc-mortar-4-ammo', 4, 'mortar-4'],
+  ['is-sc-mortar-8-ammo', 8, 'mortar-8'],
+  ['lb-2-x-cluster-ammo', 6, 'lb-2-x-ac'],
+  ['lb-5-x-cluster-ammo', 12, 'lb-5-x-ac'],
+  ['clan-medium-chemical-laser-ammo', 5, 'medium-chemical-laser'],
+  ['clan-heavy-flamer-ammo', 1, 'heavy-flamer'],
+  ['cl-heavy-flamer-ammo', 1, 'heavy-flamer'],
+  ['clan-improved-gauss-ammo', 40, 'improved-gauss-rifle'],
+  // Clan Improved LRM ammo: overrides block sets correct IS BV + weaponType
+  ['light-machine-gun-ammo-half', 1, 'light-machine-gun'],
+  ['clan-light-machine-gun-ammo-half', 1, 'light-machine-gun'],
+  ['heavy-machine-gun-ammo-half', 1, 'heavy-machine-gun'],
+  ['clan-heavy-machine-gun-ammo-half', 1, 'heavy-machine-gun'],
+  ['machine-gun-ammo-half', 1, 'machine-gun'],
+  ['clan-machine-gun-ammo-half', 1, 'machine-gun'],
+  ['inarc-ammo', 6, 'improved-narc'],
+  ['narc-ammo', 6, 'narc-beacon'],
+  ['clan-narc-ammo', 6, 'narc-beacon'],
+];
+
+export const AMMO_BV_FORCE_OVERRIDES: AmmoOverrideEntry[] = [
+  // Mortar ammo (SC = Semi-Guided Cluster): must override any catalog defaults
+  ['clan-sc-mortar-1-ammo', 1, 'mortar-1'],
+  ['clan-sc-mortar-2-ammo', 2, 'mortar-2'],
+  ['clan-sc-mortar-4-ammo', 4, 'mortar-4'],
+  ['clan-sc-mortar-8-ammo', 8, 'mortar-8'],
+  ['is-sc-mortar-1-ammo', 1, 'mortar-1'],
+  ['is-sc-mortar-2-ammo', 2, 'mortar-2'],
+  ['is-sc-mortar-4-ammo', 4, 'mortar-4'],
+  ['is-sc-mortar-8-ammo', 8, 'mortar-8'],
+  // Clan Improved LRM ammo: catalog has correct IS-equivalent BV (6/11/17/23) but
+  // extractWeaponTypeFromAmmoId generates wrong weaponType ("animprovedlrmN") from the
+  // "clanimprovedlrmNammo" ID. Override to set correct weaponType for ammo-weapon matching.
+  ['clanimprovedlrm5ammo', 6, 'improved-lrm-5'],
+  ['clanimprovedlrm10ammo', 11, 'improved-lrm-10'],
+  ['clanimprovedlrm15ammo', 17, 'improved-lrm-15'],
+  ['clanimprovedlrm20ammo', 23, 'improved-lrm-20'],
+];

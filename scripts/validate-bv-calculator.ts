@@ -20,6 +20,14 @@ import {
   resolveEquipmentBV,
 } from '../src/utils/construction/equipmentBVResolver';
 import { normalizeWeaponKey } from './validate-bv-ammo-resolution';
+import {
+  deriveDefensiveMovementInputs,
+  deriveUnitBvCalculatorSetup,
+} from './validate-bv-calculator-setup';
+import {
+  applyWeaponPostScanModifiers,
+  type WeaponEntry,
+} from './validate-bv-calculator-weapons';
 import { scanCrits } from './validate-bv-crit-scan';
 import { CLAN_CHASSIS_MIXED_UNITS } from './validate-bv-known-units';
 import { deriveBvHeatAndMovement } from './validate-bv-movement-derived';
@@ -30,16 +38,9 @@ import {
 } from './validate-bv-normalizers';
 import { calculatePhysicalWeaponBV } from './validate-bv-physical-weapons';
 import {
-  calcTotalArmor,
-  calcTotalStructure,
   getArmorBAR,
-  isArmLoc,
   isClanEquipAtLocation,
   mapArmorType,
-  mapCockpitType,
-  mapEngineType,
-  mapGyroType,
-  mapStructureType,
 } from './validate-bv-unit-derived';
 import {
   KNOWN_HD_GYRO_UNITS,
@@ -57,118 +58,17 @@ export function calculateUnitBV(
   unitId?: string,
 ): { bv: number; breakdown: ValidationResult['breakdown']; issues: string[] } {
   const issues: string[] = [];
-  const engineType = mapEngineType(unit.engine.type, unit.techBase);
-  const structureType = mapStructureType(unit.structure.type);
-  let gyroType = mapGyroType(unit.gyro.type);
-  const cockpitType = mapCockpitType(unit.cockpit || 'STANDARD');
-
-  const unitIsSuperheavy = unit.tonnage > 100;
-
-  let engineBVOverride: number | undefined;
-  // Superheavy mechs have different engine BV multipliers because they have fewer
-  // side-torso engine critical slots (e.g., IS XL = 2 ST slots -> 0.75 multiplier)
-  if (unitIsSuperheavy) {
-    switch (engineType) {
-      case EngineType.XL_IS:
-        engineBVOverride = 0.75;
-        break;
-      case EngineType.XXL:
-        // Superheavy XXL: IS has 3 ST slots (0.5), Clan has 2 ST slots (0.75)
-        if (unit.techBase === 'CLAN') {
-          engineBVOverride = 0.75;
-        } else if (unit.techBase !== 'MIXED') {
-          engineBVOverride = 0.5;
-        }
-        // MIXED: leave undefined so crit-based detection below handles it
-        break;
-      case EngineType.LIGHT:
-        engineBVOverride = 1.0;
-        break;
-      case EngineType.XL_CLAN:
-        engineBVOverride = 1.0;
-        break;
-      // Standard, Compact, ICE, Fuel Cell all stay at 1.0 (default)
-    }
-  }
-  if (
-    engineType === EngineType.XXL &&
-    unit.techBase === 'CLAN' &&
-    !unitIsSuperheavy
-  )
-    engineBVOverride = 0.5;
-  // For MIXED tech XXL engines, detect Clan vs IS via side-torso engine crit count:
-  // Clan XXL = 4 engine slots per ST, IS XXL = 6 engine slots per ST
-  if (
-    engineType === EngineType.XXL &&
-    unit.techBase === 'MIXED' &&
-    engineBVOverride === undefined &&
-    unit.criticalSlots
-  ) {
-    const stLocs = ['LEFT_TORSO', 'LT', 'RIGHT_TORSO', 'RT'];
-    let maxSTEngineSlots = 0;
-    for (const loc of stLocs) {
-      const slots = unit.criticalSlots[loc];
-      if (!Array.isArray(slots)) continue;
-      const engSlots = slots.filter(
-        (s): s is string =>
-          typeof s === 'string' && s.toLowerCase().includes('engine'),
-      ).length;
-      maxSTEngineSlots = Math.max(maxSTEngineSlots, engSlots);
-    }
-    if (maxSTEngineSlots > 0 && maxSTEngineSlots <= 4) {
-      // Map ST engine slot count to BV multiplier:
-      // 2 slots = 0.75 (Clan XXL superheavy), 3-4 slots = 0.5 (Clan XXL / IS XXL superheavy)
-      // > 4 slots (IS XXL non-superheavy) = leave undefined → standard 0.25
-      engineBVOverride = maxSTEngineSlots <= 2 ? 0.75 : 0.5;
-    }
-  }
-
-  let totalArmor = calcTotalArmor(unit.armor.allocation);
-  // Torso-mounted cockpit: MegaMek doubles CT armor in BV via addTorsoMountedCockpit()
-  // (CT front + rear armor is added again to total armor points)
-  if (cockpitType === 'torso-mounted') {
-    const ctAlloc =
-      unit.armor?.allocation?.CENTER_TORSO ?? unit.armor?.allocation?.CT;
-    let ctFront = 0,
-      ctRear = 0;
-    if (typeof ctAlloc === 'number') {
-      ctFront = ctAlloc;
-    } else if (ctAlloc) {
-      ctFront = ctAlloc.front ?? 0;
-      ctRear = ctAlloc.rear ?? 0;
-    }
-    totalArmor += ctFront + ctRear;
-  }
-  // Detect quad from armor locations if configuration field is wrong (e.g., Boreas/Notos marked as "Biped")
-  const armorLocKeys = Object.keys(unit.armor?.allocation || {}).map(
-    (k: string) => k.toUpperCase(),
-  );
-  const hasQuadArmorLocs = armorLocKeys.some((k: string) =>
-    [
-      'FLL',
-      'FRL',
-      'RLL',
-      'RRL',
-      'FRONT_LEFT_LEG',
-      'FRONT_RIGHT_LEG',
-      'REAR_LEFT_LEG',
-      'REAR_RIGHT_LEG',
-    ].includes(k),
-  );
-  // Detect effective configuration from cockpit type when configuration field is wrong
-  // e.g., Ares superheavy tripods have configuration="Biped" but cockpit="SUPERHEAVY_TRIPOD"
-  const cockpitUpper = (
-    typeof unit.cockpit === 'string' ? unit.cockpit : ''
-  ).toUpperCase();
-  const isTripodCockpit =
-    cockpitUpper.includes('TRIPOD') || cockpitUpper === 'SUPERHEAVY_TRIPOD';
-  const effectiveConfig =
-    hasQuadArmorLocs && unit.configuration?.toLowerCase() !== 'quad'
-      ? 'Quad'
-      : isTripodCockpit && unit.configuration?.toLowerCase() !== 'tripod'
-        ? 'Tripod'
-        : unit.configuration;
-  const totalStructure = calcTotalStructure(unit.tonnage, effectiveConfig);
+  const setup = deriveUnitBvCalculatorSetup(unit);
+  const {
+    engineType,
+    structureType,
+    cockpitType,
+    cockpitUpper,
+    engineBVOverride,
+    totalStructure,
+    effectiveConfig,
+  } = setup;
+  let { gyroType, totalArmor } = setup;
   const cs = scanCrits(unit, unitId);
 
   // Modular Armor: each slot adds 10 armor points for BV calculation
@@ -195,19 +95,6 @@ export function calculateUnitBV(
   const hasStealth = armorType === 'stealth';
 
   // Weapons
-  type WeaponEntry = {
-    id: string;
-    name: string;
-    heat: number;
-    bv: number;
-    rear?: boolean;
-    isTurret?: boolean;
-    hasAES?: boolean;
-    isDirectFire?: boolean;
-    location: string;
-    artemisType?: 'iv' | 'v';
-    riscLPMApplied?: boolean;
-  };
   const weapons: WeaponEntry[] = [];
   const unresolvedWeapons: string[] = [];
   let hasTC = cs.hasTC;
@@ -405,245 +292,7 @@ export function calculateUnitBV(
   if (unresolvedWeapons.length > 0)
     issues.push(`Unresolved weapons (0 BV): ${unresolvedWeapons.join(', ')}`);
 
-  // Machine Gun Array (MGA): MegaMek counts individual MGs at full BV, then adds
-  // MGA bonus = sum(linked MG BVs) × 0.67 as a separate weapon entry with heat=0.
-  // MGA links to up to 4 MGs of matching type at the same location.
-  // Track consumed MGs so each MG is only linked to one MGA.
-  const mgaConsumed = new Set<number>(); // indices of weapons already linked to an MGA
-  for (const eq of unit.equipment) {
-    // Strip quantity prefix (e.g., "1-islmga" → "islmga")
-    const rawId = eq.id.toLowerCase().replace(/^\d+-/, '');
-    let mgType: string | null = null;
-    if (
-      rawId === 'machine-gun-array' ||
-      rawId === 'ismga' ||
-      rawId === 'clmga' ||
-      rawId.endsWith('-mga')
-    )
-      mgType = 'machine-gun';
-    else if (
-      rawId === 'light-machine-gun-array' ||
-      rawId === 'islmga' ||
-      rawId === 'cllmga' ||
-      rawId.endsWith('-lmga') ||
-      rawId === 'islightmga' ||
-      rawId === 'cllightmga'
-    )
-      mgType = 'light-machine-gun';
-    else if (
-      rawId === 'heavy-machine-gun-array' ||
-      rawId === 'ishmga' ||
-      rawId === 'clhmga' ||
-      rawId.endsWith('-hmga') ||
-      rawId === 'isheavymga' ||
-      rawId === 'clheavymga'
-    )
-      mgType = 'heavy-machine-gun';
-    if (!mgType) continue;
-
-    const mgLoc = eq.location.split(',')[0].toUpperCase();
-    // Link up to 4 unconsumed MGs of matching type at the same location
-    let linkedMGBV = 0;
-    let linkedCount = 0;
-    for (let wi = 0; wi < weapons.length; wi++) {
-      if (linkedCount >= 4) break;
-      if (mgaConsumed.has(wi)) continue;
-      const w = weapons[wi];
-      const wLoc = w.location.split(',')[0].toUpperCase();
-      if (wLoc !== mgLoc) continue;
-      const wid = w.name.replace(/^\d+-/, '');
-      const isMatch =
-        (mgType === 'machine-gun' &&
-          (wid === 'machine-gun' ||
-            wid === 'clmg' ||
-            wid === 'ismg' ||
-            wid === 'ismachine-gun' ||
-            wid === 'clmachine-gun')) ||
-        (mgType === 'light-machine-gun' &&
-          (wid === 'light-machine-gun' ||
-            wid === 'islightmg' ||
-            wid === 'cllightmg' ||
-            wid === 'islmg' ||
-            wid === 'islightmachine-gun' ||
-            wid === 'cllightmachine-gun')) ||
-        (mgType === 'heavy-machine-gun' &&
-          (wid === 'heavy-machine-gun' ||
-            wid === 'isheavymg' ||
-            wid === 'clheavymg' ||
-            wid === 'clhmg' ||
-            wid === 'isheavymachine-gun' ||
-            wid === 'clheavymachine-gun'));
-      if (isMatch) {
-        linkedMGBV += w.bv;
-        linkedCount++;
-        mgaConsumed.add(wi);
-      }
-    }
-    if (linkedMGBV > 0) {
-      const mgaBV = linkedMGBV * 0.67;
-      weapons.push({
-        id: 'mga-bonus',
-        name: rawId,
-        heat: 0,
-        bv: mgaBV,
-        rear: false,
-        hasAES: false,
-        isDirectFire: false,
-        location: eq.location,
-      });
-    }
-  }
-
-  // Drone Operating System: all weapon BVs × 0.8 (MegaMek processWeapons dBV *= 0.8)
-  if (cs.detectedDroneOS) {
-    for (const w of weapons) {
-      w.bv *= 0.8;
-    }
-  }
-
-  // Note: Shields do NOT halve weapon BV in MegaMek's BVCalculator.
-  // Shield arm tracking (cs.shieldArms) is kept for potential future use, but
-  // weapons in shield arms are counted at full BV per the MegaMek source code.
-
-  // Artemis IV/V — location-aware assignment (Artemis links to missile weapon in same location)
-  if (cs.artemisIVLocs.length > 0 || cs.artemisVLocs.length > 0) {
-    const ivLocs = [...cs.artemisIVLocs];
-    const vLocs = [...cs.artemisVLocs];
-    for (const w of weapons) {
-      const isMsl =
-        w.name.includes('lrm') ||
-        w.name.includes('srm') ||
-        w.name.includes('mml') ||
-        w.name.includes('atm') ||
-        w.name.includes('lrt') ||
-        w.name.includes('srt');
-      if (!isMsl) continue;
-      const wLoc = toMechLoc(w.location.split(',')[0]);
-      if (!wLoc) continue;
-      const vIdx = vLocs.indexOf(wLoc);
-      if (vIdx >= 0) {
-        w.artemisType = 'v';
-        vLocs.splice(vIdx, 1);
-      } else {
-        const ivIdx = ivLocs.indexOf(wLoc);
-        if (ivIdx >= 0) {
-          w.artemisType = 'iv';
-          ivLocs.splice(ivIdx, 1);
-        }
-      }
-    }
-  }
-
-  if (cs.apollo > 0) {
-    let a = cs.apollo;
-    for (const w of weapons) {
-      if (a <= 0) break;
-      if (w.name.includes('mrm')) {
-        w.bv = Math.round(w.bv * 1.15);
-        a--;
-      }
-    }
-  }
-
-  if (cs.ppcCapLocs.length > 0) {
-    // Track which weapon indices have already been matched by a capacitor.
-    // Without this, weapons.find() always returns the FIRST match, so two caps
-    // in the same location (e.g., two Light PPCs + two caps in LEFT_ARM) would
-    // both augment the same weapon instead of one each.
-    const capConsumed = new Set<number>();
-    for (const capLoc of cs.ppcCapLocs) {
-      // Find the NEXT unconsumed PPC weapon in the same location as the capacitor
-      const ppcIdx = weapons.findIndex(
-        (w, i) =>
-          !capConsumed.has(i) &&
-          w.name.includes('ppc') &&
-          w.location.toUpperCase().replace(/[_\s-]+/g, '') ===
-            capLoc.toUpperCase().replace(/[_\s-]+/g, ''),
-      );
-      if (ppcIdx < 0) continue;
-      capConsumed.add(ppcIdx);
-      const ppcInLoc = weapons[ppcIdx];
-      const wlo = ppcInLoc.name.replace(/^\d+-/, '');
-      // Check if the PPC in this location is Clan by examining crit slot names
-      const locSlots = unit.criticalSlots?.[capLoc] || [];
-      const hasClanPPC = (locSlots as string[]).some(
-        (s: string) =>
-          s &&
-          typeof s === 'string' &&
-          s.toUpperCase().startsWith('CL') &&
-          s.toUpperCase().includes('PPC'),
-      );
-      let capBV = 44;
-      if (wlo.includes('erppc') || wlo.includes('er-ppc')) {
-        capBV =
-          unit.techBase === 'CLAN' ||
-          wlo.startsWith('cl') ||
-          wlo.startsWith('clan') ||
-          hasClanPPC
-            ? 136
-            : 114;
-      } else if (wlo.includes('heavy') || wlo.includes('hppc')) {
-        capBV = 53;
-      } else if (wlo.includes('snub') || wlo.includes('snppc')) {
-        capBV = 87;
-      } else if (wlo.includes('light') || wlo.includes('lppc')) {
-        capBV = 44;
-      } else if (wlo.includes('ppc')) {
-        capBV = 88;
-      }
-      // MegaMek processWeapon(): AES ×1.25 applies to BASE weapon BV, then cap BV
-      // is added AFTER. Since applyWeaponBVModifiers applies AES later, pre-divide
-      // capBV by 1.25 so that (baseBV + capBV/1.25) × 1.25 = baseBV×1.25 + capBV.
-      ppcInLoc.bv += ppcInLoc.hasAES ? capBV / 1.25 : capBV;
-      ppcInLoc.heat += 5;
-    }
-  }
-
-  // RISC Laser Pulse Module: linked lasers get BV × 1.15 and heat + 2
-  // per MegaMek BVCalculator.processWeapon() — same pattern as Apollo for missiles
-  if (cs.riscLPMLocs.length > 0) {
-    for (const lpmLoc of cs.riscLPMLocs) {
-      // Find a laser weapon in the same location that hasn't already been boosted
-      const laserInLoc = weapons.find(
-        (w) =>
-          !w.riscLPMApplied &&
-          (w.name.toLowerCase().includes('laser') ||
-            w.name.toLowerCase().includes('pulse')) &&
-          w.location.toUpperCase().replace(/[_\s-]+/g, '') ===
-            lpmLoc.toUpperCase().replace(/[_\s-]+/g, ''),
-      );
-      if (!laserInLoc) continue;
-      laserInLoc.bv = laserInLoc.bv * 1.15;
-      laserInLoc.heat += 2;
-      laserInLoc.riscLPMApplied = true;
-    }
-  }
-
-  // MGA: MegaMek documentation says MGA replaces individual MGs with sum(BV) × 0.67, but
-  // MUL reference BVs do NOT apply this reduction — they use full individual MG BV.
-  // Applying ×0.67 causes massive regression (units drop 5-10% further below reference).
-  // Keep individual MGs at full BV with no MGA reduction to match MUL reference values.
-
-  // determineFront — use fully-modified BV (with TC, rear ×0.5) per MegaMek
-  // Turret-mounted weapons are excluded from front/rear comparison per MegaMek
-  let fBV = 0,
-    rBV = 0;
-  for (const w of weapons) {
-    if (isArmLoc(w.location) || w.isTurret) continue;
-    let modBV = w.bv;
-    if (w.hasAES) modBV *= 1.25;
-    if (hasTC && w.isDirectFire) modBV *= 1.25;
-    if (w.rear) {
-      rBV += modBV * 0.5;
-    } else {
-      fBV += modBV;
-    }
-  }
-  if (rBV > fBV) {
-    for (const w of weapons) {
-      if (!isArmLoc(w.location) && !w.isTurret) w.rear = !w.rear;
-    }
-  }
+  applyWeaponPostScanModifiers(unit, cs, weapons, hasTC);
 
   const ammoForCalc = cs.ammo.map((a) => ({
     id: a.id,
@@ -764,26 +413,11 @@ export function calculateUnitBV(
   }
 
   // Defensive BV
-  // Fix: jump TMM gets +1 per MegaMek getTargetMovementModifier(jumpMP, isJump=true)
-  // Since calculateDefensiveBV uses calculateTMM(max(runMP, jumpMP)) which misses +1,
-  // we pre-compute the correct TMM and convert to an equivalent MP for the function.
-  function tmmFromMP(mp: number): number {
-    if (mp <= 2) return 0;
-    if (mp <= 4) return 1;
-    if (mp <= 6) return 2;
-    if (mp <= 9) return 3;
-    if (mp <= 17) return 4;
-    if (mp <= 24) return 5;
-    return 6;
-  }
-  // TMM → minimum MP that produces that TMM: [0,3,5,7,10,18,25]
-  const tmmToMinMP = [0, 3, 5, 7, 10, 18, 25];
-  const runTMM = tmmFromMP(runMP);
-  const effectiveJump = Math.max(jumpMP, cs.umuMP);
-  const jumpTMM = effectiveJump > 0 ? tmmFromMP(effectiveJump) + 1 : 0;
-  const correctMaxTMM = Math.max(runTMM, jumpTMM);
-  // Convert to an equivalent runMP that calculateTMM will map to correctMaxTMM
-  const defRunMP = correctMaxTMM <= 6 ? tmmToMinMP[correctMaxTMM] : 25;
+  const { correctMaxTMM, defRunMP } = deriveDefensiveMovementInputs(
+    runMP,
+    jumpMP,
+    cs.umuMP,
+  );
 
   // BAR (Barrier Armor Rating): Commercial armor = BAR 5, all others = BAR 10
   // Per MegaMek Mek.getBARRating() and BVCalculator.processArmor()
