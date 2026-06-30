@@ -10,6 +10,21 @@ test.beforeEach(async ({ page }) => {
   page.setDefaultNavigationTimeout(GM_LEDGER_NAVIGATION_TIMEOUT_MS);
 });
 
+async function waitForCampaignStoreExposure(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () =>
+      Boolean(
+        (
+          window as unknown as {
+            __ZUSTAND_STORES__?: { campaign?: unknown };
+          }
+        ).__ZUSTAND_STORES__?.campaign,
+      ),
+    undefined,
+    { timeout: 15_000 },
+  );
+}
+
 type CampaignTimeState = {
   readonly currentDate: string | null;
   readonly timeCascadeEventCount: number;
@@ -19,6 +34,15 @@ type CampaignLedgerSnapshot = {
   readonly balance: number | null;
   readonly gmInterventionEventCount: number;
   readonly playerSummaries: readonly string[];
+};
+
+type CampaignBaseFixSnapshot = {
+  readonly repairStatus?: string;
+  readonly repairRemainingHours?: number;
+  readonly salvageProcessed?: boolean;
+  readonly unitCombatReady?: boolean;
+  readonly unitLastUpdated?: string;
+  readonly gmInterventionEventFamilies: readonly string[];
 };
 
 type SavedCampaignRecord = {
@@ -277,6 +301,171 @@ async function readCampaignTimeState(page: Page): Promise<CampaignTimeState> {
   });
 }
 
+async function seedCampaignBaseFixState(page: Page): Promise<void> {
+  await waitForCampaignStoreExposure(page);
+
+  await page.evaluate(() => {
+    type CampaignStoreApi = {
+      getState: () => {
+        updateCampaign: (updates: Record<string, unknown>) => void;
+      };
+    };
+    type ExposedCampaignStore = CampaignStoreApi | (() => CampaignStoreApi);
+
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          campaign?: ExposedCampaignStore;
+        };
+      }
+    ).__ZUSTAND_STORES__;
+
+    if (!stores?.campaign) {
+      throw new Error('Campaign store not exposed');
+    }
+
+    const exposed = stores.campaign;
+    const store = 'getState' in exposed ? exposed : exposed();
+    const candidate = {
+      source: 'part',
+      unitId: 'enemy-1',
+      designation: 'Medium Laser',
+      destroyedFromBattle: 'match-1',
+      finalStatus: 'destroyed',
+      damageLevel: 'moderate',
+      originalValue: 40_000,
+      recoveredValue: 20_000,
+      recoveryPercentage: 0.5,
+      repairCostEstimate: 2_000,
+      partId: 'medium-laser',
+      location: 'RA',
+      disposition: 'mercenary',
+      status: 'awarded',
+    };
+
+    store.getState().updateCampaign({
+      updatedAt: '3025-02-01T00:00:00.000Z',
+      repairQueue: [
+        {
+          ticketId: 'ticket-1',
+          unitId: 'unit-1',
+          kind: 'armor',
+          location: 'CT',
+          pointsToRestore: 8,
+          expectedHours: 4,
+          remainingHours: 4,
+          partsRequired: [],
+          source: 'combat',
+          matchId: 'match-1',
+          createdAt: '3025-02-01T00:00:00.000Z',
+          status: 'queued',
+        },
+      ],
+      salvageAllocations: {
+        'match-1': {
+          pool: {
+            battleId: 'match-1',
+            contractId: 'contract-1',
+            candidates: [candidate],
+            totalEstimatedValue: 20_000,
+            hostileTerritory: false,
+          },
+          employerAward: {
+            side: 'employer',
+            candidates: [],
+            totalValue: 0,
+            estimatedRepairCost: 0,
+          },
+          mercenaryAward: {
+            side: 'mercenary',
+            candidates: [candidate],
+            totalValue: 20_000,
+            estimatedRepairCost: 2_000,
+          },
+          splitMethod: 'contract',
+          processed: false,
+        },
+      },
+      unitCombatStates: {
+        'unit-1': {
+          unitId: 'unit-1',
+          currentArmorPerLocation: {
+            CT: 20,
+            RA: 8,
+          },
+          currentStructurePerLocation: {
+            CT: 10,
+            RA: 0,
+          },
+          destroyedLocations: ['RA'],
+          destroyedComponents: [],
+          heatEnd: 0,
+          ammoRemaining: {},
+          combatReady: false,
+          lastCombatOutcomeId: 'match-1',
+          lastUpdated: '3025-02-01T00:00:00.000Z',
+        },
+      },
+    });
+  });
+}
+
+async function readCampaignBaseFixSnapshot(
+  page: Page,
+): Promise<CampaignBaseFixSnapshot> {
+  return page.evaluate(() => {
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          campaign?: {
+            getState: () => {
+              getCampaign?: () => {
+                repairQueue?: readonly {
+                  status?: unknown;
+                  remainingHours?: unknown;
+                }[];
+                salvageAllocations?: Record<string, { processed?: unknown }>;
+                unitCombatStates?: Record<
+                  string,
+                  {
+                    combatReady?: unknown;
+                    lastUpdated?: unknown;
+                  }
+                >;
+                gmInterventionEvents?: readonly {
+                  family?: unknown;
+                }[];
+              } | null;
+            };
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
+    const campaign = stores?.campaign?.getState().getCampaign?.();
+    const repair = campaign?.repairQueue?.[0];
+    const salvage = campaign?.salvageAllocations?.['match-1'];
+    const unit = campaign?.unitCombatStates?.['unit-1'];
+
+    return {
+      repairStatus:
+        typeof repair?.status === 'string' ? repair.status : undefined,
+      repairRemainingHours:
+        typeof repair?.remainingHours === 'number'
+          ? repair.remainingHours
+          : undefined,
+      salvageProcessed:
+        typeof salvage?.processed === 'boolean' ? salvage.processed : undefined,
+      unitCombatReady:
+        typeof unit?.combatReady === 'boolean' ? unit.combatReady : undefined,
+      unitLastUpdated:
+        typeof unit?.lastUpdated === 'string' ? unit.lastUpdated : undefined,
+      gmInterventionEventFamilies: (campaign?.gmInterventionEvents ?? [])
+        .map((event) => event.family)
+        .filter((family): family is string => typeof family === 'string'),
+    };
+  });
+}
+
 test.describe('GM campaign ledger control plane @gm-ledger', () => {
   test('previews, approves, and redacts a merchant reversal', async ({
     page,
@@ -529,6 +718,103 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       );
       await expect(page.getByTestId('gm-ledger-private-log')).toContainText(
         'Manual takeover selected',
+      );
+    } finally {
+      if (campaignId) {
+        await deleteCampaign(page, campaignId);
+      }
+    }
+  });
+
+  test('previews and applies repair, salvage, and unit reload corrections', async ({
+    page,
+  }) => {
+    let campaignId = '';
+
+    await page.goto('/gameplay/campaigns', { waitUntil: 'domcontentloaded' });
+    campaignId = await createTestCampaign(page, {
+      name: 'GM Base Fix Browser Proof',
+      cBills: 1_000_000,
+    });
+
+    try {
+      await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
+        waitUntil: 'domcontentloaded',
+      });
+      await seedCampaignBaseFixState(page);
+
+      await page.getByTestId('gm-ledger-repair-preview-btn').click();
+      await expect(page.getByTestId('gm-ledger-preview-status')).toContainText(
+        'ready',
+      );
+      await expect(
+        page.getByTestId('gm-ledger-preview-state-summary'),
+      ).toContainText('Repair ticket ticket-1: queued, 4h remaining');
+      await expect(
+        page.getByTestId('gm-ledger-preview-state-summary'),
+      ).toContainText('Repair ticket ticket-1: completed, 0h remaining');
+      await page.getByTestId('gm-ledger-approve-btn').click();
+      await expect
+        .poll(async () => readCampaignBaseFixSnapshot(page))
+        .toMatchObject({
+          repairStatus: 'completed',
+          repairRemainingHours: 0,
+        });
+
+      await page.getByTestId('gm-ledger-salvage-preview-btn').click();
+      await expect(
+        page.getByTestId('gm-ledger-preview-state-summary'),
+      ).toContainText('Salvage allocation match-1: processed=false');
+      await expect(
+        page.getByTestId('gm-ledger-preview-state-summary'),
+      ).toContainText('Salvage allocation match-1: processed=true');
+      await page.getByTestId('gm-ledger-approve-btn').click();
+      await expect
+        .poll(async () => readCampaignBaseFixSnapshot(page))
+        .toMatchObject({
+          salvageProcessed: true,
+        });
+
+      await page.getByTestId('gm-ledger-unit-reload-preview-btn').click();
+      await expect(
+        page.getByTestId('gm-ledger-preview-state-summary'),
+      ).toContainText('Unit unit-1: combatReady=false');
+      await expect(
+        page.getByTestId('gm-ledger-preview-state-summary'),
+      ).toContainText('Unit unit-1: combatReady=true');
+      await page.getByTestId('gm-ledger-approve-btn').click();
+      await expect
+        .poll(async () => readCampaignBaseFixSnapshot(page))
+        .toMatchObject({
+          unitCombatReady: true,
+          unitLastUpdated: expect.any(String),
+          gmInterventionEventFamilies: [
+            'repair-ticket',
+            'salvage-allocation',
+            'base-unit-state',
+          ],
+        });
+
+      await expect(page.getByTestId('gm-ledger-player-log')).toContainText(
+        'Repair ticket ticket-1 corrected by the GM.',
+      );
+      await expect(page.getByTestId('gm-ledger-player-log')).toContainText(
+        'Salvage allocation match-1 corrected by the GM.',
+      );
+      await expect(page.getByTestId('gm-ledger-player-log')).toContainText(
+        'Unit unit-1 reload reconciliation recorded by the GM.',
+      );
+      await expect(page.getByTestId('gm-ledger-player-log')).not.toContainText(
+        /Hidden repair|Hidden salvage|Hidden unit reload|GM-only/i,
+      );
+      await expect(page.getByTestId('gm-ledger-private-log')).toContainText(
+        'Hidden repair correction',
+      );
+      await expect(page.getByTestId('gm-ledger-private-log')).toContainText(
+        'Hidden salvage correction',
+      );
+      await expect(page.getByTestId('gm-ledger-private-log')).toContainText(
+        'Hidden unit reload reconciliation',
       );
     } finally {
       if (campaignId) {

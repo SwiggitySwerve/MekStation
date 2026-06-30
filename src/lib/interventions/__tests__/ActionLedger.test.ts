@@ -37,6 +37,12 @@ const makeGmInterventionRecord = (): IInterventionLedgerRecord<
   domainPayload: {
     delta: 4,
   },
+  previewId: 'preview-gm-int-1',
+  subjectIds: ['unit:atlas-1', 'armor:center-torso'],
+  beforeSummary: 'Atlas CT armor 8',
+  afterSummary: 'Atlas CT armor 12',
+  resultingStateSummary: 'Atlas damage corrected.',
+  redactionPolicy: 'gm-private-metadata',
   createdAt: '2026-06-22T00:00:00.000Z',
   approvedAt: '2026-06-22T00:01:00.000Z',
 });
@@ -73,6 +79,12 @@ describe('ActionLedger', () => {
       actorRole: 'gm',
       action: 'fix',
       interventionRecordId: 'gm-int-1',
+      previewId: 'preview-gm-int-1',
+      subjectIds: ['unit:atlas-1', 'armor:center-torso'],
+      beforeSummary: 'Atlas CT armor 8',
+      afterSummary: 'Atlas CT armor 12',
+      resultingStateSummary: 'Atlas damage corrected.',
+      redactionPolicy: 'gm-private-metadata',
       causedBy: ['normal-action-1'],
       supersedes: ['normal-action-1'],
     });
@@ -113,6 +125,12 @@ describe('ActionLedger', () => {
         summary: 'Atlas damage corrected.',
         changedStateRefs: ['unit:atlas-1', 'armor:center-torso'],
       },
+      previewId: 'preview-gm-int-1',
+      subjectIds: ['unit:atlas-1', 'armor:center-torso'],
+      beforeSummary: 'Atlas CT armor 8',
+      afterSummary: 'Atlas CT armor 12',
+      resultingStateSummary: 'Atlas damage corrected.',
+      redactionPolicy: 'gm-private-metadata',
     });
     expect(JSON.stringify(playerProjection)).not.toContain(
       'GM-only damage correction',

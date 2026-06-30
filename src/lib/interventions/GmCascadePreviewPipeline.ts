@@ -14,6 +14,10 @@ import { logger } from '@/utils/logger';
 import type { ActionLedger } from './ActionLedger';
 import type { InterventionLedger } from './InterventionLedger';
 
+import {
+  affectedStateRefs,
+  buildPreviewMetadata,
+} from './GmCascadePreviewMetadata';
 import { previewGmInterventionWithAuthority } from './GmInterventionAuthority';
 
 export interface ICreateGmCascadePreviewInput<
@@ -104,9 +108,11 @@ export function createGmCascadePreview<TState, TCommandPayload>(
     DEFERRED_FIRST_SLICE_DOMAINS.has(previewResult.domain)
       ? 'deferred'
       : normalizePreviewStatus(previewResult);
+  const metadata = buildPreviewMetadata(previewResult, resolvedInterventionId);
 
   const preview: IGmCascadePreview = {
     interventionId: resolvedInterventionId,
+    ...metadata,
     status,
     domain: previewResult.domain,
     kind: previewResult.kind,
@@ -255,6 +261,12 @@ function buildApprovedRecord<TState, TPrivate, TPublic, TDomainPayload>(
     targetRefs: preview.targetRefs,
     causedBy: preview.causedBy,
     supersedes: preview.supersedes,
+    previewId: preview.previewId ?? preview.interventionId,
+    subjectIds: preview.subjectIds ?? preview.affectedStateRefs,
+    beforeSummary: preview.beforeSummary,
+    afterSummary: preview.afterSummary,
+    resultingStateSummary: preview.resultingStateSummary,
+    redactionPolicy: preview.redactionPolicy ?? 'gm-private-metadata',
     privateMetadata: preview.privateMetadata as TPrivate,
     publicEffect: preview.publicEffect as TPublic,
     domainPayload: preview.domainPayload,
@@ -325,29 +337,6 @@ function readDateIso(value: unknown, key: string): string | undefined {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
-}
-
-function affectedStateRefs(
-  preview: IInterventionLedgerPreview,
-): readonly string[] {
-  return uniqueRefs([
-    ...preview.targetRefs,
-    ...changedStateRefs(preview.publicEffect),
-    ...preview.conflicts.flatMap((conflict) => conflict.affectedRefs ?? []),
-  ]);
-}
-
-function changedStateRefs(publicEffect: unknown): readonly string[] {
-  if (!publicEffect || typeof publicEffect !== 'object') return [];
-  const maybeRefs = (publicEffect as { changedStateRefs?: unknown })
-    .changedStateRefs;
-  return Array.isArray(maybeRefs)
-    ? maybeRefs.filter((ref): ref is string => typeof ref === 'string')
-    : [];
-}
-
-function uniqueRefs(refs: readonly string[]): readonly string[] {
-  return Array.from(new Set(refs));
 }
 
 function createDefaultInterventionId(now?: () => string): string {

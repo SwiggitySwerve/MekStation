@@ -2,6 +2,9 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IRepairTicket } from '@/types/campaign/RepairTicket';
+import type { ISalvageAllocation } from '@/types/campaign/Salvage';
+import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
 import type {
   IGmCampaignProjectedEffect,
   IGmTimeCascadeProjectedEffect,
@@ -12,6 +15,7 @@ import { createCampaign } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { createInjury } from '@/types/campaign/Person';
+import { DamageLevel } from '@/types/campaign/Salvage';
 import { TransactionType } from '@/types/campaign/Transaction';
 
 import { GmCampaignInterventionControlPlane } from '../GmCampaignInterventionControlPlane';
@@ -235,6 +239,106 @@ describe('GmCampaignInterventionControlPlane', () => {
     expect(gmLog.getByText(/previous timeline/)).toBeInTheDocument();
   });
 
+  it('previews and approves repair, salvage, and unit reload corrections', () => {
+    const campaign = makeCampaignWithBaseFixes();
+    const onApplyCampaignUpdate = jest.fn();
+
+    render(
+      <GmCampaignInterventionControlPlane
+        campaign={campaign}
+        onApplyCampaignUpdate={onApplyCampaignUpdate}
+        now={fixedNow}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('gm-ledger-repair-preview-btn'));
+
+    expect(screen.getByTestId('gm-ledger-preview-status')).toHaveTextContent(
+      'ready',
+    );
+    expect(screen.getByTestId('gm-ledger-preview-summary')).toHaveTextContent(
+      'Repair ticket ticket-1 corrected by the GM.',
+    );
+    expect(
+      screen.getByTestId('gm-ledger-preview-state-summary'),
+    ).toHaveTextContent('Repair ticket ticket-1: queued, 4h remaining');
+    expect(
+      screen.getByTestId('gm-ledger-preview-state-summary'),
+    ).toHaveTextContent('Repair ticket ticket-1: completed, 0h remaining');
+
+    fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+
+    expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(1);
+    expect(onApplyCampaignUpdate.mock.calls[0][0].repairQueue[0]).toMatchObject(
+      {
+        ticketId: 'ticket-1',
+        status: 'completed',
+        remainingHours: 0,
+      },
+    );
+    expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
+      'Repair ticket ticket-1 corrected by the GM.',
+    );
+    expect(screen.getByTestId('gm-ledger-player-log')).not.toHaveTextContent(
+      /Hidden repair|maintenance crew|GM-only/i,
+    );
+    expect(screen.getByTestId('gm-ledger-private-log')).toHaveTextContent(
+      'Hidden repair correction',
+    );
+
+    fireEvent.click(screen.getByTestId('gm-ledger-salvage-preview-btn'));
+
+    expect(
+      screen.getByTestId('gm-ledger-preview-state-summary'),
+    ).toHaveTextContent('Salvage allocation match-1: processed=false');
+    expect(
+      screen.getByTestId('gm-ledger-preview-state-summary'),
+    ).toHaveTextContent('Salvage allocation match-1: processed=true');
+
+    fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+
+    expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(2);
+    expect(
+      onApplyCampaignUpdate.mock.calls[1][0].salvageAllocations['match-1'],
+    ).toMatchObject({
+      processed: true,
+    });
+    expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
+      'Salvage allocation match-1 corrected by the GM.',
+    );
+    expect(screen.getByTestId('gm-ledger-private-log')).toHaveTextContent(
+      'Hidden salvage correction',
+    );
+
+    fireEvent.click(screen.getByTestId('gm-ledger-unit-reload-preview-btn'));
+
+    expect(
+      screen.getByTestId('gm-ledger-preview-state-summary'),
+    ).toHaveTextContent('Unit unit-1: combatReady=false');
+    expect(
+      screen.getByTestId('gm-ledger-preview-state-summary'),
+    ).toHaveTextContent('Unit unit-1: combatReady=true');
+
+    fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+
+    expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(3);
+    expect(
+      onApplyCampaignUpdate.mock.calls[2][0].unitCombatStates['unit-1'],
+    ).toMatchObject({
+      combatReady: true,
+      lastUpdated: fixedNow(),
+    });
+    expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
+      'Unit unit-1 reload reconciliation recorded by the GM.',
+    );
+    expect(screen.getByTestId('gm-ledger-player-log')).not.toHaveTextContent(
+      /Hidden unit reload|stale unit|GM-only/i,
+    );
+    expect(screen.getByTestId('gm-ledger-private-log')).toHaveTextContent(
+      'Hidden unit reload reconciliation',
+    );
+  });
+
   it('previews and applies roster recovery external effects on time approval', () => {
     const campaign = {
       ...createCampaign('GM Roster Recovery Test', 'mercenary', {
@@ -370,6 +474,115 @@ function makeRosterEntry(
     primaryRole: CampaignPersonnelRole.PILOT,
     rankIndex: 0,
     injuries: [],
+    ...overrides,
+  };
+}
+
+function makeCampaignWithBaseFixes() {
+  return {
+    ...createCampaign('GM Base Fixes Test', 'mercenary', {
+      startingFunds: 1_000_000,
+    }),
+    id: 'campaign-gm-base-fixes',
+    updatedAt: '3025-02-01T00:00:00.000Z',
+    repairQueue: [makeRepairTicket()],
+    salvageAllocations: {
+      'match-1': makeSalvageAllocation(),
+    },
+    unitCombatStates: {
+      'unit-1': makeUnitCombatState({
+        combatReady: false,
+      }),
+    },
+  };
+}
+
+function makeRepairTicket(
+  overrides: Partial<IRepairTicket> = {},
+): IRepairTicket {
+  return {
+    ticketId: 'ticket-1',
+    unitId: 'unit-1',
+    kind: 'armor',
+    location: 'CT',
+    pointsToRestore: 8,
+    expectedHours: 4,
+    remainingHours: 4,
+    partsRequired: [],
+    source: 'combat',
+    matchId: 'match-1',
+    createdAt: '3025-02-01T00:00:00.000Z',
+    status: 'queued',
+    ...overrides,
+  };
+}
+
+function makeSalvageAllocation(
+  overrides: Partial<ISalvageAllocation> = {},
+): ISalvageAllocation {
+  const candidate = {
+    source: 'part' as const,
+    unitId: 'enemy-1',
+    designation: 'Medium Laser',
+    destroyedFromBattle: 'match-1',
+    finalStatus: 'destroyed' as const,
+    damageLevel: DamageLevel.Moderate,
+    originalValue: 40_000,
+    recoveredValue: 20_000,
+    recoveryPercentage: 0.5,
+    repairCostEstimate: 2_000,
+    partId: 'medium-laser',
+    location: 'RA',
+    disposition: 'mercenary' as const,
+    status: 'awarded' as const,
+  };
+
+  return {
+    pool: {
+      battleId: 'match-1',
+      contractId: 'contract-1',
+      candidates: [candidate],
+      totalEstimatedValue: 20_000,
+      hostileTerritory: false,
+    },
+    employerAward: {
+      side: 'employer',
+      candidates: [],
+      totalValue: 0,
+      estimatedRepairCost: 0,
+    },
+    mercenaryAward: {
+      side: 'mercenary',
+      candidates: [candidate],
+      totalValue: 20_000,
+      estimatedRepairCost: 2_000,
+    },
+    splitMethod: 'contract',
+    processed: false,
+    ...overrides,
+  };
+}
+
+function makeUnitCombatState(
+  overrides: Partial<IUnitCombatState> = {},
+): IUnitCombatState {
+  return {
+    unitId: 'unit-1',
+    currentArmorPerLocation: {
+      CT: 20,
+      RA: 8,
+    },
+    currentStructurePerLocation: {
+      CT: 10,
+      RA: 0,
+    },
+    destroyedLocations: ['RA'],
+    destroyedComponents: [],
+    heatEnd: 0,
+    ammoRemaining: {},
+    combatReady: true,
+    lastCombatOutcomeId: 'match-1',
+    lastUpdated: '3025-02-01T00:00:00.000Z',
     ...overrides,
   };
 }

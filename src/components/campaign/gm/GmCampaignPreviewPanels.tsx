@@ -41,6 +41,25 @@ export function GmPreviewPanel({
       >
         {preview.publicEffect?.summary ?? preview.reason}
       </p>
+      {preview.beforeSummary || preview.afterSummary ? (
+        <div
+          className="text-text-theme-secondary mt-3 grid gap-2 text-sm md:grid-cols-3"
+          data-testid="gm-ledger-preview-state-summary"
+        >
+          <p>
+            <span className="text-text-theme-primary font-medium">Before:</span>{' '}
+            {preview.beforeSummary ?? 'No prior state summary'}
+          </p>
+          <p>
+            <span className="text-text-theme-primary font-medium">After:</span>{' '}
+            {preview.afterSummary ?? 'No projected state summary'}
+          </p>
+          <p>
+            <span className="text-text-theme-primary font-medium">Result:</span>{' '}
+            {preview.resultingStateSummary ?? 'No public result summary'}
+          </p>
+        </div>
+      ) : null}
       {fundsEffect ? (
         <p
           className="text-text-theme-secondary mt-2 font-mono text-sm"

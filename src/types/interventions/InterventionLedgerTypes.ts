@@ -44,7 +44,7 @@ export interface IInterventionLedgerRecord<
   TPrivate = unknown,
   TPublic = unknown,
   TDomainPayload = unknown,
-> {
+> extends IInterventionLedgerMetadata {
   readonly id: string;
   readonly domain: InterventionDomain;
   readonly kind: GmInterventionKind;
@@ -64,7 +64,7 @@ export interface IInterventionLedgerPreview<
   TPrivate = unknown,
   TPublic = unknown,
   TDomainPayload = unknown,
-> {
+> extends IInterventionLedgerMetadata {
   readonly domain: InterventionDomain;
   readonly kind: GmInterventionKind;
   readonly status: InterventionPreviewStatus;
@@ -100,6 +100,19 @@ export type InterventionApplyResult<TState = unknown> =
   | IUnsupportedInterventionResult<TState>;
 
 export type InterventionProjectionVisibility = 'public' | 'private';
+
+export type InterventionRedactionPolicy =
+  | 'public-effect-only'
+  | 'gm-private-metadata';
+
+export interface IInterventionLedgerMetadata {
+  readonly previewId?: string;
+  readonly subjectIds?: readonly string[];
+  readonly beforeSummary?: string;
+  readonly afterSummary?: string;
+  readonly resultingStateSummary?: string;
+  readonly redactionPolicy?: InterventionRedactionPolicy;
+}
 
 export interface IInterventionLedgerImplementer<
   TCommand extends IInterventionLedgerCommand = IInterventionLedgerCommand,

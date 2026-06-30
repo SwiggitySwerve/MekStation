@@ -168,9 +168,13 @@ describe('GM cascade preview pipeline', () => {
 
     expect(preview).toMatchObject({
       interventionId: 'gm-int-preview',
+      previewId: 'gm-int-preview',
       status: 'ready',
       domain: 'combat',
       affectedStateRefs: ['unit:atlas-1', 'state:value'],
+      subjectIds: ['unit:atlas-1', 'state:value'],
+      resultingStateSummary: 'Value corrected.',
+      redactionPolicy: 'gm-private-metadata',
       publicEffect: {
         summary: 'Value corrected.',
       },
@@ -224,8 +228,12 @@ describe('GM cascade preview pipeline', () => {
     expect(ledger.getRecords()).toHaveLength(1);
     expect(ledger.getRecords()[0]).toMatchObject({
       id: 'gm-int-approved',
+      previewId: 'gm-int-approved',
       status: 'approved',
       causedBy: ['player-attack-1'],
+      subjectIds: ['unit:atlas-1', 'state:value'],
+      resultingStateSummary: 'Value corrected.',
+      redactionPolicy: 'gm-private-metadata',
     });
   });
 
@@ -268,6 +276,10 @@ describe('GM cascade preview pipeline', () => {
       sequence: 2,
       recordKind: 'gm-intervention',
       interventionRecordId: 'gm-int-action-ledger',
+      previewId: 'gm-int-action-ledger',
+      subjectIds: ['unit:atlas-1', 'state:value'],
+      resultingStateSummary: 'Value corrected.',
+      redactionPolicy: 'gm-private-metadata',
       causedBy: ['player-attack-1'],
       supersedes: ['player-attack-1'],
     });

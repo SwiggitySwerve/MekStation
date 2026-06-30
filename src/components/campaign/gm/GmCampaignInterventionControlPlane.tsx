@@ -11,7 +11,6 @@ import type {
   IGmTimeCascadePublicEffect,
 } from '@/types/interventions';
 
-import { Button, Card } from '@/components/ui';
 import { ActionLedger } from '@/lib/interventions/ActionLedger';
 import { registerGmCampaignInterventionImplementers } from '@/lib/interventions/GmCampaignInterventionImplementer';
 import {
@@ -23,6 +22,15 @@ import { registerGmTimeCascadeInterventionImplementer } from '@/lib/intervention
 import { InterventionLedger } from '@/lib/interventions/InterventionLedger';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 
+import {
+  buildRepairCompletionCommand,
+  buildSalvageProcessedCommand,
+  buildUnitReloadReconciliationCommand,
+  REPAIR_COMPLETION_ID,
+  SALVAGE_PROCESSED_ID,
+  UNIT_RELOAD_RECONCILIATION_ID,
+} from './GmCampaignBaseFixCommands';
+import { GmCampaignInterventionActions } from './GmCampaignInterventionActions';
 import {
   buildMerchantReversalCommand,
   buildTimeCascadeCommand,
@@ -44,6 +52,7 @@ import {
   GmLedgerProjection,
   LedgerProjection,
 } from './GmCampaignLedgerProjection';
+import { GmCampaignLedgerStatusCards } from './GmCampaignLedgerStatusCards';
 import {
   GmPreviewPanel,
   ManualTakeoverPanel,
@@ -141,6 +150,73 @@ export function GmCampaignInterventionControlPlane({
     setNextPreview(nextPreview);
   };
 
+  const handleRepairPreview = (): void => {
+    const nextPreview = createGmCascadePreview({
+      ledger: campaignLedger,
+      command: buildRepairCompletionCommand({
+        actorId,
+        campaign,
+      }),
+      state: campaign as IGmCampaignInterventionState,
+      authority: {
+        actorId,
+        role: 'gm',
+        gameId: `campaign:${campaign.id}:gm-ledger`,
+        campaignId: campaign.id,
+        ownedStateRefs: [`campaign:${campaign.id}`],
+      },
+      interventionId: REPAIR_COMPLETION_ID,
+      now,
+    }) as GmCampaignPreview;
+
+    setNextPreview(nextPreview);
+  };
+
+  const handleSalvagePreview = (): void => {
+    const nextPreview = createGmCascadePreview({
+      ledger: campaignLedger,
+      command: buildSalvageProcessedCommand({
+        actorId,
+        campaign,
+      }),
+      state: campaign as IGmCampaignInterventionState,
+      authority: {
+        actorId,
+        role: 'gm',
+        gameId: `campaign:${campaign.id}:gm-ledger`,
+        campaignId: campaign.id,
+        ownedStateRefs: [`campaign:${campaign.id}`],
+      },
+      interventionId: SALVAGE_PROCESSED_ID,
+      now,
+    }) as GmCampaignPreview;
+
+    setNextPreview(nextPreview);
+  };
+
+  const handleUnitReloadPreview = (): void => {
+    const nextPreview = createGmCascadePreview({
+      ledger: campaignLedger,
+      command: buildUnitReloadReconciliationCommand({
+        actorId,
+        campaign,
+        now,
+      }),
+      state: campaign as IGmCampaignInterventionState,
+      authority: {
+        actorId,
+        role: 'gm',
+        gameId: `campaign:${campaign.id}:gm-ledger`,
+        campaignId: campaign.id,
+        ownedStateRefs: [`campaign:${campaign.id}`],
+      },
+      interventionId: UNIT_RELOAD_RECONCILIATION_ID,
+      now,
+    }) as GmCampaignPreview;
+
+    setNextPreview(nextPreview);
+  };
+
   const handleTimePreview = (conflicted: boolean): void => {
     const nextPreview = createGmCascadePreview({
       ledger: timeLedger,
@@ -228,10 +304,7 @@ export function GmCampaignInterventionControlPlane({
       return;
     }
 
-    onApplyCampaignUpdate({
-      finances: result.state.finances,
-      gmInterventionEvents: result.state.gmInterventionEvents,
-    });
+    onApplyCampaignUpdate(result.state);
     setApprovalStatus('Approved and applied to campaign state.');
     setApprovalReason(null);
     refreshLedgerRows(actionLedger, setPlayerRows, setGmRows);
@@ -290,86 +363,24 @@ export function GmCampaignInterventionControlPlane({
       data-testid="gm-ledger-control-plane"
       aria-label="GM campaign ledger"
     >
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card className="p-4" data-testid="gm-ledger-balance">
-          <p className="text-text-theme-secondary text-xs uppercase">
-            Campaign balance
-          </p>
-          <p className="text-text-theme-primary mt-1 text-2xl font-semibold">
-            {campaign.finances.balance.format()}
-          </p>
-        </Card>
-        <Card className="p-4" data-testid="gm-ledger-preview-status">
-          <p className="text-text-theme-secondary text-xs uppercase">Preview</p>
-          <p className="text-text-theme-primary mt-1 text-lg font-semibold">
-            {preview?.status ?? 'Not generated'}
-          </p>
-          {approvalReason ? (
-            <p className="mt-1 text-sm text-amber-300">{approvalReason}</p>
-          ) : null}
-        </Card>
-        <Card className="p-4" data-testid="gm-ledger-approval-status">
-          <p className="text-text-theme-secondary text-xs uppercase">
-            Approval
-          </p>
-          <p className="text-text-theme-primary mt-1 text-lg font-semibold">
-            {approvalStatus}
-          </p>
-        </Card>
-      </div>
+      <GmCampaignLedgerStatusCards
+        balanceLabel={campaign.finances.balance.format()}
+        previewStatus={preview?.status ?? 'Not generated'}
+        approvalStatus={approvalStatus}
+        approvalReason={approvalReason}
+      />
 
-      <div className="flex flex-wrap gap-3">
-        <Button
-          type="button"
-          variant="primary"
-          onClick={() => handleMerchantPreview(false)}
-          data-testid="gm-ledger-preview-btn"
-        >
-          Preview merchant reversal
-        </Button>
-        <Button
-          type="button"
-          variant="success"
-          onClick={handleApprove}
-          disabled={!canApprove}
-          data-testid="gm-ledger-approve-btn"
-        >
-          Approve cascade
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => handleMerchantPreview(true)}
-          data-testid="gm-ledger-conflict-preview-btn"
-        >
-          Preview conflicted cascade
-        </Button>
-        <Button
-          type="button"
-          variant="primary"
-          onClick={() => handleTimePreview(false)}
-          data-testid="gm-ledger-time-preview-btn"
-        >
-          Preview time cascade
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => handleTimePreview(true)}
-          data-testid="gm-ledger-time-conflict-preview-btn"
-        >
-          Preview external time conflict
-        </Button>
-        <Button
-          type="button"
-          variant="danger"
-          onClick={handleManualTakeover}
-          disabled={!canTakeManualControl}
-          data-testid="gm-ledger-manual-btn"
-        >
-          Take manual control
-        </Button>
-      </div>
+      <GmCampaignInterventionActions
+        canApprove={canApprove}
+        canTakeManualControl={canTakeManualControl}
+        onMerchantPreview={handleMerchantPreview}
+        onApprove={handleApprove}
+        onRepairPreview={handleRepairPreview}
+        onSalvagePreview={handleSalvagePreview}
+        onUnitReloadPreview={handleUnitReloadPreview}
+        onTimePreview={handleTimePreview}
+        onManualTakeover={handleManualTakeover}
+      />
 
       {preview ? <GmPreviewPanel preview={preview} /> : null}
 
