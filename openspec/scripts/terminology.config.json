@@ -2,7 +2,7 @@
   "$schema": "./terminology.schema.json",
   "version": "2.0",
   "description": "Unified terminology rules for OpenSpec validation and fixing",
-  "lastUpdated": "2025-12-01",
+  "lastUpdated": "2026-06-30",
 
   "deprecatedTerms": [
     {
@@ -182,6 +182,7 @@
       "category": "components",
       "pattern": "\\bheatsink\\b",
       "flags": "g",
+      "skipContexts": ["code-block"],
       "note": "Only matches lowercase; preserves camelCase like heatSink"
     }
   ],
@@ -202,13 +203,6 @@
       "context": "property definition"
     },
     {
-      "id": "prop-slots",
-      "pattern": "^\\s*(?:readonly\\s+)?slots:\\s*number",
-      "canonical": "criticalSlots: number",
-      "severity": "error",
-      "context": "property definition (not 'slots' alone in prose)"
-    },
-    {
       "id": "prop-crit-slots",
       "pattern": "^\\s*(?:readonly\\s+)?critSlots:\\s*number",
       "canonical": "criticalSlots: number",
@@ -219,13 +213,6 @@
       "id": "prop-intro-year",
       "pattern": "^\\s*(?:readonly\\s+)?introYear:",
       "canonical": "introductionYear:",
-      "severity": "error",
-      "context": "property definition"
-    },
-    {
-      "id": "prop-faction",
-      "pattern": "^\\s*(?:readonly\\s+)?faction:",
-      "canonical": "techBase:",
       "severity": "error",
       "context": "property definition"
     }
@@ -297,6 +284,7 @@
       "**/*.bak",
       "**/dist/**",
       "**/build/**",
+      "**/openspec/changes/archive/**",
       "**/openspec/scripts/**",
       "**/TERMINOLOGY_GLOSSARY.md",
       "**/TERMINOLOGY_FIX_REPORT.md"

@@ -615,7 +615,7 @@ Gyro: Standard Gyro
   lrm-20 @ Left Torso
   srm-6 @ Center Torso
 
---- Crit Slots (non-structural) ---
+--- Critical Slots (non-structural) ---
   RT: AC/20
   RT: Medium Laser
   LT: Medium Laser

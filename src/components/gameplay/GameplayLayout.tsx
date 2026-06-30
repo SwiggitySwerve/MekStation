@@ -31,11 +31,11 @@ import {
 import { GameplayLayoutView } from './GameplayLayout.render';
 import { useResponsiveRecordSheet } from './GameplayLayout.sections';
 import {
-  buildMovementProjectionByHex,
   buildSelectedUnitModel,
   resolveSelectedMovementCapability,
   resolveSelectedStandUpImpossibleReason,
 } from './GameplayLayout.selection';
+import { useGameplayTacticalProjection } from './GameplayLayout.tacticalProjection';
 import {
   buildGameplayTokenProjection,
   buildGameplayVisibilityState,
@@ -83,6 +83,7 @@ export function GameplayLayout({
   physicalAttackIntent,
   playerSide = GameSide.Player,
   shellMode = 'combat',
+  gmIntervention,
   className = '',
 }: GameplayLayoutProps): React.ReactElement {
   const { currentState, events, config, units } = session;
@@ -205,10 +206,22 @@ export function GameplayLayout({
     () => (combatGrid ? hexTerrainFromGrid(combatGrid) : []),
     [combatGrid],
   );
-  const movementProjectionByHex = useMemo(
-    () => buildMovementProjectionByHex(movementRange, hoverMovementInfo),
-    [hoverMovementInfo, movementRange],
-  );
+  const { tacticalProjectionFrame, movementProjectionByHex } =
+    useGameplayTacticalProjection({
+      sessionId: session.id,
+      mapRadius: config.mapRadius,
+      currentState,
+      selectedUnitId,
+      activeTargetId,
+      playerSide,
+      tokens,
+      hexTerrain,
+      movementRange,
+      hoverMovementInfo,
+      grid: combatGrid,
+      unitWeapons,
+      selectedWeaponIds,
+    });
   const commandPreviewInputs = useMemo(
     () =>
       buildCommandPreviewInputs({
@@ -231,6 +244,7 @@ export function GameplayLayout({
         highlightPath,
         hoverMpCost,
         hoverUnreachable,
+        tacticalProjectionFrame,
       }),
     [
       activeTargetId,
@@ -249,6 +263,7 @@ export function GameplayLayout({
       physicalAttackPlan.targetUnitId,
       selectedUnitId,
       selectedWeaponIds,
+      tacticalProjectionFrame,
       tokens,
       unitWeapons,
       units,
@@ -329,6 +344,7 @@ export function GameplayLayout({
       session={session}
       phaseQueueProjection={phaseQueueProjection}
       shellMode={shellMode}
+      gmIntervention={gmIntervention}
       localFogPlayerId={localFogPlayerId}
       playerSide={playerSide}
       selectedUnitId={selectedUnitId}
@@ -346,6 +362,7 @@ export function GameplayLayout({
       eventWeaponLookup={eventWeaponLookup}
       selectedUnitModel={selectedUnitModel}
       hexTerrain={hexTerrain}
+      tacticalProjectionFrame={tacticalProjectionFrame}
       movementRange={movementRange}
       activeTargetId={activeTargetId}
       unitWeapons={unitWeapons}

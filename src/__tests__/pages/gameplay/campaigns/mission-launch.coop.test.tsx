@@ -13,6 +13,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import type { IForce } from '@/types/campaign/Force';
+import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
 import {
   _resetCoopRuntimeSessions,
@@ -28,6 +29,14 @@ const mockMaterializeCampaignMissionEncounter = jest.fn();
 const mockUpdateCampaign = jest.fn();
 const mockSaveCampaign = jest.fn();
 const mockAddMission = jest.fn();
+let mockRosterUnits: IRosterUnitProjection[] = [
+  {
+    unitId: 'atlas-as7-d',
+    unitName: 'Atlas',
+    chassisVariant: 'AS7-D',
+    readiness: 'Ready' as const,
+  },
+];
 
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -52,6 +61,19 @@ jest.mock(
       mockMaterializeCampaignMissionEncounter(...args),
   }),
 );
+
+const mockRosterState = {
+  pilots: [],
+  getUnitsWithReadiness: () => mockRosterUnits,
+  getDeployableUnits: () => mockRosterUnits,
+};
+jest.mock('@/stores/campaign/useCampaignRosterStore', () => ({
+  useCampaignRosterStore: Object.assign(
+    (selector: (state: typeof mockRosterState) => unknown) =>
+      selector(mockRosterState),
+    { getState: () => mockRosterState },
+  ),
+}));
 
 const mockGetCampaign = jest.fn();
 const mockCampaignStoreApi = {
@@ -111,6 +133,14 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
         commandHqPlayerIds: [],
       },
     });
+    mockRosterUnits = [
+      {
+        unitId: 'atlas-as7-d',
+        unitName: 'Atlas',
+        chassisVariant: 'AS7-D',
+        readiness: 'Ready',
+      },
+    ];
     _resetCoopRuntimeSessions();
   });
 
@@ -222,11 +252,49 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
         expect.objectContaining({
           campaign,
           missionId: 'mission-alpha',
+          rosterUnits: [
+            expect.objectContaining({
+              unitId: 'atlas-as7-d',
+            }),
+          ],
         }),
       );
       expect(mockRouterPush).toHaveBeenCalledWith(
         '/gameplay/encounters/encounter-solo-1?campaignId=campaign-coop-1&missionId=mission-alpha',
       );
     });
+  });
+
+  it('blocks non-co-op mission launch when readiness projection has blockers', async () => {
+    mockRosterUnits = [
+      {
+        unitId: 'unit-destroyed',
+        unitName: 'Destroyed Locust',
+        chassisVariant: 'LCT-1V',
+        readiness: 'Destroyed',
+      },
+    ];
+    const campaign = {
+      ...createCampaign('Solo Blocked Probe', 'mercenary'),
+      id: 'campaign-coop-1',
+    };
+    mockGetCampaign.mockReturnValue(campaign);
+
+    await act(async () => {
+      render(<CoopMissionLaunchPage />);
+    });
+
+    expect(screen.getByTestId('mission-readiness-panel')).toBeInTheDocument();
+    expect(screen.getByTestId('mission-readiness-status')).toHaveTextContent(
+      'Launch blocked',
+    );
+    expect(screen.getByTestId('launch-mission-direct')).toBeDisabled();
+
+    await act(async () => {
+      screen.getByTestId('launch-mission-direct').click();
+    });
+
+    expect(mockMaterializeCampaignMissionEncounter).not.toHaveBeenCalled();
+    expect(mockRouterPush).not.toHaveBeenCalled();
   });
 });

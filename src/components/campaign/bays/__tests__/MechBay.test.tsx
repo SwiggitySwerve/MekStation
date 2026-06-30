@@ -10,6 +10,8 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
+import { buildMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
+
 import {
   SAMPLE_REPAIR_BAY,
   SAMPLE_ROSTER_UNITS,
@@ -93,6 +95,51 @@ describe('MechBay', () => {
     );
     screen.getByTestId('mech-bay-refit-unit-atlas').click();
     expect(onLaunchRefit).toHaveBeenCalledWith('unit-atlas');
+  });
+
+  it('explains mission eligibility and exposes a blocker fix action', () => {
+    const projection = buildMissionReadinessProjection({
+      campaignId: 'campaign-1',
+      mission: undefined,
+      units: SAMPLE_ROSTER_UNITS,
+      repairBay: SAMPLE_REPAIR_BAY,
+      selectedRosterUnitIds: ['unit-locust'],
+      baseCampaignHref: '/gameplay/campaigns/campaign-1',
+    });
+    const readinessByUnitId = new Map(
+      projection.units.map((unit) => [unit.unit.unitId, unit]),
+    );
+    const unitTonnageById = new Map([['unit-locust', 20]]);
+
+    render(
+      <MechBay
+        units={SAMPLE_ROSTER_UNITS}
+        readinessByUnitId={readinessByUnitId}
+        unitTonnageById={unitTonnageById}
+        repairBay={SAMPLE_REPAIR_BAY}
+        campaignId="campaign-1"
+      />,
+    );
+
+    expect(
+      screen.getByTestId('mech-bay-readiness-status-unit-locust'),
+    ).toHaveTextContent('blocked');
+    expect(screen.getByTestId('mech-bay-pilot-unit-locust')).toHaveTextContent(
+      'Unassigned',
+    );
+    expect(
+      screen.getByTestId('mech-bay-eligibility-unit-locust'),
+    ).toHaveTextContent('Unit is destroyed and cannot deploy.');
+    expect(
+      screen.getByTestId('mech-bay-loadout-unit-locust'),
+    ).toHaveTextContent('Weight: 20 tons');
+    expect(
+      screen.getByTestId('mech-bay-loadout-unit-locust'),
+    ).toHaveTextContent('Supply: 1 ammo ticket');
+    expect(screen.getByTestId('mech-bay-fix-unit-locust')).toHaveAttribute(
+      'href',
+      '/gameplay/campaigns/campaign-1/repair-bay?unit=unit-locust',
+    );
   });
 
   it('hides the Refit affordance when no onLaunchRefit handler is wired', () => {

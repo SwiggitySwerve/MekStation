@@ -16,6 +16,7 @@ import type {
   TacticalActionHandler,
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
+import type { ITacticalMapProjectionFrame } from '@/utils/gameplay/tacticalMapProjection';
 
 import type { GameplayLayoutControls } from './GameplayLayout.controls';
 import type { SelectedUnitModel } from './GameplayLayout.selection';
@@ -25,7 +26,10 @@ import type {
 } from './HexMapDisplay/HexMapDisplay.types';
 import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
 import type { PhysicalAttackIntent } from './PhysicalAttackPanel';
-import type { ICommandPreviewInputs } from './TacticalActionDock';
+import type {
+  ICommandPreviewInputs,
+  IGmTacticalInterventionSurface,
+} from './TacticalActionDock';
 
 import { GameplayActionDockSlot } from './GameplayLayout.actionDockSlot';
 import {
@@ -50,6 +54,7 @@ interface GameplayLayoutViewProps {
   readonly session: IGameSession;
   readonly phaseQueueProjection: PhaseQueueProjection;
   readonly shellMode: ShellMode;
+  readonly gmIntervention: IGmTacticalInterventionSurface | undefined;
   readonly localFogPlayerId: string;
   readonly playerSide: GameSide;
   readonly selectedUnitId: string | null;
@@ -67,6 +72,7 @@ interface GameplayLayoutViewProps {
   readonly eventWeaponLookup: Record<string, string>;
   readonly selectedUnitModel: SelectedUnitModel;
   readonly hexTerrain: readonly IHexTerrain[];
+  readonly tacticalProjectionFrame: ITacticalMapProjectionFrame;
   readonly movementRange: readonly IMovementRangeHex[];
   readonly activeTargetId: string | null;
   readonly unitWeapons: Record<string, readonly IWeaponStatus[]>;
@@ -103,6 +109,7 @@ export function GameplayLayoutView({
   session,
   phaseQueueProjection,
   shellMode,
+  gmIntervention,
   localFogPlayerId,
   playerSide,
   selectedUnitId,
@@ -120,6 +127,7 @@ export function GameplayLayoutView({
   eventWeaponLookup,
   selectedUnitModel,
   hexTerrain,
+  tacticalProjectionFrame,
   movementRange,
   activeTargetId,
   unitWeapons,
@@ -195,6 +203,7 @@ export function GameplayLayoutView({
           visibleEvents={visibleEvents}
           selectedUnit={selectedUnitModel.selectedUnit}
           hexTerrain={hexTerrain}
+          tacticalProjectionFrame={tacticalProjectionFrame}
           movementRange={movementRange}
           activeTargetId={activeTargetId}
           unitWeapons={unitWeapons}
@@ -230,6 +239,7 @@ export function GameplayLayoutView({
         <GameplayActionDockSlot
           actionContext={actionContext}
           shellMode={shellMode}
+          gmIntervention={gmIntervention}
           onAction={onAction}
           commandPreviewInputs={commandPreviewInputs}
           interactivePhase={interactivePhase}

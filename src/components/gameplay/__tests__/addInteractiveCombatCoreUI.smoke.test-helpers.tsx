@@ -16,7 +16,9 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import '@testing-library/jest-dom';
 import type { PhysicalAttackIntent } from '@/components/gameplay/PhysicalAttackPanel';
+import type { IGmTacticalInterventionSurface } from '@/components/gameplay/TacticalActionDock';
 import type { InteractiveSession } from '@/engine/InteractiveSession';
+import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
 import {
   createDemoHeatSinks,
@@ -39,6 +41,7 @@ import {
   type IGameEvent,
   type IGameSession,
   type IHexGrid,
+  type IMovementRangeHex,
   type IWeaponStatus,
 } from '@/types/gameplay';
 
@@ -60,6 +63,14 @@ function renderLayout(
     validTargetIds?: readonly string[];
     unitWeapons?: Record<string, readonly IWeaponStatus[]>;
     interactiveSession?: InteractiveSession;
+    movementRange?: readonly IMovementRangeHex[];
+    hoveredHex?: { readonly q: number; readonly r: number } | null;
+    hoverMovementInfo?: IMovementRangeHex;
+    highlightPath?: readonly { readonly q: number; readonly r: number }[];
+    hoverMpCost?: number;
+    hoverUnreachable?: boolean;
+    shellMode?: ShellMode;
+    gmIntervention?: IGmTacticalInterventionSurface;
   } = {},
 ) {
   const session = opts.session ?? createDemoSession();
@@ -86,6 +97,14 @@ function renderLayout(
         physicalAttackIntent={opts.physicalAttackIntent}
         validTargetIds={opts.validTargetIds}
         interactiveSession={opts.interactiveSession}
+        movementRange={opts.movementRange}
+        hoveredHex={opts.hoveredHex}
+        hoverMovementInfo={opts.hoverMovementInfo}
+        highlightPath={opts.highlightPath}
+        hoverMpCost={opts.hoverMpCost}
+        hoverUnreachable={opts.hoverUnreachable}
+        shellMode={opts.shellMode}
+        gmIntervention={opts.gmIntervention}
         playerSide={GameSide.Player}
       />,
     ),

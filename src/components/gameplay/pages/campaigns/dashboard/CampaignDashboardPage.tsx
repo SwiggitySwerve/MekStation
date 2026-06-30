@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStore } from 'zustand';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
@@ -10,6 +10,10 @@ import { CampaignCoopRouteSurfaceConnected } from '@/components/campaign/coop';
 import { CampaignDashboard } from '@/components/campaign/dashboard/CampaignDashboard';
 import { DayReportPanel } from '@/components/campaign/DayReportPanel';
 import { Button, PageLayout } from '@/components/ui';
+import {
+  buildMissionReadinessProjection,
+  selectedRosterUnitsForLaunch,
+} from '@/lib/campaign/readiness/missionReadinessProjection';
 import { useCampaignRouteLoader } from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
@@ -17,6 +21,7 @@ import {
   createDefaultUnitWeights,
   createDefaultTerrainWeights,
 } from '@/simulation/generator';
+import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
 import { installCampaignPersistenceWiring } from '@/stores/campaign/campaignPersistenceWiring';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
@@ -64,6 +69,7 @@ export default function CampaignDashboardPage(): React.ReactElement {
   const units = rosterStore(
     (state) => state.getUnitsWithReadiness() as CampaignRosterUnit[],
   );
+  const pilots = rosterStore((state) => state.pilots);
   const missions = rosterStore(
     (state) => state.getMissionHistory() as CampaignMissionHistoryItem[],
   );
@@ -92,6 +98,27 @@ export default function CampaignDashboardPage(): React.ReactElement {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const missionReadinessProjection = useMemo(
+    () =>
+      buildMissionReadinessProjection({
+        campaignId: campaign?.id ?? 'campaign-pending',
+        mission: undefined,
+        units,
+        pilots,
+        repairBay: selectRepairBay(campaign as ICampaign | null),
+        maxUnits: 4,
+        baseCampaignHref: campaign
+          ? `/gameplay/campaigns/${encodeURIComponent(campaign.id)}`
+          : undefined,
+      }),
+    [campaign, pilots, units],
+  );
+  const missionReadinessSummary = missionReadinessProjection.canLaunch
+    ? `${missionReadinessProjection.selectedUnits.length} roster unit${
+        missionReadinessProjection.selectedUnits.length === 1 ? '' : 's'
+      } selected for generated mission.`
+    : (missionReadinessProjection.unresolvedBlockers[0]?.message ??
+      'Resolve roster readiness before generating a mission.');
 
   const {
     dayReports,
@@ -113,11 +140,13 @@ export default function CampaignDashboardPage(): React.ReactElement {
     setIsGenerating(true);
 
     try {
-      const deployableUnits = rosterStore.getState().getDeployableUnits();
-      if (deployableUnits.length === 0) {
+      if (!missionReadinessProjection.canLaunch) {
         return;
       }
 
+      const deployableUnits = selectedRosterUnitsForLaunch(
+        missionReadinessProjection,
+      );
       const deployedUnitIds = deployableUnits.map((unit) => unit.unitId);
       const missionNumber = missionCount + 1;
       const missionName = `Mission ${missionNumber}`;
@@ -166,7 +195,7 @@ export default function CampaignDashboardPage(): React.ReactElement {
     } finally {
       setIsGenerating(false);
     }
-  }, [campaign, missionCount, rosterStore, router]);
+  }, [campaign, missionCount, missionReadinessProjection, rosterStore, router]);
 
   const handleNavigate = useCallback(
     (href: string) => {
@@ -288,9 +317,9 @@ export default function CampaignDashboardPage(): React.ReactElement {
         missionCount={missionCount}
         isGenerating={isGenerating}
         isGenerateDisabled={
-          isGenerating ||
-          units.filter((unit) => unit.readiness !== 'Destroyed').length === 0
+          isGenerating || !missionReadinessProjection.canLaunch
         }
+        readinessSummary={missionReadinessSummary}
         onGenerateMission={handleGenerateMission}
       />
 

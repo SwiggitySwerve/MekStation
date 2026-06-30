@@ -316,7 +316,7 @@ interface IUnitEntry {
   readonly tonnage: number;
 
   /**
-   * Technology base
+   * Tech base
    * @example "Inner_Sphere"
    */
   readonly techBase: string;

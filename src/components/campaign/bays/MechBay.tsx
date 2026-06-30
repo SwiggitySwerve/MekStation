@@ -17,6 +17,7 @@
 import Link from 'next/link';
 import React from 'react';
 
+import type { IMissionReadinessUnitProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
 import type { IRepairBayItem } from '@/types/campaign/CampaignInventory';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
@@ -54,8 +55,12 @@ function readinessClasses(
 interface MechBayRowProps {
   /** The roster-unit projection for this row. */
   readonly unit: IRosterUnitProjection;
+  /** Optional active mission readiness projection for this row. */
+  readonly readiness?: IMissionReadinessUnitProjection;
   /** Count of repair-bay tickets targeting this unit. */
   readonly ticketCount: number;
+  readonly ammoTicketCount: number;
+  readonly unitTonnage?: number;
   /** Campaign id — used to build the Repair Bay drill-down link. */
   readonly campaignId: string;
   /**
@@ -73,10 +78,14 @@ interface MechBayRowProps {
  */
 export function MechBayRow({
   unit,
+  readiness,
   ticketCount,
+  ammoTicketCount,
+  unitTonnage,
   campaignId,
   onLaunchRefit,
 }: MechBayRowProps): React.ReactElement {
+  const fixAction = readiness?.reasons.find((reason) => reason.actionHref);
   return (
     <CampaignListCard
       testId={`mech-bay-row-${unit.unitId}`}
@@ -88,13 +97,72 @@ export function MechBayRow({
           <p className="text-text-theme-secondary mt-1 font-mono text-xs">
             {unit.chassisVariant}
           </p>
+          <p
+            className="text-text-theme-secondary mt-2 text-xs"
+            data-testid={`mech-bay-pilot-${unit.unitId}`}
+          >
+            Pilot: {readiness?.pilotName ?? unit.pilotId ?? 'Unassigned'}
+          </p>
+          <p
+            className="text-text-theme-secondary mt-1 text-xs"
+            data-testid={`mech-bay-loadout-${unit.unitId}`}
+          >
+            Weight: {unitTonnage ? `${unitTonnage} tons` : 'not cataloged'} |
+            BV: not cataloged | Supply:{' '}
+            {ammoTicketCount > 0
+              ? `${ammoTicketCount} ammo ticket${
+                  ammoTicketCount === 1 ? '' : 's'
+                }`
+              : 'no open ammo tickets'}
+          </p>
+          {readiness ? (
+            <div
+              className="mt-2 space-y-1"
+              data-testid={`mech-bay-eligibility-${unit.unitId}`}
+            >
+              <p className="text-text-theme-secondary text-xs">
+                Eligibility: {readiness.status}
+                {readiness.blockingRepairTicketCount > 0
+                  ? ` (${readiness.blockingRepairTicketCount} blocking repair)`
+                  : ''}
+              </p>
+              {readiness.reasons.slice(0, 2).map((reason) => (
+                <p
+                  key={reason.code}
+                  className={
+                    reason.severity === 'blocker'
+                      ? 'text-xs text-rose-300'
+                      : 'text-xs text-amber-300'
+                  }
+                >
+                  {reason.message}
+                </p>
+              ))}
+            </div>
+          ) : null}
         </>
       }
       right={
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-3">
           <Badge className={readinessClasses(unit.readiness)}>
             {unit.readiness}
           </Badge>
+
+          {readiness ? (
+            <Badge
+              variant={
+                readiness.status === 'eligible'
+                  ? 'success'
+                  : readiness.status === 'risky'
+                    ? 'warning'
+                    : 'red'
+              }
+              size="sm"
+              data-testid={`mech-bay-readiness-status-${unit.unitId}`}
+            >
+              {readiness.status}
+            </Badge>
+          ) : null}
 
           <span
             className="text-text-theme-secondary text-sm"
@@ -112,6 +180,16 @@ export function MechBayRow({
             >
               Refit
             </button>
+          ) : null}
+
+          {fixAction?.actionHref ? (
+            <Link
+              href={fixAction.actionHref}
+              className="text-accent hover:text-accent/80 text-sm font-medium transition-colors"
+              data-testid={`mech-bay-fix-${unit.unitId}`}
+            >
+              {fixAction.actionLabel ?? 'Fix blocker'}
+            </Link>
           ) : null}
 
           <Link
@@ -134,6 +212,12 @@ export function MechBayRow({
 export interface MechBayProps {
   /** Roster-unit projections (typically `useCampaignRosterStore.units`). */
   readonly units: readonly IRosterUnitProjection[];
+  /** Optional active mission readiness projection keyed by unit id. */
+  readonly readinessByUnitId?: ReadonlyMap<
+    string,
+    IMissionReadinessUnitProjection
+  >;
+  readonly unitTonnageById?: ReadonlyMap<string, number>;
   /** The repair-bay line items from the campaign inventory. */
   readonly repairBay: readonly IRepairBayItem[];
   /** Campaign id — used for drill-down links. */
@@ -151,6 +235,8 @@ export interface MechBayProps {
  */
 export function MechBay({
   units,
+  readinessByUnitId,
+  unitTonnageById,
   repairBay,
   campaignId,
   onLaunchRefit,
@@ -166,11 +252,18 @@ export function MechBay({
 
   // Pre-count repair tickets per unit so each row is O(1).
   const ticketCountByUnit = new Map<string, number>();
+  const ammoTicketCountByUnit = new Map<string, number>();
   for (const item of repairBay) {
     ticketCountByUnit.set(
       item.unitId,
       (ticketCountByUnit.get(item.unitId) ?? 0) + 1,
     );
+    if (item.kind === 'ammo') {
+      ammoTicketCountByUnit.set(
+        item.unitId,
+        (ammoTicketCountByUnit.get(item.unitId) ?? 0) + 1,
+      );
+    }
   }
 
   return (
@@ -179,7 +272,10 @@ export function MechBay({
         <MechBayRow
           key={unit.unitId}
           unit={unit}
+          readiness={readinessByUnitId?.get(unit.unitId)}
           ticketCount={ticketCountByUnit.get(unit.unitId) ?? 0}
+          ammoTicketCount={ammoTicketCountByUnit.get(unit.unitId) ?? 0}
+          unitTonnage={unitTonnageById?.get(unit.unitId)}
           campaignId={campaignId}
           onLaunchRefit={onLaunchRefit}
         />

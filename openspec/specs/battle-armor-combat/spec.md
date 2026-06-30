@@ -62,7 +62,7 @@ Damage applied to a BA squad target SHALL be allocated by rolling d6 per damage 
 - **AND** `troopers[1].alive` SHALL be set to `false`
 - **AND** a `BATrooperKilled { trooperIndex: 1 }` event SHALL be emitted
 
-#### Scenario: Tactical Operations BA Crit Slots option
+#### Scenario: Tactical Operations BA Critical Slots option
 
 - **GIVEN** the game option `tacOps_ba_crit_slots === true`
 - **WHEN** two consecutive d6 rolls during a single damage allocation produce the same trooper index
@@ -307,4 +307,3 @@ The to-hit base for swarm and leg attacks SHALL derive from the BA pilot's Anti-
 - **GIVEN** BA pilot P with Anti-Mek skill 4
 - **WHEN** P's squad declares a leg attack
 - **THEN** the to-hit base SHALL be 4
-

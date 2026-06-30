@@ -9,6 +9,7 @@
 import { useEffect, useRef } from 'react';
 
 import { Card } from '@/components/ui';
+import { useGameplaySelector } from '@/stores/useGameplayStore';
 import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 import { GameStatus } from '@/types/gameplay';
 
@@ -95,19 +96,26 @@ export function QuickGamePlay(): React.ReactElement {
   const isLoading = useQuickGameSelector((state) => state.isLoading);
   const error = useQuickGameSelector((state) => state.error);
   const startBattle = useQuickGameSelector((state) => state.startBattle);
+  const interactiveSession = useGameplaySelector(
+    (state) => state.interactiveSession,
+  );
+  const spectatorMode = useGameplaySelector((state) => state.spectatorMode);
   const battleStarted = useRef(false);
+  const hasLiveTacticalSession =
+    Boolean(interactiveSession) || spectatorMode?.enabled === true;
 
   useEffect(() => {
     if (
       game &&
       game.status === GameStatus.Active &&
       !isLoading &&
+      !hasLiveTacticalSession &&
       !battleStarted.current
     ) {
       battleStarted.current = true;
       startBattle();
     }
-  }, [game, isLoading, startBattle]);
+  }, [game, hasLiveTacticalSession, isLoading, startBattle]);
 
   if (!game) {
     return (
@@ -140,6 +148,16 @@ export function QuickGamePlay(): React.ReactElement {
             </h3>
             <p className="text-sm text-gray-400">{error}</p>
           </div>
+        </Card>
+      </div>
+    );
+  }
+
+  if (hasLiveTacticalSession && game.status === GameStatus.Active) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-900">
+        <Card className="p-8 text-center">
+          <p className="text-gray-400">Opening tactical battle...</p>
         </Card>
       </div>
     );

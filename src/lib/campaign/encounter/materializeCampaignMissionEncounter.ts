@@ -116,6 +116,24 @@ function selectPlayerUnitRef(
   return DEFAULT_PLAYER_UNIT_REF;
 }
 
+function assertLaunchRoster(
+  rosterUnits: readonly IRosterUnitProjection[],
+): void {
+  if (rosterUnits.length === 0) {
+    throw new Error(
+      'Mission launch requires at least one selected campaign roster unit; refusing stock fallback.',
+    );
+  }
+  const invalidUnit = rosterUnits.find(
+    (unit) => unit.readiness === 'Destroyed',
+  );
+  if (invalidUnit) {
+    throw new Error(
+      `Mission launch roster contains blocked unit ${invalidUnit.unitName}; resolve readiness before materialization.`,
+    );
+  }
+}
+
 async function createAssignedForce({
   name,
   unitRef,
@@ -251,6 +269,7 @@ export async function materializeCampaignMissionEncounter({
   fetchImpl = fetch,
 }: MaterializeCampaignMissionEncounterInput): Promise<MaterializeCampaignMissionEncounterResult> {
   try {
+    assertLaunchRoster(rosterUnits);
     const mission = campaign.missions.get(missionId);
     for (const scenarioId of mission?.scenarioIds ?? []) {
       if (await encounterExists(scenarioId, fetchImpl)) {
@@ -320,6 +339,7 @@ export async function materializeCampaignMissionEncounter({
       },
       metadata: {
         rosterUnitCount: rosterUnits.length,
+        selectedRosterUnitIds: rosterUnits.map((unit) => unit.unitId),
         missionScenarioIds: [encounterId, ...(mission?.scenarioIds ?? [])],
       },
     });

@@ -12,6 +12,7 @@ import React, { useState } from 'react';
 
 import { MechBay } from '@/components/campaign/bays/MechBay';
 import { RefitLaunchPanel } from '@/components/campaign/bays/RefitLaunchPanel';
+import { buildMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
 import { resolveUnitConfiguration } from '@/lib/campaign/refit/unitConfiguration';
 import * as CampaignShell from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
@@ -27,6 +28,10 @@ const MECH_BAY_LOADING = {
 export default function MechBayPage(): React.ReactElement {
   const shell = CampaignShell.useCampaignPageShell('Mech Bay');
   const units = useCampaignRosterStore((state) => state.units);
+  const pilots = useCampaignRosterStore((state) => state.pilots);
+  const activeMissionRecord = useCampaignRosterStore((state) =>
+    state.getActiveMission(),
+  );
   const loadStatus = CampaignShell.useCampaignLoadStatus();
   // The unit currently selected for the refit launch flow (CP3, design D6).
   const [refitUnitId, setRefitUnitId] = useState<string | null>(null);
@@ -39,6 +44,26 @@ export default function MechBayPage(): React.ReactElement {
 
   const campaign = CampaignShell.getLoadedCampaign(shell);
   const repairBay = selectRepairBay(campaign);
+  const activeMission = activeMissionRecord
+    ? campaign.missions.get(activeMissionRecord.id)
+    : undefined;
+  const readinessProjection = buildMissionReadinessProjection({
+    campaignId: campaign.id,
+    mission: activeMission,
+    units,
+    pilots,
+    repairBay,
+    maxUnits: 4,
+    baseCampaignHref: `/gameplay/campaigns/${encodeURIComponent(campaign.id)}`,
+  });
+  const readinessByUnitId = new Map(
+    readinessProjection.units.map((unit) => [unit.unit.unitId, unit]),
+  );
+  const unitTonnageById = new Map(
+    Object.entries(campaign.unitConfigurations ?? {}).map(
+      ([unitId, config]) => [unitId, config.tonnage],
+    ),
+  );
   const frame = {
     title: 'Mech Bay',
     subtitle: `${campaign.name} — ${units.length} units`,
@@ -84,6 +109,8 @@ export default function MechBayPage(): React.ReactElement {
 
           <MechBay
             units={units}
+            readinessByUnitId={readinessByUnitId}
+            unitTonnageById={unitTonnageById}
             repairBay={repairBay}
             campaignId={campaign.id}
             onLaunchRefit={(unitId) => setRefitUnitId(unitId)}

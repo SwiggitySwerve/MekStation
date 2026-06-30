@@ -500,10 +500,10 @@ enum AerospaceLocation {
 | `model`                | `string`                       | Yes      | Model/variant designation         | String                    | Remainder of name  |
 | `mulId`                | `string`                       | Yes      | Master Unit List ID               | String or "-1" (custom)   | `"-1"`             |
 | `year`                 | `number`                       | Yes      | Introduction year                 | Positive integer          | `3025`             |
-| `rulesLevel`           | `RulesLevel`                   | Yes      | Rules complexity level            | INTRODUCTORY–EXPERIMENTAL | `STANDARD`         |
+| `rulesLevel`           | `RulesLevel`                   | Yes      | Rules level                       | INTRODUCTORY–EXPERIMENTAL | `STANDARD`         |
 | `tonnage`              | `number`                       | Yes      | Unit mass                         | 5–100                     | From options       |
 | `weightClass`          | `WeightClass` (readonly)       | Yes      | Derived weight class              | LIGHT–ASSAULT             | Derived            |
-| `techBase`             | `TechBase` (readonly)          | Yes      | Technology base                   | INNER_SPHERE or CLAN      | From options       |
+| `techBase`             | `TechBase` (readonly)          | Yes      | Tech base                         | INNER_SPHERE or CLAN      | From options       |
 | `unitType`             | `UnitType` (readonly)          | Yes      | Aerospace or Conventional Fighter | AEROSPACE, CONV_FIGHTER   | From options       |
 | `motionType`           | `AerospaceMotionType`          | Yes      | Movement mode                     | AERODYNE                  | `AERODYNE`         |
 | `isOmni`               | `boolean`                      | Yes      | OmniFighter flag                  | true/false                | `false`            |
@@ -854,7 +854,7 @@ Max rear-arc weapons by tonnage:
 
 ---
 
-## Technology Base Variants
+## Tech Base Variants
 
 ### Inner Sphere Implementation
 
