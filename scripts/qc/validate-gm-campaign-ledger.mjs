@@ -224,7 +224,8 @@ const defaultSourceAnchors = [
       'gm-ledger-player-log',
       'gm-ledger-private-log',
       'gm-ledger-player-only-notice',
-      'getByRole("navigation", { name: "Campaign sections" })',
+      // Token must match the spec file's oxfmt-normalized single-quote style.
+      "getByRole('navigation', { name: 'Campaign sections' })",
       'not.toContainText',
     ],
   },
