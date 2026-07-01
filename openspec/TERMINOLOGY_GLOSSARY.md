@@ -1,7 +1,7 @@
 # OpenSpec Terminology Glossary
 
-**Version**: 1.0
-**Last Updated**: 2025-11-28
+**Version**: 1.1
+**Last Updated**: 2026-07-01
 **Purpose**: Canonical terminology reference for all MekStation OpenSpec specifications
 
 ---
@@ -1193,3 +1193,67 @@ This glossary establishes **canonical terminology** for all MekStation OpenSpec 
 ---
 
 **Questions or suggestions?** Update this glossary and increment the version number.
+
+---
+
+## Command-Screen UI Doctrine Terms (v1.1, 2026-07-01)
+
+Source: `openspec/council-decisions/2026-06-30-command-screen-focus-doctrine.md`.
+
+#### Command Screen
+
+Any campaign- or combat-tier surface where the player reads state and issues orders (Starmap, Mission Launch, Refit Customizer, Tactical HUD, GM Ledger). Every command screen is classified by **Screen Archetype** before layout work.
+
+#### Screen Archetype
+
+Binary classification that decides what "supporting UI" means on a command screen. **Single-Action**: one decisive commit (approve travel, launch, GM approve); the object and its metrics frame that action. **Simultaneous-Instrument**: a work surface plus a co-primary scoreboard the task reads continuously (refit stat strip, tactical heat/armor). Test: "does the task require an always-glanceable scoreboard in real time?"
+
+#### Focus-Hierarchy Zones
+
+The five layout zones every command-screen control must declare: **FOCUS** (the one primary object/work-surface, largest and central), **INSTRUMENT** (co-primary always-visible scoreboard; only on simultaneous-instrument screens; never demotable), **CONTEXT-FRAME** (read-only state the action depends on, one source object), **PRIMARY-ACTION ANCHOR** (exactly one highest-contrast CTA on the FOCUS border, state-derived), **AMBIENT CHROME** (nav, lenses, zoom; dimmer but ≥4.5:1). A control with no zone doesn't ship.
+
+#### Commitment Contract
+
+On one-shot irreversible commits (e.g. Approve Travel), the consequence metrics (jumps, days, fees, funds) placed between object and action. Never demoted to border.
+
+---
+
+## Tactical Movement Intent Terms (v1.1, 2026-07-01)
+
+Source: intent-first movement decision, `docs/adr/0001-intent-first-tactical-movement.md`.
+
+#### Movement Intent Composer
+
+The tactical-HUD module where the active player composes a movement turn as a set of **Intent Items** before any budget is chosen. Replaces budget-first mode selection.
+
+#### Intent Item
+
+One composable element of a movement turn. Two kinds: **Posture Action** and **Locomotion Path**. Every intent item carries a real MP cost.
+
+#### Posture Action
+
+A movement-phase action with an MP cost but no destination: Stand Up, Careful Stand, Go Prone, Hull Down. Lives in the composer palette, not on the map.
+
+#### Locomotion Path
+
+The map-expressed part of movement intent: an ordered sequence of **Waypoints** forming legs, plus final facing. Costs accrue per hex entered (terrain-adjusted) and per facing change at pivots.
+
+#### Waypoint / Pivot Point
+
+A player-placed hex that anchors a leg of the Locomotion Path. A waypoint where travel direction changes is a **Pivot Point**; its facing-change MP cost is computed there. Waypoint placement is deliberate strategy (cover route vs speed route), not a pathfinding detail.
+
+#### Cost Ledger
+
+The live running total of all composed Intent Items' MP costs, displayed against each candidate **Movement Budget**.
+
+#### Live Intersection
+
+The composer's core rule: as intent is composed, the set of still-affordable Movement Budgets recomputes on the fly, and any intent item (or map hex) that no remaining budget can afford is blocked **at the source**. An impossible turn cannot be composed.
+
+#### Movement Budget
+
+The MP pool granted by a locomotion mode for the turn: Walk, Run, or Jump MP (as modified by damage such as engine criticals, heat, TSM, etc.).
+
+#### Budget Resolver / Lock-In
+
+The final step of the composed flow: the affordable Movement Budgets are presented with their consequences (heat, attack modifiers). If exactly one affords the intent, the player is in **Forced Mode** (single option, still explicit). The resolver **never auto-picks** — heat can be a strategic resource (e.g. TSM activation), so mode choice is always the player's explicit **Lock-In** that commits the whole composed sequence.
