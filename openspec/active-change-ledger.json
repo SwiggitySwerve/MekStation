@@ -1,3 +1,10 @@
 {
-  "allowedActiveChanges": []
+  "allowedActiveChanges": [
+    {
+      "name": "tactical-movement-intent-composer",
+      "status": "apply-ready",
+      "reason": "Intent-first movement composer (ADR 0001) authored ahead of implementation; applies on a fresh branch after PR #992 merges. Artifacts complete, openspec validate --strict passes.",
+      "lastReviewed": "2026-07-01"
+    }
+  ]
 }
