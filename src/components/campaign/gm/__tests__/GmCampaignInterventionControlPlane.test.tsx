@@ -25,6 +25,16 @@ function fixedNow(): string {
   return '3025-01-01T00:00:00.000Z';
 }
 
+// The 8 equal-weight preview buttons collapsed into one "Generate correction"
+// control + a correction-type <select>. Tests pick the type then fire the single
+// control, mirroring how the GM now drives the screen.
+function generateCorrection(correctionType: string): void {
+  fireEvent.change(screen.getByTestId('gm-ledger-correction-type'), {
+    target: { value: correctionType },
+  });
+  fireEvent.click(screen.getByTestId('gm-ledger-preview-btn'));
+}
+
 describe('GmCampaignInterventionControlPlane', () => {
   beforeEach(() => {
     useCampaignRosterStore.getState().reset();
@@ -208,7 +218,7 @@ describe('GmCampaignInterventionControlPlane', () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId('gm-ledger-time-preview-btn'));
+    generateCorrection('time');
 
     expect(screen.getByTestId('gm-ledger-preview-status')).toHaveTextContent(
       'ready',
@@ -251,7 +261,7 @@ describe('GmCampaignInterventionControlPlane', () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId('gm-ledger-repair-preview-btn'));
+    generateCorrection('repair');
 
     expect(screen.getByTestId('gm-ledger-preview-status')).toHaveTextContent(
       'ready',
@@ -286,7 +296,7 @@ describe('GmCampaignInterventionControlPlane', () => {
       'Hidden repair correction',
     );
 
-    fireEvent.click(screen.getByTestId('gm-ledger-salvage-preview-btn'));
+    generateCorrection('salvage');
 
     expect(
       screen.getByTestId('gm-ledger-preview-state-summary'),
@@ -310,7 +320,7 @@ describe('GmCampaignInterventionControlPlane', () => {
       'Hidden salvage correction',
     );
 
-    fireEvent.click(screen.getByTestId('gm-ledger-unit-reload-preview-btn'));
+    generateCorrection('unit-reload');
 
     expect(
       screen.getByTestId('gm-ledger-preview-state-summary'),
@@ -377,7 +387,7 @@ describe('GmCampaignInterventionControlPlane', () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId('gm-ledger-time-preview-btn'));
+    generateCorrection('time');
 
     expect(screen.getByTestId('gm-ledger-preview-status')).toHaveTextContent(
       'ready',
@@ -431,7 +441,7 @@ describe('GmCampaignInterventionControlPlane', () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId('gm-ledger-conflict-preview-btn'));
+    generateCorrection('merchant-conflict');
 
     expect(screen.getByTestId('gm-ledger-preview-status')).toHaveTextContent(
       'requires-manual-takeover',

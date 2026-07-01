@@ -88,7 +88,8 @@ describe('TacticalShellInterfaces', () => {
       expect(state.selectedUnit).toBeNull();
       expect(state.activeUnit).toBeNull();
       expect(state.inspectedUnit).toBeNull();
-      expect(state.leftTrayCollapsed).toBe(false);
+      // Desktop lens tray defaults to collapsed (map reclaims the column).
+      expect(state.leftTrayCollapsed).toBe(true);
       expect(state.rightTrayPinned).toBe(false);
       expect(state.bottomDockActiveTab).toBeNull();
       expect(state.activeContext.hoveredHexId).toBeNull();

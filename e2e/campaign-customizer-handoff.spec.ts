@@ -131,7 +131,7 @@ async function makeOneCampaignRefitChange(page: Page): Promise<void> {
     'No refit order will be created',
   );
   await page.getByTestId('structure-heat-sink-increment').click();
-  await expect(page.getByTestId('campaign-refit-context')).toContainText(
+  await expect(page.getByTestId('campaign-refit-change-count')).toContainText(
     '1 build field changed',
   );
   await expect(page.getByTestId('campaign-refit-save')).toBeEnabled();

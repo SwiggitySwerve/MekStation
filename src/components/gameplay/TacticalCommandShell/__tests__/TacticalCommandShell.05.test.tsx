@@ -95,13 +95,16 @@ describe('TacticalCommandShell — PR-C: per-match sessionStorage persistence', 
         selectedUnit: 'unit-a',
         activeUnit: 'unit-b',
         inspectedUnit: 'unit-c',
-        leftTrayCollapsed: true,
+        // Set the NON-default value (false) so the persist write-through
+        // actually fires — `true` is the collapsed-by-default seed and a
+        // no-op update is intentionally not written.
+        leftTrayCollapsed: false,
       });
     });
 
     const raw = window.sessionStorage.getItem('tactical-shell:match-42');
     const parsed = JSON.parse(raw ?? '{}') as Record<string, unknown>;
-    expect(parsed.leftTrayCollapsed).toBe(true);
+    expect(parsed.leftTrayCollapsed).toBe(false);
     expect(parsed.selectedUnit).toBeUndefined();
     expect(parsed.activeUnit).toBeUndefined();
     expect(parsed.inspectedUnit).toBeUndefined();
@@ -137,14 +140,17 @@ describe('TacticalCommandShell — PR-C: per-match sessionStorage persistence', 
       </TacticalCommandShell>,
     );
 
+    // Match-A explicitly sets the NON-default value (false = expanded) so
+    // the leak-check has a real signal: if match-B picked up match-A's
+    // state it would read false; a clean per-session default reads true.
     act(() => {
-      probeA.current?.updateState({ leftTrayCollapsed: true });
+      probeA.current?.updateState({ leftTrayCollapsed: false });
     });
 
     unmount();
 
     // Mount a different session — should start with defaults, not
-    // pick up match-A's collapsed=true.
+    // pick up match-A's expanded=false.
     const probeB: {
       current: ReturnType<typeof useTacticalShell> | null;
     } = { current: null };
@@ -155,7 +161,7 @@ describe('TacticalCommandShell — PR-C: per-match sessionStorage persistence', 
       </TacticalCommandShell>,
     );
 
-    expect(probeB.current?.state.leftTrayCollapsed).toBe(false);
+    expect(probeB.current?.state.leftTrayCollapsed).toBe(true);
   });
 
   it('tolerates malformed sessionStorage payload gracefully', () => {
@@ -172,7 +178,7 @@ describe('TacticalCommandShell — PR-C: per-match sessionStorage persistence', 
     );
 
     // Falls back to defaults — does not throw.
-    expect(probe.current?.state.leftTrayCollapsed).toBe(false);
+    expect(probe.current?.state.leftTrayCollapsed).toBe(true);
     expect(probe.current?.state.rightTrayPinned).toBe(false);
   });
 });

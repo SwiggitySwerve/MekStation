@@ -40,7 +40,12 @@ export function DesktopRightTray({
   return (
     <ShellSlot id="right-tray" ownerId="RecordSheetPanel">
       <div
-        className="flex-1 overflow-auto"
+        // INSTRUMENT rail. `min-h-0 overflow-y-auto` keeps the full
+        // armor/structure/heat table reachable by scrolling within the
+        // rail once the FOCUS row is height-bounded (tactical-map-flex-basis)
+        // — every location stays glanceable instead of clipping below the
+        // map band's bottom edge.
+        className="min-h-0 flex-1 overflow-y-auto"
         style={{ width: `${100 - mapPanelWidth}%` }}
         data-testid="record-sheet-panel"
       >

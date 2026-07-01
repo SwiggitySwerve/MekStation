@@ -25,7 +25,7 @@ import type { PhysicalAttackIntent } from './PhysicalAttackPanel';
 
 import { DesktopRightTray } from './GameplayLayout.desktopRightTray';
 import { GameplayMapPanel } from './GameplayLayout.mapPanel';
-import { ShellSlot } from './TacticalCommandShell';
+import { ShellSlot, useTacticalShell } from './TacticalCommandShell';
 import { TacticalLensControls } from './TacticalLensControls';
 
 export type GameplayLayoutLensState = Pick<
@@ -109,7 +109,15 @@ export function GameplayMainContentArea({
   return (
     <div
       ref={containerRef}
-      className="flex min-h-[60vh] flex-1 overflow-hidden"
+      // FOCUS row (map + trays). `flex-1 min-h-0` gives the map band the
+      // whole remaining column height after the bounded bands/dock/log —
+      // the dominant share on any viewport — while `min-h-0` lets the row
+      // shrink below its content so the right tray's own `overflow-y-auto`
+      // engages instead of the page paging. Replaces the prior
+      // `min-h-[60vh]` floor, which on short viewports summed with the
+      // dock + event log past 100vh and clipped the armor/structure rail
+      // (tactical-map-flex-basis: the truncation the doctrine flagged).
+      className="flex min-h-0 flex-1 overflow-hidden"
       data-testid="gameplay-main-content"
     >
       {!isNarrow && <LeftTray lensState={lensState} />}
@@ -159,14 +167,69 @@ export function GameplayMainContentArea({
   );
 }
 
+/**
+ * Desktop map-lens tray. Collapses behind a narrow toggle rail so the hex
+ * map (FOCUS) reclaims the 112px `w-28` column by default (per the
+ * command-screen focus doctrine — lenses are AMBIENT CHROME, hidden until
+ * the player wants them). Collapsed/expanded state lives in the shell's
+ * per-match `leftTrayCollapsed` slice, so the choice persists across
+ * reloads via the shell's sessionStorage write-through.
+ */
 function LeftTray({
   lensState,
 }: {
   readonly lensState: GameplayLayoutLensState;
 }): React.ReactElement {
+  const { state, updateState } = useTacticalShell();
+  const collapsed = state.leftTrayCollapsed;
+  const toggle = React.useCallback(() => {
+    updateState({ leftTrayCollapsed: !collapsed });
+  }, [collapsed, updateState]);
+
+  if (collapsed) {
+    // Collapsed rail — a single vertical toggle button that reclaims the
+    // canvas width. `aria-expanded` + a descriptive label keep the
+    // affordance discoverable for keyboard / screen-reader users.
+    return (
+      <ShellSlot id="left-tray" ownerId="TacticalLensControls">
+        <div className="flex w-8 flex-shrink-0 flex-col border-r border-gray-200 bg-white">
+          <button
+            type="button"
+            onClick={toggle}
+            aria-expanded={false}
+            aria-label="Show map lenses"
+            title="Show map lenses"
+            data-testid="left-tray-toggle"
+            className="hover:bg-surface-deep focus:ring-border-theme flex w-full flex-1 cursor-pointer items-center justify-center text-gray-500 focus:ring-2 focus:outline-none"
+          >
+            <span
+              className="text-xs font-semibold tracking-wide uppercase"
+              style={{ writingMode: 'vertical-rl' }}
+            >
+              Lenses
+            </span>
+          </button>
+        </div>
+      </ShellSlot>
+    );
+  }
+
   return (
     <ShellSlot id="left-tray" ownerId="TacticalLensControls">
       <div className="flex w-28 flex-shrink-0 flex-col border-r border-gray-200 bg-white">
+        <div className="flex items-center justify-end px-1 pt-1">
+          <button
+            type="button"
+            onClick={toggle}
+            aria-expanded={true}
+            aria-label="Hide map lenses"
+            title="Hide map lenses"
+            data-testid="left-tray-toggle"
+            className="hover:bg-surface-deep focus:ring-border-theme cursor-pointer rounded px-1 text-xs text-gray-500 focus:ring-2 focus:outline-none"
+          >
+            {'«'}
+          </button>
+        </div>
         <TacticalLensControls
           activeLens={lensState.activeLens}
           onLensChange={lensState.setActiveLens}

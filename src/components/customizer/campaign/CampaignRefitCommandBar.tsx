@@ -110,6 +110,17 @@ export function CampaignRefitCommandBar({
   );
   const canSaveRefit = validation.isValid && changeCount > 0;
 
+  // Single muted context string: campaign, plain campaign date (never raw ISO),
+  // budget, rules level, and the refit constraint label. Shown truncated with a
+  // title tooltip; the build-delta count is surfaced separately above it.
+  const refitContextSummary = session
+    ? `${session.campaignName} | ${formatCampaignDate(
+        session.route.campaignDate,
+      )} | Budget ${session.route.budget.toLocaleString()} C-bills | ${
+        session.route.rulesLevel
+      } rules | ${formatRefitConstraintLabel(session.route.refitConstraints)}`
+    : '';
+
   const handleCancel = useCallback(() => {
     if (!session) return;
     void router.push(
@@ -178,16 +189,23 @@ export function CampaignRefitCommandBar({
             </Badge>
           ) : null}
         </div>
+        {/* Command-bar context slim (focus doctrine, refit CONTEXT-FRAME): the
+            build-delta count stays prominent; campaign / date / budget / rules /
+            constraint collapse into one muted, truncated line whose full value
+            is available on hover (title). The full context text stays in the DOM
+            so it remains glanceable and assertable. */}
         <p
-          className="text-text-theme-secondary mt-1 text-xs"
-          data-testid="campaign-refit-context"
+          className="text-text-theme-primary mt-1 text-xs font-medium"
+          data-testid="campaign-refit-change-count"
         >
-          {session.campaignName} |{' '}
-          {formatCampaignDate(session.route.campaignDate)} | Budget{' '}
-          {session.route.budget.toLocaleString()} C-bills |{' '}
-          {session.route.rulesLevel} rules |{' '}
-          {formatRefitConstraintLabel(session.route.refitConstraints)} |{' '}
           {changeCount} build field{changeCount === 1 ? '' : 's'} changed
+        </p>
+        <p
+          className="text-text-theme-secondary mt-0.5 max-w-full truncate text-xs"
+          data-testid="campaign-refit-context"
+          title={refitContextSummary}
+        >
+          {refitContextSummary}
         </p>
 
         {!validation.isValid ? (

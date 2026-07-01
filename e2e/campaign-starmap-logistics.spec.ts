@@ -161,11 +161,11 @@ test.describe('campaign starmap logistics', () => {
           'high',
         );
         await expect(page.getByTestId('starmap-detail-status')).toContainText(
-          'Detail',
+          'Zoom',
         );
-        await expect(page.getByTestId('starmap-map-toolbar')).toContainText(
-          'Detail',
-        );
+        await expect(
+          page.getByTestId('starmap-detail-status'),
+        ).not.toContainText('Detail');
         await expect(
           page.getByTestId('starmap-detail-status'),
         ).not.toContainText('LOD');

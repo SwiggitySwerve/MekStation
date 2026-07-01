@@ -182,7 +182,9 @@ const StarSystemNode = React.memo(function StarSystemNode({
 
       {annotation && lod !== 'far' && (
         <Text
-          text={annotation.label}
+          // Prefix a CVD-safe glyph by tone so annotation status does not rely
+          // on color alone (doctrine AMBIENT-CHROME rule: no color-only status).
+          text={`${annotationToneGlyph(annotation.tone)}${annotation.label}`}
           x={-displaySize - 8}
           y={displaySize + 8}
           fontSize={10}
@@ -209,6 +211,8 @@ export function StarmapDisplay({
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState(INITIAL_POSITION);
   const [hoveredSystem, setHoveredSystem] = useState<string | null>(null);
+  // Faction legend starts collapsed (pill) so it never crowds the canvas.
+  const [legendOpen, setLegendOpen] = useState(false);
 
   const lod = useMemo(() => getLODLevel(zoom), [zoom]);
 
@@ -297,18 +301,9 @@ export function StarmapDisplay({
       className={`flex flex-col overflow-hidden bg-slate-900 ${className}`}
       style={{ width: '100%', height: '100%' }}
     >
-      <div
-        className="border-b border-slate-700/80 bg-slate-950/80 px-3 py-2 text-xs text-slate-100"
-        data-testid="starmap-map-toolbar"
-      >
-        <span
-          className="rounded bg-slate-800/80 px-2 py-1"
-          data-testid="starmap-detail-status"
-        >
-          Zoom {(zoom * 100).toFixed(0)}% | Detail {detailLabel(lod)}
-        </span>
-      </div>
-
+      {/* No top toolbar: the zoom readout now lives in the bottom-right control
+          corner so the canvas (the single-action FOCUS object) reclaims the
+          height. See command-screen focus doctrine, starmap row. */}
       <div ref={containerRef} className="relative min-h-0 flex-1">
         <Stage
           width={stageSize.width}
@@ -339,10 +334,58 @@ export function StarmapDisplay({
           </Layer>
         </Stage>
 
+        {/* Collapsible faction legend: default is a small pill; expanding it
+            reveals the full grid without permanently occupying the canvas. */}
+        <div className="absolute top-3 right-3 text-xs text-slate-200">
+          {legendOpen ? (
+            <div className="rounded border border-slate-700/80 bg-slate-900/90 p-3 shadow-lg">
+              <button
+                type="button"
+                onClick={() => setLegendOpen(false)}
+                className="mb-2 flex w-full items-center justify-between gap-4 font-semibold text-slate-100"
+                data-testid="starmap-legend-toggle"
+                aria-expanded="true"
+              >
+                <span>Factions</span>
+                <span aria-hidden="true">×</span>
+              </button>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                {Object.entries(FACTION_COLORS).map(([faction, color]) => (
+                  <div key={faction} className="flex items-center gap-2">
+                    <div
+                      className="h-3 w-3 rounded-full"
+                      style={{ backgroundColor: color }}
+                    />
+                    <span>{faction}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setLegendOpen(true)}
+              className="rounded border border-slate-700/80 bg-slate-900/90 px-3 py-1.5 font-semibold text-slate-100 shadow-lg transition-colors hover:bg-slate-800"
+              data-testid="starmap-legend-toggle"
+              aria-expanded="false"
+            >
+              Legend
+            </button>
+          )}
+        </div>
+
         <div
-          className="absolute right-4 bottom-4 flex flex-col gap-1"
+          className="absolute right-4 bottom-4 flex flex-col items-end gap-1"
           data-testid="zoom-controls"
         >
+          {/* Relocated zoom readout: engineering "Detail" word dropped, keep the
+              data-testid the e2e specs reference. */}
+          <span
+            className="rounded bg-slate-800/90 px-2 py-1 text-xs text-slate-100 shadow-lg"
+            data-testid="starmap-detail-status"
+          >
+            Zoom {(zoom * 100).toFixed(0)}%
+          </span>
           <button
             type="button"
             onClick={handleZoomIn}
@@ -371,21 +414,6 @@ export function StarmapDisplay({
             O
           </button>
         </div>
-
-        <div className="absolute top-3 right-3 rounded border border-slate-700/80 bg-slate-900/90 p-3 text-xs text-slate-200 shadow-lg">
-          <div className="mb-2 font-semibold text-slate-100">Factions</div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-            {Object.entries(FACTION_COLORS).map(([faction, color]) => (
-              <div key={faction} className="flex items-center gap-2">
-                <div
-                  className="h-3 w-3 rounded-full"
-                  style={{ backgroundColor: color }}
-                />
-                <span>{faction}</span>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -393,13 +421,15 @@ export function StarmapDisplay({
 
 export default StarmapDisplay;
 
-function detailLabel(lod: LODLevel): string {
-  switch (lod) {
-    case 'far':
-      return 'far';
-    case 'medium':
-      return 'medium';
-    case 'close':
-      return 'close';
+// Maps annotation tone to a colorblind-safe leading glyph so status reads
+// without depending on the fill color (risk / warn / safe).
+function annotationToneGlyph(tone: IStarmapSystemAnnotation['tone']): string {
+  switch (tone) {
+    case 'risk':
+      return '! ';
+    case 'warn':
+      return '▲ ';
+    case 'safe':
+      return '✓ ';
   }
 }

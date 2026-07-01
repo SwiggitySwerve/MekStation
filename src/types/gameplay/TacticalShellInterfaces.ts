@@ -201,7 +201,11 @@ export function createDefaultShellState(
   return {
     shellMode: 'combat',
     activeContext: { hoveredHexId: null, pinnedDrawerId: null },
-    leftTrayCollapsed: false,
+    // Desktop lens tray starts collapsed so the hex map (FOCUS) reclaims
+    // the 112px `w-28` column by default; the player expands it on demand
+    // and the choice persists per-match (tactical-map-flex-basis / lens
+    // tray de-clutter). Progressive disclosure per the focus doctrine.
+    leftTrayCollapsed: true,
     rightTrayPinned: false,
     bottomDockActiveTab: null,
     selectedUnit: null,

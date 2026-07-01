@@ -35,7 +35,8 @@ describe('TacticalCommandShell — PR-C: state + updateState', () => {
     expect(probe.current?.state.selectedUnit).toBeNull();
     expect(probe.current?.state.activeUnit).toBeNull();
     expect(probe.current?.state.inspectedUnit).toBeNull();
-    expect(probe.current?.state.leftTrayCollapsed).toBe(false);
+    // Desktop lens tray defaults to collapsed (map reclaims the column).
+    expect(probe.current?.state.leftTrayCollapsed).toBe(true);
     expect(probe.current?.state.rightTrayPinned).toBe(false);
   });
 

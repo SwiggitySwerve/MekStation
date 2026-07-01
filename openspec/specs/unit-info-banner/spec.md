@@ -50,9 +50,10 @@ The banner SHALL display key unit statistics in a balanced grid using BalancedGr
 #### Scenario: BV and Engine stats display
 
 - **WHEN** single-value stats render
-- **THEN** BV appears first with cyan color
-- **AND** ENGINE appears second with orange color
+- **THEN** BV appears first with neutral primary text color
+- **AND** ENGINE appears second with neutral primary text color
 - **AND** both use SimpleStat component
+- **AND** neither uses a decorative accent hue (per command-screen focus doctrine, color is reserved for out-of-budget / invalid states)
 
 #### Scenario: Weight stat with capacity format
 
@@ -84,7 +85,7 @@ The banner SHALL display key unit statistics in a balanced grid using BalancedGr
 - **THEN** label shows "HEAT"
 - **AND** value shows "generated / dissipation" format (e.g., "15 / 10")
 - **AND** value text is red if generated exceeds dissipation (overheating)
-- **AND** value text is green if dissipation meets or exceeds generation
+- **AND** value text uses neutral primary color when dissipation meets or exceeds generation (in-budget states are not accent-highlighted, per command-screen focus doctrine)
 
 #### Scenario: Balanced row distribution
 
@@ -200,8 +201,8 @@ The banner SHALL display Battle Value (BV) in the statistics grid.
 #### Scenario: BV color styling
 
 - **WHEN** BV stat renders
-- **THEN** value text uses cyan color (text-cyan-400)
-- **AND** color is distinct from other stats for quick identification
+- **THEN** value text uses the neutral primary color (text-text-theme-primary)
+- **AND** the instrument strip relies on layout and label — not a per-stat accent hue — for quick identification (command-screen focus doctrine, principle 9)
 
 #### Scenario: BV reactive updates
 

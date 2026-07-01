@@ -106,7 +106,9 @@ describe('CampaignRefitCommandBar', () => {
     expect(screen.getByTestId('campaign-refit-command-bar')).toHaveTextContent(
       'Campaign refit: Atlas',
     );
-    expect(screen.getByTestId('campaign-refit-context')).toHaveTextContent(
+    // Build-count moved to its own prominent element (declutter wave) —
+    // the context line now carries only the campaign metadata.
+    expect(screen.getByTestId('campaign-refit-change-count')).toHaveTextContent(
       '1 build field changed',
     );
     expect(screen.getByTestId('campaign-refit-context')).toHaveTextContent(
@@ -138,7 +140,7 @@ describe('CampaignRefitCommandBar', () => {
   it('keeps no-delta refit saves disabled', () => {
     renderCommandBar();
 
-    expect(screen.getByTestId('campaign-refit-context')).toHaveTextContent(
+    expect(screen.getByTestId('campaign-refit-change-count')).toHaveTextContent(
       '0 build fields changed',
     );
     expect(screen.getByTestId('campaign-refit-no-delta')).toHaveTextContent(
