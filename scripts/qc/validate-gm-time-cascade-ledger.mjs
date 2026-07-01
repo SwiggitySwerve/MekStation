@@ -261,8 +261,8 @@ const defaultSourceAnchors = [
       // ("time" / "time-conflict" options) + the single "Generate correction"
       // control, not standalone per-type buttons.
       'gm-ledger-correction-type',
-      "onTimePreview(false)",
-      "onTimePreview(true)",
+      'onTimePreview(false)',
+      'onTimePreview(true)',
     ],
   },
   {
