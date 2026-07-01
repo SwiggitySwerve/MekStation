@@ -42,8 +42,12 @@ describe('buildCommandRegistry', () => {
   it('Movement phase surfaces movement / facing-rotate / utility / end-phase commands', () => {
     const commands = buildCommandRegistry(makeCtx(), 'combat');
     const ids = commands.map((c) => c.id);
-    expect(ids).toContain('movement.walk');
-    expect(ids).toContain('movement.jump');
+    // tactical-movement-intent-composer: Walk / Run / Sprint / Jump verbs are
+    // removed (composer owns mode selection); Evade remains as a Posture Action.
+    expect(ids).toContain('movement.evade');
+    expect(ids).toContain('movement.stand');
+    expect(ids).not.toContain('movement.walk');
+    expect(ids).not.toContain('movement.jump');
     expect(ids).toContain('facing.rotate-left');
     expect(ids).toContain('utility.concede');
     expect(ids).toContain('heat-end.end-phase');
@@ -151,7 +155,12 @@ describe('command filters for context menus', () => {
     const commands = buildCommandRegistry(makeCtx(), 'combat');
     const hexVisible = filterCommandsForHex(commands);
     expect(hexVisible.every((c) => c.targetsHex === true)).toBe(true);
-    expect(hexVisible.find((c) => c.id === 'movement.walk')).toBeDefined();
+    // tactical-movement-intent-composer: the movement-verb commands were the
+    // only `targetsHex` commands and are removed (the composer's waypoint
+    // interaction is the sole hex-driven movement surface), so no movement
+    // command surfaces through the hex filter anymore.
+    expect(hexVisible.find((c) => c.id === 'movement.walk')).toBeUndefined();
+    expect(hexVisible.some((c) => c.category === 'movement')).toBe(false);
   });
 
   it('dock command set === context menu command set for same context (parity)', () => {

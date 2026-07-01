@@ -441,7 +441,12 @@ export const DEMO_INITIAL_STATE = {
  * weapon attacks, ...) are deliberately omitted.
  */
 export const PHASE_ACTIONS = {
-  movement: ['movement.walk', 'heat-end.end-phase'],
+  // `tactical-movement-intent-composer` (Single Movement Authority) removed the
+  // dock's movement-verb buttons (Walk / Run / Sprint / Jump). Movement mode is
+  // now composed in the Movement Intent Composer, not selected via a dock
+  // command. The only stable, unit-agnostic Movement-phase dock command that
+  // remains is the phase-end control.
+  movement: ['heat-end.end-phase'],
   weapon_attack: [
     'weapon.declare-attack',
     'weapon.fire-volley',

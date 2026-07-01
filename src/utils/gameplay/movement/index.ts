@@ -56,6 +56,21 @@ export {
 } from './modifiers';
 export { findPath } from './pathfinding';
 export {
+  isPlaceableWaypoint,
+  placeableWaypointHexes,
+  reachableEnvelopesByMode,
+  remainingMpForMode,
+  routeLeg,
+  routeLegMemoized,
+  routeLegMemoKey,
+} from './intentRouting';
+export type {
+  IAffordableBudgetProjection,
+  IPlaceableHexRequest,
+  IRouteAnchor,
+  IRouteLegRequest,
+} from './intentRouting';
+export {
   calculateManeuveringAceBipedLateralShiftCost,
   calculateManeuveringAceQuadLateralStepCost,
   canUseManeuveringAceBipedLateralShift,

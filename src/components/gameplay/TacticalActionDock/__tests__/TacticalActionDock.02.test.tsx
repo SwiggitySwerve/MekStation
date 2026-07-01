@@ -277,7 +277,11 @@ describe('TacticalActionDock', () => {
     );
   });
 
-  it('commits a legal movement preview using the same projected movement mode', () => {
+  // tactical-movement-intent-composer: the informational movement PREVIEW panel
+  // still renders from the shared projection, but COMMIT is owned by the
+  // composer's explicit Lock-In, not a dock movement-verb button. The dock no
+  // longer surfaces a run/walk/jump commit button.
+  it('renders the legal movement preview panel from the shared projected mode', () => {
     const onAction = jest.fn();
 
     render(
@@ -311,13 +315,12 @@ describe('TacticalActionDock', () => {
       'data-command-preview-unreachable',
       'false',
     );
-
-    fireEvent.click(screen.getByTestId('command-btn-movement.run'));
-
-    expect(onAction).toHaveBeenCalledWith('lock', { mode: 'run' });
+    // No dock movement-verb commit buttons exist anymore.
+    expect(screen.queryByTestId('command-btn-movement.run')).toBeNull();
+    expect(screen.queryByTestId('command-btn-movement.walk')).toBeNull();
   });
 
-  it('uses shared movement projection inputs to disable blocked movement commits', () => {
+  it('surfaces a blocked movement preview reason from the shared projection', () => {
     const onAction = jest.fn();
     render(
       <TacticalActionDock
@@ -333,13 +336,13 @@ describe('TacticalActionDock', () => {
       />,
     );
 
-    const run = screen.getByTestId('command-btn-movement.run');
-    expect(run).toBeDisabled();
-    fireEvent.mouseEnter(run.parentElement!);
-    expect(
-      screen.getByTestId('command-disabled-reason-movement.run'),
-    ).toHaveTextContent('Destination is blocked by terrain');
-    fireEvent.click(run);
+    const preview = screen.getByTestId('command-preview-movement');
+    expect(preview).toHaveAttribute('data-command-preview-unreachable', 'true');
+    expect(screen.getByTestId('command-preview-reason')).toHaveTextContent(
+      'Destination is blocked by terrain',
+    );
+    // The composer Lock-In owns commit; the dock has no run commit button.
+    expect(screen.queryByTestId('command-btn-movement.run')).toBeNull();
     expect(onAction).not.toHaveBeenCalled();
   });
 

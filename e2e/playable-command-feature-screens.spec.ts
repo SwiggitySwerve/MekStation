@@ -758,8 +758,28 @@ async function captureTacticalCommandScreen(
     'data-map-panel-width',
     '74',
   );
+  // Single Movement Authority (`tactical-movement-intent-composer`): the dock
+  // no longer renders movement-verb buttons; the Movement Intent Composer is the
+  // SOLE interactive movement-composition surface, and the in-map MP legend /
+  // mode readout is non-interactive. Re-anchored from the removed Walk/Run/Jump
+  // mode buttons to the composer's posture palette / cost ledger / budget
+  // resolver so the evidence exercises the intent-first flow, not mode buttons.
+  await expect(page.getByTestId('movement-intent-composer')).toBeVisible();
+  await expect(page.getByTestId('movement-posture-palette')).toBeVisible();
+  await expect(page.getByTestId('movement-cost-ledger')).toBeVisible();
+  await expect(page.getByTestId('movement-budget-resolver')).toBeVisible();
+  // The composer never auto-picks: Lock-In is present but disabled until a mode
+  // is chosen against a non-empty affordable set.
+  await expect(page.getByTestId('movement-lock-in-btn')).toBeVisible();
+  // The demoted in-map mode readout stays visible but non-interactive, and the
+  // removed dock mode switcher is absent.
   await expect(page.getByTestId('movement-mode-readout')).toBeVisible();
   await expect(page.getByTestId('movement-type-switcher')).toHaveCount(0);
+  // The map is driven by the composer's affordable-mode envelopes — reachable
+  // hexes render (the composer owns the map when active).
+  await expect(
+    page.locator('[data-testid^="hex-"][data-reachable="true"]').first(),
+  ).toBeVisible();
   await expect(
     page.getByTestId('command-btn-facing.rotate-right'),
   ).toContainText('(D)');

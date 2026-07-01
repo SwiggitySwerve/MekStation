@@ -20,64 +20,9 @@ type ITacticalCommandContext = H.ITacticalCommandContext;
 describe('movementCommands', () => {
   const commands = buildMovementCommands();
 
-  it('jump is disabled with a player-facing reason when the unit has no jump MP', () => {
-    const jump = commands.find((c) => c.id === 'movement.jump')!;
-    expect(
-      jump.availability(
-        makeCtx({
-          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 0 },
-        }),
-      ),
-    ).toEqual({
-      available: false,
-      reason: 'No jump capability.',
-    });
-  });
-
-  it('jump stays available when the active unit has jump MP', () => {
-    const jump = commands.find((c) => c.id === 'movement.jump')!;
-    expect(
-      jump.availability(
-        makeCtx({
-          activeUnitProne: false,
-          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 4 },
-        }),
-      ),
-    ).toEqual({ available: true });
-  });
-
-  it('jump explains that a jump-capable prone unit must stand first', () => {
-    const jump = commands.find((c) => c.id === 'movement.jump')!;
-
-    expect(
-      jump.availability(
-        makeCtx({
-          activeUnitProne: true,
-          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 4 },
-        }),
-      ),
-    ).toEqual({
-      available: false,
-      reason: 'Unit is prone and must stand before jumping.',
-    });
-  });
-
-  it('jump explains that a hull-down unit must stand before jumping', () => {
-    const jump = commands.find((c) => c.id === 'movement.jump')!;
-
-    expect(
-      jump.availability(
-        makeCtx({
-          activeUnitProne: false,
-          activeUnitHullDown: true,
-          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 4 },
-        }),
-      ),
-    ).toEqual({
-      available: false,
-      reason: 'Unit is hull-down and must stand before jumping.',
-    });
-  });
+  // tactical-movement-intent-composer: Jump is no longer a dock command — the
+  // Movement Intent Composer's Budget Resolver owns Jump as an affordable
+  // budget option; jump-legality lives in the movement-system budget path.
 
   it('stand commit produces a stand actionId', () => {
     const stand = commands.find((c) => c.id === 'movement.stand')!;

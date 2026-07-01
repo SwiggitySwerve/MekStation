@@ -40,6 +40,9 @@ export * from './GameplayUIInterfaces';
 // Tactical Command system (Wave 7.2 PR-D)
 export * from './TacticalCommandInterfaces';
 
+// Tactical Movement Intent (intent-first movement composer — design D5)
+export * from './TacticalMovementIntentInterfaces';
+
 // Unit Sprite System (Phase 7 visual layer — mech silhouettes + pip ring)
 export * from './UnitSpriteTypes';
 

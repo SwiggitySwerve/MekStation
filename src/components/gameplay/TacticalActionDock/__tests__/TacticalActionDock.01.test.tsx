@@ -44,7 +44,14 @@ describe('TacticalActionDock', () => {
       />,
     );
     expect(screen.getByTestId('command-group-movement')).toBeInTheDocument();
-    expect(screen.getByTestId('command-btn-movement.walk')).toBeInTheDocument();
+    // tactical-movement-intent-composer: Walk/Run/Sprint/Jump verbs are removed;
+    // Evade remains as a Posture Action in the movement command group.
+    expect(
+      screen.getByTestId('command-btn-movement.evade'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('command-btn-movement.walk')).toBeNull();
+    expect(screen.queryByTestId('command-btn-movement.run')).toBeNull();
+    expect(screen.queryByTestId('command-btn-movement.jump')).toBeNull();
     expect(screen.queryByTestId('command-btn-weapon.fire-volley')).toBeNull();
   });
 
@@ -113,78 +120,29 @@ describe('TacticalActionDock', () => {
     const onAction = jest.fn();
     render(
       <TacticalActionDock
-        ctx={makeCtx()}
+        ctx={makeCtx({ activeUnitProne: false })}
         shellMode="combat"
         onAction={onAction}
       />,
     );
-    fireEvent.click(screen.getByTestId('command-btn-movement.walk'));
-    expect(onAction).toHaveBeenCalledWith('lock', { mode: 'walk' });
+    // Evade is the surviving movement-verb (Posture Action) on the dock.
+    fireEvent.click(screen.getByTestId('command-btn-movement.evade'));
+    expect(onAction).toHaveBeenCalledWith('lock', { mode: 'evade' });
   });
 
   it('does not dispatch when canAct is false (disabled-with-reason)', () => {
     const onAction = jest.fn();
     render(
       <TacticalActionDock
-        ctx={makeCtx({ canAct: false })}
+        ctx={makeCtx({ canAct: false, activeUnitProne: false })}
         shellMode="combat"
         onAction={onAction}
       />,
     );
-    const button = screen.getByTestId('command-btn-movement.walk');
+    const button = screen.getByTestId('command-btn-movement.evade');
     expect(button).toBeDisabled();
     expect(button.getAttribute('aria-disabled')).toBe('true');
     fireEvent.click(button);
-    expect(onAction).not.toHaveBeenCalled();
-  });
-
-  it('disables Jump with an explanation when the active unit has no jump MP', () => {
-    const onAction = jest.fn();
-    render(
-      <TacticalActionDock
-        ctx={makeCtx({
-          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 0 },
-        })}
-        shellMode="combat"
-        onAction={onAction}
-      />,
-    );
-
-    const button = screen.getByTestId('command-btn-movement.jump');
-    expect(button).toBeDisabled();
-    expect(button.getAttribute('aria-describedby')).toBe(
-      'command-disabled-reason-movement.jump',
-    );
-    fireEvent.mouseEnter(button.parentElement!);
-    expect(
-      screen.getByTestId('command-disabled-reason-movement.jump'),
-    ).toHaveTextContent('No jump capability.');
-
-    fireEvent.click(button);
-    expect(onAction).not.toHaveBeenCalled();
-  });
-
-  it('disables movement modes when heat leaves no effective MP', () => {
-    const onAction = jest.fn();
-    render(
-      <TacticalActionDock
-        ctx={makeCtx({
-          activeUnitProne: false,
-          activeUnitHeat: 30,
-          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 4 },
-        })}
-        shellMode="combat"
-        onAction={onAction}
-      />,
-    );
-
-    const run = screen.getByTestId('command-btn-movement.run');
-    expect(run).toBeDisabled();
-    fireEvent.mouseEnter(run.parentElement!);
-    expect(
-      screen.getByTestId('command-disabled-reason-movement.run'),
-    ).toHaveTextContent('Heat penalty leaves no run MP.');
-    fireEvent.click(run);
     expect(onAction).not.toHaveBeenCalled();
   });
 
@@ -192,14 +150,14 @@ describe('TacticalActionDock', () => {
     const onAction = jest.fn();
     render(
       <TacticalActionDock
-        ctx={makeCtx({ canAct: false })}
+        ctx={makeCtx({ canAct: false, activeUnitProne: false })}
         shellMode="combat"
         onAction={onAction}
       />,
     );
-    const button = screen.getByTestId('command-btn-movement.walk');
+    const button = screen.getByTestId('command-btn-movement.evade');
     expect(button.getAttribute('aria-describedby')).toBe(
-      'command-disabled-reason-movement.walk',
+      'command-disabled-reason-movement.evade',
     );
   });
 

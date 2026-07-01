@@ -225,6 +225,13 @@ export default function GameSessionPage(): React.ReactElement {
             hoverUnreachable={movement.hoverUnreachable}
             mpLegend={movement.mpLegend}
             onMovementModeSelect={movement.handleMovementModeSelect}
+            intentComposer={{
+              composerActive: movement.composerActive,
+              composedLegs: movement.composedLegs,
+              lastWaypointHex: movement.lastWaypointHex,
+              onPopLastWaypoint: movement.handleWaypointBackspace,
+              onFacingSelect: movement.handleFacingSelect,
+            }}
             interactiveSession={interactiveSession ?? undefined}
             physicalAttackIntent={physicalAttackIntent}
             playerSide={GameSide.Player}

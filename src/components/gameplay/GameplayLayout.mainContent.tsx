@@ -16,6 +16,7 @@ import type {
 import type { ITacticalMapProjectionFrame } from '@/utils/gameplay/tacticalMapProjection';
 
 import type { GameplayLayoutControls } from './GameplayLayout.controls';
+import type { IntentComposerMapProps } from './GameplayLayout.types';
 import type {
   MapMovementKind,
   MapMovementPointLegendState,
@@ -55,6 +56,7 @@ export function GameplayMainContentArea({
   mpLegend,
   onMovementModeSelect,
   onHexHover,
+  intentComposer,
   onInteractionReady,
   controls,
   physicalAttackIntent,
@@ -92,6 +94,7 @@ export function GameplayMainContentArea({
   readonly onHexHover:
     | ((hex: { readonly q: number; readonly r: number } | null) => void)
     | undefined;
+  readonly intentComposer: IntentComposerMapProps | undefined;
   readonly onInteractionReady: (interaction: MapInteractionState) => void;
   readonly controls: GameplayLayoutControls;
   readonly physicalAttackIntent: PhysicalAttackIntent | null | undefined;
@@ -141,6 +144,7 @@ export function GameplayMainContentArea({
         mpLegend={mpLegend}
         onMovementModeSelect={onMovementModeSelect}
         onHexHover={onHexHover}
+        intentComposer={intentComposer}
         onInteractionReady={onInteractionReady}
         controls={controls}
         physicalAttackIntent={physicalAttackIntent}
