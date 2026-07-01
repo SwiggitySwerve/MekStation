@@ -181,7 +181,7 @@ export function CampaignNavigation({
       className={`px-4 py-3 transition-colors ${
         currentPage === tab.id
           ? 'text-accent border-accent border-b-2 font-semibold'
-          : 'font-medium text-slate-300 hover:text-white'
+          : 'text-text-theme-secondary hover:text-text-theme-primary font-medium'
       }`}
       aria-current={currentPage === tab.id ? 'page' : undefined}
     >
@@ -200,7 +200,7 @@ export function CampaignNavigation({
 
         {/* "Bays" group — visually separated, semantically labelled. */}
         <span
-          className="border-border-theme-subtle ml-2 border-l pl-3 text-xs font-semibold tracking-wider text-slate-400 uppercase"
+          className="border-border-theme-subtle text-text-theme-secondary ml-2 border-l pl-3 text-xs font-semibold tracking-wider uppercase"
           data-testid="campaign-nav-bays-group"
         >
           Bays
@@ -215,7 +215,7 @@ export function CampaignNavigation({
 
         {/* "Command" group — visually separated, semantically labelled. */}
         <span
-          className="border-border-theme-subtle ml-2 border-l pl-3 text-xs font-semibold tracking-wider text-slate-400 uppercase"
+          className="border-border-theme-subtle text-text-theme-secondary ml-2 border-l pl-3 text-xs font-semibold tracking-wider uppercase"
           data-testid="campaign-nav-command-group"
         >
           Command

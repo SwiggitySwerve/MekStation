@@ -410,19 +410,6 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
                     {readinessProjection.units.length}
                   </dd>
                 </div>
-                <div className="flex items-center justify-between gap-3">
-                  <dt className="text-text-theme-secondary">Readiness</dt>
-                  <dd className="text-right font-medium">
-                    {readinessProjection.warnings.length > 0 ? (
-                      <span className="text-amber-300">
-                        {readinessProjection.warnings.length} warning
-                        {readinessProjection.warnings.length === 1 ? '' : 's'}
-                      </span>
-                    ) : (
-                      <span className="text-emerald-300">Ready</span>
-                    )}
-                  </dd>
-                </div>
               </dl>
 
               {launchError ? (

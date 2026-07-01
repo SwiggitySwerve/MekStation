@@ -86,3 +86,22 @@ The doctrine survives **only if each screen is correctly classified single-actio
 - **Refit stat strip (decided for Momus):** Hephaestus proposed FOCUS = editor body, *shrink the stat strip*. Momus refuted — the stat strip is the primary instrument. **Council adopts Momus**; the strip is co-primary (INSTRUMENT zone), not chrome. This is the single most important correction in the decision.
 - **Tactical movement selector (open sub-decision):** both agree the dock-group and the map `mpLegend` duplicate the movement vocabulary; *which* surface becomes the single selector (dock readout vs point-of-action map control) is left to implementation, leaning toward point-of-action per Momus's "decisions happen at the map."
 - **Audit drift:** several original audit findings are **already fixed** in current code (readiness amber badge, save-at-0-delta disable, inline Assign-pilot, the 50t→100t Atlas, screen-02 disabled CTA) — the doctrine must not re-prescribe them.
+
+---
+
+## Review verdict (OMO Council, Lean++ thin, 2026-06-30) — SHIP after one must-fix
+
+Seats: Oracle · Explore-Deep · Momus (+ Phase-0 Metis). All three independently flagged the **same single regression**; everything else verified safe or survivable.
+
+- **FIXED (must-fix) — theme-token bypass.** The chrome-contrast batch was first done with hardcoded `text-slate-300/400`, which severs nav + breadcrumb from `theme-neon` (cyan) / `theme-tactical` (amber) / `theme-minimal` (no `--text-secondary` override → genuine contrast case). Reverted all hardcodes to `text-text-theme-secondary` and raised `--text-secondary` `#94a3b8`→`#cbd5e1` (one line, theme-aware, zero className/snapshot churn). *Dissent:* Momus preferred a targeted new `--text-secondary-strong`; Oracle's global bump adopted (the generic secondary was genuinely too dim; a new token is additive complexity Oracle rejected).
+- **FIXED — readiness echo.** Dropped the redundant "Readiness" row from the launch briefing aside (Momus: it shipped a 4th copy of the readiness state the doctrine's own row-2 flags for merge). The FOCUS-panel badge stays the single authority; the button label still conveys the warning state.
+- **VERIFIED SAFE (Explore-Deep, empirical):** launch.tsx restructure — all 8 consuming specs key off `getByTestId`, no DOM-hierarchy/snapshot coupling; `min-h-[60vh]` — single consumer, narrow mode drops the trays; starmap labels — clean in the captured viewport (13 of 80 systems, no overlap).
+
+### Follow-up changes (named so they don't rot — Momus tracking-anchor)
+
+1. **`declutter-tactical-command-surface`** — merge the duplicate movement selector (dock group + interactive map `mpLegend`, both call `onMovementModeSelect`); de-leak `select_movement` → player copy; fix the `E`/`E` hotkey collision; collapse the lens `LeftTray`. Test-coupled → updates tactical e2e in the same change.
+2. **`declutter-gm-ledger-actions`** — 5 preview buttons → one "Generate correction" + type selector; preserve the public/private log duality. Test-coupled → updates `gm-campaign-ledger-control-plane.spec.ts`.
+3. **`starmap-refit-declutter`** — starmap detail-bar merge + collapsible legend + status glyphs; refit stat-strip color-ramp unification + context-line slim; verify starmap label density at a dense cluster (Draconis core).
+4. **`tactical-map-flex-basis`** (tech-debt) — replace the `min-h-[60vh]` floor with a proper flex-basis/shrink budget so short viewports don't page-scroll the HUD (Momus band-aid critique).
+
+Each per-screen follow-up MUST carry an explicit `archetype:` field (single-action | simultaneous-instrument) — the doctrine's load-bearing guardrail.

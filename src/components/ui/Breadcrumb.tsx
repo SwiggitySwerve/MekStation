@@ -78,7 +78,7 @@ export function Breadcrumb({
               {isClickable ? (
                 <Link
                   href={item.href!}
-                  className="hover:text-accent max-w-[150px] truncate text-slate-300 transition-colors duration-150 sm:max-w-none"
+                  className="hover:text-accent text-text-theme-secondary max-w-[150px] truncate transition-colors duration-150 sm:max-w-none"
                   title={item.label}
                 >
                   {item.label}
@@ -88,7 +88,7 @@ export function Breadcrumb({
                   className={`max-w-[150px] truncate sm:max-w-none ${
                     isLast
                       ? 'text-text-theme-primary font-medium'
-                      : 'text-slate-300'
+                      : 'text-text-theme-secondary'
                   }`}
                   title={item.label}
                   aria-current={isLast ? 'page' : undefined}
