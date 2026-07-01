@@ -236,9 +236,9 @@ async function captureStarmapScreens(
       'ready',
     );
     await expect(page.getByTestId('starmap-detail-status')).toContainText(
-      'Detail',
+      'Zoom',
     );
-    await expect(page.getByTestId('starmap-map-toolbar')).toContainText(
+    await expect(page.getByTestId('starmap-detail-status')).not.toContainText(
       'Detail',
     );
     await expect(page.getByTestId('starmap-detail-status')).not.toContainText(
@@ -456,7 +456,7 @@ async function captureMissionReadinessScreens(
     });
 
     await page.getByTestId('structure-heat-sink-increment').click();
-    await expect(page.getByTestId('campaign-refit-context')).toContainText(
+    await expect(page.getByTestId('campaign-refit-change-count')).toContainText(
       '1 build field changed',
     );
     await expect(page.getByTestId('campaign-refit-save')).toBeEnabled();

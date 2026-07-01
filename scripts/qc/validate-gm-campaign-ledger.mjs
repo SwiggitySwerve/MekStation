@@ -171,12 +171,12 @@ const defaultSourceAnchors = [
     id: 'campaign-gm-ledger-actions',
     path: 'src/components/campaign/gm/GmCampaignInterventionActions.tsx',
     tokens: [
+      // The 8 equal-weight per-type preview buttons collapsed into one
+      // "Generate correction" control + a correction-type <select>. The action
+      // is "preview a correction"; the type is a parameter, not its own button.
+      'gm-ledger-correction-type',
       'gm-ledger-preview-btn',
       'gm-ledger-approve-btn',
-      'gm-ledger-conflict-preview-btn',
-      'gm-ledger-repair-preview-btn',
-      'gm-ledger-salvage-preview-btn',
-      'gm-ledger-unit-reload-preview-btn',
       'gm-ledger-manual-btn',
     ],
   },
@@ -224,7 +224,7 @@ const defaultSourceAnchors = [
       'gm-ledger-player-log',
       'gm-ledger-private-log',
       'gm-ledger-player-only-notice',
-      "getByRole('navigation', { name: 'Campaign sections' })",
+      'getByRole("navigation", { name: "Campaign sections" })',
       'not.toContainText',
     ],
   },

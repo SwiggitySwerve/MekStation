@@ -257,9 +257,12 @@ const defaultSourceAnchors = [
     id: 'time-cascade-gm-ledger-actions',
     path: 'src/components/campaign/gm/GmCampaignInterventionActions.tsx',
     tokens: [
-      'gm-ledger-time-preview-btn',
-      'gm-ledger-time-conflict-preview-btn',
-      'onTimePreview',
+      // Time previews now flow through the unified correction-type <select>
+      // ("time" / "time-conflict" options) + the single "Generate correction"
+      // control, not standalone per-type buttons.
+      'gm-ledger-correction-type',
+      "onTimePreview(false)",
+      "onTimePreview(true)",
     ],
   },
   {
@@ -268,7 +271,7 @@ const defaultSourceAnchors = [
     tokens: [
       'previews and approves a time cascade with player-safe output',
       'previews and applies roster recovery external effects on time approval',
-      'gm-ledger-time-preview-btn',
+      'gm-ledger-correction-type',
       'gm-ledger-preview-time-effect',
       'gm-ledger-preview-external-effects',
       'Mira Holt recovery advanced 2 days',
@@ -282,8 +285,8 @@ const defaultSourceAnchors = [
     tokens: [
       'previews and approves an accumulated time cascade',
       'blocks unprojected external time effects until manual takeover',
-      'gm-ledger-time-preview-btn',
-      'gm-ledger-time-conflict-preview-btn',
+      'gm-ledger-correction-type',
+      'generateCorrection',
       'timeCascadeEventCount',
       'Campaign time corrected by 2 days.',
       'not.toContainText',

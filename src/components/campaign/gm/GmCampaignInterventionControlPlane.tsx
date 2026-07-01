@@ -365,9 +365,7 @@ export function GmCampaignInterventionControlPlane({
     >
       <GmCampaignLedgerStatusCards
         balanceLabel={campaign.finances.balance.format()}
-        previewStatus={preview?.status ?? 'Not generated'}
         approvalStatus={approvalStatus}
-        approvalReason={approvalReason}
       />
 
       <GmCampaignInterventionActions
@@ -382,7 +380,9 @@ export function GmCampaignInterventionControlPlane({
         onManualTakeover={handleManualTakeover}
       />
 
-      {preview ? <GmPreviewPanel preview={preview} /> : null}
+      {preview ? (
+        <GmPreviewPanel preview={preview} approvalReason={approvalReason} />
+      ) : null}
 
       {manualTakeover ? (
         <ManualTakeoverPanel manualTakeover={manualTakeover} />

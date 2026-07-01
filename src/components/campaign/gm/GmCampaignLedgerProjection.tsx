@@ -5,6 +5,31 @@ import type {
   PlayerLedgerRow,
 } from './GmCampaignInterventionControlPlane.helpers';
 
+// Player copy for the internal correction-family tokens. These `family` values
+// (`time-advance`, `funds-transaction`, ...) are engine identifiers; players see
+// plain-language category names instead of the raw token in the ledger meta line.
+const FAMILY_PLAYER_LABEL: Readonly<Record<string, string>> = {
+  'time-advance': 'Campaign time',
+  'funds-transaction': 'Finances',
+  'repair-ticket': 'Repairs',
+  'salvage-allocation': 'Salvage',
+  'unit-reload': 'Unit readiness',
+  'base-unit-state': 'Unit readiness',
+  'inventory-lot': 'Inventory',
+};
+
+// Resolve a row's correction family to player copy, falling back to a Title-Cased
+// version of any unmapped token so no raw kebab-case identifier ever leaks.
+function familyToPlayerLabel(family: string | undefined): string {
+  if (!family) return 'GM correction';
+  const mapped = FAMILY_PLAYER_LABEL[family];
+  if (mapped) return mapped;
+  return family
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 export function LedgerProjection({
   rows,
   testId,
@@ -38,7 +63,7 @@ export function LedgerProjection({
                 {row.publicEffect.summary}
               </p>
               <p className="text-text-theme-secondary mt-1 text-xs">
-                {row.status} - {row.domain} - {row.action}
+                {familyToPlayerLabel(row.publicEffect.family)} - {row.status}
               </p>
             </div>
           ))}

@@ -60,13 +60,20 @@ interface UnitInfoBannerProps {
 const styles = {
   label:
     'text-[9px] sm:text-[10px] font-medium text-text-theme-secondary uppercase tracking-wider',
+  // Instrument strip color ramp (command-screen focus doctrine, principle 9):
+  // neutral luminance for in-budget values; color is reserved for out-of-budget
+  // / invalid states only. The old decorative ramp (BV cyan, ENGINE orange,
+  // HEAT green) is collapsed to the neutral primary token so "over budget"
+  // (amber/red) is the only signal that draws the eye.
   value: {
-    normal: 'text-white',
+    normal: 'text-text-theme-primary',
     warning: 'text-amber-400',
     error: 'text-red-400',
-    success: 'text-green-400',
-    engine: 'text-orange-500',
-    bv: 'text-cyan-400',
+    // success = heat within dissipation: no longer green-highlighted, it is the
+    // normal in-budget state.
+    success: 'text-text-theme-primary',
+    engine: 'text-text-theme-primary',
+    bv: 'text-text-theme-primary',
   },
   muted: 'text-slate-500',
   box: 'flex flex-col items-center px-2 sm:px-3 py-0.5 sm:py-1 bg-surface-raised/50 rounded',

@@ -19,8 +19,12 @@ export interface ManualTakeoverState {
 
 export function GmPreviewPanel({
   preview,
+  approvalReason,
 }: {
   readonly preview: GmLedgerPreview;
+  // The approval-blocked reason folds into the live preview because it is only
+  // meaningful while a preview is on screen — it never stands on its own card.
+  readonly approvalReason?: string | null;
 }): React.ReactElement {
   const fundsEffect = findFundsEffect(preview.projectedEvents);
   const timeEffect = findTimeEffect(preview.projectedEvents);
@@ -33,8 +37,20 @@ export function GmPreviewPanel({
       <div className="flex flex-wrap items-center gap-2">
         <Badge>{preview.domain}</Badge>
         <Badge>{preview.kind}</Badge>
-        <Badge>{preview.status}</Badge>
+        {/* Preview status folded off the status-card bar into the live preview,
+            where the GM reads it alongside the projected effect it describes. */}
+        <span data-testid="gm-ledger-preview-status">
+          <Badge>{preview.status}</Badge>
+        </span>
       </div>
+      {approvalReason ? (
+        <p
+          className="mt-3 text-sm text-amber-300"
+          data-testid="gm-ledger-approval-reason"
+        >
+          {approvalReason}
+        </p>
+      ) : null}
       <p
         className="text-text-theme-primary mt-3 text-sm"
         data-testid="gm-ledger-preview-summary"

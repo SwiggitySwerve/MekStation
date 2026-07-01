@@ -7,6 +7,19 @@ test.setTimeout(120_000);
 
 const GM_LEDGER_NAVIGATION_TIMEOUT_MS = 60_000;
 
+// The GM control plane now exposes one "Generate correction" control driven by a
+// correction-type <select>. Pick the type, then fire the single control — this
+// mirrors how a GM drives the screen and replaces the old per-type buttons.
+async function generateCorrection(
+  page: Page,
+  correctionType: string,
+): Promise<void> {
+  await page
+    .getByTestId('gm-ledger-correction-type')
+    .selectOption(correctionType);
+  await page.getByTestId('gm-ledger-preview-btn').click();
+}
+
 test.beforeEach(async ({ page }) => {
   page.setDefaultNavigationTimeout(GM_LEDGER_NAVIGATION_TIMEOUT_MS);
 });
@@ -736,7 +749,7 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       });
       await assertNoMekStationLoading(page);
 
-      await page.getByTestId('gm-ledger-conflict-preview-btn').click();
+      await generateCorrection(page, 'merchant-conflict');
       await expect(page.getByTestId('gm-ledger-preview-status')).toContainText(
         'requires-manual-takeover',
       );
@@ -781,7 +794,7 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       await assertNoMekStationLoading(page);
       await seedCampaignBaseFixState(page);
 
-      await page.getByTestId('gm-ledger-repair-preview-btn').click();
+      await generateCorrection(page, 'repair');
       await expect(page.getByTestId('gm-ledger-preview-status')).toContainText(
         'ready',
       );
@@ -799,7 +812,7 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
           repairRemainingHours: 0,
         });
 
-      await page.getByTestId('gm-ledger-salvage-preview-btn').click();
+      await generateCorrection(page, 'salvage');
       await expect(
         page.getByTestId('gm-ledger-preview-state-summary'),
       ).toContainText('Salvage allocation match-1: processed=false');
@@ -813,7 +826,7 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
           salvageProcessed: true,
         });
 
-      await page.getByTestId('gm-ledger-unit-reload-preview-btn').click();
+      await generateCorrection(page, 'unit-reload');
       await expect(
         page.getByTestId('gm-ledger-preview-state-summary'),
       ).toContainText('Unit unit-1: combatReady=false');
@@ -894,7 +907,7 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
         new Date(initialState.currentDate).getTime() + 2 * 24 * 60 * 60 * 1000,
       ).toISOString();
 
-      await page.getByTestId('gm-ledger-time-preview-btn').click();
+      await generateCorrection(page, 'time');
       await expect(page.getByTestId('gm-ledger-preview-status')).toContainText(
         'ready',
       );
@@ -970,7 +983,7 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       });
       await assertNoMekStationLoading(page);
 
-      await page.getByTestId('gm-ledger-time-conflict-preview-btn').click();
+      await generateCorrection(page, 'time-conflict');
       await expect(page.getByTestId('gm-ledger-preview-status')).toContainText(
         'requires-manual-takeover',
       );
