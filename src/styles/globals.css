@@ -68,7 +68,7 @@
 
   /* Text Colors */
   --text-primary: #f8fafc; /* slate-50 */
-  --text-secondary: #94a3b8; /* slate-400 */
+  --text-secondary: #cbd5e1; /* slate-300 — raised from slate-400 for legible secondary text + chrome (council review 2026-06-30) */
   --text-muted: #9ca3af; /* gray-400 - WCAG AA compliant (5:1 contrast) */
 
   /* Accent Color System (defaults to amber, updated by GlobalStyleProvider) */

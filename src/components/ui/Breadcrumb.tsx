@@ -78,7 +78,7 @@ export function Breadcrumb({
               {isClickable ? (
                 <Link
                   href={item.href!}
-                  className="text-text-theme-secondary hover:text-accent max-w-[150px] truncate transition-colors duration-150 sm:max-w-none"
+                  className="hover:text-accent text-text-theme-secondary max-w-[150px] truncate transition-colors duration-150 sm:max-w-none"
                   title={item.label}
                 >
                   {item.label}

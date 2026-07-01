@@ -360,51 +360,86 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
           currentPage="missions"
           coopSession={loadedCampaign.coopSession}
         />
-        <div className="mt-6 space-y-4">
-          <MissionRefitReturnStatus customizerResult={customizerResult} />
+        <div className="mt-6 grid gap-6 lg:grid-cols-3">
+          <div className="space-y-4 lg:col-span-2">
+            <MissionRefitReturnStatus customizerResult={customizerResult} />
 
-          <MissionReadinessPanel
-            projection={readinessProjection}
-            onToggleUnit={handleToggleRosterUnit}
-            buildCustomizeHref={(unitId) =>
-              buildCampaignCustomizerHref({
-                campaignId: loadedCampaign.id,
-                unitId,
-                missionId: missionKey ?? undefined,
-                returnTo: 'mission-readiness',
-                campaignDate: loadedCampaign.currentDate.toISOString(),
-                budget: loadedCampaign.finances.balance.amount,
-                rulesLevel: RulesLevel.STANDARD,
-                refitConstraints: 'campaign-owned-refit',
-              })
-            }
-          />
+            <MissionReadinessPanel
+              projection={readinessProjection}
+              onToggleUnit={handleToggleRosterUnit}
+              buildCustomizeHref={(unitId) =>
+                buildCampaignCustomizerHref({
+                  campaignId: loadedCampaign.id,
+                  unitId,
+                  missionId: missionKey ?? undefined,
+                  returnTo: 'mission-readiness',
+                  campaignDate: loadedCampaign.currentDate.toISOString(),
+                  budget: loadedCampaign.finances.balance.amount,
+                  rulesLevel: RulesLevel.STANDARD,
+                  refitConstraints: 'campaign-owned-refit',
+                })
+              }
+            />
+          </div>
 
-          {launchError ? (
-            <p
-              role="alert"
-              data-testid="mission-launch-error"
-              className="text-sm text-rose-300"
-            >
-              {launchError}
-            </p>
-          ) : null}
-          <button
-            type="button"
-            data-testid="launch-mission-direct"
-            disabled={isLaunching || !readinessProjection.canLaunch}
-            onClick={handleLaunch}
-            className={directLaunchButtonClass({
-              canLaunch: readinessProjection.canLaunch,
-              isLaunching,
-              warningCount: readinessProjection.warnings.length,
-            })}
+          <aside
+            className="lg:sticky lg:top-6 lg:self-start"
+            data-testid="mission-launch-briefing"
           >
-            {directLaunchButtonLabel({
-              isLaunching,
-              warningCount: readinessProjection.warnings.length,
-            })}
-          </button>
+            <div className="border-border-theme-subtle bg-surface-base/70 rounded-lg border p-4">
+              <h2 className="text-text-theme-primary text-lg font-semibold">
+                Mission briefing
+              </h2>
+              <dl className="mt-3 space-y-2 text-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="text-text-theme-secondary">Mission</dt>
+                  <dd className="text-text-theme-primary text-right font-medium">
+                    {missionDisplayName}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="text-text-theme-secondary">Company</dt>
+                  <dd className="text-text-theme-primary text-right font-medium">
+                    {loadedCampaign.name}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="text-text-theme-secondary">Units selected</dt>
+                  <dd className="text-text-theme-primary text-right font-medium">
+                    {readinessProjection.selectedUnits.length} /{' '}
+                    {readinessProjection.units.length}
+                  </dd>
+                </div>
+              </dl>
+
+              {launchError ? (
+                <p
+                  role="alert"
+                  data-testid="mission-launch-error"
+                  className="mt-3 text-sm text-rose-300"
+                >
+                  {launchError}
+                </p>
+              ) : null}
+
+              <button
+                type="button"
+                data-testid="launch-mission-direct"
+                disabled={isLaunching || !readinessProjection.canLaunch}
+                onClick={handleLaunch}
+                className={`mt-4 w-full ${directLaunchButtonClass({
+                  canLaunch: readinessProjection.canLaunch,
+                  isLaunching,
+                  warningCount: readinessProjection.warnings.length,
+                })}`}
+              >
+                {directLaunchButtonLabel({
+                  isLaunching,
+                  warningCount: readinessProjection.warnings.length,
+                })}
+              </button>
+            </div>
+          </aside>
         </div>
       </PageLayout>
     );
