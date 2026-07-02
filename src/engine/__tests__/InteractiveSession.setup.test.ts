@@ -18,7 +18,7 @@ import type { IAdaptedUnit } from '../types';
 
 import {
   buildInteractiveSessionUnitMaps,
-  gameUnitsWithAdaptedMovementModes,
+  gameUnitsWithAdaptedCombatSeeds,
 } from '../InteractiveSession.setup';
 
 function vehicleGameUnit(
@@ -103,9 +103,9 @@ describe('buildInteractiveSessionUnitMaps', () => {
   });
 });
 
-describe('gameUnitsWithAdaptedMovementModes', () => {
+describe('gameUnitsWithAdaptedCombatSeeds', () => {
   it('derives represented vehicle weapon locations for crit availability', () => {
-    const [unit] = gameUnitsWithAdaptedMovementModes(
+    const [unit] = gameUnitsWithAdaptedCombatSeeds(
       [vehicleGameUnit()],
       [adaptedVehicle([weaponAt(VehicleLocation.FRONT)])],
       [],
@@ -122,7 +122,7 @@ describe('gameUnitsWithAdaptedMovementModes', () => {
   });
 
   it('keeps destroyed vehicle weapons unavailable for weapon crits but available for stabilizers', () => {
-    const [unit] = gameUnitsWithAdaptedMovementModes(
+    const [unit] = gameUnitsWithAdaptedCombatSeeds(
       [vehicleGameUnit()],
       [adaptedVehicle([weaponAt(VehicleLocation.REAR, true)])],
       [],
@@ -138,8 +138,64 @@ describe('gameUnitsWithAdaptedMovementModes', () => {
     });
   });
 
+  it('splices adapted armor/structure/heat sinks onto bare game units', () => {
+    const adapted = {
+      ...adaptedVehicle([]),
+      armor: { head: 9, center_torso: 47, center_torso_rear: 14 },
+      structure: { head: 3, center_torso: 31 },
+      heatSinks: 20,
+      heatSinkType: 'single' as const,
+    };
+    const bareUnit: IGameUnit = {
+      id: 'target',
+      name: 'Probe Mech',
+      side: GameSide.Opponent,
+      unitRef: 'probe-mech',
+      pilotRef: 'probe-pilot',
+      gunnery: 4,
+      piloting: 5,
+    };
+
+    const [unit] = gameUnitsWithAdaptedCombatSeeds([bareUnit], [], [adapted]);
+
+    expect(unit.armorByLocation).toEqual({
+      head: 9,
+      center_torso: 47,
+      center_torso_rear: 14,
+    });
+    expect(unit.structureByLocation).toEqual({ head: 3, center_torso: 31 });
+    expect(unit.heatSinks).toBe(20);
+    expect(unit.heatSinkType).toBe('single');
+  });
+
+  it('leaves explicit producer-supplied seeds and empty adapted maps alone', () => {
+    const bareUnit: IGameUnit = {
+      id: 'target',
+      name: 'Probe Mech',
+      side: GameSide.Opponent,
+      unitRef: 'probe-mech',
+      pilotRef: 'probe-pilot',
+      gunnery: 4,
+      piloting: 5,
+      armorByLocation: { head: 1 },
+      heatSinks: 13,
+    };
+
+    // Adapted maps empty (synthetic fixture) -> no armor/structure splice;
+    // explicit producer values win over adapted ones.
+    const [unit] = gameUnitsWithAdaptedCombatSeeds(
+      [bareUnit],
+      [],
+      [{ ...adaptedVehicle([]), heatSinks: 20 }],
+    );
+
+    expect(unit.armorByLocation).toEqual({ head: 1 });
+    expect(unit.structureByLocation).toBeUndefined();
+    expect(unit.heatSinks).toBe(13);
+  });
+
   it('preserves explicit cargo and stabilizer availability fields', () => {
-    const [unit] = gameUnitsWithAdaptedMovementModes(
+    const [unit] = gameUnitsWithAdaptedCombatSeeds(
       [
         vehicleGameUnit({
           criticalAvailability: {

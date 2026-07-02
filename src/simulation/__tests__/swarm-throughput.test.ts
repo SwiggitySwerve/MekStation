@@ -41,10 +41,17 @@ function readPositiveIntEnv(name: string, fallback: number): number {
 /** Number of sequential runs to execute. */
 const RUN_COUNT = readPositiveIntEnv('SWARM_THROUGHPUT_RUN_COUNT', 1000);
 
-/** Wall-clock time budget in milliseconds (60 seconds by default). */
+/**
+ * Wall-clock time budget in milliseconds. Widened 60s → 180s (3× per the
+ * repo perf-budget convention) when `gameUnitsWithAdaptedCombatSeeds`
+ * started seeding real per-location armor/structure into auto-resolved
+ * sessions — battles genuinely last more turns now that armor absorbs
+ * damage (the prior empty maps made every penetrating hit destroy the
+ * location), measured ~70s for the 1000-run batch on a current dev box.
+ */
 const TIME_BUDGET_MS = readPositiveIntEnv(
   'SWARM_THROUGHPUT_TIME_BUDGET_MS',
-  60_000,
+  180_000,
 );
 const JEST_TIMEOUT_MS =
   TIME_BUDGET_MS + Math.max(5_000, Math.ceil(TIME_BUDGET_MS * 0.1));

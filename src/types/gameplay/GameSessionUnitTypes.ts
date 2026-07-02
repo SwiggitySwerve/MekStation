@@ -276,6 +276,25 @@ export interface IGameUnit {
    */
   readonly armorTypeByLocation?: Readonly<Record<string, string>>;
   /**
+   * Optional per-location armor points seeded into combat state at
+   * GameCreated. Producers (`InteractiveSession` / `GameEngine.runToCompletion`
+   * via `gameUnitsWithAdaptedCombatSeeds`) copy the adapted unit's catalog
+   * armor here so `createInitialUnitState` seeds `IUnitGameState.armor` with
+   * real values — the legacy empty map made every BattleMech location read 0
+   * armor and let any penetrating hit destroy the location instantly, while
+   * vehicles/aero/protos/BA already seeded through their `*Init` blocks.
+   * Rear torso keys use the `<location>_rear` form. Missing preserves the
+   * legacy synthetic-fixture behavior (empty map).
+   */
+  readonly armorByLocation?: Readonly<Record<string, number>>;
+  /**
+   * Optional per-location internal structure seeded into combat state at
+   * GameCreated alongside `armorByLocation`. Also seeds
+   * `startingInternalStructure` so the retreat trigger's structure-loss
+   * ratio reads real starting values.
+   */
+  readonly structureByLocation?: Readonly<Record<string, number>>;
+  /**
    * Per-location ammo explosion containment projected from construction data
    * into interactive game sessions. Missing keys mean no CASE protection.
    */

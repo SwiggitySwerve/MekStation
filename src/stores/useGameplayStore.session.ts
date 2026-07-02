@@ -149,6 +149,53 @@ function getLoadSessionErrorMessage(error: unknown): string {
 }
 
 /**
+ * Derive the record-sheet supplemental display maps (max armor /
+ * structure, pilot names, heat-sink capacity) from a live session.
+ *
+ * Before this seam existed only the demo path populated these maps
+ * (from `@/__fixtures__/gameplay`), so every REAL interactive session
+ * rendered the unit card with 0/0 armor+structure, 'Unknown Pilot', and
+ * the 10-sink default (re-audit UXF-06/DC-01). The GameCreated payload
+ * units now carry `armorByLocation` / `structureByLocation` / `heatSinks`
+ * (spliced from the adapted catalog units by
+ * `gameUnitsWithAdaptedCombatSeeds`), which double as the display maxima —
+ * construction values are the per-location caps regardless of current
+ * damage, so this also holds for sessions recovered mid-battle.
+ */
+function deriveSupplementalDisplayData(
+  session: IGameSession,
+): Pick<
+  SessionSlice,
+  'maxArmor' | 'maxStructure' | 'pilotNames' | 'heatSinks'
+> {
+  const maxArmor: Record<string, Record<string, number>> = {};
+  const maxStructure: Record<string, Record<string, number>> = {};
+  const pilotNames: Record<string, string> = {};
+  const heatSinks: Record<string, number> = {};
+
+  for (const unit of session.units) {
+    if (unit.armorByLocation) {
+      maxArmor[unit.id] = { ...unit.armorByLocation };
+    }
+    if (unit.structureByLocation) {
+      maxStructure[unit.id] = { ...unit.structureByLocation };
+    }
+    // The quick-game builder stamps 'Unknown' when no pilot exists; skip it
+    // so the record sheet's own 'Unknown Pilot' fallback stays the one voice.
+    if (unit.pilotRef && unit.pilotRef !== 'Unknown') {
+      pilotNames[unit.id] = unit.pilotRef;
+    }
+    const unitHeatSinks =
+      session.currentState.units[unit.id]?.heatSinks ?? unit.heatSinks;
+    if (unitHeatSinks !== undefined) {
+      heatSinks[unit.id] = unitHeatSinks;
+    }
+  }
+
+  return { maxArmor, maxStructure, pilotNames, heatSinks };
+}
+
+/**
  * Adopt an interactive session into the store. Picks a sensible
  * starting `interactivePhase` based on the session's current phase
  * (Initiative -> SelectUnit; everything else also defaults to
@@ -173,6 +220,7 @@ export function setInteractiveSessionLogic(
     spectatorMode: null,
     isLoading: false,
     error: null,
+    ...deriveSupplementalDisplayData(session),
   });
 }
 
@@ -195,5 +243,6 @@ export function setSpectatorModeLogic(
     spectatorMode,
     isLoading: false,
     error: null,
+    ...deriveSupplementalDisplayData(session),
   });
 }

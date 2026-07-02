@@ -43,6 +43,7 @@ import {
   InteractiveSession,
   type IInteractiveSessionLinkage,
 } from './InteractiveSession';
+import { gameUnitsWithAdaptedCombatSeeds } from './InteractiveSession.setup';
 
 export { InteractiveSession };
 
@@ -106,7 +107,13 @@ export class GameEngine {
       scenarioId: linkage.scenarioId ?? null,
     };
 
-    let session = createGameSession(gameConfig, gameUnits);
+    // Same combat-seed splice as the interactive constructor — without it,
+    // auto-resolved battles ran every BattleMech at 0 armor / 0 structure
+    // (one penetrating hit destroyed the location).
+    let session = createGameSession(
+      gameConfig,
+      gameUnitsWithAdaptedCombatSeeds(gameUnits, playerUnits, opponentUnits),
+    );
     session = startGame(session, GameSide.Player);
 
     const botPlayer = new BotPlayer(this.random);
