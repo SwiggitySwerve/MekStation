@@ -135,7 +135,7 @@ export default function GameplayLobbyPage(): React.ReactElement {
         onReadyChange={setLocalReady}
         onHostSideChange={setHostSide}
         onLaunch={() => {
-          launchLobbyMatch({
+          void launchLobbyMatch({
             launch,
             lobbyState,
             routeRoomCode,

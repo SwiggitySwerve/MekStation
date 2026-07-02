@@ -193,6 +193,16 @@ function toGameUnit(
  *      `startGame` once the engine takes over.
  *
  * @throws Error with a user-readable message when validation fails.
+ *
+ * SCAFFOLD ONLY (per `extend-combat-seed-to-all-session-producers`): the
+ * session this returns carries bare `IGameUnit` metadata whose derived state
+ * has empty armor/structure. Its only production consumer
+ * (`usePreBattleSkirmish.createInteractiveSkirmishSession`) extracts the
+ * unit list and builds the REAL combat session through the
+ * `InteractiveSession` constructor, which combat-seeds via
+ * `gameUnitsWithAdaptedCombatSeeds`. Do not play this scaffold's derived
+ * state directly — a new consumer that needs a playable session must seed
+ * (see `src/engine/combatSeedDerivation.ts`).
  */
 export function buildFromSkirmishConfig(
   config: ISkirmishLaunchConfig,

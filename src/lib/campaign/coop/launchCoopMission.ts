@@ -82,11 +82,11 @@ export type LaunchCoopMissionResult =
  *   carrying the force and the player's `deploy` / `command-hq` choice
  * @param service - encounter service (injectable; defaults to singleton)
  */
-export function launchCoopMission(
+export async function launchCoopMission(
   baseEncounter: IEncounter,
   contributions: readonly ICoopForceContribution[],
   service: ICampaignEncounterLauncherService = getEncounterService(),
-): LaunchCoopMissionResult {
+): Promise<LaunchCoopMissionResult> {
   // Step 1 — compose the co-op encounter. A zero-`deploy` launch is
   // BLOCKED here with a typed rejection; no encounter is created
   // (design D2 / spec "Mission with no deploying player is blocked").
@@ -103,7 +103,7 @@ export function launchCoopMission(
   // encounter launch path. No new combat transport — co-op combat runs
   // on the same `ServerMatchHost` loop any campaign encounter uses
   // (design D1).
-  const launched = launchCampaignEncounter(
+  const launched = await launchCampaignEncounter(
     composed.composition.encounter,
     service,
   );

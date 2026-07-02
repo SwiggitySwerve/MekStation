@@ -23,10 +23,30 @@ import {
 
 import { createGameSession, startGame } from './gameSessionCore';
 
-export function buildGameSessionFromLobbyState(
+/** The validated, side-mapped inputs a lobby session is created from. */
+export interface ILobbyGameData {
+  readonly config: IGameConfig;
+  readonly units: readonly IGameUnit[];
+  readonly options: {
+    readonly id: string;
+    readonly hostPeerId: string;
+    readonly guestPeerId: string;
+    readonly sideOwners: Readonly<Record<GameSide, string>>;
+  };
+}
+
+/**
+ * Pure lobby → game-data mapping (validation, side/owner assignment, unit
+ * conversion) with no session creation. Split out per
+ * `extend-combat-seed-to-all-session-producers` so the engine's
+ * `buildSeededGameSessionFromLobbyState` can combat-seed the units between
+ * build and create — this module cannot import the engine (cycle), so the
+ * seeding wrapper lives engine-side and composes this builder.
+ */
+export function buildLobbyGameData(
   lobby: ILobbyState,
   matchId: string,
-): IGameSession {
+): ILobbyGameData {
   if (!canLaunchLobby({ ...lobby, matchId })) {
     throw new Error('Lobby is not ready to launch');
   }
@@ -73,13 +93,32 @@ export function buildGameSessionFromLobbyState(
       hostGameSide === GameSide.Opponent ? lobby.hostPeerId : lobby.guestPeerId,
   };
 
-  const session = createGameSession(config, [...hostUnits, ...guestUnits], {
-    id: matchId,
-    hostPeerId: lobby.hostPeerId,
-    guestPeerId: lobby.guestPeerId,
-    sideOwners,
-  });
+  return {
+    config,
+    units: [...hostUnits, ...guestUnits],
+    options: {
+      id: matchId,
+      hostPeerId: lobby.hostPeerId,
+      guestPeerId: lobby.guestPeerId,
+      sideOwners,
+    },
+  };
+}
 
+/**
+ * Unseeded lobby session builder. Production lobby launches SHOULD go
+ * through the engine's `buildSeededGameSessionFromLobbyState` instead —
+ * this raw form creates units without combat construction inputs, so the
+ * derived state has empty armor/structure (the pre-#998 behavior the
+ * `game-session-management` "Combat State Seeding at Session Creation"
+ * requirement forbids for production producers).
+ */
+export function buildGameSessionFromLobbyState(
+  lobby: ILobbyState,
+  matchId: string,
+): IGameSession {
+  const { config, units, options } = buildLobbyGameData(lobby, matchId);
+  const session = createGameSession(config, units, options);
   return startGame(session, GameSide.Player);
 }
 

@@ -78,7 +78,7 @@ export default async function handler(
   const encounterService = getEncounterService();
 
   try {
-    const result = encounterService.launchEncounter(
+    const result = await encounterService.launchEncounter(
       id,
       parseLaunchOptions(req.body),
     );

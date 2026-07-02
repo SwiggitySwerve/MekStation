@@ -75,7 +75,7 @@ export interface ICampaignEncounterLauncherService {
       readonly contractId?: string | null;
       readonly scenarioId?: string | null;
     },
-  ): IEncounterOperationResult;
+  ): Promise<IEncounterOperationResult>;
   getEncounter(id: string): IEncounter | null;
 }
 
@@ -102,10 +102,10 @@ export interface ICampaignEncounterLauncherService {
  * @param encounter - the bridged campaign-generated encounter
  * @param service - encounter service (defaults to the singleton)
  */
-export function launchCampaignEncounter(
+export async function launchCampaignEncounter(
   encounter: IEncounter,
   service: ICampaignEncounterLauncherService = getEncounterService(),
-): ILaunchCampaignEncounterResult {
+): Promise<ILaunchCampaignEncounterResult> {
   const meta = encounter.campaignMeta;
   if (!meta) {
     return {
@@ -159,7 +159,7 @@ export function launchCampaignEncounter(
 
   // 4. Launch with campaign linkage (D6 — reuses the existing launch
   //    snapshot; the campaign only supplies the linkage fields).
-  const launched = service.launchEncounter(repoEncounterId, {
+  const launched = await service.launchEncounter(repoEncounterId, {
     campaignId: meta.campaignId,
     contractId: meta.contractId,
     scenarioId: meta.scenarioId,
