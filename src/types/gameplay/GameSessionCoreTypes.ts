@@ -279,6 +279,13 @@ export enum GameEventType {
    */
   LegAttackResolved = 'leg_attack_resolved',
   /**
+   * Per `wire-vibroclaw-attack-dispatch`: a BA squad resolved a vibro-claw
+   * melee attack (MegaMek cluster model). Record event — the damage itself
+   * applies through standard `DamageApplied` events emitted by the same
+   * dispatch, one per claw-sized cluster.
+   */
+  VibroClawAttackResolved = 'vibro_claw_attack_resolved',
+  /**
    * Per `add-battlearmor-combat-behavior`: mimetic to-hit bonus applied to
    * an attacker targeting this squad (e.g., +1 when the squad stood still).
    */

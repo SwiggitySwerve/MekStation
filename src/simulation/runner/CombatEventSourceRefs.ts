@@ -75,6 +75,24 @@ export const BATTLE_ARMOR_LEG_EVENT_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const BATTLE_ARMOR_VIBRO_CLAW_EVENT_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation vibro-claw dispatch resolves cluster-model attacks and emits VibroClawAttackResolved plus standard DamageApplied events.',
+    'src/utils/gameplay/battlearmor/vibroClawDispatch.ts',
+    'L1-L170',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation vibro-claw resolver implements the MegaMek missilesHit-times-claws cluster damage model.',
+    'src/utils/gameplay/battlearmor/vibroClaw.ts',
+    'L1-L125',
+  ),
+  mekstationDeviationSourceRef(
+    'MekStation vibro-claw dispatch scenarios assert VibroClawAttackResolved payloads and per-cluster damage application.',
+    'src/utils/gameplay/battlearmor/__tests__/vibroClawDispatch.test.ts',
+    'L1-L210',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const BATTLE_ARMOR_STEALTH_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation battle armor event factories create MimeticBonus and StealthBonus event payloads.',

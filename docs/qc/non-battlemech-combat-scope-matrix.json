@@ -6,15 +6,15 @@
   "scopeStatement": "BattleMech combat validation is release-backed for the supported BattleMech runtime only. Non-BattleMech systems remain explicitly split into per-family matrices below; these rows are audited out-of-scope until a family-specific runtime matrix promotes them.",
   "sourceCommand": "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=json",
   "expectedOutOfScopeSummary": {
-    "total": 147,
+    "total": 148,
     "byScope": {
       "aggregate": 3,
-      "leaf": 144
+      "leaf": 145
     },
     "bySection": {
       "actions": 29,
       "damageAndDeath": 6,
-      "eventStream": 15,
+      "eventStream": 16,
       "featureSupport": 75,
       "lifecycleAndPsr": 2,
       "pilotSkills": 9,

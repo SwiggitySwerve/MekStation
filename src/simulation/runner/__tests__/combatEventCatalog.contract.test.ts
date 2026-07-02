@@ -24,6 +24,7 @@ const NON_BATTLEMECH_EVENT_TYPES = [
   GameEventType.SwarmDismounted,
   GameEventType.LegAttack,
   GameEventType.LegAttackResolved,
+  GameEventType.VibroClawAttackResolved,
   GameEventType.MimeticBonus,
   GameEventType.StealthBonus,
 ] as const;

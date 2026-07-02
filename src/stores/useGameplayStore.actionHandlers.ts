@@ -89,6 +89,7 @@ const GAMEPLAY_ACTION_HANDLERS: Readonly<
   'next-turn': handleNextTurnAction,
   concede: handleConcedeAction,
   'physical-attack': handlePhysicalAttackAction,
+  'vibro-claw-attack': handleVibroClawAttackAction,
 };
 
 export function handleActionLogic(
@@ -285,6 +286,32 @@ function handlePhysicalAttackAction(context: GameplayActionContext): void {
   context.set((state) => ({
     ui: { ...state.ui, targetUnitId },
   }));
+}
+
+/**
+ * Per `wire-vibroclaw-attack-dispatch`: route the dock's Vibro-Claw command
+ * into the interactive session's declaration path. Legality (squad
+ * attacker, claws, adjacency, supported target) lives in the engine
+ * dispatch — this handler only supplies the ids and adopts the resulting
+ * session. Rejections log the typed reason; no state changes on reject.
+ */
+function handleVibroClawAttackAction(context: GameplayActionContext): void {
+  const { phase, payload, selectedUnitId, ui, interactiveSession } = context;
+  if (phase !== GamePhase.PhysicalAttack || !selectedUnitId) return;
+  if (!interactiveSession) return;
+
+  const targetUnitId = payload?.targetUnitId ?? ui.targetUnitId;
+  if (!targetUnitId) return;
+
+  const result = interactiveSession.declareVibroClawAttack(
+    selectedUnitId,
+    targetUnitId,
+  );
+  if (!result.ok) {
+    logger.warn('Vibro-claw attack rejected:', result.reason);
+    return;
+  }
+  setSessionFromInteractive(context);
 }
 
 function handleContinueAction(context: GameplayActionContext): void {

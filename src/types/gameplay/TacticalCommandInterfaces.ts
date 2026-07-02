@@ -205,6 +205,14 @@ export interface ITacticalCommandContext {
    */
   readonly activeUnitHasMASC?: boolean;
   readonly activeUnitHasSupercharger?: boolean;
+  /**
+   * Vibro-claw count on the active BA squad (0 when the squad mounts none
+   * or the active unit is not a BA squad). Equipment-reality gate for the
+   * vibro-claw physical command — the spec's "UI MUST hide the vibroclaw
+   * action button when the squad's vibroClaws === 0" clause
+   * (battle-armor-combat, per `wire-vibroclaw-attack-dispatch`).
+   */
+  readonly activeUnitVibroClawCount?: number;
   /** Runtime conversion mode for LAM / QuadVee style movement controls. */
   readonly activeUnitConversionMode?: MovementConversionMode | number;
   /** Represented vehicle motive used by VTOL/WiGE altitude controls. */

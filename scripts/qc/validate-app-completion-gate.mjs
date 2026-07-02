@@ -264,7 +264,7 @@ function validateScripts(scripts, errors) {
   if (!verifyRules.includes('--expect-total=0')) {
     errors.push('verify:rules must preserve zero unresolved combat gap gate');
   }
-  if (!verifyRules.includes('--expect-total=147')) {
+  if (!verifyRules.includes('--expect-total=148')) {
     errors.push('verify:rules must preserve non-BattleMech out-of-scope gate');
   }
   if (!verifyRules.includes('openspec validate --all --strict')) {
@@ -567,7 +567,7 @@ function buildReport(options) {
         ),
         outOfScopeGateWired: (
           packageJson.scripts?.['verify:rules'] ?? ''
-        ).includes('--expect-total=147'),
+        ).includes('--expect-total=148'),
       },
       electron: {
         packageCheckWired: scriptsFound.includes('electron:test:build'),

@@ -19,7 +19,15 @@ import { GamePhase, type ITacticalCommand } from '@/types/gameplay';
 
 import { REASON_COPY } from '../../PhysicalAttackPanel.helpers';
 
-export function buildPhysicalAttackCommands(): readonly ITacticalCommand[] {
+export function buildPhysicalAttackCommands(
+  ctx?: ITacticalCommandContext,
+): readonly ITacticalCommand[] {
+  // Equipment-reality gate (battle-armor-combat "Vibroclaw Attack", per
+  // `wire-vibroclaw-attack-dispatch`): the vibro-claw button is HIDDEN —
+  // not merely disabled — unless the active BA squad mounts claws.
+  // `undefined` (legacy contexts without the flag) keeps it hidden too:
+  // only a squad context explicitly reporting claws renders it.
+  const showVibroClaw = (ctx?.activeUnitVibroClawCount ?? 0) >= 1;
   return [
     PhysicalPunchCommand,
     PhysicalKickCommand,
@@ -39,8 +47,28 @@ export function buildPhysicalAttackCommands(): readonly ITacticalCommand[] {
     PhysicalRetractableBladeCommand,
     PhysicalFlailCommand,
     PhysicalWreckingBallCommand,
+    ...(showVibroClaw ? [PhysicalVibroClawCommand] : []),
   ];
 }
+
+const PhysicalVibroClawCommand: ITacticalCommand = {
+  id: 'physical.vibro-claw',
+  category: 'physical',
+  label: 'Vibro-Claw',
+  phaseConstraints: [GamePhase.PhysicalAttack],
+  requiresConfirmation: true,
+  undoable: false,
+  targetsEnemy: true,
+  availability(ctx) {
+    return requireActiveAndTarget(ctx);
+  },
+  commit(ctx) {
+    return {
+      actionId: 'vibro-claw-attack',
+      payload: { targetUnitId: ctx.targetUnitId ?? undefined },
+    };
+  },
+};
 
 function requireActiveAndTarget(ctx: {
   activeUnitId: string | null;

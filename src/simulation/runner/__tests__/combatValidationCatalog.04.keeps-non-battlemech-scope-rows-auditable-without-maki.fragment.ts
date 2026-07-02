@@ -155,7 +155,7 @@ it('keeps non-BattleMech scope rows auditable without making them BattleMech blo
       'actions.wireIntents.SetReady',
     ]),
   );
-  expect(outOfScopeRows).toHaveLength(147);
+  expect(outOfScopeRows).toHaveLength(148);
   expect(
     outOfScopeRows.find(
       (row) =>

@@ -56,7 +56,7 @@ export function buildCommandRegistry(
     ...buildMovementCommands(ctx),
     ...buildFacingCommands(),
     ...buildWeaponAttackCommands(),
-    ...buildPhysicalAttackCommands(),
+    ...buildPhysicalAttackCommands(ctx),
     ...buildHeatEndCommands(),
     ...buildUtilityCommands(),
   ];

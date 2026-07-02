@@ -6,6 +6,7 @@ import {
   BATTLE_ARMOR_LEG_EVENT_SOURCE_REFS,
   BATTLE_ARMOR_STEALTH_EVENT_SOURCE_REFS,
   BATTLE_ARMOR_SWARM_EVENT_SOURCE_REFS,
+  BATTLE_ARMOR_VIBRO_CLAW_EVENT_SOURCE_REFS,
   VEHICLE_EVENT_SCOPE_SOURCE_REFS,
 } from './CombatEventSourceRefs';
 import {
@@ -362,6 +363,12 @@ export const NON_BATTLEMECH_EVENT_SCOPE_SUPPORT = {
     'InteractiveSession battle armor leg-attack scenarios cover LegAttackResolved',
     'battle armor combat belongs in a separate battle-armor validation matrix',
     BATTLE_ARMOR_LEG_EVENT_SOURCE_REFS,
+  ),
+  [GameEventType.VibroClawAttackResolved]: outOfScope(
+    GameEventType.VibroClawAttackResolved,
+    'vibro-claw dispatch scenarios cover VibroClawAttackResolved and its per-cluster DamageApplied application',
+    'battle armor combat belongs in a separate battle-armor validation matrix',
+    BATTLE_ARMOR_VIBRO_CLAW_EVENT_SOURCE_REFS,
   ),
   [GameEventType.MimeticBonus]: outOfScope(
     GameEventType.MimeticBonus,
