@@ -1655,38 +1655,6 @@ session on a corrupt log.
   not be recovered
 - **AND** the application SHALL remain usable (no unhandled rejection).
 
-## Dependencies
-
-- **game-event-system**: All 22+ event factory functions for creating typed game events
-- **game-state-management**: `deriveState` for state derivation, `allUnitsLocked` for phase guards
-- **to-hit-resolution**: `calculateToHit` for modifier aggregation, `determineHitLocationFromRoll` for hit locations, `isHeadHit` for head-hit pilot-damage classification
-- **spatial-combat-system**: `calculateFiringArc` for arc determination from positions
-- **damage-system**: `resolveDamage` pipeline for armor/structure/pilot damage resolution
-- **critical-hit-resolution**: `resolveCriticalHits`, `checkTACTrigger`, `processTAC`, `buildDefaultCriticalSlotManifest` for crit processing
-- **piloting-skill-rolls**: `resolveAllPSRs`, `checkPhaseDamagePSR`, `isLegLocation`, `isGyroDestroyed` for PSR handling
-- **fall-mechanics**: `resolveFall` for fall damage, facing change, and pilot damage
-- **weapon-resolution-system**: Cluster/special weapon mechanics (referenced via weapon attack data)
-- **combat-resolution**: ACAR system for non-tactical resolution (separate flow)
-
-## Used By
-
-- **Campaign System**: Session results feed into campaign progression, pilot XP, and unit repair
-- **Battle Replay**: Event log enables complete battle reconstruction and step-through
-- **Combat Analytics**: Event stream provides data for damage matrices, kill credits, and performance metrics
-- **Multiplayer Sync**: Event-sourced architecture enables consistent state across clients
-- **AI System**: Session API provides the action interface for AI decision-making
-- **Encounter Store**: Manages encounter CRUD operations via API routes
-- **Gameplay Store**: Manages interactive session state and UI state
-- **Quick Game Store**: Manages standalone quick game sessions with session storage persistence
-
----
-
-## Encounter Store
-
-The Encounter Store is a Zustand store that manages encounter state in the UI layer. It uses API routes for persistence to avoid bundling SQLite in the browser.
-
-**Implementation**: `src/stores/useEncounterStore.ts`
-
 ### Requirement: Encounter CRUD via API Routes
 
 The store SHALL provide CRUD operations for encounters by calling API routes and maintaining local state.
@@ -1890,14 +1858,6 @@ The store SHALL capture and expose API errors.
 - **GIVEN** an error exists in the store
 - **WHEN** `clearError()` is called
 - **THEN** `error` SHALL be set to null
-
----
-
-## Gameplay Store
-
-The Gameplay Store is a Zustand store that manages game session state and UI state for interactive gameplay.
-
-**Implementation**: `src/stores/useGameplayStore.ts`
 
 ### Requirement: Session State Management
 
@@ -2174,16 +2134,6 @@ The store SHALL support resetting to initial state.
 - **WHEN** `reset()` is called
 - **THEN** all state fields SHALL be reset to `initialState` values
 
----
-
-## Quick Game Store
-
-The Quick Game Store is a Zustand store that manages standalone quick game sessions with session storage persistence. Quick sessions are designed for fast, standalone battles without campaign integration—units are added from the compendium, adapted for gameplay, and the session is auto-resolved or played interactively. Session storage ensures the game survives page refreshes but clears when the tab closes, maintaining the ephemeral nature of quick play.
-
-**Implementation**: `src/stores/useQuickGameStore.ts`
-
-**Source**: `src/stores/useQuickGameStore.ts:1-681`, `src/types/quickgame/QuickGameInterfaces.ts:1-336`, `src/engine/GameEngine.ts:1-631`
-
 ### Requirement: Session Storage Persistence
 
 The store SHALL persist game state to session storage and restore on page refresh.
@@ -2409,14 +2359,6 @@ The store SHALL support restarting a game with or without resetting units.
 - **THEN** a new IQuickGameInstance SHALL be created with default empty player force
 - **AND** `isDirty` SHALL be set to true
 
----
-
-## Quick Session Workflow
-
-The quick session workflow orchestrates the complete flow from unit selection through battle resolution. This section documents the detailed integration between the quick game store, compendium adapter, game engine, and gameplay store.
-
-**Source**: `src/stores/useQuickGameStore.ts:361-551`, `src/engine/GameEngine.ts:113-328`, `src/engine/adapters/CompendiumAdapter.ts`
-
 ### Requirement: Unit Setup Flow
 
 The system SHALL support adding units from the compendium, adapting them for gameplay, and configuring pilot skills.
@@ -2602,14 +2544,6 @@ The system SHALL generate scenarios using the scenario generator service and cre
 
 **Source**: `src/stores/useQuickGameStore.ts:198-201`
 
----
-
-## Encounter Status Utilities
-
-The Encounter Status Utilities provide shared functions for displaying encounter status across the UI.
-
-**Implementation**: `src/utils/encounterStatus.ts`
-
 ### Requirement: Status Color Mapping
 
 The utilities SHALL map EncounterStatus values to StatusBadgeColor variants.
@@ -2683,6 +2617,77 @@ The utilities SHALL map EncounterStatus values to human-readable labels.
 - **GIVEN** an unknown status value
 - **WHEN** `getStatusLabel(status)` is called
 - **THEN** the raw status string SHALL be returned
+
+## Dependencies
+
+- **game-event-system**: All 22+ event factory functions for creating typed game events
+- **game-state-management**: `deriveState` for state derivation, `allUnitsLocked` for phase guards
+- **to-hit-resolution**: `calculateToHit` for modifier aggregation, `determineHitLocationFromRoll` for hit locations, `isHeadHit` for head-hit pilot-damage classification
+- **spatial-combat-system**: `calculateFiringArc` for arc determination from positions
+- **damage-system**: `resolveDamage` pipeline for armor/structure/pilot damage resolution
+- **critical-hit-resolution**: `resolveCriticalHits`, `checkTACTrigger`, `processTAC`, `buildDefaultCriticalSlotManifest` for crit processing
+- **piloting-skill-rolls**: `resolveAllPSRs`, `checkPhaseDamagePSR`, `isLegLocation`, `isGyroDestroyed` for PSR handling
+- **fall-mechanics**: `resolveFall` for fall damage, facing change, and pilot damage
+- **weapon-resolution-system**: Cluster/special weapon mechanics (referenced via weapon attack data)
+- **combat-resolution**: ACAR system for non-tactical resolution (separate flow)
+
+## Used By
+
+- **Campaign System**: Session results feed into campaign progression, pilot XP, and unit repair
+- **Battle Replay**: Event log enables complete battle reconstruction and step-through
+- **Combat Analytics**: Event stream provides data for damage matrices, kill credits, and performance metrics
+- **Multiplayer Sync**: Event-sourced architecture enables consistent state across clients
+- **AI System**: Session API provides the action interface for AI decision-making
+- **Encounter Store**: Manages encounter CRUD operations via API routes
+- **Gameplay Store**: Manages interactive session state and UI state
+- **Quick Game Store**: Manages standalone quick game sessions with session storage persistence
+
+---
+
+## Encounter Store
+
+The Encounter Store is a Zustand store that manages encounter state in the UI layer. It uses API routes for persistence to avoid bundling SQLite in the browser.
+
+**Implementation**: `src/stores/useEncounterStore.ts`
+
+
+---
+
+## Gameplay Store
+
+The Gameplay Store is a Zustand store that manages game session state and UI state for interactive gameplay.
+
+**Implementation**: `src/stores/useGameplayStore.ts`
+
+
+---
+
+## Quick Game Store
+
+The Quick Game Store is a Zustand store that manages standalone quick game sessions with session storage persistence. Quick sessions are designed for fast, standalone battles without campaign integration—units are added from the compendium, adapted for gameplay, and the session is auto-resolved or played interactively. Session storage ensures the game survives page refreshes but clears when the tab closes, maintaining the ephemeral nature of quick play.
+
+**Implementation**: `src/stores/useQuickGameStore.ts`
+
+**Source**: `src/stores/useQuickGameStore.ts:1-681`, `src/types/quickgame/QuickGameInterfaces.ts:1-336`, `src/engine/GameEngine.ts:1-631`
+
+
+---
+
+## Quick Session Workflow
+
+The quick session workflow orchestrates the complete flow from unit selection through battle resolution. This section documents the detailed integration between the quick game store, compendium adapter, game engine, and gameplay store.
+
+**Source**: `src/stores/useQuickGameStore.ts:361-551`, `src/engine/GameEngine.ts:113-328`, `src/engine/adapters/CompendiumAdapter.ts`
+
+
+---
+
+## Encounter Status Utilities
+
+The Encounter Status Utilities provide shared functions for displaying encounter status across the UI.
+
+**Implementation**: `src/utils/encounterStatus.ts`
+
 
 ---
 

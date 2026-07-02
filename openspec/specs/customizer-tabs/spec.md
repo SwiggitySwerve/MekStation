@@ -375,10 +375,6 @@ The Structure Tab SHALL provide a button to reset the OmniMech chassis.
 - **When** the user cancels the dialog
 - **Then** all equipment (fixed and pod) remains unchanged
 
----
-
-## Customizer Settings Store
-
 ### Requirement: Armor Diagram Mode Selection
 
 The customizer settings store SHALL manage armor diagram display mode with two options: schematic and silhouette.
@@ -558,6 +554,8 @@ The customizer settings store SHALL provide a reset function to restore default 
 - **AND** `showArmorDiagramSelector` is set to true (default)
 - **AND** `draftCustomizer` is set to null
 - **AND** `hasUnsavedCustomizer` is set to false
+
+## Customizer Settings Store
 
 ---
 

@@ -351,6 +351,259 @@ Aerospace units SHALL carry a combat state struct updated by the combat engine.
 - **WHEN** SI changes
 - **THEN** `currentSI` SHALL never exceed the unit's construction SI
 
+### Requirement: BLK Parsing
+
+The system SHALL parse aerospace fighters from BLK format documents via the `AerospaceUnitHandler`.
+
+**Priority**: Critical
+
+#### Scenario: Parsing a standard heavy fighter
+
+**GIVEN** a BLK document with unitType "Aero" and mappedUnitType AEROSPACE
+**WHEN** the document is parsed
+**THEN** the handler SHALL extract:
+
+- Identity: chassis, model, year, tonnage
+- Movement: safeThrust from `document.safeThrust`, maxThrust = floor(safeThrust × 1.5)
+- Fuel: from `document.fuel`
+- Structure: structuralIntegrity from `document.structuralIntegrity`
+- Heat sinks: from `document.heatsinks` (default 10), type from `document.sinkType`
+- Armor: parsed as array [nose, leftWing, rightWing, aft] from `document.armor`
+- Equipment: parsed from `document.equipmentByLocation` with location normalization
+- Cockpit: type code from `document.cockpitType`
+- Special features: from `document.rawTags`
+
+#### Scenario: Location string normalization
+
+**GIVEN** equipment location strings from a BLK document
+**WHEN** normalizing to `AerospaceLocation` enum values
+**THEN** the following mappings SHALL apply:
+
+- "nose", "nose equipment" → NOSE
+- "left wing", "left wing equipment" → LEFT_WING
+- "right wing", "right wing equipment" → RIGHT_WING
+- "aft", "aft equipment" → AFT
+- "fuselage", "fuselage equipment" → FUSELAGE
+- "wings", "wings equipment" → LEFT_WING (generic mapping)
+- Any unrecognized location → FUSELAGE (fallback)
+
+#### Scenario: Equipment mount ID generation
+
+**GIVEN** equipment items parsed from BLK
+**WHEN** creating mounted equipment instances
+**THEN** each mount SHALL receive a sequential ID in format `mount-{N}` starting from 0
+
+### Requirement: BLK Serialization
+
+The system SHALL serialize aerospace units to the standard format.
+
+**Priority**: High
+
+#### Scenario: Serialization output
+
+**GIVEN** an aerospace fighter
+**WHEN** serialized
+**THEN** the output SHALL include `configuration: "Aerodyne"` and `rulesLevel` as string
+
+#### Scenario: Deserialization not yet implemented
+
+**GIVEN** a serialized aerospace unit
+**WHEN** deserialization is attempted
+**THEN** the system SHALL return a failure result with message: "Aerospace deserialization not yet implemented"
+
+### Requirement: Tabbed Interface
+
+The aerospace customizer SHALL provide a tabbed interface with three tabs: Structure, Armor, and Equipment.
+
+**Rationale**: Separating configuration into logical groups reduces cognitive load and follows the established MekStation customizer pattern.
+
+**Priority**: Critical
+
+#### Scenario: Default tab
+
+**GIVEN** the aerospace customizer is opened
+**WHEN** no initial tab is specified
+**THEN** the Structure tab SHALL be displayed by default
+
+#### Scenario: Tab definitions
+
+**GIVEN** the aerospace customizer tab bar
+**WHEN** rendered
+**THEN** the following tabs SHALL be available:
+
+- "Structure & Engine" (short: "Structure")
+- "Armor Configuration" (short: "Armor")
+- "Weapons & Equipment" (short: "Equipment")
+
+#### Scenario: Read-only mode
+
+**GIVEN** the aerospace customizer in read-only mode
+**WHEN** any tab is displayed
+**THEN** all input controls SHALL be disabled
+**AND** the equipment tab SHALL display a notice: "This aerospace fighter is in read-only mode. Changes cannot be made."
+
+### Requirement: Structure Tab
+
+The Structure tab SHALL allow configuration of chassis, engine, thrust, cockpit, heat sinks, and special features.
+
+**Priority**: Critical
+
+#### Scenario: Structure tab sections
+
+**GIVEN** the Structure tab is active
+**WHEN** rendered
+**THEN** it SHALL display four sections:
+
+1. Chassis: tonnage select, tech base display (read-only), OmniFighter toggle
+2. Engine & Movement: engine type select, safe thrust stepper (with max thrust display), engine rating display (read-only, calculated), fuel points input
+3. Structure & Cockpit: structural integrity stepper, cockpit type select, reinforced cockpit toggle, ejection seat toggle
+4. Heat Management & Special: heat sink stepper, double heat sinks toggle (with dissipation display), bomb bay toggle, bomb capacity input (shown only when bomb bay enabled)
+
+### Requirement: Armor Tab
+
+The Armor tab SHALL allow configuration of armor type, tonnage, and per-arc allocation.
+
+**Priority**: Critical
+
+#### Scenario: Armor configuration section
+
+**GIVEN** the Armor tab is active
+**WHEN** rendered
+**THEN** it SHALL display: armor type select, armor tonnage input (step 0.5), points summary (available, allocated, unallocated, points/ton), and action buttons (Auto-Allocate, Maximize, Clear)
+
+#### Scenario: Arc allocation
+
+**GIVEN** the Armor tab
+**WHEN** the arc allocation section is rendered
+**THEN** it SHALL display sliders and numeric inputs for Nose, Left Wing, Right Wing, and Aft
+**AND** each arc input SHALL be clamped to [0, maxArcArmor]
+
+#### Scenario: Armor type options
+
+**GIVEN** the armor type select
+**WHEN** rendered
+**THEN** the following options SHALL be available: Standard, Ferro-Fibrous (IS), Ferro-Fibrous (Clan), Light Ferro-Fibrous, Heavy Ferro-Fibrous, Stealth
+
+#### Scenario: Armor diagram
+
+**GIVEN** the Armor tab
+**WHEN** rendered
+**THEN** a simple text-based armor diagram SHALL display Nose, Left Wing, Right Wing, and Aft values in a spatial layout
+
+### Requirement: Equipment Tab
+
+The Equipment tab SHALL allow browsing, adding, and managing equipment by firing arc.
+
+**Priority**: Critical
+
+#### Scenario: Equipment browser
+
+**GIVEN** the Equipment tab is active
+**WHEN** rendered
+**THEN** it SHALL display an equipment browser for adding new items
+**AND** new equipment SHALL default to the NOSE arc
+
+#### Scenario: Mounted equipment list
+
+**GIVEN** equipment has been added to the aerospace unit
+**WHEN** the mounted equipment section is rendered
+**THEN** each item SHALL display: name, arc selector (Nose, Left Wing, Right Wing, Aft, Fuselage), and a remove button
+**AND** a "Clear All" button SHALL appear when equipment exists
+
+#### Scenario: Arc reassignment
+
+**GIVEN** a mounted equipment item
+**WHEN** the user changes the arc selector
+**THEN** the equipment's firing arc SHALL be updated immediately
+
+### Requirement: Fighter Diagram Sidebar
+
+The aerospace customizer SHALL display a fighter overview diagram in a sidebar on large screens.
+
+**Priority**: Medium
+
+#### Scenario: Diagram display
+
+**GIVEN** the aerospace customizer on a large screen (≥ lg breakpoint)
+**WHEN** rendered
+**THEN** a sidebar SHALL display an SVG top-down fighter diagram with:
+
+- Fuselage body shape
+- Left and right wing shapes
+- Nose cone indicator
+- Engine exhaust indicators
+- Armor values overlaid per arc with color-coding (cyan > 75%, green > 50%, amber > 25%, red ≤ 25%)
+- Structural Integrity displayed at center
+- Thrust display in header ("Aerospace Fighter • {safe}/{max} Thrust")
+
+#### Scenario: Compact diagram mode
+
+**GIVEN** the diagram component with `compact=true`
+**WHEN** rendered
+**THEN** it SHALL display a minimal 3×3 grid with only armor values per arc
+
+### Requirement: Status Bar
+
+The aerospace customizer SHALL display a persistent status bar showing key statistics.
+
+**Priority**: High
+
+#### Scenario: Status bar items
+
+**GIVEN** the aerospace customizer
+**WHEN** the status bar is rendered
+**THEN** it SHALL display: Tonnage (with "ASF" label), Weight Free (with percentage), Thrust (safe/max), Fuel (points), SI, Armor (with unallocated indicator), Heat (with DHS/SHS label), Equipment count
+
+#### Scenario: Status indicators
+
+**GIVEN** the status bar
+**WHEN** weight or armor values change
+**THEN** Weight Free SHALL show: error (red) if negative, success (green) if zero, normal (white) otherwise
+**AND** Armor SHALL show: error (red) if over-allocated, warning (amber) if under-allocated, success (green) if fully allocated
+
+#### Scenario: Compact status bar
+
+**GIVEN** the status bar with `compact=true`
+**WHEN** rendered
+**THEN** it SHALL display a single-line summary: "{tonnage}t ASF | {safe}/{max} Thrust | {fuel} Fuel | {armor} armor | {remaining}t free"
+
+### Requirement: Zustand Store Architecture
+
+The aerospace state SHALL be managed via isolated Zustand stores with one store instance per aerospace unit.
+
+**Priority**: Critical
+
+#### Scenario: Store creation
+
+**GIVEN** a new aerospace unit
+**WHEN** a store is created via `createAerospaceStore(initialState)`
+**THEN** the store SHALL be a Zustand store with persist middleware
+**AND** persistence key SHALL be `megamek-aerospace-{id}`
+**AND** persistence SHALL use `clientSafeStorage` for SSR compatibility
+**AND** hydration SHALL be skipped initially (`skipHydration: true`)
+
+#### Scenario: Store partialize
+
+**GIVEN** a persisted aerospace store
+**WHEN** serializing state
+**THEN** only state properties SHALL be persisted (not action functions)
+**AND** all state fields listed in the Required Properties table SHALL be included
+
+#### Scenario: React context
+
+**GIVEN** an aerospace customizer component tree
+**WHEN** accessing the store
+**THEN** the `AerospaceStoreContext` SHALL provide the store instance
+**AND** `useAerospaceStore(selector)` SHALL select state from context
+**AND** accessing the store outside a provider SHALL throw: "useAerospaceStore must be used within an AerospaceStoreProvider"
+
+#### Scenario: Modification tracking
+
+**GIVEN** any state mutation action
+**WHEN** the action completes
+**THEN** `isModified` SHALL be set to `true`
+**AND** `lastModifiedAt` SHALL be set to `Date.now()`
+
 ---
 
 ## Data Model Requirements
@@ -892,266 +1145,16 @@ Max rear-arc weapons by tonnage:
 
 ## BLK Format Integration
 
-### Requirement: BLK Parsing
-
-The system SHALL parse aerospace fighters from BLK format documents via the `AerospaceUnitHandler`.
-
-**Priority**: Critical
-
-#### Scenario: Parsing a standard heavy fighter
-
-**GIVEN** a BLK document with unitType "Aero" and mappedUnitType AEROSPACE
-**WHEN** the document is parsed
-**THEN** the handler SHALL extract:
-
-- Identity: chassis, model, year, tonnage
-- Movement: safeThrust from `document.safeThrust`, maxThrust = floor(safeThrust × 1.5)
-- Fuel: from `document.fuel`
-- Structure: structuralIntegrity from `document.structuralIntegrity`
-- Heat sinks: from `document.heatsinks` (default 10), type from `document.sinkType`
-- Armor: parsed as array [nose, leftWing, rightWing, aft] from `document.armor`
-- Equipment: parsed from `document.equipmentByLocation` with location normalization
-- Cockpit: type code from `document.cockpitType`
-- Special features: from `document.rawTags`
-
-#### Scenario: Location string normalization
-
-**GIVEN** equipment location strings from a BLK document
-**WHEN** normalizing to `AerospaceLocation` enum values
-**THEN** the following mappings SHALL apply:
-
-- "nose", "nose equipment" → NOSE
-- "left wing", "left wing equipment" → LEFT_WING
-- "right wing", "right wing equipment" → RIGHT_WING
-- "aft", "aft equipment" → AFT
-- "fuselage", "fuselage equipment" → FUSELAGE
-- "wings", "wings equipment" → LEFT_WING (generic mapping)
-- Any unrecognized location → FUSELAGE (fallback)
-
-#### Scenario: Equipment mount ID generation
-
-**GIVEN** equipment items parsed from BLK
-**WHEN** creating mounted equipment instances
-**THEN** each mount SHALL receive a sequential ID in format `mount-{N}` starting from 0
-
-### Requirement: BLK Serialization
-
-The system SHALL serialize aerospace units to the standard format.
-
-**Priority**: High
-
-#### Scenario: Serialization output
-
-**GIVEN** an aerospace fighter
-**WHEN** serialized
-**THEN** the output SHALL include `configuration: "Aerodyne"` and `rulesLevel` as string
-
-#### Scenario: Deserialization not yet implemented
-
-**GIVEN** a serialized aerospace unit
-**WHEN** deserialization is attempted
-**THEN** the system SHALL return a failure result with message: "Aerospace deserialization not yet implemented"
 
 ---
 
 ## Customizer UI Workflow
 
-### Requirement: Tabbed Interface
-
-The aerospace customizer SHALL provide a tabbed interface with three tabs: Structure, Armor, and Equipment.
-
-**Rationale**: Separating configuration into logical groups reduces cognitive load and follows the established MekStation customizer pattern.
-
-**Priority**: Critical
-
-#### Scenario: Default tab
-
-**GIVEN** the aerospace customizer is opened
-**WHEN** no initial tab is specified
-**THEN** the Structure tab SHALL be displayed by default
-
-#### Scenario: Tab definitions
-
-**GIVEN** the aerospace customizer tab bar
-**WHEN** rendered
-**THEN** the following tabs SHALL be available:
-
-- "Structure & Engine" (short: "Structure")
-- "Armor Configuration" (short: "Armor")
-- "Weapons & Equipment" (short: "Equipment")
-
-#### Scenario: Read-only mode
-
-**GIVEN** the aerospace customizer in read-only mode
-**WHEN** any tab is displayed
-**THEN** all input controls SHALL be disabled
-**AND** the equipment tab SHALL display a notice: "This aerospace fighter is in read-only mode. Changes cannot be made."
-
-### Requirement: Structure Tab
-
-The Structure tab SHALL allow configuration of chassis, engine, thrust, cockpit, heat sinks, and special features.
-
-**Priority**: Critical
-
-#### Scenario: Structure tab sections
-
-**GIVEN** the Structure tab is active
-**WHEN** rendered
-**THEN** it SHALL display four sections:
-
-1. Chassis: tonnage select, tech base display (read-only), OmniFighter toggle
-2. Engine & Movement: engine type select, safe thrust stepper (with max thrust display), engine rating display (read-only, calculated), fuel points input
-3. Structure & Cockpit: structural integrity stepper, cockpit type select, reinforced cockpit toggle, ejection seat toggle
-4. Heat Management & Special: heat sink stepper, double heat sinks toggle (with dissipation display), bomb bay toggle, bomb capacity input (shown only when bomb bay enabled)
-
-### Requirement: Armor Tab
-
-The Armor tab SHALL allow configuration of armor type, tonnage, and per-arc allocation.
-
-**Priority**: Critical
-
-#### Scenario: Armor configuration section
-
-**GIVEN** the Armor tab is active
-**WHEN** rendered
-**THEN** it SHALL display: armor type select, armor tonnage input (step 0.5), points summary (available, allocated, unallocated, points/ton), and action buttons (Auto-Allocate, Maximize, Clear)
-
-#### Scenario: Arc allocation
-
-**GIVEN** the Armor tab
-**WHEN** the arc allocation section is rendered
-**THEN** it SHALL display sliders and numeric inputs for Nose, Left Wing, Right Wing, and Aft
-**AND** each arc input SHALL be clamped to [0, maxArcArmor]
-
-#### Scenario: Armor type options
-
-**GIVEN** the armor type select
-**WHEN** rendered
-**THEN** the following options SHALL be available: Standard, Ferro-Fibrous (IS), Ferro-Fibrous (Clan), Light Ferro-Fibrous, Heavy Ferro-Fibrous, Stealth
-
-#### Scenario: Armor diagram
-
-**GIVEN** the Armor tab
-**WHEN** rendered
-**THEN** a simple text-based armor diagram SHALL display Nose, Left Wing, Right Wing, and Aft values in a spatial layout
-
-### Requirement: Equipment Tab
-
-The Equipment tab SHALL allow browsing, adding, and managing equipment by firing arc.
-
-**Priority**: Critical
-
-#### Scenario: Equipment browser
-
-**GIVEN** the Equipment tab is active
-**WHEN** rendered
-**THEN** it SHALL display an equipment browser for adding new items
-**AND** new equipment SHALL default to the NOSE arc
-
-#### Scenario: Mounted equipment list
-
-**GIVEN** equipment has been added to the aerospace unit
-**WHEN** the mounted equipment section is rendered
-**THEN** each item SHALL display: name, arc selector (Nose, Left Wing, Right Wing, Aft, Fuselage), and a remove button
-**AND** a "Clear All" button SHALL appear when equipment exists
-
-#### Scenario: Arc reassignment
-
-**GIVEN** a mounted equipment item
-**WHEN** the user changes the arc selector
-**THEN** the equipment's firing arc SHALL be updated immediately
-
-### Requirement: Fighter Diagram Sidebar
-
-The aerospace customizer SHALL display a fighter overview diagram in a sidebar on large screens.
-
-**Priority**: Medium
-
-#### Scenario: Diagram display
-
-**GIVEN** the aerospace customizer on a large screen (≥ lg breakpoint)
-**WHEN** rendered
-**THEN** a sidebar SHALL display an SVG top-down fighter diagram with:
-
-- Fuselage body shape
-- Left and right wing shapes
-- Nose cone indicator
-- Engine exhaust indicators
-- Armor values overlaid per arc with color-coding (cyan > 75%, green > 50%, amber > 25%, red ≤ 25%)
-- Structural Integrity displayed at center
-- Thrust display in header ("Aerospace Fighter • {safe}/{max} Thrust")
-
-#### Scenario: Compact diagram mode
-
-**GIVEN** the diagram component with `compact=true`
-**WHEN** rendered
-**THEN** it SHALL display a minimal 3×3 grid with only armor values per arc
-
-### Requirement: Status Bar
-
-The aerospace customizer SHALL display a persistent status bar showing key statistics.
-
-**Priority**: High
-
-#### Scenario: Status bar items
-
-**GIVEN** the aerospace customizer
-**WHEN** the status bar is rendered
-**THEN** it SHALL display: Tonnage (with "ASF" label), Weight Free (with percentage), Thrust (safe/max), Fuel (points), SI, Armor (with unallocated indicator), Heat (with DHS/SHS label), Equipment count
-
-#### Scenario: Status indicators
-
-**GIVEN** the status bar
-**WHEN** weight or armor values change
-**THEN** Weight Free SHALL show: error (red) if negative, success (green) if zero, normal (white) otherwise
-**AND** Armor SHALL show: error (red) if over-allocated, warning (amber) if under-allocated, success (green) if fully allocated
-
-#### Scenario: Compact status bar
-
-**GIVEN** the status bar with `compact=true`
-**WHEN** rendered
-**THEN** it SHALL display a single-line summary: "{tonnage}t ASF | {safe}/{max} Thrust | {fuel} Fuel | {armor} armor | {remaining}t free"
 
 ---
 
 ## State Management
 
-### Requirement: Zustand Store Architecture
-
-The aerospace state SHALL be managed via isolated Zustand stores with one store instance per aerospace unit.
-
-**Priority**: Critical
-
-#### Scenario: Store creation
-
-**GIVEN** a new aerospace unit
-**WHEN** a store is created via `createAerospaceStore(initialState)`
-**THEN** the store SHALL be a Zustand store with persist middleware
-**AND** persistence key SHALL be `megamek-aerospace-{id}`
-**AND** persistence SHALL use `clientSafeStorage` for SSR compatibility
-**AND** hydration SHALL be skipped initially (`skipHydration: true`)
-
-#### Scenario: Store partialize
-
-**GIVEN** a persisted aerospace store
-**WHEN** serializing state
-**THEN** only state properties SHALL be persisted (not action functions)
-**AND** all state fields listed in the Required Properties table SHALL be included
-
-#### Scenario: React context
-
-**GIVEN** an aerospace customizer component tree
-**WHEN** accessing the store
-**THEN** the `AerospaceStoreContext` SHALL provide the store instance
-**AND** `useAerospaceStore(selector)` SHALL select state from context
-**AND** accessing the store outside a provider SHALL throw: "useAerospaceStore must be used within an AerospaceStoreProvider"
-
-#### Scenario: Modification tracking
-
-**GIVEN** any state mutation action
-**WHEN** the action completes
-**THEN** `isModified` SHALL be set to `true`
-**AND** `lastModifiedAt` SHALL be set to `Date.now()`
 
 ---
 

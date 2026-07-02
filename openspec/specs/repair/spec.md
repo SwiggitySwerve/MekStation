@@ -186,10 +186,6 @@ The system SHALL allow salvage to offset repair costs.
 - **THEN** salvage inventory is checked
 - **AND** matching parts are offered as options
 
----
-
-## Repair Store Architecture
-
 ### Requirement: Repair Store State Management
 
 The system SHALL provide a Zustand store (`useRepairStore`) for managing repair state across campaigns with localStorage persistence.
@@ -435,10 +431,6 @@ The system SHALL allow limited field repairs using supplies instead of C-Bills.
 **AND** suppliesUsed = 5
 **AND** wasLimited = true
 
----
-
-## Calculation Functions
-
 ### Requirement: Repair Cost Calculation
 
 The system SHALL calculate repair costs based on damage type, armor/structure type, and damage severity.
@@ -606,6 +598,12 @@ The system SHALL match salvage parts to repair items by component name and condi
 **GIVEN** a repair item with type = RepairType.Armor
 **WHEN** `findMatchingSalvage(item, inventory)` is called
 **THEN** undefined is returned (salvage only for components)
+
+## Repair Store Architecture
+
+---
+
+## Calculation Functions
 
 ---
 

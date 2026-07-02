@@ -216,10 +216,6 @@ The equipment browser category filter buttons SHALL be displayed in a balanced g
 - **AND** text label is hidden on mobile (hidden sm:inline)
 - **AND** this affects actual button width vs minItemWidth calculation
 
----
-
-## Hook Architecture
-
 ### Requirement: useEquipmentBrowser Orchestrator Hook
 
 The system SHALL provide a `useEquipmentBrowser` hook that orchestrates equipment browsing with filtering, sorting, and pagination.
@@ -557,6 +553,8 @@ The system SHALL provide a `useEquipmentStore` Zustand store that manages equipm
 - **AND** end index is calculated as startIndex + pageSize
 - **AND** filtered equipment is sliced to return only items in range
 - **AND** returned array contains at most pageSize items
+
+## Hook Architecture
 
 ---
 
