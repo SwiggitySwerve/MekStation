@@ -47,11 +47,17 @@ export function buildMovementCommands(
   // commands so the same verb never renders on two surfaces (re-audit
   // VD-01/UXF-01/IS-02).
   const composerOwnsComposition = ctx?.movementComposerActive === true;
+  // Equipment-reality gate (re-audit DC-03): a unit that mounts no MASC /
+  // Supercharger must not surface the activation affordance at all — the
+  // engine refuses the action anyway, so the button was a dead promise.
+  // `undefined` (legacy contexts without the flag) keeps the old behavior.
+  const showMASC = ctx?.activeUnitHasMASC !== false;
+  const showSupercharger = ctx?.activeUnitHasSupercharger !== false;
   return [
     ...(composerOwnsComposition ? [] : MovementTraversalCommands),
     ...(composerOwnsComposition ? [] : MovementPostureCommands),
-    MovementActivateMASCCommand,
-    MovementActivateSuperchargerCommand,
+    ...(showMASC ? [MovementActivateMASCCommand] : []),
+    ...(showSupercharger ? [MovementActivateSuperchargerCommand] : []),
     ...buildRuntimeMovementStateCommands(ctx),
     MovementStabilizeCommand,
     MovementCancelCommand,
