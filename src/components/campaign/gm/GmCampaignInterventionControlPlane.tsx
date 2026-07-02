@@ -99,6 +99,13 @@ export function GmCampaignInterventionControlPlane({
     ],
   );
   const [preview, setPreview] = useState<GmLedgerPreview | null>(null);
+  // Post-approval latch (re-audit IS-01/UXF-05): the preview type has no
+  // 'approved' status by design (a preview is a pre-approval artifact), so the
+  // control plane tracks "this preview was already applied" itself. It gates
+  // canApprove (no re-approving an applied correction) and swaps the preview
+  // card's stale 'ready' tag for an 'approved' one. Cleared when the next
+  // preview is generated.
+  const [approvedApplied, setApprovedApplied] = useState(false);
   const [approvalStatus, setApprovalStatus] = useState<string>(
     'No approved GM corrections yet.',
   );
@@ -122,8 +129,9 @@ export function GmCampaignInterventionControlPlane({
     setGmRows(persistedRows.gmRows);
   }, [actionLedger, persistedRows]);
 
-  const canApprove = preview?.status === 'ready';
-  const canTakeManualControl = preview?.status === 'requires-manual-takeover';
+  const canApprove = preview?.status === 'ready' && !approvedApplied;
+  const canTakeManualControl =
+    preview?.status === 'requires-manual-takeover' && !approvedApplied;
 
   const handleMerchantPreview = (conflicted: boolean): void => {
     const nextPreview = createGmCascadePreview({
@@ -278,6 +286,7 @@ export function GmCampaignInterventionControlPlane({
       );
       applyPilotPatches(rosterPatches);
       onApplyCampaignUpdate(result.state);
+      setApprovedApplied(true);
       setApprovalStatus('Approved and applied to campaign state.');
       setApprovalReason(null);
       refreshLedgerRows(actionLedger, setPlayerRows, setGmRows);
@@ -305,6 +314,7 @@ export function GmCampaignInterventionControlPlane({
     }
 
     onApplyCampaignUpdate(result.state);
+    setApprovedApplied(true);
     setApprovalStatus('Approved and applied to campaign state.');
     setApprovalReason(null);
     refreshLedgerRows(actionLedger, setPlayerRows, setGmRows);
@@ -348,6 +358,7 @@ export function GmCampaignInterventionControlPlane({
 
   const setNextPreview = (nextPreview: GmLedgerPreview): void => {
     setPreview(nextPreview);
+    setApprovedApplied(false);
     setManualTakeover(null);
     setApprovalReason(null);
     setApprovalStatus(
@@ -381,7 +392,11 @@ export function GmCampaignInterventionControlPlane({
       />
 
       {preview ? (
-        <GmPreviewPanel preview={preview} approvalReason={approvalReason} />
+        <GmPreviewPanel
+          preview={preview}
+          approvalReason={approvalReason}
+          approvedApplied={approvedApplied}
+        />
       ) : null}
 
       {manualTakeover ? (
