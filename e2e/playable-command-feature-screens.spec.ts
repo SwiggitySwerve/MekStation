@@ -789,9 +789,11 @@ async function captureTacticalCommandScreen(
   await expect(
     page.getByTestId('command-btn-facing.rotate-right'),
   ).toContainText('(D)');
-  await expect(page.getByTestId('command-btn-movement.evade')).toContainText(
-    '(E)',
-  );
+  // Single Movement Authority: posture verbs live ONLY in the composer
+  // palette while it is active — the dock must NOT render an Evade button,
+  // and the palette's Evade keeps the (E) hotkey hint.
+  await expect(page.getByTestId('command-btn-movement.evade')).toHaveCount(0);
+  await expect(page.getByTestId('posture-action-EVADE')).toContainText('(E)');
   await expect(page.getByTestId('command-group-utility-danger')).toBeVisible();
   await expect(page.getByTestId('command-btn-utility.concede')).toHaveAttribute(
     'data-command-danger',

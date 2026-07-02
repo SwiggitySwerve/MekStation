@@ -40,9 +40,16 @@ import { buildRuntimeMovementStateCommands } from './runtimeMovementStateCommand
 export function buildMovementCommands(
   ctx?: ITacticalCommandContext,
 ): readonly ITacticalCommand[] {
+  // Single Movement Authority (tactical-movement-intent spec): while the
+  // Movement Intent Composer is active it is the SOLE home for posture and
+  // traversal verbs (its PosturePalette imports the command arrays directly,
+  // so legality stays single-sourced). The dock keeps only equipment/state
+  // commands so the same verb never renders on two surfaces (re-audit
+  // VD-01/UXF-01/IS-02).
+  const composerOwnsComposition = ctx?.movementComposerActive === true;
   return [
-    ...MovementTraversalCommands,
-    ...MovementPostureCommands,
+    ...(composerOwnsComposition ? [] : MovementTraversalCommands),
+    ...(composerOwnsComposition ? [] : MovementPostureCommands),
     MovementActivateMASCCommand,
     MovementActivateSuperchargerCommand,
     ...buildRuntimeMovementStateCommands(ctx),

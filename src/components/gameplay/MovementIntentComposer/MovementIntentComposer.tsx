@@ -192,8 +192,12 @@ export function MovementIntentComposer({
     // hex map (FOCUS) to a sliver. Side-by-side panels use the dock's spare
     // width and keep the band compact; flex-wrap degrades to stacking only
     // when the viewport is genuinely too narrow.
+    // `w-full` makes the band claim the dock's full row so the three columns
+    // actually flex into the available width (without it the root sizes to
+    // content and strands the right half of the band as dead space —
+    // re-audit VD-03).
     <div
-      className="flex min-w-0 flex-wrap items-start gap-x-6 gap-y-3"
+      className="flex w-full min-w-0 flex-wrap items-start gap-x-6 gap-y-3"
       data-testid="movement-intent-composer"
       role="group"
       aria-label="Movement intent composer"
@@ -218,6 +222,17 @@ export function MovementIntentComposer({
           affordableBudgets={affordableBudgets}
           pendingMode={pendingMode}
           lockBlocked={overEveryBudget}
+          // The enablement hint lives NEXT TO Lock In (re-audit VD-03/UXF-03:
+          // it previously floated ~450px away in the dock's trailing region).
+          hint={
+            overEveryBudget
+              ? 'Over budget — remove items.'
+              : movementIntent.items.length === 0
+                ? 'Pick a movement path or posture to begin.'
+                : pendingMode === null
+                  ? 'Choose a budget, then lock in.'
+                  : null
+          }
           onPickMode={setPendingMode}
           onLockIn={handleLockIn}
         />

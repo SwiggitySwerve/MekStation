@@ -263,7 +263,14 @@ export function TacticalActionDock({
   const [gmPreviewState, setGmPreviewState] = useState<IGmPreviewState | null>(
     null,
   );
+  // Single Movement Authority: when the composer is active, the command
+  // registry must know so movement builders drop the posture/traversal verbs
+  // (the composer palette is their only home — re-audit VD-01/UXF-01/IS-02).
+  const composerActive = Boolean(intentComposer?.active);
   const effectiveCtx = useMemo<ITacticalCommandContext>(() => {
+    const base: ITacticalCommandContext = composerActive
+      ? { ...ctx, movementComposerActive: true }
+      : ctx;
     if (
       !previewInputs?.movementInfo &&
       !previewInputs?.combatInfo &&
@@ -271,10 +278,10 @@ export function TacticalActionDock({
       !previewInputs?.physicalAttackOption &&
       !previewInputs?.physicalTargetUnitId
     ) {
-      return ctx;
+      return base;
     }
     return {
-      ...ctx,
+      ...base,
       ...(previewInputs.movementInfo
         ? { targetMovementProjection: previewInputs.movementInfo }
         : {}),
@@ -293,6 +300,7 @@ export function TacticalActionDock({
     };
   }, [
     ctx,
+    composerActive,
     previewInputs?.movementInfo,
     previewInputs?.combatInfo,
     previewInputs?.combatInfoByTargetId,
@@ -426,7 +434,10 @@ export function TacticalActionDock({
         {gmIntervention?.playerLog && (
           <GmInterventionPlayerLog records={gmIntervention.playerLog} />
         )}
-        {infoText && (
+        {/* While the composer is active its Lock-In hint carries the guidance
+            inline — the trailing copy would duplicate it from ~450px away
+            (re-audit VD-03/UXF-03). */}
+        {infoText && !composerActive && (
           <div className="text-text-theme-secondary text-sm">{infoText}</div>
         )}
         {trailingActions && (

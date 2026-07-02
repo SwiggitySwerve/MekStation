@@ -24,6 +24,24 @@ describe('movementCommands', () => {
     ]);
   });
 
+  // Single Movement Authority hardening (re-audit VD-01/UXF-01/IS-02): while
+  // the composer is ACTIVE, posture + traversal verbs leave the dock entirely
+  // — the composer's PosturePalette is their only home (it imports the command
+  // arrays directly, so its legality predicates are unaffected). Equipment /
+  // state commands stay dock-side.
+  it('drops posture + traversal verbs while the composer is active (equipment/state stay)', () => {
+    const gated = buildMovementCommands({
+      ...makeCtx({}),
+      movementComposerActive: true,
+    });
+    expect(gated.map((c) => c.id)).toEqual([
+      'movement.activate-masc',
+      'movement.activate-supercharger',
+      'movement.stabilize',
+      'movement.cancel',
+    ]);
+  });
+
   it('no longer exposes walk / run / sprint / jump movement-verb commands', () => {
     const ids = commands.map((c) => c.id);
     for (const removed of [
