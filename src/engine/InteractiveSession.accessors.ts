@@ -1,3 +1,4 @@
+import type { IWeapon } from '@/simulation/ai/types';
 import type {
   IGameSession,
   IGameState,
@@ -27,6 +28,18 @@ export function getInteractiveSessionSession(
   context: IInteractiveSessionRuntimeContext,
 ): IGameSession {
   return context.getSession();
+}
+
+/**
+ * Surface the cached engine weapons for a unit so display surfaces (record
+ * sheet weapons table, valid-target derivation) can read the same catalog
+ * data the resolvers use. Empty array for unknown ids.
+ */
+export function getInteractiveSessionUnitWeapons(
+  context: IInteractiveSessionRuntimeContext,
+  unitId: string,
+): readonly IWeapon[] {
+  return context.weaponsByUnit.get(unitId) ?? [];
 }
 
 export function getInteractiveSessionMovementCapability(

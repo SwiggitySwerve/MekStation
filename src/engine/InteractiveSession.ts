@@ -52,6 +52,7 @@ import {
   getInteractiveSessionMovementCapability,
   getInteractiveSessionSession,
   getInteractiveSessionState,
+  getInteractiveSessionUnitWeapons,
 } from './InteractiveSession.accessors';
 import {
   activateInteractiveSessionMovementEnhancement,
@@ -364,6 +365,17 @@ export class InteractiveSession {
    */
   getMovementCapability = (unitId: string): IMovementCapability | null => {
     return getInteractiveSessionMovementCapability(this.runtimeContext, unitId);
+  };
+
+  /**
+   * Surface the cached engine weapons for a unit so the gameplay store can
+   * derive the record sheet's weapons table (and valid-target derivation)
+   * from the same catalog data the resolvers use — previously only the demo
+   * fixtures populated that display map, so every real session rendered an
+   * empty weapons table (board task #14, same family as the 0/0 armor bug).
+   */
+  getUnitWeapons = (unitId: string): readonly IWeapon[] => {
+    return getInteractiveSessionUnitWeapons(this.runtimeContext, unitId);
   };
 
   /**

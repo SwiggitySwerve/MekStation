@@ -44,7 +44,21 @@ function adaptedMech(id: string, side: GameSide): IAdaptedUnit {
     destroyed: false,
     lockState: LockState.Pending,
     tonnage: 100,
-    weapons: [],
+    weapons: [
+      {
+        id: 'medium-laser',
+        name: 'Medium Laser',
+        location: 'LEFT_ARM',
+        shortRange: 3,
+        mediumRange: 6,
+        longRange: 9,
+        damage: 5,
+        heat: 3,
+        minRange: 0,
+        ammoPerTon: -1,
+        destroyed: false,
+      },
+    ],
     walkMP: 3,
     runMP: 5,
     jumpMP: 0,
@@ -98,6 +112,19 @@ describe('setInteractiveSessionLogic supplemental display derivation', () => {
       maxStructure: Record<string, Record<string, number>>;
       pilotNames: Record<string, string>;
       heatSinks: Record<string, number>;
+      unitWeapons: Record<
+        string,
+        readonly {
+          id: string;
+          name: string;
+          location: string;
+          destroyed: boolean;
+          firedThisTurn: boolean;
+          damage: number | string;
+          heat: number;
+          ranges: { short: number; medium: number; long: number };
+        }[]
+      >;
     };
 
     expect(applied.maxArmor['unit-p1']).toEqual({
@@ -118,5 +145,18 @@ describe('setInteractiveSessionLogic supplemental display derivation', () => {
     expect(applied.pilotNames['unit-o1']).toBeUndefined();
     expect(applied.heatSinks['unit-p1']).toBe(20);
     expect(applied.heatSinks['unit-o1']).toBe(20);
+    // Weapons project from the engine's cached catalog arrays into the
+    // display IWeaponStatus shape (location normalized to snake_case).
+    expect(applied.unitWeapons['unit-p1']).toHaveLength(1);
+    expect(applied.unitWeapons['unit-p1'][0]).toMatchObject({
+      id: 'medium-laser',
+      name: 'Medium Laser',
+      location: 'left_arm',
+      destroyed: false,
+      firedThisTurn: false,
+      damage: 5,
+      heat: 3,
+      ranges: { short: 3, medium: 6, long: 9 },
+    });
   });
 });
