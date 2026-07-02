@@ -44,6 +44,11 @@ export interface BudgetResolverProps {
   readonly onPickMode: (mode: MovementType) => void;
   /** Commit the composed sequence at `pendingMode` atomically. */
   readonly onLockIn: (mode: MovementType) => void;
+  /**
+   * Player-facing enablement hint rendered directly beside Lock In (what to
+   * do next for it to enable). Null when Lock In is actionable.
+   */
+  readonly hint?: string | null;
 }
 
 function formatToHit(modifier: number): string {
@@ -110,6 +115,7 @@ export function BudgetResolver({
   lockBlocked,
   onPickMode,
   onLockIn,
+  hint = null,
 }: BudgetResolverProps): React.ReactElement {
   const forced = affordableBudgets.length === 1;
   const lockInDisabled = lockBlocked || pendingMode === null;
@@ -145,29 +151,43 @@ export function BudgetResolver({
           />
         ))}
       </div>
-      <button
-        type="button"
-        disabled={lockInDisabled}
-        onClick={() => {
-          if (pendingMode !== null && !lockBlocked) onLockIn(pendingMode);
-        }}
-        data-testid="movement-lock-in-btn"
-        aria-disabled={lockInDisabled}
-        aria-label={
-          lockBlocked
-            ? 'Lock in movement (blocked: composition exceeds every budget)'
-            : pendingMode === null
-              ? 'Lock in movement (select a budget first)'
-              : `Lock in movement at ${MODE_LABEL[pendingMode]}`
-        }
-        className={`mt-1 min-h-[40px] rounded px-4 py-2 text-sm font-semibold transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none ${
-          lockInDisabled
-            ? 'bg-surface-base text-text-theme-secondary cursor-not-allowed opacity-50'
-            : 'cursor-pointer bg-blue-600 text-white hover:bg-blue-500 focus:ring-blue-400'
-        }`}
-      >
-        Lock In
-      </button>
+      {/* Lock In + its enablement hint share one row so the guidance sits
+          directly beside the control it explains (re-audit VD-03/UXF-03). */}
+      <div className="mt-1 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          disabled={lockInDisabled}
+          onClick={() => {
+            if (pendingMode !== null && !lockBlocked) onLockIn(pendingMode);
+          }}
+          data-testid="movement-lock-in-btn"
+          aria-disabled={lockInDisabled}
+          aria-label={
+            lockBlocked
+              ? 'Lock in movement (blocked: composition exceeds every budget)'
+              : pendingMode === null
+                ? 'Lock in movement (select a budget first)'
+                : `Lock in movement at ${MODE_LABEL[pendingMode]}`
+          }
+          // Disabled state keeps BUTTON chrome (border + fill) so it reads as
+          // a disabled control, not stray dim text (re-audit VD-03/A11Y-R8).
+          className={`min-h-[40px] rounded border px-4 py-2 text-sm font-semibold transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none ${
+            lockInDisabled
+              ? 'border-border-theme bg-surface-raised/60 text-text-theme-secondary cursor-not-allowed'
+              : 'cursor-pointer border-blue-500 bg-blue-600 text-white hover:bg-blue-500 focus:ring-blue-400'
+          }`}
+        >
+          Lock In
+        </button>
+        {hint && (
+          <span
+            className="text-text-theme-secondary text-xs"
+            data-testid="movement-lock-in-hint"
+          >
+            {hint}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

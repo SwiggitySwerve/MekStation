@@ -117,6 +117,15 @@ export interface ITacticalCommandContext {
    * `null` when no active unit (between turns, post-game).
    */
   readonly activeUnitId: string | null;
+  /**
+   * True while the Movement Intent Composer is the active movement surface
+   * (tactical-movement-intent 'Single Movement Authority'). Movement builders
+   * drop the posture/traversal verbs from the dock so the composer's palette
+   * is their ONLY home; equipment/state commands (MASC, Supercharger,
+   * Stabilize, Cancel) stay dock-side. The composer palette itself imports
+   * the command arrays directly, so its legality predicates are unaffected.
+   */
+  readonly movementComposerActive?: boolean;
   /** Map cursor selection — used only by preview, never by availability. */
   readonly selectedUnitId: string | null;
   /** Target the player is aiming at (attack commands). */
