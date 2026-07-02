@@ -346,32 +346,45 @@ async function waitForSelectedUnitWithReachableHexes(
   );
 }
 
-async function waitForPlannedMovement(
+/**
+ * Wait for the Movement Intent Composer to hold a composed Locomotion Path whose
+ * final leg lands on `destination`. Under the intent-first flow (change
+ * `tactical-movement-intent-composer`) a reachable-hex click no longer stages a
+ * legacy `plannedMovement` — it appends a Waypoint to `movementIntent.items`, so
+ * the composed intent is the source-of-truth this step polls. The routed leg's
+ * `to.hex` is the placed waypoint; a single click to the destination is the
+ * degenerate one-leg case.
+ */
+async function waitForComposedWaypoint(
   page: Page,
   args: {
-    readonly unitId: string;
     readonly destination: HexCoord;
   },
   timeout = 10_000,
   throwOnTimeout = true,
 ): Promise<boolean> {
   const wait = page.waitForFunction(
-    ({ unitId, destination }) => {
+    ({ destination }) => {
       const gameplay = window.__ZUSTAND_STORES__?.gameplay as
         | {
             getState: () => {
-              plannedMovement?: {
-                unitId?: string;
-                destination?: HexCoord;
-              } | null;
+              movementIntent?: {
+                items?: readonly {
+                  kind: string;
+                  legs?: readonly {
+                    to?: { hex?: HexCoord };
+                  }[];
+                }[];
+              };
             };
           }
         | undefined;
-      const plan = gameplay?.getState().plannedMovement;
-      return (
-        plan?.unitId === unitId &&
-        plan.destination?.q === destination.q &&
-        plan.destination?.r === destination.r
+      const items = gameplay?.getState().movementIntent?.items ?? [];
+      const locomotion = items.find((item) => item.kind === 'locomotion');
+      const legs = locomotion?.legs ?? [];
+      return legs.some(
+        (leg) =>
+          leg.to?.hex?.q === destination.q && leg.to?.hex?.r === destination.r,
       );
     },
     args,
@@ -385,42 +398,6 @@ async function waitForPlannedMovement(
     () => true,
     () => false,
   );
-}
-
-async function seedPlannedMovement(
-  page: Page,
-  args: {
-    readonly unitId: string;
-    readonly destination: HexCoord;
-  },
-): Promise<void> {
-  await page.evaluate(({ unitId, destination }) => {
-    const gameplay = window.__ZUSTAND_STORES__?.gameplay as
-      | {
-          getState: () => {
-            session: {
-              currentState: {
-                units: Record<string, { facing: number; position: HexCoord }>;
-              };
-            };
-            setPlannedMovement?: (plan: unknown) => void;
-          };
-        }
-      | undefined;
-    const state = gameplay?.getState();
-    const unit = state?.session.currentState.units[unitId];
-    if (!state || !unit) throw new Error('Cannot seed movement plan');
-    state.setPlannedMovement?.({
-      unitId,
-      destination,
-      facing: unit.facing,
-      movementType: 'walk',
-      movementMode: 'walk',
-      path: [unit.position, destination],
-      mpCost: 1,
-      heatGenerated: 1,
-    });
-  }, args);
 }
 
 async function waitForMovementCommit(
@@ -486,50 +463,68 @@ test.describe('tactical command journey @game @command-screen', () => {
     const destinationHex = page.getByTestId(destinationId);
 
     await expect(destinationHex).toHaveAttribute('data-reachable', 'true');
-    let plannedByMapClick = false;
+
+    // Single Movement Authority: the Movement Intent Composer is the sole
+    // movement surface, and the legacy planning panel is gated off while it
+    // owns the unit. Prove both before driving the composed move.
+    await expect(page.getByTestId('movement-intent-composer')).toBeVisible();
+    await expect(
+      page.getByTestId('combat-planning-panel-movement'),
+    ).toBeHidden();
+
+    // A reachable-hex click now APPENDS a Waypoint to the composed intent (no
+    // legacy plannedMovement is staged). Hover first so the map preview renders,
+    // then click the destination to compose the single-leg path.
+    //
+    // Note: under the intent-first flow the hover preview anchors on the CHEAPEST
+    // affordable mode, so its `unreachable` hint can read true for a hex that is
+    // still placeable under a pricier affordable mode (the envelope merges every
+    // affordable mode). Reachability is proven by `data-reachable="true"` above
+    // and by the waypoint actually composing below — not by the soft hover hint,
+    // so this step drives the hover for coverage without asserting its verdict.
+    let composedByMapClick = false;
     if (move.visibleInViewport) {
       await page.mouse.move(move.center.x, move.center.y);
-      const preview = page.getByTestId('command-preview-movement');
-      const hoverPreviewVisible = await preview
+      await page
+        .getByTestId('command-preview-movement')
         .isVisible({ timeout: 2_500 })
         .catch(() => false);
-      if (hoverPreviewVisible) {
-        await expect(preview).toHaveAttribute(
-          'data-command-preview-unreachable',
-          'false',
-        );
-      }
 
       await destinationHex.click({ force: true });
-      plannedByMapClick = await waitForPlannedMovement(
+      composedByMapClick = await waitForComposedWaypoint(
         page,
-        {
-          unitId: move.unitId,
-          destination: move.destination,
-        },
+        { destination: move.destination },
         2_500,
         false,
       );
     }
-    if (!plannedByMapClick) {
-      await seedPlannedMovement(page, {
-        unitId: move.unitId,
-        destination: move.destination,
-      });
+    if (!composedByMapClick) {
+      // Off-viewport fallback: bring the hex into view and retry the click
+      // rather than store-seeding — the composer routes the leg (and its MP) via
+      // movement-system, so the test never hand-computes a cost.
+      await destinationHex.scrollIntoViewIfNeeded();
+      await destinationHex.click({ force: true });
     }
-    await waitForPlannedMovement(page, {
-      unitId: move.unitId,
-      destination: move.destination,
-    });
+    await waitForComposedWaypoint(page, { destination: move.destination });
+
+    // The composed leg surfaces as the first Cost Ledger row (rules-derived MP).
     await expect(
-      page.getByTestId('combat-planning-panel-movement'),
+      page.getByTestId('movement-cost-ledger').getByTestId('ledger-row-0'),
     ).toBeVisible();
-    const commitButton = page.getByTestId('commit-move-button');
-    if (!(await commitButton.isEnabled())) {
-      await page.getByTestId('facing-0').click();
-    }
-    await expect(commitButton).toBeEnabled();
-    await commitButton.click();
+
+    // Pick an affordable Movement Budget last (Walk when it affords the leg,
+    // else the first affordable mode). The resolver never auto-picks, so
+    // Lock-In stays disabled until a budget is chosen — then commit atomically.
+    const walkOption = page.getByTestId('budget-option-walk');
+    const budgetOption = (await walkOption.count())
+      ? walkOption
+      : page.locator('[data-testid^="budget-option-"]').first();
+    await expect(budgetOption).toBeVisible();
+    await budgetOption.click();
+
+    const lockInButton = page.getByTestId('movement-lock-in-btn');
+    await expect(lockInButton).toBeEnabled();
+    await lockInButton.click();
 
     const proof = await waitForMovementCommit(page, {
       unitId: move.unitId,

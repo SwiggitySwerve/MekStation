@@ -187,30 +187,41 @@ export function MovementIntentComposer({
   if (!active) return null;
 
   return (
+    // Horizontal 3-panel band: the dock is PRIMARY-ACTION chrome, not FOCUS —
+    // stacking the panels vertically tripled the dock height and squeezed the
+    // hex map (FOCUS) to a sliver. Side-by-side panels use the dock's spare
+    // width and keep the band compact; flex-wrap degrades to stacking only
+    // when the viewport is genuinely too narrow.
     <div
-      className="flex min-w-0 flex-col gap-3"
+      className="flex min-w-0 flex-wrap items-start gap-x-6 gap-y-3"
       data-testid="movement-intent-composer"
       role="group"
       aria-label="Movement intent composer"
     >
-      <PosturePalette
-        entries={postureEntries}
-        onAddPosture={handleAddPosture}
-      />
-      <CostLedger
-        rows={ledgerRows}
-        ledgerTotalMp={ledgerTotalMp}
-        budgetOptions={budgetOptions}
-        overEveryBudget={overEveryBudget}
-        onRemoveRow={removeIntentItem}
-      />
-      <BudgetResolver
-        affordableBudgets={affordableBudgets}
-        pendingMode={pendingMode}
-        lockBlocked={overEveryBudget}
-        onPickMode={setPendingMode}
-        onLockIn={handleLockIn}
-      />
+      <div className="min-w-52 flex-1">
+        <PosturePalette
+          entries={postureEntries}
+          onAddPosture={handleAddPosture}
+        />
+      </div>
+      <div className="min-w-64 flex-[2]">
+        <CostLedger
+          rows={ledgerRows}
+          ledgerTotalMp={ledgerTotalMp}
+          budgetOptions={budgetOptions}
+          overEveryBudget={overEveryBudget}
+          onRemoveRow={removeIntentItem}
+        />
+      </div>
+      <div className="min-w-56 flex-1">
+        <BudgetResolver
+          affordableBudgets={affordableBudgets}
+          pendingMode={pendingMode}
+          lockBlocked={overEveryBudget}
+          onPickMode={setPendingMode}
+          onLockIn={handleLockIn}
+        />
+      </div>
     </div>
   );
 }

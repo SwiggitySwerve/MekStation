@@ -771,9 +771,15 @@ async function captureTacticalCommandScreen(
   // The composer never auto-picks: Lock-In is present but disabled until a mode
   // is chosen against a non-empty affordable set.
   await expect(page.getByTestId('movement-lock-in-btn')).toBeVisible();
-  // The demoted in-map mode readout stays visible but non-interactive, and the
-  // removed dock mode switcher is absent.
-  await expect(page.getByTestId('movement-mode-readout')).toBeVisible();
+  // Single Movement Authority also gates off the legacy planning panel while the
+  // composer owns the unit — its mode/MP/heat readouts were a duplicate movement
+  // surface, so the panel (and the mode readout it hosted) is absent, and the
+  // removed dock mode switcher stays gone. The composer's ledger/resolver above
+  // now carry the mode + MP readouts.
+  await expect(page.getByTestId('combat-planning-panel-movement')).toHaveCount(
+    0,
+  );
+  await expect(page.getByTestId('movement-mode-readout')).toHaveCount(0);
   await expect(page.getByTestId('movement-type-switcher')).toHaveCount(0);
   // The map is driven by the composer's affordable-mode envelopes — reachable
   // hexes render (the composer owns the map when active).

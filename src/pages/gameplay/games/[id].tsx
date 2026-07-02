@@ -239,7 +239,14 @@ export default function GameSessionPage(): React.ReactElement {
             gmIntervention={gmIntervention}
           />
         </div>
-        {showPlanningPanel && ui.selectedUnitId && (
+        {/*
+         * The legacy planning panel is superseded by the Movement Intent
+         * Composer while it is active (Single Movement Authority — the
+         * composer's ledger/resolver carry the mode + MP + heat readouts the
+         * panel duplicated, and its step pad would be a second movement
+         * surface). Non-movement phases (weapons/physical planning) keep it.
+         */}
+        {showPlanningPanel && !movement.composerActive && ui.selectedUnitId && (
           <CombatPlanningPanel
             walkMP={movement.effectiveMovementMps?.walkMP ?? 0}
             runMP={movement.effectiveMovementMps?.runMP ?? 0}
