@@ -1,18 +1,6 @@
 {
   "allowedActiveChanges": [
     {
-      "name": "extend-combat-seed-to-all-session-producers",
-      "status": "apply-ready",
-      "reason": "Wave 1 (council 2026-07-02 next-waves plan): close #998's producer coverage — EncounterService/lobby/preBattle builders still create 0-armor sessions; red tests first, then splice wiring. Artifacts complete, openspec validate --strict passes.",
-      "lastReviewed": "2026-07-02"
-    },
-    {
-      "name": "wire-vibroclaw-attack-dispatch",
-      "status": "apply-ready",
-      "reason": "Wave 1 (council 2026-07-02): wire the orphan resolveVibroClawAttack into battle-armor combat dispatch + gated UI action, closing the Wave-8 PR-L4 tail against the existing battle-armor-combat requirement. Artifacts complete, openspec validate --strict passes.",
-      "lastReviewed": "2026-07-02"
-    },
-    {
       "name": "attack-phase-intent-composer",
       "status": "design-gated",
       "reason": "Wave 2 (council 2026-07-02): intent-first attack declaration per ADR 0002 (Proposed). Implementation tasks are gated on task phase 0 — ADR 0002 open-question ratification (OQ1-OQ5) with the user. Spec deltas authored; openspec validate --strict passes.",
