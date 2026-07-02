@@ -106,7 +106,7 @@ function makeFakeService(): {
       calls.playerForceSet.push({ id, forceId });
       return { success: true, id };
     },
-    launchEncounter(id, options) {
+    async launchEncounter(id, options) {
       calls.launched.push({ id, options });
       gameSessionId = 'game-session-xyz';
       return { success: true, id };
@@ -128,9 +128,12 @@ function makeFakeService(): {
 // ---------------------------------------------------------------------------
 
 describe('launchCampaignEncounter', () => {
-  it('launching a generated encounter produces a campaign-linked session', () => {
+  it('launching a generated encounter produces a campaign-linked session', async () => {
     const { service, calls } = makeFakeService();
-    const result = launchCampaignEncounter(makeCampaignEncounter(), service);
+    const result = await launchCampaignEncounter(
+      makeCampaignEncounter(),
+      service,
+    );
 
     expect(result.success).toBe(true);
     expect(result.gameSessionId).toBe('game-session-xyz');
@@ -139,9 +142,9 @@ describe('launchCampaignEncounter', () => {
     expect(calls.launched).toHaveLength(1);
   });
 
-  it('the campaign linkage fields round-trip to the launch call', () => {
+  it('the campaign linkage fields round-trip to the launch call', async () => {
     const { service, calls } = makeFakeService();
-    launchCampaignEncounter(makeCampaignEncounter(), service);
+    await launchCampaignEncounter(makeCampaignEncounter(), service);
 
     expect(calls.launched[0].options).toEqual({
       campaignId: 'campaign-1',
@@ -150,17 +153,17 @@ describe('launchCampaignEncounter', () => {
     });
   });
 
-  it('attaches the player force when the bridge resolved one', () => {
+  it('attaches the player force when the bridge resolved one', async () => {
     const { service, calls } = makeFakeService();
-    launchCampaignEncounter(makeCampaignEncounter(), service);
+    await launchCampaignEncounter(makeCampaignEncounter(), service);
     expect(calls.playerForceSet).toEqual([
       { id: 'encounter-repo-1', forceId: 'force-alpha' },
     ]);
   });
 
-  it('skips force assignment when the encounter has no player force', () => {
+  it('skips force assignment when the encounter has no player force', async () => {
     const { service, calls } = makeFakeService();
-    launchCampaignEncounter(
+    await launchCampaignEncounter(
       makeCampaignEncounter({ playerForce: undefined }),
       service,
     );
@@ -168,9 +171,9 @@ describe('launchCampaignEncounter', () => {
     expect(calls.launched).toHaveLength(1);
   });
 
-  it('fails when the encounter has no campaign linkage', () => {
+  it('fails when the encounter has no campaign linkage', async () => {
     const { service } = makeFakeService();
-    const result = launchCampaignEncounter(
+    const result = await launchCampaignEncounter(
       makeCampaignEncounter({ campaignMeta: undefined }),
       service,
     );
@@ -178,15 +181,18 @@ describe('launchCampaignEncounter', () => {
     expect(result.error).toMatch(/campaignMeta/);
   });
 
-  it('surfaces a launch failure from the service', () => {
+  it('surfaces a launch failure from the service', async () => {
     const { service } = makeFakeService();
     const failing: ICampaignEncounterLauncherService = {
       ...service,
-      launchEncounter() {
+      async launchEncounter() {
         return { success: false, error: 'force not found' };
       },
     };
-    const result = launchCampaignEncounter(makeCampaignEncounter(), failing);
+    const result = await launchCampaignEncounter(
+      makeCampaignEncounter(),
+      failing,
+    );
     expect(result.success).toBe(false);
     expect(result.error).toBe('force not found');
   });

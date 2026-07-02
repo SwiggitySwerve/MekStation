@@ -81,6 +81,39 @@ jest.mock('@/utils/gameplay/gameSessionCore', () => ({
   }),
 }));
 
+// Mock catalog adaptation — launchEncounter combat-seeds its units through
+// the canonical catalog (per `extend-combat-seed-to-all-session-producers`);
+// the suite's synthetic unitRefs are not real catalog entries, so the
+// adapter returns a fixed BattleMech shape for every ref.
+jest.mock('@/engine/adapters/CompendiumAdapter', () => ({
+  adaptUnit: jest.fn(async (unitRef: string, options?: { side?: unknown }) => ({
+    id: unitRef,
+    side: options?.side,
+    position: { q: 0, r: 0 },
+    facing: 0,
+    heat: 0,
+    movementThisTurn: 'stationary',
+    hexesMovedThisTurn: 0,
+    heatSinks: 10,
+    heatSinkType: 'single',
+    armor: { head: 9, center_torso: 20 },
+    structure: { head: 3, center_torso: 10 },
+    startingInternalStructure: { head: 3, center_torso: 10 },
+    destroyedLocations: [],
+    destroyedEquipment: [],
+    ammo: {},
+    pilotWounds: 0,
+    pilotConscious: true,
+    destroyed: false,
+    lockState: 'pending',
+    tonnage: 50,
+    weapons: [],
+    walkMP: 4,
+    runMP: 6,
+    jumpMP: 0,
+  })),
+}));
+
 function getTemplateDefaults(
   templateType: ScenarioTemplateType | undefined,
 ): Pick<IEncounter, 'mapConfig' | 'victoryConditions'> {
@@ -725,7 +758,7 @@ describe('EncounterService', () => {
   // ===========================================================================
 
   describe('Launch', () => {
-    it('should launch a valid encounter', () => {
+    it('should launch a valid encounter', async () => {
       const playerForce = createMockForce('force-p', 'Player');
       const opponentForce = createMockForce('force-o', 'Opponent');
       const createResult = service.createEncounter({
@@ -735,7 +768,7 @@ describe('EncounterService', () => {
       service.setPlayerForce(createResult.id!, playerForce.id);
       service.setOpponentForce(createResult.id!, opponentForce.id);
 
-      const launchResult = service.launchEncounter(createResult.id!);
+      const launchResult = await service.launchEncounter(createResult.id!);
 
       expect(launchResult.success).toBe(true);
       const encounter = service.getEncounter(createResult.id!);
@@ -743,7 +776,46 @@ describe('EncounterService', () => {
       expect(encounter?.gameSessionId).toBeDefined();
     });
 
-    it('should thread campaign linkage into the launched session config', () => {
+    it('combat-seeds launched units with per-location armor and structure', async () => {
+      // Per `extend-combat-seed-to-all-session-producers`
+      // (game-session-management "Combat State Seeding at Session
+      // Creation"): the units the launch passes to createGameSession
+      // SHALL carry catalog armor/structure/heat-sink construction
+      // inputs — the raw path previously created 0-armor sessions.
+      const playerForce = createMockForce('force-p', 'Player');
+      const opponentForce = createMockForce('force-o', 'Opponent');
+      const createResult = service.createEncounter({
+        name: 'Seeded Launch',
+        template: ScenarioTemplateType.Skirmish,
+      });
+      service.setPlayerForce(createResult.id!, playerForce.id);
+      service.setOpponentForce(createResult.id!, opponentForce.id);
+
+      const launchResult = await service.launchEncounter(createResult.id!);
+
+      expect(launchResult.success).toBe(true);
+      const sessionUnits = (createGameSession as jest.Mock).mock.calls.at(
+        -1,
+      )?.[1] as readonly {
+        armorByLocation?: Record<string, number>;
+        structureByLocation?: Record<string, number>;
+        heatSinks?: number;
+      }[];
+      expect(sessionUnits.length).toBeGreaterThan(0);
+      for (const unit of sessionUnits) {
+        expect(unit.armorByLocation).toMatchObject({
+          head: 9,
+          center_torso: 20,
+        });
+        expect(unit.structureByLocation).toMatchObject({
+          head: 3,
+          center_torso: 10,
+        });
+        expect(unit.heatSinks).toBe(10);
+      }
+    });
+
+    it('should thread campaign linkage into the launched session config', async () => {
       const playerForce = createMockForce('force-p', 'Player');
       const opponentForce = createMockForce('force-o', 'Opponent');
       const createResult = service.createEncounter({
@@ -753,7 +825,7 @@ describe('EncounterService', () => {
       service.setPlayerForce(createResult.id!, playerForce.id);
       service.setOpponentForce(createResult.id!, opponentForce.id);
 
-      const launchResult = service.launchEncounter(createResult.id!, {
+      const launchResult = await service.launchEncounter(createResult.id!, {
         campaignId: 'campaign-1',
         contractId: 'contract-1',
         scenarioId: 'scenario-1',
@@ -768,7 +840,7 @@ describe('EncounterService', () => {
       expect(config.scenarioId).toBe('scenario-1');
     });
 
-    it('should fail before session creation when contract linkage is incomplete', () => {
+    it('should fail before session creation when contract linkage is incomplete', async () => {
       const playerForce = createMockForce('force-p', 'Player');
       const opponentForce = createMockForce('force-o', 'Opponent');
       const createResult = service.createEncounter({
@@ -778,7 +850,7 @@ describe('EncounterService', () => {
       service.setPlayerForce(createResult.id!, playerForce.id);
       service.setOpponentForce(createResult.id!, opponentForce.id);
 
-      const result = service.launchEncounter(createResult.id!, {
+      const result = await service.launchEncounter(createResult.id!, {
         contractId: 'contract-1',
       });
 
@@ -788,23 +860,23 @@ describe('EncounterService', () => {
       expect(createGameSession).not.toHaveBeenCalled();
     });
 
-    it('should reject launching non-existent encounter', () => {
-      const result = service.launchEncounter('non-existent');
+    it('should reject launching non-existent encounter', async () => {
+      const result = await service.launchEncounter('non-existent');
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Encounter not found');
     });
 
-    it('should reject launching invalid encounter', () => {
+    it('should reject launching invalid encounter', async () => {
       const createResult = service.createEncounter({ name: 'Invalid' });
 
-      const result = service.launchEncounter(createResult.id!);
+      const result = await service.launchEncounter(createResult.id!);
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('Cannot launch');
     });
 
-    it('should reject launching already launched encounter', () => {
+    it('should reject launching already launched encounter', async () => {
       const playerForce = createMockForce('force-p', 'Player');
       const opponentForce = createMockForce('force-o', 'Opponent');
       const createResult = service.createEncounter({
@@ -813,15 +885,15 @@ describe('EncounterService', () => {
       });
       service.setPlayerForce(createResult.id!, playerForce.id);
       service.setOpponentForce(createResult.id!, opponentForce.id);
-      service.launchEncounter(createResult.id!);
+      await service.launchEncounter(createResult.id!);
 
-      const result = service.launchEncounter(createResult.id!);
+      const result = await service.launchEncounter(createResult.id!);
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Encounter is already launched');
     });
 
-    it('should reject launching completed encounter', () => {
+    it('should reject launching completed encounter', async () => {
       const playerForce = createMockForce('force-p', 'Player');
       const opponentForce = createMockForce('force-o', 'Opponent');
       const createResult = service.createEncounter({
@@ -840,7 +912,7 @@ describe('EncounterService', () => {
         });
       }
 
-      const result = service.launchEncounter(createResult.id!);
+      const result = await service.launchEncounter(createResult.id!);
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Encounter is already completed');

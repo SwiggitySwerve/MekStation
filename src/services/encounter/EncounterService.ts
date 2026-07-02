@@ -7,6 +7,7 @@
  * @spec openspec/changes/add-encounter-system/specs/encounter-system/spec.md
  */
 
+import { deriveCombatSeededGameUnits } from '@/engine/combatSeedDerivation';
 import {
   IEncounter,
   ICreateEncounterInput,
@@ -122,11 +123,13 @@ export interface IEncounterService {
   validateEncounter(id: string): IEncounterValidationResult;
   canLaunch(id: string): boolean;
 
-  // Launch
+  // Launch — async per `extend-combat-seed-to-all-session-producers`:
+  // launch adapts each unit's catalog data to seed armor/structure before
+  // the GameCreated payload forms.
   launchEncounter(
     id: string,
     options?: ILaunchEncounterOptions,
-  ): IEncounterOperationResult;
+  ): Promise<IEncounterOperationResult>;
 
   // Cloning
   cloneEncounter(id: string, newName: string): IEncounterOperationResult;
@@ -291,10 +294,10 @@ export class EncounterService implements IEncounterService {
   // Launch
   // ===========================================================================
 
-  launchEncounter = (
+  launchEncounter = async (
     id: string,
     options: ILaunchEncounterOptions = {},
-  ): IEncounterOperationResult => {
+  ): Promise<IEncounterOperationResult> => {
     const encounter = this.getEncounter(id);
     if (!encounter) {
       return {
@@ -386,7 +389,16 @@ export class EncounterService implements IEncounterService {
       withRawIds?.rawForceIds,
     );
 
-    const session = createGameSession(config, units, { encounterMeta });
+    // Per `extend-combat-seed-to-all-session-producers`
+    // (game-session-management "Combat State Seeding at Session Creation"):
+    // adapt each unit's catalog data and splice per-location armor/structure
+    // /heat-sink seeds onto the units before the GameCreated payload forms.
+    // The raw path previously produced 0-armor derived state (pre-#998 bug
+    // shape). Units missing from the catalog launch unseeded with a console
+    // warning rather than failing the launch.
+    const seededUnits = await deriveCombatSeededGameUnits(units);
+
+    const session = createGameSession(config, seededUnits, { encounterMeta });
     return this.repository.linkGameSession(id, session.id);
   };
 
