@@ -144,9 +144,19 @@ body {
   overflow-x: hidden;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+/*
+ * Anchor reset lives in @layer base so Tailwind text-* utilities (which live
+ * in @layer utilities) can win the cascade. As a plain unlayered rule this
+ * beat EVERY layered utility regardless of specificity, so all <a> elements
+ * inherited body's --foreground (the light-mode #1e293b) and rendered
+ * near-invisible on dark surfaces — the root cause of the dim nav tabs and
+ * breadcrumbs that survived three audit passes (task #6, A11Y-R1/H11).
+ */
+@layer base {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 }
 
 /* Form Elements Styling for Better Visibility */
