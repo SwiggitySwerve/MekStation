@@ -192,15 +192,41 @@ export interface IBattleArmorSwarmDismountResult {
 // =============================================================================
 
 /**
- * Result of a BA vibro-claw melee attack.
+ * Result of a BA vibro-claw melee attack (MegaMek cluster model:
+ * `missilesHit(shootingStrength) × vibroClaws`).
  */
 export interface IBattleArmorVibroClawResult {
-  /** Damage per claw (rounded up). */
-  readonly damagePerClaw: number;
+  /** 2d6 cluster-table hits against the surviving trooper count. */
+  readonly missileHits: number;
   /** Number of claws applied (1 or 2). */
   readonly claws: number;
-  /** Total damage dealt = damagePerClaw × claws. */
+  /** Total damage dealt = missileHits × claws. */
   readonly totalDamage: number;
+  /**
+   * MegaMek damage-application chunks: claw-sized clusters (plus a final
+   * remainder), each rolling its own hit location downstream.
+   */
+  readonly clusters: readonly number[];
+  readonly survivingTroopers: number;
+}
+
+/**
+ * `VibroClawAttackResolved` game-event payload — emitted by the vibro-claw
+ * dispatch for every resolved attack (per `wire-vibroclaw-attack-dispatch`).
+ * Damage application itself flows through standard `DamageApplied` events.
+ */
+export interface IVibroClawAttackResolvedPayload {
+  /** Attacking BA squad unit id. */
+  readonly unitId: string;
+  /** Target unit id. */
+  readonly targetUnitId: string;
+  /** Total damage dealt (missileHits × claws). */
+  readonly damage: number;
+  /** Cluster-table hits rolled against the surviving trooper count. */
+  readonly missileHits: number;
+  /** Claw count used for the attack. */
+  readonly vibroClawCount: number;
+  /** Surviving troopers in the attacking squad at resolution time. */
   readonly survivingTroopers: number;
 }
 

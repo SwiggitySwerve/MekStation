@@ -80,7 +80,7 @@ function writeFixtureSet(tempDir: string, hasReleaseGap: boolean) {
       'verify:qc:roadmap':
         'npm run qc:manual-automation-gaps:validate && npm run qc:surface-browser:validate',
       'verify:rules':
-        'npm run validate:combat:gaps -- --format=summary --expect-total=0 && npm run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=147 && npx openspec validate --all --strict',
+        'npm run validate:combat:gaps -- --format=summary --expect-total=0 && npm run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=148 && npx openspec validate --all --strict',
       'electron:test:build': 'cd desktop && npm run test:build',
       'validate:combat:gaps': 'npx tsx scripts/print-combat-validation-gaps.ts',
       'verify:qc:app-shell':

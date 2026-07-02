@@ -106,7 +106,7 @@ describe('Wave 4 scope and recovery QC validator', () => {
     expect(manifest.errors).toContainEqual(
       expect.objectContaining({
         code: 'package-script-token-missing',
-        token: '--expect-total=147',
+        token: '--expect-total=148',
       }),
     );
   });

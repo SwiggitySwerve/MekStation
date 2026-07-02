@@ -76,6 +76,7 @@ export function buildTacticalActionContext({
     ),
     activeUnitHasMASC: selectedUnit?.hasMASC ?? false,
     activeUnitHasSupercharger: selectedUnit?.hasSupercharger ?? false,
+    activeUnitVibroClawCount: getVibroClawCount(selectedUnit),
     activeUnitConversionMode: selectedUnit?.conversionMode,
     activeUnitVehicleMotionType: getVehicleMotionType(selectedUnit),
     activeUnitVehicleAltitude: getVehicleAltitude(selectedUnit),
@@ -123,6 +124,16 @@ function hasPlannedMovement(
     plannedMovement &&
     (!plannedMovement.unitId || plannedMovement.unitId === selectedUnit?.id),
   );
+}
+
+// Vibro-claw count for the equipment-reality gate on the vibro-claw
+// physical command (0 for non-squads and claw-less squads — the command
+// builder drops the button entirely, per battle-armor-combat's
+// "UI MUST hide" clause).
+function getVibroClawCount(selectedUnit: IUnitGameState | null): number {
+  if (selectedUnit?.combatState?.kind !== 'squad') return 0;
+  const squad = selectedUnit.combatState.state;
+  return squad.hasVibroClaws ? squad.vibroClawCount : 0;
 }
 
 function getVehicleMotionType(

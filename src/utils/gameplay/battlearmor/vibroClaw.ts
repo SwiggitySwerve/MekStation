@@ -1,26 +1,41 @@
 /**
  * Battle Armor Vibro-Claw Physical Attack
  *
- * BA with Vibro-Claws can declare a Vibro-Claw Attack in the physical phase:
- *   - Damage per claw = 1 + ceil(0.5 × survivingTroopers).
- *   - Applied per claw (1 or 2 claws per trooper).
- *   - Valid targets: mech, vehicle, or ProtoMech.
+ * BA with Vibro-Claws can declare a Vibro-Claw Attack in the physical phase.
+ * Damage model (MegaMek parity — `BAVibroClawAttackAction.getDamageFor`):
  *
- * @spec openspec/changes/add-battlearmor-combat-behavior/specs/combat-resolution/spec.md
- *   (Section 8: Vibro-Claw Physical Attack)
+ *   totalDamage = missilesHit(shootingStrength) × vibroClaws
+ *
+ * where `missilesHit` is a 2d6 cluster-table lookup against the squad's
+ * surviving trooper count, and the total applies in claw-sized clusters
+ * (each cluster rolls its own hit location downstream — the MegaMek
+ * `min(vibroClaws, remaining)` damage loop).
+ *
+ * The earlier deterministic `1 + ceil(0.5 × troopers)` per-claw formula
+ * (archived `add-battlearmor-combat-behavior` § 8) was NOT MegaMek parity —
+ * it coincidentally matched at 4 troopers under average rolls. The living
+ * `battle-armor-combat` spec's cluster-table requirement is canonical.
+ *
+ * @spec openspec/specs/battle-armor-combat/spec.md (Requirement: Vibroclaw Attack)
  */
 
 import type {
   IBattleArmorCombatState,
   IBattleArmorVibroClawResult,
 } from '@/types/gameplay';
+import type { D6Roller } from '@/utils/gameplay/diceTypes';
 
+import { lookupClusterHits } from '../clusterWeapons/hitTable';
 import { getSurvivingTroopers } from './state';
 
 /**
- * Valid target types for a vibro-claw attack (per Section 8.3).
+ * Valid target types for a vibro-claw attack. The damage math is
+ * target-agnostic (cluster hits × claws); the type gates which damage
+ * pipeline the dispatch layer routes into.
  */
 export type VibroClawTargetType = 'mech' | 'vehicle' | 'protomech';
+
+const defaultD6Roller: D6Roller = () => Math.floor(Math.random() * 6) + 1;
 
 export interface IResolveVibroClawParams {
   readonly state: IBattleArmorCombatState;
@@ -32,40 +47,53 @@ export interface IResolveVibroClawParams {
    * for "use one claw only" play.
    */
   readonly clawsOverride?: number;
+  /** Optional D6 roller override (test determinism / engine-owned dice). */
+  readonly diceRoller?: D6Roller;
 }
 
 /**
- * Compute the per-claw vibro-claw damage: `1 + ceil(0.5 × survivingTroopers)`.
+ * Split the total vibro-claw damage into MegaMek's application clusters:
+ * chunks of `claws` damage, with a final smaller remainder chunk. Each
+ * cluster rolls its own hit location downstream.
  */
-export function computeVibroClawDamagePerClaw(
-  survivingTroopers: number,
-): number {
-  if (survivingTroopers <= 0) return 0;
-  return 1 + Math.ceil(0.5 * survivingTroopers);
+export function splitVibroClawDamageIntoClusters(
+  totalDamage: number,
+  claws: number,
+): readonly number[] {
+  if (totalDamage <= 0 || claws <= 0) return [];
+  const clusters: number[] = [];
+  let remaining = totalDamage;
+  while (remaining > 0) {
+    const chunk = Math.min(claws, remaining);
+    clusters.push(chunk);
+    remaining -= chunk;
+  }
+  return clusters;
 }
 
 /**
- * Resolve a BA vibro-claw attack. Returns the per-claw + total damage and
- * surviving-trooper count at the moment of attack.
+ * Resolve a BA vibro-claw attack: 2d6 cluster-table lookup against the
+ * squad's surviving trooper count, multiplied by the claw count.
  *
- * Note: This module reports the damage values only — the caller applies the
- * resulting damage to the target via the appropriate per-unit-type pipeline
- * (mech / vehicle / protomech).
+ * Note: this module reports damage values only — the dispatch layer
+ * applies the clusters to the target via the standard damage pipeline.
  */
 export function resolveVibroClawAttack(
   params: IResolveVibroClawParams,
 ): IBattleArmorVibroClawResult {
+  const survivors = getSurvivingTroopers(params.state);
+
   // Reject if squad cannot attack.
-  if (!params.state.hasVibroClaws) {
+  if (!params.state.hasVibroClaws || survivors <= 0) {
     return {
-      damagePerClaw: 0,
+      missileHits: 0,
       claws: 0,
       totalDamage: 0,
-      survivingTroopers: getSurvivingTroopers(params.state),
+      clusters: [],
+      survivingTroopers: survivors,
     };
   }
 
-  const survivors = getSurvivingTroopers(params.state);
   const claws = Math.max(
     0,
     Math.min(
@@ -73,13 +101,26 @@ export function resolveVibroClawAttack(
       params.state.vibroClawCount,
     ),
   );
-  const damagePerClaw = computeVibroClawDamagePerClaw(survivors);
-  const totalDamage = damagePerClaw * claws;
+  if (claws <= 0) {
+    return {
+      missileHits: 0,
+      claws: 0,
+      totalDamage: 0,
+      clusters: [],
+      survivingTroopers: survivors,
+    };
+  }
+
+  const roll = params.diceRoller ?? defaultD6Roller;
+  const clusterRoll = roll() + roll();
+  const missileHits = lookupClusterHits(clusterRoll, survivors);
+  const totalDamage = missileHits * claws;
 
   return {
-    damagePerClaw,
+    missileHits,
     claws,
     totalDamage,
+    clusters: splitVibroClawDamageIntoClusters(totalDamage, claws),
     survivingTroopers: survivors,
   };
 }

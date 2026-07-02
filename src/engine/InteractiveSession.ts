@@ -38,6 +38,10 @@ import {
   type IHexGrid,
   type IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
+import {
+  dispatchVibroClawAttack,
+  type VibroClawDispatchResult,
+} from '@/utils/gameplay/battlearmor/vibroClawDispatch';
 import { createGameSession, startGame } from '@/utils/gameplay/gameSession';
 
 import type { IInteractiveSessionRuntimeContext } from './InteractiveSession.runtime';
@@ -524,6 +528,31 @@ export class InteractiveSession {
 
   ejectUnit = (unitId: string): void => {
     ejectInteractiveSessionUnit(this.runtimeContext, unitId);
+  };
+
+  /**
+   * Per `wire-vibroclaw-attack-dispatch` (battle-armor-combat "Vibroclaw
+   * Attack"): declare and resolve a BA vibro-claw melee attack. Legality
+   * (squad attacker with claws, adjacency, supported target type) is
+   * checked in the dispatch; success appends the `VibroClawAttackResolved`
+   * record event plus per-cluster `DamageApplied` events; rejections
+   * return the typed reason for the UI.
+   */
+  declareVibroClawAttack = (
+    squadId: string,
+    targetUnitId: string,
+  ): VibroClawDispatchResult => {
+    this.assertActiveForAction();
+    const result = dispatchVibroClawAttack({
+      session: this.runtimeContext.getSession(),
+      squadId,
+      targetUnitId,
+      d6Roller: this.d6Roller ?? (() => this.random.nextInt(6) + 1),
+    });
+    if (result.ok) {
+      this.runtimeContext.setSession(result.session);
+    }
+    return result;
   };
 
   advancePhase = (): void => {

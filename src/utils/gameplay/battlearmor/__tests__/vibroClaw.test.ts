@@ -1,17 +1,18 @@
 /**
- * Battle Armor vibro-claw attack tests.
+ * Battle Armor vibro-claw attack tests — MegaMek cluster model
+ * (`missilesHit(shootingStrength) × vibroClaws`, applied in claw-sized
+ * clusters), per `wire-vibroclaw-attack-dispatch`.
  *
- * @spec openspec/changes/add-battlearmor-combat-behavior/specs/combat-resolution/spec.md
- *   (Section 8)
+ * @spec openspec/specs/battle-armor-combat/spec.md (Requirement: Vibroclaw Attack)
  */
 
 import { createBattleArmorCombatState, killTrooper } from '../state';
 import {
-  computeVibroClawDamagePerClaw,
   resolveVibroClawAttack,
+  splitVibroClawDamageIntoClusters,
 } from '../vibroClaw';
 
-function makeState(size = 5, claws = 2, hasClaws = true) {
+function makeState(size = 4, claws = 2, hasClaws = true) {
   return createBattleArmorCombatState({
     unitId: 'ba-vc',
     squadSize: size,
@@ -21,79 +22,106 @@ function makeState(size = 5, claws = 2, hasClaws = true) {
   });
 }
 
-describe('computeVibroClawDamagePerClaw', () => {
-  it('returns 0 for non-positive troopers', () => {
-    expect(computeVibroClawDamagePerClaw(0)).toBe(0);
-    expect(computeVibroClawDamagePerClaw(-3)).toBe(0);
-  });
+/** Deterministic roller: returns the queued values in order (repeating). */
+function fixedRoller(values: readonly number[]): () => number {
+  let index = 0;
+  return () => values[index++ % values.length];
+}
 
-  it('1 trooper → 1 + ceil(0.5) = 2', () => {
-    expect(computeVibroClawDamagePerClaw(1)).toBe(2);
-  });
-
-  it('2 troopers → 1 + ceil(1) = 2', () => {
-    expect(computeVibroClawDamagePerClaw(2)).toBe(2);
-  });
-
-  it('3 troopers → 1 + ceil(1.5) = 3', () => {
-    expect(computeVibroClawDamagePerClaw(3)).toBe(3);
-  });
-
-  it('5 troopers → 1 + ceil(2.5) = 4', () => {
-    expect(computeVibroClawDamagePerClaw(5)).toBe(4);
+describe('splitVibroClawDamageIntoClusters', () => {
+  it('chunks total damage into claw-sized clusters with a remainder', () => {
+    expect(splitVibroClawDamageIntoClusters(6, 2)).toEqual([2, 2, 2]);
+    expect(splitVibroClawDamageIntoClusters(5, 2)).toEqual([2, 2, 1]);
+    expect(splitVibroClawDamageIntoClusters(3, 1)).toEqual([1, 1, 1]);
+    expect(splitVibroClawDamageIntoClusters(0, 2)).toEqual([]);
+    expect(splitVibroClawDamageIntoClusters(4, 0)).toEqual([]);
   });
 });
 
 describe('resolveVibroClawAttack', () => {
-  it('returns 0 damage when squad lacks vibro-claws', () => {
-    const s = makeState(5, 0, false);
-    const r = resolveVibroClawAttack({ state: s, targetType: 'mech' });
-    expect(r.damagePerClaw).toBe(0);
-    expect(r.claws).toBe(0);
-    expect(r.totalDamage).toBe(0);
+  it('returns zeros when the squad lacks vibro-claws', () => {
+    const result = resolveVibroClawAttack({
+      state: makeState(4, 0, false),
+      targetType: 'mech',
+      diceRoller: fixedRoller([3, 4]),
+    });
+    expect(result.missileHits).toBe(0);
+    expect(result.claws).toBe(0);
+    expect(result.totalDamage).toBe(0);
+    expect(result.clusters).toEqual([]);
   });
 
-  it('computes totalDamage = damagePerClaw × claws', () => {
-    const s = makeState(5, 2);
-    const r = resolveVibroClawAttack({ state: s, targetType: 'mech' });
-    expect(r.damagePerClaw).toBe(4);
-    expect(r.claws).toBe(2);
-    expect(r.totalDamage).toBe(8);
-    expect(r.survivingTroopers).toBe(5);
+  it('4-trooper squad, 2 claws, roll of 7: missilesHit(4)=3 → 6 damage (living spec scenario)', () => {
+    const result = resolveVibroClawAttack({
+      state: makeState(4, 2),
+      targetType: 'mech',
+      diceRoller: fixedRoller([3, 4]),
+    });
+    expect(result.survivingTroopers).toBe(4);
+    expect(result.missileHits).toBe(3);
+    expect(result.claws).toBe(2);
+    expect(result.totalDamage).toBe(6);
+    expect(result.clusters).toEqual([2, 2, 2]);
   });
 
-  it('scales down with trooper loss', () => {
-    let s = makeState(5, 2);
-    s = killTrooper(killTrooper(s, 0), 1);
-    const r = resolveVibroClawAttack({ state: s, targetType: 'mech' });
-    expect(r.survivingTroopers).toBe(3);
-    expect(r.damagePerClaw).toBe(3); // 1 + ceil(0.5*3) = 3
-    expect(r.totalDamage).toBe(6);
+  it('single-claw squad multiplies cluster hits by 1', () => {
+    const result = resolveVibroClawAttack({
+      state: makeState(4, 1),
+      targetType: 'mech',
+      diceRoller: fixedRoller([3, 4]),
+    });
+    expect(result.missileHits).toBe(3);
+    expect(result.totalDamage).toBe(3);
+    expect(result.clusters).toEqual([1, 1, 1]);
+  });
+
+  it('degraded squad rolls the cluster table against SURVIVING troopers', () => {
+    let state = makeState(4, 2);
+    state = killTrooper(state, 0);
+    state = killTrooper(state, 1);
+
+    const result = resolveVibroClawAttack({
+      state,
+      targetType: 'mech',
+      diceRoller: fixedRoller([3, 4]),
+    });
+    expect(result.survivingTroopers).toBe(2);
+    // Cluster-2 column at a roll of 7 yields 1 hit.
+    expect(result.missileHits).toBe(1);
+    expect(result.totalDamage).toBe(2);
+    expect(result.clusters).toEqual([2]);
   });
 
   it('honors clawsOverride but never exceeds squad vibroClawCount', () => {
-    const s = makeState(5, 1);
-    const r1 = resolveVibroClawAttack({
-      state: s,
+    const capped = resolveVibroClawAttack({
+      state: makeState(4, 1),
       targetType: 'vehicle',
       clawsOverride: 2,
+      diceRoller: fixedRoller([3, 4]),
     });
-    expect(r1.claws).toBe(1); // capped
+    expect(capped.claws).toBe(1);
 
-    const r2 = resolveVibroClawAttack({
-      state: s,
+    const zero = resolveVibroClawAttack({
+      state: makeState(4, 1),
       targetType: 'protomech',
       clawsOverride: 0,
+      diceRoller: fixedRoller([3, 4]),
     });
-    expect(r2.claws).toBe(0);
-    expect(r2.totalDamage).toBe(0);
+    expect(zero.claws).toBe(0);
+    expect(zero.totalDamage).toBe(0);
   });
 
-  it('target types are accepted (mech / vehicle / protomech)', () => {
-    const s = makeState(5, 2);
-    for (const t of ['mech', 'vehicle', 'protomech'] as const) {
-      const r = resolveVibroClawAttack({ state: s, targetType: t });
-      expect(r.totalDamage).toBe(8);
-    }
+  it('wiped squad deals nothing', () => {
+    let state = makeState(2, 2);
+    state = killTrooper(state, 0);
+    state = killTrooper(state, 1);
+
+    const result = resolveVibroClawAttack({
+      state,
+      targetType: 'mech',
+      diceRoller: fixedRoller([3, 4]),
+    });
+    expect(result.totalDamage).toBe(0);
+    expect(result.survivingTroopers).toBe(0);
   });
 });

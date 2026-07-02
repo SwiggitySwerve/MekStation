@@ -8,9 +8,11 @@
  * `BattleArmorCombatInterfaces.ts` — the two shapes co-exist during migration;
  * future PRs will consolidate.
  *
- * §3 swarm attach to-hit + state-machine, §5 mounted-trooper adapter,
- * §6 leg attack, §7 vibroclaw, and §8 brush-off / dislodge are deferred
- * to PR-L3 and PR-L4 respectively.
+ * §3 swarm attach (PR-L2), §5 mounted-trooper adapter, §6 leg attack
+ * (PR-L3), and §7 vibroclaw (PR-L4 — dispatch at
+ * `battlearmor/vibroClawDispatch.ts`, resolver at `battlearmor/vibroClaw.ts`,
+ * per `wire-vibroclaw-attack-dispatch`) have shipped; §8 brush-off /
+ * dislodge resolution remains resolver-level.
  *
  * @spec openspec/changes/add-battle-armor-combat/specs/battle-armor-combat/spec.md
  * @spec openspec/changes/add-battle-armor-combat/specs/combat-resolution/spec.md

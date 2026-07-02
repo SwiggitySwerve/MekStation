@@ -53,7 +53,7 @@ describe('combat catalog rules parity QC validator', () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('surfaces=7/7');
     expect(result.stdout).toContain('anchors=12');
-    expect(result.stdout).toContain('expectedOutOfScope=147');
+    expect(result.stdout).toContain('expectedOutOfScope=148');
     expect(result.stdout).toContain('staleRefs=0');
     expect(result.stdout).toContain('errors=0');
   });
@@ -75,7 +75,7 @@ describe('combat catalog rules parity QC validator', () => {
     expect(manifest.status).toBe('pass');
     expect(manifest.requiredSurfaceCount).toBe(7);
     expect(manifest.sourceAnchorCount).toBe(12);
-    expect(manifest.expectedOutOfScopeSummary.total).toBe(147);
+    expect(manifest.expectedOutOfScopeSummary.total).toBe(148);
     expect(manifest.expectedOutOfScopeSummary.sections).toContain(
       '--expect-section=featureSupport:75',
     );
@@ -126,7 +126,7 @@ describe('combat catalog rules parity QC validator', () => {
     );
     expect(surface).toBeDefined();
     surface!.commands = surface!.commands.map((command) =>
-      command.replace(' --expect-total=147', ''),
+      command.replace(' --expect-total=148', ''),
     );
 
     const registryPath = path.join(tempDir, 'qc-registry.json');
@@ -137,7 +137,7 @@ describe('combat catalog rules parity QC validator', () => {
     });
 
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain('--expect-total=147');
+    expect(result.stdout).toContain('--expect-total=148');
   });
 
   it('rejects combat child surfaces that drift back to partial', () => {
