@@ -331,7 +331,7 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
           family: 'funds-transaction',
           transactionId: 'gm-event-001',
           changedStateRefs: ['campaign:round-trip:finances'],
-          publicSummary: 'Merchant charge corrected by -2,500.00 C-bills.',
+          publicSummary: 'Merchant charge corrected by +2,500.00 C-bills.',
           before: {
             balanceCents: base.finances.balance.amount * 100,
             transactionIds: base.finances.transactions.map(
@@ -343,7 +343,7 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
             transaction: {
               id: 'gm-event-001',
               type: TransactionType.PartPurchase,
-              amountCents: -250_000,
+              amountCents: 250_000,
               date: '3025-02-01T00:00:00.000Z',
               description: 'GM merchant charge reversal',
             },

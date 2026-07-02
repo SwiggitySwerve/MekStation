@@ -62,7 +62,7 @@ describe('GmCampaignInterventionControlPlane', () => {
           interventionId: 'gm-ledger-merchant-reversal',
           transactionId: 'gm-ledger-merchant-reversal',
           changedStateRefs: ['campaign:campaign-gm-reload:finances'],
-          publicSummary: 'Merchant charge corrected by -2,500.00 C-bills.',
+          publicSummary: 'Merchant charge corrected by +2,500.00 C-bills.',
           before: {
             balanceCents: 100_000_000,
             transactionIds: [],
@@ -72,7 +72,7 @@ describe('GmCampaignInterventionControlPlane', () => {
             transaction: {
               id: 'gm-ledger-merchant-reversal',
               type: TransactionType.PartPurchase,
-              amountCents: -250_000,
+              amountCents: 250_000,
               date: '3025-01-03T00:00:00.000Z',
               description: 'GM merchant charge reversal',
             },
@@ -126,7 +126,7 @@ describe('GmCampaignInterventionControlPlane', () => {
     );
 
     expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
-      'Merchant charge corrected by -2,500.00 C-bills.',
+      'Merchant charge corrected by +2,500.00 C-bills.',
     );
     expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
       'Campaign time corrected by 2 days.',
@@ -135,7 +135,7 @@ describe('GmCampaignInterventionControlPlane', () => {
       /Hidden campaign|Hidden time|black-market|GM-only/i,
     );
     expect(screen.getByTestId('gm-ledger-private-log')).toHaveTextContent(
-      'Merchant charge corrected by -2,500.00 C-bills.',
+      'Merchant charge corrected by +2,500.00 C-bills.',
     );
     expect(screen.getByTestId('gm-ledger-private-log')).toHaveTextContent(
       'Campaign time corrected by 2 days.',
@@ -167,14 +167,14 @@ describe('GmCampaignInterventionControlPlane', () => {
     expect(
       screen.getByTestId('gm-ledger-preview-net-effect'),
     ).toHaveTextContent(
-      '1,000,000.00 C-bills -> 997,500.00 C-bills (-2,500.00 C-bills)',
+      '1,000,000.00 C-bills -> 1,002,500.00 C-bills (+2,500.00 C-bills)',
     );
 
     fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
 
     expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(1);
     const updates = onApplyCampaignUpdate.mock.calls[0][0];
-    expect(updates.finances.balance.format()).toBe('997,500.00 C-bills');
+    expect(updates.finances.balance.format()).toBe('1,002,500.00 C-bills');
     expect(updates.finances.transactions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -613,7 +613,7 @@ describe('GmCampaignPlayerLedgerView', () => {
           interventionId: 'gm-ledger-merchant-reversal',
           transactionId: 'gm-ledger-merchant-reversal',
           changedStateRefs: ['campaign:campaign-gm-guest:finances'],
-          publicSummary: 'Merchant charge corrected by -2,500.00 C-bills.',
+          publicSummary: 'Merchant charge corrected by +2,500.00 C-bills.',
           before: {
             balanceCents: 100_000_000,
             transactionIds: [],
@@ -623,7 +623,7 @@ describe('GmCampaignPlayerLedgerView', () => {
             transaction: {
               id: 'gm-ledger-merchant-reversal',
               type: TransactionType.PartPurchase,
-              amountCents: -250_000,
+              amountCents: 250_000,
               date: '3025-01-03T00:00:00.000Z',
               description: 'GM merchant charge reversal',
             },
@@ -676,7 +676,7 @@ describe('GmCampaignPlayerLedgerView', () => {
       'GM controls are available only to the campaign owner or co-op host',
     );
     expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
-      'Merchant charge corrected by -2,500.00 C-bills.',
+      'Merchant charge corrected by +2,500.00 C-bills.',
     );
     expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
       'Campaign time corrected by 2 days.',

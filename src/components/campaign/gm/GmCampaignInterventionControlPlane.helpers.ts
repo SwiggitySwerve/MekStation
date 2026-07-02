@@ -26,7 +26,7 @@ import { TransactionType } from '@/types/campaign/Transaction';
 export const MERCHANT_REVERSAL_ID = 'gm-ledger-merchant-reversal';
 export const TIME_CASCADE_ID = 'gm-ledger-time-cascade';
 export const TIME_CASCADE_MANUAL_ID = 'gm-ledger-time-cascade-manual';
-const MERCHANT_REVERSAL_AMOUNT_CENTS = -250_000;
+const MERCHANT_REVERSAL_AMOUNT_CENTS = 250_000;
 export const GM_ACTOR_ID = 'gm-browser-control-plane';
 
 export type GmLedgerPublicEffect =
@@ -100,7 +100,7 @@ export function buildMerchantReversalCommand({
         hiddenNotes:
           'Merchant inventory clue remains GM-only until the players discover it in play.',
       },
-      publicSummary: 'Merchant charge corrected by -2,500.00 C-bills.',
+      publicSummary: 'Merchant charge corrected by +2,500.00 C-bills.',
       conflicts: conflicted
         ? [
             {

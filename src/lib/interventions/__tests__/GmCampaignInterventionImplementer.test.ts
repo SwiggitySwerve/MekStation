@@ -165,7 +165,7 @@ describe('GM campaign intervention implementer', () => {
         payload({
           family: 'funds-transaction',
           transactionId: 'gm-economy-1',
-          amountCents: -250_000,
+          amountCents: 250_000,
           description: 'Reverse duplicated merchant charge.',
           transactionType: TransactionType.PartPurchase,
           date: '3025-02-02T00:00:00.000Z',
@@ -276,12 +276,12 @@ describe('GM campaign intervention implementer', () => {
           {
             family: 'funds-transaction',
             transactionId: 'merchant-reversal-1',
-            amountCents: -250_000,
+            amountCents: 250_000,
             description: 'Reverse duplicated merchant charge.',
             transactionType: TransactionType.PartPurchase,
             date: '3025-02-02T00:00:00.000Z',
           },
-          'Merchant charge corrected by -2,500.00 C-bills.',
+          'Merchant charge corrected by +2,500.00 C-bills.',
         ),
       ),
       state,
@@ -294,7 +294,7 @@ describe('GM campaign intervention implementer', () => {
     const playerProjection = actionLedger.projectForPlayer();
     const gmProjection = actionLedger.projectForGm();
 
-    expect(result.state.finances.balance.centsValue).toBe(99_750_000);
+    expect(result.state.finances.balance.centsValue).toBe(100_250_000);
     expect(result.state.finances.transactions).toHaveLength(1);
     expect(result.state.finances.transactions[0]).toMatchObject({
       id: 'merchant-reversal-1',
@@ -302,7 +302,7 @@ describe('GM campaign intervention implementer', () => {
       description: 'Reverse duplicated merchant charge.',
     });
     expect(result.state.finances.transactions[0].amount.centsValue).toBe(
-      -250_000,
+      250_000,
     );
     expect(replayed).toEqual(result.state);
     expect(playerProjection.map((record) => record.id)).toEqual([

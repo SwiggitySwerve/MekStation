@@ -108,9 +108,18 @@ export function GmCampaignInterventionActions({
           data-testid="gm-ledger-correction-type"
         />
       </div>
+      {/* Exactly ONE filled primary per state (doctrine / re-audit VD-02):
+          before a preview exists, generating one is the decisive act; once a
+          preview is ready (or requires takeover), the resolution action takes
+          the filled treatment and the generator demotes to secondary. Dark
+          text on the amber/emerald fills keeps the labels >= 4.5:1
+          (re-audit A11Y-R3 — white-on-amber measured ~2:1). */}
       <Button
         type="button"
-        variant="primary"
+        variant={canApprove || canTakeManualControl ? 'secondary' : 'primary'}
+        className={
+          canApprove || canTakeManualControl ? '' : 'font-bold !text-slate-950'
+        }
         onClick={handleGenerateCorrection}
         data-testid="gm-ledger-preview-btn"
       >
@@ -118,16 +127,21 @@ export function GmCampaignInterventionActions({
       </Button>
       <Button
         type="button"
-        variant="success"
+        variant={canApprove ? 'success' : 'secondary'}
+        className={canApprove ? 'font-bold !text-slate-950' : ''}
         onClick={onApprove}
         disabled={!canApprove}
         data-testid="gm-ledger-approve-btn"
       >
         Approve cascade
       </Button>
+      {/* Destructive takeover is deliberately LOW-salience: outline styling,
+          separated to the row's end — never a third filled CTA competing with
+          the happy path (re-audit IS-03). */}
       <Button
         type="button"
-        variant="danger"
+        variant="ghost"
+        className="ml-auto border border-red-500/60 !text-red-300 hover:!bg-red-950/40"
         onClick={onManualTakeover}
         disabled={!canTakeManualControl}
         data-testid="gm-ledger-manual-btn"

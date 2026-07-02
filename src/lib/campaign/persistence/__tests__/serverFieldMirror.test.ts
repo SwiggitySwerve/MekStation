@@ -172,7 +172,7 @@ function buildExtendedCampaign(): ICampaignWithCommand & {
         family: 'funds-transaction',
         transactionId: 'gm-event-001',
         changedStateRefs: ['campaign:campaign-001:finances'],
-        publicSummary: 'Merchant charge corrected by -2,500.00 C-bills.',
+        publicSummary: 'Merchant charge corrected by +2,500.00 C-bills.',
         before: {
           balanceCents: 38_000_000,
           transactionIds: ['tx-1'],
@@ -182,7 +182,7 @@ function buildExtendedCampaign(): ICampaignWithCommand & {
           transaction: {
             id: 'gm-event-001',
             type: TransactionType.PartPurchase,
-            amountCents: -250_000,
+            amountCents: 250_000,
             date: '3025-02-01T00:00:00.000Z',
             description: 'GM merchant charge reversal',
           },

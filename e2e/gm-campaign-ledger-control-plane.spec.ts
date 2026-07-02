@@ -535,7 +535,7 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       await expect(
         page.getByTestId('gm-ledger-preview-net-effect'),
       ).toContainText(
-        '1,000,000.00 C-bills -> 997,500.00 C-bills (-2,500.00 C-bills)',
+        '1,000,000.00 C-bills -> 1,002,500.00 C-bills (+2,500.00 C-bills)',
       );
 
       await page.getByTestId('gm-ledger-approve-btn').click();
@@ -544,10 +544,10 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
         'Approved and applied',
       );
       await expect(page.getByTestId('gm-ledger-balance')).toContainText(
-        '997,500.00 C-bills',
+        '1,002,500.00 C-bills',
       );
       await expect(page.getByTestId('gm-ledger-player-log')).toContainText(
-        'Merchant charge corrected by -2,500.00 C-bills.',
+        'Merchant charge corrected by +2,500.00 C-bills.',
       );
       await expect(page.getByTestId('gm-ledger-player-log')).not.toContainText(
         /Hidden campaign|black-market|GM-only/i,
@@ -560,16 +560,16 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       await assertNoMekStationLoading(page);
       await expect(page.getByTestId('page-title')).toContainText('GM Ledger');
       await expect(page.getByTestId('gm-ledger-balance')).toContainText(
-        '997,500.00 C-bills',
+        '1,002,500.00 C-bills',
       );
       await expect(page.getByTestId('gm-ledger-player-log')).toContainText(
-        'Merchant charge corrected by -2,500.00 C-bills.',
+        'Merchant charge corrected by +2,500.00 C-bills.',
       );
       await expect(page.getByTestId('gm-ledger-player-log')).not.toContainText(
         /Hidden campaign|black-market|GM-only/i,
       );
       await expect(page.getByTestId('gm-ledger-private-log')).toContainText(
-        'Merchant charge corrected by -2,500.00 C-bills.',
+        'Merchant charge corrected by +2,500.00 C-bills.',
       );
       await expect(page.getByTestId('gm-ledger-private-log')).not.toContainText(
         /Hidden campaign|black-market|GM-only/i,
@@ -620,7 +620,7 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
         'GM controls are available only to the campaign owner or co-op host',
       );
       await expect(page.getByTestId('gm-ledger-player-log')).toContainText(
-        'Merchant charge corrected by -2,500.00 C-bills.',
+        'Merchant charge corrected by +2,500.00 C-bills.',
       );
       await expect(page.getByTestId('gm-ledger-player-log')).not.toContainText(
         /Hidden campaign|black-market|GM-only|default outcome/i,
@@ -669,9 +669,9 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       await expect
         .poll(async () => readClientLedgerSnapshot(page))
         .toMatchObject({
-          balance: 997_500,
+          balance: 1_002_500,
           gmInterventionEventCount: 1,
-          playerSummaries: ['Merchant charge corrected by -2,500.00 C-bills.'],
+          playerSummaries: ['Merchant charge corrected by +2,500.00 C-bills.'],
         });
 
       const saved = await saveCampaignThroughDashboard(page, campaignId);
@@ -679,9 +679,9 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       await expect
         .poll(async () => readServerLedgerSnapshot(page, campaignId))
         .toMatchObject({
-          balance: 997_500,
+          balance: 1_002_500,
           gmInterventionEventCount: 1,
-          playerSummaries: ['Merchant charge corrected by -2,500.00 C-bills.'],
+          playerSummaries: ['Merchant charge corrected by +2,500.00 C-bills.'],
         });
 
       await clearLiveCampaignClientState(page);
@@ -702,16 +702,16 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       await assertNoMekStationLoading(page);
       await expect(page.getByTestId('page-title')).toContainText('GM Ledger');
       await expect(page.getByTestId('gm-ledger-balance')).toContainText(
-        '997,500.00 C-bills',
+        '1,002,500.00 C-bills',
       );
       await expect(page.getByTestId('gm-ledger-player-log')).toContainText(
-        'Merchant charge corrected by -2,500.00 C-bills.',
+        'Merchant charge corrected by +2,500.00 C-bills.',
       );
       await expect(page.getByTestId('gm-ledger-player-log')).not.toContainText(
         /Hidden campaign|black-market|GM-only/i,
       );
       await expect(page.getByTestId('gm-ledger-private-log')).toContainText(
-        'Merchant charge corrected by -2,500.00 C-bills.',
+        'Merchant charge corrected by +2,500.00 C-bills.',
       );
       await expect(page.getByTestId('gm-ledger-private-log')).not.toContainText(
         /Hidden campaign|black-market|GM-only/i,
@@ -719,9 +719,9 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       await expect
         .poll(async () => readClientLedgerSnapshot(page))
         .toMatchObject({
-          balance: 997_500,
+          balance: 1_002_500,
           gmInterventionEventCount: 1,
-          playerSummaries: ['Merchant charge corrected by -2,500.00 C-bills.'],
+          playerSummaries: ['Merchant charge corrected by +2,500.00 C-bills.'],
         });
     } finally {
       if (campaignId) {
