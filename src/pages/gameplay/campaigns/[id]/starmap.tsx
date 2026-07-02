@@ -173,7 +173,15 @@ export default function CampaignStarmapPage(): React.ReactElement {
           <div className="grid gap-3 sm:grid-cols-4">
             <Metric
               label="Status"
-              value={travelPreview?.status ?? 'blocked'}
+              // 'blocked' is the engine's word for "no travel to plan" — but
+              // when the only block is that the fleet is already AT the
+              // selected system, the player just completed a successful
+              // arrival and the cell must say so (re-audit DC-05).
+              value={
+                selectedIsBlockedCurrentSystem
+                  ? 'at destination'
+                  : (travelPreview?.status ?? 'blocked')
+              }
               testId="starmap-route-status"
             />
             <Metric

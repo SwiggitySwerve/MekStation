@@ -13,7 +13,7 @@
  * - `role="region"` with `aria-label`
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { IHexCoordinate, IUnitToken } from '@/types/gameplay';
 
@@ -59,6 +59,15 @@ export interface MinimapProps {
   readonly visible?: boolean;
 }
 
+/**
+ * Host panels shorter than this cannot show the 200px minimap (top-right)
+ * AND the bottom-right camera/overlay control column without the two
+ * translucently painting over each other (re-audit VD-07). Below it the
+ * glanceable AMBIENT minimap yields to the interactive controls. jsdom
+ * reports 0 heights, so 0 is treated as "unmeasured -> show".
+ */
+const MINIMAP_MIN_HOST_HEIGHT = 460;
+
 export function Minimap({
   radius,
   tokens,
@@ -68,7 +77,24 @@ export function Minimap({
   visible = true,
 }: MinimapProps): React.ReactElement | null {
   const [hoveredUnitId, setHoveredUnitId] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [hostTooShort, setHostTooShort] = useState(false);
   const bounds = useMemo(() => worldBoundsForRadius(radius), [radius]);
+
+  // Auto-yield on short map panels: watch the positioned host's height and
+  // drop the minimap when both it and the control column cannot fit.
+  useEffect(() => {
+    const host = containerRef.current?.offsetParent;
+    if (!(host instanceof HTMLElement)) return;
+    const check = (): void => {
+      const height = host.clientHeight;
+      setHostTooShort(height > 0 && height < MINIMAP_MIN_HOST_HEIGHT);
+    };
+    check();
+    const observer = new ResizeObserver(check);
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, [visible]);
 
   const viewportRect = useMemo(
     () =>
@@ -103,7 +129,13 @@ export function Minimap({
 
   return (
     <div
-      className="absolute rounded-md bg-slate-900/85 shadow-lg ring-1 ring-slate-700/60 backdrop-blur-sm"
+      // `invisible` (not unmount / display:none) when the host is too short:
+      // the element stays in flow so the ResizeObserver keeps measuring and
+      // restores the minimap the moment the panel grows tall enough.
+      ref={containerRef}
+      className={`absolute rounded-md bg-slate-900/85 shadow-lg ring-1 ring-slate-700/60 backdrop-blur-sm ${
+        hostTooShort ? 'pointer-events-none invisible' : ''
+      }`}
       style={{
         top: MINIMAP_MARGIN,
         right: MINIMAP_MARGIN,
@@ -111,7 +143,9 @@ export function Minimap({
         height: MINIMAP_SIZE,
       }}
       data-testid="minimap"
+      data-minimap-yielded={hostTooShort ? 'true' : undefined}
       role="region"
+      aria-hidden={hostTooShort ? 'true' : undefined}
       aria-label="Tactical map overview. Click or drag to pan the main camera."
     >
       <svg

@@ -16,6 +16,16 @@ function readinessStatusVariant(
   return 'red';
 }
 
+// Severity glyph shared with the starmap annotation convention (doctrine
+// AMBIENT-CHROME rule): status never reads through color alone.
+function readinessStatusGlyph(
+  status: IMissionReadinessUnitProjection['status'],
+): string {
+  if (status === 'eligible') return '✓ ';
+  if (status === 'risky') return '▲ ';
+  return '! ';
+}
+
 function launchReadinessVariant(
   projection: IMissionReadinessProjection,
 ): 'success' | 'warning' | 'red' {
@@ -24,9 +34,9 @@ function launchReadinessVariant(
 }
 
 function launchReadinessLabel(projection: IMissionReadinessProjection): string {
-  if (!projection.canLaunch) return 'Launch blocked';
-  if (projection.warnings.length === 0) return 'Launch ready';
-  return `Ready with warnings (${projection.warnings.length})`;
+  if (!projection.canLaunch) return '! Launch blocked';
+  if (projection.warnings.length === 0) return '✓ Launch ready';
+  return `▲ Ready with warnings (${projection.warnings.length})`;
 }
 
 export function MissionReadinessPanel({
@@ -88,6 +98,7 @@ export function MissionReadinessPanel({
                     variant={readinessStatusVariant(unitProjection.status)}
                     size="sm"
                   >
+                    {readinessStatusGlyph(unitProjection.status)}
                     {unitProjection.status}
                   </Badge>
                 </span>
@@ -101,13 +112,22 @@ export function MissionReadinessPanel({
                     {unitProjection.reasons.map((reason) => (
                       <li
                         key={`${unit.unitId}-${reason.code}`}
+                        // Blockers announce (alert); warnings inform (status) —
+                        // and both carry the severity glyph so the message
+                        // never reads through color alone.
+                        role={
+                          reason.severity === 'blocker' ? 'alert' : 'status'
+                        }
                         className={
                           reason.severity === 'blocker'
                             ? 'flex flex-wrap items-center gap-2 text-xs text-rose-300'
                             : 'flex flex-wrap items-center gap-2 text-xs text-amber-300'
                         }
                       >
-                        <span>{reason.message}</span>
+                        <span>
+                          {reason.severity === 'blocker' ? '! ' : '▲ '}
+                          {reason.message}
+                        </span>
                         {reason.actionHref ? (
                           <Link
                             href={reason.actionHref}
@@ -122,9 +142,13 @@ export function MissionReadinessPanel({
                   </ul>
                 ) : null}
                 {buildCustomizeHref ? (
+                  // Real button affordance at AA contrast (re-audit UXF-02:
+                  // the old sky-100-on-10%-tint label washed out inside the
+                  // warning card) — but still visually SECONDARY to the
+                  // amber 'Assign pilot' remediation link above it.
                   <Link
                     href={buildCustomizeHref(unit.unitId)}
-                    className="mt-2 inline-flex rounded border border-sky-400/70 bg-sky-500/10 px-2 py-1 text-xs font-semibold text-sky-100 hover:border-sky-300 hover:bg-sky-500/20"
+                    className="mt-2 inline-flex rounded border border-sky-300 bg-sky-500/20 px-2.5 py-1 text-xs font-semibold text-sky-50 hover:bg-sky-500/30"
                     data-testid={`mission-readiness-customize-${unit.unitId}`}
                   >
                     Open refit editor

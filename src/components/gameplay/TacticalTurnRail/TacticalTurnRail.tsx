@@ -169,11 +169,11 @@ function RailToken({
           </span>
         )}
       </div>
+      {/* Name only — the raw catalog slug (`atlas-as7-d`) that used to render
+          under it was an internal identifier leak at failing contrast
+          (re-audit DC-07/A11Y-R6); the name already carries the variant. */}
       <span className="w-full truncate leading-tight font-medium">
         {unit.name}
-      </span>
-      <span className="truncate font-mono text-[10px] leading-tight opacity-60">
-        {unit.unitRef}
       </span>
     </button>
   );
@@ -198,13 +198,15 @@ function BlockerBadge({
 
   return (
     <div
-      className="flex flex-shrink-0 items-center gap-1 rounded bg-amber-600/80 px-2 py-1 text-xs text-white"
+      // Dark text on the amber fill — white-on-amber measured well below AA
+      // (re-audit A11Y-R7), same treatment as the GM ledger's filled CTAs.
+      className="flex flex-shrink-0 items-center gap-1 rounded bg-amber-400 px-2 py-1 text-xs font-semibold text-slate-950"
       data-testid="rail-blocker-badge"
       aria-label={`${count} unit${count === 1 ? '' : 's'} awaiting ${phaseLabel}`}
       role="status"
     >
       <span className="font-bold">{count}</span>
-      <span className="opacity-80">pending</span>
+      <span>pending</span>
     </div>
   );
 }
