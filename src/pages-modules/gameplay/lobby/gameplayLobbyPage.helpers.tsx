@@ -17,6 +17,7 @@ import type {
 import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
 import type { ICustomUnitIndexEntry } from '@/types/persistence/UnitPersistence';
 
+import { buildSeededGameSessionFromLobbyState } from '@/engine/combatSeedDerivation';
 import {
   createLobbyChannel,
   getGameSessionAwarenessStates,
@@ -273,28 +274,47 @@ export function useLaunchedMatchNavigation({
 }): void {
   useEffect(() => {
     if (!lobbyState?.matchId) return;
+    const matchId = lobbyState.matchId;
     void matchLogStorage
       .upsertMatchMetadata({
-        matchId: lobbyState.matchId,
+        matchId,
         hostPeerId: lobbyState.hostPeerId,
         guestPeerId: lobbyState.guestPeerId,
         status: 'active',
       })
       .catch(() => undefined);
-    try {
-      setSession(
-        buildGameSessionFromLobbyState(lobbyState, lobbyState.matchId),
-      );
-    } catch {
-      // Routing still lands both peers together when local adaptation fails.
-    }
-    void router.push(
-      `/gameplay/games/${encodeURIComponent(lobbyState.matchId)}`,
-    );
+    void (async () => {
+      try {
+        setSession(await buildSeededLobbySession(lobbyState, matchId));
+      } catch {
+        // Routing still lands both peers together when local adaptation fails.
+      }
+      void router.push(`/gameplay/games/${encodeURIComponent(matchId)}`);
+    })();
   }, [lobbyState, router, setSession]);
 }
 
-export function launchLobbyMatch({
+// Combat-seeded lobby session with an unseeded fallback: a catalog hiccup
+// must never block launching a match both peers are already committed to
+// (the fallback reproduces the pre-seeding behavior; the session then shows
+// the legacy empty-armor state rather than failing the launch).
+async function buildSeededLobbySession(
+  lobbyState: ILobbyState,
+  matchId: string,
+): Promise<IGameSession> {
+  try {
+    return await buildSeededGameSessionFromLobbyState(lobbyState, matchId);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[lobby] combat-seed derivation failed; launching unseeded',
+      error,
+    );
+    return buildGameSessionFromLobbyState(lobbyState, matchId);
+  }
+}
+
+export async function launchLobbyMatch({
   launch,
   lobbyState,
   routeRoomCode,
@@ -304,11 +324,11 @@ export function launchLobbyMatch({
   readonly lobbyState: ILobbyState;
   readonly routeRoomCode: string;
   readonly setSession: (session: IGameSession) => void;
-}): void {
+}): Promise<void> {
   const matchId = lobbyState.matchId ?? `p2p-${routeRoomCode.toLowerCase()}`;
   const result = launch(matchId);
   if (result?.ok && result.state) {
-    setSession(buildGameSessionFromLobbyState(result.state, matchId));
+    setSession(await buildSeededLobbySession(result.state, matchId));
   }
 }
 

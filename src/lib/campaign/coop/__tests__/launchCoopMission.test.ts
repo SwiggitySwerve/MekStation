@@ -82,7 +82,7 @@ function fakeService(): {
     },
     updateEncounter: () => ({ success: true, id: 'repo-enc-1' }),
     setPlayerForce: () => ({ success: true, id: 'repo-enc-1' }),
-    launchEncounter: (id) => {
+    launchEncounter: async (id) => {
       launched.push(id);
       if (stored) {
         stored = { ...stored, gameSessionId: 'game-session-coop-1' };
@@ -95,10 +95,10 @@ function fakeService(): {
 }
 
 describe('launchCoopMission — routes through the existing launch path', () => {
-  it('launches a composed two-force encounter and returns the session id', () => {
+  it('launches a composed two-force encounter and returns the session id', async () => {
     const { service, launched } = fakeService();
 
-    const result = launchCoopMission(
+    const result = await launchCoopMission(
       BASE_ENCOUNTER,
       [
         {
@@ -130,9 +130,9 @@ describe('launchCoopMission — routes through the existing launch path', () => 
     ]);
   });
 
-  it('routes a mixed deploy/command-hq launch with only the deploying force on the map', () => {
+  it('routes a mixed deploy/command-hq launch with only the deploying force on the map', async () => {
     const { service } = fakeService();
-    const result = launchCoopMission(
+    const result = await launchCoopMission(
       BASE_ENCOUNTER,
       [
         {
@@ -159,10 +159,10 @@ describe('launchCoopMission — routes through the existing launch path', () => 
 });
 
 describe('launchCoopMission — blocked launch', () => {
-  it('blocks a launch where both players chose command-hq and creates no encounter', () => {
+  it('blocks a launch where both players chose command-hq and creates no encounter', async () => {
     const { service, launched } = fakeService();
 
-    const result = launchCoopMission(
+    const result = await launchCoopMission(
       BASE_ENCOUNTER,
       [
         {

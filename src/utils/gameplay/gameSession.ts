@@ -19,7 +19,11 @@ export {
   type ICreateGameSessionOptions,
 } from './gameSessionCore';
 
-export { buildGameSessionFromLobbyState } from './lobbySessionBuilder';
+export {
+  buildGameSessionFromLobbyState,
+  buildLobbyGameData,
+  type ILobbyGameData,
+} from './lobbySessionBuilder';
 
 export {
   resolveAttack,

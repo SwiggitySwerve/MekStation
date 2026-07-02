@@ -247,7 +247,7 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
       try {
         const { launchCoopMission } =
           await import('@/lib/campaign/coop/launchCoopMission');
-        result = launchCoopMission(
+        result = await launchCoopMission(
           buildLaunchEncounter(campaign, missionKey),
           contributions,
         );
