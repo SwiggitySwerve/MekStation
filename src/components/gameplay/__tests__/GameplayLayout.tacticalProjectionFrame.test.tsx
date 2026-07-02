@@ -94,9 +94,10 @@ describe('GameplayLayout shared tactical projection frame', () => {
       blockedReason,
     );
 
-    fireEvent.mouseEnter(screen.getByTestId('command-btn-movement.walk'));
-    expect(
-      screen.getByTestId('command-disabled-reason-movement.walk'),
-    ).toHaveTextContent(blockedReason);
+    // tactical-movement-intent-composer: the dock no longer renders a Walk
+    // verb button — the shared blocked reason surfaces through the movement
+    // preview panel above (Single Movement Authority; the composer owns
+    // movement composition).
+    expect(screen.queryByTestId('command-btn-movement.walk')).toBeNull();
   });
 });

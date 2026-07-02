@@ -4,17 +4,18 @@
  * Verifies hex-targeted commands surface in the hex menu and dispatch
  * through the SAME onAction the dock uses.
  *
- * @spec openspec/changes/add-tactical-action-menu-system/specs/tactical-map-interface/spec.md
+ * tactical-movement-intent-composer (Single Movement Authority): the dock's
+ * movement-verb commands (walk / run / jump) — the only `targetsHex` commands —
+ * are removed. The Movement Intent Composer's click-is-a-waypoint interaction is
+ * the sole hex-driven movement surface now, so the hex context menu no longer
+ * offers movement commands and renders its empty state during Movement.
+ *
+ * @spec openspec/changes/tactical-movement-intent-composer/specs/tactical-movement-intent/spec.md
  */
 
 import { fireEvent, render, screen } from '@testing-library/react';
 
-import {
-  GamePhase,
-  MovementType,
-  type IMovementRangeHex,
-  type ITacticalCommandContext,
-} from '@/types/gameplay';
+import { GamePhase, type ITacticalCommandContext } from '@/types/gameplay';
 
 import { HexContextMenu } from '../HexContextMenu';
 
@@ -28,21 +29,6 @@ function makeCtx(
     hoveredHex: null,
     phase: GamePhase.Movement,
     canAct: true,
-    ...overrides,
-  };
-}
-
-function makeMovementProjection(
-  overrides: Partial<IMovementRangeHex> = {},
-): IMovementRangeHex {
-  return {
-    hex: { q: 3, r: 4 },
-    mpCost: 9,
-    reachable: false,
-    movementType: MovementType.Walk,
-    blockedReason: 'Destination hex is occupied',
-    movementInvalidReason: 'DestinationOccupied',
-    movementInvalidDetails: 'Destination hex is occupied',
     ...overrides,
   };
 }
@@ -65,7 +51,7 @@ describe('HexContextMenu', () => {
     expect(menu.getAttribute('data-hex-r')).toBe('4');
   });
 
-  it('surfaces only hex-targeting commands (movement family)', () => {
+  it('no longer surfaces movement-verb hex commands (composer owns hex clicks)', () => {
     render(
       <HexContextMenu
         hex={{ q: 3, r: 4 }}
@@ -76,19 +62,13 @@ describe('HexContextMenu', () => {
         onAction={() => {}}
       />,
     );
-    // Movement walk/run/jump all flag targetsHex=true.
-    expect(
-      screen.getByTestId('hex-menu-item-movement.walk'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId('hex-menu-item-movement.run'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId('hex-menu-item-movement.jump'),
-    ).toBeInTheDocument();
-    // Facing / utility commands are not hex-targeting -> absent.
-    expect(screen.queryByTestId('hex-menu-item-facing.rotate-left')).toBeNull();
-    expect(screen.queryByTestId('hex-menu-item-utility.concede')).toBeNull();
+    // Walk / Run / Jump are removed from the dock command set — Single Movement
+    // Authority: the composer's waypoint interaction is the sole hex surface.
+    expect(screen.queryByTestId('hex-menu-item-movement.walk')).toBeNull();
+    expect(screen.queryByTestId('hex-menu-item-movement.run')).toBeNull();
+    expect(screen.queryByTestId('hex-menu-item-movement.jump')).toBeNull();
+    // No hex-targeting commands remain in Movement -> empty state.
+    expect(screen.getByTestId('hex-context-menu-empty')).toBeInTheDocument();
   });
 
   it('shows the empty state when no hex commands are available in this phase', () => {
@@ -103,79 +83,6 @@ describe('HexContextMenu', () => {
       />,
     );
     expect(screen.getByTestId('hex-context-menu-empty')).toBeInTheDocument();
-  });
-
-  it('dispatches actionId with payload through onAction and closes on activation', () => {
-    const onAction = jest.fn();
-    const onClose = jest.fn();
-    render(
-      <HexContextMenu
-        hex={{ q: 3, r: 4 }}
-        ctx={makeCtx()}
-        shellMode="combat"
-        anchor={{ x: 100, y: 100 }}
-        onClose={onClose}
-        onAction={onAction}
-      />,
-    );
-    fireEvent.click(screen.getByTestId('hex-menu-item-movement.walk'));
-    expect(onAction).toHaveBeenCalledWith('lock', { mode: 'walk' });
-    expect(onClose).toHaveBeenCalled();
-  });
-
-  it('does not dispatch heat-blocked movement modes from the hex menu', () => {
-    const onAction = jest.fn();
-    const onClose = jest.fn();
-    render(
-      <HexContextMenu
-        hex={{ q: 3, r: 4 }}
-        ctx={makeCtx({
-          activeUnitHeat: 30,
-          movementCapability: { walkMP: 4, runMP: 6, jumpMP: 4 },
-        })}
-        shellMode="combat"
-        anchor={{ x: 100, y: 100 }}
-        onClose={onClose}
-        onAction={onAction}
-      />,
-    );
-
-    const run = screen.getByTestId('hex-menu-item-movement.run');
-    expect(run).toBeDisabled();
-    expect(
-      screen.getByTestId('hex-menu-item-reason-movement.run'),
-    ).toHaveTextContent('Heat penalty leaves no run MP.');
-    fireEvent.click(run);
-    expect(onAction).not.toHaveBeenCalled();
-    expect(onClose).not.toHaveBeenCalled();
-  });
-
-  it('uses the clicked hex projection to disable blocked movement commands', () => {
-    const onAction = jest.fn();
-    const onClose = jest.fn();
-    render(
-      <HexContextMenu
-        hex={{ q: 3, r: 4 }}
-        ctx={makeCtx({
-          movementProjectionByHex: {
-            '3,4': makeMovementProjection(),
-          },
-        })}
-        shellMode="combat"
-        anchor={{ x: 100, y: 100 }}
-        onClose={onClose}
-        onAction={onAction}
-      />,
-    );
-
-    const walk = screen.getByTestId('hex-menu-item-movement.walk');
-    expect(walk).toBeDisabled();
-    expect(
-      screen.getByTestId('hex-menu-item-reason-movement.walk'),
-    ).toHaveTextContent('Destination hex is occupied');
-    fireEvent.click(walk);
-    expect(onAction).not.toHaveBeenCalled();
-    expect(onClose).not.toHaveBeenCalled();
   });
 
   it('Escape closes the menu', () => {

@@ -33,8 +33,11 @@ import type {
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
 import { isGmTacticalCommandId } from '@/lib/interventions';
-import { GamePhase } from '@/types/gameplay';
 
+import {
+  MovementIntentComposer,
+  type IMovementComposerContext,
+} from '../MovementIntentComposer';
 import { CommandTooltip } from './CommandTooltip';
 import {
   GmInterventionConfirmationPanel,
@@ -43,6 +46,7 @@ import {
   type IGmTacticalInterventionSurface,
 } from './TacticalActionDock.gmIntervention';
 import { CommandPreviewPanel } from './TacticalActionDock.preview';
+import { previewCommandForContext } from './TacticalActionDock.previewSelect';
 import {
   useCommandPreview,
   type ICommandPreviewInputs,
@@ -71,6 +75,13 @@ export interface TacticalActionDockProps {
   readonly previewInputs?: ICommandPreviewInputs;
   /** Optional GM intervention service for command previews and approval. */
   readonly gmIntervention?: IGmTacticalInterventionSurface;
+  /**
+   * Movement Intent Composer context (tactical-movement-intent-composer). When
+   * `active`, the composer renders in the movement zone as the SOLE movement-
+   * composition surface (Single Movement Authority) — the dock no longer renders
+   * movement-verb buttons; it keeps facing/phase/utility (+ Evade posture).
+   */
+  readonly intentComposer?: IMovementComposerContext;
   /** Optional className for styling. */
   readonly className?: string;
 }
@@ -231,71 +242,6 @@ function CommandGroup({
   );
 }
 
-function previewCommandForContext({
-  commands,
-  ctx,
-  previewInputs,
-}: {
-  readonly commands: readonly ITacticalCommand[];
-  readonly ctx: ITacticalCommandContext;
-  readonly previewInputs: ICommandPreviewInputs | undefined;
-}): ITacticalCommand | null {
-  if (
-    ctx.phase === GamePhase.WeaponAttack &&
-    (ctx.targetUnitId || previewInputs?.combatInfo)
-  ) {
-    return (
-      commands.find((command) => command.id === 'weapon.fire-volley') ?? null
-    );
-  }
-
-  const movementMode =
-    previewInputs?.movementInfo?.movementType ?? previewInputs?.movementMode;
-  const hasMovementPreview =
-    Boolean(previewInputs?.movementInfo) ||
-    Boolean(previewInputs?.highlightPath?.length);
-  if (ctx.phase === GamePhase.Movement && movementMode && hasMovementPreview) {
-    return (
-      commands.find((command) => command.id === `movement.${movementMode}`) ??
-      null
-    );
-  }
-
-  const physicalAttackType =
-    previewInputs?.physicalAttackOption?.attackType ??
-    previewInputs?.physicalAttackType;
-  if (
-    ctx.phase === GamePhase.PhysicalAttack &&
-    physicalAttackType &&
-    (ctx.targetUnitId || previewInputs?.physicalTargetUnitId)
-  ) {
-    return (
-      commands.find(
-        (command) =>
-          command.id === commandIdForPhysicalAttack(physicalAttackType),
-      ) ?? null
-    );
-  }
-
-  return null;
-}
-
-function commandIdForPhysicalAttack(
-  attackType: NonNullable<ICommandPreviewInputs['physicalAttackType']>,
-): string {
-  switch (attackType) {
-    case 'dfa':
-      return 'physical.dfa';
-    case 'hatchet':
-    case 'sword':
-    case 'mace':
-    case 'lance':
-      return 'physical.club';
-    default:
-      return `physical.${attackType}`;
-  }
-}
-
 /**
  * The tactical action dock — primary command surface.
  *
@@ -311,6 +257,7 @@ export function TacticalActionDock({
   infoText,
   previewInputs,
   gmIntervention,
+  intentComposer,
   className = '',
 }: TacticalActionDockProps): React.ReactElement {
   const [gmPreviewState, setGmPreviewState] = useState<IGmPreviewState | null>(
@@ -439,6 +386,13 @@ export function TacticalActionDock({
       data-testid="tactical-action-dock"
     >
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
+        {intentComposer?.active && (
+          // Single Movement Authority: the composer is the sole movement-
+          // composition surface, hosted here in the PRIMARY-ACTION zone. The
+          // dock's movement-verb buttons are removed; facing/phase/utility (and
+          // the Evade posture) still render as command groups below.
+          <MovementIntentComposer context={intentComposer} />
+        )}
         {groups.length === 0 && (
           <span
             className="text-text-theme-secondary text-sm"

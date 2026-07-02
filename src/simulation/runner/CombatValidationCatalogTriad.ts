@@ -297,6 +297,10 @@ const HEAT_TRIAD = entryTriad(
 export const COMBAT_CATALOG_TRIAD_EVIDENCE = {
   actions: {
     tacticalCommands: ACTION_TRIAD,
+    composerMovementModes: entryTriad(
+      'Movement Intent Composer walk/run/sprint/jump Lock-In budget rows must carry row-level sourceRefs to the composer surface, movementIntent slice, and commitComposedMovement path so the movement CAPABILITY stays discoverable after the dock movement-verb commands were removed under tactical-movement-intent-composer.',
+      ACTION_CONTRACT_REFS,
+    ),
     absentActionSurfaces: entryTriad(
       'Absent official BattleMech action surfaces must carry row-level sourceRefs so future optional-action gaps remain explicit blockers instead of inheriting broad movement authority.',
       ACTION_CONTRACT_REFS,

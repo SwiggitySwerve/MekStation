@@ -12,7 +12,7 @@ import { usePhaseQueueProjection } from '@/hooks/gameplay';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
 import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
-import { GameSide } from '@/types/gameplay';
+import { Facing, GameSide } from '@/types/gameplay';
 import { filterEventsForMovementAnimations } from '@/utils/gameplay/movement/eventLogSync';
 
 import type { GameplayFogContactMemory } from './GameplayLayout.tokens';
@@ -79,6 +79,7 @@ export function GameplayLayout({
   hoverUnreachable = false,
   mpLegend,
   onMovementModeSelect,
+  intentComposer,
   interactiveSession,
   physicalAttackIntent,
   playerSide = GameSide.Player,
@@ -338,6 +339,29 @@ export function GameplayLayout({
     onHexClick,
   });
 
+  // Movement Intent Composer dock context (tactical-movement-intent-composer,
+  // phase 4). Activates in lockstep with the map surface (`intentComposer.
+  // composerActive`) so the dock-hosted composer and the map's envelopes /
+  // waypoints are the SAME session. Sources the command context (posture
+  // legality), runtime capability, and start hex/facing already computed here.
+  const composerDockContext = useMemo(
+    () => ({
+      active: Boolean(intentComposer?.composerActive),
+      capability: selectedMovementCapability,
+      unit: selectedUnitModel.selectedUnit,
+      commandContext: actionContext,
+      startHex: selectedUnitModel.selectedUnit?.position ?? null,
+      startFacing: selectedUnitModel.selectedUnit?.facing ?? Facing.North,
+      movementHeatProfile: selectedMovementCapability?.movementHeatProfile,
+    }),
+    [
+      intentComposer?.composerActive,
+      selectedMovementCapability,
+      selectedUnitModel.selectedUnit,
+      actionContext,
+    ],
+  );
+
   return (
     <GameplayLayoutView
       className={className}
@@ -373,6 +397,7 @@ export function GameplayLayout({
       mpLegend={mpLegend}
       onMovementModeSelect={onMovementModeSelect}
       onHexHover={onHexHover}
+      intentComposer={intentComposer}
       onInteractionReady={setMapInteraction}
       controls={controls}
       physicalAttackIntent={physicalAttackIntent}
@@ -388,6 +413,7 @@ export function GameplayLayout({
       isPlayerTurn={isPlayerTurn}
       onAction={onAction}
       commandPreviewInputs={commandPreviewInputs}
+      composerDockContext={composerDockContext}
       onEventLogCollapsedChange={handleEventLogCollapsedChange}
     />
   );

@@ -31,7 +31,12 @@ import {
   IGameplayUIState,
   IPilotSpaSummary,
   IWeaponStatus,
+  MovementType,
   WeaponFireMode,
+  type Facing,
+  type IIntentItem,
+  type IMovementIntentState,
+  type PostureActionType,
   type StandUpMode,
 } from '@/types/gameplay';
 import { RECONNECT_GRACE_MS } from '@/types/multiplayer/Protocol';
@@ -75,6 +80,17 @@ import {
   setTargetLogic,
   toggleWeaponLogic,
 } from './useGameplayStore.interactions';
+import {
+  addPostureActionReducer,
+  appendWaypointReducer,
+  INITIAL_MOVEMENT_INTENT_STATE,
+  intentToMovementDeclaration,
+  lockInReducer,
+  popWaypointReducer,
+  removeIntentItemReducer,
+  resetCompositionReducer,
+  setFinalFacingReducer,
+} from './useGameplayStore.movementIntent';
 import {
   projectSelectedUnit,
   selectIsGameCompleted,
@@ -161,6 +177,14 @@ interface GameplayState {
    * session-scoped per the change's non-goals).
    */
   previewEnabled: boolean;
+  /**
+   * Per `tactical-movement-intent-composer` (design D5): the intent-first
+   * movement composition the active player is building — Posture Actions plus
+   * at most one waypointed Locomotion Path — plus the mode locked in at
+   * Lock-In. Derived values (ledger total, budget options) are NOT stored;
+   * selectors compute them from `movementIntent.items` + live unit state.
+   */
+  movementIntent: IMovementIntentState;
 }
 
 interface GameplayActions {
@@ -252,6 +276,32 @@ interface GameplayActions {
    * NEVER calls `applyAction` or appends an event — pure UI flag.
    */
   setPreviewEnabled: (enabled: boolean) => void;
+  /**
+   * Per `tactical-movement-intent-composer` (design D5): Movement Intent
+   * Composer actions. Reducers mutate `movementIntent.items` (each edit clears
+   * `lockedMode`); MP / heat / to-hit costs are supplied by the caller from
+   * `movement-system` code paths — the store holds no UI-local movement math.
+   */
+  addPostureAction: (action: PostureActionType, mpCost: number) => void;
+  removeIntentItem: (index: number) => void;
+  appendWaypoint: (
+    leg: Extract<IIntentItem, { kind: 'locomotion' }>['legs'][number],
+    finalFacing: Facing,
+  ) => void;
+  popWaypoint: (restoredFinalFacing: Facing) => void;
+  setFinalFacing: (finalFacing: Facing) => void;
+  resetComposition: () => void;
+  /** Record the explicit player Lock-In choice (never auto-picked). */
+  lockIn: (mode: MovementType) => void;
+  /**
+   * Commit the composed intent + locked mode into the existing movement
+   * declaration path (the same `applyMovement` route the legacy planner uses),
+   * then reset the composition. No-op when there is nothing to commit.
+   */
+  commitComposedMovement: (
+    intent: IMovementIntentState,
+    lockedMode: MovementType,
+  ) => void;
 }
 
 type GameplayStore = GameplayState & GameplayActions;
@@ -289,6 +339,7 @@ const initialState: GameplayState = {
     weaponModeError: null,
   },
   previewEnabled: false,
+  movementIntent: INITIAL_MOVEMENT_INTENT_STATE,
 };
 
 // =============================================================================
@@ -493,6 +544,85 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   // state, the attack plan, or the interactive session. The
   // weapon-picker subscribes via the `previewEnabled` selector.
   setPreviewEnabled: (enabled) => set({ previewEnabled: enabled }),
+
+  // -------------------------------------------------------------------------
+  // Movement Intent Composer (tactical-movement-intent-composer, design D5)
+  // -------------------------------------------------------------------------
+  addPostureAction: (action, mpCost) =>
+    set((state) => ({
+      movementIntent: addPostureActionReducer(
+        state.movementIntent,
+        action,
+        mpCost,
+      ),
+    })),
+  removeIntentItem: (index) =>
+    set((state) => ({
+      movementIntent: removeIntentItemReducer(state.movementIntent, index),
+    })),
+  appendWaypoint: (leg, finalFacing) =>
+    set((state) => ({
+      movementIntent: appendWaypointReducer(
+        state.movementIntent,
+        leg,
+        finalFacing,
+      ),
+    })),
+  popWaypoint: (restoredFinalFacing) =>
+    set((state) => ({
+      movementIntent: popWaypointReducer(
+        state.movementIntent,
+        restoredFinalFacing,
+      ),
+    })),
+  setFinalFacing: (finalFacing) =>
+    set((state) => ({
+      movementIntent: setFinalFacingReducer(state.movementIntent, finalFacing),
+    })),
+  resetComposition: () => set({ movementIntent: resetCompositionReducer() }),
+  lockIn: (mode) =>
+    set((state) => ({
+      movementIntent: lockInReducer(state.movementIntent, mode),
+    })),
+  commitComposedMovement: (intent, lockedMode) => {
+    const { interactiveSession, ui } = get();
+    if (!interactiveSession || !ui.selectedUnitId) return;
+
+    const unitId = ui.selectedUnitId;
+    const unitState =
+      interactiveSession.getSession().currentState.units[unitId];
+    if (!unitState) return;
+
+    // Translate the composed intent into the single applyMovement-shaped
+    // declaration, using the unit's current hex/facing as the path anchor.
+    const declaration = intentToMovementDeclaration(
+      intent,
+      lockedMode,
+      unitState.position,
+      unitState.facing,
+    );
+    if (!declaration) {
+      // Nothing to commit — still reset the composition so a stale intent
+      // never lingers into the next activation.
+      set({ movementIntent: resetCompositionReducer() });
+      return;
+    }
+
+    // Feed the EXISTING movement declaration path: stage the equivalent
+    // planned movement, then delegate to the legacy commit so animation,
+    // event emission, and phase reset stay byte-identical to a normal move.
+    set({
+      plannedMovement: {
+        unitId,
+        destination: declaration.destination,
+        facing: declaration.facing,
+        movementType: declaration.movementType,
+        path: declaration.path,
+      },
+    });
+    commitPlannedMovementLogic(get, set);
+    set({ movementIntent: resetCompositionReducer() });
+  },
 }));
 
 // ---------------------------------------------------------------------------

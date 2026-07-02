@@ -19,11 +19,13 @@ import type { ITacticalMapProjectionFrame } from '@/utils/gameplay/tacticalMapPr
 
 import type { GameplayLayoutControls } from './GameplayLayout.controls';
 import type { SelectedUnitModel } from './GameplayLayout.selection';
+import type { IntentComposerMapProps } from './GameplayLayout.types';
 import type {
   MapMovementKind,
   MapMovementPointLegendState,
 } from './HexMapDisplay/HexMapDisplay.types';
 import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
+import type { IMovementComposerContext } from './MovementIntentComposer';
 import type { PhysicalAttackIntent } from './PhysicalAttackPanel';
 import type {
   ICommandPreviewInputs,
@@ -84,6 +86,7 @@ interface GameplayLayoutViewProps {
   readonly onHexHover:
     | ((hex: { readonly q: number; readonly r: number } | null) => void)
     | undefined;
+  readonly intentComposer: IntentComposerMapProps | undefined;
   readonly onInteractionReady: (interaction: MapInteractionState) => void;
   readonly controls: GameplayLayoutControls;
   readonly physicalAttackIntent: PhysicalAttackIntent | null | undefined;
@@ -99,6 +102,7 @@ interface GameplayLayoutViewProps {
   readonly isPlayerTurn: boolean;
   readonly onAction: TacticalActionHandler;
   readonly commandPreviewInputs: ICommandPreviewInputs;
+  readonly composerDockContext: IMovementComposerContext | undefined;
   readonly onEventLogCollapsedChange: (collapsed: boolean) => void;
 }
 
@@ -136,6 +140,7 @@ export function GameplayLayoutView({
   mpLegend,
   onMovementModeSelect,
   onHexHover,
+  intentComposer,
   onInteractionReady,
   controls,
   physicalAttackIntent,
@@ -151,6 +156,7 @@ export function GameplayLayoutView({
   isPlayerTurn,
   onAction,
   commandPreviewInputs,
+  composerDockContext,
   onEventLogCollapsedChange,
 }: GameplayLayoutViewProps): React.ReactElement {
   const recordSheetBody = (
@@ -212,6 +218,7 @@ export function GameplayLayoutView({
           mpLegend={mpLegend}
           onMovementModeSelect={onMovementModeSelect}
           onHexHover={onHexHover}
+          intentComposer={intentComposer}
           onInteractionReady={onInteractionReady}
           controls={controls}
           physicalAttackIntent={physicalAttackIntent}
@@ -239,6 +246,7 @@ export function GameplayLayoutView({
           gmIntervention={gmIntervention}
           onAction={onAction}
           commandPreviewInputs={commandPreviewInputs}
+          composerDockContext={composerDockContext}
           interactivePhase={interactivePhase}
           isPlayerTurn={isPlayerTurn}
           canUndo={canUndo}

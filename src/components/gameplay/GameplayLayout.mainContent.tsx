@@ -16,6 +16,7 @@ import type {
 import type { ITacticalMapProjectionFrame } from '@/utils/gameplay/tacticalMapProjection';
 
 import type { GameplayLayoutControls } from './GameplayLayout.controls';
+import type { IntentComposerMapProps } from './GameplayLayout.types';
 import type {
   MapMovementKind,
   MapMovementPointLegendState,
@@ -55,6 +56,7 @@ export function GameplayMainContentArea({
   mpLegend,
   onMovementModeSelect,
   onHexHover,
+  intentComposer,
   onInteractionReady,
   controls,
   physicalAttackIntent,
@@ -92,6 +94,7 @@ export function GameplayMainContentArea({
   readonly onHexHover:
     | ((hex: { readonly q: number; readonly r: number } | null) => void)
     | undefined;
+  readonly intentComposer: IntentComposerMapProps | undefined;
   readonly onInteractionReady: (interaction: MapInteractionState) => void;
   readonly controls: GameplayLayoutControls;
   readonly physicalAttackIntent: PhysicalAttackIntent | null | undefined;
@@ -109,15 +112,15 @@ export function GameplayMainContentArea({
   return (
     <div
       ref={containerRef}
-      // FOCUS row (map + trays). `flex-1 min-h-0` gives the map band the
-      // whole remaining column height after the bounded bands/dock/log —
-      // the dominant share on any viewport — while `min-h-0` lets the row
-      // shrink below its content so the right tray's own `overflow-y-auto`
-      // engages instead of the page paging. Replaces the prior
-      // `min-h-[60vh]` floor, which on short viewports summed with the
-      // dock + event log past 100vh and clipped the armor/structure rail
-      // (tactical-map-flex-basis: the truncation the doctrine flagged).
-      className="flex min-h-0 flex-1 overflow-hidden"
+      // FOCUS row (map + trays). `flex-1` gives the map band the remaining
+      // column height after the bounded bands/dock/log, and the `min-h-[35vh]`
+      // floor guarantees the battlefield a real share even when siblings grow
+      // (the composer's dock band collapsed a pure `min-h-0` row to a sliver —
+      // FOCUS must dominate per the command-screen doctrine). 35vh is low
+      // enough that dock + event log still fit without page scroll on short
+      // viewports, and the right tray's own `overflow-y-auto` keeps the
+      // armor/structure rail reachable (tactical-map-flex-basis).
+      className="flex min-h-[35vh] flex-1 overflow-hidden"
       data-testid="gameplay-main-content"
     >
       {!isNarrow && <LeftTray lensState={lensState} />}
@@ -141,6 +144,7 @@ export function GameplayMainContentArea({
         mpLegend={mpLegend}
         onMovementModeSelect={onMovementModeSelect}
         onHexHover={onHexHover}
+        intentComposer={intentComposer}
         onInteractionReady={onInteractionReady}
         controls={controls}
         physicalAttackIntent={physicalAttackIntent}

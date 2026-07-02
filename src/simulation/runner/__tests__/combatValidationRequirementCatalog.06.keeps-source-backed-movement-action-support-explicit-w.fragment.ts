@@ -85,7 +85,7 @@ it('keeps source-backed movement action support explicit with remaining side-pat
       'movement.evade'
     ].sourceRefs ?? [];
   const sprintRefs =
-    BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.tacticalCommands[
+    BATTLEMECH_COMBAT_VALIDATION_CATALOG.actions.composerMovementModes[
       'movement.sprint'
     ].sourceRefs ?? [];
   const torsoTwistActionRefs =
@@ -140,11 +140,28 @@ it('keeps source-backed movement action support explicit with remaining side-pat
   expect(
     BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
       .supportMapRefs,
-  ).toContain('actions.tacticalCommands.movement.sprint');
+  ).toContain('actions.composerMovementModes.movement.sprint');
+  expect(
+    BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
+      .supportMapRefs,
+  ).not.toContain('actions.tacticalCommands.movement.sprint');
   expect(
     BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
       .supportMapRefs,
   ).not.toContain('actions.absentActionSurfaces.movement.sprint');
+  // walk/run/jump moved off the dock tactical-command surface onto the
+  // Movement Intent Composer's Lock-In budgets, but stay backed by the
+  // movement-actions requirement so the capability remains covered.
+  expect(
+    BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
+      .supportMapRefs,
+  ).toEqual(
+    expect.arrayContaining([
+      'actions.composerMovementModes.movement.walk',
+      'actions.composerMovementModes.movement.run',
+      'actions.composerMovementModes.movement.jump',
+    ]),
+  );
   expect(
     BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['movement-actions']
       .supportMapRefs,
@@ -175,7 +192,11 @@ it('keeps source-backed movement action support explicit with remaining side-pat
   expect(
     BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
       .supportMapRefs,
-  ).toContain('actions.tacticalCommands.movement.sprint');
+  ).toContain('actions.composerMovementModes.movement.sprint');
+  expect(
+    BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
+      .supportMapRefs,
+  ).not.toContain('actions.tacticalCommands.movement.sprint');
   expect(
     BATTLEMECH_VALIDATION_REQUIREMENT_SUPPORT['to-hit-advanced-modifiers']
       .supportMapRefs,

@@ -3,6 +3,7 @@ import type { ICombatFeatureSupportEntry } from './CombatFeatureSupport';
 export type CombatActionLayer =
   | 'absent-action-surface'
   | 'tactical-command'
+  | 'composer-movement-mode'
   | 'direct-ui-control'
   | 'game-intent'
   | 'wire-intent'

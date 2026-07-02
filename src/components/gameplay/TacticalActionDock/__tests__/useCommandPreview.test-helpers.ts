@@ -147,7 +147,11 @@ function makePhysicalOption(
   };
 }
 
-const walk = buildMovementCommands().find((c) => c.id === 'movement.walk')!;
+// tactical-movement-intent-composer removed the Walk verb; the movement command
+// PREVIEW machinery (buildMovementPreview fires for any `category: 'movement'`
+// command) is unchanged, so any remaining movement command exercises it. Evade
+// is the surviving movement-category command in the dock.
+const walk = buildMovementCommands().find((c) => c.id === 'movement.evade')!;
 const fire = buildWeaponAttackCommands().find(
   (c) => c.id === 'weapon.fire-volley',
 )!;

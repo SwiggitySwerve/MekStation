@@ -7,15 +7,35 @@ import type { IGmTacticalInterventionSurface } from '@/components/gameplay/Tacti
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { InteractivePhase } from '@/stores/useGameplayStore';
 import type {
+  Facing,
   GameSide,
   IGameSession,
   IHexCoordinate,
+  ILocomotionLeg,
   IMovementRangeHex,
   IPilotSpaSummary,
   TacticalActionHandler,
   IWeaponStatus,
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
+
+/**
+ * Intent-first map surface (tactical-movement-intent-composer, phase 3). Drives
+ * the map's Waypoint Layer, pop affordance, and last-waypoint Facing Picker.
+ * Inert when the composer is not active for the selected unit.
+ */
+export interface IntentComposerMapProps {
+  /** `true` when the composer owns the map for the selected unit. */
+  readonly composerActive: boolean;
+  /** The composed Locomotion Path legs (Waypoint Layer markers + chips). */
+  readonly composedLegs: readonly ILocomotionLeg[];
+  /** The current last waypoint hex (Facing Picker anchor), or `null`. */
+  readonly lastWaypointHex: IHexCoordinate | null;
+  /** Pop the final leg (Backspace / last-waypoint-click). */
+  readonly onPopLastWaypoint: () => void;
+  /** Set the final facing at the last waypoint. */
+  readonly onFacingSelect: (facing: Facing) => void;
+}
 
 export interface GameplayLayoutProps {
   /** Game session data */
@@ -64,6 +84,8 @@ export interface GameplayLayoutProps {
   mpLegend?: MapMovementPointLegendState;
   onMovementModeSelect?: (mode: MapMovementKind) => void;
   onHexHover?: (hex: IHexCoordinate | null) => void;
+  /** Intent-first composer map surface (tactical-movement-intent-composer). */
+  intentComposer?: IntentComposerMapProps;
   interactiveSession?: InteractiveSession;
   physicalAttackIntent?: PhysicalAttackIntent | null;
   /** Player side controlling this UI (defaults to GameSide.Player). */

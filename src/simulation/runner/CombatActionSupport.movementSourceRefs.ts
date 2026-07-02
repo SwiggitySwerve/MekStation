@@ -130,36 +130,13 @@ function mekstationMovementCommandSourceRefs(
 }
 
 export const MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS = {
-  'movement.walk': mekstationMovementCommandSourceRefs(
-    'movement.walk',
-    'the local lock action id with a walk movement mode payload',
-    'movementTraversalCommands.ts',
-    'L31-L122',
-  ),
-  'movement.run': mekstationMovementCommandSourceRefs(
-    'movement.run',
-    'the local lock action id with a run movement mode payload',
-    'movementTraversalCommands.ts',
-    'L31-L122',
-  ),
-  'movement.sprint': mekstationMovementCommandSourceRefs(
-    'movement.sprint',
-    'the local lock action id with a sprint movement mode payload',
-    'movementTraversalCommands.ts',
-    'L31-L122',
-  ),
-  'movement.evade': mekstationMovementCommandSourceRefs(
-    'movement.evade',
-    'the local lock action id with an evade movement mode payload',
-    'movementTraversalCommands.ts',
-    'L31-L122',
-  ),
-  'movement.jump': mekstationMovementCommandSourceRefs(
-    'movement.jump',
-    'the local lock action id with a jump movement mode payload',
-    'movementTraversalCommands.ts',
-    'L31-L122',
-  ),
+  'movement.evade': [
+    mekstationDeviationSourceRef(
+      'MekStation MovementTraversalCommands exposes movement.evade as the sole surviving Movement-phase traversal command — a Posture Action (no destination) whose click adds Evade to the composition rather than selecting an Evade locomotion mode; walk/run/sprint/jump mode selection moved to the Movement Intent Composer under tactical-movement-intent-composer.',
+      'src/components/gameplay/TacticalActionDock/commands/movementTraversalCommands.ts',
+      'L31-L64',
+    ),
+  ] satisfies readonly ICombatFeatureSourceReference[],
   'movement.stand': mekstationMovementCommandSourceRefs(
     'movement.stand',
     'the local stand action id',
@@ -195,6 +172,62 @@ export const MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS = {
     'the local activate-supercharger action id',
     'movementCommands.ts',
     'L76-L90',
+  ),
+} satisfies Record<string, readonly ICombatFeatureSourceReference[]>;
+
+/**
+ * Composer Lock-In surface refs for a walk/run/sprint/jump Movement Budget.
+ *
+ * `tactical-movement-intent-composer` removed the dock's Walk/Run/Sprint/Jump
+ * movement-verb commands. Mode selection now happens LAST, as an explicit
+ * Lock-In among the Movement Budgets the composed intent still affords, in the
+ * Movement Intent Composer. Lock-In records the chosen mode
+ * (`lockInReducer`) and commits the whole composed sequence atomically via
+ * `commitComposedMovement`, which translates the intent into a single
+ * `applyMovement`-shaped declaration (`intentToMovementDeclaration`) and
+ * delegates to the SAME legacy declaration path (`commitPlannedMovementLogic`)
+ * every prior dock move used — so the authoritative movement declaration and
+ * its wire/P2P kinds are byte-identical to the pre-composer path.
+ */
+function mekstationComposerMovementModeSourceRefs(
+  mode: string,
+  budgetDescription: string,
+) {
+  return [
+    mekstationDeviationSourceRef(
+      `MekStation MovementIntentComposer Lock-In offers ${mode} as a Movement Budget (${budgetDescription}) among the still-affordable budgets, never auto-picking, then commits the composed intent.`,
+      'src/components/gameplay/MovementIntentComposer/MovementIntentComposer.tsx',
+      'L148-L155',
+    ),
+    mekstationDeviationSourceRef(
+      `MekStation movementIntent slice records the ${mode} Lock-In (lockInReducer), projects it as a Movement Budget (selectBudgetOptions), and translates the composed intent + locked ${mode} mode into the single applyMovement-shaped declaration (intentToMovementDeclaration).`,
+      'src/stores/useGameplayStore.movementIntent.ts',
+      'L193-L373',
+    ),
+    mekstationDeviationSourceRef(
+      `MekStation commitComposedMovement stages the ${mode} declaration and delegates to the legacy commitPlannedMovementLogic path so the authoritative movement declaration and its wire/P2P kinds stay identical to the pre-composer dock move.`,
+      'src/stores/useGameplayStore.ts',
+      'L587-L625',
+    ),
+  ] satisfies readonly ICombatFeatureSourceReference[];
+}
+
+export const MEKSTATION_COMPOSER_MOVEMENT_MODE_SOURCE_REFS = {
+  'movement.walk': mekstationComposerMovementModeSourceRefs(
+    'movement.walk',
+    'walk MP / no attacker to-hit penalty',
+  ),
+  'movement.run': mekstationComposerMovementModeSourceRefs(
+    'movement.run',
+    'run MP / +1 attacker to-hit penalty',
+  ),
+  'movement.sprint': mekstationComposerMovementModeSourceRefs(
+    'movement.sprint',
+    'source-backed TacOps sprint MP that commits through the same movement declaration path',
+  ),
+  'movement.jump': mekstationComposerMovementModeSourceRefs(
+    'movement.jump',
+    'jump MP offered only when the unit has jump capability',
   ),
 } satisfies Record<string, readonly ICombatFeatureSourceReference[]>;
 

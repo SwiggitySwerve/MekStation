@@ -9,6 +9,7 @@ import {
   MovementType,
   BATTLEMECH_ABSENT_ACTION_SUPPORT,
   COMBAT_COMMAND_ACTION_SUPPORT,
+  COMBAT_COMPOSER_MOVEMENT_ACTION_SUPPORT,
   GM_COMMAND_EXCLUSION_SUPPORT,
   sortedKeys,
   commandIds,
@@ -69,11 +70,7 @@ it('covers every player tactical command and excludes GM referee tools', () => {
     'movement.evade',
     'movement.goProne',
     'movement.hullDown',
-    'movement.jump',
-    'movement.run',
-    'movement.sprint',
     'movement.stand',
-    'movement.walk',
     'physical.break-grapple',
     'physical.brush-off',
     'physical.charge',
@@ -130,11 +127,7 @@ it('covers every player tactical command and excludes GM referee tools', () => {
     'movement.evade': 'movementTraversalCommands.ts',
     'movement.goProne': 'movementPostureCommands.ts',
     'movement.hullDown': 'movementPostureCommands.ts',
-    'movement.jump': 'movementTraversalCommands.ts',
-    'movement.run': 'movementTraversalCommands.ts',
-    'movement.sprint': 'movementTraversalCommands.ts',
     'movement.stand': 'movementPostureCommands.ts',
-    'movement.walk': 'movementTraversalCommands.ts',
   } as const;
   for (const [id, file] of Object.entries(
     integratedMovementCommandSourceRows,
@@ -341,14 +334,23 @@ it('tracks source-backed optional BattleMech movement action surfaces explicitly
   ).toEqual([]);
   expect(Object.values(MovementType)).toContain('evade');
   expect(Object.values(MovementType)).toContain('sprint');
-  expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.sprint']).toMatchObject({
-    layer: 'tactical-command',
+  // Walk/Run/Sprint/Jump mode selection moved off the dock into the Movement
+  // Intent Composer under tactical-movement-intent-composer, so their combat
+  // parity coverage now lives on the composer-movement-mode surface rather than
+  // the dock tactical-command map. The movement CAPABILITY (and its
+  // source-backed sprint MP / to-hit / heat behavior) is unchanged.
+  expect(
+    COMBAT_COMPOSER_MOVEMENT_ACTION_SUPPORT['movement.sprint'],
+  ).toMatchObject({
+    layer: 'composer-movement-mode',
     level: 'integrated',
     evidence: expect.stringContaining('MovementType.Sprint'),
   });
-  expect(COMBAT_COMMAND_ACTION_SUPPORT['movement.sprint'].gap).toBeUndefined();
   expect(
-    COMBAT_COMMAND_ACTION_SUPPORT['movement.sprint'].sourceRefs?.map(
+    COMBAT_COMPOSER_MOVEMENT_ACTION_SUPPORT['movement.sprint'].gap,
+  ).toBeUndefined();
+  expect(
+    COMBAT_COMPOSER_MOVEMENT_ACTION_SUPPORT['movement.sprint'].sourceRefs?.map(
       (sourceRef) => sourceRef.citation,
     ),
   ).toEqual(
@@ -404,5 +406,83 @@ it('tracks source-backed optional BattleMech movement action surfaces explicitly
         expect.stringContaining('active MASC/Supercharger'),
       ]),
     );
+  }
+});
+
+it('tracks composer Movement Budget lock-in modes off the dock command surface', () => {
+  const playerCommandIds = commandIds([
+    ...buildMovementCommands(),
+    ...buildFacingCommands(),
+    ...buildWeaponAttackCommands(),
+    ...buildPhysicalAttackCommands(),
+    ...buildHeatEndCommands(),
+    ...buildUtilityCommands(),
+  ]);
+
+  // Walk/Run/Sprint/Jump are composed + locked in at the Movement Intent
+  // Composer under tactical-movement-intent-composer, never as dock commands.
+  expect(sortedKeys(COMBAT_COMPOSER_MOVEMENT_ACTION_SUPPORT)).toEqual([
+    'movement.jump',
+    'movement.run',
+    'movement.sprint',
+    'movement.walk',
+  ]);
+  expect(supportGaps(COMBAT_COMPOSER_MOVEMENT_ACTION_SUPPORT)).toEqual([]);
+  expect(
+    supportIdsByLevel(COMBAT_COMPOSER_MOVEMENT_ACTION_SUPPORT, 'integrated'),
+  ).toEqual([
+    'movement.jump',
+    'movement.run',
+    'movement.sprint',
+    'movement.walk',
+  ]);
+  // None of the composer modes leak back onto the dock command surface.
+  expect(
+    playerCommandIds.filter((id) =>
+      Object.keys(COMBAT_COMPOSER_MOVEMENT_ACTION_SUPPORT).includes(id),
+    ),
+  ).toEqual([]);
+  expect(
+    sortedKeys(COMBAT_COMMAND_ACTION_SUPPORT).filter((id) =>
+      Object.keys(COMBAT_COMPOSER_MOVEMENT_ACTION_SUPPORT).includes(id),
+    ),
+  ).toEqual([]);
+  for (const id of Object.keys(COMBAT_COMPOSER_MOVEMENT_ACTION_SUPPORT)) {
+    const entry =
+      COMBAT_COMPOSER_MOVEMENT_ACTION_SUPPORT[
+        id as keyof typeof COMBAT_COMPOSER_MOVEMENT_ACTION_SUPPORT
+      ];
+
+    expect(entry).toMatchObject({
+      layer: 'composer-movement-mode',
+      level: 'integrated',
+    });
+    expect(entry.gap).toBeUndefined();
+    // Every composer mode is anchored to the composer / intent-slice / commit
+    // path — the SAME authoritative declaration path a dock move used.
+    expect(entry.sourceRefs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining(id),
+          url: expect.stringContaining('MovementIntentComposer.tsx#L'),
+          sourceVersion: 'MekStation working-tree',
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          url: expect.stringContaining('useGameplayStore.movementIntent.ts#L'),
+          sourceVersion: 'MekStation working-tree',
+        }),
+        expect.objectContaining({
+          kind: 'mekstation-deviation',
+          citation: expect.stringContaining('commitPlannedMovementLogic'),
+          url: expect.stringContaining('useGameplayStore.ts#L'),
+          sourceVersion: 'MekStation working-tree',
+        }),
+      ]),
+    );
+    expect(
+      entry.sourceRefs?.every((sourceRef) => sourceRef.url.includes('#L')),
+    ).toBe(true);
   }
 });

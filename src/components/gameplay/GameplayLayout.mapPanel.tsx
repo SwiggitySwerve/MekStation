@@ -14,6 +14,7 @@ import type {
 import type { ITacticalMapProjectionFrame } from '@/utils/gameplay/tacticalMapProjection';
 
 import type { GameplayLayoutControls } from './GameplayLayout.controls';
+import type { IntentComposerMapProps } from './GameplayLayout.types';
 import type {
   MapMovementKind,
   MapMovementPointLegendState,
@@ -23,7 +24,9 @@ import type { PhysicalAttackIntent } from './PhysicalAttackPanel';
 
 import { HitChancePanel, MapOverlayChildren } from './GameplayLayout.sections';
 import { HexMapDisplay } from './HexMapDisplay';
+import { FacingPickerOverlay } from './overlays/FacingPickerOverlay';
 import { PhysicalAttackIntentArrow } from './overlays/PhysicalAttackIntentArrow';
+import { WaypointLayer } from './overlays/WaypointLayer';
 import { ShellSlot } from './TacticalCommandShell';
 
 export function GameplayMapPanel({
@@ -46,6 +49,7 @@ export function GameplayMapPanel({
   mpLegend,
   onMovementModeSelect,
   onHexHover,
+  intentComposer,
   onInteractionReady,
   controls,
   physicalAttackIntent,
@@ -73,12 +77,15 @@ export function GameplayMapPanel({
   readonly onHexHover:
     | ((hex: { readonly q: number; readonly r: number } | null) => void)
     | undefined;
+  readonly intentComposer: IntentComposerMapProps | undefined;
   readonly onInteractionReady: (interaction: MapInteractionState) => void;
   readonly controls: GameplayLayoutControls;
   readonly physicalAttackIntent: PhysicalAttackIntent | null | undefined;
   readonly interactivePhase: InteractivePhase | undefined;
   readonly hitChance: number | null | undefined;
 }): React.ReactElement {
+  const composerActive = Boolean(intentComposer?.composerActive);
+  const composedLegs = intentComposer?.composedLegs ?? [];
   return (
     <ShellSlot id="map-center" ownerId="HexMapDisplay">
       <div
@@ -105,32 +112,58 @@ export function GameplayMapPanel({
           hoverMpCost={hoverMpCost}
           hoverUnreachable={hoverUnreachable}
           mpLegend={mpLegend}
-          onMovementModeSelect={onMovementModeSelect}
+          // Single Movement Authority: when the composer owns the HUD the in-map
+          // MP legend is a NON-INTERACTIVE readout — the composer is the sole
+          // movement selector, so we withhold the mode-select callback (the
+          // legend then renders its swatches with no clickable affordance).
+          onMovementModeSelect={
+            composerActive ? undefined : onMovementModeSelect
+          }
           onHexClick={controls.handleHexClick}
           onHexHover={onHexHover}
           onTokenClick={controls.handleTokenClick}
           onTokenDoubleClick={controls.handleTokenDoubleClick}
           onInteractionReady={onInteractionReady}
           svgOverlayChildren={
-            physicalAttackIntent ? (
-              <PhysicalAttackIntentArrow
-                {...physicalAttackIntent}
-                side={selectedUnit?.side ?? playerSide}
-                testId="physical-attack-intent-arrow"
-              />
-            ) : null
+            <>
+              {physicalAttackIntent ? (
+                <PhysicalAttackIntentArrow
+                  {...physicalAttackIntent}
+                  side={selectedUnit?.side ?? playerSide}
+                  testId="physical-attack-intent-arrow"
+                />
+              ) : null}
+              {composerActive && composedLegs.length > 0 && (
+                <WaypointLayer
+                  legs={composedLegs}
+                  zoom={controls.camera.zoom}
+                  onPopLastWaypoint={intentComposer?.onPopLastWaypoint}
+                />
+              )}
+            </>
           }
           overlayChildren={
-            <MapOverlayChildren
-              mapRadius={session.config.mapRadius}
-              tokens={tokens}
-              camera={{ zoom: controls.camera.zoom, pan: controls.camera.pan }}
-              onCenterAt={controls.handleMinimapCenterAt}
-              onDragPan={controls.handleMinimapDragPan}
-              minimapVisible={controls.minimapVisible}
-              helpOpen={controls.helpOpen}
-              onCloseHelp={controls.handleCloseHelp}
-            />
+            <>
+              <MapOverlayChildren
+                mapRadius={session.config.mapRadius}
+                tokens={tokens}
+                camera={{
+                  zoom: controls.camera.zoom,
+                  pan: controls.camera.pan,
+                }}
+                onCenterAt={controls.handleMinimapCenterAt}
+                onDragPan={controls.handleMinimapDragPan}
+                minimapVisible={controls.minimapVisible}
+                helpOpen={controls.helpOpen}
+                onCloseHelp={controls.handleCloseHelp}
+              />
+              {composerActive && intentComposer?.lastWaypointHex && (
+                <FacingPickerOverlay
+                  anchorHex={intentComposer.lastWaypointHex}
+                  onSelect={intentComposer.onFacingSelect}
+                />
+              )}
+            </>
           }
           className="h-full"
         />

@@ -91,7 +91,7 @@ export const BATTLEMECH_VALIDATION_REQUIREMENT_HEAT_PHYSICAL_SUPPORT = {
     'To-hit helpers cover wounds, sensors, actuators, attacker prone, hull-down, secondary targets, called shots, explicit target evasion including 0..3 Skilled Evasion bonus state across ranged and physical to-hit, ECM, C3, terrain features, and source-backed TacOps Sprint/Evade movement creation, with C3 explicit-state consumption, attack-time lifecycle and critical-slot damage refresh, attacker-evading ranged invalidation, conservative runner plus pre-battle/GameCreated equipment seeding, unambiguous single-network formation, independent side-by-side formation/denial evaluation, and fail-closed denial boundaries; residual C3 authoring and same-side partitioning are split out of the BattleMech runtime to-hit validation blocker set',
     [
       ...TO_HIT_ADVANCED_MODIFIER_SUPPORT_REFS,
-      'actions.tacticalCommands.movement.sprint',
+      'actions.composerMovementModes.movement.sprint',
       'actions.tacticalCommands.movement.evade',
     ],
   ),
