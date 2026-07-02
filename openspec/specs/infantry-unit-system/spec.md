@@ -772,37 +772,6 @@ The validation registry SHALL include the `VAL-INF-*` rule group.
 - **WHEN** the validation registry initializes
 - **THEN** `VAL-INF-PLATOON`, `VAL-INF-MOTIVE`, `VAL-INF-ARMOR-KIT`, `VAL-INF-WEAPON`, `VAL-INF-FIELD-GUN`, and `VAL-INF-ANTI-MECH` SHALL be registered
 
-## Implementation Mapping
-
-| Concept                                      | Source File                                                         |
-| -------------------------------------------- | ------------------------------------------------------------------- |
-| `InfantryState` interface + defaults         | `src/stores/infantryState.ts`                                       |
-| Zustand store factory + actions              | `src/stores/useInfantryStore.ts`                                    |
-| `IInfantry` + `IInfantryFieldGun` interfaces | `src/types/unit/PersonnelInterfaces.ts`                             |
-| `ISquadUnit` + `SquadMotionType` base types  | `src/types/unit/BaseUnitInterfaces.ts`                              |
-| BLK parsing + validation + serialization     | `src/services/units/handlers/InfantryUnitHandler.ts`                |
-| Shared personnel validation rules            | `src/services/validation/rules/personnel/PersonnelCategoryRules.ts` |
-| Customizer UI                                | `src/components/customizer/infantry/InfantryCustomizer.tsx`         |
-| Build tab UI                                 | `src/components/customizer/infantry/InfantryBuildTab.tsx`           |
-| Unit store registry (shared)                 | `src/stores/unitStoreRegistry.ts`                                   |
-
-## Dependencies
-
-### Depends On
-
-- **Base Unit Interfaces** — `ISquadUnit`, `IBaseUnit`, `SquadMotionType`, `ISquadMovement`
-- **BattleMech Interfaces** — `UnitType` enum
-- **Unit Validation Framework** — `IUnitValidationRuleDefinition`, validation context
-- **Personnel Category Rules** — shared `VAL-PERS-001` (squad size), `VAL-PERS-003` (primary weapon)
-- **BLK Format** — `IBlkDocument` for parsing
-- **Unit Store Architecture** — `createStoreRegistry` pattern, `clientSafeStorage`
-
-### Depended On By
-
-- **Force Builder** — Infantry platoons can be added to combat forces
-- **Record Sheet Export** — Infantry record sheet generation
-- **Compendium** — Infantry units in unit catalog
-
 ### Requirement: Infantry Platoon Combat State
 
 Each infantry platoon SHALL carry combat state tracked across the battle.
@@ -840,3 +809,34 @@ Field gun crew SHALL share in platoon damage; per 2 points of kit-adjusted damag
 - **WHEN** the final crew death event fires
 - **THEN** `FieldGunDestroyed` SHALL fire
 - **AND** the field gun SHALL no longer be a firing option
+
+## Implementation Mapping
+
+| Concept                                      | Source File                                                         |
+| -------------------------------------------- | ------------------------------------------------------------------- |
+| `InfantryState` interface + defaults         | `src/stores/infantryState.ts`                                       |
+| Zustand store factory + actions              | `src/stores/useInfantryStore.ts`                                    |
+| `IInfantry` + `IInfantryFieldGun` interfaces | `src/types/unit/PersonnelInterfaces.ts`                             |
+| `ISquadUnit` + `SquadMotionType` base types  | `src/types/unit/BaseUnitInterfaces.ts`                              |
+| BLK parsing + validation + serialization     | `src/services/units/handlers/InfantryUnitHandler.ts`                |
+| Shared personnel validation rules            | `src/services/validation/rules/personnel/PersonnelCategoryRules.ts` |
+| Customizer UI                                | `src/components/customizer/infantry/InfantryCustomizer.tsx`         |
+| Build tab UI                                 | `src/components/customizer/infantry/InfantryBuildTab.tsx`           |
+| Unit store registry (shared)                 | `src/stores/unitStoreRegistry.ts`                                   |
+
+## Dependencies
+
+### Depends On
+
+- **Base Unit Interfaces** — `ISquadUnit`, `IBaseUnit`, `SquadMotionType`, `ISquadMovement`
+- **BattleMech Interfaces** — `UnitType` enum
+- **Unit Validation Framework** — `IUnitValidationRuleDefinition`, validation context
+- **Personnel Category Rules** — shared `VAL-PERS-001` (squad size), `VAL-PERS-003` (primary weapon)
+- **BLK Format** — `IBlkDocument` for parsing
+- **Unit Store Architecture** — `createStoreRegistry` pattern, `clientSafeStorage`
+
+### Depended On By
+
+- **Force Builder** — Infantry platoons can be added to combat forces
+- **Record Sheet Export** — Infantry record sheet generation
+- **Compendium** — Infantry units in unit catalog

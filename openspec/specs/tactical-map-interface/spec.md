@@ -846,27 +846,27 @@ Clicking "Declare" on an eligible row SHALL append a `PhysicalAttackDeclared` ev
 
 ### Requirement: Reachable Hex Overlay by MP Type
 
-The tactical map interface SHALL render a reachable-hex overlay during the Movement phase for the selected Player-side unit, coloring each tile by the movement type (Walk, Run, Jump) required to reach it using the MegaMek movement palette: Walk cyan, Run yellow, Jump red, and projected illegal/blocked movement dark gray. Each overlay state SHALL also carry a non-color encoding so movement legality and movement type remain distinguishable without relying on hue alone.
+The tactical map interface SHALL render a reachable-hex overlay during the Movement phase for the selected Player-side unit, coloring each tile by the movement type (Walk, Run, Jump) required to reach it using the MegaMek movement palette: Walk cyan, Run yellow, Jump red, and projected illegal/blocked movement dark gray. The overlay SHALL render the envelopes of **all still-affordable Movement Budgets simultaneously** (no player-selected MP type is required) and SHALL recompute against the **remaining** MP of each budget as the composed movement intent consumes it (Live Intersection, per `tactical-movement-intent`). Each overlay state SHALL also carry a non-color encoding so movement legality and movement type remain distinguishable without relying on hue alone.
 
 **Priority**: Critical
 
 #### Scenario: Walk-range tiles rendered cyan
 
-- **GIVEN** a selected unit has 5 walk MP and the player selects MP type Walk
+- **GIVEN** a selected unit has 5 walk MP remaining under the composed intent
 - **WHEN** the overlay renders
 - **THEN** every hex with `mpCost <= 5` via walk SHALL be tinted cyan (`#67e8f9`)
 - **AND** each tile SHALL display its MP cost in small text
 
 #### Scenario: Run-range tiles rendered yellow
 
-- **GIVEN** the player selects MP type Run
+- **GIVEN** the unit's run budget affords more reach than its walk budget
 - **WHEN** the overlay renders
 - **THEN** tiles reachable only with run MP SHALL be tinted yellow (`#fef08a`)
 - **AND** walk-reachable fallback tiles SHALL retain Walk movement metadata when the Run projection is blocked
 
 #### Scenario: Jump-range tiles rendered red with pattern
 
-- **GIVEN** the player selects MP type Jump
+- **GIVEN** the unit has an affordable Jump budget
 - **WHEN** the overlay renders
 - **THEN** landing hexes reachable with jump SHALL be tinted red (`#f87171`) with a distinct diagonal pattern
 
@@ -891,35 +891,46 @@ The tactical map interface SHALL render a reachable-hex overlay during the Movem
 - **THEN** run-only tiles SHALL carry a non-hue encoding (such as a dashed border) distinguishing them from walk tiles
 - **AND** the overlay legend SHALL document the non-color encodings alongside the palette colors
 
+#### Scenario: Envelopes shrink as composed intent consumes budget
+
+- **GIVEN** a unit with Walk 4 / Run 6 and an empty composition renders 4-MP walk and 6-MP run envelopes
+- **WHEN** the player composes a 2 MP posture action
+- **THEN** the overlay SHALL re-render with at most 2-MP walk and 4-MP run envelopes
+- **AND** a budget made entirely unaffordable SHALL have no envelope rendered
+
 ### Requirement: Path Preview on Hover
 
-The tactical map interface SHALL render a hover-driven path preview from the
-selected unit to the hovered reachable hex, using the existing A\*
-pathfinder.
+The tactical map interface SHALL render a hover-driven path preview using the existing A\* pathfinder, anchored at the **last placed waypoint** of the composed Locomotion Path (or at the selected unit when no waypoint is placed) and ending at the hovered reachable hex.
 
 **Priority**: Critical
 
 #### Scenario: Hover reachable hex draws path
 
-- **GIVEN** a selected unit at {0,0} with the Walk overlay active
+- **GIVEN** a selected unit at {0,0} with no waypoints placed
 - **WHEN** the user hovers a reachable hex at {3,0}
-- **THEN** every hex along the pathfinder's cheapest path SHALL be
-  highlighted yellow (`#fef9c3`)
-- **AND** the hovered hex SHALL display cumulative MP cost
+- **THEN** every hex along the pathfinder's cheapest path SHALL be highlighted yellow (`#fef9c3`)
+- **AND** the hovered hex SHALL display cumulative MP cost including all composed intent
+
+#### Scenario: Hover preview anchors at the last waypoint
+
+- **GIVEN** a composed path with a waypoint at {2,1}
+- **WHEN** the user hovers a hex reachable from {2,1}
+- **THEN** the preview path SHALL start at {2,1}, not at the unit's position
+- **AND** the displayed cumulative MP SHALL include the already-composed legs and posture actions
 
 #### Scenario: Hover unreachable hex shows tooltip
 
-- **GIVEN** a hex not in the reachable set
+- **GIVEN** a hex not reachable under any remaining affordable budget
 - **WHEN** the user hovers it
 - **THEN** no path SHALL be drawn
 - **AND** a tooltip SHALL display `"Unreachable"`
 
-#### Scenario: Clicking reachable hex commits destination
+#### Scenario: Clicking a reachable hex adds a waypoint
 
 - **GIVEN** a hover path is visible
 - **WHEN** the user clicks the hovered hex
-- **THEN** the path SHALL persist as the committed plan
-- **AND** the hover path SHALL lock until the plan is cleared
+- **THEN** the hex SHALL be appended to the Locomotion Path as a Waypoint
+- **AND** the previewed leg SHALL persist as a composed leg (further hovers anchor at this new waypoint)
 
 ### Requirement: Facing Picker Overlay
 
@@ -3893,6 +3904,65 @@ The tactical map interface SHALL provide a fast command-backed parity manifest t
 - **AND** that OpenSpec change directory no longer exists
 - **THEN** the tactical projection parity command SHALL fail and identify the stale reference
 
+### Requirement: Hex Cell Composition
+
+Each hex cell SHALL compose a terrain art layer and an elevation
+shading layer beneath the existing interaction polygon.
+
+#### Scenario: Hex cell includes art layer
+
+- **GIVEN** a hex cell renders
+- **WHEN** its layers compose
+- **THEN** a `TerrainArtLayer` SHALL render beneath the hex polygon
+- **AND** the hex polygon SHALL remain the primary hit target
+- **AND** elevation shading SHALL apply to the fill beneath all art
+
+#### Scenario: Overlays still render above terrain
+
+- **GIVEN** a selected hex with movement-cost overlay visible
+- **WHEN** the hex renders
+- **THEN** terrain art SHALL render beneath the overlay
+- **AND** the overlay text SHALL remain legible
+- **AND** the unit token layer SHALL still render above everything
+
+### Requirement: Tactical map command projection
+The tactical map SHALL make movement, combat, terrain, elevation, LOS, firing arcs, heat, targetability, and invalid-action reasons visible from a shared projection used by the action dock and commit path.
+
+#### Scenario: Movement preview explains legality
+- **WHEN** a player hovers or selects a movement destination for a BattleMech
+- **THEN** the map SHALL identify legal, illegal, costly, blocked, and tactically relevant hexes with non-color indicators and SHALL show MP cost, terrain cost, elevation delta, facing, occupancy, heat, TMM, and blocked reasons where applicable
+
+#### Scenario: Combat preview explains constraints
+- **WHEN** a player previews a weapon or physical attack
+- **THEN** the map and action dock SHALL show range band, arc, LOS, terrain/elevation blockers, cover, visibility, targetability, to-hit inputs, and invalid reasons before commit
+
+### Requirement: Tactical GM command entry
+The active tactical command screen SHALL expose a role-gated GM intervention entry point that uses ledger-backed preview, approval, commit, and redaction semantics.
+
+#### Scenario: GM opens combat intervention from active battle
+- **WHEN** an owner or host GM opens tactical controls during a combat session
+- **THEN** the screen SHALL show eligible combat intervention actions, preview affected units/state, and commit through a combat or shared intervention ledger rather than mutating UI state directly
+
+### Requirement: Waypoint Composition Interaction
+
+During movement composition, the map SHALL render the composed Locomotion Path as anchored legs with a distinct marker at every Waypoint, a Pivot Point indicator (with its facing-change MP) wherever travel direction changes at a waypoint, and a per-leg cost chip showing each leg's MP along the path. Clicking the last waypoint marker (or pressing Backspace) SHALL remove the final leg. Waypoint markers, pivot indicators, and cost chips SHALL be non-interactive except for the pop affordance on the last waypoint.
+
+**Priority**: Critical
+
+#### Scenario: Per-leg cost chips render along the path
+
+- **GIVEN** a composed path unit → forest waypoint (4 MP) → destination (2 MP)
+- **WHEN** the path renders
+- **THEN** a chip reading `4 MP` SHALL render on the first leg and `2 MP` on the second
+- **AND** a pivot indicator with its facing-change MP SHALL render at the forest waypoint if travel direction changes there
+
+#### Scenario: Pop affordance is limited to the last waypoint
+
+- **GIVEN** a composed path with waypoints A then B
+- **WHEN** the player clicks waypoint A
+- **THEN** the composition SHALL NOT change
+- **AND** clicking waypoint B SHALL remove the leg A→B
+
 ## Data Model Requirements
 
 ### Required Interfaces
@@ -4394,29 +4464,6 @@ const props: IHexMapDisplayProps = {
 
 ---
 
-### Requirement: Hex Cell Composition
-
-Each hex cell SHALL compose a terrain art layer and an elevation
-shading layer beneath the existing interaction polygon.
-
-#### Scenario: Hex cell includes art layer
-
-- **GIVEN** a hex cell renders
-- **WHEN** its layers compose
-- **THEN** a `TerrainArtLayer` SHALL render beneath the hex polygon
-- **AND** the hex polygon SHALL remain the primary hit target
-- **AND** elevation shading SHALL apply to the fill beneath all art
-
-#### Scenario: Overlays still render above terrain
-
-- **GIVEN** a selected hex with movement-cost overlay visible
-- **WHEN** the hex renders
-- **THEN** terrain art SHALL render beneath the overlay
-- **AND** the overlay text SHALL remain legible
-- **AND** the unit token layer SHALL still render above everything
-
----
-
 ## Changelog
 
 ### Version 1.0 (2026-01-31)
@@ -4430,21 +4477,3 @@ shading layer beneath the existing interaction polygon.
 - Added `Requirement: Unit Token Rendering Uses Sprite System` via change `add-mech-silhouette-sprite-set`
 - Unit tokens now render through `MechSprite` + `ArmorPipRing` instead of the flat disc marker
 - Selection binding and side tint contracts preserved from Phase 1 MVP
-
-### Requirement: Tactical map command projection
-The tactical map SHALL make movement, combat, terrain, elevation, LOS, firing arcs, heat, targetability, and invalid-action reasons visible from a shared projection used by the action dock and commit path.
-
-#### Scenario: Movement preview explains legality
-- **WHEN** a player hovers or selects a movement destination for a BattleMech
-- **THEN** the map SHALL identify legal, illegal, costly, blocked, and tactically relevant hexes with non-color indicators and SHALL show MP cost, terrain cost, elevation delta, facing, occupancy, heat, TMM, and blocked reasons where applicable
-
-#### Scenario: Combat preview explains constraints
-- **WHEN** a player previews a weapon or physical attack
-- **THEN** the map and action dock SHALL show range band, arc, LOS, terrain/elevation blockers, cover, visibility, targetability, to-hit inputs, and invalid reasons before commit
-
-### Requirement: Tactical GM command entry
-The active tactical command screen SHALL expose a role-gated GM intervention entry point that uses ledger-backed preview, approval, commit, and redaction semantics.
-
-#### Scenario: GM opens combat intervention from active battle
-- **WHEN** an owner or host GM opens tactical controls during a combat session
-- **THEN** the screen SHALL show eligible combat intervention actions, preview affected units/state, and commit through a combat or shared intervention ledger rather than mutating UI state directly

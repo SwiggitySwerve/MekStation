@@ -345,8 +345,6 @@ When the sidebar is in icon-only (collapsed) mode, expandable sections SHALL sho
 
 ---
 
-## Navigation State Management
-
 ### Requirement: Mobile Sidebar Store
 
 The mobile sidebar state SHALL be managed via a dedicated Zustand store with open/close/toggle actions.
@@ -373,8 +371,6 @@ The mobile sidebar state SHALL be managed via a dedicated Zustand store with ope
 - **WHEN** the `toggle()` action is called
 - **THEN** the store state flips to the opposite value
 - **AND** the sidebar opens if closed, or closes if open
-
----
 
 ### Requirement: Panel Navigation Store
 
@@ -452,10 +448,6 @@ The application SHALL provide a panel navigation store with stack-based history 
 - **THEN** the panel state is restored from history
 - **AND** the panel can use the state to restore scroll position and selections
 
----
-
-## Page Type Definitions
-
 ### Requirement: Unit Entry Interface
 
 The application SHALL define a lightweight `IUnitEntry` interface for unit lists and search results.
@@ -483,6 +475,14 @@ The application SHALL define a lightweight `IUnitEntry` interface for unit lists
 - **WHEN** the function is called with a unit entry
 - **THEN** TypeScript enforces all required fields are present
 - **AND** optional fields are typed as `string | undefined` or `number | undefined`
+
+## Navigation State Management
+
+---
+
+---
+
+## Page Type Definitions
 
 ---
 

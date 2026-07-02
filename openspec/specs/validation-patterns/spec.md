@@ -160,10 +160,6 @@ Internal code SHALL rely on compile-time type checking rather than runtime asser
 - **THEN** type guards SHALL validate the structure once at entry
 - **AND** downstream code SHALL trust the validated types
 
----
-
-## Validation Navigation
-
 ### Requirement: Per-Tab Validation Counts
 
 The system SHALL provide derived validation state per tab, enabling UI components to display error/warning badges on tab headers.
@@ -247,10 +243,6 @@ The system SHALL map validation categories to customizer tabs using a fixed mapp
 - **WHEN** getTabForCategory(category) is called
 - **THEN** it SHALL return 'structure' as default
 
----
-
-## Validation Toast Notifications
-
 ### Requirement: Toast on New Errors
 
 The system SHALL show toast notifications when new critical or error validation issues appear.
@@ -301,6 +293,12 @@ The system SHALL show toast notifications when new critical or error validation 
 - **THEN** no toast SHALL be shown (initialization only)
 - **AND** prevCriticalCountRef SHALL be set to current count
 - **AND** prevErrorCountRef SHALL be set to current count
+
+## Validation Navigation
+
+---
+
+## Validation Toast Notifications
 
 ---
 
