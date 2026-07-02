@@ -3,7 +3,6 @@
 ## Purpose
 
 Defines Battle Armor Combat requirements for BA Squad Combat State, Squad Damage Allocation, Swarm Attack - Declaration and Attach, and Swarm Fire While Attached, preserving the source-of-truth scope introduced by archived change add-battle-armor-combat.
-
 ## Requirements
 ### Requirement: BA Squad Combat State
 
@@ -201,7 +200,7 @@ A BA squad SHALL be able to declare a `LegAttack` against a mech in the same hex
 
 ### Requirement: Vibroclaw Attack
 
-A BA trooper with `vibroClaws ≥ 1` SHALL be able to make a vibroclaw melee attack against an adjacent enemy. Damage = `missilesHit(shootingStrength) × vibroClaws` (cluster-table lookup against the squad's surviving trooper count). UI MUST hide the vibroclaw action button when the squad's `vibroClaws === 0`.
+A BA trooper with `vibroClaws ≥ 1` SHALL be able to make a vibroclaw melee attack against an adjacent enemy. Damage = `missilesHit(shootingStrength) × vibroClaws` (cluster-table lookup against the squad's surviving trooper count). UI MUST hide the vibroclaw action button when the squad's `vibroClaws === 0`. The attack SHALL be declarable through the interactive session's physical-attack declaration path (matching the LegAttack declaration shape) and SHALL resolve through the battle-armor combat dispatch — emitting damage events into the standard resolution pipeline — rather than through a resolver-only call. Declaration SHALL be rejected when the target is not adjacent or the squad's `vibroClaws === 0`.
 
 #### Scenario: Vibroclaw damage on full squad
 
@@ -215,6 +214,19 @@ A BA trooper with `vibroClaws ≥ 1` SHALL be able to make a vibroclaw melee att
 - **GIVEN** a BA squad with `vibroClaws === 0`
 - **WHEN** the attack-declaration UI renders for this squad
 - **THEN** the Vibroclaw action button SHALL NOT be visible
+
+#### Scenario: Declared vibroclaw attack resolves through the combat pipeline
+
+- **GIVEN** a 4-trooper squad with 2 vibroclaws adjacent to an enemy mech
+- **WHEN** the squad declares the vibroclaw attack in the interactive session and resolution runs
+- **THEN** the battle-armor combat dispatch SHALL invoke the vibroclaw resolver
+- **AND** the resulting damage SHALL be applied via standard damage events (not a side-channel)
+
+#### Scenario: Non-adjacent declaration rejected
+
+- **GIVEN** a squad with 2 vibroclaws two hexes away from the target
+- **WHEN** the squad attempts to declare the vibroclaw attack
+- **THEN** the declaration SHALL be rejected with an adjacency reason
 
 ### Requirement: Brush-Off and Drop-Prone Dislodge
 
@@ -307,3 +319,4 @@ The to-hit base for swarm and leg attacks SHALL derive from the BA pilot's Anti-
 - **GIVEN** BA pilot P with Anti-Mek skill 4
 - **WHEN** P's squad declares a leg attack
 - **THEN** the to-hit base SHALL be 4
+
