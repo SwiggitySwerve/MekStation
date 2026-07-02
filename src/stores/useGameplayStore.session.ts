@@ -11,6 +11,7 @@
  */
 
 import type { InteractiveSession } from '@/engine/GameEngine';
+import type { IWeapon } from '@/simulation/ai/types';
 
 import {
   createDemoHeatSinks,
@@ -163,15 +164,17 @@ function getLoadSessionErrorMessage(error: unknown): string {
  * damage, so this also holds for sessions recovered mid-battle.
  */
 function deriveSupplementalDisplayData(
-  session: IGameSession,
+  interactiveSession: InteractiveSession,
 ): Pick<
   SessionSlice,
-  'maxArmor' | 'maxStructure' | 'pilotNames' | 'heatSinks'
+  'maxArmor' | 'maxStructure' | 'pilotNames' | 'heatSinks' | 'unitWeapons'
 > {
+  const session = interactiveSession.getSession();
   const maxArmor: Record<string, Record<string, number>> = {};
   const maxStructure: Record<string, Record<string, number>> = {};
   const pilotNames: Record<string, string> = {};
   const heatSinks: Record<string, number> = {};
+  const unitWeapons: Record<string, readonly IWeaponStatus[]> = {};
 
   for (const unit of session.units) {
     if (unit.armorByLocation) {
@@ -190,9 +193,66 @@ function deriveSupplementalDisplayData(
     if (unitHeatSinks !== undefined) {
       heatSinks[unit.id] = unitHeatSinks;
     }
+    // Weapons come from the engine's cached per-unit catalog data — the same
+    // arrays the resolvers use — so the record sheet's weapons table and the
+    // valid-target derivation stop depending on demo fixtures (task #14).
+    // Older mocks without the accessor keep the empty-map behavior.
+    if (typeof interactiveSession.getUnitWeapons === 'function') {
+      const engineWeapons = interactiveSession.getUnitWeapons(unit.id);
+      if (engineWeapons.length > 0) {
+        unitWeapons[unit.id] = engineWeapons.map(weaponStatusFromEngineWeapon);
+      }
+    }
   }
 
-  return { maxArmor, maxStructure, pilotNames, heatSinks };
+  return { maxArmor, maxStructure, pilotNames, heatSinks, unitWeapons };
+}
+
+// Known source location labels -> the snake_case keys the record sheet's
+// location tables use (same normalization rule as the armor adapter).
+function normalizeWeaponLocation(location: string | undefined): string {
+  if (!location) return 'unknown';
+  return location.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+}
+
+/**
+ * Project an engine `IWeapon` (simulation/AI shape) into the display
+ * `IWeaponStatus` the record sheet renders. `firedThisTurn` starts false at
+ * adoption; ammo counters are omitted (optional fields — the inline ammo
+ * display falls back gracefully) because bin-level ammo lives on the unit
+ * state, not the weapon.
+ */
+function weaponStatusFromEngineWeapon(weapon: IWeapon): IWeaponStatus {
+  return {
+    id: weapon.id,
+    name: weapon.name,
+    location: normalizeWeaponLocation(weapon.location),
+    ...(weapon.mountingArc !== undefined
+      ? { mountingArc: weapon.mountingArc }
+      : {}),
+    ...(weapon.mountingArcs !== undefined
+      ? { mountingArcs: weapon.mountingArcs }
+      : {}),
+    ...(weapon.vehicleMountLocation !== undefined
+      ? { vehicleMountLocation: weapon.vehicleMountLocation }
+      : {}),
+    ...(weapon.vehicleIsTurretMounted !== undefined
+      ? { vehicleIsTurretMounted: weapon.vehicleIsTurretMounted }
+      : {}),
+    destroyed: weapon.destroyed ?? false,
+    firedThisTurn: false,
+    heat: weapon.heat,
+    damage: weapon.damage,
+    ranges: {
+      short: weapon.shortRange,
+      medium: weapon.mediumRange,
+      long: weapon.longRange,
+      ...(weapon.extremeRange !== undefined
+        ? { extreme: weapon.extremeRange }
+        : {}),
+      ...(weapon.minRange > 0 ? { minimum: weapon.minRange } : {}),
+    },
+  };
 }
 
 /**
@@ -220,7 +280,7 @@ export function setInteractiveSessionLogic(
     spectatorMode: null,
     isLoading: false,
     error: null,
-    ...deriveSupplementalDisplayData(session),
+    ...deriveSupplementalDisplayData(interactiveSession),
   });
 }
 
@@ -243,6 +303,6 @@ export function setSpectatorModeLogic(
     spectatorMode,
     isLoading: false,
     error: null,
-    ...deriveSupplementalDisplayData(session),
+    ...deriveSupplementalDisplayData(interactiveSession),
   });
 }
