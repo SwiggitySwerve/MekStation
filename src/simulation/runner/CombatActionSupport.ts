@@ -5,6 +5,7 @@ export type {
   ICombatActionSupportEntry,
 } from './CombatActionSupport.types';
 export { COMBAT_COMMAND_ACTION_SUPPORT } from './CombatActionSupport.commandSupport';
+export { COMBAT_COMPOSER_MOVEMENT_ACTION_SUPPORT } from './CombatActionSupport.movementCommandSupport';
 export {
   BATTLEMECH_ABSENT_ACTION_SUPPORT,
   COMBAT_DIRECT_UI_ACTION_SUPPORT,

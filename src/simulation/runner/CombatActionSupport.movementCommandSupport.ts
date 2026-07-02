@@ -4,6 +4,7 @@ import { integrated, outOfScope } from './CombatActionSupport.entries';
 import {
   FACING_TORSO_TWIST_ACTION_SOURCE_REFS,
   MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS,
+  MEKSTATION_COMPOSER_MOVEMENT_MODE_SOURCE_REFS,
   MEKSTATION_FACING_ROTATE_LEFT_COMMAND_SOURCE_REFS,
   MEKSTATION_FACING_ROTATE_RIGHT_COMMAND_SOURCE_REFS,
   MEKSTATION_MOVEMENT_CANCEL_COMMAND_SOURCE_REFS,
@@ -20,42 +21,58 @@ import {
 } from './CombatActionSupport.physicalUtilitySourceRefs';
 import { MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS } from './CombatPilotModifierSourceRefs';
 
-export const MOVEMENT_COMMAND_ACTION_SUPPORT = {
+/**
+ * Composer Movement Budget lock-in surface — walk / run / sprint / jump.
+ *
+ * `tactical-movement-intent-composer` (Single Movement Authority) removed the
+ * dock's Walk / Run / Sprint / Jump movement-verb commands. Mode selection is
+ * no longer a dock tactical command: it is composed in the Movement Intent
+ * Composer and committed atomically via `commitComposedMovement` →
+ * `commitPlannedMovementLogic` (the SAME authoritative declaration/wire path a
+ * dock move used). These rows keep the walk/run/sprint/jump movement CAPABILITY
+ * (and its source-backed sprint MP / to-hit / heat behavior) discoverable in the
+ * combat-parity catalog, now attributed truthfully to the composer surface
+ * rather than a dock command payload.
+ */
+export const COMBAT_COMPOSER_MOVEMENT_ACTION_SUPPORT = {
   'movement.walk': integrated(
     'movement.walk',
-    'tactical-command',
-    'buildMovementCommands commits lock mode walk; declareMovement/Move carries authoritative movement',
-    MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.walk'],
+    'composer-movement-mode',
+    'MovementIntentComposer Lock-In offers walk as a Movement Budget and commitComposedMovement commits it through commitPlannedMovementLogic; declareMovement/Move carries authoritative movement',
+    MEKSTATION_COMPOSER_MOVEMENT_MODE_SOURCE_REFS['movement.walk'],
   ),
   'movement.run': integrated(
     'movement.run',
-    'tactical-command',
-    'buildMovementCommands commits lock mode run; declareMovement/Move carries authoritative movement',
-    MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.run'],
+    'composer-movement-mode',
+    'MovementIntentComposer Lock-In offers run as a Movement Budget and commitComposedMovement commits it through commitPlannedMovementLogic; declareMovement/Move carries authoritative movement',
+    MEKSTATION_COMPOSER_MOVEMENT_MODE_SOURCE_REFS['movement.run'],
   ),
   'movement.sprint': integrated(
     'movement.sprint',
-    'tactical-command',
-    'buildMovementCommands commits lock mode sprint; MovementType.Sprint uses source-backed sprint MP, run-based pathing/PSRs, normal-engine sprint heat, current-turn sprint state, and declareMovement/Move/P2P movement validation carry it through the existing movement action path; engine-variant/coolant sprint heat remains a cataloged heat-rule gap',
+    'composer-movement-mode',
+    'MovementIntentComposer commits lock mode sprint through commitPlannedMovementLogic; MovementType.Sprint uses source-backed sprint MP, run-based pathing/PSRs, normal-engine sprint heat, current-turn sprint state, and declareMovement/Move/P2P movement validation carry it through the existing movement action path; engine-variant/coolant sprint heat remains a cataloged heat-rule gap',
     [
       ...MEGAMEK_TAC_OPS_SPRINT_SOURCE_REFS,
-      ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.sprint'],
-    ],
-  ),
-  'movement.evade': integrated(
-    'movement.evade',
-    'tactical-command',
-    'buildMovementCommands commits lock mode evade; MovementType.Evade uses run MP/pathing, creates authoritative evading/evasionBonus state, emits source-backed evasion heat, and declareMovement/Move/P2P movement validation carry it through the existing movement action path',
-    [
-      ...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
-      ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.evade'],
+      ...MEKSTATION_COMPOSER_MOVEMENT_MODE_SOURCE_REFS['movement.sprint'],
     ],
   ),
   'movement.jump': integrated(
     'movement.jump',
+    'composer-movement-mode',
+    'MovementIntentComposer Lock-In offers jump as a Movement Budget when the unit has jump MP and commitComposedMovement commits it through commitPlannedMovementLogic; declareMovement/Move carries authoritative movement',
+    MEKSTATION_COMPOSER_MOVEMENT_MODE_SOURCE_REFS['movement.jump'],
+  ),
+} satisfies Record<string, ICombatActionSupportEntry>;
+
+export const MOVEMENT_COMMAND_ACTION_SUPPORT = {
+  'movement.evade': integrated(
+    'movement.evade',
     'tactical-command',
-    'buildMovementCommands commits lock mode jump; declareMovement/Move carries authoritative movement',
-    MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.jump'],
+    'MovementTraversalCommands exposes movement.evade as a Posture Action dock command; MovementType.Evade uses run MP/pathing, creates authoritative evading/evasionBonus state, emits source-backed evasion heat, and declareMovement/Move/P2P movement validation carry it through the existing movement action path',
+    [
+      ...MEGAMEK_TAC_OPS_EVADE_SOURCE_REFS,
+      ...MEKSTATION_MOVEMENT_COMMAND_SOURCE_REFS['movement.evade'],
+    ],
   ),
   'movement.stand': integrated(
     'movement.stand',
