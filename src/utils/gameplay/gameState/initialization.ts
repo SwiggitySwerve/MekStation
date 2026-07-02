@@ -130,17 +130,24 @@ export function createInitialUnitState(
     initiativeEquipment: unit.initiativeEquipment,
     c3Equipment: unit.c3Equipment,
     weaponLocationById: unit.weaponLocationById,
-    armor: {},
-    structure: {},
+    // Seed armor/structure from the construction inputs when the producer
+    // supplied them (per-type units seed through their `*Init` blocks;
+    // BattleMechs seed through `armorByLocation`/`structureByLocation`,
+    // spliced from the adapted catalog unit by
+    // `gameUnitsWithAdaptedCombatSeeds`). Legacy synthetic fixtures omit
+    // both and keep the empty-map behavior.
+    armor: unit.armorByLocation ? { ...unit.armorByLocation } : {},
+    structure: unit.structureByLocation ? { ...unit.structureByLocation } : {},
     // Per `add-bot-retreat-behavior` § 2 (Trigger A): the retreat trigger
     // needs the points-of-internal-structure ratio
-    // `sum(starting - current) / sum(starting)`. The base initialization
-    // path leaves `structure` empty (production callers, e.g. CompendiumAdapter,
-    // override with per-tonnage values); we mirror that here. The damage
-    // reducer (`applyDamageApplied`) bootstraps `startingInternalStructure`
-    // on first damage to a location when a producer didn't seed it
-    // explicitly, so legacy callers keep working without a migration.
-    startingInternalStructure: {},
+    // `sum(starting - current) / sum(starting)`. Seeded with the full
+    // starting structure when construction inputs are present; otherwise
+    // the damage reducer (`applyDamageApplied`) bootstraps
+    // `startingInternalStructure` on first damage to a location, so legacy
+    // callers keep working without a migration.
+    startingInternalStructure: unit.structureByLocation
+      ? { ...unit.structureByLocation }
+      : {},
     destroyedLocations: [],
     destroyedEquipment: [],
     ammo: {},

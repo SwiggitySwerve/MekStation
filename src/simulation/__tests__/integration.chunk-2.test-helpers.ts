@@ -58,9 +58,13 @@ const PROFILE_AVG_GAME_BUDGET_MS = readPositiveIntEnv(
   'SIMULATION_PROFILE_AVG_GAME_BUDGET_MS',
   1500,
 );
+// Widened 120s → 360s (3× per the repo perf-budget convention) when
+// `gameUnitsWithAdaptedCombatSeeds` started seeding real per-location
+// armor/structure into auto-resolved sessions — games last more turns now
+// that armor absorbs damage; the contended 100-game batch measured ~148s.
 const PROFILE_TIME_BUDGET_MS = readPositiveIntEnv(
   'SIMULATION_PROFILE_TIME_BUDGET_MS',
-  120000,
+  360000,
 );
 
 // Statistical proofs are only meaningful at the full batch size: at the CI

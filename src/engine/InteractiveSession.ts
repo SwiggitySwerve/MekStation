@@ -91,7 +91,7 @@ import { appendAndPersistInteractiveSessionEvent } from './InteractiveSession.se
 import {
   buildInteractiveSessionGameConfig,
   buildInteractiveSessionUnitMaps,
-  gameUnitsWithAdaptedMovementModes,
+  gameUnitsWithAdaptedCombatSeeds,
 } from './InteractiveSession.setup';
 
 /**
@@ -198,7 +198,7 @@ export class InteractiveSession {
     );
     this.linkage = linkage;
 
-    const gameUnitsWithMovementModes = gameUnitsWithAdaptedMovementModes(
+    const gameUnitsWithCombatSeeds = gameUnitsWithAdaptedCombatSeeds(
       gameUnits,
       playerUnits,
       opponentUnits,
@@ -206,7 +206,7 @@ export class InteractiveSession {
 
     this.session = createGameSession(
       this.gameConfig,
-      gameUnitsWithMovementModes,
+      gameUnitsWithCombatSeeds,
       {
         encounterMeta: linkage.encounterMeta,
         hexTerrain: seedHexTerrainFromGrid(this.grid),

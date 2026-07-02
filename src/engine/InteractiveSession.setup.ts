@@ -84,7 +84,16 @@ function representedTonnage(tonnage: number | undefined): number {
     : 65;
 }
 
-export function gameUnitsWithAdaptedMovementModes(
+/**
+ * Splice the adapted units' construction-derived combat seeds onto the
+ * bare `IGameUnit` metadata before it enters the GameCreated payload:
+ * movement mode, gyro type, vehicle critical availability, and — per the
+ * 0/0 armor instrument-data fix — per-location armor / structure and
+ * heat-sink capacity. Flowing these through the event payload (rather
+ * than mutating state post-hoc) keeps replay, recovery, and multiplayer
+ * hosts deriving identical initial unit states.
+ */
+export function gameUnitsWithAdaptedCombatSeeds(
   gameUnits: readonly IGameUnit[],
   playerUnits: readonly IAdaptedUnit[],
   opponentUnits: readonly IAdaptedUnit[],
@@ -109,14 +118,43 @@ export function gameUnitsWithAdaptedMovementModes(
     const hasVehicleCriticalAvailabilityUpdate =
       unit.vehicleInit !== undefined &&
       vehicleCriticalAvailability !== undefined;
+    // Adapted armor/structure at session start ARE the construction maxima
+    // (the adapter extracts catalog allocation, minus explicit scenario
+    // initial damage). Explicit producer-supplied values win; empty adapted
+    // maps (synthetic fixtures) splice nothing so legacy behavior holds.
+    const hasArmorSeedUpdate =
+      unit.armorByLocation === undefined &&
+      Object.keys(adapted.armor ?? {}).length > 0;
+    const hasStructureSeedUpdate =
+      unit.structureByLocation === undefined &&
+      Object.keys(adapted.structure ?? {}).length > 0;
+    const hasHeatSinkUpdate =
+      unit.heatSinks === undefined && adapted.heatSinks !== undefined;
 
     return hasMovementModeUpdate ||
       hasGyroTypeUpdate ||
-      hasVehicleCriticalAvailabilityUpdate
+      hasVehicleCriticalAvailabilityUpdate ||
+      hasArmorSeedUpdate ||
+      hasStructureSeedUpdate ||
+      hasHeatSinkUpdate
       ? {
           ...unit,
           ...(hasMovementModeUpdate ? { movementMode } : {}),
           ...(hasGyroTypeUpdate ? { gyroType } : {}),
+          ...(hasArmorSeedUpdate
+            ? { armorByLocation: { ...adapted.armor } }
+            : {}),
+          ...(hasStructureSeedUpdate
+            ? { structureByLocation: { ...adapted.structure } }
+            : {}),
+          ...(hasHeatSinkUpdate
+            ? {
+                heatSinks: adapted.heatSinks,
+                ...(adapted.heatSinkType
+                  ? { heatSinkType: adapted.heatSinkType }
+                  : {}),
+              }
+            : {}),
           ...(hasVehicleCriticalAvailabilityUpdate
             ? {
                 vehicleInit: {
