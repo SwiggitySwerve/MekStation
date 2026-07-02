@@ -196,6 +196,15 @@ export interface ITacticalCommandContext {
   readonly activeUnitHeat?: number;
   /** True when the active unit already has a movement preview/plan queued. */
   readonly activeUnitHasPlannedMovement?: boolean;
+  /**
+   * Whether the active unit mounts MASC / a Supercharger. `false` drops the
+   * matching activation command from the dock entirely — a unit that mounts
+   * neither must not surface the affordance (re-audit DC-03; the engine
+   * would refuse anyway, but a dead button is a broken promise). `undefined`
+   * (legacy contexts) preserves the old always-render behavior.
+   */
+  readonly activeUnitHasMASC?: boolean;
+  readonly activeUnitHasSupercharger?: boolean;
   /** Runtime conversion mode for LAM / QuadVee style movement controls. */
   readonly activeUnitConversionMode?: MovementConversionMode | number;
   /** Represented vehicle motive used by VTOL/WiGE altitude controls. */

@@ -161,8 +161,9 @@ function buildUnitProjection({
       code: 'pilot_unassigned',
       severity: 'warning',
       subjectId: unit.unitId,
-      message:
-        'No pilot is assigned; assign one before launch if pilot rules apply.',
+      // Direct imperative — the old "if pilot rules apply" hedge read as the
+      // app being unsure of its own rules (re-audit DC-06).
+      message: 'No pilot assigned. Assign one before launch.',
       actionLabel: 'Assign pilot',
       actionHref: pilotAssignmentHref(baseCampaignHref, unit.unitId),
     });

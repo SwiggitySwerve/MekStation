@@ -74,6 +74,8 @@ export function buildTacticalActionContext({
       plannedMovement,
       selectedUnit,
     ),
+    activeUnitHasMASC: selectedUnit?.hasMASC ?? false,
+    activeUnitHasSupercharger: selectedUnit?.hasSupercharger ?? false,
     activeUnitConversionMode: selectedUnit?.conversionMode,
     activeUnitVehicleMotionType: getVehicleMotionType(selectedUnit),
     activeUnitVehicleAltitude: getVehicleAltitude(selectedUnit),

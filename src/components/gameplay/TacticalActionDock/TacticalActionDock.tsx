@@ -219,8 +219,11 @@ function CommandGroup({
         </div>
       )}
       {dangerCommands.length > 0 && (
+        // Wider break + heavier rule than the intra-group gap: the
+        // irreversible cluster (Eject / Withdraw / Concede) must not read
+        // as just-another-neighbor of routine commands (re-audit IS-04).
         <div
-          className="flex flex-wrap items-center gap-2 border-l border-red-500/50 pl-2"
+          className="ml-6 flex flex-wrap items-center gap-2 border-l-2 border-red-500/60 pl-4"
           data-testid={`command-group-${category}-danger`}
         >
           <span className="text-xs font-semibold text-red-200 uppercase">

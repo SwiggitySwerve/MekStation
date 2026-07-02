@@ -51,9 +51,12 @@ export interface BudgetResolverProps {
   readonly hint?: string | null;
 }
 
+// "enemy to-hit +N" — the modifier applies to ENEMIES shooting at this
+// unit (movement makes it harder to hit). The old "attacker to-hit" left
+// ambiguous whose attacks it modified (re-audit DC-08).
 function formatToHit(modifier: number): string {
-  if (modifier === 0) return 'to-hit +0';
-  return `attacker to-hit ${modifier > 0 ? '+' : ''}${modifier}`;
+  if (modifier === 0) return 'enemy to-hit +0';
+  return `enemy to-hit ${modifier > 0 ? '+' : ''}${modifier}`;
 }
 
 function BudgetOptionRow({

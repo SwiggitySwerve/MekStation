@@ -314,6 +314,17 @@ export function RecordSheetDisplay({
   );
 }
 
+// Kebab-slug form used to detect when a designation/chassis field is just
+// the unit name again in slug or verbatim form (re-audit VD-08: the rail
+// header printed the unit's identity three times, once as a raw catalog
+// slug). Real designations ('AS7-D' next to 'Atlas AS7-D') still render.
+function toIdentitySlug(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
 function RecordSheetHeader({
   unitName,
   designation,
@@ -329,6 +340,11 @@ function RecordSheetHeader({
   readonly tonnage: number | undefined;
   readonly chassis: string | undefined;
 }): React.ReactElement {
+  const designationDuplicatesName =
+    toIdentitySlug(designation) === toIdentitySlug(unitName);
+  const chassisDuplicatesName =
+    chassis !== undefined &&
+    toIdentitySlug(chassis) === toIdentitySlug(unitName);
   return (
     <div className="border-border-theme mb-4 border-b pb-2">
       <div className="flex items-center gap-3">
@@ -349,8 +365,12 @@ function RecordSheetHeader({
         )}
       </div>
       <div className="text-text-theme-secondary mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-        <span data-testid="record-sheet-designation">{designation}</span>
-        {chassis && <span data-testid="record-sheet-chassis">{chassis}</span>}
+        {!designationDuplicatesName && (
+          <span data-testid="record-sheet-designation">{designation}</span>
+        )}
+        {chassis && !chassisDuplicatesName && (
+          <span data-testid="record-sheet-chassis">{chassis}</span>
+        )}
         {tonnage !== undefined && (
           <span data-testid="record-sheet-tonnage">{tonnage} tons</span>
         )}

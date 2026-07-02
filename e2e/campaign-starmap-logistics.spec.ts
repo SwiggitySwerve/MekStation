@@ -183,8 +183,10 @@ test.describe('campaign starmap logistics', () => {
         await expect(page.getByTestId('starmap-current-system')).toContainText(
           'Luthien',
         );
+        // Arrival-appropriate copy (re-audit DC-05): the already-here state
+        // reads 'at destination', not the engine's raw 'blocked'.
         await expect(page.getByTestId('starmap-route-status')).toContainText(
-          'blocked',
+          'at destination',
         );
         await expect(page.getByTestId('starmap-arrival-date')).toContainText(
           '3025-03-14 (now)',
