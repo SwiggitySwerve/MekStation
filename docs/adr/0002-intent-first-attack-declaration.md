@@ -1,6 +1,6 @@
 # ADR 0002: Intent-First Attack Declaration (Attack-Phase Intent Composer)
 
-- **Status:** Proposed (awaiting design-pass ratification — see Open Questions)
+- **Status:** Accepted (OQ1–OQ5 ratified by the user, 2026-07-02 design pass)
 - **Date:** 2026-07-02
 - **Builds on:** ADR 0001 (intent-first tactical movement), council decision 2026-07-02 (next-waves plan)
 
@@ -21,13 +21,13 @@ Bring the same model to the weapon-attack phase:
 5. **Single attack authority**: dock weapon commands and enemy-token context menus route into composer state instead of mutating the attack plan from the side; the forecast modal's confirm role is absorbed by the composer's resolver panel.
 6. **Rules are consumed, not changed**: `secondary-target-tracking` penalties, `to-hit-resolution`, `indirect-fire-system`, called-shot rules, and `weapon-resolution-system` apply verbatim — the composer reorders the player's decision flow only.
 
-## Open Questions (must be resolved before implementation tasks execute)
+## Resolved Questions (user-ratified, 2026-07-02)
 
-- **OQ1 — per-weapon target assignment UX:** assign-mode toggle ("now clicking assigns weapon group B to a target") vs draggable weapon→target chips vs target-first grouping. MegaMek semantics allow per-weapon targets; the UX shape is a player-feel decision.
-- **OQ2 — torso twist:** is twist an intent item inside the composer (it changes arcs, therefore feasibility) or a separate pre-step as today? Composer-owned twist is more coherent but enlarges v1.
-- **OQ3 — called shots and TAG/indirect declarations:** in-composer as assignment modifiers in v1, or consumed-as-is via existing sub-flows until v2?
-- **OQ4 — surface replacement extent:** does the composer fully replace `CombatPlanningPanel` during the weapon-attack phase (mirroring how the movement composer gated the legacy panel), or embed within it?
-- **OQ5 — overheat guardrails:** threshold chips (shutdown risk, ammo-explosion risk at 19+/23+) always visible vs escalating warnings only past thresholds.
+- **OQ1 — assignment UX → target-first.** Clicking an enemy focuses it as the working target; weapons toggle into the volley against the focused target. First-assigned target is primary; focusing another enemy and toggling more weapons creates secondary assignments with their penalties surfaced inline. Closest to existing muscle memory.
+- **OQ2 — torso twist → in-composer.** Twist is an intent item; arc feasibility recomputes live as it changes. Rationale: an outside twist invalidating a composed volley recreates the compose→overflow→uncompose loop this ADR family exists to kill. The ~⅓ larger wave is accepted.
+- **OQ3 — called shots and TAG/indirect → consumed-as-is in v1.** Existing sub-flows keep working; the composer treats their outputs as opaque modifiers. Revisit after soak.
+- **OQ4 — surface replacement → full.** The composer fully owns the weapon-attack phase; `CombatPlanningPanel`'s weapon-attack content is gated off (movement-composer precedent) and `ToHitForecastModal`'s confirm role is absorbed by the composer's Fire resolver.
+- **OQ5 — overheat guardrails → always-visible threshold chips** in a consistent ledger slot (shutdown risk, ammo-explosion exposure), matching the movement ledger's consequence-line style.
 
 ## Consequences
 

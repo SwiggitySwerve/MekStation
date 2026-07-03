@@ -20,15 +20,27 @@ Gating splits hard from soft exactly as ADR 0001 did for movement: rules-illegal
 
 The first target assigned in the composed volley is primary (`secondary-target-tracking` consumed as-is). Assigning any weapon to a different target immediately shows that weapon's secondary penalty in its row and in the ledger. No new rules: this is early surfacing of an existing resolution-time modifier.
 
-## Open Questions (resolve in task phase 0 — ADR 0002 ratification)
+## D6 — Target-first assignment (OQ1, user-ratified 2026-07-02)
 
-- **OQ1 — assignment interaction shape.** Candidates: (a) assign-mode toggle — select weapons, then click a target to bind them; (b) target-first — click target, then toggle weapons into it; (c) per-weapon chips dragged onto targets. (b) is closest to today's flow; (a) matches the movement composer's click-semantics feel. Needs the user's player-feel call.
-- **OQ2 — torso twist.** Twist changes arcs and therefore feasibility. In-composer twist (an intent item recomputing arc gating live) is coherent but enlarges v1; keeping today's separate twist step means arc gating can shift under a composed volley. Recommendation pending user input: in-composer, because stale-arc composition reproduces the compose→overflow→uncompose loop ADR 0001 exists to kill.
-- **OQ3 — called shots and TAG/indirect.** v1 options: consumed-as-is via existing sub-flows (modal/сommands unchanged, composer treats them as opaque modifiers) vs in-composer assignment modifiers. Recommendation: consumed-as-is in v1; revisit after soak.
-- **OQ4 — surface replacement extent.** Full replacement of `CombatPlanningPanel` during the weapon-attack phase (movement precedent: legacy panel gated off when composer active) vs embedding the composer inside the panel. Recommendation: full replacement — the panel's remaining movement content is already superseded during movement phase.
-- **OQ5 — overheat guardrail presentation.** Always-visible threshold chips vs escalating warnings past thresholds only. Pure presentation; defaulting to always-visible chips unless the design pass prefers quieter.
+Clicking an enemy focuses it as the working target; weapons toggle into the volley against the focused target. First-assigned target is primary; focusing another enemy and toggling further weapons creates secondary assignments with penalties surfaced inline (per D5). Rejected: assign-mode toggle (inverts attack muscle memory) and weapon→target chips (heaviest interaction + a11y cost).
+
+## D7 — Torso twist in-composer (OQ2, user-ratified — the scope hinge, accepted)
+
+Twist is an intent item; the composer recomputes arc feasibility live as it changes, and un-twisting restores gating exactly. Rationale: an outside twist invalidating a composed volley recreates the compose→overflow→uncompose loop the intent-first ADRs exist to kill. The ~⅓ larger wave is accepted; phases below are sized for it.
+
+## D8 — Called shots and TAG/indirect consumed-as-is (OQ3, user-ratified)
+
+Existing sub-flows keep working unchanged; the composer treats their outputs as opaque modifiers on forecast rows. Revisit after soak.
+
+## D9 — Full surface replacement (OQ4, user-ratified)
+
+The composer fully owns the weapon-attack phase: `CombatPlanningPanel`'s weapon-attack content is gated off while the composer is active (movement-composer precedent) and `ToHitForecastModal`'s confirm role is absorbed by the Fire resolver. No second half-owner survives.
+
+## D10 — Always-visible heat threshold chips (OQ5, user-ratified)
+
+Shutdown-risk and ammo-explosion-exposure chips render in a consistent ledger slot whenever the composed heat crosses them — glanceable every volley, no first-appearance layout shift mid-composition.
 
 ## Risks
 
 - The weapon-attack surface is the widest UI surface touched since the movement composer; the e2e/evidence re-anchor set is correspondingly larger (dock commands, context menus, modal, selector, capture screens 09–11).
-- OQ2 (twist) is the scope hinge: in-composer twist pulls facing/arc recomputation into live gating and could grow the wave by a third. The phase-0 design pass must size it before tasks lock.
+- D7 (in-composer twist) pulls facing/arc recomputation into live gating — the accepted ~⅓ scope growth. Twist legality (torso-twist rules, arc math) is consumed from existing helpers; only the recomputation wiring is new.
