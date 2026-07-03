@@ -7,6 +7,7 @@ import type {
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
+import type { IAttackComposerContext } from './AttackIntentComposer';
 import type { IMovementComposerContext } from './MovementIntentComposer';
 
 import { ActionBar } from './ActionBar';
@@ -24,6 +25,7 @@ export function GameplayActionDockSlot({
   onAction,
   commandPreviewInputs,
   composerDockContext,
+  attackComposerContext,
   interactivePhase,
   isPlayerTurn,
   canUndo,
@@ -34,6 +36,7 @@ export function GameplayActionDockSlot({
   readonly onAction: TacticalActionHandler;
   readonly commandPreviewInputs: ICommandPreviewInputs;
   readonly composerDockContext: IMovementComposerContext | undefined;
+  readonly attackComposerContext: IAttackComposerContext | undefined;
   readonly interactivePhase: InteractivePhase | undefined;
   readonly isPlayerTurn: boolean;
   readonly canUndo: boolean;
@@ -47,6 +50,7 @@ export function GameplayActionDockSlot({
         onAction={onAction}
         previewInputs={commandPreviewInputs}
         intentComposer={composerDockContext}
+        attackComposer={attackComposerContext}
         infoText={
           interactivePhase
             ? formatInteractivePhaseLabel(interactivePhase)

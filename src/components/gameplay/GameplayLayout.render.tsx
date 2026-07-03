@@ -17,6 +17,7 @@ import type {
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 import type { ITacticalMapProjectionFrame } from '@/utils/gameplay/tacticalMapProjection';
 
+import type { IAttackComposerContext } from './AttackIntentComposer';
 import type { GameplayLayoutControls } from './GameplayLayout.controls';
 import type { SelectedUnitModel } from './GameplayLayout.selection';
 import type { IntentComposerMapProps } from './GameplayLayout.types';
@@ -103,6 +104,7 @@ interface GameplayLayoutViewProps {
   readonly onAction: TacticalActionHandler;
   readonly commandPreviewInputs: ICommandPreviewInputs;
   readonly composerDockContext: IMovementComposerContext | undefined;
+  readonly attackComposerContext: IAttackComposerContext | undefined;
   readonly onEventLogCollapsedChange: (collapsed: boolean) => void;
 }
 
@@ -157,6 +159,7 @@ export function GameplayLayoutView({
   onAction,
   commandPreviewInputs,
   composerDockContext,
+  attackComposerContext,
   onEventLogCollapsedChange,
 }: GameplayLayoutViewProps): React.ReactElement {
   const recordSheetBody = (
@@ -247,6 +250,7 @@ export function GameplayLayoutView({
           onAction={onAction}
           commandPreviewInputs={commandPreviewInputs}
           composerDockContext={composerDockContext}
+          attackComposerContext={attackComposerContext}
           interactivePhase={interactivePhase}
           isPlayerTurn={isPlayerTurn}
           canUndo={canUndo}

@@ -14,10 +14,10 @@
 
 ## 2. Composer band UI
 
-- [ ] 2.1 Composer band (weapon palette + ledger + resolver + twist control) mounted for the weapon-attack phase, reusing the movement composer's band layout/chrome patterns
-- [ ] 2.2 Weapon palette rows: name/location/mode selector, forecast columns, block-at-source rendering with reasons; secondary-penalty inline display per D5/D6
-- [ ] 2.3 Heat & Effect Ledger with always-visible threshold chips (D10)
-- [ ] 2.4 Volley Resolver: composed-volley summary, explicit Fire (disabled-with-hint until ≥1 legal assignment), explicit Hold Fire
+- [x] 2.1 Composer band (weapon palette + ledger + resolver + twist control) mounted for the weapon-attack phase, reusing the movement composer's band layout/chrome patterns
+- [x] 2.2 Weapon palette rows: name/location/mode selector, forecast columns, block-at-source rendering with reasons; secondary-penalty inline display per D5/D6
+- [x] 2.3 Heat & Effect Ledger with always-visible threshold chips (D10)
+- [x] 2.4 Volley Resolver: composed-volley summary, explicit Fire (disabled-with-hint until ≥1 legal assignment), explicit Hold Fire
 
 ## 3. Twist intent + map interaction (tactical-map-interface delta)
 

@@ -35,6 +35,10 @@ import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 import { isGmTacticalCommandId } from '@/lib/interventions';
 
 import {
+  AttackIntentComposer,
+  type IAttackComposerContext,
+} from '../AttackIntentComposer';
+import {
   MovementIntentComposer,
   type IMovementComposerContext,
 } from '../MovementIntentComposer';
@@ -82,6 +86,12 @@ export interface TacticalActionDockProps {
    * movement-verb buttons; it keeps facing/phase/utility (+ Evade posture).
    */
   readonly intentComposer?: IMovementComposerContext;
+  /**
+   * Attack Intent Composer context (attack-phase-intent-composer). When
+   * `active`, the composer renders in the weapon-attack zone as the SOLE
+   * weapon-attack declaration surface (Single Attack Authority, D9).
+   */
+  readonly attackComposer?: IAttackComposerContext;
   /** Optional className for styling. */
   readonly className?: string;
 }
@@ -261,6 +271,7 @@ export function TacticalActionDock({
   previewInputs,
   gmIntervention,
   intentComposer,
+  attackComposer,
   className = '',
 }: TacticalActionDockProps): React.ReactElement {
   const [gmPreviewState, setGmPreviewState] = useState<IGmPreviewState | null>(
@@ -403,6 +414,12 @@ export function TacticalActionDock({
           // dock's movement-verb buttons are removed; facing/phase/utility (and
           // the Evade posture) still render as command groups below.
           <MovementIntentComposer context={intentComposer} />
+        )}
+        {attackComposer?.active && (
+          // Single Attack Authority (D9): the composer is the sole weapon-
+          // attack declaration surface, hosted here in the PRIMARY-ACTION
+          // zone during the weapon-attack phase.
+          <AttackIntentComposer context={attackComposer} />
         )}
         {groups.length === 0 && (
           <span
