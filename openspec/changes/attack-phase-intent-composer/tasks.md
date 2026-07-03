@@ -37,6 +37,6 @@
 
 ## 6. Verification battery
 
-- [ ] 6.1 Unit + component suites for slice, palette, ledger, resolver, twist; compile-down equivalence tests
-- [ ] 6.2 E2e + command-screen evidence re-anchor (screens exercising weapon attack), validators, `openspec validate --strict`
-- [ ] 6.3 Full-loop browser check: compose (incl. twist) → fire → resolution events identical to a legacy-flow volley + twist for the same inputs
+- [x] 6.1 Unit + component suites for slice, palette, ledger, resolver, twist; compile-down equivalence tests
+- [x] 6.2 E2e + command-screen evidence re-anchor (screens exercising weapon attack), validators, `openspec validate --strict`
+- [x] 6.3 Full-loop browser check: compose (incl. twist) → fire → resolution events identical to a legacy-flow volley + twist for the same inputs
