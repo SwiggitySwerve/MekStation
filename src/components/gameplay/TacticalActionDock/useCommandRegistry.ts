@@ -17,24 +17,24 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §1.2, §2.1
  */
 
-import { useMemo } from "react";
+import { useMemo } from 'react';
 
-import type { ShellMode } from "@/types/gameplay/TacticalShellInterfaces";
+import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
 import {
   filterCommandsByPhase,
   type GamePhase,
   type ITacticalCommand,
   type ITacticalCommandContext,
-} from "@/types/gameplay";
+} from '@/types/gameplay';
 
-import { buildFacingCommands } from "./commands/facingCommands";
-import { buildGmReferralCommands } from "./commands/gmReferralCommands";
-import { buildHeatEndCommands } from "./commands/heatEndCommands";
-import { buildMovementCommands } from "./commands/movementCommands";
-import { buildPhysicalAttackCommands } from "./commands/physicalAttackCommands";
-import { buildUtilityCommands } from "./commands/utilityCommands";
-import { buildWeaponAttackCommands } from "./commands/weaponAttackCommands";
+import { buildFacingCommands } from './commands/facingCommands';
+import { buildGmReferralCommands } from './commands/gmReferralCommands';
+import { buildHeatEndCommands } from './commands/heatEndCommands';
+import { buildMovementCommands } from './commands/movementCommands';
+import { buildPhysicalAttackCommands } from './commands/physicalAttackCommands';
+import { buildUtilityCommands } from './commands/utilityCommands';
+import { buildWeaponAttackCommands } from './commands/weaponAttackCommands';
 
 /**
  * Build the full command set for the given context + shell mode.
@@ -61,7 +61,7 @@ export function buildCommandRegistry(
     ...buildUtilityCommands(),
   ];
 
-  if (shellMode === "gm") {
+  if (shellMode === 'gm') {
     families.push(...buildGmReferralCommands());
   }
 
@@ -113,7 +113,7 @@ export function useCommandRegistry(
       ctx.activeUnitInfantryMountHeight,
       ctx.movementCapability?.unitHeight,
       ctx.movementCapability?.unitHeightProfile?.kind,
-      ctx.movementCapability?.unitHeightProfile?.kind === "infantry_mount"
+      ctx.movementCapability?.unitHeightProfile?.kind === 'infantry_mount'
         ? ctx.movementCapability.unitHeightProfile.mountedHeight
         : undefined,
       shellMode,
@@ -164,17 +164,17 @@ export function filterCommandsForHex(
 export function groupCommandsByCategory(
   commands: readonly ITacticalCommand[],
 ): ReadonlyArray<{
-  readonly category: ITacticalCommand["category"];
+  readonly category: ITacticalCommand['category'];
   readonly commands: readonly ITacticalCommand[];
 }> {
-  const order: ReadonlyArray<ITacticalCommand["category"]> = [
-    "movement",
-    "facing",
-    "weapon",
-    "physical",
-    "heat-end",
-    "utility",
-    "gm",
+  const order: ReadonlyArray<ITacticalCommand['category']> = [
+    'movement',
+    'facing',
+    'weapon',
+    'physical',
+    'heat-end',
+    'utility',
+    'gm',
   ];
   return order
     .map((category) => ({
