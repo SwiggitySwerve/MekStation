@@ -8,9 +8,9 @@
 
 ## 1. State foundation
 
-- [ ] 1.1 Add the `attackIntent` slice (assignments: weaponId→{targetId, mode}, focused working target, composed twist, derived volley) with pure reducers + unit tests
-- [ ] 1.2 Derived selectors: per-weapon legality (arc under composed twist / range / LOS / ammo / destroyed, with reasons), per-weapon forecast rows via `buildToHitForecast`, ledger totals (heat over banked, expected damage, volley probability), primary/secondary designation per assignment order
-- [ ] 1.3 `commitComposedVolley()` compiling intent (including the twist) into the preserved `attackPlan` contract + existing torso-twist declaration path; Hold Fire path; unit tests incl. compile-down equivalence with a hand-built legacy plan + twist
+- [x] 1.1 Add the `attackIntent` slice (assignments: weaponId→{targetId, mode}, focused working target, composed twist, derived volley) with pure reducers + unit tests
+- [x] 1.2 Derived selectors: per-weapon legality (arc under composed twist / range / LOS / ammo / destroyed, with reasons), per-weapon forecast rows via `buildToHitForecast`, ledger totals (heat over banked, expected damage, volley probability), primary/secondary designation per assignment order
+- [x] 1.3 `commitComposedVolley()` compiling intent (including the twist) into the preserved `attackPlan` contract + existing torso-twist declaration path; Hold Fire path; unit tests incl. compile-down equivalence with a hand-built legacy plan + twist
 
 ## 2. Composer band UI
 

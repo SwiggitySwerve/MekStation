@@ -34,6 +34,7 @@ import {
   MovementType,
   WeaponFireMode,
   type Facing,
+  type IAttackIntentState,
   type IIntentItem,
   type IMovementIntentState,
   type PostureActionType,
@@ -42,6 +43,16 @@ import {
 import { RECONNECT_GRACE_MS } from '@/types/multiplayer/Protocol';
 import { logger } from '@/utils/logger';
 
+import {
+  clearAttackIntentReducer,
+  commitComposedVolleyLogic,
+  focusTargetReducer,
+  holdFireLogic,
+  INITIAL_ATTACK_INTENT_STATE,
+  setAssignmentModeReducer,
+  setComposedTwistReducer,
+  toggleWeaponAssignmentReducer,
+} from './useGameplayStore.attackIntent';
 import {
   clearAttackPlanLogic,
   clearPlannedMovementLogic,
@@ -185,6 +196,14 @@ interface GameplayState {
    * selectors compute them from `movementIntent.items` + live unit state.
    */
   movementIntent: IMovementIntentState;
+  /**
+   * Per `attack-phase-intent-composer` (ADR 0002 D2/D6/D7): the intent-first
+   * attack composition — focused working target, weapon→target assignments
+   * in order (first assignment's target = primary), and the composed
+   * torso-twist intent. Derived values (volley groups, forecast rows,
+   * ledger totals) are NOT stored; selectors compute them live.
+   */
+  attackIntent: IAttackIntentState;
 }
 
 interface GameplayActions {
@@ -302,6 +321,21 @@ interface GameplayActions {
     intent: IMovementIntentState,
     lockedMode: MovementType,
   ) => void;
+  /**
+   * Per `attack-phase-intent-composer` (ADR 0002 D6/D7): Attack Intent
+   * Composer actions. Reducers mutate `attackIntent` only — no attack
+   * math lives in the store, and nothing declares until the explicit
+   * `commitComposedVolley` (Fire) or `holdFire` commit.
+   */
+  focusAttackTarget: (targetId: string | null) => void;
+  toggleWeaponAssignment: (weaponId: string) => void;
+  setAssignmentMode: (weaponId: string, mode: WeaponFireMode) => void;
+  setComposedTwist: (twist: Facing | null) => void;
+  clearAttackIntent: () => void;
+  /** Fire: commit the composed twist + volley atomically, then reset. */
+  commitComposedVolley: () => void;
+  /** Explicit decline-to-attack: lock with no declarations, then reset. */
+  holdFire: () => void;
 }
 
 type GameplayStore = GameplayState & GameplayActions;
@@ -340,6 +374,7 @@ const initialState: GameplayState = {
   },
   previewEnabled: false,
   movementIntent: INITIAL_MOVEMENT_INTENT_STATE,
+  attackIntent: INITIAL_ATTACK_INTENT_STATE,
 };
 
 // =============================================================================
@@ -623,6 +658,33 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
     commitPlannedMovementLogic(get, set);
     set({ movementIntent: resetCompositionReducer() });
   },
+
+  // -------------------------------------------------------------------------
+  // Attack Intent Composer (attack-phase-intent-composer, ADR 0002 D6/D7)
+  // -------------------------------------------------------------------------
+  focusAttackTarget: (targetId) =>
+    set((state) => ({
+      attackIntent: focusTargetReducer(state.attackIntent, targetId),
+    })),
+  toggleWeaponAssignment: (weaponId) =>
+    set((state) => ({
+      attackIntent: toggleWeaponAssignmentReducer(state.attackIntent, weaponId),
+    })),
+  setAssignmentMode: (weaponId, mode) =>
+    set((state) => ({
+      attackIntent: setAssignmentModeReducer(
+        state.attackIntent,
+        weaponId,
+        mode,
+      ),
+    })),
+  setComposedTwist: (twist) =>
+    set((state) => ({
+      attackIntent: setComposedTwistReducer(state.attackIntent, twist),
+    })),
+  clearAttackIntent: () => set({ attackIntent: clearAttackIntentReducer() }),
+  commitComposedVolley: () => commitComposedVolleyLogic(get, set),
+  holdFire: () => holdFireLogic(get, set),
 }));
 
 // ---------------------------------------------------------------------------
