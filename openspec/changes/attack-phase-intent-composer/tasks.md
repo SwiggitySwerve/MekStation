@@ -21,9 +21,9 @@
 
 ## 3. Twist intent + map interaction (tactical-map-interface delta)
 
-- [ ] 3.1 Torso twist as an intent item (D7): twist control in the composer; arc gating and enemy-token feasibility visuals recompute live on twist change; un-twist restores gating exactly (Torso Twist Intent scenarios)
-- [ ] 3.2 Target-first map interaction (D6): enemy click focuses the working target; weapon toggles assign against it; primary/secondary target encodings replace the single target-lock ring (MODIFIED Target Lock Visualization scenarios)
-- [ ] 3.3 At-source feasibility visuals on enemy tokens while composing, twist-aware (ADDED Attack Intent Map Interaction scenarios)
+- [x] 3.1 Torso twist as an intent item (D7): twist control in the composer; arc gating and enemy-token feasibility visuals recompute live on twist change; un-twist restores gating exactly (Torso Twist Intent scenarios)
+- [x] 3.2 Target-first map interaction (D6): enemy click focuses the working target; weapon toggles assign against it; primary/secondary target encodings replace the single target-lock ring (MODIFIED Target Lock Visualization scenarios)
+- [x] 3.3 At-source feasibility visuals on enemy tokens while composing, twist-aware (ADDED Attack Intent Map Interaction scenarios)
 
 ## 4. Single attack authority
 

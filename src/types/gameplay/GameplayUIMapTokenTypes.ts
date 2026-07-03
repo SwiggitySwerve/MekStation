@@ -238,6 +238,21 @@ export interface IUnitTokenBase {
    * token is the "active" target at a time.
    */
   readonly isActiveTarget?: boolean;
+  /**
+   * Per `attack-phase-intent-composer` (ADR 0002 D6): is this unit a
+   * SECONDARY target of the composed volley (carries at least one weapon
+   * assignment but is not the primary)? Renders a visually distinct,
+   * non-color-redundant encoding (dashed ring) beside the primary's
+   * pulsing ring. Mutually exclusive with `isActiveTarget` in practice.
+   */
+  readonly isSecondaryTarget?: boolean;
+  /**
+   * Per `attack-phase-intent-composer` (Attack Intent Map Interaction):
+   * while the composer is active, set when NO weapon of the composing
+   * unit can legally engage this enemy under the composed twist. The
+   * value is the rules-backed reason, surfaced on inspection.
+   */
+  readonly attackInfeasibleReason?: string;
   /** Is this unit destroyed? */
   readonly isDestroyed: boolean;
   /**

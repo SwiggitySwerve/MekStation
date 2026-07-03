@@ -9,10 +9,15 @@ import {
   IWeaponStatus,
   GamePhase,
   GameSide,
+  type IAttackIntentState,
 } from '@/types/gameplay';
 import { deriveValidWeaponTargetIds } from '@/utils/gameplay/combatTargetIds';
 
 import { useAnimationQueue } from './useAnimationQueue';
+// Benign module cycle: `useGameplayStore.attackIntent` imports the
+// InteractivePhase enum from this file; both references resolve at call
+// time (never during module evaluation), so ES live bindings keep this safe.
+import { focusTargetReducer } from './useGameplayStore.attackIntent';
 export {
   handleActionLogic,
   type IGameplayActionPayload,
@@ -40,6 +45,7 @@ interface GameplayHelperState {
   validTargetIds: readonly string[];
   hitChance: number | null;
   unitWeapons: Record<string, readonly IWeaponStatus[]>;
+  attackIntent: IAttackIntentState;
 }
 
 /**
@@ -317,6 +323,14 @@ function selectWeaponAttacker(context: WeaponAttackTokenClickContext): void {
 }
 
 function selectWeaponTarget(context: WeaponAttackTokenClickContext): void {
+  // Target-first map interaction (attack-phase-intent-composer, D6): an
+  // enemy click focuses the composer's working target so weapon toggles
+  // assign against it. Never declares anything itself — the legacy
+  // attackPlan update below is the transitional single-target mirror.
+  context.set((state) => ({
+    attackIntent: focusTargetReducer(state.attackIntent, context.unitId),
+  }));
+
   const storeState = context.get();
   const targetIds =
     storeState.validTargetIds.length > 0

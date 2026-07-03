@@ -112,6 +112,55 @@ export const MechToken = React.memo(function MechToken({
         </circle>
       )}
 
+      {/* Secondary-target encoding (attack-phase-intent-composer, D6):
+          a DASHED amber ring — distinct from the primary's solid pulsing
+          red ring by dash pattern, not hue alone (non-color-redundant per
+          the MODIFIED Target Lock Visualization scenarios). */}
+      {token.isSecondaryTarget && !token.isActiveTarget && !isDestroyed && (
+        <circle
+          data-testid="unit-secondary-target-ring"
+          r={MECH_RING_RADIUS + 2}
+          fill="none"
+          stroke="#fbbf24"
+          strokeWidth={3}
+          strokeDasharray="6 4"
+          pointerEvents="none"
+          aria-hidden="true"
+        />
+      )}
+
+      {/* At-source infeasibility encoding (Attack Intent Map Interaction):
+          while composing, an enemy no weapon can engage carries a blocked
+          glyph + dotted gray ring; the rules-backed reason is available on
+          inspection via <title>. Glyph + dash pattern keep the encoding
+          non-color-redundant. */}
+      {token.attackInfeasibleReason && !isDestroyed && (
+        <g data-testid="unit-attack-infeasible" pointerEvents="none">
+          <title>{token.attackInfeasibleReason}</title>
+          <circle
+            r={MECH_RING_RADIUS}
+            fill="none"
+            stroke="#94a3b8"
+            strokeWidth={2}
+            strokeDasharray="2 4"
+            aria-hidden="true"
+          />
+          <text
+            x={MECH_RING_RADIUS - 2}
+            y={-MECH_RING_RADIUS + 6}
+            textAnchor="middle"
+            fontSize={12}
+            fill="#cbd5e1"
+            stroke="#0f172a"
+            strokeWidth={0.5}
+            paintOrder="stroke fill"
+            aria-hidden="true"
+          >
+            {'⊘'}
+          </text>
+        </g>
+      )}
+
       {/* Valid-target halo (static — red) stays a flat ring. The selection
           ring (yellow) is emitted by `MechSprite` itself when isSelected. */}
       {token.isValidTarget && !token.isSelected && !token.isActiveTarget && (
