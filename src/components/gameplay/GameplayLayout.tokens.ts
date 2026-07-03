@@ -37,6 +37,10 @@ interface BuildGameplayTokenProjectionParams {
   readonly activeTargetId: string | null;
   readonly validPhysicalTargetIds: readonly string[];
   readonly activePhysicalTargetId: string | null;
+  /** Composer secondary targets (attack-phase-intent-composer, D6). */
+  readonly secondaryTargetIds?: readonly string[];
+  /** Composer at-source infeasibility reasons by enemy unit id. */
+  readonly attackInfeasibleReasonByUnitId?: Readonly<Record<string, string>>;
   readonly playerSide: GameSide;
   readonly localFogPlayerId: string;
   readonly visibilityState: GameplayVisibilityState;
@@ -86,6 +90,8 @@ export function buildGameplayTokenProjection({
   activeTargetId,
   validPhysicalTargetIds,
   activePhysicalTargetId,
+  secondaryTargetIds,
+  attackInfeasibleReasonByUnitId,
   playerSide,
   localFogPlayerId,
   visibilityState,
@@ -137,6 +143,8 @@ export function buildGameplayTokenProjection({
     activeTargetId,
     validPhysicalTargetIds,
     activePhysicalTargetId,
+    secondaryTargetIds,
+    attackInfeasibleReasonByUnitId,
     playerSide,
     localFogPlayerId,
     visibilityState,

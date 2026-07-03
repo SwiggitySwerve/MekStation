@@ -44,6 +44,7 @@ import {
 } from '@/utils/gameplay/battlearmor/vibroClawDispatch';
 import { createGameSession, startGame } from '@/utils/gameplay/gameSession';
 
+import type { IVolleyGroup } from './InteractiveSession.actions';
 import type { IInteractiveSessionRuntimeContext } from './InteractiveSession.runtime';
 import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 import type { IAdaptedUnit, IAvailableActions } from './types';
@@ -64,6 +65,7 @@ import {
   applyInteractiveSessionMovementCommand,
   applyInteractiveSessionPhysicalAttackCommand,
   applyInteractiveSessionRuntimeMovementStateCommand,
+  applyInteractiveSessionVolleyCommand,
   attemptInteractiveSessionStandUp,
   declareInteractiveSessionWithdrawal,
   ejectInteractiveSessionUnit,
@@ -481,6 +483,20 @@ export class InteractiveSession {
       weaponIds,
       weaponModesByWeaponId,
       selectedAMSWeaponIds,
+    );
+  };
+
+  /**
+   * Commit a composed volley (change `attack-phase-intent-composer`, D2):
+   * one declaration group per target, primary first, locked once so the
+   * whole volley is atomic. Empty `groups` = explicit Hold Fire (lock-only).
+   */
+  applyVolley = (attackerId: string, groups: readonly IVolleyGroup[]): void => {
+    this.assertActiveForAction();
+    applyInteractiveSessionVolleyCommand(
+      this.runtimeContext,
+      attackerId,
+      groups,
     );
   };
 

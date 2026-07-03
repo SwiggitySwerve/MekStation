@@ -1,4 +1,9 @@
-export { applyInteractiveSessionAttack } from './InteractiveSession.actions.attack';
+export {
+  applyInteractiveSessionAttack,
+  applyInteractiveSessionVolley,
+  declareInteractiveSessionAttackGroup,
+} from './InteractiveSession.actions.attack';
+export type { IVolleyGroup } from './InteractiveSession.actions.attack';
 export type { IApplyAttackInput } from './InteractiveSession.actions.attackTypes';
 export {
   applyInteractiveSessionLegAttack,

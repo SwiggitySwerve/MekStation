@@ -1,7 +1,11 @@
 import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
-import type { IIndirectFireResolution } from '@/types/gameplay/IndirectFireInterfaces';
+import type {
+  IIndirectFireResolution,
+  WeaponFireMode,
+} from '@/types/gameplay/IndirectFireInterfaces';
 
+import { GameEventType } from '@/types/gameplay/GameSessionCoreTypes';
 import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import { determineArc } from '@/utils/gameplay/firingArcs';
 import { declareAttack, lockAttack } from '@/utils/gameplay/gameSession';
@@ -34,6 +38,25 @@ import {
 } from './InteractiveSession.actions.attackValidation';
 
 export function applyInteractiveSessionAttack(
+  input: IApplyAttackInput,
+): IGameSession {
+  const session = declareInteractiveSessionAttackGroup(input);
+  // Invalid declarations return without locking (the player can adjust and
+  // retry) — a declaration happened only if an AttackDeclared event landed.
+  const declared = session.events
+    .slice(input.session.events.length)
+    .some((event) => event.type === GameEventType.AttackDeclared);
+  return declared ? lockAttack(session, input.attackerId) : session;
+}
+
+/**
+ * Declare one target group WITHOUT locking the attacker — the volley path
+ * (`attack-phase-intent-composer` design D2) declares one group per target,
+ * primary first, then locks once after the final group so a multi-target
+ * volley commits atomically. The single-target `applyInteractiveSessionAttack`
+ * wraps this with the lock, preserving its legacy byte-for-byte behavior.
+ */
+export function declareInteractiveSessionAttackGroup(
   input: IApplyAttackInput,
 ): IGameSession {
   const unitWeapons = input.weaponsByUnit.get(input.attackerId) ?? [];
@@ -236,6 +259,48 @@ export function applyInteractiveSessionAttack(
     projection: committedAttackProjection,
     weaponAttacks: usableWeaponAttacks,
   });
-  session = lockAttack(session, input.attackerId);
   return session;
+}
+
+/** One target group of a composed volley (design D2 compile-down shape). */
+export interface IVolleyGroup {
+  readonly targetId: string;
+  readonly weaponIds: readonly string[];
+  readonly modesByWeaponId: Readonly<Record<string, WeaponFireMode>>;
+}
+
+/**
+ * Declare a composed volley — one declaration group per target, primary
+ * first — then lock the attacker ONCE so the whole volley commits
+ * atomically (`attack-phase-intent-composer`, Volley Resolver requirement).
+ * An empty `groups` array is the explicit Hold Fire: lock with no
+ * declarations, consuming the activation. If any group fails validation
+ * (defensive — the composer blocks illegal assignments at the source), the
+ * fold stops WITHOUT locking so the player can adjust, matching the
+ * single-target invalid path.
+ */
+export function applyInteractiveSessionVolley(
+  base: Omit<
+    IApplyAttackInput,
+    'targetId' | 'weaponIds' | 'weaponModesByWeaponId' | 'targetHex'
+  >,
+  groups: readonly IVolleyGroup[],
+): IGameSession {
+  let session = base.session;
+  for (const group of groups) {
+    const before = session.events.length;
+    session = declareInteractiveSessionAttackGroup({
+      ...base,
+      session,
+      targetId: group.targetId,
+      weaponIds: group.weaponIds,
+      weaponModesByWeaponId: group.modesByWeaponId,
+      targetHex: session.currentState.units[group.targetId]?.position,
+    });
+    const declared = session.events
+      .slice(before)
+      .some((event) => event.type === GameEventType.AttackDeclared);
+    if (!declared) return session;
+  }
+  return lockAttack(session, base.attackerId);
 }

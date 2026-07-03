@@ -35,6 +35,10 @@ import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 import { isGmTacticalCommandId } from '@/lib/interventions';
 
 import {
+  AttackIntentComposer,
+  type IAttackComposerContext,
+} from '../AttackIntentComposer';
+import {
   MovementIntentComposer,
   type IMovementComposerContext,
 } from '../MovementIntentComposer';
@@ -82,6 +86,12 @@ export interface TacticalActionDockProps {
    * movement-verb buttons; it keeps facing/phase/utility (+ Evade posture).
    */
   readonly intentComposer?: IMovementComposerContext;
+  /**
+   * Attack Intent Composer context (attack-phase-intent-composer). When
+   * `active`, the composer renders in the weapon-attack zone as the SOLE
+   * weapon-attack declaration surface (Single Attack Authority, D9).
+   */
+  readonly attackComposer?: IAttackComposerContext;
   /** Optional className for styling. */
   readonly className?: string;
 }
@@ -261,6 +271,7 @@ export function TacticalActionDock({
   previewInputs,
   gmIntervention,
   intentComposer,
+  attackComposer,
   className = '',
 }: TacticalActionDockProps): React.ReactElement {
   const [gmPreviewState, setGmPreviewState] = useState<IGmPreviewState | null>(
@@ -270,10 +281,16 @@ export function TacticalActionDock({
   // registry must know so movement builders drop the posture/traversal verbs
   // (the composer palette is their only home — re-audit VD-01/UXF-01/IS-02).
   const composerActive = Boolean(intentComposer?.active);
+  // Single Attack Authority (D9): when the attack composer is active the
+  // registry must know so weapon builders drop fire/clear and route the
+  // declare command into composer state.
+  const attackComposerIsActive = Boolean(attackComposer?.active);
   const effectiveCtx = useMemo<ITacticalCommandContext>(() => {
-    const base: ITacticalCommandContext = composerActive
-      ? { ...ctx, movementComposerActive: true }
-      : ctx;
+    const base: ITacticalCommandContext = {
+      ...ctx,
+      ...(composerActive ? { movementComposerActive: true } : {}),
+      ...(attackComposerIsActive ? { attackComposerActive: true } : {}),
+    };
     if (
       !previewInputs?.movementInfo &&
       !previewInputs?.combatInfo &&
@@ -304,6 +321,7 @@ export function TacticalActionDock({
   }, [
     ctx,
     composerActive,
+    attackComposerIsActive,
     previewInputs?.movementInfo,
     previewInputs?.combatInfo,
     previewInputs?.combatInfoByTargetId,
@@ -403,6 +421,12 @@ export function TacticalActionDock({
           // dock's movement-verb buttons are removed; facing/phase/utility (and
           // the Evade posture) still render as command groups below.
           <MovementIntentComposer context={intentComposer} />
+        )}
+        {attackComposer?.active && (
+          // Single Attack Authority (D9): the composer is the sole weapon-
+          // attack declaration surface, hosted here in the PRIMARY-ACTION
+          // zone during the weapon-attack phase.
+          <AttackIntentComposer context={attackComposer} />
         )}
         {groups.length === 0 && (
           <span

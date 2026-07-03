@@ -11,6 +11,7 @@ import {
   IGameSession,
   IGameplayUIState,
   MovementType,
+  type IAttackIntentState,
   type MovementEnhancementActivationKind,
 } from '@/types/gameplay';
 import { createUnitEjectedEvent } from '@/utils/gameplay/gameEvents';
@@ -32,6 +33,9 @@ import {
 import { isSupportedPhysicalAttackType } from '@/utils/gameplay/physicalAttacks/types';
 import { logger } from '@/utils/logger';
 
+// Benign module cycle (same shape as useGameplayStore.helpers): the
+// attackIntent module never touches this file during module evaluation.
+import { focusTargetReducer } from './useGameplayStore.attackIntent';
 import { usePhysicalAttackPlanStore } from './useGameplayStore.physicalAttackPlan';
 
 export interface IGameplayActionPayload {
@@ -60,6 +64,7 @@ interface GameplayActionContext {
 interface GameplayActionState {
   session: IGameSession | null;
   ui: IGameplayUIState;
+  attackIntent: IAttackIntentState;
 }
 
 type SetGameplayActionState = {
@@ -90,7 +95,22 @@ const GAMEPLAY_ACTION_HANDLERS: Readonly<
   concede: handleConcedeAction,
   'physical-attack': handlePhysicalAttackAction,
   'vibro-claw-attack': handleVibroClawAttackAction,
+  'composer-focus-target': handleComposerFocusTargetAction,
 };
+
+/**
+ * Single Attack Authority routing (attack-phase-intent-composer, D9):
+ * the dock/menu declare command commits this action while the composer
+ * is active — the result is a composer WORKING-TARGET focus, never a
+ * declaration (spec scenario `Context menu routes into the composer`).
+ */
+function handleComposerFocusTargetAction(context: GameplayActionContext): void {
+  const targetUnitId = context.payload?.targetUnitId;
+  if (!targetUnitId) return;
+  context.set((state) => ({
+    attackIntent: focusTargetReducer(state.attackIntent, targetUnitId),
+  }));
+}
 
 export function handleActionLogic(
   actionId: string,

@@ -33,6 +33,8 @@ import {
   applyInteractiveSessionAttack,
   applyInteractiveSessionMovement,
   applyInteractiveSessionRuntimeMovementState,
+  applyInteractiveSessionVolley,
+  type IVolleyGroup,
 } from './InteractiveSession.actions';
 import {
   d6RollerForInteractiveSessionResolvers,
@@ -195,6 +197,32 @@ export function applyInteractiveSessionAttackCommand(
       grid: context.grid,
       targetHex: targetUnit?.position,
     }),
+  );
+  tryFinalizeAndPublishInteractiveSession(context);
+}
+
+/**
+ * Composed-volley commit (change `attack-phase-intent-composer`, design D2):
+ * declares one attack group per target, primary first, then locks the
+ * attacker once — an empty `groups` array is the explicit Hold Fire
+ * (lock-only, no declarations). Per-group target hexes resolve from live
+ * unit positions inside the volley action.
+ */
+export function applyInteractiveSessionVolleyCommand(
+  context: IInteractiveSessionRuntimeContext,
+  attackerId: string,
+  groups: readonly IVolleyGroup[],
+): void {
+  context.setSession(
+    applyInteractiveSessionVolley(
+      {
+        session: context.getSession(),
+        weaponsByUnit: context.weaponsByUnit,
+        attackerId,
+        grid: context.grid,
+      },
+      groups,
+    ),
   );
   tryFinalizeAndPublishInteractiveSession(context);
 }

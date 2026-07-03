@@ -1,6 +1,7 @@
 import type { InteractiveSession } from '@/engine/GameEngine';
 import type {
   Facing,
+  IAttackIntentState,
   IGameSession,
   IGameplayUIState,
   IHexCoordinate,
@@ -86,6 +87,7 @@ export interface CombatFlowsSlice {
   ui: IGameplayUIState;
   plannedMovement: IPlannedMovement | null;
   attackPlan: IAttackPlan;
+  attackIntent: IAttackIntentState;
   weaponModesByUnitId: Record<string, Readonly<Record<string, WeaponFireMode>>>;
   unitWeapons: Record<string, readonly IWeaponStatus[]>;
   interactivePhase: InteractivePhase;

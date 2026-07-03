@@ -2,15 +2,22 @@
  * CombatPlanningPanel
  *
  * Per `add-combat-phase-ui-flows`: the wrapper component the gameplay
- * page mounts during the Movement and WeaponAttack phases. It pulls
+ * page mounts during the Movement and PhysicalAttack phases. It pulls
  * the in-progress plans (`plannedMovement` / `attackPlan`) from
  * `useGameplayStore` and stitches together:
  *
  *   - Movement phase: MovementTypeSwitcher + FacingPicker + CommitMoveButton
  *     (plus the existing MovementHeatPreview chip, wired through
  *     CommitMoveButton).
- *   - Weapon-attack phase: WeaponSelector + Preview-Forecast button +
- *     ToHitForecastModal.
+ *   - Physical-attack phase: PhysicalAttackPlanningSection.
+ *
+ * WEAPON-ATTACK CONTENT REMOVED (change `attack-phase-intent-composer`,
+ * ADR 0002 D9 full replacement): the Attack Intent Composer hosted in the
+ * TacticalActionDock is the SOLE weapon-attack declaration surface
+ * (Single Attack Authority). The panel renders nothing during the
+ * weapon-attack phase — the legacy WeaponSelector / Preview-Forecast /
+ * ToHitForecastModal confirm flow is absorbed by the composer's palette,
+ * forecast columns, and explicit Fire.
  *
  * Uses `useSelectedUnit` (the previously-orphaned derived selector
  * from `useGameplayStore`) to project the currently-selected unit's
@@ -19,14 +26,10 @@
  * separately.
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import type { IWeapon } from '@/simulation/ai/types';
-import type {
-  IAttackerState,
-  ITargetState,
-  MovementHeatProfile,
-} from '@/types/gameplay';
+import type { MovementHeatProfile } from '@/types/gameplay';
 
 import {
   useGameplaySelector,
@@ -37,20 +40,14 @@ import { Facing, GamePhase, MovementType } from '@/types/gameplay';
 import type { PhysicalAttackIntent } from './PhysicalAttackPanel';
 
 import {
-  attackerStateForSelected,
-  combatProjectionForAttackTarget,
   createMovementPlan,
-  forecastOptionsForAttackPlan,
-  forecastWeaponsForPlan,
   isMovementPlanReady,
   movementPlanMetrics,
   selectedWeaponModesForUnit,
-  targetStateForAttackPlan,
 } from './CombatPlanningPanel.model';
 import {
   MovementPlanningSection,
   PhysicalAttackPlanningSection,
-  WeaponAttackPlanningSection,
 } from './CombatPlanningPanel.sections';
 
 export interface CombatPlanningPanelProps {
@@ -103,9 +100,7 @@ export function CombatPlanningPanel({
   const session = useGameplaySelector((s) => s.session);
   const plannedMovement = useGameplaySelector((s) => s.plannedMovement);
   const attackPlan = useGameplaySelector((s) => s.attackPlan);
-  const unitWeaponStatusesByUnitId = useGameplaySelector((s) => s.unitWeapons);
   const weaponModesByUnitId = useGameplaySelector((s) => s.weaponModesByUnitId);
-  const interactiveSession = useGameplaySelector((s) => s.interactiveSession);
   const setPlannedMovement = useGameplaySelector((s) => s.setPlannedMovement);
   const clearPlannedMovement = useGameplaySelector(
     (s) => s.clearPlannedMovement,
@@ -113,30 +108,14 @@ export function CombatPlanningPanel({
   const commitPlannedMovement = useGameplaySelector(
     (s) => s.commitPlannedMovement,
   );
-  const togglePlannedWeapon = useGameplaySelector((s) => s.togglePlannedWeapon);
-  const setPlannedWeaponMode = useGameplaySelector(
-    (s) => s.setPlannedWeaponMode,
-  );
-  const commitAttack = useGameplaySelector((s) => s.commitAttack);
-  // Per `add-what-if-to-hit-preview` § 8.2: toggle state lives on the
-  // store so other surfaces (e.g. ToHitForecastModal) can subscribe to
-  // the same flag without prop drilling. Selector is a primitive read
-  // so re-renders only fire when the toggle actually flips.
-  const previewEnabled = useGameplaySelector((s) => s.previewEnabled);
-  const setPreviewEnabled = useGameplaySelector((s) => s.setPreviewEnabled);
 
   // The orphan we're now wiring in — projects { id, unit, state } in
   // one shot for the currently selected unit.
   const selected = useSelectedUnit();
 
-  const [forecastOpen, setForecastOpen] = useState(false);
   const selectedWeaponModes = selectedWeaponModesForUnit(
     weaponModesByUnitId,
     selected,
-  );
-  const combatGrid = useMemo(
-    () => interactiveSession?.getGrid() ?? null,
-    [interactiveSession],
   );
 
   const phase = session?.currentState.phase;
@@ -177,74 +156,6 @@ export function CombatPlanningPanel({
     movementPlanMetrics(plannedMovement);
 
   // ---------------------------------------------------------------------------
-  // Attack-phase callbacks + derived state
-  // ---------------------------------------------------------------------------
-
-  /**
-   * Range from the attacker (selected unit) to the target. Returns 0
-   * when either side is missing — out-of-range badges then fall back
-   * to inert defaults.
-   */
-  const targetCombatProjection = useMemo(() => {
-    return combatProjectionForAttackTarget({
-      selected,
-      targetUnitId: attackPlan.targetUnitId,
-      session,
-      grid: combatGrid,
-      unitWeaponStatuses: selected?.id
-        ? (unitWeaponStatusesByUnitId[selected.id] ?? [])
-        : [],
-      selectedWeaponIds: attackPlan.selectedWeapons,
-    });
-  }, [
-    attackPlan.selectedWeapons,
-    attackPlan.targetUnitId,
-    combatGrid,
-    selected,
-    session,
-    unitWeaponStatusesByUnitId,
-  ]);
-
-  const rangeToTarget = targetCombatProjection?.distance ?? 0;
-
-  /**
-   * Build the IAttackerState the forecast modal needs from the
-   * selected unit's live state + their `IGameUnit.gunnery`.
-   */
-  const attackerState: IAttackerState | null = useMemo(() => {
-    return attackerStateForSelected(selected);
-  }, [selected]);
-
-  const targetState: ITargetState | null = useMemo(() => {
-    return targetStateForAttackPlan(
-      attackPlan.targetUnitId,
-      session,
-      targetCombatProjection?.targetPartialCover ?? false,
-    );
-  }, [attackPlan.targetUnitId, session, targetCombatProjection]);
-
-  const forecastWeapons = useMemo(
-    () => forecastWeaponsForPlan(weapons, attackPlan),
-    [weapons, attackPlan],
-  );
-  const forecastOptions = useMemo(
-    () =>
-      forecastOptionsForAttackPlan({
-        isIndirectFire: targetCombatProjection?.indirectFireAvailable === true,
-        indirectFirePenalty: targetCombatProjection?.indirectFireToHitPenalty,
-        selected,
-        session,
-        targetUnitId: attackPlan.targetUnitId,
-      }),
-    [attackPlan.targetUnitId, selected, session, targetCombatProjection],
-  );
-
-  const handleConfirmFire = useCallback(() => {
-    commitAttack();
-    setForecastOpen(false);
-  }, [commitAttack]);
-
-  // ---------------------------------------------------------------------------
   // Render
   // ---------------------------------------------------------------------------
 
@@ -272,32 +183,12 @@ export function CombatPlanningPanel({
     );
   }
 
+  // Single Attack Authority (attack-phase-intent-composer, D9): the
+  // weapon-attack phase renders NOTHING here — the Attack Intent Composer
+  // in the tactical dock is the sole declaration surface, and no second
+  // surface may mutate the attack plan or commit declarations.
   if (phase === GamePhase.WeaponAttack) {
-    return (
-      <WeaponAttackPlanningSection
-        className={className}
-        selected={selected}
-        attackPlan={attackPlan}
-        weapons={weapons}
-        selectedWeaponModes={selectedWeaponModes}
-        rangeToTarget={rangeToTarget}
-        combatProjectionRangeBracket={targetCombatProjection?.rangeBracket}
-        attackerState={attackerState}
-        targetState={targetState}
-        forecastWeapons={forecastWeapons}
-        forecastOptions={forecastOptions}
-        forecastOpen={forecastOpen}
-        events={session.events}
-        previewEnabled={previewEnabled}
-        onTogglePreview={setPreviewEnabled}
-        onToggleWeapon={togglePlannedWeapon}
-        onModeChange={setPlannedWeaponMode}
-        onOpenForecast={() => setForecastOpen(true)}
-        onConfirmFire={handleConfirmFire}
-        onCloseForecast={() => setForecastOpen(false)}
-        weaponModeError={attackPlan.weaponModeError}
-      />
-    );
+    return null;
   }
 
   if (phase === GamePhase.PhysicalAttack) {

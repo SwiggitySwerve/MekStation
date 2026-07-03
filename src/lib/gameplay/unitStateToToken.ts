@@ -77,6 +77,10 @@ export interface IUnitStateToTokenFlags {
   readonly isSelected?: boolean;
   readonly isValidTarget?: boolean;
   readonly isActiveTarget?: boolean;
+  /** Composed-volley secondary target (attack-phase-intent-composer). */
+  readonly isSecondaryTarget?: boolean;
+  /** No-weapon-can-engage reason while composing (twist-aware). */
+  readonly attackInfeasibleReason?: string;
 }
 
 /**
@@ -125,6 +129,8 @@ export function unitStateToToken(
     isSelected: flags.isSelected ?? false,
     isValidTarget: flags.isValidTarget ?? false,
     isActiveTarget: flags.isActiveTarget ?? false,
+    isSecondaryTarget: flags.isSecondaryTarget ?? false,
+    attackInfeasibleReason: flags.attackInfeasibleReason,
     isDestroyed: state.destroyed,
     designation,
     ...fog,

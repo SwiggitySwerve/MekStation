@@ -9,12 +9,19 @@ import React, { useMemo, useRef, useState } from 'react';
 
 import { hexTerrainFromGrid } from '@/engine/GameEngine.helpers';
 import { usePhaseQueueProjection } from '@/hooks/gameplay';
+import { computeMovementHeat } from '@/simulation/runner/phases/heatPhaseCalculations';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
+import {
+  selectPrimaryTargetId,
+  selectSecondaryTargetIds,
+} from '@/stores/useGameplayStore.attackIntent';
+import { deriveWeaponLegalityForTarget } from '@/stores/useGameplayStore.attackIntent.derive';
 import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
-import { Facing, GameSide } from '@/types/gameplay';
+import { Facing, GamePhase, GameSide } from '@/types/gameplay';
 import { filterEventsForMovementAnimations } from '@/utils/gameplay/movement/eventLogSync';
 
+import type { IAttackComposerContext } from './AttackIntentComposer';
 import type { GameplayFogContactMemory } from './GameplayLayout.tokens';
 import type { GameplayLayoutProps } from './GameplayLayout.types';
 import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
@@ -97,6 +104,7 @@ export function GameplayLayout({
     (state) => state.attackPlan.selectedWeapons,
   );
   const plannedMovement = useGameplaySelector((state) => state.plannedMovement);
+  const attackIntent = useGameplaySelector((state) => state.attackIntent);
   const physicalAttackPlan = usePhysicalAttackPlanStore(
     (state) => state.physicalAttackPlan,
   );
@@ -162,6 +170,64 @@ export function GameplayLayout({
     () => deriveValidPhysicalTargetIds(physicalAttackOptionsByTargetId),
     [physicalAttackOptionsByTargetId],
   );
+  // Attack Intent Composer map bindings (attack-phase-intent-composer,
+  // phase 3): while the composer owns the weapon-attack phase, the primary
+  // ring binds to the composed volley's FIRST-assigned target and every
+  // other assigned target carries the secondary encoding; outside the
+  // composer the legacy attackPlan binding applies (MODIFIED Target Lock
+  // Visualization).
+  const attackComposerActive =
+    currentState.phase === GamePhase.WeaponAttack &&
+    isPlayerTurn &&
+    Boolean(selectedUnitId);
+  const composerPrimaryTargetId = attackComposerActive
+    ? selectPrimaryTargetId(attackIntent)
+    : null;
+  const composerSecondaryTargetIds = useMemo(
+    () => (attackComposerActive ? selectSecondaryTargetIds(attackIntent) : []),
+    [attackComposerActive, attackIntent],
+  );
+  // At-source feasibility visuals (twist-aware): unit id → reason when NO
+  // weapon of the composing unit can engage. Consumed verbatim from the
+  // phase-1 legality derivation; recomputes live on twist change.
+  const attackInfeasibleReasonByUnitId = useMemo(() => {
+    if (!attackComposerActive || !combatGrid || !selectedUnitId) return {};
+    const attackerState = currentState.units[selectedUnitId];
+    const weapons = unitWeapons[selectedUnitId] ?? [];
+    if (!attackerState || weapons.length === 0) return {};
+    const reasons: Record<string, string> = {};
+    for (const [unitId, state] of Object.entries(currentState.units)) {
+      const info = unitInfoLookup[unitId];
+      if (!info || info.side === playerSide || state.destroyed) continue;
+      const options = deriveWeaponLegalityForTarget({
+        weapons,
+        attacker: {
+          position: attackerState.position,
+          facing: attackerState.facing,
+        },
+        composedTwist: attackIntent.composedTwist,
+        targetPosition: state.position,
+        grid: combatGrid,
+        minimumRangeApplies: true,
+      });
+      if (!options.some((option) => option.available)) {
+        reasons[unitId] =
+          options.find((option) => option.blockedReason)?.blockedReason ??
+          'No weapon can engage';
+      }
+    }
+    return reasons;
+  }, [
+    attackComposerActive,
+    combatGrid,
+    selectedUnitId,
+    currentState.units,
+    unitWeapons,
+    unitInfoLookup,
+    playerSide,
+    attackIntent.composedTwist,
+  ]);
+
   const tokens = useMemo(
     () =>
       buildGameplayTokenProjection({
@@ -171,7 +237,11 @@ export function GameplayLayout({
         unitInfoLookup,
         selectedUnitId,
         validTargetIds,
-        activeTargetId,
+        activeTargetId: attackComposerActive
+          ? composerPrimaryTargetId
+          : activeTargetId,
+        secondaryTargetIds: composerSecondaryTargetIds,
+        attackInfeasibleReasonByUnitId,
         validPhysicalTargetIds,
         activePhysicalTargetId: physicalAttackPlan.targetUnitId,
         playerSide,
@@ -185,7 +255,11 @@ export function GameplayLayout({
       }),
     [
       activeTargetId,
+      attackComposerActive,
+      attackInfeasibleReasonByUnitId,
       combatGrid,
+      composerPrimaryTargetId,
+      composerSecondaryTargetIds,
       config,
       currentState,
       fogContactMemory,
@@ -362,6 +436,43 @@ export function GameplayLayout({
     ],
   );
 
+  // Attack Intent Composer dock context (attack-phase-intent-composer,
+  // phase 2). Active during the weapon-attack phase for the local player's
+  // selected unit; every rules value the composer renders derives from the
+  // session/weapon projections already computed here (heat SSOT movement
+  // heat, per-unit dissipation, weapon statuses, live grid).
+  const attackComposerContext = useMemo<IAttackComposerContext>(() => {
+    const unit = selectedUnitModel.selectedUnit;
+    const attackerId = selectedUnitId ?? null;
+    return {
+      active: Boolean(
+        currentState.phase === GamePhase.WeaponAttack &&
+        isPlayerTurn &&
+        attackerId &&
+        unit,
+      ),
+      attackerId,
+      unit: unit ?? null,
+      weapons: attackerId ? (unitWeapons[attackerId] ?? []) : [],
+      session,
+      grid: combatGrid,
+      gunnery:
+        units.find((candidate) => candidate.id === attackerId)?.gunnery ?? 4,
+      heatDissipation: attackerId ? (heatSinks[attackerId] ?? 0) : 0,
+      movementHeat: unit ? computeMovementHeat(unit) : 0,
+    };
+  }, [
+    currentState.phase,
+    isPlayerTurn,
+    selectedUnitId,
+    selectedUnitModel.selectedUnit,
+    unitWeapons,
+    session,
+    combatGrid,
+    units,
+    heatSinks,
+  ]);
+
   return (
     <GameplayLayoutView
       className={className}
@@ -414,6 +525,7 @@ export function GameplayLayout({
       onAction={onAction}
       commandPreviewInputs={commandPreviewInputs}
       composerDockContext={composerDockContext}
+      attackComposerContext={attackComposerContext}
       onEventLogCollapsedChange={handleEventLogCollapsedChange}
     />
   );

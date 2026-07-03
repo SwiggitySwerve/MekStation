@@ -41,6 +41,7 @@ export * from './GameplayUIInterfaces';
 export * from './TacticalCommandInterfaces';
 
 // Tactical Movement Intent (intent-first movement composer — design D5)
+export * from './TacticalAttackIntentInterfaces';
 export * from './TacticalMovementIntentInterfaces';
 
 // Unit Sprite System (Phase 7 visual layer — mech silhouettes + pip ring)

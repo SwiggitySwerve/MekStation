@@ -54,6 +54,18 @@ export function buildGameplayTokens(params: {
   readonly activeTargetId: string | null;
   readonly validPhysicalTargetIds?: readonly string[];
   readonly activePhysicalTargetId?: string | null;
+  /**
+   * Composed-volley secondary targets (attack-phase-intent-composer, D6):
+   * enemies carrying at least one weapon assignment beyond the primary.
+   * The primary rides `activeTargetId` (the caller rebinds it to the
+   * composer's primary while the composer is active).
+   */
+  readonly secondaryTargetIds?: readonly string[];
+  /**
+   * At-source feasibility while composing (twist-aware): unit id → the
+   * rules-backed reason NO weapon of the composing unit can engage it.
+   */
+  readonly attackInfeasibleReasonByUnitId?: Readonly<Record<string, string>>;
   readonly playerSide: GameSide;
   readonly localFogPlayerId: string;
   readonly visibilityState: IGameSession['currentState'] & {
@@ -119,11 +131,26 @@ export function buildGameplayTokens(params: {
             }
       : {};
 
+    const isSecondaryTarget =
+      canBeTargetedByViewer &&
+      params.currentState.phase === GamePhase.WeaponAttack &&
+      (params.secondaryTargetIds?.includes(unitId) ?? false);
+    const attackInfeasibleReason =
+      canBeTargetedByViewer && unitInfo.side !== params.playerSide
+        ? params.attackInfeasibleReasonByUnitId?.[unitId]
+        : undefined;
+
     return unitStateToToken(
       unitId,
       state,
       unitInfo,
-      { isSelected, isValidTarget, isActiveTarget },
+      {
+        isSelected,
+        isValidTarget,
+        isActiveTarget,
+        isSecondaryTarget,
+        attackInfeasibleReason,
+      },
       fogProjection,
       isHidden,
     );

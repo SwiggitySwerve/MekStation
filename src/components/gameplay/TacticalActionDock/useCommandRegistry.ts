@@ -55,7 +55,7 @@ export function buildCommandRegistry(
   const families: ITacticalCommand[] = [
     ...buildMovementCommands(ctx),
     ...buildFacingCommands(),
-    ...buildWeaponAttackCommands(),
+    ...buildWeaponAttackCommands(ctx),
     ...buildPhysicalAttackCommands(ctx),
     ...buildHeatEndCommands(),
     ...buildUtilityCommands(),
@@ -93,6 +93,8 @@ export function useCommandRegistry(
     () => buildCommandRegistry(ctx, shellMode),
     [
       ctx.activeUnitId,
+      ctx.movementComposerActive,
+      ctx.attackComposerActive,
       ctx.selectedUnitId,
       ctx.targetUnitId,
       ctx.hoveredHex?.q,
