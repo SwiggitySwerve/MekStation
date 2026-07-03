@@ -1,7 +1,7 @@
 # tactical-movement-intent Specification
 
 ## Purpose
-TBD - created by archiving change tactical-movement-intent-composer. Update Purpose after archive.
+Specify the intent-first Movement phase flow on the tactical HUD: the player composes the turn as intent items (posture actions plus at most one waypointed locomotion path) on a single authoritative surface, sees rules-derived MP/heat costs and budget affordability live, and commits the whole sequence atomically with an explicit Lock-In. Movement rules (`movement-system`) are consumed verbatim - this capability owns the composition UX, not the math.
 ## Requirements
 ### Requirement: Movement Intent Composition
 
