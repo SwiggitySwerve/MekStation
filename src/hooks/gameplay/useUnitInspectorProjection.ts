@@ -35,6 +35,7 @@ import type {
 
 import { assertNoLeakedSecrets } from '@/services/intel/intelGuardrails';
 import { GameSide } from '@/types/gameplay';
+import { mergeLiveAmmoIntoWeaponStatuses } from '@/utils/gameplay/weaponAmmoDisplay';
 
 export interface IInspectorSupplementalData {
   /** Pilot names keyed by unit id. */
@@ -274,7 +275,15 @@ function buildFriendlyProjection(
     shutdown: unitState.shutdown ?? false,
     destroyed: unitState.destroyed,
     isWithdrawing: unitState.isWithdrawing ?? false,
-    weapons: buildInspectorWeapons(supplemental.unitWeapons?.[unitId] ?? []),
+    // Live ammo merge: the supplemental unitWeapons map is an adoption-time
+    // snapshot, so the out-of-ammo / low-ammo signals below would freeze
+    // without folding in the unit state's current bins.
+    weapons: buildInspectorWeapons(
+      mergeLiveAmmoIntoWeaponStatuses(
+        supplemental.unitWeapons?.[unitId] ?? [],
+        unitState,
+      ),
+    ),
     criticalEffects: collectCriticalEffects(
       unitState.componentDamage,
       unitState.destroyedLocations,

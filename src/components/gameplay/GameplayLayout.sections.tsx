@@ -9,6 +9,7 @@ import type {
 } from '@/types/gameplay';
 
 import { DEFAULT_MAP_LAYER_STATE } from '@/types/gameplay';
+import { mergeLiveAmmoIntoWeaponStatuses } from '@/utils/gameplay/weaponAmmoDisplay';
 
 import type { MapInteractionState } from './HexMapDisplay/useMapInteraction';
 
@@ -185,7 +186,14 @@ export function RecordSheetBody({
       state={selectedUnit}
       maxArmor={maxArmor[unitId] || {}}
       maxStructure={maxStructure[unitId] || {}}
-      weapons={unitWeapons[unitId] || []}
+      // Live ammo counters: the unitWeapons map is an adoption-time snapshot
+      // (deriveSupplementalDisplayData deliberately omits ammo), so merge the
+      // selected unit's LIVE ammo state here — the row re-renders with the
+      // session, keeping N/M rds in step with consumption.
+      weapons={mergeLiveAmmoIntoWeaponStatuses(
+        unitWeapons[unitId] || [],
+        selectedUnit,
+      )}
       pilotName={pilotNames[unitId] || 'Unknown Pilot'}
       gunnery={selectedUnitFromSession.gunnery}
       piloting={selectedUnitFromSession.piloting}
