@@ -40,13 +40,14 @@ The tactical map interface SHALL render a pulsing red target ring around the com
 
 ### Requirement: Attack Intent Map Interaction
 
-While the Attack Intent Composer is active, clicking an enemy token SHALL assign a target into the composed volley (per the ratified assignment-interaction shape of ADR 0002 OQ1), and enemy tokens SHALL carry at-source feasibility visuals for the composing unit — out-of-arc, out-of-range, and no-LOS states rendered with a non-color-redundant encoding and the rules-backed reason available on inspection.
+While the Attack Intent Composer is active, clicking an enemy token SHALL focus it as the composer's working target (target-first assignment, ADR 0002 D6) — weapon toggles then assign against the focused target — and enemy tokens SHALL carry at-source feasibility visuals for the composing unit — out-of-arc, out-of-range, and no-LOS states rendered with a non-color-redundant encoding and the rules-backed reason available on inspection. Feasibility visuals SHALL recompute live when the composed torso-twist intent changes.
 
-#### Scenario: Enemy click assigns a target
+#### Scenario: Enemy click focuses the working target
 
 - **GIVEN** the composer is active and an enemy is in range and arc
 - **WHEN** the player clicks the enemy token
-- **THEN** the enemy SHALL become a target assignment in the composed volley
+- **THEN** the enemy SHALL become the composer's focused working target
+- **AND** subsequent weapon toggles SHALL assign against it
 - **AND** no attack SHALL be declared by the click itself
 
 #### Scenario: Infeasible enemy shows the reason at source

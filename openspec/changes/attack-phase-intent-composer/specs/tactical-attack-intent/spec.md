@@ -6,7 +6,7 @@ Delta for `attack-phase-intent-composer`: new capability specifying the intent-f
 
 ### Requirement: Attack Intent Composition
 
-During the weapon-attack phase the active player SHALL compose a volley as attack intent items — weapon→target assignments with per-weapon fire modes — on a single planning surface before anything commits. Composition SHALL have a zero-commit guarantee: no declaration enters the resolution pipeline until the explicit Fire commit.
+During the weapon-attack phase the active player SHALL compose a volley as attack intent items — weapon→target assignments with per-weapon fire modes, plus the torso-twist intent (per the Torso Twist Intent requirement) — on a single planning surface before anything commits. Composition SHALL have a zero-commit guarantee: no declaration enters the resolution pipeline until the explicit Fire commit.
 
 **Priority**: Critical
 
@@ -19,7 +19,14 @@ During the weapon-attack phase the active player SHALL compose a volley as attac
 
 ### Requirement: Target Assignment with Primary/Secondary Surfacing
 
-The first target assigned in the composed volley SHALL be the primary target; assigning any weapon to a different target SHALL immediately display that weapon's secondary-target penalty inline (penalty values per `secondary-target-tracking`, consumed as-is). Reassigning all weapons off a target SHALL remove it from the volley.
+Target assignment SHALL be target-first (ADR 0002 D6): clicking an enemy focuses it as the working target, and weapon toggles assign against the focused target. The first target assigned in the composed volley SHALL be the primary target; assigning any weapon to a different (focused) target SHALL immediately display that weapon's secondary-target penalty inline (penalty values per `secondary-target-tracking`, consumed as-is). Reassigning all weapons off a target SHALL remove it from the volley.
+
+#### Scenario: Target-first focus drives weapon toggles
+
+- **GIVEN** the composer is active with no assignments
+- **WHEN** the player clicks enemy A and toggles two weapons, then clicks enemy B and toggles a third
+- **THEN** the two weapons SHALL be assigned against A (primary) and the third against B (secondary)
+- **AND** no weapon assignment SHALL change targets without B being the focused target at toggle time
 
 #### Scenario: Second target shows secondary penalty at assignment
 
@@ -38,6 +45,17 @@ The weapon palette SHALL block illegal assignments at the source with the rules-
 - **WHEN** the palette renders
 - **THEN** that weapon SHALL be unassignable to the target
 - **AND** its row SHALL name the arc restriction as the reason
+
+### Requirement: Torso Twist Intent
+
+Torso twist SHALL be a composer intent item (ADR 0002 D7): setting or changing the twist within the composer SHALL recompute arc feasibility live across all weapon rows and target encodings, and clearing the twist SHALL restore the prior gating exactly. Twist legality and arc math are consumed from the existing torso-twist rules verbatim. Assignments made legal only by the composed twist SHALL be blocked at the source again if the twist is removed.
+
+#### Scenario: Twist unlocks an arc live
+
+- **GIVEN** a rear-arc enemy that no assigned weapon can currently bear on
+- **WHEN** the player composes a torso twist toward that enemy
+- **THEN** the affected weapon rows SHALL become assignable against it without any commit
+- **AND** removing the twist SHALL re-block those rows at the source
 
 ### Requirement: Heat and Effect Ledger
 

@@ -1257,3 +1257,35 @@ The MP pool granted by a locomotion mode for the turn: Walk, Run, or Jump MP (as
 #### Budget Resolver / Lock-In
 
 The final step of the composed flow: the affordable Movement Budgets are presented with their consequences (heat, attack modifiers). If exactly one affords the intent, the player is in **Forced Mode** (single option, still explicit). The resolver **never auto-picks** — heat can be a strategic resource (e.g. TSM activation), so mode choice is always the player's explicit **Lock-In** that commits the whole composed sequence.
+
+## Tactical Attack Intent Terms (v1.0, 2026-07-02)
+
+Per ADR 0002 (intent-first attack declaration, Accepted 2026-07-02) and the `tactical-attack-intent` capability. These extend the intent-first vocabulary from ADR 0001 into the weapon-attack phase.
+
+#### Attack Intent Item
+
+One composable element of a weapon-attack turn: a **Weapon Assignment** (weapon → target, with fire mode) or the **Torso Twist Intent**. Composed on the Attack Intent Composer before anything commits.
+
+#### Working Target (target-first assignment)
+
+The enemy currently focused by the composer (set by clicking its token). Weapon toggles assign against the working target. The first target assigned in the volley is the **primary target**; assignments against any other target are **secondary** and surface their `secondary-target-tracking` penalty inline at assignment time.
+
+#### Torso Twist Intent
+
+Torso twist as a composed intent item: changing it recomputes arc feasibility live across weapon rows and enemy-token visuals; removing it restores prior gating exactly. Prevents the stale-arc compose→overflow→uncompose loop.
+
+#### Heat & Effect Ledger
+
+The live totals of the composed volley: heat generated over banked movement heat, expected damage, and hit probabilities per weapon and for the volley — derived from the existing to-hit forecast calculators. Carries **always-visible threshold chips** (shutdown risk, ammo-explosion exposure) when composed heat crosses them.
+
+#### Live Feasibility Gating
+
+The attack analog of Live Intersection: rules-illegal assignments (destroyed, no ammo, out of arc under the composed twist, out of range, no LOS) are blocked **at the source** with their reason. Legal-but-hot is NEVER blocked — heat is a strategic resource; consequences display instead.
+
+#### Volley Resolver / Fire / Hold Fire
+
+The final step: the composed volley's summary and consequences, with an explicit **Fire** commit that enters the whole volley atomically into the existing declaration pipeline. The composer never auto-fires; declining to attack is an explicit **Hold Fire**.
+
+#### Single Attack Authority
+
+While the composer is active it is the sole weapon-attack declaration surface: dock commands and context menus route into composer state; no second surface commits declarations or twists.

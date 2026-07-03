@@ -2,8 +2,8 @@
   "allowedActiveChanges": [
     {
       "name": "attack-phase-intent-composer",
-      "status": "design-gated",
-      "reason": "Wave 2 (council 2026-07-02): intent-first attack declaration per ADR 0002 (Proposed). Implementation tasks are gated on task phase 0 — ADR 0002 open-question ratification (OQ1-OQ5) with the user. Spec deltas authored; openspec validate --strict passes.",
+      "status": "apply-ready",
+      "reason": "Wave 2 (council 2026-07-02): intent-first attack declaration per ADR 0002 (Accepted — OQ1-OQ5 user-ratified 2026-07-02: target-first assignment, in-composer torso twist, called-shots consumed-as-is, full surface replacement, always-visible heat chips). Design decisions D6-D10 recorded; tasks re-sized for in-composer twist; openspec validate --strict passes.",
       "lastReviewed": "2026-07-02"
     }
   ]
