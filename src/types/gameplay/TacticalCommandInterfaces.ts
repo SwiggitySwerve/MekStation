@@ -126,6 +126,15 @@ export interface ITacticalCommandContext {
    * the command arrays directly, so its legality predicates are unaffected.
    */
   readonly movementComposerActive?: boolean;
+  /**
+   * True while the Attack Intent Composer is the active weapon-attack
+   * surface (tactical-attack-intent 'Single Attack Authority', ADR 0002
+   * D9). Weapon builders drop the fire/clear verbs from the dock (the
+   * composer's Volley Resolver is their only home) and the declare
+   * command routes into composer state (target focus) instead of the
+   * legacy attack plan.
+   */
+  readonly attackComposerActive?: boolean;
   /** Map cursor selection — used only by preview, never by availability. */
   readonly selectedUnitId: string | null;
   /** Target the player is aiming at (attack commands). */

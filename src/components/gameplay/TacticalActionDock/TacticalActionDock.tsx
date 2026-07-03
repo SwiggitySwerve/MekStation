@@ -281,10 +281,16 @@ export function TacticalActionDock({
   // registry must know so movement builders drop the posture/traversal verbs
   // (the composer palette is their only home — re-audit VD-01/UXF-01/IS-02).
   const composerActive = Boolean(intentComposer?.active);
+  // Single Attack Authority (D9): when the attack composer is active the
+  // registry must know so weapon builders drop fire/clear and route the
+  // declare command into composer state.
+  const attackComposerIsActive = Boolean(attackComposer?.active);
   const effectiveCtx = useMemo<ITacticalCommandContext>(() => {
-    const base: ITacticalCommandContext = composerActive
-      ? { ...ctx, movementComposerActive: true }
-      : ctx;
+    const base: ITacticalCommandContext = {
+      ...ctx,
+      ...(composerActive ? { movementComposerActive: true } : {}),
+      ...(attackComposerIsActive ? { attackComposerActive: true } : {}),
+    };
     if (
       !previewInputs?.movementInfo &&
       !previewInputs?.combatInfo &&
@@ -315,6 +321,7 @@ export function TacticalActionDock({
   }, [
     ctx,
     composerActive,
+    attackComposerIsActive,
     previewInputs?.movementInfo,
     previewInputs?.combatInfo,
     previewInputs?.combatInfoByTargetId,

@@ -27,9 +27,9 @@
 
 ## 4. Single attack authority
 
-- [ ] 4.1 Dock weapon declare/fire commands route into composer state; context menus mirror (per the existing Context Menus Mirror Command Registry requirement)
-- [ ] 4.2 Full replacement (D9): gate off `CombatPlanningPanel`'s weapon-attack content while the composer is active; absorb `ToHitForecastModal`'s confirm role; remove duplicated surfaces
-- [ ] 4.3 Unit test: with composer active, no second surface can mutate `attackPlan` or declare a twist directly
+- [x] 4.1 Dock weapon declare/fire commands route into composer state; context menus mirror (per the existing Context Menus Mirror Command Registry requirement)
+- [x] 4.2 Full replacement (D9): gate off `CombatPlanningPanel`'s weapon-attack content while the composer is active; absorb `ToHitForecastModal`'s confirm role; remove duplicated surfaces
+- [x] 4.3 Unit test: with composer active, no second surface can mutate `attackPlan` or declare a twist directly
 
 ## 5. Called shots / TAG / indirect pass-through (D8)
 

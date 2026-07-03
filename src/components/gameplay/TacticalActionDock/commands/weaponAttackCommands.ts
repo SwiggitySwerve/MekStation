@@ -20,13 +20,54 @@ import {
   commitStaticAction,
 } from './commandDescriptorHelpers';
 
-export function buildWeaponAttackCommands(): readonly ITacticalCommand[] {
+export function buildWeaponAttackCommands(
+  ctx?: ITacticalCommandContext,
+): readonly ITacticalCommand[] {
+  // Single Attack Authority (tactical-attack-intent spec, ADR 0002 D9):
+  // while the Attack Intent Composer is active, the dock/menu declare
+  // command routes into composer state (working-target focus) and the
+  // fire/clear verbs drop — the composer's Volley Resolver is the ONLY
+  // home for Fire / Hold Fire, so no second surface can commit a volley.
+  if (ctx?.attackComposerActive === true) {
+    return [WeaponFocusTargetCommand];
+  }
   return [
     WeaponDeclareAttackCommand,
     WeaponFireVolleyCommand,
     WeaponClearAttacksCommand,
   ];
 }
+
+/**
+ * Composer-mode replacement for `weapon.declare-attack`: same id (context
+ * menus keep mirroring the registry), but committing yields a composer
+ * TARGET FOCUS — no declaration enters any pipeline from the menu action
+ * itself (spec scenario `Context menu routes into the composer`).
+ */
+const WeaponFocusTargetCommand: ITacticalCommand = {
+  id: 'weapon.declare-attack',
+  category: 'weapon',
+  label: 'Target',
+  hotkey: 'F',
+  phaseConstraints: [GamePhase.WeaponAttack],
+  requiresConfirmation: false,
+  undoable: true,
+  targetsEnemy: true,
+  availability(ctx) {
+    const unavailable = activeUnitTurnAvailability(ctx);
+    if (!unavailable.available) return unavailable;
+    if (!ctx.targetUnitId) {
+      return { available: false, reason: 'Select an enemy target first.' };
+    }
+    return { available: true };
+  },
+  commit(ctx) {
+    return {
+      actionId: 'composer-focus-target',
+      payload: { targetUnitId: ctx.targetUnitId ?? undefined },
+    };
+  },
+};
 
 const WeaponDeclareAttackCommand: ITacticalCommand = {
   id: 'weapon.declare-attack',
