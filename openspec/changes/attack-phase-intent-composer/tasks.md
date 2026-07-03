@@ -33,7 +33,7 @@
 
 ## 5. Called shots / TAG / indirect pass-through (D8)
 
-- [ ] 5.1 Verify existing called-shot and TAG/indirect sub-flows keep working with the composer active; their outputs render as opaque modifiers on forecast rows; regression tests for one called-shot and one indirect volley through the composer commit path
+- [x] 5.1 Verify existing called-shot and TAG/indirect sub-flows keep working with the composer active; their outputs render as opaque modifiers on forecast rows; regression tests for one called-shot and one indirect volley through the composer commit path
 
 ## 6. Verification battery
 
