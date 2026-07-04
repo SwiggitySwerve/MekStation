@@ -95,6 +95,9 @@ function prepareEvidenceDirectory(): void {
   fs.rmSync(path.join(evidenceDir, 'command-screen-evidence.json'), {
     force: true,
   });
+  // Provenance README regenerates with the manifest — never leave a stale
+  // one describing a previous capture's build mode.
+  fs.rmSync(path.join(evidenceDir, 'README.md'), { force: true });
 }
 
 async function captureEvidence(
@@ -131,6 +134,7 @@ function writeEvidenceManifest(screens: readonly EvidenceScreen[]): void {
   const proofMode =
     process.env.MEKSTATION_COMMAND_SCREEN_PROOF_MODE ??
     (buildMode === 'production' ? 'production-signoff' : 'dev-only');
+  const capturedAt = new Date().toISOString();
 
   fs.writeFileSync(
     path.join(evidenceDir, 'command-screen-evidence.json'),
@@ -139,7 +143,7 @@ function writeEvidenceManifest(screens: readonly EvidenceScreen[]): void {
         schemaVersion: 1,
         buildMode,
         proofMode,
-        capturedAt: new Date().toISOString(),
+        capturedAt,
         captureCommand: 'npm.cmd run qc:command-evidence:capture',
         screens,
       },
@@ -147,6 +151,52 @@ function writeEvidenceManifest(screens: readonly EvidenceScreen[]): void {
       2,
     )}\n`,
   );
+
+  writeEvidenceProvenanceReadme(screens, buildMode, proofMode, capturedAt);
+}
+
+/**
+ * Human-visible provenance beside the PNGs (re-audit H2/H3): the manifest
+ * carries buildMode / proofMode / routeKind, but a reviewer browsing the
+ * folder sees only screenshots — the dev-build N badge and the networked
+ * harness frames read as product truth without a label at eye level. This
+ * README is GENERATED from the same values the manifest records, so the
+ * two cannot drift.
+ */
+function writeEvidenceProvenanceReadme(
+  screens: readonly EvidenceScreen[],
+  buildMode: 'development' | 'production',
+  proofMode: string,
+  capturedAt: string,
+): void {
+  const banner =
+    buildMode === 'production'
+      ? '**Production-build evidence** — captured against `npm run build` + the standalone server.'
+      : '**DEV-BUILD EVIDENCE** — captured against the dev server (`next dev`); the N badge on frames is the Next.js dev indicator, not product UI. For sign-off captures run `npm run qc:command-evidence:prod`.';
+  const harnessCount = screens.filter(
+    (screen) => screen.routeKind === 'harness',
+  ).length;
+  const lines = [
+    '# Command-screen evidence provenance',
+    '',
+    `- Build mode: \`${buildMode}\` / proof mode: \`${proofMode}\``,
+    `- Captured at: ${capturedAt}`,
+    '',
+    banner,
+    '',
+    `Harness frames below are E2E proof pages, NOT product UI (${harnessCount} of ${screens.length} screens).`,
+    '',
+    '| Screen | Kind |',
+    '| --- | --- |',
+    ...screens.map(
+      (screen) =>
+        `| ${screen.file} | ${
+          screen.routeKind === 'harness' ? '**E2E HARNESS**' : 'product'
+        } |`,
+    ),
+    '',
+  ];
+  fs.writeFileSync(path.join(evidenceDir, 'README.md'), lines.join('\n'));
 }
 
 async function waitForCampaignStoresReady(page: Page): Promise<void> {
