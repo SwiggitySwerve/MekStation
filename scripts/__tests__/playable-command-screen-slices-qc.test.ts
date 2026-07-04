@@ -104,6 +104,29 @@ async function writeEvidenceDir(evidenceDir: string): Promise<void> {
           : 'product',
     })),
   });
+  // Provenance README (re-audit H2/H3): the validator now requires the
+  // generated summary beside the PNGs — buildMode named, harness frames
+  // labeled — mirroring what the capture spec writes.
+  fs.writeFileSync(
+    path.join(evidenceDir, 'README.md'),
+    [
+      '# Command-screen evidence provenance',
+      '',
+      '- Build mode: `development` / proof mode: `dev-only`',
+      '',
+      '| Screen | Kind |',
+      '| --- | --- |',
+      ...expectedEvidenceScreens.map(
+        (file) =>
+          `| ${file} | ${
+            file.startsWith('10-') || file.startsWith('11-')
+              ? '**E2E HARNESS**'
+              : 'product'
+          } |`,
+      ),
+      '',
+    ].join('\n'),
+  );
 }
 
 describe('playable command screen slice QC validator', () => {
