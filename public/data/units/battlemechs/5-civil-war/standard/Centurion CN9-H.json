@@ -77,7 +77,7 @@
     },
     {
       "id": "1-islbxac10",
-      "location": "RIGHT_ARM,_AMMO:20"
+      "location": "RIGHT_ARM"
     }
   ],
   "criticalSlots": {
@@ -176,7 +176,10 @@
       null
     ]
   },
-  "quirks": ["imp_target_short", "non_standard"],
+  "quirks": [
+    "imp_target_short",
+    "non_standard"
+  ],
   "mulId": 3922,
   "role": "Brawler",
   "source": "XTR:RetroTech"

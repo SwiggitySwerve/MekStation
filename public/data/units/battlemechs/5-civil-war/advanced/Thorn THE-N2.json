@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-ismml7",
-      "location": "RIGHT_ARM,_AMMO:31"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-isersmalllaser",

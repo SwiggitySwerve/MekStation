@@ -65,11 +65,11 @@
     },
     {
       "id": "1-islbxac20",
-      "location": "LEFT_TORSO,_AMMO:15"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-ismrm20",
-      "location": "RIGHT_ARM,_AMMO:24"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-ismediumpulselaser",

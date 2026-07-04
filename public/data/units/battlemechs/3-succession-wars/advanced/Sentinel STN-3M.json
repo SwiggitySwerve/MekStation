@@ -53,11 +53,11 @@
   "equipment": [
     {
       "id": "1-isultraac5",
-      "location": "LEFT_ARM,_AMMO:20"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-issrm2",
-      "location": "RIGHT_TORSO,_AMMO:50"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-ismediumlaser",

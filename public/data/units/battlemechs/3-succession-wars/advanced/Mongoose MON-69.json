@@ -69,7 +69,7 @@
     },
     {
       "id": "1-issrm2",
-      "location": "LEFT_TORSO,_AMMO:50"
+      "location": "LEFT_TORSO"
     }
   ],
   "criticalSlots": {

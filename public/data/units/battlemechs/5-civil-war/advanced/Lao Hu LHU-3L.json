@@ -53,15 +53,15 @@
   "equipment": [
     {
       "id": "1-islrm10",
-      "location": "LEFT_TORSO,_AMMO:12"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-isrotaryac5",
-      "location": "RIGHT_ARM,_AMMO:60"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-isplasmarifle",
-      "location": "LEFT_ARM,_AMMO:10"
+      "location": "LEFT_ARM"
     }
   ],
   "criticalSlots": {

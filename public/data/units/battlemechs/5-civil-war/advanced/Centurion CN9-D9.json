@@ -53,11 +53,11 @@
   "equipment": [
     {
       "id": "1-isplasmarifle",
-      "location": "RIGHT_ARM,_AMMO:20"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-islrm10",
-      "location": "LEFT_TORSO,_AMMO:24"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "2-isermediumlaser",
@@ -160,7 +160,10 @@
       "Endo Steel"
     ]
   },
-  "quirks": ["imp_target_short", "non_standard"],
+  "quirks": [
+    "imp_target_short",
+    "non_standard"
+  ],
   "mulId": 523,
   "role": "Skirmisher",
   "source": "TR:3050"

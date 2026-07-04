@@ -57,7 +57,7 @@
     },
     {
       "id": "1-islrm10",
-      "location": "RIGHT_ARM,_AMMO:48"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-iserlargelaser",
@@ -69,11 +69,11 @@
     },
     {
       "id": "1-issrm6",
-      "location": "RIGHT_TORSO,_AMMO:30"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-isnarcbeacon",
-      "location": "LEFT_TORSO,_AMMO:12"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "2-ismediumlaser",

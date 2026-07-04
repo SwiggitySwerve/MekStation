@@ -14,7 +14,7 @@ import type {
   IViolation,
   PinnedBattleMechAmmoGapClass,
   PinnedScopeSplitAmmoGapClass,
-} from './battlemechCombatCatalog.test-helpers';
+} from "./battlemechCombatCatalog.test-helpers";
 
 import {
   ACTION_ELIGIBILITY_COMBAT_SUPPORT,
@@ -168,9 +168,9 @@ import {
   weaponCatalogIds,
   weaponLookup,
   zeroDamageClassification,
-} from './battlemechCombatCatalog.test-helpers';
+} from "./battlemechCombatCatalog.test-helpers";
 
-it('covers every official ranged weapon, physical weapon, and ammo entry', () => {
+it("covers every official ranged weapon, physical weapon, and ammo entry", () => {
   expect(rangedWeaponItems).toHaveLength(officialIndex.totalItems.weapons);
   expect(ammoItems).toHaveLength(officialIndex.totalItems.ammunition);
   expect(physicalWeaponItems).toHaveLength(9);
@@ -184,7 +184,7 @@ it('covers every official ranged weapon, physical weapon, and ammo entry', () =>
   expect(ammoIds.size).toBe(ammoItems.length);
 });
 
-it('maps every official ranged weapon into a non-synthetic AI weapon', () => {
+it("maps every official ranged weapon into a non-synthetic AI weapon", () => {
   const failures: string[] = [];
 
   for (const item of rangedWeaponItems) {
@@ -195,21 +195,21 @@ it('maps every official ranged weapon into a non-synthetic AI weapon', () => {
     }
 
     const aiWeapon = toAIWeapon(catalogWeapon, 0);
-    if (aiWeapon.name === 'Medium Laser' && item.id !== 'medium-laser') {
+    if (aiWeapon.name === "Medium Laser" && item.id !== "medium-laser") {
       failures.push(`${item.id}: mapped to synthetic medium laser`);
     }
     if (!Number.isFinite(aiWeapon.damage)) {
       failures.push(`${item.id}: non-finite damage ${aiWeapon.damage}`);
     }
-    if (typeof item.damage === 'number' && aiWeapon.damage !== item.damage) {
+    if (typeof item.damage === "number" && aiWeapon.damage !== item.damage) {
       failures.push(
         `${item.id}: numeric damage drift ${item.damage} -> ${aiWeapon.damage}`,
       );
     }
-    if (typeof item.damage === 'string' && aiWeapon.damage <= 0) {
+    if (typeof item.damage === "string" && aiWeapon.damage <= 0) {
       failures.push(`${item.id}: parsed string damage to ${aiWeapon.damage}`);
     }
-    if (typeof item.damage === 'number' && aiWeapon.damage <= 0) {
+    if (typeof item.damage === "number" && aiWeapon.damage <= 0) {
       const classification = zeroDamageClassification(item);
       if (!classification) {
         failures.push(`${item.id}: zero damage without explicit gap class`);
@@ -235,34 +235,34 @@ it('maps every official ranged weapon into a non-synthetic AI weapon', () => {
   expect(failures).toEqual([]);
 });
 
-it('resolves official compact launcher ids before auditing Artemis FCS allocation', () => {
-  expect(weaponLookup('1-islrm15')?.id).toBe('lrm-15');
-  expect(weaponLookup('ISLRM15')?.id).toBe('lrm-15');
-  expect(weaponLookup('1-clsrm6')?.id).toBe('clan-srm-6');
-  expect(weaponLookup('CLLRM15')?.id).toBe('clan-lrm-15');
-  expect(weaponLookup('ISMML7')?.id).toBe('mml-7');
+it("resolves official compact launcher ids before auditing Artemis FCS allocation", () => {
+  expect(weaponLookup("1-islrm15")?.id).toBe("lrm-15");
+  expect(weaponLookup("ISLRM15")?.id).toBe("lrm-15");
+  expect(weaponLookup("1-clsrm6")?.id).toBe("clan-srm-6");
+  expect(weaponLookup("CLLRM15")?.id).toBe("clan-lrm-15");
+  expect(weaponLookup("ISMML7")?.id).toBe("mml-7");
 
   const audit = officialUnitArtemisAllocationAudit();
 
   expect(audit.nonTorpedoFailures).toEqual([]);
   expect(getCombatValidationOutOfScopeRefs()).toContain(
-    'featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo',
+    "featureSupport.ammunitionCompatibility.unsupported-aquatic-torpedo-ammo",
   );
 });
 
-it('keeps the static engine weapon database a legacy subset of the official ranged catalog', () => {
+it("keeps the static engine weapon database a legacy subset of the official ranged catalog", () => {
   const rangedIds = new Set(rangedWeaponItems.map((item) => item.id));
   const staticIds = Object.keys(WEAPON_DATABASE).sort();
 
   expect(staticIds.filter((id) => !rangedIds.has(id))).toEqual([]);
   expect(rangedIds.size).toBeGreaterThan(staticIds.length);
-  expect(staticIds).not.toContain('uac-5');
-  expect(staticIds).not.toContain('mml-9');
-  expect(rangedIds.has('uac-5')).toBe(true);
-  expect(rangedIds.has('mml-9')).toBe(true);
+  expect(staticIds).not.toContain("uac-5");
+  expect(staticIds).not.toContain("mml-9");
+  expect(rangedIds.has("uac-5")).toBe(true);
+  expect(rangedIds.has("mml-9")).toBe(true);
 });
 
-it('resolves every official ranged weapon through engine lookup without static fallback drift', () => {
+it("resolves every official ranged weapon through engine lookup without static fallback drift", () => {
   const failures: string[] = [];
 
   for (const item of rangedWeaponItems) {
@@ -274,7 +274,7 @@ it('resolves every official ranged weapon through engine lookup without static f
 
     const expectedDamage = resolveCatalogDamage(item.damage, item.id);
     const expectedAmmoPerTon =
-      typeof item.ammoPerTon === 'number' ? item.ammoPerTon : -1;
+      typeof item.ammoPerTon === "number" ? item.ammoPerTon : -1;
 
     if (weaponData.id !== item.id) {
       failures.push(`${item.id}: engine lookup id drifted to ${weaponData.id}`);
@@ -319,36 +319,39 @@ it('resolves every official ranged weapon through engine lookup without static f
   expect(failures).toEqual([]);
 });
 
-it('classifies zero-damage official ranged weapons as explicit non-damage behavior or data gaps', () => {
+it("classifies zero-damage official ranged weapons as explicit non-damage behavior or data gaps", () => {
   const zeroDamageItems = rangedWeaponItems.filter((item) => item.damage === 0);
   const unclassified = zeroDamageItems
     .filter((item) => !zeroDamageClassification(item))
     .map((item) => item.id)
-    .filter((id): id is string => typeof id === 'string')
+    .filter((id): id is string => typeof id === "string")
     .sort();
 
-  expect(zeroDamageItems).toHaveLength(279);
+  // 279 -> 280: the Vehicular Grenade Launcher (ADVANCED, zero direct
+  // damage — one-shot smoke effect) joined the official catalog with the
+  // MTF-converter data-gap fixes; it classifies as nonstandard-data-gap.
+  expect(zeroDamageItems).toHaveLength(280);
   expect(unclassified).toEqual([]);
   expect(
     ids(
       zeroDamageItems.filter(
-        (item) => zeroDamageClassification(item) === 'defensive-system',
+        (item) => zeroDamageClassification(item) === "defensive-system",
       ),
     ),
-  ).toEqual(EXPECTED_ZERO_DAMAGE_RANGED_WEAPON_IDS['defensive-system']);
+  ).toEqual(EXPECTED_ZERO_DAMAGE_RANGED_WEAPON_IDS["defensive-system"]);
   expect(
     ids(
       zeroDamageItems.filter(
-        (item) => zeroDamageClassification(item) === 'standard-special-effect',
+        (item) => zeroDamageClassification(item) === "standard-special-effect",
       ),
     ),
-  ).toEqual(EXPECTED_ZERO_DAMAGE_RANGED_WEAPON_IDS['standard-special-effect']);
+  ).toEqual(EXPECTED_ZERO_DAMAGE_RANGED_WEAPON_IDS["standard-special-effect"]);
   expect(
-    ids(zeroDamageItems.filter((item) => item.rulesLevel === 'STANDARD')),
-  ).toEqual(EXPECTED_ZERO_DAMAGE_RANGED_WEAPON_IDS['standard-rows']);
+    ids(zeroDamageItems.filter((item) => item.rulesLevel === "STANDARD")),
+  ).toEqual(EXPECTED_ZERO_DAMAGE_RANGED_WEAPON_IDS["standard-rows"]);
 });
 
-it('keeps variable missile damage from mapping to zero', () => {
+it("keeps variable missile damage from mapping to zero", () => {
   const stringDamageEntries: Array<[string, number]> = rangedWeaponItems
     .filter(isStringDamageWeapon)
     .map((item) => [item.id, resolveCatalogDamage(item.damage, item.id)]);
@@ -362,13 +365,13 @@ it('keeps variable missile damage from mapping to zero', () => {
   expect(
     Object.values(stringDamageResolutions).every((damage) => damage > 0),
   ).toBe(true);
-  expect(resolveCatalogDamage('1/missile', 'lrm-20')).toBe(20);
-  expect(resolveCatalogDamage('2/missile', 'srm-6')).toBe(12);
-  expect(resolveCatalogDamage('1-2/missile', 'mml-9')).toBe(18);
+  expect(resolveCatalogDamage("1/missile", "lrm-20")).toBe(20);
+  expect(resolveCatalogDamage("2/missile", "srm-6")).toBe(12);
+  expect(resolveCatalogDamage("1-2/missile", "mml-9")).toBe(18);
 });
 
-it('does not let AI unit conversion hide missing hydration with fallback weapons', () => {
-  const unit = createMinimalUnitState('player-1', GameSide.Player, {
+it("does not let AI unit conversion hide missing hydration with fallback weapons", () => {
+  const unit = createMinimalUnitState("player-1", GameSide.Player, {
     q: 0,
     r: 0,
   });
@@ -384,17 +387,17 @@ it('does not let AI unit conversion hide missing hydration with fallback weapons
     rangedWeaponItems.length,
   );
   expect(() => toCatalogAIUnitState(unit, [])).toThrow(
-    'refusing synthetic Medium Laser fallback',
+    "refusing synthetic Medium Laser fallback",
   );
   expect(toAIUnitState(unit, []).weapons).toHaveLength(1);
-  expect(syntheticFallback.id).toBe('player-1-weapon-1');
-  expect(syntheticFallback.name).toBe('Medium Laser');
+  expect(syntheticFallback.id).toBe("player-1-weapon-1");
+  expect(syntheticFallback.name).toBe("Medium Laser");
   expect(hydrated.map((weapon) => weapon.id)).not.toContain(
     syntheticFallback.id,
   );
 });
 
-it('keeps ammunition compatibility references tied to official ranged weapons', () => {
+it("keeps ammunition compatibility references tied to official ranged weapons", () => {
   const rangedIds = new Set(rangedWeaponItems.map((item) => item.id));
   const missingRefs: string[] = [];
 
@@ -409,13 +412,13 @@ it('keeps ammunition compatibility references tied to official ranged weapons', 
   expect(missingRefs).toEqual([]);
 });
 
-it('resolves every official non-duplicate ammo row through the equipment BV catalog', () => {
+it("resolves every official non-duplicate ammo row through the equipment BV catalog", () => {
   const failures: string[] = [];
 
   for (const ammo of ammoItems) {
     const resolution = resolveAmmoBV(ammo.id);
     if (weaponCatalogIds.has(ammo.id)) {
-      expect(ammoCompatibilityGapClass(ammo)).toBe('duplicate-runtime-id');
+      expect(ammoCompatibilityGapClass(ammo)).toBe("duplicate-runtime-id");
       continue;
     }
 
@@ -439,7 +442,7 @@ it('resolves every official non-duplicate ammo row through the equipment BV cata
   expect(failures).toEqual([]);
 });
 
-it('turns every compatible official ammo row into a consumable combat ammo bin', () => {
+it("turns every compatible official ammo row into a consumable combat ammo bin", () => {
   const failures: string[] = [];
   const compatibleAmmoIds = ammoItems
     .filter((ammo) => ammoCompatibilityGapClass(ammo) === null)
@@ -454,7 +457,7 @@ it('turns every compatible official ammo row into a consumable combat ammo bin',
         {
           binId: `${ammo.id}-${weaponId}-bin`,
           weaponType: weaponId,
-          location: 'center_torso',
+          location: "center_torso",
           maxRounds: ammo.shotsPerTon,
           damagePerRound: 1,
           isExplosive: ammo.isExplosive,
@@ -470,7 +473,7 @@ it('turns every compatible official ammo row into a consumable combat ammo bin',
         continue;
       }
 
-      const result = consumeAmmo(ammoState, 'catalog-test-unit', weaponId);
+      const result = consumeAmmo(ammoState, "catalog-test-unit", weaponId);
       if (!result?.success) {
         failures.push(`${ammo.id} -> ${weaponId}: could not consume`);
         continue;
@@ -486,15 +489,15 @@ it('turns every compatible official ammo row into a consumable combat ammo bin',
   expect(failures).toEqual([]);
 });
 
-it('keeps unsupported RAC/10 and RAC/20 ammo out of runtime ammo bins', () => {
+it("keeps unsupported RAC/10 and RAC/20 ammo out of runtime ammo bins", () => {
   const unsupportedFullUnit = {
     criticalSlots: {
-      RIGHT_TORSO: ['Rotary AC/10 Ammo', 'Rotary AC/20 Ammo'],
+      RIGHT_TORSO: ["Rotary AC/10 Ammo", "Rotary AC/20 Ammo"],
     },
   } as unknown as IFullUnit;
   const mixedFullUnit = {
     criticalSlots: {
-      RIGHT_TORSO: ['Rotary AC/10 Ammo', 'AC/10 Ammo'],
+      RIGHT_TORSO: ["Rotary AC/10 Ammo", "AC/10 Ammo"],
     },
   } as unknown as IFullUnit;
 
@@ -503,11 +506,11 @@ it('keeps unsupported RAC/10 and RAC/20 ammo out of runtime ammo bins', () => {
   const mixedAmmoState = hydrateAmmoStateFromFullUnit(mixedFullUnit);
   expect(Object.values(mixedAmmoState ?? {})).toEqual([
     expect.objectContaining({
-      binId: 'right_torso-1-ac-10-ammo',
-      weaponType: 'ac-10',
+      binId: "right_torso-1-ac-10-ammo",
+      weaponType: "ac-10",
     }),
   ]);
-  expect(hasAmmoForWeapon(mixedAmmoState ?? {}, 'rac-10')).toBe(false);
-  expect(hasAmmoForWeapon(mixedAmmoState ?? {}, 'rac-20')).toBe(false);
-  expect(hasAmmoForWeapon(mixedAmmoState ?? {}, 'ac-10')).toBe(true);
+  expect(hasAmmoForWeapon(mixedAmmoState ?? {}, "rac-10")).toBe(false);
+  expect(hasAmmoForWeapon(mixedAmmoState ?? {}, "rac-20")).toBe(false);
+  expect(hasAmmoForWeapon(mixedAmmoState ?? {}, "ac-10")).toBe(true);
 });

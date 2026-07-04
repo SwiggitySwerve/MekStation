@@ -57,7 +57,7 @@
     },
     {
       "id": "1-isarrowivsystem",
-      "location": "LEFT_ARM,_AMMO:20"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-issmalllaser",
@@ -65,7 +65,7 @@
     },
     {
       "id": "1-isantimissilesystem",
-      "location": "HEAD,_AMMO:24"
+      "location": "HEAD"
     }
   ],
   "criticalSlots": {

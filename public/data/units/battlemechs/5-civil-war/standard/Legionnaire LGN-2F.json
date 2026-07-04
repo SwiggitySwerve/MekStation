@@ -57,7 +57,7 @@
     },
     {
       "id": "1-isrotaryac5",
-      "location": "RIGHT_TORSO,_AMMO:60"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-isermediumlaser",
@@ -160,7 +160,10 @@
       "Endo-Steel"
     ]
   },
-  "quirks": ["easy_maintain", "imp_target_med"],
+  "quirks": [
+    "easy_maintain",
+    "imp_target_med"
+  ],
   "mulId": 4491,
   "role": "Striker",
   "source": "TR:Proto"

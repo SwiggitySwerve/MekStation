@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isgaussrifleprototype",
-      "location": "RIGHT_ARM,_AMMO:16"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "2-ismediumlaser",

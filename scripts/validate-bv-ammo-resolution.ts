@@ -81,6 +81,7 @@ export function normalizeWeaponKey(id: string): string {
     [/^heavymg$/, 'heavy-machine-gun'],
     [/^rotaryac(\d+)$/, 'rac-$1'],
     [/^(?:is)?lrt-?(\d+)$/, 'lrm-$1'],
+    [/^(?:is)?lrtorpedo-?(\d+)$/, 'lrm-$1'],
     [/^(?:is)?srt-?(\d+)$/, 'srm-$1'],
     [/^(?:is)?protomech-?ac-?(\d+)$/, 'protomech-ac-$1'],
     [/^(?:is)?protomechac(\d+)$/, 'protomech-ac-$1'],

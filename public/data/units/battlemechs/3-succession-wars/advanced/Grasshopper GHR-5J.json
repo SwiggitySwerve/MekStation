@@ -65,11 +65,11 @@
     },
     {
       "id": "1-isstreaksrm2",
-      "location": "HEAD,_AMMO:100"
+      "location": "HEAD"
     },
     {
       "id": "1-isantimissilesystem",
-      "location": "RIGHT_TORSO,_AMMO:12"
+      "location": "RIGHT_TORSO"
     }
   ],
   "criticalSlots": {

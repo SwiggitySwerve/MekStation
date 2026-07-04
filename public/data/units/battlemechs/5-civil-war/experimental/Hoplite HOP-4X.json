@@ -53,11 +53,11 @@
   "equipment": [
     {
       "id": "1-clrotaryac5",
-      "location": "RIGHT_ARM,_AMMO:60"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-clstreaklrm15",
-      "location": "LEFT_ARM,_AMMO:16"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-cllightactiveprobe",

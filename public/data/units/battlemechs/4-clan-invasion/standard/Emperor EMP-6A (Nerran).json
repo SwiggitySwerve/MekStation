@@ -61,11 +61,11 @@
     },
     {
       "id": "1-islbxac10",
-      "location": "LEFT_ARM,_AMMO:20"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-clgaussrifle",
-      "location": "RIGHT_ARM,_AMMO:16"
+      "location": "RIGHT_ARM"
     }
   ],
   "criticalSlots": {

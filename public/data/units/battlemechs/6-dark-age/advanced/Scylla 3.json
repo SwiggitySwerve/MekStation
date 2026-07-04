@@ -61,11 +61,11 @@
     },
     {
       "id": "1-clhag30",
-      "location": "RIGHT_ARM,_AMMO:12"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-cllbxac20",
-      "location": "LEFT_ARM,_AMMO:10"
+      "location": "LEFT_ARM"
     }
   ],
   "criticalSlots": {

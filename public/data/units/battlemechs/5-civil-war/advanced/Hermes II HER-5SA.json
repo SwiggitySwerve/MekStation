@@ -61,7 +61,7 @@
     },
     {
       "id": "1-isultraac5",
-      "location": "RIGHT_TORSO,_AMMO:20"
+      "location": "RIGHT_TORSO"
     }
   ],
   "criticalSlots": {

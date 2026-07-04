@@ -69,7 +69,7 @@
     },
     {
       "id": "1-ismml5",
-      "location": "LEFT_ARM,_AMMO:48"
+      "location": "LEFT_ARM"
     }
   ],
   "criticalSlots": {
@@ -168,7 +168,10 @@
       "Light Ferro-Fibrous"
     ]
   },
-  "quirks": ["low_profile", "no_arms"],
+  "quirks": [
+    "low_profile",
+    "no_arms"
+  ],
   "mulId": 5661,
   "role": "Striker",
   "source": "RS:3067u"

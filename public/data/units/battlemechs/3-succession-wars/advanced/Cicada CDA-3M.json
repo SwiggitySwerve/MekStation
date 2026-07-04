@@ -61,7 +61,7 @@
     },
     {
       "id": "1-isultraac5",
-      "location": "LEFT_TORSO,_AMMO:20"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-issmallpulselaser",
@@ -164,9 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "no_arms"
-  ],
+  "quirks": ["no_arms"],
   "fluff": {
     "overview": "Designed as a supplement or replacement for the popular Locust scout âMech, the Cicada found limited use by the Star League after its introduction in 2740.",
     "capabilities": "The Cicada's main advantages are its speed and a lack of ammunition. A gigantic Pitban 320 engine, which accounts for more than half of the Cicada's entire mass, propels the 40-ton BattleMech to almost 130 kph. A trio of lasers, two medium and one small, provide the Cicada with ample firepower to take on its chosen targets: lighter 'Mechs. The lasers are implanted in the Cicada's armored midsection, beneath the toughest shielding the 'Mech mounts, however their shooting arcs are limited. A foe who is successful in getting behind the Cicada has little to fear. The rest of the 'Mech, however, is just minimally armored. Its limbs are vestigialâreally, wingsâand can only carry little armor. The Cicada's legs, while robust enough to carry the 'Mech at breakneck speeds, are also unarmored.",

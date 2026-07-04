@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "2-isplasmarifle",
-      "location": "RIGHT_ARM,_AMMO:60"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "2-isermediumlaser",

@@ -81,7 +81,7 @@
     },
     {
       "id": "1-isac10",
-      "location": "RIGHT_TORSO,_AMMO:20"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-isbeagleactiveprobe",
@@ -93,7 +93,7 @@
     },
     {
       "id": "1-clstreaksrm6",
-      "location": "LEFT_TORSO,_AMMO:30"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-clstreaksrm6",

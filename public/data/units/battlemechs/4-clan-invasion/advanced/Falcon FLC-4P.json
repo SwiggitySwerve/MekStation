@@ -65,7 +65,7 @@
     },
     {
       "id": "1-isantimissilesystem",
-      "location": "LEFT_TORSO,_AMMO:12"
+      "location": "LEFT_TORSO"
     }
   ],
   "criticalSlots": {

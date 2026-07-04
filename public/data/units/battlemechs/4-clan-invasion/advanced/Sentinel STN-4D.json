@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isrotaryac5",
-      "location": "LEFT_ARM,_AMMO:40"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-isermediumlaser",

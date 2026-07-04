@@ -69,7 +69,7 @@
     },
     {
       "id": "1-isheavygaussrifle",
-      "location": "RIGHT_TORSO,_AMMO:16"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "2-iserlargelaser",
@@ -192,7 +192,9 @@
       "ISHeavyGauss Ammo"
     ]
   },
-  "quirks": ["no_arms"],
+  "quirks": [
+    "no_arms"
+  ],
   "mulId": 1020,
   "role": "Juggernaut",
   "source": "JTP:Tharkad"

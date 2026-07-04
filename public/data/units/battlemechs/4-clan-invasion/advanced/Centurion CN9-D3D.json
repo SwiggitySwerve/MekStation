@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-islightgaussrifle",
-      "location": "RIGHT_ARM,_AMMO:32"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-isermediumlaser",
@@ -61,7 +61,7 @@
     },
     {
       "id": "1-islrm10",
-      "location": "LEFT_TORSO,_AMMO:12"
+      "location": "LEFT_TORSO"
     }
   ],
   "criticalSlots": {

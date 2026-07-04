@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isstreaksrm6",
-      "location": "CENTER_TORSO,_AMMO:15"
+      "location": "CENTER_TORSO"
     },
     {
       "id": "1-isguardianecm",

@@ -61,7 +61,7 @@
     },
     {
       "id": "1-lrt-15",
-      "location": "RIGHT_TORSO,_AMMO:16"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-lrt-15",
@@ -69,7 +69,7 @@
     },
     {
       "id": "1-issrt4",
-      "location": "RIGHT_LEG,_AMMO:25"
+      "location": "RIGHT_LEG"
     },
     {
       "id": "1-issrt4",

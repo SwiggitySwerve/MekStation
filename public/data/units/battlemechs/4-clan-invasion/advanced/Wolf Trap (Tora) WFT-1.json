@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-islbxac10",
-      "location": "RIGHT_ARM,_AMMO:20"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "2-ismediumlaser",
@@ -61,7 +61,7 @@
     },
     {
       "id": "1-islrm10",
-      "location": "CENTER_TORSO,_AMMO:12"
+      "location": "CENTER_TORSO"
     }
   ],
   "criticalSlots": {

@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-islrm15",
-      "location": "LEFT_TORSO,_AMMO:8"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-ismediumlaser",

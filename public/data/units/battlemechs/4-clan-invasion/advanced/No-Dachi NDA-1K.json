@@ -61,15 +61,15 @@
     },
     {
       "id": "1-issrm2",
-      "location": "LEFT_ARM,_AMMO:50"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-issrm4",
-      "location": "CENTER_TORSO,_AMMO:25"
+      "location": "CENTER_TORSO"
     },
     {
       "id": "1-ismrm20",
-      "location": "LEFT_TORSO,_AMMO:24"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-ismrm20",

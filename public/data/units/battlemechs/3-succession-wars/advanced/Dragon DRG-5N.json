@@ -53,11 +53,11 @@
   "equipment": [
     {
       "id": "1-islrm10",
-      "location": "CENTER_TORSO,_AMMO:24"
+      "location": "CENTER_TORSO"
     },
     {
       "id": "1-isultraac5",
-      "location": "RIGHT_ARM,_AMMO:20"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-ismediumlaser",
@@ -160,10 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "low_profile",
-    "stable"
-  ],
+  "quirks": ["low_profile", "stable"],
   "fluff": {
     "overview": "The Dragon is a heavy BattleMech originally designed in a bid to replace the Shadow Hawk.",
     "capabilities": "A close assault 'Mech, its versatile design allows it to be used in both offensive and defensive operations. It boasts above-average firepower and plenty of ammunition for extended combat, while a Vlar 300 fusion engine gives it a high top speed for a heavy 'Mech. Armor coverage for the Dragon's ten tons is thick around the torso, and especially the rear, for when it is surrounded by opponents, while the squat design gives it a smaller profile and makes it harder to knock over. The lack of any especially heat-intensive equipment makes the use of only ten heat sinks a non-issue. The Dragon's only major problem is it requires frequent maintenance and/or overhaul of its hip actuator.",

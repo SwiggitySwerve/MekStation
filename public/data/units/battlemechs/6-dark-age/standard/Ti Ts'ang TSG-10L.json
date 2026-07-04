@@ -90,6 +90,10 @@
     {
       "id": "tag",
       "location": "CENTER_TORSO"
+    },
+    {
+      "id": "chaffpod",
+      "location": "RIGHT_TORSO"
     }
   ],
   "criticalSlots": {

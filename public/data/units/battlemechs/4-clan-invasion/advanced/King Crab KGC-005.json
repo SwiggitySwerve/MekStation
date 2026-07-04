@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-islbxac20",
-      "location": "RIGHT_ARM,_AMMO:30"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-islbxac20",
@@ -65,7 +65,7 @@
     },
     {
       "id": "2-isstreaksrm4",
-      "location": "LEFT_TORSO,_AMMO:25"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-isimprovedc3cpu",

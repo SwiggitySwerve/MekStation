@@ -61,11 +61,11 @@
     },
     {
       "id": "1-cllrm15",
-      "location": "RIGHT_ARM,_AMMO:48"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-clsrm4",
-      "location": "LEFT_TORSO,_AMMO:25"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-clsrm4",
@@ -184,10 +184,7 @@
       "CLDouble Heat Sink"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "rugged_2"
-  ],
+  "quirks": ["easy_maintain", "rugged_2"],
   "mulId": 3836,
   "role": "Sniper",
   "source": "TR:3067"

@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-cllrm20",
-      "location": "RIGHT_ARM,_AMMO:24"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "3-clermediumlaser",
@@ -176,11 +176,7 @@
       "CLAntiPersonnelPod"
     ]
   },
-  "quirks": [
-    "fast_reload",
-    "stable",
-    "bad_rep_clan"
-  ],
+  "quirks": ["fast_reload", "stable", "bad_rep_clan"],
   "mulId": 3858,
   "role": "Missile Boat",
   "source": "RS:3067u"

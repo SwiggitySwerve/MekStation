@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isrotaryac5",
-      "location": "RIGHT_ARM,_AMMO:40"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "2-islightppc",
@@ -77,7 +77,7 @@
     },
     {
       "id": "1-isstreaksrm6",
-      "location": "LEFT_TORSO,_AMMO:15"
+      "location": "LEFT_TORSO"
     }
   ],
   "criticalSlots": {

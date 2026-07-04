@@ -57,11 +57,11 @@
     },
     {
       "id": "1-ismml5",
-      "location": "RIGHT_TORSO,_AMMO:48"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-isheavyrifle",
-      "location": "LEFT_TORSO,_AMMO:12"
+      "location": "LEFT_TORSO"
     }
   ],
   "criticalSlots": {
@@ -160,7 +160,10 @@
       null
     ]
   },
-  "quirks": ["pro_actuator", "prototype"],
+  "quirks": [
+    "pro_actuator",
+    "prototype"
+  ],
   "mulId": 5565,
   "role": "Ambusher",
   "source": "XTR:Periphery"

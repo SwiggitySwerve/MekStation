@@ -16,7 +16,7 @@ import json
 import re
 import argparse
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any, Tuple, Union
 from enum_mappings import (
     map_tech_base,
     map_rules_level,
@@ -47,8 +47,34 @@ from mtf_serialized_models import (
     SerializedUnit,
 )
 
-
 from mtf_parser import MTFParser
+
+
+def should_preserve_trailing_newline(output_path: Union[str, Path]) -> bool:
+    """Return true when an existing generated file already ends with a newline."""
+    try:
+        with open(output_path, 'rb') as existing_file:
+            existing_file.seek(0, os.SEEK_END)
+            if existing_file.tell() == 0:
+                return False
+            existing_file.seek(-1, os.SEEK_END)
+            return existing_file.read(1) == b'\n'
+    except OSError:
+        return False
+
+
+def write_json_file(output_path: Union[str, Path], data: Any) -> None:
+    """Write converter JSON while preserving existing EOF newline style."""
+    json_path = Path(output_path)
+    preserve_trailing_newline = should_preserve_trailing_newline(json_path)
+
+    os.makedirs(json_path.parent, exist_ok=True)
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        if preserve_trailing_newline:
+            f.write('\n')
+
+
 def convert_mtf_file(input_path: str, output_path: str) -> bool:
     """Convert a single MTF file to JSON."""
     parser = MTFParser()
@@ -61,9 +87,7 @@ def convert_mtf_file(input_path: str, output_path: str) -> bool:
     unit_dict = dataclass_to_dict(unit)
     
     # Write JSON
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(unit_dict, f, indent=2, ensure_ascii=False)
+    write_json_file(output_path, unit_dict)
     
     return True
 
@@ -137,9 +161,7 @@ def convert_directory(source_dir: str, output_dir: str, era_filter: Optional[str
             unit_dict = dataclass_to_dict(unit)
             
             # Write JSON
-            os.makedirs(json_file.parent, exist_ok=True)
-            with open(json_file, 'w', encoding='utf-8') as f:
-                json.dump(unit_dict, f, indent=2, ensure_ascii=False)
+            write_json_file(json_file, unit_dict)
             
             success_count += 1
             
@@ -191,8 +213,7 @@ def generate_index(output_dir: str) -> Dict[str, Any]:
     
     # Write index
     index_path = output_path / 'index.json'
-    with open(index_path, 'w', encoding='utf-8') as f:
-        json.dump(index, f, indent=2, ensure_ascii=False)
+    write_json_file(index_path, index)
     
     return index
 

@@ -65,7 +65,7 @@
     },
     {
       "id": "1-clantimissilesystem",
-      "location": "LEFT_TORSO,_AMMO:24"
+      "location": "LEFT_TORSO"
     }
   ],
   "criticalSlots": {

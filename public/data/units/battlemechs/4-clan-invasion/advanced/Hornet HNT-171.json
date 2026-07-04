@@ -53,11 +53,11 @@
   "equipment": [
     {
       "id": "1-islrm5",
-      "location": "RIGHT_TORSO,_AMMO:48"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-isantimissilesystem",
-      "location": "HEAD,_AMMO:12"
+      "location": "HEAD"
     },
     {
       "id": "1-ismediumlaser",

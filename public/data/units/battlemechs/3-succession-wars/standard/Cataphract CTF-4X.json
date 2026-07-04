@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isac5",
-      "location": "RIGHT_ARM,_AMMO:80"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-isac5",
@@ -65,7 +65,7 @@
     },
     {
       "id": "1-islrm5",
-      "location": "HEAD,_AMMO:24"
+      "location": "HEAD"
     }
   ],
   "criticalSlots": {

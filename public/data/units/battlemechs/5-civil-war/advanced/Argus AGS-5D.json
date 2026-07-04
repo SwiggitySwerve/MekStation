@@ -69,7 +69,7 @@
     },
     {
       "id": "1-isstreaksrm6",
-      "location": "LEFT_ARM,_AMMO:30"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-isstreaksrm6",
@@ -172,7 +172,10 @@
       "Endo-Steel"
     ]
   },
-  "quirks": ["easy_maintain", "no_arms"],
+  "quirks": [
+    "easy_maintain",
+    "no_arms"
+  ],
   "mulId": 5683,
   "role": "Skirmisher",
   "source": "RS:3067u"

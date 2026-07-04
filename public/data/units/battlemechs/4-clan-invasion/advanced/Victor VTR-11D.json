@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isrotaryac5",
-      "location": "RIGHT_ARM,_AMMO:60"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "2-iserlargelaser",
@@ -61,7 +61,7 @@
     },
     {
       "id": "1-isstreaksrm4",
-      "location": "LEFT_TORSO,_AMMO:25"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-isc3slaveunit",

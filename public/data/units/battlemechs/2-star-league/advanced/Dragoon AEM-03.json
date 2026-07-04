@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-islrm15",
-      "location": "LEFT_ARM,_AMMO:48"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-islrm15",

@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-islrm10",
-      "location": "CENTER_TORSO,_AMMO:24"
+      "location": "CENTER_TORSO"
     },
     {
       "id": "1-iserppc",

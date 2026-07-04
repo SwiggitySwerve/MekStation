@@ -53,11 +53,11 @@
   "equipment": [
     {
       "id": "1-clultraac10",
-      "location": "RIGHT_ARM,_AMMO:30"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-cllrm15",
-      "location": "LEFT_ARM,_AMMO:16"
+      "location": "LEFT_ARM"
     },
     {
       "id": "2-clmediumpulselaser",

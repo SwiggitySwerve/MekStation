@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-cllrm20",
-      "location": "RIGHT_ARM,_AMMO:18"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-clmediumpulselaser",

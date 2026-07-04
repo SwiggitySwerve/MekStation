@@ -65,11 +65,11 @@
     },
     {
       "id": "1-islrm5",
-      "location": "RIGHT_TORSO,_AMMO:24"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-isantimissilesystem",
-      "location": "LEFT_ARM,_AMMO:12"
+      "location": "LEFT_ARM"
     }
   ],
   "criticalSlots": {

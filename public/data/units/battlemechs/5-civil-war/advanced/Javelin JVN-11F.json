@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "3-ismg",
-      "location": "RIGHT_ARM,_AMMO:200"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-ismga",

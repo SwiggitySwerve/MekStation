@@ -61,7 +61,7 @@
     },
     {
       "id": "1-clstreaksrm4",
-      "location": "LEFT_TORSO,_AMMO:50"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-clstreaksrm4",
@@ -77,11 +77,11 @@
     },
     {
       "id": "1-clgaussrifle",
-      "location": "RIGHT_ARM,_AMMO:16"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-cllbxac20",
-      "location": "LEFT_ARM,_AMMO:10"
+      "location": "LEFT_ARM"
     }
   ],
   "criticalSlots": {

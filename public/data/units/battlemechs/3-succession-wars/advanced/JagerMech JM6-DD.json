@@ -53,11 +53,11 @@
   "equipment": [
     {
       "id": "1-isultraac5",
-      "location": "RIGHT_ARM,_AMMO:40"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-isac2",
-      "location": "RIGHT_ARM,_AMMO:90"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-isultraac5",

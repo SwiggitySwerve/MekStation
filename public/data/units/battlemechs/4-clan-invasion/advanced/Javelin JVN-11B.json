@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-issrm4",
-      "location": "RIGHT_TORSO,_AMMO:50"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-isbeagleactiveprobe",

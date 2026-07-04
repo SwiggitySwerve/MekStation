@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-islac2",
-      "location": "CENTER_TORSO,_AMMO:45"
+      "location": "CENTER_TORSO"
     }
   ],
   "criticalSlots": {

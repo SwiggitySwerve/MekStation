@@ -57,11 +57,11 @@
     },
     {
       "id": "1-islrm15",
-      "location": "LEFT_ARM,_AMMO:16"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-isnarcbeacon",
-      "location": "LEFT_TORSO,_AMMO:12"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-ismediumlaser",

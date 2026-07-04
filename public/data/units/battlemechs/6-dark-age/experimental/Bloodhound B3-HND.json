@@ -69,7 +69,7 @@
     },
     {
       "id": "1-isfluidgun",
-      "location": "RIGHT_ARM,_AMMO:40"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-ismediumpulselaser",

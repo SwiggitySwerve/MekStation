@@ -74,7 +74,7 @@
     },
     {
       "id": "1-isplasmarifle",
-      "location": "RIGHT_ARM,_AMMO:10"
+      "location": "RIGHT_ARM"
     }
   ],
   "criticalSlots": {

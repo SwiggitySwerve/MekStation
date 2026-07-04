@@ -47,6 +47,28 @@ class MTFParser:
     def __init__(self):
         self.unknown_equipment: set = set()
 
+    @staticmethod
+    def _is_weapon_metadata(value: str) -> bool:
+        """Return true for non-location weapon metadata fields."""
+        return bool(re.match(r'^(ammo|shots?)\s*:', value.strip(), re.IGNORECASE))
+
+    def _parse_weapon_line(self, line_content: str) -> Optional[Dict[str, str]]:
+        """Parse a weapon line, ignoring metadata fields after the location."""
+        parts = [part.strip() for part in line_content.split(',')]
+        if not parts or not parts[0]:
+            return None
+
+        location = 'Unknown'
+        for part in parts[1:]:
+            if part and not self._is_weapon_metadata(part):
+                location = part
+                break
+
+        return {
+            'name': parts[0],
+            'location': location
+        }
+
     def parse_file(self, filepath: str) -> Optional[SerializedUnit]:
         """Parse an MTF file and return a SerializedUnit."""
         try:
@@ -136,13 +158,9 @@ class MTFParser:
             if in_weapons_section:
                 # Parse weapon line: "Medium Laser, Left Arm"
                 if ',' in line_content:
-                    parts = line_content.split(',', 1)
-                    weapon_name = parts[0].strip()
-                    location = parts[1].strip() if len(parts) > 1 else 'Unknown'
-                    data['weapons'].append({
-                        'name': weapon_name,
-                        'location': location
-                    })
+                    weapon = self._parse_weapon_line(line_content)
+                    if weapon:
+                        data['weapons'].append(weapon)
                 continue
 
             # Parse key:value lines
@@ -319,8 +337,8 @@ class MTFParser:
             jump=data.get('jump_mp', 0)
         )
 
-        # Build equipment list from weapons
-        equipment = build_equipment_list(data.get('weapons', []))
+        # Build equipment list from weapons and selected critical-only mounted equipment.
+        equipment = build_equipment_list(data.get('weapons', []), data.get('criticals', {}))
 
         # Build critical slots
         critical_slots = build_critical_slots(data.get('criticals', {}))

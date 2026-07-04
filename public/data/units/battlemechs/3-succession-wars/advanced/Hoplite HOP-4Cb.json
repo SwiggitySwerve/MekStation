@@ -53,11 +53,11 @@
   "equipment": [
     {
       "id": "1-isgaussrifle",
-      "location": "RIGHT_ARM,_AMMO:24"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-issrm6",
-      "location": "LEFT_ARM,_AMMO:15"
+      "location": "LEFT_ARM"
     }
   ],
   "criticalSlots": {

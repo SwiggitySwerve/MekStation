@@ -65,7 +65,7 @@
     },
     {
       "id": "1-ismachine-gun",
-      "location": "CENTER_TORSO,_AMMO:200"
+      "location": "CENTER_TORSO"
     }
   ],
   "criticalSlots": {

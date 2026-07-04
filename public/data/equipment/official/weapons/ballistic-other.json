@@ -1523,6 +1523,28 @@
       "battleValue": 50,
       "introductionYear": 2531,
       "special": ["artillery"]
+    },
+    {
+      "id": "vehicular-grenade-launcher",
+      "name": "Vehicular Grenade Launcher",
+      "category": "Ballistic",
+      "subType": "Grenade Launcher",
+      "techBase": "BOTH",
+      "rulesLevel": "ADVANCED",
+      "damage": 0,
+      "heat": 1,
+      "ranges": {
+        "minimum": 0,
+        "short": 1,
+        "medium": 1,
+        "long": 1
+      },
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 10000,
+      "battleValue": 15,
+      "introductionYear": 3080,
+      "special": ["one-shot", "smoke"]
     }
   ],
   "$schema": "../_schema/weapon-schema.json"
