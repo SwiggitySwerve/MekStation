@@ -158,6 +158,21 @@ function findMatchingWeaponBV(
       if (weaponBVByType[alias] !== undefined) return weaponBVByType[alias];
     }
   }
+  // MegaMek ties ammo to weapons by ammoType:rackSize, TECH-BASE AGNOSTIC
+  // (IS and Clan LRMs share the same AmmoType constant). Ammo keys arrive
+  // tech-stripped from the crit scan ('lrm-15') while weapon ids normalize
+  // tech-preserving ('clan-lrm-15'), so without this fallback every Clan
+  // bin spelled that way capped to zero (Blood Kite / Bowman -5%+ BV).
+  const stripTechBase = (key: string): string => key.replace(/^clan-/, '');
+  const techStrippedTarget = stripTechBase(ammoType);
+  let techStrippedSum = 0;
+  for (const [weaponKey, weaponBV] of Object.entries(weaponBVByType)) {
+    if (stripTechBase(weaponKey) === techStrippedTarget) {
+      techStrippedSum += weaponBV;
+    }
+  }
+  if (techStrippedSum > 0) return techStrippedSum;
+
   const stripped = ammoType.replace(/-\d+$/, '');
   if (stripped !== ammoType) {
     const size = ammoType.slice(stripped.length + 1);
