@@ -135,12 +135,17 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run dev',
+    // Prod-evidence capture (command-screens re-audit H2): the capture
+    // runner may override the server command with a build+start chain so
+    // evidence can be taken against a production build. Default stays the
+    // dev server; the timeout override exists because a full `next build`
+    // inside the chain far exceeds the dev-server startup budget.
+    command: process.env.MEKSTATION_E2E_SERVER_COMMAND ?? 'npm run dev',
     url: e2eReadyURL,
     // The readiness URL includes a per-run token. A stale server on 3600 will
     // not satisfy it, so Playwright runs the dev script and lets it clear 3600.
     reuseExistingServer: true,
-    timeout: 120 * 1000,
+    timeout: Number(process.env.MEKSTATION_E2E_SERVER_TIMEOUT_MS ?? 120 * 1000),
     // Pipe stdout to help with process cleanup on Windows
     stdout: 'pipe',
     stderr: 'pipe',

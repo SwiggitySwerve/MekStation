@@ -542,6 +542,69 @@ function validateEvidenceManifest(evidenceDir, manifest, manifestPath, issues) {
       );
     }
   }
+
+  validateEvidenceProvenanceReadme(evidenceDir, manifest, screens, issues);
+}
+
+/**
+ * Human-visible provenance beside the PNGs (re-audit H2/H3): the capture
+ * spec generates README.md from the same values the manifest records. A
+ * reviewer browsing screenshots must see the dev-build banner and the
+ * harness labels without opening JSON — so the README must exist, name
+ * the manifest's buildMode, and label every harness frame.
+ */
+function validateEvidenceProvenanceReadme(
+  evidenceDir,
+  manifest,
+  screens,
+  issues,
+) {
+  const readmePath = path.join(evidenceDir, 'README.md');
+  if (!fs.existsSync(readmePath)) {
+    issues.push(
+      issue(
+        'error',
+        'evidence-provenance-readme-missing',
+        'Evidence folder must carry the generated provenance README.md (re-audit H2/H3).',
+        { readmePath },
+      ),
+    );
+    return;
+  }
+
+  const readme = fs.readFileSync(readmePath, 'utf8');
+  if (
+    typeof manifest.buildMode === 'string' &&
+    !readme.includes(`\`${manifest.buildMode}\``)
+  ) {
+    issues.push(
+      issue(
+        'error',
+        'evidence-provenance-readme-build-mode-drift',
+        `Provenance README must name the manifest buildMode (${manifest.buildMode}).`,
+        { buildMode: manifest.buildMode, readmePath },
+      ),
+    );
+  }
+
+  for (const entry of screens) {
+    if (typeof entry?.file !== 'string' || entry.routeKind !== 'harness') {
+      continue;
+    }
+    const row = readme
+      .split('\n')
+      .find((line) => line.includes(`| ${entry.file} |`));
+    if (!row || !/harness/i.test(row)) {
+      issues.push(
+        issue(
+          'error',
+          'evidence-provenance-readme-harness-unlabeled',
+          `Provenance README must label ${entry.file} as an E2E harness frame.`,
+          { file: entry.file, readmePath },
+        ),
+      );
+    }
+  }
 }
 
 async function imageFingerprint(filePath) {
