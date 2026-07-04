@@ -176,9 +176,7 @@
       "ISGauss Ammo"
     ]
   },
-  "quirks": [
-    "no_arms"
-  ],
+  "quirks": ["no_arms"],
   "mulId": 4153,
   "role": "Juggernaut",
   "source": "TR:3067"

@@ -164,9 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "imp_com"
-  ],
+  "quirks": ["imp_com"],
   "mulId": 2864,
   "role": "Striker",
   "source": "TR:3050"

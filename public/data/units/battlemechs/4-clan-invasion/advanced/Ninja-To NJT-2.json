@@ -168,9 +168,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "stable"
-  ],
+  "quirks": ["stable"],
   "mulId": 4726,
   "role": "Skirmisher",
   "source": "TR:3067"

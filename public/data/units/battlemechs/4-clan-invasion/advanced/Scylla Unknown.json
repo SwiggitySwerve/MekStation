@@ -168,9 +168,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "oversized"
-  ],
+  "quirks": ["oversized"],
   "mulId": 5000,
   "role": "Missile Boat",
   "source": "TR:3067"

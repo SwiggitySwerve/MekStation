@@ -176,9 +176,7 @@
       "Stealth Armor"
     ]
   },
-  "quirks": [
-    "no_arms"
-  ],
+  "quirks": ["no_arms"],
   "mulId": 2667,
   "role": "Scout",
   "source": "TR:3050"

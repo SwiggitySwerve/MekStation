@@ -176,9 +176,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "command_mech"
-  ],
+  "quirks": ["command_mech"],
   "mulId": 969,
   "role": "Juggernaut",
   "source": "JTP:Atreus"

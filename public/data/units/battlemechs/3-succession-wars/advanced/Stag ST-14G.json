@@ -172,11 +172,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "imp_com",
-    "imp_sensors",
-    "bad_rep_clan"
-  ],
+  "quirks": ["imp_com", "imp_sensors", "bad_rep_clan"],
   "mulId": 3033,
   "role": "Striker",
   "source": "JSBD"

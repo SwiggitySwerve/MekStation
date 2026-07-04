@@ -160,10 +160,7 @@
       "Heat Sink"
     ]
   },
-  "quirks": [
-    "low_profile",
-    "no_arms"
-  ],
+  "quirks": ["low_profile", "no_arms"],
   "mulId": 1548,
   "role": "Striker",
   "source": "TR:3050"

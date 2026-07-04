@@ -176,10 +176,7 @@
       "Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "ext_twist",
-    "difficult_maintain"
-  ],
+  "quirks": ["ext_twist", "difficult_maintain"],
   "mulId": 4528,
   "role": "Striker",
   "source": "TR:3067"

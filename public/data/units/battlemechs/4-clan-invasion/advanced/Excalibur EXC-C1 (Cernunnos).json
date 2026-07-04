@@ -168,10 +168,7 @@
       null
     ]
   },
-  "quirks": [
-    "vestigial_hands_la",
-    "vestigial_hands_ra"
-  ],
+  "quirks": ["vestigial_hands_la", "vestigial_hands_ra"],
   "mulId": 1001,
   "role": "Skirmisher",
   "source": "RS:UM"

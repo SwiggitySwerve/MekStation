@@ -200,10 +200,7 @@
       "Clan Endo Steel"
     ]
   },
-  "quirks": [
-    "non_standard",
-    "prototype"
-  ],
+  "quirks": ["non_standard", "prototype"],
   "mulId": 4871,
   "role": "Sniper",
   "source": "Unbound"

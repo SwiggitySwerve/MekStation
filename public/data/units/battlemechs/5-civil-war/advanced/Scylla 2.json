@@ -176,9 +176,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "oversized"
-  ],
+  "quirks": ["oversized"],
   "mulId": 5723,
   "role": "Brawler",
   "source": "RS:3067u"

@@ -164,10 +164,7 @@
       "Triple Strength Myomer"
     ]
   },
-  "quirks": [
-    "imp_target_short",
-    "non_standard"
-  ],
+  "quirks": ["imp_target_short", "non_standard"],
   "mulId": 521,
   "role": "Skirmisher",
   "source": "TR:3050"

@@ -172,9 +172,7 @@
       "ImprovedJump Jet"
     ]
   },
-  "quirks": [
-    "no_arms"
-  ],
+  "quirks": ["no_arms"],
   "fluff": {
     "overview": "Originally a rare and little-known urban combat 'Mech from the Star League era, the Osprey reached new levels of prominence thanks to the Jihad.",
     "capabilities": "To allow the Osprey to carry a heavy weapons load-out for its size, the 'Mech was built using a weight saving Endo Steel chassis and DAV 220 XL Fusion Engine. Clad in eleven tons of armor and equipped with ten double heat sinks, the design also carried a Beagle Active Probe to weed out hidden units in the urban environment. To make up for the Ospreys low ground speed, four Anderson Propulsion 25 jump jets were mounted in its torso and legs.",

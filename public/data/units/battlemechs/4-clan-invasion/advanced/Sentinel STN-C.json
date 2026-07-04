@@ -160,9 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "imp_com"
-  ],
+  "quirks": ["imp_com"],
   "mulId": 2865,
   "role": "Sniper",
   "source": "TR:3050"

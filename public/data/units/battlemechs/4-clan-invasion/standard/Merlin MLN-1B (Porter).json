@@ -164,10 +164,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "rugged_1"
-  ],
+  "quirks": ["easy_maintain", "rugged_1"],
   "fluff": {
     "overview": "The Merlin uses components that are all reliable and readily available, making the Merlin a durable and easy-to-repair 'Mech.",
     "capabilities": "The 'Mech is powered by a Pitban 240 fusion engine that gives it a top speed of 64.8 km/h. The Merlin carries ten and a half tons of armor, which is a respectable amount of protection for its weight. Additionally, the Merlin carries eighteen heat sinks to handle its heavy heat load.",

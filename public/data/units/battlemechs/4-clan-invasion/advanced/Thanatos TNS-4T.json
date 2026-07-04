@@ -180,9 +180,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "stable"
-  ],
+  "quirks": ["stable"],
   "mulId": 5700,
   "role": "Skirmisher",
   "source": "RS:3067u"

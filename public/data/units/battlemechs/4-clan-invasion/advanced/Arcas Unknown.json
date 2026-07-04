@@ -176,9 +176,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "pro_actuator"
-  ],
+  "quirks": ["pro_actuator"],
   "mulId": 3717,
   "role": "Skirmisher",
   "source": "TR:3067"

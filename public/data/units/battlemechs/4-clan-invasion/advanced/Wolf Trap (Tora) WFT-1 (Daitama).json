@@ -172,10 +172,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "bad_rep_is",
-    "bad_rep_clan"
-  ],
+  "quirks": ["bad_rep_is", "bad_rep_clan"],
   "mulId": 3555,
   "role": "Sniper",
   "source": "RS:UM"

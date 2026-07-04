@@ -168,10 +168,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "no_arms",
-    "weak_head_1"
-  ],
+  "quirks": ["no_arms", "weak_head_1"],
   "mulId": 489,
   "role": "Skirmisher",
   "source": "TR:3050"

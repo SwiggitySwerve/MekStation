@@ -164,11 +164,7 @@
       "CLDouble Heat Sink"
     ]
   },
-  "quirks": [
-    "bad_rep_clan",
-    "difficult_maintain",
-    "imp_com"
-  ],
+  "quirks": ["bad_rep_clan", "difficult_maintain", "imp_com"],
   "mulId": 6896,
   "source": "TR:DA"
 }

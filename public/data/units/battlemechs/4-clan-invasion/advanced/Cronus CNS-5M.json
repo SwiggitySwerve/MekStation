@@ -172,9 +172,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "easy_maintain"
-  ],
+  "quirks": ["easy_maintain"],
   "mulId": 4021,
   "role": "Skirmisher",
   "source": "TR:3067"

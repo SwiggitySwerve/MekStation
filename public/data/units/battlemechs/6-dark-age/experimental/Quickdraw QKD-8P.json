@@ -147,14 +147,7 @@
       null,
       null
     ],
-    "HEAD": [
-      "Sensors",
-      "Sensors",
-      "ISPPC",
-      "ISPPC",
-      "ISPPC",
-      "ISTAG"
-    ],
+    "HEAD": ["Sensors", "Sensors", "ISPPC", "ISPPC", "ISPPC", "ISTAG"],
     "LEFT_LEG": [
       "Hip",
       "Upper Leg Actuator",
@@ -172,10 +165,7 @@
       null
     ]
   },
-  "quirks": [
-    "hyper_actuator",
-    "exp_actuator"
-  ],
+  "quirks": ["hyper_actuator", "exp_actuator"],
   "fluff": {
     "history": "Handheld weapons NOT available in MegaMek so none are included."
   },

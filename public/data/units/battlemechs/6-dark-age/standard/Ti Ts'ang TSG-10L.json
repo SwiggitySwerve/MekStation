@@ -192,9 +192,7 @@
       "IS Heat-Dissipating"
     ]
   },
-  "quirks": [
-    "hyper_actuator"
-  ],
+  "quirks": ["hyper_actuator"],
   "mulId": 6884,
   "role": "Skirmisher",
   "source": "RS:3145-NTNU"

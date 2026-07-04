@@ -172,10 +172,7 @@
       "Heat Sink"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "difficult_maintain"
-  ],
+  "quirks": ["command_mech", "difficult_maintain"],
   "mulId": 1610,
   "role": "Juggernaut",
   "source": "TR:3050"

@@ -164,10 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "bad_rep_is",
-    "bad_rep_clan"
-  ],
+  "quirks": ["bad_rep_is", "bad_rep_clan"],
   "mulId": 3559,
   "role": "Striker",
   "source": "TR:3050"

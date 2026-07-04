@@ -164,9 +164,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "rugged_1"
-  ],
+  "quirks": ["rugged_1"],
   "mulId": 3600,
   "role": "Brawler",
   "source": "TR:3050"

@@ -168,11 +168,7 @@
       "Heat Sink"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "imp_life_support",
-    "no_arms"
-  ],
+  "quirks": ["easy_maintain", "imp_life_support", "no_arms"],
   "mulId": 1135,
   "role": "Scout",
   "source": "TR:3050"

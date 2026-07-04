@@ -168,9 +168,7 @@
       "CLDouble Heat Sink"
     ]
   },
-  "quirks": [
-    "difficult_maintain"
-  ],
+  "quirks": ["difficult_maintain"],
   "mulId": 3475,
   "role": "Juggernaut",
   "source": "TR:GC"

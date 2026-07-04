@@ -176,9 +176,7 @@
       null
     ]
   },
-  "quirks": [
-    "no_arms"
-  ],
+  "quirks": ["no_arms"],
   "mulId": 5719,
   "role": "Juggernaut",
   "source": "RS:3067u"

@@ -172,9 +172,7 @@
       null
     ]
   },
-  "quirks": [
-    "no_arms"
-  ],
+  "quirks": ["no_arms"],
   "mulId": 2670,
   "role": "Scout",
   "source": "TR:3050"

@@ -168,10 +168,7 @@
       null
     ]
   },
-  "quirks": [
-    "hyper_actuator",
-    "exp_actuator"
-  ],
+  "quirks": ["hyper_actuator", "exp_actuator"],
   "mulId": 2614,
   "role": "Skirmisher",
   "source": "TR:3050"

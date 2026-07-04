@@ -172,10 +172,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "hyper_actuator",
-    "difficult_maintain"
-  ],
+  "quirks": ["hyper_actuator", "difficult_maintain"],
   "mulId": 5688,
   "role": "Skirmisher",
   "source": "RS:3067u"

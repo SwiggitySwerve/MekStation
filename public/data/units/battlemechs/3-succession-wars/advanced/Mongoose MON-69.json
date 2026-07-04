@@ -168,10 +168,7 @@
       null
     ]
   },
-  "quirks": [
-    "command_mech",
-    "easy_pilot"
-  ],
+  "quirks": ["command_mech", "easy_pilot"],
   "fluff": {
     "overview": "The Mongoose BattleMech was introduced in 2660 as a deep recon 'Mech and a direct competitor (and hopeful replacement) for the Locust.",
     "capabilities": "The Kell/D Chassis around which the Mongoose is built uses Endo Steel construction techniques that, combined with an all energy weapon armament and standard engine, made the Mongoose very sturdy for its size. This also allows it to mount five tons of Ferro-Fibrous armor, much more than other light 'Mechs and gives the Mongoose the capability to survive a direct PPC hit to the chest without suffering internal damage. A top speed of 129 km/h and cruising speed of 86 km/h, one of the fastest of any 'Mech, makes up for the lack of jump jets on the design. Only ten heat sinks means the 'Mech is liable to run hot if the pilot is not careful, especially when the cooling jacket protecting the center torso laser fails",

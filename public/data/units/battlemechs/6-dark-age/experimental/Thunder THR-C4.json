@@ -168,12 +168,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "cowl",
-    "hard_pilot",
-    "easy_maintain",
-    "reinforced_legs"
-  ],
+  "quirks": ["cowl", "hard_pilot", "easy_maintain", "reinforced_legs"],
   "fluff": {
     "overview": "The Thunder is a product of the aftermath of the Fourth Succession War.",
     "capabilities": "This version of the Thunder replaces the heavy autocannon with a Sian/Ceres Hellcat Thunderbolt 20 missile launcher. It also mounts three Ceres Arms ER Medium Lasers and a single Ceres Arms Model X Medium X-Pulse Laser for close combat. The XL engine is smaller than the standard Thunders engine, reducing the top speed to 64 km/h. To offset this loss of speed, the C4 mounts six Anderson High Propulsion 12s Improved Jump Jets. For protection against ammunition explosions, the four tons of Thunderbolt ammunition is protected by CASE II. Built on an Endo Steel chassis, the rest of the 'Mech is covered in thirteen tons of armor.",

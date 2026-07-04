@@ -172,9 +172,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "rugged_1"
-  ],
+  "quirks": ["rugged_1"],
   "fluff": {
     "overview": "The Thug was designed by Maltex Corporation as a direct competitor to the popular Warhammer BattleMech. First seeing production in 2572.",
     "capabilities": "The armament on the Thug is a very simple, yet effective, combination. This Draconis Combine variant of the 12E introduced in 3067 replaces the C3i with a C3 Slave and a Guardian ECM Suite.",

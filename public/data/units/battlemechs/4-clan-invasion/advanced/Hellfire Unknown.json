@@ -184,9 +184,7 @@
       "CLDouble Heat Sink"
     ]
   },
-  "quirks": [
-    "difficult_maintain"
-  ],
+  "quirks": ["difficult_maintain"],
   "mulId": 4300,
   "role": "Brawler",
   "source": "TR:3067"

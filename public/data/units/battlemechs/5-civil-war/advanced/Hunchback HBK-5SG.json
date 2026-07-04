@@ -164,10 +164,7 @@
       "Stealth Armor"
     ]
   },
-  "quirks": [
-    "battle_fists_la",
-    "battle_fists_ra"
-  ],
+  "quirks": ["battle_fists_la", "battle_fists_ra"],
   "fluff": {
     "overview": "The Hunchback is a respected and feared Reunification War-era street fighter that has been in production since its introduction in 2572.",
     "capabilities": "Built for urban combat and close range brawling, this BattleMech has the heavy armor and weaponry to stand up against any foe in the dense cover of a city environment. Its heavy armament does come at a cost: in terms of maneuverability and heat dissipation the Hunchback is merely average, while the lack of long-range weapons means the Hunchback is little more than a slow moving target in the open. In an attack the slow speed of the Hunchback forces it to participate as part of the second wave, exploiting any weaknesses in the enemy's armor after they've been softened up.",

@@ -168,11 +168,7 @@
       "Stealth Armor"
     ]
   },
-  "quirks": [
-    "ext_twist",
-    "difficult_maintain",
-    "exp_actuator"
-  ],
+  "quirks": ["ext_twist", "difficult_maintain", "exp_actuator"],
   "fluff": {
     "overview": "<p>The Anubis, designed by Gittleman and Abzug within the Fredonian Industrial Technologies consortium, was envisioned to complement the Osiris BattleMech. Despite initial rejections by manufacturers, the Anubis found a home with Detroit Consolidated MechWorks in the New Colony Region. This nimble Mech, named after the Egyptian god of the dead, showcases the Capellan Confederation's commitment to advanced technology through its incorporation of revolutionary stealth armor and specialized missile weaponry. Designed to operate in a supporting role, the Anubis signifies a blend of tactical innovation and technological advancement.</p>",
     "capabilities": "<p>The Anubis is a testament to the Trinity Alliance's technological collaboration. Featuring the Confederation's stealth armor and designed for a support role, it excels in laying down suppressing fire with its array of long-range missile launchers. This strategy allows allied units to engage the enemy directly while the Anubis remains concealed. Though equipped with minimal armor protection, the incorporation of stealth armor provides a significant tactical advantage. The Anubis, however, does have a higher susceptibility to equipment malfunctions compared to other Mechs, a trade-off for its advanced capabilities. Its arsenal and design focus on maintaining distance from the enemy, leveraging its stealth and missile capabilities to control the battlefield.</p>",

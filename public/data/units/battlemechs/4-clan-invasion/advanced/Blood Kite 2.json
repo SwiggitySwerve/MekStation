@@ -168,10 +168,7 @@
       "CLDouble Heat Sink"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "rugged_2"
-  ],
+  "quirks": ["easy_maintain", "rugged_2"],
   "mulId": 3837,
   "role": "Sniper",
   "source": "TR:3067"

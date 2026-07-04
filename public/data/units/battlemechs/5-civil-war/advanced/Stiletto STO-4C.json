@@ -160,10 +160,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "multi_trac",
-    "difficult_eject"
-  ],
+  "quirks": ["multi_trac", "difficult_eject"],
   "mulId": 5666,
   "role": "Striker",
   "source": "RS:3067u"

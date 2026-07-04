@@ -160,10 +160,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "imp_target_short",
-    "non_standard"
-  ],
+  "quirks": ["imp_target_short", "non_standard"],
   "mulId": 5448,
   "role": "Skirmisher",
   "source": "TR:3050"

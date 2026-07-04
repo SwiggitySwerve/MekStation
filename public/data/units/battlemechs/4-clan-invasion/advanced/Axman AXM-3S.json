@@ -160,9 +160,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "pro_actuator"
-  ],
+  "quirks": ["pro_actuator"],
   "fluff": {
     "overview": "Developed by Team Banzai as the big brother of the highly successful Hatchetman, the Axman was designed exclusively to be a 'Mech killer",
     "capabilities": "The Axman has a ground speed of only 64.8 km/h, which is average for a Heavy weight, but improved in part by the inclusion of Jump Jets. The 'Mech is covered with eleven tons of Ferro-Fibrous armor that gives it a great deal of protection, with ten Double Heat Sinks offering average heat dissipation. Much like its lighter brother, the Axman was designed to utilize the Full-Head Ejection System to safe-guard its MechWarrior.",

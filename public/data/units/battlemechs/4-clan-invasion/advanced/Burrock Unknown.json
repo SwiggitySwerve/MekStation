@@ -164,9 +164,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "stable"
-  ],
+  "quirks": ["stable"],
   "mulId": 3878,
   "role": "Brawler",
   "source": "TR:3067"

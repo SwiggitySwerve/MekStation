@@ -184,9 +184,7 @@
       "ISImprovedJump Jet"
     ]
   },
-  "quirks": [
-    "stable"
-  ],
+  "quirks": ["stable"],
   "mulId": 5701,
   "role": "Skirmisher",
   "source": "RS:3067u"

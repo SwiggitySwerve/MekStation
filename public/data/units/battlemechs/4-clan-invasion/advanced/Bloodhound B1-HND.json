@@ -172,10 +172,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "imp_sensors",
-    "pro_actuator"
-  ],
+  "quirks": ["imp_sensors", "pro_actuator"],
   "mulId": 3838,
   "role": "Striker",
   "source": "TR:3067"

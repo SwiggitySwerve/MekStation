@@ -184,11 +184,7 @@
       "Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "fast_reload",
-    "stable",
-    "bad_rep_clan"
-  ],
+  "quirks": ["fast_reload", "stable", "bad_rep_clan"],
   "mulId": 5690,
   "role": "Skirmisher",
   "source": "RS:3067u"

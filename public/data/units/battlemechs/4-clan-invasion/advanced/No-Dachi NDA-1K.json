@@ -176,9 +176,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "hyper_actuator"
-  ],
+  "quirks": ["hyper_actuator"],
   "mulId": 4730,
   "role": "Brawler",
   "source": "TR:3067"

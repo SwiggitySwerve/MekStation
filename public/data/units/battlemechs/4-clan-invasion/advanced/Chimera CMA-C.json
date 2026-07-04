@@ -164,9 +164,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "nimble_jumper"
-  ],
+  "quirks": ["nimble_jumper"],
   "mulId": 3951,
   "role": "Striker",
   "source": "TR:3067"

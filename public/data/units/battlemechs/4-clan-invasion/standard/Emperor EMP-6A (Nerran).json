@@ -164,9 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "command_mech"
-  ],
+  "quirks": ["command_mech"],
   "mulId": 965,
   "role": "Sniper",
   "source": "RS:UM"

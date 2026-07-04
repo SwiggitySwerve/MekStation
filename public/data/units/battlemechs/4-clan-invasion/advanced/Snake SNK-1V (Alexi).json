@@ -168,10 +168,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "imp_target_short",
-    "pro_actuator"
-  ],
+  "quirks": ["imp_target_short", "pro_actuator"],
   "mulId": 2975,
   "role": "Sniper",
   "source": "RS:UM"

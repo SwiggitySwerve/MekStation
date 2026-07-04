@@ -164,10 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "imp_com"
-  ],
+  "quirks": ["easy_maintain", "imp_com"],
   "mulId": 1499,
   "role": "Striker",
   "source": "TR:3050"

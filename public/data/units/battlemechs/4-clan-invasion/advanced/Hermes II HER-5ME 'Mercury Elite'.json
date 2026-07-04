@@ -152,10 +152,7 @@
       null
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "imp_com"
-  ],
+  "quirks": ["easy_maintain", "imp_com"],
   "mulId": 1500,
   "role": "Sniper",
   "source": "TR:3050"

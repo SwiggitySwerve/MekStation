@@ -160,10 +160,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "no_arms"
-  ],
+  "quirks": ["easy_maintain", "no_arms"],
   "mulId": 3729,
   "role": "Missile Boat",
   "source": "TR:3067"

@@ -172,11 +172,7 @@
       "Heat Sink"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "hyper_actuator",
-    "low_profile"
-  ],
+  "quirks": ["command_mech", "hyper_actuator", "low_profile"],
   "mulId": 2052,
   "role": "Brawler",
   "source": "HTP:Galtor"

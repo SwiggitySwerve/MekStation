@@ -188,10 +188,7 @@
       null
     ]
   },
-  "quirks": [
-    "command_mech",
-    "difficult_maintain"
-  ],
+  "quirks": ["command_mech", "difficult_maintain"],
   "mulId": 1611,
   "role": "Juggernaut",
   "source": "TR:3050"
