@@ -61,7 +61,7 @@
     },
     {
       "id": "1-clatm3",
-      "location": "LEFT_TORSO,_AMMO:120"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-clatm3",
@@ -196,10 +196,7 @@
       "CLDouble Heat Sink"
     ]
   },
-  "quirks": [
-    "imp_target_short",
-    "bad_rep_clan"
-  ],
+  "quirks": ["imp_target_short", "bad_rep_clan"],
   "mulId": 5682,
   "role": "Skirmisher",
   "source": "RS:3067u"

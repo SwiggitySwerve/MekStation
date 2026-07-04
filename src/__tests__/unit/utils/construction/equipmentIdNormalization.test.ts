@@ -171,12 +171,12 @@ describe('normalizeEquipmentId', () => {
   });
 
   describe('EC-33: Torpedo weapon resolution', () => {
-    it('should resolve lrt-10 to lrm-10 via DIRECT_ALIAS_MAP', () => {
+    it('should resolve lrt-10 to LRM-equivalent BV via DIRECT_ALIAS_MAP', () => {
       const result = normalizeEquipmentId('lrt-10');
       expect(result).toBe('lrm-10');
     });
 
-    it('should resolve lrt-20 to lrm-20 via DIRECT_ALIAS_MAP', () => {
+    it('should resolve lrt-20 to LRM-equivalent BV via DIRECT_ALIAS_MAP', () => {
       const result = normalizeEquipmentId('lrt-20');
       expect(result).toBe('lrm-20');
     });
@@ -186,7 +186,7 @@ describe('normalizeEquipmentId', () => {
       expect(result).toBe('srm-6');
     });
 
-    it('should resolve clan-lrt-15 to clan-lrm-15 via DIRECT_ALIAS_MAP', () => {
+    it('should resolve clan-lrt-15 to Clan LRM-equivalent BV via DIRECT_ALIAS_MAP', () => {
       const result = normalizeEquipmentId('clan-lrt-15');
       expect(result).toBe('clan-lrm-15');
     });
@@ -277,13 +277,26 @@ describe('normalizeEquipmentId', () => {
       expect(result.heat).toBeGreaterThan(0);
     });
 
-    it('should resolve lrt-10 to lrm-10 BV and heat', () => {
+    it('should resolve lrt-10 to LRM-equivalent BV and heat', () => {
       const lrtResult = resolveEquipmentBV('lrt-10');
       const lrmResult = resolveEquipmentBV('lrm-10');
       expect(lrtResult.resolved).toBe(true);
       expect(lrmResult.resolved).toBe(true);
       expect(lrtResult.battleValue).toBe(lrmResult.battleValue);
       expect(lrtResult.heat).toBe(lrmResult.heat);
+    });
+
+    it('should resolve ISChaffPod to Chaff Pod defensive equipment BV', () => {
+      const result = resolveEquipmentBV('ISChaffPod');
+      expect(result.resolved).toBe(true);
+      expect(result.battleValue).toBe(19);
+    });
+
+    it('should resolve Vehicular Grenade Launcher to weapon BV', () => {
+      const result = resolveEquipmentBV('ISVehicularGrenadeLauncher');
+      expect(result.resolved).toBe(true);
+      expect(result.battleValue).toBe(15);
+      expect(result.heat).toBe(1);
     });
 
     it('should return resolved=false for unknown equipment', () => {

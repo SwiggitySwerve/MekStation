@@ -65,11 +65,11 @@
     },
     {
       "id": "1-clgaussrifle",
-      "location": "LEFT_ARM,_AMMO:24"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-cllbxac20",
-      "location": "RIGHT_TORSO,_AMMO:15"
+      "location": "RIGHT_TORSO"
     }
   ],
   "criticalSlots": {
@@ -168,9 +168,7 @@
       "CLDouble Heat Sink"
     ]
   },
-  "quirks": [
-    "difficult_maintain"
-  ],
+  "quirks": ["difficult_maintain"],
   "mulId": 3475,
   "role": "Juggernaut",
   "source": "TR:GC"

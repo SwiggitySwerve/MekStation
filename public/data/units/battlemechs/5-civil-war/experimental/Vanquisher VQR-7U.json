@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isheavyflamer",
-      "location": "HEAD,_AMMO:10"
+      "location": "HEAD"
     },
     {
       "id": "1-isbeagleactiveprobe",
@@ -77,7 +77,7 @@
     },
     {
       "id": "1-isplasmarifle",
-      "location": "RIGHT_ARM,_AMMO:40"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-isplasmarifle",

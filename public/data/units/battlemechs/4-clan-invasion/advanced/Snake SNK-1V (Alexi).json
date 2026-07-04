@@ -61,7 +61,7 @@
     },
     {
       "id": "1-isstreaksrm2",
-      "location": "LEFT_TORSO,_AMMO:50"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-isstreaksrm2",
@@ -168,10 +168,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "imp_target_short",
-    "pro_actuator"
-  ],
+  "quirks": ["imp_target_short", "pro_actuator"],
   "mulId": 2975,
   "role": "Sniper",
   "source": "RS:UM"

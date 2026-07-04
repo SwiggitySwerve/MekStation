@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isgaussrifle",
-      "location": "RIGHT_ARM,_AMMO:16"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-isermediumlaser",
@@ -73,7 +73,7 @@
     },
     {
       "id": "1-ismml7",
-      "location": "LEFT_TORSO,_AMMO:68"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-ismml7",

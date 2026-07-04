@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-cllrm15",
-      "location": "RIGHT_ARM,_AMMO:32"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-clerppc",
@@ -168,10 +168,7 @@
       "CLDouble Heat Sink"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "rugged_2"
-  ],
+  "quirks": ["easy_maintain", "rugged_2"],
   "mulId": 3837,
   "role": "Sniper",
   "source": "TR:3067"

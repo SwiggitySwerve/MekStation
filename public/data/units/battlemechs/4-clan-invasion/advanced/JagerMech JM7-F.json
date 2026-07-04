@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isrotaryac5",
-      "location": "RIGHT_ARM,_AMMO:80"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-isrotaryac5",
@@ -164,9 +164,7 @@
       "Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "anti_air"
-  ],
+  "quirks": ["anti_air"],
   "mulId": 4391,
   "role": "Brawler",
   "source": "TR:3050"

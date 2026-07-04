@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-issrm4",
-      "location": "CENTER_TORSO,_AMMO:25"
+      "location": "CENTER_TORSO"
     },
     {
       "id": "1-ismediumlaser",
@@ -172,10 +172,7 @@
       "Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "hyper_actuator",
-    "exp_actuator"
-  ],
+  "quirks": ["hyper_actuator", "exp_actuator"],
   "mulId": 2618,
   "role": "Skirmisher",
   "source": "TR:3050"

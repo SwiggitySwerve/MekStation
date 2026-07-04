@@ -65,7 +65,7 @@
     },
     {
       "id": "1-clstreaksrm4",
-      "location": "RIGHT_TORSO,_AMMO:25"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-clmediumpulselaser",
@@ -176,9 +176,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "pro_actuator"
-  ],
+  "quirks": ["pro_actuator"],
   "mulId": 3717,
   "role": "Skirmisher",
   "source": "TR:3067"

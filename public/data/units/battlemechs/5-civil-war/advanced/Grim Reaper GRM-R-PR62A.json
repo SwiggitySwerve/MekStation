@@ -57,7 +57,7 @@
     },
     {
       "id": "1-ismml9",
-      "location": "LEFT_ARM,_AMMO:26"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-issnppc",
@@ -65,7 +65,7 @@
     },
     {
       "id": "1-isantimissilesystem",
-      "location": "HEAD,_AMMO:12"
+      "location": "HEAD"
     }
   ],
   "criticalSlots": {

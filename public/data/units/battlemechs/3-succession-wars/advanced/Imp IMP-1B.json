@@ -61,7 +61,7 @@
     },
     {
       "id": "1-islrm20",
-      "location": "RIGHT_ARM,_AMMO:18"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-ismediumlaser",
@@ -188,10 +188,7 @@
       null
     ]
   },
-  "quirks": [
-    "command_mech",
-    "difficult_maintain"
-  ],
+  "quirks": ["command_mech", "difficult_maintain"],
   "mulId": 1608,
   "role": "Juggernaut",
   "source": "His:OK"

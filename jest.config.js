@@ -40,12 +40,15 @@ const sharedTransformIgnorePatterns = [
 
 const sharedTestPathIgnorePatterns = [
   '<rootDir>/.next/',
+  '<rootDir>/.claude/worktrees/',
   '<rootDir>/desktop/',
   '<rootDir>/node_modules/',
   '<rootDir>/e2e/',
   '/e2e/',
   'e2e/',
 ];
+
+const sharedModulePathIgnorePatterns = ['<rootDir>/.claude/worktrees/'];
 
 const perfSensitiveSimulationTestPattern =
   'src[/\\\\]simulation[/\\\\]__tests__[/\\\\](integration|simulation-combat-integration|swarm-pilot-skills-batch|swarm-throughput)\\.test\\.ts$';
@@ -75,6 +78,7 @@ const unitJestConfig = {
   // Exclude a11y tests from the default test surface — they live in their
   // own project and run via `--selectProjects a11y`.
   testPathIgnorePatterns: unitTestPathIgnorePatterns,
+  modulePathIgnorePatterns: sharedModulePathIgnorePatterns,
   transformIgnorePatterns: sharedTransformIgnorePatterns,
   transform: sharedTransform,
 };
@@ -99,6 +103,7 @@ const a11yJestConfig = {
   testEnvironment: 'jsdom',
   testMatch: ['**/*.a11y.test.(ts|tsx)'],
   testPathIgnorePatterns: sharedTestPathIgnorePatterns,
+  modulePathIgnorePatterns: sharedModulePathIgnorePatterns,
   transformIgnorePatterns: sharedTransformIgnorePatterns,
   transform: sharedTransform,
 };

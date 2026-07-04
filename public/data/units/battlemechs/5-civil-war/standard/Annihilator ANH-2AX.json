@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isimprovedheavygaussrifle",
-      "location": "LEFT_TORSO,_AMMO:32"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-isimprovedheavygaussrifle",

@@ -69,7 +69,7 @@
     },
     {
       "id": "1-isimprovednarc",
-      "location": "LEFT_ARM,_AMMO:16"
+      "location": "LEFT_ARM"
     }
   ],
   "criticalSlots": {
@@ -168,9 +168,7 @@
       "Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "bad_rep_is"
-  ],
+  "quirks": ["bad_rep_is"],
   "mulId": 5208,
   "role": "Skirmisher",
   "source": "TR:3067"

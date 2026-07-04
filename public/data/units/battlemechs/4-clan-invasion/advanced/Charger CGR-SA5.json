@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "2-isstreaksrm6",
-      "location": "LEFT_ARM,_AMMO:15"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-isermediumlaser",
@@ -61,7 +61,7 @@
     },
     {
       "id": "1-islbxac20",
-      "location": "RIGHT_TORSO,_AMMO:15"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-isermediumlaser",
@@ -168,11 +168,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "barrel_fists_la",
-    "easy_maintain",
-    "bad_rep_is"
-  ],
+  "quirks": ["barrel_fists_la", "easy_maintain", "bad_rep_is"],
   "fluff": {
     "overview": "The Charger is seen as an example of abject failure in BattleMech design. Wells Technologies originally wanted to produce an ultra-heavy scout 'Mech for the Star League Defense Force that was not only fast but could survive contact with the enemy.",
     "capabilities": "This was to be the 'Mech's downfall, as its popgun laser array proved to be quite laughable, capable of little more than fighting infantry and light combat vehicles. Its armoring, while respectable, could not stand up to sustained punishment, which meant if the 'Mech got too close to heavy combat or trapped by superior numbers it could be shot to pieces.",

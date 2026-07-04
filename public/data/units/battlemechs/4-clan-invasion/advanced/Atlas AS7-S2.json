@@ -61,11 +61,11 @@
     },
     {
       "id": "1-isheavygaussrifle",
-      "location": "RIGHT_TORSO,_AMMO:16"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-islrm15",
-      "location": "LEFT_TORSO,_AMMO:16"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-isguardianecm",

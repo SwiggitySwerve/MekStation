@@ -81,7 +81,7 @@
     },
     {
       "id": "1-islrm5",
-      "location": "RIGHT_TORSO,_AMMO:24"
+      "location": "RIGHT_TORSO"
     }
   ],
   "criticalSlots": {
@@ -180,9 +180,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "no_arms"
-  ],
+  "quirks": ["no_arms"],
   "fluff": {
     "overview": "The Firefly is a well-armed recon 'Mech that tips the scales at thirty tons, with a maximum ground speed of 86.4 km/h, the and ability to jump up to 120 meters. As a scout 'Mech, the Firefly gives average performance with its energy weapon-heavy arsenal and is useful in both a recon and guerrilla fighter role.",
     "capabilities": "Although it was slow in comparison to other 'Mechs of its weight class, it was powerfully armed and armored, and it frequently served as an anvil against which opposing forces' recon units were smashed.",

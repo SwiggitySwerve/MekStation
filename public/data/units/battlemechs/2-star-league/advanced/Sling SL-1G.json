@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-islrm5",
-      "location": "RIGHT_ARM,_AMMO:48"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-islrm5",
@@ -164,9 +164,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "cramped_cockpit"
-  ],
+  "quirks": ["cramped_cockpit"],
   "mulId": 2967,
   "role": "Missile Boat",
   "source": "His:OK"

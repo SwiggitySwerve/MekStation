@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isultraac5",
-      "location": "RIGHT_TORSO,_AMMO:20"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-isflamer",
@@ -160,10 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "imp_com"
-  ],
+  "quirks": ["easy_maintain", "imp_com"],
   "mulId": 1501,
   "role": "Striker",
   "source": "TR:3050"

@@ -81,7 +81,7 @@
     },
     {
       "id": "1-islbxac20",
-      "location": "RIGHT_TORSO,_AMMO:15"
+      "location": "RIGHT_TORSO"
     }
   ],
   "criticalSlots": {
@@ -180,9 +180,7 @@
       "Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "difficult_maintain"
-  ],
+  "quirks": ["difficult_maintain"],
   "mulId": 1483,
   "role": "Skirmisher",
   "source": "RS:UM"

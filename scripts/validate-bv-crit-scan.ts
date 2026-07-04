@@ -214,6 +214,13 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
             r.riscAPDS++;
             r.defEquipIds.push(clean);
           }
+        } else if (
+          (lo.includes('chaff pod') ||
+            lo.includes('chaffpod') ||
+            lo === 'ischaffpod') &&
+          !lo.includes('ammo')
+        ) {
+          if (clean !== prevSlotClean) r.defEquipIds.push(clean);
         }
         // RISC Viral Jammer (Decoy/Homing): defensive equipment, BV=284 each per MegaMek MiscType
         if (

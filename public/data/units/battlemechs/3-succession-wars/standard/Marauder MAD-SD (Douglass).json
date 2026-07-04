@@ -69,7 +69,7 @@
     },
     {
       "id": "1-issrm4",
-      "location": "RIGHT_TORSO,_AMMO:25"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-issrm4",
@@ -172,11 +172,7 @@
       "Heat Sink"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "hyper_actuator",
-    "low_profile"
-  ],
+  "quirks": ["command_mech", "hyper_actuator", "low_profile"],
   "mulId": 2052,
   "role": "Brawler",
   "source": "HTP:Galtor"

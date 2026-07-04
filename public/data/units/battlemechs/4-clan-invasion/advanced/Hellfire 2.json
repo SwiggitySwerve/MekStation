@@ -73,7 +73,7 @@
     },
     {
       "id": "1-clatm6",
-      "location": "RIGHT_TORSO,_AMMO:40"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-clheavylargelaser",
@@ -180,9 +180,7 @@
       "CLDouble Heat Sink"
     ]
   },
-  "quirks": [
-    "difficult_maintain"
-  ],
+  "quirks": ["difficult_maintain"],
   "fluff": {
     "overview": "Following the development of Heavy Laser technology, Clan Star Adder scientists sought a test-bed on which to mount the lasers.",
     "capabilities": "Approximately twice as expensive as the original, the Hellfire 2 uses an 300-rated XL Engine to increase the 'Mech's speed to 86 km/h. In place of the LRMs are a pair of ATM 6s. The heavy smalls are replaced with a single ER Small Laser and an additional double heat sink.",

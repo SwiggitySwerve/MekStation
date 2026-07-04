@@ -65,7 +65,7 @@
     },
     {
       "id": "1-islbxac10",
-      "location": "LEFT_TORSO,_AMMO:30"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-ismediumlaser",
@@ -73,7 +73,7 @@
     },
     {
       "id": "1-isantimissilesystem",
-      "location": "HEAD,_AMMO:24"
+      "location": "HEAD"
     }
   ],
   "criticalSlots": {
@@ -172,10 +172,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "hyper_actuator",
-    "difficult_maintain"
-  ],
+  "quirks": ["hyper_actuator", "difficult_maintain"],
   "mulId": 5346,
   "role": "Skirmisher",
   "source": "TR:3067"

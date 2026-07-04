@@ -65,7 +65,7 @@
     },
     {
       "id": "1-clantimissilesystem",
-      "location": "LEFT_TORSO,_AMMO:24"
+      "location": "LEFT_TORSO"
     }
   ],
   "criticalSlots": {
@@ -164,9 +164,7 @@
       "CLDouble Heat Sink"
     ]
   },
-  "quirks": [
-    "low_profile"
-  ],
+  "quirks": ["low_profile"],
   "mulId": 1029,
   "role": "Sniper",
   "source": "TR:3050"

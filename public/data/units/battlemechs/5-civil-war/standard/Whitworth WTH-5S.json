@@ -57,7 +57,7 @@
     },
     {
       "id": "1-isstreaksrm6",
-      "location": "RIGHT_TORSO,_AMMO:15"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-isstreaksrm6",
@@ -168,10 +168,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "rugged_1",
-    "weak_legs"
-  ],
+  "quirks": ["rugged_1", "weak_legs"],
   "fluff": {
     "overview": "The Whitworth was created in 2610 as a scout 'Mech to bridge the gap between the light Wasp and medium Phoenix Hawk variants.",
     "capabilities": "Although the Whitworth is limited at short range, its missile launchers provide exceptional long-range capabilities. While its heft allows it to compete in combat with units of same and lesser size, the 'Mech is not intended to be a brawler by any means. The Whitworth is not a good short-range slugger since it lacks hand actuators, has a terrible short-range weapon loadout, and lacks the high speed curve of lighter 'Mechs. Pilots who try to utilize it as such often find themselves rocketing into the sky on their ejection seat. Furthermore, the design incorporates a faulty actuator system in the hips and legs (replacing the system would require a complete reworking of the lower half of the torso and leg assembly), resulting in far too many MechWarriors being sprawled on the battlefield and unable to move due to unresponsive (or even missing) legs.",

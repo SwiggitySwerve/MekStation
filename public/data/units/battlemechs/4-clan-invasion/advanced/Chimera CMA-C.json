@@ -65,7 +65,7 @@
     },
     {
       "id": "1-ismrm20",
-      "location": "RIGHT_TORSO,_AMMO:24"
+      "location": "RIGHT_TORSO"
     }
   ],
   "criticalSlots": {
@@ -164,9 +164,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "nimble_jumper"
-  ],
+  "quirks": ["nimble_jumper"],
   "mulId": 3951,
   "role": "Striker",
   "source": "TR:3067"

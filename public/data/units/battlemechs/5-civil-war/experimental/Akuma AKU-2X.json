@@ -57,11 +57,11 @@
     },
     {
       "id": "1-islbxac10",
-      "location": "RIGHT_TORSO,_AMMO:20"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-ismrm40",
-      "location": "LEFT_TORSO,_AMMO:18"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-isheavyppc",

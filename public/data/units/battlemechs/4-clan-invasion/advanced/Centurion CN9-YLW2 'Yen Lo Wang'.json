@@ -61,7 +61,7 @@
     },
     {
       "id": "1-isgaussrifle",
-      "location": "RIGHT_ARM,_AMMO:16"
+      "location": "RIGHT_ARM"
     }
   ],
   "criticalSlots": {
@@ -160,10 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "imp_target_short",
-    "non_standard"
-  ],
+  "quirks": ["imp_target_short", "non_standard"],
   "mulId": 3923,
   "role": "Brawler",
   "source": "TR:3050"

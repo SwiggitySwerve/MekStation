@@ -65,7 +65,7 @@
     },
     {
       "id": "1-isstreaksrm6",
-      "location": "RIGHT_TORSO,_AMMO:15"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-isbeagleactiveprobe",
@@ -172,10 +172,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "imp_sensors",
-    "pro_actuator"
-  ],
+  "quirks": ["imp_sensors", "pro_actuator"],
   "mulId": 3838,
   "role": "Striker",
   "source": "TR:3067"

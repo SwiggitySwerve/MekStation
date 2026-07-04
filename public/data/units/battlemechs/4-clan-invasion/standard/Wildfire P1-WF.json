@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-ismachine-gun",
-      "location": "RIGHT_ARM,_AMMO:200"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-ismachine-gun",
@@ -73,7 +73,7 @@
     },
     {
       "id": "1-isstreaksrm2",
-      "location": "RIGHT_LEG,_AMMO:50"
+      "location": "RIGHT_LEG"
     },
     {
       "id": "1-isstreaksrm2",

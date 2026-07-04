@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isgaussrifle",
-      "location": "RIGHT_ARM,_AMMO:16"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-iserlargelaser",
@@ -61,7 +61,7 @@
     },
     {
       "id": "3-islrm5",
-      "location": "LEFT_TORSO,_AMMO:72"
+      "location": "LEFT_TORSO"
     }
   ],
   "criticalSlots": {
@@ -160,9 +160,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "good_rep_1"
-  ],
+  "quirks": ["good_rep_1"],
   "fluff": {
     "overview": "Designed by a student at the Victoria Academy of Arms and Technology, the Lao Hu (\"Tiger\") is based on the Thunder BattleMech and is designed to correct perceived flaws in the Thunder by using new technologies available to the Capellan Confederation.",
     "capabilities": "The Lao Hu is built on a lightweight Chariot Type II Endo Steel that carries a GM 375 XL Engine which gives the 'Mech a top speed of 86.4 km/h while sacrificing some survivability for more free weight and a heavier weapons payload. The Lao Hu is protected by an impressive thirteen and a half tons of armor, making it capable of weathering hits from all but the heaviest weapons.",

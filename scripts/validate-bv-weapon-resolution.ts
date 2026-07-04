@@ -502,6 +502,8 @@ export function isDefEquip(id: string): boolean {
     (lo.includes('shield') && !lo.includes('blue-shield')) ||
     lo.includes('apds') ||
     lo.includes('advanced-point-defense') ||
-    lo.includes('point-defense-system')
+    lo.includes('point-defense-system') ||
+    lo.includes('chaff-pod') ||
+    lo.includes('chaffpod')
   );
 }

@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isrotaryac5",
-      "location": "RIGHT_ARM,_AMMO:60"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "2-isermediumlaser",
@@ -160,10 +160,7 @@
       null
     ]
   },
-  "quirks": [
-    "imp_target_short",
-    "non_standard"
-  ],
+  "quirks": ["imp_target_short", "non_standard"],
   "mulId": 522,
   "role": "Skirmisher",
   "source": "TR:3050"

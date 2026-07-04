@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isrotaryac5",
-      "location": "RIGHT_ARM,_AMMO:40"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "2-islightppc",
@@ -77,7 +77,7 @@
     },
     {
       "id": "1-isstreaksrm6",
-      "location": "LEFT_TORSO,_AMMO:15"
+      "location": "LEFT_TORSO"
     }
   ],
   "criticalSlots": {
@@ -176,10 +176,7 @@
       "Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "command_mech",
-    "weak_head_1"
-  ],
+  "quirks": ["command_mech", "weak_head_1"],
   "fluff": {
     "overview": "Versatile and powerful, the BattleMaster was one of the best known BattleMechs in existence. Hollis Industries began production in 2633, originally designing it to be the largest and most powerful 'Mech for the Star League armies at that time.",
     "capabilities": "Indeed the sheer size of the BattleMaster, combined with the costs and resources needed to build one, meant the 'Mech could only be manufactured on a few planets. Still, those lucky enough to pilot a BattleMaster can attest to some of the stories surrounding the 'Mech. With good reliability, firepower and armoring, the BattleMaster is equally adept anchoring an assault lance or serving as a command vehicle.",

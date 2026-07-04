@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-islbxac10",
-      "location": "RIGHT_ARM,_AMMO:20"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "2-ismediumlaser",
@@ -65,7 +65,7 @@
     },
     {
       "id": "1-islrm5",
-      "location": "CENTER_TORSO,_AMMO:24"
+      "location": "CENTER_TORSO"
     }
   ],
   "criticalSlots": {
@@ -164,10 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "bad_rep_is",
-    "bad_rep_clan"
-  ],
+  "quirks": ["bad_rep_is", "bad_rep_clan"],
   "mulId": 3558,
   "role": "Striker",
   "source": "TR:3050"

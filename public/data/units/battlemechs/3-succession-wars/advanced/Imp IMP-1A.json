@@ -85,7 +85,7 @@
     },
     {
       "id": "1-islrm20",
-      "location": "RIGHT_ARM,_AMMO:12"
+      "location": "RIGHT_ARM"
     }
   ],
   "criticalSlots": {
@@ -184,10 +184,7 @@
       null
     ]
   },
-  "quirks": [
-    "command_mech",
-    "difficult_maintain"
-  ],
+  "quirks": ["command_mech", "difficult_maintain"],
   "mulId": 1607,
   "role": "Juggernaut",
   "source": "His:OK"

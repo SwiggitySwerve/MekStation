@@ -61,11 +61,11 @@
     },
     {
       "id": "1-isac20",
-      "location": "RIGHT_ARM,_AMMO:20"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-issrm6",
-      "location": "LEFT_ARM,_AMMO:15"
+      "location": "LEFT_ARM"
     }
   ],
   "criticalSlots": {
@@ -164,10 +164,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "no_arms"
-  ],
+  "quirks": ["easy_maintain", "no_arms"],
   "mulId": 5684,
   "role": "Skirmisher",
   "source": "RS:3067u"

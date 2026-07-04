@@ -61,7 +61,7 @@
     },
     {
       "id": "1-islbxac10",
-      "location": "RIGHT_TORSO,_AMMO:40"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-islbxac10",
@@ -69,7 +69,7 @@
     },
     {
       "id": "1-islac2",
-      "location": "CENTER_TORSO,_AMMO:90"
+      "location": "CENTER_TORSO"
     },
     {
       "id": "1-islac2",

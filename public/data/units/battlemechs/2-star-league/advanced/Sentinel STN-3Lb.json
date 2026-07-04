@@ -57,7 +57,7 @@
     },
     {
       "id": "1-isgaussrifle",
-      "location": "LEFT_ARM,_AMMO:16"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-ismediumlaser",
@@ -160,9 +160,7 @@
       "Ferro-Fibrous"
     ]
   },
-  "quirks": [
-    "imp_com"
-  ],
+  "quirks": ["imp_com"],
   "mulId": 2861,
   "role": "Sniper",
   "source": "His:OK"

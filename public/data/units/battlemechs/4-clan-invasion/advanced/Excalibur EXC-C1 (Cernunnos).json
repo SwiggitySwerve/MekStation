@@ -65,7 +65,7 @@
     },
     {
       "id": "1-islbxac20",
-      "location": "CENTER_TORSO,_AMMO:15"
+      "location": "CENTER_TORSO"
     },
     {
       "id": "1-isguardianecm",
@@ -168,10 +168,7 @@
       null
     ]
   },
-  "quirks": [
-    "vestigial_hands_la",
-    "vestigial_hands_ra"
-  ],
+  "quirks": ["vestigial_hands_la", "vestigial_hands_ra"],
   "mulId": 1001,
   "role": "Skirmisher",
   "source": "RS:UM"

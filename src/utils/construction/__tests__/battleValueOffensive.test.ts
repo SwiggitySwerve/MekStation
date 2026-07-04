@@ -248,6 +248,14 @@ describe('calculateAmmoBVWithExcessiveCap', () => {
     );
     expect(total).toBe(0);
   });
+
+  it('matches LRTorpedo ammo to LRM-equivalent LRT launcher BV', () => {
+    const total = calculateAmmoBVWithExcessiveCap(
+      [{ id: 'lrt-10', bv: 108 }],
+      [{ id: 'ammo-lrtorpedo-10', bv: 11, weaponType: 'lrtorpedo-10' }],
+    );
+    expect(total).toBe(11);
+  });
 });
 
 describe('calculateOffensiveBV (legacy, no heat tracking)', () => {

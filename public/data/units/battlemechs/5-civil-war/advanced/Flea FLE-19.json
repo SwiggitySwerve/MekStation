@@ -61,7 +61,7 @@
     },
     {
       "id": "4-islightmg",
-      "location": "RIGHT_ARM,_AMMO:100"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-islmga",
@@ -172,11 +172,7 @@
       "Heat Sink"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "imp_life_support",
-    "no_arms"
-  ],
+  "quirks": ["easy_maintain", "imp_life_support", "no_arms"],
   "mulId": 1138,
   "role": "Striker",
   "source": "TR:3050"

@@ -57,11 +57,11 @@
     },
     {
       "id": "1-ismachine-gun",
-      "location": "LEFT_ARM,_AMMO:200"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-islightgaussrifle",
-      "location": "RIGHT_TORSO,_AMMO:32"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-isermediumlaser",
@@ -164,9 +164,7 @@
       "Endo Steel"
     ]
   },
-  "quirks": [
-    "low_profile"
-  ],
+  "quirks": ["low_profile"],
   "fluff": {
     "overview": "The Vulcan was designed as an anti-infantry 'Mech in 2775 during the closing years of the Amaris Civil War.",
     "capabilities": "The Vulcan is lightly armored at only five tons, though this is typically sufficient when facing infantry forces and its narrow profile makes it a harder target to hit. A cruising speed of 97.2 km/h is enhanced by six jump jets mounted in the rear of the Vulcan's torso, specially vented to reduce heat buildup, giving it a jumping range of 180 meters.",

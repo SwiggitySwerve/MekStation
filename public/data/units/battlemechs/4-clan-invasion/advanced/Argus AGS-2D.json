@@ -57,7 +57,7 @@
     },
     {
       "id": "1-islrm15",
-      "location": "LEFT_ARM,_AMMO:32"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-islrm15",
@@ -160,10 +160,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "no_arms"
-  ],
+  "quirks": ["easy_maintain", "no_arms"],
   "mulId": 3729,
   "role": "Missile Boat",
   "source": "TR:3067"

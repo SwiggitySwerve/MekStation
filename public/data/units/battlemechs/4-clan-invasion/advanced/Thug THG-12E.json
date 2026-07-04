@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-issrm6",
-      "location": "LEFT_TORSO,_AMMO:15"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-issrm6",
@@ -168,9 +168,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "rugged_1"
-  ],
+  "quirks": ["rugged_1"],
   "fluff": {
     "overview": "The Thug was designed by Maltex Corporation as a direct competitor to the popular Warhammer BattleMech. First seeing production in 2572.",
     "capabilities": "The armament on the Thug is a very simple, yet effective, combination. Take an extremely powerful long range 'Mech, extend its range and accuracy, and put it in the hands of the Inner Sphere's two most secretive organizations, and you have the 12E Thug. Built for both ComStar and the Word of Blake in 3067 the PPCs have been upgraded to ER PPCs and an improved C3 computer has been added. To make the change to a C3i computer, a double heat sink, one ton of ammunition, and the corresponding CASE were removed",

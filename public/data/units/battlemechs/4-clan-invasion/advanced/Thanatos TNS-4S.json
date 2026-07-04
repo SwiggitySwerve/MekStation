@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-ismrm20",
-      "location": "RIGHT_ARM,_AMMO:24"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-iserlargelaser",
@@ -176,9 +176,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "stable"
-  ],
+  "quirks": ["stable"],
   "mulId": 5218,
   "role": "Skirmisher",
   "source": "TR:3067"

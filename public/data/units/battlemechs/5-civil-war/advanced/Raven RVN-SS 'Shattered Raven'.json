@@ -65,7 +65,7 @@
     },
     {
       "id": "1-isstreaksrm6",
-      "location": "RIGHT_TORSO,_AMMO:15"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-istag",
@@ -176,9 +176,7 @@
       "Heat Sink"
     ]
   },
-  "quirks": [
-    "no_arms"
-  ],
+  "quirks": ["no_arms"],
   "mulId": 2671,
   "role": "Striker",
   "source": "TR:3050"

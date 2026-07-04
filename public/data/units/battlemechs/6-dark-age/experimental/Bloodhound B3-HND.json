@@ -69,7 +69,7 @@
     },
     {
       "id": "1-isfluidgun",
-      "location": "RIGHT_ARM,_AMMO:40"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-ismediumpulselaser",
@@ -184,10 +184,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "imp_sensors",
-    "pro_actuator"
-  ],
+  "quirks": ["imp_sensors", "pro_actuator"],
   "mulId": 5671,
   "role": "Striker",
   "source": "RS:3067u"

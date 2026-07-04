@@ -73,7 +73,7 @@
     },
     {
       "id": "1-cllrm10",
-      "location": "RIGHT_TORSO,_AMMO:24"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-cllrm10",
@@ -81,7 +81,7 @@
     },
     {
       "id": "1-clhag30",
-      "location": "RIGHT_ARM,_AMMO:32"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-clhag30",
@@ -184,9 +184,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "imp_target_med"
-  ],
+  "quirks": ["imp_target_med"],
   "fluff": {
     "overview": "Designed to be sold to fellow Clans, this rebuild of the Timber Wolf carries thirteen tons of ferro-fibrous armor while being one of most nimble BattleMechs of its class, yet still packing serious weaponry.",
     "capabilities": "This variant removes the Gauss Rifles, jump jets, and one heat sink of the original and replaces them with a HAG/30 in each arm. The side torsos each mount an LRM-10 and a pair of ER Medium Lasers. A Light Active Probe is mounted in the head, and the remaining tonnage is given over to more armor protection.",

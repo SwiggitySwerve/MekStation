@@ -65,7 +65,7 @@
     },
     {
       "id": "1-isantimissilesystem",
-      "location": "LEFT_TORSO,_AMMO:12"
+      "location": "LEFT_TORSO"
     }
   ],
   "criticalSlots": {
@@ -164,9 +164,7 @@
       "Heat Sink"
     ]
   },
-  "quirks": [
-    "low_profile"
-  ],
+  "quirks": ["low_profile"],
   "mulId": 1027,
   "role": "Scout",
   "source": "TR:3050"

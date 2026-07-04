@@ -61,7 +61,7 @@
     },
     {
       "id": "1-cllbxac10",
-      "location": "RIGHT_TORSO,_AMMO:20"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "2-clmediumpulselaser",
@@ -69,7 +69,7 @@
     },
     {
       "id": "1-clsrm6",
-      "location": "LEFT_TORSO,_AMMO:15"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-clsmallpulselaser",
@@ -176,9 +176,7 @@
       "Jump Jet"
     ]
   },
-  "quirks": [
-    "no_arms"
-  ],
+  "quirks": ["no_arms"],
   "mulId": 547,
   "role": "Skirmisher",
   "source": "TR:3050"

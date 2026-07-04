@@ -61,11 +61,11 @@
     },
     {
       "id": "1-isultraac10",
-      "location": "RIGHT_TORSO,_AMMO:30"
+      "location": "RIGHT_TORSO"
     },
     {
       "id": "1-isimprovednarc",
-      "location": "LEFT_TORSO,_AMMO:8"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-isimprovedc3cpu",
@@ -168,9 +168,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "no_arms"
-  ],
+  "quirks": ["no_arms"],
   "mulId": 553,
   "role": "Skirmisher",
   "source": "TR:3050"

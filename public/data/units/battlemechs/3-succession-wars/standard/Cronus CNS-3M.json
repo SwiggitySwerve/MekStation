@@ -65,7 +65,7 @@
     },
     {
       "id": "1-issrm4",
-      "location": "CENTER_TORSO,_AMMO:25"
+      "location": "CENTER_TORSO"
     }
   ],
   "criticalSlots": {
@@ -164,9 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "easy_maintain"
-  ],
+  "quirks": ["easy_maintain"],
   "mulId": 4020,
   "role": "Skirmisher",
   "source": "TR:3067"

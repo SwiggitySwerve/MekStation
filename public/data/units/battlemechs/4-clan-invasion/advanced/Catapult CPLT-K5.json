@@ -65,7 +65,7 @@
     },
     {
       "id": "1-ismrm30",
-      "location": "RIGHT_ARM,_AMMO:32"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "1-ismrm30",
@@ -168,10 +168,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "no_arms",
-    "weak_head_1"
-  ],
+  "quirks": ["no_arms", "weak_head_1"],
   "mulId": 489,
   "role": "Skirmisher",
   "source": "TR:3050"

@@ -61,7 +61,7 @@
     },
     {
       "id": "1-isimprovednarc",
-      "location": "LEFT_ARM,_AMMO:12"
+      "location": "LEFT_ARM"
     },
     {
       "id": "1-isimprovedc3cpu",
@@ -164,10 +164,7 @@
       null
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "imp_com"
-  ],
+  "quirks": ["easy_maintain", "imp_com"],
   "mulId": 1499,
   "role": "Striker",
   "source": "TR:3050"

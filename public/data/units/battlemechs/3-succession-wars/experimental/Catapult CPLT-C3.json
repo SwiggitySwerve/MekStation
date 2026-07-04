@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isarrowivsystem",
-      "location": "RIGHT_ARM,_AMMO:5"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "2-ismediumlaser",
@@ -164,10 +164,7 @@
       "Heat Sink"
     ]
   },
-  "quirks": [
-    "no_arms",
-    "weak_head_1"
-  ],
+  "quirks": ["no_arms", "weak_head_1"],
   "mulId": 481,
   "role": "Missile Boat",
   "source": "TR:3050"

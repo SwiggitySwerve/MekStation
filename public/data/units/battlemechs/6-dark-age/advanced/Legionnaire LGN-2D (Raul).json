@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isrotaryac5",
-      "location": "RIGHT_ARM,_AMMO:60"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "2-ismediumlaser",
@@ -160,10 +160,7 @@
       "Endo-Steel"
     ]
   },
-  "quirks": [
-    "easy_maintain",
-    "imp_target_med"
-  ],
+  "quirks": ["easy_maintain", "imp_target_med"],
   "mulId": 8296,
   "role": "Striker",
   "source": "TR:DA"

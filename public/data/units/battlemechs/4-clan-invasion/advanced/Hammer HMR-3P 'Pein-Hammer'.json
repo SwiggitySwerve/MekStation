@@ -69,7 +69,7 @@
     },
     {
       "id": "1-isstreaksrm4",
-      "location": "LEFT_TORSO,_AMMO:25"
+      "location": "LEFT_TORSO"
     },
     {
       "id": "1-isstreaksrm4",
@@ -176,10 +176,7 @@
       null
     ]
   },
-  "quirks": [
-    "ext_twist",
-    "imp_target_long"
-  ],
+  "quirks": ["ext_twist", "imp_target_long"],
   "mulId": 1367,
   "role": "Brawler",
   "source": "TR:3055U"

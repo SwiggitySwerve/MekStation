@@ -53,7 +53,7 @@
   "equipment": [
     {
       "id": "1-isheavyrifle",
-      "location": "RIGHT_ARM,_AMMO:6"
+      "location": "RIGHT_ARM"
     }
   ],
   "criticalSlots": {

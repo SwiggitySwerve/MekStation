@@ -2,10 +2,18 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+import re
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from enum_mappings import map_mech_location, normalize_equipment_id
 from mtf_serialized_models import SerializedEquipment
+
+CRITICAL_MOUNTED_EQUIPMENT_IDS = {
+    'chaff pod': 'chaffpod',
+    'chaffpod': 'chaffpod',
+    'is chaff pod': 'chaffpod',
+    'ischaffpod': 'chaffpod',
+}
 
 def build_armor_allocation(raw_allocation: Dict[str, int]) -> Dict[str, Any]:
     """Build armor allocation with proper location names and front/rear handling."""
@@ -49,29 +57,74 @@ def build_armor_allocation(raw_allocation: Dict[str, int]) -> Dict[str, Any]:
 
     return allocation
 
-def build_equipment_list(weapons: List[Dict[str, str]]) -> List[SerializedEquipment]:
-    """Build equipment list from weapons data."""
+def _clean_rear_mount_suffix(name: str) -> str:
+    return re.sub(r'\s*\((?:r|rear)\)\s*', ' ', name, flags=re.IGNORECASE).strip()
+
+def _clean_critical_equipment_name(name: str) -> str:
+    return re.sub(r'\s*\((?:omnipod|armored)\)\s*', ' ', name, flags=re.IGNORECASE).strip()
+
+def _canonical_seen_id(equip_id: str) -> str:
+    compact = re.sub(r'^\d+-', '', equip_id).replace('-', '')
+    aliases = {
+        'ischaffpod': 'chaffpod',
+    }
+    return aliases.get(compact, compact)
+
+def _seen_key(equip_id: str, location: str, is_rear: bool) -> Tuple[str, str, bool]:
+    return (_canonical_seen_id(equip_id), location, is_rear)
+
+def _mounted_equipment_from_critical(item: str) -> Optional[str]:
+    clean = _clean_critical_equipment_name(item)
+    lower = clean.lower()
+    compact = lower.replace(' ', '')
+    return CRITICAL_MOUNTED_EQUIPMENT_IDS.get(lower) or CRITICAL_MOUNTED_EQUIPMENT_IDS.get(compact)
+
+def build_equipment_list(
+    weapons: List[Dict[str, str]],
+    criticals: Optional[Dict[str, List[str]]] = None,
+) -> List[SerializedEquipment]:
+    """Build equipment list from weapons data and selected critical-only equipment."""
     equipment: List[SerializedEquipment] = []
+    seen: Set[Tuple[str, str, bool]] = set()
 
     for weapon in weapons:
         name = weapon.get('name', '')
         location = weapon.get('location', '')
 
         # Check for rear-mounted
-        is_rear = '(R)' in name or '(Rear)' in name.lower()
-        clean_name = name.replace('(R)', '').replace('(r)', '').strip()
+        is_rear = '(r)' in name.lower() or '(rear)' in name.lower()
+        clean_name = _clean_rear_mount_suffix(name)
 
         # Generate equipment ID
         equip_id = normalize_equipment_id(clean_name)
 
         # Map location
         mapped_location = map_mech_location(location)
+        seen.add(_seen_key(equip_id, mapped_location, is_rear))
 
         equipment.append(SerializedEquipment(
             id=equip_id,
             location=mapped_location,
             isRearMounted=is_rear if is_rear else None
         ))
+
+    for location, items in (criticals or {}).items():
+        mapped_location = map_mech_location(location)
+        for item in items:
+            if not item or item == '-Empty-':
+                continue
+            for sub_item in item.split('|'):
+                equip_id = _mounted_equipment_from_critical(sub_item)
+                if not equip_id:
+                    continue
+                key = _seen_key(equip_id, mapped_location, False)
+                if key in seen:
+                    continue
+                seen.add(key)
+                equipment.append(SerializedEquipment(
+                    id=equip_id,
+                    location=mapped_location,
+                ))
 
     return equipment
 
