@@ -59,7 +59,12 @@ const TopBar: React.FC = () => {
   ];
 
   const toolsItems: NavItemConfig[] = [
-    { href: '/customizer', icon: <CustomizerIcon />, label: 'Customizer' },
+    {
+      href: '/customizer',
+      icon: <CustomizerIcon />,
+      label: 'Customizer',
+      prefetch: false,
+    },
     { href: '/compare', icon: <CompareIcon />, label: 'Compare' },
   ];
 

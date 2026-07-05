@@ -1,4 +1,5 @@
 import type { NextRouter } from 'next/router';
+import type { ParsedUrlQuery } from 'querystring';
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useStore } from 'zustand';
@@ -6,6 +7,7 @@ import { useStore } from 'zustand';
 import type { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 import type { TabInfo, TabManagerState } from '@/stores/useTabManagerStore';
 
+import { navigateToCampaignCustomizerReturn } from '@/lib/campaign/customizer/campaignCustomizerNavigation';
 import {
   buildCampaignCustomizerHref,
   buildCampaignCustomizerReturnHref,
@@ -50,6 +52,23 @@ interface CampaignCustomizerRoutingResult {
   readonly unavailableUnitId: string | null;
 }
 
+function browserQuery(): ParsedUrlQuery | null {
+  if (typeof window === 'undefined') return null;
+  const query: ParsedUrlQuery = {};
+  const params = new URLSearchParams(window.location.search);
+  params.forEach((value, key) => {
+    const existing = query[key];
+    if (existing === undefined) {
+      query[key] = value;
+      return;
+    }
+    query[key] = Array.isArray(existing)
+      ? [...existing, value]
+      : [existing, value];
+  });
+  return query;
+}
+
 export function useCampaignCustomizerRouting({
   activeTabId,
   addTab,
@@ -69,10 +88,14 @@ export function useCampaignCustomizerRouting({
   );
   const rosterUnits = useCampaignRosterStore((state) => state.units);
 
-  const campaignRoute = useMemo(
-    () => parseCampaignCustomizerRouteState(nextRouter.query),
-    [nextRouter.query],
-  );
+  const campaignRoute = useMemo(() => {
+    const parsedRoute = parseCampaignCustomizerRouteState(nextRouter.query);
+    if (parsedRoute) return parsedRoute;
+    const fallbackQuery = browserQuery();
+    return fallbackQuery
+      ? parseCampaignCustomizerRouteState(fallbackQuery)
+      : null;
+  }, [nextRouter.asPath, nextRouter.query]);
   const campaignUnit = useMemo(
     () =>
       campaignRoute
@@ -200,7 +223,10 @@ export function useCampaignCustomizerRouting({
       : null;
   const returnToCampaign = useCallback(() => {
     if (!campaignRoute) return;
-    void nextRouter.push(buildCampaignCustomizerReturnHref(campaignRoute));
+    navigateToCampaignCustomizerReturn(
+      nextRouter,
+      buildCampaignCustomizerReturnHref(campaignRoute),
+    );
   }, [campaignRoute, nextRouter]);
 
   return {

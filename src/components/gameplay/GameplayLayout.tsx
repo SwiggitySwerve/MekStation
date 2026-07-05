@@ -477,6 +477,7 @@ export function GameplayLayout({
     <GameplayLayoutView
       className={className}
       session={session}
+      interactiveSession={interactiveSession}
       phaseQueueProjection={phaseQueueProjection}
       shellMode={shellMode}
       gmIntervention={gmIntervention}

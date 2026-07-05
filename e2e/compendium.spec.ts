@@ -478,6 +478,32 @@ test.describe('Breadcrumb Navigation @compendium', () => {
 // ============================================================================
 
 test.describe('Compendium Responsive @compendium', () => {
+  test('compendium hub header search stays inside the mobile viewport', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto('/compendium');
+
+    const search = page.getByTestId('compendium-search');
+    await expect(search).toBeVisible();
+
+    const pageWidths = await page.evaluate(() => ({
+      body: document.body.scrollWidth,
+      document: document.documentElement.scrollWidth,
+      viewport: window.innerWidth,
+    }));
+    expect(Math.max(pageWidths.body, pageWidths.document)).toBeLessThanOrEqual(
+      pageWidths.viewport,
+    );
+
+    const searchBox = await search.boundingBox();
+    expect(searchBox).not.toBeNull();
+    expect(searchBox!.x).toBeGreaterThanOrEqual(0);
+    expect(searchBox!.x + searchBox!.width).toBeLessThanOrEqual(
+      pageWidths.viewport,
+    );
+  });
+
   test('compendium hub is responsive', async ({ page }) => {
     const compendiumPage = new CompendiumPage(page);
     await compendiumPage.goto();

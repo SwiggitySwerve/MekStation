@@ -4,6 +4,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import type { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 
 import { Badge } from '@/components/ui';
+import { navigateToCampaignCustomizerReturn } from '@/lib/campaign/customizer/campaignCustomizerNavigation';
 import { buildCampaignCustomizerReturnHref } from '@/lib/campaign/customizer/campaignCustomizerRoute';
 import { extractMechBuildConfigFromUnitState } from '@/lib/campaign/customizer/campaignCustomizerSession';
 import { commitRefitOrder } from '@/stores/campaign/campaignRefitActions';
@@ -123,7 +124,8 @@ export function CampaignRefitCommandBar({
 
   const handleCancel = useCallback(() => {
     if (!session) return;
-    void router.push(
+    navigateToCampaignCustomizerReturn(
+      router,
       buildCampaignCustomizerReturnHref(session.route, {
         status: 'cancelled',
       }),
@@ -160,7 +162,8 @@ export function CampaignRefitCommandBar({
     }
 
     store.getState().markModified(false);
-    void router.push(
+    navigateToCampaignCustomizerReturn(
+      router,
       buildCampaignCustomizerReturnHref(session.route, {
         status: 'saved',
         refitOrderId: result.order?.id,

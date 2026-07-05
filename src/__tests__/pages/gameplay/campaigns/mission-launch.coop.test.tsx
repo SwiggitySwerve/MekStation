@@ -252,8 +252,8 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
       screen.getByTestId('mission-readiness-customize-atlas-as7-d'),
     ).toHaveAttribute(
       'href',
-      expect.stringContaining(
-        '/customizer?mode=campaign-refit&campaignId=campaign-coop-1&unitId=atlas-as7-d',
+      expect.stringMatching(
+        /\/customizer\/[^/?#]+\/structure\?[\s\S]*mode=campaign-refit[\s\S]*campaignId=campaign-coop-1[\s\S]*unitId=atlas-as7-d/,
       ),
     );
 

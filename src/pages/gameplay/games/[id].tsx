@@ -9,11 +9,14 @@
 import type React from 'react';
 
 import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { useRouter, type NextRouter } from 'next/router';
 
 import { CombatPlanningPanel } from '@/components/gameplay/CombatPlanningPanel';
 import { GameplayLayout } from '@/components/gameplay/GameplayLayout';
-import { useGameSessionLifecycle } from '@/components/gameplay/pages/gameSession/GameSessionPage.lifecycle';
+import {
+  resolveGameSessionRouteId,
+  useGameSessionLifecycle,
+} from '@/components/gameplay/pages/gameSession/GameSessionPage.lifecycle';
 import { useGameMovementPlanning } from '@/components/gameplay/pages/gameSession/GameSessionPage.movement';
 import {
   GameError,
@@ -35,74 +38,224 @@ import {
 import { useGameplaySelector } from '@/stores/useGameplayStore';
 import { GameSide, GameStatus } from '@/types/gameplay';
 
+interface IGameSessionRouteContext {
+  readonly routeId: string | null;
+  readonly campaignId?: string;
+  readonly missionId?: string;
+  readonly matchId: string | null;
+}
+
+function gameSessionRouteContext(router: NextRouter): IGameSessionRouteContext {
+  const { id, campaignId, missionId } = router.query;
+  const routeId = resolveGameSessionRouteId(
+    id,
+    typeof window === 'undefined' ? router.asPath : window.location.pathname,
+  );
+
+  return {
+    routeId,
+    campaignId: stringQueryValue(campaignId),
+    missionId: stringQueryValue(missionId),
+    matchId: matchIdFromRouteId(routeId),
+  };
+}
+
+function stringQueryValue(
+  value: string | readonly string[] | undefined,
+): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
+
+function matchIdFromRouteId(routeId: string | null): string | null {
+  return routeId && routeId !== 'demo' ? routeId : null;
+}
+
+function useGameplayBindings() {
+  return {
+    session: useGameplaySelector((state) => state.session),
+    isLoading: useGameplaySelector((state) => state.isLoading),
+    error: useGameplaySelector((state) => state.error),
+    loadSession: useGameplaySelector((state) => state.loadSession),
+    setSession: useGameplaySelector((state) => state.setSession),
+    createDemoSession: useGameplaySelector((state) => state.createDemoSession),
+    ui: useGameplaySelector((state) => state.ui),
+    selectUnit: useGameplaySelector((state) => state.selectUnit),
+    handleAction: useGameplaySelector((state) => state.handleAction),
+    unitWeapons: useGameplaySelector((state) => state.unitWeapons),
+    maxArmor: useGameplaySelector((state) => state.maxArmor),
+    maxStructure: useGameplaySelector((state) => state.maxStructure),
+    pilotNames: useGameplaySelector((state) => state.pilotNames),
+    heatSinks: useGameplaySelector((state) => state.heatSinks),
+    unitSpas: useGameplaySelector((state) => state.unitSpas),
+    clearError: useGameplaySelector((state) => state.clearError),
+    interactiveSession: useGameplaySelector(
+      (state) => state.interactiveSession,
+    ),
+    interactivePhase: useGameplaySelector((state) => state.interactivePhase),
+    spectatorMode: useGameplaySelector((state) => state.spectatorMode),
+    validTargetIds: useGameplaySelector((state) => state.validTargetIds),
+    hitChance: useGameplaySelector((state) => state.hitChance),
+    handleInteractiveHexClick: useGameplaySelector(
+      (state) => state.handleInteractiveHexClick,
+    ),
+    handleInteractiveTokenClick: useGameplaySelector(
+      (state) => state.handleInteractiveTokenClick,
+    ),
+    advanceInteractivePhase: useGameplaySelector(
+      (state) => state.advanceInteractivePhase,
+    ),
+    fireWeapons: useGameplaySelector((state) => state.fireWeapons),
+    runAITurn: useGameplaySelector((state) => state.runAITurn),
+    skipPhase: useGameplaySelector((state) => state.skipPhase),
+    checkGameOver: useGameplaySelector((state) => state.checkGameOver),
+    standActiveUnit: useGameplaySelector((state) => state.standActiveUnit),
+    enterHullDownActiveUnit: useGameplaySelector(
+      (state) => state.enterHullDownActiveUnit,
+    ),
+    goProneActiveUnit: useGameplaySelector((state) => state.goProneActiveUnit),
+    applyRuntimeMovementState: useGameplaySelector(
+      (state) => state.applyRuntimeMovementState,
+    ),
+    setPlannedMovement: useGameplaySelector(
+      (state) => state.setPlannedMovement,
+    ),
+  };
+}
+
+type GameplayBindings = ReturnType<typeof useGameplayBindings>;
+type GameMovementPlanning = ReturnType<typeof useGameMovementPlanning>;
+type SelectedPlanningWeapons = ReturnType<typeof useSelectedPlanningWeapons>;
+type PhysicalAttackIntentSetter = ReturnType<
+  typeof usePhysicalAttackIntentState
+>[1];
+
+interface IGameSessionBlockingSurfaceProps {
+  readonly isLoading: boolean;
+  readonly error: string | null;
+  readonly handleRetry: () => void;
+  readonly session: GameplayBindings['session'];
+  readonly interactivePhase: GameplayBindings['interactivePhase'];
+  readonly interactiveSession: GameplayBindings['interactiveSession'];
+  readonly spectatorMode: GameplayBindings['spectatorMode'];
+  readonly campaignId?: string;
+  readonly missionId?: string;
+}
+
+interface IGameSessionPlanningPanelProps {
+  readonly showPlanningPanel: boolean;
+  readonly movement: GameMovementPlanning;
+  readonly selectedUnitId: string | null | undefined;
+  readonly selectedPlanningWeapons: SelectedPlanningWeapons;
+  readonly onPhysicalAttackIntentChange: PhysicalAttackIntentSetter;
+}
+
+function renderGameSessionBlockingSurface({
+  campaignId,
+  error,
+  handleRetry,
+  interactivePhase,
+  interactiveSession,
+  isLoading,
+  missionId,
+  session,
+  spectatorMode,
+}: IGameSessionBlockingSurfaceProps): React.ReactElement | null {
+  if (isLoading) return <GameLoading />;
+  if (error) return <GameError message={error} onRetry={handleRetry} />;
+  if (!session) return <GameLoading />;
+
+  const completedSession = completedSessionElement(
+    session,
+    campaignId,
+    missionId,
+  );
+  if (completedSession) return completedSession;
+
+  const completedInteractive = completedInteractiveElement(
+    session,
+    interactivePhase,
+    interactiveSession,
+    spectatorMode,
+    campaignId,
+    missionId,
+  );
+  if (completedInteractive) return completedInteractive;
+
+  return spectatorMode?.enabled && interactiveSession ? (
+    <SpectatorView />
+  ) : null;
+}
+
+function GameSessionPlanningPanel({
+  movement,
+  onPhysicalAttackIntentChange,
+  selectedPlanningWeapons,
+  selectedUnitId,
+  showPlanningPanel,
+}: IGameSessionPlanningPanelProps): React.ReactElement | null {
+  if (!showPlanningPanel || movement.composerActive || !selectedUnitId) {
+    return null;
+  }
+
+  return (
+    <CombatPlanningPanel
+      walkMP={movement.effectiveMovementMps?.walkMP ?? 0}
+      runMP={movement.effectiveMovementMps?.runMP ?? 0}
+      jumpMP={movement.effectiveMovementMps?.jumpMP ?? 0}
+      movementHeatProfile={movement.capability?.movementHeatProfile}
+      weapons={selectedPlanningWeapons}
+      onPhysicalAttackIntentChange={onPhysicalAttackIntentChange}
+    />
+  );
+}
+
 export default function GameSessionPage(): React.ReactElement {
   const router = useRouter();
-  const { id, campaignId, missionId } = router.query;
-  const campaignIdStr = typeof campaignId === 'string' ? campaignId : undefined;
-  const missionIdStr = typeof missionId === 'string' ? missionId : undefined;
-  const matchIdStr = typeof id === 'string' && id !== 'demo' ? id : null;
-
-  const session = useGameplaySelector((state) => state.session);
-  const isLoading = useGameplaySelector((state) => state.isLoading);
-  const error = useGameplaySelector((state) => state.error);
-  const loadSession = useGameplaySelector((state) => state.loadSession);
-  const setSession = useGameplaySelector((state) => state.setSession);
-  const createDemoSession = useGameplaySelector(
-    (state) => state.createDemoSession,
-  );
-  const ui = useGameplaySelector((state) => state.ui);
-  const selectUnit = useGameplaySelector((state) => state.selectUnit);
-  const handleAction = useGameplaySelector((state) => state.handleAction);
-  const unitWeapons = useGameplaySelector((state) => state.unitWeapons);
-  const maxArmor = useGameplaySelector((state) => state.maxArmor);
-  const maxStructure = useGameplaySelector((state) => state.maxStructure);
-  const pilotNames = useGameplaySelector((state) => state.pilotNames);
-  const heatSinks = useGameplaySelector((state) => state.heatSinks);
-  const unitSpas = useGameplaySelector((state) => state.unitSpas);
-  const clearError = useGameplaySelector((state) => state.clearError);
-  const interactiveSession = useGameplaySelector(
-    (state) => state.interactiveSession,
-  );
-  const interactivePhase = useGameplaySelector(
-    (state) => state.interactivePhase,
-  );
-  const spectatorMode = useGameplaySelector((state) => state.spectatorMode);
-  const validTargetIds = useGameplaySelector((state) => state.validTargetIds);
-  const hitChance = useGameplaySelector((state) => state.hitChance);
-  const handleInteractiveHexClick = useGameplaySelector(
-    (state) => state.handleInteractiveHexClick,
-  );
-  const handleInteractiveTokenClick = useGameplaySelector(
-    (state) => state.handleInteractiveTokenClick,
-  );
-  const advanceInteractivePhase = useGameplaySelector(
-    (state) => state.advanceInteractivePhase,
-  );
-  const fireWeapons = useGameplaySelector((state) => state.fireWeapons);
-  const runAITurn = useGameplaySelector((state) => state.runAITurn);
-  const skipPhase = useGameplaySelector((state) => state.skipPhase);
-  const checkGameOver = useGameplaySelector((state) => state.checkGameOver);
-  const standActiveUnit = useGameplaySelector((state) => state.standActiveUnit);
-  const enterHullDownActiveUnit = useGameplaySelector(
-    (state) => state.enterHullDownActiveUnit,
-  );
-  const goProneActiveUnit = useGameplaySelector(
-    (state) => state.goProneActiveUnit,
-  );
-  const applyRuntimeMovementState = useGameplaySelector(
-    (state) => state.applyRuntimeMovementState,
-  );
-  const setPlannedMovement = useGameplaySelector(
-    (state) => state.setPlannedMovement,
-  );
+  const routeContext = gameSessionRouteContext(router);
+  const bindings = useGameplayBindings();
+  const {
+    advanceInteractivePhase,
+    applyRuntimeMovementState,
+    checkGameOver,
+    clearError,
+    createDemoSession,
+    enterHullDownActiveUnit,
+    error,
+    fireWeapons,
+    goProneActiveUnit,
+    handleAction,
+    handleInteractiveHexClick,
+    handleInteractiveTokenClick,
+    heatSinks,
+    hitChance,
+    interactivePhase,
+    interactiveSession,
+    isLoading,
+    loadSession,
+    maxArmor,
+    maxStructure,
+    pilotNames,
+    runAITurn,
+    selectUnit,
+    session,
+    setPlannedMovement,
+    setSession,
+    skipPhase,
+    spectatorMode,
+    standActiveUnit,
+    ui,
+    unitSpas,
+    unitWeapons,
+    validTargetIds,
+  } = bindings;
 
   const isCompletedForRedirect =
     session?.currentState.status === GameStatus.Completed;
   const isCampaignBound = Boolean(session?.config.contractId);
   useGameSessionLifecycle({
     router,
-    routeId: id,
-    matchId: matchIdStr,
+    routeId: routeContext.routeId,
+    matchId: routeContext.matchId,
     session,
     interactiveSession,
     isSpectatorMode: Boolean(spectatorMode?.enabled),
@@ -129,7 +282,7 @@ export default function GameSessionPage(): React.ReactElement {
     usePhysicalAttackIntentState(phase, ui.selectedUnitId);
   const { handleInteractiveAction, handleRetry, handleTokenClick } =
     useGameSessionCallbacks({
-      routeId: id,
+      routeId: routeContext.routeId,
       isInteractive,
       handleAction,
       phase,
@@ -154,34 +307,24 @@ export default function GameSessionPage(): React.ReactElement {
   const gmIntervention = useGmTacticalInterventionSurface({
     enabled: shellMode === 'gm',
     session,
-    campaignId: campaignIdStr,
+    campaignId: routeContext.campaignId,
     setSession,
   });
 
-  if (isLoading) return <GameLoading />;
-  if (error) return <GameError message={error} onRetry={handleRetry} />;
-  if (!session) return <GameLoading />;
-
-  const completedSession = completedSessionElement(
-    session,
-    campaignIdStr,
-    missionIdStr,
-  );
-  if (completedSession) return completedSession;
-
-  const completedInteractive = completedInteractiveElement(
-    session,
+  const blockingSurface = renderGameSessionBlockingSurface({
+    campaignId: routeContext.campaignId,
+    error,
+    handleRetry,
     interactivePhase,
     interactiveSession,
+    isLoading,
+    missionId: routeContext.missionId,
+    session,
     spectatorMode,
-    campaignIdStr,
-    missionIdStr,
-  );
-  if (completedInteractive) return completedInteractive;
+  });
+  if (blockingSurface) return blockingSurface;
 
-  if (spectatorMode?.enabled && interactiveSession) {
-    return <SpectatorView />;
-  }
+  if (!session) return <GameLoading />;
 
   const showPlanningPanel = shouldShowPlanningPanel({
     isInteractive,
@@ -246,16 +389,13 @@ export default function GameSessionPage(): React.ReactElement {
          * panel duplicated, and its step pad would be a second movement
          * surface). Non-movement phases (weapons/physical planning) keep it.
          */}
-        {showPlanningPanel && !movement.composerActive && ui.selectedUnitId && (
-          <CombatPlanningPanel
-            walkMP={movement.effectiveMovementMps?.walkMP ?? 0}
-            runMP={movement.effectiveMovementMps?.runMP ?? 0}
-            jumpMP={movement.effectiveMovementMps?.jumpMP ?? 0}
-            movementHeatProfile={movement.capability?.movementHeatProfile}
-            weapons={selectedPlanningWeapons}
-            onPhysicalAttackIntentChange={setPhysicalAttackIntent}
-          />
-        )}
+        <GameSessionPlanningPanel
+          movement={movement}
+          onPhysicalAttackIntentChange={setPhysicalAttackIntent}
+          selectedPlanningWeapons={selectedPlanningWeapons}
+          selectedUnitId={ui.selectedUnitId}
+          showPlanningPanel={showPlanningPanel}
+        />
       </div>
     </>
   );

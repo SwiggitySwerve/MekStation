@@ -29,4 +29,14 @@ describe('HomePage onboarding entry', () => {
       expect(screen.getByText('3,025')).toBeInTheDocument();
     });
   });
+
+  it('links players directly to the gameplay hub from the dashboard', async () => {
+    render(<HomePage />);
+
+    const gameplay = screen.getByText('Gameplay');
+    expect(gameplay.closest('a')).toHaveAttribute('href', '/gameplay');
+    await waitFor(() => {
+      expect(screen.getByText('3,025')).toBeInTheDocument();
+    });
+  });
 });

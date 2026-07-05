@@ -174,59 +174,107 @@ export function CampaignNavigation({
       : []),
   ];
 
-  const renderTab = (tab: NavTab): React.ReactElement => (
-    <Link
-      key={tab.id}
-      href={tab.href}
-      className={`px-4 py-3 transition-colors ${
-        currentPage === tab.id
-          ? 'text-accent border-accent border-b-2 font-semibold'
-          : 'text-text-theme-secondary hover:text-text-theme-primary font-medium'
-      }`}
-      aria-current={currentPage === tab.id ? 'page' : undefined}
-    >
-      {tab.label}
-    </Link>
-  );
+  const renderTab = (
+    tab: NavTab,
+    variant: 'primary' | 'menu' = 'primary',
+  ): React.ReactElement => {
+    const isActive = currentPage === tab.id;
+    const primaryClassName = `px-3 py-2 transition-colors sm:px-4 sm:py-3 ${
+      isActive
+        ? 'text-accent border-accent border-b-2 font-semibold'
+        : 'text-text-theme-secondary hover:text-text-theme-primary font-medium'
+    }`;
+    const menuClassName = `block rounded px-3 py-2 text-sm transition-colors ${
+      isActive
+        ? 'bg-accent/10 text-accent font-semibold'
+        : 'text-text-theme-secondary hover:bg-surface-hover hover:text-text-theme-primary font-medium'
+    }`;
+
+    return (
+      <Link
+        key={tab.id}
+        href={tab.href}
+        onClick={(event) => {
+          if (
+            process.env.NODE_ENV !== 'production' ||
+            event.defaultPrevented ||
+            event.button !== 0 ||
+            event.metaKey ||
+            event.altKey ||
+            event.ctrlKey ||
+            event.shiftKey
+          ) {
+            return;
+          }
+
+          event.preventDefault();
+          window.location.assign(tab.href);
+        }}
+        className={variant === 'primary' ? primaryClassName : menuClassName}
+        aria-current={isActive ? 'page' : undefined}
+      >
+        {tab.label}
+      </Link>
+    );
+  };
+
+  const renderTabGroup = (
+    label: string,
+    testId: string,
+    groupTabs: readonly NavTab[],
+  ): React.ReactElement => {
+    const activeTab = groupTabs.find((tab) => tab.id === currentPage);
+    const isActive = activeTab !== undefined;
+
+    return (
+      <details
+        className="group relative"
+        role="group"
+        aria-label={label}
+        key={label}
+      >
+        <summary
+          className={`flex cursor-pointer list-none items-center gap-2 rounded px-3 py-2 text-sm transition-colors marker:content-none [&::-webkit-details-marker]:hidden ${
+            isActive
+              ? 'bg-accent/10 text-accent font-semibold'
+              : 'text-text-theme-secondary hover:bg-surface-hover hover:text-text-theme-primary font-medium'
+          }`}
+          data-testid={testId}
+        >
+          <span>{label}</span>
+          {activeTab ? (
+            <span className="text-xs normal-case opacity-80">
+              {activeTab.label}
+            </span>
+          ) : null}
+          <span
+            aria-hidden="true"
+            className="text-text-theme-secondary transition-transform group-open:rotate-180"
+          >
+            v
+          </span>
+        </summary>
+        <div className="border-border-theme bg-surface-primary absolute top-full left-0 z-30 mt-2 hidden min-w-56 flex-col gap-1 rounded-md border p-2 shadow-lg group-open:flex">
+          {groupTabs.map((tab) => renderTab(tab, 'menu'))}
+        </div>
+      </details>
+    );
+  };
 
   return (
     <div className="border-border-theme mb-6 border-b">
       <nav
-        className="flex flex-wrap items-center gap-1"
+        className="flex flex-wrap items-center gap-1 pb-2"
         role="navigation"
         aria-label="Campaign sections"
       >
-        {tabs.map(renderTab)}
+        {tabs.map((tab) => renderTab(tab))}
 
         {/* "Bays" group — visually separated, semantically labelled. */}
-        <span
-          className="border-border-theme-subtle text-text-theme-secondary ml-2 border-l pl-3 text-xs font-semibold tracking-wider uppercase"
-          data-testid="campaign-nav-bays-group"
-        >
-          Bays
-        </span>
-        <div
-          className="flex flex-wrap items-center gap-1"
-          role="group"
-          aria-label="Bays"
-        >
-          {bayTabs.map(renderTab)}
-        </div>
+        {renderTabGroup('Bays', 'campaign-nav-bays-group', bayTabs)}
 
         {/* "Command" group — visually separated, semantically labelled. */}
-        <span
-          className="border-border-theme-subtle text-text-theme-secondary ml-2 border-l pl-3 text-xs font-semibold tracking-wider uppercase"
-          data-testid="campaign-nav-command-group"
-        >
-          Command
-        </span>
-        <div
-          className="flex flex-wrap items-center gap-1"
-          role="group"
-          aria-label="Command"
-        >
-          {commandTabs.map(renderTab)}
-        </div>
+        {renderTabGroup('Command', 'campaign-nav-command-group', commandTabs)}
 
         {/*
          * "Co-op session" badge — only rendered when a coopSession is set

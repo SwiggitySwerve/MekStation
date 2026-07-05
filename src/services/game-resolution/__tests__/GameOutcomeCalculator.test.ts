@@ -268,6 +268,9 @@ describe('GameOutcomeCalculator', () => {
       expect(outcome.reason).toBe('turn_limit');
       expect(outcome.playerUnitsSurviving).toBe(2);
       expect(outcome.opponentUnitsSurviving).toBe(1);
+      expect(outcome.turnsPlayed).toBe(state.turn);
+      expect(outcome.playerDamageDealt).toBe(300);
+      expect(outcome.opponentDamageDealt).toBe(200);
     });
 
     it('should handle turn limit with opponent advantage (damage delta beyond 5%)', () => {
@@ -349,6 +352,33 @@ describe('GameOutcomeCalculator', () => {
       expect(outcome.playerUnitsDestroyed).toBe(1);
       expect(outcome.opponentUnitsSurviving).toBe(0);
       expect(outcome.opponentUnitsDestroyed).toBe(2);
+    });
+
+    it('does not label an early non-elimination adjudication as turn limit', () => {
+      const state = createMockState(
+        [
+          { id: 'p1', destroyed: false },
+          { id: 'p2', destroyed: false },
+        ],
+        [{ id: 'o1', destroyed: false }],
+        4,
+      );
+      const config = createMockConfig(9);
+      const events: IGameEvent[] = [
+        makeDamageEvent('o1', 12),
+        makeDamageEvent('p1', 8),
+      ];
+      const input = createMockInput(state, config, events);
+
+      const outcome = calculateGameOutcome(input);
+
+      expect(outcome.reason).toBe('objective');
+      expect(outcome.reason).not.toBe('turn_limit');
+      expect(outcome.turnsPlayed).toBe(4);
+      expect(outcome.playerUnitsDestroyed).toBe(0);
+      expect(outcome.opponentUnitsDestroyed).toBe(0);
+      expect(outcome.playerDamageDealt).toBe(12);
+      expect(outcome.opponentDamageDealt).toBe(8);
     });
   });
 

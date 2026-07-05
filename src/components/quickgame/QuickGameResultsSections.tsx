@@ -3,9 +3,9 @@
  * Extracted sections: ResultBanner, BattleSummary, UnitStatusRow, TimelineEventRow.
  */
 
-import { useState } from 'react';
+import type React from 'react';
 
-import type { IGameOutcome, ICombatStats } from '@/services/game-resolution';
+import type { ICombatStats, IGameOutcome } from '@/services/game-resolution';
 import type { IDamageAssessment } from '@/services/game-resolution/DamageCalculator';
 import type { IQuickGameUnit } from '@/types/quickgame/QuickGameInterfaces';
 import type { IKeyMoment } from '@/types/simulation-viewer/IKeyMoment';
@@ -15,6 +15,12 @@ import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 import { GamePhase } from '@/types/gameplay';
 import { projectUnitPerformance } from '@/utils/gameplay/combatStatistics';
 
+import { KeyMomentsCard } from './QuickGameKeyMoments';
+import {
+  buildKeyMomentFallback,
+  buildResultExplanation,
+  ResultExplanationCard,
+} from './QuickGameResultExplanation';
 import { EVENT_LABELS, PHASE_LABELS } from './quickGameResults.helpers';
 
 // =============================================================================
@@ -24,11 +30,15 @@ import { EVENT_LABELS, PHASE_LABELS } from './quickGameResults.helpers';
 interface ResultBannerProps {
   winner: 'player' | 'opponent' | 'draw';
   reason: string | null;
+  outcome?: Pick<IGameOutcome, 'description' | 'reason' | 'turnsPlayed'> | null;
+  turnLimit?: number | null;
 }
 
 export function ResultBanner({
   winner,
   reason,
+  outcome,
+  turnLimit,
 }: ResultBannerProps): React.ReactElement {
   const config = {
     player: {
@@ -94,18 +104,50 @@ export function ResultBanner({
   };
 
   const { title, color, textColor, icon } = config[winner];
+  const reasonLabel = formatResultReason({ outcome, reason, turnLimit });
 
   return (
     <div className={`bg-gradient-to-r ${color} rounded-xl p-8 text-center`}>
       <div className={`${textColor} mb-4 flex justify-center`}>{icon}</div>
       <h2 className={`text-3xl font-bold ${textColor} mb-2`}>{title}</h2>
-      {reason && (
-        <p className={`${textColor} capitalize opacity-80`}>
-          {reason.replace(/_/g, ' ')}
-        </p>
+      {reasonLabel && (
+        <p className={`${textColor} opacity-80`}>{reasonLabel}</p>
       )}
     </div>
   );
+}
+
+function formatResultReason({
+  outcome,
+  reason,
+  turnLimit,
+}: {
+  readonly outcome:
+    | Pick<IGameOutcome, 'description' | 'reason' | 'turnsPlayed'>
+    | null
+    | undefined;
+  readonly reason: string | null;
+  readonly turnLimit: number | null | undefined;
+}): string | null {
+  const effectiveReason = outcome?.reason ?? reason;
+  if (!effectiveReason) return null;
+
+  if (effectiveReason === 'turn_limit') {
+    const turnsPlayed = outcome?.turnsPlayed;
+    if (typeof turnsPlayed === 'number' && turnLimit && turnLimit > 0) {
+      return `Turn limit reached (${turnsPlayed}/${turnLimit})`;
+    }
+    if (typeof turnsPlayed === 'number') {
+      return `Turn limit reached (${turnsPlayed})`;
+    }
+    return 'Turn limit reached';
+  }
+
+  if (outcome) {
+    return outcome.description;
+  }
+
+  return effectiveReason.replace(/_/g, ' ');
 }
 
 // =============================================================================
@@ -124,16 +166,16 @@ export function BattleSummary({
   keyMoments,
 }: BattleSummaryProps): React.ReactElement {
   const game = useQuickGameSelector((state) => state.game);
-  const [showLowerTiers, setShowLowerTiers] = useState(false);
 
   if (!game) return <></>;
 
-  const tier1Moments = keyMoments.filter((m) => m.tier === 1);
-  const tier2Moments = keyMoments.filter((m) => m.tier === 2);
-  const tier3Moments = keyMoments.filter((m) => m.tier === 3);
+  const resultExplanation = buildResultExplanation(game, outcome);
+  const keyMomentFallback = buildKeyMomentFallback(game, outcome);
 
   return (
     <div className="space-y-4">
+      <ResultExplanationCard explanation={resultExplanation} />
+
       <Card>
         <div className="border-b border-gray-700 p-4">
           <h3 className="font-medium text-white">Battle Statistics</h3>
@@ -202,84 +244,10 @@ export function BattleSummary({
         </div>
       </Card>
 
-      {keyMoments.length > 0 && (
-        <Card>
-          <div className="border-b border-gray-700 p-4">
-            <h3 className="font-medium text-white">Key Moments</h3>
-          </div>
-          <div className="space-y-2 p-4">
-            {tier1Moments.map((moment) => (
-              <div
-                key={moment.id}
-                className="rounded-lg border border-amber-700/40 bg-amber-900/20 p-3"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="rounded bg-amber-600 px-1.5 py-0.5 text-xs font-bold text-white">
-                    T1
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    Turn {moment.turn}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm text-white">{moment.description}</p>
-              </div>
-            ))}
-
-            {(tier2Moments.length > 0 || tier3Moments.length > 0) && (
-              <>
-                {showLowerTiers ? (
-                  <>
-                    {tier2Moments.map((moment) => (
-                      <div
-                        key={moment.id}
-                        className="rounded-lg border border-gray-700/50 bg-gray-800/30 p-3"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="rounded bg-gray-600 px-1.5 py-0.5 text-xs font-bold text-white">
-                            T2
-                          </span>
-                          <span className="text-xs text-gray-400">
-                            Turn {moment.turn}
-                          </span>
-                        </div>
-                        <p className="mt-1 text-sm text-gray-300">
-                          {moment.description}
-                        </p>
-                      </div>
-                    ))}
-                    {tier3Moments.map((moment) => (
-                      <div
-                        key={moment.id}
-                        className="rounded-lg border border-gray-700/30 bg-gray-800/20 p-2"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="rounded bg-gray-700 px-1.5 py-0.5 text-xs text-gray-300">
-                            T3
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            Turn {moment.turn}
-                          </span>
-                          <span className="text-xs text-gray-400">
-                            {moment.description}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </>
-                ) : (
-                  <button
-                    onClick={() => setShowLowerTiers(true)}
-                    className="text-xs text-gray-400 underline hover:text-gray-300"
-                  >
-                    Show {tier2Moments.length + tier3Moments.length} more
-                    moments
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-        </Card>
-      )}
+      <KeyMomentsCard
+        keyMoments={keyMoments}
+        emptyStateDetail={keyMomentFallback}
+      />
     </div>
   );
 }

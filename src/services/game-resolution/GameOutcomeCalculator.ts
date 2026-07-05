@@ -48,6 +48,8 @@ export interface IGameOutcome {
   readonly opponentUnitsDestroyed: number;
   readonly playerUnitsSurviving: number;
   readonly opponentUnitsSurviving: number;
+  readonly playerDamageDealt: number;
+  readonly opponentDamageDealt: number;
   readonly turnsPlayed: number;
   readonly durationMs: number;
 }
@@ -273,6 +275,10 @@ export function calculateGameOutcome(
   const opponentDestroyed = countDestroyedUnits(state, GameSide.Opponent);
   const playerEliminated = playerSurviving === 0;
   const opponentEliminated = opponentSurviving === 0;
+  const { playerDamageDealt, opponentDamageDealt } = sumDamageBySide(
+    events,
+    state.units,
+  );
 
   // Objective wins are evaluated before destruction and turn-limit paths.
   // Markerless destroy scenarios fall through to the richer elimination labels.
@@ -298,6 +304,8 @@ export function calculateGameOutcome(
     opponentUnitsDestroyed: opponentDestroyed,
     playerUnitsSurviving: playerSurviving,
     opponentUnitsSurviving: opponentSurviving,
+    playerDamageDealt,
+    opponentDamageDealt,
     turnsPlayed: state.turn,
     durationMs,
   };

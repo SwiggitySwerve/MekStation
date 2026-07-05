@@ -1,8 +1,11 @@
 import React from 'react';
 
+import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { InteractivePhase } from '@/stores/useGameplayStore';
 import type {
+  GameSide,
   ITacticalCommandContext,
+  IUnitGameState,
   TacticalActionHandler,
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
@@ -11,12 +14,15 @@ import type { IAttackComposerContext } from './AttackIntentComposer';
 import type { IMovementComposerContext } from './MovementIntentComposer';
 
 import { ActionBar } from './ActionBar';
+import { WithdrawalTrailingActions } from './GameplayLayout.sections';
 import {
   TacticalActionDock,
   type ICommandPreviewInputs,
   type IGmTacticalInterventionSurface,
 } from './TacticalActionDock';
 import { ShellSlot } from './TacticalCommandShell';
+
+const INTERACTIVE_SESSION_SUPPRESSED_COMMANDS = ['utility.concede'] as const;
 
 export function GameplayActionDockSlot({
   actionContext,
@@ -29,6 +35,10 @@ export function GameplayActionDockSlot({
   interactivePhase,
   isPlayerTurn,
   canUndo,
+  interactiveSession,
+  sessionId,
+  playerSide,
+  selectedUnit,
 }: {
   readonly actionContext: ITacticalCommandContext;
   readonly shellMode: ShellMode;
@@ -40,6 +50,10 @@ export function GameplayActionDockSlot({
   readonly interactivePhase: InteractivePhase | undefined;
   readonly isPlayerTurn: boolean;
   readonly canUndo: boolean;
+  readonly interactiveSession: InteractiveSession | undefined;
+  readonly sessionId: string;
+  readonly playerSide: GameSide;
+  readonly selectedUnit: IUnitGameState | null | undefined;
 }): React.ReactElement {
   return (
     <ShellSlot id="bottom-dock" ownerId="TacticalActionDock">
@@ -51,10 +65,26 @@ export function GameplayActionDockSlot({
         previewInputs={commandPreviewInputs}
         intentComposer={composerDockContext}
         attackComposer={attackComposerContext}
+        suppressCommandIds={
+          interactiveSession
+            ? INTERACTIVE_SESSION_SUPPRESSED_COMMANDS
+            : undefined
+        }
         infoText={
           interactivePhase
             ? formatInteractivePhaseLabel(interactivePhase)
             : undefined
+        }
+        trailingActions={
+          interactiveSession ? (
+            <WithdrawalTrailingActions
+              interactiveSession={interactiveSession}
+              sessionId={sessionId}
+              playerSide={playerSide}
+              selectedUnit={selectedUnit}
+              isPlayerTurn={isPlayerTurn}
+            />
+          ) : undefined
         }
       />
       <div className="hidden" data-testid="legacy-action-bar-mount">

@@ -21,14 +21,14 @@ export default function CompendiumPage(): React.ReactElement {
 
   // Header actions with search
   const headerActions = (
-    <div className="relative">
+    <div className="relative w-full sm:w-auto">
       <SearchIcon className="text-text-theme-secondary absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
       <input
         type="text"
         placeholder="Search..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className="bg-surface-base/50 border-border-theme-subtle text-text-theme-primary placeholder-text-theme-secondary focus:border-accent w-48 rounded-lg border py-2 pr-4 pl-9 text-sm transition-colors focus:outline-none"
+        className="bg-surface-base/50 border-border-theme-subtle text-text-theme-primary placeholder-text-theme-secondary focus:border-accent w-full min-w-0 rounded-lg border py-2 pr-4 pl-9 text-sm transition-colors focus:outline-none sm:w-48"
         data-testid="compendium-search"
       />
     </div>

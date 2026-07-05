@@ -6,7 +6,11 @@ import type {
   IWeaponStatus,
 } from '@/types/gameplay';
 
-import { unitStateToToken } from '@/lib/gameplay/unitStateToToken';
+import {
+  unitStateToToken,
+  type IFogProjection,
+  type IUnitStateToTokenFlags,
+} from '@/lib/gameplay/unitStateToToken';
 import { GamePhase, GameSide } from '@/types/gameplay';
 import { canPlayerSeeUnit } from '@/utils/gameplay/visibility';
 
@@ -44,7 +48,14 @@ export function buildEventWeaponLookup(
   return lookup;
 }
 
-export function buildGameplayTokens(params: {
+interface ITokenVisibility {
+  readonly isHidden: boolean;
+  readonly isOwnedSide: boolean;
+  readonly isVisibleEnemy: boolean;
+  readonly canBeTargetedByViewer: boolean;
+}
+
+export interface IBuildGameplayTokensParams {
   readonly currentState: IGameSession['currentState'];
   readonly config: IGameSession['config'];
   readonly session: IGameSession;
@@ -82,77 +93,134 @@ export function buildGameplayTokens(params: {
    * callers without a memory map keep the old live-position fallback.
    */
   readonly fogContactMemory?: Map<string, IHexCoordinate>;
-}): IUnitToken[] {
+}
+
+function deriveTokenVisibility(
+  params: IBuildGameplayTokensParams,
+  unitId: string,
+  unitInfo: { readonly name: string; readonly side: GameSide },
+  state: IGameSession['currentState']['units'][string],
+): ITokenVisibility {
+  const isFogActive = params.config.fogOfWar === true;
+  const isOwnedSide = unitInfo.side === params.playerSide;
+  const isVisibleEnemy = canPlayerSeeUnit(
+    params.localFogPlayerId,
+    unitId,
+    params.visibilityState,
+  );
+  const isHidden = isFogActive && !isOwnedSide && !isVisibleEnemy;
+  return {
+    isHidden,
+    isOwnedSide,
+    isVisibleEnemy,
+    canBeTargetedByViewer: !isHidden && !state.destroyed,
+  };
+}
+
+function recordVisibleFogContact(
+  params: IBuildGameplayTokensParams,
+  unitId: string,
+  state: IGameSession['currentState']['units'][string],
+  visibility: ITokenVisibility,
+): void {
+  if (
+    params.config.fogOfWar === true &&
+    !visibility.isOwnedSide &&
+    visibility.isVisibleEnemy
+  ) {
+    params.fogContactMemory?.set(unitId, state.position);
+  }
+}
+
+function buildFogProjection(
+  params: IBuildGameplayTokensParams,
+  unitId: string,
+  state: IGameSession['currentState']['units'][string],
+  visibility: ITokenVisibility,
+): IFogProjection {
+  if (params.config.fogOfWar !== true) return {};
+  if (visibility.isOwnedSide) return { sensorRange: DEFAULT_FOG_SENSOR_RANGE };
+  if (visibility.isVisibleEnemy) return {};
+  return {
+    fogStatus: 'lastKnown',
+    lastKnownPosition: params.fogContactMemory?.get(unitId) ?? state.position,
+  };
+}
+
+function isActiveTokenTarget(
+  params: IBuildGameplayTokensParams,
+  unitId: string,
+  canBeTargetedByViewer: boolean,
+): boolean {
+  if (!canBeTargetedByViewer) return false;
+  if (params.currentState.phase === GamePhase.WeaponAttack) {
+    return params.activeTargetId !== null && unitId === params.activeTargetId;
+  }
+  if (params.currentState.phase === GamePhase.PhysicalAttack) {
+    return (
+      params.activePhysicalTargetId !== null &&
+      unitId === params.activePhysicalTargetId
+    );
+  }
+  return false;
+}
+
+function buildTokenFlags(
+  params: IBuildGameplayTokensParams,
+  unitId: string,
+  unitInfo: { readonly name: string; readonly side: GameSide },
+  visibility: ITokenVisibility,
+): IUnitStateToTokenFlags {
+  const isValidTarget =
+    visibility.canBeTargetedByViewer &&
+    (params.validTargetIds.includes(unitId) ||
+      params.validPhysicalTargetIds?.includes(unitId));
+  const isSecondaryTarget =
+    visibility.canBeTargetedByViewer &&
+    params.currentState.phase === GamePhase.WeaponAttack &&
+    (params.secondaryTargetIds?.includes(unitId) ?? false);
+  const attackInfeasibleReason =
+    visibility.canBeTargetedByViewer && unitInfo.side !== params.playerSide
+      ? params.attackInfeasibleReasonByUnitId?.[unitId]
+      : undefined;
+
+  return {
+    isSelected: unitId === params.selectedUnitId,
+    isValidTarget,
+    isActiveTarget: isActiveTokenTarget(
+      params,
+      unitId,
+      visibility.canBeTargetedByViewer,
+    ),
+    isSecondaryTarget,
+    attackInfeasibleReason,
+  };
+}
+
+export function buildGameplayTokens(
+  params: IBuildGameplayTokensParams,
+): IUnitToken[] {
   return Object.entries(params.currentState.units).map(([unitId, state]) => {
     const unitInfo = params.unitInfoLookup[unitId] || {
       name: 'Unknown',
       side: GameSide.Player,
     };
-    const isSelected = unitId === params.selectedUnitId;
-    const isFogActive = params.config.fogOfWar === true;
-    const isOwnedSide = unitInfo.side === params.playerSide;
-    const isVisibleEnemy = canPlayerSeeUnit(
-      params.localFogPlayerId,
-      unitId,
-      params.visibilityState,
-    );
-    const isHidden = isFogActive && !isOwnedSide && !isVisibleEnemy;
-    const canBeTargetedByViewer = !isHidden && !state.destroyed;
-    const isValidTarget =
-      canBeTargetedByViewer &&
-      (params.validTargetIds.includes(unitId) ||
-        params.validPhysicalTargetIds?.includes(unitId));
-    const isActiveTarget =
-      canBeTargetedByViewer &&
-      ((params.currentState.phase === GamePhase.WeaponAttack &&
-        params.activeTargetId !== null &&
-        unitId === params.activeTargetId) ||
-        (params.currentState.phase === GamePhase.PhysicalAttack &&
-          params.activePhysicalTargetId !== null &&
-          unitId === params.activePhysicalTargetId));
+    const visibility = deriveTokenVisibility(params, unitId, unitInfo, state);
     // Fog contact memory (audit 2026-06-09 G, W5.1a): record the
     // position of every currently-visible fogged enemy; when the
     // contact is later hidden, freeze the ghost at the last OBSERVED
     // hex. A never-observed contact has no memory entry and falls
     // back to its live position (matches the legacy deployment-intel
     // behavior and callers that pass no memory map).
-    if (isFogActive && !isOwnedSide && isVisibleEnemy) {
-      params.fogContactMemory?.set(unitId, state.position);
-    }
-    const fogProjection = isFogActive
-      ? isOwnedSide
-        ? { sensorRange: DEFAULT_FOG_SENSOR_RANGE }
-        : isVisibleEnemy
-          ? {}
-          : {
-              fogStatus: 'lastKnown' as const,
-              lastKnownPosition:
-                params.fogContactMemory?.get(unitId) ?? state.position,
-            }
-      : {};
-
-    const isSecondaryTarget =
-      canBeTargetedByViewer &&
-      params.currentState.phase === GamePhase.WeaponAttack &&
-      (params.secondaryTargetIds?.includes(unitId) ?? false);
-    const attackInfeasibleReason =
-      canBeTargetedByViewer && unitInfo.side !== params.playerSide
-        ? params.attackInfeasibleReasonByUnitId?.[unitId]
-        : undefined;
+    recordVisibleFogContact(params, unitId, state, visibility);
 
     return unitStateToToken(
       unitId,
       state,
       unitInfo,
-      {
-        isSelected,
-        isValidTarget,
-        isActiveTarget,
-        isSecondaryTarget,
-        attackInfeasibleReason,
-      },
-      fogProjection,
-      isHidden,
+      buildTokenFlags(params, unitId, unitInfo, visibility),
+      buildFogProjection(params, unitId, state, visibility),
+      visibility.isHidden,
     );
   });
 }

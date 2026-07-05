@@ -57,6 +57,3 @@ export * from './BattleArmorCombatInterfaces';
 export type { IAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
 export type { IInfantryCombatState } from '@/utils/gameplay/infantry/state';
 export type { IProtoMechCombatState } from '@/utils/gameplay/protomech/state';
-
-// Tactical Unit Inspector projection types (Wave 7.2 — add-tactical-unit-inspector-drawers)
-export * from './TacticalInspectorInterfaces';

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
+import { navigateToCampaignCustomizerReturn } from '@/lib/campaign/customizer/campaignCustomizerNavigation';
 import { buildCampaignEditorUnitState } from '@/lib/campaign/customizer/campaignCustomizerSession';
 import { DEFAULT_UNIT_CONFIGURATION } from '@/lib/campaign/refit/unitConfiguration';
 import { commitRefitOrder } from '@/stores/campaign/campaignRefitActions';
@@ -19,6 +20,10 @@ jest.mock('next/router', () => ({
   }),
 }));
 
+jest.mock('@/lib/campaign/customizer/campaignCustomizerNavigation', () => ({
+  navigateToCampaignCustomizerReturn: jest.fn(),
+}));
+
 jest.mock('@/stores/campaign/campaignRefitActions', () => ({
   commitRefitOrder: jest.fn(),
 }));
@@ -26,6 +31,10 @@ jest.mock('@/stores/campaign/campaignRefitActions', () => ({
 const mockCommitRefitOrder = commitRefitOrder as jest.MockedFunction<
   typeof commitRefitOrder
 >;
+const mockNavigateToCampaignCustomizerReturn =
+  navigateToCampaignCustomizerReturn as jest.MockedFunction<
+    typeof navigateToCampaignCustomizerReturn
+  >;
 
 function renderCommandBar(options?: {
   readonly invalid?: boolean;
@@ -84,6 +93,7 @@ function renderCommandBar(options?: {
 describe('CampaignRefitCommandBar', () => {
   beforeEach(() => {
     mockPush.mockReset();
+    mockNavigateToCampaignCustomizerReturn.mockReset();
     mockCommitRefitOrder.mockReset().mockReturnValue({
       applied: true,
       order: {
@@ -132,7 +142,8 @@ describe('CampaignRefitCommandBar', () => {
         currentConfiguration: DEFAULT_UNIT_CONFIGURATION,
       }),
     );
-    expect(mockPush).toHaveBeenCalledWith(
+    expect(mockNavigateToCampaignCustomizerReturn).toHaveBeenCalledWith(
+      expect.objectContaining({ push: mockPush }),
       '/gameplay/campaigns/campaign-1/missions/mission-1/launch?unit=campaign-unit-atlas&refresh=deployment-validation&customizerResult=saved&refitOrderId=refit-1',
     );
   });
@@ -151,7 +162,7 @@ describe('CampaignRefitCommandBar', () => {
     fireEvent.click(screen.getByTestId('campaign-refit-save'));
 
     expect(mockCommitRefitOrder).not.toHaveBeenCalled();
-    expect(mockPush).not.toHaveBeenCalled();
+    expect(mockNavigateToCampaignCustomizerReturn).not.toHaveBeenCalled();
   });
 
   it('blocks invalid refit targets with tab-level resolution controls', () => {

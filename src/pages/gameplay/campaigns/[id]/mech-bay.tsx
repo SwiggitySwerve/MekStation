@@ -8,7 +8,6 @@
  * @spec openspec/changes/add-campaign-bay-ui/specs/campaign-bay-ui/spec.md
  */
 
-import { useRouter } from 'next/router';
 import React from 'react';
 
 import { MechBay } from '@/components/campaign/bays/MechBay';
@@ -18,6 +17,7 @@ import * as CampaignShell from '@/pages-modules/gameplay/campaigns/campaignPageS
 import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { generateUUID } from '@/utils/uuid';
 
 const MECH_BAY_LOADING = {
   title: 'Mech Bay',
@@ -26,7 +26,6 @@ const MECH_BAY_LOADING = {
 } as const;
 
 export default function MechBayPage(): React.ReactElement {
-  const router = useRouter();
   const shell = CampaignShell.useCampaignPageShell('Mech Bay');
   const units = useCampaignRosterStore((state) => state.units);
   const pilots = useCampaignRosterStore((state) => state.pilots);
@@ -87,7 +86,7 @@ export default function MechBayPage(): React.ReactElement {
             repairBay={repairBay}
             campaignId={campaign.id}
             onLaunchRefit={(unitId) => {
-              void router.push(
+              window.location.assign(
                 buildCampaignCustomizerHref({
                   campaignId: campaign.id,
                   unitId,
@@ -97,6 +96,7 @@ export default function MechBayPage(): React.ReactElement {
                   budget: campaign.finances.balance.amount,
                   rulesLevel: RulesLevel.STANDARD,
                   refitConstraints: 'campaign-owned-refit',
+                  editorUnitId: generateUUID(),
                 }),
               );
             }}

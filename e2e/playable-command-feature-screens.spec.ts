@@ -453,7 +453,7 @@ async function captureMissionReadinessScreens(
     await assertNoMekStationLoading(page);
     await expect(page.getByTestId('mission-readiness-panel')).toBeVisible();
     await expect(page.locator('body')).toContainText(
-      'Mission Readiness Evidence',
+      'E2E Customizer Handoff Evidence',
     );
     await expect(page.locator('body')).not.toContainText('mission-alpha');
     await expect(page.locator('body')).not.toContainText(
@@ -480,7 +480,11 @@ async function captureMissionReadinessScreens(
     await page
       .getByTestId(`mission-readiness-customize-${ATLAS_AS7_D_E2E_UNIT_ID}`)
       .click();
-    await expect(page.getByTestId('campaign-refit-command-bar')).toBeVisible();
+    await expect(page).toHaveURL(/\/customizer.*returnTo=mission-readiness/);
+    await assertNoMekStationLoading(page);
+    await expect(page.getByTestId('campaign-refit-command-bar')).toBeVisible({
+      timeout: 20_000,
+    });
     await expectCanonicalAtlasCustomizerStats(page);
     await expect(page.getByTestId('campaign-refit-save')).toBeDisabled();
     await expect(page.getByTestId('campaign-refit-no-delta')).toContainText(
@@ -845,10 +849,12 @@ async function captureTacticalCommandScreen(
   await expect(page.getByTestId('command-btn-movement.evade')).toHaveCount(0);
   await expect(page.getByTestId('posture-action-EVADE')).toContainText('(E)');
   await expect(page.getByTestId('command-group-utility-danger')).toBeVisible();
-  await expect(page.getByTestId('command-btn-utility.concede')).toHaveAttribute(
+  await expect(page.getByTestId('command-btn-utility.eject')).toHaveAttribute(
     'data-command-danger',
     'true',
   );
+  await expect(page.getByTestId('command-btn-utility.concede')).toHaveCount(0);
+  await expect(page.getByTestId('concede-button')).toBeVisible();
   await expect(page.getByTestId('tactical-action-dock')).not.toContainText(
     'Interactive:',
   );

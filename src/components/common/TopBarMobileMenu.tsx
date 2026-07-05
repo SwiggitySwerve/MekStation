@@ -60,6 +60,7 @@ export function MobileMenu({
         <Link
           key={item.href}
           href={item.href}
+          prefetch={item.prefetch}
           className={`flex items-center gap-3 px-4 py-3 text-sm transition-colors duration-150 ${
             isPathActive(item.href)
               ? 'text-accent bg-accent/10'

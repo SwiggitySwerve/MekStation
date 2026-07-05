@@ -73,6 +73,8 @@ export interface TacticalActionDockProps {
   readonly onAction: TacticalActionHandler;
   /** Optional content rendered in the trailing region (Concede, etc). */
   readonly trailingActions?: React.ReactNode;
+  /** Optional command ids hidden because a host slot provides that action. */
+  readonly suppressCommandIds?: readonly string[];
   /** Optional informational text shown in the trailing region. */
   readonly infoText?: string;
   /** Rules-backed projection inputs for the active command preview. */
@@ -267,6 +269,7 @@ export function TacticalActionDock({
   shellMode,
   onAction,
   trailingActions,
+  suppressCommandIds,
   infoText,
   previewInputs,
   gmIntervention,
@@ -329,9 +332,14 @@ export function TacticalActionDock({
     previewInputs?.physicalTargetUnitId,
   ]);
   const commands = useCommandRegistry(effectiveCtx, shellMode);
-  const groups = groupCommandsByCategory(commands);
+  const visibleCommands = useMemo(() => {
+    if (!suppressCommandIds?.length) return commands;
+    const suppressed = new Set(suppressCommandIds);
+    return commands.filter((command) => !suppressed.has(command.id));
+  }, [commands, suppressCommandIds]);
+  const groups = groupCommandsByCategory(visibleCommands);
   const previewCommand = previewCommandForContext({
-    commands,
+    commands: visibleCommands,
     ctx: effectiveCtx,
     previewInputs,
   });

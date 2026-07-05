@@ -29,6 +29,10 @@ import type { IAdaptedUnit } from './types';
 
 import { toMovementCapability } from './GameEngine.helpers';
 
+type MutableGameUnitPatch = {
+  -readonly [K in keyof IGameUnit]?: IGameUnit[K];
+};
+
 /**
  * The five per-unit lookup maps the engine caches at session start so
  * the resolvers and AI driver can read unit attributes without
@@ -106,69 +110,89 @@ export function gameUnitsWithAdaptedCombatSeeds(
     const adapted = adaptedByUnit.get(unit.id);
     if (!adapted) return unit;
 
-    const movementMode = adapted.movementMode;
-    const gyroType = adapted.gyroType;
-    const vehicleCriticalAvailability = vehicleCriticalAvailabilityFromWeapons(
-      adapted.weapons,
-    );
-    const hasMovementModeUpdate =
-      movementMode !== undefined && unit.movementMode !== movementMode;
-    const hasGyroTypeUpdate =
-      gyroType !== undefined && unit.gyroType !== gyroType;
-    const hasVehicleCriticalAvailabilityUpdate =
-      unit.vehicleInit !== undefined &&
-      vehicleCriticalAvailability !== undefined;
-    // Adapted armor/structure at session start ARE the construction maxima
-    // (the adapter extracts catalog allocation, minus explicit scenario
-    // initial damage). Explicit producer-supplied values win; empty adapted
-    // maps (synthetic fixtures) splice nothing so legacy behavior holds.
-    const hasArmorSeedUpdate =
-      unit.armorByLocation === undefined &&
-      Object.keys(adapted.armor ?? {}).length > 0;
-    const hasStructureSeedUpdate =
-      unit.structureByLocation === undefined &&
-      Object.keys(adapted.structure ?? {}).length > 0;
-    const hasHeatSinkUpdate =
-      unit.heatSinks === undefined && adapted.heatSinks !== undefined;
-
-    return hasMovementModeUpdate ||
-      hasGyroTypeUpdate ||
-      hasVehicleCriticalAvailabilityUpdate ||
-      hasArmorSeedUpdate ||
-      hasStructureSeedUpdate ||
-      hasHeatSinkUpdate
-      ? {
-          ...unit,
-          ...(hasMovementModeUpdate ? { movementMode } : {}),
-          ...(hasGyroTypeUpdate ? { gyroType } : {}),
-          ...(hasArmorSeedUpdate
-            ? { armorByLocation: { ...adapted.armor } }
-            : {}),
-          ...(hasStructureSeedUpdate
-            ? { structureByLocation: { ...adapted.structure } }
-            : {}),
-          ...(hasHeatSinkUpdate
-            ? {
-                heatSinks: adapted.heatSinks,
-                ...(adapted.heatSinkType
-                  ? { heatSinkType: adapted.heatSinkType }
-                  : {}),
-              }
-            : {}),
-          ...(hasVehicleCriticalAvailabilityUpdate
-            ? {
-                vehicleInit: {
-                  ...unit.vehicleInit,
-                  criticalAvailability: mergeVehicleCriticalAvailability(
-                    unit.vehicleInit.criticalAvailability,
-                    vehicleCriticalAvailability,
-                  ),
-                },
-              }
-            : {}),
-        }
-      : unit;
+    const patch = adaptedCombatSeedPatch(unit, adapted);
+    return patch ? { ...unit, ...patch } : unit;
   });
+}
+
+function adaptedCombatSeedPatch(
+  unit: IGameUnit,
+  adapted: IAdaptedUnit,
+): MutableGameUnitPatch | null {
+  const patch: MutableGameUnitPatch = {};
+
+  if (
+    adapted.movementMode !== undefined &&
+    unit.movementMode !== adapted.movementMode
+  ) {
+    patch.movementMode = adapted.movementMode;
+  }
+  if (adapted.gyroType !== undefined && unit.gyroType !== adapted.gyroType) {
+    patch.gyroType = adapted.gyroType;
+  }
+  appendAdaptedArmorSeeds(patch, unit, adapted);
+  appendAdaptedHeatSinkSeeds(patch, unit, adapted);
+  appendVehicleCriticalAvailabilitySeed(patch, unit, adapted);
+
+  return Object.keys(patch).length > 0 ? patch : null;
+}
+
+function appendAdaptedArmorSeeds(
+  patch: MutableGameUnitPatch,
+  unit: IGameUnit,
+  adapted: IAdaptedUnit,
+): void {
+  // Adapted armor/structure at session start ARE the construction maxima
+  // (the adapter extracts catalog allocation, minus explicit scenario
+  // initial damage). Explicit producer-supplied values win; empty adapted
+  // maps (synthetic fixtures) splice nothing so legacy behavior holds.
+  if (
+    unit.armorByLocation === undefined &&
+    Object.keys(adapted.armor ?? {}).length > 0
+  ) {
+    patch.armorByLocation = { ...adapted.armor };
+  }
+  if (
+    unit.structureByLocation === undefined &&
+    Object.keys(adapted.structure ?? {}).length > 0
+  ) {
+    patch.structureByLocation = { ...adapted.structure };
+  }
+}
+
+function appendAdaptedHeatSinkSeeds(
+  patch: MutableGameUnitPatch,
+  unit: IGameUnit,
+  adapted: IAdaptedUnit,
+): void {
+  if (unit.heatSinks === undefined && adapted.heatSinks !== undefined) {
+    patch.heatSinks = adapted.heatSinks;
+    if (adapted.heatSinkType) patch.heatSinkType = adapted.heatSinkType;
+  }
+}
+
+function appendVehicleCriticalAvailabilitySeed(
+  patch: MutableGameUnitPatch,
+  unit: IGameUnit,
+  adapted: IAdaptedUnit,
+): void {
+  const vehicleCriticalAvailability = vehicleCriticalAvailabilityFromWeapons(
+    adapted.weapons,
+  );
+  if (
+    unit.vehicleInit === undefined ||
+    vehicleCriticalAvailability === undefined
+  ) {
+    return;
+  }
+
+  patch.vehicleInit = {
+    ...unit.vehicleInit,
+    criticalAvailability: mergeVehicleCriticalAvailability(
+      unit.vehicleInit.criticalAvailability,
+      vehicleCriticalAvailability,
+    ),
+  };
 }
 
 function vehicleCriticalAvailabilityFromWeapons(

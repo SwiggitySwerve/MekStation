@@ -45,7 +45,10 @@ import {
   useCampaignStore,
 } from '@/stores/campaign/useCampaignStore';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
-import { CampaignPreset } from '@/types/campaign/CampaignPreset';
+import {
+  CampaignPreset,
+  PRESET_STARTING_FUNDS,
+} from '@/types/campaign/CampaignPreset';
 
 // =============================================================================
 // Helpers
@@ -101,6 +104,9 @@ describe('CreateCampaignPage — preset selection configures the campaign (D-3)'
     expect(campaign?.options.payForMaintenance).toBe(false);
     expect(campaign?.options.useTaxes).toBe(false);
     expect(campaign?.options.useTurnover).toBe(false);
+    expect(campaign?.options.startingFunds).toBe(
+      PRESET_STARTING_FUNDS[CampaignPreset.CASUAL],
+    );
   });
 
   it('the default Standard preset applies the Standard overrides (not bare defaults)', async () => {
@@ -115,5 +121,11 @@ describe('CreateCampaignPage — preset selection configures the campaign (D-3)'
     expect(campaign?.options.useRoleBasedSalaries).toBe(true);
     expect(campaign?.options.useTaxes).toBe(false);
     expect(campaign?.options.useTurnover).toBe(true);
+    expect(campaign?.options.startingFunds).toBe(
+      PRESET_STARTING_FUNDS[CampaignPreset.STANDARD],
+    );
+    expect(campaign?.finances.balance.amount).toBe(
+      PRESET_STARTING_FUNDS[CampaignPreset.STANDARD],
+    );
   });
 });

@@ -7,6 +7,18 @@ export enum CampaignPreset {
   CUSTOM = 'custom',
 }
 
+export const PRESET_STARTING_FUNDS: Readonly<
+  Record<
+    CampaignPreset.CASUAL | CampaignPreset.STANDARD | CampaignPreset.FULL,
+    number
+  >
+> = Object.freeze({
+  // Placeholder bankrolls until campaign economy tuning is calibrated.
+  [CampaignPreset.CASUAL]: 10_000_000,
+  [CampaignPreset.STANDARD]: 5_000_000,
+  [CampaignPreset.FULL]: 3_000_000,
+});
+
 export interface IPresetDefinition {
   readonly id: CampaignPreset;
   readonly name: string;
@@ -29,6 +41,7 @@ export const PRESET_CASUAL: IPresetDefinition = {
     healingRateMultiplier: 2.0,
     maintenanceCycleDays: 0,
     payForMaintenance: false,
+    startingFunds: PRESET_STARTING_FUNDS[CampaignPreset.CASUAL],
   },
 };
 
@@ -46,6 +59,7 @@ export const PRESET_STANDARD: IPresetDefinition = {
     useTaxes: false,
     useLoanSystem: true,
     turnoverCheckFrequency: 'monthly',
+    startingFunds: PRESET_STARTING_FUNDS[CampaignPreset.STANDARD],
   },
 };
 
@@ -65,6 +79,7 @@ export const PRESET_FULL: IPresetDefinition = {
     turnoverCheckFrequency: 'monthly',
     useAcquisitionSystem: true,
     useFoodAndHousing: true,
+    startingFunds: PRESET_STARTING_FUNDS[CampaignPreset.FULL],
   },
 };
 

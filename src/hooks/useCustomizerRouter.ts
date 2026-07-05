@@ -172,6 +172,28 @@ function appendQuery(path: string, query: CustomizerRouteQuery): string {
   return serialized ? `${path}?${serialized}` : path;
 }
 
+function decodePathSegment(segment: string): string {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+}
+
+function browserAsPath(): string | null {
+  if (typeof window === 'undefined') return null;
+  return `${window.location.pathname}${window.location.search}`;
+}
+
+function parseCustomizerSlugFromPath(
+  asPath: string | undefined,
+): string[] | null {
+  const path = (asPath ?? browserAsPath())?.split('?')[0] ?? '';
+  const segments = path.split('/').filter(Boolean).map(decodePathSegment);
+  if (segments[0] !== 'customizer') return null;
+  return segments.slice(1);
+}
+
 // =============================================================================
 // Hook Implementation
 // =============================================================================
@@ -204,10 +226,13 @@ export function useCustomizerRouter(
   // Parse route parameters
   const params = useMemo((): CustomizerRouteParams => {
     // Handle catch-all route: /customizer/[[...slug]]
+    const parsedPathSlug = parseCustomizerSlugFromPath(router.asPath);
     const { slug } = router.query;
-    const isReady = router.isReady;
+    const routeSlug =
+      slug && Array.isArray(slug) ? slug : (parsedPathSlug ?? []);
+    const isReady = router.isReady || parsedPathSlug !== null;
 
-    if (!slug || !Array.isArray(slug) || slug.length === 0) {
+    if (routeSlug.length === 0) {
       // /customizer - index page (or a not-yet-parsed deep link when
       // `isReady` is false — consumers gate on `isReady` to tell apart).
       return {
@@ -220,8 +245,8 @@ export function useCustomizerRouter(
     }
 
     // /customizer/[unitId] or /customizer/[unitId]/[tabId]
-    const rawUnitId = slug[0];
-    const rawTabId = slug[1];
+    const rawUnitId = routeSlug[0];
+    const rawTabId = routeSlug[1];
 
     const unitId = parseUnitId(rawUnitId);
     const tabId = parseTabId(rawTabId);
@@ -244,7 +269,7 @@ export function useCustomizerRouter(
       isIndex: false,
       isReady,
     };
-  }, [router.query, router.isReady]);
+  }, [router.asPath, router.query, router.isReady]);
 
   // ==========================================================================
   // Navigation Actions

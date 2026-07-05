@@ -18,6 +18,7 @@ import {
   generateContractsWithStanding,
   generateContracts,
   generateAtBContracts,
+  calculateAtBBasePayment,
   RandomFn,
   EMPLOYER_FACTIONS,
 } from '../../contractMarket';
@@ -312,6 +313,36 @@ describe('Contract Market Enhancements', () => {
         expect(c.employerId).not.toBe(c.targetId);
         expect(c.paymentTerms).toBeDefined();
         expect(c.paymentTerms.basePayment.amount).toBeGreaterThan(0);
+      });
+    });
+
+    it('calculates positive deterministic base pay for all 19 AtB contract types', () => {
+      const contractTypes = Object.values(AtBContractType);
+      expect(contractTypes).toHaveLength(19);
+
+      contractTypes.forEach((contractType) => {
+        const durationDays =
+          CONTRACT_TYPE_DEFINITIONS[contractType].durationMonths * 30;
+        const first = calculateAtBBasePayment(contractType, durationDays);
+        const second = calculateAtBBasePayment(contractType, durationDays);
+
+        expect(first.amount).toBeGreaterThan(0);
+        expect(first.amount).toBe(second.amount);
+      });
+    });
+
+    it('generates positive AtB base pay even before a campaign has units', () => {
+      const campaign = createMockCampaign(0);
+      const contracts = generateAtBContracts(
+        campaign,
+        5,
+        0,
+        0,
+        createSeededRandom(42),
+      );
+
+      contracts.forEach((contract) => {
+        expect(contract.paymentTerms.basePayment.amount).toBeGreaterThan(0);
       });
     });
 

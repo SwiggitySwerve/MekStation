@@ -146,13 +146,13 @@ export function MissionReadinessPanel({
                   // the old sky-100-on-10%-tint label washed out inside the
                   // warning card) — but still visually SECONDARY to the
                   // amber 'Assign pilot' remediation link above it.
-                  <Link
+                  <a
                     href={buildCustomizeHref(unit.unitId)}
                     className="mt-2 inline-flex rounded border border-sky-300 bg-sky-500/20 px-2.5 py-1 text-xs font-semibold text-sky-50 hover:bg-sky-500/30"
                     data-testid={`mission-readiness-customize-${unit.unitId}`}
                   >
                     Open refit editor
-                  </Link>
+                  </a>
                 ) : null}
               </span>
             </label>

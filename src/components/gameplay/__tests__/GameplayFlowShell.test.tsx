@@ -52,11 +52,22 @@ describe('GameplayFlowShell', () => {
 });
 
 describe('GameplayHubPage flow shell integration', () => {
-  it('keeps existing gameplay navigation cards while showing the flow shell', () => {
+  const originalE2EMode = process.env.NEXT_PUBLIC_E2E_MODE;
+
+  afterEach(() => {
+    process.env.NEXT_PUBLIC_E2E_MODE = originalE2EMode;
+  });
+
+  it('keeps navigation cards before the QC-only flow shell', () => {
+    process.env.NEXT_PUBLIC_E2E_MODE = 'true';
     render(<GameplayHubPage />);
 
-    expect(screen.getByTestId('gameplay-flow-shell')).toBeInTheDocument();
-    expect(screen.getByText('Quick Game')).toBeInTheDocument();
+    const quickGameLink = screen.getByRole('link', { name: /quick game/i });
+    const flowShell = screen.getByTestId('gameplay-flow-shell');
+
+    expect(quickGameLink.compareDocumentPosition(flowShell)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
     expect(screen.getByText('Pilots')).toBeInTheDocument();
     expect(screen.getByText('Forces')).toBeInTheDocument();
     expect(screen.getByText('Campaigns')).toBeInTheDocument();

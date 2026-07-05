@@ -274,7 +274,10 @@ export class EquipmentBrowserPage extends BasePage {
   async clickEquipment(index: number = 0): Promise<void> {
     const tableRows = this.equipmentTableRows;
     if ((await tableRows.count()) > 0) {
-      await tableRows.nth(index).click();
+      await tableRows
+        .nth(index)
+        .locator('[data-testid^="equipment-table-link-"]')
+        .click();
     } else {
       await this.equipmentCards.nth(index).click();
     }

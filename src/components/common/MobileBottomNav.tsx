@@ -6,6 +6,8 @@ import { useRouter } from 'next/router';
  */
 import React, { ReactElement } from 'react';
 
+import { useMobileSidebarSelector } from '@/stores/useNavigationStore';
+
 import {
   HomeIcon,
   BookIcon,
@@ -55,6 +57,11 @@ const navItems: NavItem[] = [
 
 export function MobileBottomNav(): ReactElement {
   const router = useRouter();
+  const isMobileMenuOpen = useMobileSidebarSelector((state) => state.isOpen);
+
+  if (isMobileMenuOpen) {
+    return <></>;
+  }
 
   const isActive = (item: NavItem): boolean => {
     if (item.href === '/' && router.pathname === '/') {

@@ -4,6 +4,7 @@
  *
  * @spec openspec/changes/add-campaign-system/specs/campaign-system/spec.md
  */
+import Link from 'next/link';
 import { useState } from 'react';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
@@ -13,6 +14,7 @@ import {
   renderPendingCampaignPage,
   useCampaignPageShell,
 } from '@/pages-modules/gameplay/campaigns/campaignPageShell';
+import { formatContractSalvageShare } from '@/pages-modules/gameplay/campaigns/missionContractDisplay';
 import { MissionStatus } from '@/types/campaign/enums';
 import { IMission, IContract } from '@/types/campaign/Mission';
 import { isContract } from '@/types/campaign/Mission';
@@ -22,10 +24,14 @@ import { isContract } from '@/types/campaign/Mission';
 // =============================================================================
 
 interface MissionCardProps {
+  campaignId: string;
   mission: IMission;
 }
 
-function MissionCard({ mission }: MissionCardProps): React.ReactElement {
+export function MissionCard({
+  campaignId,
+  mission,
+}: MissionCardProps): React.ReactElement {
   const getStatusColor = (status: MissionStatus): string => {
     switch (status) {
       case MissionStatus.ACTIVE:
@@ -90,8 +96,9 @@ function MissionCard({ mission }: MissionCardProps): React.ReactElement {
             <div>
               <p className="text-text-theme-secondary">Salvage Rights</p>
               <p className="text-text-theme-primary">
-                {contract.salvageRights} ({contract.paymentTerms.salvagePercent}
-                %)
+                {formatContractSalvageShare(
+                  contract.paymentTerms.salvagePercent,
+                )}
               </p>
             </div>
           </>
@@ -135,6 +142,20 @@ function MissionCard({ mission }: MissionCardProps): React.ReactElement {
               </p>
             </div>
           )}
+        </div>
+      )}
+
+      {mission.status === MissionStatus.ACTIVE && (
+        <div className="border-border-theme mt-4 flex justify-end border-t pt-3">
+          <Link
+            href={`/gameplay/campaigns/${encodeURIComponent(
+              campaignId,
+            )}/missions/${encodeURIComponent(mission.id)}/launch`}
+            className="bg-accent hover:bg-accent/90 rounded px-4 py-2 text-sm font-semibold text-white transition-colors"
+            data-testid={`mission-launch-${mission.id}`}
+          >
+            Launch
+          </Link>
         </div>
       )}
     </Card>
@@ -273,7 +294,11 @@ export default function MissionsPage(): React.ReactElement {
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {filteredMissions.map((mission) => (
-            <MissionCard key={mission.id} mission={mission} />
+            <MissionCard
+              key={mission.id}
+              campaignId={campaign.id}
+              mission={mission}
+            />
           ))}
         </div>
       )}

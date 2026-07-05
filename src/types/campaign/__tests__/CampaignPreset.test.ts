@@ -1,5 +1,6 @@
 import {
   CampaignPreset,
+  PRESET_STARTING_FUNDS,
   PRESET_CASUAL,
   PRESET_STANDARD,
   PRESET_FULL,
@@ -56,6 +57,13 @@ describe('CampaignPreset', () => {
       expect(PRESET_CASUAL.overrides.maintenanceCycleDays).toBe(0);
       expect(PRESET_CASUAL.overrides.payForMaintenance).toBe(false);
     });
+
+    it('should provide a positive starting bankroll', () => {
+      expect(PRESET_CASUAL.overrides.startingFunds).toBe(
+        PRESET_STARTING_FUNDS[CampaignPreset.CASUAL],
+      );
+      expect(PRESET_CASUAL.overrides.startingFunds).toBeGreaterThan(0);
+    });
   });
 
   describe('PRESET_STANDARD', () => {
@@ -70,6 +78,13 @@ describe('CampaignPreset', () => {
     it('should disable taxes', () => {
       expect(PRESET_STANDARD.overrides.useTaxes).toBe(false);
     });
+
+    it('should provide a positive starting bankroll', () => {
+      expect(PRESET_STANDARD.overrides.startingFunds).toBe(
+        PRESET_STARTING_FUNDS[CampaignPreset.STANDARD],
+      );
+      expect(PRESET_STANDARD.overrides.startingFunds).toBeGreaterThan(0);
+    });
   });
 
   describe('PRESET_FULL', () => {
@@ -82,6 +97,13 @@ describe('CampaignPreset', () => {
       expect(PRESET_FULL.overrides.useLoanSystem).toBe(true);
       expect(PRESET_FULL.overrides.useAcquisitionSystem).toBe(true);
       expect(PRESET_FULL.overrides.useFoodAndHousing).toBe(true);
+    });
+
+    it('should provide a positive starting bankroll', () => {
+      expect(PRESET_FULL.overrides.startingFunds).toBe(
+        PRESET_STARTING_FUNDS[CampaignPreset.FULL],
+      );
+      expect(PRESET_FULL.overrides.startingFunds).toBeGreaterThan(0);
     });
   });
 

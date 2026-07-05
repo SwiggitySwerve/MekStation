@@ -1,5 +1,6 @@
 import React from 'react';
 
+import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { InteractivePhase } from '@/stores/useGameplayStore';
 import type {
   GameSide,
@@ -54,6 +55,7 @@ type PhaseQueueProjection = React.ComponentProps<
 interface GameplayLayoutViewProps {
   readonly className: string;
   readonly session: IGameSession;
+  readonly interactiveSession: InteractiveSession | undefined;
   readonly phaseQueueProjection: PhaseQueueProjection;
   readonly shellMode: ShellMode;
   readonly gmIntervention: IGmTacticalInterventionSurface | undefined;
@@ -111,6 +113,7 @@ interface GameplayLayoutViewProps {
 export function GameplayLayoutView({
   className,
   session,
+  interactiveSession,
   phaseQueueProjection,
   shellMode,
   gmIntervention,
@@ -254,6 +257,10 @@ export function GameplayLayoutView({
           interactivePhase={interactivePhase}
           isPlayerTurn={isPlayerTurn}
           canUndo={canUndo}
+          interactiveSession={interactiveSession}
+          sessionId={session.id}
+          playerSide={playerSide}
+          selectedUnit={selectedUnitModel.selectedUnit}
         />
         <GameplayEventLogSlot
           visibleEvents={visibleEvents}

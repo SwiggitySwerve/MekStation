@@ -63,6 +63,13 @@ describe('maintenance warning ledger validator', () => {
           line: 1,
           message: '12-line block cluster appears in 2 files',
         },
+        {
+          category: 'file-bloat',
+          severity: 'warn',
+          file: '.sisyphus/evidence/ux-walkthrough/2026-07-04T15-43-57/index.html',
+          line: 1,
+          message: '758 LOC exceeds standard threshold',
+        },
       ],
     });
   });

@@ -4,8 +4,16 @@ import { getGameplayNavItems } from '@/components/common/gameplayNavItems';
 import { GameplayFlowShell } from '@/components/gameplay/GameplayFlowShell';
 import { PageLayout, Card } from '@/components/ui';
 
+export function shouldShowGameplayFlowShell(): boolean {
+  return (
+    process.env.NODE_ENV === 'development' ||
+    process.env.NEXT_PUBLIC_E2E_MODE === 'true'
+  );
+}
+
 export default function GameplayHubPage(): React.ReactElement {
   const gameplayItems = getGameplayNavItems();
+  const showFlowShell = shouldShowGameplayFlowShell();
 
   return (
     <PageLayout
@@ -13,8 +21,6 @@ export default function GameplayHubPage(): React.ReactElement {
       subtitle="Start battles, manage forces, and continue campaign operations."
       maxWidth="wide"
     >
-      <GameplayFlowShell />
-
       <div className="grid grid-cols-1 gap-4 pb-20 md:grid-cols-2 lg:grid-cols-3">
         {gameplayItems.map((item) => (
           <Link key={item.href} href={item.href} className="block h-full">
@@ -34,6 +40,12 @@ export default function GameplayHubPage(): React.ReactElement {
           </Link>
         ))}
       </div>
+
+      {showFlowShell && (
+        <div className="pb-20">
+          <GameplayFlowShell />
+        </div>
+      )}
     </PageLayout>
   );
 }

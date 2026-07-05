@@ -2,11 +2,15 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import '@testing-library/jest-dom';
+import type { IGameOutcome } from '@/services/game-resolution';
+import type { IKeyMoment } from '@/types/simulation-viewer/IKeyMoment';
+
 import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import { GameStatus, GamePhase, GameEventType } from '@/types/gameplay';
 import { QuickGameStep } from '@/types/quickgame/QuickGameInterfaces';
 
 import { QuickGameResults } from '../QuickGameResults';
+import { BattleSummary, ResultBanner } from '../QuickGameResultsSections';
 
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -168,6 +172,40 @@ function setMockGameState(game: ReturnType<typeof createMockGame> | null) {
   });
 }
 
+function makeOutcome(overrides: Partial<IGameOutcome> = {}): IGameOutcome {
+  return {
+    winner: 'draw',
+    reason: 'turn_limit',
+    description: 'Turn limit reached.',
+    playerUnitsDestroyed: 0,
+    opponentUnitsDestroyed: 0,
+    playerUnitsSurviving: 1,
+    opponentUnitsSurviving: 1,
+    playerDamageDealt: 10,
+    opponentDamageDealt: 10,
+    turnsPlayed: 10,
+    durationMs: 600000,
+    ...overrides,
+  };
+}
+
+function makeKeyMoment(
+  id: string,
+  tier: IKeyMoment['tier'],
+  description: string,
+): IKeyMoment {
+  return {
+    id,
+    type: tier === 2 ? 'head-shot' : 'heat-crisis',
+    tier,
+    turn: Number(id.replace(/\D/g, '')) || 1,
+    phase: GamePhase.WeaponAttack,
+    description,
+    relatedUnitIds: [],
+    timestamp: Date.now(),
+  };
+}
+
 describe('QuickGameResults', () => {
   beforeEach(() => {
     global.fetch = jest.fn(
@@ -274,9 +312,86 @@ describe('QuickGameResults', () => {
       expect(screen.getByText('Battle Statistics')).toBeInTheDocument();
     });
 
+    it('explains the result end condition and destroyed-unit basis', () => {
+      render(<QuickGameResults />);
+
+      expect(screen.getByText('Result Explanation')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Victory after 5 turns\. End condition: all enemies destroyed\./,
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('Destroyed Units').parentElement,
+      ).toHaveTextContent('1 friendly / 1 enemy');
+    });
+
     it('displays scenario information', () => {
       render(<QuickGameResults />);
       expect(screen.getByText('Standup Fight')).toBeInTheDocument();
+    });
+
+    it('renders an explicit empty message when no key moments exist', () => {
+      render(
+        <BattleSummary outcome={null} combatStats={null} keyMoments={[]} />,
+      );
+
+      expect(screen.getByText('Key Moments')).toBeInTheDocument();
+      expect(screen.getByText('No key moments recorded.')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Outcome recorded on turn 5: all enemies destroyed. No higher-priority tactical swing was detected in the event log.',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('shows initial key moments before the show-more affordance', async () => {
+      const user = userEvent.setup();
+      render(
+        <BattleSummary
+          outcome={null}
+          combatStats={null}
+          keyMoments={[
+            makeKeyMoment('moment-1', 2, 'First tactical swing'),
+            makeKeyMoment('moment-2', 2, 'Second tactical swing'),
+            makeKeyMoment('moment-3', 3, 'Third routine moment'),
+            makeKeyMoment('moment-4', 3, 'Fourth routine moment'),
+          ]}
+        />,
+      );
+
+      expect(screen.getByText('First tactical swing')).toBeInTheDocument();
+      expect(screen.getByText('Second tactical swing')).toBeInTheDocument();
+      expect(screen.queryByText('Third routine moment')).toBeNull();
+
+      await user.click(screen.getByRole('button', { name: /show 2 more/i }));
+
+      expect(screen.getByText('Third routine moment')).toBeInTheDocument();
+      expect(screen.getByText('Fourth routine moment')).toBeInTheDocument();
+    });
+
+    it('matches the turn-limit banner turn count to Battle Statistics', () => {
+      const outcome = makeOutcome({ turnsPlayed: 10 });
+      render(
+        <>
+          <ResultBanner
+            winner="draw"
+            reason="turn_limit"
+            outcome={outcome}
+            turnLimit={10}
+          />
+          <BattleSummary outcome={outcome} combatStats={null} keyMoments={[]} />
+        </>,
+      );
+
+      expect(
+        screen.getByText('Turn limit reached (10/10)'),
+      ).toBeInTheDocument();
+      expect(
+        screen
+          .getAllByText('Turns Played')
+          .some((node) => node.parentElement?.textContent?.includes('10')),
+      ).toBe(true);
     });
   });
 
@@ -365,7 +480,9 @@ describe('QuickGameResults', () => {
 
     it('shows victory reason', () => {
       render(<QuickGameResults />);
-      expect(screen.getByText('all enemies destroyed')).toBeInTheDocument();
+      expect(
+        screen.getAllByText('all enemies destroyed').length,
+      ).toBeGreaterThan(0);
     });
   });
 

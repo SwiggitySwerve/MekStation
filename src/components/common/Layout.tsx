@@ -41,7 +41,7 @@ const Layout: React.FC<LayoutProps> = ({
           )}
 
           {/* Main content */}
-          <main className="bg-surface-deep flex-1 overflow-auto pb-16 md:pb-0">
+          <main className="bg-surface-deep flex-1 overflow-auto pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
             {children}
           </main>
         </div>

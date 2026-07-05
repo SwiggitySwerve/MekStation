@@ -1,5 +1,6 @@
 import type { AppProps } from 'next/app';
 
+import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 
 import '../styles/globals.css';
@@ -31,6 +32,45 @@ async function initializeBrowserServices(): Promise<void> {
   await registry.initialize();
 }
 
+function useProductionRouteTransitionRecovery(): void {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'production') {
+      return undefined;
+    }
+
+    let fallbackTimer: number | undefined;
+
+    const clearFallback = () => {
+      if (fallbackTimer) {
+        window.clearTimeout(fallbackTimer);
+        fallbackTimer = undefined;
+      }
+    };
+
+    const handleRouteChangeStart = (url: string) => {
+      clearFallback();
+
+      fallbackTimer = window.setTimeout(() => {
+        const targetUrl = new URL(url, window.location.origin);
+        window.location.assign(targetUrl.href);
+      }, 3000);
+    };
+
+    router.events.on('routeChangeStart', handleRouteChangeStart);
+    router.events.on('routeChangeComplete', clearFallback);
+    router.events.on('routeChangeError', clearFallback);
+
+    return () => {
+      clearFallback();
+      router.events.off('routeChangeStart', handleRouteChangeStart);
+      router.events.off('routeChangeComplete', clearFallback);
+      router.events.off('routeChangeError', clearFallback);
+    };
+  }, [router.events]);
+}
+
 /**
  * App content wrapper that uses hooks requiring ToastProvider
  */
@@ -43,16 +83,21 @@ function AppContent({
   pageProps: Record<string, unknown>;
   servicesReady: boolean;
 }): React.ReactElement {
+  const router = useRouter();
+  const pageKey = router.route || router.pathname;
+
   // Initialize offline indicator
   useOfflineIndicator();
+  useProductionRouteTransitionRecovery();
 
   // Register service worker
   const sw = useServiceWorker();
 
   return (
-    <ErrorBoundary componentName="App">
+    <ErrorBoundary key={pageKey} componentName={`App:${pageKey}`}>
       <Layout topBarComponent={<TopBar />}>
         <Component
+          key={pageKey}
           {...(pageProps as AppProps['pageProps'])}
           servicesReady={servicesReady}
         />

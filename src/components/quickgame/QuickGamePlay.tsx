@@ -6,9 +6,12 @@
  * @spec openspec/changes/add-quick-session-mode/proposal.md
  */
 
+import { useRouter } from 'next/router';
 import { useEffect, useRef } from 'react';
 
 import { Card } from '@/components/ui';
+import { navigateToGameSession } from '@/lib/gameplay/tacticalNavigation';
+import GameSessionPage from '@/pages/gameplay/games/[id]';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
 import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 import { GameStatus } from '@/types/gameplay';
@@ -92,6 +95,7 @@ function UnitCard({ unit, isPlayer }: UnitCardProps): React.ReactElement {
 // =============================================================================
 
 export function QuickGamePlay(): React.ReactElement {
+  const router = useRouter();
   const game = useQuickGameSelector((state) => state.game);
   const isLoading = useQuickGameSelector((state) => state.isLoading);
   const error = useQuickGameSelector((state) => state.error);
@@ -99,10 +103,16 @@ export function QuickGamePlay(): React.ReactElement {
   const interactiveSession = useGameplaySelector(
     (state) => state.interactiveSession,
   );
+  const session = useGameplaySelector((state) => state.session);
   const spectatorMode = useGameplaySelector((state) => state.spectatorMode);
   const battleStarted = useRef(false);
   const hasLiveTacticalSession =
     Boolean(interactiveSession) || spectatorMode?.enabled === true;
+  const liveTacticalSessionId = session?.id;
+  const isGameSessionRoute =
+    router.asPath?.startsWith('/gameplay/games/') === true ||
+    (typeof window !== 'undefined' &&
+      window.location.pathname.startsWith('/gameplay/games/'));
 
   useEffect(() => {
     if (
@@ -116,6 +126,16 @@ export function QuickGamePlay(): React.ReactElement {
       startBattle();
     }
   }, [game, hasLiveTacticalSession, isLoading, startBattle]);
+
+  useEffect(() => {
+    if (
+      game?.status === GameStatus.Active &&
+      hasLiveTacticalSession &&
+      liveTacticalSessionId
+    ) {
+      navigateToGameSession(liveTacticalSessionId, router);
+    }
+  }, [game?.status, hasLiveTacticalSession, liveTacticalSessionId, router]);
 
   if (!game) {
     return (
@@ -154,6 +174,10 @@ export function QuickGamePlay(): React.ReactElement {
   }
 
   if (hasLiveTacticalSession && game.status === GameStatus.Active) {
+    if (isGameSessionRoute) {
+      return <GameSessionPage />;
+    }
+
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-900">
         <Card className="p-8 text-center">

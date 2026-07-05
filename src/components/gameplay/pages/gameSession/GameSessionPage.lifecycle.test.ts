@@ -7,6 +7,7 @@ import { GamePhase, GameStatus } from '@/types/gameplay';
 
 import {
   ACTIVE_INTERACTIVE_BATTLE_UNLOAD_MESSAGE,
+  resolveGameSessionRouteId,
   shouldWarnBeforeInteractiveBattleUnload,
   useInteractiveBattleBeforeUnloadWarning,
 } from './GameSessionPage.lifecycle';
@@ -123,5 +124,26 @@ describe('interactive battle beforeunload warning', () => {
         isSpectatorMode: overrides.isSpectatorMode ?? false,
       }),
     ).toBe(false);
+  });
+});
+
+describe('game session route id resolution', () => {
+  it('uses concrete router query values first', () => {
+    expect(
+      resolveGameSessionRouteId('sess-active', '/gameplay/games/[id]'),
+    ).toBe('sess-active');
+  });
+
+  it('falls back to the concrete browser path when production query keeps the placeholder', () => {
+    expect(
+      resolveGameSessionRouteId('[id]', '/gameplay/games/sess-active'),
+    ).toBe('sess-active');
+  });
+
+  it('ignores nested game subroutes and missing ids', () => {
+    expect(
+      resolveGameSessionRouteId('[id]', '/gameplay/games/sess-active/replay'),
+    ).toBeNull();
+    expect(resolveGameSessionRouteId(undefined, '/gameplay/games')).toBeNull();
   });
 });

@@ -5,11 +5,16 @@
 
 import type { IWeapon } from '@/simulation/ai/types';
 
-import { isGameEnded } from '@/services/game-resolution/GameOutcomeCalculator';
+import {
+  calculateGameOutcome,
+  isGameEnded,
+  type IGameOutcome,
+} from '@/services/game-resolution/GameOutcomeCalculator';
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   GameSide,
+  type IGameEndedPayload,
   type IGameSession,
   type IGameConfig,
   type IGameUnit,
@@ -46,6 +51,30 @@ import {
 import { gameUnitsWithAdaptedCombatSeeds } from './InteractiveSession.setup';
 
 export { InteractiveSession };
+
+type GameEndedReason = IGameEndedPayload['reason'];
+
+function gameOutcomeWinnerToGameEndedWinner(
+  winner: IGameOutcome['winner'],
+): GameSide | 'draw' {
+  if (winner === 'draw') return 'draw';
+  return winner === 'player' ? GameSide.Player : GameSide.Opponent;
+}
+
+function gameOutcomeReasonToGameEndedReason(
+  reason: IGameOutcome['reason'],
+): GameEndedReason {
+  switch (reason) {
+    case 'concede':
+      return 'concede';
+    case 'turn_limit':
+      return 'turn_limit';
+    case 'objective':
+      return 'objective';
+    default:
+      return 'destruction';
+  }
+}
 
 // =============================================================================
 // Game Engine
@@ -188,18 +217,13 @@ export class GameEngine {
       session = advancePhase(session);
 
       if (isGameEnded(session.currentState, gameConfig)) {
-        const winner = this.determineWinnerFromState(session.currentState);
-        session = endGame(session, winner, 'destruction');
-        return session;
+        return this.endSessionFromOutcome(session, gameConfig);
       }
 
       session = advancePhase(session);
     }
 
-    // Turn limit reached
-    const winner = this.determineWinnerFromState(session.currentState);
-    session = endGame(session, winner, 'turn_limit');
-    return session;
+    return this.endSessionFromOutcome(session, gameConfig);
   }
 
   /**
@@ -256,5 +280,24 @@ export class GameEngine {
     if (pCount > oCount) return GameSide.Player;
     if (oCount > pCount) return GameSide.Opponent;
     return 'draw';
+  }
+
+  private endSessionFromOutcome(
+    session: IGameSession,
+    gameConfig: IGameConfig,
+  ): IGameSession {
+    const outcome = calculateGameOutcome({
+      state: session.currentState,
+      events: session.events,
+      config: gameConfig,
+      startedAt: session.createdAt,
+      endedAt: new Date().toISOString(),
+    });
+
+    return endGame(
+      session,
+      gameOutcomeWinnerToGameEndedWinner(outcome.winner),
+      gameOutcomeReasonToGameEndedReason(outcome.reason),
+    );
   }
 }
