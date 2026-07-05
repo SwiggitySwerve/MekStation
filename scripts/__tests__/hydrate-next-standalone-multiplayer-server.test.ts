@@ -87,4 +87,15 @@ describe('hydrate-next-standalone-multiplayer-server', () => {
       nextStaticAssets: path.join('.next', 'standalone', '.next', 'static'),
     });
   });
+
+  it('does not ask electron-builder to package duplicated static assets', () => {
+    const builderConfig = fs.readFileSync(
+      path.join(repoRoot, 'electron-builder.yml'),
+      'utf8',
+    );
+
+    expect(builderConfig).toContain("from: '.tmp/next-standalone-electron'");
+    expect(builderConfig).not.toContain("from: '../.next/static'");
+    expect(builderConfig).not.toContain("to: 'next-standalone/.next/static'");
+  });
 });
