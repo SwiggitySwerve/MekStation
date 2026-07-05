@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 
 import { Button, Card } from '@/components/ui';
 import { FACTION_NAMES, Faction } from '@/constants/scenario/rats';
+import { navigateToGameSession } from '@/lib/gameplay/tacticalNavigation';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { useQuickGameSelector } from '@/stores/useQuickGameStore';
 
@@ -214,7 +215,7 @@ export function QuickGameReview(): React.ReactElement {
     await startSpectatorMode();
     const session = useGameplayStore.getState().session;
     if (session) {
-      router.push(`/gameplay/games/${session.id}`);
+      navigateToGameSession(session.id, router);
     }
   };
 
@@ -222,7 +223,7 @@ export function QuickGameReview(): React.ReactElement {
     await startInteractiveSkirmish();
     const session = useGameplayStore.getState().session;
     if (session) {
-      router.push(`/gameplay/games/${session.id}`);
+      navigateToGameSession(session.id, router);
     }
   };
 

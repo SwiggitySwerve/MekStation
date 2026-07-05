@@ -9,7 +9,10 @@
  * @module lib/campaign/contracts/contractMarketConstants
  */
 
-import { ContractGroup } from '@/types/campaign/contracts/contractTypes';
+import {
+  AtBContractType,
+  ContractGroup,
+} from '@/types/campaign/contracts/contractTypes';
 
 /**
  * Available contract types for random selection.
@@ -71,6 +74,37 @@ export const PLACEHOLDER_BV_PER_UNIT = 1000;
  * Payment rate: C-bills per BV point.
  */
 export const CBILLS_PER_BV = 1000;
+
+/**
+ * Placeholder AtB base-pay rates in C-bills per contract month.
+ * These intentionally live in one table so later economy tuning does not
+ * require changing generation logic.
+ */
+export const ATB_BASE_PAY_PER_MONTH_BY_TYPE: Readonly<
+  Record<AtBContractType, number>
+> = Object.freeze({
+  [AtBContractType.GARRISON_DUTY]: 120_000,
+  [AtBContractType.CADRE_DUTY]: 100_000,
+  [AtBContractType.SECURITY_DUTY]: 145_000,
+  [AtBContractType.RIOT_DUTY]: 130_000,
+  [AtBContractType.RETAINER]: 110_000,
+  [AtBContractType.DIVERSIONARY_RAID]: 260_000,
+  [AtBContractType.OBJECTIVE_RAID]: 240_000,
+  [AtBContractType.RECON_RAID]: 240_000,
+  [AtBContractType.EXTRACTION_RAID]: 240_000,
+  [AtBContractType.ASSASSINATION]: 300_000,
+  [AtBContractType.OBSERVATION_RAID]: 240_000,
+  [AtBContractType.GUERRILLA_WARFARE]: 320_000,
+  [AtBContractType.ESPIONAGE]: 360_000,
+  [AtBContractType.SABOTAGE]: 360_000,
+  [AtBContractType.TERRORISM]: 300_000,
+  [AtBContractType.PLANETARY_ASSAULT]: 280_000,
+  [AtBContractType.RELIEF_DUTY]: 180_000,
+  [AtBContractType.PIRATE_HUNTING]: 220_000,
+  [AtBContractType.MOLE_HUNTING]: 220_000,
+});
+
+export const ATB_MIN_CONTRACT_BASE_PAY = 100_000;
 
 /**
  * Payment multipliers for contract outcomes.

@@ -1,7 +1,12 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
+import { navigateToGameSession } from '@/lib/gameplay/tacticalNavigation';
+
 const mockRouterPush = jest.fn();
+const mockNavigateToGameSession = navigateToGameSession as jest.MockedFunction<
+  typeof navigateToGameSession
+>;
 jest.mock('next/router', () => ({
   useRouter: () => ({
     push: mockRouterPush,
@@ -9,6 +14,10 @@ jest.mock('next/router', () => ({
     query: {},
     events: { on: jest.fn(), off: jest.fn() },
   }),
+}));
+
+jest.mock('@/lib/gameplay/tacticalNavigation', () => ({
+  navigateToGameSession: jest.fn(),
 }));
 
 const mockStartGame = jest.fn();
@@ -99,6 +108,7 @@ import { QuickGameReview } from '../QuickGameReview';
 describe('QuickGameReview play options', () => {
   beforeEach(() => {
     mockRouterPush.mockReset();
+    mockNavigateToGameSession.mockReset();
     mockStartGame.mockClear();
     mockStartSpectatorMode.mockClear();
     mockStartInteractiveSkirmish.mockClear();
@@ -131,8 +141,9 @@ describe('QuickGameReview play options', () => {
     await waitFor(() => {
       expect(mockStartInteractiveSkirmish).toHaveBeenCalledTimes(1);
       expect(mockStartSpectatorMode).not.toHaveBeenCalled();
-      expect(mockRouterPush).toHaveBeenCalledWith(
-        '/gameplay/games/quick-skirmish-1',
+      expect(mockNavigateToGameSession).toHaveBeenCalledWith(
+        'quick-skirmish-1',
+        expect.objectContaining({ push: mockRouterPush }),
       );
     });
   });

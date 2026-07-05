@@ -2,7 +2,7 @@
  * Canonical Units Browser Page (Compendium Section)
  * Browse and search the canonical unit database with filtering and sorting.
  */
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 import { CompendiumLayout } from '@/components/compendium';
 import { ITEMS_PER_PAGE } from '@/components/compendium/units/units.constants';
@@ -138,7 +138,6 @@ function nextSortState(
 
 export default function CanonicalUnitsListPage(): React.ReactElement {
   const [units, setUnits] = useState<IUnitEntry[]>([]);
-  const [filteredUnits, setFilteredUnits] = useState<IUnitEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -162,7 +161,6 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
 
         if (data.success) {
           setUnits(data.data || []);
-          setFilteredUnits(data.data || []);
         } else {
           setError(data.error || 'Failed to load units');
         }
@@ -176,15 +174,14 @@ export default function CanonicalUnitsListPage(): React.ReactElement {
     fetchUnits();
   }, []);
 
-  // Apply filters
-  const applyFilters = useCallback(() => {
-    setFilteredUnits(filterUnits(units, filters));
-    setCurrentPage(1);
-  }, [units, filters]);
+  const filteredUnits = useMemo(
+    () => filterUnits(units, filters),
+    [units, filters],
+  );
 
   useEffect(() => {
-    applyFilters();
-  }, [applyFilters]);
+    setCurrentPage(1);
+  }, [filters]);
 
   const sortedUnits = useMemo(
     () => sortUnits(filteredUnits, sort),

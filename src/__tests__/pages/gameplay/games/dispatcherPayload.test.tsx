@@ -51,6 +51,7 @@ jest.mock('@/components/gameplay/CombatPlanningPanel', () => ({
 jest.mock(
   '@/components/gameplay/pages/gameSession/GameSessionPage.lifecycle',
   () => ({
+    resolveGameSessionRouteId: jest.fn(() => 'demo-game-001'),
     useGameSessionLifecycle: jest.fn(),
   }),
 );

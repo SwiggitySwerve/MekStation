@@ -266,6 +266,23 @@ describe('TacticalActionDock', () => {
     expect(screen.getByTestId('trailing-test-btn')).toBeInTheDocument();
   });
 
+  it('can hide a registry command when a trailing action owns it', () => {
+    const onAction = jest.fn();
+    render(
+      <TacticalActionDock
+        ctx={makeCtx()}
+        shellMode="combat"
+        onAction={onAction}
+        suppressCommandIds={['utility.concede']}
+        trailingActions={<button data-testid="concede-button">Concede</button>}
+      />,
+    );
+
+    expect(screen.queryByTestId('command-btn-utility.concede')).toBeNull();
+    expect(screen.getByTestId('command-btn-utility.eject')).toBeInTheDocument();
+    expect(screen.getByTestId('concede-button')).toBeInTheDocument();
+  });
+
   it('renders a weapon command preview from shared combat projection inputs', () => {
     const onAction = jest.fn();
     render(

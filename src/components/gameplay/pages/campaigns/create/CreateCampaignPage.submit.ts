@@ -49,6 +49,30 @@ interface SubmitCampaignInput {
   store: StoreApi<CampaignStore>;
 }
 
+interface ResolvePilotAssignmentsInput {
+  pilotAssignments: PilotAssignments;
+  selectedPilots: SelectedPilot[];
+  selectedUnits: SelectedUnit[];
+}
+
+export function resolvePilotAssignmentsForSubmit({
+  pilotAssignments,
+  selectedPilots,
+  selectedUnits,
+}: ResolvePilotAssignmentsInput): PilotAssignments {
+  if (
+    Object.keys(pilotAssignments).length === 0 &&
+    selectedUnits.length === 1 &&
+    selectedPilots.length === 1
+  ) {
+    return {
+      [selectedUnits[0].id]: selectedPilots[0].id,
+    };
+  }
+
+  return pilotAssignments;
+}
+
 function updateCampaignDescription(
   store: StoreApi<CampaignStore>,
   description: string,
@@ -152,13 +176,25 @@ export async function submitCampaignCreation({
 
     updateCampaignDescription(store, description);
     useCampaignRosterStore.getState().initRoster(campaignId);
+    const resolvedPilotAssignments = resolvePilotAssignmentsForSubmit({
+      pilotAssignments,
+      selectedPilots,
+      selectedUnits,
+    });
 
     for (const unit of selectedUnits) {
-      addSelectedUnitToRoster({ pilotAssignments, store, unit });
+      addSelectedUnitToRoster({
+        pilotAssignments: resolvedPilotAssignments,
+        store,
+        unit,
+      });
     }
 
     for (const pilot of selectedPilots) {
-      addSelectedPilotToRoster({ pilot, pilotAssignments });
+      addSelectedPilotToRoster({
+        pilot,
+        pilotAssignments: resolvedPilotAssignments,
+      });
     }
 
     showToast({

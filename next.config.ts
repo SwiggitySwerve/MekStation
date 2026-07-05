@@ -123,58 +123,6 @@ const nextConfig: NextConfig = {
       );
     }
 
-    // Optimize chunk splitting for better caching
-    if (!dev && !isServer && config.optimization) {
-      const existingSplitChunks = config.optimization.splitChunks;
-      const existingCacheGroups =
-        existingSplitChunks && typeof existingSplitChunks === 'object'
-          ? existingSplitChunks.cacheGroups
-          : {};
-
-      config.optimization.splitChunks = {
-        ...(existingSplitChunks && typeof existingSplitChunks === 'object'
-          ? existingSplitChunks
-          : {}),
-        cacheGroups: {
-          ...(existingCacheGroups && typeof existingCacheGroups === 'object'
-            ? existingCacheGroups
-            : {}),
-
-          // Separate chunk for equipment data
-          equipment: {
-            test: /[\\/]src[\\/]data[\\/]equipment/,
-            name: 'equipment',
-            chunks: 'all',
-            priority: 30,
-          },
-
-          // Separate chunk for services
-          services: {
-            test: /[\\/]src[\\/]services[\\/]/,
-            name: 'services',
-            chunks: 'all',
-            priority: 25,
-          },
-
-          // Separate chunk for utilities
-          utils: {
-            test: /[\\/]src[\\/]utils[\\/]/,
-            name: 'utils',
-            chunks: 'all',
-            priority: 20,
-          },
-
-          // Separate chunk for components
-          components: {
-            test: /[\\/]src[\\/]components[\\/]/,
-            name: 'components',
-            chunks: 'all',
-            priority: 15,
-          },
-        },
-      };
-    }
-
     // Add progress plugin for build feedback
     if (!dev && config.plugins) {
       config.plugins.push(

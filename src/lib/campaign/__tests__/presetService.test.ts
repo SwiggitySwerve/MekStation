@@ -1,5 +1,8 @@
 import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
-import { CampaignPreset } from '@/types/campaign/CampaignPreset';
+import {
+  CampaignPreset,
+  PRESET_STARTING_FUNDS,
+} from '@/types/campaign/CampaignPreset';
 import { CampaignType } from '@/types/campaign/CampaignType';
 
 import {
@@ -76,6 +79,9 @@ describe('presetService', () => {
       expect(options.useTurnover).toBe(false);
       expect(options.healingRateMultiplier).toBe(2.0);
       expect(options.maintenanceCycleDays).toBe(0);
+      expect(options.startingFunds).toBe(
+        PRESET_STARTING_FUNDS[CampaignPreset.CASUAL],
+      );
     });
 
     it('should apply type defaults before preset overrides', () => {
@@ -99,9 +105,10 @@ describe('presetService', () => {
 
     it('should apply pirate type defaults with standard preset', () => {
       const options = applyPreset(CampaignPreset.STANDARD, CampaignType.PIRATE);
-      // Pirate type: startingFunds=500000, trackFactionStanding=false
-      // Standard preset: trackFactionStanding=true (overrides pirate)
-      expect(options.startingFunds).toBe(500000);
+      // Standard preset: startingFunds and trackFactionStanding override pirate.
+      expect(options.startingFunds).toBe(
+        PRESET_STARTING_FUNDS[CampaignPreset.STANDARD],
+      );
       expect(options.trackFactionStanding).toBe(true);
     });
   });

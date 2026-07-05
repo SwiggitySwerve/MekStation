@@ -86,17 +86,19 @@ export function CompendiumLayout({
 
         {/* Page Header */}
         <header className="mb-6">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-text-theme-primary text-2xl font-bold tracking-wide">
+          <div className="flex flex-col items-stretch gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <h1 className="text-text-theme-primary text-2xl font-bold tracking-wide break-words">
                 {title}
               </h1>
               {subtitle && (
-                <p className="text-text-theme-secondary mt-1">{subtitle}</p>
+                <p className="text-text-theme-secondary mt-1 break-words">
+                  {subtitle}
+                </p>
               )}
             </div>
             {headerActions && (
-              <div className="flex-shrink-0">{headerActions}</div>
+              <div className="min-w-0 sm:flex-shrink-0">{headerActions}</div>
             )}
           </div>
         </header>

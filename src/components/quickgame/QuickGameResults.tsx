@@ -72,6 +72,8 @@ export function QuickGameResults(): React.ReactElement {
         <ResultBanner
           winner={game.winner ?? 'draw'}
           reason={game.victoryReason}
+          outcome={viewModel.outcome}
+          turnLimit={session?.config.turnLimit ?? game.scenario?.turnLimit}
         />
       </div>
 

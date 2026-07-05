@@ -242,17 +242,21 @@ export function EquipmentTableView({
           <tbody className="divide-border-theme-subtle/30 divide-y">
             {equipment.map((eq) => {
               const colors = getEquipmentDisplayColors(eq.category, eq.name);
+              const detailHref = `/compendium/equipment/${encodeURIComponent(eq.id)}`;
 
               return (
                 <tr
                   key={eq.id}
-                  className="hover:bg-surface-raised/20 cursor-pointer transition-colors"
-                  onClick={() =>
-                    (window.location.href = `/compendium/equipment/${encodeURIComponent(eq.id)}`)
-                  }
+                  className="hover:bg-surface-raised/20 relative transition-colors"
                 >
-                  <td className="px-3 py-2">
-                    <span className="text-text-theme-primary font-medium">
+                  <td className="relative px-3 py-2">
+                    <Link
+                      href={detailHref}
+                      aria-label={`Open ${eq.name} equipment details`}
+                      data-testid={`equipment-table-link-${eq.id}`}
+                      className="focus-visible:ring-accent absolute inset-0 z-0 rounded-sm focus-visible:ring-2 focus-visible:outline-none"
+                    />
+                    <span className="text-text-theme-primary pointer-events-none relative z-10 font-medium">
                       {eq.name}
                     </span>
                   </td>

@@ -111,7 +111,7 @@ interface WelcomeScreenProps {
 
 function WelcomeScreen({ onStart }: WelcomeScreenProps): React.ReactElement {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-900 p-4">
+    <div className="flex min-h-full items-center justify-center bg-gray-900 p-4">
       <Card className="w-full max-w-lg p-8 text-center">
         <div className="mb-6">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-cyan-500/20">
@@ -230,6 +230,14 @@ function WelcomeScreen({ onStart }: WelcomeScreenProps): React.ReactElement {
 // Main Page Component
 // =============================================================================
 
+function QuickGameHead(): React.ReactElement {
+  return (
+    <Head>
+      <title>Quick Game | MekStation</title>
+    </Head>
+  );
+}
+
 export default function QuickGamePage(): React.ReactElement {
   const router = useRouter();
   const game = useQuickGameSelector((state) => state.game);
@@ -256,6 +264,15 @@ export default function QuickGamePage(): React.ReactElement {
     );
   }
 
+  if (game.step === QuickGameStep.Playing) {
+    return (
+      <>
+        <QuickGameHead />
+        <QuickGamePlay />
+      </>
+    );
+  }
+
   // Route to appropriate view based on step
   const renderContent = () => {
     switch (game.step) {
@@ -265,9 +282,6 @@ export default function QuickGamePage(): React.ReactElement {
 
       case QuickGameStep.Review:
         return <QuickGameReview />;
-
-      case QuickGameStep.Playing:
-        return <QuickGamePlay />;
 
       case QuickGameStep.Results:
         return <QuickGameResults />;
@@ -279,9 +293,7 @@ export default function QuickGamePage(): React.ReactElement {
 
   return (
     <>
-      <Head>
-        <title>Quick Game | MekStation</title>
-      </Head>
+      <QuickGameHead />
 
       <div className="min-h-screen bg-gray-900">
         {/* Header */}
@@ -310,10 +322,9 @@ export default function QuickGamePage(): React.ReactElement {
               <h1 className="text-lg font-semibold text-white">Quick Game</h1>
             </div>
             {/* Step indicator for setup steps */}
-            {game.step !== QuickGameStep.Playing &&
-              game.step !== QuickGameStep.Results && (
-                <StepIndicator currentStep={game.step} />
-              )}
+            {game.step !== QuickGameStep.Results && (
+              <StepIndicator currentStep={game.step} />
+            )}
             <div className="w-20" /> {/* Spacer for centering */}
           </div>
         </header>

@@ -1,3 +1,5 @@
+import type { NextRouter } from 'next/router';
+
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IForce } from '@/types/campaign/Force';
 import type { IMission } from '@/types/campaign/Mission';
@@ -9,8 +11,63 @@ import { EncounterStatus, TerrainPreset } from '@/types/encounter';
 export function routeParam(
   value: string | string[] | undefined,
 ): string | null {
-  if (Array.isArray(value)) return value[0] ?? null;
-  return value ?? null;
+  const candidate = Array.isArray(value) ? (value[0] ?? null) : (value ?? null);
+  if (!candidate || /^\[[^\]]+\]$/.test(candidate)) return null;
+  return candidate;
+}
+
+function decodePathSegment(segment: string): string {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+}
+
+export function missionRouteIdFromPath(asPath: string): string | null {
+  const segments = asPath
+    .split('?')[0]
+    .split('/')
+    .filter(Boolean)
+    .map(decodePathSegment);
+  const missionsIndex = segments.indexOf('missions');
+  const missionId = missionsIndex >= 0 ? segments[missionsIndex + 1] : null;
+  return missionId && segments[missionsIndex + 2] === 'launch'
+    ? missionId
+    : null;
+}
+
+export function searchParam(search: string, key: string): string | null {
+  return routeParam(new URLSearchParams(search).get(key) ?? undefined);
+}
+
+export function missionKeyFromRouter(
+  router: Pick<NextRouter, 'asPath' | 'query'>,
+): string | null {
+  return (
+    routeParam(router.query.missionId) ??
+    browserMissionRouteId() ??
+    missionRouteIdFromPath(router.asPath)
+  );
+}
+
+export function customizerResultFromRouter(
+  router: Pick<NextRouter, 'query'>,
+): string | null {
+  return (
+    routeParam(router.query.customizerResult) ??
+    browserSearchParam('customizerResult')
+  );
+}
+
+function browserMissionRouteId(): string | null {
+  if (typeof window === 'undefined') return null;
+  return missionRouteIdFromPath(window.location.pathname);
+}
+
+function browserSearchParam(name: string): string | null {
+  if (typeof window === 'undefined') return null;
+  return searchParam(window.location.search, name);
 }
 
 export function campaignEncounterHref({

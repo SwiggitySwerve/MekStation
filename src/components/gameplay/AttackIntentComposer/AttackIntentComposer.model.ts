@@ -77,6 +77,8 @@ function attackerGeometry(unit: IUnitGameState) {
   return { position: unit.position, facing: unit.facing };
 }
 
+type SecondaryTargetContext = ReturnType<typeof deriveSecondaryTargetContext>;
+
 /**
  * Per-weapon forecast (final TN + hit probability) against each weapon's
  * ASSIGNED target, with the composer's secondary-target context injected —
@@ -136,6 +138,101 @@ function forecastByWeaponId(
   return result;
 }
 
+function secondaryPenalty(
+  secondaryContext: SecondaryTargetContext | undefined,
+): number | null {
+  if (!secondaryContext) return null;
+  return secondaryContext.inFrontArc ? 1 : 2;
+}
+
+function toggleDisabledReason({
+  toggleDisabled,
+  focusedTargetId,
+  blockedReason,
+}: {
+  readonly toggleDisabled: boolean;
+  readonly focusedTargetId: string | null;
+  readonly blockedReason?: string;
+}): string | undefined {
+  if (!toggleDisabled) return undefined;
+  return focusedTargetId === null
+    ? 'Pick a target to assign against'
+    : (blockedReason ?? 'Not assignable to this target');
+}
+
+interface IWeaponPaletteRowBuildContext {
+  readonly intent: IAttackIntentState;
+  readonly context: IAttackComposerContext;
+  readonly unit: IUnitGameState;
+  readonly session: NonNullable<IAttackComposerContext['session']>;
+  readonly primaryTargetId: string | null;
+  readonly assignmentByWeaponId: ReadonlyMap<
+    string,
+    IAttackIntentState['assignments'][number]
+  >;
+  readonly legalityByWeaponId: ReadonlyMap<
+    string,
+    ReturnType<typeof deriveWeaponLegalityForTarget>[number]
+  >;
+  readonly forecasts: ReadonlyMap<
+    string,
+    { readonly finalToHit: number; readonly hitProbability: number }
+  >;
+}
+
+function buildWeaponPaletteRow(
+  weapon: IWeaponStatus,
+  rowContext: IWeaponPaletteRowBuildContext,
+): IWeaponPaletteRow {
+  const { intent, context, unit, session, primaryTargetId } = rowContext;
+  const assignment = rowContext.assignmentByWeaponId.get(weapon.id);
+  const isSecondary =
+    assignment !== undefined &&
+    primaryTargetId !== null &&
+    assignment.targetId !== primaryTargetId;
+  const secondaryContext =
+    assignment && isSecondary
+      ? deriveSecondaryTargetContext(
+          intent,
+          assignment.targetId,
+          attackerGeometry(unit),
+          session.currentState.units[assignment.targetId]?.position ??
+            unit.position,
+        )
+      : undefined;
+  const legality = rowContext.legalityByWeaponId.get(weapon.id);
+  const forecast = rowContext.forecasts.get(weapon.id);
+  // An assigned weapon can always be toggled OFF; blocking applies to
+  // assigning toward the focused target (Live Feasibility Gating: block
+  // illegal at source, never auto-deselect).
+  const togglesOff =
+    assignment !== undefined && assignment.targetId === intent.focusedTargetId;
+  const toggleDisabled =
+    !togglesOff &&
+    (intent.focusedTargetId === null || legality?.available !== true);
+
+  return {
+    weaponId: weapon.id,
+    weaponName: weapon.name,
+    location: weapon.location,
+    assignedTargetId: assignment?.targetId ?? null,
+    assignedTargetName: unitName(context, assignment?.targetId ?? null),
+    isSecondaryAssignment: isSecondary,
+    secondaryPenalty: secondaryPenalty(secondaryContext),
+    finalToHit: forecast?.finalToHit ?? null,
+    hitProbability: forecast?.hitProbability ?? null,
+    toggleDisabled,
+    toggleDisabledReason: toggleDisabledReason({
+      toggleDisabled,
+      focusedTargetId: intent.focusedTargetId,
+      blockedReason: legality?.blockedReason,
+    }),
+    mode: assignment?.mode ?? weapon.mode ?? 'Direct',
+    supportsIndirectMode:
+      isIndirectFireCapable(weapon.id) || isIndirectFireCapable(weapon.name),
+  };
+}
+
 /**
  * Build the Weapon Palette rows: identity + assignment + forecast vs the
  * assigned target + toggle legality vs the FOCUSED working target
@@ -171,58 +268,18 @@ export function buildWeaponPaletteRows(
     intent.assignments.map((assignment) => [assignment.weaponId, assignment]),
   );
 
-  return context.weapons.map((weapon) => {
-    const assignment = assignmentByWeaponId.get(weapon.id);
-    const isSecondary =
-      assignment !== undefined &&
-      primaryTargetId !== null &&
-      assignment.targetId !== primaryTargetId;
-    const secondaryContext =
-      assignment && isSecondary
-        ? deriveSecondaryTargetContext(
-            intent,
-            assignment.targetId,
-            attackerGeometry(unit),
-            session.currentState.units[assignment.targetId]?.position ??
-              unit.position,
-          )
-        : undefined;
-    const legality = legalityByWeaponId.get(weapon.id);
-    const forecast = forecasts.get(weapon.id);
-    // An assigned weapon can always be toggled OFF; blocking applies to
-    // assigning toward the focused target (Live Feasibility Gating: block
-    // illegal at source, never auto-deselect).
-    const togglesOff =
-      assignment !== undefined &&
-      assignment.targetId === intent.focusedTargetId;
-    const toggleDisabled =
-      !togglesOff &&
-      (intent.focusedTargetId === null || legality?.available !== true);
-    return {
-      weaponId: weapon.id,
-      weaponName: weapon.name,
-      location: weapon.location,
-      assignedTargetId: assignment?.targetId ?? null,
-      assignedTargetName: unitName(context, assignment?.targetId ?? null),
-      isSecondaryAssignment: isSecondary,
-      secondaryPenalty: secondaryContext
-        ? secondaryContext.inFrontArc
-          ? 1
-          : 2
-        : null,
-      finalToHit: forecast?.finalToHit ?? null,
-      hitProbability: forecast?.hitProbability ?? null,
-      toggleDisabled,
-      toggleDisabledReason: toggleDisabled
-        ? intent.focusedTargetId === null
-          ? 'Pick a target to assign against'
-          : (legality?.blockedReason ?? 'Not assignable to this target')
-        : undefined,
-      mode: assignment?.mode ?? weapon.mode ?? 'Direct',
-      supportsIndirectMode:
-        isIndirectFireCapable(weapon.id) || isIndirectFireCapable(weapon.name),
-    };
-  });
+  return context.weapons.map((weapon) =>
+    buildWeaponPaletteRow(weapon, {
+      intent,
+      context,
+      unit,
+      session,
+      primaryTargetId,
+      assignmentByWeaponId,
+      legalityByWeaponId,
+      forecasts,
+    }),
+  );
 }
 
 /** Ledger view-model: totals + projected heat + always-visible chips. */

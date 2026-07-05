@@ -18,7 +18,10 @@ import {
   useCampaignStore,
 } from '@/stores/campaign/useCampaignStore';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
-import { CampaignPreset } from '@/types/campaign/CampaignPreset';
+import {
+  CampaignPreset,
+  PRESET_STARTING_FUNDS,
+} from '@/types/campaign/CampaignPreset';
 import { CampaignType } from '@/types/campaign/CampaignType';
 
 function resetWorld(): void {
@@ -46,6 +49,28 @@ describe('createCampaign — preset-derived options seam (D-3)', () => {
     expect(options?.payForMaintenance).toBe(false);
     expect(options?.useTaxes).toBe(false);
     expect(options?.useTurnover).toBe(false);
+    expect(options?.startingFunds).toBe(
+      PRESET_STARTING_FUNDS[CampaignPreset.CASUAL],
+    );
+  });
+
+  it('initializes the created campaign balance from preset startingFunds', () => {
+    const store = useCampaignStore();
+    store
+      .getState()
+      .createCampaign(
+        'Standard Co.',
+        CampaignType.MERCENARY,
+        applyPreset(CampaignPreset.STANDARD, CampaignType.MERCENARY),
+      );
+
+    const campaign = store.getState().getCampaign();
+    expect(campaign?.options.startingFunds).toBe(
+      PRESET_STARTING_FUNDS[CampaignPreset.STANDARD],
+    );
+    expect(campaign?.finances.balance.amount).toBe(
+      PRESET_STARTING_FUNDS[CampaignPreset.STANDARD],
+    );
   });
 
   it('layers campaign-type defaults under the preset overrides', () => {

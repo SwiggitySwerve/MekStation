@@ -4,11 +4,17 @@ import type {
   IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 
+import {
+  calculateGameOutcome,
+  calculateCombatStats,
+} from '@/services/game-resolution/GameOutcomeCalculator';
 import { TerrainPreset } from '@/types/encounter';
 import {
   GameSide,
   GameStatus,
   GamePhase,
+  GameEventType,
+  type IGameEndedPayload,
   LockState,
 } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
@@ -94,6 +100,16 @@ function createGameUnit(id: string, side: GameSide): IGameUnit {
     gunnery: 4,
     piloting: 5,
   };
+}
+
+function getGameEndedPayload(session: {
+  events: readonly { type: GameEventType; payload: unknown }[];
+}): IGameEndedPayload {
+  const ended = session.events.find(
+    (event) => event.type === GameEventType.GameEnded,
+  );
+  if (!ended) throw new Error('Expected GameEnded event');
+  return ended.payload as IGameEndedPayload;
 }
 
 describe('GameEngine', () => {
@@ -208,6 +224,101 @@ describe('GameEngine', () => {
       const s2 = makeSession();
       expect(s1.events.length).toBeGreaterThan(0);
       expect(s2.events.length).toBeGreaterThan(0);
+    });
+
+    it('reports turn_limit only after the configured turn count is reached', () => {
+      const engine = new GameEngine({
+        seed: 2468,
+        turnLimit: 1,
+        mapRadius: 5,
+      });
+      const p1: IAdaptedUnit = {
+        ...createTestUnit('player-1', GameSide.Player, { q: 0, r: -3 }),
+        weapons: [],
+      };
+      const o1: IAdaptedUnit = {
+        ...createTestUnit('opponent-1', GameSide.Opponent, { q: 0, r: 3 }),
+        weapons: [],
+      };
+      const gameUnits = [
+        createGameUnit('player-1', GameSide.Player),
+        createGameUnit('opponent-1', GameSide.Opponent),
+      ];
+
+      const session = engine.runToCompletion([p1], [o1], gameUnits);
+      const ended = getGameEndedPayload(session);
+      const outcome = calculateGameOutcome({
+        state: session.currentState,
+        events: session.events,
+        config: session.config,
+        startedAt: session.createdAt,
+        endedAt: session.updatedAt,
+      });
+
+      expect(ended.reason).toBe('turn_limit');
+      expect(ended.turns).toBeGreaterThanOrEqual(session.config.turnLimit);
+      expect(outcome.reason).toBe('turn_limit');
+      expect(outcome.turnsPlayed).toBe(ended.turns);
+    });
+
+    it('reports early elimination from the session record instead of turn_limit', () => {
+      const engine = new GameEngine({
+        seed: 13579,
+        turnLimit: 9,
+        mapRadius: 5,
+      });
+      const p1 = createTestUnit('player-1', GameSide.Player, { q: 0, r: -3 });
+      const o1: IAdaptedUnit = {
+        ...createTestUnit('opponent-1', GameSide.Opponent, { q: 0, r: 3 }),
+        destroyed: true,
+      };
+      const gameUnits = [
+        createGameUnit('player-1', GameSide.Player),
+        createGameUnit('opponent-1', GameSide.Opponent),
+      ];
+
+      const session = engine.runToCompletion([p1], [o1], gameUnits);
+      const ended = getGameEndedPayload(session);
+      const playerSurviving = Object.values(session.currentState.units).filter(
+        (unit) =>
+          unit.side === GameSide.Player &&
+          !unit.destroyed &&
+          !unit.hasRetreated &&
+          !unit.hasEjected,
+      ).length;
+      const opponentSurviving = Object.values(
+        session.currentState.units,
+      ).filter(
+        (unit) =>
+          unit.side === GameSide.Opponent &&
+          !unit.destroyed &&
+          !unit.hasRetreated &&
+          !unit.hasEjected,
+      ).length;
+      const outcome = calculateGameOutcome({
+        state: session.currentState,
+        events: session.events,
+        config: session.config,
+        startedAt: session.createdAt,
+        endedAt: session.updatedAt,
+      });
+      const combatStats = calculateCombatStats(
+        session.events,
+        session.currentState.units,
+      );
+
+      expect(session.currentState.turn).toBeLessThan(session.config.turnLimit);
+      expect(ended.reason).toBe('destruction');
+      expect(outcome.reason).toBe('elimination');
+      expect(outcome.turnsPlayed).toBe(session.currentState.turn);
+      expect(outcome.opponentUnitsDestroyed).toBe(
+        Object.values(session.currentState.units).filter(
+          (unit) => unit.side === GameSide.Opponent && unit.destroyed,
+        ).length,
+      );
+      expect(Math.min(playerSurviving, opponentSurviving)).toBe(0);
+      expect(outcome.playerDamageDealt).toBe(combatStats.playerDamageDealt);
+      expect(outcome.opponentDamageDealt).toBe(combatStats.opponentDamageDealt);
     });
   });
 

@@ -119,6 +119,23 @@ test.describe('Mobile Sidebar', () => {
     await expect(sidebar.getByText('Customizer')).toBeVisible();
   });
 
+  test('should hide bottom navigation while mobile sidebar is open', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await waitForHydration(page);
+
+    const bottomNav = page.getByRole('navigation', {
+      name: /mobile navigation/i,
+    });
+    await expect(bottomNav).toBeVisible();
+
+    await page.getByRole('button', { name: /open menu/i }).click();
+
+    await expect(page.getByTestId('mobile-menu')).toBeVisible();
+    await expect(bottomNav).toHaveCount(0);
+  });
+
   test('should display sidebar fully expanded with labels on mobile', async ({
     page,
   }) => {
@@ -521,6 +538,26 @@ test.describe('Touch Interactions', () => {
 
 test.describe('Gameplay Navigation', () => {
   test.use({ viewport: { width: 375, height: 667 } }); // iPhone SE viewport
+
+  test('should keep Quick Game primary action above the mobile bottom navigation', async ({
+    page,
+  }) => {
+    await page.goto('/gameplay/quick');
+    await waitForHydration(page);
+
+    const startButton = page.getByTestId('start-quick-game-btn');
+    const bottomNav = page.getByRole('navigation', {
+      name: /mobile navigation/i,
+    });
+    await expect(startButton).toBeVisible();
+    await expect(bottomNav).toBeVisible();
+
+    const buttonBox = await startButton.boundingBox();
+    const navBox = await bottomNav.boundingBox();
+    expect(buttonBox).not.toBeNull();
+    expect(navBox).not.toBeNull();
+    expect(buttonBox!.y + buttonBox!.height).toBeLessThanOrEqual(navBox!.y);
+  });
 
   test('should show gameplay section with all items in mobile sidebar', async ({
     page,

@@ -292,6 +292,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
   const routerNavigateToIndex = router.navigateToIndex;
   const routerNavigateToTab = router.navigateToTab;
   const {
+    campaignRoute,
     campaignSession,
     isCampaignLoading,
     isCampaignSyncPending,
@@ -337,7 +338,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
   useEffect(() => {
     // Wait for the Next router to parse the URL — before `isReady`,
     // `routerUnitId` is null even for a deep link (e2e triage RC15).
-    if (isCampaignSyncPending) return;
+    if (campaignRoute || isCampaignSyncPending) return;
     syncUrlToState({
       routerIsReady,
       isHydrated,
@@ -358,6 +359,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
     routerUnitId,
     routerIsValid,
     activeTabId,
+    campaignRoute,
     isCampaignSyncPending,
     tabs,
     selectTab,
@@ -375,7 +377,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
     // clobbering `/customizer/<id>[/<tab>]` deep links (e2e triage RC15).
     // Deep links must win; the URL->State effect above handles them once
     // `routerIsReady` flips.
-    if (isCampaignSyncPending) return;
+    if (campaignRoute || isCampaignSyncPending) return;
     syncStateToUrl({
       routerIsReady,
       isHydrated,
@@ -392,6 +394,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
     isHydrated,
     isLoading,
     activeTabId,
+    campaignRoute,
     isCampaignSyncPending,
     routerUnitId,
     routerSyncUrl,
@@ -430,7 +433,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
   }
 
   // Invalid unit ID in URL
-  if (!routerIsValid && !routerIsIndex) {
+  if (!campaignRoute && !routerIsValid && !routerIsIndex) {
     return <InvalidUnitState onNavigateToIndex={routerNavigateToIndex} />;
   }
 

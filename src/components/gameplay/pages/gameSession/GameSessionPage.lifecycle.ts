@@ -14,7 +14,7 @@ import { logger } from '@/utils/logger';
 
 interface GameSessionLifecycleParams {
   readonly router: NextRouter;
-  readonly routeId: string | string[] | undefined;
+  readonly routeId: string | null;
   readonly matchId: string | null;
   readonly session: IGameSession | null;
   readonly interactiveSession: InteractiveSession | null;
@@ -29,7 +29,7 @@ export const ACTIVE_INTERACTIVE_BATTLE_UNLOAD_MESSAGE =
   'Leaving now interrupts the active battle. Your match is saved locally when possible, but recovery may be unavailable in this browser state.';
 
 export function shouldWarnBeforeInteractiveBattleUnload(params: {
-  readonly routeId: string | string[] | undefined;
+  readonly routeId: string | null;
   readonly session: IGameSession | null;
   readonly interactiveSession: InteractiveSession | null;
   readonly isSpectatorMode: boolean;
@@ -42,6 +42,38 @@ export function shouldWarnBeforeInteractiveBattleUnload(params: {
     !params.isSpectatorMode &&
     params.session.currentState.status !== GameStatus.Completed,
   );
+}
+
+function firstRouteValue(value: string | string[] | undefined): string | null {
+  const candidate = Array.isArray(value) ? (value[0] ?? null) : (value ?? null);
+  if (!candidate || /^\[[^\]]+\]$/.test(candidate)) return null;
+  return candidate;
+}
+
+function decodePathSegment(segment: string): string {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+}
+
+function gameSessionIdFromPath(asPath: string): string | null {
+  const segments = asPath
+    .split('?')[0]
+    .split('/')
+    .filter(Boolean)
+    .map(decodePathSegment);
+  const gamesIndex = segments.indexOf('games');
+  const gameId = gamesIndex >= 0 ? segments[gamesIndex + 1] : null;
+  return gameId && segments.length === gamesIndex + 2 ? gameId : null;
+}
+
+export function resolveGameSessionRouteId(
+  routeId: string | string[] | undefined,
+  asPath: string,
+): string | null {
+  return firstRouteValue(routeId) ?? gameSessionIdFromPath(asPath);
 }
 
 export function useInteractiveBattleBeforeUnloadWarning(
@@ -64,7 +96,7 @@ export function useInteractiveBattleBeforeUnloadWarning(
 }
 
 function loadRouteSession(
-  routeId: string | string[] | undefined,
+  routeId: string | null,
   loadSession: (id: string) => Promise<void>,
   createDemoSession: () => void,
 ): void {
@@ -81,7 +113,7 @@ function canPersistCompletedSession(
   session: IGameSession | null,
   isCompletedForRedirect: boolean,
   hasPersisted: boolean,
-  routeId: string | string[] | undefined,
+  routeId: string | null,
 ): session is IGameSession {
   return Boolean(
     session &&
@@ -116,7 +148,7 @@ function persistMatchLog(
 function shouldPersistEncounter(
   session: IGameSession | null,
   isCompletedForRedirect: boolean,
-  routeId: string | string[] | undefined,
+  routeId: string | null,
   alreadyFired: boolean,
 ): session is IGameSession {
   return Boolean(
@@ -153,7 +185,7 @@ function persistEncounterReplay(session: IGameSession): () => void {
 function shouldRedirectCompletedGame(
   isCompletedForRedirect: boolean,
   isCampaignBound: boolean,
-  routeId: string | string[] | undefined,
+  routeId: string | null,
 ): routeId is string {
   return (
     isCompletedForRedirect &&

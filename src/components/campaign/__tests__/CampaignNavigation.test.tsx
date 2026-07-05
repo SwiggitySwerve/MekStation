@@ -8,7 +8,7 @@
  * @spec openspec/changes/add-campaign-bay-ui/specs/campaign-bay-ui/spec.md
  */
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import React from 'react';
 
 import {
@@ -25,25 +25,29 @@ describe('CampaignNavigation — Bays group', () => {
     );
     expect(screen.getByTestId('campaign-nav-bays-group')).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Bays' })).toBeInTheDocument();
+    expect(screen.getByTestId('campaign-nav-bays-group')).toHaveTextContent(
+      'Bays',
+    );
   });
 
   it('links to all four bay surfaces', () => {
     render(
       <CampaignNavigation campaignId="campaign-1" currentPage="dashboard" />,
     );
-    expect(screen.getByText('Mech Bay')).toHaveAttribute(
+    const baysGroup = screen.getByRole('group', { name: 'Bays' });
+    expect(within(baysGroup).getByText('Mech Bay')).toHaveAttribute(
       'href',
       '/gameplay/campaigns/campaign-1/mech-bay',
     );
-    expect(screen.getByText('Repair Bay')).toHaveAttribute(
+    expect(within(baysGroup).getByText('Repair Bay')).toHaveAttribute(
       'href',
       '/gameplay/campaigns/campaign-1/repair-bay',
     );
-    expect(screen.getByText('Medical Bay')).toHaveAttribute(
+    expect(within(baysGroup).getByText('Medical Bay')).toHaveAttribute(
       'href',
       '/gameplay/campaigns/campaign-1/medical-bay',
     );
-    expect(screen.getByText('Salvage')).toHaveAttribute(
+    expect(within(baysGroup).getByText('Salvage')).toHaveAttribute(
       'href',
       '/gameplay/campaigns/campaign-1/salvage',
     );
@@ -53,11 +57,16 @@ describe('CampaignNavigation — Bays group', () => {
     render(
       <CampaignNavigation campaignId="campaign-1" currentPage="repair-bay" />,
     );
-    expect(screen.getByText('Repair Bay')).toHaveAttribute(
-      'aria-current',
-      'page',
+    const baysGroup = screen.getByRole('group', { name: 'Bays' });
+    expect(screen.getByTestId('campaign-nav-bays-group')).toHaveTextContent(
+      'Repair Bay',
     );
-    expect(screen.getByText('Mech Bay')).not.toHaveAttribute('aria-current');
+    expect(
+      within(baysGroup).getByRole('link', { name: 'Repair Bay' }),
+    ).toHaveAttribute('aria-current', 'page');
+    expect(within(baysGroup).getByText('Mech Bay')).not.toHaveAttribute(
+      'aria-current',
+    );
   });
 
   it('still renders the core campaign tabs alongside the Bays group', () => {
@@ -87,25 +96,28 @@ describe('CampaignNavigation — Command group', () => {
       screen.getByTestId('campaign-nav-command-group'),
     ).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Command' })).toBeInTheDocument();
+    expect(screen.getByTestId('campaign-nav-command-group')).toHaveTextContent(
+      'Command',
+    );
   });
 
   it('links to all command surfaces', () => {
     render(
       <CampaignNavigation campaignId="campaign-1" currentPage="dashboard" />,
     );
-    expect(screen.getByText('Personnel & Hiring')).toHaveAttribute(
-      'href',
-      '/gameplay/campaigns/campaign-1/hiring',
-    );
-    expect(screen.getByText('Finances & Loans')).toHaveAttribute(
+    const commandGroup = screen.getByRole('group', { name: 'Command' });
+    expect(
+      within(commandGroup).getByText('Personnel & Hiring'),
+    ).toHaveAttribute('href', '/gameplay/campaigns/campaign-1/hiring');
+    expect(within(commandGroup).getByText('Finances & Loans')).toHaveAttribute(
       'href',
       '/gameplay/campaigns/campaign-1/finances',
     );
-    expect(screen.getByText('Contract Market')).toHaveAttribute(
+    expect(within(commandGroup).getByText('Contract Market')).toHaveAttribute(
       'href',
       '/gameplay/campaigns/campaign-1/contract-market',
     );
-    expect(screen.getByText('GM Ledger')).toHaveAttribute(
+    expect(within(commandGroup).getByText('GM Ledger')).toHaveAttribute(
       'href',
       '/gameplay/campaigns/campaign-1/gm-ledger',
     );
@@ -119,7 +131,8 @@ describe('CampaignNavigation — Command group', () => {
         coopSession={createHostCoopSession('HOST1', 'match-host')}
       />,
     );
-    expect(screen.getByText('GM Ledger')).toHaveAttribute(
+    const commandGroup = screen.getByRole('group', { name: 'Command' });
+    expect(within(commandGroup).getByText('GM Ledger')).toHaveAttribute(
       'href',
       '/gameplay/campaigns/campaign-1/gm-ledger',
     );
@@ -136,7 +149,10 @@ describe('CampaignNavigation — Command group', () => {
         coopSession={createGuestCoopSession('match-host', 'GUEST1')}
       />,
     );
-    expect(screen.queryByText('GM Ledger')).not.toBeInTheDocument();
+    const commandGroup = screen.getByRole('group', { name: 'Command' });
+    expect(
+      within(commandGroup).queryByText('GM Ledger'),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId('coop-session-badge')).toHaveTextContent(
       'Co-op session: Guest',
     );
@@ -146,22 +162,28 @@ describe('CampaignNavigation — Command group', () => {
     render(
       <CampaignNavigation campaignId="campaign-1" currentPage="finances" />,
     );
-    expect(screen.getByText('Finances & Loans')).toHaveAttribute(
-      'aria-current',
-      'page',
+    const commandGroup = screen.getByRole('group', { name: 'Command' });
+    expect(screen.getByTestId('campaign-nav-command-group')).toHaveTextContent(
+      'Finances & Loans',
     );
-    expect(screen.getByText('Personnel & Hiring')).not.toHaveAttribute(
-      'aria-current',
-    );
+    expect(
+      within(commandGroup).getByRole('link', { name: 'Finances & Loans' }),
+    ).toHaveAttribute('aria-current', 'page');
+    expect(
+      within(commandGroup).getByText('Personnel & Hiring'),
+    ).not.toHaveAttribute('aria-current');
   });
 
   it('marks the GM ledger command page with aria-current', () => {
     render(
       <CampaignNavigation campaignId="campaign-1" currentPage="gm-ledger" />,
     );
-    expect(screen.getByText('GM Ledger')).toHaveAttribute(
-      'aria-current',
-      'page',
+    const commandGroup = screen.getByRole('group', { name: 'Command' });
+    expect(screen.getByTestId('campaign-nav-command-group')).toHaveTextContent(
+      'GM Ledger',
     );
+    expect(
+      within(commandGroup).getByRole('link', { name: 'GM Ledger' }),
+    ).toHaveAttribute('aria-current', 'page');
   });
 });

@@ -152,6 +152,8 @@
     "qc:command-evidence:validate": "node scripts/qc/validate-playable-command-screen-slices.mjs --require-evidence --evidence-dir=.sisyphus/evidence/feature-screens/2026-06-30-playable-command-screens",
     "qc:command-evidence": "npm run qc:command-evidence:capture && npm run qc:command-evidence:validate",
     "qc:command-evidence:prod": "npm run qc:command-evidence:capture:prod && npm run qc:command-evidence:validate",
+    "qc:ux-audit": "node scripts/qc/run-ux-walkthrough.mjs",
+    "qc:ux-audit:prod": "node scripts/qc/run-ux-walkthrough.mjs --prod",
     "qc:command-slices": "node scripts/qc/validate-playable-command-screen-slices.mjs --run",
     "qc:command:combat:quick": "node scripts/qc/validate-playable-command-screen-slices.mjs --run --slice=combat-command",
     "qc:command:readiness-stable:quick": "node scripts/qc/validate-playable-command-screen-slices.mjs --run --slice=readiness-stable",

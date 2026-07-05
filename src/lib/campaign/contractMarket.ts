@@ -17,7 +17,10 @@
  */
 
 import { ICampaign } from '@/types/campaign/Campaign';
-import { CONTRACT_TYPE_DEFINITIONS } from '@/types/campaign/contracts/contractTypes';
+import {
+  AtBContractType,
+  CONTRACT_TYPE_DEFINITIONS,
+} from '@/types/campaign/contracts/contractTypes';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { getAllUnits } from '@/types/campaign/Force';
 import { IContract } from '@/types/campaign/Mission';
@@ -28,6 +31,8 @@ import {
   contractLengthToDays,
 } from './contracts/contractLength';
 import {
+  ATB_BASE_PAY_PER_MONTH_BY_TYPE,
+  ATB_MIN_CONTRACT_BASE_PAY,
   CBILLS_PER_BV,
   PLACEHOLDER_BV_PER_UNIT,
 } from './contracts/contractMarketConstants';
@@ -62,6 +67,8 @@ export {
   CBILLS_PER_BV,
   CONTRACT_GROUP_WEIGHTS,
   CONTRACT_TYPES,
+  ATB_BASE_PAY_PER_MONTH_BY_TYPE,
+  ATB_MIN_CONTRACT_BASE_PAY,
   DURATION_MAX_DAYS,
   DURATION_MIN_DAYS,
   EMPLOYER_FACTIONS,
@@ -106,6 +113,19 @@ export function calculateForceBV(campaign: ICampaign): number {
 
   const allUnitIds = getAllUnits(rootForce, campaign.forces);
   return allUnitIds.length * PLACEHOLDER_BV_PER_UNIT;
+}
+
+export function calculateAtBBasePayment(
+  contractType: AtBContractType,
+  durationDays: number,
+): Money {
+  const monthlyRate = ATB_BASE_PAY_PER_MONTH_BY_TYPE[contractType];
+  const durationMultiplier = Math.max(1, durationDays / 30);
+  const amount = Math.max(
+    ATB_MIN_CONTRACT_BASE_PAY,
+    Math.round(monthlyRate * durationMultiplier),
+  );
+  return new Money(amount);
 }
 
 /**
@@ -183,7 +203,6 @@ export function generateAtBContracts(
   random: RandomFn = defaultRandom,
 ): IContract[] {
   const contracts: IContract[] = [];
-  const forceBV = calculateForceBV(campaign);
 
   for (let i = 0; i < count; i++) {
     const atbType = selectAtBContractType(random);
@@ -203,11 +222,7 @@ export function generateAtBContracts(
       random,
     );
 
-    // Ops tempo affects payment (higher tempo = higher risk = more pay)
-    const opsMultiplier = typeDef.opsTempo.min;
-    const basePayment = new Money(
-      Math.round(forceBV * CBILLS_PER_BV * opsMultiplier),
-    );
+    const basePayment = calculateAtBBasePayment(atbType, durationDays);
     const salvagePercent = generateRandomSalvagePercent(random);
 
     const paymentTerms = buildOutcomePaymentTerms(basePayment, salvagePercent);

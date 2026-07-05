@@ -120,14 +120,7 @@ export function UnitsTable({
                   className="hover:bg-surface-raised/30 transition-colors"
                 >
                   <td className="px-3 py-2">
-                    <Link
-                      href={`/compendium/units/${unit.id}`}
-                      className="group"
-                    >
-                      <span className="text-text-theme-primary group-hover:text-accent text-sm font-medium whitespace-nowrap transition-colors">
-                        {unit.chassis}
-                      </span>
-                    </Link>
+                    <UnitDetailLink unit={unit} />
                   </td>
                   <td className="text-text-theme-primary/80 px-3 py-2 text-sm whitespace-nowrap">
                     {unit.variant}
@@ -167,6 +160,41 @@ export function UnitsTable({
         </table>
       </div>
     </Card>
+  );
+}
+
+function UnitDetailLink({
+  unit,
+}: {
+  readonly unit: IUnitEntry;
+}): React.ReactElement {
+  const href = `/compendium/units/${unit.id}`;
+
+  return (
+    <Link
+      href={href}
+      onClick={(event) => {
+        if (
+          process.env.NODE_ENV !== 'production' ||
+          event.defaultPrevented ||
+          event.button !== 0 ||
+          event.metaKey ||
+          event.altKey ||
+          event.ctrlKey ||
+          event.shiftKey
+        ) {
+          return;
+        }
+
+        event.preventDefault();
+        window.location.assign(href);
+      }}
+      className="group"
+    >
+      <span className="text-text-theme-primary group-hover:text-accent text-sm font-medium whitespace-nowrap transition-colors">
+        {unit.chassis}
+      </span>
+    </Link>
   );
 }
 

@@ -30,4 +30,10 @@ describe('GameplayHubPage', () => {
       ).toBe(true);
     }
   });
+
+  it('hides the internal flow shell outside development and QC contexts', () => {
+    render(<GameplayHubPage />);
+
+    expect(screen.queryByTestId('gameplay-flow-shell')).toBeNull();
+  });
 });

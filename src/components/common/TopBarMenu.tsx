@@ -7,6 +7,7 @@ export interface NavItemConfig {
   href: string;
   icon: ReactElement;
   label: string;
+  prefetch?: false;
 }
 
 export interface DropdownProps {
@@ -104,6 +105,7 @@ export function DropdownMenu({
           <Link
             key={item.href}
             href={item.href}
+            prefetch={item.prefetch}
             className={`flex items-center gap-2.5 px-3 py-2.5 text-sm transition-colors duration-150 ${
               isPathActive(item.href)
                 ? 'text-accent bg-accent/10'

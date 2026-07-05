@@ -21,8 +21,12 @@ import { useStore } from 'zustand';
 
 import type { IActivityLogEntry } from '@/types/campaign/ActivityLog';
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 
 // =============================================================================
 // Summary shape
@@ -181,7 +185,11 @@ function extractActiveContractSummary(
  * surfaces a quick estimate so the dashboard's "runway in days" lines
  * up roughly with the day-report breakdown.
  */
-function extractFinancesSummary(campaign: ICampaign | null): IFinancesSummary {
+function extractFinancesSummary(
+  campaign: ICampaign | null,
+  pilotCount: number,
+  unitCount: number,
+): IFinancesSummary {
   if (!campaign) {
     return {
       balanceFormatted: 'No campaign',
@@ -199,8 +207,6 @@ function extractFinancesSummary(campaign: ICampaign | null): IFinancesSummary {
         format?: () => string;
       };
     };
-    personnel?: { size: number } | Set<unknown>;
-    forces?: { size: number } | Set<unknown>;
   };
   // Money.format() is the canonical formatter — fall back gracefully if absent.
   const balanceFormatted =
@@ -216,16 +222,8 @@ function extractFinancesSummary(campaign: ICampaign | null): IFinancesSummary {
   // come from the day report after an advance.
   const DEFAULT_DAILY_SALARY = 50;
   const DEFAULT_DAILY_MAINTENANCE = 100;
-  const personnelSize =
-    extended.personnel && 'size' in extended.personnel
-      ? (extended.personnel.size ?? 0)
-      : 0;
-  const forcesSize =
-    extended.forces && 'size' in extended.forces
-      ? (extended.forces.size ?? 0)
-      : 0;
-  const dailySalariesAmount = DEFAULT_DAILY_SALARY * personnelSize;
-  const dailyMaintenanceAmount = DEFAULT_DAILY_MAINTENANCE * forcesSize;
+  const dailySalariesAmount = DEFAULT_DAILY_SALARY * pilotCount;
+  const dailyMaintenanceAmount = DEFAULT_DAILY_MAINTENANCE * unitCount;
   // Loan repayment is part of `dailyCostsProcessor` output; quick-estimate
   // it as zero here — the dashboard's day-advance card surfaces the
   // authoritative number after the next advance.
@@ -251,8 +249,10 @@ function extractFinancesSummary(campaign: ICampaign | null): IFinancesSummary {
  * Force snapshot — counts only. Detailed roster + mech bay state stay
  * on the relevant sub-routes; this just shows the headline numbers.
  */
-function extractForceSnapshot(
+export function extractForceSnapshot(
   campaign: ICampaign | null,
+  rosterUnits: readonly IRosterUnitProjection[] = [],
+  rosterPilots: readonly ICampaignRosterEntry[] = [],
 ): IForceSnapshotSummary {
   if (!campaign) {
     return {
@@ -263,20 +263,16 @@ function extractForceSnapshot(
     };
   }
   const extended = campaign as ICampaign & {
-    personnel?: Set<unknown> | { size: number };
-    forces?: Set<unknown> | { size: number };
-    medical?: { injuries?: readonly unknown[] };
     repairBay?: { tickets?: readonly unknown[] };
   };
   return {
-    mechCount:
-      extended.forces && 'size' in extended.forces ? extended.forces.size : 0,
-    pilotCount:
-      extended.personnel && 'size' in extended.personnel
-        ? extended.personnel.size
-        : 0,
-    injuredPilotCount: extended.medical?.injuries?.length ?? 0,
-    repairQueueDepth: extended.repairBay?.tickets?.length ?? 0,
+    mechCount: rosterUnits.length,
+    pilotCount: rosterPilots.length,
+    injuredPilotCount: rosterPilots.filter(
+      (pilot) => pilot.status !== CampaignPilotStatus.Active,
+    ).length,
+    repairQueueDepth:
+      campaign.repairQueue?.length ?? extended.repairBay?.tickets?.length ?? 0,
   };
 }
 
@@ -438,12 +434,22 @@ export function useCampaignDashboardSummary(): IDashboardSummary | null {
     store,
     (state) => state.pendingBattleOutcomes,
   );
+  const rosterUnits = useCampaignRosterStore((state) => state.units);
+  const rosterPilots = useCampaignRosterStore((state) => state.pilots);
 
   return useMemo<IDashboardSummary | null>(() => {
     if (!campaign) return null;
-    const forceSnapshot = extractForceSnapshot(campaign);
+    const forceSnapshot = extractForceSnapshot(
+      campaign,
+      rosterUnits,
+      rosterPilots,
+    );
     const activeContract = extractActiveContractSummary(campaign);
-    const finances = extractFinancesSummary(campaign);
+    const finances = extractFinancesSummary(
+      campaign,
+      forceSnapshot.pilotCount,
+      forceSnapshot.mechCount,
+    );
 
     return {
       campaignId: campaign.id,
@@ -472,5 +478,5 @@ export function useCampaignDashboardSummary(): IDashboardSummary | null {
     // The memo key is the identity of the campaign + log — re-runs only when
     // those change. Day-advance mutates both, so the dashboard sees fresh
     // numbers immediately after an advance.
-  }, [campaign, activityLog, pendingBattleOutcomes]);
+  }, [campaign, activityLog, pendingBattleOutcomes, rosterPilots, rosterUnits]);
 }

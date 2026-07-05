@@ -26,11 +26,9 @@ files:
 extraResources:
   # Electron-ABI standalone output (prepared by desktop/scripts/rebuild-next-standalone.js).
   # Keep this separate from ../.next/standalone so `npm run start` remains plain-Node compatible.
+  # This payload already includes `.next/static` after `npm run build` hydration.
   - from: '.tmp/next-standalone-electron'
     to: 'next-standalone'
-  # Next.js static assets (CSS/JS) for standalone server
-  - from: '../.next/static'
-    to: 'next-standalone/.next/static'
   # NOTE: Next.js public assets are copied via an afterPack hook (with retries)
   # to avoid intermittent Windows file locking errors during electron-builder bulk copy.
 

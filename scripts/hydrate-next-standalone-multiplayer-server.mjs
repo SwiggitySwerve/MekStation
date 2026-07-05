@@ -73,9 +73,21 @@ function copyPublicAssets() {
   );
 }
 
+function copyNextStaticAssets() {
+  copyDir(
+    path.join(root, '.next', 'static'),
+    path.join(standaloneDir, '.next', 'static'),
+  );
+  assertExists(
+    path.join(standaloneDir, '.next', 'static', 'chunks'),
+    'standalone Next static chunks',
+  );
+}
+
 function main() {
   assertExists(standaloneDir, 'Next standalone output');
   assertExists(generatedServerPath, 'generated Next standalone server');
+  assertExists(path.join(root, '.next', 'static'), 'Next static assets');
   assertExists(path.join(root, 'server.js'), 'custom multiplayer server');
   assertExists(path.join(root, 'tsconfig.json'), 'TypeScript config');
   assertExists(path.join(root, 'public'), 'public assets');
@@ -114,6 +126,7 @@ function main() {
   copyDir(path.join(root, 'src'), path.join(standaloneDir, 'src'));
   copyRuntimeLoaders();
   copyPublicAssets();
+  copyNextStaticAssets();
 
   const hydratedServer = fs.readFileSync(generatedServerPath, 'utf8');
   if (
@@ -133,6 +146,7 @@ function main() {
         nextConfig: rel(standaloneConfigPath),
         runtimeLoaders: [...runtimeModuleDirs, ...runtimeScopedDirs],
         publicAssets: rel(path.join(standaloneDir, 'public')),
+        nextStaticAssets: rel(path.join(standaloneDir, '.next', 'static')),
         sourceTree: rel(path.join(standaloneDir, 'src')),
       },
       null,

@@ -66,6 +66,28 @@ const navigationCards: NavigationCard[] = [
     ),
   },
   {
+    href: '/gameplay',
+    title: 'Gameplay',
+    description: 'Start quick games, campaigns, encounters, and multiplayer',
+    accent: 'from-rose-600 to-red-700',
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+        className="h-8 w-8"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M6 7.5h12m-10.5 3h9m-7.5 3h6m-10.5 6l1.5-4.5A9 9 0 1119.5 7.5"
+        />
+      </svg>
+    ),
+  },
+  {
     href: '/units',
     title: 'My Units',
     description: 'Your custom unit creations and variants',

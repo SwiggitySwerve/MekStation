@@ -66,7 +66,7 @@ interface InteractiveCompletionSession {
 }
 
 interface GameSessionCallbacksOptions {
-  readonly routeId: string | string[] | undefined;
+  readonly routeId: string | null;
   readonly isInteractive: boolean;
   readonly handleAction: (
     actionId: string,

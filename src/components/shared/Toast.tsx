@@ -62,9 +62,20 @@ interface ToastContextValue {
 // =============================================================================
 
 /**
- * Default auto-dismiss duration in milliseconds
+ * Default auto-dismiss duration in milliseconds.
+ * Routine success confirmations should clear quickly; error and warning toasts
+ * stay longer because they usually carry corrective information.
  */
-const DEFAULT_DURATION = 3000;
+const DEFAULT_DURATIONS: Record<ToastVariant, number> = {
+  success: 1800,
+  info: 3000,
+  warning: 5000,
+  error: 5000,
+};
+
+function getToastDuration(config: ToastConfig): number {
+  return config.duration ?? DEFAULT_DURATIONS[config.variant];
+}
 
 /**
  * Variant-specific styling
@@ -232,20 +243,20 @@ function Toast({
 
   // Auto-dismiss timer
   useEffect(() => {
-    const duration = config.duration ?? DEFAULT_DURATION;
+    const duration = getToastDuration(config);
     if (duration > 0) {
       const timer = setTimeout(() => {
         handleDismiss();
       }, duration);
       return () => clearTimeout(timer);
     }
-  }, [config.duration, handleDismiss]);
+  }, [config, handleDismiss]);
 
   return (
     <div
       role="alert"
       aria-live="polite"
-      className={`flex max-w-[400px] min-w-[280px] items-center gap-3 rounded-lg border px-4 py-3 shadow-lg ${styles.bg} ${styles.border} transform transition-all duration-200 ease-out ${isExiting ? 'translate-x-4 opacity-0' : 'translate-x-0 opacity-100'} `}
+      className={`flex w-full min-w-0 items-center gap-3 rounded-lg border px-4 py-3 shadow-lg sm:max-w-[400px] sm:min-w-[280px] ${styles.bg} ${styles.border} transform transition-all duration-200 ease-out ${isExiting ? 'translate-x-4 opacity-0' : 'translate-x-0 opacity-100'} `}
     >
       {/* Icon */}
       <div className={`flex-shrink-0 ${styles.icon}`}>{icon}</div>
@@ -308,8 +319,9 @@ function ToastContainer({
 
   return (
     <div
-      className="pointer-events-none fixed right-4 bottom-4 z-50 flex flex-col gap-2"
+      className="pointer-events-none fixed top-[calc(4.25rem+env(safe-area-inset-top,0px))] right-3 left-3 z-50 flex flex-col gap-2 sm:top-[calc(4.75rem+env(safe-area-inset-top,0px))] sm:left-auto sm:w-96"
       aria-label="Notifications"
+      data-testid="toast-container"
     >
       {toasts.map((toast) => (
         <div key={toast.id} className="pointer-events-auto">
