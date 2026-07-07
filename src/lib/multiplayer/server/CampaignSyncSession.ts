@@ -240,7 +240,7 @@ export class CampaignSyncSession {
       sequence: -1,
       campaignId: this.host.campaignId,
       ts: nowIso(),
-      authorPlayerId: 'host',
+      authorPlayerId: this.host.getHostPlayerId(),
       payload: this.host.buildSnapshotPayload(),
     };
   }

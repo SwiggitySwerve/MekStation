@@ -204,6 +204,13 @@ export interface CampaignCoopRouteSurfaceProps {
    * Wave 6.2 replaces with the authenticated multiplayer player id.
    */
   readonly proposingPlayerId?: string;
+  readonly guestMirrorSummary?: {
+    readonly status: 'connecting' | 'synced' | 'missing-token' | 'paused';
+    readonly balance?: number;
+    readonly rosterUnitCount?: number;
+    readonly pilotCount?: number;
+    readonly lastSequence?: number;
+  };
 }
 
 // =============================================================================
@@ -238,6 +245,7 @@ export function CampaignCoopRouteSurface(
     },
     proposalTransport = defaultUnavailableTransport,
     proposingPlayerId = 'co-op-guest',
+    guestMirrorSummary,
   } = props;
 
   // Always call hooks unconditionally — the early-return below is a render
@@ -294,9 +302,42 @@ export function CampaignCoopRouteSurface(
           data-testid="campaign-coop-route-surface-guest-dashboard-banner"
           className="mb-6 rounded-lg border border-sky-700 bg-sky-900/30 p-4 text-sm text-sky-200"
         >
-          You are joined as a guest. Mutation controls on every sub-route submit
-          proposals to the host for review instead of mutating campaign state
-          directly.
+          <p>
+            You are joined as a guest. Mutation controls on every sub-route
+            submit proposals to the host for review instead of mutating campaign
+            state directly.
+          </p>
+          {guestMirrorSummary ? (
+            <dl
+              className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4"
+              data-testid="guest-mirror-sync-summary"
+            >
+              <div>
+                <dt className="text-sky-300/80">Sync</dt>
+                <dd data-testid="guest-mirror-sync-status">
+                  {guestMirrorSummary.status}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sky-300/80">Balance</dt>
+                <dd data-testid="guest-mirror-balance">
+                  {guestMirrorSummary.balance?.toLocaleString() ?? 'pending'}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sky-300/80">Units</dt>
+                <dd data-testid="guest-mirror-unit-count">
+                  {guestMirrorSummary.rosterUnitCount ?? 0}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sky-300/80">Seq</dt>
+                <dd data-testid="guest-mirror-last-sequence">
+                  {guestMirrorSummary.lastSequence ?? -1}
+                </dd>
+              </div>
+            </dl>
+          ) : null}
         </div>
       );
     }

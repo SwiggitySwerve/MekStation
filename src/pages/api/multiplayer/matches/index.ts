@@ -32,6 +32,7 @@ import {
   type CreateMultiplayerMatchBody,
 } from '@/lib/api/securitySchemas';
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
+import { getCampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import { getDefaultPlayerStore } from '@/lib/multiplayer/server/InMemoryPlayerStore';
 import { setAiSlot } from '@/lib/multiplayer/server/lobby/lobbyStateMachine';
@@ -204,6 +205,7 @@ function buildMatchMeta(
     unitBootstrap:
       body.unitBootstrap ??
       buildDefaultMatchUnitBootstrap(body.layout, body.config.mapRadius),
+    coopCampaign: body.coopCampaign,
   };
 }
 
@@ -242,7 +244,20 @@ export default async function handler(
 
   try {
     await store.createMatch(meta);
+    if (body.coopCampaign) {
+      if (!meta.roomCode) {
+        throw new Error('Co-op campaign registration requires a room code');
+      }
+      await getCampaignHostRegistry().register(meta.matchId, {
+        campaignId: body.coopCampaign.campaignId,
+        hostPlayerId,
+        roomCode: meta.roomCode,
+        state: body.coopCampaign.state,
+        arbitrationMode: body.coopCampaign.arbitrationMode,
+      });
+    }
   } catch (e) {
+    await store.closeMatch(meta.matchId).catch(() => undefined);
     res.status(500).json({
       error: e instanceof Error ? e.message : 'Failed to create match',
     });

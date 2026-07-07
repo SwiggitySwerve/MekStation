@@ -4,6 +4,7 @@ import type { DayReport } from '@/lib/campaign/dayAdvancement';
 import type { IStarmapTravelPreview } from '@/lib/starmap/starmapTravelPreview';
 import type { IActivityLogEntry } from '@/types/campaign/ActivityLog';
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
+import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
 import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
@@ -34,6 +35,11 @@ export interface IGuestMirrorSnapshot {
   readonly factionId: string;
   /** Room code the guest typed to join; surfaced on the navigation badge. */
   readonly roomCode: string;
+  /**
+   * Authoritative host baseline received before the guest shell is minted.
+   * Optional for older invite-only joins; live co-op joins SHOULD provide it.
+   */
+  readonly authoritativeState?: ICampaignAuthoritativeState;
 }
 
 export interface CampaignState {

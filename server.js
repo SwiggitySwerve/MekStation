@@ -278,10 +278,12 @@ function loadMultiplayerRuntime() {
   require('tsx/cjs');
   const registryModule = require('./src/lib/multiplayer/server/MatchHostRegistry.ts');
   const socketModule = require('./src/lib/multiplayer/server/bindMultiplayerSocketConnection.ts');
+  const campaignSocketModule = require('./src/lib/multiplayer/server/bindCampaignSyncConnection.ts');
   multiplayerRuntime = {
     bootstrapMultiplayerServer: registryModule.bootstrapMultiplayerServer,
     bindMultiplayerSocketConnection:
       socketModule.bindMultiplayerSocketConnection,
+    bindCampaignSyncConnection: campaignSocketModule.bindCampaignSyncConnection,
   };
   return multiplayerRuntime;
 }
@@ -373,6 +375,8 @@ app
       const diceSeed = req._mpDiceSeed;
       const url = parse(req.url ?? '/', true);
       const matchId = firstQueryValue(url.query.matchId);
+      const channel = firstQueryValue(url.query.channel);
+      const isCampaignSync = channel === 'campaign';
       if (typeof matchId !== 'string' || matchId.length === 0) {
         sendTerminalSocketFrame(ws, '', 'UNKNOWN_MATCH', 'missing-match', 1008);
         return;
@@ -392,7 +396,9 @@ app
       }
       // eslint-disable-next-line no-console
       console.log(
-        `[mp-socket] connection accepted matchId=${matchId} playerId=${verifiedPlayerId}${
+        `[mp-socket] connection accepted matchId=${matchId} channel=${
+          isCampaignSync ? 'campaign' : 'combat'
+        } playerId=${verifiedPlayerId}${
           diceSeed != null ? ` diceSeed=${diceSeed}` : ''
         }`,
       );
@@ -423,19 +429,33 @@ app
         });
       }
       try {
-        void loadMultiplayerRuntime()
-          .bindMultiplayerSocketConnection({
-            socket: ws,
-            matchId,
-            verifiedPlayerId,
-            ...(diceSeed != null ? { diceSeed } : {}),
-            logger: console,
-          })
+        const runtime = loadMultiplayerRuntime();
+        const bindPromise = isCampaignSync
+          ? runtime.bindCampaignSyncConnection({
+              socket: ws,
+              matchId,
+              verifiedPlayerId,
+              logger: console,
+            })
+          : runtime.bindMultiplayerSocketConnection({
+              socket: ws,
+              matchId,
+              verifiedPlayerId,
+              ...(diceSeed != null ? { diceSeed } : {}),
+              logger: console,
+            });
+        void bindPromise
           .then((bound) => {
             if (bound) {
               // eslint-disable-next-line no-console
               console.log(
-                `[mp-socket] bound matchId=${matchId} connection=${bound.connectionKey}`,
+                `[mp-socket] bound matchId=${matchId} channel=${
+                  isCampaignSync ? 'campaign' : 'combat'
+                }${
+                  'connectionKey' in bound
+                    ? ` connection=${bound.connectionKey}`
+                    : ''
+                }`,
               );
             }
           })

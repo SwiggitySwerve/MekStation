@@ -10,6 +10,11 @@
  */
 
 import {
+  assertKnownCampaignSyncFrameKind,
+  CampaignDecisionSchema,
+  CampaignJoinSchema,
+  CampaignParticipationSchema,
+  CampaignProposalSchema,
   ClientMessageSchema,
   ErrorMessageSchema,
   IntentSchema,
@@ -355,6 +360,67 @@ describe('Protocol envelope schemas', () => {
     });
   });
 
+  describe('Campaign sync frames', () => {
+    it('parses client campaign-sync frames through the shared envelope', () => {
+      const frames = [
+        {
+          kind: 'CampaignJoin' as const,
+          matchId: 'match-campaign',
+          ts: nowIso(),
+          playerId: 'pid_guest',
+          role: 'guest' as const,
+          roomCode: 'ABC234',
+          lastSeq: 0,
+        },
+        {
+          kind: 'CampaignProposal' as const,
+          matchId: 'match-campaign',
+          ts: nowIso(),
+          playerId: 'pid_guest',
+          proposal: { proposalId: 'proposal-1' },
+        },
+        {
+          kind: 'CampaignDecision' as const,
+          matchId: 'match-campaign',
+          ts: nowIso(),
+          playerId: 'pid_host',
+          proposalId: 'proposal-1',
+          decision: 'approve' as const,
+        },
+        {
+          kind: 'CampaignParticipation' as const,
+          matchId: 'match-campaign',
+          ts: nowIso(),
+          playerId: 'pid_guest',
+          participation: {
+            matchId: 'match-campaign',
+            missionId: 'mission-1',
+            playerId: 'pid_guest',
+            role: 'guest' as const,
+            choice: 'deploy' as const,
+            force: { id: 'force-guest' },
+          },
+        },
+      ];
+
+      expect(CampaignJoinSchema.safeParse(frames[0]).success).toBe(true);
+      expect(CampaignProposalSchema.safeParse(frames[1]).success).toBe(true);
+      expect(CampaignDecisionSchema.safeParse(frames[2]).success).toBe(true);
+      expect(CampaignParticipationSchema.safeParse(frames[3]).success).toBe(
+        true,
+      );
+      for (const frame of frames) {
+        expect(ClientMessageSchema.safeParse(frame).success).toBe(true);
+      }
+    });
+
+    it('throws loudly for an unknown campaign-sync frame kind', () => {
+      expect(() =>
+        assertKnownCampaignSyncFrameKind('CampaignTimeTravel'),
+      ).toThrow(/Unknown campaign-sync frame kind/);
+    });
+  });
+
   describe('Server-side messages', () => {
     it('parses ReplayStart, Chunk, End, Event, Heartbeat, Error, Close', () => {
       const variants = [
@@ -397,6 +463,44 @@ describe('Protocol envelope schemas', () => {
           ts: nowIso(),
           code: 'STORE_FAILURE' as const,
           reason: 'oops',
+        },
+        {
+          kind: 'CampaignSnapshot' as const,
+          matchId: 'm',
+          ts: nowIso(),
+          event: { type: 'CampaignSnapshotPublished' },
+        },
+        {
+          kind: 'CampaignEvent' as const,
+          matchId: 'm',
+          ts: nowIso(),
+          event: { type: 'FundsChanged' },
+        },
+        {
+          kind: 'CampaignProposal' as const,
+          matchId: 'm',
+          ts: nowIso(),
+          proposal: { proposalId: 'proposal-1' },
+        },
+        {
+          kind: 'CampaignDecision' as const,
+          matchId: 'm',
+          ts: nowIso(),
+          proposalId: 'proposal-1',
+          result: { status: 'committed' },
+        },
+        {
+          kind: 'CampaignParticipation' as const,
+          matchId: 'm',
+          ts: nowIso(),
+          participation: {
+            matchId: 'm',
+            missionId: 'mission-1',
+            playerId: 'pid_guest',
+            role: 'guest' as const,
+            choice: 'deploy' as const,
+            force: { id: 'force-guest' },
+          },
         },
       ];
       for (const v of variants) {

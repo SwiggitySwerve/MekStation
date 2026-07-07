@@ -175,6 +175,10 @@ export class CampaignMatchHost {
     return this.state;
   };
 
+  getHostPlayerId = (): string => {
+    return this.hostPlayerId;
+  };
+
   /** The campaign event log facade — for the sync-session replay path. */
   getEventLog = (): CampaignEventLog => {
     return this.log;

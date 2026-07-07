@@ -1293,8 +1293,15 @@
       "riskTags": ["playability", "networking", "state-sync", "security"],
       "qualityLenses": ["functionality", "ux", "security", "test-quality"],
       "coverageStatus": "ready-with-scope",
-      "routes": ["/gameplay/campaigns", "/gameplay/games/[id]"],
+      "routes": [
+        "/gameplay/campaigns",
+        "/gameplay/campaigns/[id]",
+        "/gameplay/campaigns/[id]/finances",
+        "/gameplay/campaigns/[id]/missions/[missionId]/launch",
+        "/gameplay/games/[id]"
+      ],
       "apis": [
+        "/api/multiplayer/auth/token",
         "/api/multiplayer/matches",
         "/api/multiplayer/matches/[id]",
         "/api/multiplayer/invites/[roomCode]"
@@ -1302,6 +1309,8 @@
       "desktopSurfaces": ["desktop packaged server/runtime"],
       "modules": [
         "server.js",
+        "src/lib/campaign/coop",
+        "src/lib/p2p/campaignMirrorStore.ts",
         "src/lib/multiplayer",
         "src/pages/api/multiplayer",
         "src/components/multiplayer",
@@ -1309,29 +1318,47 @@
       ],
       "submodules": [
         "match host registry",
+        "server-resident campaign host registry",
+        "campaign sync socket channel",
+        "guest mirror hydration",
+        "co-op proposal arbitration",
+        "co-op mission participation",
         "invite lookup",
         "fog permissions",
         "co-op route surface",
         "Yjs/P2P sync"
       ],
-      "specRefs": ["openspec/specs/multiplayer-server/spec.md"],
-      "activeChangeRefs": [],
+      "specRefs": [
+        "openspec/specs/multiplayer-server/spec.md",
+        "openspec/changes/prove-live-coop-campaign-journey/specs/coop-campaign-sync/spec.md",
+        "openspec/changes/prove-live-coop-campaign-journey/specs/e2e-testing/spec.md",
+        "openspec/changes/prove-live-coop-campaign-journey/specs/multiplayer-server/spec.md"
+      ],
+      "activeChangeRefs": ["prove-live-coop-campaign-journey"],
       "tests": [
         "e2e/p2p-sync.spec.ts",
         "e2e/playtest-mp-smoke.spec.ts",
         "e2e/playtest-coop-route-smoke.spec.ts",
         "e2e/multiplayer-live-vault-auth.spec.ts",
+        "e2e/coop-campaign-two-browser-journey.spec.ts",
+        "e2e/coop-campaign-ui-audit.spec.ts",
         "src/components/multiplayer/__tests__/CreateMatchForm.test.tsx",
         "src/__tests__/unit/api/multiplayerMatchesFog.test.ts",
         "src/__tests__/unit/api/multiplayerSpectate.test.ts",
         "src/__tests__/integration/phase4Multiplayer.test.ts",
+        "src/__tests__/integration/coopCampaignPlay.test.ts",
         "src/lib/multiplayer/__tests__/turnOwnership.test.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
         "src/lib/multiplayer/server/__tests__/reconnectionFlow.test.ts",
         "src/lib/multiplayer/server/__tests__/fogOfWar.test.ts",
+        "src/lib/campaign/coop/__tests__/campaignSyncTransport.test.ts",
+        "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
         "src/lib/multiplayer/**/__tests__"
       ],
       "commands": [
         "npm.cmd run verify:qc:multiplayer-reliability",
+        "npm.cmd run verify:qc:coop-campaign-journey",
         "npm.cmd run verify:qc:multiplayer:contracts",
         "npm.cmd run verify:qc:multiplayer:browser",
         "npm.cmd run validate:multiplayer:packaged-socket",
@@ -1349,6 +1376,7 @@
         "2026-06-26 `npx.cmd playwright test --project=chromium e2e/multiplayer-live-vault-auth.spec.ts --workers=1` passed: REST-created fog-enabled matches returned real Atlas/Marauder unit bootstrap metadata, both vault-auth browser contexts launched over signed sockets, host and guest rendered side-owned tactical unit tokens, and the host advanced Initiative to Movement over WebSocket.",
         "2026-06-28 multiplayer create-match UI now exposes unit roster presets plus supported custom per-seat unit/pilot/skill overrides and submits explicit unitBootstrap metadata; focused Jest coverage proves the form emits selected Atlas/Marauder presets, custom Awesome/Locust bootstrap rows, the API preserves explicit bootstrap rows, and MatchHostRegistry still boots stored units.",
         "2026-06-25 Wave 4 validator requires multiplayer aggregate scripts plus route, contract, capstone source anchors, and the packaged socket command while keeping live host/guest identity play tracked separately.",
+        "2026-07-06 `npm.cmd run verify:qc:coop-campaign-journey` passed: 9 Jest suites / 70 tests, two-browser co-op journey passed, and co-op UI audit captured desktop/mobile evidence for create, join, host/guest dashboards, finance proposal, and mission launch under `.sisyphus/evidence/coop-campaign-ui-audit/mekstation-coop-campaign-ui-audit-20260706T030125Z-pw-8848-1783306868030/`.",
         "Archived OpenSpec change 2026-06-21-reconcile-multiplayer-coop-reality retired from activeChangeRefs on 2026-06-23.",
         "Archived OpenSpec change 2026-06-21-harden-desktop-and-api-security retired from activeChangeRefs on 2026-06-23."
       ],

@@ -19,6 +19,8 @@
  * @spec openspec/changes/add-multiplayer-server-infrastructure/specs/multiplayer-server/spec.md
  */
 
+import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
+import type { GmArbitrationMode } from '@/types/campaign/CoopCampaign';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
 import type { IMatchSeat, TeamLayout } from '@/types/multiplayer/Lobby';
@@ -77,6 +79,18 @@ export interface IMatchUnitBootstrapEntry {
 }
 
 /**
+ * Durable snapshot needed to rebuild the server-resident campaign host from
+ * the match store. The WebSocket server may run through a separate module
+ * graph from the REST API in development, so co-op campaign registration
+ * cannot rely on an API-route-local in-memory map.
+ */
+export interface IMatchCoopCampaignRegistration {
+  readonly campaignId: string;
+  readonly state: ICampaignAuthoritativeState;
+  readonly arbitrationMode?: GmArbitrationMode;
+}
+
+/**
  * `IMatchMeta` — durable description of a match. Anything a server
  * restart would need to rebuild the `ServerMatchHost` belongs here.
  */
@@ -100,6 +114,7 @@ export interface IMatchMeta {
   readonly layout?: TeamLayout;
   readonly seats?: readonly IMatchSeat[];
   readonly unitBootstrap?: readonly IMatchUnitBootstrapEntry[];
+  readonly coopCampaign?: IMatchCoopCampaignRegistration;
 }
 
 /**

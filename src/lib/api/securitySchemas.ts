@@ -80,6 +80,50 @@ const MatchConfigSchema = z
   })
   .strict();
 
+const CampaignRosterUnitSchema = z
+  .object({
+    unitId: z.string().trim().min(1).max(ID_MAX_LENGTH),
+    designation: z.string().trim().min(1).max(128),
+    status: z.enum(['operational', 'damaged', 'destroyed']),
+  })
+  .strict();
+
+const CampaignRosterPilotSchema = z
+  .object({
+    pilotId: z.string().trim().min(1).max(ID_MAX_LENGTH),
+    name: z.string().trim().min(1).max(128),
+  })
+  .strict();
+
+const CampaignAcceptedContractSchema = z
+  .object({
+    contractId: z.string().trim().min(1).max(ID_MAX_LENGTH),
+    name: z.string().trim().min(1).max(128),
+    employerFactionId: z.string().trim().min(1).max(ID_MAX_LENGTH),
+  })
+  .strict();
+
+const CampaignAuthoritativeStateSchema = z
+  .object({
+    campaignId: z.string().trim().min(1).max(ID_MAX_LENGTH),
+    day: z.number().finite().int().nonnegative(),
+    balance: z.number().finite(),
+    rosterUnits: z.record(z.string(), CampaignRosterUnitSchema),
+    pilots: z.record(z.string(), CampaignRosterPilotSchema),
+    contracts: z.record(z.string(), CampaignAcceptedContractSchema),
+    factionStanding: z.record(z.string(), z.number().finite()),
+    salvagePool: z.number().finite().nonnegative(),
+  })
+  .strict();
+
+const CoopCampaignRegistrationSchema = z
+  .object({
+    campaignId: z.string().trim().min(1).max(ID_MAX_LENGTH),
+    state: CampaignAuthoritativeStateSchema,
+    arbitrationMode: z.enum(['auto-approve', 'host-review']).optional(),
+  })
+  .strict();
+
 export const CreateMultiplayerMatchBodySchema = z
   .object({
     config: MatchConfigSchema,
@@ -98,6 +142,7 @@ export const CreateMultiplayerMatchBodySchema = z
       .optional(),
     layout: TeamLayoutSchema.optional(),
     aiSlots: z.array(z.string().trim().min(1).max(64)).max(8).optional(),
+    coopCampaign: CoopCampaignRegistrationSchema.optional(),
   })
   .strict()
   .refine((body) => body.layout !== undefined || body.playerIds !== undefined, {

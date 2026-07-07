@@ -1,12 +1,23 @@
 import { useRouter } from 'next/router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import type { IMatchConfig } from '@/lib/multiplayer/server/IMatchStore';
+import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 import { Button } from '@/components/ui';
-import { openCoopRuntimeSession } from '@/lib/campaign/coop/coopRuntimeSession';
+import { buildCampaignAuthoritativeState } from '@/lib/campaign/coop/campaignAuthoritativeState';
+import {
+  campaignSnapshotFromMessage,
+  connectCampaignSyncTransport,
+  type ICampaignSyncTransport,
+} from '@/lib/campaign/coop/campaignSyncTransport';
+import { storeCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
+import { applyPreset } from '@/lib/campaign/presetService';
+import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
 import { parseRoomCode } from '@/lib/p2p/roomCodes';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import { CampaignPreset } from '@/types/campaign/CampaignPreset';
+import { CampaignType } from '@/types/campaign/CampaignType';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
 import {
   decodeTokenFromWire,
@@ -17,7 +28,8 @@ function defaultCoopCampaignName(roomCode: string): string {
   return `Co-op Campaign ${roomCode}`;
 }
 
-const DEFAULT_COOP_FACTION_ID = 'mercenary';
+const DEFAULT_COOP_FACTION_ID = CampaignType.MERCENARY;
+const DEFAULT_COOP_PRESET = CampaignPreset.STANDARD;
 
 interface ITokenState {
   readonly wireToken: string;
@@ -82,12 +94,41 @@ async function resolveInviteCode(
   return { matchId: data.matchId, roomCode, status: data.status };
 }
 
+function waitForInitialCampaignSnapshot(
+  transport: ICampaignSyncTransport,
+): Promise<ICampaignEvent<'CampaignSnapshotPublished'>> {
+  return new Promise((resolve, reject) => {
+    let offFrame = (): void => undefined;
+    let offError = (): void => undefined;
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error('Timed out waiting for the host campaign snapshot'));
+    }, 10_000);
+    const cleanup = (): void => {
+      clearTimeout(timeout);
+      offFrame();
+      offError();
+    };
+    offFrame = transport.onFrame((message) => {
+      const snapshot = campaignSnapshotFromMessage(message);
+      if (!snapshot) return;
+      cleanup();
+      resolve(snapshot);
+    });
+    offError = transport.onError((error) => {
+      cleanup();
+      reject(error instanceof Error ? error : new Error('Campaign sync error'));
+    });
+  });
+}
+
 export function CampaignCoopEntryPanel(): React.ReactElement {
   const router = useRouter();
   const store = useCampaignStore();
 
   const [joinOpen, setJoinOpen] = useState(false);
   const [joinCode, setJoinCode] = useState('');
+  const [joinCoopPassword, setJoinCoopPassword] = useState('');
   const [joinBusy, setJoinBusy] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
   const [createCoopError, setCreateCoopError] = useState<string | null>(null);
@@ -116,6 +157,17 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
         turnLimit: 20,
         fogOfWar: false,
       };
+      const campaignId = store
+        .getState()
+        .createCampaign(
+          'Co-op Campaign',
+          DEFAULT_COOP_FACTION_ID,
+          applyPreset(DEFAULT_COOP_PRESET, DEFAULT_COOP_FACTION_ID),
+        );
+      const createdCampaign = store.getState().getCampaign();
+      if (!createdCampaign) {
+        throw new Error('Failed to create the host campaign snapshot');
+      }
       const res = await fetch('/api/multiplayer/matches', {
         method: 'POST',
         headers: {
@@ -126,6 +178,11 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
           config,
           layout: '1v1',
           displayName: auth.displayName,
+          coopCampaign: {
+            campaignId: createdCampaign.id,
+            state: buildCampaignAuthoritativeState(createdCampaign),
+            arbitrationMode: 'host-review',
+          },
         }),
       });
       if (!res.ok) {
@@ -137,24 +194,16 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
       if (!roomCode) {
         throw new Error("Server didn't return a co-op room code");
       }
-      const campaignId = store
-        .getState()
-        .createCampaign(
-          defaultCoopCampaignName(roomCode),
-          DEFAULT_COOP_FACTION_ID,
-          undefined,
-          {
-            coopSession: createHostCoopSession(roomCode, data.matchId),
-          },
-        );
-      const createdCampaign = store.getState().getCampaign();
-      if (createdCampaign) {
-        await openCoopRuntimeSession(createdCampaign, {
-          matchId: data.matchId,
-          roomCode,
-          hostPlayerId: auth.token.playerId,
-        });
-      }
+      storeCoopCampaignToken({
+        matchId: data.matchId,
+        playerId: auth.token.playerId,
+        wireToken: auth.wireToken,
+        displayName: auth.displayName,
+      });
+      store.getState().updateCampaign({
+        name: defaultCoopCampaignName(roomCode),
+        coopSession: createHostCoopSession(roomCode, data.matchId),
+      });
       router.push(`/gameplay/campaigns/${campaignId}`);
     } catch (e) {
       setCreateCoopError(e instanceof Error ? e.message : 'Unknown error');
@@ -167,14 +216,27 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
     setCreateCoopError(null);
     setJoinError(null);
     setJoinCode('');
+    setJoinCoopPassword('');
     setJoinOpen(true);
   }, []);
 
   const handleCloseJoinCoop = useCallback(() => {
     setJoinOpen(false);
     setJoinCode('');
+    setJoinCoopPassword('');
     setJoinError(null);
   }, []);
+
+  useEffect(() => {
+    if (!joinOpen) return () => undefined;
+    const handleKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        handleCloseJoinCoop();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleCloseJoinCoop, joinOpen]);
 
   const handleSubmitJoinCoop = useCallback(async () => {
     const parsed = parseRoomCode(joinCode);
@@ -184,24 +246,55 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
       );
       return;
     }
+    if (!joinCoopPassword) {
+      setJoinError('Enter your vault password to join co-op.');
+      return;
+    }
     setJoinBusy(true);
     setJoinError(null);
+    let transport: ICampaignSyncTransport | null = null;
     try {
+      const auth = await mintToken(joinCoopPassword);
       const { matchId, roomCode } = await resolveInviteCode(parsed);
+      storeCoopCampaignToken({
+        matchId,
+        playerId: auth.token.playerId,
+        wireToken: auth.wireToken,
+        displayName: auth.displayName,
+      });
+      transport = connectCampaignSyncTransport({
+        matchId,
+        role: 'guest',
+        playerId: auth.token.playerId,
+        wireToken: auth.wireToken,
+        roomCode,
+      });
+      const snapshot = await waitForInitialCampaignSnapshot(transport);
+      const mirrorStore = useCampaignMirrorStore.getState();
+      mirrorStore.beginMirror(
+        {
+          hostPeerId: snapshot.authorPlayerId,
+          guestPeerId: auth.token.playerId,
+        },
+        auth.token.playerId,
+      );
+      mirrorStore.applySnapshot(snapshot, 0);
       const id = store.getState().createGuestMirrorCampaign(matchId, {
-        campaignId: `guest-mirror-${matchId}`,
+        campaignId: snapshot.payload.state.campaignId,
         campaignName: defaultCoopCampaignName(roomCode),
         factionId: DEFAULT_COOP_FACTION_ID,
         roomCode,
+        authoritativeState: snapshot.payload.state,
       });
       setJoinOpen(false);
       router.push(`/gameplay/campaigns/${id}`);
     } catch (e) {
+      transport?.close();
       setJoinError(e instanceof Error ? e.message : 'Unknown error');
     } finally {
       setJoinBusy(false);
     }
-  }, [joinCode, router, store]);
+  }, [joinCode, joinCoopPassword, router, store]);
 
   return (
     <>
@@ -295,6 +388,21 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
               autoFocus
               disabled={joinBusy}
               className="text-text-theme-primary w-full rounded border border-slate-600 bg-slate-900 px-3 py-2 font-mono text-lg tracking-widest uppercase focus:border-sky-500 focus:outline-none"
+            />
+            <label
+              htmlFor="join-coop-password"
+              className="text-text-theme-secondary mt-4 mb-1 block text-xs tracking-wide uppercase"
+            >
+              Co-op guest vault password
+            </label>
+            <input
+              id="join-coop-password"
+              data-testid="join-coop-password-input"
+              type="password"
+              value={joinCoopPassword}
+              onChange={(e) => setJoinCoopPassword(e.target.value)}
+              disabled={joinBusy}
+              className="text-text-theme-primary w-full rounded border border-slate-600 bg-slate-900 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
             />
             {joinError && (
               <p

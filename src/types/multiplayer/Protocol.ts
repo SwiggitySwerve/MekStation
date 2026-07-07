@@ -349,12 +349,117 @@ export const HeartbeatSchema = z.object({
 });
 export type IHeartbeat = z.infer<typeof HeartbeatSchema>;
 
+// ---------------------------------------------------------------------------
+// Co-op campaign-sync frames
+// ---------------------------------------------------------------------------
+
+const CampaignSyncRoleSchema = z.enum(['host', 'guest']);
+const CampaignParticipationChoiceSchema = z.enum(['deploy', 'command-hq']);
+
+export const CampaignJoinSchema = z.object({
+  kind: z.literal('CampaignJoin'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  playerId: z.string().min(1),
+  role: CampaignSyncRoleSchema,
+  token: z.string().min(1).optional(),
+  roomCode: z.string().min(1).optional(),
+  lastSeq: z.number().int().nonnegative().optional(),
+});
+export type ICampaignJoin = z.infer<typeof CampaignJoinSchema>;
+
+export const CampaignProposalSchema = z.object({
+  kind: z.literal('CampaignProposal'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  playerId: z.string().min(1),
+  proposal: z.unknown(),
+});
+export type ICampaignProposal = z.infer<typeof CampaignProposalSchema>;
+
+export const CampaignDecisionSchema = z.object({
+  kind: z.literal('CampaignDecision'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  playerId: z.string().min(1),
+  proposalId: z.string().min(1),
+  decision: z.enum(['approve', 'veto']),
+});
+export type ICampaignDecision = z.infer<typeof CampaignDecisionSchema>;
+
+export const CampaignParticipationPayloadSchema = z.object({
+  matchId: matchIdSchema,
+  missionId: z.string().min(1),
+  playerId: z.string().min(1),
+  role: CampaignSyncRoleSchema,
+  choice: CampaignParticipationChoiceSchema,
+  force: z.unknown(),
+});
+export type ICampaignParticipationPayload = z.infer<
+  typeof CampaignParticipationPayloadSchema
+>;
+
+export const CampaignParticipationSchema = z.object({
+  kind: z.literal('CampaignParticipation'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  playerId: z.string().min(1),
+  participation: CampaignParticipationPayloadSchema,
+});
+export type ICampaignParticipation = z.infer<
+  typeof CampaignParticipationSchema
+>;
+
+export const CampaignSyncClientKindSchema = z.enum([
+  'CampaignJoin',
+  'CampaignProposal',
+  'CampaignDecision',
+  'CampaignParticipation',
+]);
+export type CampaignSyncClientKind = z.infer<
+  typeof CampaignSyncClientKindSchema
+>;
+
+export function assertKnownCampaignSyncFrameKind(
+  kind: unknown,
+): asserts kind is CampaignSyncClientKind {
+  const parsed = CampaignSyncClientKindSchema.safeParse(kind);
+  if (!parsed.success) {
+    throw new Error(`Unknown campaign-sync frame kind: ${String(kind)}`);
+  }
+}
+
 export const ClientMessageSchema = z.discriminatedUnion('kind', [
   SessionJoinSchema,
   IntentSchema,
   HeartbeatSchema,
+  CampaignJoinSchema,
+  CampaignProposalSchema,
+  CampaignDecisionSchema,
+  CampaignParticipationSchema,
 ]);
 export type IClientMessage = z.infer<typeof ClientMessageSchema>;
+export type ICampaignClientMessage = Extract<
+  IClientMessage,
+  {
+    kind:
+      | 'CampaignJoin'
+      | 'CampaignProposal'
+      | 'CampaignDecision'
+      | 'CampaignParticipation';
+  }
+>;
+
+export function isCampaignClientMessage(
+  message: IClientMessage,
+): message is ICampaignClientMessage {
+  return (
+    message.kind === 'CampaignJoin' ||
+    message.kind === 'CampaignProposal' ||
+    message.kind === 'CampaignDecision' ||
+    message.kind === 'CampaignParticipation'
+  );
+}
 
 // =============================================================================
 // Server -> Client messages
@@ -560,6 +665,55 @@ export const HostMigratedSchema = z.object({
 });
 export type IHostMigrated = z.infer<typeof HostMigratedSchema>;
 
+export const CampaignSnapshotMessageSchema = z.object({
+  kind: z.literal('CampaignSnapshot'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  event: z.unknown(),
+});
+export type ICampaignSnapshotMessage = z.infer<
+  typeof CampaignSnapshotMessageSchema
+>;
+
+export const CampaignEventMessageSchema = z.object({
+  kind: z.literal('CampaignEvent'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  event: z.unknown(),
+});
+export type ICampaignEventMessage = z.infer<typeof CampaignEventMessageSchema>;
+
+export const CampaignProposalMessageSchema = z.object({
+  kind: z.literal('CampaignProposal'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  proposal: z.unknown(),
+});
+export type ICampaignProposalMessage = z.infer<
+  typeof CampaignProposalMessageSchema
+>;
+
+export const CampaignDecisionMessageSchema = z.object({
+  kind: z.literal('CampaignDecision'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  proposalId: z.string().min(1),
+  result: z.unknown(),
+});
+export type ICampaignDecisionMessage = z.infer<
+  typeof CampaignDecisionMessageSchema
+>;
+
+export const CampaignParticipationMessageSchema = z.object({
+  kind: z.literal('CampaignParticipation'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  participation: CampaignParticipationPayloadSchema,
+});
+export type ICampaignParticipationMessage = z.infer<
+  typeof CampaignParticipationMessageSchema
+>;
+
 export const ServerMessageSchema = z.discriminatedUnion('kind', [
   ReplayStartSchema,
   ReplayChunkSchema,
@@ -573,6 +727,11 @@ export const ServerMessageSchema = z.discriminatedUnion('kind', [
   MatchResumedSchema,
   SeatTimedOutSchema,
   HostMigratedSchema,
+  CampaignSnapshotMessageSchema,
+  CampaignEventMessageSchema,
+  CampaignProposalMessageSchema,
+  CampaignDecisionMessageSchema,
+  CampaignParticipationMessageSchema,
 ]);
 export type IServerMessage = z.infer<typeof ServerMessageSchema>;
 
