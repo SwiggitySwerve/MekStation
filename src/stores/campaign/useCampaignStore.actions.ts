@@ -1,5 +1,6 @@
 import type { StateCreator } from 'zustand';
 
+import { applyAuthoritativeStateToGuestCampaign } from '@/lib/campaign/coop/campaignMirrorProjection';
 import {
   ACTIVITY_LOG_MAX_ENTRIES,
   type IActivityLogEntry,
@@ -121,7 +122,16 @@ function createGuestMirrorCampaignAction(
       rootForce,
       guestSession,
     );
-    set({ campaign: mirror, forcesStore, missionsStore });
+    set({
+      campaign: snapshot.authoritativeState
+        ? applyAuthoritativeStateToGuestCampaign(
+            mirror,
+            snapshot.authoritativeState,
+          )
+        : mirror,
+      forcesStore,
+      missionsStore,
+    });
     return localId;
   };
 }

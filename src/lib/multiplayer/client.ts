@@ -198,6 +198,21 @@ const SERVER_MESSAGE_HANDLERS: Record<
   HostMigrated: ({ message, emit }) => {
     emit('event', message);
   },
+  CampaignSnapshot: ({ message, emit }) => {
+    emit('event', message);
+  },
+  CampaignEvent: ({ message, emit }) => {
+    emit('event', message);
+  },
+  CampaignProposal: ({ message, emit }) => {
+    emit('event', message);
+  },
+  CampaignDecision: ({ message, emit }) => {
+    emit('event', message);
+  },
+  CampaignParticipation: ({ message, emit }) => {
+    emit('event', message);
+  },
 };
 
 interface IClientRuntime {

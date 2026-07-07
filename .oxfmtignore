@@ -14,3 +14,4 @@ storybook-static
 playwright-report
 public/record-sheets
 next-env.d.ts
+.audit/snapshot-tests.json

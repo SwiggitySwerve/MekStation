@@ -153,6 +153,7 @@ validation-output/
 *-equipment-report.json
 eslint-output.json
 dependency-analysis.json
+.audit/snapshot-tests.json
 
 # Pip distribution comparison output (development research)
 pip-comparison-output/

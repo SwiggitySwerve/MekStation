@@ -25,6 +25,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { CoopParticipationChoice } from '@/types/campaign/CoopCampaign';
 
+import { connectStoredCampaignSyncTransport } from '@/lib/campaign/coop/campaignSyncTransport';
 import {
   type ICoopParticipationRecord,
   publishCoopParticipation,
@@ -132,14 +133,20 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
     if (!campaign?.coopSession || !matchId || !missionKey || !localForce) {
       return;
     }
-    publishCoopParticipation({
+    const record: ICoopParticipationRecord = {
       matchId,
       missionId: missionKey,
       playerId: localPlayerId,
       role: campaign.coopSession.mode,
       choice: localChoice,
       force: localForce,
-    });
+    };
+    publishCoopParticipation(record);
+    connectStoredCampaignSyncTransport({
+      matchId,
+      role: campaign.coopSession.mode,
+      roomCode: campaign.coopSession.roomCode,
+    })?.sendParticipation(record);
   }, [
     campaign?.coopSession,
     localChoice,
@@ -154,11 +161,32 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
       setParticipationRecords([]);
       return () => undefined;
     }
-    return subscribeCoopParticipation(
+    const unsubscribeLocal = subscribeCoopParticipation(
       matchId,
       missionKey,
       setParticipationRecords,
     );
+    const transport = connectStoredCampaignSyncTransport({
+      matchId,
+      role: campaign.coopSession.mode,
+      roomCode: campaign.coopSession.roomCode,
+    });
+    const unsubscribeTransport =
+      transport?.onFrame((message) => {
+        if (
+          message.kind !== 'CampaignParticipation' ||
+          message.participation.missionId !== missionKey
+        ) {
+          return;
+        }
+        publishCoopParticipation(
+          message.participation as ICoopParticipationRecord,
+        );
+      }) ?? (() => undefined);
+    return () => {
+      unsubscribeLocal();
+      unsubscribeTransport();
+    };
   }, [campaign?.coopSession, matchId, missionKey]);
 
   const otherRecord = useMemo(

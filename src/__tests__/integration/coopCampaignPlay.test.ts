@@ -21,18 +21,35 @@
 
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type { IForce } from '@/types/campaign/Force';
+import type {
+  ICombatOutcome,
+  IUnitCombatDelta,
+} from '@/types/combat/CombatOutcome';
 import type { IEncounter } from '@/types/encounter';
 
 import { composeCoopEncounter } from '@/lib/campaign/coop/composeCoopEncounter';
+import {
+  _resetActiveCoopHosts,
+  reconcileCoopOutcomeForCampaign,
+} from '@/lib/campaign/coop/coopHostRegistry';
 import { reconcileCoopBattle } from '@/lib/campaign/coop/reconcileCoopBattle';
 import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
 import { CampaignGmArbiter } from '@/lib/multiplayer/server/CampaignGmArbiter';
+import { CampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
 import { CampaignMatchHost } from '@/lib/multiplayer/server/CampaignMatchHost';
 import { CampaignSyncSession } from '@/lib/multiplayer/server/CampaignSyncSession';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
+import { createHostCoopSession } from '@/types/campaign/CoopSession';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
+import {
+  COMBAT_OUTCOME_VERSION,
+  CombatEndReason,
+  PilotFinalStatus,
+  UnitFinalStatus,
+} from '@/types/combat/CombatOutcome';
 import { EncounterStatus, TerrainPreset } from '@/types/encounter';
+import { GameSide } from '@/types/gameplay/GameSessionCoreTypes';
 
 const CAMPAIGN_ID = 'campaign-coop-e2e';
 const HOST_ID = 'host-player';
@@ -50,6 +67,56 @@ function makeForce(id: string, unitIds: string[]): IForce {
     formationLevel: FormationLevel.LANCE,
     createdAt: '2026-05-19T00:00:00.000Z',
     updatedAt: '2026-05-19T00:00:00.000Z',
+  };
+}
+
+function makeDelta(
+  unitId: string,
+  side: GameSide,
+  finalStatus: UnitFinalStatus,
+): IUnitCombatDelta {
+  return {
+    unitId,
+    side,
+    destroyed: finalStatus === UnitFinalStatus.Destroyed,
+    finalStatus,
+    armorRemaining: {},
+    internalsRemaining: {},
+    destroyedLocations: [],
+    destroyedComponents: [],
+    heatEnd: 0,
+    ammoRemaining: {},
+    pilotState: {
+      conscious: true,
+      wounds: 0,
+      killed: false,
+      finalStatus: PilotFinalStatus.Active,
+    },
+  };
+}
+
+function makePostBattleOutcome(matchId: string): ICombatOutcome {
+  return {
+    version: COMBAT_OUTCOME_VERSION,
+    matchId,
+    contractId: 'contract-1',
+    scenarioId: 'scenario-1',
+    endReason: CombatEndReason.Destruction,
+    report: {
+      version: 1,
+      matchId,
+      winner: GameSide.Player,
+      reason: 'destruction',
+      turnCount: 4,
+      units: [],
+      mvpUnitId: null,
+      log: [],
+    },
+    unitDeltas: [
+      makeDelta('u-h1', GameSide.Player, UnitFinalStatus.Damaged),
+      makeDelta('opfor-wreck', GameSide.Opponent, UnitFinalStatus.Destroyed),
+    ],
+    capturedAt: '2026-05-19T12:00:00.000Z',
   };
 }
 
@@ -105,6 +172,7 @@ function harness(
 }
 
 beforeEach(() => {
+  _resetActiveCoopHosts();
   useCampaignMirrorStore.getState().reset();
   useCampaignMirrorStore
     .getState()
@@ -112,6 +180,10 @@ beforeEach(() => {
       { hostPeerId: HOST_PEER, guestPeerId: GUEST_PEER },
       GUEST_PEER,
     );
+});
+
+afterEach(() => {
+  _resetActiveCoopHosts();
 });
 
 describe('9.1 — co-op mission with both players deploying', () => {
@@ -187,6 +259,53 @@ describe('9.2 — co-op mission with one player in command-hq', () => {
     expect(mirror?.salvagePool).toBe(host.getState().salvagePool);
     expect(mirror?.balance).toBe(900_000);
     expect(mirror?.salvagePool).toBe(200_000);
+  });
+
+  it('resolves the post-battle gate against the server-resident host registry', async () => {
+    const registry = new CampaignHostRegistry();
+    const entry = await registry.register('match-registry-recon', {
+      campaignId: CAMPAIGN_ID,
+      hostPlayerId: HOST_ID,
+      roomCode: 'REG123',
+      state: {
+        ...createEmptyCampaignState(CAMPAIGN_ID),
+        balance: 1_000_000,
+        rosterUnits: {
+          'u-h1': {
+            unitId: 'u-h1',
+            designation: 'Atlas AS7-D',
+            status: 'operational',
+          },
+        },
+      },
+    });
+    const join = await entry.syncSession.joinGuest('REG123', (event) => {
+      const store = useCampaignMirrorStore.getState();
+      if (event.type === 'CampaignSnapshotPublished') {
+        store.applySnapshot(event, event.sequence < 0 ? 0 : undefined);
+      } else {
+        store.applyEvent(event);
+      }
+    });
+    expect(join.ok).toBe(true);
+
+    const result = await reconcileCoopOutcomeForCampaign(
+      {
+        id: CAMPAIGN_ID,
+        coopSession: createHostCoopSession('REG123', 'match-registry-recon'),
+      },
+      makePostBattleOutcome('match-registry-recon-battle'),
+      { 'u-h1': 'Atlas AS7-D' },
+    );
+
+    expect(result?.ok).toBe(true);
+    const mirror = useCampaignMirrorStore.getState().campaign;
+    expect(entry.host.getState().salvagePool).toBe(50_000);
+    expect(mirror?.salvagePool).toBe(50_000);
+    expect(entry.host.getState().rosterUnits['u-h1']?.status).toBe('damaged');
+    expect(mirror?.rosterUnits['u-h1']?.status).toBe('damaged');
+    join.disconnect();
+    registry._reset();
   });
 });
 

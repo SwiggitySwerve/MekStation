@@ -15,10 +15,6 @@
 import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbiter';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type {
-  ICampaignAuthoritativeState,
-  ICampaignRosterUnit,
-} from '@/types/campaign/CampaignSync';
-import type {
   CoopParticipationChoice,
   GmArbitrationMode,
   GmDecision,
@@ -32,11 +28,9 @@ import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaign
 import { CampaignGmArbiter } from '@/lib/multiplayer/server/CampaignGmArbiter';
 import { CampaignMatchHost } from '@/lib/multiplayer/server/CampaignMatchHost';
 import { CampaignSyncSession } from '@/lib/multiplayer/server/CampaignSyncSession';
-import {
-  createEmptyCampaignState,
-  INVALID_CAMPAIGN_INTENT,
-} from '@/types/campaign/CampaignSync';
+import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
 
+import { buildCampaignAuthoritativeState } from './campaignAuthoritativeState';
 import { registerActiveCoopHost } from './coopHostRegistry';
 
 // =============================================================================
@@ -100,7 +94,7 @@ export async function openCoopRuntimeSession(
     campaignId: campaign.id,
     hostPlayerId: options.hostPlayerId ?? 'host',
     eventStore: new InMemoryCampaignEventStore(),
-    initialState: buildAuthoritativeState(campaign),
+    initialState: buildCampaignAuthoritativeState(campaign),
   });
   const syncSession = new CampaignSyncSession(host);
   await syncSession.open(options.roomCode ?? campaign.coopSession?.roomCode);
@@ -230,57 +224,6 @@ function sessionClosed(proposalId: string): GuestProposalResult {
     code: INVALID_CAMPAIGN_INTENT,
     reason: 'session-closed',
   };
-}
-
-function buildAuthoritativeState(
-  campaign: ICampaign,
-): ICampaignAuthoritativeState {
-  const base = createEmptyCampaignState(campaign.id);
-  return {
-    ...base,
-    balance: readCampaignBalance(campaign),
-    rosterUnits: buildRosterUnits(campaign),
-    factionStanding: buildFactionStanding(campaign),
-  };
-}
-
-function readCampaignBalance(campaign: ICampaign): number {
-  const balance = campaign.finances.balance as unknown;
-  if (
-    typeof balance === 'object' &&
-    balance !== null &&
-    'amount' in balance &&
-    typeof (balance as { amount: unknown }).amount === 'number'
-  ) {
-    return (balance as { amount: number }).amount;
-  }
-  return typeof balance === 'number' && Number.isFinite(balance) ? balance : 0;
-}
-
-function buildRosterUnits(
-  campaign: ICampaign,
-): Readonly<Record<string, ICampaignRosterUnit>> {
-  const units: Record<string, ICampaignRosterUnit> = {};
-  for (const force of Array.from(campaign.forces.values())) {
-    for (const unitId of force.unitIds) {
-      units[unitId] = {
-        unitId,
-        designation: unitId,
-        status: 'operational',
-      };
-    }
-  }
-  return units;
-}
-
-function buildFactionStanding(
-  campaign: ICampaign,
-): Readonly<Record<string, number>> {
-  const standing: Record<string, number> = {};
-  for (const [factionId, value] of Object.entries(campaign.factionStandings)) {
-    standing[factionId] = value.regard;
-  }
-  return standing;
 }
 
 // =============================================================================

@@ -28,6 +28,11 @@ import {
 } from '@testing-library/react';
 import React from 'react';
 
+import {
+  CampaignPreset,
+  PRESET_STARTING_FUNDS,
+} from '@/types/campaign/CampaignPreset';
+
 // =============================================================================
 // Mocks — router, room code generator, persistence storage
 // =============================================================================
@@ -48,6 +53,68 @@ jest.mock('@/lib/campaign/coop/coopRuntimeSession', () => ({
   openCoopRuntimeSession: (campaign: unknown, options?: unknown) =>
     mockOpenCoopRuntimeSession(campaign, options),
 }));
+
+const mockTransportClose = jest.fn();
+const mockConnectCampaignSyncTransport = jest.fn((_options: unknown) => ({
+  matchId: 'match-XYZ',
+  playerId: 'pid_host',
+  role: 'guest',
+  sendProposal: jest.fn(),
+  sendDecision: jest.fn(),
+  sendParticipation: jest.fn(),
+  onFrame: (handler: (message: unknown) => void) => {
+    Promise.resolve().then(() => {
+      handler({
+        kind: 'CampaignSnapshot',
+        matchId: 'match-XYZ',
+        ts: '2026-06-21T00:00:00.000Z',
+        event: {
+          type: 'CampaignSnapshotPublished',
+          sequence: -1,
+          campaignId: 'campaign-host-snapshot',
+          ts: '2026-06-21T00:00:00.000Z',
+          authorPlayerId: 'pid_host_owner',
+          payload: {
+            state: {
+              campaignId: 'campaign-host-snapshot',
+              day: 7,
+              balance: 750_000,
+              rosterUnits: {
+                unitA: {
+                  unitId: 'unitA',
+                  designation: 'Wolverine WVR-6R',
+                  status: 'operational',
+                },
+              },
+              pilots: {},
+              contracts: {},
+              factionStanding: {},
+              salvagePool: 0,
+            },
+          },
+        },
+      });
+    });
+    return () => undefined;
+  },
+  onError: () => () => undefined,
+  close: mockTransportClose,
+  lastSeq: () => 0,
+}));
+jest.mock('@/lib/campaign/coop/campaignSyncTransport', () => {
+  return {
+    connectCampaignSyncTransport: (options: unknown) =>
+      mockConnectCampaignSyncTransport(options),
+    campaignSnapshotFromMessage: (message: {
+      kind?: string;
+      event?: { type?: string };
+    }) =>
+      message.kind === 'CampaignSnapshot' &&
+      message.event?.type === 'CampaignSnapshotPublished'
+        ? message.event
+        : null,
+  };
+});
 
 jest.mock('@/types/multiplayer/Player', () => ({
   decodeTokenFromWire: jest.fn(() => ({
@@ -85,7 +152,14 @@ jest.mock('@/stores/campaign/useCampaignRosterStore', () => ({
 // production persistence layer (clientSafeStorage / localStorage).
 const mockCreateCampaign = jest.fn(() => 'campaign-host-1');
 const mockCreateGuestMirrorCampaign = jest.fn(() => 'campaign-guest-1');
-const mockGetCampaign = jest.fn(() => null);
+const mockUpdateCampaign = jest.fn();
+const mockGetCampaign = jest.fn(() => ({
+  id: 'campaign-host-1',
+  name: 'Co-op Campaign',
+  finances: { balance: { amount: 0 } },
+  forces: new Map(),
+  factionStandings: {},
+}));
 
 // The page subscribes reactively via zustand's `useStore(store, selector)`
 // (e2e triage RC4 production fix), so the mocked handle must satisfy the
@@ -98,6 +172,7 @@ const mockCampaignStoreState = {
   getCampaign: mockGetCampaign,
   createCampaign: mockCreateCampaign,
   createGuestMirrorCampaign: mockCreateGuestMirrorCampaign,
+  updateCampaign: mockUpdateCampaign,
 };
 const mockCampaignStoreApi = {
   getState: () => mockCampaignStoreState,
@@ -141,8 +216,18 @@ describe('CampaignsListPage — co-op entry points', () => {
     mockCreateGuestMirrorCampaign
       .mockReset()
       .mockReturnValue('campaign-guest-1');
-    mockGetCampaign.mockReset().mockReturnValue(null);
+    mockGetCampaign.mockReset().mockReturnValue({
+      id: 'campaign-host-1',
+      name: 'Co-op Campaign',
+      finances: { balance: { amount: 0 } },
+      forces: new Map(),
+      factionStandings: {},
+    });
+    mockUpdateCampaign.mockReset();
     mockOpenCoopRuntimeSession.mockClear();
+    mockConnectCampaignSyncTransport.mockClear();
+    mockTransportClose.mockClear();
+    window.sessionStorage.clear();
   });
 
   // ===========================================================================
@@ -169,6 +254,7 @@ describe('CampaignsListPage — co-op entry points', () => {
           layout?: string;
           displayName?: string;
           config?: { mapRadius?: number; turnLimit?: number };
+          coopCampaign?: { campaignId?: string };
         };
         expect(init?.headers).toMatchObject({
           Authorization: 'Bearer wire-token',
@@ -178,6 +264,7 @@ describe('CampaignsListPage — co-op entry points', () => {
           layout: '1v1',
           displayName: 'Host Player',
           config: { mapRadius: 8, turnLimit: 20 },
+          coopCampaign: { campaignId: 'campaign-host-1' },
         });
         return {
           ok: true,
@@ -214,17 +301,20 @@ describe('CampaignsListPage — co-op entry points', () => {
       expect.objectContaining({ method: 'POST' }),
     );
     expect(mockCreateCampaign).toHaveBeenCalledWith(
-      'Co-op Campaign ABC234',
+      'Co-op Campaign',
       'mercenary',
-      undefined,
-      {
-        coopSession: {
-          mode: 'host',
-          roomCode: 'ABC234',
-          matchId: 'match-host-1',
-        },
-      },
+      expect.objectContaining({
+        startingFunds: PRESET_STARTING_FUNDS[CampaignPreset.STANDARD],
+      }),
     );
+    expect(mockUpdateCampaign).toHaveBeenCalledWith({
+      name: 'Co-op Campaign ABC234',
+      coopSession: {
+        mode: 'host',
+        roomCode: 'ABC234',
+        matchId: 'match-host-1',
+      },
+    });
     expect(mockCreateGuestMirrorCampaign).not.toHaveBeenCalled();
   });
 
@@ -241,6 +331,19 @@ describe('CampaignsListPage — co-op entry points', () => {
     expect(screen.getByTestId('join-coop-dialog')).toBeInTheDocument();
     expect(screen.getByTestId('join-coop-room-code-input')).toBeInTheDocument();
     expect(screen.getByTestId('join-coop-submit-btn')).toBeInTheDocument();
+  });
+
+  it('Join Co-op Campaign dialog closes on Escape', async () => {
+    await mountAndHydrate();
+
+    fireEvent.click(screen.getByTestId('join-coop-campaign-btn'));
+    expect(screen.getByTestId('join-coop-dialog')).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('join-coop-dialog')).not.toBeInTheDocument();
+    });
   });
 
   it('Join modal rejects a malformed room code without calling the invite endpoint', async () => {
@@ -261,13 +364,29 @@ describe('CampaignsListPage — co-op entry points', () => {
     expect(mockCreateGuestMirrorCampaign).not.toHaveBeenCalled();
   });
 
-  it('Join modal resolves the room code via /api/multiplayer/invites and mints a guest mirror campaign', async () => {
+  it('Join modal authenticates, resolves the room code, hydrates a snapshot, and mints a guest mirror campaign', async () => {
     await mountAndHydrate();
 
-    const fetchSpy = jest.fn().mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => ({ matchId: 'match-XYZ', status: 'lobby' }),
+    const fetchSpy = jest.fn(async (url: string) => {
+      if (url === '/api/multiplayer/auth/token') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            token: 'guest-wire-token',
+            playerId: 'pid_guest',
+            displayName: 'Guest Player',
+          }),
+        };
+      }
+      if (url === '/api/multiplayer/invites/PQR789') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ matchId: 'match-XYZ', status: 'lobby' }),
+        };
+      }
+      throw new Error(`unexpected fetch ${url}`);
     });
     (globalThis as { fetch: unknown }).fetch = fetchSpy;
 
@@ -275,20 +394,41 @@ describe('CampaignsListPage — co-op entry points', () => {
     fireEvent.change(screen.getByTestId('join-coop-room-code-input'), {
       target: { value: 'PQR789' },
     });
+    fireEvent.change(screen.getByTestId('join-coop-password-input'), {
+      target: { value: 'guest-password' },
+    });
 
     await act(async () => {
       fireEvent.click(screen.getByTestId('join-coop-submit-btn'));
     });
 
+    expect(fetchSpy).toHaveBeenCalledWith(
+      '/api/multiplayer/auth/token',
+      expect.objectContaining({ method: 'POST' }),
+    );
     expect(fetchSpy).toHaveBeenCalledWith('/api/multiplayer/invites/PQR789');
+    expect(mockConnectCampaignSyncTransport).toHaveBeenCalledWith(
+      expect.objectContaining({
+        matchId: 'match-XYZ',
+        role: 'guest',
+        playerId: 'pid_host',
+        wireToken: 'guest-wire-token',
+        roomCode: 'PQR789',
+      }),
+    );
     expect(mockCreateGuestMirrorCampaign).toHaveBeenCalledTimes(1);
     const guestCall = mockCreateGuestMirrorCampaign.mock.calls[0] as unknown[];
     const [hostMatchId, snapshot] = guestCall;
     expect(hostMatchId).toBe('match-XYZ');
     expect(snapshot).toMatchObject({
+      campaignId: 'campaign-host-snapshot',
       campaignName: 'Co-op Campaign PQR789',
       factionId: 'mercenary',
       roomCode: 'PQR789',
+      authoritativeState: {
+        campaignId: 'campaign-host-snapshot',
+        balance: 750_000,
+      },
     });
 
     expect(mockRouterPush).toHaveBeenCalledWith(
@@ -301,16 +441,35 @@ describe('CampaignsListPage — co-op entry points', () => {
   it('Join modal surfaces a 404 from the invite endpoint without minting a guest campaign', async () => {
     await mountAndHydrate();
 
-    const fetchSpy = jest.fn().mockResolvedValueOnce({
-      ok: false,
-      status: 404,
-      json: async () => ({ error: 'not found' }),
+    const fetchSpy = jest.fn(async (url: string) => {
+      if (url === '/api/multiplayer/auth/token') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            token: 'guest-wire-token',
+            playerId: 'pid_guest',
+            displayName: 'Guest Player',
+          }),
+        };
+      }
+      if (url === '/api/multiplayer/invites/ZZZZZZ') {
+        return {
+          ok: false,
+          status: 404,
+          json: async () => ({ error: 'not found' }),
+        };
+      }
+      throw new Error(`unexpected fetch ${url}`);
     });
     (globalThis as { fetch: unknown }).fetch = fetchSpy;
 
     fireEvent.click(screen.getByTestId('join-coop-campaign-btn'));
     fireEvent.change(screen.getByTestId('join-coop-room-code-input'), {
       target: { value: 'ZZZZZZ' },
+    });
+    fireEvent.change(screen.getByTestId('join-coop-password-input'), {
+      target: { value: 'guest-password' },
     });
 
     await act(async () => {
