@@ -22,9 +22,12 @@ import type {
   WeaponFireMode,
 } from '@/types/gameplay';
 
+import { GamePhase } from '@/types/gameplay';
+
 import type { GetFn, SetFn } from './useGameplayStore.combatFlowTypes';
 
 import { InteractivePhase } from './useGameplayStore.helpers';
+import { allowIntentInPhase } from './useGameplayStore.phaseGuard';
 
 // ---------------------------------------------------------------------------
 // Initial state
@@ -207,12 +210,23 @@ export function selectVolleyGroups(state: IAttackIntentState): readonly {
  * empty pass is the explicit Hold Fire action, not a silent commit).
  */
 export function commitComposedVolleyLogic(get: GetFn, set: SetFn): void {
-  const { interactiveSession, attackIntent, ui } = get();
+  const { interactiveSession, attackIntent, session, ui } = get();
   const attackerId = ui.selectedUnitId;
   if (
     !interactiveSession ||
     !attackerId ||
     attackIntent.assignments.length === 0
+  ) {
+    return;
+  }
+  const currentPhase =
+    session?.currentState.phase ?? interactiveSession.getState().phase;
+  if (
+    !allowIntentInPhase({
+      currentPhase,
+      requiredPhase: GamePhase.WeaponAttack,
+      intent: 'attack',
+    })
   ) {
     return;
   }
@@ -253,9 +267,20 @@ export function commitComposedVolleyLogic(get: GetFn, set: SetFn): void {
  * with no declarations, then clears the composition.
  */
 export function holdFireLogic(get: GetFn, set: SetFn): void {
-  const { interactiveSession, ui } = get();
+  const { interactiveSession, session, ui } = get();
   const attackerId = ui.selectedUnitId;
   if (!interactiveSession || !attackerId) return;
+  const currentPhase =
+    session?.currentState.phase ?? interactiveSession.getState().phase;
+  if (
+    !allowIntentInPhase({
+      currentPhase,
+      requiredPhase: GamePhase.WeaponAttack,
+      intent: 'attack',
+    })
+  ) {
+    return;
+  }
 
   interactiveSession.applyVolley(attackerId, []);
 

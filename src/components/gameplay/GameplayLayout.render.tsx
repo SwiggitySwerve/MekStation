@@ -33,6 +33,7 @@ import type {
   ICommandPreviewInputs,
   IGmTacticalInterventionSurface,
 } from './TacticalActionDock';
+import type { PhaseAdvanceControlProps } from './TacticalTurnRail';
 
 import { GameplayActionDockSlot } from './GameplayLayout.actionDockSlot';
 import {
@@ -107,6 +108,7 @@ interface GameplayLayoutViewProps {
   readonly commandPreviewInputs: ICommandPreviewInputs;
   readonly composerDockContext: IMovementComposerContext | undefined;
   readonly attackComposerContext: IAttackComposerContext | undefined;
+  readonly phaseAdvanceControl: PhaseAdvanceControlProps | undefined;
   readonly onEventLogCollapsedChange: (collapsed: boolean) => void;
 }
 
@@ -163,6 +165,7 @@ export function GameplayLayoutView({
   commandPreviewInputs,
   composerDockContext,
   attackComposerContext,
+  phaseAdvanceControl,
   onEventLogCollapsedChange,
 }: GameplayLayoutViewProps): React.ReactElement {
   const recordSheetBody = (
@@ -200,6 +203,7 @@ export function GameplayLayoutView({
           isNarrow={isNarrow}
           drawerOpen={drawerOpen}
           onToggleDrawer={onToggleDrawer}
+          phaseAdvanceControl={phaseAdvanceControl}
         />
         <GameplayMoraleBand session={session} />
         <GameplayMainContentArea

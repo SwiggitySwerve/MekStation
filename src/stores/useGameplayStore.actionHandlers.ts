@@ -36,6 +36,11 @@ import { logger } from '@/utils/logger';
 // Benign module cycle (same shape as useGameplayStore.helpers): the
 // attackIntent module never touches this file during module evaluation.
 import { focusTargetReducer } from './useGameplayStore.attackIntent';
+import { InteractivePhase } from './useGameplayStore.helpers';
+import {
+  allowAttackIntentInPhase,
+  allowMovementIntentInPhase,
+} from './useGameplayStore.phaseGuard';
 import { usePhysicalAttackPlanStore } from './useGameplayStore.physicalAttackPlan';
 
 export interface IGameplayActionPayload {
@@ -65,6 +70,7 @@ interface GameplayActionState {
   session: IGameSession | null;
   ui: IGameplayUIState;
   attackIntent: IAttackIntentState;
+  interactivePhase: InteractivePhase;
 }
 
 type SetGameplayActionState = {
@@ -86,6 +92,7 @@ const GAMEPLAY_ACTION_HANDLERS: Readonly<
   'facing-left': handleFacingAction,
   'torso-twist': handleTorsoTwistAction,
   'request-spot': handleRequestSpotAction,
+  'begin-round': handleBeginRoundAction,
   continue: handleContinueAction,
   lock: handleLockAction,
   undo: handleUndoAction,
@@ -173,6 +180,7 @@ function handleEjectAction(context: GameplayActionContext): void {
 function handleStandAction(context: GameplayActionContext): void {
   const { session, selectedUnitId, interactiveSession } = context;
   if (!selectedUnitId) return;
+  if (!allowMovementIntentInPhase(context.phase)) return;
 
   if (interactiveSession) {
     interactiveSession.attemptStandUp(selectedUnitId);
@@ -186,6 +194,7 @@ function handleStandAction(context: GameplayActionContext): void {
 function handleGoProneAction(context: GameplayActionContext): void {
   const { session, selectedUnitId, interactiveSession } = context;
   if (!selectedUnitId) return;
+  if (!allowMovementIntentInPhase(context.phase)) return;
 
   if (interactiveSession) {
     interactiveSession.goProne(selectedUnitId);
@@ -201,6 +210,7 @@ function handleActivateMovementEnhancementAction(
 ): void {
   const { session, selectedUnitId, interactiveSession } = context;
   if (!selectedUnitId) return;
+  if (!allowMovementIntentInPhase(context.phase)) return;
 
   const enhancement: MovementEnhancementActivationKind =
     context.actionId === 'activate-masc' ? 'MASC' : 'Supercharger';
@@ -218,6 +228,7 @@ function handleActivateMovementEnhancementAction(
 function handleFacingAction(context: GameplayActionContext): void {
   const { session, selectedUnitId, selectedUnit, interactiveSession } = context;
   if (!selectedUnitId || !selectedUnit) return;
+  if (!allowMovementIntentInPhase(context.phase)) return;
 
   const facing = rotateFacing(
     selectedUnit.facing,
@@ -253,6 +264,7 @@ function handleTorsoTwistAction(context: GameplayActionContext): void {
   const { session, selectedUnitId, selectedUnit, interactiveSession, payload } =
     context;
   if (!selectedUnitId || !selectedUnit) return;
+  if (!allowAttackIntentInPhase(context.phase)) return;
 
   const secondaryFacing =
     payload?.secondaryFacing ??
@@ -345,6 +357,20 @@ function handleContinueAction(context: GameplayActionContext): void {
   }
 
   context.set({ session: advancePhase(session) });
+}
+
+function handleBeginRoundAction(context: GameplayActionContext): void {
+  const { session, phase, interactiveSession } = context;
+  if (phase !== GamePhase.Initiative || !canAdvancePhase(session)) return;
+
+  if (interactiveSession) {
+    interactiveSession.advancePhase();
+    setSessionFromInteractive(context);
+    context.set({ interactivePhase: InteractivePhase.SelectUnit });
+    return;
+  }
+
+  context.set({ session: advancePhase(rollInitiative(session)) });
 }
 
 function handleLockAction(context: GameplayActionContext): void {

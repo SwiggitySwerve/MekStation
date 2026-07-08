@@ -13,6 +13,7 @@ import React, {
   useCallback,
   createContext,
   useContext,
+  useMemo,
 } from 'react';
 
 import { logger } from '@/utils/logger';
@@ -369,11 +370,23 @@ export function ToastProvider({
     setToasts([]);
   }, []);
 
-  const contextValue: ToastContextValue = {
-    showToast,
-    dismissToast,
-    dismissAll,
-  };
+  const contextValue: ToastContextValue = useMemo(
+    () => ({
+      showToast,
+      dismissToast,
+      dismissAll,
+    }),
+    [dismissAll, dismissToast, showToast],
+  );
+
+  useEffect(() => {
+    setToastRef(contextValue);
+    return () => {
+      if (toastRef === contextValue) {
+        toastRef = null;
+      }
+    };
+  }, [contextValue]);
 
   return (
     <ToastContext.Provider value={contextValue}>

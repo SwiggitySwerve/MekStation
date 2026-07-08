@@ -17,6 +17,7 @@ export {
 export type {
   IGmPreviewState,
   IGmTacticalCommandPreviewRequest,
+  IGmTacticalInterventionApprovalResult,
   IGmTacticalInterventionSurface,
 } from './TacticalActionDock.gmIntervention';
 

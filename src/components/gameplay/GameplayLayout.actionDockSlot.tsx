@@ -102,6 +102,7 @@ export function GameplayActionDockSlot({
 function formatInteractivePhaseLabel(phase: InteractivePhase): string {
   const labelByPhase: Readonly<Record<string, string>> = {
     none: 'Awaiting tactical command',
+    await_phase_start: 'Awaiting phase start',
     select_unit: 'Select a unit',
     select_movement: 'Pick a movement path',
     select_target: 'Select a target',

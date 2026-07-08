@@ -70,6 +70,9 @@ interface SessionSlice {
   heatSinks: Record<string, number>;
   unitSpas: Record<string, readonly IPilotSpaSummary[]>;
   ui: IGameplayUIState;
+  validMovementHexes: readonly { q: number; r: number }[];
+  validTargetIds: readonly string[];
+  hitChance: number | null;
 }
 
 type SetFn = {
@@ -258,8 +261,8 @@ function weaponStatusFromEngineWeapon(weapon: IWeapon): IWeaponStatus {
 /**
  * Adopt an interactive session into the store. Picks a sensible
  * starting `interactivePhase` based on the session's current phase
- * (Initiative -> SelectUnit; everything else also defaults to
- * SelectUnit but lets the caller override later).
+ * (Initiative -> AwaitPhaseStart; everything else defaults to SelectUnit
+ * but lets the caller override later).
  */
 export function setInteractiveSessionLogic(
   interactiveSession: InteractiveSession,
@@ -270,7 +273,7 @@ export function setInteractiveSessionLogic(
 
   let interactivePhase = InteractivePhase.SelectUnit;
   if (phase === GamePhase.Initiative) {
-    interactivePhase = InteractivePhase.SelectUnit;
+    interactivePhase = InteractivePhase.AwaitPhaseStart;
   }
 
   set({
@@ -280,6 +283,9 @@ export function setInteractiveSessionLogic(
     spectatorMode: null,
     isLoading: false,
     error: null,
+    validMovementHexes: [],
+    validTargetIds: [],
+    hitChance: null,
     ...deriveSupplementalDisplayData(interactiveSession),
   });
 }

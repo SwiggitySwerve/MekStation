@@ -11,7 +11,11 @@ import {
   isGameEnded,
 } from '@/services/game-resolution/GameOutcomeCalculator';
 import { CombatNotCompleteError } from '@/types/combat/CombatOutcome';
-import { GameSide, GameStatus } from '@/types/gameplay/GameSessionInterfaces';
+import {
+  GameSide,
+  GameStatus,
+  type IGameState,
+} from '@/types/gameplay/GameSessionInterfaces';
 import { endGame } from '@/utils/gameplay/gameSession';
 
 import type { IInteractiveSessionRuntimeContext } from './InteractiveSession.runtime';
@@ -147,6 +151,18 @@ export function tryFinalizeAndPublishInteractiveSession(
   });
   context.setSession(result.session);
   context.setOutcomePublished(result.published);
+}
+
+export function applyCorrectedInteractiveSessionState(
+  context: IInteractiveSessionRuntimeContext,
+  newState: IGameState,
+): void {
+  context.setSession({
+    ...context.getSession(),
+    currentState: newState,
+    updatedAt: new Date().toISOString(),
+  });
+  tryFinalizeAndPublishInteractiveSession(context);
 }
 
 export function concedeInteractiveSession(

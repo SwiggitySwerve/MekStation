@@ -18,13 +18,19 @@ export interface IGmTacticalCommandPreviewRequest {
   readonly ctx: ITacticalCommandContext;
 }
 
+export interface IGmTacticalInterventionApprovalResult {
+  readonly status: 'approved' | 'blocked' | 'unsupported' | 'deferred';
+  readonly appended: boolean;
+  readonly reason?: string;
+}
+
 export interface IGmTacticalInterventionSurface {
   readonly preview: (
     request: IGmTacticalCommandPreviewRequest,
   ) => IGmCascadePreview<IGmPrivateMetadata, IGmPublicEffect>;
   readonly approve?: (
     preview: IGmCascadePreview<IGmPrivateMetadata, IGmPublicEffect>,
-  ) => void;
+  ) => IGmTacticalInterventionApprovalResult;
   readonly cancel?: (
     preview: IGmCascadePreview<IGmPrivateMetadata, IGmPublicEffect>,
   ) => void;
@@ -37,6 +43,7 @@ export interface IGmTacticalInterventionSurface {
 export interface IGmPreviewState {
   readonly commandLabel: string;
   readonly preview: IGmCascadePreview<IGmPrivateMetadata, IGmPublicEffect>;
+  readonly approvalIssue?: string;
 }
 
 interface GmInterventionConfirmationPanelProps {
@@ -65,13 +72,18 @@ export function GmInterventionConfirmationPanel({
     preview.conflicts.some((conflict) => conflict.requiresManualTakeover);
   const approveDisabled = preview.status !== 'ready' || !onApprove;
   const manualTakeoverDisabled = !manualTakeoverRequired || !onManualTakeover;
+  const approvalIssueId = previewState.approvalIssue
+    ? `${detailId}-approval-issue`
+    : undefined;
 
   return (
     <section
       role="dialog"
       aria-modal="false"
       aria-labelledby={titleId}
-      aria-describedby={detailId}
+      aria-describedby={
+        approvalIssueId ? `${detailId} ${approvalIssueId}` : detailId
+      }
       className="border-border-theme bg-surface-raised max-w-md rounded border p-3 text-sm shadow"
       data-testid="gm-intervention-confirmation"
       data-gm-preview-status={preview.status}
@@ -139,6 +151,17 @@ export function GmInterventionConfirmationPanel({
             </ul>
           )}
         </section>
+
+        {previewState.approvalIssue && (
+          <p
+            id={approvalIssueId}
+            className="rounded border border-amber-400 bg-amber-50 px-2 py-1 text-xs font-semibold text-slate-950"
+            data-testid="gm-intervention-approval-issue"
+            role="status"
+          >
+            {previewState.approvalIssue}
+          </p>
+        )}
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">

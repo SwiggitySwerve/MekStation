@@ -1,11 +1,14 @@
 import type { ParsedUrlQuery } from 'querystring';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type {
   IGmTacticalInterventionSurface,
   IGmTacticalCommandPreviewRequest,
+  IGmTacticalInterventionApprovalResult,
 } from '@/components/gameplay/TacticalActionDock';
+import type { InteractiveSession } from '@/engine/InteractiveSession';
+import type { GmTacticalCommandId } from '@/lib/interventions';
 import type { IGameSession } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 import type {
@@ -32,6 +35,7 @@ import { logger } from '@/utils/logger';
 interface UseGmTacticalInterventionSurfaceParams {
   readonly enabled: boolean;
   readonly session: IGameSession | null;
+  readonly interactiveSession: InteractiveSession | null;
   readonly campaignId?: string;
   readonly setSession: (session: IGameSession) => void;
 }
@@ -51,6 +55,7 @@ export function resolveGameSessionShellMode(query: ParsedUrlQuery): ShellMode {
 export function useGmTacticalInterventionSurface({
   enabled,
   session,
+  interactiveSession,
   campaignId,
   setSession,
 }: UseGmTacticalInterventionSurfaceParams):
@@ -64,9 +69,11 @@ export function useGmTacticalInterventionSurface({
   const [playerLog, setPlayerLog] = useState<
     readonly IPlayerVisibleInterventionRecord<IGmPublicEffect>[]
   >([]);
+  const commandByPreviewId = useRef(new Map<string, GmTacticalCommandId>());
 
   useEffect(() => {
     setPlayerLog([]);
+    commandByPreviewId.current.clear();
   }, [session?.id]);
 
   const preview = useCallback(
@@ -75,7 +82,7 @@ export function useGmTacticalInterventionSurface({
         return buildUnavailablePreview(request);
       }
 
-      return createGmTacticalCommandPreview({
+      const previewResult = createGmTacticalCommandPreview({
         ledger: ledgers.interventionLedger,
         state: session.currentState as IGmCombatInterventionState,
         authority: buildTacticalGmAuthority(session, campaignId),
@@ -83,13 +90,55 @@ export function useGmTacticalInterventionSurface({
         ctx: request.ctx,
         visibleToPlayerIds: visiblePlayerIdsForSession(session),
       });
+      commandByPreviewId.current.set(
+        previewResult.interventionId,
+        request.commandId,
+      );
+      return previewResult;
     },
     [campaignId, ledgers.interventionLedger, session],
   );
 
   const approve = useCallback(
-    (previewResult: IGmCascadePreview<IGmPrivateMetadata, IGmPublicEffect>) => {
-      if (!session) return;
+    (
+      previewResult: IGmCascadePreview<IGmPrivateMetadata, IGmPublicEffect>,
+    ): IGmTacticalInterventionApprovalResult => {
+      if (!session) {
+        return blockedApprovalResult(
+          'Cannot approve a GM intervention without an active game session.',
+        );
+      }
+
+      if (previewResult.status !== 'ready') {
+        return nonReadyApprovalResult(previewResult);
+      }
+
+      const commandId = commandByPreviewId.current.get(
+        previewResult.interventionId,
+      );
+      const uncommittableReason = commandId
+        ? uncommittableCommandReason(commandId)
+        : uncommittableDomainReason(previewResult);
+      if (uncommittableReason) {
+        logger.warn('[gm-intervention:approval-unsupported]', {
+          service: 'gm-intervention',
+          event: 'approval-unsupported',
+          interventionId: previewResult.interventionId,
+          commandId,
+          reason: uncommittableReason,
+        });
+        return {
+          status: 'unsupported',
+          appended: false,
+          reason: uncommittableReason,
+        };
+      }
+
+      if (!interactiveSession) {
+        return blockedApprovalResult(
+          'Cannot approve a GM intervention without a live interactive engine session.',
+        );
+      }
 
       const approval = approveGmCascadePreview({
         ledger: ledgers.interventionLedger,
@@ -105,17 +154,30 @@ export function useGmTacticalInterventionSurface({
           interventionId: previewResult.interventionId,
           reason: approval.reason,
         });
-        return;
+        return blockedApprovalResult(approval.reason);
       }
 
-      setSession({
-        ...session,
-        currentState: approval.state,
-        updatedAt: new Date().toISOString(),
-      });
+      if (commandId === 'gm.advance-phase') {
+        interactiveSession.advancePhase();
+      } else {
+        interactiveSession.applyCorrectedState(approval.state);
+      }
+
+      setSession(interactiveSession.getSession());
       setPlayerLog(projectTacticalGmPlayerLog(ledgers.interventionLedger));
+      commandByPreviewId.current.delete(previewResult.interventionId);
+      return {
+        status: 'approved',
+        appended: approval.appended,
+      };
     },
-    [ledgers.actionLedger, ledgers.interventionLedger, session, setSession],
+    [
+      interactiveSession,
+      ledgers.actionLedger,
+      ledgers.interventionLedger,
+      session,
+      setSession,
+    ],
   );
 
   const cancel = useCallback(
@@ -213,4 +275,64 @@ function buildUnavailablePreview(
 
 function tacticalGmActorId(sessionId: string): string {
   return `gm:${sessionId}`;
+}
+
+function blockedApprovalResult(
+  reason = 'GM intervention approval was blocked.',
+): IGmTacticalInterventionApprovalResult {
+  return {
+    status: 'blocked',
+    appended: false,
+    reason,
+  };
+}
+
+function nonReadyApprovalResult(
+  previewResult: IGmCascadePreview<IGmPrivateMetadata, IGmPublicEffect>,
+): IGmTacticalInterventionApprovalResult {
+  const reason =
+    previewResult.reason ??
+    `Cannot approve GM cascade preview with status "${previewResult.status}".`;
+  if (previewResult.status === 'deferred') {
+    return {
+      status: 'deferred',
+      appended: false,
+      reason,
+    };
+  }
+  if (previewResult.status === 'unsupported') {
+    return {
+      status: 'unsupported',
+      appended: false,
+      reason,
+    };
+  }
+  return blockedApprovalResult(reason);
+}
+
+function uncommittableCommandReason(
+  commandId: GmTacticalCommandId,
+): string | undefined {
+  switch (commandId) {
+    case 'gm.correct-attack':
+      return 'Attack-resolution corrections are not yet appliable to the live session without new resolution semantics.';
+    case 'gm.reload-unit':
+      return 'Unit reload corrections require session-unit replacement semantics and are deferred from the tactical live-session commit seam.';
+    case 'gm.grant-resource':
+      return 'Resource grants target the campaign economy domain and are deferred from the tactical live-session commit seam.';
+    default:
+      return undefined;
+  }
+}
+
+function uncommittableDomainReason(
+  previewResult: IGmCascadePreview<IGmPrivateMetadata, IGmPublicEffect>,
+): string | undefined {
+  if (previewResult.domain === 'unit-reload') {
+    return uncommittableCommandReason('gm.reload-unit');
+  }
+  if (previewResult.domain === 'economy') {
+    return uncommittableCommandReason('gm.grant-resource');
+  }
+  return undefined;
 }

@@ -61,6 +61,7 @@ it('covers every player tactical command and excludes GM referee tools', () => {
     'facing.rotate-left',
     'facing.rotate-right',
     'facing.torso-twist',
+    'heat-end.begin-round',
     'heat-end.end-phase',
     'heat-end.next-turn',
     'heat.continue',
@@ -195,6 +196,7 @@ it('covers every player tactical command and excludes GM referee tools', () => {
     ),
   ).toBe(true);
   const heatEndCommandSourceRows = [
+    'heat-end.begin-round',
     'heat.continue',
     'heat-end.end-phase',
     'heat-end.next-turn',

@@ -2,6 +2,7 @@ import type { ICombatActionSupportEntry } from './CombatActionSupport.types';
 
 import { integrated, outOfScope } from './CombatActionSupport.entries';
 import {
+  MEKSTATION_BEGIN_ROUND_COMMAND_SOURCE_REFS,
   MEKSTATION_CONCEDE_COMMAND_SOURCE_REFS,
   MEKSTATION_EJECT_COMMAND_SOURCE_REFS,
   MEKSTATION_END_PHASE_COMMAND_SOURCE_REFS,
@@ -127,6 +128,12 @@ export const ATTACK_UTILITY_COMMAND_ACTION_SUPPORT = {
     'tactical-command',
     'buildHeatEndCommands commits continue; useGameplayStore.handleAction advances Heat through InteractiveSession.advancePhase, while confirmHeat maps to AdvancePhase on server and a Heat-phase advance marker on P2P',
     MEKSTATION_HEAT_CONTINUE_COMMAND_SOURCE_REFS,
+  ),
+  'heat-end.begin-round': integrated(
+    'heat-end.begin-round',
+    'tactical-command',
+    'buildHeatEndCommands commits begin-round; useGameplayStore.handleAction advances Initiative through InteractiveSession.advancePhase',
+    MEKSTATION_BEGIN_ROUND_COMMAND_SOURCE_REFS,
   ),
   'heat-end.end-phase': integrated(
     'heat-end.end-phase',
