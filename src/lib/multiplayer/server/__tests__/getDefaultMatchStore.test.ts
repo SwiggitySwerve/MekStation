@@ -3,6 +3,8 @@
  * task 1.5: environment-aware store selection.
  */
 
+import type { IMatchStore } from '../IMatchStore';
+
 import { DurableMatchStore } from '../DurableMatchStore';
 import {
   _resetDefaultMatchStore,
@@ -10,6 +12,27 @@ import {
   shouldUseDurableStore,
 } from '../getDefaultMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
+
+type IsolatedDefaultMatchStoreModule = Pick<
+  typeof import('../getDefaultMatchStore'),
+  'getDefaultMatchStore'
+>;
+
+function loadDefaultMatchStoreFromIsolatedModule(): IMatchStore {
+  let store: IMatchStore | undefined;
+  jest.isolateModules(() => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const module =
+      require('../getDefaultMatchStore') as IsolatedDefaultMatchStoreModule;
+    store = module.getDefaultMatchStore();
+  });
+  if (!store) {
+    throw new Error(
+      'isolated getDefaultMatchStore load did not return a store',
+    );
+  }
+  return store;
+}
 
 describe('getDefaultMatchStore', () => {
   const originalNodeEnv = process.env.NODE_ENV;
@@ -83,5 +106,28 @@ describe('getDefaultMatchStore', () => {
     setNodeEnv('test');
     delete process.env.MULTIPLAYER_STORE;
     expect(getDefaultMatchStore()).toBe(getDefaultMatchStore());
+  });
+
+  describe('global singleton boundary', () => {
+    beforeEach(() => {
+      setNodeEnv('test');
+      delete process.env.MULTIPLAYER_STORE;
+    });
+
+    it('shares one store across isolated module graphs', () => {
+      const firstStore = loadDefaultMatchStoreFromIsolatedModule();
+      const secondStore = loadDefaultMatchStoreFromIsolatedModule();
+
+      expect(secondStore).toBe(firstStore);
+    });
+
+    it('_resetDefaultMatchStore clears the process-global singleton slot', () => {
+      const firstStore = getDefaultMatchStore();
+
+      _resetDefaultMatchStore();
+      const secondStore = getDefaultMatchStore();
+
+      expect(secondStore).not.toBe(firstStore);
+    });
   });
 });

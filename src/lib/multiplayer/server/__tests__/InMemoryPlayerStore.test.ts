@@ -6,7 +6,11 @@
  * on missing ids.
  */
 
-import { InMemoryPlayerStore } from '../InMemoryPlayerStore';
+import {
+  _resetDefaultPlayerStore,
+  getDefaultPlayerStore,
+  InMemoryPlayerStore,
+} from '../InMemoryPlayerStore';
 import { PlayerNotFoundError, type ICreatePlayerInput } from '../IPlayerStore';
 
 const baseInput: ICreatePlayerInput = {
@@ -14,6 +18,27 @@ const baseInput: ICreatePlayerInput = {
   publicKey: 'pubkey-base64-stub',
   displayName: 'Tester',
 };
+
+type IsolatedDefaultPlayerStoreModule = Pick<
+  typeof import('../InMemoryPlayerStore'),
+  'getDefaultPlayerStore'
+>;
+
+function loadDefaultPlayerStoreFromIsolatedModule(): InMemoryPlayerStore {
+  let store: InMemoryPlayerStore | undefined;
+  jest.isolateModules(() => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const module =
+      require('../InMemoryPlayerStore') as IsolatedDefaultPlayerStoreModule;
+    store = module.getDefaultPlayerStore();
+  });
+  if (!store) {
+    throw new Error(
+      'isolated getDefaultPlayerStore load did not return a store',
+    );
+  }
+  return store;
+}
 
 describe('InMemoryPlayerStore', () => {
   it('creates a profile on first call and bumps lastSeenAt on second', async () => {
@@ -63,5 +88,31 @@ describe('InMemoryPlayerStore', () => {
     const store = new InMemoryPlayerStore({ quiet: true });
     const profile = await store.getProfile('pid_unknown');
     expect(profile).toBeNull();
+  });
+});
+
+describe('getDefaultPlayerStore global singleton boundary', () => {
+  beforeEach(() => {
+    _resetDefaultPlayerStore();
+  });
+
+  afterEach(() => {
+    _resetDefaultPlayerStore();
+  });
+
+  it('shares one store across isolated module graphs', () => {
+    const firstStore = loadDefaultPlayerStoreFromIsolatedModule();
+    const secondStore = loadDefaultPlayerStoreFromIsolatedModule();
+
+    expect(secondStore).toBe(firstStore);
+  });
+
+  it('_resetDefaultPlayerStore clears the process-global singleton slot', () => {
+    const firstStore = getDefaultPlayerStore();
+
+    _resetDefaultPlayerStore();
+    const secondStore = getDefaultPlayerStore();
+
+    expect(secondStore).not.toBe(firstStore);
   });
 });
