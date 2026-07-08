@@ -3,9 +3,9 @@
  *
  * Same pattern as `InMemoryMatchStore`: loud startup warning so it's
  * never mistaken for a production store; per-instance state so tests
- * can each construct their own store without bleed; module-level
+ * can each construct their own store without bleed; process-global
  * singleton accessor so REST handlers + the WS upgrade share one store
- * within a Node process.
+ * within a Node process, even across dev module graphs.
  *
  * @spec openspec/changes/add-player-identity-and-auth/specs/player-identity/spec.md
  */
@@ -108,7 +108,17 @@ export class InMemoryPlayerStore implements IPlayerStore {
 // Singleton accessor (mirrors InMemoryMatchStore)
 // =============================================================================
 
-let _singleton: InMemoryPlayerStore | null = null;
+const PLAYER_STORE_SINGLETON_KEY = Symbol.for(
+  'mekstation.multiplayer.playerStore',
+);
+
+type GlobalPlayerStoreRegistry = typeof globalThis & {
+  [PLAYER_STORE_SINGLETON_KEY]?: InMemoryPlayerStore;
+};
+
+function getGlobalPlayerStoreRegistry(): GlobalPlayerStoreRegistry {
+  return globalThis as GlobalPlayerStoreRegistry;
+}
 
 /**
  * Default factory used by REST handlers + the WS upgrade. One store per
@@ -116,13 +126,16 @@ let _singleton: InMemoryPlayerStore | null = null;
  * directly to avoid leaking state.
  */
 export function getDefaultPlayerStore(): InMemoryPlayerStore {
-  if (!_singleton) {
-    _singleton = new InMemoryPlayerStore();
+  const registry = getGlobalPlayerStoreRegistry();
+  let store = registry[PLAYER_STORE_SINGLETON_KEY];
+  if (!store) {
+    store = new InMemoryPlayerStore();
+    registry[PLAYER_STORE_SINGLETON_KEY] = store;
   }
-  return _singleton;
+  return store;
 }
 
 /** Test-only: reset the singleton so suites don't bleed into each other. */
 export function _resetDefaultPlayerStore(): void {
-  _singleton = null;
+  delete getGlobalPlayerStoreRegistry()[PLAYER_STORE_SINGLETON_KEY];
 }

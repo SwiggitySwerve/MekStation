@@ -28,7 +28,17 @@ import type { IMatchStore } from './IMatchStore';
 import { DurableMatchStore } from './DurableMatchStore';
 import { InMemoryMatchStore } from './InMemoryMatchStore';
 
-let _singleton: IMatchStore | null = null;
+const MATCH_STORE_SINGLETON_KEY = Symbol.for(
+  'mekstation.multiplayer.matchStore',
+);
+
+type GlobalMatchStoreRegistry = typeof globalThis & {
+  [MATCH_STORE_SINGLETON_KEY]?: IMatchStore;
+};
+
+function getGlobalMatchStoreRegistry(): GlobalMatchStoreRegistry {
+  return globalThis as GlobalMatchStoreRegistry;
+}
 
 /**
  * True when the running process should use the durable SQLite store.
@@ -56,12 +66,15 @@ export function shouldUseDurableStore(): boolean {
  * production and the in-memory fallback in dev/test.
  */
 export function getDefaultMatchStore(): IMatchStore {
-  if (!_singleton) {
-    _singleton = shouldUseDurableStore()
+  const registry = getGlobalMatchStoreRegistry();
+  let store = registry[MATCH_STORE_SINGLETON_KEY];
+  if (!store) {
+    store = shouldUseDurableStore()
       ? new DurableMatchStore()
       : new InMemoryMatchStore();
+    registry[MATCH_STORE_SINGLETON_KEY] = store;
   }
-  return _singleton;
+  return store;
 }
 
 /**
@@ -70,10 +83,10 @@ export function getDefaultMatchStore(): IMatchStore {
  * backend (e.g. an in-memory `DurableMatchStore` at `:memory:`).
  */
 export function _setDefaultMatchStoreForTests(store: IMatchStore): void {
-  _singleton = store;
+  getGlobalMatchStoreRegistry()[MATCH_STORE_SINGLETON_KEY] = store;
 }
 
 /** Test-only: reset the singleton so suites don't bleed into each other. */
 export function _resetDefaultMatchStore(): void {
-  _singleton = null;
+  delete getGlobalMatchStoreRegistry()[MATCH_STORE_SINGLETON_KEY];
 }
