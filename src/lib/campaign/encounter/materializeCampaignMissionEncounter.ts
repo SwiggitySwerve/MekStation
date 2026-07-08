@@ -13,6 +13,12 @@ import { TerrainPreset, VictoryConditionType } from '@/types/encounter';
 import { ForceType } from '@/types/force';
 import { logger } from '@/utils/logger';
 
+import {
+  type AssignedForceUnit,
+  rosterUnitsToForceUnits,
+  selectOpponentUnits,
+} from './materializeCampaignMissionEncounter.forceUnits';
+
 type FetchImpl = typeof fetch;
 
 type CampaignMissionSource = Pick<ICampaign, 'id' | 'name' | 'missions'>;
@@ -47,14 +53,6 @@ export interface MaterializeCampaignMissionEncounterResult {
   readonly reused: boolean;
   readonly missionScenarioIds: readonly string[];
 }
-
-const DEFAULT_PLAYER_UNIT_REF = 'atlas-as7-d';
-const DEFAULT_OPPONENT_UNIT_REF = 'marauder-mad-3r';
-
-const CANONICAL_UNIT_REFS = new Set([
-  DEFAULT_PLAYER_UNIT_REF,
-  DEFAULT_OPPONENT_UNIT_REF,
-]);
 
 const MATERIALIZER_LOG_SERVICE = 'campaign-encounter-materializer';
 
@@ -106,22 +104,6 @@ async function encounterExists(
   return false;
 }
 
-function selectPlayerUnitRef(
-  rosterUnits: readonly IRosterUnitProjection[],
-): string {
-  const rosterUnit =
-    rosterUnits.find((unit) => unit.readiness === 'Ready') ?? rosterUnits[0];
-  if (!rosterUnit) return DEFAULT_PLAYER_UNIT_REF;
-  if (CANONICAL_UNIT_REFS.has(rosterUnit.unitId)) return rosterUnit.unitId;
-
-  const label =
-    `${rosterUnit.unitName} ${rosterUnit.chassisVariant}`.toLowerCase();
-  if (label.includes('marauder') || label.includes('heavy')) {
-    return DEFAULT_OPPONENT_UNIT_REF;
-  }
-  return DEFAULT_PLAYER_UNIT_REF;
-}
-
 function assertLaunchRoster(
   rosterUnits: readonly IRosterUnitProjection[],
 ): void {
@@ -138,15 +120,26 @@ function assertLaunchRoster(
       `Mission launch roster contains blocked unit ${invalidUnit.unitName}; resolve readiness before materialization.`,
     );
   }
+  const unresolvedUnits = rosterUnits.filter((unit) => !unit.unitRef);
+  if (unresolvedUnits.length > 0) {
+    throw new Error(
+      unresolvedUnits
+        .map(
+          (unit) =>
+            `Roster unit ${unit.unitName} has no canonical unitRef; cannot launch.`,
+        )
+        .join(' '),
+    );
+  }
 }
 
-async function createAssignedForce({
+async function createAssignedForceWithUnits({
   name,
-  unitRef,
+  units,
   fetchImpl,
 }: {
   readonly name: string;
-  readonly unitRef: string;
+  readonly units: readonly AssignedForceUnit[];
   readonly fetchImpl: FetchImpl;
 }): Promise<string> {
   const createResponse = await fetchImpl('/api/forces', {
@@ -164,24 +157,47 @@ async function createAssignedForce({
   assertOperationSuccess(created, 'Failed to create force');
 
   const forceId = created.force?.id ?? created.id;
-  const assignmentId = created.force?.assignments[0]?.id;
-  if (!forceId || !assignmentId) {
-    throw new Error('Created force did not include an assignable slot');
+  if (!forceId) {
+    throw new Error('Force creation did not return a force id');
   }
 
-  const assignResponse = await fetchImpl(
-    `/api/forces/assignments/${encodeURIComponent(assignmentId)}`,
-    {
-      method: 'PUT',
-      headers: apiJsonHeaders(),
-      body: JSON.stringify({ unitId: unitRef }),
-    },
-  );
-  const assigned = await readApiJson<ApiFailurePayload>(
-    assignResponse,
-    'Failed to assign unit to force',
-  );
-  assertOperationSuccess(assigned, 'Failed to assign unit to force');
+  const assignmentSlots = created.force?.assignments ?? [];
+  if (units.length > assignmentSlots.length) {
+    throw new Error(
+      `Created Lance force provided ${assignmentSlots.length} assignment slots, but ${units.length} units were selected; refusing to drop units.`,
+    );
+  }
+
+  for (let index = 0; index < units.length; index += 1) {
+    const assignmentId = assignmentSlots[index]?.id;
+    if (!assignmentId) {
+      throw new Error(
+        `Created force did not include assignment slot ${index + 1}`,
+      );
+    }
+
+    const unit = units[index];
+    if (!unit) {
+      throw new Error(`Missing unit payload for assignment slot ${index + 1}`);
+    }
+    const assignResponse = await fetchImpl(
+      `/api/forces/assignments/${encodeURIComponent(assignmentId)}`,
+      {
+        method: 'PUT',
+        headers: apiJsonHeaders(),
+        body: JSON.stringify({
+          unitId: unit.unitRef,
+          pilotId: unit.pilotRef,
+        }),
+      },
+    );
+    const assigned = await readApiJson<ApiFailurePayload>(
+      assignResponse,
+      'Failed to assign unit to force',
+    );
+    assertOperationSuccess(assigned, 'Failed to assign unit to force');
+  }
+
   return forceId;
 }
 
@@ -309,14 +325,21 @@ export async function materializeCampaignMissionEncounter({
       }
     }
 
-    const playerForceId = await createAssignedForce({
+    const playerForceId = await createAssignedForceWithUnits({
       name: `${campaign.name} ${mission?.name ?? missionId} Lance`,
-      unitRef: selectPlayerUnitRef(rosterUnits),
+      units: rosterUnitsToForceUnits(rosterUnits),
       fetchImpl,
     });
-    const opponentForceId = await createAssignedForce({
+    const opponentForceId = await createAssignedForceWithUnits({
       name: `${mission?.name ?? 'Campaign Mission'} OpFor`,
-      unitRef: DEFAULT_OPPONENT_UNIT_REF,
+      // design.md proposes encounter-id seeding, but this materializer's
+      // REST flow must create forces before the encounter id exists. Campaign
+      // plus mission is stable before force creation, and true repeat launches
+      // short-circuit through the existing-scenario reuse branch above.
+      units: selectOpponentUnits({
+        count: rosterUnits.length,
+        seed: `${campaign.id}:${missionId}`,
+      }),
       fetchImpl,
     });
     const encounterId = await createConfiguredEncounter({

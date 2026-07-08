@@ -1,9 +1,31 @@
 import { Button, Card, Badge } from '@/components/ui';
+import { WIZARD_REPRESENTATIVE_UNITS } from '@/lib/campaign/wizard/representativeUnits';
 import { UNIT_TEMPLATES } from '@/simulation/generator';
 
 import type { RosterStepProps } from './CreateCampaignPage.types';
 
 import { getAssignedUnitIdForPilot } from './CreateCampaignPage.utils';
+
+const EXPECTED_WIZARD_TEMPLATE_COUNT = 4;
+
+function getWizardTemplateOptions() {
+  if (
+    UNIT_TEMPLATES.length !== EXPECTED_WIZARD_TEMPLATE_COUNT ||
+    WIZARD_REPRESENTATIVE_UNITS.length !== EXPECTED_WIZARD_TEMPLATE_COUNT ||
+    UNIT_TEMPLATES.length !== WIZARD_REPRESENTATIVE_UNITS.length
+  ) {
+    throw new Error(
+      'Campaign wizard templates and representative units must stay aligned by weight class order.',
+    );
+  }
+
+  return UNIT_TEMPLATES.map((template, index) => ({
+    template,
+    representativeUnit: WIZARD_REPRESENTATIVE_UNITS[index],
+  }));
+}
+
+const WIZARD_TEMPLATE_OPTIONS = getWizardTemplateOptions();
 
 export function RosterStep({
   selectedUnits,
@@ -32,11 +54,17 @@ export function RosterStep({
         </div>
 
         <div className="mb-4 grid grid-cols-2 gap-2">
-          {UNIT_TEMPLATES.map((template) => (
+          {WIZARD_TEMPLATE_OPTIONS.map(({ template, representativeUnit }) => (
             <button
-              key={template.name}
+              key={representativeUnit.unitRef}
               type="button"
-              onClick={() => onAddTemplateUnit(template.name, template.tonnage)}
+              onClick={() =>
+                onAddTemplateUnit(
+                  representativeUnit.unitName,
+                  template.tonnage,
+                  representativeUnit.unitRef,
+                )
+              }
               className="border-border-theme-subtle bg-surface-deep hover:border-accent/50 hover:bg-surface-raised/50 flex items-center gap-3 rounded-lg border p-3 text-left transition-all"
               data-testid={`add-unit-${template.name.toLowerCase().replace(/\s+/g, '-')}`}
             >
@@ -45,7 +73,8 @@ export function RosterStep({
               </div>
               <div>
                 <div className="text-text-theme-primary text-sm font-medium">
-                  {template.name}
+                  {representativeUnit.weightClass} -{' '}
+                  {representativeUnit.unitName}
                 </div>
                 <div className="text-text-theme-muted text-xs">
                   Walk {template.walkMP} / Jump {template.jumpMP}

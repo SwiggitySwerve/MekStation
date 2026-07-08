@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { installNodeCanonicalUnitStatsResolver } from '@/services/forces/ForceRepository.helpers.server';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 type JsonBody = Record<string, unknown>;
@@ -25,6 +26,7 @@ export function initializeApiDatabase(
   buildBody: (message: string) => JsonBody = (message) => ({ error: message }),
 ): boolean {
   try {
+    installNodeCanonicalUnitStatsResolver();
     getSQLiteService().initialize();
     return true;
   } catch (error) {

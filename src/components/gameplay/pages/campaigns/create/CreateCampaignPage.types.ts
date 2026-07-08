@@ -3,6 +3,7 @@ import { CampaignType } from '@/types/campaign/CampaignType';
 
 export interface SelectedUnit {
   id: string;
+  unitRef?: string;
   name: string;
   tonnage: number;
 }
@@ -35,7 +36,11 @@ export interface RosterStepProps {
   selectedUnits: SelectedUnit[];
   selectedPilots: SelectedPilot[];
   pilotAssignments: PilotAssignments;
-  onAddTemplateUnit: (templateName: string, tonnage: number) => void;
+  onAddTemplateUnit: (
+    templateName: string,
+    tonnage: number,
+    unitRef: string,
+  ) => void;
   onRemoveUnit: (unitId: string) => void;
   onAddPilot: () => void;
   onRemovePilot: (pilotId: string) => void;

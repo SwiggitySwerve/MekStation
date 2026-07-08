@@ -66,10 +66,15 @@ function adaptedMech(id: string, side: GameSide): IAdaptedUnit {
   };
 }
 
-function gameUnit(id: string, side: GameSide, pilotRef: string): IGameUnit {
+function gameUnit(
+  id: string,
+  side: GameSide,
+  pilotRef: string,
+  name = pilotRef,
+): IGameUnit {
   return {
     id,
-    name: `Unit ${id}`,
+    name,
     side,
     unitRef: 'probe-mech',
     pilotRef,
@@ -163,5 +168,47 @@ describe('setInteractiveSessionLogic supplemental display derivation', () => {
     });
     expect(applied.interactivePhase).toBe(InteractivePhase.AwaitPhaseStart);
     expect(applied.validMovementHexes).toEqual([]);
+  });
+
+  it('uses the resolved game-unit name instead of a raw campaign pilot id', () => {
+    const player = adaptedMech('unit-p1', GameSide.Player);
+    const opponent = adaptedMech('unit-o1', GameSide.Opponent);
+    const interactiveSession = new InteractiveSession(
+      8,
+      12,
+      new SeededRandom(42),
+      createMinimalGrid(8),
+      [player],
+      [opponent],
+      [
+        gameUnit(
+          'unit-p1',
+          GameSide.Player,
+          'pilot-ab355cd3-raw-vault-id',
+          'Vera "Glitch" Holloway',
+        ),
+        gameUnit('unit-o1', GameSide.Opponent, 'Unknown'),
+      ],
+    );
+
+    const updates: Record<string, unknown>[] = [];
+    const set = (partial: unknown): void => {
+      updates.push(partial as Record<string, unknown>);
+    };
+
+    setInteractiveSessionLogic(
+      interactiveSession,
+      set as Parameters<typeof setInteractiveSessionLogic>[1],
+    );
+
+    const applied = Object.assign({}, ...updates) as {
+      pilotNames: Record<string, string>;
+    };
+
+    expect(applied.pilotNames['unit-p1']).toBe('Vera "Glitch" Holloway');
+    expect(applied.pilotNames['unit-p1']).not.toBe(
+      'pilot-ab355cd3-raw-vault-id',
+    );
+    expect(applied.pilotNames['unit-o1']).toBeUndefined();
   });
 });

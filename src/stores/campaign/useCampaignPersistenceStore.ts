@@ -27,6 +27,7 @@ import {
   getDeviceId,
   migrateSerializedCampaign,
 } from '@/lib/campaign/persistence';
+import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRosterUnitBackfill';
 import { Money } from '@/types/campaign/Money';
 
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
@@ -191,7 +192,13 @@ function restoreRosterProjection(
 
   useCampaignRosterStore.setState({
     campaignId,
-    units: rosterProjection.units.map((unit) => ({ ...unit })),
+    units: backfillLegacyRosterUnitRefs(
+      rosterProjection.units.map((unit) => ({ ...unit })),
+      {
+        campaignId,
+        source: 'server-roster-projection-load',
+      },
+    ),
     pilots: rosterProjection.pilots.map(deserializeRosterEntry),
     missions: rosterProjection.missions.map((mission) => ({
       ...mission,

@@ -8,10 +8,17 @@
  * @spec openspec/changes/add-skirmish-setup-ui/tasks.md § 4-5
  */
 
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import React from 'react';
 
 import {
+  ForceCard,
   MAP_RADIUS_OPTIONS,
   MapConfigEditor,
   SCENARIO_OPTIONAL_RULES,
@@ -23,10 +30,25 @@ import {
   ScenarioTemplateType,
   TerrainPreset,
   VictoryConditionType,
+  type IForceReference,
   type IMapConfiguration,
   type IVictoryCondition,
   type IScenarioTemplate,
 } from '@/types/encounter';
+import {
+  ForcePosition,
+  ForceStatus,
+  ForceType,
+  type IForce,
+} from '@/types/force';
+
+const mockGetCanonicalUnitIndex = jest.fn();
+
+jest.mock('@/services/units/CanonicalUnitService', () => ({
+  getCanonicalUnitService: () => ({
+    getIndex: mockGetCanonicalUnitIndex,
+  }),
+}));
 
 const baseConfig: IMapConfiguration = {
   radius: 8,
@@ -34,6 +56,68 @@ const baseConfig: IMapConfiguration = {
   playerDeploymentZone: 'south',
   opponentDeploymentZone: 'north',
 };
+
+const forceRef: IForceReference = {
+  forceId: 'force-player',
+  forceName: 'Alpha Lance',
+  totalBV: 1_897,
+  unitCount: 1,
+};
+
+const force: IForce = {
+  id: 'force-player',
+  name: 'Alpha Lance',
+  forceType: ForceType.Lance,
+  status: ForceStatus.Active,
+  childIds: [],
+  assignments: [
+    {
+      id: 'assignment-1',
+      pilotId: 'pilot-1',
+      unitId: 'atlas-as7-d',
+      position: ForcePosition.Lead,
+      slot: 1,
+    },
+  ],
+  stats: {
+    totalBV: 1_897,
+    totalTonnage: 100,
+    assignedPilots: 1,
+    assignedUnits: 1,
+    emptySlots: 3,
+    averageSkill: null,
+  },
+  createdAt: '2026-01-01T00:00:00.000Z',
+  updatedAt: '2026-01-01T00:00:00.000Z',
+};
+
+describe('pre-battle ForceCard', () => {
+  it('shows canonical assignment names and non-zero battle value', async () => {
+    mockGetCanonicalUnitIndex.mockResolvedValue([
+      {
+        id: 'atlas-as7-d',
+        name: 'Atlas AS7-D',
+      },
+    ]);
+
+    render(
+      <ForceCard
+        title="Player Force"
+        forceRef={forceRef}
+        force={force}
+        side="player"
+      />,
+    );
+
+    expect(screen.getByTestId('player-force-bv')).toHaveTextContent(
+      '1,897 Battle Value',
+    );
+    await waitFor(() => {
+      expect(screen.getByText('Atlas AS7-D')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Slot 1')).not.toBeInTheDocument();
+  });
+});
 
 describe('add-skirmish-setup-ui — MapConfigEditor smoke test', () => {
   it('renders canonical radius options (5 / 8 / 12 / 17) with hex counts', () => {

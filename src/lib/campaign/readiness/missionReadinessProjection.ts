@@ -140,6 +140,15 @@ function buildUnitProjection({
     });
   }
 
+  if (!unit.unitRef) {
+    reasons.push({
+      code: 'unit_ref_unresolved',
+      severity: 'blocker',
+      subjectId: unit.unitId,
+      message: `${unit.unitName} has no canonical record; recreate the campaign or edit the unit in Mech Bay before launch.`,
+    });
+  }
+
   if (unit.pilotId) {
     if (!pilot) {
       reasons.push({

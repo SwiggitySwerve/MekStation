@@ -1,8 +1,68 @@
+import { useEffect, useMemo, useState } from 'react';
+
 import type { IForceReference, IMapConfiguration } from '@/types/encounter';
 import type { IForce } from '@/types/force';
 
 import { Badge, Card } from '@/components/ui';
 import { TerrainPreset } from '@/types/encounter';
+
+function useCanonicalUnitNameById(
+  force: IForce | undefined,
+): ReadonlyMap<string, string> {
+  const assignedUnitIds = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          force?.assignments
+            .map((assignment) => assignment.unitId)
+            .filter((unitId): unitId is string => Boolean(unitId)) ?? [],
+        ),
+      ),
+    [force],
+  );
+  const assignedUnitKey = assignedUnitIds.join('\n');
+  const [unitNameById, setUnitNameById] = useState<ReadonlyMap<string, string>>(
+    new Map(),
+  );
+
+  useEffect(() => {
+    const requestedUnitIds =
+      assignedUnitKey.length > 0 ? assignedUnitKey.split('\n') : [];
+    if (requestedUnitIds.length === 0) {
+      setUnitNameById(new Map());
+      return;
+    }
+
+    let cancelled = false;
+    const loadUnitNames = async () => {
+      try {
+        const { getCanonicalUnitService } =
+          await import('@/services/units/CanonicalUnitService');
+        const assignedIds = new Set(requestedUnitIds);
+        const index = await getCanonicalUnitService().getIndex();
+        const nextUnitNameById = new Map<string, string>();
+        for (const entry of index) {
+          if (assignedIds.has(entry.id)) {
+            nextUnitNameById.set(entry.id, entry.name);
+          }
+        }
+        if (!cancelled) {
+          setUnitNameById(nextUnitNameById);
+        }
+      } catch {
+        if (!cancelled) {
+          setUnitNameById(new Map());
+        }
+      }
+    };
+    void loadUnitNames();
+    return () => {
+      cancelled = true;
+    };
+  }, [assignedUnitKey]);
+
+  return unitNameById;
+}
 
 interface ForceCardProps {
   title: string;
@@ -19,6 +79,7 @@ export function ForceCard({
 }: ForceCardProps): React.ReactElement {
   const isOpponent = side === 'opponent';
   const accentColor = isOpponent ? 'red' : 'cyan';
+  const unitNameById = useCanonicalUnitNameById(force);
 
   return (
     <Card
@@ -64,7 +125,10 @@ export function ForceCard({
                   className="bg-surface-raised border-border-theme-subtle flex items-center justify-between rounded-lg border p-2"
                 >
                   <div className="text-text-theme-primary text-sm">
-                    Slot {assignment.slot}
+                    {assignment.unitId
+                      ? (unitNameById.get(assignment.unitId) ??
+                        `Slot ${assignment.slot}`)
+                      : `Slot ${assignment.slot}`}
                     {assignment.pilotId && (
                       <span className="text-text-theme-muted ml-2 text-xs">
                         (pilot assigned)

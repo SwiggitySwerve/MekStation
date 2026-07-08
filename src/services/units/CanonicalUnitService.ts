@@ -172,7 +172,7 @@ export class CanonicalUnitService implements ICanonicalUnitService {
    * Load the lightweight unit index
    */
   getIndex = async (): Promise<readonly IUnitIndexEntry[]> => {
-    if (this.indexCache) {
+    if (this.indexCache !== null) {
       return this.indexCache;
     }
 
@@ -181,18 +181,16 @@ export class CanonicalUnitService implements ICanonicalUnitService {
         this.indexPath,
       );
 
-      if (!data) {
-        this.indexCache = [];
-        return this.indexCache;
+      if (!data || !Array.isArray(data.units) || data.units.length === 0) {
+        return [];
       }
 
       // Map raw index data to IUnitIndexEntry format
-      this.indexCache = (data.units || []).map(mapRawToIndexEntry);
+      this.indexCache = data.units.map(mapRawToIndexEntry);
       return this.indexCache;
     } catch {
       // Index not available - return empty array
-      this.indexCache = [];
-      return this.indexCache;
+      return [];
     }
   };
 

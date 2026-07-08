@@ -72,6 +72,14 @@ function getPilotToughness(
     : undefined;
 }
 
+function getAssignedPilotDisplayName(
+  pilotId: string | null,
+  pilots: readonly IPilot[],
+): string | undefined {
+  const pilot = getAssignedPilot(pilotId, pilots);
+  return pilot?.callsign ?? pilot?.name;
+}
+
 async function adaptAssignments(
   assignments: readonly AssignedForceUnit[],
   side: GameSide,
@@ -105,7 +113,10 @@ function buildGameUnits(
   return [
     ...playerAssignments.map((assignment, index) => ({
       id: playerAdapted[index]?.id ?? assignment.unitId ?? assignment.id,
-      name: playerAdapted[index]?.id ?? `Player Unit ${index + 1}`,
+      name:
+        getAssignedPilotDisplayName(assignment.pilotId, pilots) ??
+        playerAdapted[index]?.id ??
+        `Player Unit ${index + 1}`,
       side: GameSide.Player,
       unitRef: assignment.unitId ?? '',
       pilotRef: assignment.pilotId ?? 'Unknown',
@@ -119,7 +130,10 @@ function buildGameUnits(
     })),
     ...opponentAssignments.map((assignment, index) => ({
       id: opponentAdapted[index]?.id ?? assignment.unitId ?? assignment.id,
-      name: opponentAdapted[index]?.id ?? `Opponent Unit ${index + 1}`,
+      name:
+        getAssignedPilotDisplayName(assignment.pilotId, pilots) ??
+        opponentAdapted[index]?.id ??
+        `Opponent Unit ${index + 1}`,
       side: GameSide.Opponent,
       unitRef: assignment.unitId ?? '',
       pilotRef: assignment.pilotId ?? 'Unknown',

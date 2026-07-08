@@ -79,6 +79,8 @@ import type { IUnitCombatState } from './UnitCombatState';
 export interface IRosterUnitProjection {
   /** Unit id this projection describes (matches `IUnitCombatState.unitId`). */
   readonly unitId: string;
+  /** Canonical unit-dataset key; distinct from `unitId`, the roster-instance id. */
+  readonly unitRef?: string;
   /** Display name (cached at roster-add time). */
   readonly unitName: string;
   /** Assigned pilot id, if any. */

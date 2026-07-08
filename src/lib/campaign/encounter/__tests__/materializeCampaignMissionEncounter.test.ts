@@ -52,12 +52,31 @@ function makeCampaign(
   };
 }
 
-function makeRoster(): readonly IRosterUnitProjection[] {
+const PLAYER_UNIT_REFS = [
+  'locust-lct-1v',
+  'hunchback-hbk-4g',
+  'marauder-mad-3r',
+  'atlas-as7-d',
+] as const;
+
+function makeRoster(count = 1): readonly IRosterUnitProjection[] {
+  return PLAYER_UNIT_REFS.slice(0, count).map((unitRef, index) => ({
+    unitId: `wizard-unit-${index + 1}`,
+    unitName: `Wizard Unit ${index + 1}`,
+    chassisVariant: `Variant ${index + 1}`,
+    pilotId: `pilot-${index + 1}`,
+    unitRef,
+    readiness: 'Ready',
+  }));
+}
+
+function makeRosterWithoutUnitRef(): readonly IRosterUnitProjection[] {
   return [
     {
-      unitId: 'wizard-light-1',
-      unitName: 'Light Mech',
-      chassisVariant: 'Light Mech',
+      unitId: 'wizard-legacy-1',
+      unitName: 'Legacy Placeholder',
+      chassisVariant: 'Placeholder',
+      pilotId: 'pilot-legacy',
       readiness: 'Ready',
     },
   ];
@@ -69,9 +88,71 @@ function makeDestroyedRoster(): readonly IRosterUnitProjection[] {
       unitId: 'unit-destroyed',
       unitName: 'Destroyed Mech',
       chassisVariant: 'LCT-1V',
+      pilotId: 'pilot-destroyed',
+      unitRef: 'locust-lct-1v',
       readiness: 'Destroyed',
     },
   ];
+}
+
+function makeForceAssignments(forceCount: number): readonly { id: string }[] {
+  return Array.from({ length: 4 }, (_, index) => ({
+    id: `assignment-${forceCount}-${index + 1}`,
+  }));
+}
+
+function makeMaterializationFetch(
+  calls: FetchCall[],
+  encounterId = 'enc-organic',
+): typeof fetch {
+  let forceCount = 0;
+  return jest.fn(async (input, init) => {
+    const call = { url: requestUrl(input), init };
+    calls.push(call);
+    if (call.url === '/api/forces' && init?.method === 'POST') {
+      forceCount += 1;
+      return jsonResponse(
+        {
+          success: true,
+          id: `force-${forceCount}`,
+          force: {
+            id: `force-${forceCount}`,
+            assignments: makeForceAssignments(forceCount),
+          },
+        },
+        201,
+      );
+    }
+    if (call.url.startsWith('/api/forces/assignments/')) {
+      return jsonResponse({ success: true });
+    }
+    if (call.url === '/api/encounters' && init?.method === 'POST') {
+      return jsonResponse(
+        {
+          success: true,
+          id: encounterId,
+          encounter: { id: encounterId },
+        },
+        201,
+      );
+    }
+    if (call.url === `/api/encounters/${encounterId}`) {
+      return jsonResponse({ success: true });
+    }
+    if (
+      call.url === `/api/encounters/${encounterId}/player-force` ||
+      call.url === `/api/encounters/${encounterId}/opponent-force`
+    ) {
+      return jsonResponse({ success: true });
+    }
+    throw new Error(`Unexpected fetch: ${init?.method ?? 'GET'} ${call.url}`);
+  }) as unknown as typeof fetch;
+}
+
+function assignmentBodies(calls: readonly FetchCall[]): readonly unknown[] {
+  return calls
+    .filter((call) => call.url.startsWith('/api/forces/assignments/'))
+    .map(requestBody);
 }
 
 describe('materializeCampaignMissionEncounter', () => {
@@ -133,53 +214,12 @@ describe('materializeCampaignMissionEncounter', () => {
 
   it('creates assigned forces and a configured encounter for an organic mission', async () => {
     const calls: FetchCall[] = [];
-    let forceCount = 0;
-    const fetchImpl = jest.fn(async (input, init) => {
-      const call = { url: requestUrl(input), init };
-      calls.push(call);
-      if (call.url === '/api/forces' && init?.method === 'POST') {
-        forceCount += 1;
-        return jsonResponse(
-          {
-            success: true,
-            id: `force-${forceCount}`,
-            force: {
-              id: `force-${forceCount}`,
-              assignments: [{ id: `assignment-${forceCount}` }],
-            },
-          },
-          201,
-        );
-      }
-      if (call.url.startsWith('/api/forces/assignments/')) {
-        return jsonResponse({ success: true });
-      }
-      if (call.url === '/api/encounters' && init?.method === 'POST') {
-        return jsonResponse(
-          {
-            success: true,
-            id: 'enc-organic',
-            encounter: { id: 'enc-organic' },
-          },
-          201,
-        );
-      }
-      if (call.url === '/api/encounters/enc-organic') {
-        return jsonResponse({ success: true });
-      }
-      if (
-        call.url === '/api/encounters/enc-organic/player-force' ||
-        call.url === '/api/encounters/enc-organic/opponent-force'
-      ) {
-        return jsonResponse({ success: true });
-      }
-      throw new Error(`Unexpected fetch: ${init?.method ?? 'GET'} ${call.url}`);
-    }) as unknown as typeof fetch;
+    const fetchImpl = makeMaterializationFetch(calls);
 
     const result = await materializeCampaignMissionEncounter({
       campaign: makeCampaign(),
       missionId: 'contract-1',
-      rosterUnits: makeRoster(),
+      rosterUnits: makeRoster(4),
       fetchImpl,
     });
 
@@ -192,18 +232,29 @@ describe('materializeCampaignMissionEncounter', () => {
       calls.map((call) => `${call.init?.method ?? 'GET'} ${call.url}`),
     ).toEqual([
       'POST /api/forces',
-      'PUT /api/forces/assignments/assignment-1',
+      'PUT /api/forces/assignments/assignment-1-1',
+      'PUT /api/forces/assignments/assignment-1-2',
+      'PUT /api/forces/assignments/assignment-1-3',
+      'PUT /api/forces/assignments/assignment-1-4',
       'POST /api/forces',
-      'PUT /api/forces/assignments/assignment-2',
+      'PUT /api/forces/assignments/assignment-2-1',
+      'PUT /api/forces/assignments/assignment-2-2',
+      'PUT /api/forces/assignments/assignment-2-3',
+      'PUT /api/forces/assignments/assignment-2-4',
       'POST /api/encounters',
       'PATCH /api/encounters/enc-organic',
       'PUT /api/encounters/enc-organic/player-force',
       'PUT /api/encounters/enc-organic/opponent-force',
     ]);
-    expect(requestBody(calls[1])).toEqual({ unitId: 'atlas-as7-d' });
-    expect(requestBody(calls[3])).toEqual({ unitId: 'marauder-mad-3r' });
-    expect(requestBody(calls[6])).toEqual({ forceId: 'force-1' });
-    expect(requestBody(calls[7])).toEqual({ forceId: 'force-2' });
+    expect(assignmentBodies(calls).slice(0, 4)).toEqual([
+      { unitId: 'locust-lct-1v', pilotId: 'pilot-1' },
+      { unitId: 'hunchback-hbk-4g', pilotId: 'pilot-2' },
+      { unitId: 'marauder-mad-3r', pilotId: 'pilot-3' },
+      { unitId: 'atlas-as7-d', pilotId: 'pilot-4' },
+    ]);
+    expect(calls.at(-2)).toBeDefined();
+    expect(requestBody(calls.at(-2)!)).toEqual({ forceId: 'force-1' });
+    expect(requestBody(calls.at(-1)!)).toEqual({ forceId: 'force-2' });
     expect(getCapturedDiagnostics()).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -218,7 +269,7 @@ describe('materializeCampaignMissionEncounter', () => {
             opponentForceId: 'force-2',
           }),
           metadata: expect.objectContaining({
-            rosterUnitCount: 1,
+            rosterUnitCount: 4,
             missionScenarioIds: ['enc-organic'],
           }),
         }),
@@ -234,6 +285,56 @@ describe('materializeCampaignMissionEncounter', () => {
           }),
         }),
       ]),
+    );
+  });
+
+  it.each([1, 2, 3, 4])(
+    'creates an opponent force with the same unit count as %i selected player units',
+    async (unitCount) => {
+      const calls: FetchCall[] = [];
+      const fetchImpl = makeMaterializationFetch(calls);
+
+      await materializeCampaignMissionEncounter({
+        campaign: makeCampaign(),
+        missionId: 'contract-1',
+        rosterUnits: makeRoster(unitCount),
+        fetchImpl,
+      });
+
+      const bodies = assignmentBodies(calls);
+      const opponentBodies = bodies.slice(unitCount);
+      expect(opponentBodies).toHaveLength(unitCount);
+      expect(
+        opponentBodies.every(
+          (body) =>
+            typeof body === 'object' &&
+            body !== null &&
+            'unitId' in body &&
+            !('pilotId' in body),
+        ),
+      ).toBe(true);
+    },
+  );
+
+  it('selects the same deterministic opponent units for the same campaign mission seed', async () => {
+    const firstCalls: FetchCall[] = [];
+    const secondCalls: FetchCall[] = [];
+
+    await materializeCampaignMissionEncounter({
+      campaign: makeCampaign(),
+      missionId: 'contract-1',
+      rosterUnits: makeRoster(4),
+      fetchImpl: makeMaterializationFetch(firstCalls, 'enc-first'),
+    });
+    await materializeCampaignMissionEncounter({
+      campaign: makeCampaign(),
+      missionId: 'contract-1',
+      rosterUnits: makeRoster(4),
+      fetchImpl: makeMaterializationFetch(secondCalls, 'enc-second'),
+    });
+
+    expect(assignmentBodies(firstCalls).slice(4)).toEqual(
+      assignmentBodies(secondCalls).slice(4),
     );
   });
 
@@ -340,5 +441,22 @@ describe('materializeCampaignMissionEncounter', () => {
         }),
       ]),
     );
+  });
+
+  it('rejects selected roster units with no canonical unitRef before any API call', async () => {
+    const fetchImpl = jest.fn() as unknown as typeof fetch;
+
+    await expect(
+      materializeCampaignMissionEncounter({
+        campaign: makeCampaign(),
+        missionId: 'contract-1',
+        rosterUnits: makeRosterWithoutUnitRef(),
+        fetchImpl,
+      }),
+    ).rejects.toThrow(
+      'Roster unit Legacy Placeholder has no canonical unitRef; cannot launch.',
+    );
+
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 });

@@ -35,6 +35,16 @@ import {
 import { parseUnit } from './unitLoaderService/unitContractAdapter';
 import { getUnitIndexWeightClass } from './unitWeightClass';
 
+const isJestRuntime =
+  typeof process !== 'undefined' &&
+  (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID !== undefined);
+
+if (typeof window !== 'undefined' && !isJestRuntime) {
+  throw new Error(
+    'NodeCanonicalUnitService is server-only and cannot be imported into a browser bundle.',
+  );
+}
+
 // =============================================================================
 // Raw index shapes (matches the on-disk index.json format)
 // =============================================================================
@@ -67,6 +77,25 @@ interface RawIndexFile {
   totalUnits: number;
   units: RawIndexUnit[];
 }
+
+interface BVReportEntry {
+  readonly unitId: string;
+  readonly calculatedBV: number | null;
+}
+
+interface BVReportFile {
+  readonly allResults?: readonly BVReportEntry[];
+}
+
+export interface NodeCanonicalUnitServiceOptions {
+  readonly bvReportPath?: string;
+}
+
+export interface GetIndexWithBVOptions {
+  readonly bvReportPath?: string;
+}
+
+const DEFAULT_BV_REPORT_PATH = 'validation-output/bv-validation-report.json';
 
 // =============================================================================
 // Helpers
@@ -138,11 +167,15 @@ function mapRawToIndexEntry(raw: RawIndexUnit): IUnitIndexEntry {
  * Thread safety: this is a single-threaded Node service; no locking is needed.
  */
 export class NodeCanonicalUnitService implements ICanonicalUnitService {
+  private readonly projectRoot: string;
+
   /**
    * Base directory for catalog data files, resolved at construction time so
    * every unit load uses a consistent absolute path rooted at cwd.
    */
   private readonly baseDir: string;
+
+  private readonly defaultBVReportPath?: string;
 
   /** Absolute path to the index JSON file. */
   private readonly indexFilePath: string;
@@ -159,16 +192,26 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
   /** Per-unit IFullUnit cache — avoids re-reading disk on repeated getById calls. */
   private readonly unitCache: Map<string, IFullUnit> = new Map();
 
+  private readonly bvReportLookupCache = new Map<
+    string,
+    ReadonlyMap<string, number>
+  >();
+
+  private readonly indexWithBVCache = new Map<string, IUnitIndexEntry[]>();
+
   constructor(
     /** Override base directory for testing; defaults to `process.cwd()`. */
     baseDir?: string,
+    options: NodeCanonicalUnitServiceOptions = {},
   ) {
     // Resolve once so all subsequent reads use a stable absolute path.
+    this.projectRoot = path.resolve(baseDir ?? process.cwd());
     this.baseDir = path.resolve(
-      baseDir ?? process.cwd(),
+      this.projectRoot,
       'public/data/units/battlemechs',
     );
     this.indexFilePath = path.resolve(this.baseDir, 'index.json');
+    this.defaultBVReportPath = options.bvReportPath;
   }
 
   // ---------------------------------------------------------------------------
@@ -212,15 +255,77 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
     return { entries: this.indexCache, raw: this.rawIndexCache };
   }
 
+  private resolveBVReportPath(overridePath?: string): string {
+    const reportPath =
+      overridePath ?? this.defaultBVReportPath ?? DEFAULT_BV_REPORT_PATH;
+    return path.isAbsolute(reportPath)
+      ? reportPath
+      : path.resolve(this.projectRoot, reportPath);
+  }
+
+  private loadBVReportLookup(
+    bvReportPath: string,
+  ): ReadonlyMap<string, number> {
+    const cached = this.bvReportLookupCache.get(bvReportPath);
+    if (cached) return cached;
+
+    const bvByUnitId = new Map<string, number>();
+    try {
+      if (fs.existsSync(bvReportPath)) {
+        const parsed = JSON.parse(
+          fs.readFileSync(bvReportPath, 'utf-8'),
+        ) as BVReportFile;
+        for (const entry of parsed.allResults ?? []) {
+          if (
+            typeof entry.unitId === 'string' &&
+            typeof entry.calculatedBV === 'number' &&
+            entry.calculatedBV > 0
+          ) {
+            bvByUnitId.set(entry.unitId, entry.calculatedBV);
+          }
+        }
+      }
+    } catch {
+      // Match bvCatalogPrewarmer's graceful fallback: a missing or malformed
+      // report leaves raw BV values untouched instead of failing the caller.
+    }
+
+    this.bvReportLookupCache.set(bvReportPath, bvByUnitId);
+    return bvByUnitId;
+  }
+
   // ---------------------------------------------------------------------------
   // ICanonicalUnitService implementation
   // ---------------------------------------------------------------------------
+
+  getIndexSync = (): readonly IUnitIndexEntry[] => {
+    return this.loadRawIndex().entries;
+  };
+
+  getIndexSyncWithBV = (
+    options: GetIndexWithBVOptions = {},
+  ): readonly IUnitIndexEntry[] => {
+    const bvReportPath = this.resolveBVReportPath(options.bvReportPath);
+    const cached = this.indexWithBVCache.get(bvReportPath);
+    if (cached) return cached;
+
+    const bvByUnitId = this.loadBVReportLookup(bvReportPath);
+    const enriched = this.getIndexSync().map(
+      (entry): IUnitIndexEntry => ({
+        ...entry,
+        bv: bvByUnitId.get(entry.id) ?? entry.bv,
+      }),
+    );
+
+    this.indexWithBVCache.set(bvReportPath, enriched);
+    return enriched;
+  };
 
   /**
    * Return all index entries. Loads and caches the index on first call.
    */
   getIndex = async (): Promise<readonly IUnitIndexEntry[]> => {
-    return this.loadRawIndex().entries;
+    return this.getIndexSync();
   };
 
   /**
@@ -252,7 +357,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
    * naming the offending field path, failing loud at the loader boundary
    * instead of corrupting downstream domain code with a malformed unit.
    */
-  getById = async (id: string): Promise<IFullUnit | null> => {
+  getByIdSync = (id: string): IFullUnit | null => {
     // Return cached reference immediately — this also satisfies Task 2.8's
     // requirement that two calls for the same id return the same object.
     if (this.unitCache.has(id)) {
@@ -293,6 +398,10 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
     // Cache and return the parsed unit.
     this.unitCache.set(id, unit);
     return unit;
+  };
+
+  getById = async (id: string): Promise<IFullUnit | null> => {
+    return this.getByIdSync(id);
   };
 
   /**
@@ -347,6 +456,8 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
     this.indexCache = null;
     this.rawIndexCache = null;
     this.indexVersionCache = null;
+    this.bvReportLookupCache.clear();
+    this.indexWithBVCache.clear();
     this.unitCache.clear();
   };
 }

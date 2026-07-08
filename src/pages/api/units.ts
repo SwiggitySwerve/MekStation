@@ -14,10 +14,13 @@
  * - unitType: Filter by unit type (BattleMech, Vehicle, etc.)
  * - minTonnage: Minimum tonnage
  * - maxTonnage: Maximum tonnage
+ * - includeBV=true: Return index entries enriched from the BV validation report
  *
  * @spec openspec/specs/unit-services/spec.md
  */
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+import type { IUnitIndexEntry } from '@/types/unit/UnitIndex';
 
 import {
   rejectNonGetDataRequest as rejectUnitsNonGet,
@@ -26,6 +29,7 @@ import {
 } from '@/pages-modules/api/routeHelpers';
 import { IUnitQueryCriteria } from '@/services/common/types';
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { getNodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
 import { Era } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
@@ -69,6 +73,55 @@ function parseIntOrUndefined(value: string): number | undefined {
   return isNaN(parsed) ? undefined : parsed;
 }
 
+function isEnabledQueryFlag(value: string | string[] | undefined): boolean {
+  if (Array.isArray(value)) {
+    return value.some((entry) => isEnabledQueryFlag(entry));
+  }
+  return value === 'true' || value === '1';
+}
+
+function filterUnitsByCriteria(
+  units: readonly IUnitIndexEntry[],
+  criteria: IUnitQueryCriteria,
+): readonly IUnitIndexEntry[] {
+  return units.filter((unit) => {
+    if (
+      criteria.techBase !== undefined &&
+      unit.techBase !== criteria.techBase
+    ) {
+      return false;
+    }
+    if (criteria.era !== undefined && unit.era !== criteria.era) {
+      return false;
+    }
+    if (
+      criteria.weightClass !== undefined &&
+      unit.weightClass !== criteria.weightClass
+    ) {
+      return false;
+    }
+    if (
+      criteria.unitType !== undefined &&
+      unit.unitType !== criteria.unitType
+    ) {
+      return false;
+    }
+    if (
+      criteria.minTonnage !== undefined &&
+      unit.tonnage < criteria.minTonnage
+    ) {
+      return false;
+    }
+    if (
+      criteria.maxTonnage !== undefined &&
+      unit.tonnage > criteria.maxTonnage
+    ) {
+      return false;
+    }
+    return true;
+  });
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<UnitsApiResponse>,
@@ -76,8 +129,16 @@ export default async function handler(
   if (rejectUnitsNonGet(req, res)) return;
 
   try {
-    const { id, techBase, era, weightClass, unitType, minTonnage, maxTonnage } =
-      req.query;
+    const {
+      id,
+      techBase,
+      era,
+      weightClass,
+      unitType,
+      minTonnage,
+      maxTonnage,
+      includeBV,
+    } = req.query;
 
     // Get single unit by ID
     if (id && typeof id === 'string') {
@@ -114,7 +175,12 @@ export default async function handler(
     };
 
     // Query units
-    const units = await getCanonicalUnitService().query(criteria);
+    const units = isEnabledQueryFlag(includeBV)
+      ? filterUnitsByCriteria(
+          getNodeCanonicalUnitService().getIndexSyncWithBV(),
+          criteria,
+        )
+      : await getCanonicalUnitService().query(criteria);
 
     return res.status(200).json({
       success: true,
