@@ -25,6 +25,7 @@ export {
 
 export enum InteractivePhase {
   None = 'none',
+  AwaitPhaseStart = 'await_phase_start',
   SelectUnit = 'select_unit',
   SelectMovement = 'select_movement',
   SelectTarget = 'select_target',
@@ -253,6 +254,16 @@ export function handleInteractiveTokenClickLogic(
   const state = interactiveSession.getState();
   const unit = state.units[unitId];
   if (!unit || unit.destroyed) return;
+
+  if (interactivePhase === InteractivePhase.AwaitPhaseStart) {
+    set((storeState) => ({
+      ui: { ...storeState.ui, selectedUnitId: unitId },
+      validMovementHexes: [],
+      validTargetIds: [],
+      hitChance: null,
+    }));
+    return;
+  }
 
   if (state.phase === GamePhase.Movement && unit.side === GameSide.Player) {
     actions.selectUnitForMovement(unitId);

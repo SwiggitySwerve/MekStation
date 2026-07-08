@@ -31,6 +31,7 @@ import { buildCommandPreviewInputs } from './GameplayLayout.commandPreview';
 import { useGameplayLayoutControls } from './GameplayLayout.controls';
 import { useGameplayLayoutPanelState } from './GameplayLayout.layoutState';
 import { useGameplayLayoutLensState } from './GameplayLayout.lens';
+import { buildPhaseAdvanceControl } from './GameplayLayout.phaseAdvance';
 import {
   buildPhysicalAttackOptionsByTargetId,
   deriveValidPhysicalTargetIds,
@@ -404,6 +405,17 @@ export function GameplayLayout({
       session.config.optionalRules,
     ],
   );
+  const phaseAdvanceControl = useMemo(
+    () =>
+      buildPhaseAdvanceControl({
+        actionContext,
+        shellMode,
+        phaseQueueProjection,
+        units,
+        onAction,
+      }),
+    [actionContext, onAction, phaseQueueProjection, shellMode, units],
+  );
   const controls = useGameplayLayoutControls({
     currentState,
     selectedUnit: selectedUnitModel.selectedUnit,
@@ -527,6 +539,7 @@ export function GameplayLayout({
       commandPreviewInputs={commandPreviewInputs}
       composerDockContext={composerDockContext}
       attackComposerContext={attackComposerContext}
+      phaseAdvanceControl={phaseAdvanceControl}
       onEventLogCollapsedChange={handleEventLogCollapsedChange}
     />
   );

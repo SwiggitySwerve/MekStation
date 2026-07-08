@@ -8,6 +8,7 @@
 
 export { TacticalTurnRail } from './TacticalTurnRail';
 export type {
+  PhaseAdvanceControlProps,
   TacticalTurnRailProps,
   IRailUnit,
   UnitRailStatus,

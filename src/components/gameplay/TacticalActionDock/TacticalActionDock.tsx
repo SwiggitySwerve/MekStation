@@ -398,7 +398,16 @@ export function TacticalActionDock({
 
   const approveGmPreview = useCallback(() => {
     if (!gmPreviewState || gmPreviewState.preview.status !== 'ready') return;
-    gmIntervention?.approve?.(gmPreviewState.preview);
+    const approval = gmIntervention?.approve?.(gmPreviewState.preview);
+    if (approval && approval.status !== 'approved') {
+      setGmPreviewState({
+        ...gmPreviewState,
+        approvalIssue:
+          approval.reason ??
+          `GM intervention approval returned ${approval.status}.`,
+      });
+      return;
+    }
     setGmPreviewState(null);
   }, [gmIntervention, gmPreviewState]);
 

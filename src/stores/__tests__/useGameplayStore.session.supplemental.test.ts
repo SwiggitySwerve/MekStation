@@ -13,6 +13,7 @@ import type { IAdaptedUnit } from '@/engine/types';
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
+import { InteractivePhase } from '@/stores/useGameplayStore.helpers';
 import { setInteractiveSessionLogic } from '@/stores/useGameplayStore.session';
 import {
   Facing,
@@ -112,6 +113,8 @@ describe('setInteractiveSessionLogic supplemental display derivation', () => {
       maxStructure: Record<string, Record<string, number>>;
       pilotNames: Record<string, string>;
       heatSinks: Record<string, number>;
+      interactivePhase: InteractivePhase;
+      validMovementHexes: readonly { q: number; r: number }[];
       unitWeapons: Record<
         string,
         readonly {
@@ -158,5 +161,7 @@ describe('setInteractiveSessionLogic supplemental display derivation', () => {
       heat: 3,
       ranges: { short: 3, medium: 6, long: 9 },
     });
+    expect(applied.interactivePhase).toBe(InteractivePhase.AwaitPhaseStart);
+    expect(applied.validMovementHexes).toEqual([]);
   });
 });

@@ -234,7 +234,7 @@ describe('TacticalActionDock', () => {
     confirmSpy.mockRestore();
   });
 
-  it('shows empty state when no commands are available for the phase', () => {
+  it('renders the Initiative begin-round command and dispatches it', () => {
     const onAction = jest.fn();
     render(
       <TacticalActionDock
@@ -243,11 +243,11 @@ describe('TacticalActionDock', () => {
         onAction={onAction}
       />,
     );
-    // Initiative phase has no commands in the registry today —
-    // utility commands carry ALL_PHASES so they still appear.
-    // Verify the dock renders without crash even if there are no
-    // matching groups (eject/withdraw/concede all available).
     expect(screen.getByTestId('tactical-action-dock')).toBeInTheDocument();
+    const button = screen.getByTestId('command-btn-heat-end.begin-round');
+    expect(button).toHaveTextContent('Roll Initiative & Begin');
+    fireEvent.click(button);
+    expect(onAction).toHaveBeenCalledWith('begin-round', {});
   });
 
   it('renders trailingActions slot', () => {

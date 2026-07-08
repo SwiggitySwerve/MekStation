@@ -3,7 +3,7 @@ import React from 'react';
 
 import type { ToastConfig } from '../Toast';
 
-import { ToastProvider, useToast } from '../Toast';
+import { toast, ToastProvider, useToast } from '../Toast';
 
 function ToastTrigger({
   toast,
@@ -67,5 +67,17 @@ describe('shared ToastProvider', () => {
       jest.advanceTimersByTime(1);
     });
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('routes standalone toast calls through the mounted provider', () => {
+    render(<ToastProvider>Ready</ToastProvider>);
+
+    act(() => {
+      toast({ message: 'Movement is unavailable', variant: 'info' });
+    });
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Movement is unavailable',
+    );
   });
 });

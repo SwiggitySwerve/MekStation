@@ -5,7 +5,10 @@ import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
 import { MoraleIndicator } from './MoraleIndicator';
 import { ShellSlot } from './TacticalCommandShell';
-import { TacticalTurnRail } from './TacticalTurnRail';
+import {
+  TacticalTurnRail,
+  type PhaseAdvanceControlProps,
+} from './TacticalTurnRail';
 
 type PhaseQueueProjection = React.ComponentProps<
   typeof TacticalTurnRail
@@ -20,6 +23,7 @@ export function GameplayTopBand({
   isNarrow,
   drawerOpen,
   onToggleDrawer,
+  phaseAdvanceControl,
 }: {
   readonly projection: PhaseQueueProjection;
   readonly session: IGameSession;
@@ -29,6 +33,7 @@ export function GameplayTopBand({
   readonly isNarrow: boolean;
   readonly drawerOpen: boolean;
   readonly onToggleDrawer: () => void;
+  readonly phaseAdvanceControl?: PhaseAdvanceControlProps;
 }): React.ReactElement {
   return (
     <ShellSlot id="top-band" ownerId="TacticalTurnRail">
@@ -49,6 +54,7 @@ export function GameplayTopBand({
               }
             : undefined
         }
+        phaseAdvanceControl={phaseAdvanceControl}
       />
     </ShellSlot>
   );

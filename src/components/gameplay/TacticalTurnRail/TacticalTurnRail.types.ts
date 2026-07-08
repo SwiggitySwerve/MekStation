@@ -47,6 +47,14 @@ export interface IRailUnit {
   readonly isActive: boolean;
 }
 
+export interface PhaseAdvanceControlProps {
+  readonly label: string;
+  readonly disabled: boolean;
+  readonly disabledReason?: string;
+  readonly blockerReasons: readonly string[];
+  readonly onAdvance: () => void;
+}
+
 /**
  * Props for `TacticalTurnRail`.
  */
@@ -77,5 +85,6 @@ export interface TacticalTurnRailProps {
     readonly isDrawerOpen: boolean;
     readonly onToggleDrawer: () => void;
   };
+  readonly phaseAdvanceControl?: PhaseAdvanceControlProps;
   readonly className?: string;
 }

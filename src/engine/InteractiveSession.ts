@@ -78,6 +78,7 @@ import {
 import {
   abortInteractiveSession,
   advanceInteractiveSession,
+  applyCorrectedInteractiveSessionState,
   concedeInteractiveSession,
   getInteractiveSessionOutcome,
   getInteractiveSessionResult,
@@ -355,6 +356,9 @@ export class InteractiveSession {
   appendEvent = (event: IGameEvent): void => {
     appendAndPersistInteractiveSessionEvent(this.runtimeContext, event);
   };
+
+  applyCorrectedState = (newState: IGameState): void =>
+    applyCorrectedInteractiveSessionState(this.runtimeContext, newState);
 
   private assertActiveForAction = (): void => {
     if (this.session.currentState.status !== GameStatus.Active) {

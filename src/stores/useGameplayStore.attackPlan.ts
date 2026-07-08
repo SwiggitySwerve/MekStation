@@ -1,10 +1,12 @@
 import type { WeaponFireMode } from '@/types/gameplay';
 
+import { GamePhase } from '@/types/gameplay';
 import { isIndirectFireCapable } from '@/utils/gameplay/indirectFire';
 
 import type { GetFn, SetFn } from './useGameplayStore.combatFlowTypes';
 
 import { InteractivePhase } from './useGameplayStore.helpers';
+import { allowIntentInPhase } from './useGameplayStore.phaseGuard';
 
 export function setAttackTargetLogic(unitId: string | null, set: SetFn): void {
   set((state) => ({
@@ -95,12 +97,23 @@ export function setPlannedWeaponModeLogic(
  * any required slice is missing.
  */
 export function commitAttackLogic(get: GetFn, set: SetFn): void {
-  const { interactiveSession, attackPlan, ui } = get();
+  const { interactiveSession, attackPlan, session, ui } = get();
   if (
     !interactiveSession ||
     !ui.selectedUnitId ||
     !attackPlan.targetUnitId ||
     attackPlan.selectedWeapons.length === 0
+  ) {
+    return;
+  }
+  const currentPhase =
+    session?.currentState.phase ?? interactiveSession.getState().phase;
+  if (
+    !allowIntentInPhase({
+      currentPhase,
+      requiredPhase: GamePhase.WeaponAttack,
+      intent: 'attack',
+    })
   ) {
     return;
   }

@@ -4,6 +4,7 @@ import { getPrefersReducedMotion } from '@/hooks/useReducedMotion';
 import {
   Facing,
   GameEventType,
+  GamePhase,
   IGameSession,
   IHexCoordinate,
   IMovementDeclaredPayload,
@@ -20,6 +21,7 @@ import type {
 
 import { useAnimationQueue } from './useAnimationQueue';
 import { InteractivePhase } from './useGameplayStore.helpers';
+import { allowIntentInPhase } from './useGameplayStore.phaseGuard';
 
 export function setPlannedMovementLogic(
   plan: IPlannedMovement,
@@ -38,10 +40,21 @@ export function clearPlannedMovementLogic(set: SetFn): void {
  * No-op when session / plan / selected unit are missing.
  */
 export function commitPlannedMovementLogic(get: GetFn, set: SetFn): void {
-  const { interactiveSession, plannedMovement, ui } = get();
+  const { interactiveSession, plannedMovement, session, ui } = get();
   if (!interactiveSession || !plannedMovement || !ui.selectedUnitId) return;
   if (plannedMovement.unitId && plannedMovement.unitId !== ui.selectedUnitId) {
     set({ plannedMovement: null });
+    return;
+  }
+  const currentPhase =
+    session?.currentState.phase ?? interactiveSession.getState().phase;
+  if (
+    !allowIntentInPhase({
+      currentPhase,
+      requiredPhase: GamePhase.Movement,
+      intent: 'movement',
+    })
+  ) {
     return;
   }
   const unitId = ui.selectedUnitId;
@@ -104,8 +117,19 @@ export function standActiveUnitLogic(
   set: SetFn,
   standUpMode: StandUpMode = 'normal',
 ): void {
-  const { interactiveSession, ui } = get();
+  const { interactiveSession, session, ui } = get();
   if (!interactiveSession || !ui.selectedUnitId) return;
+  const currentPhase =
+    session?.currentState.phase ?? interactiveSession.getState().phase;
+  if (
+    !allowIntentInPhase({
+      currentPhase,
+      requiredPhase: GamePhase.Movement,
+      intent: 'movement',
+    })
+  ) {
+    return;
+  }
 
   const unitId = ui.selectedUnitId;
   const beforeSession = interactiveSession.getSession();
@@ -147,8 +171,19 @@ export function standActiveUnitLogic(
  * non-Mek-style or damaged-gyro branches before state changes.
  */
 export function enterHullDownActiveUnitLogic(get: GetFn, set: SetFn): void {
-  const { interactiveSession, ui } = get();
+  const { interactiveSession, session, ui } = get();
   if (!interactiveSession || !ui.selectedUnitId) return;
+  const currentPhase =
+    session?.currentState.phase ?? interactiveSession.getState().phase;
+  if (
+    !allowIntentInPhase({
+      currentPhase,
+      requiredPhase: GamePhase.Movement,
+      intent: 'movement',
+    })
+  ) {
+    return;
+  }
 
   const unitId = ui.selectedUnitId;
   const beforeSession = interactiveSession.getSession();
@@ -193,8 +228,19 @@ export function enterHullDownActiveUnitLogic(get: GetFn, set: SetFn): void {
  * the same authoritative path as ordinary movement actions.
  */
 export function goProneActiveUnitLogic(get: GetFn, set: SetFn): void {
-  const { interactiveSession, ui } = get();
+  const { interactiveSession, session, ui } = get();
   if (!interactiveSession || !ui.selectedUnitId) return;
+  const currentPhase =
+    session?.currentState.phase ?? interactiveSession.getState().phase;
+  if (
+    !allowIntentInPhase({
+      currentPhase,
+      requiredPhase: GamePhase.Movement,
+      intent: 'movement',
+    })
+  ) {
+    return;
+  }
 
   const unitId = ui.selectedUnitId;
   const beforeSession = interactiveSession.getSession();
@@ -243,8 +289,19 @@ export function applyRuntimeMovementStateForSelectedUnitLogic(
   set: SetFn,
   patch: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
 ): void {
-  const { interactiveSession, ui } = get();
+  const { interactiveSession, session, ui } = get();
   if (!interactiveSession || !ui.selectedUnitId) return;
+  const currentPhase =
+    session?.currentState.phase ?? interactiveSession.getState().phase;
+  if (
+    !allowIntentInPhase({
+      currentPhase,
+      requiredPhase: GamePhase.Movement,
+      intent: 'movement',
+    })
+  ) {
+    return;
+  }
 
   const unitId = ui.selectedUnitId;
   const beforeSession = interactiveSession.getSession();

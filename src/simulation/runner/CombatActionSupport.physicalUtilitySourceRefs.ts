@@ -165,6 +165,14 @@ export const MEKSTATION_HEAT_CONTINUE_COMMAND_SOURCE_REFS = [
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
+export const MEKSTATION_BEGIN_ROUND_COMMAND_SOURCE_REFS = [
+  mekstationDeviationSourceRef(
+    'MekStation buildHeatEndCommands exposes heat-end.begin-round as the Initiative-phase begin-round command that commits the local begin-round action id.',
+    'src/components/gameplay/TacticalActionDock/commands/heatEndCommands.ts',
+    'L25-L42',
+  ),
+] satisfies readonly ICombatFeatureSourceReference[];
+
 export const MEKSTATION_END_PHASE_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation buildHeatEndCommands exposes heat-end.end-phase as the confirmed phase-advance command for movement, weapon, and physical phases.',

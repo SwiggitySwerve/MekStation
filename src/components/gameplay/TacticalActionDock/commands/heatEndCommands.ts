@@ -21,8 +21,25 @@ import {
 } from './commandDescriptorHelpers';
 
 export function buildHeatEndCommands(): readonly ITacticalCommand[] {
-  return [HeatContinueCommand, EndPhaseCommand, NextTurnCommand];
+  return [
+    InitiativeBeginRoundCommand,
+    HeatContinueCommand,
+    EndPhaseCommand,
+    NextTurnCommand,
+  ];
 }
+
+const InitiativeBeginRoundCommand: ITacticalCommand = {
+  id: 'heat-end.begin-round',
+  category: 'heat-end',
+  label: 'Roll Initiative & Begin',
+  hotkey: 'Enter',
+  phaseConstraints: [GamePhase.Initiative],
+  requiresConfirmation: false,
+  undoable: false,
+  availability: canActAvailability,
+  commit: commitStaticAction('begin-round'),
+};
 
 const HeatContinueCommand: ITacticalCommand = {
   id: 'heat.continue',

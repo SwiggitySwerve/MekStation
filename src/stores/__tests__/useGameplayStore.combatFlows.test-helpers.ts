@@ -21,6 +21,11 @@ import type {
   PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks/types';
 
+jest.mock('@/components/shared/Toast', () => ({
+  toast: jest.fn(),
+}));
+
+import { toast } from '@/components/shared/Toast';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
@@ -62,7 +67,7 @@ interface FakeSessionCalls {
  * snapshot from `getSession()` so the store's `set({ session: ... })`
  * has something to land on.
  */
-function buildFakeSession(): {
+function buildFakeSession(phase: GamePhase = GamePhase.Movement): {
   session: InteractiveSession;
   calls: FakeSessionCalls;
 } {
@@ -84,7 +89,7 @@ function buildFakeSession(): {
       gameId: 'fake-session',
       status: GameStatus.Active,
       turn: 1,
-      phase: GamePhase.Movement,
+      phase,
       activationIndex: 0,
       units: {},
       turnEvents: [],
@@ -160,6 +165,7 @@ describe('useGameplayStore — combat-phase planning actions', () => {
   beforeEach(() => {
     useGameplayStore.getState().reset();
     useAnimationQueue.getState().reset();
+    (toast as jest.MockedFunction<typeof toast>).mockClear();
   });
 
   afterEach(() => {
@@ -237,6 +243,46 @@ describe('useGameplayStore — combat-phase planning actions', () => {
       });
       expect(useGameplayStore.getState().plannedMovement).toBeNull();
       expect(useGameplayStore.getState().ui.selectedUnitId).toBeNull();
+    });
+
+    it('rejects movement commits outside Movement without mutating the store', () => {
+      const fake = buildFakeSession(GamePhase.Initiative);
+      const originalSession = fake.session.getSession();
+      const originalPlan = {
+        destination: { q: 3, r: -1 },
+        facing: Facing.Southeast,
+        movementType: MovementType.Run,
+        path: [
+          { q: 0, r: 0 },
+          { q: 3, r: -1 },
+        ],
+      };
+      useGameplayStore.setState({
+        session: originalSession,
+        interactiveSession: fake.session,
+        plannedMovement: originalPlan,
+        ui: {
+          ...useGameplayStore.getState().ui,
+          selectedUnitId: 'unit-a',
+        },
+      });
+
+      expect(() =>
+        useGameplayStore.getState().commitPlannedMovement(),
+      ).not.toThrow();
+
+      expect(fake.calls.movement).toHaveLength(0);
+      expect(useGameplayStore.getState().session).toBe(originalSession);
+      expect(useGameplayStore.getState().plannedMovement).toEqual(originalPlan);
+      expect(useGameplayStore.getState().ui.selectedUnitId).toBe('unit-a');
+      expect(toast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining(
+            'Movement is unavailable during Initiative',
+          ),
+          variant: 'info',
+        }),
+      );
     });
 
     it('commitPlannedMovement enqueues a 4-hex walk animation that holds phase advancement', () => {
@@ -346,7 +392,7 @@ describe('useGameplayStore — combat-phase planning actions', () => {
     });
 
     it('commitAttack calls applyAttack with attacker/target/weapons and clears the plan', () => {
-      const fake = buildFakeSession();
+      const fake = buildFakeSession(GamePhase.WeaponAttack);
       useGameplayStore.setState({
         interactiveSession: fake.session,
         attackPlan: {

@@ -307,6 +307,7 @@ export default function GameSessionPage(): React.ReactElement {
   const gmIntervention = useGmTacticalInterventionSurface({
     enabled: shellMode === 'gm',
     session,
+    interactiveSession,
     campaignId: routeContext.campaignId,
     setSession,
   });

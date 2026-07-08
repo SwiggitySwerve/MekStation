@@ -332,7 +332,7 @@ describe('useGameplayStore utility actions', () => {
     // the engine's default dice seam must FAIL the PSR and leave the unit
     // prone. Seed prone through a real UnitFell event (not a hand-edited
     // currentState) because appendEvent re-derives state from the event log.
-    const base = makeSession();
+    const base = forceMovementState(makeSession());
     const session = appendEvent(
       base,
       createUnitFellEvent(
@@ -1026,6 +1026,41 @@ describe('useGameplayStore utility actions', () => {
     expect(advancedFrom).toEqual([GamePhase.Heat]);
     expect(useGameplayStore.getState().session!.currentState.phase).toBe(
       GamePhase.End,
+    );
+  });
+
+  it('sets interactive phase to unit selection after beginning an interactive round', () => {
+    let snapshot = makeSession();
+    const advancedFrom: GamePhase[] = [];
+    const fake = {
+      advancePhase: () => {
+        advancedFrom.push(snapshot.currentState.phase);
+        snapshot = {
+          ...snapshot,
+          currentState: {
+            ...snapshot.currentState,
+            phase: GamePhase.Movement,
+          },
+        };
+      },
+      getSession: () => snapshot,
+    } as unknown as InteractiveSession;
+
+    useGameplayStore.setState({
+      session: snapshot,
+      interactiveSession: fake,
+      interactivePhase: InteractivePhase.AwaitPhaseStart,
+      ui: DEFAULT_UI_STATE,
+    });
+
+    useGameplayStore.getState().handleAction('begin-round');
+
+    expect(advancedFrom).toEqual([GamePhase.Initiative]);
+    expect(useGameplayStore.getState().session!.currentState.phase).toBe(
+      GamePhase.Movement,
+    );
+    expect(useGameplayStore.getState().interactivePhase).toBe(
+      InteractivePhase.SelectUnit,
     );
   });
 

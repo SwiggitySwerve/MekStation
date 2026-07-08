@@ -30,9 +30,10 @@ function makeCtx(
 describe('heatEndCommands', () => {
   const commands = buildHeatEndCommands();
 
-  it('exposes heat.continue + heat-end.end-phase + heat-end.next-turn', () => {
+  it('exposes begin-round + heat.continue + end-phase + next-turn', () => {
     const ids = commands.map((c) => c.id);
     expect(ids).toEqual([
+      'heat-end.begin-round',
       'heat.continue',
       'heat-end.end-phase',
       'heat-end.next-turn',
@@ -54,6 +55,17 @@ describe('heatEndCommands', () => {
   it('heat-continue applies only to Heat phase', () => {
     const cont = commands.find((c) => c.id === 'heat.continue')!;
     expect(cont.phaseConstraints).toEqual([GamePhase.Heat]);
+  });
+
+  it('begin-round applies only to Initiative phase', () => {
+    const beginRound = commands.find((c) => c.id === 'heat-end.begin-round')!;
+    expect(beginRound.phaseConstraints).toEqual([GamePhase.Initiative]);
+    expect(beginRound.commit(makeCtx({ phase: GamePhase.Initiative }))).toEqual(
+      {
+        actionId: 'begin-round',
+        payload: {},
+      },
+    );
   });
 
   it('heat-continue commits the existing authoritative continue action', () => {

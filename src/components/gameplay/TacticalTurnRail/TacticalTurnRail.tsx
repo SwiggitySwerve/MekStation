@@ -211,6 +211,48 @@ function BlockerBadge({
   );
 }
 
+function PhaseAdvanceControl({
+  control,
+}: {
+  readonly control: NonNullable<TacticalTurnRailProps['phaseAdvanceControl']>;
+}): React.ReactElement {
+  const reasonId =
+    control.disabled && control.disabledReason
+      ? 'sp-advance-phase-button-reasons'
+      : undefined;
+
+  return (
+    <div className="flex flex-shrink-0 flex-col items-start gap-1">
+      <button
+        type="button"
+        data-testid="sp-advance-phase-button"
+        disabled={control.disabled}
+        aria-disabled={control.disabled}
+        aria-describedby={reasonId}
+        title={control.disabledReason ?? control.label}
+        onClick={control.onAdvance}
+        className={[
+          'rounded border border-white/35 px-2.5 py-1 text-xs font-semibold whitespace-nowrap uppercase transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-white',
+          control.disabled
+            ? 'cursor-not-allowed bg-black/10 text-white/50'
+            : 'bg-white/15 text-white hover:bg-white/25',
+        ].join(' ')}
+      >
+        {control.label}
+      </button>
+      {reasonId && (
+        <span
+          id={reasonId}
+          data-testid="sp-advance-phase-button-reasons"
+          className="sr-only"
+        >
+          {control.disabledReason}
+        </span>
+      )}
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
@@ -231,6 +273,7 @@ export function TacticalTurnRail({
   selectedUnitId,
   onUnitSelect,
   drawer,
+  phaseAdvanceControl,
   className = '',
 }: TacticalTurnRailProps): React.ReactElement {
   const phaseBg = getPhaseBgClass(phase);
@@ -274,19 +317,24 @@ export function TacticalTurnRail({
       aria-label={`Turn ${turn} — ${phaseLabel} phase activation rail`}
     >
       {/* Phase / Round header */}
-      <div className="flex flex-shrink-0 flex-col items-start leading-tight">
-        {/* `phase-name` testid preserved from PhaseBanner — addInteractiveCombatCoreUI
-            smoke test asserts on this label, and other downstream tests + the
-            screen-reader contract know this id. */}
-        <span
-          className="text-sm font-bold tracking-wide uppercase"
-          data-testid="phase-name"
-        >
-          {phaseLabel}
-        </span>
-        <span className="text-xs opacity-75" data-testid="turn-number">
-          Round {turn}
-        </span>
+      <div className="flex flex-shrink-0 items-center gap-2">
+        <div className="flex flex-col items-start leading-tight">
+          {/* `phase-name` testid preserved from PhaseBanner — addInteractiveCombatCoreUI
+              smoke test asserts on this label, and other downstream tests + the
+              screen-reader contract know this id. */}
+          <span
+            className="text-sm font-bold tracking-wide uppercase"
+            data-testid="phase-name"
+          >
+            {phaseLabel}
+          </span>
+          <span className="text-xs opacity-75" data-testid="turn-number">
+            Round {turn}
+          </span>
+        </div>
+        {phaseAdvanceControl && (
+          <PhaseAdvanceControl control={phaseAdvanceControl} />
+        )}
       </div>
 
       {/* Divider */}

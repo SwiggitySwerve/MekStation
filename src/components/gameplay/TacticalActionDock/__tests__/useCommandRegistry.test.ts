@@ -39,6 +39,16 @@ function makeCtx(
 }
 
 describe('buildCommandRegistry', () => {
+  it('Initiative phase surfaces the begin-round phase command', () => {
+    const commands = buildCommandRegistry(
+      makeCtx({ phase: GamePhase.Initiative }),
+      'combat',
+    );
+    const ids = commands.map((c) => c.id);
+    expect(ids).toContain('heat-end.begin-round');
+    expect(ids).not.toContain('heat-end.end-phase');
+  });
+
   it('Movement phase surfaces movement / facing-rotate / utility / end-phase commands', () => {
     const commands = buildCommandRegistry(makeCtx(), 'combat');
     const ids = commands.map((c) => c.id);

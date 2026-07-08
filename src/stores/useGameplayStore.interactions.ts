@@ -23,6 +23,7 @@ import {
 import type { IAttackPlan } from './useGameplayStore.combatFlows';
 
 import { InteractivePhase } from './useGameplayStore.helpers';
+import { allowIntentInPhase } from './useGameplayStore.phaseGuard';
 
 /** Base hit chance used when the to-hit calculator hasn't run yet. */
 const DEFAULT_BASE_HIT_CHANCE = 58;
@@ -93,8 +94,19 @@ export function selectUnitForMovementLogic(
   get: GetFn,
   set: SetFn,
 ): void {
-  const { interactiveSession } = get();
+  const { interactiveSession, session } = get();
   if (!interactiveSession) return;
+  const currentPhase =
+    session?.currentState.phase ?? interactiveSession.getState().phase;
+  if (
+    !allowIntentInPhase({
+      currentPhase,
+      requiredPhase: GamePhase.Movement,
+      intent: 'movement',
+    })
+  ) {
+    return;
+  }
 
   const actions = interactiveSession.getAvailableActions(unitId);
 
@@ -117,8 +129,19 @@ export function moveUnitLogic(
   get: GetFn,
   set: SetFn,
 ): void {
-  const { interactiveSession } = get();
+  const { interactiveSession, session } = get();
   if (!interactiveSession) return;
+  const currentPhase =
+    session?.currentState.phase ?? interactiveSession.getState().phase;
+  if (
+    !allowIntentInPhase({
+      currentPhase,
+      requiredPhase: GamePhase.Movement,
+      intent: 'movement',
+    })
+  ) {
+    return;
+  }
 
   interactiveSession.applyMovement(
     unitId,
@@ -189,8 +212,19 @@ export function selectAttackTargetLogic(
  * Flips to GameOver when the engine reports the match resolved.
  */
 export function fireWeaponsLogic(get: GetFn, set: SetFn): void {
-  const { interactiveSession, ui } = get();
+  const { interactiveSession, session, ui } = get();
   if (!interactiveSession || !ui.selectedUnitId || !ui.targetUnitId) return;
+  const currentPhase =
+    session?.currentState.phase ?? interactiveSession.getState().phase;
+  if (
+    !allowIntentInPhase({
+      currentPhase,
+      requiredPhase: GamePhase.WeaponAttack,
+      intent: 'attack',
+    })
+  ) {
+    return;
+  }
 
   const weaponIds =
     ui.queuedWeaponIds.length > 0 ? ui.queuedWeaponIds : ['medium-laser'];
