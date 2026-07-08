@@ -71,6 +71,7 @@ interface MissionLaunchObservation {
 interface TacticalObservation {
   readonly route: string;
   readonly phase: string | null;
+  readonly terminalOutcome: string | null;
   readonly hasGameSession: boolean;
   readonly hasSpAdvance: boolean;
   readonly hasMovementComposer: boolean;
@@ -263,6 +264,16 @@ async function waitBrieflyForVisible(locator: Locator): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+async function terminalOutcomeText(page: Page): Promise<string | null> {
+  const victoryOutcome = await locatorText(page.getByTestId('victory-outcome'));
+  if (victoryOutcome !== null) return victoryOutcome;
+  const completed = page.getByTestId('game-completed');
+  if ((await completed.count()) === 0) return null;
+  const text = await completed.first().innerText();
+  const normalized = text.replace(/\s+/g, ' ').trim();
+  return normalized.length > 0 ? normalized : null;
 }
 
 async function selectAvailableRoster(
@@ -476,6 +487,7 @@ async function launchMissionToPreBattle(
       await expect(playerForce).toBeVisible({ timeout: 20_000 });
       const playerUnitListCount = await page
         .getByTestId('player-unit-list')
+        .locator('> div')
         .count();
       observation = {
         selectedUnitCount,
@@ -531,6 +543,7 @@ async function observeTacticalSurface(
   return {
     route: page.url(),
     phase: await locatorText(page.getByTestId('phase-name')),
+    terminalOutcome: await terminalOutcomeText(page),
     hasGameSession: await isVisible(page.getByTestId('game-session')),
     hasSpAdvance: await isVisible(page.getByTestId('sp-advance-phase-button')),
     hasMovementComposer: await isVisible(
@@ -1046,6 +1059,9 @@ async function openBattleGmMode(page: Page): Promise<TacticalObservation> {
 }
 
 async function approveGmAdvancePhase(page: Page): Promise<TacticalObservation> {
+  const previousPhaseText = await locatorText(page.getByTestId('phase-name'));
+  let settledPhaseText: string | null = null;
+  let settledTerminalOutcome: string | null = null;
   await page.getByTestId('command-btn-gm.advance-phase').click();
   await expect(page.getByTestId('gm-intervention-confirmation')).toBeVisible({
     timeout: 10_000,
@@ -1060,7 +1076,37 @@ async function approveGmAdvancePhase(page: Page): Promise<TacticalObservation> {
       timeout: 10_000,
     },
   );
-  await page.waitForTimeout(1_000);
+  if (previousPhaseText !== null) {
+    try {
+      await expect
+        .poll(
+          async () => {
+            const currentPhaseText = await locatorText(
+              page.getByTestId('phase-name'),
+            );
+            if (
+              currentPhaseText !== null &&
+              currentPhaseText !== previousPhaseText
+            ) {
+              settledPhaseText = currentPhaseText;
+              return true;
+            }
+            const terminalOutcome = await terminalOutcomeText(page);
+            if (terminalOutcome !== null) {
+              settledTerminalOutcome = terminalOutcome;
+              return true;
+            }
+            return false;
+          },
+          { timeout: 10_000 },
+        )
+        .toBe(true);
+    } catch {
+      // A genuine no-change is a valid finding; keep the audit journey alive.
+    }
+  } else {
+    await waitBrieflyForVisible(page.getByTestId('phase-name'));
+  }
 
   const railUnit = page.locator('[data-testid^="rail-unit-"]').first();
   if (await isVisible(railUnit)) {
@@ -1074,7 +1120,12 @@ async function approveGmAdvancePhase(page: Page): Promise<TacticalObservation> {
     await hex.click({ force: true });
     await page.waitForTimeout(500);
   }
-  return observeTacticalSurface(page);
+  const observation = await observeTacticalSurface(page);
+  return {
+    ...observation,
+    phase: observation.phase ?? settledPhaseText,
+    terminalOutcome: observation.terminalOutcome ?? settledTerminalOutcome,
+  };
 }
 
 function recordGmAdvanceFinding(
@@ -1083,22 +1134,36 @@ function recordGmAdvanceFinding(
   before: TacticalObservation,
   after: TacticalObservation,
 ): void {
+  const terminalReached =
+    before.phase !== null && after.terminalOutcome !== null;
+  const phasesReadable = before.phase !== null && after.phase !== null;
   const phaseChanged =
-    before.phase !== null &&
-    after.phase !== null &&
-    before.phase !== after.phase;
-  const oldBug =
-    !phaseChanged ||
+    (phasesReadable && before.phase !== after.phase) || terminalReached;
+  const errorReproduced =
     /not in movement phase|Unhandled Runtime Error|Application error/i.test(
       after.errorText ?? '',
     );
+  if (!phasesReadable && !terminalReached) {
+    driver.finding({
+      id: 'C2-UNKNOWN',
+      severity: 'minor',
+      summary:
+        `GM Advance Phase phase text was unreadable before/after approve; ` +
+        `before="${before.phase ?? 'unknown'}" after="${after.phase ?? 'unknown'}"; ` +
+        `composer=${after.hasMovementComposer}, error=${after.errorText ?? 'none'}.`,
+      steps: [step],
+    });
+    return;
+  }
+
+  const oldBug = !phaseChanged || errorReproduced;
   driver.finding({
     id: oldBug ? 'C2' : 'C2-STATUS',
     severity: oldBug ? 'major' : 'minor',
     summary:
       `GM Advance Phase before="${before.phase ?? 'unknown'}" after="${after.phase ?? 'unknown'}"; ` +
       `phaseChanged=${phaseChanged}, composer=${after.hasMovementComposer}, ` +
-      `error=${after.errorText ?? 'none'}.`,
+      `terminal=${after.terminalOutcome ?? 'none'}, error=${after.errorText ?? 'none'}.`,
     steps: [step],
   });
 }

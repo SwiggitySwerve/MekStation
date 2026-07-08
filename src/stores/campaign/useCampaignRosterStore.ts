@@ -39,6 +39,7 @@ import {
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
+import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRosterUnitBackfill';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 
@@ -54,6 +55,8 @@ import {
   refreshUnitsReadiness,
 } from './campaignRosterStore.helpers';
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
+
+const CAMPAIGN_ROSTER_STORE_VERSION = 3;
 
 // Re-export the public type surface so existing importers
 // (`GameSessionPage.states.tsx`, `CampaignDashboardPage.utils.ts`, etc.)
@@ -294,23 +297,31 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
     {
       name: 'campaign-roster-store',
       storage: createJSONStorage(() => clientSafeStorage),
-      // Version 2 — Council #4 PR1.5 added required `primaryRole` and
+      // Version 3 backfills legacy placeholder roster units with canonical
+      // representative refs. Version 2 added required `primaryRole` and
       // `rankIndex` fields. Existing v0/v1 entries get defaulted on load:
       // primaryRole=PILOT (the historical implicit default) and rankIndex=0
       // (matches the old hardcoded bridge value, so behavior is preserved
       // until the user sets a real rank).
-      version: 2,
+      version: CAMPAIGN_ROSTER_STORE_VERSION,
       migrate: (persistedState, version) => {
-        if (version >= 2 || !persistedState) return persistedState;
+        if (!persistedState) return persistedState;
         const state = persistedState as Partial<CampaignRosterState>;
-        const upgradedPilots = (state.pilots ?? []).map((entry) => ({
-          ...entry,
-          primaryRole: entry.primaryRole ?? CampaignPersonnelRole.PILOT,
-          rankIndex: entry.rankIndex ?? 0,
-        })) as ICampaignRosterEntry[];
+        const upgradedPilots =
+          version >= 2
+            ? state.pilots
+            : ((state.pilots ?? []).map((entry) => ({
+                ...entry,
+                primaryRole: entry.primaryRole ?? CampaignPersonnelRole.PILOT,
+                rankIndex: entry.rankIndex ?? 0,
+              })) as ICampaignRosterEntry[]);
         return {
           ...state,
-          pilots: upgradedPilots,
+          pilots: upgradedPilots ?? [],
+          units: backfillLegacyRosterUnitRefs(state.units ?? [], {
+            campaignId: state.campaignId ?? undefined,
+            source: `campaign-roster-store-v${version}-migration`,
+          }),
         } as StorageValue<CampaignRosterStore>['state'];
       },
     },

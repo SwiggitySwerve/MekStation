@@ -32,6 +32,7 @@ const mockAddMission = jest.fn();
 let mockRosterUnits: IRosterUnitProjection[] = [
   {
     unitId: 'atlas-as7-d',
+    unitRef: 'atlas-as7-d',
     unitName: 'Atlas',
     chassisVariant: 'AS7-D',
     readiness: 'Ready' as const,
@@ -136,6 +137,7 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
     mockRosterUnits = [
       {
         unitId: 'atlas-as7-d',
+        unitRef: 'atlas-as7-d',
         unitName: 'Atlas',
         chassisVariant: 'AS7-D',
         readiness: 'Ready',
@@ -270,6 +272,7 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
           rosterUnits: [
             expect.objectContaining({
               unitId: 'atlas-as7-d',
+              unitRef: 'atlas-as7-d',
             }),
           ],
         }),

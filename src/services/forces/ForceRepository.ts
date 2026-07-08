@@ -20,7 +20,11 @@ import {
 } from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
 import { invokeEncounterCascadeHook } from './ForceRepository.cascade';
-import { hydrateForce, type ForceRow } from './ForceRepository.helpers';
+import {
+  hydrateForce,
+  type CanonicalUnitStatsResolver,
+  type ForceRow,
+} from './ForceRepository.helpers';
 import {
   createForceOperation,
   updateForceOperation,
@@ -40,6 +44,10 @@ import {
 // these from `@/services/forces/ForceRepository` keep working unchanged.
 export { ForceErrorCode };
 export type { IForceOperationResult };
+
+export interface ForceRepositoryOptions {
+  readonly canonicalUnitStatsResolver?: CanonicalUnitStatsResolver;
+}
 
 // =============================================================================
 // Repository Interface
@@ -71,6 +79,11 @@ export interface IForceRepository {
 
 export class ForceRepository implements IForceRepository {
   private initialized = false;
+  private canonicalUnitStatsResolver: CanonicalUnitStatsResolver | undefined;
+
+  constructor(options: ForceRepositoryOptions = {}) {
+    this.canonicalUnitStatsResolver = options.canonicalUnitStatsResolver;
+  }
 
   /**
    * Initialize database tables for forces.
@@ -149,7 +162,7 @@ export class ForceRepository implements IForceRepository {
       return null;
     }
 
-    return hydrateForce(row);
+    return this.hydrate(row);
   };
 
   getAllForces = (): readonly ForceEntity[] => {
@@ -160,7 +173,7 @@ export class ForceRepository implements IForceRepository {
       .prepare('SELECT * FROM forces ORDER BY created_at DESC')
       .all() as ForceRow[];
 
-    return rows.map((row) => hydrateForce(row));
+    return rows.map((row) => this.hydrate(row));
   };
 
   getRootForces = (): readonly ForceEntity[] => {
@@ -171,7 +184,7 @@ export class ForceRepository implements IForceRepository {
       .prepare('SELECT * FROM forces WHERE parent_id IS NULL ORDER BY name')
       .all() as ForceRow[];
 
-    return rows.map((row) => hydrateForce(row));
+    return rows.map((row) => this.hydrate(row));
   };
 
   getChildForces = (parentId: string): readonly ForceEntity[] => {
@@ -182,7 +195,7 @@ export class ForceRepository implements IForceRepository {
       .prepare('SELECT * FROM forces WHERE parent_id = ? ORDER BY name')
       .all(parentId) as ForceRow[];
 
-    return rows.map((row) => hydrateForce(row));
+    return rows.map((row) => this.hydrate(row));
   };
 
   updateForce = (
@@ -299,6 +312,18 @@ export class ForceRepository implements IForceRepository {
   // ===========================================================================
   // Helper Methods
   // ===========================================================================
+
+  setCanonicalUnitStatsResolver = (
+    resolver: CanonicalUnitStatsResolver | undefined,
+  ): void => {
+    this.canonicalUnitStatsResolver = resolver;
+  };
+
+  private hydrate(row: ForceRow): ForceEntity {
+    return hydrateForce(row, {
+      canonicalUnitStatsResolver: this.canonicalUnitStatsResolver,
+    });
+  }
 }
 
 // =============================================================================
@@ -314,4 +339,10 @@ export function getForceRepository(): ForceRepository {
 
 export function resetForceRepository(): void {
   forceRepositoryFactory.reset();
+}
+
+export function setForceRepositoryCanonicalStatsResolver(
+  resolver: CanonicalUnitStatsResolver | undefined,
+): void {
+  forceRepositoryFactory.get().setCanonicalUnitStatsResolver(resolver);
 }

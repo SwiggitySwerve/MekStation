@@ -49,7 +49,19 @@ describe('CanonicalUnitService', () => {
     });
 
     it('should cache index after first load', async () => {
-      const mockIndex = { units: [] };
+      const mockIndex = {
+        units: [
+          {
+            id: 'atlas-as7-d',
+            chassis: 'Atlas',
+            model: 'AS7-D',
+            tonnage: 100,
+            techBase: 'INNER_SPHERE',
+            year: 2750,
+            path: '3-succession-wars/assault/atlas-as7-d.json',
+          },
+        ],
+      };
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         json: async () => mockIndex,
@@ -67,6 +79,40 @@ describe('CanonicalUnitService', () => {
       const index = await service.getIndex();
 
       expect(index).toEqual([]);
+    });
+
+    it('should retry after an initial index fetch failure instead of caching an empty result', async () => {
+      const mockIndex = {
+        units: [
+          {
+            id: 'locust-lct-1v',
+            chassis: 'Locust',
+            model: 'LCT-1V',
+            tonnage: 20,
+            techBase: 'INNER_SPHERE',
+            year: 2470,
+            path: '3-succession-wars/light/locust-lct-1v.json',
+          },
+        ],
+      };
+
+      (global.fetch as jest.Mock)
+        .mockRejectedValueOnce(new Error('Network error'))
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockIndex,
+        });
+
+      await expect(service.getIndex()).resolves.toEqual([]);
+
+      const retriedIndex = await service.getIndex();
+
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(retriedIndex).toHaveLength(1);
+      expect(retriedIndex[0]).toMatchObject({
+        id: 'locust-lct-1v',
+        name: 'Locust LCT-1V',
+      });
     });
 
     it('should handle 404 errors', async () => {
@@ -557,7 +603,19 @@ describe('CanonicalUnitService', () => {
 
   describe('clearCache()', () => {
     it('should clear index cache', async () => {
-      const mockIndex = { units: [] };
+      const mockIndex = {
+        units: [
+          {
+            id: 'atlas-as7-d',
+            chassis: 'Atlas',
+            model: 'AS7-D',
+            tonnage: 100,
+            techBase: 'INNER_SPHERE',
+            year: 2750,
+            path: '3-succession-wars/assault/atlas-as7-d.json',
+          },
+        ],
+      };
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         json: async () => mockIndex,

@@ -13,7 +13,10 @@ import type {
   SelectedUnit,
 } from './CreateCampaignPage.types';
 
-import { useCampaignWizardNavigation } from './CreateCampaignPage.hooks';
+import {
+  useCampaignRosterDraft,
+  useCampaignWizardNavigation,
+} from './CreateCampaignPage.hooks';
 import {
   BasicInfoStep,
   CampaignTypeStep,
@@ -23,12 +26,6 @@ import {
   StepIndicator,
 } from './CreateCampaignPage.sections';
 import { submitCampaignCreation } from './CreateCampaignPage.submit';
-import {
-  assignPilotToUnit,
-  createEntityId,
-  removePilotAssignments,
-  removeUnitAssignment,
-} from './CreateCampaignPage.utils';
 
 const WIZARD_STEPS = ['Basic Info', 'Type', 'Preset', 'Roster', 'Review'];
 
@@ -43,7 +40,11 @@ interface StepContentInput {
   selectedPresetDef?: (typeof ALL_PRESETS)[number];
   selectedUnits: SelectedUnit[];
   onAddPilot: () => void;
-  onAddTemplateUnit: (templateName: string, tonnage: number) => void;
+  onAddTemplateUnit: (
+    templateName: string,
+    tonnage: number,
+    unitRef: string,
+  ) => void;
   onAssignPilot: (unitId: string, pilotId: string) => void;
   onDescriptionChange: (description: string) => void;
   onNameChange: (name: string) => void;
@@ -198,11 +199,16 @@ export default function CreateCampaignPage(): React.ReactElement {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [selectedUnits, setSelectedUnits] = useState<SelectedUnit[]>([]);
-  const [selectedPilots, setSelectedPilots] = useState<SelectedPilot[]>([]);
-  const [pilotAssignments, setPilotAssignments] = useState<PilotAssignments>(
-    {},
-  );
+  const {
+    selectedUnits,
+    selectedPilots,
+    pilotAssignments,
+    handleAddTemplateUnit,
+    handleRemoveUnit,
+    handleAddPilot,
+    handleRemovePilot,
+    handleAssignPilot,
+  } = useCampaignRosterDraft();
 
   const { currentStep, localError, setLocalError, handleNext, handleBack } =
     useCampaignWizardNavigation({
@@ -213,46 +219,6 @@ export default function CreateCampaignPage(): React.ReactElement {
   const selectedPresetDef = useMemo(() => {
     return ALL_PRESETS.find((preset) => preset.id === selectedPreset);
   }, [selectedPreset]);
-
-  const handleAddTemplateUnit = useCallback(
-    (templateName: string, tonnage: number) => {
-      const unitId = createEntityId('unit');
-      setSelectedUnits((previous) => {
-        return [...previous, { id: unitId, name: templateName, tonnage }];
-      });
-    },
-    [],
-  );
-
-  const handleRemoveUnit = useCallback((unitId: string) => {
-    setSelectedUnits((previous) =>
-      previous.filter((unit) => unit.id !== unitId),
-    );
-    setPilotAssignments((previous) => removeUnitAssignment(previous, unitId));
-  }, []);
-
-  const handleAddPilot = useCallback(() => {
-    const pilotId = createEntityId('pilot');
-    const pilotNumber = selectedPilots.length + 1;
-    setSelectedPilots((previous) => {
-      return [...previous, { id: pilotId, name: `MechWarrior ${pilotNumber}` }];
-    });
-  }, [selectedPilots.length]);
-
-  const handleRemovePilot = useCallback((pilotId: string) => {
-    setSelectedPilots((previous) =>
-      previous.filter((pilot) => pilot.id !== pilotId),
-    );
-    setPilotAssignments((previous) =>
-      removePilotAssignments(previous, pilotId),
-    );
-  }, []);
-
-  const handleAssignPilot = useCallback((unitId: string, pilotId: string) => {
-    setPilotAssignments((previous) =>
-      assignPilotToUnit(previous, unitId, pilotId),
-    );
-  }, []);
 
   const handleSubmit = useCallback(
     () =>

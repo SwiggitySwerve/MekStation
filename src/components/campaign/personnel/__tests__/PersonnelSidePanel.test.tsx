@@ -54,7 +54,7 @@ import { PersonnelSidePanel } from '../PersonnelSidePanel';
 // Fixtures
 // =============================================================================
 
-function makePilot(): IPilot {
+function makePilot(overrides: Partial<IPilot> = {}): IPilot {
   const now = new Date().toISOString();
   return {
     id: 'pilot-vault-1',
@@ -78,6 +78,7 @@ function makePilot(): IPilot {
     },
     createdAt: now,
     updatedAt: now,
+    ...overrides,
   };
 }
 
@@ -156,6 +157,32 @@ describe('PersonnelSidePanel', () => {
     expect(screen.getByTestId('stub-assignment-panel')).toHaveTextContent(
       'Assignment: pilot-vault-1',
     );
+  });
+
+  it('resolves a wizard-created vault pilot in the personnel detail panel', () => {
+    const wizardPilot = makePilot({
+      id: 'vault-pilot-1',
+      name: 'MechWarrior 1',
+    });
+    mockUsePilotById.mockImplementation((pilotId) =>
+      pilotId === 'vault-pilot-1' ? wizardPilot : null,
+    );
+
+    render(
+      <PersonnelSidePanel
+        pilotId="vault-pilot-1"
+        isOpen={true}
+        onClose={jest.fn()}
+      />,
+    );
+
+    expect(mockUsePilotById).toHaveBeenCalledWith('vault-pilot-1');
+    expect(screen.getByTestId('stub-progression-panel')).toHaveTextContent(
+      'Progression: MechWarrior 1',
+    );
+    expect(
+      screen.queryByText(/Pilot not found in vault/),
+    ).not.toBeInTheDocument();
   });
 
   it('invokes onClose when the close button is clicked', () => {

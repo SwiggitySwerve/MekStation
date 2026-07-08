@@ -189,7 +189,7 @@ function deriveSupplementalDisplayData(
     // The quick-game builder stamps 'Unknown' when no pilot exists; skip it
     // so the record sheet's own 'Unknown Pilot' fallback stays the one voice.
     if (unit.pilotRef && unit.pilotRef !== 'Unknown') {
-      pilotNames[unit.id] = unit.pilotRef;
+      pilotNames[unit.id] = unit.name;
     }
     const unitHeatSinks =
       session.currentState.units[unit.id]?.heatSinks ?? unit.heatSinks;

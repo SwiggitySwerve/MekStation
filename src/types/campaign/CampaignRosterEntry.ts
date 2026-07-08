@@ -108,6 +108,9 @@ export interface ICampaignRosterEntry {
    */
   readonly assignedUnitId?: string;
 
+  /** Canonical unit-dataset key for the assigned unit, when known. */
+  readonly unitRef?: string;
+
   // ===========================================================================
   // Employment (added in this change for the 12 repointed features)
   // ===========================================================================

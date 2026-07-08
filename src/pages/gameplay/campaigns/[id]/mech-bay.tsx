@@ -8,7 +8,9 @@
  * @spec openspec/changes/add-campaign-bay-ui/specs/campaign-bay-ui/spec.md
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+
+import type { IUnitIndexEntry } from '@/types/unit/UnitIndex';
 
 import { MechBay } from '@/components/campaign/bays/MechBay';
 import { buildCampaignCustomizerHref } from '@/lib/campaign/customizer/campaignCustomizerRoute';
@@ -25,6 +27,72 @@ const MECH_BAY_LOADING = {
   variant: 'bay',
 } as const;
 
+interface UnitsIndexApiResponse {
+  readonly success: boolean;
+  readonly data?: unknown;
+}
+
+export interface MechBayUnitLoadoutMaps {
+  readonly unitTonnageById: ReadonlyMap<string, number>;
+  readonly unitBattleValueById: ReadonlyMap<string, number>;
+}
+
+function isUnitIndexEntryArray(value: unknown): value is IUnitIndexEntry[] {
+  return Array.isArray(value);
+}
+
+async function loadCanonicalIndexWithBV(): Promise<readonly IUnitIndexEntry[]> {
+  try {
+    const response = await fetch('/api/units?includeBV=true');
+    if (!response.ok) return [];
+
+    const payload = (await response.json()) as UnitsIndexApiResponse;
+    if (!payload.success || !isUnitIndexEntryArray(payload.data)) {
+      return [];
+    }
+    return payload.data;
+  } catch {
+    return [];
+  }
+}
+
+export function buildMechBayUnitLoadoutMaps({
+  units,
+  unitConfigurations,
+  canonicalIndex,
+}: {
+  readonly units: readonly {
+    readonly unitId: string;
+    readonly unitRef?: string;
+  }[];
+  readonly unitConfigurations?: Readonly<
+    Record<string, { readonly tonnage: number }>
+  >;
+  readonly canonicalIndex: readonly IUnitIndexEntry[];
+}): MechBayUnitLoadoutMaps {
+  const canonicalByUnitRef = new Map(
+    canonicalIndex.map((entry) => [entry.id, entry]),
+  );
+  const unitTonnageById = new Map<string, number>();
+  const unitBattleValueById = new Map<string, number>();
+
+  for (const unit of units) {
+    const canonicalEntry = unit.unitRef
+      ? canonicalByUnitRef.get(unit.unitRef)
+      : undefined;
+    const configuredTonnage = unitConfigurations?.[unit.unitId]?.tonnage;
+    const resolvedTonnage = configuredTonnage ?? canonicalEntry?.tonnage;
+    if (resolvedTonnage) {
+      unitTonnageById.set(unit.unitId, resolvedTonnage);
+    }
+    if (canonicalEntry?.bv) {
+      unitBattleValueById.set(unit.unitId, canonicalEntry.bv);
+    }
+  }
+
+  return { unitTonnageById, unitBattleValueById };
+}
+
 export default function MechBayPage(): React.ReactElement {
   const shell = CampaignShell.useCampaignPageShell('Mech Bay');
   const units = useCampaignRosterStore((state) => state.units);
@@ -33,6 +101,23 @@ export default function MechBayPage(): React.ReactElement {
     state.getActiveMission(),
   );
   const loadStatus = CampaignShell.useCampaignLoadStatus();
+  const [canonicalUnitIndex, setCanonicalUnitIndex] = useState<
+    readonly IUnitIndexEntry[]
+  >([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadCanonicalIndex = async () => {
+      const index = await loadCanonicalIndexWithBV();
+      if (!cancelled) {
+        setCanonicalUnitIndex([...index]);
+      }
+    };
+    void loadCanonicalIndex();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const pendingPage = CampaignShell.renderPendingCampaignPage(
     shell,
@@ -57,11 +142,11 @@ export default function MechBayPage(): React.ReactElement {
   const readinessByUnitId = new Map(
     readinessProjection.units.map((unit) => [unit.unit.unitId, unit]),
   );
-  const unitTonnageById = new Map(
-    Object.entries(campaign.unitConfigurations ?? {}).map(
-      ([unitId, config]) => [unitId, config.tonnage],
-    ),
-  );
+  const { unitTonnageById, unitBattleValueById } = buildMechBayUnitLoadoutMaps({
+    units,
+    unitConfigurations: campaign.unitConfigurations,
+    canonicalIndex: canonicalUnitIndex,
+  });
   const frame = {
     title: 'Mech Bay',
     subtitle: `${campaign.name} — ${units.length} units`,
@@ -83,6 +168,7 @@ export default function MechBayPage(): React.ReactElement {
             units={units}
             readinessByUnitId={readinessByUnitId}
             unitTonnageById={unitTonnageById}
+            unitBattleValueById={unitBattleValueById}
             repairBay={repairBay}
             campaignId={campaign.id}
             onLaunchRefit={(unitId) => {

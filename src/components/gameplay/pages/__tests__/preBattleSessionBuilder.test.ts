@@ -64,7 +64,7 @@ function makeForce(unitId: string, pilotId: string): IForce {
 }
 
 function makeForceWithAssignments(
-  assignments: readonly { unitId: string; pilotId: string }[],
+  assignments: readonly { unitId: string; pilotId: string | null }[],
 ): IForce {
   return {
     id: `${assignments[0]?.unitId ?? 'empty'}-force`,
@@ -110,6 +110,40 @@ function makePilot(id: string, overrides: Partial<IPilot> = {}): IPilot {
 describe('buildPreparedBattleData', () => {
   beforeEach(() => {
     adaptUnitMock.mockReset();
+  });
+
+  it('uses assigned pilot display names before unit slugs and keeps unassigned units safe', async () => {
+    adaptUnitMock.mockImplementation(async (unitId, options) =>
+      makeAdaptedUnit(unitId, options?.side ?? GameSide.Player, 20, 'single'),
+    );
+
+    const prepared = await buildPreparedBattleData({
+      playerForce: makeForce('locust-lct-1v', 'pilot-vault'),
+      opponentForce: makeForceWithAssignments([
+        { unitId: 'commando-com-2d', pilotId: null },
+      ]),
+      pilots: [
+        makePilot('pilot-vault', {
+          name: 'Alexei Cruz',
+        }),
+      ],
+    });
+
+    expect(prepared.gameUnits[0]).toMatchObject({
+      id: 'locust-lct-1v',
+      name: 'Alexei Cruz',
+      pilotRef: 'pilot-vault',
+      unitRef: 'locust-lct-1v',
+    });
+    expect(prepared.gameUnits[0].name).not.toBe('locust-lct-1v');
+
+    expect(prepared.gameUnits[1]).toMatchObject({
+      id: 'commando-com-2d',
+      name: 'commando-com-2d',
+      pilotRef: 'Unknown',
+      unitRef: 'commando-com-2d',
+    });
+    expect(prepared.gameUnits[1].name).not.toContain('undefined');
   });
 
   it('threads adapted heat sink count and type into GameCreated unit seeds', async () => {

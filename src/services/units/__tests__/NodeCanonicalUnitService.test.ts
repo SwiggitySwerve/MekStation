@@ -13,6 +13,8 @@
  * @spec openspec/changes/add-encounter-swarm-harness/tasks.md § "Phase 2 — Node-Side Catalog Loader"
  */
 
+import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 
 import { adaptUnitFromData } from '@/engine/adapters/CompendiumAdapter';
@@ -97,6 +99,65 @@ const SAMPLE_50_IDS: readonly string[] = [
 
 /** Well-known Atlas D — used for the adaptUnitFromData spot-check. */
 const SPOT_CHECK_ID = 'atlas-as7-d';
+
+function makeTempCatalogWithBVReport(): {
+  readonly baseDir: string;
+  readonly bvReportPath: string;
+} {
+  const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mek-bv-index-'));
+  const catalogDir = path.join(
+    baseDir,
+    'public',
+    'data',
+    'units',
+    'battlemechs',
+  );
+  fs.mkdirSync(catalogDir, { recursive: true });
+
+  fs.writeFileSync(
+    path.join(catalogDir, 'index.json'),
+    JSON.stringify({
+      version: 'test-bv-index',
+      generatedAt: '2026-07-08T00:00:00.000Z',
+      totalUnits: 2,
+      units: [
+        {
+          id: 'atlas-as7-d',
+          chassis: 'Atlas',
+          model: 'AS7-D',
+          tonnage: 100,
+          techBase: 'INNER_SPHERE',
+          year: 3025,
+          path: 'atlas.json',
+        },
+        {
+          id: 'locust-lct-1v',
+          chassis: 'Locust',
+          model: 'LCT-1V',
+          tonnage: 20,
+          techBase: 'INNER_SPHERE',
+          year: 3025,
+          path: 'locust.json',
+        },
+      ],
+    }),
+  );
+
+  const bvReportPath = path.join(baseDir, 'bv-validation-report.json');
+  fs.writeFileSync(
+    bvReportPath,
+    JSON.stringify({
+      allResults: [
+        {
+          unitId: 'atlas-as7-d',
+          calculatedBV: 1897,
+        },
+      ],
+    }),
+  );
+
+  return { baseDir, bvReportPath };
+}
 
 // =============================================================================
 // Tests — Task 2.7: Index load + sample-load 50 units
@@ -208,5 +269,62 @@ describe('NodeCanonicalUnitService — cache (Task 2.8)', () => {
     expect(after).not.toBeNull();
     // Different object instances after clear (deep-equal content, not ===).
     expect(before).not.toBe(after);
+  });
+});
+
+describe('NodeCanonicalUnitService - BV report merge', () => {
+  let tempDir: string | null = null;
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    if (tempDir) {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+      tempDir = null;
+    }
+  });
+
+  it('enriches a raw BV-free index from the validation report and caches the report read', () => {
+    const fixture = makeTempCatalogWithBVReport();
+    tempDir = fixture.baseDir;
+    const service = new NodeCanonicalUnitService(fixture.baseDir, {
+      bvReportPath: fixture.bvReportPath,
+    });
+
+    const rawIndex = service.getIndexSync();
+    expect(rawIndex.find((entry) => entry.id === 'atlas-as7-d')?.bv).toBe(
+      undefined,
+    );
+
+    const indexWithBV = service.getIndexSyncWithBV();
+
+    expect(indexWithBV.find((entry) => entry.id === 'atlas-as7-d')?.bv).toBe(
+      1897,
+    );
+    expect(indexWithBV.find((entry) => entry.id === 'locust-lct-1v')?.bv).toBe(
+      undefined,
+    );
+
+    fs.writeFileSync(
+      fixture.bvReportPath,
+      JSON.stringify({
+        allResults: [
+          {
+            unitId: 'atlas-as7-d',
+            calculatedBV: 9999,
+          },
+        ],
+      }),
+    );
+    const cachedIndexWithBV = service.getIndexSyncWithBV();
+    expect(cachedIndexWithBV).toBe(indexWithBV);
+    expect(
+      cachedIndexWithBV.find((entry) => entry.id === 'atlas-as7-d')?.bv,
+    ).toBe(1897);
+
+    service.clearCache();
+    expect(
+      service.getIndexSyncWithBV().find((entry) => entry.id === 'atlas-as7-d')
+        ?.bv,
+    ).toBe(9999);
   });
 });

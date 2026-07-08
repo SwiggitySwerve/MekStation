@@ -61,6 +61,7 @@ interface MechBayRowProps {
   readonly ticketCount: number;
   readonly ammoTicketCount: number;
   readonly unitTonnage?: number;
+  readonly unitBattleValue?: number;
   /** Campaign id — used to build the Repair Bay drill-down link. */
   readonly campaignId: string;
   /**
@@ -82,6 +83,7 @@ export function MechBayRow({
   ticketCount,
   ammoTicketCount,
   unitTonnage,
+  unitBattleValue,
   campaignId,
   onLaunchRefit,
 }: MechBayRowProps): React.ReactElement {
@@ -108,7 +110,11 @@ export function MechBayRow({
             data-testid={`mech-bay-loadout-${unit.unitId}`}
           >
             Weight: {unitTonnage ? `${unitTonnage} tons` : 'not cataloged'} |
-            BV: not cataloged | Supply:{' '}
+            BV:{' '}
+            {unitBattleValue
+              ? unitBattleValue.toLocaleString()
+              : 'not cataloged'}{' '}
+            | Supply:{' '}
             {ammoTicketCount > 0
               ? `${ammoTicketCount} ammo ticket${
                   ammoTicketCount === 1 ? '' : 's'
@@ -218,6 +224,7 @@ export interface MechBayProps {
     IMissionReadinessUnitProjection
   >;
   readonly unitTonnageById?: ReadonlyMap<string, number>;
+  readonly unitBattleValueById?: ReadonlyMap<string, number>;
   /** The repair-bay line items from the campaign inventory. */
   readonly repairBay: readonly IRepairBayItem[];
   /** Campaign id — used for drill-down links. */
@@ -237,6 +244,7 @@ export function MechBay({
   units,
   readinessByUnitId,
   unitTonnageById,
+  unitBattleValueById,
   repairBay,
   campaignId,
   onLaunchRefit,
@@ -276,6 +284,7 @@ export function MechBay({
           ticketCount={ticketCountByUnit.get(unit.unitId) ?? 0}
           ammoTicketCount={ammoTicketCountByUnit.get(unit.unitId) ?? 0}
           unitTonnage={unitTonnageById?.get(unit.unitId)}
+          unitBattleValue={unitBattleValueById?.get(unit.unitId)}
           campaignId={campaignId}
           onLaunchRefit={onLaunchRefit}
         />

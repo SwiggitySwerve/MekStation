@@ -46,7 +46,23 @@ export function rowToAssignment(row: AssignmentRow): IAssignment {
   };
 }
 
-export function calculateStats(assignments: IAssignment[]): IForceStats {
+export interface CalculatedUnitStats {
+  readonly bv: number;
+  readonly tonnage: number;
+}
+
+export type CanonicalUnitStatsResolver = (
+  unitId: string,
+) => CalculatedUnitStats | null | undefined;
+
+export interface ForceStatsResolutionOptions {
+  readonly canonicalUnitStatsResolver?: CanonicalUnitStatsResolver;
+}
+
+export function calculateStats(
+  assignments: IAssignment[],
+  options: ForceStatsResolutionOptions = {},
+): IForceStats {
   const assignedPilots = assignments.filter((a) => a.pilotId !== null).length;
   const assignedUnits = assignments.filter((a) => a.unitId !== null).length;
   const emptySlots = assignments.filter(
@@ -54,15 +70,18 @@ export function calculateStats(assignments: IAssignment[]): IForceStats {
   ).length;
 
   let totalBV = 0;
+  let totalTonnage = 0;
   for (const assignment of assignments) {
     if (assignment.unitId) {
-      totalBV += calculateUnitBV(assignment.unitId);
+      const unitStats = calculateUnitStats(assignment.unitId, options);
+      totalBV += unitStats.bv;
+      totalTonnage += unitStats.tonnage;
     }
   }
 
   return {
     totalBV,
-    totalTonnage: 0,
+    totalTonnage,
     assignedPilots,
     assignedUnits,
     emptySlots,
@@ -70,30 +89,70 @@ export function calculateStats(assignments: IAssignment[]): IForceStats {
   };
 }
 
-export function calculateUnitBV(unitId: string): number {
+export function calculateUnitBV(
+  unitId: string,
+  options: ForceStatsResolutionOptions = {},
+): number {
+  return calculateUnitStats(unitId, options).bv;
+}
+
+export function calculateUnitStats(
+  unitId: string,
+  options: ForceStatsResolutionOptions = {},
+): CalculatedUnitStats {
+  return (
+    calculateCustomUnitStats(unitId) ??
+    calculateCanonicalUnitStats(unitId, options.canonicalUnitStatsResolver) ?? {
+      bv: 0,
+      tonnage: 0,
+    }
+  );
+}
+
+function calculateCustomUnitStats(unitId: string): CalculatedUnitStats | null {
   try {
     const db = getSQLiteService().getDatabase();
 
     const customUnit = db
-      .prepare('SELECT data FROM custom_units WHERE id = ?')
-      .get(unitId) as { data: string } | undefined;
+      .prepare('SELECT data, tonnage FROM custom_units WHERE id = ?')
+      .get(unitId) as { data: string; tonnage: number } | undefined;
 
     if (customUnit) {
       try {
         const unitData = JSON.parse(customUnit.data) as UnitData;
-        return calculateBV(unitData);
+        return {
+          bv: calculateBV(unitData),
+          tonnage: customUnit.tonnage,
+        };
       } catch {
-        return 0;
+        return { bv: 0, tonnage: customUnit.tonnage };
       }
     }
 
-    return 0;
+    return null;
   } catch {
-    return 0;
+    return null;
   }
 }
 
-export function hydrateForce(row: ForceRow): IForce {
+function calculateCanonicalUnitStats(
+  unitId: string,
+  resolver: CanonicalUnitStatsResolver | undefined,
+): CalculatedUnitStats | null {
+  if (!resolver) {
+    return null;
+  }
+  try {
+    return resolver(unitId) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export function hydrateForce(
+  row: ForceRow,
+  options: ForceStatsResolutionOptions = {},
+): IForce {
   const db = getSQLiteService().getDatabase();
 
   const assignments = getAssignments(row.id);
@@ -101,7 +160,7 @@ export function hydrateForce(row: ForceRow): IForce {
     .prepare('SELECT id FROM forces WHERE parent_id = ?')
     .all(row.id) as Array<{ id: string }>;
   const childIds = childRows.map((r) => r.id);
-  const stats = calculateStats(assignments);
+  const stats = calculateStats(assignments, options);
 
   return {
     id: row.id,

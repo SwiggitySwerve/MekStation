@@ -16,6 +16,7 @@ function makeUnit(
     unitName: 'Atlas',
     chassisVariant: 'AS7-D',
     pilotId: 'pilot-ready',
+    unitRef: 'atlas-as7-d',
     readiness: 'Ready',
     ...overrides,
   };
@@ -156,6 +157,36 @@ describe('buildMissionReadinessProjection', () => {
     expect(projection.unresolvedBlockers.map((reason) => reason.code)).toEqual([
       'selected_unit_missing',
       'pilot_unavailable',
+    ]);
+  });
+
+  it('blocks launch when a selected unit has no canonical unitRef', () => {
+    const projection = buildMissionReadinessProjection({
+      campaignId: 'campaign-1',
+      mission,
+      units: [
+        {
+          unitId: 'unit-legacy',
+          unitName: 'Legacy Shadow Hawk',
+          chassisVariant: 'SHD-2H',
+          pilotId: 'pilot-ready',
+          readiness: 'Ready',
+        },
+      ],
+      pilots: [makePilot()],
+      selectedRosterUnitIds: ['unit-legacy'],
+    });
+
+    expect(projection.canLaunch).toBe(false);
+    expect(projection.blockedUnitIds).toEqual(['unit-legacy']);
+    expect(projection.unresolvedBlockers).toEqual([
+      expect.objectContaining({
+        code: 'unit_ref_unresolved',
+        severity: 'blocker',
+        subjectId: 'unit-legacy',
+        message:
+          'Legacy Shadow Hawk has no canonical record; recreate the campaign or edit the unit in Mech Bay before launch.',
+      }),
     ]);
   });
 });

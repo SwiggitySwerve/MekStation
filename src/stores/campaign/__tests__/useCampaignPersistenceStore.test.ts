@@ -271,6 +271,36 @@ describe('useCampaignPersistenceStore', () => {
     expect(roster.missionCount).toBe(1);
   });
 
+  it('loadCampaign backfills legacy placeholder roster unit refs', async () => {
+    const envelope = buildSerializedCampaign(campaign, 'device-y', 3, {
+      campaignId: campaign.id,
+      units: [
+        {
+          unitId: 'unit-light',
+          unitName: 'Light Mech',
+          chassisVariant: 'Light Mech',
+          readiness: 'Ready',
+        },
+      ],
+      pilots: [],
+      missions: [],
+      activeMissionId: null,
+      missionCount: 0,
+    });
+    jest.spyOn(global, 'fetch').mockResolvedValue(jsonResponse(200, envelope));
+
+    const ok = await useCampaignPersistenceStore
+      .getState()
+      .loadCampaign(campaign.id);
+
+    expect(ok).toBe(true);
+    expect(useCampaignRosterStore.getState().units[0]).toMatchObject({
+      unitId: 'unit-light',
+      unitName: 'Light Mech',
+      unitRef: 'locust-lct-1v',
+    });
+  });
+
   it('loadCampaign returns false on a 404', async () => {
     jest
       .spyOn(global, 'fetch')

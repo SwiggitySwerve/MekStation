@@ -13,6 +13,8 @@ import { WeightClass } from '@/types/enums/WeightClass';
 
 import { parseSuccessResponse, parseErrorResponse } from '../helpers';
 
+const mockGetIndexSyncWithBV = jest.fn();
+
 // Mock the canonical unit service
 jest.mock('@/services/units/CanonicalUnitService', () => {
   const _mock_canonicalUnitService = {
@@ -24,12 +26,19 @@ jest.mock('@/services/units/CanonicalUnitService', () => {
   };
 });
 
+jest.mock('@/services/units/NodeCanonicalUnitService', () => ({
+  getNodeCanonicalUnitService: () => ({
+    getIndexSyncWithBV: (...args: unknown[]) => mockGetIndexSyncWithBV(...args),
+  }),
+}));
+
 const mockGetById = getCanonicalUnitService().getById as jest.Mock;
 const mockQuery = getCanonicalUnitService().query as jest.Mock;
 
 describe('/api/units', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetIndexSyncWithBV.mockReset();
   });
 
   describe('GET method validation', () => {
@@ -127,6 +136,33 @@ describe('/api/units', () => {
       expect(data.success).toBe(true);
       expect(data.data).toEqual(mockUnits);
       expect(data.count).toBe(2);
+    });
+
+    it('should return BV-enriched units from the Node catalog when requested', async () => {
+      const mockUnitsWithBV = [
+        {
+          id: 'atlas-as7-d',
+          name: 'Atlas AS7-D',
+          tonnage: 100,
+          bv: 1897,
+        },
+      ];
+      mockGetIndexSyncWithBV.mockReturnValue(mockUnitsWithBV);
+
+      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        method: 'GET',
+        query: { includeBV: 'true' },
+      });
+
+      await handler(req, res);
+
+      expect(res._getStatusCode()).toBe(200);
+      const data = parseSuccessResponse(res);
+      expect(data.success).toBe(true);
+      expect(data.data).toEqual(mockUnitsWithBV);
+      expect(data.count).toBe(1);
+      expect(mockGetIndexSyncWithBV).toHaveBeenCalledTimes(1);
+      expect(mockQuery).not.toHaveBeenCalled();
     });
 
     it('should filter by tech base', async () => {
