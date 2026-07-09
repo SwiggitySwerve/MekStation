@@ -45,7 +45,7 @@ export async function deriveAdaptedUnitsFromSession(
       );
       continue;
     }
-    adapted.push(adaptedUnit);
+    adapted.push({ ...adaptedUnit, id: gameUnit.id });
   }
   return adapted;
 }

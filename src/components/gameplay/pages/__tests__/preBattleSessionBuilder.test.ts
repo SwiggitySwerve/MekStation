@@ -130,7 +130,7 @@ describe('buildPreparedBattleData', () => {
     });
 
     expect(prepared.gameUnits[0]).toMatchObject({
-      id: 'locust-lct-1v',
+      id: 'player-1-locust-lct-1v',
       name: 'Alexei Cruz',
       pilotRef: 'pilot-vault',
       unitRef: 'locust-lct-1v',
@@ -138,7 +138,7 @@ describe('buildPreparedBattleData', () => {
     expect(prepared.gameUnits[0].name).not.toBe('locust-lct-1v');
 
     expect(prepared.gameUnits[1]).toMatchObject({
-      id: 'commando-com-2d',
+      id: 'opponent-1-commando-com-2d',
       name: 'commando-com-2d',
       pilotRef: 'Unknown',
       unitRef: 'commando-com-2d',
@@ -163,12 +163,12 @@ describe('buildPreparedBattleData', () => {
 
     expect(prepared.gameUnits).toEqual([
       expect.objectContaining({
-        id: 'atlas-as7-d',
+        id: 'player-1-atlas-as7-d',
         heatSinks: 20,
         heatSinkType: 'single',
       }),
       expect.objectContaining({
-        id: 'nightstar-nsr-9j',
+        id: 'opponent-1-nightstar-nsr-9j',
         heatSinks: 14,
         heatSinkType: 'double',
       }),
@@ -184,11 +184,13 @@ describe('buildPreparedBattleData', () => {
       prepared.gameUnits,
     );
 
-    expect(session.currentState.units['atlas-as7-d']).toMatchObject({
+    expect(session.currentState.units['player-1-atlas-as7-d']).toMatchObject({
       heatSinks: 20,
       heatSinkType: 'single',
     });
-    expect(session.currentState.units['nightstar-nsr-9j']).toMatchObject({
+    expect(
+      session.currentState.units['opponent-1-nightstar-nsr-9j'],
+    ).toMatchObject({
       heatSinks: 14,
       heatSinkType: 'double',
     });
@@ -233,10 +235,11 @@ describe('buildPreparedBattleData', () => {
     );
 
     expect(
-      session.currentState.units['atlas-as7-d'].initiativeEquipment,
+      session.currentState.units['player-1-atlas-as7-d'].initiativeEquipment,
     ).toEqual(initiativeEquipment);
     expect(
-      session.currentState.units['nightstar-nsr-9j'].initiativeEquipment,
+      session.currentState.units['opponent-1-nightstar-nsr-9j']
+        .initiativeEquipment,
     ).toBeUndefined();
   });
 
@@ -276,7 +279,7 @@ describe('buildPreparedBattleData', () => {
     });
 
     expect(prepared.gameUnits[0]).toMatchObject({
-      id: 'c3-master',
+      id: 'player-1-c3-master',
       c3Equipment: [
         {
           role: 'master',
@@ -285,7 +288,7 @@ describe('buildPreparedBattleData', () => {
       ],
     });
     expect(prepared.gameUnits[1]).toMatchObject({
-      id: 'c3-slave',
+      id: 'player-2-c3-slave',
       c3Equipment: [
         {
           role: 'slave',
@@ -310,11 +313,11 @@ describe('buildPreparedBattleData', () => {
         teamId: GameSide.Player,
         members: [
           expect.objectContaining({
-            entityId: 'c3-master',
+            entityId: 'player-1-c3-master',
             role: 'master',
           }),
           expect.objectContaining({
-            entityId: 'c3-slave',
+            entityId: 'player-2-c3-slave',
             role: 'slave',
           }),
         ],
@@ -338,11 +341,11 @@ describe('buildPreparedBattleData', () => {
 
     expect(prepared.gameUnits).toEqual([
       expect.objectContaining({
-        id: 'atlas-as7-d',
+        id: 'player-1-atlas-as7-d',
         pilotToughness: 2,
       }),
       expect.objectContaining({
-        id: 'nightstar-nsr-9j',
+        id: 'opponent-1-nightstar-nsr-9j',
         pilotToughness: 0,
       }),
     ]);
@@ -357,10 +360,12 @@ describe('buildPreparedBattleData', () => {
       prepared.gameUnits,
     );
 
-    expect(session.currentState.units['atlas-as7-d'].pilotToughness).toBe(2);
-    expect(session.currentState.units['nightstar-nsr-9j'].pilotToughness).toBe(
-      0,
-    );
+    expect(
+      session.currentState.units['player-1-atlas-as7-d'].pilotToughness,
+    ).toBe(2);
+    expect(
+      session.currentState.units['opponent-1-nightstar-nsr-9j'].pilotToughness,
+    ).toBe(0);
   });
 
   it('does not infer RPG Toughness from the legacy toughness ability alias', async () => {
@@ -384,7 +389,7 @@ describe('buildPreparedBattleData', () => {
     });
 
     expect(prepared.gameUnits[0]).toMatchObject({
-      id: 'atlas-as7-d',
+      id: 'player-1-atlas-as7-d',
       gunnery: 3,
       piloting: 4,
     });
@@ -401,7 +406,7 @@ describe('buildPreparedBattleData', () => {
     );
 
     expect(
-      session.currentState.units['atlas-as7-d'].pilotToughness,
+      session.currentState.units['player-1-atlas-as7-d'].pilotToughness,
     ).toBeUndefined();
   });
 });

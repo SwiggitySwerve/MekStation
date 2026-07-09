@@ -1,3 +1,16 @@
 {
-  "allowedActiveChanges": []
+  "allowedActiveChanges": [
+    {
+      "name": "fix-instant-defeat-on-initiative",
+      "status": "in-progress",
+      "reason": "Wave-2 critical C6: fresh campaign 4v4 instantly ends Defeat-Destruction on Initiative advance (walkthrough-2 2026-07-09).",
+      "lastReviewed": "2026-07-09"
+    },
+    {
+      "name": "fix-coop-mutation-propagation",
+      "status": "in-progress",
+      "reason": "Wave-2 major C7: host co-op mutations never persist to shared record; guest blind even after reload (walkthrough-2 2026-07-09).",
+      "lastReviewed": "2026-07-09"
+    }
+  ]
 }

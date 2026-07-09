@@ -118,11 +118,9 @@ function makeAdaptedUnit(id: string, side: GameSide): IAdaptedUnit {
   };
 }
 
-// Per `preBattleSessionBuilder.buildGameUnits`: the bootstrap path
-// sets IGameUnit.id to the adapted unit's id (the catalog ID).
-// `unitRef` carries the same catalog ID. The recovery path's lookups
-// (movementByUnit) key by adapted-unit-id, which equals game-unit-id
-// in the bootstrap path. Mirror the convention in the fixture.
+// Older sessions may have game-unit ids equal to catalog refs. The
+// recovery path must also support newer deployed ids whose `unitRef`
+// remains the catalog lookup key.
 function makeFourUnits(): readonly IGameUnit[] {
   return [
     {
@@ -240,6 +238,59 @@ describe('InteractiveSession.fromSessionAsync — gap #2 recovery parity', () =>
     for (const u of units) {
       expect(recovered.getMovementCapability(u.id)).not.toBeNull();
     }
+  });
+
+  it('aliases recovered adapted-unit ids to deployed game-unit ids while looking up canonical unitRefs', async () => {
+    mockAdaptUnit.mockImplementation(
+      async (
+        unitRef: string,
+        options: { side: GameSide } = { side: GameSide.Player },
+      ) => {
+        return makeAdaptedUnit(unitRef, options.side);
+      },
+    );
+
+    const units: readonly IGameUnit[] = [
+      {
+        id: 'player-1-atlas-as7-d',
+        name: 'Atlas',
+        side: GameSide.Player,
+        unitRef: 'atlas-as7-d',
+        pilotRef: 'pilot-p1',
+        gunnery: 4,
+        piloting: 5,
+      },
+      {
+        id: 'opponent-1-atlas-as7-d',
+        name: 'Atlas',
+        side: GameSide.Opponent,
+        unitRef: 'atlas-as7-d',
+        pilotRef: 'pilot-o1',
+        gunnery: 4,
+        piloting: 5,
+      },
+    ];
+    const session = makeSessionWith(units);
+
+    const recovered = await InteractiveSession.fromSessionAsync(session);
+
+    expect(mockAdaptUnit).toHaveBeenNthCalledWith(
+      1,
+      'atlas-as7-d',
+      expect.objectContaining({ side: GameSide.Player }),
+    );
+    expect(mockAdaptUnit).toHaveBeenNthCalledWith(
+      2,
+      'atlas-as7-d',
+      expect.objectContaining({ side: GameSide.Opponent }),
+    );
+    expect(
+      recovered.getMovementCapability('player-1-atlas-as7-d'),
+    ).not.toBeNull();
+    expect(
+      recovered.getMovementCapability('opponent-1-atlas-as7-d'),
+    ).not.toBeNull();
+    expect(recovered.getMovementCapability('atlas-as7-d')).toBeNull();
   });
 
   it('a unit whose unitRef is not in the catalog is skipped with a warning', async () => {

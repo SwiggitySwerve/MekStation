@@ -445,6 +445,69 @@ describe('GameOutcomeCalculator', () => {
 
       expect(isGameEnded(state, config)).toBe(false);
     });
+
+    it.each([
+      {
+        label: 'both forces fully alive',
+        playerDestroyed: [false, false],
+        opponentDestroyed: [false, false],
+        ended: false,
+        winner: null,
+      },
+      {
+        label: 'player partially destroyed and opponent alive',
+        playerDestroyed: [true, false],
+        opponentDestroyed: [false, false],
+        ended: false,
+        winner: null,
+      },
+      {
+        label: 'opponent partially destroyed and player alive',
+        playerDestroyed: [false, false],
+        opponentDestroyed: [true, false],
+        ended: false,
+        winner: null,
+      },
+      {
+        label: 'player fully destroyed',
+        playerDestroyed: [true, true],
+        opponentDestroyed: [false, false],
+        ended: true,
+        winner: 'opponent' as const,
+      },
+      {
+        label: 'opponent fully destroyed',
+        playerDestroyed: [false, false],
+        opponentDestroyed: [true, true],
+        ended: true,
+        winner: 'player' as const,
+      },
+      {
+        label: 'both forces fully destroyed',
+        playerDestroyed: [true, true],
+        opponentDestroyed: [true, true],
+        ended: true,
+        winner: 'draw' as const,
+      },
+    ])(
+      'matches elimination outcome predicate for $label',
+      ({ playerDestroyed, opponentDestroyed, ended, winner }) => {
+        const state = createMockState(
+          playerDestroyed.map((destroyed, index) => ({
+            id: `p${index + 1}`,
+            destroyed,
+          })),
+          opponentDestroyed.map((destroyed, index) => ({
+            id: `o${index + 1}`,
+            destroyed,
+          })),
+        );
+        const config = createMockConfig();
+
+        expect(isGameEnded(state, config)).toBe(ended);
+        expect(determineWinner(state, config)).toBe(winner);
+      },
+    );
   });
 
   describe('determineWinner', () => {
