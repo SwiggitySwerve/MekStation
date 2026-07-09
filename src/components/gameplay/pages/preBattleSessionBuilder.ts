@@ -80,6 +80,25 @@ function getAssignedPilotDisplayName(
   return pilot?.callsign ?? pilot?.name;
 }
 
+function buildSessionUnitId(
+  side: GameSide,
+  slotIndex: number,
+  unitRef: string,
+): string {
+  return `${side}-${slotIndex + 1}-${unitRef}`;
+}
+
+function withSessionScopedAdaptedUnitIds(
+  assignments: readonly AssignedForceUnit[],
+  adaptedUnits: readonly IAdaptedUnit[],
+  side: GameSide,
+): IAdaptedUnit[] {
+  return adaptedUnits.map((unit, index) => ({
+    ...unit,
+    id: buildSessionUnitId(side, index, assignments[index]?.unitId ?? unit.id),
+  }));
+}
+
 async function adaptAssignments(
   assignments: readonly AssignedForceUnit[],
   side: GameSide,
@@ -112,10 +131,10 @@ function buildGameUnits(
 ): IGameUnit[] {
   return [
     ...playerAssignments.map((assignment, index) => ({
-      id: playerAdapted[index]?.id ?? assignment.unitId ?? assignment.id,
+      id: buildSessionUnitId(GameSide.Player, index, assignment.unitId),
       name:
         getAssignedPilotDisplayName(assignment.pilotId, pilots) ??
-        playerAdapted[index]?.id ??
+        assignment.unitId ??
         `Player Unit ${index + 1}`,
       side: GameSide.Player,
       unitRef: assignment.unitId ?? '',
@@ -129,10 +148,10 @@ function buildGameUnits(
       c3Equipment: playerAdapted[index]?.c3Equipment,
     })),
     ...opponentAssignments.map((assignment, index) => ({
-      id: opponentAdapted[index]?.id ?? assignment.unitId ?? assignment.id,
+      id: buildSessionUnitId(GameSide.Opponent, index, assignment.unitId),
       name:
         getAssignedPilotDisplayName(assignment.pilotId, pilots) ??
-        opponentAdapted[index]?.id ??
+        assignment.unitId ??
         `Opponent Unit ${index + 1}`,
       side: GameSide.Opponent,
       unitRef: assignment.unitId ?? '',
@@ -184,18 +203,28 @@ export async function buildPreparedBattleData({
     GameSide.Opponent,
     pilots,
   );
+  const playerSessionAdapted = withSessionScopedAdaptedUnitIds(
+    playerAssignments,
+    playerAdapted,
+    GameSide.Player,
+  );
+  const opponentSessionAdapted = withSessionScopedAdaptedUnitIds(
+    opponentAssignments,
+    opponentAdapted,
+    GameSide.Opponent,
+  );
 
   const gameUnits = buildGameUnits(
     playerAssignments,
     opponentAssignments,
-    playerAdapted,
-    opponentAdapted,
+    playerSessionAdapted,
+    opponentSessionAdapted,
     pilots,
   );
 
   return {
-    playerAdapted,
-    opponentAdapted,
+    playerAdapted: playerSessionAdapted,
+    opponentAdapted: opponentSessionAdapted,
     gameUnits,
   };
 }
