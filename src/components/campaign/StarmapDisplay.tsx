@@ -24,6 +24,11 @@ import {
 } from './StarmapDisplay.model';
 import { StarSystemNode } from './StarmapSystemNode';
 
+type StageSize = {
+  readonly width: number;
+  readonly height: number;
+};
+
 export { FACTION_COLORS } from './StarmapDisplay.model';
 export type {
   IStarSystem,
@@ -40,7 +45,7 @@ export function StarmapDisplay({
   className = '',
 }: StarmapDisplayProps): React.ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [stageSize, setStageSize] = useState({ width: 800, height: 600 });
+  const [stageSize, setStageSize] = useState<StageSize | null>(null);
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState(INITIAL_POSITION);
   const [hoveredSystem, setHoveredSystem] = useState<string | null>(null);
@@ -54,6 +59,7 @@ export function StarmapDisplay({
     if (!container) return;
 
     const updateSize = () => {
+      if (container.clientWidth <= 0 || container.clientHeight <= 0) return;
       setStageSize({
         width: container.clientWidth,
         height: container.clientHeight,
@@ -80,6 +86,7 @@ export function StarmapDisplay({
 
   React.useEffect(() => {
     if (userAdjustedViewRef.current) return;
+    if (!stageSize) return;
     const fit = panToInclude(
       computeFitView(systems, stageSize),
       mustIncludePoints,
@@ -151,6 +158,7 @@ export function StarmapDisplay({
   }, []);
 
   const handleResetView = useCallback(() => {
+    if (!stageSize) return;
     userAdjustedViewRef.current = false;
     const fit = panToInclude(
       computeFitView(systems, stageSize),
@@ -167,34 +175,36 @@ export function StarmapDisplay({
       style={{ width: '100%', height: '100%' }}
     >
       <div ref={containerRef} className="relative min-h-0 flex-1">
-        <Stage
-          width={stageSize.width}
-          height={stageSize.height}
-          draggable
-          x={position.x}
-          y={position.y}
-          scaleX={zoom}
-          scaleY={zoom}
-          onWheel={handleWheel}
-          onDragEnd={handleDragEnd}
-          data-testid="starmap-canvas"
-        >
-          <Layer>
-            {systems.map((system) => (
-              <StarSystemNode
-                key={system.id}
-                system={system}
-                lod={lod}
-                isSelected={selectedSystem === system.id}
-                isHovered={hoveredSystem === system.id}
-                annotation={systemAnnotations?.[system.id]}
-                onClick={() => handleSystemClick(system.id)}
-                onMouseEnter={() => handleSystemHover(system.id)}
-                onMouseLeave={() => handleSystemHover(null)}
-              />
-            ))}
-          </Layer>
-        </Stage>
+        {stageSize ? (
+          <Stage
+            width={stageSize.width}
+            height={stageSize.height}
+            draggable
+            x={position.x}
+            y={position.y}
+            scaleX={zoom}
+            scaleY={zoom}
+            onWheel={handleWheel}
+            onDragEnd={handleDragEnd}
+            data-testid="starmap-canvas"
+          >
+            <Layer>
+              {systems.map((system) => (
+                <StarSystemNode
+                  key={system.id}
+                  system={system}
+                  lod={lod}
+                  isSelected={selectedSystem === system.id}
+                  isHovered={hoveredSystem === system.id}
+                  annotation={systemAnnotations?.[system.id]}
+                  onClick={() => handleSystemClick(system.id)}
+                  onMouseEnter={() => handleSystemHover(system.id)}
+                  onMouseLeave={() => handleSystemHover(null)}
+                />
+              ))}
+            </Layer>
+          </Stage>
+        ) : null}
 
         <StarmapFactionLegend isOpen={legendOpen} onToggle={setLegendOpen} />
         <StarmapZoomControls
