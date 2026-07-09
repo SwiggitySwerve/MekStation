@@ -46,6 +46,8 @@ scripts/**
 !scripts/lib/**
 !scripts/next/
 !scripts/next/**
+!scripts/playwright/
+!scripts/playwright/**
 !scripts/qc/
 !scripts/qc/**
 !scripts/megameklab-conversion/
