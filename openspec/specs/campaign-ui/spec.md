@@ -3,9 +3,7 @@
 ## Purpose
 
 Defines Campaign UI requirements for Campaign List Page, Campaign Dashboard, Personnel Roster Page, and Forces (TO&E) Page, preserving the source-of-truth scope introduced by archived change implement-comprehensive-campaign-system.
-
 ## Requirements
-
 ### Requirement: Campaign List Page
 
 The system SHALL display a list of all campaigns with summary statistics.
@@ -346,7 +344,7 @@ The system SHALL render campaign pages efficiently without lag.
 
 ### Requirement: Campaign Creation Wizard
 
-The system SHALL provide a multi-step campaign creation wizard with 4 steps: campaign type selection, preset selection, option customization, and summary/confirmation.
+The system SHALL provide a multi-step campaign creation wizard with 4 steps: campaign type selection, preset selection, option customization, and summary/confirmation. Roster units created by the wizard SHALL be canonical-backed — each stored roster entry carries a canonical `unitRef` resolvable in the canonical unit dataset — and wizard-created pilots SHALL be registered in the pilot vault with distinct default names.
 
 #### Scenario: Wizard step 1 - Campaign type selection
 
@@ -367,6 +365,18 @@ The system SHALL provide a multi-step campaign creation wizard with 4 steps: cam
 
 - **WHEN** the user completes customization and proceeds
 - **THEN** a summary of all selected options is displayed with campaign name input and a create button
+
+#### Scenario: Roster units are canonical-backed
+
+- **WHEN** the user adds a weight-class unit in the wizard roster step and creates the campaign
+- **THEN** the stored roster entry SHALL carry a canonical `unitRef` that resolves in the canonical unit dataset
+- **AND** campaign surfaces (Mech Bay, force views, encounter materialization) SHALL show that unit's real name, weight, and battle value (never "not cataloged")
+
+#### Scenario: Wizard pilots are distinct and vault-registered
+
+- **WHEN** the user adds multiple pilots in the wizard roster step and creates the campaign
+- **THEN** each pilot SHALL receive a distinct default name (e.g. "MechWarrior 1", "MechWarrior 2", …)
+- **AND** each pilot SHALL be registered in the pilot vault such that the Personnel detail panel resolves progression, abilities, and assignment (never "Pilot not found in vault")
 
 ### Requirement: Option Group Panel
 
@@ -535,3 +545,4 @@ The campaign personnel side panel SHALL include an Assignment tab that lets the 
 - **THEN** the panel SHALL display "No active force in this campaign"
 - **AND** the panel SHALL render a navigation link to `/gameplay/campaigns/[id]/forces`
 - **AND** no API call SHALL be made
+

@@ -1,34 +1,3 @@
 {
-  "allowedActiveChanges": [
-    {
-      "name": "extend-ux-audit-deep-play-journeys",
-      "status": "in-progress",
-      "reason": "Tracks the deep-play UX audit harness extension for the 2026-07-07 playtest blockers.",
-      "lastReviewed": "2026-07-07"
-    },
-    {
-      "name": "fix-battle-phase-progression",
-      "status": "in-progress",
-      "reason": "Task Group 4 final verification is active in this working tree.",
-      "lastReviewed": "2026-07-07"
-    },
-    {
-      "name": "fix-campaign-roster-battle-handoff",
-      "status": "in-progress",
-      "reason": "Tracks the campaign roster-to-battle handoff fix from the 2026-07-07 live playtest.",
-      "lastReviewed": "2026-07-07"
-    },
-    {
-      "name": "fix-dev-multiplayer-store-split",
-      "status": "in-progress",
-      "reason": "Tracks the dev multiplayer split-store handshake fix from the 2026-07-07 live playtest.",
-      "lastReviewed": "2026-07-07"
-    },
-    {
-      "name": "fix-starmap-zero-size-crash",
-      "status": "in-progress",
-      "reason": "Tracks the campaign starmap zero-size canvas crash fix from the 2026-07-07 live playtest.",
-      "lastReviewed": "2026-07-07"
-    }
-  ]
+  "allowedActiveChanges": []
 }
