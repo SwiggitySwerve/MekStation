@@ -11,7 +11,7 @@ import {
   type IGameOutcome,
 } from '@/services/game-resolution/GameOutcomeCalculator';
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
-import { SeededRandom } from '@/simulation/core/SeededRandom';
+import { SeededD6Roller, SeededRandom } from '@/simulation/core';
 import {
   GameSide,
   type IGameEndedPayload,
@@ -34,6 +34,7 @@ import {
   resolveHeatPhase,
   endGame,
 } from '@/utils/gameplay/gameSession';
+import { createLocationIndexRollerFromD6 } from '@/utils/gameplay/gameSessionHeat.helpers';
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 
 import type { IGameEngineConfig, IAdaptedUnit } from './types';
@@ -134,6 +135,10 @@ export class GameEngine {
       campaignId: linkage.campaignId ?? null,
       contractId: linkage.contractId ?? null,
       scenarioId: linkage.scenarioId ?? null,
+      // Per `add-sp-combat-determinism` design D3: persist the engine's
+      // resolved seed so a session recovered from this config can
+      // re-seed its dice + AI random deterministically (D4).
+      seed: this.seed,
     };
 
     // Same combat-seed splice as the interactive constructor — without it,
@@ -213,6 +218,14 @@ export class GameEngine {
           const unit = session.currentState.units[unitId];
           return waterDepthAtPosition(grid, unit?.position ?? position);
         },
+        // Per `add-sp-combat-determinism` design D7: the MaxTech
+        // heat-scale critical-location roll defaults to `Math.random`
+        // when this option is omitted — derive it from this mode's
+        // existing `d6Roller` closure (itself backed by `this.random`)
+        // so a failed heat-scale crit check in auto-resolve stays
+        // seeded like every other roll in this loop.
+        maxTechCriticalLocationRoller:
+          createLocationIndexRollerFromD6(d6Roller),
       });
       session = advancePhase(session);
 
@@ -234,6 +247,14 @@ export class GameEngine {
    * / encounter ids) onto the resulting session. The campaign
    * orchestrator passes these so `InteractiveSession.tryFinalizeAndPublish`
    * can stamp them onto the published `ICombatOutcome`.
+   *
+   * Per `add-sp-combat-determinism` design D1/D3: injects a dedicated
+   * `SeededD6Roller(this.seed)` stream (independent of `this.random`,
+   * which also feeds `BotPlayer` decisions — a shared stream would
+   * reshuffle dice outcomes whenever bot logic changes its draw count)
+   * and stamps the resolved `seed` onto the session config so recovery
+   * can re-seed deterministically (D4). Direct `InteractiveSession`
+   * constructions that omit these args (MP, most tests) are unaffected.
    */
   createInteractiveSession(
     playerUnits: readonly IAdaptedUnit[],
@@ -250,9 +271,10 @@ export class GameEngine {
       opponentUnits,
       gameUnits,
       linkage,
-      undefined,
+      new SeededD6Roller(this.seed).asD6Roller(),
       this.optionalRules,
       this.victoryConditions,
+      this.seed,
     );
   }
 

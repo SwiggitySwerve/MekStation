@@ -68,6 +68,17 @@ export interface IGameConfig {
    * preserving the current fight-to-destruction behavior.
    */
   readonly forcedWithdrawal?: boolean;
+  /**
+   * Per `add-sp-combat-determinism` (design D3): the resolved PRNG seed
+   * this session's dice + AI random were derived from, persisted so
+   * recovery can re-seed deterministically from position zero (D4).
+   * `runToCompletion` always stamps its resolved `this.seed`; the
+   * interactive constructor stamps the optional trailing constructor
+   * arg only when a caller supplies one — direct constructions that
+   * omit it (MP, most tests) persist no seed, preserving existing
+   * behavior.
+   */
+  readonly seed?: number | null;
 }
 
 export interface IVehicleCriticalAvailabilityProfile {

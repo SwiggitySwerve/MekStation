@@ -23,14 +23,20 @@ import type { QuickGameStore } from './useQuickGameStore.types';
 
 import { adaptUnits } from './useQuickGameStore.helpers';
 
-function createEngineForQuickGame(game: IQuickGameInstance): GameEngine {
+// Threads the quick-game page's `?seed=N` debug override (design D5) into
+// the engine's dice seed; `null`/`undefined` (absent/invalid query value)
+// falls back to `Date.now()`, matching pre-change behavior exactly.
+function createEngineForQuickGame(
+  game: IQuickGameInstance,
+  seedOverride?: number | null,
+): GameEngine {
   const mapRadius = game.scenario?.mapPreset.radius ?? 7;
   const grid = game.scenario?.generatedMap
     ? createGridFromGeneratedMap(mapRadius, game.scenario.generatedMap)
     : undefined;
 
   return new GameEngine({
-    seed: Date.now(),
+    seed: seedOverride ?? Date.now(),
     mapRadius,
     turnLimit: game.scenario?.turnLimit,
     grid,
@@ -193,7 +199,7 @@ export function createBattleActions(
 } {
   return {
     startBattle: async (): Promise<void> => {
-      const { game } = get();
+      const { game, seedOverride } = get();
       if (!game || !game.opponentForce) {
         set({ error: 'No active game or opponent force' });
         return;
@@ -204,7 +210,7 @@ export function createBattleActions(
       try {
         const { playerAdapted, opponentAdapted, gameUnits } =
           await prepareQuickGameBattle(game);
-        const engine = createEngineForQuickGame(game);
+        const engine = createEngineForQuickGame(game, seedOverride);
         const session = engine.runToCompletion(
           playerAdapted,
           opponentAdapted,
@@ -246,7 +252,7 @@ export function createBattleActions(
     },
 
     startSpectatorMode: async (): Promise<void> => {
-      const { game } = get();
+      const { game, seedOverride } = get();
       if (!game || !game.opponentForce) {
         set({ error: 'No active game or opponent force' });
         return;
@@ -257,7 +263,7 @@ export function createBattleActions(
       try {
         const { playerAdapted, opponentAdapted, gameUnits } =
           await prepareQuickGameBattle(game);
-        const engine = createEngineForQuickGame(game);
+        const engine = createEngineForQuickGame(game, seedOverride);
         const interactiveSession = engine.createInteractiveSession(
           playerAdapted,
           opponentAdapted,
@@ -291,7 +297,7 @@ export function createBattleActions(
     },
 
     startInteractiveSkirmish: async (): Promise<void> => {
-      const { game } = get();
+      const { game, seedOverride } = get();
       if (!game || !game.opponentForce) {
         set({ error: 'No active game or opponent force' });
         return;
@@ -302,7 +308,7 @@ export function createBattleActions(
       try {
         const { playerAdapted, opponentAdapted, gameUnits } =
           await prepareQuickGameBattle(game);
-        const engine = createEngineForQuickGame(game);
+        const engine = createEngineForQuickGame(game, seedOverride);
         const interactiveSession = engine.createInteractiveSession(
           playerAdapted,
           opponentAdapted,

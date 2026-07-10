@@ -48,6 +48,13 @@ export const useQuickGameStore = create<QuickGameStore>()(
         set({ game, isDirty: true, error: null });
       },
 
+      setSeedOverride: (seed: number | null) => {
+        // Debug `?seed=N` override, set once by the quick-game page after it
+        // parses `router.query.seed` (design D5). Read by the three battle
+        // start actions via `get().seedOverride` in `useQuickGameStore.actions.ts`.
+        set({ seedOverride: seed });
+      },
+
       clearGame: () => {
         set({ game: null, isDirty: false, error: null });
       },

@@ -25,6 +25,13 @@ interface UsePreBattleSkirmishOptions {
   router: NextRouter;
   setInteractiveSession: (session: InteractiveSession) => void;
   showToast: (toast: { message: string; variant: 'success' | 'error' }) => void;
+  /**
+   * Debug `?seed=N` override parsed by the pre-battle page (design D5).
+   * When present it replaces `Date.now()` as the skirmish engine's dice
+   * seed; absent/invalid values fall back to `Date.now()` (unchanged
+   * pre-change behavior).
+   */
+  seedOverride?: number;
 }
 
 interface UsePreBattleSkirmishResult {
@@ -155,6 +162,7 @@ function buildGameUnits(
 async function createInteractiveSkirmishSession(
   config: ISkirmishLaunchConfig,
   encounter: IEncounter,
+  seedOverride?: number,
 ): Promise<InteractiveSession> {
   const session = buildFromSkirmishConfig(config);
   const [playerAdapted, opponentAdapted] = await Promise.all([
@@ -178,7 +186,7 @@ async function createInteractiveSkirmishSession(
   );
 
   const engine = new GameEngine({
-    seed: Date.now(),
+    seed: seedOverride ?? Date.now(),
     mapRadius: config.mapRadius,
     turnLimit: config.turnLimit,
     grid: createGridFromTerrainPreset(config.mapRadius, config.terrainPreset),
@@ -196,6 +204,7 @@ export function usePreBattleSkirmish({
   router,
   setInteractiveSession,
   showToast,
+  seedOverride,
 }: UsePreBattleSkirmishOptions): UsePreBattleSkirmishResult {
   const [playerUnits, setPlayerUnits] = useState<
     readonly ISkirmishUnitSelection[]
@@ -263,6 +272,7 @@ export function usePreBattleSkirmish({
         const interactiveSession = await createInteractiveSkirmishSession(
           config,
           encounter,
+          seedOverride,
         );
         const liveSession = interactiveSession.getSession();
 
@@ -286,7 +296,7 @@ export function usePreBattleSkirmish({
         setIsLaunching(false);
       }
     },
-    [encounter, router, setInteractiveSession, showToast],
+    [encounter, router, setInteractiveSession, showToast, seedOverride],
   );
 
   return {

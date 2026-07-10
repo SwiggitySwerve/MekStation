@@ -118,6 +118,25 @@ function useForceSummaries({
   return { playerSummary, opponentSummary };
 }
 
+/**
+ * Parse an optional `?seed=N` debug override from a Pages Router query
+ * value. Mirrors the MP WS upgrade handler's seed parse (`server.js:590-595`):
+ * take the first value when the query key repeats, base-10 integer parse,
+ * then a finite-number guard so a malformed/garbage query can never throw
+ * or produce a NaN seed — it just falls through to the caller's `Date.now()`
+ * fallback (design D5/R5).
+ */
+function parseSeedOverride(
+  value: string | string[] | undefined,
+): number | undefined {
+  const seedString = Array.isArray(value) ? value[0] : value;
+  if (typeof seedString !== 'string' || seedString.length === 0) {
+    return undefined;
+  }
+  const seedValue = Number.parseInt(seedString, 10);
+  return Number.isFinite(seedValue) ? seedValue : undefined;
+}
+
 function networked1v1LaunchMessage(error: unknown): string {
   return error instanceof Error
     ? error.message
@@ -156,8 +175,9 @@ function useNetworked1v1Launch({
 
 export default function PreBattlePage(): React.ReactElement {
   const router = useRouter();
-  const { id, campaignId, missionId } = router.query;
+  const { id, campaignId, missionId, seed } = router.query;
   const { showToast } = useToast();
+  const seedOverride = parseSeedOverride(seed);
 
   const getEncounter = useEncounterSelector((state) => state.getEncounter);
   const loadEncounters = useEncounterSelector((state) => state.loadEncounters);
@@ -217,6 +237,7 @@ export default function PreBattlePage(): React.ReactElement {
     router,
     setInteractiveSession,
     showToast,
+    seedOverride,
   });
 
   const { playerSummary, opponentSummary } = useForceSummaries({
@@ -238,6 +259,7 @@ export default function PreBattlePage(): React.ReactElement {
     setSpectatorMode,
     setIsResolving,
     showToast,
+    seedOverride,
   });
 
   const startAutoResolve = useCallback(() => {
