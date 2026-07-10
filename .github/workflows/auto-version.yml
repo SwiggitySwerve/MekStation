@@ -67,8 +67,12 @@ jobs:
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             BUMP_TYPE="${{ inputs.bump_type }}"
           else
-            # Get the commit message
-            COMMIT_MSG=$(git log -1 --pretty=%B)
+            # Get the commit SUBJECT only (%s, first line). Body prose must
+            # never mint versions: the 2026-07-10 throttle PR's own body
+            # documented the "[major]" marker convention and the %B grep
+            # matched it, minting an unintended v2.0.0. Markers are a
+            # subject-line convention (like the feat:/fix: prefixes).
+            COMMIT_MSG=$(git log -1 --pretty=%s)
             
             # Check for version bump indicators in commit message
             if echo "$COMMIT_MSG" | grep -qiE "\[major\]|BREAKING CHANGE"; then
