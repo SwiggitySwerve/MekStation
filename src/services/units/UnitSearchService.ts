@@ -17,6 +17,8 @@ import { customUnitApiService } from './CustomUnitApiService';
  */
 export interface IUnitSearchService {
   initialize(): Promise<void>;
+  getAllUnits(): readonly IUnitIndexEntry[];
+  getUnitById(id: string): IUnitIndexEntry | undefined;
   search(query: string, options?: ISearchOptions): IUnitIndexEntry[];
   addToIndex(unit: IUnitIndexEntry): void;
   removeFromIndex(id: string): void;
@@ -113,6 +115,30 @@ export class UnitSearchService implements IUnitSearchService {
     this.searchIndex.addAll(Array.from(this.allUnits.values()));
     this.initialized = true;
   }
+
+  /**
+   * Return the complete canonical and custom unit index after initialization.
+   * The map is populated incrementally while initialization runs, so callers
+   * must not observe it until the full merged index is ready.
+   */
+  getAllUnits = (): readonly IUnitIndexEntry[] => {
+    if (!this.initialized) {
+      return [];
+    }
+
+    return Array.from(this.allUnits.values());
+  };
+
+  /**
+   * Resolve one entry from the complete canonical and custom unit index.
+   */
+  getUnitById = (id: string): IUnitIndexEntry | undefined => {
+    if (!this.initialized) {
+      return undefined;
+    }
+
+    return this.allUnits.get(id);
+  };
 
   /**
    * Search units by query string

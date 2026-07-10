@@ -36,13 +36,14 @@ function useCanonicalUnitNameById(
     let cancelled = false;
     const loadUnitNames = async () => {
       try {
-        const { getCanonicalUnitService } =
-          await import('@/services/units/CanonicalUnitService');
+        const { unitSearchService } =
+          await import('@/services/units/UnitSearchService');
         const assignedIds = new Set(requestedUnitIds);
-        const index = await getCanonicalUnitService().getIndex();
+        await unitSearchService.initialize();
         const nextUnitNameById = new Map<string, string>();
-        for (const entry of index) {
-          if (assignedIds.has(entry.id)) {
+        for (const id of Array.from(assignedIds)) {
+          const entry = unitSearchService.getUnitById(id);
+          if (entry) {
             nextUnitNameById.set(entry.id, entry.name);
           }
         }

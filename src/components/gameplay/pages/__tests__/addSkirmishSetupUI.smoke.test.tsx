@@ -42,12 +42,14 @@ import {
   type IForce,
 } from '@/types/force';
 
-const mockGetCanonicalUnitIndex = jest.fn();
+const mockInitializeUnitSearch = jest.fn();
+const mockGetUnitById = jest.fn();
 
-jest.mock('@/services/units/CanonicalUnitService', () => ({
-  getCanonicalUnitService: () => ({
-    getIndex: mockGetCanonicalUnitIndex,
-  }),
+jest.mock('@/services/units/UnitSearchService', () => ({
+  unitSearchService: {
+    initialize: mockInitializeUnitSearch,
+    getUnitById: mockGetUnitById,
+  },
 }));
 
 const baseConfig: IMapConfiguration = {
@@ -93,12 +95,11 @@ const force: IForce = {
 
 describe('pre-battle ForceCard', () => {
   it('shows canonical assignment names and non-zero battle value', async () => {
-    mockGetCanonicalUnitIndex.mockResolvedValue([
-      {
-        id: 'atlas-as7-d',
-        name: 'Atlas AS7-D',
-      },
-    ]);
+    mockInitializeUnitSearch.mockResolvedValue(undefined);
+    mockGetUnitById.mockReturnValue({
+      id: 'atlas-as7-d',
+      name: 'Atlas AS7-D',
+    });
 
     render(
       <ForceCard
