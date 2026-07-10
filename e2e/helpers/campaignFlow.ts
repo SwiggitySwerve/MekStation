@@ -150,47 +150,76 @@ export async function createCampaignViaWizard(
 }
 
 /**
+ * Navigate a campaign to its contract market and wait for the offer grid to
+ * render. Split out of `acceptContractAndOpenLaunch` (design D1's "flow
+ * helpers drift from journey specs" risk) so checkpoint-based callers (flow
+ * audits) and step-based callers (umbrella journeys) share this exact action
+ * body instead of each re-implementing it.
+ */
+export async function openContractMarketAction(
+  page: Page,
+  campaignId: string,
+): Promise<void> {
+  await page.goto(`/gameplay/campaigns/${campaignId}/contract-market`);
+  await expect(page.getByTestId('contract-market-grid')).toBeVisible({
+    timeout: 20_000,
+  });
+}
+
+/** Click the first available contract offer's accept button. */
+export async function acceptFirstContractAction(page: Page): Promise<void> {
+  const acceptButton = page.locator('[data-testid^="offer-accept-"]').first();
+  await expect(acceptButton).toBeVisible({ timeout: 20_000 });
+  await acceptButton.click();
+  await page.waitForTimeout(1_000);
+}
+
+/** Navigate to a campaign's mission list and wait for at least one mission card. */
+export async function openMissionListAction(
+  page: Page,
+  campaignId: string,
+): Promise<void> {
+  await page.goto(`/gameplay/campaigns/${campaignId}/missions`);
+  await expect(
+    page.locator('[data-testid^="mission-card-"]').first(),
+  ).toBeVisible({
+    timeout: 20_000,
+  });
+}
+
+/** Click the first mission's launch control and wait for the launch briefing. */
+export async function openLaunchBriefingAction(page: Page): Promise<void> {
+  const launch = page.locator('[data-testid^="mission-launch-"]').first();
+  await expect(launch).toBeVisible({ timeout: 20_000 });
+  await launch.click();
+  await expect(page.getByTestId('mission-launch-briefing')).toBeVisible({
+    timeout: 20_000,
+  });
+}
+
+/**
  * Accept the first market contract and leave the browser at its mission launch
  * briefing. Assumes the supplied campaign has a renderable contract market.
+ * Composed from the four action bodies above (no behavior change from the
+ * pre-split version — same steps, same order, same recorder calls).
  */
 export async function acceptContractAndOpenLaunch(
   recorder: CampaignFlowRecorder,
   page: Page,
   options: ContractAcceptOptions,
 ): Promise<void> {
-  await recorder.step('open contract market', async () => {
-    await page.goto(
-      `/gameplay/campaigns/${options.campaignId}/contract-market`,
-    );
-    await expect(page.getByTestId('contract-market-grid')).toBeVisible({
-      timeout: 20_000,
-    });
-  });
-
-  await recorder.step('accept first available contract', async () => {
-    const acceptButton = page.locator('[data-testid^="offer-accept-"]').first();
-    await expect(acceptButton).toBeVisible({ timeout: 20_000 });
-    await acceptButton.click();
-    await page.waitForTimeout(1_000);
-  });
-
-  await recorder.step('open campaign missions', async () => {
-    await page.goto(`/gameplay/campaigns/${options.campaignId}/missions`);
-    await expect(
-      page.locator('[data-testid^="mission-card-"]').first(),
-    ).toBeVisible({
-      timeout: 20_000,
-    });
-  });
-
-  await recorder.step('open mission launch briefing', async () => {
-    const launch = page.locator('[data-testid^="mission-launch-"]').first();
-    await expect(launch).toBeVisible({ timeout: 20_000 });
-    await launch.click();
-    await expect(page.getByTestId('mission-launch-briefing')).toBeVisible({
-      timeout: 20_000,
-    });
-  });
+  await recorder.step('open contract market', () =>
+    openContractMarketAction(page, options.campaignId),
+  );
+  await recorder.step('accept first available contract', () =>
+    acceptFirstContractAction(page),
+  );
+  await recorder.step('open campaign missions', () =>
+    openMissionListAction(page, options.campaignId),
+  );
+  await recorder.step('open mission launch briefing', () =>
+    openLaunchBriefingAction(page),
+  );
 }
 
 /**

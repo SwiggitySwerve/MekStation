@@ -11,8 +11,8 @@
 
 ## 3. Flow Manifest and Flow Spec
 
-- [ ] 3.1 Create `e2e/flows/manifest.ts` with `IFlowDefinition` / `IFlowCheckpoint` (id, description, subsystems, checkpoints with `holdSafe`, viewports) and register the six initial flows: campaign-create-to-launch, battle-turn-loop, economy-contract-to-ledger, maintenance-repair-cycle, personnel-hiring, pilot-xp-progression (spec: Flow Registry, Subsystem Flow Coverage). Include startup validation that rejects duplicate ids and zero-checkpoint flows.
-- [ ] 3.2 Create `e2e/flow-audits.spec.ts` generating one `test()` per manifest flow (title = flow id), implementing checkpoints via the extracted helpers; read `MEKSTATION_FLOW_ID` / `MEKSTATION_FLOW_UNTIL` / `MEKSTATION_FLOW_VIEWPORT` / `MEKSTATION_FLOW_HOLD` at spec-load time; apply the design's viewport presets (mobile 375×667+touch / tablet 768×1024 / desktop 1440×1000 default, from `src/constants/layout.ts` BREAKPOINTS); implement until-skip as `not-run` checkpoints (spec: Flow-Audit Runner Invocation, Until Semantics, Viewport Selection).
+- [x] 3.1 Create `e2e/flows/manifest.ts` with `IFlowDefinition` / `IFlowCheckpoint` (id, description, subsystems, checkpoints with `holdSafe`, viewports) and register the six initial flows: campaign-create-to-launch, battle-turn-loop, economy-contract-to-ledger, maintenance-repair-cycle, personnel-hiring, pilot-xp-progression (spec: Flow Registry, Subsystem Flow Coverage). Include startup validation that rejects duplicate ids and zero-checkpoint flows.
+- [x] 3.2 Create `e2e/flow-audits.spec.ts` generating one `test()` per manifest flow (title = flow id), implementing checkpoints via the extracted helpers; read `MEKSTATION_FLOW_ID` / `MEKSTATION_FLOW_UNTIL` / `MEKSTATION_FLOW_VIEWPORT` / `MEKSTATION_FLOW_HOLD` at spec-load time; apply the design's viewport presets (mobile 375×667+touch / tablet 768×1024 / desktop 1440×1000 default, from `src/constants/layout.ts` BREAKPOINTS); implement until-skip as `not-run` checkpoints (spec: Flow-Audit Runner Invocation, Until Semantics, Viewport Selection).
 
 ## 4. Runner
 

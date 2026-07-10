@@ -93,6 +93,16 @@ export default defineConfig({
     /* Desktop (1280px) - primary */
     {
       name: 'chromium',
+      // flow-audits.spec.ts (add-flow-audit-routines) is env-var-selected,
+      // single-flow-at-a-time evidence tooling, not a project-wide sweep —
+      // excluded here so bare `npm run test:e2e` and nightly-validation.yml's
+      // `npx playwright test --project=chromium` never silently run all 6
+      // flows (proposal.md non-goal: no CI wiring/behavior changes). The
+      // flow-audit runner (task 4) targets this file directly by path, which
+      // still works: Playwright resolves the CLI file arg against the
+      // invoking project's own testMatch/testIgnore, so the runner must pass
+      // its own project (or config) once it exists rather than `--project=chromium`.
+      testIgnore: ['**/flow-audits.spec.ts'],
       use: { ...devices['Desktop Chrome'] },
     },
 
@@ -102,6 +112,7 @@ export default defineConfig({
       testIgnore: [
         '**/ux-deep-play-audit.spec.ts',
         '**/ux-walkthrough-audit.spec.ts',
+        '**/flow-audits.spec.ts',
       ],
       use: {
         ...devices['Desktop Chrome'],
@@ -117,6 +128,7 @@ export default defineConfig({
       testIgnore: [
         '**/ux-deep-play-audit.spec.ts',
         '**/ux-walkthrough-audit.spec.ts',
+        '**/flow-audits.spec.ts',
       ],
       use: {
         ...devices['Desktop Chrome'],
@@ -130,6 +142,7 @@ export default defineConfig({
       testIgnore: [
         '**/ux-deep-play-audit.spec.ts',
         '**/ux-walkthrough-audit.spec.ts',
+        '**/flow-audits.spec.ts',
       ],
       use: {
         ...devices['Desktop Chrome'],

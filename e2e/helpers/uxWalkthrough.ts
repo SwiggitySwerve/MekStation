@@ -215,41 +215,43 @@ export class WalkthroughRecorder {
     title: string,
     action: (page: Page) => Promise<void>,
     options?: { readonly note?: string },
-  ): Promise<void>;
+  ): Promise<number>;
   async step(
     title: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
-  ): Promise<void>;
+  ): Promise<number>;
   async step(
     title: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
-  ): Promise<void> {
-    await this.recordStep(title, action, options);
+  ): Promise<number> {
+    return this.recordStep(title, action, options);
   }
 
   /**
    * Execute a named flow checkpoint and record the same evidence as a step.
    * The resulting checkpoint points to its step so runners can join error
-   * counts, screenshots, route, and timing from the journey record.
+   * counts, screenshots, route, and timing from the journey record. Returns
+   * the assigned step index so callers (e.g. flow-audit findings) can
+   * reference it without maintaining a parallel counter of their own.
    */
   async checkpoint(
     name: string,
     action: (page: Page) => Promise<void>,
     options?: { readonly note?: string },
-  ): Promise<void>;
+  ): Promise<number>;
   async checkpoint(
     name: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
-  ): Promise<void>;
+  ): Promise<number>;
   async checkpoint(
     name: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
-  ): Promise<void> {
-    await this.recordStep(name, action, options, (step) => {
+  ): Promise<number> {
+    return this.recordStep(name, action, options, (step) => {
       this.checkpoints.push({
         name,
         stepIndex: step.index,
@@ -317,7 +319,7 @@ export class WalkthroughRecorder {
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
     onRecorded?: (step: MutableStep) => void,
-  ): Promise<void> {
+  ): Promise<number> {
     const surfaceName = normalizeSurfaceName(
       options?.surface ?? DEFAULT_SURFACE,
     );
@@ -364,6 +366,7 @@ export class WalkthroughRecorder {
       this.steps.push(record);
       onRecorded?.(record);
     }
+    return index;
   }
 
   /** Attach a free-form usability observation to the previous step. */
