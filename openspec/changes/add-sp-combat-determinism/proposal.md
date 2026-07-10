@@ -1,0 +1,59 @@
+# Proposal: add-sp-combat-determinism
+
+## Why
+
+**W1 of the Seam-First Ladder** (council decision `openspec/council-decisions/2026-07-09-ui-audit-testability-architecture.md`): single-player combat must be deterministic-per-seed before W2 can author seed-then-goto seam journeys. Every downstream wave (W2 seam journeys, W3 fast-forward, W4 scenario packs) assumes "same seed + same inputs ⇒ same battle" — today that contract does not hold for any live SP interactive surface.
+
+The defect is a wiring gap, not a missing mechanism — every seam already exists:
+
+- `GameEngine.createInteractiveSession` (`src/engine/GameEngine.ts:244-257`) passes a literal `undefined` as the 9th positional `d6Roller` argument to `new InteractiveSession(...)`. The engine's seeded `this.random` (a `SeededRandom` built from `config.seed` at `GameEngine.ts:96-97`) IS passed — but only as the `random` param (bot-AI decisions + grid), never as the dice roller. Every resolver in the interactive chain (initiative, weapon attacks, heat, PSRs, hit location, criticals) falls back to `defaultD6Roller = Math.random` (`src/utils/gameplay/diceTypes.ts:37`).
+- **Auto-resolve is seeded — with one shared exception.** `runToCompletion` already wires `this.random` into a d6Roller (`GameEngine.ts:156`) — only the `interactive` and `spectator` modes (both routed through `createInteractiveSession`) roll unseeded dice wholesale. One resolver is inconsistently half-fixed: vibro-claw attacks (`src/engine/InteractiveSession.ts:570`) already fall back to the seeded `this.random` while every other resolver falls back to `Math.random`. And one leak spans BOTH execution modes: the MaxTech heat-scale critical location roller defaults to `() => Math.floor(Math.random() * 8)` (`src/utils/gameplay/gameSessionHeat.ts:48-50`, consumed at `gameSessionHeat.effects.ts:306` whenever `hasMaxTechHeatScaleRule(session.config.optionalRules)` is true), and neither production `resolveHeatPhase` call site — `GameEngine.ts:211` (auto-resolve) or `InteractiveSession.phases.ts:228` (interactive) — supplies it. SP launches thread encounter `optionalRules` straight into the engine (`usePreBattleLaunch.ts:228`; `encounterToGameSession.ts:98`), so with the rule enabled a failed heat-scale crit check rolls its location from `Math.random` in every mode, including auto-resolve.
+- Every SP launch surface hardcodes `seed: Date.now()` with no override: `usePreBattleLaunch.ts:224`, `usePreBattleSkirmish.ts:181`, and — verified beyond the council's W1 row — the quick-game store (`src/stores/useQuickGameStore.actions.ts:33`, `createEngineForQuickGame`, reached by `startBattle` / `startSpectatorMode` / `startInteractiveSkirmish` from `src/pages/gameplay/quick/index.tsx`). No SP surface reads a `?seed=N` param, while MP already has the exact convention (`server.js:588-595` parses `?seed=N` on the WS upgrade into a `SeededDiceRoller` wired to the same 9th-positional `d6Roller` slot at `ServerMatchHostBootstrap.ts:33-46`).
+- Recovery has a second, independent bug: `InteractiveSession.fromSessionAsync` (`InteractiveSession.ts:322-346`) constructs `new SeededRandom(0xc0ffee)` — a hardcoded constant — and also passes `undefined` for `d6Roller`. Nothing about the dice stream is persisted today (`IGameConfig` has no `seed` field), so recovered sessions cannot even in principle be reproducible.
+
+The cost is visible in every combat e2e spec, which fight nondeterminism instead of asserting outcomes:
+
+- `e2e/quick-play.spec.ts:280-303` accepts ANY winner (`result?.winner).toBeTruthy()`) plus a try/catch fallback to a generic `/complete|over|victory|defeat/i` UI regex.
+- `e2e/playtest-sp-smoke.spec.ts:34-37` sets a 90 s timeout because unseeded RNG makes battle length swing 20–30 s per run.
+- `e2e/encounter-combat-continuity.spec.ts:551-591` drives combat in a bounded 8-cycle loop with early `break` and reads the outcome generically instead of asserting one, because cycle count depends on the dice stream.
+
+## What Changes
+
+- **Inject a seeded dice stream into interactive sessions.** `createInteractiveSession` constructs a dedicated `SeededD6Roller` (the existing adapter at `src/simulation/core/SeededD6Roller.ts` — reused, not invented) from the engine's resolved seed and passes its `asD6Roller()` as the 9th positional argument, mirroring the MP wiring precedent (`ServerMatchHostBootstrap.ts`) and the auto-resolve precedent (`GameEngine.ts:156`). All resolvers — including the vibro-claw special case — then share one injected stream; no resolver in an engine-created SP session can reach `Math.random`.
+- **Seed the MaxTech heat-scale critical location roller — the one resolver-level `Math.random` escape shared by both modes.** Both production `resolveHeatPhase` call sites (`GameEngine.ts:211` auto-resolve; `InteractiveSession.phases.ts:228` interactive) pass a `maxTechCriticalLocationRoller` deterministically derived from that mode's seeded dice stream via a shared helper (design D7). The `Math.random` default in `gameSessionHeat.ts` stays in place but becomes reachable only by roller-less direct constructions — the same containment contract as the other resolver fallbacks. Rule-off dice streams are untouched in both modes (the location roller only draws when the rule is on and a crit check fails), so existing rule-off seed→outcome mappings do not churn.
+- **Persist the seed.** `IGameConfig` gains an optional `seed` field; the engine stamps its resolved seed into the session config in both execution modes, so the seed survives the event log and rehydration.
+- **Re-seed recovery honestly.** `fromSessionAsync` reconstructs `SeededRandom(config.seed)` + a seeded d6 roller when a persisted seed is present — replacing the `0xc0ffee` constant — re-seeded **from position zero** (an explicit re-seed contract, NOT stream continuation; no roll counter is persisted). Sessions without a persisted seed (all pre-change sessions, all MP-recovered matches) keep byte-identical current behavior — MP recovery is untouched.
+- **Thread `?seed=N` through the SP launch surfaces.** The pre-battle page and the quick-game page parse `?seed=N` from `router.query` (`Number.parseInt` guarded by `Number.isFinite`, mirroring `server.js:590-595`) and pass it through `usePreBattleLaunch` / `usePreBattleSkirmish` / the quick-game store into `new GameEngine({ seed })`. Absent or invalid ⇒ `Date.now()` fallback (current behavior preserved).
+- **Prove determinism as invariants, never golden traces.** A jest proof runs two same-seed spectator sessions and asserts identical normalized event streams — once with default rules and once with the MaxTech heat-scale rule enabled, so the optional-rule heat-crit dice path is inside the detector's coverage; a recovery-determinism jest persists one seeded session, rehydrates it twice through the same factory chain the live recovery route uses (`hydrateRecoverableSessionFromMatchLog` → `fromSessionAsync`), drives both identically, and asserts identical normalized continuation streams — the exact seam W2's seed-then-goto journeys ride; a live e2e proof drives the pre-battle route twice with the same `?seed=N` and asserts identical outcomes. No test pins a specific roll sequence to a specific seed — seed→outcome mappings are version-pinned and may legally change across engine versions.
+
+## Scope
+
+### In
+
+- `game-engine-orchestration` — MODIFIED "GameEngine Configuration" (seed drives all combat dice + is persisted) and "Interactive Session Creation" (seeded roller injection); ADDED "Single-Player Launch Seed Threading" and "Recovered Session Dice Re-Seeding".
+- `dice-system` — ADDED "Seeded D6Roller Implementation" (the existing `SeededD6Roller` adapter becomes a spec'd production seam) and "Determinism Tests Assert Invariants, Not Golden Traces".
+- Engine wiring (`GameEngine.ts`, `InteractiveSession.ts`, `InteractiveSession.setup` config assembly), the seeded MaxTech heat-scale critical location roller at both production `resolveHeatPhase` call sites, `IGameConfig.seed` persistence + hydration round-trip, recovery re-seed + recovery-determinism proof, `?seed=N` threading on the three verified SP launch surfaces, jest + e2e determinism proofs.
+
+### Out (Non-goals)
+
+- **W2–W6 scopes**: seam journeys (W2), fast-forward (W3), scenario packs (W4), viewport work (W5) — this change only makes the dice deterministic; it authors no journeys.
+- **MP seed behavior is unchanged.** The WS `?seed=N` convention, `CryptoDiceRoller` / `SeededDiceRoller`, `RollCapture`, `ServerMatchHostBootstrap`, and `MatchRecovery` keep their exact current semantics. `fromSessionAsync`'s new seeded path activates only on a persisted `config.seed`, which MP sessions do not carry.
+- **`runToCompletion` and `QuickResolveService` stream composition is untouched for rule-off configs** — both are already correctly seeded (`GameEngine.ts:156`; `QuickResolveService.ts:199` seeds `baseSeed + i` per run), and churning their existing seed→outcome mappings would have no benefit. The single exception is the MaxTech heat-scale location roller fix above, which draws only when that optional rule is enabled AND a heat-scale crit check fails — a path that was `Math.random`-nondeterministic before this change, so no existing deterministic mapping churns.
+- **No dice-stream continuation across recovery.** Persisting a roll/advance counter and fast-forwarding the PRNG is materially more invasive (new persisted counter/event machinery) and is not needed under the adopted invariants-not-golden-traces contract. Recovery re-seeds from position zero, documented as such.
+- **Scenario/map-generation seeding** (`useQuickGameStore.actions.ts:136`, `scenarioGenerator.generate({ seed: Date.now() })`) — cosmetic OpFor/map generation, W4 territory, not combat RNG.
+- **No golden-trace fixtures.** No test may hardcode a seed→roll-sequence or seed→outcome table; version pinning of those mappings is explicitly rejected.
+
+## Impact
+
+- **Affected specs**: `game-engine-orchestration` (2 MODIFIED, 2 ADDED), `dice-system` (2 ADDED).
+- **Affected code** (workers re-verify exact line numbers against the current tree before editing):
+  - `src/engine/GameEngine.ts` (`createInteractiveSession` roller injection; `runToCompletion` config seed stamp + heat-scale location roller at `:211`)
+  - `src/engine/InteractiveSession.phases.ts` (heat-scale location roller at the interactive `resolveHeatPhase` call site, `:228`)
+  - `src/utils/gameplay/gameSessionHeat.helpers.ts` (shared seeded location-index derivation helper)
+  - `src/engine/InteractiveSession.ts` (+ `InteractiveSession.setup` config assembly; constructor arg + `fromSessionAsync` re-seed; stale doc comment at `:146-155`)
+  - `src/types/gameplay/GameSessionUnitTypes.ts` (`IGameConfig.seed`)
+  - `src/components/gameplay/pages/preBattle/usePreBattleLaunch.ts`, `usePreBattleSkirmish.ts`, `src/pages/gameplay/encounters/[id]/pre-battle.tsx`
+  - `src/stores/useQuickGameStore.actions.ts` (+ its types/callers as needed), `src/pages/gameplay/quick/index.tsx`
+  - New jest determinism proof (default-rules + MaxTech heat-scale variants), new recovery-determinism jest (recover-twice invariant), + one e2e seed-reproducibility spec
+- **Risk**: low–medium. The two risks that need care — MP recovery drift through the shared `fromSessionAsync`, and the `GameCreated`-payload round-trip of the persisted seed — are gated in `design.md` (R1, R2) with explicit preserve-current-behavior fallbacks.
+- **Terminology guard**: "seed" is overloaded in this codebase — (1) the engine RNG seed (this change), (2) "combat seed" = per-unit armor/structure/heat-sink construction data (`combatSeedDerivation.ts`, PR #998/#1003 — unrelated and already shipped), (3) the MP `diceSeed` (WS-only, untouched), (4) scenario/map-generation seed (cosmetic, untouched). Reviewers should not conflate this change with (2)–(4).
