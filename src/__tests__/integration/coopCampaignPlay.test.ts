@@ -261,7 +261,7 @@ describe('9.2 — co-op mission with one player in command-hq', () => {
     expect(mirror?.salvagePool).toBe(200_000);
   });
 
-  it('resolves the post-battle gate against the server-resident host registry', async () => {
+  it('degrades when no host transport is connected instead of using the active host registry', async () => {
     const registry = new CampaignHostRegistry();
     const entry = await registry.register('match-registry-recon', {
       campaignId: CAMPAIGN_ID,
@@ -298,12 +298,18 @@ describe('9.2 — co-op mission with one player in command-hq', () => {
       { 'u-h1': 'Atlas AS7-D' },
     );
 
-    expect(result?.ok).toBe(true);
+    expect(result).toEqual({
+      ok: false,
+      events: [],
+      error: 'live-host-connection-unavailable',
+    });
     const mirror = useCampaignMirrorStore.getState().campaign;
-    expect(entry.host.getState().salvagePool).toBe(50_000);
-    expect(mirror?.salvagePool).toBe(50_000);
-    expect(entry.host.getState().rosterUnits['u-h1']?.status).toBe('damaged');
-    expect(mirror?.rosterUnits['u-h1']?.status).toBe('damaged');
+    expect(entry.host.getState().salvagePool).toBe(0);
+    expect(mirror?.salvagePool).toBe(0);
+    expect(entry.host.getState().rosterUnits['u-h1']?.status).toBe(
+      'operational',
+    );
+    expect(mirror?.rosterUnits['u-h1']?.status).toBe('operational');
     join.disconnect();
     registry._reset();
   });

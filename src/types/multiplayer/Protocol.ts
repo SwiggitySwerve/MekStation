@@ -24,7 +24,10 @@
 
 import { z } from 'zod';
 
-import { CampaignIntentSchema } from '@/types/campaign/campaignSyncSchemas';
+import {
+  CampaignIntentSchema,
+  rosterUnitSchema,
+} from '@/types/campaign/campaignSyncSchemas';
 import { SUPPORTED_PHYSICAL_ATTACK_TYPES } from '@/utils/gameplay/physicalAttacks/types';
 
 import { MatchSeatSchema } from './Lobby';
@@ -388,6 +391,28 @@ export const CampaignDecisionSchema = z.object({
 });
 export type ICampaignDecision = z.infer<typeof CampaignDecisionSchema>;
 
+export const CoopBattleConsequencesSchema = z.object({
+  campaignId: z.string().min(1),
+  matchId: z.string().min(1),
+  fundsDelta: z.number().finite(),
+  fundsReason: z.string().min(1),
+  salvageValue: z.number().finite().nonnegative(),
+  rosterChanges: z.array(rosterUnitSchema).readonly(),
+});
+export type ICoopBattleConsequences = z.infer<
+  typeof CoopBattleConsequencesSchema
+>;
+
+export const CampaignReconcileBattleIntentSchema = z.object({
+  kind: z.literal('ReconcileBattle'),
+  campaignId: z.string().min(1),
+  intentId: z.string().min(1),
+  payload: CoopBattleConsequencesSchema,
+});
+export type ICampaignReconcileBattleIntent = z.infer<
+  typeof CampaignReconcileBattleIntentSchema
+>;
+
 /**
  * Host-authorized campaign intent. Unlike a guest proposal, this frame is
  * committed immediately by the server-resident campaign host after the
@@ -398,7 +423,7 @@ export const CampaignHostIntentSchema = z.object({
   matchId: matchIdSchema,
   ts: tsSchema,
   playerId: z.string().min(1),
-  intent: CampaignIntentSchema,
+  intent: z.union([CampaignIntentSchema, CampaignReconcileBattleIntentSchema]),
 });
 export type ICampaignHostIntent = z.infer<typeof CampaignHostIntentSchema>;
 

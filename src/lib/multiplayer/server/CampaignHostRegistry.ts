@@ -15,6 +15,8 @@ import { CampaignMatchHost } from './CampaignMatchHost';
 import { CampaignSyncSession } from './CampaignSyncSession';
 import { getDefaultMatchStore } from './getDefaultMatchStore';
 
+const MAX_RECONCILED_BATTLE_IDS = 2048;
+
 export interface ICampaignHostRegistrationSnapshot {
   readonly campaignId: string;
   readonly hostPlayerId: string;
@@ -57,6 +59,8 @@ export interface ICampaignHostRegistryEntry {
   readonly getParticipationRecords: (
     missionId: string,
   ) => readonly ICampaignParticipationRecord[];
+  readonly hasReconciledBattle: (matchId: string) => boolean;
+  readonly recordReconciledBattle: (matchId: string) => void;
   readonly close: () => void;
 }
 
@@ -73,6 +77,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
     string,
     IParticipationBucket
   >();
+  private readonly reconciledBattleIds = new Set<string>();
 
   constructor(input: {
     readonly matchId: string;
@@ -119,10 +124,24 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
     return bucket ? Array.from(bucket.records.values()) : [];
   };
 
+  hasReconciledBattle = (matchId: string): boolean =>
+    this.reconciledBattleIds.has(matchId);
+
+  recordReconciledBattle = (matchId: string): void => {
+    if (this.reconciledBattleIds.has(matchId)) return;
+    this.reconciledBattleIds.add(matchId);
+    while (this.reconciledBattleIds.size > MAX_RECONCILED_BATTLE_IDS) {
+      const oldest = this.reconciledBattleIds.values().next().value;
+      if (oldest === undefined) break;
+      this.reconciledBattleIds.delete(oldest);
+    }
+  };
+
   close = (): void => {
     this.unregisterActiveHost();
     this.host.close();
     this.participationByMission.clear();
+    this.reconciledBattleIds.clear();
   };
 
   private getParticipationBucket(missionId: string): IParticipationBucket {

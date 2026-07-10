@@ -1,6 +1,6 @@
 /**
  * D-4 wiring seam test (2026-06-09 audit, W3.3): completing a co-op
- * battle reconciles state via `reconcileCoopBattle`.
+ * battle sends its derived consequences as a `ReconcileBattle` host intent.
  *
  * Before the fix, `reconcileCoopBattle` had ZERO production callers —
  * a co-op host campaign's battle outcome was enqueued like any
@@ -12,20 +12,30 @@
  * co-op host campaign, then the battle "completes" by publishing a
  * campaign-linked outcome on the combat-outcome bus (exactly what
  * `InteractiveSession` does). The store's enqueue listener must drive
- * the reconciliation through the host.
+ * the reconciliation through the campaign-sync transport.
  */
 
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 
 import type {
+  ICampaignIntent,
+  ICampaignReconcileBattleIntent,
+} from '@/types/campaign/CampaignSync';
+import type {
   ICombatOutcome,
   IUnitCombatDelta,
 } from '@/types/combat/CombatOutcome';
 
+import { toast } from '@/components/shared/Toast';
 import {
   _resetCombatOutcomeBus,
   publishCombatOutcome,
 } from '@/engine/combatOutcomeBus';
+import {
+  _resetCampaignSyncTransportsForTest,
+  registerCampaignSyncTransport,
+  type ICampaignSyncTransport,
+} from '@/lib/campaign/coop/campaignSyncTransport';
 import {
   _resetActiveCoopHosts,
   registerActiveCoopHost,
@@ -49,6 +59,10 @@ import {
   UnitFinalStatus,
 } from '@/types/combat/CombatOutcome';
 import { GameSide } from '@/types/gameplay/GameSessionCoreTypes';
+
+jest.mock('@/components/shared/Toast', () => ({
+  toast: jest.fn(),
+}));
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -123,12 +137,14 @@ async function flushAsync(): Promise<void> {
 async function setupHostedCoopCampaign(): Promise<{
   campaignId: string;
   host: CampaignMatchHost;
+  matchId: string;
 }> {
   const store = useCampaignStore();
+  const matchId = 'campaign-sync-match-1';
   const campaignId = store
     .getState()
     .createCampaign('Coop Wiring Co.', 'mercenary', undefined, {
-      coopSession: createHostCoopSession('ROOM42'),
+      coopSession: createHostCoopSession('ROOM42', matchId),
     });
   const host = new CampaignMatchHost({
     campaignId,
@@ -141,28 +157,58 @@ async function setupHostedCoopCampaign(): Promise<{
   });
   await host.open();
   registerActiveCoopHost(host);
-  return { campaignId, host };
+  return { campaignId, host, matchId };
+}
+
+type HostIntent = ICampaignIntent | ICampaignReconcileBattleIntent;
+
+function registerHostTransport(
+  matchId: string,
+  sentHostIntents: HostIntent[],
+): () => void {
+  const transport: ICampaignSyncTransport = {
+    matchId,
+    playerId: 'host-player',
+    role: 'host',
+    sendProposal: jest.fn(),
+    sendDecision: jest.fn(),
+    sendHostIntent: (intent) => sentHostIntents.push(intent),
+    sendParticipation: jest.fn(),
+    onFrame: jest.fn(() => () => undefined),
+    onError: jest.fn(() => () => undefined),
+    close: jest.fn(),
+    lastSeq: jest.fn(() => -1),
+  };
+  return registerCampaignSyncTransport(transport);
 }
 
 function resetWorld(): void {
+  jest.restoreAllMocks();
   resetCampaignStore();
   _resetCombatOutcomeBus();
   _resetActiveCoopHosts();
+  _resetCampaignSyncTransportsForTest();
   _resetDayPipeline();
   _resetBuiltinRegistration();
   clientSafeStorage.removeItem('campaign-store');
+  jest.clearAllMocks();
 }
 
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('co-op battle completion reconciles via reconcileCoopBattle (D-4)', () => {
+describe('co-op battle completion reconciles over campaign sync (D-4)', () => {
   beforeEach(resetWorld);
   afterEach(resetWorld);
 
-  it('a completed co-op battle reconciles salvage + roster into the host state', async () => {
-    const { campaignId, host } = await setupHostedCoopCampaign();
+  it('sends one ReconcileBattle intent without mutating the browser-local host', async () => {
+    const { campaignId, host, matchId } = await setupHostedCoopCampaign();
+    const sentHostIntents: HostIntent[] = [];
+    registerHostTransport(matchId, sentHostIntents);
+    const applyHostIntent = jest.spyOn(host, 'applyHostIntent');
+    const creditSalvagePool = jest.spyOn(host, 'creditSalvagePool');
+    const applyRosterUnitChange = jest.spyOn(host, 'applyRosterUnitChange');
     // Give the roster store the unit's display name so the reconciled
     // RosterUnitChanged event carries a designation, not a raw id.
     useCampaignRosterStore.getState().initRoster(campaignId);
@@ -177,22 +223,43 @@ describe('co-op battle completion reconciles via reconcileCoopBattle (D-4)', () 
     publishCombatOutcome({ matchId: outcome.matchId, outcome });
     await flushAsync();
 
+    expect(sentHostIntents).toEqual([
+      {
+        kind: 'ReconcileBattle',
+        campaignId,
+        intentId: `coop-recon-${outcome.matchId}`,
+        payload: {
+          campaignId,
+          matchId: outcome.matchId,
+          fundsDelta: 0,
+          fundsReason: `Co-op mission resolution (${outcome.matchId})`,
+          salvageValue: 50_000,
+          rosterChanges: [
+            {
+              unitId: 'unit-A',
+              designation: 'Atlas AS7-D',
+              status: 'damaged',
+            },
+          ],
+        },
+      },
+    ]);
+    expect(applyHostIntent).not.toHaveBeenCalled();
+    expect(creditSalvagePool).not.toHaveBeenCalled();
+    expect(applyRosterUnitChange).not.toHaveBeenCalled();
+
     // The outcome still flows through the normal enqueue path…
     expect(useCampaignStore().getState().getPendingOutcomeCount()).toBe(1);
     // …AND the shared CO1 campaign state converged on the battle:
     // one destroyed OpFor wreck -> 50k salvage pool credit.
-    expect(host.getState().salvagePool).toBe(50_000);
     // The damaged player unit landed as a RosterUnitChanged.
-    expect(host.getState().rosterUnits['unit-A']?.status).toBe('damaged');
-    expect(host.getState().rosterUnits['unit-A']?.designation).toBe(
-      'Atlas AS7-D',
-    );
     // No payout was claimed at this seam — balance untouched.
-    expect(host.getState().balance).toBe(1_000_000);
   });
 
-  it('a re-published matchId never double-reconciles (dedup guard reused)', async () => {
-    const { host } = await setupHostedCoopCampaign();
+  it('a re-published matchId sends one reconciliation intent (dedup guard reused)', async () => {
+    const { matchId } = await setupHostedCoopCampaign();
+    const sentHostIntents: HostIntent[] = [];
+    registerHostTransport(matchId, sentHostIntents);
 
     const outcome = makeCoopOutcome('match-coop-wire-2');
     publishCombatOutcome({ matchId: outcome.matchId, outcome });
@@ -201,8 +268,11 @@ describe('co-op battle completion reconciles via reconcileCoopBattle (D-4)', () 
     await flushAsync();
 
     expect(useCampaignStore().getState().getPendingOutcomeCount()).toBe(1);
-    // Salvage credited exactly once.
-    expect(host.getState().salvagePool).toBe(50_000);
+    expect(sentHostIntents).toHaveLength(1);
+    expect(sentHostIntents[0]).toMatchObject({
+      kind: 'ReconcileBattle',
+      intentId: 'coop-recon-match-coop-wire-2',
+    });
   });
 
   it('a single-player campaign never touches a registered host', async () => {
@@ -228,20 +298,28 @@ describe('co-op battle completion reconciles via reconcileCoopBattle (D-4)', () 
     expect(Object.keys(host.getState().rosterUnits)).toHaveLength(0);
   });
 
-  it('a co-op host campaign with no live host enqueues without throwing', async () => {
+  it('warns and leaves the browser-local host untouched without a host transport', async () => {
     // The production state today: no session-lifecycle wiring registers
     // a CampaignMatchHost, so the gate must be a clean no-op.
-    const store = useCampaignStore();
-    store
-      .getState()
-      .createCampaign('Hostless Coop Co.', 'mercenary', undefined, {
-        coopSession: createHostCoopSession('ROOM43'),
-      });
+    const { host } = await setupHostedCoopCampaign();
+    const applyHostIntent = jest.spyOn(host, 'applyHostIntent');
+    const creditSalvagePool = jest.spyOn(host, 'creditSalvagePool');
+    const applyRosterUnitChange = jest.spyOn(host, 'applyRosterUnitChange');
 
-    const outcome = makeCoopOutcome('match-hostless-1');
+    const outcome = makeCoopOutcome('match-host-transport-missing-1');
     publishCombatOutcome({ matchId: outcome.matchId, outcome });
     await flushAsync();
 
-    expect(store.getState().getPendingOutcomeCount()).toBe(1);
+    expect(useCampaignStore().getState().getPendingOutcomeCount()).toBe(1);
+    expect(toast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          'Co-op battle reconciliation was saved locally but the live host connection is unavailable. Guests may need to refetch.',
+        variant: 'warning',
+      }),
+    );
+    expect(applyHostIntent).not.toHaveBeenCalled();
+    expect(creditSalvagePool).not.toHaveBeenCalled();
+    expect(applyRosterUnitChange).not.toHaveBeenCalled();
   });
 });
