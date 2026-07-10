@@ -24,6 +24,7 @@
 
 import { z } from 'zod';
 
+import { CampaignIntentSchema } from '@/types/campaign/campaignSyncSchemas';
 import { SUPPORTED_PHYSICAL_ATTACK_TYPES } from '@/utils/gameplay/physicalAttacks/types';
 
 import { MatchSeatSchema } from './Lobby';
@@ -387,6 +388,20 @@ export const CampaignDecisionSchema = z.object({
 });
 export type ICampaignDecision = z.infer<typeof CampaignDecisionSchema>;
 
+/**
+ * Host-authorized campaign intent. Unlike a guest proposal, this frame is
+ * committed immediately by the server-resident campaign host after the
+ * socket binder verifies the authenticated player is the match host.
+ */
+export const CampaignHostIntentSchema = z.object({
+  kind: z.literal('CampaignHostIntent'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  playerId: z.string().min(1),
+  intent: CampaignIntentSchema,
+});
+export type ICampaignHostIntent = z.infer<typeof CampaignHostIntentSchema>;
+
 export const CampaignParticipationPayloadSchema = z.object({
   matchId: matchIdSchema,
   missionId: z.string().min(1),
@@ -414,6 +429,7 @@ export const CampaignSyncClientKindSchema = z.enum([
   'CampaignJoin',
   'CampaignProposal',
   'CampaignDecision',
+  'CampaignHostIntent',
   'CampaignParticipation',
 ]);
 export type CampaignSyncClientKind = z.infer<
@@ -436,6 +452,7 @@ export const ClientMessageSchema = z.discriminatedUnion('kind', [
   CampaignJoinSchema,
   CampaignProposalSchema,
   CampaignDecisionSchema,
+  CampaignHostIntentSchema,
   CampaignParticipationSchema,
 ]);
 export type IClientMessage = z.infer<typeof ClientMessageSchema>;
@@ -446,6 +463,7 @@ export type ICampaignClientMessage = Extract<
       | 'CampaignJoin'
       | 'CampaignProposal'
       | 'CampaignDecision'
+      | 'CampaignHostIntent'
       | 'CampaignParticipation';
   }
 >;
@@ -457,6 +475,7 @@ export function isCampaignClientMessage(
     message.kind === 'CampaignJoin' ||
     message.kind === 'CampaignProposal' ||
     message.kind === 'CampaignDecision' ||
+    message.kind === 'CampaignHostIntent' ||
     message.kind === 'CampaignParticipation'
   );
 }

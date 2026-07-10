@@ -17,6 +17,8 @@
 
 import React from 'react';
 
+import type { MaybePromise } from '@/stores/campaign/useCampaignStore.types';
+
 import { useCampaignDashboardSummary } from '@/lib/campaign/hooks/useCampaignDashboardSummary';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
@@ -51,11 +53,19 @@ export function CampaignDashboard({
   }
 
   const handleAdvanceDay = (): void => {
-    store.getState().advanceDay();
+    const report = store.getState().advanceDay();
+    if (isPromiseLike(report)) {
+      void report.then(() => onAfterAdvance?.());
+      return;
+    }
     onAfterAdvance?.();
   };
   const handleAdvanceWeek = (): void => {
-    store.getState().advanceDays(7);
+    const reports = store.getState().advanceDays(7);
+    if (isPromiseLike(reports)) {
+      void reports.then(() => onAfterAdvance?.());
+      return;
+    }
     onAfterAdvance?.();
   };
 
@@ -91,5 +101,14 @@ export function CampaignDashboard({
       />
       <QuickActionsCard campaignId={summary.campaignId} />
     </section>
+  );
+}
+
+function isPromiseLike<T>(value: MaybePromise<T>): value is Promise<T> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'then' in value &&
+    typeof (value as { then?: unknown }).then === 'function'
   );
 }

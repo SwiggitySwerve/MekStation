@@ -11,6 +11,13 @@ import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { ForcesStore } from './useForcesStore';
 import type { MissionsStore } from './useMissionsStore';
 
+export type MaybePromise<T> = T | Promise<T>;
+
+export interface CampaignCommitResult {
+  readonly committed: boolean;
+  readonly reason?: string;
+}
+
 /**
  * Optional initialiser knobs passed to `createCampaign` for a co-op
  * session (`wire-coop-campaign-route`, task 1.3). Separate from
@@ -80,11 +87,11 @@ export interface CampaignActions {
   ) => string;
   loadCampaign: (id: string) => boolean;
   switchCampaign: (campaign: ICampaign) => void;
-  saveCampaign: () => void;
-  advanceDay: () => DayReport | null;
-  advanceDays: (count: number) => DayReport[] | null;
+  saveCampaign: () => MaybePromise<CampaignCommitResult>;
+  advanceDay: () => MaybePromise<DayReport | null>;
+  advanceDays: (count: number) => MaybePromise<DayReport[] | null>;
   getCampaign: () => ICampaign | null;
-  updateCampaign: (updates: Partial<ICampaign>) => void;
+  updateCampaign: (updates: Partial<ICampaign>) => MaybePromise<void>;
   getForcesStore: () => StoreApi<ForcesStore> | null;
   getMissionsStore: () => StoreApi<MissionsStore> | null;
   enqueueOutcome: (outcome: ICombatOutcome) => void;
@@ -123,7 +130,7 @@ export interface CampaignActions {
    * finance ledger, day progression, and travel activity entries through
    * one path. Returns `false` on blocked/no-op/invalid previews.
    */
-  travelToSystem: (systemId: string) => boolean;
+  travelToSystem: (systemId: string) => MaybePromise<boolean>;
 }
 
 export type CampaignStore = CampaignState & CampaignActions;

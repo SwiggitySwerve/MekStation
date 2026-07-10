@@ -234,9 +234,50 @@ async function dispatchCampaignEnvelope({
     case 'CampaignDecision':
       await handleCampaignDecision({ envelope, socket, entry, matchId });
       return;
+    case 'CampaignHostIntent':
+      await handleCampaignHostIntent({ envelope, socket, entry, matchId });
+      return;
     case 'CampaignParticipation':
       handleCampaignParticipation({ envelope, socket, entry, matchId });
       return;
+  }
+}
+
+async function handleCampaignHostIntent({
+  envelope,
+  socket,
+  entry,
+  matchId,
+}: {
+  envelope: Extract<ICampaignClientMessage, { kind: 'CampaignHostIntent' }>;
+  socket: IWireCampaignSocket;
+  entry: ICampaignHostRegistryEntry;
+  matchId: string;
+}): Promise<void> {
+  if (envelope.playerId !== entry.hostPlayerId) {
+    send(
+      socket,
+      errorFrame(
+        matchId,
+        'AUTH_REJECTED',
+        'campaign-host-intent-requires-host',
+        envelope.intent.intentId,
+      ),
+    );
+    return;
+  }
+
+  const result = await entry.host.applyHostIntent(envelope.intent);
+  if (!result.ok) {
+    send(
+      socket,
+      errorFrame(
+        matchId,
+        'INVALID_INTENT',
+        result.reason,
+        envelope.intent.intentId,
+      ),
+    );
   }
 }
 
@@ -479,6 +520,7 @@ function errorFrame(
   matchId: string,
   code: IErrorCode,
   reason: string,
+  intentId?: string,
 ): Extract<IServerMessage, { kind: 'Error' }> {
   return {
     kind: 'Error',
@@ -486,6 +528,7 @@ function errorFrame(
     ts: nowIso(),
     code,
     reason,
+    ...(intentId ? { intentId } : {}),
   };
 }
 

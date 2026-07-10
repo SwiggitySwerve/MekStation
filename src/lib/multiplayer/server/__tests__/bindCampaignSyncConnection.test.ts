@@ -189,6 +189,104 @@ describe('bindCampaignSyncConnection', () => {
     );
   });
 
+  it('routes an authenticated host intent through the registered host and pushes the guest event', async () => {
+    const hostSocket = new MockWireSocket();
+    const guestSocket = new MockWireSocket();
+    const registry = await makeRegistry();
+    await bindCampaignSyncConnection({
+      socket: hostSocket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_host',
+      logger: quietLogger,
+    });
+    await bindCampaignSyncConnection({
+      socket: guestSocket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+    });
+    hostSocket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      role: 'host',
+      roomCode: 'ABC234',
+    });
+    guestSocket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+    guestSocket.sent.length = 0;
+
+    hostSocket.inbound({
+      kind: 'CampaignHostIntent',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      intent: {
+        kind: 'AdvanceDay',
+        campaignId: 'campaign-sync',
+        intentId: 'host-day-1',
+        payload: { days: 1 },
+      },
+    });
+    await flushAsyncHandlers();
+
+    expect(registry.get('match-campaign')?.host.getState().day).toBe(1);
+    expect(guestSocket.sent).toContainEqual(
+      expect.objectContaining({
+        kind: 'CampaignEvent',
+        event: expect.objectContaining({
+          type: 'CampaignDayAdvanced',
+          payload: { newDay: 1 },
+        }),
+      }),
+    );
+  });
+
+  it('rejects a guest attempting to send a host-only campaign intent', async () => {
+    const guestSocket = new MockWireSocket();
+    const registry = await makeRegistry();
+    await bindCampaignSyncConnection({
+      socket: guestSocket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+    });
+
+    guestSocket.inbound({
+      kind: 'CampaignHostIntent',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      intent: {
+        kind: 'AdvanceDay',
+        campaignId: 'campaign-sync',
+        intentId: 'guest-day-1',
+        payload: { days: 1 },
+      },
+    });
+    await flushAsyncHandlers();
+
+    expect(registry.get('match-campaign')?.host.getState().day).toBe(0);
+    expect(guestSocket.sent).toContainEqual(
+      expect.objectContaining({
+        kind: 'Error',
+        code: 'AUTH_REJECTED',
+        intentId: 'guest-day-1',
+      }),
+    );
+  });
+
   it('broadcasts post-battle reconciliation events to joined campaign-sync guests', async () => {
     const guestSocket = new MockWireSocket();
     const registry = await makeRegistry();

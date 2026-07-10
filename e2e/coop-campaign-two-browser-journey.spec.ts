@@ -49,6 +49,12 @@ interface ICreateCoopMatchResponse {
   };
 }
 
+interface ICampaignRecordResponse {
+  readonly body: {
+    readonly currentDate: string;
+  };
+}
+
 function e2eRunId(): string {
   const runId = process.env.PLAYWRIGHT_E2E_RUN_ID;
   if (!runId) {
@@ -104,6 +110,28 @@ async function readGuestMirrorBalance(page: Page): Promise<number> {
     throw new Error(`Unable to parse guest mirror balance from "${text}"`);
   }
   return numeric;
+}
+
+async function readDashboardDate(page: Page): Promise<string> {
+  const text =
+    (await page.getByTestId('day-advance-current-date').textContent()) ?? '';
+  const value = text.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    throw new Error(`Unable to parse campaign date from "${text}"`);
+  }
+  return value;
+}
+
+async function readServerCampaignDate(
+  request: APIRequestContext,
+  campaignId: string,
+): Promise<string> {
+  const response = await request.get(
+    `/api/campaigns/${encodeURIComponent(campaignId)}`,
+  );
+  expect(response.status(), await response.text()).toBe(200);
+  const record = (await response.json()) as ICampaignRecordResponse;
+  return record.body.currentDate.slice(0, 10);
 }
 
 async function expectGuestDashboardSynced(page: Page): Promise<void> {
@@ -228,6 +256,21 @@ test.describe('live co-op campaign two-browser journey', () => {
       await expectGuestDashboardSynced(guestPage);
       const guestCampaignId = campaignIdFromUrl(guestPage);
       const initialGuestBalance = await readGuestMirrorBalance(guestPage);
+      const initialGuestDate = await readDashboardDate(guestPage);
+
+      await hostPage.getByTestId('advance-day-btn').click();
+      await expect
+        .poll(() => readServerCampaignDate(request, guestCampaignId), {
+          timeout: 20_000,
+        })
+        .not.toBe(initialGuestDate);
+      const advancedDate = await readServerCampaignDate(
+        request,
+        guestCampaignId,
+      );
+      await expect
+        .poll(() => readDashboardDate(guestPage), { timeout: 20_000 })
+        .toBe(advancedDate);
 
       await guestPage.goto(`/gameplay/campaigns/${guestCampaignId}/finances`);
       await expect(guestPage.getByTestId('guest-proposal-surface')).toBeVisible(
@@ -257,8 +300,24 @@ test.describe('live co-op campaign two-browser journey', () => {
         .poll(() => readGuestMirrorBalance(guestPage), { timeout: 20_000 })
         .toBe(initialGuestBalance - GUEST_SPEND_AMOUNT);
 
-      await guestPage.reload();
+      const campaignPath = `/api/campaigns/${encodeURIComponent(guestCampaignId)}`;
+      const [reloadCampaignGet] = await Promise.all([
+        guestPage.waitForRequest(
+          (request) =>
+            new URL(request.url()).pathname === campaignPath &&
+            request.method() === 'GET',
+          { timeout: 30_000 },
+        ),
+        guestPage.reload(),
+      ]);
       await expectGuestDashboardSynced(guestPage);
+      expect(new URL(reloadCampaignGet.url()).pathname).toBe(campaignPath);
+      expect(await readServerCampaignDate(request, guestCampaignId)).toBe(
+        advancedDate,
+      );
+      await expect
+        .poll(() => readDashboardDate(guestPage), { timeout: 20_000 })
+        .toBe(advancedDate);
       await expect
         .poll(() => readGuestMirrorBalance(guestPage), { timeout: 20_000 })
         .toBe(initialGuestBalance - GUEST_SPEND_AMOUNT);

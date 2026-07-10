@@ -39,9 +39,13 @@ export default function GmLedgerPage(): React.ReactElement {
       {authority.canUseGmControls ? (
         <GmCampaignInterventionControlPlane
           campaign={campaign}
-          onApplyCampaignUpdate={(updates) => {
-            shell.store.getState().updateCampaign(updates);
-            useCampaignPersistenceStore.getState().markDirty();
+          onApplyCampaignUpdate={async (updates) => {
+            await Promise.resolve(
+              shell.store.getState().updateCampaign(updates),
+            );
+            if (!campaign.coopSession) {
+              useCampaignPersistenceStore.getState().markDirty();
+            }
             setActionTick((tick) => tick + 1);
           }}
         />

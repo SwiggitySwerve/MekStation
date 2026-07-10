@@ -20,6 +20,7 @@ import type {
   SerializedCampaignRosterState,
 } from '@/types/campaign/SerializedCampaign';
 
+import { toast } from '@/components/shared/Toast';
 import {
   buildSerializedCampaign,
   CURRENT_CAMPAIGN_SCHEMA_VERSION,
@@ -42,6 +43,24 @@ export type CampaignSaveState =
   | 'error'
   | 'conflict';
 
+export type CampaignPersistenceSaveResult =
+  | {
+      readonly status: 'saved';
+      readonly record: SerializedCampaign;
+      readonly retriedConflict: boolean;
+    }
+  | { readonly status: 'skipped'; readonly retriedConflict: false }
+  | {
+      readonly status: 'conflict';
+      readonly conflictServerRecord: SerializedCampaign;
+      readonly retriedConflict: boolean;
+    }
+  | {
+      readonly status: 'error';
+      readonly errorMessage: string;
+      readonly retriedConflict: boolean;
+    };
+
 interface CampaignPersistenceState {
   campaignId: string | null;
   dirty: boolean;
@@ -50,13 +69,14 @@ interface CampaignPersistenceState {
   baseVersion: number;
   errorMessage: string | null;
   conflictServerRecord: SerializedCampaign | null;
+  lastPersistedCampaign: ICampaign | null;
 }
 
 interface CampaignPersistenceActions {
   loadCampaign: (id: string) => Promise<boolean>;
-  saveCampaign: () => Promise<void>;
+  saveCampaign: () => Promise<CampaignPersistenceSaveResult>;
   markDirty: () => void;
-  resolveConflictKeepLocal: () => Promise<void>;
+  resolveConflictKeepLocal: () => Promise<CampaignPersistenceSaveResult>;
   resolveConflictTakeServer: () => Promise<boolean>;
   clearError: () => void;
   reset: () => void;
@@ -80,6 +100,7 @@ const INITIAL_STATE: CampaignPersistenceState = {
   baseVersion: 0,
   errorMessage: null,
   conflictServerRecord: null,
+  lastPersistedCampaign: null,
 };
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -102,6 +123,26 @@ function readLiveCampaign(): ICampaign | null {
 function writeLiveCampaign(campaign: ICampaign): void {
   const store = getCampaignStoreForRoster();
   store?.getState().switchCampaign(campaign);
+}
+
+function preserveGuestCoopSession(
+  loadedCampaign: ICampaign,
+  currentCampaign: ICampaign | null,
+): ICampaign {
+  if (
+    currentCampaign?.id !== loadedCampaign.id ||
+    currentCampaign.coopSession?.mode !== 'guest'
+  ) {
+    return loadedCampaign;
+  }
+  return {
+    ...loadedCampaign,
+    coopSession: currentCampaign.coopSession,
+  };
+}
+
+function isCoopCampaign(campaign: ICampaign | null): boolean {
+  return Boolean(campaign?.coopSession);
 }
 
 function dateToIso(value: Date | string | undefined): string | undefined {
@@ -218,62 +259,183 @@ function metadataFrom(record: SerializedCampaign): ICampaignSaveMetadata {
   };
 }
 
-async function performSave(
-  set: PersistenceSet,
-  get: PersistenceGet,
-  baseVersionOverride?: number,
-): Promise<void> {
+function deserializeCampaignRecord(record: SerializedCampaign): ICampaign {
+  return deserializeCampaignBody(migrateSerializedCampaign(record).body);
+}
+
+type SaveAttemptResult =
+  | { readonly status: 'saved'; readonly record: SerializedCampaign }
+  | {
+      readonly status: 'conflict';
+      readonly conflictServerRecord: SerializedCampaign;
+    };
+
+async function putLiveCampaign(
+  campaignId: string,
+  baseVersion: number,
+): Promise<SaveAttemptResult> {
   const campaign = readLiveCampaign();
-  const campaignId = get().campaignId ?? campaign?.id ?? null;
-  if (!campaign || !campaignId) {
-    return;
+  if (!campaign) {
+    throw new Error('no live campaign to save');
   }
-  const baseVersion = baseVersionOverride ?? get().baseVersion;
   const envelope = buildSerializedCampaign(
     campaign,
     getDeviceId(),
     baseVersion + 1,
     readLiveRosterSnapshot(campaign.id),
   );
-  set({ saveState: 'saving', errorMessage: null });
-
-  try {
-    const response = await fetch(
-      `/api/campaigns/${encodeURIComponent(campaignId)}`,
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ envelope, baseVersion }),
-      },
-    );
-    await handleSaveResponse(set, response);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'save failed';
-    set({ saveState: 'error', errorMessage: message });
-  }
-}
-
-async function handleSaveResponse(
-  set: PersistenceSet,
-  response: Response,
-): Promise<void> {
+  const response = await fetch(
+    `/api/campaigns/${encodeURIComponent(campaignId)}`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ envelope, baseVersion }),
+    },
+  );
   if (response.status === 409) {
-    const serverRecord = (await response.json()) as SerializedCampaign;
-    set({ saveState: 'conflict', conflictServerRecord: serverRecord });
-    return;
+    return {
+      status: 'conflict',
+      conflictServerRecord: (await response.json()) as SerializedCampaign,
+    };
   }
   if (!response.ok) {
     throw new Error(`server responded ${response.status}`);
   }
-  const stored = (await response.json()) as SerializedCampaign;
+  return {
+    status: 'saved',
+    record: (await response.json()) as SerializedCampaign,
+  };
+}
+
+function applySavedRecord(
+  set: PersistenceSet,
+  record: SerializedCampaign,
+): void {
+  const persistedCampaign = deserializeCampaignRecord(record);
   set({
+    campaignId: record.campaignId,
     saveState: 'saved',
     dirty: false,
-    baseVersion: stored.version,
+    baseVersion: record.version,
     conflictServerRecord: null,
     errorMessage: null,
-    metadata: metadataFrom(stored),
+    metadata: metadataFrom(record),
+    lastPersistedCampaign: persistedCampaign,
   });
+}
+
+function rollbackCoopCampaign(
+  set: PersistenceSet,
+  get: PersistenceGet,
+  fallbackServerRecord?: SerializedCampaign,
+): void {
+  const rollbackCampaign = fallbackServerRecord
+    ? deserializeCampaignRecord(fallbackServerRecord)
+    : get().lastPersistedCampaign;
+  if (rollbackCampaign) {
+    writeLiveCampaign(rollbackCampaign);
+  }
+  if (fallbackServerRecord) {
+    const migrated = migrateSerializedCampaign(fallbackServerRecord);
+    restoreRosterProjection(
+      migrated.campaignId,
+      migrated.body.rosterProjection,
+    );
+    set({
+      baseVersion: migrated.version,
+      metadata: metadataFrom(migrated),
+      lastPersistedCampaign: rollbackCampaign,
+    });
+  }
+  clearAutoSaveTimer();
+  set({ dirty: false });
+}
+
+function notifyUnresolvedCoopSave(message: string): void {
+  toast({
+    message,
+    variant: 'error',
+    duration: 7000,
+  });
+}
+
+async function performSave(
+  set: PersistenceSet,
+  get: PersistenceGet,
+  baseVersionOverride?: number,
+  retryOnConflict = true,
+): Promise<CampaignPersistenceSaveResult> {
+  const campaign = readLiveCampaign();
+  const campaignId = get().campaignId ?? campaign?.id ?? null;
+  if (!campaign || !campaignId) {
+    return { status: 'skipped', retriedConflict: false };
+  }
+  const baseVersion = baseVersionOverride ?? get().baseVersion;
+  set({ saveState: 'saving', errorMessage: null });
+  let retriedConflict = false;
+
+  try {
+    const first = await putLiveCampaign(campaignId, baseVersion);
+    if (first.status === 'saved') {
+      applySavedRecord(set, first.record);
+      return {
+        status: 'saved',
+        record: first.record,
+        retriedConflict: false,
+      };
+    }
+
+    set({
+      saveState: 'conflict',
+      conflictServerRecord: first.conflictServerRecord,
+    });
+    if (retryOnConflict) {
+      retriedConflict = true;
+      const retry = await putLiveCampaign(
+        campaignId,
+        first.conflictServerRecord.version,
+      );
+      if (retry.status === 'saved') {
+        applySavedRecord(set, retry.record);
+        return {
+          status: 'saved',
+          record: retry.record,
+          retriedConflict: true,
+        };
+      }
+      set({
+        saveState: 'conflict',
+        conflictServerRecord: retry.conflictServerRecord,
+      });
+      if (isCoopCampaign(campaign)) {
+        rollbackCoopCampaign(set, get, retry.conflictServerRecord);
+        notifyUnresolvedCoopSave(
+          'Co-op campaign save failed after a version refresh. Your local change was rolled back.',
+        );
+      }
+      return {
+        status: 'conflict',
+        conflictServerRecord: retry.conflictServerRecord,
+        retriedConflict: true,
+      };
+    }
+
+    return {
+      status: 'conflict',
+      conflictServerRecord: first.conflictServerRecord,
+      retriedConflict: false,
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'save failed';
+    if (isCoopCampaign(campaign)) {
+      rollbackCoopCampaign(set, get);
+      notifyUnresolvedCoopSave(
+        `Co-op campaign save failed: ${message}. Your local change was rolled back.`,
+      );
+    }
+    set({ saveState: 'error', errorMessage: message });
+    return { status: 'error', errorMessage: message, retriedConflict };
+  }
 }
 
 function loadCampaignAction(
@@ -282,7 +444,9 @@ function loadCampaignAction(
   return async (id: string) => {
     set({ saveState: 'saving', errorMessage: null });
     try {
-      const response = await fetch(`/api/campaigns/${encodeURIComponent(id)}`);
+      const response = await fetch(`/api/campaigns/${encodeURIComponent(id)}`, {
+        cache: 'no-store',
+      });
       if (response.status === 404) {
         set({ saveState: 'idle', errorMessage: 'campaign not found' });
         return false;
@@ -293,7 +457,11 @@ function loadCampaignAction(
       const migrated = migrateSerializedCampaign(
         (await response.json()) as SerializedCampaign,
       );
-      writeLiveCampaign(deserializeCampaignBody(migrated.body));
+      const loadedCampaign = preserveGuestCoopSession(
+        deserializeCampaignRecord(migrated),
+        readLiveCampaign(),
+      );
+      writeLiveCampaign(loadedCampaign);
       restoreRosterProjection(id, migrated.body.rosterProjection);
       set({
         campaignId: id,
@@ -303,6 +471,7 @@ function loadCampaignAction(
         conflictServerRecord: null,
         errorMessage: null,
         metadata: metadataFrom(migrated),
+        lastPersistedCampaign: loadedCampaign,
       });
       return true;
     } catch (error) {
@@ -319,7 +488,7 @@ function saveCampaignAction(
 ): CampaignPersistenceStore['saveCampaign'] {
   return async () => {
     clearAutoSaveTimer();
-    await performSave(set, get);
+    return performSave(set, get);
   };
 }
 
@@ -335,6 +504,9 @@ function markDirtyAction(
       saveState: state.saveState === 'conflict' ? 'conflict' : state.saveState,
     }));
     clearAutoSaveTimer();
+    if (isCoopCampaign(readLiveCampaign())) {
+      return;
+    }
     autoSaveTimer = setTimeout(() => {
       autoSaveTimer = null;
       if (get().saveState === 'conflict') {
@@ -352,9 +524,9 @@ function resolveConflictKeepLocalAction(
   return async () => {
     const serverRecord = get().conflictServerRecord;
     if (!serverRecord) {
-      return;
+      return { status: 'skipped', retriedConflict: false };
     }
-    await performSave(set, get, serverRecord.version);
+    return performSave(set, get, serverRecord.version, false);
   };
 }
 
@@ -368,7 +540,8 @@ function resolveConflictTakeServerAction(
       return false;
     }
     const migrated = migrateSerializedCampaign(serverRecord);
-    writeLiveCampaign(deserializeCampaignBody(migrated.body));
+    const serverCampaign = deserializeCampaignRecord(migrated);
+    writeLiveCampaign(serverCampaign);
     restoreRosterProjection(
       migrated.campaignId,
       migrated.body.rosterProjection,
@@ -381,6 +554,7 @@ function resolveConflictTakeServerAction(
       conflictServerRecord: null,
       errorMessage: null,
       metadata: metadataFrom(migrated),
+      lastPersistedCampaign: serverCampaign,
     });
     return true;
   };

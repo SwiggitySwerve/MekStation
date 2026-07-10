@@ -10,7 +10,13 @@
  * @spec openspec/specs/coop-campaign-sync/spec.md
  */
 
-import { act, render, renderHook, screen } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  render,
+  renderHook,
+  screen,
+} from '@testing-library/react';
 import React from 'react';
 
 import type { ICampaignIntent } from '@/types/campaign/CampaignSync';
@@ -20,11 +26,23 @@ import type {
 } from '@/types/campaign/CoopCampaign';
 
 import {
+  _resetCampaignSyncTransportsForTest,
+  registerCampaignSyncTransport,
+  type ICampaignSyncTransport,
+} from '@/lib/campaign/coop/campaignSyncTransport';
+import { storeCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
+import {
   _resetCoopRuntimeSessions,
   openCoopRuntimeSession,
 } from '@/lib/campaign/coop/coopRuntimeSession';
 import { buildCoopCampaignAuthorityProjection } from '@/lib/command-screen';
+import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
+import {
+  resetCampaignStore,
+  useCampaignStore,
+} from '@/stores/campaign/useCampaignStore';
 import { createCampaign } from '@/types/campaign/Campaign';
+import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import {
   createGuestCoopSession,
   createHostCoopSession,
@@ -218,6 +236,19 @@ describe('GuestProposalSurface — rendering', () => {
 describe('CampaignCoopRouteSurfaceConnected runtime proposal transport', () => {
   beforeEach(() => {
     _resetCoopRuntimeSessions();
+    _resetCampaignSyncTransportsForTest();
+    useCampaignMirrorStore.getState().reset();
+    resetCampaignStore();
+    window.sessionStorage.clear();
+  });
+
+  afterEach(() => {
+    cleanup();
+    _resetCoopRuntimeSessions();
+    _resetCampaignSyncTransportsForTest();
+    useCampaignMirrorStore.getState().reset();
+    resetCampaignStore();
+    window.sessionStorage.clear();
   });
 
   it('submits guest proposals through the runtime arbiter and resolves committed', async () => {
@@ -253,5 +284,70 @@ describe('CampaignCoopRouteSurfaceConnected runtime proposal transport', () => {
     expect(
       screen.queryByTestId('guest-action-SpendFunds-pending'),
     ).not.toBeInTheDocument();
+  });
+
+  it('does not project an older reconnect snapshot over a freshly refetched guest date', async () => {
+    const guest = {
+      ...createCampaign('Guest Reload', 'mercenary'),
+      id: 'campaign-reload',
+      campaignStartDate: new Date('3025-07-01T00:00:00.000Z'),
+      currentDate: new Date('3025-07-10T00:00:00.000Z'),
+      coopSession: createGuestCoopSession('match-reload', 'ABC234'),
+    };
+    useCampaignStore().getState().switchCampaign(guest);
+    useCampaignMirrorStore
+      .getState()
+      .beginMirror(
+        { hostPeerId: 'host-player', guestPeerId: 'guest-player' },
+        'guest-player',
+      );
+    useCampaignMirrorStore.getState().applySnapshot({
+      type: 'CampaignSnapshotPublished',
+      sequence: -1,
+      campaignId: guest.id,
+      ts: '3025-07-09T00:00:00.000Z',
+      authorPlayerId: 'host-player',
+      payload: {
+        state: {
+          ...createEmptyCampaignState(guest.id),
+          day: 8,
+          balance: guest.finances.balance.amount,
+        },
+      },
+    });
+    storeCoopCampaignToken({
+      matchId: 'match-reload',
+      playerId: 'guest-player',
+      wireToken: 'wire-token',
+      displayName: 'Guest Player',
+    });
+    const transport: ICampaignSyncTransport = {
+      matchId: 'match-reload',
+      playerId: 'guest-player',
+      role: 'guest',
+      sendProposal: jest.fn(),
+      sendDecision: jest.fn(),
+      sendHostIntent: jest.fn(),
+      sendParticipation: jest.fn(),
+      onFrame: jest.fn(() => () => undefined),
+      onError: jest.fn(() => () => undefined),
+      close: jest.fn(),
+      lastSeq: jest.fn(() => -1),
+    };
+    registerCampaignSyncTransport(transport);
+
+    render(
+      <CampaignCoopRouteSurfaceConnected
+        campaign={guest}
+        routeId="dashboard"
+      />,
+    );
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(
+      useCampaignStore().getState().campaign?.currentDate.toISOString(),
+    ).toBe('3025-07-10T00:00:00.000Z');
   });
 });

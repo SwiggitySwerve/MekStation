@@ -167,4 +167,35 @@ describe('campaignSyncTransport', () => {
       proposal: { proposalId: 'proposal-1' },
     });
   });
+
+  it('sends host campaign intents over the authenticated campaign channel', () => {
+    const sockets = makeSocketFactory();
+    const transport = connectCampaignSyncTransport({
+      matchId: 'match-1',
+      role: 'host',
+      playerId: 'pid_host',
+      wireToken: 'wire-token',
+      url: 'ws://example.test/api/multiplayer/socket',
+      socketFactory: sockets.factory,
+    });
+
+    transport.sendHostIntent({
+      kind: 'AdvanceDay',
+      campaignId: 'campaign-1',
+      intentId: 'intent-advance-day',
+      payload: { days: 1 },
+    });
+
+    expect(JSON.parse(sockets.lastSocket().sentRaw[0])).toMatchObject({
+      kind: 'CampaignHostIntent',
+      matchId: 'match-1',
+      playerId: 'pid_host',
+      intent: {
+        kind: 'AdvanceDay',
+        campaignId: 'campaign-1',
+        intentId: 'intent-advance-day',
+        payload: { days: 1 },
+      },
+    });
+  });
 });

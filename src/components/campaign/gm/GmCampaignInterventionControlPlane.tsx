@@ -61,7 +61,9 @@ import {
 
 interface GmCampaignInterventionControlPlaneProps {
   readonly campaign: ICampaign;
-  readonly onApplyCampaignUpdate: (updates: GmCampaignUpdate) => void;
+  readonly onApplyCampaignUpdate: (
+    updates: GmCampaignUpdate,
+  ) => void | Promise<void>;
   readonly actorId?: string;
   readonly now?: () => string;
 }
@@ -250,7 +252,7 @@ export function GmCampaignInterventionControlPlane({
     setNextPreview(nextPreview);
   };
 
-  const handleApprove = (): void => {
+  const handleApprove = async (): Promise<void> => {
     if (!preview) return;
     const approvedAt = now();
     if (preview.domain === 'time') {
@@ -285,7 +287,7 @@ export function GmCampaignInterventionControlPlane({
         ) ?? [],
       );
       applyPilotPatches(rosterPatches);
-      onApplyCampaignUpdate(result.state);
+      await onApplyCampaignUpdate(result.state);
       setApprovedApplied(true);
       setApprovalStatus('Approved and applied to campaign state.');
       setApprovalReason(null);
@@ -313,7 +315,7 @@ export function GmCampaignInterventionControlPlane({
       return;
     }
 
-    onApplyCampaignUpdate(result.state);
+    await onApplyCampaignUpdate(result.state);
     setApprovedApplied(true);
     setApprovalStatus('Approved and applied to campaign state.');
     setApprovalReason(null);

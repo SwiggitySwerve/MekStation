@@ -23,6 +23,10 @@ import type {
 } from './useCampaignStore.types';
 
 import { clientSafeStorage } from '../utils/clientSafeStorage';
+import {
+  useCampaignPersistenceStore,
+  type CampaignPersistenceSaveResult,
+} from './useCampaignPersistenceStore';
 import { createCampaignDayActions } from './useCampaignStore.dayActions';
 import {
   deserializeCampaign,
@@ -34,6 +38,19 @@ import { createMissionsStore } from './useMissionsStore';
 
 type CampaignSet = Parameters<StateCreator<CampaignStore>>[0];
 type CampaignGet = Parameters<StateCreator<CampaignStore>>[1];
+
+function commitResultFromPersistence(result: CampaignPersistenceSaveResult): {
+  readonly committed: boolean;
+  readonly reason?: string;
+} {
+  if (result.status === 'saved' || result.status === 'skipped') {
+    return { committed: true };
+  }
+  if (result.status === 'error') {
+    return { committed: false, reason: result.errorMessage };
+  }
+  return { committed: false, reason: 'campaign save conflict' };
+}
 
 function createRootForce(rootForceId: string, name: string): IForce {
   return {
@@ -220,7 +237,7 @@ function saveCampaignAction(
       reviewedBattleIds,
     } = get();
     if (!campaign) {
-      return;
+      return { committed: false, reason: 'no campaign loaded' };
     }
     const { forces, missions } = collectCampaignForcesAndMissions(
       get,
@@ -239,6 +256,13 @@ function saveCampaignAction(
       processedBattleIds,
       reviewedBattleIds,
     );
+    if (updatedCampaign.coopSession) {
+      return useCampaignPersistenceStore
+        .getState()
+        .saveCampaign()
+        .then(commitResultFromPersistence);
+    }
+    return { committed: true };
   };
 }
 
@@ -258,6 +282,14 @@ function updateCampaignAction(
         updatedAt: new Date().toISOString(),
       },
     });
+    const nextCampaign = get().campaign;
+    if (nextCampaign?.coopSession) {
+      return Promise.resolve(get().saveCampaign()).then((result) => {
+        if (!result.committed) {
+          set({ campaign });
+        }
+      });
+    }
   };
 }
 

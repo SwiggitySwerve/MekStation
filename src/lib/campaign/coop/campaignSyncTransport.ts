@@ -1,4 +1,7 @@
-import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
+import type {
+  ICampaignEvent,
+  ICampaignIntent,
+} from '@/types/campaign/CampaignSync';
 import type { GmDecision, IGuestProposal } from '@/types/campaign/CoopCampaign';
 import type {
   ICampaignClientMessage,
@@ -22,6 +25,7 @@ export interface ICampaignSyncTransport {
   readonly role: 'host' | 'guest';
   sendProposal(proposal: IGuestProposal): void;
   sendDecision(proposalId: string, decision: GmDecision): void;
+  sendHostIntent(intent: ICampaignIntent): void;
   sendParticipation(participation: ICampaignParticipationPayload): void;
   onFrame(handler: CampaignSyncFrameHandler): () => void;
   onError(handler: (error: unknown) => void): () => void;
@@ -116,6 +120,15 @@ export function connectCampaignSyncTransport(
         playerId: options.playerId,
         proposalId,
         decision,
+      });
+    },
+    sendHostIntent: (intent) => {
+      sendEnvelope({
+        kind: 'CampaignHostIntent',
+        matchId: options.matchId,
+        ts: nowIso(),
+        playerId: options.playerId,
+        intent,
       });
     },
     sendParticipation: (participation) => {

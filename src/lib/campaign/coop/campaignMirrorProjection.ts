@@ -11,6 +11,10 @@ export function applyAuthoritativeStateToGuestCampaign(
 ): ICampaign {
   return {
     ...campaign,
+    currentDate: latestCampaignDate(
+      campaign.currentDate,
+      dateForCampaignDay(campaign, state.day),
+    ),
     finances: {
       ...campaign.finances,
       balance: new Money(state.balance),
@@ -18,6 +22,17 @@ export function applyAuthoritativeStateToGuestCampaign(
     factionStandings: buildFactionStandings(state.factionStanding),
     updatedAt: new Date().toISOString(),
   };
+}
+
+function latestCampaignDate(current: Date, projected: Date): Date {
+  return projected.getTime() >= current.getTime() ? projected : current;
+}
+
+function dateForCampaignDay(campaign: ICampaign, day: number): Date {
+  const startDate = campaign.campaignStartDate ?? campaign.currentDate;
+  const next = new Date(startDate);
+  next.setUTCDate(next.getUTCDate() + day);
+  return next;
 }
 
 function buildFactionStandings(

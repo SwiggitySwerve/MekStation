@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import type { DayReport } from '@/lib/campaign/dayAdvancement';
+import type { MaybePromise } from '@/stores/campaign/useCampaignStore.types';
 import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
@@ -8,8 +9,8 @@ import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
 interface UseCampaignDayReportsOptions {
   dayReportNotificationsEnabled: boolean | undefined;
-  onAdvanceDay: () => DayReport | null;
-  onAdvanceDays: (days: number) => DayReport[] | null;
+  onAdvanceDay: () => MaybePromise<DayReport | null>;
+  onAdvanceDays: (days: number) => MaybePromise<DayReport[] | null>;
 }
 
 interface UseCampaignDayReportsResult {
@@ -37,26 +38,41 @@ export function useCampaignDayReports({
 }: UseCampaignDayReportsOptions): UseCampaignDayReportsResult {
   const [dayReports, setDayReports] = useState<DayReport[]>([]);
 
+  const showReports = useCallback(
+    (reports: DayReport[] | null) => {
+      if (reports && dayReportNotificationsEnabled) {
+        setDayReports(reports);
+      }
+    },
+    [dayReportNotificationsEnabled],
+  );
+
   const handleAdvanceDay = useCallback(() => {
     const report = onAdvanceDay();
-    if (report && dayReportNotificationsEnabled) {
-      setDayReports([report]);
+    if (isPromiseLike(report)) {
+      void report.then((resolved) => showReports(resolved ? [resolved] : null));
+      return;
     }
-  }, [dayReportNotificationsEnabled, onAdvanceDay]);
+    showReports(report ? [report] : null);
+  }, [onAdvanceDay, showReports]);
 
   const handleAdvanceWeek = useCallback(() => {
     const reports = onAdvanceDays(7);
-    if (reports && dayReportNotificationsEnabled) {
-      setDayReports(reports);
+    if (isPromiseLike(reports)) {
+      void reports.then(showReports);
+      return;
     }
-  }, [dayReportNotificationsEnabled, onAdvanceDays]);
+    showReports(reports);
+  }, [onAdvanceDays, showReports]);
 
   const handleAdvanceMonth = useCallback(() => {
     const reports = onAdvanceDays(30);
-    if (reports && dayReportNotificationsEnabled) {
-      setDayReports(reports);
+    if (isPromiseLike(reports)) {
+      void reports.then(showReports);
+      return;
     }
-  }, [dayReportNotificationsEnabled, onAdvanceDays]);
+    showReports(reports);
+  }, [onAdvanceDays, showReports]);
 
   return {
     dayReports,
@@ -65,6 +81,15 @@ export function useCampaignDayReports({
     handleAdvanceWeek,
     handleAdvanceMonth,
   };
+}
+
+function isPromiseLike<T>(value: MaybePromise<T>): value is Promise<T> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'then' in value &&
+    typeof (value as { then?: unknown }).then === 'function'
+  );
 }
 
 /**
