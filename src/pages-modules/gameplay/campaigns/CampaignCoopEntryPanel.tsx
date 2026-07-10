@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -51,30 +52,52 @@ interface IInviteResponse {
   readonly status: string;
 }
 
+type CoopErrorKind = 'vault-identity' | 'generic';
+
+class VaultIdentityError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'VaultIdentityError';
+  }
+}
+
+function isVaultIdentityError(error: unknown): error is Error {
+  return error instanceof Error && error.name === 'VaultIdentityError';
+}
+
 async function mintToken(password: string): Promise<ITokenState> {
-  const res = await fetch('/api/multiplayer/auth/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password }),
-  });
-  if (!res.ok) {
-    const data = (await res.json().catch(() => ({}))) as { error?: string };
-    throw new Error(data.error ?? `HTTP ${res.status}`);
+  try {
+    const res = await fetch('/api/multiplayer/auth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+    if (!res.ok) {
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      throw new VaultIdentityError(data.error ?? `HTTP ${res.status}`);
+    }
+    const data = (await res.json()) as {
+      token: string;
+      playerId: string;
+      displayName: string;
+    };
+    const decoded = decodeTokenFromWire(data.token);
+    if (!decoded) {
+      throw new VaultIdentityError('Server returned a malformed token');
+    }
+    return {
+      wireToken: data.token,
+      token: decoded,
+      displayName: data.displayName,
+    };
+  } catch (error) {
+    if (isVaultIdentityError(error)) {
+      throw error;
+    }
+    throw new VaultIdentityError(
+      error instanceof Error ? error.message : 'Unable to mint a vault token',
+    );
   }
-  const data = (await res.json()) as {
-    token: string;
-    playerId: string;
-    displayName: string;
-  };
-  const decoded = decodeTokenFromWire(data.token);
-  if (!decoded) {
-    throw new Error('Server returned a malformed token');
-  }
-  return {
-    wireToken: data.token,
-    token: decoded,
-    displayName: data.displayName,
-  };
 }
 
 async function resolveInviteCode(
@@ -131,7 +154,12 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
   const [joinCoopPassword, setJoinCoopPassword] = useState('');
   const [joinBusy, setJoinBusy] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
+  const [joinErrorKind, setJoinErrorKind] = useState<CoopErrorKind | null>(
+    null,
+  );
   const [createCoopError, setCreateCoopError] = useState<string | null>(null);
+  const [createCoopErrorKind, setCreateCoopErrorKind] =
+    useState<CoopErrorKind | null>(null);
   const [createCoopPassword, setCreateCoopPassword] = useState('');
   const [createCoopBusy, setCreateCoopBusy] = useState(false);
   const [coopTokenState, setCoopTokenState] = useState<ITokenState | null>(
@@ -140,12 +168,14 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
 
   const handleCreateCoopCampaign = useCallback(async () => {
     setCreateCoopError(null);
+    setCreateCoopErrorKind(null);
     setCreateCoopBusy(true);
     try {
       let auth = coopTokenState;
       if (!auth) {
         if (!createCoopPassword) {
           setCreateCoopError('Enter your vault password to host co-op.');
+          setCreateCoopErrorKind('generic');
           return;
         }
         auth = await mintToken(createCoopPassword);
@@ -209,6 +239,9 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
       await router.push(`/gameplay/campaigns/${campaignId}`);
     } catch (e) {
       setCreateCoopError(e instanceof Error ? e.message : 'Unknown error');
+      setCreateCoopErrorKind(
+        isVaultIdentityError(e) ? 'vault-identity' : 'generic',
+      );
     } finally {
       setCreateCoopBusy(false);
     }
@@ -216,7 +249,9 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
 
   const handleOpenJoinCoop = useCallback(() => {
     setCreateCoopError(null);
+    setCreateCoopErrorKind(null);
     setJoinError(null);
+    setJoinErrorKind(null);
     setJoinCode('');
     setJoinCoopPassword('');
     setJoinOpen(true);
@@ -227,6 +262,7 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
     setJoinCode('');
     setJoinCoopPassword('');
     setJoinError(null);
+    setJoinErrorKind(null);
   }, []);
 
   useEffect(() => {
@@ -246,14 +282,17 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
       setJoinError(
         'Enter a 6-character room code (letters and numbers, no I/O/0/1)',
       );
+      setJoinErrorKind('generic');
       return;
     }
     if (!joinCoopPassword) {
       setJoinError('Enter your vault password to join co-op.');
+      setJoinErrorKind('generic');
       return;
     }
     setJoinBusy(true);
     setJoinError(null);
+    setJoinErrorKind(null);
     let transport: ICampaignSyncTransport | null = null;
     try {
       const auth = await mintToken(joinCoopPassword);
@@ -293,6 +332,7 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
     } catch (e) {
       transport?.close();
       setJoinError(e instanceof Error ? e.message : 'Unknown error');
+      setJoinErrorKind(isVaultIdentityError(e) ? 'vault-identity' : 'generic');
     } finally {
       setJoinBusy(false);
     }
@@ -321,6 +361,12 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
           </Button>
         </div>
 
+        <p className="text-text-theme-secondary mt-3 text-sm">
+          Creates with defaults: Mercenary faction, Standard preset, and an
+          empty roster. You can rename the campaign and configure its faction,
+          preset, and roster from the campaign dashboard after creation.
+        </p>
+
         {createCoopError && (
           <div
             role="status"
@@ -328,6 +374,17 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
             className="mt-3 rounded-lg border border-amber-600 bg-amber-950/40 px-4 py-3 text-sm text-amber-100"
           >
             {createCoopError}
+            {createCoopErrorKind === 'vault-identity' && (
+              <>
+                {' '}
+                <Link
+                  href="/settings#vault"
+                  className="font-medium underline underline-offset-2"
+                >
+                  Set up your vault identity in Settings
+                </Link>
+              </>
+            )}
           </div>
         )}
 
@@ -413,6 +470,17 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
                 className="mt-3 rounded border border-rose-700 bg-rose-900/30 px-3 py-2 text-sm text-rose-200"
               >
                 {joinError}
+                {joinErrorKind === 'vault-identity' && (
+                  <>
+                    {' '}
+                    <Link
+                      href="/settings#vault"
+                      className="font-medium underline underline-offset-2"
+                    >
+                      Set up your vault identity in Settings
+                    </Link>
+                  </>
+                )}
               </p>
             )}
             <div className="mt-4 flex justify-end gap-2">

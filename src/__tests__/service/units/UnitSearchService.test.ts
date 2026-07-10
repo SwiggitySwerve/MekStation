@@ -142,6 +142,50 @@ describe('UnitSearchService', () => {
     });
   });
 
+  describe('merged lookup accessors', () => {
+    it('returns no entries before initialization completes', () => {
+      expect(service.getAllUnits()).toEqual([]);
+      expect(service.getUnitById('atlas-as7-d')).toBeUndefined();
+    });
+
+    it('does not expose the partial canonical map while custom units load', async () => {
+      let resolveCustomUnits:
+        | ((units: (typeof mockCustomUnit)[]) => void)
+        | undefined;
+      (customUnitApiService.list as jest.Mock).mockImplementation(
+        () =>
+          new Promise<(typeof mockCustomUnit)[]>((resolve) => {
+            resolveCustomUnits = resolve;
+          }),
+      );
+
+      const initialization = service.initialize();
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(customUnitApiService.list).toHaveBeenCalled();
+      expect(service.getAllUnits()).toEqual([]);
+      expect(service.getUnitById('atlas-as7-d')).toBeUndefined();
+
+      resolveCustomUnits?.([mockCustomUnit]);
+      await initialization;
+
+      expect(service.getAllUnits()).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: 'atlas-as7-d' }),
+          expect.objectContaining({
+            id: 'custom-1',
+            name: 'Custom C-1',
+          }),
+        ]),
+      );
+      expect(service.getUnitById('custom-1')).toEqual(
+        expect.objectContaining({ name: 'Custom C-1' }),
+      );
+      expect(service.getUnitById('missing')).toBeUndefined();
+    });
+  });
+
   describe('search()', () => {
     beforeEach(async () => {
       await service.initialize();
