@@ -1,0 +1,391 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-08T14-06-03",
+  "buildMode": "development",
+  "baseUrl": "http://localhost:3600",
+  "startedAt": "2026-07-08T20:06:10.225Z",
+  "finishedAt": "2026-07-08T20:06:55.018Z",
+  "totals": {
+    "journeys": 1,
+    "failedJourneys": 0,
+    "steps": 21,
+    "failedSteps": 0,
+    "findings": 4,
+    "stepsWithConsoleErrors": 3
+  },
+  "journeys": [
+    {
+      "journey": "10-gm-surfaces",
+      "persona": "campaign GM validating ledger interventions and the tactical GM dock",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "startedAt": "2026-07-08T20:06:10.225Z",
+      "finishedAt": "2026-07-08T20:06:54.700Z",
+      "status": "ok",
+      "steps": [
+        {
+          "index": 1,
+          "slug": "01-open-campaign-list",
+          "title": "open campaign list",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/01-open-campaign-list.png",
+          "route": "http://localhost:3600/gameplay/campaigns",
+          "startedAt": "2026-07-08T20:06:10.229Z",
+          "durationMs": 12492,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 2,
+          "slug": "02-start-campaign-wizard",
+          "title": "start campaign wizard",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/02-start-campaign-wizard.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-08T20:06:22.721Z",
+          "durationMs": 1317,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 3,
+          "slug": "03-name-campaign",
+          "title": "name campaign",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/03-name-campaign.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-08T20:06:24.039Z",
+          "durationMs": 481,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 4,
+          "slug": "04-keep-default-mercenary-campaign-type",
+          "title": "keep default mercenary campaign type",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/04-keep-default-mercenary-campaign-type.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-08T20:06:24.521Z",
+          "durationMs": 439,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 5,
+          "slug": "05-keep-standard-campaign-preset",
+          "title": "keep standard campaign preset",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/05-keep-standard-campaign-preset.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-08T20:06:24.960Z",
+          "durationMs": 437,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 6,
+          "slug": "06-add-four-units-and-four-assigned-pilots",
+          "title": "add four units and four assigned pilots",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/06-add-four-units-and-four-assigned-pilots.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-08T20:06:25.397Z",
+          "durationMs": 758,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 7,
+          "slug": "07-submit-campaign-wizard-and-land-on-dashboard",
+          "title": "submit campaign wizard and land on dashboard",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/07-submit-campaign-wizard-and-land-on-dashboard.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783541186197-txajbaa",
+          "startedAt": "2026-07-08T20:06:26.155Z",
+          "durationMs": 1337,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 8,
+          "slug": "08-open-campaign-gm-ledger",
+          "title": "open campaign GM ledger",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/08-open-campaign-gm-ledger.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783541186197-txajbaa/gm-ledger",
+          "startedAt": "2026-07-08T20:06:27.492Z",
+          "durationMs": 1432,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "Merchant preview=ready, approval=ApprovalApproved and applied to campaign state., playerLog=Player Action LogMerchant charge corrected by +2,500.00 C-bills.Finances - approved, privateLog=GM LedgerMerchant charge corrected by +2,500.00 C-bills.Hidden campaign merchant reversal: duplicated charge from a black-market branch.Without this GM action the duplicated merchant charge remains on the campaign ledger.Merchant inventory clue remains GM-only until the players discover it in play.."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 9,
+          "slug": "09-generate-and-approve-merchant-ledger-correction",
+          "title": "generate and approve merchant ledger correction",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/09-generate-and-approve-merchant-ledger-correction.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783541186197-txajbaa/gm-ledger",
+          "startedAt": "2026-07-08T20:06:28.925Z",
+          "durationMs": 497,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "Merchant conflict status=requires-manual-takeover, approveDisabled=true."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 10,
+          "slug": "10-preview-merchant-conflict-blocked-approval",
+          "title": "preview merchant conflict blocked approval",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/10-preview-merchant-conflict-blocked-approval.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783541186197-txajbaa/gm-ledger",
+          "startedAt": "2026-07-08T20:06:29.422Z",
+          "durationMs": 450,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "Time cascade preview=2026-07-08 -> 2026-07-10 (2 days); external effects=none rendered. Current UI renders summary plus effects list, not a per-day expanded breakdown."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 11,
+          "slug": "11-preview-and-approve-time-cascade-correction",
+          "title": "preview and approve time-cascade correction",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/11-preview-and-approve-time-cascade-correction.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783541186197-txajbaa/gm-ledger",
+          "startedAt": "2026-07-08T20:06:29.872Z",
+          "durationMs": 523,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 12,
+          "slug": "12-return-to-dashboard-before-battle-setup-save",
+          "title": "return to dashboard before battle setup save",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/12-return-to-dashboard-before-battle-setup-save.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783541186197-txajbaa",
+          "startedAt": "2026-07-08T20:06:30.395Z",
+          "durationMs": 1254,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 13,
+          "slug": "13-save-campaign-to-server",
+          "title": "save campaign to server",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/13-save-campaign-to-server.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783541186197-txajbaa",
+          "startedAt": "2026-07-08T20:06:31.650Z",
+          "durationMs": 428,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 14,
+          "slug": "14-open-contract-market",
+          "title": "open contract market",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/14-open-contract-market.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783541186197-txajbaa/contract-market",
+          "startedAt": "2026-07-08T20:06:32.078Z",
+          "durationMs": 1403,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 15,
+          "slug": "15-accept-first-available-contract",
+          "title": "accept first available contract",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/15-accept-first-available-contract.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783541186197-txajbaa/contract-market",
+          "startedAt": "2026-07-08T20:06:33.481Z",
+          "durationMs": 1440,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 16,
+          "slug": "16-open-campaign-missions",
+          "title": "open campaign missions",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/16-open-campaign-missions.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783541186197-txajbaa/missions",
+          "startedAt": "2026-07-08T20:06:34.921Z",
+          "durationMs": 1432,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 17,
+          "slug": "17-open-mission-launch-briefing",
+          "title": "open mission launch briefing",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/17-open-mission-launch-briefing.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783541186197-txajbaa/missions/contract-1783541192462-q8euyhe/launch",
+          "startedAt": "2026-07-08T20:06:36.353Z",
+          "durationMs": 1336,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 18,
+          "slug": "18-select-roster-and-launch-mission-to-pre-battle",
+          "title": "select roster and launch mission to pre-battle",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/18-select-roster-and-launch-mission-to-pre-battle.png",
+          "route": "http://localhost:3600/gameplay/encounters/encounter-75be3e87-654d-4e02-9331-8e16ad0508f3/pre-battle?campaignId=campaign-1783541186197-txajbaa&missionId=contract-1783541192462-q8euyhe",
+          "startedAt": "2026-07-08T20:06:37.689Z",
+          "durationMs": 3215,
+          "consoleErrors": [
+            "Failed to load resource: the server responded with a status of 409 (Conflict)"
+          ],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 19,
+          "slug": "19-open-manual-battle-before-switching-to-gm-query-mode",
+          "title": "open manual battle before switching to GM query mode",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/19-open-manual-battle-before-switching-to-gm-query-mode.png",
+          "route": "http://localhost:3600/gameplay/games/bdc2adfa-861d-4ee2-902f-509c30323f9c?campaignId=campaign-1783541186197-txajbaa&missionId=contract-1783541192462-q8euyhe",
+          "startedAt": "2026-07-08T20:06:40.904Z",
+          "durationMs": 1509,
+          "consoleErrors": [
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. hunchback-hbk-4g",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. marauder-mad-3r",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. atlas-as7-d",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. locust-lct-1v",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. hunchback-hbk-4g",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. marauder-mad-3r",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. atlas-as7-d",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. locust-lct-1v",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. hunchback-hbk-4g",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. marauder-mad-3r",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. atlas-as7-d",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. locust-lct-1v"
+          ],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 20,
+          "slug": "20-enter-battle-gm-dock-via-query-param",
+          "title": "enter battle GM dock via query param",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/20-enter-battle-gm-dock-via-query-param.png",
+          "route": "http://localhost:3600/gameplay/games/bdc2adfa-861d-4ee2-902f-509c30323f9c?campaignId=campaign-1783541186197-txajbaa&missionId=contract-1783541192462-q8euyhe&gm=1",
+          "startedAt": "2026-07-08T20:06:42.413Z",
+          "durationMs": 1789,
+          "consoleErrors": [
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. hunchback-hbk-4g",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. marauder-mad-3r",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. atlas-as7-d",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. locust-lct-1v",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. hunchback-hbk-4g",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. marauder-mad-3r",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. atlas-as7-d",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. locust-lct-1v",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. hunchback-hbk-4g",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. marauder-mad-3r",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. atlas-as7-d",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. locust-lct-1v",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. hunchback-hbk-4g",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. marauder-mad-3r",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. atlas-as7-d",
+            "Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. locust-lct-1v"
+          ],
+          "pageErrors": [],
+          "notes": [
+            "GM tactical mode is entered by appending ?gm=1; source resolveGameSessionShellMode confirms no in-app toggle exists."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 21,
+          "slug": "21-preview-and-approve-gm-advance-phase",
+          "title": "preview and approve GM Advance Phase",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/21-preview-and-approve-gm-advance-phase.png",
+          "route": "http://localhost:3600/gameplay/games/bdc2adfa-861d-4ee2-902f-509c30323f9c?campaignId=campaign-1783541186197-txajbaa&missionId=contract-1783541192462-q8euyhe&gm=1",
+          "startedAt": "2026-07-08T20:06:44.202Z",
+          "durationMs": 10498,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        }
+      ],
+      "findings": [
+        {
+          "id": "GM-LEDGER-MERCHANT",
+          "severity": "minor",
+          "summary": "Merchant correction preview and approval were captured with player/private ledger split evidence.",
+          "steps": [9]
+        },
+        {
+          "id": "GM-LEDGER-CONFLICT",
+          "severity": "minor",
+          "summary": "Merchant conflict correction was captured in the blocked approval state.",
+          "steps": [10]
+        },
+        {
+          "id": "GM-TIME-CASCADE",
+          "severity": "moderate",
+          "summary": "Time cascade correction was captured with the full current preview panel; UI currently exposes a summary/effects list rather than per-day breakdown.",
+          "steps": [11]
+        },
+        {
+          "id": "C2-UNKNOWN",
+          "severity": "minor",
+          "summary": "GM Advance Phase phase text was unreadable before/after approve; before=\"Initiative\" after=\"unknown\"; composer=false, error=none.",
+          "steps": [21]
+        }
+      ]
+    }
+  ]
+}

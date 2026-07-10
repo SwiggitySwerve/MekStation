@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-08T03-25-59",
+  "buildMode": "development",
+  "baseUrl": "http://localhost:3600",
+  "startedAt": "2026-07-08T09:26:06.263Z",
+  "finishedAt": "2026-07-08T09:26:45.091Z",
+  "totals": {
+    "journeys": 1,
+    "failedJourneys": 1,
+    "steps": 12,
+    "failedSteps": 1,
+    "findings": 3,
+    "stepsWithConsoleErrors": 0
+  },
+  "journeys": [
+    {
+      "journey": "10-gm-surfaces",
+      "persona": "campaign GM validating ledger interventions and the tactical GM dock",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "startedAt": "2026-07-08T09:26:06.263Z",
+      "finishedAt": "2026-07-08T09:26:44.796Z",
+      "status": "failed",
+      "steps": [
+        {
+          "index": 1,
+          "slug": "01-open-campaign-list",
+          "title": "open campaign list",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/01-open-campaign-list.png",
+          "route": "http://localhost:3600/gameplay/campaigns",
+          "startedAt": "2026-07-08T09:26:06.266Z",
+          "durationMs": 11357,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 2,
+          "slug": "02-start-campaign-wizard",
+          "title": "start campaign wizard",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/02-start-campaign-wizard.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-08T09:26:17.623Z",
+          "durationMs": 1297,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 3,
+          "slug": "03-name-campaign",
+          "title": "name campaign",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/03-name-campaign.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-08T09:26:18.920Z",
+          "durationMs": 458,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 4,
+          "slug": "04-keep-default-mercenary-campaign-type",
+          "title": "keep default mercenary campaign type",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/04-keep-default-mercenary-campaign-type.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-08T09:26:19.378Z",
+          "durationMs": 435,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 5,
+          "slug": "05-keep-standard-campaign-preset",
+          "title": "keep standard campaign preset",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/05-keep-standard-campaign-preset.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-08T09:26:19.813Z",
+          "durationMs": 442,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 6,
+          "slug": "06-add-four-units-and-four-assigned-pilots",
+          "title": "add four units and four assigned pilots",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/06-add-four-units-and-four-assigned-pilots.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-08T09:26:20.256Z",
+          "durationMs": 723,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 7,
+          "slug": "07-submit-campaign-wizard-and-land-on-dashboard",
+          "title": "submit campaign wizard and land on dashboard",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/07-submit-campaign-wizard-and-land-on-dashboard.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783502781013-mkj7lpe",
+          "startedAt": "2026-07-08T09:26:20.979Z",
+          "durationMs": 800,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 8,
+          "slug": "08-open-campaign-gm-ledger",
+          "title": "open campaign GM ledger",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/08-open-campaign-gm-ledger.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783502781013-mkj7lpe/gm-ledger",
+          "startedAt": "2026-07-08T09:26:21.779Z",
+          "durationMs": 1478,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "Merchant preview=ready, approval=ApprovalApproved and applied to campaign state., playerLog=Player Action LogMerchant charge corrected by +2,500.00 C-bills.Finances - approved, privateLog=GM LedgerMerchant charge corrected by +2,500.00 C-bills.Hidden campaign merchant reversal: duplicated charge from a black-market branch.Without this GM action the duplicated merchant charge remains on the campaign ledger.Merchant inventory clue remains GM-only until the players discover it in play.."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 9,
+          "slug": "09-generate-and-approve-merchant-ledger-correction",
+          "title": "generate and approve merchant ledger correction",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/09-generate-and-approve-merchant-ledger-correction.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783502781013-mkj7lpe/gm-ledger",
+          "startedAt": "2026-07-08T09:26:23.257Z",
+          "durationMs": 512,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "Merchant conflict status=requires-manual-takeover, approveDisabled=true."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 10,
+          "slug": "10-preview-merchant-conflict-blocked-approval",
+          "title": "preview merchant conflict blocked approval",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/10-preview-merchant-conflict-blocked-approval.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783502781013-mkj7lpe/gm-ledger",
+          "startedAt": "2026-07-08T09:26:23.770Z",
+          "durationMs": 443,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "Time cascade preview=2026-07-08 -> 2026-07-10 (2 days); external effects=none rendered. Current UI renders summary plus effects list, not a per-day expanded breakdown."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 11,
+          "slug": "11-preview-and-approve-time-cascade-correction",
+          "title": "preview and approve time-cascade correction",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/11-preview-and-approve-time-cascade-correction.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783502781013-mkj7lpe/gm-ledger",
+          "startedAt": "2026-07-08T09:26:24.213Z",
+          "durationMs": 533,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 12,
+          "slug": "12-save-campaign-to-server",
+          "title": "save campaign to server",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/12-save-campaign-to-server-FAILED.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783502781013-mkj7lpe/gm-ledger",
+          "startedAt": "2026-07-08T09:26:24.747Z",
+          "durationMs": 20049,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "failed",
+          "failure": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('campaign-save-status-card')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('campaign-save-status-card')\u001b[22m\n"
+        }
+      ],
+      "findings": [
+        {
+          "id": "GM-LEDGER-MERCHANT",
+          "severity": "minor",
+          "summary": "Merchant correction preview and approval were captured with player/private ledger split evidence.",
+          "steps": [9]
+        },
+        {
+          "id": "GM-LEDGER-CONFLICT",
+          "severity": "minor",
+          "summary": "Merchant conflict correction was captured in the blocked approval state.",
+          "steps": [10]
+        },
+        {
+          "id": "GM-TIME-CASCADE",
+          "severity": "moderate",
+          "summary": "Time cascade correction was captured with the full current preview panel; UI currently exposes a summary/effects list rather than per-day breakdown.",
+          "steps": [11]
+        }
+      ]
+    }
+  ]
+}

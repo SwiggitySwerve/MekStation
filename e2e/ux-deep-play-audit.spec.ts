@@ -98,6 +98,7 @@ interface GuestLedgerObservation {
   readonly controlsAbsent: boolean;
   readonly privateLogAbsent: boolean;
   readonly navLinkAbsent: boolean;
+  readonly gmSurfaceAfterReload: boolean;
   readonly survivedReload: boolean;
 }
 
@@ -813,40 +814,58 @@ async function observeGuestLedger(
   await expect(page.getByTestId('page-title')).toContainText(/GM Ledger/i, {
     timeout: 20_000,
   });
-  const beforeReload = {
-    noticeVisible: await isVisible(
-      page.getByTestId('gm-ledger-player-only-notice'),
-    ),
-    playerOnlyViewVisible: await isVisible(
-      page.getByTestId('gm-ledger-player-only-view'),
-    ),
-    playerLogVisible: await isVisible(page.getByTestId('gm-ledger-player-log')),
-    hiddenTextAbsent:
-      (await page
-        .getByText(/Hidden campaign|black-market|GM-only|default outcome/i)
-        .count()) === 0,
-    controlsAbsent:
-      (await page.getByTestId('gm-ledger-preview-btn').count()) === 0 &&
-      (await page.getByTestId('gm-ledger-approve-btn').count()) === 0 &&
-      (await page.getByTestId('gm-ledger-manual-btn').count()) === 0,
-    privateLogAbsent:
-      (await page.getByTestId('gm-ledger-private-log').count()) === 0,
-    navLinkAbsent:
-      (await page
-        .getByRole('link', { name: 'GM Ledger', exact: true })
-        .count()) === 0,
-  };
+  const playerViewBeforeReload = await waitBrieflyForVisible(
+    page.getByTestId('gm-ledger-player-only-view'),
+  );
+  const beforeReload = playerViewBeforeReload
+    ? {
+        noticeVisible: await isVisible(
+          page.getByTestId('gm-ledger-player-only-notice'),
+        ),
+        playerOnlyViewVisible: true,
+        playerLogVisible: await isVisible(
+          page.getByTestId('gm-ledger-player-log'),
+        ),
+        hiddenTextAbsent:
+          (await page
+            .getByText(/Hidden campaign|black-market|GM-only|default outcome/i)
+            .count()) === 0,
+        controlsAbsent:
+          (await page.getByTestId('gm-ledger-preview-btn').count()) === 0 &&
+          (await page.getByTestId('gm-ledger-approve-btn').count()) === 0 &&
+          (await page.getByTestId('gm-ledger-manual-btn').count()) === 0,
+        privateLogAbsent:
+          (await page.getByTestId('gm-ledger-private-log').count()) === 0,
+        navLinkAbsent:
+          (await page
+            .getByRole('link', { name: 'GM Ledger', exact: true })
+            .count()) === 0,
+      }
+    : {
+        noticeVisible: false,
+        playerOnlyViewVisible: false,
+        playerLogVisible: false,
+        hiddenTextAbsent: false,
+        controlsAbsent: false,
+        privateLogAbsent: false,
+        navLinkAbsent: false,
+      };
   await page.reload();
   await expect(page.getByTestId('page-title')).toContainText(/GM Ledger/i, {
     timeout: 20_000,
   });
+  const playerViewBack = await waitBrieflyForVisible(
+    page.getByTestId('gm-ledger-player-only-view'),
+    10_000,
+  );
+  const gmSurfaceAfterReload =
+    (await page.getByTestId('gm-ledger-control-plane').count()) > 0;
 
   return {
     checked: true,
     ...beforeReload,
-    survivedReload: await isVisible(
-      page.getByTestId('gm-ledger-player-only-view'),
-    ),
+    gmSurfaceAfterReload,
+    survivedReload: playerViewBack && !gmSurfaceAfterReload,
   };
 }
 
@@ -871,7 +890,8 @@ function recordGuestLedgerFinding(
       `notice=${observation.noticeVisible}, playerView=${observation.playerOnlyViewVisible}, ` +
       `playerLog=${observation.playerLogVisible}, hiddenAbsent=${observation.hiddenTextAbsent}, ` +
       `controlsAbsent=${observation.controlsAbsent}, privateLogAbsent=${observation.privateLogAbsent}, ` +
-      `navLinkAbsent=${observation.navLinkAbsent}, survivedReload=${observation.survivedReload}.`,
+      `navLinkAbsent=${observation.navLinkAbsent}, gmSurfaceAfterReload=${observation.gmSurfaceAfterReload}, ` +
+      `survivedReload=${observation.survivedReload}.`,
     steps: [step],
   });
 }

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-08T13-55-53",
+  "buildMode": "development",
+  "baseUrl": "http://localhost:3600",
+  "startedAt": "2026-07-08T19:56:04.303Z",
+  "finishedAt": "2026-07-08T19:56:04.304Z",
+  "totals": {
+    "journeys": 0,
+    "failedJourneys": 0,
+    "steps": 0,
+    "failedSteps": 0,
+    "findings": 0,
+    "stepsWithConsoleErrors": 0
+  },
+  "journeys": []
+}

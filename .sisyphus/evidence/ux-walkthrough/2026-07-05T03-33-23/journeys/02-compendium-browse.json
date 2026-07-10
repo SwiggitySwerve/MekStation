@@ -1,0 +1,117 @@
+{
+  "journey": "02-compendium-browse",
+  "persona": "player researching units and equipment",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-05T09:33:52.418Z",
+  "finishedAt": "2026-07-05T09:34:00.913Z",
+  "status": "ok",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-open-compendium-hub",
+      "title": "open compendium hub",
+      "screenshot": "02-compendium-browse/01-open-compendium-hub.png",
+      "route": "http://localhost:3600/compendium",
+      "startedAt": "2026-07-05T09:33:52.418Z",
+      "durationMs": 1639,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-search-the-compendium-for-heat",
+      "title": "search the compendium for \"heat\"",
+      "screenshot": "02-compendium-browse/02-search-the-compendium-for-heat.png",
+      "route": "http://localhost:3600/compendium",
+      "startedAt": "2026-07-05T09:33:54.057Z",
+      "durationMs": 570,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-clear-search-and-open-unit-database",
+      "title": "clear search and open unit database",
+      "screenshot": "02-compendium-browse/03-clear-search-and-open-unit-database.png",
+      "route": "http://localhost:3600/compendium/units",
+      "startedAt": "2026-07-05T09:33:54.627Z",
+      "durationMs": 537,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-open-the-first-unit-detail",
+      "title": "open the first unit detail",
+      "screenshot": "02-compendium-browse/04-open-the-first-unit-detail.png",
+      "route": "http://localhost:3600/compendium/units/battle-tripod-r-h3l-2x",
+      "startedAt": "2026-07-05T09:33:55.164Z",
+      "durationMs": 902,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 5,
+      "slug": "05-browser-back-returns-to-unit-database",
+      "title": "browser-back returns to unit database",
+      "screenshot": "02-compendium-browse/05-browser-back-returns-to-unit-database.png",
+      "route": "http://localhost:3600/compendium/units",
+      "startedAt": "2026-07-05T09:33:56.066Z",
+      "durationMs": 640,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 6,
+      "slug": "06-open-equipment-catalog",
+      "title": "open equipment catalog",
+      "screenshot": "02-compendium-browse/06-open-equipment-catalog.png",
+      "route": "http://localhost:3600/compendium/equipment",
+      "startedAt": "2026-07-05T09:33:56.706Z",
+      "durationMs": 1787,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 7,
+      "slug": "07-open-the-first-equipment-detail",
+      "title": "open the first equipment detail",
+      "screenshot": "02-compendium-browse/07-open-the-first-equipment-detail.png",
+      "route": "http://localhost:3600/compendium/equipment/ac-2",
+      "startedAt": "2026-07-05T09:33:58.493Z",
+      "durationMs": 925,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 8,
+      "slug": "08-open-rules-reference",
+      "title": "open rules reference",
+      "screenshot": "02-compendium-browse/08-open-rules-reference.png",
+      "route": "http://localhost:3600/compendium/rules",
+      "startedAt": "2026-07-05T09:33:59.418Z",
+      "durationMs": 1495,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "journey": "03-fresh-profile-empty-states",
+  "persona": "new player with no saved content yet",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-04T17:51:07.909Z",
+  "finishedAt": "2026-07-04T17:51:30.407Z",
+  "status": "failed",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-my-units-is-empty",
+      "title": "my units is empty",
+      "screenshot": "03-fresh-profile-empty-states/01-my-units-is-empty.png",
+      "route": "http://localhost:3600/units",
+      "startedAt": "2026-07-04T17:51:07.910Z",
+      "durationMs": 1491,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-replay-library-is-empty",
+      "title": "replay library is empty",
+      "screenshot": "03-fresh-profile-empty-states/02-replay-library-is-empty-FAILED.png",
+      "route": "http://localhost:3600/replay-library",
+      "startedAt": "2026-07-04T17:51:09.401Z",
+      "durationMs": 21006,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "failed",
+      "failure": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('replay-library-empty')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('replay-library-empty')\u001b[22m\n"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "journey": "07-mobile-navigation",
+  "persona": "phone user finding their way around",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-05T19:37:59.595Z",
+  "finishedAt": "2026-07-05T19:38:07.857Z",
+  "status": "ok",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-mobile-dashboard",
+      "title": "mobile dashboard",
+      "screenshot": "07-mobile-navigation/01-mobile-dashboard.png",
+      "route": "http://localhost:3600/",
+      "startedAt": "2026-07-05T19:37:59.597Z",
+      "durationMs": 1190,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-open-hamburger-menu",
+      "title": "open hamburger menu",
+      "screenshot": "07-mobile-navigation/02-open-hamburger-menu.png",
+      "route": "http://localhost:3600/",
+      "startedAt": "2026-07-05T19:38:00.787Z",
+      "durationMs": 428,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-navigate-to-quick-game-from-mobile-menu",
+      "title": "navigate to quick game from mobile menu",
+      "screenshot": "07-mobile-navigation/03-navigate-to-quick-game-from-mobile-menu.png",
+      "route": "http://localhost:3600/gameplay/quick",
+      "startedAt": "2026-07-05T19:38:01.215Z",
+      "durationMs": 4407,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-mobile-compendium-hub",
+      "title": "mobile compendium hub",
+      "screenshot": "07-mobile-navigation/04-mobile-compendium-hub.png",
+      "route": "http://localhost:3600/compendium",
+      "startedAt": "2026-07-05T19:38:05.622Z",
+      "durationMs": 1086,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 5,
+      "slug": "05-mobile-unit-database",
+      "title": "mobile unit database",
+      "screenshot": "07-mobile-navigation/05-mobile-unit-database.png",
+      "route": "http://localhost:3600/compendium/units",
+      "startedAt": "2026-07-05T19:38:06.708Z",
+      "durationMs": 1149,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    }
+  ]
+}

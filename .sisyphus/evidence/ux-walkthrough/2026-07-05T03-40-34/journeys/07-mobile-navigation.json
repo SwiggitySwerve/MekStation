@@ -1,0 +1,53 @@
+{
+  "journey": "07-mobile-navigation",
+  "persona": "phone user finding their way around",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-05T09:44:47.621Z",
+  "finishedAt": "2026-07-05T09:45:09.442Z",
+  "status": "failed",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-mobile-dashboard",
+      "title": "mobile dashboard",
+      "screenshot": "07-mobile-navigation/01-mobile-dashboard.png",
+      "route": "http://localhost:3600/",
+      "startedAt": "2026-07-05T09:44:47.623Z",
+      "durationMs": 1197,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-open-hamburger-menu",
+      "title": "open hamburger menu",
+      "screenshot": "07-mobile-navigation/02-open-hamburger-menu.png",
+      "route": "http://localhost:3600/",
+      "startedAt": "2026-07-05T09:44:48.820Z",
+      "durationMs": 422,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-navigate-to-quick-game-from-mobile-menu",
+      "title": "navigate to quick game from mobile menu",
+      "screenshot": "07-mobile-navigation/03-navigate-to-quick-game-from-mobile-menu-FAILED.png",
+      "route": "http://localhost:3600/gameplay/quick",
+      "startedAt": "2026-07-05T09:44:49.242Z",
+      "durationMs": 20200,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "failed",
+      "failure": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('start-quick-game-btn')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('start-quick-game-btn')\u001b[22m\n"
+    }
+  ]
+}

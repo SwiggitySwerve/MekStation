@@ -1,0 +1,143 @@
+{
+  "journey": "04-quick-game-auto-resolve",
+  "persona": "player running their first quick battle",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-05T19:50:46.293Z",
+  "finishedAt": "2026-07-05T19:50:52.989Z",
+  "status": "ok",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-quick-game-welcome",
+      "title": "quick game welcome",
+      "screenshot": "04-quick-game-auto-resolve/01-quick-game-welcome.png",
+      "route": "http://localhost:3600/gameplay/quick",
+      "startedAt": "2026-07-05T19:50:46.294Z",
+      "durationMs": 1162,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-start-setup",
+      "title": "start setup",
+      "screenshot": "04-quick-game-auto-resolve/02-start-setup.png",
+      "route": "http://localhost:3600/gameplay/quick",
+      "startedAt": "2026-07-05T19:50:47.456Z",
+      "durationMs": 462,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-add-two-units-to-my-force",
+      "title": "add two units to my force",
+      "screenshot": "04-quick-game-auto-resolve/03-add-two-units-to-my-force.png",
+      "route": "http://localhost:3600/gameplay/quick",
+      "startedAt": "2026-07-05T19:50:47.918Z",
+      "durationMs": 479,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-continue-to-scenario-configuration",
+      "title": "continue to scenario configuration",
+      "screenshot": "04-quick-game-auto-resolve/04-continue-to-scenario-configuration.png",
+      "route": "http://localhost:3600/gameplay/quick",
+      "startedAt": "2026-07-05T19:50:48.397Z",
+      "durationMs": 433,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 5,
+      "slug": "05-generate-scenario",
+      "title": "generate scenario",
+      "screenshot": "04-quick-game-auto-resolve/05-generate-scenario.png",
+      "route": "http://localhost:3600/gameplay/quick",
+      "startedAt": "2026-07-05T19:50:48.830Z",
+      "durationMs": 580,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 6,
+      "slug": "06-review-scenario",
+      "title": "review scenario",
+      "screenshot": "04-quick-game-auto-resolve/06-review-scenario.png",
+      "route": "http://localhost:3600/gameplay/quick",
+      "startedAt": "2026-07-05T19:50:49.410Z",
+      "durationMs": 434,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 7,
+      "slug": "07-auto-resolve-the-battle",
+      "title": "auto-resolve the battle",
+      "screenshot": "04-quick-game-auto-resolve/07-auto-resolve-the-battle.png",
+      "route": "http://localhost:3600/gameplay/quick",
+      "startedAt": "2026-07-05T19:50:49.844Z",
+      "durationMs": 1290,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 8,
+      "slug": "08-inspect-unit-outcomes-tab",
+      "title": "inspect unit outcomes tab",
+      "screenshot": "04-quick-game-auto-resolve/08-inspect-unit-outcomes-tab.png",
+      "route": "http://localhost:3600/gameplay/quick",
+      "startedAt": "2026-07-05T19:50:51.134Z",
+      "durationMs": 451,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 9,
+      "slug": "09-inspect-replay-tab",
+      "title": "inspect replay tab",
+      "screenshot": "04-quick-game-auto-resolve/09-inspect-replay-tab.png",
+      "route": "http://localhost:3600/gameplay/quick",
+      "startedAt": "2026-07-05T19:50:51.585Z",
+      "durationMs": 781,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 10,
+      "slug": "10-exit-to-games",
+      "title": "exit to games",
+      "screenshot": "04-quick-game-auto-resolve/10-exit-to-games.png",
+      "route": "http://localhost:3600/gameplay/games",
+      "startedAt": "2026-07-05T19:50:52.366Z",
+      "durationMs": 623,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "journey": "03-fresh-profile-empty-states",
+  "persona": "new player with no saved content yet",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-04T21:44:26.878Z",
+  "finishedAt": "2026-07-04T21:44:33.212Z",
+  "status": "ok",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-my-units-is-empty",
+      "title": "my units is empty",
+      "screenshot": "03-fresh-profile-empty-states/01-my-units-is-empty.png",
+      "route": "http://localhost:3600/units",
+      "startedAt": "2026-07-04T21:44:26.878Z",
+      "durationMs": 1547,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-replay-library",
+      "title": "replay library",
+      "screenshot": "03-fresh-profile-empty-states/02-replay-library.png",
+      "route": "http://localhost:3600/replay-library",
+      "startedAt": "2026-07-04T21:44:28.425Z",
+      "durationMs": 1977,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-watch-the-first-replay",
+      "title": "watch the first replay",
+      "screenshot": "03-fresh-profile-empty-states/03-watch-the-first-replay.png",
+      "route": "http://localhost:3600/replay-library",
+      "startedAt": "2026-07-04T21:44:30.405Z",
+      "durationMs": 1451,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [
+        "Library was already populated on this profile — exercised the watch path instead of the empty-state CTA."
+      ],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-return-to-the-library",
+      "title": "return to the library",
+      "screenshot": "03-fresh-profile-empty-states/04-return-to-the-library.png",
+      "route": "http://localhost:3600/replay-library",
+      "startedAt": "2026-07-04T21:44:31.856Z",
+      "durationMs": 1356,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    }
+  ]
+}

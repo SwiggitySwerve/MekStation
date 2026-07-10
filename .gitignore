@@ -169,9 +169,24 @@ storybook-static/
 .opencode/bun.lock
 .opencode/.gitignore
 
-# Sisyphus agent working directory (audit screenshots, evidence, plans)
-# Sisyphus agent working directory (audit screenshots, evidence, plans)
-.sisyphus/
+# Sisyphus evidence: Git cannot re-include files under an ignored parent.
+# Keep this ladder and the root catch-all below so review text stays trackable.
+.sisyphus/*
+!.sisyphus/evidence/
+.sisyphus/evidence/*
+!.sisyphus/evidence/ux-walkthrough/
+.sisyphus/evidence/ux-walkthrough/*
+!.sisyphus/evidence/ux-walkthrough/*/
+.sisyphus/evidence/ux-walkthrough/*/*
+!.sisyphus/evidence/ux-walkthrough/*/REVIEW.md
+!.sisyphus/evidence/ux-walkthrough/*/manifest.json
+!.sisyphus/evidence/ux-walkthrough/*/journeys/
+!.sisyphus/evidence/playtest/
+.sisyphus/evidence/playtest/*
+!.sisyphus/evidence/playtest/*/
+.sisyphus/evidence/playtest/*/*
+!.sisyphus/evidence/playtest/*/*.md
+!.sisyphus/evidence/playtest/*/*.json
 
 # Root-level verification screenshots
 /verify-*.png
@@ -182,7 +197,7 @@ storybook-static/
 /*-equipment-names.txt
 
 # Misplaced AI/agent root artifacts
-/.sisyphus*
+/.sisyphus?*
 
 
 # Simulation snapshots (keep directory, not files)
