@@ -16,6 +16,8 @@ import {
 } from './costContext';
 import {
   lowLightMovementPenaltyCost,
+  type IMutableMovementElevationStepCost,
+  type IMutableMovementTerrainSummary,
   movementElevationStepCost,
   movementTerrainEntryBlockedReason,
   summarizeMovementTerrain,
@@ -28,6 +30,41 @@ import {
 } from './terrainRules';
 
 export const PAVEMENT_ROAD_BONUS_MP = 1;
+
+const movementTerrainSummary: IMutableMovementTerrainSummary = {
+  terrainFeatures: [],
+  hasWaterFeature: false,
+  waterLevel: 0,
+  hasPavementSurfaceFeature: false,
+  bridgeLevel: null,
+  hasSurfaceIce: false,
+  hasWoodsFeature: false,
+};
+
+const movementElevationStepCostResult: IMutableMovementElevationStepCost = {
+  terrainCost: 0,
+  elevationCost: 0,
+  elevationDelta: 0,
+};
+
+const movementTerrainEntryInput = {
+  movementType: 'walk' as UnitMovementType,
+  terrain: movementTerrainSummary,
+  elevation: 0,
+  context: {} as IMovementCostContext,
+};
+
+const terrainFeatureMovementCostInput = {
+  terrainFeatures: movementTerrainSummary.terrainFeatures,
+  movementType: 'walk' as UnitMovementType,
+  context: {} as IMovementCostContext,
+};
+
+const waterTerrainBlockedInput = {
+  movementType: 'walk' as UnitMovementType,
+  terrain: movementTerrainSummary,
+  context: {} as IMovementCostContext,
+};
 
 export {
   applyActiveMPBoosters,
@@ -110,13 +147,14 @@ export function getMovementStepCostBreakdown(
   const baseCost = 1;
   let terrainCost = 0;
 
-  const terrain = summarizeMovementTerrain(hex.terrain);
-  const entryBlockedReason = movementTerrainEntryBlockedReason({
-    movementType,
-    terrain,
-    elevation: hex.elevation,
-    context,
-  });
+  summarizeMovementTerrain(hex.terrain, movementTerrainSummary);
+  const terrain = movementTerrainSummary;
+  movementTerrainEntryInput.movementType = movementType;
+  movementTerrainEntryInput.elevation = hex.elevation;
+  movementTerrainEntryInput.context = context;
+  const entryBlockedReason = movementTerrainEntryBlockedReason(
+    movementTerrainEntryInput,
+  );
   if (entryBlockedReason) {
     return {
       mpCost: Infinity,
@@ -138,18 +176,17 @@ export function getMovementStepCostBreakdown(
   // bypasses the terrain sum entirely (MegaMek MoveStep: "Account for
   // terrain, unless we're moving along a road").
   if (!terrain.hasPavementSurfaceFeature) {
-    terrainCost += terrainFeatureMovementCost({
-      terrainFeatures: terrain.terrainFeatures,
-      movementType,
-      context,
-    });
+    terrainFeatureMovementCostInput.terrainFeatures = terrain.terrainFeatures;
+    terrainFeatureMovementCostInput.movementType = movementType;
+    terrainFeatureMovementCostInput.context = context;
+    terrainCost += terrainFeatureMovementCost(terrainFeatureMovementCostInput);
   }
 
-  const waterBlockedReason = waterTerrainBlockedReason({
-    movementType,
-    terrain,
-    context,
-  });
+  waterTerrainBlockedInput.movementType = movementType;
+  waterTerrainBlockedInput.context = context;
+  const waterBlockedReason = waterTerrainBlockedReason(
+    waterTerrainBlockedInput,
+  );
   if (waterBlockedReason) {
     return {
       mpCost: Infinity,
@@ -177,16 +214,18 @@ export function getMovementStepCostBreakdown(
     terrainCost = 0;
   }
 
-  const elevation = movementElevationStepCost({
+  movementElevationStepCost(
     grid,
     fromCoord,
-    toCoord: coord,
-    toElevation: hex.elevation,
-    terrainFeatures: terrain.terrainFeatures,
+    coord,
+    hex.elevation,
+    terrain.terrainFeatures,
     movementType,
-    hasPavementSurfaceFeature: terrain.hasPavementSurfaceFeature,
+    terrain.hasPavementSurfaceFeature,
     context,
-  });
+    movementElevationStepCostResult,
+  );
+  const elevation = movementElevationStepCostResult;
   if (elevation.blockedReason) {
     return {
       mpCost: Infinity,

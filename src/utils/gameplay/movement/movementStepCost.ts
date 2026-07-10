@@ -38,17 +38,6 @@ export interface IMovementTerrainSummary {
   readonly hasWoodsFeature: boolean;
 }
 
-interface IElevationStepCostInput {
-  readonly grid: IHexGrid;
-  readonly fromCoord: IHexCoordinate | undefined;
-  readonly toCoord: IHexCoordinate;
-  readonly toElevation: number;
-  readonly terrainFeatures: readonly TerrainFeature[];
-  readonly movementType: UnitMovementType;
-  readonly hasPavementSurfaceFeature: boolean;
-  readonly context: IMovementCostContext;
-}
-
 export interface IMovementElevationStepCost {
   readonly terrainCost: number;
   readonly elevationCost: number;
@@ -56,37 +45,62 @@ export interface IMovementElevationStepCost {
   readonly blockedReason?: string;
 }
 
+export interface IMutableMovementTerrainSummary {
+  terrainFeatures: readonly TerrainFeature[];
+  hasWaterFeature: boolean;
+  waterLevel: number;
+  hasPavementSurfaceFeature: boolean;
+  bridgeLevel: number | null;
+  hasSurfaceIce: boolean;
+  hasWoodsFeature: boolean;
+}
+
+export interface IMutableMovementElevationStepCost {
+  terrainCost: number;
+  elevationCost: number;
+  elevationDelta: number;
+  blockedReason?: string;
+}
+
 export function summarizeMovementTerrain(
   terrainText: string,
-): IMovementTerrainSummary {
+  summary: IMutableMovementTerrainSummary,
+): void {
   const terrainFeatures = terrainFeaturesFromString(terrainText);
-  const waterLevels = terrainFeatures
-    .filter((feature) => feature.type === TerrainType.Water)
-    .map((feature) => feature.level);
-  const bridgeLevels = terrainFeatures
-    .filter((feature) => feature.type === TerrainType.Bridge)
-    .map((feature) => feature.level);
-  const hasWaterFeature = waterLevels.length > 0;
-  const waterLevel = hasWaterFeature ? Math.max(0, ...waterLevels) : 0;
-  const hasIceFeature = terrainFeatures.some(
-    (feature) => feature.type === TerrainType.Ice,
-  );
+  let hasWaterFeature = false;
+  let waterLevel = 0;
+  let hasPavementSurfaceFeature = false;
+  let bridgeLevel: number | null = null;
+  let hasIceFeature = false;
+  let hasWoodsFeature = false;
 
-  return {
-    terrainFeatures,
-    hasWaterFeature,
-    waterLevel,
-    hasPavementSurfaceFeature: terrainFeatures.some((feature) =>
-      isPavementSurfaceFeature(feature),
-    ),
-    bridgeLevel: bridgeLevels.length > 0 ? Math.max(...bridgeLevels) : null,
-    hasSurfaceIce: hasWaterFeature && hasIceFeature && waterLevel > 0,
-    hasWoodsFeature: terrainFeatures.some(
-      (feature) =>
-        feature.type === TerrainType.LightWoods ||
-        feature.type === TerrainType.HeavyWoods,
-    ),
-  };
+  for (const feature of terrainFeatures) {
+    if (feature.type === TerrainType.Water) {
+      hasWaterFeature = true;
+      waterLevel = Math.max(waterLevel, feature.level);
+    } else if (feature.type === TerrainType.Bridge) {
+      bridgeLevel = Math.max(bridgeLevel ?? feature.level, feature.level);
+    } else if (feature.type === TerrainType.Ice) {
+      hasIceFeature = true;
+    } else if (
+      feature.type === TerrainType.LightWoods ||
+      feature.type === TerrainType.HeavyWoods
+    ) {
+      hasWoodsFeature = true;
+    }
+
+    if (isPavementSurfaceFeature(feature)) {
+      hasPavementSurfaceFeature = true;
+    }
+  }
+
+  summary.terrainFeatures = terrainFeatures;
+  summary.hasWaterFeature = hasWaterFeature;
+  summary.waterLevel = waterLevel;
+  summary.hasPavementSurfaceFeature = hasPavementSurfaceFeature;
+  summary.bridgeLevel = bridgeLevel;
+  summary.hasSurfaceIce = hasWaterFeature && hasIceFeature && waterLevel > 0;
+  summary.hasWoodsFeature = hasWoodsFeature;
 }
 
 export function movementTerrainEntryBlockedReason(input: {
@@ -189,94 +203,99 @@ export function terrainFeatureMovementCost(input: {
 }
 
 export function movementElevationStepCost(
-  input: IElevationStepCostInput,
-): IMovementElevationStepCost {
-  if (!input.fromCoord) {
-    return { terrainCost: 0, elevationCost: 0, elevationDelta: 0 };
-  }
+  grid: IHexGrid,
+  fromCoord: IHexCoordinate | undefined,
+  toCoord: IHexCoordinate,
+  toElevation: number,
+  terrainFeatures: readonly TerrainFeature[],
+  movementType: UnitMovementType,
+  hasPavementSurfaceFeature: boolean,
+  context: IMovementCostContext,
+  result: IMutableMovementElevationStepCost,
+): void {
+  result.terrainCost = 0;
+  result.elevationCost = 0;
+  result.elevationDelta = 0;
+  result.blockedReason = undefined;
 
-  const fromHex = getHex(input.grid, input.fromCoord);
+  if (!fromCoord) return;
+
+  const fromHex = getHex(grid, fromCoord);
   if (!fromHex) {
-    return { terrainCost: 0, elevationCost: 0, elevationDelta: 0 };
+    return;
   }
 
-  const elevationDelta = input.toElevation - fromHex.elevation;
+  const elevationDelta = toElevation - fromHex.elevation;
+  result.elevationDelta = elevationDelta;
   const cliffBlockedReason = directionalCliffBlockedReason({
-    movementType: input.movementType,
-    toTerrainFeatures: input.terrainFeatures,
-    fromCoord: input.fromCoord,
-    toCoord: input.toCoord,
+    movementType,
+    toTerrainFeatures: terrainFeatures,
+    fromCoord,
+    toCoord,
     elevationDelta,
-    hasPavementSurfaceFeature: input.hasPavementSurfaceFeature,
-    movementModeLabel: formatMovementModeForReason(input.movementType),
+    hasPavementSurfaceFeature,
+    movementModeLabel: formatMovementModeForReason(movementType),
   });
   if (cliffBlockedReason) {
-    return {
-      terrainCost: 0,
-      elevationCost: 0,
-      elevationDelta,
-      blockedReason: cliffBlockedReason,
-    };
+    result.blockedReason = cliffBlockedReason;
+    return;
   }
 
-  return {
-    ...movementElevationCost(input, elevationDelta),
-    terrainCost:
-      wigeSheerCliffAscentCost({
-        grid: input.grid,
-        fromCoord: input.fromCoord,
-        toCoord: input.toCoord,
-        toTerrainFeatures: input.terrainFeatures,
-        movementType: input.movementType,
-        elevationDelta,
-      }) +
-      wigeBuildingClimbModeCost({
-        grid: input.grid,
-        fromCoord: input.fromCoord,
-        toCoord: input.toCoord,
-        toElevation: input.toElevation,
-        toTerrainFeatures: input.terrainFeatures,
-        movementType: input.movementType,
-      }),
-  };
+  movementElevationCost(movementType, context, elevationDelta, result);
+  if (result.blockedReason) return;
+
+  result.terrainCost =
+    wigeSheerCliffAscentCost({
+      grid,
+      fromCoord,
+      toCoord,
+      toTerrainFeatures: terrainFeatures,
+      movementType,
+      elevationDelta,
+    }) +
+    wigeBuildingClimbModeCost({
+      grid,
+      fromCoord,
+      toCoord,
+      toElevation,
+      toTerrainFeatures: terrainFeatures,
+      movementType,
+    });
 }
 
 function movementElevationCost(
-  input: IElevationStepCostInput,
+  movementType: UnitMovementType,
+  context: IMovementCostContext,
   elevationDelta: number,
-): Omit<IMovementElevationStepCost, 'terrainCost'> {
+  result: IMutableMovementElevationStepCost,
+): void {
   const elevationChange = Math.abs(elevationDelta);
-  if (elevationChange === 0 || !paysElevationCost(input.movementType)) {
-    return { elevationCost: 0, elevationDelta };
-  }
+  if (elevationChange === 0 || !paysElevationCost(movementType)) return;
 
   const baseElevationCost =
-    elevationChange *
-    elevationCostMultiplier(input.movementType, input.context);
+    elevationChange * elevationCostMultiplier(movementType, context);
   const maxElevationChange = maxElevationChangeForMovementType(
-    input.movementType,
-    input.context,
+    movementType,
+    context,
   );
   if (maxElevationChange !== null && elevationChange > maxElevationChange) {
     const limitLabel =
       maxElevationChange === 2
         ? 'ground movement limit'
-        : `${formatMovementModeForReason(input.movementType)} movement limit`;
-    return {
-      elevationCost: baseElevationCost,
-      elevationDelta,
-      blockedReason: `Elevation change of ${elevationChange} exceeds ${limitLabel}`,
-    };
+        : `${formatMovementModeForReason(movementType)} movement limit`;
+    result.elevationCost = baseElevationCost;
+    result.blockedReason = `Elevation change of ${elevationChange} exceeds ${limitLabel}`;
+    return;
   }
 
   let elevationCost = baseElevationCost;
   if (
-    hasMountaineerMovementRelief(input.context) &&
-    isBattleMechGroundMovement(input.movementType)
+    hasMountaineerMovementRelief(context) &&
+    isBattleMechGroundMovement(movementType)
   ) {
     elevationCost = Math.max(0, elevationCost - 1);
   }
-  return { elevationCost, elevationDelta };
+  result.elevationCost = elevationCost;
 }
 
 function elevationCostMultiplier(
