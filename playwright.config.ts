@@ -93,6 +93,16 @@ export default defineConfig({
     /* Desktop (1280px) - primary */
     {
       name: 'chromium',
+      // flow-audits.spec.ts (add-flow-audit-routines) is env-var-selected,
+      // single-flow-at-a-time evidence tooling, not a project-wide sweep. The
+      // primary guard is that the `flow-audit` project below is registered
+      // ONLY when MEKSTATION_FLOW_ID is set (see its comment); this
+      // testIgnore is defense in depth so this project can never match the
+      // file even if that gating changes. scripts/qc/run-flow-audit.mjs is
+      // the runner — it targets the `flow-audit` project by name, not
+      // `--project=chromium` (proposal.md non-goal: no CI wiring/behavior
+      // changes to the other projects).
+      testIgnore: ['**/flow-audits.spec.ts'],
       use: { ...devices['Desktop Chrome'] },
     },
 
@@ -102,6 +112,7 @@ export default defineConfig({
       testIgnore: [
         '**/ux-deep-play-audit.spec.ts',
         '**/ux-walkthrough-audit.spec.ts',
+        '**/flow-audits.spec.ts',
       ],
       use: {
         ...devices['Desktop Chrome'],
@@ -117,6 +128,7 @@ export default defineConfig({
       testIgnore: [
         '**/ux-deep-play-audit.spec.ts',
         '**/ux-walkthrough-audit.spec.ts',
+        '**/flow-audits.spec.ts',
       ],
       use: {
         ...devices['Desktop Chrome'],
@@ -130,6 +142,7 @@ export default defineConfig({
       testIgnore: [
         '**/ux-deep-play-audit.spec.ts',
         '**/ux-walkthrough-audit.spec.ts',
+        '**/flow-audits.spec.ts',
       ],
       use: {
         ...devices['Desktop Chrome'],
@@ -143,6 +156,34 @@ export default defineConfig({
       grep: /@smoke/,
       use: { ...devices['Desktop Chrome'] },
     },
+
+    /* Flow-audit routines (add-flow-audit-routines task 4) — the single
+       project that does NOT testIgnore flow-audits.spec.ts. Scoped with its
+       own testMatch (rather than relying on the other projects' testIgnore
+       lists) so it can never accidentally pick up any other spec file. The
+       base viewport here is irrelevant: each generated test opens its own
+       `browser.newContext({ viewport })` sized from MEKSTATION_FLOW_VIEWPORT
+       (see e2e/flow-audits.spec.ts RESOLVED_VIEWPORT). Never referenced by
+       any CI workflow — both nightly-validation.yml and pr-checks.yml pass
+       `--project=chromium` explicitly, and scripts/qc/run-flow-audit.mjs is
+       the only caller that targets this project by name.
+       Registered ONLY when MEKSTATION_FLOW_ID is set (the flow-audit runner
+       always sets it before spawning Playwright). Playwright runs every
+       REGISTERED project when no `--project` flag is passed, so the other
+       projects' `testIgnore` entries above are not sufficient on their own —
+       a project that exists at all joins the default set. Gating on the same
+       env var the spec file itself reads (design D2) keeps a bare
+       `npm run test:e2e` / `npx playwright test` from ever picking this
+       project up, matching the header comment on flow-audits.spec.ts. */
+    ...(process.env.MEKSTATION_FLOW_ID
+      ? [
+          {
+            name: 'flow-audit',
+            testMatch: ['**/flow-audits.spec.ts'],
+            use: { ...devices['Desktop Chrome'] },
+          },
+        ]
+      : []),
   ],
 
   /* Run your local dev server before starting the tests */

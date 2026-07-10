@@ -22,6 +22,13 @@ Use `qc:ui-flow-shell` when the question is how a journey maps to the
 player/GM route checkpoints on the gameplay hub, and use
 `qc:ui-flow-shell:validate` to fail fast when a checkpoint no longer maps to a
 Next.js page template or required journey sequence.
+Interactive route-mounted evidence (browser screenshots, console/page errors,
+per-checkpoint catalogs) is a separate, non-CI-blocking layer documented in
+`docs/qc/mekstation-flow-audit-routines.md`: `qc:ux-audit` runs every UX
+walkthrough journey, and `qc:flow` runs one named, checkpointed flow
+(`--until`/`--hold`/`--viewport`) with `qc:flow:validate` as its registry
+cross-check. Both are review evidence for humans and agents, never a
+PR-blocking CI gate.
 
 ## Commands
 
@@ -87,6 +94,12 @@ npm.cmd run verify:qc
 npm.cmd run verify:rules
 npm.cmd run verify:app-completion
 npm.cmd run verify:app-completion:release
+npm.cmd run qc:ux-audit
+npm.cmd run qc:ux-audit:deep
+npm.cmd run qc:ux-audit:prod
+npm.cmd run qc:flow -- --list
+npm.cmd run qc:flow -- campaign-create-to-launch
+npm.cmd run qc:flow:validate
 ```
 
 Use the plain `warn,error` log scan to audit every warning-class event,
