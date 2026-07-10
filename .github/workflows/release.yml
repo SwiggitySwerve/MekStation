@@ -58,6 +58,25 @@ jobs:
             exit 1
           fi
 
+          # workflow_run fires on EVERY auto-version completion, including
+          # runs that minted no tag. Without this guard, every merge to main
+          # rebuilt the latest existing tag (~60-90 runner-min each). Only
+          # proceed when the resolved tag points at the exact commit the
+          # triggering auto-version run processed — i.e. the run that minted
+          # it. Empty tag output makes every downstream job skip via the
+          # startsWith(tag, 'v') conditions.
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_run" ]; then
+            TRIGGER_SHA="${{ github.event.workflow_run.head_sha }}"
+            TAG_SHA=$(git rev-parse "${TAG}^{commit}" 2>/dev/null || echo "")
+            if [ "$TAG_SHA" != "$TRIGGER_SHA" ]; then
+              echo "Tag $TAG ($TAG_SHA) does not match triggering head ($TRIGGER_SHA) — no new tag minted by this run; skipping release." >&2
+              echo "tag=" >> "$GITHUB_OUTPUT"
+              echo "ref=" >> "$GITHUB_OUTPUT"
+              echo "prev_tag=" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
           # Find the previous v* tag (second in sorted list, or empty if none)
           PREV_TAG=$(git tag -l 'v*' --sort=-version:refname | grep -v "^${TAG}$" | head -n 1 || true)
 
