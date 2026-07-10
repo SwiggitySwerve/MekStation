@@ -476,8 +476,10 @@ async function seedDamagedPostBattleCampaign(
       units: [
         {
           unitId,
+          unitRef: 'atlas-as7-d',
           unitName: 'Atlas AS7-D',
           chassis: 'Atlas',
+          chassisVariant: 'AS7-D',
           model: 'AS7-D',
           pilotId: 'pilot-damaged-atlas',
           readiness: 'Damaged',
