@@ -234,6 +234,7 @@ export function CampaignCoopRouteSurfaceConnected({
             ? ('connecting' as const)
             : ('missing-token' as const),
       balance: mirrorCampaign?.balance,
+      salvagePool: mirrorCampaign?.salvagePool,
       rosterUnitCount: mirrorCampaign
         ? Object.keys(mirrorCampaign.rosterUnits).length
         : 0,

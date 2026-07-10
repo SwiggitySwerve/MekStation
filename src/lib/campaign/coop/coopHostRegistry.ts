@@ -1,18 +1,10 @@
 /**
- * Active co-op host registry + post-battle reconciliation gate.
+ * Active co-op host registry and post-battle transport gate.
  *
- * D-4 remediation (2026-06-09 audit, W3.3): `reconcileCoopBattle` (CO2)
- * shipped with ZERO production callers — the co-op post-battle path was
- * dead code. The production seam where a battle "completes" for campaign
- * purposes is the combat-outcome bus -> `useCampaignStore.enqueueOutcome`
- * flow, so that is where `reconcileCoopOutcomeForCampaign` is invoked
- * (see `useCampaignStore.outcomes.ts#enqueueCampaignOutcome`).
- *
- * Reconciliation needs the campaign's authoritative `CampaignMatchHost`
- * (CO1). The co-op runtime adapter registers hosted sessions here when
- * it opens a campaign. If no host is registered for a campaign,
- * `getActiveCoopHost` returns undefined and the gate below resolves
- * null - a documented no-op, not a silent throw.
+ * Browser-local `CampaignMatchHost` instances remain registered for
+ * single-graph runtime features such as proposal handling. Production battle
+ * reconciliation deliberately bypasses that registry: it sends one host-only
+ * intent through campaign sync to the server-resident host.
  *
  * @module lib/campaign/coop/coopHostRegistry
  */
@@ -21,32 +13,24 @@ import type { CampaignMatchHost } from '@/lib/multiplayer/server/CampaignMatchHo
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
+import { toast } from '@/components/shared/Toast';
 import { GameSide } from '@/types/gameplay/GameSessionCoreTypes';
 
 import type { ICoopReconciliationResult } from './reconcileCoopBattle';
 
-import {
-  deriveCoopBattleConsequences,
-  reconcileCoopBattle,
-} from './reconcileCoopBattle';
+import { getActiveCampaignSyncTransport } from './campaignSyncTransport';
+import { deriveCoopBattleConsequences } from './reconcileCoopBattle';
 
 // =============================================================================
 // Registry
 // =============================================================================
 
-/**
- * The live hosts, keyed by campaign id. A module-level map (not a store)
- * because `CampaignMatchHost` instances are runtime session objects —
- * they must never be serialized or rendered, only looked up by the
- * post-battle seam.
- */
 const activeHosts = new Map<string, CampaignMatchHost>();
 
 /**
- * Register the authoritative host for its campaign. Returns an
- * unregister function (mirrors `subscribeToCombatOutcome`'s contract);
- * the unregister is a no-op if a NEWER host has replaced this one, so a
- * stale teardown can't evict a live session.
+ * Register a browser-local host for runtime features that require a shared
+ * in-process graph. Returns an unregister function that cannot remove a newer
+ * host for the same campaign.
  */
 export function registerActiveCoopHost(host: CampaignMatchHost): () => void {
   activeHosts.set(host.campaignId, host);
@@ -57,7 +41,7 @@ export function registerActiveCoopHost(host: CampaignMatchHost): () => void {
   };
 }
 
-/** Look up the live host for a campaign, if one is registered. */
+/** Look up the local runtime host for a campaign, if one is registered. */
 export function getActiveCoopHost(
   campaignId: string,
 ): CampaignMatchHost | undefined {
@@ -74,20 +58,10 @@ export function _resetActiveCoopHosts(): void {
 // =============================================================================
 
 /**
- * Reconcile a freshly-landed combat outcome into the shared co-op
- * campaign, when (and only when) this client HOSTS a co-op session for
- * the outcome's campaign.
- *
- * Resolves null (no-op) when:
- *  - the campaign is not a co-op campaign, or this client is a guest —
- *    the host is CO1's single writer; a guest mirror receives the
- *    resulting events over the wire instead of reconciling locally;
- *  - no live `CampaignMatchHost` is registered for the campaign (the
- *    runtime session is not open; see the module docstring).
- *
- * Never throws: the caller is a synchronous store action firing this as
- * fire-and-forget, so a reconciliation failure is folded into the
- * result instead of surfacing as an unhandled rejection.
+ * Send a host campaign's newly landed combat outcome to the server-resident
+ * campaign host. Guests and single-player campaigns do not reconcile here and
+ * return `null`. A host without a connected host-role transport retains its
+ * locally persisted outcome, shows a warning, and returns a failed result.
  */
 export async function reconcileCoopOutcomeForCampaign(
   campaign: Pick<ICampaign, 'id' | 'coopSession'> | null,
@@ -97,31 +71,51 @@ export async function reconcileCoopOutcomeForCampaign(
   if (!campaign?.coopSession || campaign.coopSession.mode !== 'host') {
     return null;
   }
-  const host = getActiveCoopHost(campaign.id);
-  if (!host) {
-    return null;
-  }
+
+  const matchId =
+    campaign.coopSession.matchId ?? campaign.coopSession.hostMatchId;
+
   try {
     const consequences = deriveCoopBattleConsequences({
       outcome,
       campaignId: campaign.id,
-      // The local player's units fight on GameSide.Player in every
-      // campaign-launched encounter (co-op composition puts BOTH
-      // players' forces on the shared player side per design D1).
       playerSide: GameSide.Player,
-      // The mission payout flows through the single-player post-battle
-      // pipeline (contract fulfillment) — this seam only reconciles the
-      // facts readable from the combat outcome itself, per the
-      // `deriveCoopBattleConsequences` contract.
       missionPayout: 0,
       designations,
     });
-    return await reconcileCoopBattle(host, consequences);
+    const transport = getActiveCampaignSyncTransport(matchId);
+    if (!transport || transport.role !== 'host') {
+      toast({
+        message:
+          'Co-op battle reconciliation was saved locally but the live host connection is unavailable. Guests may need to refetch.',
+        variant: 'warning',
+        duration: 7000,
+      });
+      return {
+        ok: false,
+        events: [],
+        error: 'live-host-connection-unavailable',
+      };
+    }
+
+    transport.sendHostIntent({
+      kind: 'ReconcileBattle',
+      campaignId: campaign.id,
+      intentId: `coop-recon-${outcome.matchId}`,
+      payload: consequences,
+    });
+    return { ok: true, events: [] };
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    toast({
+      message: `Co-op battle reconciliation was saved locally but live push failed: ${message}. Guests may need to refetch.`,
+      variant: 'warning',
+      duration: 7000,
+    });
     return {
       ok: false,
       events: [],
-      error: err instanceof Error ? err.message : String(err),
+      error: message,
     };
   }
 }

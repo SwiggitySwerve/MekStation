@@ -24,6 +24,8 @@
  * @spec openspec/changes/add-shared-campaign-state/design.md (D2, D3, D8)
  */
 
+import type { ICoopBattleConsequences } from '@/lib/campaign/coop/reconcileCoopBattle';
+
 // =============================================================================
 // Authoritative campaign state — the ledger projection
 // =============================================================================
@@ -394,6 +396,18 @@ export type ICampaignIntentOf<K extends CampaignIntentKind> =
  */
 export type ICampaignIntent<K extends CampaignIntentKind = CampaignIntentKind> =
   K extends CampaignIntentKind ? ICampaignIntentOf<K> : never;
+
+/**
+ * Host-only post-battle reconciliation request carried by the campaign-sync
+ * host-intent frame. This intentionally stays outside the guest-proposable
+ * `ICampaignIntent` union.
+ */
+export interface ICampaignReconcileBattleIntent {
+  readonly kind: 'ReconcileBattle';
+  readonly campaignId: string;
+  readonly intentId: string;
+  readonly payload: ICoopBattleConsequences;
+}
 
 // =============================================================================
 // Campaign intent result

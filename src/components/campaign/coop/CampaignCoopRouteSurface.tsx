@@ -207,6 +207,7 @@ export interface CampaignCoopRouteSurfaceProps {
   readonly guestMirrorSummary?: {
     readonly status: 'connecting' | 'synced' | 'missing-token' | 'paused';
     readonly balance?: number;
+    readonly salvagePool?: number;
     readonly rosterUnitCount?: number;
     readonly pilotCount?: number;
     readonly lastSequence?: number;
@@ -309,7 +310,7 @@ export function CampaignCoopRouteSurface(
           </p>
           {guestMirrorSummary ? (
             <dl
-              className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-4"
+              className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-5"
               data-testid="guest-mirror-sync-summary"
             >
               <div>
@@ -322,6 +323,13 @@ export function CampaignCoopRouteSurface(
                 <dt className="text-sky-300/80">Balance</dt>
                 <dd data-testid="guest-mirror-balance">
                   {guestMirrorSummary.balance?.toLocaleString() ?? 'pending'}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sky-300/80">Salvage</dt>
+                <dd data-testid="guest-mirror-salvage">
+                  {guestMirrorSummary.salvagePool?.toLocaleString() ??
+                    'pending'}
                 </dd>
               </div>
               <div>
