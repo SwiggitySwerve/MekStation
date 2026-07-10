@@ -13,7 +13,7 @@ import {
   convertToLegacyDayReport,
   DayReport,
 } from '@/lib/campaign/dayAdvancement';
-import { getDayPipeline } from '@/lib/campaign/dayPipeline';
+import { getDayPipeline, type IDayEvent } from '@/lib/campaign/dayPipeline';
 import { registerBuiltinProcessors } from '@/lib/campaign/processors';
 import {
   logTravelCommitSucceeded,
@@ -34,6 +34,7 @@ import type {
   MaybePromise,
 } from './useCampaignStore.types';
 
+import { appendContractPaymentActivityEntries } from './contractPaymentActivity';
 import {
   snapshotRosterPilots,
   withBattleQueueAttached,
@@ -107,6 +108,7 @@ function emitDailyActivityEntries(
   get: CampaignGet,
   report: DayReport,
   postPipeline: { readonly dayNumber?: number },
+  events: readonly IDayEvent[],
 ): void {
   const dayNumber = postPipeline.dayNumber ?? campaignDayFor(report.campaign);
   const dayId =
@@ -143,6 +145,11 @@ function emitDailyActivityEntries(
       },
     });
   }
+  appendContractPaymentActivityEntries(append, report.campaign, events, {
+    campaignDay: dayNumber,
+    dayId,
+    timestamp: isoNow,
+  });
   emitDailyCostEntry(append, report, dayNumber, dayId, isoNow);
 }
 
@@ -226,7 +233,7 @@ function advanceDayAction(
       ),
     });
     syncReportMissions(get, report.campaign);
-    emitDailyActivityEntries(get, report, postPipeline);
+    emitDailyActivityEntries(get, report, postPipeline, pipelineResult.events);
     const committedReport = { ...report, campaign: campaignWithAudit };
     const saveResult = get().saveCampaign();
     if (isPromiseLike(saveResult)) {

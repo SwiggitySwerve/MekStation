@@ -48,9 +48,10 @@ import { calculateOpForBV } from '@/lib/campaign/scenario/opForGeneration';
 import { generateRandomConditions } from '@/lib/campaign/scenario/scenarioConditions';
 import { selectScenarioType } from '@/lib/campaign/scenario/scenarioTypeSelection';
 import { createDailyRandom } from '@/lib/campaign/utils/campaignRng';
+import { getActiveContracts } from '@/stores/campaign/campaignCommandSelectors';
 import { ICampaign } from '@/types/campaign/Campaign';
 import { ForceRole } from '@/types/campaign/enums';
-import { IContract, isContract } from '@/types/campaign/Mission';
+import { IContract } from '@/types/campaign/Mission';
 import {
   AtBMoraleLevel,
   CombatRole,
@@ -61,35 +62,6 @@ import {
 // =============================================================================
 // Helper Functions
 // =============================================================================
-
-/**
- * Get all active contracts from the campaign.
- *
- * A contract is active if its endDate is in the future or undefined.
- *
- * @param campaign - The campaign to filter
- * @returns Array of active contracts
- */
-function getActiveContracts(campaign: ICampaign): readonly IContract[] {
-  const now = campaign.currentDate.getTime();
-  const contracts: IContract[] = [];
-
-  Array.from(campaign.missions.values()).forEach((mission) => {
-    if (!isContract(mission)) return;
-
-    const contract = mission as IContract;
-    if (!contract.endDate) {
-      contracts.push(contract);
-    } else {
-      const endTime = new Date(contract.endDate).getTime();
-      if (endTime > now) {
-        contracts.push(contract);
-      }
-    }
-  });
-
-  return contracts;
-}
 
 /**
  * Derive combat teams from the campaign's force structure (audit D-9).
