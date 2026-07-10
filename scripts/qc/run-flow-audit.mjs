@@ -336,7 +336,12 @@ async function run() {
   const runnerArgs = [
     path.join(repoRoot, 'scripts', 'playwright', 'run-playwright.mjs'),
     'test',
-    '--project=chromium',
+    // flow-audits.spec.ts is `testIgnore`d on every default project
+    // (chromium, Mobile Chrome, Tablet Portrait, Tablet Landscape) so plain
+    // `npm run test:e2e` / CI sweeps never run all 6 flows unfiltered — this
+    // runner targets the dedicated `flow-audit` project instead, per the
+    // spec file's own header comment and playwright.config.ts's project doc.
+    '--project=flow-audit',
     spec,
     '--workers=1',
     ...forward,

@@ -156,6 +156,22 @@ export default defineConfig({
       grep: /@smoke/,
       use: { ...devices['Desktop Chrome'] },
     },
+
+    /* Flow-audit routines (add-flow-audit-routines task 4) — the single
+       project that does NOT testIgnore flow-audits.spec.ts. Scoped with its
+       own testMatch (rather than relying on the other projects' testIgnore
+       lists) so it can never accidentally pick up any other spec file. The
+       base viewport here is irrelevant: each generated test opens its own
+       `browser.newContext({ viewport })` sized from MEKSTATION_FLOW_VIEWPORT
+       (see e2e/flow-audits.spec.ts RESOLVED_VIEWPORT). Never referenced by
+       any CI workflow — both nightly-validation.yml and pr-checks.yml pass
+       `--project=chromium` explicitly, and scripts/qc/run-flow-audit.mjs is
+       the only caller that targets this project by name. */
+    {
+      name: 'flow-audit',
+      testMatch: ['**/flow-audits.spec.ts'],
+      use: { ...devices['Desktop Chrome'] },
+    },
   ],
 
   /* Run your local dev server before starting the tests */
