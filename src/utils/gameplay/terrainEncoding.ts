@@ -3,6 +3,18 @@ import {
   type ITerrainFeature,
 } from '@/types/gameplay/TerrainTypes';
 
+const terrainFeaturesCache = new Map<string, readonly ITerrainFeature[]>();
+const terrainTypeValues = new Set<string>(Object.values(TerrainType));
+
+function cacheTerrainFeatures(
+  terrainString: string,
+  features: readonly ITerrainFeature[],
+): readonly ITerrainFeature[] {
+  const frozenFeatures = Object.freeze(features);
+  terrainFeaturesCache.set(terrainString, frozenFeatures);
+  return frozenFeatures;
+}
+
 function hasFeatureMetadata(feature: ITerrainFeature): boolean {
   return (
     feature.constructionFactor !== undefined ||
@@ -34,24 +46,32 @@ export function terrainStringFromFeatures(
 export function terrainFeaturesFromString(
   terrainString: string,
 ): readonly ITerrainFeature[] {
-  if (!terrainString) return [];
+  const cachedFeatures = terrainFeaturesCache.get(terrainString);
+  if (cachedFeatures) return cachedFeatures;
+
+  if (!terrainString) return cacheTerrainFeatures(terrainString, []);
 
   if (terrainString.startsWith('[')) {
     try {
       const parsed = JSON.parse(terrainString) as readonly ITerrainFeature[];
-      return Array.isArray(parsed) ? parsed : [];
+      return cacheTerrainFeatures(
+        terrainString,
+        Array.isArray(parsed) ? parsed : [],
+      );
     } catch {
-      return [];
+      return cacheTerrainFeatures(terrainString, []);
     }
   }
 
   const terrainType = terrainString as TerrainType;
-  if (!Object.values(TerrainType).includes(terrainType)) return [];
+  if (!terrainTypeValues.has(terrainType)) {
+    return cacheTerrainFeatures(terrainString, []);
+  }
 
-  return [
+  return cacheTerrainFeatures(terrainString, [
     {
       type: terrainType,
       level: terrainType === TerrainType.Clear ? 0 : 1,
     },
-  ];
+  ]);
 }

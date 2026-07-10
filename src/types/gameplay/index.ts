@@ -15,7 +15,15 @@ export * from './AmmoTypes';
 export * from './HexGridInterfaces';
 
 // Terrain System
-export * from './TerrainTypes';
+export {
+  CoverLevel,
+  TerrainType,
+  type IGeneratedMap,
+  type IHexTerrain,
+  type ITerrainFeature,
+  type ITerrainProperties,
+} from './TerrainTypes';
+export * from './TerrainProperties';
 
 export * from './EnvironmentalConditions';
 
