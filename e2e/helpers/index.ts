@@ -85,3 +85,17 @@ export {
   type SeededMatchesRowFields,
   type SeededMatchStatus,
 } from './matchLogSeeding';
+
+// Roster-materialization-handoff seam trust anchor helpers
+export {
+  createSeamMaterializedRowTracker,
+  createSilentStepRecorder,
+  createUniqueSeamCampaign,
+  deleteSeamMaterializedRows,
+  launchSelectedRosterToPreBattle,
+  openSeamMissionLaunchBriefing,
+  selectAllRosterUnits,
+  type SeamCampaignOptions,
+  type SeamLaunchResult,
+  type SeamMaterializedRowIds,
+} from './seamCampaign';

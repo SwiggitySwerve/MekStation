@@ -131,7 +131,10 @@ export function ForceCard({
                         `Slot ${assignment.slot}`)
                       : `Slot ${assignment.slot}`}
                     {assignment.pilotId && (
-                      <span className="text-text-theme-muted ml-2 text-xs">
+                      <span
+                        className="text-text-theme-muted ml-2 text-xs"
+                        data-testid="pilot-assignment-indicator"
+                      >
                         (pilot assigned)
                       </span>
                     )}
