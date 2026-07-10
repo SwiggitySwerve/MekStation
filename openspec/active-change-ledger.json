@@ -3,20 +3,8 @@
     {
       "name": "add-flow-audit-routines",
       "status": "in-progress",
-      "reason": "User-facing flow-audit routines (qc:flow --list/--until/--hold/--viewport) per 2026-07-09 council decision; artifacts complete, implementation pending via /opsx:apply.",
-      "lastReviewed": "2026-07-09"
-    },
-    {
-      "name": "fix-instant-defeat-on-initiative",
-      "status": "in-progress",
-      "reason": "Wave-2 critical C6: fresh campaign 4v4 instantly ends Defeat-Destruction on Initiative advance (walkthrough-2 2026-07-09).",
-      "lastReviewed": "2026-07-09"
-    },
-    {
-      "name": "fix-coop-mutation-propagation",
-      "status": "in-progress",
-      "reason": "Wave-2 major C7: host co-op mutations never persist to shared record; guest blind even after reload (walkthrough-2 2026-07-09).",
-      "lastReviewed": "2026-07-09"
+      "reason": "Parallel session's change (merged via PR #1021); folder remains active pending its owner's archive/close-out. Accounted here during wave-2 archive so CI stays truthful.",
+      "lastReviewed": "2026-07-10"
     }
   ]
 }
