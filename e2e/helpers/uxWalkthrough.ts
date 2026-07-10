@@ -63,6 +63,26 @@ export interface WalkthroughStepRecord {
   readonly failure?: string;
 }
 
+export type WalkthroughCheckpointStatus =
+  | WalkthroughStepRecord['status']
+  | 'not-run';
+
+export interface WalkthroughCheckpointRecord {
+  readonly name: string;
+  readonly stepIndex: number | null;
+  readonly status: WalkthroughCheckpointStatus;
+}
+
+export interface WalkthroughEntityRecord {
+  readonly kind: string;
+  readonly id: string;
+}
+
+export interface WalkthroughHoldUrlRecord {
+  readonly label: string;
+  readonly url: string;
+}
+
 export interface WalkthroughJourneyRecord {
   readonly journey: string;
   readonly persona: string;
@@ -72,6 +92,9 @@ export interface WalkthroughJourneyRecord {
   readonly status: 'ok' | 'failed';
   readonly steps: readonly WalkthroughStepRecord[];
   readonly findings: readonly WalkthroughFindingRecord[];
+  readonly checkpoints?: readonly WalkthroughCheckpointRecord[];
+  readonly entityIds?: readonly WalkthroughEntityRecord[];
+  readonly holdUrls?: readonly WalkthroughHoldUrlRecord[];
 }
 
 interface MutableStep {
@@ -118,6 +141,9 @@ export function resolveRunDir(): string {
 export class WalkthroughRecorder {
   private readonly steps: MutableStep[] = [];
   private readonly findings: WalkthroughFindingRecord[] = [];
+  private readonly checkpoints: WalkthroughCheckpointRecord[] = [];
+  private readonly entityIds: WalkthroughEntityRecord[] = [];
+  private readonly holdUrls: WalkthroughHoldUrlRecord[] = [];
   private readonly surfaces = new Map<string, WalkthroughSurface>();
   private readonly journeyDir: string;
   private readonly runDir: string;
@@ -204,6 +230,47 @@ export class WalkthroughRecorder {
   }
 
   /**
+   * Execute a named flow checkpoint and record the same evidence as a step.
+   * The resulting checkpoint points to its step so runners can join error
+   * counts, screenshots, route, and timing from the journey record.
+   */
+  async checkpoint(
+    name: string,
+    action: (page: Page) => Promise<void>,
+    options?: { readonly note?: string },
+  ): Promise<void>;
+  async checkpoint(
+    name: string,
+    action: (page: Page) => Promise<void>,
+    options?: WalkthroughStepOptions,
+  ): Promise<void>;
+  async checkpoint(
+    name: string,
+    action: (page: Page) => Promise<void>,
+    options?: WalkthroughStepOptions,
+  ): Promise<void> {
+    await this.recordStep(name, action, options, (step) => {
+      this.checkpoints.push({
+        name,
+        stepIndex: step.index,
+        status: step.status,
+      });
+    });
+  }
+
+  /**
+   * Record a checkpoint deliberately skipped by an `--until` stop point.
+   * Not-run checkpoints have no associated step, screenshot, or timing.
+   */
+  markCheckpointNotRun(name: string): void {
+    this.checkpoints.push({
+      name,
+      stepIndex: null,
+      status: 'not-run',
+    });
+  }
+
+  /**
    * Record a known-fragile action without aborting the rest of the catalog.
    * Findings still carry the product interpretation; the failed step is just
    * the screenshot and runtime evidence.
@@ -230,10 +297,26 @@ export class WalkthroughRecorder {
     });
   }
 
+  /**
+   * Register an entity created by a flow so a hold-mode summary can identify
+   * state left on the developer's server for inspection or cleanup.
+   */
+  registerEntity(kind: string, id: string): void {
+    this.entityIds.push({ kind, id });
+  }
+
+  /**
+   * Register a live URL that a hold-mode summary can present for inspection.
+   */
+  registerHoldUrl(label: string, url: string): void {
+    this.holdUrls.push({ label, url });
+  }
+
   private async recordStep(
     title: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
+    onRecorded?: (step: MutableStep) => void,
   ): Promise<void> {
     const surfaceName = normalizeSurfaceName(
       options?.surface ?? DEFAULT_SURFACE,
@@ -279,6 +362,7 @@ export class WalkthroughRecorder {
       surface.consoleBuffer = [];
       surface.pageErrorBuffer = [];
       this.steps.push(record);
+      onRecorded?.(record);
     }
   }
 
@@ -307,6 +391,9 @@ export class WalkthroughRecorder {
       status: this.failed ? 'failed' : 'ok',
       steps: this.steps,
       findings: this.findings,
+      ...(this.checkpoints.length > 0 ? { checkpoints: this.checkpoints } : {}),
+      ...(this.entityIds.length > 0 ? { entityIds: this.entityIds } : {}),
+      ...(this.holdUrls.length > 0 ? { holdUrls: this.holdUrls } : {}),
     };
     const journeysDir = path.join(this.runDir, 'journeys');
     fs.mkdirSync(journeysDir, { recursive: true });

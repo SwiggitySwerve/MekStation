@@ -2,12 +2,12 @@
 
 ## 1. Shared Helper Extraction
 
-- [ ] 1.1 Extract the campaign-wizard, contract-accept, and mission-launch step sequences currently inlined in `e2e/ux-deep-play-audit.spec.ts` into reusable helpers under `e2e/helpers/` (no behavior change); re-run the deep-play journeys to prove the umbrella output is byte-equivalent in structure (journey-qc delta: "Umbrella run remains intact").
+- [x] 1.1 Extract the campaign-wizard, contract-accept, and mission-launch step sequences currently inlined in `e2e/ux-deep-play-audit.spec.ts` into reusable helpers under `e2e/helpers/` (no behavior change); re-run the deep-play journeys to prove the umbrella output is byte-equivalent in structure (journey-qc delta: "Umbrella run remains intact").
 
 ## 2. Recorder Checkpoint API
 
-- [ ] 2.1 Extend `WalkthroughRecorder` (`e2e/helpers/uxWalkthrough.ts`) with `checkpoint(name, action, opts)` — a recorded step that also registers into an ordered checkpoints array — plus a `not-run` status for checkpoints skipped by `--until` (spec: Checkpoint Evidence Capture, Until Semantics). Persist checkpoints and the effective viewport into the per-journey JSON and run manifest.
-- [ ] 2.2 Add run-summary support to the recorder/finish path: per-checkpoint status + console/page error counts + created entity ids (flows push ids as they create campaigns/encounters), consumable by the runner for `summary.json` (spec: Machine-Readable Run Summary).
+- [x] 2.1 Extend `WalkthroughRecorder` (`e2e/helpers/uxWalkthrough.ts`) with `checkpoint(name, action, opts)` — a recorded step that also registers into an ordered checkpoints array — plus a `not-run` status for checkpoints skipped by `--until` (spec: Checkpoint Evidence Capture, Until Semantics). Persist checkpoints and the effective viewport into the per-journey JSON and run manifest.
+- [x] 2.2 Add run-summary support to the recorder/finish path: per-checkpoint status + console/page error counts + created entity ids (flows push ids as they create campaigns/encounters), consumable by the runner for `summary.json` (spec: Machine-Readable Run Summary).
 
 ## 3. Flow Manifest and Flow Spec
 
