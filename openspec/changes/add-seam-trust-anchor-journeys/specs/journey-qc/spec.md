@@ -36,6 +36,7 @@ Journey QC SHALL maintain three named seam trust anchor journeys — recovery re
 - **WHEN** an operator lists the scheduled tests for any anchor spec (`npx playwright test --list <anchor spec>`)
 - **THEN** the anchor's tests SHALL be scheduled only under the desktop chromium project
 - **AND** the responsive projects (Mobile Chrome, Tablet Portrait, Tablet Landscape) SHALL NOT schedule any anchor spec
+- **AND** anchor specs SHALL NOT carry the `@smoke` tag — the smoke project selects by `grep /@smoke/` on Desktop Chrome, so a tagged anchor would double-schedule and violate the chromium-only clause
 
 #### Scenario: Packs and shortcuts never displace an anchor
 - **WHEN** a scenario pack, headless fast-forward path, or store-injection fixture covers surface overlapping a seam trust anchor
