@@ -1,6 +1,12 @@
 {
   "allowedActiveChanges": [
     {
+      "name": "add-flow-audit-routines",
+      "status": "in-progress",
+      "reason": "User-facing flow-audit routines (qc:flow --list/--until/--hold/--viewport) per 2026-07-09 council decision; artifacts complete, implementation pending via /opsx:apply.",
+      "lastReviewed": "2026-07-09"
+    },
+    {
       "name": "fix-instant-defeat-on-initiative",
       "status": "in-progress",
       "reason": "Wave-2 critical C6: fresh campaign 4v4 instantly ends Defeat-Destruction on Initiative advance (walkthrough-2 2026-07-09).",
