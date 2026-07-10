@@ -23,11 +23,11 @@ import { takeLoan } from '@/stores/campaign/campaignCommandActions';
 import {
   selectActiveLoans,
   selectBalance,
+  selectBillablePilotCount,
   selectDailyCostProjection,
   selectTransactionLedger,
 } from '@/stores/campaign/campaignCommandSelectors';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
-import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 
 const FINANCES_LOADING = {
   title: 'Finances & Loans',
@@ -46,9 +46,7 @@ export default function FinancesPage(): React.ReactElement {
   if (pendingPage) return pendingPage;
 
   const campaign = getLoadedCampaign(shell);
-  const billablePilotCount = pilots.filter(
-    (pilot) => pilot.status !== CampaignPilotStatus.KIA,
-  ).length;
+  const billablePilotCount = selectBillablePilotCount(pilots);
   const balance = selectBalance(campaign);
   const transactions = selectTransactionLedger(campaign);
   const dailyCost = selectDailyCostProjection(campaign, billablePilotCount);

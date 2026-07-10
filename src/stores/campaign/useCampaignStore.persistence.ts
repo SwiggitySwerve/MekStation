@@ -141,7 +141,10 @@ export interface SerializedCampaignState {
   personnelMarket?: readonly IPersonnelMarketOffer[];
   /** Contract-market offers + declined ids (CP2b design D5; D-1 sweep). */
   contractMarket?: ICampaignContractMarket;
-  /** Active contract progress shown by the dashboard command card. */
+  /**
+   * @deprecated Legacy projection retained for read-tolerant save loading.
+   * Dashboard state derives from `campaign.missions` instead.
+   */
   activeContract?: ICampaignActiveContract;
   /** Unit-market offers stored by unitMarketProcessor (audit D-7, W3.4). */
   unitMarket?: readonly IUnitMarketOffer[];

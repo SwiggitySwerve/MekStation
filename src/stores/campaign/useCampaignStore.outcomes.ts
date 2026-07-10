@@ -8,6 +8,7 @@ import {
 
 import type { CampaignStore } from './useCampaignStore.types';
 
+import { appendContractPaymentActivityEntries } from './contractPaymentActivity';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
 import {
   emitPendingOutcomeAddedEvent,
@@ -182,6 +183,11 @@ export function retryCampaignOutcomeApplication(
       processedBattleIds: [...get().processedBattleIds, matchId],
       outcomeApplyErrors: nextErrors,
     });
+    appendContractPaymentActivityEntries(
+      get().appendActivityLogEntry,
+      result.campaign,
+      result.events,
+    );
     get().saveCampaign();
     return true;
   } catch (err) {

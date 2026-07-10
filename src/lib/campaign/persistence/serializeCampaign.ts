@@ -192,6 +192,8 @@ export function serializeCampaign(campaign: ICampaign): SerializedCampaignBody {
     coopSession: campaign.coopSession,
     personnelMarket: extended.personnelMarket,
     contractMarket: extended.contractMarket,
+    // Legacy envelope mirror: deserialize safely, but no production UI
+    // derives active-contract state from this field.
     activeContract: extended.activeContract,
     unitMarket: extended.unitMarket,
   };
@@ -260,6 +262,8 @@ export function deserializeCampaignBody(
     coopSession: body.coopSession,
     personnelMarket: body.personnelMarket,
     contractMarket: rehydrateContractMarket(body.contractMarket),
+    // Keep legacy snapshots loadable; consumers derive the active contract
+    // from `missions` rather than this compatibility projection.
     activeContract: body.activeContract,
     unitMarket: body.unitMarket,
   } as ICampaign;

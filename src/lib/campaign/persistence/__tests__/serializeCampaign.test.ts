@@ -76,6 +76,26 @@ describe('serializeCampaign / deserializeCampaignBody', () => {
     expect(restored.campaignStartDate).toBeUndefined();
   });
 
+  it('loads a legacy activeContract projection without relying on it', () => {
+    const original = buildPopulatedCampaign();
+    const legacyBody = {
+      ...serializeCampaign(original),
+      activeContract: {
+        id: 'legacy-active-contract',
+        name: 'Legacy Active Contract',
+        employerFactionId: 'davion',
+        deadlineDay: 18,
+        objectivesCompleted: 2,
+        objectivesTotal: 5,
+      },
+    };
+
+    const restored = deserializeCampaignBody(legacyBody);
+
+    expect(restored.id).toBe(original.id);
+    expect(restored.missions).toEqual(original.missions);
+  });
+
   it('is a pure function — does not mutate the input campaign', () => {
     const original = buildPopulatedCampaign();
     const beforeForces = original.forces.size;

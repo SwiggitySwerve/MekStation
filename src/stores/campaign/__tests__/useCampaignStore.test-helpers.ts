@@ -5,6 +5,8 @@
  * sub-store composition, persistence, and day advancement coverage.
  */
 
+import type { IPostBattleReport } from '@/utils/gameplay/postBattleReport';
+
 import { ICampaignOptions } from '@/types/campaign/Campaign';
 import { IMission } from '@/types/campaign/Campaign';
 import {
@@ -13,6 +15,15 @@ import {
   MissionStatus,
 } from '@/types/campaign/enums';
 import { IForce } from '@/types/campaign/Force';
+import { createContract } from '@/types/campaign/Mission';
+import { Money } from '@/types/campaign/Money';
+import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
+import {
+  CombatEndReason,
+  COMBAT_OUTCOME_VERSION,
+  type ICombatOutcome,
+} from '@/types/combat/CombatOutcome';
+import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
   createCampaignStore,
@@ -61,6 +72,56 @@ const createTestMission = (overrides?: Partial<IMission>): IMission => {
     ...overrides,
   };
 };
+
+function queueContractPaymentOutcome(
+  store: ReturnType<typeof createCampaignStore>,
+  matchId: string,
+): ICombatOutcome {
+  store.getState().createCampaign('Contract Payment Campaign', 'mercenary');
+  const campaign = store.getState().getCampaign();
+  if (!campaign) throw new Error('campaign was not created');
+
+  const contract = createContract({
+    id: `contract-${matchId}`,
+    name: 'Immediate Payment Contract',
+    employerId: 'davion',
+    targetId: 'liao',
+    status: MissionStatus.ACTIVE,
+    paymentTerms: createPaymentTerms({
+      basePayment: new Money(400),
+      successPayment: new Money(600),
+    }),
+  });
+  const report: IPostBattleReport = {
+    version: 1,
+    matchId,
+    winner: GameSide.Player,
+    reason: 'destruction',
+    turnCount: 1,
+    units: [],
+    mvpUnitId: null,
+    log: [],
+  };
+  const outcome: ICombatOutcome = {
+    version: COMBAT_OUTCOME_VERSION,
+    matchId,
+    contractId: contract.id,
+    scenarioId: null,
+    endReason: CombatEndReason.Destruction,
+    report,
+    unitDeltas: [],
+    capturedAt: '3025-06-15T12:00:00Z',
+  };
+
+  store.setState({
+    campaign: {
+      ...campaign,
+      missions: new Map([[contract.id, contract]]),
+    },
+    pendingBattleOutcomes: [outcome],
+  });
+  return outcome;
+}
 
 // =============================================================================
 // Mock localStorage for persistence tests
@@ -454,6 +515,22 @@ describe('useCampaignStore', () => {
       expect(newUpdatedAt).not.toBe(originalUpdatedAt);
     });
 
+    it('records a finance activity entry when a day-advance applies a contract payout', () => {
+      queueContractPaymentOutcome(store, 'match-contract-payment-day');
+
+      store.getState().advanceDay();
+
+      expect(store.getState().activityLog).toContainEqual(
+        expect.objectContaining({
+          category: 'finances',
+          payload: expect.objectContaining({
+            event: 'contract-payout',
+            amount: 1000,
+          }),
+        }),
+      );
+    });
+
     it('should advance multiple days correctly', () => {
       store.getState().createCampaign('Test Campaign', 'mercenary');
       const originalDate = new Date(
@@ -777,6 +854,27 @@ describe('useCampaignStore', () => {
   // ===========================================================================
 
   describe('Integration', () => {
+    it('records a finance activity entry when interactive apply posts a contract payout', () => {
+      const outcome = queueContractPaymentOutcome(
+        store,
+        'match-contract-payment-interactive',
+      );
+
+      expect(store.getState().retryOutcomeApplication(outcome.matchId)).toBe(
+        true,
+      );
+
+      expect(store.getState().activityLog).toContainEqual(
+        expect.objectContaining({
+          category: 'finances',
+          payload: expect.objectContaining({
+            event: 'contract-payout',
+            amount: 1000,
+          }),
+        }),
+      );
+    });
+
     it('should support full campaign lifecycle', () => {
       // Create campaign
       const campaignId = store

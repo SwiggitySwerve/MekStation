@@ -1,3 +1,5 @@
+import type { ILoan } from '@/types/campaign/Loan';
+
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
 import {
@@ -13,9 +15,11 @@ import {
   ForceRole,
   FormationLevel,
 } from '@/types/campaign/enums';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { IForce } from '@/types/campaign/Force';
 import { IMission, createContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
+import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
 import { createInjury } from '@/types/campaign/Person';
 
 import { DayPhase, getDayPipeline, _resetDayPipeline } from '../../dayPipeline';
@@ -192,6 +196,105 @@ describe('contractProcessor', () => {
     expect(result.campaign.missions.get('c1')!.status).toBe(
       MissionStatus.SUCCESS,
     );
+  });
+
+  it('drains an unposted legacy fulfillment exactly once', () => {
+    const contract = createContract({
+      id: 'legacy-fulfilled-contract',
+      name: 'Legacy Fulfilled Contract',
+      employerId: 'davion',
+      targetId: 'liao',
+      status: MissionStatus.SUCCESS,
+      paymentTerms: createPaymentTerms({
+        basePayment: new Money(400),
+        successPayment: new Money(600),
+      }),
+    });
+    const campaign = {
+      ...createTestCampaign({
+        missions: new Map([[contract.id, contract]]),
+      }),
+      pendingFulfilledContractIds: [contract.id],
+      processedFulfilledContractIds: [],
+    } as ICampaign & {
+      readonly pendingFulfilledContractIds: readonly string[];
+      readonly processedFulfilledContractIds: readonly string[];
+    };
+
+    const drained = contractProcessor.process(campaign, campaign.currentDate)
+      .campaign as ICampaign & {
+      readonly pendingFulfilledContractIds?: readonly string[];
+      readonly processedFulfilledContractIds?: readonly string[];
+    };
+    const afterRetry = contractProcessor.process(
+      drained,
+      drained.currentDate,
+    ).campaign;
+    const payoutTransactions = afterRetry.finances.transactions.filter(
+      (transaction) =>
+        transaction.type === TransactionType.Income &&
+        transaction.id.startsWith(`tx-contract-close-${contract.id}-`),
+    );
+
+    expect(drained.finances.balance.amount).toBe(1001000);
+    expect(drained.pendingFulfilledContractIds).toEqual([]);
+    expect(drained.processedFulfilledContractIds).toContain(contract.id);
+    expect(payoutTransactions).toHaveLength(1);
+    expect(afterRetry.finances.balance.amount).toBe(
+      drained.finances.balance.amount,
+    );
+  });
+
+  it('preserves the loan ledger while draining an unposted legacy fulfillment', () => {
+    const loans = [
+      {
+        id: 'loan-drain-closure',
+        principal: new Money(120000),
+        annualRate: 0.08,
+        termMonths: 60,
+        monthlyPayment: new Money(2500),
+        remainingPrincipal: new Money(100000),
+        startDate: new Date('3025-01-01T00:00:00Z'),
+        nextPaymentDate: new Date('3025-07-01T00:00:00Z'),
+        paymentsRemaining: 48,
+        isDefaulted: false,
+      },
+    ] satisfies ILoan[];
+    const contract = createContract({
+      id: 'legacy-fulfilled-contract-preserve-loans',
+      name: 'Legacy Fulfilled Contract Preserves Loans',
+      employerId: 'davion',
+      targetId: 'liao',
+      status: MissionStatus.SUCCESS,
+      paymentTerms: createPaymentTerms({
+        basePayment: new Money(400),
+        successPayment: new Money(600),
+      }),
+    });
+    const campaign = {
+      ...createTestCampaign({
+        missions: new Map([[contract.id, contract]]),
+        finances: { transactions: [], balance: new Money(1000000), loans },
+      }),
+      pendingFulfilledContractIds: [contract.id],
+      processedFulfilledContractIds: [],
+    } as ICampaign & {
+      readonly pendingFulfilledContractIds: readonly string[];
+      readonly processedFulfilledContractIds: readonly string[];
+    };
+    const drained = contractProcessor.process(
+      campaign,
+      campaign.currentDate,
+    ).campaign;
+    const paymentTransactions = drained.finances.transactions.filter(
+      (transaction) =>
+        transaction.type === TransactionType.Income &&
+        transaction.id.startsWith(`tx-contract-close-${contract.id}-`),
+    );
+
+    expect(drained.finances.balance.amount).toBe(1001000);
+    expect(paymentTransactions).toHaveLength(1);
+    expect(drained.finances.loans).toEqual(loans);
   });
 });
 

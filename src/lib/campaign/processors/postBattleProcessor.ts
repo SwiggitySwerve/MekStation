@@ -15,6 +15,7 @@ import { publishContractFulfilled } from '../contractFulfillmentBus';
 import { getDayPipeline } from '../dayPipeline';
 import { DayPhase, type IDayEvent } from '../dayPipeline';
 import { applyOutcomePrestige } from '../prestige/applyOutcomePrestige';
+import { applyContractClosure } from './contractClosure';
 import {
   applyContractDelta,
   applyPilotDelta,
@@ -25,6 +26,7 @@ export interface IPostBattleCampaignExtensions {
   readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
   readonly processedBattleIds?: readonly string[];
   readonly pendingFulfilledContractIds?: readonly string[];
+  readonly processedFulfilledContractIds?: readonly string[];
 }
 export type ICampaignWithBattleState = ICampaign &
   IPostBattleCampaignExtensions;
@@ -168,15 +170,11 @@ function applyOutcome(
     ).recentlyAppliedOutcomes ?? []),
     outcome,
   ];
-  const previousFulfilled =
-    (
-      campaign as ICampaignWithBattleState & {
-        readonly pendingFulfilledContractIds?: readonly string[];
-      }
-    ).pendingFulfilledContractIds ?? [];
-  const nextFulfilled = contractDelta?.flippedToTerminal
-    ? [...previousFulfilled, contractDelta.contract.id]
-    : previousFulfilled;
+  const pendingFulfilled = campaign.pendingFulfilledContractIds ?? [];
+  const processedFulfilled = campaign.processedFulfilledContractIds ?? [];
+  const terminalContract = contractDelta?.flippedToTerminal
+    ? contractDelta.contract
+    : null;
   // Per `add-campaign-refit-and-prestige` design D7: the prestige-update
   // step runs when a battle outcome is applied, so per-unit prestige
   // tracks combat results deterministically. The post-battle processor's
@@ -186,18 +184,32 @@ function applyOutcome(
     campaign.unitPrestige ?? [],
     nowIso,
   );
+  const contractClosure = terminalContract
+    ? applyContractClosure(campaign, terminalContract, nowIso)
+    : null;
   const updatedCampaign: ICampaignWithBattleState & {
     readonly recentlyAppliedOutcomes: readonly ICombatOutcome[];
     readonly pendingFulfilledContractIds: readonly string[];
+    readonly processedFulfilledContractIds: readonly string[];
   } = {
     ...campaign,
     missions,
+    finances: contractClosure
+      ? {
+          ...campaign.finances,
+          balance: contractClosure.balance,
+          transactions: contractClosure.transactions,
+        }
+      : campaign.finances,
     pendingBattleOutcomes: remainingQueue,
     processedBattleIds: [...processed, outcome.matchId],
     unitCombatStates: unitStates,
     unitPrestige: updatedPrestige,
     recentlyAppliedOutcomes: recentlyApplied,
-    pendingFulfilledContractIds: nextFulfilled,
+    pendingFulfilledContractIds: pendingFulfilled,
+    processedFulfilledContractIds: terminalContract
+      ? [...processedFulfilled, terminalContract.id]
+      : processedFulfilled,
     updatedAt: nowIso,
   };
   const events: IDayEvent[] = [
@@ -225,6 +237,12 @@ function applyOutcome(
         previousStatus: contractDelta.previousStatus,
         matchId: outcome.matchId,
       },
+    });
+    events.push({
+      type: 'contract_payment',
+      description: contractClosure!.event.description,
+      severity: contractClosure!.event.severity,
+      data: contractClosure!.event.data,
     });
   }
   // --- Commit point (D-5) ---------------------------------------------
@@ -262,9 +280,17 @@ function applyOutcome(
 export function applyPostBattle(
   outcome: ICombatOutcome,
   campaign: ICampaignWithBattleState,
-): { campaign: ICampaignWithBattleState; summary: IPostBattleApplied } {
+): {
+  campaign: ICampaignWithBattleState;
+  summary: IPostBattleApplied;
+  events: IDayEvent[];
+} {
   const result = applyOutcome(campaign, outcome);
-  return { campaign: result.campaign, summary: result.summary };
+  return {
+    campaign: result.campaign,
+    summary: result.summary,
+    events: result.events,
+  };
 }
 export const postBattleProcessor: IDayProcessor = {
   id: 'post-battle',

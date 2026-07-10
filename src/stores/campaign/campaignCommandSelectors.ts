@@ -22,6 +22,7 @@ import type {
   ICampaignWithCommand,
 } from '@/types/campaign/CampaignCommandExtensions';
 import type { ICampaignLoan } from '@/types/campaign/CampaignLoan';
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPersonnelMarketOffer } from '@/types/campaign/markets/marketTypes';
 import type { IContract } from '@/types/campaign/Mission';
 import type { Transaction } from '@/types/campaign/Transaction';
@@ -30,7 +31,10 @@ import {
   DEFAULT_DAILY_MAINTENANCE,
   DEFAULT_DAILY_SALARY,
 } from '@/lib/campaign/dayReportTypes';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { getAllUnits } from '@/types/campaign/Force';
+import { isContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
 
 // =============================================================================
@@ -116,6 +120,16 @@ export interface IDailyCostProjection {
   readonly loanRepayment: number;
   /** Total daily cost in C-bills. */
   readonly total: number;
+}
+
+/**
+ * Count pilots who remain billable for daily salary costs.
+ */
+export function selectBillablePilotCount(
+  pilots: readonly ICampaignRosterEntry[],
+): number {
+  return pilots.filter((pilot) => pilot.status !== CampaignPilotStatus.KIA)
+    .length;
 }
 
 /**
@@ -211,6 +225,60 @@ export function selectActiveLoans(
   campaign: ICampaign | null,
 ): readonly ICampaignLoan[] {
   return selectLoans(campaign).filter((loan) => loan.status === 'active');
+}
+
+// =============================================================================
+// Contracts
+// =============================================================================
+
+/**
+ * Get the contracts eligible for scenario generation.
+ *
+ * A contract is eligible when its endDate is in the future or undefined.
+ * This deliberately does not inspect status because scenario generation
+ * historically used only the end-date predicate.
+ */
+export function getActiveContracts(campaign: ICampaign): readonly IContract[] {
+  const now = campaign.currentDate.getTime();
+  const contracts: IContract[] = [];
+
+  Array.from(campaign.missions.values()).forEach((mission) => {
+    if (!isContract(mission)) return;
+
+    const contract = mission as IContract;
+    if (!contract.endDate) {
+      contracts.push(contract);
+    } else {
+      const endTime = new Date(contract.endDate).getTime();
+      if (endTime > now) {
+        contracts.push(contract);
+      }
+    }
+  });
+
+  return contracts;
+}
+
+/**
+ * Get active-status contracts that are still eligible by the shared
+ * scenario-generation end-date predicate.
+ */
+export function selectActiveContracts(
+  campaign: ICampaign | null,
+): readonly IContract[] {
+  if (!campaign) return EMPTY_CONTRACT_OFFERS;
+  return getActiveContracts(campaign).filter(
+    (contract) => contract.status === MissionStatus.ACTIVE,
+  );
+}
+
+/**
+ * Get the dashboard/Missions-tab active contract, if one exists.
+ */
+export function selectActiveContract(
+  campaign: ICampaign | null,
+): IContract | null {
+  return selectActiveContracts(campaign)[0] ?? null;
 }
 
 // =============================================================================

@@ -24,9 +24,15 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
+import {
+  selectActiveContract,
+  selectBillablePilotCount,
+  selectDailyCostProjection,
+} from '@/stores/campaign/campaignCommandSelectors';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
+import { getAllUnits } from '@/types/campaign/Force';
 
 // =============================================================================
 // Summary shape
@@ -137,42 +143,38 @@ export interface IDashboardSummary {
 function extractActiveContractSummary(
   campaign: ICampaign | null,
 ): IActiveContractSummary {
-  if (!campaign) {
+  const contract = selectActiveContract(campaign);
+  if (!campaign || !contract) {
     return { contract: null };
   }
   // The campaign-command extensions live in
   // src/types/campaign/CampaignCommandExtensions.ts; rather than couple this
   // hook to the full extension shape, we read defensively. The
   // <ActiveContractCard> only needs name/employer/deadline/completion.
-  const extended = campaign as ICampaign & {
-    activeContract?: {
-      id?: string;
-      name?: string;
-      employerFactionId?: string;
-      deadlineDay?: number;
-      objectivesCompleted?: number;
-      objectivesTotal?: number;
-    };
-  };
-  const ac = extended.activeContract;
-  if (!ac || typeof ac.id !== 'string') {
-    return { contract: null };
-  }
+  const endDate = contract.endDate ? new Date(contract.endDate) : null;
   // Surface the campaign's stored `deadlineDay` (already day-of-campaign).
   // The dashboard's "days remaining" is `max(0, deadline - currentDay)`.
   // currentDay is sourced from the day-advance summary; we approximate
   // here by reading campaign.currentDate against startedDate. For Wave
   // 6.1 the deadlineDay is treated as days-remaining directly.
   const daysRemaining =
-    typeof ac.deadlineDay === 'number' ? Math.max(0, ac.deadlineDay) : 0;
+    endDate && !Number.isNaN(endDate.getTime())
+      ? Math.max(
+          0,
+          Math.ceil(
+            (endDate.getTime() - campaign.currentDate.getTime()) /
+              (24 * 60 * 60 * 1000),
+          ),
+        )
+      : 0;
   return {
     contract: {
-      id: ac.id,
-      name: ac.name ?? 'Unnamed Contract',
-      employer: ac.employerFactionId ?? 'Unknown',
+      id: contract.id,
+      name: contract.name,
+      employer: contract.employerId,
       daysRemaining,
-      objectivesCompleted: ac.objectivesCompleted ?? 0,
-      objectivesTotal: ac.objectivesTotal ?? 0,
+      objectivesCompleted: 0,
+      objectivesTotal: contract.scenarioIds.length,
     },
   };
 }
@@ -188,7 +190,6 @@ function extractActiveContractSummary(
 function extractFinancesSummary(
   campaign: ICampaign | null,
   pilotCount: number,
-  unitCount: number,
 ): IFinancesSummary {
   if (!campaign) {
     return {
@@ -220,16 +221,14 @@ function extractFinancesSummary(
   // DEFAULT_DAILY_MAINTENANCE = 100 per unit. The dashboard surfaces
   // those numbers as a quick projection; the authoritative figures
   // come from the day report after an advance.
-  const DEFAULT_DAILY_SALARY = 50;
-  const DEFAULT_DAILY_MAINTENANCE = 100;
-  const dailySalariesAmount = DEFAULT_DAILY_SALARY * pilotCount;
-  const dailyMaintenanceAmount = DEFAULT_DAILY_MAINTENANCE * unitCount;
+  const dailyCost = selectDailyCostProjection(campaign, pilotCount);
+  const dailySalariesAmount = dailyCost.salaries;
+  const dailyMaintenanceAmount = dailyCost.maintenance;
   // Loan repayment is part of `dailyCostsProcessor` output; quick-estimate
   // it as zero here — the dashboard's day-advance card surfaces the
   // authoritative number after the next advance.
-  const dailyLoanRepaymentAmount = 0;
-  const dailyTotalAmount =
-    dailySalariesAmount + dailyMaintenanceAmount + dailyLoanRepaymentAmount;
+  const dailyLoanRepaymentAmount = dailyCost.loanRepayment;
+  const dailyTotalAmount = dailyCost.total;
   const runwayDays =
     dailyTotalAmount === 0
       ? Number.POSITIVE_INFINITY
@@ -251,7 +250,7 @@ function extractFinancesSummary(
  */
 export function extractForceSnapshot(
   campaign: ICampaign | null,
-  rosterUnits: readonly IRosterUnitProjection[] = [],
+  _rosterUnits: readonly IRosterUnitProjection[] = [],
   rosterPilots: readonly ICampaignRosterEntry[] = [],
 ): IForceSnapshotSummary {
   if (!campaign) {
@@ -265,8 +264,9 @@ export function extractForceSnapshot(
   const extended = campaign as ICampaign & {
     repairBay?: { tickets?: readonly unknown[] };
   };
+  const rootForce = campaign.forces.get(campaign.rootForceId);
   return {
-    mechCount: rosterUnits.length,
+    mechCount: rootForce ? getAllUnits(rootForce, campaign.forces).length : 0,
     pilotCount: rosterPilots.length,
     injuredPilotCount: rosterPilots.filter(
       (pilot) => pilot.status !== CampaignPilotStatus.Active,
@@ -447,8 +447,7 @@ export function useCampaignDashboardSummary(): IDashboardSummary | null {
     const activeContract = extractActiveContractSummary(campaign);
     const finances = extractFinancesSummary(
       campaign,
-      forceSnapshot.pilotCount,
-      forceSnapshot.mechCount,
+      selectBillablePilotCount(rosterPilots),
     );
 
     return {
