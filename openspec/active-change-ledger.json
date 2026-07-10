@@ -5,18 +5,6 @@
       "status": "in-progress",
       "reason": "Parallel session's change (merged via PR #1021); folder remains active pending its owner's archive/close-out. Accounted here during wave-2 archive so CI stays truthful.",
       "lastReviewed": "2026-07-10"
-    },
-    {
-      "name": "fix-campaign-list-merge-and-e2e-isolation",
-      "status": "in-progress",
-      "reason": "Wave-4 iteration 1: campaign-list merge-dedupe product fix (XOR hid unsaved store campaigns) + e2e DB-pollution cleanup in 4 persisting specs + quick-play locator updates. Implementation in flight.",
-      "lastReviewed": "2026-07-10"
-    },
-    {
-      "name": "recover-sim-throughput-regression",
-      "status": "planned",
-      "reason": "Wave-4 iteration 2: recover the +42% sim-throughput regression from 7de770fb4 \u2014 de-allocate step-cost helpers, memoize terrainFeaturesFromString, static-bind TerrainType re-exports. Profile-directed (CPU profiles baseline vs current); implementation queued behind wave-4 iter 1.",
-      "lastReviewed": "2026-07-10"
     }
   ]
 }
