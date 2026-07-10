@@ -1,0 +1,829 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-10T04-15-01",
+  "buildMode": "development",
+  "baseUrl": "http://localhost:3600",
+  "startedAt": "2026-07-10T10:15:20.356Z",
+  "finishedAt": "2026-07-10T10:17:17.466Z",
+  "totals": {
+    "journeys": 3,
+    "failedJourneys": 0,
+    "steps": 49,
+    "failedSteps": 0,
+    "findings": 10,
+    "stepsWithConsoleErrors": 5
+  },
+  "journeys": [
+    {
+      "journey": "08-sp-campaign-deep-loop",
+      "persona": "player pushing a campaign from creation through a battle attempt and full sweep",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "startedAt": "2026-07-10T10:15:20.356Z",
+      "finishedAt": "2026-07-10T10:16:27.652Z",
+      "status": "ok",
+      "steps": [
+        {
+          "index": 1,
+          "slug": "01-open-campaign-list",
+          "title": "open campaign list",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/01-open-campaign-list.png",
+          "route": "http://localhost:3600/gameplay/campaigns",
+          "startedAt": "2026-07-10T10:15:20.365Z",
+          "durationMs": 15381,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 2,
+          "slug": "02-start-campaign-wizard",
+          "title": "start campaign wizard",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/02-start-campaign-wizard.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-10T10:15:35.747Z",
+          "durationMs": 3340,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 3,
+          "slug": "03-name-campaign",
+          "title": "name campaign",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/03-name-campaign.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-10T10:15:39.088Z",
+          "durationMs": 489,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 4,
+          "slug": "04-keep-default-mercenary-campaign-type",
+          "title": "keep default mercenary campaign type",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/04-keep-default-mercenary-campaign-type.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-10T10:15:39.577Z",
+          "durationMs": 446,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 5,
+          "slug": "05-keep-standard-campaign-preset",
+          "title": "keep standard campaign preset",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/05-keep-standard-campaign-preset.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-10T10:15:40.023Z",
+          "durationMs": 451,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 6,
+          "slug": "06-add-four-units-and-four-assigned-pilots",
+          "title": "add four units and four assigned pilots",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/06-add-four-units-and-four-assigned-pilots.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-10T10:15:40.474Z",
+          "durationMs": 765,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 7,
+          "slug": "07-submit-campaign-wizard-and-land-on-dashboard",
+          "title": "submit campaign wizard and land on dashboard",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/07-submit-campaign-wizard-and-land-on-dashboard.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi",
+          "startedAt": "2026-07-10T10:15:41.239Z",
+          "durationMs": 1344,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 8,
+          "slug": "08-save-campaign-to-server",
+          "title": "save campaign to server",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/08-save-campaign-to-server.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi",
+          "startedAt": "2026-07-10T10:15:42.583Z",
+          "durationMs": 444,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 9,
+          "slug": "09-open-contract-market",
+          "title": "open contract market",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/09-open-contract-market.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi/contract-market",
+          "startedAt": "2026-07-10T10:15:43.027Z",
+          "durationMs": 3364,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 10,
+          "slug": "10-accept-first-available-contract",
+          "title": "accept first available contract",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/10-accept-first-available-contract.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi/contract-market",
+          "startedAt": "2026-07-10T10:15:46.392Z",
+          "durationMs": 1465,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 11,
+          "slug": "11-open-campaign-missions",
+          "title": "open campaign missions",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/11-open-campaign-missions.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi/missions",
+          "startedAt": "2026-07-10T10:15:47.857Z",
+          "durationMs": 2236,
+          "consoleErrors": [
+            "Failed to load resource: the server responded with a status of 409 (Conflict)"
+          ],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 12,
+          "slug": "12-open-mission-launch-briefing",
+          "title": "open mission launch briefing",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/12-open-mission-launch-briefing.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi/missions/contract-1783678545352-02pb7vg/launch",
+          "startedAt": "2026-07-10T10:15:50.093Z",
+          "durationMs": 3347,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 13,
+          "slug": "13-select-roster-and-launch-mission-to-pre-battle",
+          "title": "select roster and launch mission to pre-battle",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/13-select-roster-and-launch-mission-to-pre-battle.png",
+          "route": "http://localhost:3600/gameplay/encounters/encounter-dff6dc47-2e4a-4dd8-87ad-63ce329f1ad5/pre-battle?campaignId=campaign-1783678541278-d1fvlpi&missionId=contract-1783678545352-02pb7vg",
+          "startedAt": "2026-07-10T10:15:53.440Z",
+          "durationMs": 4465,
+          "consoleErrors": [
+            "Failed to load resource: the server responded with a status of 409 (Conflict)"
+          ],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 14,
+          "slug": "14-attempt-manual-tactical-play-from-pre-battle",
+          "title": "attempt manual tactical play from pre-battle",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/14-attempt-manual-tactical-play-from-pre-battle.png",
+          "route": "http://localhost:3600/gameplay/games/72f70a5e-97a2-40d0-a171-89865c77c2de?campaignId=campaign-1783678541278-d1fvlpi&missionId=contract-1783678545352-02pb7vg",
+          "startedAt": "2026-07-10T10:15:57.906Z",
+          "durationMs": 6236,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "Known-fragile C1 surface; records current phase and movement affordances."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 15,
+          "slug": "15-return-to-pre-battle-and-auto-resolve-mission",
+          "title": "return to pre-battle and auto-resolve mission",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/15-return-to-pre-battle-and-auto-resolve-mission.png",
+          "route": "http://localhost:3600/gameplay/games/103a1944-60a4-4eea-bd03-f935c848076e?campaignId=campaign-1783678541278-d1fvlpi&missionId=contract-1783678545352-02pb7vg",
+          "startedAt": "2026-07-10T10:16:04.142Z",
+          "durationMs": 3969,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 16,
+          "slug": "16-sweep-missions-surface",
+          "title": "sweep missions surface",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/16-sweep-missions-surface.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi/missions",
+          "startedAt": "2026-07-10T10:16:08.111Z",
+          "durationMs": 2491,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 17,
+          "slug": "17-sweep-campaign-dashboard",
+          "title": "sweep campaign dashboard",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/17-sweep-campaign-dashboard.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi",
+          "startedAt": "2026-07-10T10:16:10.602Z",
+          "durationMs": 1322,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 18,
+          "slug": "18-sweep-finances-surface",
+          "title": "sweep finances surface",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/18-sweep-finances-surface.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi/finances",
+          "startedAt": "2026-07-10T10:16:11.924Z",
+          "durationMs": 2650,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 19,
+          "slug": "19-sweep-personnel-surface",
+          "title": "sweep personnel surface",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/19-sweep-personnel-surface.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi/personnel",
+          "startedAt": "2026-07-10T10:16:14.574Z",
+          "durationMs": 1563,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 20,
+          "slug": "20-sweep-forces-surface",
+          "title": "sweep forces surface",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/20-sweep-forces-surface.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi/forces",
+          "startedAt": "2026-07-10T10:16:16.137Z",
+          "durationMs": 2392,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 21,
+          "slug": "21-sweep-mech-bay-surface",
+          "title": "sweep mech bay surface",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/21-sweep-mech-bay-surface.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi/mech-bay",
+          "startedAt": "2026-07-10T10:16:18.529Z",
+          "durationMs": 1544,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 22,
+          "slug": "22-sweep-starmap-surface",
+          "title": "sweep starmap surface",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/22-sweep-starmap-surface.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi/starmap",
+          "startedAt": "2026-07-10T10:16:20.073Z",
+          "durationMs": 3722,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 23,
+          "slug": "23-advance-campaign-one-day",
+          "title": "advance campaign one day",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/23-advance-campaign-one-day.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi",
+          "startedAt": "2026-07-10T10:16:23.795Z",
+          "durationMs": 1764,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 24,
+          "slug": "24-check-campaign-ledger",
+          "title": "check campaign ledger",
+          "surface": "default",
+          "screenshot": "08-sp-campaign-deep-loop/24-check-campaign-ledger.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678541278-d1fvlpi/log",
+          "startedAt": "2026-07-10T10:16:25.559Z",
+          "durationMs": 2093,
+          "consoleErrors": [
+            "Failed to load resource: the server responded with a status of 409 (Conflict)"
+          ],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        }
+      ],
+      "findings": [
+        {
+          "id": "C4-STATUS",
+          "severity": "minor",
+          "summary": "Pre-battle roster handoff did not show the prior one-unit collapse; 4 selected units produced: Player Force4 unitsDeep Loop 1783678520365 Riot Duty for House Kurita Lance4,733 Battle ValueSlot 1(pilot assigned)leadSlot 2(pilot assigned)memberSlot 3(pilot assigned)memberSlot 4(pilot assigned)member 4,733 Battle Value",
+          "steps": [13]
+        },
+        {
+          "id": "C1-STATUS",
+          "severity": "minor",
+          "summary": "Manual battle attempt reached a playable tactical state or a changed failure mode: phase=Movement; spAdvance=true; composer=false; lockIn=false; no movement error captured",
+          "steps": [14]
+        },
+        {
+          "id": "C5-STATUS",
+          "severity": "minor",
+          "summary": "Starmap loaded during the deep-play sweep without the prior canvas crash signature.",
+          "steps": [22]
+        }
+      ]
+    },
+    {
+      "journey": "09-coop-multiplayer-two-client",
+      "persona": "host and guest proving co-op campaign and 1v1 lobby handoff surfaces",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "startedAt": "2026-07-10T10:16:28.031Z",
+      "finishedAt": "2026-07-10T10:16:41.404Z",
+      "status": "ok",
+      "steps": [
+        {
+          "index": 1,
+          "slug": "01-seed-host-and-guest-vault-identities",
+          "title": "seed host and guest vault identities",
+          "surface": "default",
+          "screenshot": "09-coop-multiplayer-two-client/01-seed-host-and-guest-vault-identities.png",
+          "route": "about:blank",
+          "startedAt": "2026-07-10T10:16:28.032Z",
+          "durationMs": 848,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 2,
+          "slug": "02-host-creates-and-guest-joins-co-op-campaign",
+          "title": "host creates and guest joins co-op campaign",
+          "surface": "default",
+          "screenshot": "09-coop-multiplayer-two-client/02-host-creates-and-guest-joins-co-op-campaign.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678590725-cqrgo9w",
+          "startedAt": "2026-07-10T10:16:28.881Z",
+          "durationMs": 3234,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 3,
+          "slug": "03-guest-direct-route-shows-read-only-co-op-ledger",
+          "title": "guest direct route shows read-only co-op ledger",
+          "surface": "guest",
+          "screenshot": "09-coop-multiplayer-two-client/03-guest-direct-route-shows-read-only-co-op-ledger.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678590725-cqrgo9w/gm-ledger",
+          "startedAt": "2026-07-10T10:16:32.115Z",
+          "durationMs": 3712,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 4,
+          "slug": "04-host-creates-1v1-match-and-guest-joins-lobby",
+          "title": "host creates 1v1 match and guest joins lobby",
+          "surface": "default",
+          "screenshot": "09-coop-multiplayer-two-client/04-host-creates-1v1-match-and-guest-joins-lobby.png",
+          "route": "http://localhost:3600/multiplayer/lobby/U7UDS2",
+          "startedAt": "2026-07-10T10:16:35.827Z",
+          "durationMs": 5019,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        }
+      ],
+      "findings": [
+        {
+          "id": "C3-HARNESS-DIVERGENCE",
+          "severity": "minor",
+          "summary": "Harness uses MULTIPLAYER_STORE=durable for Playwright; it does not reproduce the plain-dev in-memory split-store C3 path. Co-op badge reads wait for hydration before capture. Host campaign=campaign-1783678590725-cqrgo9w, guest campaign=campaign-1783678590725-cqrgo9w, host badge=Co-op session: HostSX64HX, guest badge=Co-op session: Guest, join error=none.",
+          "steps": [2]
+        },
+        {
+          "id": "COOP-GUEST-LEDGER-READONLY",
+          "severity": "minor",
+          "summary": "Guest direct gm-ledger route read-only=true; notice=true, playerView=true, playerLog=true, hiddenAbsent=true, controlsAbsent=true, privateLogAbsent=true, navLinkAbsent=true, gmSurfaceAfterReload=false, survivedReload=true.",
+          "steps": [3]
+        },
+        {
+          "id": "MULTIPLAYER-LOBBY-OCCUPIED",
+          "severity": "minor",
+          "summary": "1v1 lobby occupied=true; host alpha=\"Alpha #1Deep Play HostNot readyLeaveReadySet AI\", host bravo=\"Bravo #1pid_4G9P8LTJuma3rQ4Uc9meWHDVD6x3Not readySet AI\", guest alpha=\"Alpha #1Deep Play HostNot ready\", guest bravo=\"Bravo #1pid_4G9P8LTJuma3rQ4Uc9meWHDVD6x3Not readyLeaveReady\".",
+          "steps": [4]
+        }
+      ]
+    },
+    {
+      "journey": "10-gm-surfaces",
+      "persona": "campaign GM validating ledger interventions and the tactical GM dock",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "startedAt": "2026-07-10T10:16:41.463Z",
+      "finishedAt": "2026-07-10T10:17:17.119Z",
+      "status": "ok",
+      "steps": [
+        {
+          "index": 1,
+          "slug": "01-open-campaign-list",
+          "title": "open campaign list",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/01-open-campaign-list.png",
+          "route": "http://localhost:3600/gameplay/campaigns",
+          "startedAt": "2026-07-10T10:16:41.464Z",
+          "durationMs": 3187,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 2,
+          "slug": "02-start-campaign-wizard",
+          "title": "start campaign wizard",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/02-start-campaign-wizard.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-10T10:16:44.651Z",
+          "durationMs": 3316,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 3,
+          "slug": "03-name-campaign",
+          "title": "name campaign",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/03-name-campaign.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-10T10:16:47.967Z",
+          "durationMs": 464,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 4,
+          "slug": "04-keep-default-mercenary-campaign-type",
+          "title": "keep default mercenary campaign type",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/04-keep-default-mercenary-campaign-type.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-10T10:16:48.431Z",
+          "durationMs": 441,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 5,
+          "slug": "05-keep-standard-campaign-preset",
+          "title": "keep standard campaign preset",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/05-keep-standard-campaign-preset.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-10T10:16:48.872Z",
+          "durationMs": 447,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 6,
+          "slug": "06-add-four-units-and-four-assigned-pilots",
+          "title": "add four units and four assigned pilots",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/06-add-four-units-and-four-assigned-pilots.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-10T10:16:49.319Z",
+          "durationMs": 752,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 7,
+          "slug": "07-submit-campaign-wizard-and-land-on-dashboard",
+          "title": "submit campaign wizard and land on dashboard",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/07-submit-campaign-wizard-and-land-on-dashboard.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec",
+          "startedAt": "2026-07-10T10:16:50.071Z",
+          "durationMs": 834,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 8,
+          "slug": "08-open-campaign-gm-ledger",
+          "title": "open campaign GM ledger",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/08-open-campaign-gm-ledger.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/gm-ledger",
+          "startedAt": "2026-07-10T10:16:50.905Z",
+          "durationMs": 1263,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "Merchant preview=ready, approval=ApprovalApproved and applied to campaign state., playerLog=Player Action LogMerchant charge corrected by +2,500.00 C-bills.Finances - approved, privateLog=GM LedgerMerchant charge corrected by +2,500.00 C-bills.Hidden campaign merchant reversal: duplicated charge from a black-market branch.Without this GM action the duplicated merchant charge remains on the campaign ledger.Merchant inventory clue remains GM-only until the players discover it in play.."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 9,
+          "slug": "09-generate-and-approve-merchant-ledger-correction",
+          "title": "generate and approve merchant ledger correction",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/09-generate-and-approve-merchant-ledger-correction.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/gm-ledger",
+          "startedAt": "2026-07-10T10:16:52.168Z",
+          "durationMs": 508,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "Merchant conflict status=requires-manual-takeover, approveDisabled=true."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 10,
+          "slug": "10-preview-merchant-conflict-blocked-approval",
+          "title": "preview merchant conflict blocked approval",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/10-preview-merchant-conflict-blocked-approval.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/gm-ledger",
+          "startedAt": "2026-07-10T10:16:52.676Z",
+          "durationMs": 447,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "Time cascade preview=2026-07-10 -> 2026-07-12 (2 days); external effects=none rendered. Current UI renders summary plus effects list, not a per-day expanded breakdown."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 11,
+          "slug": "11-preview-and-approve-time-cascade-correction",
+          "title": "preview and approve time-cascade correction",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/11-preview-and-approve-time-cascade-correction.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/gm-ledger",
+          "startedAt": "2026-07-10T10:16:53.123Z",
+          "durationMs": 543,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 12,
+          "slug": "12-return-to-dashboard-before-battle-setup-save",
+          "title": "return to dashboard before battle setup save",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/12-return-to-dashboard-before-battle-setup-save.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec",
+          "startedAt": "2026-07-10T10:16:53.666Z",
+          "durationMs": 1254,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 13,
+          "slug": "13-save-campaign-to-server",
+          "title": "save campaign to server",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/13-save-campaign-to-server.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec",
+          "startedAt": "2026-07-10T10:16:54.920Z",
+          "durationMs": 441,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 14,
+          "slug": "14-open-contract-market",
+          "title": "open contract market",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/14-open-contract-market.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/contract-market",
+          "startedAt": "2026-07-10T10:16:55.361Z",
+          "durationMs": 1995,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 15,
+          "slug": "15-accept-first-available-contract",
+          "title": "accept first available contract",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/15-accept-first-available-contract.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/contract-market",
+          "startedAt": "2026-07-10T10:16:57.356Z",
+          "durationMs": 1457,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 16,
+          "slug": "16-open-campaign-missions",
+          "title": "open campaign missions",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/16-open-campaign-missions.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/missions",
+          "startedAt": "2026-07-10T10:16:58.813Z",
+          "durationMs": 2190,
+          "consoleErrors": [
+            "Failed to load resource: the server responded with a status of 409 (Conflict)"
+          ],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 17,
+          "slug": "17-open-mission-launch-briefing",
+          "title": "open mission launch briefing",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/17-open-mission-launch-briefing.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/missions/contract-1783678616326-oyvfnfh/launch",
+          "startedAt": "2026-07-10T10:17:01.003Z",
+          "durationMs": 3350,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 18,
+          "slug": "18-select-roster-and-launch-mission-to-pre-battle",
+          "title": "select roster and launch mission to pre-battle",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/18-select-roster-and-launch-mission-to-pre-battle.png",
+          "route": "http://localhost:3600/gameplay/encounters/encounter-2dc99650-1eef-4f71-a4d3-02481e6f9dbf/pre-battle?campaignId=campaign-1783678610109-slqidec&missionId=contract-1783678616326-oyvfnfh",
+          "startedAt": "2026-07-10T10:17:04.353Z",
+          "durationMs": 3583,
+          "consoleErrors": [
+            "Failed to load resource: the server responded with a status of 409 (Conflict)"
+          ],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 19,
+          "slug": "19-open-manual-battle-before-switching-to-gm-query-mode",
+          "title": "open manual battle before switching to GM query mode",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/19-open-manual-battle-before-switching-to-gm-query-mode.png",
+          "route": "http://localhost:3600/gameplay/games/0c83346b-ea6a-4164-9fdb-1413af7d5835?campaignId=campaign-1783678610109-slqidec&missionId=contract-1783678616326-oyvfnfh",
+          "startedAt": "2026-07-10T10:17:07.936Z",
+          "durationMs": 3147,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 20,
+          "slug": "20-enter-battle-gm-dock-via-query-param",
+          "title": "enter battle GM dock via query param",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/20-enter-battle-gm-dock-via-query-param.png",
+          "route": "http://localhost:3600/gameplay/games/0c83346b-ea6a-4164-9fdb-1413af7d5835?campaignId=campaign-1783678610109-slqidec&missionId=contract-1783678616326-oyvfnfh&gm=1",
+          "startedAt": "2026-07-10T10:17:11.083Z",
+          "durationMs": 4023,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "GM tactical mode is entered by appending ?gm=1; source resolveGameSessionShellMode confirms no in-app toggle exists."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 21,
+          "slug": "21-preview-and-approve-gm-advance-phase",
+          "title": "preview and approve GM Advance Phase",
+          "surface": "default",
+          "screenshot": "10-gm-surfaces/21-preview-and-approve-gm-advance-phase.png",
+          "route": "http://localhost:3600/gameplay/games/0c83346b-ea6a-4164-9fdb-1413af7d5835?campaignId=campaign-1783678610109-slqidec&missionId=contract-1783678616326-oyvfnfh&gm=1",
+          "startedAt": "2026-07-10T10:17:15.106Z",
+          "durationMs": 2012,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        }
+      ],
+      "findings": [
+        {
+          "id": "GM-LEDGER-MERCHANT",
+          "severity": "minor",
+          "summary": "Merchant correction preview and approval were captured with player/private ledger split evidence.",
+          "steps": [9]
+        },
+        {
+          "id": "GM-LEDGER-CONFLICT",
+          "severity": "minor",
+          "summary": "Merchant conflict correction was captured in the blocked approval state.",
+          "steps": [10]
+        },
+        {
+          "id": "GM-TIME-CASCADE",
+          "severity": "moderate",
+          "summary": "Time cascade correction was captured with the full current preview panel; UI currently exposes a summary/effects list rather than per-day breakdown.",
+          "steps": [11]
+        },
+        {
+          "id": "C2-STATUS",
+          "severity": "minor",
+          "summary": "GM Advance Phase before=\"Initiative\" after=\"Movement\"; phaseChanged=true, composer=true, terminal=none, error=none.",
+          "steps": [21]
+        }
+      ]
+    }
+  ]
+}

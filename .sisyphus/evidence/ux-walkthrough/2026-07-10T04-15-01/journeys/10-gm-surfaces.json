@@ -1,0 +1,345 @@
+{
+  "journey": "10-gm-surfaces",
+  "persona": "campaign GM validating ledger interventions and the tactical GM dock",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-10T10:16:41.463Z",
+  "finishedAt": "2026-07-10T10:17:17.119Z",
+  "status": "ok",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-open-campaign-list",
+      "title": "open campaign list",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/01-open-campaign-list.png",
+      "route": "http://localhost:3600/gameplay/campaigns",
+      "startedAt": "2026-07-10T10:16:41.464Z",
+      "durationMs": 3187,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-start-campaign-wizard",
+      "title": "start campaign wizard",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/02-start-campaign-wizard.png",
+      "route": "http://localhost:3600/gameplay/campaigns/create",
+      "startedAt": "2026-07-10T10:16:44.651Z",
+      "durationMs": 3316,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-name-campaign",
+      "title": "name campaign",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/03-name-campaign.png",
+      "route": "http://localhost:3600/gameplay/campaigns/create",
+      "startedAt": "2026-07-10T10:16:47.967Z",
+      "durationMs": 464,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-keep-default-mercenary-campaign-type",
+      "title": "keep default mercenary campaign type",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/04-keep-default-mercenary-campaign-type.png",
+      "route": "http://localhost:3600/gameplay/campaigns/create",
+      "startedAt": "2026-07-10T10:16:48.431Z",
+      "durationMs": 441,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 5,
+      "slug": "05-keep-standard-campaign-preset",
+      "title": "keep standard campaign preset",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/05-keep-standard-campaign-preset.png",
+      "route": "http://localhost:3600/gameplay/campaigns/create",
+      "startedAt": "2026-07-10T10:16:48.872Z",
+      "durationMs": 447,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 6,
+      "slug": "06-add-four-units-and-four-assigned-pilots",
+      "title": "add four units and four assigned pilots",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/06-add-four-units-and-four-assigned-pilots.png",
+      "route": "http://localhost:3600/gameplay/campaigns/create",
+      "startedAt": "2026-07-10T10:16:49.319Z",
+      "durationMs": 752,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 7,
+      "slug": "07-submit-campaign-wizard-and-land-on-dashboard",
+      "title": "submit campaign wizard and land on dashboard",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/07-submit-campaign-wizard-and-land-on-dashboard.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec",
+      "startedAt": "2026-07-10T10:16:50.071Z",
+      "durationMs": 834,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 8,
+      "slug": "08-open-campaign-gm-ledger",
+      "title": "open campaign GM ledger",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/08-open-campaign-gm-ledger.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/gm-ledger",
+      "startedAt": "2026-07-10T10:16:50.905Z",
+      "durationMs": 1263,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [
+        "Merchant preview=ready, approval=ApprovalApproved and applied to campaign state., playerLog=Player Action LogMerchant charge corrected by +2,500.00 C-bills.Finances - approved, privateLog=GM LedgerMerchant charge corrected by +2,500.00 C-bills.Hidden campaign merchant reversal: duplicated charge from a black-market branch.Without this GM action the duplicated merchant charge remains on the campaign ledger.Merchant inventory clue remains GM-only until the players discover it in play.."
+      ],
+      "status": "ok"
+    },
+    {
+      "index": 9,
+      "slug": "09-generate-and-approve-merchant-ledger-correction",
+      "title": "generate and approve merchant ledger correction",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/09-generate-and-approve-merchant-ledger-correction.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/gm-ledger",
+      "startedAt": "2026-07-10T10:16:52.168Z",
+      "durationMs": 508,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [
+        "Merchant conflict status=requires-manual-takeover, approveDisabled=true."
+      ],
+      "status": "ok"
+    },
+    {
+      "index": 10,
+      "slug": "10-preview-merchant-conflict-blocked-approval",
+      "title": "preview merchant conflict blocked approval",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/10-preview-merchant-conflict-blocked-approval.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/gm-ledger",
+      "startedAt": "2026-07-10T10:16:52.676Z",
+      "durationMs": 447,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [
+        "Time cascade preview=2026-07-10 -> 2026-07-12 (2 days); external effects=none rendered. Current UI renders summary plus effects list, not a per-day expanded breakdown."
+      ],
+      "status": "ok"
+    },
+    {
+      "index": 11,
+      "slug": "11-preview-and-approve-time-cascade-correction",
+      "title": "preview and approve time-cascade correction",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/11-preview-and-approve-time-cascade-correction.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/gm-ledger",
+      "startedAt": "2026-07-10T10:16:53.123Z",
+      "durationMs": 543,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 12,
+      "slug": "12-return-to-dashboard-before-battle-setup-save",
+      "title": "return to dashboard before battle setup save",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/12-return-to-dashboard-before-battle-setup-save.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec",
+      "startedAt": "2026-07-10T10:16:53.666Z",
+      "durationMs": 1254,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 13,
+      "slug": "13-save-campaign-to-server",
+      "title": "save campaign to server",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/13-save-campaign-to-server.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec",
+      "startedAt": "2026-07-10T10:16:54.920Z",
+      "durationMs": 441,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 14,
+      "slug": "14-open-contract-market",
+      "title": "open contract market",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/14-open-contract-market.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/contract-market",
+      "startedAt": "2026-07-10T10:16:55.361Z",
+      "durationMs": 1995,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 15,
+      "slug": "15-accept-first-available-contract",
+      "title": "accept first available contract",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/15-accept-first-available-contract.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/contract-market",
+      "startedAt": "2026-07-10T10:16:57.356Z",
+      "durationMs": 1457,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 16,
+      "slug": "16-open-campaign-missions",
+      "title": "open campaign missions",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/16-open-campaign-missions.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/missions",
+      "startedAt": "2026-07-10T10:16:58.813Z",
+      "durationMs": 2190,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      ],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 17,
+      "slug": "17-open-mission-launch-briefing",
+      "title": "open mission launch briefing",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/17-open-mission-launch-briefing.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678610109-slqidec/missions/contract-1783678616326-oyvfnfh/launch",
+      "startedAt": "2026-07-10T10:17:01.003Z",
+      "durationMs": 3350,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 18,
+      "slug": "18-select-roster-and-launch-mission-to-pre-battle",
+      "title": "select roster and launch mission to pre-battle",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/18-select-roster-and-launch-mission-to-pre-battle.png",
+      "route": "http://localhost:3600/gameplay/encounters/encounter-2dc99650-1eef-4f71-a4d3-02481e6f9dbf/pre-battle?campaignId=campaign-1783678610109-slqidec&missionId=contract-1783678616326-oyvfnfh",
+      "startedAt": "2026-07-10T10:17:04.353Z",
+      "durationMs": 3583,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 409 (Conflict)"
+      ],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 19,
+      "slug": "19-open-manual-battle-before-switching-to-gm-query-mode",
+      "title": "open manual battle before switching to GM query mode",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/19-open-manual-battle-before-switching-to-gm-query-mode.png",
+      "route": "http://localhost:3600/gameplay/games/0c83346b-ea6a-4164-9fdb-1413af7d5835?campaignId=campaign-1783678610109-slqidec&missionId=contract-1783678616326-oyvfnfh",
+      "startedAt": "2026-07-10T10:17:07.936Z",
+      "durationMs": 3147,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 20,
+      "slug": "20-enter-battle-gm-dock-via-query-param",
+      "title": "enter battle GM dock via query param",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/20-enter-battle-gm-dock-via-query-param.png",
+      "route": "http://localhost:3600/gameplay/games/0c83346b-ea6a-4164-9fdb-1413af7d5835?campaignId=campaign-1783678610109-slqidec&missionId=contract-1783678616326-oyvfnfh&gm=1",
+      "startedAt": "2026-07-10T10:17:11.083Z",
+      "durationMs": 4023,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [
+        "GM tactical mode is entered by appending ?gm=1; source resolveGameSessionShellMode confirms no in-app toggle exists."
+      ],
+      "status": "ok"
+    },
+    {
+      "index": 21,
+      "slug": "21-preview-and-approve-gm-advance-phase",
+      "title": "preview and approve GM Advance Phase",
+      "surface": "default",
+      "screenshot": "10-gm-surfaces/21-preview-and-approve-gm-advance-phase.png",
+      "route": "http://localhost:3600/gameplay/games/0c83346b-ea6a-4164-9fdb-1413af7d5835?campaignId=campaign-1783678610109-slqidec&missionId=contract-1783678616326-oyvfnfh&gm=1",
+      "startedAt": "2026-07-10T10:17:15.106Z",
+      "durationMs": 2012,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    }
+  ],
+  "findings": [
+    {
+      "id": "GM-LEDGER-MERCHANT",
+      "severity": "minor",
+      "summary": "Merchant correction preview and approval were captured with player/private ledger split evidence.",
+      "steps": [9]
+    },
+    {
+      "id": "GM-LEDGER-CONFLICT",
+      "severity": "minor",
+      "summary": "Merchant conflict correction was captured in the blocked approval state.",
+      "steps": [10]
+    },
+    {
+      "id": "GM-TIME-CASCADE",
+      "severity": "moderate",
+      "summary": "Time cascade correction was captured with the full current preview panel; UI currently exposes a summary/effects list rather than per-day breakdown.",
+      "steps": [11]
+    },
+    {
+      "id": "C2-STATUS",
+      "severity": "minor",
+      "summary": "GM Advance Phase before=\"Initiative\" after=\"Movement\"; phaseChanged=true, composer=true, terminal=none, error=none.",
+      "steps": [21]
+    }
+  ]
+}

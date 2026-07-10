@@ -1,0 +1,89 @@
+{
+  "journey": "09-coop-multiplayer-two-client",
+  "persona": "host and guest proving co-op campaign and 1v1 lobby handoff surfaces",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-10T10:16:28.031Z",
+  "finishedAt": "2026-07-10T10:16:41.404Z",
+  "status": "ok",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-seed-host-and-guest-vault-identities",
+      "title": "seed host and guest vault identities",
+      "surface": "default",
+      "screenshot": "09-coop-multiplayer-two-client/01-seed-host-and-guest-vault-identities.png",
+      "route": "about:blank",
+      "startedAt": "2026-07-10T10:16:28.032Z",
+      "durationMs": 848,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-host-creates-and-guest-joins-co-op-campaign",
+      "title": "host creates and guest joins co-op campaign",
+      "surface": "default",
+      "screenshot": "09-coop-multiplayer-two-client/02-host-creates-and-guest-joins-co-op-campaign.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678590725-cqrgo9w",
+      "startedAt": "2026-07-10T10:16:28.881Z",
+      "durationMs": 3234,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-guest-direct-route-shows-read-only-co-op-ledger",
+      "title": "guest direct route shows read-only co-op ledger",
+      "surface": "guest",
+      "screenshot": "09-coop-multiplayer-two-client/03-guest-direct-route-shows-read-only-co-op-ledger.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783678590725-cqrgo9w/gm-ledger",
+      "startedAt": "2026-07-10T10:16:32.115Z",
+      "durationMs": 3712,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-host-creates-1v1-match-and-guest-joins-lobby",
+      "title": "host creates 1v1 match and guest joins lobby",
+      "surface": "default",
+      "screenshot": "09-coop-multiplayer-two-client/04-host-creates-1v1-match-and-guest-joins-lobby.png",
+      "route": "http://localhost:3600/multiplayer/lobby/U7UDS2",
+      "startedAt": "2026-07-10T10:16:35.827Z",
+      "durationMs": 5019,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    }
+  ],
+  "findings": [
+    {
+      "id": "C3-HARNESS-DIVERGENCE",
+      "severity": "minor",
+      "summary": "Harness uses MULTIPLAYER_STORE=durable for Playwright; it does not reproduce the plain-dev in-memory split-store C3 path. Co-op badge reads wait for hydration before capture. Host campaign=campaign-1783678590725-cqrgo9w, guest campaign=campaign-1783678590725-cqrgo9w, host badge=Co-op session: HostSX64HX, guest badge=Co-op session: Guest, join error=none.",
+      "steps": [2]
+    },
+    {
+      "id": "COOP-GUEST-LEDGER-READONLY",
+      "severity": "minor",
+      "summary": "Guest direct gm-ledger route read-only=true; notice=true, playerView=true, playerLog=true, hiddenAbsent=true, controlsAbsent=true, privateLogAbsent=true, navLinkAbsent=true, gmSurfaceAfterReload=false, survivedReload=true.",
+      "steps": [3]
+    },
+    {
+      "id": "MULTIPLAYER-LOBBY-OCCUPIED",
+      "severity": "minor",
+      "summary": "1v1 lobby occupied=true; host alpha=\"Alpha #1Deep Play HostNot readyLeaveReadySet AI\", host bravo=\"Bravo #1pid_4G9P8LTJuma3rQ4Uc9meWHDVD6x3Not readySet AI\", guest alpha=\"Alpha #1Deep Play HostNot ready\", guest bravo=\"Bravo #1pid_4G9P8LTJuma3rQ4Uc9meWHDVD6x3Not readyLeaveReady\".",
+      "steps": [4]
+    }
+  ]
+}
