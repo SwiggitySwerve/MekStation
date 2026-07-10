@@ -257,9 +257,12 @@ async function isVisible(locator: Locator): Promise<boolean> {
   return locator.first().isVisible();
 }
 
-async function waitBrieflyForVisible(locator: Locator): Promise<boolean> {
+async function waitBrieflyForVisible(
+  locator: Locator,
+  timeoutMs = 5_000,
+): Promise<boolean> {
   try {
-    await locator.first().waitFor({ state: 'visible', timeout: 5_000 });
+    await locator.first().waitFor({ state: 'visible', timeout: timeoutMs });
     return true;
   } catch {
     return false;
@@ -723,6 +726,9 @@ async function createCoopHostCampaign(page: Page): Promise<{
       .waitFor({ state: 'visible', timeout: 40_000 }),
   ]).catch(() => undefined);
   const hasCampaignRoute = /\/gameplay\/campaigns\/[^/]+$/.test(page.url());
+  if (hasCampaignRoute) {
+    await waitBrieflyForVisible(page.getByTestId('coop-session-badge'), 20_000);
+  }
   return {
     campaignId: hasCampaignRoute ? campaignIdFromUrl(page) : null,
     roomCode: await locatorText(page.getByTestId('coop-session-room-code')),
@@ -770,6 +776,9 @@ async function joinCoopCampaign(
 
   const error = await locatorText(page.getByTestId('join-coop-error'));
   const hasCampaignRoute = /\/gameplay\/campaigns\/[^/]+$/.test(page.url());
+  if (hasCampaignRoute) {
+    await waitBrieflyForVisible(page.getByTestId('coop-session-badge'), 20_000);
+  }
   return {
     campaignId: hasCampaignRoute ? campaignIdFromUrl(page) : null,
     badge: await locatorText(page.getByTestId('coop-session-badge')),
@@ -784,6 +793,7 @@ function recordCoopFinding(
 ): void {
   const summary =
     `Harness uses MULTIPLAYER_STORE=durable for Playwright; it does not reproduce the plain-dev in-memory split-store C3 path. ` +
+    `Co-op badge reads wait for hydration before capture. ` +
     `Host campaign=${observation.hostCampaignId ?? 'none'}, guest campaign=${observation.guestCampaignId ?? 'none'}, ` +
     `host badge=${observation.hostBadge ?? 'none'}, guest badge=${observation.guestBadge ?? 'none'}, ` +
     `join error=${observation.joinError ?? 'none'}.`;

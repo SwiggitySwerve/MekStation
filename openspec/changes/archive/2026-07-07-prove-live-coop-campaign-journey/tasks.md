@@ -20,6 +20,7 @@
   - Files: `server.js`, `src/pages/api/multiplayer/matches/index.ts` (or the create handler), `src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx`
   - Acceptance: after host create, the server holds an authoritative campaign host for the match id; the invite lookup resolves `{matchId,status:'lobby'}`
   - QA: `npm run validate:multiplayer:dev-socket`; add a coop-runtime socket check; `npm run typecheck` clean
+> [2026-07-09] `validate:multiplayer:coop-runtime` retired — it exercised the in-process coopRuntimeSession map (the C7 false-proof path) and never touched real transport. Superseded by `validate:multiplayer:dev-socket` + e2e/coop-campaign-two-browser-journey.spec.ts.
 
 ## 2. Client transport adapter + guest hydration
 

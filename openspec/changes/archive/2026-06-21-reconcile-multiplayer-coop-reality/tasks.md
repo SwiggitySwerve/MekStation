@@ -44,5 +44,6 @@
 ## 8. Verification and documentation
 
 - [x] 8.1 Full verification: `npm run typecheck`, `npm run lint`, `npm run format:check`, the affected Jest suites (multiplayer client/server, co-op route surface, launch page), the dev + packaged socket smoke probes, `npm run validate:multiplayer:coop-runtime`, `npm run build`, `openspec validate reconcile-multiplayer-coop-reality --strict`, and `openspec validate --all --strict` passed. Note: `npm run lint` exits 0 but still reports the repo's existing warning backlog.
+> [2026-07-09] `validate:multiplayer:coop-runtime` retired — it exercised the in-process coopRuntimeSession map (the C7 false-proof path) and never touched real transport. Superseded by `validate:multiplayer:dev-socket` + e2e/coop-campaign-two-browser-journey.spec.ts.
 - [x] 8.2 When the transport-wiring groups (3, 5) land, author the follow-on spec deltas that restore the unconditional SHALLs (un-gate "WebSocket Transport" and "Co-op Campaign Route Surface") and run an authenticated live smoke test (per `verify-never-infer`: rebuild → boot → real socket join → real co-op proposal commit) before claiming multiplayer works.
 - [x] 8.3 Update `docs/audits/2026-06-12-full-codebase-review.md` Cluster MP rows: mark C-5/C-6/C-7/C-8/MP-1/MP-2 as "SoT honest; wiring staged" with links to the staged task groups.
