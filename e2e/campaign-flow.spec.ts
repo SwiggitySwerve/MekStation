@@ -10,10 +10,18 @@
  * @tags @campaign @smoke
  */
 
-import { test, expect, type Page } from '@playwright/test';
+import {
+  test,
+  expect,
+  type Page,
+  request as playwrightRequest,
+} from '@playwright/test';
 
+import { deleteCampaign } from './fixtures/campaign';
 import { withBrowserDiagnostics } from './helpers';
 import { getStoreState } from './helpers/store';
+
+const persistedCampaignIds = new Set<string>();
 
 interface CampaignStoreState {
   readonly campaign: {
@@ -109,7 +117,7 @@ async function createRosteredCampaignViaWizard(page: Page): Promise<string> {
     timeout: 20_000,
   });
   await expect(page.getByTestId('roster-unit-card')).toContainText(
-    'Light Mech',
+    'Locust LCT-1V',
   );
   await expect(page.getByTestId('roster-unit-card')).toContainText('Ready');
 
@@ -242,6 +250,7 @@ async function saveCampaignThroughDashboard(
   page: Page,
   campaignId: string,
 ): Promise<SavedCampaignSnapshot> {
+  persistedCampaignIds.add(campaignId);
   await expect(page.getByTestId('campaign-save-status-card')).toBeVisible({
     timeout: 20_000,
   });
@@ -623,6 +632,29 @@ async function seedDamagedPostBattleCampaign(
   });
 }
 
+// Runs once after the whole file, not after each test: several tests in this
+// file intentionally chain on state a prior test persisted (e.g. Damage
+// Carry-Forward reload assertions). Cleaning up per-test would delete that
+// state mid-file; afterAll still clears the shared DB before the next spec.
+test.afterAll(async ({}, testInfo) => {
+  if (persistedCampaignIds.size === 0) {
+    return;
+  }
+  // page/context fixtures are per-test and unavailable in afterAll
+  // (Playwright 1.57 hard-rejects them); use a standalone request context.
+  const baseURL = testInfo.project.use.baseURL ?? 'http://localhost:3600';
+  const ctx = await playwrightRequest.newContext({ baseURL });
+  for (const campaignId of Array.from(persistedCampaignIds)) {
+    try {
+      await ctx.delete(`/api/campaigns/${encodeURIComponent(campaignId)}`);
+    } catch {
+      // Cleanup is best-effort; the campaign may already be deleted.
+    }
+  }
+  persistedCampaignIds.clear();
+  await ctx.dispose();
+});
+
 test.describe('Campaign Flow - Creation', () => {
   test(
     'creates a rostered campaign through the wizard',
@@ -665,7 +697,7 @@ test.describe('Campaign Flow - Roster', () => {
         new RegExp(`/gameplay/campaigns/${campaignId}$`),
       );
       await expect(page.getByTestId('roster-unit-card')).toContainText(
-        'Light Mech',
+        'Locust LCT-1V',
       );
       await expect(page.getByTestId('roster-unit-card')).toContainText('Ready');
     },
@@ -715,7 +747,7 @@ test.describe('Campaign Flow - Mission Generation', () => {
 
       const accepted = await getCampaignContractSnapshot(page);
       expect(accepted.campaignId).toBe(campaignId);
-      expect(accepted.rosterUnitNames).toContain('Light Mech');
+      expect(accepted.rosterUnitNames).toContain('Locust LCT-1V');
       expect(accepted.rosterPilotNames).toContain('MechWarrior 1');
       expect(accepted.missionIds).toContain(offerId);
       expect(accepted.missionNames).toContain(offerName);

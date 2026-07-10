@@ -107,12 +107,13 @@ export default function CampaignsListPage(): React.ReactElement {
     null,
   );
   const [isClient, setIsClient] = useState(false);
-  const campaigns =
-    campaignSummaries.length > 0
-      ? campaignSummaries.map(summaryToEntry)
-      : campaign
-        ? [campaignToEntry(campaign)]
-        : [];
+  const summaryEntries = campaignSummaries.map(summaryToEntry);
+  const hasStoreOnlyCampaign =
+    campaign &&
+    !campaignSummaries.some((summary) => summary.id === campaign.id);
+  const campaigns = hasStoreOnlyCampaign
+    ? [...summaryEntries, campaignToEntry(campaign)]
+    : summaryEntries;
 
   // Hydration fix: flip to client AFTER mount so SSR + first client
   // render both see the loading state.

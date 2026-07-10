@@ -1,4 +1,9 @@
-import { expect, test, type Page } from '@playwright/test';
+import {
+  expect,
+  request as playwrightRequest,
+  test,
+  type Page,
+} from '@playwright/test';
 
 import { persistCampaignThroughDashboard } from './fixtures/campaign';
 import { withBrowserDiagnostics } from './helpers';
@@ -11,6 +16,8 @@ interface SeededCampaign {
 }
 
 test.setTimeout(120_000);
+
+const persistedCampaignIds = new Set<string>();
 
 async function waitForCampaignStoresReady(page: Page): Promise<void> {
   await page.waitForFunction(
@@ -122,12 +129,36 @@ async function readTravelState(page: Page): Promise<{
 }
 
 test.describe('campaign starmap logistics', () => {
+  // Runs once after the whole describe block (== whole file, single
+  // describe), not after each test: intra-file tests may chain on state a
+  // prior test persisted. Cleaning up per-test would delete that state
+  // mid-file; afterAll still clears the shared DB before the next spec file.
+  test.afterAll(async ({}, testInfo) => {
+    if (persistedCampaignIds.size === 0) {
+      return;
+    }
+    // page/context fixtures are per-test and unavailable in afterAll
+    // (Playwright 1.57 hard-rejects them); use a standalone request context.
+    const baseURL = testInfo.project.use.baseURL ?? 'http://localhost:3600';
+    const ctx = await playwrightRequest.newContext({ baseURL });
+    for (const campaignId of Array.from(persistedCampaignIds)) {
+      try {
+        await ctx.delete(`/api/campaigns/${encodeURIComponent(campaignId)}`);
+      } catch {
+        // Cleanup is best-effort; the campaign may already be deleted.
+      }
+    }
+    persistedCampaignIds.clear();
+    await ctx.dispose();
+  });
+
   test(
     'previews, approves, and reloads campaign travel consequences',
     { tag: ['@campaign', '@starmap', '@logistics'] },
     async ({ page }, testInfo) =>
       withBrowserDiagnostics(page, testInfo, async () => {
         const seeded = await seedTravelCampaign(page);
+        persistedCampaignIds.add(seeded.campaignId);
         await persistCampaignThroughDashboard(page, seeded.campaignId);
 
         await page.goto(`/gameplay/campaigns/${seeded.campaignId}/starmap`);
