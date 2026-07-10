@@ -106,6 +106,7 @@ async function seedCampaignWithRoster(
         units: [
           {
             unitId: atlasUnitId,
+            unitRef: 'atlas-as7-d',
             unitName: 'Atlas',
             chassisVariant: 'AS7-D',
             readiness: 'Ready',
