@@ -16,8 +16,8 @@
 
 ## 4. Runner
 
-- [ ] 4.1 Create `scripts/qc/run-flow-audit.mjs`: `--list` (enumerate flows/checkpoints without a browser), flow-id arg validation (unknown id → non-zero + valid list), `--until` checkpoint validation, `--viewport <preset|WxH>`, catalog generation reusing the `run-ux-walkthrough.mjs` machinery (factor shared manifest/index.html/REVIEW generation into `scripts/qc/lib/` if needed), Playwright spawn via `scripts/playwright/run-playwright.mjs`, `summary.json` + final `FLOW_AUDIT_SUMMARY=<path>` stdout line, and the `qc:flow` package.json script (spec: Flow Registry, Flow-Audit Runner Invocation, Machine-Readable Run Summary).
-- [ ] 4.2 Implement `--hold` mode: probe the dev server on port 3600 and fail loud when absent; run against the existing server (no per-run DB env, no teardown of created state); enforce `holdSafe` on the stop checkpoint with a non-zero, explanatory refusal otherwise; print live URL(s) + created entity ids in the summary (spec: Hold Mode for Local Inspection).
+- [x] 4.1 Create `scripts/qc/run-flow-audit.mjs`: `--list` (enumerate flows/checkpoints without a browser), flow-id arg validation (unknown id → non-zero + valid list), `--until` checkpoint validation, `--viewport <preset|WxH>`, catalog generation reusing the `run-ux-walkthrough.mjs` machinery (factor shared manifest/index.html/REVIEW generation into `scripts/qc/lib/` if needed), Playwright spawn via `scripts/playwright/run-playwright.mjs`, `summary.json` + final `FLOW_AUDIT_SUMMARY=<path>` stdout line, and the `qc:flow` package.json script (spec: Flow Registry, Flow-Audit Runner Invocation, Machine-Readable Run Summary).
+- [x] 4.2 Implement `--hold` mode: probe the dev server on port 3600 and fail loud when absent; run against the existing server (no per-run DB env, no teardown of created state); enforce `holdSafe` on the stop checkpoint with a non-zero, explanatory refusal otherwise; print live URL(s) + created entity ids in the summary (spec: Hold Mode for Local Inspection).
 
 ## 5. Validation, Docs, and Verification
 

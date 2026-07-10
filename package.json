@@ -154,6 +154,7 @@
     "qc:ux-audit": "node scripts/qc/run-ux-walkthrough.mjs",
     "qc:ux-audit:deep": "node scripts/qc/run-ux-walkthrough.mjs --deep",
     "qc:ux-audit:prod": "node scripts/qc/run-ux-walkthrough.mjs --prod",
+    "qc:flow": "node scripts/qc/run-flow-audit.mjs",
     "qc:command-slices": "node scripts/qc/validate-playable-command-screen-slices.mjs --run",
     "qc:command:combat:quick": "node scripts/qc/validate-playable-command-screen-slices.mjs --run --slice=combat-command",
     "qc:command:readiness-stable:quick": "node scripts/qc/validate-playable-command-screen-slices.mjs --run --slice=readiness-stable",
