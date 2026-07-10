@@ -61,6 +61,7 @@ const mockConnectCampaignSyncTransport = jest.fn((_options: unknown) => ({
   role: 'guest',
   sendProposal: jest.fn(),
   sendDecision: jest.fn(),
+  sendHostIntent: jest.fn(),
   sendParticipation: jest.fn(),
   onFrame: (handler: (message: unknown) => void) => {
     Promise.resolve().then(() => {

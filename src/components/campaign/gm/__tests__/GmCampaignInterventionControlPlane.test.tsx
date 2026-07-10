@@ -1,4 +1,11 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import React from 'react';
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
@@ -145,7 +152,7 @@ describe('GmCampaignInterventionControlPlane', () => {
     );
   });
 
-  it('previews and approves a funds correction with player-safe output', () => {
+  it('previews and approves a funds correction with player-safe output', async () => {
     const campaign = createCampaign('GM Ledger Test', 'mercenary', {
       startingFunds: 1_000_000,
     });
@@ -172,7 +179,7 @@ describe('GmCampaignInterventionControlPlane', () => {
 
     fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
 
-    expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(1));
     const updates = onApplyCampaignUpdate.mock.calls[0][0];
     expect(updates.finances.balance.format()).toBe('1,002,500.00 C-bills');
     expect(updates.finances.transactions).toEqual(
@@ -186,7 +193,7 @@ describe('GmCampaignInterventionControlPlane', () => {
 
     const playerLog = within(screen.getByTestId('gm-ledger-player-log'));
     expect(
-      playerLog.getByText(/Merchant charge corrected/),
+      await playerLog.findByText(/Merchant charge corrected/),
     ).toBeInTheDocument();
     expect(playerLog.queryByText(/Hidden campaign/)).not.toBeInTheDocument();
 
@@ -199,7 +206,7 @@ describe('GmCampaignInterventionControlPlane', () => {
     ).toBeInTheDocument();
   });
 
-  it('previews and approves a time cascade with player-safe output', () => {
+  it('previews and approves a time cascade with player-safe output', async () => {
     const campaign = {
       ...createCampaign('GM Time Ledger Test', 'mercenary', {
         startingFunds: 1_000_000,
@@ -229,14 +236,14 @@ describe('GmCampaignInterventionControlPlane', () => {
 
     fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
 
-    expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(1));
     const updates = onApplyCampaignUpdate.mock.calls[0][0];
     expect(updates.currentDate.toISOString()).toBe('3025-02-04T00:00:00.000Z');
     expect(updates.timeCascadeEvents).toHaveLength(1);
 
     const playerLog = within(screen.getByTestId('gm-ledger-player-log'));
     expect(
-      playerLog.getByText(/Campaign time corrected by 2 days/),
+      await playerLog.findByText(/Campaign time corrected by 2 days/),
     ).toBeInTheDocument();
     expect(
       playerLog.queryByText(/Hidden time cascade/),
@@ -249,7 +256,7 @@ describe('GmCampaignInterventionControlPlane', () => {
     expect(gmLog.getByText(/previous timeline/)).toBeInTheDocument();
   });
 
-  it('previews and approves repair, salvage, and unit reload corrections', () => {
+  it('previews and approves repair, salvage, and unit reload corrections', async () => {
     const campaign = makeCampaignWithBaseFixes();
     const onApplyCampaignUpdate = jest.fn();
 
@@ -278,7 +285,7 @@ describe('GmCampaignInterventionControlPlane', () => {
 
     fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
 
-    expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(1));
     expect(onApplyCampaignUpdate.mock.calls[0][0].repairQueue[0]).toMatchObject(
       {
         ticketId: 'ticket-1',
@@ -286,8 +293,10 @@ describe('GmCampaignInterventionControlPlane', () => {
         remainingHours: 0,
       },
     );
-    expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
-      'Repair ticket ticket-1 corrected by the GM.',
+    await waitFor(() =>
+      expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
+        'Repair ticket ticket-1 corrected by the GM.',
+      ),
     );
     expect(screen.getByTestId('gm-ledger-player-log')).not.toHaveTextContent(
       /Hidden repair|maintenance crew|GM-only/i,
@@ -307,14 +316,16 @@ describe('GmCampaignInterventionControlPlane', () => {
 
     fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
 
-    expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(2));
     expect(
       onApplyCampaignUpdate.mock.calls[1][0].salvageAllocations['match-1'],
     ).toMatchObject({
       processed: true,
     });
-    expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
-      'Salvage allocation match-1 corrected by the GM.',
+    await waitFor(() =>
+      expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
+        'Salvage allocation match-1 corrected by the GM.',
+      ),
     );
     expect(screen.getByTestId('gm-ledger-private-log')).toHaveTextContent(
       'Hidden salvage correction',
@@ -331,15 +342,17 @@ describe('GmCampaignInterventionControlPlane', () => {
 
     fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
 
-    expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(3);
+    await waitFor(() => expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(3));
     expect(
       onApplyCampaignUpdate.mock.calls[2][0].unitCombatStates['unit-1'],
     ).toMatchObject({
       combatReady: true,
       lastUpdated: fixedNow(),
     });
-    expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
-      'Unit unit-1 reload reconciliation recorded by the GM.',
+    await waitFor(() =>
+      expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
+        'Unit unit-1 reload reconciliation recorded by the GM.',
+      ),
     );
     expect(screen.getByTestId('gm-ledger-player-log')).not.toHaveTextContent(
       /Hidden unit reload|stale unit|GM-only/i,
@@ -349,7 +362,7 @@ describe('GmCampaignInterventionControlPlane', () => {
     );
   });
 
-  it('previews and applies roster recovery external effects on time approval', () => {
+  it('previews and applies roster recovery external effects on time approval', async () => {
     const campaign = {
       ...createCampaign('GM Roster Recovery Test', 'mercenary', {
         startingFunds: 1_000_000,
@@ -400,6 +413,7 @@ describe('GmCampaignInterventionControlPlane', () => {
 
     fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
 
+    await waitFor(() => expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(1));
     const rosterPilot = useCampaignRosterStore
       .getState()
       .pilots.find((pilot) => pilot.pilotId === 'pilot-recovery');
@@ -408,7 +422,6 @@ describe('GmCampaignInterventionControlPlane', () => {
       recoveryTime: 0,
       injuries: [],
     });
-    expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(1);
     const updates = onApplyCampaignUpdate.mock.calls[0][0];
     expect(updates.timeCascadeEvents?.[0].externalEffects).toEqual([
       expect.objectContaining({
@@ -419,7 +432,7 @@ describe('GmCampaignInterventionControlPlane', () => {
 
     const playerLog = within(screen.getByTestId('gm-ledger-player-log'));
     expect(
-      playerLog.getByText(/Campaign time corrected by 2 days/),
+      await playerLog.findByText(/Campaign time corrected by 2 days/),
     ).toBeInTheDocument();
     expect(playerLog.queryByText(/Mira Holt recovery/)).not.toBeInTheDocument();
     expect(

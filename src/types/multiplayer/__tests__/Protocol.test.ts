@@ -12,6 +12,7 @@
 import {
   assertKnownCampaignSyncFrameKind,
   CampaignDecisionSchema,
+  CampaignHostIntentSchema,
   CampaignJoinSchema,
   CampaignParticipationSchema,
   CampaignProposalSchema,
@@ -388,6 +389,18 @@ describe('Protocol envelope schemas', () => {
           decision: 'approve' as const,
         },
         {
+          kind: 'CampaignHostIntent' as const,
+          matchId: 'match-campaign',
+          ts: nowIso(),
+          playerId: 'pid_host',
+          intent: {
+            kind: 'AdvanceDay' as const,
+            campaignId: 'campaign-1',
+            intentId: 'intent-advance-day-1',
+            payload: { days: 1 },
+          },
+        },
+        {
           kind: 'CampaignParticipation' as const,
           matchId: 'match-campaign',
           ts: nowIso(),
@@ -406,7 +419,8 @@ describe('Protocol envelope schemas', () => {
       expect(CampaignJoinSchema.safeParse(frames[0]).success).toBe(true);
       expect(CampaignProposalSchema.safeParse(frames[1]).success).toBe(true);
       expect(CampaignDecisionSchema.safeParse(frames[2]).success).toBe(true);
-      expect(CampaignParticipationSchema.safeParse(frames[3]).success).toBe(
+      expect(CampaignHostIntentSchema.safeParse(frames[3]).success).toBe(true);
+      expect(CampaignParticipationSchema.safeParse(frames[4]).success).toBe(
         true,
       );
       for (const frame of frames) {

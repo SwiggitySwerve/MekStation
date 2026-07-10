@@ -138,7 +138,10 @@ export function useCampaignRouteLoader({
 
   useEffect(() => {
     if (!isClient || !routeCampaignId) return;
-    if (campaign?.id === routeCampaignId) return;
+    const routeMatches = campaign?.id === routeCampaignId;
+    const guestNeedsServerRefresh =
+      routeMatches && campaign?.coopSession?.mode === 'guest';
+    if (routeMatches && !guestNeedsServerRefresh) return;
     if (requestedCampaignId === routeCampaignId && saveState !== 'error') {
       return;
     }

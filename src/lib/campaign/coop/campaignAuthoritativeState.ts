@@ -12,10 +12,33 @@ export function buildCampaignAuthoritativeState(
   const base = createEmptyCampaignState(campaign.id);
   return {
     ...base,
+    day: campaignDayFor(campaign),
     balance: readCampaignBalance(campaign),
     rosterUnits: buildRosterUnits(campaign),
     factionStanding: buildFactionStanding(campaign),
   };
+}
+
+function campaignDayFor(campaign: ICampaign): number {
+  const currentTime = dateTimeFor(campaign.currentDate);
+  const startTime = dateTimeFor(campaign.campaignStartDate) ?? currentTime;
+  if (currentTime === null || startTime === null) {
+    return 0;
+  }
+  const msPerDay = 24 * 60 * 60 * 1000;
+  return Math.max(0, Math.floor((currentTime - startTime) / msPerDay));
+}
+
+function dateTimeFor(value: Date | string | undefined): number | null {
+  if (value instanceof Date) {
+    const time = value.getTime();
+    return Number.isFinite(time) ? time : null;
+  }
+  if (typeof value === 'string') {
+    const time = new Date(value).getTime();
+    return Number.isFinite(time) ? time : null;
+  }
+  return null;
 }
 
 function readCampaignBalance(campaign: ICampaign): number {

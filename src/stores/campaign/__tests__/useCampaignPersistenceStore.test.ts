@@ -18,9 +18,11 @@ import { createStore } from 'zustand/vanilla';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
+import { toast } from '@/components/shared/Toast';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces';
+import { createHostCoopSession } from '@/types/campaign/CoopSession';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 
 import { registerCampaignStoreAccessor } from '../campaignStoreAccessor';
@@ -29,6 +31,10 @@ import {
   useCampaignPersistenceStore,
 } from '../useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '../useCampaignRosterStore';
+
+jest.mock('@/components/shared/Toast', () => ({
+  toast: jest.fn(),
+}));
 
 // =============================================================================
 // Minimal mock campaign store for the live-campaign seam
@@ -119,22 +125,30 @@ function seedRosterProjection(campaignId: string): void {
   });
 }
 
+async function flushPromises(times = 4): Promise<void> {
+  for (let i = 0; i < times; i++) {
+    await Promise.resolve();
+  }
+}
+
 // =============================================================================
 // Setup
 // =============================================================================
 
 describe('useCampaignPersistenceStore', () => {
   let campaign: ICampaign;
+  let mockStore: StoreApi<MockCampaignStore>;
 
   beforeEach(() => {
     jest.useFakeTimers();
     campaign = buildPopulatedCampaign();
-    const mockStore = makeMockCampaignStore(campaign);
+    mockStore = makeMockCampaignStore(campaign);
     registerCampaignStoreAccessor(
       () => mockStore as unknown as ReturnType<MockAccessor>,
     );
     useCampaignPersistenceStore.getState().reset();
     useCampaignRosterStore.getState().reset();
+    jest.mocked(toast).mockClear();
   });
 
   afterEach(() => {
@@ -161,8 +175,7 @@ describe('useCampaignPersistenceStore', () => {
     expect(fetchMock).not.toHaveBeenCalled();
 
     jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushPromises();
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
@@ -182,8 +195,7 @@ describe('useCampaignPersistenceStore', () => {
     jest.advanceTimersByTime(500);
     store.markDirty();
     jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushPromises();
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
@@ -315,18 +327,19 @@ describe('useCampaignPersistenceStore', () => {
   // Conflict surfacing
   // ---------------------------------------------------------------------------
 
-  it('a 409 sets saveState to conflict and exposes the server record', async () => {
+  it('a repeated 409 sets saveState to conflict and exposes the server record', async () => {
     const serverRecord = buildSerializedCampaign(campaign, 'device-z', 5);
     jest
       .spyOn(global, 'fetch')
       .mockResolvedValue(jsonResponse(409, serverRecord));
 
-    await useCampaignPersistenceStore.getState().saveCampaign();
+    const result = await useCampaignPersistenceStore.getState().saveCampaign();
 
     const state = useCampaignPersistenceStore.getState();
     expect(state.saveState).toBe('conflict');
     expect(state.conflictServerRecord).not.toBeNull();
     expect(state.conflictServerRecord?.version).toBe(5);
+    expect(result).toMatchObject({ status: 'conflict', retriedConflict: true });
   });
 
   it('resolveConflictTakeServer adopts the server record', async () => {
@@ -347,7 +360,9 @@ describe('useCampaignPersistenceStore', () => {
   it('resolveConflictKeepLocal re-PUTs using the server version as base', async () => {
     const serverRecord = buildSerializedCampaign(campaign, 'device-z', 5);
     const fetchMock = jest.spyOn(global, 'fetch');
-    fetchMock.mockResolvedValueOnce(jsonResponse(409, serverRecord));
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(409, serverRecord))
+      .mockResolvedValueOnce(jsonResponse(409, serverRecord));
     await useCampaignPersistenceStore.getState().saveCampaign();
 
     const accepted = buildSerializedCampaign(campaign, 'device-local', 6);
@@ -356,6 +371,120 @@ describe('useCampaignPersistenceStore', () => {
 
     expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
     expect(useCampaignPersistenceStore.getState().baseVersion).toBe(6);
+    const keepLocalBody = JSON.parse(
+      String((fetchMock.mock.calls[2][1] as RequestInit).body),
+    ) as { baseVersion: number };
+    expect(keepLocalBody.baseVersion).toBe(5);
+  });
+
+  it('refreshes the server version and retries once on a 409 conflict', async () => {
+    const conflictRecord = buildSerializedCampaign(campaign, 'device-z', 5);
+    const accepted = buildSerializedCampaign(campaign, 'device-local', 6);
+    const putBodies: Array<{
+      envelope: SerializedCampaign;
+      baseVersion: number;
+    }> = [];
+    const fetchMock = jest.spyOn(global, 'fetch');
+    fetchMock.mockImplementation(async (_input, init) => {
+      const body = JSON.parse(
+        String((init as RequestInit).body),
+      ) as (typeof putBodies)[number];
+      putBodies.push(body);
+      return putBodies.length === 1
+        ? jsonResponse(409, conflictRecord)
+        : jsonResponse(200, accepted);
+    });
+
+    const result = await useCampaignPersistenceStore.getState().saveCampaign();
+
+    expect(result).toMatchObject({ status: 'saved', retriedConflict: true });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(putBodies.map((body) => body.baseVersion)).toEqual([0, 5]);
+    expect(putBodies[1].envelope.body.name).toBe(campaign.name);
+    expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
+    expect(useCampaignPersistenceStore.getState().baseVersion).toBe(6);
+  });
+
+  it('tracks the accepted server record as last persisted even if live state changes before save resolves', async () => {
+    const acceptedCampaign = {
+      ...campaign,
+      name: 'Server Accepted Snapshot',
+    };
+    const acceptedRecord = buildSerializedCampaign(
+      acceptedCampaign,
+      'device-local',
+      1,
+    );
+    let resolveSave!: (response: Response) => void;
+    jest.spyOn(global, 'fetch').mockImplementation(
+      () =>
+        new Promise<Response>((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+
+    const savePromise = useCampaignPersistenceStore.getState().saveCampaign();
+    mockStore.getState().switchCampaign({
+      ...campaign,
+      name: 'Later Live Optimistic State',
+    });
+    resolveSave(jsonResponse(200, acceptedRecord));
+    await savePromise;
+
+    expect(
+      useCampaignPersistenceStore.getState().lastPersistedCampaign?.name,
+    ).toBe('Server Accepted Snapshot');
+  });
+
+  it('rolls back a co-op campaign and toasts when retrying a 409 remains unresolved', async () => {
+    const persistedCampaign = {
+      ...campaign,
+      coopSession: createHostCoopSession('ROOM12', 'match-coop'),
+      currentDate: new Date('3025-01-01T00:00:00.000Z'),
+    };
+    mockStore.getState().switchCampaign(persistedCampaign);
+    const firstAccepted = buildSerializedCampaign(
+      persistedCampaign,
+      'device-host',
+      1,
+    );
+    const fetchMock = jest.spyOn(global, 'fetch');
+    fetchMock.mockResolvedValueOnce(jsonResponse(200, firstAccepted));
+    await useCampaignPersistenceStore.getState().saveCampaign();
+
+    const optimisticCampaign = {
+      ...persistedCampaign,
+      currentDate: new Date('3025-01-02T00:00:00.000Z'),
+    };
+    mockStore.getState().switchCampaign(optimisticCampaign);
+    const serverRecord = buildSerializedCampaign(
+      persistedCampaign,
+      'device-z',
+      2,
+    );
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse(409, serverRecord))
+      .mockResolvedValueOnce(jsonResponse(409, serverRecord));
+
+    const result = await useCampaignPersistenceStore.getState().saveCampaign();
+
+    expect(result).toMatchObject({ status: 'conflict', retriedConflict: true });
+    expect(mockStore.getState().campaign?.currentDate.toISOString()).toBe(
+      '3025-01-01T00:00:00.000Z',
+    );
+    expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
+    expect(useCampaignPersistenceStore.getState().baseVersion).toBe(2);
+    expect(
+      useCampaignPersistenceStore
+        .getState()
+        .lastPersistedCampaign?.currentDate.toISOString(),
+    ).toBe('3025-01-01T00:00:00.000Z');
+    expect(toast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: expect.stringContaining('rolled back'),
+        variant: 'error',
+      }),
+    );
   });
 
   // ---------------------------------------------------------------------------

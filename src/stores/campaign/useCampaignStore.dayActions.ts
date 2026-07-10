@@ -3,6 +3,8 @@ import type { StateCreator } from 'zustand';
 import type { ICampaignWithBattleState } from '@/lib/campaign/processors/postBattleProcessor';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
+import { toast } from '@/components/shared/Toast';
+import { getActiveCampaignSyncTransport } from '@/lib/campaign/coop/campaignSyncTransport';
 import {
   appendDailyBattleAuditEntry,
   buildDailyBattleAuditEntry,
@@ -26,7 +28,11 @@ import {
 } from '@/lib/starmap/starmapTravelPreview';
 import { ICampaign } from '@/types/campaign/Campaign';
 
-import type { CampaignStore } from './useCampaignStore.types';
+import type {
+  CampaignCommitResult,
+  CampaignStore,
+  MaybePromise,
+} from './useCampaignStore.types';
 
 import {
   snapshotRosterPilots,
@@ -221,8 +227,20 @@ function advanceDayAction(
     });
     syncReportMissions(get, report.campaign);
     emitDailyActivityEntries(get, report, postPipeline);
-    get().saveCampaign();
-    return { ...report, campaign: campaignWithAudit };
+    const committedReport = { ...report, campaign: campaignWithAudit };
+    const saveResult = get().saveCampaign();
+    if (isPromiseLike(saveResult)) {
+      return finishCoopAdvanceDay(
+        saveResult,
+        campaign,
+        campaignWithAudit,
+        committedReport,
+      );
+    }
+    if (!saveResult.committed) {
+      return null;
+    }
+    return committedReport;
   };
 }
 
@@ -234,6 +252,9 @@ function advanceDaysAction(get: CampaignGet): CampaignStore['advanceDays'] {
     const reports: DayReport[] = [];
     for (let i = 0; i < count; i++) {
       const report = get().advanceDay();
+      if (isPromiseLike(report)) {
+        return finishAsyncAdvanceDays(get, report, reports, i + 1, count);
+      }
       if (!report) break;
       reports.push(report);
     }
@@ -252,6 +273,93 @@ function campaignDayFor(campaign: ICampaign): number {
   );
 }
 
+function isPromiseLike<T>(value: MaybePromise<T>): value is Promise<T> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'then' in value &&
+    typeof (value as { then?: unknown }).then === 'function'
+  );
+}
+
+async function finishAsyncAdvanceDays(
+  get: CampaignGet,
+  firstPending: Promise<DayReport | null>,
+  reports: DayReport[],
+  nextIndex: number,
+  count: number,
+): Promise<DayReport[] | null> {
+  const firstReport = await firstPending;
+  if (firstReport) {
+    reports.push(firstReport);
+  }
+  for (let i = nextIndex; i < count; i++) {
+    const report = await get().advanceDay();
+    if (!report) break;
+    reports.push(report);
+  }
+  return reports.length > 0 ? reports : null;
+}
+
+async function finishCoopAdvanceDay(
+  saveResult: Promise<CampaignCommitResult>,
+  beforeCampaign: ICampaign,
+  afterCampaign: ICampaign,
+  report: DayReport,
+): Promise<DayReport | null> {
+  const committed = await saveResult;
+  if (!committed.committed) {
+    return null;
+  }
+  await emitCoopDayAdvancedEvent(beforeCampaign, afterCampaign);
+  return report;
+}
+
+function emitCoopDayAdvancedEvent(
+  beforeCampaign: ICampaign,
+  afterCampaign: ICampaign,
+): void {
+  if (!beforeCampaign.coopSession) {
+    return;
+  }
+  const matchId =
+    beforeCampaign.coopSession.matchId ??
+    beforeCampaign.coopSession.hostMatchId;
+  if (!matchId) {
+    return;
+  }
+  try {
+    const transport = getActiveCampaignSyncTransport(matchId);
+    if (!transport || transport.role !== 'host') {
+      toast({
+        message:
+          'Co-op day advance was saved but the live host connection is unavailable. Guests may need to refetch.',
+        variant: 'warning',
+        duration: 7000,
+      });
+      return;
+    }
+    const dayDelta = Math.max(
+      1,
+      campaignDayFor(afterCampaign) - campaignDayFor(beforeCampaign),
+    );
+    transport.sendHostIntent({
+      kind: 'AdvanceDay',
+      campaignId: beforeCampaign.id,
+      intentId: `host-advance-day-${beforeCampaign.id}-${afterCampaign.currentDate.toISOString()}`,
+      payload: { days: dayDelta },
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'co-op push failed';
+    toast({
+      message: `Co-op day advance was saved but live push failed: ${message}. Guests may need to refetch.`,
+      variant: 'warning',
+      duration: 7000,
+    });
+  }
+}
+
 function travelToSystemAction(
   set: CampaignSet,
   get: CampaignGet,
@@ -264,9 +372,12 @@ function travelToSystemAction(
     }
     set({ campaign: preview.afterCampaign });
     emitTravelActivityEntries(get, preview);
-    get().saveCampaign();
+    const saveResult = get().saveCampaign();
     logTravelCommitSucceeded(preview);
-    return true;
+    if (isPromiseLike(saveResult)) {
+      return saveResult.then((result) => result.committed);
+    }
+    return saveResult.committed;
   };
 }
 

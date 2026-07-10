@@ -200,11 +200,13 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
         wireToken: auth.wireToken,
         displayName: auth.displayName,
       });
-      store.getState().updateCampaign({
-        name: defaultCoopCampaignName(roomCode),
-        coopSession: createHostCoopSession(roomCode, data.matchId),
-      });
-      router.push(`/gameplay/campaigns/${campaignId}`);
+      await Promise.resolve(
+        store.getState().updateCampaign({
+          name: defaultCoopCampaignName(roomCode),
+          coopSession: createHostCoopSession(roomCode, data.matchId),
+        }),
+      );
+      await router.push(`/gameplay/campaigns/${campaignId}`);
     } catch (e) {
       setCreateCoopError(e instanceof Error ? e.message : 'Unknown error');
     } finally {
