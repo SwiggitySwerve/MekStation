@@ -1,0 +1,112 @@
+{
+  "journey": "01-first-visit-navigation",
+  "persona": "first-time visitor exploring the app shell",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-10T10:19:59.710Z",
+  "finishedAt": "2026-07-10T10:20:12.829Z",
+  "status": "ok",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-land-on-dashboard",
+      "title": "land on dashboard",
+      "surface": "default",
+      "screenshot": "01-first-visit-navigation/01-land-on-dashboard.png",
+      "route": "http://localhost:3600/",
+      "startedAt": "2026-07-10T10:19:59.711Z",
+      "durationMs": 2176,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-open-browse-menu",
+      "title": "open Browse menu",
+      "surface": "default",
+      "screenshot": "01-first-visit-navigation/02-open-browse-menu.png",
+      "route": "http://localhost:3600/",
+      "startedAt": "2026-07-10T10:20:01.887Z",
+      "durationMs": 689,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-open-gameplay-menu",
+      "title": "open Gameplay menu",
+      "surface": "default",
+      "screenshot": "01-first-visit-navigation/03-open-gameplay-menu.png",
+      "route": "http://localhost:3600/",
+      "startedAt": "2026-07-10T10:20:02.576Z",
+      "durationMs": 705,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-visit-gameplay-hub-from-dashboard-card",
+      "title": "visit gameplay hub from dashboard card",
+      "surface": "default",
+      "screenshot": "01-first-visit-navigation/04-visit-gameplay-hub-from-dashboard-card.png",
+      "route": "http://localhost:3600/gameplay",
+      "startedAt": "2026-07-10T10:20:03.281Z",
+      "durationMs": 2339,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 5,
+      "slug": "05-read-onboarding-page",
+      "title": "read onboarding page",
+      "surface": "default",
+      "screenshot": "01-first-visit-navigation/05-read-onboarding-page.png",
+      "route": "http://localhost:3600/onboarding",
+      "startedAt": "2026-07-10T10:20:05.620Z",
+      "durationMs": 1460,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 6,
+      "slug": "06-return-to-dashboard-from-onboarding",
+      "title": "return to dashboard from onboarding",
+      "surface": "default",
+      "screenshot": "01-first-visit-navigation/06-return-to-dashboard-from-onboarding.png",
+      "route": "http://localhost:3600/",
+      "startedAt": "2026-07-10T10:20:07.080Z",
+      "durationMs": 2419,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 7,
+      "slug": "07-open-settings",
+      "title": "open settings",
+      "surface": "default",
+      "screenshot": "01-first-visit-navigation/07-open-settings.png",
+      "route": "http://localhost:3600/settings",
+      "startedAt": "2026-07-10T10:20:09.499Z",
+      "durationMs": 3330,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    }
+  ],
+  "findings": []
+}
