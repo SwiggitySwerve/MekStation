@@ -23,7 +23,7 @@ import type { ICampaignIntent } from './CampaignSync';
 const cbillSchema = z.number().finite();
 const nonNegativeCbillSchema = z.number().finite().nonnegative();
 
-const rosterUnitSchema = z.object({
+export const rosterUnitSchema = z.object({
   unitId: z.string().min(1),
   designation: z.string().min(1),
   status: z.enum(['operational', 'damaged', 'destroyed']),

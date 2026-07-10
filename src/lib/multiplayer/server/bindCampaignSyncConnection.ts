@@ -5,6 +5,7 @@ import type {
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
 
+import { reconcileCoopBattle } from '@/lib/campaign/coop/reconcileCoopBattle';
 import {
   assertKnownCampaignSyncFrameKind,
   ClientMessageSchema,
@@ -264,6 +265,31 @@ async function handleCampaignHostIntent({
         envelope.intent.intentId,
       ),
     );
+    return;
+  }
+
+  if (envelope.intent.kind === 'ReconcileBattle') {
+    const battleMatchId = envelope.intent.payload.matchId;
+    if (entry.hasReconciledBattle(battleMatchId)) {
+      return;
+    }
+
+    const result = await reconcileCoopBattle(
+      entry.host,
+      envelope.intent.payload,
+    );
+    entry.recordReconciledBattle(battleMatchId);
+    if (!result.ok) {
+      send(
+        socket,
+        errorFrame(
+          matchId,
+          'INVALID_INTENT',
+          result.error ?? 'battle-reconciliation-failed',
+          envelope.intent.intentId,
+        ),
+      );
+    }
     return;
   }
 

@@ -102,14 +102,118 @@ function campaignIdFromUrl(page: Page): string {
 }
 
 async function readGuestMirrorBalance(page: Page): Promise<number> {
-  const text =
-    (await page.getByTestId('guest-mirror-balance').textContent()) ?? '';
+  return readRenderedNumber(page, 'guest-mirror-balance');
+}
+
+async function readGuestMirrorSalvage(page: Page): Promise<number> {
+  return readRenderedNumber(page, 'guest-mirror-salvage');
+}
+
+async function readGuestMirrorUnitCount(page: Page): Promise<number> {
+  return readRenderedNumber(page, 'guest-mirror-unit-count');
+}
+
+async function readRenderedNumber(page: Page, testId: string): Promise<number> {
+  const text = (await page.getByTestId(testId).textContent()) ?? '';
   expect(text.toLowerCase()).not.toContain('pending');
   const numeric = Number(text.replace(/[^\d-]/g, ''));
   if (!Number.isFinite(numeric)) {
-    throw new Error(`Unable to parse guest mirror balance from "${text}"`);
+    throw new Error(`Unable to parse ${testId} from "${text}"`);
   }
   return numeric;
+}
+
+async function waitForCampaignStoreReady(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () => {
+      const win = window as unknown as {
+        __ZUSTAND_STORES__?: { campaign?: unknown };
+      };
+      return win.__ZUSTAND_STORES__?.campaign !== undefined;
+    },
+    { timeout: 15_000 },
+  );
+}
+
+async function enqueueCoopBattleOutcome(
+  page: Page,
+  input: {
+    readonly matchId: string;
+    readonly playerDestroyed: boolean;
+    readonly playerFinalStatus: 'damaged' | 'destroyed';
+    readonly opponentUnitId: string;
+  },
+): Promise<void> {
+  await page.evaluate(
+    ({ matchId, playerDestroyed, playerFinalStatus, opponentUnitId }) => {
+      const win = window as unknown as {
+        __ZUSTAND_STORES__?: {
+          campaign?: {
+            getState: () => {
+              enqueueOutcome: (outcome: Record<string, unknown>) => void;
+            };
+          };
+        };
+      };
+      const state = win.__ZUSTAND_STORES__?.campaign?.getState();
+      if (!state) {
+        throw new Error('Campaign store not exposed on window');
+      }
+
+      const unitDelta = (
+        unitId: string,
+        side: 'player' | 'opponent',
+        destroyed: boolean,
+        finalStatus: 'damaged' | 'destroyed',
+      ) => ({
+        unitId,
+        side,
+        destroyed,
+        finalStatus,
+        armorRemaining: { CT: 5, LT: 12, RT: 12 },
+        internalsRemaining: { CT: 6, LT: 8, RT: 8 },
+        destroyedLocations: [],
+        destroyedComponents: [],
+        heatEnd: 4,
+        ammoRemaining: {},
+        pilotState: {
+          conscious: true,
+          wounds: 1,
+          killed: false,
+          finalStatus: 'wounded',
+        },
+      });
+
+      state.enqueueOutcome({
+        version: 1,
+        matchId,
+        contractId: `e2e-coop-contract-${matchId}`,
+        scenarioId: `e2e-coop-scenario-${matchId}`,
+        endReason: 'destruction',
+        report: {
+          version: 1,
+          matchId,
+          winner: 'player',
+          reason: 'destruction',
+          turnCount: 5,
+          units: [],
+          mvpUnitId: null,
+          log: [],
+        },
+        unitDeltas: [
+          unitDelta(
+            'e2e-coop-unit-1',
+            'player',
+            playerDestroyed,
+            playerFinalStatus,
+          ),
+          unitDelta(opponentUnitId, 'opponent', true, 'destroyed'),
+        ],
+        capturedAt: new Date().toISOString(),
+      });
+    },
+    input,
+  );
 }
 
 async function readDashboardDate(page: Page): Promise<string> {
@@ -321,6 +425,48 @@ test.describe('live co-op campaign two-browser journey', () => {
       await expect
         .poll(() => readGuestMirrorBalance(guestPage), { timeout: 20_000 })
         .toBe(initialGuestBalance - GUEST_SPEND_AMOUNT);
+
+      // Reconciliation is host-authored. Use the sanctioned store bridge as
+      // the trigger and assert only against guest-rendered mirror state.
+      await waitForCampaignStoreReady(hostPage);
+      const sharedBalance = initialGuestBalance - GUEST_SPEND_AMOUNT;
+      expect(await readGuestMirrorBalance(guestPage)).toBe(sharedBalance);
+      expect(await readGuestMirrorUnitCount(guestPage)).toBe(0);
+      expect(await readGuestMirrorSalvage(guestPage)).toBe(0);
+
+      await enqueueCoopBattleOutcome(hostPage, {
+        matchId: 'e2e-coop-reconcile-1',
+        playerDestroyed: false,
+        playerFinalStatus: 'damaged',
+        opponentUnitId: 'e2e-coop-opfor-1',
+      });
+
+      await expect
+        .poll(() => readGuestMirrorUnitCount(guestPage), { timeout: 20_000 })
+        .toBe(1);
+      await expect
+        .poll(() => readGuestMirrorSalvage(guestPage), { timeout: 20_000 })
+        .toBe(50_000);
+      await expect
+        .poll(() => readGuestMirrorBalance(guestPage), { timeout: 20_000 })
+        .toBe(sharedBalance);
+
+      await enqueueCoopBattleOutcome(hostPage, {
+        matchId: 'e2e-coop-reconcile-2',
+        playerDestroyed: true,
+        playerFinalStatus: 'destroyed',
+        opponentUnitId: 'e2e-coop-opfor-2',
+      });
+
+      await expect
+        .poll(() => readGuestMirrorUnitCount(guestPage), { timeout: 20_000 })
+        .toBe(0);
+      await expect
+        .poll(() => readGuestMirrorSalvage(guestPage), { timeout: 20_000 })
+        .toBe(100_000);
+      await expect
+        .poll(() => readGuestMirrorBalance(guestPage), { timeout: 20_000 })
+        .toBe(sharedBalance);
     } finally {
       if (matchId && hostWireToken) {
         const deleteMatchResponse = await request.delete(

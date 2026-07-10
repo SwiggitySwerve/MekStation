@@ -1,6 +1,7 @@
 import type {
   ICampaignEvent,
   ICampaignIntent,
+  ICampaignReconcileBattleIntent,
 } from '@/types/campaign/CampaignSync';
 import type { GmDecision, IGuestProposal } from '@/types/campaign/CoopCampaign';
 import type {
@@ -25,7 +26,9 @@ export interface ICampaignSyncTransport {
   readonly role: 'host' | 'guest';
   sendProposal(proposal: IGuestProposal): void;
   sendDecision(proposalId: string, decision: GmDecision): void;
-  sendHostIntent(intent: ICampaignIntent): void;
+  sendHostIntent(
+    intent: ICampaignIntent | ICampaignReconcileBattleIntent,
+  ): void;
   sendParticipation(participation: ICampaignParticipationPayload): void;
   onFrame(handler: CampaignSyncFrameHandler): () => void;
   onError(handler: (error: unknown) => void): () => void;
@@ -122,7 +125,9 @@ export function connectCampaignSyncTransport(
         decision,
       });
     },
-    sendHostIntent: (intent) => {
+    sendHostIntent: (
+      intent: ICampaignIntent | ICampaignReconcileBattleIntent,
+    ) => {
       sendEnvelope({
         kind: 'CampaignHostIntent',
         matchId: options.matchId,
