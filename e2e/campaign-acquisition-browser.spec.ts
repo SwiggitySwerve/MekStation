@@ -120,6 +120,13 @@ test.describe('campaign acquisition browser proof', () => {
         await expect(page.getByTestId('acquisitions-panel')).toBeVisible({
           timeout: 20_000,
         });
+        // Acquisitions now lives inside the collapsed "Command" nav dropdown
+        // (611daf06e); the closed summary surfaces the active tab label, and
+        // the link only enters the accessibility tree once the group is open.
+        await expect(
+          page.getByTestId('campaign-nav-command-group'),
+        ).toContainText('Acquisitions');
+        await page.getByTestId('campaign-nav-command-group').click();
         await expect(
           page.getByRole('link', { name: 'Acquisitions' }),
         ).toHaveAttribute('aria-current', 'page');

@@ -47,7 +47,10 @@ jobs:
           elif [ "${GITHUB_EVENT_NAME}" = "push" ]; then
             TAG="${GITHUB_REF_NAME}"
           else
-            TAG=$(git tag -l 'v*' --sort=-version:refname | head -n 1)
+            # sed -n 1p (not head -n 1): head closes the pipe early and git
+            # dies with SIGPIPE under `set -euo pipefail` (exit 141), which
+            # killed every workflow_run release since v1.4.225.
+            TAG=$(git tag -l 'v*' --sort=-version:refname | sed -n 1p)
           fi
 
           if [ -z "$TAG" ]; then

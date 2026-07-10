@@ -6,6 +6,12 @@ on:
       - main
     types: [opened, synchronize, reopened, ready_for_review]
 
+# A new push to the same PR supersedes the in-flight run; without this,
+# superseded runs burn to completion (~52 job-minutes each).
+concurrency:
+  group: pr-checks-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 

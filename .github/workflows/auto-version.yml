@@ -75,8 +75,15 @@ jobs:
               BUMP_TYPE="major"
             elif echo "$COMMIT_MSG" | grep -qiE "\[minor\]|feat:|feature:"; then
               BUMP_TYPE="minor"
-            else
+            elif echo "$COMMIT_MSG" | grep -qiE "\[patch\]|\[release\]"; then
               BUMP_TYPE="patch"
+            else
+              # No explicit release marker: do not mint a tag. Every tag fires
+              # the full 4-platform electron + docker release (~60-90 runner
+              # minutes), so ordinary merges must not auto-release. "none"
+              # leaves the version unchanged, check_tag finds it exists, and
+              # all downstream steps skip. Manual releases: workflow_dispatch.
+              BUMP_TYPE="none"
             fi
           fi
 
