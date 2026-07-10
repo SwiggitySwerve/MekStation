@@ -40,6 +40,7 @@ import {
   rollInitiative,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import { createLocationIndexRollerFromD6 } from '@/utils/gameplay/gameSessionHeat.helpers';
 import {
   applyForcedWithdrawalCheck,
   applyMoralePass,
@@ -225,10 +226,22 @@ export function advanceInteractiveSessionPhase(
     // structured depth), so we parse the `water:N` convention (used
     // by future water-tagged hexes) and return 0 for any terrain
     // that doesn't match. Existing grids use `'clear'` → bonus 0.
+    //
+    // Per `add-sp-combat-determinism` design D7: derive the MaxTech
+    // heat-scale critical-location roller from the same injected
+    // stream as every other resolver here. When no roller was
+    // injected (roller-less direct constructions), pass `undefined`
+    // so the resolver keeps its legacy `Math.random` default —
+    // recovered sessions inherit the fix automatically because they
+    // drive phases through this same call.
+    const heatD6Roller = context.d6RollerForResolvers();
     session = resolveHeatPhase(session, context.diceRollerForResolvers(), {
       getWaterDepth: (_unitId, position) => context.waterDepthAt(position),
       getEnvironmentHeatEffect: (_unitId, position) =>
         context.environmentHeatEffectAt(position),
+      maxTechCriticalLocationRoller: heatD6Roller
+        ? createLocationIndexRollerFromD6(heatD6Roller)
+        : undefined,
     });
     session = runMoraleAndWithdrawalPass(session);
     session = advancePhase(session);

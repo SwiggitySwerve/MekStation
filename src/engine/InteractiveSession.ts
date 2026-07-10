@@ -125,6 +125,13 @@ type InteractiveSessionConstructorArgs = [
   d6Roller?: D6Roller,
   optionalRules?: readonly string[],
   victoryConditions?: readonly string[],
+  // Per `add-sp-combat-determinism` design D3: the resolved seed the
+  // caller's `d6Roller` (and, for engine callers, `random`) was
+  // derived from. Persisted onto `IGameConfig.seed` so recovery can
+  // re-seed deterministically (D4). Omitted by every caller that
+  // predates this change (MP, most direct test constructions) —
+  // those sessions persist no seed, unchanged behavior.
+  seed?: number,
 ];
 
 export class InteractiveSession {
@@ -148,9 +155,15 @@ export class InteractiveSession {
    * path, callers (`ServerMatchHost`) inject a roller backed by
    * `crypto.randomBytes` (or by a debug `SeededRandom` when the
    * `?seed=N` query param is set) so the server is the SOLE source of
-   * randomness for game events. When omitted, resolvers fall back to
-   * the engine's existing `defaultD6Roller` (`Math.random`) — preserves
-   * single-player + hot-seat behavior.
+   * randomness for game events.
+   *
+   * Per `add-sp-combat-determinism` (design D2): the engine's
+   * interactive-session factory now always injects a roller too, so
+   * resolvers reading `context.d6Roller` get full stream uniformity
+   * on that SP path. The `?? defaultD6Roller` (`Math.random`)
+   * fallback in the resolvers remains reachable ONLY for roller-less
+   * direct constructions — MP-recovered legacy sessions and direct
+   * test constructions that omit this arg.
    */
   private readonly d6Roller?: D6Roller;
   private startedAt: string;
@@ -177,6 +190,7 @@ export class InteractiveSession {
       d6Roller,
       optionalRules = [],
       victoryConditions = ['elimination'],
+      seed,
     ] = args;
     this.random = random;
     this.grid = grid;
@@ -203,6 +217,7 @@ export class InteractiveSession {
       linkage,
       optionalRules,
       victoryConditions,
+      seed,
     );
     this.linkage = linkage;
 

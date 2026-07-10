@@ -300,6 +300,10 @@ function mergeVehicleCriticalAvailability(
  * campaign linkage. The Wave 5 round-trip identifiers are stamped onto
  * the config so any later consumer of `IGameSession` (review UI,
  * persistence layer) can read them without keeping a parallel map.
+ *
+ * Per `add-sp-combat-determinism` design D3: `seed` is stamped verbatim
+ * (undefined when the constructor's trailing arg was omitted) so
+ * recovery can later read `config.seed` to re-seed deterministically.
  */
 export function buildInteractiveSessionGameConfig(
   mapRadius: number,
@@ -307,6 +311,7 @@ export function buildInteractiveSessionGameConfig(
   linkage: IInteractiveSessionLinkage,
   optionalRules: readonly string[] = [],
   victoryConditions: readonly string[] = ['elimination'],
+  seed?: number,
 ): IGameConfig {
   return {
     mapRadius,
@@ -317,5 +322,6 @@ export function buildInteractiveSessionGameConfig(
     campaignId: linkage.campaignId ?? null,
     contractId: linkage.contractId ?? null,
     scenarioId: linkage.scenarioId ?? null,
+    seed,
   };
 }
