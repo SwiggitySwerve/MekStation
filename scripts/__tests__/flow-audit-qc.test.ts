@@ -23,10 +23,14 @@ interface IFixtureFlow {
   readonly checkpoints: readonly IFixtureCheckpoint[];
 }
 
+// Real OS tempdir per test (not a fixed path under the repo) so parallel
+// jest workers can never collide on the same fixture files.
 function makeTempDir(prefix: string): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
 }
 
+// Matches the real runner/validator's own JSON-file-writing convention
+// (trailing newline) so fixtures look like files a real run would produce.
 function writeJson(filePath: string, value: unknown): void {
   fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
 }
@@ -111,6 +115,9 @@ function buildSpecSource(
   );
 }
 
+// Runs the real validator as a subprocess (not an in-process import) so
+// these tests exercise the exact CLI entry point CI/pre-commit invoke,
+// including its process.exit() codes and stdout/stderr formatting.
 function runValidator(env: NodeJS.ProcessEnv = {}, args: string[] = []) {
   return spawnSync(NODE, [validatorPath, ...args], {
     cwd: repoRoot,

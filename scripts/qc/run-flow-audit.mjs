@@ -86,13 +86,22 @@ if (isDirectRun) {
   });
 }
 
-/** Parse the runner's own CLI args, forwarding anything unrecognized to Playwright. */
+/**
+ * Parse the runner's own CLI args, forwarding anything unrecognized to
+ * Playwright. `--until`/`--viewport` as the final argv token (no value
+ * follows) is reported via `untilMissing`/`viewportMissing` instead of
+ * silently falling back to `null` — the caller fails loud on those once the
+ * flow is resolved, rather than treating "typo'd the flag" the same as
+ * "didn't pass the flag at all".
+ */
 function parseArgs(argv) {
   let flowId = null;
   let list = false;
   let until = null;
+  let untilMissing = false;
   let hold = false;
   let viewport = null;
+  let viewportMissing = false;
   const forward = [];
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -101,11 +110,19 @@ function parseArgs(argv) {
     } else if (arg === '--hold') {
       hold = true;
     } else if (arg === '--until') {
-      until = argv[(i += 1)] ?? null;
+      if (i + 1 >= argv.length) {
+        untilMissing = true;
+      } else {
+        until = argv[(i += 1)];
+      }
     } else if (arg.startsWith('--until=')) {
       until = arg.slice('--until='.length);
     } else if (arg === '--viewport') {
-      viewport = argv[(i += 1)] ?? null;
+      if (i + 1 >= argv.length) {
+        viewportMissing = true;
+      } else {
+        viewport = argv[(i += 1)];
+      }
     } else if (arg.startsWith('--viewport=')) {
       viewport = arg.slice('--viewport='.length);
     } else if (!flowId && !arg.startsWith('--')) {
@@ -114,7 +131,16 @@ function parseArgs(argv) {
       forward.push(arg);
     }
   }
-  return { flowId, list, until, hold, viewport, forward };
+  return {
+    flowId,
+    list,
+    until,
+    untilMissing,
+    hold,
+    viewport,
+    viewportMissing,
+    forward,
+  };
 }
 
 /**
@@ -213,6 +239,22 @@ function localRunId() {
 }
 
 /**
+ * Normalize the raw `--viewport` CLI string to the same label
+ * `resolveViewport()` in `e2e/flow-audits.spec.ts` resolves it to: a known
+ * preset name is matched case-insensitively and reported lowercase (e.g.
+ * `--viewport MOBILE` -> `mobile`), matching the spec's `label: 'mobile'`
+ * literal; anything else (a WxH string, or no `--viewport` at all) is kept
+ * as-is, matching the spec's `label: raw` fallback. `flow.viewports` is the
+ * manifest's own preset list rather than a second hardcoded copy, so this
+ * can't drift from the spec's `VIEWPORT_PRESETS` keys.
+ */
+function normalizeViewportLabel(raw, presetIds) {
+  if (!raw) return 'desktop';
+  const lower = raw.toLowerCase();
+  return presetIds.includes(lower) ? lower : raw;
+}
+
+/**
  * Build `summary.json` (spec: Machine-Readable Run Summary) by joining the
  * single flow journey's checkpoints (name/stepIndex/status) against its steps
  * (console/page errors, duration) — the checkpoint record itself only carries
@@ -250,10 +292,25 @@ function buildSummary({ runDir, catalog, flow, viewportLabel, hold }) {
   };
 }
 
+/**
+ * Runner entry point: parse args, resolve + validate the flow/checkpoint/
+ * viewport selection, spawn Playwright against the dedicated `flow-audit`
+ * project, then generate the shared catalog and flow-specific summary.json
+ * from whatever the child process left behind. Split into helpers above and
+ * a single flat `async function` here (rather than a class) because every
+ * step is sequential and there is exactly one call site (isDirectRun).
+ */
 async function run() {
-  const { flowId, list, until, hold, viewport, forward } = parseArgs(
-    process.argv.slice(2),
-  );
+  const {
+    flowId,
+    list,
+    until,
+    untilMissing,
+    hold,
+    viewport,
+    viewportMissing,
+    forward,
+  } = parseArgs(process.argv.slice(2));
   const manifest = loadManifest();
 
   if (list) {
@@ -273,6 +330,25 @@ async function run() {
     console.error(`[qc:flow] unknown flow id "${flowId}".`);
     console.error(
       `[qc:flow] valid flow ids: ${manifest.map((entry) => entry.id).join(', ')}`,
+    );
+    process.exit(1);
+  }
+
+  // A bare trailing `--until`/`--viewport` (no value follows) must fail loud
+  // rather than silently behave like the flag was never passed — same
+  // "before any browser launches" placement as the unknown-checkpoint check
+  // below, and reported here (not in parseArgs) because the --until message
+  // needs the resolved flow's checkpoint list.
+  if (untilMissing) {
+    console.error('[qc:flow] --until requires a checkpoint value.');
+    console.error(
+      `[qc:flow] valid checkpoints: ${flow.checkpoints.map((cp) => cp.name).join(', ')}`,
+    );
+    process.exit(1);
+  }
+  if (viewportMissing) {
+    console.error(
+      '[qc:flow] --viewport requires a value (mobile|tablet|desktop or WxH).',
     );
     process.exit(1);
   }
@@ -387,7 +463,7 @@ async function run() {
         runDir,
         catalog,
         flow,
-        viewportLabel: viewport ?? 'desktop',
+        viewportLabel: normalizeViewportLabel(viewport, flow.viewports),
         hold,
       });
       const summaryPath = path.join(runDir, 'summary.json');
@@ -409,6 +485,7 @@ async function run() {
   });
 }
 
+/** Human-readable run summary printed to stdout ahead of the machine-readable FLOW_AUDIT_SUMMARY pointer line, so a developer scanning the terminal gets the headline numbers without opening summary.json. */
 function printSummary(catalog, summary) {
   const { totals } = catalog;
   console.log(

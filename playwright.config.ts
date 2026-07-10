@@ -94,14 +94,14 @@ export default defineConfig({
     {
       name: 'chromium',
       // flow-audits.spec.ts (add-flow-audit-routines) is env-var-selected,
-      // single-flow-at-a-time evidence tooling, not a project-wide sweep —
-      // excluded here so bare `npm run test:e2e` and nightly-validation.yml's
-      // `npx playwright test --project=chromium` never silently run all 6
-      // flows (proposal.md non-goal: no CI wiring/behavior changes). The
-      // flow-audit runner (task 4) targets this file directly by path, which
-      // still works: Playwright resolves the CLI file arg against the
-      // invoking project's own testMatch/testIgnore, so the runner must pass
-      // its own project (or config) once it exists rather than `--project=chromium`.
+      // single-flow-at-a-time evidence tooling, not a project-wide sweep. The
+      // primary guard is that the `flow-audit` project below is registered
+      // ONLY when MEKSTATION_FLOW_ID is set (see its comment); this
+      // testIgnore is defense in depth so this project can never match the
+      // file even if that gating changes. scripts/qc/run-flow-audit.mjs is
+      // the runner — it targets the `flow-audit` project by name, not
+      // `--project=chromium` (proposal.md non-goal: no CI wiring/behavior
+      // changes to the other projects).
       testIgnore: ['**/flow-audits.spec.ts'],
       use: { ...devices['Desktop Chrome'] },
     },

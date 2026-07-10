@@ -73,6 +73,9 @@ const REQUIRED_SUBSYSTEMS = [
   'experience',
 ];
 
+// Tags an issue 'error' (vs. a hand-built 'warning' object) so main()'s
+// error/warning split and JSON `status` field don't need a second literal
+// scattered across every call site.
 function fail(message, details = {}) {
   return { severity: 'error', message, ...details };
 }
@@ -316,10 +319,16 @@ function validateSpecCrossCheck(flows, specResult, issues) {
   }
 }
 
+// Only one flag exists today (--json); kept as its own function rather than
+// inlined in main() so a future flag doesn't need to be threaded through
+// main()'s body by hand.
 function parseArgs(argv) {
   return { json: argv.includes('--json') };
 }
 
+// Entry point: run every check against the loaded manifest + parsed spec,
+// then report in either human-readable or --json form and exit non-zero on
+// any error so CI/pre-commit can gate on this without parsing stdout.
 function main() {
   const options = parseArgs(process.argv.slice(2));
   const flows = loadManifest();

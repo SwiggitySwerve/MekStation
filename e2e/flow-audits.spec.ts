@@ -1,12 +1,14 @@
 /**
  * Flow-Audit Routines — one generated Playwright test per manifest flow.
  *
- * Run via the flow-audit runner (`npm run qc:flow -- <id>`, task 4 — not yet
- * built). This file is deliberately `testIgnore`d on every default Playwright
- * project (chromium, Mobile Chrome, Tablet Portrait, Tablet Landscape) so
- * plain `npm run test:e2e` and CI's project-wide sweeps never run all 6 flows
- * unfiltered; task 4's runner is responsible for reaching it (its own
- * project/config, not `--project=chromium`) once it exists.
+ * Run via the flow-audit runner (`npm run qc:flow -- <id>`, implemented at
+ * `scripts/qc/run-flow-audit.mjs`), which spawns Playwright with
+ * `--project=flow-audit` plus the MEKSTATION_FLOW_* env vars below.
+ * playwright.config.ts registers the `flow-audit` project ONLY when
+ * MEKSTATION_FLOW_ID is set, so a bare `npm run test:e2e` / `npx playwright
+ * test` (no `--project` flag) never runs this file — the other projects'
+ * `testIgnore` entries (chromium, Mobile Chrome, Tablet Portrait, Tablet
+ * Landscape) are defense in depth on top of that, not the primary guard.
  *
  * Each flow drives the real UI through the shared `WalkthroughRecorder`, marking
  * one recorder `checkpoint()` per manifest checkpoint in order. Selection travels
@@ -186,17 +188,25 @@ type FlowStageRunner = (env: FlowRunEnv) => Promise<void>;
 const CAMPAIGN_DESCRIPTION =
   'Flow-audit campaign created by the flow-audit routines.';
 
+// Count-guarded visibility check: Playwright's `.isVisible()` on a locator
+// with zero matches throws in strict mode, so tolerant checkpoints need this
+// to observe "the surface never rendered" as `false` instead of crashing.
 async function isVisible(locator: Locator): Promise<boolean> {
   if ((await locator.count()) === 0) return false;
   return locator.first().isVisible();
 }
 
+// Same zero-match guard as isVisible, for optional copy a tolerant checkpoint
+// wants to read without aborting the flow when the surface didn't render it.
 async function locatorText(locator: Locator): Promise<string | null> {
   if ((await locator.count()) === 0) return null;
   const text = await locator.first().textContent();
   return text?.trim() ?? null;
 }
 
+// The pilot-creation wizard's "Create Pilot" button redirects to the new
+// pilot's detail page without returning the id any other way, so the URL is
+// the only place a subsequent checkpoint can recover it from.
 function pilotIdFromUrl(page: Page): string {
   const match = page.url().match(/\/gameplay\/pilots\/([^/?#]+)/);
   if (!match) {
@@ -869,7 +879,11 @@ const FLOW_STAGES: Record<string, Record<string, FlowStageRunner>> = {
 /**
  * Drive one flow's checkpoints in manifest order. After the `--until`
  * checkpoint completes, the remaining checkpoints are recorded `not-run` and
- * the test ends cleanly (spec: Until Semantics).
+ * the test ends cleanly (spec: Until Semantics). A non-tolerant checkpoint
+ * failure also backfills every LATER manifest checkpoint as `not-run` (reusing
+ * the same emission path) before rethrowing, so journeys/<flow>.json and
+ * summary.json always account for every manifest checkpoint instead of the
+ * ones after the failure silently vanishing.
  */
 async function executeFlow(
   env: FlowRunEnv,
@@ -891,7 +905,8 @@ async function executeFlow(
   }
 
   let stopped = false;
-  for (const checkpoint of flow.checkpoints) {
+  for (let i = 0; i < flow.checkpoints.length; i += 1) {
+    const checkpoint = flow.checkpoints[i];
     if (stopped) {
       env.fr.markCheckpointNotRun(checkpoint.name);
       continue;
@@ -902,7 +917,19 @@ async function executeFlow(
         `Flow "${flow.id}" has no runner for manifest checkpoint "${checkpoint.name}"`,
       );
     }
-    await stage(env);
+    try {
+      await stage(env);
+    } catch (error) {
+      // The failing checkpoint itself is already recorded `failed` (the
+      // recorder's `checkpoint()` records before rethrowing on a non-tolerant
+      // failure) — this loop just never reaches the checkpoints after it, so
+      // without this backfill they would simply be missing from the journey
+      // record instead of reading `not-run`. Rethrow so the test stays red.
+      for (let j = i + 1; j < flow.checkpoints.length; j += 1) {
+        env.fr.markCheckpointNotRun(flow.checkpoints[j].name);
+      }
+      throw error;
+    }
     if (until && checkpoint.name === until) {
       stopped = true;
     }
