@@ -35,6 +35,19 @@ const repoRoot = path.resolve(
   '..',
   '..',
 );
+
+// Authority-split statement (journey-qc delta: "Interactive Evidence and CI
+// Authority Split" -- spec: Flow Audits Are Evidence, Never CI Gates). Stamped
+// into every generated catalog's manifest.json, index.html, and REVIEW.md so
+// a green evidence run is never mistaken for merge authority. `run-flow-audit.mjs`
+// imports `aggregateManifest`/`writeIndexHtml`/`writeReviewSkeleton` from this
+// module (design D6), so defining the notice once here covers both the
+// `qc:ux-audit` umbrella and `qc:flow` per-flow catalogs.
+export const AUTHORITY_SPLIT_NOTICE =
+  'This catalog is review evidence for humans and agents, not a PR-blocking CI gate. ' +
+  'Assertion-based suites (unit/integration/e2e assertions and headless invariant nets) ' +
+  'remain the source of permanent authority for CI. Graded findings recorded here inform ' +
+  'review and backlog triage; they never flip a PR-blocking check.';
 const rawArgs = process.argv.slice(2);
 const prod = rawArgs.includes('--prod');
 const deep = rawArgs.includes('--deep');
@@ -143,6 +156,7 @@ export function aggregateManifest(options = {}) {
   const manifest = {
     schemaVersion: 1,
     runId: targetRunId,
+    authorityNotice: AUTHORITY_SPLIT_NOTICE,
     buildMode: targetProd ? 'production' : 'development',
     baseUrl: 'http://localhost:3600',
     startedAt: journeys.length
@@ -286,10 +300,12 @@ export function writeIndexHtml(manifest, options = {}) {
   .evidence { color: #c7cdda; font-size: 12px; }
   .evidence a { color: #7aa2f7; margin-right: 8px; text-decoration: none; }
   .missing-evidence { color: #ffb3c0; margin-right: 8px; }
+  .authority-notice { background: #1a2233; border: 1px solid #2f4066; border-radius: 8px; padding: 8px 12px; margin: 0 0 16px; color: #aebde0; font-size: 12px; }
 </style>
 </head>
 <body>
 <h1>UX Walkthrough Audit — ${manifest.runId}</h1>
+<div class="authority-notice">⚠️ ${escapeHtml(manifest.authorityNotice ?? AUTHORITY_SPLIT_NOTICE)}</div>
 <div class="summary">build: ${manifest.buildMode} · journeys: ${manifest.totals.journeys} (${manifest.totals.failedJourneys} failed) · steps: ${manifest.totals.steps} (${manifest.totals.failedSteps} failed, ${manifest.totals.stepsWithConsoleErrors} with console errors) · findings: ${manifest.totals.findings}</div>
 <div class="toc">${manifest.journeys.map((j) => `<a href="#${journeyAnchorId(j)}">${escapeHtml(j.journey)}</a>`).join('')}</div>
 ${sections}
@@ -303,6 +319,8 @@ export function writeReviewSkeleton(manifest, options = {}) {
   const targetRunDir = options.runDir ?? runDir;
   const lines = [
     `# UX Walkthrough Review - ${manifest.runId}`,
+    '',
+    `> ${markdownText(manifest.authorityNotice ?? AUTHORITY_SPLIT_NOTICE)}`,
     '',
     '## TL;DR',
     '',

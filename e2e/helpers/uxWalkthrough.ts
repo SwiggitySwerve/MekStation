@@ -63,6 +63,32 @@ export interface WalkthroughStepRecord {
   readonly failure?: string;
 }
 
+export type WalkthroughCheckpointStatus =
+  | WalkthroughStepRecord['status']
+  | 'not-run';
+
+export interface WalkthroughCheckpointRecord {
+  readonly name: string;
+  readonly stepIndex: number | null;
+  readonly status: WalkthroughCheckpointStatus;
+  // Per-checkpoint viewport (spec: Viewport Selection — "MUST be recorded in
+  // the run manifest AND per-checkpoint metadata"). Same source as the run
+  // manifest's top-level viewport (resolveViewport()); duplicated here rather
+  // than left implicit so a checkpoint object extracted on its own (e.g. from
+  // summary.json) is self-describing without carrying run-level context.
+  readonly viewport: { readonly width: number; readonly height: number };
+}
+
+export interface WalkthroughEntityRecord {
+  readonly kind: string;
+  readonly id: string;
+}
+
+export interface WalkthroughHoldUrlRecord {
+  readonly label: string;
+  readonly url: string;
+}
+
 export interface WalkthroughJourneyRecord {
   readonly journey: string;
   readonly persona: string;
@@ -72,6 +98,9 @@ export interface WalkthroughJourneyRecord {
   readonly status: 'ok' | 'failed';
   readonly steps: readonly WalkthroughStepRecord[];
   readonly findings: readonly WalkthroughFindingRecord[];
+  readonly checkpoints?: readonly WalkthroughCheckpointRecord[];
+  readonly entityIds?: readonly WalkthroughEntityRecord[];
+  readonly holdUrls?: readonly WalkthroughHoldUrlRecord[];
 }
 
 interface MutableStep {
@@ -118,6 +147,9 @@ export function resolveRunDir(): string {
 export class WalkthroughRecorder {
   private readonly steps: MutableStep[] = [];
   private readonly findings: WalkthroughFindingRecord[] = [];
+  private readonly checkpoints: WalkthroughCheckpointRecord[] = [];
+  private readonly entityIds: WalkthroughEntityRecord[] = [];
+  private readonly holdUrls: WalkthroughHoldUrlRecord[] = [];
   private readonly surfaces = new Map<string, WalkthroughSurface>();
   private readonly journeyDir: string;
   private readonly runDir: string;
@@ -189,18 +221,65 @@ export class WalkthroughRecorder {
     title: string,
     action: (page: Page) => Promise<void>,
     options?: { readonly note?: string },
-  ): Promise<void>;
+  ): Promise<number>;
   async step(
     title: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
-  ): Promise<void>;
+  ): Promise<number>;
   async step(
     title: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
-  ): Promise<void> {
-    await this.recordStep(title, action, options);
+  ): Promise<number> {
+    return this.recordStep(title, action, options);
+  }
+
+  /**
+   * Execute a named flow checkpoint and record the same evidence as a step.
+   * The resulting checkpoint points to its step so runners can join error
+   * counts, screenshots, route, and timing from the journey record. Returns
+   * the assigned step index so callers (e.g. flow-audit findings) can
+   * reference it without maintaining a parallel counter of their own.
+   */
+  async checkpoint(
+    name: string,
+    action: (page: Page) => Promise<void>,
+    options?: { readonly note?: string },
+  ): Promise<number>;
+  async checkpoint(
+    name: string,
+    action: (page: Page) => Promise<void>,
+    options?: WalkthroughStepOptions,
+  ): Promise<number>;
+  async checkpoint(
+    name: string,
+    action: (page: Page) => Promise<void>,
+    options?: WalkthroughStepOptions,
+  ): Promise<number> {
+    return this.recordStep(name, action, options, (step) => {
+      this.checkpoints.push({
+        name,
+        stepIndex: step.index,
+        status: step.status,
+        viewport: this.resolveViewport(),
+      });
+    });
+  }
+
+  /**
+   * Record a checkpoint deliberately skipped by an `--until` stop point.
+   * Not-run checkpoints have no associated step, screenshot, or timing, but
+   * still ran (or would have run) inside this test's single fixed-viewport
+   * browser context, so the viewport is still meaningful metadata.
+   */
+  markCheckpointNotRun(name: string): void {
+    this.checkpoints.push({
+      name,
+      stepIndex: null,
+      status: 'not-run',
+      viewport: this.resolveViewport(),
+    });
   }
 
   /**
@@ -230,11 +309,27 @@ export class WalkthroughRecorder {
     });
   }
 
+  /**
+   * Register an entity created by a flow so a hold-mode summary can identify
+   * state left on the developer's server for inspection or cleanup.
+   */
+  registerEntity(kind: string, id: string): void {
+    this.entityIds.push({ kind, id });
+  }
+
+  /**
+   * Register a live URL that a hold-mode summary can present for inspection.
+   */
+  registerHoldUrl(label: string, url: string): void {
+    this.holdUrls.push({ label, url });
+  }
+
   private async recordStep(
     title: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
-  ): Promise<void> {
+    onRecorded?: (step: MutableStep) => void,
+  ): Promise<number> {
     const surfaceName = normalizeSurfaceName(
       options?.surface ?? DEFAULT_SURFACE,
     );
@@ -279,7 +374,9 @@ export class WalkthroughRecorder {
       surface.consoleBuffer = [];
       surface.pageErrorBuffer = [];
       this.steps.push(record);
+      onRecorded?.(record);
     }
+    return index;
   }
 
   /** Attach a free-form usability observation to the previous step. */
@@ -298,15 +395,15 @@ export class WalkthroughRecorder {
     const record: WalkthroughJourneyRecord = {
       journey: this.journey,
       persona: this.persona,
-      viewport: this.testInfo.project.use.viewport ?? {
-        width: 1280,
-        height: 720,
-      },
+      viewport: this.resolveViewport(),
       startedAt: this.startedAt,
       finishedAt: new Date().toISOString(),
       status: this.failed ? 'failed' : 'ok',
       steps: this.steps,
       findings: this.findings,
+      ...(this.checkpoints.length > 0 ? { checkpoints: this.checkpoints } : {}),
+      ...(this.entityIds.length > 0 ? { entityIds: this.entityIds } : {}),
+      ...(this.holdUrls.length > 0 ? { holdUrls: this.holdUrls } : {}),
     };
     const journeysDir = path.join(this.runDir, 'journeys');
     fs.mkdirSync(journeysDir, { recursive: true });
@@ -341,6 +438,14 @@ export class WalkthroughRecorder {
       timeout: 15_000,
     });
     return `${this.journey}/${file}`;
+  }
+
+  /**
+   * Resolve the viewport shared by the run manifest and every per-checkpoint
+   * record. Single source so both call sites can never drift apart.
+   */
+  private resolveViewport(): { width: number; height: number } {
+    return this.testInfo.project.use.viewport ?? { width: 1280, height: 720 };
   }
 
   private currentRoute(surface: WalkthroughSurface): string {

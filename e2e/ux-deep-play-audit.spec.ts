@@ -17,6 +17,13 @@ import {
 } from '@playwright/test';
 
 import {
+  acceptContractAndOpenLaunch,
+  CAMPAIGN_ROSTER_SIZE,
+  createCampaignViaWizard,
+  launchMissionToPreBattle,
+  type MissionLaunchObservation,
+} from './helpers/campaignFlow';
+import {
   WalkthroughRecorder,
   type WalkthroughFindingSeverity,
   type WalkthroughSoftStepOptions,
@@ -27,7 +34,6 @@ import { assertNoMekStationLoading } from './helpers/wait';
 const RUN_ID_HEADER = 'x-playwright-e2e-run-id';
 const HOST_PASSWORD = 'HostPassword123!';
 const GUEST_PASSWORD = 'GuestPassword123!';
-const CAMPAIGN_ROSTER_SIZE = 4;
 
 interface SeededIdentity {
   readonly id: string;
@@ -52,20 +58,6 @@ interface CreateMatchResponse {
 interface CleanupMatch {
   readonly matchId: string;
   readonly wireToken: string;
-}
-
-interface CampaignResult {
-  readonly campaignId: string;
-  readonly campaignUrl: string;
-}
-
-interface MissionLaunchObservation {
-  readonly selectedUnitCount: number;
-  readonly preBattleUrl: string;
-  readonly encounterId: string;
-  readonly playerForceText: string;
-  readonly playerUnitListCount: number;
-  readonly playerForceBvText: string | null;
 }
 
 interface TacticalObservation {
@@ -237,16 +229,6 @@ function campaignIdFromUrl(page: Page): string {
   return decodeURIComponent(match[1]);
 }
 
-function encounterIdFromUrl(page: Page): string {
-  const match = page
-    .url()
-    .match(/\/gameplay\/encounters\/([^/?#]+)(?:\/pre-battle)?/);
-  if (!match) {
-    throw new Error(`Could not read encounter id from ${page.url()}`);
-  }
-  return decodeURIComponent(match[1]);
-}
-
 async function locatorText(locator: Locator): Promise<string | null> {
   if ((await locator.count()) === 0) return null;
   const text = await locator.first().textContent();
@@ -280,127 +262,6 @@ async function terminalOutcomeText(page: Page): Promise<string | null> {
   return normalized.length > 0 ? normalized : null;
 }
 
-async function selectAvailableRoster(
-  page: Page,
-  desiredCount: number,
-): Promise<void> {
-  await expect(page.getByTestId('mission-readiness-panel')).toBeVisible({
-    timeout: 20_000,
-  });
-  const checkboxes = page
-    .getByTestId('mission-readiness-panel')
-    .locator('input[type="checkbox"]');
-  const count = await checkboxes.count();
-  const limit = Math.min(count, desiredCount);
-  for (let index = 0; index < limit; index += 1) {
-    const checkbox = checkboxes.nth(index);
-    if ((await checkbox.isEnabled()) && !(await checkbox.isChecked())) {
-      await checkbox.check();
-    }
-  }
-}
-
-async function selectedRosterCount(page: Page): Promise<number> {
-  const checkboxes = page
-    .getByTestId('mission-readiness-panel')
-    .locator('input[type="checkbox"]');
-  const count = await checkboxes.count();
-  let selected = 0;
-  for (let index = 0; index < count; index += 1) {
-    if (await checkboxes.nth(index).isChecked()) {
-      selected += 1;
-    }
-  }
-  return selected;
-}
-
-async function createCampaignViaWizard(
-  driver: JourneyDriver,
-  page: Page,
-  name: string,
-  description: string,
-): Promise<CampaignResult> {
-  await driver.step('open campaign list', async () => {
-    await page.goto('/gameplay/campaigns');
-    await expect(page.getByTestId('create-campaign-btn')).toBeVisible({
-      timeout: 20_000,
-    });
-    await assertNoMekStationLoading(page);
-  });
-
-  await driver.step('start campaign wizard', async () => {
-    await page.getByTestId('create-campaign-btn').click();
-    await expect(page.getByTestId('campaign-name-input')).toBeVisible({
-      timeout: 20_000,
-    });
-  });
-
-  await driver.step('name campaign', async () => {
-    await page.getByTestId('campaign-name-input').fill(name);
-    await page.getByTestId('campaign-description-input').fill(description);
-    await page.getByTestId('wizard-next-btn').click();
-    await expect(
-      page.getByRole('heading', { name: 'Campaign Type' }),
-    ).toBeVisible();
-  });
-
-  await driver.step('keep default mercenary campaign type', async () => {
-    await page.getByTestId('wizard-next-btn').click();
-    await expect(
-      page.getByRole('heading', { name: 'Campaign Preset' }),
-    ).toBeVisible();
-  });
-
-  await driver.step('keep standard campaign preset', async () => {
-    await page.getByTestId('wizard-next-btn').click();
-    await expect(
-      page.getByRole('heading', { name: 'Configure Roster' }),
-    ).toBeVisible();
-  });
-
-  await driver.step('add four units and four assigned pilots', async () => {
-    const addUnitButtons = page.locator('[data-testid^="add-unit-"]');
-    await expect(addUnitButtons.first()).toBeVisible({ timeout: 10_000 });
-    const availableUnitButtons = await addUnitButtons.count();
-    for (let index = 0; index < CAMPAIGN_ROSTER_SIZE; index += 1) {
-      await addUnitButtons.nth(index % availableUnitButtons).click();
-    }
-    for (let index = 0; index < CAMPAIGN_ROSTER_SIZE; index += 1) {
-      await page.getByTestId('add-pilot-btn').click();
-    }
-
-    const unitPilotSelects = page.locator('select');
-    await expect(unitPilotSelects).toHaveCount(CAMPAIGN_ROSTER_SIZE);
-    for (let index = 0; index < CAMPAIGN_ROSTER_SIZE; index += 1) {
-      await unitPilotSelects.nth(index).selectOption({ index: index + 1 });
-    }
-
-    await page.getByTestId('wizard-next-btn').click();
-    await expect(
-      page.getByRole('heading', { name: 'Review Campaign' }),
-    ).toBeVisible();
-  });
-
-  await driver.step(
-    'submit campaign wizard and land on dashboard',
-    async () => {
-      await page.getByTestId('wizard-submit-btn').click();
-      await expect(page).toHaveURL(/\/gameplay\/campaigns\/[^/]+$/, {
-        timeout: 30_000,
-      });
-      await expect(page.getByTestId('campaign-save-status-card')).toBeVisible({
-        timeout: 20_000,
-      });
-      await assertNoMekStationLoading(page);
-    },
-  );
-
-  return {
-    campaignId: campaignIdFromUrl(page),
-    campaignUrl: page.url(),
-  };
-}
-
 async function saveCampaignToServer(
   driver: JourneyDriver,
   page: Page,
@@ -418,98 +279,6 @@ async function saveCampaignToServer(
       { timeout: 30_000 },
     );
   });
-}
-
-async function acceptContractAndOpenLaunch(
-  driver: JourneyDriver,
-  page: Page,
-  campaignId: string,
-): Promise<void> {
-  await driver.step('open contract market', async () => {
-    await page.goto(`/gameplay/campaigns/${campaignId}/contract-market`);
-    await expect(page.getByTestId('contract-market-grid')).toBeVisible({
-      timeout: 20_000,
-    });
-  });
-
-  await driver.step('accept first available contract', async () => {
-    const acceptButton = page.locator('[data-testid^="offer-accept-"]').first();
-    await expect(acceptButton).toBeVisible({ timeout: 20_000 });
-    await acceptButton.click();
-    await page.waitForTimeout(1_000);
-  });
-
-  await driver.step('open campaign missions', async () => {
-    await page.goto(`/gameplay/campaigns/${campaignId}/missions`);
-    await expect(
-      page.locator('[data-testid^="mission-card-"]').first(),
-    ).toBeVisible({
-      timeout: 20_000,
-    });
-  });
-
-  await driver.step('open mission launch briefing', async () => {
-    const launch = page.locator('[data-testid^="mission-launch-"]').first();
-    await expect(launch).toBeVisible({ timeout: 20_000 });
-    await launch.click();
-    await expect(page.getByTestId('mission-launch-briefing')).toBeVisible({
-      timeout: 20_000,
-    });
-  });
-}
-
-async function launchMissionToPreBattle(
-  driver: JourneyDriver,
-  page: Page,
-): Promise<{
-  readonly step: number;
-  readonly observation: MissionLaunchObservation;
-}> {
-  let observation: MissionLaunchObservation | null = null;
-  const step = await driver.step(
-    'select roster and launch mission to pre-battle',
-    async () => {
-      await selectAvailableRoster(page, CAMPAIGN_ROSTER_SIZE);
-      const selectedUnitCount = await selectedRosterCount(page);
-      await page.getByTestId('launch-mission-direct').click();
-      await expect(page).toHaveURL(/\/gameplay\/encounters\/[^/]+/, {
-        timeout: 30_000,
-      });
-      if (!(await isVisible(page.getByTestId('pre-battle-page')))) {
-        await page.getByRole('button', { name: 'Launch Battle' }).click();
-      }
-      await expect(page).toHaveURL(
-        /\/gameplay\/encounters\/[^/]+\/pre-battle/,
-        {
-          timeout: 30_000,
-        },
-      );
-      await expect(page.getByTestId('pre-battle-page')).toBeVisible({
-        timeout: 20_000,
-      });
-      const playerForce = page.getByTestId('player-force-card');
-      await expect(playerForce).toBeVisible({ timeout: 20_000 });
-      const playerUnitListCount = await page
-        .getByTestId('player-unit-list')
-        .locator('> div')
-        .count();
-      observation = {
-        selectedUnitCount,
-        preBattleUrl: page.url(),
-        encounterId: encounterIdFromUrl(page),
-        playerForceText: (await playerForce.textContent())?.trim() ?? '',
-        playerUnitListCount,
-        playerForceBvText: await locatorText(
-          page.getByTestId('player-force-bv'),
-        ),
-      };
-    },
-  );
-
-  if (!observation) {
-    throw new Error('Mission launch observation was not captured');
-  }
-  return { step, observation };
 }
 
 function recordRosterHandoffFinding(
@@ -1063,8 +832,8 @@ async function prepareBattleForGmJourney(
   page: Page,
   campaignId: string,
 ): Promise<string> {
-  await acceptContractAndOpenLaunch(driver, page, campaignId);
-  const { observation } = await launchMissionToPreBattle(driver, page);
+  await acceptContractAndOpenLaunch(driver, page, { campaignId });
+  const { observation } = await launchMissionToPreBattle(driver, page, {});
   await driver.softStep(
     'open manual battle before switching to GM query mode',
     async () => {
@@ -1213,15 +982,16 @@ test.describe('ux deep-play audit - desktop', () => {
     );
     const driver = new JourneyDriver(walk);
     try {
-      const campaign = await createCampaignViaWizard(
-        driver,
-        page,
-        `Deep Loop ${Date.now()}`,
-        'UX audit campaign for a full single-player deep-play loop.',
-      );
+      const campaign = await createCampaignViaWizard(driver, page, {
+        name: `Deep Loop ${Date.now()}`,
+        description:
+          'UX audit campaign for a full single-player deep-play loop.',
+      });
       await saveCampaignToServer(driver, page);
-      await acceptContractAndOpenLaunch(driver, page, campaign.campaignId);
-      const launch = await launchMissionToPreBattle(driver, page);
+      await acceptContractAndOpenLaunch(driver, page, {
+        campaignId: campaign.campaignId,
+      });
+      const launch = await launchMissionToPreBattle(driver, page, {});
       recordRosterHandoffFinding(driver, launch.step, launch.observation);
 
       let manualObservation: TacticalObservation | null = null;
@@ -1509,12 +1279,11 @@ test.describe('ux deep-play audit - desktop', () => {
     );
     const driver = new JourneyDriver(walk);
     try {
-      const campaign = await createCampaignViaWizard(
-        driver,
-        page,
-        `GM Surfaces ${Date.now()}`,
-        'UX audit campaign for GM ledger and tactical intervention surfaces.',
-      );
+      const campaign = await createCampaignViaWizard(driver, page, {
+        name: `GM Surfaces ${Date.now()}`,
+        description:
+          'UX audit campaign for GM ledger and tactical intervention surfaces.',
+      });
 
       await driver.step('open campaign GM ledger', async () => {
         await page.goto(`/gameplay/campaigns/${campaign.campaignId}/gm-ledger`);

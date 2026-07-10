@@ -90,6 +90,12 @@ const nextConfig: NextConfig = {
   // This creates a self-contained build with all dependencies
   output: 'standalone',
 
+  // Pin the file-tracing root to this app directory. Without this, Next walks
+  // up to the outermost lockfile — in a git worktree under .claude/worktrees/
+  // that is the main checkout, which nests the standalone server under
+  // .next/standalone/.claude/worktrees/<name>/ and breaks the hydrate step.
+  outputFileTracingRoot: process.cwd(),
+
   // Optimize for production builds
   experimental: {
     // Enable modern output for better tree-shaking
