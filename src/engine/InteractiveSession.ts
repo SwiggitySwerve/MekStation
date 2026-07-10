@@ -20,7 +20,7 @@ import type {
 import { type IDeriveCombatOutcomeOptions } from '@/lib/combat/outcome/combatOutcome';
 import { matchLogStorage } from '@/lib/p2p/matchLogStorage';
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
-import { SeededRandom } from '@/simulation/core/SeededRandom';
+import { SeededD6Roller, SeededRandom } from '@/simulation/core';
 import {
   GameSide,
   GameStatus,
@@ -160,10 +160,13 @@ export class InteractiveSession {
    * Per `add-sp-combat-determinism` (design D2): the engine's
    * interactive-session factory now always injects a roller too, so
    * resolvers reading `context.d6Roller` get full stream uniformity
-   * on that SP path. The `?? defaultD6Roller` (`Math.random`)
-   * fallback in the resolvers remains reachable ONLY for roller-less
-   * direct constructions — MP-recovered legacy sessions and direct
-   * test constructions that omit this arg.
+   * on that SP path. Per design D4, `fromSessionAsync` re-derives this
+   * same roller (re-seeded from `session.config.seed`, position zero —
+   * NOT a stream continuation) for recovered SP sessions that carry a
+   * persisted seed. The `?? defaultD6Roller` (`Math.random`) fallback
+   * in the resolvers remains reachable ONLY for roller-less
+   * constructions — MP-recovered sessions (which never carry a seed)
+   * and direct test constructions that omit this arg.
    */
   private readonly d6Roller?: D6Roller;
   private startedAt: string;
@@ -341,16 +344,36 @@ export class InteractiveSession {
     const playerAdapted = adapted.filter((u) => u.side === GameSide.Player);
     const opponentAdapted = adapted.filter((u) => u.side === GameSide.Opponent);
 
+    // Per `add-sp-combat-determinism` design D4: recovery re-seeds from
+    // position zero, not mid-stream continuation. When the persisted
+    // config carries a finite seed (SP sessions created after this
+    // change), rebuild both the AI random stream and the dice stream
+    // from that seed so recovered-and-replayed runs are reproducible
+    // across identical recovery inputs (proof: 2.3's recover-twice
+    // jest). Sessions with no persisted seed — every pre-change session
+    // and every MP-recovered match (`buildHostSession` never stamps a
+    // seed, R1) — fall through to exactly the legacy values, byte-
+    // identical behavior.
+    const recoverySeed = session.config.seed;
+    const hasRecoverySeed =
+      typeof recoverySeed === 'number' && Number.isFinite(recoverySeed);
+    const recoveredRandom = hasRecoverySeed
+      ? new SeededRandom(recoverySeed)
+      : new SeededRandom(0xc0ffee);
+    const recoveredD6Roller = hasRecoverySeed
+      ? new SeededD6Roller(recoverySeed).asD6Roller()
+      : undefined;
+
     const instance = new InteractiveSession(
       session.config.mapRadius,
       session.config.turnLimit,
-      new SeededRandom(0xc0ffee),
+      recoveredRandom,
       createRecoveredGridFromSession(session),
       playerAdapted,
       opponentAdapted,
       session.units,
       {},
-      undefined,
+      recoveredD6Roller,
       session.config.optionalRules,
       session.config.victoryConditions,
     );
