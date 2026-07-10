@@ -5,6 +5,12 @@
       "status": "in-progress",
       "reason": "Parallel session's change (merged via PR #1021); folder remains active pending its owner's archive/close-out. Accounted here during wave-2 archive so CI stays truthful.",
       "lastReviewed": "2026-07-10"
+    },
+    {
+      "name": "add-sp-combat-determinism",
+      "status": "in-progress",
+      "reason": "Declarative-first change: proposal/design/specs/tasks authored ahead of implementation per Seam-First Ladder W1 council decision (openspec/council-decisions/2026-07-09-ui-audit-testability-architecture.md). Implementation ships in a follow-up PR once this authoring PR merges.",
+      "lastReviewed": "2026-07-10"
     }
   ]
 }
