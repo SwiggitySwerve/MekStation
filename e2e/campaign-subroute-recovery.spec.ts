@@ -8,9 +8,18 @@
  * @tags @campaign @routing @strict
  */
 
-import { test, expect, type Locator, type Page } from '@playwright/test';
+import {
+  test,
+  expect,
+  type Locator,
+  type Page,
+  request as playwrightRequest,
+} from '@playwright/test';
 
+import { deleteCampaign } from './fixtures/campaign';
 import { withBrowserDiagnostics } from './helpers';
+
+const persistedCampaignIds = new Set<string>();
 
 interface SavedCampaignSnapshot {
   readonly campaignId: string;
@@ -161,6 +170,7 @@ async function saveCampaignThroughDashboard(
     'campaignId' | 'missionId' | 'missionName' | 'name'
   >,
 ): Promise<SavedCampaignSnapshot> {
+  persistedCampaignIds.add(snapshot.campaignId);
   await page.goto(`/gameplay/campaigns/${snapshot.campaignId}`);
   await expect(page.getByTestId('campaign-dashboard')).toBeVisible({
     timeout: 20_000,
@@ -364,6 +374,29 @@ const GENERATED_CAMPAIGN_ROUTES: readonly RouteAssertion[] = [
     surface: (page) => page.getByTestId('launch-mission-direct'),
   },
 ];
+
+// Runs once after the whole file, not after each test: intra-file tests may
+// chain on state a prior test persisted. Cleaning up per-test would delete
+// that state mid-file; afterAll still clears the shared DB before the next
+// spec file runs.
+test.afterAll(async ({}, testInfo) => {
+  if (persistedCampaignIds.size === 0) {
+    return;
+  }
+  // page/context fixtures are per-test and unavailable in afterAll
+  // (Playwright 1.57 hard-rejects them); use a standalone request context.
+  const baseURL = testInfo.project.use.baseURL ?? 'http://localhost:3600';
+  const ctx = await playwrightRequest.newContext({ baseURL });
+  for (const campaignId of Array.from(persistedCampaignIds)) {
+    try {
+      await ctx.delete(`/api/campaigns/${encodeURIComponent(campaignId)}`);
+    } catch {
+      // Cleanup is best-effort; the campaign may already be deleted.
+    }
+  }
+  persistedCampaignIds.clear();
+  await ctx.dispose();
+});
 
 test.describe('Campaign Generated Subroute Recovery', () => {
   test(

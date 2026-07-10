@@ -1,0 +1,49 @@
+# Design: recover-sim-throughput-regression
+
+## Technical Approach
+
+Three minimal, profile-directed fixes that remove the +42% regression at its source while preserving the `7de770fb4` decomposition structure. Each fix targets one mechanism the CPU profile named, is independently verifiable, and lands with the existing suites plus a before/after per-run measurement. The change is sequenced as three fix groups (G1–G3) plus a verification group (G4) for one Codex worker, run strictly sequentially (parallel agent fan-out has failed on this repo).
+
+The profile attribution uses absolute self-seconds for the same 80-run workload, not raw profile percentages — the two profiles have different sampled denominators (baseline warm profile 9.1s; current profile 54.33s, dominated by one-time jest module-read I/O), so percentages are not comparable across sides. The de-allocation, memoization, and static-binding targets below are all confirmed by absolute self-time deltas.
+
+## Architecture Decisions
+
+### Decision: G1 — De-allocate the step-cost helpers by positional signatures, keep the decomposition
+
+**Choice**: Keep the five extracted functions (`getMovementStepCostBreakdown` and its helpers, including `summarizeMovementTerrain` and `movementElevationStepCost`) and their names / tests. Change their **internal** signatures from per-call options objects to positional parameters returning primitives, or a single caller-hoisted reusable result object. Delete the object literals at `calculations.ts:113/:114/:141/:148/:180` and the 7-field summary + result-object allocations in `movementStepCost.ts` (`summarizeMovementTerrain :39/:59`, `movementElevationStepCost :95/:191`).
+
+**Rationale**: The regression is ~6 heap allocations per hex-step (`getMovementStepCostBreakdown` decomposed into helpers each taking a fresh options object and some returning fresh result objects) sitting under A* neighbor expansion (`pathfinding.ts` neighbor loop) inside a full `findPath` per candidate destination. Absolute self-time: the baseline monolith was 1.17s; the current shell + extracted helpers total 1.65s (+41%) for the same 80 runs. Positional parameters restore the pre-commit zero-allocation-per-hex-step property **without re-inlining** the helpers back into a monolith — the decomposition (readability, unit tests) is preserved; only the per-call allocation is removed.
+
+**Constraint**: The **public** `getMovementStepCostBreakdown` signature SHOULD stay stable where possible — it has non-hot callers (`commitValidationPath.ts`, `rangeHexProjection.ts`, `validation.ts`, and the `movement/index.ts` barrel). The signatures that churn are the internal / exported helpers `summarizeMovementTerrain` and `movementElevationStepCost`, whose only production call sites are inside `calculations.ts` (`:113`, `:180`) — confirmed by a current-tree grep before editing (R1).
+
+### Decision: G2 — Memoize `terrainFeaturesFromString` on the encoding string
+
+**Choice**: Add a module-level `Map<string, readonly ITerrainFeature[]>` in `terrainEncoding.ts` keyed on the input `terrainString`, returning `Object.freeze`'d arrays. Hoist `Object.values(TerrainType)` out of the per-call path into a module-level `Set<string>` for O(1) membership instead of a per-call array allocation + linear `.includes()`. Both the simple-string branch and the compound-JSON (`startsWith('[')`) branch cache their parsed result.
+
+**Rationale**: `terrainFeaturesFromString` is a **pure** function of a small closed set of encoding strings (a board has a bounded terrain vocabulary), re-invoked per hex per step-cost evaluation. It was the #1 self-time `src` function even at baseline (0.97s → 1.58s current, +63% for the identical workload; call volume amplified because the extracted `summarizeMovementTerrain` now invokes it per step). Memoization is the correct fix for a pure repeated computation over a bounded key set and can recover **below** baseline, since the parse itself was a pre-existing cost the baseline paid on every call.
+
+**Constraint**: The cache is bounded by the board's terrain-string vocabulary, not by run count, so it does not grow without bound across a swarm batch (R3). Cached arrays are shared across all callers, so they MUST be frozen to make accidental mutation fail loudly (R2).
+
+### Decision: G3 — Restore static bindings on the hot `TerrainType` re-export path
+
+**Choice**: `TerrainType` is defined in `src/types/gameplay/TerrainTypeDefinitions.ts` and reaches the inner-loop consumers through two wildcard `export *` hops: `TerrainTypeDefinitions.ts` → `TerrainTypes.ts` (`export * from './TerrainTypeDefinitions'`) → `index.ts` (`export * from './TerrainTypes'`). Each wildcard hop transpiles to a lazy `Object.defineProperty(exports, 'TerrainType', { get })` accessor — the "lazy re-export getter" the V8 profile named at the transpiled positions `TerrainTypes.ts:17` / `index.ts:36`. Replace the wildcard re-export of the **hot** terrain symbols with a **direct static named re-export** (`export { TerrainType, type ITerrainFeature } from './TerrainTypeDefinitions'`) in `TerrainTypes.ts`, and correspondingly a named re-export for the terrain symbols in `index.ts`.
+
+**Fallback (lower-risk) variant**: If the wildcard barrels are load-bearing for a circular-import initialization cycle introduced by the decomposition sweep — such that converting them to static named re-exports throws a TDZ / undefined-binding error at module load — leave the barrels alone and instead change the two hottest consumers (`terrainEncoding.ts`, `movementStepCost.ts`) to import `TerrainType` directly from `@/types/gameplay/TerrainTypeDefinitions`, bypassing the barrel getter on the hot path. Either way, the inner-loop enum access resolves to a static binding instead of a getter trampoline.
+
+**Rationale**: Property-getter indirection on every enum access inside the pathfinding inner loop is the largest relative regression in the profile: baseline 0.12s → current 0.57s combined (+363%). Static bindings remove the trampoline. Typecheck (`npm run typecheck`) is the primary gate — it surfaces any consumer that relied on a symbol only reachable through the wildcard — and a full unit run surfaces any load-order / TDZ failure (R2/barrel).
+
+### Decision: G4 — `findPath` is unchanged; it recovers as a side effect
+
+**Choice**: `src/utils/gameplay/movement/pathfinding.ts` is **READ-ONLY** in this change. Do NOT edit `findPath`, its neighbor loop, or `getHexMovementCost`'s call shape into it.
+
+**Rationale**: The `findPath` loop body is byte-identical pre / post `7de770fb4`. Its measured self-time inflation (0.78s → 1.13s, +45%; `hexDistance` shows the same 0.37s → 0.48s pattern) is **downstream** cost — GC pressure and lost inlining from the ~6-allocations-per-step callee path (`getHexMovementCost` → `getMovementStepCostBreakdown`). Once G1 removes the callee allocations, `findPath` recovers automatically without any edit. Touching it would add risk with no benefit and is forbidden by this change.
+
+## Risks
+
+- **R1 — Dual-mode call-site churn on the step-cost helpers.** Converting `summarizeMovementTerrain` / `movementElevationStepCost` from options-object to positional signatures changes their public shape; any test or non-hot caller using the options-object form needs the same one-form migration. The static analysis reported only `calculations.ts` calls them, but that came from the diff read, not a current-tree grep — **grep all call sites (production and test) before editing** and migrate them in the same change. Keep the public `getMovementStepCostBreakdown` signature stable to avoid rippling into its several non-hot callers.
+- **R2 — Memoization aliasing.** Cached `TerrainFeature` arrays are shared across all callers; if any caller mutates a returned array the cache corrupts silently. **Return `Object.freeze`'d arrays** and run the full unit project to surface any mutation site (frozen-array writes throw in strict mode). A green swarm test alone is insufficient — mutation sites live in non-swarm callers.
+- **R3 — Memoization memory bound.** The cache must be bounded by the board's terrain-string vocabulary (a small closed set), not by run count. Key on the exact encoding string; do not key on anything that varies per run / per hex-instance, or the map grows without bound across a batch.
+- **R4 — Barrel change TDZ / circular-init.** The wildcard getters may exist to break a circular-import initialization cycle from the decomposition sweep; converting them to static re-exports could throw TDZ / undefined-binding errors at module load. The consumer-direct-import fallback variant avoids this. Either way, verify with a **full jest unit run**, not just the swarm test, and with `npm run typecheck`.
+- **R5 — Workload representativeness.** Swarm-throughput is movement-dominated (1v1); the cold static suspects (`calculateToHit` spread-merge, PSR / event-creator normalization) could still contribute to nightly scenarios with heavier attack volume. If nightly recovery falls short of the estimate after these fixes, profile an attack-heavy scenario next — **do not** pre-emptively refactor those sites on static evidence alone.
+- **R6 — Measurement attribution.** The absolute-seconds normalization assumes both warm profiles sampled the identical 80-run workload; the baseline profile ran from a different worktree (FS locality differs). Mitigated by comparing in-test ms/run (not process wall) before and after on the **same machine**. Re-measure after each fix lands to confirm attribution rather than trusting the projection.
+- **R7 — Formatter / validator quote race.** Per repo memory, the double-quote formatter hook vs `oxfmt` single-quote can break token-matching QC validators. After the spec-delta edits, run the formatter + `npx openspec validate recover-sim-throughput-regression --strict`.

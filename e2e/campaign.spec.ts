@@ -219,10 +219,9 @@ test.describe('Campaign Detail Page @campaign', () => {
       /* no-op — see PT-009 comment above */
     });
 
-    // Wait for any campaign card to appear (React should re-render when store updates)
+    // Wait for the campaign created in this setup, not an unrelated persisted card.
     await page
-      .locator('[data-testid^="campaign-card-"]')
-      .first()
+      .getByTestId(`campaign-card-${campaignId}`)
       .waitFor({ state: 'visible', timeout: 10000 });
   });
 

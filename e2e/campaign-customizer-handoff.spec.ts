@@ -1,4 +1,9 @@
-import { expect, test, type Page } from '@playwright/test';
+import {
+  expect,
+  request as playwrightRequest,
+  test,
+  type Page,
+} from '@playwright/test';
 
 import { persistCampaignThroughDashboard } from './fixtures/campaign';
 import {
@@ -8,6 +13,8 @@ import {
   expectCanonicalAtlasStoredConfiguration,
 } from './fixtures/campaignUnits';
 import { assertNoMekStationLoading } from './helpers/wait';
+
+const persistedCampaignIds = new Set<string>();
 
 async function waitForCampaignStores(page: Page): Promise<void> {
   await page.waitForFunction(() => {
@@ -139,6 +146,29 @@ async function makeOneCampaignRefitChange(page: Page): Promise<void> {
 }
 
 test.describe('campaign customizer handoff @campaign @customizer', () => {
+  // Runs once after the whole describe block (== whole file, single
+  // describe), not after each test: intra-file tests may chain on state a
+  // prior test persisted. Cleaning up per-test would delete that state
+  // mid-file; afterAll still clears the shared DB before the next spec file.
+  test.afterAll(async ({}, testInfo) => {
+    if (persistedCampaignIds.size === 0) {
+      return;
+    }
+    // page/context fixtures are per-test and unavailable in afterAll
+    // (Playwright 1.57 hard-rejects them); use a standalone request context.
+    const baseURL = testInfo.project.use.baseURL ?? 'http://localhost:3600';
+    const ctx = await playwrightRequest.newContext({ baseURL });
+    for (const campaignId of Array.from(persistedCampaignIds)) {
+      try {
+        await ctx.delete(`/api/campaigns/${encodeURIComponent(campaignId)}`);
+      } catch {
+        // Cleanup is best-effort; the campaign may already be deleted.
+      }
+    }
+    persistedCampaignIds.clear();
+    await ctx.dispose();
+  });
+
   test('routes Mech Bay refit into campaign customizer and saves a refit order', async ({
     page,
   }) => {
@@ -146,6 +176,7 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
     await waitForCampaignStores(page);
     const { campaignId } = await seedCampaignWithRoster(page);
     await expectCanonicalAtlasStoredConfiguration(page);
+    persistedCampaignIds.add(campaignId);
     await persistCampaignThroughDashboard(page, campaignId);
 
     await page.goto(`/gameplay/campaigns/${campaignId}/mech-bay`);
@@ -215,6 +246,7 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
     await waitForCampaignStores(page);
     const { campaignId, missionId } = await seedCampaignWithRoster(page);
     await expectCanonicalAtlasStoredConfiguration(page);
+    persistedCampaignIds.add(campaignId);
     await persistCampaignThroughDashboard(page, campaignId);
 
     await page.goto(

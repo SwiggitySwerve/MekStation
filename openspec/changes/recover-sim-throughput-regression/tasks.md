@@ -1,0 +1,46 @@
+# Tasks: recover-sim-throughput-regression
+
+> Execution is **Codex-first and strictly sequential** — parallel agent fan-out has failed on this repo. Run one group at a time; each lands with its verification before the next. Claude orchestrates, packages context, and final-reviews. Pre-commit runs a full `next build` (~3–5 min) — commit via background shell. **This is a perf-RECOVERY change: preserve the decomposition structure and helper names, do NOT touch `findPath`, and do NOT widen any perf budget.** Before editing the step-cost helpers, `grep` every current-tree call site (production and test) — the fix targets confirmed by diff-read, not by a fresh grep, are the R1 risk. After the spec-delta edits, run the formatter + `npx openspec validate recover-sim-throughput-regression --strict` (R7 quote race).
+
+## 1. G1 — De-allocate the movement step-cost helpers (simulation-system)
+
+- [ ] 1.1 Grep all current-tree call sites of `summarizeMovementTerrain`, `movementElevationStepCost`, and `getMovementStepCostBreakdown` (production + test) and record them, so the signature migration in 1.2 covers every caller (R1). Confirm the public `getMovementStepCostBreakdown` callers (`commitValidationPath.ts`, `rangeHexProjection.ts`, `validation.ts`, `movement/index.ts`) so its public signature can be kept stable.
+  - Files: read-only grep across `src/`.
+  - Acceptance: a written list of every call site; the set of helpers whose signature will change is confirmed to be internal/contained.
+- [ ] 1.2 Change the step-cost helper signatures from per-call options objects to positional parameters returning primitives (or one caller-hoisted reusable result object). Remove the ~6 per-hex-step allocations: the object literals in `calculations.ts` (the spread-literal / summary-object call sites around `:113/:114/:141/:148/:180`) and the fresh summary + result-object allocations in `movementStepCost.ts` (`summarizeMovementTerrain` around `:39/:59`, `movementElevationStepCost` around `:95/:191`). **Keep the extracted functions and their names** — this is de-allocation, not re-inlining. Migrate every call site found in 1.1.
+  - Files: `src/utils/gameplay/movement/calculations.ts`, `src/utils/gameplay/movement/movementStepCost.ts`.
+  - Acceptance: no per-hex-step options-object or result-object heap allocation remains on the hot path; the helper names are preserved; the public `getMovementStepCostBreakdown` signature is unchanged (or every caller migrated if it must change).
+- [ ] 1.3 QA — the existing movement / step-cost suites stay green (behavior unchanged), with special attention to the terrain-and-modifier + reachable suites that exercise these helpers and the pathfinder.
+  - Files (existing, unchanged): `src/utils/gameplay/movement/__tests__/battlemechMovementTerrain.behavior.test.ts` and its `.02` / `.03` / `.04` / `.05` siblings; `src/utils/gameplay/movement/__tests__/reachable.test.ts` and the `reachable.*` siblings; `src/utils/gameplay/__tests__/terrainMovementCost.test.ts`.
+  - QA: `npx jest --selectProjects unit --runInBand --runTestsByPath src/utils/gameplay/movement/__tests__/battlemechMovementTerrain.behavior.test.ts src/utils/gameplay/__tests__/terrainMovementCost.test.ts` green; `npm run typecheck` clean.
+
+## 2. G2 — Memoize `terrainFeaturesFromString` (simulation-system)
+
+- [ ] 2.1 Add a module-level `Map<string, readonly ITerrainFeature[]>` in `terrainEncoding.ts` keyed on the input `terrainString`; return `Object.freeze`'d arrays from both the simple-string branch and the compound-JSON (`startsWith('[')`) branch. Hoist `Object.values(TerrainType)` out of the per-call path into a module-level `Set<string>` for O(1) membership (replacing the per-call array + `.includes()`). The cache MUST be keyed only on the encoding string (bounded by the board vocabulary, not run count — R3).
+  - Files: `src/utils/gameplay/terrainEncoding.ts`.
+  - Acceptance: repeated calls with the same string return a cached frozen array; membership check no longer allocates a fresh array per call; the cache key is the encoding string only.
+- [ ] 2.2 Add a cache-correctness jest (new): same string → same (frozen, referentially-stable) features; a compound JSON terrain string is parsed once and reused; an unknown / empty string returns `[]`; a mutation attempt on a returned array throws (frozen — R2).
+  - Files: `src/utils/gameplay/__tests__/terrainEncoding.test.ts` (new).
+  - QA: `npx jest --selectProjects unit --runInBand --runTestsByPath src/utils/gameplay/__tests__/terrainEncoding.test.ts` green.
+- [ ] 2.3 QA — the existing `terrainFeaturesFromString` consumers stay green (no aliasing regression surfaced by frozen arrays — R2).
+  - Files (existing, unchanged): `src/utils/gameplay/__tests__/battlefieldWreckTerrain.test.ts`, `src/simulation/runner/phases/__tests__/weaponAttackPartialCover.test.ts`.
+  - QA: `npx jest --selectProjects unit --runInBand --runTestsByPath src/utils/gameplay/__tests__/battlefieldWreckTerrain.test.ts src/simulation/runner/phases/__tests__/weaponAttackPartialCover.test.ts` green.
+
+## 3. G3 — Restore static bindings on the hot `TerrainType` re-export path (simulation-system)
+
+- [ ] 3.1 Replace the wildcard `export *` re-export of the hot `TerrainType` symbols with a direct static named re-export in `src/types/gameplay/TerrainTypes.ts` (`export { TerrainType, type ITerrainFeature, ... } from './TerrainTypeDefinitions'`) and the corresponding named re-export for the terrain symbols in `src/types/gameplay/index.ts`. **Fallback (only if typecheck/unit run reveals a TDZ / circular-init break — R4):** leave the barrels as wildcards and instead change the two hottest consumers (`terrainEncoding.ts`, `movementStepCost.ts`) to import `TerrainType` directly from `@/types/gameplay/TerrainTypeDefinitions`, bypassing the barrel getter on the hot path.
+  - Files: `src/types/gameplay/TerrainTypes.ts`, `src/types/gameplay/index.ts` (primary) OR `src/utils/gameplay/terrainEncoding.ts`, `src/utils/gameplay/movement/movementStepCost.ts` (fallback variant).
+  - Acceptance: the inner-loop `TerrainType` access resolves to a static binding, not a lazy getter; typecheck clean; no module-load TDZ error.
+- [ ] 3.2 QA — typecheck is the primary gate (surfaces any consumer that relied on a symbol only reachable through the wildcard). Run a full unit lane to surface any load-order / TDZ failure (R4).
+  - QA: `npm run typecheck` clean; `npx jest --selectProjects unit --runInBand --runTestsByPath src/utils/gameplay/__tests__/terrainEncoding.test.ts src/utils/gameplay/movement/__tests__/battlemechMovementTerrain.behavior.test.ts` green; barrel consumers (`src/utils/gameplay/lineOfSight*.ts`, `src/utils/gameplay/terrain*.ts`, `src/utils/gameplay/toHit/*.ts`, `src/utils/gameplay/movement/*.ts`) still compile.
+
+## 4. G4 — Verification
+
+- [ ] 4.1 Confirm `src/utils/gameplay/movement/pathfinding.ts` is unchanged by this change (READ-ONLY guard): `git diff --stat` shows no edit to `pathfinding.ts`; `findPath` and its neighbor loop are byte-identical.
+- [ ] 4.2 All existing movement / pathfinding / simulation suites green: the G1–G3 movement + terrain suites above, plus the simulation suites `src/simulation/__tests__/integration.test.ts`, `src/simulation/__tests__/simulation-combat-integration.test.ts`, `src/simulation/__tests__/swarm-pilot-skills-batch.test.ts`, `src/simulation/__tests__/swarm-throughput.test.ts`. Typecheck + lint + format clean across touched files (`npm run typecheck && npm run lint && npm run format:check`).
+- [ ] 4.3 **Perf proof (acceptance).** Run the swarm-throughput workload at `SWARM_THROUGHPUT_RUN_COUNT=40 --runInBand` and record `ms/run` BEFORE (on the pre-fix tree) and AFTER on the **same machine**: `SWARM_THROUGHPUT_RUN_COUNT=40 npx jest --selectProjects unit --runInBand --runTestsByPath src/simulation/__tests__/swarm-throughput.test.ts` (the test logs `[throughput] N runs completed in Xms (Y ms/run)`). **Acceptance: per-run cost ≤ 75 ms** (baseline band was 59.5–68 ms; current regressed band 95–105 ms). Record both numbers in the PR / completion report.
+- [ ] 4.4 **CI-env-matched perf jest green — no budget widening.** Run the two PR perf lanes with the exact `pr-checks.yml` env vars:
+  - perf-smoke: `SWARM_THROUGHPUT_RUN_COUNT=25 SWARM_THROUGHPUT_TIME_BUDGET_MS=15000 SIMULATION_COUNT=5 SIMULATION_PROFILE_GAME_COUNT=5 SIMULATION_PROFILE_TIME_BUDGET_MS=30000 npx jest --selectProjects unit --runInBand --runTestsByPath src/simulation/__tests__/swarm-throughput.test.ts src/simulation/__tests__/integration.test.ts src/simulation/__tests__/simulation-combat-integration.test.ts src/simulation/__tests__/swarm-pilot-skills-batch.test.ts` green.
+  - perf-budget: `SIMULATION_PERF_ASSERTIONS=true SIMULATION_COUNT=10 npx jest --selectProjects unit --runInBand --runTestsByPath src/simulation/__tests__/simulation.test.ts` green.
+  - The `SWARM_THROUGHPUT_TIME_BUDGET_MS` (perf-smoke 15000, nightly 180000) and all `SIMULATION_*` budgets stay exactly as-is — this change recovers perf under the existing ceilings.
+- [ ] 4.5 `npx openspec validate recover-sim-throughput-regression --strict` passes; the ADDED `simulation-system` "Simulation Throughput Stays Within Budget" requirement carries backing evidence from 4.3 (per-run measurement) and 4.4 (CI-env-matched budgets).

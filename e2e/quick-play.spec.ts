@@ -181,14 +181,16 @@ test.describe('Quick Play Unit Selection', () => {
   );
 
   test(
-    'should show start battle button',
+    'should show Watch AI Battle, Interactive Skirmish, and Auto-Resolve options',
     { tag: ['@game', '@smoke'] },
     async ({ page }) => {
       await prepareQuickGameReview(page);
 
       await expect(page.getByTestId('start-game-btn')).toBeVisible();
+      await expect(page.getByTestId('watch-ai-battle-btn')).toBeVisible();
+      await expect(page.getByTestId('interactive-skirmish-btn')).toBeVisible();
       await expect(
-        page.getByRole('button', { name: /start battle/i }),
+        page.getByRole('button', { name: /auto-resolve/i }),
       ).toBeVisible();
     },
   );
@@ -231,7 +233,7 @@ test.describe('Quick Play Auto-Resolve', () => {
       await autoResolveQuickGame(page);
 
       await expect(page.getByText(/battle statistics/i)).toBeVisible();
-      await expect(page.getByText(/turns played/i)).toBeVisible();
+      await expect(page.getByText(/turns played/i).first()).toBeVisible();
     },
   );
 
