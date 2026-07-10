@@ -73,3 +73,15 @@ export {
   type MissionLaunchOptions,
   type MissionLaunchResult,
 } from './campaignFlow';
+
+// Match-log IndexedDB seeding (recovery-rehydration seam trust anchor)
+export {
+  buildGameCreatedAndStartedEvents,
+  seedMatchLog,
+  type BuildSeededEventsOptions,
+  type SeededGameEvent,
+  type SeededGameSide,
+  type SeededGameUnit,
+  type SeededMatchesRowFields,
+  type SeededMatchStatus,
+} from './matchLogSeeding';
