@@ -430,7 +430,7 @@ describe('Phase 4 capstone — full campaign round-trip with audit ledger + fulf
         updatedCampaign?.finances.transactions.filter((t) =>
           t.description.toLowerCase().includes(contract.name.toLowerCase()),
         ) ?? [];
-      expect(closingTxns.length).toBeGreaterThanOrEqual(1);
+      expect(closingTxns).toHaveLength(1);
 
       // (v) Daily audit ledger has a single rollup row.
       const auditLedger = extended?.dailyBattleAudit ?? [];

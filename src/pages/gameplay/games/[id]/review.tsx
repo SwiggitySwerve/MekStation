@@ -34,6 +34,7 @@ import {
 } from '@/components/gameplay/post-battle';
 import { Button } from '@/components/ui/Button';
 import { applyPostBattle } from '@/lib/campaign/processors/postBattleProcessor';
+import { appendContractPaymentActivityEntries } from '@/stores/campaign/contractPaymentActivity';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
@@ -283,6 +284,11 @@ export default function PostBattleReviewPage(): React.ReactElement {
       }
       const result = applyPostBattle(outcome, campaign);
       state.updateCampaign(result.campaign);
+      appendContractPaymentActivityEntries(
+        state.appendActivityLogEntry,
+        result.campaign,
+        result.events,
+      );
       state.markBattleReviewed(outcome.matchId);
       setApplied(true);
       // Per `wire-encounter-to-campaign-round-trip` Wave 5 (task 4.3):

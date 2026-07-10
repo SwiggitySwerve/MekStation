@@ -12,6 +12,7 @@
  * kill/mission auto-awards can ever fire.
  */
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+import type { ILoan } from '@/types/campaign/Loan';
 import type {
   ICombatOutcome,
   IUnitCombatDelta,
@@ -27,7 +28,11 @@ import { createDefaultCampaignOptions } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
+import { createContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
+import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
 import {
   CombatEndReason,
   COMBAT_OUTCOME_VERSION,
@@ -38,6 +43,7 @@ import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import { PilotType, PilotStatus } from '@/types/pilot/PilotInterfaces';
 
 import { applyOutcomePrestige } from '../../prestige/applyOutcomePrestige';
+import { contractProcessor } from '../contractProcessor';
 import {
   applyPostBattle,
   postBattleProcessor,
@@ -322,5 +328,145 @@ describe('campaign kill/mission counters (D-8)', () => {
     const entry = rosterEntry('unit-A');
     expect(entry.campaignKills).toBe(0);
     expect(entry.campaignMissions).toBe(1);
+  });
+});
+
+describe('contract payout commit point (M4)', () => {
+  afterEach(() => {
+    clearStores();
+    prestigeMock.mockClear();
+  });
+
+  it('posts the final payment and processed closure id when apply flips a contract terminal', () => {
+    const contract = createContract({
+      id: 'contract-close-at-apply',
+      name: 'Close at Apply',
+      employerId: 'davion',
+      targetId: 'liao',
+      status: MissionStatus.ACTIVE,
+      paymentTerms: createPaymentTerms({
+        basePayment: new Money(400),
+        successPayment: new Money(600),
+      }),
+    });
+    const campaign = createTestCampaign({
+      missions: new Map([[contract.id, contract]]),
+    });
+    const outcome = {
+      ...createOutcome('match-contract-close-at-apply'),
+      contractId: contract.id,
+    };
+
+    const result = applyPostBattle(outcome, campaign);
+    const paymentTransactions = result.campaign.finances.transactions.filter(
+      (transaction) =>
+        transaction.id.startsWith(`tx-contract-close-${contract.id}-`),
+    );
+    const extensions = result.campaign as ICampaignWithBattleState & {
+      readonly processedFulfilledContractIds?: readonly string[];
+    };
+
+    expect(result.campaign.finances.balance.amount).toBe(1000);
+    expect(paymentTransactions).toHaveLength(1);
+    expect(paymentTransactions[0]).toMatchObject({
+      type: TransactionType.Income,
+      amount: expect.objectContaining({ amount: 1000 }),
+    });
+    expect(extensions.processedFulfilledContractIds).toContain(contract.id);
+    expect(extensions.pendingFulfilledContractIds ?? []).not.toContain(
+      contract.id,
+    );
+  });
+
+  it('preserves the loan ledger while posting the final payment at apply', () => {
+    const loans = [
+      {
+        id: 'loan-apply-closure',
+        principal: new Money(120000),
+        annualRate: 0.08,
+        termMonths: 60,
+        monthlyPayment: new Money(2500),
+        remainingPrincipal: new Money(100000),
+        startDate: new Date('3025-01-01T00:00:00Z'),
+        nextPaymentDate: new Date('3025-07-01T00:00:00Z'),
+        paymentsRemaining: 48,
+        isDefaulted: false,
+      },
+    ] satisfies ILoan[];
+    const contract = createContract({
+      id: 'contract-close-preserve-apply-loans',
+      name: 'Preserve Apply Loans',
+      employerId: 'davion',
+      targetId: 'liao',
+      status: MissionStatus.ACTIVE,
+      paymentTerms: createPaymentTerms({
+        basePayment: new Money(400),
+        successPayment: new Money(600),
+      }),
+    });
+    const result = applyPostBattle(
+      {
+        ...createOutcome('match-contract-close-preserve-apply-loans'),
+        contractId: contract.id,
+      },
+      createTestCampaign({
+        missions: new Map([[contract.id, contract]]),
+        finances: { transactions: [], balance: new Money(0), loans },
+      }),
+    );
+    const paymentTransactions = result.campaign.finances.transactions.filter(
+      (transaction) =>
+        transaction.type === TransactionType.Income &&
+        transaction.id.startsWith(`tx-contract-close-${contract.id}-`),
+    );
+
+    expect(result.campaign.finances.balance.amount).toBe(1000);
+    expect(paymentTransactions).toHaveLength(1);
+    expect(result.campaign.finances.loans).toEqual(loans);
+  });
+
+  it('does not post a second final payment when the following day pipeline drains', () => {
+    const contract = createContract({
+      id: 'contract-close-once',
+      name: 'Close Once',
+      employerId: 'davion',
+      targetId: 'liao',
+      status: MissionStatus.ACTIVE,
+      paymentTerms: createPaymentTerms({
+        basePayment: new Money(400),
+        successPayment: new Money(600),
+      }),
+    });
+    const applied = applyPostBattle(
+      {
+        ...createOutcome('match-contract-close-once'),
+        contractId: contract.id,
+      },
+      createTestCampaign({ missions: new Map([[contract.id, contract]]) }),
+    );
+    const balanceAfterApply = applied.campaign.finances.balance.amount;
+    const afterPostBattle = postBattleProcessor.process(
+      applied.campaign,
+      applied.campaign.currentDate,
+    ).campaign;
+    const afterContractDrain = contractProcessor.process(
+      afterPostBattle,
+      applied.campaign.currentDate,
+    ).campaign as ICampaignWithBattleState;
+    const paymentTransactions = afterContractDrain.finances.transactions.filter(
+      (transaction) =>
+        transaction.type === TransactionType.Income &&
+        transaction.id.startsWith(`tx-contract-close-${contract.id}-`),
+    );
+
+    expect(afterContractDrain.finances.balance.amount).toBe(balanceAfterApply);
+    expect(paymentTransactions).toHaveLength(1);
+    expect(
+      (
+        afterContractDrain as ICampaignWithBattleState & {
+          readonly processedFulfilledContractIds?: readonly string[];
+        }
+      ).processedFulfilledContractIds,
+    ).toContain(contract.id);
   });
 });

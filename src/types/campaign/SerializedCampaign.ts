@@ -245,7 +245,10 @@ export interface SerializedCampaignBody {
   readonly personnelMarket?: readonly IPersonnelMarketOffer[];
   /** Contract-market offers + declined ids (CP2b design D5). */
   readonly contractMarket?: ICampaignContractMarket;
-  /** Active contract progress shown by the dashboard command card. */
+  /**
+   * @deprecated Legacy envelope field retained for read-tolerant loading.
+   * Dashboard state derives from `campaign.missions` instead.
+   */
   readonly activeContract?: ICampaignActiveContract;
   /** Unit-market offers stored by unitMarketProcessor (audit D-7, W3.4). */
   readonly unitMarket?: readonly IUnitMarketOffer[];

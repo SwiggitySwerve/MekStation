@@ -44,6 +44,10 @@ export interface ICampaignContractMarket {
 }
 
 /**
+ * @deprecated Derive active contracts from `campaign.missions` with
+ * `selectActiveContract`. This projection remains only so legacy saves
+ * can deserialize safely.
+ *
  * Active contract snapshot shown by the campaign dashboard command cards.
  *
  * This is intentionally a compact status projection instead of a full
@@ -74,7 +78,10 @@ export interface ICampaignCommandExtensions {
   /** Current contract-market state (design D5). */
   readonly contractMarket?: ICampaignContractMarket;
 
-  /** Active contract progress snapshot for the command dashboard. */
+  /**
+   * @deprecated Derive active contracts from `campaign.missions` with
+   * `selectActiveContract`. Retained for legacy-save read tolerance.
+   */
   readonly activeContract?: ICampaignActiveContract;
 
   /**
