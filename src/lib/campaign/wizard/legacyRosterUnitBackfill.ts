@@ -41,9 +41,14 @@ function directTonnageFrom(unit: IRosterUnitProjection): number | null {
 }
 
 function labelTonnageFrom(unit: IRosterUnitProjection): number | null {
-  const labels = [unit.unitName, unit.chassisVariant].map((label) =>
-    label.toLowerCase(),
-  );
+  // Units reaching this backfill are legacy/persisted data: despite the type,
+  // unitName/chassisVariant can be absent at runtime (old saves, seeded
+  // rosters). A missing label must degrade to "no match", never throw —
+  // restoreRosterProjection swallows exceptions, which silently aborts the
+  // whole server-roster rehydration and empties the dashboard roster.
+  const labels = [unit.unitName, unit.chassisVariant]
+    .filter((label): label is string => typeof label === 'string')
+    .map((label) => label.toLowerCase());
 
   for (const label of labels) {
     const directTemplateMatch = TEMPLATE_TONNAGE_BY_NAME.get(label);

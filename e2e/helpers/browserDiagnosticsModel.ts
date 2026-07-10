@@ -47,8 +47,18 @@ export function isFatalBrowserDiagnosticEvent(
     return true;
   }
 
+  if (event.failureText !== 'net::ERR_ABORTED') {
+    return true;
+  }
+
+  // net::ERR_ABORTED means the BROWSER cancelled an in-flight request
+  // (navigation away), not that the app failed. Aborted reads are benign —
+  // the next mount refetches. Aborted API WRITES stay fatal: a save cancelled
+  // by navigation is silent data loss (the fire-and-forget persistence bug
+  // class from the 2026-07 co-op waves).
   return (
-    /\/api(\/|\?|$)/.test(event.url) || event.failureText !== 'net::ERR_ABORTED'
+    /\/api(\/|\?|$)/.test(event.url) &&
+    !['GET', 'HEAD', 'OPTIONS'].includes(event.method.toUpperCase())
   );
 }
 

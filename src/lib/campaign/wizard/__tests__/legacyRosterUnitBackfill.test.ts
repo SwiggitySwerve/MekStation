@@ -89,4 +89,31 @@ describe('backfillLegacyRosterUnitRefs', () => {
       'marauder-mad-3r',
     ]);
   });
+
+  it('never throws on malformed legacy units missing name/variant labels', () => {
+    // Runtime roster data can violate the projection type (old saves, seeded
+    // rosters without chassisVariant). The backfill's job is legacy tolerance:
+    // a missing label must degrade to "no backfill", not abort the caller —
+    // restoreRosterProjection swallows exceptions, which silently emptied the
+    // dashboard roster (wave-4 Damage Carry-Forward residual).
+    const missingVariant = {
+      unitId: 'unit-no-variant',
+      unitName: 'Atlas AS7-D',
+      readiness: 'Damaged',
+    } as unknown as IRosterUnitProjection;
+    const missingBothLabels = {
+      unitId: 'unit-no-labels',
+      readiness: 'Ready',
+    } as unknown as IRosterUnitProjection;
+
+    const backfilled = backfillLegacyRosterUnitRefs(
+      [missingVariant, missingBothLabels],
+      { log: false },
+    );
+
+    // 'Atlas AS7-D' embeds no template label or "NNt" marker; both units pass
+    // through unbackfilled but intact.
+    expect(backfilled[0]).toBe(missingVariant);
+    expect(backfilled[1]).toBe(missingBothLabels);
+  });
 });

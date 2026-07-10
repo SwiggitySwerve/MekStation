@@ -43,6 +43,20 @@ describe('browser diagnostics helper', () => {
         failureText: 'net::ERR_ABORTED',
       }),
     ).toBe(true);
+
+    // Navigation-aborted API READS are browser cancellations, not app
+    // failures — the next mount refetches. Only aborted API writes are fatal.
+    expect(
+      isFatalBrowserDiagnosticEvent({
+        type: 'requestfailed',
+        timestamp: '3025-01-01T00:00:00.000Z',
+        pageUrl: 'http://localhost:3600/gameplay/campaigns',
+        method: 'GET',
+        url: 'http://localhost:3600/api/campaigns',
+        resourceType: 'fetch',
+        failureText: 'net::ERR_ABORTED',
+      }),
+    ).toBe(false);
   });
 
   it('formats page, request, and console diagnostics with triage details', () => {
