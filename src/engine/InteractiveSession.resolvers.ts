@@ -29,7 +29,15 @@ import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 /**
  * Resolver-shaped `D6Roller`. Returns `undefined` when no roller was
  * injected so the resolver's own `defaultD6Roller` (`Math.random`)
- * remains in effect for single-player / hot-seat callers.
+ * remains in effect — which since `add-sp-combat-determinism` (ladder
+ * W1) only happens for roller-less DIRECT constructions (legacy
+ * MP-recovered sessions, hand-built test sessions). Every engine
+ * path injects: `GameEngine.createInteractiveSession` always passes
+ * `new SeededD6Roller(this.seed).asD6Roller()`, and `fromSessionAsync`
+ * re-seeds from `config.seed` when present. Do NOT read this fallback
+ * as "SP dice are expected to be nondeterministic" — a resolver
+ * reaching `Math.random` from an engine-created session is a bug the
+ * same-seed determinism proofs exist to catch.
  *
  * Per `add-authoritative-roll-arbitration` (Wave 3a): `ServerMatchHost`
  * always injects a server-authoritative `D6Roller` (crypto-backed in
