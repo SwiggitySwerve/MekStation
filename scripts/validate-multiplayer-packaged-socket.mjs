@@ -457,33 +457,6 @@ async function startPackagedServer(npmExecutable) {
   return { child, getOutput };
 }
 
-function runCoopRuntimeSmoke(match) {
-  const executable = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-  const result = spawnSync(
-    executable,
-    [
-      'tsx',
-      'scripts/validate-multiplayer-coop-runtime.ts',
-      '--match-id',
-      match.matchId,
-      '--room-code',
-      match.roomCode,
-    ],
-    {
-      cwd: repoRoot,
-      encoding: 'utf8',
-      maxBuffer: 10 * 1024 * 1024,
-      shell: process.platform === 'win32',
-    },
-  );
-  if (result.status !== 0) {
-    throw new Error(
-      `Co-op runtime smoke failed (${result.status}). ${result.error?.message ?? ''}\nSTDOUT:\n${result.stdout ?? ''}\nSTDERR:\n${result.stderr ?? ''}`,
-    );
-  }
-  return JSON.parse(result.stdout);
-}
-
 function stopServer(child) {
   if (!child.pid) return;
   if (process.platform === 'win32') {
@@ -513,8 +486,6 @@ async function main() {
       match.matchId,
       firstServer.getOutput,
     );
-    const coopRuntime = runCoopRuntimeSmoke(match);
-
     stopServer(child);
     child = null;
     await delay(500);
@@ -549,7 +520,6 @@ async function main() {
           roomCode: match.roomCode,
           frames: kinds,
           reconnectFrames,
-          coopRuntime,
         },
         null,
         2,

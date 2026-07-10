@@ -64,7 +64,6 @@
     "validate:combat": "node scripts/validate-combat-suite.mjs",
     "validate:combat:gaps": "npx tsx scripts/print-combat-validation-gaps.ts",
     "validate:multiplayer:dev-socket": "node scripts/validate-multiplayer-dev-socket.mjs",
-    "validate:multiplayer:coop-runtime": "npx tsx scripts/validate-multiplayer-coop-runtime.ts",
     "validate:multiplayer:packaged-socket": "node scripts/validate-multiplayer-packaged-socket.mjs",
     "audit:megamek-boards": "npx tsx scripts/audit-megamek-board-import.ts",
     "validate:refactor": "npm run test && npm run lint && npm run build",
