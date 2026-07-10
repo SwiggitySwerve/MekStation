@@ -166,12 +166,24 @@ export default defineConfig({
        (see e2e/flow-audits.spec.ts RESOLVED_VIEWPORT). Never referenced by
        any CI workflow — both nightly-validation.yml and pr-checks.yml pass
        `--project=chromium` explicitly, and scripts/qc/run-flow-audit.mjs is
-       the only caller that targets this project by name. */
-    {
-      name: 'flow-audit',
-      testMatch: ['**/flow-audits.spec.ts'],
-      use: { ...devices['Desktop Chrome'] },
-    },
+       the only caller that targets this project by name.
+       Registered ONLY when MEKSTATION_FLOW_ID is set (the flow-audit runner
+       always sets it before spawning Playwright). Playwright runs every
+       REGISTERED project when no `--project` flag is passed, so the other
+       projects' `testIgnore` entries above are not sufficient on their own —
+       a project that exists at all joins the default set. Gating on the same
+       env var the spec file itself reads (design D2) keeps a bare
+       `npm run test:e2e` / `npx playwright test` from ever picking this
+       project up, matching the header comment on flow-audits.spec.ts. */
+    ...(process.env.MEKSTATION_FLOW_ID
+      ? [
+          {
+            name: 'flow-audit',
+            testMatch: ['**/flow-audits.spec.ts'],
+            use: { ...devices['Desktop Chrome'] },
+          },
+        ]
+      : []),
   ],
 
   /* Run your local dev server before starting the tests */

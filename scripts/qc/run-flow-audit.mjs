@@ -231,6 +231,10 @@ function buildSummary({ runDir, catalog, flow, viewportLabel, hold }) {
     return {
       name: checkpoint.name,
       status: checkpoint.status,
+      // Per-checkpoint viewport (spec: Viewport Selection) — sourced straight
+      // from the recorder's checkpoint record so a checkpoint object read on
+      // its own (e.g. extracted from summary.json) is self-describing.
+      viewport: checkpoint.viewport ?? null,
       consoleErrors: step?.consoleErrors ?? [],
       pageErrors: step?.pageErrors ?? [],
       durationMs: step?.durationMs ?? null,

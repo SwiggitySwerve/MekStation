@@ -71,6 +71,12 @@ export interface WalkthroughCheckpointRecord {
   readonly name: string;
   readonly stepIndex: number | null;
   readonly status: WalkthroughCheckpointStatus;
+  // Per-checkpoint viewport (spec: Viewport Selection — "MUST be recorded in
+  // the run manifest AND per-checkpoint metadata"). Same source as the run
+  // manifest's top-level viewport (resolveViewport()); duplicated here rather
+  // than left implicit so a checkpoint object extracted on its own (e.g. from
+  // summary.json) is self-describing without carrying run-level context.
+  readonly viewport: { readonly width: number; readonly height: number };
 }
 
 export interface WalkthroughEntityRecord {
@@ -256,19 +262,23 @@ export class WalkthroughRecorder {
         name,
         stepIndex: step.index,
         status: step.status,
+        viewport: this.resolveViewport(),
       });
     });
   }
 
   /**
    * Record a checkpoint deliberately skipped by an `--until` stop point.
-   * Not-run checkpoints have no associated step, screenshot, or timing.
+   * Not-run checkpoints have no associated step, screenshot, or timing, but
+   * still ran (or would have run) inside this test's single fixed-viewport
+   * browser context, so the viewport is still meaningful metadata.
    */
   markCheckpointNotRun(name: string): void {
     this.checkpoints.push({
       name,
       stepIndex: null,
       status: 'not-run',
+      viewport: this.resolveViewport(),
     });
   }
 
@@ -385,10 +395,7 @@ export class WalkthroughRecorder {
     const record: WalkthroughJourneyRecord = {
       journey: this.journey,
       persona: this.persona,
-      viewport: this.testInfo.project.use.viewport ?? {
-        width: 1280,
-        height: 720,
-      },
+      viewport: this.resolveViewport(),
       startedAt: this.startedAt,
       finishedAt: new Date().toISOString(),
       status: this.failed ? 'failed' : 'ok',
@@ -431,6 +438,14 @@ export class WalkthroughRecorder {
       timeout: 15_000,
     });
     return `${this.journey}/${file}`;
+  }
+
+  /**
+   * Resolve the viewport shared by the run manifest and every per-checkpoint
+   * record. Single source so both call sites can never drift apart.
+   */
+  private resolveViewport(): { width: number; height: number } {
+    return this.testInfo.project.use.viewport ?? { width: 1280, height: 720 };
   }
 
   private currentRoute(surface: WalkthroughSurface): string {

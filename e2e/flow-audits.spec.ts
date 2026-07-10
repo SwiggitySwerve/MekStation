@@ -207,20 +207,39 @@ function pilotIdFromUrl(page: Page): string {
 
 /**
  * Save the current campaign to the server through the dashboard save card,
- * mirroring the umbrella deep-play journey. Leaves the save status synced so a
- * subsequent holdSafe checkpoint reflects server-persisted state.
+ * mirroring the umbrella deep-play journey. Waits for the actual save PUT to
+ * resolve rather than a loose text match — the card's "Last saved: Never
+ * saved" fallback and its "Unsaved changes" badge both satisfy a bare
+ * /saved|server|sync|clean/i regex even when nothing has persisted, which
+ * would let a holdSafe checkpoint record `ok` with zero evidence of server
+ * persistence (design D3's holdSafe honesty contract). Leaves the save
+ * status synced so a subsequent holdSafe checkpoint reflects server-persisted
+ * state, matching the `saveCampaignThroughDashboard` pattern already used in
+ * campaign-flow.spec.ts / gm-campaign-ledger-control-plane.spec.ts.
  */
-async function saveCampaignToServer(page: Page): Promise<void> {
+async function saveCampaignToServer(
+  page: Page,
+  campaignId: string,
+): Promise<void> {
   await expect(page.getByTestId('campaign-save-status-card')).toBeVisible({
     timeout: 20_000,
   });
   const saveNow = page.getByTestId('campaign-save-now-btn');
   if (await isVisible(saveNow)) {
-    await saveNow.click();
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.request().method() === 'PUT' &&
+          response.url().includes(`/api/campaigns/${campaignId}`) &&
+          response.status() === 200,
+        { timeout: 30_000 },
+      ),
+      saveNow.click(),
+    ]);
   }
-  await expect(page.getByTestId('campaign-save-status-card')).toContainText(
-    /saved|server|sync|clean/i,
-    { timeout: 30_000 },
+  await expect(page.getByTestId('campaign-last-saved')).not.toContainText(
+    'Never saved',
+    { timeout: 5_000 },
   );
 }
 
@@ -376,7 +395,7 @@ async function createSavedCampaignStage(
 ): Promise<void> {
   await createCampaign(env);
   await env.fr.checkpoint(checkpointName, async (page) => {
-    await saveCampaignToServer(page);
+    await saveCampaignToServer(page, env.ctx.campaignId!);
   });
   maybeHold(env, checkpointName);
 }
@@ -435,7 +454,7 @@ const FLOW_STAGES: Record<string, Record<string, FlowStageRunner>> = {
     },
     'campaign-saved': async (env) => {
       await env.fr.checkpoint('campaign-saved', async (page) => {
-        await saveCampaignToServer(page);
+        await saveCampaignToServer(page, env.ctx.campaignId!);
       });
       maybeHold(env, 'campaign-saved');
     },
