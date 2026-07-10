@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-07-09
+goal: User-facing flow-audit routines agents invoke per specified flow with
+  checkpoint capture for local review; headless invariants remain CI authority
+  (codifies 2026-07-09 council decision)
