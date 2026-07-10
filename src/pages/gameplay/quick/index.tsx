@@ -242,6 +242,9 @@ export default function QuickGamePage(): React.ReactElement {
   const router = useRouter();
   const game = useQuickGameSelector((state) => state.game);
   const startNewGame = useQuickGameSelector((state) => state.startNewGame);
+  const setSeedOverride = useQuickGameSelector(
+    (state) => state.setSeedOverride,
+  );
   const error = useQuickGameSelector((state) => state.error);
   const clearError = useQuickGameSelector((state) => state.clearError);
 
@@ -249,6 +252,27 @@ export default function QuickGamePage(): React.ReactElement {
   useEffect(() => {
     // Session storage restore is handled by zustand persist middleware
   }, []);
+
+  // Parse an optional `?seed=N` debug override from the query string once
+  // the router has hydrated (design D5). Mirrors the MP WS upgrade
+  // handler's seed parse (`server.js:590-595`): first value when the query
+  // key repeats, base-10 integer parse, finite-number guard - garbage input
+  // is silently dropped (never throws, never NaN-seeds) so the three start
+  // actions fall back to `Date.now()` via `createEngineForQuickGame`.
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    const rawSeed = router.query.seed;
+    const seedString = Array.isArray(rawSeed) ? rawSeed[0] : rawSeed;
+    if (typeof seedString === 'string' && seedString.length > 0) {
+      const seedValue = Number.parseInt(seedString, 10);
+      if (Number.isFinite(seedValue)) {
+        setSeedOverride(seedValue);
+        return;
+      }
+    }
+    setSeedOverride(null);
+  }, [router.isReady, router.query.seed, setSeedOverride]);
 
   // Handle starting a new game
   const handleStart = () => {

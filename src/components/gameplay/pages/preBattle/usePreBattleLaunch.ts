@@ -45,6 +45,13 @@ interface UsePreBattleLaunchOptions {
   setSpectatorMode: (session: InteractiveSession, mode: SpectatorMode) => void;
   setIsResolving: (isResolving: boolean) => void;
   showToast: (toast: { message: string; variant: 'success' | 'error' }) => void;
+  /**
+   * Debug `?seed=N` override parsed by the pre-battle page (design D5).
+   * When present it replaces `Date.now()` as the engine's dice seed so a
+   * launch is reproducible; absent/invalid values fall back to `Date.now()`
+   * (unchanged pre-change behavior).
+   */
+  seedOverride?: number;
 }
 
 export interface IPreBattleLaunchLinkage extends IInteractiveSessionLinkage {
@@ -180,6 +187,7 @@ export function usePreBattleLaunch({
   setSpectatorMode,
   setIsResolving,
   showToast,
+  seedOverride,
 }: UsePreBattleLaunchOptions): (mode: BattleMode) => Promise<void> {
   return useCallback(
     async (mode: BattleMode) => {
@@ -221,7 +229,7 @@ export function usePreBattleLaunch({
 
         const mapRadius = gameConfig?.mapRadius ?? mapConfig?.radius ?? 7;
         const engine = new GameEngine({
-          seed: Date.now(),
+          seed: seedOverride ?? Date.now(),
           mapRadius,
           turnLimit: gameConfig?.turnLimit,
           victoryConditions: gameConfig?.victoryConditions,
@@ -317,6 +325,7 @@ export function usePreBattleLaunch({
       setSpectatorMode,
       setIsResolving,
       showToast,
+      seedOverride,
     ],
   );
 }

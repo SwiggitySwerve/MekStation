@@ -197,6 +197,15 @@ export interface IQuickGameState {
   error: string | null;
   /** Has unsaved changes */
   isDirty: boolean;
+  /**
+   * Debug `?seed=N` override parsed from the quick-game page's query string
+   * (design D5, mirrors `server.js:590-595`'s MP seed parse). Consumed by
+   * `startBattle` / `startSpectatorMode` / `startInteractiveSkirmish` via
+   * `createEngineForQuickGame`; `null` (absent/invalid) falls back to
+   * `Date.now()`. Not persisted across sessions (excluded from the store's
+   * `partialize`) - it is re-derived from the URL on every page load.
+   */
+  seedOverride: number | null;
 }
 
 // =============================================================================
@@ -229,6 +238,12 @@ export interface IQuickGameActions {
   previousStep: () => void;
   /** Start the game (move to playing) */
   startGame: () => void;
+  /**
+   * Set (or clear, via `null`) the debug `?seed=N` override read from the
+   * quick-game page's query string (design D5). Consumed internally by the
+   * three start actions below via `createEngineForQuickGame`.
+   */
+  setSeedOverride: (seed: number | null) => void;
   /** Run auto-resolved battle via GameEngine */
   startBattle: () => Promise<void>;
   /** Launch spectator mode (AI vs AI) via InteractiveSession */

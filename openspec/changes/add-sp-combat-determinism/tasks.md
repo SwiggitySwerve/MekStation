@@ -40,13 +40,13 @@
 
 ## 4. Launch surfaces — thread `?seed=N` (game-engine-orchestration)
 
-- [ ] 4.1 `pre-battle.tsx` (`src/pages/gameplay/encounters/[id]/pre-battle.tsx:158-159` query destructure): parse `seed` from `router.query` (first value, `Number.parseInt(..., 10)`, `Number.isFinite` guard — mirror `server.js:590-595`) and pass `seedOverride?: number` into both hooks. In `usePreBattleLaunch.ts:224` and `usePreBattleSkirmish.ts:181`, change `seed: Date.now()` to `seed: seedOverride ?? Date.now()` (threaded through their options types).
+- [x] 4.1 `pre-battle.tsx` (`src/pages/gameplay/encounters/[id]/pre-battle.tsx:158-159` query destructure): parse `seed` from `router.query` (first value, `Number.parseInt(..., 10)`, `Number.isFinite` guard — mirror `server.js:590-595`) and pass `seedOverride?: number` into both hooks. In `usePreBattleLaunch.ts:224` and `usePreBattleSkirmish.ts:181`, change `seed: Date.now()` to `seed: seedOverride ?? Date.now()` (threaded through their options types).
   - Files: `src/pages/gameplay/encounters/[id]/pre-battle.tsx`, `src/components/gameplay/pages/preBattle/usePreBattleLaunch.ts`, `src/components/gameplay/pages/preBattle/usePreBattleSkirmish.ts`.
   - Acceptance: `?seed=N` on the pre-battle route reaches `new GameEngine({ seed: N })` for auto, interactive, and skirmish launches; absent/invalid seed falls back to `Date.now()`.
-- [ ] 4.2 Quick-game surface: same parse on `src/pages/gameplay/quick/index.tsx`; thread `seedOverride` into `startBattle` / `startSpectatorMode` / `startInteractiveSkirmish` so `createEngineForQuickGame` (`useQuickGameStore.actions.ts:26-38`) resolves `seed: seedOverride ?? Date.now()`. The scenario-generator seed at `useQuickGameStore.actions.ts:136` is NOT touched (non-goal).
+- [x] 4.2 Quick-game surface: same parse on `src/pages/gameplay/quick/index.tsx`; thread `seedOverride` into `startBattle` / `startSpectatorMode` / `startInteractiveSkirmish` so `createEngineForQuickGame` (`useQuickGameStore.actions.ts:26-38`) resolves `seed: seedOverride ?? Date.now()`. The scenario-generator seed at `useQuickGameStore.actions.ts:136` is NOT touched (non-goal).
   - Files: `src/pages/gameplay/quick/index.tsx`, `src/stores/useQuickGameStore.actions.ts`, `src/stores/useQuickGameStore.types.ts` (if action signatures live there).
   - Acceptance: `?seed=N` on the quick page reaches the engine for all three start actions; no-param behavior unchanged.
-- [ ] 4.3 QA — `npm run typecheck` clean; existing hook/store suites green; manual-equivalent check that a garbage `?seed=abc` neither throws nor NaN-seeds the engine.
+- [x] 4.3 QA — `npm run typecheck` clean; existing hook/store suites green; manual-equivalent check that a garbage `?seed=abc` neither throws nor NaN-seeds the engine.
 
 ## 5. Live e2e proof — same `?seed=N` twice ⇒ identical outcome
 

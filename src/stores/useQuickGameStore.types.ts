@@ -16,6 +16,7 @@ export const initialState: IQuickGameState = {
   isLoading: false,
   error: null,
   isDirty: false,
+  seedOverride: null,
 };
 
 export type {
