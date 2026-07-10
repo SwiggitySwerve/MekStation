@@ -1,0 +1,142 @@
+{
+  "journey": "05-customizer-new-unit",
+  "persona": "player building their first custom BattleMech",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-10T00:46:49.520Z",
+  "finishedAt": "2026-07-10T00:46:57.802Z",
+  "status": "ok",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-open-the-customizer",
+      "title": "open the customizer",
+      "surface": "default",
+      "screenshot": "05-customizer-new-unit/01-open-the-customizer.png",
+      "route": "http://localhost:3600/customizer",
+      "startedAt": "2026-07-10T00:46:49.520Z",
+      "durationMs": 3316,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-open-the-new-unit-dialog",
+      "title": "open the new-unit dialog",
+      "surface": "default",
+      "screenshot": "05-customizer-new-unit/02-open-the-new-unit-dialog.png",
+      "route": "http://localhost:3600/customizer",
+      "startedAt": "2026-07-10T00:46:52.836Z",
+      "durationMs": 464,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-create-a-default-battlemech",
+      "title": "create a default BattleMech",
+      "surface": "default",
+      "screenshot": "05-customizer-new-unit/03-create-a-default-battlemech.png",
+      "route": "http://localhost:3600/customizer/19fedb51-ab35-4880-b4a0-1d7d23d1d606/structure",
+      "startedAt": "2026-07-10T00:46:53.300Z",
+      "durationMs": 543,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-adjust-heat-sinks-autosave",
+      "title": "adjust heat sinks (autosave)",
+      "surface": "default",
+      "screenshot": "05-customizer-new-unit/04-adjust-heat-sinks-autosave.png",
+      "route": "http://localhost:3600/customizer/19fedb51-ab35-4880-b4a0-1d7d23d1d606/structure",
+      "startedAt": "2026-07-10T00:46:53.843Z",
+      "durationMs": 480,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [
+        "Edits autosave to local storage; the transient Saved toast is the only save feedback."
+      ],
+      "status": "ok"
+    },
+    {
+      "index": 5,
+      "slug": "05-view-armor-diagram",
+      "title": "view armor diagram",
+      "surface": "default",
+      "screenshot": "05-customizer-new-unit/05-view-armor-diagram.png",
+      "route": "http://localhost:3600/customizer/19fedb51-ab35-4880-b4a0-1d7d23d1d606/armor",
+      "startedAt": "2026-07-10T00:46:54.323Z",
+      "durationMs": 488,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 6,
+      "slug": "06-view-overview-tab",
+      "title": "view overview tab",
+      "surface": "default",
+      "screenshot": "05-customizer-new-unit/06-view-overview-tab.png",
+      "route": "http://localhost:3600/customizer/19fedb51-ab35-4880-b4a0-1d7d23d1d606/overview",
+      "startedAt": "2026-07-10T00:46:54.811Z",
+      "durationMs": 589,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 7,
+      "slug": "07-view-equipment-tab",
+      "title": "view equipment tab",
+      "surface": "default",
+      "screenshot": "05-customizer-new-unit/07-view-equipment-tab.png",
+      "route": "http://localhost:3600/customizer/19fedb51-ab35-4880-b4a0-1d7d23d1d606/equipment",
+      "startedAt": "2026-07-10T00:46:55.400Z",
+      "durationMs": 513,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 8,
+      "slug": "08-view-critical-slots-tab",
+      "title": "view critical slots tab",
+      "surface": "default",
+      "screenshot": "05-customizer-new-unit/08-view-critical-slots-tab.png",
+      "route": "http://localhost:3600/customizer/19fedb51-ab35-4880-b4a0-1d7d23d1d606/criticals",
+      "startedAt": "2026-07-10T00:46:55.913Z",
+      "durationMs": 582,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 9,
+      "slug": "09-view-record-sheet-preview",
+      "title": "view record sheet preview",
+      "surface": "default",
+      "screenshot": "05-customizer-new-unit/09-view-record-sheet-preview.png",
+      "route": "http://localhost:3600/customizer/19fedb51-ab35-4880-b4a0-1d7d23d1d606/preview",
+      "startedAt": "2026-07-10T00:46:56.495Z",
+      "durationMs": 1307,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    }
+  ],
+  "findings": []
+}

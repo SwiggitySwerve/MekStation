@@ -1,0 +1,40 @@
+{
+  "journey": "06-campaign-create-to-launch",
+  "persona": "player starting a mercenary campaign",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-05T09:44:25.404Z",
+  "finishedAt": "2026-07-05T09:44:46.689Z",
+  "status": "failed",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-campaigns-list-fresh-profile",
+      "title": "campaigns list (fresh profile)",
+      "screenshot": "06-campaign-create-to-launch/01-campaigns-list-fresh-profile.png",
+      "route": "http://localhost:3600/gameplay/campaigns",
+      "startedAt": "2026-07-05T09:44:25.404Z",
+      "durationMs": 1181,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-start-the-campaign-wizard",
+      "title": "start the campaign wizard",
+      "screenshot": "06-campaign-create-to-launch/02-start-the-campaign-wizard-FAILED.png",
+      "route": "http://localhost:3600/gameplay/campaigns/create",
+      "startedAt": "2026-07-05T09:44:26.585Z",
+      "durationMs": 20104,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "failed",
+      "failure": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('campaign-name-input')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('campaign-name-input')\u001b[22m\n"
+    }
+  ]
+}

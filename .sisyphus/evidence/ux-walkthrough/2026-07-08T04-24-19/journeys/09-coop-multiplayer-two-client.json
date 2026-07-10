@@ -1,0 +1,89 @@
+{
+  "journey": "09-coop-multiplayer-two-client",
+  "persona": "host and guest proving co-op campaign and 1v1 lobby handoff surfaces",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-08T10:25:21.320Z",
+  "finishedAt": "2026-07-08T10:25:27.468Z",
+  "status": "ok",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-seed-host-and-guest-vault-identities",
+      "title": "seed host and guest vault identities",
+      "surface": "default",
+      "screenshot": "09-coop-multiplayer-two-client/01-seed-host-and-guest-vault-identities.png",
+      "route": "about:blank",
+      "startedAt": "2026-07-08T10:25:21.321Z",
+      "durationMs": 875,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-host-creates-and-guest-joins-co-op-campaign",
+      "title": "host creates and guest joins co-op campaign",
+      "surface": "default",
+      "screenshot": "09-coop-multiplayer-two-client/02-host-creates-and-guest-joins-co-op-campaign.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783506322570-puicrmo",
+      "startedAt": "2026-07-08T10:25:22.196Z",
+      "durationMs": 1510,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-skip-guest-ledger-check-because-co-op-join-did-not-connect",
+      "title": "skip guest ledger check because co-op join did not connect",
+      "surface": "guest",
+      "screenshot": "09-coop-multiplayer-two-client/03-skip-guest-ledger-check-because-co-op-join-did-not-connect.png",
+      "route": "http://localhost:3600/gameplay/campaigns",
+      "startedAt": "2026-07-08T10:25:23.706Z",
+      "durationMs": 1340,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-host-creates-1v1-match-and-guest-joins-lobby",
+      "title": "host creates 1v1 match and guest joins lobby",
+      "surface": "default",
+      "screenshot": "09-coop-multiplayer-two-client/04-host-creates-1v1-match-and-guest-joins-lobby.png",
+      "route": "http://localhost:3600/multiplayer/lobby/9WL4T5",
+      "startedAt": "2026-07-08T10:25:25.046Z",
+      "durationMs": 2038,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    }
+  ],
+  "findings": [
+    {
+      "id": "C3",
+      "severity": "major",
+      "summary": "Harness uses MULTIPLAYER_STORE=durable for Playwright; it does not reproduce the plain-dev in-memory split-store C3 path. Host campaign=campaign-1783506322570-puicrmo, guest campaign=none, host badge=none, guest badge=none, join error=No room code rendered for host campaign..",
+      "steps": [2]
+    },
+    {
+      "id": "COOP-GUEST-LEDGER-SKIPPED",
+      "severity": "minor",
+      "summary": "Guest ledger projection check was skipped because the co-op join never reached a guest campaign route.",
+      "steps": [3]
+    },
+    {
+      "id": "MULTIPLAYER-LOBBY-OCCUPIED",
+      "severity": "minor",
+      "summary": "1v1 lobby occupied=true; host alpha=\"Alpha #1Deep Play HostNot readyLeaveReadySet AI\", host bravo=\"Bravo #1pid_f8iNGGkzBXdFRN8dPZAr6mFGj1RNot readySet AI\", guest alpha=\"Alpha #1Deep Play HostNot ready\", guest bravo=\"Bravo #1pid_f8iNGGkzBXdFRN8dPZAr6mFGj1RNot readyLeaveReady\".",
+      "steps": [4]
+    }
+  ]
+}

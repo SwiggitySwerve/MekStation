@@ -1,0 +1,66 @@
+{
+  "journey": "01-first-visit-navigation",
+  "persona": "first-time visitor exploring the app shell",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-05T09:43:29.290Z",
+  "finishedAt": "2026-07-05T09:43:43.640Z",
+  "status": "failed",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-land-on-dashboard",
+      "title": "land on dashboard",
+      "screenshot": "01-first-visit-navigation/01-land-on-dashboard.png",
+      "route": "http://localhost:3600/",
+      "startedAt": "2026-07-05T09:43:29.292Z",
+      "durationMs": 2523,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-open-browse-menu",
+      "title": "open Browse menu",
+      "screenshot": "01-first-visit-navigation/02-open-browse-menu.png",
+      "route": "http://localhost:3600/",
+      "startedAt": "2026-07-05T09:43:31.815Z",
+      "durationMs": 706,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-open-gameplay-menu",
+      "title": "open Gameplay menu",
+      "screenshot": "01-first-visit-navigation/03-open-gameplay-menu.png",
+      "route": "http://localhost:3600/",
+      "startedAt": "2026-07-05T09:43:32.521Z",
+      "durationMs": 688,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-visit-gameplay-hub-from-dashboard-card",
+      "title": "visit gameplay hub from dashboard card",
+      "screenshot": "01-first-visit-navigation/04-visit-gameplay-hub-from-dashboard-card-FAILED.png",
+      "route": "http://localhost:3600/gameplay",
+      "startedAt": "2026-07-05T09:43:33.209Z",
+      "durationMs": 10431,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "failed",
+      "failure": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('page-title')\nExpected: \u001b[32m\"Gameplay\"\u001b[39m\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('page-title')\u001b[22m\n"
+    }
+  ]
+}

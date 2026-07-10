@@ -1,0 +1,83 @@
+{
+  "journey": "02-compendium-browse",
+  "persona": "player researching units and equipment",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-05T19:42:08.037Z",
+  "finishedAt": "2026-07-05T19:42:36.200Z",
+  "status": "failed",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-open-compendium-hub",
+      "title": "open compendium hub",
+      "screenshot": "02-compendium-browse/01-open-compendium-hub.png",
+      "route": "http://localhost:3600/compendium",
+      "startedAt": "2026-07-05T19:42:08.039Z",
+      "durationMs": 2893,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-search-the-compendium-for-heat",
+      "title": "search the compendium for \"heat\"",
+      "screenshot": "02-compendium-browse/02-search-the-compendium-for-heat.png",
+      "route": "http://localhost:3600/compendium",
+      "startedAt": "2026-07-05T19:42:10.932Z",
+      "durationMs": 608,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-clear-search-and-open-unit-database",
+      "title": "clear search and open unit database",
+      "screenshot": "02-compendium-browse/03-clear-search-and-open-unit-database.png",
+      "route": "http://localhost:3600/compendium/units",
+      "startedAt": "2026-07-05T19:42:11.540Z",
+      "durationMs": 608,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-open-the-first-unit-detail",
+      "title": "open the first unit detail",
+      "screenshot": "02-compendium-browse/04-open-the-first-unit-detail.png",
+      "route": "http://localhost:3600/compendium/units/battle-tripod-r-h3l-2x",
+      "startedAt": "2026-07-05T19:42:12.148Z",
+      "durationMs": 3987,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 5,
+      "slug": "05-browser-back-returns-to-unit-database",
+      "title": "browser-back returns to unit database",
+      "screenshot": "02-compendium-browse/05-browser-back-returns-to-unit-database-FAILED.png",
+      "route": "http://localhost:3600/compendium/units",
+      "startedAt": "2026-07-05T19:42:16.135Z",
+      "durationMs": 20065,
+      "consoleErrors": [
+        "Error: Minified React error #185; visit https://react.dev/errors/185 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\n    at n7 (http://localhost:3600/_next/static/chunks/framework-493b78e0283065bc.js:1:30823)\n    at n6 (http://localhost:3600/_next/static/chunks/framework-493b78e0283065bc.js:1:30347)\n    at a9 (http://localhost:3600/_next/static/chunks/framework-493b78e0283065bc.js:1:62565)\n    at a5 (http://localhost:3600/_next/static",
+        "Error: Minified React error #185; visit https://react.dev/errors/185 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.\n    at n7 (http://localhost:3600/_next/static/chunks/framework-493b78e0283065bc.js:1:30823)\n    at n6 (http://localhost:3600/_next/static/chunks/framework-493b78e0283065bc.js:1:30347)\n    at a9 (http://localhost:3600/_next/static/chunks/framework-493b78e0283065bc.js:1:62565)\n    at a5 (http://localhost:3600/_next/static",
+        "A client-side exception has occurred, see here for more info: https://nextjs.org/docs/messages/client-side-exception-occurred"
+      ],
+      "pageErrors": [],
+      "notes": [],
+      "status": "failed",
+      "failure": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Unit Database' })\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Unit Database' })\u001b[22m\n"
+    }
+  ]
+}

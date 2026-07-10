@@ -1,0 +1,172 @@
+{
+  "journey": "06-campaign-create-to-launch",
+  "persona": "player starting a mercenary campaign",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "startedAt": "2026-07-05T19:42:36.979Z",
+  "finishedAt": "2026-07-05T19:43:11.126Z",
+  "status": "failed",
+  "steps": [
+    {
+      "index": 1,
+      "slug": "01-campaigns-list-fresh-profile",
+      "title": "campaigns list (fresh profile)",
+      "screenshot": "06-campaign-create-to-launch/01-campaigns-list-fresh-profile.png",
+      "route": "http://localhost:3600/gameplay/campaigns",
+      "startedAt": "2026-07-05T19:42:36.980Z",
+      "durationMs": 1205,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 2,
+      "slug": "02-start-the-campaign-wizard",
+      "title": "start the campaign wizard",
+      "screenshot": "06-campaign-create-to-launch/02-start-the-campaign-wizard.png",
+      "route": "http://localhost:3600/gameplay/campaigns/create",
+      "startedAt": "2026-07-05T19:42:38.185Z",
+      "durationMs": 4391,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 3,
+      "slug": "03-name-the-campaign",
+      "title": "name the campaign",
+      "screenshot": "06-campaign-create-to-launch/03-name-the-campaign.png",
+      "route": "http://localhost:3600/gameplay/campaigns/create",
+      "startedAt": "2026-07-05T19:42:42.576Z",
+      "durationMs": 434,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 4,
+      "slug": "04-choose-campaign-type-default-mercenary",
+      "title": "choose campaign type (default mercenary)",
+      "screenshot": "06-campaign-create-to-launch/04-choose-campaign-type-default-mercenary.png",
+      "route": "http://localhost:3600/gameplay/campaigns/create",
+      "startedAt": "2026-07-05T19:42:43.010Z",
+      "durationMs": 492,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 5,
+      "slug": "05-choose-preset-default-standard",
+      "title": "choose preset (default standard)",
+      "screenshot": "06-campaign-create-to-launch/05-choose-preset-default-standard.png",
+      "route": "http://localhost:3600/gameplay/campaigns/create",
+      "startedAt": "2026-07-05T19:42:43.502Z",
+      "durationMs": 466,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 6,
+      "slug": "06-add-a-starting-unit-and-pilot",
+      "title": "add a starting unit and pilot",
+      "screenshot": "06-campaign-create-to-launch/06-add-a-starting-unit-and-pilot.png",
+      "route": "http://localhost:3600/gameplay/campaigns/create",
+      "startedAt": "2026-07-05T19:42:43.968Z",
+      "durationMs": 532,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 7,
+      "slug": "07-review-and-create-the-campaign",
+      "title": "review and create the campaign",
+      "screenshot": "06-campaign-create-to-launch/07-review-and-create-the-campaign.png",
+      "route": "http://localhost:3600/gameplay/campaigns/create",
+      "startedAt": "2026-07-05T19:42:44.500Z",
+      "durationMs": 467,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 8,
+      "slug": "08-land-on-the-campaign-dashboard",
+      "title": "land on the campaign dashboard",
+      "screenshot": "06-campaign-create-to-launch/08-land-on-the-campaign-dashboard.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783280565009-oy0y578",
+      "startedAt": "2026-07-05T19:42:44.967Z",
+      "durationMs": 4388,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 9,
+      "slug": "09-save-the-campaign-to-the-server",
+      "title": "save the campaign to the server",
+      "screenshot": "06-campaign-create-to-launch/09-save-the-campaign-to-the-server.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783280565009-oy0y578",
+      "startedAt": "2026-07-05T19:42:49.355Z",
+      "durationMs": 450,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [
+        "A new campaign lives only in browser storage until the player finds the Save now card — easy to lose a campaign without noticing."
+      ],
+      "status": "ok"
+    },
+    {
+      "index": 10,
+      "slug": "10-visit-the-starmap",
+      "title": "visit the starmap",
+      "screenshot": "06-campaign-create-to-launch/10-visit-the-starmap.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783280565009-oy0y578/starmap",
+      "startedAt": "2026-07-05T19:42:49.805Z",
+      "durationMs": 578,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 11,
+      "slug": "11-visit-the-mech-bay",
+      "title": "visit the mech bay",
+      "screenshot": "06-campaign-create-to-launch/11-visit-the-mech-bay.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783280565009-oy0y578/mech-bay",
+      "startedAt": "2026-07-05T19:42:50.383Z",
+      "durationMs": 611,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "ok"
+    },
+    {
+      "index": 12,
+      "slug": "12-browse-the-contract-market",
+      "title": "browse the contract market",
+      "screenshot": "06-campaign-create-to-launch/12-browse-the-contract-market-FAILED.png",
+      "route": "http://localhost:3600/gameplay/campaigns/campaign-1783280565009-oy0y578/contract-market",
+      "startedAt": "2026-07-05T19:42:50.994Z",
+      "durationMs": 20132,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "notes": [],
+      "status": "failed",
+      "failure": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('contract-market-grid')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('contract-market-grid')\u001b[22m\n"
+    }
+  ]
+}

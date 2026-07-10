@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-08T03-20-00",
+  "buildMode": "development",
+  "baseUrl": "http://localhost:3600",
+  "startedAt": "2026-07-08T09:20:06.898Z",
+  "finishedAt": "2026-07-08T09:21:10.459Z",
+  "totals": {
+    "journeys": 1,
+    "failedJourneys": 1,
+    "steps": 4,
+    "failedSteps": 2,
+    "findings": 3,
+    "stepsWithConsoleErrors": 1
+  },
+  "journeys": [
+    {
+      "journey": "09-coop-multiplayer-two-client",
+      "persona": "host and guest proving co-op campaign and 1v1 lobby handoff surfaces",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "startedAt": "2026-07-08T09:20:06.898Z",
+      "finishedAt": "2026-07-08T09:21:10.258Z",
+      "status": "failed",
+      "steps": [
+        {
+          "index": 1,
+          "slug": "01-seed-host-and-guest-vault-identities",
+          "title": "seed host and guest vault identities",
+          "surface": "default",
+          "screenshot": "09-coop-multiplayer-two-client/01-seed-host-and-guest-vault-identities.png",
+          "route": "about:blank",
+          "startedAt": "2026-07-08T09:20:06.901Z",
+          "durationMs": 866,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 2,
+          "slug": "02-host-creates-and-guest-joins-co-op-campaign",
+          "title": "host creates and guest joins co-op campaign",
+          "surface": "default",
+          "screenshot": "09-coop-multiplayer-two-client/02-host-creates-and-guest-joins-co-op-campaign-FAILED.png",
+          "route": "http://localhost:3600/gameplay/campaigns",
+          "startedAt": "2026-07-08T09:20:07.767Z",
+          "durationMs": 50514,
+          "consoleErrors": [
+            "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+          ],
+          "pageErrors": [],
+          "notes": [],
+          "status": "failed",
+          "failure": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nExpected pattern: \u001b[32m/\\/gameplay\\/campaigns\\/[^/]+$/\u001b[39m\nReceived string:  \u001b[31m\"http://localhost:3600/gameplay/campaigns\"\u001b[39m\nTimeout: 40000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveURL\" with timeout 40000ms\u001b[22m\n\u001b[2m    43 × unexpected value \"http://localhost:3600/gameplay/campaigns\"\u001b[22m\n"
+        },
+        {
+          "index": 3,
+          "slug": "03-skip-guest-ledger-check-because-co-op-join-did-not-connect",
+          "title": "skip guest ledger check because co-op join did not connect",
+          "surface": "guest",
+          "screenshot": "09-coop-multiplayer-two-client/03-skip-guest-ledger-check-because-co-op-join-did-not-connect.png",
+          "route": "http://localhost:3600/gameplay/campaigns",
+          "startedAt": "2026-07-08T09:20:58.281Z",
+          "durationMs": 1325,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 4,
+          "slug": "04-host-creates-1v1-match-and-guest-joins-lobby",
+          "title": "host creates 1v1 match and guest joins lobby",
+          "surface": "default",
+          "screenshot": "09-coop-multiplayer-two-client/04-host-creates-1v1-match-and-guest-joins-lobby-FAILED.png",
+          "route": "http://localhost:3600/multiplayer",
+          "startedAt": "2026-07-08T09:20:59.606Z",
+          "durationMs": 10623,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "failed",
+          "failure": "TimeoutError: page.waitForResponse: Timeout 10000ms exceeded while waiting for event \"response\""
+        }
+      ],
+      "findings": [
+        {
+          "id": "C3",
+          "severity": "major",
+          "summary": "Harness uses MULTIPLAYER_STORE=durable for Playwright; it does not reproduce the plain-dev in-memory split-store C3 path. Host campaign=none, guest campaign=none, host badge=none, guest badge=none, join error=none.",
+          "steps": [2]
+        },
+        {
+          "id": "COOP-GUEST-LEDGER-SKIPPED",
+          "severity": "minor",
+          "summary": "Guest ledger projection check was skipped because the co-op join never reached a guest campaign route.",
+          "steps": [3]
+        },
+        {
+          "id": "MULTIPLAYER-LOBBY-SEAT-STATE",
+          "severity": "major",
+          "summary": "1v1 lobby occupied=false; host alpha=\"missing\", host bravo=\"missing\", guest alpha=\"missing\", guest bravo=\"missing\".",
+          "steps": [4]
+        }
+      ]
+    }
+  ]
+}

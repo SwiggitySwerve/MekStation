@@ -31,6 +31,13 @@ export const API_MUTATION_RATE_LIMIT: IRateLimitPolicy = {
   windowMs: 60_000,
 };
 
+export function shouldBypassRateLimitForE2E(): boolean {
+  return (
+    process.env.NEXT_PUBLIC_E2E_MODE === 'true' &&
+    Boolean(process.env.PLAYWRIGHT_E2E_RUN_ID)
+  );
+}
+
 export function applySecurityHeaders(res: NextApiResponse): void {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
@@ -83,6 +90,8 @@ export function rateLimit(
   policy: IRateLimitPolicy,
   nowMs = Date.now(),
 ): RateLimitResult {
+  if (shouldBypassRateLimitForE2E()) return { ok: true };
+
   const current = buckets.get(key);
   if (!current || current.resetAtMs <= nowMs) {
     buckets.set(key, {

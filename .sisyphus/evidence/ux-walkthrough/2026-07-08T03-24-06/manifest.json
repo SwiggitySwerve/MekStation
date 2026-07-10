@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-08T03-24-06",
+  "buildMode": "development",
+  "baseUrl": "http://localhost:3600",
+  "startedAt": "2026-07-08T09:24:12.475Z",
+  "finishedAt": "2026-07-08T09:24:38.610Z",
+  "totals": {
+    "journeys": 1,
+    "failedJourneys": 0,
+    "steps": 4,
+    "failedSteps": 0,
+    "findings": 3,
+    "stepsWithConsoleErrors": 0
+  },
+  "journeys": [
+    {
+      "journey": "09-coop-multiplayer-two-client",
+      "persona": "host and guest proving co-op campaign and 1v1 lobby handoff surfaces",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "startedAt": "2026-07-08T09:24:12.475Z",
+      "finishedAt": "2026-07-08T09:24:38.390Z",
+      "status": "ok",
+      "steps": [
+        {
+          "index": 1,
+          "slug": "01-seed-host-and-guest-vault-identities",
+          "title": "seed host and guest vault identities",
+          "surface": "default",
+          "screenshot": "09-coop-multiplayer-two-client/01-seed-host-and-guest-vault-identities.png",
+          "route": "about:blank",
+          "startedAt": "2026-07-08T09:24:12.478Z",
+          "durationMs": 869,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 2,
+          "slug": "02-host-creates-and-guest-joins-co-op-campaign",
+          "title": "host creates and guest joins co-op campaign",
+          "surface": "default",
+          "screenshot": "09-coop-multiplayer-two-client/02-host-creates-and-guest-joins-co-op-campaign.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783502663770-2gpt42c",
+          "startedAt": "2026-07-08T09:24:13.347Z",
+          "durationMs": 12141,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 3,
+          "slug": "03-skip-guest-ledger-check-because-co-op-join-did-not-connect",
+          "title": "skip guest ledger check because co-op join did not connect",
+          "surface": "guest",
+          "screenshot": "09-coop-multiplayer-two-client/03-skip-guest-ledger-check-because-co-op-join-did-not-connect.png",
+          "route": "http://localhost:3600/gameplay/campaigns",
+          "startedAt": "2026-07-08T09:24:25.488Z",
+          "durationMs": 1304,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 4,
+          "slug": "04-host-creates-1v1-match-and-guest-joins-lobby",
+          "title": "host creates 1v1 match and guest joins lobby",
+          "surface": "default",
+          "screenshot": "09-coop-multiplayer-two-client/04-host-creates-1v1-match-and-guest-joins-lobby.png",
+          "route": "http://localhost:3600/multiplayer",
+          "startedAt": "2026-07-08T09:24:26.793Z",
+          "durationMs": 10869,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "page.waitForResponse: Timeout 10000ms exceeded while waiting for event \"response\""
+          ],
+          "status": "ok"
+        }
+      ],
+      "findings": [
+        {
+          "id": "C3",
+          "severity": "major",
+          "summary": "Harness uses MULTIPLAYER_STORE=durable for Playwright; it does not reproduce the plain-dev in-memory split-store C3 path. Host campaign=campaign-1783502663770-2gpt42c, guest campaign=none, host badge=none, guest badge=none, join error=No room code rendered for host campaign..",
+          "steps": [2]
+        },
+        {
+          "id": "COOP-GUEST-LEDGER-SKIPPED",
+          "severity": "minor",
+          "summary": "Guest ledger projection check was skipped because the co-op join never reached a guest campaign route.",
+          "steps": [3]
+        },
+        {
+          "id": "MULTIPLAYER-LOBBY-SEAT-STATE",
+          "severity": "major",
+          "summary": "1v1 lobby occupied=false; host alpha=\"missing\", host bravo=\"missing\", guest alpha=\"missing\", guest bravo=\"missing\".",
+          "steps": [4]
+        }
+      ]
+    }
+  ]
+}

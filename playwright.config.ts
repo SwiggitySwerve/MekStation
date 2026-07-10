@@ -99,6 +99,10 @@ export default defineConfig({
     /* Phone (375px) - iPhone SE dimensions for audit */
     {
       name: 'Mobile Chrome',
+      testIgnore: [
+        '**/ux-deep-play-audit.spec.ts',
+        '**/ux-walkthrough-audit.spec.ts',
+      ],
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 375, height: 667 },
@@ -110,6 +114,10 @@ export default defineConfig({
     /* Tablet portrait (768px) - iPad Mini dimensions for audit */
     {
       name: 'Tablet Portrait',
+      testIgnore: [
+        '**/ux-deep-play-audit.spec.ts',
+        '**/ux-walkthrough-audit.spec.ts',
+      ],
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 768, height: 1024 },
@@ -119,6 +127,10 @@ export default defineConfig({
     /* Tablet landscape (1024px) - for audit capture suite */
     {
       name: 'Tablet Landscape',
+      testIgnore: [
+        '**/ux-deep-play-audit.spec.ts',
+        '**/ux-walkthrough-audit.spec.ts',
+      ],
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 1024, height: 768 },

@@ -5,6 +5,30 @@
       "status": "in-progress",
       "reason": "Parallel session's change (merged via PR #1021); folder remains active pending its owner's archive/close-out. Accounted here during wave-2 archive so CI stays truthful.",
       "lastReviewed": "2026-07-10"
+    },
+    {
+      "name": "stabilize-deep-play-harness",
+      "status": "in-progress",
+      "reason": "Wave-3 iteration 1: e2e rate-limit isolation, chromium-only deep-play scoping, hydration-aware guest-ledger observation, evidence-persistence .gitignore policy. Implementation in flight.",
+      "lastReviewed": "2026-07-10"
+    },
+    {
+      "name": "route-coop-battle-reconciliation",
+      "status": "planned",
+      "reason": "Wave-3 iteration 2: ReconcileBattle host intent routes post-battle consequences over the campaign-sync transport to the server registry (C7-class disconnected-registry residual in the outcomes seam).",
+      "lastReviewed": "2026-07-10"
+    },
+    {
+      "name": "reconcile-campaign-economy-surfaces",
+      "status": "planned",
+      "reason": "Wave-3 iteration 3: contract payout posts at the applyOutcome commit point (M4) + dashboard summary derives from canonical campaign state via shared selectors (M2).",
+      "lastReviewed": "2026-07-10"
+    },
+    {
+      "name": "polish-command-surfaces-wave3",
+      "status": "planned",
+      "reason": "Wave-3 iteration 4: per-day breakdown in DayReportPanel, custom-unit name resolution in force display, co-op creation onboarding affordances.",
+      "lastReviewed": "2026-07-10"
     }
   ]
 }

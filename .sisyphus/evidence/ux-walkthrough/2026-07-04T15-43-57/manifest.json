@@ -1,0 +1,870 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-07-04T15-43-57",
+  "buildMode": "development",
+  "baseUrl": "http://localhost:3600",
+  "startedAt": "2026-07-04T21:44:04.226Z",
+  "finishedAt": "2026-07-04T21:45:05.110Z",
+  "totals": {
+    "journeys": 7,
+    "failedJourneys": 0,
+    "steps": 58,
+    "failedSteps": 0,
+    "stepsWithConsoleErrors": 0
+  },
+  "journeys": [
+    {
+      "journey": "01-first-visit-navigation",
+      "persona": "first-time visitor exploring the app shell",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "startedAt": "2026-07-04T21:44:04.226Z",
+      "finishedAt": "2026-07-04T21:44:17.846Z",
+      "status": "ok",
+      "steps": [
+        {
+          "index": 1,
+          "slug": "01-land-on-dashboard",
+          "title": "land on dashboard",
+          "screenshot": "01-first-visit-navigation/01-land-on-dashboard.png",
+          "route": "http://localhost:3600/",
+          "startedAt": "2026-07-04T21:44:04.228Z",
+          "durationMs": 7873,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 2,
+          "slug": "02-open-browse-menu",
+          "title": "open Browse menu",
+          "screenshot": "01-first-visit-navigation/02-open-browse-menu.png",
+          "route": "http://localhost:3600/",
+          "startedAt": "2026-07-04T21:44:12.101Z",
+          "durationMs": 677,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 3,
+          "slug": "03-open-gameplay-menu",
+          "title": "open Gameplay menu",
+          "screenshot": "01-first-visit-navigation/03-open-gameplay-menu.png",
+          "route": "http://localhost:3600/",
+          "startedAt": "2026-07-04T21:44:12.778Z",
+          "durationMs": 664,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 4,
+          "slug": "04-visit-gameplay-hub-from-dashboard-card",
+          "title": "visit gameplay hub from dashboard card",
+          "screenshot": "01-first-visit-navigation/04-visit-gameplay-hub-from-dashboard-card.png",
+          "route": "http://localhost:3600/gameplay",
+          "startedAt": "2026-07-04T21:44:13.442Z",
+          "durationMs": 825,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 5,
+          "slug": "05-read-onboarding-page",
+          "title": "read onboarding page",
+          "screenshot": "01-first-visit-navigation/05-read-onboarding-page.png",
+          "route": "http://localhost:3600/onboarding",
+          "startedAt": "2026-07-04T21:44:14.267Z",
+          "durationMs": 1582,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 6,
+          "slug": "06-return-to-dashboard-from-onboarding",
+          "title": "return to dashboard from onboarding",
+          "screenshot": "01-first-visit-navigation/06-return-to-dashboard-from-onboarding.png",
+          "route": "http://localhost:3600/",
+          "startedAt": "2026-07-04T21:44:15.849Z",
+          "durationMs": 669,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 7,
+          "slug": "07-open-settings",
+          "title": "open settings",
+          "screenshot": "01-first-visit-navigation/07-open-settings.png",
+          "route": "http://localhost:3600/settings",
+          "startedAt": "2026-07-04T21:44:16.518Z",
+          "durationMs": 1328,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "journey": "02-compendium-browse",
+      "persona": "player researching units and equipment",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "startedAt": "2026-07-04T21:44:18.069Z",
+      "finishedAt": "2026-07-04T21:44:26.677Z",
+      "status": "ok",
+      "steps": [
+        {
+          "index": 1,
+          "slug": "01-open-compendium-hub",
+          "title": "open compendium hub",
+          "screenshot": "02-compendium-browse/01-open-compendium-hub.png",
+          "route": "http://localhost:3600/compendium",
+          "startedAt": "2026-07-04T21:44:18.070Z",
+          "durationMs": 1642,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 2,
+          "slug": "02-search-the-compendium-for-heat",
+          "title": "search the compendium for \"heat\"",
+          "screenshot": "02-compendium-browse/02-search-the-compendium-for-heat.png",
+          "route": "http://localhost:3600/compendium",
+          "startedAt": "2026-07-04T21:44:19.712Z",
+          "durationMs": 548,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 3,
+          "slug": "03-clear-search-and-open-unit-database",
+          "title": "clear search and open unit database",
+          "screenshot": "02-compendium-browse/03-clear-search-and-open-unit-database.png",
+          "route": "http://localhost:3600/compendium/units",
+          "startedAt": "2026-07-04T21:44:20.260Z",
+          "durationMs": 532,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 4,
+          "slug": "04-open-the-first-unit-detail",
+          "title": "open the first unit detail",
+          "screenshot": "02-compendium-browse/04-open-the-first-unit-detail.png",
+          "route": "http://localhost:3600/compendium/units/battle-tripod-r-h3l-2x",
+          "startedAt": "2026-07-04T21:44:20.792Z",
+          "durationMs": 925,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 5,
+          "slug": "05-browser-back-returns-to-unit-database",
+          "title": "browser-back returns to unit database",
+          "screenshot": "02-compendium-browse/05-browser-back-returns-to-unit-database.png",
+          "route": "http://localhost:3600/compendium/units",
+          "startedAt": "2026-07-04T21:44:21.717Z",
+          "durationMs": 624,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 6,
+          "slug": "06-open-equipment-catalog",
+          "title": "open equipment catalog",
+          "screenshot": "02-compendium-browse/06-open-equipment-catalog.png",
+          "route": "http://localhost:3600/compendium/equipment",
+          "startedAt": "2026-07-04T21:44:22.341Z",
+          "durationMs": 1556,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 7,
+          "slug": "07-open-the-first-equipment-detail",
+          "title": "open the first equipment detail",
+          "screenshot": "02-compendium-browse/07-open-the-first-equipment-detail.png",
+          "route": "http://localhost:3600/compendium/equipment/ac-2",
+          "startedAt": "2026-07-04T21:44:23.897Z",
+          "durationMs": 938,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 8,
+          "slug": "08-open-rules-reference",
+          "title": "open rules reference",
+          "screenshot": "02-compendium-browse/08-open-rules-reference.png",
+          "route": "http://localhost:3600/compendium/rules",
+          "startedAt": "2026-07-04T21:44:24.835Z",
+          "durationMs": 1842,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "journey": "03-fresh-profile-empty-states",
+      "persona": "new player with no saved content yet",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "startedAt": "2026-07-04T21:44:26.878Z",
+      "finishedAt": "2026-07-04T21:44:33.212Z",
+      "status": "ok",
+      "steps": [
+        {
+          "index": 1,
+          "slug": "01-my-units-is-empty",
+          "title": "my units is empty",
+          "screenshot": "03-fresh-profile-empty-states/01-my-units-is-empty.png",
+          "route": "http://localhost:3600/units",
+          "startedAt": "2026-07-04T21:44:26.878Z",
+          "durationMs": 1547,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 2,
+          "slug": "02-replay-library",
+          "title": "replay library",
+          "screenshot": "03-fresh-profile-empty-states/02-replay-library.png",
+          "route": "http://localhost:3600/replay-library",
+          "startedAt": "2026-07-04T21:44:28.425Z",
+          "durationMs": 1977,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 3,
+          "slug": "03-watch-the-first-replay",
+          "title": "watch the first replay",
+          "screenshot": "03-fresh-profile-empty-states/03-watch-the-first-replay.png",
+          "route": "http://localhost:3600/replay-library",
+          "startedAt": "2026-07-04T21:44:30.405Z",
+          "durationMs": 1451,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "Library was already populated on this profile — exercised the watch path instead of the empty-state CTA."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 4,
+          "slug": "04-return-to-the-library",
+          "title": "return to the library",
+          "screenshot": "03-fresh-profile-empty-states/04-return-to-the-library.png",
+          "route": "http://localhost:3600/replay-library",
+          "startedAt": "2026-07-04T21:44:31.856Z",
+          "durationMs": 1356,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "journey": "04-quick-game-auto-resolve",
+      "persona": "player running their first quick battle",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "startedAt": "2026-07-04T21:44:33.300Z",
+      "finishedAt": "2026-07-04T21:44:41.558Z",
+      "status": "ok",
+      "steps": [
+        {
+          "index": 1,
+          "slug": "01-quick-game-welcome",
+          "title": "quick game welcome",
+          "screenshot": "04-quick-game-auto-resolve/01-quick-game-welcome.png",
+          "route": "http://localhost:3600/gameplay/quick",
+          "startedAt": "2026-07-04T21:44:33.300Z",
+          "durationMs": 2441,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 2,
+          "slug": "02-start-setup",
+          "title": "start setup",
+          "screenshot": "04-quick-game-auto-resolve/02-start-setup.png",
+          "route": "http://localhost:3600/gameplay/quick",
+          "startedAt": "2026-07-04T21:44:35.741Z",
+          "durationMs": 433,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 3,
+          "slug": "03-add-two-units-to-my-force",
+          "title": "add two units to my force",
+          "screenshot": "04-quick-game-auto-resolve/03-add-two-units-to-my-force.png",
+          "route": "http://localhost:3600/gameplay/quick",
+          "startedAt": "2026-07-04T21:44:36.174Z",
+          "durationMs": 496,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 4,
+          "slug": "04-continue-to-scenario-configuration",
+          "title": "continue to scenario configuration",
+          "screenshot": "04-quick-game-auto-resolve/04-continue-to-scenario-configuration.png",
+          "route": "http://localhost:3600/gameplay/quick",
+          "startedAt": "2026-07-04T21:44:36.670Z",
+          "durationMs": 440,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 5,
+          "slug": "05-generate-scenario",
+          "title": "generate scenario",
+          "screenshot": "04-quick-game-auto-resolve/05-generate-scenario.png",
+          "route": "http://localhost:3600/gameplay/quick",
+          "startedAt": "2026-07-04T21:44:37.111Z",
+          "durationMs": 563,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 6,
+          "slug": "06-review-scenario",
+          "title": "review scenario",
+          "screenshot": "04-quick-game-auto-resolve/06-review-scenario.png",
+          "route": "http://localhost:3600/gameplay/quick",
+          "startedAt": "2026-07-04T21:44:37.674Z",
+          "durationMs": 426,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 7,
+          "slug": "07-auto-resolve-the-battle",
+          "title": "auto-resolve the battle",
+          "screenshot": "04-quick-game-auto-resolve/07-auto-resolve-the-battle.png",
+          "route": "http://localhost:3600/gameplay/quick",
+          "startedAt": "2026-07-04T21:44:38.100Z",
+          "durationMs": 1282,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 8,
+          "slug": "08-inspect-unit-outcomes-tab",
+          "title": "inspect unit outcomes tab",
+          "screenshot": "04-quick-game-auto-resolve/08-inspect-unit-outcomes-tab.png",
+          "route": "http://localhost:3600/gameplay/quick",
+          "startedAt": "2026-07-04T21:44:39.383Z",
+          "durationMs": 476,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 9,
+          "slug": "09-inspect-replay-tab",
+          "title": "inspect replay tab",
+          "screenshot": "04-quick-game-auto-resolve/09-inspect-replay-tab.png",
+          "route": "http://localhost:3600/gameplay/quick",
+          "startedAt": "2026-07-04T21:44:39.859Z",
+          "durationMs": 830,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 10,
+          "slug": "10-exit-to-games",
+          "title": "exit to games",
+          "screenshot": "04-quick-game-auto-resolve/10-exit-to-games.png",
+          "route": "http://localhost:3600/gameplay/games",
+          "startedAt": "2026-07-04T21:44:40.689Z",
+          "durationMs": 868,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "journey": "05-customizer-new-unit",
+      "persona": "player building their first custom BattleMech",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "startedAt": "2026-07-04T21:44:41.629Z",
+      "finishedAt": "2026-07-04T21:44:49.118Z",
+      "status": "ok",
+      "steps": [
+        {
+          "index": 1,
+          "slug": "01-open-the-customizer",
+          "title": "open the customizer",
+          "screenshot": "05-customizer-new-unit/01-open-the-customizer.png",
+          "route": "http://localhost:3600/customizer",
+          "startedAt": "2026-07-04T21:44:41.629Z",
+          "durationMs": 2843,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 2,
+          "slug": "02-open-the-new-unit-dialog",
+          "title": "open the new-unit dialog",
+          "screenshot": "05-customizer-new-unit/02-open-the-new-unit-dialog.png",
+          "route": "http://localhost:3600/customizer",
+          "startedAt": "2026-07-04T21:44:44.472Z",
+          "durationMs": 418,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 3,
+          "slug": "03-create-a-default-battlemech",
+          "title": "create a default BattleMech",
+          "screenshot": "05-customizer-new-unit/03-create-a-default-battlemech.png",
+          "route": "http://localhost:3600/customizer/50cd1c9d-cf9f-470d-a140-b9793aa275c1/structure",
+          "startedAt": "2026-07-04T21:44:44.890Z",
+          "durationMs": 531,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 4,
+          "slug": "04-adjust-heat-sinks-autosave",
+          "title": "adjust heat sinks (autosave)",
+          "screenshot": "05-customizer-new-unit/04-adjust-heat-sinks-autosave.png",
+          "route": "http://localhost:3600/customizer/50cd1c9d-cf9f-470d-a140-b9793aa275c1/structure",
+          "startedAt": "2026-07-04T21:44:45.421Z",
+          "durationMs": 454,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "Edits autosave to local storage; the transient Saved toast is the only save feedback."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 5,
+          "slug": "05-view-armor-diagram",
+          "title": "view armor diagram",
+          "screenshot": "05-customizer-new-unit/05-view-armor-diagram.png",
+          "route": "http://localhost:3600/customizer/50cd1c9d-cf9f-470d-a140-b9793aa275c1/armor",
+          "startedAt": "2026-07-04T21:44:45.876Z",
+          "durationMs": 483,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 6,
+          "slug": "06-view-overview-tab",
+          "title": "view overview tab",
+          "screenshot": "05-customizer-new-unit/06-view-overview-tab.png",
+          "route": "http://localhost:3600/customizer/50cd1c9d-cf9f-470d-a140-b9793aa275c1/overview",
+          "startedAt": "2026-07-04T21:44:46.359Z",
+          "durationMs": 486,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 7,
+          "slug": "07-view-equipment-tab",
+          "title": "view equipment tab",
+          "screenshot": "05-customizer-new-unit/07-view-equipment-tab.png",
+          "route": "http://localhost:3600/customizer/50cd1c9d-cf9f-470d-a140-b9793aa275c1/equipment",
+          "startedAt": "2026-07-04T21:44:46.845Z",
+          "durationMs": 565,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 8,
+          "slug": "08-view-critical-slots-tab",
+          "title": "view critical slots tab",
+          "screenshot": "05-customizer-new-unit/08-view-critical-slots-tab.png",
+          "route": "http://localhost:3600/customizer/50cd1c9d-cf9f-470d-a140-b9793aa275c1/criticals",
+          "startedAt": "2026-07-04T21:44:47.410Z",
+          "durationMs": 583,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 9,
+          "slug": "09-view-record-sheet-preview",
+          "title": "view record sheet preview",
+          "screenshot": "05-customizer-new-unit/09-view-record-sheet-preview.png",
+          "route": "http://localhost:3600/customizer/50cd1c9d-cf9f-470d-a140-b9793aa275c1/preview",
+          "startedAt": "2026-07-04T21:44:47.993Z",
+          "durationMs": 1125,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "journey": "06-campaign-create-to-launch",
+      "persona": "player starting a mercenary campaign",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "startedAt": "2026-07-04T21:44:49.239Z",
+      "finishedAt": "2026-07-04T21:44:59.726Z",
+      "status": "ok",
+      "steps": [
+        {
+          "index": 1,
+          "slug": "01-campaigns-list-fresh-profile",
+          "title": "campaigns list (fresh profile)",
+          "screenshot": "06-campaign-create-to-launch/01-campaigns-list-fresh-profile.png",
+          "route": "http://localhost:3600/gameplay/campaigns",
+          "startedAt": "2026-07-04T21:44:49.239Z",
+          "durationMs": 1587,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 2,
+          "slug": "02-start-the-campaign-wizard",
+          "title": "start the campaign wizard",
+          "screenshot": "06-campaign-create-to-launch/02-start-the-campaign-wizard.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-04T21:44:50.826Z",
+          "durationMs": 816,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 3,
+          "slug": "03-name-the-campaign",
+          "title": "name the campaign",
+          "screenshot": "06-campaign-create-to-launch/03-name-the-campaign.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-04T21:44:51.642Z",
+          "durationMs": 413,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 4,
+          "slug": "04-choose-campaign-type-default-mercenary",
+          "title": "choose campaign type (default mercenary)",
+          "screenshot": "06-campaign-create-to-launch/04-choose-campaign-type-default-mercenary.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-04T21:44:52.055Z",
+          "durationMs": 442,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 5,
+          "slug": "05-choose-preset-default-standard",
+          "title": "choose preset (default standard)",
+          "screenshot": "06-campaign-create-to-launch/05-choose-preset-default-standard.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-04T21:44:52.497Z",
+          "durationMs": 433,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 6,
+          "slug": "06-add-a-starting-unit-and-pilot",
+          "title": "add a starting unit and pilot",
+          "screenshot": "06-campaign-create-to-launch/06-add-a-starting-unit-and-pilot.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-04T21:44:52.930Z",
+          "durationMs": 496,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 7,
+          "slug": "07-review-and-create-the-campaign",
+          "title": "review and create the campaign",
+          "screenshot": "06-campaign-create-to-launch/07-review-and-create-the-campaign.png",
+          "route": "http://localhost:3600/gameplay/campaigns/create",
+          "startedAt": "2026-07-04T21:44:53.426Z",
+          "durationMs": 451,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 8,
+          "slug": "08-land-on-the-campaign-dashboard",
+          "title": "land on the campaign dashboard",
+          "screenshot": "06-campaign-create-to-launch/08-land-on-the-campaign-dashboard.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783201493915-oyho71v",
+          "startedAt": "2026-07-04T21:44:53.877Z",
+          "durationMs": 821,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 9,
+          "slug": "09-save-the-campaign-to-the-server",
+          "title": "save the campaign to the server",
+          "screenshot": "06-campaign-create-to-launch/09-save-the-campaign-to-the-server.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783201493915-oyho71v",
+          "startedAt": "2026-07-04T21:44:54.698Z",
+          "durationMs": 468,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "A new campaign lives only in browser storage until the player finds the Save now card — easy to lose a campaign without noticing."
+          ],
+          "status": "ok"
+        },
+        {
+          "index": 10,
+          "slug": "10-visit-the-starmap",
+          "title": "visit the starmap",
+          "screenshot": "06-campaign-create-to-launch/10-visit-the-starmap.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783201493915-oyho71v/starmap",
+          "startedAt": "2026-07-04T21:44:55.166Z",
+          "durationMs": 903,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 11,
+          "slug": "11-visit-the-mech-bay",
+          "title": "visit the mech bay",
+          "screenshot": "06-campaign-create-to-launch/11-visit-the-mech-bay.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783201493915-oyho71v/mech-bay",
+          "startedAt": "2026-07-04T21:44:56.069Z",
+          "durationMs": 789,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 12,
+          "slug": "12-browse-the-contract-market",
+          "title": "browse the contract market",
+          "screenshot": "06-campaign-create-to-launch/12-browse-the-contract-market.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783201493915-oyho71v/contract-market",
+          "startedAt": "2026-07-04T21:44:56.858Z",
+          "durationMs": 812,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 13,
+          "slug": "13-accept-a-contract-offer",
+          "title": "accept a contract offer",
+          "screenshot": "06-campaign-create-to-launch/13-accept-a-contract-offer.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783201493915-oyho71v/contract-market",
+          "startedAt": "2026-07-04T21:44:57.670Z",
+          "durationMs": 442,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 14,
+          "slug": "14-see-the-mission-on-the-missions-page",
+          "title": "see the mission on the missions page",
+          "screenshot": "06-campaign-create-to-launch/14-see-the-mission-on-the-missions-page.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783201493915-oyho71v/missions",
+          "startedAt": "2026-07-04T21:44:58.112Z",
+          "durationMs": 803,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": ["Launch button is enabled with the wizard-added roster."],
+          "status": "ok"
+        },
+        {
+          "index": 15,
+          "slug": "15-open-the-mission-launch-screen",
+          "title": "open the mission launch screen",
+          "screenshot": "06-campaign-create-to-launch/15-open-the-mission-launch-screen.png",
+          "route": "http://localhost:3600/gameplay/campaigns/campaign-1783201493915-oyho71v/missions/contract-1783201497096-jb83102/launch",
+          "startedAt": "2026-07-04T21:44:58.915Z",
+          "durationMs": 811,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [
+            "Launch screen reached through the mission-card Launch link."
+          ],
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "journey": "07-mobile-navigation",
+      "persona": "phone user finding their way around",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "startedAt": "2026-07-04T21:44:59.825Z",
+      "finishedAt": "2026-07-04T21:45:04.729Z",
+      "status": "ok",
+      "steps": [
+        {
+          "index": 1,
+          "slug": "01-mobile-dashboard",
+          "title": "mobile dashboard",
+          "screenshot": "07-mobile-navigation/01-mobile-dashboard.png",
+          "route": "http://localhost:3600/",
+          "startedAt": "2026-07-04T21:44:59.825Z",
+          "durationMs": 1400,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 2,
+          "slug": "02-open-hamburger-menu",
+          "title": "open hamburger menu",
+          "screenshot": "07-mobile-navigation/02-open-hamburger-menu.png",
+          "route": "http://localhost:3600/",
+          "startedAt": "2026-07-04T21:45:01.225Z",
+          "durationMs": 428,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 3,
+          "slug": "03-navigate-to-quick-game-from-mobile-menu",
+          "title": "navigate to quick game from mobile menu",
+          "screenshot": "07-mobile-navigation/03-navigate-to-quick-game-from-mobile-menu.png",
+          "route": "http://localhost:3600/gameplay/quick",
+          "startedAt": "2026-07-04T21:45:01.653Z",
+          "durationMs": 525,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 4,
+          "slug": "04-mobile-compendium-hub",
+          "title": "mobile compendium hub",
+          "screenshot": "07-mobile-navigation/04-mobile-compendium-hub.png",
+          "route": "http://localhost:3600/compendium",
+          "startedAt": "2026-07-04T21:45:02.178Z",
+          "durationMs": 1260,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        },
+        {
+          "index": 5,
+          "slug": "05-mobile-unit-database",
+          "title": "mobile unit database",
+          "screenshot": "07-mobile-navigation/05-mobile-unit-database.png",
+          "route": "http://localhost:3600/compendium/units",
+          "startedAt": "2026-07-04T21:45:03.438Z",
+          "durationMs": 1291,
+          "consoleErrors": [],
+          "pageErrors": [],
+          "notes": [],
+          "status": "ok"
+        }
+      ]
+    }
+  ]
+}
