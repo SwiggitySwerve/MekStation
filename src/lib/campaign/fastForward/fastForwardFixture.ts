@@ -43,6 +43,15 @@
  * (design D9 / spec: "no fast-forward fixture or test SHALL rig roster
  * pilot ids to session-unit-id-shaped strings").
  *
+ * Combat-team force linkage (group 3, task 3.3): each `campaign.forces`
+ * entry's `unitIds` references REAL roster-projection `unitId`s (cycled
+ * across the 4-unit roster pool when `combatTeamCount` exceeds it) —
+ * NOT synthetic placeholder ids. This lets the combat runner resolve "the
+ * roster units assigned to a bridged scenario's team" by intersecting
+ * `campaign.forces.get(teamForceId).unitIds` against
+ * `useCampaignRosterStore().units`, mirroring how a live campaign force
+ * actually references its roster.
+ *
  * @module lib/campaign/fastForward/fastForwardFixture
  */
 
@@ -140,63 +149,20 @@ export interface FastForwardFixture {
 }
 
 // =============================================================================
-// Combat teams + forces
-// =============================================================================
-
-/**
- * Build N explicit PATROL combat teams, each backed by a resolvable
- * `campaign.forces` entry (so `buildEncounterFromScenario` marks the
- * resulting bridged encounter `Ready`, not `Draft` —
- * `buildEncounterFromScenario.ts:213-223`). Explicit `campaign.combatTeams`
- * beats FRONTLINE-only force derivation
- * (`scenarioGenerationProcessor.ts:115-124`), so these are the fixture's
- * only lever for the seed-independent battle guarantee.
- */
-function buildCombatTeamsAndForces(count: number): {
-  // `ICampaign.forces` is typed `Map<string, IForce>` (mutable), not
-  // `ReadonlyMap` — the campaign fixture owns a fresh Map instance, so
-  // mutability here is safe (nothing else holds a reference).
-  readonly forces: Map<string, ICampaignForceEntity>;
-  readonly teams: readonly ICombatTeam[];
-} {
-  const forces = new Map<string, ICampaignForceEntity>();
-  const teams: ICombatTeam[] = [];
-  const timestamp = DEFAULT_MONDAY_START_DATE.toISOString();
-
-  for (let index = 0; index < count; index += 1) {
-    const forceId = `ff-team-force-${index + 1}`;
-    forces.set(forceId, {
-      id: forceId,
-      name: `Fixture Patrol Team ${index + 1}`,
-      subForceIds: [],
-      unitIds: [`ff-team-unit-${index + 1}`],
-      forceType: ForceRole.STANDARD,
-      formationLevel: FormationLevel.LANCE,
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    });
-    teams.push({
-      forceId,
-      role: CombatRole.PATROL,
-      battleChance: BASE_BATTLE_CHANCE[CombatRole.PATROL],
-    });
-  }
-
-  return { forces, teams };
-}
-
-// =============================================================================
 // Roster seeding
 // =============================================================================
 
 /**
- * Seed `useCampaignRosterStore` with canonical `unitRef`s and vault-shaped
- * pilot ids (`vault-pilot-NNN`) — never session-unit-id-shaped strings.
- * A future combat runner (group 3) resolves these through the real
- * materializer; this group only needs the store populated so later groups
- * consume one shared fixture shape.
+ * Build the fixture's roster (pilots + roster-projection units) from the
+ * canonical unit refs — canonical `unitRef`s and vault-shaped pilot ids
+ * (`vault-pilot-NNN`), never session-unit-id-shaped strings. Returned
+ * (not just applied to the store) so `buildCombatTeamsAndForces` can
+ * reference the real roster `unitId`s when wiring `campaign.forces`.
  */
-function seedFastForwardRoster(campaignId: string): void {
+function buildFastForwardRoster(): {
+  readonly pilots: readonly ICampaignRosterEntry[];
+  readonly units: readonly IRosterUnitProjection[];
+} {
   const pilots: ICampaignRosterEntry[] = CANONICAL_UNIT_REFS.map(
     (unitRef, index) => ({
       pilotId: `vault-pilot-${String(index + 1).padStart(3, '0')}`,
@@ -226,14 +192,92 @@ function seedFastForwardRoster(campaignId: string): void {
     }),
   );
 
+  return { pilots, units };
+}
+
+function seedFastForwardRoster(
+  campaignId: string,
+  roster: {
+    readonly pilots: readonly ICampaignRosterEntry[];
+    readonly units: readonly IRosterUnitProjection[];
+  },
+): void {
   useCampaignRosterStore.setState({
     campaignId,
-    units,
-    pilots,
+    units: [...roster.units],
+    pilots: [...roster.pilots],
     missions: [],
     activeMissionId: null,
     missionCount: 0,
   });
+}
+
+// =============================================================================
+// Combat teams + forces
+// =============================================================================
+
+/**
+ * Build N explicit PATROL combat teams, each backed by a resolvable
+ * `campaign.forces` entry (so `buildEncounterFromScenario` marks the
+ * resulting bridged encounter `Ready`, not `Draft` —
+ * `buildEncounterFromScenario.ts:213-223`). Explicit `campaign.combatTeams`
+ * beats FRONTLINE-only force derivation
+ * (`scenarioGenerationProcessor.ts:115-124`), so these are the fixture's
+ * only lever for the seed-independent battle guarantee.
+ *
+ * Each force's `unitIds` references a REAL roster-projection `unitId`
+ * from `rosterUnits`, cycling across the (small, canonical) roster pool
+ * when `count` exceeds it (task 3.3: the combat runner resolves "the
+ * roster units assigned to a scenario's team" by intersecting a force's
+ * `unitIds` against the roster store, so the two MUST share ids — a
+ * synthetic placeholder id here would leave the runner with an empty
+ * roster and nothing to materialize).
+ */
+function buildCombatTeamsAndForces(
+  count: number,
+  rosterUnits: readonly IRosterUnitProjection[],
+): {
+  // `ICampaign.forces` is typed `Map<string, IForce>` (mutable), not
+  // `ReadonlyMap` — the campaign fixture owns a fresh Map instance, so
+  // mutability here is safe (nothing else holds a reference).
+  readonly forces: Map<string, ICampaignForceEntity>;
+  readonly teams: readonly ICombatTeam[];
+} {
+  if (rosterUnits.length === 0) {
+    throw new Error(
+      'buildCombatTeamsAndForces: rosterUnits must be non-empty — combat teams need a real roster unit to reference.',
+    );
+  }
+  const forces = new Map<string, ICampaignForceEntity>();
+  const teams: ICombatTeam[] = [];
+  const timestamp = DEFAULT_MONDAY_START_DATE.toISOString();
+
+  for (let index = 0; index < count; index += 1) {
+    const forceId = `ff-team-force-${index + 1}`;
+    const rosterUnit = rosterUnits[index % rosterUnits.length];
+    if (!rosterUnit) {
+      throw new Error(
+        `buildCombatTeamsAndForces: no roster unit at cycled index ${index % rosterUnits.length}`,
+      );
+    }
+    forces.set(forceId, {
+      id: forceId,
+      name: `Fixture Patrol Team ${index + 1}`,
+      subForceIds: [],
+      unitIds: [rosterUnit.unitId],
+      forceType: ForceRole.STANDARD,
+      formationLevel: FormationLevel.LANCE,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+    teams.push({
+      forceId,
+      role: CombatRole.PATROL,
+      battleChance: BASE_BATTLE_CHANCE[CombatRole.PATROL],
+    });
+  }
+
+  return { forces, teams };
 }
 
 // =============================================================================
@@ -260,7 +304,13 @@ export function buildFastForwardFixture(
   const contractId = options.contractId ?? DEFAULT_CONTRACT_ID;
   const timestamp = mondayStartDate.toISOString();
 
-  const { forces, teams } = buildCombatTeamsAndForces(combatTeamCount);
+  // Roster built FIRST so combat-team forces can reference real roster
+  // `unitId`s (task 3.3 — see `buildCombatTeamsAndForces`'s doc comment).
+  const roster = buildFastForwardRoster();
+  const { forces, teams } = buildCombatTeamsAndForces(
+    combatTeamCount,
+    roster.units,
+  );
 
   // Bounded contract window (D8 + R9): terminal the day after the single
   // covered Monday so `getActiveContracts` never offers this contract a
@@ -301,7 +351,7 @@ export function buildFastForwardFixture(
     rngSeed,
   };
 
-  seedFastForwardRoster(campaignId);
+  seedFastForwardRoster(campaignId, roster);
 
   const perTeamMissChance = 1 - BASE_BATTLE_CHANCE[CombatRole.PATROL] / 100;
   const rollBudget: FastForwardRollBudget = {

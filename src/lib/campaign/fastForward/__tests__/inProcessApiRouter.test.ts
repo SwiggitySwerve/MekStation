@@ -12,7 +12,10 @@
 
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 
-import { getEncounterRepository } from '@/services/encounter/EncounterRepository';
+import {
+  getEncounterRepository,
+  resetEncounterRepository,
+} from '@/services/encounter/EncounterRepository';
 import {
   getEncounterService,
   resetEncounterService,
@@ -85,11 +88,15 @@ function resetDatabaseState(): void {
   resetForceService();
   resetForceRepository();
   resetEncounterService();
-  // `EncounterRepository` and `PilotRepository` have no module-level
-  // singleton cache to reset beyond the shared SQLite handle itself
-  // (`getEncounterRepository()` / a future pilot-backed route both read
-  // through `getSQLiteService()`), so resetting the SQLite service below
-  // is what actually clears their state between tests.
+  // Correction (verified during group-3 authoring, task 3.3):
+  // `EncounterRepository` guards its `CREATE TABLE` DDL behind its own
+  // `this.initialized` instance flag — the same pattern `ForceRepository`
+  // uses — so it DOES need its own reset; only `PilotRepository` has no
+  // module-level singleton cache beyond the shared SQLite handle.
+  // Skipping this reset is latent in a single-encounters-touching-test
+  // file like this one, but bites the moment a second test in the same
+  // file also touches encounters (see `fastForwardCombatRunner.test.ts`).
+  resetEncounterRepository();
   resetPilotRepository();
   resetSQLiteService();
 }

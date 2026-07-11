@@ -81,6 +81,24 @@ export enum PilotFinalStatus {
 export interface IUnitCombatDelta {
   /** Stable unit identifier from `IGameUnit.id`. */
   readonly unitId: string;
+  /**
+   * Pilot linkage — the session unit's `IGameUnit.pilotRef` (vault pilot
+   * id), populated at derivation by `unitToDelta`. Additive per
+   * `add-campaign-fast-forward-api` design D9 ("Sanctioned production
+   * fix: engine-derived outcome pilot attribution"): `unitId` is a
+   * session-scoped composite (`${side}-${slot}-${unitRef}`,
+   * `preBattleSessionBuilder.ts:buildSessionUnitId`) and was never a
+   * roster pilot id — post-battle application previously resolved
+   * roster entries by `unitId` anyway, which only worked when a fixture
+   * hand-rigged `unitId === pilotId`. `pilotRef` lets
+   * `applyOutcomeDeltas` (`postBattleProcessor.ts`) resolve the REAL
+   * pilot linkage, falling back to `unitId` when absent (persisted
+   * outcomes, hand-built fixtures predating this field) — see
+   * `campaign-combat-loop`'s "Engine-Derived Outcome Pilot Attribution"
+   * requirement. `undefined`/`null` for outcomes derived before this
+   * field existed, or for units with no assigned pilot (opponents/NPCs).
+   */
+  readonly pilotRef?: string | null;
   /** Side the unit fought on. */
   readonly side: GameSide;
   /** True if the unit was destroyed during the session. */

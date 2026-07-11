@@ -152,6 +152,16 @@ function unitToDelta(
 
   return {
     unitId: unit.id,
+    // Design D9 (`add-campaign-fast-forward-api`): populate the pilot
+    // linkage from the unit already in hand at derivation time —
+    // `IGameUnit.pilotRef` carries the vault pilot id through the launch
+    // path (`preBattleSessionBuilder.ts`'s `buildGameUnits`) all the way
+    // to here; it was simply dropped before this field existed. Post-battle
+    // application (`postBattleProcessor.ts`) prefers this over `unitId`
+    // when resolving roster/vault pilots, falling back to `unitId` when
+    // absent so linkage-free (pre-D9) outcomes keep resolving exactly as
+    // before.
+    pilotRef: unit.pilotRef,
     side: unit.side,
     destroyed: state?.destroyed ?? false,
     finalStatus: state ? computeUnitFinalStatus(state) : UnitFinalStatus.Intact,
