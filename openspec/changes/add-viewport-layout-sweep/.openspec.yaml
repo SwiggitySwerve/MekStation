@@ -1,0 +1,9 @@
+schema: spec-driven
+created: 2026-07-11
+goal: Shared layout assertion helpers (overflow/clickable/non-blank-render
+  promoted + new overlap check) driving one chromium-scheduled viewport sweep
+  across the verified screen inventory at four breakpoints, plus tag-then-scope
+  rationalization of the duplicate Playwright viewport projects with mechanical
+  CI-selection-unchanged proofs — pack-seeded sweep entries gated on the W4
+  scenario-pack implementation (Seam-First Ladder W5, 2026-07-09 council
+  decision)
