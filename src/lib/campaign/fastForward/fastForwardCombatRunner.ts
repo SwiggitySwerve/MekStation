@@ -61,6 +61,7 @@ import { PilotType } from '@/types/pilot';
 
 import type { FastForwardBridgedScenarioHandoff } from './fastForwardCampaign';
 
+import { assertSessionInflictedDamage } from './assertSessionInflictedDamage';
 import { deriveBattleSeed } from './deriveBattleSeed';
 import { createInProcessApiFetch } from './inProcessApiRouter';
 
@@ -379,6 +380,12 @@ export async function runFastForwardBattle(
     contractId: handoff.contractId,
     scenarioId: handoff.scenarioId,
   });
+
+  // Task 4.1: the standing damage-invariant tripwire (design D6),
+  // applied unconditionally to every completed fast-forward battle
+  // BEFORE it goes anywhere near the production bus.
+  assertSessionInflictedDamage(session, outcome);
+
   const delivered = publishCombatOutcome({ matchId: outcome.matchId, outcome });
   if (!delivered) {
     throw new Error(
