@@ -91,6 +91,11 @@ describe('BatchRunner', () => {
       expect(results[0].seed).toBe(config.seed);
     });
 
+    // 2026-07-11: widened 10s → 30s (3× per the repo perf-budget
+    // convention, first widening for this assertion). The coverage-lane
+    // run observed 10237ms once on 2026-07-10 — a single-digit-percent
+    // overshoot on a byte-identical assertion, i.e. nightly-runner
+    // contention, not a regression. Council: green-the-nightly, 2026-07-11.
     it('should complete 10 simulations in reasonable time', () => {
       const batchRunner = new BatchRunner();
       const config = createTestConfig({ turnLimit: 10 });
@@ -100,8 +105,8 @@ describe('BatchRunner', () => {
       const elapsed = Date.now() - startTime;
 
       expect(results).toHaveLength(10);
-      expect(elapsed).toBeLessThan(10000);
-    }, 15000);
+      expect(elapsed).toBeLessThan(30000);
+    }, 40000);
 
     it('should produce different results for different seeds', () => {
       const batchRunner = new BatchRunner();

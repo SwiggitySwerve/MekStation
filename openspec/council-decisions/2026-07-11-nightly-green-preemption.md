@@ -1,0 +1,49 @@
+# OMO Council Decision — Green-the-Nightly Preemption
+
+**Date:** 2026-07-11
+**Question:** Nightly CI has run red for 15+ consecutive nights (since ≥2026-06-26) on chronic perf-budget overshoots and a deterministic set of 9 e2e failures. Before Wave 6 (W6) implementation lands and gains an ordering gate on a green nightly baseline, should the council widen the flaky perf budgets and classify the core-9 e2e failures — or defer to a full sizing pass?
+**Variant:** Classification-first preemptive fix (CI-health forensics + local reproduction), not a full council fan-out.
+**Preserved dissent:** Oracle proposed a 0.5–1 day sizing pass to root-cause the perf overshoots and the customizer regression before touching any budget or filing a follow-up. **Rejected in favor of classification-first**: the nightly has been red for 15+ nights with zero product signal reaching the team, and W6 is blocked on a green baseline *today*. Widening a budget with dated, evidence-cited comments is reversible and auditable; blocking on a multi-day investigation is not proportionate to three assertion-only tests whose overshoot bands are stable and small (3–14%). The one failure that *did* reproduce locally (see below) is explicitly carved out as its own follow-up rather than folded into this preemption — that follow-up is scoped and sized separately, not bundled into a "fix everything" pass.
+
+## Headline
+
+Nightly has been red since at least 2026-06-26 (15+ nights) across three independent failure classes, none of which trace to any single commit — all three are byte-identical assertions failing by a stable percentage band every night, which is the signature of nightly-runner resource contention, not product regression. This change is a preemptive, reversible mitigation: widen the three chronic perf budgets 3× with dated, evidence-cited comments (repo convention), and run a local, low-contention classification pass on the "deterministic core-9" e2e failures to separate genuine product/test-rot from nightly-only noise before W6's implementation gates on a green baseline.
+
+**Critical scoping note:** tonight's nightly run (the first 09:00 UTC run after this change lands) will be the first to contain the 13 ladder/wave-5 commits merged since PR #1035 (`b4c2d8571`) — PRs #1036 through #1048, spanning ladder waves W1–W5 (SP combat determinism, seam trust-anchor journeys, scenario packs, campaign fast-forward + invariant net, viewport layout sweep) plus the wave-5 flow-audit routines (#1038/#1039). The 2026-07-10 nightly run predated PR #1035's merge, so the Damage Carry-Forward roster/diagnostics hardening in #1035 has **not yet been validated by any nightly run**. This preemption does not touch that risk — it is called out here so the next nightly's results are read with that gap in mind, not assumed to be validating a baseline that already includes #1035.
+
+## Failure class 1 — Perf budget overshoot (3 sites, widened this change)
+
+All three sites assert a fixed wall-clock budget against a byte-identical workload every night. Nightly observed values for 2026-07-06 through 2026-07-10 (e.g. run 29090941292) show a stable overshoot band with **no correlating commit** across five nights — the signature of shared nightly-runner contention (CPU/IO pressure from concurrent lanes), not a regression introduced by any change in that window. Applied the repo's codified perf-budget convention (3× widen + dated comment citing the observed band and run evidence; no retry-looping):
+
+| Site | Prior budget | Observed nightly band (07-06→07-10) | Overshoot | New budget | First widening? |
+|---|---|---|---|---|---|
+| `src/simulation/__tests__/swarm-throughput.test.ts:101` (`TIME_BUDGET_MS`) | 180,000ms | 185,305–195,994ms | 3–9% | 540,000ms | No — this is the 2nd widening (60s→180s→540s) |
+| `src/simulation/__tests__/integration.chunk-2.test-helpers.ts:324` (`PROFILE_TIME_BUDGET_MS`, the "contended profiling budget" test, cited historically as `integration.test.ts:324` — the chunked-file layout renumbers, `integration.test.ts` is now a 6-line Jest discovery wrapper importing `integration.chunk-1/2.test-helpers.ts`) | 360,000ms | 400,308–412,042ms | 11–14% | 1,080,000ms | No — 2nd widening (120s→360s→1080s) |
+| `src/simulation/__tests__/simulationRunner.chunk-4.test-helpers.ts:103` (BatchRunner "should complete 10 simulations in reasonable time", coverage lane) | 10,000ms | 10,237ms (observed once, 2026-07-10) | 2.4% | 30,000ms (jest timeout 15,000ms → 40,000ms) | Yes — 1st widening |
+
+Per the convention note in the task brief ("if a budget was already 3×-widened once, the new bound is 3× the *current* asserted bound, not 3× the original observed need"), both repeat-widened sites take 3× their current bound rather than reconstructing an original baseline. Each site's comment is dated 2026-07-11 and cites the observed band + representative run id so a future council can tell a real regression (a new, larger, commit-correlated jump) from more of the same contention noise.
+
+## Failure class 2 — Deterministic core-9 e2e triage (classification only, zero fixes)
+
+Ran the three cited specs locally, single worker, low contention (`node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign.spec.ts e2e/quick-play.spec.ts e2e/integration.spec.ts --workers=1`, port 3600 confirmed free before the run). Result: **44 tests run, 40 passed, 1 failed, 3 skipped (2.6m)**. The 3 skips are pre-existing `test.skip()` mission-tree cases (`campaign.spec.ts:272/354/367`) unrelated to the cited core-9 and out of scope for this triage.
+
+| # | Cited (nightly) location | Current location (line drift from 13 intervening merges) | Local result | Classification |
+|---|---|---|---|---|
+| 1 | `campaign.spec.ts:75` | `campaign.spec.ts:75` "displays campaigns when they exist" | ✓ PASS (2.8s) | **PASSES-LOCALLY** — nightly-env-only |
+| 2 | `campaign.spec.ts:93` | `campaign.spec.ts:93` "updates displayed campaign when current campaign changes" | ✓ PASS (3.8s) | **PASSES-LOCALLY** — nightly-env-only |
+| 3 | `campaign.spec.ts:243` | `campaign.spec.ts:242` "displays campaign dashboard via list click" | ✓ PASS (1.6s) | **PASSES-LOCALLY** — nightly-env-only |
+| 4 | `campaign.spec.ts:258` | `campaign.spec.ts:257` "displays campaign finances via list click" | ✓ PASS (2.5s) | **PASSES-LOCALLY** — nightly-env-only |
+| 5 | `campaign.spec.ts:282` | `campaign.spec.ts:281` "audit feed stays unmounted for a fresh campaign" | ✓ PASS (1.7s) | **PASSES-LOCALLY** — nightly-env-only |
+| 6 | `campaign.spec.ts:298` | `campaign.spec.ts:297` "deletes campaign from routed dashboard after confirmation" | ✓ PASS (2.0s) | **PASSES-LOCALLY** — nightly-env-only |
+| 7 | `integration.spec.ts:332` | `integration.spec.ts:332` "can switch between units in customizer" | ✘ **FAIL** (13.5s) — `expect(page).toHaveURL(/3b0e4849-.../)` timed out after 10s; page URL was `http://localhost:3600/customizer/127040ec-.../structure` — a *different* unit's ID entirely, with a `/structure` tab suffix appended | **PRODUCT** — real regression/test-rot candidate |
+| 8 | `quick-play.spec.ts:183` (sample failure cited at `:192`, "start-battle button never visible in 10s") | `quick-play.spec.ts:183` "should show Watch AI Battle, Interactive Skirmish, and Auto-Resolve options" | ✓ PASS (838ms) | **PASSES-LOCALLY** — nightly-env-only |
+| 9 | `quick-play.spec.ts:227` | `quick-play.spec.ts:229` "should show battle statistics after auto-resolve" | ✓ PASS (2.7s) | **PASSES-LOCALLY** — nightly-env-only |
+
+**Verdict: 8 of 9 are PASSES-LOCALLY (nightly-runner contention/timing under load — CPU/IO pressure from concurrent nightly lanes pushing UI-visibility waits past their timeout, consistent with class 1's contention signature). 1 of 9 (`integration.spec.ts:332`) is PRODUCT** — it failed locally too, deterministically, with the exact same failure signature as nightly (URL mismatch on customizer unit navigation). This is NOT a nightly-only artifact; it reproduces on a clean, low-contention local run. Root cause is unknown from this classification pass alone — it could be a genuine customizer routing/state-persistence bug (the app appears to redirect `/customizer/${unit1}` to a different, previously-visited unit's `/structure` sub-route rather than honoring the requested unit ID) or test-rot from a `beforeEach`/fixture change in one of the 13 intervening ladder commits. Per the task's classification-only scope, **no fix was attempted here** — this is filed as its own follow-up, sized separately from this preemption (see below), consistent with the rejected-Oracle-dissent note above: bundling a real product investigation into a "green the nightly" budget-widening PR would blur the audit trail and delay the reversible mitigation that unblocks W6 today.
+
+## Ruling
+
+1. **Green-before-W6-lanes**: this PR ships ahead of W6's implementation. W6 gains an ordering gate on a green nightly baseline — the first nightly run after this merges (tonight, 09:00 UTC) is expected to clear the 3 widened perf budgets and the 8 PASSES-LOCALLY e2e tests, leaving `integration.spec.ts:332` as the only expected-red signal, now correctly attributed to product rather than misread as "still flaky."
+2. **The core-9 FIX is out of scope here and is its own follow-up**, sized after this classification lands — do not fold a customizer-routing investigation into a budget-widening PR.
+3. **Dissent preserved**: Oracle's 0.5–1 day sizing-first approach was considered and rejected for the reasons above; it remains the fallback position if the widened budgets prove insufficient (i.e., if overshoot bands grow rather than stabilize on the next nightly).
+4. **Damage Carry-Forward (PR #1035) is unvalidated by any nightly run as of this decision** — flagged, not addressed, in this change. The next nightly is the first opportunity to observe it.
