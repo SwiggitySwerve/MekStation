@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-07-10
+goal: Headless jest-speed campaign fast-forward driver (day pipeline + real
+  API handlers + real GameEngine) with damage/ledger/XP/maintenance invariants
+  and live-parity acceptance (Seam-First Ladder W3, 2026-07-09 council decision)
