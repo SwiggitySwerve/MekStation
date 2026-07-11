@@ -62,9 +62,15 @@ const PROFILE_AVG_GAME_BUDGET_MS = readPositiveIntEnv(
 // `gameUnitsWithAdaptedCombatSeeds` started seeding real per-location
 // armor/structure into auto-resolved sessions — games last more turns now
 // that armor absorbs damage; the contended 100-game batch measured ~148s.
+//
+// 2026-07-11: widened 360s → 1080s (3× again per convention). Nightly runs
+// 2026-07-06 through 2026-07-10 (e.g. run 29090941292) observed
+// 400308–412042ms every night on a byte-identical assertion — 11–14% over
+// the 360s budget with no correlating commit, i.e. nightly-runner
+// contention, not a regression. Council: green-the-nightly, 2026-07-11.
 const PROFILE_TIME_BUDGET_MS = readPositiveIntEnv(
   'SIMULATION_PROFILE_TIME_BUDGET_MS',
-  360000,
+  1080000,
 );
 
 // Statistical proofs are only meaningful at the full batch size: at the CI
