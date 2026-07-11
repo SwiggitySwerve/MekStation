@@ -411,11 +411,21 @@ export async function loadCampaignPack(
   await page.goto(`/gameplay/campaigns/${encodeURIComponent(ids.campaignId)}`);
   await assertCampaignPackMounted(page, ids.campaignId, packId);
 
+  // Post-load actions run on the DASHBOARD, before the hop to the pack's
+  // real `targetRoute` — the ONLY declared action's control
+  // (`day-advance-one-day`/`advance-day-btn`, design D8's `advance-day`)
+  // is a dashboard-only surface (`CampaignDashboardPage.sections.tsx`);
+  // every other campaign page (repair-bay, finances, personnel, ...) never
+  // mounts it. Groups 3/4's packs never exercised this ordering (every
+  // pilot pack minted before group 5 declares `postLoadActions: []`) —
+  // group 5's maintenance pack is the first non-empty declaration, and
+  // running the action here (rather than after the targetRoute hop) is
+  // what makes it findable at all.
+  await runPostLoadActions(page, entry.postLoadActions, packId);
+
   if (targetRoute !== `/gameplay/campaigns/${ids.campaignId}`) {
     await page.goto(targetRoute);
   }
-
-  await runPostLoadActions(page, entry.postLoadActions, packId);
 
   return { campaignId: ids.campaignId, ...(pilotId ? { pilotId } : {}) };
 }

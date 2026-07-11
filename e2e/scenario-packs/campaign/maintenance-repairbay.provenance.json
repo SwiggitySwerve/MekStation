@@ -1,0 +1,344 @@
+{
+  "genesisSource": "fast-forward:maintenance-repairbay",
+  "mintedAt": "2026-07-11T09:52:42.914Z",
+  "baseCommit": "472c7ca30eb30a085e039f4e84e9375d75bfbf1e",
+  "invariantSummary": {
+    "battles": [
+      {
+        "scenarioId": "scn-fast-forward-fixture-contract-3025-06-13-ff-team-force-1",
+        "contractId": "fast-forward-fixture-contract",
+        "winner": "opponent",
+        "endReason": "destruction",
+        "unitDeltas": [
+          {
+            "unitId": "opponent-1-marauder-mad-3r",
+            "side": "opponent",
+            "destroyed": false,
+            "finalStatus": "intact",
+            "armorRemaining": {
+              "head": 9,
+              "center_torso": 26,
+              "left_torso": 26,
+              "right_torso": 16,
+              "left_torso_rear": 2
+            },
+            "internalsRemaining": {
+              "head": 3,
+              "center_torso": 23,
+              "left_torso": 16,
+              "right_torso": 16,
+              "center_torso_rear": 23,
+              "right_torso_rear": 16,
+              "left_torso_rear": 16
+            }
+          },
+          {
+            "unitId": "player-1-atlas-as7-d",
+            "side": "player",
+            "destroyed": true,
+            "finalStatus": "destroyed",
+            "armorRemaining": {
+              "head": 9,
+              "center_torso": 42,
+              "left_torso": 27,
+              "right_torso": 32,
+              "left_torso_rear": 2,
+              "right_torso_rear": 0,
+              "center_torso_rear": 0
+            },
+            "internalsRemaining": {
+              "head": 3,
+              "center_torso": 31,
+              "left_torso": 21,
+              "right_torso": 13,
+              "center_torso_rear": 31,
+              "left_torso_rear": 21,
+              "right_torso_rear": 13
+            }
+          }
+        ]
+      },
+      {
+        "scenarioId": "scn-fast-forward-fixture-contract-3025-06-13-ff-team-force-2",
+        "contractId": "fast-forward-fixture-contract",
+        "winner": "opponent",
+        "endReason": "destruction",
+        "unitDeltas": [
+          {
+            "unitId": "opponent-1-atlas-as7-d",
+            "side": "opponent",
+            "destroyed": false,
+            "finalStatus": "intact",
+            "armorRemaining": {
+              "head": 9,
+              "center_torso": 22,
+              "left_torso": 12,
+              "right_torso": 22,
+              "right_torso_rear": 2
+            },
+            "internalsRemaining": {
+              "head": 3,
+              "center_torso": 31,
+              "left_torso": 21,
+              "right_torso": 21,
+              "right_torso_rear": 21,
+              "left_torso_rear": 21,
+              "center_torso_rear": 31
+            }
+          },
+          {
+            "unitId": "player-1-marauder-mad-3r",
+            "side": "player",
+            "destroyed": true,
+            "finalStatus": "destroyed",
+            "armorRemaining": {
+              "head": 4,
+              "center_torso": 6,
+              "left_torso": 11,
+              "right_torso": 0,
+              "right_torso_rear": 2,
+              "center_torso_rear": 5,
+              "left_torso_rear": 2
+            },
+            "internalsRemaining": {
+              "head": 3,
+              "center_torso": 23,
+              "left_torso": 16,
+              "right_torso": 7,
+              "right_torso_rear": 7,
+              "center_torso_rear": 23,
+              "left_torso_rear": 16
+            }
+          }
+        ]
+      },
+      {
+        "scenarioId": "scn-fast-forward-fixture-contract-3025-06-13-ff-team-force-3",
+        "contractId": "fast-forward-fixture-contract",
+        "winner": "player",
+        "endReason": "destruction",
+        "unitDeltas": [
+          {
+            "unitId": "opponent-1-locust-lct-1v",
+            "side": "opponent",
+            "destroyed": true,
+            "finalStatus": "destroyed",
+            "armorRemaining": {
+              "head": 4,
+              "center_torso": 0,
+              "left_torso": 0,
+              "right_torso": 0,
+              "right_arm": 0,
+              "right_torso_rear": 2,
+              "left_arm": 0
+            },
+            "internalsRemaining": {
+              "head": 3,
+              "center_torso": 0,
+              "left_torso": 0,
+              "right_torso": 0,
+              "left_torso_rear": 0,
+              "right_arm": 0,
+              "right_torso_rear": 0,
+              "center_torso_rear": 0,
+              "left_arm": 0
+            }
+          },
+          {
+            "unitId": "player-1-hunchback-hbk-4g",
+            "side": "player",
+            "destroyed": false,
+            "finalStatus": "intact",
+            "armorRemaining": {
+              "head": 9,
+              "center_torso": 0,
+              "left_torso": 7,
+              "right_torso": 7,
+              "center_torso_rear": 5,
+              "left_torso_rear": 2
+            },
+            "internalsRemaining": {
+              "head": 3,
+              "center_torso": 6,
+              "left_torso": 15,
+              "right_torso": 15,
+              "center_torso_rear": 6,
+              "left_torso_rear": 15,
+              "right_torso_rear": 15
+            }
+          }
+        ]
+      },
+      {
+        "scenarioId": "scn-fast-forward-fixture-contract-3025-06-13-ff-team-force-5",
+        "contractId": "fast-forward-fixture-contract",
+        "winner": "player",
+        "endReason": "destruction",
+        "unitDeltas": [
+          {
+            "unitId": "opponent-1-marauder-mad-3r",
+            "side": "opponent",
+            "destroyed": true,
+            "finalStatus": "destroyed",
+            "armorRemaining": {
+              "head": 9,
+              "center_torso": 0,
+              "left_torso": 1,
+              "right_torso": 0,
+              "center_torso_rear": 5,
+              "right_torso_rear": 0
+            },
+            "internalsRemaining": {
+              "head": 3,
+              "center_torso": 4,
+              "left_torso": 16,
+              "right_torso": 4,
+              "center_torso_rear": 4,
+              "right_torso_rear": 4,
+              "left_torso_rear": 16
+            }
+          },
+          {
+            "unitId": "player-1-atlas-as7-d",
+            "side": "player",
+            "destroyed": false,
+            "finalStatus": "intact",
+            "armorRemaining": {
+              "head": 9,
+              "center_torso": 2,
+              "left_torso": 0,
+              "right_torso": 0,
+              "center_torso_rear": 5
+            },
+            "internalsRemaining": {
+              "head": 3,
+              "center_torso": 31,
+              "left_torso": 8,
+              "right_torso": 8,
+              "center_torso_rear": 31,
+              "right_torso_rear": 8,
+              "left_torso_rear": 8
+            }
+          }
+        ]
+      },
+      {
+        "scenarioId": "scn-fast-forward-fixture-contract-3025-06-13-ff-team-force-7",
+        "contractId": "fast-forward-fixture-contract",
+        "winner": "opponent",
+        "endReason": "destruction",
+        "unitDeltas": [
+          {
+            "unitId": "opponent-1-locust-lct-1v",
+            "side": "opponent",
+            "destroyed": false,
+            "finalStatus": "intact",
+            "armorRemaining": {
+              "head": 9,
+              "center_torso": 20,
+              "left_torso": 0,
+              "right_torso": 10
+            },
+            "internalsRemaining": {
+              "head": 3,
+              "center_torso": 10,
+              "left_torso": 5,
+              "right_torso": 5,
+              "left_torso_rear": 5
+            }
+          },
+          {
+            "unitId": "player-1-hunchback-hbk-4g",
+            "side": "player",
+            "destroyed": false,
+            "finalStatus": "intact",
+            "armorRemaining": {
+              "head": 9,
+              "center_torso": 30,
+              "left_torso": 17,
+              "right_torso": 12,
+              "right_torso_rear": 0
+            },
+            "internalsRemaining": {
+              "head": 3,
+              "center_torso": 21,
+              "left_torso": 15,
+              "right_torso": 7,
+              "right_torso_rear": 7,
+              "left_torso_rear": 15
+            }
+          }
+        ]
+      }
+    ],
+    "balanceDeltaCents": -40000,
+    "transactions": [
+      {
+        "type": "expense",
+        "amountCents": 20000
+      },
+      {
+        "type": "expense",
+        "amountCents": 20000
+      },
+      {
+        "type": "income",
+        "amountCents": 0
+      },
+      {
+        "type": "income",
+        "amountCents": 0
+      },
+      {
+        "type": "income",
+        "amountCents": 0
+      }
+    ],
+    "xpCounters": [
+      {
+        "unitId": "ff-roster-unit-1",
+        "xp": 4,
+        "campaignXpEarned": 4,
+        "campaignKills": 2,
+        "campaignMissions": 2
+      },
+      {
+        "unitId": "ff-roster-unit-2",
+        "xp": 1,
+        "campaignXpEarned": 1,
+        "campaignKills": 0,
+        "campaignMissions": 1
+      },
+      {
+        "unitId": "ff-roster-unit-3",
+        "xp": 5,
+        "campaignXpEarned": 5,
+        "campaignKills": 3,
+        "campaignMissions": 2
+      },
+      {
+        "unitId": "ff-roster-unit-4",
+        "xp": 0,
+        "campaignXpEarned": 0,
+        "campaignKills": 0,
+        "campaignMissions": 0
+      }
+    ],
+    "contractStatuses": [
+      {
+        "contractId": "fast-forward-fixture-contract",
+        "status": "Failed"
+      }
+    ],
+    "repairTickets": [
+      {
+        "kind": "armor",
+        "count": 4
+      },
+      {
+        "kind": "structure",
+        "count": 2
+      }
+    ]
+  }
+}

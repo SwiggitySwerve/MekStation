@@ -417,6 +417,61 @@ export function canonicalizePackPayload(
   );
 }
 
+/**
+ * Strips the matchId-shaped fields that live on otherwise
+ * campaign-internal state (design D11.2's expanded strip inventory, task
+ * 1.2): `unitCombatStates[unitId].lastCombatOutcomeId` (nulled — the
+ * interface's own "untouched" sentinel, `UnitCombatState.ts`),
+ * `repairQueue[].matchId` (nulled — `RepairTicket.ts` already types it
+ * `string | null` for a manual/maintenance ticket, so nulling matches a
+ * legal production shape rather than inventing one), and
+ * `dailyBattleAudit[].matches[].matchId` (the array entry is dropped
+ * entirely — `IDailyBattleMatchRef` has no null-matchId variant, and the
+ * entry's sole purpose is "clickable navigation" to a match that will
+ * never resolve for a pack-loaded campaign). Every field is optional on
+ * its interface, so absence/nulling is the legal pre-link shape — no
+ * schema violence, mirroring the existing `encounterId`/`gameSessionId`
+ * strip above. A no-op for flow-checkpoint packs (groups 3/4), which
+ * never populate any of these three fields.
+ */
+function stripDanglingMatchReferences(clone: CampaignPackPayload): void {
+  const body = clone.body as
+    | (CampaignPackPayload['body'] & {
+        unitCombatStates?: Record<
+          string,
+          { lastCombatOutcomeId?: string | null } & Record<string, unknown>
+        >;
+        repairQueue?: readonly ({ matchId?: string | null } & Record<
+          string,
+          unknown
+        >)[];
+        dailyBattleAudit?: readonly ({
+          matches?: readonly unknown[];
+        } & Record<string, unknown>)[];
+      })
+    | undefined;
+  if (!body) return;
+
+  for (const state of Object.values(body.unitCombatStates ?? {})) {
+    if (state.lastCombatOutcomeId !== undefined) {
+      state.lastCombatOutcomeId = null;
+    }
+  }
+
+  if (body.repairQueue) {
+    body.repairQueue = body.repairQueue.map((ticket) =>
+      ticket.matchId !== undefined ? { ...ticket, matchId: null } : ticket,
+    );
+  }
+
+  if (body.dailyBattleAudit) {
+    body.dailyBattleAudit = body.dailyBattleAudit.map((entry) => ({
+      ...entry,
+      matches: [],
+    }));
+  }
+}
+
 function canonicalizeCampaignPackPayload(
   payload: CampaignPackPayload,
   { packId }: MintOptions,
@@ -489,6 +544,21 @@ function canonicalizeCampaignPackPayload(
       )!;
     }
   }
+
+  // Cross-store reference stripping, group-1's expanded inventory (task
+  // 1.2, honored per the orchestrator ruling carried into group 5): fields
+  // that name a `matchId`/game-session id but live on otherwise
+  // campaign-internal state (`unitCombatStates`, `repairQueue`,
+  // `dailyBattleAudit`'s per-day match refs). Flow-checkpoint packs
+  // (groups 3/4) never populate these — battle-free capture points — so
+  // this is a no-op there; fast-forward-minted packs (group 5) are the
+  // first genesis class whose captured state carries real combat/repair
+  // data, making these fields the first ones actually at risk of
+  // dangling. `repairQueue[].matchId` is typed `string | null` on the
+  // production interface (`RepairTicket.ts`), so nulling it (never
+  // deleting) matches the "campaign-internal idempotency marker" shape
+  // the interface already allows for a manual/maintenance ticket.
+  stripDanglingMatchReferences(clone);
 
   assertZeroResidue(
     clone,

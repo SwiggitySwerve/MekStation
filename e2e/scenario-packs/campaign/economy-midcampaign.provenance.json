@@ -1,0 +1,115 @@
+{
+  "genesisSource": "fast-forward:economy-midcampaign",
+  "mintedAt": "2026-07-11T10:02:47.027Z",
+  "baseCommit": "472c7ca30eb30a085e039f4e84e9375d75bfbf1e",
+  "invariantSummary": {
+    "battles": [
+      {
+        "scenarioId": "scn-fast-forward-fixture-contract-3025-06-13-ff-team-force-1",
+        "contractId": "fast-forward-fixture-contract",
+        "winner": "opponent",
+        "endReason": "destruction",
+        "unitDeltas": [
+          {
+            "unitId": "opponent-1-marauder-mad-3r",
+            "side": "opponent",
+            "destroyed": false,
+            "finalStatus": "intact",
+            "armorRemaining": {
+              "head": 9,
+              "center_torso": 26,
+              "left_torso": 26,
+              "right_torso": 16,
+              "left_torso_rear": 2
+            },
+            "internalsRemaining": {
+              "head": 3,
+              "center_torso": 23,
+              "left_torso": 16,
+              "right_torso": 16,
+              "center_torso_rear": 23,
+              "right_torso_rear": 16,
+              "left_torso_rear": 16
+            }
+          },
+          {
+            "unitId": "player-1-atlas-as7-d",
+            "side": "player",
+            "destroyed": true,
+            "finalStatus": "destroyed",
+            "armorRemaining": {
+              "head": 9,
+              "center_torso": 42,
+              "left_torso": 27,
+              "right_torso": 32,
+              "left_torso_rear": 2,
+              "right_torso_rear": 0,
+              "center_torso_rear": 0
+            },
+            "internalsRemaining": {
+              "head": 3,
+              "center_torso": 31,
+              "left_torso": 21,
+              "right_torso": 13,
+              "center_torso_rear": 31,
+              "left_torso_rear": 21,
+              "right_torso_rear": 13
+            }
+          }
+        ]
+      }
+    ],
+    "balanceDeltaCents": 29960000,
+    "transactions": [
+      {
+        "type": "expense",
+        "amountCents": 20000
+      },
+      {
+        "type": "expense",
+        "amountCents": 20000
+      },
+      {
+        "type": "income",
+        "amountCents": 30000000
+      }
+    ],
+    "xpCounters": [
+      {
+        "unitId": "ff-roster-unit-1",
+        "xp": 1,
+        "campaignXpEarned": 1,
+        "campaignKills": 0,
+        "campaignMissions": 1
+      },
+      {
+        "unitId": "ff-roster-unit-2",
+        "xp": 0,
+        "campaignXpEarned": 0,
+        "campaignKills": 0,
+        "campaignMissions": 0
+      },
+      {
+        "unitId": "ff-roster-unit-3",
+        "xp": 0,
+        "campaignXpEarned": 0,
+        "campaignKills": 0,
+        "campaignMissions": 0
+      },
+      {
+        "unitId": "ff-roster-unit-4",
+        "xp": 0,
+        "campaignXpEarned": 0,
+        "campaignKills": 0,
+        "campaignMissions": 0
+      }
+    ],
+    "contractStatuses": [
+      {
+        "contractId": "fast-forward-fixture-contract",
+        "status": "Failed"
+      }
+    ],
+    "repairTickets": []
+  }
+}

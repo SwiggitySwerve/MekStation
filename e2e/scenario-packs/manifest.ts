@@ -109,6 +109,50 @@ export const SCENARIO_PACK_MANIFEST: readonly ManifestEntry[] = [
     pins: { matchLogDbVersion: 2 },
     postLoadActions: [],
   },
+  {
+    id: 'economy-midcampaign',
+    kind: 'campaign',
+    subsystems: ['economy'],
+    viewports: [],
+    targetRoute: '/gameplay/campaigns/{id}/finances',
+    // `fast-forward:<fixtureId>` (design D2/D9) — dumped from a
+    // `fastForwardCampaign()` run via `buildSerializedCampaign` (W3 gate,
+    // task 5.0). Standing is recorded per design D9: the
+    // `campaign-fast-forward-api` live-parity acceptance was verified
+    // GREEN (3/3) at gate-check time (task 5.0) — not triage-only.
+    parityAnchorJourney: 'fast-forward:economy-midcampaign',
+    payloadPath: 'campaign/economy-midcampaign.campaign.json',
+    provenance: {
+      genesisSource: 'fast-forward:economy-midcampaign',
+      mintedAt: '2026-07-11T09:52:31.961Z',
+      baseCommit: '472c7ca30eb30a085e039f4e84e9375d75bfbf1e',
+    },
+    pins: { schemaVersion: 1 },
+    postLoadActions: [],
+  },
+  {
+    id: 'maintenance-repairbay',
+    kind: 'campaign',
+    subsystems: ['maintenance'],
+    viewports: [],
+    targetRoute: '/gameplay/campaigns/{id}/repair-bay',
+    // Standing per design D9 — same green (3/3) live-parity acceptance as
+    // the economy pack above (task 5.0 gate check).
+    parityAnchorJourney: 'fast-forward:maintenance-repairbay',
+    payloadPath: 'campaign/maintenance-repairbay.campaign.json',
+    provenance: {
+      genesisSource: 'fast-forward:maintenance-repairbay',
+      mintedAt: '2026-07-11T09:52:42.914Z',
+      baseCommit: '472c7ca30eb30a085e039f4e84e9375d75bfbf1e',
+    },
+    pins: { schemaVersion: 1 },
+    // Design D8 — the repair-bay projection is populated only by the
+    // production CLEANUP-phase processor on `advanceDay`; the minted
+    // payload's tickets are captured UNTOUCHED (`status: 'parts-needed'`)
+    // and the target state is documented as minted-state-plus-one-day
+    // (repair hours partially applied, a day's costs posted).
+    postLoadActions: ['advance-day'],
+  },
 ];
 
 /**

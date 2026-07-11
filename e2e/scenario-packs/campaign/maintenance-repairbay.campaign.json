@@ -1,0 +1,1238 @@
+{
+  "schemaVersion": 1,
+  "campaignId": "pack:maintenance-repairbay:campaign",
+  "savedAt": "2026-07-11T09:52:42.858Z",
+  "originDeviceId": "0a883665-7e83-477b-a659-efcad8566b23",
+  "version": 1,
+  "body": {
+    "id": "pack:maintenance-repairbay:campaign",
+    "name": "Fast-Forward Fixture Campaign",
+    "currentDate": "3025-06-15T00:00:00.000Z",
+    "factionId": "mercenary",
+    "forces": [
+      [
+        "ff-team-force-1",
+        {
+          "id": "ff-team-force-1",
+          "name": "Fixture Patrol Team 1",
+          "subForceIds": [],
+          "unitIds": ["ff-roster-unit-1"],
+          "forceType": "Standard",
+          "formationLevel": "Lance",
+          "createdAt": "3025-06-13T00:00:00.000Z",
+          "updatedAt": "3025-06-13T00:00:00.000Z"
+        }
+      ],
+      [
+        "ff-team-force-2",
+        {
+          "id": "ff-team-force-2",
+          "name": "Fixture Patrol Team 2",
+          "subForceIds": [],
+          "unitIds": ["ff-roster-unit-2"],
+          "forceType": "Standard",
+          "formationLevel": "Lance",
+          "createdAt": "3025-06-13T00:00:00.000Z",
+          "updatedAt": "3025-06-13T00:00:00.000Z"
+        }
+      ],
+      [
+        "ff-team-force-3",
+        {
+          "id": "ff-team-force-3",
+          "name": "Fixture Patrol Team 3",
+          "subForceIds": [],
+          "unitIds": ["ff-roster-unit-3"],
+          "forceType": "Standard",
+          "formationLevel": "Lance",
+          "createdAt": "3025-06-13T00:00:00.000Z",
+          "updatedAt": "3025-06-13T00:00:00.000Z"
+        }
+      ],
+      [
+        "ff-team-force-4",
+        {
+          "id": "ff-team-force-4",
+          "name": "Fixture Patrol Team 4",
+          "subForceIds": [],
+          "unitIds": ["ff-roster-unit-4"],
+          "forceType": "Standard",
+          "formationLevel": "Lance",
+          "createdAt": "3025-06-13T00:00:00.000Z",
+          "updatedAt": "3025-06-13T00:00:00.000Z"
+        }
+      ],
+      [
+        "ff-team-force-5",
+        {
+          "id": "ff-team-force-5",
+          "name": "Fixture Patrol Team 5",
+          "subForceIds": [],
+          "unitIds": ["ff-roster-unit-1"],
+          "forceType": "Standard",
+          "formationLevel": "Lance",
+          "createdAt": "3025-06-13T00:00:00.000Z",
+          "updatedAt": "3025-06-13T00:00:00.000Z"
+        }
+      ],
+      [
+        "ff-team-force-6",
+        {
+          "id": "ff-team-force-6",
+          "name": "Fixture Patrol Team 6",
+          "subForceIds": [],
+          "unitIds": ["ff-roster-unit-2"],
+          "forceType": "Standard",
+          "formationLevel": "Lance",
+          "createdAt": "3025-06-13T00:00:00.000Z",
+          "updatedAt": "3025-06-13T00:00:00.000Z"
+        }
+      ],
+      [
+        "ff-team-force-7",
+        {
+          "id": "ff-team-force-7",
+          "name": "Fixture Patrol Team 7",
+          "subForceIds": [],
+          "unitIds": ["ff-roster-unit-3"],
+          "forceType": "Standard",
+          "formationLevel": "Lance",
+          "createdAt": "3025-06-13T00:00:00.000Z",
+          "updatedAt": "3025-06-13T00:00:00.000Z"
+        }
+      ],
+      [
+        "ff-team-force-8",
+        {
+          "id": "ff-team-force-8",
+          "name": "Fixture Patrol Team 8",
+          "subForceIds": [],
+          "unitIds": ["ff-roster-unit-4"],
+          "forceType": "Standard",
+          "formationLevel": "Lance",
+          "createdAt": "3025-06-13T00:00:00.000Z",
+          "updatedAt": "3025-06-13T00:00:00.000Z"
+        }
+      ]
+    ],
+    "rootForceId": "ff-root-force",
+    "missions": [
+      [
+        "fast-forward-fixture-contract",
+        {
+          "id": "fast-forward-fixture-contract",
+          "name": "Fast-Forward Fixture Patrol Contract",
+          "status": "Failed",
+          "type": "contract",
+          "systemId": "Unknown System",
+          "scenarioIds": [],
+          "endDate": "3025-06-14T00:00:00.000Z",
+          "employerId": "fixture-employer",
+          "targetId": "fixture-target",
+          "paymentTerms": {
+            "basePayment": 0,
+            "successPayment": 0,
+            "partialPayment": 0,
+            "failurePayment": 0,
+            "salvagePercent": 0,
+            "transportPayment": 0,
+            "supportPayment": 0
+          },
+          "salvageRights": "None",
+          "commandRights": "House",
+          "createdAt": "2026-07-11T09:52:41.585Z",
+          "updatedAt": "2026-07-11T09:52:42.853Z"
+        }
+      ]
+    ],
+    "finances": {
+      "transactions": [
+        {
+          "id": "tx-salary-3025-06-13T00:00:00.000Z",
+          "type": "expense",
+          "amount": 200,
+          "date": "3025-06-13T00:00:00.000Z",
+          "description": "Daily salaries for 4 personnel"
+        },
+        {
+          "id": "tx-contract-close-fast-forward-fixture-contract-2026-07-11T09:52:42.851Z",
+          "type": "income",
+          "amount": 0,
+          "date": "3025-06-14T00:00:00.000Z",
+          "description": "Final payment for contract Fast-Forward Fixture Patrol Contract (Failed)"
+        },
+        {
+          "id": "tx-contract-close-fast-forward-fixture-contract-2026-07-11T09:52:42.853Z",
+          "type": "income",
+          "amount": 0,
+          "date": "3025-06-14T00:00:00.000Z",
+          "description": "Final payment for contract Fast-Forward Fixture Patrol Contract (Success)"
+        },
+        {
+          "id": "tx-contract-close-fast-forward-fixture-contract-2026-07-11T09:52:42.853Z",
+          "type": "income",
+          "amount": 0,
+          "date": "3025-06-14T00:00:00.000Z",
+          "description": "Final payment for contract Fast-Forward Fixture Patrol Contract (Failed)"
+        },
+        {
+          "id": "tx-salary-3025-06-14T00:00:00.000Z",
+          "type": "expense",
+          "amount": 200,
+          "date": "3025-06-14T00:00:00.000Z",
+          "description": "Daily salaries for 4 personnel"
+        }
+      ],
+      "balance": 999600
+    },
+    "factionStandings": {},
+    "options": {
+      "healingRateMultiplier": 1,
+      "salaryMultiplier": 1,
+      "retirementAge": 65,
+      "healingWaitingPeriod": 1,
+      "medicalSystem": "standard",
+      "maxPatientsPerDoctor": 25,
+      "doctorsUseAdministration": false,
+      "xpPerMission": 1,
+      "xpPerKill": 1,
+      "xpCostMultiplier": 1,
+      "trackTimeInService": true,
+      "useEdge": true,
+      "scenarioXP": 1,
+      "killXPAward": 1,
+      "killsForXP": 1,
+      "taskXP": 1,
+      "nTasksXP": 1,
+      "vocationalXP": 1,
+      "vocationalXPTargetNumber": 7,
+      "vocationalXPCheckFrequency": 30,
+      "adminXP": 0,
+      "adminXPPeriod": 7,
+      "missionFailXP": 1,
+      "missionSuccessXP": 3,
+      "missionOutstandingXP": 5,
+      "useAgingEffects": true,
+      "startingFunds": 0,
+      "maintenanceCostMultiplier": 1,
+      "repairCostMultiplier": 1,
+      "acquisitionCostMultiplier": 1,
+      "payForMaintenance": true,
+      "payForRepairs": true,
+      "payForSalaries": true,
+      "payForAmmunition": true,
+      "maintenanceCycleDays": 7,
+      "useLoanSystem": true,
+      "useTaxes": true,
+      "taxRate": 10,
+      "overheadPercent": 5,
+      "useRoleBasedSalaries": false,
+      "payForSecondaryRole": true,
+      "maxLoanPercent": 50,
+      "defaultLoanRate": 5,
+      "taxFrequency": "annually",
+      "useFoodAndHousing": true,
+      "clanPriceMultiplier": 2,
+      "mixedTechPriceMultiplier": 1.5,
+      "usedEquipmentMultiplier": 0.5,
+      "damagedEquipmentMultiplier": 0.33,
+      "useAutoResolve": false,
+      "autoResolveCasualtyRate": 1,
+      "allowPilotCapture": true,
+      "useRandomInjuries": true,
+      "pilotDeathChance": 0.1,
+      "autoEject": true,
+      "trackAmmunition": true,
+      "useQuirks": false,
+      "maxUnitsPerLance": 4,
+      "maxLancesPerCompany": 3,
+      "enforceFormationRules": false,
+      "allowMixedFormations": true,
+      "requireForceCommanders": false,
+      "useCombatTeams": false,
+      "dateFormat": "yyyy-MM-dd",
+      "useFactionRules": false,
+      "techLevel": 1,
+      "limitByYear": true,
+      "allowClanEquipment": false,
+      "useRandomEvents": false,
+      "usePrisonerEvents": true,
+      "useLifeEvents": true,
+      "useContractEvents": true,
+      "simulateGrayMonday": false,
+      "enableDayReportNotifications": true,
+      "useTurnover": true,
+      "turnoverFixedTargetNumber": 3,
+      "turnoverCheckFrequency": "monthly",
+      "turnoverCommanderImmune": true,
+      "turnoverPayoutMultiplier": 12,
+      "turnoverUseSkillModifiers": true,
+      "turnoverUseAgeModifiers": true,
+      "turnoverUseMissionStatusModifiers": true,
+      "trackFactionStanding": true,
+      "regardChangeMultiplier": 1,
+      "useAcquisitionSystem": false,
+      "usePlanetaryModifiers": true,
+      "acquisitionTransitUnit": "month",
+      "clanPartsPenalty": true,
+      "rankSystemCode": "MERC",
+      "unitMarketMethod": "none",
+      "personnelMarketStyle": "disabled",
+      "contractMarketMethod": "atb_monthly",
+      "useAtBScenarios": true
+    },
+    "campaignType": "mercenary",
+    "createdAt": "3025-06-13T00:00:00.000Z",
+    "updatedAt": "2026-07-11T09:52:42.858Z",
+    "unitCombatStates": {
+      "player-1-atlas-as7-d": {
+        "unitId": "player-1-atlas-as7-d",
+        "currentArmorPerLocation": {
+          "head": 9,
+          "center_torso": 2,
+          "left_torso": 0,
+          "right_torso": 0,
+          "left_arm": null,
+          "left_leg": null,
+          "left_torso_rear": 2,
+          "right_torso_rear": 0,
+          "center_torso_rear": 5,
+          "right_leg": null,
+          "right_arm": null
+        },
+        "currentStructurePerLocation": {
+          "head": 3,
+          "center_torso": 31,
+          "left_torso": 8,
+          "right_torso": 8,
+          "left_arm": null,
+          "center_torso_rear": 31,
+          "left_leg": null,
+          "left_torso_rear": 8,
+          "right_torso_rear": 8,
+          "right_leg": null,
+          "right_arm": null
+        },
+        "destroyedLocations": [],
+        "destroyedComponents": [],
+        "heatEnd": 98,
+        "ammoRemaining": {},
+        "combatReady": false,
+        "lastCombatOutcomeId": null,
+        "lastUpdated": "2026-07-11T09:52:42.853Z"
+      },
+      "opponent-1-marauder-mad-3r": {
+        "unitId": "opponent-1-marauder-mad-3r",
+        "currentArmorPerLocation": {
+          "head": 9,
+          "center_torso": 0,
+          "left_torso": 1,
+          "right_torso": 0,
+          "right_leg": null,
+          "left_leg": null,
+          "right_arm": null,
+          "left_torso_rear": 2,
+          "center_torso_rear": 5,
+          "right_torso_rear": 0,
+          "left_arm": null
+        },
+        "currentStructurePerLocation": {
+          "head": 3,
+          "center_torso": 4,
+          "left_torso": 16,
+          "right_torso": 4,
+          "center_torso_rear": 4,
+          "right_torso_rear": 4,
+          "right_leg": null,
+          "left_leg": null,
+          "right_arm": null,
+          "left_torso_rear": 16,
+          "left_arm": null
+        },
+        "destroyedLocations": [],
+        "destroyedComponents": [],
+        "heatEnd": 146,
+        "ammoRemaining": {},
+        "combatReady": false,
+        "lastCombatOutcomeId": null,
+        "lastUpdated": "2026-07-11T09:52:42.853Z"
+      },
+      "player-1-marauder-mad-3r": {
+        "unitId": "player-1-marauder-mad-3r",
+        "currentArmorPerLocation": {
+          "head": 4,
+          "center_torso": 6,
+          "left_torso": 11,
+          "right_torso": 0,
+          "left_leg": null,
+          "right_leg": null,
+          "right_torso_rear": 2,
+          "center_torso_rear": 5,
+          "right_arm": null,
+          "left_torso_rear": 2,
+          "left_arm": null
+        },
+        "currentStructurePerLocation": {
+          "head": 3,
+          "center_torso": 23,
+          "left_torso": 16,
+          "right_torso": 7,
+          "left_leg": null,
+          "right_leg": null,
+          "right_torso_rear": 7,
+          "center_torso_rear": 23,
+          "right_arm": null,
+          "left_torso_rear": 16,
+          "left_arm": null
+        },
+        "destroyedLocations": [],
+        "destroyedComponents": [],
+        "heatEnd": 27,
+        "ammoRemaining": {},
+        "combatReady": false,
+        "lastCombatOutcomeId": null,
+        "lastUpdated": "2026-07-11T09:52:42.853Z"
+      },
+      "opponent-1-atlas-as7-d": {
+        "unitId": "opponent-1-atlas-as7-d",
+        "currentArmorPerLocation": {
+          "head": 9,
+          "center_torso": 22,
+          "left_torso": 12,
+          "right_torso": 22,
+          "right_arm": null,
+          "right_torso_rear": 2,
+          "left_arm": null,
+          "left_leg": null
+        },
+        "currentStructurePerLocation": {
+          "head": 3,
+          "center_torso": 31,
+          "left_torso": 21,
+          "right_torso": 21,
+          "right_arm": null,
+          "right_torso_rear": 21,
+          "left_torso_rear": 21,
+          "left_arm": null,
+          "left_leg": null,
+          "center_torso_rear": 31
+        },
+        "destroyedLocations": [],
+        "destroyedComponents": [],
+        "heatEnd": 24,
+        "ammoRemaining": {},
+        "combatReady": true,
+        "lastCombatOutcomeId": null,
+        "lastUpdated": "2026-07-11T09:52:42.853Z"
+      },
+      "player-1-hunchback-hbk-4g": {
+        "unitId": "player-1-hunchback-hbk-4g",
+        "currentArmorPerLocation": {
+          "head": 9,
+          "center_torso": 30,
+          "left_torso": 17,
+          "right_torso": 12,
+          "center_torso_rear": 5,
+          "left_torso_rear": 2,
+          "left_leg": null,
+          "right_arm": null,
+          "left_arm": null,
+          "right_leg": null,
+          "right_torso_rear": 0
+        },
+        "currentStructurePerLocation": {
+          "head": 3,
+          "center_torso": 21,
+          "left_torso": 15,
+          "right_torso": 7,
+          "center_torso_rear": 6,
+          "left_torso_rear": 15,
+          "left_leg": null,
+          "right_arm": null,
+          "right_torso_rear": 7,
+          "left_arm": null,
+          "right_leg": null
+        },
+        "destroyedLocations": [],
+        "destroyedComponents": [],
+        "heatEnd": 12,
+        "ammoRemaining": {},
+        "combatReady": true,
+        "lastCombatOutcomeId": null,
+        "lastUpdated": "2026-07-11T09:52:42.853Z"
+      },
+      "opponent-1-locust-lct-1v": {
+        "unitId": "opponent-1-locust-lct-1v",
+        "currentArmorPerLocation": {
+          "head": 9,
+          "center_torso": 20,
+          "left_torso": 0,
+          "right_torso": 10,
+          "right_arm": null,
+          "right_torso_rear": 2,
+          "left_leg": null,
+          "right_leg": null,
+          "left_arm": 0
+        },
+        "currentStructurePerLocation": {
+          "head": 3,
+          "center_torso": 10,
+          "left_torso": 5,
+          "right_torso": 5,
+          "left_torso_rear": 5,
+          "right_arm": null,
+          "right_torso_rear": 0,
+          "left_leg": null,
+          "right_leg": null,
+          "center_torso_rear": 0,
+          "left_arm": 0
+        },
+        "destroyedLocations": [
+          "left_torso",
+          "left_arm",
+          "center_torso",
+          "right_torso",
+          "right_arm"
+        ],
+        "destroyedComponents": [],
+        "heatEnd": 1,
+        "ammoRemaining": {},
+        "combatReady": false,
+        "lastCombatOutcomeId": null,
+        "lastUpdated": "2026-07-11T09:52:42.853Z"
+      }
+    },
+    "unitMaxStates": {
+      "player-1-atlas-as7-d": {
+        "unitId": "player-1-atlas-as7-d",
+        "maxArmorPerLocation": {
+          "head": 9,
+          "center_torso": 47,
+          "left_torso": 32,
+          "right_torso": 32
+        },
+        "maxStructurePerLocation": {
+          "head": 3,
+          "center_torso": 31,
+          "left_torso": 21,
+          "right_torso": 21
+        },
+        "maxAmmoPerBin": {}
+      },
+      "player-1-marauder-mad-3r": {
+        "unitId": "player-1-marauder-mad-3r",
+        "maxArmorPerLocation": {
+          "head": 9,
+          "center_torso": 36,
+          "left_torso": 26,
+          "right_torso": 26
+        },
+        "maxStructurePerLocation": {
+          "head": 3,
+          "center_torso": 23,
+          "left_torso": 16,
+          "right_torso": 16
+        },
+        "maxAmmoPerBin": {}
+      },
+      "player-1-hunchback-hbk-4g": {
+        "unitId": "player-1-hunchback-hbk-4g",
+        "maxArmorPerLocation": {
+          "head": 9,
+          "center_torso": 30,
+          "left_torso": 22,
+          "right_torso": 22
+        },
+        "maxStructurePerLocation": {
+          "head": 3,
+          "center_torso": 21,
+          "left_torso": 15,
+          "right_torso": 15
+        },
+        "maxAmmoPerBin": {}
+      }
+    },
+    "rosterProjection": {
+      "campaignId": "pack:maintenance-repairbay:campaign",
+      "units": [
+        {
+          "unitId": "ff-roster-unit-1",
+          "unitRef": "atlas-as7-d",
+          "unitName": "atlas-as7-d",
+          "pilotId": "pilot-af01f784-e9d1-4e0e-b130-4f46ddcc4c17",
+          "chassisVariant": "atlas-as7-d",
+          "readiness": "Ready"
+        },
+        {
+          "unitId": "ff-roster-unit-2",
+          "unitRef": "marauder-mad-3r",
+          "unitName": "marauder-mad-3r",
+          "pilotId": "pilot-b98401ba-b1a5-4de4-be6f-9e7c2d73b87f",
+          "chassisVariant": "marauder-mad-3r",
+          "readiness": "Ready"
+        },
+        {
+          "unitId": "ff-roster-unit-3",
+          "unitRef": "hunchback-hbk-4g",
+          "unitName": "hunchback-hbk-4g",
+          "pilotId": "pilot-40efdbc2-a4cc-4e8b-83e7-ef1771917d7d",
+          "chassisVariant": "hunchback-hbk-4g",
+          "readiness": "Ready"
+        },
+        {
+          "unitId": "ff-roster-unit-4",
+          "unitRef": "locust-lct-1v",
+          "unitName": "locust-lct-1v",
+          "pilotId": "vault-pilot-004",
+          "chassisVariant": "locust-lct-1v",
+          "readiness": "Ready"
+        }
+      ],
+      "pilots": [
+        {
+          "pilotId": "pilot-af01f784-e9d1-4e0e-b130-4f46ddcc4c17",
+          "pilotName": "Fixture Pilot 1",
+          "status": "active",
+          "wounds": 0,
+          "recoveryTime": 0,
+          "xp": 4,
+          "campaignXpEarned": 4,
+          "campaignKills": 2,
+          "campaignMissions": 2,
+          "primaryRole": "Pilot",
+          "rankIndex": 0,
+          "unitRef": "atlas-as7-d",
+          "hireDate": "3024-01-01T00:00:00.000Z"
+        },
+        {
+          "pilotId": "pilot-b98401ba-b1a5-4de4-be6f-9e7c2d73b87f",
+          "pilotName": "Fixture Pilot 2",
+          "status": "wounded",
+          "wounds": 1,
+          "recoveryTime": 7,
+          "xp": 1,
+          "campaignXpEarned": 1,
+          "campaignKills": 0,
+          "campaignMissions": 1,
+          "primaryRole": "Pilot",
+          "rankIndex": 0,
+          "unitRef": "marauder-mad-3r",
+          "hireDate": "3024-01-01T00:00:00.000Z"
+        },
+        {
+          "pilotId": "pilot-40efdbc2-a4cc-4e8b-83e7-ef1771917d7d",
+          "pilotName": "Fixture Pilot 3",
+          "status": "active",
+          "wounds": 0,
+          "recoveryTime": 0,
+          "xp": 5,
+          "campaignXpEarned": 5,
+          "campaignKills": 3,
+          "campaignMissions": 2,
+          "primaryRole": "Pilot",
+          "rankIndex": 0,
+          "unitRef": "hunchback-hbk-4g",
+          "hireDate": "3024-01-01T00:00:00.000Z"
+        },
+        {
+          "pilotId": "vault-pilot-004",
+          "pilotName": "Fixture Pilot 4",
+          "status": "active",
+          "wounds": 0,
+          "recoveryTime": 0,
+          "xp": 0,
+          "campaignXpEarned": 0,
+          "campaignKills": 0,
+          "campaignMissions": 0,
+          "primaryRole": "Pilot",
+          "rankIndex": 0,
+          "unitRef": "locust-lct-1v",
+          "hireDate": "3024-01-01T00:00:00.000Z"
+        }
+      ],
+      "missions": [],
+      "activeMissionId": null,
+      "missionCount": 0
+    },
+    "partsInventory": [
+      {
+        "inventoryId": "maintenance-repairbay-parts-0",
+        "partId": "standard-armor-pt",
+        "partName": "standard-armor-pt",
+        "quantity": 30,
+        "source": "acquisition",
+        "acquiredAt": "3025-06-15T00:00:00.000Z"
+      },
+      {
+        "inventoryId": "maintenance-repairbay-parts-1",
+        "partId": "internal-structure-right_torso",
+        "partName": "internal-structure-right_torso",
+        "quantity": 16,
+        "source": "acquisition",
+        "acquiredAt": "3025-06-15T00:00:00.000Z"
+      }
+    ],
+    "repairQueue": [
+      {
+        "ticketId": "ticket-7a6e573e-48c4-462f-b5ff-fc1032a233f8-player-1-hunchback-hbk-4g-armor-left_torso",
+        "unitId": "player-1-hunchback-hbk-4g",
+        "kind": "armor",
+        "location": "left_torso",
+        "pointsToRestore": 5,
+        "expectedHours": 0.5,
+        "partsRequired": [
+          {
+            "partId": "standard-armor-pt",
+            "quantity": 5,
+            "matched": false
+          }
+        ],
+        "source": "combat",
+        "matchId": null,
+        "createdAt": "3025-06-14T00:00:00.000Z",
+        "status": "parts-needed"
+      },
+      {
+        "ticketId": "ticket-7a6e573e-48c4-462f-b5ff-fc1032a233f8-player-1-hunchback-hbk-4g-armor-right_torso",
+        "unitId": "player-1-hunchback-hbk-4g",
+        "kind": "armor",
+        "location": "right_torso",
+        "pointsToRestore": 10,
+        "expectedHours": 1,
+        "partsRequired": [
+          {
+            "partId": "standard-armor-pt",
+            "quantity": 10,
+            "matched": false
+          }
+        ],
+        "source": "combat",
+        "matchId": null,
+        "createdAt": "3025-06-14T00:00:00.000Z",
+        "status": "parts-needed"
+      },
+      {
+        "ticketId": "ticket-7a6e573e-48c4-462f-b5ff-fc1032a233f8-player-1-hunchback-hbk-4g-structure-right_torso",
+        "unitId": "player-1-hunchback-hbk-4g",
+        "kind": "structure",
+        "location": "right_torso",
+        "pointsToRestore": 8,
+        "expectedHours": 4,
+        "partsRequired": [
+          {
+            "partId": "internal-structure-right_torso",
+            "quantity": 8,
+            "matched": false
+          }
+        ],
+        "source": "combat",
+        "matchId": null,
+        "createdAt": "3025-06-14T00:00:00.000Z",
+        "status": "parts-needed"
+      },
+      {
+        "ticketId": "ticket-42d99ca7-8f93-4d44-a8d9-ce85ba6e4184-player-1-hunchback-hbk-4g-armor-left_torso",
+        "unitId": "player-1-hunchback-hbk-4g",
+        "kind": "armor",
+        "location": "left_torso",
+        "pointsToRestore": 5,
+        "expectedHours": 0.5,
+        "partsRequired": [
+          {
+            "partId": "standard-armor-pt",
+            "quantity": 5,
+            "matched": false
+          }
+        ],
+        "source": "combat",
+        "matchId": null,
+        "createdAt": "3025-06-14T00:00:00.000Z",
+        "status": "parts-needed"
+      },
+      {
+        "ticketId": "ticket-42d99ca7-8f93-4d44-a8d9-ce85ba6e4184-player-1-hunchback-hbk-4g-armor-right_torso",
+        "unitId": "player-1-hunchback-hbk-4g",
+        "kind": "armor",
+        "location": "right_torso",
+        "pointsToRestore": 10,
+        "expectedHours": 1,
+        "partsRequired": [
+          {
+            "partId": "standard-armor-pt",
+            "quantity": 10,
+            "matched": false
+          }
+        ],
+        "source": "combat",
+        "matchId": null,
+        "createdAt": "3025-06-14T00:00:00.000Z",
+        "status": "parts-needed"
+      },
+      {
+        "ticketId": "ticket-42d99ca7-8f93-4d44-a8d9-ce85ba6e4184-player-1-hunchback-hbk-4g-structure-right_torso",
+        "unitId": "player-1-hunchback-hbk-4g",
+        "kind": "structure",
+        "location": "right_torso",
+        "pointsToRestore": 8,
+        "expectedHours": 4,
+        "partsRequired": [
+          {
+            "partId": "internal-structure-right_torso",
+            "quantity": 8,
+            "matched": false
+          }
+        ],
+        "source": "combat",
+        "matchId": null,
+        "createdAt": "3025-06-14T00:00:00.000Z",
+        "status": "parts-needed"
+      }
+    ],
+    "salvageAllocations": {
+      "d6b82afe-67e9-4c9b-99d4-a74e5c127628": {
+        "pool": {
+          "battleId": "d6b82afe-67e9-4c9b-99d4-a74e5c127628",
+          "contractId": "fast-forward-fixture-contract",
+          "candidates": [],
+          "totalEstimatedValue": 0,
+          "hostileTerritory": false
+        },
+        "employerAward": {
+          "side": "employer",
+          "candidates": [],
+          "totalValue": 0,
+          "estimatedRepairCost": 0
+        },
+        "mercenaryAward": {
+          "side": "mercenary",
+          "candidates": [],
+          "totalValue": 0,
+          "estimatedRepairCost": 0
+        },
+        "splitMethod": "contract",
+        "processed": true
+      },
+      "9b4beb9c-362f-4104-ac41-0c64a56f23ce": {
+        "pool": {
+          "battleId": "9b4beb9c-362f-4104-ac41-0c64a56f23ce",
+          "contractId": "fast-forward-fixture-contract",
+          "candidates": [],
+          "totalEstimatedValue": 0,
+          "hostileTerritory": false
+        },
+        "employerAward": {
+          "side": "employer",
+          "candidates": [],
+          "totalValue": 0,
+          "estimatedRepairCost": 0
+        },
+        "mercenaryAward": {
+          "side": "mercenary",
+          "candidates": [],
+          "totalValue": 0,
+          "estimatedRepairCost": 0
+        },
+        "splitMethod": "contract",
+        "processed": true
+      },
+      "7a6e573e-48c4-462f-b5ff-fc1032a233f8": {
+        "pool": {
+          "battleId": "7a6e573e-48c4-462f-b5ff-fc1032a233f8",
+          "contractId": "fast-forward-fixture-contract",
+          "candidates": [
+            {
+              "source": "unit",
+              "unitId": "opponent-1-locust-lct-1v",
+              "designation": "Unknown Mech",
+              "destroyedFromBattle": "7a6e573e-48c4-462f-b5ff-fc1032a233f8",
+              "finalStatus": "destroyed",
+              "damageLevel": "destroyed",
+              "originalValue": 2500000,
+              "recoveredValue": 0,
+              "recoveryPercentage": 0,
+              "repairCostEstimate": 0,
+              "disposition": "mercenary",
+              "status": "pending"
+            }
+          ],
+          "totalEstimatedValue": 0,
+          "hostileTerritory": false
+        },
+        "employerAward": {
+          "side": "employer",
+          "candidates": [
+            {
+              "source": "unit",
+              "unitId": "opponent-1-locust-lct-1v",
+              "designation": "Unknown Mech",
+              "destroyedFromBattle": "7a6e573e-48c4-462f-b5ff-fc1032a233f8",
+              "finalStatus": "destroyed",
+              "damageLevel": "destroyed",
+              "originalValue": 2500000,
+              "recoveredValue": 0,
+              "recoveryPercentage": 0,
+              "repairCostEstimate": 0,
+              "disposition": "employer",
+              "status": "awarded"
+            }
+          ],
+          "totalValue": 0,
+          "estimatedRepairCost": 0
+        },
+        "mercenaryAward": {
+          "side": "mercenary",
+          "candidates": [],
+          "totalValue": 0,
+          "estimatedRepairCost": 0
+        },
+        "splitMethod": "contract",
+        "processed": true
+      },
+      "00a550ff-cfd0-489d-8b37-b910e0ce85cb": {
+        "pool": {
+          "battleId": "00a550ff-cfd0-489d-8b37-b910e0ce85cb",
+          "contractId": "fast-forward-fixture-contract",
+          "candidates": [
+            {
+              "source": "unit",
+              "unitId": "opponent-1-marauder-mad-3r",
+              "designation": "Unknown Mech",
+              "destroyedFromBattle": "00a550ff-cfd0-489d-8b37-b910e0ce85cb",
+              "finalStatus": "destroyed",
+              "damageLevel": "destroyed",
+              "originalValue": 2500000,
+              "recoveredValue": 0,
+              "recoveryPercentage": 0,
+              "repairCostEstimate": 0,
+              "disposition": "mercenary",
+              "status": "pending"
+            }
+          ],
+          "totalEstimatedValue": 0,
+          "hostileTerritory": false
+        },
+        "employerAward": {
+          "side": "employer",
+          "candidates": [
+            {
+              "source": "unit",
+              "unitId": "opponent-1-marauder-mad-3r",
+              "designation": "Unknown Mech",
+              "destroyedFromBattle": "00a550ff-cfd0-489d-8b37-b910e0ce85cb",
+              "finalStatus": "destroyed",
+              "damageLevel": "destroyed",
+              "originalValue": 2500000,
+              "recoveredValue": 0,
+              "recoveryPercentage": 0,
+              "repairCostEstimate": 0,
+              "disposition": "employer",
+              "status": "awarded"
+            }
+          ],
+          "totalValue": 0,
+          "estimatedRepairCost": 0
+        },
+        "mercenaryAward": {
+          "side": "mercenary",
+          "candidates": [],
+          "totalValue": 0,
+          "estimatedRepairCost": 0
+        },
+        "splitMethod": "contract",
+        "processed": true
+      },
+      "42d99ca7-8f93-4d44-a8d9-ce85ba6e4184": {
+        "pool": {
+          "battleId": "42d99ca7-8f93-4d44-a8d9-ce85ba6e4184",
+          "contractId": "fast-forward-fixture-contract",
+          "candidates": [],
+          "totalEstimatedValue": 0,
+          "hostileTerritory": false
+        },
+        "employerAward": {
+          "side": "employer",
+          "candidates": [],
+          "totalValue": 0,
+          "estimatedRepairCost": 0
+        },
+        "mercenaryAward": {
+          "side": "mercenary",
+          "candidates": [],
+          "totalValue": 0,
+          "estimatedRepairCost": 0
+        },
+        "splitMethod": "contract",
+        "processed": true
+      }
+    },
+    "salvageReports": {
+      "d6b82afe-67e9-4c9b-99d4-a74e5c127628": {
+        "matchId": "d6b82afe-67e9-4c9b-99d4-a74e5c127628",
+        "contractId": "fast-forward-fixture-contract",
+        "candidates": [],
+        "totalValueEmployer": 0,
+        "totalValueMercenary": 0,
+        "hostileTerritoryPenalty": 1,
+        "auctionRequired": false
+      },
+      "9b4beb9c-362f-4104-ac41-0c64a56f23ce": {
+        "matchId": "9b4beb9c-362f-4104-ac41-0c64a56f23ce",
+        "contractId": "fast-forward-fixture-contract",
+        "candidates": [],
+        "totalValueEmployer": 0,
+        "totalValueMercenary": 0,
+        "hostileTerritoryPenalty": 1,
+        "auctionRequired": false
+      },
+      "7a6e573e-48c4-462f-b5ff-fc1032a233f8": {
+        "matchId": "7a6e573e-48c4-462f-b5ff-fc1032a233f8",
+        "contractId": "fast-forward-fixture-contract",
+        "candidates": [
+          {
+            "source": "unit",
+            "unitId": "opponent-1-locust-lct-1v",
+            "designation": "Unknown Mech",
+            "destroyedFromBattle": "7a6e573e-48c4-462f-b5ff-fc1032a233f8",
+            "finalStatus": "destroyed",
+            "damageLevel": "destroyed",
+            "originalValue": 2500000,
+            "recoveredValue": 0,
+            "recoveryPercentage": 0,
+            "repairCostEstimate": 0,
+            "disposition": "employer",
+            "status": "awarded"
+          }
+        ],
+        "totalValueEmployer": 0,
+        "totalValueMercenary": 0,
+        "hostileTerritoryPenalty": 1,
+        "auctionRequired": false
+      },
+      "00a550ff-cfd0-489d-8b37-b910e0ce85cb": {
+        "matchId": "00a550ff-cfd0-489d-8b37-b910e0ce85cb",
+        "contractId": "fast-forward-fixture-contract",
+        "candidates": [
+          {
+            "source": "unit",
+            "unitId": "opponent-1-marauder-mad-3r",
+            "designation": "Unknown Mech",
+            "destroyedFromBattle": "00a550ff-cfd0-489d-8b37-b910e0ce85cb",
+            "finalStatus": "destroyed",
+            "damageLevel": "destroyed",
+            "originalValue": 2500000,
+            "recoveredValue": 0,
+            "recoveryPercentage": 0,
+            "repairCostEstimate": 0,
+            "disposition": "employer",
+            "status": "awarded"
+          }
+        ],
+        "totalValueEmployer": 0,
+        "totalValueMercenary": 0,
+        "hostileTerritoryPenalty": 1,
+        "auctionRequired": false
+      },
+      "42d99ca7-8f93-4d44-a8d9-ce85ba6e4184": {
+        "matchId": "42d99ca7-8f93-4d44-a8d9-ce85ba6e4184",
+        "contractId": "fast-forward-fixture-contract",
+        "candidates": [],
+        "totalValueEmployer": 0,
+        "totalValueMercenary": 0,
+        "hostileTerritoryPenalty": 1,
+        "auctionRequired": false
+      }
+    },
+    "pendingBattleOutcomes": [],
+    "processedBattleIds": [
+      "d6b82afe-67e9-4c9b-99d4-a74e5c127628",
+      "9b4beb9c-362f-4104-ac41-0c64a56f23ce",
+      "7a6e573e-48c4-462f-b5ff-fc1032a233f8",
+      "00a550ff-cfd0-489d-8b37-b910e0ce85cb",
+      "42d99ca7-8f93-4d44-a8d9-ce85ba6e4184"
+    ],
+    "recentlyAppliedOutcomes": [],
+    "dailyBattleAudit": [
+      {
+        "date": "3025-06-14",
+        "matchesProcessed": 5,
+        "matches": [],
+        "totalXpAwarded": 10,
+        "pilotsWounded": 1,
+        "pilotsKia": 0,
+        "pilotsMia": 0,
+        "salvageValueSecured": 0,
+        "repairTicketsCreated": 6,
+        "contractsClosed": ["fast-forward-fixture-contract"]
+      }
+    ],
+    "loans": [],
+    "rngSeed": 1592594996,
+    "combatTeams": [
+      {
+        "forceId": "ff-team-force-1",
+        "role": "patrol",
+        "battleChance": 60
+      },
+      {
+        "forceId": "ff-team-force-2",
+        "role": "patrol",
+        "battleChance": 60
+      },
+      {
+        "forceId": "ff-team-force-3",
+        "role": "patrol",
+        "battleChance": 60
+      },
+      {
+        "forceId": "ff-team-force-4",
+        "role": "patrol",
+        "battleChance": 60
+      },
+      {
+        "forceId": "ff-team-force-5",
+        "role": "patrol",
+        "battleChance": 60
+      },
+      {
+        "forceId": "ff-team-force-6",
+        "role": "patrol",
+        "battleChance": 60
+      },
+      {
+        "forceId": "ff-team-force-7",
+        "role": "patrol",
+        "battleChance": 60
+      },
+      {
+        "forceId": "ff-team-force-8",
+        "role": "patrol",
+        "battleChance": 60
+      }
+    ],
+    "unitPrestige": [
+      {
+        "unitId": "player-1-atlas-as7-d",
+        "score": 45,
+        "history": [
+          {
+            "matchId": "d6b82afe-67e9-4c9b-99d4-a74e5c127628",
+            "delta": -17,
+            "scoreAfter": 33,
+            "reason": "Defeat, destroyed",
+            "appliedAt": "2026-07-11T09:52:42.851Z"
+          },
+          {
+            "matchId": "00a550ff-cfd0-489d-8b37-b910e0ce85cb",
+            "delta": 12,
+            "scoreAfter": 45,
+            "reason": "Victory, survived intact",
+            "appliedAt": "2026-07-11T09:52:42.853Z"
+          }
+        ]
+      },
+      {
+        "unitId": "opponent-1-marauder-mad-3r",
+        "score": 45,
+        "history": [
+          {
+            "matchId": "d6b82afe-67e9-4c9b-99d4-a74e5c127628",
+            "delta": 12,
+            "scoreAfter": 62,
+            "reason": "Victory, survived intact",
+            "appliedAt": "2026-07-11T09:52:42.851Z"
+          },
+          {
+            "matchId": "00a550ff-cfd0-489d-8b37-b910e0ce85cb",
+            "delta": -17,
+            "scoreAfter": 45,
+            "reason": "Defeat, destroyed",
+            "appliedAt": "2026-07-11T09:52:42.853Z"
+          }
+        ]
+      },
+      {
+        "unitId": "player-1-marauder-mad-3r",
+        "score": 33,
+        "history": [
+          {
+            "matchId": "9b4beb9c-362f-4104-ac41-0c64a56f23ce",
+            "delta": -17,
+            "scoreAfter": 33,
+            "reason": "Defeat, destroyed",
+            "appliedAt": "2026-07-11T09:52:42.853Z"
+          }
+        ]
+      },
+      {
+        "unitId": "opponent-1-atlas-as7-d",
+        "score": 62,
+        "history": [
+          {
+            "matchId": "9b4beb9c-362f-4104-ac41-0c64a56f23ce",
+            "delta": 12,
+            "scoreAfter": 62,
+            "reason": "Victory, survived intact",
+            "appliedAt": "2026-07-11T09:52:42.853Z"
+          }
+        ]
+      },
+      {
+        "unitId": "player-1-hunchback-hbk-4g",
+        "score": 61,
+        "history": [
+          {
+            "matchId": "7a6e573e-48c4-462f-b5ff-fc1032a233f8",
+            "delta": 12,
+            "scoreAfter": 62,
+            "reason": "Victory, survived intact",
+            "appliedAt": "2026-07-11T09:52:42.853Z"
+          },
+          {
+            "matchId": "42d99ca7-8f93-4d44-a8d9-ce85ba6e4184",
+            "delta": -1,
+            "scoreAfter": 61,
+            "reason": "Defeat, survived intact",
+            "appliedAt": "2026-07-11T09:52:42.853Z"
+          }
+        ]
+      },
+      {
+        "unitId": "opponent-1-locust-lct-1v",
+        "score": 45,
+        "history": [
+          {
+            "matchId": "7a6e573e-48c4-462f-b5ff-fc1032a233f8",
+            "delta": -17,
+            "scoreAfter": 33,
+            "reason": "Defeat, destroyed",
+            "appliedAt": "2026-07-11T09:52:42.853Z"
+          },
+          {
+            "matchId": "42d99ca7-8f93-4d44-a8d9-ce85ba6e4184",
+            "delta": 12,
+            "scoreAfter": 45,
+            "reason": "Victory, survived intact",
+            "appliedAt": "2026-07-11T09:52:42.853Z"
+          }
+        ]
+      }
+    ],
+    "moraleState": "elite",
+    "moraleTransitions": [
+      {
+        "from": "steady",
+        "to": "high",
+        "direction": "up",
+        "reason": "Morale rose: pay met",
+        "occurredAt": "3025-06-13T00:00:00.000Z"
+      },
+      {
+        "from": "high",
+        "to": "elite",
+        "direction": "up",
+        "reason": "Morale rose: pay met",
+        "occurredAt": "3025-06-14T00:00:00.000Z"
+      }
+    ]
+  }
+}
