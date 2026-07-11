@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import sharp from 'sharp';
+
+import { expectNonBlankRender } from './helpers/layout';
 
 const ECM_NULLIFIED_TAG_INDIRECT_FIRE_BLOCKED_REASON =
   'TAG designation is nullified by ECM; semi-guided indirect fire is unavailable';
@@ -182,78 +183,6 @@ async function tapLocatorWithTouchscreen(
   if (!box) return;
 
   await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
-}
-
-async function expectNonBlankRender(page: Page, label: string): Promise<void> {
-  let lastMetrics:
-    | {
-        readonly quantizedColorCount: number;
-        readonly contrastedPixels: number;
-      }
-    | undefined;
-  let lastError: unknown;
-
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    const locator = page.getByTestId('hex-map-container');
-
-    try {
-      await expect(locator).toBeVisible();
-      const screenshot = await locator.screenshot({ animations: 'disabled' });
-      lastMetrics = await measureRenderedContrast(screenshot);
-      if (
-        lastMetrics.quantizedColorCount > 8 &&
-        lastMetrics.contrastedPixels > 150
-      ) {
-        return;
-      }
-    } catch (error) {
-      lastError = error;
-    }
-    await page.waitForTimeout(100);
-  }
-
-  if (!lastMetrics) throw lastError;
-
-  expect(
-    lastMetrics.quantizedColorCount,
-    `${label} should render more than a flat color`,
-  ).toBeGreaterThan(8);
-  expect(
-    lastMetrics.contrastedPixels,
-    `${label} should contain visible terrain/token/overlay contrast`,
-  ).toBeGreaterThan(150);
-}
-
-async function measureRenderedContrast(screenshot: Buffer): Promise<{
-  readonly quantizedColorCount: number;
-  readonly contrastedPixels: number;
-}> {
-  const { data } = await sharp(screenshot)
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-
-  const quantizedColors = new Set<string>();
-  let contrastedPixels = 0;
-
-  for (let offset = 0; offset < data.length; offset += 4 * 8) {
-    const alpha = data[offset + 3];
-    if (alpha < 16) continue;
-
-    const red = data[offset];
-    const green = data[offset + 1];
-    const blue = data[offset + 2];
-    quantizedColors.add(`${red >> 4},${green >> 4},${blue >> 4}`);
-
-    if (Math.max(red, green, blue) - Math.min(red, green, blue) > 32) {
-      contrastedPixels += 1;
-    }
-  }
-
-  return {
-    quantizedColorCount: quantizedColors.size,
-    contrastedPixels,
-  };
 }
 
 test.describe('Tactical map visual smoke @smoke @game', () => {
@@ -878,7 +807,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(
       page.getByTestId('hex-combat-invalid-badge--1-2'),
     ).toHaveAttribute('data-invalid-badge-code', 'TargetNotVisible');
-    await expectNonBlankRender(page, 'top-down tactical map');
+    await expectNonBlankRender(
+      page.getByTestId('hex-map-container'),
+      'top-down tactical map',
+    );
 
     await switchToIsometric(page, projectionLayer);
     await expect(projectionToggle).toHaveAttribute(
@@ -1026,7 +958,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     expect(eastFaceDepth).toBeLessThan(eastTopDepth);
     expect(eastFaceDepth).toBeGreaterThan(eastTopDepth - 10);
 
-    await expectNonBlankRender(page, 'isometric tactical map');
+    await expectNonBlankRender(
+      page.getByTestId('hex-map-container'),
+      'isometric tactical map',
+    );
     const rotateRight = page.getByTestId('projection-rotate-right');
     await expect(rotateRight).toHaveAttribute(
       'data-isometric-camera-source',
@@ -1181,13 +1116,16 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     const initialViewBox = await hexGrid.getAttribute('viewBox');
     await dragMouseOnLocator(hexGrid, 80, -60);
     await expect(hexGrid).not.toHaveAttribute('viewBox', initialViewBox ?? '');
-    await expectNonBlankRender(page, 'large top-down tactical map after pan');
+    await expectNonBlankRender(
+      page.getByTestId('hex-map-container'),
+      'large top-down tactical map after pan',
+    );
 
     await page.getByTestId('zoom-out-btn').click();
     await page.getByTestId('zoom-out-btn').click();
     await expect(page.getByTestId('hex-elevation-label-1-0')).toHaveCount(0);
     await expectNonBlankRender(
-      page,
+      page.getByTestId('hex-map-container'),
       'large top-down tactical map below badge readability zoom',
     );
 
@@ -1196,7 +1134,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     await expect(page.getByTestId('hex-elevation-label-1-0')).toContainText(
       '+4',
     );
-    await expectNonBlankRender(page, 'large top-down tactical map after zoom');
+    await expectNonBlankRender(
+      page.getByTestId('hex-map-container'),
+      'large top-down tactical map after zoom',
+    );
   });
 
   test('renders every isometric occluder layer that may hide one unit in browser', async ({
@@ -1373,7 +1314,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       await expect(
         page.getByTestId('hex-isometric-occluder-highlight--1-0'),
       ).toHaveAttribute('data-isometric-occludes-units', 'occluded');
-      await expectNonBlankRender(page, 'mobile isometric interaction smoke');
+      await expectNonBlankRender(
+        page.getByTestId('hex-map-container'),
+        'mobile isometric interaction smoke',
+      );
     });
   });
 
@@ -1437,7 +1381,10 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
       page.getByTestId('isometric-extrusion-face-1-0-southeast'),
     ).toHaveAttribute('data-isometric-extrusion-height', '72');
 
-    await expectNonBlankRender(page, 'capped isometric elevation stack');
+    await expectNonBlankRender(
+      page.getByTestId('hex-map-container'),
+      'capped isometric elevation stack',
+    );
   });
 
   test('shows elevation LOS blockers as attack rejection evidence in browser', async ({

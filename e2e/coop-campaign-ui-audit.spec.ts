@@ -23,6 +23,8 @@ import {
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { expectClickable, expectNoHorizontalOverflow } from './helpers/layout';
+
 const RUN_ID_HEADER = 'x-playwright-e2e-run-id';
 const HOST_PASSWORD = 'HostPassword123!';
 const GUEST_PASSWORD = 'GuestPassword123!';
@@ -210,69 +212,6 @@ function attachErrorCapture(page: Page): IErrorCapture {
           ),
       ),
   };
-}
-
-async function expectNoHorizontalOverflow(
-  page: Page,
-  label: string,
-): Promise<void> {
-  const overflow = await page.evaluate(() => {
-    const root = document.documentElement;
-    const body = document.body;
-    const width = window.innerWidth;
-    const offenders = Array.from(document.querySelectorAll('body *'))
-      .map((element) => {
-        const rect = element.getBoundingClientRect();
-        if (rect.width === 0 || rect.height === 0) return null;
-        const style = window.getComputedStyle(element);
-        if (
-          style.position === 'fixed' &&
-          rect.left <= 0 &&
-          rect.right >= width
-        ) {
-          return null;
-        }
-        if (rect.left < -1 || rect.right > width + 1) {
-          return {
-            tag: element.tagName.toLowerCase(),
-            testId: element.getAttribute('data-testid'),
-            className: element.getAttribute('class'),
-            left: Math.round(rect.left),
-            right: Math.round(rect.right),
-            width: Math.round(rect.width),
-          };
-        }
-        return null;
-      })
-      .filter(Boolean)
-      .slice(0, 8);
-    return {
-      width,
-      rootScrollWidth: root.scrollWidth,
-      bodyScrollWidth: body.scrollWidth,
-      offenders,
-    };
-  });
-  const maxScrollWidth = Math.max(
-    overflow.rootScrollWidth,
-    overflow.bodyScrollWidth,
-  );
-  expect(
-    maxScrollWidth,
-    `${label} has horizontal overflow: ${JSON.stringify(overflow.offenders)}`,
-  ).toBeLessThanOrEqual(overflow.width + 1);
-}
-
-async function expectClickable(locator: Locator, label: string): Promise<void> {
-  await expect(locator, `${label} visible`).toBeVisible({ timeout: 20_000 });
-  await expect(locator, `${label} enabled`).toBeEnabled({ timeout: 20_000 });
-  await expect(locator, `${label} in viewport`).toBeInViewport({
-    timeout: 20_000,
-  });
-  const box = await locator.boundingBox();
-  expect(box, `${label} has layout box`).not.toBeNull();
-  expect(box?.width ?? 0, `${label} width`).toBeGreaterThanOrEqual(32);
-  expect(box?.height ?? 0, `${label} height`).toBeGreaterThanOrEqual(32);
 }
 
 async function captureSurface({
