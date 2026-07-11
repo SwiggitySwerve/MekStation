@@ -56,8 +56,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import {
+  MATCH_LOG_DB_NAME,
+  MATCH_LOG_DB_VERSION,
+  MATCH_LOG_STORES,
+} from '../src/lib/p2p/matchLogStorageSchema';
+import {
   campaignPackSchema,
+  encounterPackSchema,
   type CampaignPackPayload,
+  type EncounterPackPayload,
 } from '../src/lib/scenarioPacks/packSchemas';
 import { canonicalizePackPayload } from '../src/lib/scenarioPacks/packStamping';
 import {
@@ -67,6 +74,12 @@ import {
   type CampaignFlowRecorder,
 } from './helpers/campaignFlow';
 import { seedHiringHall } from './helpers/campaignSeeders';
+import {
+  createUniqueSeamCampaignWithMirroredRoster,
+  launchSelectedRosterToPreBattle,
+  openSeamMissionLaunchBriefing,
+  selectAllRosterUnits,
+} from './helpers/seamCampaign';
 import { assertNoMekStationLoading } from './helpers/wait';
 
 // =============================================================================
@@ -328,10 +341,400 @@ async function mintExperiencePilot(page: Page): Promise<void> {
   });
 }
 
+// =============================================================================
+// capture-matchlog minter mode (task 4.2, W2-gated) — combat-midbattle
+// =============================================================================
+
+/**
+ * Initiative, Movement, WeaponAttack, PhysicalAttack, Heat, End
+ * (`GamePhase` order) — one full cycle == one round. Mirrors
+ * `e2e/seam-fresh-construction-no-instant-defeat.spec.ts`'s own
+ * `PHASES_PER_ROUND` constant (kept local here rather than imported —
+ * spec files are never imported from, matching this file's existing
+ * `saveCampaignToServer` duplication rationale above).
+ */
+const PHASES_PER_ROUND = 6;
+
+/**
+ * One full round plus two phases into round 2 — solidly "mid-battle,
+ * post-Initiative" (task 4.2) without the anchor spec's own 3-round
+ * no-instant-defeat drive (this minter only needs ONE representative
+ * mid-battle snapshot, not a stability proof).
+ */
+const ADVANCES_TO_MID_BATTLE = PHASES_PER_ROUND + 2;
+
+/** Fixed seed mirroring the fresh-construction anchor's own fixture (`SEED = 1337`) — not load-bearing for the pack contract (design D7: matchlog packs assert seed-agnostic invariants only), just grounds the mint in the anchor's own recipe. */
+const COMBAT_MIDBATTLE_SEED = 1337;
+
+interface MintUnitGameState {
+  readonly side?: string;
+  readonly destroyed?: boolean;
+}
+interface MintGameSession {
+  readonly currentState?: {
+    readonly units?: Record<string, MintUnitGameState>;
+  };
+}
+interface MintInteractiveSession {
+  readonly advancePhase: () => void;
+  readonly getSession: () => MintGameSession;
+}
+interface MintGameplayState {
+  readonly interactiveSession?: MintInteractiveSession | null;
+}
+interface MintZustandStores {
+  readonly gameplay?: {
+    readonly getState: () => MintGameplayState;
+    readonly setState?: (partial: { session?: MintGameSession }) => void;
+  };
+}
+
+/**
+ * Advances the just-launched production `InteractiveSession` by exactly
+ * one phase, syncing the store's `session` snapshot so both the DOM and
+ * subsequent reads observe the new state. Mirrors
+ * `seam-fresh-construction-no-instant-defeat.spec.ts`'s
+ * `advanceInteractiveSessionPhaseOnce` — duplicated locally (spec files
+ * are never imported from) rather than exported from that anchor file.
+ */
+async function advanceMintedInteractiveSessionPhaseOnce(
+  page: Page,
+): Promise<void> {
+  await page.evaluate(() => {
+    const stores = (
+      window as unknown as { __ZUSTAND_STORES__?: MintZustandStores }
+    ).__ZUSTAND_STORES__;
+    const gameplay = stores?.gameplay;
+    const interactiveSession = gameplay?.getState().interactiveSession;
+    if (!gameplay || !interactiveSession) {
+      throw new Error('Interactive session not available on gameplay store');
+    }
+    interactiveSession.advancePhase();
+    gameplay.setState?.({ session: interactiveSession.getSession() });
+  });
+}
+
+/** Distinct per-instance unit identities under a `data-testid` prefix, counted by DISTINCT id suffix (mirrors the anchor's own `countDistinctTestIdSuffixes`). */
+async function countMintedDistinctTestIdSuffixes(
+  page: Page,
+  prefix: string,
+): Promise<number> {
+  const testIds = await page
+    .locator(`[data-testid^="${prefix}"]`)
+    .evaluateAll((elements) =>
+      elements.map((element) => element.getAttribute('data-testid') ?? ''),
+    );
+  const suffixes = new Set(
+    testIds
+      .filter((testId) => testId.startsWith(prefix))
+      .map((testId) => testId.slice(prefix.length)),
+  );
+  return suffixes.size;
+}
+
+function matchIdFromGameUrl(page: Page): string {
+  const match = page.url().match(/\/gameplay\/games\/([^/?#]+)/);
+  if (!match) {
+    throw new Error(
+      `mint-scenario-pack: could not read match id from ${page.url()}`,
+    );
+  }
+  return decodeURIComponent(match[1]);
+}
+
+/**
+ * Backfills, then captures, the REAL IndexedDB `mekstation-match-log`
+ * event stream (BOTH stores — `matchEvents` + `matches`) for `matchId`.
+ *
+ * **The backfill (verified, load-bearing):** a bare
+ * `InteractiveSession.advancePhase()` call — the exact drive this
+ * minter's `advanceMintedInteractiveSessionPhaseOnce` and the anchor
+ * spec's own `advanceInteractiveSessionPhaseOnce` both use — mutates the
+ * LIVE in-memory session (`context.setSession`,
+ * `InteractiveSession.ts`'s `createRuntimeContext`) but does NOT call
+ * `appendAndPersistInteractiveSessionEvent`
+ * (`InteractiveSession.sessionEvents.ts`) for the events it generates
+ * (`InitiativeRolled`/`PhaseChanged`/etc.) — only discrete commands that
+ * explicitly route through that helper (AI-turn actions via
+ * `runInteractiveSessionAI`, `ejectInteractiveSessionUnit`, the public
+ * `appendEvent` method) persist incrementally. `usePreBattleLaunch.ts`'s
+ * `persistInteractiveLaunchRecoveryLog` persists only the initial
+ * `GameCreated`/`GameStarted` pair at launch. Confirmed by the jest
+ * fixtures that drive phase advances + declared actions and then
+ * EXPLICITLY persist the full `session.events` array afterward
+ * (`useGameplayStore.recover.test.ts`'s `persistSessionLog`,
+ * `fixBattlePhaseProgression.phaseAdvance.test.tsx`'s
+ * `persistSessionLog`) — the SAME pattern this function follows, just
+ * inside the browser realm via a raw IndexedDB `put` (the shared
+ * `matchLogStorage` service is not exposed on
+ * `window.__ZUSTAND_STORES__`, so this minter — NOT the loader —
+ * re-creates its write shape directly, matching
+ * `e2e/helpers/matchLogSeeding.ts`'s `seedMatchLog` transaction
+ * structure). Without this backfill, the capture would carry only the 2
+ * launch-time events regardless of how many phases were advanced — never
+ * "mid-battle, post-Initiative" (task 4.2).
+ *
+ * The write and the read happen inside ONE `readwrite` transaction so the
+ * cursor read observes the just-written events (IndexedDB serializes
+ * requests on a transaction in request order — read-your-writes within a
+ * single transaction).
+ *
+ * `loadEncounterPack` itself contains no `indexedDB.open` of its own
+ * (task 4.1's acceptance) — this function is minter tooling, not that
+ * file.
+ *
+ * The `matches` row's own `matchId` field is deliberately dropped from
+ * the returned `matchesRow` (kept ONLY as the top-level `matchId` the
+ * encounter pack schema expects) — leaving it in would plant an
+ * un-remapped occurrence of the original id inside `matchesRow`, which
+ * `packStamping.ts`'s zero-residue scan (design D4.3) would then
+ * correctly trip at LOAD time (the stamper only remaps `matchId` +
+ * every event's `gameId`, never `matchesRow` fields).
+ */
+async function backfillAndCaptureMatchLogFromIndexedDb(
+  page: Page,
+  matchId: string,
+): Promise<{
+  events: readonly Record<string, unknown>[];
+  matchesRow?: Record<string, unknown>;
+}> {
+  const result = await page.evaluate(
+    async ({
+      dbName,
+      dbVersion,
+      eventStoreName,
+      matchStoreName,
+      matchId: id,
+    }) => {
+      function requestToPromise<T>(request: IDBRequest<T>): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+      }
+      function transactionToPromise(
+        transaction: IDBTransaction,
+      ): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+          transaction.oncomplete = () => resolve();
+          transaction.onerror = () => reject(transaction.error);
+          transaction.onabort = () => reject(transaction.error);
+        });
+      }
+
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            gameplay?: {
+              getState: () => {
+                interactiveSession?: {
+                  getSession: () => {
+                    events: readonly Record<string, unknown>[];
+                  };
+                } | null;
+              };
+            };
+          };
+        }
+      ).__ZUSTAND_STORES__;
+      const interactiveSession =
+        stores?.gameplay?.getState().interactiveSession;
+      if (!interactiveSession) {
+        throw new Error(
+          'backfillAndCaptureMatchLogFromIndexedDb: interactive session not available on gameplay store',
+        );
+      }
+      const liveEvents = interactiveSession.getSession().events;
+      const savedAt = new Date().toISOString();
+
+      const openRequest = indexedDB.open(dbName, dbVersion);
+      const db = await requestToPromise(openRequest);
+      const tx = db.transaction([eventStoreName, matchStoreName], 'readwrite');
+      const eventStore = tx.objectStore(eventStoreName);
+      const matchStore = tx.objectStore(matchStoreName);
+
+      // The backfill — see this function's header comment.
+      for (const event of liveEvents) {
+        eventStore.put({
+          matchId: id,
+          sequence: (event as { sequence: number }).sequence,
+          event,
+          savedAt,
+        });
+      }
+
+      const events: Record<string, unknown>[] = [];
+      const range = IDBKeyRange.bound(
+        [id, Number.NEGATIVE_INFINITY],
+        [id, Number.POSITIVE_INFINITY],
+      );
+      await new Promise<void>((resolve, reject) => {
+        const cursorRequest = eventStore.openCursor(range);
+        cursorRequest.onsuccess = () => {
+          const cursor = cursorRequest.result;
+          if (!cursor) {
+            resolve();
+            return;
+          }
+          const record = cursor.value as { event: Record<string, unknown> };
+          events.push(record.event);
+          cursor.continue();
+        };
+        cursorRequest.onerror = () => reject(cursorRequest.error);
+      });
+
+      const matchRow = (await requestToPromise(matchStore.get(id))) as
+        | Record<string, unknown>
+        | undefined;
+
+      await transactionToPromise(tx);
+      db.close();
+
+      return { events, matchRow: matchRow ?? null };
+    },
+    {
+      dbName: MATCH_LOG_DB_NAME,
+      dbVersion: MATCH_LOG_DB_VERSION,
+      eventStoreName: MATCH_LOG_STORES.MATCH_EVENTS,
+      matchStoreName: MATCH_LOG_STORES.MATCHES,
+      matchId,
+    },
+  );
+
+  if (!result.matchRow) {
+    return { events: result.events };
+  }
+  // Drop `matchId` — see this function's header comment.
+  const { matchId: _capturedMatchId, ...matchesRow } = result.matchRow;
+  return { events: result.events, matchesRow };
+}
+
+/**
+ * Captures + validates + canonicalizes + writes an encounter (matchlog)
+ * pack — the encounter-side twin of `captureCanonicalizeAndWrite` above.
+ * Fail-loud on the RAW capture before canonicalizing (a malformed capture
+ * must never silently become a malformed committed pack), then
+ * round-trip-validates the canonicalized output (task 4.2 acceptance:
+ * "the capture is canonicalized... a re-capture run passes the matchlog
+ * schema + pin").
+ */
+async function captureMatchlogCanonicalizeAndWrite(
+  page: Page,
+  matchId: string,
+  packId: string,
+  genesisSource: string,
+): Promise<void> {
+  const { events, matchesRow } = await backfillAndCaptureMatchLogFromIndexedDb(
+    page,
+    matchId,
+  );
+  const raw: unknown = {
+    matchId,
+    events,
+    ...(matchesRow ? { matchesRow } : {}),
+  };
+  const captured: EncounterPackPayload = encounterPackSchema.parse(raw);
+
+  const { payload: canonicalized } = canonicalizePackPayload(captured, {
+    packId,
+  });
+
+  // Round-trip validation (task 4.2 acceptance).
+  encounterPackSchema.parse(canonicalized);
+
+  const payloadDir = path.join(REPO_ROOT, 'e2e', 'scenario-packs', 'encounter');
+  fs.mkdirSync(payloadDir, { recursive: true });
+  const payloadPath = path.join(payloadDir, `${packId}.matchlog.json`);
+  fs.writeFileSync(
+    payloadPath,
+    `${JSON.stringify(canonicalized, null, 2)}\n`,
+    'utf8',
+  );
+
+  const baseCommit = execSync('git rev-parse HEAD', { cwd: REPO_ROOT })
+    .toString()
+    .trim();
+  const provenance = {
+    genesisSource,
+    mintedAt: new Date().toISOString(),
+    baseCommit,
+  };
+  const provenancePath = path.join(payloadDir, `${packId}.provenance.json`);
+  fs.writeFileSync(
+    provenancePath,
+    `${JSON.stringify(provenance, null, 2)}\n`,
+    'utf8',
+  );
+
+  console.log(
+    `[mint-scenario-pack] wrote ${path.relative(REPO_ROOT, payloadPath)}`,
+  );
+  console.log(`[mint-scenario-pack] provenance: ${JSON.stringify(provenance)}`);
+}
+
+/**
+ * combat-midbattle: captured from the fresh-construction anchor's own
+ * recipe (`createUniqueSeamCampaignWithMirroredRoster` -> accept contract
+ * -> launch briefing -> select ALL -> launch to pre-battle -> seeded
+ * interactive launch), driven `ADVANCES_TO_MID_BATTLE` phases past
+ * Initiative, then captured live from IndexedDB (never synthesized).
+ */
+async function mintCombatMidbattle(page: Page): Promise<void> {
+  page.on('dialog', (dialog) => dialog.accept());
+
+  const campaign = await createUniqueSeamCampaignWithMirroredRoster(page, {
+    namePrefix: 'Mint combat-midbattle',
+  });
+  await openSeamMissionLaunchBriefing(page, campaign.campaignId);
+  const selectedUnitCount = await selectAllRosterUnits(page);
+  const launch = await launchSelectedRosterToPreBattle(page);
+
+  await page.goto(
+    `/gameplay/encounters/${encodeURIComponent(launch.encounterId)}/pre-battle?seed=${COMBAT_MIDBATTLE_SEED}`,
+    { waitUntil: 'domcontentloaded', timeout: 60_000 },
+  );
+  await expect(page.getByTestId('pre-battle-page')).toBeVisible({
+    timeout: 20_000,
+  });
+  await expect(page.getByTestId('play-manually-btn')).toBeEnabled({
+    timeout: 20_000,
+  });
+  await page.getByTestId('play-manually-btn').click();
+
+  await page.waitForURL(/\/gameplay\/games\/[^/?]+/, { timeout: 30_000 });
+  await expect(page.getByTestId('game-session')).toBeVisible({
+    timeout: 20_000,
+  });
+  await expect(page.getByTestId('tactical-turn-rail')).toBeVisible({
+    timeout: 20_000,
+  });
+
+  const expectedUnitIdentities = selectedUnitCount * 2;
+  await expect
+    .poll(() => countMintedDistinctTestIdSuffixes(page, 'unit-token-'), {
+      timeout: 20_000,
+      message: 'waiting for every unit token to mount on the battle map',
+    })
+    .toBe(expectedUnitIdentities);
+
+  for (let advance = 0; advance < ADVANCES_TO_MID_BATTLE; advance += 1) {
+    await advanceMintedInteractiveSessionPhaseOnce(page);
+  }
+
+  const matchId = matchIdFromGameUrl(page);
+  await captureMatchlogCanonicalizeAndWrite(
+    page,
+    matchId,
+    'combat-midbattle',
+    'anchor:seam-fresh-construction-no-instant-defeat',
+  );
+}
+
 const MINT_MODES: Record<string, (page: Page) => Promise<void>> = {
   'navigation-briefing': mintNavigationBriefing,
   'personnel-roster': mintPersonnelRoster,
   'experience-pilot': mintExperiencePilot,
+  'combat-midbattle': mintCombatMidbattle,
 };
 
 // =============================================================================

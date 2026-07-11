@@ -35,6 +35,11 @@ const KNOWN_PACK_IDS = [
   'navigation-briefing',
   'personnel-roster',
   'experience-pilot',
+  // W2-gated capture-matchlog mode (add-scenario-packs, task 4.2) — only
+  // added once the gate check (task 4.0) verifies the W2 implementation
+  // artifacts (`e2e/helpers/matchLogSeeding.ts`,
+  // `e2e/seam-fresh-construction-no-instant-defeat.spec.ts`) exist.
+  'combat-midbattle',
 ];
 
 if (isDirectRun) {

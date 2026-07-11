@@ -87,6 +87,28 @@ export const SCENARIO_PACK_MANIFEST: readonly ManifestEntry[] = [
     pins: { schemaVersion: 1 },
     postLoadActions: [],
   },
+  {
+    id: 'combat-midbattle',
+    kind: 'encounter',
+    subsystems: ['combat'],
+    viewports: [],
+    targetRoute: '/gameplay/games/{id}',
+    // `anchor:<spec-basename>` (design D2/D9) — the fresh-construction
+    // seam trust anchor whose launched-and-advanced session this pack is
+    // captured from (W2 gate, task 4.0).
+    parityAnchorJourney: 'anchor:seam-fresh-construction-no-instant-defeat',
+    payloadPath: 'encounter/combat-midbattle.matchlog.json',
+    provenance: {
+      genesisSource: 'anchor:seam-fresh-construction-no-instant-defeat',
+      mintedAt: '2026-07-11T09:09:51.924Z',
+      baseCommit: 'ff879cc86387fffd99a6965a7cabbe9ec801e0aa',
+    },
+    // `MATCH_LOG_DB_VERSION` (`matchLogStorageSchema.ts:4`) at mint time —
+    // strictly equal-checked by `loadEncounterPack` (design D3), never a
+    // ladder-tolerant pin (no migration ladder exists for this store).
+    pins: { matchLogDbVersion: 2 },
+    postLoadActions: [],
+  },
 ];
 
 /**

@@ -34,15 +34,23 @@ import {
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { MATCH_LOG_DB_VERSION } from '../../src/lib/p2p/matchLogStorageSchema';
 import {
   campaignPackSchema,
+  encounterPackSchema,
   type CampaignPackPayload,
+  type EncounterPackPayload,
 } from '../../src/lib/scenarioPacks/packSchemas';
 import { stampPackIds } from '../../src/lib/scenarioPacks/packStamping';
 import {
   getManifestEntry,
   type ScenarioPackManifestEntry,
 } from '../scenario-packs/manifest';
+import {
+  seedMatchLog,
+  type SeededGameEvent,
+  type SeededMatchesRowFields,
+} from './matchLogSeeding';
 import { getStoreState } from './store';
 
 /**
@@ -410,4 +418,185 @@ export async function loadCampaignPack(
   await runPostLoadActions(page, entry.postLoadActions, packId);
 
   return { campaignId: ids.campaignId, ...(pilotId ? { pilotId } : {}) };
+}
+
+// =============================================================================
+// loadEncounterPack (task 4.1)
+// =============================================================================
+
+/**
+ * Reads and zod-parses an encounter pack payload off disk. Enforces the
+ * `GameCreated`-first + finite-seed rule (`encounterPackSchema`'s own
+ * `superRefine`, task 1.3/2.1) and throws naming the offending path on any
+ * violation — never a soft skip, and always before any IndexedDB write
+ * (spec: "An unseeded or misordered match log is rejected").
+ */
+function readEncounterPackPayload(
+  entry: ScenarioPackManifestEntry,
+): EncounterPackPayload {
+  const absolutePath = path.join(
+    process.cwd(),
+    'e2e',
+    'scenario-packs',
+    entry.payloadPath,
+  );
+  const raw: unknown = JSON.parse(fs.readFileSync(absolutePath, 'utf8'));
+  return encounterPackSchema.parse(raw);
+}
+
+/**
+ * Asserts the encounter-pack pin (design D3's "`MATCH_LOG_DB_VERSION` pin
+ * check"): the manifest's pin must STRICTLY equal the LIVE constant read
+ * directly from `src/lib/p2p/matchLogStorageSchema.ts` — unlike the
+ * campaign schemaVersion pin, no migration ladder exists for the
+ * match-log store, so a mismatch in EITHER direction (older or newer) is
+ * invalid and the only remedy is a re-capture, never a loader-side
+ * tolerance (spec: "A stale encounter pack pin fails loud"). Consulted
+ * before any IndexedDB write.
+ */
+function assertEncounterPin(entry: ScenarioPackManifestEntry): void {
+  if (entry.kind !== 'encounter') {
+    throw new Error(
+      `loadEncounterPack: manifest entry "${entry.id}" is kind "${entry.kind}", not "encounter"`,
+    );
+  }
+  if (entry.pins.matchLogDbVersion !== MATCH_LOG_DB_VERSION) {
+    throw new Error(
+      `loadEncounterPack: pack "${entry.id}" MATCH_LOG_DB_VERSION pin mismatch — manifest pins ${entry.pins.matchLogDbVersion}, live matchLogStorageSchema.ts constant is ${MATCH_LOG_DB_VERSION}; the match-log store has no migration ladder, so the only remedy is a re-capture of the pack`,
+    );
+  }
+}
+
+/**
+ * The exact slice of the exposed `gameplay` store (`useGameplayStore`,
+ * already on `window.__ZUSTAND_STORES__` pre-this-change — no additional
+ * `storeExposure.ts` touch needed for group-4) this check branches on —
+ * the SAME signals `e2e/active-session-recovery.spec.ts`'s
+ * `expectRecoveredInteractiveSession`/`expectMirroredRosterRecovered`
+ * (the recovery anchor's own assertion surface) branch on.
+ */
+interface ExposedEncounterGameplayState {
+  readonly isLoading?: boolean;
+  readonly error?: string | null;
+  readonly session?: {
+    readonly id?: string;
+    readonly currentState?: {
+      readonly status?: string;
+    };
+  } | null;
+  readonly interactiveSession?: unknown;
+}
+
+/**
+ * Determines whether the production recovery factory
+ * (`hydrateRecoverableSessionFromMatchLog` -> the gameplay store's cold
+ * mount chain) actually completed, by polling the exposed `gameplay`
+ * store's own state — never a bare Playwright selector-timeout standing
+ * in for a reported error. Mirrors `assertCampaignPackMounted`'s
+ * polling shape above.
+ */
+async function assertEncounterPackMounted(
+  page: Page,
+  stampedMatchId: string,
+  packId: string,
+): Promise<void> {
+  await expect(page.getByTestId('game-session')).toBeVisible({
+    timeout: 20_000,
+  });
+
+  const deadline = Date.now() + 20_000;
+  for (;;) {
+    const state = await getStoreState<ExposedEncounterGameplayState>(
+      page,
+      'gameplay',
+    ).catch(() => null);
+
+    if (state?.error) {
+      throw new Error(
+        `loadEncounterPack: pack "${packId}" recovery failed — ${state.error}`,
+      );
+    }
+    if (
+      state &&
+      state.isLoading === false &&
+      state.session?.id === stampedMatchId &&
+      state.session.currentState?.status === 'active' &&
+      state.interactiveSession
+    ) {
+      return;
+    }
+
+    if (Date.now() >= deadline) {
+      throw new Error(
+        `loadEncounterPack: pack "${packId}" client-side recovery did not complete within the mount deadline — the gameplay store never reached an active session with matchId "${stampedMatchId}" (last observed isLoading=${state?.isLoading ?? 'unexposed'}, sessionId=${state?.session?.id ?? 'none'}, status=${state?.session?.currentState?.status ?? 'none'}); this names an unreported hang, not a network error`,
+      );
+    }
+    await page.waitForTimeout(250);
+  }
+}
+
+export interface LoadEncounterPackOptions {
+  readonly workerIndex: number;
+}
+
+export interface LoadedEncounterPack {
+  readonly matchId: string;
+}
+
+/**
+ * Loads an encounter pack through the front door (spec: "Front-Door
+ * Loading Contract" / "Encounter packs ride the production recovery
+ * factory"):
+ *
+ * 1. Resolve the manifest entry and read + zod-parse the payload
+ *    (fail-loud — `GameCreated`-first + finite seed, before any write).
+ * 2. Assert the `MATCH_LOG_DB_VERSION` pin (design D3) — before any write.
+ * 3. Stamp parallel-safe ids (design D4) — no store writes.
+ * 4. Seed the browser IndexedDB match log through the shared
+ *    `matchLogSeeding` helper (never a private re-implementation — this
+ *    file contains no `indexedDB.open` of its own).
+ * 5. Cold `page.goto` the manifest's target route with the stamped match
+ *    id substituted in, riding the production recovery factory chain.
+ * 6. Confirm the recovery actually completed (this file's header comment).
+ *
+ * IndexedDB is per-browser-context — no server rows are created, so
+ * unlike `loadCampaignPack` there is no row to track for `test.afterAll`
+ * teardown (tasks 4.1's acceptance).
+ */
+export async function loadEncounterPack(
+  page: Page,
+  packId: string,
+  options: LoadEncounterPackOptions,
+): Promise<LoadedEncounterPack> {
+  const entry = getManifestEntry(packId);
+  if (entry.kind !== 'encounter') {
+    throw new Error(
+      `loadEncounterPack: pack "${packId}" is kind "${entry.kind}", not "encounter"`,
+    );
+  }
+
+  const payload = readEncounterPackPayload(entry);
+  assertEncounterPin(entry);
+
+  const { payload: stamped, ids } = stampPackIds(payload, {
+    packId,
+    workerIndex: options.workerIndex,
+  });
+
+  await seedMatchLog(
+    page,
+    ids.matchId,
+    stamped.events as unknown as readonly SeededGameEvent[],
+    (stamped.matchesRow ?? {}) as SeededMatchesRowFields,
+  );
+
+  const targetRoute = entry.targetRoute.replace('{id}', ids.matchId);
+  await page.goto(targetRoute, {
+    waitUntil: 'domcontentloaded',
+    timeout: 60_000,
+  });
+
+  await assertEncounterPackMounted(page, ids.matchId, packId);
+
+  return { matchId: ids.matchId };
 }
