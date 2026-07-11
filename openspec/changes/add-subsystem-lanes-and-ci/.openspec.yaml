@@ -1,0 +1,10 @@
+schema: spec-driven
+created: 2026-07-11
+goal: Cash in the Seam-First Ladder — seam trust anchors PR-blocking via the
+  existing Lint-and-Test aggregator (zero branch-protection edits, 29 check
+  names byte-stable, burn-in before blocking), a closed six-tag subsystem
+  facet on the journey catalog + native @subsystem tags on audit specs,
+  nightly sliced subsystem lanes, four write-flow mini-journeys closing the
+  verified coverage holes, and an honest machine-validated ledger replacing
+  the stale 19-spec coverage SHALL (ladder W6 capstone, 2026-07-09 council
+  decision)
