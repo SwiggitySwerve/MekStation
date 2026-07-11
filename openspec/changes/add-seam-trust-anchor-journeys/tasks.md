@@ -53,21 +53,21 @@
 
 ## 5. Registration and scoping
 
-- [ ] 5.1 Add `verify:qc:seam-anchors` to `package.json` following the `verify:qc:replay-recovery` precedent (`package.json:181`): targeted jests first (`npm.cmd test -- --watchAll=false --runTestsByPath src/engine/__tests__/InteractiveSession.recovery.test.ts src/__tests__/integration/campaignMissionEncounterLaunchIntegrity.test.ts`), then the three anchor specs sequentially via `node scripts/playwright/run-playwright.mjs test --project=chromium <spec> --workers=1`.
+- [x] 5.1 Add `verify:qc:seam-anchors` to `package.json` following the `verify:qc:replay-recovery` precedent (`package.json:181`): targeted jests first (`npm.cmd test -- --watchAll=false --runTestsByPath src/engine/__tests__/InteractiveSession.recovery.test.ts src/__tests__/integration/campaignMissionEncounterLaunchIntegrity.test.ts`), then the three anchor specs sequentially via `node scripts/playwright/run-playwright.mjs test --project=chromium <spec> --workers=1`.
   - Files: `package.json`.
   - Acceptance: the lane runs end-to-end green from a clean shell; it is NOT added to `verify:qc`'s chain or any CI workflow (W6 scope).
-- [ ] 5.2 Add the three anchor spec files to the `testIgnore` arrays of the Mobile Chrome, Tablet Portrait, and Tablet Landscape projects (`playwright.config.ts:102/117/130`), mirroring the two existing audit-spec exclusions. Note the intended behavior change: `active-session-recovery.spec.ts` stops running under the responsive projects (design D7).
+- [x] 5.2 Add the three anchor spec files to the `testIgnore` arrays of the Mobile Chrome, Tablet Portrait, and Tablet Landscape projects (`playwright.config.ts:102/117/130`), mirroring the two existing audit-spec exclusions. Note the intended behavior change: `active-session-recovery.spec.ts` stops running under the responsive projects (design D7).
   - Files: `playwright.config.ts`.
   - Acceptance: `npx playwright test --list <each anchor spec>` schedules tests under chromium ONLY (spec scenario "Anchors are excluded from viewport multiplication"). Also confirm no anchor spec title carries the `@smoke` tag — the smoke project greps `/@smoke/` on Desktop Chrome and would double-schedule a tagged anchor.
-- [ ] 5.3 Guard sweep: confirm `requiredJourneyIds` in `scripts/qc/journey-qc-core.mjs` is untouched (exactly-seven contract) and `npm run qc:openspec-ci:validate` passes with this change's ledger entry accounted.
+- [x] 5.3 Guard sweep: confirm `requiredJourneyIds` in `scripts/qc/journey-qc-core.mjs` is untouched (exactly-seven contract) and `npm run qc:openspec-ci:validate` passes with this change's ledger entry accounted.
   - Files: read-only + validator run.
   - Acceptance: both validators green; no catalog or validation-graph edits present in the diff.
 
 ## 6. Verification battery
 
-- [ ] 6.1 `npm run typecheck && npm run lint && npm run format:check` clean across touched files.
-- [ ] 6.2 Targeted regression jests green: `InteractiveSession.recovery.test.ts` and `campaignMissionEncounterLaunchIntegrity.test.ts` (the two suites the lane fronts).
-- [ ] 6.3 Flake-resistance proof (spec scenario "Anchor stability is proven by repetition"): each of the three anchor specs run 3× consecutively green locally at `--project=chromium --workers=1`; record the three-run evidence in the PR description.
-- [ ] 6.4 `npm run verify:qc:seam-anchors` green end-to-end; `npm run verify:qc:replay-recovery` still green (the recovery anchor serves both lanes).
-- [ ] 6.5 Fidelity diff (design R6): the MODIFIED requirement's three untouched scenarios in `specs/journey-qc/spec.md` remain byte-identical to canonical `openspec/specs/journey-qc/spec.md:249-266`; only the requirement paragraph and the readiness scenario differ.
+- [x] 6.1 `npm run typecheck && npm run lint && npm run format:check` clean across touched files.
+- [x] 6.2 Targeted regression jests green: `InteractiveSession.recovery.test.ts` and `campaignMissionEncounterLaunchIntegrity.test.ts` (the two suites the lane fronts).
+- [x] 6.3 Flake-resistance proof (spec scenario "Anchor stability is proven by repetition"): each of the three anchor specs run 3× consecutively green locally at `--project=chromium --workers=1`; record the three-run evidence in the PR description.
+- [x] 6.4 `npm run verify:qc:seam-anchors` green end-to-end; `npm run verify:qc:replay-recovery` still green (the recovery anchor serves both lanes).
+- [x] 6.5 Fidelity diff (design R6): the MODIFIED requirement's three untouched scenarios in `specs/journey-qc/spec.md` remain byte-identical to canonical `openspec/specs/journey-qc/spec.md:249-266`; only the requirement paragraph and the readiness scenario differ.
 - [ ] 6.6 `npx openspec validate add-seam-trust-anchor-journeys --strict` passes; spec-delta requirements carry backing evidence from 2.2/2.3 (recovery anchor + revert-proof), 3.2-3.4 (handoff anchor + cleanup), and 4.1-4.3 (construction anchor + route-level recover-twice).
