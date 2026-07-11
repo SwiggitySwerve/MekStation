@@ -1,12 +1,6 @@
 {
   "allowedActiveChanges": [
     {
-      "name": "add-seam-trust-anchor-journeys",
-      "status": "in-progress",
-      "reason": "Declarative-first change: proposal/design/specs/tasks authored ahead of implementation per Seam-First Ladder W2 council decision (openspec/council-decisions/2026-07-09-ui-audit-testability-architecture.md). Implementation starts only after the W1 (add-sp-combat-determinism) implementation merges to main; ships in follow-up PRs once this authoring PR merges.",
-      "lastReviewed": "2026-07-10"
-    },
-    {
       "name": "add-campaign-fast-forward-api",
       "status": "in-progress",
       "reason": "Declarative-first change: proposal/design/specs/tasks authored ahead of implementation per Seam-First Ladder W3 council decision (openspec/council-decisions/2026-07-09-ui-audit-testability-architecture.md). Implementation starts only after the W2 (add-seam-trust-anchor-journeys) implementation merges to main; ships in follow-up PRs once this authoring PR merges.",
