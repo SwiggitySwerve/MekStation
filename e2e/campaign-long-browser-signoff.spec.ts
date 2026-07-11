@@ -434,9 +434,14 @@ test.describe('long campaign browser signoff', () => {
       });
       await expect(page.getByText('10 missions completed')).toBeVisible();
       await expect(page.getByTestId('mission-history-item')).toHaveCount(10);
-      await expect(
-        page.getByTestId('active-contract-objectives-progress'),
-      ).toContainText('10 / 10 objectives');
+      // Post-#1028 the dashboard derives from canonical state: with all 10
+      // seeded contracts completed there is no active contract, so the old
+      // '10 / 10 objectives' assertion read the exact stale-widget bug (M2)
+      // that #1028 fixed. Completions are still asserted via the mission
+      // history count and the '10 missions completed' text above.
+      await expect(page.getByTestId('active-contract-empty')).toContainText(
+        'No active contract',
+      );
 
       await page.reload({ waitUntil: 'networkidle' });
       await waitForCampaignStoresReady(page);
