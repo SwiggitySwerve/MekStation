@@ -35,13 +35,23 @@
  *          asserted independently on BOTH payloads — the engine seed is
  *          wall-clock-fresh per capture, so roll-level equality is never
  *          asserted.
- *        - `fast-forward:` packs: the fresh re-mint's recorded
- *          `invariantSummary` (W3's `ComparableRunState`, task 5.1/5.2) is
- *          compared FIELD-BY-FIELD against the committed provenance
- *          sidecar's `invariantSummary` via `assertRunStatesEqual` — the
- *          SAME comparator and SAME `SEAM_INVARIANT_FIELDS` W3's own
- *          determinism/live-parity suites use (deterministic per fixture,
- *          design D4/D7's shared field enumeration).
+ *        - `fast-forward:` packs get TWO checks, since this is the one
+ *          genesis class whose fixture is deterministic (design D7) and
+ *          therefore the ONE class whose committed payload bytes can be
+ *          reconciled directly, not just its sidecar: (1) the committed
+ *          PAYLOAD's own `body.finances` (transactions + a ledger-sign-map
+ *          implied starting balance, reusing `ledger.ts`'s audited
+ *          per-`TransactionType` sign map) reconciles against the fresh
+ *          re-mint's own `body.finances` — this is what catches a
+ *          hand-edited committed payload (a tampered `balance` or a
+ *          deleted/altered transaction), which nothing else in this job
+ *          reads; (2) the fresh re-mint's recorded `invariantSummary` (W3's
+ *          `ComparableRunState`, task 5.1/5.2) is compared FIELD-BY-FIELD
+ *          against the committed provenance sidecar's `invariantSummary`
+ *          via `assertRunStatesEqual` — the SAME comparator and SAME
+ *          `SEAM_INVARIANT_FIELDS` W3's own determinism/live-parity suites
+ *          use — covering the fields (1) cannot derive from a bare payload
+ *          (battles, xpCounters, contractStatuses, repairTickets).
  *
  * The re-mint step OVERWRITES the committed payload (+ provenance sidecar,
  * where one exists) on disk — `captureCanonicalizeAndWrite` /
@@ -74,6 +84,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import type { TransactionType } from '../../src/types/campaign/enums/TransactionType';
+
 import {
   manifestVersion,
   SCENARIO_PACK_MANIFEST,
@@ -81,7 +93,9 @@ import {
 import {
   assertRunStatesEqual,
   type ComparableRunState,
+  type ComparableTransaction,
 } from '../../src/lib/campaign/fastForward/invariants/comparableRunState';
+import { signFor } from '../../src/lib/campaign/fastForward/invariants/ledger';
 import { CURRENT_CAMPAIGN_SCHEMA_VERSION } from '../../src/lib/campaign/persistence/campaignMigration';
 import { MATCH_LOG_DB_VERSION } from '../../src/lib/p2p/matchLogStorageSchema';
 import {
@@ -362,6 +376,77 @@ function assertMatchlogSeedAgnosticInvariants(
 }
 
 // =============================================================================
+// (c, fast-forward committed-payload financial reconciliation) — the ONE
+// gap flow/anchor packs don't have: their committed payloads get their
+// invariant predicate asserted DIRECTLY (above), but fast-forward's own
+// comparison (below, in `recapturePack`) was sidecar-to-sidecar only
+// (fresh provenance.invariantSummary vs committed provenance.
+// invariantSummary) — the committed PAYLOAD's actual `body.finances` was
+// never an input, so a hand-edited `balance` or a deleted/altered
+// transaction on the committed file passed undetected. Fast-forward is the
+// one genesis class whose fixture is deterministic (design D7: "deterministic
+// per fixture"), so its committed payload's finances CAN be reconciled
+// against the fresh re-mint's payload directly — reusing `ledger.ts`'s
+// audited per-`TransactionType` sign map rather than a second hand-rolled
+// reconciliation rule, and never a byte-structural diff (there is no
+// starting-balance ground truth recoverable from a single committed file,
+// so the starting balance is backed out from each payload's OWN ending
+// balance + transactions via the sign map, then the two payloads' implied
+// starting balances are compared to each other — never against an
+// unknowable absolute).
+// =============================================================================
+
+interface CampaignPackFinancesLike {
+  readonly body?: {
+    readonly finances?: {
+      readonly balance?: number;
+      readonly transactions?: readonly {
+        readonly type?: string;
+        readonly amount?: number;
+      }[];
+    };
+  };
+}
+
+/** `{type, amount}[]` (raw C-bills) -> `ComparableTransaction[]` (cents), sorted identically to `buildComparableRunState`'s own `transactions` field (design D4/D7's shared enumeration) — so a divergence here is directly comparable to that module's output. */
+function deriveComparableTransactions(raw: unknown): ComparableTransaction[] {
+  const transactions =
+    (raw as CampaignPackFinancesLike).body?.finances?.transactions ?? [];
+  return transactions
+    .map((tx) => ({
+      type: String(tx.type),
+      amountCents: Math.round((tx.amount ?? 0) * 100),
+    }))
+    .sort((a, b) =>
+      a.type === b.type
+        ? a.amountCents - b.amountCents
+        : a.type.localeCompare(b.type),
+    );
+}
+
+/**
+ * Backs out the implied starting balance from a payload's own ending
+ * balance and transactions via `ledger.ts`'s audited sign map — the ONE
+ * balance-reconciliation value derivable purely from a single committed
+ * file, with no external ground truth (no `startingBalanceCents` is
+ * persisted anywhere on disk — it lives only transiently inside the
+ * minting jest run). Throws (via `signFor`) on a transaction type absent
+ * from the sign map, matching this file's fail-loud posture.
+ */
+function deriveImpliedStartingBalanceCents(raw: unknown): number {
+  const finances = (raw as CampaignPackFinancesLike).body?.finances;
+  const finalBalanceCents = Math.round((finances?.balance ?? 0) * 100);
+  const transactions = finances?.transactions ?? [];
+  const deltaCents = transactions.reduce(
+    (cents, tx) =>
+      cents +
+      signFor(tx.type as TransactionType) * Math.round((tx.amount ?? 0) * 100),
+    0,
+  );
+  return finalBalanceCents - deltaCents;
+}
+
+// =============================================================================
 // Per-pack recapture (a -> b -> c, backup/restore around the re-mint)
 // =============================================================================
 
@@ -546,10 +631,43 @@ async function recapturePack(
         issues.push((error as Error).message);
       }
     } else {
-      // fast-forward: compare the fresh re-mint's recorded invariantSummary
+      // fast-forward, part 1: the committed PAYLOAD's own finances
+      // reconcile against the fresh re-mint's own finances — reads
+      // `body.finances` directly on BOTH payloads (never just their
+      // provenance sidecars, which is all part 2 below compares), so a
+      // hand-edited `balance` or a deleted/altered transaction on the
+      // COMMITTED file is now visible to this job (previously undetected —
+      // see this module's header comment "(c)").
+      const committedTransactions = deriveComparableTransactions(committedRaw);
+      const freshTransactions = deriveComparableTransactions(freshRaw);
+      if (
+        JSON.stringify(committedTransactions) !==
+        JSON.stringify(freshTransactions)
+      ) {
+        issues.push(
+          `${entry.id}: committed payload's body.finances.transactions diverged from the fresh re-mint's — committed=${JSON.stringify(committedTransactions)} fresh=${JSON.stringify(freshTransactions)}`,
+        );
+      }
+      try {
+        const committedImpliedStartCents =
+          deriveImpliedStartingBalanceCents(committedRaw);
+        const freshImpliedStartCents =
+          deriveImpliedStartingBalanceCents(freshRaw);
+        if (committedImpliedStartCents !== freshImpliedStartCents) {
+          issues.push(
+            `${entry.id}: committed payload's body.finances.balance does not reconcile with the fresh re-mint's (implied starting balance committed=${committedImpliedStartCents}c fresh=${freshImpliedStartCents}c) — a hand-edited balance, or a transaction whose signed amount was altered`,
+          );
+        }
+      } catch (error) {
+        issues.push(`${entry.id}: ${(error as Error).message}`);
+      }
+
+      // fast-forward, part 2: the fresh re-mint's recorded invariantSummary
       // against the committed provenance sidecar's — field-by-field, via
       // the SAME comparator + field set W3's own determinism/live-parity
-      // suites use (never a bespoke re-implementation).
+      // suites use (never a bespoke re-implementation). This covers the
+      // fields part 1 cannot derive from a bare payload alone (battles,
+      // xpCounters, contractStatuses, repairTickets).
       if (!provenanceBackup.existed) {
         issues.push(
           `${entry.id}: no committed provenance.json to compare against — fast-forward packs require a committed invariantSummary (task 5.1/5.2)`,
