@@ -443,9 +443,12 @@ test.describe('Game Replay Page @game', () => {
     ).toBe(true);
   });
 
-  // Note: The following tests are skipped because the demo session
-  // doesn't have event data loaded into the event store that the
-  // replay system uses. These would pass with a real game session.
+  // Skipped: replay controls need a match log with events. The demo
+  // session fixture has genesis events, but `/gameplay/games/[id]/replay`
+  // loads via `/api/matches/${gameId}` + `useGameTimeline` — not the
+  // demo fixture store. Seed a match-log (see active-session-recovery
+  // patterns) before unpinning. Controls themselves exist
+  // (`replay-btn-play-pause`, step/skip testids).
   test.skip('replay page shows controls when events exist', async () => {
     await replayPage.navigate('demo');
     await replayPage.waitForReplayLoaded();

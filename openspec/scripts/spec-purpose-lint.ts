@@ -384,20 +384,34 @@ function parseArgs(args: string[]): CliOptions {
     configPath: defaultConfigPath,
     json: false,
   };
+  const valueHandlers: Record<string, (value: string | undefined) => boolean> = {
+    '--root': (value) => {
+      if (!value) return false;
+      options.root = value;
+      return true;
+    },
+    '--spec-root': (value) => {
+      if (!value) return false;
+      options.specRoot = value;
+      return true;
+    },
+    '--config': (value) => {
+      if (!value) return false;
+      options.configPath = value;
+      return true;
+    },
+  };
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
-    if (arg === '--root' && args[index + 1]) {
-      options.root = args[index + 1];
-      index += 1;
-    } else if (arg === '--spec-root' && args[index + 1]) {
-      options.specRoot = args[index + 1];
-      index += 1;
-    } else if (arg === '--config' && args[index + 1]) {
-      options.configPath = args[index + 1];
-      index += 1;
-    } else if (arg === '--json') {
+    if (arg === '--json') {
       options.json = true;
+      continue;
+    }
+
+    const consumeValue = valueHandlers[arg];
+    if (consumeValue?.(args[index + 1])) {
+      index += 1;
     }
   }
 

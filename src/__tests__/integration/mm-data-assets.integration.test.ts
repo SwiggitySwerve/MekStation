@@ -45,7 +45,11 @@ interface VersionManifest {
 const ASSETS_BASE = path.join(process.cwd(), 'public', 'record-sheets');
 const CONFIG_PATH = path.join(process.cwd(), 'config', 'mm-data-assets.json');
 
-// Skip tests if assets don't exist (CI environment without fetched assets)
+// Skip asset-content suites when record-sheet trees are absent (shallow
+// checkout / local without `npm run fetch:assets`). PR Checks and Release
+// fetch via `fetch-assets: 'true'` / `npm run fetch:assets` and cache
+// `public/record-sheets` (see `.github/workflows/pr-checks.yml` and
+// `release.yml`). Config-file validity below always runs.
 const assetsExist =
   fs.existsSync(ASSETS_BASE) &&
   fs.existsSync(path.join(ASSETS_BASE, 'templates_us'));

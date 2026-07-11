@@ -47,9 +47,9 @@ import {
   type ScenarioPackManifestEntry,
 } from '../scenario-packs/manifest';
 import {
+  asSeededGameEvents,
+  asSeededMatchesRowFields,
   seedMatchLog,
-  type SeededGameEvent,
-  type SeededMatchesRowFields,
 } from './matchLogSeeding';
 import { getStoreState } from './store';
 
@@ -596,8 +596,8 @@ export async function loadEncounterPack(
   await seedMatchLog(
     page,
     ids.matchId,
-    stamped.events as unknown as readonly SeededGameEvent[],
-    (stamped.matchesRow ?? {}) as SeededMatchesRowFields,
+    asSeededGameEvents(stamped.events),
+    asSeededMatchesRowFields(stamped.matchesRow ?? {}),
   );
 
   const targetRoute = entry.targetRoute.replace('{id}', ids.matchId);

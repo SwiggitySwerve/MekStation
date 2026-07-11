@@ -636,14 +636,3 @@ test.describe('Encounter Launch @encounter', () => {
     }
   });
 });
-
-// =============================================================================
-// Encounter Clone Tests (Skip: Clone functionality may not be exposed in UI)
-// =============================================================================
-
-test.describe('Encounter Clone @encounter', () => {
-  test.skip('clone functionality - requires clone button in UI', async () => {
-    // This test is skipped because clone may only be available via store API
-    // UI implementation would be needed to test this
-  });
-});

@@ -62,45 +62,66 @@ export interface IMutableMovementElevationStepCost {
   blockedReason?: string;
 }
 
+interface ITerrainFeatureAccumulator {
+  hasWaterFeature: boolean;
+  waterLevel: number;
+  hasPavementSurfaceFeature: boolean;
+  bridgeLevel: number | null;
+  hasIceFeature: boolean;
+  hasWoodsFeature: boolean;
+}
+
+function accumulateTerrainFeature(
+  feature: TerrainFeature,
+  acc: ITerrainFeatureAccumulator,
+): void {
+  if (feature.type === TerrainType.Water) {
+    acc.hasWaterFeature = true;
+    acc.waterLevel = Math.max(acc.waterLevel, feature.level);
+  }
+  if (feature.type === TerrainType.Bridge) {
+    acc.bridgeLevel = Math.max(acc.bridgeLevel ?? feature.level, feature.level);
+  }
+  if (feature.type === TerrainType.Ice) {
+    acc.hasIceFeature = true;
+  }
+  if (
+    feature.type === TerrainType.LightWoods ||
+    feature.type === TerrainType.HeavyWoods
+  ) {
+    acc.hasWoodsFeature = true;
+  }
+  if (isPavementSurfaceFeature(feature)) {
+    acc.hasPavementSurfaceFeature = true;
+  }
+}
+
 export function summarizeMovementTerrain(
   terrainText: string,
   summary: IMutableMovementTerrainSummary,
 ): void {
   const terrainFeatures = terrainFeaturesFromString(terrainText);
-  let hasWaterFeature = false;
-  let waterLevel = 0;
-  let hasPavementSurfaceFeature = false;
-  let bridgeLevel: number | null = null;
-  let hasIceFeature = false;
-  let hasWoodsFeature = false;
+  const acc: ITerrainFeatureAccumulator = {
+    hasWaterFeature: false,
+    waterLevel: 0,
+    hasPavementSurfaceFeature: false,
+    bridgeLevel: null,
+    hasIceFeature: false,
+    hasWoodsFeature: false,
+  };
 
   for (const feature of terrainFeatures) {
-    if (feature.type === TerrainType.Water) {
-      hasWaterFeature = true;
-      waterLevel = Math.max(waterLevel, feature.level);
-    } else if (feature.type === TerrainType.Bridge) {
-      bridgeLevel = Math.max(bridgeLevel ?? feature.level, feature.level);
-    } else if (feature.type === TerrainType.Ice) {
-      hasIceFeature = true;
-    } else if (
-      feature.type === TerrainType.LightWoods ||
-      feature.type === TerrainType.HeavyWoods
-    ) {
-      hasWoodsFeature = true;
-    }
-
-    if (isPavementSurfaceFeature(feature)) {
-      hasPavementSurfaceFeature = true;
-    }
+    accumulateTerrainFeature(feature, acc);
   }
 
   summary.terrainFeatures = terrainFeatures;
-  summary.hasWaterFeature = hasWaterFeature;
-  summary.waterLevel = waterLevel;
-  summary.hasPavementSurfaceFeature = hasPavementSurfaceFeature;
-  summary.bridgeLevel = bridgeLevel;
-  summary.hasSurfaceIce = hasWaterFeature && hasIceFeature && waterLevel > 0;
-  summary.hasWoodsFeature = hasWoodsFeature;
+  summary.hasWaterFeature = acc.hasWaterFeature;
+  summary.waterLevel = acc.waterLevel;
+  summary.hasPavementSurfaceFeature = acc.hasPavementSurfaceFeature;
+  summary.bridgeLevel = acc.bridgeLevel;
+  summary.hasSurfaceIce =
+    acc.hasWaterFeature && acc.hasIceFeature && acc.waterLevel > 0;
+  summary.hasWoodsFeature = acc.hasWoodsFeature;
 }
 
 export function movementTerrainEntryBlockedReason(input: {
@@ -202,17 +223,33 @@ export function terrainFeatureMovementCost(input: {
   }, 0);
 }
 
+export interface IMovementElevationStepCostInput {
+  readonly grid: IHexGrid;
+  readonly fromCoord: IHexCoordinate | undefined;
+  readonly toCoord: IHexCoordinate;
+  readonly toElevation: number;
+  readonly terrainFeatures: readonly TerrainFeature[];
+  readonly movementType: UnitMovementType;
+  readonly hasPavementSurfaceFeature: boolean;
+  readonly context: IMovementCostContext;
+  readonly result: IMutableMovementElevationStepCost;
+}
+
 export function movementElevationStepCost(
-  grid: IHexGrid,
-  fromCoord: IHexCoordinate | undefined,
-  toCoord: IHexCoordinate,
-  toElevation: number,
-  terrainFeatures: readonly TerrainFeature[],
-  movementType: UnitMovementType,
-  hasPavementSurfaceFeature: boolean,
-  context: IMovementCostContext,
-  result: IMutableMovementElevationStepCost,
+  input: IMovementElevationStepCostInput,
 ): void {
+  const {
+    grid,
+    fromCoord,
+    toCoord,
+    toElevation,
+    terrainFeatures,
+    movementType,
+    hasPavementSurfaceFeature,
+    context,
+    result,
+  } = input;
+
   result.terrainCost = 0;
   result.elevationCost = 0;
   result.elevationDelta = 0;

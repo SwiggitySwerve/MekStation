@@ -20,11 +20,11 @@
  *
  * Reuses the canonical Atlas hydration plumbing from P1/P2/P5
  * (`atlasMirrorMultiWeapon` / `atlasMirrorEventChain` /
- * `scenario-mirror-metrics`). The 100-turn variant of this determinism
- * audit is `it.skip`'d in `replay-determinism.integration.test.ts`
- * pending the deferred `add-engine-determinism-audit` follow-on; the
- * 10-turn variant is the value-as-tripwire layer that this scenario
- * test corroborates with stronger structural assertions.
+ * `scenario-mirror-metrics`). The 100-turn determinism audit in
+ * `replay-determinism.integration.test.ts` is active again after the
+ * seeded-roller fix (`add-engine-determinism-audit`); this scenario
+ * corroborates the 10-turn byte-identical contract with stronger
+ * structural event-chain assertions.
  *
  * Note: P3's notepad/learnings.md "Crits accelerate destruction" warns
  * that engine 3-hit destruction can end matches by turn 3 when crits
@@ -216,10 +216,9 @@ describe('Scenario: Atlas-vs-Atlas mirror (P6b — task 6.6)', () => {
 
   it('deterministic event log — two replays of the same seed are byte-identical (10-turn)', async () => {
     // Per `combat-analytics/spec.md` "Event Log Replay Determinism
-    // Audit" — 10-turn variant. The 100-turn version surfaces the
-    // ~1-event-over-300 divergence and is `it.skip`'d in
-    // `replay-determinism.integration.test.ts` pending the deferred
-    // `add-engine-determinism-audit` follow-on.
+    // Audit" — 10-turn variant. The 100-turn byte-identical contract
+    // lives in `replay-determinism.integration.test.ts` (active after
+    // the seeded-roller determinism fix).
     const run1 = await runAtlasMirror(5);
     const run2 = await runAtlasMirror(5);
 

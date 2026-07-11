@@ -132,6 +132,82 @@ export interface SeededMatchesRowFields {
 }
 
 /**
+ * Narrows a JSON object before reading its event fields at the pack-loading
+ * boundary, where schema-passthrough payloads are intentionally unknown.
+ */
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Validates the minimal on-disk game-event shape consumed by the match-log
+ * seeder, returning a concrete event array only after every entry conforms.
+ */
+export function asSeededGameEvents(
+  events: unknown,
+): readonly SeededGameEvent[] {
+  if (
+    Array.isArray(events) &&
+    events.every(
+      (event) =>
+        isRecord(event) &&
+        typeof event.id === 'string' &&
+        typeof event.gameId === 'string' &&
+        typeof event.sequence === 'number' &&
+        typeof event.timestamp === 'string' &&
+        typeof event.type === 'string' &&
+        typeof event.turn === 'number' &&
+        typeof event.phase === 'string' &&
+        typeof event.visibility === 'string' &&
+        isRecord(event.payload),
+    )
+  ) {
+    return events;
+  }
+
+  throw new Error(
+    'Encounter pack events must be an array of complete match-log event objects',
+  );
+}
+
+/**
+ * Validates optional `matches` row fields before IndexedDB receives them.
+ */
+export function asSeededMatchesRowFields(
+  matchesRow: unknown,
+): SeededMatchesRowFields {
+  if (!isRecord(matchesRow)) {
+    throw new Error(
+      'Encounter pack matchesRow must be an object when provided',
+    );
+  }
+
+  const { hostPeerId, guestPeerId, status, lastActivity } = matchesRow;
+  const isNullableString = (
+    value: unknown,
+  ): value is string | null | undefined =>
+    value === undefined || value === null || typeof value === 'string';
+  const isSeededMatchStatus = (
+    value: unknown,
+  ): value is SeededMatchStatus | undefined =>
+    value === undefined ||
+    value === 'active' ||
+    value === 'completed' ||
+    value === 'abandoned';
+
+  if (
+    !isNullableString(hostPeerId) ||
+    !isNullableString(guestPeerId) ||
+    !isSeededMatchStatus(status) ||
+    (lastActivity !== undefined && typeof lastActivity !== 'string')
+  ) {
+    throw new Error('Encounter pack matchesRow has invalid match-log fields');
+  }
+
+  return { hostPeerId, guestPeerId, status, lastActivity };
+}
+
+/**
  * Seeds the browser's `mekstation-match-log` IndexedDB directly via the
  * raw `indexedDB.open` transaction the production match-log storage
  * layer reads from (schema: `src/lib/p2p/matchLogStorageSchema.ts:3-38`;

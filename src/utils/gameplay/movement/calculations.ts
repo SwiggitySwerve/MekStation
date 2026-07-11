@@ -214,17 +214,17 @@ export function getMovementStepCostBreakdown(
     terrainCost = 0;
   }
 
-  movementElevationStepCost(
+  movementElevationStepCost({
     grid,
     fromCoord,
-    coord,
-    hex.elevation,
-    terrain.terrainFeatures,
+    toCoord: coord,
+    toElevation: hex.elevation,
+    terrainFeatures: terrain.terrainFeatures,
     movementType,
-    terrain.hasPavementSurfaceFeature,
+    hasPavementSurfaceFeature: terrain.hasPavementSurfaceFeature,
     context,
-    movementElevationStepCostResult,
-  );
+    result: movementElevationStepCostResult,
+  });
   const elevation = movementElevationStepCostResult;
   if (elevation.blockedReason) {
     return {

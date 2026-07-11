@@ -5,7 +5,7 @@
  * Only active when NEXT_PUBLIC_E2E_MODE=true
  */
 
-import { getEventStore, type EventStoreService } from '@/services/events';
+import { getEventStore } from '@/services/events';
 import * as aerospaceRegistry from '@/stores/aerospaceStoreRegistry';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
@@ -24,50 +24,6 @@ import {
 } from '@/stores/useTabManagerStore';
 import * as vehicleRegistry from '@/stores/vehicleStoreRegistry';
 import { logger } from '@/utils/logger';
-
-declare global {
-  interface Window {
-    __ZUSTAND_STORES__?: {
-      // `useCampaignStore` is a lazy-init wrapper that returns a `StoreApi`,
-      // not a raw Zustand hook with `.getState`/`.setState` attached as
-      // statics (the other stores below all are). We expose the called
-      // `StoreApi` here so E2E specs can do `stores.campaign.getState()` the
-      // same way they do for every other store. PT-004.
-      campaign: ReturnType<typeof useCampaignStore>;
-      // Sanctioned additive touch (add-scenario-packs W4, orchestrator
-      // ruling 2026-07-11 — see design.md D3 amendment): a normal
-      // `create<T>()` Zustand hook (statics attached, unlike the lazy
-      // `useCampaignStore` wrapper above), exposed so
-      // `e2e/helpers/scenarioPackLoading.ts`'s post-`goto` load-outcome
-      // check can read `saveState`/`errorMessage`/`campaignId` — the exact
-      // signals `loadCampaignAction` itself branches on
-      // (`useCampaignPersistenceStore.ts:441-483`) — instead of inferring
-      // load success from an unrelated store's side effect.
-      campaignPersistence: typeof useCampaignPersistenceStore;
-      // Canonical personnel source since the personnel→roster-employment
-      // migration (PR #473) — e2e round-trip specs seed pilots here, the
-      // same way the Jest twin (phase4CampaignRoundTrip.test.ts) does.
-      campaignRoster: typeof useCampaignRosterStore;
-      force: typeof useForceStore;
-      pilot: typeof usePilotStore;
-      encounter: typeof useEncounterStore;
-      gameplay: typeof useGameplayStore;
-      // `useQuickGameStore` has no UI selector for `scenarioConfig.scenarioType`
-      // (known limitation — see `playtest/checklists/sp-uat.md`). Expose for
-      // E2E so Phase-2 SP smoke can drive all 4 scenario types directly.
-      quickGame: typeof useQuickGameStore;
-      repair: typeof useRepairStore;
-      award: typeof useAwardStore;
-      tabManager: typeof useTabManagerStore;
-    };
-    __AEROSPACE_REGISTRY__?: typeof aerospaceRegistry;
-    __VEHICLE_REGISTRY__?: typeof vehicleRegistry;
-    __UNIT_REGISTRY__?: typeof unitRegistry;
-    __UNIT_TEMPLATES__?: typeof UNIT_TEMPLATES;
-    __EVENT_STORE__?: EventStoreService;
-    __E2E_MODE__?: boolean;
-  }
-}
 
 export function exposeStoresForE2E(): void {
   if (typeof window === 'undefined') return;
