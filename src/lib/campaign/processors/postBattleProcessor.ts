@@ -76,11 +76,25 @@ function applyOutcomeDeltas({
   const errors: string[] = [];
 
   for (const delta of outcome.unitDeltas) {
-    const entry = entriesByPilotId.get(delta.unitId) ?? null;
-    const pilot = pilotsByPilotId.get(delta.unitId) ?? null;
+    // Design D9 (`add-campaign-fast-forward-api`, `campaign-combat-loop`
+    // ADDED requirement "Engine-Derived Outcome Pilot Attribution"):
+    // prefer the delta's pilot linkage (the session unit's vault
+    // `pilotRef`) over the session-scoped `unitId` when resolving roster
+    // entries and vault pilots — `unitId` is a composite
+    // (`${side}-${slot}-${unitRef}`) and was never actually a pilot id;
+    // it only "worked" when a fixture rigged `unitId === pilotId`.
+    // Falling back to `unitId` when `pilotRef` is absent (persisted
+    // outcomes, hand-built fixtures predating this field) keeps every
+    // existing linkage-free outcome resolving byte-for-byte as before.
+    // Kill attribution (`reportUnitsById`) stays keyed on `unitId` —
+    // after-action report rows are session-scoped and already
+    // consistent on that key.
+    const resolvedPilotId = delta.pilotRef ?? delta.unitId;
+    const entry = entriesByPilotId.get(resolvedPilotId) ?? null;
+    const pilot = pilotsByPilotId.get(resolvedPilotId) ?? null;
     const pilotResult = applyPilotDelta({
       campaign,
-      pilotId: delta.unitId,
+      pilotId: resolvedPilotId,
       delta,
       outcomeWonByPlayer: wonByPlayer,
       entry,
@@ -88,8 +102,8 @@ function applyOutcomeDeltas({
       killCount: reportUnitsById.get(delta.unitId)?.kills ?? 0,
     });
     if (pilotResult) {
-      pilotPatches.set(delta.unitId, pilotResult.patch);
-      pilotsUpdated.push(delta.unitId);
+      pilotPatches.set(resolvedPilotId, pilotResult.patch);
+      pilotsUpdated.push(resolvedPilotId);
     }
     try {
       const next = applyUnitDelta(
