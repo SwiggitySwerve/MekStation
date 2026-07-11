@@ -113,6 +113,14 @@ export default defineConfig({
         '**/ux-deep-play-audit.spec.ts',
         '**/ux-walkthrough-audit.spec.ts',
         '**/flow-audits.spec.ts',
+        // Seam trust anchors (add-seam-trust-anchor-journeys, design D7): the
+        // three anchors guard production seams, not viewport layout — running
+        // them under the responsive projects is 4x cost for zero coverage
+        // benefit. Chromium-only is a load-bearing contract (journey-qc
+        // "Anchors are excluded from viewport multiplication").
+        '**/active-session-recovery.spec.ts',
+        '**/seam-roster-materialization-handoff.spec.ts',
+        '**/seam-fresh-construction-no-instant-defeat.spec.ts',
       ],
       use: {
         ...devices['Desktop Chrome'],
@@ -129,6 +137,10 @@ export default defineConfig({
         '**/ux-deep-play-audit.spec.ts',
         '**/ux-walkthrough-audit.spec.ts',
         '**/flow-audits.spec.ts',
+        // Seam trust anchors — see the Mobile Chrome testIgnore comment above.
+        '**/active-session-recovery.spec.ts',
+        '**/seam-roster-materialization-handoff.spec.ts',
+        '**/seam-fresh-construction-no-instant-defeat.spec.ts',
       ],
       use: {
         ...devices['Desktop Chrome'],
@@ -143,6 +155,10 @@ export default defineConfig({
         '**/ux-deep-play-audit.spec.ts',
         '**/ux-walkthrough-audit.spec.ts',
         '**/flow-audits.spec.ts',
+        // Seam trust anchors — see the Mobile Chrome testIgnore comment above.
+        '**/active-session-recovery.spec.ts',
+        '**/seam-roster-materialization-handoff.spec.ts',
+        '**/seam-fresh-construction-no-instant-defeat.spec.ts',
       ],
       use: {
         ...devices['Desktop Chrome'],

@@ -73,3 +73,32 @@ export {
   type MissionLaunchOptions,
   type MissionLaunchResult,
 } from './campaignFlow';
+
+// Match-log IndexedDB seeding (recovery-rehydration seam trust anchor)
+export {
+  buildGameCreatedAndStartedEvents,
+  seedMatchLog,
+  type BuildSeededEventsOptions,
+  type SeededGameEvent,
+  type SeededGameSide,
+  type SeededGameUnit,
+  type SeededMatchesRowFields,
+  type SeededMatchStatus,
+} from './matchLogSeeding';
+
+// Roster-materialization-handoff seam trust anchor helpers
+export {
+  addMirroredCanonicalRefRosterUnits,
+  createSeamMaterializedRowTracker,
+  createSilentStepRecorder,
+  createUniqueSeamCampaign,
+  createUniqueSeamCampaignWithMirroredRoster,
+  deleteSeamMaterializedRows,
+  launchSelectedRosterToPreBattle,
+  openSeamMissionLaunchBriefing,
+  selectAllRosterUnits,
+  type MirroredRosterCampaignOptions,
+  type SeamCampaignOptions,
+  type SeamLaunchResult,
+  type SeamMaterializedRowIds,
+} from './seamCampaign';
