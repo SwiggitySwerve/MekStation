@@ -22,7 +22,7 @@
  * @tags @campaign @seam
  */
 
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type APIResponse, type Page } from '@playwright/test';
 
 import {
   createSeamMaterializedRowTracker,
@@ -59,6 +59,30 @@ interface AssignmentShape {
 interface ForceGetResponse {
   readonly force: {
     readonly assignments: readonly AssignmentShape[];
+  };
+}
+
+// Roster-source shapes for the pilot-IDENTITY cross-check (spec.md:96
+// "pilot identity itself SHALL be verified at the data layer"). Every
+// campaign save persists a `rosterProjection` snapshot of the live
+// roster store (`readLiveRosterSnapshot`,
+// `src/stores/campaign/useCampaignPersistenceStore.ts`) whose units
+// carry `unitRef` + `pilotId` — the SAME two fields
+// `rosterUnitsToForceUnits` (`src/lib/campaign/encounter/materializeCampaignMissionEncounter.forceUnits.ts`)
+// reads to build each `PUT /api/forces/assignments/:id` body
+// (`unitId: unit.unitRef, pilotId: unit.pilotRef`,
+// `materializeCampaignMissionEncounter.ts:189-190`). Comparing the two
+// is therefore a genuine identity check, not a presence check.
+interface CampaignRosterUnitShape {
+  readonly unitRef?: string;
+  readonly pilotId?: string;
+}
+
+interface CampaignGetResponse {
+  readonly body: {
+    readonly rosterProjection?: {
+      readonly units: readonly CampaignRosterUnitShape[];
+    };
   };
 }
 
@@ -150,11 +174,67 @@ test.describe('Roster Materialization Handoff Trust Anchor', () => {
       forceBody.force.assignments.map((assignment) => assignment.unitId),
     );
     expect(distinctUnitIds.size).toBe(selectedUnitCount);
-    expect(
-      forceBody.force.assignments.every(
-        (assignment) => assignment.pilotId !== null,
-      ),
-      'expected every materialized assignment to preserve its assigned pilot',
-    ).toBe(true);
+
+    // Pilot IDENTITY, not mere presence: resolve the campaign's roster
+    // source of truth and assert each materialized assignment's pilotId
+    // matches the SAME roster unit's pilotId — closing the swap-class
+    // regression (e.g. an off-by-one slot shift, or every unit stamped
+    // with the first roster pilot) that a `pilotId !== null` presence
+    // check cannot see, and that the pre-battle DOM cannot assert either
+    // (it renders only the assignment marker, never a pilot name —
+    // design.md D2 / R5).
+    //
+    // Bounded poll, not a fixed sleep: the wizard's save is debounced
+    // (`AUTO_SAVE_DEBOUNCE_MS`, `useCampaignPersistenceStore.ts`) and
+    // `campaign-save-status-card` merely being visible does not mean
+    // the autosave round-trip has reached the server yet — an immediate
+    // GET can race a real 404.
+    let campaignResponse: APIResponse | undefined;
+    await expect
+      .poll(
+        async () => {
+          campaignResponse = await page.request.get(
+            `/api/campaigns/${encodeURIComponent(campaign.campaignId)}`,
+          );
+          return campaignResponse.status();
+        },
+        {
+          timeout: 20_000,
+          message: 'waiting for the campaign autosave to reach the server',
+        },
+      )
+      .toBe(200);
+    const campaignBody =
+      (await campaignResponse!.json()) as CampaignGetResponse;
+    const rosterUnits = campaignBody.body.rosterProjection?.units ?? [];
+    const rosterPilotByUnitRef = new Map<string, string | null>(
+      rosterUnits
+        .filter(
+          (unit): unit is CampaignRosterUnitShape & { unitRef: string } =>
+            typeof unit.unitRef === 'string',
+        )
+        .map((unit) => [unit.unitRef, unit.pilotId ?? null]),
+    );
+
+    for (const assignment of forceBody.force.assignments) {
+      expect(
+        assignment.unitId,
+        'expected every materialized assignment to reference a canonical unitRef',
+      ).not.toBeNull();
+      const unitId = assignment.unitId as string;
+      expect(
+        rosterPilotByUnitRef.has(unitId),
+        `expected campaign roster to contain the materialized unit ${unitId}`,
+      ).toBe(true);
+      const rosterPilotId = rosterPilotByUnitRef.get(unitId) ?? null;
+      expect(
+        rosterPilotId,
+        `expected campaign roster unit ${unitId} to have an assigned pilot`,
+      ).not.toBeNull();
+      expect(
+        assignment.pilotId,
+        `expected assignment for unit ${unitId} to preserve the roster's assigned pilot ${rosterPilotId}, not swap or drop it`,
+      ).toBe(rosterPilotId);
+    }
   });
 });

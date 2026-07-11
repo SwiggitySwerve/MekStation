@@ -57,6 +57,16 @@ export interface BuildSeededEventsOptions {
   readonly turnLimit?: number;
   readonly victoryConditions?: readonly string[];
   readonly optionalRules?: readonly string[];
+  /**
+   * Persisted `IGameConfig.seed` (`src/types/gameplay/GameSessionUnitTypes.ts`)
+   * for the route-level recovered-continuation determinism scenario
+   * (task 4.2, `add-seam-trust-anchor-journeys` W2 group 4): when set,
+   * `fromSessionAsync` re-seeds both the AI random stream and the dice
+   * stream from this value at recovery (design D4). Omitted by every
+   * other fixture — those sessions persist no seed, matching pre-W1
+   * behavior exactly.
+   */
+  readonly seed?: number;
 }
 
 /**
@@ -79,6 +89,11 @@ export function buildGameCreatedAndStartedEvents(
     turnLimit: options.turnLimit ?? 30,
     victoryConditions: options.victoryConditions ?? ['elimination'],
     optionalRules: options.optionalRules ?? [],
+    // Only stamped when the caller supplies one — a fixture with no
+    // `seed` option persists no `config.seed` key at all, so every
+    // pre-existing fixture (task 2.1/2.2) round-trips byte-identical
+    // through this builder.
+    ...(options.seed !== undefined ? { seed: options.seed } : {}),
   };
 
   return [

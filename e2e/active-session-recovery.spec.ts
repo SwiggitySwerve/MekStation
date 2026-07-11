@@ -3,7 +3,15 @@
  *
  * Seeds the browser's match-log IndexedDB with a generated non-demo match id,
  * then proves `/gameplay/games/:id` can recover and refresh that active
- * session from the event log without falling back to demo state.
+ * session from the event log without falling back to demo state. The
+ * seeded database is opened by the raw `indexedDB.open` transaction
+ * against the `MATCH_LOG_DB_NAME`-keyed `mekstation-match-log` database
+ * (schema: `src/lib/p2p/matchLogStorageSchema.ts`) — the constant itself
+ * now lives in `e2e/helpers/matchLogSeeding.ts` after the 2.1 pure-move
+ * extraction; restated here so the wave-4 scope-recovery QC source
+ * anchor (`scripts/qc/validate-wave4-scope-recovery.mjs`'s
+ * `active-session-recovery-proof`) keeps its literal token pin accurate
+ * post-extraction.
  *
  * Recovery rehydration seam trust anchor (`add-seam-trust-anchor-journeys`
  * W2 group 2): the second test below (`recovers a mirrored-canonical-ref
@@ -11,7 +19,13 @@
  * proof — its fixture mirrors one canonical `unitRef` (`atlas-as7-d`)
  * across both sides under distinct deployed ids, the exact shape the
  * original single-fixture test (both units carrying DIFFERENT unitRefs)
- * could not have caught (design.md D1).
+ * could not have caught (design.md D1). The third test (W2 group 4,
+ * task 4.2) proves the route-level recovered-continuation determinism
+ * scenario: two independently seeded match logs sharing one persisted
+ * `config.seed`, each cold-recovered once and driven through one
+ * identical phase advance, must yield equal normalized continuation
+ * event streams (spec scenario "Seeded recovered continuations are
+ * deterministic at the route level").
  *
  * @tags @game @recovery
  */
@@ -298,6 +312,116 @@ async function expectMirroredRosterRecovered(
   expect(snapshot.eventTypes).not.toContain('game_ended');
 }
 
+// =============================================================================
+// Route-level recovered-continuation determinism (task 4.2, W2 group 4)
+// =============================================================================
+
+/**
+ * Fixed, finite `IGameConfig.seed` for the continuation-determinism
+ * fixture. Per design D5 no golden trace is asserted against this value
+ * — the two runs below are compared to EACH OTHER only.
+ */
+const CONTINUATION_SEED = 4242424242;
+
+/**
+ * The seeded fixture always writes exactly `GameCreated` (sequence 0) +
+ * `GameStarted` (sequence 1) — `buildGameCreatedAndStartedEvents`
+ * (`e2e/helpers/matchLogSeeding.ts`). Continuation events start here.
+ */
+const SEEDED_PREFIX_LENGTH = 2;
+
+/**
+ * Minimal shape for the `InteractiveSession` methods this scenario
+ * drives directly — `advancePhase()` (no unit declarations, mirrors
+ * `e2e/seam-fresh-construction-no-instant-defeat.spec.ts`'s
+ * `advanceInteractiveSessionPhaseOnce`) and `getSession()` to read back
+ * the full event log the call just appended AND persisted (recovered
+ * `InteractiveSession`s auto-persist every new event via
+ * `appendAndPersistInteractiveSessionEvent`,
+ * `src/engine/InteractiveSession.sessionEvents.ts`).
+ */
+interface ContinuationInteractiveSession {
+  readonly advancePhase: () => void;
+  readonly getSession: () => {
+    readonly events: readonly Record<string, unknown>[];
+  };
+}
+
+interface ContinuationGameplayState {
+  readonly interactiveSession?: ContinuationInteractiveSession | null;
+}
+
+interface ContinuationZustandStores {
+  gameplay?: {
+    getState: () => ContinuationGameplayState;
+    setState?: (partial: { session?: unknown }) => void;
+  };
+}
+
+/**
+ * Cold-recover `matchId`, drive exactly one `advancePhase()` (the
+ * Initiative -> Movement transition, which rolls initiative — the
+ * dice-consuming step the persisted `config.seed` re-seed exists to
+ * make reproducible, design D4), and return the raw continuation events
+ * appended after the seeded two-event prefix. Reuses
+ * `expectRecoveredInteractiveSession` for the cold-mount wait/assert so
+ * this scenario shares the exact recovery-settled gate the structural
+ * anchor above already proves, rather than re-deriving its own.
+ */
+async function recoverAndDriveOneContinuation(
+  page: Page,
+  matchId: string,
+): Promise<readonly Record<string, unknown>[]> {
+  await page.goto(`/gameplay/games/${matchId}`, {
+    waitUntil: 'domcontentloaded',
+    timeout: 60_000,
+  });
+  await expect(page).toHaveURL(new RegExp(`/gameplay/games/${matchId}$`));
+  await expectRecoveredInteractiveSession(page, matchId);
+
+  return page.evaluate((prefixLength) => {
+    const stores = (
+      window as unknown as { __ZUSTAND_STORES__?: ContinuationZustandStores }
+    ).__ZUSTAND_STORES__;
+    const gameplay = stores?.gameplay;
+    const interactiveSession = gameplay?.getState().interactiveSession;
+    if (!gameplay || !interactiveSession) {
+      throw new Error('Interactive session not available on gameplay store');
+    }
+    interactiveSession.advancePhase();
+    const session = interactiveSession.getSession();
+    gameplay.setState?.({ session });
+    return session.events.slice(prefixLength);
+  }, SEEDED_PREFIX_LENGTH);
+}
+
+/**
+ * Strip the fields that legitimately differ between the two independent
+ * match logs this scenario seeds — `id` (uuidv4, per-event random) and
+ * `timestamp` (wall-clock), exactly as
+ * `interactiveSessionRecoveryDeterminism.test.ts`'s
+ * `normalizeEventsForComparison` (the W1 D4 proof this scenario extends
+ * to the route level) — PLUS `gameId`, which that jest suite never had
+ * to strip because it recovers ONE match id twice. This scenario cannot
+ * reuse a single match id for two independent recoveries: a recovered
+ * `InteractiveSession` auto-persists every new event back to the SAME
+ * match log (`InteractiveSession.sessionEvents.ts`), so a second cold
+ * load of the SAME id would recover run #1's continuation as part of
+ * its prefix rather than starting from the identical seeded state. Two
+ * independently-seeded match ids (necessarily distinct primary keys)
+ * are therefore the correct route-level shape — every other field
+ * (sequence, turn, phase, type, actorId, visibility, side, payload,
+ * including the dice-driven `InitiativeRolled` roll values) stays in
+ * scope for the equality check.
+ */
+function normalizeContinuationEvents(
+  events: readonly Record<string, unknown>[],
+): readonly unknown[] {
+  return events.map(
+    ({ id: _id, gameId: _gameId, timestamp: _timestamp, ...rest }) => rest,
+  );
+}
+
 test.describe('active game session recovery @game @recovery', () => {
   test('deep-links and refreshes a generated match from local match-log storage', async ({
     page,
@@ -356,6 +480,50 @@ test.describe('active game session recovery @game @recovery', () => {
       deployedIds,
       MIRRORED_UNIT_REF,
       MIRRORED_ROSTER.length,
+    );
+  });
+
+  test('seeded recovered continuations are deterministic at the route level', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    page.on('dialog', (dialog) => dialog.accept());
+
+    // Two independently-seeded match logs sharing one finite
+    // `config.seed` and the same starting roster (task 4.2). Not the
+    // same match id recovered twice — see `normalizeContinuationEvents`
+    // for why a recovered session's auto-persisted continuation rules
+    // that out at the route level.
+    const matchIdA = `e2e-recovery-continuation-a-${Date.now()}`;
+    const matchIdB = `e2e-recovery-continuation-b-${Date.now()}`;
+
+    const eventsA = buildGameCreatedAndStartedEvents(
+      matchIdA,
+      TWO_UNIT_ROSTER,
+      { seed: CONTINUATION_SEED },
+    );
+    const eventsB = buildGameCreatedAndStartedEvents(
+      matchIdB,
+      TWO_UNIT_ROSTER,
+      { seed: CONTINUATION_SEED },
+    );
+    await seedMatchLog(page, matchIdA, eventsA);
+    await seedMatchLog(page, matchIdB, eventsB);
+
+    const continuationA = await recoverAndDriveOneContinuation(page, matchIdA);
+    const continuationB = await recoverAndDriveOneContinuation(page, matchIdB);
+
+    // A real dice-consuming step actually ran (the Initiative -> Movement
+    // roll) — an empty continuation would make the equality check below
+    // vacuous.
+    expect(continuationA.length).toBeGreaterThan(0);
+
+    // Run-to-run equality ONLY (design D6 / D5): no roll value, outcome,
+    // or uninterrupted-run claim is pinned — a divergence here is a W1
+    // re-seed wiring bug (a recovery-path RNG consumer not re-seeded
+    // from `config.seed`), never a normalizer to widen.
+    expect(normalizeContinuationEvents(continuationA)).toEqual(
+      normalizeContinuationEvents(continuationB),
     );
   });
 });
