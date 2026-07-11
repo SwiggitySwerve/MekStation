@@ -102,7 +102,20 @@ export default defineConfig({
       // the runner — it targets the `flow-audit` project by name, not
       // `--project=chromium` (proposal.md non-goal: no CI wiring/behavior
       // changes to the other projects).
-      testIgnore: ['**/flow-audits.spec.ts'],
+      //
+      // scenario-pack-minting.spec.ts (add-scenario-packs, task 3.2) is the
+      // same shape — env-var-selected generator tooling, not a project-wide
+      // sweep. Excluded here as defense in depth on top of the dedicated
+      // `scenario-pack-mint` project below (registered ONLY when
+      // MEKSTATION_MINT_PACK_ID is set) and the file's own internal
+      // `test.skip` gate. Note this project deliberately does NOT ignore
+      // `e2e/scenario-packs/**` — the pilot packs' parity specs run under
+      // `chromium` (design R8: excluded from VIEWPORT multiplication only,
+      // never from chromium itself; task 3.4/7.3's `--list` proof).
+      testIgnore: [
+        '**/flow-audits.spec.ts',
+        '**/scenario-pack-minting.spec.ts',
+      ],
       use: { ...devices['Desktop Chrome'] },
     },
 
@@ -113,6 +126,7 @@ export default defineConfig({
         '**/ux-deep-play-audit.spec.ts',
         '**/ux-walkthrough-audit.spec.ts',
         '**/flow-audits.spec.ts',
+        '**/scenario-pack-minting.spec.ts',
         // Seam trust anchors (add-seam-trust-anchor-journeys, design D7): the
         // three anchors guard production seams, not viewport layout — running
         // them under the responsive projects is 4x cost for zero coverage
@@ -121,6 +135,15 @@ export default defineConfig({
         '**/active-session-recovery.spec.ts',
         '**/seam-roster-materialization-handoff.spec.ts',
         '**/seam-fresh-construction-no-instant-defeat.spec.ts',
+        // Scenario packs (add-scenario-packs, design R8): pack parity specs
+        // assert genesis-checkpoint invariants, not viewport layout — the
+        // manifest's `viewports` field is data for a FUTURE W5 sweep to
+        // consume (design D2), not a signal this project acts on today.
+        // Running them under every responsive project would silently 4x
+        // their cost for zero coverage benefit — the same rationale as the
+        // seam anchors above (spec: "Pack specs are excluded from viewport
+        // multiplication").
+        '**/scenario-packs/**',
       ],
       use: {
         ...devices['Desktop Chrome'],
@@ -137,10 +160,13 @@ export default defineConfig({
         '**/ux-deep-play-audit.spec.ts',
         '**/ux-walkthrough-audit.spec.ts',
         '**/flow-audits.spec.ts',
+        '**/scenario-pack-minting.spec.ts',
         // Seam trust anchors — see the Mobile Chrome testIgnore comment above.
         '**/active-session-recovery.spec.ts',
         '**/seam-roster-materialization-handoff.spec.ts',
         '**/seam-fresh-construction-no-instant-defeat.spec.ts',
+        // Scenario packs — see the Mobile Chrome testIgnore comment above.
+        '**/scenario-packs/**',
       ],
       use: {
         ...devices['Desktop Chrome'],
@@ -155,10 +181,13 @@ export default defineConfig({
         '**/ux-deep-play-audit.spec.ts',
         '**/ux-walkthrough-audit.spec.ts',
         '**/flow-audits.spec.ts',
+        '**/scenario-pack-minting.spec.ts',
         // Seam trust anchors — see the Mobile Chrome testIgnore comment above.
         '**/active-session-recovery.spec.ts',
         '**/seam-roster-materialization-handoff.spec.ts',
         '**/seam-fresh-construction-no-instant-defeat.spec.ts',
+        // Scenario packs — see the Mobile Chrome testIgnore comment above.
+        '**/scenario-packs/**',
       ],
       use: {
         ...devices['Desktop Chrome'],
@@ -196,6 +225,26 @@ export default defineConfig({
           {
             name: 'flow-audit',
             testMatch: ['**/flow-audits.spec.ts'],
+            use: { ...devices['Desktop Chrome'] },
+          },
+        ]
+      : []),
+
+    /* Scenario pack minter (add-scenario-packs, task 3.2) — the exact same
+       env-var-gated-project pattern as `flow-audit` above: registered ONLY
+       when MEKSTATION_MINT_PACK_ID is set (scripts/qc/mint-scenario-pack.mjs
+       always sets it before spawning Playwright), scoped by its own
+       testMatch so it can never accidentally pick up any other spec file.
+       Never referenced by any CI workflow — nightly-validation.yml and
+       pr-checks.yml pass `--project=chromium` explicitly, and
+       mint-scenario-pack.mjs is the only caller that targets this project by
+       name (design D7 layer 1: "every payload is written by a registered
+       minter"; never a CI-invoked step). */
+    ...(process.env.MEKSTATION_MINT_PACK_ID
+      ? [
+          {
+            name: 'scenario-pack-mint',
+            testMatch: ['**/scenario-pack-minting.spec.ts'],
             use: { ...devices['Desktop Chrome'] },
           },
         ]

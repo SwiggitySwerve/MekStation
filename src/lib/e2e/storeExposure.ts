@@ -7,6 +7,7 @@
 
 import { getEventStore, type EventStoreService } from '@/services/events';
 import * as aerospaceRegistry from '@/stores/aerospaceStoreRegistry';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import * as unitRegistry from '@/stores/unitStoreRegistry';
@@ -33,6 +34,16 @@ declare global {
       // `StoreApi` here so E2E specs can do `stores.campaign.getState()` the
       // same way they do for every other store. PT-004.
       campaign: ReturnType<typeof useCampaignStore>;
+      // Sanctioned additive touch (add-scenario-packs W4, orchestrator
+      // ruling 2026-07-11 — see design.md D3 amendment): a normal
+      // `create<T>()` Zustand hook (statics attached, unlike the lazy
+      // `useCampaignStore` wrapper above), exposed so
+      // `e2e/helpers/scenarioPackLoading.ts`'s post-`goto` load-outcome
+      // check can read `saveState`/`errorMessage`/`campaignId` — the exact
+      // signals `loadCampaignAction` itself branches on
+      // (`useCampaignPersistenceStore.ts:441-483`) — instead of inferring
+      // load success from an unrelated store's side effect.
+      campaignPersistence: typeof useCampaignPersistenceStore;
       // Canonical personnel source since the personnel→roster-employment
       // migration (PR #473) — e2e round-trip specs seed pilots here, the
       // same way the Jest twin (phase4CampaignRoundTrip.test.ts) does.
@@ -71,6 +82,7 @@ export function exposeStoresForE2E(): void {
     // call outside a component body.
     // oxlint-disable-next-line react-hooks/rules-of-hooks
     campaign: useCampaignStore(),
+    campaignPersistence: useCampaignPersistenceStore,
     campaignRoster: useCampaignRosterStore,
     force: useForceStore,
     pilot: usePilotStore,
