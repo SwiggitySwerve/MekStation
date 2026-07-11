@@ -1,0 +1,7 @@
+schema: spec-driven
+created: 2026-07-10
+goal: Generator-minted scenario pack registry (campaign envelopes + match-log
+  captures) with front-door loaders, graph-aware id templating, fail-loud zod
+  validation, version pins, and nightly re-capture-and-diff — packs gate
+  nothing until parity-proven (Seam-First Ladder W4, 2026-07-09 council
+  decision)
