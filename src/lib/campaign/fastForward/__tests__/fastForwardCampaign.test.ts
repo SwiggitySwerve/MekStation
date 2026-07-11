@@ -177,6 +177,15 @@ describe('fastForwardCampaign', () => {
         expectations: { minScenariosBridged: 1 },
       }),
     ).rejects.toThrow(/minScenariosBridged: expected >= 1, got 0/);
+    // Spec: "Fixture Expectations Fail Loud" — the thrown error SHALL
+    // name the battle-chance gate, not just the bare count mismatch, so
+    // a red run is never misread as a defect in the covered subsystems.
+    await expect(
+      fastForwardCampaign(closedGateCampaign, {
+        days: 8,
+        expectations: { minScenariosBridged: 1 },
+      }),
+    ).rejects.toThrow(/battle-chance gate/);
   });
 
   it('hands every newly bridged scenario to the injected runner, publishes through the real bus, and drains the outcome via extra drain day(s)', async () => {

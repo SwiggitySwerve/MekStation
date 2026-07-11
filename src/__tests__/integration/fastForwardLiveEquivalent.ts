@@ -10,17 +10,22 @@
  * sequencing are hand-inlined directly against the production primitives
  * (store `advanceDay`, `materializeCampaignMissionEncounter`,
  * `buildPreparedBattleData`, `GameEngine`, `deriveCombatOutcome` +
- * `publishCombatOutcome`). Shared surface is limited to exactly three
+ * `publishCombatOutcome`). Shared surface is limited to exactly four
  * modules (design D7 rule 1): the fixture builder (an identical fixture is
  * the comparison's premise, imported by the TEST FILE, not here), the
  * in-process API router (`createInProcessApiFetch` — transport, unit-tested
- * per-route in group 1), and `deriveBattleSeed` (identical seeds are the
+ * per-route in group 1), `deriveBattleSeed` (identical seeds are the
  * premise — re-deriving the formula independently would just be the same
- * code twice, buying nothing). `assertSessionInflictedDamage` is also used
- * here — it is NOT fast-forward orchestration, it is the group-4 damage
+ * code twice, buying nothing), and `assertSessionInflictedDamage`, used
+ * below — it is NOT fast-forward orchestration, it is the group-4 damage
  * guard (its own module, its own dedicated test suite), reused so the
  * live-equivalent's battles are held to the same standing tripwire a real
- * player session would be.
+ * player session would be. This fourth shared item is sanctioned by an
+ * explicit spec delta (W3 review-fix) — spec.md's "Live-Parity Acceptance
+ * on Seam Invariants" requirement's shared-surface enumeration and its
+ * "The live-equivalent does not reuse the code under test" scenario both
+ * now name it explicitly, matching design D7 rule 1 — rather than living
+ * only in this comment.
  *
  * `fastForwardLiveParity.test.ts`'s own "the live-equivalent does not reuse
  * the code under test" check greps THIS FILE's source for an import of

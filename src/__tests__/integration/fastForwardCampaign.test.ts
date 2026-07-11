@@ -43,7 +43,12 @@
  * verified to bridge and fight for it; the `minScenariosBridged`/
  * `minBattles` fail-loud expectations (spec: "Fixture Expectations Fail
  * Loud") still guard against a future upstream roll-stream change silently
- * breaking that.
+ * breaking that. This narrowing is sanctioned by an explicit spec delta —
+ * spec.md's "Fixture Expectations Fail Loud" requirement, scenario
+ * "Single-fight isolation fixtures may declare a reduced roll budget" —
+ * added in a W3 review-fix pass so this deviation is not just a doc
+ * comment (per that requirement's own "never silently" narrowing
+ * discipline, mirroring how R9 is handled).
  *
  * @spec openspec/changes/add-campaign-fast-forward-api/specs/campaign-fast-forward-api/spec.md
  */
@@ -273,7 +278,14 @@ describe('fastForwardCampaign — capstone: full continuous chain, real engine c
     // task 4.2's dedicated `maintenance.test.ts`; this capstone still
     // exercises them against real end-state data rather than skipping
     // them, per the "all three invariant modules pass over the end
-    // state" acceptance.
+    // state" acceptance. This exact bound is now recorded as an explicit
+    // spec delta (W3 review-fix) — spec.md's "Maintenance and Repair
+    // Invariants Across a Fast-Forwarded Run" requirement's "Run-level
+    // engagement bound" paragraph + its "Run-level assertions run against
+    // real, possibly-empty repair state" scenario — rather than living
+    // only in this comment; the production gap itself (no writer for
+    // `campaign.unitMaxStates` on the fast-forward path) is tracked as an
+    // Open Question in design.md, matching how R9 is handled.
     // ---------------------------------------------------------------
     const finalRepairQueue: readonly IRepairTicket[] =
       (
@@ -312,5 +324,17 @@ describe('fastForwardCampaign — capstone: full continuous chain, real engine c
       }),
     ).rejects.toThrow(/minScenariosBridged: expected >= 1, got 0/);
     expect(captured).toHaveLength(0);
+
+    // Spec: "Fixture Expectations Fail Loud" — the thrown error SHALL
+    // name the battle-chance gate so a maintainer triaging this red run
+    // reads it as the roll, not as a defect in the covered subsystems.
+    const captured2: CapturedBattleOutcome[] = [];
+    await expect(
+      fastForwardCampaign(brokenCampaign, {
+        days: 2,
+        runBridgedScenario: createCapturingRunner(captured2),
+        expectations: { minScenariosBridged: 1 },
+      }),
+    ).rejects.toThrow(/battle-chance gate/);
   });
 });

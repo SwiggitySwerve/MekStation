@@ -15,7 +15,12 @@
  *    mocked at the catalog-lookup boundary — never at combat mechanics)
  *    using the SAME canonical armor/structure sheets for the SAME
  *    representative refs the fast-forward fixture deploys
- *    (`fastForwardFixture.ts`'s `CANONICAL_UNIT_REFS`).
+ *    (`fastForwardFixture.ts`'s `CANONICAL_UNIT_REFS`). This mocked
+ *    boundary — and the resulting bound on what this battery certifies —
+ *    is recorded as an explicit spec delta (W3 review-fix): spec.md's
+ *    "Battles Run Through the Real Handlers and the Real Engine"
+ *    requirement's "Catalog-lookup bound" paragraph + its "The
+ *    catalog-lookup boundary is the only sanctioned mock" scenario.
  *  - the full singleton-reset sweep (`phase4CampaignRoundTrip.test.ts`'s
  *    pattern, design D8).
  *  - a battle-outcome-capturing wrapper around the real

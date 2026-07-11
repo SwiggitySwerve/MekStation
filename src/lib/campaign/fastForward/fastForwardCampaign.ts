@@ -269,8 +269,16 @@ export async function fastForwardCampaign(
     minScenariosBridged !== undefined &&
     scenariosBridged.length < minScenariosBridged
   ) {
+    // Spec: "Fixture Expectations Fail Loud" — AtB scenario generation is
+    // triple-gated (Monday-only, useAtBScenarios, per-team battle-chance
+    // roll); a well-built fixture already satisfies the first two
+    // structurally, so a bridged-scenario miss is read as the third gate
+    // (the battle-chance roll) coming up short this seed, not as a defect
+    // in the day pipeline, bridge, or materialization path this
+    // capability covers. Named explicitly so a maintainer triaging a red
+    // run gets gate attribution instead of a bare count mismatch.
     violations.push(
-      `minScenariosBridged: expected >= ${minScenariosBridged}, got ${scenariosBridged.length}`,
+      `minScenariosBridged: expected >= ${minScenariosBridged}, got ${scenariosBridged.length} (battle-chance gate: AtB scenario generation rolls a per-team d100 against each combat team's role battle chance every Monday — a miss here means the roll(s) came up short this seed, not a defect in the day pipeline, bridge, or materialization path)`,
     );
   }
   if (minBattles !== undefined && battles.length < minBattles) {
