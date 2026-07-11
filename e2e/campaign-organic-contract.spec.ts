@@ -67,8 +67,12 @@ async function createCampaignViaWizard(page: Page): Promise<string> {
   await expect(page.getByTestId('campaign-dashboard')).toBeVisible({
     timeout: 20_000,
   });
+  // Post-#1035 the dashboard roster rehydrates from the server projection and
+  // renders the resolved catalog identity, not the wizard's template label.
+  // add-unit-light-mech deterministically adds Locust LCT-1V (pinned by
+  // CreateCampaignPage.RosterStep.test.tsx).
   await expect(page.getByTestId('roster-unit-card')).toContainText(
-    'Light Mech',
+    'Locust LCT-1V',
   );
 
   const match = page.url().match(/\/gameplay\/campaigns\/([^/?#]+)/);
@@ -173,7 +177,7 @@ test.describe('organic campaign contract acceptance', () => {
 
         const created = await getCampaignContractSnapshot(page);
         expect(created.campaignId).toBe(campaignId);
-        expect(created.rosterUnitNames).toContain('Light Mech');
+        expect(created.rosterUnitNames).toContain('Locust LCT-1V');
         expect(created.rosterPilotNames).toContain('MechWarrior 1');
 
         await page.getByTestId('quick-action-browse-contracts').click();
