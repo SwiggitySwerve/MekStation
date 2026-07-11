@@ -174,6 +174,7 @@
     "qc:surface-browser:validate": "node scripts/qc/validate-surface-browser-proof.mjs",
     "verify:qc:scenarios": "npm run qc:scenarios -- --tier=standard",
     "verify:qc:app-shell": "npm run qc:app-shell-routes:validate && node scripts/playwright/run-playwright.mjs test --project=chromium e2e/app-shell-route-proof.spec.ts --workers=1",
+    "verify:qc:viewport-sweep": "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/layout-sweep/screenInventory.guard.spec.ts --workers=1 && node scripts/playwright/run-playwright.mjs test --project=chromium e2e/layout-sweep/layout-helpers.selftest.spec.ts --workers=1 && node scripts/playwright/run-playwright.mjs test --project=chromium e2e/layout-sweep/viewport-layout-sweep.spec.ts --workers=1",
     "verify:qc:journeys": "npm run qc:journeys:validate && npm run qc:journeys -- --journey=all --tier=smoke",
     "verify:qc:ui-flow-shell": "npm run qc:ui-flow-shell:validate && npm run qc:ui-flow-shell -- --journey=all --json",
     "verify:qc:character-build": "npm.cmd test -- --watchAll=false --runTestsByPath src/components/pilots/__tests__/PilotCreationWizard.test.tsx src/services/pilots/__tests__/PilotService.test.ts src/services/pilots/__tests__/PilotRepository.test.ts src/stores/__tests__/usePilotStore.test.ts src/services/vault/__tests__/ExportService.generic-export.test.ts src/services/vault/__tests__/ExportService.test.ts --runInBand && npm run verify:qc:app-shell",

@@ -7,7 +7,7 @@
 npm run test:e2e
 
 # Run smoke tests only (fast, for PR checks)
-npx playwright test --project=smoke
+npx playwright test --grep @smoke --project=chromium
 
 # Run by tag
 npx playwright test --grep @campaign
@@ -331,7 +331,7 @@ Note: Service workers may not work in all browsers during development.
 ### PR Checks (Fast)
 
 ```yaml
-- npx playwright test --project=smoke
+- npx playwright test --grep @smoke --project=chromium
 ```
 
 ### Merge to Main (Full)
