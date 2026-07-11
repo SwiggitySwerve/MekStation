@@ -88,13 +88,16 @@ export {
 
 // Roster-materialization-handoff seam trust anchor helpers
 export {
+  addMirroredCanonicalRefRosterUnits,
   createSeamMaterializedRowTracker,
   createSilentStepRecorder,
   createUniqueSeamCampaign,
+  createUniqueSeamCampaignWithMirroredRoster,
   deleteSeamMaterializedRows,
   launchSelectedRosterToPreBattle,
   openSeamMissionLaunchBriefing,
   selectAllRosterUnits,
+  type MirroredRosterCampaignOptions,
   type SeamCampaignOptions,
   type SeamLaunchResult,
   type SeamMaterializedRowIds,
