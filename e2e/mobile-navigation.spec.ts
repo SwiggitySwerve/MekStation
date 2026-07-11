@@ -485,7 +485,7 @@ test.describe('Navigation Flows', () => {
 // Touch Interaction Tests
 // =============================================================================
 
-test.describe('Touch Interactions', () => {
+test.describe('Touch Interactions @mobile-touch', () => {
   test.use({
     viewport: { width: 375, height: 667 },
     hasTouch: true,

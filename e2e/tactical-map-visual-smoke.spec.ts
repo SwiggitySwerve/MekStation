@@ -1218,7 +1218,7 @@ test.describe('Tactical map visual smoke @smoke @game', () => {
     expect(southHighlightAfterRotation.split(',')).not.toContain('occluded');
   });
 
-  test.describe('isometric pointer and touch camera smoke', () => {
+  test.describe('isometric pointer and touch camera smoke @mobile-touch', () => {
     test.use({
       hasTouch: true,
       isMobile: true,

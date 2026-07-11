@@ -16,7 +16,9 @@ const e2eRuntimeDir = `./.sisyphus/e2e-runtime/${e2eRunId}`;
  * Playwright configuration for MekStation E2E tests
  *
  * Test categorization via tags:
- * - @smoke: Critical path tests (run on every PR)
+ * - @smoke: Critical path tests (grep-selected, no dedicated project anymore)
+ * - @mobile-touch: hasTouch/isMobile-dependent tests (dedicated `mobile-touch`
+ *   project below -- opt-in via tag, never suite-wide; design D2/D3)
  * - @slow: Tests that take > 30s (skip for quick feedback)
  * - @campaign: Campaign system tests
  * - @encounter: Encounter system tests
@@ -27,9 +29,19 @@ const e2eRuntimeDir = `./.sisyphus/e2e-runtime/${e2eRunId}`;
  * - @compendium: Compendium tests
  *
  * Usage:
- *   npx playwright test --grep @smoke        # Run smoke tests only
- *   npx playwright test --grep-invert @slow  # Skip slow tests
- *   npx playwright test --grep @campaign     # Run campaign tests only
+ *   npx playwright test --grep @smoke --project=chromium  # Smoke tests only
+ *   npx playwright test --grep-invert @slow                # Skip slow tests
+ *   npx playwright test --grep @campaign                   # Campaign tests only
+ *   npx playwright test --project=mobile-touch             # Tagged touch tests only
+ *
+ * Viewport coverage below desktop is a parameter dimension, not suite
+ * duplication: `e2e/layout-sweep/viewport-layout-sweep.spec.ts` loops
+ * `SWEEP_VIEWPORTS` under `chromium` via `setViewportSize`, and the handful
+ * of specs that need `hasTouch`/`isMobile` self-scope with `test.use({...})`
+ * (add-viewport-layout-sweep design D2 -- the responsive `Mobile Chrome` /
+ * `Tablet Portrait` / `Tablet Landscape` / `smoke` projects that used to
+ * 4x-schedule the whole suite are deleted; task 4.1's pre-deletion baseline
+ * proved nothing responsive-only was silently load-bearing).
  *
  * @see https://playwright.dev/docs/test-configuration
  */
@@ -119,87 +131,34 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
 
-    /* Phone (375px) - iPhone SE dimensions for audit */
+    /* Tag-scoped touch/mobile-emulation project (add-viewport-layout-sweep
+       design D2/D3) — replaces the four deleted responsive/smoke projects
+       (`Mobile Chrome`, `Tablet Portrait`, `Tablet Landscape`, `smoke`),
+       which used to 4x-schedule the entire suite by file duplication.
+       Selection is the tag, not the project: only tests whose titles carry
+       `@mobile-touch` are scheduled here (the same grep-selection mechanism
+       `smoke` used for years, just narrower by construction). Existing
+       touch-interaction describes opt in explicitly (`mobile-navigation.spec.ts`
+       "Touch Interactions", `tactical-map-visual-smoke.spec.ts`'s isometric
+       touch describe); their own `test.use({...})` blocks are untouched, so
+       the tag is pure selection, not behavior. Anchors, deep-play/walkthrough,
+       sweep, and pack parity specs must NEVER carry this tag (spec'd) — a
+       tag-scoped project must not re-introduce double-scheduling of
+       chromium-contract specs. Viewport width below desktop is now a
+       parameter dimension (the layout sweep's `setViewportSize` loop; the
+       handful of self-scoping specs' own `test.use`), never suite
+       duplication — task 4.1's pre-deletion baseline (all three deleted
+       responsive projects run once, full) confirmed nothing responsive-only
+       was silently load-bearing on the deleted trio. */
     {
-      name: 'Mobile Chrome',
-      testIgnore: [
-        '**/ux-deep-play-audit.spec.ts',
-        '**/ux-walkthrough-audit.spec.ts',
-        '**/flow-audits.spec.ts',
-        '**/scenario-pack-minting.spec.ts',
-        // Seam trust anchors (add-seam-trust-anchor-journeys, design D7): the
-        // three anchors guard production seams, not viewport layout — running
-        // them under the responsive projects is 4x cost for zero coverage
-        // benefit. Chromium-only is a load-bearing contract (journey-qc
-        // "Anchors are excluded from viewport multiplication").
-        '**/active-session-recovery.spec.ts',
-        '**/seam-roster-materialization-handoff.spec.ts',
-        '**/seam-fresh-construction-no-instant-defeat.spec.ts',
-        // Scenario packs (add-scenario-packs, design R8): pack parity specs
-        // assert genesis-checkpoint invariants, not viewport layout — the
-        // manifest's `viewports` field is data for a FUTURE W5 sweep to
-        // consume (design D2), not a signal this project acts on today.
-        // Running them under every responsive project would silently 4x
-        // their cost for zero coverage benefit — the same rationale as the
-        // seam anchors above (spec: "Pack specs are excluded from viewport
-        // multiplication").
-        '**/scenario-packs/**',
-      ],
+      name: 'mobile-touch',
+      grep: /@mobile-touch/,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: 375, height: 667 },
         hasTouch: true,
         isMobile: true,
       },
-    },
-
-    /* Tablet portrait (768px) - iPad Mini dimensions for audit */
-    {
-      name: 'Tablet Portrait',
-      testIgnore: [
-        '**/ux-deep-play-audit.spec.ts',
-        '**/ux-walkthrough-audit.spec.ts',
-        '**/flow-audits.spec.ts',
-        '**/scenario-pack-minting.spec.ts',
-        // Seam trust anchors — see the Mobile Chrome testIgnore comment above.
-        '**/active-session-recovery.spec.ts',
-        '**/seam-roster-materialization-handoff.spec.ts',
-        '**/seam-fresh-construction-no-instant-defeat.spec.ts',
-        // Scenario packs — see the Mobile Chrome testIgnore comment above.
-        '**/scenario-packs/**',
-      ],
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 768, height: 1024 },
-      },
-    },
-
-    /* Tablet landscape (1024px) - for audit capture suite */
-    {
-      name: 'Tablet Landscape',
-      testIgnore: [
-        '**/ux-deep-play-audit.spec.ts',
-        '**/ux-walkthrough-audit.spec.ts',
-        '**/flow-audits.spec.ts',
-        '**/scenario-pack-minting.spec.ts',
-        // Seam trust anchors — see the Mobile Chrome testIgnore comment above.
-        '**/active-session-recovery.spec.ts',
-        '**/seam-roster-materialization-handoff.spec.ts',
-        '**/seam-fresh-construction-no-instant-defeat.spec.ts',
-        // Scenario packs — see the Mobile Chrome testIgnore comment above.
-        '**/scenario-packs/**',
-      ],
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1024, height: 768 },
-      },
-    },
-
-    /* Smoke tests - fast subset for PR checks */
-    {
-      name: 'smoke',
-      grep: /@smoke/,
-      use: { ...devices['Desktop Chrome'] },
     },
 
     /* Flow-audit routines (add-flow-audit-routines task 4) — the single

@@ -6,9 +6,11 @@
  * `--project=flow-audit` plus the MEKSTATION_FLOW_* env vars below.
  * playwright.config.ts registers the `flow-audit` project ONLY when
  * MEKSTATION_FLOW_ID is set, so a bare `npm run test:e2e` / `npx playwright
- * test` (no `--project` flag) never runs this file — the other projects'
- * `testIgnore` entries (chromium, Mobile Chrome, Tablet Portrait, Tablet
- * Landscape) are defense in depth on top of that, not the primary guard.
+ * test` (no `--project` flag) never runs this file — `chromium`'s own
+ * `testIgnore` entry (add-viewport-layout-sweep design D2 — the responsive
+ * `Mobile Chrome`/`Tablet Portrait`/`Tablet Landscape` projects that used to
+ * carry a matching entry each are deleted) is defense in depth on top of
+ * that, not the primary guard.
  *
  * Each flow drives the real UI through the shared `WalkthroughRecorder`, marking
  * one recorder `checkpoint()` per manifest checkpoint in order. Selection travels
