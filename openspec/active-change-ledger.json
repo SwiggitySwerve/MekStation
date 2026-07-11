@@ -1,12 +1,6 @@
 {
   "allowedActiveChanges": [
     {
-      "name": "add-scenario-packs",
-      "status": "in-progress",
-      "reason": "Declarative-first change: proposal/design/specs/tasks authored ahead of implementation per Seam-First Ladder W4 council decision (openspec/council-decisions/2026-07-09-ui-audit-testability-architecture.md). Implementation starts only after the W3 (add-campaign-fast-forward-api) implementation merges to main; ships in follow-up PRs once this authoring PR merges.",
-      "lastReviewed": "2026-07-10"
-    },
-    {
       "name": "add-viewport-layout-sweep",
       "status": "in-progress",
       "reason": "Declarative-first change: proposal/design/specs/tasks authored ahead of implementation per Seam-First Ladder W5 council decision (openspec/council-decisions/2026-07-09-ui-audit-testability-architecture.md). Groups 1-4 (helpers, inventory, standalone sweep, project rationalization) implement after this authoring PR merges; the pack-seeded sweep group gates on the W4 (add-scenario-packs) implementation landing.",
