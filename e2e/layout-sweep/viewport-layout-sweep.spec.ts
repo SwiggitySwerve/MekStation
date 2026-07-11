@@ -158,10 +158,10 @@ async function runViewportChecks(
     isApplicableAt(target, viewport.label),
   );
   // Design D9 rule 1 enforces that every swept entry has an applicable
-  // primary affordance at every sweep viewport -- for the 33 literal-goto
-  // entries the inventory guard already proves this statically; pack-seeded
-  // entries (task 5.1) are outside the guard's swept-now scope, so this is
-  // the ONLY enforcement for them, not a defensive re-assertion.
+  // primary affordance at every sweep viewport -- the inventory guard now
+  // proves this statically for both the 33 literal-goto entries and the 18
+  // pack-seeded entries (screenInventory.guard.spec.ts's `ALL_SWEPT_ENTRIES`
+  // union). This runtime throw stays as a defensive re-assertion for both.
   if (!applicablePrimaryAffordance) {
     throw new Error(
       `${entry.id} has no primary affordance applicable at ${viewport.label}`,
@@ -245,15 +245,35 @@ test.describe('Viewport layout sweep', () => {
   }
 });
 
+/**
+ * Extract the campaign id from a `/gameplay/campaigns/{id}[/...]` pathname --
+ * the front-door observable the e2e-testing spec delta names ("the
+ * identifier SHALL come from the loader's post-navigation URL"). Reading
+ * this instead of `loadCampaignPack`'s return value keeps the sweep
+ * decoupled from an uncontracted loader-implementation surface: the merged
+ * scenario-packs spec's Front-Door Loading Contract only promises `page.goto`
+ * lands on the target route (openspec/specs/scenario-packs/spec.md), it says
+ * nothing about the loader's return shape.
+ */
+function campaignIdFromUrl(url: string): string | undefined {
+  const segments = new URL(url).pathname.split('/').filter(Boolean);
+  const campaignsIndex = segments.indexOf('campaigns');
+  if (campaignsIndex === -1 || campaignsIndex + 1 >= segments.length) {
+    return undefined;
+  }
+  return segments[campaignsIndex + 1];
+}
+
 // =============================================================================
 // Group 2: navigation-pack-seeded campaign screens (task 5.1, design D5/D10a).
 // One `loadCampaignPack` call per worker (test.beforeAll below), amortized
 // across the 16 direct-goto subroutes + the 1 in-page-discovery mission-launch
 // screen -- "seed once, sweep many". The stamped campaign id is read from the
-// loader's own return value (the loader's post-navigation URL is what the
-// design's observable-only rule actually promises; the loader's return value
-// is the same id, task-level implementation convenience this sweep already
-// relies on identically to the parity specs, e2e/scenario-packs/*.parity.spec.ts).
+// loader's post-navigation URL (`campaignIdFromUrl` above) -- the one
+// consumer-visible id surface the scenario-packs spec's Front-Door Loading
+// Contract actually promises (design D5). The loader's return value is never
+// read here: it is an uncontracted loader-implementation surface (task 5.1,
+// e2e-testing spec delta "Dynamic segments come from front-door observables").
 // =============================================================================
 
 const navigationPackEntries = PACK_SEEDED_SWEPT_ENTRIES.filter(
@@ -272,10 +292,13 @@ test.describe('Viewport layout sweep -- pack-seeded (navigation)', () => {
   test.beforeAll(async ({ browser }, testInfo) => {
     const context = await browser.newContext();
     const seedPage = await context.newPage();
-    const loaded = await loadCampaignPack(seedPage, 'navigation-briefing', {
+    await loadCampaignPack(seedPage, 'navigation-briefing', {
       workerIndex: testInfo.workerIndex,
     });
-    campaignId = loaded.campaignId;
+    // Read the stamped campaign id from the loader's post-navigation URL --
+    // never from the loader's return value (see the module-header comment
+    // and `campaignIdFromUrl` above).
+    campaignId = campaignIdFromUrl(seedPage.url());
     await context.close();
   });
 

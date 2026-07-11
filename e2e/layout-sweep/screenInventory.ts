@@ -1405,11 +1405,14 @@ const packSeededEntries: readonly PackSeededScreenEntry[] = [
  * id -- a real type difference, not a cosmetic one (direct-goto vs
  * in-page-discovery navigation, worker-amortized pack loading vs a bare
  * `page.goto`). The inventory guard's classification-count and excluded-
- * reason checks (`screenInventory.guard.spec.ts`) already cover these
- * entries via `SCREEN_INVENTORY`; its swept-now-scoped checks
- * (quarantine-reason, per-viewport primary-affordance coverage) stay
- * scoped to the 33 literal-goto entries by design -- the sweep spec itself
- * re-enforces per-viewport affordance coverage for this array (task 5.1).
+ * reason checks (`screenInventory.guard.spec.ts`) cover these entries via
+ * `SCREEN_INVENTORY`; its quarantine-reason and per-viewport
+ * primary-affordance-coverage checks cover this array too, unioned with
+ * `SWEPT_NOW_ENTRIES` (`ALL_SWEPT_ENTRIES` in the guard spec) -- these
+ * entries are swept screens post-task-5.1, so the e2e-testing spec delta's
+ * unqualified SHALLs apply to them the same as the 33 literal-goto entries.
+ * The sweep spec's runtime throw (`viewport-layout-sweep.spec.ts`) remains a
+ * defensive re-assertion, not the sole enforcement.
  */
 export const PACK_SEEDED_SWEPT_ENTRIES: readonly PackSeededScreenEntry[] =
   packSeededEntries;

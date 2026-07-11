@@ -12,11 +12,23 @@ import { expect, test } from '@playwright/test';
 import appShellRouteManifest from '../app-shell-route-manifest.json';
 import {
   ALL_SWEEP_VIEWPORT_LABELS,
+  PACK_SEEDED_SWEPT_ENTRIES,
   SCREEN_INVENTORY,
   SWEPT_NOW_ENTRIES,
   TEST_HARNESS_ROUTE_PATTERNS,
   type ScreenInventoryEntry,
 } from './screenInventory';
+
+/**
+ * Every swept screen -- literal-goto (`SWEPT_NOW_ENTRIES`) AND pack-seeded
+ * (`PACK_SEEDED_SWEPT_ENTRIES`, task 5.1 flipped these to swept). The
+ * e2e-testing spec delta's quarantine-completeness and per-viewport
+ * affordance-coverage SHALLs are unqualified by entry class -- a pack-seeded
+ * entry is a swept screen and a quarantine entry like any other, so both
+ * structural checks below must cover this combined set, not `SWEPT_NOW_ENTRIES`
+ * alone.
+ */
+const ALL_SWEPT_ENTRIES = [...SWEPT_NOW_ENTRIES, ...PACK_SEEDED_SWEPT_ENTRIES];
 
 /** Every manifest primary/recovery/delegated route path or pattern, raw. */
 function manifestRoutesRequiringClassification(): readonly string[] {
@@ -79,7 +91,7 @@ test.describe('Viewport layout sweep -- screen inventory guard', () => {
   });
 
   test('every quarantine entry has a non-empty reason and follow-up', () => {
-    for (const entry of SWEPT_NOW_ENTRIES) {
+    for (const entry of ALL_SWEPT_ENTRIES) {
       for (const quarantineEntry of entry.quarantine ?? []) {
         expect(
           quarantineEntry.reason.trim().length,
@@ -96,7 +108,7 @@ test.describe('Viewport layout sweep -- screen inventory guard', () => {
   test('every swept screen declares an applicable primary affordance at every sweep viewport', () => {
     expect(ALL_SWEEP_VIEWPORT_LABELS.length).toBe(4);
 
-    for (const entry of SWEPT_NOW_ENTRIES) {
+    for (const entry of ALL_SWEPT_ENTRIES) {
       expect(
         entry.primaryAffordances.length,
         `Swept entry "${entry.id}" declares no primary affordances`,
