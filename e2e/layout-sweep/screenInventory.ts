@@ -173,6 +173,100 @@ const CHROME_BROWSE = chromeDropdown('Browse');
 const CHROME_TOOLS = chromeDropdown('Tools');
 const CHROME_GAMEPLAY = chromeDropdown('Gameplay');
 
+// ============================================================================
+// Shared campaign-nav chrome group (design D9 rule 5, group 5 / task 5.1) --
+// `CampaignNavigation` (src/components/campaign/CampaignNavigation.tsx)
+// mounts identically on every campaign subroute (via `CampaignPageFrameFromShell`,
+// or the hand-rolled mount on the activity-log and mission-launch pages) and
+// carries NO responsive `hidden` classes -- the nav wraps (`flex flex-wrap`)
+// rather than collapsing, so its top-level tabs and group triggers stay
+// visible and clickable at all four sweep viewports (unlike the app-shell
+// TopBar chrome above, which genuinely collapses). One shared group, defined
+// once, referenced by all 17 navigation-pack-seeded entries below -- never a
+// per-page fabricated "unique" affordance that would assume subsystem data
+// richness (a populated finances ledger, repair-bay tickets) the navigation
+// pack never seeds (design D5: "populated content richness is not this
+// sweep's concern").
+// ============================================================================
+
+const CAMPAIGN_NAV_DASHBOARD_TAB = affordance({
+  label: 'campaign nav dashboard tab',
+  role: 'link',
+  name: /^Dashboard$/i,
+});
+const CAMPAIGN_NAV_PERSONNEL_TAB = affordance({
+  label: 'campaign nav personnel tab',
+  role: 'link',
+  name: /^Personnel$/i,
+});
+const CAMPAIGN_NAV_FORCES_TAB = affordance({
+  label: 'campaign nav forces tab',
+  role: 'link',
+  name: /^Forces$/i,
+});
+const CAMPAIGN_NAV_MISSIONS_TAB = affordance({
+  label: 'campaign nav missions tab',
+  role: 'link',
+  name: /^Missions$/i,
+});
+const CAMPAIGN_NAV_STARMAP_TAB = affordance({
+  label: 'campaign nav starmap tab',
+  role: 'link',
+  name: /^Starmap$/i,
+});
+const CAMPAIGN_NAV_BAYS_GROUP = affordance({
+  label: 'campaign nav bays group',
+  testId: 'campaign-nav-bays-group',
+});
+const CAMPAIGN_NAV_COMMAND_GROUP = affordance({
+  label: 'campaign nav command group',
+  testId: 'campaign-nav-command-group',
+});
+
+/**
+ * The shared primary affordance for every navigation-pack-seeded screen: the
+ * "Dashboard" tab link, structurally present on every subroute regardless of
+ * `currentPage` (design D9 rule 1's applicable-at-all-four requirement is
+ * trivial here -- the nav never hides it, so a single-element, no-viewports-
+ * restriction array covers every entry).
+ */
+const CAMPAIGN_NAV_PRIMARY_AFFORDANCE: readonly CheckTarget[] = [
+  CAMPAIGN_NAV_DASHBOARD_TAB,
+];
+
+/** The shared overlap group: every unconditional top-level nav element. */
+const CAMPAIGN_NAV_OVERLAP_TARGETS: readonly CheckTarget[] = [
+  CAMPAIGN_NAV_DASHBOARD_TAB,
+  CAMPAIGN_NAV_PERSONNEL_TAB,
+  CAMPAIGN_NAV_FORCES_TAB,
+  CAMPAIGN_NAV_MISSIONS_TAB,
+  CAMPAIGN_NAV_STARMAP_TAB,
+  CAMPAIGN_NAV_BAYS_GROUP,
+  CAMPAIGN_NAV_COMMAND_GROUP,
+];
+
+// ============================================================================
+// Combat-pack check targets (design D9 rule 5, task 5.1) -- the game session
+// screen (`/gameplay/games/[id]`) renders no app-shell/campaign-nav chrome
+// (full-screen immersive `h-screen` shell, `src/pages/gameplay/games/[id].tsx`);
+// `tactical-turn-rail` (`TacticalTurnRail.tsx:315`, `role="region"`,
+// `min-h-[3rem]`) is the one structurally unconditional, non-state-mutating
+// surface confirmed present post-load by the combat-midbattle parity spec --
+// used here for both the overlap and clickable checks so the sweep never
+// touches a turn-advancing or unit-selecting control. `hex-map-container`
+// (`HexMapDisplay.tsx:81`) is the same canvas locator
+// `tactical-map-visual-smoke.spec.ts` already asserts non-blank-render on.
+// ============================================================================
+
+const COMBAT_TACTICAL_TURN_RAIL = affordance({
+  label: 'tactical turn rail',
+  testId: 'tactical-turn-rail',
+});
+const COMBAT_HEX_MAP_CANVAS = affordance({
+  label: 'hex map canvas',
+  testId: 'hex-map-container',
+});
+
 /**
  * The dashboard's primary affordance at each sweep viewport: the browse menu
  * (icon variant at 768, labeled variant at 1024/1280) and the hamburger
@@ -270,11 +364,28 @@ export interface SweptScreenEntry extends BaseEntry {
   readonly quarantine?: readonly QuarantineEntry[];
 }
 
-/** A route pattern gated on the W4 scenario-pack loaders (group 5, not swept here). */
+/**
+ * A route pattern gated on the W4 scenario-pack loaders (group 5, task 5.0/5.1).
+ * Pre-gate, only `pack`/`navigation`/`note` are populated (the route stays
+ * un-swept). Post-gate (this change), every entry ALSO carries the same
+ * layout-check fields `SweptScreenEntry` does -- `routeTemplate` stands in
+ * for `goto` (the sweep spec substitutes the pack loader's stamped id,
+ * design D5; absent on the `in-page-discovery` entry, which never
+ * constructs a route from an id).
+ */
 export interface PackSeededScreenEntry extends BaseEntry {
   readonly class: 'pack-seeded';
   readonly pack: 'navigation' | 'combat';
   readonly navigation: 'direct-goto' | 'in-page-discovery';
+  /** Route template with `{id}` substituted by the pack loader's stamped id (design D5) -- absent for `in-page-discovery` entries. */
+  readonly routeTemplate?: string;
+  /** At least one entry MUST be applicable at each of the four sweep viewports (design D9 rule 1) -- re-enforced defensively by the sweep spec itself (task 5.1), mirroring the literal-goto entries' guard coverage. */
+  readonly primaryAffordances: readonly CheckTarget[];
+  /** Overlap check-target group -- defaults to the shared, unconditional chrome group for the pack (design D5/D9 rule 5). */
+  readonly overlapTargets: readonly CheckTarget[];
+  /** Optional canvas-bearing locator for `expectNonBlankRender`. */
+  readonly canvasLocator?: CheckTarget;
+  readonly quarantine?: readonly QuarantineEntry[];
   readonly note?: string;
 }
 
@@ -1197,9 +1308,15 @@ const staticCatalogEntries: readonly SweptScreenEntry[] = [
 ];
 
 // ============================================================================
-// Pack-seeded screens (18) -- W4-gated (group 5). Classified now so the guard
-// stays exhaustive; not swept until `e2e/helpers/scenarioPackLoading.ts`
-// exists and the gate (task 5.0) passes (design D7).
+// Pack-seeded screens (18) -- W4-gated (group 5). Swept as of this change
+// (task 5.1): the gate (task 5.0) verified `e2e/helpers/scenarioPackLoading.ts`
+// exports `loadCampaignPack`/`loadEncounterPack` and the navigation/combat
+// pilot packs exist with manifest entries, plus D10a's discovery precondition
+// (the navigation pack's missions screen surfaces the mission launch-briefing
+// affordance) -- confirmed green via `navigation-briefing.parity.spec.ts`, no
+// reclassify-to-excluded fallback needed. `class` stays "pack-seeded" (route
+// taxonomy is unchanged by whether this change currently sweeps a class);
+// `PACK_SEEDED_SWEPT_ENTRIES` below is the sweep spec's iteration surface.
 // ============================================================================
 
 const CAMPAIGN_SUBROUTE_LABELS: ReadonlyArray<readonly [string, string]> = [
@@ -1230,6 +1347,10 @@ const packSeededEntries: readonly PackSeededScreenEntry[] = [
       manifestPaths: [pattern],
       pack: 'navigation',
       navigation: 'direct-goto',
+      routeTemplate: pattern.replace('[id]', '{id}'),
+      primaryAffordances: CAMPAIGN_NAV_PRIMARY_AFFORDANCE,
+      overlapTargets: CAMPAIGN_NAV_OVERLAP_TARGETS,
+      quarantine: [],
       note: "Campaign id sourced from the navigation-pack loader's post-navigation URL (design D5) -- never pack payload internals.",
     }),
   ),
@@ -1240,12 +1361,23 @@ const packSeededEntries: readonly PackSeededScreenEntry[] = [
     manifestPaths: ['/gameplay/campaigns/[id]/missions/[missionId]/launch'],
     pack: 'navigation',
     navigation: 'in-page-discovery',
+    primaryAffordances: CAMPAIGN_NAV_PRIMARY_AFFORDANCE,
+    overlapTargets: [
+      ...CAMPAIGN_NAV_OVERLAP_TARGETS,
+      affordance({
+        label: 'mission launch briefing panel',
+        testId: 'mission-launch-briefing',
+      }),
+    ],
+    quarantine: [],
     note:
       'Reached only via in-page discovery from the pack-seeded missions screen (design D10a): goto the ' +
       "missions subroute, click the mission's launch/briefing affordance -- never construct a mission id, " +
-      "and never actuate the launch control itself. Task 5.0's gate verifies the navigation pack's " +
-      'documented target state actually surfaces the discovery affordance; if it does not, this entry ' +
-      'reclassifies to `excluded` with that reason (D10a fallback).',
+      "and never actuate the launch control itself (the sweep's `expectClickable` never calls `.click()`, " +
+      'but the shared campaign-nav Dashboard tab, not `launch-mission-direct`, is the declared primary ' +
+      "affordance here regardless). Task 5.0's gate verified the navigation pack's documented target state " +
+      'actually surfaces the discovery affordance (navigation-briefing.parity.spec.ts, green); the ' +
+      'reclassify-to-excluded fallback (D10a) was not needed.',
   },
   {
     id: 'pack-seeded-game-detail',
@@ -1254,9 +1386,33 @@ const packSeededEntries: readonly PackSeededScreenEntry[] = [
     manifestPaths: ['/gameplay/games/[id]'],
     pack: 'combat',
     navigation: 'direct-goto',
+    routeTemplate: '/gameplay/games/{id}',
+    primaryAffordances: [COMBAT_TACTICAL_TURN_RAIL],
+    overlapTargets: [COMBAT_TACTICAL_TURN_RAIL],
+    canvasLocator: COMBAT_HEX_MAP_CANVAS,
+    quarantine: [],
     note: "Match id sourced from the combat-pack loader's post-navigation URL (design D5).",
   },
 ];
+
+/**
+ * The 18 pack-seeded entries, swept as of this change (task 5.1) -- the
+ * sweep spec's iteration surface for the navigation/combat pack-seeded
+ * screens. Kept as a separate export from `SWEPT_NOW_ENTRIES` (below,
+ * unchanged at 33) rather than merged into it: `SWEPT_NOW_ENTRIES` is a
+ * `SweptScreenEntry[]` with a literal `goto`, while these entries carry a
+ * `routeTemplate` the sweep spec resolves against a pack loader's stamped
+ * id -- a real type difference, not a cosmetic one (direct-goto vs
+ * in-page-discovery navigation, worker-amortized pack loading vs a bare
+ * `page.goto`). The inventory guard's classification-count and excluded-
+ * reason checks (`screenInventory.guard.spec.ts`) already cover these
+ * entries via `SCREEN_INVENTORY`; its swept-now-scoped checks
+ * (quarantine-reason, per-viewport primary-affordance coverage) stay
+ * scoped to the 33 literal-goto entries by design -- the sweep spec itself
+ * re-enforces per-viewport affordance coverage for this array (task 5.1).
+ */
+export const PACK_SEEDED_SWEPT_ENTRIES: readonly PackSeededScreenEntry[] =
+  packSeededEntries;
 
 // ============================================================================
 // Excluded screens (13) -- never swept by this change, each with a
