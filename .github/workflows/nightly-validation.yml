@@ -221,6 +221,70 @@ jobs:
           retention-days: 7
 
   # ---------------------------------------------------------------
+  # Scenario-pack drift recapture (add-scenario-packs, ladder W4, task
+  # 6.2; design D7 layer 4 / spec: "Version Pinning and CI Drift
+  # Recapture"). For every registered scenario pack: re-validates the
+  # committed payload against the current pack schemas and version
+  # pins, re-mints it from its recorded genesis source (a flow
+  # checkpoint replayed on chromium, a fast-forward fixture re-run in
+  # jest, or the combat anchor journey replayed on chromium), and
+  # compares the fresh mint against the committed payload at the
+  # INVARIANT level (never byte-structural — production mints
+  # wall-clock ids/dates and a random RNG seed on every capture, so
+  # structural equality is unachievable by construction; design D7).
+  #
+  # Triage-only, NEVER a pull-request gate (design: non-goal "packs
+  # gate nothing until parity-proven" + "NO PR-gate or required-check
+  # wiring"): this job exists ONLY here, appended to
+  # notify-on-failure's needs below so drift lands on the existing
+  # tracking-issue convention. It is deliberately absent from
+  # pr-checks.yml and carries no `required` branch-protection status.
+  #
+  # Needs the chromium browser (flow-checkpoint + anchor-captured
+  # re-mints drive a live Playwright journey against the self-booted
+  # Next dev server, mirroring e2e-full's own browser-cache steps
+  # above) plus a full node_modules install (fast-forward re-mints run
+  # via jest, headless, no browser).
+  # ---------------------------------------------------------------
+  scenario-pack-recapture:
+    name: Scenario Pack Recapture
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '20'
+
+      - name: Resolve Playwright version for browser cache key
+        id: playwright-version
+        shell: bash
+        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright chromium browser
+        id: playwright-cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright chromium browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Playwright system dependencies (browser cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Re-mint every registered scenario pack and diff at the invariant level
+        run: node scripts/qc/recapture-scenario-packs.mjs
+
+  # ---------------------------------------------------------------
   # Failure notification: a red nightly run must not scroll away
   # unseen in the Actions tab (that silence is exactly how the
   # 2026-06-09 audit findings accumulated). Opens a tracking issue on
@@ -228,7 +292,7 @@ jobs:
   # ---------------------------------------------------------------
   notify-on-failure:
     name: Notify on Failure
-    needs: [full-statistical-proofs, e2e-full, coverage]
+    needs: [full-statistical-proofs, e2e-full, coverage, scenario-pack-recapture]
     if: failure()
     runs-on: ubuntu-latest
     timeout-minutes: 5

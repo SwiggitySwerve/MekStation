@@ -1,0 +1,665 @@
+{
+  "matchId": "pack:combat-midbattle:match",
+  "events": [
+    {
+      "id": "5ecb9d46-8ed2-4927-9ae8-a8521f251910",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 0,
+      "timestamp": "2026-07-11T09:09:49.552Z",
+      "type": "game_created",
+      "turn": 0,
+      "phase": "initiative",
+      "payload": {
+        "config": {
+          "mapRadius": 8,
+          "turnLimit": 0,
+          "victoryConditions": ["destroy_all"],
+          "optionalRules": [],
+          "encounterId": "encounter-afbe1c6d-2b7f-4a0c-b87c-fd82d8c4b7c3",
+          "campaignId": null,
+          "contractId": null,
+          "scenarioId": null,
+          "seed": 1337
+        },
+        "units": [
+          {
+            "id": "player-1-locust-lct-1v",
+            "name": "MechWarrior 1",
+            "side": "player",
+            "unitRef": "locust-lct-1v",
+            "pilotRef": "pilot-9207e648-48ba-498f-9c4d-bcccfbbbed07",
+            "gunnery": 4,
+            "piloting": 5,
+            "heatSinks": 10,
+            "heatSinkType": "single",
+            "gyroType": "STANDARD",
+            "armorByLocation": {
+              "left_arm": 4,
+              "right_arm": 4,
+              "left_torso": 8,
+              "left_torso_rear": 2,
+              "right_torso": 8,
+              "right_torso_rear": 2,
+              "center_torso": 10,
+              "center_torso_rear": 2,
+              "head": 8,
+              "left_leg": 8,
+              "right_leg": 8
+            },
+            "structureByLocation": {
+              "head": 3,
+              "center_torso": 6,
+              "left_torso": 5,
+              "right_torso": 5,
+              "left_arm": 3,
+              "right_arm": 3,
+              "left_leg": 4,
+              "right_leg": 4
+            }
+          },
+          {
+            "id": "player-2-locust-lct-1v",
+            "name": "MechWarrior 2",
+            "side": "player",
+            "unitRef": "locust-lct-1v",
+            "pilotRef": "pilot-79c3a3ec-176e-4ff3-924d-32d0c5ea204c",
+            "gunnery": 4,
+            "piloting": 5,
+            "heatSinks": 10,
+            "heatSinkType": "single",
+            "gyroType": "STANDARD",
+            "armorByLocation": {
+              "left_arm": 4,
+              "right_arm": 4,
+              "left_torso": 8,
+              "left_torso_rear": 2,
+              "right_torso": 8,
+              "right_torso_rear": 2,
+              "center_torso": 10,
+              "center_torso_rear": 2,
+              "head": 8,
+              "left_leg": 8,
+              "right_leg": 8
+            },
+            "structureByLocation": {
+              "head": 3,
+              "center_torso": 6,
+              "left_torso": 5,
+              "right_torso": 5,
+              "left_arm": 3,
+              "right_arm": 3,
+              "left_leg": 4,
+              "right_leg": 4
+            }
+          },
+          {
+            "id": "opponent-1-atlas-as7-d",
+            "name": "atlas-as7-d",
+            "side": "opponent",
+            "unitRef": "atlas-as7-d",
+            "pilotRef": "Unknown",
+            "gunnery": 4,
+            "piloting": 5,
+            "heatSinks": 20,
+            "heatSinkType": "single",
+            "gyroType": "STANDARD",
+            "armorByLocation": {
+              "left_arm": 34,
+              "right_arm": 34,
+              "left_torso": 32,
+              "left_torso_rear": 10,
+              "right_torso": 32,
+              "right_torso_rear": 10,
+              "center_torso": 47,
+              "center_torso_rear": 14,
+              "head": 9,
+              "left_leg": 41,
+              "right_leg": 41
+            },
+            "structureByLocation": {
+              "head": 3,
+              "center_torso": 31,
+              "left_torso": 21,
+              "right_torso": 21,
+              "left_arm": 17,
+              "right_arm": 17,
+              "left_leg": 21,
+              "right_leg": 21
+            }
+          },
+          {
+            "id": "opponent-2-locust-lct-1v",
+            "name": "locust-lct-1v",
+            "side": "opponent",
+            "unitRef": "locust-lct-1v",
+            "pilotRef": "Unknown",
+            "gunnery": 4,
+            "piloting": 5,
+            "heatSinks": 10,
+            "heatSinkType": "single",
+            "gyroType": "STANDARD",
+            "armorByLocation": {
+              "left_arm": 4,
+              "right_arm": 4,
+              "left_torso": 8,
+              "left_torso_rear": 2,
+              "right_torso": 8,
+              "right_torso_rear": 2,
+              "center_torso": 10,
+              "center_torso_rear": 2,
+              "head": 8,
+              "left_leg": 8,
+              "right_leg": 8
+            },
+            "structureByLocation": {
+              "head": 3,
+              "center_torso": 6,
+              "left_torso": 5,
+              "right_torso": 5,
+              "left_arm": 3,
+              "right_arm": 3,
+              "left_leg": 4,
+              "right_leg": 4
+            }
+          }
+        ],
+        "encounterMeta": {
+          "encounterId": "encounter-afbe1c6d-2b7f-4a0c-b87c-fd82d8c4b7c3",
+          "encounterName": "Retainer for Kell Hounds",
+          "templateType": null,
+          "playerForceSummary": "Mint combat-midbattle 1783760974693 Retainer for Kell Hounds Lance (0 BV, 2 units)",
+          "opponentSummary": "Retainer for Kell Hounds OpFor (0 BV, 2 units)"
+        }
+      },
+      "visibility": "public"
+    },
+    {
+      "id": "4deb3e3e-d108-41c7-b19c-5016e9576169",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 1,
+      "timestamp": "2026-07-11T09:09:49.552Z",
+      "type": "game_started",
+      "turn": 1,
+      "phase": "initiative",
+      "payload": {
+        "firstSide": "player"
+      },
+      "visibility": "public"
+    },
+    {
+      "id": "527a40f5-863f-4d80-912a-0b8ff80d5f84",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 2,
+      "timestamp": "2026-07-11T09:09:50.807Z",
+      "type": "initiative_rolled",
+      "turn": 1,
+      "phase": "initiative",
+      "payload": {
+        "playerRoll": 4,
+        "opponentRoll": 9,
+        "winner": "opponent",
+        "movesFirst": "player"
+      },
+      "visibility": "public"
+    },
+    {
+      "id": "c082fa2b-e188-4975-b84f-bceeee927608",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 3,
+      "timestamp": "2026-07-11T09:09:50.808Z",
+      "type": "initiative_order_set",
+      "turn": 1,
+      "phase": "initiative",
+      "payload": {
+        "winner": "opponent",
+        "firstMover": "player",
+        "secondMover": "opponent"
+      },
+      "visibility": "public"
+    },
+    {
+      "id": "3d704abc-426e-4fe0-b21a-f9c23123f3bf",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 4,
+      "timestamp": "2026-07-11T09:09:50.808Z",
+      "type": "phase_changed",
+      "turn": 1,
+      "phase": "movement",
+      "payload": {
+        "fromPhase": "initiative",
+        "toPhase": "movement"
+      },
+      "visibility": "public"
+    },
+    {
+      "id": "bf1a4333-f125-4d18-8aba-2b72211bfb97",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 5,
+      "timestamp": "2026-07-11T09:09:50.903Z",
+      "type": "movement_locked",
+      "turn": 1,
+      "phase": "movement",
+      "payload": {
+        "unitId": "player-1-locust-lct-1v"
+      },
+      "actorId": "player-1-locust-lct-1v",
+      "visibility": "observer-visible",
+      "side": "player"
+    },
+    {
+      "id": "9255bfa9-92ab-4be0-b43b-43854d56b77b",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 6,
+      "timestamp": "2026-07-11T09:09:50.904Z",
+      "type": "movement_locked",
+      "turn": 1,
+      "phase": "movement",
+      "payload": {
+        "unitId": "player-2-locust-lct-1v"
+      },
+      "actorId": "player-2-locust-lct-1v",
+      "visibility": "observer-visible",
+      "side": "player"
+    },
+    {
+      "id": "0c8e364b-ab85-4153-bc48-7afb8b7b6532",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 7,
+      "timestamp": "2026-07-11T09:09:50.904Z",
+      "type": "movement_locked",
+      "turn": 1,
+      "phase": "movement",
+      "payload": {
+        "unitId": "opponent-1-atlas-as7-d"
+      },
+      "actorId": "opponent-1-atlas-as7-d",
+      "visibility": "observer-visible",
+      "side": "opponent"
+    },
+    {
+      "id": "729aec87-3511-4cc4-8328-83677810d271",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 8,
+      "timestamp": "2026-07-11T09:09:50.904Z",
+      "type": "movement_locked",
+      "turn": 1,
+      "phase": "movement",
+      "payload": {
+        "unitId": "opponent-2-locust-lct-1v"
+      },
+      "actorId": "opponent-2-locust-lct-1v",
+      "visibility": "observer-visible",
+      "side": "opponent"
+    },
+    {
+      "id": "d00d9415-885e-4fc9-99d6-b3ba84c14442",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 9,
+      "timestamp": "2026-07-11T09:09:50.904Z",
+      "type": "phase_changed",
+      "turn": 1,
+      "phase": "weapon_attack",
+      "payload": {
+        "fromPhase": "movement",
+        "toPhase": "weapon_attack"
+      },
+      "visibility": "public"
+    },
+    {
+      "id": "e2c1fe16-cf68-4236-b44a-ee0eba5e2a07",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 10,
+      "timestamp": "2026-07-11T09:09:51.038Z",
+      "type": "attack_locked",
+      "turn": 1,
+      "phase": "weapon_attack",
+      "payload": {
+        "unitId": "player-1-locust-lct-1v"
+      },
+      "actorId": "player-1-locust-lct-1v",
+      "visibility": "actor-only",
+      "side": "player"
+    },
+    {
+      "id": "c2e5952f-a876-4dc7-8cc0-720a5afdac69",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 11,
+      "timestamp": "2026-07-11T09:09:51.039Z",
+      "type": "attack_locked",
+      "turn": 1,
+      "phase": "weapon_attack",
+      "payload": {
+        "unitId": "player-2-locust-lct-1v"
+      },
+      "actorId": "player-2-locust-lct-1v",
+      "visibility": "actor-only",
+      "side": "player"
+    },
+    {
+      "id": "af015af5-43ec-4e7f-8fb9-5bb294a614bc",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 12,
+      "timestamp": "2026-07-11T09:09:51.039Z",
+      "type": "attack_locked",
+      "turn": 1,
+      "phase": "weapon_attack",
+      "payload": {
+        "unitId": "opponent-1-atlas-as7-d"
+      },
+      "actorId": "opponent-1-atlas-as7-d",
+      "visibility": "actor-only",
+      "side": "opponent"
+    },
+    {
+      "id": "5e6cf7f2-7263-42a3-9f2a-8c07731860d8",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 13,
+      "timestamp": "2026-07-11T09:09:51.039Z",
+      "type": "attack_locked",
+      "turn": 1,
+      "phase": "weapon_attack",
+      "payload": {
+        "unitId": "opponent-2-locust-lct-1v"
+      },
+      "actorId": "opponent-2-locust-lct-1v",
+      "visibility": "actor-only",
+      "side": "opponent"
+    },
+    {
+      "id": "18970648-4995-401e-a6bc-7240525dd0c3",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 14,
+      "timestamp": "2026-07-11T09:09:51.039Z",
+      "type": "attacks_revealed",
+      "turn": 1,
+      "phase": "weapon_attack",
+      "payload": {
+        "unitIds": [
+          "opponent-1-atlas-as7-d",
+          "opponent-2-locust-lct-1v",
+          "player-1-locust-lct-1v",
+          "player-2-locust-lct-1v"
+        ],
+        "attackCount": 0
+      },
+      "visibility": "public"
+    },
+    {
+      "id": "201e638d-9d8d-4c96-a3fd-7ef65feb43c1",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 15,
+      "timestamp": "2026-07-11T09:09:51.039Z",
+      "type": "phase_changed",
+      "turn": 1,
+      "phase": "physical_attack",
+      "payload": {
+        "fromPhase": "weapon_attack",
+        "toPhase": "physical_attack"
+      },
+      "visibility": "public"
+    },
+    {
+      "id": "50d037f0-fc79-4c41-8880-1a8974ac89d2",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 16,
+      "timestamp": "2026-07-11T09:09:51.178Z",
+      "type": "phase_changed",
+      "turn": 1,
+      "phase": "heat",
+      "payload": {
+        "fromPhase": "physical_attack",
+        "toPhase": "heat"
+      },
+      "visibility": "public"
+    },
+    {
+      "id": "9c7853e5-46ad-4bc0-a0e8-4ef0cf5032a2",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 17,
+      "timestamp": "2026-07-11T09:09:51.317Z",
+      "type": "heat_dissipated",
+      "turn": 1,
+      "phase": "heat",
+      "payload": {
+        "unitId": "player-1-locust-lct-1v",
+        "amount": -10,
+        "source": "dissipation",
+        "newTotal": 0,
+        "breakdown": {
+          "baseDissipation": 10,
+          "waterBonus": 0,
+          "environmentalModifier": 0,
+          "heatGenerationReduction": 0
+        }
+      },
+      "actorId": "player-1-locust-lct-1v",
+      "visibility": "observer-visible",
+      "side": "player"
+    },
+    {
+      "id": "f0f69139-af11-4303-bce5-f5cc2ace8435",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 18,
+      "timestamp": "2026-07-11T09:09:51.317Z",
+      "type": "heat_dissipated",
+      "turn": 1,
+      "phase": "heat",
+      "payload": {
+        "unitId": "player-2-locust-lct-1v",
+        "amount": -10,
+        "source": "dissipation",
+        "newTotal": 0,
+        "breakdown": {
+          "baseDissipation": 10,
+          "waterBonus": 0,
+          "environmentalModifier": 0,
+          "heatGenerationReduction": 0
+        }
+      },
+      "actorId": "player-2-locust-lct-1v",
+      "visibility": "observer-visible",
+      "side": "player"
+    },
+    {
+      "id": "ab61b48b-a842-4e6b-986c-bc03092df5eb",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 19,
+      "timestamp": "2026-07-11T09:09:51.317Z",
+      "type": "heat_dissipated",
+      "turn": 1,
+      "phase": "heat",
+      "payload": {
+        "unitId": "opponent-1-atlas-as7-d",
+        "amount": -20,
+        "source": "dissipation",
+        "newTotal": 0,
+        "breakdown": {
+          "baseDissipation": 20,
+          "waterBonus": 0,
+          "environmentalModifier": 0,
+          "heatGenerationReduction": 0
+        }
+      },
+      "actorId": "opponent-1-atlas-as7-d",
+      "visibility": "observer-visible",
+      "side": "opponent"
+    },
+    {
+      "id": "851c242e-a1bc-4cf5-8642-c9f75f3549b9",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 20,
+      "timestamp": "2026-07-11T09:09:51.317Z",
+      "type": "heat_dissipated",
+      "turn": 1,
+      "phase": "heat",
+      "payload": {
+        "unitId": "opponent-2-locust-lct-1v",
+        "amount": -10,
+        "source": "dissipation",
+        "newTotal": 0,
+        "breakdown": {
+          "baseDissipation": 10,
+          "waterBonus": 0,
+          "environmentalModifier": 0,
+          "heatGenerationReduction": 0
+        }
+      },
+      "actorId": "opponent-2-locust-lct-1v",
+      "visibility": "observer-visible",
+      "side": "opponent"
+    },
+    {
+      "id": "2ce2257f-83c3-4782-a584-8545354d97ed",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 21,
+      "timestamp": "2026-07-11T09:09:51.317Z",
+      "type": "phase_changed",
+      "turn": 1,
+      "phase": "end",
+      "payload": {
+        "fromPhase": "heat",
+        "toPhase": "end"
+      },
+      "visibility": "public"
+    },
+    {
+      "id": "8d29e0cb-d36a-4761-93f5-a96a133e9ded",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 22,
+      "timestamp": "2026-07-11T09:09:51.532Z",
+      "type": "phase_changed",
+      "turn": 2,
+      "phase": "initiative",
+      "payload": {
+        "fromPhase": "end",
+        "toPhase": "initiative"
+      },
+      "visibility": "public"
+    },
+    {
+      "id": "2d990d43-f859-4024-8ca7-1c7c86b63c8b",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 23,
+      "timestamp": "2026-07-11T09:09:51.623Z",
+      "type": "initiative_rolled",
+      "turn": 1,
+      "phase": "initiative",
+      "payload": {
+        "playerRoll": 6,
+        "opponentRoll": 8,
+        "winner": "opponent",
+        "movesFirst": "player"
+      },
+      "visibility": "public"
+    },
+    {
+      "id": "61f7f59f-e8f7-4135-a3c3-f44585787379",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 24,
+      "timestamp": "2026-07-11T09:09:51.623Z",
+      "type": "initiative_order_set",
+      "turn": 1,
+      "phase": "initiative",
+      "payload": {
+        "winner": "opponent",
+        "firstMover": "player",
+        "secondMover": "opponent"
+      },
+      "visibility": "public"
+    },
+    {
+      "id": "6f10afb3-5df8-4ae8-873d-28107d8dde69",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 25,
+      "timestamp": "2026-07-11T09:09:51.623Z",
+      "type": "phase_changed",
+      "turn": 1,
+      "phase": "movement",
+      "payload": {
+        "fromPhase": "initiative",
+        "toPhase": "movement"
+      },
+      "visibility": "public"
+    },
+    {
+      "id": "c5f5f37e-a6cb-4af5-b10e-cd330f7a9d4b",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 26,
+      "timestamp": "2026-07-11T09:09:51.715Z",
+      "type": "movement_locked",
+      "turn": 1,
+      "phase": "movement",
+      "payload": {
+        "unitId": "player-1-locust-lct-1v"
+      },
+      "actorId": "player-1-locust-lct-1v",
+      "visibility": "observer-visible",
+      "side": "player"
+    },
+    {
+      "id": "af2ad6ad-ed5a-493a-b715-dd15ceaa4133",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 27,
+      "timestamp": "2026-07-11T09:09:51.716Z",
+      "type": "movement_locked",
+      "turn": 1,
+      "phase": "movement",
+      "payload": {
+        "unitId": "player-2-locust-lct-1v"
+      },
+      "actorId": "player-2-locust-lct-1v",
+      "visibility": "observer-visible",
+      "side": "player"
+    },
+    {
+      "id": "83e6e3b5-da76-4d8e-9b17-a50bded95a87",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 28,
+      "timestamp": "2026-07-11T09:09:51.716Z",
+      "type": "movement_locked",
+      "turn": 1,
+      "phase": "movement",
+      "payload": {
+        "unitId": "opponent-1-atlas-as7-d"
+      },
+      "actorId": "opponent-1-atlas-as7-d",
+      "visibility": "observer-visible",
+      "side": "opponent"
+    },
+    {
+      "id": "ae9d363f-a772-4fba-b0e3-57a236b17460",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 29,
+      "timestamp": "2026-07-11T09:09:51.716Z",
+      "type": "movement_locked",
+      "turn": 1,
+      "phase": "movement",
+      "payload": {
+        "unitId": "opponent-2-locust-lct-1v"
+      },
+      "actorId": "opponent-2-locust-lct-1v",
+      "visibility": "observer-visible",
+      "side": "opponent"
+    },
+    {
+      "id": "432a799d-b1dc-46d8-9c3b-b66391e0896d",
+      "gameId": "pack:combat-midbattle:match",
+      "sequence": 30,
+      "timestamp": "2026-07-11T09:09:51.716Z",
+      "type": "phase_changed",
+      "turn": 1,
+      "phase": "weapon_attack",
+      "payload": {
+        "fromPhase": "movement",
+        "toPhase": "weapon_attack"
+      },
+      "visibility": "public"
+    }
+  ],
+  "matchesRow": {
+    "hostPeerId": null,
+    "guestPeerId": null,
+    "status": "active",
+    "lastActivity": "2026-07-11T09:09:49.569Z"
+  }
+}
