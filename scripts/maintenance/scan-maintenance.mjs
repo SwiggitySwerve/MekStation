@@ -118,7 +118,10 @@ function isEphemeralScriptTooling(file) {
     return false;
   }
   if (r.startsWith('scripts/megameklab-conversion/')) return false;
-  if (r.startsWith('scripts/analysis/') || r.startsWith('scripts/data-migration/')) {
+  if (
+    r.startsWith('scripts/analysis/') ||
+    r.startsWith('scripts/data-migration/')
+  ) {
     return true;
   }
   const base = path.basename(r);

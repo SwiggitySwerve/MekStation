@@ -1,11 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
 import { validateJourneyCatalog as validateJourneyCatalogImplementation } from './journey-qc-catalog-validator.mjs';
 import { validateValidationGraph as validateValidationGraphImplementation } from './journey-qc-graph-validator.mjs';
 import { validateLoggingMap as validateLoggingMapImplementation } from './journey-qc-logging-validator.mjs';
-import { validateUiFlowShell as validateUiFlowShellImplementation } from './journey-qc-ui-flow-validator.mjs';
 import { executeRunPlan as executeRunPlanImplementation } from './journey-qc-run-executor.mjs';
+import { validateUiFlowShell as validateUiFlowShellImplementation } from './journey-qc-ui-flow-validator.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const repoRoot = path.resolve(__dirname, '..', '..');
@@ -154,41 +155,206 @@ export function parseArgs(argv) {
     '--require-non-synthetic-backing',
   ]);
   const booleanFlagHandlers = new Map([
-    ['--continue-on-error', () => { options.continueOnError = true; }],
-    ['--dry-run', () => { options.dryRun = true; }],
-    ['--list', () => { options.dryRun = true; }],
-    ['--json', () => { options.json = true; }],
-    ['--validate-only', () => { options.validateOnly = true; }],
-    ['--exclude-probes', () => { options.excludeProbes = true; }],
-    ['--actionable-only', () => { options.actionableOnly = true; }],
-    ['--require-domain-backed', () => { options.requireDomainBacked = true; }],
-    ['--require-non-synthetic-backing', () => { options.requireDomainBacked = true; }],
+    [
+      '--continue-on-error',
+      () => {
+        options.continueOnError = true;
+      },
+    ],
+    [
+      '--dry-run',
+      () => {
+        options.dryRun = true;
+      },
+    ],
+    [
+      '--list',
+      () => {
+        options.dryRun = true;
+      },
+    ],
+    [
+      '--json',
+      () => {
+        options.json = true;
+      },
+    ],
+    [
+      '--validate-only',
+      () => {
+        options.validateOnly = true;
+      },
+    ],
+    [
+      '--exclude-probes',
+      () => {
+        options.excludeProbes = true;
+      },
+    ],
+    [
+      '--actionable-only',
+      () => {
+        options.actionableOnly = true;
+      },
+    ],
+    [
+      '--require-domain-backed',
+      () => {
+        options.requireDomainBacked = true;
+      },
+    ],
+    [
+      '--require-non-synthetic-backing',
+      () => {
+        options.requireDomainBacked = true;
+      },
+    ],
   ]);
   const valueHandlers = new Map([
-    ['journey', (value) => { options.journey = value; }],
-    ['tier', (value) => { options.tier = value; }],
-    ['mode', (value) => { options.mode = value; }],
-    ['seed', (value) => { options.seed = Number.parseInt(value, 10); }],
-    ['runs', (value) => { options.runs = Number.parseInt(value, 10); }],
-    ['run-id', (value) => { options.runId = value; }],
-    ['evidence-dir', (value) => { options.evidenceDir = value; }],
-    ['fail-on-bug-severity', (value) => { options.failOnBugSeverity = value; }],
-    ['since', (value) => { options.since = value; }],
-    ['run-id-filter', (value) => { options.runIdFilter = value; }],
-    ['min-severity', (value) => { options.minSeverity = value; }],
-    ['level', (value) => { options.level = value; }],
-    ['classification', (value) => { options.classification = value; }],
-    ['blocking', (value) => { options.blocking = value; }],
-    ['service', (value) => { options.service = value; }],
-    ['event', (value) => { options.event = value; }],
-    ['step-id', (value) => { options.stepId = value; }],
-    ['fingerprint', (value) => { options.fingerprint = value; }],
-    ['module', (value) => { options.module = value; }],
-    ['query', (value) => { options.query = value; }],
-    ['kind', (value) => { options.kind = value; }],
-    ['inject-failure', (value) => { options.injectFailure = value; }],
-    ['inject-stability-drift', (value) => { options.injectStabilityDrift = value; }],
-    ['inject-drift', (value) => { options.injectStabilityDrift = value; }],
+    [
+      'journey',
+      (value) => {
+        options.journey = value;
+      },
+    ],
+    [
+      'tier',
+      (value) => {
+        options.tier = value;
+      },
+    ],
+    [
+      'mode',
+      (value) => {
+        options.mode = value;
+      },
+    ],
+    [
+      'seed',
+      (value) => {
+        options.seed = Number.parseInt(value, 10);
+      },
+    ],
+    [
+      'runs',
+      (value) => {
+        options.runs = Number.parseInt(value, 10);
+      },
+    ],
+    [
+      'run-id',
+      (value) => {
+        options.runId = value;
+      },
+    ],
+    [
+      'evidence-dir',
+      (value) => {
+        options.evidenceDir = value;
+      },
+    ],
+    [
+      'fail-on-bug-severity',
+      (value) => {
+        options.failOnBugSeverity = value;
+      },
+    ],
+    [
+      'since',
+      (value) => {
+        options.since = value;
+      },
+    ],
+    [
+      'run-id-filter',
+      (value) => {
+        options.runIdFilter = value;
+      },
+    ],
+    [
+      'min-severity',
+      (value) => {
+        options.minSeverity = value;
+      },
+    ],
+    [
+      'level',
+      (value) => {
+        options.level = value;
+      },
+    ],
+    [
+      'classification',
+      (value) => {
+        options.classification = value;
+      },
+    ],
+    [
+      'blocking',
+      (value) => {
+        options.blocking = value;
+      },
+    ],
+    [
+      'service',
+      (value) => {
+        options.service = value;
+      },
+    ],
+    [
+      'event',
+      (value) => {
+        options.event = value;
+      },
+    ],
+    [
+      'step-id',
+      (value) => {
+        options.stepId = value;
+      },
+    ],
+    [
+      'fingerprint',
+      (value) => {
+        options.fingerprint = value;
+      },
+    ],
+    [
+      'module',
+      (value) => {
+        options.module = value;
+      },
+    ],
+    [
+      'query',
+      (value) => {
+        options.query = value;
+      },
+    ],
+    [
+      'kind',
+      (value) => {
+        options.kind = value;
+      },
+    ],
+    [
+      'inject-failure',
+      (value) => {
+        options.injectFailure = value;
+      },
+    ],
+    [
+      'inject-stability-drift',
+      (value) => {
+        options.injectStabilityDrift = value;
+      },
+    ],
+    [
+      'inject-drift',
+      (value) => {
+        options.injectStabilityDrift = value;
+      },
+    ],
   ]);
 
   for (const arg of argv) {
@@ -414,7 +580,14 @@ function parameterError(journey, name, rawValue, expected) {
   );
 }
 
-function validateIntegerParameter(journey, name, definition, rawValue, value, rawLabel) {
+function validateIntegerParameter(
+  journey,
+  name,
+  definition,
+  rawValue,
+  value,
+  rawLabel,
+) {
   if (rawValue !== undefined && !/^-?\d+$/.test(String(rawValue).trim())) {
     throw parameterError(journey, name, rawValue, 'an integer');
   }
@@ -422,14 +595,31 @@ function validateIntegerParameter(journey, name, definition, rawValue, value, ra
     throw parameterError(journey, name, rawLabel, 'an integer');
   }
   if (definition.minimum !== undefined && value < definition.minimum) {
-    throw parameterError(journey, name, rawLabel, `an integer >= ${definition.minimum}`);
+    throw parameterError(
+      journey,
+      name,
+      rawLabel,
+      `an integer >= ${definition.minimum}`,
+    );
   }
   if (definition.maximum !== undefined && value > definition.maximum) {
-    throw parameterError(journey, name, rawLabel, `an integer <= ${definition.maximum}`);
+    throw parameterError(
+      journey,
+      name,
+      rawLabel,
+      `an integer <= ${definition.maximum}`,
+    );
   }
 }
 
-function validateBooleanParameter(journey, name, definition, rawValue, value, rawLabel) {
+function validateBooleanParameter(
+  journey,
+  name,
+  definition,
+  rawValue,
+  value,
+  rawLabel,
+) {
   if (rawValue !== undefined && rawValue !== 'true' && rawValue !== 'false') {
     throw parameterError(journey, name, rawValue, 'true or false');
   }
@@ -438,22 +628,53 @@ function validateBooleanParameter(journey, name, definition, rawValue, value, ra
   }
 }
 
-function validateEnumParameter(journey, name, definition, rawValue, value, rawLabel) {
+function validateEnumParameter(
+  journey,
+  name,
+  definition,
+  rawValue,
+  value,
+  rawLabel,
+) {
   if (!Array.isArray(definition.values) || !definition.values.includes(value)) {
-    throw parameterError(journey, name, rawLabel, `one of ${definition.values.join(', ')}`);
+    throw parameterError(
+      journey,
+      name,
+      rawLabel,
+      `one of ${definition.values.join(', ')}`,
+    );
   }
 }
 
-function validateStringListParameter(journey, name, definition, rawValue, value, rawLabel) {
+function validateStringListParameter(
+  journey,
+  name,
+  definition,
+  rawValue,
+  value,
+  rawLabel,
+) {
   if (!Array.isArray(value)) {
     throw parameterError(journey, name, rawLabel, 'a comma-separated list');
   }
   if (rawValue !== undefined && value.length === 0) {
-    throw parameterError(journey, name, rawValue, 'a non-empty comma-separated list');
+    throw parameterError(
+      journey,
+      name,
+      rawValue,
+      'a non-empty comma-separated list',
+    );
   }
 }
 
-function validateStringParameter(journey, name, definition, rawValue, value, rawLabel) {
+function validateStringParameter(
+  journey,
+  name,
+  definition,
+  rawValue,
+  value,
+  rawLabel,
+) {
   if (typeof value !== 'string') {
     throw parameterError(journey, name, rawLabel, 'a string');
   }
@@ -1012,7 +1233,8 @@ function groupLogsByStep(logs) {
 
 function triageFromLogs(logsByStep, journeyId, stepId) {
   const matchingLogs = logsByStep.get(`${journeyId}/${stepId}`) ?? [];
-  const triage = matchingLogs.find((entry) => entry.metadata?.triage)?.metadata?.triage;
+  const triage = matchingLogs.find((entry) => entry.metadata?.triage)?.metadata
+    ?.triage;
   if (!triage) return undefined;
   return {
     ...triage,
@@ -1069,23 +1291,25 @@ function journeyFailureCandidates(result, logsByStep) {
 }
 
 function errorLogCandidates(logs) {
-  return logs.filter((entry) => entry.level === 'error').map((entry) => {
-    const fingerprint = entry.fingerprint ?? diagnosticFingerprint(entry);
-    const triage = entry.metadata?.triage
-      ? { ...entry.metadata.triage, logFingerprints: [fingerprint] }
-      : undefined;
-    return {
-      severity: 'medium',
-      journeyId: entry.journeyId,
-      runId: entry.runId,
-      stepId: entry.stepId,
-      module: entry.entityIds?.module,
-      fingerprint,
-      summary: entry.message ?? `${entry.service}.${entry.event}`,
-      evidenceRefs: [`system.ndjson#${fingerprint}`],
-      ...(triage ? { triage } : {}),
-    };
-  });
+  return logs
+    .filter((entry) => entry.level === 'error')
+    .map((entry) => {
+      const fingerprint = entry.fingerprint ?? diagnosticFingerprint(entry);
+      const triage = entry.metadata?.triage
+        ? { ...entry.metadata.triage, logFingerprints: [fingerprint] }
+        : undefined;
+      return {
+        severity: 'medium',
+        journeyId: entry.journeyId,
+        runId: entry.runId,
+        stepId: entry.stepId,
+        module: entry.entityIds?.module,
+        fingerprint,
+        summary: entry.message ?? `${entry.service}.${entry.event}`,
+        evidenceRefs: [`system.ndjson#${fingerprint}`],
+        ...(triage ? { triage } : {}),
+      };
+    });
 }
 
 export function extractBugCandidates(result, logs) {

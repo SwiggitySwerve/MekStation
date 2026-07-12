@@ -106,24 +106,40 @@ function parseArgs(argv) {
   };
   const forward = [];
   const booleanFlagHandlers = new Map([
-    ['--list', () => { options.list = true; }],
-    ['--hold', () => { options.hold = true; }],
+    [
+      '--list',
+      () => {
+        options.list = true;
+      },
+    ],
+    [
+      '--hold',
+      () => {
+        options.hold = true;
+      },
+    ],
   ]);
   const valueFlagHandlers = new Map([
-    ['--until', (value, isMissing) => {
-      if (isMissing) {
-        options.untilMissing = true;
-        return;
-      }
-      options.until = value;
-    }],
-    ['--viewport', (value, isMissing) => {
-      if (isMissing) {
-        options.viewportMissing = true;
-        return;
-      }
-      options.viewport = value;
-    }],
+    [
+      '--until',
+      (value, isMissing) => {
+        if (isMissing) {
+          options.untilMissing = true;
+          return;
+        }
+        options.until = value;
+      },
+    ],
+    [
+      '--viewport',
+      (value, isMissing) => {
+        if (isMissing) {
+          options.viewportMissing = true;
+          return;
+        }
+        options.viewport = value;
+      },
+    ],
   ]);
 
   for (let i = 0; i < argv.length; i += 1) {

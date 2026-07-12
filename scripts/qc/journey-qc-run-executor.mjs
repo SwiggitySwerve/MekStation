@@ -26,7 +26,11 @@ function writeStepArtifacts(input) {
   if (shouldFail) return artifacts;
   for (const produced of step.produces) {
     artifacts.push(
-      deps.writeArtifact(runDir, `${journey.id}/${attempt}/${produced}`, payload),
+      deps.writeArtifact(
+        runDir,
+        `${journey.id}/${attempt}/${produced}`,
+        payload,
+      ),
     );
   }
   return artifacts;
@@ -89,7 +93,8 @@ function buildStepLog(deps, context) {
 }
 
 function executeJourneyStep(input) {
-  const { deps, runDir, runPlan, journey, step, attempt, options, logs } = input;
+  const { deps, runDir, runPlan, journey, step, attempt, options, logs } =
+    input;
   const { shouldFail, failureKind, failureMessage, missingRequiredBacking } =
     resolveStepFailure(options, journey, step);
   const level =
@@ -165,7 +170,8 @@ function executeJourneyAttempt(input) {
       logs,
     });
     attemptResult.steps.push(stepResult);
-    if (payload.terminalState) attemptResult.terminalState = payload.terminalState;
+    if (payload.terminalState)
+      attemptResult.terminalState = payload.terminalState;
     if (shouldFail && step.required) {
       attemptResult.status = 'fail';
       if (!options.continueOnError) break;

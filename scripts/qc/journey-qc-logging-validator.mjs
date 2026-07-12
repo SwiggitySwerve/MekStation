@@ -27,16 +27,23 @@ function validateLoggingMapHeader(loggingMap, issues) {
     issues.push(issue('error', 'Logging map version must be 1.'));
   }
   if (!Array.isArray(loggingMap.requiredPathIds)) {
-    issues.push(issue('error', 'Logging map requiredPathIds must be an array.'));
+    issues.push(
+      issue('error', 'Logging map requiredPathIds must be an array.'),
+    );
   }
   if (!Array.isArray(loggingMap.requiredTriageFields)) {
-    issues.push(issue('error', 'Logging map requiredTriageFields must be an array.'));
+    issues.push(
+      issue('error', 'Logging map requiredTriageFields must be an array.'),
+    );
     return;
   }
   for (const requiredField of requiredTriageFields) {
     if (!loggingMap.requiredTriageFields.includes(requiredField)) {
       issues.push(
-        issue('error', `Logging map missing required triage field ${requiredField}.`),
+        issue(
+          'error',
+          `Logging map missing required triage field ${requiredField}.`,
+        ),
       );
     }
   }
@@ -52,7 +59,9 @@ function validateLoggingPathEntry(entry, index, pathIds, issues) {
   }
   pathIds.add(entry.pathId);
   if (typeof entry.service !== 'string' || entry.service.trim() === '') {
-    issues.push(issue('error', `${label}: service must be a non-empty string.`));
+    issues.push(
+      issue('error', `${label}: service must be a non-empty string.`),
+    );
   }
   if (!['debug', 'info', 'warn', 'error'].includes(entry.severity)) {
     issues.push(
@@ -61,7 +70,9 @@ function validateLoggingPathEntry(entry, index, pathIds, issues) {
   }
   validatePathClassification(entry, label, issues);
   if (!Array.isArray(entry.events) || entry.events.length === 0) {
-    issues.push(issue('error', `${label}: events must contain at least one event.`));
+    issues.push(
+      issue('error', `${label}: events must contain at least one event.`),
+    );
   }
   if (!Array.isArray(entry.testRefs) || entry.testRefs.length === 0) {
     issues.push(
@@ -75,7 +86,10 @@ function validatePathClassification(entry, label, issues) {
     entry.severity === 'warn' || entry.severity === 'error';
   if (requiresClassification && typeof entry.classification !== 'string') {
     issues.push(
-      issue('error', `${label}: warn/error paths must declare a classification.`),
+      issue(
+        'error',
+        `${label}: warn/error paths must declare a classification.`,
+      ),
     );
   }
   if (
@@ -90,13 +104,19 @@ function validatePathClassification(entry, label, issues) {
     );
   }
   if (requiresClassification && typeof entry.blocking !== 'boolean') {
-    issues.push(issue('error', `${label}: warn/error paths must declare blocking.`));
+    issues.push(
+      issue('error', `${label}: warn/error paths must declare blocking.`),
+    );
   }
   if (entry.classification === 'expected-probe' && entry.blocking !== false) {
-    issues.push(issue('error', `${label}: expected probes must be non-blocking.`));
+    issues.push(
+      issue('error', `${label}: expected probes must be non-blocking.`),
+    );
   }
   if (entry.classification === 'failure' && entry.severity !== 'error') {
-    issues.push(issue('error', `${label}: failure classification must use error.`));
+    issues.push(
+      issue('error', `${label}: failure classification must use error.`),
+    );
   }
 }
 
@@ -122,7 +142,13 @@ function collectCatalogLoggingRefs(catalog) {
   return { loggingPathIds, diagnosticEvents };
 }
 
-function validateCatalogAndGraphCoverage(loggingMap, catalog, graph, pathIds, issues) {
+function validateCatalogAndGraphCoverage(
+  loggingMap,
+  catalog,
+  graph,
+  pathIds,
+  issues,
+) {
   for (const requiredPathId of loggingMap.requiredPathIds ?? []) {
     if (!pathIds.has(requiredPathId)) {
       issues.push(
@@ -131,7 +157,8 @@ function validateCatalogAndGraphCoverage(loggingMap, catalog, graph, pathIds, is
     }
   }
   const mappedEvents = collectMappedEvents(loggingMap.paths);
-  const { loggingPathIds, diagnosticEvents } = collectCatalogLoggingRefs(catalog);
+  const { loggingPathIds, diagnosticEvents } =
+    collectCatalogLoggingRefs(catalog);
   for (const loggingPathId of loggingPathIds) {
     if (!pathIds.has(loggingPathId)) {
       issues.push(

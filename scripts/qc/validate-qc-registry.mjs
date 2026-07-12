@@ -737,8 +737,13 @@ function validateSurfaceShape(surface, index, issues) {
     }
   }
   if (!Object.hasOwn(surface, 'parentId')) {
-    issues.push(fail(`${label}: parentId is required and must be a string or null.`));
-  } else if (surface.parentId !== null && typeof surface.parentId !== 'string') {
+    issues.push(
+      fail(`${label}: parentId is required and must be a string or null.`),
+    );
+  } else if (
+    surface.parentId !== null &&
+    typeof surface.parentId !== 'string'
+  ) {
     issues.push(fail(`${label}: parentId must be a string or null.`));
   }
   for (const field of requiredArrayFields) {
@@ -772,7 +777,9 @@ function validateSurfaceTestsAndEvidence(surface, label, issues) {
   if (Array.isArray(surface.tests)) {
     for (const [testIndex, value] of surface.tests.entries()) {
       if (typeof value !== 'string' || value.trim() === '') {
-        issues.push(fail(`${label}: tests[${testIndex}] must be a non-empty string.`));
+        issues.push(
+          fail(`${label}: tests[${testIndex}] must be a non-empty string.`),
+        );
       } else if (
         !pathLikeTestSkipValues.has(value) &&
         !isCommandLike(value) &&
@@ -786,7 +793,11 @@ function validateSurfaceTestsAndEvidence(surface, label, issues) {
     if (!Array.isArray(surface[field])) continue;
     for (const [evidenceIndex, value] of surface[field].entries()) {
       if (typeof value !== 'string' || value.trim() === '') {
-        issues.push(fail(`${label}: ${field}[${evidenceIndex}] must be a non-empty string.`));
+        issues.push(
+          fail(
+            `${label}: ${field}[${evidenceIndex}] must be a non-empty string.`,
+          ),
+        );
       } else if (isPathLikeEvidence(value)) {
         validatePathReference(label, field, evidenceIndex, value, issues);
       }
@@ -798,12 +809,17 @@ function validateSurfaceMetadata(surface, label, issues) {
   if (Array.isArray(surface.claimIds)) {
     for (const [claimIndex, claimId] of surface.claimIds.entries()) {
       if (typeof claimId !== 'string' || claimId.trim() === '') {
-        issues.push(fail(`${label}: claimIds[${claimIndex}] must be a non-empty string.`));
+        issues.push(
+          fail(`${label}: claimIds[${claimIndex}] must be a non-empty string.`),
+        );
       }
     }
   }
   if (Array.isArray(surface.activeChangeRefs)) {
-    for (const [changeRefIndex, changeRef] of surface.activeChangeRefs.entries()) {
+    for (const [
+      changeRefIndex,
+      changeRef,
+    ] of surface.activeChangeRefs.entries()) {
       validateActiveChangeReference(label, changeRefIndex, changeRef, issues);
     }
   }
@@ -811,22 +827,34 @@ function validateSurfaceMetadata(surface, label, issues) {
 
 function validateSurfaceTopology(surface, byId, issues) {
   if (surface.parentId && !byId.has(surface.parentId)) {
-    issues.push(fail(`${surface.surfaceId}: parentId "${surface.parentId}" does not exist.`));
+    issues.push(
+      fail(
+        `${surface.surfaceId}: parentId "${surface.parentId}" does not exist.`,
+      ),
+    );
   }
   if (surface.parentId === null && surface.level !== 'top') {
-    issues.push(warn(`${surface.surfaceId}: root surface should use level "top".`));
+    issues.push(
+      warn(`${surface.surfaceId}: root surface should use level "top".`),
+    );
   }
   if (surface.parentId !== null && surface.level === 'top') {
-    issues.push(warn(`${surface.surfaceId}: child surface should not use level "top".`));
+    issues.push(
+      warn(`${surface.surfaceId}: child surface should not use level "top".`),
+    );
   }
   if (hasParentCycle(surface, byId)) {
     issues.push(fail(`${surface.surfaceId}: parent cycle detected.`));
   }
   if (surface.commands.length === 0 && surface.manualChecks.length === 0) {
-    issues.push(warn(`${surface.surfaceId}: add at least one command or manual check.`));
+    issues.push(
+      warn(`${surface.surfaceId}: add at least one command or manual check.`),
+    );
   }
   if (surface.evidence.length === 0 || surface.gaps.length === 0) {
-    issues.push(warn(`${surface.surfaceId}: evidence and gaps should stay explicit.`));
+    issues.push(
+      warn(`${surface.surfaceId}: evidence and gaps should stay explicit.`),
+    );
   }
 }
 

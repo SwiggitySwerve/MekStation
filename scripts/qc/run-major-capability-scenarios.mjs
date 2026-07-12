@@ -40,28 +40,79 @@ function parseArgs(argv) {
     validateOnly: false,
   };
   const booleanFlagHandlers = new Map([
-    ['--continue-on-error', () => { options.continueOnError = true; }],
-    ['--dry-run', () => { options.dryRun = true; }],
-    ['--list', () => { options.dryRun = true; }],
-    ['--no-evidence', () => { options.evidence = false; }],
-    ['--validate-only', () => { options.validateOnly = true; }],
+    [
+      '--continue-on-error',
+      () => {
+        options.continueOnError = true;
+      },
+    ],
+    [
+      '--dry-run',
+      () => {
+        options.dryRun = true;
+      },
+    ],
+    [
+      '--list',
+      () => {
+        options.dryRun = true;
+      },
+    ],
+    [
+      '--no-evidence',
+      () => {
+        options.evidence = false;
+      },
+    ],
+    [
+      '--validate-only',
+      () => {
+        options.validateOnly = true;
+      },
+    ],
   ]);
   const valueHandlers = new Map([
-    ['scenario', (value) => {
-      options.scenarioIds.push(
-        ...value
-          .split(',')
-          .map((item) => item.trim())
-          .filter(Boolean),
-      );
-    }],
-    ['surface', (value) => { options.surface = value.toLowerCase(); }],
-    ['lens', (value) => { options.lens = value.toLowerCase(); }],
-    ['tier', (value) => { options.tier = value.toLowerCase(); }],
-    ['evidence-dir', (value) => { options.evidenceDir = value; }],
-    ['max-output-chars', (value) => {
-      options.maxOutputChars = Number.parseInt(value, 10);
-    }],
+    [
+      'scenario',
+      (value) => {
+        options.scenarioIds.push(
+          ...value
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean),
+        );
+      },
+    ],
+    [
+      'surface',
+      (value) => {
+        options.surface = value.toLowerCase();
+      },
+    ],
+    [
+      'lens',
+      (value) => {
+        options.lens = value.toLowerCase();
+      },
+    ],
+    [
+      'tier',
+      (value) => {
+        options.tier = value.toLowerCase();
+      },
+    ],
+    [
+      'evidence-dir',
+      (value) => {
+        options.evidenceDir = value;
+      },
+    ],
+    [
+      'max-output-chars',
+      (value) => {
+        options.maxOutputChars = Number.parseInt(value, 10);
+      },
+    ],
   ]);
 
   for (const arg of argv) {
@@ -117,7 +168,12 @@ function addCatalogIssue(issues, errors, severity, message) {
 function validateScenarioCheck(check, checkIndex, label, issues, errors) {
   const checkLabel = `${label}.checks[${checkIndex}]`;
   if (typeof check.id !== 'string' || check.id.trim() === '') {
-    addCatalogIssue(issues, errors, 'error', `${checkLabel}: id must be a non-empty string.`);
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      `${checkLabel}: id must be a non-empty string.`,
+    );
   }
   if (!Object.hasOwn(tierRank, check.tier)) {
     addCatalogIssue(
@@ -128,7 +184,12 @@ function validateScenarioCheck(check, checkIndex, label, issues, errors) {
     );
   }
   if (typeof check.command !== 'string' || check.command.trim() === '') {
-    addCatalogIssue(issues, errors, 'error', `${checkLabel}: command must be a non-empty string.`);
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      `${checkLabel}: command must be a non-empty string.`,
+    );
   }
   if (!Array.isArray(check.evidence) || check.evidence.length === 0) {
     addCatalogIssue(
@@ -160,24 +221,51 @@ function validateScenarioCheck(check, checkIndex, label, issues, errors) {
 
 function validateScenarioChecks(scenario, label, defaultTier, issues, errors) {
   if (!Array.isArray(scenario.checks) || scenario.checks.length === 0) {
-    addCatalogIssue(issues, errors, 'error', `${label}: checks must contain at least one item.`);
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      `${label}: checks must contain at least one item.`,
+    );
     return;
   }
-  const requiredChecks = scenario.checks.filter((check) => check.required !== false);
+  const requiredChecks = scenario.checks.filter(
+    (check) => check.required !== false,
+  );
   if (requiredChecks.length === 0) {
-    addCatalogIssue(issues, errors, 'error', `${label}: at least one check must be required.`);
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      `${label}: at least one check must be required.`,
+    );
   }
   if (!scenario.checks.some((check) => check.tier === 'core')) {
-    addCatalogIssue(issues, errors, 'error', `${label}: at least one check must use the core tier.`);
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      `${label}: at least one check must use the core tier.`,
+    );
   }
   if (!scenario.checks.some((check) => includesTier(check.tier, defaultTier))) {
-    addCatalogIssue(issues, errors, 'error', `${label}: at least one check must run in the default tier.`);
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      `${label}: at least one check must run in the default tier.`,
+    );
   }
   const checkIds = new Set();
   for (const [checkIndex, check] of scenario.checks.entries()) {
     const checkLabel = `${label}.checks[${checkIndex}]`;
     if (typeof check.id === 'string' && checkIds.has(check.id)) {
-      addCatalogIssue(issues, errors, 'error', `${checkLabel}: duplicate check id ${check.id}.`);
+      addCatalogIssue(
+        issues,
+        errors,
+        'error',
+        `${checkLabel}: duplicate check id ${check.id}.`,
+      );
     }
     checkIds.add(check.id);
     validateScenarioCheck(check, checkIndex, label, issues, errors);
@@ -187,27 +275,68 @@ function validateScenarioChecks(scenario, label, defaultTier, issues, errors) {
 function validateScenarioDefinition(scenario, index, context, issues, errors) {
   const label = scenario.id || `scenario[${index}]`;
   if (typeof scenario.id !== 'string' || scenario.id.trim() === '') {
-    addCatalogIssue(issues, errors, 'error', `${label}: id must be a non-empty string.`);
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      `${label}: id must be a non-empty string.`,
+    );
   } else if (context.scenarioIds.has(scenario.id)) {
-    addCatalogIssue(issues, errors, 'error', `${label}: duplicate scenario id.`);
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      `${label}: duplicate scenario id.`,
+    );
   }
   context.scenarioIds.add(scenario.id);
-  if (typeof scenario.surfaceId !== 'string' || scenario.surfaceId.trim() === '') {
-    addCatalogIssue(issues, errors, 'error', `${label}: surfaceId must be a non-empty string.`);
+  if (
+    typeof scenario.surfaceId !== 'string' ||
+    scenario.surfaceId.trim() === ''
+  ) {
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      `${label}: surfaceId must be a non-empty string.`,
+    );
   } else if (!context.registrySurfaces.has(scenario.surfaceId)) {
-    addCatalogIssue(issues, errors, 'error', `${label}: surfaceId ${scenario.surfaceId} is not in QC registry.`);
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      `${label}: surfaceId ${scenario.surfaceId} is not in QC registry.`,
+    );
   }
   context.scenarioSurfaceIds.add(scenario.surfaceId);
   if (!context.topSurfaceIds.includes(scenario.surfaceId)) {
-    addCatalogIssue(issues, errors, 'error', `${label}: surfaceId ${scenario.surfaceId} is not a top-level QC surface.`);
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      `${label}: surfaceId ${scenario.surfaceId} is not a top-level QC surface.`,
+    );
   }
   for (const field of ['title', 'realisticFlow']) {
     if (typeof scenario[field] !== 'string' || scenario[field].trim() === '') {
-      addCatalogIssue(issues, errors, 'error', `${label}: ${field} must be a non-empty string.`);
+      addCatalogIssue(
+        issues,
+        errors,
+        'error',
+        `${label}: ${field} must be a non-empty string.`,
+      );
     }
   }
-  if (!Array.isArray(scenario.successCriteria) || scenario.successCriteria.length === 0) {
-    addCatalogIssue(issues, errors, 'error', `${label}: successCriteria must contain at least one item.`);
+  if (
+    !Array.isArray(scenario.successCriteria) ||
+    scenario.successCriteria.length === 0
+  ) {
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      `${label}: successCriteria must contain at least one item.`,
+    );
   }
   validateScenarioChecks(scenario, label, context.defaultTier, issues, errors);
 }
@@ -217,20 +346,45 @@ function validateCatalog(catalog, registry) {
   const errors = [];
 
   if (catalog.version !== 1) {
-    addCatalogIssue(issues, errors, 'error', 'Scenario catalog version must be 1.');
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      'Scenario catalog version must be 1.',
+    );
   }
   if (!Array.isArray(catalog.scenarios) || catalog.scenarios.length === 0) {
-    addCatalogIssue(issues, errors, 'error', 'Scenario catalog must contain at least one scenario.');
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      'Scenario catalog must contain at least one scenario.',
+    );
     return { issues, errors };
   }
   if (!catalog.evaluationMethod?.result) {
-    addCatalogIssue(issues, errors, 'error', 'Scenario catalog must declare evaluationMethod.result.');
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      'Scenario catalog must declare evaluationMethod.result.',
+    );
   }
   if (!Array.isArray(catalog.evaluationMethod?.passCriteria)) {
-    addCatalogIssue(issues, errors, 'error', 'Scenario catalog must declare evaluationMethod.passCriteria.');
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      'Scenario catalog must declare evaluationMethod.passCriteria.',
+    );
   }
   if (!Array.isArray(catalog.evaluationMethod?.sameConditions)) {
-    addCatalogIssue(issues, errors, 'error', 'Scenario catalog must declare evaluationMethod.sameConditions.');
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
+      'Scenario catalog must declare evaluationMethod.sameConditions.',
+    );
   }
 
   const registrySurfaces = new Map(
@@ -244,12 +398,18 @@ function validateCatalog(catalog, registry) {
   const scenarioSurfaceIds = new Set();
 
   if (catalog.scenarioCount !== catalog.scenarios.length) {
-    addCatalogIssue(issues, errors, 'error',
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
       `scenarioCount ${catalog.scenarioCount} does not match ${catalog.scenarios.length} scenarios.`,
     );
   }
   if (catalog.scenarios.length !== topSurfaceIds.length) {
-    addCatalogIssue(issues, errors, 'error',
+    addCatalogIssue(
+      issues,
+      errors,
+      'error',
       `Scenario count ${catalog.scenarios.length} does not match ${selectedLevel} registry surface count ${topSurfaceIds.length}.`,
     );
   }
@@ -272,7 +432,12 @@ function validateCatalog(catalog, registry) {
 
   for (const surfaceId of topSurfaceIds) {
     if (!scenarioSurfaceIds.has(surfaceId)) {
-      addCatalogIssue(issues, errors, 'error', `Missing scenario for top-level QC surface ${surfaceId}.`);
+      addCatalogIssue(
+        issues,
+        errors,
+        'error',
+        `Missing scenario for top-level QC surface ${surfaceId}.`,
+      );
     }
   }
 

@@ -95,15 +95,24 @@ function surfaceSearchValues(surface) {
 }
 
 const surfaceFilterMatchers = [
-  ['status', (surface, value) => surface.coverageStatus.toLowerCase().includes(value)],
+  [
+    'status',
+    (surface, value) => surface.coverageStatus.toLowerCase().includes(value),
+  ],
   ['level', (surface, value) => surface.level.toLowerCase() === value],
   ['risk', (surface, value) => includesToken(surface.riskTags, value)],
   ['lens', (surface, value) => includesToken(surface.qualityLenses, value)],
-  ['surface', (surface, value) => surface.surfaceId.toLowerCase().includes(value)],
+  [
+    'surface',
+    (surface, value) => surface.surfaceId.toLowerCase().includes(value),
+  ],
   ['module', (surface, value) => includesToken(surface.modules, value)],
   ['submodule', (surface, value) => includesToken(surface.submodules, value)],
   ['claim', (surface, value) => includesToken(surface.claimIds ?? [], value)],
-  ['text', (surface, value) => includesToken(surfaceSearchValues(surface), value)],
+  [
+    'text',
+    (surface, value) => includesToken(surfaceSearchValues(surface), value),
+  ],
 ];
 
 function matches(surface, filters) {

@@ -46,15 +46,21 @@ function lifecycleGraphEdges(surface, outgoingByKey) {
     validatedBy: outgoingByKey.get(edgeKey(stateNodeId, 'validated-by')) ?? [],
     produces: outgoingByKey.get(edgeKey(stateNodeId, 'produces')) ?? [],
     logs: outgoingByKey.get(edgeKey(stateNodeId, 'logs')) ?? [],
-    documentsGap: outgoingByKey.get(edgeKey(stateNodeId, 'documents-gap')) ?? [],
+    documentsGap:
+      outgoingByKey.get(edgeKey(stateNodeId, 'documents-gap')) ?? [],
   };
 }
 
 function lifecycleBlockers(surface, nodeIds, graphEdges) {
   const blockers = [];
-  if (!nodeIds.has(`surface:${surface.surfaceId}`)) blockers.push('missing-surface-node');
-  if (!nodeIds.has(graphEdges.stateNodeId)) blockers.push('missing-lifecycle-state');
-  if ((surface.commands ?? []).length > 0 && graphEdges.validatedBy.length === 0) {
+  if (!nodeIds.has(`surface:${surface.surfaceId}`))
+    blockers.push('missing-surface-node');
+  if (!nodeIds.has(graphEdges.stateNodeId))
+    blockers.push('missing-lifecycle-state');
+  if (
+    (surface.commands ?? []).length > 0 &&
+    graphEdges.validatedBy.length === 0
+  ) {
     blockers.push('missing-command-edge');
   }
   if (graphEdges.produces.length === 0) blockers.push('missing-evidence-edge');

@@ -123,7 +123,9 @@ function isFlowStagesDeclaration(node) {
   if (!ts.isIdentifier(node.name) || node.name.text !== 'FLOW_STAGES') {
     return false;
   }
-  return Boolean(node.initializer && ts.isObjectLiteralExpression(node.initializer));
+  return Boolean(
+    node.initializer && ts.isObjectLiteralExpression(node.initializer),
+  );
 }
 
 function findFlowStagesNode(sourceFile) {

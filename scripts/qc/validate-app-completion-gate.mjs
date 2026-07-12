@@ -463,7 +463,12 @@ function releaseGapsForScenarios(scenarios, journeys) {
   }
 
   for (const journey of journeys) {
-    addMatchingTextGaps(gaps, journey.knownLimitations ?? [], journey.id, 'journey-limitation');
+    addMatchingTextGaps(
+      gaps,
+      journey.knownLimitations ?? [],
+      journey.id,
+      'journey-limitation',
+    );
     for (const step of journey.steps ?? []) {
       releaseGapsForJourneyStep(gaps, journey, step);
     }

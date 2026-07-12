@@ -75,12 +75,17 @@ function routeMatchesAnyPage(route, pageRoutes) {
 
 function validateFlowRoute(flowId, label, href, issues, pageRoutes) {
   if (typeof href !== 'string' || href.trim() === '') {
-    issues.push(issue('error', `UI flow ${flowId}: ${label} href is required.`));
+    issues.push(
+      issue('error', `UI flow ${flowId}: ${label} href is required.`),
+    );
     return;
   }
   if (!href.startsWith('/')) {
     issues.push(
-      issue('error', `UI flow ${flowId}: ${label} route ${href} must start with /.`),
+      issue(
+        'error',
+        `UI flow ${flowId}: ${label} route ${href} must start with /.`,
+      ),
     );
     return;
   }
@@ -94,13 +99,24 @@ function validateFlowRoute(flowId, label, href, issues, pageRoutes) {
   }
 }
 
-function validateRequiredCheckpointOrder(flow, issues, requiredCheckpointIdsByJourney) {
-  const requiredCheckpointIds = requiredCheckpointIdsByJourney.get(flow.journeyId);
+function validateRequiredCheckpointOrder(
+  flow,
+  issues,
+  requiredCheckpointIdsByJourney,
+) {
+  const requiredCheckpointIds = requiredCheckpointIdsByJourney.get(
+    flow.journeyId,
+  );
   if (!requiredCheckpointIds) return;
-  const actualCheckpointIds = flow.checkpoints.map((checkpoint) => checkpoint.id);
+  const actualCheckpointIds = flow.checkpoints.map(
+    (checkpoint) => checkpoint.id,
+  );
   let cursor = -1;
   for (const requiredCheckpointId of requiredCheckpointIds) {
-    const nextIndex = actualCheckpointIds.indexOf(requiredCheckpointId, cursor + 1);
+    const nextIndex = actualCheckpointIds.indexOf(
+      requiredCheckpointId,
+      cursor + 1,
+    );
     if (nextIndex === -1) {
       issues.push(
         issue(
@@ -114,11 +130,20 @@ function validateRequiredCheckpointOrder(flow, issues, requiredCheckpointIdsByJo
   }
 }
 
-function validateFlowHeader(flow, catalogById, catalogJourneyIds, graphNodeIds, issues) {
+function validateFlowHeader(
+  flow,
+  catalogById,
+  catalogJourneyIds,
+  graphNodeIds,
+  issues,
+) {
   const catalogJourney = catalogById.get(flow.journeyId);
   if (!catalogJourneyIds.has(flow.journeyId)) {
     issues.push(
-      issue('error', `UI flow shell references unknown journey ${flow.journeyId}.`),
+      issue(
+        'error',
+        `UI flow shell references unknown journey ${flow.journeyId}.`,
+      ),
     );
   }
   if (!graphNodeIds.has(`journey:${flow.journeyId}`)) {
@@ -139,7 +164,9 @@ function validateFlowHeader(flow, catalogById, catalogJourneyIds, graphNodeIds, 
   }
   for (const field of ['displayName', 'module', 'qcCommand']) {
     if (typeof flow[field] !== 'string' || flow[field].trim() === '') {
-      issues.push(issue('error', `UI flow ${flow.journeyId}: ${field} is required.`));
+      issues.push(
+        issue('error', `UI flow ${flow.journeyId}: ${field} is required.`),
+      );
     }
   }
   if (
@@ -157,7 +184,9 @@ function validateFlowHeader(flow, catalogById, catalogJourneyIds, graphNodeIds, 
 
 function validateFlowRolesAndNotes(flow, allowedRoles, issues) {
   if (!Array.isArray(flow.roleIntent) || flow.roleIntent.length === 0) {
-    issues.push(issue('error', `UI flow ${flow.journeyId}: roleIntent is required.`));
+    issues.push(
+      issue('error', `UI flow ${flow.journeyId}: roleIntent is required.`),
+    );
   } else {
     for (const role of flow.roleIntent) {
       if (!allowedRoles.has(role)) {
@@ -167,9 +196,15 @@ function validateFlowRolesAndNotes(flow, allowedRoles, issues) {
       }
     }
   }
-  if (!Array.isArray(flow.inspectionNotes) || flow.inspectionNotes.length === 0) {
+  if (
+    !Array.isArray(flow.inspectionNotes) ||
+    flow.inspectionNotes.length === 0
+  ) {
     issues.push(
-      issue('error', `UI flow ${flow.journeyId}: inspectionNotes are required.`),
+      issue(
+        'error',
+        `UI flow ${flow.journeyId}: inspectionNotes are required.`,
+      ),
     );
   }
 }
@@ -186,7 +221,10 @@ function validateFlowPrimaryAction(flow, issues, pageRoutes) {
     flow.primaryAction.label.trim() === ''
   ) {
     issues.push(
-      issue('error', `UI flow ${flow.journeyId}: primaryAction label is required.`),
+      issue(
+        'error',
+        `UI flow ${flow.journeyId}: primaryAction label is required.`,
+      ),
     );
   }
   validateFlowRoute(
@@ -222,7 +260,10 @@ function validateFlowCheckpoints(flow, allowedVisibility, issues, pageRoutes) {
       );
     }
     checkpointIds.add(checkpoint.id);
-    if (typeof checkpoint.label !== 'string' || checkpoint.label.trim() === '') {
+    if (
+      typeof checkpoint.label !== 'string' ||
+      checkpoint.label.trim() === ''
+    ) {
       issues.push(
         issue(
           'error',
@@ -259,7 +300,13 @@ function validateSingleFlow(flow, context, issues) {
     pageRoutes,
     requiredCheckpointIdsByJourney,
   } = context;
-  validateFlowHeader(flow, catalogById, catalogJourneyIds, graphNodeIds, issues);
+  validateFlowHeader(
+    flow,
+    catalogById,
+    catalogJourneyIds,
+    graphNodeIds,
+    issues,
+  );
   validateFlowRolesAndNotes(flow, allowedRoles, issues);
   validateFlowPrimaryAction(flow, issues, pageRoutes);
   const hasCheckpoints = validateFlowCheckpoints(
@@ -269,11 +316,21 @@ function validateSingleFlow(flow, context, issues) {
     pageRoutes,
   );
   if (hasCheckpoints) {
-    validateRequiredCheckpointOrder(flow, issues, requiredCheckpointIdsByJourney);
+    validateRequiredCheckpointOrder(
+      flow,
+      issues,
+      requiredCheckpointIdsByJourney,
+    );
   }
 }
 
-function validateRequiredFlows(flowIds, catalog, uiFlowShell, requiredJourneyIds, issues) {
+function validateRequiredFlows(
+  flowIds,
+  catalog,
+  uiFlowShell,
+  requiredJourneyIds,
+  issues,
+) {
   const requiredIds = catalog.requiredJourneyIds ?? requiredJourneyIds;
   for (const requiredId of requiredIds) {
     if (!flowIds.has(requiredId)) {
@@ -319,8 +376,12 @@ export function validateUiFlowShell(uiFlowShell, catalog, graph, deps) {
     return issues;
   }
 
-  const catalogJourneyIds = new Set(catalog.journeys.map((journey) => journey.id));
-  const catalogById = new Map(catalog.journeys.map((journey) => [journey.id, journey]));
+  const catalogJourneyIds = new Set(
+    catalog.journeys.map((journey) => journey.id),
+  );
+  const catalogById = new Map(
+    catalog.journeys.map((journey) => [journey.id, journey]),
+  );
   const graphNodeIds = new Set(graph.nodes.map((node) => node.id));
   const flowIds = new Set();
   const context = {
@@ -336,7 +397,9 @@ export function validateUiFlowShell(uiFlowShell, catalog, graph, deps) {
   for (const [index, flow] of uiFlowShell.flows.entries()) {
     const label = flow.journeyId || `flows[${index}]`;
     if (typeof flow.journeyId !== 'string' || flow.journeyId.trim() === '') {
-      issues.push(issue('error', `${label}: journeyId must be a non-empty string.`));
+      issues.push(
+        issue('error', `${label}: journeyId must be a non-empty string.`),
+      );
       continue;
     }
     if (flowIds.has(flow.journeyId)) {
@@ -348,6 +411,12 @@ export function validateUiFlowShell(uiFlowShell, catalog, graph, deps) {
     validateSingleFlow(flow, context, issues);
   }
 
-  validateRequiredFlows(flowIds, catalog, uiFlowShell, requiredJourneyIds, issues);
+  validateRequiredFlows(
+    flowIds,
+    catalog,
+    uiFlowShell,
+    requiredJourneyIds,
+    issues,
+  );
   return issues;
 }
