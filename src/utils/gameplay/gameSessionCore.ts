@@ -46,10 +46,7 @@ export function isTurnLimitDraw(
   return delta <= TURN_LIMIT_DRAW_TOLERANCE;
 }
 
-import {
-  hydrateC3NetworkStateFromGameState,
-  type IC3NetworkState,
-} from './c3Network';
+import { type IC3NetworkState } from './c3Network';
 import { type D6Roller, defaultD6Roller } from './diceTypes';
 import {
   createAttackLockedEvent,

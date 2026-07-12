@@ -3,7 +3,6 @@ import {
   mekstationDeviationSourceRef as criticalSlotMekStationRef,
   type ICombatFeatureSourceReference,
 } from './CombatFeatureSourceReference';
-import { MEGAMEK_ARTEMIS_FCS_SOURCE_REFS } from './CombatSpecialWeaponSourceRefs';
 
 export const MEGAMEK_CRITICAL_SLOT_STATE_SOURCE_REFS = [
   criticalSlotMegamekRef(

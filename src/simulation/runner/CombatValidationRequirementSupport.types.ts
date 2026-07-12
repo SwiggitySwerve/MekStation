@@ -1,79 +1,9 @@
-import {
-  BATTLEMECH_ABSENT_ACTION_SUPPORT,
-  COMBAT_COMMAND_ACTION_SUPPORT,
-  COMBAT_DIRECT_UI_ACTION_SUPPORT,
-  GAME_INTENT_ACTION_SUPPORT,
-  P2P_INTENT_TRANSLATION_SUPPORT,
-  WIRE_INTENT_KIND_ACTION_SUPPORT,
-} from './CombatActionSupport';
 /* eslint-disable max-lines -- Requirement crosswalk intentionally catalogs the full active combat-validation scope. */
-import { AMMUNITION_COMPATIBILITY_SUPPORT } from './CombatAmmunitionSupport';
-import {
-  ATTACK_INVALIDATION_REASON_SUPPORT,
-  ATTACK_INVALIDATION_SIDE_EFFECT_SUPPORT,
-  INVALID_TARGET_STATE_SUPPORT,
-} from './CombatAttackInvalidationSupport';
-import { CANONICAL_SPA_COMBAT_SCOPE_SUPPORT } from './CombatCanonicalSpaSupport';
-import { CRITICAL_SLOT_EFFECT_COMBAT_SUPPORT } from './CombatCriticalSlotEffectSupport';
-import { CRITICAL_SLOT_HYDRATION_COMBAT_SUPPORT } from './CombatCriticalSlotHydrationSupport';
-import {
-  CRITICAL_COMPONENT_COMBAT_SUPPORT,
-  DAMAGE_RESOLUTION_COMBAT_SUPPORT,
-  DESTRUCTION_CAUSE_COMBAT_SUPPORT,
-  PILOT_DAMAGE_COMBAT_SUPPORT,
-} from './CombatDamageSupport';
-import {
-  BATTLEMECH_COMBAT_EVENT_SUPPORT,
-  NON_BATTLEMECH_EVENT_SCOPE_SUPPORT,
-} from './CombatEventSupport';
 import { combatFeatureSourceRef } from './CombatFeatureSourceReference';
 import {
-  PHYSICAL_WEAPON_COMBAT_SUPPORT,
-  QUIRK_COMBAT_SUPPORT,
-  SPA_COMBAT_SUPPORT,
-  SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT,
   type ICombatFeatureSourceReference,
   type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
-import { COMBAT_INTEGRATION_SCENARIO_SUPPORT } from './CombatIntegrationSupport';
-import {
-  ACTION_ELIGIBILITY_COMBAT_SUPPORT,
-  PSR_RESOLUTION_COMBAT_SUPPORT,
-  RUNNER_PSR_TRIGGER_COMBAT_SUPPORT,
-} from './CombatLifecycleSupport';
-import { RUNNER_INTERACTIVE_PARITY_SUPPORT } from './CombatParitySupport';
-import { PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT } from './CombatPhysicalActionClassScopeSupport';
-import { PHYSICAL_ATTACK_ACTION_SUPPORT } from './CombatPhysicalActionSupport';
-import {
-  DISPLACEMENT_DOMINO_SECONDARY_FALLOUT_OUT_OF_SCOPE_IDS,
-  DISPLACEMENT_DOMINO_SECONDARY_FALLOUT_UNSUPPORTED_IDS,
-  PHYSICAL_LEGALITY_GATE_SUPPORT,
-} from './CombatPhysicalLegalityGateSupport';
-import { PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT } from './CombatPilotModifierApplicationSupport';
-import { PILOT_SKILL_COMBAT_SUPPORT } from './CombatPilotSkillSupport';
-import {
-  HEAT_RULE_COMBAT_SUPPORT,
-  MOVEMENT_ENHANCEMENT_COMBAT_SUPPORT,
-  MOVEMENT_RULE_COMBAT_SUPPORT,
-  PHYSICAL_DAMAGE_MODIFIER_COMBAT_SUPPORT,
-  RUNNER_RANGE_BRACKET_COMBAT_SUPPORT,
-  RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT,
-  TERRAIN_ENVIRONMENT_COMBAT_SUPPORT,
-  TERRAIN_LOS_SIDE_PATH_UNSUPPORTED_IDS,
-} from './CombatRuleSupport';
-import {
-  remapMekStationSourceRef,
-  remapMekStationSourceRefs,
-} from './CombatSourceRefAnchorRemap';
-import { SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT } from './CombatSpecialWeaponSupport';
-import {
-  TERRAIN_TYPE_ATTACK_MODIFIER_COMBAT_SUPPORT,
-  TERRAIN_TYPE_HEAT_COMBAT_SUPPORT,
-  TERRAIN_TYPE_LOS_COMBAT_SUPPORT,
-  TERRAIN_TYPE_MOVEMENT_COMBAT_SUPPORT,
-  TERRAIN_TYPE_PSR_COMBAT_SUPPORT,
-} from './CombatTerrainEnvironmentSupport';
-import { BATTLEMECH_VALIDATION_SCOPE_SUPPORT } from './CombatValidationScopeSupport';
 
 export type CombatRequirementAuthorityKind =
   | 'rulebook'

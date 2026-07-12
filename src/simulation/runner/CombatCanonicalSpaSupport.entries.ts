@@ -1,7 +1,3 @@
-import { CANONICAL_SPA_LIST, resolveSPAId } from '@/lib/spa';
-import { type ISPADefinition } from '@/types/spa/SPADefinition';
-
-import { canonicalSpaScopeSourceRefs } from './CombatCanonicalSpaSourceRefs';
 import {
   CANONICAL_BIOWARE_NEURAL_INTERFACE_SOURCE_REFS,
   CANONICAL_BIOWARE_COMM_IMPLANT_SOURCE_REFS,
@@ -29,19 +25,11 @@ import {
   MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
 } from './CombatEdgeSourceRefs';
 import {
-  helperOnly,
   integrated,
   outOfScope,
-  SPA_COMBAT_SUPPORT,
-  type ICombatFeatureSourceReference,
   type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 import { MEGAMEK_NIGHTWALKER_SOURCE_REFS } from './CombatLegacyPilotAbilitySourceRefs';
-import {
-  MEGAMEK_PROTO_DNI_RUNTIME_BOUNDARY_SOURCE_REFS,
-  MEGAMEK_TRIPLE_CORE_PROCESSOR_SOURCE_REFS,
-} from './CombatPilotModifierSourceRefs';
-import { remapMekStationSourceRef } from './CombatSourceRefAnchorRemap';
 
 export const CANONICAL_ONLY_SPA_SUPPORT: Readonly<
   Record<string, ICombatFeatureSupportEntry>

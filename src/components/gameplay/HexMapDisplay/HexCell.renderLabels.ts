@@ -6,10 +6,7 @@ import type {
 import type {
   ITacticalMapCombatLosBlockerReference,
   ITacticalMapProjectionSourceReference,
-  TacticalMapCombatProjectionStatus,
-  TacticalMapHexProjectionIntent,
   TacticalMapHexProjectionStatus,
-  TacticalMapMovementProjectionStatus,
 } from '@/utils/gameplay/tacticalMapProjection';
 
 import {

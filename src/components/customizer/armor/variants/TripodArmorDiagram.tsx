@@ -7,7 +7,6 @@ import { TRIPOD_LOCATIONS } from '@/types/construction/MechConfigurationSystem';
 import type { VariantArmorDiagramProps } from '../shared/ArmorVariantRenderHelpers';
 
 import { ArmorDiagramSvgFrame } from '../shared/ArmorDiagramSvgFrame';
-import { GradientDefs } from '../shared/ArmorFills';
 import {
   findArmorData,
   getArmorValues,

@@ -8,7 +8,7 @@ import type {
   IUnitToken,
 } from '@/types/gameplay';
 
-import { Facing, GameSide, MovementType, TerrainType } from '@/types/gameplay';
+import { Facing, GameSide, TerrainType } from '@/types/gameplay';
 import { deriveCombatRangeHexes } from '@/utils/gameplay/combatProjection';
 
 import {

@@ -202,7 +202,7 @@ export const HexCell = React.memo(function HexCell({
   const hasOverlay = overlayState.hasOverlay;
   const overlayFill = overlayState.fill;
   const overlayOpacity = overlayState.opacity;
-  const overlayKind = overlayState.kind;
+
   const isLegacyAttackRangeFallback = overlayState.isLegacyAttackRangeFallback;
   const isJumpTile = isJumpRangeTile(movementInfo);
   const isRunTile = isRunRangeTile(movementInfo);

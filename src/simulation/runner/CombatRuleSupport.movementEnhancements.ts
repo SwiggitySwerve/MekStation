@@ -9,10 +9,7 @@ import {
   type ICombatFeatureSourceReference,
   type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
-import {
-  MEGAMEK_MOVEMENT_SOURCE_VERSION,
-  MEGAMEK_PHYSICAL_SOURCE_VERSION,
-} from './CombatRuleSupport.sourceRefs';
+import { MEGAMEK_MOVEMENT_SOURCE_VERSION } from './CombatRuleSupport.sourceRefs';
 
 const MEGAMEK_TSM_MOVEMENT_SOURCE_REFS = [
   {

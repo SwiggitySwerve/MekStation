@@ -1,6 +1,5 @@
 import {
   CombatLocation,
-  GamePhase,
   IGameState,
   IHexCoordinate,
   IHexGrid,
@@ -10,9 +9,6 @@ import {
   TerrainType,
   type ITerrainFeature,
 } from '@/types/gameplay/TerrainTypes';
-import { createPSRTriggeredEvent } from '@/utils/gameplay/gameEvents/statusChecks';
-import { firedWeaponIdsFromMountedArm } from '@/utils/gameplay/gameSessionPhysicalHelpers';
-import { hexDistance } from '@/utils/gameplay/hexMath';
 import { parseTerrainFeatures } from '@/utils/gameplay/lineOfSight';
 import {
   IPhysicalAttackInput,

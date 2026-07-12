@@ -4,8 +4,6 @@ import type { IWeaponAttack } from '@/types/gameplay/CombatInterfaces';
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
 import { hasReachedEdge } from '@/simulation/ai/RetreatAI';
 import {
-  GamePhase,
-  LockState,
   type IMovementDeclaredPayload,
   type IGameSession,
   type IUnitGameState,
@@ -26,26 +24,19 @@ import {
   createUnitRetreatedEvent,
 } from '@/utils/gameplay/gameEvents';
 import {
-  rollInitiative,
-  advancePhase,
   appendEvent,
   declareMovement,
   lockMovement,
   declareAttack,
   lockAttack,
-  resolveAllAttacks,
-  resolveHeatPhase,
   declarePhysicalAttack,
   resolveAllPhysicalAttacks,
-  checkAndQueueDamagePSRs,
-  resolvePendingPSRs,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
 import {
   canUnitGoProne,
   getGoProneMpCost,
 } from '@/utils/gameplay/gameSessionProne';
-import { getGridTerrainHeatEffect } from '@/utils/gameplay/heat';
 import {
   buildMovementEventPath,
   maxMovementCostForCapability,
@@ -56,7 +47,6 @@ import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
 import { prepareAttackContext } from './attackContext';
 import { toAIUnitState } from './GameEngine.helpers';
-import { runEngineMoraleAndWithdrawalPass } from './GameEngine.morale';
 import { canUnitAct, canUnitBeTargeted } from './GameEngine.phaseGuards';
 import { emitRetreatTriggers } from './GameEngine.retreat';
 

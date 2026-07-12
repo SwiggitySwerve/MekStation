@@ -4,21 +4,6 @@ import {
   type ICombatFeatureSourceReference,
 } from './CombatFeatureSourceReference';
 
-const MEGAMEK_CURRENT_IMPLANT_SOURCE_VERSION =
-  '55584ec7529b944fca3216965697e9fa1115dced';
-
-function currentMegamekImplantRef(
-  citation: string,
-  pathWithLines: string,
-): ICombatFeatureSourceReference {
-  return {
-    kind: 'megamek-source',
-    citation,
-    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_CURRENT_IMPLANT_SOURCE_VERSION}/${pathWithLines}`,
-    sourceVersion: MEGAMEK_CURRENT_IMPLANT_SOURCE_VERSION,
-  };
-}
-
 export const MEGAMEK_HOT_DOG_HEAT_ROLL_SOURCE_REFS = [
   pilotMovementMegamekRef(
     'MegaMek HeatResolver sets PILOT_HOT_DOG to hotDogMod = 1 before resolving heat effects.',

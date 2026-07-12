@@ -1,5 +1,4 @@
 import { IBlkDocument } from '@/types/formats/BlkFormat';
-import { CapitalArc } from '@/types/unit/CapitalShipInterfaces';
 
 import type { IJumpShip } from './JumpShipUnitHandler.types';
 

@@ -13,13 +13,11 @@ import {
   meleeWeaponIsArmMounted,
   meleeWeaponNeedsHand,
   meleeWeaponPriorActionRestriction,
-  selectedArmActuatorDestroyed,
   selectedArmCarryingCargo,
   selectedPunchArmDestroyed,
   zweihanderDeclarationRestriction,
 } from './restrictionActionValidationHelpers';
 import {
-  blocked,
   limbConflict,
   sharedPhysicalTargetRestriction,
 } from './restrictionValidationShared';

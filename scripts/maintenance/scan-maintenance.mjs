@@ -26,6 +26,7 @@ const skipDirs = new Set([
   '.claude',
   '.sisyphus',
   '.next',
+  '.tmp',
   'coverage',
   'dist',
   'build',

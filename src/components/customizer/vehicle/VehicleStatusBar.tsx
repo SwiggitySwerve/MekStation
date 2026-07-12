@@ -105,32 +105,6 @@ function getCompactStatusClass(status: StatusLevel): string {
   return 'text-text-theme-secondary';
 }
 
-function getArmorSubValue(unallocatedArmor: number): string {
-  if (unallocatedArmor === 0) return 'allocated';
-  const sign = unallocatedArmor > 0 ? '+' : '';
-  return `${sign}${unallocatedArmor} unalloc`;
-}
-
-function getTurretStatus(
-  currentWeight: number,
-  maxWeight: number,
-): StatusLevel {
-  if (currentWeight > maxWeight) return 'error';
-  return 'normal';
-}
-
-function getValidationValue(validationResult: VehicleValidation): string {
-  if (validationResult.isValid) return 'OK';
-  return `${validationResult.errors.length} err`;
-}
-
-function getValidationSubValue(
-  validationResult: VehicleValidation,
-): string | undefined {
-  if (validationResult.isValid) return 'passes';
-  return validationResult.errors[0]?.ruleId;
-}
-
 function calculateWeightBreakdown(state: VehicleStatusStoreState) {
   const engineWeight = calculateEngineWeight(
     state.engineRating,

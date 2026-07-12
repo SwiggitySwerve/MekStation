@@ -22,8 +22,6 @@ import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import { getCampaignHostRegistry } from './CampaignHostRegistry';
 
-type SocketEvent = 'message' | 'close' | 'error';
-
 export interface IWireCampaignSocket extends IMatchSocket {
   on(event: 'message', listener: (data: unknown) => void): this;
   on(event: 'close' | 'error', listener: () => void): this;

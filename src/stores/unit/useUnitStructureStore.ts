@@ -17,7 +17,6 @@ import type { InternalStructureType } from '@/types/construction/InternalStructu
 import type { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import type { JumpJetType } from '@/utils/construction/movementCalculations';
 
-import type { UnitStore } from '../unitState';
 import type { UnitSliceGetFn, UnitSliceSetFn } from './unitSliceTypes';
 
 import { modificationPatch, modifiedPatch } from '../unitStoreIdentityActions';

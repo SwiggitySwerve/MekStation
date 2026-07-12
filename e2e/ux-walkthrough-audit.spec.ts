@@ -14,7 +14,7 @@
 
 import { expect, test } from '@playwright/test';
 
-import { WalkthroughRecorder } from './helpers/uxWalkthrough';
+import { createWalkthroughRecorder } from './helpers/uxWalkthrough';
 import { assertNoMekStationLoading } from './helpers/wait';
 
 // A journey covers many screens on a dev server that compiles routes on first
@@ -27,7 +27,7 @@ test.describe('ux walkthrough audit — desktop', () => {
   test('journey: first visit and global navigation', async ({
     page,
   }, testInfo) => {
-    const walk = new WalkthroughRecorder(
+    const walk = createWalkthroughRecorder(
       page,
       '01-first-visit-navigation',
       'first-time visitor exploring the app shell',
@@ -86,7 +86,7 @@ test.describe('ux walkthrough audit — desktop', () => {
   });
 
   test('journey: browse the compendium', async ({ page }, testInfo) => {
-    const walk = new WalkthroughRecorder(
+    const walk = createWalkthroughRecorder(
       page,
       '02-compendium-browse',
       'player researching units and equipment',
@@ -164,7 +164,7 @@ test.describe('ux walkthrough audit — desktop', () => {
   });
 
   test('journey: fresh-profile empty states', async ({ page }, testInfo) => {
-    const walk = new WalkthroughRecorder(
+    const walk = createWalkthroughRecorder(
       page,
       '03-fresh-profile-empty-states',
       'new player with no saved content yet',
@@ -235,7 +235,7 @@ test.describe('ux walkthrough audit — desktop', () => {
   test('journey: quick game to auto-resolve results', async ({
     page,
   }, testInfo) => {
-    const walk = new WalkthroughRecorder(
+    const walk = createWalkthroughRecorder(
       page,
       '04-quick-game-auto-resolve',
       'player running their first quick battle',
@@ -314,7 +314,7 @@ test.describe('ux walkthrough audit — desktop', () => {
   test('journey: build a new unit in the customizer', async ({
     page,
   }, testInfo) => {
-    const walk = new WalkthroughRecorder(
+    const walk = createWalkthroughRecorder(
       page,
       '05-customizer-new-unit',
       'player building their first custom BattleMech',
@@ -397,7 +397,7 @@ test.describe('ux walkthrough audit — desktop', () => {
   test('journey: create a campaign and reach a mission launch', async ({
     page,
   }, testInfo) => {
-    const walk = new WalkthroughRecorder(
+    const walk = createWalkthroughRecorder(
       page,
       '06-campaign-create-to-launch',
       'player starting a mercenary campaign',
@@ -556,7 +556,7 @@ test.describe('ux walkthrough audit — mobile', () => {
   });
 
   test('journey: mobile navigation', async ({ page }, testInfo) => {
-    const walk = new WalkthroughRecorder(
+    const walk = createWalkthroughRecorder(
       page,
       '07-mobile-navigation',
       'phone user finding their way around',

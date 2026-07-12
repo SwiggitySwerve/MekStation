@@ -4,7 +4,6 @@ import { hasSPA } from '@/utils/gameplay/spaModifiers/canonicalize';
 
 import {
   CHARGE_DAMAGE_DIVISOR,
-  CHARGE_HIT_PSR_MODIFIER,
   CLAW_PUNCH_DAMAGE_DIVISOR,
   DFA_ATTACKER_DAMAGE_DIVISOR,
   DFA_DAMAGE_MULTIPLIER,
@@ -27,11 +26,7 @@ import {
   type JumpJetAttackSelectedLeg,
 } from './jumpJetAttackEligibility';
 import { getThrashAttackDamageForWeight } from './thrashEligibility';
-import {
-  IPhysicalAttackInput,
-  IPhysicalDamageResult,
-  isZweihanderPhysicalAttackType,
-} from './types';
+import { IPhysicalAttackInput, isZweihanderPhysicalAttackType } from './types';
 
 export {
   type IDfaMissFallDamageResult,

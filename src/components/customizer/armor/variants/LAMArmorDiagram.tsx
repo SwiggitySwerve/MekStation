@@ -13,7 +13,6 @@ import {
 import type { VariantArmorDiagramProps } from '../shared/ArmorVariantRenderHelpers';
 
 import { ArmorDiagramSvgFrame } from '../shared/ArmorDiagramSvgFrame';
-import { GradientDefs } from '../shared/ArmorFills';
 import {
   BIPED_ARMOR_LOCATIONS,
   FIGHTER_ARMOR_LOCATIONS,

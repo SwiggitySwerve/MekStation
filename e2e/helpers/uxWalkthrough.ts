@@ -144,46 +144,68 @@ export function resolveRunDir(): string {
   );
 }
 
-export class WalkthroughRecorder {
-  private readonly steps: MutableStep[] = [];
-  private readonly findings: WalkthroughFindingRecord[] = [];
-  private readonly checkpoints: WalkthroughCheckpointRecord[] = [];
-  private readonly entityIds: WalkthroughEntityRecord[] = [];
-  private readonly holdUrls: WalkthroughHoldUrlRecord[] = [];
-  private readonly surfaces = new Map<string, WalkthroughSurface>();
-  private readonly journeyDir: string;
-  private readonly runDir: string;
-  private readonly startedAt: string;
-  private stepCounter = 0;
-  private failed = false;
+export interface WalkthroughRecorder {
+  attachSurface(name: string, page: Page): void;
+  step(
+    title: string,
+    action: (page: Page) => Promise<void>,
+    options?: WalkthroughStepOptions,
+  ): Promise<number>;
+  checkpoint(
+    name: string,
+    action: (page: Page) => Promise<void>,
+    options?: WalkthroughStepOptions,
+  ): Promise<number>;
+  markCheckpointNotRun(name: string): void;
+  softStep(
+    title: string,
+    action: (page: Page) => Promise<void>,
+    options?: WalkthroughSoftStepOptions,
+  ): Promise<void>;
+  finding(finding: WalkthroughFindingRecord): void;
+  registerEntity(kind: string, id: string): void;
+  registerHoldUrl(label: string, url: string): void;
+  note(text: string): void;
+  finish(): void;
+}
 
-  constructor(
-    page: Page,
-    private readonly journey: string,
-    private readonly persona: string,
-    private readonly testInfo: TestInfo,
-  ) {
-    this.runDir = resolveRunDir();
-    this.journeyDir = path.join(this.runDir, journey);
-    fs.mkdirSync(this.journeyDir, { recursive: true });
-    this.startedAt = new Date().toISOString();
+/**
+ * Create a recorder that captures journey evidence without a stateful class
+ * surface, keeping the public API focused on journey operations.
+ */
+export function createWalkthroughRecorder(
+  page: Page,
+  journey: string,
+  persona: string,
+  testInfo: TestInfo,
+): WalkthroughRecorder {
+  const steps: MutableStep[] = [];
+  const findings: WalkthroughFindingRecord[] = [];
+  const checkpoints: WalkthroughCheckpointRecord[] = [];
+  const entityIds: WalkthroughEntityRecord[] = [];
+  const holdUrls: WalkthroughHoldUrlRecord[] = [];
+  const surfaces = new Map<string, WalkthroughSurface>();
+  const runDir = resolveRunDir();
+  const journeyDir = path.join(runDir, journey);
+  const startedAt = new Date().toISOString();
+  let stepCounter = 0;
+  let failed = false;
 
-    this.attachSurface(DEFAULT_SURFACE, page);
-  }
+  fs.mkdirSync(journeyDir, { recursive: true });
 
   /**
    * Register another browser surface so one journey can tell a single
    * interleaved host/guest story without splitting the evidence catalog.
    */
-  attachSurface(name: string, page: Page): void {
+  function attachSurface(name: string, page: Page): void {
     const surfaceName = normalizeSurfaceName(name);
-    if (this.surfaces.has(surfaceName)) {
+    if (surfaces.has(surfaceName)) {
       throw new Error(
         `Walkthrough surface "${surfaceName}" is already attached`,
       );
     }
     let existingPageSurface: string | null = null;
-    this.surfaces.forEach((surface, existingName) => {
+    surfaces.forEach((surface, existingName) => {
       if (surface.page === page) {
         existingPageSurface = existingName;
       }
@@ -198,7 +220,7 @@ export class WalkthroughRecorder {
       consoleBuffer: [],
       pageErrorBuffer: [],
     };
-    this.surfaces.set(surfaceName, surface);
+    surfaces.set(surfaceName, surface);
 
     // Buffer console/page errors between steps so each step record carries the
     // errors that surfaced while a normal user performed that step.
@@ -217,22 +239,22 @@ export class WalkthroughRecorder {
    * Strict mode remains the shell-journey default; tolerant mode uses the same
    * failure evidence path but lets deep-play audits keep walking.
    */
-  async step(
+  function step(
     title: string,
     action: (page: Page) => Promise<void>,
     options?: { readonly note?: string },
   ): Promise<number>;
-  async step(
+  function step(
     title: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
   ): Promise<number>;
-  async step(
+  function step(
     title: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
   ): Promise<number> {
-    return this.recordStep(title, action, options);
+    return recordStep(title, action, options);
   }
 
   /**
@@ -242,27 +264,27 @@ export class WalkthroughRecorder {
    * the assigned step index so callers (e.g. flow-audit findings) can
    * reference it without maintaining a parallel counter of their own.
    */
-  async checkpoint(
+  function checkpoint(
     name: string,
     action: (page: Page) => Promise<void>,
     options?: { readonly note?: string },
   ): Promise<number>;
-  async checkpoint(
+  function checkpoint(
     name: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
   ): Promise<number>;
-  async checkpoint(
+  function checkpoint(
     name: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
   ): Promise<number> {
-    return this.recordStep(name, action, options, (step) => {
-      this.checkpoints.push({
+    return recordStep(name, action, options, (step) => {
+      checkpoints.push({
         name,
         stepIndex: step.index,
         status: step.status,
-        viewport: this.resolveViewport(),
+        viewport: resolveViewport(),
       });
     });
   }
@@ -273,12 +295,12 @@ export class WalkthroughRecorder {
    * still ran (or would have run) inside this test's single fixed-viewport
    * browser context, so the viewport is still meaningful metadata.
    */
-  markCheckpointNotRun(name: string): void {
-    this.checkpoints.push({
+  function markCheckpointNotRun(name: string): void {
+    checkpoints.push({
       name,
       stepIndex: null,
       status: 'not-run',
-      viewport: this.resolveViewport(),
+      viewport: resolveViewport(),
     });
   }
 
@@ -287,12 +309,12 @@ export class WalkthroughRecorder {
    * Findings still carry the product interpretation; the failed step is just
    * the screenshot and runtime evidence.
    */
-  async softStep(
+  async function softStep(
     title: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughSoftStepOptions,
   ): Promise<void> {
-    await this.recordStep(title, action, {
+    await recordStep(title, action, {
       ...options,
       tolerant: true,
     });
@@ -302,8 +324,8 @@ export class WalkthroughRecorder {
    * Keep the author's blocker interpretation beside the screenshot evidence
    * instead of forcing downstream reviewers to infer it from failed steps.
    */
-  finding(finding: WalkthroughFindingRecord): void {
-    this.findings.push({
+  function finding(finding: WalkthroughFindingRecord): void {
+    findings.push({
       ...finding,
       steps: [...finding.steps],
     });
@@ -313,18 +335,18 @@ export class WalkthroughRecorder {
    * Register an entity created by a flow so a hold-mode summary can identify
    * state left on the developer's server for inspection or cleanup.
    */
-  registerEntity(kind: string, id: string): void {
-    this.entityIds.push({ kind, id });
+  function registerEntity(kind: string, id: string): void {
+    entityIds.push({ kind, id });
   }
 
   /**
    * Register a live URL that a hold-mode summary can present for inspection.
    */
-  registerHoldUrl(label: string, url: string): void {
-    this.holdUrls.push({ label, url });
+  function registerHoldUrl(label: string, url: string): void {
+    holdUrls.push({ label, url });
   }
 
-  private async recordStep(
+  async function recordStep(
     title: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
@@ -333,9 +355,9 @@ export class WalkthroughRecorder {
     const surfaceName = normalizeSurfaceName(
       options?.surface ?? DEFAULT_SURFACE,
     );
-    const surface = this.getSurface(surfaceName);
-    this.stepCounter += 1;
-    const index = this.stepCounter;
+    const surface = getSurface(surfaceName);
+    stepCounter += 1;
+    const index = stepCounter;
     const slug = `${String(index).padStart(2, '0')}-${slugify(title)}`;
     const record: MutableStep = {
       index,
@@ -354,13 +376,13 @@ export class WalkthroughRecorder {
     const begin = Date.now();
     try {
       await action(surface.page);
-      await this.settle(surface);
-      record.screenshot = await this.capture(surface, slug);
+      await settle(surface);
+      record.screenshot = await capture(surface, slug);
     } catch (error) {
       record.status = 'failed';
       record.failure = String(error).slice(0, 1000);
-      this.failed = true;
-      record.screenshot = await this.capture(surface, `${slug}-FAILED`).catch(
+      failed = true;
+      record.screenshot = await capture(surface, `${slug}-FAILED`).catch(
         () => null,
       );
       if (!options?.tolerant) {
@@ -368,20 +390,20 @@ export class WalkthroughRecorder {
       }
     } finally {
       record.durationMs = Date.now() - begin;
-      record.route = this.currentRoute(surface);
+      record.route = currentRoute(surface);
       record.consoleErrors = surface.consoleBuffer;
       record.pageErrors = surface.pageErrorBuffer;
       surface.consoleBuffer = [];
       surface.pageErrorBuffer = [];
-      this.steps.push(record);
+      steps.push(record);
       onRecorded?.(record);
     }
     return index;
   }
 
   /** Attach a free-form usability observation to the previous step. */
-  note(text: string): void {
-    const last = this.steps[this.steps.length - 1];
+  function note(text: string): void {
+    const last = steps[steps.length - 1];
     if (last) {
       last.notes.push(text);
     }
@@ -391,24 +413,24 @@ export class WalkthroughRecorder {
    * Persist the journey record. Call from a `finally` block so a mid-journey
    * failure still lands the partial catalog for review.
    */
-  finish(): void {
+  function finish(): void {
     const record: WalkthroughJourneyRecord = {
-      journey: this.journey,
-      persona: this.persona,
-      viewport: this.resolveViewport(),
-      startedAt: this.startedAt,
+      journey,
+      persona,
+      viewport: resolveViewport(),
+      startedAt,
       finishedAt: new Date().toISOString(),
-      status: this.failed ? 'failed' : 'ok',
-      steps: this.steps,
-      findings: this.findings,
-      ...(this.checkpoints.length > 0 ? { checkpoints: this.checkpoints } : {}),
-      ...(this.entityIds.length > 0 ? { entityIds: this.entityIds } : {}),
-      ...(this.holdUrls.length > 0 ? { holdUrls: this.holdUrls } : {}),
+      status: failed ? 'failed' : 'ok',
+      steps,
+      findings,
+      ...(checkpoints.length > 0 ? { checkpoints } : {}),
+      ...(entityIds.length > 0 ? { entityIds } : {}),
+      ...(holdUrls.length > 0 ? { holdUrls } : {}),
     };
-    const journeysDir = path.join(this.runDir, 'journeys');
+    const journeysDir = path.join(runDir, 'journeys');
     fs.mkdirSync(journeysDir, { recursive: true });
     fs.writeFileSync(
-      path.join(journeysDir, `${this.journey}.json`),
+      path.join(journeysDir, `${journey}.json`),
       `${JSON.stringify(record, null, 2)}\n`,
       'utf8',
     );
@@ -419,14 +441,14 @@ export class WalkthroughRecorder {
    * show what a user actually sees, not a mid-transition frame. Network-idle
    * is best-effort — pages with polling (multiplayer) never go idle.
    */
-  private async settle(surface: WalkthroughSurface): Promise<void> {
+  async function settle(surface: WalkthroughSurface): Promise<void> {
     await surface.page
       .waitForLoadState('networkidle', { timeout: 5_000 })
       .catch(() => undefined);
     await surface.page.waitForTimeout(350);
   }
 
-  private async capture(
+  async function capture(
     surface: WalkthroughSurface,
     slug: string,
   ): Promise<string | null> {
@@ -434,21 +456,21 @@ export class WalkthroughRecorder {
     await surface.page.screenshot({
       animations: 'disabled',
       fullPage: true,
-      path: path.join(this.journeyDir, file),
+      path: path.join(journeyDir, file),
       timeout: 15_000,
     });
-    return `${this.journey}/${file}`;
+    return `${journey}/${file}`;
   }
 
   /**
    * Resolve the viewport shared by the run manifest and every per-checkpoint
    * record. Single source so both call sites can never drift apart.
    */
-  private resolveViewport(): { width: number; height: number } {
-    return this.testInfo.project.use.viewport ?? { width: 1280, height: 720 };
+  function resolveViewport(): { width: number; height: number } {
+    return testInfo.project.use.viewport ?? { width: 1280, height: 720 };
   }
 
-  private currentRoute(surface: WalkthroughSurface): string {
+  function currentRoute(surface: WalkthroughSurface): string {
     try {
       return surface.page.url();
     } catch {
@@ -456,13 +478,27 @@ export class WalkthroughRecorder {
     }
   }
 
-  private getSurface(name: string): WalkthroughSurface {
-    const surface = this.surfaces.get(name);
+  function getSurface(name: string): WalkthroughSurface {
+    const surface = surfaces.get(name);
     if (!surface) {
       throw new Error(`Walkthrough surface "${name}" is not attached`);
     }
     return surface;
   }
+
+  attachSurface(DEFAULT_SURFACE, page);
+  return {
+    attachSurface,
+    step,
+    checkpoint,
+    markCheckpointNotRun,
+    softStep,
+    finding,
+    registerEntity,
+    registerHoldUrl,
+    note,
+    finish,
+  };
 }
 
 function normalizeSurfaceName(name: string): string {

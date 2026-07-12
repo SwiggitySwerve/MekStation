@@ -500,104 +500,134 @@ app
       return pathname === '/_next/webpack-hmr';
     }
 
+    /**
+     * Delegate approved non-multiplayer upgrades to Next.js or destroy them.
+     */
+    function delegateOrDestroyNonMpUpgrade(req, socket, head, parsedUrl) {
+      if (
+        dev &&
+        nextUpgradeHandler &&
+        isNextInternalUpgradePath(parsedUrl.pathname)
+      ) {
+        try {
+          const ret = nextUpgradeHandler(req, socket, head);
+          if (ret && typeof ret.catch === 'function') {
+            ret.catch((err) => {
+              // eslint-disable-next-line no-console
+              console.error('[next-upgrade] handler error', err);
+              try {
+                socket.destroy();
+              } catch {
+                /* socket already closed */
+              }
+            });
+          }
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error('[next-upgrade] sync error', err);
+          socket.destroy();
+        }
+        return;
+      }
+      socket.destroy();
+    }
+
+    /**
+     * Apply the raw-socket settings required before a multiplayer upgrade.
+     */
+    function configureMpUpgradeSocket(socket) {
+      socket.setTimeout(0);
+      socket.setNoDelay(true);
+      socket.setKeepAlive(true, 30_000);
+    }
+
+    /**
+     * Send a raw HTTP rejection and close the upgrade socket.
+     */
+    function rejectUpgrade(socket, statusLine) {
+      socket.write(`HTTP/1.1 ${statusLine}\r\nContent-Length: 0\r\n\r\n`);
+      socket.destroy();
+    }
+
+    /**
+     * Verify a multiplayer token, attach request metadata, and complete WS setup.
+     */
+    function attachVerifiedMpUpgrade(
+      req,
+      socket,
+      head,
+      parsedUrl,
+      matchId,
+      token,
+    ) {
+      if (!matchId || !token) {
+        // Missing either parameter — 400 over the raw socket so a
+        // browser sees a meaningful error instead of a hung handshake.
+        rejectUpgrade(socket, '400 Bad Request');
+        return;
+      }
+      // Wave 2: cryptographically verify the bearer token before
+      // upgrading. On failure, return 401 over the raw socket so the
+      // client sees a clean rejection (the handshake never completes,
+      // so there's no WS frame to send — this is the standard ws
+      // server pattern).
+      const verification = verifyWireToken(token);
+      // eslint-disable-next-line no-console
+      console.log(
+        `[mp-socket] upgrade verification result matchId=${matchId} ok=${verification.ok}${
+          verification.ok ? '' : ` reason=${verification.reason}`
+        }`,
+      );
+      if (!verification.ok) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[mp-socket] upgrade rejected matchId=${matchId} reason=${verification.reason}`,
+        );
+        rejectUpgrade(socket, '401 Unauthorized');
+        return;
+      }
+      // eslint-disable-next-line no-console
+      console.log(
+        `[mp-socket] upgrade verified matchId=${matchId} playerId=${verification.playerId}`,
+      );
+      // Stash the verified id on the request so the connection
+      // handler can attach it to the per-socket bookkeeping. Using a
+      // private-prefixed property avoids collisions with existing
+      // request fields.
+      req._mpVerifiedPlayerId = verification.playerId;
+      // Wave 3a: optional debug seed for bug reproduction. Parse a
+      // finite integer from `?seed=N`; ignore anything else so a
+      // malformed query can't destabilize production. Off by default.
+      const rawSeed = parsedUrl.query.seed;
+      const seedString = Array.isArray(rawSeed) ? rawSeed[0] : rawSeed;
+      if (typeof seedString === 'string' && seedString.length > 0) {
+        const seedValue = Number.parseInt(seedString, 10);
+        if (Number.isFinite(seedValue)) {
+          req._mpDiceSeed = seedValue;
+        }
+      }
+      wss.handleUpgrade(req, socket, head, (ws) => {
+        wss.emit('connection', ws, req);
+      });
+    }
+
     server.on('upgrade', async (req, socket, head) => {
       try {
         const parsedUrl = parse(req.url ?? '/', true);
         if (parsedUrl.pathname !== WS_UPGRADE_PATH) {
-          // Delegate the HMR upgrade to Next.js when we're running the dev
-          // server. Anything else (unknown path) is still destroyed.
-          if (
-            dev &&
-            nextUpgradeHandler &&
-            isNextInternalUpgradePath(parsedUrl.pathname)
-          ) {
-            try {
-              const ret = nextUpgradeHandler(req, socket, head);
-              if (ret && typeof ret.catch === 'function') {
-                ret.catch((err) => {
-                  // eslint-disable-next-line no-console
-                  console.error('[next-upgrade] handler error', err);
-                  try {
-                    socket.destroy();
-                  } catch {
-                    /* socket already closed */
-                  }
-                });
-              }
-            } catch (err) {
-              // eslint-disable-next-line no-console
-              console.error('[next-upgrade] sync error', err);
-              socket.destroy();
-            }
-          } else {
-            socket.destroy();
-          }
+          delegateOrDestroyNonMpUpgrade(req, socket, head, parsedUrl);
           return;
         }
         const matchId = firstQueryValue(parsedUrl.query.matchId);
         const token = firstQueryValue(parsedUrl.query.token);
-        socket.setTimeout(0);
-        socket.setNoDelay(true);
-        socket.setKeepAlive(true, 30_000);
+        configureMpUpgradeSocket(socket);
         // eslint-disable-next-line no-console
         console.log(
           `[mp-socket] upgrade requested matchId=${
             typeof matchId === 'string' ? matchId : ''
           } hasToken=${typeof token === 'string' && token.length > 0}`,
         );
-        if (!matchId || !token) {
-          // Missing either parameter — 400 over the raw socket so a
-          // browser sees a meaningful error instead of a hung handshake.
-          socket.write('HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n');
-          socket.destroy();
-          return;
-        }
-        // Wave 2: cryptographically verify the bearer token before
-        // upgrading. On failure, return 401 over the raw socket so the
-        // client sees a clean rejection (the handshake never completes,
-        // so there's no WS frame to send — this is the standard ws
-        // server pattern).
-        const verification = verifyWireToken(token);
-        // eslint-disable-next-line no-console
-        console.log(
-          `[mp-socket] upgrade verification result matchId=${matchId} ok=${verification.ok}${
-            verification.ok ? '' : ` reason=${verification.reason}`
-          }`,
-        );
-        if (!verification.ok) {
-          // eslint-disable-next-line no-console
-          console.warn(
-            `[mp-socket] upgrade rejected matchId=${matchId} reason=${verification.reason}`,
-          );
-          socket.write(
-            'HTTP/1.1 401 Unauthorized\r\nContent-Length: 0\r\n\r\n',
-          );
-          socket.destroy();
-          return;
-        }
-        // eslint-disable-next-line no-console
-        console.log(
-          `[mp-socket] upgrade verified matchId=${matchId} playerId=${verification.playerId}`,
-        );
-        // Stash the verified id on the request so the connection
-        // handler can attach it to the per-socket bookkeeping. Using a
-        // private-prefixed property avoids collisions with existing
-        // request fields.
-        req._mpVerifiedPlayerId = verification.playerId;
-        // Wave 3a: optional debug seed for bug reproduction. Parse a
-        // finite integer from `?seed=N`; ignore anything else so a
-        // malformed query can't destabilize production. Off by default.
-        const rawSeed = parsedUrl.query.seed;
-        const seedString = Array.isArray(rawSeed) ? rawSeed[0] : rawSeed;
-        if (typeof seedString === 'string' && seedString.length > 0) {
-          const seedValue = Number.parseInt(seedString, 10);
-          if (Number.isFinite(seedValue)) {
-            req._mpDiceSeed = seedValue;
-          }
-        }
-        wss.handleUpgrade(req, socket, head, (ws) => {
-          wss.emit('connection', ws, req);
-        });
+        attachVerifiedMpUpgrade(req, socket, head, parsedUrl, matchId, token);
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error('Upgrade error', err);

@@ -1,10 +1,7 @@
 import type { IPhysicalLegalityGateSupportEntry } from './CombatPhysicalLegalityGateSupport.types';
 
 import * as physicalAuthority from './CombatPhysicalLegalityGateSupport.authorities';
-import {
-  integrated,
-  outOfScope,
-} from './CombatPhysicalLegalityGateSupport.builders';
+import { integrated } from './CombatPhysicalLegalityGateSupport.builders';
 
 export const BASIC_PHYSICAL_LEGALITY_GATE_SUPPORT = {
   'punch.selected-arm-present': integrated(

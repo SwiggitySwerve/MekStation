@@ -1,29 +1,3 @@
-import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
-import { hasNoArms } from '@/utils/gameplay/quirkModifiers';
-import { hasSPA } from '@/utils/gameplay/spaModifiers/canonicalize';
-
-import { HULL_DOWN_KICK_BLOCKED_REASON } from '../hullDownRestrictions';
-import {
-  canBreakGrapple,
-  type BreakGrappleAttackInvalidReason,
-} from './breakGrappleEligibility';
-import {
-  canBrushOff,
-  type BrushOffAttackInvalidReason,
-} from './brushOffEligibility';
-import { physicalElevationRestriction } from './elevation';
-import {
-  canGrapple,
-  type GrappleAttackInvalidReason,
-  type GrappleAttackSide,
-} from './grappleEligibility';
-import {
-  canJumpJetAttack,
-  type JumpJetAttackInvalidReason,
-  type JumpJetAttackSelectedLeg,
-} from './jumpJetAttackEligibility';
-import { canThrash, type ThrashAttackInvalidReason } from './thrashEligibility';
-import { canTrip, type TripAttackInvalidReason } from './tripEligibility';
 import {
   IPhysicalAttackInput,
   IPhysicalAttackRestriction,
@@ -31,9 +5,7 @@ import {
   PhysicalAttackLimb,
   PhysicalAttackType,
   PhysicalTargetObjectType,
-  isZweihanderPhysicalAttackType,
 } from './types';
-import { normalizedLamConversionMode } from './unitState';
 
 export function blocked(
   reason: string,

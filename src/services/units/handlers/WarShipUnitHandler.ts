@@ -24,7 +24,6 @@ import {
   UnitValidationMessages,
   combineAssaultUnitFields,
   createParseMessages,
-  createValidationMessages,
   parseRulesLevelThroughAdvancedFromType,
   serializeConfigurationWithRulesLevel,
 } from './unitHandlerShared';

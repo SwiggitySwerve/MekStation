@@ -1,7 +1,4 @@
-import {
-  mekstationDeviationSourceRef as mekstationRef,
-  type ICombatFeatureSourceReference,
-} from './CombatFeatureSourceReference';
+import { type ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
 
 export {
   MEGAMEK_LBX_SOURCE_REFS,
@@ -129,6 +126,3 @@ export const MEGAMEK_AMS_SOURCE_REFS = [
   ...MEGAMEK_AMS_SINGLE_MISSILE_SOURCE_REFS,
   ...MEGAMEK_AMS_AMMO_LIFECYCLE_SOURCE_REFS,
 ] satisfies readonly ICombatFeatureSourceReference[];
-
-const MEGAMEK_ELECTRONIC_WARFARE_SOURCE_VERSION =
-  '325b2504c7b7750ecdcb85468621fb2de2ad8e60';

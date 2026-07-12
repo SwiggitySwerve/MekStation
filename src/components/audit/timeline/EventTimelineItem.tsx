@@ -11,6 +11,7 @@ import {
   formatAuditEventType,
   formatAuditTimestamp,
 } from '@/components/audit/auditEventFormatters';
+import { generatePayloadSummary } from '@/components/audit/timeline/payloadSummary';
 import { Badge } from '@/components/ui/Badge';
 import { Card, type CardAccentColor } from '@/components/ui/Card';
 import { IBaseEvent, EventCategory, ICausedBy } from '@/types/events';
@@ -175,74 +176,18 @@ const CATEGORY_CONFIG: Record<EventCategory, CategoryConfig> = {
 // Helper Functions
 // =============================================================================
 
-/**
- * Generate a brief payload summary for display.
- */
-function generatePayloadSummary(payload: unknown): string {
-  if (!payload || typeof payload !== 'object') {
-    return '';
-  }
-
-  const obj = payload as Record<string, unknown>;
-  const keys = Object.keys(obj);
-
-  if (keys.length === 0) {
-    return '';
-  }
-
-  // Try to find meaningful values to show
-  const meaningfulKeys = [
-    'name',
-    'damage',
-    'target',
-    'source',
-    'amount',
-    'skill',
-    'result',
-    'location',
-  ];
-  for (const key of meaningfulKeys) {
-    if (obj[key] !== undefined && obj[key] !== null) {
-      const value = obj[key];
-      if (typeof value === 'string') {
-        return `${key}: ${value}`;
-      }
-      if (typeof value === 'number') {
-        return `${key}: ${value}`;
-      }
-    }
-  }
-
-  // Fallback: show first key-value pair
-  const firstKey = keys[0];
-  const firstValue = obj[firstKey];
-  if (
-    typeof firstValue === 'string' ||
-    typeof firstValue === 'number' ||
-    typeof firstValue === 'boolean'
-  ) {
-    return `${firstKey}: ${firstValue}`;
-  }
-
-  return `${keys.length} field${keys.length !== 1 ? 's' : ''}`;
-}
+const CAUSALITY_LABELS: Partial<Record<ICausedBy['relationship'], string>> = {
+  triggered: 'Triggered by',
+  derived: 'Derived from',
+  undone: 'Undone by',
+  superseded: 'Superseded by',
+};
 
 /**
  * Get causality indicator text.
  */
 function getCausalityLabel(causedBy: ICausedBy): string {
-  switch (causedBy.relationship) {
-    case 'triggered':
-      return 'Triggered by';
-    case 'derived':
-      return 'Derived from';
-    case 'undone':
-      return 'Undone by';
-    case 'superseded':
-      return 'Superseded by';
-    default:
-      return 'Related to';
-  }
+  return CAUSALITY_LABELS[causedBy.relationship] ?? 'Related to';
 }
 
 // =============================================================================

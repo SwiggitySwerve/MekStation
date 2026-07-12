@@ -14,8 +14,6 @@ import {
   type MatchHostRegistry,
 } from './MatchHostRegistry';
 
-type SocketEvent = 'message' | 'close' | 'error';
-
 export interface IWireMatchSocket extends IMatchSocket {
   on(event: 'message', listener: (data: unknown) => void): this;
   on(event: 'close' | 'error', listener: () => void): this;

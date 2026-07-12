@@ -18,7 +18,6 @@ import {
 import {
   applyRepresentedMinefieldPostDetonation,
   minefieldAt,
-  minefieldDetonationTarget,
   type RepresentedMinefieldEntry,
 } from './movementMinefieldState';
 import { applyRepresentedVibrabombMovementEffects } from './movementVibrabombMines';

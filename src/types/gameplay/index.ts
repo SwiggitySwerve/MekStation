@@ -62,6 +62,4 @@ export * from './VehicleCombatInterfaces';
 export * from './BattleArmorCombatInterfaces';
 
 // Per-type combat behavior state envelopes consumed by IUnitGameState.
-export type { IAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
-export type { IInfantryCombatState } from '@/utils/gameplay/infantry/state';
-export type { IProtoMechCombatState } from '@/utils/gameplay/protomech/state';
+export * from './CombatStateTypes';
