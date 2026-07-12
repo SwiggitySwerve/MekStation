@@ -13,17 +13,17 @@ Clear the last maintain high and cut oxlint noise so the repo is not drowning in
 | Maintain critical/high (gate / product / scripts)           | 0 / 0 / 0 (+ 1 high in full repo) | **0 / 0 / 0** (full repo clean) |
 | Full-repo high                                              |         `server.js` complexity 21 |                           **0** |
 | Maintain warn (uxWalkthrough / gameplay barrel / near-dupe) |                      3 actionable |                           **0** |
-| Oxlint warnings                                             |                          **1935** |                         **114** |
+| Oxlint warnings                                             |                          **1935** |                          **71** |
 | Oxlint `no-unused-vars`                                     |                          **1830** |                           **0** |
 
 ### Remaining oxlint (non-blocking)
 
-| Rule                             | Count | Notes                             |
-| -------------------------------- | ----: | --------------------------------- |
-| `max-lines`                      |    30 | Soft file-size advisories         |
-| `explicit-module-boundary-types` |    30 | Style                             |
-| `react-hooks/exhaustive-deps`    |    41 | Pre-existing hook dep noise       |
-| `no-console`                     |    13 | Intentional server/client logging |
+| Rule                          | Count | Notes                                |
+| ----------------------------- | ----: | ------------------------------------ |
+| `max-lines`                   |    30 | Soft file-size advisories (parked)   |
+| `react-hooks/exhaustive-deps` |    41 | Pre-existing hook dep noise (parked) |
+
+Cleared in follow-up commit: `explicit-module-boundary-types` (30→0) and intentional `routeHelpers` `no-console` suppressions.
 
 ## Changes
 
