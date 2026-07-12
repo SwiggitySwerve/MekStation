@@ -3,9 +3,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
 const unitsDir = path.resolve(__dirname, '../public/data/units/battlemechs');
-const index = JSON.parse(fs.readFileSync(path.join(unitsDir, 'index.json'), 'utf8'));
+const index = JSON.parse(
+  fs.readFileSync(path.join(unitsDir, 'index.json'), 'utf8'),
+);
 
 // For each undercalculated unit:
 // expectedTotalOffBV = indexBV - defBV  (what offBV would need to be if defBV is correct)
@@ -31,7 +35,9 @@ const index = JSON.parse(fs.readFileSync(path.join(unitsDir, 'index.json'), 'utf
 // We can check this by: if we correct defBV to make it match (indexBV - offBV),
 // does the corrected defBV make physical sense? (positive, reasonable magnitude)
 
-const undercalc = report.allResults.filter((r: any) => r.difference < -1 && r.breakdown);
+const undercalc = report.allResults.filter(
+  (r: any) => r.difference < -1 && r.breakdown,
+);
 
 let defLow = 0;
 let offLow = 0;
@@ -73,14 +79,17 @@ for (const r of undercalc) {
   const entry = (index.units as any[]).find((e: any) => e.id === r.unitId);
   if (!entry?.path) continue;
   try {
-    const data = JSON.parse(fs.readFileSync(path.join(unitsDir, entry.path), 'utf8'));
+    const data = JSON.parse(
+      fs.readFileSync(path.join(unitsDir, entry.path), 'utf8'),
+    );
     const rawOff = b.offensiveBV / b.speedFactor;
     const expectedRawOff = b.weaponBV + b.ammoBV + data.tonnage; // approximate (no physBV, offEquipBV)
     const rawOffGap = rawOff - expectedRawOff;
 
     // If rawOff is close to expectedRawOff (within 5%), offensive is correct
     const relativeGap = Math.abs(rawOffGap) / Math.max(1, expectedRawOff);
-    if (relativeGap < 0.02) { // within 2%
+    if (relativeGap < 0.02) {
+      // within 2%
       offCorrectCount++;
       offCorrectGap += r.difference;
     } else {
@@ -88,11 +97,22 @@ for (const r of undercalc) {
       offWrongGap += r.difference;
     }
     totalCount++;
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 console.log(`Undercalculated units analyzed: ${totalCount}`);
-console.log(`Offensive BV correct (rawOff matches components): ${offCorrectCount} (${(offCorrectCount/totalCount*100).toFixed(1)}%)`);
-console.log(`  avgDiff for these: ${(offCorrectGap/offCorrectCount).toFixed(1)}`);
-console.log(`Offensive BV has gap: ${offWrongCount} (${(offWrongCount/totalCount*100).toFixed(1)}%)`);
-console.log(`  avgDiff for these: ${offWrongGap > 0 ? '' : ''}${(offWrongGap/offWrongCount).toFixed(1)}`);
+console.log(
+  `Offensive BV correct (rawOff matches components): ${offCorrectCount} (${((offCorrectCount / totalCount) * 100).toFixed(1)}%)`,
+);
+console.log(
+  `  avgDiff for these: ${(offCorrectGap / offCorrectCount).toFixed(1)}`,
+);
+console.log(
+  `Offensive BV has gap: ${offWrongCount} (${((offWrongCount / totalCount) * 100).toFixed(1)}%)`,
+);
+console.log(
+  `  avgDiff for these: ${offWrongGap > 0 ? '' : ''}${(offWrongGap / offWrongCount).toFixed(1)}`,
+);

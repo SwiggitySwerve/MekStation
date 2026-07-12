@@ -39,49 +39,68 @@ function needsManualBrowserProof(surface) {
   );
 }
 
-function classifySurface(surface, nodeIds, outgoingByKey) {
-  const surfaceNodeId = `surface:${surface.surfaceId}`;
+function lifecycleGraphEdges(surface, outgoingByKey) {
   const stateNodeId = `state:${surface.surfaceId}:lifecycle`;
-  const validatedBy =
-    outgoingByKey.get(edgeKey(stateNodeId, 'validated-by')) ?? [];
-  const produces = outgoingByKey.get(edgeKey(stateNodeId, 'produces')) ?? [];
-  const logs = outgoingByKey.get(edgeKey(stateNodeId, 'logs')) ?? [];
-  const documentsGap =
-    outgoingByKey.get(edgeKey(stateNodeId, 'documents-gap')) ?? [];
+  return {
+    stateNodeId,
+    validatedBy: outgoingByKey.get(edgeKey(stateNodeId, 'validated-by')) ?? [],
+    produces: outgoingByKey.get(edgeKey(stateNodeId, 'produces')) ?? [],
+    logs: outgoingByKey.get(edgeKey(stateNodeId, 'logs')) ?? [],
+    documentsGap:
+      outgoingByKey.get(edgeKey(stateNodeId, 'documents-gap')) ?? [],
+  };
+}
+
+function lifecycleBlockers(surface, nodeIds, graphEdges) {
+  const blockers = [];
+  if (!nodeIds.has(`surface:${surface.surfaceId}`))
+    blockers.push('missing-surface-node');
+  if (!nodeIds.has(graphEdges.stateNodeId))
+    blockers.push('missing-lifecycle-state');
+  if (
+    (surface.commands ?? []).length > 0 &&
+    graphEdges.validatedBy.length === 0
+  ) {
+    blockers.push('missing-command-edge');
+  }
+  if (graphEdges.produces.length === 0) blockers.push('missing-evidence-edge');
+  if ((surface.gaps ?? []).length > 0 && graphEdges.documentsGap.length === 0) {
+    blockers.push('missing-gap-edge');
+  }
+  return blockers;
+}
+
+function lifecycleWarnings(surface, graphEdges, currentEvidence) {
+  const warnings = [];
+  if (currentEvidence.length === 0) warnings.push('no-current-evidence');
+  if (graphEdges.logs.length === 0) warnings.push('no-log-edge');
+  if (
+    needsManualBrowserProof(surface) &&
+    !currentEvidence.some((entry) => manualEvidencePattern.test(entry))
+  ) {
+    warnings.push('manual-browser-proof-needed');
+  }
+  return warnings;
+}
+
+function lifecycleDiagnosticEvents(status) {
+  const eventByStatus = {
+    blocker: 'qc.lifecycle_surface_blocked',
+    warn: 'qc.lifecycle_surface_warned',
+    ok: 'qc.lifecycle_surface_ok',
+  };
+  return ['qc.lifecycle_surface_checked', eventByStatus[status]];
+}
+
+function classifySurface(surface, nodeIds, outgoingByKey) {
+  const graphEdges = lifecycleGraphEdges(surface, outgoingByKey);
   const currentEvidence = (surface.evidence ?? []).filter(
     (entry) => !retiredEvidencePattern.test(entry),
   );
-  const manualEvidence = currentEvidence.filter((entry) =>
-    manualEvidencePattern.test(entry),
-  );
-  const blockers = [];
-  const warnings = [];
-
-  if (!nodeIds.has(surfaceNodeId)) blockers.push('missing-surface-node');
-  if (!nodeIds.has(stateNodeId)) blockers.push('missing-lifecycle-state');
-  if ((surface.commands ?? []).length > 0 && validatedBy.length === 0) {
-    blockers.push('missing-command-edge');
-  }
-  if (produces.length === 0) blockers.push('missing-evidence-edge');
-  if ((surface.gaps ?? []).length > 0 && documentsGap.length === 0) {
-    blockers.push('missing-gap-edge');
-  }
-  if (currentEvidence.length === 0) warnings.push('no-current-evidence');
-  if (logs.length === 0) warnings.push('no-log-edge');
-  if (needsManualBrowserProof(surface) && manualEvidence.length === 0) {
-    warnings.push('manual-browser-proof-needed');
-  }
-
+  const blockers = lifecycleBlockers(surface, nodeIds, graphEdges);
+  const warnings = lifecycleWarnings(surface, graphEdges, currentEvidence);
   const status =
     blockers.length > 0 ? 'blocker' : warnings.length > 0 ? 'warn' : 'ok';
-  const diagnosticEvents = ['qc.lifecycle_surface_checked'];
-  if (status === 'blocker') {
-    diagnosticEvents.push('qc.lifecycle_surface_blocked');
-  } else if (status === 'warn') {
-    diagnosticEvents.push('qc.lifecycle_surface_warned');
-  } else {
-    diagnosticEvents.push('qc.lifecycle_surface_ok');
-  }
 
   return {
     surfaceId: surface.surfaceId,
@@ -95,12 +114,12 @@ function classifySurface(surface, nodeIds, outgoingByKey) {
     currentEvidenceCount: currentEvidence.length,
     gapCount: (surface.gaps ?? []).length,
     graph: {
-      validatedBy: validatedBy.length,
-      produces: produces.length,
-      logs: logs.length,
-      documentsGap: documentsGap.length,
+      validatedBy: graphEdges.validatedBy.length,
+      produces: graphEdges.produces.length,
+      logs: graphEdges.logs.length,
+      documentsGap: graphEdges.documentsGap.length,
     },
-    diagnosticEvents,
+    diagnosticEvents: lifecycleDiagnosticEvents(status),
     blockers,
     warnings,
     status,

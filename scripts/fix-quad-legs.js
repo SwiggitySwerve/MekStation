@@ -96,7 +96,10 @@ for (const f of mtfFiles) {
     const { chassis, model } = getMtfId(content);
     const key = `${chassis} ${model}`.toLowerCase().trim();
     mtfIndex.set(key, f);
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 console.log(`Indexed ${mtfIndex.size} quad MTF files`);
 
@@ -173,7 +176,10 @@ for (const f of unitFiles) {
     fixLog.push(
       `  ${data.chassis} ${data.model}: ${equipNote} - ${path.relative(UNIT_DIR, f)}`,
     );
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 console.log(`\nResults:`);

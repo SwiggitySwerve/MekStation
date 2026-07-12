@@ -29,7 +29,10 @@ for (const f of files) {
         tonnage: data.tonnage,
       });
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 console.log('Quad mechs missing leg data:', missing.length);

@@ -729,6 +729,135 @@ function hasParentCycle(surface, byId) {
   return false;
 }
 
+function validateSurfaceShape(surface, index, issues) {
+  const label = surface.surfaceId || `surface[${index}]`;
+  for (const field of requiredStringFields) {
+    if (typeof surface[field] !== 'string' || surface[field].trim() === '') {
+      issues.push(fail(`${label}: ${field} must be a non-empty string.`));
+    }
+  }
+  if (!Object.hasOwn(surface, 'parentId')) {
+    issues.push(
+      fail(`${label}: parentId is required and must be a string or null.`),
+    );
+  } else if (
+    surface.parentId !== null &&
+    typeof surface.parentId !== 'string'
+  ) {
+    issues.push(fail(`${label}: parentId must be a string or null.`));
+  }
+  for (const field of requiredArrayFields) {
+    if (!Array.isArray(surface[field])) {
+      issues.push(fail(`${label}: ${field} must be an array.`));
+    }
+  }
+  for (const field of optionalArrayFields) {
+    if (Object.hasOwn(surface, field) && !Array.isArray(surface[field])) {
+      issues.push(fail(`${label}: ${field} must be an array when present.`));
+    }
+  }
+  return label;
+}
+
+function validateSurfacePathReferences(surface, label, issues) {
+  for (const field of pathCheckedFields) {
+    if (!Array.isArray(surface[field])) continue;
+    for (const [pathIndex, value] of surface[field].entries()) {
+      validatePathReference(label, field, pathIndex, value, issues);
+    }
+  }
+  if (Array.isArray(surface.routes)) {
+    for (const [routeIndex, value] of surface.routes.entries()) {
+      validateRouteReference(label, routeIndex, value, issues);
+    }
+  }
+}
+
+function validateSurfaceTestsAndEvidence(surface, label, issues) {
+  if (Array.isArray(surface.tests)) {
+    for (const [testIndex, value] of surface.tests.entries()) {
+      if (typeof value !== 'string' || value.trim() === '') {
+        issues.push(
+          fail(`${label}: tests[${testIndex}] must be a non-empty string.`),
+        );
+      } else if (
+        !pathLikeTestSkipValues.has(value) &&
+        !isCommandLike(value) &&
+        isPathLikeEvidence(value)
+      ) {
+        validatePathReference(label, 'tests', testIndex, value, issues);
+      }
+    }
+  }
+  for (const field of pathLikeEvidenceFields) {
+    if (!Array.isArray(surface[field])) continue;
+    for (const [evidenceIndex, value] of surface[field].entries()) {
+      if (typeof value !== 'string' || value.trim() === '') {
+        issues.push(
+          fail(
+            `${label}: ${field}[${evidenceIndex}] must be a non-empty string.`,
+          ),
+        );
+      } else if (isPathLikeEvidence(value)) {
+        validatePathReference(label, field, evidenceIndex, value, issues);
+      }
+    }
+  }
+}
+
+function validateSurfaceMetadata(surface, label, issues) {
+  if (Array.isArray(surface.claimIds)) {
+    for (const [claimIndex, claimId] of surface.claimIds.entries()) {
+      if (typeof claimId !== 'string' || claimId.trim() === '') {
+        issues.push(
+          fail(`${label}: claimIds[${claimIndex}] must be a non-empty string.`),
+        );
+      }
+    }
+  }
+  if (Array.isArray(surface.activeChangeRefs)) {
+    for (const [
+      changeRefIndex,
+      changeRef,
+    ] of surface.activeChangeRefs.entries()) {
+      validateActiveChangeReference(label, changeRefIndex, changeRef, issues);
+    }
+  }
+}
+
+function validateSurfaceTopology(surface, byId, issues) {
+  if (surface.parentId && !byId.has(surface.parentId)) {
+    issues.push(
+      fail(
+        `${surface.surfaceId}: parentId "${surface.parentId}" does not exist.`,
+      ),
+    );
+  }
+  if (surface.parentId === null && surface.level !== 'top') {
+    issues.push(
+      warn(`${surface.surfaceId}: root surface should use level "top".`),
+    );
+  }
+  if (surface.parentId !== null && surface.level === 'top') {
+    issues.push(
+      warn(`${surface.surfaceId}: child surface should not use level "top".`),
+    );
+  }
+  if (hasParentCycle(surface, byId)) {
+    issues.push(fail(`${surface.surfaceId}: parent cycle detected.`));
+  }
+  if (surface.commands.length === 0 && surface.manualChecks.length === 0) {
+    issues.push(
+      warn(`${surface.surfaceId}: add at least one command or manual check.`),
+    );
+  }
+  if (surface.evidence.length === 0 || surface.gaps.length === 0) {
+    issues.push(
+      warn(`${surface.surfaceId}: evidence and gaps should stay explicit.`),
+    );
+  }
+}
+
 function validate(registry) {
   const issues = [];
 
@@ -745,111 +874,10 @@ function validate(registry) {
   const byId = new Map();
 
   for (const [index, surface] of registry.surfaces.entries()) {
-    const label = surface.surfaceId || `surface[${index}]`;
-
-    for (const field of requiredStringFields) {
-      if (typeof surface[field] !== 'string' || surface[field].trim() === '') {
-        issues.push(fail(`${label}: ${field} must be a non-empty string.`));
-      }
-    }
-
-    if (!Object.hasOwn(surface, 'parentId')) {
-      issues.push(
-        fail(`${label}: parentId is required and must be a string or null.`),
-      );
-    } else if (
-      surface.parentId !== null &&
-      typeof surface.parentId !== 'string'
-    ) {
-      issues.push(fail(`${label}: parentId must be a string or null.`));
-    }
-
-    for (const field of requiredArrayFields) {
-      if (!Array.isArray(surface[field])) {
-        issues.push(fail(`${label}: ${field} must be an array.`));
-      }
-    }
-
-    for (const field of optionalArrayFields) {
-      if (Object.hasOwn(surface, field) && !Array.isArray(surface[field])) {
-        issues.push(fail(`${label}: ${field} must be an array when present.`));
-      }
-    }
-
-    for (const field of pathCheckedFields) {
-      if (!Array.isArray(surface[field])) continue;
-
-      for (const [pathIndex, value] of surface[field].entries()) {
-        validatePathReference(label, field, pathIndex, value, issues);
-      }
-    }
-
-    if (Array.isArray(surface.routes)) {
-      for (const [routeIndex, value] of surface.routes.entries()) {
-        validateRouteReference(label, routeIndex, value, issues);
-      }
-    }
-
-    if (Array.isArray(surface.tests)) {
-      for (const [testIndex, value] of surface.tests.entries()) {
-        if (typeof value !== 'string' || value.trim() === '') {
-          issues.push(
-            fail(`${label}: tests[${testIndex}] must be a non-empty string.`),
-          );
-          continue;
-        }
-
-        if (
-          pathLikeTestSkipValues.has(value) ||
-          isCommandLike(value) ||
-          !isPathLikeEvidence(value)
-        ) {
-          continue;
-        }
-
-        validatePathReference(label, 'tests', testIndex, value, issues);
-      }
-    }
-
-    for (const field of pathLikeEvidenceFields) {
-      if (!Array.isArray(surface[field])) continue;
-
-      for (const [evidenceIndex, value] of surface[field].entries()) {
-        if (typeof value !== 'string' || value.trim() === '') {
-          issues.push(
-            fail(
-              `${label}: ${field}[${evidenceIndex}] must be a non-empty string.`,
-            ),
-          );
-          continue;
-        }
-
-        if (!isPathLikeEvidence(value)) continue;
-
-        validatePathReference(label, field, evidenceIndex, value, issues);
-      }
-    }
-
-    if (Array.isArray(surface.claimIds)) {
-      for (const [claimIndex, claimId] of surface.claimIds.entries()) {
-        if (typeof claimId !== 'string' || claimId.trim() === '') {
-          issues.push(
-            fail(
-              `${label}: claimIds[${claimIndex}] must be a non-empty string.`,
-            ),
-          );
-        }
-      }
-    }
-
-    if (Array.isArray(surface.activeChangeRefs)) {
-      for (const [
-        changeRefIndex,
-        changeRef,
-      ] of surface.activeChangeRefs.entries()) {
-        validateActiveChangeReference(label, changeRefIndex, changeRef, issues);
-      }
-    }
+    const label = validateSurfaceShape(surface, index, issues);
+    validateSurfacePathReferences(surface, label, issues);
+    validateSurfaceTestsAndEvidence(surface, label, issues);
+    validateSurfaceMetadata(surface, label, issues);
 
     if (ids.has(surface.surfaceId)) {
       issues.push(fail(`${label}: duplicate surfaceId.`));
@@ -861,41 +889,7 @@ function validate(registry) {
   validateAppShellRouteProofAlignment(byId, issues);
 
   for (const surface of registry.surfaces) {
-    if (surface.parentId && !byId.has(surface.parentId)) {
-      issues.push(
-        fail(
-          `${surface.surfaceId}: parentId "${surface.parentId}" does not exist.`,
-        ),
-      );
-    }
-
-    if (surface.parentId === null && surface.level !== 'top') {
-      issues.push(
-        warn(`${surface.surfaceId}: root surface should use level "top".`),
-      );
-    }
-
-    if (surface.parentId !== null && surface.level === 'top') {
-      issues.push(
-        warn(`${surface.surfaceId}: child surface should not use level "top".`),
-      );
-    }
-
-    if (hasParentCycle(surface, byId)) {
-      issues.push(fail(`${surface.surfaceId}: parent cycle detected.`));
-    }
-
-    if (surface.commands.length === 0 && surface.manualChecks.length === 0) {
-      issues.push(
-        warn(`${surface.surfaceId}: add at least one command or manual check.`),
-      );
-    }
-
-    if (surface.evidence.length === 0 || surface.gaps.length === 0) {
-      issues.push(
-        warn(`${surface.surfaceId}: evidence and gaps should stay explicit.`),
-      );
-    }
+    validateSurfaceTopology(surface, byId, issues);
   }
 
   return issues;

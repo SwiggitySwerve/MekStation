@@ -5,33 +5,62 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
+const idx = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
 // ALL wrong units (>1% off)
-const wrong = report.allResults
-  .filter((r: any) => r.status !== 'error' && r.percentDiff !== null && Math.abs(r.percentDiff) > 1);
+const wrong = report.allResults.filter(
+  (r: any) =>
+    r.status !== 'error' &&
+    r.percentDiff !== null &&
+    Math.abs(r.percentDiff) > 1,
+);
 
 const underc = wrong.filter((x: any) => x.percentDiff < 0);
 const overc = wrong.filter((x: any) => x.percentDiff > 0);
 
 // By tech base
-const byTech: Record<string, { under: number; over: number; underGap: number; overGap: number }> = {};
+const byTech: Record<
+  string,
+  { under: number; over: number; underGap: number; overGap: number }
+> = {};
 for (const u of wrong) {
   const ie = idx.units.find((e: any) => e.id === u.unitId);
   if (!ie?.path) continue;
   try {
-    const unit = JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8'));
+    const unit = JSON.parse(
+      fs.readFileSync(
+        path.join('public/data/units/battlemechs', ie.path),
+        'utf8',
+      ),
+    );
     const tb = unit.techBase || 'UNKNOWN';
-    if (!byTech[tb]) byTech[tb] = { under: 0, over: 0, underGap: 0, overGap: 0 };
-    if (u.percentDiff < 0) { byTech[tb].under++; byTech[tb].underGap += u.difference; }
-    else { byTech[tb].over++; byTech[tb].overGap += u.difference; }
-  } catch {}
+    if (!byTech[tb])
+      byTech[tb] = { under: 0, over: 0, underGap: 0, overGap: 0 };
+    if (u.percentDiff < 0) {
+      byTech[tb].under++;
+      byTech[tb].underGap += u.difference;
+    } else {
+      byTech[tb].over++;
+      byTech[tb].overGap += u.difference;
+    }
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 console.log('=== WRONG UNITS BY TECH BASE ===');
-for (const [tb, stats] of Object.entries(byTech).sort((a, b) => b[1].under - a[1].under)) {
-  console.log(`  ${tb}: ${stats.under} under (total gap: ${stats.underGap}), ${stats.over} over (total gap: +${stats.overGap})`);
+for (const [tb, stats] of Object.entries(byTech).sort(
+  (a, b) => b[1].under - a[1].under,
+)) {
+  console.log(
+    `  ${tb}: ${stats.under} under (total gap: ${stats.underGap}), ${stats.over} over (total gap: +${stats.overGap})`,
+  );
 }
 
 // Analyze the gap components more carefully
@@ -71,7 +100,12 @@ for (const u of underc) {
   const ie = idx.units.find((e: any) => e.id === u.unitId);
   if (!ie?.path) continue;
   try {
-    const unit = JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8'));
+    const unit = JSON.parse(
+      fs.readFileSync(
+        path.join('public/data/units/battlemechs', ie.path),
+        'utf8',
+      ),
+    );
     const tonnage = unit.tonnage;
 
     // What offensive BV is needed?
@@ -92,7 +126,10 @@ for (const u of underc) {
     } else {
       fixByOther++;
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 console.log(`\nUnits fixable by small weapon BV increase: ${fixByWeaponBV}`);
@@ -101,7 +138,9 @@ console.log(`Other: ${fixByOther}`);
 
 // Most common issues
 console.log('\n=== ISSUE PATTERNS ===');
-for (const [issue, count] of Object.entries(issuePatterns).sort((a, b) => b[1] - a[1]).slice(0, 10)) {
+for (const [issue, count] of Object.entries(issuePatterns)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 10)) {
   console.log(`  ${count}× "${issue}"`);
 }
 
@@ -114,15 +153,35 @@ for (const u of underc) {
   const ie = idx.units.find((e: any) => e.id === u.unitId);
   if (!ie?.path) continue;
   try {
-    const unit = JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8'));
-    const hasAmmo = unit.criticalSlots && Object.values(unit.criticalSlots).some((slots: any) =>
-      Array.isArray(slots) && slots.some((s: any) => s && typeof s === 'string' && s.toLowerCase().includes('ammo') && !s.toLowerCase().includes('ams'))
+    const unit = JSON.parse(
+      fs.readFileSync(
+        path.join('public/data/units/battlemechs', ie.path),
+        'utf8',
+      ),
     );
+    const hasAmmo =
+      unit.criticalSlots &&
+      Object.values(unit.criticalSlots).some(
+        (slots: any) =>
+          Array.isArray(slots) &&
+          slots.some(
+            (s: any) =>
+              s &&
+              typeof s === 'string' &&
+              s.toLowerCase().includes('ammo') &&
+              !s.toLowerCase().includes('ams'),
+          ),
+      );
     if (hasAmmo && b.ammoBV === 0) zeroAmmoWithAmmo++;
     if (hasAmmo && b.ammoBV < 10) lowAmmoBV++;
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
-console.log(`\nUndercalculated units with ammo but ammoBV=0: ${zeroAmmoWithAmmo}`);
+console.log(
+  `\nUndercalculated units with ammo but ammoBV=0: ${zeroAmmoWithAmmo}`,
+);
 console.log(`Undercalculated units with ammo but ammoBV<10: ${lowAmmoBV}`);
 
 // Check: what proportion of undercalculated units have defEquipBV=0?
@@ -151,7 +210,12 @@ for (const u of underc) {
   const ie = idx.units.find((e: any) => e.id === u.unitId);
   if (!ie?.path) continue;
   try {
-    const unit = JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8'));
+    const unit = JSON.parse(
+      fs.readFileSync(
+        path.join('public/data/units/battlemechs', ie.path),
+        'utf8',
+      ),
+    );
     if (unit.techBase === 'CLAN' || unit.techBase === 'MIXED') {
       clanMixedUnder++;
       clanMixedGap += Math.abs(u.difference);
@@ -159,20 +223,35 @@ for (const u of underc) {
       isUnder++;
       isGap += Math.abs(u.difference);
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
-console.log(`CLAN/MIXED undercalculated: ${clanMixedUnder} units, total gap: ${clanMixedGap} BV`);
+console.log(
+  `CLAN/MIXED undercalculated: ${clanMixedUnder} units, total gap: ${clanMixedGap} BV`,
+);
 console.log(`IS undercalculated: ${isUnder} units, total gap: ${isGap} BV`);
-console.log(`Average gap per CLAN/MIXED unit: ${(clanMixedGap / clanMixedUnder).toFixed(0)} BV`);
+console.log(
+  `Average gap per CLAN/MIXED unit: ${(clanMixedGap / clanMixedUnder).toFixed(0)} BV`,
+);
 console.log(`Average gap per IS unit: ${(isGap / isUnder).toFixed(0)} BV`);
 
 // Check overcalculated units too
-let clanOverc = 0, isOverc = 0, clanOverGap = 0, isOverGap = 0;
+let clanOverc = 0,
+  isOverc = 0,
+  clanOverGap = 0,
+  isOverGap = 0;
 for (const u of overc) {
   const ie = idx.units.find((e: any) => e.id === u.unitId);
   if (!ie?.path) continue;
   try {
-    const unit = JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8'));
+    const unit = JSON.parse(
+      fs.readFileSync(
+        path.join('public/data/units/battlemechs', ie.path),
+        'utf8',
+      ),
+    );
     if (unit.techBase === 'CLAN' || unit.techBase === 'MIXED') {
       clanOverc++;
       clanOverGap += u.difference;
@@ -180,7 +259,12 @@ for (const u of overc) {
       isOverc++;
       isOverGap += u.difference;
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
-console.log(`\nCLAN/MIXED overcalculated: ${clanOverc} units, total gap: +${clanOverGap} BV`);
+console.log(
+  `\nCLAN/MIXED overcalculated: ${clanOverc} units, total gap: +${clanOverGap} BV`,
+);
 console.log(`IS overcalculated: ${isOverc} units, total gap: +${isOverGap} BV`);

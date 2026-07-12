@@ -7,8 +7,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const index = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const index = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
 
 interface GyroCheck {
   unitId: string;
@@ -37,8 +41,10 @@ for (const iu of index.units) {
           if (!s || typeof s !== 'string') continue;
           const lo = (s as string).toLowerCase();
           if (lo.includes('gyro')) {
-            if (lo.includes('heavy') && lo.includes('duty')) critGyro = 'HEAVY_DUTY';
-            else if (lo.includes('xl') || lo.includes('extra-light')) critGyro = 'XL';
+            if (lo.includes('heavy') && lo.includes('duty'))
+              critGyro = 'HEAVY_DUTY';
+            else if (lo.includes('xl') || lo.includes('extra-light'))
+              critGyro = 'XL';
             else if (lo.includes('compact')) critGyro = 'COMPACT';
             else if (lo.includes('superheavy')) critGyro = 'SUPERHEAVY';
             break;
@@ -51,19 +57,36 @@ for (const iu of index.units) {
     // Check fluff for gyro mentions
     let fluffGyro = '';
     const fluff = unit.fluff || {};
-    const allFluff = [fluff.overview, fluff.capabilities, fluff.history, fluff.deployment].filter(Boolean).join(' ').toLowerCase();
-    if (allFluff.includes('heavy duty gyro') || allFluff.includes('heavy-duty gyro') || allFluff.includes('hd gyro')) {
+    const allFluff = [
+      fluff.overview,
+      fluff.capabilities,
+      fluff.history,
+      fluff.deployment,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    if (
+      allFluff.includes('heavy duty gyro') ||
+      allFluff.includes('heavy-duty gyro') ||
+      allFluff.includes('hd gyro')
+    ) {
       fluffGyro = 'HEAVY_DUTY';
-    } else if (allFluff.includes('xl gyro') || allFluff.includes('extra-light gyro')) {
+    } else if (
+      allFluff.includes('xl gyro') ||
+      allFluff.includes('extra-light gyro')
+    ) {
       fluffGyro = 'XL';
     } else if (allFluff.includes('compact gyro')) {
       fluffGyro = 'COMPACT';
     }
 
     const r = report.allResults.find((x: any) => x.unitId === iu.id);
-    const gap = r ? (r.indexBV - r.calculatedBV) : 0;
+    const gap = r ? r.indexBV - r.calculatedBV : 0;
 
-    const match = critGyro === declaredGyro || (critGyro === 'STANDARD' && declaredGyro === 'STANDARD');
+    const match =
+      critGyro === declaredGyro ||
+      (critGyro === 'STANDARD' && declaredGyro === 'STANDARD');
 
     if (!match || (fluffGyro && fluffGyro !== declaredGyro)) {
       checks.push({
@@ -76,22 +99,33 @@ for (const iu of index.units) {
         tonnage: unit.tonnage,
       });
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 console.log(`=== Gyro Mismatches ===`);
 console.log(`Found ${checks.length} units with potential gyro mismatch\n`);
 
 // Separate by type
-const critMismatch = checks.filter(c => !c.match);
-const fluffMismatch = checks.filter(c => c.match && c.fluffGyro);
+const critMismatch = checks.filter((c) => !c.match);
+const fluffMismatch = checks.filter((c) => c.match && c.fluffGyro);
 
 console.log(`Crit slot vs declared mismatch: ${critMismatch.length}`);
-for (const c of critMismatch.sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap)).slice(0, 20)) {
-  console.log(`  ${c.unitId.padEnd(40).slice(0, 40)} declared=${c.declaredGyro.padEnd(12)} crit=${c.critGyro.padEnd(12)} fluff=${c.fluffGyro || '-'} gap=${c.gap}`);
+for (const c of critMismatch
+  .sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap))
+  .slice(0, 20)) {
+  console.log(
+    `  ${c.unitId.padEnd(40).slice(0, 40)} declared=${c.declaredGyro.padEnd(12)} crit=${c.critGyro.padEnd(12)} fluff=${c.fluffGyro || '-'} gap=${c.gap}`,
+  );
 }
 
 console.log(`\nFluff vs declared mismatch: ${fluffMismatch.length}`);
-for (const c of fluffMismatch.sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap)).slice(0, 20)) {
-  console.log(`  ${c.unitId.padEnd(40).slice(0, 40)} declared=${c.declaredGyro.padEnd(12)} fluff=${c.fluffGyro.padEnd(12)} gap=${c.gap}`);
+for (const c of fluffMismatch
+  .sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap))
+  .slice(0, 20)) {
+  console.log(
+    `  ${c.unitId.padEnd(40).slice(0, 40)} declared=${c.declaredGyro.padEnd(12)} fluff=${c.fluffGyro.padEnd(12)} gap=${c.gap}`,
+  );
 }

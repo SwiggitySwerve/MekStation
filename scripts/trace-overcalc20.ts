@@ -1,9 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const data = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const mulCache = JSON.parse(fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'));
-const indexData = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const data = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
+const mulCache = JSON.parse(
+  fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'),
+);
+const indexData = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
 // Get the exact 1.0527 units
 const exactFive = data.allResults.filter((d: any) => {
@@ -34,7 +40,9 @@ for (const d of exactFive) {
     const unitPath = path.resolve('public/data/units/battlemechs', iu.path);
     const unit = JSON.parse(fs.readFileSync(unitPath, 'utf8'));
     const headSlots = (unit.criticalSlots?.HEAD || []) as (string | null)[];
-    const lifeSupCount = headSlots.filter(s => s && s.toLowerCase().includes('life support')).length;
+    const lifeSupCount = headSlots.filter(
+      (s) => s && s.toLowerCase().includes('life support'),
+    ).length;
     const cockpitField = unit.cockpit || 'STANDARD';
 
     // A small cockpit has only 1 Life Support in HEAD
@@ -48,7 +56,9 @@ for (const d of exactFive) {
     if (isSmallByLifeSupport) {
       smallCockpitCount++;
       if (cockpitField.toUpperCase() !== 'SMALL') {
-        console.log(`  MISLABELED: ${d.unitId}: cockpit="${cockpitField}" but head has ${lifeSupCount} Life Support`);
+        console.log(
+          `  MISLABELED: ${d.unitId}: cockpit="${cockpitField}" but head has ${lifeSupCount} Life Support`,
+        );
         console.log(`    HEAD: [${headSlots.join(', ')}]`);
         if (fluffMentionsSmall) console.log(`    FLUFF mentions small cockpit`);
       }
@@ -56,19 +66,31 @@ for (const d of exactFive) {
       standardCockpitCount++;
     } else {
       unknownCount++;
-      console.log(`  UNUSUAL: ${d.unitId}: cockpit="${cockpitField}" head has ${lifeSupCount} Life Support`);
+      console.log(
+        `  UNUSUAL: ${d.unitId}: cockpit="${cockpitField}" head has ${lifeSupCount} Life Support`,
+      );
       console.log(`    HEAD: [${headSlots.join(', ')}]`);
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 console.log('');
 console.log('=== SUMMARY ===');
-console.log('Small cockpit (by HEAD Life Support count = 1):', smallCockpitCount);
+console.log(
+  'Small cockpit (by HEAD Life Support count = 1):',
+  smallCockpitCount,
+);
 console.log('Standard cockpit (Life Support count = 2):', standardCockpitCount);
 console.log('Unknown:', unknownCount);
 console.log('');
-console.log('If ALL exact-1.0527 units have small cockpits (mislabeled as STANDARD),');
-console.log('the 0.95 factor is simply the small cockpit modifier not being applied.');
+console.log(
+  'If ALL exact-1.0527 units have small cockpits (mislabeled as STANDARD),',
+);
+console.log(
+  'the 0.95 factor is simply the small cockpit modifier not being applied.',
+);
 console.log('');
 console.log('Predicted: smallCockpitCount should be', exactFive.length);

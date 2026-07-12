@@ -412,56 +412,65 @@ function releaseGapsForSurface(surface) {
   return gaps;
 }
 
+function addMatchingTextGaps(gaps, values, surfaceId, kind) {
+  for (const value of values) {
+    if (!releaseGapPattern.test(String(value))) continue;
+    gaps.push({
+      surfaceId,
+      kind,
+      detail: String(value).replace(/\s+/g, ' ').slice(0, 240),
+    });
+  }
+}
+
+function releaseGapsForJourneyStep(gaps, journey, step) {
+  if (step.required === false) return;
+  const proofCommands = step.executionProofCommands ?? [];
+  const missingBacking =
+    step.syntheticBacking !== false ||
+    !step.executionBacking ||
+    step.executionBacking === 'synthetic-projection';
+  const missingProof =
+    !Array.isArray(proofCommands) ||
+    proofCommands.length === 0 ||
+    proofCommands.some((command) => typeof command !== 'string');
+  if (!missingBacking && !missingProof) return;
+
+  gaps.push({
+    surfaceId: journey.surfaceIds?.[0] ?? journey.id,
+    kind: 'journey-execution-backing',
+    detail:
+      `${journey.id}/${step.id} is required but release backing is incomplete ` +
+      `(syntheticBacking=${String(step.syntheticBacking)} executionBacking=${String(step.executionBacking ?? 'missing')} proofCommands=${proofCommands.length}).`,
+  });
+}
+
 function releaseGapsForScenarios(scenarios, journeys) {
   const gaps = [];
 
   for (const scenario of scenarios) {
-    for (const value of [
-      ...(scenario.successCriteria ?? []),
-      ...(scenario.notes ?? []),
-      ...(scenario.releaseGaps ?? []),
-      ...(scenario.knownLimitations ?? []),
-    ]) {
-      if (!releaseGapPattern.test(String(value))) continue;
-      gaps.push({
-        surfaceId: scenario.surfaceId ?? scenario.id,
-        kind: 'major-scenario',
-        detail: String(value).replace(/\s+/g, ' ').slice(0, 240),
-      });
-    }
+    addMatchingTextGaps(
+      gaps,
+      [
+        ...(scenario.successCriteria ?? []),
+        ...(scenario.notes ?? []),
+        ...(scenario.releaseGaps ?? []),
+        ...(scenario.knownLimitations ?? []),
+      ],
+      scenario.surfaceId ?? scenario.id,
+      'major-scenario',
+    );
   }
 
   for (const journey of journeys) {
-    for (const value of journey.knownLimitations ?? []) {
-      if (!releaseGapPattern.test(String(value))) continue;
-      gaps.push({
-        surfaceId: journey.id,
-        kind: 'journey-limitation',
-        detail: String(value).replace(/\s+/g, ' ').slice(0, 240),
-      });
-    }
-
+    addMatchingTextGaps(
+      gaps,
+      journey.knownLimitations ?? [],
+      journey.id,
+      'journey-limitation',
+    );
     for (const step of journey.steps ?? []) {
-      if (step.required === false) continue;
-      const proofCommands = step.executionProofCommands ?? [];
-      const missingBacking =
-        step.syntheticBacking !== false ||
-        !step.executionBacking ||
-        step.executionBacking === 'synthetic-projection';
-      const missingProof =
-        !Array.isArray(proofCommands) ||
-        proofCommands.length === 0 ||
-        proofCommands.some((command) => typeof command !== 'string');
-
-      if (!missingBacking && !missingProof) continue;
-
-      gaps.push({
-        surfaceId: journey.surfaceIds?.[0] ?? journey.id,
-        kind: 'journey-execution-backing',
-        detail:
-          `${journey.id}/${step.id} is required but release backing is incomplete ` +
-          `(syntheticBacking=${String(step.syntheticBacking)} executionBacking=${String(step.executionBacking ?? 'missing')} proofCommands=${proofCommands.length}).`,
-      });
+      releaseGapsForJourneyStep(gaps, journey, step);
     }
   }
 

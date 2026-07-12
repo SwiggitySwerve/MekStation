@@ -10,12 +10,22 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const index = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const index = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
 
 // Collect all unique gyro slot names
 const gyroSlotNames = new Map<string, number>();
-const mismatches: { id: string; declared: string; detected: string; gap: number; gyroSlots: string[] }[] = [];
+const mismatches: {
+  id: string;
+  declared: string;
+  detected: string;
+  gap: number;
+  gyroSlots: string[];
+}[] = [];
 
 for (const iu of index.units) {
   const unitPath = path.resolve('public/data/units/battlemechs', iu.path);
@@ -29,7 +39,12 @@ for (const iu of index.units) {
     const ctSlots = unit.criticalSlots.CENTER_TORSO;
     if (!Array.isArray(ctSlots)) continue;
 
-    const gyroSlots = ctSlots.filter((s: any) => s && typeof s === 'string' && (s as string).toLowerCase().includes('gyro'));
+    const gyroSlots = ctSlots.filter(
+      (s: any) =>
+        s &&
+        typeof s === 'string' &&
+        (s as string).toLowerCase().includes('gyro'),
+    );
 
     for (const gs of gyroSlots) {
       const n = (gs as string).trim();
@@ -41,7 +56,14 @@ for (const iu of index.units) {
     const gyroLo = gyroSlots.map((s: any) => (s as string).toLowerCase());
     if (gyroLo.some((s: string) => s.includes('heavy') && s.includes('duty'))) {
       detectedGyro = 'HEAVY_DUTY';
-    } else if (gyroLo.some((s: string) => s.includes('xl') || s.includes('extra-light') || s.includes('extra light'))) {
+    } else if (
+      gyroLo.some(
+        (s: string) =>
+          s.includes('xl') ||
+          s.includes('extra-light') ||
+          s.includes('extra light'),
+      )
+    ) {
       detectedGyro = 'XL';
     } else if (gyroLo.some((s: string) => s.includes('compact'))) {
       detectedGyro = 'COMPACT';
@@ -67,15 +89,24 @@ for (const iu of index.units) {
         gyroSlots: gyroSlots as string[],
       });
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 console.log(`=== All Gyro Crit Slot Names ===`);
-for (const [name, count] of [...gyroSlotNames.entries()].sort((a, b) => b[1] - a[1])) {
+for (const [name, count] of [...gyroSlotNames.entries()].sort(
+  (a, b) => b[1] - a[1],
+)) {
   console.log(`  ${String(count).padStart(5)}x  "${name}"`);
 }
 
 console.log(`\n=== Crit-Detected Gyro Mismatches (${mismatches.length}) ===`);
-for (const m of mismatches.sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap)).slice(0, 40)) {
-  console.log(`  ${m.id.padEnd(40).slice(0, 40)} declared=${m.declared.padEnd(12)} detected=${m.detected.padEnd(12)} gap=${String(m.gap).padStart(5)}  slots=[${m.gyroSlots.join(', ')}]`);
+for (const m of mismatches
+  .sort((a, b) => Math.abs(b.gap) - Math.abs(a.gap))
+  .slice(0, 40)) {
+  console.log(
+    `  ${m.id.padEnd(40).slice(0, 40)} declared=${m.declared.padEnd(12)} detected=${m.detected.padEnd(12)} gap=${String(m.gap).padStart(5)}  slots=[${m.gyroSlots.join(', ')}]`,
+  );
 }

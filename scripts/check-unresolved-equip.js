@@ -10,7 +10,10 @@ for (const f of bvAnalysis.findJsonFiles('public/data/equipment/official')) {
     for (const item of data.items || []) {
       equipMap.set(item.id.toLowerCase(), item);
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 // Load name mappings

@@ -7,8 +7,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const index = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const index = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
 
 // Import the resolver to test resolution
 import { resolveAmmoBV } from '../src/utils/construction/equipmentBVResolver';
@@ -20,12 +24,18 @@ try {
   for (const f of fs.readdirSync(ammoDir)) {
     if (!f.endsWith('.json')) continue;
     const d = JSON.parse(fs.readFileSync(path.join(ammoDir, f), 'utf8'));
-    for (const item of (d.items || [])) {
+    for (const item of d.items || []) {
       const norm = item.id.toLowerCase().replace(/[^a-z0-9]/g, '');
-      ammoLookup.set(norm, { bv: item.battleValue, weaponType: item.category || '' });
+      ammoLookup.set(norm, {
+        bv: item.battleValue,
+        weaponType: item.category || '',
+      });
     }
   }
-} catch {}
+} catch (_error) {
+  // Ignore expected failure in one-off tooling.
+  void _error;
+}
 
 function normalizeEquipmentId(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -80,7 +90,7 @@ for (const iu of index.units) {
           raw: clean,
           normalized: normalizeEquipmentId(clean),
           resolved,
-          bv: resolved ? ar.battleValue : 0
+          bv: resolved ? ar.battleValue : 0,
         });
 
         if (!resolved) {
@@ -91,7 +101,7 @@ for (const iu of index.units) {
     }
 
     if (ammoSlots.length > 0) {
-      const resolvedSlots = ammoSlots.filter(s => s.resolved).length;
+      const resolvedSlots = ammoSlots.filter((s) => s.resolved).length;
       const resolvedBV = ammoSlots.reduce((sum, s) => sum + s.bv, 0);
       const reportedAmmoBV = r.breakdown?.ammoBV ?? 0;
 
@@ -100,27 +110,39 @@ for (const iu of index.units) {
         totalAmmoSlots: ammoSlots.length,
         resolvedSlots,
         unresolvedSlots: ammoSlots.length - resolvedSlots,
-        unresolvedNames: [...new Set(ammoSlots.filter(s => !s.resolved).map(s => s.raw))],
+        unresolvedNames: [
+          ...new Set(ammoSlots.filter((s) => !s.resolved).map((s) => s.raw)),
+        ],
         resolvedBV,
         reportedAmmoBV,
         difference: reportedAmmoBV - resolvedBV,
-        bvGap: r.indexBV - r.calculatedBV
+        bvGap: r.indexBV - r.calculatedBV,
       });
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 // Summary stats
-const withUnresolved = unitAmmoInfos.filter(u => u.unresolvedSlots > 0);
+const withUnresolved = unitAmmoInfos.filter((u) => u.unresolvedSlots > 0);
 const withAmmo = unitAmmoInfos.length;
-const totalUnresSlots = withUnresolved.reduce((s, u) => s + u.unresolvedSlots, 0);
+const totalUnresSlots = withUnresolved.reduce(
+  (s, u) => s + u.unresolvedSlots,
+  0,
+);
 const totalAmmoSlots = unitAmmoInfos.reduce((s, u) => s + u.totalAmmoSlots, 0);
 
 console.log(`=== Ammo Resolution Summary ===`);
 console.log(`Units with ammo: ${withAmmo}`);
 console.log(`Total ammo slots: ${totalAmmoSlots}`);
-console.log(`Units with unresolved ammo: ${withUnresolved.length} (${(withUnresolved.length / withAmmo * 100).toFixed(1)}%)`);
-console.log(`Total unresolved ammo slots: ${totalUnresSlots} (${(totalUnresSlots / totalAmmoSlots * 100).toFixed(1)}%)`);
+console.log(
+  `Units with unresolved ammo: ${withUnresolved.length} (${((withUnresolved.length / withAmmo) * 100).toFixed(1)}%)`,
+);
+console.log(
+  `Total unresolved ammo slots: ${totalUnresSlots} (${((totalUnresSlots / totalAmmoSlots) * 100).toFixed(1)}%)`,
+);
 
 // Check correlation: do units with unresolved ammo have larger BV gaps?
 const undercalc = report.allResults.filter((r: any) => {
@@ -129,16 +151,30 @@ const undercalc = report.allResults.filter((r: any) => {
 });
 const undercalcIds = new Set(undercalc.map((r: any) => r.unitId));
 
-const unresolvedInUndercalc = withUnresolved.filter(u => undercalcIds.has(u.unitId));
-const resolvedInUndercalc = unitAmmoInfos.filter(u => u.unresolvedSlots === 0 && undercalcIds.has(u.unitId));
+const unresolvedInUndercalc = withUnresolved.filter((u) =>
+  undercalcIds.has(u.unitId),
+);
+const resolvedInUndercalc = unitAmmoInfos.filter(
+  (u) => u.unresolvedSlots === 0 && undercalcIds.has(u.unitId),
+);
 
-console.log(`\n=== Correlation with undercalculated units (${undercalcIds.size} total) ===`);
-console.log(`Undercalculated units with unresolved ammo: ${unresolvedInUndercalc.length}`);
-console.log(`Undercalculated units with fully resolved ammo: ${resolvedInUndercalc.length}`);
+console.log(
+  `\n=== Correlation with undercalculated units (${undercalcIds.size} total) ===`,
+);
+console.log(
+  `Undercalculated units with unresolved ammo: ${unresolvedInUndercalc.length}`,
+);
+console.log(
+  `Undercalculated units with fully resolved ammo: ${resolvedInUndercalc.length}`,
+);
 
 // How many undercalculated units have NO ammo at all?
-const noAmmoUndercalc = undercalc.filter((r: any) => !unitAmmoInfos.find(u => u.unitId === r.unitId));
-console.log(`Undercalculated units with no ammo slots: ${noAmmoUndercalc.length}`);
+const noAmmoUndercalc = undercalc.filter(
+  (r: any) => !unitAmmoInfos.find((u) => u.unitId === r.unitId),
+);
+console.log(
+  `Undercalculated units with no ammo slots: ${noAmmoUndercalc.length}`,
+);
 
 // Top unresolved ammo types
 console.log(`\n=== Top 30 Unresolved Ammo Types ===`);
@@ -148,10 +184,14 @@ for (const [name, count] of sorted.slice(0, 30)) {
 }
 
 // Show units with most unresolved ammo and large BV gap
-console.log(`\n=== Units with unresolved ammo AND undercalculation (top 30 by gap) ===`);
+console.log(
+  `\n=== Units with unresolved ammo AND undercalculation (top 30 by gap) ===`,
+);
 const unresolvedUndercalcSorted = unresolvedInUndercalc
   .sort((a, b) => b.bvGap - a.bvGap)
   .slice(0, 30);
 for (const u of unresolvedUndercalcSorted) {
-  console.log(`  ${u.unitId.padEnd(40).slice(0, 40)} gap=${String(u.bvGap).padStart(5)} unresolved=${u.unresolvedSlots} [${u.unresolvedNames.join(', ')}]`);
+  console.log(
+    `  ${u.unitId.padEnd(40).slice(0, 40)} gap=${String(u.bvGap).padStart(5)} unresolved=${u.unresolvedSlots} [${u.unresolvedNames.join(', ')}]`,
+  );
 }

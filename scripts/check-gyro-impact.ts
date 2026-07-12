@@ -8,16 +8,20 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const index = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const index = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
 
 const GYRO_MULTIPLIERS: Record<string, number> = {
-  'STANDARD': 0.5,
-  'HEAVY_DUTY': 1.0,
-  'COMPACT': 0.5,
-  'XL': 0.5,
-  'SUPERHEAVY': 1.0,
-  'NONE': 0.0,
+  STANDARD: 0.5,
+  HEAVY_DUTY: 1.0,
+  COMPACT: 0.5,
+  XL: 0.5,
+  SUPERHEAVY: 1.0,
+  NONE: 0.0,
 };
 
 interface FluffGyroUnit {
@@ -45,10 +49,25 @@ for (const iu of index.units) {
     // Check fluff for gyro mentions
     let fluffGyro = '';
     const fluff = unit.fluff || {};
-    const allFluff = [fluff.overview, fluff.capabilities, fluff.history, fluff.deployment].filter(Boolean).join(' ').toLowerCase();
-    if (allFluff.includes('heavy duty gyro') || allFluff.includes('heavy-duty gyro') || allFluff.includes('hd gyro')) {
+    const allFluff = [
+      fluff.overview,
+      fluff.capabilities,
+      fluff.history,
+      fluff.deployment,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    if (
+      allFluff.includes('heavy duty gyro') ||
+      allFluff.includes('heavy-duty gyro') ||
+      allFluff.includes('hd gyro')
+    ) {
       fluffGyro = 'HEAVY_DUTY';
-    } else if (allFluff.includes('xl gyro') || allFluff.includes('extra-light gyro')) {
+    } else if (
+      allFluff.includes('xl gyro') ||
+      allFluff.includes('extra-light gyro')
+    ) {
       fluffGyro = 'XL';
     } else if (allFluff.includes('compact gyro')) {
       fluffGyro = 'COMPACT';
@@ -134,7 +153,10 @@ for (const iu of index.units) {
       correctedCalcBV,
       correctedGap: mulBV - correctedCalcBV,
     });
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 console.log(`=== Gyro Mismatch BV Impact ===`);
@@ -157,19 +179,33 @@ for (const [type, units] of Object.entries(byType)) {
     const nowOff = Math.abs(u.correctedGap);
     if (nowOff <= u.mulBV * 0.01) fixed++;
     if (nowOff < wasOff) improved++;
-    console.log(`  ${u.unitId.padEnd(40).slice(0, 40)} ${u.tonnage}t  MUL=${u.mulBV}  calc=${u.currentCalcBV}  gap=${String(u.gap).padStart(5)}  delta=${String(u.gyroBVDelta).padStart(4)}  corrected=${u.correctedCalcBV}  newGap=${String(u.correctedGap).padStart(5)}`);
+    console.log(
+      `  ${u.unitId.padEnd(40).slice(0, 40)} ${u.tonnage}t  MUL=${u.mulBV}  calc=${u.currentCalcBV}  gap=${String(u.gap).padStart(5)}  delta=${String(u.gyroBVDelta).padStart(4)}  corrected=${u.correctedCalcBV}  newGap=${String(u.correctedGap).padStart(5)}`,
+    );
   }
-  console.log(`  Fixed (within 1%): ${fixed}/${units.length}  Improved: ${improved}/${units.length}`);
+  console.log(
+    `  Fixed (within 1%): ${fixed}/${units.length}  Improved: ${improved}/${units.length}`,
+  );
 }
 
 // How many of the undercalculated set does this explain?
 const undercalcIds = new Set(
   report.allResults
-    .filter((r: any) => Math.abs(r.percentDiff) > 1 && Math.abs(r.percentDiff) <= 5 && r.difference < 0)
-    .map((r: any) => r.unitId)
+    .filter(
+      (r: any) =>
+        Math.abs(r.percentDiff) > 1 &&
+        Math.abs(r.percentDiff) <= 5 &&
+        r.difference < 0,
+    )
+    .map((r: any) => r.unitId),
 );
-const gyroFixable = results.filter(r => undercalcIds.has(r.unitId) && Math.abs(r.correctedGap) < Math.abs(r.gap));
+const gyroFixable = results.filter(
+  (r) =>
+    undercalcIds.has(r.unitId) && Math.abs(r.correctedGap) < Math.abs(r.gap),
+);
 console.log(`\n=== Summary ===`);
 console.log(`Of ${undercalcIds.size} undercalculated units:`);
 console.log(`  ${gyroFixable.length} would be improved by fixing gyro type`);
-console.log(`  ${gyroFixable.filter(r => Math.abs(r.correctedGap) <= r.mulBV * 0.01).length} would be fixed to within 1%`);
+console.log(
+  `  ${gyroFixable.filter((r) => Math.abs(r.correctedGap) <= r.mulBV * 0.01).length} would be fixed to within 1%`,
+);

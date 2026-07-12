@@ -11,7 +11,10 @@ for (const f of bvAnalysis.findJsonFiles(
     for (const item of data.items || []) {
       weaponMap.set(item.id, item);
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 // Load misc catalog
@@ -23,7 +26,10 @@ for (const f of bvAnalysis.findJsonFiles(
     for (const item of data.items || []) {
       weaponMap.set(item.id, item);
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 // Check specific weapons vs MegaMek expected values

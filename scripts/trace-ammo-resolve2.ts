@@ -5,6 +5,7 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
+
 import { resolveAmmoBV } from '../src/utils/construction/equipmentBVResolver';
 
 // Build ammo lookup (same as validator)
@@ -14,12 +15,15 @@ try {
   for (const f of fs.readdirSync(ammoDir)) {
     if (!f.endsWith('.json')) continue;
     const d = JSON.parse(fs.readFileSync(path.join(ammoDir, f), 'utf8'));
-    for (const item of (d.items || [])) {
+    for (const item of d.items || []) {
       const norm = item.id.toLowerCase().replace(/[^a-z0-9]/g, '');
       ammoLookup.set(norm, { bv: item.battleValue, id: item.id });
     }
   }
-} catch {}
+} catch (_error) {
+  // Ignore expected failure in one-off tooling.
+  void _error;
+}
 
 function normalizeEquipmentId(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -55,7 +59,9 @@ for (const name of testNames) {
   const res = resolveAmmoBV(name);
   const norm = normalizeEquipmentId(name);
   const directLookup = ammoLookup.get(norm);
-  console.log(`"${name}"  norm="${norm}"  catalog=${directLookup ? `bv=${directLookup.bv}(${directLookup.id})` : 'MISS'}  resolver=${res.resolved ? `bv=${res.battleValue}` : 'MISS'}`);
+  console.log(
+    `"${name}"  norm="${norm}"  catalog=${directLookup ? `bv=${directLookup.bv}(${directLookup.id})` : 'MISS'}  resolver=${res.resolved ? `bv=${res.battleValue}` : 'MISS'}`,
+  );
 }
 
 // Show all available ammo catalog normalized IDs for reference

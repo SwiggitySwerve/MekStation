@@ -79,7 +79,6 @@
  * @spec openspec/changes/add-scenario-packs/specs/scenario-packs/spec.md
  * @spec openspec/changes/add-scenario-packs/design.md (D7, R6, R9)
  */
-import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -90,11 +89,7 @@ import {
   manifestVersion,
   SCENARIO_PACK_MANIFEST,
 } from '../../e2e/scenario-packs/manifest';
-import {
-  assertRunStatesEqual,
-  type ComparableRunState,
-  type ComparableTransaction,
-} from '../../src/lib/campaign/fastForward/invariants/comparableRunState';
+import { type ComparableTransaction } from '../../src/lib/campaign/fastForward/invariants/comparableRunState';
 import { signFor } from '../../src/lib/campaign/fastForward/invariants/ledger';
 import { CURRENT_CAMPAIGN_SCHEMA_VERSION } from '../../src/lib/campaign/persistence/campaignMigration';
 import { MATCH_LOG_DB_VERSION } from '../../src/lib/p2p/matchLogStorageSchema';
@@ -104,6 +99,13 @@ import {
   MANIFEST_VERSION,
   type ManifestEntry,
 } from '../../src/lib/scenarioPacks/packSchemas';
+import {
+  type GenesisClass,
+  type PackRecaptureResult,
+  remintPack,
+  validateAndCompareFreshStage,
+  validateCommittedPayloadStage,
+} from './recapture-scenario-pack-stages';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
@@ -161,8 +163,6 @@ function provenancePathFor(payloadAbsolutePath: string): string {
 // Genesis-class dispatch (design D9's parityAnchorJourney prefixes == D7's
 // three genesis classes, 1:1)
 // =============================================================================
-
-type GenesisClass = 'flow-checkpoint' | 'anchor-captured' | 'fast-forward';
 
 function classifyGenesisSource(parityAnchorJourney: string): GenesisClass {
   if (parityAnchorJourney.startsWith('flow:')) return 'flow-checkpoint';
@@ -450,16 +450,20 @@ function deriveImpliedStartingBalanceCents(raw: unknown): number {
 // Per-pack recapture (a -> b -> c, backup/restore around the re-mint)
 // =============================================================================
 
-interface PackRecaptureResult {
-  readonly packId: string;
-  readonly ok: boolean;
-  readonly issues: readonly string[];
-  readonly committedSizeBytes: number;
-  readonly freshSizeBytes: number | null;
-}
-
 function formatKB(bytes: number): string {
   return `${(bytes / 1024).toFixed(1)} KB`;
+}
+
+function buildRecaptureDeps() {
+  return {
+    validatePayloadAgainstSchemaAndPins,
+    assertFlowCheckpointInvariant,
+    assertMatchlogSeedAgnosticInvariants,
+    deriveComparableTransactions,
+    deriveImpliedStartingBalanceCents,
+    mintScriptPath: MINT_SCRIPT_PATH,
+    repoRoot: REPO_ROOT,
+  };
 }
 
 async function recapturePack(
@@ -485,238 +489,45 @@ async function recapturePack(
   const committedSizeBytes = Buffer.byteLength(payloadBackup.content!, 'utf8');
   const genesisClass = classifyGenesisSource(entry.parityAnchorJourney);
   const issues: string[] = [];
+  const deps = buildRecaptureDeps();
 
   try {
-    // (a) re-validate the committed payload against schema + pins.
     const committedRaw: unknown = JSON.parse(payloadBackup.content!);
-    const committedValidation = validatePayloadAgainstSchemaAndPins(
+    const committedFailure = validateCommittedPayloadStage(
       entry,
       committedRaw,
+      genesisClass,
+      committedSizeBytes,
+      issues,
+      deps,
     );
-    if (!committedValidation.ok) {
-      for (const issue of committedValidation.issues) {
-        issues.push(
-          `${entry.id}: committed payload invalid at "${issue.path}": ${issue.message}`,
-        );
-      }
-      return {
-        packId: entry.id,
-        ok: false,
-        issues,
-        committedSizeBytes,
-        freshSizeBytes: null,
-      };
-    }
+    if (committedFailure) return committedFailure;
 
-    // (c, committed side) — flow-checkpoint/anchor predicates run on the
-    // committed payload too (design: "asserted on both payloads"); a
-    // committed pack that no longer satisfies its own genesis invariant is
-    // exactly the drift this job exists to catch, independent of any
-    // re-mint.
-    if (genesisClass === 'flow-checkpoint') {
-      try {
-        assertFlowCheckpointInvariant(
-          entry.id,
-          committedRaw,
-          `${entry.id} (committed)`,
-        );
-      } catch (error) {
-        issues.push((error as Error).message);
-      }
-    } else if (genesisClass === 'anchor-captured') {
-      try {
-        assertMatchlogSeedAgnosticInvariants(
-          committedRaw,
-          `${entry.id} (committed)`,
-        );
-      } catch (error) {
-        issues.push((error as Error).message);
-      }
-    }
-    if (issues.length > 0) {
-      return {
-        packId: entry.id,
-        ok: false,
-        issues,
-        committedSizeBytes,
-        freshSizeBytes: null,
-      };
-    }
-
-    // (b) re-mint from the recorded genesis source — the ONLY minting path
-    // (scripts/qc/mint-scenario-pack.mjs), never a second hand-rolled one.
-    const mintResult = spawnSync(
-      process.execPath,
-      [MINT_SCRIPT_PATH, entry.id],
-      { cwd: REPO_ROOT, stdio: 'inherit' },
+    const remintFailure = remintPack(
+      entry,
+      payloadAbsolutePath,
+      committedSizeBytes,
+      issues,
+      deps,
     );
-    if (mintResult.error) {
-      issues.push(
-        `${entry.id}: re-mint failed to spawn: ${mintResult.error.message}`,
-      );
-      return {
-        packId: entry.id,
-        ok: false,
-        issues,
-        committedSizeBytes,
-        freshSizeBytes: null,
-      };
-    }
-    if (mintResult.status !== 0) {
-      issues.push(
-        `${entry.id}: re-mint exited nonzero (${mintResult.status ?? `signal ${mintResult.signal}`})`,
-      );
-      return {
-        packId: entry.id,
-        ok: false,
-        issues,
-        committedSizeBytes,
-        freshSizeBytes: null,
-      };
-    }
-    if (!fs.existsSync(payloadAbsolutePath)) {
-      issues.push(
-        `${entry.id}: re-mint reported success but wrote no payload file at ${payloadAbsolutePath}`,
-      );
-      return {
-        packId: entry.id,
-        ok: false,
-        issues,
-        committedSizeBytes,
-        freshSizeBytes: null,
-      };
-    }
+    if (remintFailure) return remintFailure;
 
     const freshContent = fs.readFileSync(payloadAbsolutePath, 'utf8');
     const freshSizeBytes = Buffer.byteLength(freshContent, 'utf8');
     const freshRaw: unknown = JSON.parse(freshContent);
 
-    const freshValidation = validatePayloadAgainstSchemaAndPins(
+    return validateAndCompareFreshStage({
       entry,
+      genesisClass,
+      committedRaw,
       freshRaw,
-    );
-    if (!freshValidation.ok) {
-      for (const issue of freshValidation.issues) {
-        issues.push(
-          `${entry.id}: fresh re-mint payload invalid at "${issue.path}": ${issue.message}`,
-        );
-      }
-      return {
-        packId: entry.id,
-        ok: false,
-        issues,
-        committedSizeBytes,
-        freshSizeBytes,
-      };
-    }
-
-    // (c) invariant-level comparison, dispatched by genesis class.
-    if (genesisClass === 'flow-checkpoint') {
-      try {
-        assertFlowCheckpointInvariant(
-          entry.id,
-          freshRaw,
-          `${entry.id} (fresh re-mint)`,
-        );
-      } catch (error) {
-        issues.push((error as Error).message);
-      }
-    } else if (genesisClass === 'anchor-captured') {
-      try {
-        assertMatchlogSeedAgnosticInvariants(
-          freshRaw,
-          `${entry.id} (fresh re-mint)`,
-        );
-      } catch (error) {
-        issues.push((error as Error).message);
-      }
-    } else {
-      // fast-forward, part 1: the committed PAYLOAD's own finances
-      // reconcile against the fresh re-mint's own finances — reads
-      // `body.finances` directly on BOTH payloads (never just their
-      // provenance sidecars, which is all part 2 below compares), so a
-      // hand-edited `balance` or a deleted/altered transaction on the
-      // COMMITTED file is now visible to this job (previously undetected —
-      // see this module's header comment "(c)").
-      const committedTransactions = deriveComparableTransactions(committedRaw);
-      const freshTransactions = deriveComparableTransactions(freshRaw);
-      if (
-        JSON.stringify(committedTransactions) !==
-        JSON.stringify(freshTransactions)
-      ) {
-        issues.push(
-          `${entry.id}: committed payload's body.finances.transactions diverged from the fresh re-mint's — committed=${JSON.stringify(committedTransactions)} fresh=${JSON.stringify(freshTransactions)}`,
-        );
-      }
-      try {
-        const committedImpliedStartCents =
-          deriveImpliedStartingBalanceCents(committedRaw);
-        const freshImpliedStartCents =
-          deriveImpliedStartingBalanceCents(freshRaw);
-        if (committedImpliedStartCents !== freshImpliedStartCents) {
-          issues.push(
-            `${entry.id}: committed payload's body.finances.balance does not reconcile with the fresh re-mint's (implied starting balance committed=${committedImpliedStartCents}c fresh=${freshImpliedStartCents}c) — a hand-edited balance, or a transaction whose signed amount was altered`,
-          );
-        }
-      } catch (error) {
-        issues.push(`${entry.id}: ${(error as Error).message}`);
-      }
-
-      // fast-forward, part 2: the fresh re-mint's recorded invariantSummary
-      // against the committed provenance sidecar's — field-by-field, via
-      // the SAME comparator + field set W3's own determinism/live-parity
-      // suites use (never a bespoke re-implementation). This covers the
-      // fields part 1 cannot derive from a bare payload alone (battles,
-      // xpCounters, contractStatuses, repairTickets).
-      if (!provenanceBackup.existed) {
-        issues.push(
-          `${entry.id}: no committed provenance.json to compare against — fast-forward packs require a committed invariantSummary (task 5.1/5.2)`,
-        );
-      } else if (!fs.existsSync(provenanceAbsolutePath)) {
-        issues.push(
-          `${entry.id}: fresh re-mint wrote no provenance.json at ${provenanceAbsolutePath}`,
-        );
-      } else {
-        const committedProvenance = JSON.parse(provenanceBackup.content!) as {
-          readonly invariantSummary?: ComparableRunState;
-        };
-        const freshProvenance = JSON.parse(
-          fs.readFileSync(provenanceAbsolutePath, 'utf8'),
-        ) as { readonly invariantSummary?: ComparableRunState };
-        if (!committedProvenance.invariantSummary) {
-          issues.push(
-            `${entry.id}: committed provenance.json carries no invariantSummary field`,
-          );
-        } else if (!freshProvenance.invariantSummary) {
-          issues.push(
-            `${entry.id}: fresh re-mint's provenance.json carries no invariantSummary field`,
-          );
-        } else {
-          try {
-            assertRunStatesEqual(
-              freshProvenance.invariantSummary,
-              committedProvenance.invariantSummary,
-              {
-                labelA: `${entry.id} fresh re-mint`,
-                labelB: `${entry.id} committed`,
-                consequenceMessage:
-                  'A divergence here is genuine drift (W3 determinism-contract regression or an intended fixture change) — triage per design D7, never absorbed by widening this comparator.',
-              },
-            );
-          } catch (error) {
-            issues.push((error as Error).message);
-          }
-        }
-      }
-    }
-
-    return {
-      packId: entry.id,
-      ok: issues.length === 0,
-      issues,
-      committedSizeBytes,
       freshSizeBytes,
-    };
+      provenanceBackup,
+      provenanceAbsolutePath,
+      committedSizeBytes,
+      issues,
+      deps,
+    });
   } finally {
     // Always restore, pass or fail — a local recapture run must be
     // re-runnable and must never leave a dirty working tree (task 6.1/6.3
