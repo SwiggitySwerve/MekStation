@@ -9,7 +9,6 @@ import {
   chargeAttackerMovementRestriction,
   chargeTargetClassRestriction,
   chargeTargetStateRestriction,
-  selectedArmCarryingCargo,
 } from './restrictionActionValidationHelpers';
 import {
   DEFAULT_STANDING_MEK_HEIGHT,

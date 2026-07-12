@@ -27,7 +27,6 @@ import {
   validateSpaceStation,
 } from './SpaceStationUnitHandler.calculations';
 import {
-  parseArmorByArc,
   parseStationType,
   parseCrewConfiguration,
   parseTransportBays,
@@ -42,7 +41,6 @@ import {
   UnitValidationMessages,
   combineAssaultUnitFields,
   createParseMessages,
-  createValidationMessages,
   parseRulesLevelThroughAdvancedFromType,
   serializeConfigurationWithRulesLevel,
 } from './unitHandlerShared';

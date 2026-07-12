@@ -1,12 +1,10 @@
 import {
   integrated,
-  outOfScope,
   type ICombatFeatureSourceReference,
   type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 import { MEGAMEK_HEAT_MOVEMENT_PENALTY_SOURCE_REFS } from './CombatMovementSourceRefs';
 import {
-  MEGAMEK_HEAT_SOURCE_VERSION,
   megamekHeatSourceRef,
   mekstationDeviationSourceRef,
 } from './CombatRuleSupport.sourceRefs';

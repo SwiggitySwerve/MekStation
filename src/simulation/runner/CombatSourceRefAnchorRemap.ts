@@ -348,13 +348,13 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
   'src/utils/gameplay/physicalAttacks/restrictions.ts#L783-L791':
     'src/utils/gameplay/physicalAttacks/restrictionChargePush.ts#L144-L153',
   'src/utils/gameplay/physicalAttacks/toHit.ts#L103-L114':
-    'src/utils/gameplay/physicalAttacks/toHitValidationCommon.ts#L84-L114',
+    'src/utils/gameplay/physicalAttacks/toHitValidationCommon.ts#L50-L80',
   'src/utils/gameplay/physicalAttacks/toHit.ts#L178-L1037':
     'src/utils/gameplay/physicalAttacks/toHitOptional.ts#L50-L102',
   'src/utils/gameplay/physicalAttacks/toHit.ts#L178-L454':
-    'src/utils/gameplay/physicalAttacks/toHitValidationCommon.ts#L223-L240',
+    'src/utils/gameplay/physicalAttacks/toHitValidationCommon.ts#L189-L206',
   'src/utils/gameplay/physicalAttacks/toHit.ts#L194-L218':
-    'src/utils/gameplay/physicalAttacks/toHitValidationCommon.ts#L386-L400',
+    'src/utils/gameplay/physicalAttacks/toHitValidationCommon.ts#L352-L366',
   'src/utils/gameplay/physicalAttacks/toHit.ts#L53-L533':
     'src/utils/gameplay/physicalAttacks/toHitBasic.ts#L53-L120',
 };

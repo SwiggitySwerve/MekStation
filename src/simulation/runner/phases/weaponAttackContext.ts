@@ -1,35 +1,14 @@
-import type {
-  IC3NetworkUnit,
-  IC3NetworkState,
-} from '@/utils/gameplay/c3Network';
-
-import { lineOfSightOptionsFromGameState } from '@/engine/InteractiveSession.indirectFire';
 import {
   GameEventType,
   GamePhase,
-  type IEnvironmentalConditions,
-  IAttackerState,
   IGameEvent,
   IGameState,
-  IHexGrid,
   ISecondaryTarget,
-  ITargetState,
-  IToHitModifier,
   RangeBracket,
 } from '@/types/gameplay';
-import { consumeAmmo, isEnergyWeapon } from '@/utils/gameplay/ammoTracking';
-import { calculateEnvironmentalModifiers } from '@/utils/gameplay/environmentalModifiers';
-import { calculateLOS } from '@/utils/gameplay/lineOfSight';
-import { isMissileWeapon } from '@/utils/gameplay/specialWeaponMechanics';
-import {
-  calculateToHit,
-  calculateToHitWithC3,
-  type ISemiGuidedTagToHitContext,
-} from '@/utils/gameplay/toHit';
 
 import type { IAIPlayer } from '../../ai/IAIPlayer';
 import type { IWeapon } from '../../ai/types';
-import type { IResolvedAMSInterception } from './weaponAttackAMS';
 
 import {
   applyDestroyedArtemisFcsToWeapons,
@@ -37,20 +16,8 @@ import {
   toAIUnitState,
 } from '../SimulationRunnerSupport';
 import { createGameEvent } from './utils';
-import {
-  hasPlaytest3C3SpotterLineOfSightRule,
-  isTargetInAttackerFrontArc,
-} from './weaponAttackC3';
-import {
-  getSelectedFiringMode,
-  markWeaponFiredForHeat,
-} from './weaponAttackFiringModes';
-import { modifiersToPayload } from './weaponAttackHelpers';
-import { validateLineOfSightForAttack } from './weaponAttackLineOfSight';
-import {
-  calculateInterveningTerrainToHitModifier,
-  calculateTargetTerrainToHitModifier,
-} from './weaponAttackTerrainModifiers';
+import { isTargetInAttackerFrontArc } from './weaponAttackC3';
+import { getSelectedFiringMode } from './weaponAttackFiringModes';
 
 export function selectPrimaryWeaponAttackTargetId(
   state: IGameState,

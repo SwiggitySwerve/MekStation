@@ -24,7 +24,8 @@ import {
   type MissionLaunchObservation,
 } from './helpers/campaignFlow';
 import {
-  WalkthroughRecorder,
+  createWalkthroughRecorder,
+  type WalkthroughRecorder,
   type WalkthroughFindingSeverity,
   type WalkthroughSoftStepOptions,
   type WalkthroughStepOptions,
@@ -983,7 +984,7 @@ test.describe('ux deep-play audit - desktop', () => {
 
   test('journey: sp campaign deep loop', async ({ page }, testInfo) => {
     test.setTimeout(540_000);
-    const walk = new WalkthroughRecorder(
+    const walk = createWalkthroughRecorder(
       page,
       '08-sp-campaign-deep-loop',
       'player pushing a campaign from creation through a battle attempt and full sweep',
@@ -1125,7 +1126,7 @@ test.describe('ux deep-play audit - desktop', () => {
     test.setTimeout(540_000);
     const hostPage = await openContextPage(browser);
     const guestPage = await openContextPage(browser);
-    const walk = new WalkthroughRecorder(
+    const walk = createWalkthroughRecorder(
       hostPage,
       '09-coop-multiplayer-two-client',
       'host and guest proving co-op campaign and 1v1 lobby handoff surfaces',
@@ -1280,7 +1281,7 @@ test.describe('ux deep-play audit - desktop', () => {
 
   test('journey: gm surfaces', async ({ page }, testInfo) => {
     test.setTimeout(540_000);
-    const walk = new WalkthroughRecorder(
+    const walk = createWalkthroughRecorder(
       page,
       '10-gm-surfaces',
       'campaign GM validating ledger interventions and the tactical GM dock',

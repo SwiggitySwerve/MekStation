@@ -4,11 +4,8 @@ import {
   Facing,
   GameSide,
   IUnitToken,
-  MovementType,
   TokenUnitType,
 } from '@/types/gameplay';
-
-import { HexMapDisplay } from './HexMapDisplay';
 
 const sampleTerrain: IHexTerrain[] = [
   {

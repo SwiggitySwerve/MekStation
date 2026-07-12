@@ -7,13 +7,6 @@ import {
   CANONICAL_ONLY_SPA_SUPPORT,
 } from './CombatCanonicalSpaSupport.entries';
 import {
-  MEKSTATION_EDGE_EXPLOSION_SOURCE_REFS,
-  MEKSTATION_EDGE_HEAD_HIT_SOURCE_REFS,
-  MEKSTATION_EDGE_TAC_SOURCE_REFS,
-  MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
-  MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
-} from './CombatEdgeSourceRefs';
-import {
   helperOnly,
   integrated,
   outOfScope,
@@ -21,11 +14,6 @@ import {
   type ICombatFeatureSourceReference,
   type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
-import { MEGAMEK_NIGHTWALKER_SOURCE_REFS } from './CombatLegacyPilotAbilitySourceRefs';
-import {
-  MEGAMEK_PROTO_DNI_RUNTIME_BOUNDARY_SOURCE_REFS,
-  MEGAMEK_TRIPLE_CORE_PROCESSOR_SOURCE_REFS,
-} from './CombatPilotModifierSourceRefs';
 import { remapMekStationSourceRef } from './CombatSourceRefAnchorRemap';
 
 const SPA_SUPPORT_BY_ID: Record<string, ICombatFeatureSupportEntry> =

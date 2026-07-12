@@ -8,16 +8,9 @@ import type { AmmoLookup, ICatalogAmmoStats } from './UnitHydrationTypes';
 import { buildAmmoLookupFromCatalogFiles } from './UnitHydrationCatalogLookup';
 import { criticalSlotsFromFullUnit } from './UnitHydrationEquipment';
 import { runnerCriticalLocationFromCatalogLocation } from './UnitHydrationLocations';
-import {
-  normalizeCriticalSlotText,
-  stripCriticalSlotRearMarker,
-} from './UnitHydrationText';
+import { stripCriticalSlotRearMarker } from './UnitHydrationText';
 
 const UNSUPPORTED_AMMO_RUNTIME_IDS = new Set(['rotaryac10', 'rotaryac20']);
-
-function normalizeAmmoLookupKey(idOrName: string): string {
-  return normalizeCriticalSlotText(idOrName);
-}
 
 function ammoLookupCandidates(slotText: string): readonly string[] {
   const cleaned = stripCriticalSlotRearMarker(slotText)

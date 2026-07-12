@@ -1,9 +1,6 @@
 import React from 'react';
 
-import type { MechLocation } from '@/types/construction';
-
 import type { BaseArmorLocationProps } from '../shared/ArmorVariantRenderHelpers';
-import type { ResolvedPosition } from '../shared/layout';
 
 import { ArmorLocationInteractionGroup } from '../shared/ArmorLocationInteractionGroup';
 import {

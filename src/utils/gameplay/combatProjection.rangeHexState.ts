@@ -3,6 +3,7 @@ import type {
   IGameState,
   IHexCoordinate,
   IHexGrid,
+  IHex,
   IUnitToken,
   IWeaponStatus,
 } from '@/types/gameplay';
@@ -40,6 +41,38 @@ interface IAttackInvalidState {
   readonly details: string;
 }
 
+interface ProjectedTargetState {
+  readonly targetUnitIds: string[];
+  readonly selectedTargetContact: TargetContact | undefined;
+  readonly shouldProjectSelectedTarget: boolean;
+  readonly projectedTargetUnitId: string | undefined;
+  readonly visibleTargetUnitIds: readonly string[];
+  readonly obscuredTargetUnitIds: readonly string[];
+  readonly visibleTargetToken: IUnitToken | undefined;
+  readonly projectedTargetUnit: IGameState['units'][string] | undefined;
+}
+
+interface AvailableWeaponState {
+  readonly availableWeapons: IWeaponStatus[];
+  readonly weaponIdsAvailable: string[];
+  readonly availableWeaponImpacts: ReturnType<typeof weaponImpactForStatus>[];
+  readonly availableWeaponHeat: number;
+  readonly availableWeaponDamage: number;
+}
+
+interface TargetCoverState {
+  readonly targetCover: ReturnType<typeof getTargetCoverInfo>;
+  readonly targetHullDown: boolean;
+  readonly targetHullDownModifier: ReturnType<typeof calculateHullDownModifier>;
+  readonly targetHullDownReason: string | undefined;
+}
+
+interface MinimumRangeState {
+  readonly minimumRangePenalty: number;
+  readonly minimumRangeWeaponIds: string[];
+  readonly minimumRangeReason: ReturnType<typeof formatMinimumRangeReason>;
+}
+
 export function deriveProjectedTargetState({
   targetUnitId,
   targetContacts,
@@ -50,7 +83,7 @@ export function deriveProjectedTargetState({
   readonly targetContacts: readonly TargetContact[];
   readonly tokens: readonly IUnitToken[];
   readonly combatState?: IGameState | null;
-}) {
+}): ProjectedTargetState {
   const targetUnitIds = targetContacts.map((contact) => contact.unitId);
   const selectedTargetContact = targetUnitId
     ? targetContacts.find((contact) => contact.unitId === targetUnitId)
@@ -274,7 +307,7 @@ export function deriveAvailableWeaponState({
   readonly weaponRuleBlockedReason: (
     weapon: IWeaponStatus,
   ) => string | undefined;
-}) {
+}): AvailableWeaponState {
   const availableWeapons = weapons.filter(
     (weapon) =>
       weaponPassesRepresentedWaterAttackRules({
@@ -313,7 +346,7 @@ export function deriveTargetCoverState({
   readonly targetPosition: IHexCoordinate;
   readonly visibleTargetToken?: IUnitToken;
   readonly projectedTargetUnit?: IGameState['units'][string];
-}) {
+}): TargetCoverState {
   const targetCover = getTargetCoverInfo(
     grid,
     attackerPosition,
@@ -352,7 +385,7 @@ export function deriveMinimumRangeState({
   readonly weapons: readonly IWeaponStatus[];
   readonly distance: number;
   readonly minimumRangeApplies: boolean;
-}) {
+}): MinimumRangeState {
   const minimumRangePenalty = weapons.reduce(
     (strictestPenalty, weapon) =>
       Math.max(
@@ -382,6 +415,6 @@ export function deriveMinimumRangeState({
 export function targetTerrainHex(
   grid: IHexGrid,
   targetPosition: IHexCoordinate,
-) {
+): IHex | undefined {
   return grid.hexes.get(coordToKey(targetPosition));
 }

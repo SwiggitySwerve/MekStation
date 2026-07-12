@@ -1,4 +1,3 @@
-import { MEGAMEK_AMMO_EXPLOSION_PILOT_DAMAGE_SOURCE_REFS } from './CombatConsciousnessSourceRefs';
 import {
   EQUIPMENT_ARTEMIS_FCS_CRITICAL_EFFECT_EVIDENCE,
   EQUIPMENT_BOMB_BAY_CRITICAL_EFFECT_EVIDENCE,
@@ -18,7 +17,6 @@ import {
   EQUIPMENT_RISC_LPM_AMBIGUOUS_LINK_CRITICAL_EFFECT_EVIDENCE,
   EQUIPMENT_RISC_LASER_PULSE_MODULE_INOPERABLE_LINKED_CRITICAL_EFFECT_EVIDENCE,
   EQUIPMENT_RISC_LASER_PULSE_MODULE_CRITICAL_EFFECT_EVIDENCE,
-  UNRESOLVED_EQUIPMENT_CRITICAL_EFFECT_BRANCHES,
 } from './CombatCriticalSlotEffectSupport';
 import {
   MEKSTATION_AC_PLAYTEST_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
@@ -49,34 +47,10 @@ import {
   MEGAMEK_SYSTEM_CRITICAL_EFFECT_SOURCE_REFS,
 } from './CombatCriticalSlotSourceRefs';
 import {
-  BATTLEMECH_MANUAL_DAMAGE_SOURCE_REFS,
-  MEGAMEK_BATTLEMECH_DAMAGE_SOURCE_REFS,
-  MEKSTATION_COCKPIT_CRIT_PILOT_DEATH_SOURCE_REFS,
-  MEKSTATION_DAMAGE_EVENT_SOURCE_REFS,
-  MEKSTATION_DAMAGE_RESOLUTION_SOURCE_REFS,
-  MEKSTATION_DESTRUCTION_CAUSE_SOURCE_REFS,
-  MEKSTATION_HEAT_AMMO_EXPLOSION_DAMAGE_SOURCE_REFS,
-  MEKSTATION_HEAT_PILOT_DAMAGE_SOURCE_REFS,
-  MEKSTATION_MAXTECH_HEAT_CRITICAL_SOURCE_REFS,
-  MEKSTATION_PILOT_DAMAGE_SOURCE_REFS,
-} from './CombatDamageSourceRefs';
-import {
-  MEGAMEK_DFA_IMPOSSIBLE_DISPLACEMENT_SOURCE_REFS,
-  MEGAMEK_FALL_PILOT_DAMAGE_SOURCE_REFS,
-  MEGAMEK_CASE_AMMO_EXPLOSION_SOURCE_REFS,
-  CORE_DAMAGE_RESOLUTION_SOURCE_REFS,
-  DAMAGE_EVENT_SOURCE_REFS,
-  HEAT_AMMO_EXPLOSION_DAMAGE_CASCADE_SOURCE_REFS,
-  DAMAGE_DESTRUCTION_CAUSE_SOURCE_REFS,
-  ENGINE_DESTRUCTION_CAUSE_SOURCE_REFS,
-} from './CombatDamageSupport.sourceRefs';
-import {
   integrated,
   outOfScope,
-  type ICombatFeatureSourceReference,
   type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
-import { DAMAGE_THRESHOLD_PSR_SOURCE_REFS } from './CombatPsrTriggerSourceRefs';
 
 export const EQUIPMENT_CRITICAL_COMPONENT_EVIDENCE =
   'Aggregate equipment component coverage is split-accounted: catalog hydration can create generic equipment slots, represented empty tracked ammo-bin no-explosion handling, generic EquipmentDestroyed name replay, Claw/Talons cleanup, Partial Wing runtime mutations, shield preserved-function replay, SCM six-slot critical lifecycle replay, Emergency Coolant System damaged-state plus 5-point explosion replay, PLAYTEST_3 autocannon first-hit and follow-up critical replay including official RAC/HVAC names, HarJel breach and secondary-critical replay, represented explicit explosion-damage equipment replay including exact single same-location source metadata hydration, represented hot-loaded weapon critical explosion replay, represented HotLoad linked-ammo hydration with unique linked ammo explosionDamage, represented HotLoad mode-state hydration with explicit explosionDamage, represented PPC Capacitor explosion replay, represented mode-gated official Blue Shield 5-point explosion replay, represented Prototype Improved Jump Jet 10-point explosion replay, represented Extended Fuel Tank 20-point explosion replay, represented RISC Laser Pulse Module exact explicit or unambiguous same-location linked-laser critical replay, represented RISC Laser Pulse Module inoperable-linked module-destruction replay, represented RISC Laser Pulse Module ambiguous or absent linked-laser no-fallback replay, represented Artemis FCS critical-damage guidance removal replay, active-probe critical replay, and stealth-linked ECM suite replay are integrated sibling rows, while LAM/non-BattleMech fuel equipment and incendiary ammo lifecycle branches are exported as explicit out-of-scope rows rather than unsupported BattleMech equipment-critical blockers';

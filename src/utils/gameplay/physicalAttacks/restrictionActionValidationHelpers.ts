@@ -13,13 +13,10 @@ import {
   type JumpJetAttackSelectedLeg,
 } from './jumpJetAttackEligibility';
 import {
-  CHARGE_CAPABLE_UNIT_TYPES,
-  DEFAULT_STANDING_MEK_HEIGHT,
   NO_HOVER_CHARGE_OPTION_KEYS,
   TACOPS_GRAPPLING_OPTIONS,
   TACOPS_JUMP_JET_ATTACK_OPTIONS,
   TACOPS_TRIP_ATTACK_OPTIONS,
-  battleMekOrProtoMekTarget,
   blocked,
   canonicalUnitType,
   chargeCapableUnitType,
@@ -27,8 +24,6 @@ import {
   infantryUnitType,
   knownMekUnitType,
   legacyOrMekUnitType,
-  protoMekUnitType,
-  standardInfantryUnitType,
   verticalBandsOverlap,
 } from './restrictionValidationShared';
 import { type ThrashAttackInvalidReason } from './thrashEligibility';
@@ -37,7 +32,6 @@ import {
   type IPhysicalAttackInput,
   type IPhysicalAttackRestriction,
   type PhysicalAttackInvalidReason,
-  type PhysicalAttackLimb,
   isZweihanderPhysicalAttackType,
 } from './types';
 import { normalizedLamConversionMode } from './unitState';

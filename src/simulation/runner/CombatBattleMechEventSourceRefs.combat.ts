@@ -1,9 +1,6 @@
-import { GameEventType } from '@/types/gameplay';
-
 import type { ICombatFeatureSourceReference } from './CombatFeatureSourceReference';
 
 import { remappedMekStationDeviationSourceRef as mekstationDeviationSourceRef } from './CombatRemappedSourceReference';
-import { BATTLEMECH_SPOTTING_EVENT_SOURCE_REFS } from './CombatSpottingSourceRefs';
 
 export const BATTLEMECH_RANGED_ATTACK_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(

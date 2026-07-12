@@ -44,11 +44,7 @@ import {
 import { RUNNER_INTERACTIVE_PARITY_SUPPORT } from './CombatParitySupport';
 import { PHYSICAL_ACTION_CLASS_SCOPE_SUPPORT } from './CombatPhysicalActionClassScopeSupport';
 import { PHYSICAL_ATTACK_ACTION_SUPPORT } from './CombatPhysicalActionSupport';
-import {
-  DISPLACEMENT_DOMINO_SECONDARY_FALLOUT_OUT_OF_SCOPE_IDS,
-  DISPLACEMENT_DOMINO_SECONDARY_FALLOUT_UNSUPPORTED_IDS,
-  PHYSICAL_LEGALITY_GATE_SUPPORT,
-} from './CombatPhysicalLegalityGateSupport';
+import { PHYSICAL_LEGALITY_GATE_SUPPORT } from './CombatPhysicalLegalityGateSupport';
 import { PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT } from './CombatPilotModifierApplicationSupport';
 import { PILOT_SKILL_COMBAT_SUPPORT } from './CombatPilotSkillSupport';
 import {
@@ -59,12 +55,8 @@ import {
   RUNNER_RANGE_BRACKET_COMBAT_SUPPORT,
   RUNNER_TO_HIT_MODIFIER_COMBAT_SUPPORT,
   TERRAIN_ENVIRONMENT_COMBAT_SUPPORT,
-  TERRAIN_LOS_SIDE_PATH_UNSUPPORTED_IDS,
 } from './CombatRuleSupport';
-import {
-  remapMekStationSourceRef,
-  remapMekStationSourceRefs,
-} from './CombatSourceRefAnchorRemap';
+import { remapMekStationSourceRef } from './CombatSourceRefAnchorRemap';
 import { SPECIAL_WEAPON_MECHANIC_COMBAT_SUPPORT } from './CombatSpecialWeaponSupport';
 import {
   TERRAIN_TYPE_ATTACK_MODIFIER_COMBAT_SUPPORT,

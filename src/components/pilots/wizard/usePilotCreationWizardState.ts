@@ -130,11 +130,38 @@ function successToastFor(state: WizardState): {
   };
 }
 
+interface PilotCreationWizardStateResult {
+  readonly canProceed: boolean;
+  readonly currentSkills: IPilotSkills;
+  readonly currentStep: WizardStep;
+  readonly error: string | null;
+  readonly isLoading: boolean;
+  readonly state: WizardState;
+  readonly handleBack: () => void;
+  readonly handleCreate: () => Promise<void>;
+  readonly handleCustomSkillChange: (
+    skill: keyof IPilotSkills,
+    value: number,
+  ) => void;
+  readonly handleIdentityChange: (
+    field: keyof IPilotIdentity,
+    value: string,
+  ) => void;
+  readonly handleModeSelect: (mode: CreationMode) => void;
+  readonly handleNext: () => void;
+  readonly handleReroll: () => void;
+  readonly handleStatblockSkillChange: (
+    skill: keyof IPilotSkills,
+    value: number,
+  ) => void;
+  readonly handleTemplateLevelChange: (level: PilotExperienceLevel) => void;
+}
+
 export function usePilotCreationWizardState({
   isOpen,
   onClose,
   onCreated,
-}: PilotCreationWizardProps) {
+}: PilotCreationWizardProps): PilotCreationWizardStateResult {
   const createFromTemplate = usePilotSelector(
     (state) => state.createFromTemplate,
   );

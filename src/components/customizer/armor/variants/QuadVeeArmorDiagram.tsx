@@ -10,7 +10,6 @@ import {
 import type { VariantArmorDiagramProps } from '../shared/ArmorVariantRenderHelpers';
 
 import { ArmorDiagramSvgFrame } from '../shared/ArmorDiagramSvgFrame';
-import { GradientDefs } from '../shared/ArmorFills';
 import {
   findArmorData,
   getArmorValues,

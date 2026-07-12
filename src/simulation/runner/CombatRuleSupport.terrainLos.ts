@@ -2,11 +2,9 @@ import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
 import {
   integrated,
-  type ICombatFeatureSourceReference,
   type ICombatFeatureSupportEntry,
 } from './CombatFeatureSupport';
 import {
-  MEGAMEK_TO_HIT_SOURCE_VERSION,
   megamekTerrainSourceRef,
   mekstationDeviationSourceRef,
 } from './CombatRuleSupport.sourceRefs';
@@ -15,7 +13,6 @@ import {
   MEGAMEK_TACOPS_DIAGRAM_LOS_SOURCE_REFS,
   terrainLosSourceRefs,
 } from './CombatTerrainEnvironmentSourceRefs';
-import { MEGAMEK_TERRAIN_FEATURE_TO_HIT_SOURCE_REFS } from './CombatToHitSourceRefs';
 
 const MEKSTATION_LINE_OF_SIGHT_HELPER_SOURCE_REF = mekstationDeviationSourceRef(
   'MekStation calculateLOS owns represented TerrainType LOS tracing, divided side-path selection, endpoint LOS elevation inputs, and optional TacOps diagram terrain-effect checks for woods, smoke, heavy industrial, and planted fields.',

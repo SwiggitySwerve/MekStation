@@ -14,8 +14,6 @@ import React from 'react';
 
 import type { MechConfigType } from '@/types/construction/MechConfigType';
 
-import { MechLocation } from '@/types/construction';
-
 import type { ConfigurableArmorDiagramProps } from '../shared/ArmorVariantRenderHelpers';
 
 import { ArmorStatusLegend, ArmorDiagramInstructions } from '../shared';

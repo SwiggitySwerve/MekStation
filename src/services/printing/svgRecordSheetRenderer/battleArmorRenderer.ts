@@ -14,7 +14,6 @@ import { buildSPASectionString } from './spaSection';
 import {
   FONT,
   MARGIN,
-  SVG_H,
   SVG_W,
   esc,
   renderFooter,

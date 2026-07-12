@@ -45,7 +45,6 @@ export function resolveWeaponHitDamage(options: {
     attackRoll,
     baseDamage,
     isINarcExplosiveAmmo,
-    location,
     projectileCount,
     target,
     toHitNumber,

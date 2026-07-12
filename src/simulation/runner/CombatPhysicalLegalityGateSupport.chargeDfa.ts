@@ -1,10 +1,7 @@
 import type { IPhysicalLegalityGateSupportEntry } from './CombatPhysicalLegalityGateSupport.types';
 
 import * as physicalAuthority from './CombatPhysicalLegalityGateSupport.authorities';
-import {
-  integrated,
-  outOfScope,
-} from './CombatPhysicalLegalityGateSupport.builders';
+import { integrated } from './CombatPhysicalLegalityGateSupport.builders';
 
 export const CHARGE_DFA_PHYSICAL_LEGALITY_GATE_SUPPORT = {
   'charge.requires-run': integrated(

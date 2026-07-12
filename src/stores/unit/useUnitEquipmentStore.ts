@@ -27,7 +27,6 @@ import { calculateDirectFireWeaponTonnage } from '@/utils/equipment/weapons/util
 import { logger } from '@/utils/logger';
 import { generateUnitId } from '@/utils/uuid';
 
-import type { UnitStore } from '../unitState';
 import type { UnitSliceGetFn, UnitSliceSetFn } from './unitSliceTypes';
 
 // =============================================================================

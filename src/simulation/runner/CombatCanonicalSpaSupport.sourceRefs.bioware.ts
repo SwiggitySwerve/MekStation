@@ -1,29 +1,9 @@
-import { CANONICAL_SPA_LIST, resolveSPAId } from '@/lib/spa';
-import { type ISPADefinition } from '@/types/spa/SPADefinition';
-
-import { canonicalSpaScopeSourceRefs } from './CombatCanonicalSpaSourceRefs';
-import {
-  MEKSTATION_EDGE_EXPLOSION_SOURCE_REFS,
-  MEKSTATION_EDGE_HEAD_HIT_SOURCE_REFS,
-  MEKSTATION_EDGE_TAC_SOURCE_REFS,
-  MEGAMEK_EDGE_TRIGGER_SOURCE_REFS,
-  MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS,
-} from './CombatEdgeSourceRefs';
 import { combatFeatureSourceRef as canonicalSpaSourceRef } from './CombatFeatureSourceReference';
-import {
-  helperOnly,
-  integrated,
-  outOfScope,
-  SPA_COMBAT_SUPPORT,
-  type ICombatFeatureSourceReference,
-  type ICombatFeatureSupportEntry,
-} from './CombatFeatureSupport';
-import { MEGAMEK_NIGHTWALKER_SOURCE_REFS } from './CombatLegacyPilotAbilitySourceRefs';
+import { type ICombatFeatureSourceReference } from './CombatFeatureSupport';
 import {
   MEGAMEK_PROTO_DNI_RUNTIME_BOUNDARY_SOURCE_REFS,
   MEGAMEK_TRIPLE_CORE_PROCESSOR_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
-import { remapMekStationSourceRef } from './CombatSourceRefAnchorRemap';
 
 const MEGAMEK_CANONICAL_SPA_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';

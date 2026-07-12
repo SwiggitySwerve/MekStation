@@ -20,7 +20,6 @@ import {
 } from '@/utils/construction/armorCalculations';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
-import type { UnitStore } from '../unitState';
 import type { UnitSliceGetFn, UnitSliceSetFn } from './unitSliceTypes';
 
 // =============================================================================

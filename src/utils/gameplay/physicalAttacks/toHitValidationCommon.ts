@@ -7,49 +7,15 @@ import {
 } from '@/utils/gameplay/spaModifiers';
 import { calculateTargetEvasionModifier } from '@/utils/gameplay/toHit/movementModifiers';
 
-import { getBreakGrappleAttackToHitModifiers } from './breakGrappleEligibility';
-import { getBrushOffAttackToHitModifiers } from './brushOffEligibility';
 import {
-  FOOT_KICK_MODIFIER,
-  CLAW_PUNCH_TO_HIT_MODIFIER,
-  FLAIL_TO_HIT_MODIFIER,
-  HAND_PUNCH_MODIFIER,
-  HATCHET_TO_HIT_MODIFIER,
-  KICK_TO_HIT_BONUS,
-  LANCE_TO_HIT_MODIFIER,
   LOWER_ARM_PUNCH_MODIFIER,
-  LOWER_LEG_KICK_MODIFIER,
-  MACE_TO_HIT_MODIFIER,
-  PUSH_TO_HIT_BONUS,
-  RETRACTABLE_BLADE_TO_HIT_MODIFIER,
-  SWORD_TO_HIT_MODIFIER,
   TSM_ACTIVATION_HEAT,
   UPPER_ARM_PUNCH_MODIFIER,
-  UPPER_LEG_KICK_MODIFIER,
-  WRECKING_BALL_TO_HIT_MODIFIER,
 } from './constants';
-import { getGrappleAttackToHitModifiers } from './grappleEligibility';
-import { getJumpJetAttackToHitModifiers } from './jumpJetAttackEligibility';
-import {
-  canBrushOffPhysical,
-  canBreakGrapplePhysical,
-  canGrapplePhysical,
-  canJumpJetAttackPhysical,
-  canCharge,
-  canDFA,
-  canKick,
-  canMeleeWeapon,
-  canPunch,
-  canPush,
-  canThrashPhysical,
-  canTripPhysical,
-} from './restrictions';
-import { getTripAttackBaseToHitAdjustment } from './tripEligibility';
 import {
   IPhysicalAttackInput,
   IPhysicalModifier,
   IPhysicalToHitResult,
-  PhysicalAttackType,
 } from './types';
 
 export const AUTOMATIC_SUCCESS_TO_HIT = 0;

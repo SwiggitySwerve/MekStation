@@ -1,6 +1,9 @@
 import React from 'react';
 
-import { customUnitApiService } from '@/services/units/CustomUnitApiService';
+import {
+  customUnitApiService,
+  type ISaveResult,
+} from '@/services/units/CustomUnitApiService';
 import { ISerializedUnitEnvelope } from '@/types/persistence/UnitPersistence';
 
 import { customizerStyles as cs } from '../styles';
@@ -35,7 +38,10 @@ function getUnitData(
   return data as Record<string, unknown>;
 }
 
-function getImportData(parsedUnit: ParsedUnit, alternateName: string) {
+function getImportData(
+  parsedUnit: ParsedUnit,
+  alternateName: string,
+): ParsedUnit['data'] {
   const data = parsedUnit.data as Record<string, unknown>;
 
   if ('unit' in data && typeof data.unit === 'object' && data.unit !== null) {
@@ -74,7 +80,7 @@ export async function importParsedUnit(
   parsedUnit: ParsedUnit,
   useAlternateName: boolean,
   alternateName: string,
-) {
+): Promise<ISaveResult> {
   const trimmedAlternateName = alternateName.trim();
 
   if (useAlternateName && trimmedAlternateName) {
@@ -90,7 +96,7 @@ export function getImportedUnitName(
   parsedUnit: ParsedUnit,
   useAlternateName: boolean,
   alternateName: string,
-) {
+): string {
   const trimmedAlternateName = alternateName.trim();
 
   if (useAlternateName && trimmedAlternateName) {
@@ -126,7 +132,7 @@ export function ImportDialogContent({
   state: ImportState;
   suggestedName: string | null;
   useAlternateName: boolean;
-}) {
+}): React.ReactElement {
   const isLoading = state === 'validating' || state === 'importing';
 
   return (

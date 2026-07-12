@@ -49,8 +49,9 @@ import {
 } from './helpers/campaignFlow';
 import { seedHiringHall } from './helpers/campaignSeeders';
 import {
-  WalkthroughRecorder,
+  createWalkthroughRecorder,
   type WalkthroughFindingRecord,
+  type WalkthroughRecorder,
   type WalkthroughStepOptions,
 } from './helpers/uxWalkthrough';
 import { assertNoMekStationLoading } from './helpers/wait';
@@ -959,7 +960,7 @@ test.describe('flow audits', () => {
         },
       } as unknown as TestInfo;
 
-      const recorder = new WalkthroughRecorder(
+      const recorder = createWalkthroughRecorder(
         page,
         flow.id,
         flow.description,

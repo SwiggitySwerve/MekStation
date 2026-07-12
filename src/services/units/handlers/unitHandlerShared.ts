@@ -55,6 +55,33 @@ interface CombinedCommonUnitFieldOptions extends Omit<
   readonly rulesLevelParser?: (typeStr: string) => RulesLevel;
 }
 
+interface CommonUnitFields {
+  readonly id: string;
+  readonly name: string;
+  readonly unitType: UnitType;
+  readonly tonnage: number;
+  readonly weightClass: WeightClass;
+  readonly techBase: TechBase;
+  readonly era: Era;
+  readonly rulesLevel: RulesLevel;
+  readonly metadata: {
+    readonly chassis: string;
+    readonly model: string;
+    readonly year: number;
+    readonly rulesLevel: RulesLevel;
+    readonly techBase: TechBase;
+    readonly role?: string;
+  };
+  readonly source?: string;
+  readonly role?: string;
+  readonly bv: number;
+  readonly cost: number;
+  readonly totalWeight: number;
+  readonly remainingTonnage: number;
+  readonly isValid: boolean;
+  readonly validationErrors: readonly string[];
+}
+
 export interface AerospaceUnitCoreFields {
   readonly movement: IAerospaceMovement;
   readonly fuel: number;
@@ -72,7 +99,7 @@ export function buildCommonUnitFields({
   rulesLevel,
   tonnage = commonFields.tonnage,
   totalWeight = tonnage,
-}: CommonUnitFieldOptions) {
+}: CommonUnitFieldOptions): CommonUnitFields {
   return {
     id: `${idPrefix}-${Date.now()}`,
     name: `${commonFields.chassis} ${commonFields.model}`.trim(),
@@ -173,7 +200,7 @@ export function pushTonnageRangeErrors(
 export function serializeConfigurationWithRulesLevel(
   configuration: string,
   rulesLevel: unknown,
-) {
+): { readonly configuration: string; readonly rulesLevel: string } {
   return {
     configuration,
     rulesLevel: String(rulesLevel),

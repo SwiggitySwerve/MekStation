@@ -103,7 +103,6 @@ export function buildHexCellRenderModel(
     elevationLabel,
     elevationStackMetrics,
     hex,
-    isInPath,
     isIsometricOccluder,
     isUnreachableHover,
     movementInfo,

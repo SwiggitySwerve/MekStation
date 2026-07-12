@@ -1,6 +1,5 @@
 import type {
   IHexCoordinate,
-  IHexGrid,
   IMovementCapability,
   IMovementRangeHex,
   IUnitGameState,

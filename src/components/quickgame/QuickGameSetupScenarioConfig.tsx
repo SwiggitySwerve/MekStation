@@ -350,29 +350,6 @@ export function ScenarioConfigStep(): React.ReactElement {
   // Per `polish-wave-6.2-gaps` (gaps #4 + #6): scenario archetype + AI tier
   // selectors. Both default to the pre-6.2 implicit value so users that
   // skip the controls get unchanged behavior.
-  const scenarioTypeOptions = [
-    { value: 'Annihilation', label: 'Annihilation — destroy all enemies' },
-    { value: 'CTF', label: 'Capture the Flag — seize objectives' },
-    { value: 'Defend', label: 'Defend — survive until the timer' },
-    { value: 'Breakthrough', label: 'Breakthrough — exit the far edge' },
-  ];
-
-  const aiTierOptions = [
-    { value: 'Green', label: 'Green — gunnery 5 / piloting 6' },
-    { value: 'Regular', label: 'Regular — gunnery 4 / piloting 5' },
-    { value: 'Veteran', label: 'Veteran — gunnery 3 / piloting 4' },
-    { value: 'Elite', label: 'Elite — gunnery 2 / piloting 3' },
-  ];
-
-  const difficultyLabels: Record<number, string> = {
-    0.5: 'Very Easy',
-    0.75: 'Easy',
-    1.0: 'Normal',
-    1.25: 'Challenging',
-    1.5: 'Hard',
-    1.75: 'Very Hard',
-    2.0: 'Extreme',
-  };
 
   return (
     <div className="mx-auto max-w-2xl p-4">

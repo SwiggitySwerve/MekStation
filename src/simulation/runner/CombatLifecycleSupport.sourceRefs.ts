@@ -1,49 +1,6 @@
 /* oxlint-disable max-lines -- Combat support catalogs stay centralized until the OpenSpec change is archived. */
-import { PSRTrigger } from '@/types/gameplay';
-import { TerrainType } from '@/types/gameplay/TerrainTypes';
 
-import {
-  integrated,
-  outOfScope,
-  type ICombatFeatureSourceReference,
-  type ICombatFeatureSupportEntry,
-} from './CombatFeatureSupport';
-import {
-  ACTION_REMOVAL_SOURCE_REFS,
-  EJECTED_ACTION_SOURCE_REFS,
-  EJECTED_TARGETABILITY_SOURCE_REFS,
-  LOCAL_EJECTION_SOURCE_REFS,
-  LOCAL_SURVIVOR_COUNT_SOURCE_REFS,
-  RETREATED_ACTION_SOURCE_REFS,
-  RETREATED_TARGETABILITY_SOURCE_REFS,
-  SHUTDOWN_TARGETABILITY_SOURCE_REFS,
-} from './CombatLifecycleSourceRefs';
-import {
-  PHYSICAL_CHARGE_MISS_SOURCE_REFS,
-  PHYSICAL_CHARGE_PSR_SOURCE_REFS,
-  PHYSICAL_DFA_TARGET_PSR_SOURCE_REFS,
-  PHYSICAL_DOMINO_EFFECT_PSR_SOURCE_REFS,
-  PHYSICAL_KICK_PSR_SOURCE_REFS,
-  PHYSICAL_PUSH_PSR_SOURCE_REFS,
-} from './CombatPhysicalPsrSourceRefs';
-import {
-  DAMAGE_THRESHOLD_PSR_SOURCE_REFS,
-  ENGINE_CRITICAL_PSR_SOURCE_REFS,
-  GYRO_CRITICAL_PSR_SOURCE_REFS,
-  HEAT_SHUTDOWN_PSR_SOURCE_REFS,
-  HIP_ACTUATOR_CRITICAL_PSR_SOURCE_REFS,
-  LEG_ACTUATOR_CRITICAL_PSR_SOURCE_REFS,
-  LEG_STRUCTURE_DAMAGE_PSR_SOURCE_REFS,
-  MEGAMEK_DFA_ATTACKER_PSR_SOURCE_REFS,
-  MEGAMEK_DFA_MISS_FALL_SOURCE_REFS,
-  MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS,
-  RUNNING_WITH_DAMAGE_PSR_SOURCE_REFS,
-  STANDING_UP_PSR_SOURCE_REFS,
-} from './CombatPsrTriggerSourceRefs';
-import {
-  LOCAL_TERRAIN_PSR_SOURCE_REFS,
-  terrainPsrSourceRefs,
-} from './CombatTerrainEnvironmentSourceRefs';
+import { type ICombatFeatureSourceReference } from './CombatFeatureSupport';
 
 export const MEGAMEK_COMBAT_SOURCE_VERSION =
   '325b2504c7b7750ecdcb85468621fb2de2ad8e60';

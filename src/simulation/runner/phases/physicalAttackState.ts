@@ -1,114 +1,14 @@
-import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
-
 import {
-  CombatLocation,
   GameEventType,
   GamePhase,
   IGameEvent,
   IGameState,
-  IHexCoordinate,
-  IHexGrid,
-  IMovementCapability,
-  IPendingPSR,
-  type IPhysicalDominoStepOutDecisionPayload,
-  MovementType,
-  PSRTrigger,
 } from '@/types/gameplay';
-import {
-  TerrainType,
-  type ITerrainFeature,
-} from '@/types/gameplay/TerrainTypes';
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
-import { createPSRTriggeredEvent } from '@/utils/gameplay/gameEvents/statusChecks';
-import {
-  firedWeaponIdsFromMountedArm,
-  firedWeaponIdsFromMountedLeg,
-} from '@/utils/gameplay/gameSessionPhysicalHelpers';
-import { hexDistance } from '@/utils/gameplay/hexMath';
-import { parseTerrainFeatures } from '@/utils/gameplay/lineOfSight';
-import {
-  applyJumpJetCriticalDamage,
-  applyPartialWingJumpBonus,
-} from '@/utils/gameplay/movement/calculations';
-import {
-  chooseBestPhysicalAttack,
-  computePushDisplacement,
-  BATTLEMECH_MAX_DISPLACEMENT_ELEVATION_CHANGE,
-  IPhysicalAttackInput,
-  type PhysicalAttackINarcPodSelection,
-  type PhysicalAttackLimb,
-  isPhysicalAirborneVtolOrWigeTarget,
-  isTargetDirectlyAhead,
-  isTargetInFrontArc,
-  isValidDisplacement,
-  isZweihanderPhysicalAttackType,
-  physicalTargetObjectTypeForUnitType,
-  PhysicalAttackType,
-  resolveDfaMissFallDamage,
-  resolveDfaMissFallPilotDamageAvoidance,
-  resolvePhysicalAttack,
-  sourceContainsGroundedDropShip,
-  splitPhysicalDamageIntoClusters,
-  thrashBlockingTerrainsForHexTerrain,
-  translateHex,
-} from '@/utils/gameplay/physicalAttacks';
-import {
-  createBuildingCollapsePSR,
-  createEnteringWaterPSR,
-  createExitingWaterPSR,
-  createIcePSR,
-  createRubblePSR,
-  createSwampBogDownPSR,
-} from '@/utils/gameplay/pilotingSkillRolls';
-import { removeEquivalentINarcPod } from '@/utils/gameplay/specialWeaponMechanics';
-import {
-  calculateAttackerMovementModifier,
-  calculateTMM,
-} from '@/utils/gameplay/toHit/movementModifiers';
-import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
+import { translateHex } from '@/utils/gameplay/physicalAttacks';
 
-import type { IAIPlayer } from '../../ai/IAIPlayer';
-
-import { SeededRandom } from '../../core/SeededRandom';
-import { InvariantRunner } from '../../invariants/InvariantRunner';
-import { IViolation } from '../../invariants/types';
-import {
-  DEFAULT_COMPONENT_DAMAGE,
-  LETHAL_PILOT_WOUNDS,
-  DEFAULT_PILOTING,
-  DEFAULT_TONNAGE,
-} from '../SimulationRunnerConstants';
-import { toAIUnitState } from '../SimulationRunnerSupport';
-import { applyRepresentedMinefieldEntryDamage } from './movementMines';
-import {
-  applyPhysicalDamageClusterLocations,
-  applyDfaAttackerLegDamage,
-  applyPhysicalCriticalHits,
-  applyPhysicalDamageClusters,
-} from './physicalAttackDamage';
-import {
-  applyPhysicalDisplacementsToGrid,
-  computePhysicalDisplacementOutcome,
-  displaceUnit,
-  elevationDifferenceBetween,
-} from './physicalAttackDisplacement';
-import {
-  applyImpossibleDisplacementDestruction,
-  emitPhysicalAttackDeclaredEvent,
-  emitPhysicalAttackResolvedEvent,
-} from './physicalAttackEvents';
-import {
-  attackerHitPSRForAttack,
-  attackerMissPSRForAttack,
-  dominoEffectPSRForDisplacement,
-  queuePendingPSR,
-  targetPSRForAttack,
-} from './physicalAttackPsr';
-import {
-  appendUnitDestroyedEvent,
-  createD6Roller,
-  createGameEvent,
-} from './utils';
+import { LETHAL_PILOT_WOUNDS } from '../SimulationRunnerConstants';
+import { appendUnitDestroyedEvent, createGameEvent } from './utils';
 
 export function applyGrappleState(
   state: IGameState,

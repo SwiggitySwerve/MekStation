@@ -1,4 +1,13 @@
 import type { MapMovementKind } from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
+import type { MapMovementPointLegendState } from '@/components/gameplay/HexMapDisplay/HexMapDisplay.types';
+import type {
+  IGameState,
+  IHexCoordinate,
+  IHexTerrain,
+  IMovementRangeHex,
+  IUnitToken,
+  IWeaponStatus,
+} from '@/types/gameplay';
 
 import {
   combatOnlyScenarios,
@@ -36,6 +45,20 @@ type MixedVehicleHarnessScenario =
 type TacticalMapHarnessScenario =
   | IndirectFireHarnessScenario
   | MixedVehicleHarnessScenario;
+
+interface TacticalMapE2EHarnessConfig {
+  readonly mapRadius: number;
+  readonly tokens: readonly IUnitToken[];
+  readonly selectedHex: IHexCoordinate;
+  readonly targetUnitId: string | null;
+  readonly hexTerrain: readonly IHexTerrain[];
+  readonly unitWeapons: Record<string, readonly IWeaponStatus[]>;
+  readonly combatState: IGameState;
+  readonly selectedWeaponIds: readonly string[];
+  readonly movementRange: readonly IMovementRangeHex[] | undefined;
+  readonly highlightPath: readonly IHexCoordinate[] | undefined;
+  readonly mpLegend: MapMovementPointLegendState | undefined;
+}
 
 function scenarioValue<T>(
   scenario: string,
@@ -125,7 +148,7 @@ function highlightPathFor(
 export function resolveTacticalMapE2EHarnessConfig(
   scenario: string,
   legendMode: MapMovementKind,
-) {
+): TacticalMapE2EHarnessConfig {
   const harnessScenario = tacticalMapHarnessScenario(scenario);
   const isCombatOnlyScenario = combatOnlyScenarios.has(scenario);
   const isMovementFixtureScenario = movementFixtureScenarios.has(scenario);

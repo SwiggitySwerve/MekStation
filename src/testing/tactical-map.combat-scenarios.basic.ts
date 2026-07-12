@@ -17,7 +17,6 @@ import {
   tacticalMapOutOfRangeSelectedWeaponIds,
   tacticalMapSelectedWeaponIds,
   tacticalMapTokens,
-  tacticalMapUnitWeapons,
 } from './tactical-map.fixtures';
 
 const tacticalMapMediumRangeTargetId = 'medium-target';

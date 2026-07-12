@@ -31,7 +31,7 @@ export function UnitTableState({
   isLoading: boolean;
   selectedUnit: UnitWithSource | null;
   setSelectedUnit: (unit: UnitWithSource) => void;
-}) {
+}): React.ReactElement {
   if (isLoading) {
     return (
       <div className={cs.dialog.loading}>

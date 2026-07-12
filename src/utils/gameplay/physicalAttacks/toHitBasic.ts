@@ -17,20 +17,15 @@ import {
   UPPER_ARM_PUNCH_MODIFIER,
   UPPER_LEG_KICK_MODIFIER,
 } from './constants';
-import { getJumpJetAttackToHitModifiers } from './jumpJetAttackEligibility';
 import {
   canCharge,
   canDFA,
   canKick,
-  canJumpJetAttackPhysical,
   canPunch,
   canPush,
-  canThrashPhysical,
   canTripPhysical,
 } from './restrictions';
 import {
-  AUTOMATIC_SUCCESS_TO_HIT,
-  THRASH_AUTOMATIC_HIT_REASON,
   appendAttackerSpotting,
   appendBattleFistModifier,
   appendDfaPilotingDifferentialModifier,
@@ -43,7 +38,6 @@ import {
   appendZweihanderOffArmActuatorModifiers,
   gunEmplacementAutomaticSuccess,
   hasPlaytest3Rule,
-  jumpJetTargetObjectIsAutomaticSuccess,
   selectedPunchArmHasClaw,
 } from './toHitValidationCommon';
 import { getTripAttackBaseToHitAdjustment } from './tripEligibility';
