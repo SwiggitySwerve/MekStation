@@ -3,17 +3,25 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf-8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'));
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf-8'),
+);
+const idx = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'),
+);
 
 // Undercalculated 1-5% IS units
-const under = report.allResults.filter((r: any) =>
-  r.percentDiff !== null && r.percentDiff < -1 && r.percentDiff > -5 && r.breakdown
+const under = report.allResults.filter(
+  (r: any) =>
+    r.percentDiff !== null &&
+    r.percentDiff < -1 &&
+    r.percentDiff > -5 &&
+    r.breakdown,
 );
 
 // Exact match units
-const exact = report.allResults.filter((r: any) =>
-  r.percentDiff === 0 && r.breakdown
+const exact = report.allResults.filter(
+  (r: any) => r.percentDiff === 0 && r.breakdown,
 );
 
 function analyzeWeaponIssues(group: any[], label: string) {
@@ -38,7 +46,9 @@ function analyzeWeaponIssues(group: any[], label: string) {
   const hasStreakSRM: string[] = [];
 
   for (const r of group) {
-    const iu = idx.units.find((u: any) => `${u.chassis} ${u.model}` === `${r.chassis} ${r.model}`);
+    const iu = idx.units.find(
+      (u: any) => `${u.chassis} ${u.model}` === `${r.chassis} ${r.model}`,
+    );
     if (!iu) continue;
     try {
       const fp = path.resolve('public/data/units/battlemechs', iu.path);
@@ -47,23 +57,48 @@ function analyzeWeaponIssues(group: any[], label: string) {
       const eqIds = ud.equipment.map((e: any) => e.id.toLowerCase()).join(' ');
       const name = `${r.chassis} ${r.model}`;
 
-      if (eqIds.includes('x-pulse') || eqIds.includes('xpulse')) hasXPulse.push(name);
+      if (eqIds.includes('x-pulse') || eqIds.includes('xpulse'))
+        hasXPulse.push(name);
       if (eqIds.includes('hatchet')) hasHatchet.push(name);
       if (eqIds.includes('sword')) hasSword.push(name);
-      if (eqIds.includes('retractable-blade') || eqIds.includes('retractableblade')) hasRetBlade.push(name);
-      if (eqIds.includes('coolant') || eqIds.includes('coolantpod')) hasCoolantPod.push(name);
-      if (ud.cockpit && ud.cockpit.toLowerCase().includes('small')) hasSmallCockpit.push(name);
-      if (ud.gyro.type.toLowerCase().includes('compact')) hasCompactGyro.push(name);
-      if (ud.gyro.type.toLowerCase().includes('heavy') && !ud.gyro.type.toLowerCase().includes('superheavy')) hasHeavyGyro.push(name);
-      if (ud.engine.type.toLowerCase().includes('compact')) hasCompactEngine.push(name);
-      if (ud.engine.type.toLowerCase().includes('light')) hasLightEngine.push(name);
-      if (ud.engine.type.toLowerCase() === 'ice' || ud.engine.type.toLowerCase().includes('i.c.e')) hasICE.push(name);
+      if (
+        eqIds.includes('retractable-blade') ||
+        eqIds.includes('retractableblade')
+      )
+        hasRetBlade.push(name);
+      if (eqIds.includes('coolant') || eqIds.includes('coolantpod'))
+        hasCoolantPod.push(name);
+      if (ud.cockpit && ud.cockpit.toLowerCase().includes('small'))
+        hasSmallCockpit.push(name);
+      if (ud.gyro.type.toLowerCase().includes('compact'))
+        hasCompactGyro.push(name);
+      if (
+        ud.gyro.type.toLowerCase().includes('heavy') &&
+        !ud.gyro.type.toLowerCase().includes('superheavy')
+      )
+        hasHeavyGyro.push(name);
+      if (ud.engine.type.toLowerCase().includes('compact'))
+        hasCompactEngine.push(name);
+      if (ud.engine.type.toLowerCase().includes('light'))
+        hasLightEngine.push(name);
+      if (
+        ud.engine.type.toLowerCase() === 'ice' ||
+        ud.engine.type.toLowerCase().includes('i.c.e')
+      )
+        hasICE.push(name);
       if (ud.engine.type.toLowerCase().includes('fuel')) hasFuelCell.push(name);
       if (eqIds.includes('supercharger')) hasSupercharger.push(name);
       if (eqIds.includes('masc')) hasMASC.push(name);
-      if (eqIds.includes('improved') && (eqIds.includes('jump-jet') || eqIds.includes('jumpjet'))) hasImprovedJJ.push(name);
+      if (
+        eqIds.includes('improved') &&
+        (eqIds.includes('jump-jet') || eqIds.includes('jumpjet'))
+      )
+        hasImprovedJJ.push(name);
       if (eqIds.includes('harjel')) hasHarjel.push(name);
-    } catch {}
+    } catch (_error) {
+      // Ignore expected failure in one-off tooling.
+      void _error;
+    }
   }
 
   console.log(`  X-Pulse: ${hasXPulse.length} units`);
@@ -83,7 +118,15 @@ function analyzeWeaponIssues(group: any[], label: string) {
   console.log(`  Improved JJ: ${hasImprovedJJ.length}`);
   console.log(`  HarJel: ${hasHarjel.length}`);
 
-  return { hasXPulse, hasSmallCockpit, hasCompactGyro, hasCompactEngine, hasSupercharger, hasMASC, hasHarjel };
+  return {
+    hasXPulse,
+    hasSmallCockpit,
+    hasCompactGyro,
+    hasCompactEngine,
+    hasSupercharger,
+    hasMASC,
+    hasHarjel,
+  };
 }
 
 const underStats = analyzeWeaponIssues(under, 'UNDERCALCULATED 1-5%');
@@ -95,7 +138,8 @@ let unresCount = 0;
 for (const r of under) {
   if (r.issues && r.issues.some((i: string) => i.includes('Unresolved'))) {
     unresCount++;
-    if (unresCount <= 10) console.log(`  ${r.chassis} ${r.model}: ${r.issues.join('; ')}`);
+    if (unresCount <= 10)
+      console.log(`  ${r.chassis} ${r.model}: ${r.issues.join('; ')}`);
   }
 }
 console.log(`Total with unresolved weapons: ${unresCount}/${under.length}`);
@@ -109,8 +153,12 @@ for (const r of under) {
   sfBuckets[sf].count++;
   sfBuckets[sf].totalDiff += r.percentDiff;
 }
-for (const [sf, data] of Object.entries(sfBuckets).sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))) {
-  console.log(`  SF=${sf}: ${data.count} units, avg diff=${(data.totalDiff / data.count).toFixed(2)}%`);
+for (const [sf, data] of Object.entries(sfBuckets).sort(
+  (a, b) => parseFloat(a[0]) - parseFloat(b[0]),
+)) {
+  console.log(
+    `  SF=${sf}: ${data.count} units, avg diff=${(data.totalDiff / data.count).toFixed(2)}%`,
+  );
 }
 
 // Check X-Pulse impact
@@ -127,7 +175,9 @@ if (underStats.hasXPulse.length > 0) {
         const lo = e.id.toLowerCase();
         return lo.includes('x-pulse') || lo.includes('xpulse');
       }).length;
-      console.log(`  ${name}: diff=${r.difference} (${r.percentDiff.toFixed(1)}%), ${xPulseCount} x-pulse lasers`);
+      console.log(
+        `  ${name}: diff=${r.difference} (${r.percentDiff.toFixed(1)}%), ${xPulseCount} x-pulse lasers`,
+      );
     }
   }
 }

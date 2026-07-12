@@ -1,12 +1,18 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const r = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const r = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
 const unitsDir = 'public/data/units/battlemechs';
-const index = JSON.parse(fs.readFileSync(path.join(unitsDir, 'index.json'), 'utf8'));
+const index = JSON.parse(
+  fs.readFileSync(path.join(unitsDir, 'index.json'), 'utf8'),
+);
 
 // Focus on minor discrepancies (1-5%) that are undercalculated
-const minor = r.allResults.filter((x: any) => x.percentDiff < -1 && x.percentDiff > -5 && x.breakdown);
+const minor = r.allResults.filter(
+  (x: any) => x.percentDiff < -1 && x.percentDiff > -5 && x.breakdown,
+);
 
 console.log(`Minor undercalculated units: ${minor.length}\n`);
 
@@ -21,28 +27,40 @@ for (const res of minor) {
   const entry = index.units.find((e: any) => e.id === res.unitId);
   if (!entry?.path) continue;
   try {
-    const d = JSON.parse(fs.readFileSync(path.join(unitsDir, entry.path), 'utf8'));
+    const d = JSON.parse(
+      fs.readFileSync(path.join(unitsDir, entry.path), 'utf8'),
+    );
 
     // Check offensive gap
     const rawOff = b.offensiveBV / b.speedFactor;
     const expectedRawOff = b.weaponBV + b.ammoBV + d.tonnage;
-    const offGapPct = Math.abs(rawOff - expectedRawOff) / Math.max(1, expectedRawOff);
+    const offGapPct =
+      Math.abs(rawOff - expectedRawOff) / Math.max(1, expectedRawOff);
 
     // Check if gap ≈ explosive penalty
     let cockpitMod = 1.0;
     const cockpit = (d.cockpit || 'STANDARD').toUpperCase();
-    if (cockpit.includes('SMALL') || cockpit.includes('TORSO')) cockpitMod = 0.95;
+    if (cockpit.includes('SMALL') || cockpit.includes('TORSO'))
+      cockpitMod = 0.95;
     if (cockpit.includes('INTERFACE')) cockpitMod = 1.3;
 
     const neededBaseBV = res.indexBV / cockpitMod;
     const neededDefBV = neededBaseBV - b.offensiveBV;
     const neededBaseDef = neededDefBV / b.defensiveFactor;
-    const baseDef = b.armorBV + b.structureBV + b.gyroBV + b.defensiveEquipBV - b.explosivePenalty;
+    const baseDef =
+      b.armorBV +
+      b.structureBV +
+      b.gyroBV +
+      b.defensiveEquipBV -
+      b.explosivePenalty;
     const gap = neededBaseDef - baseDef;
 
     if (offGapPct >= 0.02) {
       explainedByWeapon++;
-    } else if (b.explosivePenalty > 0 && Math.abs(gap - b.explosivePenalty) < 5) {
+    } else if (
+      b.explosivePenalty > 0 &&
+      Math.abs(gap - b.explosivePenalty) < 5
+    ) {
       explainedByExplosive++;
     } else {
       unexplained++;
@@ -57,7 +75,10 @@ for (const res of minor) {
         penalty: b.explosivePenalty,
       });
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 console.log(`Classified:`);
@@ -78,11 +99,15 @@ for (const [t, n] of Object.entries(byTech).sort((a, b) => b[1] - a[1])) {
 // Show 15 sample unexplained units
 console.log(`\nSample unexplained units:`);
 for (const u of unexplainedUnits.slice(0, 15)) {
-  console.log(`  ${u.unitId}: ${u.tonnage}t ${u.techBase} ${u.engine} diff=${u.diff} (${u.pct.toFixed(1)}%) gap=${u.gap.toFixed(1)} pen=${u.penalty}`);
+  console.log(
+    `  ${u.unitId}: ${u.tonnage}t ${u.techBase} ${u.engine} diff=${u.diff} (${u.pct.toFixed(1)}%) gap=${u.gap.toFixed(1)} pen=${u.penalty}`,
+  );
 }
 
 // Now do the same for minor OVER-calculated units
-const overMinor = r.allResults.filter((x: any) => x.percentDiff > 1 && x.percentDiff < 5 && x.breakdown);
+const overMinor = r.allResults.filter(
+  (x: any) => x.percentDiff > 1 && x.percentDiff < 5 && x.breakdown,
+);
 console.log(`\n\nMinor overcalculated units: ${overMinor.length}`);
 
 let overExplPenalty = 0;
@@ -95,7 +120,9 @@ for (const res of overMinor) {
   const entry = index.units.find((e: any) => e.id === res.unitId);
   if (!entry?.path) continue;
   try {
-    const d = JSON.parse(fs.readFileSync(path.join(unitsDir, entry.path), 'utf8'));
+    const d = JSON.parse(
+      fs.readFileSync(path.join(unitsDir, entry.path), 'utf8'),
+    );
 
     // Overcalculated: our BV is too HIGH.
     // Possible causes: extra penalty being applied when it shouldn't (would LOWER our BV → no)
@@ -118,13 +145,15 @@ for (const res of overMinor) {
 
     const allSlots: string[] = [];
     for (const [, slots] of Object.entries(d.criticalSlots || {})) {
-      for (const s of (slots as (string | null)[])) {
+      for (const s of slots as (string | null)[]) {
         if (s && typeof s === 'string') allSlots.push(s.toLowerCase());
       }
     }
 
     // Check for ammo in locations without CASE
-    const hasUncasedAmmo = allSlots.some(s => s.includes('ammo') && !s.includes('gauss'));
+    const hasUncasedAmmo = allSlots.some(
+      (s) => s.includes('ammo') && !s.includes('gauss'),
+    );
 
     overUnits.push({
       unitId: res.unitId,
@@ -138,7 +167,10 @@ for (const res of overMinor) {
       hasAmmo: hasUncasedAmmo,
     });
     overUnexplained++;
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 console.log(`\nOvercalculated by techBase:`);
@@ -151,8 +183,12 @@ for (const [t, n] of Object.entries(overByTech).sort((a, b) => b[1] - a[1])) {
 }
 
 // Check: how many overcalculated units have explPenalty=0 AND hasAmmo? (might need penalty)
-const needsPenalty = overUnits.filter(u => u.penalty === 0 && u.hasAmmo);
-console.log(`\nOvercalculated with penalty=0 but has ammo: ${needsPenalty.length}`);
+const needsPenalty = overUnits.filter((u) => u.penalty === 0 && u.hasAmmo);
+console.log(
+  `\nOvercalculated with penalty=0 but has ammo: ${needsPenalty.length}`,
+);
 for (const u of needsPenalty.slice(0, 10)) {
-  console.log(`  ${u.unitId}: ${u.techBase} diff=+${u.diff} (${u.pct.toFixed(1)}%)`);
+  console.log(
+    `  ${u.unitId}: ${u.techBase} diff=+${u.diff} (${u.pct.toFixed(1)}%)`,
+  );
 }

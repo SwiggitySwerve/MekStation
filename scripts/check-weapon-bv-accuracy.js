@@ -2,47 +2,85 @@
 const fs = require('fs');
 const path = require('path');
 const r = require('../validation-output/bv-validation-report.json');
-const idx = JSON.parse(fs.readFileSync(path.join(__dirname, '../public/data/units/battlemechs/index.json'), 'utf8'));
+const idx = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, '../public/data/units/battlemechs/index.json'),
+    'utf8',
+  ),
+);
 function loadUnit(id) {
-  const e = idx.units.find(x => x.id === id);
+  const e = idx.units.find((x) => x.id === id);
   if (!e) return null;
-  try { return JSON.parse(fs.readFileSync(path.join(__dirname, '../public/data/units/battlemechs', e.path), 'utf8')); }
-  catch (err) { return null; }
+  try {
+    return JSON.parse(
+      fs.readFileSync(
+        path.join(__dirname, '../public/data/units/battlemechs', e.path),
+        'utf8',
+      ),
+    );
+  } catch (err) {
+    return null;
+  }
 }
 
 // Load weapon catalogs
-const weaponDir = path.join(__dirname, '../public/data/equipment/official/weapons');
+const weaponDir = path.join(
+  __dirname,
+  '../public/data/equipment/official/weapons',
+);
 const weaponCatalog = {};
 for (const f of fs.readdirSync(weaponDir)) {
   if (!f.endsWith('.json')) continue;
   try {
     const data = JSON.parse(fs.readFileSync(path.join(weaponDir, f), 'utf8'));
-    for (const item of (data.items || [])) {
-      weaponCatalog[item.id] = { name: item.name, bv: item.bv, heat: item.heat, file: f };
+    for (const item of data.items || []) {
+      weaponCatalog[item.id] = {
+        name: item.name,
+        bv: item.bv,
+        heat: item.heat,
+        file: f,
+      };
     }
-  } catch(e) {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 // For near-threshold under units, find most common weapons
-const under = r.allResults.filter(u => u.percentDiff < -1.0 && u.percentDiff > -3.0 && u.breakdown);
+const under = r.allResults.filter(
+  (u) => u.percentDiff < -1.0 && u.percentDiff > -3.0 && u.breakdown,
+);
 const weaponCounts = {};
 for (const u of under) {
   const unit = loadUnit(u.unitId);
   if (!unit) continue;
-  for (const eq of (unit.equipment || [])) {
+  for (const eq of unit.equipment || []) {
     const cat = weaponCatalog[eq.id];
     if (cat) {
       const key = eq.id;
-      if (!weaponCounts[key]) weaponCounts[key] = { count: 0, name: cat.name, bv: cat.bv, heat: cat.heat };
+      if (!weaponCounts[key])
+        weaponCounts[key] = {
+          count: 0,
+          name: cat.name,
+          bv: cat.bv,
+          heat: cat.heat,
+        };
       weaponCounts[key].count++;
     }
   }
 }
 
-console.log('=== Most common weapons in undercalculated near-threshold units ===');
-const sorted = Object.entries(weaponCounts).sort((a, b) => b[1].count - a[1].count).slice(0, 25);
+console.log(
+  '=== Most common weapons in undercalculated near-threshold units ===',
+);
+const sorted = Object.entries(weaponCounts)
+  .sort((a, b) => b[1].count - a[1].count)
+  .slice(0, 25);
 for (const [id, info] of sorted) {
-  console.log(`  ${id.padEnd(35)} ${String(info.count).padStart(3)}x  BV=${String(info.bv).padStart(4)}  Heat=${info.heat}  (${info.name})`);
+  console.log(
+    `  ${id.padEnd(35)} ${String(info.count).padStart(3)}x  BV=${String(info.bv).padStart(4)}  Heat=${info.heat}  (${info.name})`,
+  );
 }
 
 // MegaMek reference BV values for common weapons (verified from MegaMek source/wiki)
@@ -76,5 +114,7 @@ for (const [id, megamek] of Object.entries(MEGAMEK_REFERENCE)) {
   }
   const diff = cat.bv - megamek.bv_is;
   const marker = diff !== 0 ? ' *** MISMATCH ***' : '';
-  console.log(`  ${id.padEnd(30)} Catalog=${String(cat.bv).padStart(4)}  MegaMek_IS=${String(megamek.bv_is).padStart(4)}  MegaMek_CL=${String(megamek.bv_clan).padStart(4)}${marker}`);
+  console.log(
+    `  ${id.padEnd(30)} Catalog=${String(cat.bv).padStart(4)}  MegaMek_IS=${String(megamek.bv_is).padStart(4)}  MegaMek_CL=${String(megamek.bv_clan).padStart(4)}${marker}`,
+  );
 }

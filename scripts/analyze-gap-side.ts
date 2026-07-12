@@ -4,22 +4,37 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf-8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'));
-
-const under = report.allResults.filter((r: any) =>
-  r.percentDiff !== null && r.percentDiff < -0.5 && r.percentDiff > -5 && r.breakdown
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf-8'),
+);
+const idx = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'),
 );
 
-let offGapCount = 0, defGapCount = 0, bothGapCount = 0;
-let offGapSum = 0, defGapSum = 0;
-let superchargerGap = 0, superchargerCount = 0;
-let noSpecialGap = 0, noSpecialCount = 0;
+const under = report.allResults.filter(
+  (r: any) =>
+    r.percentDiff !== null &&
+    r.percentDiff < -0.5 &&
+    r.percentDiff > -5 &&
+    r.breakdown,
+);
+
+let offGapCount = 0,
+  defGapCount = 0,
+  bothGapCount = 0;
+let offGapSum = 0,
+  defGapSum = 0;
+let superchargerGap = 0,
+  superchargerCount = 0;
+let noSpecialGap = 0,
+  noSpecialCount = 0;
 
 const features: Record<string, { count: number; totalGap: number }> = {};
 
 for (const r of under) {
-  const iu = idx.units.find((u: any) => `${u.chassis} ${u.model}` === `${r.chassis} ${r.model}`);
+  const iu = idx.units.find(
+    (u: any) => `${u.chassis} ${u.model}` === `${r.chassis} ${r.model}`,
+  );
   if (!iu) continue;
   try {
     const fp = path.resolve('public/data/units/battlemechs', iu.path);
@@ -41,24 +56,44 @@ for (const r of under) {
     const critItems: string[] = [];
     if (ud.criticalSlots) {
       for (const slots of Object.values(ud.criticalSlots)) {
-        if (Array.isArray(slots)) for (const s of slots) if (s && typeof s === 'string') critItems.push(s.toLowerCase());
+        if (Array.isArray(slots))
+          for (const s of slots)
+            if (s && typeof s === 'string') critItems.push(s.toLowerCase());
       }
     }
 
-    const hasSupercharger = critItems.some(s => s.includes('supercharger'));
-    const hasMASC = critItems.some(s => s.includes('masc') && !s.includes('ammo'));
-    const hasTSM = critItems.some(s => s.includes('tsm') || s.includes('triple strength'));
-    const hasStealth = critItems.some(s => s.includes('stealth'));
-    const hasBloodhound = critItems.some(s => s.includes('bloodhound'));
-    const hasGuardianECM = critItems.some(s => s.includes('guardian') || s.includes('ecm'));
-    const hasImprovedJJ = critItems.some(s => s.includes('improved jump jet'));
-    const hasC3 = critItems.some(s => s.includes('c3'));
-    const hasNullSig = critItems.some(s => s.includes('null-sig') || s.includes('null signature'));
-    const hasChameleon = critItems.some(s => s.includes('chameleon'));
-    const hasBlueShield = critItems.some(s => s.includes('blue-shield') || s.includes('blue shield'));
-    const hasNARC = critItems.some(s => s.includes('narc') && !s.includes('ammo'));
-    const hasTAG = critItems.some(s => s.includes('tag') && !s.includes('targeting'));
-    const hasLightPPC = critItems.some(s => s.includes('light ppc') || s.includes('lightppc'));
+    const hasSupercharger = critItems.some((s) => s.includes('supercharger'));
+    const hasMASC = critItems.some(
+      (s) => s.includes('masc') && !s.includes('ammo'),
+    );
+    const hasTSM = critItems.some(
+      (s) => s.includes('tsm') || s.includes('triple strength'),
+    );
+    const hasStealth = critItems.some((s) => s.includes('stealth'));
+    const hasBloodhound = critItems.some((s) => s.includes('bloodhound'));
+    const hasGuardianECM = critItems.some(
+      (s) => s.includes('guardian') || s.includes('ecm'),
+    );
+    const hasImprovedJJ = critItems.some((s) =>
+      s.includes('improved jump jet'),
+    );
+    const hasC3 = critItems.some((s) => s.includes('c3'));
+    const hasNullSig = critItems.some(
+      (s) => s.includes('null-sig') || s.includes('null signature'),
+    );
+    const hasChameleon = critItems.some((s) => s.includes('chameleon'));
+    const hasBlueShield = critItems.some(
+      (s) => s.includes('blue-shield') || s.includes('blue shield'),
+    );
+    const hasNARC = critItems.some(
+      (s) => s.includes('narc') && !s.includes('ammo'),
+    );
+    const hasTAG = critItems.some(
+      (s) => s.includes('tag') && !s.includes('targeting'),
+    );
+    const hasLightPPC = critItems.some(
+      (s) => s.includes('light ppc') || s.includes('lightppc'),
+    );
     const hasXL = ud.engine?.type === 'XL' || ud.engine?.type === 'CLAN_XL';
     const hasLight = ud.engine?.type === 'LIGHT';
     const hasXXL = ud.engine?.type === 'XXL';
@@ -125,16 +160,20 @@ for (const r of under) {
     if (!features[kTb]) features[kTb] = { count: 0, totalGap: 0 };
     features[kTb].count++;
     features[kTb].totalGap += gap;
-
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 console.log(`Total undercalculated 0.5-5%: ${under.length}`);
 console.log(`\nFeature analysis (sorted by avg gap):`);
 const sorted = Object.entries(features)
   .filter(([, v]) => v.count >= 3)
-  .sort((a, b) => (b[1].totalGap / b[1].count) - (a[1].totalGap / a[1].count));
+  .sort((a, b) => b[1].totalGap / b[1].count - a[1].totalGap / a[1].count);
 
 for (const [name, { count, totalGap }] of sorted) {
-  console.log(`  ${name.padEnd(35)} n=${String(count).padStart(4)} avgGap=${(totalGap / count).toFixed(1).padStart(6)} totalGap=${totalGap}`);
+  console.log(
+    `  ${name.padEnd(35)} n=${String(count).padStart(4)} avgGap=${(totalGap / count).toFixed(1).padStart(6)} totalGap=${totalGap}`,
+  );
 }

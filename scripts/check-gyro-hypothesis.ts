@@ -1,18 +1,24 @@
 import * as fs from 'fs';
 import * as path from 'path';
+
+import { EngineType } from '../src/types/construction/EngineType';
 import { STRUCTURE_POINTS_TABLE } from '../src/types/construction/InternalStructureType';
 import { getArmorBVMultiplier } from '../src/types/validation/BattleValue';
-import { EngineType } from '../src/types/construction/EngineType';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
 const unitsDir = path.resolve(__dirname, '../public/data/units/battlemechs');
-const index = JSON.parse(fs.readFileSync(path.join(unitsDir, 'index.json'), 'utf8'));
+const index = JSON.parse(
+  fs.readFileSync(path.join(unitsDir, 'index.json'), 'utf8'),
+);
 
 function calcTotalArmor(a: any): number {
   let t = 0;
   for (const v of Object.values(a)) {
     if (typeof v === 'number') t += v;
-    else if (v && typeof v === 'object') t += ((v as any).front || 0) + ((v as any).rear || 0);
+    else if (v && typeof v === 'object')
+      t += ((v as any).front || 0) + ((v as any).rear || 0);
   }
   return t;
 }
@@ -51,24 +57,31 @@ let nonGyroCount = 0;
 let hdGyroUnits: string[] = [];
 let partialGyroUnits: string[] = [];
 
-const undercalc = report.allResults.filter((r: any) => r.difference < -5 && r.breakdown);
+const undercalc = report.allResults.filter(
+  (r: any) => r.difference < -5 && r.breakdown,
+);
 
 for (const r of undercalc) {
   const entry = (index.units as any[]).find((e: any) => e.id === r.unitId);
   if (!entry?.path) continue;
   try {
-    const data = JSON.parse(fs.readFileSync(path.join(unitsDir, entry.path), 'utf8'));
+    const data = JSON.parse(
+      fs.readFileSync(path.join(unitsDir, entry.path), 'utf8'),
+    );
     const b = r.breakdown;
 
     // Check if offensive BV is correct
     const rawOff = b.offensiveBV / b.speedFactor;
     const expectedRawOff = b.weaponBV + b.ammoBV + data.tonnage;
-    const offCorrect = Math.abs(rawOff - expectedRawOff) / Math.max(1, expectedRawOff) < 0.02;
+    const offCorrect =
+      Math.abs(rawOff - expectedRawOff) / Math.max(1, expectedRawOff) < 0.02;
 
     if (!offCorrect) continue;
 
     // Compute our baseDef
-    const armorMult = getArmorBVMultiplier(data.armor.type.toLowerCase().replace(/\s+/g, '-'));
+    const armorMult = getArmorBVMultiplier(
+      data.armor.type.toLowerCase().replace(/\s+/g, '-'),
+    );
     const engineMult = mapEngineMultiplier(data.engine.type, data.techBase);
     const totalArmor = calcTotalArmor(data.armor.allocation);
     const totalIS = calcTotalStructure(data.tonnage);
@@ -89,15 +102,18 @@ for (const r of undercalc) {
     // cockpit mod: check for small/torso cockpit
     let cockpitMod = 1.0;
     const cockpit = (data.cockpit || 'STANDARD').toUpperCase();
-    if (cockpit.includes('SMALL') || cockpit.includes('TORSO')) cockpitMod = 0.95;
+    if (cockpit.includes('SMALL') || cockpit.includes('TORSO'))
+      cockpitMod = 0.95;
     if (cockpit.includes('INTERFACE')) cockpitMod = 1.3;
 
     const expectedBaseBV = r.indexBV / cockpitMod;
     const expectedDefBV = expectedBaseBV - b.offensiveBV;
     const expectedBaseDef = expectedDefBV / defFactor;
 
-    const baseDef_std = armorBV + structBV + gyroBV_std + b.defensiveEquipBV - b.explosivePenalty;
-    const baseDef_hd = armorBV + structBV + gyroBV_hd + b.defensiveEquipBV - b.explosivePenalty;
+    const baseDef_std =
+      armorBV + structBV + gyroBV_std + b.defensiveEquipBV - b.explosivePenalty;
+    const baseDef_hd =
+      armorBV + structBV + gyroBV_hd + b.defensiveEquipBV - b.explosivePenalty;
 
     const gap_std = expectedBaseDef - baseDef_std;
     const gap_hd = expectedBaseDef - baseDef_hd;
@@ -110,17 +126,28 @@ for (const r of undercalc) {
       gyroFixCount++;
       hdGyroUnits.push(r.unitId);
     } else if (Math.abs(gap_hd) < Math.abs(gap_std)) {
-      partialGyroUnits.push(`${r.unitId} (gap_std=${gap_std.toFixed(1)} gap_hd=${gap_hd.toFixed(1)})`);
+      partialGyroUnits.push(
+        `${r.unitId} (gap_std=${gap_std.toFixed(1)} gap_hd=${gap_hd.toFixed(1)})`,
+      );
     } else {
       nonGyroCount++;
     }
     gyroFixTotal++;
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
-console.log(`Analyzed ${gyroFixTotal} undercalculated units with correct offensive BV`);
-console.log(`\nGyro hypothesis (gyroMult=1.0 fixes gap within 3 BV): ${gyroFixCount} (${(gyroFixCount/gyroFixTotal*100).toFixed(1)}%)`);
-console.log(`Gyro partially helps but doesn't fully fix: ${partialGyroUnits.length}`);
+console.log(
+  `Analyzed ${gyroFixTotal} undercalculated units with correct offensive BV`,
+);
+console.log(
+  `\nGyro hypothesis (gyroMult=1.0 fixes gap within 3 BV): ${gyroFixCount} (${((gyroFixCount / gyroFixTotal) * 100).toFixed(1)}%)`,
+);
+console.log(
+  `Gyro partially helps but doesn't fully fix: ${partialGyroUnits.length}`,
+);
 console.log(`Gyro hypothesis doesn't help: ${nonGyroCount}`);
 
 console.log(`\n=== Units fixed by HD gyro (first 20) ===`);
@@ -128,8 +155,12 @@ for (const id of hdGyroUnits.slice(0, 20)) {
   const r = report.allResults.find((x: any) => x.unitId === id);
   const entry = (index.units as any[]).find((e: any) => e.id === id);
   if (!entry?.path || !r) continue;
-  const data = JSON.parse(fs.readFileSync(path.join(unitsDir, entry.path), 'utf8'));
-  console.log(`  ${id}: ${data.tonnage}t ${data.engine.type} gyro=${data.gyro?.type || 'STANDARD'} diff=${r.difference}`);
+  const data = JSON.parse(
+    fs.readFileSync(path.join(unitsDir, entry.path), 'utf8'),
+  );
+  console.log(
+    `  ${id}: ${data.tonnage}t ${data.engine.type} gyro=${data.gyro?.type || 'STANDARD'} diff=${r.difference}`,
+  );
 }
 
 console.log(`\n=== Partial gyro fix (first 15) ===`);

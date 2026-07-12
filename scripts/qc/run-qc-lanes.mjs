@@ -71,66 +71,46 @@ function includesToken(values, token) {
   return values.some((value) => String(value).toLowerCase().includes(token));
 }
 
+function surfaceSearchValues(surface) {
+  return [
+    surface.surfaceId,
+    surface.title,
+    surface.coverageStatus,
+    ...(surface.claimIds ?? []),
+    ...surface.riskTags,
+    ...surface.qualityLenses,
+    ...surface.routes,
+    ...surface.apis,
+    ...surface.desktopSurfaces,
+    ...surface.modules,
+    ...surface.submodules,
+    ...surface.specRefs,
+    ...surface.activeChangeRefs,
+    ...surface.tests,
+    ...surface.commands,
+    ...surface.manualChecks,
+    ...surface.evidence,
+    ...surface.gaps,
+  ];
+}
+
+const surfaceFilterMatchers = [
+  ['status', (surface, value) => surface.coverageStatus.toLowerCase().includes(value)],
+  ['level', (surface, value) => surface.level.toLowerCase() === value],
+  ['risk', (surface, value) => includesToken(surface.riskTags, value)],
+  ['lens', (surface, value) => includesToken(surface.qualityLenses, value)],
+  ['surface', (surface, value) => surface.surfaceId.toLowerCase().includes(value)],
+  ['module', (surface, value) => includesToken(surface.modules, value)],
+  ['submodule', (surface, value) => includesToken(surface.submodules, value)],
+  ['claim', (surface, value) => includesToken(surface.claimIds ?? [], value)],
+  ['text', (surface, value) => includesToken(surfaceSearchValues(surface), value)],
+];
+
 function matches(surface, filters) {
-  if (
-    filters.status &&
-    !surface.coverageStatus.toLowerCase().includes(filters.status)
-  ) {
-    return false;
-  }
-  if (filters.level && surface.level.toLowerCase() !== filters.level) {
-    return false;
-  }
-  if (filters.risk && !includesToken(surface.riskTags, filters.risk)) {
-    return false;
-  }
-  if (filters.lens && !includesToken(surface.qualityLenses, filters.lens)) {
-    return false;
-  }
-  if (
-    filters.surface &&
-    !surface.surfaceId.toLowerCase().includes(filters.surface)
-  ) {
-    return false;
-  }
-  if (filters.module && !includesToken(surface.modules, filters.module)) {
-    return false;
-  }
-  if (
-    filters.submodule &&
-    !includesToken(surface.submodules, filters.submodule)
-  ) {
-    return false;
-  }
-  if (filters.claim && !includesToken(surface.claimIds ?? [], filters.claim)) {
-    return false;
-  }
-  if (filters.text) {
-    const haystack = [
-      surface.surfaceId,
-      surface.title,
-      surface.coverageStatus,
-      ...(surface.claimIds ?? []),
-      ...surface.riskTags,
-      ...surface.qualityLenses,
-      ...surface.routes,
-      ...surface.apis,
-      ...surface.desktopSurfaces,
-      ...surface.modules,
-      ...surface.submodules,
-      ...surface.specRefs,
-      ...surface.activeChangeRefs,
-      ...surface.tests,
-      ...surface.commands,
-      ...surface.manualChecks,
-      ...surface.evidence,
-      ...surface.gaps,
-    ];
-    if (!includesToken(haystack, filters.text)) {
-      return false;
-    }
-  }
-  return true;
+  return surfaceFilterMatchers.every(([filter, matcher]) => {
+    const value = filters[filter];
+    return !value || matcher(surface, value);
+  });
 }
 
 function isBrowserCommand(command) {

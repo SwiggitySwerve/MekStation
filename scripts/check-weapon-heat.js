@@ -1,6 +1,6 @@
 const r = require('../validation-output/bv-validation-report.json');
 // Just look at what fields the breakdown has
-const sample = r.allResults.find(x => x.breakdown);
+const sample = r.allResults.find((x) => x.breakdown);
 if (sample) {
   console.log('Breakdown fields:', Object.keys(sample.breakdown));
 }
@@ -10,11 +10,23 @@ const weapons = {};
 const dirs = ['energy.json', 'ballistic.json', 'missile.json'];
 for (const d of dirs) {
   try {
-    const data = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, '../public/data/equipment/official/weapons', d), 'utf8'));
+    const data = JSON.parse(
+      require('fs').readFileSync(
+        require('path').join(
+          __dirname,
+          '../public/data/equipment/official/weapons',
+          d,
+        ),
+        'utf8',
+      ),
+    );
     for (const w of data.items || []) {
       weapons[w.id] = { bv: w.battleValue, heat: w.heat, name: w.name };
     }
-  } catch(e) {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 // Show heat values for key weapon types

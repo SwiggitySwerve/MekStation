@@ -118,6 +118,41 @@ function stringLiteralValue(node) {
   return null;
 }
 
+function isFlowStagesDeclaration(node) {
+  if (!ts.isVariableDeclaration(node)) return false;
+  if (!ts.isIdentifier(node.name) || node.name.text !== 'FLOW_STAGES') {
+    return false;
+  }
+  return Boolean(node.initializer && ts.isObjectLiteralExpression(node.initializer));
+}
+
+function findFlowStagesNode(sourceFile) {
+  let flowStagesNode = null;
+
+  function visit(node) {
+    if (isFlowStagesDeclaration(node)) {
+      flowStagesNode = node.initializer;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFile);
+  return flowStagesNode;
+}
+
+function checkpointNamesForFlow(flowStageProperty) {
+  if (!ts.isObjectLiteralExpression(flowStageProperty.initializer)) return [];
+
+  const checkpointNames = [];
+  for (const checkpointProperty of flowStageProperty.initializer.properties) {
+    if (!ts.isPropertyAssignment(checkpointProperty)) continue;
+    const checkpointName = stringLiteralValue(checkpointProperty.name);
+    if (checkpointName !== null) checkpointNames.push(checkpointName);
+  }
+  return checkpointNames;
+}
+
 /**
  * Statically parse `FLOW_STAGES` out of the flow-audit spec file's syntax
  * tree. Deliberately a syntax-only parse (no type-checking, no module
@@ -136,38 +171,25 @@ function parseFlowStages(sourceText) {
     ts.ScriptKind.TS,
   );
 
-  let flowStagesNode = null;
-  function visit(node) {
-    if (
-      ts.isVariableDeclaration(node) &&
-      ts.isIdentifier(node.name) &&
-      node.name.text === 'FLOW_STAGES' &&
-      node.initializer &&
-      ts.isObjectLiteralExpression(node.initializer)
-    ) {
-      flowStagesNode = node.initializer;
-      return; // found it; no need to keep walking
-    }
-    ts.forEachChild(node, visit);
-  }
-  visit(sourceFile);
+  const flowStagesNode = findFlowStagesNode(sourceFile);
 
   const flowIdToCheckpointNames = new Map();
-  if (flowStagesNode) {
-    for (const prop of flowStagesNode.properties) {
-      if (!ts.isPropertyAssignment(prop)) continue;
-      const flowId = stringLiteralValue(prop.name);
-      if (flowId === null) continue;
-      const checkpointNames = [];
-      if (ts.isObjectLiteralExpression(prop.initializer)) {
-        for (const cpProp of prop.initializer.properties) {
-          if (!ts.isPropertyAssignment(cpProp)) continue;
-          const cpName = stringLiteralValue(cpProp.name);
-          if (cpName !== null) checkpointNames.push(cpName);
-        }
-      }
-      flowIdToCheckpointNames.set(flowId, checkpointNames);
-    }
+  if (!flowStagesNode) {
+    return {
+      flowStagesFound: false,
+      flowIdToCheckpointNames,
+      hasManifestDrivenLoop:
+        /for\s*\(\s*const\s+flow\s+of\s+FLOW_MANIFEST\s*\)/.test(sourceText),
+    };
+  }
+  for (const flowStageProperty of flowStagesNode.properties) {
+    if (!ts.isPropertyAssignment(flowStageProperty)) continue;
+    const flowId = stringLiteralValue(flowStageProperty.name);
+    if (flowId === null) continue;
+    flowIdToCheckpointNames.set(
+      flowId,
+      checkpointNamesForFlow(flowStageProperty),
+    );
   }
 
   const hasManifestDrivenLoop =

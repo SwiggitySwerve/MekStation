@@ -1,9 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const data = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const mulCache = JSON.parse(fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'));
-const indexData = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const data = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
+const mulCache = JSON.parse(
+  fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'),
+);
+const indexData = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
 // Check ALL overcalculated units for Drone OS
 const overCalc = data.allResults.filter((d: any) => {
@@ -23,18 +29,35 @@ for (const d of overCalc) {
   try {
     const unitPath = path.resolve('public/data/units/battlemechs', iu.path);
     const unit = JSON.parse(fs.readFileSync(unitPath, 'utf8'));
-    const allCrits: string[] = Object.values(unit.criticalSlots || {}).flat().filter((s: any) => s) as string[];
-    const critsLo = allCrits.map(s => (s as string).toLowerCase());
-    const hasDroneOS = critsLo.some(s => s.includes('droneoperatingsystem') || s.includes('drone operating system'));
+    const allCrits: string[] = Object.values(unit.criticalSlots || {})
+      .flat()
+      .filter((s: any) => s) as string[];
+    const critsLo = allCrits.map((s) => (s as string).toLowerCase());
+    const hasDroneOS = critsLo.some(
+      (s) =>
+        s.includes('droneoperatingsystem') ||
+        s.includes('drone operating system'),
+    );
 
     if (hasDroneOS) {
       droneOSCount++;
-      droneOSUnits.push({ ...d, cockpit: unit.cockpit, config: unit.configuration });
+      droneOSUnits.push({
+        ...d,
+        cockpit: unit.cockpit,
+        config: unit.configuration,
+      });
     } else {
       noDroneOSCount++;
-      noDroneOSUnits.push({ ...d, cockpit: unit.cockpit, config: unit.configuration });
+      noDroneOSUnits.push({
+        ...d,
+        cockpit: unit.cockpit,
+        config: unit.configuration,
+      });
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 console.log('=== DRONE OS ANALYSIS ===');
@@ -44,12 +67,16 @@ console.log('Without Drone OS:', noDroneOSCount);
 console.log('');
 
 if (droneOSUnits.length > 0) {
-  const avgDroneOS = droneOSUnits.reduce((s: number, d: any) => s + d.percentDiff, 0) / droneOSUnits.length;
+  const avgDroneOS =
+    droneOSUnits.reduce((s: number, d: any) => s + d.percentDiff, 0) /
+    droneOSUnits.length;
   console.log('Drone OS avg overcalc:', avgDroneOS.toFixed(1) + '%');
 }
 
 if (noDroneOSUnits.length > 0) {
-  const avgNoDrone = noDroneOSUnits.reduce((s: number, d: any) => s + d.percentDiff, 0) / noDroneOSUnits.length;
+  const avgNoDrone =
+    noDroneOSUnits.reduce((s: number, d: any) => s + d.percentDiff, 0) /
+    noDroneOSUnits.length;
   console.log('Non-Drone OS avg overcalc:', avgNoDrone.toFixed(1) + '%');
 }
 
@@ -58,7 +85,7 @@ console.log('\n=== NON-DRONE-OS UNITS ===');
 let fixed = 0;
 for (const d of noDroneOSUnits) {
   const adjusted = Math.round(d.calculatedBV * 0.95);
-  const pct = Math.abs(adjusted - d.indexBV) / d.indexBV * 100;
+  const pct = (Math.abs(adjusted - d.indexBV) / d.indexBV) * 100;
   if (pct <= 1) fixed++;
 }
 console.log('Fixed by 0.95:', fixed, 'of', noDroneOSUnits.length);
@@ -68,7 +95,9 @@ console.log('\nSample non-Drone-OS overcalculated units:');
 for (const d of noDroneOSUnits.slice(0, 20)) {
   const ratio = (d.calculatedBV / d.indexBV).toFixed(4);
   const adj = Math.round(d.calculatedBV * 0.95);
-  console.log(`  ${d.unitId}: calc=${d.calculatedBV} ref=${d.indexBV} ratio=${ratio} *0.95=${adj} adj-diff=${adj - d.indexBV} cockpit=${d.cockpit} config=${d.config}`);
+  console.log(
+    `  ${d.unitId}: calc=${d.calculatedBV} ref=${d.indexBV} ratio=${ratio} *0.95=${adj} adj-diff=${adj - d.indexBV} cockpit=${d.cockpit} config=${d.config}`,
+  );
 }
 
 // Now check: do non-drone-OS overcalculated units have ANY cockpit-related features?
@@ -109,9 +138,18 @@ for (const d of accurate.slice(0, 500)) {
   try {
     const unitPath = path.resolve('public/data/units/battlemechs', iu.path);
     const unit = JSON.parse(fs.readFileSync(unitPath, 'utf8'));
-    const allCrits: string[] = Object.values(unit.criticalSlots || {}).flat().filter((s: any) => s) as string[];
-    const critsLo = allCrits.map(s => (s as string).toLowerCase());
-    if (critsLo.some(s => s.includes('droneoperatingsystem'))) accurateDroneOS++;
-  } catch {}
+    const allCrits: string[] = Object.values(unit.criticalSlots || {})
+      .flat()
+      .filter((s: any) => s) as string[];
+    const critsLo = allCrits.map((s) => (s as string).toLowerCase());
+    if (critsLo.some((s) => s.includes('droneoperatingsystem')))
+      accurateDroneOS++;
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
-console.log('Accurate units with Drone OS (checked first 500):', accurateDroneOS);
+console.log(
+  'Accurate units with Drone OS (checked first 500):',
+  accurateDroneOS,
+);

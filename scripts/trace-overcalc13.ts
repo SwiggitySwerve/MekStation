@@ -1,9 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const data = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const mulCache = JSON.parse(fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'));
-const indexData = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const data = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
+const mulCache = JSON.parse(
+  fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'),
+);
+const indexData = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
 const overCalc = data.allResults.filter((d: any) => {
   if (d.difference <= 0 || d.percentDiff < 4) return false;
@@ -36,8 +42,15 @@ for (const d of overCalc) {
 }
 
 // Check if excess is EXACTLY 5% of total (within rounding)
-const exactFivePercent = results.filter(r => Math.abs(r.excess - Math.round(r.calc * 0.05)) <= 1);
-console.log('Units where excess = round(calc * 0.05) +/- 1:', exactFivePercent.length, 'of', results.length);
+const exactFivePercent = results.filter(
+  (r) => Math.abs(r.excess - Math.round(r.calc * 0.05)) <= 1,
+);
+console.log(
+  'Units where excess = round(calc * 0.05) +/- 1:',
+  exactFivePercent.length,
+  'of',
+  results.length,
+);
 
 // Check if excess correlates with tonnage
 console.log('\n=== EXCESS vs TONNAGE ===');
@@ -46,17 +59,26 @@ for (const r of results) {
   if (!byTonnage.has(r.tonnage)) byTonnage.set(r.tonnage, []);
   byTonnage.get(r.tonnage)!.push(r);
 }
-for (const [ton, units] of Array.from(byTonnage.entries()).sort((a, b) => a[0] - b[0])) {
+for (const [ton, units] of Array.from(byTonnage.entries()).sort(
+  (a, b) => a[0] - b[0],
+)) {
   if (units.length < 2) continue;
-  const avgExcess = units.reduce((s: number, u: any) => s + u.excess, 0) / units.length;
-  const avgPct = units.reduce((s: number, u: any) => s + u.excess / u.calc * 100, 0) / units.length;
-  console.log(`  ${ton}t: ${units.length} units, avg excess: ${avgExcess.toFixed(0)} (${avgPct.toFixed(1)}%)`);
+  const avgExcess =
+    units.reduce((s: number, u: any) => s + u.excess, 0) / units.length;
+  const avgPct =
+    units.reduce((s: number, u: any) => s + (u.excess / u.calc) * 100, 0) /
+    units.length;
+  console.log(
+    `  ${ton}t: ${units.length} units, avg excess: ${avgExcess.toFixed(0)} (${avgPct.toFixed(1)}%)`,
+  );
 }
 
 // Check if excess = tonnage * something
 console.log('\n=== EXCESS / TONNAGE ===');
 for (const r of results.slice(0, 20)) {
-  console.log(`  ${r.id}: excess=${r.excess} tonnage=${r.tonnage} excess/ton=${(r.excess/r.tonnage).toFixed(2)} excess/defBV=${(r.excess/r.defBV).toFixed(4)} excess/offBV=${(r.excess/r.offBV).toFixed(4)}`);
+  console.log(
+    `  ${r.id}: excess=${r.excess} tonnage=${r.tonnage} excess/ton=${(r.excess / r.tonnage).toFixed(2)} excess/defBV=${(r.excess / r.defBV).toFixed(4)} excess/offBV=${(r.excess / r.offBV).toFixed(4)}`,
+  );
 }
 
 // The key question: is the overcalculation proportional to TOTAL BV?
@@ -64,15 +86,17 @@ for (const r of results.slice(0, 20)) {
 // If excess/defensiveBV is constant, it's a defensive-specific issue.
 // If excess/offensiveBV is constant, it's offensive-specific.
 console.log('\n=== PROPORTIONALITY TEST ===');
-const excessOverTotal = results.map(r => r.excess / r.calc);
-const excessOverDef = results.map(r => r.excess / r.defBV);
-const excessOverOff = results.map(r => r.excess / r.offBV);
+const excessOverTotal = results.map((r) => r.excess / r.calc);
+const excessOverDef = results.map((r) => r.excess / r.defBV);
+const excessOverOff = results.map((r) => r.excess / r.offBV);
 
 function stats(arr: number[]): string {
   const sorted = [...arr].sort((a, b) => a - b);
   const mean = arr.reduce((s, v) => s + v, 0) / arr.length;
-  const std = Math.sqrt(arr.reduce((s, v) => s + (v - mean) ** 2, 0) / arr.length);
-  return `mean=${mean.toFixed(4)} std=${std.toFixed(4)} median=${sorted[Math.floor(sorted.length/2)].toFixed(4)} min=${sorted[0].toFixed(4)} max=${sorted[sorted.length-1].toFixed(4)} cv=${(std/mean).toFixed(3)}`;
+  const std = Math.sqrt(
+    arr.reduce((s, v) => s + (v - mean) ** 2, 0) / arr.length,
+  );
+  return `mean=${mean.toFixed(4)} std=${std.toFixed(4)} median=${sorted[Math.floor(sorted.length / 2)].toFixed(4)} min=${sorted[0].toFixed(4)} max=${sorted[sorted.length - 1].toFixed(4)} cv=${(std / mean).toFixed(3)}`;
 }
 
 console.log('  excess/total:', stats(excessOverTotal));
@@ -91,13 +115,16 @@ console.log('  excess/offBV:', stats(excessOverOff));
 // Let me check: for units with NO special armor and NO special equipment,
 // is the overcalculation still present?
 console.log('\n=== SIMPLE UNITS (no special armor, no def equip) ===');
-const simpleOver = results.filter(r => {
+const simpleOver = results.filter((r) => {
   const d = overCalc.find((x: any) => x.unitId === r.id);
   return d && d.breakdown.defensiveEquipBV === 0;
 });
 console.log('Units with no defensive equipment BV:', simpleOver.length);
 if (simpleOver.length > 0) {
-  console.log('  avg excess/total:', stats(simpleOver.map(r => r.excess / r.calc)));
+  console.log(
+    '  avg excess/total:',
+    stats(simpleOver.map((r) => r.excess / r.calc)),
+  );
 }
 
 // Check units with standard armor (armorMultiplier = 1.0)
@@ -110,24 +137,39 @@ for (const d of overCalc) {
     const unitPath = path.resolve('public/data/units/battlemechs', iu.path);
     const unit = JSON.parse(fs.readFileSync(unitPath, 'utf8'));
     const armorType = unit.armor.type.toUpperCase().replace(/[_\s-]+/g, '');
-    const isStandard = !armorType.includes('REACTIVE') && !armorType.includes('REFLECTIVE') &&
-                        !armorType.includes('HARDENED') && !armorType.includes('FERRO') &&
-                        !armorType.includes('STEALTH') && !armorType.includes('BALLISTIC') &&
-                        !armorType.includes('HEAT');
+    const isStandard =
+      !armorType.includes('REACTIVE') &&
+      !armorType.includes('REFLECTIVE') &&
+      !armorType.includes('HARDENED') &&
+      !armorType.includes('FERRO') &&
+      !armorType.includes('STEALTH') &&
+      !armorType.includes('BALLISTIC') &&
+      !armorType.includes('HEAT');
     if (isStandard) {
-      const r = results.find(x => x.id === d.unitId);
+      const r = results.find((x) => x.id === d.unitId);
       if (r) stdArmorResults.push(r);
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 console.log('Standard armor overcalculated units:', stdArmorResults.length);
 if (stdArmorResults.length > 0) {
-  console.log('  avg excess/total:', stats(stdArmorResults.map(r => r.excess / r.calc)));
+  console.log(
+    '  avg excess/total:',
+    stats(stdArmorResults.map((r) => r.excess / r.calc)),
+  );
 }
 
 // Non-standard armor
-const nonStdArmor = results.filter(r => !stdArmorResults.find(s => s.id === r.id));
+const nonStdArmor = results.filter(
+  (r) => !stdArmorResults.find((s) => s.id === r.id),
+);
 console.log('Non-standard armor overcalculated units:', nonStdArmor.length);
 if (nonStdArmor.length > 0) {
-  console.log('  avg excess/total:', stats(nonStdArmor.map(r => r.excess / r.calc)));
+  console.log(
+    '  avg excess/total:',
+    stats(nonStdArmor.map((r) => r.excess / r.calc)),
+  );
 }

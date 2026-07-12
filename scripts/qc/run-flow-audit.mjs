@@ -95,50 +95,64 @@ if (isDirectRun) {
  * "didn't pass the flag at all".
  */
 function parseArgs(argv) {
-  let flowId = null;
-  let list = false;
-  let until = null;
-  let untilMissing = false;
-  let hold = false;
-  let viewport = null;
-  let viewportMissing = false;
+  const options = {
+    flowId: null,
+    hold: false,
+    list: false,
+    until: null,
+    untilMissing: false,
+    viewport: null,
+    viewportMissing: false,
+  };
   const forward = [];
+  const booleanFlagHandlers = new Map([
+    ['--list', () => { options.list = true; }],
+    ['--hold', () => { options.hold = true; }],
+  ]);
+  const valueFlagHandlers = new Map([
+    ['--until', (value, isMissing) => {
+      if (isMissing) {
+        options.untilMissing = true;
+        return;
+      }
+      options.until = value;
+    }],
+    ['--viewport', (value, isMissing) => {
+      if (isMissing) {
+        options.viewportMissing = true;
+        return;
+      }
+      options.viewport = value;
+    }],
+  ]);
+
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (arg === '--list') {
-      list = true;
-    } else if (arg === '--hold') {
-      hold = true;
-    } else if (arg === '--until') {
-      if (i + 1 >= argv.length) {
-        untilMissing = true;
-      } else {
-        until = argv[(i += 1)];
-      }
-    } else if (arg.startsWith('--until=')) {
-      until = arg.slice('--until='.length);
-    } else if (arg === '--viewport') {
-      if (i + 1 >= argv.length) {
-        viewportMissing = true;
-      } else {
-        viewport = argv[(i += 1)];
-      }
-    } else if (arg.startsWith('--viewport=')) {
-      viewport = arg.slice('--viewport='.length);
-    } else if (!flowId && !arg.startsWith('--')) {
-      flowId = arg;
-    } else {
-      forward.push(arg);
+    const booleanHandler = booleanFlagHandlers.get(arg);
+    if (booleanHandler) {
+      booleanHandler();
+      continue;
     }
+
+    const equalsIndex = arg.indexOf('=');
+    const flagName = equalsIndex === -1 ? arg : arg.slice(0, equalsIndex);
+    const valueHandler = valueFlagHandlers.get(flagName);
+    if (valueHandler) {
+      const hasInlineValue = equalsIndex !== -1;
+      const value = hasInlineValue ? arg.slice(equalsIndex + 1) : argv[i + 1];
+      valueHandler(value, !hasInlineValue && i + 1 >= argv.length);
+      if (!hasInlineValue && i + 1 < argv.length) i += 1;
+      continue;
+    }
+
+    if (!options.flowId && !arg.startsWith('--')) {
+      options.flowId = arg;
+      continue;
+    }
+    forward.push(arg);
   }
   return {
-    flowId,
-    list,
-    until,
-    untilMissing,
-    hold,
-    viewport,
-    viewportMissing,
+    ...options,
     forward,
   };
 }

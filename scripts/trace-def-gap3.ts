@@ -10,8 +10,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const index = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const index = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
 
 function isRearLoc(l: string): boolean {
   const lo = l.toLowerCase();
@@ -19,7 +23,10 @@ function isRearLoc(l: string): boolean {
 }
 
 function normalizeEquipId(s: string): string {
-  return s.replace(/^\d+-/, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  return s
+    .replace(/^\d+-/, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
 }
 
 let affected = 0;
@@ -38,11 +45,15 @@ for (const iu of index.units) {
       const lo = eq.id.toLowerCase();
       if (lo.includes('ammo')) continue;
 
-      const rawLoc = eq.location.split(',')[0].toUpperCase().replace(/[_\s]*\(R\)/, '');
+      const rawLoc = eq.location
+        .split(',')[0]
+        .toUpperCase()
+        .replace(/[_\s]*\(R\)/, '');
       const isRear = isRearLoc(eq.location);
       const eqNorm = normalizeEquipId(eq.id);
 
-      if (!weaponsByLoc.has(rawLoc)) weaponsByLoc.set(rawLoc, { front: [], rear: [] });
+      if (!weaponsByLoc.has(rawLoc))
+        weaponsByLoc.set(rawLoc, { front: [], rear: [] });
       const entry = weaponsByLoc.get(rawLoc)!;
       if (isRear) entry.rear.push(eqNorm);
       else entry.front.push(eqNorm);
@@ -55,7 +66,11 @@ for (const iu of index.units) {
       for (const frontWeapon of entry.front) {
         // Check if any rear weapon matches via the same fuzzy logic as the validator
         for (const rearWeapon of entry.rear) {
-          if (frontWeapon === rearWeapon || frontWeapon.includes(rearWeapon) || rearWeapon.includes(frontWeapon)) {
+          if (
+            frontWeapon === rearWeapon ||
+            frontWeapon.includes(rearWeapon) ||
+            rearWeapon.includes(frontWeapon)
+          ) {
             hasOverlap = true;
             overlappingWeapons.push(`${frontWeapon}@${loc}`);
           }
@@ -67,26 +82,49 @@ for (const iu of index.units) {
       affected++;
       // Estimate BV impact - look up this unit in the report
       const r = report.allResults.find((x: any) => x.unitId === iu.id);
-      const penalty = r ? (r.indexBV - r.calculatedBV) : 0;
+      const penalty = r ? r.indexBV - r.calculatedBV : 0;
       totalExtraPenalty += Math.max(0, penalty);
-      affectedUnits.push({ id: iu.id, weapons: overlappingWeapons.join(', '), penalty });
+      affectedUnits.push({
+        id: iu.id,
+        weapons: overlappingWeapons.join(', '),
+        penalty,
+      });
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
-console.log(`Units with front/rear weapon overlap at same location: ${affected}`);
+console.log(
+  `Units with front/rear weapon overlap at same location: ${affected}`,
+);
 console.log(`Total estimated BV penalty: ${totalExtraPenalty}`);
 console.log(`\nAffected units (first 50):`);
 console.log('Unit'.padEnd(40) + 'Penalty'.padStart(8) + '  Weapons');
-for (const u of affectedUnits.sort((a, b) => b.penalty - a.penalty).slice(0, 50)) {
-  console.log(u.id.padEnd(40).slice(0, 40) + String(u.penalty).padStart(8) + '  ' + u.weapons);
+for (const u of affectedUnits
+  .sort((a, b) => b.penalty - a.penalty)
+  .slice(0, 50)) {
+  console.log(
+    u.id.padEnd(40).slice(0, 40) +
+      String(u.penalty).padStart(8) +
+      '  ' +
+      u.weapons,
+  );
 }
 
 // How many of the 262 undercalculated units are affected?
 const undercalcIds = new Set(
   report.allResults
-    .filter((r: any) => Math.abs(r.percentDiff) > 1 && Math.abs(r.percentDiff) <= 5 && r.difference < 0)
-    .map((r: any) => r.unitId)
+    .filter(
+      (r: any) =>
+        Math.abs(r.percentDiff) > 1 &&
+        Math.abs(r.percentDiff) <= 5 &&
+        r.difference < 0,
+    )
+    .map((r: any) => r.unitId),
 );
-const overlapInUndercalc = affectedUnits.filter(u => undercalcIds.has(u.id));
-console.log(`\nOf these, ${overlapInUndercalc.length} are in the undercalculated minor-disc set (${undercalcIds.size} total)`);
+const overlapInUndercalc = affectedUnits.filter((u) => undercalcIds.has(u.id));
+console.log(
+  `\nOf these, ${overlapInUndercalc.length} are in the undercalculated minor-disc set (${undercalcIds.size} total)`,
+);

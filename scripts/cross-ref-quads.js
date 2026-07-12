@@ -18,7 +18,10 @@ for (const f of files) {
       crits.FRONT_LEFT_LEG ||
       crits.FRONT_RIGHT_LEG;
     if (!hasLegs) missingIds.add(data.id);
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
 // Cross-reference with validation

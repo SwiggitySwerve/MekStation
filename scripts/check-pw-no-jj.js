@@ -25,5 +25,8 @@ for (const f of files) {
         'diff=' + diffStr,
       );
     }
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }

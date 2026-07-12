@@ -8,8 +8,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const index = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
+const index = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
 // Find undercalculated units that are energy-only (no ammo) with minimal equipment
 interface SimpleUnit {
@@ -61,7 +65,12 @@ for (const r of undercalc) {
       for (const [, slots] of Object.entries(unit.criticalSlots)) {
         if (!Array.isArray(slots)) continue;
         for (const s of slots) {
-          if (s && typeof s === 'string' && (s as string).toLowerCase().includes('ammo') && !(s as string).toLowerCase().includes('ammo feed')) {
+          if (
+            s &&
+            typeof s === 'string' &&
+            (s as string).toLowerCase().includes('ammo') &&
+            !(s as string).toLowerCase().includes('ammo feed')
+          ) {
             hasAmmo = true;
           }
         }
@@ -74,7 +83,7 @@ for (const r of undercalc) {
       id: r.unitId,
       tonnage: unit.tonnage,
       gap,
-      gapPct: gap / r.calculatedBV * 100,
+      gapPct: (gap / r.calculatedBV) * 100,
       defBV: b.defensiveBV,
       offBV: b.offensiveBV,
       weaponBV: b.weaponBV,
@@ -93,20 +102,33 @@ for (const r of undercalc) {
       indexBV: r.indexBV,
       calcBV: r.calculatedBV,
     });
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 
-console.log(`Found ${simpleUnits.length} undercalculated energy-only units (no ammo)\n`);
+console.log(
+  `Found ${simpleUnits.length} undercalculated energy-only units (no ammo)\n`,
+);
 
 // Sort by simplicity (fewer equipment = simpler)
 simpleUnits.sort((a, b) => a.equipment.length - b.equipment.length);
 
 for (const u of simpleUnits.slice(0, 30)) {
   console.log(`=== ${u.id} (${u.tonnage}t) ===`);
-  console.log(`  MUL BV=${u.indexBV}  Calc=${u.calcBV}  Gap=${u.gap} (${u.gapPct.toFixed(1)}%)`);
-  console.log(`  DefBV=${u.defBV.toFixed(1)}  OffBV=${u.offBV.toFixed(1)}  WeaponBV=${u.weaponBV}  SF=${u.speedFactor.toFixed(2)}`);
-  console.log(`  Walk=${u.walk} Jump=${u.jump} Engine=${u.engine}/${u.engineRating}`);
-  console.log(`  Armor=${u.armor} Structure=${u.structure} Gyro=${u.gyro} Cockpit=${u.cockpit}`);
+  console.log(
+    `  MUL BV=${u.indexBV}  Calc=${u.calcBV}  Gap=${u.gap} (${u.gapPct.toFixed(1)}%)`,
+  );
+  console.log(
+    `  DefBV=${u.defBV.toFixed(1)}  OffBV=${u.offBV.toFixed(1)}  WeaponBV=${u.weaponBV}  SF=${u.speedFactor.toFixed(2)}`,
+  );
+  console.log(
+    `  Walk=${u.walk} Jump=${u.jump} Engine=${u.engine}/${u.engineRating}`,
+  );
+  console.log(
+    `  Armor=${u.armor} Structure=${u.structure} Gyro=${u.gyro} Cockpit=${u.cockpit}`,
+  );
   console.log(`  HS=${u.hsCount}x${u.hs}`);
   console.log(`  Equipment: [${u.equipment.join(', ')}]`);
   console.log('');

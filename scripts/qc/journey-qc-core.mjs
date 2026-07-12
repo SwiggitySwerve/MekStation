@@ -1,6 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { validateJourneyCatalog as validateJourneyCatalogImplementation } from './journey-qc-catalog-validator.mjs';
+import { validateValidationGraph as validateValidationGraphImplementation } from './journey-qc-graph-validator.mjs';
+import { validateLoggingMap as validateLoggingMapImplementation } from './journey-qc-logging-validator.mjs';
+import { validateUiFlowShell as validateUiFlowShellImplementation } from './journey-qc-ui-flow-validator.mjs';
+import { executeRunPlan as executeRunPlanImplementation } from './journey-qc-run-executor.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const repoRoot = path.resolve(__dirname, '..', '..');
@@ -41,36 +46,7 @@ export const severityRank = {
   critical: 4,
 };
 
-const allowedLevels = new Set(['debug', 'info', 'warn', 'error']);
-const allowedLogClassifications = new Set([
-  'diagnostic',
-  'expected-probe',
-  'actionable-warning',
-  'failure',
-]);
-const allowedModes = new Set(['headless', 'browser', 'hybrid']);
 const allowedTiers = new Set(['smoke', 'standard', 'extended']);
-const allowedCommandCheckpointRoles = new Set(['player', 'gm', 'both']);
-const graphKinds = new Set([
-  'capability',
-  'surface',
-  'module',
-  'submodule',
-  'state',
-  'journey',
-  'command',
-  'evidence',
-  'log-event',
-  'known-gap',
-]);
-const graphRelations = new Set([
-  'contains',
-  'validated-by',
-  'produces',
-  'logs',
-  'blocked-by',
-  'documents-gap',
-]);
 const requiredCheckpointIdsByJourney = new Map([
   ['character-build', ['pilot-create', 'pilot-roster', 'force-assignment']],
   [
@@ -166,37 +142,58 @@ export function parseArgs(argv) {
     tier: 'standard',
   };
   const parameters = {};
+  const booleanFlags = new Set([
+    '--continue-on-error',
+    '--dry-run',
+    '--list',
+    '--json',
+    '--validate-only',
+    '--exclude-probes',
+    '--actionable-only',
+    '--require-domain-backed',
+    '--require-non-synthetic-backing',
+  ]);
+  const booleanFlagHandlers = new Map([
+    ['--continue-on-error', () => { options.continueOnError = true; }],
+    ['--dry-run', () => { options.dryRun = true; }],
+    ['--list', () => { options.dryRun = true; }],
+    ['--json', () => { options.json = true; }],
+    ['--validate-only', () => { options.validateOnly = true; }],
+    ['--exclude-probes', () => { options.excludeProbes = true; }],
+    ['--actionable-only', () => { options.actionableOnly = true; }],
+    ['--require-domain-backed', () => { options.requireDomainBacked = true; }],
+    ['--require-non-synthetic-backing', () => { options.requireDomainBacked = true; }],
+  ]);
+  const valueHandlers = new Map([
+    ['journey', (value) => { options.journey = value; }],
+    ['tier', (value) => { options.tier = value; }],
+    ['mode', (value) => { options.mode = value; }],
+    ['seed', (value) => { options.seed = Number.parseInt(value, 10); }],
+    ['runs', (value) => { options.runs = Number.parseInt(value, 10); }],
+    ['run-id', (value) => { options.runId = value; }],
+    ['evidence-dir', (value) => { options.evidenceDir = value; }],
+    ['fail-on-bug-severity', (value) => { options.failOnBugSeverity = value; }],
+    ['since', (value) => { options.since = value; }],
+    ['run-id-filter', (value) => { options.runIdFilter = value; }],
+    ['min-severity', (value) => { options.minSeverity = value; }],
+    ['level', (value) => { options.level = value; }],
+    ['classification', (value) => { options.classification = value; }],
+    ['blocking', (value) => { options.blocking = value; }],
+    ['service', (value) => { options.service = value; }],
+    ['event', (value) => { options.event = value; }],
+    ['step-id', (value) => { options.stepId = value; }],
+    ['fingerprint', (value) => { options.fingerprint = value; }],
+    ['module', (value) => { options.module = value; }],
+    ['query', (value) => { options.query = value; }],
+    ['kind', (value) => { options.kind = value; }],
+    ['inject-failure', (value) => { options.injectFailure = value; }],
+    ['inject-stability-drift', (value) => { options.injectStabilityDrift = value; }],
+    ['inject-drift', (value) => { options.injectStabilityDrift = value; }],
+  ]);
 
   for (const arg of argv) {
-    if (arg === '--continue-on-error') {
-      options.continueOnError = true;
-      continue;
-    }
-    if (arg === '--dry-run' || arg === '--list') {
-      options.dryRun = true;
-      continue;
-    }
-    if (arg === '--json') {
-      options.json = true;
-      continue;
-    }
-    if (arg === '--validate-only') {
-      options.validateOnly = true;
-      continue;
-    }
-    if (arg === '--exclude-probes') {
-      options.excludeProbes = true;
-      continue;
-    }
-    if (arg === '--actionable-only') {
-      options.actionableOnly = true;
-      continue;
-    }
-    if (
-      arg === '--require-domain-backed' ||
-      arg === '--require-non-synthetic-backing'
-    ) {
-      options.requireDomainBacked = true;
+    if (booleanFlags.has(arg)) {
+      booleanFlagHandlers.get(arg)();
       continue;
     }
 
@@ -205,31 +202,12 @@ export function parseArgs(argv) {
 
     const [, key, rawValue] = match;
     const value = rawValue.trim();
-    if (key === 'journey') options.journey = value;
-    else if (key === 'tier') options.tier = value;
-    else if (key === 'mode') options.mode = value;
-    else if (key === 'seed') options.seed = Number.parseInt(value, 10);
-    else if (key === 'runs') options.runs = Number.parseInt(value, 10);
-    else if (key === 'run-id') options.runId = value;
-    else if (key === 'evidence-dir') options.evidenceDir = value;
-    else if (key === 'fail-on-bug-severity') options.failOnBugSeverity = value;
-    else if (key === 'since') options.since = value;
-    else if (key === 'run-id-filter') options.runIdFilter = value;
-    else if (key === 'min-severity') options.minSeverity = value;
-    else if (key === 'level') options.level = value;
-    else if (key === 'classification') options.classification = value;
-    else if (key === 'blocking') options.blocking = value;
-    else if (key === 'service') options.service = value;
-    else if (key === 'event') options.event = value;
-    else if (key === 'step-id') options.stepId = value;
-    else if (key === 'fingerprint') options.fingerprint = value;
-    else if (key === 'module') options.module = value;
-    else if (key === 'query') options.query = value;
-    else if (key === 'kind') options.kind = value;
-    else if (key === 'inject-failure') options.injectFailure = value;
-    else if (key === 'inject-stability-drift' || key === 'inject-drift') {
-      options.injectStabilityDrift = value;
-    } else parameters[key] = value;
+    const assign = valueHandlers.get(key);
+    if (assign) {
+      assign(value);
+      continue;
+    }
+    parameters[key] = value;
   }
 
   options.parameters = parameters;
@@ -250,289 +228,8 @@ function issue(severity, message) {
   return { severity, message };
 }
 
-function fieldLabel(label, field) {
-  return `${label}: ${field}`;
-}
-
-function validateParameterDefinition(label, name, definition, issues) {
-  if (
-    !definition ||
-    typeof definition !== 'object' ||
-    Array.isArray(definition)
-  ) {
-    issues.push(
-      issue('error', `${label}: parameter ${name} must be an object.`),
-    );
-    return;
-  }
-  if (
-    !['string', 'string-list', 'integer', 'enum', 'boolean'].includes(
-      definition.type,
-    )
-  ) {
-    issues.push(
-      issue(
-        'error',
-        `${label}: parameter ${name} has unsupported type ${definition.type}.`,
-      ),
-    );
-  }
-  if (!Object.hasOwn(definition, 'default')) {
-    issues.push(
-      issue('error', `${label}: parameter ${name} must declare default.`),
-    );
-  }
-  if (
-    definition.type === 'enum' &&
-    (!Array.isArray(definition.values) ||
-      !definition.values.includes(definition.default))
-  ) {
-    issues.push(
-      issue(
-        'error',
-        `${label}: enum parameter ${name} must include its default in values.`,
-      ),
-    );
-  }
-}
-
-function validateCommandScreenCheckpoints(label, checkpoints, issues) {
-  if (!Array.isArray(checkpoints) || checkpoints.length === 0) {
-    issues.push(
-      issue(
-        'error',
-        `${label}: commandScreenCheckpoints must contain at least one checkpoint.`,
-      ),
-    );
-    return;
-  }
-
-  const checkpointIds = new Set();
-  for (const [checkpointIndex, checkpoint] of checkpoints.entries()) {
-    const checkpointLabel = `${label}.commandScreenCheckpoints[${checkpointIndex}]`;
-    for (const field of ['id', 'uiCheckpointId', 'label', 'role']) {
-      if (
-        typeof checkpoint[field] !== 'string' ||
-        checkpoint[field].trim() === ''
-      ) {
-        issues.push(
-          issue(
-            'error',
-            `${checkpointLabel}: ${field} must be a non-empty string.`,
-          ),
-        );
-      }
-    }
-    if (checkpointIds.has(checkpoint.id)) {
-      issues.push(
-        issue(
-          'error',
-          `${checkpointLabel}: duplicate command checkpoint ${checkpoint.id}.`,
-        ),
-      );
-    }
-    checkpointIds.add(checkpoint.id);
-    if (!allowedCommandCheckpointRoles.has(checkpoint.role)) {
-      issues.push(
-        issue('error', `${checkpointLabel}: role must be player, gm, or both.`),
-      );
-    }
-    if (
-      !Array.isArray(checkpoint.assertions) ||
-      checkpoint.assertions.length === 0 ||
-      checkpoint.assertions.some(
-        (assertion) => typeof assertion !== 'string' || assertion.trim() === '',
-      )
-    ) {
-      issues.push(
-        issue(
-          'error',
-          `${checkpointLabel}: assertions must contain at least one non-empty item.`,
-        ),
-      );
-    }
-  }
-}
-
 export function validateJourneyCatalog(catalog) {
-  const issues = [];
-  if (catalog.version !== 1)
-    issues.push(issue('error', 'Journey catalog version must be 1.'));
-  if (!Array.isArray(catalog.journeys)) {
-    issues.push(issue('error', 'Journey catalog must declare journeys array.'));
-    return issues;
-  }
-  if (!Array.isArray(catalog.requiredJourneyIds)) {
-    issues.push(
-      issue('error', 'Journey catalog must declare requiredJourneyIds array.'),
-    );
-  }
-  if (!allowedTiers.has(catalog.defaultTier)) {
-    issues.push(
-      issue(
-        'error',
-        'Journey catalog defaultTier must be smoke, standard, or extended.',
-      ),
-    );
-  }
-
-  const ids = new Set();
-  for (const [index, journey] of catalog.journeys.entries()) {
-    const label = journey.id || `journeys[${index}]`;
-    if (typeof journey.id !== 'string' || journey.id.trim() === '') {
-      issues.push(issue('error', `${label}: id must be a non-empty string.`));
-    }
-    if (ids.has(journey.id))
-      issues.push(issue('error', `${label}: duplicate journey id.`));
-    ids.add(journey.id);
-    for (const field of [
-      'displayName',
-      'module',
-      'defaultMode',
-      'expectedTerminalState',
-    ]) {
-      if (typeof journey[field] !== 'string' || journey[field].trim() === '') {
-        issues.push(
-          issue(
-            'error',
-            fieldLabel(label, field) + ' must be a non-empty string.',
-          ),
-        );
-      }
-    }
-    if (!allowedModes.has(journey.defaultMode)) {
-      issues.push(
-        issue(
-          'error',
-          `${label}: defaultMode must be headless, browser, or hybrid.`,
-        ),
-      );
-    }
-    if (!Array.isArray(journey.tiers) || journey.tiers.length === 0) {
-      issues.push(
-        issue('error', `${label}: tiers must contain at least one tier.`),
-      );
-    } else {
-      for (const tier of journey.tiers) {
-        if (!allowedTiers.has(tier)) {
-          issues.push(issue('error', `${label}: invalid tier ${tier}.`));
-        }
-      }
-    }
-    if (!journey.parameters || typeof journey.parameters !== 'object') {
-      issues.push(issue('error', `${label}: parameters must be an object.`));
-    } else {
-      for (const [name, definition] of Object.entries(journey.parameters)) {
-        validateParameterDefinition(label, name, definition, issues);
-      }
-    }
-    validateCommandScreenCheckpoints(
-      label,
-      journey.commandScreenCheckpoints,
-      issues,
-    );
-    if (!Array.isArray(journey.steps) || journey.steps.length === 0) {
-      issues.push(
-        issue('error', `${label}: steps must contain at least one step.`),
-      );
-    } else {
-      const stepIds = new Set();
-      for (const [stepIndex, step] of journey.steps.entries()) {
-        const stepLabel = `${label}.steps[${stepIndex}]`;
-        for (const field of [
-          'id',
-          'title',
-          'kind',
-          'diagnosticEvent',
-          'loggingPathId',
-        ]) {
-          if (typeof step[field] !== 'string' || step[field].trim() === '') {
-            issues.push(
-              issue(
-                'error',
-                `${stepLabel}: ${field} must be a non-empty string.`,
-              ),
-            );
-          }
-        }
-        if (stepIds.has(step.id)) {
-          issues.push(
-            issue('error', `${stepLabel}: duplicate step id ${step.id}.`),
-          );
-        }
-        stepIds.add(step.id);
-        if (!Array.isArray(step.produces) || step.produces.length === 0) {
-          issues.push(
-            issue(
-              'error',
-              `${stepLabel}: produces must contain at least one artifact.`,
-            ),
-          );
-        }
-        if (step.syntheticBacking === false) {
-          if (
-            typeof step.executionBacking !== 'string' ||
-            step.executionBacking.trim() === '' ||
-            step.executionBacking === 'synthetic-projection'
-          ) {
-            issues.push(
-              issue(
-                'error',
-                `${stepLabel}: non-synthetic steps must declare executionBacking other than synthetic-projection.`,
-              ),
-            );
-          }
-          if (
-            typeof step.executionEvidenceSource !== 'string' ||
-            step.executionEvidenceSource.trim() === '' ||
-            step.executionEvidenceSource === 'journey-catalog-projection'
-          ) {
-            issues.push(
-              issue(
-                'error',
-                `${stepLabel}: non-synthetic steps must declare a real executionEvidenceSource.`,
-              ),
-            );
-          }
-          if (
-            !Array.isArray(step.executionProofCommands) ||
-            step.executionProofCommands.length === 0 ||
-            step.executionProofCommands.some(
-              (command) => typeof command !== 'string' || command.trim() === '',
-            )
-          ) {
-            issues.push(
-              issue(
-                'error',
-                `${stepLabel}: non-synthetic steps must declare executionProofCommands.`,
-              ),
-            );
-          }
-        }
-      }
-    }
-    if (
-      !Array.isArray(journey.evidenceAssertions) ||
-      journey.evidenceAssertions.length === 0
-    ) {
-      issues.push(
-        issue(
-          'error',
-          `${label}: evidenceAssertions must contain at least one item.`,
-        ),
-      );
-    }
-  }
-
-  for (const requiredId of requiredJourneyIds) {
-    if (!ids.has(requiredId))
-      issues.push(issue('error', `Missing required journey ${requiredId}.`));
-  }
-  for (const id of ids) {
-    if (!requiredJourneyIds.includes(id))
-      issues.push(issue('warning', `Unexpected journey ${id}.`));
-  }
-  return issues;
+  return validateJourneyCatalogImplementation(catalog, requiredJourneyIds);
 }
 
 export function validateCommandScreenCheckpointCoverage(catalog, uiFlowShell) {
@@ -566,667 +263,20 @@ export function validateCommandScreenCheckpointCoverage(catalog, uiFlowShell) {
 }
 
 export function validateValidationGraph(graph, catalog, registry = null) {
-  const issues = [];
-  if (graph.version !== 1)
-    issues.push(issue('error', 'Validation graph version must be 1.'));
-  if (!Array.isArray(graph.nodes))
-    issues.push(issue('error', 'Validation graph nodes must be an array.'));
-  if (!Array.isArray(graph.edges))
-    issues.push(issue('error', 'Validation graph edges must be an array.'));
-  if (!Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) return issues;
-
-  const nodeIds = new Set();
-  const nodesById = new Map();
-  for (const [index, node] of graph.nodes.entries()) {
-    const label = node.id || `nodes[${index}]`;
-    if (typeof node.id !== 'string' || node.id.trim() === '') {
-      issues.push(issue('error', `${label}: id must be a non-empty string.`));
-    }
-    if (nodeIds.has(node.id))
-      issues.push(issue('error', `${label}: duplicate node id.`));
-    nodeIds.add(node.id);
-    nodesById.set(node.id, node);
-    if (!graphKinds.has(node.kind))
-      issues.push(issue('error', `${label}: invalid kind ${node.kind}.`));
-    if (typeof node.label !== 'string' || node.label.trim() === '') {
-      issues.push(
-        issue('error', `${label}: label must be a non-empty string.`),
-      );
-    }
-  }
-
-  for (const [index, edge] of graph.edges.entries()) {
-    const label = `edges[${index}]`;
-    if (!nodeIds.has(edge.from))
-      issues.push(issue('error', `${label}: missing from node ${edge.from}.`));
-    if (!nodeIds.has(edge.to))
-      issues.push(issue('error', `${label}: missing to node ${edge.to}.`));
-    if (!graphRelations.has(edge.relation)) {
-      issues.push(
-        issue('error', `${label}: invalid relation ${edge.relation}.`),
-      );
-    }
-  }
-
-  const catalogJourneyIds = new Set(
-    catalog.journeys.map((journey) => journey.id),
-  );
-  for (const node of graph.nodes.filter((entry) => entry.kind === 'journey')) {
-    const journeyId = node.id.replace(/^journey:/, '');
-    if (!catalogJourneyIds.has(journeyId)) {
-      issues.push(
-        issue('error', `Graph references orphaned journey ${journeyId}.`),
-      );
-    }
-  }
-
-  for (const journeyId of catalogJourneyIds) {
-    if (!nodeIds.has(`journey:${journeyId}`)) {
-      issues.push(
-        issue('error', `Graph missing journey node journey:${journeyId}.`),
-      );
-    }
-  }
-
-  if (registry?.surfaces) {
-    const edgeKey = (from, to, relation) =>
-      `${from}\u0000${to}\u0000${relation}`;
-    const edgeSet = new Set(
-      graph.edges.map((edge) => edgeKey(edge.from, edge.to, edge.relation)),
-    );
-    const outgoingByFromAndRelation = new Map();
-    for (const edge of graph.edges) {
-      const key = `${edge.from}\u0000${edge.relation}`;
-      const entries = outgoingByFromAndRelation.get(key) ?? [];
-      entries.push(edge.to);
-      outgoingByFromAndRelation.set(key, entries);
-    }
-
-    for (const surface of registry.surfaces) {
-      const surfaceNodeId = `surface:${surface.surfaceId}`;
-      const stateNodeId = `state:${surface.surfaceId}:lifecycle`;
-      if (!nodeIds.has(surfaceNodeId)) {
-        issues.push(
-          issue(
-            'error',
-            `Graph missing registry surface node ${surfaceNodeId}.`,
-          ),
-        );
-      }
-      const surfaceNode = nodesById.get(surfaceNodeId);
-      if (
-        surfaceNode &&
-        surfaceNode.coverageStatus !== surface.coverageStatus
-      ) {
-        issues.push(
-          issue(
-            'error',
-            `Graph surface node ${surfaceNodeId} coverageStatus=${surfaceNode.coverageStatus} does not match registry coverageStatus=${surface.coverageStatus}.`,
-          ),
-        );
-      }
-      if (!nodeIds.has(stateNodeId)) {
-        issues.push(
-          issue('error', `Graph missing lifecycle state node ${stateNodeId}.`),
-        );
-      }
-      if (!edgeSet.has(edgeKey(surfaceNodeId, stateNodeId, 'contains'))) {
-        issues.push(
-          issue(
-            'error',
-            `Graph missing lifecycle contains edge ${surfaceNodeId} -> ${stateNodeId}.`,
-          ),
-        );
-      }
-      if ((surface.commands ?? []).length > 0) {
-        const commandTargets =
-          outgoingByFromAndRelation.get(`${stateNodeId}\u0000validated-by`) ??
-          [];
-        if (commandTargets.length === 0) {
-          issues.push(
-            issue(
-              'error',
-              `Graph lifecycle state ${stateNodeId} must be validated by at least one command.`,
-            ),
-          );
-        }
-      }
-      const evidenceTargets =
-        outgoingByFromAndRelation.get(`${stateNodeId}\u0000produces`) ?? [];
-      if (evidenceTargets.length === 0) {
-        issues.push(
-          issue(
-            'error',
-            `Graph lifecycle state ${stateNodeId} must produce evidence.`,
-          ),
-        );
-      }
-      const gapTargets =
-        outgoingByFromAndRelation.get(`${stateNodeId}\u0000documents-gap`) ??
-        [];
-      if ((surface.gaps ?? []).length > 0 && gapTargets.length === 0) {
-        issues.push(
-          issue(
-            'error',
-            `Graph lifecycle state ${stateNodeId} must document known gaps.`,
-          ),
-        );
-      }
-    }
-  }
-  return issues;
+  return validateValidationGraphImplementation(graph, catalog, registry);
 }
 
 export function validateLoggingMap(loggingMap, catalog, graph = null) {
-  const issues = [];
-  if (loggingMap.version !== 1)
-    issues.push(issue('error', 'Logging map version must be 1.'));
-  const requiredTriageFields = [
-    'actor',
-    'action',
-    'stateBefore',
-    'stateAfter',
-    'ruleDecision',
-    'validationResult',
-    'warnings',
-    'failureCause',
-    'evidenceRefs',
-    'nextDebuggingHint',
-  ];
-  if (!Array.isArray(loggingMap.requiredPathIds)) {
-    issues.push(
-      issue('error', 'Logging map requiredPathIds must be an array.'),
-    );
-  }
-  if (!Array.isArray(loggingMap.requiredTriageFields)) {
-    issues.push(
-      issue('error', 'Logging map requiredTriageFields must be an array.'),
-    );
-  } else {
-    for (const requiredField of requiredTriageFields) {
-      if (!loggingMap.requiredTriageFields.includes(requiredField)) {
-        issues.push(
-          issue(
-            'error',
-            `Logging map missing required triage field ${requiredField}.`,
-          ),
-        );
-      }
-    }
-  }
-  if (!Array.isArray(loggingMap.paths)) {
-    issues.push(issue('error', 'Logging map paths must be an array.'));
-    return issues;
-  }
-
-  const pathIds = new Set();
-  for (const [index, entry] of loggingMap.paths.entries()) {
-    const label = entry.pathId || `paths[${index}]`;
-    if (typeof entry.pathId !== 'string' || entry.pathId.trim() === '') {
-      issues.push(
-        issue('error', `${label}: pathId must be a non-empty string.`),
-      );
-    }
-    if (pathIds.has(entry.pathId))
-      issues.push(issue('error', `${label}: duplicate pathId.`));
-    pathIds.add(entry.pathId);
-    if (typeof entry.service !== 'string' || entry.service.trim() === '') {
-      issues.push(
-        issue('error', `${label}: service must be a non-empty string.`),
-      );
-    }
-    if (!['debug', 'info', 'warn', 'error'].includes(entry.severity)) {
-      issues.push(
-        issue(
-          'error',
-          `${label}: severity must be debug, info, warn, or error.`,
-        ),
-      );
-    }
-    const requiresClassification =
-      entry.severity === 'warn' || entry.severity === 'error';
-    if (requiresClassification && typeof entry.classification !== 'string') {
-      issues.push(
-        issue(
-          'error',
-          `${label}: warn/error paths must declare a classification.`,
-        ),
-      );
-    }
-    if (
-      entry.classification !== undefined &&
-      !allowedLogClassifications.has(entry.classification)
-    ) {
-      issues.push(
-        issue(
-          'error',
-          `${label}: classification must be diagnostic, expected-probe, actionable-warning, or failure.`,
-        ),
-      );
-    }
-    if (requiresClassification && typeof entry.blocking !== 'boolean') {
-      issues.push(
-        issue('error', `${label}: warn/error paths must declare blocking.`),
-      );
-    }
-    if (entry.classification === 'expected-probe' && entry.blocking !== false) {
-      issues.push(
-        issue('error', `${label}: expected probes must be non-blocking.`),
-      );
-    }
-    if (entry.classification === 'failure' && entry.severity !== 'error') {
-      issues.push(
-        issue('error', `${label}: failure classification must use error.`),
-      );
-    }
-    if (!Array.isArray(entry.events) || entry.events.length === 0) {
-      issues.push(
-        issue('error', `${label}: events must contain at least one event.`),
-      );
-    }
-    if (!Array.isArray(entry.testRefs) || entry.testRefs.length === 0) {
-      issues.push(
-        issue(
-          'error',
-          `${label}: testRefs must contain at least one reference.`,
-        ),
-      );
-    }
-  }
-
-  for (const requiredPathId of loggingMap.requiredPathIds ?? []) {
-    if (!pathIds.has(requiredPathId)) {
-      issues.push(
-        issue('error', `Logging map missing required path ${requiredPathId}.`),
-      );
-    }
-  }
-
-  const loggingPathIds = new Set();
-  const mappedEvents = new Set();
-  for (const entry of loggingMap.paths) {
-    for (const event of entry.events ?? []) mappedEvents.add(event);
-  }
-  const diagnosticEvents = new Set();
-  for (const journey of catalog.journeys) {
-    for (const step of journey.steps) {
-      loggingPathIds.add(step.loggingPathId);
-      if (typeof step.diagnosticEvent === 'string') {
-        diagnosticEvents.add(step.diagnosticEvent);
-      }
-    }
-  }
-  for (const loggingPathId of loggingPathIds) {
-    if (!pathIds.has(loggingPathId)) {
-      issues.push(
-        issue(
-          'error',
-          `Catalog step references unmapped logging path ${loggingPathId}.`,
-        ),
-      );
-    }
-  }
-  for (const diagnosticEvent of diagnosticEvents) {
-    if (!mappedEvents.has(diagnosticEvent)) {
-      issues.push(
-        issue(
-          'error',
-          `Catalog diagnostic event ${diagnosticEvent} is missing from logging map events.`,
-        ),
-      );
-    }
-  }
-  for (const node of graph?.nodes ?? []) {
-    if (node.kind !== 'log-event') continue;
-    const eventId = node.id.replace(/^log-event:/, '');
-    if (!mappedEvents.has(eventId)) {
-      issues.push(
-        issue(
-          'error',
-          `Graph log event ${eventId} is missing from logging map events.`,
-        ),
-      );
-    }
-  }
-  return issues;
-}
-
-function pageRouteSegments(filePath) {
-  const relative = toRepoRelative(filePath);
-  if (!relative.startsWith('src/pages/')) return null;
-  const withoutPrefix = relative
-    .replace(/^src\/pages\//, '')
-    .replace(/\.(tsx|ts|jsx|js)$/, '');
-  if (
-    withoutPrefix.startsWith('api/') ||
-    withoutPrefix === '_app' ||
-    withoutPrefix === '_document'
-  ) {
-    return null;
-  }
-  const segments = withoutPrefix.split('/').filter(Boolean);
-  if (segments.at(-1) === 'index') segments.pop();
-  return segments;
-}
-
-function collectPageRouteSegments(
-  directory = path.join(repoRoot, 'src', 'pages'),
-) {
-  const routes = [];
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    const entryPath = path.join(directory, entry.name);
-    if (entry.isDirectory()) {
-      routes.push(...collectPageRouteSegments(entryPath));
-      continue;
-    }
-    if (!/\.(tsx|ts|jsx|js)$/.test(entry.name)) continue;
-    const segments = pageRouteSegments(entryPath);
-    if (segments) routes.push(segments);
-  }
-  return routes;
-}
-
-function routeSegments(route) {
-  return route.split(/[?#]/, 1)[0].split('/').filter(Boolean);
-}
-
-function segmentMatches(routeSegment, pageSegment) {
-  if (/^\[[^\]]+\]$/.test(pageSegment)) return true;
-  return routeSegment === pageSegment;
-}
-
-function routeMatchesPageSegments(route, pageSegments) {
-  const segments = routeSegments(route);
-  let routeIndex = 0;
-
-  for (let pageIndex = 0; pageIndex < pageSegments.length; pageIndex += 1) {
-    const pageSegment = pageSegments[pageIndex];
-    const isLastPageSegment = pageIndex === pageSegments.length - 1;
-
-    if (/^\[\[\.\.\.[^\]]+\]\]$/.test(pageSegment)) {
-      return isLastPageSegment;
-    }
-    if (/^\[\.\.\.[^\]]+\]$/.test(pageSegment)) {
-      return isLastPageSegment && routeIndex < segments.length;
-    }
-    if (routeIndex >= segments.length) return false;
-    if (!segmentMatches(segments[routeIndex], pageSegment)) return false;
-    routeIndex += 1;
-  }
-
-  return routeIndex === segments.length;
-}
-
-function routeMatchesAnyPage(route, pageRoutes) {
-  return pageRoutes.some((pageSegments) =>
-    routeMatchesPageSegments(route, pageSegments),
-  );
-}
-
-function validateFlowRoute(flowId, label, href, issues, pageRoutes) {
-  if (typeof href !== 'string' || href.trim() === '') {
-    issues.push(
-      issue('error', `UI flow ${flowId}: ${label} href is required.`),
-    );
-    return;
-  }
-  if (!href.startsWith('/')) {
-    issues.push(
-      issue(
-        'error',
-        `UI flow ${flowId}: ${label} route ${href} must start with /.`,
-      ),
-    );
-    return;
-  }
-  if (!routeMatchesAnyPage(href, pageRoutes)) {
-    issues.push(
-      issue(
-        'error',
-        `UI flow ${flowId}: ${label} route ${href} does not match a page template.`,
-      ),
-    );
-  }
-}
-
-function validateRequiredCheckpointOrder(flow, issues) {
-  const requiredCheckpointIds = requiredCheckpointIdsByJourney.get(
-    flow.journeyId,
-  );
-  if (!requiredCheckpointIds) return;
-
-  const actualCheckpointIds = flow.checkpoints.map(
-    (checkpoint) => checkpoint.id,
-  );
-  let cursor = -1;
-  for (const requiredCheckpointId of requiredCheckpointIds) {
-    const nextIndex = actualCheckpointIds.indexOf(
-      requiredCheckpointId,
-      cursor + 1,
-    );
-    if (nextIndex === -1) {
-      issues.push(
-        issue(
-          'error',
-          `UI flow ${flow.journeyId}: missing required checkpoint ${requiredCheckpointId} in the expected route order.`,
-        ),
-      );
-      continue;
-    }
-    cursor = nextIndex;
-  }
+  return validateLoggingMapImplementation(loggingMap, catalog, graph);
 }
 
 export function validateUiFlowShell(uiFlowShell, catalog, graph) {
-  const issues = [];
-  const allowedVisibility = new Set(['player', 'gm', 'both']);
-  const allowedRoles = new Set(['player', 'gm']);
-  const pageRoutes = collectPageRouteSegments();
-
-  if (uiFlowShell.version !== 1) {
-    issues.push(issue('error', 'UI flow shell version must be 1.'));
-  }
-  if (!Array.isArray(uiFlowShell.requiredJourneyIds)) {
-    issues.push(
-      issue('error', 'UI flow shell must declare requiredJourneyIds array.'),
-    );
-  }
-  if (!Array.isArray(uiFlowShell.flows)) {
-    issues.push(issue('error', 'UI flow shell must declare flows array.'));
-    return issues;
-  }
-
-  const catalogJourneyIds = new Set(
-    catalog.journeys.map((journey) => journey.id),
-  );
-  const catalogById = new Map(
-    catalog.journeys.map((journey) => [journey.id, journey]),
-  );
-  const graphNodeIds = new Set(graph.nodes.map((node) => node.id));
-  const flowIds = new Set();
-
-  for (const [index, flow] of uiFlowShell.flows.entries()) {
-    const label = flow.journeyId || `flows[${index}]`;
-    if (typeof flow.journeyId !== 'string' || flow.journeyId.trim() === '') {
-      issues.push(
-        issue('error', `${label}: journeyId must be a non-empty string.`),
-      );
-      continue;
-    }
-    if (flowIds.has(flow.journeyId)) {
-      issues.push(
-        issue('error', `UI flow shell duplicates journey ${flow.journeyId}.`),
-      );
-    }
-    flowIds.add(flow.journeyId);
-
-    const catalogJourney = catalogById.get(flow.journeyId);
-    if (!catalogJourneyIds.has(flow.journeyId)) {
-      issues.push(
-        issue(
-          'error',
-          `UI flow shell references unknown journey ${flow.journeyId}.`,
-        ),
-      );
-    }
-    if (!graphNodeIds.has(`journey:${flow.journeyId}`)) {
-      issues.push(
-        issue(
-          'error',
-          `UI flow shell journey ${flow.journeyId} is missing from validation graph.`,
-        ),
-      );
-    }
-    if (catalogJourney && flow.module !== catalogJourney.module) {
-      issues.push(
-        issue(
-          'error',
-          `UI flow ${flow.journeyId}: module ${flow.module} does not match catalog module ${catalogJourney.module}.`,
-        ),
-      );
-    }
-    for (const field of ['displayName', 'module', 'qcCommand']) {
-      if (typeof flow[field] !== 'string' || flow[field].trim() === '') {
-        issues.push(
-          issue('error', `UI flow ${flow.journeyId}: ${field} is required.`),
-        );
-      }
-    }
-    if (
-      typeof flow.qcCommand === 'string' &&
-      !flow.qcCommand.includes(`--journey=${flow.journeyId}`)
-    ) {
-      issues.push(
-        issue(
-          'error',
-          `UI flow ${flow.journeyId}: qcCommand must include --journey=${flow.journeyId}.`,
-        ),
-      );
-    }
-    if (!Array.isArray(flow.roleIntent) || flow.roleIntent.length === 0) {
-      issues.push(
-        issue('error', `UI flow ${flow.journeyId}: roleIntent is required.`),
-      );
-    } else {
-      for (const role of flow.roleIntent) {
-        if (!allowedRoles.has(role)) {
-          issues.push(
-            issue('error', `UI flow ${flow.journeyId}: invalid role ${role}.`),
-          );
-        }
-      }
-    }
-    if (
-      !Array.isArray(flow.inspectionNotes) ||
-      flow.inspectionNotes.length === 0
-    ) {
-      issues.push(
-        issue(
-          'error',
-          `UI flow ${flow.journeyId}: inspectionNotes are required.`,
-        ),
-      );
-    }
-    if (!flow.primaryAction || typeof flow.primaryAction !== 'object') {
-      issues.push(
-        issue('error', `UI flow ${flow.journeyId}: primaryAction is required.`),
-      );
-    } else {
-      if (
-        typeof flow.primaryAction.label !== 'string' ||
-        flow.primaryAction.label.trim() === ''
-      ) {
-        issues.push(
-          issue(
-            'error',
-            `UI flow ${flow.journeyId}: primaryAction label is required.`,
-          ),
-        );
-      }
-      validateFlowRoute(
-        flow.journeyId,
-        'primary action',
-        flow.primaryAction.href,
-        issues,
-        pageRoutes,
-      );
-    }
-    if (!Array.isArray(flow.checkpoints) || flow.checkpoints.length === 0) {
-      issues.push(
-        issue('error', `UI flow ${flow.journeyId}: checkpoints are required.`),
-      );
-      continue;
-    }
-    const checkpointIds = new Set();
-    for (const checkpoint of flow.checkpoints) {
-      const checkpointLabel = checkpoint.id || 'checkpoint';
-      if (typeof checkpoint.id !== 'string' || checkpoint.id.trim() === '') {
-        issues.push(
-          issue(
-            'error',
-            `UI flow ${flow.journeyId}: checkpoint id is required.`,
-          ),
-        );
-      }
-      if (checkpointIds.has(checkpoint.id)) {
-        issues.push(
-          issue(
-            'error',
-            `UI flow ${flow.journeyId}: duplicate checkpoint ${checkpoint.id}.`,
-          ),
-        );
-      }
-      checkpointIds.add(checkpoint.id);
-      if (
-        typeof checkpoint.label !== 'string' ||
-        checkpoint.label.trim() === ''
-      ) {
-        issues.push(
-          issue(
-            'error',
-            `UI flow ${flow.journeyId}: checkpoint ${checkpointLabel} label is required.`,
-          ),
-        );
-      }
-      if (!allowedVisibility.has(checkpoint.visibility)) {
-        issues.push(
-          issue(
-            'error',
-            `UI flow ${flow.journeyId}: checkpoint ${checkpointLabel} has invalid visibility ${checkpoint.visibility}.`,
-          ),
-        );
-      }
-      validateFlowRoute(
-        flow.journeyId,
-        `checkpoint ${checkpointLabel}`,
-        checkpoint.href,
-        issues,
-        pageRoutes,
-      );
-    }
-    validateRequiredCheckpointOrder(flow, issues);
-  }
-
-  const requiredIds = catalog.requiredJourneyIds ?? requiredJourneyIds;
-  for (const requiredId of requiredIds) {
-    if (!flowIds.has(requiredId)) {
-      issues.push(
-        issue('error', `UI flow shell missing required journey ${requiredId}.`),
-      );
-    }
-  }
-  for (const requiredId of uiFlowShell.requiredJourneyIds ?? []) {
-    if (!flowIds.has(requiredId)) {
-      issues.push(
-        issue(
-          'error',
-          `UI flow shell requiredJourneyIds references unmapped journey ${requiredId}.`,
-        ),
-      );
-    }
-  }
-
-  return issues;
+  return validateUiFlowShellImplementation(uiFlowShell, catalog, graph, {
+    repoRoot,
+    toRepoRelative,
+    requiredJourneyIds,
+    requiredCheckpointIdsByJourney,
+  });
 }
 
 export function buildUiFlowShellInspection(
@@ -1364,76 +414,70 @@ function parameterError(journey, name, rawValue, expected) {
   );
 }
 
+function validateIntegerParameter(journey, name, definition, rawValue, value, rawLabel) {
+  if (rawValue !== undefined && !/^-?\d+$/.test(String(rawValue).trim())) {
+    throw parameterError(journey, name, rawValue, 'an integer');
+  }
+  if (!Number.isInteger(value)) {
+    throw parameterError(journey, name, rawLabel, 'an integer');
+  }
+  if (definition.minimum !== undefined && value < definition.minimum) {
+    throw parameterError(journey, name, rawLabel, `an integer >= ${definition.minimum}`);
+  }
+  if (definition.maximum !== undefined && value > definition.maximum) {
+    throw parameterError(journey, name, rawLabel, `an integer <= ${definition.maximum}`);
+  }
+}
+
+function validateBooleanParameter(journey, name, definition, rawValue, value, rawLabel) {
+  if (rawValue !== undefined && rawValue !== 'true' && rawValue !== 'false') {
+    throw parameterError(journey, name, rawValue, 'true or false');
+  }
+  if (typeof value !== 'boolean') {
+    throw parameterError(journey, name, rawLabel, 'true or false');
+  }
+}
+
+function validateEnumParameter(journey, name, definition, rawValue, value, rawLabel) {
+  if (!Array.isArray(definition.values) || !definition.values.includes(value)) {
+    throw parameterError(journey, name, rawLabel, `one of ${definition.values.join(', ')}`);
+  }
+}
+
+function validateStringListParameter(journey, name, definition, rawValue, value, rawLabel) {
+  if (!Array.isArray(value)) {
+    throw parameterError(journey, name, rawLabel, 'a comma-separated list');
+  }
+  if (rawValue !== undefined && value.length === 0) {
+    throw parameterError(journey, name, rawValue, 'a non-empty comma-separated list');
+  }
+}
+
+function validateStringParameter(journey, name, definition, rawValue, value, rawLabel) {
+  if (typeof value !== 'string') {
+    throw parameterError(journey, name, rawLabel, 'a string');
+  }
+}
+
+const parameterValidators = {
+  integer: validateIntegerParameter,
+  boolean: validateBooleanParameter,
+  enum: validateEnumParameter,
+  'string-list': validateStringListParameter,
+  string: validateStringParameter,
+};
+
 function validateAndCoerceParameter(journey, name, definition, rawValue) {
   const value = coerceParameter(definition, rawValue);
   const rawLabel = rawValue === undefined ? definition.default : rawValue;
-
-  if (definition.type === 'integer') {
-    if (rawValue !== undefined && !/^-?\d+$/.test(String(rawValue).trim())) {
-      throw parameterError(journey, name, rawValue, 'an integer');
-    }
-    if (!Number.isInteger(value)) {
-      throw parameterError(journey, name, rawLabel, 'an integer');
-    }
-    if (definition.minimum !== undefined && value < definition.minimum) {
-      throw parameterError(
-        journey,
-        name,
-        rawLabel,
-        `an integer >= ${definition.minimum}`,
-      );
-    }
-    if (definition.maximum !== undefined && value > definition.maximum) {
-      throw parameterError(
-        journey,
-        name,
-        rawLabel,
-        `an integer <= ${definition.maximum}`,
-      );
-    }
-  }
-
-  if (definition.type === 'boolean') {
-    if (rawValue !== undefined && rawValue !== 'true' && rawValue !== 'false') {
-      throw parameterError(journey, name, rawValue, 'true or false');
-    }
-    if (typeof value !== 'boolean') {
-      throw parameterError(journey, name, rawLabel, 'true or false');
-    }
-  }
-
-  if (definition.type === 'enum') {
-    if (
-      !Array.isArray(definition.values) ||
-      !definition.values.includes(value)
-    ) {
-      throw parameterError(
-        journey,
-        name,
-        rawLabel,
-        `one of ${definition.values.join(', ')}`,
-      );
-    }
-  }
-
-  if (definition.type === 'string-list') {
-    if (!Array.isArray(value)) {
-      throw parameterError(journey, name, rawLabel, 'a comma-separated list');
-    }
-    if (rawValue !== undefined && value.length === 0) {
-      throw parameterError(
-        journey,
-        name,
-        rawValue,
-        'a non-empty comma-separated list',
-      );
-    }
-  }
-
-  if (definition.type === 'string' && typeof value !== 'string') {
-    throw parameterError(journey, name, rawLabel, 'a string');
-  }
-
+  parameterValidators[definition.type]?.(
+    journey,
+    name,
+    definition,
+    rawValue,
+    value,
+    rawLabel,
+  );
   return value;
 }
 
@@ -1954,293 +998,113 @@ function dedupeBugCandidates(bugs) {
   return [...byKey.values()];
 }
 
-export function extractBugCandidates(result, logs) {
-  const bugs = [];
+function groupLogsByStep(logs) {
   const logsByStep = new Map();
   for (const entry of logs) {
     if (!entry.journeyId || !entry.stepId) continue;
     const key = `${entry.journeyId}/${entry.stepId}`;
-    const existing = logsByStep.get(key) ?? [];
-    existing.push(entry);
-    logsByStep.set(key, existing);
+    const entries = logsByStep.get(key) ?? [];
+    entries.push(entry);
+    logsByStep.set(key, entries);
   }
-  const bugTriageFromLogs = (journeyId, stepId) => {
-    const matchingLogs = logsByStep.get(`${journeyId}/${stepId}`) ?? [];
-    const triage = matchingLogs.find((entry) => entry.metadata?.triage)
-      ?.metadata?.triage;
-    if (!triage) return undefined;
-    return {
-      ...triage,
-      logFingerprints: matchingLogs.map(
-        (entry) => entry.fingerprint ?? diagnosticFingerprint(entry),
-      ),
-    };
+  return logsByStep;
+}
+
+function triageFromLogs(logsByStep, journeyId, stepId) {
+  const matchingLogs = logsByStep.get(`${journeyId}/${stepId}`) ?? [];
+  const triage = matchingLogs.find((entry) => entry.metadata?.triage)?.metadata?.triage;
+  if (!triage) return undefined;
+  return {
+    ...triage,
+    logFingerprints: matchingLogs.map(
+      (entry) => entry.fingerprint ?? diagnosticFingerprint(entry),
+    ),
   };
+}
+
+function journeyFailureCandidates(result, logsByStep) {
+  const bugs = [];
   for (const journey of result.journeys ?? []) {
     for (const attempt of journey.attempts ?? []) {
       for (const step of attempt.steps ?? []) {
-        if (step.status !== 'pass') {
-          const triage = bugTriageFromLogs(journey.id, step.id);
-          const summary =
-            step.failureKind === 'missing-required-execution-backing'
-              ? `Missing non-synthetic execution backing: ${journey.id}/${step.id}`
-              : `Journey step failed: ${journey.id}/${step.id}`;
-          bugs.push({
-            severity: 'high',
-            journeyId: journey.id,
-            runId: result.runId,
-            stepId: step.id,
-            module: journey.module,
-            fingerprint: hashString(
-              `${journey.id}:${step.id}:${step.status}:${step.failureKind ?? ''}:${step.error ?? ''}`,
-            ),
-            summary,
-            evidenceRefs: [
-              ...(step.artifacts ?? []),
-              ...(triage?.logFingerprints ?? []).map(
-                (fingerprint) => `system.ndjson#${fingerprint}`,
-              ),
-            ],
-            ...(triage ? { triage } : {}),
-          });
-        }
-      }
-      if (attempt.terminalState !== journey.expectedTerminalState) {
+        if (step.status === 'pass') continue;
+        const triage = triageFromLogs(logsByStep, journey.id, step.id);
+        const summary =
+          step.failureKind === 'missing-required-execution-backing'
+            ? `Missing non-synthetic execution backing: ${journey.id}/${step.id}`
+            : `Journey step failed: ${journey.id}/${step.id}`;
         bugs.push({
           severity: 'high',
           journeyId: journey.id,
           runId: result.runId,
-          stepId: null,
+          stepId: step.id,
           module: journey.module,
-          fingerprint: hashString(`${journey.id}:missing-terminal-state`),
-          summary: `Missing terminal state for ${journey.id}`,
-          evidenceRefs: [],
+          fingerprint: hashString(
+            `${journey.id}:${step.id}:${step.status}:${step.failureKind ?? ''}:${step.error ?? ''}`,
+          ),
+          summary,
+          evidenceRefs: [
+            ...(step.artifacts ?? []),
+            ...(triage?.logFingerprints ?? []).map(
+              (fingerprint) => `system.ndjson#${fingerprint}`,
+            ),
+          ],
+          ...(triage ? { triage } : {}),
         });
       }
-    }
-  }
-  for (const entry of logs) {
-    if (entry.level === 'error') {
-      const fingerprint = entry.fingerprint ?? diagnosticFingerprint(entry);
-      const triage = entry.metadata?.triage
-        ? {
-            ...entry.metadata.triage,
-            logFingerprints: [fingerprint],
-          }
-        : undefined;
+      if (attempt.terminalState === journey.expectedTerminalState) continue;
       bugs.push({
-        severity: 'medium',
-        journeyId: entry.journeyId,
-        runId: entry.runId,
-        stepId: entry.stepId,
-        module: entry.entityIds?.module,
-        fingerprint,
-        summary: entry.message ?? `${entry.service}.${entry.event}`,
-        evidenceRefs: [`system.ndjson#${fingerprint}`],
-        ...(triage ? { triage } : {}),
+        severity: 'high',
+        journeyId: journey.id,
+        runId: result.runId,
+        stepId: null,
+        module: journey.module,
+        fingerprint: hashString(`${journey.id}:missing-terminal-state`),
+        summary: `Missing terminal state for ${journey.id}`,
+        evidenceRefs: [],
       });
     }
   }
-  return dedupeBugCandidates(bugs);
+  return bugs;
+}
+
+function errorLogCandidates(logs) {
+  return logs.filter((entry) => entry.level === 'error').map((entry) => {
+    const fingerprint = entry.fingerprint ?? diagnosticFingerprint(entry);
+    const triage = entry.metadata?.triage
+      ? { ...entry.metadata.triage, logFingerprints: [fingerprint] }
+      : undefined;
+    return {
+      severity: 'medium',
+      journeyId: entry.journeyId,
+      runId: entry.runId,
+      stepId: entry.stepId,
+      module: entry.entityIds?.module,
+      fingerprint,
+      summary: entry.message ?? `${entry.service}.${entry.event}`,
+      evidenceRefs: [`system.ndjson#${fingerprint}`],
+      ...(triage ? { triage } : {}),
+    };
+  });
+}
+
+export function extractBugCandidates(result, logs) {
+  return dedupeBugCandidates([
+    ...journeyFailureCandidates(result, groupLogsByStep(logs)),
+    ...errorLogCandidates(logs),
+  ]);
 }
 
 export function executeRunPlan(runPlan, options = {}) {
-  const runDir = path.resolve(repoRoot, runPlan.evidenceDir);
-  const logs = [];
-  const journeys = [];
-  const startedAt = new Date().toISOString();
-
-  if (runPlan.dryRun) {
-    return {
-      logs,
-      result: {
-        version: 1,
-        runId: runPlan.runId,
-        status: 'dry-run',
-        dryRun: true,
-        startedAt,
-        completedAt: new Date().toISOString(),
-        journeys: runPlan.journeys.map((journey) => ({
-          id: journey.id,
-          module: journey.module,
-          expectedTerminalState: journey.expectedTerminalState,
-          attempts: [],
-          knownLimitations: journey.knownLimitations,
-        })),
-      },
-    };
-  }
-
-  for (const journey of runPlan.journeys) {
-    const journeyResult = {
-      id: journey.id,
-      module: journey.module,
-      expectedTerminalState: journey.expectedTerminalState,
-      attempts: [],
-      knownLimitations: journey.knownLimitations,
-    };
-
-    for (let attempt = 1; attempt <= runPlan.runs; attempt += 1) {
-      const attemptResult = {
-        attempt,
-        status: 'pass',
-        terminalState: null,
-        steps: [],
-      };
-
-      for (const step of journey.steps) {
-        const artifacts = [];
-        const injectedFailure =
-          options.injectFailure === step.id ||
-          options.injectFailure === journey.id;
-        const missingRequiredBacking =
-          options.requireDomainBacked && step.syntheticBacking === true;
-        const shouldFail = injectedFailure || missingRequiredBacking;
-        const failureKind = missingRequiredBacking
-          ? 'missing-required-execution-backing'
-          : injectedFailure
-            ? 'injected-failure'
-            : null;
-        const failureMessage = missingRequiredBacking
-          ? `Required non-synthetic execution backing missing for ${journey.id}/${step.id} (${step.executionBacking}).`
-          : `Injected failure for ${journey.id}/${step.id}`;
-        const level =
-          step.loggingPathId === 'tactical-action-rejection' ? 'warn' : 'info';
-        const payload = artifactPayload({ runPlan, journey, step, attempt });
-
-        if (!shouldFail) {
-          for (const produced of step.produces) {
-            artifacts.push(
-              writeArtifact(
-                runDir,
-                `${journey.id}/${attempt}/${produced}`,
-                payload,
-              ),
-            );
-          }
-        }
-        const event = missingRequiredBacking
-          ? 'journey.execution_backing_missing'
-          : shouldFail
-            ? 'journey.step_failed'
-            : step.diagnosticEvent;
-        const status = shouldFail ? 'fail' : 'pass';
-        const triage = triageContext({
-          journey,
-          step,
-          attempt,
-          payload,
-          artifacts,
-          status,
-          event,
-          failureKind,
-          failureMessage: shouldFail ? failureMessage : undefined,
-        });
-
-        const stepLog = logEntry({
-          level: shouldFail ? 'error' : level,
-          service: serviceForStep(journey, step),
-          event,
-          message: shouldFail ? failureMessage : step.title,
-          classification: shouldFail
-            ? 'failure'
-            : level === 'warn'
-              ? 'diagnostic'
-              : undefined,
-          blocking: shouldFail ? true : level === 'warn' ? false : undefined,
-          runPlan,
-          journey,
-          step,
-          attempt,
-          metadata: {
-            loggingPathId: step.loggingPathId,
-            artifacts,
-            terminalState: payload.terminalState,
-            executionBacking: step.executionBacking,
-            syntheticBacking: step.syntheticBacking,
-            executionEvidenceSource: step.executionEvidenceSource,
-            executionProofCommands: step.executionProofCommands,
-            triage,
-            ...(failureKind ? { failureKind } : {}),
-          },
-        });
-        logs.push(stepLog);
-
-        const stepResult = {
-          id: step.id,
-          status,
-          artifacts,
-          diagnosticEvent: stepLog.event,
-          loggingPathId: step.loggingPathId,
-          executionBacking: step.executionBacking,
-          syntheticBacking: step.syntheticBacking,
-          executionEvidenceSource: step.executionEvidenceSource,
-          executionProofCommands: step.executionProofCommands,
-          failureKind: failureKind ?? undefined,
-          error: shouldFail ? stepLog.message : undefined,
-        };
-        attemptResult.steps.push(stepResult);
-
-        if (payload.terminalState)
-          attemptResult.terminalState = payload.terminalState;
-        if (shouldFail && step.required) {
-          attemptResult.status = 'fail';
-          if (!options.continueOnError) break;
-        }
-      }
-
-      if (!attemptResult.terminalState && attemptResult.status === 'pass') {
-        attemptResult.terminalState = journey.expectedTerminalState;
-      }
-      if (attemptResult.terminalState !== journey.expectedTerminalState) {
-        attemptResult.status = 'fail';
-      }
-      journeyResult.attempts.push(attemptResult);
-    }
-    journeys.push(journeyResult);
-  }
-
-  logs.push(
-    logEntry({
-      level: 'warn',
-      service: 'journey.validation',
-      event: 'api.payload_rejected',
-      message:
-        'Negative payload validation probe rejected malformed journey input.',
-      classification: 'expected-probe',
-      blocking: false,
-      runPlan,
-      attempt: 0,
-      metadata: { nonBlockingProbe: true },
-    }),
-  );
-  logs.push(
-    logEntry({
-      level: 'info',
-      service: 'journey.persistence',
-      event: 'store.recovery_checked',
-      message: 'Journey evidence store recovery path verified.',
-      runPlan,
-      attempt: 0,
-      metadata: { evidenceDir: runPlan.evidenceDir },
-    }),
-  );
-
-  const failed = journeys.some((journey) =>
-    journey.attempts.some((attempt) => attempt.status !== 'pass'),
-  );
-  const result = {
-    version: 1,
-    runId: runPlan.runId,
-    status: failed ? 'fail' : 'pass',
-    dryRun: false,
-    requireDomainBacked: runPlan.requireDomainBacked,
-    startedAt,
-    completedAt: new Date().toISOString(),
-    journeys,
-  };
-  result.executionBackingSummary = backingSummary(journeys);
-  return { logs, result };
+  return executeRunPlanImplementation(runPlan, options, {
+    resolveRunDir: (evidenceDir) => path.resolve(repoRoot, evidenceDir),
+    artifactPayload,
+    writeArtifact,
+    triageContext,
+    logEntry,
+    serviceForStep,
+    backingSummary,
+  });
 }
 
 export function writeEvidenceBundle(runPlan, result, logs, bugs) {
@@ -2431,48 +1295,77 @@ export function filterBugs(bugs, options = {}) {
   });
 }
 
+function parseBlockingFilter(value) {
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  return null;
+}
+
+function buildLogFilters(options = {}) {
+  return {
+    levels: options.level
+      ? new Set(options.level.split(',').map((item) => item.trim()))
+      : null,
+    classifications: options.classification
+      ? new Set(options.classification.split(',').map((item) => item.trim()))
+      : null,
+    blocking: parseBlockingFilter(options.blocking),
+    excludeProbes: Boolean(options.excludeProbes || options.actionableOnly),
+    journey: options.journey,
+    stepId: options.stepId,
+    service: options.service,
+    event: options.event,
+    fingerprint: options.fingerprint,
+  };
+}
+
+function matchesSeverityFilters(entry, filters) {
+  if (filters.levels && !filters.levels.has(entry.level)) return false;
+  if (
+    filters.classifications &&
+    !filters.classifications.has(entry.classification ?? '')
+  ) {
+    return false;
+  }
+  if (filters.blocking !== null && entry.blocking !== filters.blocking) {
+    return false;
+  }
+  if (filters.excludeProbes && entry.classification === 'expected-probe') {
+    return false;
+  }
+  return true;
+}
+
+function matchesIdentityFilters(entry, filters) {
+  if (
+    filters.journey &&
+    filters.journey !== 'all' &&
+    entry.journeyId !== filters.journey
+  ) {
+    return false;
+  }
+  if (filters.stepId && entry.stepId !== filters.stepId) return false;
+  if (filters.service && entry.service !== filters.service) return false;
+  if (filters.event && entry.event !== filters.event) return false;
+  if (
+    filters.fingerprint &&
+    (entry.fingerprint ?? diagnosticFingerprint(entry)) !== filters.fingerprint
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function logMatchesFilters(entry, filters) {
+  return (
+    matchesSeverityFilters(entry, filters) &&
+    matchesIdentityFilters(entry, filters)
+  );
+}
+
 export function filterLogs(logs, options = {}) {
-  const levels = options.level
-    ? new Set(options.level.split(',').map((item) => item.trim()))
-    : null;
-  const classifications = options.classification
-    ? new Set(options.classification.split(',').map((item) => item.trim()))
-    : null;
-  const blocking =
-    options.blocking === 'true'
-      ? true
-      : options.blocking === 'false'
-        ? false
-        : null;
-  return logs.filter((entry) => {
-    if (levels && !levels.has(entry.level)) return false;
-    if (classifications && !classifications.has(entry.classification ?? '')) {
-      return false;
-    }
-    if (blocking !== null && entry.blocking !== blocking) return false;
-    if (
-      (options.excludeProbes || options.actionableOnly) &&
-      entry.classification === 'expected-probe'
-    ) {
-      return false;
-    }
-    if (
-      options.journey &&
-      options.journey !== 'all' &&
-      entry.journeyId !== options.journey
-    )
-      return false;
-    if (options.stepId && entry.stepId !== options.stepId) return false;
-    if (options.service && entry.service !== options.service) return false;
-    if (options.event && entry.event !== options.event) return false;
-    if (
-      options.fingerprint &&
-      (entry.fingerprint ?? diagnosticFingerprint(entry)) !==
-        options.fingerprint
-    )
-      return false;
-    return true;
-  });
+  const filters = buildLogFilters(options);
+  return logs.filter((entry) => logMatchesFilters(entry, filters));
 }
 
 export function logIntentLabel(entry) {

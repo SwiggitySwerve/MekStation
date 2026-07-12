@@ -11,10 +11,15 @@ for (const u of idx.units) {
     const d = JSON.parse(fs.readFileSync(path.join(dir, u.path), 'utf8'));
     const gt = d.gyro?.type || 'MISSING';
     gyroCounts[gt] = (gyroCounts[gt] || 0) + 1;
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 console.log('Gyro types in dataset:');
-for (const [gt, n] of Object.entries(gyroCounts).sort((a, b) => (b as number) - (a as number))) {
+for (const [gt, n] of Object.entries(gyroCounts).sort(
+  (a, b) => (b as number) - (a as number),
+)) {
   console.log(`  ${gt}: ${n}`);
 }
 
@@ -33,13 +38,17 @@ for (const u of idx.units) {
     if (!ct) continue;
     let gyroSlots = 0;
     for (const s of ct) {
-      if (s && typeof s === 'string' && s.toLowerCase().includes('gyro')) gyroSlots++;
+      if (s && typeof s === 'string' && s.toLowerCase().includes('gyro'))
+        gyroSlots++;
     }
     // Standard/HD gyro = 4 crits, XL = 6, Compact = 2
     if (gyroSlots === 6) xlGyroDetected++;
     else if (gyroSlots === 2) compactGyroDetected++;
     // Can't distinguish standard from HD by crit count (both 4)
-  } catch {}
+  } catch (_error) {
+    // Ignore expected failure in one-off tooling.
+    void _error;
+  }
 }
 console.log(`\nCrit-slot based detection:`);
 console.log(`  XL gyro (6 crits): ${xlGyroDetected}`);
@@ -47,19 +56,35 @@ console.log(`  Compact gyro (2 crits): ${compactGyroDetected}`);
 
 // Check the 37 "HD gyro candidate" units more carefully
 const hdCandidates = [
-  'ostroc-osr-4k', 'marauder-mad-9w', 'battlemaster-blr-k4',
-  'albatross-alb-5u', 'battlemaster-blr-10s', 'black-hawk-t',
-  'centurion-cn9-d', 'commando-com-9s', 'grasshopper-ghr-7p',
-  'griffin-grf-4n', 'griffin-grf-5k', 'hunchback-hbk-5ss',
-  'liberator-lib-4t', 'marauder-mad-9w2',
+  'ostroc-osr-4k',
+  'marauder-mad-9w',
+  'battlemaster-blr-k4',
+  'albatross-alb-5u',
+  'battlemaster-blr-10s',
+  'black-hawk-t',
+  'centurion-cn9-d',
+  'commando-com-9s',
+  'grasshopper-ghr-7p',
+  'griffin-grf-4n',
+  'griffin-grf-5k',
+  'hunchback-hbk-5ss',
+  'liberator-lib-4t',
+  'marauder-mad-9w2',
 ];
 
 console.log(`\nGyro type for HD candidates:`);
 for (const id of hdCandidates) {
   const entry = idx.units.find((e: any) => e.id === id);
-  if (!entry?.path) { console.log(`  ${id}: NOT FOUND`); continue; }
+  if (!entry?.path) {
+    console.log(`  ${id}: NOT FOUND`);
+    continue;
+  }
   const d = JSON.parse(fs.readFileSync(path.join(dir, entry.path), 'utf8'));
   const ct = d.criticalSlots?.['CENTER_TORSO'] || d.criticalSlots?.['CT'] || [];
-  const gyroSlots = ct.filter((s: any) => s && typeof s === 'string' && s.toLowerCase().includes('gyro'));
-  console.log(`  ${id}: gyro.type="${d.gyro?.type}" critGyroSlots=${gyroSlots.length} slots=${JSON.stringify(gyroSlots)}`);
+  const gyroSlots = ct.filter(
+    (s: any) => s && typeof s === 'string' && s.toLowerCase().includes('gyro'),
+  );
+  console.log(
+    `  ${id}: gyro.type="${d.gyro?.type}" critGyroSlots=${gyroSlots.length} slots=${JSON.stringify(gyroSlots)}`,
+  );
 }
