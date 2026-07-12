@@ -250,29 +250,24 @@ test.describe('P2P Sync - Multiple Items', () => {
 });
 
 // =============================================================================
-// Multi-Peer Tests (Require Real WebRTC - Informational)
+// Multi-Peer Tests — deferred (needs real multi-context WebRTC harness)
 // =============================================================================
 
-test.describe('P2P Sync - Multi-Peer Flow', () => {
-  // These tests document the expected multi-peer behavior.
-  // They are skipped because BroadcastChannel doesn't work across
-  // Playwright's isolated browser contexts.
-  //
-  // The underlying sync logic is tested in unit tests:
-  // - src/lib/p2p/__tests__/useSyncedVaultStore.test.ts
-
-  test.fixme('two peers can connect via room code', async () => {
-    // Wave 2 `reconcile-multiplayer-coop-reality`: replace this explicit
-    // deferral with a two-context/WebRTC transport assertion.
+// fixme(Wave 2 `reconcile-multiplayer-coop-reality`): BroadcastChannel does
+// not cross Playwright's isolated browser contexts. Unit coverage lives in
+// `src/lib/p2p/__tests__/useSyncedVaultStore.test.ts`. Replace this
+// describe.fixme with two-context/WebRTC transport assertions once the
+// harness owns real multi-peer transport + reconnect simulation.
+test.describe.fixme('P2P Sync - Multi-Peer Flow', () => {
+  test('two peers can connect via room code', async () => {
+    // Placeholder until multi-peer e2e harness lands.
   });
 
-  test.fixme('data syncs between connected peers', async () => {
-    // Wave 2 `reconcile-multiplayer-coop-reality`: assert cross-peer item
-    // propagation once the e2e harness owns real multi-peer transport.
+  test('data syncs between connected peers', async () => {
+    // Placeholder until multi-peer e2e harness lands.
   });
 
-  test.fixme('peer reconnects after network interruption', async () => {
-    // Wave 2 `reconcile-multiplayer-coop-reality`: assert reconnect replay once
-    // network interruption simulation is supported by the harness.
+  test('peer reconnects after network interruption', async () => {
+    // Placeholder until multi-peer e2e harness lands.
   });
 });

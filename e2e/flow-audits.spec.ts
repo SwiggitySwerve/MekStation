@@ -120,50 +120,35 @@ const RESOLVED_VIEWPORT = resolveViewport(FLOW_VIEWPORT_RAW);
 // Recorder adapter
 // =============================================================================
 
-/**
- * Wraps `WalkthroughRecorder` so the campaign flow helpers (which expect a
- * `CampaignFlowRecorder`) share the same recorder as the flow's checkpoints.
- * `WalkthroughRecorder.step`/`checkpoint` return the real assigned step
- * index, so this adapter just forwards it — no parallel counter to desync if
- * a future call bypasses this wrapper and hits the recorder directly.
- */
-class FlowRecorder implements CampaignFlowRecorder {
-  constructor(private readonly recorder: WalkthroughRecorder) {}
-
-  async step(
-    title: string,
-    action: (page: Page) => Promise<void>,
-  ): Promise<number> {
-    return this.recorder.step(title, action);
-  }
-
-  async checkpoint(
+interface FlowRecorder extends CampaignFlowRecorder {
+  checkpoint(
     name: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
-  ): Promise<number> {
-    return this.recorder.checkpoint(name, action, options);
-  }
+  ): Promise<number>;
+  markCheckpointNotRun(name: string): void;
+  finding(input: WalkthroughFindingRecord): void;
+  registerEntity(kind: string, id: string): void;
+  registerHoldUrl(label: string, url: string): void;
+  finish(): void;
+}
 
-  markCheckpointNotRun(name: string): void {
-    this.recorder.markCheckpointNotRun(name);
-  }
-
-  finding(input: WalkthroughFindingRecord): void {
-    this.recorder.finding(input);
-  }
-
-  registerEntity(kind: string, id: string): void {
-    this.recorder.registerEntity(kind, id);
-  }
-
-  registerHoldUrl(label: string, url: string): void {
-    this.recorder.registerHoldUrl(label, url);
-  }
-
-  finish(): void {
-    this.recorder.finish();
-  }
+/**
+ * Wrap `WalkthroughRecorder` so campaign flow helpers share one recorder with
+ * the flow checkpoints. The adapter forwards recorder-assigned step indexes
+ * without keeping a parallel counter that could desynchronize.
+ */
+function createFlowRecorder(recorder: WalkthroughRecorder): FlowRecorder {
+  return {
+    step: (title, action) => recorder.step(title, action),
+    checkpoint: (name, action, options) =>
+      recorder.checkpoint(name, action, options),
+    markCheckpointNotRun: (name) => recorder.markCheckpointNotRun(name),
+    finding: (input) => recorder.finding(input),
+    registerEntity: (kind, id) => recorder.registerEntity(kind, id),
+    registerHoldUrl: (label, url) => recorder.registerHoldUrl(label, url),
+    finish: () => recorder.finish(),
+  };
 }
 
 // =============================================================================
@@ -980,7 +965,7 @@ test.describe('flow audits', () => {
         flow.description,
         recorderTestInfo,
       );
-      const fr = new FlowRecorder(recorder);
+      const fr = createFlowRecorder(recorder);
       const ctx: FlowRunContext = { flow, hold: FLOW_HOLD };
       const env: FlowRunEnv = { fr, page, ctx };
 

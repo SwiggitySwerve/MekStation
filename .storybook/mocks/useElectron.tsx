@@ -101,13 +101,12 @@ export function createMockElectronAPI(): IElectronAPI {
 
 export function enableMockElectron() {
   if (typeof window !== 'undefined') {
-    (window as unknown as Record<string, unknown>).electronAPI =
-      createMockElectronAPI();
+    window.electronAPI = createMockElectronAPI();
   }
 }
 
 export function disableMockElectron() {
   if (typeof window !== 'undefined') {
-    delete (window as unknown as Record<string, unknown>).electronAPI;
+    delete window.electronAPI;
   }
 }

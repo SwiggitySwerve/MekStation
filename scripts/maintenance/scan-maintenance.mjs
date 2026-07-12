@@ -23,6 +23,8 @@ const scopeRoots = scopeArg
 
 const skipDirs = new Set([
   '.git',
+  '.claude',
+  '.sisyphus',
   '.next',
   'coverage',
   'dist',
@@ -33,6 +35,8 @@ const skipDirs = new Set([
   'release-test',
   'storybook-static',
   'test-results',
+  'validation-output',
+  'simulation-reports',
 ]);
 const codeExts = new Set([
   '.ts',

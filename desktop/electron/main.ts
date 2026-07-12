@@ -414,16 +414,7 @@ class MekStationApp {
   private setupPeriodicTasks(): void {
     console.log('⏰ Setting up periodic tasks...');
 
-    // Auto-save - disabled until service orchestrator is implemented
-    // setInterval(async () => {
-    //   if (this.serviceOrchestrator) {
-    //     try {
-    //       await this.sendToRenderer('auto-save-trigger');
-    //     } catch (error) {
-    //       console.error('Auto-save trigger failed:', error);
-    //     }
-    //   }
-    // }, this.config.autoSaveInterval);
+    // Auto-save awaits service orchestrator support.
 
     // Auto-backup
     if (this.config.enableBackups) {

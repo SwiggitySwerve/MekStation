@@ -328,7 +328,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
       });
     });
 
-    // fixme(RC2 / tracker T2-F1): see 'Shared items - received'.
+    // Screenshot baseline ownership remains with audit-capture pending Linux nightly coverage.
     test.fixme('Shared items - sent', async ({ page }) => {
       await page.goto('/shared');
       await waitForPageReady(page);
@@ -343,7 +343,7 @@ test.describe('UX Audit Capture Suite @audit', () => {
       });
     });
 
-    // fixme(RC2 / tracker T2-F1): see 'Shared items - received'.
+    // Screenshot baseline ownership remains with audit-capture pending Linux nightly coverage.
     test.fixme('Shared items - empty', async ({ page }) => {
       await page.goto('/shared?search=zzzzzzzzzzzzzzzzzzz');
       await waitForPageReady(page);

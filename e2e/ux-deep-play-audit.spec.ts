@@ -106,51 +106,60 @@ interface CoopTokenCandidate {
   readonly wireToken: string;
 }
 
-class JourneyDriver {
-  private nextStepIndex = 0;
-
-  constructor(private readonly recorder: WalkthroughRecorder) {}
-
-  attachSurface(name: string, page: Page): void {
-    this.recorder.attachSurface(name, page);
-  }
-
-  async step(
+interface JourneyDriver {
+  attachSurface(name: string, page: Page): void;
+  step(
     title: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughStepOptions,
-  ): Promise<number> {
-    this.nextStepIndex += 1;
-    await this.recorder.step(title, action, options);
-    return this.nextStepIndex;
-  }
-
-  async softStep(
+  ): Promise<number>;
+  softStep(
     title: string,
     action: (page: Page) => Promise<void>,
     options?: WalkthroughSoftStepOptions,
-  ): Promise<number> {
-    this.nextStepIndex += 1;
-    await this.recorder.softStep(title, action, options);
-    return this.nextStepIndex;
-  }
-
+  ): Promise<number>;
   finding(input: {
     readonly id: string;
     readonly severity: WalkthroughFindingSeverity;
     readonly summary: string;
     readonly steps: readonly number[];
-  }): void {
-    this.recorder.finding(input);
-  }
+  }): void;
+  note(text: string): void;
+  finish(): void;
+}
 
-  note(text: string): void {
-    this.recorder.note(text);
-  }
+/** Create the shared recorder adapter with a local, monotonic journey index. */
+function createJourneyDriver(recorder: WalkthroughRecorder): JourneyDriver {
+  let nextStepIndex = 0;
 
-  finish(): void {
-    this.recorder.finish();
-  }
+  const nextStep = async (
+    title: string,
+    action: (page: Page) => Promise<void>,
+    options?: WalkthroughStepOptions,
+  ): Promise<number> => {
+    nextStepIndex += 1;
+    await recorder.step(title, action, options);
+    return nextStepIndex;
+  };
+
+  const nextSoftStep = async (
+    title: string,
+    action: (page: Page) => Promise<void>,
+    options?: WalkthroughSoftStepOptions,
+  ): Promise<number> => {
+    nextStepIndex += 1;
+    await recorder.softStep(title, action, options);
+    return nextStepIndex;
+  };
+
+  return {
+    attachSurface: (name, page) => recorder.attachSurface(name, page),
+    step: nextStep,
+    softStep: nextSoftStep,
+    finding: (input) => recorder.finding(input),
+    note: (text) => recorder.note(text),
+    finish: () => recorder.finish(),
+  };
 }
 
 function e2eRunId(): string {
@@ -980,7 +989,7 @@ test.describe('ux deep-play audit - desktop', () => {
       'player pushing a campaign from creation through a battle attempt and full sweep',
       testInfo,
     );
-    const driver = new JourneyDriver(walk);
+    const driver = createJourneyDriver(walk);
     try {
       const campaign = await createCampaignViaWizard(driver, page, {
         name: `Deep Loop ${Date.now()}`,
@@ -1122,7 +1131,7 @@ test.describe('ux deep-play audit - desktop', () => {
       'host and guest proving co-op campaign and 1v1 lobby handoff surfaces',
       testInfo,
     );
-    const driver = new JourneyDriver(walk);
+    const driver = createJourneyDriver(walk);
     driver.attachSurface('guest', guestPage);
 
     const identityIds: string[] = [];
@@ -1277,7 +1286,7 @@ test.describe('ux deep-play audit - desktop', () => {
       'campaign GM validating ledger interventions and the tactical GM dock',
       testInfo,
     );
-    const driver = new JourneyDriver(walk);
+    const driver = createJourneyDriver(walk);
     try {
       const campaign = await createCampaignViaWizard(driver, page, {
         name: `GM Surfaces ${Date.now()}`,

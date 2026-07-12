@@ -268,16 +268,6 @@ test.describe('Campaign Detail Page @campaign', () => {
     );
   });
 
-  // Skip: Campaign created via store doesn't include missions
-  test.skip('displays mission tree via list click', async ({ page }) => {
-    // Navigate via list click
-    await listPage.clickCampaignCard(campaignId);
-    await page.waitForLoadState('networkidle');
-
-    // Mission tree should be visible
-    await expect(page.getByTestId('mission-tree')).toBeVisible();
-  });
-
   test('audit feed stays unmounted for a fresh campaign', async ({ page }) => {
     // Navigate via list click first
     await listPage.clickCampaignCard(campaignId);
@@ -318,71 +308,16 @@ test.describe('Campaign Detail Page @campaign', () => {
 });
 
 // =============================================================================
-// Campaign Mission Tests
+// Campaign Mission Tree Tests — RETIRED (obsolete surface)
+//
+// These tests asserted `mission-tree` / `mission-node-*` /
+// `mission-details-panel` on the campaign detail route after a store-seeded
+// create. That route now mounts CampaignDashboard (command center cards);
+// MissionTreeView remains on CampaignOverviewTab, reachable only via the
+// legacy `/gameplay/campaigns/[id]/overview` path. Mission launch / readiness
+// coverage lives in flow-audits + seam / playtest helpers that drive the
+// wizard + operations queue, not the retired tree panel.
 // =============================================================================
-
-test.describe('Campaign Missions @campaign', () => {
-  let listPage: CampaignListPage;
-  let campaignId: string;
-
-  test.beforeEach(async ({ page }) => {
-    listPage = new CampaignListPage(page);
-    await listPage.navigate();
-    await waitForStoreReady(page);
-
-    // Create a campaign with default missions (from template)
-    campaignId = await createTestCampaign(page, {
-      name: 'Mission Test Campaign',
-    });
-
-    // Wait for any campaign card to appear
-    await page
-      .locator('[data-testid^="campaign-card-"]')
-      .first()
-      .waitFor({ state: 'visible', timeout: 10000 });
-  });
-
-  test.afterEach(async ({ page }) => {
-    try {
-      await deleteCampaign(page, campaignId);
-    } catch {
-      // Ignore cleanup errors
-    }
-  });
-
-  // Skip: Campaign created via store doesn't include missions (needs template)
-  test.skip('displays mission tree with available missions', async ({
-    page,
-  }) => {
-    // Navigate via list click
-    await listPage.clickCampaignCard(campaignId);
-    await page.waitForLoadState('networkidle');
-
-    // Mission tree should have mission nodes
-    const missionNodes = page.locator('[data-testid^="mission-node-"]');
-    await expect(missionNodes.first()).toBeVisible();
-  });
-
-  // Skip: Campaign created via store doesn't include missions (needs template)
-  test.skip('clicking mission shows details panel', async ({ page }) => {
-    // Navigate via list click
-    await listPage.clickCampaignCard(campaignId);
-    await page.waitForLoadState('networkidle');
-
-    // Click first mission in tree
-    const firstMission = page.locator('[data-testid^="mission-node-"]').first();
-    const missionId = await firstMission.getAttribute('data-mission-id');
-    await firstMission.click();
-
-    // Mission details panel should show
-    await expect(page.getByTestId('mission-details-panel')).toBeVisible();
-
-    // Panel should show mission name
-    if (missionId) {
-      await expect(page.getByTestId('mission-details-name')).toBeVisible();
-    }
-  });
-});
 
 // =============================================================================
 // Campaign Audit Timeline Tests — RETIRED (obsolete surface)

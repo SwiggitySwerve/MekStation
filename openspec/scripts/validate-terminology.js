@@ -223,6 +223,76 @@ function findSpecFiles(dir) {
 }
 
 /**
+ * Decide whether a deprecated-term match appears in an allowed explanatory context.
+ */
+function shouldSkipDeprecatedMatch(line, term, matches) {
+  return (
+    isExplanatoryDeprecationLine(line) ||
+    isComparisonExampleLine(line) ||
+    isTermFlagSkipLine(line, term) ||
+    isCheckingScenarioException(line, matches) ||
+    isVerificationScenarioException(line, matches)
+  );
+}
+
+function isExplanatoryDeprecationLine(line) {
+  return (
+    line.includes('❌') ||
+    line.includes('Deprecated') ||
+    line.includes('Do not use')
+  );
+}
+
+function isComparisonExampleLine(line) {
+  return (
+    line.includes('≠') ||
+    line.includes('!=') ||
+    (line.includes('"') && line.includes('!='))
+  );
+}
+
+function isTermFlagSkipLine(line, term) {
+  if (
+    term.skipInRules &&
+    (line.includes('**Rule**:') || line.includes('could mean'))
+  ) {
+    return true;
+  }
+  if (term.skipInRationale && line.includes('**Rationale**:')) {
+    return true;
+  }
+  return (
+    term.skipInChangelog &&
+    (line.includes('- Changed') || line.includes('Version 1.1'))
+  );
+}
+
+function isCheckingScenarioException(line, matches) {
+  if (matches[0].toLowerCase() !== 'checking') {
+    return false;
+  }
+  return (
+    /\*\*WHEN\*\*/i.test(line) ||
+    line.includes('**Pitfall**:') ||
+    line.includes('Checking:') ||
+    line.includes('checking')
+  );
+}
+
+function isVerificationScenarioException(line, matches) {
+  if (!/verif(y|ication)/i.test(matches[0])) {
+    return false;
+  }
+  return (
+    line.includes('**User Action**:') ||
+    line.includes('**Rationale**:') ||
+    line.includes('enables verification') ||
+    line.includes('verify all formulas') ||
+    line.includes('verify formulas')
+  );
+}
+
+/**
  * Check a file for terminology violations
  */
 function checkFile(filePath) {
@@ -247,83 +317,21 @@ function checkFile(filePath) {
         skipInChangelog,
       }) => {
         const matches = line.match(deprecated);
-        if (matches) {
-          // Skip if in a code comment explaining what NOT to use
-          if (
-            line.includes('❌') ||
-            line.includes('Deprecated') ||
-            line.includes('Do not use')
-          ) {
-            return;
-          }
+        if (!matches) return;
+        const term = { skipInRules, skipInRationale, skipInChangelog };
+        if (shouldSkipDeprecatedMatch(line, term, matches)) return;
 
-          // Skip comparison examples (e.g., "inner sphere" ≠ "Inner Sphere")
-          if (
-            line.includes('≠') ||
-            line.includes('!=') ||
-            (line.includes('"') && line.includes('!='))
-          ) {
-            return;
-          }
-
-          // Skip terms in rule descriptions if skipInRules is set
-          if (
-            skipInRules &&
-            (line.includes('**Rule**:') || line.includes('could mean'))
-          ) {
-            return;
-          }
-
-          // Skip terms in rationale/explanation contexts if skipInRationale is set
-          if (skipInRationale && line.includes('**Rationale**:')) {
-            return;
-          }
-
-          // Skip terms in changelog entries if skipInChangelog is set
-          if (
-            skipInChangelog &&
-            (line.includes('- Changed') || line.includes('Version 1.1'))
-          ) {
-            return;
-          }
-
-          // Skip "checking" in WHEN clauses and implementation notes (acceptable in behavioral scenarios)
-          if (matches[0].toLowerCase() === 'checking') {
-            if (
-              /\*\*WHEN\*\*/i.test(line) ||
-              line.includes('**Pitfall**:') ||
-              line.includes('Checking:') ||
-              line.includes('checking')
-            ) {
-              return;
-            }
-          }
-
-          // Skip "verify/verification" in User Action and reference contexts
-          if (/verif(y|ication)/i.test(matches[0])) {
-            if (
-              line.includes('**User Action**:') ||
-              line.includes('**Rationale**:') ||
-              line.includes('enables verification') ||
-              line.includes('verify all formulas') ||
-              line.includes('verify formulas')
-            ) {
-              return;
-            }
-          }
-
-          matches.forEach((match) => {
-            violations.push({
-              line: lineNumber,
-              type: 'deprecated-term',
-              severity,
-              found: match,
-              canonical,
-              context,
-              text: line.trim(),
-            });
+        matches.forEach((match) => {
+          violations.push({
+            line: lineNumber,
+            type: 'deprecated-term',
+            severity,
+            found: match,
+            canonical,
+            context,
+            text: line.trim(),
           });
-        }
+        });
       },
     );
 
