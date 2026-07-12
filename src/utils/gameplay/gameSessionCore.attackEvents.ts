@@ -1,5 +1,6 @@
 import type {
   IAttackDeclaredPayload,
+  IGameEvent,
   IGameSession,
   IWeaponAttackData,
 } from '@/types/gameplay';
@@ -45,7 +46,7 @@ function selectedAmsPayload(
 export function createDeclaredAttackEvent(
   context: IDeclareAttackContext,
   toHit: IDeclaredAttackToHit,
-) {
+): IGameEvent {
   const weaponIds = context.weapons.map((weapon) => weapon.weaponId);
   const sequence = context.session.events.length;
   const { turn } = context.session.currentState;

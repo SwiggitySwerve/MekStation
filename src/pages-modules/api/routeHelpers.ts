@@ -106,6 +106,8 @@ export function sendLoggedApiError(
   label: string,
   error: unknown,
 ): void {
+  // API errors are intentionally logged for server-side diagnostics.
+  // eslint-disable-next-line no-console
   console.error(label, error);
   res.status(500).json({
     error: apiErrorMessage(error, 'Internal server error'),
@@ -117,6 +119,8 @@ export function sendLoggedMessageApiError(
   label: string,
   error: unknown,
 ): void {
+  // API errors are intentionally logged for server-side diagnostics.
+  // eslint-disable-next-line no-console
   console.error(label, error);
   res.status(500).json({ message: 'Internal server error' });
 }
@@ -126,6 +130,8 @@ export function sendLoggedSuccessApiError(
   label: string,
   error: unknown,
 ): void {
+  // API errors are intentionally logged for server-side diagnostics.
+  // eslint-disable-next-line no-console
   console.error(label, error);
   res.status(500).json({
     success: false,

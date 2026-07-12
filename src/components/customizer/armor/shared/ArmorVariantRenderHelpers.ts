@@ -163,7 +163,10 @@ export function getArmorLocationRenderState(
 export function useArmorVariantLayout(
   configType: MechConfigType,
   layoutStyle: ArmorVariantLayoutStyle,
-) {
+): ReturnType<typeof useResolvedLayout> & {
+  hoveredLocation: MechLocation | null;
+  setHoveredLocation: React.Dispatch<React.SetStateAction<MechLocation | null>>;
+} {
   const [hoveredLocation, setHoveredLocation] = useState<MechLocation | null>(
     null,
   );

@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
 
+import type { UseCustomizerTabsResult } from '@/hooks/useCustomizerTabs';
+
 import {
   TabSpec,
   toCustomizerTabConfigs,
@@ -18,7 +20,17 @@ export function useCustomizerTabShell<TState, TTabId extends string>({
   state,
   initialTab,
   onTabChange,
-}: UseCustomizerTabShellOptions<TState, TTabId>) {
+}: UseCustomizerTabShellOptions<TState, TTabId>): {
+  readonly tabBarProps: Pick<
+    UseCustomizerTabsResult<TState>,
+    'activeTab' | 'dirtyTabs' | 'errorTabs'
+  > & {
+    readonly tabs: ReturnType<typeof toCustomizerTabConfigs>;
+    readonly onTabChange: (tabId: string) => void;
+  };
+  readonly activeTab: string;
+  readonly TabComponent: TabSpec<TState>['component'] | undefined;
+} {
   const { visibleSpecs, activeTab, setActiveTab, dirtyTabs, errorTabs } =
     useCustomizerTabs({
       specs,

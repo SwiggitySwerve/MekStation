@@ -1,4 +1,4 @@
-import { createJSONStorage } from 'zustand/middleware';
+import { createJSONStorage, type PersistOptions } from 'zustand/middleware';
 
 import { clientSafeStorage } from './utils/clientSafeStorage';
 
@@ -30,7 +30,9 @@ export type UnitIdentityActions<TState extends UnitIdentityState> = {
   setRulesLevel: (rulesLevel: TState['rulesLevel']) => void;
 };
 
-export function modifiedPatch<TPatch extends object>(patch: TPatch) {
+export function modifiedPatch<TPatch extends object>(
+  patch: TPatch,
+): TPatch & { isModified: true; lastModifiedAt: number } {
   return {
     ...patch,
     isModified: true,
@@ -38,7 +40,10 @@ export function modifiedPatch<TPatch extends object>(patch: TPatch) {
   };
 }
 
-export function modificationPatch(modified = true) {
+export function modificationPatch(modified = true): {
+  isModified: boolean;
+  lastModifiedAt: number;
+} {
   return {
     isModified: modified,
     lastModifiedAt: Date.now(),
@@ -80,7 +85,12 @@ export function createUnitIdentityActions<TState extends UnitIdentityState>(
 
 export function pickPersistedUnitIdentity<
   TState extends PersistedUnitIdentityState,
->(state: TState) {
+>(
+  state: TState,
+): Pick<
+  TState,
+  'id' | 'name' | 'chassis' | 'model' | 'mulId' | 'year' | 'rulesLevel'
+> {
   return {
     id: state.id,
     name: state.name,
@@ -94,7 +104,19 @@ export function pickPersistedUnitIdentity<
 
 export function pickPersistedUnitIdentityWithClanName<
   TState extends PersistedUnitIdentityState & { clanName: string },
->(state: TState) {
+>(
+  state: TState,
+): Pick<
+  TState,
+  | 'id'
+  | 'name'
+  | 'chassis'
+  | 'model'
+  | 'mulId'
+  | 'year'
+  | 'rulesLevel'
+  | 'clanName'
+> {
   return {
     ...pickPersistedUnitIdentity(state),
     clanName: state.clanName,
@@ -104,7 +126,15 @@ export function pickPersistedUnitIdentityWithClanName<
 export function createUnitStorePersistOptions<
   TState,
   TPersisted extends object,
->(name: string, partialize: (state: TState) => TPersisted) {
+>(
+  name: string,
+  partialize: (state: TState) => TPersisted,
+): {
+  name: string;
+  storage: ReturnType<typeof createJSONStorage<TPersisted>>;
+  skipHydration: boolean;
+  partialize: (state: TState) => TPersisted;
+} & PersistOptions<TState, TPersisted> {
   return {
     name,
     storage: createJSONStorage(() => clientSafeStorage),

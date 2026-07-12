@@ -6,7 +6,9 @@ type IconProps = {
   className?: string;
 };
 
-export function CloseIcon({ className = 'h-5 w-5' }: IconProps) {
+export function CloseIcon({
+  className = 'h-5 w-5',
+}: IconProps): React.ReactElement {
   return (
     <svg
       className={className}
@@ -24,7 +26,9 @@ export function CloseIcon({ className = 'h-5 w-5' }: IconProps) {
   );
 }
 
-export function CheckIcon({ className = 'h-4 w-4' }: IconProps) {
+export function CheckIcon({
+  className = 'h-4 w-4',
+}: IconProps): React.ReactElement {
   return (
     <svg
       className={className}
@@ -42,7 +46,9 @@ export function CheckIcon({ className = 'h-4 w-4' }: IconProps) {
   );
 }
 
-export function ErrorIcon({ className = 'h-4 w-4' }: IconProps) {
+export function ErrorIcon({
+  className = 'h-4 w-4',
+}: IconProps): React.ReactElement {
   return (
     <svg
       className={className}
@@ -60,7 +66,9 @@ export function ErrorIcon({ className = 'h-4 w-4' }: IconProps) {
   );
 }
 
-export function WarningIcon({ className = 'h-4 w-4' }: IconProps) {
+export function WarningIcon({
+  className = 'h-4 w-4',
+}: IconProps): React.ReactElement {
   return (
     <svg
       className={className}
@@ -78,7 +86,9 @@ export function WarningIcon({ className = 'h-4 w-4' }: IconProps) {
   );
 }
 
-export function SpinnerIcon({ className = 'h-5 w-5 animate-spin' }: IconProps) {
+export function SpinnerIcon({
+  className = 'h-5 w-5 animate-spin',
+}: IconProps): React.ReactElement {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24">
       <circle
@@ -98,7 +108,11 @@ export function SpinnerIcon({ className = 'h-5 w-5 animate-spin' }: IconProps) {
   );
 }
 
-export function DialogCloseButton({ onClose }: { onClose: () => void }) {
+export function DialogCloseButton({
+  onClose,
+}: {
+  onClose: () => void;
+}): React.ReactElement {
   return (
     <button onClick={onClose} className={cs.dialog.closeBtn}>
       <CloseIcon />
@@ -106,7 +120,11 @@ export function DialogCloseButton({ onClose }: { onClose: () => void }) {
   );
 }
 
-export function DialogErrorMessage({ message }: { message: string }) {
+export function DialogErrorMessage({
+  message,
+}: {
+  message: string;
+}): React.ReactElement {
   return (
     <div className={cs.dialog.errorPanel}>
       <div className="flex items-center gap-2 text-red-400">
@@ -117,7 +135,11 @@ export function DialogErrorMessage({ message }: { message: string }) {
   );
 }
 
-export function DialogLoadingState({ label }: { label: string }) {
+export function DialogLoadingState({
+  label,
+}: {
+  label: string;
+}): React.ReactElement {
   return (
     <div className="text-text-theme-secondary flex items-center justify-center gap-2 py-4">
       <SpinnerIcon />
