@@ -218,7 +218,7 @@
     "simulate:batch": "npx tsx scripts/run-simulation.ts --count=100"
   },
   "dependencies": {
-    "@tailwindcss/postcss": "^4.1.8",
+    "@tailwindcss/postcss": "^4.1.18",
     "@turf/bbox": "^7.3.2",
     "@turf/boolean-point-in-polygon": "^7.3.2",
     "@turf/centroid": "^7.3.2",
@@ -227,13 +227,13 @@
     "@turf/point-grid": "^7.3.2",
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.21",
-    "better-sqlite3": "^12.5.0",
-    "electron-updater": "^6.6.2",
+    "better-sqlite3": "^12.6.2",
+    "electron-updater": "^6.8.9",
     "js-sha256": "^0.11.1",
-    "jspdf": "^3.0.4",
+    "jspdf": "^4.2.1",
     "konva": "^10.2.0",
     "minisearch": "^7.2.0",
-    "next": "^16.0.3",
+    "next": "^16.2.11",
     "poisson-disk-sampling": "^2.3.1",
     "react": "^19.1.0",
     "react-dnd": "^16.0.1",
@@ -242,8 +242,8 @@
     "react-konva": "^19.2.1",
     "react-window": "^2.2.6",
     "tailwindcss": "^4.1.8",
-    "uuid": "^11.1.0",
-    "ws": "^8.20.0",
+    "uuid": "^11.1.1",
+    "ws": "^8.21.1",
     "y-indexeddb": "^9.0.12",
     "y-protocols": "^1.0.7",
     "y-webrtc": "^10.3.0",
@@ -255,13 +255,13 @@
   "devDependencies": {
     "@axe-core/react": "^4.11.1",
     "@playwright/test": "^1.57.0",
-    "@storybook/addon-a11y": "^8.6.15",
-    "@storybook/addon-essentials": "^8.6.14",
-    "@storybook/addon-interactions": "^8.6.14",
-    "@storybook/blocks": "^8.6.14",
-    "@storybook/react": "^8.6.15",
-    "@storybook/react-vite": "^8.6.15",
-    "@storybook/test": "^8.6.15",
+    "@storybook/addon-a11y": "^8.6.18",
+    "@storybook/addon-essentials": "^8.6.18",
+    "@storybook/addon-interactions": "^8.6.18",
+    "@storybook/blocks": "^8.6.18",
+    "@storybook/react": "^8.6.18",
+    "@storybook/react-vite": "^8.6.18",
+    "@storybook/test": "^8.6.18",
     "@swc/core": "^1.15.30",
     "@swc/jest": "^0.2.39",
     "@tailwindcss/vite": "^4.1.18",
@@ -279,7 +279,7 @@
     "@types/react-window": "^1.8.8",
     "@types/webpack-bundle-analyzer": "^4.7.0",
     "@types/ws": "^8.18.1",
-    "@xmldom/xmldom": "^0.8.11",
+    "@xmldom/xmldom": "^0.8.13",
     "baseline-browser-mapping": "^2.10.40",
     "eslint": "^9.39.1",
     "fake-indexeddb": "^6.2.5",
@@ -291,13 +291,13 @@
     "jest-environment-node": "^30.0.0",
     "json-schema-to-zod": "^2.8.1",
     "lint-staged": "^16.2.7",
-    "minimatch": "^3.1.2",
+    "minimatch": "^3.1.5",
     "node-mocks-http": "^1.17.2",
     "oxfmt": "^0.28.0",
     "oxlint": "^1.43.0",
     "playwright": "^1.57.0",
-    "sharp": "^0.34.5",
-    "storybook": "^8.6.15",
+    "sharp": "^0.35.3",
+    "storybook": "^8.6.18",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "tsx": "4.22.4",
@@ -305,7 +305,9 @@
     "webpack-bundle-analyzer": "^4.10.1"
   },
   "overrides": {
-    "brace-expansion": "^4.0.0"
+    "brace-expansion": "5.0.8",
+    "postcss": "8.5.23",
+    "sharp": "$sharp"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -320,5 +322,8 @@
     "*.{json,md,css}": [
       "oxfmt --write --no-error-on-unmatched-pattern"
     ]
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

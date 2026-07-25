@@ -64,8 +64,11 @@ linting-groups.md
 .env.*
 !.env.example
 
-# Desktop/Electron files (not needed for container)
-desktop
+# Desktop/Electron files (only the shared HTTP security policy is needed by next.config.ts)
+desktop/*
+!desktop/electron/
+desktop/electron/*
+!desktop/electron/securityPolicy.ts
 electron-builder.yml
 
 # OpenSpec development files
