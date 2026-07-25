@@ -106,7 +106,7 @@ export function CriticalSlotsDisplay({
 
       {/* Mobile tabs - visible only on small screens */}
       <div className="border-border-theme border-b md:hidden">
-        <div className="scrollbar-thin scrollbar-thumb-border-theme flex overflow-x-auto">
+        <div className="scrollbar-thumb-border-theme flex scrollbar-thin overflow-x-auto">
           {locationTabs.map(({ loc, label }) => (
             <button
               key={loc}

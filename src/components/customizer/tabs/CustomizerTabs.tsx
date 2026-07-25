@@ -266,7 +266,7 @@ export function CustomizerTabs({
       {/* Tabs container */}
       <div
         ref={scrollContainerRef}
-        className="scrollbar-thin scrollbar-thumb-border-theme flex justify-evenly overflow-x-auto"
+        className="scrollbar-thumb-border-theme flex scrollbar-thin justify-evenly overflow-x-auto"
         role="tablist"
         aria-label="Unit configuration tabs"
         onKeyDown={handleKeyDown}

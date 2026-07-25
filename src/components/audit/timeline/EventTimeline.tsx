@@ -168,7 +168,7 @@ export function EventTimeline({
   return (
     <div
       ref={containerRef}
-      className={`bg-surface-base/30 border-border-theme-subtle scrollbar-thin scrollbar-thumb-border-theme scrollbar-track-transparent relative overflow-x-hidden overflow-y-auto rounded-xl border ${className} `}
+      className={`bg-surface-base/30 border-border-theme-subtle scrollbar-thumb-border-theme relative scrollbar-thin scrollbar-track-transparent overflow-x-hidden overflow-y-auto rounded-xl border ${className} `}
       style={{ maxHeight }}
     >
       {/* Timeline Track */}
