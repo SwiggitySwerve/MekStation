@@ -5,6 +5,7 @@ import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { getUnitStore } from '@/stores/unitStoreRegistry';
 import { Era } from '@/types/temporal/Era';
 import { logger } from '@/utils/logger';
+import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
 import { getEraForYear } from '@/utils/temporal/eraUtils';
 
 export interface CloseDialogState {
@@ -108,25 +109,15 @@ export function useDialogHandlers(
 
       try {
         const era = getEraForYear(state.year) ?? Era.LATE_SUCCESSION_WARS;
-        const unitData = {
-          id: overwriteId || saveDialog.tabId,
+        const unitData = serializeCustomUnitState(state, {
+          id: overwriteId ?? saveDialog.tabId,
           chassis,
           variant,
-          tonnage: state.tonnage,
-          techBase: state.techBase,
           era,
-          unitType: 'BattleMech' as const,
-          engineType: state.engineType,
-          engineRating: state.engineRating,
-          gyroType: state.gyroType,
-          internalStructureType: state.internalStructureType,
-          cockpitType: state.cockpitType,
-          heatSinkType: state.heatSinkType,
-          heatSinkCount: state.heatSinkCount,
-          armorType: state.armorType,
-          armorAllocation: state.armorAllocation,
-        };
+        });
 
+        // The legacy API type names persisted data as IFullUnit even though
+        // this path writes the canonical ISerializedUnit contract.
         let result;
         if (overwriteId) {
           result = await customUnitApiService.save(
@@ -166,7 +157,9 @@ export function useDialogHandlers(
           performCloseTab(tabIdToClose);
         }
       } catch (error) {
-        logger.error('Failed to save unit:', error);
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown save error';
+        logger.error('Failed to save unit:', errorMessage);
         showToast({
           message: 'Failed to save unit. Please try again.',
           variant: 'error',

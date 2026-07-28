@@ -5,4 +5,5 @@
  */
 
 export * from './UnitSerializer';
+export * from './CustomUnitSerializer';
 export * from './DataIntegrityValidator';
