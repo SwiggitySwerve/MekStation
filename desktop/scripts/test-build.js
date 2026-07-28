@@ -260,7 +260,7 @@ for (const platform of PLATFORMS) {
     // signAndEditExecutable: false should prevent winCodeSign download
     const packCommand =
       platform === 'win'
-        ? `npx electron-builder --win --x64 --dir ${OUTPUT_FLAG} --config.win.sign=false --config.win.signAndEditExecutable=false`
+        ? `npx electron-builder --win --x64 --dir ${OUTPUT_FLAG} --config.win.signExecutable=false --config.win.signAndEditExecutable=false`
         : platform === 'mac'
           ? `npx electron-builder --mac --dir ${OUTPUT_FLAG} --config.mac.sign=false`
           : `npx electron-builder --linux --dir ${OUTPUT_FLAG}`;

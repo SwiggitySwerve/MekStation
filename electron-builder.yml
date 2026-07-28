@@ -29,6 +29,13 @@ extraResources:
   # This payload already includes `.next/static` after `npm run build` hydration.
   - from: '.tmp/next-standalone-electron'
     to: 'next-standalone'
+  # electron-builder 26 excludes a directory whose relative path is exactly
+  # `node_modules`; root this FileSet inside the standalone dependency tree so
+  # the packaged server retains its complete runtime closure.
+  - from: '.tmp/next-standalone-electron/node_modules'
+    to: 'next-standalone/node_modules'
+    filter:
+      - '**/*'
   # NOTE: Next.js public assets are copied via an afterPack hook (with retries)
   # to avoid intermittent Windows file locking errors during electron-builder bulk copy.
 
@@ -79,15 +86,10 @@ win:
     - target: portable
       arch:
         - x64
-  publisherName: SwerveLabs
   verifyUpdateCodeSignature: false
-  sign: false
-  signingHashAlgorithms: []
-  # Prevent downloading signing tools entirely
+  # Prevent resource editing and code signing in unsigned builds.
   signAndEditExecutable: false
-  signDlls: false
-  signtoolOptions:
-    sign: false
+  signExecutable: false
 
 nsis:
   oneClick: false

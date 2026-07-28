@@ -119,7 +119,7 @@ export async function createMainWindow({
 
     mainWindow.show();
     if (process.platform === 'darwin') {
-      app.dock.show();
+      app.dock?.show();
     }
     mainWindow.focus();
   });

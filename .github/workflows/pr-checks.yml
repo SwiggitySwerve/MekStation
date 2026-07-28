@@ -73,7 +73,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
           fetch-assets: 'true'
 
   lint:
@@ -89,7 +89,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Run linter
         run: npm run lint
@@ -107,7 +107,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Check formatting
         run: npm run format:check
@@ -125,7 +125,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Run type check
         run: npx tsc --noEmit
@@ -147,7 +147,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Run unit test shard
         run: npx jest --selectProjects unit --ci --shard=${{ matrix.shard }}/6
@@ -167,7 +167,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Run CI-sized perf-sensitive simulation tests
         run: >-
@@ -203,7 +203,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Run 100-game statistical combat proofs
         run: >-
@@ -229,7 +229,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Run simulation wall-clock budgets
         run: >-
@@ -252,7 +252,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Generate combat/simulation coverage summary
         run: >-
@@ -288,7 +288,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Run a11y tests (axe-core)
         # Gates accessibility regressions for in-scope components. Runs
@@ -310,7 +310,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
           fetch-assets: 'true'
 
       - name: Validate BV parity
@@ -329,7 +329,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
           fetch-assets: 'true'
 
       - name: Validate combat catalog/test/spec consistency
@@ -348,7 +348,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Build Storybook
         run: npm run storybook:build
@@ -375,7 +375,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -492,7 +492,7 @@ jobs:
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Resolve Playwright version for browser cache key
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
@@ -543,7 +543,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Run desktop type check
         working-directory: desktop
@@ -562,7 +562,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Run desktop Jest suite
         working-directory: desktop
@@ -620,7 +620,7 @@ jobs:
         if: needs.detect-changes.outputs.code == 'true'
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
           fetch-assets: 'true'
 
       - name: Validate assets
@@ -681,7 +681,7 @@ jobs:
         if: needs.detect-changes.outputs.code == 'true'
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
           skip-nextjs-cache: 'true'
 
       - name: Download build artifacts

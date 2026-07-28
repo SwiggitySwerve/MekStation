@@ -68,6 +68,7 @@ if (process.env.JEST_EXCLUDE_PERF_SENSITIVE === 'true') {
 
 const unitJestConfig = {
   displayName: 'unit',
+  roots: ['<rootDir>/src', '<rootDir>/scripts', '<rootDir>/openspec'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: sharedModuleNameMapper,
   testEnvironment: 'jsdom',
@@ -95,6 +96,7 @@ const unitJestConfig = {
 
 const a11yJestConfig = {
   displayName: 'a11y',
+  roots: ['<rootDir>/src', '<rootDir>/scripts', '<rootDir>/openspec'],
   setupFilesAfterEnv: [
     '<rootDir>/jest.setup.js',
     '<rootDir>/jest.setup.a11y.ts',

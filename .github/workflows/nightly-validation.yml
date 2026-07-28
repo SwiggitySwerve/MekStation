@@ -47,7 +47,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
   # ---------------------------------------------------------------
   # Full-size statistical + perf proofs (E-2/E-4/E-5/E-6).
@@ -75,7 +75,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Run full-size statistical and perf proof suites
         run: >-
@@ -145,7 +145,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Resolve Playwright version for browser cache key
         id: playwright-version
@@ -205,7 +205,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Run unit tests with coverage thresholds
         run: npx jest --selectProjects unit --ci --coverage
@@ -259,7 +259,7 @@ jobs:
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Resolve Playwright version for browser cache key
         id: playwright-version

@@ -349,7 +349,7 @@ export default function ConstructionRulesPage(): React.ReactElement {
         className="bg-surface-deep/95 border-border-theme-subtle sticky top-0 z-20 -mx-4 mb-6 border-b px-4 py-3 backdrop-blur-sm sm:-mx-6 sm:px-6"
         aria-label="Section navigation"
       >
-        <div className="scrollbar-thin scrollbar-thumb-border-theme scrollbar-track-transparent flex gap-2 overflow-x-auto pb-1">
+        <div className="scrollbar-thumb-border-theme flex scrollbar-thin scrollbar-track-transparent gap-2 overflow-x-auto pb-1">
           {ruleSections.map((section) => {
             const styles = accentColorStyles[section.accentColor];
             const isActive = activeSection === section.id;

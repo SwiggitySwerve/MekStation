@@ -3,6 +3,13 @@ const mockOnHeadersReceived = jest.fn();
 const mockBrowserWindowConstructor = jest.fn();
 const mockShowMessageBox = jest.fn();
 const mockDockShow = jest.fn();
+const mockApp: {
+  dock?: { show: jest.Mock };
+  isPackaged: boolean;
+} = {
+  dock: { show: mockDockShow },
+  isPackaged: false,
+};
 
 const mockWebContents = {
   on: jest.fn(),
@@ -29,10 +36,7 @@ const mockWindow = {
 };
 
 jest.mock('electron', () => ({
-  app: {
-    dock: { show: mockDockShow },
-    isPackaged: false,
-  },
+  app: mockApp,
   BrowserWindow: mockBrowserWindowConstructor,
   dialog: {
     showMessageBox: mockShowMessageBox,
@@ -90,6 +94,7 @@ function context() {
 describe('desktop main window security boundaries', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockApp.dock = { show: mockDockShow };
     mockBrowserWindowConstructor.mockImplementation(() => mockWindow);
   });
 
@@ -143,5 +148,32 @@ describe('desktop main window security boundaries', () => {
     handler?.({ url: 'javascript:alert(document.cookie)' });
 
     expect(mockOpenExternal).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows the window on macOS when Electron does not expose dock controls', async () => {
+    const platformDescriptor = Object.getOwnPropertyDescriptor(
+      process,
+      'platform',
+    );
+    Object.defineProperty(process, 'platform', { value: 'darwin' });
+    mockApp.dock = undefined;
+
+    try {
+      await createMainWindow(context());
+
+      const readyToShowCall = mockWindow.once.mock.calls.find(
+        ([channel]) => channel === 'ready-to-show',
+      );
+      expect(readyToShowCall).toBeDefined();
+
+      const handler = readyToShowCall?.[1] as (() => void) | undefined;
+      expect(handler).not.toThrow();
+      expect(mockWindow.show).toHaveBeenCalled();
+      expect(mockWindow.focus).toHaveBeenCalled();
+    } finally {
+      if (platformDescriptor) {
+        Object.defineProperty(process, 'platform', platformDescriptor);
+      }
+    }
   });
 });

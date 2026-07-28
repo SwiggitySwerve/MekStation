@@ -201,28 +201,15 @@ async function main() {
 
   // Rebuild native modules for Electron with the same rebuilder electron-builder uses.
   // `npm rebuild` can silently leave host-Node ABI bindings in the standalone tree.
-  const electronRebuildCliPath = require.resolve('@electron/rebuild/lib/cli');
-  execFileSync(
-    process.execPath,
-    [
-      electronRebuildCliPath,
-      '--version',
-      electronVersion,
-      '--module-dir',
-      electronStandaloneDir,
-      '--only',
-      'better-sqlite3',
-      '--force',
-      '--arch',
-      process.arch,
-      '--dist-url',
-      'https://electronjs.org/headers',
-    ],
-    {
-      cwd: path.join(rootDir, 'desktop'),
-      stdio: 'inherit',
-    },
-  );
+  const { rebuild } = await import('@electron/rebuild');
+  await rebuild({
+    arch: process.arch,
+    buildPath: electronStandaloneDir,
+    electronVersion,
+    force: true,
+    headerURL: 'https://electronjs.org/headers',
+    onlyModules: ['better-sqlite3'],
+  });
 
   // Sanity check: the root standalone output must remain usable by plain Node.
   // Electron rebuilds are isolated to the desktop/.tmp copy so service runs and
