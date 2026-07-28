@@ -1,4 +1,14 @@
-import type { PilotAssignments } from './CreateCampaignPage.types';
+import type {
+  PilotAssignments,
+  SelectedPilot,
+  SelectedUnit,
+} from './CreateCampaignPage.types';
+
+interface ResolvePilotAssignmentsInput {
+  pilotAssignments: PilotAssignments;
+  selectedPilots: SelectedPilot[];
+  selectedUnits: SelectedUnit[];
+}
 
 export function createEntityId(prefix: 'unit' | 'pilot'): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -52,4 +62,22 @@ export function getAssignedUnitIdForPilot(
   return Object.entries(assignments).find(([, assignedPilotId]) => {
     return assignedPilotId === pilotId;
   })?.[0];
+}
+
+export function resolvePilotAssignmentsForSubmit({
+  pilotAssignments,
+  selectedPilots,
+  selectedUnits,
+}: ResolvePilotAssignmentsInput): PilotAssignments {
+  if (
+    Object.keys(pilotAssignments).length === 0 &&
+    selectedUnits.length === 1 &&
+    selectedPilots.length === 1
+  ) {
+    return {
+      [selectedUnits[0].id]: selectedPilots[0].id,
+    };
+  }
+
+  return pilotAssignments;
 }
