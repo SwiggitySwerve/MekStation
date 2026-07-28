@@ -35,21 +35,21 @@ MekStation/
 
 ## WHERE TO LOOK
 
-| Task | Location | Notes |
-| --- | --- | --- |
-| App startup/shell | `server.js`, `src/pages/_app.tsx` | Port 3600; custom server bootstraps multiplayer |
-| Routes and API | `src/pages/`, `src/pages-modules/` | Pages Router only; shared API setup in `routeHelpers.ts` |
-| UI work | `src/components/`, `src/styles/globals.css` | Reuse primitives, theme tokens, accessibility seams |
-| Construction rules | `openspec/specs/`, `src/services/construction/`, `src/utils/construction/` | Verify spec and executable formula together |
-| Validation | `src/types/validation/`, `src/utils/validation/`, `src/services/validation/` | Dependency direction is types -> pure rules -> orchestration |
-| Gameplay state | `src/utils/gameplay/`, `src/engine/` | Events are canonical; derived state must replay |
-| Simulation | `src/simulation/`, `scripts/run-simulation-*.ts` | Seeded deterministic runs and invariant evidence |
-| Multiplayer | `src/lib/multiplayer/server/`, `server.js` | Server-authoritative WS; P2P is fallback only |
-| Persistence | `src/services/persistence/`, `src/services/campaignPersistence/` | SQLite server side, IndexedDB browser side |
-| Browser proof | `e2e/`, `playwright.config.ts`, `scripts/playwright/` | Tagged projects and per-run durable stores |
-| QC/release proof | `scripts/qc/`, `docs/qc/`, `.github/workflows/` | Registry-backed gates; reports can become stale |
-| Desktop | `desktop/`, `electron-builder.yml` | Separate lockfile, TS config, Jest, ABI rebuild |
-| Audit output | `docs/audits/<date>-<topic>.md` | Do not put audits in planning scratch |
+| Task               | Location                                                                     | Notes                                                        |
+| ------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| App startup/shell  | `server.js`, `src/pages/_app.tsx`                                            | Port 3600; custom server bootstraps multiplayer              |
+| Routes and API     | `src/pages/`, `src/pages-modules/`                                           | Pages Router only; shared API setup in `routeHelpers.ts`     |
+| UI work            | `src/components/`, `src/styles/globals.css`                                  | Reuse primitives, theme tokens, accessibility seams          |
+| Construction rules | `openspec/specs/`, `src/services/construction/`, `src/utils/construction/`   | Verify spec and executable formula together                  |
+| Validation         | `src/types/validation/`, `src/utils/validation/`, `src/services/validation/` | Dependency direction is types -> pure rules -> orchestration |
+| Gameplay state     | `src/utils/gameplay/`, `src/engine/`                                         | Events are canonical; derived state must replay              |
+| Simulation         | `src/simulation/`, `scripts/run-simulation-*.ts`                             | Seeded deterministic runs and invariant evidence             |
+| Multiplayer        | `src/lib/multiplayer/server/`, `server.js`                                   | Server-authoritative WS; P2P is fallback only                |
+| Persistence        | `src/services/persistence/`, `src/services/campaignPersistence/`             | SQLite server side, IndexedDB browser side                   |
+| Browser proof      | `e2e/`, `playwright.config.ts`, `scripts/playwright/`                        | Tagged projects and per-run durable stores                   |
+| QC/release proof   | `scripts/qc/`, `docs/qc/`, `.github/workflows/`                              | Registry-backed gates; reports can become stale              |
+| Desktop            | `desktop/`, `electron-builder.yml`                                           | Separate lockfile, TS config, Jest, ABI rebuild              |
+| Audit output       | `docs/audits/<date>-<topic>.md`                                              | Do not put audits in planning scratch                        |
 
 ## CODE MAP
 
@@ -57,17 +57,17 @@ MekStation/
 The TypeScript LSP is unavailable in this checkout, so treat counts as
 navigation hints rather than semantic reference totals.
 
-| Symbol | Type | Location | Refs | Role |
-| --- | --- | --- | ---: | --- |
-| `initializeBrowserServices` | function | `src/pages/_app.tsx` | 1 | Browser IndexedDB/equipment startup |
-| `bootstrapMultiplayerServer` | function | `src/lib/multiplayer/server/MatchHostRegistry.ts` | 2 | Durable active-match recovery |
-| `MatchHostRegistry` | class | `src/lib/multiplayer/server/MatchHostRegistry.ts` | 8 | Process-local authoritative hosts |
-| `GameEngine` | class | `src/engine/GameEngine.ts` | 26 | Seeded complete/interactive game entry |
-| `InteractiveSession` | class | `src/engine/InteractiveSession.ts` | 33 | Command, event, recovery lifecycle |
-| `SimulationRunner` | class | `src/simulation/runner/SimulationRunner.ts` | 2 | Deterministic autonomous phase runner |
-| `useCampaignStore` | store | `src/stores/campaign/useCampaignStore.ts` | 30 | Campaign client state |
-| `getCanonicalUnitService` | function | `src/services/units/CanonicalUnitService.ts` | 29 | Canonical unit lookup boundary |
-| `appendEvent` | function family | `src/utils/gameplay/` | 32 | Event-sourced mutation boundary |
+| Symbol                       | Type            | Location                                          | Refs | Role                                   |
+| ---------------------------- | --------------- | ------------------------------------------------- | ---: | -------------------------------------- |
+| `initializeBrowserServices`  | function        | `src/pages/_app.tsx`                              |    1 | Browser IndexedDB/equipment startup    |
+| `bootstrapMultiplayerServer` | function        | `src/lib/multiplayer/server/MatchHostRegistry.ts` |    2 | Durable active-match recovery          |
+| `MatchHostRegistry`          | class           | `src/lib/multiplayer/server/MatchHostRegistry.ts` |    8 | Process-local authoritative hosts      |
+| `GameEngine`                 | class           | `src/engine/GameEngine.ts`                        |   26 | Seeded complete/interactive game entry |
+| `InteractiveSession`         | class           | `src/engine/InteractiveSession.ts`                |   33 | Command, event, recovery lifecycle     |
+| `SimulationRunner`           | class           | `src/simulation/runner/SimulationRunner.ts`       |    2 | Deterministic autonomous phase runner  |
+| `useCampaignStore`           | store           | `src/stores/campaign/useCampaignStore.ts`         |   30 | Campaign client state                  |
+| `getCanonicalUnitService`    | function        | `src/services/units/CanonicalUnitService.ts`      |   29 | Canonical unit lookup boundary         |
+| `appendEvent`                | function family | `src/utils/gameplay/`                             |   32 | Event-sourced mutation boundary        |
 
 ## CONVENTIONS
 
