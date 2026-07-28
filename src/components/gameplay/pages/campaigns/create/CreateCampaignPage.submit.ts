@@ -25,7 +25,12 @@ import type {
   SelectedUnit,
 } from './CreateCampaignPage.types';
 
-import { getAssignedUnitIdForPilot } from './CreateCampaignPage.utils';
+import {
+  getAssignedUnitIdForPilot,
+  resolvePilotAssignmentsForSubmit,
+} from './CreateCampaignPage.utils';
+
+export { resolvePilotAssignmentsForSubmit };
 
 type ToastVariant = 'success' | 'error';
 
@@ -55,32 +60,8 @@ interface SubmitCampaignInput {
   store: StoreApi<CampaignStore>;
 }
 
-interface ResolvePilotAssignmentsInput {
-  pilotAssignments: PilotAssignments;
-  selectedPilots: SelectedPilot[];
-  selectedUnits: SelectedUnit[];
-}
-
 interface RegisteredSelectedPilot extends SelectedPilot {
   vaultPilotId: string;
-}
-
-export function resolvePilotAssignmentsForSubmit({
-  pilotAssignments,
-  selectedPilots,
-  selectedUnits,
-}: ResolvePilotAssignmentsInput): PilotAssignments {
-  if (
-    Object.keys(pilotAssignments).length === 0 &&
-    selectedUnits.length === 1 &&
-    selectedPilots.length === 1
-  ) {
-    return {
-      [selectedUnits[0].id]: selectedPilots[0].id,
-    };
-  }
-
-  return pilotAssignments;
 }
 
 function normalizePilotNamesForSubmit(
@@ -281,6 +262,8 @@ export async function submitCampaignCreation({
         pilotAssignments: resolvedPilotAssignments,
       });
     }
+
+    await store.getState().saveCampaign();
 
     showToast({
       message: `Campaign "${name.trim()}" created successfully!`,
