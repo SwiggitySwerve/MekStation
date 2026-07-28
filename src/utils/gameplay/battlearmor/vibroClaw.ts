@@ -23,7 +23,8 @@ import type {
   IBattleArmorCombatState,
   IBattleArmorVibroClawResult,
 } from '@/types/gameplay';
-import type { D6Roller } from '@/utils/gameplay/diceTypes';
+
+import { defaultD6Roller, type D6Roller } from '@/utils/gameplay/diceTypes';
 
 import { lookupClusterHits } from '../clusterWeapons/hitTable';
 import { getSurvivingTroopers } from './state';
@@ -34,8 +35,6 @@ import { getSurvivingTroopers } from './state';
  * pipeline the dispatch layer routes into.
  */
 export type VibroClawTargetType = 'mech' | 'vehicle' | 'protomech';
-
-const defaultD6Roller: D6Roller = () => Math.floor(Math.random() * 6) + 1;
 
 export interface IResolveVibroClawParams {
   readonly state: IBattleArmorCombatState;

@@ -116,8 +116,9 @@ function ppc(weaponId: string): IWeaponAttack {
  */
 function createHeatPhaseSession(
   playerWeapons: IWeaponAttack[] = [ppc('ppc-1')],
+  configOverrides: Partial<IGameConfig> = {},
 ): IGameSession {
-  const config = createTestConfig();
+  const config = createTestConfig(configOverrides);
   const units = createTestUnits();
   let session = createGameSession(config, units);
   session = startGame(session, GameSide.Player);
@@ -288,6 +289,35 @@ describe('resolveHeatPhase — event-driven heat integration', () => {
       expect(
         session.currentState.units['player-1'].heat,
       ).toBeGreaterThanOrEqual(14);
+    });
+  });
+
+  describe('MaxTech heat critical determinism', () => {
+    it('derives the default critical-location roll from the injected dice stream', () => {
+      const lowRoller: DiceRoller = () => ({
+        dice: [1, 1],
+        total: 2,
+        isSnakeEyes: true,
+        isBoxcars: false,
+      });
+      const heatPhaseSession = createHeatPhaseSession(
+        [ppc('ppc-1'), ppc('ppc-2'), ppc('ppc-3'), ppc('ppc-4'), ppc('ppc-5')],
+        { optionalRules: ['maxtech-heat-scale'] },
+      );
+      const randomSpy = jest.spyOn(Math, 'random').mockImplementation(() => {
+        throw new Error('ambient randomness consumed');
+      });
+
+      try {
+        const session = resolveHeatPhase(heatPhaseSession, lowRoller);
+
+        expect(
+          eventsOfType(session, GameEventType.CriticalHit, 'player-1').length,
+        ).toBeGreaterThanOrEqual(1);
+        expect(randomSpy).not.toHaveBeenCalled();
+      } finally {
+        randomSpy.mockRestore();
+      }
     });
   });
 
