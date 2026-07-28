@@ -37,6 +37,7 @@ yarn-error.log*
 # Development/investigation scripts
 scripts/**
 !scripts/
+!scripts/AGENTS.md
 !scripts/print-combat-validation-gaps.ts
 !scripts/maintenance/
 !scripts/maintenance/scan-maintenance.mjs

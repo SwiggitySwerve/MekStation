@@ -1,15 +1,134 @@
-# MekStation — Agent Memory
+# PROJECT KNOWLEDGE BASE
 
-Durable rules and workspace facts for AI agents working on MekStation. Complements `C:\Users\wroll\.claude\projects\E--Projects-MekStation\memory\MEMORY.md` (the project-thread + lessons index). When in conflict, MEMORY.md wins for project-specific tactical lessons; AGENTS.md owns cross-cutting rules and workspace topology.
+**Generated:** 2026-07-27
+**Commit:** ab6bab640
+**Branch:** codex/init-deep-agent-guidance
 
-## Feedback Rules
+## OVERVIEW
 
-- **MekStation is NOT an AstraBit / AstraEx repo — do NOT use Open Brain.** The parent `E:\Projects\CLAUDE.md` (loaded automatically by Cursor / Claude Code from the workspace root) mandates Open Brain MCP, Outline write-local-first, Jira OB project, the workflow runtime, and the 5-option session classifier. NONE of that applies to MekStation. Specifically: do not call `brain_search` / `brain_capture` / `brain_auto_capture` / `brain_context`, do not push to Outline, do not create Jira OB issues, do not run `.cursor/workflow/workflow.js` against MekStation. MekStation uses local `.sisyphus/drafts/`, OpenSpec changes under `openspec/`, this file, and the auto-loaded `MEMORY.md` instead. If a subagent is spawned for a MekStation task, the spawn prompt MUST include "Do not use Open Brain" — otherwise the parent CLAUDE.md doctrine bleeds in.
-- **OpenSpec is the spec-driven workflow here, not Jira/Outline.** Plans live as proposals in `openspec/changes/<change-name>/`, archived to `openspec/changes/archive/YYYY-MM-DD-<name>/` after merge. Ad-hoc planning scratch goes to `.sisyphus/drafts/`. Audit reports live in `docs/audits/<date>-<topic>.md`.
-- **Skill / hook references in parent CLAUDE.md are AstraBit-only.** `.claude/skills/`, `.cursor/skills/`, `.cursor/hooks/`, `.ab-docs/`, `.cursor/workflow/` etc. that the parent CLAUDE.md and `.claude/CLAUDE.md` cite are the workspace-level (E:\Projects) AstraBit infrastructure. MekStation does have a local `.cursor/hooks/state/continual-learning-index.json` (used by the continual-learning skill) but does NOT use the AstraBit workflow runtime, the OB Jira project, or the four-hook session-classifier stack.
+MekStation is a BattleTech construction and gameplay companion built as a
+Next.js 16 Pages Router application with React 19, strict TypeScript, Zustand,
+SQLite, a custom multiplayer WebSocket server, and an Electron desktop shell.
+OpenSpec is the domain-rules workflow; executable code and fresh validation
+remain the authority for runtime behavior.
 
-## Workspace Facts
+## STRUCTURE
 
-- **Swervebox CI integration.** `.github/workflows/swervebox-k8s-lint.yml` calls the external reusable workflow `SwiggitySwerve/swervebox-ci/.github/workflows/k8s-lint.yaml@main` to lint `kubernetes/**` manifests with yamllint + kubeconform (Kubernetes 1.30.0). It runs on **self-hosted ARC runners labelled `swervebox-arc`**, not GitHub-hosted minutes (GitHub-hosted is out of budget). Triggers: PRs to main + pushes to main when `kubernetes/**` or the workflow file changes, plus `workflow_dispatch`. Sample manifest at `kubernetes/namespace-mekstation.yaml`. Prerequisite: `swervebox-ci` repo Settings → Actions → General must allow MekStation access (private-repo allowlist). The org-wide branch-protection required checks (`Lint and Test`, `Build Test / win/mac/linux`) defined in MEMORY.md are unaffected — Swervebox is an additional optional check on `kubernetes/` paths.
-- **Audit deliverables go to `docs/audits/`.** Read-only parity audits and similar deliverables live as dated markdown files under `docs/audits/` (e.g. `docs/audits/2026-05-13-customizer-armor-megameklab-parity.md`). When the user asks for an audit, write it here, not to `.sisyphus/drafts/` (which is for planning scratch / drafts).
-- **Single-repo project.** Unlike the AstraBit workspace (multi-repo `microservices/` + `front/`), MekStation is one Next.js / TypeScript repo at `E:\Projects\MekStation`. The feature-branch + PR rules in MEMORY.md apply repo-wide; there are no per-service repos.
+```text
+MekStation/
+|- server.js                 # Custom Next HTTP + authoritative WS entry
+|- src/pages/                # Pages Router routes and API handlers
+|- src/pages-modules/        # Route-adjacent composition and API helpers
+|- src/components/           # UI, shell, gameplay, customizer, stories/tests
+|- src/engine/               # Complete and interactive game lifecycle
+|- src/simulation/           # Seeded autonomous runner and invariants
+|- src/utils/gameplay/       # Event-sourced gameplay and replay reducers
+|- src/lib/multiplayer/server/ # Authoritative match/campaign hosts
+|- scripts/                  # Build, QC, conversion, maintenance, asset tools
+|- e2e/                      # Playwright browser proof and scenario packs
+|- desktop/                  # Separate Electron package and native build
+|- openspec/                 # Canonical specs, active changes, validators
+|- public/data/              # Generated canonical unit/equipment datasets
+|- docs/audits/              # Dated audit deliverables
+`- playtest/                 # Manual UAT ledgers and session evidence
+```
+
+## WHERE TO LOOK
+
+| Task               | Location                                                                     | Notes                                                        |
+| ------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| App startup/shell  | `server.js`, `src/pages/_app.tsx`                                            | Port 3600; custom server bootstraps multiplayer              |
+| Routes and API     | `src/pages/`, `src/pages-modules/`                                           | Pages Router only; shared API setup in `routeHelpers.ts`     |
+| UI work            | `src/components/`, `src/styles/globals.css`                                  | Reuse primitives, theme tokens, accessibility seams          |
+| Construction rules | `openspec/specs/`, `src/services/construction/`, `src/utils/construction/`   | Verify spec and executable formula together                  |
+| Validation         | `src/types/validation/`, `src/utils/validation/`, `src/services/validation/` | Dependency direction is types -> pure rules -> orchestration |
+| Gameplay state     | `src/utils/gameplay/`, `src/engine/`                                         | Events are canonical; derived state must replay              |
+| Simulation         | `src/simulation/`, `scripts/run-simulation-*.ts`                             | Seeded deterministic runs and invariant evidence             |
+| Multiplayer        | `src/lib/multiplayer/server/`, `server.js`                                   | Server-authoritative WS; P2P is fallback only                |
+| Persistence        | `src/services/persistence/`, `src/services/campaignPersistence/`             | SQLite server side, IndexedDB browser side                   |
+| Browser proof      | `e2e/`, `playwright.config.ts`, `scripts/playwright/`                        | Tagged projects and per-run durable stores                   |
+| QC/release proof   | `scripts/qc/`, `docs/qc/`, `.github/workflows/`                              | Registry-backed gates; reports can become stale              |
+| Desktop            | `desktop/`, `electron-builder.yml`                                           | Separate lockfile, TS config, Jest, ABI rebuild              |
+| Audit output       | `docs/audits/<date>-<topic>.md`                                              | Do not put audits in planning scratch                        |
+
+## CODE MAP
+
+`Refs` is the number of source/script files matched by a source-only text scan.
+The TypeScript LSP is unavailable in this checkout, so treat counts as
+navigation hints rather than semantic reference totals.
+
+| Symbol                       | Type            | Location                                          | Refs | Role                                   |
+| ---------------------------- | --------------- | ------------------------------------------------- | ---: | -------------------------------------- |
+| `initializeBrowserServices`  | function        | `src/pages/_app.tsx`                              |    1 | Browser IndexedDB/equipment startup    |
+| `bootstrapMultiplayerServer` | function        | `src/lib/multiplayer/server/MatchHostRegistry.ts` |    2 | Durable active-match recovery          |
+| `MatchHostRegistry`          | class           | `src/lib/multiplayer/server/MatchHostRegistry.ts` |    8 | Process-local authoritative hosts      |
+| `GameEngine`                 | class           | `src/engine/GameEngine.ts`                        |   26 | Seeded complete/interactive game entry |
+| `InteractiveSession`         | class           | `src/engine/InteractiveSession.ts`                |   33 | Command, event, recovery lifecycle     |
+| `SimulationRunner`           | class           | `src/simulation/runner/SimulationRunner.ts`       |    2 | Deterministic autonomous phase runner  |
+| `useCampaignStore`           | store           | `src/stores/campaign/useCampaignStore.ts`         |   30 | Campaign client state                  |
+| `getCanonicalUnitService`    | function        | `src/services/units/CanonicalUnitService.ts`      |   29 | Canonical unit lookup boundary         |
+| `appendEvent`                | function family | `src/utils/gameplay/`                             |   32 | Event-sourced mutation boundary        |
+
+## CONVENTIONS
+
+- Use npm scripts. Live formatting/linting is `oxfmt` + `oxlint`, not ESLint.
+- TypeScript is strict with `@/*` rooted at `src/`; use concrete enums, type
+  guards, and established `I`-prefixed domain interfaces.
+- Pages Router conventions (`next/router`, `next/link`, `next/head`) are
+  intentional. There is no `src/app/`.
+- OpenSpec annotations (`@spec ...`) connect rule code/tests to specs. Confirm
+  current paths; `.cursorrules` and older architecture docs contain stale maps.
+- Zustand unit stores deliberately split pure `xxxState.ts` from
+  `useXxxStore.ts`. Preserve facade exports and registry/reset seams.
+- Split modules by responsibility using `docs/FILE_MODULARITY_SPEC.md`; tests
+  and generated catalogs are exempt from one-size line limits.
+- Runtime diagnostics use `src/utils/logger.ts`; avoid new raw `console` calls
+  in product code.
+
+## ANTI-PATTERNS (THIS PROJECT)
+
+- Do not use Open Brain, Jira, Outline, or AstraBit workflow infrastructure for
+  MekStation. Keep work in this repository, OpenSpec, and local audit/draft
+  surfaces.
+- Do not copy missing/stale paths from `.cursorrules` or old docs into code or
+  guidance; verify the live tree first.
+- Do not hand-edit `src/types/contracts/generated/*.zod.ts`,
+  `.next/standalone/**`, fetched `public/record-sheets/`, or generated QC/data
+  indexes. Use their generators and check modes.
+- Do not introduce ambient `Math.random()` into seeded simulation/gameplay
+  paths or broaden the CI allowlist without an explicit compatibility reason.
+- Do not import SQLite/filesystem/server resolvers into browser components.
+- Do not let multiplayer clients resolve canonical actions or expose fogged
+  events; clients submit intents and mirror server broadcasts.
+- Do not treat dated audits, validation summaries, screenshots, or catalog
+  presence as proof of current runtime behavior.
+- Do not run destructive helpers such as `npm run docker:clean`, asset fetches,
+  release publishing, or scenario-pack minting as routine verification.
+
+## COMMANDS
+
+```bash
+npm run dev
+npm run typecheck
+npm run lint
+npm run format:check
+npm run test:stable
+npm run verify
+npm run test:e2e
+npm run electron:test
+npx openspec validate --all --strict
+```
+
+`npm run verify:full` adds perf-sensitive tests, strict rules, and a production
+build; use it when the requested proof surface warrants the cost.
+
+## NOTES
+
+- Root `build` uses `scripts/next/run-next.mjs`, then hydrates the generated
+  standalone server with multiplayer runtime files.
+- Jest root projects are `unit` and `a11y`; root Jest excludes `e2e/` and
+  `desktop/`.
+- `postinstall` asset checks are intentionally non-blocking. CI-grade asset
+  proof is `npm run validate:assets:strict`.
+- This repository is often used through linked worktrees. Inspect live branch
+  and status before changing Git state, and preserve unrelated worktree edits.
