@@ -13,6 +13,7 @@ import { type DiceRoller } from './diceTypes';
 import { resolveHeatForUnit } from './gameSessionHeat.effects';
 import {
   createD6RollerFromDiceRoller,
+  createLocationIndexRollerFromD6,
   hasMaxTechHeatScaleRule,
 } from './gameSessionHeat.helpers';
 import { roll2d6 as rollDice } from './hitLocation';
@@ -41,13 +42,14 @@ export function resolveHeatPhase(
     options?.criticalManifestsByUnit?.set(unitId, seeded);
     return seeded;
   };
+  const heatCriticalD6Roller = createD6RollerFromDiceRoller(diceRoller);
   const heatCriticalContext: HeatCriticalContext = {
     enabled: maxTechHeatScale,
     getOrSeedCriticalManifest,
-    heatCriticalD6Roller: createD6RollerFromDiceRoller(diceRoller),
+    heatCriticalD6Roller,
     maxTechCriticalLocationRoller:
       options?.maxTechCriticalLocationRoller ??
-      (() => Math.floor(Math.random() * 8)),
+      createLocationIndexRollerFromD6(heatCriticalD6Roller),
   };
 
   const turnEvents = session.events.filter((event) => event.turn === turn);
