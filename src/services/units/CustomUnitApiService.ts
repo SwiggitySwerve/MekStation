@@ -17,18 +17,13 @@ import {
 
 import { IFullUnit } from './CanonicalUnitService';
 import { getCanonicalUnitService } from './CanonicalUnitService';
+import { parseCustomUnitDetailsResponse } from './customUnitApiResponse';
 
 /**
  * API Response types
  */
 interface IUnitListResponse {
   readonly units: readonly ICustomUnitIndexEntry[];
-}
-
-interface IUnitDetailsResponse {
-  readonly success: boolean;
-  readonly data?: IFullUnit;
-  readonly error?: string;
 }
 
 interface IUnitCreateResponse {
@@ -138,21 +133,17 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       throw new Error(`Failed to get unit: ${response.statusText}`);
     }
 
-    const data = (await response.json()) as IUnitDetailsResponse;
-
-    if (!data.success || !data.data) {
-      throw new Error(`Failed to get unit: ${data.error || 'Unknown error'}`);
-    }
+    const data = parseCustomUnitDetailsResponse(await response.json());
 
     // Convert API response to IFullUnit format
     return {
-      ...(data.data.parsedData as IFullUnit),
-      id: data.data.id,
-      chassis: data.data.chassis,
-      variant: data.data.variant,
-      currentVersion: data.data.currentVersion,
-      createdAt: data.data.createdAt,
-      updatedAt: data.data.updatedAt,
+      ...(data.parsedData as IFullUnit),
+      id: data.id,
+      chassis: data.chassis,
+      variant: data.variant,
+      currentVersion: data.currentVersion,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
     } as IFullUnit;
   };
 
