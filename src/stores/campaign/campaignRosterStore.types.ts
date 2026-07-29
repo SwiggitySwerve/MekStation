@@ -134,6 +134,7 @@ export interface CampaignRosterActions {
     name: string,
     deployedUnitIds: string[],
     encounterId?: string,
+    missionId?: string,
   ) => string;
 
   /** Record mission outcome and apply damage */
