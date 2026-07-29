@@ -5,6 +5,9 @@ import React from 'react';
 const mockRouterPush = jest.fn();
 const mockMaterializeCampaignMissionEncounter = jest.fn();
 const mockRosterCreateMission = jest.fn();
+const mockPersistCampaign = jest.fn();
+const mockLoadPersistedCampaign = jest.fn();
+const mockResetPersistence = jest.fn();
 let mockReadinessCanLaunch = false;
 let mockSelectedRosterUnits: readonly {
   readonly unitId: string;
@@ -126,6 +129,22 @@ jest.mock(
 jest.mock('@/stores/campaign/campaignPersistenceWiring', () => ({
   installCampaignPersistenceWiring: jest.fn(),
 }));
+jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
+  const persistenceState = {
+    errorMessage: null,
+    loadCampaign: (...args: unknown[]) => mockLoadPersistedCampaign(...args),
+    reset: (...args: unknown[]) => mockResetPersistence(...args),
+    saveCampaign: (...args: unknown[]) => mockPersistCampaign(...args),
+    saveState: 'idle' as const,
+  };
+  return {
+    useCampaignPersistenceStore: Object.assign(
+      (selector: (state: typeof persistenceState) => unknown) =>
+        selector(persistenceState),
+      { getState: () => persistenceState },
+    ),
+  };
+});
 
 const mockRosterState = {
   pilots: [],
@@ -164,6 +183,12 @@ describe('CampaignDashboardPage reactivity', () => {
     mockRouterPush.mockReset();
     mockMaterializeCampaignMissionEncounter.mockReset();
     mockRosterCreateMission.mockReset();
+    mockPersistCampaign.mockReset().mockResolvedValue({
+      status: 'saved',
+      retriedConflict: false,
+    });
+    mockLoadPersistedCampaign.mockReset().mockResolvedValue(true);
+    mockResetPersistence.mockReset();
     mockReadinessCanLaunch = false;
     mockSelectedRosterUnits = [];
     act(() => {
@@ -246,10 +271,47 @@ describe('CampaignDashboardPage reactivity', () => {
     expect(mockRouterPush).toHaveBeenCalledWith(
       `/gameplay/encounters/encounter-ready?campaignId=${mockRouteCampaignId}&missionId=${materializeInput?.missionId}`,
     );
+    expect(mockPersistCampaign).toHaveBeenCalledTimes(1);
+    expect(mockPersistCampaign.mock.invocationCallOrder[0]).toBeLessThan(
+      mockRouterPush.mock.invocationCallOrder[0],
+    );
     expect(
       mockCampaignStore
         .getState()
         .campaign?.missions.get(materializeInput?.missionId)?.scenarioIds,
     ).toContain('encounter-ready');
+  });
+
+  it('keeps the dashboard in place when the generated mission checkpoint fails', async () => {
+    mockReadinessCanLaunch = true;
+    mockSelectedRosterUnits = [
+      {
+        unitId: 'unit-alpha',
+        unitName: 'Locust LCT-1V',
+        unitRef: 'locust-lct-1v',
+        pilotId: 'pilot-alpha',
+        readiness: 'Ready',
+      },
+    ];
+    mockMaterializeCampaignMissionEncounter.mockResolvedValue({
+      encounterId: 'encounter-unsaved',
+      reused: false,
+      missionScenarioIds: ['encounter-unsaved'],
+    });
+    mockPersistCampaign.mockResolvedValue({
+      status: 'error',
+      errorMessage: 'disk unavailable',
+      retriedConflict: false,
+    });
+
+    render(<CampaignDashboardPage />);
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Generate Mission' }),
+    );
+
+    expect(
+      await screen.findByTestId('generate-mission-error'),
+    ).toHaveTextContent('disk unavailable');
+    expect(mockRouterPush).not.toHaveBeenCalled();
   });
 });

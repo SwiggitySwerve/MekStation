@@ -94,6 +94,9 @@ export default function CampaignDashboardPage(): React.ReactElement {
   const auditEntries = useDailyBattleAudit();
   const applyErrors = useOutcomeApplyErrors();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [missionGenerationError, setMissionGenerationError] = useState<
+    string | null
+  >(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const missionReadinessProjection = useMemo(
@@ -137,6 +140,7 @@ export default function CampaignDashboardPage(): React.ReactElement {
       return;
     }
     setIsGenerating(true);
+    setMissionGenerationError(null);
 
     try {
       if (!missionReadinessProjection.canLaunch) {
@@ -172,11 +176,20 @@ export default function CampaignDashboardPage(): React.ReactElement {
           result.encounterId,
           missionId,
         );
-      syncLaunchedMission(launchCampaign, missionId, result.encounterId, store);
+      await syncLaunchedMission(
+        launchCampaign,
+        missionId,
+        result.encounterId,
+        store,
+      );
 
       await router.push(
         `/gameplay/encounters/${result.encounterId}?campaignId=${currentCampaign.id}&missionId=${missionId}`,
       );
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'failed to generate mission';
+      setMissionGenerationError(`Mission could not be launched: ${message}`);
     } finally {
       setIsGenerating(false);
     }
@@ -307,6 +320,15 @@ export default function CampaignDashboardPage(): React.ReactElement {
         readinessSummary={missionReadinessSummary}
         onGenerateMission={handleGenerateMission}
       />
+
+      {missionGenerationError && (
+        <p
+          className="mt-4 rounded-lg border border-red-700 bg-red-950/40 p-3 text-sm text-red-200"
+          data-testid="generate-mission-error"
+        >
+          {missionGenerationError}
+        </p>
+      )}
 
       <CampaignRosterCard units={units} />
       <CampaignMissionHistoryCard missions={missions} />
