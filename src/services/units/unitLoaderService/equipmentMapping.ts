@@ -30,9 +30,12 @@ type UnitCriticalSlots = Readonly<Record<string, ReadonlyArray<string | null>>>;
 export function mapEquipment(
   equipment:
     | ReadonlyArray<{
-        id: string;
-        location: string;
-        isOmniPodMounted?: boolean;
+        readonly id: string;
+        readonly location: string;
+        readonly slots?: readonly number[];
+        readonly isRearMounted?: boolean;
+        readonly linkedAmmo?: string;
+        readonly isOmniPodMounted?: boolean;
       }>
     | undefined,
   unitTechBase: TechBase,
@@ -79,9 +82,9 @@ export function mapEquipment(
         heat,
         techBase: equipmentDef.techBase,
         location,
-        slots: undefined,
-        isRearMounted: false,
-        linkedAmmoId: undefined,
+        slots: item.slots ? [...item.slots] : undefined,
+        isRearMounted: item.isRearMounted ?? false,
+        linkedAmmoId: item.linkedAmmo,
         isRemovable: true, // User-added equipment is removable
         isOmniPodMounted: item.isOmniPodMounted ?? false,
       };
@@ -100,9 +103,9 @@ export function mapEquipment(
         heat: 0,
         techBase: unitTechBase, // Use unit's tech base
         location,
-        slots: undefined,
-        isRearMounted: false,
-        linkedAmmoId: undefined,
+        slots: item.slots ? [...item.slots] : undefined,
+        isRearMounted: item.isRearMounted ?? false,
+        linkedAmmoId: item.linkedAmmo,
         isRemovable: true, // User-added equipment is removable
         isOmniPodMounted: item.isOmniPodMounted ?? false,
       };

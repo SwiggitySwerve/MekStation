@@ -151,7 +151,8 @@ describe('serializeCustomUnitState', () => {
           techBase: TechBase.INNER_SPHERE,
           location: MechLocation.RIGHT_TORSO,
           slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-          isRearMounted: false,
+          isRearMounted: true,
+          linkedAmmoId: 'ac-20-ammo-1',
           isRemovable: true,
           isOmniPodMounted: false,
         },
@@ -174,6 +175,7 @@ describe('serializeCustomUnitState', () => {
     );
     expect(reloaded).toMatchObject({
       tonnage: 105,
+      techBase: TechBase.INNER_SPHERE,
       techBaseMode: TechBaseMode.INNER_SPHERE,
       engineType: EngineType.STANDARD,
       engineRating: 315,
@@ -182,6 +184,9 @@ describe('serializeCustomUnitState', () => {
         {
           equipmentId: 'ac-20',
           location: MechLocation.RIGHT_TORSO,
+          slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+          isRearMounted: true,
+          linkedAmmoId: 'ac-20-ammo-1',
         },
       ],
     });
