@@ -106,7 +106,14 @@ export const UnitContract = z
     gyro: z
       .object({
         type: z
-          .enum(['STANDARD', 'XL', 'COMPACT', 'HEAVY_DUTY', 'NONE'])
+          .enum([
+            'STANDARD',
+            'XL',
+            'COMPACT',
+            'HEAVY_DUTY',
+            'SUPERHEAVY',
+            'NONE',
+          ])
           .describe('Gyro type'),
       })
       .strict()

@@ -125,7 +125,14 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["STANDARD", "XL", "COMPACT", "HEAVY_DUTY", "NONE"],
+          "enum": [
+            "STANDARD",
+            "XL",
+            "COMPACT",
+            "HEAVY_DUTY",
+            "SUPERHEAVY",
+            "NONE"
+          ],
           "description": "Gyro type"
         }
       },

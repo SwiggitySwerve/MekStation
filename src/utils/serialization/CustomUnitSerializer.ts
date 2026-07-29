@@ -39,7 +39,7 @@ const GYRO_TYPE = {
   [GyroType.XL]: 'XL',
   [GyroType.COMPACT]: 'COMPACT',
   [GyroType.HEAVY_DUTY]: 'HEAVY_DUTY',
-  [GyroType.SUPERHEAVY]: 'STANDARD',
+  [GyroType.SUPERHEAVY]: 'SUPERHEAVY',
 } as const satisfies Readonly<Record<GyroType, string>>;
 
 const COCKPIT_TYPE = {
