@@ -18,17 +18,28 @@ import { render, screen } from '@testing-library/react';
 import React from 'react';
 import '@testing-library/jest-dom';
 import type { InteractiveSession } from '@/engine/InteractiveSession';
-import type { TacticalActionPayload } from '@/types/gameplay';
 
 import { createDemoSession } from '@/__fixtures__/gameplay';
 import GameSessionPage from '@/pages/gameplay/games/[id]';
 import { useGameplayStore } from '@/stores/useGameplayStore';
+import {
+  GamePhase,
+  GameSide,
+  type TacticalActionPayload,
+} from '@/types/gameplay';
 
 // Captures the onAction dispatcher GameplayLayout receives so the test
 // can invoke it exactly like the TacticalActionDock does.
 const mockCapturedLayout: {
   onAction?: (actionId: string, payload?: TacticalActionPayload) => void;
 } = {};
+const mockPhaseQueueProjection: {
+  activeUnitId?: string;
+  activeSide: GameSide;
+} = {
+  activeUnitId: undefined,
+  activeSide: GameSide.Player,
+};
 
 jest.mock('@/components/gameplay/GameplayLayout', () => ({
   GameplayLayout: (props: {
@@ -45,6 +56,10 @@ jest.mock('@/components/gameplay/SpectatorView', () => ({
 
 jest.mock('@/components/gameplay/CombatPlanningPanel', () => ({
   CombatPlanningPanel: () => <div data-testid="planning-panel-mock" />,
+}));
+
+jest.mock('@/hooks/gameplay', () => ({
+  usePhaseQueueProjection: () => mockPhaseQueueProjection,
 }));
 
 // The lifecycle hook redirects/loads sessions — irrelevant here.
@@ -92,6 +107,8 @@ jest.mock('next/router', () => ({
 describe('game-page dispatcher payload threading', () => {
   beforeEach(() => {
     mockCapturedLayout.onAction = undefined;
+    mockPhaseQueueProjection.activeUnitId = undefined;
+    mockPhaseQueueProjection.activeSide = GameSide.Player;
   });
 
   /** Seed the real store with a session and spies for the dispatcher. */
@@ -137,5 +154,34 @@ describe('game-page dispatcher payload threading', () => {
       unitId: 'player-a',
       targetUnitId: 'opponent-a',
     });
+  });
+
+  it('dispatches the active opponent movement unit to the AI', () => {
+    const session = createDemoSession();
+    const runAITurn = jest.fn();
+    mockPhaseQueueProjection.activeUnitId = 'opponent-a';
+    mockPhaseQueueProjection.activeSide = GameSide.Opponent;
+    useGameplayStore.setState({
+      session: {
+        ...session,
+        currentState: {
+          ...session.currentState,
+          phase: GamePhase.Movement,
+        },
+      },
+      isLoading: false,
+      error: null,
+      interactiveSession: {
+        getResult: () => null,
+      } as unknown as InteractiveSession,
+      interactivePhase: null,
+      spectatorMode: null,
+      runAITurn,
+      checkGameOver: jest.fn(),
+    } as never);
+
+    render(<GameSessionPage />);
+
+    expect(runAITurn).toHaveBeenCalledWith('opponent-a');
   });
 });

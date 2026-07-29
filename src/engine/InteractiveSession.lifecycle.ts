@@ -119,21 +119,25 @@ export function advanceInteractiveSession(
 export function runInteractiveSessionAI(
   context: IInteractiveSessionRuntimeContext,
   side: GameSide,
+  unitId?: string,
 ): void {
-  runInteractiveSessionAITurn({
-    side,
-    getSession: context.getSession,
-    setSession: context.setSession,
-    appendAndPersistEvent: (event) =>
-      appendAndPersistInteractiveSessionEvent(context, event),
-    weaponsByUnit: context.weaponsByUnit,
-    movementByUnit: context.movementByUnit,
-    gunneryByUnit: context.gunneryByUnit,
-    pilotingByUnit: context.pilotingByUnit,
-    tonnageByUnit: context.tonnageByUnit,
-    grid: context.grid,
-    botPlayer: context.botPlayer,
-  });
+  runInteractiveSessionAITurn(
+    {
+      side,
+      getSession: context.getSession,
+      setSession: context.setSession,
+      appendAndPersistEvent: (event) =>
+        appendAndPersistInteractiveSessionEvent(context, event),
+      weaponsByUnit: context.weaponsByUnit,
+      movementByUnit: context.movementByUnit,
+      gunneryByUnit: context.gunneryByUnit,
+      pilotingByUnit: context.pilotingByUnit,
+      tonnageByUnit: context.tonnageByUnit,
+      grid: context.grid,
+      botPlayer: context.botPlayer,
+    },
+    unitId,
+  );
   tryFinalizeAndPublishInteractiveSession(context);
 }
 

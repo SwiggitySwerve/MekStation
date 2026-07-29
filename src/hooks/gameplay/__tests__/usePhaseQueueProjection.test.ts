@@ -34,9 +34,13 @@ import { usePhaseQueueProjection } from '../usePhaseQueueProjection';
 function buildSession({
   phase,
   unitLockStates,
+  firstMover = GameSide.Player,
+  activationIndex = 0,
 }: {
   phase: GamePhase;
   unitLockStates: Record<string, LockState>;
+  firstMover?: GameSide;
+  activationIndex?: number;
 }): IGameSession {
   const playerUnit: IGameUnit = {
     id: 'p1',
@@ -62,8 +66,8 @@ function buildSession({
     currentState: {
       phase,
       turn: 3,
-      firstMover: GameSide.Player,
-      activationIndex: 0,
+      firstMover,
+      activationIndex,
       units: {
         p1: buildUnitState('p1', GameSide.Player),
         o1: buildUnitState('o1', GameSide.Opponent),
@@ -135,6 +139,29 @@ describe('usePhaseQueueProjection', () => {
     expect(result.current.unresolvedUnits).toEqual(['o1']);
     // initiativeOrder is full (display surface) — only unresolved trims.
     expect(result.current.initiativeOrder).toEqual(['p1', 'o1']);
+  });
+
+  it('hands control to the player after the active opponent locks movement', () => {
+    act(() => {
+      useGameplayStore.setState({
+        session: buildSession({
+          phase: GamePhase.Movement,
+          firstMover: GameSide.Opponent,
+          activationIndex: 1,
+          unitLockStates: { o1: LockState.Locked, p1: LockState.Pending },
+        }),
+      });
+    });
+
+    const { result } = renderHook(() => usePhaseQueueProjection());
+
+    expect(result.current.initiativeOrder).toEqual(['o1', 'p1']);
+    expect(result.current.activeUnitId).toBe('p1');
+    expect(result.current.activeSide).toBe(GameSide.Player);
+    expect(result.current.unresolvedUnits).toEqual(['p1']);
+    expect(result.current.blockers.map((blocker) => blocker.unitId)).toEqual([
+      'p1',
+    ]);
   });
 
   // -------------------------------------------------------------------------
