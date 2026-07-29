@@ -239,7 +239,7 @@ interface GameplayActions {
   selectWeapon: (weaponId: string) => void;
   selectAttackTarget: (unitId: string) => void;
   fireWeapons: () => void;
-  runAITurn: () => void;
+  runAITurn: (unitId?: string) => void;
   advanceInteractivePhase: () => void;
   handleInteractiveHexClick: (hex: { q: number; r: number }) => void;
   handleInteractiveTokenClick: (unitId: string) => void;
@@ -491,9 +491,9 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
     const { session, ui, interactiveSession } = get();
     handleActionLogic(actionId, session, ui, set, interactiveSession, payload);
   },
-  runAITurn: () => {
+  runAITurn: (unitId) => {
     const { interactiveSession } = get();
-    runAITurnLogic(interactiveSession, set);
+    runAITurnLogic(interactiveSession, set, unitId);
   },
   advanceInteractivePhase: () => {
     const { interactiveSession } = get();

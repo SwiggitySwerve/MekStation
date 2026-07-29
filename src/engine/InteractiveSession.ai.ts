@@ -9,6 +9,7 @@ import {
   type IGameEvent,
   type IGameSession,
   type IUnitGameState,
+  LockState,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
@@ -66,12 +67,13 @@ export interface IInteractiveSessionAIContext {
 
 export function runInteractiveSessionAITurn(
   context: IInteractiveSessionAIContext,
+  unitId?: string,
 ): void {
   const session = context.getSession();
   const { phase } = session.currentState;
-  const sortedEntries = Object.entries(session.currentState.units).sort(
-    ([a], [b]) => a.localeCompare(b),
-  );
+  const sortedEntries = Object.entries(session.currentState.units)
+    .filter(([candidateId]) => unitId === undefined || candidateId === unitId)
+    .sort(([a], [b]) => a.localeCompare(b));
 
   if (phase === GamePhase.Movement) {
     runInteractiveSessionMovementAI(context, sortedEntries);
@@ -101,7 +103,13 @@ function runInteractiveSessionMovementAI(
   };
 
   for (const [unitId, unit] of sortedEntries) {
-    if (unit.side !== context.side || unit.destroyed) continue;
+    if (
+      unit.side !== context.side ||
+      unit.destroyed ||
+      isActivationComplete(unit)
+    ) {
+      continue;
+    }
 
     const weapons = context.weaponsByUnit.get(unitId) ?? [];
     const gunnery = context.gunneryByUnit.get(unitId) ?? 4;
@@ -185,7 +193,13 @@ function runInteractiveSessionWeaponAI(
   };
 
   for (const [unitId, unit] of sortedEntries) {
-    if (unit.side !== context.side || unit.destroyed) continue;
+    if (
+      unit.side !== context.side ||
+      unit.destroyed ||
+      isActivationComplete(unit)
+    ) {
+      continue;
+    }
 
     const weapons = context.weaponsByUnit.get(unitId) ?? [];
     const gunnery = context.gunneryByUnit.get(unitId) ?? 4;
@@ -226,6 +240,14 @@ function runInteractiveSessionWeaponAI(
     }
     setSession(lockAttack(session, unitId));
   }
+}
+
+function isActivationComplete(unit: IUnitGameState): boolean {
+  return (
+    unit.lockState === LockState.Locked ||
+    unit.lockState === LockState.Revealed ||
+    unit.lockState === LockState.Resolved
+  );
 }
 
 function runInteractiveSessionPhysicalAI(

@@ -617,8 +617,8 @@ export class InteractiveSession {
     advanceInteractiveSession(this.runtimeContext);
   };
 
-  runAITurn = (side: GameSide): void => {
-    runInteractiveSessionAI(this.runtimeContext, side);
+  runAITurn = (side: GameSide, unitId?: string): void => {
+    runInteractiveSessionAI(this.runtimeContext, side, unitId);
   };
 
   /**

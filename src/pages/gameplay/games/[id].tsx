@@ -6,10 +6,9 @@
  * @spec openspec/changes/add-movement-phase-ui/specs/tactical-map-interface/spec.md
  */
 
-import type React from 'react';
-
 import Head from 'next/head';
 import { useRouter, type NextRouter } from 'next/router';
+import React, { useEffect } from 'react';
 
 import { CombatPlanningPanel } from '@/components/gameplay/CombatPlanningPanel';
 import { GameplayLayout } from '@/components/gameplay/GameplayLayout';
@@ -23,6 +22,7 @@ import {
   GameLoading,
 } from '@/components/gameplay/pages/GameSessionPage.states';
 import { SpectatorView } from '@/components/gameplay/SpectatorView';
+import { usePhaseQueueProjection } from '@/hooks/gameplay';
 import {
   completedInteractiveElement,
   completedSessionElement,
@@ -36,7 +36,7 @@ import {
   useGmTacticalInterventionSurface,
 } from '@/pages-modules/gameplay/games/gmTacticalInterventionSurface';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
-import { GameSide, GameStatus } from '@/types/gameplay';
+import { GamePhase, GameSide, GameStatus } from '@/types/gameplay';
 
 interface IGameSessionRouteContext {
   readonly routeId: string | null;
@@ -267,6 +267,23 @@ export default function GameSessionPage(): React.ReactElement {
 
   const isInteractive = Boolean(interactiveSession);
   const phase = session?.currentState.phase;
+  const phaseQueueProjection = usePhaseQueueProjection();
+  useEffect(() => {
+    if (
+      isInteractive &&
+      phaseQueueProjection.activeUnitId &&
+      phaseQueueProjection.activeSide === GameSide.Opponent &&
+      (phase === GamePhase.Movement || phase === GamePhase.WeaponAttack)
+    ) {
+      runAITurn(phaseQueueProjection.activeUnitId);
+    }
+  }, [
+    isInteractive,
+    phase,
+    phaseQueueProjection.activeSide,
+    phaseQueueProjection.activeUnitId,
+    runAITurn,
+  ]);
   const movement = useGameMovementPlanning({
     session,
     interactiveSession,

@@ -35,7 +35,7 @@ interface InteractiveActionDispatchContext {
   readonly applyRuntimeMovementState: (
     payload: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
   ) => void;
-  readonly runAITurn: () => void;
+  readonly runAITurn: (unitId?: string) => void;
   readonly fireWeapons: () => void;
   readonly advanceInteractivePhase: () => void;
   readonly handleAction: (
@@ -85,7 +85,7 @@ interface GameSessionCallbacksOptions {
   readonly applyRuntimeMovementState: (
     payload: Omit<IRuntimeMovementStateChangedPayload, 'unitId'>,
   ) => void;
-  readonly runAITurn: () => void;
+  readonly runAITurn: (unitId?: string) => void;
   readonly fireWeapons: () => void;
   readonly advanceInteractivePhase: () => void;
   readonly checkGameOver: () => void;

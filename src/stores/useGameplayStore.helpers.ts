@@ -68,10 +68,20 @@ let pendingPhaseAdvance = false;
 export function runAITurnLogic(
   interactiveSession: InteractiveSession | null,
   set: SetFn,
+  unitId?: string,
 ): void {
   if (!interactiveSession) return;
 
   set({ interactivePhase: InteractivePhase.AITurn });
+
+  if (unitId) {
+    interactiveSession.runAITurn(GameSide.Opponent, unitId);
+    set({
+      session: interactiveSession.getSession(),
+      interactivePhase: InteractivePhase.SelectUnit,
+    });
+    return;
+  }
 
   const state = interactiveSession.getState();
 

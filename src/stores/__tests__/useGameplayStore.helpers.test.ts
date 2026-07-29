@@ -7,6 +7,31 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 
 describe('runAITurnLogic', () => {
+  it('runs one opponent activation without advancing past the player turn', () => {
+    const runAITurn = jest.fn();
+    const advancePhase = jest.fn();
+    const set = jest.fn();
+    const fakeSession = {
+      getState: () => ({ phase: GamePhase.Movement }),
+      getSession: () =>
+        ({
+          currentState: { phase: GamePhase.Movement },
+        }) as unknown as IGameSession,
+      runAITurn,
+      advancePhase,
+      isGameOver: () => false,
+    };
+
+    runAITurnLogic(fakeSession as never, set as never, 'opponent-1');
+
+    expect(runAITurn).toHaveBeenCalledWith(GameSide.Opponent, 'opponent-1');
+    expect(advancePhase).not.toHaveBeenCalled();
+    expect(set).toHaveBeenLastCalledWith({
+      session: fakeSession.getSession(),
+      interactivePhase: InteractivePhase.SelectUnit,
+    });
+  });
+
   it('runs and advances the PhysicalAttack phase instead of leaving the loop stuck', () => {
     let phase = GamePhase.PhysicalAttack;
     const runAITurn = jest.fn();

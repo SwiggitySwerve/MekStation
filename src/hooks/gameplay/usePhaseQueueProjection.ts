@@ -11,8 +11,9 @@
  * - `initiativeOrder` is derived from `session.units` ordered by their
  *   side vs the `firstMover`, then by insertion order (the engine owns
  *   canonical order, this projection just re-reads it).
- * - Blockers are units whose `lockState` is NOT Resolved and who are not
- *   destroyed/retreated/withdrawn — i.e., they still owe an action.
+ * - Blockers are units whose action is not Locked, Revealed, or Resolved and
+ *   who are not destroyed/retreated/withdrawn — i.e., they still owe an
+ *   action.
  * - Returns a stable empty projection when `session` is null so consumers
  *   don't need null-checks on every render.
  *
@@ -55,7 +56,7 @@ export interface IPhaseBlocker {
  *  - `initiativeOrder`: full list of unit IDs in the order they activate
  *    this phase (first-mover side first, then opposing side).
  *  - `unresolvedUnits`: subset of `initiativeOrder` that still owe an
- *    action (lockState !== Resolved and unit is still in play).
+ *    action (not Locked/Revealed/Resolved and still in play).
  *  - `blockers`: same as unresolvedUnits but with richer context so the
  *    Phase Progression Controls can surface the reason the phase cannot
  *    advance.
@@ -88,6 +89,14 @@ const ALTERNATING_PHASES = new Set<GamePhase>([
   GamePhase.WeaponAttack,
   GamePhase.PhysicalAttack,
 ]);
+
+function isActivationComplete(lockState: LockState): boolean {
+  return (
+    lockState === LockState.Locked ||
+    lockState === LockState.Revealed ||
+    lockState === LockState.Resolved
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Empty fallback (returned when no session is loaded)
@@ -131,15 +140,16 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
       units: unitStates,
     } = currentState;
 
-    // Active side: use firstMover if set; fall back to Player.
-    const activeSide: GameSide = firstMover ?? GameSide.Player;
+    // The first mover determines ordering; the active unit determines current
+    // ownership once the queue advances.
+    const firstMoverSide: GameSide = firstMover ?? GameSide.Player;
     const opposingSide: GameSide =
-      activeSide === GameSide.Player ? GameSide.Opponent : GameSide.Player;
+      firstMoverSide === GameSide.Player ? GameSide.Opponent : GameSide.Player;
 
     // Build unit lists grouped by side (first-mover side goes first per
     // BattleTech's alternating-activation rule). Within each side we
     // preserve the canonical insertion order from `session.units`.
-    const firstMoverUnits = gameUnits.filter((u) => u.side === activeSide);
+    const firstMoverUnits = gameUnits.filter((u) => u.side === firstMoverSide);
     const opposingUnits = gameUnits.filter((u) => u.side === opposingSide);
 
     // For alternating phases the activation order is strictly interleaved:
@@ -178,7 +188,7 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
       // Only alternating phases have per-unit lock requirements.
       if (!ALTERNATING_PHASES.has(phase)) continue;
 
-      if (state.lockState !== LockState.Resolved) {
+      if (!isActivationComplete(state.lockState)) {
         unresolvedUnits.push(unitId);
         blockers.push({
           unitId,
@@ -200,6 +210,8 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
         activeUnitId = unresolvedUnits[0];
       }
     }
+    const activeSide =
+      (activeUnitId && unitStates[activeUnitId]?.side) || firstMoverSide;
 
     return {
       round: turn,
