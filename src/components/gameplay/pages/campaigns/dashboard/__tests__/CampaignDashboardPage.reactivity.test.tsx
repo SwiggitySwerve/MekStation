@@ -1,7 +1,18 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 const mockRouterPush = jest.fn();
+const mockMaterializeCampaignMissionEncounter = jest.fn();
+const mockRosterCreateMission = jest.fn();
+let mockReadinessCanLaunch = false;
+let mockSelectedRosterUnits: readonly {
+  readonly unitId: string;
+  readonly unitName: string;
+  readonly unitRef: string;
+  readonly pilotId: string;
+  readonly readiness: 'Ready';
+}[] = [];
 let mockRouteCampaignId = 'campaign-alpha';
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -10,6 +21,24 @@ jest.mock('next/router', () => ({
     query: { id: mockRouteCampaignId },
     events: { on: jest.fn(), off: jest.fn() },
   }),
+}));
+
+jest.mock(
+  '@/lib/campaign/encounter/materializeCampaignMissionEncounter',
+  () => ({
+    materializeCampaignMissionEncounter: (...args: unknown[]) =>
+      mockMaterializeCampaignMissionEncounter(...args),
+  }),
+);
+jest.mock('@/lib/campaign/readiness/missionReadinessProjection', () => ({
+  buildMissionReadinessProjection: () => ({
+    canLaunch: mockReadinessCanLaunch,
+    selectedUnits: mockSelectedRosterUnits,
+    unresolvedBlockers: mockReadinessCanLaunch
+      ? []
+      : [{ message: 'No ready roster unit' }],
+  }),
+  selectedRosterUnitsForLaunch: () => mockSelectedRosterUnits,
 }));
 
 jest.mock('@/components/ui', () => ({
@@ -101,6 +130,7 @@ jest.mock('@/stores/campaign/campaignPersistenceWiring', () => ({
 const mockRosterState = {
   pilots: [],
   missionCount: 0,
+  createMission: mockRosterCreateMission,
   getUnitsWithReadiness: () => [],
   getMissionHistory: () => [],
   getDeployableUnits: () => [],
@@ -132,6 +162,10 @@ describe('CampaignDashboardPage reactivity', () => {
   beforeEach(() => {
     mockCampaignStore = createCampaignStore();
     mockRouterPush.mockReset();
+    mockMaterializeCampaignMissionEncounter.mockReset();
+    mockRosterCreateMission.mockReset();
+    mockReadinessCanLaunch = false;
+    mockSelectedRosterUnits = [];
     act(() => {
       mockCampaignStore.getState().createCampaign('Alpha Lance', 'mercenary');
     });
@@ -155,5 +189,67 @@ describe('CampaignDashboardPage reactivity', () => {
         screen.getByRole('heading', { name: 'Bravo Lance' }),
       ).toBeInTheDocument();
     });
+  });
+
+  it('materializes a playable encounter before routing a generated campaign mission', async () => {
+    // Given: one ready roster unit and a materializer result that identifies
+    // the fully configured encounter.
+    mockReadinessCanLaunch = true;
+    mockSelectedRosterUnits = [
+      {
+        unitId: 'unit-alpha',
+        unitName: 'Locust LCT-1V',
+        unitRef: 'locust-lct-1v',
+        pilotId: 'pilot-alpha',
+        readiness: 'Ready',
+      },
+    ];
+    mockMaterializeCampaignMissionEncounter.mockResolvedValue({
+      encounterId: 'encounter-ready',
+      reused: false,
+      missionScenarioIds: ['encounter-ready'],
+    });
+    mockRosterCreateMission.mockImplementation(
+      (
+        _name: string,
+        _unitIds: readonly string[],
+        _encounterId: string,
+        missionId: string,
+      ) => missionId,
+    );
+    render(<CampaignDashboardPage />);
+
+    // When: the player generates a mission from the campaign dashboard.
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Generate Mission' }),
+    );
+
+    // Then: the generated mission uses the materialized encounter and keeps
+    // one shared mission id across campaign, roster, and navigation state.
+    await waitFor(() => {
+      expect(mockMaterializeCampaignMissionEncounter).toHaveBeenCalledTimes(1);
+    });
+    const materializeInput =
+      mockMaterializeCampaignMissionEncounter.mock.calls[0]?.[0];
+    expect(
+      materializeInput?.campaign.missions.get(materializeInput.missionId),
+    ).toMatchObject({
+      name: 'Mission 1',
+      scenarioIds: [],
+    });
+    expect(mockRosterCreateMission).toHaveBeenCalledWith(
+      'Mission 1',
+      ['unit-alpha'],
+      'encounter-ready',
+      materializeInput?.missionId,
+    );
+    expect(mockRouterPush).toHaveBeenCalledWith(
+      `/gameplay/encounters/encounter-ready?campaignId=${mockRouteCampaignId}&missionId=${materializeInput?.missionId}`,
+    );
+    expect(
+      mockCampaignStore
+        .getState()
+        .campaign?.missions.get(materializeInput?.missionId)?.scenarioIds,
+    ).toContain('encounter-ready');
   });
 });

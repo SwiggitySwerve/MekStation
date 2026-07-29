@@ -171,8 +171,13 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
       // Mission Management
       // ===================================================================
 
-      createMission: (name, deployedUnitIds, encounterId) => {
-        const missionId = `mission-${generateId()}`;
+      createMission: (
+        name,
+        deployedUnitIds,
+        encounterId,
+        suppliedMissionId,
+      ) => {
+        const missionId = suppliedMissionId ?? `mission-${generateId()}`;
         const { campaignId, missionCount } = get();
 
         const mission: ICampaignMissionRecord = {

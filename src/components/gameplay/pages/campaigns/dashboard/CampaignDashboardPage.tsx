@@ -10,22 +10,20 @@ import { CampaignCoopRouteSurfaceConnected } from '@/components/campaign/coop';
 import { CampaignDashboard } from '@/components/campaign/dashboard/CampaignDashboard';
 import { DayReportPanel } from '@/components/campaign/DayReportPanel';
 import { Button, PageLayout } from '@/components/ui';
+import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
 import {
   buildMissionReadinessProjection,
   selectedRosterUnitsForLaunch,
 } from '@/lib/campaign/readiness/missionReadinessProjection';
 import { useCampaignRouteLoader } from '@/pages-modules/gameplay/campaigns/campaignPageShell';
-import { SeededRandom } from '@/simulation/core/SeededRandom';
-import {
-  ScenarioGenerator,
-  createDefaultUnitWeights,
-  createDefaultTerrainWeights,
-} from '@/simulation/generator';
+import { syncLaunchedMission } from '@/pages-modules/gameplay/campaigns/missionLaunchPage.launch';
 import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
 import { installCampaignPersistenceWiring } from '@/stores/campaign/campaignPersistenceWiring';
+import { generateId } from '@/stores/campaign/campaignRosterStore.helpers';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import { createMission as createCampaignMission } from '@/types/campaign/Mission';
 
 import type {
   CampaignDashboardCampaign,
@@ -134,7 +132,8 @@ export default function CampaignDashboardPage(): React.ReactElement {
   });
 
   const handleGenerateMission = useCallback(async () => {
-    if (!campaign) {
+    const currentCampaign = store.getState().campaign;
+    if (!currentCampaign) {
       return;
     }
     setIsGenerating(true);
@@ -150,52 +149,38 @@ export default function CampaignDashboardPage(): React.ReactElement {
       const deployedUnitIds = deployableUnits.map((unit) => unit.unitId);
       const missionNumber = missionCount + 1;
       const missionName = `Mission ${missionNumber}`;
-
-      const generator = new ScenarioGenerator(
-        createDefaultUnitWeights(),
-        createDefaultTerrainWeights(),
-      );
-      const seed = Date.now();
-      const random = new SeededRandom(seed);
-      const unitCount = Math.min(deployableUnits.length, 4);
-
-      const session = generator.generate(
-        {
-          seed,
-          turnLimit: 20,
-          unitCount: { player: unitCount, opponent: unitCount },
-          mapRadius: 8,
-        },
-        random,
-      );
-
-      const encounterResponse = await fetch('/api/encounters', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: `${campaign.name} - ${missionName}`,
-          description: `Campaign mission ${missionNumber} - auto-generated encounter`,
-          template: 'skirmish',
-        }),
+      const missionId = `mission-${generateId()}`;
+      const mission = createCampaignMission({
+        id: missionId,
+        name: missionName,
+        description: `Campaign mission ${missionNumber}`,
       });
-
-      const encounterData = (await encounterResponse.json()) as {
-        success: boolean;
-        id?: string;
+      const launchCampaign: ICampaign = {
+        ...currentCampaign,
+        missions: new Map(currentCampaign.missions).set(missionId, mission),
       };
-      const encounterId = encounterData.id ?? session.id;
-
-      const missionId = rosterStore
+      const result = await materializeCampaignMissionEncounter({
+        campaign: launchCampaign,
+        missionId,
+        rosterUnits: deployableUnits,
+      });
+      rosterStore
         .getState()
-        .createMission(missionName, deployedUnitIds, encounterId);
+        .createMission(
+          missionName,
+          deployedUnitIds,
+          result.encounterId,
+          missionId,
+        );
+      syncLaunchedMission(launchCampaign, missionId, result.encounterId, store);
 
-      router.push(
-        `/gameplay/encounters/${encounterId}?campaignId=${campaign.id}&missionId=${missionId}`,
+      await router.push(
+        `/gameplay/encounters/${result.encounterId}?campaignId=${currentCampaign.id}&missionId=${missionId}`,
       );
     } finally {
       setIsGenerating(false);
     }
-  }, [campaign, missionCount, missionReadinessProjection, rosterStore, router]);
+  }, [missionCount, missionReadinessProjection, rosterStore, router, store]);
 
   const handleNavigate = useCallback(
     (href: string) => {

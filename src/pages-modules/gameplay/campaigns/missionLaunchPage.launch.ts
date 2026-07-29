@@ -251,7 +251,7 @@ async function launchSinglePlayerMissionFromPage({
   }
 }
 
-function syncLaunchedMission(
+export function syncLaunchedMission(
   campaign: ICampaign,
   missionKey: string,
   encounterId: string,
