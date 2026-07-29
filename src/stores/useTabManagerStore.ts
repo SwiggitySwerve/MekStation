@@ -15,7 +15,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
-import { TechBase } from '@/types/enums/TechBase';
+import { parseTechBase, TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { logger } from '@/utils/logger';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
@@ -189,6 +189,7 @@ interface SanitizeResult {
  * This handles edge cases where:
  * - Cached data has tabs with missing IDs
  * - Cached data has tabs with invalid (non-UUID) IDs
+ * - Cached data has legacy tech-base aliases
  * - Migration from older data formats
  *
  * @param tabs - Array of tabs from localStorage
@@ -207,6 +208,8 @@ function sanitizeTabsOnHydration(
   const idMap = new Map<string, string>(); // oldId -> newId for active tab tracking
 
   const sanitizedTabs = tabs.map((tab): TabInfo => {
+    const techBase = parseTechBase(tab.techBase);
+
     // Check if ID is missing or invalid
     if (!tab.id || !isValidUUID(tab.id)) {
       const oldId = tab.id || '(missing)';
@@ -221,13 +224,19 @@ function sanitizeTabsOnHydration(
       return {
         ...tab,
         id: newId,
+        techBase,
         unitType: tab.unitType ?? UnitType.BATTLEMECH,
       };
+    }
+
+    if (techBase !== tab.techBase) {
+      repaired++;
     }
 
     // Ensure unitType is present (backwards compatibility)
     return {
       ...tab,
+      techBase,
       unitType: tab.unitType ?? UnitType.BATTLEMECH,
     };
   });
@@ -252,7 +261,7 @@ function sanitizeTabsOnHydration(
   }
 
   if (repaired > 0) {
-    logger.warn(`[TabManager] Repaired ${repaired} tab(s) with invalid IDs`);
+    logger.warn(`[TabManager] Repaired ${repaired} tab(s) during hydration`);
   }
 
   return {
