@@ -437,22 +437,50 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          if ! command -v git >/dev/null 2>&1; then
+            echo "ERROR: Determinism audit requires git grep, but git is unavailable."
+            exit 1
+          fi
+          if ! command -v grep >/dev/null 2>&1; then
+            echo "ERROR: Determinism audit requires grep for comment filtering, but grep is unavailable."
+            exit 1
+          fi
+
           ALLOWLIST=(
             'src/utils/gameplay/diceTypes.ts'
             'src/utils/gameplay/aerospace/criticalHits.ts'
             'src/utils/gameplay/terrainGenerator.ts'
             'src/simulation/QuickResolveService.ts'
           )
-          GLOBS=(-g 'src/utils/gameplay/**' -g 'src/simulation/**')
+          PATHS=('src/utils/gameplay/**' 'src/simulation/**')
           for path in "${ALLOWLIST[@]}"; do
-            GLOBS+=(-g "!${path}")
+            PATHS+=(":(exclude)${path}")
           done
+
+          raw_matches_file="$(mktemp)"
+          trap 'rm -f "$raw_matches_file"' EXIT
+
+          set +e
+          git grep -n -E 'Math\.random\(\)' -- "${PATHS[@]}" >"$raw_matches_file"
+          scan_status=$?
+          set -e
+          if [ "$scan_status" -gt 1 ]; then
+            echo "ERROR: Determinism scanner failed with status $scan_status."
+            exit "$scan_status"
+          fi
+
           # Strip block-comment lines ('* Math.random()') and line-comment
           # lines ('// Math.random()') so doc-comments referencing the API
           # by name don't trip the audit.
-          matches="$(rg -n --no-heading "${GLOBS[@]}" 'Math\.random\(\)' . \
-            | grep -Ev ':[[:space:]]*\*|//.*Math\.random|\* .*Math\.random' \
-            || true)"
+          set +e
+          matches="$(grep -Ev ':[[:space:]]*\*|//.*Math\.random|\* .*Math\.random' "$raw_matches_file")"
+          filter_status=$?
+          set -e
+          if [ "$filter_status" -gt 1 ]; then
+            echo "ERROR: Determinism comment filter failed with status $filter_status."
+            exit "$filter_status"
+          fi
+
           if [ -n "$matches" ]; then
             echo "$matches"
             echo ""
