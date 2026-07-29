@@ -1,6 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const e2ePort = 3600;
+const e2ePort = Number.parseInt(process.env.MEKSTATION_E2E_PORT ?? '3600', 10);
+if (!Number.isInteger(e2ePort) || e2ePort < 1 || e2ePort > 65535) {
+  throw new Error(
+    `Invalid MEKSTATION_E2E_PORT: ${process.env.MEKSTATION_E2E_PORT}`,
+  );
+}
 const e2eBaseURL = `http://localhost:${e2ePort}`;
 const e2eRunId =
   process.env.PLAYWRIGHT_E2E_RUN_ID ?? `pw-${process.pid}-${Date.now()}`;
@@ -221,12 +226,14 @@ export default defineConfig({
     url: e2eReadyURL,
     // The readiness URL includes a per-run token. A stale server on 3600 will
     // not satisfy it, so Playwright runs the dev script and lets it clear 3600.
-    reuseExistingServer: true,
+    reuseExistingServer:
+      process.env.MEKSTATION_E2E_REUSE_EXISTING_SERVER !== 'false',
     timeout: Number(process.env.MEKSTATION_E2E_SERVER_TIMEOUT_MS ?? 120 * 1000),
     // Pipe stdout to help with process cleanup on Windows
     stdout: 'pipe',
     stderr: 'pipe',
     env: {
+      PORT: String(e2ePort),
       NEXT_PUBLIC_E2E_MODE: 'true',
       PLAYWRIGHT_E2E_RUN_ID: e2eRunId,
       BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA: 'true',

@@ -317,7 +317,7 @@ Before Task 1, create `.omo/evidence/gm-two-player-live-campaign-sandbox/program
   QA scenarios (name the exact tool + invocation): `npm.cmd test -- --watchAll=false --runInBand --runTestsByPath src/components/campaign/coop/__tests__/LiveCampaignLifecycleStates.test.tsx src/components/campaign/gm/__tests__/GmCampaignInterventionControlPlane.test.tsx` (the lifecycle-state file is created by this task), then `npm.cmd run verify:qc:viewport-sweep`; all nine states pass keyboard/focus/live-region/narrow-viewport checks and blocked/stale/projection-error fixtures expose one safe recovery action; Evidence `.omo/evidence/.../task-25-gm-two-player-live-campaign-sandbox/`.
   Commit: Y | `feat(ux): clarify live campaign recovery states`
 
-- [ ] 26. Build isolated three-context browser fixture
+- [x] 26. Build isolated three-context browser fixture
   What to do / Must NOT do: create separate future-GM, future-Player-1, and future-Player-2 browser contexts/identities against one harness-owned server/database with deterministic seed; add `scripts/qc/run-gm-two-player-campaign.mjs` and register `verify:qc:gm-two-player-campaign` before any later task invokes a group; prove isolation only and do not claim durable GM/player role admission before Todo 15; do not use `ffa-3`, shared storage, or ambient browser tabs.
   Parallelization: Wave 2 | Blocked by: 5 | Blocks: 2, 3, 4, 7, 10, 15, 27, 28, 29, 30, 31, 32, 33, 34.
   References (executor has NO interview context - be exhaustive): OpenSpec `e2e-testing` `Strict GM and Two-Player Durability Catalog`; `e2e/coop-campaign-two-browser-journey.spec.ts`; `design.md` D2, D3, and D11.
