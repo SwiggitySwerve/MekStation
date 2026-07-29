@@ -62,6 +62,9 @@ export interface IRawSerializedUnit {
   readonly equipment?: ReadonlyArray<{
     readonly id: string;
     readonly location: string;
+    readonly slots?: readonly number[];
+    readonly isRearMounted?: boolean;
+    readonly linkedAmmo?: string;
     readonly isOmniPodMounted?: boolean;
   }>;
   /**
