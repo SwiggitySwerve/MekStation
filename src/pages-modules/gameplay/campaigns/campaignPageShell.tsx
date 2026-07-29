@@ -19,6 +19,8 @@ import { installCampaignPersistenceWiring } from '@/stores/campaign/campaignPers
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
+import { campaignRouteIdFromRouter } from './campaignRouteIdentity';
+
 type CampaignPageId = string | string[] | undefined;
 type CampaignQuery = NextRouter['query'];
 type CampaignPageKey = React.ComponentProps<
@@ -101,9 +103,9 @@ interface CampaignCommandFeedbackProps extends CampaignLoadErrorProps {
 }
 
 interface CampaignRouteLoaderInput {
-  readonly id: CampaignPageId;
   readonly campaign: ICampaign | null;
   readonly isClient: boolean;
+  readonly router: Pick<NextRouter, 'asPath' | 'query'>;
 }
 
 interface CampaignRouteLoaderState {
@@ -112,17 +114,12 @@ interface CampaignRouteLoaderState {
   readonly isLoadingCampaign: boolean;
 }
 
-export function campaignRouteIdFrom(id: CampaignPageId): string | null {
-  if (Array.isArray(id)) return id[0] ?? null;
-  return typeof id === 'string' && id.trim().length > 0 ? id : null;
-}
-
 export function useCampaignRouteLoader({
   campaign,
-  id,
   isClient,
+  router,
 }: CampaignRouteLoaderInput): CampaignRouteLoaderState {
-  const routeCampaignId = campaignRouteIdFrom(id);
+  const routeCampaignId = campaignRouteIdFromRouter(router);
   const loadCampaign = useCampaignPersistenceStore(
     (state) => state.loadCampaign,
   );
@@ -175,7 +172,7 @@ export function useCampaignPageShell(pageLabel: string): CampaignPageShell {
   const store = useCampaignStore();
   const campaign = useStore(store, (state) => state.campaign);
   const [isClient, setIsClient] = useState(false);
-  const routeLoader = useCampaignRouteLoader({ campaign, id, isClient });
+  const routeLoader = useCampaignRouteLoader({ campaign, isClient, router });
 
   useEffect(() => {
     setIsClient(true);
