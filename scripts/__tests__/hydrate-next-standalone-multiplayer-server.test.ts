@@ -45,6 +45,14 @@ function prepareStandaloneFixture(root: string): void {
   );
   writeFile(path.join(root, 'tsconfig.json'), '{}');
   writeFile(path.join(root, 'public/data/units/battlemechs/index.json'), '[]');
+  writeFile(
+    path.join(root, 'scripts/data-migration/megamek-bv-cache.json'),
+    JSON.stringify({
+      entries: {
+        'atlas-as7-d': { megamekBV: 1897 },
+      },
+    }),
+  );
   writeFile(path.join(root, 'src/index.ts'), 'export {};');
 
   for (const runtimeDir of ['tsx', 'esbuild', 'ws', '@esbuild/win32-x64']) {
@@ -56,7 +64,7 @@ function prepareStandaloneFixture(root: string): void {
 }
 
 describe('hydrate-next-standalone-multiplayer-server', () => {
-  it('copies Next static assets into the standalone server payload', () => {
+  it('copies runtime assets and the authoritative BV cache into the standalone payload', () => {
     const tmpRoot = makeTempRoot();
     prepareStandaloneFixture(tmpRoot);
 
@@ -82,9 +90,31 @@ describe('hydrate-next-standalone-multiplayer-server', () => {
         path.join(tmpRoot, '.next/standalone/.next/static/css/app.css'),
       ),
     ).toBe(true);
+    expect(
+      JSON.parse(
+        fs.readFileSync(
+          path.join(
+            tmpRoot,
+            '.next/standalone/scripts/data-migration/megamek-bv-cache.json',
+          ),
+          'utf8',
+        ),
+      ),
+    ).toEqual({
+      entries: {
+        'atlas-as7-d': { megamekBV: 1897 },
+      },
+    });
     expect(JSON.parse(result.stdout)).toMatchObject({
       ok: true,
       nextStaticAssets: path.join('.next', 'standalone', '.next', 'static'),
+      megaMekBVCache: path.join(
+        '.next',
+        'standalone',
+        'scripts',
+        'data-migration',
+        'megamek-bv-cache.json',
+      ),
     });
   });
 

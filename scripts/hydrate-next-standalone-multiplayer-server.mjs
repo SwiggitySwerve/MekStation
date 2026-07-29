@@ -10,6 +10,11 @@ const standaloneConfigPath = path.join(
   standaloneDir,
   'server.next-config.json',
 );
+const megaMekBVCacheRelativePath = path.join(
+  'scripts',
+  'data-migration',
+  'megamek-bv-cache.json',
+);
 
 const runtimeModuleDirs = ['tsx', 'esbuild', 'ws'];
 const runtimeScopedDirs = ['@esbuild'];
@@ -73,6 +78,15 @@ function copyPublicAssets() {
   );
 }
 
+function copyMegaMekBVCache() {
+  const source = path.join(root, megaMekBVCacheRelativePath);
+  const target = path.join(standaloneDir, megaMekBVCacheRelativePath);
+  assertExists(source, 'MegaMek BV cache');
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.copyFileSync(source, target);
+  assertExists(target, 'standalone MegaMek BV cache');
+}
+
 function copyNextStaticAssets() {
   copyDir(
     path.join(root, '.next', 'static'),
@@ -126,6 +140,7 @@ function main() {
   copyDir(path.join(root, 'src'), path.join(standaloneDir, 'src'));
   copyRuntimeLoaders();
   copyPublicAssets();
+  copyMegaMekBVCache();
   copyNextStaticAssets();
 
   const hydratedServer = fs.readFileSync(generatedServerPath, 'utf8');
@@ -146,6 +161,9 @@ function main() {
         nextConfig: rel(standaloneConfigPath),
         runtimeLoaders: [...runtimeModuleDirs, ...runtimeScopedDirs],
         publicAssets: rel(path.join(standaloneDir, 'public')),
+        megaMekBVCache: rel(
+          path.join(standaloneDir, megaMekBVCacheRelativePath),
+        ),
         nextStaticAssets: rel(path.join(standaloneDir, '.next', 'static')),
         sourceTree: rel(path.join(standaloneDir, 'src')),
       },
