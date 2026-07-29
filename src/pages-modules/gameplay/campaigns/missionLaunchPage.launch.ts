@@ -14,6 +14,10 @@ import {
 } from '@/lib/campaign/coop/coopRuntimeSession';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
 import { selectedRosterUnitsForLaunch } from '@/lib/campaign/readiness/missionReadinessProjection';
+import {
+  type CampaignPersistenceSaveResult,
+  useCampaignPersistenceStore,
+} from '@/stores/campaign/useCampaignPersistenceStore';
 
 import {
   buildLaunchEncounter,
@@ -234,7 +238,7 @@ async function launchSinglePlayerMissionFromPage({
       missionId: missionKey,
       rosterUnits: selectedRosterUnitsForLaunch(readinessProjection),
     });
-    syncLaunchedMission(campaign, missionKey, result.encounterId, store);
+    await syncLaunchedMission(campaign, missionKey, result.encounterId, store);
     await router.push(
       campaignEncounterHref({
         encounterId: result.encounterId,
@@ -256,14 +260,38 @@ export function syncLaunchedMission(
   missionKey: string,
   encounterId: string,
   store: CampaignPageStore,
-): void {
+): Promise<void> {
   const mission = campaign.missions.get(missionKey);
-  if (!mission) return;
+  if (!mission) return Promise.resolve();
 
   const nextMission = withMissionScenario(mission, encounterId);
   const missions = new Map(campaign.missions);
   missions.set(missionKey, nextMission);
   store.getState().updateCampaign({ missions });
   store.getState().getMissionsStore()?.getState().addMission(nextMission);
-  store.getState().saveCampaign();
+  return persistLaunchedMission(store);
+}
+
+async function persistLaunchedMission(store: CampaignPageStore): Promise<void> {
+  const localCommit = await store.getState().saveCampaign();
+  if (!localCommit.committed) {
+    throw new Error(localCommit.reason ?? 'Campaign checkpoint failed');
+  }
+
+  const durableCommit = await useCampaignPersistenceStore
+    .getState()
+    .saveCampaign();
+  if (durableCommit.status !== 'saved') {
+    throw new Error(campaignPersistenceFailureMessage(durableCommit));
+  }
+}
+
+function campaignPersistenceFailureMessage(
+  result: Exclude<CampaignPersistenceSaveResult, { readonly status: 'saved' }>,
+): string {
+  if (result.status === 'error') return result.errorMessage;
+  if (result.status === 'conflict') {
+    return 'Campaign changed on another client. Resolve the save conflict before launching.';
+  }
+  return 'Campaign checkpoint was skipped. Retry mission launch.';
 }

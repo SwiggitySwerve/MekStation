@@ -19,7 +19,7 @@ import {
   _resetCoopRuntimeSessions,
   publishCoopParticipation,
 } from '@/lib/campaign/coop/coopRuntimeSession';
-import { createCampaign } from '@/types/campaign/Campaign';
+import { createCampaign, createMission } from '@/types/campaign/Campaign';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 
@@ -28,6 +28,9 @@ const mockLaunchCoopMission = jest.fn();
 const mockMaterializeCampaignMissionEncounter = jest.fn();
 const mockUpdateCampaign = jest.fn();
 const mockSaveCampaign = jest.fn();
+const mockPersistCampaign = jest.fn();
+const mockLoadPersistedCampaign = jest.fn();
+const mockMarkCampaignDirty = jest.fn();
 const mockAddMission = jest.fn();
 let mockRosterUnits: IRosterUnitProjection[] = [
   {
@@ -62,6 +65,23 @@ jest.mock(
       mockMaterializeCampaignMissionEncounter(...args),
   }),
 );
+
+jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
+  const persistenceState = {
+    errorMessage: null,
+    loadCampaign: (...args: unknown[]) => mockLoadPersistedCampaign(...args),
+    markDirty: (...args: unknown[]) => mockMarkCampaignDirty(...args),
+    saveCampaign: (...args: unknown[]) => mockPersistCampaign(...args),
+    saveState: 'idle' as const,
+  };
+  return {
+    useCampaignPersistenceStore: Object.assign(
+      (selector: (state: typeof persistenceState) => unknown) =>
+        selector(persistenceState),
+      { getState: () => persistenceState },
+    ),
+  };
+});
 
 const mockRosterState = {
   pilots: [],
@@ -111,6 +131,18 @@ function makeForce(id: string, unitIds: string[]): IForce {
   };
 }
 
+function makeSoloLaunchCampaign(name: string) {
+  const mission = createMission({
+    id: 'mission-alpha',
+    name: 'Selected mission',
+  });
+  return {
+    ...createCampaign(name, 'mercenary'),
+    id: 'campaign-coop-1',
+    missions: new Map([[mission.id, mission]]),
+  };
+}
+
 describe('CoopMissionLaunchPage - staged participation sync', () => {
   beforeEach(() => {
     mockRouterPush.mockReset();
@@ -121,7 +153,13 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
       missionScenarioIds: ['encounter-solo-1'],
     });
     mockUpdateCampaign.mockReset();
-    mockSaveCampaign.mockReset();
+    mockSaveCampaign.mockReset().mockReturnValue({ committed: true });
+    mockPersistCampaign.mockReset().mockResolvedValue({
+      status: 'saved',
+      retriedConflict: false,
+    });
+    mockLoadPersistedCampaign.mockReset().mockResolvedValue(true);
+    mockMarkCampaignDirty.mockReset();
     mockAddMission.mockReset();
     mockLaunchCoopMission.mockReset().mockReturnValue({
       ok: true,
@@ -237,10 +275,7 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
   });
 
   it('materializes non-co-op mission launch before routing to the encounter', async () => {
-    const campaign = {
-      ...createCampaign('Solo Launch Probe', 'mercenary'),
-      id: 'campaign-coop-1',
-    };
+    const campaign = makeSoloLaunchCampaign('Solo Launch Probe');
     mockGetCampaign.mockReturnValue(campaign);
 
     await act(async () => {
@@ -281,7 +316,99 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
         '/gameplay/encounters/encounter-solo-1?campaignId=campaign-coop-1&missionId=mission-alpha',
       );
     });
+    expect(mockSaveCampaign).toHaveBeenCalledTimes(1);
+    expect(mockPersistCampaign).toHaveBeenCalledTimes(1);
+    expect(mockPersistCampaign.mock.invocationCallOrder[0]).toBeLessThan(
+      mockRouterPush.mock.invocationCallOrder[0],
+    );
   });
+
+  it('keeps the launch page in place when the campaign checkpoint fails', async () => {
+    const campaign = makeSoloLaunchCampaign('Solo Launch Persistence Failure');
+    mockGetCampaign.mockReturnValue(campaign);
+    mockPersistCampaign.mockResolvedValue({
+      status: 'error',
+      errorMessage: 'disk unavailable',
+      retriedConflict: false,
+    });
+
+    await act(async () => {
+      render(<CoopMissionLaunchPage />);
+    });
+
+    await act(async () => {
+      screen.getByTestId('launch-mission-direct').click();
+    });
+
+    expect(await screen.findByTestId('mission-launch-error')).toHaveTextContent(
+      'disk unavailable',
+    );
+    expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+  it('does not attempt authoritative persistence when the local checkpoint fails', async () => {
+    const campaign = makeSoloLaunchCampaign(
+      'Solo Launch Local Persistence Failure',
+    );
+    mockGetCampaign.mockReturnValue(campaign);
+    mockSaveCampaign.mockReturnValue({
+      committed: false,
+      reason: 'local checkpoint unavailable',
+    });
+
+    await act(async () => {
+      render(<CoopMissionLaunchPage />);
+    });
+
+    await act(async () => {
+      screen.getByTestId('launch-mission-direct').click();
+    });
+
+    expect(await screen.findByTestId('mission-launch-error')).toHaveTextContent(
+      'local checkpoint unavailable',
+    );
+    expect(mockPersistCampaign).not.toHaveBeenCalled();
+    expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    {
+      persistenceResult: {
+        status: 'conflict',
+        conflictServerRecord: {},
+        retriedConflict: false,
+      },
+      expectedMessage: 'Resolve the save conflict before launching.',
+      status: 'conflict',
+    },
+    {
+      persistenceResult: { status: 'skipped', retriedConflict: false },
+      expectedMessage: 'Campaign checkpoint was skipped.',
+      status: 'skipped',
+    },
+  ])(
+    'keeps the launch page in place for a $status authoritative checkpoint',
+    async ({ persistenceResult, expectedMessage }) => {
+      const campaign = makeSoloLaunchCampaign(
+        'Solo Launch Incomplete Persistence',
+      );
+      mockGetCampaign.mockReturnValue(campaign);
+      mockPersistCampaign.mockResolvedValue(persistenceResult);
+
+      await act(async () => {
+        render(<CoopMissionLaunchPage />);
+      });
+
+      await act(async () => {
+        screen.getByTestId('launch-mission-direct').click();
+      });
+
+      expect(
+        await screen.findByTestId('mission-launch-error'),
+      ).toHaveTextContent(expectedMessage);
+      expect(mockRouterPush).not.toHaveBeenCalled();
+    },
+  );
 
   it('blocks non-co-op mission launch when readiness projection has blockers', async () => {
     mockRosterUnits = [

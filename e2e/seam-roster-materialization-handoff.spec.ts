@@ -80,6 +80,10 @@ interface CampaignRosterUnitShape {
 
 interface CampaignGetResponse {
   readonly body: {
+    readonly missions: readonly (readonly [
+      string,
+      { readonly scenarioIds: readonly string[] },
+    ])[];
     readonly rosterProjection?: {
       readonly units: readonly CampaignRosterUnitShape[];
     };
@@ -123,6 +127,12 @@ test.describe('Roster Materialization Handoff Trust Anchor', () => {
 
     const launch = await launchSelectedRosterToPreBattle(page);
     tracker.encounterIds.add(launch.encounterId);
+    const launchedMissionId = new URL(launch.preBattleUrl).searchParams.get(
+      'missionId',
+    );
+    if (!launchedMissionId) {
+      throw new Error('Pre-battle route has no campaign mission reference');
+    }
 
     // Resolve the materialized force ids as early as possible so a failure
     // in the assertions below still leaves both forces tracked for cleanup.
@@ -142,6 +152,18 @@ test.describe('Roster Materialization Handoff Trust Anchor', () => {
       throw new Error('Materialized encounter has no player force reference');
     }
     tracker.forceIds.add(playerForceId);
+
+    // Prove the route rehydrates from the persisted encounter and force rows,
+    // rather than passing only because the launch page still holds live state.
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page).toHaveURL(
+      new RegExp(
+        `/gameplay/encounters/${encodeURIComponent(launch.encounterId)}/pre-battle`,
+      ),
+    );
+    await expect(page.getByTestId('pre-battle-page')).toBeVisible({
+      timeout: 20_000,
+    });
 
     // --- Hard DOM assertions (spec scenario "Full roster selection reaches pre-battle intact") ---
     const playerUnitListCount = await page
@@ -204,8 +226,17 @@ test.describe('Roster Materialization Handoff Trust Anchor', () => {
         },
       )
       .toBe(200);
-    const campaignBody =
-      (await campaignResponse!.json()) as CampaignGetResponse;
+    if (!campaignResponse) {
+      throw new Error('campaign response missing after successful status poll');
+    }
+    const campaignBody = (await campaignResponse.json()) as CampaignGetResponse;
+    const persistedMission = campaignBody.body.missions.find(
+      ([missionId]) => missionId === launchedMissionId,
+    );
+    expect(
+      persistedMission?.[1].scenarioIds,
+      'expected the authoritative campaign mission to reference the launched encounter',
+    ).toContain(launch.encounterId);
     const rosterUnits = campaignBody.body.rosterProjection?.units ?? [];
     const rosterPilotByUnitRef = new Map<string, string | null>(
       rosterUnits
