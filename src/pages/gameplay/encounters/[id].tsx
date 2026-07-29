@@ -26,6 +26,7 @@ import {
   handleQuickResolveComplete,
   useQuickResolveEncounterPrep,
 } from '@/pages-modules/gameplay/encounters/encounterDetailPage.helpers';
+import { encounterRouteIdentityFromRouter } from '@/pages-modules/gameplay/encounters/encounterRouteIdentity';
 import { useEncounterSelector } from '@/stores/useEncounterStore';
 import { useForceSelector } from '@/stores/useForceStore';
 import { usePilotSelector } from '@/stores/usePilotStore';
@@ -70,7 +71,9 @@ export function buildEncounterPreBattleHref(
 
 export default function EncounterDetailPage(): React.ReactElement {
   const router = useRouter();
-  const { id, campaignId, missionId } = router.query;
+  const routeIdentity = encounterRouteIdentityFromRouter(router);
+  const encounterId = routeIdentity.encounterId ?? '';
+  const { campaignId, missionId } = routeIdentity;
   const { showToast } = useToast();
 
   const getEncounter = useEncounterSelector((state) => state.getEncounter);
@@ -100,9 +103,10 @@ export default function EncounterDetailPage(): React.ReactElement {
   const [quickResolveResult, setQuickResolveResult] =
     useState<IBatchResult | null>(null);
 
-  const encounter = id && typeof id === 'string' ? getEncounter(id) : null;
-  const validation =
-    id && typeof id === 'string' ? (validations.get(id) ?? null) : null;
+  const encounter = encounterId ? getEncounter(encounterId) : null;
+  const validation = encounterId
+    ? (validations.get(encounterId) ?? null)
+    : null;
   const template = getEncounterTemplate(encounter?.template);
 
   useEffect(() => {
@@ -115,28 +119,31 @@ export default function EncounterDetailPage(): React.ReactElement {
   }, [loadEncounters, loadForces, loadPilots]);
 
   useEffect(() => {
-    if (isInitialized && id && typeof id === 'string') {
-      void validateEncounter(id);
+    if (isInitialized && encounterId) {
+      void validateEncounter(encounterId);
     }
-  }, [isInitialized, id, validateEncounter]);
+  }, [encounterId, isInitialized, validateEncounter]);
 
   const handleLaunch = useCallback(() => {
-    if (!id || typeof id !== 'string') {
+    if (!encounterId) {
       return;
     }
 
     void router.push(
-      buildEncounterPreBattleHref(id, { campaignId, missionId }),
+      buildEncounterPreBattleHref(encounterId, {
+        campaignId: campaignId ?? undefined,
+        missionId: missionId ?? undefined,
+      }),
     );
-  }, [campaignId, id, missionId, router]);
+  }, [campaignId, encounterId, missionId, router]);
 
   const handleDelete = useCallback(async () => {
-    if (!id || typeof id !== 'string') {
+    if (!encounterId) {
       return;
     }
 
     clearError();
-    const success = await deleteEncounter(id);
+    const success = await deleteEncounter(encounterId);
 
     if (success) {
       showToast({
@@ -148,11 +155,11 @@ export default function EncounterDetailPage(): React.ReactElement {
     }
 
     showToast({ message: 'Failed to delete encounter', variant: 'error' });
-  }, [id, deleteEncounter, router, clearError, showToast]);
+  }, [clearError, deleteEncounter, encounterId, router, showToast]);
 
   const handleGenerateScenario = useCallback(
     async (scenario: IGeneratedScenario) => {
-      if (!id || typeof id !== 'string') {
+      if (!encounterId) {
         return;
       }
 
@@ -164,9 +171,9 @@ export default function EncounterDetailPage(): React.ReactElement {
         variant: 'info',
       });
 
-      void validateEncounter(id);
+      void validateEncounter(encounterId);
     },
-    [id, clearError, validateEncounter, showToast],
+    [clearError, encounterId, showToast, validateEncounter],
   );
 
   const playerForce = useMemo(() => {
@@ -190,7 +197,6 @@ export default function EncounterDetailPage(): React.ReactElement {
     return <EncounterDetailNotFoundState />;
   }
 
-  const encounterId = id as string;
   const canLaunch = validation?.valid === true;
   const isBattleLocked =
     encounter.status === EncounterStatus.Launched ||

@@ -37,6 +37,7 @@ import {
 import { useToast } from '@/components/shared/Toast';
 import { PageLayout } from '@/components/ui';
 import { useSyncRoomSelector } from '@/lib/p2p/useSyncRoomStore';
+import { encounterRouteIdentityFromRouter } from '@/pages-modules/gameplay/encounters/encounterRouteIdentity';
 import { buildGameConfigFromEncounter } from '@/services/encounter/encounterToGameSession';
 import { useEncounterSelector } from '@/stores/useEncounterStore';
 import { useForceSelector } from '@/stores/useForceStore';
@@ -175,7 +176,9 @@ function useNetworked1v1Launch({
 
 export default function PreBattlePage(): React.ReactElement {
   const router = useRouter();
-  const { id, campaignId, missionId, seed } = router.query;
+  const { seed } = router.query;
+  const { encounterId, campaignId, missionId } =
+    encounterRouteIdentityFromRouter(router);
   const { showToast } = useToast();
   const seedOverride = parseSeedOverride(seed);
 
@@ -203,8 +206,9 @@ export default function PreBattlePage(): React.ReactElement {
   );
   const [isResolving, setIsResolving] = useState(false);
 
-  const encounter: IEncounter | undefined =
-    id && typeof id === 'string' ? getEncounter(id) : undefined;
+  const encounter: IEncounter | undefined = encounterId
+    ? getEncounter(encounterId)
+    : undefined;
   const template = encounter?.template
     ? SCENARIO_TEMPLATES.find((item) => item.type === encounter.template)
     : null;
@@ -280,7 +284,11 @@ export default function PreBattlePage(): React.ReactElement {
   });
 
   if (!isInitialized || encountersLoading) {
-    return <PreBattleLoading backLink={`/gameplay/encounters/${id ?? ''}`} />;
+    return (
+      <PreBattleLoading
+        backLink={`/gameplay/encounters/${encounterId ?? ''}`}
+      />
+    );
   }
 
   if (!encounter) {
@@ -294,7 +302,7 @@ export default function PreBattlePage(): React.ReactElement {
     { label: 'Home', href: '/' },
     { label: 'Gameplay', href: '/gameplay' },
     { label: 'Encounters', href: '/gameplay/encounters' },
-    { label: encounter.name, href: `/gameplay/encounters/${id as string}` },
+    { label: encounter.name, href: `/gameplay/encounters/${encounter.id}` },
     { label: 'Pre-Battle' },
   ];
 
@@ -308,7 +316,7 @@ export default function PreBattlePage(): React.ReactElement {
         title={`Pre-Battle: ${encounter.name}`}
         subtitle="Review forces and choose your battle mode"
         breadcrumbs={breadcrumbs}
-        backLink={`/gameplay/encounters/${id as string}`}
+        backLink={`/gameplay/encounters/${encounter.id}`}
         backLabel="Back to Encounter"
         data-testid="pre-battle-page"
       >

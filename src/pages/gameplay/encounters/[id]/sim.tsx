@@ -14,6 +14,7 @@ import { useToast } from '@/components/shared/Toast';
 import { PageLayout } from '@/components/ui';
 import { useQuickResolve } from '@/hooks/useQuickResolve';
 import { findForceById } from '@/pages-modules/gameplay/encounters/encounterDetailPage.helpers';
+import { encounterRouteIdentityFromRouter } from '@/pages-modules/gameplay/encounters/encounterRouteIdentity';
 import {
   buildQuickSimBreadcrumbs,
   DEFAULT_RUN_COUNT,
@@ -32,9 +33,9 @@ import { usePilotSelector } from '@/stores/usePilotStore';
 
 export default function QuickSimResultPage(): React.ReactElement {
   const router = useRouter();
-  const { id } = router.query;
+  const encounterId =
+    encounterRouteIdentityFromRouter(router).encounterId ?? '';
   const { showToast } = useToast();
-  const encounterId = typeof id === 'string' ? id : '';
 
   const getEncounter = useEncounterSelector((state) => state.getEncounter);
   const loadEncounters = useEncounterSelector((state) => state.loadEncounters);
