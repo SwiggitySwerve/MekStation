@@ -18,8 +18,8 @@ describe('validationNavigation', () => {
       expect(CATEGORY_TAB_MAP[ValidationCategory.SLOTS]).toBe('criticals');
     });
 
-    it('should map TECH_BASE to structure tab', () => {
-      expect(CATEGORY_TAB_MAP[ValidationCategory.TECH_BASE]).toBe('structure');
+    it('should map TECH_BASE to overview tab', () => {
+      expect(CATEGORY_TAB_MAP[ValidationCategory.TECH_BASE]).toBe('overview');
     });
 
     it('should map ERA to structure tab', () => {

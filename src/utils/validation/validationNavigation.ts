@@ -17,7 +17,7 @@ import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInter
  * Mapping rationale:
  * - WEIGHT: Structure tab controls tonnage and heavy components
  * - SLOTS: Criticals tab handles slot allocation
- * - TECH_BASE: Structure tab sets tech base configuration
+ * - TECH_BASE: Overview tab sets the unit tech base
  * - ERA: Structure tab sets year/era
  * - CONSTRUCTION: Structure tab handles core construction rules
  * - EQUIPMENT: Equipment tab manages equipment selection
@@ -28,7 +28,7 @@ import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInter
 export const CATEGORY_TAB_MAP: Record<ValidationCategory, CustomizerTabId> = {
   [ValidationCategory.WEIGHT]: 'structure',
   [ValidationCategory.SLOTS]: 'criticals',
-  [ValidationCategory.TECH_BASE]: 'structure',
+  [ValidationCategory.TECH_BASE]: 'overview',
   [ValidationCategory.ERA]: 'structure',
   [ValidationCategory.CONSTRUCTION]: 'structure',
   [ValidationCategory.EQUIPMENT]: 'equipment',

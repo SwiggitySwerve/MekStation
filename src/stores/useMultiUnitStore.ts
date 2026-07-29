@@ -18,7 +18,7 @@ import {
   TechBaseMode,
   createDefaultComponentTechBases,
 } from '@/types/construction/TechBaseConfiguration';
-import { TechBase } from '@/types/enums/TechBase';
+import { parseTechBase, TechBase } from '@/types/enums/TechBase';
 
 import {
   createTabActions,
@@ -64,33 +64,35 @@ export const useMultiUnitStore = create<MultiUnitState>()(
 
         // Migrate tabs to include all configuration fields
         const migratedTabs = (persistedState.tabs || []).map((tab) => {
+          const techBase = parseTechBase(tab.techBase);
           const needsTechBaseMigration =
             !tab.techBaseMode || !tab.componentTechBases;
           const needsComponentMigration = !tab.componentSelections;
 
           if (!needsTechBaseMigration && !needsComponentMigration) {
-            return tab;
+            return { ...tab, techBase };
           }
 
           const initialMode: TechBaseMode =
-            tab.techBase === TechBase.CLAN
+            techBase === TechBase.CLAN
               ? TechBaseMode.CLAN
               : TechBaseMode.INNER_SPHERE;
 
           return {
             ...tab,
+            techBase,
             // Tech base configuration
             techBaseMode: tab.techBaseMode || initialMode,
             componentTechBases:
               tab.componentTechBases ||
-              createDefaultComponentTechBases(tab.techBase),
+              createDefaultComponentTechBases(techBase),
             // Component selections
             componentSelections:
               tab.componentSelections ||
               createDefaultComponentSelections(
                 tab.tonnage,
                 4, // Default walk MP
-                tab.techBase,
+                techBase,
               ),
           };
         });
