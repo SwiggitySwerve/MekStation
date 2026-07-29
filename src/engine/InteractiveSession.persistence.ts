@@ -18,6 +18,8 @@ export const INTERACTIVE_SESSION_CORRUPT_MESSAGE =
   'Match log is corrupt and cannot be recovered';
 export const INTERACTIVE_SESSION_STORAGE_UNAVAILABLE_MESSAGE =
   'Match could not be recovered because local match storage is unavailable';
+export const INTERACTIVE_SESSION_LAUNCH_STORAGE_UNAVAILABLE_MESSAGE =
+  'Unable to create a recoverable game session. Check browser storage and try again.';
 
 export class InteractiveSessionRecoveryNotFoundError extends Error {
   constructor(readonly matchId: string) {
@@ -36,11 +38,45 @@ export class InteractiveSessionRecoveryCorruptError extends Error {
   }
 }
 
+export class InteractiveSessionLaunchPersistenceError extends Error {
+  constructor(readonly originalError?: unknown) {
+    super(INTERACTIVE_SESSION_LAUNCH_STORAGE_UNAVAILABLE_MESSAGE);
+    this.name = 'InteractiveSessionLaunchPersistenceError';
+  }
+}
+
 export type MatchLogHydrationStorage = Pick<
   MatchLogStorage,
   'getEventsForMatch'
 > &
   Partial<Pick<MatchLogStorage, 'getLastSequence'>>;
+
+type InteractiveLaunchRecoveryStorage = Pick<
+  MatchLogStorage,
+  'appendEvent' | 'flushPendingWrites' | 'upsertMatchMetadata'
+>;
+
+export async function persistInteractiveLaunchRecoveryLog(
+  session: IGameSession,
+  storage: InteractiveLaunchRecoveryStorage = matchLogStorage,
+): Promise<void> {
+  const writes: Promise<unknown>[] = [];
+  try {
+    for (const event of session.events) {
+      writes.push(storage.appendEvent(session.id, event));
+    }
+    await storage.flushPendingWrites();
+    await Promise.all(writes);
+    await storage.upsertMatchMetadata({
+      matchId: session.id,
+      status: 'active',
+    });
+  } catch (error) {
+    await Promise.allSettled(writes);
+    logger.warn('Interactive match recovery seed failed', error);
+    throw new InteractiveSessionLaunchPersistenceError(error);
+  }
+}
 
 export async function hydrateSessionFromMatchLog(
   matchId: string,

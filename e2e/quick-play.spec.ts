@@ -20,6 +20,10 @@ import { getStoreState } from './helpers/store';
 interface QuickPlayState {
   readonly session: {
     readonly id: string;
+    readonly units: readonly {
+      readonly id: string;
+      readonly unitRef: string;
+    }[];
     readonly currentState: {
       readonly status: string;
       readonly turn: number;
@@ -39,7 +43,20 @@ interface QuickPlayState {
       >;
     };
   } | null;
+  readonly interactiveSession: {
+    getMovementCapability: (unitId: string) => unknown;
+    getUnitWeapons: (unitId: string) => readonly unknown[];
+  } | null;
   readonly interactivePhase: string;
+}
+
+interface QuickPlayRecoverySnapshot {
+  readonly sessionId: string | undefined;
+  readonly unitIds: readonly string[];
+  readonly unitRefs: readonly string[];
+  readonly stateUnitIds: readonly string[];
+  readonly movementReady: Record<string, boolean>;
+  readonly weaponsReady: Record<string, boolean>;
 }
 
 // =============================================================================
@@ -59,6 +76,44 @@ async function waitForStoreReady(page: Page): Promise<void> {
     },
     { timeout: 15000 },
   );
+}
+
+async function readQuickPlayRecoverySnapshot(
+  page: Page,
+): Promise<QuickPlayRecoverySnapshot> {
+  return page.evaluate(() => {
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: {
+          gameplay?: {
+            getState: () => QuickPlayState;
+          };
+        };
+      }
+    ).__ZUSTAND_STORES__;
+    const state = stores?.gameplay?.getState();
+    const units = state?.session?.units ?? [];
+    const interactiveSession = state?.interactiveSession;
+    const movementReady: Record<string, boolean> = {};
+    const weaponsReady: Record<string, boolean> = {};
+
+    for (const unit of units) {
+      movementReady[unit.id] =
+        !!interactiveSession &&
+        interactiveSession.getMovementCapability(unit.id) !== null;
+      weaponsReady[unit.id] =
+        (interactiveSession?.getUnitWeapons(unit.id).length ?? 0) > 0;
+    }
+
+    return {
+      sessionId: state?.session?.id,
+      unitIds: units.map((unit) => unit.id),
+      unitRefs: units.map((unit) => unit.unitRef),
+      stateUnitIds: Object.keys(state?.session?.currentState.units ?? {}),
+      movementReady,
+      weaponsReady,
+    };
+  });
 }
 
 async function gotoQuickGame(page: Page): Promise<void> {
@@ -192,6 +247,104 @@ test.describe('Quick Play Unit Selection', () => {
       await expect(
         page.getByRole('button', { name: /auto-resolve/i }),
       ).toBeVisible();
+    },
+  );
+});
+
+// =============================================================================
+// Quick Play - Interactive Recovery
+// =============================================================================
+
+test.describe('Quick Play Interactive Recovery', () => {
+  test(
+    'should cold-recover every generated combatant with live capabilities',
+    { tag: ['@game', '@recovery'] },
+    async ({ page }) => {
+      const recoveryDiagnostics: string[] = [];
+      page.on('console', (message) => {
+        const text = message.text();
+        if (
+          text.includes('not found in the canonical catalog') ||
+          text.includes('Encountered two children with the same key')
+        ) {
+          recoveryDiagnostics.push(text);
+        }
+      });
+
+      await prepareQuickGameReview(page);
+      await page.getByTestId('interactive-skirmish-btn').click();
+      await expect(page).toHaveURL(/\/gameplay\/games\/[^/?]+$/);
+      const launchedUrl = page.url();
+
+      await expect(page.getByTestId('game-session')).toBeVisible({
+        timeout: 20_000,
+      });
+      await waitForStoreReady(page);
+      const launched = await readQuickPlayRecoverySnapshot(page);
+      expect(launched.sessionId).toBeTruthy();
+      expect(launched.unitIds.length).toBeGreaterThan(2);
+      expect(new Set(launched.unitIds).size).toBe(launched.unitIds.length);
+      expect([...launched.stateUnitIds].sort()).toEqual(
+        [...launched.unitIds].sort(),
+      );
+      expect(
+        launched.unitRefs.every((unitRef) =>
+          /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(unitRef),
+        ),
+      ).toBe(true);
+      expect(Object.keys(launched.movementReady)).toHaveLength(
+        launched.unitIds.length,
+      );
+      expect(Object.keys(launched.weaponsReady)).toHaveLength(
+        launched.unitIds.length,
+      );
+      expect(Object.values(launched.movementReady).every(Boolean)).toBe(true);
+      expect(Object.values(launched.weaponsReady).every(Boolean)).toBe(true);
+
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await expect(page).toHaveURL(launchedUrl);
+      await expect(page.getByTestId('game-session')).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.waitForFunction(
+        (expectedSessionId) => {
+          const stores = (
+            window as unknown as {
+              __ZUSTAND_STORES__?: {
+                gameplay?: {
+                  getState: () => QuickPlayState;
+                };
+              };
+            }
+          ).__ZUSTAND_STORES__;
+          const state = stores?.gameplay?.getState();
+          return (
+            state?.session?.id === expectedSessionId &&
+            state?.interactiveSession !== null &&
+            state?.interactiveSession !== undefined
+          );
+        },
+        launched.sessionId,
+        { timeout: 20_000 },
+      );
+
+      const recovered = await readQuickPlayRecoverySnapshot(page);
+      expect(recovered.sessionId).toBe(launched.sessionId);
+      expect(recovered.unitIds).toEqual(launched.unitIds);
+      expect(recovered.unitRefs).toEqual(launched.unitRefs);
+      expect([...recovered.stateUnitIds].sort()).toEqual(
+        [...recovered.unitIds].sort(),
+      );
+      expect(Object.keys(recovered.movementReady)).toHaveLength(
+        recovered.unitIds.length,
+      );
+      expect(Object.keys(recovered.weaponsReady)).toHaveLength(
+        recovered.unitIds.length,
+      );
+      expect(Object.values(recovered.movementReady).every(Boolean)).toBe(true);
+      expect(Object.values(recovered.weaponsReady).every(Boolean)).toBe(true);
+      expect(recoveryDiagnostics).toEqual([]);
+      await expect(page.getByTestId('game-error')).toHaveCount(0);
     },
   );
 });

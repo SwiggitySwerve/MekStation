@@ -17,7 +17,7 @@ jest.mock('@/engine/adapters/CompendiumAdapter', () => ({
 }));
 
 const mockPersistInteractiveLaunchRecoveryLog = jest.fn();
-jest.mock('../usePreBattleLaunch', () => ({
+jest.mock('@/engine/InteractiveSession.persistence', () => ({
   persistInteractiveLaunchRecoveryLog: (session: unknown) =>
     mockPersistInteractiveLaunchRecoveryLog(session),
 }));
@@ -159,7 +159,6 @@ describe('usePreBattleSkirmish recovery persistence', () => {
     const calls: string[] = [];
     mockPersistInteractiveLaunchRecoveryLog.mockImplementation(async () => {
       calls.push('persist');
-      return true;
     });
     const router = {
       push: jest.fn((path: string) => {
@@ -192,6 +191,40 @@ describe('usePreBattleSkirmish recovery persistence', () => {
     expect(router.push).toHaveBeenCalledWith(
       expect.stringMatching(/^\/gameplay\/games\//),
     );
-    expect(calls).toEqual(['set', 'persist', 'push']);
+    expect(calls).toEqual(['persist', 'set', 'push']);
+  });
+
+  it('does not expose or navigate to a skirmish whose recovery log failed', async () => {
+    mockPersistInteractiveLaunchRecoveryLog.mockRejectedValue(
+      new Error(
+        'Unable to create a recoverable game session. Check browser storage and try again.',
+      ),
+    );
+    const router = {
+      push: jest.fn(),
+    } as unknown as NextRouter;
+    const setInteractiveSession = jest.fn();
+    const showToast = jest.fn();
+
+    const { result } = renderHook(() =>
+      usePreBattleSkirmish({
+        encounter: makeEncounter(),
+        router,
+        setInteractiveSession,
+        showToast,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.launchSkirmish(makeConfig());
+    });
+
+    expect(setInteractiveSession).not.toHaveBeenCalled();
+    expect(router.push).not.toHaveBeenCalled();
+    expect(showToast).toHaveBeenCalledWith({
+      message:
+        'Unable to create a recoverable game session. Check browser storage and try again.',
+      variant: 'error',
+    });
   });
 });

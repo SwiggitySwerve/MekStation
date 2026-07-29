@@ -139,6 +139,7 @@ describe('OpForGeneratorService', () => {
       const result = service.generate(config);
 
       for (const unit of result.units) {
+        expect(unit.sourceUnitId).toMatch(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
         expect(unit.chassis).toBeDefined();
         expect(unit.variant).toBeDefined();
         expect(unit.designation).toBeDefined();
@@ -146,6 +147,20 @@ describe('OpForGeneratorService', () => {
         expect(unit.tonnage).toBeGreaterThan(0);
         expect(unit.unitType).toBe(UnitTypeCategory.BattleMech);
       }
+    });
+
+    it('preserves explicit catalog aliases for Clan designations', () => {
+      const config = getDefaultOpForConfig(
+        3000,
+        Faction.CLAN_WOLF,
+        Era.CLAN_INVASION,
+      );
+      const result = service.generate(config, () => 0);
+
+      expect(result.units[0]).toMatchObject({
+        designation: 'Dire Wolf Prime',
+        sourceUnitId: 'daishi-prime',
+      });
     });
   });
 

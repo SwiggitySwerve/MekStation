@@ -16,7 +16,12 @@ export async function adaptUnits(
       piloting: unit.piloting,
     });
     if (result) {
-      adapted.push(result);
+      // Catalog identity stays in sourceUnitId/unitRef; combat identity must
+      // remain per roster instance because RAT generation permits duplicates.
+      adapted.push({
+        ...result,
+        id: unit.instanceId,
+      });
     }
   }
   return adapted;

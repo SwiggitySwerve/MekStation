@@ -8,6 +8,7 @@ export const CW_CLAN_INVASION_RAT: IRandomAssignmentTable = {
   era: Era.CLAN_INVASION,
   entries: [
     {
+      sourceUnitId: 'daishi-prime',
       chassis: 'Dire Wolf',
       variant: 'Prime',
       designation: 'Dire Wolf Prime',
@@ -17,6 +18,7 @@ export const CW_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 8,
     },
     {
+      sourceUnitId: 'man-o-war-prime',
       chassis: 'Gargoyle',
       variant: 'Prime',
       designation: 'Gargoyle Prime',
@@ -26,6 +28,7 @@ export const CW_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 12,
     },
     {
+      sourceUnitId: 'mad-cat-prime',
       chassis: 'Timber Wolf',
       variant: 'Prime',
       designation: 'Timber Wolf Prime',
@@ -35,6 +38,7 @@ export const CW_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 20,
     },
     {
+      sourceUnitId: 'loki-prime',
       chassis: 'Hellbringer',
       variant: 'Prime',
       designation: 'Hellbringer Prime',
@@ -44,6 +48,7 @@ export const CW_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 15,
     },
     {
+      sourceUnitId: 'ryoken-prime',
       chassis: 'Stormcrow',
       variant: 'Prime',
       designation: 'Stormcrow Prime',
@@ -53,6 +58,7 @@ export const CW_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 18,
     },
     {
+      sourceUnitId: 'black-hawk-prime',
       chassis: 'Nova',
       variant: 'Prime',
       designation: 'Nova Prime',
@@ -62,6 +68,7 @@ export const CW_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 15,
     },
     {
+      sourceUnitId: 'uller-prime',
       chassis: 'Kit Fox',
       variant: 'Prime',
       designation: 'Kit Fox Prime',
@@ -71,6 +78,7 @@ export const CW_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 14,
     },
     {
+      sourceUnitId: 'koshi-prime',
       chassis: 'Mist Lynx',
       variant: 'Prime',
       designation: 'Mist Lynx Prime',
@@ -89,6 +97,7 @@ export const FS_CLAN_INVASION_RAT: IRandomAssignmentTable = {
   era: Era.CLAN_INVASION,
   entries: [
     {
+      sourceUnitId: 'victor-vtr-9b',
       chassis: 'Victor',
       variant: 'VTR-9B',
       designation: 'Victor VTR-9B',
@@ -98,6 +107,7 @@ export const FS_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 15,
     },
     {
+      sourceUnitId: 'battlemaster-blr-1g',
       chassis: 'Battlemaster',
       variant: 'BLR-1G',
       designation: 'Battlemaster BLR-1G',
@@ -107,6 +117,7 @@ export const FS_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 12,
     },
     {
+      sourceUnitId: 'jagermech-jm6-s',
       chassis: 'JagerMech',
       variant: 'JM6-S',
       designation: 'JagerMech JM6-S',
@@ -116,6 +127,7 @@ export const FS_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 18,
     },
     {
+      sourceUnitId: 'axman-axm-1n',
       chassis: 'Axman',
       variant: 'AXM-1N',
       designation: 'Axman AXM-1N',
@@ -125,6 +137,7 @@ export const FS_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 15,
     },
     {
+      sourceUnitId: 'hatchetman-hct-3f',
       chassis: 'Hatchetman',
       variant: 'HCT-3F',
       designation: 'Hatchetman HCT-3F',
@@ -134,6 +147,7 @@ export const FS_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 12,
     },
     {
+      sourceUnitId: 'centurion-cn9-a',
       chassis: 'Centurion',
       variant: 'CN9-A',
       designation: 'Centurion CN9-A',
@@ -143,6 +157,7 @@ export const FS_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 20,
     },
     {
+      sourceUnitId: 'wolfhound-wlf-1',
       chassis: 'Wolfhound',
       variant: 'WLF-1',
       designation: 'Wolfhound WLF-1',
@@ -152,6 +167,7 @@ export const FS_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 18,
     },
     {
+      sourceUnitId: 'valkyrie-vlk-qa',
       chassis: 'Valkyrie',
       variant: 'VLK-QA',
       designation: 'Valkyrie VLK-QA',
@@ -161,6 +177,7 @@ export const FS_CLAN_INVASION_RAT: IRandomAssignmentTable = {
       weight: 16,
     },
     {
+      sourceUnitId: 'mongoose-mon-67',
       chassis: 'Mongoose',
       variant: 'MON-67',
       designation: 'Mongoose MON-67',

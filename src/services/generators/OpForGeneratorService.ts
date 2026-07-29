@@ -326,6 +326,7 @@ export class OpForGeneratorService {
       }
 
       units.push({
+        sourceUnitId: entry.sourceUnitId,
         chassis: entry.chassis,
         variant: entry.variant,
         designation: entry.designation,
