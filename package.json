@@ -214,6 +214,7 @@
     "verify:qc:combat": "npm run qc:run -- --surface=simulation-combat-validation",
     "verify:qc:maintenance": "npm run qc:run -- --surface=maintenance-code-health --quick && node scripts/qc/validate-maintenance-warning-ledger.mjs",
     "verify:qc:roadmap": "npm run qc:app-completion:release -- --json && npm run qc:manual-automation-gaps:validate && npm run qc:surface-browser:validate && npm run qc:scenarios:validate && npm run qc:journeys:validate && npm run qc:wave3:validate && npm run qc:wave4:validate && npm run verify:qc:maintenance",
+    "verify:qc:gm-two-player-campaign": "node scripts/qc/run-gm-two-player-campaign.mjs",
     "simulate": "npx tsx scripts/run-simulation.ts",
     "simulate:batch": "npx tsx scripts/run-simulation.ts --count=100"
   },

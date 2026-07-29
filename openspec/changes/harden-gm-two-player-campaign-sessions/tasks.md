@@ -143,7 +143,7 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
 
 ## 20. Three-Context Sandbox Foundation
 
-- [ ] 20.1 Add `e2e/fixtures/gmTwoPlayerCampaign.ts` with isolated contexts reserved for the future non-playing GM, Player 1, and Player 2, plus a harness-owned server, per-run database, distinct identities, and deterministic seeds. The foundation proves isolation first; Task 9 durable membership later binds those contexts to actual roles and must pass `membership-smoke` before role admission is claimed.
+- [x] 20.1 Add `e2e/fixtures/gmTwoPlayerCampaign.ts` with isolated contexts reserved for the future non-playing GM, Player 1, and Player 2, plus a harness-owned server, per-run database, distinct identities, and deterministic seeds. The foundation proves isolation first; Task 9 durable membership later binds those contexts to actual roles and must pass `membership-smoke` before role admission is claimed.
 - [ ] 20.2 Add test-only fault controls guarded by `NODE_ENV === 'test'`, E2E run ID, explicit session scope, and one-shot consumption; make production startup reject enabled controls.
 - [ ] 20.3 Add a dedicated SQLite evidence reader opened `readonly: true, fileMustExist: true`; never instantiate the production store for read-only proof.
 - [ ] 20.4 Add role-labeled traces, screenshots, raw socket transcript, pre-serialization projection capture, latency timestamps, durable-row export, state/projection hashes, environment manifest, and cleanup log under `test-results/gm-two-player/<run-id>/`.
