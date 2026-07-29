@@ -24,24 +24,13 @@ function readDeterminismAuditStep(): string {
 }
 
 describe('Determinism Audit workflow', () => {
-  it('fails closed when its scanner cannot run', () => {
+  it('delegates to the executable fail-closed validator', () => {
     const auditStep = readDeterminismAuditStep();
 
-    expect(auditStep).toContain('command -v git');
-    expect(auditStep).toContain('scan_status=$?');
-    expect(auditStep).toMatch(/if \[ "\$scan_status" -gt 1 \]; then/);
-    expect(auditStep).toContain('filter_status=$?');
-    expect(auditStep).toMatch(/if \[ "\$filter_status" -gt 1 \]; then/);
-    expect(auditStep).not.toContain('|| true');
-  });
-
-  it('keeps a clean no-match scan as a successful result', () => {
-    const auditStep = readDeterminismAuditStep();
-
-    expect(auditStep).toContain('set +e');
-    expect(auditStep).toContain('set -e');
     expect(auditStep).toContain(
-      'Determinism audit passed: no unseeded dice in combat pipeline.',
+      'run: node scripts/qc/audit-combat-determinism.mjs',
     );
+    expect(auditStep).not.toContain('shell: bash');
+    expect(auditStep).not.toContain('|| true');
   });
 });
