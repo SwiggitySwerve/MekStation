@@ -149,7 +149,7 @@ Before Task 1, create `.omo/evidence/gm-two-player-live-campaign-sandbox/program
   QA scenarios (name the exact tool + invocation): `npm.cmd test -- --watchAll=false --runInBand --runTestsByPath src/stores/__tests__/useQuickGameStore.bootstrapPersistence.test.ts src/stores/__tests__/useGameplayStore.recover.test.ts` (the first file is created by this task); cold reload passes, while injected bootstrap-write rejection leaves the route unchanged and surfaces the typed error; Evidence `.omo/evidence/.../task-4-gm-two-player-live-campaign-sandbox/`.
   Commit: Y | `fix(quickgame): persist recoverable bootstrap events`
 
-- [ ] 5. Clear the native SQLite durability preflight
+- [x] 5. Clear the native SQLite durability preflight
   What to do / Must NOT do: select the repo-supported Node version and rebuild/reinstall `better-sqlite3` until durable suites execute; record ABI/environment; do not accept in-memory substitutes or modify product behavior.
   Parallelization: Wave 1 | Blocked by: none | Blocks: 6, 7, 10, 26, 27, 34.
   References (executor has NO interview context - be exhaustive): `package.json`; `src/lib/multiplayer/server/DurableMatchStore.ts:147-159`; OpenSpec `tasks.md` 1.1; `design.md` D1 and D10.
