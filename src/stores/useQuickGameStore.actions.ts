@@ -1,6 +1,7 @@
 import { Faction } from '@/constants/scenario/rats';
 import { GameEngine } from '@/engine/GameEngine';
 import { createGridFromGeneratedMap } from '@/engine/GameEngine.helpers';
+import { persistInteractiveLaunchRecoveryLog } from '@/engine/InteractiveSession.persistence';
 import { scenarioGenerator } from '@/services/generators';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import {
@@ -73,23 +74,18 @@ async function prepareQuickGameBattle(
     playerAdapted,
     opponentAdapted,
     gameUnits: [
-      ...buildGameUnits(game.playerForce.units, playerAdapted, GameSide.Player),
-      ...buildGameUnits(
-        game.opponentForce?.units ?? [],
-        opponentAdapted,
-        GameSide.Opponent,
-      ),
+      ...buildGameUnits(game.playerForce.units, GameSide.Player),
+      ...buildGameUnits(game.opponentForce?.units ?? [], GameSide.Opponent),
     ],
   };
 }
 
 function buildGameUnits(
   units: IQuickGameForce['units'],
-  adaptedUnits: AdaptedQuickGameUnits,
   side: GameSide,
 ): IGameUnit[] {
-  return units.map((unit, index) => ({
-    id: adaptedUnits[index]?.id ?? unit.instanceId,
+  return units.map((unit) => ({
+    id: unit.instanceId,
     name: unit.name,
     side,
     unitRef: unit.sourceUnitId,
@@ -144,7 +140,7 @@ export function createScenarioActions(
 
           const opponentUnits = scenario.opFor.units.map((unit) =>
             createQuickGameUnit({
-              sourceUnitId: `${unit.chassis}-${unit.variant}`,
+              sourceUnitId: unit.sourceUnitId,
               name: unit.designation,
               chassis: unit.chassis,
               variant: unit.variant,
@@ -315,6 +311,9 @@ export function createBattleActions(
           gameUnits,
         );
 
+        await persistInteractiveLaunchRecoveryLog(
+          interactiveSession.getSession(),
+        );
         useGameplayStore.getState().setInteractiveSession(interactiveSession);
 
         set({

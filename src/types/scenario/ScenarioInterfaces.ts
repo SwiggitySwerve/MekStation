@@ -373,6 +373,8 @@ export interface IOpForGeneratorResult {
  * Generated unit from OpFor generator.
  */
 export interface IGeneratedUnit {
+  /** Canonical unit catalog ID used by live combat and recovery. */
+  readonly sourceUnitId: string;
   /** Unit chassis name */
   readonly chassis: string;
   /** Unit variant name */

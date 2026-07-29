@@ -228,6 +228,13 @@ describe('useQuickGameStore', () => {
       expect(result.current.game?.opponentForce?.units.length).toBeGreaterThan(
         0,
       );
+      expect(
+        result.current.game?.opponentForce?.units.every(
+          (unit) =>
+            unit.sourceUnitId === unit.sourceUnitId.toLowerCase() &&
+            /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(unit.sourceUnitId),
+        ),
+      ).toBe(true);
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).toBeNull();
     });

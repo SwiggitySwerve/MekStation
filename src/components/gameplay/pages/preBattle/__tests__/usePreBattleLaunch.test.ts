@@ -7,6 +7,10 @@ import {
   type ICombatOutcomeReadyEvent,
 } from '@/engine/combatOutcomeBus';
 import {
+  INTERACTIVE_SESSION_LAUNCH_STORAGE_UNAVAILABLE_MESSAGE,
+  persistInteractiveLaunchRecoveryLog,
+} from '@/engine/InteractiveSession.persistence';
+import {
   MatchLogStorage,
   type IMatchMetadataRecord,
 } from '@/lib/p2p/matchLogStorage';
@@ -24,7 +28,6 @@ import {
 
 import {
   buildGameSessionRoute,
-  persistInteractiveLaunchRecoveryLog,
   publishAutoResolvedCampaignOutcome,
 } from '../usePreBattleLaunch';
 
@@ -201,7 +204,7 @@ describe('persistInteractiveLaunchRecoveryLog', () => {
 
     await expect(
       persistInteractiveLaunchRecoveryLog(session, storage),
-    ).resolves.toBe(true);
+    ).resolves.toBeUndefined();
 
     const events = await storage.getEventsForMatch(session.id);
     const metadata = (await storage.getMatchMetadata(
@@ -217,7 +220,7 @@ describe('persistInteractiveLaunchRecoveryLog', () => {
     storage.close();
   });
 
-  it('returns false without crashing when launch recovery storage is unavailable', async () => {
+  it('rejects launch when recovery storage is unavailable', async () => {
     const session = startGame(
       createGameSession(makeConfig(), makeUnits(), {
         id: 'sess_launch_storage_unavailable',
@@ -235,12 +238,40 @@ describe('persistInteractiveLaunchRecoveryLog', () => {
 
     await expect(
       persistInteractiveLaunchRecoveryLog(session, storage),
-    ).resolves.toBe(false);
+    ).rejects.toThrow(INTERACTIVE_SESSION_LAUNCH_STORAGE_UNAVAILABLE_MESSAGE);
 
     expect(storage.upsertMatchMetadata).not.toHaveBeenCalled();
   });
 
-  it('returns false without crashing when appending the launch log throws synchronously', async () => {
+  it('rejects launch when active-match metadata cannot be persisted', async () => {
+    const session = startGame(
+      createGameSession(makeConfig(), makeUnits(), {
+        id: 'sess_launch_metadata_failure',
+        createdAt: '2026-06-21T00:00:00.000Z',
+      }),
+      GameSide.Player,
+    );
+    const storage = {
+      appendEvent: jest.fn().mockResolvedValue(undefined),
+      flushPendingWrites: jest.fn().mockResolvedValue(undefined),
+      upsertMatchMetadata: jest
+        .fn()
+        .mockRejectedValue(new Error('metadata write failed')),
+    };
+
+    await expect(
+      persistInteractiveLaunchRecoveryLog(session, storage),
+    ).rejects.toThrow(INTERACTIVE_SESSION_LAUNCH_STORAGE_UNAVAILABLE_MESSAGE);
+
+    expect(storage.appendEvent).toHaveBeenCalledTimes(session.events.length);
+    expect(storage.flushPendingWrites).toHaveBeenCalledTimes(1);
+    expect(storage.upsertMatchMetadata).toHaveBeenCalledWith({
+      matchId: session.id,
+      status: 'active',
+    });
+  });
+
+  it('rejects launch when appending the recovery log throws synchronously', async () => {
     const session = startGame(
       createGameSession(makeConfig(), makeUnits(), {
         id: 'sess_launch_sync_storage_failure',
@@ -258,7 +289,7 @@ describe('persistInteractiveLaunchRecoveryLog', () => {
 
     await expect(
       persistInteractiveLaunchRecoveryLog(session, storage),
-    ).resolves.toBe(false);
+    ).rejects.toThrow(INTERACTIVE_SESSION_LAUNCH_STORAGE_UNAVAILABLE_MESSAGE);
 
     expect(storage.flushPendingWrites).not.toHaveBeenCalled();
     expect(storage.upsertMatchMetadata).not.toHaveBeenCalled();

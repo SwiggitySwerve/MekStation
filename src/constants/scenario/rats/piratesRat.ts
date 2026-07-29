@@ -8,6 +8,7 @@ export const PIRATES_GENERIC_RAT: IRandomAssignmentTable = {
   era: Era.LATE_SUCCESSION_WARS,
   entries: [
     {
+      sourceUnitId: 'awesome-aws-8q',
       chassis: 'Awesome',
       variant: 'AWS-8Q',
       designation: 'Awesome AWS-8Q',
@@ -17,6 +18,7 @@ export const PIRATES_GENERIC_RAT: IRandomAssignmentTable = {
       weight: 8,
     },
     {
+      sourceUnitId: 'marauder-mad-3r',
       chassis: 'Marauder',
       variant: 'MAD-3R',
       designation: 'Marauder MAD-3R',
@@ -26,6 +28,7 @@ export const PIRATES_GENERIC_RAT: IRandomAssignmentTable = {
       weight: 15,
     },
     {
+      sourceUnitId: 'warhammer-whm-6r',
       chassis: 'Warhammer',
       variant: 'WHM-6R',
       designation: 'Warhammer WHM-6R',
@@ -35,6 +38,7 @@ export const PIRATES_GENERIC_RAT: IRandomAssignmentTable = {
       weight: 15,
     },
     {
+      sourceUnitId: 'thunderbolt-tdr-5s',
       chassis: 'Thunderbolt',
       variant: 'TDR-5S',
       designation: 'Thunderbolt TDR-5S',
@@ -44,6 +48,7 @@ export const PIRATES_GENERIC_RAT: IRandomAssignmentTable = {
       weight: 12,
     },
     {
+      sourceUnitId: 'wolverine-wvr-6r',
       chassis: 'Wolverine',
       variant: 'WVR-6R',
       designation: 'Wolverine WVR-6R',
@@ -53,6 +58,7 @@ export const PIRATES_GENERIC_RAT: IRandomAssignmentTable = {
       weight: 18,
     },
     {
+      sourceUnitId: 'shadow-hawk-shd-2h',
       chassis: 'Shadow Hawk',
       variant: 'SHD-2H',
       designation: 'Shadow Hawk SHD-2H',
@@ -62,6 +68,7 @@ export const PIRATES_GENERIC_RAT: IRandomAssignmentTable = {
       weight: 18,
     },
     {
+      sourceUnitId: 'phoenix-hawk-pxh-1',
       chassis: 'Phoenix Hawk',
       variant: 'PXH-1',
       designation: 'Phoenix Hawk PXH-1',
@@ -71,6 +78,7 @@ export const PIRATES_GENERIC_RAT: IRandomAssignmentTable = {
       weight: 15,
     },
     {
+      sourceUnitId: 'stinger-stg-3r',
       chassis: 'Stinger',
       variant: 'STG-3R',
       designation: 'Stinger STG-3R',
@@ -80,6 +88,7 @@ export const PIRATES_GENERIC_RAT: IRandomAssignmentTable = {
       weight: 18,
     },
     {
+      sourceUnitId: 'wasp-wsp-1a',
       chassis: 'Wasp',
       variant: 'WSP-1A',
       designation: 'Wasp WSP-1A',
@@ -89,6 +98,7 @@ export const PIRATES_GENERIC_RAT: IRandomAssignmentTable = {
       weight: 18,
     },
     {
+      sourceUnitId: 'locust-lct-1v',
       chassis: 'Locust',
       variant: 'LCT-1V',
       designation: 'Locust LCT-1V',

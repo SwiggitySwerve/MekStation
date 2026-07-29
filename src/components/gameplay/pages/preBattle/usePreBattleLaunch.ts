@@ -20,11 +20,8 @@ import {
 } from '@/engine/combatOutcomeBus';
 import { GameEngine } from '@/engine/GameEngine';
 import { createGridFromTerrainPreset } from '@/engine/GameEngine.helpers';
+import { persistInteractiveLaunchRecoveryLog } from '@/engine/InteractiveSession.persistence';
 import { deriveCombatOutcome } from '@/lib/combat/outcome/combatOutcome';
-import {
-  matchLogStorage,
-  type MatchLogStorage,
-} from '@/lib/p2p/matchLogStorage';
 import { logger } from '@/utils/logger';
 
 export type BattleMode = 'auto' | 'interactive' | 'spectator';
@@ -57,11 +54,6 @@ interface UsePreBattleLaunchOptions {
 export interface IPreBattleLaunchLinkage extends IInteractiveSessionLinkage {
   readonly missionId?: string | null;
 }
-
-type InteractiveLaunchRecoveryStorage = Pick<
-  MatchLogStorage,
-  'appendEvent' | 'flushPendingWrites' | 'upsertMatchMetadata'
->;
 
 function nonEmpty(value: string | null | undefined): string | null {
   return typeof value === 'string' && value.trim().length > 0 ? value : null;
@@ -121,29 +113,6 @@ export function publishAutoResolvedCampaignOutcome(
       scenarioId: linkage.scenarioId ?? null,
       error,
     });
-    return false;
-  }
-}
-
-export async function persistInteractiveLaunchRecoveryLog(
-  session: IGameSession,
-  storage: InteractiveLaunchRecoveryStorage = matchLogStorage,
-): Promise<boolean> {
-  let writes: Promise<unknown>[] = [];
-  try {
-    writes = session.events.map((event) =>
-      storage.appendEvent(session.id, event),
-    );
-    await storage.flushPendingWrites();
-    await Promise.all(writes);
-    await storage.upsertMatchMetadata({
-      matchId: session.id,
-      status: 'active',
-    });
-    return true;
-  } catch (error) {
-    await Promise.allSettled(writes);
-    logger.warn('Interactive match recovery seed failed', error);
     return false;
   }
 }
@@ -277,8 +246,8 @@ export function usePreBattleLaunch({
         const session = interactiveSession.getSession();
 
         if (mode === 'interactive') {
-          setInteractiveSession(interactiveSession);
           await persistInteractiveLaunchRecoveryLog(session);
+          setInteractiveSession(interactiveSession);
           logger.info('Interactive session created', { sessionId: session.id });
           showToast({
             message: 'Launching interactive battle...',

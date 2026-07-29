@@ -18,6 +18,7 @@ import {
   recoverInteractiveSession,
 } from '@/engine/InteractiveSession';
 import {
+  INTERACTIVE_SESSION_LAUNCH_STORAGE_UNAVAILABLE_MESSAGE,
   INTERACTIVE_SESSION_CORRUPT_MESSAGE,
   INTERACTIVE_SESSION_NOT_FOUND_MESSAGE,
   INTERACTIVE_SESSION_STORAGE_UNAVAILABLE_MESSAGE,
@@ -31,6 +32,7 @@ import {
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { loadSessionLogic } from '@/stores/useGameplayStore.session';
+import { useQuickGameStore } from '@/stores/useQuickGameStore';
 import {
   Facing,
   FiringArc,
@@ -41,6 +43,10 @@ import {
   type IGameSession,
   type IGameUnit,
 } from '@/types/gameplay';
+import {
+  createQuickGameInstance,
+  createQuickGameUnit,
+} from '@/types/quickgame';
 import { createGameStartedEvent } from '@/utils/gameplay/gameEvents';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -48,6 +54,11 @@ const adapterModule = require('@/engine/adapters/CompendiumAdapter') as {
   __mockAdaptUnit: jest.Mock;
 };
 const mockAdaptUnit = adapterModule.__mockAdaptUnit;
+const RECOVERABLE_QUICK_GAME_UNIT_REFS = new Set([
+  'atlas-as7-d',
+  'marauder-mad-3r',
+  'stinger-stg-3r',
+]);
 
 if (typeof globalThis.structuredClone === 'undefined') {
   Object.defineProperty(globalThis, 'structuredClone', {
@@ -177,6 +188,91 @@ function makeBootstrapInteractiveSession(): InteractiveSession {
   );
 }
 
+function installRecoverableQuickGame(): readonly string[] {
+  const playerUnit = createQuickGameUnit({
+    sourceUnitId: 'atlas-as7-d',
+    name: 'Atlas AS7-D',
+    chassis: 'Atlas',
+    variant: 'AS7-D',
+    bv: 1897,
+    tonnage: 100,
+    gunnery: 4,
+    piloting: 5,
+    maxArmor: { head: 9, center_torso: 31 },
+    maxStructure: { head: 3, center_torso: 21 },
+  });
+  const opponentUnit = createQuickGameUnit({
+    sourceUnitId: 'marauder-mad-3r',
+    name: 'Marauder MAD-3R',
+    chassis: 'Marauder',
+    variant: 'MAD-3R',
+    bv: 1363,
+    tonnage: 75,
+    gunnery: 4,
+    piloting: 5,
+    maxArmor: { head: 9, center_torso: 31 },
+    maxStructure: { head: 3, center_torso: 23 },
+  });
+  const duplicateOpponentUnit = createQuickGameUnit({
+    sourceUnitId: 'marauder-mad-3r',
+    name: 'Marauder MAD-3R',
+    chassis: 'Marauder',
+    variant: 'MAD-3R',
+    bv: 1363,
+    tonnage: 75,
+    gunnery: 4,
+    piloting: 5,
+    maxArmor: { head: 9, center_torso: 31 },
+    maxStructure: { head: 3, center_torso: 23 },
+  });
+  const lightOpponentUnit = createQuickGameUnit({
+    sourceUnitId: 'stinger-stg-3r',
+    name: 'Stinger STG-3R',
+    chassis: 'Stinger',
+    variant: 'STG-3R',
+    bv: 359,
+    tonnage: 20,
+    gunnery: 4,
+    piloting: 5,
+    maxArmor: { head: 9, center_torso: 18 },
+    maxStructure: { head: 3, center_torso: 6 },
+  });
+  const game = createQuickGameInstance();
+
+  useQuickGameStore.setState({
+    game: {
+      ...game,
+      playerForce: {
+        name: 'Player Force',
+        units: [playerUnit],
+        totalBV: playerUnit.bv,
+        totalTonnage: playerUnit.tonnage,
+      },
+      opponentForce: {
+        name: 'Opponent Force',
+        units: [opponentUnit, duplicateOpponentUnit, lightOpponentUnit],
+        totalBV:
+          opponentUnit.bv + duplicateOpponentUnit.bv + lightOpponentUnit.bv,
+        totalTonnage:
+          opponentUnit.tonnage +
+          duplicateOpponentUnit.tonnage +
+          lightOpponentUnit.tonnage,
+      },
+    },
+    isLoading: false,
+    error: null,
+    isDirty: false,
+    seedOverride: 42,
+  });
+
+  return [
+    playerUnit.instanceId,
+    opponentUnit.instanceId,
+    duplicateOpponentUnit.instanceId,
+    lightOpponentUnit.instanceId,
+  ];
+}
+
 function driveMovementAndAttackHistory(session: InteractiveSession): void {
   session.advancePhase(); // Initiative -> Movement
   session.applyMovement(
@@ -221,15 +317,127 @@ describe('useGameplayStore interactive session recovery', () => {
       async (
         unitRef: string,
         options: { side: GameSide } = { side: GameSide.Player },
-      ) => makeAdaptedUnit(unitRef, options.side),
+      ) =>
+        RECOVERABLE_QUICK_GAME_UNIT_REFS.has(unitRef)
+          ? makeAdaptedUnit(unitRef, options.side)
+          : null,
     );
     installFreshIndexedDB();
     useGameplayStore.getState().reset();
+    useQuickGameStore.setState({
+      game: null,
+      isLoading: false,
+      error: null,
+      isDirty: false,
+      seedOverride: null,
+    });
   });
 
   afterEach(() => {
     useGameplayStore.getState().reset();
+    useQuickGameStore.setState({
+      game: null,
+      isLoading: false,
+      error: null,
+      isDirty: false,
+      seedOverride: null,
+    });
     matchLogStorage.close();
+  });
+
+  it('cold-recovers the session created by the Quick Game interactive launch action', async () => {
+    const expectedUnitIds = installRecoverableQuickGame();
+
+    await useQuickGameStore.getState().startInteractiveSkirmish();
+
+    const launched = useGameplayStore
+      .getState()
+      .interactiveSession?.getSession();
+    expect(launched).toBeDefined();
+    expect(launched?.events[0]?.type).toBe(GameEventType.GameCreated);
+    expect(launched?.units.map((unit) => unit.id)).toEqual(expectedUnitIds);
+    expect(new Set(launched?.units.map((unit) => unit.id)).size).toBe(
+      expectedUnitIds.length,
+    );
+    expect(Object.keys(launched?.currentState.units ?? {})).toHaveLength(
+      expectedUnitIds.length,
+    );
+    expect(launched?.units.map((unit) => unit.unitRef)).toEqual([
+      'atlas-as7-d',
+      'marauder-mad-3r',
+      'marauder-mad-3r',
+      'stinger-stg-3r',
+    ]);
+
+    useGameplayStore.getState().reset();
+    await useGameplayStore.getState().loadSession(launched!.id);
+
+    const recovered = useGameplayStore.getState();
+    expect(recovered.error).toBeNull();
+    expect(recovered.session?.id).toBe(launched?.id);
+    expect(recovered.session?.events).toEqual(launched?.events);
+    expect(recovered.interactiveSession).not.toBeNull();
+    expect(recovered.session?.units.map((unit) => unit.id)).toEqual(
+      expectedUnitIds,
+    );
+    expect(
+      Object.keys(recovered.session?.currentState.units ?? {}),
+    ).toHaveLength(expectedUnitIds.length);
+    for (const unit of recovered.session?.units ?? []) {
+      expect(
+        recovered.interactiveSession?.getMovementCapability(unit.id),
+      ).not.toBeNull();
+      expect(
+        recovered.interactiveSession?.getUnitWeapons(unit.id),
+      ).not.toHaveLength(0);
+    }
+  });
+
+  it('does not adopt a Quick Game session when launch recovery storage is unavailable', async () => {
+    installRecoverableQuickGame();
+    const initialGame = useQuickGameStore.getState().game;
+    matchLogStorage.close();
+    Object.defineProperty(globalThis, 'indexedDB', {
+      value: undefined,
+      writable: true,
+      configurable: true,
+    });
+
+    await useQuickGameStore.getState().startInteractiveSkirmish();
+
+    const gameplay = useGameplayStore.getState();
+    const quickGame = useQuickGameStore.getState();
+    expect(gameplay.session).toBeNull();
+    expect(gameplay.interactiveSession).toBeNull();
+    expect(quickGame.game?.status).toBe(initialGame?.status);
+    expect(quickGame.game?.step).toBe(initialGame?.step);
+    expect(quickGame.error).toBe(
+      INTERACTIVE_SESSION_LAUNCH_STORAGE_UNAVAILABLE_MESSAGE,
+    );
+    expect(quickGame.isLoading).toBe(false);
+  });
+
+  it('keeps duplicate catalog variants distinct in Quick Game spectator mode', async () => {
+    const expectedUnitIds = installRecoverableQuickGame();
+
+    await useQuickGameStore.getState().startSpectatorMode();
+
+    const spectator = useGameplayStore.getState();
+    expect(spectator.error).toBeNull();
+    expect(spectator.session?.units.map((unit) => unit.id)).toEqual(
+      expectedUnitIds,
+    );
+    expect(
+      Object.keys(spectator.session?.currentState.units ?? {}),
+    ).toHaveLength(expectedUnitIds.length);
+    for (const unitId of expectedUnitIds) {
+      expect(
+        spectator.interactiveSession?.getMovementCapability(unitId),
+      ).not.toBeNull();
+      expect(
+        spectator.interactiveSession?.getUnitWeapons(unitId),
+      ).not.toHaveLength(0);
+    }
   });
 
   it('recovers a persisted real session id from the match log into a drivable interactive session', async () => {

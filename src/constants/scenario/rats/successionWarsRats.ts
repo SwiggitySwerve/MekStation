@@ -8,6 +8,7 @@ export const LC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
   era: Era.LATE_SUCCESSION_WARS,
   entries: [
     {
+      sourceUnitId: 'atlas-as7-d',
       chassis: 'Atlas',
       variant: 'AS7-D',
       designation: 'Atlas AS7-D',
@@ -17,6 +18,7 @@ export const LC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 15,
     },
     {
+      sourceUnitId: 'banshee-bnc-3e',
       chassis: 'Banshee',
       variant: 'BNC-3E',
       designation: 'Banshee BNC-3E',
@@ -26,6 +28,7 @@ export const LC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 12,
     },
     {
+      sourceUnitId: 'zeus-zeu-6s',
       chassis: 'Zeus',
       variant: 'ZEU-6S',
       designation: 'Zeus ZEU-6S',
@@ -35,6 +38,7 @@ export const LC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 18,
     },
     {
+      sourceUnitId: 'commando-com-2d',
       chassis: 'Commando',
       variant: 'COM-2D',
       designation: 'Commando COM-2D',
@@ -44,6 +48,7 @@ export const LC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 10,
     },
     {
+      sourceUnitId: 'griffin-grf-1n',
       chassis: 'Griffin',
       variant: 'GRF-1N',
       designation: 'Griffin GRF-1N',
@@ -53,6 +58,7 @@ export const LC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 20,
     },
     {
+      sourceUnitId: 'hunchback-hbk-4g',
       chassis: 'Hunchback',
       variant: 'HBK-4G',
       designation: 'Hunchback HBK-4G',
@@ -62,6 +68,7 @@ export const LC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 18,
     },
     {
+      sourceUnitId: 'orion-on1-k',
       chassis: 'Orion',
       variant: 'ON1-K',
       designation: 'Orion ON1-K',
@@ -71,6 +78,7 @@ export const LC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 15,
     },
     {
+      sourceUnitId: 'wolverine-wvr-6r',
       chassis: 'Wolverine',
       variant: 'WVR-6R',
       designation: 'Wolverine WVR-6R',
@@ -80,6 +88,7 @@ export const LC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 18,
     },
     {
+      sourceUnitId: 'enforcer-enf-4r',
       chassis: 'Enforcer',
       variant: 'ENF-4R',
       designation: 'Enforcer ENF-4R',
@@ -89,6 +98,7 @@ export const LC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 15,
     },
     {
+      sourceUnitId: 'commando-com-2d',
       chassis: 'Commando',
       variant: 'COM-2D',
       designation: 'Commando COM-2D',
@@ -98,6 +108,7 @@ export const LC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 12,
     },
     {
+      sourceUnitId: 'jenner-jr7-d',
       chassis: 'Jenner',
       variant: 'JR7-D',
       designation: 'Jenner JR7-D',
@@ -116,6 +127,7 @@ export const DC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
   era: Era.LATE_SUCCESSION_WARS,
   entries: [
     {
+      sourceUnitId: 'atlas-as7-d',
       chassis: 'Atlas',
       variant: 'AS7-D',
       designation: 'Atlas AS7-D',
@@ -125,6 +137,7 @@ export const DC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 10,
     },
     {
+      sourceUnitId: 'stalker-stk-3f',
       chassis: 'Stalker',
       variant: 'STK-3F',
       designation: 'Stalker STK-3F',
@@ -134,6 +147,7 @@ export const DC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 12,
     },
     {
+      sourceUnitId: 'dragon-drg-1n',
       chassis: 'Dragon',
       variant: 'DRG-1N',
       designation: 'Dragon DRG-1N',
@@ -143,6 +157,7 @@ export const DC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 25,
     },
     {
+      sourceUnitId: 'quickdraw-qkd-4g',
       chassis: 'Quickdraw',
       variant: 'QKD-4G',
       designation: 'Quickdraw QKD-4G',
@@ -152,6 +167,7 @@ export const DC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 15,
     },
     {
+      sourceUnitId: 'grand-dragon-drg-1g',
       chassis: 'Grand Dragon',
       variant: 'DRG-1G',
       designation: 'Grand Dragon DRG-1G',
@@ -161,6 +177,7 @@ export const DC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 18,
     },
     {
+      sourceUnitId: 'panther-pnt-9r',
       chassis: 'Panther',
       variant: 'PNT-9R',
       designation: 'Panther PNT-9R',
@@ -170,6 +187,7 @@ export const DC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 20,
     },
     {
+      sourceUnitId: 'jenner-jr7-d',
       chassis: 'Jenner',
       variant: 'JR7-D',
       designation: 'Jenner JR7-D',
@@ -179,6 +197,7 @@ export const DC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 22,
     },
     {
+      sourceUnitId: 'locust-lct-1v',
       chassis: 'Locust',
       variant: 'LCT-1V',
       designation: 'Locust LCT-1V',
@@ -188,6 +207,7 @@ export const DC_SUCCESSION_WARS_RAT: IRandomAssignmentTable = {
       weight: 15,
     },
     {
+      sourceUnitId: 'wasp-wsp-1a',
       chassis: 'Wasp',
       variant: 'WSP-1A',
       designation: 'Wasp WSP-1A',

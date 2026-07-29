@@ -4,6 +4,8 @@ import { Era } from '@/types/temporal/Era';
 export { UnitTypeCategory, Era };
 
 export interface IRATEntry {
+  /** Canonical unit catalog ID used for adaptation and persisted game refs. */
+  readonly sourceUnitId: string;
   readonly chassis: string;
   readonly variant: string;
   readonly designation: string;
