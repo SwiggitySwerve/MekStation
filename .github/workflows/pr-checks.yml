@@ -434,61 +434,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Audit Math.random() in combat pipeline
-        shell: bash
-        run: |
-          set -euo pipefail
-          if ! command -v git >/dev/null 2>&1; then
-            echo "ERROR: Determinism audit requires git grep, but git is unavailable."
-            exit 1
-          fi
-          if ! command -v grep >/dev/null 2>&1; then
-            echo "ERROR: Determinism audit requires grep for comment filtering, but grep is unavailable."
-            exit 1
-          fi
-
-          ALLOWLIST=(
-            'src/utils/gameplay/diceTypes.ts'
-            'src/utils/gameplay/aerospace/criticalHits.ts'
-            'src/utils/gameplay/terrainGenerator.ts'
-            'src/simulation/QuickResolveService.ts'
-          )
-          PATHS=('src/utils/gameplay/**' 'src/simulation/**')
-          for path in "${ALLOWLIST[@]}"; do
-            PATHS+=(":(exclude)${path}")
-          done
-
-          raw_matches_file="$(mktemp)"
-          trap 'rm -f "$raw_matches_file"' EXIT
-
-          set +e
-          git grep -n -E 'Math\.random\(\)' -- "${PATHS[@]}" >"$raw_matches_file"
-          scan_status=$?
-          set -e
-          if [ "$scan_status" -gt 1 ]; then
-            echo "ERROR: Determinism scanner failed with status $scan_status."
-            exit "$scan_status"
-          fi
-
-          # Strip block-comment lines ('* Math.random()') and line-comment
-          # lines ('// Math.random()') so doc-comments referencing the API
-          # by name don't trip the audit.
-          set +e
-          matches="$(grep -Ev ':[[:space:]]*\*|//.*Math\.random|\* .*Math\.random' "$raw_matches_file")"
-          filter_status=$?
-          set -e
-          if [ "$filter_status" -gt 1 ]; then
-            echo "ERROR: Determinism comment filter failed with status $filter_status."
-            exit "$filter_status"
-          fi
-
-          if [ -n "$matches" ]; then
-            echo "$matches"
-            echo ""
-            echo "ERROR: Math.random() found in src/utils/gameplay/ or src/simulation/ outside the defaultD6Roller seam."
-            echo "Inject a D6Roller (use SeededD6Roller in tests) or add an explicit allowlist entry to .github/workflows/pr-checks.yml if this is non-dice entropy."
-            exit 1
-          fi
-          echo "Determinism audit passed: no unseeded dice in combat pipeline."
+        run: node scripts/qc/audit-combat-determinism.mjs
 
   # ---------------------------------------------------------------
   # e2e-smoke runs the tactical-map Playwright gate spec in a real
