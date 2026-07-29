@@ -42,8 +42,8 @@ let mockRosterUnits: IRosterUnitProjection[] = [
 jest.mock('next/router', () => ({
   useRouter: () => ({
     push: mockRouterPush,
-    query: { id: 'campaign-coop-1', missionId: 'mission-alpha' },
-    pathname: '/gameplay/campaigns/[id]/missions/[missionId]/launch',
+    query: { missionId: 'mission-alpha' },
+    asPath: '/gameplay/campaigns/campaign-coop-1/missions/mission-alpha/launch',
   }),
 }));
 

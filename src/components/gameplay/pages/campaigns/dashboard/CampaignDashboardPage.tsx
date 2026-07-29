@@ -75,9 +75,9 @@ export default function CampaignDashboardPage(): React.ReactElement {
 
   const isClient = useClientReady();
   const routeLoader = useCampaignRouteLoader({
-    id: router.query.id,
     campaign: liveCampaign as ICampaign | null,
     isClient,
+    router,
   });
   const campaign = routeLoader.campaign as CampaignDashboardCampaign | null;
 
