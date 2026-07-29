@@ -6,12 +6,12 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
 
 - [ ] 1.1 Verify the repository-supported Node version and rebuild/reinstall the native `better-sqlite3` dependency until `npm.cmd test -- --runInBand src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts src/lib/multiplayer/server/__tests__/hardenedTransport.test.ts` passes; record Node, ABI, and command output in `test-results/gm-two-player/preflight/` before any durability implementation.
 - [ ] 1.2 Add RED unit/contract tests for `Atomic Command Event Batches`, `Commit Precedes Recipient Publication`, and crash-before/after-commit behavior at `IMatchStore.ts`, `DurableMatchStore.ts`, `InMemoryMatchStore.ts`, and `ServerMatchHostIntent.ts`; prove partial-batch and false-success behavior fail before implementation.
-- [ ] 1.3 Add RED protocol/client tests for `Stable Intent Identity Survives Retries`, `Authority and Viewer Sequences Are Separate`, replay/live overlap, sequence collision, and `Heartbeat Is Bidirectional` in `src/lib/multiplayer/Protocol.ts`, `src/lib/multiplayer/client.ts`, and their existing test suites.
+- [ ] 1.3 Add RED protocol/client tests for `Stable Intent Identity Survives Retries`, `Authority and Viewer Sequences Are Separate`, replay/live overlap, sequence collision, and `Heartbeat Is Bidirectional` in `src/types/multiplayer/Protocol.ts`, `src/lib/multiplayer/client.ts`, and their existing test suites.
 - [ ] 1.4 Keep SUPERHEAVY gyro serialization, zero-BV campaign materialization, Quick Game bootstrap recovery, and fail-open determinism CI in separate changes; document only their external prerequisite status in `implementation-plan.md`.
 
 ## 2. Additive Authority Schema and Store Contracts
 
-- [ ] 2.1 Add additive SQLite migrations and TypeScript records for command receipts, command batches, recipient-neutral outbox, campaign sessions, participants, viewer cursors, branches, supersession, checkpoints, outcome inbox/receipts, and private GM audit references, implementing `Atomic Command Event Batches`, `Campaign Journal Migration Is Additive and Idempotent`, and `Branches Preserve Immutable Supersession Lineage`.
+- [ ] 2.1 Add additive SQLite migrations and TypeScript records for command receipts, command batches, recipient-neutral outbox, campaign sessions, participants, viewer cursors, branches, supersession, checkpoints, outcome inbox/receipts, private GM audit references, and append-once private rejection-audit records keyed by session/command identity, implementing `Atomic Command Event Batches`, `Campaign Journal Migration Is Additive and Idempotent`, and `Branches Preserve Immutable Supersession Lineage`.
 - [ ] 2.2 Extend `IMatchStore.ts` and the campaign event-store boundary with atomic batch, receipt lookup, outbox claim/acknowledgement, branch, participant, and cursor operations; update `InMemoryMatchStore.ts` only as a contract-compatible test/dev adapter.
 - [ ] 2.3 Implement the additive schema and atomic operations in `DurableMatchStore.ts` and the selected campaign persistence adapter with uniqueness and foreign-key constraints for session-scoped idempotency, outcome versions, authority sequence, and branch activation.
 - [ ] 2.4 Add migration/idempotency/rollback contract tests, including repeated backfill, ambiguous ownership fail-closed behavior, and a schema reader compatible with preserved materialized snapshots; run `npm.cmd test -- --runInBand src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts src/lib/campaign/persistence/__tests__/campaignMigration.test.ts`.
@@ -130,9 +130,9 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
 ## 18. Role-Scoped Audit Timeline
 
 - [ ] 18.1 Add branch/effective-head/supersession rendering and cross-journal outcome causality to the audit timeline, implementing `Timeline Preserves Branch and Supersession Lineage`.
-- [ ] 18.2 Add separate authorized GM-private audit lookup and player-safe history/export; record private-record access.
+- [ ] 18.2 Add separate authorized GM-private audit lookup and player-safe history/export; record private-record access and append exactly one private rejection-audit row before each terminal rejection without creating gameplay journal, outbox, cursor, replay, or export facts.
 - [ ] 18.3 Add rewind-impact preview showing affected domains and artifacts without mutating state.
-- [ ] 18.4 Add GM and player timeline/export parity tests plus negative privacy scans for private fields and hidden-event identifiers.
+- [ ] 18.4 Add GM and player timeline/export parity tests plus negative privacy scans for private fields and hidden-event identifiers; prove rejected-command retries retain one authorized audit row while all player surfaces and gameplay authority remain unchanged.
 
 ## 19. Accessible Lifecycle and Recovery UX
 
@@ -143,7 +143,7 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
 
 ## 20. Three-Context Sandbox Foundation
 
-- [ ] 20.1 Add `e2e/fixtures/gmTwoPlayerCampaign.ts` with isolated non-playing GM, Player 1, and Player 2 browser contexts, harness-owned server, per-run database, distinct identities, and deterministic seeds.
+- [ ] 20.1 Add `e2e/fixtures/gmTwoPlayerCampaign.ts` with isolated contexts reserved for the future non-playing GM, Player 1, and Player 2, plus a harness-owned server, per-run database, distinct identities, and deterministic seeds. The foundation proves isolation first; Task 9 durable membership later binds those contexts to actual roles and must pass `membership-smoke` before role admission is claimed.
 - [ ] 20.2 Add test-only fault controls guarded by `NODE_ENV === 'test'`, E2E run ID, explicit session scope, and one-shot consumption; make production startup reject enabled controls.
 - [ ] 20.3 Add a dedicated SQLite evidence reader opened `readonly: true, fileMustExist: true`; never instantiate the production store for read-only proof.
 - [ ] 20.4 Add role-labeled traces, screenshots, raw socket transcript, pre-serialization projection capture, latency timestamps, durable-row export, state/projection hashes, environment manifest, and cleanup log under `test-results/gm-two-player/<run-id>/`.
@@ -165,7 +165,7 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
 
 ## 23. Performance and Long-Run Gates
 
-- [ ] 23.1 Commit the controlled fixture configuration: 20 warm-up commands, at least 200 measured representative commands, monotonic correlated clocks, nearest-rank percentile calculation, named runner class, 100-event/512-KiB replay chunks, 256-frame/4-MiB queue bound, and 128-MiB post-warm memory-growth ceiling.
+- [ ] 23.1 Commit the controlled fixture configuration: 20 warm-up commands, at least 200 measured representative commands, monotonic correlated clocks, nearest-rank percentile calculation, named runner class, 100-event/512-KiB replay chunks, 256-envelope/1-MiB queue bound, 128-MiB server post-warm memory-growth ceiling, and 64-MiB post-warm ceiling per controlled browser client.
 - [ ] 23.2 Gate p95 at 250 milliseconds, p99 at 750 milliseconds, and 1,000-event cold catch-up at 2 seconds on the recorded controlled loopback runner; keep the 2,000-millisecond Playwright wait as a functional timeout only.
 - [ ] 23.3 Run ten sequential scenarios with periodic player reconnects, GM reconnect, server restart, correction, pre-receipt rewind, post-receipt coordinated correction, and checkpoint/full-replay comparison.
 - [ ] 23.4 Verify `npm.cmd run verify:qc:gm-two-player-campaign -- --group=performance` and `npm.cmd run verify:qc:campaign-long`; archive latency and memory JSON with the run.
@@ -175,7 +175,7 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
 - [ ] 24.1 Prove shadow dual-write state and audience digests match before enabling journal authority for new sandbox sessions.
 - [ ] 24.2 Cut over new sessions behind the reviewed feature flag, preserve legacy completed-log read compatibility, and refuse ambiguous active-session migration.
 - [ ] 24.3 Document rollback that stops new admission, preserves journal/branch/receipt/audit rows, and returns to a schema-compatible reader without destructive history edits.
-- [ ] 24.4 After each major merge, update the evidence ledger and run the applicable `npm.cmd run verify:qc:gm-two-player-campaign -- --group=<slice>` against exact main before the next dependent PR.
+- [ ] 24.4 After the pre-harness ABI-checker merge, archive its exact-main native-store regression. Land the isolated three-context fixture next, then after every later major merge update the evidence ledger and run the applicable staged `npm.cmd run verify:qc:gm-two-player-campaign -- --group=<slice>` against exact main before the next dependent PR: `fixture-smoke` before role admission, `membership-smoke` when durable GM/P1/P2 roles land, and the evolving `smoke` subset thereafter.
 
 ## 25. Final Verification and Documentation
 

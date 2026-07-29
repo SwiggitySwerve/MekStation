@@ -6,7 +6,7 @@ MekStation has working multiplayer, co-op campaign, GM intervention, replay, and
 
 ## What Changes
 
-- Add one authoritative campaign-session journal and transactional outbox contract: an accepted command is persisted once before any client receives its committed result, while rejected commands mutate and publish nothing.
+- Add one authoritative campaign-session journal and transactional outbox contract: an accepted command is persisted once before any client receives its committed result, while rejected commands create no gameplay/campaign mutation or publication. Rejections are retained only as append-once, access-controlled audit records keyed by command identity.
 - Add durable participation records for one non-playing GM authority connection and two tactical player seats, with authenticated ownership, readiness, acknowledgement cursors, idempotency keys, and reconnect/resume behavior.
 - Project every live, replayed, exported, and resynchronized event per viewer before serialization so players receive exactly the public and owned information they may see and never GM-only or opposing-player secrets.
 - Add append-only correction and rewind branches for combat and campaign time. Prior history remains immutable; superseded branches, reasons, actors, causality, and player-visible consequences remain auditable.

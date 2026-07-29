@@ -296,7 +296,7 @@ Test-only fault injection SHALL require `NODE_ENV === 'test'`, an E2E run identi
 - **THEN** journal and outbox authority SHALL remain intact, healthy recipients SHALL continue, and the failed participant SHALL recover from its cursor
 
 ### Requirement: Strict Performance UX Evidence and Hygiene Catalog
-The controlled loopback performance fixture SHALL use one campaign, one active match, the three required contexts, 20 warm-up commands, and at least 200 measured commands with a committed representative mix. It SHALL use monotonic server and browser clocks correlated by command identity, nearest-rank percentiles, replay chunks of at most 100 events or 512 KiB, a per-connection queue limit of at most 256 frames or 4 MiB, and a process-memory growth ceiling of 128 MiB above the post-warm-up baseline. Evidence SHALL record the repository-supported Node version, Chromium version, operating system, and named CI runner class; budgets gate only the recorded controlled class. A 2,000 millisecond Playwright wait is a functional timeout and SHALL NOT substitute for latency measurements.
+The controlled loopback performance fixture SHALL use one campaign, one active match, the three required contexts, 20 warm-up commands, and at least 200 measured commands with a committed representative mix. It SHALL use monotonic server and browser clocks correlated by command identity, nearest-rank percentiles, replay chunks of at most 100 events or 512 KiB, a per-connection queue limit of at most 256 envelopes or 1 MiB, server-process memory growth of at most 128 MiB above the post-warm-up baseline, and memory growth of at most 64 MiB for each controlled browser client. Evidence SHALL record the repository-supported Node version, Chromium version, operating system, and named CI runner class; budgets gate only the recorded controlled class. A 2,000 millisecond Playwright wait is a functional timeout and SHALL NOT substitute for latency measurements.
 
 #### Scenario: E2E-71 p95 meets controlled budget
 - **WHEN** the controlled measured command set completes
@@ -312,7 +312,7 @@ The controlled loopback performance fixture SHALL use one campaign, one active m
 
 #### Scenario: E2E-74 slow-client backpressure stays bounded
 - **WHEN** Player 2 is slowed through the controlled send seam
-- **THEN** its queue and memory SHALL remain bounded and GM or Player 1 latency SHALL not exceed the controlled failure threshold
+- **THEN** its queue and memory SHALL remain within the declared limits and each healthy GM/Player 1 sample population SHALL retain nearest-rank p95 at or below 250 milliseconds and p99 at or below 750 milliseconds
 
 #### Scenario: E2E-75 lifecycle states are distinct and accessible
 - **WHEN** the harness drives pending, sealed, finalized, syncing, reconnecting, behind, rebuilding, rewound, and blocked states
@@ -336,4 +336,4 @@ The controlled loopback performance fixture SHALL use one campaign, one active m
 
 #### Scenario: E2E-80 major merges trigger exact-main regression
 - **WHEN** a major authority, delivery, projection, rewind, campaign, or harness PR merges
-- **THEN** the applicable strict three-context regression subset SHALL rerun against exact main before the next dependent PR begins and SHALL archive its result with the milestone
+- **THEN** the applicable staged three-context regression subset SHALL rerun against exact main before the next dependent PR begins and SHALL archive its result with the milestone: fixture isolation before durable role admission, membership after GM/P1/P2 roles land, and the evolving strict smoke subset thereafter

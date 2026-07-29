@@ -328,14 +328,14 @@ Status and rewind surfaces MUST:
 
 ### D11 — Small PRs and post-merge exact-main audits are part of the architecture
 
-The implementation follows the ordered, independently revertible slices in `implementation-plan.md`. Each slice lands only after focused tests and its declared regression gate pass. After every major merge, the applicable three-client exact-main regression set reruns before the next dependent slice begins. This avoids accumulating a single unreviewable concurrency wave.
+The implementation follows the ordered, independently revertible slices in `implementation-plan.md`. Each slice lands only after focused tests and its declared regression gate pass. The ABI checker is the only pre-harness implementation merge and receives its exact-main native-store regression. The isolated three-context fixture lands next and establishes `fixture-smoke`; every later major merge reruns the applicable exact-main three-context subset before the next dependent slice begins. Before durable GM/P1/P2 membership lands, the applicable subset proves context, identity, storage, server, and database isolation without claiming role admission. The membership slice adds `membership-smoke`; later slices extend `smoke` as capabilities become available. This avoids false pre-capability claims and a single unreviewable concurrency wave.
 
 Prerequisite audit defects stay isolated in their own PRs so a regression fix can merge or roll back without coupling to the authority migration.
 
 ## Validation and Error Handling
 
 - Mechanical validation runs before GM review; a mechanical rejection, GM veto, timeout, stale branch, stale revision, duplicate collision, projection failure, persistence failure, and authorization failure each have distinct typed results.
-- Rejected commands MUST produce no journal events, outbox rows, cursor movement, campaign mutation, or false success UI.
+- Rejected commands MUST produce no gameplay journal events, outbox rows, cursor movement, campaign mutation, or false success UI. A separate access-controlled rejection-audit store MUST append one private record before returning the terminal rejection, keyed idempotently by session and command identity so retries cannot duplicate it. That record contains only actor, safe rejection class, base branch/revision, recovery action, timestamps, and integrity linkage; it is excluded from player delivery/replay/export and cannot carry hidden payloads.
 - Unknown or revoked membership is rejected before the socket joins any fan-out collection.
 - Input schemas reject unknown command kinds and malformed payloads.
 - Event and projection digests provide integrity checks without exposing secret payloads.

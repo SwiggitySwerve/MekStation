@@ -14,9 +14,11 @@ The audit timeline SHALL represent effective, building, blocked, and superseded 
 ### Requirement: Audit Captures Action Provenance
 Every accepted, rejected, vetoed, timed-out, corrected, superseded, rebuilt, and published action SHALL preserve actor identity, authenticated role, command identity, expected and resulting branch/revision, reason reference, causality, audience classification, timestamps, result, and integrity digests appropriate to that action.
 
+Rejected commands SHALL be written append-once to a separate access-controlled rejection-audit store before the terminal rejection is returned. The record SHALL be idempotently keyed by session and command identity, SHALL contain only actor, safe rejection class, base branch/revision, recovery action, timestamps, and integrity linkage, and SHALL create no gameplay journal event, recipient outbox row, cursor movement, replay/export fact, or player-visible secret.
+
 #### Scenario: Rejected action remains auditable
 - **WHEN** a command rejects without a domain mutation
-- **THEN** an authorized audit record SHALL retain the actor, rejection class, base branch/revision, and recovery action without creating a committed gameplay fact
+- **THEN** exactly one authorized rejection-audit record SHALL retain the actor, rejection class, base branch/revision, and recovery action across retries without creating a committed gameplay fact or exposing the record through player surfaces
 
 #### Scenario: Publication preserves audience provenance
 - **WHEN** one authority fact produces different GM, Player 1, and Player 2 projections
