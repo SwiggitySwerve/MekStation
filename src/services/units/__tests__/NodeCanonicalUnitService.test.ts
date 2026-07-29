@@ -159,6 +159,24 @@ function makeTempCatalogWithBVReport(): {
   return { baseDir, bvReportPath };
 }
 
+function writeMegaMekBVCache(
+  baseDir: string,
+  contents: unknown | string,
+): string {
+  const cachePath = path.join(
+    baseDir,
+    'scripts',
+    'data-migration',
+    'megamek-bv-cache.json',
+  );
+  fs.mkdirSync(path.dirname(cachePath), { recursive: true });
+  fs.writeFileSync(
+    cachePath,
+    typeof contents === 'string' ? contents : JSON.stringify(contents),
+  );
+  return cachePath;
+}
+
 // =============================================================================
 // Tests — Task 2.7: Index load + sample-load 50 units
 // =============================================================================
@@ -326,5 +344,98 @@ describe('NodeCanonicalUnitService - BV report merge', () => {
       service.getIndexSyncWithBV().find((entry) => entry.id === 'atlas-as7-d')
         ?.bv,
     ).toBe(9999);
+  });
+
+  it('enriches the clean catalog from the authoritative MegaMek cache', () => {
+    const service = new NodeCanonicalUnitService(PROJECT_ROOT);
+    const indexWithBV = service.getIndexSyncWithBV();
+
+    expect(indexWithBV.find((entry) => entry.id === 'atlas-as7-d')?.bv).toBe(
+      1897,
+    );
+    expect(
+      indexWithBV.find((entry) => entry.id === 'atlas-as7-d')?.tonnage,
+    ).toBe(100);
+
+    const starterUnitRefs = [
+      'locust-lct-1v',
+      'hunchback-hbk-4g',
+      'marauder-mad-3r',
+      'atlas-as7-d',
+    ];
+    const starterBV = starterUnitRefs.reduce(
+      (total, unitRef) =>
+        total + (indexWithBV.find((entry) => entry.id === unitRef)?.bv ?? 0),
+      0,
+    );
+
+    expect(starterBV).toBe(4733);
+  });
+
+  it('keeps report and MegaMek parsing caches separate for the same path', () => {
+    const fixture = makeTempCatalogWithBVReport();
+    tempDir = fixture.baseDir;
+    const cachePath = writeMegaMekBVCache(fixture.baseDir, {
+      entries: {
+        'atlas-as7-d': { megamekBV: 1897 },
+      },
+    });
+
+    const reportFirstService = new NodeCanonicalUnitService(fixture.baseDir);
+    const parsedAsReport = reportFirstService.getIndexSyncWithBV({
+      bvReportPath: cachePath,
+    });
+    const parsedAsMegaMekCache = reportFirstService.getIndexSyncWithBV();
+
+    expect(
+      parsedAsReport.find((entry) => entry.id === 'atlas-as7-d')?.bv,
+    ).toBeUndefined();
+    expect(
+      parsedAsMegaMekCache.find((entry) => entry.id === 'atlas-as7-d')?.bv,
+    ).toBe(1897);
+    expect(parsedAsMegaMekCache).not.toBe(parsedAsReport);
+
+    const cacheFirstService = new NodeCanonicalUnitService(fixture.baseDir);
+    const cacheFirst = cacheFirstService.getIndexSyncWithBV();
+    const reportSecond = cacheFirstService.getIndexSyncWithBV({
+      bvReportPath: cachePath,
+    });
+
+    expect(cacheFirst.find((entry) => entry.id === 'atlas-as7-d')?.bv).toBe(
+      1897,
+    );
+    expect(
+      reportSecond.find((entry) => entry.id === 'atlas-as7-d')?.bv,
+    ).toBeUndefined();
+    expect(reportSecond).not.toBe(cacheFirst);
+  });
+
+  it('recovers from a missing or malformed cache after clearCache()', () => {
+    const fixture = makeTempCatalogWithBVReport();
+    tempDir = fixture.baseDir;
+    const service = new NodeCanonicalUnitService(fixture.baseDir);
+
+    expect(
+      service.getIndexSyncWithBV().find((entry) => entry.id === 'atlas-as7-d')
+        ?.bv,
+    ).toBeUndefined();
+
+    const cachePath = writeMegaMekBVCache(fixture.baseDir, {
+      entries: {
+        'atlas-as7-d': { megamekBV: 1897 },
+      },
+    });
+    service.clearCache();
+    expect(
+      service.getIndexSyncWithBV().find((entry) => entry.id === 'atlas-as7-d')
+        ?.bv,
+    ).toBe(1897);
+
+    fs.writeFileSync(cachePath, '{invalid json');
+    service.clearCache();
+    expect(
+      service.getIndexSyncWithBV().find((entry) => entry.id === 'atlas-as7-d')
+        ?.bv,
+    ).toBeUndefined();
   });
 });

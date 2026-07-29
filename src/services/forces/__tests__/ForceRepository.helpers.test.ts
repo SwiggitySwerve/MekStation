@@ -28,6 +28,8 @@ import {
 } from '@/services/forces/ForceRepository.helpers';
 import { NodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
 
+const PROJECT_ROOT = path.resolve(__dirname, '../../../../');
+
 function makeTempCatalogWithBVReport(): {
   readonly baseDir: string;
   readonly service: NodeCanonicalUnitService;
@@ -180,6 +182,27 @@ describe('ForceRepository.helpers unit stat resolution', () => {
     expect(stats.assignedPilots).toBe(1);
     expect(stats.assignedUnits).toBe(1);
     expect(stats.emptySlots).toBe(1);
+    expect(mockCalculateBV).not.toHaveBeenCalled();
+  });
+
+  it('resolves the clean starter roster from the authoritative MegaMek cache', () => {
+    mockCustomUnitGet.mockReturnValue(undefined);
+    const resolver = canonicalStatsResolver(
+      new NodeCanonicalUnitService(PROJECT_ROOT),
+    );
+
+    const stats = calculateStats(
+      [
+        assignment('locust-lct-1v', 1),
+        assignment('hunchback-hbk-4g', 2),
+        assignment('marauder-mad-3r', 3),
+        assignment('atlas-as7-d', 4),
+      ],
+      { canonicalUnitStatsResolver: resolver },
+    );
+
+    expect(stats.totalBV).toBe(4733);
+    expect(stats.totalTonnage).toBe(245);
     expect(mockCalculateBV).not.toHaveBeenCalled();
   });
 });

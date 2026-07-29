@@ -87,6 +87,10 @@ interface BVReportFile {
   readonly allResults?: readonly BVReportEntry[];
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
 export interface NodeCanonicalUnitServiceOptions {
   readonly bvReportPath?: string;
 }
@@ -95,7 +99,8 @@ export interface GetIndexWithBVOptions {
   readonly bvReportPath?: string;
 }
 
-const DEFAULT_BV_REPORT_PATH = 'validation-output/bv-validation-report.json';
+const DEFAULT_MEGAMEK_BV_CACHE_PATH =
+  'scripts/data-migration/megamek-bv-cache.json';
 
 // =============================================================================
 // Helpers
@@ -192,7 +197,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
   /** Per-unit IFullUnit cache — avoids re-reading disk on repeated getById calls. */
   private readonly unitCache: Map<string, IFullUnit> = new Map();
 
-  private readonly bvReportLookupCache = new Map<
+  private readonly bvLookupCache = new Map<
     string,
     ReadonlyMap<string, number>
   >();
@@ -255,18 +260,25 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
     return { entries: this.indexCache, raw: this.rawIndexCache };
   }
 
-  private resolveBVReportPath(overridePath?: string): string {
-    const reportPath =
-      overridePath ?? this.defaultBVReportPath ?? DEFAULT_BV_REPORT_PATH;
-    return path.isAbsolute(reportPath)
-      ? reportPath
-      : path.resolve(this.projectRoot, reportPath);
+  private resolveBVSource(overridePath?: string): {
+    readonly path: string;
+    readonly kind: 'megamek-cache' | 'report';
+  } {
+    const reportPath = overridePath ?? this.defaultBVReportPath;
+    const sourcePath = reportPath ?? DEFAULT_MEGAMEK_BV_CACHE_PATH;
+    return {
+      path: path.isAbsolute(sourcePath)
+        ? sourcePath
+        : path.resolve(this.projectRoot, sourcePath),
+      kind: reportPath === undefined ? 'megamek-cache' : 'report',
+    };
   }
 
   private loadBVReportLookup(
     bvReportPath: string,
   ): ReadonlyMap<string, number> {
-    const cached = this.bvReportLookupCache.get(bvReportPath);
+    const cacheKey = `report:${bvReportPath}`;
+    const cached = this.bvLookupCache.get(cacheKey);
     if (cached) return cached;
 
     const bvByUnitId = new Map<string, number>();
@@ -290,7 +302,35 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
       // report leaves raw BV values untouched instead of failing the caller.
     }
 
-    this.bvReportLookupCache.set(bvReportPath, bvByUnitId);
+    this.bvLookupCache.set(cacheKey, bvByUnitId);
+    return bvByUnitId;
+  }
+
+  private loadMegaMekBVLookup(cachePath: string): ReadonlyMap<string, number> {
+    const cacheKey = `megamek-cache:${cachePath}`;
+    const cached = this.bvLookupCache.get(cacheKey);
+    if (cached) return cached;
+
+    const bvByUnitId = new Map<string, number>();
+    try {
+      if (fs.existsSync(cachePath)) {
+        const parsed: unknown = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
+        const entries = isRecord(parsed) ? parsed.entries : undefined;
+        if (isRecord(entries)) {
+          for (const [unitId, rawEntry] of Object.entries(entries)) {
+            if (!isRecord(rawEntry)) continue;
+            const megamekBV = rawEntry.megamekBV;
+            if (typeof megamekBV === 'number' && megamekBV > 0) {
+              bvByUnitId.set(unitId, megamekBV);
+            }
+          }
+        }
+      }
+    } catch {
+      // Missing or malformed cache leaves raw index BV values untouched.
+    }
+
+    this.bvLookupCache.set(cacheKey, bvByUnitId);
     return bvByUnitId;
   }
 
@@ -305,11 +345,15 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
   getIndexSyncWithBV = (
     options: GetIndexWithBVOptions = {},
   ): readonly IUnitIndexEntry[] => {
-    const bvReportPath = this.resolveBVReportPath(options.bvReportPath);
-    const cached = this.indexWithBVCache.get(bvReportPath);
+    const source = this.resolveBVSource(options.bvReportPath);
+    const cacheKey = `${source.kind}:${source.path}`;
+    const cached = this.indexWithBVCache.get(cacheKey);
     if (cached) return cached;
 
-    const bvByUnitId = this.loadBVReportLookup(bvReportPath);
+    const bvByUnitId =
+      source.kind === 'megamek-cache'
+        ? this.loadMegaMekBVLookup(source.path)
+        : this.loadBVReportLookup(source.path);
     const enriched = this.getIndexSync().map(
       (entry): IUnitIndexEntry => ({
         ...entry,
@@ -317,7 +361,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
       }),
     );
 
-    this.indexWithBVCache.set(bvReportPath, enriched);
+    this.indexWithBVCache.set(cacheKey, enriched);
     return enriched;
   };
 
@@ -456,7 +500,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
     this.indexCache = null;
     this.rawIndexCache = null;
     this.indexVersionCache = null;
-    this.bvReportLookupCache.clear();
+    this.bvLookupCache.clear();
     this.indexWithBVCache.clear();
     this.unitCache.clear();
   };
