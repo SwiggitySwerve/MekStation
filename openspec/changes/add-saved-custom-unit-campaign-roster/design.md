@@ -16,9 +16,10 @@ Mission readiness currently treats any non-empty `unitRef` as sufficient source 
 **Goals:**
 
 - Make saved custom BattleMechs selectable without hiding or replacing the four stock templates.
-- Preserve the custom API id through draft, roster projection, root-force membership, save, and cold reload.
+- Preserve the custom API id and explicit source kind through draft, roster projection, root-force membership, server save, and cold reload.
 - Keep roster-instance identity distinct from source-design identity.
 - Keep saved custom roster rows visible at mission readiness while blocking launch until combat adaptation exists.
+- Preserve a usable canonical-only launch path for mixed rosters.
 - Give loading, empty, failure, retry, keyboard, desktop, and 390px behavior explicit contracts.
 - Prove authority from API/store/server persistence rather than screenshots alone.
 
@@ -33,9 +34,9 @@ Mission readiness currently treats any non-empty `unitRef` as sufficient source 
 
 ### D1 — Preserve reference identity, not construction snapshots
 
-The saved design's custom-unit API id SHALL become `SelectedUnit.unitRef` and then `IRosterUnitProjection.unitRef`. Each add action SHALL still mint a new roster-instance `unitId`, so two campaign copies of the same saved design have different campaign identities but the same source-design reference.
+The saved design's custom-unit API id SHALL become `SelectedUnit.unitRef` and then `IRosterUnitProjection.unitRef`. The draft and roster projection SHALL also carry one shared `unitSource` discriminator with `canonical` and `custom` values. Each add action SHALL still mint a new roster-instance `unitId`, so two campaign copies of the same saved design have different campaign identities but the same source-design reference and source kind.
 
-Campaign persistence SHALL NOT duplicate the saved unit's serialized construction payload. Custom-unit version history remains authoritative for the design record; this wave records only the stable reference and cached display fields already owned by the roster projection.
+Campaign persistence SHALL NOT duplicate the saved unit's serialized construction payload. Custom-unit version history remains authoritative for the design record; this wave records only the stable reference, source kind, and cached display fields already owned by the roster projection. Legacy projections without `unitSource` normalize to `canonical` because saved custom campaign entries did not exist before this change. Runtime behavior SHALL NOT infer source kind from names, tonnage, or id prefixes.
 
 ### D2 — Use one saved-unit adapter at the campaign boundary
 
@@ -47,7 +48,7 @@ The roster step SHALL render stock templates and saved designs as separate named
 
 Campaign root-force membership SHALL append the selected roster instance's `unitId` for either stock or custom sources. It SHALL NOT gate membership by finding a matching `UNIT_TEMPLATES` entry and SHALL NOT substitute a representative stock design.
 
-The roster projection separately retains `unitRef`. Tests SHALL assert that root force contains the new instance id while the roster contains the custom API id.
+The roster projection separately retains `unitRef` and `unitSource`. Tests SHALL assert that root force contains the new instance id while the roster contains the custom API id and `custom` source kind.
 
 ### D4 — Enrich Mech Bay through a merged metadata view
 
@@ -61,17 +62,25 @@ The browser trust anchor SHALL:
 
 1. customize and save a canonical BattleMech, then read its custom API id;
 2. select that exact id in campaign creation and submit;
-3. inspect browser roster/root-force state and the server-backed campaign/force representation;
+3. inspect browser roster/root-force state and the accepted server-backed campaign/force representation written by the production wizard submit path;
 4. cold reload dashboard, Forces, Mech Bay, and mission readiness; and
-5. reconcile the same roster-instance id and custom `unitRef` throughout while proving mission launch remains blocked.
+5. reconcile the same roster-instance id, custom `unitRef`, and source kind throughout while proving the custom row remains outside the launch selection.
 
 Screenshots cover visual and accessibility claims only. API responses, store snapshots, persisted campaign/force reads, and post-reload state prove identity and durability.
 
 ### D6 — Stop custom identity at the canonical combat boundary
 
-A saved custom `unitRef` SHALL remain valid campaign source identity but SHALL NOT be treated as a resolvable canonical combat record. Mission readiness SHALL keep the roster instance visible, mark it non-launchable with a per-unit canonical-combat-unavailable reason, and set the launch projection to blocked.
+A saved custom `unitRef` SHALL remain valid campaign source identity but SHALL NOT be treated as a resolvable canonical combat record. One shared predicate over persisted `unitSource` SHALL govern both mission readiness and materializer preflight. Mission readiness SHALL keep the roster instance visible, mark it non-launchable with a per-unit canonical-combat-unavailable reason, and block any selection containing it.
 
-The blocked path SHALL stop before encounter materialization and SHALL NOT create or mutate an encounter, launch force, or game session. It SHALL NOT replace the custom ref with a stock template. A later custom-combat wave may change this boundary only with its own adaptation and authority contract.
+Default mission selection SHALL exclude custom-blocked rows. An unselected custom row remains visible but cannot be selected; a stale or restored selected custom row remains operable only so the player can deselect it. A canonical-only selection in a mixed roster may proceed.
+
+Materializer preflight SHALL independently apply the same predicate before its first fetch, so stale state or direct invocation cannot bypass the UI. The blocked path SHALL NOT create or mutate an encounter, launch force, or game session and SHALL NOT replace the custom ref with a stock template. A later custom-combat wave may change this boundary only with its own adaptation and authority contract.
+
+### D7 — Creation success means accepted server persistence
+
+The production wizard submit path SHALL first commit the assembled campaign/roster/root-force state locally, then call the existing campaign persistence store and await an accepted server record. Success toast and dashboard navigation occur only after the server result is `saved` and contains the same campaign id, roster-instance id, custom `unitRef`, and `unitSource`.
+
+An error or unresolved conflict SHALL keep the player on an honest recovery surface, suppress success feedback/navigation, and offer a retry of the same campaign id rather than creating a duplicate campaign. Browser proof SHALL exercise this production path; test-only persistence helpers cannot satisfy the requirement.
 
 ## Risks / Trade-offs
 
@@ -80,7 +89,8 @@ The blocked path SHALL stop before encounter materialization and SHALL NOT creat
 - **[Risk] Duplicate design additions collapse into one campaign unit** → mint a fresh roster-instance id per add and test two instances sharing one `unitRef`.
 - **[Risk] A non-BattleMech custom record appears selectable** → filter at the adapter boundary and cover the exclusion with focused tests.
 - **[Risk] This wave appears to promise custom-unit combat** → require an explicit readiness blocker, prove that materialization never starts, and stop the trust anchor at that boundary.
+- **[Risk] Server persistence failure creates duplicate campaigns on retry** → retain the pending campaign id and retry only the persistence commit.
 
 ## Rollback
 
-Revert the focused UI/adapter/state changes. Campaigns created during the wave retain additive custom `unitRef` values and cached roster display fields; older code treats unresolved refs honestly and does not require a destructive migration.
+Revert the focused UI/adapter/state changes. Campaigns created during the wave retain additive custom `unitRef`, `unitSource`, and cached roster display fields; older code ignores the additive source field, treats unresolved refs honestly, and does not require a destructive migration.

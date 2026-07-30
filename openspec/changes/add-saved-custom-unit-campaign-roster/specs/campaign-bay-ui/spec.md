@@ -2,7 +2,7 @@
 
 ### Requirement: Mech Bay Page
 
-The system SHALL provide a Mech Bay page showing a roster-wide unit-status grid with damage state, repair-ticket count, combat-readiness, and drill-down to each unit's repair detail. Unit metadata SHALL resolve by the roster entry's stable `unitRef` from either the canonical index or saved-custom metadata. A missing or deleted source record SHALL remain visible through cached campaign identity and SHALL NOT be replaced with stock metadata.
+The system SHALL provide a Mech Bay page showing a roster-wide unit-status grid with damage state, repair-ticket count, combat-readiness, and drill-down to each unit's repair detail. Unit metadata SHALL resolve by the roster entry's persisted `unitSource` and stable `unitRef` from the canonical index or saved-custom metadata. A missing or deleted source record SHALL remain visible through cached campaign identity and SHALL NOT be replaced with stock metadata.
 
 #### Scenario: Mech Bay lists every roster unit
 
@@ -13,7 +13,7 @@ The system SHALL provide a Mech Bay page showing a roster-wide unit-status grid 
 
 #### Scenario: Saved custom unit resolves after cold reload
 
-- **GIVEN** a campaign roster entry whose `unitRef` is a saved custom-unit API id
+- **GIVEN** a campaign roster entry whose `unitSource` is `custom` and whose `unitRef` is a saved custom-unit API id
 - **WHEN** the player cold reloads and opens the Mech Bay
 - **THEN** the row SHALL resolve that saved design's name and tonnage from custom metadata
 - **AND** Battle Value SHALL be shown when supplied by that source or marked unavailable without borrowing a canonical value
@@ -21,7 +21,7 @@ The system SHALL provide a Mech Bay page showing a roster-wide unit-status grid 
 
 #### Scenario: Deleted custom source remains honest
 
-- **GIVEN** a campaign roster entry whose saved custom source can no longer be loaded
+- **GIVEN** a campaign roster entry marked `custom` whose saved source can no longer be loaded
 - **WHEN** the Mech Bay renders
 - **THEN** the roster row SHALL remain visible using its cached campaign name
 - **AND** source metadata SHALL be marked unavailable

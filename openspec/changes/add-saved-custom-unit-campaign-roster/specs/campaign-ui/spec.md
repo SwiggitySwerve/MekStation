@@ -2,7 +2,7 @@
 
 ### Requirement: Campaign Creation Wizard
 
-The system SHALL provide a multi-step campaign creation wizard with 4 steps: campaign type selection, preset selection, option customization, and summary/confirmation. The roster step SHALL expose the four representative canonical BattleMech templates and saved custom BattleMechs as separate named groups. Every selected roster instance SHALL carry a distinct campaign `unitId` and a stable source-design `unitRef`; a representative template's ref SHALL resolve in the canonical dataset, while a saved design's ref SHALL equal its custom-unit API id. Wizard-created pilots SHALL be registered in the pilot vault with distinct default names.
+The system SHALL provide a multi-step campaign creation wizard with 4 steps: campaign type selection, preset selection, option customization, and summary/confirmation. The roster step SHALL expose the four representative canonical BattleMech templates and saved custom BattleMechs as separate named groups. Every selected roster instance SHALL carry a distinct campaign `unitId`, a stable source-design `unitRef`, and a persisted `unitSource` discriminator; a representative template SHALL use `canonical` and a canonical-dataset ref, while a saved design SHALL use `custom` and its exact custom-unit API id. Wizard-created pilots SHALL be registered in the pilot vault with distinct default names.
 
 #### Scenario: Wizard step 1 - Campaign type selection
 
@@ -28,6 +28,7 @@ The system SHALL provide a multi-step campaign creation wizard with 4 steps: cam
 
 - **WHEN** the user adds a representative weight-class unit in the wizard roster step and creates the campaign
 - **THEN** the stored roster entry SHALL carry a `unitRef` that resolves in the canonical unit dataset
+- **AND** the stored roster entry's `unitSource` SHALL equal `canonical`
 - **AND** campaign surfaces SHALL show that unit's real name, weight, and available Battle Value
 
 #### Scenario: Saved custom BattleMech is added by stable reference
@@ -36,6 +37,7 @@ The system SHALL provide a multi-step campaign creation wizard with 4 steps: cam
 - **WHEN** the user activates that saved design in the wizard roster step
 - **THEN** the draft SHALL mint a new roster-instance `unitId`
 - **AND** the draft and submitted roster projection SHALL retain `<customId>` unchanged as `unitRef`
+- **AND** the draft and submitted roster projection SHALL retain `custom` as `unitSource`
 - **AND** no serialized construction payload SHALL be copied into campaign state
 
 #### Scenario: Two instances can reference one saved design
@@ -44,13 +46,22 @@ The system SHALL provide a multi-step campaign creation wizard with 4 steps: cam
 - **WHEN** the user adds it twice
 - **THEN** the two roster entries SHALL have distinct roster-instance `unitId` values
 - **AND** both entries SHALL retain the same saved-design `unitRef`
+- **AND** both entries SHALL retain `custom` as their source kind
 
 #### Scenario: Root force preserves the custom roster instance
 
 - **WHEN** a campaign containing a saved custom BattleMech is created
 - **THEN** the root force SHALL contain that roster entry's instance `unitId`
 - **AND** the roster SHALL retain the custom API id as `unitRef`
+- **AND** the roster SHALL retain `custom` as `unitSource`
 - **AND** the system SHALL NOT replace it with a representative canonical unit
+
+#### Scenario: Legacy roster projection keeps canonical compatibility
+
+- **GIVEN** a pre-change roster projection without `unitSource`
+- **WHEN** campaign persistence loads or migrates that projection
+- **THEN** it SHALL normalize to `canonical`
+- **AND** runtime code SHALL NOT infer source kind from unit name, tonnage, or id prefix
 
 #### Scenario: Saved-design source states remain recoverable
 

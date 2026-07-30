@@ -2,7 +2,7 @@
 
 ### Requirement: Saved Custom Unit Campaign Handoff Trust Anchor Journey
 
-Journey QC SHALL include a browser trust anchor that saves a customized canonical BattleMech, reads its server-issued custom-unit id, selects that exact saved design during campaign creation, and proves the same source identity through campaign roster/root-force persistence and cold-reloaded campaign surfaces. Screenshots SHALL support layout and accessibility inspection but SHALL NOT substitute for API, store, persisted campaign/force, or reload evidence.
+Journey QC SHALL include a browser trust anchor that saves a customized canonical BattleMech, reads its server-issued custom-unit id, selects that exact saved design during campaign creation, and proves the same source identity and source kind through production wizard submission, campaign roster/root-force server persistence, and cold-reloaded campaign surfaces. Screenshots SHALL support layout and accessibility inspection but SHALL NOT substitute for API, store, persisted campaign/force, or reload evidence.
 
 #### Scenario: Saved custom identity enters campaign creation
 
@@ -10,11 +10,13 @@ Journey QC SHALL include a browser trust anchor that saves a customized canonica
 - **WHEN** the custom-unit API returns `<customId>` and campaign creation loads Saved Designs
 - **THEN** the roster step SHALL expose a named control for that exact saved design
 - **AND** selecting it SHALL create a distinct roster-instance id whose `unitRef` equals `<customId>`
+- **AND** the selected draft entry's `unitSource` SHALL equal `custom`
 
 #### Scenario: Campaign and root force persist separate identities
 
-- **WHEN** the campaign is submitted with the saved custom BattleMech
-- **THEN** browser roster state and server-backed campaign persistence SHALL contain the same roster-instance id and `<customId>` source ref
+- **WHEN** the campaign is submitted with the saved custom BattleMech through the production wizard path
+- **THEN** the journey SHALL observe the wizard's real server PUT and accepted response without invoking a test-only persistence helper
+- **AND** browser roster state and server-backed campaign persistence SHALL contain the same roster-instance id, `<customId>` source ref, and `custom` source kind
 - **AND** root-force state SHALL contain the roster-instance id
 - **AND** no stock-template fallback id or copied construction payload SHALL appear
 
@@ -24,8 +26,9 @@ Journey QC SHALL include a browser trust anchor that saves a customized canonica
 - **THEN** each applicable surface SHALL reconcile to the same roster-instance id and `<customId>` source ref
 - **AND** the Mech Bay SHALL identify the saved design from custom metadata
 - **AND** mission readiness SHALL include the custom roster instance without replacing it with a stock unit
-- **AND** mission readiness SHALL name that instance's canonical-combat-unavailable reason and keep launch blocked
-- **AND** attempting to proceed SHALL create no encounter, launch force, or game session
+- **AND** mission readiness SHALL name that instance's canonical-combat-unavailable reason and mark the custom row non-launchable
+- **AND** the custom row SHALL remain unselected while canonical launch-capable rows remain selectable
+- **AND** no force/encounter request or game session mutation SHALL occur for the custom row
 
 #### Scenario: Visual and accessibility evidence is paired with authority proof
 
